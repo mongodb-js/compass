@@ -1,0 +1,153 @@
+<html>
+<head>
+<script src="../src/trie.js"></script>
+<script src="jquery-1.7.1.min.js"></script>
+<script src="mustache.js"></script>
+<script src="data.js"></script>
+<style>
+body {
+  font: 13px/1.5 Helvetica Neue, Arial, Helvetica, sans-serif;
+  line-height: 1em;
+  margin:0;
+  padding:0;
+  color:#333;
+}
+.ac-text-box {
+  width: 200px;
+  outline:0 none;
+  border:1px solid #aaa;
+  border-radius:3px;
+  padding:6px;
+  font-size:100%;
+  display:block;
+  z-index:0;
+  box-shadow:inset -2px 4px 4px -3px rgba(0,0,0,0.2);
+}
+.ac-text-box:focus {
+  border-color:rgba(82, 168, 236, 0.8);
+  box-shadow:0 0 4px rgba(0,0,0,0.2);
+}
+.ac-open {
+  border-radius: 3px 3px 0 0;
+}
+.ac-drop-down {
+  width: 198px;
+  display:block;
+  overflow:hidden;
+  list-style-type:none;
+  border:1px solid #ccc;
+  border-top:none;
+  box-shadow:0 2px 5px -2px rgba(0,0,0,0.3);
+  margin:0;
+  padding:0;
+  border-radius:0 0 4px 4px;
+  position:absolute;
+  z-index:100;
+  top:30px;
+}
+.ac-drop-down li {
+  display:block;
+  list-style-type:none;
+  padding:8px 6px;
+  margin:0;
+  background:#fff;
+}
+.ac-drop-down li:nth-child(even) {
+  background:#f5f5f5;
+}
+.ac-drop-down li .head {
+  display:block;
+  float:left;
+}
+.ac-drop-down li .sub {
+  font-size:90%;
+  display:block;
+  clear:both;
+  color:#999;
+}
+.ac-drop-down li .right {
+  float:right;
+}
+</style>
+</head>
+<body>
+<div style="margin:50px;position:relative;">
+<input type="text" id="simple-test" class="ac-text-box" placeholder="U.S states..." />
+<ul id="simple-test-ac" class="ac-drop-down" style="display:none;"></ul>
+</div>
+<div style="margin:50px;position:relative;">
+<input type="text" id="data-test" class="ac-text-box" placeholder="Cities by population..." />
+<ul id="data-test-ac" class="ac-drop-down" style="display:none;"></ul>
+</div>
+</body>
+<script>
+$(function() {
+
+  // Load simple data set into a trie
+  var simpleTest = new exports.Triejs();
+  for (var i = 0, ii = states.length; i < ii; i++) {
+    simpleTest.addWord(states[i], states[i]);
+  }
+  // register keypress handler to search trie
+  $('#simple-test').on('keyup focus', function() {
+    var $input = $('#simple-test')
+      , val = $input.val()
+      , responses = simpleTest.getPrefix(val)
+      , $acList = $('#simple-test-ac');
+    if (responses) {
+      $acList.html(Mustache.to_html(
+          "{{#responses}}<li>{{.}}</li>{{/responses}}"
+        , {responses: responses}
+      ));
+      $input.addClass('ac-open');
+      $acList.show();
+    } else {
+      $acList.hide();
+      $input.removeClass('ac-open');
+    }
+  }).on('blur', function() {
+    $('#simple-test-ac').hide();
+    $('#simple-test').removeClass('ac-open');
+  });
+
+
+  // load complex data set into trie with custom sorting options
+  var dataTest = new exports.Triejs({
+    // custom sorting function sorts the array of objects based on population
+    sort: function() {
+        this.sort(function(a, b) { return b.pop - a.pop; });
+    }
+    , copy: function(data) {
+      return jQuery.extend(true, [], data);
+    }
+  });
+  for (var i = 0, ii = cities.length; i < ii; i++) {
+    dataTest.addWord(cities[i].city, cities[i]);
+  }
+
+  // register keypress handler to search trie
+  $('#data-test').on('keyup focus', function() {
+    var val = $('#data-test').val()
+      , responses = dataTest.getPrefix(val)
+      , $acList = $('#data-test-ac');
+
+    if (responses) {
+      $acList.html(Mustache.to_html(
+        '{{#responses}}<li><span class="head">{{city}}</span>' + 
+        '<span class="right">{{popString}}</span>' + 
+        '<span class="sub">{{state}}</span></li>{{/responses}}'
+      , {responses: responses}
+      ));
+      $('#data-test').addClass('ac-open');
+      $acList.show();
+    } else {
+      $acList.hide();
+      $('#data-test').removeClass('ac-open');
+    }
+  }).on('blur', function() {
+    $('#data-test-ac').hide();
+    $('#data-test').removeClass('ac-open');
+  });
+});
+</script>
+</html>
