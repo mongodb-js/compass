@@ -19,11 +19,8 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 * SOFTWARE.
 */
-if (typeof exports === 'undefined') {
-  var exports = {};
-}
+(function() {
 
-(function(exports) {
   /**
   * @decription Trie class for saving data by keywords accessible through
   *   word prefixes
@@ -285,5 +282,18 @@ if (typeof exports === 'undefined') {
     }
   };
 
-  exports.Triejs = Triejs;
-})(exports);
+  //Export to CommonJS/Node format
+  if (typeof exports !== 'undefined') {
+    if (typeof module !== 'undefined' && module.exports) {
+      exports = module.exports = Triejs;
+    }
+    exports.Triejs = Triejs;
+  } else if (typeof define === 'function' && define.amd) {
+    define('triejs', function() {
+      return Triejs;
+    });
+  } else {
+    // no exports so attach to global
+    this['Triejs'] = Triejs;
+  }
+})(this);

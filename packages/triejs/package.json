@@ -1,9 +1,27 @@
 {
-  "name": "triejs"
-, "version": "0.0.2"
-, "author": "Paul Thurlow <pthurlow@yammer-inc.com>"
-, "repository": {
-    "type": "git"
-  , "url": "https://github.com/pthurlow/triejs.git"
+  "name": "triejs",
+  "version": "0.0.2",
+  "author": "Paul Thurlow",
+  "description": "Customizable trie data structure built in JavaScript.",
+  "keywords": [
+    "trie",
+    "autocomplete",
+    "dictionary",
+    "type ahead"
+  ],
+  "homepage": "http://pthurlow.github.com/triejs",
+  "contibutors": [],
+  "dependencies": {},
+  "scripts": {
+    "test": "node tests/vendor/suite.js"
+  },
+  "main": "src/trie.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/pthurlow/triejs.git"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": "*"
   }
 }
