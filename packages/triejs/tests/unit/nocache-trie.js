@@ -1,5 +1,5 @@
 foounit.require(':vendor/spec-helper');
-var Triejs = foounit.require(':src/trie').Triejs;
+var Triejs = foounit.require(':src/trie');
 
 /**
 * @description Test the cache disabled trie data implementation with
