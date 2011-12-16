@@ -1,0 +1,9 @@
+{
+  "name": "triejs"
+, "version": "0.0.2"
+, "author": "Paul Thurlow <pthurlow@yammer-inc.com>"
+, "repository": {
+    "type": "git"
+  , "url": "https://github.com/pthurlow/triejs.git"
+  }
+}

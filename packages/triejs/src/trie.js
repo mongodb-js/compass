@@ -33,7 +33,7 @@ if (typeof exports === 'undefined') {
 
     /**
     * @private
-    * @description options for trie implementation
+    * @description Options for trie implementation
     * @type {Object}
     */
     this.options = {
@@ -43,6 +43,12 @@ if (typeof exports === 'undefined') {
       * @type {Number}
       */
       maxCache: 10
+
+      /**
+      * @description Whether to handle caching on node levels
+      * @type {Boolean}
+      */
+      , enableCache: true
     
       /**
       * @description Insert function for adding new items to cache
@@ -94,7 +100,9 @@ if (typeof exports === 'undefined') {
       };
     }
     if (typeof this.options.sort != 'function') {
-      this.options.sort = function() {};
+      this.options.sort = function() {
+        this.sort();
+      };
     }
     if (typeof this.options.clip != 'function') {
       this.options.clip = function(max) {
@@ -119,7 +127,7 @@ if (typeof exports === 'undefined') {
     * @private
     */
     _addCacheData: function(curr, data) {
-      if (curr == this.root) {
+      if (curr == this.root || this.options.enableCache === false) {
         return; // safety check to not store cache at root level
       }
       if (!curr.data) {
@@ -146,7 +154,6 @@ if (typeof exports === 'undefined') {
       }
       curr[letter] = opts;
       curr[letter].data = this.options.insert.call(this, curr[letter].data, data);
-      //this.options.insert.call(this, curr[letter].data, data);
     }
 
     /**
@@ -186,6 +193,9 @@ if (typeof exports === 'undefined') {
           if (curr.suffix) {
             this._moveSuffix(curr.suffix, curr.data, curr);
             delete curr.suffix;
+            if (this.options.enableCache === false) {
+              delete curr.data;
+            }
           }
           // Current level has no sub letter after building suffix
           if (!curr[letter]) {
@@ -201,6 +211,9 @@ if (typeof exports === 'undefined') {
             if (curr[letter].suffix) {
               this._moveSuffix(curr[letter].suffix, curr[letter].data, curr[letter]);
               delete curr[letter].suffix;
+              if (this.options.enableCache === false) {
+                delete curr[letter].data;
+              }
             }
             this._addCacheData(curr[letter], data);
           }
@@ -233,7 +246,7 @@ if (typeof exports === 'undefined') {
         var letter = prefix.charAt(i);
         if (!curr[letter]) {
           if (curr.suffix && curr.suffix.indexOf(prefix.substring(i)) == 0) {
-            return curr.data;
+            return this.options.enableCache ? curr.data : this.getSubtree(curr);
           } else {
             return undefined;
           }
@@ -241,7 +254,7 @@ if (typeof exports === 'undefined') {
           curr = curr[letter];
         }
       }
-      return curr.data;
+      return this.options.enableCache ? curr.data : this.getSubtree(curr);
     }
 
     /**
@@ -257,7 +270,11 @@ if (typeof exports === 'undefined') {
         for (var newNode in node) {
           if (node.hasOwnProperty(newNode)) {
             if (newNode == 'data') {
-              res.push(node.data);
+              for (var i = 0, ii = node.data.length; i < ii; i++) {
+                res = this.options.insert.call(this, res, node.data[i]);
+                this.options.sort.call(res);
+                this.options.clip.call(res, this.options.maxCache);
+              }
             } else if (newNode != 'suffix') {
               nodeArray.push(node[newNode]);
             }

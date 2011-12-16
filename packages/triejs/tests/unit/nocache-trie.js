@@ -2,14 +2,14 @@ foounit.require(':vendor/spec-helper');
 var Triejs = foounit.require(':src/trie').Triejs;
 
 /**
-* @description Test the default trie data implementation with
-*   arrays of data stored at each node level
+* @description Test the cache disabled trie data implementation with
+*   data only stored at the suffix level
 */
-describe('When using a default trie', function (){
+describe('When using a trie with no cache', function (){
   var trie;
 
   before(function (){
-    trie = new Triejs();
+    trie = new Triejs({ enableCache: false });
   });
 
   after(function() {
@@ -96,6 +96,32 @@ describe('When using a default trie', function (){
     });
     it('it can be found in the trie with capitals', function (){
       expect(trie.getPrefix('Test')).to(equal, ['word']);
+    });
+  });
+
+  /**
+  * @description test returning results over the max cache amount
+  */
+  describe('and adding more words than the cache', function() {
+
+    before(function() {
+      trie.addWord('testone', 'one');
+      trie.addWord('testtwo', 'two');
+      trie.addWord('testthree', 'three');
+      trie.addWord('testfour', 'four');
+      trie.addWord('testfive', 'five');
+      trie.addWord('testsix', 'six');
+      trie.addWord('testseven', 'seven');
+      trie.addWord('testeight', 'eight');
+      trie.addWord('testnine', 'nine');
+      trie.addWord('testten', 'ten');
+      trie.addWord('testeleven', 'eleven');
+    })
+
+    it('it only returns the max number of results', function (){
+      expect(trie.getPrefix('t')).to(
+        equal
+        , ['eleven','five','four','nine','one','seven','six','ten','three','two']);
     });
   });
 });

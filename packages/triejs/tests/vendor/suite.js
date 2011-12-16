@@ -25,4 +25,5 @@ try {
 
 
 foounit.getSuite().addFile(':unit/basic-trie');
+foounit.getSuite().addFile(':unit/nocache-trie');
 foounit.getSuite().run();
