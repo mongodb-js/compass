@@ -25,6 +25,7 @@
   * @decription Trie class for saving data by keywords accessible through
   *   word prefixes
   * @class
+  * @version 0.1.0
   */
   var Triejs = function(opts) {
 
@@ -52,7 +53,13 @@
       * @type {Boolean}
       */
       , insertOrder: false
-    
+
+      /**
+      * @description Return responses from root when requests is empty
+      * @type {Boolean}
+      */
+      , returnRoot: false
+
       /**
       * @description Insert function for adding new items to cache
       * @type {Function}
@@ -78,7 +85,7 @@
       , copy: null
 
       /**
-      * @description merge to data sets together
+      * @description Merge function to merge two data sets together
       * @type {Function}
       */
       , merge: null
@@ -90,6 +97,12 @@
     * @type {Object}
     */
     this.root = {};
+
+    /**
+    * @private
+    * @description insert order index
+    * @type {Number}
+    */
     this.index = 0;
 
     // mixin optional override options
@@ -101,7 +114,10 @@
 
     if (typeof this.options.insert != 'function') {
       this.options.insert = function(target, data) {
-        if (this.options.insertOrder && typeof data.d === 'undefined' && typeof data.o === 'undefined') {
+        // if maintaining insert ordering add a order index on insert
+        if (this.options.insertOrder 
+          && typeof data.d === 'undefined' 
+          && typeof data.o === 'undefined') {
           data = { d: data, o: this.index++ };
         }
         if (target && target.length) {
@@ -112,13 +128,15 @@
         return target;
       };
     }
-    if (typeof this.options.sort != 'function' && !this.options.insertOrder) {
-      this.options.sort = function() {
-        this.sort();
-      };
-    } else if (typeof this.options.sort != 'function' && this.options.insertOrder) {
-      this.options.sort = function() {
-        this.sort(function(a, b) { return a.o - b.o; });
+    if (typeof this.options.sort != 'function') {
+      if (!this.options.insertOrder) {
+        this.options.sort = function() {
+          this.sort();
+        };
+      } else if (this.options.insertOrder) {
+        this.options.sort = function() {
+          this.sort(function(a, b) { return a.o - b.o; });
+        }
       }
     }
     if (typeof this.options.clip != 'function') {
@@ -147,6 +165,10 @@
 
   Triejs.prototype = {
 
+    /*-------------------------------------------------------------------------
+    * Private Functions
+    -------------------------------------------------------------------------*/
+
     /**
     * @description Add data to the current nodes cache
     * @param curr {Object} current node in trie
@@ -154,8 +176,9 @@
     * @private
     */
     _addCacheData: function(curr, data) {
-      if (curr == this.root || this.options.enableCache === false) {
-        return; // safety check to not store cache at root level
+      if ((this.root === curr && !this.options.returnRoot) 
+        || this.options.enableCache === false) {
+        return;
       }
       if (!curr.$d) {
         curr.$d = {};
@@ -206,11 +229,62 @@
     }
 
     /**
+    * @description Get data from a given node, either in the cache
+    *   or by parsing the subtree
+    * @param node {Object} The node to get data from
+    * @return {Array|Object} data results
+    */
+    , _getDataAtNode: function(node) {
+      var data;
+
+      if (this.options.enableCache) {
+        data = node.$d;
+      } else {
+        data = this._getSubtree(node);
+      }
+      if (this.options.insertOrder) {
+        var temp = [];
+        for (var i = 0, ii = data.length; i < ii; i++) {
+          temp.push(data[i].d);
+        }
+        data = temp;
+      }
+      return data ? this.options.copy(data) : undefined;
+    }
+
+    /**
+    * @description Get the subtree data of a trie traversing depth first
+    * @param curr {Object} current node in the trie to get data under
+    * @return {Object} data from the subtree
+    */
+    , _getSubtree: function(curr) {
+      var res = []
+        , nodeArray = [curr]
+        , node;
+      while (node = nodeArray.pop()) {
+        for (var newNode in node) {
+          if (node.hasOwnProperty(newNode)) {
+            if (newNode == '$d') {
+              res = this.options.merge.call(this, res, node.$d);
+            } else if (newNode != '$s') {
+              nodeArray.push(node[newNode]);
+            }
+          }
+        }
+      }
+      return res;
+    }
+
+    /*-------------------------------------------------------------------------
+    * Public Functions
+    -------------------------------------------------------------------------*/
+
+    /**
     * @description Adds a word into the trie
     * @param word {String} word to add
     * @param data {Object} data to store under given term
     */
-    , addWord: function(word, data) {
+    , add: function(word, data) {
       if (typeof word != 'string') { return false; }
       if (arguments.length == 1) { data = word; }
       word = word.toLowerCase();
@@ -271,8 +345,9 @@
     * @param prefix {String} string of the prefix of a word
     * @return {Object} data for the given prefix
     */
-    , getPrefix: function(prefix) {
+    , find: function(prefix) {
       if (typeof prefix !== 'string') { return undefined; }
+      if (prefix == '' && !this.options.returnRoot) { return undefined; }
       prefix = prefix.toLowerCase();
 
       var curr = this.root;
@@ -289,53 +364,6 @@
         }
       }
       return this._getDataAtNode(curr);
-    }
-
-    /**
-    * @description Get data from a given node, either in the cache
-    *   or by parsing the subtree
-    * @param node {Object} The node to get data from
-    * @return {Array|Object} data results
-    */
-    , _getDataAtNode: function(node) {
-      var data;
-
-      if (this.options.enableCache) {
-        data = node.$d;
-      } else {
-        data = this.getSubtree(node);
-      }
-      if (this.options.insertOrder) {
-        var temp = [];
-        for (var i = 0, ii = data.length; i < ii; i++) {
-          temp.push(data[i].d);
-        }
-        data = temp;
-      }
-      return this.options.copy(data);
-    }
-
-    /**
-    * @description Get the subtree data of a trie
-    * @param curr {Object} current node in the trie to get data under
-    * @return {Object} data from the subtree
-    */
-    , getSubtree: function(curr) {
-      var res = []
-        , nodeArray = [curr]
-        , node;
-      while (node = nodeArray.pop()) {
-        for (var newNode in node) {
-          if (node.hasOwnProperty(newNode)) {
-            if (newNode == '$d') {
-              res = this.options.merge.call(this, res, node.$d);
-            } else if (newNode != '$s') {
-              nodeArray.push(node[newNode]);
-            }
-          }
-        }
-      }
-      return res;
     }
   };
 

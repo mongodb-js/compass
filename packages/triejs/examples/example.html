@@ -1,9 +1,13 @@
 <html>
 <head>
-<script src="../src/trie.js"></script>
-<script src="jquery-1.7.1.min.js"></script>
-<script src="mustache.js"></script>
-<script src="data.js"></script>
+<title>Triejs Examples</title>
+<script type="text/javascript" src="../src/trie.js"></script>
+<script type="text/javascript" src="lib/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="lib/mustache.js"></script>
+<script type="text/javascript" src="lib/underscore-1.2.3.js"></script>
+<script type="text/javascript" src="lib/backbone-0.5.3.js"></script>
+<script type="text/javascript" src="data.js"></script>
+<script type="text/javascript" src="dict.js"></script>
 <style>
 body {
   font: 13px/1.5 Helvetica Neue, Arial, Helvetica, sans-serif;
@@ -27,9 +31,7 @@ body {
   border-color:rgba(82, 168, 236, 0.8);
   box-shadow:0 0 4px rgba(0,0,0,0.2);
 }
-.ac-open {
-  border-radius: 3px 3px 0 0;
-}
+.ac-open { border-radius: 3px 3px 0 0; }
 .ac-drop-down {
   width: 198px;
   display:block;
@@ -45,29 +47,13 @@ body {
   z-index:100;
   top:30px;
 }
-.ac-drop-down li {
-  display:block;
-  list-style-type:none;
-  padding:8px 6px;
-  margin:0;
-  background:#fff;
-}
-.ac-drop-down li:nth-child(even) {
-  background:#f5f5f5;
-}
-.ac-drop-down li .head {
-  display:block;
-  float:left;
-}
-.ac-drop-down li .sub {
-  font-size:90%;
-  display:block;
-  clear:both;
-  color:#999;
-}
-.ac-drop-down li .right {
-  float:right;
-}
+li { display:block; list-style-type:none; }
+.ac-drop-down li { padding:8px 6px; margin:0; background:#fff; }
+.ac-drop-down li:nth-child(even) { background:#f5f5f5; }
+.ac-drop-down li:last-child { border-radius: 0 0 3px 3px; }
+.ac-drop-down li .head { display:block; float:left; }
+.ac-drop-down li .sub { font-size:90%; display:block; clear:both; color:#999; }
+.ac-drop-down li .right { float:right; }
 </style>
 </head>
 <body>
@@ -84,15 +70,15 @@ body {
 $(function() {
 
   // Load simple data set into a trie
-  var simpleTest = new exports.Triejs();
+  var simpleTest = new Triejs();
   for (var i = 0, ii = states.length; i < ii; i++) {
-    simpleTest.addWord(states[i], states[i]);
+    simpleTest.add(states[i]);
   }
   // register keypress handler to search trie
   $('#simple-test').on('keyup focus', function() {
     var $input = $('#simple-test')
       , val = $input.val()
-      , responses = simpleTest.getPrefix(val)
+      , responses = simpleTest.find(val)
       , $acList = $('#simple-test-ac');
     if (responses) {
       $acList.html(Mustache.to_html(
@@ -112,7 +98,7 @@ $(function() {
 
 
   // load complex data set into trie with custom sorting options
-  var dataTest = new exports.Triejs({
+  var dataTest = new Triejs({
     // custom sorting function sorts the array of objects based on population
     sort: function() {
         this.sort(function(a, b) { return b.pop - a.pop; });
@@ -122,13 +108,13 @@ $(function() {
     }
   });
   for (var i = 0, ii = cities.length; i < ii; i++) {
-    dataTest.addWord(cities[i].city, cities[i]);
+    dataTest.add(cities[i].city, cities[i]);
   }
 
   // register keypress handler to search trie
   $('#data-test').on('keyup focus', function() {
     var val = $('#data-test').val()
-      , responses = dataTest.getPrefix(val)
+      , responses = dataTest.find(val)
       , $acList = $('#data-test-ac');
 
     if (responses) {
@@ -148,6 +134,7 @@ $(function() {
     $('#data-test-ac').hide();
     $('#data-test').removeClass('ac-open');
   });
+
 });
 </script>
 </html>

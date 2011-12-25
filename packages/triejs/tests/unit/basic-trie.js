@@ -22,44 +22,44 @@ describe('When using a default trie', function (){
   describe('and adding a word', function() {
 
     before(function() {
-      trie.addWord('test', 'word');
+      trie.add('test', 'word');
     })
 
     it('it exists in the trie', function (){
-      expect(trie.getPrefix('test')).to(equal, ['word']);
+      expect(trie.find('test')).to(equal, ['word']);
     });
 
     it('it can be retrieved by prefix', function (){
-      expect(trie.getPrefix('t')).to(equal, ['word']);
-      expect(trie.getPrefix('te')).to(equal, ['word']);
-      expect(trie.getPrefix('tes')).to(equal, ['word']);
+      expect(trie.find('t')).to(equal, ['word']);
+      expect(trie.find('te')).to(equal, ['word']);
+      expect(trie.find('tes')).to(equal, ['word']);
     });
 
     it('it is not found when using incorrect prefix', function (){
-      expect(trie.getPrefix('wrong')).toNot(equal, ['word']);
-      expect(trie.getPrefix('wrong')).to(beUndefined);
+      expect(trie.find('wrong')).toNot(equal, ['word']);
+      expect(trie.find('wrong')).to(beUndefined);
     });
 
     it('it is not found when using non string prefix', function (){
-      expect(trie.getPrefix(true)).to(beUndefined);
-      expect(trie.getPrefix(1)).to(beUndefined);
-      expect(trie.getPrefix(function() {})).to(beUndefined);
-      expect(trie.getPrefix(null)).to(beUndefined);
-      expect(trie.getPrefix(undefined)).to(beUndefined);
+      expect(trie.find(true)).to(beUndefined);
+      expect(trie.find(1)).to(beUndefined);
+      expect(trie.find(function() {})).to(beUndefined);
+      expect(trie.find(null)).to(beUndefined);
+      expect(trie.find(undefined)).to(beUndefined);
     });
   });
 
   /**
-  * @description test for invalid input to addWord function
+  * @description test for invalid input to add function
   */
   describe('and adding a non string word', function() {
 
     before(function() {
-      trie.addWord(1, 'word');
-      trie.addWord(false, 'word');
-      trie.addWord(function() {}, 'word');
-      trie.addWord(null, 'word');
-      trie.addWord(undefined, 'word');
+      trie.add(1, 'word');
+      trie.add(false, 'word');
+      trie.add(function() {}, 'word');
+      trie.add(null, 'word');
+      trie.add(undefined, 'word');
     })
 
     it('it adds nothing to the trie', function (){
@@ -73,11 +73,11 @@ describe('When using a default trie', function (){
   describe('and adding a word without data', function() {
 
     before(function() {
-      trie.addWord('word');
+      trie.add('word');
     })
 
     it('it adds the word as the data', function (){
-      expect(trie.getPrefix('w')).to(equal, ['word']);
+      expect(trie.find('w')).to(equal, ['word']);
     });
   });
 
@@ -87,12 +87,12 @@ describe('When using a default trie', function (){
   describe('and adding two words', function() {
 
     before(function() {
-      trie.addWord('test', 'word');
-      trie.addWord('testing', 'another word');
+      trie.add('test', 'word');
+      trie.add('testing', 'another word');
     })
 
     it('they exist in the trie', function (){
-      expect(trie.getPrefix('test')).to(equal, ['another word', 'word']);
+      expect(trie.find('test')).to(equal, ['another word', 'word']);
     });
   });
 
@@ -102,14 +102,14 @@ describe('When using a default trie', function (){
   describe('and adding a word with capitals', function() {
 
     before(function() {
-      trie.addWord('Test', 'word');
+      trie.add('Test', 'word');
     })
 
     it('it can be found in the trie', function (){
-      expect(trie.getPrefix('test')).to(equal, ['word']);
+      expect(trie.find('test')).to(equal, ['word']);
     });
     it('it can be found in the trie with capitals', function (){
-      expect(trie.getPrefix('Test')).to(equal, ['word']);
+      expect(trie.find('Test')).to(equal, ['word']);
     });
   });
 
@@ -119,13 +119,13 @@ describe('When using a default trie', function (){
   describe('and modifying an added word', function() {
 
     before(function() {
-      trie.addWord('test', 'word');
+      trie.add('test', 'word');
     })
 
     it('it does not modify the word in the tree', function (){
-      var words = trie.getPrefix('test');
+      var words = trie.find('test');
       words[0] = 'new';
-      expect(trie.getPrefix('test')).to(equal, ['word']);
+      expect(trie.find('test')).to(equal, ['word']);
     });
   });
 
@@ -135,11 +135,11 @@ describe('When using a default trie', function (){
   describe('and adding a word with unicode characters', function() {
 
     before(function() {
-      trie.addWord('test\\u0B9x\\u0D9x\\u091x', 'word');
+      trie.add('test\\u0B9x\\u0D9x\\u091x', 'word');
     })
 
     it('it is found in the trie', function (){
-      expect(trie.getPrefix('test\\u0B9x')).to(equal, ['word']);
+      expect(trie.find('test\\u0B9x')).to(equal, ['word']);
     });
   });
 
@@ -149,12 +149,12 @@ describe('When using a default trie', function (){
   describe('and adding a word with unicode characters and splitting on unicode chars', function() {
 
     before(function() {
-      trie.addWord('test\\u0B9x\\u0D9x\\u091x', 'word');
-      trie.addWord('test\\u0B9x\\u0D9x', 'another word');
+      trie.add('test\\u0B9x\\u0D9x\\u091x', 'word');
+      trie.add('test\\u0B9x\\u0D9x', 'another word');
     })
 
     it('it is found in the trie', function (){
-      expect(trie.getPrefix('test\\u0B9x')).to(equal, ['another word','word']);
+      expect(trie.find('test\\u0B9x')).to(equal, ['another word','word']);
     });
   });
 
@@ -164,21 +164,21 @@ describe('When using a default trie', function (){
   describe('and adding more words than the cache', function() {
 
     before(function() {
-      trie.addWord('testone', 'one');
-      trie.addWord('testtwo', 'two');
-      trie.addWord('testthree', 'three');
-      trie.addWord('testfour', 'four');
-      trie.addWord('testfive', 'five');
-      trie.addWord('testsix', 'six');
-      trie.addWord('testseven', 'seven');
-      trie.addWord('testeight', 'eight');
-      trie.addWord('testnine', 'nine');
-      trie.addWord('testten', 'ten');
-      trie.addWord('testeleven', 'eleven');
+      trie.add('testone', 'one');
+      trie.add('testtwo', 'two');
+      trie.add('testthree', 'three');
+      trie.add('testfour', 'four');
+      trie.add('testfive', 'five');
+      trie.add('testsix', 'six');
+      trie.add('testseven', 'seven');
+      trie.add('testeight', 'eight');
+      trie.add('testnine', 'nine');
+      trie.add('testten', 'ten');
+      trie.add('testeleven', 'eleven');
     })
 
     it('it only returns the max number of results', function (){
-      expect(trie.getPrefix('t')).to(
+      expect(trie.find('t')).to(
         equal
         , ['eight','eleven','five','four','nine','one','seven','six','ten','three']);
     });
