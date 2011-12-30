@@ -49,26 +49,46 @@ self.addEventListener('message', function(e) {
     trieSimple.add(dictionary[i]);
   }
   t2 = new Date();
+  trie1 = 1000*((t2.getTime() - t1.getTime()) / length);
+
+  // No Cache simple trie lookup
+  ///////////////////////////////
+  t1 = new Date();
+  for (var i = 0, ii = dictionary.length; i < ii; i += step) {
+    trieSimple.find(dictionary[i]);
+  }
+  t2 = new Date();
+  trie3 = 1000*((t2.getTime() - t1.getTime()) / length);
 
   // No cache complex trie insert
   ////////////////////////////////
-  t3 = new Date();
+  t1 = new Date();
   for (var i = 0, ii = dictionary.length; i < ii; i += step) {
     trieComplex.add(
       dictionary[i]
       , { test:'data', more:'data', yetmore: 'data', name: dictionary[i] }
     );
   }
-  t4 = new Date();
+  t2 = new Date();
+  trie2 = 1000*((t2.getTime() - t1.getTime()) / length);
 
-  trie1 = 1000*((t2.getTime() - t1.getTime()) / length);
-  trie2 = 1000*((t4.getTime() - t3.getTime()) / length);
+  // No Cache complex trie lookup
+  ////////////////////////
+  t1 = new Date();
+  for (var i = 0, ii = dictionary.length; i < ii; i += step) {
+    trieComplex.find(dictionary[i]);
+  }
+  t2 = new Date();
+  trie4 = 1000*((t2.getTime() - t1.getTime()) / length);
+
   size1 = approxSize(trieSimple.root);
   size2 = approxSize(trieComplex.root);
+  delete trieSimple.root;
+  delete trieComplex.root;
 
   // Simple hash insert
   //////////////////////
-  t5 = new Date();
+  t1 = new Date();
   for (var i = 0, ii = dictionary.length; i < ii; i += step) {
     var tempword = dictionary[i];
     for (var j = 0, jj = tempword.length+1; j < jj; j++) {
@@ -80,11 +100,23 @@ self.addEventListener('message', function(e) {
       }
     }
   }
-  t6 = new Date();
+  t2 = new Date();
+  hash1 = 1000*((t2.getTime() - t1.getTime()) / length);
+
+  // Simple hash lookup
+  ////////////////////////////////
+  t1 = new Date();
+  for (var i = 0, ii = dictionary.length; i < ii; i += step) {
+    hashSimple.root[dictionary[i]].slice(0);
+  }
+  t2 = new Date();
+  hash3 = 1000*((t2.getTime() - t1.getTime()) / length);
+  size3 = approxSize(hashSimple.root);
+  delete hashSimple.root;
 
   // Complex hash insert
   ///////////////////////
-  t7 = new Date();
+  t1 = new Date();
   for (var i = 0, ii = dictionary.length; i < ii; i += step) {
     var tempword = dictionary[i];
     for (var j = 0, jj = tempword.length+1; j < jj; j++) {
@@ -94,55 +126,24 @@ self.addEventListener('message', function(e) {
           { test:'data', more:'data', yetmore: 'data', name: dictionary[i] }
         );
       } else if (!hashComplex.root[prefix]){
-        hashComplex.root[prefix] = [
-          { test:'data', more:'data', yetmore: 'data', name: dictionary[i] }
-        ];
+        hashComplex.root[prefix] = [{ test: 'data', more: 'data', yetmore: 'data', name: dictionary[i] }];
       }
     }
   }
-  t8 = new Date();
-
-  hash1 = 1000*((t6.getTime() - t5.getTime()) / length);
-  hash2 = 1000*((t8.getTime() - t7.getTime()) / length);
-  size3 = approxSize(hashSimple.root);
-  size4 = approxSize(hashComplex.root);
-
-  // No Cache simple trie lookup
-  ////////////////////////
-  t1 = new Date();
-  for (var i = 0, ii = dictionary.length; i < ii; i += step) {
-    trieSimple.find(dictionary[i]);
-  }
   t2 = new Date();
-
-  // No Cache complex trie lookup
-  ////////////////////////
-  t3 = new Date();
-  for (var i = 0, ii = dictionary.length; i < ii; i += step) {
-    trieComplex.find(dictionary[i]);
-  }
-  t4 = new Date();
-
-  // Simple hash lookup
-  ////////////////////////////////
-  t5 = new Date();
-  for (var i = 0, ii = dictionary.length; i < ii; i += step) {
-    hashSimple.root[dictionary[i]].slice(0);
-  }
-  t6 = new Date();
+  hash2 = 1000*((t2.getTime() - t1.getTime()) / length);
 
   // Complex hash lookup
   ////////////////////////////////
-  t7 = new Date();
+  t1 = new Date();
   for (var i = 0, ii = dictionary.length; i < ii; i += step) {
     hashComplex.root[dictionary[i]].slice(0);
   }
-  t8 = new Date();
+  t2 = new Date();
+  hash4 = 1000*((t2.getTime() - t1.getTime()) / length);
+  size4 = approxSize(hashComplex.root);
+  delete hashComplex.root;
 
-  trie3 = 1000*((t2.getTime() - t1.getTime()) / length);
-  trie4 = 1000*((t4.getTime() - t3.getTime()) / length);
-  hash3 = 1000*((t6.getTime() - t5.getTime()) / length);
-  hash4 = 1000*((t8.getTime() - t7.getTime()) / length);
   trie1 = Math.round(trie1*10)/10;
   trie2 = Math.round(trie2*10)/10;
   trie3 = Math.round(trie3*10)/10;
@@ -153,17 +154,17 @@ self.addEventListener('message', function(e) {
   hash4 = Math.round(hash4*10)/10;
 
   postMessage({
-    trie1: trie1
-    , trie2: trie2
-    , trie3: trie3
-    , trie4: trie4
-    , hash1: hash1
-    , hash2: hash2
-    , hash3: hash3
-    , hash4: hash4
-    , size1: size1
-    , size2: size2
-    , size3: size3
-    , size4: size4
+    'trie1': trie1
+    , 'trie2': trie2
+    , 'trie3': trie3
+    , 'trie4': trie4
+    , 'hash1': hash1
+    , 'hash2': hash2
+    , 'hash3': hash3
+    , 'hash4': hash4
+    , 'size1': size1
+    , 'size2': size2
+    , 'size3': size3
+    , 'size4': size4
   });
 }, false);

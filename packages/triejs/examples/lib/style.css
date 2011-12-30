@@ -50,6 +50,21 @@ header h1 span {
   text-decoration: none;
   background: #E6E6E6;
 }
+.worker-on {
+  margin:30px 0 0 0;
+  border-radius:3px 0 0 3px;
+  border-right:none;
+  float:left;
+}
+.worker-off {
+  margin:30px 0 0 0;
+  border-radius:0 3px 3px 0;
+  float:left;
+}
+.worker-on:hover,
+.worker-off:hover {
+  background:#D6D6D6;
+}
 .ac-text-box {
   width: 200px;
   outline:0 none;
@@ -158,6 +173,26 @@ li, ul { display:block; list-style-type:none; margin:0; padding:0; }
 .perf-btn span {
   font-size:13px;
   color:#777;
+}
+.selected {
+  background:#D6D6D6;
+  background-image: -webkit-linear-gradient(#D6D6D6, #D6D6D6 25%, #E6E6E6);
+  background-image: -moz-linear-gradient(top, #D6D6D6, #D6D6D6 25%, #E6E6E6);
+  background-image: -ms-linear-gradient(#D6D6D6, #D6D6D6 25%, #E6E6E6);
+  background-image: -o-linear-gradient(#D6D6D6, #D6D6D6 25%, #E6E6E6);
+  background-image: linear-gradient(#D6D6D6, #D6D6D6 25%, #E6E6E6);
+}
+.disabled {
+  cursor:default;
+  background:#eee;
+  color:#bbb;
+  border-color:#CCC;
+  border-bottom-color:#BBB;
+}
+.disabled:hover {
+  background:#eee;
+  border-color:#CCC;
+  border-bottom-color:#BBB;
 }
 .results .selected {
   background:#ddd;

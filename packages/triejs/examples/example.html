@@ -39,7 +39,7 @@
       <ul id="backbone-alert"></ul>
       <p>You can use Triejs to enhance an existing data model.  Easily plug in <a href="http://documentcloud.github.com/backbone">Backbone.js</a> models by binding to a collections add events.  Then store the ids or cids for referencing later during a find.  In this example, we fake new models being added to a collection from a backend service, represented by the green models.</p>
       </div>
-      <h1>Performance Tests</h1>
+      <h1 style="float:left;">Performance Tests</h1><span style="float:left;margin:35px 10px 0;line-height:1.3em;color:#777;">Web Workers</span><button class="btn worker-on selected">On</button><button class="btn worker-off">Off</button>
       <div class="results">
         <button class="perf-btn size20 first">Run Test <span>20k words</span></button>
         <button class="perf-btn size40">Run Test <span>40k words</span></button>
@@ -261,6 +261,34 @@ $(function() {
   // Performance tests
   /////////////////////////////////////////////////////////////////////////////
 
+  // check if web workers exist
+  var workerTest;
+  try {
+    workerTest = new Worker('lib/perf-task.js');
+  } catch(e) {
+    $('.worker-on').removeClass('selected');
+    $('.worker-on').addClass('disabled');
+    $('.worker-off').addClass('selected');
+  }
+  if (!workerTest) {
+    $('.worker-on').removeClass('selected');
+    $('.worker-on').addClass('disabled');
+    $('.worker-off').addClass('selected');
+  }
+
+  $('.worker-on').on('click', function(e) {
+    if (!$(this).hasClass('disabled')) {
+      $(this).addClass('selected');
+      $('.worker-off').removeClass('selected');
+    }
+  });
+  $('.worker-off').on('click', function(e) {
+    if (!$(this).hasClass('disabled')) {
+      $(this).addClass('selected');
+      $('.worker-on').removeClass('selected');
+    }
+  });
+
   $('.results').delegate('button', 'click', function(e) {
 
     var step = 1
@@ -286,7 +314,7 @@ $(function() {
     }
 
     // Try and run as a web worker
-    if (perfTest) {
+    if (perfTest && $('.worker-on').hasClass('selected')) {
       perfTest.addEventListener('message', appendGraphs, false);
       perfTest.postMessage(step);
     } else {
