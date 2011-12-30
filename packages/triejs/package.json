@@ -1,6 +1,6 @@
 {
   "name": "triejs",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "Paul Thurlow",
   "description": "Customizable trie data structure built in JavaScript.",
   "keywords": [
