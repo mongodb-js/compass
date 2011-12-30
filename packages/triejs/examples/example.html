@@ -217,6 +217,7 @@ $(function() {
   * @description creates graphs of the passed data
   */
   function appendGraphs(e) {
+    $('#speed-table, #size-table').remove();
     $('.results').append(Mustache.to_html(
       '<table id="speed-table" style="display:none;"><thead><tr><td></td>{{#groups}}<th>{{.}}</th>{{/groups}}</tr></thead>' +
       '<tbody>{{#types}}<tr><th scope="row">{{name}}</th>{{#results}}<td>{{.}}</td>{{/results}}</tr>{{/types}}</tbody></table>'
