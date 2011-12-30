@@ -13,13 +13,13 @@ Creating a trie is as easy as creating a new object:
     > var Triejs = require('triejs');
     > var trie = new Triejs();
 
-To add a word with some data associated it call `addWord`:
+To add a word with some data associated it call `add`:
 
-    > trie.addWord(<word>, <data>);
+    > trie.add(<word>, <data>);
 
-Now given any prefix of letters, you can return results possible words using `getPrefix`:
+Now given any prefix of letters, you can return results possible words using `find`:
 
-    > trie.getPrefix(<word>);
+    > trie.find(<word>);
       => <data>
 
 ###Advanced
@@ -50,6 +50,10 @@ Options are passed via the constructor as a hash like so:
       // return a copy of data
       , copy: function(data) {
         // override and return new data for non array implementation
+      }
+      // merge data into target and return target
+      , merge: function(target, data) {
+        // override and return target with data merged in
       }
     });
 
