@@ -47,6 +47,42 @@ describe('When using a trie with no cache', function (){
       expect(trie.find(null)).to(beUndefined);
       expect(trie.find(undefined)).to(beUndefined);
     });
+
+    it('it can be found using contains', function() {
+      expect(trie.contains('test')).to(be, true);
+      expect(trie.contains('t')).to(be, false);
+    });
+
+    /**
+    * @description test removing a single word
+    */
+    describe('and removing the word', function() {
+
+      before(function() {
+        trie.remove('test');
+      });
+
+      it('it is not in the trie', function() {
+        expect(trie.find('t')).to(beUndefined);
+        expect(trie.find('test')).to(beUndefined);
+      });
+
+      it('it cannot be found using contains', function() {
+        expect(trie.contains('test')).to(be, false);
+        expect(trie.contains('t')).to(be, false);
+      });
+    });
+
+    /**
+    * @description test removing a word not in the trie
+    */
+    describe('and removing a non existent word', function() {
+      
+      it('it is still in the trie', function() {
+        trie.remove('te');
+        expect(trie.find('t')).to(equal, ['word']);
+      });
+    });
   });
 
   /**
@@ -93,6 +129,39 @@ describe('When using a trie with no cache', function (){
 
     it('they exist in the trie', function (){
       expect(trie.find('test')).to(equal, ['another word', 'word']);
+    });
+
+    it('they are found using contains', function (){
+      expect(trie.contains('test')).to(be, true);
+      expect(trie.contains('testing')).to(be, true);
+      expect(trie.contains('tes')).to(be, false);
+      expect(trie.contains('testi')).to(be, false);
+    });
+
+    /**
+    * @description test removing a word
+    */
+    describe('and removing one word', function() {
+
+      it('it no longer exists', function() {
+        trie.remove('test');
+        expect(trie.find('tes')).to(equal, ['another word']);
+        expect(trie.find('test')).to(equal, ['another word']);
+        expect(trie.find('testi')).to(equal, ['another word']);
+      });
+    });
+
+    /**
+    * @description test removing a word
+    */
+    describe('and removing the other word', function() {
+
+      it('it no longer exists', function() {
+        trie.remove('testing');
+        expect(trie.find('tes')).to(equal, ['word']);
+        expect(trie.find('test')).to(equal, ['word']);
+        expect(trie.find('testi')).to(beUndefined);
+      });
     });
   });
 
@@ -150,11 +219,11 @@ describe('When using a trie with no cache', function (){
   describe('and adding a word with unicode characters', function() {
 
     before(function() {
-      trie.add('test\\u0B9x\\u0D9x\\u091x', 'word');
+      trie.add('test\u0B9x\u0D9x\u091x', 'word');
     })
 
     it('it is found in the trie', function (){
-      expect(trie.find('test\\u0B9x')).to(equal, ['word']);
+      expect(trie.find('test\u0B9x')).to(equal, ['word']);
     });
   });
 
@@ -164,13 +233,12 @@ describe('When using a trie with no cache', function (){
   describe('and adding a word with unicode characters and splitting on unicode chars', function() {
 
     before(function() {
-      trie.add('test\\u0B9x\\u0D9x\\u091x', 'word');
-      debugger
-      trie.add('test\\u0B9x\\u0D9x', 'another word');
+      trie.add('test\u0B9x\u0D9x\u091x', 'word');
+      trie.add('test\u0B9x\u0D9x', 'another word');
     })
 
     it('it is found in the trie', function (){
-      expect(trie.find('test\\u0B9x')).to(equal, ['another word','word']);
+      expect(trie.find('test\u0B9x')).to(equal, ['another word','word']);
     });
   });
 

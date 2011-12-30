@@ -25,7 +25,7 @@
   * @decription Trie class for saving data by keywords accessible through
   *   word prefixes
   * @class
-  * @version 0.1.0
+  * @version 0.1.1
   */
   var Triejs = function(opts) {
 
@@ -338,6 +338,78 @@
           curr = curr[letter];
         }
       }
+    }
+
+    /**
+    * @description remove a word from the trie if there is no caching
+    * @param word {String} word to remove from the trie
+    */
+    , remove: function(word) {
+      if (typeof word !== 'string' || word === '' || this.options.enableCache){
+        return;
+      }
+      word = word.toLowerCase();
+      var letter
+        , i
+        , ii
+        , curr = this.root
+        , prev
+        , prevLetter
+        , data
+        , count = 0;
+
+      for (i = 0, ii = word.length; i < ii; i++) {
+        letter = word.charAt(i);
+        if (!curr[letter]) {
+          if (curr.$s && curr.$s === word.substring(i)) {
+            break; // word is at this leaf node
+          } else {
+            return; // word not in the trie
+          }
+        } else {
+          prev = curr;
+          prevLetter = letter;
+          curr = curr[letter]
+        }
+      }
+      data = this.options.copy(curr.$d);
+      delete curr.$d;
+      delete curr.$s;
+      // enumerate all child nodes
+      for (var node in curr) {
+        if (curr.hasOwnProperty(node)) {
+          count++;
+        }
+      }
+      if (!count) {
+        delete prev[prevLetter]; // nothing left at this level so remove it
+      }
+      return data;
+    }
+
+    /**
+    * @description see if a word has been added to the trie
+    * @param word {String} word to search for
+    * @return {Boolean} whether word exists or not
+    */
+    , contains: function(word) {
+      if (typeof word !== 'string' || word == '') { return false; }
+      word = word.toLowerCase();
+
+      var curr = this.root;
+      for (var i = 0, ii = word.length; i < ii; i++) {
+        var letter = word.charAt(i);
+        if (!curr[letter]) {
+          if (curr.$s && curr.$s === word.substring(i)) {
+            return true;
+          } else {
+            return false;
+          }
+        } else {
+          curr = curr[letter];
+        }
+      }
+      return curr.$d && (typeof curr.$s === 'undefined') ? true : false;
     }
 
     /**

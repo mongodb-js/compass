@@ -135,11 +135,11 @@ describe('When using a default trie', function (){
   describe('and adding a word with unicode characters', function() {
 
     before(function() {
-      trie.add('test\\u0B9x\\u0D9x\\u091x', 'word');
+      trie.add('test\u0B9x\u0D9x\u091x', 'word');
     })
 
     it('it is found in the trie', function (){
-      expect(trie.find('test\\u0B9x')).to(equal, ['word']);
+      expect(trie.find('test\u0B9x')).to(equal, ['word']);
     });
   });
 
@@ -149,12 +149,12 @@ describe('When using a default trie', function (){
   describe('and adding a word with unicode characters and splitting on unicode chars', function() {
 
     before(function() {
-      trie.add('test\\u0B9x\\u0D9x\\u091x', 'word');
-      trie.add('test\\u0B9x\\u0D9x', 'another word');
+      trie.add('test\u0B9x\u0D9x\u091x', 'word');
+      trie.add('test\u0B9x\u0D9x', 'another word');
     })
 
     it('it is found in the trie', function (){
-      expect(trie.find('test\\u0B9x')).to(equal, ['another word','word']);
+      expect(trie.find('test\u0B9x')).to(equal, ['another word','word']);
     });
   });
 
