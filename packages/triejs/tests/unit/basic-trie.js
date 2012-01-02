@@ -21,31 +21,38 @@ describe('When using a default trie', function (){
   */
   describe('and adding a word', function() {
 
-    before(function() {
-      trie.add('test', 'word');
-    })
-
     it('it exists in the trie', function (){
+      trie.add('test', 'word');
       expect(trie.find('test')).to(equal, ['word']);
     });
 
     it('it can be retrieved by prefix', function (){
+      trie.add('test', 'word');
       expect(trie.find('t')).to(equal, ['word']);
       expect(trie.find('te')).to(equal, ['word']);
       expect(trie.find('tes')).to(equal, ['word']);
     });
 
     it('it is not found when using incorrect prefix', function (){
+      trie.add('test', 'word');
       expect(trie.find('wrong')).toNot(equal, ['word']);
       expect(trie.find('wrong')).to(beUndefined);
     });
 
     it('it is not found when using non string prefix', function (){
+      trie.add('test', 'word');
       expect(trie.find(true)).to(beUndefined);
       expect(trie.find(1)).to(beUndefined);
       expect(trie.find(function() {})).to(beUndefined);
       expect(trie.find(null)).to(beUndefined);
       expect(trie.find(undefined)).to(beUndefined);
+    });
+
+    it('it is a copy and not the original variable', function (){
+      var data = 'word';
+      trie.add('test', data);
+      data = 'wrong';
+      expect(trie.find('t')).to(equal, ['word']);
     });
   });
 
@@ -60,7 +67,7 @@ describe('When using a default trie', function (){
       trie.add(function() {}, 'word');
       trie.add(null, 'word');
       trie.add(undefined, 'word');
-    })
+    });
 
     it('it adds nothing to the trie', function (){
       expect(trie.root).to(equal, {});
@@ -74,7 +81,7 @@ describe('When using a default trie', function (){
 
     before(function() {
       trie.add('word');
-    })
+    });
 
     it('it adds the word as the data', function (){
       expect(trie.find('w')).to(equal, ['word']);
@@ -89,7 +96,7 @@ describe('When using a default trie', function (){
     before(function() {
       trie.add('test', 'word');
       trie.add('testing', 'another word');
-    })
+    });
 
     it('they exist in the trie', function (){
       expect(trie.find('test')).to(equal, ['another word', 'word']);
@@ -103,7 +110,7 @@ describe('When using a default trie', function (){
 
     before(function() {
       trie.add('Test', 'word');
-    })
+    });
 
     it('it can be found in the trie', function (){
       expect(trie.find('test')).to(equal, ['word']);
@@ -120,7 +127,7 @@ describe('When using a default trie', function (){
 
     before(function() {
       trie.add('test', 'word');
-    })
+    });
 
     it('it does not modify the word in the tree', function (){
       var words = trie.find('test');
