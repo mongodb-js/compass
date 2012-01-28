@@ -25,7 +25,7 @@
   * @decription Trie class for saving data by keywords accessible through
   *   word prefixes
   * @class
-  * @version 0.1.1
+  * @version 0.1.2
   */
   var Triejs = function(opts) {
 
@@ -204,8 +204,14 @@
       }
       if (typeof curr[letter] === 'undefined') {
         curr[letter] = opts;
+      } else if (typeof curr[letter].$d === 'undefined') {
+        curr[letter].$d = {};
+        if (nextSuffix && typeof curr[letter].$s === 'undefined') {
+          curr[letter].$s = nextSuffix;
+        }
       }
       curr[letter].$d = this.options.insert.call(this, curr[letter].$d, data);
+      this.options.sort.call(curr[letter].$d);
     }
 
     /**
@@ -322,8 +328,9 @@
               }
               // insert new data at current end of word node level
               this._addSuffix(letter, data, curr);
+            } else {
+              this._addCacheData(curr[letter], data);
             }
-            this._addCacheData(curr[letter], data);
           }
           curr = curr[letter];
         }

@@ -79,10 +79,11 @@ describe('When using a custom array data source trie', function (){
     before(function() {
       trie.add('test', {name: 'word'});
       trie.add('testing', {name: 'another word'});
+      trie.add('testi', {name: 'bob'})
     })
 
     it('they exist in the trie', function (){
-      expect(trie.find('test')).to(equal, [{name: 'another word'}, {name: 'word'}]);
+      expect(trie.find('test')).to(equal, [{name: 'another word'}, {name: 'bob'}, {name: 'word'}]);
     });
   });
 
@@ -103,8 +104,8 @@ describe('When using a custom array data source trie', function (){
     });
   });
 
-    /**
-  * @description test uppercase letters in words and with prefix fetching
+  /**
+  * @description test object copying
   */
   describe('and modifying an added word', function() {
 
@@ -116,6 +117,21 @@ describe('When using a custom array data source trie', function (){
       var words = trie.find('test');
       words[0] = 'new';
       expect(trie.find('test')).to(equal, [{name: 'word'}]);
+    });
+  });
+
+  /**
+  * @description test adding sub word
+  */
+  describe('and adding a sub word', function() {
+
+    before(function() {
+      trie.add('test word', {name: 'word'});
+      trie.add('test', {name: 'test'});
+    })
+
+    it('it doesnt throw errors', function (){
+      expect(trie.find('test')).to(equal, [{name: 'test'}, {name: 'word'}]);
     });
   });
 
