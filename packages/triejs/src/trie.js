@@ -178,7 +178,7 @@
     _addCacheData: function(curr, data) {
       if ((this.root === curr && !this.options.returnRoot) 
         || this.options.enableCache === false) {
-        return;
+        return false;
       }
       if (!curr.$d) {
         curr.$d = {};
@@ -186,6 +186,7 @@
       curr.$d = this.options.insert.call(this, curr.$d, data);
       this.options.sort.call(curr.$d);
       this.options.clip.call(curr.$d, this.options.maxCache);
+      return true;
     }
 
     /**
@@ -329,7 +330,10 @@
               // insert new data at current end of word node level
               this._addSuffix(letter, data, curr);
             } else {
-              this._addCacheData(curr[letter], data);
+              // either add to cache or just add the data at end of word node
+              if (!this._addCacheData(curr[letter], data)) {
+                this._addSuffix(letter, data, curr);
+              }
             }
           }
           curr = curr[letter];
