@@ -218,6 +218,26 @@ describe('When using a trie with no cache', function (){
   });
 
   /**
+  * @description test adding identical words
+  */
+  describe('and adding to exact same words (different data)', function() {
+
+    before(function() {
+      trie.add('one', {type:'person', name:'First', position: 1, id:0});
+      trie.add('one', {type:'person', name:'Second', position: 2, id:1});
+    });
+
+    it('they exist in the trie', function () {
+      expect(trie.find('o')).to(equal, {
+        person: [
+          {type:'person', name:'First', position: 1, id: 0}
+          , {type:'person', name:'Second', position: 2, id: 1}
+        ]
+      });
+    });
+  });
+
+  /**
   * @description test uppercase letters in words and with prefix fetching
   */
   describe('and adding a word with capitals', function() {

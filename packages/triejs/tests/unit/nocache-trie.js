@@ -181,6 +181,20 @@ describe('When using a trie with no cache', function (){
   });
 
   /**
+  * @description test adding indentical words
+  */
+  describe('and adding two identical words', function() {
+    before(function() {
+      trie.add('one', 'word');
+      trie.add('one', 'another word');
+    });
+
+    it('they exist in the trie', function() {
+      expect(trie.find('o')).to(equal, ['another word', 'word']);
+    });
+  });
+
+  /**
   * @description test uppercase letters in words and with prefix fetching
   */
   describe('and adding a word with capitals', function() {

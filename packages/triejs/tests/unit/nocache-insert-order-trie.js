@@ -83,6 +83,21 @@ describe('When using a trie with no cache and insert order', function (){
   });
 
   /**
+  * @description test adding identical words
+  */
+  describe('and adding identical words', function() {
+
+    before(function() {
+      trie.add('one', 'word');
+      trie.add('one', 'another word');
+    });
+
+    it('they exist in the trie in insert order', function() {
+      expect(trie.find('one')).to(equal, ['word', 'another word']);
+    });
+  });
+
+  /**
   * @description test uppercase letters in words and with prefix fetching
   */
   describe('and adding a word with capitals', function() {

@@ -88,6 +88,21 @@ describe('When using a custom array data source trie', function (){
   });
 
   /**
+  * @description test adding identical words
+  */
+  describe('and adding two identical words', function() {
+
+    before(function() {
+      trie.add('one', {name: 'word'});
+      trie.add('one', {name: 'another word'});
+    });
+
+    it('they exist in the trie', function() {
+      expect(trie.find('o')).to(equal, [{name: 'another word'}, {name: 'word'}]);
+    });
+  });
+
+  /**
   * @description test uppercase letters in words and with prefix fetching
   */
   describe('and adding a word with capitals', function() {

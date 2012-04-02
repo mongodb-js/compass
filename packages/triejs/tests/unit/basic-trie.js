@@ -104,6 +104,21 @@ describe('When using a default trie', function (){
   });
 
   /**
+  * @description test adding identical words
+  */
+  describe('and adding two identical words', function() {
+
+    before(function() {
+      trie.add('test', 'word');
+      trie.add('test', 'another word');
+    });
+
+    it('they exist in the trie', function () {
+      expect(trie.find('test')).to(equal, ['another word', 'word']);
+    });
+  });
+
+  /**
   * @description test uppercase letters in words and with prefix fetching
   */
   describe('and adding a word with capitals', function() {
