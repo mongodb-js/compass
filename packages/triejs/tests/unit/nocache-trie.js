@@ -195,6 +195,29 @@ describe('When using a trie with no cache', function (){
   });
 
   /**
+  * @description test removing indentical words
+  */
+  describe('and removing two identical words', function() {
+
+    before(function() {
+      trie.add('one', 'word');
+      trie.add('one', 'another word');
+    });
+
+    it('they are both returned', function() {
+      expect(trie.remove('one')).to(equal, ['another word', 'word']);
+    });
+    it('they are both removed', function() {
+      trie.remove('one');
+      expect(trie.find('o')).to(beUndefined);
+    });
+    it('they are not contained', function() {
+      trie.remove('one');
+      expect(trie.contains('one')).to(be, false);
+    });
+  });
+
+  /**
   * @description test uppercase letters in words and with prefix fetching
   */
   describe('and adding a word with capitals', function() {

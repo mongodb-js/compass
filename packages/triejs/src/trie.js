@@ -250,13 +250,25 @@
         data = this._getSubtree(node);
       }
       if (this.options.insertOrder) {
-        var temp = [];
-        for (var i = 0, ii = data.length; i < ii; i++) {
-          temp.push(data[i].d);
-        }
-        data = temp;
+        data = this._stripInsertOrder(data);
       }
       return data ? this.options.copy(data) : undefined;
+    }
+
+    /**
+    * @description Remove the outer data later that stores insert order
+    * @param data {Object} The data with insert order object wrapper
+    * @return {Array} data results without insert order wrapper
+    */
+    , _stripInsertOrder: function(data) {
+      if (typeof data == 'undefined') {
+        return;
+      }
+      var temp = [];
+      for (var i = 0, ii = data.length; i < ii; i++) {
+        temp.push(data[i].d);
+      }
+      return temp;
     }
 
     /**
@@ -265,13 +277,16 @@
     * @return {Object} data from the subtree
     */
     , _getSubtree: function(curr) {
-      var res = []
+      var res
         , nodeArray = [curr]
         , node;
       while (node = nodeArray.pop()) {
         for (var newNode in node) {
           if (node.hasOwnProperty(newNode)) {
             if (newNode == '$d') {
+              if (typeof res == 'undefined') {
+                res = [];
+              }
               res = this.options.merge.call(this, res, node.$d);
             } else if (newNode != '$s') {
               nodeArray.push(node[newNode]);
@@ -384,6 +399,9 @@
         }
       }
       data = this.options.copy(curr.$d);
+      if (this.options.insertOrder) {
+        data = this._stripInsertOrder(data);
+      }
       delete curr.$d;
       delete curr.$s;
       // enumerate all child nodes

@@ -83,6 +83,29 @@ describe('When using a trie with no cache and insert order', function (){
   });
 
   /**
+  * @description test removing identical words
+  */
+  describe('and removing identical words', function() {
+
+    before(function() {
+      trie.add('double', 'word');
+      trie.add('double', 'another word');
+    });
+
+    it('they are returned when removed', function() {
+      expect(trie.remove('double')).to(equal, ['word', 'another word']);
+    });
+    it('they are not in the trie', function() {
+      trie.remove('double');
+      expect(trie.find('d')).to(beUndefined);
+    });
+    it('they are not contained in the trie', function() {
+      trie.remove('double');
+      expect(trie.contains('double')).to(be, false);
+    });
+  });
+
+  /**
   * @description test adding identical words
   */
   describe('and adding identical words', function() {

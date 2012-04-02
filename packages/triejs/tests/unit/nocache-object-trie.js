@@ -238,6 +238,32 @@ describe('When using a trie with no cache', function (){
   });
 
   /**
+  * @description test removing identical words
+  */
+  describe('and removing two identical words (different data)', function() {
+
+    before(function() {
+      trie.add('one', {type:'person', name:'First', position: 1, id:0});
+      trie.add('one', {type:'person', name:'Second', position: 2, id:1});
+    });
+
+    it('they are returned when removed', function() {
+      expect(trie.remove('one')).to(equal, {person:
+        [{type:'person', name:'First', position: 1, id:0}, {type:'person', name:'Second', position:2, id:1}]
+      });
+    });
+
+    it('they are not in the trie', function() {
+      trie.remove('one');
+      expect(trie.find('o')).to(beUndefined);
+    });
+    it('they are not contained in the trie', function() {
+      trie.remove('one');
+      expect(trie.contains('one')).to(be, false);
+    });
+  });
+
+  /**
   * @description test uppercase letters in words and with prefix fetching
   */
   describe('and adding a word with capitals', function() {
