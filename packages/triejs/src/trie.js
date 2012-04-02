@@ -1,5 +1,5 @@
 /**
-* Copyright (C) 2011 Paul Thurlow
+* Copyright (C) 2012 Paul Thurlow
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy 
 * of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,7 @@
   * @decription Trie class for saving data by keywords accessible through
   *   word prefixes
   * @class
-  * @version 0.1.2
+  * @version 0.1.3
   */
   var Triejs = function(opts) {
 

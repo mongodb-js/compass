@@ -67,4 +67,4 @@ to `localhost:5057/tests/vendor/runner.html` to see the test suite run
 
 ##License
 
-Triejs is licensed under the [MIT License](http://www.opensource.org/licenses/mit-license.php) copyright (c) 2011 Paul Thurlow
+Triejs is licensed under the [MIT License](http://www.opensource.org/licenses/mit-license.php) copyright (c) 2012 Paul Thurlow
