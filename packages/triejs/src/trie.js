@@ -356,7 +356,10 @@
         // There is a letter and we are at the end of the word
         else if (i == ii - 1) {
           this._addCacheData(curr, data);
-          this._addCacheData(curr[letter], data);
+          // either add to cache at the end of the word or just add the data
+          if (!this._addCacheData(curr[letter], data)) {
+            this._addSuffix(letter, data, curr[letter]);
+          }
         }
         // There is a letter so traverse lower into the trie
         else {
