@@ -25,7 +25,7 @@
   * @decription Trie class for saving data by keywords accessible through
   *   word prefixes
   * @class
-  * @version 0.1.3
+  * @version 0.1.4
   */
   var Triejs = function(opts) {
 
