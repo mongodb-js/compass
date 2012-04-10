@@ -218,6 +218,23 @@ describe('When using a trie with no cache', function (){
   });
 
   /**
+  * @description test adding identical words all the way to the last letter
+  */
+  describe('and adding two exact same words (different data) with all prefix letters stored', function() {
+
+    before(function() {
+      trie.add('o', 'word one');
+      trie.add('on', 'word two');
+      trie.add('one', 'word b');
+      trie.add('one', 'word a');
+    });
+
+    it('they exist in the trie', function () {
+      expect(trie.find('one')).to(equal, ['word a', 'word b']);
+    });
+  });
+
+  /**
   * @description test uppercase letters in words and with prefix fetching
   */
   describe('and adding a word with capitals', function() {

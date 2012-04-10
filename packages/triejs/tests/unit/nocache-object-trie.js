@@ -215,12 +215,20 @@ describe('When using a trie with no cache', function (){
         ]
       });
     });
+    it('they can be accessed by completing the sub word', function() {
+      expect(trie.find('ab')).to(equal, {
+        person: [
+          {type:'person', name:'Second', position: 1, id: 1}
+          , {type:'person', name:'First', position: 2, id: 0}
+        ]
+      });
+    });
   });
 
   /**
   * @description test adding identical words
   */
-  describe('and adding to exact same words (different data)', function() {
+  describe('and adding two exact same words (different data)', function() {
 
     before(function() {
       trie.add('one', {type:'person', name:'First', position: 1, id:0});
@@ -228,7 +236,29 @@ describe('When using a trie with no cache', function (){
     });
 
     it('they exist in the trie', function () {
-      expect(trie.find('o')).to(equal, {
+      expect(trie.find('one')).to(equal, {
+        person: [
+          {type:'person', name:'First', position: 1, id: 0}
+          , {type:'person', name:'Second', position: 2, id: 1}
+        ]
+      });
+    });
+  });
+
+  /**
+  * @description test adding identical words all the way to the last letter
+  */
+  describe('and adding to exact same words (different data) with all prefix letters stored', function() {
+
+    before(function() {
+      trie.add('o', {type:'person', name:'Invalid', position: 3, id:2});
+      trie.add('on', {type:'person', name:'Invlid', position: 4, id:3});
+      trie.add('one', {type:'person', name:'First', position: 1, id:0});
+      trie.add('one', {type:'person', name:'Second', position: 2, id:1});
+    });
+
+    it('they exist in the trie', function () {
+      expect(trie.find('one')).to(equal, {
         person: [
           {type:'person', name:'First', position: 1, id: 0}
           , {type:'person', name:'Second', position: 2, id: 1}
