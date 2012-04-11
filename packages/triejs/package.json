@@ -11,7 +11,9 @@
   ],
   "homepage": "http://pthurlow.github.com/triejs",
   "contibutors": [],
-  "dependencies": {},
+  "dependencies": {
+    "foounit": ""
+  },
   "scripts": {
     "test": "node tests/vendor/suite.js"
   },
