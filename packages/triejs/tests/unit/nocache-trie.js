@@ -38,6 +38,7 @@ describe('When using a trie with no cache', function (){
     it('it is not found when using incorrect prefix', function (){
       expect(trie.find('wrong')).toNot(equal, ['word']);
       expect(trie.find('wrong')).to(beUndefined);
+      expect(trie.find('testt')).to(beUndefined);
     });
 
     it('it is not found when using non string prefix', function (){
@@ -191,6 +192,7 @@ describe('When using a trie with no cache', function (){
 
     it('they exist in the trie', function() {
       expect(trie.find('o')).to(equal, ['another word', 'word']);
+      expect(trie.find('onee')).to(beUndefined);
     });
   });
 
@@ -233,6 +235,23 @@ describe('When using a trie with no cache', function (){
       expect(trie.find('one')).to(equal, ['word a', 'word b']);
     });
   });
+
+  /**
+  * @description test adding three indentical words
+  */
+  describe('and adding three identical words', function() {
+    before(function() {
+      trie.add('one', 'word');
+      trie.add('one', 'another word');
+      trie.add('one', 'third word');
+    });
+
+    it('they exist in the trie', function() {
+      expect(trie.find('o')).to(equal, ['another word', 'third word', 'word']);
+      expect(trie.find('onee')).to(beUndefined);
+    });
+  });
+
 
   /**
   * @description test uppercase letters in words and with prefix fetching

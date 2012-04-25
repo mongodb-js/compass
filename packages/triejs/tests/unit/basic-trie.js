@@ -37,6 +37,7 @@ describe('When using a default trie', function (){
       trie.add('test', 'word');
       expect(trie.find('wrong')).toNot(equal, ['word']);
       expect(trie.find('wrong')).to(beUndefined);
+      expect(trie.find('testt')).to(beUndefined);
     });
 
     it('it is not found when using non string prefix', function (){
@@ -99,7 +100,7 @@ describe('When using a default trie', function (){
     });
 
     it('they exist in the trie', function (){
-      expect(trie.find('test')).to(equal, ['another word', 'word']);
+      expect(trie.find('t')).to(equal, ['another word', 'word']);
     });
   });
 
@@ -116,7 +117,30 @@ describe('When using a default trie', function (){
     it('they exist in the trie', function () {
       expect(trie.find('test')).to(equal, ['another word', 'word']);
     });
+    it('they share the same substring', function () {
+      expect(trie.root).to(equal, {t:{'$s': 'est', '$d': ['another word', 'word']}});
+    });
   });
+
+  /**
+  * @description test adding three words
+  */
+  describe('and adding three identical words', function() {
+
+    before(function() {
+      trie.add('test', 'word');
+      trie.add('test', 'word');
+      trie.add('test', 'word');
+    });
+
+    it('they exist in the trie', function () {
+      expect(trie.find('test')).to(equal, ['word', 'word', 'word']);
+    });
+    it('they don\'t add excess letters in the trie', function () {
+      expect(trie.find('testt')).to(beUndefined);
+    });
+  });
+
 
   /**
   * @description test uppercase letters in words and with prefix fetching

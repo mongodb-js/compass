@@ -24,9 +24,17 @@ describe('When using a trie with no cache', function (){
         }
         return target;
       }
-      , sort: function() {
+      , sort: function(word) {
         for (var type in this) {
-          this[type].sort(function(a, b) { return a.position - b.position; });
+          this[type].sort(function(a, b) {
+            if (a.name.toLowerCase() == word) {
+              return -1;
+            } else if (b.name.toLowerCase() == word) {
+              return 1;
+            } else {
+              return a.position - b.position;
+            }
+          });
         }
       }
       , copy: function(data) {
@@ -41,11 +49,11 @@ describe('When using a trie with no cache', function (){
           this[type].splice(max, this[type].length - max);
         }
       }
-      , merge: function(target, data) {
+      , merge: function(target, data, word) {
         for (var type in data) {
           for (var i = 0, ii = data[type].length; i < ii; i++) {
             target = this.options.insert.call(this, target, data[type][i]);
-            this.options.sort.call(target);
+            this.options.sort.call(target, word);
             this.options.clip.call(target, this.options.maxCache);
           }
         }
@@ -80,6 +88,7 @@ describe('When using a trie with no cache', function (){
     it('it is not found when using incorrect prefix', function (){
       expect(trie.find('wrong')).toNot(equal, {'person': [{type:'person', name:'Test', position: 0}]});
       expect(trie.find('wrong')).to(beUndefined);
+      expect(trie.find('testt')).to(beUndefined);
     });
 
     it('it is not found when using non string prefix', function (){
@@ -242,8 +251,31 @@ describe('When using a trie with no cache', function (){
           , {type:'person', name:'Second', position: 2, id: 1}
         ]
       });
+      expect(trie.find('onee')).to(beUndefined);
     });
   });
+
+  /**
+  * @description test adding identical words and data
+  */
+  describe('and adding two exact same words (same data)', function() {
+
+    before(function() {
+      trie.add('one', {type:'person', name:'First', position: 1, id:1});
+      trie.add('one', {type:'person', name:'First', position: 1, id:1});
+    });
+
+    it('they exist in the trie', function () {
+      expect(trie.find('one')).to(equal, {
+        person: [
+          {type:'person', name:'First', position: 1, id: 1}
+          , {type:'person', name:'First', position: 1, id: 1}
+        ]
+      });
+      expect(trie.find('onee')).to(beUndefined);
+    });
+  });
+
 
   /**
   * @description test adding identical words all the way to the last letter
@@ -357,6 +389,33 @@ describe('When using a trie with no cache', function (){
           , {type:'person', name:'Second', position: 3, id: 1}
         ]
       });
+    });
+  });
+
+  /**
+  * @description test uppercase letters in words and with prefix fetching
+  */
+  describe('and adding multiple words', function() {
+
+    before(function() {
+      trie.add('testing', {type:'person', name:'testing', position: 0, id: 0});
+      trie.add('test three', {type:'person', name:'test three', position: 1, id: 1});
+      trie.add('test', {type:'person', name:'test', position: 2, id: 2});
+    })
+
+    it('it returns all in position order when requesting by similar prefix', function (){
+      expect(trie.find('t')).to(equal, {person: [
+        {type:'person', name:'testing', position: 0, id: 0}
+        , {type:'person', name:'test three', position: 1, id: 1}
+        , {type:'person', name:'test', position: 2, id: 2}
+      ]});
+    });
+    it('it returns an exact text match before any prefix matches', function (){
+      expect(trie.find('test')).to(equal, {person: [
+        {type:'person', name:'test', position: 2, id: 2}
+        , {type:'person', name:'testing', position: 0, id: 0}
+        , {type:'person', name:'test three', position: 1, id: 1}
+      ]});
     });
   });
 

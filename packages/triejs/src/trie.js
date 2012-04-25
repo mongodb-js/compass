@@ -25,7 +25,7 @@
   * @decription Trie class for saving data by keywords accessible through
   *   word prefixes
   * @class
-  * @version 0.1.4
+  * @version 0.1.5
   */
   var Triejs = function(opts) {
 
@@ -152,10 +152,10 @@
       }
     }
     if (typeof this.options.merge != 'function') {
-      this.options.merge = function(target, data) {
+      this.options.merge = function(target, data, word) {
         for (var i = 0, ii = data.length; i < ii; i++) {
           target = this.options.insert.call(this, target, data[i]);
-          this.options.sort.call(target);
+          this.options.sort.call(target, word);
           this.options.clip.call(target, this.options.maxCache);
         }
         return target;
@@ -241,13 +241,14 @@
     * @param node {Object} The node to get data from
     * @return {Array|Object} data results
     */
-    , _getDataAtNode: function(node) {
+    , _getDataAtNode: function(node, word) {
       var data;
 
       if (this.options.enableCache) {
+        this.options.sort.call(node.$d, word);
         data = node.$d;
       } else {
-        data = this._getSubtree(node);
+        data = this._getSubtree(node, word);
       }
       if (this.options.insertOrder) {
         data = this._stripInsertOrder(data);
@@ -276,7 +277,7 @@
     * @param curr {Object} current node in the trie to get data under
     * @return {Object} data from the subtree
     */
-    , _getSubtree: function(curr) {
+    , _getSubtree: function(curr, word) {
       var res
         , nodeArray = [curr]
         , node;
@@ -287,7 +288,7 @@
               if (typeof res == 'undefined') {
                 res = [];
               }
-              res = this.options.merge.call(this, res, node.$d);
+              res = this.options.merge.call(this, res, node.$d, word);
             } else if (newNode != '$s') {
               nodeArray.push(node[newNode]);
             }
@@ -319,6 +320,15 @@
         if (!curr[letter]) {
           // Current level has a suffix already so push suffix lower in trie
           if (curr.$s) {
+            if (curr.$s == word.substring(i)) {
+              // special case where word exists already, so we avoid breaking
+              // up the substring and store both at the top level
+              if (!this._addCacheData(curr, data)) {
+                curr.$d = this.options.insert.call(this, curr.$d, data);
+                this.options.sort.call(curr.$d);
+              }
+              break;
+            }
             this._moveSuffix(curr.$s, curr.$d, curr);
             delete curr.$s;
             if (this.options.enableCache === false) {
@@ -358,7 +368,7 @@
           this._addCacheData(curr, data);
           // either add to cache at the end of the word or just add the data
           if (!this._addCacheData(curr[letter], data)) {
-            this._addSuffix(letter, data, curr[letter]);
+            this._addSuffix(letter, data, curr);
           }
         }
         // There is a letter so traverse lower into the trie
@@ -459,7 +469,7 @@
         var letter = prefix.charAt(i);
         if (!curr[letter]) {
           if (curr.$s && curr.$s.indexOf(prefix.substring(i)) == 0) {
-            return this._getDataAtNode(curr);
+            return this._getDataAtNode(curr, prefix);
           } else {
             return undefined;
           }
@@ -467,7 +477,7 @@
           curr = curr[letter];
         }
       }
-      return this._getDataAtNode(curr);
+      return this._getDataAtNode(curr, prefix);
     }
   };
 
