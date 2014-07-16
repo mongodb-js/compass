@@ -1,0 +1,23 @@
+{
+  "name": "mongodb-security",
+  "version": "0.0.0",
+  "description": "Portable business logic of MongoDB security model",
+  "author": "Lucas Hrabovsky <hrabovsky.lucas@gmail.com> (http://imlucas.com)",
+  "license": "MIT",
+  "homepage": "http://github.com/imlucas/mongoscope-client",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/imlucas/mongoscope-client.git"
+  },
+  "keywords": [
+    "mongodb",
+    "mongodb.js"
+  ],
+  "scripts": {
+    "test": "mocha"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "mocha": "^1.20.1"
+  }
+}

@@ -1,0 +1,141 @@
+[
+  {
+    "role": "readAnyDatabase",
+    "db": "admin",
+    "isBuiltin": true,
+    "roles": [],
+    "inheritedRoles": [],
+    "privileges": [
+      {
+        "resource": {
+          "db": "",
+          "collection": ""
+        },
+        "actions": [
+          "collStats",
+          "dbHash",
+          "dbStats",
+          "find",
+          "killCursors",
+          "planCacheRead"
+        ]
+      },
+      {
+        "resource": {
+          "cluster": true
+        },
+        "actions": [
+          "listDatabases"
+        ]
+      },
+      {
+        "resource": {
+          "db": "",
+          "collection": "system.indexes"
+        },
+        "actions": [
+          "collStats",
+          "dbHash",
+          "dbStats",
+          "find",
+          "killCursors",
+          "planCacheRead"
+        ]
+      },
+      {
+        "resource": {
+          "db": "",
+          "collection": "system.js"
+        },
+        "actions": [
+          "collStats",
+          "dbHash",
+          "dbStats",
+          "find",
+          "killCursors",
+          "planCacheRead"
+        ]
+      },
+      {
+        "resource": {
+          "db": "",
+          "collection": "system.namespaces"
+        },
+        "actions": [
+          "collStats",
+          "dbHash",
+          "dbStats",
+          "find",
+          "killCursors",
+          "planCacheRead"
+        ]
+      }
+    ],
+    "inheritedPrivileges": [
+      {
+        "resource": {
+          "db": "",
+          "collection": ""
+        },
+        "actions": [
+          "collStats",
+          "dbHash",
+          "dbStats",
+          "find",
+          "killCursors",
+          "planCacheRead"
+        ]
+      },
+      {
+        "resource": {
+          "cluster": true
+        },
+        "actions": [
+          "listDatabases"
+        ]
+      },
+      {
+        "resource": {
+          "db": "",
+          "collection": "system.indexes"
+        },
+        "actions": [
+          "collStats",
+          "dbHash",
+          "dbStats",
+          "find",
+          "killCursors",
+          "planCacheRead"
+        ]
+      },
+      {
+        "resource": {
+          "db": "",
+          "collection": "system.js"
+        },
+        "actions": [
+          "collStats",
+          "dbHash",
+          "dbStats",
+          "find",
+          "killCursors",
+          "planCacheRead"
+        ]
+      },
+      {
+        "resource": {
+          "db": "",
+          "collection": "system.namespaces"
+        },
+        "actions": [
+          "collStats",
+          "dbHash",
+          "dbStats",
+          "find",
+          "killCursors",
+          "planCacheRead"
+        ]
+      }
+    ]
+  }
+]
