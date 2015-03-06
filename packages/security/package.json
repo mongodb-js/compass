@@ -4,10 +4,10 @@
   "description": "Portable business logic of MongoDB security model",
   "author": "Lucas Hrabovsky <hrabovsky.lucas@gmail.com> (http://imlucas.com)",
   "license": "MIT",
-  "homepage": "http://github.com/imlucas/mongoscope-client",
+  "homepage": "http://github.com/mongodb-js/security",
   "repository": {
     "type": "git",
-    "url": "git://github.com/imlucas/mongoscope-client.git"
+    "url": "git://github.com/mongodb-js/security.git"
   },
   "keywords": [
     "mongodb",
