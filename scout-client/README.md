@@ -1,8 +1,8 @@
 # scout-client
 
-A client for wielding [scout-server](http://github.com/10gen/scout) like the hammer of thor.
+A client for [scout-server](http://github.com/10gen/scout) that works in the browser or a server.
 
-[View `./examples`](tree/dev/examples) and as a [Codepen Collection](http://codepen.io/collection/Gdeok/).
+Want to see what it can do? [Check out `./examples`](tree/dev/examples).
 
 ```
 npm install --save scout-client
