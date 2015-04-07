@@ -1,0 +1,38 @@
+{
+  "name": "scout-client",
+  "description": "A client for scout-server that works in the browser or a server.",
+  "version": "0.0.0",
+  "author": "Lucas Hrabovsky <lucas@mongodb.com> (http://imlucas.com)",
+  "homepage": "http://github.com/10gen/scout",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/10gen/scout.git"
+  },
+  "scripts": {
+    "docs": "gulp docs",
+    "test": "zuul --local 3001 --open -- test/*.test.js",
+    "ci": "zuul -- test/*.test.js"
+  },
+  "dependencies": {
+    "debug": "^2.1.3",
+    "mongodb-extended-json": "^1.1.2",
+    "mongodb-ns": "^1.0.0",
+    "mongodb-uri": "^0.9.7",
+    "socket.io-client": "^1.3.5",
+    "superagent": "^1.1.0",
+    "underscore": "^1.8.3"
+  },
+  "devDependencies": {
+    "backbone": "^1.1.2",
+    "del": "^1.1.1",
+    "dox": "^0.7.1",
+    "ecstatic": "^0.7.2",
+    "gulp": "^3.8.11",
+    "gulp-util": "^3.0.4",
+    "handlebars": "^3.0.1",
+    "mocha": "^2.2.1",
+    "mongodb-datasets": "^0.1.5",
+    "through2": "^0.6.3",
+    "zuul": "^2.1.1"
+  }
+}

@@ -1,0 +1,40 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="http://nvd3.org/assets/css/nv.d3.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="instance-logs"></div>
+    </div>
+
+    <script type="text/template" id="instance-tpl">
+      <h1 class="page-header">
+        <%= instance.host.hostname %>
+        <small>MongoDB <%= instance.build.version %></small>
+      </h1>
+      <div class="row">
+        <div class="col-md-4">
+          <h2>Databases</h2>
+          <ul>
+          <% _.each(instance.database_names, function(name) { %> <li><%= name %></li> <% }); %>
+          </ul>
+          </div>
+          <div class="col-md-8">
+            <h2>Logs</h2>
+            <div class="log-lines">
+              <% _.each(logs, function(line) { %> <%= line.message %><br /><% }); %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </script>
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="http://nvd3.org/assets/lib/d3.v3.js"></script>
+    <script src="http://nvd3.org/assets/js/nv.d3.js"></script>
+    <script src="http://underscorejs.org/underscore-min.js"></script>
+    <script src="http://backbonejs.org/backbone-min.js"></script>
+    <script src="http://wzrd.in/standalone/mongoscope-client@latest"></script>
+  </body>
+</html>
