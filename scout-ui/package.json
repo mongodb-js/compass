@@ -1,0 +1,95 @@
+{
+  "name": "scout-ui",
+  "description": "The frontend for scout.",
+  "version": "0.0.0",
+  "main": "src/index.js",
+  "dependency-check": {
+    "entries": [
+      "src/index.js",
+      "src/models/index.js"
+    ],
+    "ignore": [
+      "bootstrap",
+      "font-awesome",
+      "octicons"
+    ]
+  },
+  "fonts": [
+    "node_modules/font-awesome/fonts/fontawesome-webfont*",
+    "node_modules/octicons/octicons/octicons.{eot,svg,ttf,woff}"
+  ],
+  "less": {
+    "paths": [
+      "node_modules/font-awesome/less",
+      "node_modules/bootstrap/less",
+      "node_modules/octicons/octicons"
+    ]
+  },
+  "scripts": {
+    "start": "gulp",
+    "deploy": "gulp deploy",
+    "check": "gulp check",
+    "test": "mocha"
+  },
+  "precommit": [
+    "check"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/10gen/scout.git"
+  },
+  "dependencies": {
+    "amp-result": "^1.1.0",
+    "ampersand-collection": "^1.4.1",
+    "ampersand-collection-filterable": "0.0.1",
+    "ampersand-collection-rest-mixin": "^3.0.0",
+    "ampersand-model": "^4.0.0",
+    "ampersand-router": "^1.0.1",
+    "ampersand-state": "^4.3.12",
+    "ampersand-view": "^7.0.1",
+    "ampersand-view-switcher": "^2.0.0",
+    "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.2.tar.gz",
+    "debug": "^2.0.0",
+    "domready": "^1.0.7",
+    "font-awesome": "https://github.com/FortAwesome/Font-Awesome/archive/v4.3.0.tar.gz",
+    "jade": "^1.9.2",
+    "jquery": "^2.1.1",
+    "moment": "^2.8.2",
+    "numeral": "^1.5.3",
+    "octicons": "https://github.com/github/octicons/archive/v2.2.0.tar.gz",
+    "phantomjs-polyfill": "0.0.1",
+    "qs": "^2.2.4",
+    "underscore": "^1.6.0"
+  },
+  "devDependencies": {
+    "browserify": "^9.0.3",
+    "clui": "^0.3.1",
+    "dependency-check": "^2.2.3",
+    "esformatter-braces": "^1.0.0",
+    "esformatter-quotes": "^1.0.0",
+    "esformatter-semicolons": "^1.0.3",
+    "gulp": "^3.8.10",
+    "gulp-gh-pages": "^0.4.0",
+    "gulp-jade": "^1.0.0",
+    "gulp-jsfmt": "^0.3.0",
+    "gulp-jshint": "^1.9.2",
+    "gulp-less": "^3.0.0",
+    "gulp-sourcemaps": "^1.2.4",
+    "gulp-uglify": "^1.0.1",
+    "gulp-util": "^3.0.1",
+    "gulp-webserver": "^0.9.0",
+    "jadeify": "^4.0.0",
+    "less-plugin-clean-css": "^1.4.0",
+    "marked": "^0.3.2",
+    "merge-stream": "^0.1.7",
+    "mocha": "^2.2.1",
+    "nightmare": "^1.7.0",
+    "node-notifier": "^4.0.0",
+    "phantomjs": "~1.9.15",
+    "pre-commit": "^1.0.6",
+    "pretty-hrtime": "^1.0.0",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.0.0",
+    "watchify": "^2.0.0"
+  }
+}

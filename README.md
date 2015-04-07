@@ -1,2 +1,3 @@
-# Scout
-A GUI for MongoDB from the Integrations team
+# scout
+
+Explore your MongoDB.
