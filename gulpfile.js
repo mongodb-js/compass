@@ -3,7 +3,8 @@ var gulp = require('gulp'),
   pkg = require('./package.json'),
   child_process = require('child_process'),
   async = require('async'),
-  npm = require('which').sync('npm');
+  npm = require('which').sync('npm'),
+  atomshell = require('gulp-atom-shell');
 
 var run = function(child, task) {
   var args = task.split(' '),
@@ -82,3 +83,17 @@ gulp.task('test', function(done) {
 });
 
 gulp.task('default', ['install', 'test']);
+
+gulp.task('atom', function() {
+  return gulp.src([
+    'package.json',
+    'index.js',
+    'scout-{atom,brain,client}/{*,**/*}',
+  ])
+  .pipe(atomshell({
+    version: '0.19.4',
+    platform: 'darwin',
+    darwinIcon: './scout-atom/res/scout.icns'
+  }))
+  .pipe(atomshell.zfsdest('build/Release/scout.zip'));
+});

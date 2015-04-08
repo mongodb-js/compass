@@ -95,22 +95,22 @@ function check(mode, done) {
 }
 
 gulp.task('serve', function() {
-  return gulp.src('dist')
-    .pipe(webserver({
-      host: 'localhost',
-      port: 3000,
-      open: true,
-      directoryListing: false,
-      livereload: true
-    }));
+  return gulp.src('../scout-server/res')
+  .pipe(webserver({
+    host: 'localhost',
+    port: 3000,
+    open: true,
+    directoryListing: false,
+    livereload: true
+  }));
 });
 
 gulp.task('testserver', function() {
-  return gulp.src('dist')
-    .pipe(webserver({
-      host: 'localhost',
-      port: 3001
-    }));
+  return gulp.src('../scout-server/res')
+  .pipe(webserver({
+    host: 'localhost',
+    port: 3001
+  }));
 });
 
 gulp.task('develop', ['pages', 'assets', 'less', 'serve'], function() {
@@ -129,8 +129,8 @@ gulp.task('develop', ['pages', 'assets', 'less', 'serve'], function() {
     fullPaths: true,
     debug: false
   }))
-    .transform('jadeify')
-    .on('update', rebundle);
+  .transform('jadeify')
+  .on('update', rebundle);
 
   function rebundle(changed) {
     var start = process.hrtime();
@@ -141,15 +141,15 @@ gulp.task('develop', ['pages', 'assets', 'less', 'serve'], function() {
 
     gutil.log('Starting', '\'' + gutil.colors.cyan('rebundle') + '\'...');
     return bundler.bundle()
-      .on('error', notify('js'))
-      .pipe(source('index.js'))
-      .pipe(gulp.dest('dist/'))
-      .on('end', function() {
-        var time = prettyTime(process.hrtime(start));
-        gutil.log('Finished', '\'' + gutil.colors.cyan('rebundle') + '\'',
-          'after', gutil.colors.magenta(time));
-        spinner.start();
-      });
+    .on('error', notify('js'))
+    .pipe(source('index.js'))
+    .pipe(gulp.dest('../scout-server/res/'))
+    .on('end', function() {
+      var time = prettyTime(process.hrtime(start));
+      gutil.log('Finished', '\'' + gutil.colors.cyan('rebundle') + '\'',
+      'after', gutil.colors.magenta(time));
+      spinner.start();
+    });
   }
   return rebundle();
 });
@@ -157,28 +157,28 @@ gulp.task('develop', ['pages', 'assets', 'less', 'serve'], function() {
 // Compile LESS to CSS.
 gulp.task('less', function() {
   return gulp.src('src/*.less')
-    .pipe(sourcemaps.init())
-    .pipe(less(pkg.less))
-    .on('error', notify('less'))
-    .pipe(sourcemaps.write('./maps'))
-    .pipe(gulp.dest('dist'));
+  .pipe(sourcemaps.init())
+  .pipe(less(pkg.less))
+  .on('error', notify('less'))
+  .pipe(sourcemaps.write('./maps'))
+  .pipe(gulp.dest('../scout-server/res'));
 });
 
 // Compile jade templates to HTML files.
 gulp.task('pages', function() {
   return gulp.src('src/index.jade')
-    .pipe(jade())
-    .on('error', notify('jade'))
-    .pipe(gulp.dest('dist/'));
+  .pipe(jade())
+  .on('error', notify('jade'))
+  .pipe(gulp.dest('../scout-server/res/'));
 });
 
 // Copies all static asset files into dist
 gulp.task('assets', function() {
   var subtasks = [];
-  subtasks.push(gulp.src('src/img/{*,**/*}').pipe(gulp.dest('dist/img')));
+  subtasks.push(gulp.src('src/img/{*,**/*}').pipe(gulp.dest('../scout-server/res/img')));
 
   subtasks.push.apply(subtasks, pkg.fonts.map(function(p) {
-    return gulp.src(p).pipe(gulp.dest('dist/fonts'));
+    return gulp.src(p).pipe(gulp.dest('../scout-server/res/fonts'));
   }));
 
   return merge.apply(null, subtasks);
@@ -186,12 +186,12 @@ gulp.task('assets', function() {
 
 gulp.task('format', function() {
   return gulp.src('src/{*,**/*}.js')
-    .pipe(jsfmt.format({}));
+  .pipe(jsfmt.format({}));
 });
 
 gulp.task('lint', function() {
   return gulp.src('src/{*,**/*}.js')
-    .pipe(jshint({}));
+  .pipe(jshint({}));
 });
 
 gulp.task('check dependencies', function(done) {
@@ -208,12 +208,12 @@ gulp.task('check', ['format', 'lint', 'check dependencies']);
 // Build in production mode.
 gulp.task('build', ['assets', 'pages'], function() {
   var js = browserify('./src/index.js')
-    .transform(jadeify)
-    .bundle()
-    .pipe(source('index.js'))
-    .pipe(buffer())
-    .pipe(uglify())
-    .pipe(gulp.dest('dist/'));
+  .transform(jadeify)
+  .bundle()
+  .pipe(source('index.js'))
+  .pipe(buffer())
+  .pipe(uglify())
+  .pipe(gulp.dest('../scout-server/res/'));
 
   // Setup less plugin that will clean and compress.
   var cleaner = new CleanCSS({
@@ -223,11 +223,11 @@ gulp.task('build', ['assets', 'pages'], function() {
   });
 
   var css = gulp.src('src/*.less')
-    .pipe(less({
-      plugins: [cleaner],
-      paths: pkg.less.paths
-    }))
-    .pipe(gulp.dest('dist'));
+  .pipe(less({
+    plugins: [cleaner],
+    paths: pkg.less.paths
+  }))
+  .pipe(gulp.dest('../scout-server/res'));
 
   return merge(js, css);
 });
@@ -245,6 +245,6 @@ gulp.task('deploy', ['check', 'build'], function() {
   //     process.env.GITHUB_TOKEN);
   // }
 
-  return gulp.src('dist/{*,**/*}')
-    .pipe(deploy(opts));
+  return gulp.src('../scout-server/res/{*,**/*}')
+  .pipe(deploy(opts));
 });
