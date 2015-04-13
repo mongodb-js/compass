@@ -11,6 +11,7 @@
   "scripts": {
     "test": "mocha"
   },
+  "browser": "browser.js",
   "dependencies": {
     "ampersand-collection": "~1.4.0",
     "ampersand-model": "~4.0.3",

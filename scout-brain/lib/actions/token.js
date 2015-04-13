@@ -24,8 +24,6 @@ function verify(token, fn) {
   });
 }
 
-
-
 module.exports.load = function(token, ctx, next) {
   debug('loading `%s`', shorten(token));
   verify(token, function(err, data) {
@@ -108,7 +106,12 @@ module.exports.create = function(ctx, fn) {
     debug('creating token for `%j`', payload);
     if (err) return fn(err);
     payload.session_id = session._id;
+
     ctx.session_id = session._id;
+    debug('add session_id to ctx');
+
+    ctx.mongo = session.connection;
+    debug('add connection to ctx');
 
     var token = jwt.sign(payload, secret, opts);
     var res = {
@@ -121,6 +124,7 @@ module.exports.create = function(ctx, fn) {
       expires_at: new Date(now + (config.get('token:lifetime') * 60 * 1000)),
       created_at: new Date(now)
     };
+
     debug('created `%s`', shorten(token));
     fn(null, res);
   });
