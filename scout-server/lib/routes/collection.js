@@ -283,23 +283,28 @@ module.exports = {
     });
   },
   destroy: function(req, res, next) {
-    var name = req.ns.collection;
+    var name = req.params.collection_name;
     if (!name) {
       return next(boom.badRequest('Missing collection_name'));
     }
-    validate(req.ns.collection, 'collection_name', function(err, name) {
+    validate(req.params.collection_name, 'collection_name', function(err, name) {
       if (err) return next(boom.badRequest('Invalid collection name'));
-      req.db.dropCollection(name, function(err) {
-        if (err) return next(err);
-        res.send(204);
+
+      req.mongo.db(req.params.database_name).dropCollection(name, function(err) {
+
+        if (err){
+          console.log('error removing', name);
+          return next(err);
+        }
+        res.status(204).send();
       });
     });
   },
   post: function(req, res, next) {
     var opts = {
-      capped: req.param('capped', false),
-      size: req.param('size', 0),
-      max: req.param('max', 0),
+      capped: req.boolean('capped'),
+      size: req.int('size'),
+      max: req.int('max'),
       strict: true
     };
 
@@ -310,19 +315,19 @@ module.exports = {
     if (opts.capped && (opts.size && opts.max)) {
       return next(boom.badRequest('`size` and `max` are mutually exclusive'));
     }
-    debug('creating new collection', req.param('name'), opts);
-    validate(req.param('name'), 'collection_name', function(err, name) {
+    debug('creating new collection', req.params.collection_name, opts);
+    validate(req.params.collection_name, 'collection_name', function(err, name) {
 
       if (err) return next(boom.badRequest('Invalid collection name'));
-      req.db.createCollection(name, opts, function(err) {
+      req.mongo.db(req.params.database_name).createCollection(name, opts, function(err) {
         if (err) {
-          if (/target namespace exists/.test(err.message)) {
+          if (/(target namespace exists|already exists)/.test(err.message)) {
             return next(boom.conflict('Collection already exists'));
           }
           return next(err);
         }
-        opts.name = req.param('name');
-        opts.database = req.param('database_name');
+        opts.name = req.params.collection_name;
+        opts.database = req.params.database_name;
         opts.ns = opts.database + '.' + opts.name;
         res.status(201).send(opts);
       });
@@ -332,17 +337,17 @@ module.exports = {
     if (!req.param('name')) {
       return next(boom.badRequest('Missing required `name`'));
     }
-    req.db.renameCollection(req.ns.collection, req.param('name'), function(err) {
+    req.db.renameCollection(req.params.collection_name, req.params.name, function(err) {
       if (err) {
         if (/target namespace exists/.test(err.message)) {
-          return next(boom.conflict('Cannot rename because `' + req.param('name') + '` already exists'));
+          return next(boom.conflict('Cannot rename because `' + req.params.name + '` already exists'));
         }
         return next(err);
       }
       res.send({
-        name: req.param('name'),
-        database: req.param('database_name'),
-        ns: req.param('database_name') + '.' + req.param('name')
+        name: req.params.name,
+        database: req.params.database_name,
+        ns: req.params.database_name + '.' + req.params.name
       });
     });
   }

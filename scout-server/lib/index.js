@@ -3,6 +3,8 @@ var express = require('express'),
   redirect = require('./middleware/redirect'),
   ejson = require('./middleware/ejson-body-parser'),
   token_required = require('./middleware/token-required'),
+  collection_required = require('./middleware/collection-required'),
+  database_required = require('./middleware/database-required'),
   health_check = require('./middleware/health-check');
 
 app.server = require('http').createServer(app);
@@ -16,7 +18,7 @@ app.use(require('./middleware/send-extended-json'));
 // app.use(require('./middleware/metrics'));
 
 app.get('/api', redirect('/api/v1'));
-app.get('/api/v1', function(res, res) {
+app.get('/api/v1', function(req, res) {
   res.send({
     message: 'Welcome to Scout'
   });
@@ -31,7 +33,6 @@ app.get('/health-check', health_check());
 
 app.param('ns', require('./params/ns'));
 app.param('create_ns', require('./params/create-ns'));
-app.param('collection_name', require('./params/collection-name'));
 app.param('database_name', require('./params/database-name'));
 app.param('instance_id', require('./params/instance-id'));
 app.param('deployment_id', require('./params/deployment-id'));
@@ -61,25 +62,25 @@ app.get('/api/v1/deployments/:deployment_id', token_required, deployment.get);
  */
 var database = require('./routes/database');
 app.post('/api/v1/:instance_id/databases', token_required, database.post);
-app.get('/api/v1/:instance_id/databases/:database_name', token_required, database.get);
-app.delete('/api/v1/:instance_id/databases/:database_name', token_required, database.destroy);
+app.get('/api/v1/:instance_id/databases/:database_name', token_required, database_required, database.get);
+app.delete('/api/v1/:instance_id/databases/:database_name', token_required, database_required, database.destroy);
 
 /**
  * ## collection
  */
 var collection = require('./routes/collection');
 app.post('/api/v1/:instance_id/collections/:create_ns', token_required, collection.post);
-app.get('/api/v1/:instance_id/collections/:ns', token_required, collection.get);
-app.put('/api/v1/:instance_id/collections/:ns', token_required, collection.put);
-app.delete('/api/v1/:instance_id/collections/:ns', token_required, collection.destroy);
+app.get('/api/v1/:instance_id/collections/:ns', token_required, collection_required, collection.get);
+app.put('/api/v1/:instance_id/collections/:ns', token_required, collection_required, collection.put);
+app.delete('/api/v1/:instance_id/collections/:ns', token_required, collection_required, collection.destroy);
 
-app.get('/api/v1/:instance_id/collections/:ns/count', token_required, collection.count);
-app.get('/api/v1/:instance_id/collections/:ns/find', token_required, collection.find);
-app.get('/api/v1/:instance_id/collections/:ns/sample', token_required, collection.sample);
-app.get('/api/v1/:instance_id/collections/:ns/aggregate', token_required, collection.aggregate);
-app.get('/api/v1/:instance_id/collections/:ns/distinct/:key', token_required, collection.distinct);
-app.get('/api/v1/:instance_id/collections/:ns/plans', token_required, collection.plans);
-app.post('/api/v1/:instance_id/collections/:ns/bulk', token_required, collection.bulk);
+app.get('/api/v1/:instance_id/collections/:ns/count', token_required, collection_required, collection.count);
+app.get('/api/v1/:instance_id/collections/:ns/find', token_required, collection_required, collection.find);
+app.get('/api/v1/:instance_id/collections/:ns/sample', token_required, collection_required, collection.sample);
+app.get('/api/v1/:instance_id/collections/:ns/aggregate', token_required, collection_required, collection.aggregate);
+app.get('/api/v1/:instance_id/collections/:ns/distinct/:key', token_required, collection_required, collection.distinct);
+app.get('/api/v1/:instance_id/collections/:ns/plans', token_required, collection_required, collection.plans);
+app.post('/api/v1/:instance_id/collections/:ns/bulk', token_required, collection_required, collection.bulk);
 
 app.use(require('./middleware/mongodb-boom'));
 

@@ -6,19 +6,10 @@
  * validation and autoloading from the driver.
  */
 var types = require('../models').types;
-var database_name = require('./database-name');
-var collection_name = require('./collection-name');
 
 module.exports = function unpack_param_ns(req, res, next, raw) {
   req.ns = types.ns(raw);
-
-  database_name(req, res, function(err) {
-    if (err) return next(err);
-
-    collection_name(req, res, function(err) {
-      if (err) return next(err);
-      next();
-
-    }, req.ns.collection);
-  }, req.ns.database);
+  req.params.database_name = req.ns.database;
+  req.params.collection_name = req.ns.collection;
+  next();
 };

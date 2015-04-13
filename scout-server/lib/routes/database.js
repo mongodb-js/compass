@@ -5,19 +5,23 @@
 
 var boom = require('boom'),
   async = require('async'),
-  types = require('../models').types;
+  types = require('../models').types,
+  debug = require('debug')('scout-server:routes:database');
 
 function getCollectionNames(req, fn) {
-  req.db.find('system.namespaces', function(err, data) {
+  req.db.collection('system.namespaces').find({}).toArray(function(err, data) {
     if (err) return fn(err);
 
     if (!data) {
       return fn(boom.notAuthorized('not authorized to view collections for this database'));
     }
 
+    debug('find(system.namespaces) returned', err, data);
+
     var names = data.filter(function(ns) {
       return !(ns.name.indexOf('$') >= 0 && ns.name.indexOf('.oplog.$') < 0);
-    }).map(function(ns) {
+    })
+    .map(function(ns) {
       return types.ns(ns.name).collection;
     });
     fn(null, names);

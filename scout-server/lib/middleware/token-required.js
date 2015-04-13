@@ -32,5 +32,14 @@ module.exports = function(req, res, next) {
   }
 
   debug('loading token');
-  brain.loadToken(access_token, req, next);
+
+  brain.loadToken(access_token, req, function(err){
+    if(err){
+      debug('error loading token:', err.message);
+      return next(err);
+    }
+
+    debug('token loaded', req.url, req.method);
+    next();
+  });
 };

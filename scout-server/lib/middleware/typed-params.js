@@ -17,18 +17,5 @@ module.exports = function(req, res, next) {
   req.boolean = function(key, _default) {
     return (req.int(key, _default) === 1);
   };
-
-  res.json = function(obj) {
-    if (!this.get('Content-Type')) {
-      this.set('Content-Type', 'application/json');
-    }
-    try {
-      return this.send(EJSON.stringify(obj, null, 2));
-    } catch (e) {
-      throw new Error('Tried sending unclean object that probably contains private info!\n' +
-      'See https://github.com/10gen/mongoscope/issues/35');
-    }
-  };
-
   next();
 };

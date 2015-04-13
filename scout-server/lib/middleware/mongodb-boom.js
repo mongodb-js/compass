@@ -47,9 +47,9 @@ function sendBoom(res, err) {
 }
 
 module.exports = function(err, req, res, next) {
-  console.error('handling error', err.stack);
   if (err && err.isBoom) return sendBoom(res, err);
 
+  console.error('handling error', err.stack);
   var msg = err.message || err.err;
   decodeDriverError(err, msg, function(err) {
     if (!err.isBoom) return next(err);

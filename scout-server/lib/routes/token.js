@@ -19,7 +19,17 @@ function create(deployment, req, res, next) {
         res.status(201).send(data.token);
       },
       default: function() {
-        res.status(201).send(data);
+        var d = {
+          session_id: data.session_id,
+          token: data.token,
+          deployment_type: data.deployment_type,
+          deployment_id: data.deployment_id,
+          instance_id: data.instance_id,
+          id: data.id,
+          expires_at: data.expires_at,
+          created_at: data.created_at,
+        };
+        res.status(201).send(d);
       }
     });
   });

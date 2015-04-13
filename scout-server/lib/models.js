@@ -1,4 +1,4 @@
-var brain = require('mongoscope-brain');
+var brain = require('../../scout-brain');
 
 module.exports.deployments = {
   fetch: function(fn) {

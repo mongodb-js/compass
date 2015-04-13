@@ -16,7 +16,7 @@ module.exports = function(value, type, fn){
 module.exports.middleware = function validate(key, type){
   if(!type) type = key;
   return function(req, res, next){
-    joi.validate(req.param(key), types[type], function (err, value){
+    joi.validate(req.params[key], types[type], function (err, value){
       if(err) return next(err);
 
       req.params[key] = value;
