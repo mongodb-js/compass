@@ -208,7 +208,7 @@ module.exports = {
   sample: function(req, res) {
     createSampleStream(req.db, req.ns.collection, {
       query: req.json('query'),
-      size: req.param('size')
+      size: req.int('size', 5)
     })
     .pipe(_idToDocument(req.db, req.ns.collection, {
       fields: req.json('fields')
@@ -238,7 +238,7 @@ module.exports = {
     });
   },
   distinct: function(req, res, next) {
-    req.col.distinct(req.param('key'), req.json('query', '{}'), function(err, docs) {
+    req.col.distinct(req.params.key, req.json('query', '{}'), function(err, docs) {
       if (err) return next(err);
       res.send(docs);
     });
@@ -334,10 +334,10 @@ module.exports = {
     });
   },
   put: function(req, res, next) {
-    if (!req.param('name')) {
+    if (!req.params.name) {
       return next(boom.badRequest('Missing required `name`'));
     }
-    req.db.renameCollection(req.params.collection_name, req.params.name, function(err) {
+    req.mongo.db(req.database_name).renameCollection(req.params.collection_name, req.params.name, function(err) {
       if (err) {
         if (/target namespace exists/.test(err.message)) {
           return next(boom.conflict('Cannot rename because `' + req.params.name + '` already exists'));
@@ -347,7 +347,7 @@ module.exports = {
       res.send({
         name: req.params.name,
         database: req.params.database_name,
-        ns: req.params.database_name + '.' + req.params.name
+        _id: req.params.database_name + '.' + req.params.name
       });
     });
   }

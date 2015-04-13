@@ -97,10 +97,10 @@ module.exports = {
       if (err) return next(err);
 
       res.send({
-        _id: req.db.ns,
-        name: req.db.name,
+        _id: req.params.database_name,
+        name: req.params.database_name,
         stats: d.stats,
-        collections: req.db.collections
+        collections: d.collections
       });
     });
   },
