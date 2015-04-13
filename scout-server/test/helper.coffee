@@ -4,7 +4,7 @@ supertest = require 'supertest'
 connect = require 'mongodb'
 assert = require 'assert'
 app = require '../'
-brain = require 'mongoscope-brain'
+brain = require '../../scout-brain'
 debug = require('debug') 'scout-server:test:helper'
 
 defaults =
@@ -21,19 +21,35 @@ ctx =
 
 GET = (path) ->
   debug 'GET %s', path
-  return supertest(app).get(path).accept('json')
+  req = supertest(app).get(path).accept('json')
+  if ctx.token
+    req.set 'Authorization', "Bearer #{ctx.token}"
+
+  return req
 
 POST = (path) ->
   debug 'POST %s', path
-  return supertest(app).post(path).accept('json')
+  req = supertest(app).post(path).accept('json')
+  if ctx.token
+    req.set 'Authorization', "Bearer #{ctx.token}"
+
+  return req
 
 DELETE = (path) ->
   debug 'DELETE %s', path
-  return supertest(app).del(path).accept('json')
+  req = supertest(app).del(path).accept('json')
+  if ctx.token
+    req.set 'Authorization', "Bearer #{ctx.token}"
+
+  return req
 
 PUT = (path) ->
   debug 'PUT %s', path
-  return supertest(app).put(path).accept('json')
+  req = supertest(app).put(path).accept('json')
+  if ctx.token
+    req.set 'Authorization', "Bearer #{ctx.token}"
+
+  return req
 
 module.exports =
   collections: {}
@@ -64,10 +80,15 @@ module.exports =
         assert res.body.token
 
         ctx.token = res.body.token
+        module.exports.token = res.body.token
+        debug 'set token to', module.exports.token
         debug 'setup complete'
         debug ''
         debug ''
         done()
+
+  token: () ->
+    ctx.token
 
   after: (done) ->
     debug ''
