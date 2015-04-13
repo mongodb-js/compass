@@ -36,7 +36,7 @@ Resource.prototype.exec = function(method, pathname, data, fn){
     return this.client.on('readable', this.exec.bind(this, method, pathname, data, fn));
   }
 
-  var req = request[method](this.client.config.scope + this.root() + pathname)
+  var req = request[method](this.client.config.scout + (this.root() || '') + pathname)
     .set('Accept', 'application/json')
     .set('Authorization', 'Bearer ' + this.client.token.toString());
 
