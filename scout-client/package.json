@@ -10,8 +10,10 @@
   },
   "scripts": {
     "docs": "gulp docs",
-    "test": "zuul --local 3001 --open -- test/*.test.js",
-    "ci": "zuul -- test/*.test.js"
+    "start": "zuul --local 3001 --open -- test/*.test.js",
+    "// pretest": "node bin/pretest.js",
+    "test": "zuul -- test/*.test.js",
+    "// posttest": "node bin/pretest.js"
   },
   "dependencies": {
     "debug": "^2.1.3",
