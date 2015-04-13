@@ -608,17 +608,7 @@ Client.prototype.onTokenReadable = function() {
   this.readable = true;
   this.context.set(this.token.session);
   if (!this.io) {
-    this.io = socketio(this.config.scout);
-    this.io.on('reconnecting', this.emit.bind(this, 'reconnecting'))
-    .on('reconnect', this.onReconnect.bind(this))
-    .on('reconnect_attempt', this.emit.bind(this, 'reconnect_attempt'))
-    .on('reconnect_failed', this.emit.bind(this, 'reconnect_failed'))
-    .on('disconnect', this.emit.bind(this, 'disconnect'));
-
-    debug('sending highfive');
-    this.io.emit('highfive', {
-      token: this.token.toString()
-    });
+    this._initSocketio();
   }
   this.emit('readable', this.token.session);
   debug('emitted readable on client');
@@ -636,6 +626,20 @@ Client.prototype.onTokenReadable = function() {
       process.on('exit', this.onUnload.bind(this));
     }
   }
+};
+
+Client.prototype._initSocketio = function(){
+  this.io = socketio(this.config.scout, {
+    query: 'token=' + this.token.toString()
+  });
+  this.io.on('reconnecting', this.emit.bind(this, 'reconnecting'))
+  .on('reconnect', this.onReconnect.bind(this))
+  .on('reconnect_attempt', this.emit.bind(this, 'reconnect_attempt'))
+  .on('reconnect_failed', this.emit.bind(this, 'reconnect_failed'))
+  .on('disconnect', this.emit.bind(this, 'disconnect'));
+  this.io.on('connect', function () {
+    debug('connected to scout-server socket');
+  });
 };
 
 /**
@@ -673,9 +677,7 @@ Client.prototype.onReconnect = function() {
   .on('readable', function() {
     this.readable = true;
     this.context.set(this.token.session);
-    this.io.emit('highfive', {
-      token: this.token.toString()
-    });
+    this._initSocketio();
   }.bind(this))
   .on('error', this.emit.bind(this, 'error'));
 };

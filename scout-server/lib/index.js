@@ -87,3 +87,5 @@ app.use(require('./middleware/mongodb-boom'));
 app.use(express.static(__dirname + '/../res'));
 
 module.exports.listen = app.server.listen.bind(app.server);
+
+require('./io');

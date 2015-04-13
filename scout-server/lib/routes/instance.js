@@ -11,13 +11,13 @@ var boom = require('boom'),
 module.exports = {
   get: function(req, res, next) {
     models.instances.findOne({
-      deployment_id: req.deployment_id,
-      instance_id: req.instance_id
+      _id: req.deployment_id,
+      // instance_id: req.instance_id
     }, function(err, model) {
       if (err) return next(err);
 
       getInstanceDetail(req, function(err, detail) {
-        res.send(_.extend(model.toJSON(), detail));
+        res.send(_.extend(model, detail));
       });
     });
   }
@@ -152,9 +152,6 @@ function getHost(req, fn) {
     hostInfo: 1
   }, {}, function(err, data) {
     if (err) return fn(err);
-
-    data = data.documents[0];
-    if (data.errmsg) return fn(boom.notAuthorized(data.errmsg));
 
     fn(null, {
       system_time: data.system.currentTime,

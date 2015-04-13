@@ -53,6 +53,12 @@ var store = module.exports = {
     });
     fn(null, docs);
   },
+  findOne: function(query, fn){
+    store.find(query, function(err, docs){
+      if(err) return fn(err);
+      fn(null, docs[0]);
+    });
+  },
   clear: function(fn) {
     debug('clearing');
     store.find({}, function(err, docs) {

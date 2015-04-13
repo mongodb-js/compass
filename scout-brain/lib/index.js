@@ -8,3 +8,4 @@ module.exports.loadToken = require('./actions/token').load;
 module.exports.createToken = require('./actions/token').create;
 module.exports.destroySession = require('./actions/session').destroy;
 module.exports.clearStore = require('./store').clear;
+module.exports.store = require('./store');
