@@ -1,0 +1,14 @@
+{
+  "name": "scout",
+  "description": "Explore your MongoDB.",
+  "version": "0.0.0",
+  "main": "index.js",
+  "homepage": "http://github.com/10gen/scout.git",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/10gen/scout.git"
+  },
+  "dependencies": {
+    "debug": "^2.1.3"
+  }
+}
