@@ -24,3 +24,88 @@ html, body{
   position: absolute;
   width: 100%;
 }
+
+.sidebar {
+  position: absolute;
+  z-index: 10;
+  -webkit-transform: translateZ(0);
+
+  h1 {
+    font-size: 21px;
+    padding-left: 10px;
+  }
+  .facet-name {
+    .h5;
+    font-weight: 600;
+    padding-left: 10px;
+  }
+
+  .facet-value-list{
+    .nav;
+    .nav-pills;
+    .nav-stacked;
+    padding-left: 15px;
+
+    .facet-value {
+
+      .checkbox;
+      label {
+        display: block;
+        input {
+          position: absolute;
+          margin-left: -20px;
+          cursor: pointer;
+        }
+      }
+    }
+    .facet-value:first-child {
+      margin-top: 0;
+    }
+    .facet-value:last-child {
+      margin-bottom: 20px;
+    }
+  }
+  .form {
+    padding: 0px 15px 0px 15px;
+    .form-control {
+      height: 24px;
+      line-height: 24px;
+    }
+  }
+}
+
+.sidebar label {
+  font-weight: 600;
+}
+
+
+.sidebar .nav>li+li {
+  margin-top: -1px;
+}
+
+.sidebar .nav>li>a {
+  border-bottom: 1px solid #474747;
+  border-top: 1px solid #474747;
+}
+
+.sidebar .nav>li>a i {
+  float: left;
+  margin-right: 15px;
+  width: 14px;
+  text-align: center;
+  line-height: 20px;
+  font-size: 14px;
+}
+
+.sidebar-bg {
+  position: fixed;
+}
+
+.sidebar, .sidebar-bg {
+  top: 0px;
+  left: 0;
+  bottom: 0;
+  width: 220px;
+  background: @well-bg;
+  border-right: 1px solid @well-border;
+}

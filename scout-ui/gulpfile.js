@@ -149,6 +149,9 @@ gulp.task('develop', ['pages', 'assets', 'less', 'serve'], function() {
       gutil.log('Finished', '\'' + gutil.colors.cyan('rebundle') + '\'',
       'after', gutil.colors.magenta(time));
       spinner.start();
+      try {
+        require('remote').getCurrentWindow().reload();
+      } catch (e) {}
     });
   }
   return rebundle();
