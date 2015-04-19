@@ -3,16 +3,17 @@ var assert = require('assert'),
 
 var dataset;
 
-function date(epoch){
+function date(epoch) {
   var d = new Date();
   d.setTime(epoch);
   return d;
 }
 
-describe('Functional', function(){
-  var scope, result = [], collection;
+describe('Functional', function() {
+  var scope,
+    result = [], collection;
 
-  before(function(done){
+  before(function(done) {
     scope = helpers.createClient();
     // inserter = scope.collection('test.ejson_dates')
     //   .createWriteStream().on('end', done);
@@ -25,37 +26,51 @@ describe('Functional', function(){
 
     // @todo: Use mongodb-datasets.
     var docs = [
-        {_id: 'first', created_on: date(1405368259200)},
-        {_id: 'second', created_on: date(1405368259210)},
-        {_id: 'third', created_on: date(1405368259220)}
+        {
+          _id: 'first',
+          created_on: new Date(1405368259200)
+        },
+        {
+          _id: 'second',
+          created_on: new Date(1405368259210)
+        },
+        {
+          _id: 'third',
+          created_on: new Date(1405368259220)
+        }
       ],
       pending = docs.length;
 
     collection = scope.collection('test.ejson_dates');
-    collection.create(function(err){
-      if(err) return done(err);
+    collection.create(function(err) {
+      if (err) return done(err);
 
-      docs.map(function(doc){
-        scope.document('test.ejson_dates').create(doc, function(err, res){
-          if(err) return done(err);
+      docs.map(function(doc) {
+        scope.document('test.ejson_dates').create(doc, function(err, res) {
+          if (err) return done(err);
 
           result.push(res);
 
           pending--;
-          if(pending === 0) done();
+          if (pending === 0) done();
         });
       });
     });
   });
 
-  it('should have inserted `created_on` as a date', function(){
+  after(function(done) {
+    console.log('functional test teardown');
+    collection.destroy(done);
+  });
+
+  it('should have inserted `created_on` as a date', function() {
     assert.equal(result.length, 3);
-    result.map(function(doc){
+    result.map(function(doc) {
       assert(doc.created_on.getTime, 'Not a date? ' + doc.created_on);
     });
   });
 
-  it('should serialize dates in queries', function(done){
+  it('should serialize dates in queries', function(done) {
     var second_date = date(1405368259210),
       query = {
         created_on: {
@@ -63,16 +78,14 @@ describe('Functional', function(){
         }
       };
 
-    scope.find('test.ejson_dates', {query: query}, function(err, res){
-      if(err) return done(err);
+    scope.find('test.ejson_dates', {
+      query: query
+    }, function(err, res) {
+      if (err) return done(err);
 
       assert(Array.isArray(res));
       assert.equal(res.length, 1);
       done();
     });
-  });
-
-  after(function(done){
-    collection.destroy(done);
   });
 });

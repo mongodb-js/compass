@@ -1,7 +1,7 @@
 var assert = require('assert'),
   helpers = require('./helpers');
 
-describe('Prototypes', function() {
+describe('Sampling', function() {
   before(helpers.before);
   after(helpers.after);
 
@@ -10,6 +10,7 @@ describe('Prototypes', function() {
       size: 5
     }, function(err, res) {
       assert.ifError(err);
+
       var set = {},
         ids = res.map(function(d) {
           set[d._id] = true;

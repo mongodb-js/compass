@@ -628,7 +628,7 @@ Client.prototype.onTokenReadable = function() {
   }
 };
 
-Client.prototype._initSocketio = function(){
+Client.prototype._initSocketio = function() {
   this.io = socketio(this.config.scout, {
     query: 'token=' + this.token.toString()
   });
@@ -637,7 +637,7 @@ Client.prototype._initSocketio = function(){
   .on('reconnect_attempt', this.emit.bind(this, 'reconnect_attempt'))
   .on('reconnect_failed', this.emit.bind(this, 'reconnect_failed'))
   .on('disconnect', this.emit.bind(this, 'disconnect'));
-  this.io.on('connect', function () {
+  this.io.on('connect', function() {
     debug('connected to scout-server socket');
   });
 };

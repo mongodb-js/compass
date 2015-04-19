@@ -1,11 +1,7 @@
-var scope = require('../');
+var scout = require('../');
+var debug = require('debug')('scout-client:test:helpers');
 
-process.env.NODE_ENV = 'ci';
-if (typeof window !== 'undefined' && window.location.origin === 'http://localhost:8080') {
-  process.env.NODE_ENV = 'testing';
-}
-
-scope.configure({
+scout.configure({
   endpoint: 'http://localhost:29017',
   mongodb: 'localhost:27017'
 });
@@ -14,20 +10,32 @@ module.exports = {
   client: null,
   createClient: function(opts) {
     opts = opts || {};
-    module.exports.client = scope(opts);
+    module.exports.client = scout(opts);
     return module.exports.client;
   },
   before: function(done) {
+    if (!this || !this.test) {
+      console.trace('Wha? No this.test?');
+    }
+    // debug('before: %s', this.test.name);
     module.exports.createClient()
-    .on('error', done)
-    .on('readable', done.bind(null, null));
+    .once('error', done)
+    .once('readable', done.bind(null, null));
   },
   after: function(done) {
-    if (!module.exports.client) return done();
+    if (!module.exports.client) {
+      debug('after: no client to close');
+      return done();
+    }
 
+    debug('after: closing client');
     module.exports.client.close(function(err) {
+      debug('after: client closed');
+
       if (err) return done(err);
       module.exports.client = null;
+
+      debug('after: complete');
       done();
     });
   }
