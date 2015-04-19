@@ -5,6 +5,7 @@
  * @todo Move to it's own `mongodb-boom` module
  */
 var boom = require('boom');
+var debug = require('debug')('scout-server:middleware:mongodb-boom');
 
 
 function decodeDriverError(err, msg, fn) {
@@ -27,6 +28,8 @@ function decodeDriverError(err, msg, fn) {
     err = boom.notFound(msg);
   } else if (/already exists/.test(msg)) {
     err = boom.conflict(msg);
+  } else if (/pipeline element 0 is not an object/.test(msg)) {
+    err = boom.badRequest(msg);
   } else {
     // Have a case where we're not properly validating invalid
     // replicaset commands on a deployment with no replicaset.else if (/valid replicaset|No primary found in set/.test(msg)) {
@@ -47,9 +50,16 @@ function sendBoom(res, err) {
 }
 
 module.exports = function(err, req, res, next) {
+  debug('%s %s: error %s (%j)', req.method, req.url, err.message, {
+    params: req.params,
+    body: req.body,
+    query: req.query
+  });
   if (err && err.isBoom) return sendBoom(res, err);
 
   console.error('handling error', err.stack);
+  console.log('bad pipeline?', req.json('pipeline', '[]'));
+
   var msg = err.message || err.err;
   decodeDriverError(err, msg, function(err) {
     if (!err.isBoom) return next(err);

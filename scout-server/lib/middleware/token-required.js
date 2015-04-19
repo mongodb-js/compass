@@ -8,11 +8,9 @@ var boom = require('boom'),
   debug = require('debug')('scout-server:middleware:token_required');
 
 module.exports = function(req, res, next) {
-  var access_token,
-    auth = req.headers.authorization || '',
-    parts = auth.split(' ');
-
-  if (req.method === 'POST' && req.url === '/api/v1/token') return next();
+  var access_token;
+  var auth = req.headers.authorization || '';
+  var parts = auth.split(' ');
 
   debug('getting token from headers');
   if (!auth) return next(boom.forbidden('Missing authorization header'));

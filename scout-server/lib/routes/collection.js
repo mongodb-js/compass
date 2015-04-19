@@ -1,13 +1,18 @@
 /**
  * @todo should most of this live in `scout-brain`?
  */
-var debug = require('debug')('scout-server:routes:collection'),
-  createReservoir = require('reservoir-stream'),
-  validate = require('../validate'),
-  boom = require('boom'),
-  _ = require('underscore'),
-  es = require('event-stream'),
-  async = require('async');
+var debug = require('debug')('scout-server:routes:collection');
+var createReservoir = require('reservoir-stream');
+var validate = require('../validate');
+var boom = require('boom');
+var es = require('event-stream');
+var async = require('async');
+var _ = require('underscore');
+var EJSON = require('mongodb-extended-json');
+var csv = require('csv-write-stream');
+var flatnest = require('flatnest');
+var peek = require('peek-stream');
+var crypto = require('crypto');
 
 /**
  * `collection.find()` and `collection.count()` are so similar in their
@@ -19,6 +24,8 @@ var debug = require('debug')('scout-server:routes:collection'),
  */
 function createReader(method) {
   return function(req, res, next) {
+    getCursorOptions(req);
+
     var explain = req.boolean('explain');
     var cursor = req.db.collection(req.ns.collection)
     .find(req.json('query', '{}'), {
@@ -45,9 +52,35 @@ function createReader(method) {
         });
       });
     }
+    res.format({
+      'application/json': function() {
+        var src = cursor.stream();
+        var peeker = peek(function(data, swap) {
+
+          var etag = getETag(data, req);
+          debug('setting etag', etag);
+          res.set('ETag', etag);
+          res.set('content-type', 'application/json');
+
+          if (req.headers['if-none-match'] && req.headers['if-none-match'] === etag) {
+            debug('yay! not modified');
+            res.status(304).send('').end();
+            cursor.close();
+            src.unpipe(res);
+            return;
+          } else {
+            debug('swapping in stringify');
+            swap(null, EJSON.createStringifyStream());
+            return;
+          }
+        });
+        src.pipe(peeker).pipe(res);
+      },
+      'text/csv': format('text/csv', cursor, req, res, next),
+      'text/tsv': format('text/tsv', cursor, req, res, next)
+    });
 
     // @todo: Hook back up to event-stream and socket.io.
-    cursor.cursor.stream().pipe(res);
   };
 }
 
@@ -62,7 +95,7 @@ function createReader(method) {
  * @api private
  */
 function createSampleStream(db, collection_name, opts) {
-  opts = _.default((opts || {}), {
+  opts = _.defaults((opts || {}), {
     query: {},
     size: 5
   });
@@ -70,29 +103,46 @@ function createSampleStream(db, collection_name, opts) {
   var collection = db.collection(collection_name),
     src,
     cursor,
-    reservoir;
+    reservoir,
+    complete = false;
 
   return es.readable(function(count, done) {
-    if (src) return;
+    if (src) {
+      if (complete) {
+        return this.emit('end');
+      }
+      return;
+    }
 
     var self = this;
+    collection.count(opts.query, function(err, count) {
+      if (err) return done(err);
 
-    src = collection.find(opts.query, {
-      fields: {
-        _id: 1
-      }
-    });
+      debug('sampling %d documents from a collection with a population of %d documents',
+      opts.size, count);
+      src = collection.find(opts.query, {
+        fields: {
+          _id: 1
+        }
+      });
 
-    cursor = src.cursor.stream()
-    .on('error', self.emit.bind(self, 'error'));
+      cursor = src.stream()
+      .on('error', self.emit.bind(self, 'error'));
 
-    reservoir = createReservoir(opts.size)
-    .on('error', self.emit.bind(self, 'error'))
-    .on('data', function(doc) {
-      self.emit('data', doc._id);
-    })
-    .on('end', function() {
-      done();
+      reservoir = createReservoir(opts.size)
+      .on('error', self.emit.bind(self, 'error'))
+      .on('data', function(doc) {
+        debug('sampled _id', doc._id);
+        self.emit('data', doc._id);
+      })
+      .on('end', function() {
+        debug('sample complete');
+        src.close();
+        complete = true;
+        done();
+      });
+
+      cursor.pipe(reservoir);
     });
   });
 }
@@ -107,19 +157,139 @@ function createSampleStream(db, collection_name, opts) {
  * @api private
  */
 function _idToDocument(db, collection_name, opts) {
-  opts = _.default((opts || {}), {
+  opts = _.defaults((opts || {}), {
     fields: null
   });
 
   var collection = db.collection(collection_name);
   return es.map(function(_id, fn) {
-    collection.findOne({
+    var query = {
       _id: _id
-    }, {
+    };
+    var options = {
       fields: opts.fields
-    }, fn);
+    };
+
+    debug('pulling sample document %j', {
+      query: query,
+      options: options
+    });
+
+    collection.findOne(query, options, function(err, doc) {
+      if (err) {
+        debug('error pulling sample document: ', err);
+        return fn(err);
+      }
+      debug('pulled sample document %j', doc);
+      fn(null, doc);
+    });
   });
 }
+
+
+var readable = function(doc) {
+  if (_.isArray(doc)) return es.readArray(doc);
+  if (_.isFunction(doc.stream)) return doc.stream();
+
+  var sent = false;
+  return es.readable(function(count, cb) {
+    if (sent) return this.emit('end');
+    sent = true;
+    cb(null, doc || null);
+  });
+};
+
+var waitAndSend = function(req, res, next) {
+  return es.wait(function(err, data) {
+    if (err) return next(err);
+    res.send(data);
+  });
+};
+function flatten() {
+  return es.map(function(data, fn) {
+    fn(null, flatnest.flatten(data));
+  });
+}
+
+function getCursorOptions(req) {
+  req._cursorOptions = {
+    query: req.json('query', '{}'),
+    skip: Math.max(0, req.int('skip', 0)),
+    limit: req.int('limit', 0),
+    sort: req.json('sort', 'null'),
+    explain: req.boolean('explain', false),
+    fields: req.json('fields', 'null')
+  };
+  return req._cursorOptions;
+}
+
+function getETag(doc, req) {
+  var _id = 'o:';
+
+  _id += (_.chain(req._cursorOptions)
+  .map(function(val, key) {
+    if (!val) return null;
+    return key + '=' + JSON.stringify(val);
+  })
+  .filter(function(d) {
+    return d !== null;
+  })
+  .value()
+  .join('~') || '0');
+  if (doc && doc._id) {
+    _id += '|f:' + doc._id.toString();
+  }
+  debug('raw etag is', _id);
+  return crypto.createHash('sha1').update(_id).digest('hex');
+}
+
+var conditional = function(src, cursor, transformer, req, res) {
+  return peek(function(data, swap) {
+    var etag = getETag(data, req);
+    res.set('ETag', etag);
+    if (req.headers['if-none-match'] && req.headers['if-none-match'] === etag) {
+      res.status(304).send('').end();
+      cursor.close();
+      return;
+    } else {
+      return swap(null, transformer());
+    }
+  });
+};
+
+var format = function(mime, docs, req, res, next) {
+  var opts = {
+    separator: '\t'
+  };
+  if (mime === 'text/csv') {
+    opts.separator = ',';
+  }
+  var cursor;
+
+  var isCursor = _.isFunction(docs.stream);
+  if (isCursor) {
+    cursor = docs;
+  }
+
+  var src = readable(docs);
+
+  if (_.contains(['text/csv', 'text/tsv'], mime)) {
+    return function() {
+      res.set('content-type', mime);
+      if (!isCursor) {
+        return src
+        .pipe(flatten())
+        .pipe(csv(opts))
+        .pipe(waitAndSend(req, res, next));
+      }
+
+      src
+      .pipe(conditional(src, cursor, flatten, req, res))
+      .pipe(csv(opts))
+      .pipe(waitAndSend(req, res, next));
+    };
+  }
+};
 
 function getCollectionFeatures(req, fn) {
   if (req.collection_features) {
@@ -206,6 +376,13 @@ module.exports = {
   find: createReader('find'),
   count: createReader('count'),
   sample: function(req, res) {
+    var headersSent = false;
+    // var timer = req.metrics.time('scout-server.routes.collection.sample');
+    // res.once('finish', function() {
+    //   console.log('SENT\n\n\n');
+    //   timer.stop();
+    // });
+
     createSampleStream(req.db, req.ns.collection, {
       query: req.json('query'),
       size: req.int('size', 5)
@@ -213,7 +390,16 @@ module.exports = {
     .pipe(_idToDocument(req.db, req.ns.collection, {
       fields: req.json('fields')
     }))
+    .pipe(EJSON.createStringifyStream())
+    .pipe(es.map(function(s, fn) {
+      if (!headersSent) {
+        headersSent = true;
+        res.set('content-type', 'application/json');
+      }
+      fn(null, s);
+    }))
     .pipe(res);
+
   },
   bulk: function(req, res, next) {
     if (!Array.isArray(req.body)) return next(boom.badRequest('Body should be an array'));
@@ -292,7 +478,7 @@ module.exports = {
 
       req.mongo.db(req.params.database_name).dropCollection(name, function(err) {
 
-        if (err){
+        if (err) {
           console.log('error removing', name);
           return next(err);
         }
@@ -334,10 +520,10 @@ module.exports = {
     });
   },
   put: function(req, res, next) {
-    if (!req.params.name) {
+    if (!req.body.name) {
       return next(boom.badRequest('Missing required `name`'));
     }
-    req.mongo.db(req.database_name).renameCollection(req.params.collection_name, req.params.name, function(err) {
+    req.mongo.db(req.params.database_name).renameCollection(req.params.collection_name, req.body.name, function(err) {
       if (err) {
         if (/target namespace exists/.test(err.message)) {
           return next(boom.conflict('Cannot rename because `' + req.params.name + '` already exists'));
@@ -345,9 +531,9 @@ module.exports = {
         return next(err);
       }
       res.send({
-        name: req.params.name,
+        name: req.body.name,
         database: req.params.database_name,
-        _id: req.params.database_name + '.' + req.params.name
+        _id: req.params.database_name + '.' + req.body.name
       });
     });
   }
