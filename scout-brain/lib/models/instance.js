@@ -1,142 +1,70 @@
-var State = require('ampersand-state'),
-  _ = require('underscore');
+var _ = require('underscore');
+var AmpersandState = require('ampersand-state');
+var AmpersandModel = require('ampersand-model');
 
-/**
- * @const STATUS The instance's `MemberStatus` in the repliacaset.
- */
-var STATUS = {
-  PRIMARY: 'primary',
-  SECONDARY: 'secondary',
-  ARBITER: 'arbiter',
-  STARTUP: [
-    'startup',
-    'startup2'
-  ],
-  ERROR: [
-    'recovering',
-    'fatal',
-    'unknown', // remote node not yet reached
-    'down', // node not reachable for a report
-    'rollback', // node is currently rolling back changes
-    'shunned' // node shunned from replicaset
-  ],
-  UNKNOWN: 'unknown'
-};
+var DatabaseCollection = require('./database-collection');
+var CollectionCollection = require('./collection-collection');
 
-/**
- * Any MongoDB instance (a.k.a. process).
- */
-var Instance = State.extend({
+var HostInfo = AmpersandState.extend({
+  props: {
+    system_time: 'date',
+    hostname: 'string',
+    os: 'string',
+    os_family: 'string',
+    kernel_version: 'string',
+    kernel_version_string: 'string',
+    memory_bits: 'number',
+    memory_page_size: 'number',
+    arch: 'string',
+    cpu_cores: 'number',
+    cpu_cores_physical: 'number',
+    cpu_scheduler: 'string',
+    cpu_frequency: 'number',
+    cpu_string: 'string',
+    cpu_bits: 'number',
+    machine_model: 'string',
+    feature_numa: 'boolean',
+    feature_always_full_sync: 'number',
+    feature_nfs_async: 'number'
+  }
+});
+
+var BuildInfo = AmpersandState.extend({
+  props: {
+    version: 'string',
+    commit: 'string',
+    commit_url: 'string',
+    flags_loader: 'string',
+    flags_compiler: 'string',
+    allocator: 'string',
+    javascript_engine: 'string',
+    debug: 'boolean',
+    for_bits: 'number',
+    max_bson_object_size: 'number'
+  }
+});
+
+var Instance = AmpersandModel.extend({
   props: {
     _id: {
       type: 'string',
       required: true
     },
     name: {
-      type: 'string',
-      required: true
-    },
-    type: {
-      type: 'string',
-      required: true,
-      values: ['store', 'router', 'config']
+      type: 'string'
     }
   },
-  dataTypes: {
-    status: {
-      default: function() {
-        return STATUS.UNKNOWN;
-      }
-    }
+  children: {
+    databases: DatabaseCollection,
+    collections: CollectionCollection,
+    host: HostInfo,
+    build: BuildInfo
+  },
+  parse: function(d) {
+    this.databases.reset(d.databases);
+    this.collections.reset(_.flatten(d.collections));
+    return d;
   }
 });
 
-/**
- * An instance of the `mongod` process that:
- *
- * - is not a member of a replicaset or shard
- * - was not started with the `--configsrv` option
- */
-var Store = module.exports.Store = Instance.extend({
-  initialize: function() {
-    this.type = 'store';
-  }
-});
-
-var ReplicasetMember = {
-  props: {
-    /**
-     * The replicaset name this instance is currently a
-     * member of, e.g. `replicom`, `exfm`, etc.
-     */
-    rs: {
-      type: 'string',
-      required: true
-    }
-  }
-};
-
-/**
- * `mongod` processes that are members of a replicaset also have a notion of
- * which replicaset it is currently in (`rs`) and it's current `state` (as
- * reported by itself or another member of the replicaset).
- */
-module.exports.ReplicasetStore = Store.extend(ReplicasetMember, {
-  props: {
-    status: {
-      type: 'status',
-      values: _.union(STATUS.STARTUP, STATUS.ERROR, [STATUS.PRIMARY, STATUS.SECONDARY])
-    }
-  }
-});
-
-/**
- * `mongod` process that only acts as a voting member of the replicaset
- * and is not actually a store.
- */
-module.exports.Arbiter = Store.extend(ReplicasetMember, {
-  props: {
-    status: {
-      type: 'status',
-      values: [STATUS.ARBITER]
-    }
-  }
-});
-
-module.exports.ClusteredStore = Store.extend({
-  props: {
-    /**
-     * Which shard this store is on, e.g.
-     * `clusterco-0`, `clusterco-1`.
-     */
-    shard: {
-      type: 'string',
-      required: true
-    },
-    /**
-     * The state of this instance within the shard.
-     */
-    status: {
-      type: 'status',
-      values: _.union(STATUS.STARTUP, STATUS.ERROR, [STATUS.PRIMARY, STATUS.SECONDARY])
-    }
-  }
-});
-
-/**
- * An instance of the `mongos` process.
- */
-module.exports.Router = Instance.extend({
-  initialize: function() {
-    this.type = 'router';
-  }
-});
-
-/**
- * An instance of the `mongod` process WITH the `--configsrv` option.
- */
-module.exports.Config = Instance.extend({
-  initialize: function() {
-    this.type = 'config';
-  }
-});
+module.exports = Instance;

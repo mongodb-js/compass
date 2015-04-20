@@ -87,7 +87,10 @@ function getAllCollections(req, fn) {
       };
     });
 
-    async.parallel(tasks, fn);
+    async.parallel(tasks, function(err, res){
+      if(err) return fn(err);
+      fn(null, _.flatten(res));
+    });
   });
 }
 
@@ -112,8 +115,7 @@ function getAllDatabases(req, fn) {
             index_size: data.indexSize,
             extent_count: data.numExtents,
             file_size: data.fileSize,
-            ns_size: data.nsSizeMB * 1024 * 1024,
-            collections: []
+            ns_size: data.nsSizeMB * 1024 * 1024
           });
         });
       };

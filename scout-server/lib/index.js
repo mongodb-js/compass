@@ -50,8 +50,8 @@ app.delete('/api/v1/token', token_required, token.destroy);
  * ## deployment
  */
 var deployment = require('./routes/deployment');
-app.get('/api/v1/deployments/:deployment_id', token_required, deployment.get);
 app.get('/api/v1/deployments', token_required, deployment.list);
+app.get('/api/v1/deployments/:deployment_id', token_required, deployment.get);
 
 /**
  * ## instance

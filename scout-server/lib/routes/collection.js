@@ -362,11 +362,10 @@ module.exports = {
     async.parallel(tasks, function(err, data) {
       if (err) return next(err);
 
-      var model = _.extend(data.features, {
+      var model = _.extend(data.features, data.stats, {
         _id: req.ns.toString(),
         name: req.ns.collection,
         database: req.ns.database,
-        stats: data.stats,
         indexes: data.indexes
       });
 
