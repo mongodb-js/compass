@@ -12,12 +12,13 @@ var AmpersandState = require('ampersand-state'),
   ViewSwitcher = require('ampersand-view-switcher'),
   qs = require('qs');
 
+var app = require('ampersand-app');
 var Router = require('./router');
 
 var PageContainer = AmpersandView.extend({
   template: '<body><div class="page-container" data-hook="page-container"></div></body>',
   initialize: function() {
-    this.listenTo(this.model.router, 'page', this.onPageChange);
+    this.listenTo(app.router, 'page', this.onPageChange);
   },
   events: {
     'click a': 'onLinkClick'
@@ -33,7 +34,7 @@ var PageContainer = AmpersandView.extend({
   },
   onPageChange: function(view) {
     this.pageSwitcher.set(view);
-    this.model.currentPage = view;
+    app.currentPage = view;
   },
   onLinkClick: function(e) {
     if (e && e.hasOwnProperty('isPropagationStopped') && e.isPropagationStopped()) return;
@@ -45,27 +46,20 @@ var PageContainer = AmpersandView.extend({
     // and it's a local url, navigate internally
     if (local && !e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) {
       e.preventDefault();
-      window.app.navigate(aTag.pathname + aTag.search);
+      app.navigate(aTag.pathname + aTag.search);
     }
   }
 });
 
-
-
-var App = AmpersandState.extend({
+app.extend({
   /**
    * init URL handlers and the history tracker.
    */
   router: new Router(),
   currentPage: null,
-  constructor: function() {
-    assert(window.app === undefined, 'App is a singleton!');
-    var app = window.app = this;
-
-
+  init: function() {
     domReady(function() {
       app.view = new PageContainer({
-        model: app,
         el: document.body
       }).render();
 
@@ -107,4 +101,4 @@ var App = AmpersandState.extend({
   }
 });
 
-module.exports = new App();
+module.exports = app.init();
