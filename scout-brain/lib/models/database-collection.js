@@ -1,8 +1,3 @@
-var AmpersandCollection = require('ampersand-collection');
-var Database = require('./database');
-
-var DatabaseCollection = AmpersandCollection.extend({
-  model: Database
+module.exports = require('ampersand-rest-collection').extend({
+  model: require('./database')
 });
-
-module.exports = DatabaseCollection;

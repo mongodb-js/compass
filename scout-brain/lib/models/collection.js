@@ -29,6 +29,9 @@ var Collection = AmpersandModel.extend({
     flags_user: 'number',
     flags_system: 'number'
   },
+  session: {
+    selected: 'boolean'
+  },
   extraProperties: 'allow',
   collections: {
     indexes: CollectionIndexes,

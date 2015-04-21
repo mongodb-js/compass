@@ -1,8 +1,3 @@
-var Instance = require('./instance');
-var AmpersandCollection = require('ampersand-collection');
-
-var InstanceCollection = AmpersandCollection.extend({
-  model: Instance
+module.exports  = require('ampersand-rest-collection').extend({
+  model: require('./instance')
 });
-
-module.exports = InstanceCollection;

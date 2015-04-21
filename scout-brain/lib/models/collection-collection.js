@@ -1,7 +1,3 @@
-var AmpersandCollection = require('ampersand-collection');
-
-var CollectionCollection = AmpersandCollection.extend({
+module.exports = require('ampersand-rest-collection').extend({
   model: require('./collection')
 });
-
-module.exports = CollectionCollection;

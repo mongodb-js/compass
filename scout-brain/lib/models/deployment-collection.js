@@ -1,8 +1,3 @@
-var Deployment = require('./deployment'),
-  AmpersandCollection = require('ampersand-collection');
-
-var DeploymentCollection = AmpersandCollection.extend({
-  model: Deployment
+module.exports = require('ampersand-rest-collection').extend({
+  model: require('./deployment')
 });
-
-module.exports = DeploymentCollection;
