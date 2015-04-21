@@ -109,3 +109,36 @@ html, body{
   background: @well-bg;
   border-right: 1px solid @well-border;
 }
+
+#statusbar {
+  background: 0 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1020;
+
+
+  .progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    text-align: center;
+    height: 4px;
+    z-index: 2000;
+    border-radius: 0;
+    -webkit-transition: all 500ms cubic-bezier(0.600, 0, 0.735, 0.045); /* older webkit */
+    -webkit-transition: all 500ms cubic-bezier(0.600, -0.280, 0.735, 0.045);
+       -moz-transition: all 500ms cubic-bezier(0.600, -0.280, 0.735, 0.045);
+         -o-transition: all 500ms cubic-bezier(0.600, -0.280, 0.735, 0.045);
+            transition: all 500ms cubic-bezier(0.600, -0.280, 0.735, 0.045); /* easeInBack */
+    // background: transparent;
+    // box-shadow: inset -1px 1px 0 #484848, 4px 0px 4px rgba(0, 0, 0, 0.1);
+    // background-image: -webkit-linear-gradient(top, #444444, #3d3d3d);
+    .progress-bar {
+      background-color: @component-active-bg;
+    }
+  }
+}
+

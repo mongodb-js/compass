@@ -51,11 +51,13 @@ var PageContainer = AmpersandView.extend({
   }
 });
 
+var StatusbarView = require('./statusbar');
 app.extend({
   /**
    * init URL handlers and the history tracker.
    */
   router: new Router(),
+  statusbar: new StatusbarView(),
   currentPage: null,
   init: function() {
     domReady(function() {
