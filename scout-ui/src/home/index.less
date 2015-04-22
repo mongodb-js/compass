@@ -1,18 +1,20 @@
 // Home page styles
 
 .sidebar {
+  border-radius: 0;
+
   .list-filter {
     padding: 4px 4px;
     padding-top: 10px;
     .search-icon {
       position: absolute;
       padding-top: 6px;
-      font-size: 12px;
+      font-size: 11px;
       padding-left: 6px;
     }
     input[type=search] {
       border-radius: 18px;
-      padding: 4px 4px 4px 20px;
+      padding: 2px 2px 2px 20px;
       height: auto;
       font-size: 11px;
     }
@@ -46,5 +48,17 @@
         }
       }
     }
+  }
+}
+
+.panel {
+  &.panel-toolbar {
+    margin-left: -20px;
+    border-left: 0;
+    border-right: 0;
+    border-radius: 0;
+  }
+  &.from-top {
+    border-top: 0;
   }
 }

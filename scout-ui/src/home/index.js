@@ -5,6 +5,7 @@ var ViewSwitcher = require('ampersand-view-switcher');
 var models = require('../models');
 var debug = require('debug')('scout-ui:home');
 var app = require('ampersand-app');
+var _ = require('underscore');
 
 var CollectionView = AmpersandView.extend({
   bindings: {
@@ -12,7 +13,7 @@ var CollectionView = AmpersandView.extend({
       hook: 'name'
     }
   },
-  template: '<div><h1 data-hook="name"></h1><code data-hook="sample"></code></div>',
+  template: require('./collection.jade'),
   render: function() {
     this.renderWithTemplate();
     this.listenTo(this.model.documents, 'sync reset', function() {
@@ -42,6 +43,40 @@ var CollectionsListItem = AmpersandView.extend({
   }
 });
 
+var ListFilter = AmpersandView.extend({
+  props: {
+    search: 'string'
+  },
+  initialize: function() {
+    this.listenTo(this, 'change:search', this.applyFilter);
+  },
+  template: require('./list-filter.jade'),
+  render: function() {
+    this.renderWithTemplate(this);
+    this.$search = $(this.queryByHook('search'));
+    this.$search.on('keyup', function() {
+      this.search = this.$search.val();
+      debug('search is now: %s', this.search);
+    }.bind(this));
+  },
+  applyFilter: function() {
+    var re;
+    if (!this.search || this.search.length === 0) {
+      re = new RegExp('.*');
+    } else {
+      re = new RegExp(this.search);
+    }
+    debug('search regex is now', re);
+    this.parent.model.collections.filter(function(model) {
+      return re.test(model._id);
+    }.bind(this));
+  }
+});
+
+// Keyboard nav:
+// up/down: navigate list
+// right: -> show collection
+// left: -> hide collection
 var CollectionsList = AmpersandView.extend({
   template: '<ul class="list-group" data-hook="collections-list"></ul>',
   render: function() {
@@ -49,14 +84,18 @@ var CollectionsList = AmpersandView.extend({
     this.renderCollection(this.collection, CollectionsListItem, this.queryByHook('collections-list'));
   },
   show: function(model) {
-    if(model.selected){
+    if (model.selected) {
       return debug('already selected %s', model);
     }
-    var current = this.collection.find({selected: true});
-    if(current) current.toggle('selected');
+    var current = this.collection.find({
+      selected: true
+    });
+    if (current) current.toggle('selected');
 
     model.toggle('selected');
     model.documents.ns = model._id;
+
+    document.title = 'mongodb://' + this.parent.model._id + '/' + model._id;
 
     this.parent.switcher.set(new CollectionView({
       model: model
@@ -75,11 +114,13 @@ module.exports = AmpersandView.extend({
 
     app.statusbar.watch(this, this.model);
 
-    this.listenTo(this.model, 'sync', function(){
-      if(!options.ns) return;
+    this.listenTo(this.model, 'sync', function() {
+      if (!options.ns) return;
 
-      var current = this.model.collections.find({_id: options.ns});
-      if(!current) return;
+      var current = this.model.collections.find({
+        _id: options.ns
+      });
+      if (!current) return;
 
       this.collections.show(current);
     });
@@ -93,6 +134,15 @@ module.exports = AmpersandView.extend({
   },
   template: require('./index.jade'),
   subviews: {
+    collections_filter: {
+      hook: 'collections-filter',
+      prepareView: function(el) {
+        return new ListFilter({
+          el: el,
+          parent: this
+        });
+      }
+    },
     collections: {
       hook: 'collections',
       prepareView: function(el) {

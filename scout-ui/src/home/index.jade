@@ -1,6 +1,6 @@
 .page
   #statusbar
-    .progress
+    .progress.hidden
       .progress-bar.progress-bar-striped.active(data-hook='bar')
         &nbsp;
   .content(style='margin-left: 240px;')
@@ -8,8 +8,6 @@
     .clearfix
 
   .sidebar.panel
-    .panel-heading.list-filter
-      span.octicon.octicon-search.search-icon
-      input.form-control(type='search', placeholder='Search dbs and collections')
+    div(data-hook='collections-filter')
     div(data-hook='collections')
   .sidebar-bg

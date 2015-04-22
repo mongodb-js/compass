@@ -23,11 +23,11 @@ var StatusbarView = AmpersandView.extend({
           }
         }
       },
-      // {
-      //   type: 'booleanClass',
-      //   yes: 'visible',
-      //   no: 'hidden'
-      // }
+      {
+        type: 'booleanClass',
+        yes: 'visible',
+        no: 'hidden'
+      }
     ]
   },
   watch: function(view, collection){
