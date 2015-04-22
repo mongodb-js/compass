@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "install": "gulp install",
-    "start": "DEBUG=* atom-shell ./",
+    "start": "gulp start",
     "test": "gulp test",
     "check": "jshint"
   },

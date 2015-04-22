@@ -99,7 +99,7 @@ gulp.task('serve', function() {
   .pipe(webserver({
     host: 'localhost',
     port: 3000,
-    open: true,
+    // open: true,
     directoryListing: false,
     livereload: true
   }));

@@ -36,7 +36,7 @@ function test() {
 
 function dev() {
   process.env.NODE_ENV = 'development';
-  process.env.DEBUG = 'mon*';
+  process.env.DEBUG = 'mon*,sco*';
 }
 
 function prod() {
@@ -76,10 +76,16 @@ gulp.task('test', function(done) {
 
 gulp.task('default', ['install', 'test']);
 
+// @todo: make this non-shitty
 gulp.task('start', function() {
-  var child = proc.spawn('./atom-shell/out/R/Scout.app/Contents/MacOS/Scout', [__dirname]);
-  child.stderr.pipe(process.stderr);
-  child.stdout.pipe(process.stdout);
+  dev();
+  script('start', ['server']);
+  script('start', ['ui']);
+  setTimeout(function() {
+    var child = proc.spawn('./atom-shell/out/R/Scout.app/Contents/MacOS/Scout', [__dirname]);
+    child.stderr.pipe(process.stderr);
+    child.stdout.pipe(process.stdout);
+  }, 1000);
 });
 
 // @todo: remove default_app in Resources
@@ -187,18 +193,31 @@ function patchInfoPlist(opts, done) {
   });
 }
 
-gulp.task('build', function(done) {
+function _opts() {
   var opts = {};
   opts.buildConfig = 'Release';
-  opts.projectName = 'scout';
+  opts.name = opts.projectName = 'scout';
   opts.productName = 'Scout';
-  opts.ATOM_SHELL_HOME = process.cwd() + '/atom-shell';
+  opts.projectHome = process.cwd();
+
+  opts.PLATFORM = process.platform;
+  opts.ATOM_SHELL_HOME = opts.projectHome + '/atom-shell';
   opts.ATOM_SHELL_OUT = opts.ATOM_SHELL_HOME + '/out';
   opts.ATOM_NODE_URL = 'https://gh-contractor-zcbenz.s3.amazonaws.com/atom-shell/dist';
+  opts.EXECUTABLE = opts.productName;
+  if (opts.PLATFORM === 'linux') {
+    opts.EXECUTABLE = opts.EXECUTABLE.toLowerCase();
+  } else if (opts.PLATFORM === 'win32') {
+    opts.EXECUTABLE += '.exe';
+  }
 
+  opts.APP = opts.ATOM_SHELL_OUT + '/R/' + opts.productName;
+  if (opts.PLATFORM === 'darwin') {
+    opts.APP += '.app';
+  }
+  opts.BREAKPAD_SYMBOLS = opts.ATOM_SHELL_OUT + '/R/' + opts.productName + '.breakpad.syms';
   opts.NODE_VERSION = process.env.ATOM_NODE_VERSION || '0.23.0';
 
-  opts.projectHome = process.cwd();
 
   opts.ARCH = (function() {
     switch (process.platform) {
@@ -210,7 +229,11 @@ gulp.task('build', function(done) {
         return process.arch;
     }
   })();
+  return opts;
+}
 
+gulp.task('build', function(done) {
+  var opts = _opts();
   async.series({
     configure: configure.bind(null, opts),
     source: source.bind(null, opts),
@@ -223,8 +246,44 @@ gulp.task('build', function(done) {
   }, done);
 });
 
-// @todo: codesign --verbose --deep --force --sign "Company, LLC." Atom.app
-//    https://github.com/atom/atom-shell/issues/171
+// https://github.com/atom/electron-starter/blob/master/build/tasks/codesign-task.coffee
+function unlockKeychain(opts, done) {
+  var cmd = util.format('security unlock-keychain -p %s',
+  process.env.XCODE_KEYCHAIN_PASSWORD, process.env.XCODE_KEYCHAIN);
+  proc.exec(cmd, done);
+}
+function signApp(opts, done) {
+  if (opts.PLATFORM === 'darwin') {
+    var cmd = util.format('codesign --deep --force --verbose --sign %s %s',
+    process.env.XCODE_SIGNING_IDENTITY, opts.APP);
+    proc.exec(cmd, done);
+  } else {
+    done();
+  }
+}
+gulp.task('sign', function(done) {
+  var opts = _opts();
+  if (process.platform() === 'darwin' && process.env.XCODE_KEYCHAIN) {
+    unlockKeychain(function(err) {
+      if (err) return done(err);
+      signApp(opts, done);
+    });
+  } else {
+    return done();
+  }
+});
+
+// @todo: dump debug symbols to opts.BREAKPAD_SYMBOLS
+// https://github.com/atom/electron-starter/blob/master/build/tasks/dump-symbols-task.coffee
+
+// @todo: set version
+// https://github.com/atom/electron-starter/blob/master/build/tasks/set-version-task.coffee
+
+// @todo: https://github.com/atom/electron-starter/blob/master/build/tasks/set-exe-icon-task.coffee
+
 
 // @todo: create windows installer
 //    https://github.com/domderen/atom-shell-installer/blob/master/src/InstallerFactory.js
+
+// @todo: make the rest of these tasks not asinine:
+// https://github.com/atom/electron-starter/tree/master/build/tasks
