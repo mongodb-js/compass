@@ -120,7 +120,7 @@ Client.prototype.connect = function() {
   }
   this.token = new Token(this.config)
   .on('readable', this.onTokenReadable.bind(this))
-  .on('error', this.emit.bind(this, 'error'));
+  .on('error', this.onTokenError.bind(this));
   return this;
 };
 
@@ -626,6 +626,16 @@ Client.prototype.onTokenReadable = function() {
       process.on('exit', this.onUnload.bind(this));
     }
   }
+};
+
+/**
+ * We couldn't get a token.
+ *
+ * @api private
+ */
+Client.prototype.onTokenError = function(err){
+  debug('Could not get token.  Server not running?', err);
+  this.emit('error', err);
 };
 
 Client.prototype._initSocketio = function() {
