@@ -1,6 +1,7 @@
 var AmpersandModel = require('ampersand-model');
 
 var Database = AmpersandModel.extend({
+  idAttribute: '_id',
   props: {
     _id: 'string',
     document_count: 'number',

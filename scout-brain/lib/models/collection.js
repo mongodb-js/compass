@@ -13,9 +13,9 @@ var CollectionIndexes = AmpersandCollection.extend({
 });
 
 var Collection = AmpersandModel.extend({
+  idAttribute: '_id',
   props: {
-    _id: 'string',
-    name: 'string',
+    _id: {type: 'string', required: true},
     database: 'string',
     index_sizes: 'number',
     document_count: 'number',

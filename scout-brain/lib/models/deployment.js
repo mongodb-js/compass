@@ -15,6 +15,7 @@ var dataTypes = {
 };
 
 var Deployment = AmpersandModel.extend({
+  idAttribute: '_id',
   dataTypes: dataTypes,
   props: {
     _id: {

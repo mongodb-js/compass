@@ -1,3 +1,4 @@
 module.exports = require('ampersand-rest-collection').extend({
-  model: require('./document')
+  model: require('./document'),
+  comparator: '_id'
 });

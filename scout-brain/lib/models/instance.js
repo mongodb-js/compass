@@ -6,6 +6,7 @@ var DatabaseCollection = require('./database-collection');
 var CollectionCollection = require('./collection-collection');
 
 var HostInfo = AmpersandState.extend({
+  idAttribute: '_id',
   props: {
     system_time: 'date',
     hostname: 'string',
