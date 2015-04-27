@@ -19,12 +19,8 @@ var store = module.exports = {
       return fn(new Error('Invalid key `' + key + '`'));
     }
     var res = store_data[key];
-    debug('get `%s` ->', key, res);
-    if (!res) {
-      debug('!!! get missed');
-      debug('!!! store_data: %j', store_data);
-    }
-    fn(null, store_data[key]);
+    debug('get `%s`', key);
+    fn(null, res);
   },
   remove: function(key, fn) {
     debug('remove `%s`', key);
@@ -53,9 +49,9 @@ var store = module.exports = {
     });
     fn(null, docs);
   },
-  findOne: function(query, fn){
-    store.find(query, function(err, docs){
-      if(err) return fn(err);
+  findOne: function(query, fn) {
+    store.find(query, function(err, docs) {
+      if (err) return fn(err);
       fn(null, docs[0]);
     });
   },
