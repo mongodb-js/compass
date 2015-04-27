@@ -1,0 +1,12 @@
+{
+  "metadata": {
+    "title": "MongoDB Scout",
+    "description": "An example of using metalsmith to organize and present projects docs."
+  },
+  "plugins": {
+    "metalsmith-markdown": {},
+    "metalsmith-templates": {
+      "engine": "jade"
+    }
+  }
+}
