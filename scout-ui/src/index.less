@@ -16,6 +16,7 @@
 
 @sidebar-bg: #F4F4F4;
 @sidebar-border: #D0CFCF;
+@sidebar-width: 220px;
 
 html, body{
   height: 100%;
@@ -71,17 +72,9 @@ html, body{
     height: 4px;
     z-index: 2000;
     border-radius: 0;
-    -webkit-transition: all 500ms cubic-bezier(0.600, 0, 0.735, 0.045); /* older webkit */
-    -webkit-transition: all 500ms cubic-bezier(0.600, -0.280, 0.735, 0.045);
-       -moz-transition: all 500ms cubic-bezier(0.600, -0.280, 0.735, 0.045);
-         -o-transition: all 500ms cubic-bezier(0.600, -0.280, 0.735, 0.045);
-            transition: all 500ms cubic-bezier(0.600, -0.280, 0.735, 0.045); /* easeInBack */
-    // background: transparent;
-    // box-shadow: inset -1px 1px 0 #484848, 4px 0px 4px rgba(0, 0, 0, 0.1);
-    // background-image: -webkit-linear-gradient(top, #444444, #3d3d3d);
+    transition: height 500ms cubic-bezier(0.600, -0.280, 0.735, 0.045);
     .progress-bar {
       background-color: @component-active-bg;
     }
   }
 }
-

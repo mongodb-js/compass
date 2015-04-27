@@ -6,17 +6,21 @@
   .list-filter {
     padding: 4px 4px;
     padding-top: 10px;
-    .search-icon {
+    i.search {
+      .octicon;
       position: absolute;
       padding-top: 6px;
       font-size: 11px;
       padding-left: 6px;
     }
-    input[type=search] {
-      border-radius: 18px;
+    input {
+      .form-control;
       padding: 2px 2px 2px 20px;
       height: auto;
       font-size: 11px;
+    }
+    input[type=search] {
+      border-radius: 18px;
     }
   }
 
@@ -51,9 +55,18 @@
   }
 }
 
+.content {
+  &.with-sidebar {
+    margin-left: @sidebar-width;
+    ul.message-background.centered {
+      left: @sidebar-width;
+    }
+  }
+}
+
 .panel {
   &.panel-toolbar {
-    margin-left: -20px;
+    margin-left: 0px;
     border-left: 0;
     border-right: 0;
     border-radius: 0;
@@ -61,4 +74,40 @@
   &.from-top {
     border-top: 0;
   }
+}
+
+ul.message-background {
+  color: rgba(0, 0, 0, 0.2);
+  font-size: (@font-size-base * 2);
+  font-weight: 400;
+  margin: 0;
+  padding: 0;
+}
+
+ul.message-background.centered {
+  display: -webkit-flex;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  -webkit-align-items: center;
+  text-align: center;
+  &.with-sidebar {
+    left: 220px;
+  }
+}
+
+ul.message-background.centered li {
+  width: 100%;
+}
+ul.message-background li {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.message-background-tip {
+  font-size: @font-size-base;
+  margin-top: (@font-size-base * 3);
 }

@@ -52,6 +52,7 @@
     "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.2.tar.gz",
     "debug": "^2.0.0",
     "domready": "^1.0.7",
+    "event-stream": "^3.3.0",
     "flatnest": "^0.2.2",
     "font-awesome": "https://github.com/FortAwesome/Font-Awesome/archive/v4.3.0.tar.gz",
     "jade": "^1.9.2",

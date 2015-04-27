@@ -1,58 +1,92 @@
 var brain = require('../../../scout-brain');
 var client = require('../../../scout-client')();
+var WithScout = require('./with-scout');
+var WithSelectable = require('./with-selectable');
+var debug = require('debug')('scout-ui:models');
+var core = brain.models;
+var types = brain.types;
 var _ = require('underscore');
+var es = require('event-stream');
 
-// Wrap an optional error callback with a fallback error event.
-var wrapError = function(model, options) {
-  var error = options.error;
-  options.error = function(resp) {
-    if (error) error(model, resp, options);
-    model.trigger('error', model, resp, options);
-  };
+window.scout = client;
+
+var SampledDocumentCollection = core.DocumentCollection.extend({
+  initialize: function() {
+    //!(this.parent instanceof InstanceCollection)
+    if (!this.parent) {
+      throw new TypeError('SampledDocumentCollection must be used from a parent Collection.');
+    }
+  },
+  fetch: function(options) {
+    var model = this;
+    var success = options.success;
+
+    options = _.defaults((options ? _.clone(options) : {}), {
+      size: 5,
+      query: {},
+      fields: null
+    });
+
+    client.sample(this.parent._id, options)
+    .pipe(es.map(function(doc, cb) {
+      model.add(doc);
+      cb(null, doc);
+    }))
+    .pipe(es.wait(function(err, data){
+      if (err) return options.error({}, 'error', err.message);
+      if (success) success(model, data, options);
+      model.trigger('sync', model, data, options);
+    }));
+  }
+});
+
+var Collection = core.Collection.extend({
+  session: {
+    selected: {
+      type: 'boolean',
+      default: false
+    }
+  },
+  children: {
+    documents: SampledDocumentCollection
+  },
+  derived: {
+    name: {
+      deps: ['_id'],
+      fn: function() {
+        debug('%s -> %j', this._id, brain.types.ns(this._id));
+        return brain.types.ns(this._id).collection;
+      }
+    },
+    specialish: {
+      name: {
+        deps: ['_id'],
+        fn: function() {
+          debug('%s -> %j', this._id, brain.types.ns(this._id));
+          return brain.types.ns(this._id).specialish;
+        }
+      }
+    }
+  }
+});
+
+module.exports = {
+  types: brain.types,
+  Collection: Collection,
+  Instance: core.Instance.extend({
+    children: {
+      collections: core.CollectionCollection.extend(WithSelectable, {
+        model: Collection,
+        parse: function(res) {
+          return res.filter(function(d) {
+            return !types.ns(d._id).specialish;
+          });
+        }
+      })
+    },
+    scout: function() {
+      return client.instance.bind(client);
+    }
+  }, WithScout),
+  SampledDocumentCollection: SampledDocumentCollection
 };
-
-module.exports.CollectionCollection = brain.models.CollectionCollection.extend({});
-
-module.exports.DocumentCollection = brain.models.DocumentCollection.extend({
-  fetch: function(options) {
-    options = options ? _.clone(options) : {};
-    if (!options.parse) {
-      options.parse = true;
-    }
-    var model = this;
-    var success = options.success;
-    options.success = function(resp) {
-      if (!model.set(model.parse(resp, options), options)) return false;
-      if (success) success(model, resp, options);
-      model.trigger('sync', model, resp, options);
-    };
-    wrapError(this, options);
-
-    client.sample(this.ns, {}, function(err, d) {
-      if (err) return options.error({}, 'error', err.message);
-      options.success(d, 'success', d);
-    });
-  }
-});
-
-module.exports.Instance = brain.models.Instance.extend({
-  fetch: function(options) {
-    options = options ? _.clone(options) : {};
-    if (!options.parse) {
-      options.parse = true;
-    }
-    var model = this;
-    var success = options.success;
-    options.success = function(resp) {
-      if (!model.set(model.parse(resp, options), options)) return false;
-      if (success) success(model, resp, options);
-      model.trigger('sync', model, resp, options);
-    };
-    wrapError(this, options);
-
-    client.instance(function(err, d) {
-      if (err) return options.error({}, 'error', err.message);
-      options.success(d, 'success', d);
-    });
-  }
-});

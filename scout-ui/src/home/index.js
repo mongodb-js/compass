@@ -5,13 +5,16 @@ var ViewSwitcher = require('ampersand-view-switcher');
 var models = require('../models');
 var debug = require('debug')('scout-ui:home');
 var app = require('ampersand-app');
-var _ = require('underscore');
+var format = require('util').format;
 
 var CollectionView = AmpersandView.extend({
   bindings: {
     'model._id': {
       hook: 'name'
     }
+  },
+  children: {
+    model: models.Collection
   },
   template: require('./collection.jade'),
   render: function() {
@@ -27,7 +30,7 @@ var CollectionView = AmpersandView.extend({
 var CollectionsListItem = AmpersandView.extend({
   bindings: {
     'model._id': {
-      hook: 'name'
+      hook: 'ns'
     },
     'model.selected': {
       type: 'booleanClass',
@@ -53,28 +56,20 @@ var ListFilter = AmpersandView.extend({
   template: require('./list-filter.jade'),
   render: function() {
     this.renderWithTemplate(this);
-    this.$search = $(this.queryByHook('search'));
-    this.$search.on('keyup', function() {
-      this.search = this.$search.val();
-      debug('search is now: %s', this.search);
-    }.bind(this));
+    this.input = this.queryByHook('search');
+    this.input.addEventListener('input', this.handleInputChanged.bind(this), false);
+  },
+  handleInputChanged: function() {
+    this.search = this.input.value.trim();
   },
   applyFilter: function() {
-    var re;
-    if (!this.search || this.search.length === 0) {
-      re = new RegExp('.*');
-    } else {
-      re = new RegExp(this.search);
-    }
-    debug('search regex is now', re);
-    this.parent.model.collections.filter(function(model) {
-      return re.test(model._id);
-    }.bind(this));
+    debug('search is now', this.search);
+    this.parent.filter(this.search);
   }
 });
 
-// Keyboard nav:
-// up/down: navigate list
+// @todo: Keyboard nav:
+// up/down: change active item
 // right: -> show collection
 // left: -> hide collection
 var CollectionsList = AmpersandView.extend({
@@ -84,24 +79,7 @@ var CollectionsList = AmpersandView.extend({
     this.renderCollection(this.collection, CollectionsListItem, this.queryByHook('collections-list'));
   },
   show: function(model) {
-    if (model.selected) {
-      return debug('already selected %s', model);
-    }
-    var current = this.collection.find({
-      selected: true
-    });
-    if (current) current.toggle('selected');
-
-    model.toggle('selected');
-    model.documents.ns = model._id;
-
-    document.title = 'mongodb://' + this.parent.model._id + '/' + model._id;
-
-    this.parent.switcher.set(new CollectionView({
-      model: model
-    }));
-    app.url('schema/' + model._id);
-    // model.documents.fetch();
+    this.trigger('show', model);
   }
 });
 
@@ -109,28 +87,55 @@ module.exports = AmpersandView.extend({
   children: {
     model: models.Instance
   },
+  props: {
+    ns: {
+      type: 'string',
+      allowNull: true,
+      default: null
+    }
+  },
   initialize: function(options) {
     options = options || {};
+    this.ns = options.js;
 
     app.statusbar.watch(this, this.model);
 
     this.listenTo(this.model, 'sync', function() {
-      if (!options.ns) return;
+      if (!this.ns) return;
 
       var current = this.model.collections.find({
-        _id: options.ns
+        _id: this.ns
       });
       if (!current) return;
 
       this.collections.show(current);
     });
-    this.model.fetch();
 
-    this.listenTo(this, 'change:rendered', function() {
-      this.switcher = new ViewSwitcher(this.queryByHook('collection-container'), {
-        show: function() {}
-      });
-    }.bind(this));
+    this.listenTo(this, 'change:rendered', this.onRendered);
+    this.model.fetch();
+  },
+  onRendered: function() {
+    this.switcher = new ViewSwitcher(this.queryByHook('collection-container'), {
+      show: function() {}
+    });
+  },
+  showCollection: function(model) {
+    if (!this.model.collections.select(model)) {
+      return debug('already selected %s', model);
+    }
+
+    this.switcher.set(new CollectionView({
+      model: model
+    }));
+
+    app.url(format('schema/%s', model.getId()));
+    document.title = format('mongodb://%s/%s', this.model.getId(), model.getId());
+  },
+  filter: function(pattern) {
+    var re = new RegExp((pattern || '.*'));
+    this.model.collections.filter(function(model) {
+      return re.test(model.getId());
+    });
   },
   template: require('./index.jade'),
   subviews: {
@@ -146,11 +151,13 @@ module.exports = AmpersandView.extend({
     collections: {
       hook: 'collections',
       prepareView: function(el) {
-        return new CollectionsList({
+        var view = new CollectionsList({
           el: el,
           parent: this,
           collection: this.model.collections
         });
+        this.listenTo(view, 'show', this.showCollection);
+        return view;
       }
     }
   }
