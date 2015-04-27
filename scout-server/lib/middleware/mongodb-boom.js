@@ -30,6 +30,8 @@ function decodeDriverError(err, msg, fn) {
     err = boom.conflict(msg);
   } else if (/pipeline element 0 is not an object/.test(msg)) {
     err = boom.badRequest(msg);
+  } else if (/(target namespace exists|already exists)/.test(err.message)) {
+    return boom.conflict('Collection already exists');
   } else {
     // Have a case where we're not properly validating invalid
     // replicaset commands on a deployment with no replicaset.else if (/valid replicaset|No primary found in set/.test(msg)) {
@@ -56,9 +58,6 @@ module.exports = function(err, req, res, next) {
     query: req.query
   });
   if (err && err.isBoom) return sendBoom(res, err);
-
-  console.error('handling error', err.stack);
-  console.log('bad pipeline?', req.json('pipeline', '[]'));
 
   var msg = err.message || err.err;
   decodeDriverError(err, msg, function(err) {
