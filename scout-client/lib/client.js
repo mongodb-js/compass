@@ -421,10 +421,16 @@ Client.prototype.sample = function(ns, opts, fn) {
   }
 
   if (!valid.ns(ns)) {
-    return fn(new TypeError('Invalid namespace string `' + ns + '`'));
+    var err = new TypeError('Invalid namespace string `' + ns + '`');
+    if (fn) return fn(err);
+    throw err;
   }
 
-  return this.read('/collections/' + ns + '/sample', opts, fn);
+  if (fn) {
+    return this.read('/collections/' + ns + '/sample', opts, fn);
+  }
+  opts.ns = ns;
+  return this.createReadStream('collection:sample', opts);
 };
 
 /**
@@ -633,12 +639,14 @@ Client.prototype.onTokenReadable = function() {
  *
  * @api private
  */
-Client.prototype.onTokenError = function(err){
+Client.prototype.onTokenError = function(err) {
   debug('Could not get token.  Server not running?', err);
   this.emit('error', err);
 };
 
 Client.prototype._initSocketio = function() {
+  if (this.io) return;
+
   this.io = socketio(this.config.scout, {
     query: 'token=' + this.token.toString()
   });
@@ -690,4 +698,12 @@ Client.prototype.onReconnect = function() {
     this._initSocketio();
   }.bind(this))
   .on('error', this.emit.bind(this, 'error'));
+};
+
+var ss = require('socket.io-stream');
+Client.prototype.createReadStream = function(_id, data) {
+  data = data || {};
+  var stream = ss.createStream(this.io);
+  ss(this.io).emit(_id, stream, data);
+  return stream.pipe(EJSON.createParseStream());
 };
