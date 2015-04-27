@@ -1,8 +1,9 @@
-var config = require('mongoscope-config'),
-  jwt = require('jsonwebtoken'),
-  boom = require('boom'),
-  debug = require('debug')('scout-brain:token'),
-  _ = require('underscore');
+var config = require('mongoscope-config');
+var jwt = require('jsonwebtoken');
+var boom = require('boom');
+var debug = require('debug')('scout-brain:token');
+var _ = require('underscore');
+var assert = require('assert');
 
 var getDeployment = require('./deployment').get;
 var createSession = require('./session').create;
@@ -24,61 +25,72 @@ function verify(token, fn) {
   });
 }
 
-module.exports.load = function(token, ctx, next) {
-  debug('loading `%s`', shorten(token));
-  verify(token, function(err, data) {
+function mount(tokenData, ctx, next) {
+  if (!tokenData.session_id) {
+    return next(boom.badRequest('Bad token: missing session id'));
+  }
+
+  if (!tokenData.deployment_id) {
+    return next(boom.badRequest('Bad token: missing deployment_id'));
+  }
+
+  ctx.session_id = tokenData.session_id;
+
+  debug('token validated for deployment', tokenData.deployment_id);
+
+  getDeployment(tokenData.deployment_id, function(err, deployment) {
     if (err) return next(err);
-    debug('verified data `%j`', data);
-
-    if (!data.session_id) {
-      return next(boom.badRequest('Bad token: missing session id'));
+    if (!deployment) {
+      return next(boom.badRequest('Bad token: deployment not found'));
     }
 
-    if (!data.deployment_id) {
-      return next(boom.badRequest('Bad token: missing deployment_id'));
+    ctx.deployment = deployment;
+    if (ctx.instance_id) {
+      debug('looking up instance `%s` from `%j`', ctx.instance_id, deployment.instances);
+
+      ctx.instance = _.findWhere(deployment.instances, {
+        _id: ctx.instance_id
+      });
+
+      if (!ctx.instance) {
+        return next(boom.forbidden('Tried getting a connection ' +
+        'to `' + ctx.instance_id + '` but it is not in ' +
+        'deployment `' + tokenData.deployment_id + '`'));
+      }
+
+      debug('getting connection for session', tokenData.session_id);
+      getSession(tokenData.session_id, function(err, connection) {
+        if (err) return next(err);
+
+        ctx.mongo = connection;
+        return next();
+      });
+
+    } else {
+      getSession(tokenData.session_id, function(err, connection) {
+        if (err) return next(err);
+
+        ctx.mongo = connection;
+        return next();
+      });
     }
+  });
+}
 
-    ctx.session_id = data.session_id;
+module.exports.load = function(token, ctx, next) {
+  if (_.isObject(token)) {
+    return mount(token, ctx, next);
+  }
 
-    debug('token validated for deployment', data.deployment_id);
+  if (!_.isString(token)) {
+    return next(new TypeError('token must be a string'));
+  }
 
-    getDeployment(data.deployment_id, function(err, deployment) {
-      if (err) return next(err);
-      if (!deployment) {
-        return next(boom.badRequest('Bad token: deployment not found'));
-      }
-
-      ctx.deployment = deployment;
-      if (ctx.instance_id) {
-        debug('looking up instance `%s` from `%j`', ctx.instance_id, deployment.instances);
-
-        ctx.instance = _.findWhere(deployment.instances, {
-          _id: ctx.instance_id
-        });
-
-        if (!ctx.instance) {
-          return next(boom.forbidden('Tried getting a connection ' +
-          'to `' + ctx.instance_id + '` but it is not in ' +
-          'deployment `' + data.deployment_id + '`'));
-        }
-
-        debug('getting connection for session', data.session_id);
-        getSession(data.session_id, function(err, connection) {
-          if (err) return next(err);
-
-          ctx.mongo = connection;
-          return next();
-        });
-
-      } else {
-        getSession(data.session_id, function(err, connection) {
-          if (err) return next(err);
-
-          ctx.mongo = connection;
-          return next();
-        });
-      }
-    });
+  debug('loading `%s`', shorten(token));
+  verify(token, function(err, tokenData) {
+    if (err) return next(err);
+    debug('verified data `%j`', tokenData);
+    mount(tokenData, ctx, next);
   });
 };
 
