@@ -6,4 +6,4 @@ node_modules
 .DS_Store
 .idea/
 *.iml
-atom-shell/
+electron/

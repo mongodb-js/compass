@@ -8,7 +8,7 @@ var proc = require('child_process');
 var os = require('os');
 var path = require('path');
 
-// var createInstaller = require('atom-shell-installer');
+// var createInstaller = require('electron-installer');
 
 var run = function(child, task) {
   var args = task.split(' '),
@@ -52,7 +52,7 @@ function script(name, pkgs, done) {
 
   if (typeof pkgs === 'function') {
     done = pkgs;
-    pkgs = ['ui', 'server', 'brain', 'atom', 'metrics'];
+    pkgs = ['ui', 'server', 'brain', 'electron', 'metrics'];
   }
 
   var args = 'run-script ' + name;
@@ -82,7 +82,7 @@ gulp.task('start', function() {
   script('start', ['server']);
   script('start', ['ui']);
   setTimeout(function() {
-    var child = proc.spawn('./atom-shell/out/R/Scout.app/Contents/MacOS/Scout', [__dirname]);
+    var child = proc.spawn('./electron/out/R/Scout.app/Contents/MacOS/Scout', [__dirname]);
     child.stderr.pipe(process.stderr);
     child.stdout.pipe(process.stdout);
   }, 1000);
@@ -117,50 +117,50 @@ function exec(cwd, cmd, cb) {
 }
 
 var source = function(opts, done) {
-  var repo = 'git://github.com/atom/atom-shell.git';
+  var repo = 'git://github.com/atom/electron.git';
 
   // clone or fetch
-  fs.exists(opts.ATOM_SHELL_HOME, function(exists) {
+  fs.exists(opts.ELECTRON, function(exists) {
     if (exists) {
       // return done();
-      return exec(opts.ATOM_SHELL_HOME, 'git pull --rebase', done);
+      return exec(opts.ELECTRON, 'git pull --rebase', done);
     }
-    return exec(process.cwd(), 'git clone ' + repo + ' ' + opts.ATOM_SHELL_HOME, done);
+    return exec(process.cwd(), 'git clone ' + repo + ' ' + opts.ELECTRON, done);
 
   });
 };
 
 function build(opts, done) {
-  var BUILD_CMD = PYTHON + ' ' + path.resolve(opts.ATOM_SHELL_HOME + '/script/build.py') + ' -t' + opts.projectName;
+  var BUILD_CMD = PYTHON + ' ' + path.resolve(opts.ELECTRON + '/script/build.py') + ' -c ' + opts.buildConfig + ' -t ' + opts.projectName;
   async.series({
-    bootstrap: exec.bind(null, opts.ATOM_SHELL_HOME, PYTHON + ' ' + path.resolve(opts.ATOM_SHELL_HOME + '/script/bootstrap.py') + ' -v'),
-    build: exec.bind(null, opts.ATOM_SHELL_HOME, BUILD_CMD),
+    bootstrap: exec.bind(null, opts.ELECTRON, PYTHON + ' ' + path.resolve(opts.ELECTRON + '/script/bootstrap.py') + ' -v'),
+    build: exec.bind(null, opts.ELECTRON, BUILD_CMD),
   }, done);
 }
 
 function _npm(opts, cmd, done) {
-  var CMD = util.format('node %s %s --target=%s --arch=%s --dist-url=%s',
+  var CMD = util.format('%s %s --target=%s --arch=%s --dist-url=%s',
   which.sync('node-gyp'),
-  cmd, opts.NODE_VERSION, opts.ARCH, opts.ATOM_NODE_URL);
+  cmd, opts.NODE_VERSION, opts.ARCH, opts.NODE_URL);
 
-  exec(opts.ATOM_SHELL_HOME, CMD, done);
+  exec(opts.ELECTRON, CMD, done);
 }
 
 function node_install(opts, done) {
   _npm(opts, 'install', done);
 }
 
-// @todo: need to set HOME=~/.atom-shell-gyp
-// https://github.com/atom/atom-shell/blob/master/docs/tutorial/using-native-node-modules.md#how-to-install-native-modules
 function npm_rebuild(opts, done) {
+  // https://github.com/atom/electron/blob/master/docs/tutorial/using-native-node-modules.md#how-to-install-native-modules
+  // process.env.HOME = '~/.electron-gyp';
   _npm(opts, 'rebuild', done);
 }
 
 function node_build_lib(opts, done) {
   if (process.platform !== 'win32') return done();
 
-  var CMD = PYTHON + ' ' + path.resolve(opts.ATOM_SHELL_HOME + '/script/build.py') + ' -c' + opts.buildConfig + '-t generate_node_lib';
-  exec(opts.ATOM_SHELL_HOME, CMD, done);
+  var CMD = PYTHON + ' ' + path.resolve(opts.ELECTRON + '/script/build.py') + ' -c ' + opts.buildConfig + '-t generate_node_lib';
+  exec(opts.ELECTRON, CMD, done);
 }
 
 function configure(opts, done) {
@@ -174,14 +174,14 @@ function configure(opts, done) {
 }
 
 function patchIcon(opts, done) {
-  var dest = opts.ATOM_SHELL_OUT + '/R/' + opts.productName + '.app/Contents/Resources/atom.icns';
-  fs.createReadStream('./scout-atom/res/scout.icns')
+  var dest = opts.APP + '/Contents/Resources/atom.icns';
+  fs.createReadStream('./scout-electron/res/scout.icns')
   .pipe(fs.createWriteStream(dest))
   .on('end', done);
 }
 
 function patchInfoPlist(opts, done) {
-  var infoPlistPath = opts.ATOM_SHELL_OUT + '/R/' + opts.productName + '.app/Contents/Info.plist';
+  var infoPlistPath = opts.APP + '/Contents/Info.plist';
   fs.readFile(infoPlistPath, 'utf-8', function(err, buf) {
     if (err) return done(err);
 
@@ -201,9 +201,8 @@ function _opts() {
   opts.projectHome = process.cwd();
 
   opts.PLATFORM = process.platform;
-  opts.ATOM_SHELL_HOME = opts.projectHome + '/atom-shell';
-  opts.ATOM_SHELL_OUT = opts.ATOM_SHELL_HOME + '/out';
-  opts.ATOM_NODE_URL = 'https://gh-contractor-zcbenz.s3.amazonaws.com/atom-shell/dist';
+  opts.ELECTRON = opts.projectHome + '/electron';
+  opts.NODE_URL = 'https://gh-contractor-zcbenz.s3.amazonaws.com/atom-shell/dist';
   opts.EXECUTABLE = opts.productName;
   if (opts.PLATFORM === 'linux') {
     opts.EXECUTABLE = opts.EXECUTABLE.toLowerCase();
@@ -211,12 +210,12 @@ function _opts() {
     opts.EXECUTABLE += '.exe';
   }
 
-  opts.APP = opts.ATOM_SHELL_OUT + '/R/' + opts.productName;
+  opts.APP = opts.ELECTRON + '/out/R/' + opts.productName;
   if (opts.PLATFORM === 'darwin') {
     opts.APP += '.app';
   }
-  opts.BREAKPAD_SYMBOLS = opts.ATOM_SHELL_OUT + '/R/' + opts.productName + '.breakpad.syms';
-  opts.NODE_VERSION = process.env.ATOM_NODE_VERSION || '0.23.0';
+  opts.BREAKPAD_SYMBOLS = opts.ELECTRON + '/out/R/' + opts.productName + '.breakpad.syms';
+  opts.NODE_VERSION = '0.23.0';
 
 
   opts.ARCH = (function() {
@@ -240,7 +239,7 @@ gulp.task('build', function(done) {
     build: build.bind(null, opts),
     node_install: node_install.bind(null, opts),
     node_build_lib: node_build_lib.bind(null, opts),
-    npm_rebuild: npm_rebuild.bind(null, opts),
+    // npm_rebuild: npm_rebuild.bind(null, opts),
     patchIcon: patchIcon.bind(null, opts),
     patchInfoPlist: patchInfoPlist.bind(null, opts)
   }, done);
@@ -283,7 +282,7 @@ gulp.task('sign', function(done) {
 
 
 // @todo: create windows installer
-//    https://github.com/domderen/atom-shell-installer/blob/master/src/InstallerFactory.js
+//    https://github.com/domderen/electron-installer/blob/master/src/InstallerFactory.js
 
 // @todo: make the rest of these tasks not asinine:
 // https://github.com/atom/electron-starter/tree/master/build/tasks

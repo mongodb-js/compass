@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "main": "index.js",
   "scripts": {
+    "build": "gulp build",
     "install": "gulp install",
     "start": "gulp start",
     "test": "gulp test",
