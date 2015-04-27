@@ -89,7 +89,7 @@ function getDatabaseStats(req, fn) {
 }
 
 module.exports = {
-  get: function get(req, res, next) {
+  get: function(req, res, next) {
     async.parallel({
       stats: getDatabaseStats.bind(null, req),
       collections: getCollections.bind(null, req),
@@ -110,9 +110,10 @@ module.exports = {
       collections: []
     };
     req.mongo.db(req.param('database_name'));
-    res.send(201, doc);
+    process.nextTick(function() {
+      res.send(201, doc);
+    });
   },
-
   destroy: function(req, res, next) {
     req.db.dropDatabase(function(err) {
       if (err) return next(err);
