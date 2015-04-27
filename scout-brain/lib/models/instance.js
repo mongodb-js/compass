@@ -1,12 +1,11 @@
-var _ = require('underscore');
 var AmpersandState = require('ampersand-state');
 var AmpersandModel = require('ampersand-model');
+var AmpersandCollection = require('ampersand-collection');
 
 var DatabaseCollection = require('./database-collection');
 var CollectionCollection = require('./collection-collection');
 
 var HostInfo = AmpersandState.extend({
-  idAttribute: '_id',
   props: {
     system_time: 'date',
     hostname: 'string',
@@ -45,7 +44,8 @@ var BuildInfo = AmpersandState.extend({
   }
 });
 
-var Instance = AmpersandModel.extend({
+module.exports = AmpersandModel.extend({
+  idAttribute: '_id',
   props: {
     _id: {
       type: 'string',
@@ -60,12 +60,8 @@ var Instance = AmpersandModel.extend({
     collections: CollectionCollection,
     host: HostInfo,
     build: BuildInfo
-  },
-  parse: function(d) {
-    this.databases.reset(d.databases);
-    this.collections.reset(_.flatten(d.collections));
-    return d;
   }
 });
 
-module.exports = Instance;
+module.exports.BuildInfo = BuildInfo;
+module.exports.HostInfo = HostInfo;
