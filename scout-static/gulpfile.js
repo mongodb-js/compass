@@ -8,15 +8,23 @@ var less = require('gulp-less');
 var sourcemaps = require('gulp-sourcemaps');
 var CleanCSS = require('less-plugin-clean-css');
 
-gulp.task('default', ['build', 'serve', 'watch']);
+gulp.task('as-production', function(done) {
+  process.env.NODE_ENV = 'production';
+  done();
+});
 
-gulp.task('build', ['metalsmith', 'assets', 'less']);
+gulp.task('as-dev', function(done) {
+  process.env.NODE_ENV = 'development';
+  done();
+});
 
 gulp.task('metalsmith', function(cb) {
   exec('./node_modules/.bin/metalsmith', cb);
 });
 
 gulp.task('watch', function() {
+  if (process.env.NODE_ENV === 'production') return;
+
   gulp.watch(['src/{**/*,*}', 'templates/*'], ['build']);
   gulp.watch(['less/*.less'], ['less']);
 });
@@ -42,6 +50,20 @@ gulp.task('assets', ['metalsmith'], function() {
 });
 
 gulp.task('less', function() {
+  if (process.env.NODE_ENV === 'production') {
+    var cleaner = new CleanCSS({
+      root: __dirname + '/src/less',
+      keepSpecialComments: 0,
+      advanced: true
+    });
+
+    return gulp.src('less/index.less')
+    .pipe(less({
+      plugins: [cleaner],
+      paths: pkg.less.paths
+    }))
+    .pipe(gulp.dest('./build'));
+  }
   return gulp.src('less/index.less')
   .pipe(sourcemaps.init())
   .pipe(less(pkg.less))
@@ -49,26 +71,7 @@ gulp.task('less', function() {
   .pipe(gulp.dest('./build'));
 });
 
-gulp.task('less-production', function() {
-  var cleaner = new CleanCSS({
-    root: __dirname + '/src/less',
-    keepSpecialComments: 0,
-    advanced: true
-  });
-
-  var css = gulp.src('less/index.less')
-  .pipe(less({
-    plugins: [cleaner],
-    paths: pkg.less.paths
-  }))
-  .pipe(gulp.dest('./build'));
-
-  return css;
-});
-
-gulp.task('build-production', ['metalsmith', 'assets', 'less-production']);
-
-gulp.task('surge', ['build-production', 'less-production'], function(cb) {
+gulp.task('surge', ['build', 'less'], function(cb) {
   var args = ['build', 'scout.surge.sh'];
   var surge = spawn('./node_modules/.bin/surge', args);
   surge.stdout.pipe(process.stdout);
@@ -77,4 +80,8 @@ gulp.task('surge', ['build-production', 'less-production'], function(cb) {
   surge.on('exit', cb.bind(null, null, null));
 });
 
-gulp.task('deploy', ['build-production', 'surge']);
+gulp.task('build', ['metalsmith', 'assets', 'less']);
+
+gulp.task('deploy', ['as-production', 'build', 'surge']);
+
+gulp.task('default', ['as-dev', 'build', 'serve', 'watch']);

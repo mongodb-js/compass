@@ -1,0 +1,4 @@
+-R spec
+--timeout 15000
+--slow 10000
+--compilers coffee:coffee-script/register
