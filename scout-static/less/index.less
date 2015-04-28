@@ -4,15 +4,26 @@
 @import "./variables.less";
 
 .jumbotron {
-  // min-height: 600px;
+  min-height: 650px;
   text-align: center;
-  padding-top: 10%;
-  padding-bottom: 10%;
+}
+.jumbotron-group {
+  .jumbotron:first-child {
+    margin-top: 50px;
+  }
+  .jumbotron {
+    min-height: 650px;
+    text-align: center;
+    margin-bottom: 0;
+  }
 }
 
-
 .footer {
-  background: @jumbotron-bg;
-  padding: @jumbotron-padding;
-  margin-top: 200px;
+  background: @navbar-default-bg;
+  padding-top: 200px;
+}
+
+.container-fluid {
+  max-width: 960px;
+  margin: 0 auto;
 }
