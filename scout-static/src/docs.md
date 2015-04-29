@@ -1,15 +1,5 @@
 ---
 template: docs.jade
-features:
-  -
-    id: feature-1
-    name: Feature 1
-  -
-    id: feature-2
-    name: Feature 2
-  -
-    id: feature-3
-    name: Feature 3
 ---
 
 ## Design
@@ -20,6 +10,7 @@ examples we'd like the visual/aesthetic to aspire to:
   - http://invisionapp.com
   - http://electron.atom.io/ (more towards this)
   - https://www.cindori.org/software/disksensei/
+  - http://www.phoneexpander.com/
 - app ui:
   - https://mac.github.com/ (what we've been using as a primary comp. developer tool that tons of people already love that makes something really complicated like git seem easy to use)
   - however, because of our aesthetic and customers, https://windows.github.com is a better example
@@ -29,12 +20,30 @@ examples we'd like the visual/aesthetic to aspire to:
   - Google HIG http://www.google.com/design/
 
 - screenshots from marc:
-  - https://dribbble.com/shots/1526280-Paypal-Redesign/attachments/231120
-  - https://dribbble.com/shots/1051180-Bills-Bills-Bills/attachments/128358
-  - https://dribbble.com/shots/1315388-Dashboard-Web-App-Product-UI-Design-Job-Summary/attachments/184703
-  - https://dribbble.com/shots/1595623-RushTax-Settings-Modal/attachments/246942
-  - https://dribbble.com/shots/2024959-College-dashboard/attachments/358503
-  - https://dribbble.com/shots/1763603-Gingr-dashboard/attachments/287341
+  <ul class="list-inline list-unstyled">
+    <li>
+      <a href="https://dribbble.com/shots/1526280-Paypal-Redesign/attachments/231120" target="_blank">
+        <img src="https://d13yacurqjgara.cloudfront.net/users/44485/screenshots/1526280/attachments/231120/real-with-interaction.jpg" height="250" />
+      </a>
+    </li>
+    <li>
+      <a href="https://dribbble.com/shots/1315388-Dashboard-Web-App-Product-UI-Design-Job-Summary/attachments/184703" target="_blank">
+        <img src="https://d13yacurqjgara.cloudfront.net/users/44126/screenshots/1315388/attachments/184703/job-summary.png" height="250" />
+      </a>
+    </li>
+    <li>
+      <a href="https://dribbble.com/shots/1051180-Bills-Bills-Bills/attachments/128358" target="_blank">
+        <img src="https://d13yacurqjgara.cloudfront.net/users/78637/screenshots/1051180/attachments/128358/Bills_Bills_Bills_Bigger.jpg" height="250" />
+      </a>
+    </li>
+
+
+  </ul>
+
+  - @todo: move these over to the template above:
+    - https://dribbble.com/shots/1595623-RushTax-Settings-Modal/attachments/246942
+    - https://dribbble.com/shots/2024959-College-dashboard/attachments/358503
+    - https://dribbble.com/shots/1763603-Gingr-dashboard/attachments/287341
 
 
 - is a final name important for mdb world?
@@ -42,6 +51,11 @@ examples we'd like the visual/aesthetic to aspire to:
   - showing it as "codename: scout" is fine
   - going to figure out how to loop them in first thing next week.  
   - they already have a little bit of context because we traded emails a few weeks ago re: customer profile research we could share
+
+## Copy
+
+- @todo: what's our voice?
+- @todo: chicago style, oxford comma, etc
 
 ## Value Proposition
 

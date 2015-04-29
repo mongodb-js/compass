@@ -25,7 +25,7 @@ gulp.task('metalsmith', function(cb) {
 gulp.task('watch', function() {
   if (process.env.NODE_ENV === 'production') return;
 
-  gulp.watch(['src/{**/*,*}', 'templates/*'], ['build']);
+  gulp.watch(['src/{**/*,*}', 'templates/{*,**/*}'], ['build']);
   gulp.watch(['less/*.less'], ['less']);
 });
 

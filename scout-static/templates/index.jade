@@ -5,7 +5,7 @@ html(lang='en')
     meta(name='description' content=description)
     meta(name='viewport', content='initial-scale=1')
     link(rel='stylesheet', href='index.css')
-    link(href='http://fonts.googleapis.com/css?family=Source+Sans+Pro|Open+Sans:700,600,400', rel='stylesheet', type='text/css')
+    link(href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:700,600,400|Open+Sans:700,600,400', rel='stylesheet', type='text/css')
   body
     nav.navbar.navbar-default.navbar-fixed-top
       .container-fluid
@@ -15,46 +15,61 @@ html(lang='en')
             span.icon-bar
             span.icon-bar
             span.icon-bar
-          a.navbar-brand(href='/', style='padding: 8px 15px;')
-            img(style='height: 28px;', src='https://www.mongodb.org/static/images/mongodb-logo.png')
+          a.navbar-brand(href='/')
+            img(src='https://www.mongodb.org/static/images/mongodb-logo.png')
         #navbar-top.collapse.navbar-collapse
           ul.nav.navbar-nav
         
           ul.nav.navbar-nav.navbar-right
-            for feature in features
-              li
-                a(href='##{feature.id}') #{feature.name}
             li: a(href='#about') About
             li: a(href='/docs.html') Docs
-    .jumbotron-group
-      .jumbotron
+    article
+      section: .container-fluid.media
+        .media-body(style='text-align: center; padding-right: 60px;')
+          h1 #{product}
+          p.lead #{tagline}
+          p(style='margin-top: 40px;')
+            i Currently in closed beta. Want to try it when it's ready?
+          form.form-inline
+            .form-group
+              input.form-control.input-lg(type='text', placeholder='email address?')
+              button.btn.btn-primary.btn-lg(type='submit') Notify Me
+        .media-right
+          img(src='', alt='Placeholder for screenshot', style='height: 500px; width: 400px;')    
+      
+      section(id='features').centered: .container-fluid: .row
+        .col-md-4
+          span.mega-octicon.octicon-broadcast
+          h2 Collaborate
+          p #{product} makes it simple to share schema information with your team.
+        .col-md-4
+          span.mega-octicon.octicon-bug
+          h2 Kill Bugs
+          p #{product} helps you find bugs before you go to production.
+        .col-md-4
+          span.mega-octicon.octicon-browser
+          h2 Cross-Platform
+          p #{product} runs on Mac, Linux, and Windows.
+          
+      section.image-right
+        .container-fluid.media
+          .media-body
+            h2 Easily share schema information that won't make you sick.
+            p Bacon ipsum dolor amet biltong in sunt, veniam turducken strip steak sint officia sed beef. Fugiat pastrami proident esse chicken, in occaecat qui spare ribs.
+          .media-right
+            img(src='', alt='Placeholder for feature screenshot')
+              
+      section.centered
+        .container-fluid
+            h2 Go to production with confidence.
+            p #{product} helps you identify problems before production and codify best practices.
+            img(src='', alt='Placeholder for feature screenshot')
+              
+      section(id='about').centered
         .container-fluid
           .media
             .media-body
-              img(src='', alt='Product Logo Placeholder', style='height: 128px; width: 128px;margin-bottom: 18px;')
-              h1.media-heading #{product}
-              h3 #{tagline}
-              form.form-inline
-                .form-group
-                  input.form-control.input-sm(type="text", placeholder=subscribe.placeholder)
-                  button.btn.btn-primary.btn-sm(type="submit") #{subscribe.button}
-            .media-right
-              img(src='', alt='Placeholder for screenshot', style='height: 500px; width: 400px;')    
-      for feature in features
-        .jumbotron(id=feature.id)
-          .container-fluid
-            .media
-              .media-left
-                img(src='', alt='Placeholder for feature screenshot', style='height: 400px; width: 300px;')
-              .media-body(style='text-align: left; padding-left: 20px;')
-                h2.media-heading #{feature.tagline}
-                p #{feature.description}
-      .jumbotron(id='about')
-        .container-fluid
-          .media
-            .media-body
-              h2.media-heading About #{product}
+              h2 About #{product}
               p Who makes this?  Why should I trust it?
-    .footer
-      .container-fluid
-        p footer
+              
+    include includes/footer

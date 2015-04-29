@@ -17,20 +17,11 @@ html(lang='en')
           a.navbar-brand(href='/', style='padding: 8px 15px;')
             img(style='height: 28px;', src='https://www.mongodb.org/static/images/mongodb-logo.png')
         #navbar-top.collapse.navbar-collapse
-          ul.nav.navbar-nav
-        
           ul.nav.navbar-nav.navbar-right
-            for feature in features
-              li
-                a(href='/##{feature.id}') #{feature.name}
-            li: a(href='/#about') About
-            li: a(href='/docs.html') Docs
     .container-fluid
       .content.with-sidebar
         !{contents}
       
       .sidebar
       .sidebar-bg
-    .footer
-      .container-fluid
-        p footer
+    include includes/footer
