@@ -22,8 +22,8 @@ html(lang='en')
           ul.nav.navbar-nav.navbar-right
             for feature in features
               li
-                a(href='##{feature.id}') #{feature.name}
-            li: a(href='#about') About
+                a(href='/##{feature.id}') #{feature.name}
+            li: a(href='/#about') About
             li: a(href='/docs.html') Docs
     .container-fluid
       .content.with-sidebar
