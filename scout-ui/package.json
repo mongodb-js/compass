@@ -62,7 +62,8 @@
     "octicons": "https://github.com/github/octicons/archive/v2.2.0.tar.gz",
     "phantomjs-polyfill": "0.0.1",
     "qs": "^2.2.4",
-    "underscore": "^1.6.0"
+    "underscore": "^1.6.0",
+    "mongodb-schema": "git://github.com/mongodb-js/mongodb-schema.git#ampersand"
   },
   "devDependencies": {
     "browserify": "^9.0.3",
