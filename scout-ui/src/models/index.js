@@ -7,8 +7,34 @@ var core = brain.models;
 var types = brain.types;
 var _ = require('underscore');
 var es = require('event-stream');
+var Schema = require('mongodb-schema').Schema;
 
 window.scout = client;
+
+var wrapError = require('./wrap-error');
+
+var SampledSchema = Schema.extend({
+  fetch: function(options) {
+    options = _.defaults((options || {}), {
+      size: 5,
+      query: {},
+      fields: null
+    });
+
+    wrapError(this, options);
+
+    var model = this;
+    var detect = this.stream()
+    .on('error', function(err) {
+      options.error(err, 'error', err.message);
+    })
+    .on('end', function() {
+      model.trigger('sync', model, model.serialize(), options);
+    });
+
+    client.sample(this.ns, options).pipe(detect);
+  }
+});
 
 var SampledDocumentCollection = core.DocumentCollection.extend({
   initialize: function() {
@@ -32,7 +58,7 @@ var SampledDocumentCollection = core.DocumentCollection.extend({
       model.add(doc);
       cb(null, doc);
     }))
-    .pipe(es.wait(function(err, data){
+    .pipe(es.wait(function(err, data) {
       if (err) return options.error({}, 'error', err.message);
       if (success) success(model, data, options);
       model.trigger('sync', model, data, options);
@@ -88,5 +114,6 @@ module.exports = {
       return client.instance.bind(client);
     }
   }, WithScout),
-  SampledDocumentCollection: SampledDocumentCollection
+  SampledDocumentCollection: SampledDocumentCollection,
+  SampledSchema: SampledSchema
 };

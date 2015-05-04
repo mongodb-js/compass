@@ -5,14 +5,11 @@ window.jQuery = window.$ = require('jquery');
 
 require('phantomjs-polyfill');
 
-var AmpersandState = require('ampersand-state'),
-  AmpersandView = require('ampersand-view'),
-  assert = require('assert'),
-  domReady = require('domready'),
-  ViewSwitcher = require('ampersand-view-switcher'),
-  qs = require('qs');
-
+var AmpersandView = require('ampersand-view');
 var app = require('ampersand-app');
+var domReady = require('domready');
+var ViewSwitcher = require('ampersand-view-switcher');
+var qs = require('qs');
 var Router = require('./router');
 
 var PageContainer = AmpersandView.extend({

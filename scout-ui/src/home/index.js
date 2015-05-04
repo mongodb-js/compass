@@ -1,11 +1,11 @@
 var AmpersandView = require('ampersand-view');
-var $ = require('jquery');
-var flatnest = require('flatnest');
 var ViewSwitcher = require('ampersand-view-switcher');
 var models = require('../models');
 var debug = require('debug')('scout-ui:home');
 var app = require('ampersand-app');
 var format = require('util').format;
+
+var FieldListView = require('./field-list');
 
 var CollectionView = AmpersandView.extend({
   bindings: {
@@ -14,16 +14,26 @@ var CollectionView = AmpersandView.extend({
     }
   },
   children: {
-    model: models.Collection
+    model: models.Collection,
+    schema: models.SampledSchema
+  },
+  initialize: function() {
+    this.schema.ns = this.model._id;
+    this.schema.fetch();
   },
   template: require('./collection.jade'),
-  render: function() {
-    this.renderWithTemplate();
-    this.listenTo(this.model.documents, 'sync reset', function() {
-      $(this.el).find('[data-hook=sample]').html(JSON.stringify(this.model.documents.toJSON().map(function(d) {
-        return flatnest.flatten(d);
-      }), null, 2).replace(/\n/g, '<br />'));
-    });
+  subviews: {
+    fields: {
+      waitFor: 'schema.fields',
+      hook: 'fields-container',
+      prepareView: function(el) {
+        return new FieldListView({
+          el: el,
+          parent: this,
+          collection: this.schema.fields
+        });
+      }
+    }
   }
 });
 
@@ -96,7 +106,7 @@ module.exports = AmpersandView.extend({
   },
   initialize: function(options) {
     options = options || {};
-    this.ns = options.js;
+    this.ns = options.ns;
 
     app.statusbar.watch(this, this.model);
 
