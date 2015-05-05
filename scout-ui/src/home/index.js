@@ -18,6 +18,8 @@ var CollectionView = AmpersandView.extend({
     schema: models.SampledSchema
   },
   initialize: function() {
+    app.statusbar.watch(this, this.schema);
+
     this.schema.ns = this.model._id;
     this.schema.fetch();
   },

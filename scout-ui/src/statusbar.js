@@ -28,11 +28,11 @@ var StatusbarView = AmpersandView.extend({
           }
         }
       },
-      {
-        type: 'booleanClass',
-        yes: 'visible',
-        no: 'hidden'
-      }
+      // {
+      //   type: 'booleanClass',
+      //   yes: 'visible',
+      //   no: 'hidden'
+      // }
     ]
   },
   watch: function(view, collection) {
@@ -49,9 +49,13 @@ var StatusbarView = AmpersandView.extend({
     this.$el = $('#statusbar');
     this.el = this.$el.get(0);
     this.width = 100;
+    // debugger;
   },
   hide: function() {
+    // debugger;
+    // setTimeout(function() {
     this.width = 0;
+    // }.bind(this), 500);
   },
   render: function() {
     this.show();
