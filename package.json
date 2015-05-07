@@ -1,7 +1,7 @@
 {
   "name": "scout",
   "description": "Explore your MongoDB.",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "main": "index.js",
   "scripts": {
     "build": "gulp build",
