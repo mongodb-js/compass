@@ -6,13 +6,17 @@ var StatusbarView = AmpersandView.extend({
     width: {
       type: 'number',
       default: 0
+    },
+    message: {
+      type: 'string',
+      default: 'Analyzing documents...'
     }
   },
   bindings: {
     width: [
       {
         hook: 'bar',
-        type: function(el, value, previousValue) {
+        type: function(el, value) {
           if (!this.el) return;
           if (value === 0) {
             $(this.el).find('.progress').css({
@@ -48,14 +52,22 @@ var StatusbarView = AmpersandView.extend({
   show: function() {
     this.$el = $('#statusbar');
     this.el = this.$el.get(0);
+    this.$message = $('ul.message-background');
+    this.$message_text = this.$message.find('[data-hook="statusbar-message"]');
+    this.$message_text.text(this.message);
+    this.$message.removeClass('hidden');
     this.width = 100;
-    // debugger;
   },
   hide: function() {
-    // debugger;
-    // setTimeout(function() {
-    this.width = 0;
-    // }.bind(this), 500);
+
+    if (this.$message) {
+      this.$message.addClass('hidden');
+      setTimeout(function() {
+        this.width = 0;
+      }.bind(this), 200);
+    } else {
+      this.width = 0;
+    }
   },
   render: function() {
     this.show();

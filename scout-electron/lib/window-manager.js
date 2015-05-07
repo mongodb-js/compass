@@ -1,8 +1,8 @@
 var BrowserWindow = require('browser-window'),
   app = require('app'),
-  debug = require('debug')('scout-atom:window-manager');
+  debug = require('debug')('scout-electron:window-manager');
 
-var DEFAULT_URL = 'http://localhost:3000/index.html';
+var DEFAULT_URL = 'http://localhost:29017/index.html';
 
 var main = module.exports.main = null,
   childWindows = [];
@@ -29,7 +29,7 @@ app.on('ready', function() {
     height += 30;
   }
   debug('loading main window', DEFAULT_URL);
-  main = new BrowserWindow({
+  main = module.exports.main = new BrowserWindow({
     width: 800,
     height: height,
     'web-preferences': {

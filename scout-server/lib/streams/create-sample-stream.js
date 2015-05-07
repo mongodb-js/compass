@@ -38,28 +38,29 @@ module.exports = function createSampleStream(db, collection_name, opts) {
       if (err) return done(err);
 
       debug('sampling %d documents from a collection with a population of %d documents',
-      opts.size, count);
+        opts.size, count);
       src = collection.find(opts.query, {
         fields: {
           _id: 1
-        }
+        },
+        limit: 10000
       });
 
       cursor = src.stream()
-      .on('error', self.emit.bind(self, 'error'));
+        .on('error', self.emit.bind(self, 'error'));
 
       reservoir = createReservoir(opts.size)
-      .on('error', self.emit.bind(self, 'error'))
-      .on('data', function(doc) {
-        debug('sampled _id', doc._id);
-        self.emit('data', doc._id);
-      })
-      .on('end', function() {
-        debug('sample complete');
-        src.close();
-        complete = true;
-        done();
-      });
+        .on('error', self.emit.bind(self, 'error'))
+        .on('data', function(doc) {
+          debug('sampled _id', doc._id);
+          self.emit('data', doc._id);
+        })
+        .on('end', function() {
+          debug('sample complete');
+          src.close();
+          complete = true;
+          done();
+        });
 
       cursor.pipe(reservoir);
     });

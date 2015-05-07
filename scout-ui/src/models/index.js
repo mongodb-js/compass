@@ -29,13 +29,13 @@ var SampledSchema = Schema.extend({
       options.error(err, 'error', err.message);
     })
     .on('end', function() {
-      process.nextTick(function(){
+      process.nextTick(function() {
         model.trigger('sync', model, model.serialize(), options);
       });
     });
 
     model.trigger('request', model, {}, options);
-    process.nextTick(function(){
+    process.nextTick(function() {
       client.sample(model.ns, options).pipe(detect);
     });
   }

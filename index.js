@@ -10,4 +10,4 @@ if (process.env.NODE_ENV !== 'development') {
     console.log('   ');
   });
 }
-require('./scout-atom');
+require('./scout-electron');

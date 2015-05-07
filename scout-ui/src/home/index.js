@@ -7,6 +7,9 @@ var format = require('util').format;
 
 var FieldListView = require('./field-list');
 
+require('bootstrap/js/dropdown');
+require('bootstrap/js/collapse');
+
 var CollectionView = AmpersandView.extend({
   bindings: {
     'model._id': {
@@ -30,10 +33,10 @@ var CollectionView = AmpersandView.extend({
       hook: 'fields-container',
       prepareView: function(el) {
         return new FieldListView({
-          el: el,
-          parent: this,
-          collection: this.schema.fields
-        });
+            el: el,
+            parent: this,
+            collection: this.schema.fields
+          });
       }
     }
   }
@@ -155,9 +158,9 @@ module.exports = AmpersandView.extend({
       hook: 'collections-filter',
       prepareView: function(el) {
         return new ListFilter({
-          el: el,
-          parent: this
-        });
+            el: el,
+            parent: this
+          });
       }
     },
     collections: {

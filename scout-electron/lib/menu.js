@@ -1,10 +1,10 @@
 var app = require('app'),
   Menu = require('menu'),
   windows = require('./window-manager'),
-  debug = require('debug')('scout-atom:menu');
+  debug = require('debug')('scout-electron:menu');
 
 
-app.on('ready', function(){
+app.on('ready', function() {
   var template, menu;
 
   if (process.platform === 'darwin') {
@@ -39,7 +39,9 @@ app.on('ready', function(){
           {
             label: 'Quit',
             accelerator: 'Command+Q',
-            click: function() { app.quit(); }
+            click: function() {
+              app.quit();
+            }
           },
         ]
       },
@@ -87,16 +89,22 @@ app.on('ready', function(){
           {
             label: 'Reload',
             accelerator: 'Command+R',
-            click: function() { windows.main.restart(); }
+            click: function() {
+              windows.main.restart();
+            }
           },
           {
             label: 'Enter Fullscreen',
-            click: function() { windows.main.setFullscreen(true); }
+            click: function() {
+              windows.main.setFullscreen(true);
+            }
           },
           {
             label: 'Toggle DevTools',
             accelerator: 'Alt+Command+I',
-            click: function() { windows.main.toggleDevTools(); }
+            click: function() {
+              windows.main.toggleDevTools();
+            }
           },
         ]
       },
@@ -143,7 +151,9 @@ app.on('ready', function(){
           {
             label: 'Close',
             accelerator: 'Ctrl+W',
-            click: function() { windows.main.close(); }
+            click: function() {
+              windows.main.close();
+            }
           },
         ]
       },
@@ -153,16 +163,22 @@ app.on('ready', function(){
           {
             label: 'Reload',
             accelerator: 'Ctrl+R',
-            click: function() { windows.main.restart(); }
+            click: function() {
+              windows.main.restart();
+            }
           },
           {
             label: 'Enter Fullscreen',
-            click: function() { windows.main.setFullScreen(true); }
+            click: function() {
+              windows.main.setFullScreen(true);
+            }
           },
           {
             label: 'Toggle DevTools',
             accelerator: 'Alt+Ctrl+I',
-            click: function() { windows.main.toggleDevTools(); }
+            click: function() {
+              windows.main.toggleDevTools();
+            }
           },
         ]
       },

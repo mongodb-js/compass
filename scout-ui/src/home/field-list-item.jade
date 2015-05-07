@@ -1,3 +1,7 @@
-li.list-group-item
-  h4.list-group-item-heading(data-hook='name')
-  div(data-hook='types-container')
+li.list-group-item.schema-field
+  .row
+    .col-md-4
+      h4.schema-field-name(data-hook='name')
+      div(data-hook='types-container')
+    .col-md-8
+      div(data-hook='values-container')

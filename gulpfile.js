@@ -140,8 +140,8 @@ function build(opts, done) {
 
 function _npm(opts, cmd, done) {
   var CMD = util.format('%s %s --target=%s --arch=%s --dist-url=%s',
-  which.sync('node-gyp'),
-  cmd, opts.NODE_VERSION, opts.ARCH, opts.NODE_URL);
+    which.sync('node-gyp'),
+    cmd, opts.NODE_VERSION, opts.ARCH, opts.NODE_URL);
 
   exec(opts.ELECTRON, CMD, done);
 }
@@ -164,7 +164,7 @@ function node_build_lib(opts, done) {
 }
 
 function configure(opts, done) {
-  var rebrandConfig = "project_name=" + opts.projectName + " product_name=" + (opts.productName.replace(' ', '\\ '));
+  var rebrandConfig = 'project_name=' + opts.projectName + ' product_name=' + (opts.productName.replace(' ', '\\ '));
   if (process.env.GYP_DEFINES) {
     process.env.GYP_DEFINES += rebrandConfig;
   } else {
@@ -176,8 +176,8 @@ function configure(opts, done) {
 function patchIcon(opts, done) {
   var dest = opts.APP + '/Contents/Resources/atom.icns';
   fs.createReadStream('./scout-electron/res/scout.icns')
-  .pipe(fs.createWriteStream(dest))
-  .on('end', done);
+    .pipe(fs.createWriteStream(dest))
+    .on('end', done);
 }
 
 function patchInfoPlist(opts, done) {
@@ -215,7 +215,7 @@ function _opts() {
     opts.APP += '.app';
   }
   opts.BREAKPAD_SYMBOLS = opts.ELECTRON + '/out/R/' + opts.productName + '.breakpad.syms';
-  opts.NODE_VERSION = '0.23.0';
+  opts.NODE_VERSION = '0.25.2';
 
 
   opts.ARCH = (function() {
@@ -235,8 +235,8 @@ gulp.task('build', function(done) {
   var opts = _opts();
   async.series({
     configure: configure.bind(null, opts),
-    source: source.bind(null, opts),
-    build: build.bind(null, opts),
+    //    source: source.bind(null, opts),
+    //  build: build.bind(null, opts),
     node_install: node_install.bind(null, opts),
     node_build_lib: node_build_lib.bind(null, opts),
     // npm_rebuild: npm_rebuild.bind(null, opts),
@@ -248,13 +248,13 @@ gulp.task('build', function(done) {
 // https://github.com/atom/electron-starter/blob/master/build/tasks/codesign-task.coffee
 function unlockKeychain(opts, done) {
   var cmd = util.format('security unlock-keychain -p %s',
-  process.env.XCODE_KEYCHAIN_PASSWORD, process.env.XCODE_KEYCHAIN);
+    process.env.XCODE_KEYCHAIN_PASSWORD, process.env.XCODE_KEYCHAIN);
   proc.exec(cmd, done);
 }
 function signApp(opts, done) {
   if (opts.PLATFORM === 'darwin') {
     var cmd = util.format('codesign --deep --force --verbose --sign %s %s',
-    process.env.XCODE_SIGNING_IDENTITY, opts.APP);
+      process.env.XCODE_SIGNING_IDENTITY, opts.APP);
     proc.exec(cmd, done);
   } else {
     done();

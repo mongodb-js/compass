@@ -64,17 +64,63 @@
   }
 }
 
-.panel {
-  &.panel-toolbar {
-    margin-left: 0px;
-    border-left: 0;
-    border-right: 0;
-    border-radius: 0;
-  }
-  &.from-top {
-    border-top: 0;
+.schema-field {
+  .schema-field-name {
+    .h5;
+    .list-group-item-heading;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
+.schema-field-type-list{
+  .progress;
+  border-radius: 1px;
+  height: 8px;
+  cursor: pointer;
+
+  .schema-field-type {
+    .progress-bar;
+    background: @red;
+  }
+
+  .schema-field-type-null {
+    background: @series-bg-1;
+  }
+  .schema-field-type-number {
+    background: @series-bg-2;
+  }
+  .schema-field-type-long {
+    background: @series-bg-3;
+  }
+  .schema-field-type-string {
+    // background: @series-bg-4;
+    background: @brand-primary;
+  }
+  .schema-field-type-boolean {
+    background: @series-bg-5;
+  }
+}
+
+.schema-value-list {
+  .schema-value-list-item {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+// .panel {
+//   &.panel-toolbar {
+//     margin-left: 0px;
+//     border-left: 0;
+//     border-right: 0;
+//     border-radius: 0;
+//   }
+//   &.from-top {
+//     border-top: 0;
+//   }
+// }
 
 ul.message-background {
   color: rgba(0, 0, 0, 0.2);
