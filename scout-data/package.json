@@ -1,0 +1,14 @@
+{
+  "name": "scout-data",
+  "version": "0.0.0",
+  "description": "Templates for generating datasets to use for testing and demos.",
+  "dependencies": {
+    "mongo-writable-stream": "^0.1.2",
+    "mongodb": "^2.0.31",
+    "mongodb-datasets": "^0.1.5"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/10gen/scout.git"
+  }
+}

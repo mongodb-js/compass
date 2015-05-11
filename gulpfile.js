@@ -50,7 +50,7 @@ function script(name, pkgs, done) {
 
   if (typeof pkgs === 'function') {
     done = pkgs;
-    pkgs = ['ui', 'server', 'brain', 'electron', 'metrics', 'style'];
+    pkgs = ['ui', 'server', 'brain', 'electron', 'metrics', 'style', 'data'];
   }
 
   var args = 'run-script ' + name;
