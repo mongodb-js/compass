@@ -96,21 +96,21 @@ function check(mode, done) {
 
 gulp.task('serve', function() {
   return gulp.src('../scout-server/res')
-  .pipe(webserver({
-    host: 'localhost',
-    port: 3000,
-    // open: true,
-    directoryListing: false,
-    livereload: true
-  }));
+    .pipe(webserver({
+      host: 'localhost',
+      port: 3000,
+      open: true,
+      directoryListing: false,
+      livereload: true
+    }));
 });
 
 gulp.task('testserver', function() {
   return gulp.src('../scout-server/res')
-  .pipe(webserver({
-    host: 'localhost',
-    port: 3001
-  }));
+    .pipe(webserver({
+      host: 'localhost',
+      port: 3001
+    }));
 });
 
 gulp.task('develop', ['pages', 'assets', 'less', 'serve'], function() {
@@ -129,8 +129,8 @@ gulp.task('develop', ['pages', 'assets', 'less', 'serve'], function() {
     fullPaths: true,
     debug: false
   }))
-  .transform('jadeify')
-  .on('update', rebundle);
+    .transform('jadeify')
+    .on('update', rebundle);
 
   function rebundle(changed) {
     var start = process.hrtime();
@@ -141,18 +141,18 @@ gulp.task('develop', ['pages', 'assets', 'less', 'serve'], function() {
 
     gutil.log('Starting', '\'' + gutil.colors.cyan('rebundle') + '\'...');
     return bundler.bundle()
-    .on('error', notify('js'))
-    .pipe(source('index.js'))
-    .pipe(gulp.dest('../scout-server/res/'))
-    .on('end', function() {
-      var time = prettyTime(process.hrtime(start));
-      gutil.log('Finished', '\'' + gutil.colors.cyan('rebundle') + '\'',
-      'after', gutil.colors.magenta(time));
-      spinner.start();
-      try {
-        require('remote').getCurrentWindow().reload();
-      } catch (e) {}
-    });
+      .on('error', notify('js'))
+      .pipe(source('index.js'))
+      .pipe(gulp.dest('../scout-server/res/'))
+      .on('end', function() {
+        var time = prettyTime(process.hrtime(start));
+        gutil.log('Finished', '\'' + gutil.colors.cyan('rebundle') + '\'',
+          'after', gutil.colors.magenta(time));
+        spinner.start();
+        try {
+          require('remote').getCurrentWindow().reload();
+        } catch (e) {}
+      });
   }
   return rebundle();
 });
@@ -160,19 +160,19 @@ gulp.task('develop', ['pages', 'assets', 'less', 'serve'], function() {
 // Compile LESS to CSS.
 gulp.task('less', function() {
   return gulp.src('src/*.less')
-  .pipe(sourcemaps.init())
-  .pipe(less(pkg.less))
-  .on('error', notify('less'))
-  .pipe(sourcemaps.write('./maps'))
-  .pipe(gulp.dest('../scout-server/res'));
+    .pipe(sourcemaps.init())
+    .pipe(less(pkg.less))
+    .on('error', notify('less'))
+    .pipe(sourcemaps.write('./maps'))
+    .pipe(gulp.dest('../scout-server/res'));
 });
 
 // Compile jade templates to HTML files.
 gulp.task('pages', function() {
   return gulp.src('src/index.jade')
-  .pipe(jade())
-  .on('error', notify('jade'))
-  .pipe(gulp.dest('../scout-server/res/'));
+    .pipe(jade())
+    .on('error', notify('jade'))
+    .pipe(gulp.dest('../scout-server/res/'));
 });
 
 // Copies all static asset files into dist
@@ -189,12 +189,12 @@ gulp.task('assets', function() {
 
 gulp.task('format', function() {
   return gulp.src('src/{*,**/*}.js')
-  .pipe(jsfmt.format({}));
+    .pipe(jsfmt.format({}));
 });
 
 gulp.task('lint', function() {
   return gulp.src('src/{*,**/*}.js')
-  .pipe(jshint({}));
+    .pipe(jshint({}));
 });
 
 gulp.task('check dependencies', function(done) {
@@ -211,12 +211,12 @@ gulp.task('check', ['format', 'lint', 'check dependencies']);
 // Build in production mode.
 gulp.task('build', ['assets', 'pages'], function() {
   var js = browserify('./src/index.js')
-  .transform(jadeify)
-  .bundle()
-  .pipe(source('index.js'))
-  .pipe(buffer())
-  .pipe(uglify())
-  .pipe(gulp.dest('../scout-server/res/'));
+    .transform(jadeify)
+    .bundle()
+    .pipe(source('index.js'))
+    .pipe(buffer())
+    .pipe(uglify())
+    .pipe(gulp.dest('../scout-server/res/'));
 
   // Setup less plugin that will clean and compress.
   var cleaner = new CleanCSS({
@@ -226,11 +226,11 @@ gulp.task('build', ['assets', 'pages'], function() {
   });
 
   var css = gulp.src('src/*.less')
-  .pipe(less({
-    plugins: [cleaner],
-    paths: pkg.less.paths
-  }))
-  .pipe(gulp.dest('../scout-server/res'));
+    .pipe(less({
+      plugins: [cleaner],
+      paths: pkg.less.paths
+    }))
+    .pipe(gulp.dest('../scout-server/res'));
 
   return merge(js, css);
 });
@@ -249,5 +249,5 @@ gulp.task('deploy', ['check', 'build'], function() {
   // }
 
   return gulp.src('../scout-server/res/{*,**/*}')
-  .pipe(deploy(opts));
+    .pipe(deploy(opts));
 });
