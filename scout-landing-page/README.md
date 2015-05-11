@@ -1,6 +1,6 @@
-# scout-static
+# scout-landing-page
 
-A little metalsmith app for prototyping landing pages, project documentation, etc.
+A little metalsmith app for prototyping landing pages for Scout.
 
 ## Install
 
