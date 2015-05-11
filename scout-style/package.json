@@ -1,0 +1,28 @@
+{
+  "name": "scout-style",
+  "version": "0.0.0",
+  "description": "Shared styling for all things Scout related.",
+  "less": {
+    "paths": [
+      "node_modules/font-awesome/less",
+      "node_modules/bootstrap/less",
+      "node_modules/octicons/octicons"
+    ]
+  },
+  "fonts": [
+    "node_modules/font-awesome/fonts/fontawesome-webfont*",
+    "node_modules/octicons/octicons/octicons.{eot,svg,ttf,woff}"
+  ],
+  "scripts": {
+    "start": "gulp"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/10gen/scout.git"
+  },
+  "dependencies": {
+    "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.2.tar.gz",
+    "font-awesome": "https://github.com/FortAwesome/Font-Awesome/archive/v4.3.0.tar.gz",
+    "octicons": "https://github.com/github/octicons/archive/v2.2.0.tar.gz"
+  }
+}
