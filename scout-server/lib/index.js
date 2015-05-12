@@ -30,7 +30,6 @@ if (process.env.NODE_ENV = 'development') {
     },
     ignoreDotFiles: true
   }, function(files) {
-      console.log('Sending livereload change notification.');
       livereload.changed({
         body: {
           files: files
