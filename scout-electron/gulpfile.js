@@ -96,17 +96,20 @@ var source = function(opts, done) {
       // return done();
       return exec(opts.ELECTRON, 'git pull --rebase', done);
     }
-    return exec(process.cwd(), 'git clone ' + repo + ' ' + opts.ELECTRON, done);
-
+    exec(process.cwd(), 'git clone ' + repo + ' ' + opts.ELECTRON, function(err) {
+      if (err) return done(err);
+      bootstrap(opts, done);
+    });
   });
 };
 
+function bootstrap(opts, done) {
+  exec(opts.ELECTRON, PYTHON + ' ' + path.resolve(opts.ELECTRON + '/script/bootstrap.py') + ' -v', done);
+}
+
 function build(opts, done) {
   var BUILD_CMD = PYTHON + ' ' + path.resolve(opts.ELECTRON + '/script/build.py') + ' -c ' + opts.buildConfig + ' -t ' + opts.projectName;
-  async.series({
-    bootstrap: exec.bind(null, opts.ELECTRON, PYTHON + ' ' + path.resolve(opts.ELECTRON + '/script/bootstrap.py') + ' -v'),
-    build: exec.bind(null, opts.ELECTRON, BUILD_CMD),
-  }, done);
+  exec(opts.ELECTRON, BUILD_CMD, done);
 }
 
 function _npm(opts, cmd, done) {
