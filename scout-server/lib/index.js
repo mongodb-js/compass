@@ -14,6 +14,32 @@ var urldecode = require('body-parser').urlencoded({
 app.server = require('http').createServer(app);
 app.config = require('mongoscope-config');
 
+if (process.env.NODE_ENV = 'development') {
+  app.use(require('connect-livereload')({
+    port: 35729,
+    include: ['./']
+  }));
+  var livereload = require('tiny-lr')();
+  var watch = require('watch');
+
+  livereload.listen(35729);
+
+  watch.watchTree(__dirname + '/../', {
+    filter: function(filename) {
+      return !(/node_modules/.test(filename));
+    },
+    ignoreDotFiles: true
+  }, function(files) {
+      console.log('Sending livereload change notification.');
+      livereload.changed({
+        body: {
+          files: files
+        }
+      });
+    });
+}
+
+
 app.use(require('./middleware/watch-event-loop-blocking'));
 app.use(require('./middleware/cors'));
 app.use(require('./middleware/typed-params'));

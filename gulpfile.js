@@ -50,7 +50,7 @@ function script(name, pkgs, done) {
 
   if (typeof pkgs === 'function') {
     done = pkgs;
-    pkgs = ['ui', 'server', 'brain', 'electron', 'metrics', 'style', 'data'];
+    pkgs = ['check', 'client', 'brain', 'metrics', 'style', 'data', 'server', 'ui', 'electron'];
   }
 
   var args = 'run-script ' + name;
@@ -67,6 +67,11 @@ gulp.task('install', function(done) {
   script('install', done);
 });
 
+gulp.task('check', function(done) {
+  console.log('@todo: need to fix up where some modules live before this will work without errors.');
+  done();
+});
+
 gulp.task('test', function(done) {
   test();
   script('test', ['server'], done);
@@ -74,10 +79,9 @@ gulp.task('test', function(done) {
 
 gulp.task('default', ['install', 'test']);
 
-// @todo: make this non-shitty
 gulp.task('start', function() {
   dev();
+  script('develop', ['ui']);
   script('start', ['server']);
-  script('start', ['ui']);
   script('start', ['electron']);
 });

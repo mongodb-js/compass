@@ -12,9 +12,9 @@
  * ```
  */
 
-var getOrCreateClient = require('../client'),
-  types = require('../../../scout-brain').types,
-  debug = require('debug')('scout-client:backbone');
+var getOrCreateClient = require('../client');
+var debug = require('debug')('scout-client:backbone');
+// @todo: what to do with scout-types?
 
 /**
  * @ignore
@@ -67,8 +67,9 @@ var _mongodb = function(resource) {
   var uri = _result(resource, 'mongodb');
   if (!uri) return undefined;
 
-  if (uri.indexOf('mongodb://') !== 0)
+  if (uri.indexOf('mongodb://') !== 0) {
     uri = 'mongodb://' + uri;
+  }
 
   var info = types.uri.parse(uri),
     ns = null;
@@ -138,13 +139,13 @@ function sync(method, model, options) {
     // and they have a slightly different api.  Create a read stream,
     // concat all of its data, hit the callback.
     return client.get(fragment, params)
-    .on('error', ender)
-    .on('data', function(doc) {
-      docs.push(doc);
-    })
-    .on('end', function() {
-      ender(null, docs);
-    });
+      .on('error', ender)
+      .on('data', function(doc) {
+        docs.push(doc);
+      })
+      .on('end', function() {
+        ender(null, docs);
+      });
   }
 }
 
@@ -217,13 +218,13 @@ module.exports.ReadableStream = {
       url = _result(this, 'url');
 
     this.subscription = client.get(url)
-    .on('error', function(err) {
-      self.trigger('error', err, self);
-    })
-    .on('data', function(data) {
-      if (!self.set(data)) return false;
-      self.trigger('sync', self, data);
-    });
+      .on('error', function(err) {
+        self.trigger('error', err, self);
+      })
+      .on('data', function(data) {
+        if (!self.set(data)) return false;
+        self.trigger('sync', self, data);
+      });
 
     // If the client context changes, move our subscription.
     this.subscription.client.on('change', function() {

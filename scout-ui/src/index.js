@@ -13,7 +13,7 @@ var qs = require('qs');
 var Router = require('./router');
 
 var PageContainer = AmpersandView.extend({
-  template: '<body><div class="page-container" data-hook="page-container"></div></body>',
+  template: '<div id="application"><div class="page-container" data-hook="page-container"></div></div>',
   initialize: function() {
     this.listenTo(app.router, 'page', this.onPageChange);
   },
@@ -59,7 +59,7 @@ app.extend({
   init: function() {
     domReady(function() {
       app.view = new PageContainer({
-        el: document.body
+        el: document.querySelector('#application')
       }).render();
 
       // we have what we need, we can now start our router and show the

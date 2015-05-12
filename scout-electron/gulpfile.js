@@ -66,7 +66,7 @@ gulp.task('cleanup', ['copy'], function(cb) {
 
 gulp.task('start', function() {
   setTimeout(function() {
-    var child = proc.spawn('../electron/out/R/Scout.app/Contents/MacOS/Scout', [__dirname]);
+    var child = proc.spawn(path.resolve('../electron/out/R/Scout.app/Contents/MacOS/Scout'), [path.resolve(__dirname + '/../')]);
     child.stderr.pipe(process.stderr);
     child.stdout.pipe(process.stdout);
   }, 1000);

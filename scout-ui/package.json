@@ -27,6 +27,7 @@
   },
   "scripts": {
     "start": "gulp",
+    "develop": "gulp develop",
     "deploy": "gulp deploy",
     "check": "gulp check",
     "test": "mocha"
@@ -85,7 +86,7 @@
     "mocha": "^2.2.1",
     "nightmare": "^1.7.0",
     "node-notifier": "^4.0.0",
-    "phantomjs": "~1.9.15",
+    "phantomjs": "^1.9.15",
     "pre-commit": "^1.0.6",
     "pretty-hrtime": "^1.0.0",
     "vinyl-buffer": "^1.0.0",

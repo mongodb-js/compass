@@ -16,13 +16,15 @@ var browserify = require('browserify'),
   CleanCSS = require('less-plugin-clean-css'),
   clui = require('clui'),
   merge = require('merge-stream'),
-  dc = require('dependency-check'),
   jshint = require('gulp-jshint'),
   jsfmt = require('gulp-jsfmt'),
   pkg = require('./package.json'),
   util = require('util');
 
-gulp.task('default', ['develop']);
+
+require('../scout-check')(gulp, './src/{**/*.js,*.js}');
+
+gulp.task('default', ['develop', 'serve']);
 
 /**
  * Helper for catching error events on vinyl-source-stream's and showing
@@ -52,48 +54,6 @@ function notify(titlePrefix) {
   };
 }
 
-function check(mode, done) {
-  var opts = {
-    path: __dirname + '/package.json',
-    entries: pkg['dependency-check'].entries,
-    ignore: pkg['dependency-check'].ignore
-  };
-
-  function filterIgnored(results) {
-    return results.filter(function(name) {
-      return opts.ignore.indexOf(name) === -1;
-    });
-  }
-
-  dc(opts, function(err, data) {
-    if (err) return done(err);
-    var pkg = data.package;
-    var deps = data.used;
-    var results, errMsg, successMsg, corrector;
-
-    if (mode === 'extra') {
-      results = filterIgnored(dc.extra(pkg, deps, {
-        excludeDev: true
-      }));
-      errMsg = 'Modules in package.json not used in code';
-      corrector = 'npm uninstall --save ' + results.join(' ') + ';';
-      successMsg = 'All dependencies in package.json are used in the code';
-    } else {
-      results = filterIgnored(dc.missing(pkg, deps));
-      errMsg = 'Dependencies not listed in package.json';
-      successMsg = 'All dependencies used in the code are listed in package.json';
-      corrector = 'npm install --save ' + results.join(' ') + ';';
-    }
-
-    if (results.length === 0) {
-      gutil.log(gutil.colors.green('Success') + ' ' + successMsg);
-      return done();
-    }
-    gutil.log(gutil.colors.red('Error') + ' ' + errMsg + '. To fix this, run:\n\n    ' + corrector + '\n');
-    return done(new Error(errMsg));
-  });
-}
-
 gulp.task('serve', function() {
   return gulp.src('../scout-server/res')
     .pipe(webserver({
@@ -113,8 +73,8 @@ gulp.task('testserver', function() {
     }));
 });
 
-gulp.task('develop', ['pages', 'assets', 'less', 'serve'], function() {
-  gulp.watch(['src/{*,**/*}.less'], ['less']);
+gulp.task('develop', ['pages', 'assets', 'less'], function() {
+  gulp.watch(['src/{*,**/*}.less', '../scout-style/*.less'], ['less']);
   gulp.watch(['src/*.jade'], ['pages']);
   gulp.watch(['src/img/*'], ['assets']);
 
@@ -172,7 +132,7 @@ gulp.task('pages', function() {
   return gulp.src('src/index.jade')
     .pipe(jade())
     .on('error', notify('jade'))
-    .pipe(gulp.dest('../scout-server/res/'));
+    .pipe(gulp.dest('../scout-server/res'));
 });
 
 // Copies all static asset files into dist
@@ -186,27 +146,6 @@ gulp.task('assets', function() {
 
   return merge.apply(null, subtasks);
 });
-
-gulp.task('format', function() {
-  return gulp.src('src/{*,**/*}.js')
-    .pipe(jsfmt.format({}));
-});
-
-gulp.task('lint', function() {
-  return gulp.src('src/{*,**/*}.js')
-    .pipe(jshint({}));
-});
-
-gulp.task('check dependencies', function(done) {
-  check('missing', function(err) {
-    if (err) return done(err);
-    check('extra', done);
-  });
-});
-
-
-// @todo: npm-check-updates
-gulp.task('check', ['format', 'lint', 'check dependencies']);
 
 // Build in production mode.
 gulp.task('build', ['assets', 'pages'], function() {
@@ -233,21 +172,4 @@ gulp.task('build', ['assets', 'pages'], function() {
     .pipe(gulp.dest('../scout-server/res'));
 
   return merge(js, css);
-});
-
-// Deploy to gh pages if we're on master.
-// Automatically triggered by wercker when a build in master passes tests.
-gulp.task('deploy', ['check', 'build'], function() {
-  var opts = {
-    branch: 'gh-pages', // org/username uses master, else gh-pages
-    message: '[ci skip] gh-pages deploy ' + (process.env.GIT_COMMIT_MESSAGE || '')
-  };
-
-  // if (process.env.GITHUB_TOKEN) {
-  //   opts.remoteUrl = util.format('https://%s@github.com/mongodb-js/mongodb-js.github.io.git',
-  //     process.env.GITHUB_TOKEN);
-  // }
-
-  return gulp.src('../scout-server/res/{*,**/*}')
-    .pipe(deploy(opts));
 });
