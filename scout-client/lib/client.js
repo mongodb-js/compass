@@ -54,12 +54,15 @@ module.exports = function(opts) {
       scout: opts
     };
   }
-  if (!opts.scout)
+  if (!opts.scout) {
     opts.scout = defaults.scout;
-  if (!opts.auth)
+  }
+  if (!opts.auth) {
     opts.auth = defaults.auth;
-  if (!opts.seed)
+  }
+  if (!opts.seed) {
     opts.seed = defaults.seed;
+  }
 
   opts.seed = opts.seed.replace('mongodb://', '');
   var _id = clientId(opts);
@@ -94,10 +97,12 @@ function Client(opts) {
     }
   };
 
-  if (opts.timeout)
+  if (opts.timeout) {
     this.config.timeout = opts.timeout;
-  if (opts.auth)
+  }
+  if (opts.auth) {
     this.config.auth = opts.auth;
+  }
 
   this.context = new Context();
   this.readable = false;
@@ -119,8 +124,8 @@ Client.prototype.connect = function() {
     return this;
   }
   this.token = new Token(this.config)
-  .on('readable', this.onTokenReadable.bind(this))
-  .on('error', this.onTokenError.bind(this));
+    .on('readable', this.onTokenReadable.bind(this))
+    .on('error', this.onTokenError.bind(this));
   return this;
 };
 
@@ -307,9 +312,9 @@ Client.prototype.find = function(ns, opts, fn) {
 
   return this.read('/collections/' + ns + '/find', {
     query: EJSON.stringify((opts.query || {})),
-    limit: ( opts.limit || 10),
-    skip: ( opts.skip || 0),
-    explain: ( opts.explain || false),
+    limit: (opts.limit || 10),
+    skip: (opts.skip || 0),
+    explain: (opts.explain || false),
     sort: EJSON.stringify((opts.sort || undefined)),
     fields: EJSON.stringify((opts.fields || undefined)),
     options: EJSON.stringify((opts.options || undefined)),
@@ -348,9 +353,9 @@ Client.prototype.count = function(ns, opts, fn) {
 
   var params = {
     query: EJSON.stringify((opts.query || {})),
-    limit: ( opts.limit || 10),
-    skip: ( opts.skip || 0),
-    explain: ( opts.explain || false),
+    limit: (opts.limit || 10),
+    skip: (opts.skip || 0),
+    explain: (opts.explain || false),
     sort: EJSON.stringify((opts.sort || null)),
     fields: EJSON.stringify((opts.fields || null)),
     options: EJSON.stringify((opts.options || null)),
@@ -392,7 +397,7 @@ Client.prototype.aggregate = function(ns, pipeline, opts, fn) {
 
   return this.read('/collections/' + ns + '/aggregate', {
     pipeline: EJSON.stringify(pipeline),
-    explain: ( opts.explain || false),
+    explain: (opts.explain || false),
     allowDiskUse: EJSON.stringify((opts.allowDiskUse || null)),
     cursor: EJSON.stringify((opts.cursor || null)),
     _streamable: true
@@ -512,8 +517,9 @@ Client.prototype.get = function(fragment, opts, fn) {
  * @ignore
  */
 Client.prototype.resolve = function(fragment) {
-  if (!this.router)
+  if (!this.router) {
     this.router = createRouter(this.routes);
+  }
   var route = this.router.resolve(fragment);
   return [this[route.method], route.args];
 };
@@ -527,7 +533,9 @@ Client.prototype.resolve = function(fragment) {
  * @ignore
  */
 Client.prototype.close = function(fn) {
-  if (this.io) this.io.close();
+  if (this.io) {
+    this.io.close();
+  }
   this.emit('close');
   this.closed = true;
   this.token.close(fn);
@@ -570,15 +578,15 @@ Client.prototype.read = function(path, params, fn) {
   if (streamable && !fn) return new Subscription(this, path, params);
 
   path = (path === '/') ? '/' + instance_id :
-    (path !== '/deployments') ? '/' + instance_id + path : path;
+  (path !== '/deployments') ? '/' + instance_id + path : path;
 
   assert(this.token.toString());
 
   return request.get(this.config.scout + '/api/v1' + path)
-  .set('Accept', 'application/json')
-  .set('Authorization', 'Bearer ' + this.token.toString())
-  .query(params)
-  .end(this.ender(fn));
+    .set('Accept', 'application/json')
+    .set('Authorization', 'Bearer ' + this.token.toString())
+    .query(params)
+    .end(this.ender(fn));
 };
 
 /**
@@ -651,10 +659,10 @@ Client.prototype._initSocketio = function() {
     query: 'token=' + this.token.toString()
   });
   this.io.on('reconnecting', this.emit.bind(this, 'reconnecting'))
-  .on('reconnect', this.onReconnect.bind(this))
-  .on('reconnect_attempt', this.emit.bind(this, 'reconnect_attempt'))
-  .on('reconnect_failed', this.emit.bind(this, 'reconnect_failed'))
-  .on('disconnect', this.emit.bind(this, 'disconnect'));
+    .on('reconnect', this.onReconnect.bind(this))
+    .on('reconnect_attempt', this.emit.bind(this, 'reconnect_attempt'))
+    .on('reconnect_failed', this.emit.bind(this, 'reconnect_failed'))
+    .on('disconnect', this.emit.bind(this, 'disconnect'));
   this.io.on('connect', function() {
     debug('connected to scout-server socket');
   });
@@ -692,18 +700,58 @@ Client.prototype.onTokenError = function(err) {
 Client.prototype.onReconnect = function() {
   debug('reconnected.  getting new token');
   this.token = new Token(this.config)
-  .on('readable', function() {
-    this.readable = true;
-    this.context.set(this.token.session);
-    this._initSocketio();
-  }.bind(this))
-  .on('error', this.emit.bind(this, 'error'));
+    .on('readable', function() {
+      this.readable = true;
+      this.context.set(this.token.session);
+      this._initSocketio();
+    }.bind(this))
+    .on('error', this.emit.bind(this, 'error'));
 };
 
 var ss = require('socket.io-stream');
+var es = require('event-stream');
+
 Client.prototype.createReadStream = function(_id, data) {
-  data = data || {};
-  var stream = ss.createStream(this.io);
-  ss(this.io).emit(_id, stream, data);
-  return stream.pipe(EJSON.createParseStream());
+  if (this.dead) {
+    throw this.dead;
+  }
+  if (this.closed) {
+    throw new Error('Client already closed');
+  }
+
+  if (!this.readable) {
+    debug('not readable yet.  queueing read', _id, data);
+    var client = this;
+    var transferred = false;
+
+    var proxy;
+    var done;
+    proxy = es.readable(function(count, fn) {
+      done = fn;
+      debug('proxy _read called with count', count);
+      if (!client.readable) {
+        return debug('client still not readable');
+      }
+      if (transferred) {
+        return debug('proxy already transferred');
+      }
+    });
+    this.on('readable', function() {
+      debug('client readable');
+      var src = client.createReadStream(_id, data);
+      src.on('data', proxy.emit.bind(proxy, 'data'));
+      src.on('error', proxy.emit.bind(proxy, 'error'));
+      src.on('end', proxy.emit.bind(proxy, 'end'));
+      transferred = true;
+      process.nextTick(function() {
+        done();
+      });
+    });
+    return proxy;
+  } else {
+    data = data || {};
+    var stream = ss.createStream(this.io);
+    ss(this.io).emit(_id, stream, data);
+    return stream.pipe(EJSON.createParseStream());
+  }
 };
