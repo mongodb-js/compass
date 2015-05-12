@@ -6,7 +6,7 @@ Great to have you here. These are a few ways you can help make this project bett
 - add an example to README.md
 - avoid sending pull requests related to "style" or whitespace as we have
   tools in our workflow to do this already
-- [creating a new issue](http://github.com/10gen/scout/issues)
+- [create a new issue](http://github.com/10gen/scout/issues)
   if there is something you need this project to do that it currently doesn't.
   We're always more than happy to chat about other projects.
 
@@ -16,7 +16,7 @@ More information to help you work on Scout is available in
 ## Workflow
 
 1. Fork the repository on GitHub
-1. Create a branch with a name that breifly describes your feature
+1. Create a branch with a name that briefly describes your feature
 1. Implement your feature or bug fix
 1. Add new cases to `./tests.js` that verify your bug fix or make sure no one
    unintentionally breaks your feature in the future and run them with `npm test`
