@@ -29,7 +29,7 @@ npm install
 
 - Install [nodejs][nodejs] and [mongodb][mongodb]
 - `git clone git@github.com:10gen/scout.git`
-- `npm npm install`
+- `npm install`
 - Start the server `npm start`
 
 ### I edited a `.jade` file.  Now what?
@@ -46,6 +46,8 @@ Please don't.  To keep things as consistent as possible, we use the
 variables available to atom editor themes.  `less/variables.less`
 maps the atom variables to bootstrap variables and a full list
 is available in [the patternlib][less-variables].
+
+> @todo: create patternlib
 
 ### How do I add new features?
 
@@ -66,12 +68,11 @@ is available in [the patternlib][less-variables].
 ## Dev Dependencies
 
 There are a few dev dependencies that will be installed you might be
-interested that make developing mongoscope a complete joy.
+interested that make developing Scout a complete joy.
 
 ### Gulp
 
-[Gulp][gulp] is a build tool like grunt or
-broccoli, or Make and scons if you don't usually work with JS. Gulp is
+[Gulp][gulp] is a build task automation tool. Gulp is
 different from other JS tools in that it is streams centric and just
 javascript. Unlike grunt, you don't have massive config objects you must
 conform to; it takes a code over configuration approach much like Make.
@@ -80,8 +81,7 @@ If you're interested in learning more,
 
 ### Jade
 
-[Jade][jade] is our templating language
-of choice.  Jade is great because:
+[Jade][jade] is our templating language of choice.  Jade is great because:
 
 - light enough to use on the client via browserify
 - robust enough to use on the server (e.g. support for layouts and blocks)
@@ -220,6 +220,6 @@ Recommended user preferences, particularly `ensure_newline_at_eof_on_save`,
 
 [mongodb.js]: https://www.npmjs.org/browse/keyword/mongodb.js
 [browserify talk]: http://imlucas.github.io/talks/mongo_052014/static/index.html
-[patternlib]: http://10gen.github.io/mongoscope/patternlib.html
+[patternlib]: http://10gen.github.io/scout/patternlib.html
 [less-variables]: http://10gen.github.io/scout/patternlib.html#less-variables
 [gulp-intro]: http://julienrenaux.fr/2014/05/25/introduction-to-gulp-js-with-practical-examples/
