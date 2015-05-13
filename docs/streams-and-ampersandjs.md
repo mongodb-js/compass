@@ -1,17 +1,8 @@
 # Streams and Ampersand.js
 
 1. Start mongodb in a background window.
-2. Open a new terminal window and run the following to start up scout-server:
-  ```
-  cd ~/scout/scout-server;
-  npm start;
-  ```
-3. Open scout-ui in your editor of choice:
-  ```
-  cd ~/scout/scout-ui;
-  subl -a ./;
-  ```
-
+2. Open a new terminal window and run the following to start up scout-server: `cd ~/scout/scout-server; npm start;`
+3. Open scout-ui in your editor of choice: `cd ~/scout/scout-ui; subl -a ./;`
 
 ```javascript
 // It all starts with requiring some libraries.
@@ -76,43 +67,7 @@ Because of the way scout and ampersand are built, we can try this out
 right in the terminal instead of mucking about in the browser.  Save the above
 under `~/scout/scout-ui/src/models/streams-01.js` and run the following in a
 terminal window: `DEBUG=scout-* node src/models/streams-01.js`. You should see
-something like the following:
-
-```
-scout-client creating new client +0ms http://localhost:29017/localhost:27017 {}
-scout-client not readable yet.  queueing read +155ms { size: 5, query: {}, fields: null, ns: 'local.startup_log' }
-scout-client:token getting token for +4ms localhost:27017 { seed: 'localhost:27017' }
-scout-client proxy _read called with count +13ms 0
-scout-client client still not readable +0ms
-scout-client:token emit readable! +23ms
-scout-client token now readable +0ms
-scout-client client readable +13ms
-scout-client emitted readable on client +6ms
-scout-client proxy _read called with count +2ms 1
-scout-client proxy already transferred +0ms
-scout-client connected to scout-server socket +32ms
-scout-streams-example schema analyzed! It has 18 fields +0ms
-scout-streams-example 0. _id +1ms
-scout-streams-example 1. buildinfo.OpenSSLVersion +0ms
-scout-streams-example 2. buildinfo.allocator +0ms
-scout-streams-example 3. buildinfo.bits +0ms
-scout-streams-example 4. buildinfo.compilerFlags +0ms
-scout-streams-example 5. buildinfo.debug +0ms
-scout-streams-example 6. buildinfo.gitVersion +0ms
-scout-streams-example 7. buildinfo.javascriptEngine +0ms
-scout-streams-example 8. buildinfo.loaderFlags +0ms
-scout-streams-example 9. buildinfo.maxBsonObjectSize +0ms
-scout-streams-example 10. buildinfo.sysInfo +0ms
-scout-streams-example 11. buildinfo.version +0ms
-scout-streams-example 12. cmdLine.replication.replSet +0ms
-scout-streams-example 13. cmdLine.storage.dbPath +1ms
-scout-streams-example 14. hostname +0ms
-scout-streams-example 15. pid +0ms
-scout-streams-example 16. startTime. +0ms
-scout-streams-example 17. startTimeLocal +0ms
-scout-client:token closing token +186ms
-scout-client:token response from token close +8ms
-```
+something like the following https://gist.github.com/imlucas/83da48b4b05745fcfef2
 
 Let's add some debugging to get a better look under the hood.
 
@@ -157,131 +112,14 @@ schema.fetch();
 
 Save the above under `~/scout/scout-ui/src/models/streams-02.js` and run the
 following in a terminal window: `DEBUG=scout-* node src/models/streams-02.js`.
-You should see something like the following:
-
-```
-scout-client creating new client +0ms http://localhost:29017/localhost:27017 {}
-scout-client not readable yet.  queueing read +185ms collection:sample { size: 5, query: {}, fields: null, ns: 'local.startup_log' }
-scout-client:token getting token for +7ms localhost:27017 { seed: 'localhost:27017' }
-scout-client proxy _read called with count +18ms 0
-scout-client client still not readable +0ms
-scout-client:token emit readable! +25ms
-scout-client token now readable +0ms
-scout-client client readable +15ms
-scout-client emitted readable on client +9ms
-scout-client proxy _read called with count +2ms 1
-scout-client proxy already transferred +1ms
-scout-client connected to scout-server socket +36ms
-scout-streams-example got sampled document with _id `"lucas.local-1421779439516"` +0ms
-scout-streams-example created or updated field `_id` +15ms
-scout-streams-example created or updated field `hostname` +2ms
-scout-streams-example created or updated field `startTime.` +0ms
-scout-streams-example created or updated field `startTimeLocal` +1ms
-scout-streams-example created or updated field `cmdLine.replication.replSet` +0ms
-scout-streams-example created or updated field `cmdLine.storage.dbPath` +1ms
-scout-streams-example created or updated field `pid` +1ms
-scout-streams-example created or updated field `buildinfo.version` +0ms
-scout-streams-example created or updated field `buildinfo.gitVersion` +1ms
-scout-streams-example created or updated field `buildinfo.OpenSSLVersion` +1ms
-scout-streams-example created or updated field `buildinfo.sysInfo` +1ms
-scout-streams-example created or updated field `buildinfo.loaderFlags` +6ms
-scout-streams-example created or updated field `buildinfo.compilerFlags` +11ms
-scout-streams-example created or updated field `buildinfo.allocator` +9ms
-scout-streams-example created or updated field `buildinfo.javascriptEngine` +1ms
-scout-streams-example created or updated field `buildinfo.bits` +2ms
-scout-streams-example created or updated field `buildinfo.debug` +1ms
-scout-streams-example created or updated field `buildinfo.maxBsonObjectSize` +1ms
-scout-streams-example got sampled document with _id `"lucas.local-1423244669506"` +0ms
-scout-streams-example created or updated field `_id` +3ms
-scout-streams-example created or updated field `hostname` +1ms
-scout-streams-example created or updated field `startTime.` +1ms
-scout-streams-example created or updated field `startTimeLocal` +0ms
-scout-streams-example created or updated field `cmdLine.replication.replSet` +5ms
-scout-streams-example created or updated field `cmdLine.storage.dbPath` +4ms
-scout-streams-example created or updated field `pid` +1ms
-scout-streams-example created or updated field `buildinfo.version` +1ms
-scout-streams-example created or updated field `buildinfo.gitVersion` +1ms
-scout-streams-example created or updated field `buildinfo.OpenSSLVersion` +2ms
-scout-streams-example created or updated field `buildinfo.sysInfo` +1ms
-scout-streams-example created or updated field `buildinfo.loaderFlags` +1ms
-scout-streams-example created or updated field `buildinfo.compilerFlags` +0ms
-scout-streams-example created or updated field `buildinfo.allocator` +1ms
-scout-streams-example created or updated field `buildinfo.javascriptEngine` +1ms
-scout-streams-example created or updated field `buildinfo.bits` +1ms
-scout-streams-example created or updated field `buildinfo.debug` +0ms
-scout-streams-example created or updated field `buildinfo.maxBsonObjectSize` +1ms
-scout-streams-example got sampled document with _id `"lucas.local-1427471446953"` +0ms
-scout-streams-example created or updated field `_id` +2ms
-scout-streams-example created or updated field `hostname` +0ms
-scout-streams-example created or updated field `startTime.` +38ms
-scout-streams-example created or updated field `startTimeLocal` +0ms
-scout-streams-example created or updated field `cmdLine.dbpath` +1ms
-scout-streams-example created or updated field `cmdLine.replSet` +0ms
-scout-streams-example created or updated field `pid` +1ms
-scout-streams-example created or updated field `buildinfo.version` +1ms
-scout-streams-example created or updated field `buildinfo.gitVersion` +0ms
-scout-streams-example created or updated field `buildinfo.sysInfo` +1ms
-scout-streams-example created or updated field `buildinfo.loaderFlags` +1ms
-scout-streams-example created or updated field `buildinfo.compilerFlags` +1ms
-scout-streams-example created or updated field `buildinfo.allocator` +1ms
-scout-streams-example created or updated field `buildinfo.javascriptEngine` +1ms
-scout-streams-example created or updated field `buildinfo.bits` +0ms
-scout-streams-example created or updated field `buildinfo.debug` +1ms
-scout-streams-example created or updated field `buildinfo.maxBsonObjectSize` +0ms
-scout-streams-example got sampled document with _id `"lucas.local-1429105786264"` +0ms
-scout-streams-example created or updated field `_id` +1ms
-scout-streams-example created or updated field `hostname` +0ms
-scout-streams-example created or updated field `startTime.` +1ms
-scout-streams-example created or updated field `startTimeLocal` +0ms
-scout-streams-example created or updated field `cmdLine.replication.replSet` +4ms
-scout-streams-example created or updated field `cmdLine.storage.dbPath` +2ms
-scout-streams-example created or updated field `pid` +0ms
-scout-streams-example created or updated field `buildinfo.version` +1ms
-scout-streams-example created or updated field `buildinfo.gitVersion` +1ms
-scout-streams-example created or updated field `buildinfo.OpenSSLVersion` +2ms
-scout-streams-example created or updated field `buildinfo.sysInfo` +1ms
-scout-streams-example created or updated field `buildinfo.loaderFlags` +1ms
-scout-streams-example created or updated field `buildinfo.compilerFlags` +1ms
-scout-streams-example created or updated field `buildinfo.allocator` +0ms
-scout-streams-example created or updated field `buildinfo.javascriptEngine` +1ms
-scout-streams-example created or updated field `buildinfo.bits` +0ms
-scout-streams-example created or updated field `buildinfo.debug` +1ms
-scout-streams-example created or updated field `buildinfo.maxBsonObjectSize` +0ms
-scout-streams-example got sampled document with _id `"lucas.local-1431025965327"` +0ms
-scout-streams-example created or updated field `_id` +1ms
-scout-streams-example created or updated field `hostname` +0ms
-scout-streams-example created or updated field `startTime.` +0ms
-scout-streams-example created or updated field `startTimeLocal` +1ms
-scout-streams-example created or updated field `cmdLine.replication.replSet` +0ms
-scout-streams-example created or updated field `cmdLine.storage.dbPath` +1ms
-scout-streams-example created or updated field `pid` +1ms
-scout-streams-example created or updated field `buildinfo.version` +1ms
-scout-streams-example created or updated field `buildinfo.gitVersion` +6ms
-scout-streams-example created or updated field `buildinfo.OpenSSLVersion` +0ms
-scout-streams-example created or updated field `buildinfo.sysInfo` +1ms
-scout-streams-example created or updated field `buildinfo.loaderFlags` +0ms
-scout-streams-example created or updated field `buildinfo.compilerFlags` +0ms
-scout-streams-example created or updated field `buildinfo.allocator` +1ms
-scout-streams-example created or updated field `buildinfo.javascriptEngine` +0ms
-scout-streams-example created or updated field `buildinfo.bits` +0ms
-scout-streams-example created or updated field `buildinfo.debug` +1ms
-scout-streams-example created or updated field `buildinfo.maxBsonObjectSize` +0ms
-scout-streams-example schema analyzed! It has 20 fields +9ms
-scout-client:token closing token +210ms
-scout-client:token response from token close +27ms
-```
+You should see something like the following https://gist.github.com/imlucas/8baf67b46035bc1ae6d9
 
 Let's make some UI!  Now that we know how to weild streams,  let's add a
 new panel to the collection view that shows a list of sampled documents
 with nice syntax highlighting.
 
 To do the highlighting, we'll use the [html-stringify](http://npm.im/html-stringify)
-module:
-
-```
-cd ~/scout/scout-ui;
-npm install --save html-stringify;
-```
+module: `cd ~/scout/scout-ui; npm install --save html-stringify;`
 
 Modify our schema model above to look like the below and save it as
 `scout/scout-ui/src/models/sampled-schema.js`:
@@ -421,4 +259,3 @@ Start up scout with `cd ~/scout && npm start` and you should see your
 new panel that looks something like the below:
 
 ![](https://cldup.com/NSetVgVwVM.png)
-
