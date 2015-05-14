@@ -1,5 +1,9 @@
 var brain = require('../../../scout-brain');
-var client = require('../../../scout-client')();
+
+var client = require('../../../scout-client')({
+  seed: 'mongodb://localhost:27777'
+});
+
 var WithScout = require('./with-scout');
 var WithSelectable = require('./with-selectable');
 var debug = require('debug')('scout-ui:models');
@@ -25,14 +29,14 @@ var SampledSchema = Schema.extend({
 
     var model = this;
     var detect = this.stream()
-    .on('error', function(err) {
-      options.error(err, 'error', err.message);
-    })
-    .on('end', function() {
-      process.nextTick(function() {
-        model.trigger('sync', model, model.serialize(), options);
+      .on('error', function(err) {
+        options.error(err, 'error', err.message);
+      })
+      .on('end', function() {
+        process.nextTick(function() {
+          model.trigger('sync', model, model.serialize(), options);
+        });
       });
-    });
 
     model.trigger('request', model, {}, options);
     process.nextTick(function() {
@@ -59,15 +63,17 @@ var SampledDocumentCollection = core.DocumentCollection.extend({
     });
 
     client.sample(this.parent._id, options)
-    .pipe(es.map(function(doc, cb) {
-      model.add(doc);
-      cb(null, doc);
-    }))
-    .pipe(es.wait(function(err, data) {
-      if (err) return options.error({}, 'error', err.message);
-      if (success) success(model, data, options);
-      model.trigger('sync', model, data, options);
-    }));
+      .pipe(es.map(function(doc, cb) {
+        model.add(doc);
+        cb(null, doc);
+      }))
+      .pipe(es.wait(function(err, data) {
+        if (err) return options.error({}, 'error', err.message);
+        if (success) {
+          success(model, data, options);
+        }
+        model.trigger('sync', model, data, options);
+      }));
   }
 });
 

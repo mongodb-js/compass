@@ -22,7 +22,7 @@ if (process.env.NODE_ENV = 'development') {
   var livereload = require('tiny-lr')();
   var watch = require('watch');
 
-  livereload.listen(35729);
+  livereload.listen(35729, '127.0.0.1');
 
   watch.watchTree(__dirname + '/../', {
     filter: function(filename) {

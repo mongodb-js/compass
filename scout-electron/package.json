@@ -9,7 +9,10 @@
     "url": "git://github.com/10gen/scout.git"
   },
   "dependencies": {
-    "debug": "^2.1.3"
+    "debug": "^2.1.3",
+    "mkdirp": "^0.5.1",
+    "mongodb-runner": "^2.2.0",
+    "untildify": "^2.0.0"
   },
   "dependency-check": {
     "//": "Ignore electron built-in modules.",
@@ -30,11 +33,11 @@
     "gulp": "^3.8.11",
     "keepup": "0.0.7",
     "merge-stream": "^0.1.7",
+    "mongodb-version-manager": "^0.7.0",
     "plist": "^1.1.0",
     "which": "^1.0.9"
   },
   "scripts": {
-    "start": "gulp",
-    "postinstall": "gulp build"
+    "start": "gulp"
   }
 }
