@@ -71,3 +71,45 @@
     white-space: nowrap;
   }
 }
+
+
+// minicharts
+@mc-bar-bg: #F2F4F5;
+@mc-bar-fg: #38A1DF;
+@mc-bar-hl: #BEDFF0;
+
+.minichart {
+  font: 10px sans-serif;
+
+  text {
+    fill: #000;
+  }
+
+  .bar {
+    shape-rendering: crispEdges;
+
+    rect.bg {
+      fill: @mc-bar-bg;
+    }
+
+    rect.fg {
+      fill: @mc-bar-fg;
+    }
+
+    rect.hl {
+      fill: @mc-bar-hl;
+    }
+  }
+
+  .line {
+    stroke: @mc-bar-fg;
+    shape-rendering: crispEdges;
+  }
+
+  .axis path, .axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+  }
+}
+

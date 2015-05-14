@@ -64,6 +64,12 @@
     "phantomjs-polyfill": "0.0.1",
     "qs": "^2.2.4",
     "underscore": "^1.6.0",
+    "d3": "^3.5.5",
+    "lodash.debounce": "^3.0.3",
+    "lodash.groupby": "^3.1.0",
+    "lodash.map": "^3.1.2",
+    "lodash.values": "^3.0.0",
+    "lodash.zip": "^3.1.0",
     "mongodb-schema": "git://github.com/mongodb-js/mongodb-schema.git#ampersand"
   },
   "devDependencies": {
