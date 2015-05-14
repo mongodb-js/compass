@@ -15,8 +15,9 @@
 @gray-light:             lighten(#000, 46.7%); // #777
 @gray-lighter:           lighten(#000, 93.5%); // #eee
 
+@white: #FFFFFF;
 @green: #00AC51;
-@blue: #6CC7D9;
+@blue: #24b8eb;
 @orange: #D9882A;
 @purple: #A082D9;
 @pink: #E52D71;
@@ -26,10 +27,11 @@
 @red: #c00;
 
 // //== Scaffolding
-@body-bg:               #E8E8E8;
-@text-color:            #000000;
-// @link-color:            #677587;
-// @link-hover-color:      darken(@link-color, 15%);
+@brand-primary:         @blue;
+@body-bg:               @white;
+@text-color:            @gray-dark;
+@link-color:            #24b8eb;
+@link-hover-color:      darken(@link-color, 15%);
 
 
 //== Typography
@@ -41,7 +43,7 @@
 @headings-font-family:    @font-family-sans-serif;
 @headings-font-weight:    700;
 @headings-line-height:    1.2;
-@headings-color:          inherit;
+@headings-color:          #243237;
 
 
 @series-bg-1: @green;
@@ -663,7 +665,7 @@
 
 // @panel-default-text:          @text-color;
 // @panel-default-border:        darken(@syntax-background-color, 10%);
-// @panel-default-heading-bg:    lighten(@syntax-background-color, 10%);
+@panel-default-heading-bg:    transparent;
 
 // @panel-primary-text:          #fff;
 // @panel-primary-border:        @brand-primary;
