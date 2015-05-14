@@ -1,24 +1,15 @@
 var d3 = require('d3');
-var _groupBy = require('lodash.groupby');
+var _ = require('lodash');
 var debug = require('debug')('scout-ui:minichart-boolean');
-
-/**
- * helper function to move an element to the front
- */
-d3.selection.prototype.moveToFront = function() {
-  return this.each(function() {
-    this.parentNode.appendChild(this);
-  });
-};
 
 module.exports = function(opts) {
   var values = opts.data;
 
   // group by true/false
-  var data = _groupBy(values, function(v) {
+  var data = _.groupBy(values, function(v) {
     return v;
   });
-  var data = [data[false] ? data[false].length : 0, data[true] ? data[true].length : 0];
+  data = [data[false] ? data[false].length : 0, data[true] ? data[true].length : 0];
 
   var margin = {
     top: 20,
