@@ -1,5 +1,6 @@
 module.exports = {
   'number': require('./number'),
   'boolean': require('./boolean'),
-  'date': require('./date')
+  'date': require('./date'),
+  'category': require('./category')
 };

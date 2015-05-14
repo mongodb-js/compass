@@ -1,5 +1,5 @@
 var AmpersandView = require('ampersand-view');
-var debounce = require('lodash.debounce');
+var _ = require('lodash');
 var $ = require('jquery');
 var d3 = require('d3');
 var debug = require('debug')('scout-ui:viz');
@@ -69,7 +69,7 @@ module.exports = AmpersandView.extend({
 
     if (this._autoWidth || this._autoHeight) {
       if (this.debounceRender) {
-        window.addEventListener('resize', debounce(this.redraw.bind(this), 100));
+        window.addEventListener('resize', _.debounce(this.redraw.bind(this), 100));
       } else {
         window.addEventListener('resize', this.redraw.bind(this));
       }

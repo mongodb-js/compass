@@ -44,8 +44,14 @@ module.exports = AmpersandView.extend({
     //   type = 'date';
     // }
 
+    // @hack turn all strings into category type for now
+    // @todo detect category properly
+    if (type === 'string') {
+      type = 'category';
+    }
+
     // currently only support boolean, number, date
-    if (['boolean', 'number', 'date'].indexOf(type) === -1) return;
+    if (['boolean', 'number', 'date', 'category'].indexOf(type) === -1) return;
 
     var vizView = new VizView({
       width: 400,

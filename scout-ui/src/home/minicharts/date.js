@@ -1,6 +1,5 @@
 var d3 = require('d3');
-var _groupBy = require('lodash.groupby');
-var _map = require('lodash.map');
+var _ = require('lodash');
 var moment = require('moment');
 var debug = require('debug')('scout-ui:minichart-date');
 
