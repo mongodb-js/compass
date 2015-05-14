@@ -18,6 +18,9 @@ module.exports = function createSampleStream(db, collection_name, opts) {
     size: 5
   });
 
+  // @hack temporary increase to 100
+  opts.size = 100;
+
   var collection = db.collection(collection_name),
     src,
     cursor,
