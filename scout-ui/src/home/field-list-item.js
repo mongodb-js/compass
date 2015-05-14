@@ -37,7 +37,7 @@ module.exports = AmpersandView.extend({
     var type = typeModel._id.toLowerCase();
 
     // @todo to make below work, Schema has to return ObjectIds, and
-    // minicharts/date.js needs to be able to extract date objects from ObjectIds
+    // minicharts/date.js needs to be able to extract dates from ObjectIds
 
     // _id is handled like date
     // if (this.model._id === '_id') {
@@ -50,7 +50,7 @@ module.exports = AmpersandView.extend({
       type = 'category';
     }
 
-    // currently only support boolean, number, date
+    // currently only support boolean, number, date, category
     if (['boolean', 'number', 'date', 'category'].indexOf(type) === -1) return;
 
     var vizView = new VizView({
