@@ -3,6 +3,7 @@ var TypeListView = require('./type-list');
 var VizView = require('./viz');
 var ViewSwitcher = require('ampersand-view-switcher');
 var minicharts = require('./minicharts');
+var _ = require('lodash');
 
 module.exports = AmpersandView.extend({
   bindings: {
@@ -24,10 +25,12 @@ module.exports = AmpersandView.extend({
     }
   },
   initialize: function() {
-    this.model.on('change', function(model) {
+    var that = this;
+    // the debounce cuts down computation time by a factor of 5-10 here
+    this.model.on('change', _.debounce(function(model) {
       // for now pick first type, @todo: make the type bars clickable and toggle chart
-      this.switchView(model.types.at(0));
-    }, this);
+      that.switchView(model.types.at(0));
+    }, 100));
   },
   render: function() {
     this.renderWithTemplate(this);
