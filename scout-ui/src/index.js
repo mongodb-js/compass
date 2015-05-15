@@ -2,7 +2,6 @@
 //
 // This is where everything gets wired together.
 window.jQuery = window.$ = require('jquery');
-
 require('phantomjs-polyfill');
 
 var AmpersandView = require('ampersand-view');
