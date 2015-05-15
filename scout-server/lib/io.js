@@ -63,11 +63,11 @@ io.on('connection', function(socket) {
       debug('collection:sample got req %j', Object.keys(req));
       var db = req.mongo.db(req.params.database_name);
       createSampleStream(db, req.params.collection_name, {
-        query: {},
-        size: 5
+        query: req.query,
+        size: req.size
       })
       .pipe(_idToDocument(db, req.params.collection_name, {
-        fields: {}
+        fields: req.fields
       }))
       .pipe(EJSON.createStringifyStream())
       .pipe(stream);
