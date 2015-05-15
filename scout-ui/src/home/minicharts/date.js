@@ -21,10 +21,10 @@ module.exports = function(opts) {
   var format = d3.time.format('%Y-%m-%d %H:%M:%S');
 
   var margin = {
-    top: 20,
-    right: 20,
-    bottom: 20,
-    left: 20
+    top: 10,
+    right: 0,
+    bottom: 10,
+    left: 0
   };
 
   var width = opts.width - margin.left - margin.right;
@@ -42,7 +42,7 @@ module.exports = function(opts) {
 
   // group by weekdays
   var weekdayLabels = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
-  var weekdays = _map(_groupBy(values, function(d) {
+  var weekdays = _.map(_.groupBy(values, function(d) {
     return moment(d).weekday();
   }), function(v) {
       return v.length;
@@ -50,7 +50,7 @@ module.exports = function(opts) {
 
   // group by hours
   var hourLabels = d3.range(24);
-  var hours = _map(_groupBy(values, function(d) {
+  var hours = _.map(_.groupBy(values, function(d) {
     return d.getHours();
   }), function(v) {
       return v.length;
