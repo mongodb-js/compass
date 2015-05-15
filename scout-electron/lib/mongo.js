@@ -14,7 +14,7 @@ module.exports.start = function(done) {
   var bin = path.resolve(__dirname + '/../../bin/mongod');
   var dbpath = untildify('~/.mongodb/scout-demo');
   mkdirp(dbpath, function() {
-    mongo = proc.spawn(bin, ['--port', '27777', '--dbpath', dbpath]);
+    mongo = proc.spawn(bin, ['--port', '27777', '--dbpath', dbpath, '--bind_ip', '127.0.0.1']);
     mongo.stderr.pipe(process.stderr);
     mongo.stdout.pipe(process.stdout);
     setTimeout(function() {
