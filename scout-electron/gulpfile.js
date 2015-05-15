@@ -13,6 +13,7 @@ var PYTHON = which.sync('python');
 var DMG = path.resolve('../electron/out/R/Scout.app');
 var DEST = path.resolve(DMG + '/Contents/Resources/app');
 var SERVER = path.resolve('../scout-server');
+var BIN = path.resolve(DMG + '/Contents/MacOS/Scout');
 
 
 gulp.task('default', ['build', 'start']);
@@ -64,12 +65,17 @@ gulp.task('cleanup', ['copy'], function(cb) {
   async.parallel(tasks, cb);
 });
 
-gulp.task('start', function() {
+gulp.task('start', function(cb) {
+  if (!fs.existsSync(BIN)) {
+    return cb(new Error('Electron binary does not exist.  Check your log above for errors.'));
+  }
+
   setTimeout(function() {
-    var child = proc.spawn(path.resolve('../electron/out/R/Scout.app/Contents/MacOS/Scout'), [path.resolve(__dirname + '/../')]);
+    var child = proc.spawn(BIN, [path.resolve(__dirname + '/../')]);
     child.stderr.pipe(process.stderr);
     child.stdout.pipe(process.stdout);
-  }, 1000);
+    cb();
+  }, 2000);
 });
 
 function exec(cwd, cmd, cb) {

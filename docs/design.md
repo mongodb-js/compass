@@ -4,10 +4,12 @@ examples we'd like the visual/aesthetic to aspire to:
 
 - Landing pages:
   - http://invisionapp.com
-  - http://electron.atom.io/ (more towards this)
+  - http://electron.atom.io/
+  - https://kitematic.com/
   - https://www.cindori.org/software/disksensei/
   - http://www.phoneexpander.com/
 - app ui:
+  - https://kitematic.com/
   - https://mac.github.com/ (what we've been using as a primary comp. developer tool that tons of people already love that makes something really complicated like git seem easy to use)
   - however, because of our aesthetic and customers, https://windows.github.com is a better example
   - "anti-eclipse", "anti-robomongo"
