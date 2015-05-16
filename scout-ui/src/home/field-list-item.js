@@ -6,6 +6,10 @@ module.exports = AmpersandView.extend({
   bindings: {
     'model._id': {
       hook: 'name'
+    },
+    'model.has_children': {
+      type: 'booleanClass',
+      yes: 'expandable'
     }
   },
   template: require('./field-list-item.jade'),

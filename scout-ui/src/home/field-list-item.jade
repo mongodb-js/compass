@@ -1,7 +1,9 @@
 li.list-group-item.schema-field
   .row
     .col-md-4
-      h4.schema-field-name(data-hook='name')
+      h4
+        span.caret
+        span.schema-field-name(data-hook='name')
       div(data-hook='types-container')
     .col-md-8
       div(data-hook='values-container')

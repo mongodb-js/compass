@@ -26,7 +26,47 @@
   flex-direction: row;
 }
 
+.caret {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  margin-left: 2px;
+  vertical-align: middle;
+}
+.caret-down {
+  .caret;
+  border-top:   @caret-width-base solid;
+  border-right: @caret-width-base solid transparent;
+  border-left:  @caret-width-base solid transparent;
+}
+
+.caret-right {
+  .caret;
+  border-left:   @caret-width-base solid;
+  border-right: 0;
+  border-top:  @caret-width-base solid transparent;
+  border-bottom: @caret-width-base solid transparent;
+}
+
+
 .schema-field {
+  .caret {
+    .caret-right;
+    display: none;
+    margin-right: 6px;
+  }
+  &.expandable {
+    .caret {
+      .caret-right;
+      display: inline-block;
+    }
+    h4 {
+      cursor: pointer;
+    }
+    .schema-field-type-list, .schema-value-list, .panel {
+      display: none;
+    }
+  }
   .schema-field-name {
     .list-group-item-heading;
     .h6;
