@@ -56,15 +56,21 @@
     margin-right: 6px;
   }
   &.expandable {
-    .caret {
+    > h4 > .caret {
       .caret-right;
       display: inline-block;
     }
-    h4 {
+    > h4 {
       cursor: pointer;
     }
-    .schema-field-type-list, .schema-value-list, .panel {
+    > .schema-field-type-list, .schema-value-list, .panel {
       display: none;
+    }
+  }
+  &.expandable.expanded {
+    > h4 > .caret {
+      .caret-down;
+      display: inline-block;
     }
   }
   .schema-field-name {
