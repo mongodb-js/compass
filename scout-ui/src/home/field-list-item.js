@@ -1,6 +1,7 @@
 var AmpersandView = require('ampersand-view');
 var TypeListView = require('./type-list');
 var ValueListView = require('./value-list');
+var FieldListView = require('./field-list');
 
 module.exports = AmpersandView.extend({
   bindings: {
@@ -33,6 +34,16 @@ module.exports = AmpersandView.extend({
             collection: this.model.values
           });
       }
-    }
+    },
+// fields: {
+//   hook: 'fields-container',
+//   prepareView: function(el) {
+//     return new FieldListView({
+//         el: el,
+//         parent: this,
+//         collection: this.model.fields
+//       });
+//   }
+// }
   }
 });
