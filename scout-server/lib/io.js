@@ -52,7 +52,6 @@ function prepare(socket, req, done) {
 
   async.series(tasks, function(err) {
     if (err) return done(err);
-    debug('prepared req %j', req);
     done();
   });
 }
@@ -66,11 +65,11 @@ io.on('connection', function(socket) {
         query: {},
         size: 5
       })
-      .pipe(_idToDocument(db, req.params.collection_name, {
-        fields: {}
-      }))
-      .pipe(EJSON.createStringifyStream())
-      .pipe(stream);
+        .pipe(_idToDocument(db, req.params.collection_name, {
+          fields: {}
+        }))
+        .pipe(EJSON.createStringifyStream())
+        .pipe(stream);
     });
   });
   debug('token data %j', socket.decoded_token);
