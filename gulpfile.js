@@ -81,6 +81,7 @@ gulp.task('default', ['install', 'test']);
 
 gulp.task('start', function() {
   dev();
+  console.log('process.versions: %j', process.versions);
   script('develop', ['ui']);
   script('start', ['server']);
   script('start', ['electron']);
