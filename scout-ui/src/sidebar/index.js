@@ -55,9 +55,6 @@ var CollectionsList = View.extend({
 });
 
 module.exports = View.extend({
-// collections: {
-//   collection: models.CollectionCollection,
-// },
   filter: function(pattern) {
     var re = new RegExp((pattern || '.*'));
     this.collection.filter(function(model) {

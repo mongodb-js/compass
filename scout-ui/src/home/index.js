@@ -68,7 +68,7 @@ module.exports = AmpersandView.extend({
       });
       if (!current) return;
 
-      this.collections.show(current);
+      this.showCollection(current);
     });
 
     this.listenTo(this, 'change:rendered', this.onRendered);
