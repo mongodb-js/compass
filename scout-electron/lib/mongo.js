@@ -10,23 +10,24 @@ var untildify = require('untildify');
 var mongo;
 
 module.exports.start = function(done) {
-  debug('starting bundled mongodb on port 27777');
-  var bin = path.resolve(__dirname + '/../../bin/mongod');
-  var dbpath = untildify('~/.mongodb/scout-demo');
-  mkdirp(dbpath, function() {
-    mongo = proc.spawn(bin, ['--port', '27777', '--dbpath', dbpath, '--bind_ip', '127.0.0.1']);
-    mongo.stderr.pipe(process.stderr);
-    mongo.stdout.pipe(process.stdout);
-    setTimeout(function() {
-      debug('Standalone ready on localhost:27777!');
-      require('../../scout-data/bin/scout-data.js');
-      done();
-    }, 1000);
-  });
+  done();
+  // debug('starting bundled mongodb on port 27017');
+  // var bin = path.resolve(__dirname + '/../../bin/mongod');
+  // var dbpath = untildify('~/.mongodb/scout-demo');
+  // mkdirp(dbpath, function() {
+  //   mongo = proc.spawn(bin, ['--port', '27017', '--dbpath', dbpath, '--bind_ip', '127.0.0.1']);
+  //   mongo.stderr.pipe(process.stderr);
+  //   mongo.stdout.pipe(process.stdout);
+  //   setTimeout(function() {
+  //     debug('Standalone ready on localhost:27017!');
+  //     require('../../scout-data/bin/scout-data.js');
+  //     done();
+  //   }, 1000);
+  // });
 };
 
 module.exports.stop = function(done) {
-  debug('stopping bundled mongodb...');
-  mongo.kill();
+// debug('stopping bundled mongodb...');
+// mongo.kill();
   process.nextTick(done);
 };

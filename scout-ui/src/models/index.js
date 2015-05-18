@@ -1,7 +1,7 @@
 var brain = require('../../../scout-brain');
 
 var client = require('../../../scout-client')({
-  seed: 'mongodb://localhost:27777'
+  seed: 'mongodb://localhost:27017'
 });
 
 var WithScout = require('./with-scout');
