@@ -64,7 +64,10 @@
     "phantomjs-polyfill": "0.0.1",
     "qs": "^2.2.4",
     "underscore": "^1.6.0",
-    "mongodb-schema": "git://github.com/mongodb-js/mongodb-schema.git#ampersand"
+    "mongodb-schema": "git://github.com/mongodb-js/mongodb-schema.git#ampersand",
+    "d3": "^3.5.5",
+    "d3-tip": "^0.6.7",
+    "lodash": "^3.8.0"
   },
   "devDependencies": {
     "browserify": "^9.0.3",
