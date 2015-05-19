@@ -1,0 +1,44 @@
+{
+  "name": "scout-static",
+  "description": "An example of using metalsmith to organize and present projects docs.",
+  "version": "0.0.0",
+  "scripts": {
+    "start": "gulp",
+    "test": "mocha",
+    "build": "gulp build",
+    "deploy": "gulp deploy"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/10gen/scout.git"
+  },
+  "devDependencies": {
+    "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.2.tar.gz",
+    "coffee-script": "^1.9.2",
+    "font-awesome": "https://github.com/FortAwesome/Font-Awesome/archive/v4.3.0.tar.gz",
+    "gulp-less": "^3.0.3",
+    "gulp-sourcemaps": "^1.5.2",
+    "jade": "^1.9.2",
+    "less-plugin-clean-css": "^1.5.0",
+    "merge-stream": "^0.1.7",
+    "metalsmith": "^1.6.0",
+    "metalsmith-markdown": "^0.2.1",
+    "metalsmith-templates": "^0.7.0",
+    "mocha": "^2.2.1",
+    "nightmare": "^1.7.0",
+    "octicons": "https://github.com/github/octicons/archive/v2.2.0.tar.gz",
+    "phantomjs": "~1.9.15",
+    "surge": "^0.11.1"
+  },
+  "fonts": [
+    "node_modules/font-awesome/fonts/fontawesome-webfont*",
+    "node_modules/octicons/octicons/octicons.{eot,svg,ttf,woff}"
+  ],
+  "less": {
+    "paths": [
+      "node_modules/font-awesome/less",
+      "node_modules/bootstrap/less",
+      "node_modules/octicons/octicons"
+    ]
+  }
+}

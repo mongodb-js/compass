@@ -1,0 +1,59 @@
+# scout-client
+
+A client for [scout-server](http://github.com/10gen/scout) that works in the browser or a server.
+
+Want to see what it can do? [Check out `./examples`](tree/dev/examples).
+
+```
+npm install --save scout-client
+```
+
+## API
+
+```javascript
+var scout = require('scout-client')([opts]);
+```
+
+#### Parameters
+
+- `opts` (optional, Object) ...
+    - `scout` (String) ... Where scout-server is running [Default `http://localhost:29017`].
+    - `seed` (String) ... Hostport of mongodb instance [Default: `localhost:27017`].
+    - `auth` (Object) ... Auth spec [Default `{}`].
+
+{{#each apis_by_group}}
+### {{group}}
+
+{{#each apis}}
+#### scout.{{name}} ({{args}})
+
+{{#if badge}}{{badge}}{{/if}}
+
+{{{description}}}
+
+{{#if hasExamples}}
+##### Examples
+
+{{#each examples}}
+- [{{name}}]({{url}})
+{{/each}}
+{{/if}}
+
+{{#if hasParams}}
+##### Parameters
+
+{{#each params}}
+- `{{name}}` ({{validation}}, {{types}}) {{{description}}}
+{{/each}}
+{{/if}}
+
+{{#if hasTodos}}
+##### Todos
+
+{{#each todos}}
+- [ ] {{this}}
+{{/each}}
+{{/if}}
+
+{{/each}}
+{{/each}}

@@ -1,0 +1,29 @@
+{
+  "_id": "{{ObjectID()}}",
+  "email": "{{chance.email()}}",
+  "created_at": "{{Date(chance.date())}}",
+  "is_verified": "{{Boolean(chance.bool())}}",
+  "profile": {
+    "bio": "{{chance.sentence()}}",
+    "twitter_username": "{{chance.twitter()}}",
+    "name": "{{chance.name()}}",
+    "phone_number": "{{chance.phone()}}",
+    "background": "{{chance.color()}}"
+  },
+  "stats": {
+    "friends": "{{Number(chance.natural())}}"
+  },
+  "address": {
+    "street": "{{chance.address()}}",
+    "city": "{{chance.city()}}",
+    "state": "{{chance.state()}}",
+    "zipcode": "{{chance.zip({plusfour: true})}}",
+    "latitude": "{{chance.latitude()}}",
+    "longitude": "{{chance.longitude()}}"
+  },
+  "payment_methods": [{
+    "type": "{{chance.cc_type()}}",
+    "card": "{{chance.cc()}}",
+    "expiration": "{{chance.exp()}}"
+  }]
+}

@@ -1,0 +1,18 @@
+.page
+  #statusbar.hidden
+    .progress
+      .progress-bar.progress-bar-striped.active(data-hook='bar')
+  .content.with-sidebar
+    div(data-hook='collection-container')
+    .clearfix
+
+    ul.message-background.centered.hidden: li
+      p(data-hook='statusbar-message')
+      .spinner-circles
+        .circle-1
+        .circle-2
+
+  .sidebar.panel
+    div(data-hook='collections-filter')
+    div(data-hook='collections')
+  .sidebar-bg

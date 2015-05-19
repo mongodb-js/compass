@@ -1,0 +1,8 @@
+language: node_js
+node_js:
+- '0.10'
+env:
+  global:
+  - secure: JyAdJCuZMdxj4Ua5o+y2BY6vkZA1lzeXIW9vVGUrQBsXAwvF9y8afaRKlCVgcT+wv2q02+IOP5ejgq35IwrfUnxDO8HO8HcY9CSw2lDVMvYwU4JIdFku9G8UbI0tRFhkm+87Rh8GPWdJcpU/aHDKqnS7d/NmOlhyc/uDY94N9o8=
+  - secure: JwRVzK3LOYqUHzsKyzuzY2monaFx7q0FQPOtIS9M0z0JRb1L9GA0NyJ9vu3XTyRMA2c+SHdDJTe5hmImv3o/tZKJVquYTpnEFvd+wwYHFDfCHtEzVYfOf7E6kUuyeSI5K7x0wbiMSiVbnsfXy2ICAnB/x1yOwwWEOkSlMJv4a8Q=
+script: npm run-script ci

@@ -1,2 +1,8 @@
-# Scout
-A GUI for MongoDB from the Integrations team
+# scout
+
+Explore your MongoDB.
+
+<dl>
+  <dt><a href="#{url}">#{title}</a></dt>
+  <dd>#{description}</dd>
+</dl>

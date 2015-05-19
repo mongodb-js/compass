@@ -1,0 +1,36 @@
+{
+  "name": "scout",
+  "description": "Explore your MongoDB.",
+  "version": "0.0.1",
+  "main": "index.js",
+  "scripts": {
+    "install": "gulp install",
+    "start": "gulp start",
+    "test": "gulp test",
+    "check": "gulp check"
+  },
+  "dependency-check": {
+    "entries": [
+      "index.js",
+      "gulpfile.js"
+    ]
+  },
+  "homepage": "http://github.com/10gen/scout.git",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/10gen/scout.git"
+  },
+  "devDependencies": {
+    "async": "^0.9.0",
+    "debug": "^2.1.3",
+    "gulp": "^3.8.11",
+    "jshint": "^2.6.3",
+    "mocha": "^2.2.1",
+    "pre-commit": "^1.0.6",
+    "through2": "^0.6.5",
+    "which": "^1.0.9"
+  },
+  "precommmit": [
+    "check"
+  ]
+}

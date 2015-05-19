@@ -1,0 +1,37 @@
+{
+  "name": "scout-brain",
+  "version": "0.0.0",
+  "description": "All of the MongoDB cleanup scout needs.",
+  "author": "Lucas Hrabovsky <lucas@mongodb.com> (http://imlucas.com)",
+  "homepage": "http://github.com/10gen/scout",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/10gen/scout.git"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "browser": "browser.js",
+  "dependencies": {
+    "ampersand-collection": "~1.4.5",
+    "ampersand-collection-filterable": "~0.1.0",
+    "ampersand-model": "~5.0.3",
+    "ampersand-rest-collection": "^4.0.0",
+    "ampersand-state": "~4.5.4",
+    "async": "~0.9.0",
+    "boom": "~2.7.1",
+    "debug": "~2.2.0",
+    "jsonwebtoken": "~5.0.0",
+    "mongodb-ns": "~1.0.0",
+    "mongodb-url": "0.0.1",
+    "mongoscope-config": "~0.1.0",
+    "underscore": "~1.8.3",
+    "uuid": "~2.0.1"
+  },
+  "optionalDependencies": {
+    "mongodb": "~2.0.31"
+  },
+  "devDependencies": {
+    "mocha": "~2.2.4"
+  }
+}

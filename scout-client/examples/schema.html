@@ -1,0 +1,40 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="http://nvd3.org/assets/css/nv.d3.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6 col-md-push-3">
+          <div class="input-group input-group-lg">
+            <input type="text" class="form-control" placeholder="namespace of a collection" value="canada.service_requests">
+            <span class="input-group-btn">
+              <button class="btn btn-default" type="button">Analyze</button>
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6">
+          <h2>Sampled Documents</h2>
+          <code><pre class="raw"></pre></code>
+        </div>
+        <div class="col-md-6">
+          <h2>Schema</h2>
+          <div class="schema">
+            <code><pre class="schema-raw"></pre></code>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="http://nvd3.org/assets/lib/d3.v3.js"></script>
+    <script src="http://nvd3.org/assets/js/nv.d3.js"></script>
+    <script src="http://underscorejs.org/underscore-min.js"></script>
+    <script src="http://backbonejs.org/backbone-min.js"></script>
+    <script src="http://wzrd.in/standalone/mongoscope-client@latest"></script>
+    <script src="http://wzrd.in/standalone/mongodb-infer@latest"></script>
+  </body>
+</html>

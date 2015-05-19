@@ -1,0 +1,28 @@
+{
+  "name": "scout-check",
+  "description": "Shared static analysis and integrity tooling.",
+  "version": "0.0.0",
+  "author": "Lucas Hrabovsky <lucas@mongodb.com> (http://imlucas.com)",
+  "homepage": "http://github.com/10gen/scout",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/10gen/scout.git"
+  },
+  "scripts": {
+    "check": "gulp check"
+  },
+  "dependencies": {
+    "gulp-jsfmt": "^0.3.0",
+    "gulp-jshint": "^1.9.2",
+    "dependency-check": "^2.2.3",
+    "esformatter-braces": "^1.0.0",
+    "esformatter-quotes": "^1.0.0",
+    "esformatter-semicolons": "^1.0.3"
+  },
+  "devDependencies": {
+    "gulp": "^3.8.10"
+  },
+  "dependency-check": {
+    "ignore": ["esformatter-braces", "esformatter-quotes", "esformatter-semicolons"]
+  }
+}

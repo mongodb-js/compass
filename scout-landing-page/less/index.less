@@ -1,0 +1,111 @@
+@import "font-awesome";
+@import "octicons";
+@import "bootstrap";
+@import "./variables.less";
+
+.container-fluid {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.navbar-brand {
+  padding: 8px 15px;
+
+  img {
+    height: 28px;
+  }
+}
+
+article {
+  section {
+    .jumbotron;
+    background: #FFF;
+    padding: 60px 0;
+    margin-bottom: 0;
+    border-bottom: 1px solid fadeout(#000, 75%);
+
+    &.image-left {
+      .media-body {
+        text-align: left;
+        padding-right: 60px;
+      }
+      .media-left{
+        img {
+          display: block;
+          height: 400px;
+          width: 300px;
+        }
+      }
+    }
+    &.centered {
+      .mega-octicon {
+        font-size: 150px;
+        margin-bottom: 10px;
+        text-align: center;
+        display: block;
+      }
+      h2 {
+        text-align: center;
+      }
+      p {
+        text-align: center;
+      }
+      img {
+        display: block;
+        height: 300px;
+        width: 100%;
+      }
+    }
+    &.image-right {
+      h2 {
+        padding-right: 60px;
+      }
+      p {
+        padding-right: 60px;
+        .lead;
+      }
+      .media-right {
+        img {
+          display: block;
+          height: 400px;
+          width: 300px;
+        }
+      }
+    }
+  }
+  section:first-child {
+    border-top: 0;
+    margin-top: 50px;
+    padding-top: 10px;
+    // background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, @brand-primary), color-stop(100%, lighten(@brand-primary, 20%))); /* Chrome,Safari4+ */
+    // background: #000;
+    // color: fadeout(#FFF, 10%);
+
+    img {
+      margin: 25px;
+      // border: 1px solid #000;
+      box-shadow: 2px 2px 25px 1px rgba(0,0,0,0.4);
+      border-radius: 4px;
+    }
+  }
+}
+.footer, footer {
+  padding: 40px 0 80px 0;
+  font-size: 16px;
+  background: @navbar-default-bg;
+  color: @navbar-default-link-color;
+  ul {
+    li {
+      a {
+        color: @navbar-default-link-color;
+      }
+      a:hover {
+        color: @navbar-default-link-hover-color;
+      }
+    }
+  }
+}
+
+.content {
+  margin-top: 50px;
+}

@@ -1,0 +1,20 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="http://nvd3.org/assets/css/nv.d3.css" />
+  </head>
+  <body>
+    <div class="container"></div>
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="http://wzrd.in/standalone/ascii-table@latest"></script>
+    <script src="http://wzrd.in/standalone/mongoscope-client@latest"></script>
+
+    <script type="text/javascript">
+      window.jQuery(function(){
+        var rand = Math.random();
+        window.jQuery('body')
+        .append('<script src="./mongotop.js?'+rand+'" />');
+      });
+    </script>
+   </body>
+</html>
