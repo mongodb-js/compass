@@ -34,13 +34,34 @@ var BasicFieldView = View.extend({
   }
 });
 
-var EmbeddedArrayFieldView = View.extend({
+var ExpandableFieldMixin = {
   bindings: {
     'model._id': {
       hook: 'name'
     },
+    'expanded': {
+      type: 'booleanClass',
+      yes: 'expanded',
+      no: 'collapsed'
+    }
   },
-  template: require('./array-field.jade'),
+  events: {
+    'click .schema-field-name': 'click',
+  },
+  props: {
+    expanded: {
+      type: 'boolean',
+      default: true
+    }
+  },
+  click: function(evt) {
+    // @todo: persist state of open nodes
+    this.toggle('expanded');
+
+    evt.preventDefault();
+    evt.stopPropagation();
+    return false;
+  },
   subviews: {
     fields: {
       hook: 'fields-container',
@@ -53,42 +74,29 @@ var EmbeddedArrayFieldView = View.extend({
       }
     }
   }
+};
+
+var EmbeddedArrayFieldView = View.extend(ExpandableFieldMixin, {
+  template: require('./array-field.jade')
 });
 
-var EmbeddedDocumentFieldView = View.extend({
-  bindings: {
-    'model._id': {
-      hook: 'name'
-    },
-  },
-  template: require('./object-field.jade'),
-  subviews: {
-    fields: {
-      hook: 'fields-container',
-      prepareView: function(el) {
-        return new FieldListView({
-            el: el,
-            parent: this,
-            collection: this.model.fields
-          });
-      }
-    }
-  }
+var EmbeddedDocumentFieldView = View.extend(ExpandableFieldMixin, {
+  template: require('./object-field.jade')
 });
 
 var FieldListView = View.extend({
   collections: {
     collection: FieldCollection
   },
-  template: '<ul class="list-group" data-hook="fields"></ul>',
+  template: '<div class="schema-field-list" data-hook="fields"></ul>',
   render: function() {
     this.renderWithTemplate();
     this.renderCollection(this.collection, function(options) {
       var type = options.model.type;
-      if (type === 'array') {
+      if (type === 'Array') {
         return new EmbeddedArrayFieldView(options);
       }
-      if (type === 'object') {
+      if (type === 'Object') {
         return new EmbeddedDocumentFieldView(options);
       }
       return new BasicFieldView(options);

@@ -9,13 +9,7 @@ module.exports = AmpersandView.extend({
     'model._id': [
       {
         hook: '_id'
-      },
-      {
-        hook: 'bar',
-        type: function(el) {
-          $(el).attr('title', format('%s (%d%)', this.model._id, Math.min(this.model.probability * 100, 100)));
-        }
-      },
+      },,
       {
         hook: 'bar',
         type: function(el) {
@@ -23,22 +17,22 @@ module.exports = AmpersandView.extend({
         }
       }
     ],
-    'model.count': [
+    'model.probability': [
       {
         hook: 'bar',
         type: function(el) {
+          var percent = Math.min(this.model.probability * 100, 100);
           $(el).css({
-            width: Math.min(this.model.probability * 100, 100) + '%'
+            width: percent + '%'
           });
+          if (percent) {
+            $(el).tooltip({
+              title: format('%s (%d%)', this.model.getId(), percent)
+            });
+          }
         }
       }
     ]
-  },
-  initialize: function() {
-    this.listenTo(this, 'change:rendered', function() {
-      // $(this.el).find('[data-toggle="tooltip"]').tooltip();
-      $(this.el).tooltip();
-    });
   },
   template: require('./type-list-item.jade')
 });
