@@ -5,6 +5,11 @@
   width: 100%;
 }
 
+
+.badge {
+  border: 1px solid @gray-lighter;
+}
+
 .content {
   max-height: 100%;
   min-height: 100%;
@@ -26,14 +31,69 @@
   flex-direction: row;
 }
 
-.schema-field {
-  .schema-field-name {
-    .list-group-item-heading;
-    .h6;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+.caret {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  margin-left: 2px;
+  vertical-align: middle;
+}
+.caret-down {
+  .caret;
+  border-top:   @caret-width-base solid;
+  border-right: @caret-width-base solid transparent;
+  border-left:  @caret-width-base solid transparent;
+}
+
+.caret-right {
+  .caret;
+  border-left:   @caret-width-base solid;
+  border-right: 0;
+  border-top:  @caret-width-base solid transparent;
+  border-bottom: @caret-width-base solid transparent;
+}
+
+.schema-field-list {
+  .list-group;
+
+  .schema-field {
+    .list-group-item;
+
+    .schema-field-name {
+      .list-group-item-heading;
+      .h6;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      display: inline-block;
+    }
+
+    &.schema-field-object, &.schema-field-array {
+      .schema-field-name {
+        cursor: pointer;
+      }
+    }
+    &.expanded {
+      .caret {
+        .caret-down;
+        margin-right: 6px;
+      }
+      > .schema-field-list {
+        display: block;
+      }
+    }
+    &.collapsed {
+      .caret {
+        .caret-right;
+        margin-right: 10px;
+      }
+
+      > .schema-field-list {
+        display: none;
+      }
+    }
   }
+
 }
 .schema-field-type-list{
   .progress;
@@ -79,9 +139,16 @@
 
 .schema-value-list {
   .small;
+  .list-unstyled;
+
   .schema-value-list-item {
+    .badge;
+    display: inline-block;
+    margin-left: 5px;
+    margin-right: 5px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    max-width: 100%;
   }
 }
