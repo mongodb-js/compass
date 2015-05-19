@@ -1,0 +1,8 @@
+{
+  "_id": "{{ObjectID()}}",
+  "payment_methods": [{
+    "type": "{{chance.cc_type()}}",
+    "card": "{{chance.cc()}}",
+    "expiration": "{{chance.exp()}}"
+  }]
+}
