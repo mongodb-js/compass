@@ -2,7 +2,7 @@ var AmpersandView = require('ampersand-view');
 var _ = require('lodash');
 var $ = require('jquery');
 var d3 = require('d3');
-var debug = require('debug')('minicharts:views:viz');
+var debug = require('debug')('scout-ui:minicharts:viz');
 
 module.exports = AmpersandView.extend({
 

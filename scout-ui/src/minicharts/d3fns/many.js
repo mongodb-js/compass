@@ -1,6 +1,6 @@
 var d3 = require('d3');
 var _ = require('lodash');
-var debug = require('debug')('minicharts:views:many');
+var debug = require('debug')('scout-ui:minicharts:many');
 
 require('d3-tip')(d3);
 

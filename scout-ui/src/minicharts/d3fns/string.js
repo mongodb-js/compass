@@ -1,6 +1,6 @@
 var d3 = require('d3');
 var _ = require('lodash');
-var debug = require('debug')('minicharts:views:category');
+var debug = require('debug')('scout-ui:minicharts:string');
 var few = require('./few');
 var many = require('./many');
 
@@ -19,7 +19,7 @@ module.exports = function(opts) {
   var el = opts.el;
 
   // group into categories (x) and count (y) the values per bucket, sort descending
-  var categories = _(values)
+  var data = _(values)
     .groupBy(function(d) {
       return d;
     })
@@ -42,7 +42,7 @@ module.exports = function(opts) {
     .attr('width', width)
     .attr('height', height);
 
-  var chart = categories.length <= 5 ? few : many;
-  chart(categories, g, width, height);
+  var chart = data.length <= 5 ? few : many;
+  chart(data, g, width, height);
 };
 

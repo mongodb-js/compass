@@ -1,7 +1,7 @@
 var d3 = require('d3');
 var _ = require('lodash');
 var moment = require('moment');
-var debug = require('debug')('minicharts:views:date');
+var debug = require('debug')('scout-ui:minicharts:date');
 var many = require('./many');
 
 

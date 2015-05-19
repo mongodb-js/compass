@@ -1,7 +1,7 @@
 var d3 = require('d3');
 var _ = require('lodash');
 var many = require('./many');
-var debug = require('debug')('minicharts:views:number');
+var debug = require('debug')('scout-ui:minicharts:number');
 
 module.exports = function(opts) {
   var values = opts.data;
