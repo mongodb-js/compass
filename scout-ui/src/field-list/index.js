@@ -1,7 +1,10 @@
 var View = require('ampersand-view');
 var TypeListView = require('./type-list');
-var ValueListView = require('./value-list');
+var MinichartView = require('../minicharts');
 var FieldCollection = require('mongodb-schema').FieldCollection;
+var ViewSwitcher = require('ampersand-view-switcher');
+var _ = require('lodash');
+var debug = require('debug')('scout-ui:field-list');
 
 var BasicFieldView = View.extend({
   bindings: {
@@ -20,17 +23,31 @@ var BasicFieldView = View.extend({
             collection: this.model.types
           });
       }
-    },
-    values: {
-      hook: 'values-container',
-      prepareView: function(el) {
-        return new ValueListView({
-            el: el,
-            parent: this,
-            collection: this.model.values
-          });
-      }
     }
+  },
+  initialize: function() {
+    var that = this;
+    // the debounce cuts down computation time by a factor of 5-10 here
+    this.model.on('change', _.debounce(function(model) {
+      // for now pick first type, @todo: make the type bars clickable and toggle chart
+      that.switchView(model.types.at(0));
+      debug(model.toJSON());
+    }, 100));
+  },
+  render: function() {
+    this.renderWithTemplate(this);
+    this.viewSwitcher = new ViewSwitcher(this.queryByHook('minicharts-container'));
+  },
+  switchView: function(typeModel) {
+    var type = typeModel._id.toLowerCase();
+
+    // currently only support boolean, number, date, category
+    if (['boolean', 'number', 'date', 'string'].indexOf(type) === -1) return;
+
+    var miniview = new MinichartView({
+      model: typeModel,
+    });
+    this.viewSwitcher.set(miniview);
   }
 });
 
