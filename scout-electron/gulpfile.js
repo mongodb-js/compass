@@ -8,7 +8,7 @@ var proc = require('child_process');
 var async = require('async');
 var plist = require('plist');
 var merge = require('merge-stream');
-var mvm = require('mongodb-version-manager');
+//var mvm = require('mongodb-version-manager');
 
 var PYTHON = which.sync('python');
 
@@ -201,7 +201,7 @@ gulp.task('build', [
   'get source',
   'build source',
   'install source',
-  'install mongo',
+  // 'install mongo',
   'install app'
 ]);
 
@@ -231,16 +231,16 @@ gulp.task('sign', function(done) {
   }
 });
 
-gulp.task('get mongo', function(cb) {
-  mvm(cb);
-});
-
-gulp.task('embed mongo', ['get mongo'], function() {
-  return gulp.src(mvm.config.cache + '/mongodb/current/bin/{mongod,mongos}')
-    .pipe(gulp.dest(DEST + '/bin'));
-});
-
-gulp.task('install mongo', ['get mongo', 'embed mongo']);
+// gulp.task('get mongo', function(cb) {
+//   mvm(cb);
+// });
+//
+// gulp.task('embed mongo', ['get mongo'], function() {
+//   return gulp.src(mvm.config.cache + '/mongodb/current/bin/{mongod,mongos}')
+//     .pipe(gulp.dest(DEST + '/bin'));
+// });
+//
+// gulp.task('install mongo', ['get mongo', 'embed mongo']);
 
 // @todo: dump debug symbols to BREAKPAD_SYMBOLS
 // https://github.com/atom/electron-starter/blob/master/build/tasks/dump-symbols-task.coffee
