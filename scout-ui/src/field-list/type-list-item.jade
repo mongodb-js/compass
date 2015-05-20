@@ -1,3 +1,4 @@
 .schema-field-wrapper(data-hook='bar')
   .schema-field-type(data-toggle='tooltip')
-  = model.getId()
+  span.schema-field-type-label
+    = model.getId()
