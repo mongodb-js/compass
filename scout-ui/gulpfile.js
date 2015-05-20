@@ -143,6 +143,7 @@ gulp.task('assets', function() {
   subtasks.push.apply(subtasks, pkg.fonts.map(function(p) {
     return gulp.src(p).pipe(gulp.dest('../scout-server/res/fonts'));
   }));
+  gulp.src('../scout-style/fonts/*').pipe(gulp.dest('../scout-server/res/fonts'));
 
   return merge.apply(null, subtasks);
 });
