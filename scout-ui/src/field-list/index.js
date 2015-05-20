@@ -31,7 +31,6 @@ var BasicFieldView = View.extend({
     this.model.on('change', _.debounce(function(model) {
       // for now pick first type, @todo: make the type bars clickable and toggle chart
       that.switchView(model.types.at(0));
-      debug(model.toJSON());
     }, 100));
   },
   render: function() {
@@ -41,8 +40,8 @@ var BasicFieldView = View.extend({
   switchView: function(typeModel) {
     var type = typeModel._id.toLowerCase();
 
-    // currently only support boolean, number, date, category
-    if (['boolean', 'number', 'date', 'string'].indexOf(type) === -1) return;
+    // @todo currently only support boolean, number, date, category
+    if (['objectid', 'boolean', 'number', 'date', 'string'].indexOf(type) === -1) return;
 
     var miniview = new MinichartView({
       model: typeModel,

@@ -20,7 +20,7 @@ var wrapError = require('./wrap-error');
 var SampledSchema = Schema.extend({
   fetch: function(options) {
     options = _.defaults((options || {}), {
-      size: 5,
+      size: 100,
       query: {},
       fields: null
     });

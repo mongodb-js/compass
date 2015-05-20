@@ -4,9 +4,24 @@ var moment = require('moment');
 var debug = require('debug')('scout-ui:minicharts:date');
 var many = require('./many');
 
+function generateDefaults(n) {
+  var doc = {};
+  _.each(_.range(n), function (d) { doc[d] = 0; });
+  return doc;
+}
 
 module.exports = function(opts) {
-  var values = opts.data;
+
+  var values = opts.data.values.toJSON();
+
+  // distinguish ObjectIDs from real dates
+  if (values.length && values[0]._bsontype !== undefined) {
+    if (values[0]._bsontype === 'ObjectID') {
+      values = _.map(values, function (v) {
+        return v.getTimestamp();
+      });
+    }
+  }
 
   // A formatter for dates
   var format = d3.time.format('%Y-%m-%d %H:%M:%S');
@@ -39,6 +54,7 @@ module.exports = function(opts) {
     .groupBy(function (d) {
       return moment(d).weekday();
     })
+    .defaults(generateDefaults(7))
     .map(function (d, i) {
       return {
         x: weekdayLabels[i],
@@ -54,6 +70,7 @@ module.exports = function(opts) {
     .groupBy(function (d) {
       return d.getHours();
     })
+    .defaults(generateDefaults(23))
     .map(function (d, i) {
       return {
         x: hourLabels[i],

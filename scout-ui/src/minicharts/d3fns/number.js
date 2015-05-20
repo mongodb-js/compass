@@ -4,7 +4,7 @@ var many = require('./many');
 var debug = require('debug')('scout-ui:minicharts:number');
 
 module.exports = function(opts) {
-  var values = opts.data;
+  var values = opts.data.values.toJSON();
 
   var margin = {
     top: 10,
