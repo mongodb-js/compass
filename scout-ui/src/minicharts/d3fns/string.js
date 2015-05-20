@@ -5,7 +5,7 @@ var few = require('./few');
 var many = require('./many');
 
 module.exports = function(opts) {
-  var values = opts.data;
+  var values = opts.data.values.toJSON();
 
   var margin = {
     top: 10,

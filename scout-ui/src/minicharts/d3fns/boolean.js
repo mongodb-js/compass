@@ -4,11 +4,12 @@ var few = require('./few');
 var debug = require('debug')('scout-ui:minicharts:boolean');
 
 module.exports = function(opts) {
-  var values = opts.data;
+  var values = opts.data.values.toJSON();
 
   // group by true/false
   var data = _(values)
   .groupBy(function(d) {
+    // extract string representations of values
     return d;
   })
   .defaults({false: [], true: []})

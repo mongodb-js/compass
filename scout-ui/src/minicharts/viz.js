@@ -1,7 +1,6 @@
 var AmpersandView = require('ampersand-view');
 var _ = require('lodash');
 var $ = require('jquery');
-var d3 = require('d3');
 var debug = require('debug')('scout-ui:minicharts:viz');
 
 module.exports = AmpersandView.extend({
@@ -116,10 +115,6 @@ module.exports = AmpersandView.extend({
   },
 
   transform: function(data) {
-    // extract values from collection (@todo mongodb-schema should do this via serialize())
-    var data = data.values.map(function(v) {
-      return v._id;
-    });
     return data;
   },
 
