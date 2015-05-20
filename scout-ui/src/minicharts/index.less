@@ -3,7 +3,33 @@
 @mc-bar-fg: #38A1DF;
 @mc-bar-hl: #BEDFF0;
 
-.minichart {
+div.minichart.unique {
+  font: 12px sans-serif;
+
+  .desc {
+    font-weight: bold;
+    i.fa {
+      padding-right: 5px;
+      color: #999;
+      cursor: pointer;
+    }
+  }
+
+  .value {
+    overflow: hidden;
+
+    ul {
+      white-space: nowrap;
+      list-style-type: none;
+      li {
+        display: inline-block;
+        padding-right: 10px;
+      }
+    }
+  }
+}
+
+svg.minichart {
   font: 10px sans-serif;
 
   text {

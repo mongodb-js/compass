@@ -1,0 +1,21 @@
+div(data-hook='viz-container')
+  .row
+    .col-sm-3.desc min
+    .col-sm-9.value
+      = minValue
+
+  .row
+    .col-sm-3.desc
+      i.fa.fa-refresh(data-hook='refresh')
+      | random
+    .col-sm-9.value
+      ul
+        each val in randomValues
+          li= val
+
+  .row
+    .col-sm-3.desc max
+    .col-sm-9.value
+      = maxValue
+
+
