@@ -9,7 +9,7 @@ module.exports = AmpersandView.extend({
     'model._id': [
       {
         hook: '_id'
-      },,
+      },
       {
         hook: 'bar',
         type: function(el) {
