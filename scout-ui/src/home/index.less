@@ -54,14 +54,17 @@
 }
 
 .schema-field-list {
-  .list-group;
+  // .list-group;
 
   .schema-field {
-    .list-group-item;
+    // .list-group-item;
+    border-bottom: 1px solid @gray7;
+    padding: 12px 0;
+    margin: 12px 0;
 
     .schema-field-name {
-      .list-group-item-heading;
-      .h6;
+      font-size: 16px;
+      font-weight: bold;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -98,43 +101,45 @@
 .schema-field-type-list{
   .progress;
   border-radius: 1px;
-  height: 8px;
+  height: 5px;
   cursor: pointer;
+  background: @gray6;
 
   .schema-field-type {
     .progress-bar;
+    background: @gray1;
   }
 
-  .schema-field-type-null {
-    background: @series-bg-1;
-  }
-  .schema-field-type-number {
-    background: @series-bg-2;
-  }
-  .schema-field-type-long {
-    background: @series-bg-3;
-  }
-  .schema-field-type-string {
-    background: @series-bg-4;
-  }
-  .schema-field-type-boolean {
-    background: @series-bg-5;
-  }
-  .schema-field-type-undefined {
-    background: @series-bg-6;
-  }
-  .schema-field-type-date {
-    background: @series-bg-7;
-  }
-  .schema-field-type-objectid {
-    background: @series-bg-8;
-  }
-  .schema-field-type-array {
-    background: @series-bg-1;
-  }
-  .schema-field-type-object {
-    background: @series-bg-1;
-  }
+  // .schema-field-type-null {
+  //   background: @series-bg-1;
+  // }
+  // .schema-field-type-number {
+  //   background: @series-bg-2;
+  // }
+  // .schema-field-type-long {
+  //   background: @series-bg-3;
+  // }
+  // .schema-field-type-string {
+  //   background: @series-bg-4;
+  // }
+  // .schema-field-type-boolean {
+  //   background: @series-bg-5;
+  // }
+  // .schema-field-type-undefined {
+  //   background: @series-bg-6;
+  // }
+  // .schema-field-type-date {
+  //   background: @series-bg-7;
+  // }
+  // .schema-field-type-objectid {
+  //   background: @series-bg-8;
+  // }
+  // .schema-field-type-array {
+  //   background: @series-bg-1;
+  // }
+  // .schema-field-type-object {
+  //   background: @series-bg-1;
+  // }
 }
 
 .schema-value-list {

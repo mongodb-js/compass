@@ -6,20 +6,20 @@
   margin-bottom: 0;
 
   .list-filter {
-    padding: 4px 4px;
-    padding-top: 10px;
+    margin: 12px 0;
+
     i.search {
       .octicon;
       position: absolute;
-      padding-top: 6px;
-      font-size: 11px;
-      padding-left: 6px;
+      margin-top: 9px;
+      margin-left: 10px;
+      color: @gray3;
     }
     input {
       .form-control;
-      padding: 2px 2px 2px 20px;
+      padding: 5px 5px 5px 30px;
       height: auto;
-      font-size: 11px;
+      background: @pw;
     }
     input[type=search] {
       border-radius: 18px;
@@ -27,30 +27,52 @@
   }
 
   .list-group {
+    line-height: 24px;
+    height: 100%;
+    overflow: scroll;
+
     .list-group-item {
       cursor: pointer;
       border-top-width: 0;
       border-bottom-width: 0;
-      padding: 6px 6px;
+      padding: 0 6px;
+      color: @gray3;
+      border-left: 4px solid transparent;
 
+      a {
+        display: block;
+        color: @gray3;
+        text-decoration: none;
+        max-width: 190px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        &:hover {
+          color: @gray3;
+          text-decoration: none;
+          background: @gray8;
+        }
+      }
       i {
         color: lighten(@text-color, 40%);
-      }
-
-      .list-group-item-heading {
-        margin-left: 6px;
-        font-size: 11px;
-        font-weight: 500;
-        color: #3C3333;
-        margin-bottom: 0;
-        display: inline-block;
+        line-height: 24px;
+        margin-right: 5px;
       }
       &.active {
+        background: none;
+        border-left: 4px solid @green2;
+
+        a {
+          color: @green2;
+        }
         i {
-          color: @list-group-active-color;
+          color: @green2;
         }
         .list-group-item-heading {
-          color: @list-group-active-color;
+          color: @green2;
+          font-weight: bold;
+
         }
       }
     }
@@ -63,7 +85,7 @@
   bottom: 0;
   width: 220px;
   background: @sidebar-bg;
-  border-right: 1px solid @sidebar-border;
+  border-right: 2px solid @sidebar-border;
   border-left-width: 0;
   border-top-width: 0;
   border-bottom-width: 0;
