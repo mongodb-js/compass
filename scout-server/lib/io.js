@@ -1,4 +1,9 @@
-var app = require('./index.js');
+/**
+ * #####################################################################
+ * WARNING: serious WIP ahead.  If your name isn't lucas, turn back now.
+ * #####################################################################
+ */
+var app = require('./');
 var io = module.exports = require('socket.io')(app.server);
 var config = require('mongoscope-config');
 var ss = require('socket.io-stream');
@@ -8,17 +13,10 @@ var _ = require('underscore');
 var brain = require('../../scout-brain');
 var async = require('async');
 
-
 var createSampleStream = require('./streams/create-sample-stream');
 var _idToDocument = require('./streams/id-to-document');
 var EJSON = require('mongodb-extended-json');
-
-module.exports = function unpack_param_create_ns(req, res, next, raw) {
-  req.ns = types.ns(raw);
-  req.params.database_name = req.ns.database;
-  req.params.collection_name = req.ns.collection;
-  next();
-};
+var typedParams = require('./middleware/typed-params');
 
 io.use(require('socketio-jwt').authorize({
   secret: config.get('token:secret').toString('utf-8'),
@@ -27,32 +25,38 @@ io.use(require('socketio-jwt').authorize({
 
 function prepare(socket, req, done) {
   req.params = _.extend({
-    ns: req.ns
+    ns: req.ns,
+    size: req.size,
+    query: req.query,
+    fields: req.fields
   }, _.clone(socket.decoded_token));
 
-  var tasks = {};
-  if (req.params.ns) {
-    tasks.ns = function(next) {
-      var ns = types.ns(req.params.ns);
-      req.params.database_name = ns.database;
-      req.params.collection_name = ns.collection;
-      next();
-    };
+  typedParams(req, {}, function() {
 
+    var tasks = {};
     tasks.token = function(next) {
       brain.loadToken(socket.decoded_token, req, next);
     };
-  }
 
-  if (Object.keys(tasks).length === 0) {
-    return process.nextTick(function() {
+    if (req.params.ns) {
+      tasks.ns = function(next) {
+        var ns = types.ns(req.params.ns);
+        req.params.database_name = ns.database;
+        req.params.collection_name = ns.collection;
+        next();
+      };
+    }
+
+    if (Object.keys(tasks).length === 0) {
+      return process.nextTick(function() {
+        done();
+      });
+    }
+
+    async.series(tasks, function(err) {
+      if (err) return done(err);
       done();
     });
-  }
-
-  async.series(tasks, function(err) {
-    if (err) return done(err);
-    done();
   });
 }
 
@@ -62,11 +66,11 @@ io.on('connection', function(socket) {
       debug('collection:sample got req %j', Object.keys(req));
       var db = req.mongo.db(req.params.database_name);
       createSampleStream(db, req.params.collection_name, {
-        query: {},
-        size: 5
+        query: req.params.query || {},
+        size: req.int('size', 5)
       })
         .pipe(_idToDocument(db, req.params.collection_name, {
-          fields: {}
+          fields: req.params.fields || null
         }))
         .pipe(EJSON.createStringifyStream())
         .pipe(stream);
