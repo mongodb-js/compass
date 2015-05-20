@@ -30,7 +30,7 @@ module.exports = VizView.extend({
       deps: ['orderedValues'],
       cache: false,
       fn: function() {
-        return this.orderedValues.slice(1, 5);
+        return this.orderedValues.slice(1, 15);
       }
     }
   },

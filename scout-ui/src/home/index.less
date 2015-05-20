@@ -58,27 +58,27 @@
 
   .schema-field {
     // .list-group-item;
-    border-bottom: 1px solid @gray7;
-    padding: 12px 0;
+    // padding: 12px 0;
     margin: 12px 0;
 
-    // second level
+    hr.field-divider {
+      margin-bottom: 12px;
+      border-top: 1px solid @gray7;
+    }
+
     .schema-field-list {
-      .schema-field-name {
-        margin-left: 50px;
-      }
-      .schema-field-type-list {
+      // second level
+      .schema-field-name,
+      .schema-field-type-list,
+      hr.field-divider {
         margin-left: 50px;
       }
 
       // third level
-      .schema-field-list {
-        .schema-field-name {
-          margin-left: 100px;
-        }
-        .schema-field-type-list {
-          margin-left: 100px;
-        }
+      .schema-field-name,
+      .schema-field-type-list,
+      hr.field-divider {
+        margin-left: 100px;
       }
     }
 
@@ -119,10 +119,7 @@
 
 }
 .schema-field-type-list{
-  // .progress;
   border-radius: 1px;
-  // height: 30px;
-  cursor: pointer;
   // background: @gray6;
 
   .schema-field-wrapper {
@@ -130,9 +127,9 @@
   }
 
   .schema-field-type {
-    // .progress-bar;
     height: 5px;
     width: 100%;
+    margin-right: 2px;
     background: @gray1;
   }
 
