@@ -4,27 +4,30 @@
 @mc-bar-hl: #BEDFF0;
 
 div.minichart.unique {
-  font: 12px sans-serif;
+  font-size: 12px;
 
-  .desc {
-    font-weight: bold;
-    i.fa {
-      padding-right: 5px;
-      color: #999;
-      cursor: pointer;
-    }
-  }
-
-  .value {
+  dl.dl-horizontal {
+    padding-top: 12px;
+    max-height: 112px;
     overflow: hidden;
+    
+    dt {
+      color: @gray3;
+      width: 20px;
 
-    ul {
-      white-space: nowrap;
-      list-style-type: none;
-      li {
+      a {
+        color: @gray3;
         display: inline-block;
-        padding-right: 10px;
+
+        &:hover {
+          text-decoration: none;
+          color: @gray1;
+        }
       }
+    }
+    dd {
+      margin-left: 30px;
+      overflow: hidden;
     }
   }
 }
