@@ -35,7 +35,10 @@ function prepare(socket, req, done) {
 
     var tasks = {};
     tasks.token = function(next) {
-      brain.loadToken(socket.decoded_token, req, next);
+      brain.loadToken(socket.decoded_token, req, function() {
+        debug('load token returned', arguments);
+        next();
+      });
     };
 
     if (req.params.ns) {
