@@ -1,6 +1,7 @@
 var d3 = require('d3');
 var _ = require('lodash');
 var many = require('./many');
+var tooltipHtml = require('./tooltip.jade');
 var debug = require('debug')('scout-ui:minicharts:number');
 
 module.exports = function(opts) {
@@ -28,15 +29,21 @@ module.exports = function(opts) {
     .bins(ticks);
 
   var data = hist(values);
-  _.each(data, function (d, i) {
+  var sumY = d3.sum(_.pluck(data, 'y'));
+
+  _.each(data, function(d, i) {
+    var label;
     if (i === 0) {
-      d.tooltip = '< ' + (d.x+d.dx);
-    }
-    else if (i === data.length - 1) {
-      d.tooltip = '&ge; ' + d.x;
+      label = '< ' + (d.x + d.dx);
+    } else if (i === data.length - 1) {
+      label = '&ge; ' + d.x;
     } else {
-      d.tooltip = d.x + '-' + (d.x+d.dx);
+      label = d.x + '-' + (d.x + d.dx);
     }
+    d.tooltip = tooltipHtml({
+      label: label,
+      value: Math.round(d.y / sumY * 100)
+    });
   });
 
   // clear element first
@@ -46,11 +53,15 @@ module.exports = function(opts) {
     .append('g')
     .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
-  many(data, g, width, height-10, {
-    text: function (d, i) {
-      if (i === 0) return d3.min(values);
-      if (i === data.length - 1) return d3.max(values);
-      return '';
+  many(data, g, width, height - 10, {
+    bglines: true,
+    bgbars: false,
+    labels: {
+      text: function(d, i) {
+        if (i === 0) return d3.min(values);
+        if (i === data.length - 1) return d3.max(values);
+        return '';
+      }
     }
   });
 };

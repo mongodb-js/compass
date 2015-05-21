@@ -8,20 +8,22 @@ module.exports = function(opts) {
 
   // group by true/false
   var data = _(values)
-  .groupBy(function(d) {
-    // extract string representations of values
-    return d;
-  })
-  .defaults({false: [], true: []})
-  .map(function(v, k) {
-    return {
-      x: k,
-      y: v.length,
-      tooltip: k
-    };
-  })
-  .sortByOrder('x', [false]) // descending on y
-  .value();
+    .groupBy(function(d) {
+      // extract string representations of values
+      return d;
+    })
+    .defaults({
+      false: [],
+      true: []
+    })
+    .map(function(v, k) {
+      return {
+        x: k,
+        y: v.length
+      };
+    })
+    .sortByOrder('x', [false]) // descending on y
+    .value();
 
   var margin = {
     top: 10,

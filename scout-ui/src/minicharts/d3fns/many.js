@@ -1,10 +1,18 @@
 var d3 = require('d3');
 var _ = require('lodash');
+var tooltipHtml = require('./tooltip.jade');
 var debug = require('debug')('scout-ui:minicharts:many');
 
 require('d3-tip')(d3);
 
-module.exports = function (data, g, width, height, labels) {
+module.exports = function(data, g, width, height, options) {
+
+  options = _.defaults(options || {}, {
+    bgbars: false,
+    bglines: false,
+    legend: true,
+    labels: false // label options will be set further below
+  });
 
   var x = d3.scale.ordinal()
     .domain(_.pluck(data, 'x'))
@@ -14,6 +22,8 @@ module.exports = function (data, g, width, height, labels) {
     .domain([0, d3.max(_.pluck(data, 'y'))])
     .range([height, 0]);
 
+  var sumY = d3.sum(_.pluck(data, 'y'));
+
   // set up tooltips
   var tip = d3.tip()
     .attr('class', 'd3-tip')
@@ -21,7 +31,10 @@ module.exports = function (data, g, width, height, labels) {
       if (typeof d.tooltip === 'function') {
         return d.tooltip(d, i);
       }
-      return d.tooltip || d.x;
+      return d.tooltip || tooltipHtml({
+          label: d.x,
+          value: d.y
+        });
     })
     .direction('n')
     .offset([-9, 0]);
@@ -29,6 +42,37 @@ module.exports = function (data, g, width, height, labels) {
   // clear element first
   g.selectAll('*').remove();
   g.call(tip);
+
+  if (options.legend) {
+    g.append('text')
+      .attr('x', 0)
+      .attr('y', -10)
+      .attr('text-anchor', 'start')
+      .text(sumY);
+  }
+
+  if (options.bglines) {
+    g.append('line')
+      .attr('class', 'bg line')
+      .attr('x1', 0)
+      .attr('x2', width)
+      .attr('y1', 0)
+      .attr('y2', 0);
+
+    g.append('line')
+      .attr('class', 'bg line')
+      .attr('x1', 0)
+      .attr('x2', width)
+      .attr('y1', height / 2)
+      .attr('y2', height / 2);
+
+    g.append('line')
+      .attr('class', 'bg line')
+      .attr('x1', 0)
+      .attr('x2', width)
+      .attr('y1', height)
+      .attr('y2', height);
+  }
 
   var bar = g.selectAll('.bar')
     .data(data)
@@ -38,12 +82,14 @@ module.exports = function (data, g, width, height, labels) {
       return 'translate(' + x(d.x) + ', 0)';
     });
 
-  bar.append('rect')
-    .attr('class', 'bg')
-    .attr('width', x.rangeBand())
-    .attr('height', height);
+  if (options.bgbars) {
+    bar.append('rect')
+      .attr('class', 'bg')
+      .attr('width', x.rangeBand())
+      .attr('height', height);
+  }
 
-  bar.append('rect')
+  var fgbars = bar.append('rect')
     .attr('class', 'fg')
     .attr('x', 0)
     .attr('y', function(d) {
@@ -54,39 +100,46 @@ module.exports = function (data, g, width, height, labels) {
       return height - y(d.y);
     });
 
+  if (options.bgbars) {
     bar.append('rect')
       .attr('class', 'glass')
       .attr('width', x.rangeBand())
       .attr('height', height)
       .on('mouseover', tip.show)
       .on('mouseout', tip.hide);
+  } else {
+    // atach tooltips directly to foreground bars
+    fgbars
+      .on('mouseover', tip.show)
+      .on('mouseout', tip.hide);
+  }
 
-    if (labels) {
+  if (options.labels) {
+    var labels = options.labels;
+    _.defaults(labels, {
+      'x': labels['text-anchor'] === 'middle' ? x.rangeBand() / 2 : function(d, i) {
+        if (i === 0) return 0;
+        if (i === data.length - 1) return x.rangeBand();
+        return x.rangeBand() / 2;
+      },
+      'y': height + 5,
+      'dy': '0.75em',
+      'text-anchor': function(d, i) {
+        if (i === 0) return 'start';
+        if (i === data.length - 1) return 'end';
+        return 'middle';
+      },
+      'text': function(d) {
+        return d.x;
+      }
+    });
 
-      _.defaults(labels, {
-        'x': labels['text-anchor'] === 'middle' ? x.rangeBand() / 2 : function (d, i) {
-          if (i === 0) return 0;
-          if (i === data.length - 1) return x.rangeBand();
-          return x.rangeBand() / 2;
-        },
-        'y': height+5,
-        'dy': '0.75em',
-        'text-anchor': function (d, i) {
-          if (i === 0) return 'start';
-          if (i === data.length - 1) return 'end';
-          return 'middle';
-        },
-        'text': function (d) {
-          return d.x;
-        }
-      });
-
-      bar.append('text')
+    bar.append('text')
       .attr('x', labels.x)
       .attr('dx', labels.dx)
       .attr('y', labels.y)
       .attr('dy', labels.dy)
       .attr('text-anchor', labels['text-anchor'])
       .text(labels.text);
-    }
+  }
 };

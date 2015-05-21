@@ -26,8 +26,7 @@ module.exports = function(opts) {
     .map(function(v, k) {
       return {
         x: k,
-        y: v.length,
-        tooltip: k
+        y: v.length
       };
     })
     .sortByOrder('y', [false]) // descending on y
@@ -43,6 +42,8 @@ module.exports = function(opts) {
     .attr('height', height);
 
   var chart = data.length <= 5 ? few : many;
-  chart(data, g, width, height);
+  chart(data, g, width, height, {
+    bglines: true
+  });
 };
 

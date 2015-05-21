@@ -6,7 +6,9 @@ var many = require('./many');
 
 function generateDefaults(n) {
   var doc = {};
-  _.each(_.range(n), function (d) { doc[d] = 0; });
+  _.each(_.range(n), function(d) {
+    doc[d] = 0;
+  });
   return doc;
 }
 
@@ -17,7 +19,7 @@ module.exports = function(opts) {
   // distinguish ObjectIDs from real dates
   if (values.length && values[0]._bsontype !== undefined) {
     if (values[0]._bsontype === 'ObjectID') {
-      values = _.map(values, function (v) {
+      values = _.map(values, function(v) {
         return v.getTimestamp();
       });
     }
@@ -49,13 +51,13 @@ module.exports = function(opts) {
   var upperMargin = 15;
 
   // group by weekdays
-  var weekdayLabels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  var weekdayLabels = moment.weekdays();
   var weekdays = _(values)
-    .groupBy(function (d) {
+    .groupBy(function(d) {
       return moment(d).weekday();
     })
     .defaults(generateDefaults(7))
-    .map(function (d, i) {
+    .map(function(d, i) {
       return {
         x: weekdayLabels[i],
         y: d.length,
@@ -67,11 +69,11 @@ module.exports = function(opts) {
   // group by hours
   var hourLabels = d3.range(24);
   var hours = _(values)
-    .groupBy(function (d) {
+    .groupBy(function(d) {
       return d.getHours();
     })
     .defaults(generateDefaults(23))
-    .map(function (d, i) {
+    .map(function(d, i) {
       return {
         x: hourLabels[i],
         y: d.length,
@@ -117,19 +119,25 @@ module.exports = function(opts) {
     });
 
   var weekdayContainer = svg.append('g');
-  many(weekdays, weekdayContainer, width / (upperRatio+1) - upperMargin, upperBarBottom, {
-    'text-anchor': 'middle',
-    'text': function (d) {
-      return d.x[0];
+  many(weekdays, weekdayContainer, width / (upperRatio + 1) - upperMargin, upperBarBottom, {
+    bgbars: true,
+    labels: {
+      'text-anchor': 'middle',
+      'text': function(d) {
+        return d.x[0];
+      }
     }
   });
 
   var hourContainer = svg.append('g')
-    .attr('transform', 'translate(' + (width/(upperRatio+1) + upperMargin) + ', 0)');
+    .attr('transform', 'translate(' + (width / (upperRatio + 1) + upperMargin) + ', 0)');
 
-  many(hours, hourContainer, width/(upperRatio+1)*upperRatio - upperMargin, upperBarBottom, {
-    'text': function (d, i) {
-      return (i % 6 === 0 || i === 23) ? d.x : '';
+  many(hours, hourContainer, width / (upperRatio + 1) * upperRatio - upperMargin, upperBarBottom, {
+    bgbars: true,
+    labels: {
+      'text': function(d, i) {
+        return (i % 6 === 0 || i === 23) ? d.x : '';
+      }
     }
   });
 

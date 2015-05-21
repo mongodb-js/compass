@@ -53,6 +53,7 @@ svg.minichart {
 
     rect.fg {
       fill: @mc-bar-fg;
+      stroke: @white;
     }
 
     rect.hl {
@@ -63,6 +64,10 @@ svg.minichart {
   .line {
     stroke: @mc-bar-fg;
     shape-rendering: crispEdges;
+
+    &.bg {
+      stroke: @gray6;
+    }
   }
 
   .axis path, .axis line {
