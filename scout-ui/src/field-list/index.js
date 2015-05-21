@@ -8,9 +8,19 @@ var debug = require('debug')('scout-ui:field-list');
 
 var BasicFieldView = View.extend({
   bindings: {
-    'model._id': {
-      hook: 'name'
-    }
+    'model._id': [
+      {
+        hook: 'name'
+      },
+      {
+        hook: 'name',
+        type: function(el) {
+          if (this.model._id === '__basic__') {
+            el.classList.add('hidden');
+          }
+        }
+      }
+    ]
   },
   template: require('./basic-field.jade'),
   subviews: {
