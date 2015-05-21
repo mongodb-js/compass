@@ -51,6 +51,8 @@
     "ampersand-view": "^7.0.1",
     "ampersand-view-switcher": "^2.0.0",
     "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.2.tar.gz",
+    "d3": "^3.5.5",
+    "d3-tip": "^0.6.7",
     "debug": "^2.0.0",
     "domready": "^1.0.7",
     "event-stream": "^3.3.0",
@@ -58,16 +60,14 @@
     "font-awesome": "https://github.com/FortAwesome/Font-Awesome/archive/v4.3.0.tar.gz",
     "jade": "^1.9.2",
     "jquery": "^2.1.1",
+    "lodash": "^3.8.0",
     "moment": "^2.8.2",
+    "mongodb-schema": "git://github.com/mongodb-js/mongodb-schema.git#ampersand",
     "numeral": "^1.5.3",
     "octicons": "https://github.com/github/octicons/archive/v2.2.0.tar.gz",
     "phantomjs-polyfill": "0.0.1",
     "qs": "^2.2.4",
-    "underscore": "^1.6.0",
-    "mongodb-schema": "git://github.com/mongodb-js/mongodb-schema.git#ampersand",
-    "d3": "^3.5.5",
-    "d3-tip": "^0.6.7",
-    "lodash": "^3.8.0"
+    "underscore": "^1.6.0"
   },
   "devDependencies": {
     "browserify": "^9.0.3",

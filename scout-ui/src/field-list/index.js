@@ -4,7 +4,6 @@ var MinichartView = require('../minicharts');
 var FieldCollection = require('mongodb-schema').FieldCollection;
 var ViewSwitcher = require('ampersand-view-switcher');
 var _ = require('lodash');
-var debug = require('debug')('scout-ui:field-list');
 
 var BasicFieldView = View.extend({
   bindings: {
@@ -38,10 +37,10 @@ var BasicFieldView = View.extend({
   initialize: function() {
     var that = this;
     // the debounce cuts down computation time by a factor of 5-10 here
-    this.model.on('change', _.debounce(function(model) {
+    this.model.types.on('sync', _.debounce(function() {
       // for now pick first type, @todo: make the type bars clickable and toggle chart
-      that.switchView(model.types.at(0));
-    }, 100));
+      that.switchView(that.model.types.at(0));
+    }, 300));
   },
   render: function() {
     this.renderWithTemplate(this);

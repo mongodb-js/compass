@@ -1,6 +1,8 @@
 var AmpersandView = require('ampersand-view');
 var $ = require('jquery');
 var format = require('util').format;
+var _ = require('underscore');
+var numeral = require('numeral');
 
 require('bootstrap/js/tooltip');
 
@@ -21,18 +23,27 @@ module.exports = AmpersandView.extend({
       {
         hook: 'bar',
         type: function(el) {
-          var percent = Math.min(this.model.probability * 100, 100);
           $(el).css({
-            width: percent + '%'
+            width: Math.floor(this.model.probability * 100) + '%'
           });
-          if (percent) {
-            $(el).tooltip({
-              title: format('%s (%d%)', this.model.getId(), percent)
-            });
-          }
         }
       }
     ]
+  },
+  derived: {
+    percent: {
+      deps: ['model.probability'],
+      fn: function() {
+        return this.model.probability;
+      }
+    }
+  },
+  initialize: function() {
+    this.listenTo(this.model, 'change:probability', _.debounce(function() {
+      $(this.el).tooltip({
+        title: format('%s (%s)', this.model.getId(), numeral(this.model.probability).format('%'))
+      });
+    }.bind(this), 300));
   },
   template: require('./type-list-item.jade')
 });
