@@ -3,34 +3,28 @@ var _ = require('lodash');
 var debug = require('debug')('scout-ui:minicharts:string');
 var few = require('./few');
 var many = require('./many');
+var shared = require('./shared');
 
 module.exports = function(opts) {
   var values = opts.data.values.toJSON();
 
-  var margin = {
-    top: 10,
-    right: 0,
-    bottom: 10,
-    left: 0
-  };
-
+  var margin = shared.margin;
   var width = opts.width - margin.left - margin.right;
   var height = opts.height - margin.top - margin.bottom;
   var el = opts.el;
 
-  // group into categories (x) and count (y) the values per bucket, sort descending
+  // group into labels and values per bucket, sort descending
   var data = _(values)
     .groupBy(function(d) {
       return d;
     })
     .map(function(v, k) {
       return {
-        x: k,
-        y: v.length,
-        tooltip: k
+        label: k,
+        value: v.length
       };
     })
-    .sortByOrder('y', [false]) // descending on y
+    .sortByOrder('value', [false]) // descending on value
     .value();
 
   // clear element first
@@ -43,6 +37,9 @@ module.exports = function(opts) {
     .attr('height', height);
 
   var chart = data.length <= 5 ? few : many;
-  chart(data, g, width, height);
+  chart(data, g, width, height, {
+    scale: true,
+    bglines: true
+  });
 };
 

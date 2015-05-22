@@ -5,12 +5,13 @@ div(data-hook='viz-container')
     //-   = minValue
 
     dt
-      a(href="#")
-        i.mms-icon-continuous(data-hook='refresh')
+      //-a(href="#")
+      i.mms-icon-continuous(data-hook='refresh')
     dd
       ul.list-inline
         each val in randomValues
-          li= val
+          li
+            code= val
 
     //- dt max
     //- dd

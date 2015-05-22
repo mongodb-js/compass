@@ -1,27 +1,32 @@
 var d3 = require('d3');
 var _ = require('lodash');
+var tooltipHtml = require('./tooltip.jade');
 var debug = require('debug')('scout-ui:minicharts:few');
 
 require('d3-tip')(d3);
 
-module.exports = function (data, g, width, height) {
-  // @todo make barOffset equal to longest label
-  var barOffset = width / 4;
+module.exports = function(data, g, width, height, options) {
+
+  var barHeight = 25;
+  var values = _.pluck(data, 'value');
+  var sumValues = d3.sum(values);
 
   // data.x is still the label, and data.y the length of the bar
   var x = d3.scale.linear()
-    .domain([0, d3.max(_.pluck(data, 'y'))])
-    .range([0, width - barOffset]);
-
-  var y = d3.scale.ordinal()
-    .domain(_.pluck(data, 'x'))
-    .rangeBands([0, height], 0.3, 0.0);
+    .domain([0, sumValues])
+    .range([0, width]);
 
   // set up tooltips
   var tip = d3.tip()
     .attr('class', 'd3-tip')
-    .html(function(d) {
-      return d.tooltip || d.x;
+    .html(function(d, i) {
+      if (typeof d.tooltip === 'function') {
+        return d.tooltip(d, i);
+      }
+      return d.tooltip || tooltipHtml({
+          label: d.label,
+          value: Math.round(d.value / sumValues * 100)
+        });
     })
     .direction('n')
     .offset([-9, 0]);
@@ -33,42 +38,38 @@ module.exports = function (data, g, width, height) {
   var bar = g.selectAll('.bar')
     .data(data)
     .enter().append('g')
-    .attr('class', 'bar')
-    .attr('transform', function(d) {
-      return 'translate(0, ' + y(d.x)  + ')';
+    .attr('class', 'bar few')
+    .attr('transform', function(d, i) {
+
+      var xpos = _.sum(_(data)
+        .slice(0, i)
+        .pluck('value')
+        .value()
+      );
+      return 'translate(' + x(xpos) + ', ' + (height - barHeight) / 2 + ')';
     });
 
   bar.append('rect')
-    .attr('class', 'bg')
-    .attr('x', barOffset)
-    .attr('width', width - barOffset)
-    .attr('height', y.rangeBand());
-
-  bar.append('rect')
-    .attr('class', 'fg')
-    .attr('y', 0)
-    .attr('x', barOffset)
-    .attr('width', function(d) {
-      return x(d.y);
+    .attr('class', function(d, i) {
+      return 'fg-' + i;
     })
-    .attr('height', y.rangeBand());
-
-  bar.append('rect')
-    .attr('class', 'glass')
-    .attr('x', barOffset)
-    .attr('width', width - barOffset)
-    .attr('height', y.rangeBand())
+    .attr('y', 0)
+    .attr('x', 0)
+    .attr('width', function(d) {
+      return x(d.value);
+    })
+    .attr('height', barHeight)
     .on('mouseover', tip.show)
     .on('mouseout', tip.hide);
 
   bar.append('text')
-    .attr('dx', '-10')
-    .attr('dy', '0.4em')
-    .attr('y', y.rangeBand() / 2)
-    .attr('x', barOffset)
-    .attr('text-anchor', 'end')
+    .attr('y', barHeight / 2)
+    .attr('dy', '0.3em')
+    .attr('dx', 10)
+    .attr('text-anchor', 'start')
     .text(function(d) {
-      return d.x;
-    });
+      return d.label;
+    })
+    .attr('fill', 'white');
 
 };
