@@ -32,6 +32,8 @@ function decodeDriverError(err, msg, fn) {
     err = boom.badRequest(msg);
   } else if (/(target namespace exists|already exists)/.test(err.message)) {
     return boom.conflict('Collection already exists');
+  } else if (/server .* sockets closed/.test(msg)) {
+    err = boom.serverTimeout('Too many connections to MongoDB');
   } else {
     // Have a case where we're not properly validating invalid
     // replicaset commands on a deployment with no replicaset.else if (/valid replicaset|No primary found in set/.test(msg)) {
