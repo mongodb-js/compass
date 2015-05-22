@@ -1,6 +1,7 @@
 var d3 = require('d3');
 var _ = require('lodash');
 var tooltipHtml = require('./tooltip.jade');
+var shared = require('./shared');
 var debug = require('debug')('scout-ui:minicharts:many');
 
 require('d3-tip')(d3);
@@ -18,12 +19,12 @@ module.exports = function(data, g, width, height, options) {
     .rangeBands([0, width], 0.3, 0.0);
 
   var values = _.pluck(data, 'value');
+  var maxValue = d3.max(values);
+  var sumValues = d3.sum(values);
 
   var y = d3.scale.linear()
-    .domain([0, d3.max(values)])
+    .domain([0, maxValue])
     .range([height, 0]);
-
-  var sumY = d3.sum(values);
 
   // set up tooltips
   var tip = d3.tip()
@@ -34,7 +35,7 @@ module.exports = function(data, g, width, height, options) {
       }
       return d.tooltip || tooltipHtml({
           label: d.label,
-          value: d.value
+          value: shared.percentFormat(d.value / sumValues)
         });
     })
     .direction('n')
@@ -46,8 +47,6 @@ module.exports = function(data, g, width, height, options) {
 
   if (options.scale) {
     var maxVal = d3.max(y.domain());
-    var format = d3.format('%.1f');
-    var legendValues = [format(maxVal), format(maxVal / 2)];
 
     // @todo use a scale and wrap both text and line in g element
     var legend = g.append('g')
@@ -60,7 +59,7 @@ module.exports = function(data, g, width, height, options) {
       .attr('y', 0)
       .attr('dy', '0.3em')
       .attr('text-anchor', 'end')
-      .text(d3.max(y.domain()) + '%');
+      .text(shared.percentFormat(maxValue / sumValues));
 
     legend.append('text')
       .attr('class', 'legend')
@@ -69,7 +68,7 @@ module.exports = function(data, g, width, height, options) {
       .attr('y', height / 2)
       .attr('dy', '0.3em')
       .attr('text-anchor', 'end')
-      .text(d3.max(y.domain()) / 2 + '%');
+      .text(shared.percentFormat(maxValue / sumValues / 2));
 
     legend.append('text')
       .attr('class', 'legend')
