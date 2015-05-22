@@ -25,9 +25,14 @@ var CollectionView = AmpersandView.extend({
     app.statusbar.watch(this, this.schema);
 
     this.schema.ns = this.model._id;
+    this.listenTo(this.schema, 'error', this.onError);
     this.schema.fetch();
   },
   template: require('./collection.jade'),
+  onError: function(schema, err) {
+    // @todo: Figure out a good way to handle this (server is probably crashed).
+    console.error('Error getting schema: ', err);
+  },
   subviews: {
     fields: {
       waitFor: 'schema.fields',
