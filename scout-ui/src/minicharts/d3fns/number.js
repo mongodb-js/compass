@@ -25,17 +25,6 @@ module.exports = function(opts) {
       })
       .value();
 
-    // var sumY = d3.sum(_.pluck(data, 'value'));
-    // debug(data, sumY);
-    // in a second pass, add tooltips
-    // _.each(data, function(d) {
-    //   d.percent = Math.round(d.value / sumY * 100);
-    //   d.tooltip = tooltipHtml({
-    //     label: d.label,
-    //     value: Math.round(d.percent)
-    //   });
-    // });
-
   } else {
     // use the linear scale just to get nice binning values
     var x = d3.scale.linear()
@@ -62,10 +51,6 @@ module.exports = function(opts) {
       // remapping keys to conform with all other types
       d.value = d.y;
       d.label = label;
-// d.tooltip = tooltipHtml({
-//   label: label,
-//   value: Math.round(d.value / sumY * 100)
-// });
     });
   }
 
