@@ -27,18 +27,6 @@ module.exports = function(opts) {
     .sortByOrder('value', [false]) // descending on value
     .value();
 
-// var sumY = d3.sum(_.pluck(data, 'value'));
-
-  // in a second pass, add tooltips
-  // _.each(data, function(d) {
-  //   d.percent = Math.round(d.value / sumY * 100);
-  //   d.tooltip = tooltipHtml({
-  //     label: d.label,
-  //     value: Math.round(d.percent)
-  //   });
-  // });
-
-
   // clear element first
   d3.select(el).selectAll('*').remove();
 
