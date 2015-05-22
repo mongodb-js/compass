@@ -17,6 +17,14 @@ window.scout = client;
 
 var wrapError = require('./wrap-error');
 
+/**
+ * Catch-all for any client errors so we just log them instead of
+ * stopping the app.
+ */
+client.on('error', function(err) {
+  console.error(err);
+});
+
 var SampledSchema = Schema.extend({
   fetch: function(options) {
     options = _.defaults((options || {}), {
@@ -28,7 +36,7 @@ var SampledSchema = Schema.extend({
     wrapError(this, options);
 
     var model = this;
-    var detect = this.stream()
+    var parser = this.stream()
       .on('error', function(err) {
         options.error(err, 'error', err.message);
       })
@@ -40,7 +48,9 @@ var SampledSchema = Schema.extend({
 
     model.trigger('request', model, {}, options);
     process.nextTick(function() {
-      client.sample(model.ns, options).pipe(detect);
+      client.sample(model.ns, options)
+        .on('error', parser.emit.bind(parser, 'error'))
+        .pipe(parser);
     });
   }
 });

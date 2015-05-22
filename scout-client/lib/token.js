@@ -11,18 +11,11 @@ function Token(config) {
   this.config = config;
   this.expirationRedLine = 15 * 1000;
   this.session = {};
-  this.readable = false;
 
   process.nextTick(function() {
-    this.bake(function(err, res) {
+    this.bake(function(err) {
       if (err) return this.emit('error', err);
-
-      this.session = res;
       this.schedule();
-
-      this.readable = true;
-      debug('emit readable!');
-      this.emit('readable');
     }.bind(this));
   }.bind(this));
 }
@@ -47,12 +40,12 @@ Token.prototype.close = function(fn) {
   clearTimeout(this.refreshTimeout);
   debug('closing token');
   request.del(this.config.scout + '/api/v1/token')
-  .set('Accept', 'application/json')
-  .set('Authorization', 'Bearer ' + this.session.token)
-  .end(function(err, res) {
-    debug('response from token close');
-    fn(err, res);
-  });
+    .set('Accept', 'application/json')
+    .set('Authorization', 'Bearer ' + this.session.token)
+    .end(function(err, res) {
+      debug('response from token close');
+      fn(err, res);
+    });
 };
 
 Token.prototype.bake = function(done) {
@@ -60,8 +53,9 @@ Token.prototype.bake = function(done) {
     seed: this.config.seed
   };
 
-  if (this.config.timeout)
+  if (this.config.timeout) {
     payload.timeout = this.config.timeout;
+  }
 
   if (this.config.auth) {
     Object.keys(this.config.auth).map(function(name) {
@@ -73,36 +67,43 @@ Token.prototype.bake = function(done) {
   }
   debug('getting token for', this.config.seed, payload);
   request.post(this.config.scout + '/api/v1/token')
-  .send(payload)
-  .set('Accept', 'application/json')
-  .end(function(err, res) {
-    if (err) return done(err);
+    .send(payload)
+    .set('Accept', 'application/json')
+    .end(function(err, res) {
+      if (err) {
+        if (res && res.body) {
+          err.message += ': ' + res.body.message;
+        }
+        console.error('Error getting token:', err);
+        return done(err);
+      }
 
-    if (!err && res.status >= 400) {
-      err = new Error(res.body ? res.body.message : res.text);
-      err.code = res.status;
-      Error.captureStackTrace(err, Token.prototype.bake);
-      return done(err);
-    }
+      if (!err && res.status >= 400) {
+        err = new Error(res.body ? res.body.message : res.text);
+        err.code = res.status;
+        Error.captureStackTrace(err, Token.prototype.bake);
+        return done(err);
+      }
 
-    if (!res.body.expires_at || !res.body.created_at) {
-      return done(new Error('Malformed response.  Missing expires_at or created_at'));
-    }
+      if (!res.body.expires_at || !res.body.created_at) {
+        return done(new Error('Malformed response.  Missing expires_at or created_at'));
+      }
 
-    if (new Date(res.body.expires_at) - Date.now() < (1 * 60 * 1000)) {
-      return done(new Error('Got an expires that is less than a minute from now.'));
-    }
+      if (new Date(res.body.expires_at) - Date.now() < (1 * 60 * 1000)) {
+        return done(new Error('Got an expires that is less than a minute from now.'));
+      }
 
-    done(null, res.body);
-  }.bind(this));
+      this.session = res.body;
+      this.emit('data', this.session);
+
+      done(null, res.body);
+    }.bind(this));
 };
 
 Token.prototype.refresh = function() {
-  this.bake(function(err, res) {
+  this.bake(function(err) {
     if (err) return this.emit('error', err);
-    if (!res) return this.emit('error', new Error('Empty response with no error'));
 
-    this.session = res;
     debug('token refreshed successfully');
     return this.schedule();
   }.bind(this));
@@ -114,5 +115,6 @@ Token.prototype.schedule = function() {
     return this;
   }
   var ms = (new Date(this.session.expires_at) - Date.now()) - this.expirationRedLine;
+  debug('scheduling token refresh %dms from now', ms);
   this.refreshTimeout = setTimeout(this.refresh.bind(this), ms);
 };

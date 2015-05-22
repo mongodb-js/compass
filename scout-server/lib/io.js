@@ -18,12 +18,16 @@ var _idToDocument = require('./streams/id-to-document');
 var EJSON = require('mongodb-extended-json');
 var typedParams = require('./middleware/typed-params');
 
-io.use(require('socketio-jwt').authorize({
+
+io.on('connection', require('socketio-jwt').authorize({
   secret: config.get('token:secret').toString('utf-8'),
-  handshake: true
-}));
+  timeout: 15000
+})).on('authenticated', function(socket) {
+  debug('authenticated with token data', socket.decoded_token);
+});
 
 function prepare(socket, req, done) {
+  debug('preparing socket.io request');
   req.params = _.extend({
     ns: req.ns,
     size: req.size,
@@ -35,10 +39,7 @@ function prepare(socket, req, done) {
 
     var tasks = {};
     tasks.token = function(next) {
-      brain.loadToken(socket.decoded_token, req, function() {
-        debug('load token returned', arguments);
-        next();
-      });
+      brain.loadToken(socket.decoded_token, req, next);
     };
 
     if (req.params.ns) {
@@ -55,8 +56,8 @@ function prepare(socket, req, done) {
         done();
       });
     }
-
     async.series(tasks, function(err) {
+      debug('socket.io request now prepared');
       if (err) return done(err);
       done();
     });
@@ -65,7 +66,9 @@ function prepare(socket, req, done) {
 
 io.on('connection', function(socket) {
   ss(socket).on('collection:sample', function(stream, req) {
-    prepare(socket, req, function() {
+    prepare(socket, req, function(err) {
+      if (err) return stream.emit('error', err);
+
       debug('collection:sample got req %j', Object.keys(req));
       var db = req.mongo.db(req.params.database_name);
       createSampleStream(db, req.params.collection_name, {
@@ -79,5 +82,4 @@ io.on('connection', function(socket) {
         .pipe(stream);
     });
   });
-  debug('token data %j', socket.decoded_token);
 });

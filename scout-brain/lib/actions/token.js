@@ -3,7 +3,6 @@ var jwt = require('jsonwebtoken');
 var boom = require('boom');
 var debug = require('debug')('scout-brain:token');
 var _ = require('underscore');
-var assert = require('assert');
 
 var getDeployment = require('./deployment').get;
 var createSession = require('./session').create;
@@ -26,6 +25,7 @@ function verify(token, fn) {
 }
 
 function mount(tokenData, ctx, next) {
+  debug('mounting token data');
   if (!tokenData.session_id) {
     return next(boom.badRequest('Bad token: missing session id'));
   }
@@ -57,23 +57,19 @@ function mount(tokenData, ctx, next) {
         'to `' + ctx.instance_id + '` but it is not in ' +
         'deployment `' + tokenData.deployment_id + '`'));
       }
-
-      debug('getting connection for session', tokenData.session_id);
-      getSession(tokenData.session_id, function(err, connection) {
-        if (err) return next(err);
-
-        ctx.mongo = connection;
-        return next();
-      });
-
-    } else {
-      getSession(tokenData.session_id, function(err, connection) {
-        if (err) return next(err);
-
-        ctx.mongo = connection;
-        return next();
-      });
     }
+
+    debug('getting connection for session', tokenData.session_id);
+    getSession(tokenData.session_id, function(err, connection) {
+      if (err) return next(err);
+
+      if (!connection) {
+        return next(boom.forbidden('No session for this token.'));
+      }
+
+      ctx.mongo = connection;
+      return next();
+    });
   });
 }
 
