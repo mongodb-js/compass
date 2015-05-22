@@ -4,6 +4,8 @@ var moment = require('moment');
 var debug = require('debug')('scout-ui:minicharts:date');
 var many = require('./many');
 
+require('d3-tip')(d3);
+
 function generateDefaults(n) {
   var doc = {};
   _.each(_.range(n), function(d) {
@@ -47,7 +49,7 @@ module.exports = function(opts) {
     .range([0, width]);
 
   var upperBarBottom = height / 2 - 20;
-  var upperRatio = 2;
+  var upperRatio = 2.5;
   var upperMargin = 15;
 
   // group by weekdays
@@ -59,8 +61,8 @@ module.exports = function(opts) {
     .defaults(generateDefaults(7))
     .map(function(d, i) {
       return {
-        x: weekdayLabels[i],
-        y: d.length,
+        label: weekdayLabels[i],
+        value: d.length,
         tooltip: weekdayLabels[i]
       };
     })
@@ -72,12 +74,12 @@ module.exports = function(opts) {
     .groupBy(function(d) {
       return d.getHours();
     })
-    .defaults(generateDefaults(23))
+    .defaults(generateDefaults(24))
     .map(function(d, i) {
       return {
-        x: hourLabels[i],
-        y: d.length,
-        tooltip: hourLabels[i] + 'h'
+        label: hourLabels[i] + ':00',
+        value: d.length,
+        tooltip: hourLabels[i] + ':00'
       };
     })
     .value();
@@ -85,9 +87,19 @@ module.exports = function(opts) {
   // clear element first
   d3.select(el).selectAll('*').remove();
 
+  // set up tooltips
+  var tip = d3.tip()
+    .attr('class', 'd3-tip')
+    .html(function(d, i) {
+      return format(d);
+    })
+    .direction('n')
+    .offset([-9, 0]);
+
   var svg = d3.select(el)
     .append('g')
-    .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+    .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+    .call(tip);
 
   var line = svg.selectAll('.line')
     .data(values)
@@ -100,7 +112,9 @@ module.exports = function(opts) {
     .attr('x2', function(d) {
       return barcodeX(d);
     })
-    .attr('y2', barcodeBottom);
+    .attr('y2', barcodeBottom)
+    .on('mouseover', tip.show)
+    .on('mouseout', tip.hide);
 
   var text = svg.selectAll('.text')
     .data(barcodeX.domain())
@@ -114,8 +128,14 @@ module.exports = function(opts) {
     .attr('text-anchor', function(d, i) {
       return i ? 'end' : 'start';
     })
-    .text(function(d) {
-      return format(d);
+    .text(function(d, i) {
+      if (format(barcodeX.domain()[0]) === format(barcodeX.domain()[1])) {
+        if (i === 0) {
+          return 'inserted: ' + format(d);
+        }
+      } else {
+        return (i ? 'last: ' : 'first: ') + format(d);
+      }
     });
 
   var weekdayContainer = svg.append('g');
@@ -124,7 +144,7 @@ module.exports = function(opts) {
     labels: {
       'text-anchor': 'middle',
       'text': function(d) {
-        return d.x[0];
+        return d.label[0];
       }
     }
   });
@@ -136,7 +156,7 @@ module.exports = function(opts) {
     bgbars: true,
     labels: {
       'text': function(d, i) {
-        return (i % 6 === 0 || i === 23) ? d.x : '';
+        return (i % 6 === 0 || i === 23) ? d.label : '';
       }
     }
   });

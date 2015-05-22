@@ -7,21 +7,14 @@ require('d3-tip')(d3);
 
 module.exports = function(data, g, width, height, options) {
 
-
-  // @todo make barOffset equal to longest label
-  // var barOffset = width / 4;
-  var barHeight = 30;
+  var barHeight = 25;
+  var values = _.pluck(data, 'value');
+  var sumValues = d3.sum(values);
 
   // data.x is still the label, and data.y the length of the bar
   var x = d3.scale.linear()
-    .domain([0, d3.sum(_.pluck(data, 'y'))])
+    .domain([0, sumValues])
     .range([0, width]);
-
-  var y = d3.scale.ordinal()
-    .domain(_.pluck(data, 'x'))
-    .rangeBands([0, height], 0.3, 0.0);
-
-  var sumY = d3.sum(_.pluck(data, 'y'));
 
   // set up tooltips
   var tip = d3.tip()
@@ -31,8 +24,8 @@ module.exports = function(data, g, width, height, options) {
         return d.tooltip(d, i);
       }
       return d.tooltip || tooltipHtml({
-          label: d.x,
-          value: Math.round(d.y / sumY * 100)
+          label: d.label,
+          value: Math.round(d.value / sumValues * 100)
         });
     })
     .direction('n')
@@ -45,11 +38,12 @@ module.exports = function(data, g, width, height, options) {
   var bar = g.selectAll('.bar')
     .data(data)
     .enter().append('g')
-    .attr('class', 'bar')
+    .attr('class', 'bar few')
     .attr('transform', function(d, i) {
+
       var xpos = _.sum(_(data)
         .slice(0, i)
-        .pluck('y')
+        .pluck('value')
         .value()
       );
       return 'translate(' + x(xpos) + ', ' + (height - barHeight) / 2 + ')';
@@ -60,7 +54,7 @@ module.exports = function(data, g, width, height, options) {
     .attr('y', 0)
     .attr('x', 0)
     .attr('width', function(d) {
-      return x(d.y);
+      return x(d.value);
     })
     .attr('height', barHeight)
     .on('mouseover', tip.show)
@@ -72,7 +66,7 @@ module.exports = function(data, g, width, height, options) {
     .attr('dx', 10)
     .attr('text-anchor', 'start')
     .text(function(d) {
-      return d.x;
+      return d.label;
     })
     .attr('fill', 'white');
 

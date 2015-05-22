@@ -40,6 +40,9 @@ module.exports = function(opts) {
     } else {
       label = d.x + '-' + (d.x + d.dx);
     }
+    // remapping keys to conform with all other types
+    d.value = d.y;
+    d.label = label;
     d.tooltip = tooltipHtml({
       label: label,
       value: Math.round(d.y / sumY * 100)
@@ -58,8 +61,8 @@ module.exports = function(opts) {
     bgbars: false,
     labels: {
       text: function(d, i) {
-        if (i === 0) return d3.min(values);
-        if (i === data.length - 1) return d3.max(values);
+        if (i === 0) return 'min: ' + d3.min(values);
+        if (i === data.length - 1) return 'max: ' + d3.max(values);
         return '';
       }
     }

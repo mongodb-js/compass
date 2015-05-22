@@ -18,11 +18,11 @@ module.exports = function(opts) {
     })
     .map(function(v, k) {
       return {
-        x: k,
-        y: v.length
+        label: k,
+        value: v.length
       };
     })
-    .sortByOrder('x', [false]) // descending on y
+    .sortByOrder('label', [false]) // order: false, true
     .value();
 
   var margin = {

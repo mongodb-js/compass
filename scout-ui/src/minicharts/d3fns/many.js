@@ -7,21 +7,30 @@ require('d3-tip')(d3);
 
 module.exports = function(data, g, width, height, options) {
 
+  // if legend present, save some space
+  var legendWidth = 40;
+
   options = _.defaults(options || {}, {
     bgbars: false,
     legend: false,
-    labels: false // label options will be set further below
+    labels: false // label defaults will be set further below
   });
 
+  if (options.legend) {
+    width = width - legendWidth;
+  }
+
   var x = d3.scale.ordinal()
-    .domain(_.pluck(data, 'x'))
+    .domain(_.pluck(data, 'label'))
     .rangeBands([0, width], 0.3, 0.0);
 
+  var values = _.pluck(data, 'value');
+
   var y = d3.scale.linear()
-    .domain([0, d3.max(_.pluck(data, 'y'))])
+    .domain([0, d3.max(values)])
     .range([height, 0]);
 
-  var sumY = d3.sum(_.pluck(data, 'y'));
+  var sumY = d3.sum(values);
 
   // set up tooltips
   var tip = d3.tip()
@@ -31,8 +40,8 @@ module.exports = function(data, g, width, height, options) {
         return d.tooltip(d, i);
       }
       return d.tooltip || tooltipHtml({
-          label: d.x,
-          value: d.y
+          label: d.label,
+          value: d.value
         });
     })
     .direction('n')
@@ -47,42 +56,56 @@ module.exports = function(data, g, width, height, options) {
     var maxVal = d3.max(y.domain());
     var format = d3.format('%.1f');
     var legendValues = [format(maxVal), format(maxVal / 2)];
-    debug(legendValues);
 
-    g.append('text')
+    // @todo use a scale and wrap both text and line in g element
+    var legend = g.append('g')
+      .attr('class', 'legend');
+
+    legend.append('text')
       .attr('class', 'legend')
       .attr('x', width)
+      .attr('dx', '1em')
       .attr('y', 0)
-      .attr('dy', '0.35em')
-      .attr('text-anchor', 'end')
+      .attr('dy', '0.3em')
+      .attr('text-anchor', 'start')
       .text(d3.max(y.domain()) + '%');
 
-    g.append('text')
+    legend.append('text')
       .attr('class', 'legend')
       .attr('x', width)
+      .attr('dx', '1em')
       .attr('y', height / 2)
-      .attr('dy', '0.35em')
-      .attr('text-anchor', 'end')
+      .attr('dy', '0.3em')
+      .attr('text-anchor', 'start')
       .text(d3.max(y.domain()) / 2 + '%');
 
-    g.append('line')
-      .attr('class', 'bg line')
+    legend.append('text')
+      .attr('class', 'legend')
+      .attr('x', width)
+      .attr('dx', '1em')
+      .attr('y', height)
+      .attr('dy', '0.3em')
+      .attr('text-anchor', 'start')
+      .text('0%');
+
+    legend.append('line')
+      .attr('class', 'bg legend')
       .attr('x1', 0)
-      .attr('x2', width)
+      .attr('x2', width + 5)
       .attr('y1', 0)
       .attr('y2', 0);
 
-    g.append('line')
-      .attr('class', 'bg line')
+    legend.append('line')
+      .attr('class', 'bg legend')
       .attr('x1', 0)
-      .attr('x2', width)
+      .attr('x2', width + 5)
       .attr('y1', height / 2)
       .attr('y2', height / 2);
 
-    g.append('line')
-      .attr('class', 'bg line')
+    legend.append('line')
+      .attr('class', 'bg legend')
       .attr('x1', 0)
-      .attr('x2', width)
+      .attr('x2', width + 5)
       .attr('y1', height)
       .attr('y2', height);
   }
@@ -93,7 +116,7 @@ module.exports = function(data, g, width, height, options) {
     .enter().append('g')
     .attr('class', 'bar')
     .attr('transform', function(d) {
-      return 'translate(' + x(d.x) + ', 0)';
+      return 'translate(' + x(d.label) + ', 0)';
     });
 
   if (options.bgbars) {
@@ -107,11 +130,11 @@ module.exports = function(data, g, width, height, options) {
     .attr('class', 'fg')
     .attr('x', 0)
     .attr('y', function(d) {
-      return y(d.y);
+      return y(d.value);
     })
     .attr('width', x.rangeBand())
     .attr('height', function(d) {
-      return height - y(d.y);
+      return height - y(d.value);
     });
 
   if (options.bgbars) {
@@ -144,7 +167,7 @@ module.exports = function(data, g, width, height, options) {
         return 'middle';
       },
       'text': function(d) {
-        return d.x;
+        return d.value;
       }
     });
 

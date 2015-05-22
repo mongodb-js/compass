@@ -1,7 +1,7 @@
 // minicharts
-@mc-bar-bg: #F2F4F5;
-@mc-bar-fg: #38A1DF;
-@mc-bar-hl: #BEDFF0;
+@mc-bg: #F2F4F5;
+@mc-fg: #38A1DF;
+@mc-hl: #BEDFF0;
 
 div.minichart.unique {
   font-size: 12px;
@@ -34,7 +34,7 @@ div.minichart.unique {
 }
 
 svg.minichart {
-  font: 10px sans-serif;
+  font-size: 10px;
 
   text {
     fill: #000;
@@ -48,26 +48,43 @@ svg.minichart {
     shape-rendering: crispEdges;
 
     rect.bg {
-      fill: @mc-bar-bg;
+      fill: @mc-bg;
     }
 
     rect.fg {
-      fill: @mc-bar-fg;
-      stroke: @white;
+      fill: @mc-fg;
     }
 
     rect.hl {
-      fill: @mc-bar-hl;
+      fill: @mc-hl;
+    }
+
+    &.few {
+      rect.fg {
+        stroke: white;
+        stroke-width: 2px;
+      }
+
+      text {
+        fill: white;
+        font-size: 12px;
+      }
     }
   }
 
   .line {
-    stroke: @mc-bar-fg;
-    shape-rendering: crispEdges;
+    stroke: @mc-fg;
+  }
 
-    &.bg {
+  .legend {
+    text {
+      fill: @gray5;
+    }
+
+    line {
       stroke: @gray6;
     }
+    shape-rendering: crispEdges;
   }
 
   .axis path, .axis line {
@@ -75,6 +92,10 @@ svg.minichart {
     stroke: #000;
     shape-rendering: crispEdges;
   }
+}
+
+.tooltip-wrapper {
+  line-height: 120%;
 }
 
 // -- d3-tip styling

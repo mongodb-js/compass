@@ -18,18 +18,18 @@ module.exports = function(opts) {
   var height = opts.height - margin.top - margin.bottom;
   var el = opts.el;
 
-  // group into categories (x) and count (y) the values per bucket, sort descending
+  // group into labels and values per bucket, sort descending
   var data = _(values)
     .groupBy(function(d) {
       return d;
     })
     .map(function(v, k) {
       return {
-        x: k,
-        y: v.length
+        label: k,
+        value: v.length
       };
     })
-    .sortByOrder('y', [false]) // descending on y
+    .sortByOrder('value', [false]) // descending on value
     .value();
 
   // clear element first

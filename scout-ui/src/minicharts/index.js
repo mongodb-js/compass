@@ -20,17 +20,18 @@ module.exports = AmpersandView.extend({
       renderMode: 'svg',
       className: 'minichart',
       debounceRender: false,
-      vizFn: vizFns[opts.model._id.toLowerCase()] || null
+      vizFn: vizFns[opts.model.getId().toLowerCase()] || null
     });
   },
   render: function() {
-    this.renderWithTemplate();
+    this.renderWithTemplate(this);
 
     // unique values get a div-based minichart
     if ((this.model._id === 'String') &&
       (_.uniq(this.model.values.toJSON()).length === this.model.count)) {
 
       this.viewOptions.renderMode = 'html';
+      this.viewOptions.className = 'minichart unique';
       this.subview = new UniqueMinichartView(this.viewOptions);
     } else {
       this.subview = new VizView(this.viewOptions);
