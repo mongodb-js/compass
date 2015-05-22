@@ -43,6 +43,7 @@ module.exports = function(opts) {
 
   var chart = data.length <= 5 ? few : many;
   chart(data, g, width, height, {
+    legend: true,
     bglines: true
   });
 };

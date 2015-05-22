@@ -54,7 +54,7 @@ module.exports = function(opts) {
     .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
   many(data, g, width, height - 10, {
-    bglines: true,
+    legend: true,
     bgbars: false,
     labels: {
       text: function(d, i) {

@@ -9,8 +9,7 @@ module.exports = function(data, g, width, height, options) {
 
   options = _.defaults(options || {}, {
     bgbars: false,
-    bglines: false,
-    legend: true,
+    legend: false,
     labels: false // label options will be set further below
   });
 
@@ -44,14 +43,28 @@ module.exports = function(data, g, width, height, options) {
   g.call(tip);
 
   if (options.legend) {
-    g.append('text')
-      .attr('x', 0)
-      .attr('y', -10)
-      .attr('text-anchor', 'start')
-      .text(sumY);
-  }
 
-  if (options.bglines) {
+    var maxVal = d3.max(y.domain());
+    var format = d3.format('%.1f');
+    var legendValues = [format(maxVal), format(maxVal / 2)];
+    debug(legendValues);
+
+    g.append('text')
+      .attr('class', 'legend')
+      .attr('x', width)
+      .attr('y', 0)
+      .attr('dy', '0.35em')
+      .attr('text-anchor', 'end')
+      .text(d3.max(y.domain()) + '%');
+
+    g.append('text')
+      .attr('class', 'legend')
+      .attr('x', width)
+      .attr('y', height / 2)
+      .attr('dy', '0.35em')
+      .attr('text-anchor', 'end')
+      .text(d3.max(y.domain()) / 2 + '%');
+
     g.append('line')
       .attr('class', 'bg line')
       .attr('x1', 0)
@@ -73,6 +86,7 @@ module.exports = function(data, g, width, height, options) {
       .attr('y1', height)
       .attr('y2', height);
   }
+
 
   var bar = g.selectAll('.bar')
     .data(data)

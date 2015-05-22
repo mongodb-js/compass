@@ -42,8 +42,6 @@ module.exports = function(data, g, width, height, options) {
   g.selectAll('*').remove();
   g.call(tip);
 
-  debug('data', _.pluck(data, 'y'));
-
   var bar = g.selectAll('.bar')
     .data(data)
     .enter().append('g')
