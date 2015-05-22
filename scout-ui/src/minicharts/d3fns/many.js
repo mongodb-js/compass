@@ -8,17 +8,17 @@ require('d3-tip')(d3);
 module.exports = function(data, g, width, height, options) {
 
   // if legend present, save some space
-  var legendWidth = 40;
+  var scaleWidth = 40;
 
   options = _.defaults(options || {}, {
     bgbars: false,
-    legend: false,
+    scale: false,
     labels: false // label defaults will be set further below
   });
 
-  if (options.legend) {
-    width = width - legendWidth;
-  }
+// if (options.scale) {
+//   width = width - scaleWidth;
+// }
 
   var x = d3.scale.ordinal()
     .domain(_.pluck(data, 'label'))
@@ -51,8 +51,7 @@ module.exports = function(data, g, width, height, options) {
   g.selectAll('*').remove();
   g.call(tip);
 
-  if (options.legend) {
-
+  if (options.scale) {
     var maxVal = d3.max(y.domain());
     var format = d3.format('%.1f');
     var legendValues = [format(maxVal), format(maxVal / 2)];

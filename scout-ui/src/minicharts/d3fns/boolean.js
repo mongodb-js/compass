@@ -1,6 +1,7 @@
 var d3 = require('d3');
 var _ = require('lodash');
 var few = require('./few');
+var shared = require('./shared');
 var debug = require('debug')('scout-ui:minicharts:boolean');
 
 module.exports = function(opts) {
@@ -25,12 +26,7 @@ module.exports = function(opts) {
     .sortByOrder('label', [false]) // order: false, true
     .value();
 
-  var margin = {
-    top: 10,
-    right: 0,
-    bottom: 10,
-    left: 0
-  };
+  var margin = shared.margin;
 
   var width = opts.width - margin.left - margin.right;
   var height = opts.height - margin.top - margin.bottom;

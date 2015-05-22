@@ -3,17 +3,12 @@ var _ = require('lodash');
 var debug = require('debug')('scout-ui:minicharts:string');
 var few = require('./few');
 var many = require('./many');
+var shared = require('./shared');
 
 module.exports = function(opts) {
   var values = opts.data.values.toJSON();
 
-  var margin = {
-    top: 10,
-    right: 0,
-    bottom: 10,
-    left: 0
-  };
-
+  var margin = shared.margin;
   var width = opts.width - margin.left - margin.right;
   var height = opts.height - margin.top - margin.bottom;
   var el = opts.el;
@@ -43,7 +38,7 @@ module.exports = function(opts) {
 
   var chart = data.length <= 5 ? few : many;
   chart(data, g, width, height, {
-    legend: true,
+    scale: true,
     bglines: true
   });
 };

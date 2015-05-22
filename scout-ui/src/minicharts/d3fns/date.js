@@ -1,6 +1,7 @@
 var d3 = require('d3');
 var _ = require('lodash');
 var moment = require('moment');
+var shared = require('./shared');
 var debug = require('debug')('scout-ui:minicharts:date');
 var many = require('./many');
 
@@ -30,13 +31,7 @@ module.exports = function(opts) {
   // A formatter for dates
   var format = d3.time.format('%Y-%m-%d %H:%M:%S');
 
-  var margin = {
-    top: 10,
-    right: 0,
-    bottom: 10,
-    left: 0
-  };
-
+  var margin = shared.margin;
   var width = opts.width - margin.left - margin.right;
   var height = opts.height - margin.top - margin.bottom;
   var el = opts.el;
