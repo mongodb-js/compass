@@ -14,29 +14,30 @@ var urldecode = require('body-parser').urlencoded({
 app.server = require('http').createServer(app);
 app.config = require('mongoscope-config');
 
-if (process.env.NODE_ENV = 'development') {
-  app.use(require('connect-livereload')({
-    port: 35729,
-    include: ['./']
-  }));
-  var livereload = require('tiny-lr')();
-  var watch = require('watch');
+// @todo: this should be moved to scout-electron now.
+// if (process.env.NODE_ENV = 'development') {
+//   app.use(require('connect-livereload')({
+//     port: 35729,
+//     include: ['./']
+//   }));
+//   var livereload = require('tiny-lr')();
+//   var watch = require('watch');
 
-  livereload.listen(35729, '127.0.0.1');
+//   livereload.listen(35729, '127.0.0.1');
 
-  watch.watchTree(__dirname + '/../', {
-    filter: function(filename) {
-      return !(/node_modules/.test(filename));
-    },
-    ignoreDotFiles: true
-  }, function(files) {
-      livereload.changed({
-        body: {
-          files: files
-        }
-      });
-    });
-}
+//   watch.watchTree(__dirname + '/../', {
+//     filter: function(filename) {
+//       return !(/node_modules/.test(filename));
+//     },
+//     ignoreDotFiles: true
+//   }, function(files) {
+//       livereload.changed({
+//         body: {
+//           files: files
+//         }
+//       });
+//     });
+// }
 
 
 app.use(require('./middleware/watch-event-loop-blocking'));
