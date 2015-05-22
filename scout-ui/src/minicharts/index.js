@@ -15,7 +15,7 @@ module.exports = AmpersandView.extend({
   initialize: function(opts) {
     // setting some defaults for minicharts
     this.viewOptions = _.defaults(opts, {
-      width: 400,
+      width: 440,
       height: 100,
       renderMode: 'svg',
       className: 'minichart',

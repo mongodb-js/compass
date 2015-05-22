@@ -50,7 +50,9 @@ module.exports = function(data, g, width, height, options) {
     });
 
   bar.append('rect')
-    .attr('class', 'fg')
+    .attr('class', function(d, i) {
+      return 'fg-' + i;
+    })
     .attr('y', 0)
     .attr('x', 0)
     .attr('width', function(d) {

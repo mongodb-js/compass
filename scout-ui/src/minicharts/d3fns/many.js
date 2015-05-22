@@ -7,18 +7,11 @@ require('d3-tip')(d3);
 
 module.exports = function(data, g, width, height, options) {
 
-  // if legend present, save some space
-  var scaleWidth = 40;
-
   options = _.defaults(options || {}, {
     bgbars: false,
     scale: false,
     labels: false // label defaults will be set further below
   });
-
-// if (options.scale) {
-//   width = width - scaleWidth;
-// }
 
   var x = d3.scale.ordinal()
     .domain(_.pluck(data, 'label'))
@@ -62,49 +55,49 @@ module.exports = function(data, g, width, height, options) {
 
     legend.append('text')
       .attr('class', 'legend')
-      .attr('x', width)
-      .attr('dx', '1em')
+      .attr('x', 0)
+      .attr('dx', '-1em')
       .attr('y', 0)
       .attr('dy', '0.3em')
-      .attr('text-anchor', 'start')
+      .attr('text-anchor', 'end')
       .text(d3.max(y.domain()) + '%');
 
     legend.append('text')
       .attr('class', 'legend')
-      .attr('x', width)
-      .attr('dx', '1em')
+      .attr('x', 0)
+      .attr('dx', '-1em')
       .attr('y', height / 2)
       .attr('dy', '0.3em')
-      .attr('text-anchor', 'start')
+      .attr('text-anchor', 'end')
       .text(d3.max(y.domain()) / 2 + '%');
 
     legend.append('text')
       .attr('class', 'legend')
-      .attr('x', width)
-      .attr('dx', '1em')
+      .attr('x', 0)
+      .attr('dx', '-1em')
       .attr('y', height)
       .attr('dy', '0.3em')
-      .attr('text-anchor', 'start')
-      .text('0%');
+      .attr('text-anchor', 'end')
+      .text('99.9%');
 
     legend.append('line')
       .attr('class', 'bg legend')
-      .attr('x1', 0)
-      .attr('x2', width + 5)
+      .attr('x1', -5)
+      .attr('x2', width)
       .attr('y1', 0)
       .attr('y2', 0);
 
     legend.append('line')
       .attr('class', 'bg legend')
-      .attr('x1', 0)
-      .attr('x2', width + 5)
+      .attr('x1', -5)
+      .attr('x2', width)
       .attr('y1', height / 2)
       .attr('y2', height / 2);
 
     legend.append('line')
       .attr('class', 'bg legend')
-      .attr('x1', 0)
-      .attr('x2', width + 5)
+      .attr('x1', -5)
+      .attr('x2', width)
       .attr('y1', height)
       .attr('y2', height);
   }

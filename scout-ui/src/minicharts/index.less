@@ -1,7 +1,13 @@
 // minicharts
+@mc-blue0: #43B1E5;
+@mc-blue1: lighten(@mc-blue0, 10%);
+@mc-blue2: lighten(@mc-blue0, 20%);
+@mc-blue3: lighten(@mc-blue0, 30%);
+@mc-blue4: lighten(@mc-blue0, 40%);
+@mc-blue5: lighten(@mc-blue0, 50%);
+
 @mc-bg: #F2F4F5;
-@mc-fg: #38A1DF;
-@mc-hl: #BEDFF0;
+@mc-fg: @mc-blue0;
 
 div.minichart.unique {
   font-size: 12px;
@@ -37,6 +43,12 @@ div.minichart.unique {
   }
 }
 
+.minichart-wrapper {
+  svg.minichart {
+    margin-left: -40px;
+  }
+}
+
 svg.minichart {
   font-size: 10px;
 
@@ -59,14 +71,35 @@ svg.minichart {
       fill: @mc-fg;
     }
 
-    rect.hl {
-      fill: @mc-hl;
-    }
-
     &.few {
-      rect.fg {
+
+      rect {
         stroke: white;
         stroke-width: 2px;
+      }
+
+      rect.fg-0 {
+        fill: @mc-blue0;
+      }
+
+      rect.fg-1 {
+        fill: @mc-blue1;
+      }
+
+      rect.fg-2 {
+        fill: @mc-blue2;
+      }
+
+      rect.fg-3 {
+        fill: @mc-blue3;
+      }
+
+      rect.fg-4 {
+        fill: @mc-blue4;
+      }
+
+      rect.fg-5 {
+        fill: @mc-blue5;
       }
 
       text {
