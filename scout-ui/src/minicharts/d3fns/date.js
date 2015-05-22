@@ -36,7 +36,7 @@ module.exports = function(opts) {
   var height = opts.height - margin.top - margin.bottom;
   var el = opts.el;
 
-  var barcodeTop = Math.floor(height / 2 + 10);
+  var barcodeTop = Math.floor(height / 2 + 15);
   var barcodeBottom = Math.floor(height - 10);
 
   var barcodeX = d3.time.scale()
@@ -45,7 +45,7 @@ module.exports = function(opts) {
 
   var upperBarBottom = height / 2 - 20;
   var upperRatio = 2.5;
-  var upperMargin = 15;
+  var upperMargin = 20;
 
   // group by weekdays
   var weekdayLabels = moment.weekdays();
