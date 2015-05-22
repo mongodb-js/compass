@@ -20,6 +20,7 @@ module.exports = function(opts) {
 
   // Generate a histogram using approx. twenty uniformly-spaced bins
   var ticks = x.ticks(20);
+
   var hist = d3.layout.histogram()
     .bins(ticks);
 

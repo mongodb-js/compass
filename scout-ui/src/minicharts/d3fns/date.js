@@ -2,15 +2,15 @@ var d3 = require('d3');
 var _ = require('lodash');
 var moment = require('moment');
 var shared = require('./shared');
-var debug = require('debug')('scout-ui:minicharts:date');
 var many = require('./many');
+var debug = require('debug')('scout-ui:minicharts:date');
 
 require('d3-tip')(d3);
 
 function generateDefaults(n) {
   var doc = {};
   _.each(_.range(n), function(d) {
-    doc[d] = 0;
+    doc[d] = [];
   });
   return doc;
 }
