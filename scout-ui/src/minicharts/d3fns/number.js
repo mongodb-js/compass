@@ -13,37 +13,61 @@ module.exports = function(opts) {
   var height = opts.height - margin.top - margin.bottom;
   var el = opts.el;
 
-  // use the linear scale just to get nice binning values
-  var x = d3.scale.linear()
-    .domain(d3.extent(values))
-    .range([0, width]);
+  if (opts.data.unique < 20) {
+    var data = _(values)
+      .groupBy(function(d) {
+        return d;
+      })
+      .map(function(v, k) {
+        v.label = k;
+        v.value = v.length;
+        return v;
+      })
+      .value();
 
-  // Generate a histogram using approx. twenty uniformly-spaced bins
-  var ticks = x.ticks(20);
+    // var sumY = d3.sum(_.pluck(data, 'value'));
+    // debug(data, sumY);
+    // in a second pass, add tooltips
+    // _.each(data, function(d) {
+    //   d.percent = Math.round(d.value / sumY * 100);
+    //   d.tooltip = tooltipHtml({
+    //     label: d.label,
+    //     value: Math.round(d.percent)
+    //   });
+    // });
 
-  var hist = d3.layout.histogram()
-    .bins(ticks);
+  } else {
+    // use the linear scale just to get nice binning values
+    var x = d3.scale.linear()
+      .domain(d3.extent(values))
+      .range([0, width]);
 
-  var data = hist(values);
-  var sumY = d3.sum(_.pluck(data, 'y'));
+    // Generate a histogram using approx. twenty uniformly-spaced bins
+    var ticks = x.ticks(20);
+    var hist = d3.layout.histogram()
+      .bins(ticks);
 
-  _.each(data, function(d, i) {
-    var label;
-    if (i === 0) {
-      label = '< ' + (d.x + d.dx);
-    } else if (i === data.length - 1) {
-      label = '&ge; ' + d.x;
-    } else {
-      label = d.x + '-' + (d.x + d.dx);
-    }
-    // remapping keys to conform with all other types
-    d.value = d.y;
-    d.label = label;
-    d.tooltip = tooltipHtml({
-      label: label,
-      value: Math.round(d.y / sumY * 100)
+    var data = hist(values);
+    var sumY = d3.sum(_.pluck(data, 'y'));
+
+    _.each(data, function(d, i) {
+      var label;
+      if (i === 0) {
+        label = '< ' + (d.x + d.dx);
+      } else if (i === data.length - 1) {
+        label = '&ge; ' + d.x;
+      } else {
+        label = d.x + '-' + (d.x + d.dx);
+      }
+      // remapping keys to conform with all other types
+      d.value = d.y;
+      d.label = label;
+// d.tooltip = tooltipHtml({
+//   label: label,
+//   value: Math.round(d.value / sumY * 100)
+// });
     });
-  });
+  }
 
   // clear element first
   d3.select(el).selectAll('*').remove();
@@ -52,16 +76,23 @@ module.exports = function(opts) {
     .append('g')
     .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
-  many(data, g, width, height - 10, {
-    scale: true,
-    bgbars: false,
-    labels: {
+  var labels;
+  if (opts.data.unique < 20) {
+    labels = true;
+  } else {
+    labels = {
       text: function(d, i) {
         if (i === 0) return 'min: ' + d3.min(values);
         if (i === data.length - 1) return 'max: ' + d3.max(values);
         return '';
       }
-    }
+    };
+  }
+
+  many(data, g, width, height - 10, {
+    scale: true,
+    bgbars: false,
+    labels: labels
   });
 };
 

@@ -1,3 +1,5 @@
+var d3 = require('d3');
+
 module.exports = {
 
   margin: {
@@ -6,5 +8,7 @@ module.exports = {
     bottom: 10,
     left: 40
   },
+
+  percentFormat: d3.format('%.1f')
 
 };
