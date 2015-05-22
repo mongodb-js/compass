@@ -2,15 +2,15 @@ var d3 = require('d3');
 var _ = require('lodash');
 var moment = require('moment');
 var shared = require('./shared');
-var debug = require('debug')('scout-ui:minicharts:date');
 var many = require('./many');
+var debug = require('debug')('scout-ui:minicharts:date');
 
 require('d3-tip')(d3);
 
 function generateDefaults(n) {
   var doc = {};
   _.each(_.range(n), function(d) {
-    doc[d] = 0;
+    doc[d] = [];
   });
   return doc;
 }
@@ -134,6 +134,7 @@ module.exports = function(opts) {
     });
 
   var weekdayContainer = svg.append('g');
+
   many(weekdays, weekdayContainer, width / (upperRatio + 1) - upperMargin, upperBarBottom, {
     bgbars: true,
     labels: {
@@ -143,6 +144,17 @@ module.exports = function(opts) {
       }
     }
   });
+
+  // calendar icon
+  weekdayContainer.append('text')
+    .attr('class', 'date-icon fa-fw')
+    .attr('x', 0)
+    .attr('dx', '-0.6em')
+    .attr('y', 0)
+    .attr('dy', '1em')
+    .attr('text-anchor', 'end')
+    .attr('font-family', 'FontAwesome')
+    .text('\uf133');
 
   var hourContainer = svg.append('g')
     .attr('transform', 'translate(' + (width / (upperRatio + 1) + upperMargin) + ', 0)');
@@ -155,6 +167,17 @@ module.exports = function(opts) {
       }
     }
   });
+
+  // clock icon
+  hourContainer.append('text')
+    .attr('class', 'date-icon fa-fw')
+    .attr('x', 0)
+    .attr('dx', '-0.6em')
+    .attr('y', 0)
+    .attr('dy', '1em')
+    .attr('text-anchor', 'end')
+    .attr('font-family', 'FontAwesome')
+    .text('\uf017');
 
 };
 

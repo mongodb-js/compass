@@ -78,7 +78,7 @@ module.exports = function(data, g, width, height, options) {
       .attr('y', height)
       .attr('dy', '0.3em')
       .attr('text-anchor', 'end')
-      .text('99.9%');
+      .text('0%');
 
     legend.append('line')
       .attr('class', 'bg legend')
