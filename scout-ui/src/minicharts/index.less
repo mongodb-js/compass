@@ -31,6 +31,14 @@ div.minichart.unique {
           color: @gray1;
         }
       }
+      i.mms-icon-continuous { // remove after wrapping this in an <a> again
+        color: @gray5;
+        cursor: pointer;
+
+        &:hover {
+          color: @gray1;
+        }
+      }
     }
     dd {
       margin-left: 30px;
@@ -38,6 +46,11 @@ div.minichart.unique {
 
       ul li {
         margin-bottom: 6px;
+
+        code {
+          font-size: 12px;
+          line-height: 20px;
+        }
       }
     }
   }
@@ -53,7 +66,8 @@ svg.minichart {
   font-size: 10px;
 
   text {
-    fill: #000;
+    fill: @gray4;
+    font-weight: bold;
   }
 
   .glass {
@@ -119,7 +133,7 @@ svg.minichart {
     }
 
     line {
-      stroke: @gray6;
+      stroke: @gray7;
     }
     shape-rendering: crispEdges;
   }
