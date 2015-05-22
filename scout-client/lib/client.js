@@ -736,7 +736,7 @@ Client.prototype.createReadStream = function(_id, data) {
         return debug('proxy already transferred');
       }
     });
-    this.on('readable', function() {
+    this.once('readable', function() {
       debug('client readable');
       var src = client.createReadStream(_id, data);
       src.on('data', proxy.emit.bind(proxy, 'data'));
@@ -752,6 +752,10 @@ Client.prototype.createReadStream = function(_id, data) {
     data = data || {};
     var stream = ss.createStream(this.io);
     ss(this.io).emit(_id, stream, data);
-    return stream.pipe(EJSON.createParseStream());
+
+    var parser = EJSON.createParseStream();
+    var res = stream.pipe(parser);
+    stream.on('error', res.emit.bind(res, 'error'));
+    return res;
   }
 };
