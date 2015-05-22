@@ -22,7 +22,7 @@ module.exports.create = function() {
 };
 
 app.on('ready', function() {
-  var height = 600;
+  var height = 700;
   if (process.platform === 'win32') {
     height += 60;
   } else if (process.platform === 'linux') {
@@ -30,7 +30,7 @@ app.on('ready', function() {
   }
   debug('loading main window', DEFAULT_URL);
   main = module.exports.main = new BrowserWindow({
-    width: 800,
+    width: 1024,
     height: height,
     'web-preferences': {
       'subpixel-font-scaling': true,
