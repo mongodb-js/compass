@@ -124,8 +124,8 @@ Client.prototype.connect = function() {
     return this;
   }
   this.token = new Token(this.config)
-    .on('readable', this.onTokenReadable.bind(this))
-    .on('error', this.onTokenError.bind(this));
+    .on('data', this.onTokenReadable.bind(this))
+    .on('error', this.onError.bind(this));
   return this;
 };
 
@@ -558,7 +558,7 @@ Client.prototype.read = function(path, params, fn) {
 
   if (!this.readable) {
     debug('%s not readable.  queueing read', this._id, path, params);
-    return this.on('readable', this.read.bind(this, path, params, fn));
+    return this.once('readable', this.read.bind(this, path, params, fn));
   }
 
   if (typeof params === 'function') {
@@ -618,14 +618,14 @@ Client.prototype.ender = function(fn) {
  * @api private
  */
 Client.prototype.onTokenReadable = function() {
-  debug('token now readable');
-  this.readable = true;
-  this.context.set(this.token.session);
   if (!this.io) {
     this._initSocketio();
   }
-  this.emit('readable', this.token.session);
-  debug('emitted readable on client');
+  debug('authenticating with scout-server socket.io transport...');
+  this.io.emit('authenticate', {
+    token: this.token.toString()
+  });
+
 
   if (!this.original) {
     this.emit('change');
@@ -642,22 +642,10 @@ Client.prototype.onTokenReadable = function() {
   }
 };
 
-/**
- * We couldn't get a token.
- *
- * @api private
- */
-Client.prototype.onTokenError = function(err) {
-  debug('Could not get token.  Server not running?', err);
-  this.emit('error', err);
-};
-
 Client.prototype._initSocketio = function() {
   if (this.io) return;
 
-  this.io = socketio(this.config.scout, {
-    query: 'token=' + this.token.toString()
-  });
+  this.io = socketio(this.config.scout);
   this.io.on('reconnecting', this.emit.bind(this, 'reconnecting'))
     .on('reconnect', this.onReconnect.bind(this))
     .on('reconnect_attempt', this.emit.bind(this, 'reconnect_attempt'))
@@ -665,7 +653,16 @@ Client.prototype._initSocketio = function() {
     .on('disconnect', this.emit.bind(this, 'disconnect'));
   this.io.on('connect', function() {
     debug('connected to scout-server socket');
-  });
+    this.io.on('authenticated', function() {
+      debug('Success!  Now authenticated with scout-server socket.io transport');
+
+      this.readable = true;
+      this.context.set(this.token.session);
+      debug('now ready for use');
+      this.emit('readable', this.token.session);
+    }.bind(this));
+  }.bind(this));
+  this.io.on('error', this.onError.bind(this));
 };
 
 /**
@@ -689,11 +686,12 @@ Client.prototype.onUnload = function() {
  * @param {Error} err
  * @api private
  */
-Client.prototype.onTokenError = function(err) {
-  this.dead = err;
-  if (err >= 500) {
-    this.dead.message += ' (scout-server dead at ' + this.config.scout + '?)';
+Client.prototype.onError = function(err) {
+  if (err.message === 'Origin is not allowed by Access-Control-Allow-Origin') {
+    err.message = 'scout-server not running at ' + this.config.scout + '?';
   }
+  // @todo: Exponential back-off to retry connecting.
+  this.dead = err;
   this.emit('error', err);
 };
 
@@ -701,8 +699,6 @@ Client.prototype.onReconnect = function() {
   debug('reconnected.  getting new token');
   this.token = new Token(this.config)
     .on('readable', function() {
-      this.readable = true;
-      this.context.set(this.token.session);
       this._initSocketio();
     }.bind(this))
     .on('error', this.emit.bind(this, 'error'));
@@ -736,7 +732,7 @@ Client.prototype.createReadStream = function(_id, data) {
         return debug('proxy already transferred');
       }
     });
-    this.on('readable', function() {
+    this.once('readable', function() {
       debug('client readable');
       var src = client.createReadStream(_id, data);
       src.on('data', proxy.emit.bind(proxy, 'data'));
@@ -752,6 +748,10 @@ Client.prototype.createReadStream = function(_id, data) {
     data = data || {};
     var stream = ss.createStream(this.io);
     ss(this.io).emit(_id, stream, data);
-    return stream.pipe(EJSON.createParseStream());
+
+    var parser = EJSON.createParseStream();
+    var res = stream.pipe(parser);
+    stream.on('error', res.emit.bind(res, 'error'));
+    return res;
   }
 };
