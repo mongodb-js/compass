@@ -13,7 +13,15 @@ var _ = require('underscore');
 var es = require('event-stream');
 var Schema = require('mongodb-schema').Schema;
 
+// Yay!  Use the API from the devtools console.
 window.scout = client;
+
+// Handy debugging! Just type `data` in the devtools console to see the array
+// of documents currently in the schema.
+window.data = [];
+
+// The currently active schema.
+window.schema = null;
 
 var wrapError = require('./wrap-error');
 
@@ -36,9 +44,14 @@ var SampledSchema = Schema.extend({
     wrapError(this, options);
 
     var model = this;
+    window.schema = this;
+    window.data = [];
     var parser = this.stream()
       .on('error', function(err) {
         options.error(err, 'error', err.message);
+      })
+      .on('data', function(doc) {
+        window.data.push(doc);
       })
       .on('end', function() {
         process.nextTick(function() {
