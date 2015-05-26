@@ -35,7 +35,7 @@ module.exports = function(data, g, width, height, options) {
       }
       return d.tooltip || tooltipHtml({
           label: d.label,
-          value: shared.percentFormat(d.value / sumValues)
+          value: shared.percentFormat(d.value / sumValues)[2]
         });
     })
     .direction('n')
@@ -47,9 +47,17 @@ module.exports = function(data, g, width, height, options) {
 
   if (options.scale) {
     var maxVal = d3.max(y.domain());
+    var scaleLabels = percentFormat(maxVal);
 
     // @todo use a scale and wrap both text and line in g element
     var legend = g.append('g')
+      .attr('class', 'legend')
+      .data(scaleLabes)
+      .enter()
+      .append('text');
+
+
+    g.append('g')
       .attr('class', 'legend');
 
     legend.append('text')

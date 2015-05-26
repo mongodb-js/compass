@@ -26,7 +26,7 @@ module.exports = function(data, g, width, height, options) {
       }
       return d.tooltip || tooltipHtml({
           label: d.label,
-          value: shared.percentFormat(d.value / sumValues)
+          value: shared.percentFormat(d.value / sumValues)[2]
         });
     })
     .direction('n')
