@@ -206,29 +206,42 @@ gulp.task('build', [
 ]);
 
 // https://github.com/atom/electron-starter/blob/master/build/tasks/codesign-task.coffee
-function unlockKeychain(done) {
-  var cmd = util.format('security unlock-keychain -p %s',
-    process.env.XCODE_KEYCHAIN_PASSWORD, process.env.XCODE_KEYCHAIN);
-  proc.exec(cmd, done);
-}
-function signApp(done) {
-  if (PLATFORM === 'darwin') {
-    var cmd = util.format('codesign --deep --force --verbose --sign %s %s',
-      process.env.XCODE_SIGNING_IDENTITY, APP);
+function unlockKeychainDarwin(done) {
+  if (process.env.XCODE_KEYCHAIN_PASSWORD) {
+    var cmd = util.format('security unlock-keychain -p %s',
+      process.env.XCODE_KEYCHAIN_PASSWORD, process.env.XCODE_KEYCHAIN);
     proc.exec(cmd, done);
   } else {
     done();
   }
 }
-gulp.task('sign', function(done) {
-  if (process.platform() === 'darwin' && process.env.XCODE_KEYCHAIN) {
-    unlockKeychain(function(err) {
-      if (err) return done(err);
-      signApp(done);
-    });
+function signAppDarwin(done) {
+  if (process.env.XCODE_SIGNING_IDENTITY) {
+    // var cmd = util.format('codesign --deep --force --verbose --sign %s %s',
+    //   process.env.XCODE_SIGNING_IDENTITY, APP);
+
+    // Use a shell script until we rewrite it in gulp
+    var logData = function(data) {
+      console.log((''+ data).trim());
+    };
+
+    var script = proc.spawn("./darwin-sign-app.sh",
+                            [process.env.XCODE_SIGNING_IDENTITY, APP]);
+    script.stdout.on('data', logData);
+    script.stderr.on('data', logData);
+    script.on('close', done);
   } else {
-    return done();
+    done(new Error("process.env.XCODE_SIGNING_IDENTITY not specified"));
   }
+}
+gulp.task('sign', function(done) {
+  if (PLATFORM !== 'darwin') {
+    done(new Error("sign only implemented for OS X"));
+  }
+  unlockKeychainDarwin(function(err) {
+    if (err) return done(err);
+    signAppDarwin(done);
+  });
 });
 
 // gulp.task('get mongo', function(cb) {
