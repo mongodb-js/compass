@@ -3,6 +3,12 @@ var _ = require('lodash');
 var debug = require('debug')('scout-ui:minicharts:unique');
 
 module.exports = VizView.extend({
+  props: {
+    timer: {
+      type: 'number',
+      default: null
+    }
+  },
   template: require('./unique.jade'),
   derived: {
     randomValues: {
@@ -18,16 +24,27 @@ module.exports = VizView.extend({
     }
   },
   events: {
-    'mousedown [data-hook=refresh]': 'refresh'
+    'mousedown [data-hook=refresh]': 'refresh',
+    'mouseup': 'stopTimer'
   },
   render: function() {
     this.renderWithTemplate(this);
   },
   refresh: function(event) {
-    debug('refresh clicked');
-    event.stopPropagation();
-    event.preventDefault();
+    if (!this.timer) {
+      this.timer = setInterval(this.refresh.bind(this), 600);
+    } else {
+      clearInterval(this.timer);
+      this.timer = setInterval(this.refresh.bind(this), 50);
+    }
+    if (event) {
+      event.preventDefault();
+    }
     this.render();
+  },
+  stopTimer: function(event) {
+    clearInterval(this.timer);
+    this.timer = null;
   }
 
 });
