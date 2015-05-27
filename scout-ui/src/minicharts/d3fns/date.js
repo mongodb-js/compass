@@ -58,7 +58,7 @@ module.exports = function(opts) {
       return {
         label: weekdayLabels[i],
         value: d.length,
-        tooltip: weekdayLabels[i]
+        // tooltip: weekdayLabels[i]
       };
     })
     .value();
@@ -74,7 +74,7 @@ module.exports = function(opts) {
       return {
         label: hourLabels[i] + ':00',
         value: d.length,
-        tooltip: hourLabels[i] + ':00'
+        // tooltip: hourLabels[i] + ':00'
       };
     })
     .value();
