@@ -76,7 +76,7 @@ var ExpandableFieldMixin = {
   props: {
     expanded: {
       type: 'boolean',
-      default: true
+      default: false
     }
   },
   click: function(evt) {
