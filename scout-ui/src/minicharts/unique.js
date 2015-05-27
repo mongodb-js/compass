@@ -13,19 +13,21 @@ module.exports = VizView.extend({
           .map(function(x) {
             return x.value;
           })
-          .sort()
           .value();
       }
     }
   },
   events: {
-    'click .fa-refresh': 'refresh'
+    'mousedown [data-hook=refresh]': 'refresh'
   },
   render: function() {
     this.renderWithTemplate(this);
   },
-  refresh: function() {
+  refresh: function(event) {
     debug('refresh clicked');
+    event.stopPropagation();
+    event.preventDefault();
+    this.render();
   }
 
 });
