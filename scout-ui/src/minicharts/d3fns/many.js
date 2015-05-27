@@ -21,6 +21,7 @@ module.exports = function(data, g, width, height, options) {
   var values = _.pluck(data, 'value');
   var maxValue = d3.max(values);
   var sumValues = d3.sum(values);
+  var percentFormat = shared.friendlyPercentFormat(maxValue / sumValues * 100);
 
   var y = d3.scale.linear()
     .domain([0, maxValue])
@@ -35,7 +36,7 @@ module.exports = function(data, g, width, height, options) {
       }
       return d.tooltip || tooltipHtml({
           label: d.label,
-          value: shared.percentFormat(d.value / sumValues)
+          value: percentFormat(d.value / sumValues * 100, false)
         });
     })
     .direction('n')
@@ -46,61 +47,47 @@ module.exports = function(data, g, width, height, options) {
   g.call(tip);
 
   if (options.scale) {
-    var maxVal = d3.max(y.domain());
+    var triples = function(v) {
+      return [v, v / 2, 0];
+    };
+
+    var scaleLabels = _.map(triples(maxValue / sumValues * 100), function(x) {
+      return percentFormat(x, true);
+    });
+    var labelScale = d3.scale.ordinal()
+      .domain(scaleLabels)
+      .rangePoints([0, height]);
 
     // @todo use a scale and wrap both text and line in g element
-    var legend = g.append('g')
+    var legend = g.selectAll('.legend')
+      .data(scaleLabels)
+      .enter().append('g')
       .attr('class', 'legend');
 
-    legend.append('text')
-      .attr('class', 'legend')
+    legend
+      .append('text')
       .attr('x', 0)
       .attr('dx', '-1em')
-      .attr('y', 0)
+      .attr('y', function(d) {
+        return labelScale(d);
+      })
       .attr('dy', '0.3em')
       .attr('text-anchor', 'end')
-      .text(shared.percentFormat(maxValue / sumValues));
-
-    legend.append('text')
-      .attr('class', 'legend')
-      .attr('x', 0)
-      .attr('dx', '-1em')
-      .attr('y', height / 2)
-      .attr('dy', '0.3em')
-      .attr('text-anchor', 'end')
-      .text(shared.percentFormat(maxValue / sumValues / 2));
-
-    legend.append('text')
-      .attr('class', 'legend')
-      .attr('x', 0)
-      .attr('dx', '-1em')
-      .attr('y', height)
-      .attr('dy', '0.3em')
-      .attr('text-anchor', 'end')
-      .text('0%');
+      .text(function(d) {
+        return d;
+      });
 
     legend.append('line')
       .attr('class', 'bg legend')
       .attr('x1', -5)
       .attr('x2', width)
-      .attr('y1', 0)
-      .attr('y2', 0);
-
-    legend.append('line')
-      .attr('class', 'bg legend')
-      .attr('x1', -5)
-      .attr('x2', width)
-      .attr('y1', height / 2)
-      .attr('y2', height / 2);
-
-    legend.append('line')
-      .attr('class', 'bg legend')
-      .attr('x1', -5)
-      .attr('x2', width)
-      .attr('y1', height)
-      .attr('y2', height);
+      .attr('y1', function(d) {
+        return labelScale(d);
+      })
+      .attr('y2', function(d) {
+        return labelScale(d);
+      });
   }
-
 
   var bar = g.selectAll('.bar')
     .data(data)
