@@ -60,9 +60,7 @@ module.exports = function(data, g, width, height, options) {
     .attr('width', function(d) {
       return x(d.value);
     })
-    .attr('height', barHeight)
-    .on('mouseover', tip.show)
-    .on('mouseout', tip.hide);
+    .attr('height', barHeight);
 
   bar.append('text')
     .attr('y', barHeight / 2)
@@ -73,5 +71,16 @@ module.exports = function(data, g, width, height, options) {
       return d.label;
     })
     .attr('fill', 'white');
+
+  bar.append('rect')
+    .attr('class', 'glass')
+    .attr('y', 0)
+    .attr('x', 0)
+    .attr('width', function(d) {
+      return x(d.value);
+    })
+    .attr('height', barHeight)
+    .on('mouseover', tip.show)
+    .on('mouseout', tip.hide);
 
 };

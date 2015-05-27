@@ -3,45 +3,48 @@ var _ = require('lodash');
 var debug = require('debug')('scout-ui:minicharts:unique');
 
 module.exports = VizView.extend({
+  props: {
+    timer: {
+      type: 'number',
+      default: null
+    }
+  },
   template: require('./unique.jade'),
   derived: {
-    orderedValues: {
-      deps: ['model.values'],
-      cache: true,
-      fn: function() {
-        return this.model.values.toJSON().sort();
-      }
-    },
-    minValue: {
-      deps: ['orderedValues'],
-      cache: true,
-      fn: function() {
-        return this.orderedValues[0];
-      }
-    },
-    maxValue: {
-      deps: ['orderedValues'],
-      cache: true,
-      fn: function() {
-        return this.orderedValues[this.orderedValues.length - 1];
-      }
-    },
     randomValues: {
       deps: ['orderedValues'],
       cache: false,
       fn: function() {
-        return this.orderedValues.slice(1, 15);
+        return _(this.model.values.sample(15))
+          .map(function(x) {
+            return x.value;
+          })
+          .value();
       }
     }
   },
   events: {
-    'click .fa-refresh': 'refresh'
+    'mousedown [data-hook=refresh]': 'refresh',
+    'mouseup': 'stopTimer'
   },
   render: function() {
     this.renderWithTemplate(this);
   },
-  refresh: function() {
-    debug('refresh clicked');
+  refresh: function(event) {
+    if (!this.timer) {
+      this.timer = setInterval(this.refresh.bind(this), 600);
+    } else {
+      clearInterval(this.timer);
+      this.timer = setInterval(this.refresh.bind(this), 50);
+    }
+    if (event) {
+      event.preventDefault();
+    }
+    this.render();
+  },
+  stopTimer: function(event) {
+    clearInterval(this.timer);
+    this.timer = null;
   }
 
 });
