@@ -11,8 +11,9 @@ module.exports = function(data, g, width, height, options) {
   var barHeight = 25;
   var values = _.pluck(data, 'value');
   var sumValues = d3.sum(values);
+  var maxValue = d3.max(values);
+  var percentFormat = shared.friendlyPercentFormat(maxValue / sumValues * 100);
 
-  // data.x is still the label, and data.y the length of the bar
   var x = d3.scale.linear()
     .domain([0, sumValues])
     .range([0, width]);
@@ -26,7 +27,7 @@ module.exports = function(data, g, width, height, options) {
       }
       return d.tooltip || tooltipHtml({
           label: d.label,
-          value: shared.percentFormat(d.value / sumValues)[2]
+          value: percentFormat(d.value / sumValues * 100, false)
         });
     })
     .direction('n')

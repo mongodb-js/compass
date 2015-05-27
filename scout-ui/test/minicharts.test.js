@@ -1,19 +1,51 @@
 var shared = require('../src/minicharts/d3fns/shared');
+var _ = require('lodash');
 var assert = require('assert');
 
+function triples(v) {
+  return [v, v / 2, 0];
+}
+
 describe('shared components', function() {
-  it('should return percentages for bottom, middle and top scale correctly', function() {
-    assert.deepEqual(shared.percentFormat(2.1), ['0%', '105%', '210%']);
-    assert.deepEqual(shared.percentFormat(2.0), ['0%', '100%', '200%']);
-    assert.deepEqual(shared.percentFormat(1.0), ['0%', '50%', '100%']);
-    assert.deepEqual(shared.percentFormat(0.995), ['0%', '50%', '100%']);
-    assert.deepEqual(shared.percentFormat(0.99), ['0%', '49.5%', '99%']);
-    assert.deepEqual(shared.percentFormat(0.9900001), ['0%', '49.5%', '99%']);
-    assert.deepEqual(shared.percentFormat(0.49999), ['0%', '25%', '50%']);
-    assert.deepEqual(shared.percentFormat(0.011), ['0%', '0.5%', '1%']);
-    assert.deepEqual(shared.percentFormat(0.009), ['0%', '0.45%', '0.9%']);
-    assert.deepEqual(shared.percentFormat(0.004), ['0%', '0.2%', '0.4%']);
-    assert.deepEqual(shared.percentFormat(0.0), ['0%', '0%', '0%']);
-    assert.deepEqual(shared.percentFormat(-0.015), ['0%', '-1%', '-2%']);
+  it('should return percentages for top, middle and bottom scale correctly', function() {
+    assert.deepEqual(_.map(triples(209), function(x) {
+      return shared.friendlyPercentFormat(209)(x, true);
+    }), ['209%', '104.5%', '0%']);
+    assert.deepEqual(_.map(triples(200), function(x) {
+      return shared.friendlyPercentFormat(200)(x, true);
+    }), ['200%', '100%', '0%']);
+    assert.deepEqual(_.map(triples(100), function(x) {
+      return shared.friendlyPercentFormat(100)(x, true);
+    }), ['100%', '50%', '0%']);
+    assert.deepEqual(_.map(triples(99.5), function(x) {
+      return shared.friendlyPercentFormat(99.5)(x, true);
+    }), ['100%', '50%', '0%']);
+    assert.deepEqual(_.map(triples(99.0), function(x) {
+      return shared.friendlyPercentFormat(99.0)(x, true);
+    }), ['99%', '49.5%', '0%']);
+    assert.deepEqual(_.map(triples(99.00001), function(x) {
+      return shared.friendlyPercentFormat(99.00001)(x, true);
+    }), ['99%', '49.5%', '0%']);
+    assert.deepEqual(_.map(triples(49.936), function(x) {
+      return shared.friendlyPercentFormat(49.936)(x, true);
+    }), ['50%', '25%', '0%']);
+    assert.deepEqual(_.map(triples(1.1), function(x) {
+      return shared.friendlyPercentFormat(1.1)(x, true);
+    }), ['1%', '0.5%', '0%']);
+    assert.deepEqual(_.map(triples(0.9), function(x) {
+      return shared.friendlyPercentFormat(0.9)(x, true);
+    }), ['0.9%', '0.45%', '0%']);
+    assert.deepEqual(_.map(triples(0.4), function(x) {
+      return shared.friendlyPercentFormat(0.4)(x, true);
+    }), ['0.4%', '0.2%', '0%']);
+    assert.deepEqual(_.map(triples(0.003), function(x) {
+      return shared.friendlyPercentFormat(0.003)(x, true);
+    }), ['0.003%', '0.0015%', '0%']);
+    assert.deepEqual(_.map(triples(0), function(x) {
+      return shared.friendlyPercentFormat(0)(x, true);
+    }), ['0%', '0%', '0%']);
+    assert.deepEqual(_.map(triples(-1.5), function(x) {
+      return shared.friendlyPercentFormat(-1.5)(x, true);
+    }), ['-2%', '-1%', '0%']);
   });
 });

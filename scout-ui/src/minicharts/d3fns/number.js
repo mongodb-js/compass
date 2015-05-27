@@ -2,7 +2,6 @@ var d3 = require('d3');
 var _ = require('lodash');
 var many = require('./many');
 var shared = require('./shared');
-var tooltipHtml = require('./tooltip.jade');
 var debug = require('debug')('scout-ui:minicharts:number');
 
 module.exports = function(opts) {
