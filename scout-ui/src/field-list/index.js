@@ -36,8 +36,8 @@ var BasicFieldView = View.extend({
   },
   initialize: function() {
     var that = this;
-    // the debounce cuts down computation time by a factor of 5-10 here
-    this.model.types.on('sync', _.debounce(function() {
+    // debounce prevents excessive rendering
+    this.model.values.on('add', _.debounce(function(evt) {
       // for now pick first type, @todo: make the type bars clickable and toggle chart
       that.switchView(that.model.types.at(0));
     }, 300));
