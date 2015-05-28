@@ -6,6 +6,7 @@ var boom = require('boom'),
   async = require('async'),
   models = require('../models'),
   types = models.types,
+  debug = require('debug')('scout-server:routes:instance'),
   _ = require('underscore');
 
 module.exports = {
@@ -67,15 +68,12 @@ function getAllCollections(req, fn) {
     var tasks = names.map(function(name) {
       return function(cb) {
         req.mongo.db(name)
-        .collection('system.namespaces')
-        .find()
+        .listCollections()
         .toArray(function(err, data) {
           if (err) return fn(err);
 
-          var names = data.filter(function(ns) {
-            return !(ns.name.indexOf('$') >= 0 && ns.name.indexOf('.oplog.$') < 0);
-          }).map(function(doc) {
-            var ns = types.ns(doc.name);
+          var names = data.map(function(doc) {
+            var ns = types.ns(name +'.'+ doc.name);
             return {
               _id: ns.toString(),
               name: ns.collection,
