@@ -28,7 +28,10 @@
 
   .list-group {
     line-height: 24px;
-    height: 100%;
+    // height: 100%;
+    position: absolute;
+    top: 72px;
+    bottom: 180px;
     overflow: scroll;
 
     .list-group-item {
@@ -76,6 +79,15 @@
         }
       }
     }
+  }
+  .sidebar-controls {
+    position: absolute;
+    bottom: 0;
+    width: 218px;
+    height: 174px;
+    border-top: 2px solid @sidebar-border;
+    background: url(/images/fake-sidebar-controls.png) 0 0 no-repeat;
+    background-size: 218px 174px;
   }
 }
 
