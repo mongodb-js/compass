@@ -62,7 +62,7 @@
     "jquery": "^2.1.1",
     "lodash": "^3.8.0",
     "moment": "^2.8.2",
-    "mongodb-schema": "^2.0.0",
+    "mongodb-schema": "^2.0.1",
     "numeral": "^1.5.3",
     "octicons": "https://github.com/github/octicons/archive/v2.2.0.tar.gz",
     "phantomjs-polyfill": "0.0.1",
