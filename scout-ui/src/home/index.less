@@ -140,6 +140,7 @@
 
   .schema-field-wrapper {
     float: left;
+    overflow: hidden;
   }
 
   .schema-field-type {
@@ -151,6 +152,14 @@
   .schema-field-type-label {
     font-size: 11px;
     text-transform: lowercase;
+  }
+
+  .schema-field-type-undefined > .schema-field-type {
+    background: @gray6;
+  }
+
+  .schema-field-type-undefined > .schema-field-type-label {
+    color: @gray5;
   }
 
   // .schema-field-type-null {
