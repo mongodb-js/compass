@@ -76,7 +76,7 @@ gulp.task('testserver', function() {
 gulp.task('develop', ['pages', 'assets', 'less'], function() {
   gulp.watch(['src/{*,**/*}.less', '../scout-style/*.less'], ['less']);
   gulp.watch(['src/*.jade'], ['pages']);
-  gulp.watch(['src/img/*'], ['assets']);
+  gulp.watch(['src/img/*', '../scout-style/images/*'], ['assets']);
 
   var spinner = new clui.Spinner('Watching for changes...');
 
@@ -143,7 +143,8 @@ gulp.task('assets', function() {
   subtasks.push.apply(subtasks, pkg.fonts.map(function(p) {
     return gulp.src(p).pipe(gulp.dest('../scout-server/res/fonts'));
   }));
-  gulp.src('../scout-style/fonts/*').pipe(gulp.dest('../scout-server/res/fonts'));
+  subtasks.push(gulp.src('../scout-style/fonts/*').pipe(gulp.dest('../scout-server/res/fonts')));
+  subtasks.push(gulp.src('../scout-style/images/*').pipe(gulp.dest('../scout-server/res/images')));
 
   return merge.apply(null, subtasks);
 });
