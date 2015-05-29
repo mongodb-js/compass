@@ -30,6 +30,9 @@ module.exports = AmpersandView.extend({
       }
     ]
   },
+  events: {
+    'click .schema-field-wrapper': 'typeClicked'
+  },
   derived: {
     percent: {
       deps: ['model.probability'],
@@ -45,5 +48,11 @@ module.exports = AmpersandView.extend({
       });
     }.bind(this), 300));
   },
-  template: require('./type-list-item.jade')
+  template: require('./type-list-item.jade'),
+  typeClicked: function(evt) {
+    if (this.parent.parent.minichartModel.cid !== this.model.cid) {
+      this.parent.parent.switchView(this.model);
+    }
+  }
+
 });
