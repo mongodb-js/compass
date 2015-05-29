@@ -6,7 +6,7 @@
 @mc-blue4: lighten(@mc-blue0, 30%);
 @mc-blue5: lighten(@mc-blue0, 37.5%);
 
-@mc-bg: #F2F4F5;
+@mc-bg: @gray6;   // @worldhack: was #F2F4F5
 @mc-fg: @mc-blue0;
 
 div.minichart.unique {
@@ -66,7 +66,7 @@ svg.minichart {
   font-size: 10px;
 
   text {
-    fill: @gray4;
+    fill: @gray2; // @worldhack: was @gray4
     font-weight: bold;
   }
 
@@ -129,11 +129,11 @@ svg.minichart {
 
   .legend {
     text {
-      fill: @gray5;
+      fill: @gray4; // @worldhack: was @gray5
     }
 
     line {
-      stroke: @gray7;
+      stroke: @gray6; // @worldhack: was @gray7
     }
     shape-rendering: crispEdges;
   }
