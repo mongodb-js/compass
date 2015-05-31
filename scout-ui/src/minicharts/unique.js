@@ -15,7 +15,8 @@ module.exports = VizView.extend({
       deps: ['orderedValues'],
       cache: false,
       fn: function() {
-        return _(this.model.values.sample(15))
+        // @hack for demo: show values across all types
+        return _(this.model.collection.parent.values.sample(15))
           .map(function(x) {
             return x.value;
           })
