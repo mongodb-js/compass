@@ -35,28 +35,62 @@ var Collection = AmpersandModel.extend({
     flags_user: 'number',
     flags_system: 'number'
   },
-  // extraProperties: 'reject',
   collections: {
-    indexes: CollectionIndexes
+    indexes: IndexCollection
   },
   derived: {
+    document_size_average: {
+      deps: ['document_size', 'document_count'],
+      fn: function() {
+        if (!this.document_size || !this.document_count) return;
+        return this.document_size / this.document_count;
+      }
+    },
+    index_size_average: {
+      deps: ['index_size', 'index_count'],
+      fn: function() {
+        if (!this.index_size || !this.index_count) return;
+        return this.index_size / this.index_count;
+      }
+    },
     name: {
       deps: ['_id'],
       fn: function() {
-        debug('%s -> %j', this._id, types.ns(this._id));
+        if (!this._id) return undefined;
         return types.ns(this._id).collection;
       }
     },
     specialish: {
-      name: {
-        deps: ['_id'],
-        fn: function() {
-          debug('%s -> %j', this._id, types.ns(this._id));
-          return types.ns(this._id).specialish;
-        }
+      deps: ['_id'],
+      fn: function() {
+        if (!this._id) return undefined;
+        return types.ns(this._id).specialish;
       }
     }
-  }
+  },
+  parse: function(d) {
+    // @todo: update scout-server to just do this.
+    if (d.index_sizes) {
+      _.each(d.indexes, function(data, name) {
+        d.indexes[name].size = d.index_sizes[name];
+      });
+    }
+    return d;
+  },
+  serialize: function() {
+    var res = this.getAttributes({
+      props: true,
+      derived: true
+    }, true);
+
+    _.each(this._children, function(value, key) {
+      res[key] = this[key].serialize();
+    }, this);
+    _.each(this._collections, function(value, key) {
+      res[key] = this[key].serialize();
+    }, this);
+    return res;
+  },
 });
 
 module.exports = Collection;
