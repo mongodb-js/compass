@@ -6,6 +6,9 @@ var ViewSwitcher = require('ampersand-view-switcher');
 var _ = require('lodash');
 
 var BasicFieldView = View.extend({
+  props: {
+    minichartModel: 'state'
+  },
   bindings: {
     'model._id': [
       {
@@ -52,6 +55,7 @@ var BasicFieldView = View.extend({
     // @todo currently only support boolean, number, date, category
     if (['objectid', 'boolean', 'number', 'date', 'string'].indexOf(type) === -1) return;
 
+    this.minichartModel = typeModel;
     var miniview = new MinichartView({
       model: typeModel,
     });
