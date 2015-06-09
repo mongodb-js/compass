@@ -14,6 +14,7 @@ module.exports = AmpersandView.extend({
     fanclubFieldMap: {
       type: 'object',
       default: function() {
+        // map each type to a field in the example schema
         return {
           'Date': 'last_login',
           'Number': 'age',
@@ -47,13 +48,13 @@ module.exports = AmpersandView.extend({
     this.model = new Schema({
       ns: 'mongodb.fanclub'
     });
+    // load example documents, eJSON-ify
     var docs = require('../fixtures/mongodb.fanclub.json')
       .map(function(d) {
         return EJSON.parse(JSON.stringify(d));
       });
 
-    debug('docs', docs);
-
+    // create stream of array elements and pipe through schema
     es.readArray(docs)
       .pipe(this.model.stream())
       .on('end', this.schemaReady.bind(this));
@@ -61,14 +62,15 @@ module.exports = AmpersandView.extend({
   schemaReady: function() {
     var that = this;
 
+    // get chart models out of the schema
     var charts = _.map(this.fanclubFieldMap, function(v, k) {
       return {
         model: that.model.fields.get(v).types.at(0),
-        type: k.toLowerCase(),
-        field: v
+        type: k.toLowerCase()
       };
     });
 
+    // render all charts into their tabs
     _.each(charts, function(chart) {
       var view = new MinichartView({
         model: chart.model
