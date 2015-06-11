@@ -5,8 +5,8 @@ var debug = require('debug')('scout-ui:home');
 var app = require('ampersand-app');
 var format = require('util').format;
 var SidebarView = require('../sidebar');
-
 var FieldListView = require('../field-list');
+var RefineBarView = require('../refine-view');
 
 require('bootstrap/js/dropdown');
 require('bootstrap/js/collapse');
@@ -26,23 +26,38 @@ var CollectionView = AmpersandView.extend({
 
     this.schema.ns = this.model._id;
     this.listenTo(this.schema, 'error', this.onError);
-    this.schema.fetch();
+    this.listenTo(app.refineQuery, 'change:query', this.onRefine);
+    this.schema.fetch(app.refineQuery.serialize());
   },
   template: require('./collection.jade'),
   onError: function(schema, err) {
     // @todo: Figure out a good way to handle this (server is probably crashed).
     console.error('Error getting schema: ', err);
   },
+  onRefine: function(evt) {
+    debug('sample refined, query is now:', JSON.stringify(app.refineQuery.serialize()));
+    this.schema.fetch(app.refineQuery.serialize());
+  },
   subviews: {
+    refinebar: {
+      hook: 'refine-bar',
+      prepareView: function(el) {
+        return new RefineBarView({
+          el: el,
+          parent: this,
+          model: app.refineQuery
+        });
+      }
+    },
     fields: {
       waitFor: 'schema.fields',
       hook: 'fields-container',
       prepareView: function(el) {
         return new FieldListView({
-            el: el,
-            parent: this,
-            collection: this.schema.fields
-          });
+          el: el,
+          parent: this,
+          collection: this.schema.fields
+        });
       }
     }
   }
@@ -76,7 +91,7 @@ module.exports = AmpersandView.extend({
       this.showCollection(current);
     });
 
-    this.listenTo(this, 'change:rendered', this.onRendered);
+    this.once('change:rendered', this.onRendered);
     this.model.fetch();
   },
   onRendered: function() {

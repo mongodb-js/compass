@@ -10,6 +10,7 @@ var domReady = require('domready');
 var ViewSwitcher = require('ampersand-view-switcher');
 var qs = require('qs');
 var Router = require('./router');
+var RefineQuery = require('./models/refine');
 
 var PageContainer = AmpersandView.extend({
   template: '<div id="application"><div class="page-container" data-hook="page-container"></div></div>',
@@ -48,12 +49,14 @@ var PageContainer = AmpersandView.extend({
 });
 
 var StatusbarView = require('./statusbar');
+
 app.extend({
   /**
    * init URL handlers and the history tracker.
    */
   router: new Router(),
   statusbar: new StatusbarView(),
+  refineQuery: new RefineQuery(),
   currentPage: null,
   init: function() {
     domReady(function() {

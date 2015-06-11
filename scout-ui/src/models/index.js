@@ -12,6 +12,7 @@ var types = brain.types;
 var _ = require('underscore');
 var es = require('event-stream');
 var Schema = require('mongodb-schema').Schema;
+var RefineQuery = require('./refine');
 
 // Yay!  Use the API from the devtools console.
 window.scout = client;
@@ -149,5 +150,6 @@ module.exports = {
     }
   }, WithScout),
   SampledDocumentCollection: SampledDocumentCollection,
-  SampledSchema: SampledSchema
+  SampledSchema: SampledSchema,
+  RefineQuery: RefineQuery
 };
