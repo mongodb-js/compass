@@ -1,14 +1,9 @@
 var AmpersandState = require('ampersand-state');
 var app = require('ampersand-app');
+var TheQueryBar = require('the-query-bar/models');
 
 module.exports = AmpersandState.extend({
   props: {
-    query: {
-      type: 'object',
-      default: function() {
-        return {};
-      }
-    },
     sort: {
       type: 'object',
       default: function() {
@@ -25,6 +20,9 @@ module.exports = AmpersandState.extend({
       type: 'number',
       default: 0
     }
+  },
+  children: {
+    query: TheQueryBar.Query
   },
   derived: {
     queryString: {

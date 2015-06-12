@@ -26,8 +26,8 @@ var CollectionView = AmpersandView.extend({
 
     this.schema.ns = this.model._id;
     this.listenTo(this.schema, 'error', this.onError);
-    this.listenTo(app.refineQuery, 'change:query', this.onRefine);
-    this.schema.fetch(app.refineQuery.serialize());
+    this.listenTo(app.queryOptions, 'change:query', this.onRefine);
+    this.schema.fetch(app.queryOptions.serialize());
   },
   template: require('./collection.jade'),
   onError: function(schema, err) {
@@ -35,8 +35,8 @@ var CollectionView = AmpersandView.extend({
     console.error('Error getting schema: ', err);
   },
   onRefine: function(evt) {
-    debug('sample refined, query is now:', JSON.stringify(app.refineQuery.serialize()));
-    this.schema.fetch(app.refineQuery.serialize());
+    debug('sample refined, query is now:', JSON.stringify(app.queryOptions.serialize()));
+    this.schema.fetch(app.queryOptions.serialize());
   },
   subviews: {
     refinebar: {
@@ -45,7 +45,7 @@ var CollectionView = AmpersandView.extend({
         return new RefineBarView({
           el: el,
           parent: this,
-          model: app.refineQuery
+          model: app.queryOptions
         });
       }
     },

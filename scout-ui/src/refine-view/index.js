@@ -55,6 +55,6 @@ module.exports = AmpersandView.extend({
     // remove current collection view?
     // app.currentPage.switcher.current.remove();
 
-    app.refineQuery.query = queryObj;
+    app.queryOptions.query = queryObj;
   }
 });

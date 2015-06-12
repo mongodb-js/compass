@@ -10,7 +10,7 @@ var domReady = require('domready');
 var ViewSwitcher = require('ampersand-view-switcher');
 var qs = require('qs');
 var Router = require('./router');
-var RefineQuery = require('./models/refine');
+var QueryOptions = require('./models/query-options');
 
 var PageContainer = AmpersandView.extend({
   template: '<div id="application"><div class="page-container" data-hook="page-container"></div></div>',
@@ -56,7 +56,7 @@ app.extend({
    */
   router: new Router(),
   statusbar: new StatusbarView(),
-  refineQuery: new RefineQuery(),
+  queryOptions: new QueryOptions(),
   currentPage: null,
   init: function() {
     domReady(function() {
@@ -101,5 +101,8 @@ app.extend({
     return origin + '/#' + this._toHash(fragment);
   }
 });
+
+// for debugging purposes
+window.app = app;
 
 module.exports = app.init();
