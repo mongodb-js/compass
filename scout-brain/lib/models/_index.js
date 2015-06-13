@@ -1,5 +1,18 @@
-// @todo: When schema for Index finalized in server,
-// make them real props here.
 module.exports = require('ampersand-model').extend({
-  extraProperties: 'allow'
+  idAttribute: '_id',
+  props: {
+    key: 'object',
+    name: 'string',
+    ns: 'string',
+    v: 'number',
+    size: 'number'
+  },
+  derived: {
+    _id: {
+      deps: ['name', 'ns'],
+      fn: function() {
+        return this.ns + '.' + this.name;
+      }
+    }
+  }
 });

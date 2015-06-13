@@ -44,6 +44,13 @@ var SampledSchema = Schema.extend({
     wrapError(this, options);
 
     var model = this;
+    var collection;
+    if (this.parent && this.parent.model && this.parent.model.documents) {
+      collection = this.parent.model.documents;
+      collection.reset();
+    }
+
+
     window.schema = this;
     window.data = [];
     var parser = this.stream()
@@ -52,6 +59,9 @@ var SampledSchema = Schema.extend({
       })
       .on('data', function(doc) {
         window.data.push(doc);
+        if (collection) {
+          collection.add(doc);
+        }
       })
       .on('end', function() {
         process.nextTick(function() {
@@ -127,8 +137,11 @@ var Collection = core.Collection.extend({
         }
       }
     }
+  },
+  scout: function() {
+    return client.collection.bind(client, this.getId());
   }
-});
+}, WithScout);
 
 module.exports = {
   types: brain.types,
@@ -138,6 +151,7 @@ module.exports = {
       collections: core.CollectionCollection.extend(WithSelectable, {
         model: Collection,
         parse: function(res) {
+          // Hide specialish namespaces (eg `local.*`, `*oplog*`) from sidebar.
           return res.filter(function(d) {
             return !types.ns(d._id).specialish;
           });
