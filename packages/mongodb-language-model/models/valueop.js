@@ -48,10 +48,6 @@ var ValueOperator = module.exports = Operator.extend({
     }
   },
   initialize: function(attrs, options) {
-    // pass down schema
-    this.listenTo(this, 'change:schema', this.schemaChanged);
-    this.schema = options ? options.schema : null;
-
     // bubble up buffer change events
     this.listenTo(this.value, 'change:buffer', this.bufferChanged);
   },
@@ -71,8 +67,5 @@ var ValueOperator = module.exports = Operator.extend({
   },
   serialize: function() {
     return this.buffer;
-  },
-  schemaChanged: function() {
-    this.value.schema = this.schema;
   }
 });

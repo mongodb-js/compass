@@ -68,16 +68,11 @@ var OperatorObject = module.exports = Value.extend({
       deps: ['operators'],
       cache: false,
       fn: function() {
-        return this.operators.all(function(op) {
+        return this.operators.every(function(op) {
           return op.valid;
         });
       }
     }
-  },
-  initialize: function(attrs, options) {
-    // pass down schema
-    this.listenTo(this, 'change:schema', this.schemaChanged);
-    this.schema = options ? options.schema : null;
   },
   parse: function(attrs, options) {
     // turn {$gt: 5, $lt: 9} into [ {$gt: 5}, {$lt: 9} ]
@@ -91,10 +86,5 @@ var OperatorObject = module.exports = Value.extend({
   },
   serialize: function() {
     return this.buffer;
-  },
-  schemaChanged: function() {
-    this.operators.forEach(function(operator) {
-      operator.schema = this.schema;
-    }.bind(this));
   }
 });

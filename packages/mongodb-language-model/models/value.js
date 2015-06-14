@@ -1,5 +1,4 @@
-var Base = require('./base'),
-    debug = require('debug')('models:value');
+var Base = require('./base');
 
 /**
  * Value is the common class for all possible values, including LeafValue and Operator.
@@ -9,7 +8,7 @@ var Value = module.exports = Base.extend({
   session: {
     className: {
       type: 'string',
-      default: 'Value'   
+      default: 'Value'
     }
   }
 });
