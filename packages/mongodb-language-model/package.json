@@ -18,10 +18,17 @@
   "scripts": {
     "test": "mocha"
   },
-  "precommit": ["test"],
+  "precommit": [
+    "test"
+  ],
   "main": "index.js",
   "dependencies": {
-
+    "ampersand-collection": "^1.3.17",
+    "ampersand-collection-lodash-mixin": "^2.0.1",
+    "ampersand-model": "^4.0.3",
+    "ampersand-state": "^4.4.1",
+    "debug": "^2.2.0",
+    "lodash": "^3.0.1"
   },
   "devDependencies": {
     "mocha": "^2.1.0",

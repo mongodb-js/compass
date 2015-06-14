@@ -1,0 +1,117 @@
+var Clause = require('./clause');
+Key = require('./key'),
+LeafValue = require('./leafvalue'),
+OperatorObject = require('./opobject'),
+ListOperator = require('./listop'),
+ValueOperator = require('./valueop'),
+Schema = require('./schema'),
+_ = require('lodash'),
+debug = require('debug')('models:clause');
+
+/**
+ * LeafClause describes a single clause ( e.g. `{age: 31}` ) of the query. It has a key and value
+ * model and passes changes to its sub-buffers up to the top.
+ * @type {Clause}
+ *
+ * @property {boolean} valid   (derived) is true if both key and value are valid.
+ * @property {any} buffer      (derived) a simple object with key and value.
+ */
+var LeafClause = module.exports = Clause.extend({
+  props: {
+    value: {
+      type: 'any',
+      default: null
+    }
+  },
+  session: {
+    className: {
+      type: 'string',
+      default: 'LeafClause'
+    }
+  },
+  children: {
+    key: Key
+  },
+  derived: {
+    valid: {
+      cache: false,
+      deps: ['key', 'value'],
+      fn: function() {
+        return this.key && this.value && this.key.valid && this.value.valid;
+      }
+    },
+    buffer: {
+      cache: false,
+      deps: ['key', 'value'],
+      fn: function() {
+        if (!this.valid) {
+          return null;
+        }
+        var doc = {};
+        doc[this.key.buffer] = this.value.buffer;
+        return doc;
+      }
+    }
+  },
+  _initializeValue: function(obj, options) {
+    options = _.assign(options, {
+      parse: true,
+      parent: this
+    });
+
+    if (typeof obj === 'object') {
+      var keys = _.keys(obj);
+      if (_.some(keys, function(key) {
+          return key.indexOf('$') === 0;
+        })) {
+        // object has key(s) starting with $, it's not a leaf object
+        return new OperatorObject(obj, options);
+      }
+    }
+    return new LeafValue(obj, options);
+  },
+  initialize: function(attrs, options) {
+    // initialize value manually (since it is polymorphic)
+    if (attrs) {
+      this.value = this._initializeValue(attrs.value, options);
+    } else {
+      // if no attrs given use a null LeafValue as placeholder
+      options = _.assign(options, {
+        parse: true,
+        parent: this
+      });
+      this.value = new LeafValue(null, options);
+    }
+
+    // pass down schema
+    this.listenTo(this, 'change:schema', this.schemaChanged);
+    this.schema = options ? options.schema : null;
+
+    // bubble up buffer change events
+    this.listenTo(this.key, 'change:buffer', this.bufferChanged);
+    this.listenTo(this.value, 'change:buffer', this.bufferChanged);
+
+    // listen to new value
+    this.listenTo(this, 'change:value', function(self, val, options) {
+      this.stopListening(this.previousAttributes().value);
+      this.listenTo(val, 'change:buffer', this.bufferChanged);
+    });
+  },
+  parse: function(attrs, options) {
+    var key = _.keys(attrs)[0];
+    var value = attrs[key];
+    return {
+      key: {
+        content: key
+      },
+      value: value
+    };
+  },
+  serialize: function() {
+    return this.buffer;
+  },
+  schemaChanged: function() {
+    this.key.schema = this.schema;
+    this.value.schema = this.schema;
+  }
+});
