@@ -1,5 +1,6 @@
 module.exports = {
   definitions: require('./definitions'),
+  helpers: require('./helpers'),
   ChildCollection: require('./childcollection'),
   Base: require('./base'),
   Query: require('./query'),
