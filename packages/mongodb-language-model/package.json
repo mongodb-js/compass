@@ -1,0 +1,40 @@
+{
+  "name": "ampersand-mongodb-language-model",
+  "description": "Parses MongoDB query language and creates a hierarchical Ampersand.js model for each of the language components.",
+  "author": "Thomas Rueckstiess <thomas@mongodb.com>",
+  "version": "0.0.0",
+  "bugs": "https://github.com/mongodb-js/ampersand-mongodb-language-model/issues",
+  "homepage": "https://github.com/mongodb-js/ampersand-mongodb-language-model",
+  "repository": "git://github.com/mongodb-js/ampersand-mongodb-language-model.git",
+  "license": "MIT",
+  "keywords": [
+    "mongodb-js",
+    "ampersand"
+  ],
+  "scripts": {
+    "test-ci": "zuul -- test/index.test.js",
+    "start": "zuul --local 3001 --open -- test/index.test.js",
+    "test": "zuul --phantom -- /test/index.test.js",
+    "lint": "jshint",
+    "format": "jsfmt",
+    "check-missing": "dependency-check ./ --missing",
+    "check-unused": "dependency-check ./ --unused"
+  },
+  "precommit": ["format", "lint", "check-unused", "check-missing", "test"],
+  "main": "ampersand-mongodb-language-model.js",
+  "dependencies": {
+
+  },
+  "devDependencies": {
+    "dependency-check": "^2.2.2",
+    "esformatter-braces": "^1.0.0",
+    "esformatter-quotes": "^1.0.0",
+    "esformatter-semicolons": "^1.0.3",
+    "jsfmt": "^0.4.1",
+    "jshint": "^2.6.3",
+    "mocha": "^2.1.0",
+    "phantomjs": "^1.9.15",
+    "precommit-hook": "^1.0.7",
+    "zuul": "^1.19.0"
+  }
+}
