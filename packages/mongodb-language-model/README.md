@@ -2,7 +2,7 @@
 
 [![build status](https://secure.travis-ci.org/mongodb-js/mongodb-language-model.png)](http://travis-ci.org/mongodb-js/mongodb-language-model)
 
-Parses a MongoDB query and creates hierarchical Ampersand.js models for each of the language components, which can then be interacted with programmatically. 
+Parses a MongoDB query and creates hierarchical [Ampersand.js](http://ampersandjs.com/) models for each of the language components, which can then be interacted with programmatically. 
 
 ## UML diagram
 
