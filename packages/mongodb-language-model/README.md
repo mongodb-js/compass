@@ -17,7 +17,10 @@ var Query = require('mongodb-language-model').Query;
 var assert = require('assert');
 
 // you need to specify `{parse: true}` if a raw javascript object is provided
-var query = new Query({"foo": 12345, "$and": [ {bar: false}, {baz: "hello"} ] }, {parse: true});
+var query = new Query(
+    {"foo": 12345, "$and": [ {bar: false}, {baz: "hello"} ] }, 
+    {parse: true}
+);
 
 // two top-level clauses
 assert.equal(query.clauses.length, 2);
