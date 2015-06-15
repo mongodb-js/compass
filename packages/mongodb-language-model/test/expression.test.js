@@ -153,4 +153,21 @@ describe('Expression', function() {
   it('should have the correct className property', function() {
     assert.equal(expr.className, 'Expression');
   });
+
+  it('should allow access to clauses via their idAttribute (id)', function() {
+    var input = {
+      'myfield': 13,
+      '$and': [{
+        foo: 1
+      }, {
+        bar: 1
+      }]
+    };
+    expr = new models.Expression(input, {
+      parse: true
+    });
+
+    assert.equal(expr.clauses.get('myfield').className, 'LeafClause');
+    assert.equal(expr.clauses.get('$and').className, 'ExpressionTree');
+  });
 });

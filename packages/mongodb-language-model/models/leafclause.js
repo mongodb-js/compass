@@ -17,6 +17,7 @@ debug = require('debug')('models:clause');
  * @property {any} buffer      (derived) a simple object with key and value.
  */
 var LeafClause = module.exports = Clause.extend({
+  idAttribute: 'id',
   props: {
     value: {
       type: 'any',
@@ -38,6 +39,12 @@ var LeafClause = module.exports = Clause.extend({
       deps: ['key', 'value'],
       fn: function() {
         return this.key && this.value && this.key.valid && this.value.valid;
+      }
+    },
+    id: {
+      deps: ['key'],
+      fn: function() {
+        return this.key ? this.key.buffer : '';
       }
     },
     buffer: {

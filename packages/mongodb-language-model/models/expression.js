@@ -28,6 +28,7 @@ var ExpressionCollection = ChildCollection.extend({
  * @type {ChildCollection}
  */
 var ClauseCollection = ChildCollection.extend({
+  mainIndex: 'id',
   model: function(attrs, options) {
     if (definitions.treeOperators.indexOf(_.keys(attrs)[0]) !== -1) { // $and, $or, $nor
       return new ExpressionTree(attrs, options);
@@ -48,11 +49,12 @@ var ClauseCollection = ChildCollection.extend({
  * @type {Clause}
  */
 var ExpressionTree = module.exports.ExpressionTree = Clause.extend({
+  idAttribute: 'id',
   props: {
     operator: {
       type: 'string',
       required: true,
-      values: ['$and', '$or', '$nor']
+      values: definitions.treeOperators
     }
   },
   session: {
@@ -62,6 +64,12 @@ var ExpressionTree = module.exports.ExpressionTree = Clause.extend({
     }
   },
   derived: {
+    id: {
+      deps: ['operator'],
+      fn: function() {
+        return this.operator;
+      }
+    },
     buffer: {
       deps: ['expressions', 'operator'],
       cache: false,

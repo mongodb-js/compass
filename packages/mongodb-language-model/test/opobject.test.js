@@ -136,4 +136,17 @@ describe('OperatorObject', function() {
       parse: true
     }));
   });
+
+  it('should allow access to operators via their operators property', function() {
+    opob = new models.OperatorObject({
+      $gt: 5,
+      $in: ['foo', 'bar']
+    }, {
+      parse: true
+    });
+
+    assert.equal(opob.operators.get('$in').operator, '$in');
+    assert.equal(opob.operators.get('$gt').operator, '$gt');
+    assert.equal(opob.operators.get('$foo'), undefined);
+  });
 });

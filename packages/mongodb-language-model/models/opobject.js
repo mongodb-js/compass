@@ -9,6 +9,7 @@ var Operator = require('./operator'),
  * @type {AmpersandCollection}
  */
 var OperatorCollection = ChildCollection.extend({
+  mainIndex: 'operator',
   model: function(attrs, options) {
     var key = _.keys(attrs)[0];
     var value = attrs[key];
