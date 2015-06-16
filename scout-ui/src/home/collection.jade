@@ -1,11 +1,10 @@
-.panel-group
-  .panel
-    .panel-heading
-      h3(data-hook='name')
-      div(data-hook='stats-subview')
-    .panel-body.collection-wrapper
-      .side-container
-        div(data-hook='documents-subview')
-      .main-container
-        div(data-hook='fields-subview')
+.collection-view
+  .header
+    h3(data-hook='name')
+    div(data-hook='stats-subview')
+  .column-container
+    .column.main
+      div(data-hook='fields-subview')
+    .column.side
+      div(data-hook='documents-subview')
 

@@ -9,6 +9,7 @@ var debug = require('debug')('scout-ui:home:collection');
 
 
 module.exports = AmpersandView.extend({
+  template: require('./collection.jade'),
   props: {
     sidebarWidth: {
       type: 'number',
@@ -47,7 +48,6 @@ module.exports = AmpersandView.extend({
     this.schema.fetch();
     this.model.fetch();
   },
-  template: require('./collection.jade'),
   onError: function(schema, err) {
     // @todo: Figure out a good way to handle this (server is probably crashed).
     console.error('Error getting schema: ', err);
