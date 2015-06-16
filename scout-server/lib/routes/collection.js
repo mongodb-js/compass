@@ -24,18 +24,21 @@ function getCollectionFeatures(req, fn) {
   req.db.command({
     collStats: req.ns.collection
   }, {
-    verbose: 1
-  }, function(err, data) {
-    if (err) return fn(err);
+      verbose: 1
+    }, function(err, data) {
+      if (err) return fn(err);
 
-    req.collection_features = {
-      capped: data.capped,
-      max: data.max,
-      size: data.size,
-      power_of_two: data.userFlags === 1
-    };
-    fn(null, req.collection_features);
-  });
+      req.collection_features = {
+        capped: data.capped,
+        max_document_count: data.max,
+        max_document_size: data.maxSize,
+        size: data.size,
+        power_of_two: data.userFlags === 1,
+        index_details: data.indexDetails || {},
+        wired_tiger: data.wiredTiger || {}
+      };
+      fn(null, req.collection_features);
+    });
 }
 
 function getCollectionStats(req, fn) {
@@ -47,33 +50,29 @@ function getCollectionStats(req, fn) {
   req.db.command({
     collStats: req.ns.collection
   }, {
-    verbose: 1
-  }, function(err, data) {
-    if (err) return fn(err);
+      verbose: 1
+    }, function(err, data) {
+      if (err) return fn(err);
 
-    req.collection_stats = {
-      index_sizes: data.indexSizes,
-      document_count: data.count,
-      document_size: data.size,
-      storage_size: data.storageSize,
-      index_count: data.nindexes,
-      index_size: data.totalIndexSize,
-      padding_factor: data.paddingFactor,
-      extent_count: data.numExtents,
-      extent_last_size: data.lastExtentSize,
-      flags_user: data.userFlags,
-      flags_system: data.systemFlags
-    };
-    fn(null, req.collection_stats);
-  });
+      req.collection_stats = {
+        index_sizes: data.indexSizes,
+        document_count: data.count,
+        document_size: data.size,
+        storage_size: data.storageSize,
+        index_count: data.nindexes,
+        index_size: data.totalIndexSize,
+        padding_factor: data.paddingFactor,
+        extent_count: data.numExtents,
+        extent_last_size: data.lastExtentSize,
+        flags_user: data.userFlags,
+        flags_system: data.systemFlags
+      };
+      fn(null, req.collection_stats);
+    });
 }
 
 function getCollectionIndexes(req, fn) {
-  req.db.collection('system.indexes')
-  .find({
-    ns: req.ns.toString()
-  })
-  .toArray(fn);
+  req.db.collection(req.ns.collection).listIndexes().toArray(fn);
 }
 
 // @todo: Move to scount-sync.collection.fetch().
@@ -128,14 +127,14 @@ module.exports = {
       query: req.json('query'),
       size: req.int('size', 5)
     })
-    .pipe(_idToDocument(req.db, req.ns.collection, {
-      fields: req.json('fields')
-    }))
-    .pipe(EJSON.createStringifyStream())
-    .pipe(setHeaders(req, res, {
-      'content-type': 'application/json'
-    }))
-    .pipe(res);
+      .pipe(_idToDocument(req.db, req.ns.collection, {
+        fields: req.json('fields')
+      }))
+      .pipe(EJSON.createStringifyStream())
+      .pipe(setHeaders(req, res, {
+        'content-type': 'application/json'
+      }))
+      .pipe(res);
 
   },
   bulk: function(req, res, next) {

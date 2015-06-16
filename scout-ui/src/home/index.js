@@ -5,7 +5,7 @@ var debug = require('debug')('scout-ui:home');
 var app = require('ampersand-app');
 var format = require('util').format;
 var SidebarView = require('../sidebar');
-
+var CollectionStatsView = require('../collection-stats');
 var FieldListView = require('../field-list');
 
 require('bootstrap/js/dropdown');
@@ -27,6 +27,7 @@ var CollectionView = AmpersandView.extend({
     this.schema.ns = this.model._id;
     this.listenTo(this.schema, 'error', this.onError);
     this.schema.fetch();
+    this.model.fetch();
   },
   template: require('./collection.jade'),
   onError: function(schema, err) {
@@ -34,6 +35,16 @@ var CollectionView = AmpersandView.extend({
     console.error('Error getting schema: ', err);
   },
   subviews: {
+    stats: {
+      hook: 'stats-container',
+      prepareView: function(el) {
+        return new CollectionStatsView({
+            el: el,
+            parent: this,
+            model: this.model
+          });
+      }
+    },
     fields: {
       waitFor: 'schema.fields',
       hook: 'fields-container',
