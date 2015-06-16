@@ -2,6 +2,10 @@
   .panel
     .panel-heading
       h3(data-hook='name')
-      div(data-hook='stats-container')
-    .panel-body
-      div(data-hook='fields-container')
+      div(data-hook='stats-subview')
+    .panel-body.collection-wrapper
+      .side-container
+        div(data-hook='documents-subview')
+      .main-container
+        div(data-hook='fields-subview')
+

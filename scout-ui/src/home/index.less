@@ -53,6 +53,26 @@
   border-bottom: @caret-width-base solid transparent;
 }
 
+.collection-wrapper {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+
+  .main-container {
+    overflow-y: auto;
+    margin-right: 350px;
+    height: 500px;
+  }
+
+  .side-container {
+    overflow-y: auto;
+    float: right;
+    width: 350px;
+    height: 500px;
+
+  }
+}
+
 .schema-field-list {
   // .list-group;
 
