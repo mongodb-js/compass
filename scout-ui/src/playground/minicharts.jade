@@ -1,0 +1,13 @@
+div(role='tabpanel')
+  ul.nav.nav-tabs(role='tablist')
+    each tab,index in tabs
+      - cls = (index === 0) ? 'active' : ''
+      li(class='#{cls}')
+        a(data-target='##{tab}', aria-controls='{#tab}', role='tab', data-toggle='tab')= capitalTabs[index]
+
+  .tab-content
+    each tab,index in tabs
+      - cls = (index === 0) ? 'active' : ''
+      div(id='#{tab}', class='tab-pane #{cls}', role='tabpanel')
+        div(data-hook='#{tab}-minichart')
+
