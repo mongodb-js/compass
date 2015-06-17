@@ -20,9 +20,9 @@ module.exports = AmpersandView.extend({
       // red input border while query is invalid
       {
         type: 'booleanClass',
-        hook: 'refine-input',
-        yes: 'valid',
-        no: 'invalid'
+        hook: 'refine-input-group',
+        yes: '',
+        no: 'has-error'
       },
       // disable button while query is invalid
       {
