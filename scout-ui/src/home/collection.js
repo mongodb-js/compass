@@ -19,7 +19,7 @@ module.exports = AmpersandView.extend({
     sidebarWidth: {
       deps: ['open'],
       fn: function() {
-        return this.open ? 350 : 0;
+        return this.open ? 400 : 0;
       }
     }
   },
