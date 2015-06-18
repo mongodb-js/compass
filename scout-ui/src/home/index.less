@@ -5,7 +5,6 @@
   width: 100%;
 }
 
-
 .badge {
   border: 1px solid @gray-lighter;
 }
@@ -53,157 +52,49 @@
   border-bottom: @caret-width-base solid transparent;
 }
 
-.schema-field-list {
-  // .list-group;
+.collection-view {
 
-  .schema-field {
-    // .list-group-item;
-    // padding: 12px 0;
-    margin: 12px 0;
-
-    hr.field-divider {
-      margin-bottom: 12px;
-      border-top: 1px solid @gray6;  // @worldhack: was @gray7
-    }
-
-    .schema-field-list {
-      // second level
-      .schema-field-name,
-      .schema-field-type-list,
-      hr.field-divider {
-        margin-left: 48px;
-      }
-
-      .schema-field-list {
-        // third level
-        .schema-field-name,
-        .schema-field-type-list,
-        hr.field-divider {
-          margin-left: 96px;
-        }
-
-        .schema-field-list {
-          // fourth level
-          .schema-field-name,
-          .schema-field-type-list,
-          hr.field-divider {
-            margin-left: 144px;
-          }
-        }
-      }
-    }
-
-    .schema-field-name {
-      font-size: 16px;
-      font-weight: bold;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      display: inline-block;
-    }
-
-    &.schema-field-basic {
-      // min-height: 141px;
-      margin: 24px 0;
-    }
-
-    &.schema-field-object, &.schema-field-array {
-      .schema-field-name {
-        cursor: pointer;
-      }
-    }
-    &.expanded {
-      .caret {
-        .caret-down;
-        margin-right: 6px;
-      }
-      > .schema-field-list {
-        display: block;
-      }
-    }
-    &.collapsed {
-      .caret {
-        .caret-right;
-        margin-right: 10px;
-      }
-
-      > .schema-field-list {
-        display: none;
-      }
-    }
+  .header {
+    padding-left: 20px;
+    display: flex;
+    position: relative;
+    z-index: 10;
+    height: 100px;
   }
 
-}
-.schema-field-type-list {
-  border-radius: 1px;
-  // background: @gray6;
-
-  .schema-field-wrapper {
-    float: left;
+  .column-container {
+    padding-right: 20px;
+    display: flex;
     overflow: hidden;
-    cursor: pointer;
+    height: 100vh;
+    margin-top: -100px;
+    padding-top: 100px;
+    position: relative;
+    width: 100%;
   }
 
-  .schema-field-type {
-    height: 5px;
-    margin-right: 2px;
-    background: @gray1;
+  .column {
+    overflow: auto;
+    height: auto;
+    padding: .5rem;
+    -webkit-overflow-scrolling: touch;
+    -ms-overflow-style: none;
+    position: relative;
   }
 
-  .schema-field-type-label {
+  .main {
+    flex: 1;
+  }
+
+  .side {
+    width: 350px;
+    font-family: @font-family-monospace;
     font-size: 11px;
-    text-transform: lowercase;
   }
 
-  .schema-field-type-undefined > .schema-field-type {
-    background: white;
-    border: 1px solid @gray5;
-  }
-
-  // .schema-field-type-null {
-  //   background: @series-bg-1;
-  // }
-  // .schema-field-type-number {
-  //   background: @series-bg-2;
-  // }
-  // .schema-field-type-long {
-  //   background: @series-bg-3;
-  // }
-  // .schema-field-type-string {
-  //   background: @series-bg-4;
-  // }
-  // .schema-field-type-boolean {
-  //   background: @series-bg-5;
-  // }
-  // .schema-field-type-undefined {
-  //   background: @series-bg-6;
-  // }
-  // .schema-field-type-date {
-  //   background: @series-bg-7;
-  // }
-  // .schema-field-type-objectid {
-  //   background: @series-bg-8;
-  // }
-  // .schema-field-type-array {
-  //   background: @series-bg-1;
-  // }
-  // .schema-field-type-object {
-  //   background: @series-bg-1;
-  // }
-}
-
-.schema-value-list {
-  .small;
-  .list-unstyled;
-
-  .schema-value-list-item {
-    .badge;
-    display: inline-block;
-    margin-left: 5px;
-    margin-right: 5px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: 100%;
+  .splitter {
+    width: 20px;
+    height: 20px;
   }
 }
+

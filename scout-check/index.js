@@ -73,6 +73,7 @@ module.exports = function(gulp, src) {
 
 
   // @todo: npm-check-updates
+  // @todo: https://www.npmjs.com/package/nsp-gulp
   gulp.task('check', ['format', 'lint', 'check dependencies']);
 };
 

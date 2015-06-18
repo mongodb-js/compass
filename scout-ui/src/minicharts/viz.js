@@ -33,13 +33,11 @@ module.exports = AmpersandView.extend({
   },
 
   bindings: {
-    'width': [
-      {
-        type: 'attribute',
-        name: 'width',
-        hook: 'viz-container'
-      }
-    ],
+    'width': {
+      type: 'attribute',
+      name: 'width',
+      hook: 'viz-container'
+    },
     'height': {
       type: 'attribute',
       name: 'height',
