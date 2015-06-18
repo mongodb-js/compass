@@ -2,6 +2,7 @@ var AmpersandView = require('ampersand-view');
 var debug = require('debug')('scout-ui:refine-view:index');
 var $ = require('jquery');
 var app = require('ampersand-app');
+var EJSON = require('mongodb-extended-json');
 
 module.exports = AmpersandView.extend({
   template: require('./index.jade'),
@@ -41,7 +42,7 @@ module.exports = AmpersandView.extend({
     // validate user input on the fly
     var queryStr = $(this.queryByHook('refine-input')).val();
     try {
-      JSON.parse(queryStr);
+      EJSON.parse(queryStr);
     } catch (e) {
       this.valid = false;
       return;
@@ -50,11 +51,10 @@ module.exports = AmpersandView.extend({
   },
   buttonClicked: function(evt) {
     var queryStr = $(this.queryByHook('refine-input')).val();
-    // make sure it's a valid query (@todo use EJSON)
-    var queryObj = JSON.parse(queryStr);
-    // remove current collection view?
-    // app.currentPage.switcher.current.remove();
-
+    var queryObj = EJSON.parse(queryStr);
     app.queryOptions.query = queryObj;
+
+    // Modifying the query will reset field-list#schema and because we're using
+    // good ampersand, outgoing views will be removed for us automatically.
   }
 });
