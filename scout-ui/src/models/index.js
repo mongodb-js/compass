@@ -89,14 +89,24 @@ var SampledSchema = Schema.extend({
     var model = this;
     window.schema = this;
 
+    /**
+     * Collection of sampled documents someone else wants to keep track of.
+     *
+     * {@see scout-ui/src/home/collection.js#model}
+     * @todo (imlucas): Yes this is a crappy hack.
+     */
+    var documents;
+    if (this.parent && this.parent.model && this.parent.model.documents) {
+      documents = this.parent.model.documents;
+    }
+
     var parser = this.stream()
       .on('error', function(err) {
         options.error(err, 'error', err.message);
       })
       .on('data', function(doc) {
-        window.data.push(doc);
-        if (collection) {
-          collection.add(doc);
+        if (documents) {
+          documents.add(doc);
         }
       })
       .on('end', function() {
