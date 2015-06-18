@@ -5,59 +5,10 @@ var debug = require('debug')('scout-ui:home');
 var app = require('ampersand-app');
 var format = require('util').format;
 var SidebarView = require('../sidebar');
-var CollectionStatsView = require('../collection-stats');
-var FieldListView = require('../field-list');
+var CollectionView = require('./collection');
 
 require('bootstrap/js/dropdown');
 require('bootstrap/js/collapse');
-
-var CollectionView = AmpersandView.extend({
-  bindings: {
-    'model._id': {
-      hook: 'name'
-    }
-  },
-  children: {
-    model: models.Collection,
-    schema: models.SampledSchema
-  },
-  initialize: function() {
-    app.statusbar.watch(this, this.schema);
-
-    this.schema.ns = this.model._id;
-    this.listenTo(this.schema, 'error', this.onError);
-    this.schema.fetch();
-    this.model.fetch();
-  },
-  template: require('./collection.jade'),
-  onError: function(schema, err) {
-    // @todo: Figure out a good way to handle this (server is probably crashed).
-    console.error('Error getting schema: ', err);
-  },
-  subviews: {
-    stats: {
-      hook: 'stats-container',
-      prepareView: function(el) {
-        return new CollectionStatsView({
-            el: el,
-            parent: this,
-            model: this.model
-          });
-      }
-    },
-    fields: {
-      waitFor: 'schema.fields',
-      hook: 'fields-container',
-      prepareView: function(el) {
-        return new FieldListView({
-            el: el,
-            parent: this,
-            collection: this.schema.fields
-          });
-      }
-    }
-  }
-});
 
 module.exports = AmpersandView.extend({
   children: {

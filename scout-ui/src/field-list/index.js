@@ -117,7 +117,7 @@ var FieldListView = View.extend({
   collections: {
     collection: FieldCollection
   },
-  template: '<div class="schema-field-list" data-hook="fields"></ul>',
+  template: require('./index.jade'),
   render: function() {
     this.renderWithTemplate();
     this.renderCollection(this.collection, function(options) {
