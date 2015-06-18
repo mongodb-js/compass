@@ -1,0 +1,20 @@
+div.jsmember
+  if (model.value.className === 'JSPrimitiveValue')
+    span
+      span.caret-placeholder
+      span.key(data-hook='key')
+  else
+    span.clickable(class='key-#{cid}')
+      span.caret-placeholder
+        .caret
+      span.key(data-hook='key')
+  | :
+  if (model.value.className === 'JSPrimitiveValue')
+    span.value
+      span(data-hook='value-subview')
+  else
+    span.value.type= (model.value.className === 'JSArray') ? 'Array[' + model.value.values.length + ']' : 'Object'
+    div(class='expandable-container')
+      div(data-hook='value-subview')
+
+
