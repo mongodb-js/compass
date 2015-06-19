@@ -55,7 +55,7 @@ module.exports = AmpersandView.extend({
     this.listenTo(app.queryOptions, 'change', this.onQueryChanged);
   },
   onQueryChanged: function() {
-    schema.fetch(app.queryOptions.serialize());
+    this.schema.refine(app.queryOptions.serialize());
   },
   onSplitterClick: function() {
     this.toggle('open');
@@ -86,7 +86,7 @@ module.exports = AmpersandView.extend({
           });
       }
     },
-    fields: {
+    refinebar: {
       hook: 'refine-bar',
       prepareView: function(el) {
         return new RefineBarView({

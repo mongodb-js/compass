@@ -36,7 +36,8 @@ module.exports = AmpersandView.extend({
   },
   events: {
     'click [data-hook=refine-button]': 'buttonClicked',
-    'input [data-hook=refine-input]': 'inputChanged'
+    'input [data-hook=refine-input]': 'inputChanged',
+    'submit form': 'submit',
   },
   inputChanged: function(evt) {
     // validate user input on the fly
@@ -56,5 +57,9 @@ module.exports = AmpersandView.extend({
 
     // Modifying the query will reset field-list#schema and because we're using
     // good ampersand, outgoing views will be removed for us automatically.
+  },
+  submit: function (evt) {
+    evt.preventDefault();
+    this.buttonClicked();
   }
 });
