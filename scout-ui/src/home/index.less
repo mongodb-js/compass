@@ -54,12 +54,14 @@
 
 .collection-view {
 
+  @header-height: 120px;
+
   .header {
     padding-left: 20px;
     display: flex;
     position: relative;
     z-index: 10;
-    height: 100px;
+    height: @header-height;
   }
 
   .column-container {
@@ -67,8 +69,8 @@
     display: flex;
     overflow: hidden;
     height: 100vh;
-    margin-top: -100px;
-    padding-top: 100px;
+    margin-top: -@header-height;
+    padding-top: @header-height;
     position: relative;
     width: 100%;
   }

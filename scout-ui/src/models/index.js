@@ -12,13 +12,10 @@ var types = brain.types;
 var _ = require('underscore');
 var es = require('event-stream');
 var Schema = require('mongodb-schema').Schema;
+var QueryOptions = require('./query-options');
 
 // Yay!  Use the API from the devtools console.
 window.scout = client;
-
-// Handy debugging! Just type `data` in the devtools console to see the array
-// of documents currently in the schema.
-window.data = [];
 
 // The currently active schema.
 window.schema = null;
@@ -34,6 +31,52 @@ client.on('error', function(err) {
 });
 
 var SampledSchema = Schema.extend({
+  /**
+   * Clear any data accumulated from sampling.
+   */
+  reset: function(options) {
+    this.fields.reset();
+    if (this.parent && this.parent.model && this.parent.model.documents) {
+      this.parent.model.documents.reset();
+    }
+  },
+  /**
+   * After you fetch an initial sample, next you'll want to drill-down to a
+   * smaller slice or drill back up to look at a larger slice.
+   *
+   * @example
+   * schema.fetch({});
+   * schema.refine({a: 1});
+   * schema.refine({a: 1, b: 1});
+   * schema.refine({a: 2});
+   */
+  refine: function(options) {
+    this.reset();
+    this.fetch(options);
+  },
+  /**
+   * Take another sample on top of what you currently have.
+   *
+   * @example
+   * schema.fetch({limit: 100});
+   * // schema.documents.length is now 100
+   * schema.more({limit: 100});
+   * // schema.documents.length is now 200
+   * schema.more({limit: 10});
+   * // schema.documents.length is now 210
+   */
+  more: function(options) {
+    this.fetch(options);
+  },
+  /**
+   * Get a sample of documents for a collection from the server.
+   * Really this should only be called directly from the `initialize` function
+   *
+   * @param {Object} [options]
+   * @option {Number} [size=100] Number of documents the sample should contain.
+   * @option {Object} [query={}]
+   * @option {Object} [fields=null]
+   */
   fetch: function(options) {
     options = _.defaults((options || {}), {
       size: 100,
@@ -44,37 +87,36 @@ var SampledSchema = Schema.extend({
     wrapError(this, options);
 
     var model = this;
-    var collection;
+    window.schema = this;
+
+    /**
+     * Collection of sampled documents someone else wants to keep track of.
+     *
+     * {@see scout-ui/src/home/collection.js#model}
+     * @todo (imlucas): Yes this is a crappy hack.
+     */
+    var documents;
     if (this.parent && this.parent.model && this.parent.model.documents) {
-      collection = this.parent.model.documents;
-      collection.reset();
+      documents = this.parent.model.documents;
     }
 
-
-    window.schema = this;
-    window.data = [];
     var parser = this.stream()
       .on('error', function(err) {
         options.error(err, 'error', err.message);
       })
       .on('data', function(doc) {
-        window.data.push(doc);
-        if (collection) {
-          collection.add(doc);
+        if (documents) {
+          documents.add(doc);
         }
       })
       .on('end', function() {
-        process.nextTick(function() {
-          model.trigger('sync', model, model.serialize(), options);
-        });
+        model.trigger('sync', model, model.serialize(), options);
       });
 
     model.trigger('request', model, {}, options);
-    process.nextTick(function() {
-      client.sample(model.ns, options)
-        .on('error', parser.emit.bind(parser, 'error'))
-        .pipe(parser);
-    });
+    client.sample(model.ns, options)
+      .on('error', parser.emit.bind(parser, 'error'))
+      .pipe(parser);
   }
 });
 
@@ -163,5 +205,6 @@ module.exports = {
     }
   }, WithScout),
   SampledDocumentCollection: SampledDocumentCollection,
-  SampledSchema: SampledSchema
+  SampledSchema: SampledSchema,
+  QueryOptions: QueryOptions
 };

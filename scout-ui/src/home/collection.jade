@@ -1,7 +1,13 @@
 .collection-view
   .header
-    h3(data-hook='name')
-    div(data-hook='stats-subview')
+    .container-fluid
+      h3(data-hook='name')
+      .row
+        .col-md-12
+          div(data-hook='stats-subview')
+      .row
+        .col-md-12
+          div(data-hook='refine-bar')
   .column-container
     .column.main
       div(data-hook='fields-subview')
@@ -9,5 +15,3 @@
       .splitter
         i.fa.fa-lg.fa-rotate-90.fa-sort
       div(data-hook='documents-subview')
-
-
