@@ -1,7 +1,6 @@
 var AmpersandView = require('ampersand-view');
 var debug = require('debug')('scout-ui:refine-view:index');
 var $ = require('jquery');
-var app = require('ampersand-app');
 var EJSON = require('mongodb-extended-json');
 
 module.exports = AmpersandView.extend({
@@ -53,7 +52,7 @@ module.exports = AmpersandView.extend({
   buttonClicked: function(evt) {
     var queryStr = $(this.queryByHook('refine-input')).val();
     var queryObj = EJSON.parse(queryStr);
-    app.queryOptions.query = queryObj;
+    this.model.query = queryObj;
 
     // Modifying the query will reset field-list#schema and because we're using
     // good ampersand, outgoing views will be removed for us automatically.

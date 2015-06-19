@@ -91,7 +91,8 @@ module.exports = AmpersandView.extend({
       prepareView: function(el) {
         return new RefineBarView({
             el: el,
-            parent: this
+            parent: this,
+            model: app.queryOptions
           });
       }
     },
