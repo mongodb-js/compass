@@ -1,6 +1,8 @@
 var models = require('../models');
 var assert = require('assert');
 var _ = require('lodash');
+var bson = require('bson');
+var debug = require('debug')('mongodb-language-model:test');
 
 
 describe('LeafValue', function() {
@@ -60,6 +62,9 @@ describe('LeafValue', function() {
     value.content = [1, 'foo', 3];
     assert.equal(value.type, 'array');
 
+    value.content = /foo/i;
+    assert.equal(value.type, 'regex');
+
     value.content = {
       a: 1,
       b: 1
@@ -74,17 +79,41 @@ describe('LeafValue', function() {
     assert.equal(value.type, 'string');
     assert.equal(value.content, 'this_is_a_string');
 
-    var value = new models.LeafValue(123, {
+    value = new models.LeafValue(123, {
       parse: true
     });
     assert.equal(value.type, 'number');
     assert.equal(value.content, 123);
 
-    var value = new models.LeafValue(null, {
+    value = new models.LeafValue(null, {
       parse: true
     });
     assert.equal(value.type, 'null');
     assert.equal(value.content, null);
+  });
+
+  it('should work with MongoDB BSON values', function () {
+    var types = [
+      'ObjectID',
+      'Long',
+      'Double',
+      'Timestamp',
+      'Symbol',
+      'Code',
+      'MinKey',
+      'MaxKey',
+      'DBRef',
+      'Binary'
+    ];
+    var value;
+    types.forEach(function (type) {
+      value = new models.LeafValue(new bson[type](), {
+        parse: true
+      });
+      assert.equal(value.type, type.toLowerCase());
+      assert.ok(value.content instanceof bson[type]);
+      debug(value.buffer);
+    });
   });
 
   it('should have its parent property point to the clause', function() {

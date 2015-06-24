@@ -1,5 +1,6 @@
-var Value = require('./value'),
-  debug = require('debug')('models:leafvalue');
+var Value = require('./value');
+var bson = require('bson');
+var debug = require('debug')('models:leafvalue');
 
 function isNumber(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
@@ -37,7 +38,18 @@ var LeafValue = module.exports = Value.extend({
         if (this.content === null) return 'null';
         if (this.content instanceof Date) return 'date';
         if (this.content instanceof Array) return 'array';
-        return typeof this.content;
+        if (this.content instanceof RegExp) return 'regex';
+        if (this.content instanceof bson.ObjectID) return 'objectid';
+        if (this.content instanceof bson.Long) return 'long';
+        if (this.content instanceof bson.Double) return 'double';
+        if (this.content instanceof bson.Timestamp) return 'timestamp';
+        if (this.content instanceof bson.Symbol) return 'symbol';
+        if (this.content instanceof bson.Code) return 'code';
+        if (this.content instanceof bson.MinKey) return 'minkey';
+        if (this.content instanceof bson.MaxKey) return 'maxkey';
+        if (this.content instanceof bson.DBRef) return 'dbref';
+        if (this.content instanceof bson.Binary) return 'binary';
+        return typeof this.content; // string, number, boolean, object, null
       }
     },
     buffer: {

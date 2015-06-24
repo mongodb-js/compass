@@ -44,7 +44,7 @@ describe('Demo', function() {
       // get the list of clause values
       var values = exprTree.expressions.map(function (expr) {
         return expr.clauses.at(0).value.serialize();
-      })
+      });
       assert.deepEqual(values, [false, 'hello']);
     });
   });
