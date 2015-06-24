@@ -10,14 +10,14 @@ var BasicFieldView = View.extend({
     minichartModel: 'state'
   },
   bindings: {
-    'model._id': [
+    'model.name': [
       {
         hook: 'name'
       },
       {
         hook: 'name',
         type: function(el) {
-          if (this.model._id === '__basic__') {
+          if (this.model.getId() === '__basic__') {
             el.classList.add('hidden');
           }
         }
@@ -50,7 +50,7 @@ var BasicFieldView = View.extend({
     this.viewSwitcher = new ViewSwitcher(this.queryByHook('minichart-container'));
   },
   switchView: function(typeModel) {
-    var type = typeModel._id.toLowerCase();
+    var type = typeModel.getId().toLowerCase();
 
     // @todo currently only support boolean, number, date, category
     if (['objectid', 'boolean', 'number', 'date', 'string'].indexOf(type) === -1) return;
@@ -65,7 +65,7 @@ var BasicFieldView = View.extend({
 
 var ExpandableFieldMixin = {
   bindings: {
-    'model._id': {
+    'model.name': {
       hook: 'name'
     },
     'expanded': {

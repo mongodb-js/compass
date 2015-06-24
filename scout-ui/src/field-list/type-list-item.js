@@ -8,9 +8,9 @@ require('bootstrap/js/tooltip');
 
 module.exports = AmpersandView.extend({
   bindings: {
-    'model._id': [
+    'model.name': [
       {
-        hook: '_id'
+        hook: 'name'
       },
       {
         hook: 'bar',
@@ -49,7 +49,7 @@ module.exports = AmpersandView.extend({
     }.bind(this), 300));
   },
   template: require('./type-list-item.jade'),
-  typeClicked: function(evt) {
+  typeClicked: function() {
     if (this.parent.parent.minichartModel.cid !== this.model.cid) {
       this.parent.parent.switchView(this.model);
     }
