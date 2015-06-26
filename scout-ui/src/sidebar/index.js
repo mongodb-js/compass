@@ -1,31 +1,34 @@
 var View = require('ampersand-view');
 var debug = require('debug')('scout-ui:home');
-var models = require('../models');
 
-var ListFilter = View.extend({
+var CollectionFilterView = View.extend({
+  template: require('./collection-filter.jade'),
   props: {
     search: 'string'
   },
   initialize: function() {
     this.listenTo(this, 'change:search', this.applyFilter);
   },
-  template: require('./list-filter.jade'),
+  events: {
+    'input [data-hook=search]': 'handleInputChanged'
+  },
   render: function() {
     this.renderWithTemplate(this);
-    this.input = this.queryByHook('search');
+    this.cacheElements({
+      'input': '[data-hook=search]'
+    });
     this.input.addEventListener('input', this.handleInputChanged.bind(this), false);
   },
   handleInputChanged: function() {
     this.search = this.input.value.trim();
   },
   applyFilter: function() {
-    debug('search is now', this.search);
-    this.parent.filter(this.search);
+    this.parent.filterCollections(this.search);
   }
 });
 
 // @todo: Keyboard nav: up/down: change active item, right: -> show collection, left: -> hide collection
-var CollectionsList = View.extend({
+var CollectionListView = View.extend({
   template: '<ul class="list-group" data-hook="collections"></ul>',
   ItemView: View.extend({
     bindings: {
@@ -54,34 +57,60 @@ var CollectionsList = View.extend({
   }
 });
 
+
+var SidebarControlView = CollectionFilterView.extend({
+  template: require('./sidebar-controls.jade'),
+  applyFilter: function() {
+    this.parent.filterFields(this.search);
+  }
+});
+
+
 module.exports = View.extend({
-  filter: function(pattern) {
-    var re = new RegExp((pattern || '.*'));
-    this.collection.filter(function(model) {
-      return re.test(model.getId());
-    });
-  },
   template: require('./index.jade'),
   subviews: {
     collections_filter: {
-      hook: 'collections-filter',
+      hook: 'collection-filter-subview',
       prepareView: function(el) {
-        return new ListFilter({
+        return new CollectionFilterView({
             el: el,
             parent: this
           });
       }
     },
     collections: {
-      hook: 'collections',
+      hook: 'collection-list-subview',
       prepareView: function(el) {
-        var view = new CollectionsList({
+        var view = new CollectionListView({
           el: el,
           parent: this,
           collection: this.collection
         });
         return view;
       }
+    },
+    sidebar_control: {
+      hook: 'sidebar-control-subview',
+      prepareView: function(el) {
+        var view = new SidebarControlView({
+          el: el,
+        });
+        return view;
+      }
     }
+  },
+  filterCollections: function(pattern) {
+    var re = new RegExp((pattern || '.*'));
+    this.collection.filter(function(model) {
+      return re.test(model.getId());
+    });
+  },
+  filterFields: function(pattern) {
+    var re = new RegExp((pattern || '.*'));
+    // get current field list view
+    var fieldListView = this.parent.currentCollectionView.fieldListView;
+    fieldListView.collection.filter(function(model) {
+      return re.test(model.getId());
+    });
   }
 });
