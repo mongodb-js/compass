@@ -48,6 +48,9 @@ var BasicFieldView = View.extend({
   render: function() {
     this.renderWithTemplate(this);
     this.viewSwitcher = new ViewSwitcher(this.queryByHook('minichart-container'));
+    if (this.model.types.length > 0) {
+      this.switchView(this.model.types.at(0));
+    }
   },
   switchView: function(typeModel) {
     var type = typeModel.getId().toLowerCase();

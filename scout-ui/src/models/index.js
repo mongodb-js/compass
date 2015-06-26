@@ -37,11 +37,17 @@ client.on('error', function(err) {
  * wrapping mongodb-schema's FieldCollection with a filterable mixin
  */
 var FilterableFieldCollection = FieldCollection.extend(filterableMixin, {
-  // @todo, this should be in mongodb-schema FieldCollection
+  // @note, this should be in mongodb-schema FieldCollection
   // but FieldCollection will soon not be polymorphic anymore, so the
   // problem will go away and we can remove this.
   isModel: function (model) {
     return model instanceof Field;
+  },
+  // @note: this should not be necessary, but the mixin doesn't currently
+  // reset its state between collections. @see
+  // https://github.com/mongodb-js/ampersand-collection-filterable/issues/1
+  initialize: function() {
+    this._filtered = [];
   }
 });
 
