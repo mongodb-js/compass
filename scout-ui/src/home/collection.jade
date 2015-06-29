@@ -1,13 +1,13 @@
 .collection-view
-  .header
-    .container-fluid
-      h3(data-hook='name')
-      .row
-        .col-md-12
-          div(data-hook='stats-subview')
-      .row
-        .col-md-12
-          div(data-hook='refine-bar')
+  .sampling-status
+    span This report is based on a sample of 1000 documents. #[a(href='#') Learn More]
+  header
+    .row
+      .col-md-6
+        h1(data-hook='name')
+      .col-md-6
+        div(data-hook='stats-subview')
+  div(data-hook='refine-bar')
   .column-container
     .column.main
       div(data-hook='fields-subview')

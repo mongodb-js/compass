@@ -1,6 +1,5 @@
 .refine-view-container
-  form
-    .input-group(data-hook='refine-input-group')
-      input#refineInput.form-control(type='text', data-hook='refine-input')
-      span.input-group-btn
-        button.btn.btn-default(type='button', data-hook='refine-button') Refine
+  form.form-inline
+    div(data-hook='refine-input-group')
+      input#refineInput.form-control.input-sm(type='text', data-hook='refine-input')
+      button.btn.btn-default.btn-sm(type='button', data-hook='refine-button') Refine
