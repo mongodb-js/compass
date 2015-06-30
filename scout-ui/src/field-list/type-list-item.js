@@ -1,12 +1,11 @@
-var AmpersandView = require('ampersand-view');
-var $ = require('jquery');
+var View = require('ampersand-view');
 var format = require('util').format;
 var _ = require('underscore');
 var numeral = require('numeral');
+var tooltipMixin = require('../tooltip-mixin');
 
-require('bootstrap/js/tooltip');
-
-module.exports = AmpersandView.extend({
+module.exports = View.extend(tooltipMixin, {
+  namespace: 'TypeListItem',
   bindings: {
     'model.name': [
       {
@@ -15,7 +14,7 @@ module.exports = AmpersandView.extend({
       {
         hook: 'bar',
         type: function(el) {
-          $(el).addClass('schema-field-type-' + this.model.getId().toLowerCase());
+          el.classList.add('schema-field-type-' + this.model.getId().toLowerCase());
         }
       }
     ],
@@ -33,17 +32,9 @@ module.exports = AmpersandView.extend({
   events: {
     'click .schema-field-wrapper': 'typeClicked'
   },
-  derived: {
-    percent: {
-      deps: ['model.probability'],
-      fn: function() {
-        return this.model.probability;
-      }
-    }
-  },
   initialize: function() {
     this.listenTo(this.model, 'change:probability', _.debounce(function() {
-      $(this.el).tooltip({
+      this.tooltip({
         title: format('%s (%s)', this.model.getId(), numeral(this.model.probability).format('%'))
       });
     }.bind(this), 300));
