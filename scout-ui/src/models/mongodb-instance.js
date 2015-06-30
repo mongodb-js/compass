@@ -1,4 +1,5 @@
 var MongoDBInstance = require('../../../scout-brain').models.Instance;
+var MongoDBCollectionCollection = require('../../../scout-brain').models.CollectionCollection;
 var MongoDBCollection = require('./mongodb-collection');
 var scoutClientMixin = require('./scout-client-mixin');
 var selectableMixin = require('./selectable-collection-mixin');
@@ -8,7 +9,8 @@ var types = require('./types');
  * A user selectable collection of `MongoDBCollection`'s with `specialish`
   * collections filtered out.
  */
-var MongoDBCollectionOnInstanceCollection = MongoDBCollection.extend(selectableMixin, {
+var MongoDBCollectionOnInstanceCollection = MongoDBCollectionCollection.extend(selectableMixin, {
+  namespace: 'MongoDBCollectionOnInstanceCollection',
   model: MongoDBCollection,
   parse: function(res) {
     return res.filter(function(d) {
@@ -24,7 +26,7 @@ var MongoDBCollectionOnInstanceCollection = MongoDBCollection.extend(selectableM
  */
 module.exports = MongoDBInstance.extend(scoutClientMixin, {
   namespace: 'MongoDBInstance',
-  collections: {
+  children: {
     collections: MongoDBCollectionOnInstanceCollection
   },
   scout: function() {

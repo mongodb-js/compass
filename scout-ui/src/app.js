@@ -1,3 +1,4 @@
+var _ = require('lodash');
 var app = require('ampersand-app');
 var domReady = require('domready');
 var qs = require('qs');
@@ -84,39 +85,29 @@ var Application = State.extend({
     });
   },
   /**
-   * When you want to go to a different page in the app.
+   * When you want to go to a different page in the app or just save state via the URL.
    */
-  navigate: function(fragment) {
-    this.router.history.navigate(this._toHash(fragment), {
-      trigger: true
+  navigate: function(fragment, options) {
+    options = _.defaults((options || {}), {
+      silent: false,
+      params: null
     });
-  },
-  /**
-   * Update the URL in the location bar and add a new history entry,
-   * but don't bubble up to the router.  Required if your view is updating
-   * the page state (e.g. selected items).
-   *
-   * @example
-   *
-   */
-  url: function(fragment, data) {
-    if (data) {
-      fragment += '?' + qs.stringify(data);
+    if (options.params) {
+      fragment += '?' + qs.stringify(options.params);
     }
-    this.router.history.navigate(this._toHash(fragment), {
-      trigger: false
+
+    var hash = (fragment.charAt(0) === '/') ? fragment.slice(1) : fragment;
+    this.router.history.navigate(hash, {
+      trigger: !options.silent
     });
-  },
-  permalink: function(fragment) {
-    var origin = window.location.origin;
-    return origin + '/#' + this._toHash(fragment);
-  },
-  _toHash: function(fragment) {
-    return (fragment.charAt(0) === '/') ? fragment.slice(1) : fragment;
   }
 });
 
+/**
+ * @todo (imlucas): Figure out why ampersand-app isn't nicer to use out of the box with ampersand-state.
+ */
 var state = new Application({});
 app.extend(state);
 app.client = state.client;
+app.navigate = state.navigate;
 module.exports = window.app = app;

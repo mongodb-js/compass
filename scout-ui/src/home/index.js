@@ -44,7 +44,8 @@ module.exports = AmpersandView.extend({
     });
   },
   showCollection: function(model) {
-    if (!this.model.collections.select(model)) {
+    var collection = this.model.collections;
+    if (!collection.select(model)) {
       return debug('already selected %s', model);
     }
 
@@ -52,7 +53,7 @@ module.exports = AmpersandView.extend({
       model: model
     }));
 
-    app.url(format('schema/%s', model.getId()));
+    app.navigate(format('schema/%s', model.getId()), {silent: true});
     document.title = format('mongodb://%s/%s', this.model.getId(), model.getId());
   },
   template: require('./index.jade'),

@@ -1,4 +1,4 @@
-var app = require('../app');
+var app = require('ampersand-app');
 var AmpersandView = require('ampersand-view');
 var CollectionStatsView = require('../collection-stats');
 var FieldListView = require('../field-list');
