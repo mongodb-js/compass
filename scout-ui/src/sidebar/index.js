@@ -1,6 +1,5 @@
 var View = require('ampersand-view');
 var debug = require('debug')('scout-ui:home');
-var models = require('../models');
 
 var ListFilter = View.extend({
   props: {
