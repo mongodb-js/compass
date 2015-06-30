@@ -1,15 +1,14 @@
-var models = require('../models');
-var app = require('ampersand-app');
+var app = require('../app');
 var AmpersandView = require('ampersand-view');
 var CollectionStatsView = require('../collection-stats');
 var FieldListView = require('../field-list');
 var DocumentListView = require('../document-view');
 var RefineBarView = require('../refine-view');
-
-var debug = require('debug')('scout-ui:home:collection');
-var $ = require('jquery');
+var MongoDBCollection = require('../models/mongodb-collection');
+var SampledSchema = require('../models/sampled-schema');
 
 module.exports = AmpersandView.extend({
+  namespace: 'Collection',
   template: require('./collection.jade'),
   props: {
     open: {
@@ -34,21 +33,19 @@ module.exports = AmpersandView.extend({
     },
     'sidebarWidth': {
       type: function(el, value) {
-        $(el).width(value);
+        el.style.width = value;
       },
       selector: '.side'
     }
   },
   children: {
-    model: models.Collection,
-    schema: models.SampledSchema
+    model: MongoDBCollection,
+    schema: SampledSchema
   },
   initialize: function() {
     app.statusbar.watch(this, this.schema);
 
-    this.schema.ns = this.model._id;
-    this.listenTo(this.schema, 'error', this.onError);
-
+    this.schema.ns = this.model.getId();
     this.schema.fetch();
     this.model.fetch();
 
@@ -59,10 +56,6 @@ module.exports = AmpersandView.extend({
   },
   onSplitterClick: function() {
     this.toggle('open');
-  },
-  onError: function(schema, err) {
-    // @todo: Figure out a good way to handle this (server is probably crashed).
-    console.error('Error getting schema: ', err);
   },
   subviews: {
     stats: {

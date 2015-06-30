@@ -1,19 +1,15 @@
 var AmpersandView = require('ampersand-view');
 var ViewSwitcher = require('ampersand-view-switcher');
-var models = require('../models');
+var MongoDBInstance = require('../models/mongodb-instance');
 var debug = require('debug')('scout-ui:home');
 var app = require('ampersand-app');
 var format = require('util').format;
 var SidebarView = require('../sidebar');
-var FieldListView = require('../field-list');
 var CollectionView = require('./collection');
-
-require('bootstrap/js/dropdown');
-require('bootstrap/js/collapse');
 
 module.exports = AmpersandView.extend({
   children: {
-    model: models.Instance
+    model: MongoDBInstance
   },
   props: {
     ns: {

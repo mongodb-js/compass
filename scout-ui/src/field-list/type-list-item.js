@@ -1,6 +1,6 @@
 var View = require('ampersand-view');
 var format = require('util').format;
-var _ = require('underscore');
+var _ = require('lodash');
 var numeral = require('numeral');
 var tooltipMixin = require('../tooltip-mixin');
 

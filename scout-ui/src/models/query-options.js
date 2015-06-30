@@ -1,7 +1,10 @@
-var AmpersandState = require('ampersand-state');
-var app = require('ampersand-app');
+var Model = require('ampersand-model');
+var EJSON = require('mongodb-extended-json');
 
-module.exports = AmpersandState.extend({
+/**
+ * Options for reading a collection of documents from MongoDB.
+ */
+module.exports = Model.extend({
   props: {
     query: {
       type: 'object',
@@ -30,9 +33,8 @@ module.exports = AmpersandState.extend({
     queryString: {
       deps: ['query'],
       fn: function() {
-        return JSON.stringify(this.query);
+        return EJSON.stringify(this.query);
       }
     }
   }
 });
-

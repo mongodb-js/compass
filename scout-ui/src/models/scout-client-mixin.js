@@ -1,9 +1,11 @@
-var _ = require('underscore');
+var _ = require('lodash');
 var wrapError = require('./wrap-error');
+var app = require('ampersand-app');
 
 module.exports = {
   fetch: function(options) {
     var model = this;
+    model.client = app.client;
     var handler = _.result(model, 'scout');
 
     if (!handler || !_.isFunction(handler)) {

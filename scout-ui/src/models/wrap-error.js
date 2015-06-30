@@ -1,4 +1,6 @@
-// Wrap an optional error callback with a fallback error event.
+/**
+ * Wrap an optional error callback with a fallback error event.
+ */
 module.exports = function(model, options) {
   var fn = options.error;
   options.error = function(resp) {
