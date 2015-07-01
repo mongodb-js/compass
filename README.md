@@ -52,15 +52,6 @@ The top level modules in this project are:
 ### Other Modules
 
 <dl>
-  <dt><a href="https://github.com/10gen/scout/tree/dev/scout-check">scout-check</a></dt>
-  <dd>
-    Linting, dependency checking, and more.  Move to <code>mongodb-js/gulp-mj-check</code>
-  </dd>
-    <dt><a href="https://github.com/10gen/scout/tree/dev/scout-data">scout-data</a></dt>
-  <dd>
-    An experiment for providing some datasets on-board the app to populate
-    a bundled mongodb with.
-  </dd>
   <dt><a href="https://github.com/10gen/scout/tree/dev/scout-landing-page">scout-landing-page</a></dt>
   <dd>
     A <a href="http://www.metalsmith.io/">metalsmith</a> static site to use
@@ -72,10 +63,6 @@ The top level modules in this project are:
     and <a href="https://github.com/10gen/scout/tree/dev/scout-landing-page">scout-landing-page</a> use.
     Move to <code>mongodb-js/scout-style</code> so design team can completely
     own this.
-  </dd>
-  <dt><a href="https://github.com/10gen/scout/tree/dev/scout-metrics">scout-metrics</a></dt>
-  <dd>
-    An experiment we should just kill off when we start on mixpanel/intercom tickets.
   </dd>
 </dl>
 
