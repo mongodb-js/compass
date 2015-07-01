@@ -29,14 +29,9 @@
   "scripts": {
     "start": "gulp",
     "develop": "gulp develop",
-    "deploy": "gulp deploy",
-    "check": "gulp check",
     "test": "mocha",
     "browser-test": "zuul --local 3001 --open -- test/*.test.js"
   },
-  "precommit": [
-    "check"
-  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/10gen/scout.git"
@@ -79,8 +74,8 @@
   "devDependencies": {
     "browserify": "^10.2.4",
     "clui": "^0.3.1",
+    "eslint-config-mongodb-js": "^0.1.4",
     "gulp": "^3.9.0",
-    "gulp-gh-pages": "^0.5.2",
     "gulp-jade": "^1.0.1",
     "gulp-jsfmt": "^0.3.0",
     "gulp-jshint": "^1.11.1",

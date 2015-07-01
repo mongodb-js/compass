@@ -1,28 +1,24 @@
-var browserify = require('browserify'),
-  watchify = require('watchify'),
-  jadeify = require('jadeify'),
-  notifier = require('node-notifier'),
-  prettyTime = require('pretty-hrtime'),
-  source = require('vinyl-source-stream'),
-  buffer = require('vinyl-buffer'),
-  gulp = require('gulp'),
-  webserver = require('gulp-webserver'),
-  gutil = require('gulp-util'),
-  less = require('gulp-less'),
-  jade = require('gulp-jade'),
-  deploy = require('gulp-gh-pages'),
-  uglify = require('gulp-uglify'),
-  sourcemaps = require('gulp-sourcemaps'),
-  CleanCSS = require('less-plugin-clean-css'),
-  clui = require('clui'),
-  merge = require('merge-stream'),
-  jshint = require('gulp-jshint'),
-  jsfmt = require('gulp-jsfmt'),
-  pkg = require('./package.json'),
-  util = require('util');
-
-
-require('../scout-check')(gulp, './src/{**/*.js,*.js}');
+var browserify = require('browserify');
+var watchify = require('watchify');
+var jadeify = require('jadeify');
+var notifier = require('node-notifier');
+var prettyTime = require('pretty-hrtime');
+var source = require('vinyl-source-stream');
+var buffer = require('vinyl-buffer');
+var gulp = require('gulp');
+var webserver = require('gulp-webserver');
+var gutil = require('gulp-util');
+var less = require('gulp-less');
+var jade = require('gulp-jade');
+var uglify = require('gulp-uglify');
+var sourcemaps = require('gulp-sourcemaps');
+var CleanCSS = require('less-plugin-clean-css');
+var clui = require('clui');
+var merge = require('merge-stream');
+var jshint = require('gulp-jshint');
+var jsfmt = require('gulp-jsfmt');
+var pkg = require('./package.json');
+var util = require('util');
 
 gulp.task('default', ['develop', 'serve']);
 
