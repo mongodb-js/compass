@@ -5,7 +5,6 @@ var CollectionStatsView = require('../collection-stats');
 var FieldListView = require('../field-list');
 var DocumentListView = require('../document-view');
 var RefineBarView = require('../refine-view');
-
 var debug = require('debug')('scout-ui:home:collection');
 var $ = require('jquery');
 

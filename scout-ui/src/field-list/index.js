@@ -4,7 +4,19 @@ var MinichartView = require('../minicharts');
 var FieldCollection = require('mongodb-schema').FieldCollection;
 var ViewSwitcher = require('ampersand-view-switcher');
 var debug = require('debug')('scout-ui:field-list:index');
+var $ = require('jquery');
 var _ = require('lodash');
+
+function handleCaret(el, value, previousValue) {
+  var $el = $(el);
+  // only apply to own caret, not children carets
+  if ($el.next().text() !== this.model.name) return;
+  if (this.model.fields || this.model.arrayFields) {
+    $el.addClass('caret');
+  } else {
+    $el.removeClass('caret');
+  }
+}
 
 var FieldView = View.extend({
   props: {
@@ -15,20 +27,16 @@ var FieldView = View.extend({
     }
   },
   bindings: {
+    'model.name': {
+      hook: 'name'
+    },
     'model.fields': {
-      type: 'booleanClass',
-      yes: 'caret',
-      no: '',
+      type: handleCaret,
       hook: 'caret'
     },
     'model.arrayFields': {
-      type: 'booleanClass',
-      yes: 'caret',
-      no: '',
+      type: handleCaret,
       hook: 'caret'
-    },
-    'model.name': {
-      hook: 'name'
     },
     'expanded': {
       type: 'booleanClass',
@@ -73,7 +81,6 @@ var FieldView = View.extend({
           });
       }
     }
-
   },
   initialize: function() {
     var that = this;

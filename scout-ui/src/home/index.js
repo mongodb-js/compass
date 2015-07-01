@@ -5,7 +5,6 @@ var debug = require('debug')('scout-ui:home');
 var app = require('ampersand-app');
 var format = require('util').format;
 var SidebarView = require('../sidebar');
-var FieldListView = require('../field-list');
 var CollectionView = require('./collection');
 
 require('bootstrap/js/dropdown');
