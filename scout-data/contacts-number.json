@@ -1,8 +1,0 @@
-{
-  "_id": "{{ObjectID()}}",
-  "contacts": ["{{_$config}}", {}, {
-    "name": "{{chance.name()}}",
-    "email": "{{chance.email()}}",
-    "invitation_accepted": "{{Number(chance.bool())}}"
-  }]
-}

@@ -75,9 +75,6 @@ gulp.task('copy', ['install source'], function() {
   var client = gulp.src(['../scout-client/{index.js,package.json,lib/*.js,lib/**/*}'])
     .pipe(gulp.dest(DEST + '/scout-client'));
 
-  var data = gulp.src(['../scout-data/{index.js,*.json,lib/*.js,bin/*}'])
-    .pipe(gulp.dest(DEST + '/scout-data'));
-
   var metrics = gulp.src(['../scout-metrics/{index.js,*.json,lib/*.js}'])
     .pipe(gulp.dest(DEST + '/scout-metrics'));
 
