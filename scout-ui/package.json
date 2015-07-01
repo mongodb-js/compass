@@ -29,12 +29,8 @@
     "start": "gulp",
     "develop": "gulp develop",
     "deploy": "gulp deploy",
-    "check": "gulp check",
     "test": "mocha"
   },
-  "precommit": [
-    "check"
-  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/10gen/scout.git"
