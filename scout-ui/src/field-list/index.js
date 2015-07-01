@@ -21,6 +21,12 @@ var FieldView = View.extend({
       no: '',
       hook: 'caret'
     },
+    'model.arrayFields': {
+      type: 'booleanClass',
+      yes: 'caret',
+      no: '',
+      hook: 'caret'
+    },
     'model.name': {
       hook: 'name'
     },
@@ -55,16 +61,27 @@ var FieldView = View.extend({
             collection: this.model.fields
           });
       }
+    },
+    arrayFields: {
+      hook: 'arrayfields-subview',
+      waitFor: 'model.arrayFields',
+      prepareView: function(el) {
+        return new FieldListView({
+            el: el,
+            parent: this,
+            collection: this.model.arrayFields
+          });
+      }
     }
+
   },
   initialize: function() {
     var that = this;
     // debounce prevents excessive rendering
-    this.model.parent.on('end', function(evt) {
-      debug('schema end trigger for', that.model.getType(), that.model.name);
-      // for now pick first type, @todo: make the type bars clickable and toggle chart
+    this.model.on('change:count', _.debounce(function() {
+      // pick first type initially
       that.switchView(that.model.types.at(0));
-    });
+    }, 300));
   },
   render: function() {
     this.renderWithTemplate(this);
