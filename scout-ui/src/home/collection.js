@@ -28,13 +28,13 @@ module.exports = AmpersandView.extend({
     }
   },
   events: {
-    'click .splitter': 'onSplitterClick',
+    'click .splitter': 'onSplitterClick'
   },
   bindings: {
     'model._id': {
       hook: 'name'
     },
-    'sidebarWidth': {
+    sidebarWidth: {
       type: function(el, value) {
         el.style.width = value;
       },
@@ -65,10 +65,10 @@ module.exports = AmpersandView.extend({
       hook: 'stats-subview',
       prepareView: function(el) {
         return new CollectionStatsView({
-            el: el,
-            parent: this,
-            model: this.model
-          });
+          el: el,
+          parent: this,
+          model: this.model
+        });
       }
     },
     fields: {
@@ -87,10 +87,10 @@ module.exports = AmpersandView.extend({
       hook: 'refine-bar',
       prepareView: function(el) {
         return new RefineBarView({
-            el: el,
-            parent: this,
-            model: app.queryOptions
-          });
+          el: el,
+          parent: this,
+          model: app.queryOptions
+        });
       }
     },
     documents: {
@@ -98,10 +98,10 @@ module.exports = AmpersandView.extend({
       hook: 'documents-subview',
       prepareView: function(el) {
         return new DocumentListView({
-            el: el,
-            parent: this,
-            collection: this.model.documents
-          });
+          el: el,
+          parent: this,
+          collection: this.model.documents
+        });
       }
     }
   }

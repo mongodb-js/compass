@@ -56,7 +56,7 @@ var Application = State.extend({
      */
     client: {
       deps: ['connection.uri'],
-      fn: function(){
+      fn: function() {
         var c = createClient({
           seed: this.connection.uri
         });
@@ -68,7 +68,7 @@ var Application = State.extend({
   initialize: function(opts) {
     opts = opts || {};
     debug('initializing with options', opts);
-    if(opts.uri){
+    if (opts.uri) {
       this.connection.use(opts.uri);
     }
     domReady(this._onDOMReady.bind(this));
@@ -76,8 +76,11 @@ var Application = State.extend({
   /**
    * We have what we need, we can now start our router and show the appropriate page!
    */
-  _onDOMReady: function(){
-    new Layout({el: document.querySelector('#application'), app: this}).render();
+  _onDOMReady: function() {
+    new Layout({
+      el: document.querySelector('#application'),
+      app: this
+    }).render();
 
     this.router.history.start({
       pushState: false,
@@ -85,10 +88,13 @@ var Application = State.extend({
     });
   },
   /**
-   * When you want to go to a different page in the app or just save state via the URL.
+   * When you want to go to a different page in the app or just save
+   * state via the URL.
+   * @param {String} fragment
+   * @param {Object} [options]
    */
   navigate: function(fragment, options) {
-    options = _.defaults((options || {}), {
+    options = _.defaults(options || {}, {
       silent: false,
       params: null
     });
@@ -96,7 +102,7 @@ var Application = State.extend({
       fragment += '?' + qs.stringify(options.params);
     }
 
-    var hash = (fragment.charAt(0) === '/') ? fragment.slice(1) : fragment;
+    var hash = fragment.charAt(0) === '/' ? fragment.slice(1) : fragment;
     this.router.history.navigate(hash, {
       trigger: !options.silent
     });
@@ -104,9 +110,15 @@ var Application = State.extend({
 });
 
 /**
- * @todo (imlucas): Figure out why ampersand-app isn't nicer to use out of the box with ampersand-state.
+ * @todo (imlucas): Figure out why ampersand-app isn't nicer to use out
+ * of the box with ampersand-state.
  */
-var state = new Application({});
+var params = qs.parse(window.location.search.replace('?', ''));
+var uri = params.uri || 'mongodb://localhost:27017';
+
+var state = new Application({
+  uri: uri
+});
 app.extend(state);
 app.client = state.client;
 app.navigate = state.navigate;
