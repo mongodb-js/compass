@@ -3,31 +3,40 @@ var TypeListView = require('./type-list');
 var MinichartView = require('../minicharts');
 var FieldCollection = require('mongodb-schema').FieldCollection;
 var ViewSwitcher = require('ampersand-view-switcher');
+var debug = require('debug')('scout-ui:field-list:index');
 var _ = require('lodash');
 
-var BasicFieldView = View.extend({
+var FieldView = View.extend({
   props: {
-    minichartModel: 'state'
+    minichartModel: 'state',
+    expanded: {
+      type: 'boolean',
+      default: false
+    }
   },
   bindings: {
-    'model.name': [
-      {
-        hook: 'name'
-      },
-      {
-        hook: 'name',
-        type: function(el) {
-          if (this.model.getId() === '__basic__') {
-            el.classList.add('hidden');
-          }
-        }
-      }
-    ]
+    'model.fields': {
+      type: 'booleanClass',
+      yes: 'caret',
+      no: '',
+      hook: 'caret'
+    },
+    'model.name': {
+      hook: 'name'
+    },
+    'expanded': {
+      type: 'booleanClass',
+      yes: 'expanded',
+      no: 'collapsed'
+    }
   },
-  template: require('./basic-field.jade'),
+  events: {
+    'click .schema-field-name': 'click',
+  },
+  template: require('./field.jade'),
   subviews: {
     types: {
-      hook: 'types-container',
+      hook: 'types-subview',
       prepareView: function(el) {
         return new TypeListView({
             el: el,
@@ -35,15 +44,27 @@ var BasicFieldView = View.extend({
             collection: this.model.types
           });
       }
+    },
+    fields: {
+      hook: 'fields-subview',
+      waitFor: 'model.fields',
+      prepareView: function(el) {
+        return new FieldListView({
+            el: el,
+            parent: this,
+            collection: this.model.fields
+          });
+      }
     }
   },
   initialize: function() {
     var that = this;
     // debounce prevents excessive rendering
-    this.model.values.on('add', _.debounce(function(evt) {
+    this.model.parent.on('end', function(evt) {
+      debug('schema end trigger for', that.model.getType(), that.model.name);
       // for now pick first type, @todo: make the type bars clickable and toggle chart
       that.switchView(that.model.types.at(0));
-    }, 300));
+    });
   },
   render: function() {
     this.renderWithTemplate(this);
@@ -63,28 +84,6 @@ var BasicFieldView = View.extend({
       model: typeModel,
     });
     this.viewSwitcher.set(miniview);
-  }
-});
-
-var ExpandableFieldMixin = {
-  bindings: {
-    'model.name': {
-      hook: 'name'
-    },
-    'expanded': {
-      type: 'booleanClass',
-      yes: 'expanded',
-      no: 'collapsed'
-    }
-  },
-  events: {
-    'click .schema-field-name': 'click',
-  },
-  props: {
-    expanded: {
-      type: 'boolean',
-      default: false
-    }
   },
   click: function(evt) {
     // @todo: persist state of open nodes
@@ -93,27 +92,7 @@ var ExpandableFieldMixin = {
     evt.preventDefault();
     evt.stopPropagation();
     return false;
-  },
-  subviews: {
-    fields: {
-      hook: 'fields-container',
-      prepareView: function(el) {
-        return new FieldListView({
-            el: el,
-            parent: this,
-            collection: this.model.fields
-          });
-      }
-    }
   }
-};
-
-var EmbeddedArrayFieldView = View.extend(ExpandableFieldMixin, {
-  template: require('./array-field.jade')
-});
-
-var EmbeddedDocumentFieldView = View.extend(ExpandableFieldMixin, {
-  template: require('./object-field.jade')
 });
 
 var FieldListView = View.extend({
@@ -123,16 +102,7 @@ var FieldListView = View.extend({
   template: require('./index.jade'),
   render: function() {
     this.renderWithTemplate();
-    this.renderCollection(this.collection, function(options) {
-      var type = options.model.type;
-      if (type === 'Array') {
-        return new EmbeddedArrayFieldView(options);
-      }
-      if (type === 'Object') {
-        return new EmbeddedDocumentFieldView(options);
-      }
-      return new BasicFieldView(options);
-    }, this.queryByHook('fields'));
+    this.renderCollection(this.collection, FieldView, this.queryByHook('fields'));
   }
 });
 

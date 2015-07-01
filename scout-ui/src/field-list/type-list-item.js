@@ -19,7 +19,7 @@ module.exports = AmpersandView.extend({
         }
       }
     ],
-    'model.probability': [
+    'model.count': [
       {
         hook: 'bar',
         type: function(el) {
@@ -35,14 +35,14 @@ module.exports = AmpersandView.extend({
   },
   derived: {
     percent: {
-      deps: ['model.probability'],
+      deps: ['model.count'],
       fn: function() {
         return this.model.probability;
       }
     }
   },
   initialize: function() {
-    this.listenTo(this.model, 'change:probability', _.debounce(function() {
+    this.listenTo(this.model, 'change:count', _.debounce(function() {
       $(this.el).tooltip({
         title: format('%s (%s)', this.model.getId(), numeral(this.model.probability).format('%'))
       });
