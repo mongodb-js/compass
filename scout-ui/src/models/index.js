@@ -12,7 +12,10 @@ var types = brain.types;
 var _ = require('underscore');
 var es = require('event-stream');
 var Schema = require('mongodb-schema').Schema;
+var FieldCollection = require('mongodb-schema').FieldCollection;
+var Field = require('mongodb-schema/lib/field');
 var QueryOptions = require('./query-options');
+var filterableMixin = require('ampersand-collection-filterable');
 
 // Yay!  Use the API from the devtools console.
 window.scout = client;
@@ -30,7 +33,31 @@ client.on('error', function(err) {
   console.error(err);
 });
 
+/**
+ * wrapping mongodb-schema's FieldCollection with a filterable mixin
+ */
+var FilterableFieldCollection = FieldCollection.extend(filterableMixin, {
+  // @note, this should be in mongodb-schema FieldCollection
+  // but FieldCollection will soon not be polymorphic anymore, so the
+  // problem will go away and we can remove this.
+  isModel: function (model) {
+    return model instanceof Field;
+  },
+  // @note: this should not be necessary, but the mixin doesn't currently
+  // reset its state between collections. @see
+  // https://github.com/mongodb-js/ampersand-collection-filterable/issues/1
+  initialize: function() {
+    this._filtered = [];
+  }
+});
+
 var SampledSchema = Schema.extend({
+  /**
+   * Our fields need to be filterable, adding a mixin
+   */
+  collections: {
+    fields: FilterableFieldCollection
+  },
   /**
    * Clear any data accumulated from sampling.
    */
