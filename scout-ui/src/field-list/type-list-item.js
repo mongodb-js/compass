@@ -50,7 +50,7 @@ module.exports = AmpersandView.extend({
   },
   template: require('./type-list-item.jade'),
   typeClicked: function() {
-    if (this.parent.parent.minichartModel.cid !== this.model.cid) {
+    if (this.parent.parent.minichartModel.modelType !== this.model.modelType) {
       this.parent.parent.switchView(this.model);
     }
   }

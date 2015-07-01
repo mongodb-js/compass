@@ -32,7 +32,7 @@ module.exports = AmpersandView.extend({
     'click .splitter': 'onSplitterClick',
   },
   bindings: {
-    'model._id': {
+    'model.name': {
       hook: 'name'
     },
     'sidebarWidth': {
