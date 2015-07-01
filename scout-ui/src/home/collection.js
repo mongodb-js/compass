@@ -14,6 +14,9 @@ module.exports = AmpersandView.extend({
     open: {
       type: 'boolean',
       default: false
+    },
+    fieldListView: {
+      type: 'view'
     }
   },
   derived: {
@@ -72,11 +75,12 @@ module.exports = AmpersandView.extend({
       waitFor: 'schema.fields',
       hook: 'fields-subview',
       prepareView: function(el) {
-        return new FieldListView({
-            el: el,
-            parent: this,
-            collection: this.schema.fields
-          });
+        this.fieldListView = new FieldListView({
+          el: el,
+          parent: this,
+          collection: this.schema.fields
+        });
+        return this.fieldListView;
       }
     },
     refinebar: {

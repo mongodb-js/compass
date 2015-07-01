@@ -1,17 +1,21 @@
-div.row.hidden
-  .col-md-6
-    dl.dl-horizontal
-      dt # documents
-      dd(data-hook='document_count')
-      dt total document size
-      dd(data-hook='document_size')
-      dt average document size
-      dd(data-hook='document_size_average')
-  .col-md-6
-    dl.dl-horizontal
-      dt # indexes
-      dd(data-hook='index_count')
-      dt total index size
-      dd(data-hook='index_size')
-      dt average index size
-      dd(data-hook='index_size_average')
+div.collection-stats-holder
+  ul.collection-stats
+    li.collection-stats-item
+      .collection-stats-primary-label Documents
+      .collection-stats-primary-value(data-hook='document_count')
+    li.collection-stats-item
+      .collection-stats-label total size
+      .collection-stats-value(data-hook='document_size')
+    li.collection-stats-item
+      .collection-stats-label avg. size
+      .collection-stats-value(data-hook='document_size_average')
+  ul.collection-stats
+    li.collection-stats-item
+      .collection-stats-primary-label Indexes
+      .collection-stats-primary-value(data-hook='index_count')
+    li.collection-stats-item
+      .collection-stats-label total size
+      .collection-stats-value(data-hook='index_size')
+    li.collection-stats-item
+      .collection-stats-label avg. size
+      .collection-stats-value(data-hook='index_size_average')

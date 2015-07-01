@@ -216,21 +216,21 @@ function signAppDarwin(done) {
 
     // Use a shell script until we rewrite it in gulp
     var logData = function(data) {
-      console.log((''+ data).trim());
+      console.log(('' + data).trim());
     };
 
-    var script = proc.spawn("./darwin-sign-app.sh",
-                            [process.env.XCODE_SIGNING_IDENTITY, APP]);
+    var script = proc.spawn('./darwin-sign-app.sh',
+      [process.env.XCODE_SIGNING_IDENTITY, APP]);
     script.stdout.on('data', logData);
     script.stderr.on('data', logData);
     script.on('close', done);
   } else {
-    done(new Error("process.env.XCODE_SIGNING_IDENTITY not specified"));
+    done(new Error('process.env.XCODE_SIGNING_IDENTITY not specified'));
   }
 }
 gulp.task('sign', function(done) {
   if (PLATFORM !== 'darwin') {
-    done(new Error("sign only implemented for OS X"));
+    done(new Error('sign only implemented for OS X'));
   }
   unlockKeychainDarwin(function(err) {
     if (err) return done(err);

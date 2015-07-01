@@ -53,24 +53,45 @@
 }
 
 .collection-view {
+  .sampling-status {
+    position: absolute;
+    margin: 3px 0 0 6px;
+    z-index: 2;
 
-  @header-height: 120px;
+    span {
+      font-size: 13px;
+      font-weight: 200;
 
-  .header {
-    padding-left: 20px;
-    display: flex;
-    position: relative;
-    z-index: 10;
-    height: @header-height;
+      a {
+        font-weight: normal;
+      }
+    }
   }
+  header {
+    padding: 12px 20px;
+    position: relative;
+    z-index: 1;
+  }
+  .refine-view-container {
+    background: @gray8;
+    padding: 12px 20px;
+    position: relative;
+    z-index: 1;
 
+    input.form-control.input-sm {
+      width: 90%;
+      background: @pw;
+      height: 28px;
+      margin-right: 10px;
+    }
+  }
   .column-container {
     padding-right: 20px;
     display: flex;
     overflow: hidden;
     height: 100vh;
-    margin-top: -@header-height;
-    padding-top: @header-height;
+    margin-top: -168px; // total computed header + .refine-view-container height
+    padding-top: 168px; // total computed header + .refine-view-container height
     position: relative;
     width: 100%;
   }
@@ -85,6 +106,7 @@
   }
 
   .main {
+    padding: 0 0 0 20px;
     flex: 1;
   }
 

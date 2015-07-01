@@ -12,10 +12,32 @@ module.exports = AmpersandView.extend({
     model: MongoDBInstance
   },
   props: {
+    switcher: {
+      type: 'object',
+      default: null
+    },
     ns: {
       type: 'string',
       allowNull: true,
       default: null
+    }
+  },
+  derived: {
+    currentCollection: {
+      deps: ['ns'],
+      fn: function () {
+        if (!this.ns) return null;
+        return this.model.collections.find({
+          _id: this.ns
+        });
+      }
+    },
+    currentCollectionView: {
+      cache: false,
+      fn: function() {
+        return this.switcher ?
+          this.switcher.current : null;
+      }
     }
   },
   initialize: function(options) {
@@ -26,13 +48,8 @@ module.exports = AmpersandView.extend({
 
     this.listenTo(this.model, 'sync', function() {
       if (!this.ns) return;
-
-      var current = this.model.collections.find({
-        _id: this.ns
-      });
-      if (!current) return;
-
-      this.showCollection(current);
+      if (!this.currentCollection) return;
+      this.showCollection(this.currentCollection);
     });
 
     this.once('change:rendered', this.onRendered);
