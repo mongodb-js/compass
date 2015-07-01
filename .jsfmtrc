@@ -1,7 +1,4 @@
 {
-
-
-  "// docs, basically" : "https://github.com/paulirish/sublime-jsfmt#formatting-rules",
   "preset": "default",
   "plugins": [
         "esformatter-quotes",
@@ -13,7 +10,7 @@
         "avoidEscape": false
     },
     "indent": {
-        "value": "  "  // four spaces, b.
+        "value": "  "
     },
     "whiteSpace" : {
     "value" : " ",
