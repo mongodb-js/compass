@@ -20,7 +20,6 @@ module.exports.start = function(done) {
   //   mongo.stdout.pipe(process.stdout);
   //   setTimeout(function() {
   //     debug('Standalone ready on localhost:27017!');
-  //     require('../../scout-data/bin/scout-data.js');
   //     done();
   //   }, 1000);
   // });
