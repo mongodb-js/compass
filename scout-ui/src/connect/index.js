@@ -53,7 +53,7 @@ var ConnectView = View.extend({
     event.preventDefault();
 
     var hostname = $(this.el).find('[name=hostname]').val() || 'localhost';
-    var port = parseInt($(this.el).find('[name=port]').val() || 27107, 10);
+    var port = parseInt($(this.el).find('[name=port]').val() || 27017, 10);
     var uri = format('mongodb://%s:%d', hostname, port);
 
     var model = new Connection({
