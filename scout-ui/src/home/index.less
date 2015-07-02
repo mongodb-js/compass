@@ -116,17 +116,15 @@
     font-size: 11px;
     border-left: 2px solid @gray7;
     right: -12px;
-
-    &.is-open {
-      width: 400px;
-    }
+    top: 30px;
   }
 
   .splitter {
     width: 20px;
     height: 20px;
     position: relative;
-    right: 20px;
+    right: 10px;
+    transition: right 250ms ease;
   }
   .splitter-button {
     outline: none;
@@ -139,6 +137,23 @@
     &:active {
       outline: none;
       color: @green2;
+    }
+  }
+  .splitter-button-close {
+    display: none;
+  }
+  .column-container.sidebar-open {
+    .side {
+      width: 33%;
+    }
+    .splitter {
+      right: -15px;
+    }
+    .splitter-button-open {
+      display: none;
+    }
+    .splitter-button-close {
+      display: inline-block;
     }
   }
 }

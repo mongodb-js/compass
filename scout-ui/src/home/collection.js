@@ -29,8 +29,8 @@ module.exports = AmpersandView.extend({
     },
     'open': {
       type: 'booleanClass',
-      yes: 'is-open',
-      hook: 'collection-side'
+      yes: 'sidebar-open',
+      hook: 'json-sidebar-toggle-class'
     }
   },
   children: {
