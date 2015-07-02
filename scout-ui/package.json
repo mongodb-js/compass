@@ -16,14 +16,14 @@
     ]
   },
   "fonts": [
-    "node_modules/font-awesome/fonts/fontawesome-webfont*",
-    "node_modules/octicons/octicons/octicons.{eot,svg,ttf,woff}"
+    "../scout-style/node_modules/font-awesome/fonts/fontawesome-webfont*",
+    "../scout-style/node_modules/octicons/octicons/octicons.{eot,svg,ttf,woff}"
   ],
   "less": {
     "paths": [
-      "node_modules/font-awesome/less",
-      "node_modules/bootstrap/less",
-      "node_modules/octicons/octicons"
+      "../scout-style/node_modules/font-awesome/less",
+      "../scout-style/node_modules/bootstrap/less",
+      "../scout-style/node_modules/octicons/octicons"
     ]
   },
   "scripts": {
