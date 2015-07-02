@@ -1,5 +1,4 @@
 var View = require('ampersand-view');
-var debug = require('debug')('scout-ui:home');
 
 var CollectionFilterView = View.extend({
   template: require('./collection-filter.jade'),
@@ -15,7 +14,7 @@ var CollectionFilterView = View.extend({
   render: function() {
     this.renderWithTemplate(this);
     this.cacheElements({
-      'input': '[data-hook=search]'
+      input: '[data-hook=search]'
     });
     this.input.addEventListener('input', this.handleInputChanged.bind(this), false);
   },
@@ -27,7 +26,10 @@ var CollectionFilterView = View.extend({
   }
 });
 
-// @todo: Keyboard nav: up/down: change active item, right: -> show collection, left: -> hide collection
+/**
+ * @todo (imlucas): Keyboard nav: up/down: change active item,
+ * right: -> show collection, left: -> hide collection
+ */
 var CollectionListView = View.extend({
   template: '<ul class="list-group" data-hook="collections"></ul>',
   ItemView: View.extend({
@@ -41,7 +43,7 @@ var CollectionListView = View.extend({
       }
     },
     events: {
-      'click': '_onClick'
+      click: '_onClick'
     },
     template: require('./collection-list-item.jade'),
     _onClick: function() {
@@ -73,9 +75,9 @@ module.exports = View.extend({
       hook: 'collection-filter-subview',
       prepareView: function(el) {
         return new CollectionFilterView({
-            el: el,
-            parent: this
-          });
+          el: el,
+          parent: this
+        });
       }
     },
     collections: {
@@ -93,20 +95,20 @@ module.exports = View.extend({
       hook: 'sidebar-control-subview',
       prepareView: function(el) {
         var view = new SidebarControlView({
-          el: el,
+          el: el
         });
         return view;
       }
     }
   },
   filterCollections: function(pattern) {
-    var re = new RegExp((pattern || '.*'));
+    var re = new RegExp(pattern || '.*');
     this.collection.filter(function(model) {
       return re.test(model.getId());
     });
   },
   filterFields: function(pattern) {
-    var re = new RegExp((pattern || '.*'));
+    var re = new RegExp(pattern || '.*');
     // get current field list view
     var fieldListView = this.parent.currentCollectionView.fieldListView;
     fieldListView.collection.filter(function(model) {

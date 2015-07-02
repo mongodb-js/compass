@@ -25,7 +25,7 @@ module.exports = AmpersandView.extend({
   derived: {
     currentCollection: {
       deps: ['ns'],
-      fn: function () {
+      fn: function() {
         if (!this.ns) return null;
         return this.model.collections.find({
           _id: this.ns
@@ -70,8 +70,10 @@ module.exports = AmpersandView.extend({
       model: model
     }));
 
-    app.navigate(format('schema/%s', model.getId()), {silent: true});
-    document.title = format('mongodb://%s/%s', this.model.getId(), model.getId());
+    app.navigate(format('schema/%s', model.getId()), {
+      silent: true
+    });
+    document.title = format('mongodb://%s%s', this.model.getId(), model.getId());
   },
   template: require('./index.jade'),
   subviews: {
