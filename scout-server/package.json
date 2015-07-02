@@ -56,6 +56,7 @@
   },
   "devDependencies": {
     "coffee-script": "^1.9.1",
+    "eslint-config-mongodb-js": "^0.1.4",
     "mocha": "^2.2.4",
     "mongodb-runner": "^2.2.0",
     "mongodb-version-manager": "^0.7.0",

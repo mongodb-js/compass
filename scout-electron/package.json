@@ -30,6 +30,7 @@
   },
   "devDependencies": {
     "async": "^0.9.0",
+    "eslint-config-mongodb-js": "^0.1.4",
     "gulp": "^3.8.11",
     "keepup": "0.0.7",
     "merge-stream": "^0.1.7",

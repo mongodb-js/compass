@@ -41,6 +41,7 @@
     "del": "^1.1.1",
     "dox": "^0.7.1",
     "ecstatic": "^0.7.2",
+    "eslint-config-mongodb-js": "^0.1.4",
     "gulp": "^3.8.11",
     "gulp-util": "^3.0.4",
     "handlebars": "^3.0.1",
