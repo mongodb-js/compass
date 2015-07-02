@@ -40,7 +40,7 @@ module.exports = Model.extend({
     uri: {
       deps: ['hostname', 'port'],
       fn: function() {
-        return format('mongodb://%s:%d/', this.hostname, this.port);
+        return format('mongodb://%s:%d', this.hostname, this.port);
       }
     }
   },
