@@ -1,0 +1,95 @@
+# Evergreen CI configuration
+# Derived from sample at https://github.com/evergreen-ci/evergreen/blob/master/config_dev/project/sample.yml
+
+stepback: false
+
+pre:
+- command: shell.track
+
+post:
+- command: shell.cleanup
+
+#######################################
+#            Functions                #
+#######################################
+
+functions:
+  "fetch source" :
+    - command: git.get_project
+      params:
+        directory: src
+    - command: git.apply_patch
+      params:
+        directory: src
+  "npm install" :
+    - command: shell.exec
+      params:
+        working_dir: src
+        script: |
+          set -o errexit -o verbose
+          export ${compile_env}
+          ${npm|npm} install
+  "npm test" :
+    - command: shell.exec
+      params:
+        working_dir: src
+        script: |
+          set -o errexit -o verbose
+          ${npm|npm} test
+
+#######################################
+#               Tasks                 #
+#######################################
+
+tasks:
+- name: compile
+  depends_on: []
+  commands:
+    - func: "fetch source"
+    - func: "npm install"
+- name: test
+  depends_on:
+  - name: compile
+  commands:
+  - func: "npm test"
+
+
+#######################################
+#           Buildvariants             #
+#######################################
+
+buildvariants:
+- name: osx-108
+  display_name: OS X 10.8
+  modules: ~
+  run_on:
+  - "osx-108"
+  expansions:
+    num_cores: $(sysctl -n hw.logicalcpu)
+  tasks:
+  - name: compile
+  - name: test
+
+- name: windows-64
+  display_name: Windows 64-bit
+  modules: ~
+  run_on:
+  - "windows-64-vs2013-test"
+  expansions:
+  	exe: ".exe"
+    num_cores: $(grep -c ^processor /proc/cpuinfo)
+  tasks:
+  - name: compile
+  - name: test
+
+- name: ubuntu
+  display_name: Ubuntu
+  modules: ~
+  run_on:
+  - "ubuntu1404-test"
+  expansions:
+    compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
+    num_cores: $(grep -c ^processor /proc/cpuinfo)
+  tasks:
+  - name: compile
+  - name: test
