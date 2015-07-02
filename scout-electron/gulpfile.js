@@ -36,7 +36,7 @@ if (PLATFORM === 'darwin') {
 var BREAKPAD_SYMBOLS = ELECTRON + '/out/R/' + PRODUCT_NAME + '.breakpad.syms';
 
 // @todo: lookup dynamically from ../electron/atom.gyp
-var NODE_VERSION = '0.26.0';
+var NODE_VERSION = '0.28.3';
 var ARCH = (PLATFORM === 'darwin') ? 'x64' : (PLATFORM === 'win32') ? 'ia32' : process.arch;
 
 var GYP_DEFINES = 'project_name=' + PROJECT_NAME + ' product_name=' + PRODUCT_NAME.replace(' ', '\\ ');
@@ -180,9 +180,7 @@ gulp.task('install app', ['install source', 'copy'], function(done) {
   async.parallel([
     'scout-brain',
     'scout-client',
-    'scout-data',
     'scout-electron',
-    'scout-metrics',
     'scout-server',
   ].map(function(d) {
     return function(cb) {
