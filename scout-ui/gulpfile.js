@@ -71,7 +71,7 @@ gulp.task('testserver', function() {
 });
 
 gulp.task('develop', ['pages', 'assets', 'less'], function() {
-  gulp.watch(['src/*.less', '../scout-style/*.less'], ['less']);
+  gulp.watch(['src/{*,**}.less', '../scout-style/*.less'], ['less']);
   gulp.watch(['src/*.jade'], ['pages']);
   gulp.watch(['src/img/*', '../scout-style/images/*'], ['assets']);
 
@@ -80,12 +80,12 @@ gulp.task('develop', ['pages', 'assets', 'less'], function() {
   /**
    * Gulp's [fast browserify builds recipe](http://git.io/iiCk-A)
    */
-  var bundler = browserify('./src/index.js', {
+  var bundler = watchify(browserify('./src/index.js', {
     cache: {},
     packageCache: {},
     fullPaths: true,
     debug: false
-  })
+  }))
     .transform('jadeify')
     .on('update', rebundle);
 
