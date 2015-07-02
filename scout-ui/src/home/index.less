@@ -111,11 +111,15 @@
   }
 
   .side {
-    width: 350px;
+    width: 0;
     font-family: @font-family-monospace;
     font-size: 11px;
     border-left: 2px solid @gray7;
     right: -12px;
+
+    &.is-open {
+      width: 400px;
+    }
   }
 
   .splitter {
