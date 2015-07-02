@@ -130,7 +130,7 @@ var Collection = AmpersandModel.extend({
       res[key] = this[key].serialize();
     }, this);
     return res;
-  },
+  }
 });
 
 module.exports = Collection;

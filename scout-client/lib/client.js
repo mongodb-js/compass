@@ -4,21 +4,21 @@
  * @todo Doc tags for possible `err` objects (api blueprint like)
  * @todo Doc tags for possible `data` objects (api blueprint like)
  */
-var request = require('superagent'),
-  util = require('util'),
-  EventEmitter = require('events').EventEmitter,
-  Token = require('./token'),
-  Context = require('./context'),
-  createRouter = require('./router'),
-  Subscription = require('./subscription'),
-  assert = require('assert'),
-  socketio = require('socket.io-client'),
-  pkg = require('../package.json'),
-  EJSON = require('mongodb-extended-json'),
-  valid = require('./valid'),
-  Resource = require('./resource'),
-  defaults = require('./defaults'),
-  debug = require('debug')('scout-client');
+var request = require('superagent');
+var util = require('util');
+var EventEmitter = require('events').EventEmitter;
+var Token = require('./token');
+var Context = require('./context');
+var createRouter = require('./router');
+var Subscription = require('./subscription');
+var assert = require('assert');
+var socketio = require('socket.io-client');
+var pkg = require('../package.json');
+var EJSON = require('mongodb-extended-json');
+var valid = require('./valid');
+var Resource = require('./resource');
+var defaults = require('./defaults');
+var debug = require('debug')('scout-client');
 
 // Override superagent's parse and encode handlers rather than
 // adding another content-type tooling doesnt like.
@@ -72,10 +72,9 @@ module.exports = function(opts) {
     clients[_id] = new Client(opts);
     clients[_id].connect();
     return clients[_id];
-  } else {
-    debug('already have client');
-    return clients[_id];
   }
+  debug('already have client');
+  return clients[_id];
 };
 
 module.exports.defaults = defaults;
@@ -197,7 +196,7 @@ Client.prototype.database = function(name, opts, fn) {
   }
 
   var resource = new Resource.Database(this, '/databases', name);
-  return (!fn) ? resource : resource.read(opts, fn);
+  return !fn ? resource : resource.read(opts, fn);
 };
 
 /**
@@ -222,7 +221,7 @@ Client.prototype.collection = function(ns, opts, fn) {
     throw new TypeError('Invalid namespace string `' + ns + '`');
   }
   var resource = new Resource.Collection(this, '/collections', ns);
-  return (!fn) ? resource : resource.read(opts, fn);
+  return !fn ? resource : resource.read(opts, fn);
 };
 
 /**
@@ -248,7 +247,7 @@ Client.prototype.index = function(ns, name, opts, fn) {
     throw new TypeError('Invalid namespace string `' + ns + '`');
   }
   var resource = new Resource.Index(this, '/indexes/' + ns, name);
-  return (!fn) ? resource : resource.read(opts, fn);
+  return !fn ? resource : resource.read(opts, fn);
 };
 
 /**
@@ -274,7 +273,7 @@ Client.prototype.document = function(ns, _id, opts, fn) {
     throw new TypeError('Invalid namespace string `' + ns + '`');
   }
   var resource = new Resource.Document(this, '/documents/' + ns, _id);
-  return (!fn) ? resource : resource.read(opts, fn);
+  return !fn ? resource : resource.read(opts, fn);
 };
 
 /**
@@ -480,7 +479,7 @@ Client.prototype.routes = {
   '/collections/:ns': 'collection',
   '/collections/:ns/count': 'count',
   '/collections/:ns/find': 'find',
-  '/collections/:ns/aggregate': 'aggregate',
+  '/collections/:ns/aggregate': 'aggregate'
 };
 
 /**
@@ -500,9 +499,9 @@ Client.prototype.get = function(fragment, opts, fn) {
     fn = opts;
     opts = {};
   }
-  var resolved = this.resolve(fragment),
-    handler = resolved[0],
-    args = resolved[1];
+  var resolved = this.resolve(fragment);
+  var handler = resolved[0];
+  var args = resolved[1];
 
   args.push.apply(args, [opts, fn]);
   return handler.apply(this, args);
@@ -565,8 +564,8 @@ Client.prototype.read = function(path, params, fn) {
     fn = params;
     params = {};
   }
-  var instance_id = this.context.get('instance_id'),
-    streamable = params._streamable;
+  var instance_id = this.context.get('instance_id');
+  var streamable = params._streamable;
   delete params._streamable;
 
   if (!fn && !streamable) {
@@ -578,7 +577,7 @@ Client.prototype.read = function(path, params, fn) {
   if (streamable && !fn) return new Subscription(this, path, params);
 
   path = (path === '/') ? '/' + instance_id :
-  (path !== '/deployments') ? '/' + instance_id + path : path;
+    path !== '/deployments' ? '/' + instance_id + path : path;
 
   assert(this.token.toString());
 
@@ -636,7 +635,7 @@ Client.prototype.onTokenReadable = function() {
       } else if (window.addEventListener) {
         window.addEventListener('beforeunload', this.onUnload.bind(this));
       }
-    } else if (process && process.on) {
+    } else {
       process.on('exit', this.onUnload.bind(this));
     }
   }
@@ -744,14 +743,13 @@ Client.prototype.createReadStream = function(_id, data) {
       });
     });
     return proxy;
-  } else {
-    data = data || {};
-    var stream = ss.createStream(this.io);
-    ss(this.io).emit(_id, stream, data);
-
-    var parser = EJSON.createParseStream();
-    var res = stream.pipe(parser);
-    stream.on('error', res.emit.bind(res, 'error'));
-    return res;
   }
+  data = data || {};
+  var stream = ss.createStream(this.io);
+  ss(this.io).emit(_id, stream, data);
+
+  var parser = EJSON.createParseStream();
+  var res = stream.pipe(parser);
+  stream.on('error', res.emit.bind(res, 'error'));
+  return res;
 };
