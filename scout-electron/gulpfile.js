@@ -28,7 +28,7 @@ if (PLATFORM === 'linux') {
   EXECUTABLE += '.exe';
 }
 
-var APP = ELECTRON + '/out/R/' + PRODUCT_NAME;
+var APP = path.join(ELECTRON, 'out/R', PRODUCT_NAME);
 if (PLATFORM === 'darwin') {
   APP += '.app';
 }

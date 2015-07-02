@@ -10,20 +10,26 @@ var ConnectionView = View.extend({
     model: Connection
   },
   events: {
-    click: 'onClick'
+    click: 'onClick',
+    dblclick: 'onDoubleClick'
   },
   bindings: {
-    'model.uri': {
-      hook: 'uri'
+    'model.name': {
+      hook: 'name'
     }
   },
-  template: '<a class="list-group-item" data-hook="uri"></a>',
+  template: '<a class="list-group-item" data-hook="name"></a>',
   onClick: function(event) {
     event.stopPropagation();
     event.preventDefault();
 
     $('[name=hostname]').val(this.model.hostname);
     $('[name=port]').val(this.model.port);
+    $('[name=name]').val(this.model.name);
+  },
+  onDoubleClick: function(event) {
+    this.onClick(event);
+    this.parent.parent.onSubmit(event);
   }
 });
 
@@ -54,9 +60,11 @@ var ConnectView = View.extend({
 
     var hostname = $(this.el).find('[name=hostname]').val() || 'localhost';
     var port = parseInt($(this.el).find('[name=port]').val() || 27017, 10);
+    var name = $(this.el).find('[name=name]').val() || 'Local';
     var uri = format('mongodb://%s:%d', hostname, port);
 
     var model = new Connection({
+      name: name,
       hostname: hostname,
       port: port
     });

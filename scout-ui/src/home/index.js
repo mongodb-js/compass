@@ -51,10 +51,20 @@ module.exports = AmpersandView.extend({
       if (!this.currentCollection) return;
       this.showCollection(this.currentCollection);
     });
+    /**
+     * @todo (imlucas): Include active connection name in window title.
+     */
+    // this.listenToAndRun(app.connection, 'change:name', this.updateTitle);
 
     this.once('change:rendered', this.onRendered);
     this.model.fetch();
   },
+  /**
+   * @todo (imlucas): Include active connection name in window title.
+   */
+  // updateTitle: function() {
+  //   document.title = app.connection.name;
+  // },
   onRendered: function() {
     this.switcher = new ViewSwitcher(this.queryByHook('collection-container'), {
       show: function() {}
@@ -73,7 +83,11 @@ module.exports = AmpersandView.extend({
     app.navigate(format('schema/%s', model.getId()), {
       silent: true
     });
-    document.title = format('mongodb://%s%s', this.model.getId(), model.getId());
+    /**
+     * @todo (imlucas): Include active connection name in window title.
+     */
+    document.title = format('mongodb://%s/%s',
+      this.model.getId(), model.getId());
   },
   template: require('./index.jade'),
   subviews: {
