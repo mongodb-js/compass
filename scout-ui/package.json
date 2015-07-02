@@ -29,12 +29,8 @@
     "start": "gulp",
     "develop": "gulp develop",
     "deploy": "gulp deploy",
-    "check": "gulp check",
     "test": "mocha"
   },
-  "precommit": [
-    "check"
-  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/10gen/scout.git"
@@ -43,7 +39,7 @@
     "amp-result": "^1.1.0",
     "ampersand-app": "^1.0.3",
     "ampersand-collection": "^1.4.1",
-    "ampersand-collection-filterable": "^0.1.0",
+    "ampersand-collection-filterable": "^0.2.0",
     "ampersand-collection-lodash-mixin": "^2.0.1",
     "ampersand-collection-rest-mixin": "^3.0.0",
     "ampersand-model": "^4.0.0",

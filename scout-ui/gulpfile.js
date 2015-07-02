@@ -21,9 +21,6 @@ var browserify = require('browserify'),
   pkg = require('./package.json'),
   util = require('util');
 
-
-require('../scout-check')(gulp, './src/{**/*.js,*.js}');
-
 gulp.task('default', ['develop', 'serve']);
 
 /**
