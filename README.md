@@ -52,11 +52,6 @@ The top level modules in this project are:
 ### Other Modules
 
 <dl>
-  <dt><a href="https://github.com/10gen/scout/tree/dev/scout-landing-page">scout-landing-page</a></dt>
-  <dd>
-    A <a href="http://www.metalsmith.io/">metalsmith</a> static site to use
-    for building Scout's landing page. Move to <code>mongodb-js/scout-landing-page</code>
-  </dd>
   <dt><a href="https://github.com/10gen/scout/tree/dev/scout-style">scout-style</a></dt>
   <dd>
     All of the base LESS, icons, and fonts <a href="https://github.com/10gen/scout/tree/dev/scout-ui">scout-ui</a>
