@@ -33,12 +33,6 @@ module.exports.create = function(opts) {
     }
   });
   attachMenu(_window);
-  if (process.env.NODE_ENV === 'development') {
-    _window.openDevTools({
-      detach: false
-    });
-  }
-
   _window.loadUrl(opts.url);
   if (main) {
     childWindows.push(_window);
