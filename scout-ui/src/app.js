@@ -90,7 +90,7 @@ var Application = State.extend({
   /**
    * When you want to go to a different page in the app or just save
    * state via the URL.
-   * @param {String} fragment
+   * @param {String} fragment - To update the location bar with.
    * @param {Object} [options]
    */
   navigate: function(fragment, options) {

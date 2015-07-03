@@ -1,16 +1,13 @@
-var app = require('app'),
-  Menu = require('menu'),
-  windows = require('./window-manager'),
-  debug = require('debug')('scout-electron:menu');
+var app = require('app');
+var Menu = require('menu');
+var debug = require('debug')('scout-electron:menu');
 
 
-app.on('ready', function() {
-  var template, menu;
-
+function getTemplate(_window) {
   if (process.platform === 'darwin') {
-    template = [
+    return [
       {
-        label: 'Scout',
+        label: 'MongoDB Scout',
         submenu: [
           {
             label: 'About Scout',
@@ -42,7 +39,7 @@ app.on('ready', function() {
             click: function() {
               app.quit();
             }
-          },
+          }
         ]
       },
       {
@@ -80,7 +77,7 @@ app.on('ready', function() {
             label: 'Select All',
             accelerator: 'Command+A',
             selector: 'selectAll:'
-          },
+          }
         ]
       },
       {
@@ -90,32 +87,21 @@ app.on('ready', function() {
             label: 'Reload',
             accelerator: 'Command+R',
             click: function() {
-              windows.main.restart();
-            }
-          },
-          {
-            label: 'Enter Fullscreen',
-            click: function() {
-              windows.main.setFullscreen(true);
+              _window.restart();
             }
           },
           {
             label: 'Toggle DevTools',
             accelerator: 'Alt+Command+I',
             click: function() {
-              windows.main.toggleDevTools();
+              _window.toggleDevTools();
             }
-          },
+          }
         ]
       },
       {
         label: 'Window',
         submenu: [
-          {
-            label: 'New Window',
-            accelerator: 'Command+N',
-            click: windows.create
-          },
           {
             label: 'Minimize',
             accelerator: 'Command+M',
@@ -132,59 +118,43 @@ app.on('ready', function() {
           {
             label: 'Bring All to Front',
             selector: 'arrangeInFront:'
-          },
+          }
         ]
-      },
+      }
     ];
-    debug('attaching app menu');
-    menu = Menu.buildFromTemplate(template);
-    Menu.setApplicationMenu(menu);
-  } else {
-    template = [
-      {
-        label: 'File',
-        submenu: [
-          {
-            label: 'Open',
-            accelerator: 'Ctrl+O',
-          },
-          {
-            label: 'Close',
-            accelerator: 'Ctrl+W',
-            click: function() {
-              windows.main.close();
-            }
-          },
-        ]
-      },
-      {
-        label: 'View',
-        submenu: [
-          {
-            label: 'Reload',
-            accelerator: 'Ctrl+R',
-            click: function() {
-              windows.main.restart();
-            }
-          },
-          {
-            label: 'Enter Fullscreen',
-            click: function() {
-              windows.main.setFullScreen(true);
-            }
-          },
-          {
-            label: 'Toggle DevTools',
-            accelerator: 'Alt+Ctrl+I',
-            click: function() {
-              windows.main.toggleDevTools();
-            }
-          },
-        ]
-      },
-    ];
-
-    menu = Menu.buildFromTemplate(template);
-    windows.main.setMenu(menu);
   }
-});
+
+  return [
+    {
+      label: 'View',
+      submenu: [
+        {
+          label: 'Reload',
+          accelerator: 'Ctrl+R',
+          click: function() {
+            _window.restart();
+          }
+        },
+        {
+          label: 'Toggle DevTools',
+          accelerator: 'Alt+Ctrl+I',
+          click: function() {
+            _window.toggleDevTools();
+          }
+        }
+      ]
+    }
+  ];
+}
+
+/**
+ * Attach the file menu to a window.
+ * @param {BrowserWindow} _window
+ * @see https://github.com/atom/electron/blob/master/docs/api/menu.md
+ */
+module.exports = function(_window) {
+  debug('attaching window menu');
+  var template = getTemplate(_window);
+  var menu = Menu.buildFromTemplate(template);
+  Menu.setApplicationMenu(menu);
+};

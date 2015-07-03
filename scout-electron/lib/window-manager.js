@@ -1,6 +1,9 @@
+var _ = require('lodash');
+
 var BrowserWindow = require('browser-window');
 var app = require('app');
 var debug = require('debug')('scout-electron:window-manager');
+var attachMenu = require('./menu');
 
 var DEFAULT_URL = 'http://localhost:29017/index.html#connect';
 
@@ -13,18 +16,41 @@ var DEFAULT_HEIGHT_DIALOG = 400;
 var main = module.exports.main = null;
 var childWindows = [];
 
-module.exports.create = function() {
+module.exports.create = function(opts) {
+  opts = _.defaults(opts || {}, {
+    width: DEFAULT_WIDTH,
+    height: DEFAULT_HEIGHT,
+    url: DEFAULT_URL
+  });
+
   debug('creating new window');
   var _window = new BrowserWindow({
-    width: main.width,
-    height: main.height,
+    width: opts.width,
+    height: opts.height,
     'web-preferences': {
       'subpixel-font-scaling': true,
       'direct-write': true
     }
   });
-  _window.loadUrl(DEFAULT_URL);
-  childWindows.push(_window);
+  attachMenu(_window);
+  if (process.env.NODE_ENV === 'development') {
+    _window.openDevTools({
+      detach: false
+    });
+  }
+
+  _window.loadUrl(opts.url);
+  if (main) {
+    childWindows.push(_window);
+  }
+  _window.webContents.on('new-window', function(event, url, frameName, disposition) {
+    debug('got new-window event!', event, url, frameName, disposition);
+    event.preventDefault();
+    module.exports.create({
+      url: url
+    });
+  });
+  return _window;
 };
 
 app.on('ready', function() {
@@ -36,21 +62,12 @@ app.on('ready', function() {
     height += 30;
   }
   debug('loading main window', DEFAULT_URL);
-  main = module.exports.main = new BrowserWindow({
-    // width: DEFAULT_WIDTH,
-    width: DEFAULT_WIDTH_DIALOG,
+
+  main = module.exports.main = module.exports.create({
     height: height,
-    'web-preferences': {
-      'subpixel-font-scaling': true,
-      'direct-write': true
-    }
+    width: DEFAULT_WIDTH_DIALOG,
+    url: DEFAULT_URL
   });
-  main.loadUrl(DEFAULT_URL);
-  if (process.env.NODE_ENV === 'development') {
-    main.openDevTools({
-      detach: true
-    });
-  }
 
   main.on('closed', function() {
     debug('main window closed.  killing children.');

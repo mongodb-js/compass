@@ -48,6 +48,7 @@ module.exports = Model.extend({
     var data = types.url(uri).data;
     this.port = data.hosts[0].port;
     this.hostname = data.hosts[0].host.toLowerCase();
+    this.fetch();
   },
   sync: connectionSync
 });

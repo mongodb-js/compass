@@ -6,8 +6,8 @@ var Connect = require('./connect');
 module.exports = AmpersandRouter.extend({
   routes: {
     '': 'index',
-    'schema': 'index',
-    'connect': 'connect',
+    schema: 'index',
+    connect: 'connect',
     'schema/:ns': 'schema',
     '(*path)': 'catchAll'
   },
@@ -15,13 +15,14 @@ module.exports = AmpersandRouter.extend({
     this.trigger('page', new HomePage({}));
   },
   schema: function(ns) {
-    this.trigger('page', new HomePage({ns: ns}));
+    this.trigger('page', new HomePage({
+      ns: ns
+    }));
   },
   catchAll: function() {
-    console.warn('catchAll!', arguments);
     this.redirectTo('');
   },
   connect: function() {
     this.trigger('page', new Connect({}));
-  },
+  }
 });

@@ -70,7 +70,7 @@ var ConnectView = View.extend({
     });
     model.save();
     this.connections.add(model);
-    window.open(format('%s?uri=%s', window.location.origin, uri));
+    window.open(format('%s?uri=%s#schema', window.location.origin, uri));
   },
   template: require('./index.jade'),
   subviews: {

@@ -21,5 +21,5 @@ module.exports = {
   autoupdater: require('./auto-updater'),
   crashreporter: require('./crash-reporter'),
   windows: require('./window-manager'),
-  menu: require('./menu'),
+  menu: require('./menu')
 };
