@@ -5,6 +5,6 @@ module.exports = AmpersandView.extend({
   template: require('./type-list.jade'),
   render: function() {
     this.renderWithTemplate({});
-    this.renderCollection(this.collection, TypeListItem, this.queryByHook('types'));
+    this.renderCollection(this.collection.sort(), TypeListItem, this.queryByHook('types'));
   }
 });
