@@ -1,3 +1,4 @@
+var path = require('path');
 var express = require('express');
 var app = module.exports = express();
 var redirect = require('./middleware/redirect');
@@ -14,7 +15,7 @@ var urldecode = require('body-parser').urlencoded({
 app.server = require('http').createServer(app);
 app.config = require('mongoscope-config');
 
-
+require('./middleware/livereload')(app);
 app.use(require('./middleware/watch-event-loop-blocking'));
 app.use(require('./middleware/cors'));
 app.use(require('./middleware/typed-params'));
@@ -64,8 +65,10 @@ app.get('/api/v1/:instance_id', token_required, instance.get);
  */
 var database = require('./routes/database');
 app.post('/api/v1/:instance_id/databases', token_required, database.post);
-app.get('/api/v1/:instance_id/databases/:database_name', token_required, database_required, database.get);
-app.delete('/api/v1/:instance_id/databases/:database_name', token_required, database_required, database.destroy);
+app.get('/api/v1/:instance_id/databases/:database_name', token_required,
+  database_required, database.get);
+app.delete('/api/v1/:instance_id/databases/:database_name', token_required,
+  database_required, database.destroy);
 
 /**
  * ## collection
@@ -114,7 +117,7 @@ app.use(require('./middleware/mongodb-boom'));
 /**
  * ## Serve UI
  */
-app.use(express.static(__dirname + '/../res'));
+app.use(express.static(path.resolve(__dirname, '../res')));
 
 module.exports.listen = app.server.listen.bind(app.server);
 

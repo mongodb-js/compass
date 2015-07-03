@@ -50,7 +50,7 @@ function script(name, pkgs, done) {
 
   if (typeof pkgs === 'function') {
     done = pkgs;
-    pkgs = ['check', 'client', 'brain', 'metrics', 'style', 'data', 'server', 'ui', 'electron'];
+    pkgs = ['client', 'brain', 'style', 'server', 'ui', 'electron'];
   }
 
   var args = 'run-script ' + name;
@@ -67,11 +67,6 @@ gulp.task('install', function(done) {
   script('install', done);
 });
 
-gulp.task('check', function(done) {
-  console.log('@todo: need to fix up where some modules live before this will work without errors.');
-  done();
-});
-
 gulp.task('test', function(done) {
   test();
   script('test', ['server'], done);
@@ -81,8 +76,5 @@ gulp.task('default', ['install', 'test']);
 
 gulp.task('start', function() {
   dev();
-  console.log('process.versions: %j', process.versions);
-  script('develop', ['ui']);
-  script('start', ['server']);
   script('start', ['electron']);
 });
