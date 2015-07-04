@@ -18,6 +18,7 @@ var merge = require('merge-stream');
 var pkg = require('./package.json');
 var shell = require('gulp-shell');
 var path = require('path');
+var del = require('del');
 
 gulp.task('default', ['develop', 'start']);
 
@@ -199,17 +200,17 @@ gulp.task('start:electron', ['build:osx:electron'], shell.task('open "' + osx_ar
 }));
 
 gulp.task('start', [
-  'copy',
-  'pages',
-  'build:install',
+  'build:app',
   'build:osx:electron',
   'start:electron'
 ]);
 
+gulp.task('clean', del('dist/'));
+
+gulp.task('build:app', ['copy', 'pages', 'build:install']);
+
 gulp.task('release', [
-  'copy',
-  'pages',
-  'build:install',
+  'build:app',
   'build:osx',
   'build:win'
 ]);
