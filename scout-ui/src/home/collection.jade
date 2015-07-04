@@ -8,10 +8,17 @@
       .col-md-6
         div(data-hook='stats-subview')
   div(data-hook='refine-bar')
-  .column-container
+  .column-container(data-hook='json-sidebar-toggle-class')
     .column.main
       div(data-hook='fields-subview')
+    .splitter
+      button.btn.btn-link.splitter-button.splitter-button-open
+        i.fa.fa-caret-left
+        | 
+        i.fa.fa-file-text-o
+      button.btn.btn-link.splitter-button.splitter-button-close
+        i.fa.fa-file-text-o
+        | 
+        i.fa.fa-caret-right
     .column.side
-      .splitter
-        i.fa.fa-lg.fa-rotate-90.fa-sort
       div(data-hook='documents-subview')

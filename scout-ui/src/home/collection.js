@@ -20,14 +20,6 @@ module.exports = AmpersandView.extend({
       type: 'view'
     }
   },
-  derived: {
-    sidebarWidth: {
-      deps: ['open'],
-      fn: function() {
-        return this.open ? 400 : 0;
-      }
-    }
-  },
   events: {
     'click .splitter': 'onSplitterClick',
   },
@@ -35,11 +27,10 @@ module.exports = AmpersandView.extend({
     'model._id': {
       hook: 'name'
     },
-    'sidebarWidth': {
-      type: function(el, value) {
-        $(el).width(value);
-      },
-      selector: '.side'
+    'open': {
+      type: 'booleanClass',
+      yes: 'sidebar-open',
+      hook: 'json-sidebar-toggle-class'
     }
   },
   children: {
