@@ -1,9 +1,4 @@
-# scout-ui
-
-The frontend for scout.
-
-
-## Some Tips and Tricks using Ampersand.js 
+## Some Tips and Tricks using Ampersand.js
 
 ### Subviews vs. renderCollection() vs. renderSubview()
 
@@ -11,7 +6,7 @@ The frontend for scout.
 
 #### Subviews
 
-Subviews can be defined inside a `subviews` property when extending an AmpersandView, see [ampersand-view subviews](http://ampersandjs.com/docs#ampersand-view-subviews). An example would look like this: 
+Subviews can be defined inside a `subviews` property when extending an AmpersandView, see [ampersand-view subviews](http://ampersandjs.com/docs#ampersand-view-subviews). An example would look like this:
 
 ```js
 var AmpersandView = require('ampersand-view');
@@ -22,7 +17,7 @@ module.exports = AmpersandView.extend({
   subviews: {
     controlpanel: { // just a name, choose something
       container: '[data-hook=controlpanel-subview]',  // use *-subiew hook
-      waitFor: 'model.controls',  // waits until model.controls becomes true-thy 
+      waitFor: 'model.controls',  // waits until model.controls becomes true-thy
       prepareView: function (el) {
         return new ControlPanelView({  // return new view instance
           el: el,  // always pass in the el element
@@ -33,15 +28,15 @@ module.exports = AmpersandView.extend({
 });
 ```
 
-Subviews defined this way in the `subviews` property **replace** the DOM element container. Keep this in mind when writing your .html or .jade templates. It makes no sense to add a class or id or any other attributes to the container element, as it will be removed and replaced with the root of the subview. 
+Subviews defined this way in the `subviews` property **replace** the DOM element container. Keep this in mind when writing your .html or .jade templates. It makes no sense to add a class or id or any other attributes to the container element, as it will be removed and replaced with the root of the subview.
 
 **Pro Tip:** A good convention is to always use a hook ending in `-subview`, as opposed to `-container` (see below), to make it easy to see which elements are replaced and which ones stay in the DOM.
 
 #### renderCollection()
 
-AmpersandView also has a [`.renderCollection()`](http://ampersandjs.com/docs#ampersand-view-rendercollection) method. It takes an AmpersandCollection, a view class, and a container selector and renders an instance of the view for each model in the collection inside the container. It also listens to changes in the collection and automatically removes or adds new views. 
+AmpersandView also has a [`.renderCollection()`](http://ampersandjs.com/docs#ampersand-view-rendercollection) method. It takes an AmpersandCollection, a view class, and a container selector and renders an instance of the view for each model in the collection inside the container. It also listens to changes in the collection and automatically removes or adds new views.
 
-A typical example often uses `.renderCollection()` inside the `render()` method and could look like this: 
+A typical example often uses `.renderCollection()` inside the `render()` method and could look like this:
 
 ```js
 var AmpersandView = require('ampersand-view');
@@ -56,7 +51,7 @@ module.exports = AmpersandView.extend({
 }
 ```
 
-**Pro Tip:** As a convention, here we use a hook ending in `-container`, because the container remains in the DOM. 
+**Pro Tip:** As a convention, here we use a hook ending in `-container`, because the container remains in the DOM.
 
 
 #### renderSubview()
@@ -83,9 +78,9 @@ module.exports = AmpersandView.extend({
 }
 ```
 
-This is similar to the `.renderCollection()` example, except it applies to a single view instance instead of multiple views. 
+This is similar to the `.renderCollection()` example, except it applies to a single view instance instead of multiple views.
 
-**Pro Tip:** As a convention, again we use a hook ending in `-container`, because the container remains in the DOM. 
+**Pro Tip:** As a convention, again we use a hook ending in `-container`, because the container remains in the DOM.
 
 
 
