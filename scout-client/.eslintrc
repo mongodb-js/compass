@@ -1,9 +1,0 @@
-{
-  "env": {
-    "mocha": true
-  },
-  "globals": {
-    "process": true
-  },
-  "extends": "mongodb-js/browser"
-}

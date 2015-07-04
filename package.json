@@ -29,7 +29,10 @@
     "mocha": "^2.2.1",
     "pre-commit": "^1.0.6",
     "through2": "^0.6.5",
-    "which": "^1.0.9"
+    "which": "^1.0.9",
+    "scout-brain": "mongodb-js/scout-brain",
+    "scout-client": "mongodb-js/scout-client",
+    "scout-server": "mongodb-js/scout-server"
   },
   "precommmit": [
     "check"
