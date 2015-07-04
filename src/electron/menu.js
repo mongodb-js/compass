@@ -148,8 +148,7 @@ function getTemplate(_window) {
 }
 
 /**
- * Attach the file menu to a window.
- * @param {BrowserWindow} _window
+ * @param {BrowserWindow} _window - The window to attach to.
  * @see https://github.com/atom/electron/blob/master/docs/api/menu.md
  */
 module.exports = function(_window) {

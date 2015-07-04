@@ -66,6 +66,7 @@ app.on('ready', function() {
   main.on('closed', function() {
     debug('main window closed.  killing children.');
     main = null;
+    /*eslint no-unused-vars:0*/
     childWindows.map(function(_window) {
       _window = null;
     });

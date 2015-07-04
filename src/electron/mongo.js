@@ -1,13 +1,13 @@
-var path = require('path');
-process.env.PATH = path.resolve(__dirname + '/../bin:') + process.env.PATH;
+// var path = require('path');
+// process.env.PATH = path.resolve(__dirname + '/../bin:') + process.env.PATH;
 
-var mkdirp = require('mkdirp');
-var debug = require('debug')('scout-electron:mongo');
-var proc = require('child_process');
+// var mkdirp = require('mkdirp');
+// var debug = require('debug')('scout-electron:mongo');
+// var proc = require('child_process');
 
-var untildify = require('untildify');
+// var untildify = require('untildify');
 
-var mongo;
+// var mongo;
 
 module.exports.start = function(done) {
   done();
@@ -26,7 +26,7 @@ module.exports.start = function(done) {
 };
 
 module.exports.stop = function(done) {
-// debug('stopping bundled mongodb...');
-// mongo.kill();
+  // debug('stopping bundled mongodb...');
+  // mongo.kill();
   process.nextTick(done);
 };
