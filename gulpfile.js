@@ -1,80 +1,211 @@
+var browserify = require('browserify');
+var watchify = require('watchify');
+var jadeify = require('jadeify');
+var notifier = require('node-notifier');
+var prettyTime = require('pretty-hrtime');
+var source = require('vinyl-source-stream');
+var buffer = require('vinyl-buffer');
 var gulp = require('gulp');
-var path = require('path');
+var webserver = require('gulp-webserver');
+var gutil = require('gulp-util');
+var less = require('gulp-less');
+var jade = require('gulp-jade');
+var uglify = require('gulp-uglify');
+var sourcemaps = require('gulp-sourcemaps');
+var CleanCSS = require('less-plugin-clean-css');
+var clui = require('clui');
+var merge = require('merge-stream');
 var pkg = require('./package.json');
-var child_process = require('child_process');
-var async = require('async');
-var npm = require('which').sync('npm');
-var proc = require('child_process');
-var os = require('os');
+var shell = require('gulp-shell');
 var path = require('path');
 
-var run = function(child, task) {
-  var args = task.split(' '),
-    cmd = args.shift();
+gulp.task('default', ['develop', 'start']);
 
-  return function(cb) {
-    var opts = {
-        cwd: path.resolve(__dirname + '/' + pkg.name + '-' + child),
-        stdio: 'inherit'
-      },
-      p = child_process.spawn(cmd, args, opts);
+/**
+ * Helper for catching error events on vinyl-source-stream's and showing
+ * a nice native notification and printing a cleaner error message to
+ * the console.
+ */
+function notify(titlePrefix) {
+  return function(err) {
+    var title = titlePrefix + ' error';
+    var message = err.message;
 
-    console.log('> ' + pkg.name + '@' + pkg.version, task, opts.cwd);
-    p.on('exit', function(code) {
-      console.log('< ' + pkg.name + '@' + pkg.version, task, 'exit ' + code);
-      if (code !== 0) return cb(new Error(child + ': ' + task + ' exited with code ' + code));
-      cb();
+    if (err.fileName) {
+      var filename = err.fileName.replace(path.join(__dirname, path.sep), '');
+      title = titlePrefix + ' error' + filename;
+    }
+
+    if (err.lineNumber) {
+      message = err.lineNumber + ': ' + err.message.split(' in file ')[0].replace(/`/g, '"');
+    }
+
+    notifier.notify({
+      title: title,
+      message: message
     });
+    console.log(err);
+    gutil.log(gutil.colors.red.bold(title), message);
   };
-};
-
-function test() {
-  process.env.NODE_ENV = 'testing';
 }
 
-function dev() {
-  process.env.NODE_ENV = 'development';
-  process.env.DEBUG = 'mon*,sco*';
-}
-
-function prod() {
-  process.env.NODE_ENV = 'production';
-}
-
-function script(name, pkgs, done) {
-  if (Array.isArray(name)) {
-    return name.map(function(n) {
-      return script(n, pkgs, done);
-    });
-  }
-
-  if (typeof pkgs === 'function') {
-    done = pkgs;
-    pkgs = ['client', 'brain', 'style', 'server', 'ui', 'electron'];
-  }
-
-  var args = 'run-script ' + name;
-  if (name === 'install') {
-    args = 'install';
-  }
-  async.series(pkgs.map(function(c) {
-    return run(c, npm + ' ' + args);
-  }), done);
-}
-
-gulp.task('install', function(done) {
-  dev();
-  script('install', done);
+gulp.task('testserver', function() {
+  return gulp.src('build')
+    .pipe(webserver({
+      host: 'localhost',
+      port: 3001
+    }));
 });
 
-gulp.task('test', function(done) {
-  test();
-  script('test', ['server'], done);
+gulp.task('develop', ['pages', 'copy', 'less'], function() {
+  gulp.watch(['src/{*,**/*}.less', 'styles/*.less'], ['less']);
+  gulp.watch(['src/*.jade'], ['pages']);
+  gulp.watch('images/{*,**/*}', ['copy:images']);
+  gulp.watch('fonts/*', ['copy:fonts']);
+  gulp.watch(['main.js', 'src/electron/*'], ['copy:electron']);
+  gulp.watch('package.json', ['build:install']);
+
+  var spinner = new clui.Spinner('Watching for changes...');
+
+  /**
+   * Gulp's [fast browserify builds recipe](http://git.io/iiCk-A)
+   */
+  var bundler = watchify(browserify('./src/index.js', {
+    cache: {},
+    packageCache: {},
+    fullPaths: true,
+    debug: false
+  }))
+    .transform('jadeify')
+    .on('update', rebundle);
+
+  function rebundle(changed) {
+    var start = process.hrtime();
+    if (changed) {
+      spinner.stop();
+      gutil.log('Changed', '\'' + gutil.colors.cyan(changed[1]) + '\'');
+    }
+
+    gutil.log('Starting', '\'' + gutil.colors.cyan('rebundle') + '\'...');
+    return bundler.bundle()
+      .on('error', notify('js'))
+      .pipe(source('index.js'))
+      .pipe(gulp.dest('build/'))
+      .on('end', function() {
+        var time = prettyTime(process.hrtime(start));
+        gutil.log('Finished', '\'' + gutil.colors.cyan('rebundle') + '\'',
+          'after', gutil.colors.magenta(time));
+        spinner.start();
+      });
+  }
+  return rebundle();
 });
 
-gulp.task('default', ['install', 'test']);
-
-gulp.task('start', function() {
-  dev();
-  script('start', ['electron']);
+// Compile LESS to CSS.
+gulp.task('less', function() {
+  return gulp.src('src/*.less')
+    .pipe(sourcemaps.init())
+    .pipe(less(pkg.less))
+    .on('error', notify('less'))
+    .pipe(sourcemaps.write('./maps'))
+    .pipe(gulp.dest('build'));
 });
+
+// Compile jade templates to HTML files.
+gulp.task('pages', function() {
+  return gulp.src('src/index.jade')
+    .pipe(jade())
+    .on('error', notify('jade'))
+    .pipe(gulp.dest('build'));
+});
+
+// Things that should be copied into `build/`.
+gulp.task('copy', ['copy:fonts', 'copy:images', 'copy:electron']);
+
+gulp.task('copy:fonts', function() {
+  return gulp.src(pkg.fonts)
+    .pipe(gulp.dest('build/fonts'));
+});
+
+gulp.task('copy:images', function() {
+  return gulp.src('images/{*,**/*}')
+    .pipe(gulp.dest('build/images'));
+});
+
+gulp.task('copy:electron', function() {
+  return merge(
+    gulp.src(['main.js', 'package.json']).pipe(gulp.dest('build/')),
+    gulp.src(['src/electron/*']).pipe(gulp.dest('build/src/electron'))
+  );
+});
+
+gulp.task('build:install', ['copy:electron'], shell.task('npm install', {
+  cwd: 'build'
+}));
+
+var package_command = [
+  'electron-packager build "Scout" --platform=darwin --arch=x64 --out=dist',
+  ' --version=' + pkg.electron.version,
+  ' --icon=""',
+  ' --overwrite --prune'
+].join('');
+gulp.task('build:electron-packager', [
+  'copy:electron',
+  'build:install',
+  'build:js',
+  'build:less'
+], shell.task(package_command));
+
+var executable = path.resolve(__dirname, 'dist/Scout-darwin-x64/Scout.app');
+gulp.task('start:electron', shell.task(executable, {
+  env: {
+    NODE_ENV: 'development',
+    DEBUG: 'mong*,sco*'
+  }
+}));
+
+gulp.task('start', [
+  'copy',
+  'pages',
+  'build:install',
+  'build:electron-packager',
+  'start:electron'
+]);
+
+gulp.task('build:js', function() {
+  return browserify('src/index.js')
+    .transform(jadeify)
+    .bundle()
+    .pipe(source('index.js'))
+    .pipe(buffer())
+    .pipe(uglify())
+    .pipe(gulp.dest('build'));
+});
+
+gulp.task('build:less', function() {
+  // Setup less plugin that will clean and compress.
+  var cleaner = new CleanCSS({
+    root: path.resolve(__dirname, 'src'),
+    keepSpecialComments: 0,
+    advanced: true
+  });
+
+  return gulp.src('src/*.less')
+    .pipe(less({
+      plugins: [cleaner],
+      paths: pkg.less.paths.map(function(p) {
+        return path.resolve(__dirname, p);
+      })
+    }))
+    .pipe(gulp.dest('build'));
+});
+
+// Build in production mode.
+gulp.task('build', [
+  'copy',
+  'pages',
+  'build:js',
+  'build:less',
+  'build:install',
+  'build:electron-packager'
+]);
