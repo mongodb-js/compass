@@ -143,12 +143,31 @@ gulp.task('build:install', ['copy:electron'], shell.task('npm install', {
   cwd: 'build'
 }));
 
-var package_command = [
-  'electron-packager build "Scout" --platform=darwin --arch=x64 --out=dist',
+var package_command;
+var installer_command;
+var artifact;
+var product_name = 'MongoDB Enterprise Scout';
+
+artifact = path.join('dist', product_name + '-darwin-x64', product_name + '.app');
+
+package_command = [
+  'electron-packager build "' + product_name + '" ',
+  ' --out=dist',
+  ' --platform=darwin',
+  ' --arch=x64',
   ' --version=' + pkg.electron.version,
-  ' --icon=""',
-  ' --overwrite --prune'
+  ' --icon="images/darwin/scout.icns"',
+  ' --overwrite',
+  ' --prune',
+  ' --app-bundle-id=com.mongodb.scout',
+  ' --app-version=' + pkg.version,
+  ' --sign="Developer ID Application: Matt Kangas"'
 ].join('');
+
+installer_command = [
+  'electron-builder "' + artifact + '" --platform=osx --out="dist" --config=dist-config.json'
+];
+
 gulp.task('build:electron-packager', [
   'copy:electron',
   'build:install',
@@ -156,8 +175,9 @@ gulp.task('build:electron-packager', [
   'build:less'
 ], shell.task(package_command));
 
-var executable = path.resolve(__dirname, 'dist/Scout-darwin-x64/Scout.app');
-gulp.task('start:electron', shell.task(executable, {
+gulp.task('build:electron-installer', ['build:electron-packager'], shell.task(installer_command));
+
+gulp.task('start:electron', shell.task('open "' + artifact + '"', {
   env: {
     NODE_ENV: 'development',
     DEBUG: 'mong*,sco*'
@@ -170,6 +190,14 @@ gulp.task('start', [
   'build:install',
   'build:electron-packager',
   'start:electron'
+]);
+
+gulp.task('release', [
+  'copy',
+  'pages',
+  'build:install',
+  'build:electron-packager',
+  'build:electron-installer'
 ]);
 
 gulp.task('build:js', function() {

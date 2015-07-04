@@ -85,6 +85,7 @@
   "devDependencies": {
     "browserify": "^10.2.4",
     "clui": "^0.3.1",
+    "electron-builder": "^2.0.0",
     "eslint-config-mongodb-js": "^0.1.4",
     "gulp": "^3.9.0",
     "gulp-jade": "^1.0.1",

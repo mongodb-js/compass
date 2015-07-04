@@ -1,0 +1,12 @@
+{
+  "osx" : {
+    "title": "MongoDB Enterprise Scout",
+    "icon": "images/darwin/scout.icns",
+    "background": "images/darwin/installer.png",
+    "icon-size": 80,
+    "contents": [
+      { "x": 438, "y": 100, "type": "link", "path": "/Applications" },
+      { "x": 192, "y": 100, "type": "file" }
+    ]
+  }
+}
