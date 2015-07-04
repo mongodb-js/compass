@@ -8,5 +8,9 @@
       { "x": 438, "y": 100, "type": "link", "path": "/Applications" },
       { "x": 192, "y": 100, "type": "file" }
     ]
+  },
+  "win" : {
+    "title" : "MongoDB Enterprise Scout",
+    "icon" : "images/win32/scout.ico"
   }
 }

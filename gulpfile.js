@@ -143,14 +143,15 @@ gulp.task('build:install', ['copy:electron'], shell.task('npm install', {
   cwd: 'build'
 }));
 
-var package_command;
-var installer_command;
-var artifact;
 var product_name = 'MongoDB Enterprise Scout';
-
-artifact = path.join('dist', product_name + '-darwin-x64', product_name + '.app');
-
-package_command = [
+var osx_artifact = path.join('dist', product_name + '-darwin-x64', product_name + '.app');
+gulp.task('build:osx', ['build:osx:electron', 'build:osx:installer']);
+gulp.task('build:osx:electron', [
+  'copy:electron',
+  'build:install',
+  'build:js',
+  'build:less'
+], shell.task([
   'electron-packager build "' + product_name + '" ',
   ' --out=dist',
   ' --platform=darwin',
@@ -162,22 +163,35 @@ package_command = [
   ' --app-bundle-id=com.mongodb.scout',
   ' --app-version=' + pkg.version,
   ' --sign="Developer ID Application: Matt Kangas"'
-].join('');
+].join('')));
 
-installer_command = [
-  'electron-builder "' + artifact + '" --platform=osx --out="dist" --config=dist-config.json'
-];
+gulp.task('build:osx:installer', ['build:osx:electron'], shell.task([
+  'electron-builder "' + osx_artifact + '" --platform=osx --out="dist" --config=dist-config.json'
+].join('')));
 
-gulp.task('build:electron-packager', [
+var win_artifact = path.join('dist', product_name + '-win32-ia32');
+gulp.task('build:win', ['build:win:electron', 'build:win:installer']);
+gulp.task('build:win:electron', [
   'copy:electron',
   'build:install',
   'build:js',
   'build:less'
-], shell.task(package_command));
+], shell.task([
+  'electron-packager build "' + product_name + '" ',
+  ' --out=dist',
+  ' --platform=win32',
+  ' --arch=ia32',
+  ' --version=' + pkg.electron.version,
+  ' --overwrite',
+  ' --prune',
+  ' --app-version=' + pkg.version
+].join('')));
 
-gulp.task('build:electron-installer', ['build:electron-packager'], shell.task(installer_command));
+gulp.task('build:win:installer', ['build:win:electron'], shell.task([
+  'electron-builder "' + win_artifact + '" --platform=win --out="dist" --config=dist-config.json'
+].join('')));
 
-gulp.task('start:electron', shell.task('open "' + artifact + '"', {
+gulp.task('start:electron', ['build:osx:electron'], shell.task('open "' + osx_artifact + '"', {
   env: {
     NODE_ENV: 'development',
     DEBUG: 'mong*,sco*'
@@ -188,7 +202,7 @@ gulp.task('start', [
   'copy',
   'pages',
   'build:install',
-  'build:electron-packager',
+  'build:osx:electron',
   'start:electron'
 ]);
 
@@ -196,8 +210,8 @@ gulp.task('release', [
   'copy',
   'pages',
   'build:install',
-  'build:electron-packager',
-  'build:electron-installer'
+  'build:osx',
+  'build:win'
 ]);
 
 gulp.task('build:js', function() {
