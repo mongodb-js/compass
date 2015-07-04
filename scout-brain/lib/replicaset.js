@@ -54,16 +54,18 @@ Replicaset.prototype.config = function(fn) {
 // ```json
 // { "capped" : true, "size" : 41943040, "autoIndexId" : false }
 // ```
-Replicaset.prototype.collection = function(fn) {
-  this.db.db('local').collection('system.namespaces').findOne({
-    name: 'local.oplog.rs'
-  }, function(err, doc) {
-    if (err) return fn(err);
-    if (!doc || !doc.options) return fn(boom.badRequest('Not a member of a replicaset.'));
-    fn(null, doc.options);
-  });
-  return this;
-};
+
+// TODO(kangas) INT-160 ADD TESTS, FIX FOR WIREDTIGER
+// Replicaset.prototype.collection = function(fn) {
+//   this.db.db('local').collection('system.namespaces').findOne({
+//     name: 'local.oplog.rs'
+//   }, function(err, doc) {
+//     if (err) return fn(err);
+//     if (!doc || !doc.options) return fn(boom.badRequest('Not a member of a replicaset.'));
+//     fn(null, doc.options);
+//   });
+//   return this;
+// };
 
 // @api private
 Replicaset.prototype._status = function(fn) {

@@ -3,28 +3,30 @@ var debug = require('debug')('scout-server:routes:_index');
 
 module.exports = {
   list: function(req, res, next) {
-    req.db.collection('system.indexes', function(err, col) {
-      col.find({
-        ns: req.ns.toString()
-      }).toArray(function(err, data) {
-        if (err) return next(err);
-        res.status(200).send(data);
-      });
-    });
+    // TODO(kangas) INT-160 ADD TESTS, FIX FOR WIREDTIGER
+    // req.db.collection('system.indexes', function(err, col) {
+    //   col.find({
+    //     ns: req.ns.toString()
+    //   }).toArray(function(err, data) {
+    //     if (err) return next(err);
+    //     res.status(200).send(data);
+    //   });
+    // });
   },
   get: function(req, res, next) {
-    var query = {
-      ns: req.ns.toString(),
-      name: req.param('index_name')
-    };
+    // TODO(kangas) INT-160 ADD TESTS, FIX FOR WIREDTIGER
+    // var query = {
+    //   ns: req.ns.toString(),
+    //   name: req.param('index_name')
+    // };
 
-    req.db.collection('system.indexes').findOne(query, function(err, data) {
-      if (err) return next(err);
-      if (!data) {
-        return next(boom.notFound('Index does not exist'));
-      }
-      res.status(200).send(data);
-    });
+    // req.db.collection('system.indexes').findOne(query, function(err, data) {
+    //   if (err) return next(err);
+    //   if (!data) {
+    //     return next(boom.notFound('Index does not exist'));
+    //   }
+    //   res.status(200).send(data);
+    // });
   },
   destroy: function(req, res, next) {
     if (req.param('index_name') === '*') {
@@ -43,35 +45,36 @@ module.exports = {
     });
   },
   create: function(req, res, next) {
-    var field = req.body.field,
-      options = req.body.options || {};
+    // TODO(kangas) INT-160 ADD TESTS, FIX FOR WIREDTIGER
+    // var field = req.body.field,
+    //   options = req.body.options || {};
 
-    if (!field) {
-      return next(boom.badRequest('No field specified.'));
-    }
+    // if (!field) {
+    //   return next(boom.badRequest('No field specified.'));
+    // }
 
-    if (typeof options !== 'object') {
-      return next(boom.badRequest('options must be an object'));
-    }
+    // if (typeof options !== 'object') {
+    //   return next(boom.badRequest('options must be an object'));
+    // }
 
-    req.db.createIndex(req.ns.collection, field, options, function(err, name) {
-      if (err) {
-        if (err.message.indexOf('bad index key pattern') > -1) {
-          return next(boom.badRequest('Invalid index key pattern `' + JSON.stringify(field) + '`.  Should be {key: [1|-1]}'));
-        }
-        return next(err);
-      }
+    // req.db.createIndex(req.ns.collection, field, options, function(err, name) {
+    //   if (err) {
+    //     if (err.message.indexOf('bad index key pattern') > -1) {
+    //       return next(boom.badRequest('Invalid index key pattern `' + JSON.stringify(field) + '`.  Should be {key: [1|-1]}'));
+    //     }
+    //     return next(err);
+    //   }
 
-      req.db.collection('system.indexes', function(err, col) {
-        col.findOne({
-          ns: req.ns.toString(),
-          name: name
-        }, function(err, doc) {
-          if (err) return next(err);
-          res.status(201).send(doc);
-        });
-      });
-    });
+    //   req.db.collection('system.indexes', function(err, col) {
+    //     col.findOne({
+    //       ns: req.ns.toString(),
+    //       name: name
+    //     }, function(err, doc) {
+    //       if (err) return next(err);
+    //       res.status(201).send(doc);
+    //     });
+    //   });
+    // });
   },
   update: function(req, res, next) {
     var field = req.body.field,
