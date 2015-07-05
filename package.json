@@ -67,6 +67,7 @@
     "debug": "^2.2.0",
     "domready": "^1.0.8",
     "event-stream": "^3.3.1",
+    "fix-path": "^1.1.0",
     "font-awesome": "https://github.com/FortAwesome/Font-Awesome/archive/v4.3.0.tar.gz",
     "jquery": "^2.1.4",
     "local-links": "^1.4.0",
@@ -78,9 +79,9 @@
     "octicons": "https://github.com/github/octicons/archive/v2.2.0.tar.gz",
     "phantomjs-polyfill": "0.0.1",
     "qs": "^3.1.0",
-    "scout-brain": "mongodb-js/scout-brain",
-    "scout-client": "mongodb-js/scout-client",
-    "scout-server": "mongodb-js/scout-server"
+    "scout-brain": "http://bin.mongodb.com/js/scout-brain/v0.0.1/scout-brain-0.0.1.tgz",
+    "scout-client": "http://bin.mongodb.com/js/scout-client/v0.0.1/scout-client-0.0.1.tgz",
+    "scout-server": "http://bin.mongodb.com/js/scout-server/v0.0.1/scout-server-0.0.1.tgz"
   },
   "devDependencies": {
     "browserify": "^10.2.4",
@@ -90,8 +91,6 @@
     "eslint-config-mongodb-js": "^0.1.4",
     "gulp": "^3.9.0",
     "gulp-jade": "^1.0.1",
-    "gulp-jsfmt": "^0.3.0",
-    "gulp-jshint": "^1.11.1",
     "gulp-less": "^3.0.3",
     "gulp-shell": "^0.4.2",
     "gulp-sourcemaps": "^1.5.2",

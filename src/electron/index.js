@@ -1,3 +1,6 @@
+// Fix the $PATH on OS X when run from a GUI app
+require('fix-path')();
+
 var app = require('app');
 var debug = require('debug')('scout-electron');
 var mongo = require('./mongo');
