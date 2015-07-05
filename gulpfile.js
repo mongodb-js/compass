@@ -185,6 +185,7 @@ gulp.task('build:win:electron', [
   ' --version=' + pkg.electron.version,
   ' --overwrite',
   ' --prune',
+  ' --asar',
   ' --app-version=' + pkg.version
 ].join('')));
 
