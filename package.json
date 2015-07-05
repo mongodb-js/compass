@@ -79,9 +79,9 @@
     "octicons": "https://github.com/github/octicons/archive/v2.2.0.tar.gz",
     "phantomjs-polyfill": "0.0.1",
     "qs": "^3.1.0",
-    "scout-brain": "http://bin.mongodb.com/js/scout-brain/v0.0.1/scout-brain-0.0.1.tgz",
-    "scout-client": "http://bin.mongodb.com/js/scout-client/v0.0.1/scout-client-0.0.1.tgz",
-    "scout-server": "http://bin.mongodb.com/js/scout-server/v0.0.1/scout-server-0.0.1.tgz"
+    "scout-brain": "http://bin.mongodb.com/js/scout-brain/v0.0.1/scout-brain-0.0.1.tar.gz",
+    "scout-client": "http://bin.mongodb.com/js/scout-client/v0.0.1/scout-client-0.0.1.tar.gz",
+    "scout-server": "http://bin.mongodb.com/js/scout-server/v0.0.2/scout-server-0.0.2.tar.gz"
   },
   "devDependencies": {
     "browserify": "^10.2.4",
