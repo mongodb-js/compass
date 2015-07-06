@@ -1,4 +1,14 @@
+# scout-ui
+
+The frontend for scout.
+
 ## Some Tips and Tricks using Ampersand.js
+
+### View Hierarchy
+
+This diagram shows the view hierarchy of Scout and where the `.js` files and `.jade` templates for each view are.
+
+![](./docs/view_hierarchy.png)
 
 ### Subviews vs. renderCollection() vs. renderSubview()
 
@@ -81,6 +91,3 @@ module.exports = AmpersandView.extend({
 This is similar to the `.renderCollection()` example, except it applies to a single view instance instead of multiple views.
 
 **Pro Tip:** As a convention, again we use a hook ending in `-container`, because the container remains in the DOM.
-
-
-

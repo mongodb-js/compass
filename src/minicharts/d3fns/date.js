@@ -4,7 +4,7 @@ var moment = require('moment');
 var shared = require('./shared');
 var many = require('./many');
 
-require('d3-tip')(d3);
+require('../d3-tip')(d3);
 
 function generateDefaults(n) {
   var doc = {};

@@ -31,7 +31,7 @@ module.exports = View.extend(tooltipMixin, {
     'click .schema-field-wrapper': 'typeClicked'
   },
   initialize: function() {
-    this.listenTo(this.model, 'change:probability', _.debounce(function() {
+    this.listenTo(this.model, 'change:count', _.debounce(function() {
       this.tooltip({
         title: format('%s (%s)', this.model.getId(), numeral(this.model.probability).format('%'))
       });
@@ -39,8 +39,9 @@ module.exports = View.extend(tooltipMixin, {
   },
   template: require('./type-list-item.jade'),
   typeClicked: function() {
-    if (this.parent.parent.minichartModel.cid !== this.model.cid) {
-      this.parent.parent.switchView(this.model);
+    var fieldList = this.parent.parent;
+    if (!fieldList.minichartModel || fieldList.minichartModel.modelType !== this.model.modelType) {
+      fieldList.switchView(this.model);
     }
   }
 });

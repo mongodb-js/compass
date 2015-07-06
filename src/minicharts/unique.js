@@ -11,11 +11,9 @@ module.exports = VizView.extend({
   template: require('./unique.jade'),
   derived: {
     randomValues: {
-      deps: ['orderedValues'],
       cache: false,
       fn: function() {
-        // @hack for demo: show values across all types
-        return _(this.model.collection.parent.values.sample(15))
+        return _(this.model.values.sample(15))
           .map(function(x) {
             return x.value;
           })

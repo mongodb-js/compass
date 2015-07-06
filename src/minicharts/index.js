@@ -24,10 +24,9 @@ module.exports = AmpersandView.extend({
   },
   render: function() {
     this.renderWithTemplate(this);
-
     // unique values get a div-based minichart
-    var model = this.model;
-    if (model.getId() === 'String' && model.unique === model.count) {
+    if ((['String', 'Number'].indexOf(this.model.name) !== -1) &&
+      (this.model.unique === this.model.count)) {
       this.viewOptions.renderMode = 'html';
       this.viewOptions.className = 'minichart unique';
       this.subview = new UniqueMinichartView(this.viewOptions);
