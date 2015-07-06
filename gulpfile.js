@@ -167,7 +167,11 @@ gulp.task('build:osx:electron', [
 ].join('')));
 
 gulp.task('build:osx:installer', ['build:osx:electron'], shell.task([
-  'electron-builder "' + osx_artifact + '" --platform=osx --out="dist" --config=dist-config.json'
+  'electron-installer-dmg "' + osx_artifact + '" "' + product_name + '" ',
+  ' --out="dist"',
+  ' --overwrite',
+  ' --icon=images/darwin/scout.icns',
+  ' --background=images/darwin/installer.png'
 ].join('')));
 
 var win_artifact = path.join('dist', product_name + '-win32-ia32');
@@ -203,7 +207,6 @@ gulp.task('start:electron', ['build:osx:electron'], shell.task('open "' + osx_ar
 
 gulp.task('start', [
   'build:app',
-  'build:osx:electron',
   'start:electron'
 ]);
 
