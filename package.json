@@ -43,6 +43,7 @@
   "scripts": {
     "start": "gulp",
     "develop": "gulp develop",
+    "build": "gulp build:electron",
     "test": "mocha",
     "browser-test": "zuul --local 3001 --open -- test/*.test.js",
     "check": "mongodb-js-precommit"
