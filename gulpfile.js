@@ -1,12 +1,10 @@
 var browserify = require('browserify');
 var watchify = require('watchify');
 var jadeify = require('jadeify');
-var notifier = require('node-notifier');
 var prettyTime = require('pretty-hrtime');
 var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
 var gulp = require('gulp');
-var webserver = require('gulp-webserver');
 var gutil = require('gulp-util');
 var less = require('gulp-less');
 var jade = require('gulp-jade');
@@ -15,48 +13,17 @@ var sourcemaps = require('gulp-sourcemaps');
 var CleanCSS = require('less-plugin-clean-css');
 var clui = require('clui');
 var merge = require('merge-stream');
-var pkg = require('./package.json');
 var shell = require('gulp-shell');
 var path = require('path');
 var del = require('del');
 
+var notify = require('./tasks/notify');
+var pkg = require('./package.json');
+
+// Platform specific tasks
+require(path.join(__dirname, 'tasks', process.platform))(gulp);
+
 gulp.task('default', ['develop', 'start']);
-
-/**
- * Helper for catching error events on vinyl-source-stream's and showing
- * a nice native notification and printing a cleaner error message to
- * the console.
- */
-function notify(titlePrefix) {
-  return function(err) {
-    var title = titlePrefix + ' error';
-    var message = err.message;
-
-    if (err.fileName) {
-      var filename = err.fileName.replace(path.join(__dirname, path.sep), '');
-      title = titlePrefix + ' error' + filename;
-    }
-
-    if (err.lineNumber) {
-      message = err.lineNumber + ': ' + err.message.split(' in file ')[0].replace(/`/g, '"');
-    }
-
-    notifier.notify({
-      title: title,
-      message: message
-    });
-    console.log(err);
-    gutil.log(gutil.colors.red.bold(title), message);
-  };
-}
-
-gulp.task('testserver', function() {
-  return gulp.src('build')
-    .pipe(webserver({
-      host: 'localhost',
-      port: 3001
-    }));
-});
 
 gulp.task('develop', ['pages', 'copy', 'less'], function() {
   gulp.watch(['src/{*,**/*}.less', 'styles/*.less'], ['less']);
@@ -144,83 +111,9 @@ gulp.task('build:install', ['copy:electron'], shell.task('npm install', {
   cwd: 'build'
 }));
 
-var product_name = 'MongoDB Enterprise Scout';
-var osx_artifact = path.join('dist', product_name + '-darwin-x64', product_name + '.app');
-gulp.task('build:osx', ['build:osx:electron', 'build:osx:installer']);
-gulp.task('build:osx:electron', [
-  'copy:electron',
-  'build:install',
-  'build:js',
-  'build:less'
-], shell.task([
-  'electron-packager build "' + product_name + '" ',
-  ' --out=dist',
-  ' --platform=darwin',
-  ' --arch=x64',
-  ' --version=' + pkg.electron.version,
-  ' --icon="images/darwin/scout.icns"',
-  ' --overwrite',
-  ' --prune',
-  ' --app-bundle-id=com.mongodb.scout',
-  ' --app-version=' + pkg.version,
-  ' --sign="Developer ID Application: Matt Kangas"'
-].join('')));
-
-gulp.task('build:osx:installer', ['build:osx:electron'], shell.task([
-  'electron-installer-dmg "' + osx_artifact + '" "' + product_name + '" ',
-  ' --out="dist"',
-  ' --overwrite',
-  ' --icon=images/darwin/scout.icns',
-  ' --background=images/darwin/installer.png'
-].join('')));
-
-var win_artifact = path.join('dist', product_name + '-win32-ia32');
-gulp.task('build:win', ['build:win:electron', 'build:win:installer']);
-gulp.task('build:win:electron', [
-  'copy:electron',
-  'build:install',
-  'build:js',
-  'build:less'
-], shell.task([
-  'electron-packager build "' + product_name + '" ',
-  ' --out=dist',
-  ' --platform=win32',
-  ' --arch=ia32',
-  ' --version=' + pkg.electron.version,
-  ' --icon="images/win32/scout.ico"',
-  ' --overwrite',
-  ' --prune',
-  ' --asar',
-  ' --app-version=' + pkg.version
-].join('')));
-
-gulp.task('build:win:installer', ['build:win:electron'], shell.task([
-  'electron-builder "' + win_artifact + '" --platform=win --out="dist" --config=dist-config.json'
-].join('')));
-
-gulp.task('start:electron', ['build:osx:electron'], shell.task('open "' + osx_artifact + '"', {
-  env: {
-    NODE_ENV: 'development',
-    DEBUG: 'mong*,sco*'
-  }
-}));
-
-gulp.task('start', [
-  'build:app',
-  'start:electron'
-]);
-
 gulp.task('clean', function(done) {
   del(['dist/', 'build/', 'node_modules/'], done);
 });
-
-gulp.task('build:app', ['copy', 'pages', 'build:install']);
-
-gulp.task('release', [
-  'build:app',
-  'build:osx',
-  'build:win'
-]);
 
 gulp.task('build:js', function() {
   return browserify('src/index.js')
@@ -250,12 +143,16 @@ gulp.task('build:less', function() {
     .pipe(gulp.dest('build'));
 });
 
-// Build in production mode.
-gulp.task('build', [
+gulp.task('build:app', [
   'copy',
   'pages',
   'build:js',
   'build:less',
-  'build:install',
-  'build:electron-packager'
+  'build:install'
+]);
+
+gulp.task('start', [
+  'build:app',
+  'build:electron',
+  'start:electron'
 ]);

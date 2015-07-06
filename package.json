@@ -4,6 +4,7 @@
   "version": "0.1.2",
   "main": "main.js",
   "electron": {
+    "name": "MongoDB Enterprise Scout",
     "version": "0.28.3"
   },
   "check": {
