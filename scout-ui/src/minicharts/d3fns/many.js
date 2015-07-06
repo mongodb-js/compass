@@ -4,7 +4,7 @@ var tooltipHtml = require('./tooltip.jade');
 var shared = require('./shared');
 var debug = require('debug')('scout-ui:minicharts:many');
 
-require('d3-tip')(d3);
+require('../d3-tip')(d3);
 
 module.exports = function(data, g, width, height, options) {
 
