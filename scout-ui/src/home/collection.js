@@ -5,7 +5,6 @@ var CollectionStatsView = require('../collection-stats');
 var FieldListView = require('../field-list');
 var DocumentListView = require('../document-view');
 var RefineBarView = require('../refine-view');
-
 var debug = require('debug')('scout-ui:home:collection');
 var $ = require('jquery');
 
@@ -24,7 +23,7 @@ module.exports = AmpersandView.extend({
     'click .splitter': 'onSplitterClick',
   },
   bindings: {
-    'model._id': {
+    'model.name': {
       hook: 'name'
     },
     'open': {

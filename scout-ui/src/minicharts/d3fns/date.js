@@ -5,7 +5,7 @@ var shared = require('./shared');
 var many = require('./many');
 var debug = require('debug')('scout-ui:minicharts:date');
 
-require('d3-tip')(d3);
+require('../d3-tip')(d3);
 
 function generateDefaults(n) {
   var doc = {};
@@ -180,4 +180,3 @@ module.exports = function(opts) {
     .text('\uf017');
 
 };
-

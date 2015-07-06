@@ -71,7 +71,7 @@ gulp.task('testserver', function() {
 });
 
 gulp.task('develop', ['pages', 'assets', 'less'], function() {
-  gulp.watch(['src/{*,**/*}.less', '../scout-style/*.less'], ['less']);
+  gulp.watch(['src/{*,**}.less', '../scout-style/*.less'], ['less']);
   gulp.watch(['src/*.jade'], ['pages']);
   gulp.watch(['src/img/*', '../scout-style/images/*'], ['assets']);
 

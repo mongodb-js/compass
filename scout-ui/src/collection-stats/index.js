@@ -3,7 +3,7 @@ var numeral = require('numeral');
 
 var CollectionStatsView = AmpersandView.extend({
   bindings: {
-    'model._id': {
+    'model.name': {
       hook: 'name'
     },
     document_count: {
