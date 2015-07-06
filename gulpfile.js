@@ -107,7 +107,7 @@ gulp.task('copy:electron', function() {
   );
 });
 
-gulp.task('build:install', ['copy:electron'], shell.task('npm install', {
+gulp.task('build:install', ['copy:electron'], shell.task('npm install --production', {
   cwd: 'build'
 }));
 
