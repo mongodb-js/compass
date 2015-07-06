@@ -33,8 +33,7 @@ module.exports = function(gulp) {
     'electron-installer-dmg "' + ARTIFACT + '" "' + NAME + '" ',
     ' --out="dist"',
     ' --overwrite',
-    ' --icon=images/darwin/scout.icns',
-    ' --background=images/darwin/installer.png'
+    ' --icon=images/darwin/scout.icns'
   ].join(''), {
     cwd: HOME
   }));
