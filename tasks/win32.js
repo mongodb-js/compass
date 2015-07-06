@@ -24,7 +24,14 @@ module.exports = function(gulp) {
     ' --overwrite',
     ' --prune',
     ' --asar',
-    ' --app-version=' + pkg.version
+    ' --app-version=' + pkg.version,
+    ' --version-string.CompanyName="MongoDB Inc."',
+    ' --version-string.LegalCopyright="2015 MongoDB Inc."',
+    ' --version-string.FileDescription="The MongoDB GUI."',
+    ' --version-string.FileVersion="' + pkg.version + '"',
+    ' --version-string.ProductVersion="' + pkg.version + '"',
+    ' --version-string.ProductName="' + NAME + '"',
+    ' --version-string.InternalName="' + NAME + '"'
   ].join(''), {
     cwd: HOME
   }));
