@@ -29,7 +29,8 @@ var CollectionStatsView = AmpersandView.extend({
     document_count: {
       deps: ['model.document_count'],
       fn: function() {
-        return numeral(this.model.document_count).format('0.0a');
+        var format = (this.model.document_count > 1000) ? '0.0a' : '0';
+        return numeral(this.model.document_count).format(format);
       }
     },
     document_size: {
@@ -47,7 +48,7 @@ var CollectionStatsView = AmpersandView.extend({
     index_count: {
       deps: ['model.index_count'],
       fn: function() {
-        return numeral(this.model.index_count).format('0.0a');
+        return numeral(this.model.index_count).format('0');
       }
     },
     index_size: {
