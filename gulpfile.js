@@ -207,7 +207,9 @@ gulp.task('start', [
   'start:electron'
 ]);
 
-gulp.task('clean', del('dist/'));
+gulp.task('clean', function(done) {
+  del(['dist/', 'build/', 'node_modules/'], done);
+});
 
 gulp.task('build:app', ['copy', 'pages', 'build:install']);
 
