@@ -65,7 +65,6 @@
     "ampersand-view-switcher": "^2.0.0",
     "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz",
     "d3": "^3.5.5",
-    "d3-tip": "^0.6.7",
     "debug": "^2.2.0",
     "domready": "^1.0.8",
     "event-stream": "^3.3.1",
