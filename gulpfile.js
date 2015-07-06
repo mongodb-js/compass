@@ -183,6 +183,7 @@ gulp.task('build:win:electron', [
   ' --platform=win32',
   ' --arch=ia32',
   ' --version=' + pkg.electron.version,
+  ' --icon="images/win32/scout.ico"',
   ' --overwrite',
   ' --prune',
   ' --asar',
