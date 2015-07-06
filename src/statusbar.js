@@ -19,10 +19,10 @@ var StatusbarView = AmpersandView.extend({
         type: function(el, value) {
           if (!this.el) return;
           if (value === 0) {
-            this.el.query('.progress').style.height = '0px';
+            el.querySelector('.progress').style.height = '0px';
           } else {
-            this.el.query('.progress').style.height = '4px';
-            this.el.query('.progress-bar').style.width = value + '%';
+            el.querySelector('.progress').style.height = '4px';
+            el.querySelector('.progress-bar').style.width = value + '%';
           }
         }
       },
