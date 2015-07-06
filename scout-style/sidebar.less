@@ -9,8 +9,17 @@
   -webkit-transform: translateZ(0);
   margin-bottom: 0;
 
+  .scout-logo {
+    background: url("/images/logo-scout-on-white.png") 0 0 no-repeat;
+    background-size: 160px 32px;
+    width: 160px;
+    height: 32px;
+    margin: 20px auto;
+  }
   .list-filter {
     margin: 12px 0;
+    border-top: 2px solid @sidebar-border;
+    padding: 12px;
 
     i.search {
       .octicon;
@@ -33,10 +42,9 @@
 
   .list-group {
     line-height: 24px;
-    // height: 100%;
     position: absolute;
-    top: 72px;
-    bottom: 180px;
+    top: 132px;
+    bottom: 64px;
     overflow-y: auto;
     width: 100%;
 
@@ -90,8 +98,7 @@
     position: absolute;
     bottom: 0;
     width: 218px;
-    height: 174px;
-    border-top: 2px solid @sidebar-border;
+    height: 72px;
     // background: url(/images/fake-sidebar-controls.png) 0 0 no-repeat;
     // background-size: 218px 174px;
   }
