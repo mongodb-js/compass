@@ -49,7 +49,9 @@ module.exports.build = function(done) {
 };
 
 module.exports.installer = function(done) {
-  del([path.join(APP_PATH, 'resources', 'app')], done);
+  setTimeout(function() {
+    del([path.join(APP_PATH, 'resources', 'app')], done);
+  }, 1000);
 };
 
 module.exports.start = function() {
