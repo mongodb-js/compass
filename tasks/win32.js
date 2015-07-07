@@ -43,15 +43,20 @@ module.exports.build = function(done) {
       debug('.app already exists.  skipping packager run.');
       return done();
     }
-    debug('running packager...');
+    debug('running packager to create electron binaries...');
     packager(CONFIG, done);
   });
 };
 
+// @todo (imlucas): electron-installer-windows/squirrel
 module.exports.installer = function(done) {
-  setTimeout(function() {
-    del([path.join(APP_PATH, 'resources', 'app')], done);
-  }, 1000);
+  debug('Packaging into `%s`', path.join(APP_PATH, 'resources', 'app.asar'));
+  packager(CONFIG, function(err) {
+    if (err) return done(err);
+    del([path.join(APP_PATH, 'resources', 'app')], function() {
+      done();
+    });
+  });
 };
 
 module.exports.start = function() {
@@ -59,9 +64,3 @@ module.exports.start = function() {
   child.stderr.pipe(process.stderr);
   child.stdout.pipe(process.stdout);
 };
-
-
-// gulp.task('build:installer', ['build:electron'], shell.task(
-//   'electron-builder "' + ARTIFACT + '" --platform=win --out="dist" --config=dist-config.json', {
-//     cwd: HOME
-//   }));

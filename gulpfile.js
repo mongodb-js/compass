@@ -1,15 +1,12 @@
 var browserify = require('browserify');
 var watchify = require('watchify');
-var prettyTime = require('pretty-hrtime');
 var source = require('vinyl-source-stream');
 var gulp = require('gulp');
 var gutil = require('gulp-util');
 var less = require('gulp-less');
 var jade = require('gulp-jade');
-
 var sourcemaps = require('gulp-sourcemaps');
-
-var clui = require('clui');
+var buffer = require('vinyl-buffer');
 var merge = require('merge-stream');
 var shell = require('gulp-shell');
 var path = require('path');
@@ -26,7 +23,7 @@ gulp.task('build:electron-installer', ['build:electron'], platform.installer);
 var BUILD = 'build/';
 
 // `npm start` calls this.
-gulp.task('start', ['build:app', 'build:electron'], function() {
+gulp.task('start', ['build:app'], function() {
   platform.start();
   return gulp.start('watch');
 });
@@ -36,70 +33,74 @@ gulp.task('build:release', function() {
   return gulp.start('build:app-release');
 });
 
-gulp.task('build:app', ['pages', 'less', 'js', 'copy', 'build:npm-install'], function() {});
-gulp.task('build:app-release', ['pages', 'less', 'js', 'copy', 'build:npm-install-release'], function() {
+gulp.task('build:app', [
+  'build:electron',
+  'pages',
+  'less',
+  'copy:fonts',
+  'copy:images',
+  'copy:electron',
+  'js:watch'
+], function() {
+  // deletes the `app` folder in electron build
+  // so `platform:start` can just point the electron renderer at `BUILD`
+  // and we don't have to do all kinds of crazy copying.
+  process.env.WATCH_DIRECTORY = path.resolve(__dirname, BUILD);
+  return del(platform.BUILD);
+});
+gulp.task('build:app-release', [
+  'build:electron',
+  'pages',
+  'less',
+  'copy:fonts',
+  'copy:images',
+  'copy:electron'
+], function() {
   return gulp.start('build:electron-installer');
 });
 
-// @todo: sourcemaps https://github.com/gulpjs/gulp/blob/master/docs/recipes/fast-browserify-builds-with-watchify.md
-gulp.task('js', function() {
-  return browserify('./src/index.js', {
-    cache: {},
-    packageCache: {},
-    fullPaths: true,
-    debug: false
-  })
-    .transform('jadeify')
-    .bundle()
+var bundler = browserify(pkg.browserify).transform('jadeify');
+
+gulp.task('js', ['build:npm-install-release'], function() {
+  return bundler.bundle()
     .on('error', notify('js'))
     .pipe(source('index.js'))
+    .pipe(buffer())
+    .pipe(sourcemaps.init({
+      loadMaps: true
+    }))
+    .pipe(sourcemaps.write('./'))
     .pipe(gulp.dest(BUILD));
 });
 
-gulp.task('watch', ['build:app'], function() {
+gulp.task('watch', function() {
   gulp.watch(['src/{*,**/*}.less', 'styles/*.less'], ['less']);
   gulp.watch(['src/*.jade'], ['pages']);
-  gulp.watch('images/{*,**/*}', ['copy images']);
-  gulp.watch('fonts/*', ['copy fonts']);
+  gulp.watch('images/{*,**/*}', ['copy:images']);
+  gulp.watch('fonts/*', ['copy:fonts']);
   gulp.watch(['main.js', 'src/electron/*'], ['copy:electron']);
   gulp.watch('package.json', ['copy:electron', 'build:npm-install']);
+});
 
-  var spinner = new clui.Spinner('Watching for changes...');
-
+gulp.task('js:watch', ['build:npm-install'], function() {
   /**
    * Gulp's [fast browserify builds recipe](http://git.io/iiCk-A)
    */
-  var bundler = watchify(browserify('./src/index.js', {
-    cache: {},
-    packageCache: {},
-    fullPaths: true,
-    debug: false
-  }))
-    .transform('jadeify')
-    .on('update', rebundle);
-  var started = false;
-
-  function rebundle(changed) {
-    var start = process.hrtime();
-    if (changed) {
-      spinner.stop();
-      gutil.log('Changed', '\'' + gutil.colors.cyan(changed[1]) + '\'');
+  var b;
+  function rebundle(files) {
+    if (files) {
+      gutil.log('Changed', '\'' + gutil.colors.cyan(files) + '\'');
       gutil.log('Starting', '\'' + gutil.colors.cyan('rebundle') + '\'...');
     }
-    return bundler.bundle()
+    return b.bundle()
       .on('error', notify('js'))
       .pipe(source('index.js'))
       .pipe(gulp.dest(BUILD))
       .on('end', function() {
-        var time = prettyTime(process.hrtime(start));
-        gutil.log('Finished', '\'' + gutil.colors.cyan('rebundle') + '\'',
-          'after', gutil.colors.magenta(time));
-        spinner.start();
-        if (!started) {
-          started = true;
-        }
+        gutil.log('Finished', '\'' + gutil.colors.cyan('rebundle') + '\'...');
       });
   }
+  b = watchify(bundler).on('update', rebundle);
   return rebundle();
 });
 
@@ -122,12 +123,6 @@ gulp.task('pages', function() {
 });
 
 // Things that should be copied into `BUILD`.
-gulp.task('copy', [
-  'copy:fonts',
-  'copy:images',
-  'copy:electron'
-]);
-
 gulp.task('copy:fonts', function() {
   return gulp.src(pkg.fonts)
     .pipe(gulp.dest(path.join(BUILD, 'fonts')));

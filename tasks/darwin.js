@@ -2,7 +2,6 @@ var path = require('path');
 var pkg = require(path.resolve(__dirname, '../package.json'));
 var fs = require('fs');
 var cp = require('child_process');
-var format = require('util').format;
 
 var debug = require('debug')('scout:tasks:darwin');
 
@@ -64,13 +63,18 @@ var verify = function(done) {
 };
 
 module.exports.installer = function(done) {
-  codesign(function(err) {
+  debug('running packager...');
+  packager(CONFIG, function(err) {
     if (err) return done(err);
 
-    verify(function(err) {
+    codesign(function(err) {
       if (err) return done(err);
 
-      createDMG(CONFIG, done);
+      verify(function(err) {
+        if (err) return done(err);
+
+        createDMG(CONFIG, done);
+      });
     });
   });
 };
