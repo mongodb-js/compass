@@ -85,7 +85,7 @@ module.exports = AmpersandView.extend({
       }
     },
     documents: {
-      waitFor: 'model.documents',
+      waitFor: 'open',
       hook: 'documents-subview',
       prepareView: function(el) {
         return new DocumentListView({

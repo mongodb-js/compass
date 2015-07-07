@@ -48,12 +48,7 @@ var VizView = AmpersandView.extend({
       hook: 'viz-container'
     }
   },
-
-  initialize: function() {
-    if (this.model !== undefined) {
-      this.listenTo(this.model, 'change', this.redraw);
-    }
-
+  initialize: function(opts) {
     if (this.width === 'auto' || this.width === undefined) {
       this._autoWidth = true;
       this.width = 0;
@@ -134,23 +129,22 @@ var VizView = AmpersandView.extend({
       });
     }
     return this;
-  },
-
-  redraw: function() {
-    this._chooseDataSource();
-    this.data = this.transform(this.data);
-
-    this._measure();
-
-    if (this.vizFn) {
-      this.vizFn({
-        width: this.width,
-        height: this.height,
-        data: this.data,
-        el: this.el
-      });
-    }
   }
+  // redraw: function() {
+  //   this._chooseDataSource();
+  //   this.data = this.transform(this.data);
+  //
+  //   this._measure();
+  //
+  //   if (this.vizFn) {
+  //     this.vizFn({
+  //       width: this.width,
+  //       height: this.height,
+  //       data: this.data,
+  //       el: this.el,
+  //     });
+  //   }
+  // }
 });
 
 module.exports = VizView;
