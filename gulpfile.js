@@ -23,26 +23,12 @@ var platform = require(path.join(__dirname, 'tasks', process.platform));
 gulp.task('build:electron', platform.build);
 gulp.task('build:electron-installer', ['build:electron'], platform.installer);
 
-// @todo: debugging...
-var tar = require('gulp-tar');
-var gzip = require('gulp-gzip');
-
-gulp.task('package:electron', function() {
-  return gulp.src(['dist/MongoDB\ Enterprise\ Scout-darwin-x64/*', 'dist/MongoDB\ Enterprise\ Scout-darwin-x64/**/*'])
-    .pipe(tar('MongoDB Enterprise Scout-v0.2.0.tar'))
-    .pipe(gzip())
-    .pipe(gulp.dest('dist/'));
-});
-
 var BUILD = 'build/';
 
 // `npm start` calls this.
-gulp.task('start', ['build:app', 'build:electron', 'hack:app'], function() {
+gulp.task('start', ['build:app', 'build:electron'], function() {
   platform.start();
   return gulp.start('watch');
-});
-gulp.task('hack:app', function() {
-  return del(platform.BUILD);
 });
 
 gulp.task('build:release', function() {

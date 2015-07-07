@@ -1,6 +1,8 @@
 var path = require('path');
 var pkg = require(path.resolve(__dirname, '../package.json'));
 var fs = require('fs');
+var cp = require('child_process');
+var format = require('util').format;
 
 var debug = require('debug')('scout:tasks:darwin');
 
@@ -10,8 +12,6 @@ var APP_PATH = path.join(PACKAGE, NAME + '.app');
 
 var packager = require('electron-packager');
 var createDMG = require('electron-installer-dmg');
-
-var spawn = require('child_process').spawn;
 
 var CONFIG = module.exports = {
   name: pkg.electron.name,
@@ -51,13 +51,33 @@ module.exports.build = function(done) {
   });
 };
 
+var codesign = function(done) {
+  var cmd = 'codesign --deep --force --sign "' + CONFIG.sign + '" "' + CONFIG.appPath + '"';
+  debug('Running', cmd);
+  cp.exec(cmd, done);
+};
+
+var verify = function(done) {
+  var cmd = 'codesign --verify "' + CONFIG.appPath + '"';
+  debug('Running', cmd);
+  cp.exec(cmd, done);
+};
+
 module.exports.installer = function(done) {
-  createDMG(CONFIG, done);
+  codesign(function(err) {
+    if (err) return done(err);
+
+    verify(function(err) {
+      if (err) return done(err);
+
+      createDMG(CONFIG, done);
+    });
+  });
 };
 
 
 module.exports.start = function() {
-  var child = spawn(path.resolve(CONFIG.ELECTRON), [path.resolve(CONFIG.dir)]);
+  var child = cp.spawn(path.resolve(CONFIG.ELECTRON), [path.resolve(CONFIG.dir)]);
   child.stderr.pipe(process.stderr);
   child.stdout.pipe(process.stdout);
 };
