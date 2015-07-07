@@ -1,21 +1,26 @@
 var path = require('path');
 var pkg = require(path.resolve(__dirname, '../package.json'));
 var fs = require('fs');
-var opn = require('opn');
 
 var debug = require('debug')('scout:tasks:darwin');
 
 var NAME = pkg.electron.name;
-var APP_PATH = path.join('dist', NAME + '-darwin-x64', NAME + '.app');
+var PACKAGE = path.join('dist', NAME + '-darwin-x64');
+var APP_PATH = path.join(PACKAGE, NAME + '.app');
 
 var packager = require('electron-packager');
 var createDMG = require('electron-installer-dmg');
 
-var CONFIG = {
+var spawn = require('child_process').spawn;
+
+var CONFIG = module.exports = {
   name: pkg.electron.name,
   dir: path.resolve(__dirname, '../build'),
   out: path.resolve(__dirname, '../dist'),
   appPath: APP_PATH,
+  PACKAGE: PACKAGE,
+  BUILD: path.join(APP_PATH, 'Contents', 'Resources', 'app'),
+  ELECTRON: path.join(APP_PATH, 'Contents', 'MacOS', 'Electron'),
   platform: 'darwin',
   arch: 'x64',
   version: pkg.electron.version,
@@ -50,18 +55,9 @@ module.exports.installer = function(done) {
   createDMG(CONFIG, done);
 };
 
-module.exports.start = function(done) {
-  opn(APP_PATH, done);
-};
 
-module.exports.tasks = function(gulp) {
-  gulp.task('build electron app', ['install build'], module.exports.build);
-
-  gulp.task('build installer', ['build electron app'], module.exports.installer);
-  gulp.task('start electron', ['build electron app'], module.exports.start);
-
-  gulp.task('copy build files to electron', function() {
-    return gulp.src('../build/*.js')
-      .pipe(gulp.dest(path.join(CONFIG.appPath, 'Contents', 'Resources', 'app')));
-  });
+module.exports.start = function() {
+  var child = spawn(path.resolve(CONFIG.ELECTRON), [path.resolve(CONFIG.dir)]);
+  child.stderr.pipe(process.stderr);
+  child.stdout.pipe(process.stdout);
 };

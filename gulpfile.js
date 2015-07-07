@@ -19,72 +19,102 @@ var notify = require('./tasks/notify');
 var pkg = require('./package.json');
 
 // Platform specific tasks
-require(path.join(__dirname, 'tasks', process.platform)).tasks(gulp);
+var platform = require(path.join(__dirname, 'tasks', process.platform));
+gulp.task('build:electron', platform.build);
+gulp.task('build:electron-installer', ['build:electron'], platform.installer);
 
-// `npm start` calls this.
-gulp.task('default', ['build', 'start electron', 'watch']);
+// @todo: debugging...
+var tar = require('gulp-tar');
+var gzip = require('gulp-gzip');
 
-var spinner = new clui.Spinner('Watching for changes...');
-
-/**
- * Gulp's [fast browserify builds recipe](http://git.io/iiCk-A)
- */
-var bundler = watchify(browserify('./src/index.js', {
-  cache: {},
-  packageCache: {},
-  fullPaths: true,
-  debug: false
-}))
-  .transform('jadeify')
-  .on('update', rebundle);
-
-function rebundle(changed) {
-  var start = process.hrtime();
-  if (changed) {
-    spinner.stop();
-    gutil.log('Changed', '\'' + gutil.colors.cyan(changed[1]) + '\'');
-    gutil.log('Starting', '\'' + gutil.colors.cyan('rebundle') + '\'...');
-  }
-  return bundler.bundle()
-    .on('error', notify('js'))
-    .pipe(source('index.js'))
-    .pipe(gulp.dest('build/'))
-    .on('end', function() {
-      var time = prettyTime(process.hrtime(start));
-      gutil.log('Finished', '\'' + gutil.colors.cyan('rebundle') + '\'',
-        'after', gutil.colors.magenta(time));
-      if (changed) {
-        spinner.start();
-      }
-    });
-}
-
-gulp.task('build', [
-  'pages',
-  'less',
-  'js',
-  'copy'
-]);
-
-gulp.task('js', function(cb) {
-  bundler.bundle()
-    .on('error', notify('js'))
-    .on('error', cb)
-    .pipe(source('index.js'))
-    .pipe(gulp.dest('build/'))
-    .on('end', cb);
+gulp.task('package:electron', function() {
+  return gulp.src(['dist/MongoDB\ Enterprise\ Scout-darwin-x64/*', 'dist/MongoDB\ Enterprise\ Scout-darwin-x64/**/*'])
+    .pipe(tar('MongoDB Enterprise Scout-v0.2.0.tar'))
+    .pipe(gzip())
+    .pipe(gulp.dest('dist/'));
 });
 
-gulp.task('watch', function() {
+var BUILD = 'build/';
+
+// `npm start` calls this.
+gulp.task('start', ['build:app', 'build:electron', 'hack:app'], function() {
+  platform.start();
+  return gulp.start('watch');
+});
+gulp.task('hack:app', function() {
+  return del(platform.BUILD);
+});
+
+gulp.task('build:release', function() {
+  BUILD = platform.BUILD;
+  return gulp.start('build:app-release');
+});
+
+gulp.task('build:app', ['pages', 'less', 'js', 'copy', 'build:npm-install'], function() {});
+gulp.task('build:app-release', ['pages', 'less', 'js', 'copy', 'build:npm-install-release'], function() {
+  return gulp.start('build:electron-installer');
+});
+
+// @todo: sourcemaps https://github.com/gulpjs/gulp/blob/master/docs/recipes/fast-browserify-builds-with-watchify.md
+gulp.task('js', function() {
+  return browserify('./src/index.js', {
+    cache: {},
+    packageCache: {},
+    fullPaths: true,
+    debug: false
+  })
+    .transform('jadeify')
+    .bundle()
+    .on('error', notify('js'))
+    .pipe(source('index.js'))
+    .pipe(gulp.dest(BUILD));
+});
+
+gulp.task('watch', ['build:app'], function() {
   gulp.watch(['src/{*,**/*}.less', 'styles/*.less'], ['less']);
   gulp.watch(['src/*.jade'], ['pages']);
   gulp.watch('images/{*,**/*}', ['copy images']);
   gulp.watch('fonts/*', ['copy fonts']);
-  gulp.watch(['main.js', 'src/electron/*'], ['copy app electron files']);
-  gulp.watch('package.json', ['install build']);
+  gulp.watch(['main.js', 'src/electron/*'], ['copy:electron']);
+  gulp.watch('package.json', ['copy:electron', 'build:npm-install']);
 
-  gulp.watch('build/*.js', ['copy build files to electron']);
-  return rebundle(true);
+  var spinner = new clui.Spinner('Watching for changes...');
+
+  /**
+   * Gulp's [fast browserify builds recipe](http://git.io/iiCk-A)
+   */
+  var bundler = watchify(browserify('./src/index.js', {
+    cache: {},
+    packageCache: {},
+    fullPaths: true,
+    debug: false
+  }))
+    .transform('jadeify')
+    .on('update', rebundle);
+  var started = false;
+
+  function rebundle(changed) {
+    var start = process.hrtime();
+    if (changed) {
+      spinner.stop();
+      gutil.log('Changed', '\'' + gutil.colors.cyan(changed[1]) + '\'');
+      gutil.log('Starting', '\'' + gutil.colors.cyan('rebundle') + '\'...');
+    }
+    return bundler.bundle()
+      .on('error', notify('js'))
+      .pipe(source('index.js'))
+      .pipe(gulp.dest(BUILD))
+      .on('end', function() {
+        var time = prettyTime(process.hrtime(start));
+        gutil.log('Finished', '\'' + gutil.colors.cyan('rebundle') + '\'',
+          'after', gutil.colors.magenta(time));
+        spinner.start();
+        if (!started) {
+          started = true;
+        }
+      });
+  }
+  return rebundle();
 });
 
 // Compile LESS to CSS.
@@ -94,7 +124,7 @@ gulp.task('less', function() {
     .pipe(less(pkg.less))
     .on('error', notify('less'))
     .pipe(sourcemaps.write('./maps'))
-    .pipe(gulp.dest('build'));
+    .pipe(gulp.dest(BUILD));
 });
 
 // Compile jade templates to HTML files.
@@ -102,42 +132,41 @@ gulp.task('pages', function() {
   return gulp.src('src/index.jade')
     .pipe(jade())
     .on('error', notify('jade'))
-    .pipe(gulp.dest('build'));
+    .pipe(gulp.dest(BUILD));
 });
 
-// Things that should be copied into `build/`.
+// Things that should be copied into `BUILD`.
 gulp.task('copy', [
-  'copy fonts',
-  'copy images',
-  'copy app electron files'
+  'copy:fonts',
+  'copy:images',
+  'copy:electron'
 ]);
 
-gulp.task('copy fonts', function() {
+gulp.task('copy:fonts', function() {
   return gulp.src(pkg.fonts)
-    .pipe(gulp.dest('build/fonts'));
+    .pipe(gulp.dest(path.join(BUILD, 'fonts')));
 });
 
-gulp.task('copy fonts', function() {
-  return gulp.src(pkg.fonts)
-    .pipe(gulp.dest('build/fonts'));
-});
-
-gulp.task('copy images', function() {
+gulp.task('copy:images', function() {
   return gulp.src('images/{*,**/*}')
-    .pipe(gulp.dest('build/images'));
+    .pipe(gulp.dest(path.join(BUILD, 'images')));
 });
 
-gulp.task('copy app electron files', function() {
+gulp.task('copy:electron', function() {
   return merge(
-    gulp.src(['main.js', 'package.json']).pipe(gulp.dest('build/')),
-    gulp.src(['src/electron/*']).pipe(gulp.dest('build/src/electron'))
+    gulp.src(['main.js', 'package.json']).pipe(gulp.dest(BUILD)),
+    gulp.src(['src/electron/*']).pipe(gulp.dest(path.join(BUILD, 'src/electron')))
   );
 });
 
-gulp.task('install build', ['copy'], shell.task('npm install', {
-  cwd: 'build'
+gulp.task('build:npm-install', ['copy:electron'], shell.task('npm install', {
+  cwd: BUILD
+}));
+
+gulp.task('build:npm-install-release', ['copy:electron'], shell.task('npm install --production', {
+  cwd: platform.BUILD
 }));
 
 gulp.task('clean', function(done) {
-  del(['dist/', 'build/', 'node_modules/'], done);
+  del(['dist/', 'node_modules/'], done);
 });

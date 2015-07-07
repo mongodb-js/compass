@@ -1,51 +1,64 @@
 var path = require('path');
 var pkg = require(path.resolve(__dirname, '../package.json'));
-var shell = require('gulp-shell');
+var fs = require('fs');
+var spawn = require('child_process').spawn;
+
+var debug = require('debug')('scout:tasks:win32');
 
 var NAME = pkg.electron.name;
-var ARTIFACT = path.join('dist', NAME + '-win32-ia32');
-var EXE = path.join(ARTIFACT, NAME + '.exe');
-var HOME = path.resolve(__dirname, '../');
+var APP_PATH = path.join('dist', NAME + '-win32-ia32');
 
-module.exports.tasks = function(gulp) {
-  gulp.task('build:electron', [
-    'copy',
-    'pages',
-    'build:install',
-    'build:js',
-    'build:less'
-  ], shell.task([
-    'electron-packager build "' + NAME + '" ',
-    ' --out=dist',
-    ' --platform=win32',
-    ' --arch=ia32',
-    ' --version=' + pkg.electron.version,
-    ' --icon="images/win32/scout.ico"',
-    ' --overwrite',
-    ' --prune',
-    ' --asar',
-    ' --app-version=' + pkg.version,
-    ' --version-string.CompanyName="MongoDB Inc."',
-    ' --version-string.LegalCopyright="2015 MongoDB Inc."',
-    ' --version-string.FileDescription="The MongoDB GUI."',
-    ' --version-string.FileVersion="' + pkg.version + '"',
-    ' --version-string.ProductVersion="' + pkg.version + '"',
-    ' --version-string.ProductName="' + NAME + '"',
-    ' --version-string.InternalName="' + NAME + '"'
-  ].join(''), {
-    cwd: HOME
-  }));
-
-  gulp.task('build:installer', ['build:electron'], shell.task(
-    'electron-builder "' + ARTIFACT + '" --platform=win --out="dist" --config=dist-config.json', {
-      cwd: HOME
-    }));
-
-  gulp.task('start:electron', ['build:electron'], shell.task('run "' + EXE + '"', {
-    env: {
-      NODE_ENV: 'development',
-      DEBUG: 'mong*,sco*'
-    },
-    cwd: HOME
-  }));
+var packager = require('electron-packager');
+var CONFIG = module.exports = {
+  name: pkg.electron.name,
+  dir: path.resolve(__dirname, '../build'),
+  out: path.resolve(__dirname, '../dist'),
+  appPath: APP_PATH,
+  BUILD: path.join(APP_PATH, 'resources/app.asar'),
+  ELECTRON: path.join(APP_PATH, NAME + '.exe'),
+  platform: 'win32',
+  arch: 'ia32',
+  version: pkg.electron.version,
+  icon: path.resolve(__dirname, '../images/win32/scout.icon'),
+  overwrite: true,
+  prune: true,
+  asar: true,
+  'version-string': {
+    CompanyName: 'MongoDB Inc.',
+    LegalCopyright: '2015 MongoDB Inc.',
+    FileDescription: 'The MongoDB GUI.',
+    FileVersion: pkg.version,
+    ProductVersion: pkg.version,
+    ProductName: NAME,
+    InternalName: NAME
+  }
 };
+
+debug('packager config: ', JSON.stringify(CONFIG, null, 2));
+
+module.exports.build = function(done) {
+  fs.exists(APP_PATH, function(exists) {
+    if (exists) {
+      debug('.app already exists.  skipping packager run.');
+      return done();
+    }
+    debug('running packager...');
+    packager(CONFIG, done);
+  });
+};
+
+module.exports.installer = function(done) {
+  done();
+};
+
+module.exports.start = function() {
+  var child = spawn(path.resolve(CONFIG.ELECTRON), [path.resolve(CONFIG.dir)]);
+  child.stderr.pipe(process.stderr);
+  child.stdout.pipe(process.stdout);
+};
+
+
+// gulp.task('build:installer', ['build:electron'], shell.task(
+//   'electron-builder "' + ARTIFACT + '" --platform=win --out="dist" --config=dist-config.json', {
+//     cwd: HOME
+//   }));

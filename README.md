@@ -37,6 +37,14 @@ Explore your MongoDB.
   </dd>
 </dl>
 
+## Building Releases
+
+To compile electron + the app and the installer for your current platform:
+
+```bash
+npm run release
+```
+
 [setup-osx]: https://github.com/mongodb-js/mongodb-js/blob/master/docs/setup.md#osx-setup
 [setup-windows]: https://github.com/mongodb-js/mongodb-js/blob/master/docs/setup.md#windows-setup
 [setup-linux]: https://github.com/mongodb-js/mongodb-js/blob/master/docs/setup.md#linux-setup

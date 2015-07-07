@@ -41,7 +41,8 @@
     ]
   },
   "scripts": {
-    "start": "gulp",
+    "start": "gulp start",
+    "release": "gulp build:release",
     "test": "mocha",
     "check": "mongodb-js-precommit"
   },
@@ -91,10 +92,12 @@
     "electron-packager": "^5.0.0",
     "eslint-config-mongodb-js": "^0.1.4",
     "gulp": "^3.9.0",
+    "gulp-gzip": "^1.1.0",
     "gulp-jade": "^1.0.1",
     "gulp-less": "^3.0.3",
     "gulp-shell": "^0.4.2",
     "gulp-sourcemaps": "^1.5.2",
+    "gulp-tar": "^1.4.0",
     "gulp-uglify": "^1.2.0",
     "gulp-util": "^3.0.6",
     "gulp-webserver": "^0.9.1",
@@ -105,7 +108,6 @@
     "mongodb-js-precommit": "^0.1.2",
     "nightmare": "^1.8.2",
     "node-notifier": "^4.2.3",
-    "opn": "^3.0.2",
     "phantomjs": "^1.9.17",
     "pre-commit": "^1.0.10",
     "pretty-hrtime": "^1.0.0",
