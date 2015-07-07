@@ -1,0 +1,26 @@
+.page
+  #statusbar.hidden
+    .progress
+      .progress-bar.progress-bar-striped.active(data-hook='bar')
+  .content.with-sidebar
+    .container-fluid
+      form.form-horizontal
+        h1.page-header
+        .message
+        .form-group
+          label.col-sm-2.control-label Name
+          .col-sm-10
+            input.form-control(type='text', name='name', placeholder='Local')
+        .form-group
+          label.col-sm-2.control-label Hostname
+          .col-sm-10
+            input.form-control(type='text', name='hostname', placeholder='localhost')
+        .form-group
+          label.col-sm-2.control-label Port
+          .col-sm-10
+            input.form-control(type='number', name='port', placeholder='27017')
+        .form-group
+          .col-sm-offset-2.col-sm-10
+            button.btn.btn-primary(type='submit') Connect
+
+  div(data-hook='sidebar-subview')

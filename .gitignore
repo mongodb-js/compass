@@ -1,9 +1,7 @@
 npm-debug.log
-build/Release
-build/Debug
-build/atom
+build/
+dist/
 node_modules
 .DS_Store
 .idea/
 *.iml
-electron/

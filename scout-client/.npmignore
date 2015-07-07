@@ -1,9 +1,0 @@
-bin/
-examples/
-java/
-test/
-.jshintrc
-.jsfmtrc
-.zuul.yml
-.travis.yml
-gulpfile.js

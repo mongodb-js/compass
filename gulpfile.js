@@ -1,88 +1,153 @@
+var browserify = require('browserify');
+var watchify = require('watchify');
+var source = require('vinyl-source-stream');
 var gulp = require('gulp');
+var gutil = require('gulp-util');
+var less = require('gulp-less');
+var jade = require('gulp-jade');
+var sourcemaps = require('gulp-sourcemaps');
+var buffer = require('vinyl-buffer');
+var merge = require('merge-stream');
+var shell = require('gulp-shell');
 var path = require('path');
+var del = require('del');
+
+var notify = require('./tasks/notify');
 var pkg = require('./package.json');
-var child_process = require('child_process');
-var async = require('async');
-var npm = require('which').sync('npm');
-var proc = require('child_process');
-var os = require('os');
-var path = require('path');
 
-var run = function(child, task) {
-  var args = task.split(' '),
-    cmd = args.shift();
+// Platform specific tasks
+var platform = require(path.join(__dirname, 'tasks', process.platform));
+gulp.task('build:electron', platform.build);
+gulp.task('build:electron-installer', ['build:electron'], platform.installer);
 
-  return function(cb) {
-    var opts = {
-        cwd: path.resolve(__dirname + '/' + pkg.name + '-' + child),
-        stdio: 'inherit'
-      },
-      p = child_process.spawn(cmd, args, opts);
+var BUILD = 'build/';
 
-    console.log('> ' + pkg.name + '@' + pkg.version, task, opts.cwd);
-    p.on('exit', function(code) {
-      console.log('< ' + pkg.name + '@' + pkg.version, task, 'exit ' + code);
-      if (code !== 0) return cb(new Error(child + ': ' + task + ' exited with code ' + code));
-      cb();
-    });
-  };
-};
-
-function test() {
-  process.env.NODE_ENV = 'testing';
-}
-
-function dev() {
-  process.env.NODE_ENV = 'development';
-  process.env.DEBUG = 'mon*,sco*';
-}
-
-function prod() {
-  process.env.NODE_ENV = 'production';
-}
-
-function script(name, pkgs, done) {
-  if (Array.isArray(name)) {
-    return name.map(function(n) {
-      return script(n, pkgs, done);
-    });
-  }
-
-  if (typeof pkgs === 'function') {
-    done = pkgs;
-    pkgs = ['client', 'brain', 'metrics', 'style', 'server', 'ui', 'electron'];
-  }
-
-  var args = 'run-script ' + name;
-  if (name === 'install') {
-    args = 'install';
-  }
-  async.series(pkgs.map(function(c) {
-    return run(c, npm + ' ' + args);
-  }), done);
-}
-
-gulp.task('install', function(done) {
-  dev();
-  script('install', done);
+// `npm start` calls this.
+gulp.task('start', ['build:app'], function() {
+  platform.start();
+  return gulp.start('watch');
 });
 
-gulp.task('check', function(done) {
-  console.log('@todo: need to fix up where some modules live before this will work without errors.');
-  done();
+gulp.task('build:release', function() {
+  BUILD = platform.BUILD;
+  return gulp.start('build:app-release');
 });
 
-gulp.task('test', function(done) {
-  test();
-  script('test', ['server'], done);
+gulp.task('build:app', [
+  'build:electron',
+  'pages',
+  'less',
+  'copy:fonts',
+  'copy:images',
+  'copy:electron',
+  'js:watch'
+], function() {
+  // deletes the `app` folder in electron build
+  // so `platform:start` can just point the electron renderer at `BUILD`
+  // and we don't have to do all kinds of crazy copying.
+  process.env.WATCH_DIRECTORY = path.resolve(__dirname, BUILD);
+  return del(platform.BUILD);
+});
+gulp.task('build:app-release', [
+  'build:electron',
+  'pages',
+  'less',
+  'copy:fonts',
+  'copy:images',
+  'copy:electron'
+], function() {
+  return gulp.start('build:electron-installer');
 });
 
-gulp.task('default', ['install', 'test']);
+var bundler = browserify(pkg.browserify).transform('jadeify');
 
-gulp.task('start', function() {
-  dev();
-  console.log('process.versions: %j', process.versions);
-  script('develop', ['ui']);
-  script('start', ['server']);
-  script('start', ['electron']);
+gulp.task('js', ['build:npm-install-release'], function() {
+  return bundler.bundle()
+    .on('error', notify('js'))
+    .pipe(source('index.js'))
+    .pipe(buffer())
+    .pipe(sourcemaps.init({
+      loadMaps: true
+    }))
+    .pipe(sourcemaps.write('./'))
+    .pipe(gulp.dest(BUILD));
+});
+
+gulp.task('watch', function() {
+  gulp.watch(['src/{*,**/*}.less', 'styles/*.less'], ['less']);
+  gulp.watch(['src/*.jade'], ['pages']);
+  gulp.watch('images/{*,**/*}', ['copy:images']);
+  gulp.watch('fonts/*', ['copy:fonts']);
+  gulp.watch(['main.js', 'src/electron/*'], ['copy:electron']);
+  gulp.watch('package.json', ['copy:electron', 'build:npm-install']);
+});
+
+gulp.task('js:watch', ['build:npm-install'], function() {
+  /**
+   * Gulp's [fast browserify builds recipe](http://git.io/iiCk-A)
+   */
+  var b;
+  function rebundle(files) {
+    if (files) {
+      gutil.log('Changed', '\'' + gutil.colors.cyan(files) + '\'');
+      gutil.log('Starting', '\'' + gutil.colors.cyan('rebundle') + '\'...');
+    }
+    return b.bundle()
+      .on('error', notify('js'))
+      .pipe(source('index.js'))
+      .pipe(gulp.dest(BUILD))
+      .on('end', function() {
+        gutil.log('Finished', '\'' + gutil.colors.cyan('rebundle') + '\'...');
+      });
+  }
+  b = watchify(bundler).on('update', rebundle);
+  return rebundle();
+});
+
+// Compile LESS to CSS.
+gulp.task('less', function() {
+  return gulp.src('src/*.less')
+    .pipe(sourcemaps.init())
+    .pipe(less(pkg.less))
+    .on('error', notify('less'))
+    .pipe(sourcemaps.write('./maps'))
+    .pipe(gulp.dest(BUILD));
+});
+
+// Compile jade templates to HTML files.
+gulp.task('pages', function() {
+  return gulp.src('src/index.jade')
+    .pipe(jade())
+    .on('error', notify('jade'))
+    .pipe(gulp.dest(BUILD));
+});
+
+// Things that should be copied into `BUILD`.
+gulp.task('copy:fonts', function() {
+  return gulp.src(pkg.fonts)
+    .pipe(gulp.dest(path.join(BUILD, 'fonts')));
+});
+
+gulp.task('copy:images', function() {
+  return gulp.src('images/{*,**/*}')
+    .pipe(gulp.dest(path.join(BUILD, 'images')));
+});
+
+gulp.task('copy:electron', function() {
+  return merge(
+    gulp.src(['main.js', 'package.json']).pipe(gulp.dest(BUILD)),
+    gulp.src(['src/electron/*']).pipe(gulp.dest(path.join(BUILD, 'src/electron')))
+  );
+});
+
+gulp.task('build:npm-install', ['copy:electron'], shell.task('npm install', {
+  cwd: BUILD
+}));
+
+gulp.task('build:npm-install-release', ['copy:electron'], shell.task('npm install --production', {
+  cwd: platform.BUILD
+}));
+
+gulp.task('clean', function(done) {
+  del(['dist/', 'node_modules/'], done);
 });
