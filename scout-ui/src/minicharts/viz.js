@@ -133,7 +133,6 @@ module.exports = AmpersandView.extend({
     return this;
   }
   // redraw: function() {
-  //   debug('redraw', this.cid);
   //   this._chooseDataSource();
   //   this.data = this.transform(this.data);
   //
