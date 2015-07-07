@@ -2,6 +2,7 @@ var path = require('path');
 var pkg = require(path.resolve(__dirname, '../package.json'));
 var fs = require('fs');
 var spawn = require('child_process').spawn;
+var del = require('del');
 
 var debug = require('debug')('scout:tasks:win32');
 
@@ -48,7 +49,7 @@ module.exports.build = function(done) {
 };
 
 module.exports.installer = function(done) {
-  done();
+  del([path.join(APP_PATH, 'resources', 'app')], done);
 };
 
 module.exports.start = function() {
