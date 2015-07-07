@@ -15,7 +15,7 @@ var CONFIG = module.exports = {
   dir: path.resolve(__dirname, '../build'),
   out: path.resolve(__dirname, '../dist'),
   appPath: APP_PATH,
-  BUILD: path.join(APP_PATH, 'resources/app.asar'),
+  BUILD: path.join(APP_PATH, 'resources', 'app'),
   ELECTRON: path.join(APP_PATH, NAME + '.exe'),
   platform: 'win32',
   arch: 'ia32',
