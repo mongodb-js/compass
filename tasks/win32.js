@@ -7,7 +7,7 @@ var ARTIFACT = path.join('dist', NAME + '-win32-ia32');
 var EXE = path.join(ARTIFACT, NAME + '.exe');
 var HOME = path.resolve(__dirname, '../');
 
-module.exports = function(gulp) {
+module.exports.tasks = function(gulp) {
   gulp.task('build:electron', [
     'copy',
     'pages',
