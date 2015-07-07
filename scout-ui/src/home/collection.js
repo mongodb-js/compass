@@ -62,10 +62,10 @@ module.exports = AmpersandView.extend({
       hook: 'stats-subview',
       prepareView: function(el) {
         return new CollectionStatsView({
-            el: el,
-            parent: this,
-            model: this.model
-          });
+          el: el,
+          parent: this,
+          model: this.model
+        });
       }
     },
     fields: {
@@ -84,21 +84,21 @@ module.exports = AmpersandView.extend({
       hook: 'refine-bar',
       prepareView: function(el) {
         return new RefineBarView({
-            el: el,
-            parent: this,
-            model: app.queryOptions
-          });
+          el: el,
+          parent: this,
+          model: app.queryOptions
+        });
       }
     },
     documents: {
-      waitFor: 'model.documents',
+      waitFor: 'open',
       hook: 'documents-subview',
       prepareView: function(el) {
         return new DocumentListView({
-            el: el,
-            parent: this,
-            collection: this.model.documents
-          });
+          el: el,
+          parent: this,
+          collection: this.model.documents
+        });
       }
     }
   }

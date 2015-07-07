@@ -51,9 +51,6 @@ module.exports = AmpersandView.extend({
   },
 
   initialize: function(opts) {
-    if (this.model !== undefined) {
-      this.listenTo(this.model, 'change', this.redraw);
-    }
 
     if (this.width === 'auto' || this.width === undefined) {
       this._autoWidth = true;
@@ -134,23 +131,22 @@ module.exports = AmpersandView.extend({
       });
     }
     return this;
-  },
-
-  redraw: function() {
-    this._chooseDataSource();
-    this.data = this.transform(this.data);
-
-    this._measure();
-
-    if (this.vizFn) {
-      this.vizFn({
-        width: this.width,
-        height: this.height,
-        data: this.data,
-        el: this.el,
-      });
-    }
   }
+  // redraw: function() {
+  //   this._chooseDataSource();
+  //   this.data = this.transform(this.data);
+  //
+  //   this._measure();
+  //
+  //   if (this.vizFn) {
+  //     this.vizFn({
+  //       width: this.width,
+  //       height: this.height,
+  //       data: this.data,
+  //       el: this.el,
+  //     });
+  //   }
+  // }
 });
 
 /**
