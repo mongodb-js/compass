@@ -14,6 +14,7 @@ var getOrCreateClient = require('scout-client');
 var ViewSwitcher = require('ampersand-view-switcher');
 var View = require('ampersand-view');
 var localLinks = require('local-links');
+var intercom = require('./intercom');
 
 /**
  * The top-level application singleton that brings everything together!
@@ -78,8 +79,11 @@ var Application = View.extend({
   _onDOMReady: function() {
     this.el = document.querySelector('#application');
     this.render();
+    intercom.inject();
 
     this.listenTo(this.router, 'page', this.onPageChange);
+
+    this.router.on('page', intercom.update);
 
     this.router.history.start({
       pushState: false,
@@ -126,6 +130,7 @@ var Application = View.extend({
       event.preventDefault();
       this.router.history.navigate(pathname);
     }
+    intercom.update();
   }
 });
 
