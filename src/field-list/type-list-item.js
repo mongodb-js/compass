@@ -6,6 +6,7 @@ var tooltipMixin = require('../tooltip-mixin');
 var $ = require('jquery');
 
 module.exports = View.extend(tooltipMixin, {
+  template: require('./type-list-item.jade'),
   namespace: 'TypeListItem',
   bindings: {
     'model.name': [
@@ -24,16 +25,16 @@ module.exports = View.extend(tooltipMixin, {
     'click .schema-field-wrapper': 'typeClicked'
   },
   initialize: function() {
-    this.listenTo(this.model, 'change:count', _.debounce(function() {
-      this.tooltip({
-        title: format('%s (%s)', this.model.getId(), numeral(this.model.probability).format('%'))
-      });
-      $(this.queryByHook('bar')).css({
-        width: Math.floor(this.model.probability * 100) + '%'
-      });
-    }.bind(this), 300));
+    this.listenTo(this.model, 'change:probability', _.debounce(this.update.bind(this), 300));
   },
-  template: require('./type-list-item.jade'),
+  update: function() {
+    $(this.el).tooltip({
+      title: format('%s (%s)', this.model.getId(), numeral(this.model.probability).format('%'))
+    });
+    $(this.queryByHook('bar')).css({
+      width: Math.floor(this.model.probability * 100) + '%'
+    });
+  },
   typeClicked: function() {
     var fieldList = this.parent.parent;
     if (!fieldList.minichartModel || fieldList.minichartModel.modelType !== this.model.modelType) {
@@ -42,6 +43,7 @@ module.exports = View.extend(tooltipMixin, {
   },
   render: function() {
     this.renderWithTemplate(this);
+    this.update();
     return this;
   }
 });
