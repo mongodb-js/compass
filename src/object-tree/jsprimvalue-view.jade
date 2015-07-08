@@ -1,0 +1,5 @@
+span.jsprimvalue
+  if (typeof(model.value) === 'string')
+    | "#[span(class='truncate-jsprimvalue', title="#{model.value}") #{model.value}]"
+  else
+    | #[span(class='truncate-jsprimvalue', title="#{model.value}") #{model.value}]

@@ -1,0 +1,20 @@
+div(data-hook='viz-container')
+  dl.dl-horizontal
+    //- dt min
+    //- dd
+    //-   = minValue
+
+    dt
+      a
+        i.mms-icon-continuous(data-hook='refresh')
+    dd
+      ul.list-inline
+        each val in randomValues
+          li
+            code= val
+
+    //- dt max
+    //- dd
+    //-   = maxValue
+
+
