@@ -28,7 +28,7 @@ var CONFIG = module.exports = {
   prune: true,
   'app-bundle-id': 'com.mongodb.scout',
   'app-version': pkg.version,
-  sign: 'Developer ID Application: Matt Kangas',
+  sign: '90E39AA7832E95369F0FC6DAF823A04DFBD9CF7A',
   protocols: [
     {
       name: 'MongoDB Prototcol',
@@ -51,7 +51,8 @@ module.exports.build = function(done) {
 };
 
 var codesign = function(done) {
-  var cmd = 'codesign --deep --force --sign "' + CONFIG.sign + '" "' + CONFIG.appPath + '"';
+  // var cmd = 'codesign --deep --force --sign "' + CONFIG.sign + '" "' + CONFIG.appPath + '"';
+  var cmd = './tasks/darwin-sign-app.sh  "' + CONFIG.sign + '" "' + CONFIG.appPath + '"';
   debug('Running', cmd);
   cp.exec(cmd, done);
 };
