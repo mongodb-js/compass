@@ -15,7 +15,7 @@ var ViewSwitcher = require('ampersand-view-switcher');
 var View = require('ampersand-view');
 var localLinks = require('local-links');
 var intercom = require('./intercom');
-
+var User = require('./models/user');
 /**
  * The top-level application singleton that brings everything together!
  *
@@ -84,6 +84,14 @@ var Application = View.extend({
     this.listenTo(this.router, 'page', this.onPageChange);
 
     this.router.on('page', intercom.update);
+
+    /*eslint no-console:0*/
+    User.getOrCreate(function(err, user) {
+      if (err) return console.error(err);
+
+      this.user.set(user.serialize());
+      intercom.inject(user);
+    }.bind(this));
 
     this.router.history.start({
       pushState: false,

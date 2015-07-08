@@ -1,5 +1,5 @@
 var AmpersandRouter = require('ampersand-router');
-
+var intercom = require('./intercom');
 var HomePage = require('./home');
 var Connect = require('./connect');
 
@@ -12,6 +12,7 @@ module.exports = AmpersandRouter.extend({
     '(*path)': 'catchAll'
   },
   index: function() {
+    intercom.track('Connected to MongoDB');
     this.trigger('page', new HomePage({}));
   },
   schema: function(ns) {
@@ -23,6 +24,7 @@ module.exports = AmpersandRouter.extend({
     this.redirectTo('');
   },
   connect: function() {
+    intercom.track('App Launched');
     this.trigger('page', new Connect({}));
   }
 });

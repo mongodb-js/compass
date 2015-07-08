@@ -3,6 +3,7 @@ var format = require('util').format;
 var SidebarView = require('../sidebar');
 var debug = require('debug')('scout-ui:home');
 var CollectionView = require('./collection');
+var intercom = require('../intercom');
 var app = require('ampersand-app');
 
 var HomeView = View.extend({
@@ -46,9 +47,12 @@ var HomeView = View.extend({
 
     this.ns = model.getId();
     this.updateTitle(model);
+
     app.navigate(format('schema/%s', model.getId()), {
       silent: true
     });
+
+    intercom.track('View Schema');
   },
   template: require('./index.jade'),
   subviews: {
