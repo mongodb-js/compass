@@ -58,6 +58,7 @@
   "dependencies": {
     "ampersand-app": "^1.0.4",
     "ampersand-collection": "^1.4.5",
+    "ampersand-collection-filterable": "^0.2.1",
     "ampersand-collection-lodash-mixin": "^2.0.1",
     "ampersand-collection-rest-mixin": "^4.2.0",
     "ampersand-model": "^5.0.3",

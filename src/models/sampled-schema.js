@@ -2,9 +2,24 @@ var _ = require('lodash');
 var Schema = require('mongodb-schema').Schema;
 var wrapError = require('./wrap-error');
 var app = require('ampersand-app');
+var FieldCollection = require('mongodb-schema').FieldCollection;
+var filterableMixin = require('ampersand-collection-filterable');
+
+/**
+ * wrapping mongodb-schema's FieldCollection with a filterable mixin
+ */
+var FilterableFieldCollection = FieldCollection.extend(filterableMixin, {
+  modelType: 'FilterableFieldCollection'
+});
 
 module.exports = Schema.extend({
   namespace: 'SampledSchema',
+  /**
+   * Our fields need to be filterable, adding a mixin
+   */
+  collections: {
+    fields: FilterableFieldCollection
+  },
   /**
    * Clear any data accumulated from sampling.
    */
