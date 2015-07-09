@@ -6,6 +6,8 @@ var DocumentListView = require('../document-view');
 var RefineBarView = require('../refine-view');
 var MongoDBCollection = require('../models/mongodb-collection');
 var SampledSchema = require('../models/sampled-schema');
+var pluralize = require('pluralize');
+var format = require('util').format;
 
 module.exports = AmpersandView.extend({
   namespace: 'Collection',
@@ -30,6 +32,23 @@ module.exports = AmpersandView.extend({
       type: 'booleanClass',
       yes: 'sidebar-open',
       hook: 'json-sidebar-toggle-class'
+    },
+    sample_size: {
+      hook: 'sample_size'
+    },
+    'schema.sample_size': {
+      hook: 'sampling-message',
+      type: 'booleanClass',
+      no: 'hidden'
+    }
+  },
+  derived: {
+    sample_size: {
+      deps: ['schema.sample_size'],
+      fn: function() {
+        return format('%d %s', this.schema.sample_size,
+          pluralize('document', this.schema.sample_size));
+      }
     }
   },
   children: {
@@ -41,6 +60,7 @@ module.exports = AmpersandView.extend({
 
     this.schema.ns = this.model.getId();
     this.schema.fetch();
+
     this.model.fetch();
 
     this.listenTo(app.queryOptions, 'change', this.onQueryChanged);

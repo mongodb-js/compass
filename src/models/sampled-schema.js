@@ -13,6 +13,12 @@ var FilterableFieldCollection = FieldCollection.extend(filterableMixin, {
 });
 
 module.exports = Schema.extend({
+  props: {
+    sample_size: {
+      type: 'number',
+      default: 0
+    }
+  },
   namespace: 'SampledSchema',
   /**
    * Our fields need to be filterable, adding a mixin
@@ -24,6 +30,7 @@ module.exports = Schema.extend({
    * Clear any data accumulated from sampling.
    */
   reset: function() {
+    this.sample_size = 0;
     this.fields.reset();
     this.count = 0;
     if (this.parent && this.parent.model && this.parent.model.documents) {
@@ -97,6 +104,7 @@ module.exports = Schema.extend({
         options.error(err, 'error', err.message);
       })
       .on('data', function(doc) {
+        model.sample_size += 1;
         if (documents) {
           documents.add(doc);
         }
