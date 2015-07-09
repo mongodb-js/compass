@@ -1,6 +1,6 @@
 .collection-view
-  .sampling-status
-    span This report is based on a sample of 100 documents.
+  .sampling-status(data-hook='sampling-message')
+    span This report is based on a sample of <span data-hook="sample_size">100 documents</span>.
   header
     .row
       .col-md-6

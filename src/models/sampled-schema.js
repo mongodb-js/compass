@@ -4,11 +4,18 @@ var wrapError = require('./wrap-error');
 var app = require('ampersand-app');
 
 module.exports = Schema.extend({
+  props: {
+    sample_size: {
+      type: 'number',
+      default: 0
+    }
+  },
   namespace: 'SampledSchema',
   /**
    * Clear any data accumulated from sampling.
    */
   reset: function() {
+    this.sample_size = 0;
     this.fields.reset();
     if (this.parent && this.parent.model && this.parent.model.documents) {
       this.parent.model.documents.reset();
@@ -81,6 +88,7 @@ module.exports = Schema.extend({
         options.error(err, 'error', err.message);
       })
       .on('data', function(doc) {
+        model.sample_size += 1;
         if (documents) {
           documents.add(doc);
         }
