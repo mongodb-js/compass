@@ -2,6 +2,7 @@ var AmpersandView = require('ampersand-view');
 var EJSON = require('mongodb-extended-json');
 var _ = require('lodash');
 var debug = require('debug')('scout:refine-view:index');
+var Query = require('mongodb-language-model').Query;
 
 module.exports = AmpersandView.extend({
   template: require('./index.jade'),
@@ -54,7 +55,10 @@ module.exports = AmpersandView.extend({
     // validate user input on the fly
     var queryStr = this._cleanupInput(this.queryByHook('refine-input').value);
     try {
-      EJSON.parse(queryStr);
+      // is it valid eJSON?
+      var queryObj = EJSON.parse(queryStr);
+      // is it a valid parsable Query according to the language?
+      var languageObj = new Query(queryObj, {parse: true});
     } catch (e) {
       this.valid = false;
       return;
