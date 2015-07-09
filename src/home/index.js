@@ -1,16 +1,12 @@
 var AmpersandView = require('ampersand-view');
 var ViewSwitcher = require('ampersand-view-switcher');
-var MongoDBInstance = require('../models/mongodb-instance');
-var debug = require('debug')('scout-ui:home');
 var app = require('ampersand-app');
 var format = require('util').format;
 var SidebarView = require('../sidebar');
 var CollectionView = require('./collection');
+var debug = require('debug')('scout-ui:home');
 
 module.exports = AmpersandView.extend({
-  children: {
-    model: MongoDBInstance
-  },
   props: {
     switcher: {
       type: 'object',
@@ -27,7 +23,7 @@ module.exports = AmpersandView.extend({
       deps: ['ns'],
       fn: function() {
         if (!this.ns) return null;
-        return this.model.collections.find({
+        return app.instance.collections.find({
           _id: this.ns
         });
       }
@@ -44,9 +40,9 @@ module.exports = AmpersandView.extend({
     options = options || {};
     this.ns = options.ns;
 
-    app.statusbar.watch(this, this.model);
+    app.statusbar.watch(this, app.instance);
 
-    this.listenTo(this.model, 'sync', function() {
+    this.listenTo(app.instance, 'sync', function() {
       if (!this.ns) return;
       if (!this.currentCollection) return;
       this.showCollection(this.currentCollection);
@@ -54,10 +50,10 @@ module.exports = AmpersandView.extend({
 
     this.listenToAndRun(app.connection, 'change:name', this.updateTitle);
     this.once('change:rendered', this.onRendered);
-    this.model.fetch();
+    app.instance.fetch();
   },
   updateTitle: function() {
-    var model = this.model.collections.selected;
+    var model = app.instance.collections.selected;
     var title = app.connection.uri;
     if (model) {
       title += '/' + model.getId();
@@ -71,7 +67,7 @@ module.exports = AmpersandView.extend({
     });
   },
   showCollection: function(model) {
-    var collection = this.model.collections;
+    var collection = app.instance.collections;
     if (!collection.select(model)) {
       return debug('already selected %s', model);
     }
@@ -90,12 +86,11 @@ module.exports = AmpersandView.extend({
   subviews: {
     sidebar: {
       hook: 'sidebar',
-      waitFor: 'model.collections',
       prepareView: function(el) {
         var view = new SidebarView({
           el: el,
           parent: this,
-          collection: this.model.collections
+          collection: app.instance.collections
         });
         view.on('show', this.showCollection.bind(this));
         return view;
