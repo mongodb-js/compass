@@ -26,7 +26,6 @@ module.exports = AmpersandView.extend({
   template: require('./document-list.jade'),
   render: function() {
     this.renderWithTemplate();
-    this.renderCollection(this.collection, DocumentListItemView, this.queryByHook('documents'));
+    this.renderCollection(this.collection, DocumentListItemView, this.queryByHook('document-container'));
   }
 });
-
