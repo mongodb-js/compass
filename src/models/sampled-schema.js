@@ -10,6 +10,7 @@ module.exports = Schema.extend({
    */
   reset: function() {
     this.fields.reset();
+    this.count = 0;
     if (this.parent && this.parent.model && this.parent.model.documents) {
       this.parent.model.documents.reset();
     }
