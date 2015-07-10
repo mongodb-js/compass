@@ -1,6 +1,6 @@
 {
   "name": "electron-squirrel-startup",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Default Squirrel.Windows event handler for your Electron apps.",
   "license": "Apache-2.0",
   "repository": {
@@ -25,6 +25,8 @@
     "pre-commit": "^1.0.10"
   },
   "dependency-check": {
-    "ignore": ["app"]
+    "ignore": [
+      "app"
+    ]
   }
 }
