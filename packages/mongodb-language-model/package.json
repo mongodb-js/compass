@@ -2,7 +2,7 @@
   "name": "mongodb-language-model",
   "description": "Parses MongoDB query language and creates hierarchical Ampersand.js models",
   "author": "Thomas Rueckstiess <thomas@mongodb.com>",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "bugs": "https://github.com/mongodb-js/mongodb-language-model/issues",
   "homepage": "https://github.com/mongodb-js/mongodb-language-model",
   "repository": {
