@@ -84,6 +84,8 @@ module.exports = AmpersandView.extend({
       silent: true
     });
 
+    // reset title and query
+    app.queryOptions.query = {};
     this.updateTitle();
   },
   template: require('./index.jade'),
