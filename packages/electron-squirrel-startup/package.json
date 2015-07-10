@@ -2,10 +2,12 @@
   "name": "electron-squirrel-startup",
   "version": "0.1.0",
   "description": "Default Squirrel.Windows event handler for your Electron apps.",
+  "author": "Lucas Hrabovsky <lucas@mongodb.com> (http://imlucas.com)",
+  "homepage": "http://github.com/mongodb-js/electron-squirrel-startup",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mongodb-js/electron-installer-squirrel-windows.git"
+    "url": "https://github.com/mongodb-js/electron-squirrel-startup.git"
   },
   "scripts": {
     "ci": "mocha",
@@ -28,5 +30,9 @@
     "ignore": [
       "app"
     ]
-  }
+  },
+  "keywords": [
+    "electron",
+    "squirrrel"
+  ]
 }
