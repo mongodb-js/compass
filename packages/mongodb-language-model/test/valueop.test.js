@@ -51,7 +51,7 @@ describe('ValueOperator', function() {
 
   it('should work with null-ish values', function() {
     valueop = new models.ValueOperator({
-      $ne: null
+      $eq: null
     }, {
       parse: true
     });
@@ -69,7 +69,7 @@ describe('ValueOperator', function() {
 
   it('should serialize to the original input', function() {
     var input = {
-      $ne: 'foo'
+      $eq: 'foo'
     };
     valueop = new models.ValueOperator(input, {
       parse: true
