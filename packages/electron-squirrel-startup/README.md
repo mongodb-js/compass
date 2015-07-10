@@ -1,6 +1,6 @@
 # electron-squirrel-startup
 
-> Handle [Squirrel.Windows][squirrel] update events in your [Electron][electron] app.
+> Default [Squirrel.Windows][squirrel] event handler for your [Electron][electron] apps.
 
 ## Installation
 

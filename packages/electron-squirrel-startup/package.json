@@ -1,7 +1,7 @@
 {
   "name": "electron-squirrel-startup",
   "version": "0.0.0",
-  "description": "Handle Squirrel.Windows commands in your Electron app on startup. ",
+  "description": "Default Squirrel.Windows event handler for your Electron apps.",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
