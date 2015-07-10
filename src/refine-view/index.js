@@ -74,6 +74,8 @@ module.exports = AmpersandView.extend({
   },
   submit: function(evt) {
     evt.preventDefault();
-    this.buttonClicked();
+    if (this.valid) {
+      this.buttonClicked();
+    }
   }
 });
