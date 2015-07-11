@@ -3,6 +3,7 @@ var _ = require('lodash');
 var moment = require('moment');
 var shared = require('./shared');
 var many = require('./many');
+var raf = require('raf');
 
 require('../d3-tip')(d3);
 
@@ -14,7 +15,9 @@ function generateDefaults(n) {
   return doc;
 }
 
-module.exports = function(opts) {
+var weekdayLabels = moment.weekdays();
+
+var minicharts_d3fns_date = function(opts) {
   var values = opts.data.values.toJSON();
 
   // distinguish ObjectIDs from real dates
@@ -46,7 +49,6 @@ module.exports = function(opts) {
   var upperMargin = 20;
 
   // group by weekdays
-  var weekdayLabels = moment.weekdays();
   var weekdays = _(values)
     .groupBy(function(d) {
       return moment(d).weekday();
@@ -131,14 +133,16 @@ module.exports = function(opts) {
 
   var weekdayContainer = svg.append('g');
 
-  many(weekdays, weekdayContainer, width / (upperRatio + 1) - upperMargin, upperBarBottom, {
-    bgbars: true,
-    labels: {
-      'text-anchor': 'middle',
-      text: function(d) {
-        return d.label[0];
+  raf(function() {
+    many(weekdays, weekdayContainer, width / (upperRatio + 1) - upperMargin, upperBarBottom, {
+      bgbars: true,
+      labels: {
+        'text-anchor': 'middle',
+        text: function(d) {
+          return d.label[0];
+        }
       }
-    }
+    });
   });
 
   // calendar icon
@@ -154,14 +158,15 @@ module.exports = function(opts) {
 
   var hourContainer = svg.append('g')
     .attr('transform', 'translate(' + (width / (upperRatio + 1) + upperMargin) + ', 0)');
-
-  many(hours, hourContainer, width / (upperRatio + 1) * upperRatio - upperMargin, upperBarBottom, {
-    bgbars: true,
-    labels: {
-      text: function(d, i) {
-        return i % 6 === 0 || i === 23 ? d.label : '';
+  raf(function() {
+    many(hours, hourContainer, width / (upperRatio + 1) * upperRatio - upperMargin, upperBarBottom, {
+      bgbars: true,
+      labels: {
+        text: function(d, i) {
+          return i % 6 === 0 || i === 23 ? d.label : '';
+        }
       }
-    }
+    });
   });
 
   // clock icon
@@ -175,3 +180,5 @@ module.exports = function(opts) {
     .attr('font-family', 'FontAwesome')
     .text('\uf017');
 };
+
+module.exports = minicharts_d3fns_date;

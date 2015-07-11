@@ -3,7 +3,7 @@ var _ = require('lodash');
 var few = require('./few');
 var shared = require('./shared');
 
-module.exports = function(opts) {
+var minicharts_d3fns_boolean = function(opts) {
   var values = opts.data.values.toJSON();
 
   // group by true/false
@@ -41,3 +41,4 @@ module.exports = function(opts) {
   few(data, g, width, height);
 };
 
+module.exports = minicharts_d3fns_boolean;

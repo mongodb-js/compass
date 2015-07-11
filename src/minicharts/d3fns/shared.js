@@ -5,7 +5,7 @@ function decimalPlaces(number) {
   return ((+number).toFixed(20)).replace(/^-?\d*\.?|0+$/g, '').length;
 }
 
-module.exports = {
+var minicharts_d3fns_shared = {
 
   margin: {
     top: 10,
@@ -33,3 +33,4 @@ module.exports = {
     };
   }
 };
+module.exports = minicharts_d3fns_shared;

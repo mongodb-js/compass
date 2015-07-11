@@ -3,6 +3,7 @@ var AmpersandView = require('ampersand-view');
 var UniqueMinichartView = require('./unique');
 var vizFns = require('./d3fns');
 var _ = require('lodash');
+var raf = require('raf');
 
 // a wrapper around VizView to set common default values
 module.exports = AmpersandView.extend({
@@ -33,7 +34,8 @@ module.exports = AmpersandView.extend({
     } else {
       this.subview = new VizView(this.viewOptions);
     }
-
-    this.renderSubview(this.subview, this.queryByHook('minichart'));
+    raf(function() {
+      this.renderSubview(this.subview, this.queryByHook('minichart'));
+    }.bind(this));
   }
 });
