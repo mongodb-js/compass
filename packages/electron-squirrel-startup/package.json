@@ -32,7 +32,9 @@
     ]
   },
   "keywords": [
+    "mongodb.js",
     "electron",
-    "squirrrel"
+    "electron-installer",
+    "squirrel.windows"
   ]
 }
