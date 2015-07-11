@@ -4,8 +4,10 @@ var BrowserWindow = require('browser-window');
 var app = require('app');
 var debug = require('debug')('scout-electron:window-manager');
 var attachMenu = require('./menu');
+var path = require('path');
 
-var DEFAULT_URL = 'http://localhost:29017/index.html#connect';
+var RESOURCES = path.resolve(__dirname, '../../');
+var DEFAULT_URL = 'file://' + path.join(RESOURCES, 'index.html#connect');
 
 var DEFAULT_WIDTH = 1024;
 var DEFAULT_HEIGHT = 700;
@@ -41,7 +43,7 @@ module.exports.create = function(opts) {
     debug('got new-window event!', event, url, frameName, disposition);
     event.preventDefault();
     module.exports.create({
-      url: url
+      url: 'file://' + RESOURCES + '/index.html' + url.replace('file://', '')
     });
   });
   return _window;
