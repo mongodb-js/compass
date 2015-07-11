@@ -46,7 +46,9 @@ var CollectionListView = View.extend({
       click: '_onClick'
     },
     template: require('./collection-list-item.jade'),
-    _onClick: function() {
+    _onClick: function(event) {
+      event.preventDefault();
+      event.stopPropagation();
       this.parent.show(this.model);
     }
   }),
