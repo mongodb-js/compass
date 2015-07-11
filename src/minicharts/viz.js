@@ -1,5 +1,6 @@
 var AmpersandView = require('ampersand-view');
 var _ = require('lodash');
+var raf = require('raf');
 var $ = require('jquery');
 
 var VizView = AmpersandView.extend({
@@ -121,30 +122,19 @@ var VizView = AmpersandView.extend({
 
     // call viz function
     if (this.vizFn) {
-      this.vizFn({
+      var opts = {
         width: this.width,
         height: this.height,
         data: this.data,
         el: this.el
+      };
+      var vizFn = this.vizFn.bind(this, opts);
+      raf(function minicharts_viz_call_vizfn() {
+        vizFn();
       });
     }
     return this;
   }
-  // redraw: function() {
-  //   this._chooseDataSource();
-  //   this.data = this.transform(this.data);
-  //
-  //   this._measure();
-  //
-  //   if (this.vizFn) {
-  //     this.vizFn({
-  //       width: this.width,
-  //       height: this.height,
-  //       data: this.data,
-  //       el: this.el,
-  //     });
-  //   }
-  // }
 });
 
 module.exports = VizView;

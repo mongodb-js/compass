@@ -5,7 +5,7 @@ var shared = require('./shared');
 
 require('../d3-tip')(d3);
 
-module.exports = function(data, g, width, height, options) {
+var minicharts_d3fns_many = function(data, g, width, height, options) {
   options = _.defaults(options || {}, {
     bgbars: false,
     scale: false,
@@ -156,3 +156,4 @@ module.exports = function(data, g, width, height, options) {
       .text(labels.text);
   }
 };
+module.exports = minicharts_d3fns_many;
