@@ -1,0 +1,47 @@
+- moment = require('moment')
+mixin jsprimitive(value, _type)
+  if _type === 'Date'
+    - value = moment(value).format('LLL')
+  .document-property-value(title=value)= value
+
+mixin jsarray(items)
+  ol.document-property-body
+    each item in items
+      +jsproperty(null, item)
+
+mixin jsproperty(key, value)
+  - _type = getType(value)
+  - is_expandable = _type === 'Object' || _type === 'Array'
+  if !is_expandable
+    if key
+      li.document-property
+        .document-property-key= key
+        +jsprimitive(value, _type)
+    else
+      li.document-property-array-item
+        +jsprimitive(value, _type)
+  else if _type === 'Array'
+    li.document-property-array
+      .document-property-header
+        .caret
+        .document-property-key= key
+        | :
+        .document-property-type-label Array[#{value.length}]
+      +jsarray(value)
+  else
+    li.document-property-object
+      .document-property-header
+        .caret
+        .document-property-key= key
+        | :
+        .document-property-type-label Object
+      +jsobject(value)
+
+
+mixin jsobject(obj)
+  ol.document-property-body
+    for value, key in obj
+      +jsproperty(key, value)
+
+li.document-list-item
+  +jsobject(model.serialize())
