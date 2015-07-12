@@ -1,10 +1,10 @@
-var AmpersandView = require('ampersand-view');
+var View = require('ampersand-view');
 var TypeListItem = require('./type-list-item');
 
-module.exports = AmpersandView.extend({
+module.exports = View.extend({
   template: require('./type-list.jade'),
   render: function() {
     this.renderWithTemplate({});
-    this.renderCollection(this.collection.sort(), TypeListItem, this.queryByHook('types'));
+    this.renderCollection(this.collection, TypeListItem, this.queryByHook('types'));
   }
 });
