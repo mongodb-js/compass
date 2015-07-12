@@ -46,21 +46,10 @@ var StatusbarView = AmpersandView.extend({
   show: function() {
     this.$el = $('#statusbar');
     this.el = this.$el.get(0);
-    this.$message = $('ul.message-background');
-    this.$message_text = this.$message.find('[data-hook="statusbar-message"]');
-    this.$message_text.text(this.message);
-    this.$message.removeClass('hidden');
     this.width = 100;
   },
   hide: function() {
-    if (this.$message) {
-      this.$message.addClass('hidden');
-      setTimeout(function() {
-        this.width = 0;
-      }.bind(this), 200);
-    } else {
-      this.width = 0;
-    }
+    this.width = 0;
   },
   render: function() {
     this.show();
