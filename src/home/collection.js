@@ -1,24 +1,21 @@
 var app = require('ampersand-app');
-var AmpersandView = require('ampersand-view');
+var View = require('ampersand-view');
 var CollectionStatsView = require('../collection-stats');
 var FieldListView = require('../field-list');
-var DocumentListView = require('../document-view');
+var DocumentListView = require('../document-list');
 var RefineBarView = require('../refine-view');
 var MongoDBCollection = require('../models/mongodb-collection');
 var SampledSchema = require('../models/sampled-schema');
 var pluralize = require('pluralize');
 var format = require('util').format;
+var FastView = require('../fast-view');
 
-module.exports = AmpersandView.extend({
-  namespace: 'Collection',
+var MongoDBCollectionView = View.extend(FastView, {
   template: require('./collection.jade'),
   props: {
-    open: {
+    sidebar_open: {
       type: 'boolean',
       default: false
-    },
-    fieldListView: {
-      type: 'view'
     }
   },
   events: {
@@ -28,7 +25,7 @@ module.exports = AmpersandView.extend({
     'model.name': {
       hook: 'name'
     },
-    open: {
+    sidebar_open: {
       type: 'booleanClass',
       yes: 'sidebar-open',
       hook: 'json-sidebar-toggle-class'
@@ -59,61 +56,39 @@ module.exports = AmpersandView.extend({
     app.statusbar.watch(this, this.schema);
 
     this.schema.ns = this.model.getId();
-    this.schema.fetch();
-
-    this.model.fetch();
-
     this.listenTo(app.queryOptions, 'change', this.onQueryChanged);
+    this.fetch(this.model);
+    this.fetch(this.schema);
   },
   onQueryChanged: function() {
     this.schema.refine(app.queryOptions.serialize());
   },
   onSplitterClick: function() {
-    this.toggle('open');
+    this.toggle('sidebar_open');
   },
-  subviews: {
-    stats: {
-      hook: 'stats-subview',
-      prepareView: function(el) {
-        return new CollectionStatsView({
-          el: el,
-          parent: this,
-          model: this.model
-        });
-      }
-    },
-    fields: {
-      waitFor: 'schema.fields',
-      hook: 'fields-subview',
-      prepareView: function(el) {
-        this.fieldListView = new FieldListView({
-          el: el,
-          parent: this,
-          collection: this.schema.fields
-        });
-        return this.fieldListView;
-      }
-    },
-    refinebar: {
-      hook: 'refine-bar',
-      prepareView: function(el) {
-        return new RefineBarView({
-          el: el,
-          parent: this,
-          model: app.queryOptions
-        });
-      }
-    },
-    documents: {
-      waitFor: 'open',
-      hook: 'documents-subview',
-      prepareView: function(el) {
-        return new DocumentListView({
-          el: el,
-          parent: this,
-          collection: this.model.documents
-        });
-      }
-    }
+  render: function() {
+    this.renderWithTemplate(this);
+
+    this.renderSubview(CollectionStatsView, {
+      el: this.queryByHook('stats-subview'),
+      model: this.model
+    });
+
+    this.renderSubview(RefineBarView, {
+      el: this.queryByHook('refine-bar'),
+      model: app.queryOptions
+    });
+
+    this.renderSubview(FieldListView, {
+      el: this.queryByHook('fields-subview'),
+      collection: this.schema.fields
+    });
+
+    this.renderSubview(DocumentListView, {
+      el: this.queryByHook('documents-subview'),
+      collection: this.schema.documents
+    });
   }
 });
+
+module.exports = MongoDBCollectionView;
