@@ -1,7 +1,6 @@
 var MongoDBCollection = require('scout-brain').models.Collection;
 var types = require('./types');
 var scoutClientMixin = require('./scout-client-mixin');
-var SampledDocumentCollection = require('./sampled-document-collection');
 var app = require('ampersand-app');
 
 /**
@@ -15,9 +14,6 @@ module.exports = MongoDBCollection.extend(scoutClientMixin, {
       type: 'boolean',
       default: false
     }
-  },
-  children: {
-    documents: SampledDocumentCollection
   },
   derived: {
     name: {
