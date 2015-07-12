@@ -1,4 +1,4 @@
-.collection-view
+.collection-view.clearfix
   .sampling-status(data-hook='sampling-message')
     span This report is based on a sample of <span data-hook="sample_size">100 documents</span>.
   header
@@ -12,14 +12,14 @@
     .column.main
       div(data-hook='fields-subview')
     .splitter
-      button.btn.btn-link.splitter-button.splitter-button-open
+      button.btn.btn-link.splitter-button.splitter-button-open(title='View Sampled Documents')
         i.fa.fa-caret-left
-        | 
+        | &nbsp;
         i.fa.fa-file-text-o
 
-      button.btn.btn-link.splitter-button.splitter-button-close
+      button.btn.btn-link.splitter-button.splitter-button-close(title='Hide Sampled Documents')
         i.fa.fa-file-text-o
-        | 
+        | &nbsp;
         i.fa.fa-caret-right
     .column.side
       div(data-hook='documents-subview')

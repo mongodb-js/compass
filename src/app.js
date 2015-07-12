@@ -98,7 +98,7 @@ var Application = State.extend({
     head.appendChild(script);
 
     new Layout({
-      el: document.querySelector('#application'),
+      el: document.querySelector('[data-hook="application"]'),
       app: this
     }).render();
 

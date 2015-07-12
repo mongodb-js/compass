@@ -22,7 +22,7 @@ module.exports = View.extend({
   },
   render: function() {
     this.renderWithTemplate({});
-    this.pageSwitcher = new ViewSwitcher(this.queryByHook('page-container'), {
+    this.pageSwitcher = new ViewSwitcher(this.el, {
       show: function() {
         document.scrollTop = 0;
       }
