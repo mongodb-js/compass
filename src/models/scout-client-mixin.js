@@ -1,6 +1,7 @@
 var _ = require('lodash');
 var wrapError = require('./wrap-error');
 var app = require('ampersand-app');
+var raf = require('raf');
 
 module.exports = {
   fetch: function(options) {
@@ -30,9 +31,12 @@ module.exports = {
 
     var done = function(err, res) {
       if (err) return options.error({}, 'error', err.message);
-      options.success(res, 'success', res);
+      raf(function call_scout_client_success() {
+        options.success(res, 'success', res);
+      });
     };
-
-    handler.call(model, done);
+    raf(function call_scout_client() {
+      handler.call(model, done);
+    });
   }
 };

@@ -50,6 +50,7 @@
  *     }
  *   });
  */
+var raf = require('raf');
 module.exports = {
   /**
    * @param {Object} model you want to mark as selected.
@@ -60,15 +61,16 @@ module.exports = {
     if (model.selected) {
       return false;
     }
-    var current = this.find({
-      selected: true
-    });
-    if (current) {
-      current.toggle('selected');
-    }
-    model.toggle('selected');
-    this.selected = model;
-    this.trigger('change:selected', this.selected);
+    raf(function selectable_mark_selected() {
+      var current = this.selected;
+      if (current) {
+        current.selected = false;
+      }
+      model.selected = true;
+      this.selected = model;
+      this.trigger('change:selected', this.selected);
+    }.bind(this));
+
     return true;
   }
 };
