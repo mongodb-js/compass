@@ -1,0 +1,44 @@
+// component styles
+.collection-stats-holder {
+  position: absolute;
+  right: 20px;
+}
+.collection-stats {
+  float: left;
+  font-weight: 200;
+  list-style: none;
+  padding: 0 30px 0 0;
+  margin: 11px 30px 0 0;
+  border-right: 1px solid @gray7;
+
+  &:last-child {
+    border-right: none;
+    padding: 0;
+    margin: 11px 0 0 0;
+  }
+}
+.collection-stats-item {
+  display: inline-block;
+  margin-right: 10px;
+
+  &:last-child {
+    margin-right: 0;
+  }
+}
+.collection-stats-primary-label {
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 12px;
+  color: @gray3;
+}
+.collection-stats-primary-value {
+  font-size: 36px;
+  line-height: 36px;
+}
+.collection-stats-label {
+  font-size: 11px;
+  color: @gray3;
+}
+.collection-stats-value {
+  font-size: 14px;
+}
