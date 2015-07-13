@@ -13,6 +13,8 @@ var MongoDBInstance = require('./models/mongodb-instance');
 var Router = require('./router');
 var Layout = require('./layout');
 var Statusbar = require('./statusbar');
+var livereload = require('./livereload');
+var intercom = require('./intercom');
 var debug = require('debug')('scout-ui:app');
 
 /**
@@ -91,16 +93,15 @@ var Application = State.extend({
    * We have what we need, we can now start our router and show the appropriate page!
    */
   _onDOMReady: function() {
-    var head = document.getElementsByTagName('head')[0];
-    var script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.src = 'http://localhost:35729/livereload.js';
-    head.appendChild(script);
+    livereload.inject();
+    intercom.inject();
 
     new Layout({
       el: document.querySelector('#application'),
       app: this
     }).render();
+
+    this.router.on('page', intercom.update);
 
     this.router.history.start({
       pushState: false,
@@ -126,6 +127,7 @@ var Application = State.extend({
     this.router.history.navigate(hash, {
       trigger: !options.silent
     });
+    intercom.update();
   }
 });
 
