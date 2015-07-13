@@ -72,5 +72,14 @@ module.exports = {
     }.bind(this));
 
     return true;
+  },
+  unselectAll: function() {
+    if (this.selected) {
+      this.selected.set({
+        selected: false
+      });
+    }
+    this.selected = null;
+    this.trigger('change:selected', this.selected);
   }
 };
