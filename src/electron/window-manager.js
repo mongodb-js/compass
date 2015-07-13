@@ -12,11 +12,19 @@ var DEFAULT_URL = 'file://' + path.join(RESOURCES, 'index.html#connect');
 var DEFAULT_WIDTH = 1024;
 var DEFAULT_HEIGHT = 700;
 
-var DEFAULT_WIDTH_DIALOG = 600;
-var DEFAULT_HEIGHT_DIALOG = 400;
+var DEFAULT_HEIGHT_DIALOG;
 
-var main = module.exports.main = null;
-var childWindows = [];
+if (process.platform === 'win32') {
+  DEFAULT_HEIGHT_DIALOG = 460;
+} else if (process.platform === 'linux') {
+  DEFAULT_HEIGHT_DIALOG = 430;
+} else {
+  DEFAULT_HEIGHT_DIALOG = 400;
+}
+var DEFAULT_WIDTH_DIALOG = 600;
+
+var connectWindow;
+var windowsOpenCount = 0;
 
 module.exports.create = function(opts) {
   opts = _.defaults(opts || {}, {
@@ -36,9 +44,7 @@ module.exports.create = function(opts) {
   });
   attachMenu(_window);
   _window.loadUrl(opts.url);
-  if (main) {
-    childWindows.push(_window);
-  }
+
   _window.webContents.on('new-window', function(event, url, frameName, disposition) {
     debug('got new-window event!', event, url, frameName, disposition);
     event.preventDefault();
@@ -46,31 +52,40 @@ module.exports.create = function(opts) {
       url: 'file://' + RESOURCES + '/index.html' + url.replace('file://', '')
     });
   });
+
+  if (opts.url === DEFAULT_URL) {
+    connectWindow = _window;
+    connectWindow.on('closed', function() {
+      debug('connect window closed.');
+      connectWindow = null;
+    });
+  }
+  windowsOpenCount++;
+  _window.on('closed', function() {
+    windowsOpenCount--;
+    if (windowsOpenCount === 0) {
+      debug('all windows closed.  quitting.');
+      app.quit();
+    }
+  });
   return _window;
 };
 
-app.on('ready', function() {
-  // var height = DEFAULT_HEIGHT;
-  var height = DEFAULT_HEIGHT_DIALOG;
-  if (process.platform === 'win32') {
-    height += 60;
-  } else if (process.platform === 'linux') {
-    height += 30;
+app.on('show connect dialog', function(opts) {
+  if (connectWindow) {
+    connectWindow.focus();
+    return connectWindow;
   }
-  debug('loading main window', DEFAULT_URL);
 
-  main = module.exports.main = module.exports.create({
-    height: height,
+  opts = opts || {};
+  opts = _.extend(opts || {}, {
+    height: DEFAULT_HEIGHT_DIALOG,
     width: DEFAULT_WIDTH_DIALOG,
     url: DEFAULT_URL
   });
+  module.exports.create(opts);
+});
 
-  main.on('closed', function() {
-    debug('main window closed.  killing children.');
-    main = null;
-    /*eslint no-unused-vars:0*/
-    childWindows.map(function(_window) {
-      _window = null;
-    });
-  });
+app.on('ready', function() {
+  app.emit('show connect dialog');
 });
