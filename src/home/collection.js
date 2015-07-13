@@ -58,7 +58,9 @@ var MongoDBCollectionView = View.extend(FastView, {
     this.schema.ns = this.model.getId();
     this.listenTo(app.queryOptions, 'change', this.onQueryChanged);
     this.fetch(this.model);
-    this.fetch(this.schema);
+    this.fetch(this.schema, {
+      message: 'Analyzing documents...'
+    });
   },
   onQueryChanged: function() {
     this.schema.refine(app.queryOptions.serialize());
@@ -79,10 +81,12 @@ var MongoDBCollectionView = View.extend(FastView, {
       model: app.queryOptions
     });
 
-    this.renderSubview(FieldListView, {
-      el: this.queryByHook('fields-subview'),
-      collection: this.schema.fields
-    });
+    this.schema.on('sync', function() {
+      this.renderSubview(FieldListView, {
+        el: this.queryByHook('fields-subview'),
+        collection: this.schema.fields
+      });
+    }.bind(this));
 
     this.renderSubview(DocumentListView, {
       el: this.queryByHook('documents-subview'),

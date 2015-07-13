@@ -106,6 +106,7 @@ module.exports = Schema.extend({
       .pipe(es.map(function(doc, cb) {
         raf(function schema_parse_doc() {
           model.parse(doc);
+          debug('sampled new document!');
           cb(null, doc);
         });
       }))
