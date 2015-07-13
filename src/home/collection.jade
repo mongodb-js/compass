@@ -1,6 +1,8 @@
 .collection-view.clearfix
-  .sampling-status(data-hook='sampling-message')
-    span This report is based on a sample of <span data-hook="sample_size">100 documents</span>.
+  .sampling-status(data-hook='schema_sample_size')
+    span This report is based on a sample of&nbsp;
+      span(data-hook='sample_size_message')
+      |.
   header
     .row
       .col-md-6

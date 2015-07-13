@@ -9,6 +9,7 @@ var State = require('ampersand-state');
 var QueryOptions = require('./models/query-options');
 var Connection = require('./models/connection');
 var MongoDBInstance = require('./models/mongodb-instance');
+var SampledSchema = require('./models/sampled-schema');
 
 var Router = require('./router');
 var Layout = require('./layout');
@@ -61,7 +62,11 @@ var Application = State.extend({
     /**
      * Details of the MongoDB Instance we're currently connected to.
      */
-    instance: MongoDBInstance
+    instance: MongoDBInstance,
+    /**
+     * The currently sampled schema.
+     */
+    schema: SampledSchema
   },
   derived: {
     /**
