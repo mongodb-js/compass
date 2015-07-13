@@ -76,13 +76,17 @@ ol.document-list {
           border-left: 1px dotted @gray5;
           display: none;
         }
+        ol.document-property-body  > a ~ ol {
+          padding-left: 12px;
+          display: none;
+        }
         &.expanded {
-          .document-property-header {
+          > .document-property-header {
             > .caret {
               .caret-down;
             }
           }
-          ol.document-property-body {
+          > ol.document-property-body {
             display: block;
           }
         }

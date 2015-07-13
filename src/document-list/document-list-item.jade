@@ -24,16 +24,18 @@ mixin jsproperty(key, value)
     li.document-property-array
       .document-property-header
         .caret
-        .document-property-key= key
-        | :
-        .document-property-type-label Array[#{value.length}]
+        if key
+          .document-property-key= key
+          | :
+          .document-property-type-label Array[#{value.length}]
       +jsarray(value)
   else
     li.document-property-object
       .document-property-header
         .caret
-        .document-property-key= key
-        | :
+        if key
+          .document-property-key= key
+          | :
         .document-property-type-label Object
       +jsobject(value)
 
