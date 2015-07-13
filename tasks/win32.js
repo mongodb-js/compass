@@ -3,13 +3,13 @@ var pkg = require(path.resolve(__dirname, '../package.json'));
 var fs = require('fs');
 var spawn = require('child_process').spawn;
 var del = require('del');
-
+var packager = require('electron-packager');
+var createInstaller = require('electron-installer-squirrel-windows');
 var debug = require('debug')('scout:tasks:win32');
 
 var NAME = pkg.product_name;
 var APP_PATH = path.join('dist', NAME + '-win32-ia32');
 
-var packager = require('electron-packager');
 var CONFIG = module.exports = {
   name: pkg.product_name,
   dir: path.resolve(__dirname, '../build'),
@@ -53,8 +53,18 @@ module.exports.installer = function(done) {
   debug('Packaging into `%s`', path.join(APP_PATH, 'resources', 'app.asar'));
   packager(CONFIG, function(err) {
     if (err) return done(err);
-    del([path.join(APP_PATH, 'resources', 'app')], function() {
-      done();
+
+    var unpacked = path.resolve(__dirname, '..' + path.join(APP_PATH, 'resources', 'app'));
+    debug('Deleting `%s` so app is loaded from .asar', unpacked);
+    del(unpacked, function() {
+      createInstaller({
+        out: CONFIG.out,
+        path: APP_PATH,
+        overwrite: true
+      }, function(err) {
+        if (err) return done(err);
+        done();
+      });
     });
   });
 };
