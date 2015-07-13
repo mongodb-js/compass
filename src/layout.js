@@ -22,11 +22,14 @@ module.exports = View.extend({
   },
   render: function() {
     this.renderWithTemplate({});
-    this.pageSwitcher = new ViewSwitcher(this.el, {
+    this.pageSwitcher = new ViewSwitcher(this.queryByHook('layout-container'), {
       show: function() {
         document.scrollTop = 0;
       }
     });
+    app.statusbar.el = this.queryByHook('statusbar');
+    app.statusbar.render();
+    this.registerSubview(app.statusbar);
   },
   onPageChange: function(view) {
     this.pageSwitcher.set(view);
