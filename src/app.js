@@ -41,11 +41,11 @@ var Application = State.extend({
       default: pkg.version
     }
   },
+  /**
+   * @see http://learn.humanjavascript.com/react-ampersand/creating-a-router-and-pages
+   */
+  router: null,
   children: {
-    /**
-     * @see http://learn.humanjavascript.com/react-ampersand/creating-a-router-and-pages
-     */
-    router: Router,
     /**
      * @see models/query-options.js
      */
@@ -90,6 +90,7 @@ var Application = State.extend({
     if (opts.uri) {
       this.connection.use(opts.uri);
     }
+    this.router = new Router();
     domReady(this._onDOMReady.bind(this));
   },
   /**
