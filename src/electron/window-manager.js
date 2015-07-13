@@ -15,8 +15,7 @@ var DEFAULT_HEIGHT = 700;
 var DEFAULT_WIDTH_DIALOG = 600;
 var DEFAULT_HEIGHT_DIALOG = 400;
 
-var main = module.exports.main = null;
-var childWindows = [];
+var connectWindow;
 
 module.exports.create = function(opts) {
   opts = _.defaults(opts || {}, {
@@ -24,6 +23,11 @@ module.exports.create = function(opts) {
     height: DEFAULT_HEIGHT,
     url: DEFAULT_URL
   });
+
+  if (opts.url === DEFAULT_URL && connectWindow) {
+    connectWindow.focus();
+    return connectWindow;
+  }
 
   debug('creating new window');
   var _window = new BrowserWindow({
@@ -36,9 +40,7 @@ module.exports.create = function(opts) {
   });
   attachMenu(_window);
   _window.loadUrl(opts.url);
-  if (main) {
-    childWindows.push(_window);
-  }
+
   _window.webContents.on('new-window', function(event, url, frameName, disposition) {
     debug('got new-window event!', event, url, frameName, disposition);
     event.preventDefault();
@@ -46,6 +48,14 @@ module.exports.create = function(opts) {
       url: 'file://' + RESOURCES + '/index.html' + url.replace('file://', '')
     });
   });
+
+  if (opts.url === DEFAULT_URL) {
+    connectWindow = _window;
+    connectWindow.on('closed', function() {
+      debug('connect window closed.');
+      connectWindow = null;
+    });
+  }
   return _window;
 };
 
@@ -59,18 +69,9 @@ app.on('ready', function() {
   }
   debug('loading main window', DEFAULT_URL);
 
-  main = module.exports.main = module.exports.create({
+  module.exports.create({
     height: height,
     width: DEFAULT_WIDTH_DIALOG,
     url: DEFAULT_URL
-  });
-
-  main.on('closed', function() {
-    debug('main window closed.  killing children.');
-    main = null;
-    /*eslint no-unused-vars:0*/
-    childWindows.map(function(_window) {
-      _window = null;
-    });
   });
 });
