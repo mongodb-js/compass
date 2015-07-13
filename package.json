@@ -5,6 +5,7 @@
   "main": "main.js",
   "electron_version": "0.28.3",
   "product_name": "MongoDB Enterprise Scout",
+  "authors": "MongoDB Inc.",
   "check": {
     "ignore": [
       "build/**",
