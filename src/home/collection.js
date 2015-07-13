@@ -57,7 +57,7 @@ var MongoDBCollectionView = View.extend(FastView, {
   },
   initialize: function() {
     app.statusbar.watch(this, app.schema);
-
+    app.schema.reset();
     app.schema.ns = this.model.getId();
     this.listenTo(app.queryOptions, 'change', this.onQueryChanged);
     this.fetch(this.model);
