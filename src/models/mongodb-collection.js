@@ -33,5 +33,10 @@ module.exports = MongoDBCollection.extend(scoutClientMixin, {
   },
   scout: function() {
     return app.client.collection.bind(app.client, this.getId());
+  },
+  serialize: function() {
+    return this.getAttributes({
+      props: true
+    }, true);
   }
 });
