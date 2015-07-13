@@ -71,6 +71,9 @@ var ConnectView = View.extend({
     model.save();
     this.connections.add(model);
     window.open(format('%s?uri=%s#schema', window.location.origin, uri));
+    setTimeout(function() {
+      window.close();
+    }, 1000);
   },
   template: require('./index.jade'),
   subviews: {
