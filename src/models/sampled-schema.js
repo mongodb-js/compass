@@ -17,10 +17,12 @@ var FilterableFieldCollection = FieldCollection.extend(filterableMixin, {
 });
 
 module.exports = Schema.extend({
-  props: {
+  derived: {
     sample_size: {
-      type: 'number',
-      default: 0
+      deps: ['count'],
+      fn: function() {
+        return this.count - 1;
+      }
     }
   },
   namespace: 'SampledSchema',
@@ -34,9 +36,7 @@ module.exports = Schema.extend({
   reset: function() {
     debug('resetting');
     this.count = 0;
-    this.sample_size = 0;
     this.fields.reset();
-    this.count = 0;
     this.documents.reset();
   },
   /**
@@ -105,17 +105,14 @@ module.exports = Schema.extend({
     debug('creating sample stream');
     app.client.sample(model.ns, options)
       .pipe(es.map(function(doc, cb) {
-        raf(function schema_parse_doc() {
-          model.parse(doc);
-          cb(null, doc);
-        });
+        model.parse(doc);
+        cb(null, doc);
       }))
       .pipe(es.map(function(doc, cb) {
         raf(function schema_add_doc_for_viewer() {
           model.documents.add(doc);
           cb(null, doc);
         });
-        model.sample_size += 1;
       }))
       .pipe(es.wait(function() {
         raf(function schema_trigger_sync() {
