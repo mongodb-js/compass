@@ -31,6 +31,15 @@ var minicharts_d3fns_shared = {
       // adjust for corrections, if increased precision required
       return d3.round(v / vmax * maxFormatted, maxDecimals + 1) + '%';
     };
+  },
+
+  truncateTooltip: function(text, maxLength) {
+    maxLength = maxLength || 500;
+    if (text.length > maxLength) {
+      text = text.substring(0, maxLength - 1) + '&hellip;';
+    }
+    return text;
   }
+
 };
 module.exports = minicharts_d3fns_shared;

@@ -33,9 +33,9 @@ var minicharts_d3fns_many = function(data, g, width, height, options) {
         return d.tooltip(d, i);
       }
       return d.tooltip || tooltipHtml({
-          label: d.label,
-          value: percentFormat(d.value / sumValues * 100, false)
-        });
+        label: shared.truncateTooltip(d.label),
+        value: percentFormat(d.value / sumValues * 100, false)
+      });
     })
     .direction('n')
     .offset([-9, 0]);
