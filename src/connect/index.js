@@ -52,6 +52,7 @@ var ConnectView = View.extend({
     'submit form': 'onSubmit'
   },
   initialize: function() {
+    document.title = 'Connect to MongoDB';
     this.connections.fetch();
   },
   onSubmit: function(event) {

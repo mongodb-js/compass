@@ -1,4 +1,4 @@
-var AmpersandView = require('ampersand-view');
+var View = require('ampersand-view');
 var ViewSwitcher = require('ampersand-view-switcher');
 var MongoDBInstance = require('../models/mongodb-instance');
 var debug = require('debug')('scout-ui:home');
@@ -6,8 +6,10 @@ var app = require('ampersand-app');
 var format = require('util').format;
 var SidebarView = require('../sidebar');
 var CollectionView = require('./collection');
+var raf = require('raf');
+var FastView = require('../fast-view');
 
-module.exports = AmpersandView.extend({
+var HomeView = View.extend(FastView, {
   children: {
     model: MongoDBInstance
   },
@@ -27,9 +29,7 @@ module.exports = AmpersandView.extend({
       deps: ['ns'],
       fn: function() {
         if (!this.ns) return null;
-        return this.model.collections.find({
-          _id: this.ns
-        });
+        return this.model.collections.get(this.ns);
       }
     },
     currentCollectionView: {
@@ -48,13 +48,12 @@ module.exports = AmpersandView.extend({
 
     this.listenTo(this.model, 'sync', function() {
       if (!this.ns) return;
-      if (!this.currentCollection) return;
       this.showCollection(this.currentCollection);
     });
 
     this.listenToAndRun(app.connection, 'change:name', this.updateTitle);
     this.once('change:rendered', this.onRendered);
-    this.model.fetch();
+    this.fetch(this.model);
   },
   updateTitle: function() {
     var model = this.model.collections.selected;
@@ -75,18 +74,19 @@ module.exports = AmpersandView.extend({
     if (!collection.select(model)) {
       return debug('already selected %s', model);
     }
-
-    this.switcher.set(new CollectionView({
-      model: model
-    }));
+    var switcher = this.switcher;
+    raf(function collection_switch_view() {
+      var view = new CollectionView({
+        model: model
+      });
+      switcher.set(view);
+    });
+    app.queryOptions.reset();
+    this.updateTitle();
 
     app.navigate(format('schema/%s', model.getId()), {
       silent: true
     });
-
-    // reset title and query
-    app.queryOptions.query = {};
-    this.updateTitle();
   },
   template: require('./index.jade'),
   subviews: {
@@ -105,3 +105,5 @@ module.exports = AmpersandView.extend({
     }
   }
 });
+
+module.exports = HomeView;

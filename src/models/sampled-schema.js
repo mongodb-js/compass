@@ -4,6 +4,10 @@ var wrapError = require('./wrap-error');
 var app = require('ampersand-app');
 var FieldCollection = require('mongodb-schema').FieldCollection;
 var filterableMixin = require('ampersand-collection-filterable');
+var SampledDocumentCollection = require('./sampled-document-collection');
+var es = require('event-stream');
+var debug = require('debug')('scout:models:schema');
+var raf = require('raf');
 
 /**
  * wrapping mongodb-schema's FieldCollection with a filterable mixin
@@ -20,22 +24,19 @@ module.exports = Schema.extend({
     }
   },
   namespace: 'SampledSchema',
-  /**
-   * Our fields need to be filterable, adding a mixin
-   */
   collections: {
-    fields: FilterableFieldCollection
+    fields: FilterableFieldCollection,
+    documents: SampledDocumentCollection
   },
   /**
    * Clear any data accumulated from sampling.
    */
   reset: function() {
+    debug('resetting');
     this.sample_size = 0;
     this.fields.reset();
     this.count = 0;
-    if (this.parent && this.parent.model && this.parent.model.documents) {
-      this.parent.model.documents.reset();
-    }
+    this.documents.reset();
   },
   /**
    * After you fetch an initial sample, next you'll want to drill-down to a
@@ -49,6 +50,7 @@ module.exports = Schema.extend({
    * @param {Object} options - Passthrough options.
    */
   refine: function(options) {
+    debug('refining %j', options);
     this.reset();
     this.fetch(options);
   },
@@ -65,6 +67,7 @@ module.exports = Schema.extend({
    * @param {Object} options - Passthrough options.
    */
   more: function(options) {
+    debug('fetching more %j', options);
     this.fetch(options);
   },
   /**
@@ -82,40 +85,44 @@ module.exports = Schema.extend({
       query: {},
       fields: null
     });
-
+    var model = this;
     wrapError(this, options);
 
-    var model = this;
-    window.schema = this;
+    var success = options.success;
+    options.success = function(resp) {
+      if (!model.set(model.parse(resp, options), options)) return false;
+      if (success) {
+        success(model, resp, options);
+      }
+      model.trigger('sync', model, {}, options);
+    };
 
-    /**
-     * Collection of sampled documents someone else wants to keep track of.
-     *
-     * {@see scout-ui/src/home/collection.js#model}
-     * @todo (imlucas): Yes this is a crappy hack.
-     */
-    var documents;
-    if (this.parent && this.parent.model && this.parent.model.documents) {
-      documents = this.parent.model.documents;
-    }
+    raf(function schema_fetch_trigger_request() {
+      model.trigger('request', model, {}, options);
+    });
 
-    var parser = this.stream()
-      .on('error', function(err) {
-        options.error(err, 'error', err.message);
-      })
-      .on('data', function(doc) {
-        model.sample_size += 1;
-        if (documents) {
-          documents.add(doc);
-        }
-      })
-      .on('end', function() {
-        model.trigger('sync', model, model.serialize(), options);
-      });
-
-    model.trigger('request', model, {}, options);
+    debug('creating sample stream');
     app.client.sample(model.ns, options)
-      .on('error', parser.emit.bind(parser, 'error'))
-      .pipe(parser);
+      .pipe(es.map(function(doc, cb) {
+        raf(function schema_parse_doc() {
+          model.parse(doc);
+          cb(null, doc);
+        });
+      }))
+      .pipe(es.map(function(doc, cb) {
+        raf(function schema_add_doc_for_viewer() {
+          model.documents.add(doc);
+          cb(null, doc);
+        });
+        model.sample_size += 1;
+      }))
+      .pipe(es.wait(function() {
+        raf(function schema_trigger_sync() {
+          model.documents.trigger('sync', model.documents, {}, options);
+        });
+        raf(function schema_fetch_success() {
+          options.success({});
+        });
+      }));
   }
 });
