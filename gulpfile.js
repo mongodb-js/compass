@@ -149,5 +149,5 @@ gulp.task('build:npm-install-release', ['copy:electron'], shell.task('npm instal
 }));
 
 gulp.task('clean', function(done) {
-  del(['dist/', 'node_modules/'], done);
+  del(['build/', 'dist/', 'node_modules/'], done);
 });
