@@ -1,5 +1,5 @@
 var View = require('ampersand-view');
-
+var app = require('ampersand-app');
 var ConnectionCollection = require('../models/connection-collection');
 var Connection = require('../models/connection');
 var format = require('util').format;
@@ -48,6 +48,33 @@ var ConnectView = View.extend({
   collections: {
     connections: ConnectionCollection
   },
+  props: {
+    message: {
+      type: 'string',
+      default: ''
+    },
+    has_error: {
+      type: 'boolean',
+      default: false
+    }
+  },
+  bindings: {
+    has_error: {
+      hook: 'message',
+      type: 'booleanClass',
+      yes: 'alert-danger'
+    },
+    message: [
+      {
+        hook: 'message',
+        type: 'booleanClass',
+        no: 'hidden'
+      },
+      {
+        hook: 'message'
+      }
+    ]
+  },
   events: {
     'submit form': 'onSubmit'
   },
@@ -57,6 +84,9 @@ var ConnectView = View.extend({
   onSubmit: function(event) {
     event.stopPropagation();
     event.preventDefault();
+    app.statusbar.show();
+    this.message = format('Testing connection...');
+    this.has_error = false;
 
     var hostname = $(this.el).find('[name=hostname]').val() || 'localhost';
     var port = parseInt($(this.el).find('[name=port]').val() || 27017, 10);
@@ -68,12 +98,26 @@ var ConnectView = View.extend({
       hostname: hostname,
       port: port
     });
-    model.save();
-    this.connections.add(model);
-    window.open(format('%s?uri=%s#schema', window.location.origin, uri));
-    setTimeout(function() {
-      window.close();
-    }, 1000);
+    model.test(function(err) {
+      app.statusbar.hide();
+      if (err) {
+        this.has_error = true;
+        this.message = format('Could not connect to %s', model.uri);
+      } else {
+        model.save();
+        this.connections.add(model);
+        this.message = 'Connected!';
+
+        setTimeout(function() {
+          this.message = '';
+        }.bind(this), 500);
+
+        window.open(format('%s?uri=%s#schema', window.location.origin, uri));
+        setTimeout(function() {
+          window.close();
+        }, 1000);
+      }
+    }.bind(this));
   },
   template: require('./index.jade'),
   subviews: {
