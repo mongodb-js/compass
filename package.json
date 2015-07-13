@@ -48,7 +48,7 @@
   },
   "scripts": {
     "start": "gulp start",
-    "release": "gulp build:release",
+    "release": "gulp release",
     "test": "mocha",
     "check": "mongodb-js-precommit"
   },
