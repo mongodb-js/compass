@@ -3,7 +3,7 @@ var EJSON = require('mongodb-extended-json');
 
 var DEFAULT_QUERY = {};
 var DEFAULT_SORT = {
-  _id: -1
+  $natural: -1
 };
 var DEFAULT_LIMIT = 100;
 var DEFAULT_SKIP = 0;
