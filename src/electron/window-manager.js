@@ -24,6 +24,7 @@ if (process.platform === 'win32') {
 var DEFAULT_WIDTH_DIALOG = 600;
 
 var connectWindow;
+var windowsOpenCount = 0;
 
 module.exports.create = function(opts) {
   opts = _.defaults(opts || {}, {
@@ -59,6 +60,14 @@ module.exports.create = function(opts) {
       connectWindow = null;
     });
   }
+  windowsOpenCount++;
+  _window.on('closed', function() {
+    windowsOpenCount--;
+    if (windowsOpenCount === 0) {
+      debug('all windows closed.  quitting.');
+      app.quit();
+    }
+  });
   return _window;
 };
 
