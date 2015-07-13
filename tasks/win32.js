@@ -22,7 +22,6 @@ var CONFIG = module.exports = {
   version: pkg.electron_version,
   icon: path.resolve(__dirname, '../images/win32/scout.icon'),
   overwrite: true,
-  prune: true,
   asar: true,
   'version-string': {
     CompanyName: 'MongoDB Inc.',

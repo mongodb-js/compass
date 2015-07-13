@@ -45,7 +45,7 @@ gulp.task('build:app', [
 });
 
 gulp.task('release', [
-  'build:electron',
+  'js',
   'pages',
   'less',
   'copy:fonts',
@@ -141,7 +141,7 @@ gulp.task('build:npm-install', ['copy:electron'], shell.task('npm install', {
 }));
 
 gulp.task('build:npm-install-release', ['copy:electron'], shell.task('npm install --production', {
-  cwd: platform.BUILD
+  cwd: BUILD
 }));
 
 gulp.task('clean', function(done) {
