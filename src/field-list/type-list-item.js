@@ -28,11 +28,16 @@ module.exports = View.extend(tooltipMixin, {
     this.listenTo(this.model, 'change:probability', _.debounce(this.update.bind(this), 300));
   },
   update: function() {
-    var tooltext = format('%s (%s)', this.model.getId(), numeral(this.model.probability).format('%'));
+    var tooltext = format('%s (%s)', this.model.getId(),
+      numeral(this.model.probability).format('%'));
     // need to set `title` and `data-original-title` due to bug in bootstrap's tooltip
     // @see https://github.com/twbs/bootstrap/issues/14769
-    this.tooltip({ title: tooltext }).attr('data-original-title', tooltext);
-    $(this.queryByHook('bar')).css({width: Math.floor(this.model.probability * 100) + '%'});
+    this.tooltip({
+      title: tooltext
+    }).attr('data-original-title', tooltext);
+    $(this.queryByHook('bar')).css({
+      width: Math.floor(this.model.probability * 100) + '%'
+    });
   },
   typeClicked: function() {
     var fieldList = this.parent.parent;

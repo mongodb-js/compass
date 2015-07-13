@@ -170,173 +170,173 @@
 
     function d3_tip_direction() {
       return 'n';
-        }
-      function d3_tip_offset() {
-        return [0, 0];
-        }
-      function d3_tip_html() {
-        return ' ';
-          }
+    }
+    function d3_tip_offset() {
+      return [0, 0];
+    }
+    function d3_tip_html() {
+      return ' ';
+    }
 
-        var direction_callbacks = d3.map({
-            n: direction_n,
-            s: direction_s,
-            e: direction_e,
-            w: direction_w,
-            nw: direction_nw,
-            ne: direction_ne,
-            sw: direction_sw,
-            se: direction_se
-          }),
+    var direction_callbacks = d3.map({
+        n: direction_n,
+        s: direction_s,
+        e: direction_e,
+        w: direction_w,
+        nw: direction_nw,
+        ne: direction_ne,
+        sw: direction_sw,
+        se: direction_se
+      }),
 
-          directions = direction_callbacks.keys();
+      directions = direction_callbacks.keys();
 
-        function direction_n() {
-          var bbox = getScreenBBox();
-          return {
-            top: bbox.n.y - node.offsetHeight,
-            left: bbox.n.x - node.offsetWidth / 2
-          };
-          }
-
-        function direction_s() {
-          var bbox = getScreenBBox();
-          return {
-            top: bbox.s.y,
-            left: bbox.s.x - node.offsetWidth / 2
-          };
-          }
-
-        function direction_e() {
-          var bbox = getScreenBBox();
-          return {
-            top: bbox.e.y - node.offsetHeight / 2,
-            left: bbox.e.x
-          };
-          }
-
-        function direction_w() {
-          var bbox = getScreenBBox();
-          return {
-            top: bbox.w.y - node.offsetHeight / 2,
-            left: bbox.w.x - node.offsetWidth
-          };
-          }
-
-        function direction_nw() {
-          var bbox = getScreenBBox();
-          return {
-            top: bbox.nw.y - node.offsetHeight,
-            left: bbox.nw.x - node.offsetWidth
-          };
-          }
-
-        function direction_ne() {
-          var bbox = getScreenBBox();
-          return {
-            top: bbox.ne.y - node.offsetHeight,
-            left: bbox.ne.x
-          };
-          }
-
-        function direction_sw() {
-          var bbox = getScreenBBox();
-          return {
-            top: bbox.sw.y,
-            left: bbox.sw.x - node.offsetWidth
-          };
-          }
-
-        function direction_se() {
-          var bbox = getScreenBBox();
-          return {
-            top: bbox.se.y,
-            left: bbox.e.x
-          };
-          }
-
-        function initNode() {
-          var node = d3.select(document.createElement('div'));
-          node.style({
-            position: 'absolute',
-            top: 0,
-            opacity: 0,
-            'pointer-events': 'none',
-            'box-sizing': 'border-box'
-          });
-
-          return node.node();
-          }
-
-        function getSVGNode(el) {
-          el = el.node();
-          if (!el) return;
-          if (el.tagName.toLowerCase() === 'svg')
-            return el;
-
-          return el.ownerSVGElement;
-          }
-
-        function getNodeEl() {
-          if (node === null) {
-            node = initNode();
-            // re-add node to DOM
-            document.body.appendChild(node);
-            }
-          return d3.select(node);
-          }
-
-        // Private - gets the screen coordinates of a shape
-        //
-        // Given a shape on the screen, will return an SVGPoint for the directions
-        // n(north), s(south), e(east), w(west), ne(northeast), se(southeast), nw(northwest),
-        // sw(southwest).
-        //
-        //    +-+-+
-        //    |   |
-        //    +   +
-        //    |   |
-        //    +-+-+
-        //
-        // Returns an Object {n, s, e, w, nw, sw, ne, se}
-        function getScreenBBox() {
-          var targetel = target || d3.event.target;
-
-          while ('undefined' === typeof targetel.getScreenCTM && 'undefined' === targetel.parentNode) {
-            targetel = targetel.parentNode;
-            }
-
-          var bbox = {},
-            matrix = targetel.getScreenCTM(),
-            tbbox = targetel.getBBox(),
-            width = tbbox.width,
-            height = tbbox.height,
-            x = tbbox.x,
-            y = tbbox.y;
-
-          point.x = x;
-          point.y = y;
-          bbox.nw = point.matrixTransform(matrix);
-          point.x += width;
-          bbox.ne = point.matrixTransform(matrix);
-          point.y += height;
-          bbox.se = point.matrixTransform(matrix);
-          point.x -= width;
-          bbox.sw = point.matrixTransform(matrix);
-          point.y -= height / 2;
-          bbox.w = point.matrixTransform(matrix);
-          point.x += width;
-          bbox.e = point.matrixTransform(matrix);
-          point.x -= width / 2;
-          point.y -= height / 2;
-          bbox.n = point.matrixTransform(matrix);
-          point.y += height;
-          bbox.s = point.matrixTransform(matrix);
-
-          return bbox;
-          }
-
-        return tip;
+    function direction_n() {
+      var bbox = getScreenBBox();
+      return {
+        top: bbox.n.y - node.offsetHeight,
+        left: bbox.n.x - node.offsetWidth / 2
       };
+    }
 
-    }));
+    function direction_s() {
+      var bbox = getScreenBBox();
+      return {
+        top: bbox.s.y,
+        left: bbox.s.x - node.offsetWidth / 2
+      };
+    }
+
+    function direction_e() {
+      var bbox = getScreenBBox();
+      return {
+        top: bbox.e.y - node.offsetHeight / 2,
+        left: bbox.e.x
+      };
+    }
+
+    function direction_w() {
+      var bbox = getScreenBBox();
+      return {
+        top: bbox.w.y - node.offsetHeight / 2,
+        left: bbox.w.x - node.offsetWidth
+      };
+    }
+
+    function direction_nw() {
+      var bbox = getScreenBBox();
+      return {
+        top: bbox.nw.y - node.offsetHeight,
+        left: bbox.nw.x - node.offsetWidth
+      };
+    }
+
+    function direction_ne() {
+      var bbox = getScreenBBox();
+      return {
+        top: bbox.ne.y - node.offsetHeight,
+        left: bbox.ne.x
+      };
+    }
+
+    function direction_sw() {
+      var bbox = getScreenBBox();
+      return {
+        top: bbox.sw.y,
+        left: bbox.sw.x - node.offsetWidth
+      };
+    }
+
+    function direction_se() {
+      var bbox = getScreenBBox();
+      return {
+        top: bbox.se.y,
+        left: bbox.e.x
+      };
+    }
+
+    function initNode() {
+      var node = d3.select(document.createElement('div'));
+      node.style({
+        position: 'absolute',
+        top: 0,
+        opacity: 0,
+        'pointer-events': 'none',
+        'box-sizing': 'border-box'
+      });
+
+      return node.node();
+    }
+
+    function getSVGNode(el) {
+      el = el.node();
+      if (!el) return;
+      if (el.tagName.toLowerCase() === 'svg')
+        return el;
+
+      return el.ownerSVGElement;
+    }
+
+    function getNodeEl() {
+      if (node === null) {
+        node = initNode();
+        // re-add node to DOM
+        document.body.appendChild(node);
+      }
+      return d3.select(node);
+    }
+
+    // Private - gets the screen coordinates of a shape
+    //
+    // Given a shape on the screen, will return an SVGPoint for the directions
+    // n(north), s(south), e(east), w(west), ne(northeast), se(southeast), nw(northwest),
+    // sw(southwest).
+    //
+    //    +-+-+
+    //    |   |
+    //    +   +
+    //    |   |
+    //    +-+-+
+    //
+    // Returns an Object {n, s, e, w, nw, sw, ne, se}
+    function getScreenBBox() {
+      var targetel = target || d3.event.target;
+
+      while ('undefined' === typeof targetel.getScreenCTM && 'undefined' === targetel.parentNode) {
+        targetel = targetel.parentNode;
+      }
+
+      var bbox = {},
+        matrix = targetel.getScreenCTM(),
+        tbbox = targetel.getBBox(),
+        width = tbbox.width,
+        height = tbbox.height,
+        x = tbbox.x,
+        y = tbbox.y;
+
+      point.x = x;
+      point.y = y;
+      bbox.nw = point.matrixTransform(matrix);
+      point.x += width;
+      bbox.ne = point.matrixTransform(matrix);
+      point.y += height;
+      bbox.se = point.matrixTransform(matrix);
+      point.x -= width;
+      bbox.sw = point.matrixTransform(matrix);
+      point.y -= height / 2;
+      bbox.w = point.matrixTransform(matrix);
+      point.x += width;
+      bbox.e = point.matrixTransform(matrix);
+      point.x -= width / 2;
+      point.y -= height / 2;
+      bbox.n = point.matrixTransform(matrix);
+      point.y += height;
+      bbox.s = point.matrixTransform(matrix);
+
+      return bbox;
+    }
+
+    return tip;
+  };
+
+}));

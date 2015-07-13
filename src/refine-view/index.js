@@ -1,7 +1,6 @@
 var AmpersandView = require('ampersand-view');
 var EJSON = require('mongodb-extended-json');
 var _ = require('lodash');
-var debug = require('debug')('scout:refine-view:index');
 var Query = require('mongodb-language-model').Query;
 
 module.exports = AmpersandView.extend({
@@ -39,7 +38,7 @@ module.exports = AmpersandView.extend({
     'input [data-hook=refine-input]': 'inputChanged',
     'submit form': 'submit'
   },
-  _cleanupInput: function (input) {
+  _cleanupInput: function(input) {
     var output = input;
     // accept whitespace-only input as empty query
     if (_.trim(output) === '') {
@@ -51,6 +50,7 @@ module.exports = AmpersandView.extend({
     output = output.replace(/([{,])\s*([^,{\s\'"]+)\s*:/g, ' $1 "$2" : ');
     return output;
   },
+  /*eslint no-new: 0*/
   inputChanged: function() {
     // validate user input on the fly
     var queryStr = this._cleanupInput(this.queryByHook('refine-input').value);
@@ -58,7 +58,9 @@ module.exports = AmpersandView.extend({
       // is it valid eJSON?
       var queryObj = EJSON.parse(queryStr);
       // is it a valid parsable Query according to the language?
-      var languageObj = new Query(queryObj, {parse: true});
+      new Query(queryObj, {
+        parse: true
+      });
     } catch (e) {
       this.valid = false;
       return;

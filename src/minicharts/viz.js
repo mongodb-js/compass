@@ -4,11 +4,9 @@ var raf = require('raf');
 var $ = require('jquery');
 
 var VizView = AmpersandView.extend({
-
   _values: {},
   _autoWidth: false,
   _autoHeight: false,
-
   props: {
     data: 'any',
     className: 'any',
@@ -31,7 +29,6 @@ var VizView = AmpersandView.extend({
       default: 400
     }
   },
-
   bindings: {
     width: {
       type: 'attribute',
@@ -49,7 +46,7 @@ var VizView = AmpersandView.extend({
       hook: 'viz-container'
     }
   },
-  initialize: function(opts) {
+  initialize: function() {
     if (this.width === 'auto' || this.width === undefined) {
       this._autoWidth = true;
       this.width = 0;
