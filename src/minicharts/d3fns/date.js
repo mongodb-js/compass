@@ -159,7 +159,8 @@ var minicharts_d3fns_date = function(opts) {
   var hourContainer = svg.append('g')
     .attr('transform', 'translate(' + (width / (upperRatio + 1) + upperMargin) + ', 0)');
   raf(function() {
-    many(hours, hourContainer, width / (upperRatio + 1) * upperRatio - upperMargin, upperBarBottom, {
+    var _manyWidth = width / (upperRatio + 1) * upperRatio - upperMargin;
+    many(hours, hourContainer, _manyWidth, upperBarBottom, {
       bgbars: true,
       labels: {
         text: function(d, i) {
