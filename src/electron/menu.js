@@ -2,7 +2,6 @@ var app = require('app');
 var Menu = require('menu');
 var debug = require('debug')('scout-electron:menu');
 
-
 function getTemplate(_window) {
   if (process.platform === 'darwin') {
     return [
@@ -84,6 +83,13 @@ function getTemplate(_window) {
         label: 'View',
         submenu: [
           {
+            label: 'Connect to...',
+            accelerator: 'Command+N',
+            click: function() {
+              app.emit('show connect dialog');
+            }
+          },
+          {
             label: 'Reload',
             accelerator: 'Command+R',
             click: function() {
@@ -125,6 +131,28 @@ function getTemplate(_window) {
   }
 
   return [
+    {
+      label: 'File',
+      submenu: [
+        {
+          label: 'Connect to...',
+          accelerator: 'Ctrl+N',
+          click: function() {
+            app.emit('show connect dialog');
+          }
+        },
+        {
+          type: 'separator'
+        },
+        {
+          label: 'Quit',
+          accelerator: 'Ctrl+Q',
+          click: function() {
+            app.quit();
+          }
+        }
+      ]
+    },
     {
       label: 'View',
       submenu: [
