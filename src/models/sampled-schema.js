@@ -33,6 +33,7 @@ module.exports = Schema.extend({
    */
   reset: function() {
     debug('resetting');
+    this.count = 0;
     this.sample_size = 0;
     this.fields.reset();
     this.count = 0;
@@ -106,7 +107,6 @@ module.exports = Schema.extend({
       .pipe(es.map(function(doc, cb) {
         raf(function schema_parse_doc() {
           model.parse(doc);
-          debug('sampled new document!');
           cb(null, doc);
         });
       }))
