@@ -5,7 +5,6 @@ var FieldListView = require('../field-list');
 var DocumentListView = require('../document-list');
 var RefineBarView = require('../refine-view');
 var MongoDBCollection = require('../models/mongodb-collection');
-var SampledSchema = require('../models/sampled-schema');
 var pluralize = require('pluralize');
 var format = require('util').format;
 var FastView = require('../fast-view');
@@ -54,8 +53,7 @@ var MongoDBCollectionView = View.extend(FastView, {
     }
   },
   children: {
-    model: MongoDBCo;llection,
-    schema: SampledSchema
+    model: MongoDBCollection
   },
   initialize: function() {
     app.statusbar.watch(this, app.schema);
