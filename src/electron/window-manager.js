@@ -12,8 +12,16 @@ var DEFAULT_URL = 'file://' + path.join(RESOURCES, 'index.html#connect');
 var DEFAULT_WIDTH = 1024;
 var DEFAULT_HEIGHT = 700;
 
+var DEFAULT_HEIGHT_DIALOG;
+
+if (process.platform === 'win32') {
+  DEFAULT_HEIGHT_DIALOG = 460;
+} else if (process.platform === 'linux') {
+  DEFAULT_HEIGHT_DIALOG = 430;
+} else {
+  DEFAULT_HEIGHT_DIALOG = 400;
+}
 var DEFAULT_WIDTH_DIALOG = 600;
-var DEFAULT_HEIGHT_DIALOG = 400;
 
 var connectWindow;
 
@@ -23,11 +31,6 @@ module.exports.create = function(opts) {
     height: DEFAULT_HEIGHT,
     url: DEFAULT_URL
   });
-
-  if (opts.url === DEFAULT_URL && connectWindow) {
-    connectWindow.focus();
-    return connectWindow;
-  }
 
   debug('creating new window');
   var _window = new BrowserWindow({
@@ -59,19 +62,21 @@ module.exports.create = function(opts) {
   return _window;
 };
 
-app.on('ready', function() {
-  // var height = DEFAULT_HEIGHT;
-  var height = DEFAULT_HEIGHT_DIALOG;
-  if (process.platform === 'win32') {
-    height += 60;
-  } else if (process.platform === 'linux') {
-    height += 30;
+app.on('show connect dialog', function(opts) {
+  if (connectWindow) {
+    connectWindow.focus();
+    return connectWindow;
   }
-  debug('loading main window', DEFAULT_URL);
 
-  module.exports.create({
-    height: height,
+  opts = opts || {};
+  opts = _.extend(opts || {}, {
+    height: DEFAULT_HEIGHT_DIALOG,
     width: DEFAULT_WIDTH_DIALOG,
     url: DEFAULT_URL
   });
+  module.exports.create(opts);
+});
+
+app.on('ready', function() {
+  app.emit('show connect dialog');
 });
