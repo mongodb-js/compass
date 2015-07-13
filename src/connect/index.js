@@ -18,7 +18,7 @@ var ConnectionView = View.extend({
       hook: 'name'
     }
   },
-  template: '<a class="list-group-item" data-hook="name"></a>',
+  template: '<li class="list-group-item"><a data-hook="name"></a></li>',
   onClick: function(event) {
     event.stopPropagation();
     event.preventDefault();
