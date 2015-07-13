@@ -6,12 +6,12 @@ var del = require('del');
 
 var debug = require('debug')('scout:tasks:win32');
 
-var NAME = pkg.electron.name;
+var NAME = pkg.product_name;
 var APP_PATH = path.join('dist', NAME + '-win32-ia32');
 
 var packager = require('electron-packager');
 var CONFIG = module.exports = {
-  name: pkg.electron.name,
+  name: pkg.product_name,
   dir: path.resolve(__dirname, '../build'),
   out: path.resolve(__dirname, '../dist'),
   appPath: APP_PATH,
@@ -19,7 +19,7 @@ var CONFIG = module.exports = {
   ELECTRON: path.join(APP_PATH, NAME + '.exe'),
   platform: 'win32',
   arch: 'ia32',
-  version: pkg.electron.version,
+  version: pkg.electron_version,
   icon: path.resolve(__dirname, '../images/win32/scout.icon'),
   overwrite: true,
   prune: true,
