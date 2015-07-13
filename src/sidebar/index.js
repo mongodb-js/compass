@@ -76,8 +76,7 @@ var SidebarView = View.extend(FastView, {
     _.defer(fast_filter_collection, this.collection, pattern);
   },
   filterFields: function(pattern) {
-    // @todo (imlucas): Fix this ugliness...
-    var collection = this.parent.currentCollectionView.fieldListView.collection;
+    var collection = app.schema.fields;
     _.defer(fast_filter_collection, collection, pattern);
   }
 });
