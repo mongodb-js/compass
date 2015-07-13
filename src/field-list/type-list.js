@@ -5,6 +5,7 @@ module.exports = View.extend({
   template: require('./type-list.jade'),
   render: function() {
     this.renderWithTemplate({});
+    this.collection.sort();
     this.renderCollection(this.collection, TypeListItem, this.queryByHook('types'));
   }
 });
