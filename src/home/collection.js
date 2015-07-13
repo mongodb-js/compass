@@ -63,7 +63,9 @@ var MongoDBCollectionView = View.extend(FastView, {
     });
   },
   onQueryChanged: function() {
-    this.schema.refine(app.queryOptions.serialize());
+    this.schema.refine(app.queryOptions.serialize(), {
+      message: 'Analyzing documents...'
+    });
   },
   onSplitterClick: function() {
     this.toggle('sidebar_open');
