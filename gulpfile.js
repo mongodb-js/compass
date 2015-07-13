@@ -28,11 +28,6 @@ gulp.task('start', ['build:app'], function() {
   return gulp.start('watch');
 });
 
-gulp.task('build:release', function() {
-  BUILD = platform.BUILD;
-  return gulp.start('build:app-release');
-});
-
 gulp.task('build:app', [
   'build:electron',
   'pages',
@@ -48,7 +43,8 @@ gulp.task('build:app', [
   process.env.WATCH_DIRECTORY = path.resolve(__dirname, BUILD);
   return del(platform.BUILD);
 });
-gulp.task('build:app-release', [
+
+gulp.task('release', [
   'build:electron',
   'pages',
   'less',
