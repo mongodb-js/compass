@@ -20,22 +20,6 @@ var HomeView = View.extend(FastView, {
       default: null
     }
   },
-  derived: {
-    currentCollection: {
-      deps: ['ns'],
-      fn: function() {
-        if (!this.ns) return null;
-        return app.instance.collections.get(this.ns);
-      }
-    },
-    currentCollectionView: {
-      cache: false,
-      fn: function() {
-        return this.switcher ?
-          this.switcher.current : null;
-      }
-    }
-  },
   initialize: function(options) {
     options = options || {};
     this.ns = options.ns;
@@ -43,17 +27,19 @@ var HomeView = View.extend(FastView, {
     app.statusbar.watch(this, app.instance);
 
     this.listenTo(app.instance, 'sync', function() {
-      if (!this.ns) return;
-      this.showCollection(this.currentCollection);
-    });
+      if (!this.ns) {
+        app.instance.collections.unselectAll();
+      } else {
+        this.showCollection(app.instance.collections.get(this.ns));
+      }
+    }.bind(this));
 
-    this.listenToAndRun(app.connection, 'change:name', this.updateTitle);
+    this.listenTo(app.connection, 'change:name', this.updateTitle);
     this.once('change:rendered', this.onRendered);
 
     this.fetch(app.instance);
   },
-  updateTitle: function() {
-    var model = app.instance.collections.selected;
+  updateTitle: function(model) {
     var title = app.connection.uri;
     if (model) {
       title += '/' + model.getId();
@@ -71,15 +57,12 @@ var HomeView = View.extend(FastView, {
     if (!collection.select(model)) {
       return debug('already selected %s', model);
     }
-    var switcher = this.switcher;
-    raf(function collection_switch_view() {
-      var view = new CollectionView({
-        model: model
-      });
-      switcher.set(view);
-    });
     app.queryOptions.reset();
-    this.updateTitle();
+    var view = new CollectionView({
+      model: model
+    });
+    this.switcher.set(view);
+    this.updateTitle(model);
 
     app.navigate(format('schema/%s', model.getId()), {
       silent: true
@@ -90,13 +73,11 @@ var HomeView = View.extend(FastView, {
     sidebar: {
       hook: 'sidebar',
       prepareView: function(el) {
-        var view = new SidebarView({
+        return new SidebarView({
           el: el,
           parent: this,
           collection: app.instance.collections
-        });
-        view.on('show', this.showCollection.bind(this));
-        return view;
+        }).on('show', this.showCollection.bind(this));
       }
     }
   }
