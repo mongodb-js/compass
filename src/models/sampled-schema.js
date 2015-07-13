@@ -21,7 +21,7 @@ module.exports = Schema.extend({
     sample_size: {
       deps: ['count'],
       fn: function() {
-        return this.count - 1;
+        return this.count;
       }
     }
   },
@@ -86,12 +86,12 @@ module.exports = Schema.extend({
       query: {},
       fields: null
     });
+
     var model = this;
     wrapError(this, options);
 
     var success = options.success;
     options.success = function(resp) {
-      if (!model.set(model.parse(resp, options), options)) return false;
       if (success) {
         success(model, resp, options);
       }
