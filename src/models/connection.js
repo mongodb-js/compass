@@ -2,7 +2,8 @@ var Model = require('ampersand-model');
 var format = require('util').format;
 var connectionSync = require('./connection-sync')();
 var types = require('./types');
-
+var ScoutClient = require('scout-client/lib/client');
+var debug = require('debug')('scout:models:connection');
 /**
  * Configuration for connecting to a MongoDB Deployment.
  */
@@ -49,6 +50,18 @@ module.exports = Model.extend({
     this.port = data.hosts[0].port;
     this.hostname = data.hosts[0].host.toLowerCase();
     this.fetch();
+  },
+  test: function(done) {
+    debug('Testing connection to `%j`...', this);
+    var client = new ScoutClient({
+      seed: this.uri
+    }).on('readable', function() {
+      debug('successfully connected!');
+      client.close(done);
+    }).on('error', function(err) {
+      done(err);
+      client.close();
+    });
   },
   sync: connectionSync
 });
