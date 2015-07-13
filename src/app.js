@@ -1,12 +1,16 @@
 var _ = require('lodash');
 var app = require('ampersand-app');
+var pkg = require('../package.json');
 var domReady = require('domready');
 var qs = require('qs');
 var createClient = require('scout-client');
 var State = require('ampersand-state');
-var Router = require('./router');
+
 var QueryOptions = require('./models/query-options');
 var Connection = require('./models/connection');
+var MongoDBInstance = require('./models/mongodb-instance');
+
+var Router = require('./router');
 var Layout = require('./layout');
 var Statusbar = require('./statusbar');
 var debug = require('debug')('scout-ui:app');
@@ -30,6 +34,12 @@ var debug = require('debug')('scout-ui:app');
  * @see http://learn.humanjavascript.com/react-ampersand/application-pattern
  */
 var Application = State.extend({
+  props: {
+    version: {
+      type: 'string',
+      default: pkg.version
+    }
+  },
   children: {
     /**
      * @see http://learn.humanjavascript.com/react-ampersand/creating-a-router-and-pages
@@ -47,7 +57,11 @@ var Application = State.extend({
      * The connection details for the MongoDB Instance we want to/are currently connected to.
      * @see models/connection.js
      */
-    connection: Connection
+    connection: Connection,
+    /**
+     * Details of the MongoDB Instance we're currently connected to.
+     */
+    instance: MongoDBInstance
   },
   derived: {
     /**
@@ -115,17 +129,36 @@ var Application = State.extend({
   }
 });
 
-/**
- * @todo (imlucas): Figure out why ampersand-app isn't nicer to use out
- * of the box with ampersand-state.
- */
 var params = qs.parse(window.location.search.replace('?', ''));
 var uri = params.uri || 'mongodb://localhost:27017';
-
 var state = new Application({
   uri: uri
 });
-app.extend(state);
-app.client = state.client;
-app.navigate = state.navigate;
+
+// Copy the instance of `Application` on to the `ampersand-app` instance.
+app.extend({
+  init: function() {
+    _.each(_.methods(Application.prototype), function(name) {
+      this[name] = _.bind(state[name], state);
+    }, this);
+
+    _.each(_.keys(Application.prototype._children), function(name) {
+      this[name] = state[name];
+    }, this);
+
+    _.each(_.keys(Application.prototype._collections), function(name) {
+      this[name] = state[name];
+    }, this);
+
+    _.each(_.keys(Application.prototype._derived), function(name) {
+      Object.defineProperty(this, name, {
+        get: function() {
+          return state.get(name);
+        }
+      });
+    }, this);
+  }
+});
+app.init();
+
 module.exports = window.app = app;
