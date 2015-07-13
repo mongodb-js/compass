@@ -3,10 +3,8 @@
   "description": "The MongoDB GUI.",
   "version": "0.2.0",
   "main": "main.js",
-  "electron": {
-    "name": "MongoDB Enterprise Scout",
-    "version": "0.28.3"
-  },
+  "electron_version": "0.28.3",
+  "product_name": "MongoDB Enterprise Scout",
   "check": {
     "ignore": [
       "build/**",

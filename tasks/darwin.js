@@ -5,7 +5,7 @@ var cp = require('child_process');
 
 var debug = require('debug')('scout:tasks:darwin');
 
-var NAME = pkg.electron.name;
+var NAME = pkg.product_name;
 var PACKAGE = path.join('dist', NAME + '-darwin-x64');
 var APP_PATH = path.join(PACKAGE, NAME + '.app');
 
@@ -13,7 +13,7 @@ var packager = require('electron-packager');
 var createDMG = require('electron-installer-dmg');
 
 var CONFIG = module.exports = {
-  name: pkg.electron.name,
+  name: pkg.product_name,
   dir: path.resolve(__dirname, '../build'),
   out: path.resolve(__dirname, '../dist'),
   appPath: APP_PATH,
@@ -22,7 +22,7 @@ var CONFIG = module.exports = {
   ELECTRON: path.join(APP_PATH, 'Contents', 'MacOS', 'Electron'),
   platform: 'darwin',
   arch: 'x64',
-  version: pkg.electron.version,
+  version: pkg.electron_version,
   icon: path.resolve(__dirname, '../images/darwin/scout.icns'),
   overwrite: true,
   prune: true,
@@ -51,7 +51,6 @@ module.exports.build = function(done) {
 };
 
 var codesign = function(done) {
-  // var cmd = 'codesign --deep --force --sign "' + CONFIG.sign + '" "' + CONFIG.appPath + '"';
   var cmd = './tasks/darwin-sign-app.sh  "' + CONFIG.sign + '" "' + CONFIG.appPath + '"';
   debug('Running', cmd);
   cp.exec(cmd, done);
