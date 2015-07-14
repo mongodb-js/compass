@@ -11,19 +11,16 @@ ol.document-list {
   li.document-list-item {
     font-family: @font-family-monospace;
     font-size: 11px;
-    margin-left: 5px;
     padding-bottom: 10px;
     margin-bottom: 10px;
     border-bottom: 1px solid @gray7;
 
-    // unstyled for top-level object
-    > ol.document-property-body {
-      .list-unstyled;
-    }
-
     ol.document-property-body {
       display: block;
+      .list-unstyled;
       .truncate-text-mixin();
+      padding-left: 25px;
+
       // - Strings, Numbers, ObjectID's, Date's, etc
       li.document-property {
         width: 100%;
@@ -32,19 +29,54 @@ ol.document-list {
         .document-property-key {
           font-weight: bold;
           display: inline-block;
-          padding-left: 12px;
         }
 
         .document-property-value {
-          padding-left: 5px;
-          padding-top: 4px;
           display: inline-block;
+        }
+      }
+
+      // add quotes for strings before and after, and some basic type coloring
+      .document-property.string > .document-property-value {
+        color: steelblue;
+        &::before {
+          content: "\"";
+        }
+        &::after {
+          content: "\"";
+        }
+      }
+
+      .document-property.number > .document-property-value {
+        color: green;
+      }
+
+      .document-property.boolean > .document-property-value {
+        color: purple;
+      }
+
+      .document-property.date > .document-property-value {
+        color: firebrick;
+      }
+
+      // ObjectIDs serialize to just the hash, wrap in "ObjectId( ... )"
+      .document-property.objectid > .document-property-value {
+        color: orangered;
+        &::before {
+          content: "ObjectID('";
+        }
+        &::after {
+          content: "')";
         }
       }
 
       li.document-property.array, li.document-property.object {
         display: block;
-        padding-top: 4px;
+        margin-left: -16px;
+
+        &.expanded {
+          margin-left: -20px;
+        }
 
         .document-property-header {
           cursor: pointer;
@@ -55,7 +87,8 @@ ol.document-list {
             display: inline-block;
             width: 12px;
             height: 1em;
-            margin-right: 5px;
+            margin-left: 2px;
+            margin-right: 10px;
             .caret-right;
           }
 
@@ -71,14 +104,9 @@ ol.document-list {
 
         ol.document-property-body {
           margin-left: 5px;
-          padding-left: -5px;
           border-left: 1px dotted @gray5;
           display: none;
         }
-        // ol.document-property-body  > a ~ ol {
-        //   padding-left: 12px;
-        //   display: none;
-        // }
         &.expanded {
           > .document-property-header {
             > .caret {
