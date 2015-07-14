@@ -1,43 +1,34 @@
-mixin jsprimitive(value, _type)
-  if _type === 'Date'
-    - value = moment(value).format('LLL')
-  .document-property-value(title=value)= value
+mixin jsvalue(value, _type)
+  if _type === 'Array'
+    - value = 'Array[' + value.length + ']'
+    .document-property-type-label= value
+  else if _type === 'Object'
+    - value = 'Object'
+    .document-property-type-label= value
+  else
+    if _type === 'Date'
+      - value = moment(value).format('LLL')
+    .document-property-value(title=value)= value
 
 mixin jsarray(items)
   ol.document-property-body
     each item in items
       +jsproperty(null, item)
-
+      
 mixin jsproperty(key, value)
   - _type = getType(value)
-  - is_expandable = _type === 'Object' || _type === 'Array'
-  if !is_expandable
-    if key
-      li.document-property
+  li(class='document-property #{_type.toLowerCase()}')
+    .document-property-header
+      if _type === 'Array' || _type === 'Object'
+        .caret
+      if key
         .document-property-key= key
-        +jsprimitive(value, _type)
-    else
-      li.document-property-array-item
-        +jsprimitive(value, _type)
-  else if _type === 'Array'
-    li.document-property-array
-      .document-property-header
-        .caret
-        if key
-          .document-property-key= key
-          | :
-          .document-property-type-label Array[#{value.length}]
+        |:
+      +jsvalue(value, _type)
+    if _type === 'Array'
       +jsarray(value)
-  else
-    li.document-property-object
-      .document-property-header
-        .caret
-        if key
-          .document-property-key= key
-          | :
-        .document-property-type-label Object
+    if _type === 'Object'
       +jsobject(value)
-
 
 mixin jsobject(obj)
   ol.document-property-body

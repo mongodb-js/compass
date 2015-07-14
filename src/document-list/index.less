@@ -44,7 +44,7 @@ ol.document-list {
         }
       }
 
-      li.document-property-array, li.document-property-object {
+      li.document-property.array, li.document-property.object {
         display: block;
         padding-top: 4px;
 
@@ -70,13 +70,13 @@ ol.document-list {
             display: inline-block;
           }
         }
-        ol.document-property-body {
+        ol.document-property.body {
           margin-left: 5px;
           padding-left: -5px;
           border-left: 1px dotted @gray5;
           display: none;
         }
-        ol.document-property-body  > a ~ ol {
+        ol.document-property.body  > a ~ ol {
           padding-left: 12px;
           display: none;
         }
@@ -86,7 +86,7 @@ ol.document-list {
               .caret-down;
             }
           }
-          > ol.document-property-body {
+          > ol.document-property.body {
             display: block;
           }
         }
