@@ -12,24 +12,23 @@ mixin jsvalue(value, _type)
 
 mixin jsarray(items)
   ol.document-property-body
-    each item in items
-      +jsproperty(null, item)
+    each item,index in items
+      +jsproperty(index, item)
       
+mixin keyvalue(key, value)
+  .document-property-key= key
+  |:   
+  +jsvalue(value, _type) 
+
 mixin jsproperty(key, value)
   - _type = getType(value)
   li(class='document-property #{_type.toLowerCase()}')
     if _type === 'Array' || _type === 'Object'
       .document-property-header
         .caret
-        if key
-          .document-property-key= key
-          |:   
-        +jsvalue(value, _type)    
+        +keyvalue(key, value)
     else 
-      if key
-        .document-property-key= key
-        |:
-      +jsvalue(value, _type)
+      +keyvalue(key, value)
     if _type === 'Array'
       +jsarray(value)
     if _type === 'Object'
