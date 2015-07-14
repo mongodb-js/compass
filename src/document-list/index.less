@@ -16,10 +16,8 @@ ol.document-list {
     margin-bottom: 10px;
     border-bottom: 1px solid @gray7;
 
+    // unstyled for top-level object
     > ol.document-property-body {
-      .list-unstyled;
-    }
-    ol.document-property-body > li.document-property-object > ol.document-property-body {
       .list-unstyled;
     }
 
@@ -70,23 +68,24 @@ ol.document-list {
             display: inline-block;
           }
         }
-        ol.document-property.body {
+
+        ol.document-property-body {
           margin-left: 5px;
           padding-left: -5px;
           border-left: 1px dotted @gray5;
           display: none;
         }
-        ol.document-property.body  > a ~ ol {
-          padding-left: 12px;
-          display: none;
-        }
+        // ol.document-property-body  > a ~ ol {
+        //   padding-left: 12px;
+        //   display: none;
+        // }
         &.expanded {
           > .document-property-header {
             > .caret {
               .caret-down;
             }
           }
-          > ol.document-property.body {
+          > ol.document-property-body {
             display: block;
           }
         }
