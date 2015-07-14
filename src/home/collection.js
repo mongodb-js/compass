@@ -37,13 +37,19 @@ var MongoDBCollectionView = View.extend(FastView, {
     sample_size_message: {
       hook: 'sample_size_message'
     },
-    'schema_sample_size': {
-      hook: 'schema_sample_size',
+    is_sample: {
+      hook: 'is_sample',
       type: 'booleanClass',
       no: 'hidden'
     }
   },
   derived: {
+    is_sample: {
+      deps: ['schema_sample_size'],
+      fn: function() {
+        return this.schema_sample_size === app.queryOptions.limit;
+      }
+    },
     sample_size_message: {
       deps: ['schema_sample_size'],
       fn: function() {
