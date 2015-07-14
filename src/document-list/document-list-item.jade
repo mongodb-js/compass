@@ -18,9 +18,14 @@ mixin jsarray(items)
 mixin jsproperty(key, value)
   - _type = getType(value)
   li(class='document-property #{_type.toLowerCase()}')
-    .document-property-header
-      if _type === 'Array' || _type === 'Object'
+    if _type === 'Array' || _type === 'Object'
+      .document-property-header
         .caret
+        if key
+          .document-property-key= key
+          |:   
+        +jsvalue(value, _type)    
+    else 
       if key
         .document-property-key= key
         |:
