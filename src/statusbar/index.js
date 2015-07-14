@@ -1,6 +1,10 @@
 var View = require('ampersand-view');
 var StatusbarView = View.extend({
   props: {
+    visible: {
+      type: 'boolean',
+      default: false
+    },
     width: {
       type: 'number',
       default: 0
@@ -70,10 +74,12 @@ var StatusbarView = View.extend({
   },
   show: function(message) {
     this.message = message || '';
+    this.visible = true;
     this.width = 100;
   },
   hide: function() {
     this.message = '';
+    this.visible = false;
     this.width = 0;
   }
 });
