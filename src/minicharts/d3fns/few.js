@@ -24,9 +24,9 @@ module.exports = function(data, g, width, height) {
         return d.tooltip(d, i);
       }
       return d.tooltip || tooltipHtml({
-        label: shared.truncateTooltip(d.label),
-        value: percentFormat(d.value / sumValues * 100, false)
-      });
+          label: shared.truncateTooltip(d.label),
+          value: percentFormat(d.value / sumValues * 100, false)
+        });
     })
     .direction('n')
     .offset([-9, 0]);
