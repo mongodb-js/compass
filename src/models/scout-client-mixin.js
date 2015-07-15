@@ -1,17 +1,12 @@
 var _ = require('lodash');
 var wrapError = require('./wrap-error');
-var app = require('ampersand-app');
 var raf = require('raf');
+var app = require('ampersand-app');
 
 module.exports = {
   fetch: function(options) {
     var model = this;
-    model.client = app.client;
-    var handler = _.result(model, 'scout');
-
-    if (!handler || !_.isFunction(handler)) {
-      throw new TypeError('No scout handler function declared on model or collection.');
-    }
+    var url = _.result(model, 'url');
 
     options = options ? _.clone(options) : {};
     if (!options.parse) {
@@ -35,8 +30,7 @@ module.exports = {
         options.success(res, 'success', res);
       });
     };
-    raf(function call_scout_client() {
-      handler.call(model, done);
-    });
+
+    app.client.get(url, options, done);
   }
 };

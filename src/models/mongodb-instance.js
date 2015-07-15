@@ -29,7 +29,5 @@ module.exports = MongoDBInstance.extend(scoutClientMixin, {
   children: {
     collections: MongoDBCollectionOnInstanceCollection
   },
-  scout: function() {
-    return this.client.instance.bind(this.client);
-  }
+  url: '/instance'
 });
