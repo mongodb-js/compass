@@ -1,10 +1,8 @@
 var _ = require('lodash');
-var app = require('ampersand-app');
 var pkg = require('../package.json');
 var domReady = require('domready');
 var qs = require('qs');
 var createClient = require('scout-client');
-var State = require('ampersand-state');
 
 var QueryOptions = require('./models/query-options');
 var Connection = require('./models/connection');
@@ -12,8 +10,11 @@ var MongoDBInstance = require('./models/mongodb-instance');
 var SampledSchema = require('./models/sampled-schema');
 
 var Router = require('./router');
-var Layout = require('./layout');
 var Statusbar = require('./statusbar');
+var ViewSwitcher = require('ampersand-view-switcher');
+var View = require('ampersand-view');
+var localLinks = require('local-links');
+var app = require('ampersand-app');
 var debug = require('debug')('scout-ui:app');
 
 /**
@@ -34,7 +35,8 @@ var debug = require('debug')('scout-ui:app');
  *
  * @see http://learn.humanjavascript.com/react-ampersand/application-pattern
  */
-var Application = State.extend({
+var Application = View.extend({
+  template: require('./app.jade'),
   props: {
     version: {
       type: 'string',
@@ -68,6 +70,9 @@ var Application = State.extend({
      */
     schema: SampledSchema
   },
+  events: {
+    'click a': 'onLinkClick'
+  },
   derived: {
     /**
      * Based on the active connection, this is how models will talk to `scout-server`.
@@ -97,11 +102,10 @@ var Application = State.extend({
    * We have what we need, we can now start our router and show the appropriate page!
    */
   _onDOMReady: function() {
+    this.el = document.querySelector('#application');
+    this.render();
 
-    new Layout({
-      el: document.querySelector('[data-hook="application-container"]'),
-      app: this
-    }).render();
+    this.listenTo(this.router, 'page', this.onPageChange);
 
     this.router.history.start({
       pushState: false,
@@ -127,6 +131,27 @@ var Application = State.extend({
     this.router.history.navigate(hash, {
       trigger: !options.silent
     });
+  },
+  render: function() {
+    this.renderWithTemplate(this);
+    this.pageSwitcher = new ViewSwitcher(this.queryByHook('layout-container'), {
+      show: function() {
+        document.scrollTop = 0;
+      }
+    });
+
+    this.statusbar.el = this.queryByHook('statusbar');
+    this.statusbar.render();
+  },
+  onPageChange: function(view) {
+    this.pageSwitcher.set(view);
+  },
+  onLinkClick: function(event) {
+    var pathname = localLinks.getLocalPathname(event);
+    if (pathname) {
+      event.preventDefault();
+      this.router.history.navigate(pathname);
+    }
   }
 });
 
