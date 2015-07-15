@@ -97,11 +97,6 @@ var Application = State.extend({
    * We have what we need, we can now start our router and show the appropriate page!
    */
   _onDOMReady: function() {
-    var head = document.getElementsByTagName('head')[0];
-    var script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.src = 'http://localhost:35729/livereload.js';
-    head.appendChild(script);
 
     new Layout({
       el: document.querySelector('[data-hook="application-container"]'),
