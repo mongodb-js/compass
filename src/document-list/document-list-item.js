@@ -17,25 +17,8 @@ function getType(value) {
 }
 
 var DocumentListItemView = View.extend({
-  props: {
-    visible: {
-      type: 'boolean',
-      default: false
-    }
-  },
-  bindings: {
-    visible: {
-      type: 'booleanClass',
-      no: 'hidden'
-    }
-  },
   events: {
     'click .document-property-header': 'onClick'
-  },
-  initialize: function() {
-    this.listenTo(this.model.collection, 'sync', function() {
-      this.visible = true;
-    });
   },
   onClick: function(event) {
     event.preventDefault();
