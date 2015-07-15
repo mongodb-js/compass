@@ -59,6 +59,15 @@
       background: none;
       color: @gray5;
 
+      &:hover {
+        background: lighten(@slate0, 5%);
+        a {
+          color: @pw;
+          border-left: 4px solid lighten(@slate0, 5%);
+          text-decoration: none;
+        }
+      }
+
       a {
         display: block;
         color: @gray5;
@@ -68,14 +77,8 @@
         overflow: hidden;
         text-overflow: ellipsis;
         border-left: 4px solid transparent;
-
-        &:hover {
-          color: @pw;
-          text-decoration: none;
-          background: lighten(@slate0, 5%);
-          border-left: 4px solid lighten(@slate0, 5%);
-        }
       }
+
       i {
         color: lighten(@text-color, 40%);
         line-height: 24px;
@@ -95,6 +98,15 @@
           color: @green2;
           font-weight: bold;
 
+        }
+      }
+
+      .close-icon {
+        position: absolute;
+        right: 0px;
+
+        &:hover i {
+          color: @pw;
         }
       }
     }

@@ -4,21 +4,33 @@ var Connection = require('../models/connection');
 var format = require('util').format;
 var $ = require('jquery');
 var app = require('ampersand-app');
+var debug = require('debug')('scout:connect:index');
 
 var ConnectionView = View.extend({
   props: {
-    model: Connection
-  },
+    model: Connection,
+    hover: {
+      type: 'boolean',
+      default: false
+    }
+  }, 
   events: {
-    click: 'onClick',
-    dblclick: 'onDoubleClick'
+    'click': 'onClick',
+    'dblclick': 'onDoubleClick',
+    'mouseover': 'onMouseOver',
+    'mouseout': 'onMouseOut',
+    'click [data-hook=close]': 'onCloseClick'
   },
   bindings: {
     'model.name': {
       hook: 'name'
+    },
+    'hover': {
+      type: 'toggle',
+      hook: 'close'
     }
   },
-  template: '<li class="list-group-item"><a data-hook="name"></a></li>',
+  template: require('./connection.jade'),
   onClick: function(event) {
     event.stopPropagation();
     event.preventDefault();
@@ -30,6 +42,17 @@ var ConnectionView = View.extend({
   onDoubleClick: function(event) {
     this.onClick(event);
     this.parent.parent.onSubmit(event);
+  },
+  onCloseClick: function(event) {
+    event.stopPropagation();
+    event.preventDefault();
+    this.model.destroy();
+  },
+  onMouseOver: function(event) {
+    this.hover = true;
+  },
+  onMouseOut: function(event) {
+    this.hover = false;
   }
 });
 
