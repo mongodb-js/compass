@@ -7,14 +7,15 @@ var packager = require('electron-packager');
 var createInstaller = require('electron-installer-squirrel-windows');
 var debug = require('debug')('scout:tasks:win32');
 
-var NAME = pkg.product_name;
+var NAME = pkg.name;
 var APP_PATH = path.join('dist', NAME + '-win32-ia32');
 
 var CONFIG = module.exports = {
-  name: pkg.product_name,
+  name: NAME,
   dir: path.resolve(__dirname, '../build'),
   out: path.resolve(__dirname, '../dist'),
   appPath: APP_PATH,
+  path: APP_PATH,
   BUILD: path.join(APP_PATH, 'resources', 'app'),
   ELECTRON: path.join(APP_PATH, NAME + '.exe'),
   platform: 'win32',
@@ -29,8 +30,8 @@ var CONFIG = module.exports = {
     FileDescription: 'The MongoDB GUI.',
     FileVersion: pkg.version,
     ProductVersion: pkg.version,
-    ProductName: NAME,
-    InternalName: NAME
+    ProductName: pkg.product_name,
+    InternalName: pkg.name
   }
 };
 
@@ -56,11 +57,7 @@ module.exports.installer = function(done) {
     var unpacked = path.resolve(__dirname, '..' + path.join(APP_PATH, 'resources', 'app'));
     debug('Deleting `%s` so app is loaded from .asar', unpacked);
     del(unpacked, function() {
-      createInstaller({
-        out: CONFIG.out,
-        path: APP_PATH,
-        overwrite: true
-      }, function(err) {
+      createInstaller(CONFIG, function(err) {
         if (err) return done(err);
         done();
       });
