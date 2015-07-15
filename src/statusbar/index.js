@@ -52,12 +52,12 @@ var StatusbarView = View.extend({
     }
   },
   watch: function(view, collection) {
-    view.listenTo(collection, 'sync', this.onSync.bind(this));
+    view.listenTo(collection, 'sync', this.onComplete.bind(this));
     view.listenTo(collection, 'request', this.onRequest.bind(this));
     return this;
   },
   unwatch: function(view, collection) {
-    view.stopListening(collection, 'sync', this.onSync.bind(this));
+    view.stopListening(collection, 'sync', this.onComplete.bind(this));
     view.stopListening(collection, 'request', this.onRequest.bind(this));
     return this;
   },
@@ -65,7 +65,7 @@ var StatusbarView = View.extend({
     options = options || {};
     this.show(options.message);
   },
-  onSync: function(model, resp, options) {
+  onComplete: function() {
     this.hide();
   },
   show: function(message) {
