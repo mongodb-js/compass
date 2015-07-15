@@ -52,16 +52,19 @@ module.exports = Model.extend({
     this.fetch();
   },
   test: function(done) {
+    var model = this;
     debug('Testing connection to `%j`...', this);
     var client = new ScoutClient({
       seed: this.uri
     }).on('readable', function() {
       debug('successfully connected!');
-      client.close(done);
+      client.close();
+      done(null, model);
     }).on('error', function(err) {
-      done(err);
+      done(err, model);
       client.close();
     });
+    return this;
   },
   sync: connectionSync
 });
