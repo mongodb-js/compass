@@ -1,7 +1,7 @@
 var MongoDBCollection = require('scout-brain').models.Collection;
 var types = require('./types');
 var scoutClientMixin = require('./scout-client-mixin');
-var app = require('ampersand-app');
+var format = require('util').format;
 
 /**
  * Metadata for a MongoDB Collection.
@@ -29,10 +29,13 @@ module.exports = MongoDBCollection.extend(scoutClientMixin, {
           return types.ns(this._id).specialish;
         }
       }
+    },
+    url: {
+      deps: ['_id'],
+      fn: function() {
+        return format('/collections/%s', this.getId());
+      }
     }
-  },
-  scout: function() {
-    return app.client.collection.bind(app.client, this.getId());
   },
   serialize: function() {
     return this.getAttributes({
