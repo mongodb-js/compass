@@ -76,7 +76,7 @@ buildvariants:
   run_on:
   - "windows-64-vs2013-test"
   expansions:
-  	exe: ".exe"
+    exe: ".exe"
     num_cores: $(grep -c ^processor /proc/cpuinfo)
   tasks:
   - name: compile
