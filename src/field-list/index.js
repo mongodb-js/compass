@@ -5,6 +5,7 @@ var ViewSwitcher = require('ampersand-view-switcher');
 var $ = require('jquery');
 var debug = require('debug')('scout:field-list');
 var _ = require('lodash');
+var raf = require('raf');
 var SampledSchema = require('../models/sampled-schema');
 
 function handleCaret(el) {
@@ -108,11 +109,6 @@ var FieldView = View.extend({
       model: this.type_model
     });
     this.viewSwitcher.set(miniview);
-
-    // _.each(this._subviews, function(subview) {
-    //   subview.visible = true;
-    //   debugger;
-    // });
   },
   click: function(evt) {
     this.toggle('expanded');
@@ -136,7 +132,9 @@ FieldListView = View.extend({
   makeFieldVisible: function() {
     var views = this.field_collection_view.views;
     _.each(views, function(field_view) {
-      field_view.visible = true;
+      raf(function() {
+        field_view.visible = true;
+      });
     });
   },
   render: function() {
