@@ -18,7 +18,6 @@ var HomeView = View.extend({
     }
   },
   initialize: function() {
-    app.statusbar.watch(this, app.instance);
     this.listenTo(app.instance, 'sync', this.onInstanceFetched);
     this.listenTo(app.connection, 'change:name', this.updateTitle);
     this.once('change:rendered', this.onRendered);

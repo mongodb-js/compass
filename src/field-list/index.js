@@ -1,10 +1,11 @@
 var View = require('ampersand-view');
 var TypeListView = require('./type-list');
 var MinichartView = require('../minicharts');
-var FieldCollection = require('mongodb-schema').FieldCollection;
 var ViewSwitcher = require('ampersand-view-switcher');
 var $ = require('jquery');
+var debug = require('debug')('scout:field-list');
 var _ = require('lodash');
+var SampledSchema = require('../models/sampled-schema');
 
 function handleCaret(el) {
   var $el = $(el);
@@ -20,9 +21,13 @@ function handleCaret(el) {
 var FieldListView;
 
 var FieldView = View.extend({
-  props: {
-    minichartModel: 'state',
+  session: {
     expanded: {
+      type: 'boolean',
+      default: false
+    },
+    type_model: 'state',
+    visible: {
       type: 'boolean',
       default: false
     }
@@ -43,6 +48,10 @@ var FieldView = View.extend({
       type: 'booleanClass',
       yes: 'expanded',
       no: 'collapsed'
+    },
+    visible: {
+      type: 'booleanClass',
+      no: 'hidden'
     }
   },
   events: {
@@ -52,11 +61,12 @@ var FieldView = View.extend({
   subviews: {
     types: {
       hook: 'types-subview',
+      waitFor: 'visible',
       prepareView: function(el) {
         return new TypeListView({
           el: el,
           parent: this,
-          collection: this.model.types
+          collection: this.model.types.sort()
         });
       }
     },
@@ -84,50 +94,55 @@ var FieldView = View.extend({
     }
   },
   initialize: function() {
-    var that = this;
-    // debounce prevents excessive rendering
-    this.model.on('change:count', _.debounce(function() {
-      // pick first type initially
-      that.switchView(that.model.types.at(0));
-    }, 300));
+    this.listenTo(this, 'change:visible', this.renderMinicharts);
   },
   render: function() {
     this.renderWithTemplate(this);
     this.viewSwitcher = new ViewSwitcher(this.queryByHook('minichart-container'));
-    if (this.model.types.length > 0) {
-      this.switchView(this.model.types.at(0));
-    }
   },
-  switchView: function(typeModel) {
-    var type = typeModel.getId().toLowerCase();
+  renderMinicharts: function() {
+    this.type_model = this.type_model || this.model.types.at(0);
 
-    // @todo currently only support boolean, number, date, category
-    if (['objectid', 'boolean', 'number', 'date', 'string'].indexOf(type) === -1) return;
-
-    this.minichartModel = typeModel;
+    debug('setting miniview for type_model_id `%s`', this.type_model.getId());
     var miniview = new MinichartView({
-      model: typeModel
+      model: this.type_model
     });
     this.viewSwitcher.set(miniview);
+
+    // _.each(this._subviews, function(subview) {
+    //   subview.visible = true;
+    //   debugger;
+    // });
   },
   click: function(evt) {
-    // @todo: persist state of open nodes
     this.toggle('expanded');
-
     evt.preventDefault();
     evt.stopPropagation();
-    return false;
   }
 });
 
 FieldListView = View.extend({
-  collections: {
-    collection: FieldCollection
+  session: {
+    field_collection_view: 'view'
   },
   template: require('./index.jade'),
+  initialize: function() {
+    if (this.collection.parent instanceof SampledSchema) {
+      this.listenTo(this.collection.parent, 'sync', this.makeFieldVisible);
+    } else {
+      this.listenTo(this.parent, 'change:visible', this.makeFieldVisible);
+    }
+  },
+  makeFieldVisible: function() {
+    var views = this.field_collection_view.views;
+    _.each(views, function(field_view) {
+      field_view.visible = true;
+    });
+  },
   render: function() {
     this.renderWithTemplate();
-    this.renderCollection(this.collection, FieldView, this.queryByHook('fields'));
+    this.field_collection_view = this.renderCollection(this.collection,
+      FieldView, this.queryByHook('fields'));
   }
 });
 
