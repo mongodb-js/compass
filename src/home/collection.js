@@ -1,25 +1,24 @@
-var app = require('ampersand-app');
 var View = require('ampersand-view');
 var CollectionStatsView = require('../collection-stats');
 var FieldListView = require('../field-list');
 var DocumentListView = require('../document-list');
 var RefineBarView = require('../refine-view');
+var SamplingMessageView = require('../sampling-message');
 var MongoDBCollection = require('../models/mongodb-collection');
-var pluralize = require('pluralize');
-var format = require('util').format;
-var FastView = require('../fast-view');
-var _ = require('lodash');
+var SampledSchema = require('../models/sampled-schema');
+var debug = require('debug')('scout:home:collection');
+var app = require('ampersand-app');
 
-var MongoDBCollectionView = View.extend(FastView, {
+var MongoDBCollectionView = View.extend({
   template: require('./collection.jade'),
   props: {
     sidebar_open: {
       type: 'boolean',
       default: false
     },
-    schema_sample_size: {
-      type: 'number',
-      default: 0
+    visible: {
+      type: 'boolean',
+      default: false
     }
   },
   events: {
@@ -34,79 +33,95 @@ var MongoDBCollectionView = View.extend(FastView, {
       yes: 'sidebar-open',
       hook: 'json-sidebar-toggle-class'
     },
-    sample_size_message: {
-      hook: 'sample_size_message'
-    },
-    is_sample: {
-      hook: 'is_sample',
+    visible: {
       type: 'booleanClass',
       no: 'hidden'
     }
   },
-  derived: {
-    is_sample: {
-      deps: ['schema_sample_size'],
-      fn: function() {
-        return this.schema_sample_size === app.queryOptions.limit;
-      }
-    },
-    sample_size_message: {
-      deps: ['schema_sample_size'],
-      fn: function() {
-        return format('%d %s', app.schema.sample_size,
-          pluralize('document', app.schema.sample_size));
-      }
-    }
-  },
   children: {
-    model: MongoDBCollection
+    model: MongoDBCollection,
+    schema: SampledSchema
   },
   initialize: function() {
-    app.statusbar.watch(this, app.schema);
-    app.schema.reset();
-    app.schema.ns = this.model.getId();
-    this.listenTo(app.queryOptions, 'change', this.onQueryChanged);
-    this.fetch(this.model);
-    this.fetch(app.schema, {
+    app.statusbar.watch(this, this.schema);
+    this.listenTo(app.queryOptions, 'change', this.onQueryChanged.bind(this));
+    this.listenToAndRun(this.parent, 'change:ns', this.onCollectionChanged.bind(this));
+  },
+  onCollectionChanged: function() {
+    var ns = this.parent.ns;
+    if (!ns) {
+      this.visible = false;
+      debug('not updating because parent has no collection namespace.');
+      return;
+    }
+    this.visible = true;
+
+    this.schema.ns = this.model._id = ns;
+    debug('updating namespace to `%s`', ns);
+    this.schema.reset();
+    this.schema.fetch({
       message: 'Analyzing documents...'
     });
-
-    this.listenTo(app.schema, 'change:sample_size', _.debounce(function() {
-      this.schema_sample_size = app.schema.sample_size;
-    }.bind(this), 100));
+    this.model.fetch();
   },
   onQueryChanged: function() {
-    app.schema.refine(app.queryOptions.serialize(), {
+    this.schema.refine(app.queryOptions.serialize(), {
       message: 'Analyzing documents...'
     });
   },
   onSplitterClick: function() {
     this.toggle('sidebar_open');
   },
-  render: function() {
-    this.renderWithTemplate(this);
-
-    this.renderSubview(CollectionStatsView, {
-      el: this.queryByHook('stats-subview'),
-      model: this.model
-    });
-
-    this.renderSubview(RefineBarView, {
-      el: this.queryByHook('refine-bar'),
-      model: app.queryOptions
-    });
-
-    app.schema.on('sync', function() {
-      this.renderSubview(FieldListView, {
-        el: this.queryByHook('fields-subview'),
-        collection: app.schema.fields
-      });
-    }.bind(this));
-
-    this.renderSubview(DocumentListView, {
-      el: this.queryByHook('documents-subview'),
-      collection: app.schema.documents
-    });
+  subviews: {
+    stats: {
+      hook: 'stats-subview',
+      prepareView: function(el) {
+        return new CollectionStatsView({
+          el: el,
+          parent: this,
+          model: this.model
+        });
+      }
+    },
+    refine_bar: {
+      hook: 'refine-bar',
+      prepareView: function(el) {
+        return new RefineBarView({
+          el: el,
+          parent: this,
+          model: app.queryOptions
+        });
+      }
+    },
+    fields: {
+      hook: 'fields-subview',
+      prepareView: function(el) {
+        return new FieldListView({
+          el: el,
+          parent: this,
+          collection: this.schema.fields
+        });
+      }
+    },
+    documents: {
+      hook: 'documents-subview',
+      prepareView: function(el) {
+        return new DocumentListView({
+          el: el,
+          parent: this,
+          collection: this.schema.documents
+        });
+      }
+    },
+    sampling_message: {
+      hook: 'sampling-message-subview',
+      prepareView: function(el) {
+        return new SamplingMessageView({
+          el: el,
+          parent: this
+        });
+      }
+    }
   }
 });
 
