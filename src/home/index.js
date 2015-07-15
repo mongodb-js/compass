@@ -6,9 +6,8 @@ var SidebarView = require('../sidebar');
 var CollectionView = require('./collection');
 var debug = require('debug')('scout-ui:home');
 var raf = require('raf');
-var FastView = require('../fast-view');
 
-var HomeView = View.extend(FastView, {
+var HomeView = View.extend({
   props: {
     switcher: {
       type: 'object',
