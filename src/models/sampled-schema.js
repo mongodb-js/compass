@@ -1,13 +1,12 @@
 var _ = require('lodash');
 var Schema = require('mongodb-schema').Schema;
 var wrapError = require('./wrap-error');
-var app = require('ampersand-app');
 var FieldCollection = require('mongodb-schema').FieldCollection;
 var filterableMixin = require('ampersand-collection-filterable');
 var SampledDocumentCollection = require('./sampled-document-collection');
 var es = require('event-stream');
 var debug = require('debug')('scout:models:schema');
-var raf = require('raf');
+var app = require('ampersand-app');
 
 /**
  * wrapping mongodb-schema's FieldCollection with a filterable mixin
@@ -90,37 +89,39 @@ module.exports = Schema.extend({
     var model = this;
     wrapError(this, options);
 
+    var parse = function(doc, cb) {
+      model.parse(doc);
+      cb(null, doc);
+    };
+
+    var addToDocuments = function(doc, cb) {
+      model.documents.add(doc);
+      cb();
+    };
+
+    var onEnd = function(err, body) {
+      if (err) return options.error(model, err);
+      if (body) {
+        body = null;
+      }
+      model.documents.trigger('sync');
+      options.success({});
+    };
+
     var success = options.success;
     options.success = function(resp) {
       if (success) {
         success(model, resp, options);
       }
-      model.trigger('sync', model, {}, options);
+      model.trigger('sync');
     };
 
-    raf(function schema_fetch_trigger_request() {
-      model.trigger('request', model, {}, options);
-    });
+    model.trigger('request', {}, {}, options);
 
     debug('creating sample stream');
     app.client.sample(model.ns, options)
-      .pipe(es.map(function(doc, cb) {
-        model.parse(doc);
-        cb(null, doc);
-      }))
-      .pipe(es.map(function(doc, cb) {
-        raf(function schema_add_doc_for_viewer() {
-          model.documents.add(doc);
-          cb(null, doc);
-        });
-      }))
-      .pipe(es.wait(function() {
-        raf(function schema_trigger_sync() {
-          model.documents.trigger('sync', model.documents, {}, options);
-        });
-        raf(function schema_fetch_success() {
-          options.success({});
-        });
-      }));
+      .pipe(es.map(parse))
+      .pipe(es.map(addToDocuments))
+      .pipe(es.wait(onEnd));
   }
 });
