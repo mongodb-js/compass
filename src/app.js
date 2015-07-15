@@ -2,15 +2,7 @@ var _ = require('lodash');
 var pkg = require('../package.json');
 var domReady = require('domready');
 var qs = require('qs');
-var createClient = require('scout-client');
-
-var QueryOptions = require('./models/query-options');
-var Connection = require('./models/connection');
-var MongoDBInstance = require('./models/mongodb-instance');
-var SampledSchema = require('./models/sampled-schema');
-
-var Router = require('./router');
-var Statusbar = require('./statusbar');
+var getOrCreateClient = require('scout-client');
 var ViewSwitcher = require('ampersand-view-switcher');
 var View = require('ampersand-view');
 var localLinks = require('local-links');
@@ -43,32 +35,29 @@ var Application = View.extend({
       default: pkg.version
     }
   },
-  /**
-   * @see http://learn.humanjavascript.com/react-ampersand/creating-a-router-and-pages
-   */
-  router: null,
-  children: {
+  session: {
     /**
-     * @see models/query-options.js
-     */
-    queryOptions: QueryOptions,
-    /**
-     * @see statusbar.js
-     */
-    statusbar: Statusbar,
-    /**
+     *
      * The connection details for the MongoDB Instance we want to/are currently connected to.
      * @see models/connection.js
      */
-    connection: Connection,
+    connection: 'state',
+    /**
+     * @see statusbar.js
+     */
+    statusbar: 'view',
     /**
      * Details of the MongoDB Instance we're currently connected to.
      */
-    instance: MongoDBInstance,
+    instance: 'state',
     /**
-     * The currently sampled schema.
+     * @see models/query-options.js
      */
-    schema: SampledSchema
+    queryOptions: 'state',
+    /**
+     * @see http://learn.humanjavascript.com/react-ampersand/creating-a-router-and-pages
+     */
+    router: 'object'
   },
   events: {
     'click a': 'onLinkClick'
@@ -88,15 +77,6 @@ var Application = View.extend({
         return c;
       }
     }
-  },
-  initialize: function(opts) {
-    opts = opts || {};
-    debug('initializing with options', opts);
-    if (opts.uri) {
-      this.connection.use(opts.uri);
-    }
-    this.router = new Router();
-    domReady(this._onDOMReady.bind(this));
   },
   /**
    * We have what we need, we can now start our router and show the appropriate page!
@@ -161,30 +141,43 @@ var state = new Application({
   uri: uri
 });
 
-// Copy the instance of `Application` on to the `ampersand-app` instance.
+var QueryOptions = require('./models/query-options');
+var Connection = require('./models/connection');
+var MongoDBInstance = require('./models/mongodb-instance');
+var Router = require('./router');
+var Statusbar = require('./statusbar');
+
 app.extend({
+  client: null,
   init: function() {
-    _.each(_.methods(Application.prototype), function(name) {
-      this[name] = _.bind(state[name], state);
-    }, this);
+    state.statusbar = new Statusbar();
+    this.connection = new Connection();
+    this.connection.use(uri);
+    this.queryOptions = new QueryOptions();
+    this.instance = new MongoDBInstance();
 
-    _.each(_.keys(Application.prototype._children), function(name) {
-      this[name] = state[name];
-    }, this);
+    state.router = new Router();
+  },
+  navigate: state.navigate.bind(state)
+});
 
-    _.each(_.keys(Application.prototype._collections), function(name) {
-      this[name] = state[name];
-    }, this);
+Object.defineProperty(app, 'statusbar', {
+  get: function() {
+    return state.statusbar;
+  }
+});
 
-    _.each(_.keys(Application.prototype._derived), function(name) {
-      Object.defineProperty(this, name, {
-        get: function() {
-          return state.get(name);
-        }
-      });
-    }, this);
+Object.defineProperty(app, 'client', {
+  get: function() {
+    return getOrCreateClient({
+      seed: app.connection.uri
+    });
   }
 });
 app.init();
 
-module.exports = window.app = app;
+function render_app() {
+  state._onDOMReady();
+}
+
+domReady(render_app);
