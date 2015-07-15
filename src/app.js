@@ -62,22 +62,6 @@ var Application = View.extend({
   events: {
     'click a': 'onLinkClick'
   },
-  derived: {
-    /**
-     * Based on the active connection, this is how models will talk to `scout-server`.
-     * @see scout-client
-     */
-    client: {
-      deps: ['connection.uri'],
-      fn: function() {
-        var c = createClient({
-          seed: this.connection.uri
-        });
-        debug('created scout client', c);
-        return c;
-      }
-    }
-  },
   /**
    * We have what we need, we can now start our router and show the appropriate page!
    */
