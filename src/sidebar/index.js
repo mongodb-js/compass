@@ -1,12 +1,10 @@
 var View = require('ampersand-view');
-var FastView = require('../fast-view');
 var _ = require('lodash');
-
 var mousetrap = require('mousetrap');
 var CollectionFilterView = require('./collection-filter');
-
 var CollectionListView = require('./collection-list');
 var SidebarControlsView = require('./sidebar-controls');
+var app = require('ampersand-app');
 
 function fast_filter_collection(collection, pattern) {
   var re = new RegExp(pattern || '.*');
@@ -15,7 +13,7 @@ function fast_filter_collection(collection, pattern) {
   });
 }
 
-var SidebarView = View.extend(FastView, {
+var SidebarView = View.extend({
   props: {
     open: {
       type: 'boolean',
