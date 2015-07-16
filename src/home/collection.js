@@ -70,6 +70,12 @@ var MongoDBCollectionView = View.extend({
     }
     this.visible = true;
     this.hideEmptyMessage();
+
+    // temporarily stop listening to queryOption changes to avoid reloading twice
+    this.stopListening(app.queryOptions, 'change');
+    app.queryOptions.reset();
+    this.listenTo(app.queryOptions, 'change', this.onQueryChanged.bind(this));
+
     this.schema.ns = this.model._id = ns;
     debug('updating namespace to `%s`', ns);
     this.schema.reset();
