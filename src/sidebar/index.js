@@ -3,7 +3,6 @@ var _ = require('lodash');
 var mousetrap = require('mousetrap');
 var CollectionFilterView = require('./collection-filter');
 var CollectionListView = require('./collection-list');
-var SidebarControlsView = require('./sidebar-controls');
 var app = require('ampersand-app');
 
 function fast_filter_collection(collection, pattern) {
@@ -60,22 +59,10 @@ var SidebarView = View.extend({
         });
         return view;
       }
-    },
-    sidebar_control: {
-      hook: 'sidebar-control-subview',
-      prepareView: function(el) {
-        return new SidebarControlsView({
-          el: el
-        });
-      }
     }
   },
   filterCollections: function(pattern) {
     _.defer(fast_filter_collection, this.collection, pattern);
-  },
-  filterFields: function(pattern) {
-    var collection = app.schema.fields;
-    _.defer(fast_filter_collection, collection, pattern);
   }
 });
 
