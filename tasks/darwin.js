@@ -35,6 +35,21 @@ var CONFIG = module.exports = {
       name: 'MongoDB Prototcol',
       schemes: ['mongodb']
     }
+  ],
+  // The following only modifies "y" values from defaults
+  contents: [
+    {
+      x: 450,
+      y: 344,
+      type: 'link',
+      path: '/Applications'
+    },
+    {
+      x: 192,
+      y: 334,
+      type: 'file',
+      path: path.resolve(process.cwd(), APP_PATH)
+    }
   ]
 };
 
