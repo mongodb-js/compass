@@ -7,18 +7,22 @@
       .col-md-6
         div(data-hook='stats-subview')
   div(data-hook='refine-bar')
-  .column-container(data-hook='json-sidebar-toggle-class')
-    .column.main
-      div(data-hook='fields-subview')
-    .splitter
-      button.btn.btn-link.splitter-button.splitter-button-open(title='View Sampled Documents')
-        i.fa.fa-caret-left
-        | &nbsp;
-        i.fa.fa-file-text-o
+  div.hidden(data-hook='empty')
+    ul.message-background.with-sidebar.centered: li
+      p No documents found.
+  div(data-hook='non-empty')
+    .column-container(data-hook='json-sidebar-toggle-class')
+      .column.main
+        div(data-hook='fields-subview')
+      .splitter
+        button.btn.btn-link.splitter-button.splitter-button-open(title='View Sampled Documents')
+          i.fa.fa-caret-left
+          | &nbsp;
+          i.fa.fa-file-text-o
 
-      button.btn.btn-link.splitter-button.splitter-button-close(title='Hide Sampled Documents')
-        i.fa.fa-file-text-o
-        | &nbsp;
-        i.fa.fa-caret-right
-    .column.side
-      div(data-hook='documents-subview')
+        button.btn.btn-link.splitter-button.splitter-button-close(title='Hide Sampled Documents')
+          i.fa.fa-file-text-o
+          | &nbsp;
+          i.fa.fa-caret-right
+      .column.side
+        div(data-hook='documents-subview')

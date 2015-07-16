@@ -42,8 +42,22 @@ var MongoDBCollectionView = View.extend({
     model: MongoDBCollection,
     schema: SampledSchema
   },
+  showEmptyMessage: function() {
+    this.queryByHook('empty').classList.remove('hidden');
+    this.queryByHook('non-empty').classList.add('hidden');
+  },
+  hideEmptyMessage: function() {
+    if (!this.rendered) return;
+    this.queryByHook('empty').classList.add('hidden');
+    this.queryByHook('non-empty').classList.remove('hidden');
+  },
+  onSchemaSync: function() {
+    (this.schema.sample_size === 0) ? this.showEmptyMessage() : this.hideEmptyMessage();
+  },
   initialize: function() {
     app.statusbar.watch(this, this.schema);
+    this.listenTo(this.schema, 'sync', this.onSchemaSync.bind(this));
+    this.listenTo(this.schema, 'request', this.hideEmptyMessage.bind(this));
     this.listenTo(app.queryOptions, 'change', this.onQueryChanged.bind(this));
     this.listenToAndRun(this.parent, 'change:ns', this.onCollectionChanged.bind(this));
   },
@@ -55,7 +69,7 @@ var MongoDBCollectionView = View.extend({
       return;
     }
     this.visible = true;
-
+    this.hideEmptyMessage();
     this.schema.ns = this.model._id = ns;
     debug('updating namespace to `%s`', ns);
     this.schema.reset();
