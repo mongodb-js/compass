@@ -47,18 +47,19 @@ var MongoDBCollectionView = View.extend({
     this.queryByHook('non-empty').classList.add('hidden');
   },
   hideEmptyMessage: function() {
+    if (!this.rendered) return;
     this.queryByHook('empty').classList.add('hidden');
     this.queryByHook('non-empty').classList.remove('hidden');
   },
-  onStatusChanged: function(statusbar) {
-    if (statusbar.visible) return;
+  onSchemaSync: function() {
     (this.schema.sample_size === 0) ? this.showEmptyMessage() : this.hideEmptyMessage();
   },
   initialize: function() {
     app.statusbar.watch(this, this.schema);
+    this.listenTo(this.schema, 'sync', this.onSchemaSync.bind(this));
+    this.listenTo(this.schema, 'request', this.hideEmptyMessage.bind(this));
     this.listenTo(app.queryOptions, 'change', this.onQueryChanged.bind(this));
     this.listenToAndRun(this.parent, 'change:ns', this.onCollectionChanged.bind(this));
-    this.listenTo(app.statusbar, 'change:visible', this.onStatusChanged);
   },
   onCollectionChanged: function() {
     var ns = this.parent.ns;
