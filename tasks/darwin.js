@@ -36,7 +36,7 @@ var CONFIG = module.exports = {
       schemes: ['mongodb']
     }
   ],
-  // The following only modifies "y" values from defaults
+  // The following only modifies "x","y" values from defaults
   contents: [
     {
       x: 450,
@@ -46,7 +46,7 @@ var CONFIG = module.exports = {
     },
     {
       x: 192,
-      y: 334,
+      y: 344,
       type: 'file',
       path: path.resolve(process.cwd(), APP_PATH)
     }
