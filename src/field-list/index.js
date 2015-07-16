@@ -147,7 +147,8 @@ var FieldView = View.extend({
     return clauses;
   },
   renderMinicharts: function() {
-    this.type_model = this.type_model || this.model.types.at(0);
+    this.type_model = this.type_model || this.model.types.sort().at(0);
+    if (this.type_model.getId() === 'Undefined') return;
 
     debug('setting miniview for type_model_id `%s`', this.type_model.getId());
     this.minichartView = new MinichartView({

@@ -53,8 +53,10 @@ module.exports = View.extend(tooltipMixin, {
   },
   typeClicked: function() {
     var fieldView = this.parent.parent;
-    fieldView.type_model = this.model;
-    fieldView.renderMinicharts();
+    if (fieldView.type_model !== this.model) {
+      fieldView.type_model = this.model;
+      fieldView.renderMinicharts();
+    }
   },
   render: function() {
     this.renderWithTemplate(this);
