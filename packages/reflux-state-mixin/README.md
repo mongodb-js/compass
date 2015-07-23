@@ -49,11 +49,6 @@ var DogsComponent = React.createClass({
     componentDidMount: function(){
         this.listenTo(AnimalStore.dogs,this.updateDogs); 
         //this Component has no internest in `cats` or any other animal, so it listents to `dogs` changes only
-        //
-        //of course it could have listen to the entire AnimalStore's state
-        //example:
-        // this.listenTo(AnimalStore,(state)=>{this.setState({dogs:state.dogs})});
-        // this way the component can easily decide what parts of the store-state are interesting
     },
     updateDogs: function(dogs){
         this.setState({dogs:dogs});
@@ -104,10 +99,12 @@ var StateMixin = require('reflux-state-mixin')(Reflux);
 var PetsComponent = React.createClass({
     mixins:[
         StateMixin.connect(AnimalStore, 'dogs')
+        //OR
+        StateMixin.connect(AnimalStore) //now PetsComponent.state === AnimalStore.state
         ],
 
     render: function () {
-        return (<div><p>We have {this.state.dogs + this.state.cats} pets</p></div>);
+        return (<div><p>We have {this.state.dogs} dogs</p></div>);
     }
 })
 ```
