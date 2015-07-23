@@ -2,7 +2,7 @@ var VizView = require('./viz');
 var _ = require('lodash');
 
 module.exports = VizView.extend({
-  props: {
+  session: {
     timer: {
       type: 'number',
       default: null
@@ -45,11 +45,14 @@ module.exports = VizView.extend({
     clearInterval(this.timer);
     this.timer = null;
   },
-  bubbleClicked: function (evt) {
+  bubbleClicked: function(evt) {
+    evt.stopPropagation();
     this.trigger('chart', {
       evt: evt,
       dom: evt.target,
-      d: evt.target.innerHTML,
+      d: {
+        label: evt.target.innerText
+      },
       type: 'click',
       source: 'unique'
     });

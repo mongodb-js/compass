@@ -4,13 +4,25 @@ var UniqueMinichartView = require('./unique');
 var vizFns = require('./d3fns');
 var _ = require('lodash');
 var raf = require('raf');
+var debug = require('debug')('scout:minicharts:index');
+
+var Value = require('mongodb-language-model').Value;
+var LeafValue = require('mongodb-language-model').LeafValue;
+var Range = require('mongodb-language-model').helpers.Range;
+
 
 // a wrapper around VizView to set common default values
 module.exports = AmpersandView.extend({
   template: require('./minichart.jade'),
-  props: {
+  session: {
     subview: 'view',
-    viewOptions: 'object'
+    viewOptions: 'object',
+    refineValue: {
+      type: 'state',
+      default: function() {
+        return new Value();
+      }
+    }
   },
   initialize: function(opts) {
     // setting some defaults for minicharts
@@ -35,8 +47,36 @@ module.exports = AmpersandView.extend({
     } else {
       this.subview = new VizView(this.viewOptions);
     }
+    // attach event handler based on model type, if available
+    var evtHandlerName = 'handleChartEvent' + this.model.getType();
+    if (this[evtHandlerName]) {
+      this.listenTo(this.subview, 'chart', this[evtHandlerName]);
+    }
     raf(function() {
       this.renderSubview(this.subview, this.queryByHook('minichart'));
     }.bind(this));
+  },
+  handleChartEventString: function(evt) {
+    if (evt.type === 'click') {
+      this.refineValue = new LeafValue(evt.d.label, {
+        parse: true
+      });
+    }
+  },
+  handleChartEventNumber: function(evt) {
+    if (evt.type === 'click') {
+      this.refineValue = evt.source === 'unique' ?
+        new LeafValue(parseInt(evt.d.label, 10), {
+          parse: true
+        }) :
+        new Range(evt.d.x, evt.d.x + evt.d.dx);
+    }
+  },
+  handleChartEventDate: function() {
+    // @todo not implemented yet
+  },
+  handleChartEventBoolean: function(evt) {
+    // same as string
+    this.handleEventChartString(evt);
   }
 });

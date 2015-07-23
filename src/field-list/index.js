@@ -7,6 +7,10 @@ var debug = require('debug')('scout:field-list');
 var _ = require('lodash');
 var raf = require('raf');
 var SampledSchema = require('../models/sampled-schema');
+var app = require('ampersand-app');
+
+var LeafClause = require('mongodb-language-model').LeafClause;
+var Query = require('mongodb-language-model').Query;
 
 function handleCaret(el) {
   var $el = $(el);
@@ -31,7 +35,11 @@ var FieldView = View.extend({
     visible: {
       type: 'boolean',
       default: false
-    }
+    },
+    minichartView: 'view'
+  },
+  children: {
+    refineClause: LeafClause
   },
   bindings: {
     'model.name': {
@@ -96,19 +104,27 @@ var FieldView = View.extend({
   },
   initialize: function() {
     this.listenTo(this, 'change:visible', this.renderMinicharts);
+    this.refineClause.key.content = this.model.name;
   },
   render: function() {
     this.renderWithTemplate(this);
     this.viewSwitcher = new ViewSwitcher(this.queryByHook('minichart-container'));
   },
+  onRefineClause: function() {
+    this.refineClause.value = this.minichartView.refineValue;
+    this.parent.trigger('refine', this);
+  },
   renderMinicharts: function() {
     this.type_model = this.type_model || this.model.types.at(0);
 
     debug('setting miniview for type_model_id `%s`', this.type_model.getId());
-    var miniview = new MinichartView({
-      model: this.type_model
+    this.minichartView = new MinichartView({
+      model: this.type_model,
+      parent: this
     });
-    this.viewSwitcher.set(miniview);
+    this.refineClause.value = this.minichartView.refineValue;
+    this.listenTo(this.minichartView, 'change:refineValue', this.onRefineClause);
+    this.viewSwitcher.set(this.minichartView);
   },
   click: function(evt) {
     this.toggle('expanded');
@@ -119,7 +135,10 @@ var FieldView = View.extend({
 
 FieldListView = View.extend({
   session: {
-    field_collection_view: 'view'
+    fieldCollectionView: 'view'
+  },
+  children: {
+    refineQuery: Query
   },
   template: require('./index.jade'),
   initialize: function() {
@@ -128,9 +147,22 @@ FieldListView = View.extend({
     } else {
       this.listenTo(this.parent, 'change:visible', this.makeFieldVisible);
     }
+    this.on('refine', this.onRefineQuery);
+  },
+  onRefineQuery: function() {
+    var views = this.fieldCollectionView.views;
+    this.refineQuery.clauses.reset(
+      _(views)
+        .filter(function(view) {
+          return view.refineClause.valid;
+        })
+        .pluck('refineClause')
+        .value()
+    );
+    app.queryOptions.query = this.refineQuery.serialize();
   },
   makeFieldVisible: function() {
-    var views = this.field_collection_view.views;
+    var views = this.fieldCollectionView.views;
     _.each(views, function(field_view) {
       raf(function() {
         field_view.visible = true;
@@ -139,7 +171,7 @@ FieldListView = View.extend({
   },
   render: function() {
     this.renderWithTemplate();
-    this.field_collection_view = this.renderCollection(this.collection,
+    this.fieldCollectionView = this.renderCollection(this.collection,
       FieldView, this.queryByHook('fields'));
   }
 });
