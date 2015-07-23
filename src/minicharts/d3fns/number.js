@@ -70,7 +70,7 @@ module.exports = function(opts) {
     };
   }
 
-  many(data, g, width, height - 10, {
+  many(data, opts.view, g, width, height - 10, {
     scale: true,
     bgbars: false,
     labels: labels

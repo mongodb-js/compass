@@ -23,7 +23,8 @@ module.exports = VizView.extend({
   },
   events: {
     'mousedown [data-hook=refresh]': 'refresh',
-    mouseup: 'stopTimer'
+    mouseup: 'stopTimer',
+    'click .bubble': 'bubbleClicked'
   },
   render: function() {
     this.renderWithTemplate(this);
@@ -43,5 +44,14 @@ module.exports = VizView.extend({
   stopTimer: function() {
     clearInterval(this.timer);
     this.timer = null;
+  },
+  bubbleClicked: function (evt) {
+    this.trigger('chart', {
+      evt: evt,
+      dom: evt.target,
+      d: evt.target.innerHTML,
+      type: 'click',
+      source: 'unique'
+    });
   }
 });

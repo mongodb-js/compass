@@ -36,7 +36,7 @@ module.exports = function(opts) {
     .attr('height', height);
 
   var chart = data.length <= 5 ? few : many;
-  chart(data, g, width, height, {
+  chart(data, opts.view, g, width, height, {
     scale: true,
     bglines: true
   });

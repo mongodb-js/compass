@@ -5,7 +5,7 @@ var shared = require('./shared');
 
 require('../d3-tip')(d3);
 
-var minicharts_d3fns_many = function(data, g, width, height, options) {
+var minicharts_d3fns_many = function(data, view, g, width, height, options) {
   options = _.defaults(options || {}, {
     bgbars: false,
     scale: false,
@@ -119,12 +119,30 @@ var minicharts_d3fns_many = function(data, g, width, height, options) {
       .attr('width', x.rangeBand())
       .attr('height', height)
       .on('mouseover', tip.show)
-      .on('mouseout', tip.hide);
+      .on('mouseout', tip.hide)
+      .on('click', function(d, i) {
+        view.trigger('chart', {
+          d: d,
+          i: i,
+          dom: this,
+          type: 'click',
+          source: 'many'
+        });
+      });
   } else {
     // atach tooltips directly to foreground bars
     fgbars
       .on('mouseover', tip.show)
-      .on('mouseout', tip.hide);
+      .on('mouseout', tip.hide)
+      .on('click', function(d, i) {
+        view.trigger('chart', {
+          d: d,
+          i: i,
+          dom: this,
+          type: 'click',
+          source: 'many'
+        });
+      });
   }
 
   if (options.labels) {

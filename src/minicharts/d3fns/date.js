@@ -134,7 +134,8 @@ var minicharts_d3fns_date = function(opts) {
   var weekdayContainer = svg.append('g');
 
   raf(function() {
-    many(weekdays, weekdayContainer, width / (upperRatio + 1) - upperMargin, upperBarBottom, {
+    many(weekdays, opts.view, weekdayContainer,
+      width / (upperRatio + 1) - upperMargin, upperBarBottom, {
       bgbars: true,
       labels: {
         'text-anchor': 'middle',
@@ -160,7 +161,7 @@ var minicharts_d3fns_date = function(opts) {
     .attr('transform', 'translate(' + (width / (upperRatio + 1) + upperMargin) + ', 0)');
   raf(function() {
     var _manyWidth = width / (upperRatio + 1) * upperRatio - upperMargin;
-    many(hours, hourContainer, _manyWidth, upperBarBottom, {
+    many(hours, opts.view, hourContainer, _manyWidth, upperBarBottom, {
       bgbars: true,
       labels: {
         text: function(d, i) {

@@ -2,10 +2,11 @@ var d3 = require('d3');
 var _ = require('lodash');
 var tooltipHtml = require('./tooltip.jade');
 var shared = require('./shared');
+var debug = require('debug')('scout:minicharts:few');
 
 require('../d3-tip')(d3);
 
-module.exports = function(data, g, width, height) {
+module.exports = function(data, view, g, width, height) {
   var barHeight = 25;
   var values = _.pluck(data, 'value');
   var sumValues = d3.sum(values);
@@ -78,5 +79,14 @@ module.exports = function(data, g, width, height) {
     })
     .attr('height', barHeight)
     .on('mouseover', tip.show)
-    .on('mouseout', tip.hide);
+    .on('mouseout', tip.hide)
+    .on('click', function(d, i) {
+      view.trigger('chart', {
+        d: d,
+        i: i,
+        dom: this,
+        type: 'click',
+        source: 'few'
+      });
+    });
 };
