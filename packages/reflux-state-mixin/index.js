@@ -2,6 +2,43 @@
 
 var update = require('react/addons').addons.update;
 
+var _ = {}
+
+_.object = function(keys,vals){
+  var o={}, i=0;
+  for(;i < keys.length; i++){
+    o[keys[i]] = vals[i];
+  }
+  return o;
+};
+
+_.isObject = function(obj) {
+  var type = typeof obj;
+  return type === 'function' || type === 'object' && !!obj;
+};
+
+_.extend = function(obj) {
+  if (!_.isObject(obj)) {
+    return obj;
+  }
+  var source, prop;
+  for (var i = 1, length = arguments.length; i < length; i++) {
+    source = arguments[i];
+    for (prop in source) {
+      if (Object.getOwnPropertyDescriptor && Object.defineProperty) {
+        var propertyDescriptor = Object.getOwnPropertyDescriptor(source, prop);
+        Object.defineProperty(obj, prop, propertyDescriptor);
+      } else {
+        obj[prop] = source[prop];
+      }
+    }
+  }
+  return obj;
+};
+
+_.isFunction = function(value) {
+  return typeof value === 'function';
+};
 
 /**
  * Creates the mixin, ready for use in a store
@@ -39,7 +76,7 @@ module.exports = function stateMixin(Reflux) {
     },
 
     init: function () {
-      if(typeof this.getInitialState === "function"){
+      if(_.isFunction(this.getInitialState)){
         this.state = this.getInitialState();
         for(var key in this.state){
           if(this.state.hasOwnProperty(key)){
@@ -47,6 +84,33 @@ module.exports = function stateMixin(Reflux) {
           }
         }
       }
+    },
+
+    connect: function (store, key) {
+      console.log(Reflux.connect)
+      return {
+        getInitialState: function(){
+          if (!_.isFunction(store.getInitialState)) {
+            return {};
+          } else if (key === undefined) {
+            return store.state;
+          } else {
+            return _.object([key],[store.state[key]]);
+          }
+        },
+        componentDidMount: function(){
+          _.extend(this, Reflux.ListenerMethods);
+          var me = this, cb = (key === undefined ? this.setState : function(v){
+            if (typeof me.isMounted === "undefined" || me.isMounted() === true) {
+              me.setState(_.object([key],[v]));
+            }
+          });
+          this.listenTo(store[key],cb);
+        },
+        componentWillUnmount: Reflux.ListenerMixin.componentWillUnmount
+      }
     }
   }
 };
+
+
