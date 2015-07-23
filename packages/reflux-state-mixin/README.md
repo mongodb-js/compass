@@ -62,7 +62,7 @@ var DogsComponent = React.createClass({
 ```
 #### 2. listen to an entire store:
 
-```
+```javascript
 var AnimalStore = require('./AnimalStore.js');
 
 var PetsComponent = React.createClass({
@@ -92,7 +92,7 @@ var PetsComponent = React.createClass({
 ```
 #### 3. connect:
 
-```
+```javascript
 var AnimalStore = require('./AnimalStore.js');
 var StateMixin = require('reflux-state-mixin')(Reflux);
 
