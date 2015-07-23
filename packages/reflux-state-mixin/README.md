@@ -31,7 +31,8 @@ var AnimalStore = module.exports = Reflux.createStore({
 
 });
 ```
-
+### in component:
+#### 1:
 ```javascript
 
 var AnimalStore = require('./AnimalStore.js');
@@ -64,7 +65,52 @@ var DogsComponent = React.createClass({
 });
 
 ```
+#### 2. listen to an entire store:
 
+```
+var AnimalStore = require('./AnimalStore.js');
+
+var PetsComponent = React.createClass({
+    mixins:[Reflux.ListenerMixin],
+    getInitialState: function (){
+      return({
+          dogs: AnimalStore.state.dogs,
+          cats: AnimalStore.state.cats
+      })
+    },
+    componentDidMount: function(){
+         this.listenTo(
+            AnimalStore,
+            (state)=>{
+                this.setState({
+                    dogs:state.dogs,
+                    cats:state.cats
+                })
+            });
+         //this way the component can easily decide what parts of the store-state are interesting
+    },
+
+    render: function () {
+        return (<div><p>We have {this.state.dogs + this.state.cats} pets</p></div>);
+    }
+})
+```
+#### 3. connect:
+
+```
+var AnimalStore = require('./AnimalStore.js');
+var StateMixin = require('reflux-state-mixin')(Reflux);
+
+var PetsComponent = React.createClass({
+    mixins:[
+        StateMixin.connect(AnimalStore, 'dogs')
+        ],
+
+    render: function () {
+        return (<div><p>We have {this.state.dogs + this.state.cats} pets</p></div>);
+    }
+})
+```
 ## Installation
 
 ```bash
