@@ -87,7 +87,6 @@ module.exports = function stateMixin(Reflux) {
     },
 
     connect: function (store, key) {
-      console.log(Reflux.connect)
       return {
         getInitialState: function(){
           if (!_.isFunction(store.getInitialState)) {
@@ -100,12 +99,15 @@ module.exports = function stateMixin(Reflux) {
         },
         componentDidMount: function(){
           _.extend(this, Reflux.ListenerMethods);
-          var me = this, cb = (key === undefined ? this.setState : function(v){
+          var noKey = key === undefined;
+          var me = this,
+              cb = (noKey ? this.setState : function(v){
             if (typeof me.isMounted === "undefined" || me.isMounted() === true) {
               me.setState(_.object([key],[v]));
             }
-          });
-          this.listenTo(store[key],cb);
+          }),
+              listener = noKey ? store : store[key];
+          this.listenTo(listener, cb);
         },
         componentWillUnmount: Reflux.ListenerMixin.componentWillUnmount
       }
