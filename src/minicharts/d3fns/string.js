@@ -5,7 +5,7 @@ var many = require('./many');
 var shared = require('./shared');
 
 module.exports = function(opts) {
-  var values = opts.data.values.toJSON();
+  var values = opts.model.values.toJSON();
 
   var margin = shared.margin;
   var width = opts.width - margin.left - margin.right;
@@ -41,4 +41,3 @@ module.exports = function(opts) {
     bglines: true
   });
 };
-

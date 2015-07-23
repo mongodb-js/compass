@@ -30,16 +30,36 @@ var VizView = AmpersandView.extend({
     }
   },
   bindings: {
-    width: {
-      type: 'attribute',
-      name: 'width',
-      hook: 'viz-container'
-    },
-    height: {
-      type: 'attribute',
-      name: 'height',
-      hook: 'viz-container'
-    },
+    width: [
+      // set width attribute for svg, canvas
+      {
+        type: 'attribute',
+        name: 'width',
+        hook: 'viz-container'
+      },
+      // set width style for html
+      {
+        type: function(el, value) {
+          $(el).width(value);
+        },
+        hook: 'viz-container'
+      }
+    ],
+    height: [
+      // set height attribute for svg, canvas
+      {
+        type: 'attribute',
+        name: 'height',
+        hook: 'viz-container'
+      },
+      // set height style for html
+      {
+        type: function(el, value) {
+          $(el).height(value);
+        },
+        hook: 'viz-container'
+      }
+    ],
     className: {
       type: 'attribute',
       name: 'class',
@@ -64,7 +84,7 @@ var VizView = AmpersandView.extend({
       }
     }
 
-    // pick canvas or svg template
+    // pick html, canvas or svg template
     if (!this.template) {
       switch (this.renderMode) {
         case 'canvas':
@@ -92,26 +112,13 @@ var VizView = AmpersandView.extend({
     }
   },
 
-  _chooseDataSource: function() {
-    if (this.model !== undefined) {
-      this.data = this.model;
-    } else if (this.collection !== undefined) {
-      this.data = this.collection.toJSON();
-    }
-  },
-
   remove: function() {
+    // @todo, _onResize not defined, is this correct?
     window.removeEventListener('resize', this._onResize);
     return AmpersandView.prototype.remove.call(this);
   },
 
-  transform: function(data) {
-    return data;
-  },
-
   render: function() {
-    this._chooseDataSource();
-    this.data = this.transform(this.data);
     this.renderWithTemplate(this);
 
     // measure only if width or height is missing
@@ -122,7 +129,8 @@ var VizView = AmpersandView.extend({
       var opts = {
         width: this.width,
         height: this.height,
-        data: this.data,
+        model: this.model,
+        view: this,
         el: this.el
       };
       var vizFn = this.vizFn.bind(this, opts);
@@ -131,21 +139,11 @@ var VizView = AmpersandView.extend({
       });
     }
     return this;
+  },
+  redraw: function() {
+    // currently just an alias for render
+    this.render();
   }
 });
 
 module.exports = VizView;
-
-/**
- * Shortcut so you don't have to know anything about; ampersand
- * and can just cut right to the d3.
- * @param {String} className - CSS class to wrap the canvas in.
- * @param {Function} vizFn - @see `./d3fns`
- * @return {VizView}
- */
-module.exports.create = function(className, vizFn) {
-  return module.exports.extend({
-    className: className,
-    vizFn: vizFn
-  });
-};

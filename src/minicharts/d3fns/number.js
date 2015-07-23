@@ -4,14 +4,14 @@ var many = require('./many');
 var shared = require('./shared');
 
 module.exports = function(opts) {
-  var values = opts.data.values.toJSON();
+  var values = opts.model.values.toJSON();
 
   var margin = shared.margin;
   var width = opts.width - margin.left - margin.right;
   var height = opts.height - margin.top - margin.bottom;
   var el = opts.el;
 
-  if (opts.data.unique < 20) {
+  if (opts.model.unique < 20) {
     var data = _(values)
       .groupBy(function(d) {
         return d;
@@ -58,7 +58,7 @@ module.exports = function(opts) {
     .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
   var labels;
-  if (opts.data.unique < 20) {
+  if (opts.model.unique < 20) {
     labels = true;
   } else {
     labels = {
@@ -76,4 +76,3 @@ module.exports = function(opts) {
     labels: labels
   });
 };
-

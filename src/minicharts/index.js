@@ -29,6 +29,7 @@ module.exports = AmpersandView.extend({
     if (['String', 'Number'].indexOf(this.model.name) !== -1
       && this.model.unique === this.model.count) {
       this.viewOptions.renderMode = 'html';
+      this.viewOptions.vizFn = null;
       this.viewOptions.className = 'minichart unique';
       this.subview = new UniqueMinichartView(this.viewOptions);
     } else {

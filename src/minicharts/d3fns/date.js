@@ -18,7 +18,7 @@ function generateDefaults(n) {
 var weekdayLabels = moment.weekdays();
 
 var minicharts_d3fns_date = function(opts) {
-  var values = opts.data.values.toJSON();
+  var values = opts.model.values.toJSON();
 
   // distinguish ObjectIDs from real dates
   if (values.length && values[0]._bsontype !== undefined) {
