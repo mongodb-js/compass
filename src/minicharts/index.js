@@ -19,6 +19,7 @@ module.exports = AmpersandView.extend({
     viewOptions: 'object',
     refineValue: {
       type: 'state',
+      required: true,
       default: function() {
         return new Value();
       }
@@ -47,36 +48,50 @@ module.exports = AmpersandView.extend({
     } else {
       this.subview = new VizView(this.viewOptions);
     }
-    // attach event handler based on model type, if available
-    var evtHandlerName = 'handleChartEvent' + this.model.getType();
-    if (this[evtHandlerName]) {
-      this.listenTo(this.subview, 'chart', this[evtHandlerName]);
-    }
+    this.listenTo(this.subview, 'chart', this.handleChartEvent);
     raf(function() {
       this.renderSubview(this.subview, this.queryByHook('minichart'));
     }.bind(this));
   },
-  handleChartEventString: function(evt) {
-    if (evt.type === 'click') {
-      this.refineValue = new LeafValue(evt.d.label, {
-        parse: true
+  handleChartEvent: function(data) {
+    data.evt.stopPropagation();
+    data.evt.preventDefault();
+
+    // handle visual feedback (.selected class on active elements)
+    var selfSelected = data.self.classList.contains('selected');
+    if (!data.evt.shiftKey || this.model.getType() === 'Number') {
+      // remove `.selected` class from all elements
+      _.each(data.all, function(e) {
+        e.classList.remove('selected');
       });
     }
-  },
-  handleChartEventNumber: function(evt) {
-    if (evt.type === 'click') {
-      this.refineValue = evt.source === 'unique' ?
-        new LeafValue(parseInt(evt.d.label, 10), {
-          parse: true
-        }) :
-        new Range(evt.d.x, evt.d.x + evt.d.dx);
+    data.self.classList.toggle('selected', !selfSelected);
+
+    // derive new refine value from event
+    if (selfSelected) {
+      this.unset('refineValue'); // back to default empty, invalid Value()
+    } else {
+      switch (this.model.getType()) {
+        case 'Boolean': // fall-through to String
+        case 'String':
+          if (data.type === 'click') {
+            this.refineValue = new LeafValue(data.d.label, {
+              parse: true
+            });
+          }
+          break;
+        case 'Number':
+          if (data.type === 'click') {
+            this.refineValue = data.source === 'unique' ?
+              new LeafValue(parseInt(data.d.label, 10), {
+                parse: true
+              }) : new Range(data.d.x, data.d.x + data.d.dx);
+          }
+          break;
+        default:
+          // @todo other types not implemented yet
+          break;
+      }
     }
-  },
-  handleChartEventDate: function() {
-    // @todo not implemented yet
-  },
-  handleChartEventBoolean: function(evt) {
-    // same as string
-    this.handleEventChartString(evt);
   }
 });

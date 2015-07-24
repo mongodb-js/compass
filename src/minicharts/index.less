@@ -49,8 +49,14 @@ div.minichart.unique {
         margin-bottom: 6px;
 
         code {
+          cursor: copy;
           font-size: 12px;
           line-height: 20px;
+        }
+
+        code.selected {
+          background-color: @mc-fg-selected;
+          color: @pw;
         }
       }
     }
@@ -77,6 +83,7 @@ svg.minichart {
 
   .bar {
     shape-rendering: crispEdges;
+    cursor: copy;
 
     rect.bg {
       fill: @mc-bg;

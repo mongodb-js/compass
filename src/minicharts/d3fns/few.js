@@ -3,17 +3,18 @@ var _ = require('lodash');
 var $ = require('jquery');
 var tooltipHtml = require('./tooltip.jade');
 var shared = require('./shared');
+var debug = require('debug')('scout:minicharts:few');
 
 require('../d3-tip')(d3);
 
 module.exports = function(data, view, g, width, height) {
   var handleClick = function(d, i) {
-    var fgRect = d3.select($(this).siblings('rect.fg').get());
+    var fgRect = $(this).siblings('rect.fg')[0];
     var evt = {
       d: d,
       i: i,
       self: fgRect,
-      all: g.selectAll('rect.fg'),
+      all: view.queryAll('rect.fg'),
       evt: d3.event,
       type: 'click',
       source: 'few'

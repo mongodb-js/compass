@@ -52,7 +52,7 @@ module.exports = VizView.extend({
         label: evt.target.innerText
       },
       self: evt.target,
-      all: this.queryAll('.bubble'),
+      all: this.queryAll('.bubble > code'),
       evt: evt,
       type: 'click',
       source: 'unique'

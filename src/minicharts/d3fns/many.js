@@ -11,8 +11,8 @@ var minicharts_d3fns_many = function(data, view, g, width, height, options) {
     var evt = {
       d: d,
       i: i,
-      self: d3.select(this),
-      all: g.selectAll('rect.fg'),
+      self: this,
+      all: view.queryAll('rect.fg'),
       evt: d3.event,
       type: 'click',
       source: 'many'
