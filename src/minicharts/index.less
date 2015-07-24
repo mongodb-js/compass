@@ -8,6 +8,7 @@
 
 @mc-bg: @gray8;
 @mc-fg: @mc-blue0;
+@mc-fg-selected: @green2;
 
 div.minichart.unique {
   font-size: 12px;
@@ -83,6 +84,10 @@ svg.minichart {
 
     rect.fg {
       fill: @mc-fg;
+
+      &.selected {
+        fill: @mc-fg-selected;
+      }
     }
 
     &.few {
@@ -114,6 +119,10 @@ svg.minichart {
 
       rect.fg-5 {
         fill: @mc-blue5;
+      }
+
+      rect.fg.selected {
+        fill: @mc-fg-selected;
       }
 
       text {

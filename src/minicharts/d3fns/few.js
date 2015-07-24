@@ -1,12 +1,30 @@
 var d3 = require('d3');
 var _ = require('lodash');
+var $ = require('jquery');
 var tooltipHtml = require('./tooltip.jade');
 var shared = require('./shared');
-var debug = require('debug')('scout:minicharts:few');
 
 require('../d3-tip')(d3);
 
 module.exports = function(data, view, g, width, height) {
+  var handleClick = function(d, i) {
+    var fgRect = d3.selectAll($(this).siblings('rect.fg').toArray());
+    var currentSelected = fgRect.classed('selected');
+    if (!d3.event.shiftKey) {
+      // remove .selected from all other bars
+      g.selectAll('rect.fg').classed('selected', false);
+    }
+    fgRect.classed('selected', !currentSelected);
+    var evt = {
+      d: d,
+      i: i,
+      dom: this,
+      type: d3.event.shiftKey ? 'shift-click' : 'click',
+      source: 'few'
+    };
+    view.trigger('chart', evt);
+  };
+
   var barHeight = 25;
   var values = _.pluck(data, 'value');
   var sumValues = d3.sum(values);
@@ -51,7 +69,7 @@ module.exports = function(data, view, g, width, height) {
 
   bar.append('rect')
     .attr('class', function(d, i) {
-      return 'fg-' + i;
+      return 'fg fg-' + i;
     })
     .attr('y', 0)
     .attr('x', 0)
@@ -80,13 +98,5 @@ module.exports = function(data, view, g, width, height) {
     .attr('height', barHeight)
     .on('mouseover', tip.show)
     .on('mouseout', tip.hide)
-    .on('click', function(d, i) {
-      view.trigger('chart', {
-        d: d,
-        i: i,
-        dom: this,
-        type: 'click',
-        source: 'few'
-      });
-    });
+    .on('click', handleClick);
 };

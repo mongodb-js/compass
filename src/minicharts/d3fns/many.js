@@ -6,6 +6,23 @@ var shared = require('./shared');
 require('../d3-tip')(d3);
 
 var minicharts_d3fns_many = function(data, view, g, width, height, options) {
+  var handleClick = function(d, i) {
+    var fgRect = d3.select(this);
+    var currentSelected = fgRect.classed('selected');
+    if (!d3.event.shiftKey) {
+      g.selectAll('rect.fg').classed('selected', false);
+    }
+    fgRect.classed('selected', !currentSelected);
+    var evt = {
+      d: d,
+      i: i,
+      dom: this,
+      type: d3.event.shiftKey ? 'shift-click' : 'click',
+      source: 'many'
+    };
+    view.trigger('chart', evt);
+  };
+
   options = _.defaults(options || {}, {
     bgbars: false,
     scale: false,
@@ -120,29 +137,13 @@ var minicharts_d3fns_many = function(data, view, g, width, height, options) {
       .attr('height', height)
       .on('mouseover', tip.show)
       .on('mouseout', tip.hide)
-      .on('click', function(d, i) {
-        view.trigger('chart', {
-          d: d,
-          i: i,
-          dom: this,
-          type: 'click',
-          source: 'many'
-        });
-      });
+      .on('click', handleClick);
   } else {
     // atach tooltips directly to foreground bars
     fgbars
       .on('mouseover', tip.show)
       .on('mouseout', tip.hide)
-      .on('click', function(d, i) {
-        view.trigger('chart', {
-          d: d,
-          i: i,
-          dom: this,
-          type: 'click',
-          source: 'many'
-        });
-      });
+      .on('click', handleClick);
   }
 
   if (options.labels) {
