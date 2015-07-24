@@ -2,22 +2,19 @@ var d3 = require('d3');
 var _ = require('lodash');
 var tooltipHtml = require('./tooltip.jade');
 var shared = require('./shared');
+var debug = require('debug')('scout:minicharts:many');
 
 require('../d3-tip')(d3);
 
 var minicharts_d3fns_many = function(data, view, g, width, height, options) {
   var handleClick = function(d, i) {
-    var fgRect = d3.select(this);
-    var currentSelected = fgRect.classed('selected');
-    if (!d3.event.shiftKey) {
-      g.selectAll('rect.fg').classed('selected', false);
-    }
-    fgRect.classed('selected', !currentSelected);
     var evt = {
       d: d,
       i: i,
-      dom: this,
-      type: d3.event.shiftKey ? 'shift-click' : 'click',
+      self: d3.select(this),
+      all: g.selectAll('rect.fg'),
+      evt: d3.event,
+      type: 'click',
       source: 'many'
     };
     view.trigger('chart', evt);

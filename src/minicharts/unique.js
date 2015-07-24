@@ -47,14 +47,16 @@ module.exports = VizView.extend({
   },
   bubbleClicked: function(evt) {
     evt.stopPropagation();
-    this.trigger('chart', {
-      evt: evt,
-      dom: evt.target,
+    var chartEvt = {
       d: {
         label: evt.target.innerText
       },
+      self: evt.target,
+      all: this.queryAll('.bubble'),
+      evt: evt,
       type: 'click',
       source: 'unique'
-    });
+    };
+    this.trigger('chart', chartEvt);
   }
 });

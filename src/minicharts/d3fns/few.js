@@ -8,18 +8,14 @@ require('../d3-tip')(d3);
 
 module.exports = function(data, view, g, width, height) {
   var handleClick = function(d, i) {
-    var fgRect = d3.selectAll($(this).siblings('rect.fg').toArray());
-    var currentSelected = fgRect.classed('selected');
-    if (!d3.event.shiftKey) {
-      // remove .selected from all other bars
-      g.selectAll('rect.fg').classed('selected', false);
-    }
-    fgRect.classed('selected', !currentSelected);
+    var fgRect = d3.select($(this).siblings('rect.fg').get());
     var evt = {
       d: d,
       i: i,
-      dom: this,
-      type: d3.event.shiftKey ? 'shift-click' : 'click',
+      self: fgRect,
+      all: g.selectAll('rect.fg'),
+      evt: d3.event,
+      type: 'click',
       source: 'few'
     };
     view.trigger('chart', evt);
