@@ -137,9 +137,6 @@ FieldListView = View.extend({
   session: {
     fieldCollectionView: 'view'
   },
-  children: {
-    refineQuery: Query
-  },
   template: require('./index.jade'),
   initialize: function() {
     if (this.collection.parent instanceof SampledSchema) {
@@ -151,15 +148,14 @@ FieldListView = View.extend({
   },
   onRefineQuery: function() {
     var views = this.fieldCollectionView.views;
-    this.refineQuery.clauses.reset(
-      _(views)
+    app.queryOptions.query = new Query({
+      clauses: _(views)
         .filter(function(view) {
           return view.refineClause.valid;
         })
         .pluck('refineClause')
         .value()
-    );
-    app.queryOptions.query = this.refineQuery.serialize();
+    });
   },
   makeFieldVisible: function() {
     var views = this.fieldCollectionView.views;
