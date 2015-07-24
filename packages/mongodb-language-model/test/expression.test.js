@@ -101,6 +101,14 @@ describe('Expression', function() {
     expr.clauses.remove(clause);
   });
 
+  it('shoud trigger a change:buffer event when resetting the clause collection', function(done) {
+    var expr = new models.Expression([{foo: 1}, {bar: 2}], {
+      parse: true
+    });
+    expr.on('change:buffer', _.once(done));
+    expr.clauses.reset([{baz: 2}, {booze: 5}]);
+  });
+
   it('should trigger a change:buffer event when a child buffer changes', function(done) {
     expr.clauses.add({
       bar: 1
