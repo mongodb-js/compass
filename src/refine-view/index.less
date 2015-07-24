@@ -1,5 +1,15 @@
 .refine-view-container {
-  input {
-    font-family: "Source Code Pro", sans-serif;
+  background: @gray8;
+  padding: 12px 20px;
+  position: relative;
+  z-index: 1;
+
+  input[type='text'] {
+    font-family: @font-family-monospace;
+    background: @pw;
+    height: 28px;
+    & + .input-group-btn {
+      padding-left: 10px;
+    }
   }
 }
