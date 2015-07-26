@@ -8,6 +8,10 @@ var SamplingMessageView = View.extend({
     parent: 'state'
   },
   bindings: {
+    visible: {
+      type: 'booleanClass',
+      no: 'hidden'
+    },
     sample_size_message: {
       hook: 'sample_size_message'
     },
@@ -31,6 +35,12 @@ var SamplingMessageView = View.extend({
     }
   },
   derived: {
+    visible: {
+      deps: ['schema_sample_size'],
+      fn: function() {
+        return this.schema_sample_size > 0;
+      }
+    },
     is_sample: {
       deps: ['schema_sample_size'],
       fn: function() {
@@ -47,10 +57,13 @@ var SamplingMessageView = View.extend({
   },
   template: require('./index.jade'),
   initialize: function() {
-    this.listenTo(this.parent.schema, 'change:sample_size',
-      this.onSampleSizeUpdated);
+    this.listenTo(this.parent.schema, 'request', this.hide.bind(this));
+    this.listenTo(this.parent.schema, 'sync', this.show.bind(this));
   },
-  onSampleSizeUpdated: function() {
+  hide: function() {
+    this.schema_sample_size = 0;
+  },
+  show: function() {
     this.schema_sample_size = this.parent.schema.sample_size;
   }
 });

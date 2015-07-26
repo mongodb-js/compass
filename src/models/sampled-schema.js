@@ -101,17 +101,17 @@ module.exports = Schema.extend({
       cb(null, doc);
     };
 
+    var docs = [];
+
     var addToDocuments = function(doc, cb) {
-      model.documents.add(doc);
+      docs.push(doc);
       cb();
     };
 
-    var onEnd = function(err, body) {
+    var onEnd = function(err) {
       model.is_fetching = false;
       if (err) return options.error(model, err);
-      if (body) {
-        body = null;
-      }
+      model.documents.reset(docs);
       model.documents.trigger('sync');
       options.success({});
     };

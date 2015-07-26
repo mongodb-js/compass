@@ -1,10 +1,6 @@
 var View = require('ampersand-view');
 var CollectionListItemView = require('./collection-list-item');
-var _ = require('lodash');
-
-function fast_show(parent, model) {
-  parent.trigger('show', model);
-}
+var raf = require('raf');
 
 /**
  * @todo (imlucas): Keyboard nav: up/down: change active item,
@@ -17,7 +13,10 @@ var CollectionListView = View.extend({
     this.renderCollection(this.collection, CollectionListItemView, this.queryByHook('collections'));
   },
   show: function(model) {
-    _.defer(fast_show, this.parent, model);
+    var parent = this.parent;
+    raf(function() {
+      parent.trigger('show', model);
+    });
   }
 });
 
