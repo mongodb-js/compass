@@ -78,7 +78,7 @@ var FieldView = View.extend({
         return new TypeListView({
           el: el,
           parent: this,
-          collection: this.model.types.sort()
+          collection: this.model.types
         });
       }
     },
@@ -147,7 +147,9 @@ var FieldView = View.extend({
     return clauses;
   },
   renderMinicharts: function() {
-    this.type_model = this.type_model || this.model.types.sort().at(0);
+    if (!this.type_model) {
+      this.type_model = this.model.types.at(0);
+    }
 
     debug('setting miniview for type_model_id `%s`', this.type_model.getId());
     this.minichartView = new MinichartView({
