@@ -4,20 +4,20 @@ var update = require('react/addons').addons.update;
 
 var _ = {}
 
-_.object = function(keys,vals){
-  var o={}, i=0;
-  for(;i < keys.length; i++){
+_.object = function (keys, vals) {
+  var o = {}, i = 0;
+  for (; i < keys.length; i++) {
     o[keys[i]] = vals[i];
   }
   return o;
 };
 
-_.isObject = function(obj) {
+_.isObject = function (obj) {
   var type = typeof obj;
   return type === 'function' || type === 'object' && !!obj;
 };
 
-_.extend = function(obj) {
+_.extend = function (obj) {
   if (!_.isObject(obj)) {
     return obj;
   }
@@ -36,7 +36,7 @@ _.extend = function(obj) {
   return obj;
 };
 
-_.isFunction = function(value) {
+_.isFunction = function (value) {
   return typeof value === 'function';
 };
 
@@ -64,22 +64,35 @@ module.exports = function stateMixin(Reflux) {
 
   return {
     setState: function (state) {
-      for(var key in state){
-        if(state.hasOwnProperty(key)){
-          if(this.state[key]!== state[key]){
+      var changed = false;
+      var prevState = update({}, {$merge: this.state});
+
+      for (var key in state) {
+        if (state.hasOwnProperty(key)) {
+          if (this.state[key] !== state[key]) {
             this[key].trigger(state[key]);
+            changed = true;
           }
         }
       }
-      this.state = update(this.state, {$merge: state});
-      this.trigger(this.state);
+
+      if (changed) {
+        this.state = update(this.state, {$merge: state});
+
+        if (_.isFunction(this.storeDidUpdate)) {
+          this.storeDidUpdate(prevState);
+        }
+
+        this.trigger(this.state);
+      }
+
     },
 
     init: function () {
-      if(_.isFunction(this.getInitialState)){
+      if (_.isFunction(this.getInitialState)) {
         this.state = this.getInitialState();
-        for(var key in this.state){
-          if(this.state.hasOwnProperty(key)){
+        for (var key in this.state) {
+          if (this.state.hasOwnProperty(key)) {
             attachAction.call(this, this.state[key], key);
           }
         }
@@ -88,24 +101,24 @@ module.exports = function stateMixin(Reflux) {
 
     connect: function (store, key) {
       return {
-        getInitialState: function(){
+        getInitialState: function () {
           if (!_.isFunction(store.getInitialState)) {
             return {};
           } else if (key === undefined) {
             return store.state;
           } else {
-            return _.object([key],[store.state[key]]);
+            return _.object([key], [store.state[key]]);
           }
         },
-        componentDidMount: function(){
+        componentDidMount: function () {
           _.extend(this, Reflux.ListenerMethods);
           var noKey = key === undefined;
           var me = this,
-              cb = (noKey ? this.setState : function(v){
-            if (typeof me.isMounted === "undefined" || me.isMounted() === true) {
-              me.setState(_.object([key],[v]));
-            }
-          }),
+              cb = (noKey ? this.setState : function (v) {
+                if (typeof me.isMounted === "undefined" || me.isMounted() === true) {
+                  me.setState(_.object([key], [v]));
+                }
+              }),
               listener = noKey ? store : store[key];
           this.listenTo(listener, cb);
         },

@@ -1,9 +1,11 @@
 # reflux-state-mixin
 
-Mixin for [reflux](https://www.npmjs.com/packages/reflux) stores to enable them to have `state`, `setState()`, and `getInitialState()`, similar to React components. 
+Mixin for [reflux](https://www.npmjs.com/packages/reflux) stores to enable them to have `state`, `setState()`, `storeDidUpdate()` and `getInitialState()`, similar to React components.
 
 
 ## Usage
+
+### in store:
 
 ```javascript
 
@@ -24,14 +26,25 @@ var AnimalStore = module.exports = Reflux.createStore({
   },
 
   onNewDogBorn: function() {
-        this.setState({dogs:this.state.dogs+1})  
+        this.setState({dogs: this.state.dogs + 1})  
         //just like in a Component.
         //this will `trigger()` this state, similar to `render()` in a Component 
+  },
+        
+  //you can use storeDidUpdate lifecycle in the store, which will get called with every change to the state
+  storeDidUpdate: function(prevState) {
+      if(this.state.dogs !== prevState.dogs){
+        console.log('number of dogs has changed!');
+      }
   }
+  
 
 });
 ```
+
+
 ### in component:
+
 #### 1:
 ```javascript
 
@@ -48,7 +61,7 @@ var DogsComponent = React.createClass({
     },
     componentDidMount: function(){
         this.listenTo(AnimalStore.dogs,this.updateDogs); 
-        //this Component has no internest in `cats` or any other animal, so it listents to `dogs` changes only
+        //this Component has no interest in `cats` or any other animal, so it listens to `dogs` changes only
     },
     updateDogs: function(dogs){
         this.setState({dogs:dogs});
