@@ -64,6 +64,8 @@ module.exports = AmpersandView.extend({
     var value = data.d.label;
     if (this.model.getType() === 'Boolean') {
       value = value === 'true';
+    } else if (this.model.getType() === 'Number') {
+      value = parseInt(value, 10);
     }
 
     // handle visual feedback (.selected class on active elements)
