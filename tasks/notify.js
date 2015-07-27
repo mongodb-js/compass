@@ -6,6 +6,9 @@ var gutil = require('gulp-util');
  * Helper for catching error events on vinyl-source-stream's and showing
  * a nice native notification and printing a cleaner error message to
  * the console.
+ *
+ * @param {string} titlePrefix - typically application name
+ * @return {null}
  */
 module.exports = function(titlePrefix) {
   return function(err) {

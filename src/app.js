@@ -7,7 +7,7 @@ var ViewSwitcher = require('ampersand-view-switcher');
 var View = require('ampersand-view');
 var localLinks = require('local-links');
 var app = require('ampersand-app');
-var debug = require('debug')('scout-ui:app');
+// var debug = require('debug')('scout-ui:app');
 
 /**
  * The top-level application singleton that brings everything together!
