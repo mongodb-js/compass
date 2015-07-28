@@ -106,7 +106,7 @@ module.exports = AmpersandView.extend({
       }, { parse: true });
     }
   },
-  handleNumeric: function(data) {
+  handleRange: function(data) {
     if (data.evt[MODIFIERKEY]) {
       this.selectedValues[1] = data;
     } else if (this.selectedValues[0] && this.selectedValues[0].i === data.i) {
@@ -122,11 +122,13 @@ module.exports = AmpersandView.extend({
       // no value
       this.unset('refineValue');
     } else {
-      var first = _.min(this.selectedValues, function(d) { return d.d.x; });
-      var last = _.max(this.selectedValues, function(d) { return d.d.x; });
+      if (this.model.getType() === 'Number') {
+        var first = _.min(this.selectedValues, function(d) { return d.d.x; });
+        var last = _.max(this.selectedValues, function(d) { return d.d.x; });
+        var lower = first.d.x;
+        var upper = last.d.x + last.d.dx;
+      }
 
-      var lower = first.d.x;
-      var upper = last.d.x + last.d.dx;
       this.refineValue = new Range(lower, upper);
       _.each(data.all.slice(first.i, last.i + 1), function(el) {
         el.classList.add('selected');
@@ -146,7 +148,7 @@ module.exports = AmpersandView.extend({
         if (data.source === 'unique') {
           this.handleDistinct(data);
         } else {
-          this.handleNumeric(data);
+          this.handleRange(data);
         }
         break;
       default: // @todo other types not implemented yet
