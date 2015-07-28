@@ -4,6 +4,7 @@ var UniqueMinichartView = require('./unique');
 var vizFns = require('./d3fns');
 var _ = require('lodash');
 var raf = require('raf');
+var app = require('ampersand-app');
 var debug = require('debug')('scout:minicharts:index');
 
 var Value = require('mongodb-language-model').Value;
@@ -55,7 +56,9 @@ module.exports = AmpersandView.extend({
     } else {
       this.subview = new VizView(this.viewOptions);
     }
-    this.listenTo(this.subview, 'chart', this.handleChartEvent);
+    if (app.features.querybuilder) {
+      this.listenTo(this.subview, 'chart', this.handleChartEvent);
+    }
     raf(function() {
       this.renderSubview(this.subview, this.queryByHook('minichart'));
     }.bind(this));

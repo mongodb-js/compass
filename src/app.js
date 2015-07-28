@@ -57,7 +57,11 @@ var Application = View.extend({
     /**
      * @see http://learn.humanjavascript.com/react-ampersand/creating-a-router-and-pages
      */
-    router: 'object'
+    router: 'object',
+    /**
+     * Enable/Disable features with one global switch
+     */
+    features: 'object'
   },
   events: {
     'click a': 'onLinkClick'
@@ -139,6 +143,11 @@ app.extend({
     this.connection.use(uri);
     this.queryOptions = new QueryOptions();
     this.instance = new MongoDBInstance();
+
+    // feature flags
+    this.features = {
+      querybuilder: true
+    };
 
     state.router = new Router();
   },
