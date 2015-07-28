@@ -63,7 +63,7 @@ module.exports = AmpersandView.extend({
       this.renderSubview(this.subview, this.queryByHook('minichart'));
     }.bind(this));
   },
-  handleDistinct: function(data) {
+  extractDistinctValue: function(data) {
     // extract value
     var value = data.d.label;
     if (this.model.getType() === 'Boolean') {
@@ -71,38 +71,50 @@ module.exports = AmpersandView.extend({
     } else if (this.model.getType() === 'Number') {
       value = parseFloat(value, 10);
     }
-
-    // handle visual feedback (.selected class on active elements)
+    return value;
+  },
+  handleDistinct: function(data) {
+    // update selectedValues
     if (!data.evt[MODIFIERKEY]) {
-      // special case for unselecting a single item on click
-      if (this.selectedValues.length > 1 || value !== this.selectedValues[0]) {
-        // remove `.selected` class from all elements
-        _.each(data.all, function(el) {
-          el.classList.remove('selected');
-        });
+      if (this.selectedValues.length === 1 && this.selectedValues[0].self === data.self) {
         this.selectedValues = [];
+      } else {
+        this.selectedValues = [data];
       }
+    } else if (_.contains(_.pluck(this.selectedValues, 'i'), data.i)) {
+      _.remove(this.selectedValues, function(d) { return d.i === data.i; });
+    } else {
+      this.selectedValues.push(data);
     }
-    data.self.classList.toggle('selected');
+
+    // visual updates
+    _.each(data.all, function(el) {
+      el.classList.remove('selected');
+      if (this.selectedValues.length === 0) {
+        // remove all styling
+        el.classList.remove('unselected');
+      } else {
+        el.classList.add('unselected');
+      }
+    }.bind(this));
+    _.each(this.selectedValues, function(selected) {
+      selected.self.classList.add('selected');
+      selected.self.classList.remove('unselected');
+    });
 
     // build new refineValue
-    if (_.contains(this.selectedValues, value)) {
-      _.remove(this.selectedValues, function(d) { return d === value; });
-    } else {
-      this.selectedValues.push(value);
-    }
     if (this.selectedValues.length === 0) {
       // no value
       this.unset('refineValue');
     } else if (this.selectedValues.length === 1) {
       // single value
-      this.refineValue = new LeafValue(this.selectedValues[0], {
+      this.refineValue = new LeafValue(this.extractDistinctValue(this.selectedValues[0]), {
         parse: true
       });
     } else {
       // multiple values
       this.refineValue = new ListOperator({
-        $in: this.selectedValues
+        $in: this.selectedValues.map(this.extractDistinctValue.bind(this))
       }, { parse: true });
     }
   },
@@ -114,11 +126,17 @@ module.exports = AmpersandView.extend({
     } else {
       this.selectedValues = [data];
     }
+    var firstSelected = this.selectedValues[0];
     // remove `.selected` class from all elements
     _.each(data.all, function(el) {
       el.classList.remove('selected');
+      if (!firstSelected) {
+        el.classList.remove('unselected');
+      } else {
+        el.classList.add('unselected');
+      }
     });
-    if (!this.selectedValues[0]) {
+    if (!firstSelected) {
       // no value
       this.unset('refineValue');
     } else {
@@ -132,6 +150,7 @@ module.exports = AmpersandView.extend({
       this.refineValue = new Range(lower, upper);
       _.each(data.all.slice(first.i, last.i + 1), function(el) {
         el.classList.add('selected');
+        el.classList.remove('unselected');
       });
     }
   },

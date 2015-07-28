@@ -24,7 +24,7 @@ module.exports = VizView.extend({
   events: {
     'mousedown [data-hook=refresh]': 'refresh',
     mouseup: 'stopTimer',
-    'click .bubble': 'bubbleClicked'
+    'click .bubble > code': 'bubbleClicked'
   },
   render: function() {
     this.renderWithTemplate(this);
@@ -47,10 +47,15 @@ module.exports = VizView.extend({
   },
   bubbleClicked: function(evt) {
     evt.stopPropagation();
+    evt.preventDefault();
+
+    var all = this.queryAll('.bubble > code');
+    var i = all.indexOf(evt.target);
     var chartEvt = {
       d: {
         label: evt.target.innerText
       },
+      i: i,
       self: evt.target,
       all: this.queryAll('.bubble > code'),
       evt: evt,
