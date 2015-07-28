@@ -52,6 +52,7 @@ div.minichart.unique {
         code {
           cursor: pointer;
           background-color: @gray7;
+          border: 1px solid transparent;
           color: @gray1;
           font-size: 12px;
           line-height: 20px;
@@ -62,8 +63,9 @@ div.minichart.unique {
         }
 
         code.selected {
-          background-color: @mc-fg-selected;
-          color: @pw;
+          // background-color: @mc-fg-selected;
+          // color: @pw;
+          border: 1px dotted @gray2;
         }
       }
     }
@@ -101,6 +103,9 @@ svg.minichart {
 
       &.selected {
         fill: @mc-fg-selected;
+        stroke: @pw;
+        stroke-width: 1;
+        stroke-dasharray: 1,1;
       }
       &.unselected {
         fill: @mc-fg-unselected;
