@@ -4,6 +4,7 @@ var moment = require('moment');
 var shared = require('./shared');
 var many = require('./many');
 var raf = require('raf');
+var debug = require('debug')('scout:minicharts:date');
 
 require('../d3-tip')(d3);
 
@@ -18,6 +19,20 @@ function generateDefaults(n) {
 var weekdayLabels = moment.weekdays();
 
 var minicharts_d3fns_date = function(opts) {
+  var handleClick = function(d, i) {
+    var evt = {
+      d: d,
+      i: i,
+      self: this,
+      all: opts.view.queryAll('line.line'),
+      evt: d3.event,
+      type: 'click',
+      source: 'date'
+    };
+    debug('event', evt);
+    opts.view.trigger('chart', evt);
+  };
+
   var values = opts.model.values.toJSON();
 
   // distinguish ObjectIDs from real dates
@@ -107,7 +122,8 @@ var minicharts_d3fns_date = function(opts) {
     })
     .attr('y2', barcodeBottom)
     .on('mouseover', tip.show)
-    .on('mouseout', tip.hide);
+    .on('mouseout', tip.hide)
+    .on('click', handleClick);
 
   svg.selectAll('.text')
     .data(barcodeX.domain())

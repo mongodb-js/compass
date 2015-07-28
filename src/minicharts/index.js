@@ -140,21 +140,42 @@ module.exports = AmpersandView.extend({
       // no value
       this.unset('refineValue');
     } else {
+      var first, last, lower, upper;
       if (this.model.getType() === 'Number') {
-        var first = _.min(this.selectedValues, function(d) { return d.d.x; });
-        var last = _.max(this.selectedValues, function(d) { return d.d.x; });
-        var lower = first.d.x;
-        var upper = last.d.x + last.d.dx;
+        first = _.min(this.selectedValues, function(el) { return el.d.x; });
+        last = _.max(this.selectedValues, function(el) { return el.d.x; });
+        lower = first.d.x;
+        upper = last.d.x + last.d.dx;
+        _.each(data.all.slice(first.i, last.i + 1), function(el) {
+          el.classList.add('selected');
+          el.classList.remove('unselected');
+        });
+        this.refineValue = new Range(lower, upper);
+      } else if (this.model.getType() === 'Date') {
+        first = _.min(this.selectedValues, function(el) { return el.d.getTime(); });
+        last = _.max(this.selectedValues, function(el) { return el.d.getTime(); });
+        lower = first.d;
+        upper = last.d;
+        _(data.all)
+          .filter(function(el) {
+            return el.d >= upper && el.d < lower;
+          })
+          .each(function(el) {
+            el.self.classList.add('selected');
+            el.self.classList.remove('unselected');
+          });
+        if (lower === upper) {
+          this.refineValue = new LeafValue({ content: lower });
+        } else {
+          this.refineValue = new Range(lower, upper);
+        }
       }
-
-      this.refineValue = new Range(lower, upper);
-      _.each(data.all.slice(first.i, last.i + 1), function(el) {
-        el.classList.add('selected');
-        el.classList.remove('unselected');
-      });
+      debug('lower', lower, 'upper', upper);
     }
   },
   handleChartEvent: function(data) {
+    debug('data', this.model.getType());
+
     data.evt.stopPropagation();
     data.evt.preventDefault();
 
@@ -169,6 +190,10 @@ module.exports = AmpersandView.extend({
         } else {
           this.handleRange(data);
         }
+        break;
+      case 'ObjectID': // fall-through to Date
+      case 'Date':
+        this.handleRange(data);
         break;
       default: // @todo other types not implemented yet
         break;
