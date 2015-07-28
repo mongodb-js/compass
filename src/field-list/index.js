@@ -11,6 +11,7 @@ var app = require('ampersand-app');
 
 var LeafClause = require('mongodb-language-model').LeafClause;
 var Query = require('mongodb-language-model').Query;
+var Key = require('mongodb-language-model').Key;
 
 function handleCaret(el) {
   var $el = $(el);
@@ -26,6 +27,7 @@ function handleCaret(el) {
 var FieldListView;
 
 var FieldView = View.extend({
+  modelType: 'FieldView',
   session: {
     expanded: {
       type: 'boolean',
@@ -36,7 +38,9 @@ var FieldView = View.extend({
       type: 'boolean',
       default: false
     },
-    minichartView: 'view'
+    minichartView: 'view',
+    fieldListView: 'view',
+    arrayFieldListView: 'view'
   },
   children: {
     refineClause: LeafClause
@@ -83,22 +87,26 @@ var FieldView = View.extend({
       hook: 'fields-subview',
       waitFor: 'model.fields',
       prepareView: function(el) {
-        return new FieldListView({
+        this.set('fieldListView', new FieldListView({
           el: el,
           parent: this,
           collection: this.model.fields
-        });
+        }), { silent: true });
+        this.listenTo(this.fieldListView, 'change:refineQuery', this.onRefineClause);
+        return this.fieldListView;
       }
     },
     arrayFields: {
       hook: 'arrayfields-subview',
       waitFor: 'model.arrayFields',
       prepareView: function(el) {
-        return new FieldListView({
+        this.set('arrayFieldListView', new FieldListView({
           el: el,
           parent: this,
           collection: this.model.arrayFields
-        });
+        }), { silent: true });
+        this.listenTo(this.arrayFieldListView, 'change:refineQuery', this.onRefineClause);
+        return this.arrayFieldListView;
       }
     }
   },
@@ -110,9 +118,34 @@ var FieldView = View.extend({
     this.renderWithTemplate(this);
     this.viewSwitcher = new ViewSwitcher(this.queryByHook('minichart-container'));
   },
-  onRefineClause: function() {
-    this.refineClause.value = this.minichartView.refineValue;
+  onRefineClause: function(who, what) {
+    if (who.getType() === 'MinichartView') {
+      this.refineClause.value = who.refineValue;
+    }
     this.parent.trigger('refine', this);
+  },
+  prefixClauseKey: function(clause) {
+    var newClause = new LeafClause();
+    newClause.key.content = this.model.name + '.' + clause.key.buffer;
+    newClause.value = clause.value;
+    return newClause;
+  },
+  getClauses: function() {
+    var clauses = [];
+    if (this.fieldListView) {
+      this.fieldListView.refineQuery.clauses.each(function(clause) {
+        if (clause.valid) clauses.push(this.prefixClauseKey(clause));
+      }.bind(this));
+    }
+    if (this.arrayFieldListView) {
+      this.arrayFieldListView.refineQuery.clauses.each(function(clause) {
+        if (clause.valid) clauses.push(this.prefixClauseKey(clause));
+      }.bind(this));
+    }
+    if (this.refineClause.valid) {
+      clauses.push(this.refineClause);
+    }
+    return clauses;
   },
   renderMinicharts: function() {
     this.type_model = this.type_model || this.model.types.at(0);
@@ -134,8 +167,14 @@ var FieldView = View.extend({
 });
 
 FieldListView = View.extend({
+  modelType: 'FieldListView',
   session: {
-    fieldCollectionView: 'view'
+    fieldCollectionView: 'view',
+    refineQuery: {
+      type: 'state',
+      required: true,
+      default: function() { return new Query(); }
+    }
   },
   template: require('./index.jade'),
   initialize: function() {
@@ -148,14 +187,16 @@ FieldListView = View.extend({
   },
   onRefineQuery: function() {
     var views = this.fieldCollectionView.views;
-    app.queryOptions.query = new Query({
-      clauses: _(views)
-        .filter(function(view) {
-          return view.refineClause.valid;
-        })
-        .pluck('refineClause')
-        .value()
+    var clauses = _.flatten(_.map(views, function(view) {
+      return view.getClauses();
+    }));
+    this.refineQuery = new Query({
+      clauses: clauses
     });
+    if (this.parent.getType() === 'Collection') {
+      // I'm the global FieldListView, changing query
+      app.queryOptions.query = this.refineQuery;
+    }
   },
   makeFieldVisible: function() {
     var views = this.fieldCollectionView.views;

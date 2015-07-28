@@ -15,6 +15,7 @@ var MODIFIERKEY = 'shiftKey';
 
 // a wrapper around VizView to set common default values
 module.exports = AmpersandView.extend({
+  modelType: 'MinichartView',
   template: require('./minichart.jade'),
   session: {
     subview: 'view',
@@ -65,7 +66,7 @@ module.exports = AmpersandView.extend({
     if (this.model.getType() === 'Boolean') {
       value = value === 'true';
     } else if (this.model.getType() === 'Number') {
-      value = parseInt(value, 10);
+      value = parseFloat(value, 10);
     }
 
     // handle visual feedback (.selected class on active elements)
