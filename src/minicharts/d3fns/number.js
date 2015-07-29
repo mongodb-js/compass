@@ -19,7 +19,7 @@ module.exports = function(opts) {
       .map(function(v, k) {
         v.label = k;
         v.x = parseFloat(k, 10);
-        v.dx = 1;
+        v.dx = 0;
         v.value = v.length;
         return v;
       })

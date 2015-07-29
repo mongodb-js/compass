@@ -73,6 +73,19 @@ module.exports = AmpersandView.extend({
     }
     return value;
   },
+  extractRangeValue: function(data) {
+    switch (this.model.getType()) {
+      case 'Number':
+        return data.d.x;
+      case 'ObjectID':
+        debug(data.d);
+        return data.d.getTimestamp();
+      case 'Date':
+        return data.d;
+      default:
+        break;
+    }
+  },
   handleDistinct: function(data) {
     // update selectedValues
     if (!data.evt[MODIFIERKEY]) {
@@ -140,42 +153,55 @@ module.exports = AmpersandView.extend({
       // no value
       this.unset('refineValue');
     } else {
-      var first, last, lower, upper;
+      var first = _.min(this.selectedValues, function(el) {
+        return this.extractRangeValue(el);
+      }.bind(this));
+      var last = _.max(this.selectedValues, function(el) {
+        return this.extractRangeValue(el);
+      }.bind(this));
+      var lower = this.extractRangeValue(first);
+      var upper = this.extractRangeValue(last);
       if (this.model.getType() === 'Number') {
-        first = _.min(this.selectedValues, function(el) { return el.d.x; });
-        last = _.max(this.selectedValues, function(el) { return el.d.x; });
-        lower = first.d.x;
-        upper = last.d.x + last.d.dx;
-        _.each(data.all.slice(first.i, last.i + 1), function(el) {
-          el.classList.add('selected');
-          el.classList.remove('unselected');
-        });
-        this.refineValue = new Range(lower, upper);
-      } else if (this.model.getType() === 'Date') {
-        first = _.min(this.selectedValues, function(el) { return el.d.getTime(); });
-        last = _.max(this.selectedValues, function(el) { return el.d.getTime(); });
-        lower = first.d;
-        upper = last.d;
-        _(data.all)
-          .filter(function(el) {
-            return el.d >= upper && el.d < lower;
-          })
-          .each(function(el) {
-            el.self.classList.add('selected');
-            el.self.classList.remove('unselected');
-          });
-        if (lower === upper) {
-          this.refineValue = new LeafValue({ content: lower });
-        } else {
-          this.refineValue = new Range(lower, upper);
-        }
+        upper += last.d.dx;
       }
-      debug('lower', lower, 'upper', upper);
+      _.each(data.all.slice(first.i, last.i + 1), function(el) {
+        el.classList.add('selected');
+        el.classList.remove('unselected');
+      });
+      // if (this.model.getType() === 'Number') {
+      //   first = _.min(this.selectedValues, function(el) { return el.d.x; });
+      //   last = _.max(this.selectedValues, function(el) { return el.d.x; });
+      //   lower = first.d.x;
+      //   upper = last.d.x + last.d.dx;
+      //   _.each(data.all.slice(first.i, last.i + 1), function(el) {
+      //     el.classList.add('selected');
+      //     el.classList.remove('unselected');
+      //   });
+      //   this.refineValue = new Range(lower, upper);
+      // } else if (this.model.getType() === 'Date') {
+      //   first = _.min(this.selectedValues, function(el) { return el.d.getTime(); });
+      //   last = _.max(this.selectedValues, function(el) { return el.d.getTime(); });
+      //   lower = first.d;
+      //   upper = last.d;
+      // _(data.all)
+      //   .filter(function(el) {
+      //     var val = this.extractRangeValue(el);
+      //     debug('comp', val, upper, lower);
+      //     return val >= upper && val < lower;
+      //   })
+      //   .each(function(el) {
+      //     el.self.classList.add('selected');
+      //     el.self.classList.remove('unselected');
+      //   });
+      if (lower === upper) {
+        this.refineValue = new LeafValue({ content: lower });
+      } else {
+        var upperInclusive = last.d.dx === 0;
+        this.refineValue = new Range(lower, upper, upperInclusive);
+      }
     }
   },
   handleChartEvent: function(data) {
-    debug('data', this.model.getType());
-
     data.evt.stopPropagation();
     data.evt.preventDefault();
 
@@ -193,7 +219,8 @@ module.exports = AmpersandView.extend({
         break;
       case 'ObjectID': // fall-through to Date
       case 'Date':
-        this.handleRange(data);
+        // @todo: not working yet
+        // this.handleRange(data);
         break;
       default: // @todo other types not implemented yet
         break;
