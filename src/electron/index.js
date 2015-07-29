@@ -1,3 +1,7 @@
+if (process.env.NODE_ENV === 'development') {
+  require('./livereload');
+}
+
 var app = require('app');
 var debug = require('debug')('scout-electron');
 var mongo = require('./mongo');

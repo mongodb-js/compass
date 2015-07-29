@@ -25,7 +25,9 @@
       "auto-updater",
       "crash-reporter",
       "browser-window",
-      "menu"
+      "menu",
+      "jade",
+      "ampersand-state"
     ]
   },
   "fonts": [
@@ -46,7 +48,7 @@
     ]
   },
   "scripts": {
-    "start": "gulp start",
+    "start": "gulp dev",
     "release": "gulp release",
     "test": "mocha",
     "check": "mongodb-js-precommit"
@@ -72,6 +74,7 @@
     "domready": "^1.0.8",
     "event-stream": "^3.3.1",
     "font-awesome": "https://github.com/FortAwesome/Font-Awesome/archive/v4.3.0.tar.gz",
+    "jade": "^1.11.0",
     "jquery": "^2.1.4",
     "local-links": "^1.4.0",
     "lodash": "^3.9.3",

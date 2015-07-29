@@ -1,7 +1,7 @@
 doctype html
 html(lang='en')
   head
-    title MongoDB Scout
+    title MongoDB
     meta(http-equiv="Content-Security-Policy", content="default-src *; script-src 'self' http://localhost:35729; style-src 'self' 'unsafe-inline';")
 
     meta(name='viewport', content='initial-scale=1')
@@ -10,5 +10,13 @@ html(lang='en')
     #application
       div(data-hook='statusbar')
       div(data-hook='layout-container')
-    script(src='http://localhost:35729/livereload.js', charset='UTF-8')
+
+    if NODE_ENV === 'development'
+      //- Include the livereload client so pages reload automatically when changed.
+      script(src='http://localhost:35729/livereload.js', charset='UTF-8')
+
+      //- Enable debugging so messages show up in the devtools console.
+      script(type='text/javascript').
+        localStorage.setItem('debug', 'mon*,sco*');
+
     script(src='index.js', charset='UTF-8')

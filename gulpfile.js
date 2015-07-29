@@ -11,53 +11,63 @@ var merge = require('merge-stream');
 var shell = require('gulp-shell');
 var path = require('path');
 var del = require('del');
+var spawn = require('child_process').spawn;
 
 var notify = require('./tasks/notify');
 var pkg = require('./package.json');
 
 // Platform specific tasks
 var platform = require(path.join(__dirname, 'tasks', process.platform));
-gulp.task('build:electron', platform.build);
-gulp.task('build:electron-installer', ['build:electron'], platform.installer);
 
-var BUILD = 'build/';
-
-// `npm start` calls this.
-gulp.task('start', ['build:app'], function() {
-  platform.start();
-  return gulp.start('watch');
+gulp.task('dev:configure', function() {
+  process.env.NODE_ENV = 'development';
 });
 
-gulp.task('build:app', [
-  'build:electron',
-  'pages',
-  'less',
-  'copy:fonts',
-  'copy:images',
-  'copy:electron',
-  'js:watch'
-], function() {
+gulp.task('release:configure', function() {
+  process.env.NODE_ENV = 'production';
+});
+
+// `npm start` calls this.
+gulp.task('dev', ['dev:build-app', 'dev:build-js', 'dev:remove-unpacked-app'], function() {
+  var child = spawn(path.resolve(platform.ELECTRON), ['build/']);
+  child.stderr.pipe(process.stderr);
+  child.stdout.pipe(process.stdout);
+  child.on('exit', function(code) {
+    process.exit(code);
+  });
+  return gulp.start('dev:watch');
+});
+
+gulp.task('dev:build-app', ['dev:configure', 'dev:build-electron'], function() {
+  return gulp.start('pages', 'less', 'copy:fonts', 'copy:images', 'copy:electron');
+});
+
+gulp.task('dev:remove-unpacked-app', ['dev:build-electron'], function() {
   // deletes the `app` folder in electron build
   // so `platform:start` can just point the electron renderer at `BUILD`
   // and we don't have to do all kinds of crazy copying.
-  process.env.WATCH_DIRECTORY = path.resolve(__dirname, BUILD);
   return del(platform.BUILD);
 });
+gulp.task('dev:build-electron', platform.build);
 
-gulp.task('release', [
+// `npm run release` calls this.
+gulp.task('release', ['release:build-app'], function() {
+  return gulp.start('release:electron:build-installer');
+});
+
+gulp.task('release:build-app', [
   'js',
   'pages',
   'less',
   'copy:fonts',
   'copy:images',
   'copy:electron'
-], function() {
-  return gulp.start('build:electron-installer');
-});
+]);
+
+gulp.task('release:electron:build-installer', ['release:build-app'], platform.installer);
 
 var bundler = browserify(pkg.browserify).transform('jadeify');
-
-gulp.task('js', ['build:npm-install-release'], function() {
+gulp.task('js', ['release:npm-install'], function() {
   return bundler.bundle()
     .on('error', notify('js'))
     .pipe(source('index.js'))
@@ -66,22 +76,24 @@ gulp.task('js', ['build:npm-install-release'], function() {
       loadMaps: true
     }))
     .pipe(sourcemaps.write('./'))
-    .pipe(gulp.dest(BUILD));
+    .pipe(gulp.dest('build/'));
 });
 
-gulp.task('watch', function() {
+gulp.task('dev:watch', function() {
   gulp.watch(['src/{*,**/*}.less', 'styles/*.less'], ['less']);
   gulp.watch(['src/*.jade'], ['pages']);
   gulp.watch('images/{*,**/*}', ['copy:images']);
   gulp.watch('fonts/*', ['copy:fonts']);
-  gulp.watch(['main.js', 'src/electron/*'], ['copy:electron']);
-  gulp.watch('package.json', ['copy:electron', 'build:npm-install']);
+  gulp.watch(['main.js', 'src/electron/*', 'settings.json'], ['copy:electron']);
+  gulp.watch('package.json', ['copy:electron', 'dev:npm-install']);
 });
 
-gulp.task('js:watch', ['build:npm-install'], function() {
-  /**
-   * Gulp's [fast browserify builds recipe](http://git.io/iiCk-A)
-   */
+/**
+ * Gulp's [fast browserify builds recipe](http://git.io/iiCk-A)
+ */
+gulp.task('dev:build-js', [
+  'dev:build-app',
+  'dev:npm-install'], function() {
   var b;
   function rebundle(files) {
     if (files) {
@@ -91,7 +103,7 @@ gulp.task('js:watch', ['build:npm-install'], function() {
     return b.bundle()
       .on('error', notify('js'))
       .pipe(source('index.js'))
-      .pipe(gulp.dest(BUILD))
+      .pipe(gulp.dest('build/'))
       .on('end', function() {
         gutil.log('Finished', '\'' + gutil.colors.cyan('rebundle') + '\'...');
       });
@@ -107,7 +119,7 @@ gulp.task('less', function() {
     .pipe(less(pkg.less))
     .on('error', notify('less'))
     .pipe(sourcemaps.write('./maps'))
-    .pipe(gulp.dest(BUILD));
+    .pipe(gulp.dest('build/'));
 });
 
 // Compile jade templates to HTML files.
@@ -115,33 +127,35 @@ gulp.task('pages', function() {
   return gulp.src('src/index.jade')
     .pipe(jade())
     .on('error', notify('jade'))
-    .pipe(gulp.dest(BUILD));
+    .pipe(gulp.dest('build/'));
 });
 
-// Things that should be copied into `BUILD`.
+// Things that should be copied into `build/`.
 gulp.task('copy:fonts', function() {
   return gulp.src(pkg.fonts)
-    .pipe(gulp.dest(path.join(BUILD, 'fonts')));
+    .pipe(gulp.dest('build/fonts'));
 });
 
 gulp.task('copy:images', function() {
   return gulp.src('images/{*,**/*}')
-    .pipe(gulp.dest(path.join(BUILD, 'images')));
+    .pipe(gulp.dest('build/images'));
 });
 
 gulp.task('copy:electron', function() {
   return merge(
-    gulp.src(['main.js', 'package.json']).pipe(gulp.dest(BUILD)),
-    gulp.src(['src/electron/*']).pipe(gulp.dest(path.join(BUILD, 'src/electron')))
+    gulp.src(['main.js', 'package.json', 'settings.json', 'README.md'])
+      .pipe(gulp.dest('build/')),
+    gulp.src(['src/electron/*'])
+      .pipe(gulp.dest('build/src/electron'))
   );
 });
 
-gulp.task('build:npm-install', ['copy:electron'], shell.task('npm install', {
-  cwd: BUILD
+gulp.task('dev:npm-install', ['copy:electron'], shell.task('npm install', {
+  cwd: 'build/'
 }));
 
-gulp.task('build:npm-install-release', ['copy:electron'], shell.task('npm install --production', {
-  cwd: BUILD
+gulp.task('release:npm-install', ['copy:electron'], shell.task('npm install --production', {
+  cwd: 'build/'
 }));
 
 gulp.task('clean', function(done) {
