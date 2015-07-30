@@ -1,6 +1,7 @@
 var Model = require('ampersand-model');
 var EJSON = require('mongodb-extended-json');
 var Query = require('mongodb-language-model').Query;
+// var debug = require('debug')('scout:models:query-options');
 
 var DEFAULT_QUERY = new Query({}, { parse: true });
 var DEFAULT_SORT = {
@@ -42,6 +43,11 @@ module.exports = Model.extend({
         return EJSON.stringify(this.query.serialize());
       }
     }
+  },
+  serialize: function() {
+    var res = Model.prototype.serialize.call(this);
+    res.query = this.query.serialize();
+    return res;
   },
   reset: function() {
     this.set({

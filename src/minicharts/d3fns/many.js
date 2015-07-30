@@ -17,7 +17,7 @@ var minicharts_d3fns_many = function(data, view, g, width, height, options) {
       type: 'click',
       source: 'many'
     };
-    view.trigger('chart', evt);
+    view.trigger('querybuilder', evt);
   };
 
   options = _.defaults(options || {}, {

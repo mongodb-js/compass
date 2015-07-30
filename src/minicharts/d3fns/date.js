@@ -30,7 +30,7 @@ var minicharts_d3fns_date = function(opts) {
       source: 'date'
     };
     debug('event', evt);
-    opts.view.trigger('chart', evt);
+    opts.view.trigger('querybuilder', evt);
   };
 
   var values = opts.model.values.toJSON();

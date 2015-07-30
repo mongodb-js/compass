@@ -19,7 +19,7 @@ module.exports = function(data, view, g, width, height) {
       type: 'click',
       source: 'few'
     };
-    view.trigger('chart', evt);
+    view.trigger('querybuilder', evt);
   };
 
   var barHeight = 25;

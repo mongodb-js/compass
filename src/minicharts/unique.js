@@ -62,6 +62,6 @@ module.exports = VizView.extend({
       type: 'click',
       source: 'unique'
     };
-    this.trigger('chart', chartEvt);
+    this.trigger('querybuilder', chartEvt);
   }
 });
