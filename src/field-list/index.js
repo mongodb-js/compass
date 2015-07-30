@@ -11,7 +11,6 @@ var app = require('ampersand-app');
 
 var LeafClause = require('mongodb-language-model').LeafClause;
 var Query = require('mongodb-language-model').Query;
-var Key = require('mongodb-language-model').Key;
 
 function handleCaret(el) {
   var $el = $(el);
@@ -174,7 +173,8 @@ FieldListView = View.extend({
       type: 'state',
       required: true,
       default: function() { return new Query(); }
-    }
+    },
+    queryContext: 'object'
   },
   template: require('./index.jade'),
   initialize: function() {
@@ -184,6 +184,10 @@ FieldListView = View.extend({
       this.listenTo(this.parent, 'change:visible', this.makeFieldVisible);
     }
     this.on('refine', this.onRefineQuery);
+    if (this.parent.getType() === 'Collection') {
+      // I'm the global FieldListView, remembering query context
+      this.queryContext = _.clone(app.queryOptions.query);
+    }
   },
   onRefineQuery: function() {
     var views = this.fieldCollectionView.views;
@@ -194,11 +198,21 @@ FieldListView = View.extend({
       clauses: clauses
     });
     if (this.parent.getType() === 'Collection') {
-      // I'm the global FieldListView, changing query
+      // fill clauses with query context unless they are further refined by user
+      this.queryContext.clauses.each(function(clause) {
+        this.refineQuery.clauses.add(clause);
+        // if (!_.find(clauses, function(cl) {
+        //   return cl.id === clause.id;
+        // })) {
+        //   clauses.push(clause);
+        // }
+      }.bind(this));
+      // I'm the global FieldListView, changing query in app
       app.queryOptions.query = this.refineQuery;
     }
   },
   makeFieldVisible: function() {
+    this.queryContext = _.clone(app.queryOptions.query);
     var views = this.fieldCollectionView.views;
     _.each(views, function(field_view) {
       raf(function() {
