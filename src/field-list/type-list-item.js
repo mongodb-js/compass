@@ -52,9 +52,13 @@ module.exports = View.extend(tooltipMixin, {
     'click .schema-field-wrapper': 'typeClicked'
   },
   typeClicked: function() {
+    // no clicks on Undefined allowed
+    if (this.model.getId() === 'Undefined') return;
     var fieldView = this.parent.parent;
-    fieldView.type_model = this.model;
-    fieldView.renderMinicharts();
+    if (fieldView.type_model !== this.model) {
+      fieldView.type_model = this.model;
+      fieldView.renderMinicharts();
+    }
   },
   render: function() {
     this.renderWithTemplate(this);
