@@ -169,6 +169,9 @@ Object.defineProperty(app, 'client', {
 });
 app.init();
 
+// expose app globally for debugging purposes
+window.app = app;
+
 function render_app() {
   state._onDOMReady();
 }
