@@ -4,7 +4,7 @@ var Connection = require('../models/connection');
 var format = require('util').format;
 var $ = require('jquery');
 var app = require('ampersand-app');
-var debug = require('debug')('scout:connect:index');
+// var debug = require('debug')('scout:connect:index');
 
 var ConnectionView = View.extend({
   props: {
@@ -13,19 +13,19 @@ var ConnectionView = View.extend({
       type: 'boolean',
       default: false
     }
-  }, 
+  },
   events: {
-    'click': 'onClick',
-    'dblclick': 'onDoubleClick',
-    'mouseover': 'onMouseOver',
-    'mouseout': 'onMouseOut',
+    click: 'onClick',
+    dblclick: 'onDoubleClick',
+    mouseover: 'onMouseOver',
+    mouseout: 'onMouseOut',
     'click [data-hook=close]': 'onCloseClick'
   },
   bindings: {
     'model.name': {
       hook: 'name'
     },
-    'hover': {
+    hover: {
       type: 'toggle',
       hook: 'close'
     }
@@ -47,13 +47,13 @@ var ConnectionView = View.extend({
     event.stopPropagation();
     event.preventDefault();
     this.model.destroy();
-  },
-  onMouseOver: function(event) {
-    this.hover = true;
-  },
-  onMouseOut: function(event) {
-    this.hover = false;
   }
+  // onMouseOver: function(event) {
+  //   this.hover = true;
+  // },
+  // onMouseOut: function(event) {
+  //   this.hover = false;
+  // }
 });
 
 var SidebarView = View.extend({

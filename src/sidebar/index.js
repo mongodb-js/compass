@@ -3,7 +3,7 @@ var _ = require('lodash');
 var mousetrap = require('mousetrap');
 var CollectionFilterView = require('./collection-filter');
 var CollectionListView = require('./collection-list');
-var app = require('ampersand-app');
+// var app = require('ampersand-app');
 
 function fast_filter_collection(collection, pattern) {
   var re = new RegExp(pattern || '.*');
