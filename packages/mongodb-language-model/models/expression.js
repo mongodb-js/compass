@@ -29,6 +29,7 @@ var ExpressionCollection = ChildCollection.extend({
  */
 var ClauseCollection = ChildCollection.extend({
   mainIndex: 'id',
+  comparator: 'id',
   model: function(attrs, options) {
     if (definitions.treeOperators.indexOf(_.keys(attrs)[0]) !== -1) { // $and, $or, $nor
       return new ExpressionTree(attrs, options);

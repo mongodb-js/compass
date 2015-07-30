@@ -34,17 +34,17 @@ describe('Expression', function() {
       assert.ok(clause instanceof models.LeafClause);
     });
     assert.deepEqual(expr.clauses.at(0).buffer, {
-      num: 13
-    });
-    assert.deepEqual(expr.clauses.at(1).buffer, {
-      str: 'foo'
-    });
-    assert.deepEqual(expr.clauses.at(2).buffer, {
       bool: true
     });
-    assert.equal(expr.clauses.at(0).key.buffer, 'num');
-    assert.equal(expr.clauses.at(0).value.buffer, 13);
-    assert.equal(expr.clauses.at(0).value.type, 'number');
+    assert.deepEqual(expr.clauses.at(1).buffer, {
+      num: 13
+    });
+    assert.deepEqual(expr.clauses.at(2).buffer, {
+      str: 'foo'
+    });
+    assert.equal(expr.clauses.at(1).key.buffer, 'num');
+    assert.equal(expr.clauses.at(1).value.buffer, 13);
+    assert.equal(expr.clauses.at(1).value.type, 'number');
   });
 
   it('should parse and serialize complex queries with operators', function() {
