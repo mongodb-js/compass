@@ -147,7 +147,7 @@ gulp.task('copy:images', function() {
 
 gulp.task('copy:electron', function() {
   return merge(
-    gulp.src(['main.js', 'package.json', 'settings.json', 'README.md'])
+    gulp.src(['main.js', 'package.json', 'node_modules/animate.css/animate.css', 'README.md'])
       .pipe(gulp.dest('build/')),
     gulp.src(['src/electron/*'])
       .pipe(gulp.dest('build/src/electron'))
