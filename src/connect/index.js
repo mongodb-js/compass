@@ -4,7 +4,6 @@ var Connection = require('../models/connection');
 var format = require('util').format;
 var $ = require('jquery');
 var app = require('ampersand-app');
-// var debug = require('debug')('scout:connect:index');
 
 var ConnectionView = View.extend({
   props: {

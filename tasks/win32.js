@@ -1,7 +1,6 @@
 var path = require('path');
 var pkg = require(path.resolve(__dirname, '../package.json'));
 var fs = require('fs');
-var spawn = require('child_process').spawn;
 var del = require('del');
 var packager = require('electron-packager');
 var createInstaller = require('electron-installer-squirrel-windows');
@@ -63,10 +62,4 @@ module.exports.installer = function(done) {
       });
     });
   });
-};
-
-module.exports.start = function() {
-  var child = spawn(path.resolve(CONFIG.ELECTRON), [path.resolve(CONFIG.dir)]);
-  child.stderr.pipe(process.stderr);
-  child.stdout.pipe(process.stdout);
 };

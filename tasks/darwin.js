@@ -94,10 +94,3 @@ module.exports.installer = function(done) {
     });
   });
 };
-
-
-module.exports.start = function() {
-  var child = cp.spawn(path.resolve(CONFIG.ELECTRON), [path.resolve(CONFIG.dir)]);
-  child.stderr.pipe(process.stderr);
-  child.stdout.pipe(process.stdout);
-};
