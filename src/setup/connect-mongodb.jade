@@ -1,0 +1,11 @@
+div.animated
+  h1 Connect to MongoDB
+  form.form-horizontal.col-sm-12
+    .form-group
+      input.form-control.input-lg(type='text', name='hostname', placeholder='localhost')
+      span.form-control-feedback
+        fa.fa-fw.fa-check
+    .form-group
+        input.form-control.input-lg(type='number', name='port', placeholder='27017')
+    .form-group
+      button.btn.btn-primary.btn-lg(data-hook='to-step-4') Continue
