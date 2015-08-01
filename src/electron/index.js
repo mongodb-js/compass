@@ -5,27 +5,57 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 var app = require('app');
-var debug = require('debug')('scout-electron');
-var mongo = require('./mongo');
+var BrowserWindow = require('browser-window');
+var ipc = require('ipc');
+var windows = require('./window-manager');
+var githubOauthFlow = require('./github-oauth-flow');
+var setup = require('./setup');
+var debug = require('debug')('scout:electron');
+
+var settings;
+try {
+  settings = require('../../settings.json');
+} catch (e) {
+  debug('no settings file found.  external services disabled.');
+  settings = {};
+}
 
 app.on('window-all-closed', function() {
   debug('All windows closed.  Quitting app.');
   app.quit();
 });
 
-mongo.start(function() {
-  debug('mongo started!');
+app.on('window-all-closed', function() {
+  app.quit();
 });
 
-app.on('before-quit', function() {
-  mongo.stop(function() {
-    debug('mongo stopped');
+app.on('open-setup-dialog', function(opts) {
+  windows.openSetupDialog(opts);
+});
+
+app.on('open-connect-dialog', function(opts) {
+  windows.openConnectDialog(opts);
+});
+
+app.on('ready', function() {
+  ipc.on('open-setup-dialog', app.emit.bind(app, 'open-setup-dialog'));
+  ipc.on('open-connect-dialog', app.emit.bind(app, 'open-connect-dialog'));
+  ipc.on('open-github-oauth-flow', function(event) {
+    var sender = BrowserWindow.fromWebContents(event.sender);
+    githubOauthFlow(settings, function(err, user) {
+      if (err) {
+        sender.send('github-oauth-flow-error', err);
+      } else {
+        sender.send('github-oauth-flow-complete', user);
+      }
+    });
   });
-});
 
-module.exports = {
-  autoupdater: require('./auto-updater'),
-  crashreporter: require('./crash-reporter'),
-  windows: require('./window-manager'),
-  menu: require('./menu')
-};
+  ipc.on('mark-setup-complete', function() {
+    setup.markComplete(function() {
+      debug('setup marked complete');
+    });
+  });
+
+  setup();
+});
