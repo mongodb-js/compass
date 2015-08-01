@@ -8,7 +8,15 @@ var User = Model.extend({
     id: 'string',
     name: 'string',
     email: 'string',
-    created_at: 'date'
+    created_at: 'date',
+    avatar_url: 'string',
+    company_name: 'string',
+    github_username: 'string',
+    /**
+     * `public_repos + public_gists + followers + following`
+     */
+    github_score: 'number',
+    github_last_activity_at: 'date'
   },
   sync: localforage('User')
 });
