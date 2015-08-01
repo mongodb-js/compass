@@ -18,3 +18,9 @@ html(lang='en')
       script(src='src/electron/development-debug-header.js', charset='UTF-8')
 
     script(src='index.js', charset='UTF-8')
+    script(type='text/javascript').
+      //- Make electron ipc available via `app`. 
+      window.app.use(function(app){
+        app.ipc = require('ipc');
+        app.trigger('change:ipc');
+      });

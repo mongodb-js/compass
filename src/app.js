@@ -15,7 +15,8 @@ var ViewSwitcher = require('ampersand-view-switcher');
 var View = require('ampersand-view');
 var localLinks = require('local-links');
 var intercom = require('./intercom');
-var User = require('./models/user');
+var debug = require('debug')('scout:app');
+
 /**
  * The top-level application singleton that brings everything together!
  *
@@ -79,14 +80,13 @@ var Application = View.extend({
   _onDOMReady: function() {
     this.el = document.querySelector('#application');
     this.render();
-    intercom.inject();
 
     this.listenTo(this.router, 'page', this.onPageChange);
 
     this.router.on('page', intercom.update);
 
     /*eslint no-console:0*/
-    User.getOrCreate(function(err, user) {
+    app.getOrCreateUser(function(err, user) {
       if (err) return console.error(err);
 
       this.user.set(user.serialize());
@@ -151,11 +151,15 @@ var state = new Application({
 var QueryOptions = require('./models/query-options');
 var Connection = require('./models/connection');
 var MongoDBInstance = require('./models/mongodb-instance');
+var User = require('./models/user');
 var Router = require('./router');
 var Statusbar = require('./statusbar');
 
 app.extend({
   client: null,
+  meta: {
+    'App Version': pkg.version
+  },
   init: function() {
     state.statusbar = new Statusbar();
     this.connection = new Connection();
@@ -169,13 +173,32 @@ app.extend({
     };
 
     state.router = new Router();
+
+    this.on('change:ipc', function() {
+      debug('ipc now available!');
+    });
+    this.router = state.router;
   },
-  navigate: state.navigate.bind(state)
+  use: function(fn) {
+    fn.call(null, this);
+  },
+  intercom: intercom,
+  navigate: state.navigate.bind(state),
+  back: function() {
+    this.router.history.history.back();
+  },
+  getOrCreateUser: User.getOrCreate
 });
 
 Object.defineProperty(app, 'statusbar', {
   get: function() {
     return state.statusbar;
+  }
+});
+
+Object.defineProperty(app, 'user', {
+  get: function() {
+    return state.user;
   }
 });
 
@@ -188,13 +211,11 @@ Object.defineProperty(app, 'client', {
 });
 app.init();
 
-// expose app globally for debugging purposes
-window.app = app;
-
 function render_app() {
   state._onDOMReady();
 }
 
 domReady(render_app);
 
+// expose app globally for debugging purposes
 window.app = app;
