@@ -2,6 +2,7 @@ var View = require('ampersand-view');
 var ViewSwitcher = require('ampersand-view-switcher');
 var onAnimationEnd = require('animationend');
 var app = require('ampersand-app');
+var debug = require('debug')('scout:setup');
 
 var stepKlasses = [
   require('./welcome'),
@@ -25,6 +26,7 @@ var FirstRunView = View.extend({
     }
   },
   goToStep: function(n) {
+    debug('going to step %d', n);
     this.switcher.set(this.steps[n - 1]);
     app.navigate('setup/' + n, {
       silent: true

@@ -2,6 +2,7 @@ var path = require('path');
 var watch = require('watch');
 var tinyLR = require('tiny-lr');
 var debounce = require('lodash').debounce;
+var _ = require('lodash');
 var debug = require('debug')('scout:electron:livereload');
 
 var NODE_MODULES_REGEX = /node_modules/;
@@ -21,7 +22,11 @@ livereload.listen(opts.port, opts.host);
 debug('livereload server started on %s:%d', opts.host, opts.port);
 
 var onFileschanged = debounce(function(files) {
-  debug('File change detected!  Sending reload message', Object.keys(files));
+  // On startup, `files` is an `fs.Stat` of the directory
+  // being watched and should not send a reload message.
+  if (_.isPlainObject(files)) return;
+
+  debug('File change detected!  Sending reload message', files);
   livereload.changed({
     body: {
       files: files

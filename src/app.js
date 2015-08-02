@@ -155,6 +155,8 @@ var User = require('./models/user');
 var Router = require('./router');
 var Statusbar = require('./statusbar');
 
+require('./context-menu-manager');
+
 app.extend({
   client: null,
   meta: {
