@@ -25,17 +25,8 @@ app.on('window-all-closed', function() {
   app.quit();
 });
 
-app.on('window-all-closed', function() {
-  app.quit();
-});
-
-app.on('open-setup-dialog', function(opts) {
-  windows.openSetupDialog(opts);
-});
-
-app.on('open-connect-dialog', function(opts) {
-  windows.openConnectDialog(opts);
-});
+app.on('open-setup-dialog', windows.openSetupDialog);
+app.on('open-connect-dialog', windows.openConnectDialog);
 
 app.on('ready', function() {
   ipc.on('open-setup-dialog', app.emit.bind(app, 'open-setup-dialog'));
