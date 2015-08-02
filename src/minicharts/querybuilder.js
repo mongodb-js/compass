@@ -1,5 +1,6 @@
 var _ = require('lodash');
 var debug = require('debug')('scout:minicharts:index');
+var d3 = require('d3');
 
 var LeafValue = require('mongodb-language-model').LeafValue;
 var ListOperator = require('mongodb-language-model').ListOperator;
@@ -10,30 +11,29 @@ var MODIFIERKEY = 'shiftKey';
 module.exports = {
   /**
    * Extract the range value, based on the type
-   * @param  {Object} data   event information triggered by the minichart
-   * @return {Any}           value to be extracted to build query
+   * @param  {Object} d   event data object triggered by the minichart
+   * @return {Any}        value to be extracted to build query
    */
-  _extractRangeValue: function(data) {
+  _extractRangeValue: function(d) {
     switch (this.model.getType()) {
       case 'Number':
-        return data.d.x;
+        return d.x;
       case 'ObjectID':
-        debug(data.d);
-        return data.d.getTimestamp();
+        return d.getTimestamp();
       case 'Date':
-        return data.d;
+        return d;
       default:
         break;
     }
   },
   /**
    * Extract the distinct value, based on the type
-   * @param  {Object} data   event information triggered by the minichart
-   * @return {Any}           value to be extracted to build query
+   * @param  {Object} d   event data object triggered by the minichart
+   * @return {Any}        value to be extracted to build query
    */
-  _extractDistinctValue: function(data) {
+  _extractDistinctValue: function(d) {
     // extract value
-    var value = data.d.label;
+    var value = d.label;
     if (this.model.getType() === 'Boolean') {
       value = value === 'true';
     } else if (this.model.getType() === 'Number') {
@@ -82,13 +82,15 @@ module.exports = {
       this.unset('refineValue');
     } else if (this.selectedValues.length === 1) {
       // single value
-      this.refineValue = new LeafValue(this._extractDistinctValue(this.selectedValues[0]), {
+      this.refineValue = new LeafValue(this._extractDistinctValue(this.selectedValues[0].d), {
         parse: true
       });
     } else {
       // multiple values
       this.refineValue = new ListOperator({
-        $in: this.selectedValues.map(this._extractDistinctValue.bind(this))
+        $in: this.selectedValues.map(function(el) {
+          return this._extractDistinctValue(el.d);
+        }.bind(this))
       }, { parse: true });
     }
   },
@@ -121,20 +123,28 @@ module.exports = {
       this.unset('refineValue');
     } else {
       var first = _.min(this.selectedValues, function(el) {
-        return this._extractRangeValue(el);
+        return this._extractRangeValue(el.d);
       }.bind(this));
       var last = _.max(this.selectedValues, function(el) {
-        return this._extractRangeValue(el);
+        return this._extractRangeValue(el.d);
       }.bind(this));
-      var lower = this._extractRangeValue(first);
-      var upper = this._extractRangeValue(last);
+      var lower = this._extractRangeValue(first.d);
+      var upper = this._extractRangeValue(last.d);
       if (this.model.getType() === 'Number') {
         upper += last.d.dx;
       }
-      _.each(data.all.slice(first.i, last.i + 1), function(el) {
-        el.classList.add('selected');
-        el.classList.remove('unselected');
-      });
+      var upperInclusive = last.d.dx === 0;
+      _.each(data.all, function(el) {
+        var elData = this._extractRangeValue(d3.select(el).data()[0]);
+        if (elData >= lower && (upperInclusive ? elData <= upper : elData < upper)) {
+          el.classList.add('selected');
+          el.classList.remove('unselected');
+        }
+      }.bind(this));
+      // _.each(data.all.slice(first.i, last.i + 1), function(el) {
+      //   el.classList.add('selected');
+      //   el.classList.remove('unselected');
+      // });
 
       /* code for Date handling currently not implemented */
 
@@ -166,7 +176,6 @@ module.exports = {
       if (lower === upper) {
         this.refineValue = new LeafValue({ content: lower });
       } else {
-        var upperInclusive = last.d.dx === 0;
         this.refineValue = new Range(lower, upper, upperInclusive);
       }
     }
@@ -203,7 +212,7 @@ module.exports = {
       case 'ObjectID': // fall-through to Date
       case 'Date':
         // @todo: for dates, data.all is not sorted, so this is not yet working
-        // this.handleRange(data);
+        this.handleRangeEvent(data);
         break;
       default: // @todo other types not implemented yet
         break;
