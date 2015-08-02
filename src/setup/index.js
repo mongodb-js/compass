@@ -26,7 +26,7 @@ var FirstRunView = View.extend({
   },
   goToStep: function(n) {
     this.switcher.set(this.steps[n - 1]);
-    app.navigate('first-run/' + n, {
+    app.navigate('setup/' + n, {
       silent: true
     });
   },
