@@ -45,6 +45,30 @@ To compile electron + the app and the installer for your current platform:
 npm run release
 ```
 
+## Configuration
+
+### Newrelic
+
+By default, newrelic is disabled because we don't want to check-in the license key.
+
+Login to newrelic and copy the [license_key](https://rpm.newrelic.com/accounts/933509).
+
+It can be set at build time by adding the following to `./config.json`:
+
+```json
+{
+  "newrelic": {
+    "license_key": "<paste-here>"
+  }
+}
+```
+
+Alternatively to just try it out or to debug a problem use environment variables:
+
+```bash
+newrelic__license_key='<paste-here>' npm start;
+```
+
 [setup-osx]: https://github.com/mongodb-js/mongodb-js/blob/master/docs/setup.md#osx-setup
 [setup-windows]: https://github.com/mongodb-js/mongodb-js/blob/master/docs/setup.md#windows-setup
 [setup-linux]: https://github.com/mongodb-js/mongodb-js/blob/master/docs/setup.md#linux-setup

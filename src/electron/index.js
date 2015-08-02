@@ -1,3 +1,5 @@
+require('./newrelic');
+
 if (process.env.NODE_ENV === 'development') {
   require('./livereload');
 }

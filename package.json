@@ -84,6 +84,8 @@
     "mongodb-language-model": "^0.2.1",
     "mongodb-schema": "^3.2.1",
     "mousetrap": "^1.5.3",
+    "nconf": "^0.7.1",
+    "newrelic": "^1.21.1",
     "numeral": "^1.5.3",
     "octicons": "https://github.com/github/octicons/archive/v2.2.0.tar.gz",
     "phantomjs-polyfill": "0.0.1",
