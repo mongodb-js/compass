@@ -69,6 +69,7 @@
     "ampersand-view": "^8.0.0",
     "ampersand-view-switcher": "^2.0.0",
     "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz",
+    "bugsnag-js": "^2.4.8",
     "d3": "^3.5.5",
     "debug": "^2.2.0",
     "domready": "^1.0.8",

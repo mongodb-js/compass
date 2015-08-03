@@ -1,12 +1,19 @@
-var _ = require('lodash');
 var pkg = require('../package.json');
+var app = require('ampersand-app');
+app.extend({
+  meta: {
+    'App Version': pkg.version
+  }
+});
+require('./bugsnag').listen(app);
+
+var _ = require('lodash');
 var domReady = require('domready');
 var qs = require('qs');
 var getOrCreateClient = require('scout-client');
 var ViewSwitcher = require('ampersand-view-switcher');
 var View = require('ampersand-view');
 var localLinks = require('local-links');
-var app = require('ampersand-app');
 
 /**
  * The top-level application singleton that brings everything together!
@@ -176,3 +183,5 @@ function render_app() {
 }
 
 domReady(render_app);
+
+window.app = app;
