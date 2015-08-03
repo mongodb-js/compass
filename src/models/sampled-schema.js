@@ -24,6 +24,12 @@ module.exports = Schema.extend({
       }
     }
   },
+  props: {
+    is_fetching: {
+      type: 'boolean',
+      default: false
+    }
+  },
   namespace: 'SampledSchema',
   collections: {
     fields: FilterableFieldCollection,
@@ -80,6 +86,7 @@ module.exports = Schema.extend({
    * @option {Object} [fields=null]
    */
   fetch: function(options) {
+    this.is_fetching = true;
     options = _.defaults(options || {}, {
       size: 100,
       query: {},
@@ -100,6 +107,7 @@ module.exports = Schema.extend({
     };
 
     var onEnd = function(err, body) {
+      model.is_fetching = false;
       if (err) return options.error(model, err);
       if (body) {
         body = null;

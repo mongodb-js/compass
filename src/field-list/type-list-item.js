@@ -38,13 +38,13 @@ module.exports = View.extend(tooltipMixin, {
     probability_percentage: {
       deps: ['model.probability'],
       fn: function() {
-        return numeral(this.model.probability).format('%');
+        return numeral(this.model.probability).format('0.00%');
       }
     },
     tooltip_message: {
-      deps: ['probability_percentage'],
+      deps: ['model.probability'],
       fn: function() {
-        return format('%s (%s)', this.model.getId(), this.probability_percentage);
+        return format('%s (%s)', this.model.getId(), numeral(this.model.probability).format('%'));
       }
     }
   },

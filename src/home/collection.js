@@ -22,6 +22,14 @@ var MongoDBCollectionView = View.extend({
       default: false
     }
   },
+  derived: {
+    is_empty: {
+      deps: ['schema.sample_size', 'schema.is_fetching'],
+      fn: function() {
+        return this.schema.sample_size === 0 && !this.schema.is_fetching;
+      }
+    }
+  },
   events: {
     'click .splitter': 'onSplitterClick'
   },
@@ -32,37 +40,31 @@ var MongoDBCollectionView = View.extend({
     sidebar_open: {
       type: 'booleanClass',
       yes: 'sidebar-open',
-      hook: 'json-sidebar-toggle-class'
+      hook: 'column-container'
     },
     visible: {
       type: 'booleanClass',
       no: 'hidden'
-    }
+    },
+    is_empty: [
+      {
+        hook: 'empty',
+        type: 'booleanClass',
+        no: 'hidden'
+      },
+      {
+        hook: 'column-container',
+        type: 'booleanClass',
+        yes: 'hidden'
+      }
+    ]
   },
   children: {
     model: MongoDBCollection,
     schema: SampledSchema
   },
-  showEmptyMessage: function() {
-    this.queryByHook('empty').classList.remove('hidden');
-    this.queryByHook('non-empty').classList.add('hidden');
-  },
-  hideEmptyMessage: function() {
-    if (!this.rendered) return;
-    this.queryByHook('empty').classList.add('hidden');
-    this.queryByHook('non-empty').classList.remove('hidden');
-  },
-  toggleEmptyMessage: function() {
-    if (this.schema.sample_size === 0) {
-      this.showEmptyMessage();
-    } else {
-      this.hideEmptyMessage();
-    }
-  },
   initialize: function() {
     app.statusbar.watch(this, this.schema);
-    this.listenTo(this.schema, 'sync', this.toggleEmptyMessage.bind(this));
-    this.listenTo(this.schema, 'request', this.toggleEmptyMessage.bind(this));
     this.listenToAndRun(this.parent, 'change:ns', this.onCollectionChanged.bind(this));
   },
   onCollectionChanged: function() {
@@ -73,7 +75,6 @@ var MongoDBCollectionView = View.extend({
       return;
     }
     this.visible = true;
-    this.hideEmptyMessage();
     app.queryOptions.reset();
 
     this.schema.ns = this.model._id = ns;
