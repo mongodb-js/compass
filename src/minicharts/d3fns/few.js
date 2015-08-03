@@ -23,7 +23,7 @@ module.exports = function(data, view, g, width, height) {
   };
 
   var barHeight = 25;
-  var values = _.pluck(data, 'value');
+  var values = _.pluck(data, 'count');
   var sumValues = d3.sum(values);
   var maxValue = d3.max(values);
   var percentFormat = shared.friendlyPercentFormat(maxValue / sumValues * 100);
@@ -41,7 +41,7 @@ module.exports = function(data, view, g, width, height) {
       }
       return d.tooltip || tooltipHtml({
           label: shared.truncateTooltip(d.label),
-          value: percentFormat(d.value / sumValues * 100, false)
+          count: percentFormat(d.count / sumValues * 100, false)
         });
     })
     .direction('n')
@@ -58,7 +58,7 @@ module.exports = function(data, view, g, width, height) {
     .attr('transform', function(d, i) {
       var xpos = _.sum(_(data)
         .slice(0, i)
-        .pluck('value')
+        .pluck('count')
         .value()
       );
       return 'translate(' + x(xpos) + ', ' + (height - barHeight) / 2 + ')';
@@ -71,7 +71,7 @@ module.exports = function(data, view, g, width, height) {
     .attr('y', 0)
     .attr('x', 0)
     .attr('width', function(d) {
-      return x(d.value);
+      return x(d.count);
     })
     .attr('height', barHeight);
 
@@ -90,7 +90,7 @@ module.exports = function(data, view, g, width, height) {
     .attr('y', 0)
     .attr('x', 0)
     .attr('width', function(d) {
-      return x(d.value);
+      return x(d.count);
     })
     .attr('height', barHeight)
     .on('mouseover', tip.show)

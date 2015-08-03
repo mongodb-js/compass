@@ -8,7 +8,7 @@
 
 @mc-bg: @gray8;
 @mc-fg: @mc-blue0;
-@mc-fg-selected: darken(@mc-blue0, 10%);
+@mc-fg-selected: @chart0; // darken(@mc-blue0, 10%);
 @mc-fg-unselected: @gray6;
 
 div.minichart.unique {
@@ -63,9 +63,9 @@ div.minichart.unique {
         }
 
         code.selected {
-          // background-color: @mc-fg-selected;
-          // color: @pw;
-          border: 1px dotted @gray2;
+          background-color: @mc-fg-selected;
+          color: @pw;
+          // border: 1px dotted @gray2;
         }
       }
     }
@@ -103,9 +103,9 @@ svg.minichart {
 
       &.selected {
         fill: @mc-fg-selected;
-        stroke: @pw;
-        stroke-width: 1;
-        stroke-dasharray: 1,1;
+        // stroke: @pw;
+        // stroke-width: 1;
+        // stroke-dasharray: 1,1;
       }
       &.unselected {
         fill: @mc-fg-unselected;

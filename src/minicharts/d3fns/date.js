@@ -16,9 +16,16 @@ function generateDefaults(n) {
   return doc;
 }
 
+function extractTimestamp(d) {
+  return d._bsontype === 'ObjectID' ? d.getTimestamp() : d;
+}
+
 var weekdayLabels = moment.weekdays();
 
 var minicharts_d3fns_date = function(opts) {
+  // A formatter for dates
+  var format = d3.time.format('%Y-%m-%d %H:%M:%S');
+
   var handleClick = function(d, i) {
     var evt = {
       d: d,
@@ -29,23 +36,19 @@ var minicharts_d3fns_date = function(opts) {
       type: 'click',
       source: 'date'
     };
-    debug('event', evt);
     opts.view.trigger('querybuilder', evt);
   };
 
-  var values = opts.model.values.toJSON();
-
-  // distinguish ObjectIDs from real dates
-  if (values.length && values[0]._bsontype !== undefined) {
-    if (values[0]._bsontype === 'ObjectID') {
-      values = _.map(values, function(v) {
-        return v.getTimestamp();
-      });
-    }
-  }
-
-  // A formatter for dates
-  var format = d3.time.format('%Y-%m-%d %H:%M:%S');
+  var values = opts.model.values.toJSON().map(function(d) {
+    var ts = extractTimestamp(d);
+    return {
+      label: format(ts),
+      ts: ts,
+      value: d,
+      count: 1,
+      dx: 0 // this will trigger `$lte` instead of `$lt` for ranges in the query builder
+    };
+  });
 
   var margin = shared.margin;
   var width = opts.width - margin.left - margin.right;
@@ -56,7 +59,7 @@ var minicharts_d3fns_date = function(opts) {
   var barcodeBottom = Math.floor(height - 10);
 
   var barcodeX = d3.time.scale()
-    .domain(d3.extent(values))
+    .domain(d3.extent(values, function(d) { return d.ts; }))
     .range([0, width]);
 
   var upperBarBottom = height / 2 - 20;
@@ -66,13 +69,13 @@ var minicharts_d3fns_date = function(opts) {
   // group by weekdays
   var weekdays = _(values)
     .groupBy(function(d) {
-      return moment(d).weekday();
+      return moment(d.ts).weekday();
     })
     .defaults(generateDefaults(7))
     .map(function(d, i) {
       return {
         label: weekdayLabels[i],
-        value: d.length
+        count: d.length
       };
     })
     .value();
@@ -81,13 +84,13 @@ var minicharts_d3fns_date = function(opts) {
   var hourLabels = d3.range(24);
   var hours = _(values)
     .groupBy(function(d) {
-      return d.getHours();
+      return d.ts.getHours();
     })
     .defaults(generateDefaults(24))
     .map(function(d, i) {
       return {
         label: hourLabels[i] + ':00',
-        value: d.length
+        count: d.length
       };
     })
     .value();
@@ -99,7 +102,7 @@ var minicharts_d3fns_date = function(opts) {
   var tip = d3.tip()
     .attr('class', 'd3-tip')
     .html(function(d) {
-      return format(d);
+      return d.label;
     })
     .direction('n')
     .offset([-9, 0]);
@@ -114,11 +117,11 @@ var minicharts_d3fns_date = function(opts) {
     .enter().append('line')
     .attr('class', 'line')
     .attr('x1', function(d) {
-      return barcodeX(d);
+      return barcodeX(d.ts);
     })
     .attr('y1', barcodeTop)
     .attr('x2', function(d) {
-      return barcodeX(d);
+      return barcodeX(d.ts);
     })
     .attr('y2', barcodeBottom)
     .on('mouseover', tip.show)
@@ -140,10 +143,10 @@ var minicharts_d3fns_date = function(opts) {
     .text(function(d, i) {
       if (format(barcodeX.domain()[0]) === format(barcodeX.domain()[1])) {
         if (i === 0) {
-          return 'inserted: ' + format(d);
+          return 'inserted: ' + d.label;
         }
       } else {
-        return (i ? 'last: ' : 'first: ') + format(d);
+        return (i ? 'last: ' : 'first: ') + d.label;
       }
     });
 

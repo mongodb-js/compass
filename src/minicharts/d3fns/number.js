@@ -19,8 +19,9 @@ module.exports = function(opts) {
       .map(function(v, k) {
         v.label = k;
         v.x = parseFloat(k, 10);
+        v.value = v.x;
         v.dx = 0;
-        v.value = v.length;
+        v.count = v.length;
         return v;
       })
       .value();
@@ -47,7 +48,8 @@ module.exports = function(opts) {
         label = d.x + '-' + (d.x + d.dx);
       }
       // remapping keys to conform with all other types
-      d.value = d.y;
+      d.count = d.y;
+      d.value = d.x;
       d.label = label;
     });
   }
