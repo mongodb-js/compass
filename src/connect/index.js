@@ -46,13 +46,13 @@ var ConnectionView = View.extend({
     event.stopPropagation();
     event.preventDefault();
     this.model.destroy();
+  },
+  onMouseOver: function() {
+    this.hover = true;
+  },
+  onMouseOut: function() {
+    this.hover = false;
   }
-  // onMouseOver: function(event) {
-  //   this.hover = true;
-  // },
-  // onMouseOut: function(event) {
-  //   this.hover = false;
-  // }
 });
 
 var SidebarView = View.extend({
