@@ -143,10 +143,10 @@ var minicharts_d3fns_date = function(opts) {
     .text(function(d, i) {
       if (format(barcodeX.domain()[0]) === format(barcodeX.domain()[1])) {
         if (i === 0) {
-          return 'inserted: ' + d.label;
+          return 'inserted: ' + format(d);
         }
       } else {
-        return (i ? 'last: ' : 'first: ') + d.label;
+        return (i ? 'last: ' : 'first: ') + format(d);
       }
     });
 
