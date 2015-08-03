@@ -10,6 +10,7 @@ var debug = require('debug')('scout:home:collection');
 var app = require('ampersand-app');
 
 var MongoDBCollectionView = View.extend({
+  modelType: 'Collection',
   template: require('./collection.jade'),
   props: {
     sidebar_open: {
@@ -62,7 +63,6 @@ var MongoDBCollectionView = View.extend({
     app.statusbar.watch(this, this.schema);
     this.listenTo(this.schema, 'sync', this.toggleEmptyMessage.bind(this));
     this.listenTo(this.schema, 'request', this.toggleEmptyMessage.bind(this));
-    this.listenTo(app.queryOptions, 'change', this.onQueryChanged.bind(this));
     this.listenToAndRun(this.parent, 'change:ns', this.onCollectionChanged.bind(this));
   },
   onCollectionChanged: function() {
@@ -74,11 +74,7 @@ var MongoDBCollectionView = View.extend({
     }
     this.visible = true;
     this.hideEmptyMessage();
-
-    // temporarily stop listening to queryOption changes to avoid reloading twice
-    this.stopListening(app.queryOptions, 'change');
     app.queryOptions.reset();
-    this.listenTo(app.queryOptions, 'change', this.onQueryChanged.bind(this));
 
     this.schema.ns = this.model._id = ns;
     debug('updating namespace to `%s`', ns);
@@ -110,11 +106,13 @@ var MongoDBCollectionView = View.extend({
     refine_bar: {
       hook: 'refine-bar',
       prepareView: function(el) {
-        return new RefineBarView({
+        var refineBarView = new RefineBarView({
           el: el,
           parent: this,
           model: app.queryOptions
         });
+        this.listenTo(refineBarView, 'submit', this.onQueryChanged);
+        return refineBarView;
       }
     },
     fields: {

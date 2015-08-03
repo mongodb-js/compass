@@ -2,6 +2,7 @@ var AmpersandView = require('ampersand-view');
 var EJSON = require('mongodb-extended-json');
 var _ = require('lodash');
 var Query = require('mongodb-language-model').Query;
+// var debug = require('debug')('scout:refine-view:index');
 
 module.exports = AmpersandView.extend({
   template: require('./index.jade'),
@@ -69,10 +70,9 @@ module.exports = AmpersandView.extend({
   },
   buttonClicked: function() {
     var queryStr = this._cleanupInput(this.queryByHook('refine-input').value);
-    var queryObj = EJSON.parse(queryStr);
+    var queryObj = new Query(EJSON.parse(queryStr), { parse: true });
     this.model.query = queryObj;
-    // Modifying the query will reset field-list#schema and because we're using
-    // good ampersand, outgoing views will be removed for us automatically.
+    this.trigger('submit', this);
   },
   submit: function(evt) {
     evt.preventDefault();

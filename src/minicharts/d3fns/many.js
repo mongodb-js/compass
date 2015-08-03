@@ -2,10 +2,24 @@ var d3 = require('d3');
 var _ = require('lodash');
 var tooltipHtml = require('./tooltip.jade');
 var shared = require('./shared');
+var debug = require('debug')('scout:minicharts:many');
 
 require('../d3-tip')(d3);
 
-var minicharts_d3fns_many = function(data, g, width, height, options) {
+var minicharts_d3fns_many = function(data, view, g, width, height, options) {
+  var handleClick = function(d, i) {
+    var evt = {
+      d: d,
+      i: i,
+      self: this,
+      all: view.queryAll('rect.fg'),
+      evt: d3.event,
+      type: 'click',
+      source: 'many'
+    };
+    view.trigger('querybuilder', evt);
+  };
+
   options = _.defaults(options || {}, {
     bgbars: false,
     scale: false,
@@ -119,12 +133,14 @@ var minicharts_d3fns_many = function(data, g, width, height, options) {
       .attr('width', x.rangeBand())
       .attr('height', height)
       .on('mouseover', tip.show)
-      .on('mouseout', tip.hide);
+      .on('mouseout', tip.hide)
+      .on('click', handleClick);
   } else {
     // atach tooltips directly to foreground bars
     fgbars
       .on('mouseover', tip.show)
-      .on('mouseout', tip.hide);
+      .on('mouseout', tip.hide)
+      .on('click', handleClick);
   }
 
   if (options.labels) {

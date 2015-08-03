@@ -4,6 +4,7 @@ var moment = require('moment');
 var shared = require('./shared');
 var many = require('./many');
 var raf = require('raf');
+var debug = require('debug')('scout:minicharts:date');
 
 require('../d3-tip')(d3);
 
@@ -18,7 +19,21 @@ function generateDefaults(n) {
 var weekdayLabels = moment.weekdays();
 
 var minicharts_d3fns_date = function(opts) {
-  var values = opts.data.values.toJSON();
+  var handleClick = function(d, i) {
+    var evt = {
+      d: d,
+      i: i,
+      self: this,
+      all: opts.view.queryAll('line.line'),
+      evt: d3.event,
+      type: 'click',
+      source: 'date'
+    };
+    debug('event', evt);
+    opts.view.trigger('querybuilder', evt);
+  };
+
+  var values = opts.model.values.toJSON();
 
   // distinguish ObjectIDs from real dates
   if (values.length && values[0]._bsontype !== undefined) {
@@ -107,7 +122,8 @@ var minicharts_d3fns_date = function(opts) {
     })
     .attr('y2', barcodeBottom)
     .on('mouseover', tip.show)
-    .on('mouseout', tip.hide);
+    .on('mouseout', tip.hide)
+    .on('click', handleClick);
 
   svg.selectAll('.text')
     .data(barcodeX.domain())
@@ -134,7 +150,8 @@ var minicharts_d3fns_date = function(opts) {
   var weekdayContainer = svg.append('g');
 
   raf(function() {
-    many(weekdays, weekdayContainer, width / (upperRatio + 1) - upperMargin, upperBarBottom, {
+    many(weekdays, opts.view, weekdayContainer,
+      width / (upperRatio + 1) - upperMargin, upperBarBottom, {
       bgbars: true,
       labels: {
         'text-anchor': 'middle',
@@ -160,7 +177,7 @@ var minicharts_d3fns_date = function(opts) {
     .attr('transform', 'translate(' + (width / (upperRatio + 1) + upperMargin) + ', 0)');
   raf(function() {
     var _manyWidth = width / (upperRatio + 1) * upperRatio - upperMargin;
-    many(hours, hourContainer, _manyWidth, upperBarBottom, {
+    many(hours, opts.view, hourContainer, _manyWidth, upperBarBottom, {
       bgbars: true,
       labels: {
         text: function(d, i) {

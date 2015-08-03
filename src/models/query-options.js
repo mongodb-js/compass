@@ -1,7 +1,9 @@
 var Model = require('ampersand-model');
 var EJSON = require('mongodb-extended-json');
+var Query = require('mongodb-language-model').Query;
+// var debug = require('debug')('scout:models:query-options');
 
-var DEFAULT_QUERY = {};
+var DEFAULT_QUERY = new Query({}, { parse: true });
 var DEFAULT_SORT = {
   $natural: -1
 };
@@ -14,7 +16,7 @@ var DEFAULT_SKIP = 0;
 module.exports = Model.extend({
   props: {
     query: {
-      type: 'object',
+      type: 'state',
       default: function() {
         return DEFAULT_QUERY;
       }
@@ -38,9 +40,14 @@ module.exports = Model.extend({
     queryString: {
       deps: ['query'],
       fn: function() {
-        return EJSON.stringify(this.query);
+        return EJSON.stringify(this.query.serialize());
       }
     }
+  },
+  serialize: function() {
+    var res = Model.prototype.serialize.call(this);
+    res.query = this.query.serialize();
+    return res;
   },
   reset: function() {
     this.set({

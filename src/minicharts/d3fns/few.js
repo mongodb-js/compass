@@ -1,11 +1,27 @@
 var d3 = require('d3');
 var _ = require('lodash');
+var $ = require('jquery');
 var tooltipHtml = require('./tooltip.jade');
 var shared = require('./shared');
+var debug = require('debug')('scout:minicharts:few');
 
 require('../d3-tip')(d3);
 
-module.exports = function(data, g, width, height) {
+module.exports = function(data, view, g, width, height) {
+  var handleClick = function(d, i) {
+    var fgRect = $(this).siblings('rect.fg')[0];
+    var evt = {
+      d: d,
+      i: i,
+      self: fgRect,
+      all: view.queryAll('rect.fg'),
+      evt: d3.event,
+      type: 'click',
+      source: 'few'
+    };
+    view.trigger('querybuilder', evt);
+  };
+
   var barHeight = 25;
   var values = _.pluck(data, 'value');
   var sumValues = d3.sum(values);
@@ -50,7 +66,7 @@ module.exports = function(data, g, width, height) {
 
   bar.append('rect')
     .attr('class', function(d, i) {
-      return 'fg-' + i;
+      return 'fg fg-' + i;
     })
     .attr('y', 0)
     .attr('x', 0)
@@ -78,5 +94,6 @@ module.exports = function(data, g, width, height) {
     })
     .attr('height', barHeight)
     .on('mouseover', tip.show)
-    .on('mouseout', tip.hide);
+    .on('mouseout', tip.hide)
+    .on('click', handleClick);
 };

@@ -5,7 +5,7 @@ var many = require('./many');
 var shared = require('./shared');
 
 module.exports = function(opts) {
-  var values = opts.data.values.toJSON();
+  var values = opts.model.values.toJSON();
 
   var margin = shared.margin;
   var width = opts.width - margin.left - margin.right;
@@ -36,9 +36,8 @@ module.exports = function(opts) {
     .attr('height', height);
 
   var chart = data.length <= 5 ? few : many;
-  chart(data, g, width, height, {
+  chart(data, opts.view, g, width, height, {
     scale: true,
     bglines: true
   });
 };
-

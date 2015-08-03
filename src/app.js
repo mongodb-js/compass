@@ -56,7 +56,11 @@ var Application = View.extend({
     /**
      * @see http://learn.humanjavascript.com/react-ampersand/creating-a-router-and-pages
      */
-    router: 'object'
+    router: 'object',
+    /**
+     * Enable/Disable features with one global switch
+     */
+    features: 'object'
   },
   events: {
     'click a': 'onLinkClick'
@@ -139,6 +143,11 @@ app.extend({
     this.queryOptions = new QueryOptions();
     this.instance = new MongoDBInstance();
 
+    // feature flags
+    this.features = {
+      querybuilder: true
+    };
+
     state.router = new Router();
   },
   navigate: state.navigate.bind(state)
@@ -158,6 +167,9 @@ Object.defineProperty(app, 'client', {
   }
 });
 app.init();
+
+// expose app globally for debugging purposes
+window.app = app;
 
 function render_app() {
   state._onDOMReady();

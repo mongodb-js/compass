@@ -4,7 +4,7 @@ var few = require('./few');
 var shared = require('./shared');
 
 var minicharts_d3fns_boolean = function(opts) {
-  var values = opts.data.values.toJSON();
+  var values = opts.model.values.toJSON();
 
   // group by true/false
   var data = _(values)
@@ -38,7 +38,7 @@ var minicharts_d3fns_boolean = function(opts) {
     .append('g')
     .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
-  few(data, g, width, height);
+  few(data, opts.view, g, width, height);
 };
 
 module.exports = minicharts_d3fns_boolean;

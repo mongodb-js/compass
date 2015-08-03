@@ -8,6 +8,8 @@
 
 @mc-bg: @gray8;
 @mc-fg: @mc-blue0;
+@mc-fg-selected: darken(@mc-blue0, 10%);
+@mc-fg-unselected: @gray6;
 
 div.minichart.unique {
   font-size: 12px;
@@ -48,8 +50,22 @@ div.minichart.unique {
         margin-bottom: 6px;
 
         code {
+          cursor: pointer;
+          background-color: @gray7;
+          border: 1px solid transparent;
+          color: @gray1;
           font-size: 12px;
           line-height: 20px;
+          user-select: none;
+          -moz-user-select: none;
+          -webkit-user-select: none;
+          -ms-user-select: none;
+        }
+
+        code.selected {
+          // background-color: @mc-fg-selected;
+          // color: @pw;
+          border: 1px dotted @gray2;
         }
       }
     }
@@ -76,6 +92,7 @@ svg.minichart {
 
   .bar {
     shape-rendering: crispEdges;
+    cursor: pointer;
 
     rect.bg {
       fill: @mc-bg;
@@ -83,6 +100,16 @@ svg.minichart {
 
     rect.fg {
       fill: @mc-fg;
+
+      &.selected {
+        fill: @mc-fg-selected;
+        stroke: @pw;
+        stroke-width: 1;
+        stroke-dasharray: 1,1;
+      }
+      &.unselected {
+        fill: @mc-fg-unselected;
+      }
     }
 
     &.few {
@@ -116,6 +143,13 @@ svg.minichart {
         fill: @mc-blue5;
       }
 
+      rect.fg.selected {
+        fill: @mc-fg-selected;
+      }
+      rect.fg.unselected {
+        fill: @mc-fg-unselected;
+      }
+
       text {
         fill: white;
         font-size: 12px;
@@ -125,6 +159,10 @@ svg.minichart {
 
   .line {
     stroke: @mc-fg;
+
+    &.selected {
+      stroke: @mc-fg-selected;
+    }
   }
 
   .legend {
