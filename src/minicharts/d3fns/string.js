@@ -20,10 +20,11 @@ module.exports = function(opts) {
     .map(function(v, k) {
       return {
         label: k,
-        value: v.length
+        value: k,
+        count: v.length
       };
     })
-    .sortByOrder('value', [false]) // descending on value
+    .sortByOrder('count', [false]) // descending on value
     .value();
 
   // clear element first

@@ -30,7 +30,7 @@ var minicharts_d3fns_many = function(data, view, g, width, height, options) {
     .domain(_.pluck(data, 'label'))
     .rangeBands([0, width], 0.3, 0.0);
 
-  var values = _.pluck(data, 'value');
+  var values = _.pluck(data, 'count');
   var maxValue = d3.max(values);
   var sumValues = d3.sum(values);
   var percentFormat = shared.friendlyPercentFormat(maxValue / sumValues * 100);
@@ -48,7 +48,7 @@ var minicharts_d3fns_many = function(data, view, g, width, height, options) {
       }
       return d.tooltip || tooltipHtml({
           label: shared.truncateTooltip(d.label),
-          value: percentFormat(d.value / sumValues * 100, false)
+          count: percentFormat(d.count / sumValues * 100, false)
         });
     })
     .direction('n')
@@ -120,11 +120,11 @@ var minicharts_d3fns_many = function(data, view, g, width, height, options) {
     .attr('class', 'fg')
     .attr('x', 0)
     .attr('y', function(d) {
-      return y(d.value);
+      return y(d.count);
     })
     .attr('width', x.rangeBand())
     .attr('height', function(d) {
-      return height - y(d.value);
+      return height - y(d.count);
     });
 
   if (options.bgbars) {
@@ -159,7 +159,7 @@ var minicharts_d3fns_many = function(data, view, g, width, height, options) {
         return 'middle';
       },
       text: function(d) {
-        return d.value;
+        return d.count;
       }
     });
 

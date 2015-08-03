@@ -9,7 +9,6 @@ var minicharts_d3fns_boolean = function(opts) {
   // group by true/false
   var data = _(values)
     .groupBy(function(d) {
-      // extract string representations of values
       return d;
     })
     .defaults({
@@ -19,7 +18,8 @@ var minicharts_d3fns_boolean = function(opts) {
     .map(function(v, k) {
       return {
         label: k,
-        value: v.length
+        value: k === 'true',
+        count: v.length
       };
     })
     .sortByOrder('label', [false]) // order: false, true
