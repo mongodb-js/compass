@@ -2,7 +2,7 @@ var AmpersandView = require('ampersand-view');
 var EJSON = require('mongodb-extended-json');
 var _ = require('lodash');
 var Query = require('mongodb-language-model').Query;
-// var debug = require('debug')('scout:refine-view:index');
+// var debug = require('debug')('mongodb-desktop:refine-view:index');
 
 module.exports = AmpersandView.extend({
   template: require('./index.jade'),

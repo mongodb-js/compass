@@ -3,7 +3,7 @@ var pkg = require(path.resolve(__dirname, '../package.json'));
 var fs = require('fs');
 var cp = require('child_process');
 
-var debug = require('debug')('scout:tasks:darwin');
+var debug = require('debug')('mongodb-desktop:tasks:darwin');
 
 var NAME = pkg.product_name;
 var PACKAGE = path.join('dist', NAME + '-darwin-x64');
@@ -23,11 +23,11 @@ var CONFIG = module.exports = {
   platform: 'darwin',
   arch: 'x64',
   version: pkg.electron_version,
-  icon: path.resolve(__dirname, '../images/darwin/scout.icns'),
+  icon: path.resolve(__dirname, '../images/darwin/mongodb-desktop.icns'),
   background: path.resolve(__dirname, '../images/darwin/background.png'),
   overwrite: true,
   prune: true,
-  'app-bundle-id': 'com.mongodb.scout',
+  'app-bundle-id': 'com.mongodb.desktop',
   'app-version': pkg.version,
   sign: '90E39AA7832E95369F0FC6DAF823A04DFBD9CF7A',
   protocols: [

@@ -1,7 +1,7 @@
 var View = require('ampersand-view');
 var format = require('util').format;
 var SidebarView = require('../sidebar');
-var debug = require('debug')('scout-ui:home');
+var debug = require('debug')('mongodb-desktop-ui:home');
 var CollectionView = require('./collection');
 var app = require('ampersand-app');
 

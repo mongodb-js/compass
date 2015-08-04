@@ -1,7 +1,7 @@
 var Model = require('ampersand-model');
 var EJSON = require('mongodb-extended-json');
 var Query = require('mongodb-language-model').Query;
-// var debug = require('debug')('scout:models:query-options');
+// var debug = require('debug')('mongodb-desktop:models:query-options');
 
 var DEFAULT_QUERY = new Query({}, { parse: true });
 var DEFAULT_SORT = {

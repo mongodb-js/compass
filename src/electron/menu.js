@@ -1,15 +1,15 @@
 var app = require('app');
 var Menu = require('menu');
-var debug = require('debug')('scout-electron:menu');
+var debug = require('debug')('mongodb-desktop-electron:menu');
 
 function getTemplate(_window) {
   if (process.platform === 'darwin') {
     return [
       {
-        label: 'MongoDB Scout',
+        label: 'MongoDB Desktop',
         submenu: [
           {
-            label: 'About Scout',
+            label: 'About MongoDB Desktop',
             selector: 'orderFrontStandardAboutPanel:'
           },
           {
