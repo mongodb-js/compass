@@ -12,10 +12,22 @@ module.exports = AmpersandView.extend({
       default: true
     }
   },
+  derived: {
+    notEmpty: {
+      deps: ['model.queryString'],
+      fn: function() {
+        return this.model.queryString !== '{}';
+      }
+    }
+  },
   bindings: {
     'model.queryString': {
       type: 'value',
       hook: 'refine-input'
+    },
+    notEmpty: {
+      type: 'toggle',
+      hook: 'reset-button'
     },
     valid: [
       // red input border while query is invalid
@@ -35,7 +47,8 @@ module.exports = AmpersandView.extend({
     ]
   },
   events: {
-    'click [data-hook=refine-button]': 'buttonClicked',
+    'click [data-hook=refine-button]': 'refineClicked',
+    'click [data-hook=reset-button]': 'resetClicked',
     'input [data-hook=refine-input]': 'inputChanged',
     'submit form': 'submit'
   },
@@ -68,7 +81,11 @@ module.exports = AmpersandView.extend({
     }
     this.valid = true;
   },
-  buttonClicked: function() {
+  resetClicked: function() {
+    this.model.query = new Query();
+    this.trigger('submit', this);
+  },
+  refineClicked: function() {
     var queryStr = this._cleanupInput(this.queryByHook('refine-input').value);
     var queryObj = new Query(EJSON.parse(queryStr), { parse: true });
     this.model.query = queryObj;
