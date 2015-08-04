@@ -27,10 +27,20 @@ npm install
 
 ### How do I get setup?
 
-- Install [nodejs][nodejs] and [mongodb][mongodb]
-- `git clone git@github.com:10gen/scout.git`
-- `npm install`
-- Start the server `npm start`
+1. Follow the [mongodb-js setup guide][mongodb-js-setup]
+2. Install [mongodb][mongodb]
+3. Clone the repo `git clone git@github.com:10gen/scout.git ~/scout`
+4. Install dependencies `npm install`
+5. Start everything up `npm start`
+
+If you've already followed the [mongodb-js setup guide][mongodb-js-setup], just copy and paste the below:
+
+```
+git clone git@github.com:10gen/scout.git ~/scout;
+cd ~/scout;
+npm install;
+npm start;
+```
 
 ### I edited a `.jade` file.  Now what?
 
@@ -207,6 +217,7 @@ Recommended user preferences, particularly `ensure_newline_at_eof_on_save`,
 }
 ```
 
+[mongodb-js-setup]: https://github.com/mongodb-js/mongodb-js/blob/master/docs/setup.md
 [nodejs]: http://nodejs.org/
 [mongodb]: http://www.mongodb.org/downloads
 [less]: http://lesscss.org
