@@ -25,10 +25,15 @@ module.exports = AmpersandView.extend({
       type: 'value',
       hook: 'refine-input'
     },
-    notEmpty: {
+    notEmpty: [{
       type: 'toggle',
       hook: 'reset-button'
-    },
+    }, {
+      type: 'booleanClass',
+      hook: 'refine-button',
+      yes: 'btn-info',
+      no: 'btn-default'
+    }],
     valid: [
       // red input border while query is invalid
       {
