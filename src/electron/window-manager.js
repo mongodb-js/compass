@@ -6,7 +6,7 @@ var attachMenu = require('./menu');
 var path = require('path');
 
 var RESOURCES = path.resolve(__dirname, '../../');
-var DEFAULT_URL = 'file://' + path.join(RESOURCES, 'index.html#connect');
+var CONNECT_URL = 'file://' + path.join(RESOURCES, 'index.html#connect');
 var SETUP_URL = 'file://' + path.join(RESOURCES, 'index.html#setup');
 
 var DEFAULT_WIDTH = 1024;
@@ -31,8 +31,9 @@ module.exports.create = function(opts) {
   opts = _.defaults(opts || {}, {
     width: DEFAULT_WIDTH,
     height: DEFAULT_HEIGHT,
-    url: DEFAULT_URL,
-    icon: ICON
+    url: CONNECT_URL,
+    icon: ICON,
+    centered: true
   });
 
   opts['web-preferences'] = _.defaults(opts['web-preferences'] || {}, {
@@ -53,7 +54,7 @@ module.exports.create = function(opts) {
     });
   });
 
-  if (opts.url === DEFAULT_URL) {
+  if (opts.url === CONNECT_URL) {
     connectWindow = _window;
     connectWindow.on('closed', function() {
       debug('connect window closed.');
@@ -82,9 +83,10 @@ module.exports.openConnectDialog = function(opts) {
 
   opts = opts || {};
   opts = _.extend(opts || {}, {
+    url: CONNECT_URL,
     height: DEFAULT_HEIGHT_DIALOG,
     width: DEFAULT_WIDTH_DIALOG,
-    centered: true
+    resizable: false
   });
   return module.exports.create(opts);
 };
@@ -100,8 +102,6 @@ module.exports.openSetupDialog = function(opts) {
     url: SETUP_URL,
     height: 550,
     width: 600,
-    centered: true,
-    'always-on-top': true,
     resizable: false
   });
   return module.exports.create(opts);

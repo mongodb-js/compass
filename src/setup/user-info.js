@@ -2,14 +2,28 @@ var View = require('ampersand-view');
 var debug = require('debug')('scout:first-run:user-info');
 
 module.exports = View.extend({
+  props: {
+    validated: {
+      type: 'boolean',
+      default: false
+    }
+  },
   events: {
     'click [data-hook=continue]': 'onContinueClicked'
   },
   template: require('./user-info.jade'),
   onContinueClicked: function(evt) {
     evt.preventDefault();
-    debug('validitity?', this.form.checkValidity());
-    debugger;
+    this.validate();
+    if (this.is_valid) {
+
+    } else {
+
+    }
+  },
+  validate: function() {
+    this.validated = true;
+    this.is_valid = this.form.checkValidity();
   },
   render: function() {
     this.renderWithTemplate();
