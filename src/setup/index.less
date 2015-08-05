@@ -1,9 +1,41 @@
 @import "animate.css";
-form.validated {
-  input:invalid {
-    border: 1px solid red;
+
+.setup-user-info {
+  h1 {
+    margin-bottom: 20px;
   }
-  input:valid {
-    border: 1px solid green;
+  form {
+    .form-group {
+      .help-block {
+        .lead;
+        padding-top: 10px;
+        padding-left: 16px;
+        display: block;
+      }
+      .on-error, .on-success {
+        display: none;
+      }
+
+      .on-start {
+        display: block;
+      }
+
+      &.has-error {
+        .on-error {
+          display: block;
+        }
+        .on-start, .on-success {
+          display: none;
+        }
+      }
+      &.has-success {
+        .on-success {
+          display: block;
+        }
+        .on-start, .on-error {
+          display: none;
+        }
+      }
+    }
   }
 }

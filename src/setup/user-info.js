@@ -3,26 +3,31 @@ var debug = require('debug')('scout:first-run:user-info');
 
 module.exports = View.extend({
   props: {
-    validated: {
+    active_validation: {
       type: 'boolean',
       default: false
+    },
+    is_valid: {
+      type: 'boolean',
+      default: true
     }
   },
-  binding: {
-    validated: {
+  bindings: {
+    is_valid: {
+      hook: 'continue',
       type: 'booleanClass',
-      yes: 'validated'
+      no: 'disabled'
     }
   },
   events: {
-    'click [data-hook=continue]': 'onSubmit'
+    'click [data-hook=continue]': 'onSubmit',
+    'change input': 'onInputChanged'
   },
   template: require('./user-info.jade'),
   onSubmit: function(evt) {
     debug('submitted');
     evt.preventDefault();
-    this.validated = true;
-    this.is_valid = this.form.checkValidity();
+    this.active_validation = true;
 
     var emailValid = this.validateInput(this.emailInput);
     debug('email valid?', emailValid);
@@ -30,17 +35,24 @@ module.exports = View.extend({
     var nameValid = this.validateInput(this.nameInput);
     debug('name valid?', nameValid);
 
-    debugger;
     if (this.is_valid) {
-
+      this.parent.set({
+        name: this.nameInput.value,
+        email: this.emailInput.value
+      });
+      this.parent.step++;
     }
+  },
+  onInputChanged: function(evt) {
+    if (!this.active_validation) return;
+    this.validateInput(evt.delegateTarget);
   },
   validateInput: function(input) {
     var isValid = input.validity.valid;
     var toAdd;
     var toRemove;
 
-    if (isValid) {
+    if (!isValid) {
       toAdd = 'has-error';
       toRemove = 'has-success';
     } else {
@@ -49,6 +61,8 @@ module.exports = View.extend({
     }
     input.parentNode.classList.add(toAdd);
     input.parentNode.classList.remove(toRemove);
+    this.is_valid = this.form.checkValidity();
+
     return isValid;
   },
   render: function() {
@@ -60,9 +74,5 @@ module.exports = View.extend({
     setTimeout(function() {
       this.nameInput.focus();
     }.bind(this), 400);
-    this.form.addEventListener('submit', function(event) {
-      debug('validitity?', this.checkValidity());
-      event.preventDefault();
-    }, false);
   }
 });

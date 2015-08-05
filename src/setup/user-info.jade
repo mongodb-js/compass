@@ -1,26 +1,38 @@
-div.animated
-  h1(style='margin-bottom: 20px;') Tell us about yourself
+.setup-user-info.animated
+  h1 Tell us about yourself
   form.form-horizontal.col-sm-12
-    .form-group.has-feedback: input.form-control.input-lg(
+    .form-group.has-feedback
+      input.form-control.input-lg(
         type='text', 
         required='required', 
-        autocomplete='billing name',
         name='name', 
         minlength=2,
         maxlength=128,
-        title='Let\'s not be strangers...',
-        placeholder='What is your name?'
-      )
-    .form-group: input.form-control.input-lg(
+        placeholder='What is your name?')
+      span.form-control-feedback.on-error: .fa.fa-fw.fa-times
+      p.help-block.on-error Let's not be strangers&hellip;
+      
+      span.form-control-feedback.on-success: .fa.fa-fw.fa-check
+      p.help-block.on-success Nice to meet you!
+      
+      p.help-block.on-start
+        
+    .form-group.has-feedback
+      input.form-control.input-lg(
         type='email', 
         required='required', 
-        autocomplete='email'
         name='email', 
         minlength=2,
         maxlength=128,
-        title='How will we contact you if we have questions?...',
-        placeholder='And your email address?'
-        )  
+        placeholder='And your email address?')
+      span.form-control-feedback.on-error: .fa.fa-fw.fa-times
+      p.help-block.on-error How will we contact you if we have questions?
+      
+      span.form-control-feedback.on-success: .fa.fa-fw.fa-check
+      p.help-block.on-success Thanks! 
+      
+      p.help-block.on-start
+        
     .form-group: button.btn.btn-primary.btn-lg(
         type='submit', 
         data-hook='continue'

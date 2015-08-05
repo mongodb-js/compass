@@ -63,6 +63,11 @@ var FirstRunView = View.extend({
     document.title = 'Welcome to MongoDB Scout';
   },
   complete: function() {
+    app.user.set({
+      name: this.name,
+      email: this.email
+    });
+    app.user.save();
     app.ipc.send('mark-setup-complete');
     // @todo: ipc send mongodb:// to open schema in new window?
   }
