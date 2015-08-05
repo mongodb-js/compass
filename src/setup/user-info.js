@@ -8,22 +8,48 @@ module.exports = View.extend({
       default: false
     }
   },
+  binding: {
+    validated: {
+      type: 'booleanClass',
+      yes: 'validated'
+    }
+  },
   events: {
-    'click [data-hook=continue]': 'onContinueClicked'
+    'click [data-hook=continue]': 'onSubmit'
   },
   template: require('./user-info.jade'),
-  onContinueClicked: function(evt) {
+  onSubmit: function(evt) {
+    debug('submitted');
     evt.preventDefault();
-    this.validate();
-    if (this.is_valid) {
+    this.validated = true;
+    this.is_valid = this.form.checkValidity();
 
-    } else {
+    var emailValid = this.validateInput(this.emailInput);
+    debug('email valid?', emailValid);
+
+    var nameValid = this.validateInput(this.nameInput);
+    debug('name valid?', nameValid);
+
+    debugger;
+    if (this.is_valid) {
 
     }
   },
-  validate: function() {
-    this.validated = true;
-    this.is_valid = this.form.checkValidity();
+  validateInput: function(input) {
+    var isValid = input.validity.valid;
+    var toAdd;
+    var toRemove;
+
+    if (isValid) {
+      toAdd = 'has-error';
+      toRemove = 'has-success';
+    } else {
+      toAdd = 'has-success';
+      toRemove = 'has-error';
+    }
+    input.parentNode.classList.add(toAdd);
+    input.parentNode.classList.remove(toRemove);
+    return isValid;
   },
   render: function() {
     this.renderWithTemplate();
