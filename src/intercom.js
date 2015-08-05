@@ -73,5 +73,5 @@ module.exports.inject = function(user) {
   script.type = 'text/javascript';
   script.src = 'https://widget.intercom.io/widget/p57suhg7';
   head.appendChild(script);
-  boot();
+  user.on('sync', boot);
 };

@@ -162,6 +162,12 @@ app.extend({
   meta: {
     'App Version': pkg.version
   },
+  openSetupDialog: function() {
+    app.ipc.send('open-setup-dialog');
+  },
+  openConnectDialog: function() {
+    app.ipc.send('open-connect-dialog');
+  },
   init: function() {
     state.statusbar = new Statusbar();
     this.connection = new Connection();
@@ -173,7 +179,7 @@ app.extend({
     this.features = {
       querybuilder: true
     };
-
+    state.user = new User();
     state.router = new Router();
 
     this.on('change:ipc', function() {

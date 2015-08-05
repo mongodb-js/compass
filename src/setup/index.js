@@ -8,7 +8,7 @@ var stepKlasses = [
   require('./welcome'),
   // require('./connect-github'),
   require('./user-info'),
-  require('./connect-mongodb'),
+  // require('./connect-mongodb'),
   require('./finished')
 ];
 
@@ -23,6 +23,14 @@ var FirstRunView = View.extend({
     },
     email: {
       type: 'string'
+    },
+    hostname: {
+      type: 'string',
+      default: 'localhost'
+    },
+    port: {
+      type: 'number',
+      default: 27017
     }
   },
   goToStep: function(n) {
@@ -63,13 +71,9 @@ var FirstRunView = View.extend({
     document.title = 'Welcome to MongoDB Scout';
   },
   complete: function() {
-    app.user.set({
-      name: this.name,
-      email: this.email
-    });
-    app.user.save();
     app.ipc.send('mark-setup-complete');
-    // @todo: ipc send mongodb:// to open schema in new window?
+    app.ipc.send('open-connect-dialog');
+    setTimeout(window.close, 500);
   }
 });
 module.exports = FirstRunView;

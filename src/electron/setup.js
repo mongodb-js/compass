@@ -32,7 +32,7 @@ module.exports = function showSetupOrStart() {
   });
 };
 
-module.exports.markCompleted = function(done) {
+module.exports.markComplete = function(done) {
   var data = {
     version: SETUP_VERSION,
     completed_at: new Date()
