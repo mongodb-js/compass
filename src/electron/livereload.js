@@ -5,7 +5,7 @@ var debounce = require('lodash').debounce;
 var debug = require('debug')('scout:electron:livereload');
 
 var NODE_MODULES_REGEX = /node_modules/;
-var WATCH_DIRECTORY = path.join(__dirname, '..');
+var WATCH_DIRECTORY = path.join(__dirname, '..', '..');
 
 var opts = {
   port: 35729,

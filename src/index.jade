@@ -15,8 +15,6 @@ html(lang='en')
       //- Include the livereload client so pages reload automatically when changed.
       script(src='http://localhost:35729/livereload.js', charset='UTF-8')
 
-      //- Enable debugging so messages show up in the devtools console.
-      script(type='text/javascript').
-        localStorage.setItem('debug', 'mon*,sco*');
+      script(src='src/electron/development-debug-header.js', charset='UTF-8')
 
     script(src='index.js', charset='UTF-8')

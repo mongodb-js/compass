@@ -125,7 +125,11 @@ gulp.task('less', function() {
 // Compile jade templates to HTML files.
 gulp.task('pages', function() {
   return gulp.src('src/index.jade')
-    .pipe(jade())
+    .pipe(jade({
+      locals: {
+        NODE_ENV: process.env.NODE_ENV
+      }
+    }))
     .on('error', notify('jade'))
     .pipe(gulp.dest('build/'));
 });
