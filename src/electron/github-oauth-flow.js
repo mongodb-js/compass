@@ -2,15 +2,15 @@ var parseURL = require('url').parse;
 var request = require('request');
 var octonode = require('octonode');
 var createWindow = require('./window-manager').create;
+var config = require('./config');
 var format = require('util').format;
 var debug = require('debug')('scout:electron:github-oauth-flow');
 var client;
 
-function exchangeCodeForToken(opts, code, fn) {
-  var url = 'https://github.com/login/oauth/access_token'
-    + '?client_id=' + opts.github_client_id
-    + '&client_secret=' + opts.github_client_secret
-    + '&code=' + code;
+function exchangeCodeForToken(code, fn) {
+  var url = format('https://github.com/login/oauth/access_token'
+  + '?client_id=%s&client_secret=%s&code=%s',
+    config.get('github:client_id'), config.get('github:client_secret'), code);
 
   request.get({
     url: url,
@@ -46,13 +46,13 @@ function getUser(access_token, done) {
   });
 }
 
-function oauthCallback(opts, url, done) {
+function oauthCallback(url, done) {
   var query = parseURL(url, true).query;
   debug('oauth callback response', query);
   if (query.error) {
     return done(new Error('GitHub auth failed: ' + JSON.stringify(query)));
   }
-  exchangeCodeForToken(opts, query.code, function(err, res) {
+  exchangeCodeForToken(query.code, function(err, res) {
     if (err) return done(err);
 
     getUser(res.access_token, function(err, data) {
@@ -64,9 +64,15 @@ function oauthCallback(opts, url, done) {
   });
 }
 
-module.exports = function(opts, done) {
+module.exports = function(done) {
+  if (!config.get('github:enabled')) {
+    return process.nextTick(function() {
+      done(new Error('GitHub not enabled in config'));
+    });
+  }
   var url = format('https://github.com/login/oauth/authorize?client_id=%s&scope=%s',
-    opts.github_client_id, opts.github_scope);
+    config.get('github:client_id'), config.get('github:scope'));
+  debug('redirecting to', url);
 
   var _window = createWindow({
     url: url,
@@ -77,8 +83,12 @@ module.exports = function(opts, done) {
   });
   debug('starting github oauth web flow...');
 
+  var pending = true;
   var onClose = function() {
-    done(new Error('GitHub oAuth flow cancelled!'));
+    if (!pending) return;
+    var err = new Error('GitHub oAuth flow cancelled');
+    err.cancelled = true;
+    done(err);
   };
   // Handle the user starting the github oauth flow but at
   // any time they could chose to close the window and cancel.
@@ -86,8 +96,8 @@ module.exports = function(opts, done) {
 
   _window.webContents.on('did-get-redirect-request', function(event, fromURL, toURL) {
     debug('github redirected authWindow %s -> %s', event, fromURL, toURL);
-    oauthCallback(opts, toURL, function(err, res) {
-      _window.off('close', onClose);
+    oauthCallback(toURL, function(err, res) {
+      pending = false;
       _window.close();
       _window = null;
       done(err, res);

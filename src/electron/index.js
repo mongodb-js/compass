@@ -13,14 +13,6 @@ var githubOauthFlow = require('./github-oauth-flow');
 var setup = require('./setup');
 var debug = require('debug')('scout:electron');
 
-var settings;
-try {
-  settings = require('../../settings.json');
-} catch (e) {
-  debug('no settings file found.  external services disabled.');
-  settings = {};
-}
-
 app.on('window-all-closed', function() {
   debug('All windows closed.  Quitting app.');
   app.quit();
@@ -62,7 +54,8 @@ app.on('ready', function() {
   ipc.on('open-connect-dialog', app.emit.bind(app, 'open-connect-dialog'));
   ipc.on('open-github-oauth-flow', function(event) {
     var sender = BrowserWindow.fromWebContents(event.sender);
-    githubOauthFlow(settings, function(err, user) {
+    githubOauthFlow(function(err, user) {
+      debug('Got github oauth response', err, user);
       if (err) {
         sender.send('github-oauth-flow-error', err);
       } else {

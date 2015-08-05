@@ -2,12 +2,21 @@ var app = require('app');
 var nconf = require('nconf');
 var path = require('path');
 var pkg = require('../../package.json');
+var untildify = require('untildify');
+var debug = require('debug')('scout:electron:config');
 
-var CONFIG_FILE = path.resolve(__dirname, '../config.json');
 
 var defaults = {
+  private: false,
+  github: {
+    scope: 'user:email,gist',
+    // For pointing at a GitHub Enterprise installations
+    host: 'api.github.com',
+    // e.g. /api/v3 for some GitHub Enterprise installations
+    github_path_prefix: null,
+    protocol: 'https'
+  },
   newrelic: {
-    license_key: null,
     app_name: pkg.product_name,
     use_ssl: true,
     log_enabled: true,
@@ -17,17 +26,27 @@ var defaults = {
 };
 
 nconf
-  .file(CONFIG_FILE)
+  .defaults(defaults)
+  .file(untildify('~/Dropbox/10gen-scout/config/development.json'))
   .env('__')
   .argv()
-  .use('memory')
-  .defaults(defaults);
+  .use('memory');
 
 // Some versions of node leave the colon on the end.
 nconf.overrides({
   newrelic: {
-    enabled: !!nconf.get('newrelic:license_key')
+    enabled: !!nconf.get('newrelic:license_key') && !nconf.get('private')
+  },
+  github: {
+    enabled: !!nconf.get('github:client_secret') && !nconf.get('private')
   }
 });
+
+debug('Features enabled', {
+  github: nconf.get('github:enabled'),
+  newrelic: nconf.get('newrelic:enabled')
+});
+
+
 
 module.exports = nconf;

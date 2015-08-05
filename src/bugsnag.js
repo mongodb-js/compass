@@ -9,7 +9,6 @@
  */
 var bugsnag = require('bugsnag-js');
 var redact = require('./redact');
-var app = require('ampersand-app');
 var _ = require('lodash');
 var debug = require('debug')('scout:bugsnag');
 
@@ -52,4 +51,8 @@ module.exports.listen = function listen(app) {
   });
 
   app.bugsnag = bugsnag;
+};
+
+module.exports.trackError = function(err) {
+  return bugsnag.notifyException(err);
 };

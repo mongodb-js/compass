@@ -6,7 +6,7 @@ var debug = require('debug')('scout:setup');
 
 var stepKlasses = [
   require('./welcome'),
-  // require('./connect-github'),
+  require('./connect-github'),
   require('./user-info'),
   // require('./connect-mongodb'),
   require('./finished')

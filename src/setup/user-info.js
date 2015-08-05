@@ -81,9 +81,17 @@ module.exports = View.extend({
       this.nameInput.value = app.user.name;
     }.bind(this));
 
+    if (app.user.name) {
+      this.nameInput.value = app.user.name;
+    }
+
     this.listenTo(app.user, 'change:email', function() {
       this.emailInput.value = app.user.email;
     }.bind(this));
+
+    if (app.user.email) {
+      this.emailInput.value = app.user.email;
+    }
 
     setTimeout(function() {
       debug('Focusing on name input');

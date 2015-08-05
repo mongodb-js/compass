@@ -1,5 +1,4 @@
 var _ = require('lodash');
-var pkg = require('../package.json');
 var app = require('ampersand-app');
 var debug = require('debug')('scout:intercom');
 
@@ -25,9 +24,6 @@ module.exports.update = function() {
 // @todo (imlucas): Expose to main renderer via IPC so the server can track
 // whatever events it needs to as well.
 module.exports.track = function(eventName, data) {
-  data = _.extend(data || {}, {
-    'App Version': pkg.version
-  });
   window.Intercom('trackEvent', eventName, data);
 };
 
