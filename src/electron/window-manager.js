@@ -2,7 +2,7 @@ var _ = require('lodash');
 
 var BrowserWindow = require('browser-window');
 var app = require('app');
-var debug = require('debug')('scout-electron:window-manager');
+var debug = require('debug')('mongodb-desktop-electron:window-manager');
 var attachMenu = require('./menu');
 var path = require('path');
 

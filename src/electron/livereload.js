@@ -2,7 +2,7 @@ var path = require('path');
 var watch = require('watch');
 var tinyLR = require('tiny-lr');
 var debounce = require('lodash').debounce;
-var debug = require('debug')('scout:electron:livereload');
+var debug = require('debug')('mongodb-desktop:electron:livereload');
 
 var NODE_MODULES_REGEX = /node_modules/;
 var WATCH_DIRECTORY = path.join(__dirname, '..', '..');

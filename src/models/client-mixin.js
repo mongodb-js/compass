@@ -26,7 +26,7 @@ module.exports = {
 
     var done = function(err, res) {
       if (err) return options.error({}, 'error', err.message);
-      raf(function call_scout_client_success() {
+      raf(function call_client_success() {
         options.success(res, 'success', res);
       });
     };

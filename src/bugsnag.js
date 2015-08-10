@@ -1,5 +1,5 @@
 /**
- * Bugsnag captures errors in real-time from Scout, which helps us understand
+ * Bugsnag captures errors in real-time from Desktop, which helps us understand
  * and resolve them as fast as possible.  It's very similar to
  * [Sentry](https://getsentry.com), [Exceptional](https://www.exceptional.io/),
  * and [airbrake](https://airbrake.io/).  We trust it because it's used in
@@ -11,7 +11,7 @@ var bugsnag = require('bugsnag-js');
 var redact = require('./redact');
 var app = require('ampersand-app');
 var _ = require('lodash');
-var debug = require('debug')('scout:bugsnag');
+var debug = require('debug')('mongodb-desktop:bugsnag');
 
 var TOKEN = '0d11ab5f4d97452cc83d3365c21b491c';
 

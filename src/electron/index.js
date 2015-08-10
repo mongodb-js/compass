@@ -3,7 +3,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 var app = require('app');
-var debug = require('debug')('scout-electron');
+var debug = require('debug')('mongodb-desktop-electron');
 var mongo = require('./mongo');
 
 app.on('window-all-closed', function() {

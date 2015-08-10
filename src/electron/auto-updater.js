@@ -1,6 +1,6 @@
 var app = require('app');
 var updater = module.exports = require('auto-updater');
-var debug = require('debug')('scout-electron:auto-updater');
+var debug = require('debug')('mongodb-desktop-electron:auto-updater');
 var FEED_URL = 'http://squirrel.mongodb.parts/scout/releases/latest?version=' + app.getVersion();
 
 debug('Using feed url', FEED_URL);

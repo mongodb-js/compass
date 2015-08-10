@@ -1,13 +1,13 @@
 var MongoDBCollection = require('scout-brain').models.Collection;
 var types = require('./types');
-var scoutClientMixin = require('./scout-client-mixin');
+var clientMixin = require('./client-mixin');
 var format = require('util').format;
 
 /**
  * Metadata for a MongoDB Collection.
  * @see https://github.com/10gen/scout/blob/dev/scout-brain/lib/models/collection.js
  */
-module.exports = MongoDBCollection.extend(scoutClientMixin, {
+module.exports = MongoDBCollection.extend(clientMixin, {
   namespace: 'MongoDBCollection',
   session: {
     selected: {

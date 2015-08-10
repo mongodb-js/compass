@@ -6,7 +6,7 @@ var RefineBarView = require('../refine-view');
 var SamplingMessageView = require('../sampling-message');
 var MongoDBCollection = require('../models/mongodb-collection');
 var SampledSchema = require('../models/sampled-schema');
-var debug = require('debug')('scout:home:collection');
+var debug = require('debug')('mongodb-desktop:home:collection');
 var app = require('ampersand-app');
 
 var MongoDBCollectionView = View.extend({

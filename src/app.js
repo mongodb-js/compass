@@ -19,7 +19,7 @@ var localLinks = require('local-links');
  * The top-level application singleton that brings everything together!
  *
  * @example
- *   // Drive Scout from the chrome devtools console using the `app` window global:
+ *   // Drive MongoDB Desktop from the chrome devtools console using the `app` window global:
  *   console.log(app);
  *   // What are the current query options?
  *   console.log('Query options are', app.queryOptions);

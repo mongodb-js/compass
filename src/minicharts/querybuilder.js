@@ -1,5 +1,5 @@
 var _ = require('lodash');
-var debug = require('debug')('scout:minicharts:index');
+var debug = require('debug')('mongodb-desktop:minicharts:index');
 var d3 = require('d3');
 
 var LeafValue = require('mongodb-language-model').LeafValue;
