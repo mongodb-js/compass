@@ -26,16 +26,41 @@ functions:
       params:
         working_dir: src
         script: |
-          set -o errexit -o verbose
-          export ${compile_env}
-          ${npm|npm} install
+          set -o errexit
+          export PATH="$PATH:${add_path|}"
+          test -n "${add_environment|}" && export "${add_environment|}"
+          set -o verbose
+          "${npm|npm}" install
   "npm test" :
     - command: shell.exec
       params:
         working_dir: src
         script: |
-          set -o errexit -o verbose
-          ${npm|npm} test
+          set -o errexit
+          export PATH="$PATH:${add_path|}"
+          test -n "${add_environment|}" && export "${add_environment|}"
+          set -o verbose
+          "${npm|npm}" run test
+  "npm check" :
+    - command: shell.exec
+      params:
+        working_dir: src
+        script: |
+          set -o errexit
+          export PATH="$PATH:${add_path|}"
+          test -n "${add_environment|}" && export "${add_environment|}"
+          set -o verbose
+          "${npm|npm}" run check
+  "npm release" :
+    - command: shell.exec
+      params:
+        working_dir: src
+        script: |
+          set -o errexit
+          export PATH="$PATH:${add_path|}"
+          test -n "${add_environment|}" && export "${add_environment|}"
+          set -o verbose
+          "${npm|npm}" run release
 
 #######################################
 #               Tasks                 #
@@ -45,13 +70,16 @@ tasks:
 - name: compile
   depends_on: []
   commands:
-    - func: "fetch source"
-    - func: "npm install"
-- name: test
-  depends_on:
-  - name: compile
-  commands:
+  - func: "fetch source"
+  - func: "npm install"
   - func: "npm test"
+#  - func: "npm check"
+  - func: "npm release"
+# - name: test
+#   depends_on:
+#   - name: compile
+#   commands:
+#   - func: "npm test"
 
 
 #######################################
@@ -65,10 +93,12 @@ buildvariants:
   run_on:
   - "osx-108"
   expansions:
+    add_environment: ""
+    add_path: "/opt/node/bin"
     num_cores: $(sysctl -n hw.logicalcpu)
   tasks:
   - name: compile
-  - name: test
+  # - name: test
 
 - name: windows-64
   display_name: Windows 64-bit
@@ -76,20 +106,26 @@ buildvariants:
   run_on:
   - "windows-64-vs2013-test"
   expansions:
+    add_environment: "APPDATA=C:\\Program Files (x86)\\nodejs\\node_modules"
+    add_path: "/cygdrive/c/Program Files (x86)/nodejs"
     exe: ".exe"
     num_cores: $(grep -c ^processor /proc/cpuinfo)
   tasks:
   - name: compile
-  - name: test
+  # - name: test
 
-- name: ubuntu
-  display_name: Ubuntu
-  modules: ~
-  run_on:
-  - "ubuntu1404-test"
-  expansions:
-    compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
-    num_cores: $(grep -c ^processor /proc/cpuinfo)
-  tasks:
-  - name: compile
-  - name: test
+## ubuntu buildvariant is ready to go when we're ready to add tasks/linux.js
+
+# - name: ubuntu
+#   display_name: Ubuntu
+#   modules: ~
+#   run_on:
+#   - "ubuntu1404-test"
+#   expansions:
+#     add_environment: ""
+#     add_path: "/opt/node/bin"
+#     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
+#     num_cores: $(grep -c ^processor /proc/cpuinfo)
+#   tasks:
+#   - name: compile
+#   # - name: test
