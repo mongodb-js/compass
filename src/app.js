@@ -1,13 +1,29 @@
+// Injected into index.html by the gulp build task.
+var CONFIG = window.CONFIG;
+
+// Do most basic setup of app here so we can get bugsnag listening
+// for errors as high in the stack as possible.
+var _ = require('lodash');
 var pkg = require('../package.json');
 var app = require('ampersand-app');
+/*eslint no-bitwise:0*/
 app.extend({
+  // @todo (imlucas): use http://npm.im/osx-release and include platform details
+  // in event tracking.
   meta: {
     'App Version': pkg.version
+  },
+  config: CONFIG,
+  /**
+   * Feature flags.
+   */
+  isFeatureEnabled: function(name) {
+    return Boolean(~~_.get(CONFIG, name + '.enabled'));
   }
 });
-require('./bugsnag').listen(app);
 
-var _ = require('lodash');
+require('./bugsnag');
+
 var domReady = require('domready');
 var qs = require('qs');
 var getOrCreateClient = require('scout-client');
@@ -65,11 +81,7 @@ var Application = View.extend({
     /**
      * @see http://learn.humanjavascript.com/react-ampersand/creating-a-router-and-pages
      */
-    router: 'object',
-    /**
-     * Enable/Disable features with one global switch
-     */
-    features: 'object'
+    router: 'object'
   },
   events: {
     'click a': 'onLinkClick'
@@ -158,10 +170,6 @@ var Statusbar = require('./statusbar');
 require('./context-menu-manager');
 
 app.extend({
-  client: null,
-  meta: {
-    'App Version': pkg.version
-  },
   openSetupDialog: function() {
     app.ipc.send('open-setup-dialog');
   },
@@ -170,22 +178,18 @@ app.extend({
   },
   init: function() {
     state.statusbar = new Statusbar();
-    this.connection = new Connection();
-    this.connection.use(uri);
-    this.queryOptions = new QueryOptions();
-    this.instance = new MongoDBInstance();
+    state.connection = new Connection();
+    state.connection.use(uri);
 
-    // feature flags
-    this.features = {
-      querybuilder: true
-    };
+    state.queryOptions = new QueryOptions();
+    state.instance = new MongoDBInstance();
+
     state.user = new User();
     state.router = new Router();
 
     this.on('change:ipc', function() {
       debug('ipc now available!');
     });
-    this.router = state.router;
   },
   use: function(fn) {
     fn.call(null, this);
@@ -210,10 +214,34 @@ Object.defineProperty(app, 'user', {
   }
 });
 
+Object.defineProperty(app, 'instance', {
+  get: function() {
+    return state.instance;
+  }
+});
+
+Object.defineProperty(app, 'queryOptions', {
+  get: function() {
+    return state.queryOptions;
+  }
+});
+
+Object.defineProperty(app, 'connection', {
+  get: function() {
+    return state.connection;
+  }
+});
+
+Object.defineProperty(app, 'router', {
+  get: function() {
+    return state.router;
+  }
+});
+
 Object.defineProperty(app, 'client', {
   get: function() {
     return getOrCreateClient({
-      seed: app.connection.uri
+      seed: state.connection.uri
     });
   }
 });

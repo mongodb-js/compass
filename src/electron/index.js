@@ -8,6 +8,7 @@ var app = require('app');
 var BrowserWindow = require('browser-window');
 var Menu = require('menu');
 var ipc = require('ipc');
+var config = require('./config');
 var windows = require('./window-manager');
 var githubOauthFlow = require('./github-oauth-flow');
 var setup = require('./setup');
@@ -69,6 +70,9 @@ app.on('ready', function() {
       debug('setup marked complete');
     });
   });
-
-  setup();
+  if (config.isFeatureEnabled('setup')) {
+    setup();
+  } else {
+    windows.openConnectDialog();
+  }
 });

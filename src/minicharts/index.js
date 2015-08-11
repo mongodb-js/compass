@@ -24,7 +24,9 @@ module.exports = AmpersandView.extend(QueryBuilderMixin, {
     },
     selectedValues: {
       type: 'array',
-      default: function() { return []; }
+      default: function() {
+        return [];
+      }
     }
   },
   initialize: function(opts) {
@@ -50,7 +52,7 @@ module.exports = AmpersandView.extend(QueryBuilderMixin, {
     } else {
       this.subview = new VizView(this.viewOptions);
     }
-    if (app.features.querybuilder) {
+    if (app.isFeatureEnabled('querybuilder')) {
       this.listenTo(this.subview, 'querybuilder', this.handleQueryBuilderEvent);
     }
     raf(function() {

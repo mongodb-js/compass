@@ -19,17 +19,16 @@ module.exports.update = function() {
   window.Intercom('update');
 };
 
-// @todo (imlucas): use http://npm.im/osx-release and include platform details
-// in event tracking.
 // @todo (imlucas): Expose to main renderer via IPC so the server can track
 // whatever events it needs to as well.
 module.exports.track = function(eventName, data) {
+  if (!app.isFeatureEnabled('intercom')) return;
   window.Intercom('trackEvent', eventName, data);
 };
 
 function boot() {
   var config = _.extend(app.user.toJSON(), {
-    app_id: 'p57suhg7'
+    app_id: _.get(app.config, 'intercom.app_id')
   });
   config.user_id = app.user.id;
   debug('Syncing user info w/ intercom', config);
@@ -64,6 +63,11 @@ module.exports.hide = function() {
  * @param {models.User} user - The current user.
  */
 module.exports.inject = function(user) {
+  if (!app.isFeatureEnabled('intercom')) {
+    debug('intercom is not enabled');
+    return;
+  }
+
   var head = document.getElementsByTagName('head')[0];
   var script = document.createElement('script');
   script.type = 'text/javascript';

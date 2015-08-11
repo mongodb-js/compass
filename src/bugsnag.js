@@ -10,9 +10,8 @@
 var bugsnag = require('bugsnag-js');
 var redact = require('./redact');
 var _ = require('lodash');
+var app = require('ampersand-app');
 var debug = require('debug')('scout:bugsnag');
-
-var TOKEN = '0d11ab5f4d97452cc83d3365c21b491c';
 
 // @todo (imlucas): use mongodb-redact
 function beforeNotify(d) {
@@ -35,13 +34,10 @@ function beforeNotify(d) {
  * @todo (imlucas): When first-run branch merged, include user id:
  *   https://github.com/bugsnag/bugsnag-js#user
  */
-module.exports.listen = function listen(app) {
-  if (!process.env.NODE_ENV) {
-    process.env.NODE_ENV = 'development';
-  }
-
+var enabled = _.get(app.get, 'bugsnag.enabled');
+if (!enabled) {
   _.assign(bugsnag, {
-    apiKey: TOKEN,
+    apiKey: _.get(app.config, 'bugsnag.token'),
     autoNotify: true,
     releaseStage: process.env.NODE_ENV,
     notifyReleaseStages: ['production', 'development'],
@@ -49,10 +45,13 @@ module.exports.listen = function listen(app) {
     metaData: app.meta,
     beforeNotify: beforeNotify
   });
-
   app.bugsnag = bugsnag;
-};
 
-module.exports.trackError = function(err) {
-  return bugsnag.notifyException(err);
-};
+  module.exports.trackError = function(err) {
+    return bugsnag.notifyException(err);
+  };
+} else {
+  module.exports.trackError = function(err) {
+    console.log('Error', err);
+  };
+}
