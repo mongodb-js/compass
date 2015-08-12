@@ -3,7 +3,9 @@ var EJSON = require('mongodb-extended-json');
 var Query = require('mongodb-language-model').Query;
 // var debug = require('debug')('scout:models:query-options');
 
-var DEFAULT_QUERY = new Query({}, { parse: true });
+var DEFAULT_QUERY = new Query({}, {
+  parse: true
+});
 var DEFAULT_SORT = {
   $natural: -1
 };

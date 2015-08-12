@@ -10,10 +10,10 @@ module.exports = AmpersandRouter.extend({
     '': 'index',
     schema: 'index',
     connect: 'connect',
-    'setup': 'setup',
+    setup: 'setup',
     'setup/:step': 'setup',
     'schema/:ns': 'schema',
-    '(*path)': 'catchAll',
+    '(*path)': 'catchAll'
   },
   index: function() {
     intercom.track('Connected to MongoDB');

@@ -5,7 +5,6 @@ module.exports = View.extend({
   },
   template: require('./connect-mongodb.jade'),
   onContinueClicked: function(evt) {
-    debugger;
     evt.preventDefault();
     this.parent.step++;
   }

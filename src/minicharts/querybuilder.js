@@ -1,5 +1,4 @@
 var _ = require('lodash');
-var debug = require('debug')('scout:minicharts:index');
 var d3 = require('d3');
 
 var LeafValue = require('mongodb-language-model').LeafValue;
@@ -32,7 +31,9 @@ module.exports = {
         this.selectedValues = [data];
       }
     } else if (_.contains(_.pluck(this.selectedValues, 'i'), data.i)) {
-      _.remove(this.selectedValues, function(d) { return d.i === data.i; });
+      _.remove(this.selectedValues, function(d) {
+        return d.i === data.i;
+      });
     } else {
       this.selectedValues.push(data);
     }
@@ -67,7 +68,9 @@ module.exports = {
         $in: this.selectedValues.map(function(el) {
           return el.d.value;
         })
-      }, { parse: true });
+      }, {
+        parse: true
+      });
     }
   },
 
@@ -129,7 +132,9 @@ module.exports = {
         upper += last.d.dx;
       }
       if (lower === upper) {
-        this.refineValue = new LeafValue({ content: lower });
+        this.refineValue = new LeafValue({
+          content: lower
+        });
       } else {
         this.refineValue = new Range(lower, upper, upperInclusive);
       }

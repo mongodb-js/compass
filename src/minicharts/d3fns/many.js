@@ -2,7 +2,6 @@ var d3 = require('d3');
 var _ = require('lodash');
 var tooltipHtml = require('./tooltip.jade');
 var shared = require('./shared');
-var debug = require('debug')('scout:minicharts:many');
 
 require('../d3-tip')(d3);
 

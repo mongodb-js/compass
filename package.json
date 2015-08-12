@@ -22,12 +22,14 @@
       "font-awesome",
       "octicons",
       "app",
+      "ipc",
       "auto-updater",
       "crash-reporter",
       "browser-window",
       "menu",
       "jade",
-      "ampersand-state"
+      "ampersand-state",
+      "animate.css"
     ]
   },
   "fonts": [

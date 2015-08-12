@@ -3,6 +3,7 @@ var app = require('app');
 var config = require('./config');
 var debug = require('debug')('scout:electron:setup');
 
+/*eslint no-console:0*/
 module.exports = function showSetupOrStart() {
   fs.exists(config.get('setup:file'), function(exists) {
     if (!exists) {

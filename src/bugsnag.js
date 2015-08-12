@@ -51,6 +51,7 @@ if (!enabled) {
     return bugsnag.notifyException(err);
   };
 } else {
+  /*eslint no-console:0*/
   module.exports.trackError = function(err) {
     console.log('Error', err);
   };
