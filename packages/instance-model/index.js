@@ -3,6 +3,7 @@ var AmpersandCollection = require('ampersand-rest-collection');
 var AmpersandState = require('ampersand-state');
 var DatabaseCollection = require('mongodb-database-model').Collection;
 var CollectionCollection = require('mongodb-collection-model').Collection;
+var hostname = require('os').hostname();
 
 var HostInfo = AmpersandState.extend({
   props: {
@@ -75,3 +76,10 @@ module.exports = Instance;
 module.exports.Collection = InstanceCollection;
 module.exports.BuildInfo = BuildInfo;
 module.exports.HostInfo = HostInfo;
+
+module.exports.getId = function(id) {
+  if (typeof id === 'number') {
+    id = 'localhost:' + id;
+  }
+  return id.toLowerCase().replace(hostname, 'localhost').replace('mongodb://', '');
+};
