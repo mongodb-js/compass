@@ -77,7 +77,8 @@ module.exports = {
 
   /**
    * Handler for query builder events that result in range selection, e.g. number type.
-   * single click selects individual element, shift-click selects range.
+   * single click selects individual element, shift-click extends to range (the single click is
+   * interpreted as one end of the range, shift-click as the other).
    * @param  {Object} data   the contains information about the event, @see handleQueryBuilderEvent
    */
   handleRangeEvent: function(data) {
@@ -117,6 +118,13 @@ module.exports = {
         upper += last.d.dx;
       }
 
+      /**
+       * if the UI element represents a range (i.e. binned histograms where one bar represents
+       * 20-30, the next one 30-40, etc.) then the upper limit is non-inclusive ($lt).
+       * If however the UI elements represents a single number, then the upper limit is
+       * inclusive ($lte).
+       * This is indicated by the d.dx variable, which is only > 0 for binned ranges.
+       */
       var upperInclusive = last.d.dx === 0;
       _.each(data.all, function(el) {
         var elData = getComparableValue(d3.select(el).data()[0]);

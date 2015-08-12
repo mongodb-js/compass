@@ -36,9 +36,26 @@ module.exports = function(opts) {
     .attr('width', width)
     .attr('height', height);
 
-  var chart = data.length <= 5 ? few : many;
-  chart(data, opts.view, g, width, height, {
-    scale: true,
-    bglines: true
-  });
+  var chartFn = data.length <= 5 ? few.newFn : many.newFn;
+  var chart = chartFn()
+    .width(width)
+    .height(height)
+    .options({
+      scale: true,
+      bgbars: false,
+      view: opts.view
+    });
+
+  d3.select(g)
+    .datum(data)
+    .call(chart);
+
+  // simulate data changes
+  // setInterval(function() {
+  //   _.each(data, function(d) {
+  //     d.count = _.random(0, 20);
+  //   });
+  //   data = _.sortByOrder(data, 'count', [false]);
+  //   d3.select(g).call(chart);
+  // }, 500);
 };
