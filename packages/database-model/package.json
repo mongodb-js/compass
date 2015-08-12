@@ -2,7 +2,7 @@
   "name": "mongodb-database-model",
   "description": "MongoDB database model.",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "bugs": "https://github.com/mongodb-js/mongodb-database-model/issues",
   "homepage": "https://github.com/mongodb-js/mongodb-database-model",
   "repository": "git://github.com/mongodb-js/mongodb-database-model.git",
@@ -15,7 +15,10 @@
     "test": "mocha",
     "check": "mongodb-js-precommit"
   },
-  "precommit": ["check", "test"],
+  "precommit": [
+    "check",
+    "test"
+  ],
   "dependencies": {
     "ampersand-model": "^5.0.3",
     "ampersand-rest-collection": "^4.0.0"
