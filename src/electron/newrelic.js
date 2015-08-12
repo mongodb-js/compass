@@ -16,7 +16,8 @@ var ENV = {
   NEW_RELIC_LOG: config.get('newrelic:log_filepath'),
   NEW_RELIC_SLOW_SQL_ENABLED: false,
   NEW_RELIC_UTILIZATION_DETECT_AWS: false,
-  NEW_RELIC_UTILIZATION_DETECT_DOCKER: false
+  NEW_RELIC_UTILIZATION_DETECT_DOCKER: false,
+  NEW_RELIC_NO_CONFIG_FILE: true
 };
 
 _.assign(process.env, ENV);
