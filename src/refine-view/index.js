@@ -92,7 +92,9 @@ module.exports = AmpersandView.extend({
   },
   refineClicked: function() {
     var queryStr = this._cleanupInput(this.queryByHook('refine-input').value);
-    var queryObj = new Query(EJSON.parse(queryStr), { parse: true });
+    var queryObj = new Query(EJSON.parse(queryStr), {
+      parse: true
+    });
     this.model.query = queryObj;
     this.trigger('submit', this);
   },

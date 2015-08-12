@@ -59,7 +59,9 @@ var minicharts_d3fns_date = function(opts) {
   var barcodeBottom = Math.floor(height - 10);
 
   var barcodeX = d3.time.scale()
-    .domain(d3.extent(values, function(d) { return d.ts; }))
+    .domain(d3.extent(values, function(d) {
+      return d.ts;
+    }))
     .range([0, width]);
 
   var upperBarBottom = height / 2 - 20;
@@ -155,14 +157,14 @@ var minicharts_d3fns_date = function(opts) {
   raf(function() {
     many(weekdays, opts.view, weekdayContainer,
       width / (upperRatio + 1) - upperMargin, upperBarBottom, {
-      bgbars: true,
-      labels: {
-        'text-anchor': 'middle',
-        text: function(d) {
-          return d.label[0];
+        bgbars: true,
+        labels: {
+          'text-anchor': 'middle',
+          text: function(d) {
+            return d.label[0];
+          }
         }
-      }
-    });
+      });
   });
 
   // calendar icon
