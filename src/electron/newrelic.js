@@ -23,8 +23,7 @@ _.assign(process.env, ENV);
 
 if (config.get('newrelic:enabled')) {
   debug('newrelic enabled!  view log file at `%s`', config.get('newrelic:log_filepath'));
+  require('newrelic');
 } else {
   debug('newrelic not enabled');
 }
-
-require('newrelic');
