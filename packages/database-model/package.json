@@ -1,0 +1,29 @@
+{
+  "name": "mongodb-database-model",
+  "description": "MongoDB database model.",
+  "author": "Lucas Hrabovsky <lucas@mongodb.com>",
+  "version": "0.0.0",
+  "bugs": "https://github.com/mongodb-js/mongodb-database-model/issues",
+  "homepage": "https://github.com/mongodb-js/mongodb-database-model",
+  "repository": "git://github.com/mongodb-js/mongodb-database-model.git",
+  "license": "Apache-2.0",
+  "keywords": [
+    "mongodb-js"
+  ],
+  "scripts": {
+    "ci": "mocha",
+    "test": "mocha",
+    "check": "mongodb-js-precommit"
+  },
+  "precommit": ["check", "test"],
+  "dependencies": {
+    "ampersand-model": "^5.0.3",
+    "ampersand-rest-collection": "^4.0.0"
+  },
+  "devDependencies": {
+    "eslint-config-mongodb-js": "^0.1.5",
+    "mocha": "^2.2.5",
+    "mongodb-js-precommit": "^0.1.4",
+    "pre-commit": "^1.1.1"
+  }
+}
