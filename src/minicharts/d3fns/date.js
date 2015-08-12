@@ -153,16 +153,23 @@ var minicharts_d3fns_date = function(opts) {
   var weekdayContainer = svg.append('g');
 
   raf(function() {
-    many(weekdays, opts.view, weekdayContainer,
-      width / (upperRatio + 1) - upperMargin, upperBarBottom, {
-      bgbars: true,
-      labels: {
-        'text-anchor': 'middle',
-        text: function(d) {
-          return d.label[0];
-        }
-      }
-    });
+    var chart = many.newFn()
+      .width(width / (upperRatio + 1) - upperMargin)
+      .height(upperBarBottom)
+      .options({
+        bgbars: true,
+        labels: {
+          'text-anchor': 'middle',
+          text: function(d) {
+            return d.label[0];
+          }
+        },
+        view: opts.view
+      });
+
+    d3.select(weekdayContainer)
+      .datum(weekdays)
+      .call(chart);
   });
 
   // calendar icon
@@ -178,16 +185,25 @@ var minicharts_d3fns_date = function(opts) {
 
   var hourContainer = svg.append('g')
     .attr('transform', 'translate(' + (width / (upperRatio + 1) + upperMargin) + ', 0)');
+
   raf(function() {
-    var _manyWidth = width / (upperRatio + 1) * upperRatio - upperMargin;
-    many(hours, opts.view, hourContainer, _manyWidth, upperBarBottom, {
-      bgbars: true,
-      labels: {
-        text: function(d, i) {
-          return i % 6 === 0 || i === 23 ? d.label : '';
-        }
-      }
-    });
+    var chartWidth = width / (upperRatio + 1) * upperRatio - upperMargin;
+    var chart = many.newFn()
+      .width(chartWidth)
+      .height(upperBarBottom)
+      .options({
+        bgbars: true,
+        labels: {
+          text: function(d, i) {
+            return i % 6 === 0 || i === 23 ? d.label : '';
+          }
+        },
+        view: opts.view
+      });
+
+    d3.select(hourContainer)
+      .datum(hours)
+      .call(chart);
   });
 
   // clock icon

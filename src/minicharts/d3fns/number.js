@@ -2,6 +2,7 @@ var d3 = require('d3');
 var _ = require('lodash');
 var many = require('./many');
 var shared = require('./shared');
+var debug = require('debug')('scout:minicharts:number');
 
 module.exports = function(opts) {
   var values = opts.model.values.toJSON();
@@ -74,9 +75,31 @@ module.exports = function(opts) {
     };
   }
 
-  many(data, opts.view, g, width, height - 10, {
-    scale: true,
-    bgbars: false,
-    labels: labels
-  });
+  var chart = many.newFn()
+    .width(width)
+    .height(height - 10)
+    .options({
+      scale: true,
+      bgbars: false,
+      labels: labels,
+      view: opts.view
+    });
+
+  d3.select(g)
+    .datum(data)
+    .call(chart);
+
+  // simulate data changes
+  // setInterval(function() {
+  //   _.each(data, function(d) {
+  //     d.count = _.random(0, 20);
+  //   });
+  //   d3.select(g).call(chart);
+  // }, 500);
+
+  // many(data, opts.view, g, width, height - 10, {
+  //   scale: true,
+  //   bgbars: false,
+  //   labels: labels
+  // });
 };

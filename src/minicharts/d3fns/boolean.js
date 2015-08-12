@@ -2,6 +2,7 @@ var d3 = require('d3');
 var _ = require('lodash');
 var few = require('./few');
 var shared = require('./shared');
+var debug = require('debug')('scout:minicharts:boolean');
 
 var minicharts_d3fns_boolean = function(opts) {
   var values = opts.model.values.toJSON();
@@ -38,7 +39,26 @@ var minicharts_d3fns_boolean = function(opts) {
     .append('g')
     .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
-  few(data, opts.view, g, width, height);
+  var chart = few.newFn()
+    .width(width)
+    .height(height)
+    .options({
+      view: opts.view
+    });
+
+  d3.select(g)
+    .datum(data)
+    .call(chart);
+
+  // simulate data changes
+  // setInterval(function() {
+  //   _.each(data, function(d) {
+  //     d.count = _.random(0, 100);
+  //   });
+  //   d3.select(g).call(chart);
+  // }, 500);
+  
+  // few(data, opts.view, g, width, height);
 };
 
 module.exports = minicharts_d3fns_boolean;
