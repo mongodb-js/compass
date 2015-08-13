@@ -28,11 +28,10 @@ var minicharts_d3fns_many = function() {
     .offset([-9, 0]);
   // --- end chart setup ---
 
-  var handleClick = function(d, i) {
+  var handleClick = function(d) {
     if (!options.view) return;
     var evt = {
       d: d,
-      i: i,
       self: this,
       all: options.view.queryAll('rect.fg'),
       evt: d3.event,

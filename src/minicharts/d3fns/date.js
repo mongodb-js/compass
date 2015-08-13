@@ -48,10 +48,9 @@ var minicharts_d3fns_date = function() {
     .offset([-9, 0]);
   // --- end chart setup ---
 
-  var handleClick = function(d, i) {
+  var handleClick = function(d) {
     var evt = {
       d: d,
-      i: i,
       self: this,
       all: options.view.queryAll('line.line'),
       evt: d3.event,

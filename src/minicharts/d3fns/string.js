@@ -48,6 +48,8 @@ var minicharts_d3fns_string = function() {
         .attr('height', innerHeight);
 
       var chartFn = grouped.length <= 5 ? fewChart : manyChart;
+      options.scale = true;
+      
       chartFn
         .width(innerWidth)
         .height(innerHeight)
