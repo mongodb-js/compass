@@ -81,6 +81,9 @@ module.exports = {
     }.bind(this));
   },
 
+  /**
+   * build new range ($gte, $lt(e)) query based on current selection and store as this.refineValue.
+   */
   buildRangeQuery: function() {
     var firstSelected = this.selectedValues[0];
     var getComparableValue = this._getComparableValue.bind(this);
