@@ -62,8 +62,8 @@ module.exports = {
 
     // visual updates
     _.each(data.all, function(el) {
-      var elData = d3.select(el).data()[0];
-      if (_.contains(_.pluck(this.selectedValues, 'value'), elData.value)) {
+      var elData = data.source === 'unique' ? el.innerText : d3.select(el).data()[0].value;
+      if (_.contains(_.pluck(this.selectedValues, 'value'), elData)) {
         el.classList.add('selected');
         el.classList.remove('unselected');
       } else {
@@ -217,7 +217,7 @@ module.exports = {
       case 'ObjectID': // fall-through to Date
       case 'Date':
         // @todo: for dates, data.all is not sorted, so this is not yet working
-        rangeEvent(data);
+        rangeEvent.call(this, data);
         this.buildRangeQuery();
         break;
       default: // @todo other types not implemented yet
