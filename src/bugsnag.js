@@ -36,7 +36,7 @@ function beforeNotify(d) {
  * @todo (imlucas): When first-run branch merged, include user id:
  *   https://github.com/bugsnag/bugsnag-js#user
  */
-module.exports.listen = function listen(app) {
+module.exports.listen = function listen() {
   if (!process.env.NODE_ENV) {
     process.env.NODE_ENV = 'development';
   }

@@ -4,7 +4,6 @@ var moment = require('moment');
 var shared = require('./shared');
 var many = require('./many');
 var raf = require('raf');
-var debug = require('debug')('scout:minicharts:date');
 
 require('../d3-tip')(d3);
 
