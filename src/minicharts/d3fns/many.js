@@ -26,7 +26,45 @@ var minicharts_d3fns_many = function() {
     .attr('class', 'd3-tip')
     .direction('n')
     .offset([-9, 0]);
-  // --- end chart setup ---
+
+  var brush = d3.svg.brush()
+    .x(xScale)
+    .on('brush', brushed)
+    .on('brushend', brushend);
+    // --- end chart setup ---
+
+  function brushed() {
+    var bars = d3.selectAll(options.view.queryAll('rect.fg'));
+    var s = d3.event.target.extent();
+
+    bars.classed('selected', function(d) {
+      var left = xScale(d.label);
+      var right = left + xScale.rangeBand();
+      return s[0] <= right && left <= s[1];
+    });
+    bars.classed('unselected', function(d) {
+      var left = xScale(d.label);
+      var right = left + xScale.rangeBand();
+      return s[0] > right || left > s[1];
+    });
+  };
+
+  function brushend() {
+    var bars = d3.selectAll(options.view.queryAll('rect.fg'));
+    if (brush.empty()) {
+      bars.classed('selected', false);
+      bars.classed('unselected', false);
+    }
+    d3.select(this).call(brush.clear());
+
+    if (!options.view) return;
+    var evt = {
+      selected: options.view.queryAll('rect.fg.selected'),
+      type: 'drag',
+      source: 'many'
+    };
+    options.view.trigger('querybuilder', evt);
+  };
 
   var handleClick = function(d) {
     if (!options.view) return;
@@ -142,6 +180,14 @@ var minicharts_d3fns_many = function() {
 
         legend.exit().remove();
       }
+
+      var gBrush = el.selectAll('.brush').data([0]);
+      gBrush.enter().append('g')
+        .attr('class', 'brush')
+        .call(brush)
+        .selectAll('rect')
+        .attr('y', 0)
+        .attr('height', height);
 
       // select all g.bar elements
       var bar = el.selectAll('.bar')
