@@ -22,6 +22,7 @@ var CONFIG = module.exports = {
   icon: path.resolve(__dirname, '../images/win32/scout.icon'),
   overwrite: true,
   asar: true,
+  prune: true,
   'version-string': {
     CompanyName: 'MongoDB Inc.',
     LegalCopyright: '2015 MongoDB Inc.',
@@ -51,7 +52,7 @@ module.exports.installer = function(done) {
   packager(CONFIG, function(err) {
     if (err) return done(err);
 
-    var unpacked = path.resolve(__dirname, '..' + path.join(APP_PATH, 'resources', 'app'));
+    var unpacked = path.resolve(CONFIG.BUILD);
     debug('Deleting `%s` so app is loaded from .asar', unpacked);
     del(unpacked, function() {
       createInstaller(CONFIG, function(err) {
