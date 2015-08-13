@@ -27,40 +27,42 @@ functions:
         working_dir: src
         script: |
           set -o errexit
+          set -o verbose
           export PATH="$PATH:${add_path|}"
           test -n "${add_environment|}" && export "${add_environment|}"
-          set -o verbose
-          "${npm|npm}" install
+          ${node|node} --version
+          ${npm|npm} --version
+          ${npm|npm} install
   "npm test" :
     - command: shell.exec
       params:
         working_dir: src
         script: |
           set -o errexit
+          set -o verbose
           export PATH="$PATH:${add_path|}"
           test -n "${add_environment|}" && export "${add_environment|}"
-          set -o verbose
-          "${npm|npm}" run test
+          ${npm|npm} run test
   "npm check" :
     - command: shell.exec
       params:
         working_dir: src
         script: |
           set -o errexit
+          set -o verbose
           export PATH="$PATH:${add_path|}"
           test -n "${add_environment|}" && export "${add_environment|}"
-          set -o verbose
-          "${npm|npm}" run check
+          ${npm|npm} run check
   "npm release" :
     - command: shell.exec
       params:
         working_dir: src
         script: |
           set -o errexit
+          set -o verbose
           export PATH="$PATH:${add_path|}"
           test -n "${add_environment|}" && export "${add_environment|}"
-          set -o verbose
-          "${npm|npm}" run release
+          ${npm|npm} run release
 
 #######################################
 #               Tasks                 #
@@ -75,6 +77,17 @@ tasks:
   - func: "npm test"
 #  - func: "npm check"
   - func: "npm release"
+  - command: s3.put
+    params:
+      aws_key: ${aws_key}
+      aws_secret: ${aws_secret}
+      local_file: "src/dist/${installer_filename}"
+      remote_file: "mongodbjs-scout-master/${build_variant}/${revision}/${installer_filename}"
+      bucket: mciuploads
+      permissions: public-read
+      content_type: ${installer_content_type|application/octet-stream}
+      display_name: Installer
+
 # - name: test
 #   depends_on:
 #   - name: compile
@@ -94,7 +107,9 @@ buildvariants:
   - "osx-108"
   expansions:
     add_environment: ""
-    add_path: "/opt/node/bin"
+    add_path: /opt/node/bin
+    installer_content_type: "application/x-apple-diskimage"
+    installer_filename: "MongoDB Scout.dmg"
     num_cores: $(sysctl -n hw.logicalcpu)
   tasks:
   - name: compile
@@ -108,6 +123,8 @@ buildvariants:
   expansions:
     add_environment: "APPDATA=C:\\Program Files (x86)\\nodejs\\node_modules"
     add_path: "/cygdrive/c/Program Files (x86)/nodejs"
+    installer_content_type: "application/octet-stream"
+    installer_filename: "MongoDB Scout.exe"
     exe: ".exe"
     num_cores: $(grep -c ^processor /proc/cpuinfo)
   tasks:
