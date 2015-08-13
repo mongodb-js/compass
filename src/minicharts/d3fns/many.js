@@ -47,7 +47,7 @@ var minicharts_d3fns_many = function() {
       var right = left + xScale.rangeBand();
       return s[0] > right || left > s[1];
     });
-  };
+  }
 
   function brushend() {
     var bars = d3.selectAll(options.view.queryAll('rect.fg'));
@@ -64,7 +64,7 @@ var minicharts_d3fns_many = function() {
       source: 'many'
     };
     options.view.trigger('querybuilder', evt);
-  };
+  }
 
   var handleClick = function(d) {
     if (!options.view) return;

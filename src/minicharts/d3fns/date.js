@@ -46,6 +46,41 @@ var minicharts_d3fns_date = function() {
     })
     .direction('n')
     .offset([-9, 0]);
+
+  var brush = d3.svg.brush()
+    .x(barcodeX)
+    .on('brush', brushed)
+    .on('brushend', brushend);
+
+  function brushed() {
+    var lines = d3.selectAll(options.view.queryAll('.line'));
+    var s = d3.event.target.extent();
+
+    lines.classed('selected', function(d) {
+      return s[0] <= d.ts && d.ts <= s[1];
+    });
+    lines.classed('unselected', function(d) {
+      var pos = barcodeX(d.dt);
+      return s[0] > pos || pos > s[1];
+    });
+  }
+
+  function brushend() {
+    var lines = d3.selectAll(options.view.queryAll('.line'));
+    if (brush.empty()) {
+      lines.classed('selected', false);
+      lines.classed('unselected', false);
+    }
+    d3.select(this).call(brush.clear());
+
+    if (!options.view) return;
+    var evt = {
+      selected: options.view.queryAll('line.line.selected'),
+      type: 'drag',
+      source: 'many'
+    };
+    options.view.trigger('querybuilder', evt);
+  }
   // --- end chart setup ---
 
   var handleClick = function(d) {
@@ -156,8 +191,10 @@ var minicharts_d3fns_date = function() {
       lines.enter().append('line')
         .attr('class', 'line')
         .on('mouseover', tip.show)
-        .on('mouseout', tip.hide)
-        .on('click', handleClick);
+        .on('mouseout', tip.hide);
+
+        // disabling direct onClick handler in favor of click-drag
+        // .on('click', handleClick);
 
       lines
         .attr('y1', barcodeTop)
@@ -170,6 +207,14 @@ var minicharts_d3fns_date = function() {
         });
 
       lines.exit().remove();
+
+      var gBrush = g.selectAll('.brush').data([0]);
+      gBrush.enter().append('g')
+        .attr('class', 'brush')
+        .call(brush)
+        .selectAll('rect')
+        .attr('y', barcodeTop)
+        .attr('height', barcodeBottom - barcodeTop);
 
       var text = g.selectAll('.text')
         .data(barcodeX.domain());
