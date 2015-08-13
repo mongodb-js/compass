@@ -6,8 +6,8 @@ var shared = require('./shared');
 
 var minicharts_d3fns_string = function() {
   // --- beginning chart setup ---
-  var width = 420;
-  var height = 80;
+  var width = 400;
+  var height = 100;
   var options = {
     view: null
   };
@@ -49,7 +49,7 @@ var minicharts_d3fns_string = function() {
 
       var chartFn = grouped.length <= 5 ? fewChart : manyChart;
       options.scale = true;
-      
+
       chartFn
         .width(innerWidth)
         .height(innerHeight)

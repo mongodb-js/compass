@@ -22,8 +22,8 @@ function extractTimestamp(d) {
 
 var minicharts_d3fns_date = function() {
   // --- beginning chart setup ---
-  var width = 420;
-  var height = 80;
+  var width = 400;
+  var height = 100;
   var upperRatio = 2.5;
   var upperMargin = 20;
 
