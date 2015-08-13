@@ -2,7 +2,6 @@ var d3 = require('d3');
 var _ = require('lodash');
 var tooltipHtml = require('./tooltip.jade');
 var shared = require('./shared');
-var debug = require('debug')('scout:minicharts:many');
 
 require('../d3-tip')(d3);
 
@@ -31,7 +30,7 @@ var minicharts_d3fns_many = function() {
     .x(xScale)
     .on('brush', brushed)
     .on('brushend', brushend);
-    // --- end chart setup ---
+  // --- end chart setup ---
 
   function brushed() {
     var bars = d3.selectAll(options.view.queryAll('rect.fg'));

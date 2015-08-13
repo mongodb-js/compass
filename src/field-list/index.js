@@ -121,7 +121,7 @@ var FieldView = View.extend({
     this.renderWithTemplate(this);
     this.viewSwitcher = new ViewSwitcher(this.queryByHook('minichart-container'));
   },
-  onRefineClause: function(who, what) {
+  onRefineClause: function(who) {
     if (who.getType() === 'MinichartView') {
       this.refineClause.value = who.refineValue;
     }

@@ -1,9 +1,7 @@
 var AmpersandView = require('ampersand-view');
 var _ = require('lodash');
-var raf = require('raf');
 var $ = require('jquery');
 var d3 = require('d3');
-var debug = require('debug')('scout:minicharts:viz');
 
 var VizView = AmpersandView.extend({
   _values: {},
