@@ -6,11 +6,11 @@ var packager = require('electron-packager');
 var createInstaller = require('electron-installer-squirrel-windows');
 var debug = require('debug')('scout:tasks:win32');
 
-var NAME = pkg.name;
+var NAME = pkg.product_name;
 var APP_PATH = path.join('dist', NAME + '-win32-ia32');
 
 var CONFIG = module.exports = {
-  name: NAME,
+  name: pkg.product_name,
   dir: path.resolve(__dirname, '../build'),
   out: path.resolve(__dirname, '../dist'),
   appPath: APP_PATH,
@@ -53,7 +53,7 @@ module.exports.installer = function(done) {
   packager(CONFIG, function(err) {
     if (err) return done(err);
 
-    var unpacked = path.resolve(__dirname, '..' + path.join(APP_PATH, 'resources', 'app'));
+    var unpacked = path.resolve(__dirname, path.join('..', APP_PATH, 'resources', 'app'));
     debug('Deleting `%s` so app is loaded from .asar', unpacked);
     del(unpacked, function() {
       createInstaller(CONFIG, function(err) {
