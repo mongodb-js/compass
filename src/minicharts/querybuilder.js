@@ -19,6 +19,29 @@ module.exports = {
   },
 
   /**
+   * build new distinct ($in) query based on current selection and store as this.refineValue.
+   */
+  buildDistinctQuery: function() {
+    // build new refineValue
+    if (this.selectedValues.length === 0) {
+      // no value
+      this.unset('refineValue');
+    } else if (this.selectedValues.length === 1) {
+      // single value
+      this.refineValue = new LeafValue(this.selectedValues[0].value, {
+        parse: true
+      });
+    } else {
+      // multiple values
+      this.refineValue = new ListOperator({
+        $in: this.selectedValues.map(function(el) {
+          return el.value;
+        })
+      }, { parse: true });
+    }
+  },
+
+  /**
    * Handler for query builder events that result in distinct selection, e.g. string and unique
    * type. Single click selects individual element, shift-click adds to selection.
    * @param  {Object} data   the contains information about the event, @see handleQueryBuilderEvent
@@ -26,48 +49,59 @@ module.exports = {
   handleDistinctEvent: function(data) {
     // update selectedValues
     if (!data.evt[MODIFIERKEY]) {
-      if (this.selectedValues.length === 1 && this.selectedValues[0].self === data.self) {
+      if (this.selectedValues.length === 1 && this.selectedValues[0].value === data.d.value) {
         this.selectedValues = [];
       } else {
-        this.selectedValues = [data];
+        this.selectedValues = [data.d];
       }
-    } else if (_.contains(_.pluck(this.selectedValues, 'd.label'), data.d.label)) {
-      _.remove(this.selectedValues, function(d) { return d.d.label === data.d.label; });
+    } else if (_.contains(_.pluck(this.selectedValues, 'value'), data.d.value)) {
+      _.remove(this.selectedValues, function(d) { return d.value === data.d.value; });
     } else {
-      this.selectedValues.push(data);
+      this.selectedValues.push(data.d);
     }
 
     // visual updates
     _.each(data.all, function(el) {
-      el.classList.remove('selected');
-      if (this.selectedValues.length === 0) {
-        // remove all styling
+      var elData = d3.select(el).data()[0];
+      if (_.contains(_.pluck(this.selectedValues, 'value'), elData.value)) {
+        el.classList.add('selected');
         el.classList.remove('unselected');
       } else {
-        el.classList.add('unselected');
+        el.classList.remove('selected');
+        if (this.selectedValues.length === 0) {
+          el.classList.remove('unselected');
+        } else {
+          el.classList.add('unselected');
+        }
       }
     }.bind(this));
-    _.each(this.selectedValues, function(selected) {
-      selected.self.classList.add('selected');
-      selected.self.classList.remove('unselected');
-    });
+  },
 
-    // build new refineValue
-    if (this.selectedValues.length === 0) {
-      // no value
+  buildRangeQuery: function() {
+    var firstSelected = this.selectedValues[0];
+    var getComparableValue = this._getComparableValue.bind(this);
+
+    if (!firstSelected) {
       this.unset('refineValue');
-    } else if (this.selectedValues.length === 1) {
-      // single value
-      this.refineValue = new LeafValue(this.selectedValues[0].d.value, {
-        parse: true
-      });
+      return;
+    }
+    var first = _.min(this.selectedValues, function(el) {
+      return getComparableValue(el);
+    });
+    var last = _.max(this.selectedValues, function(el) {
+      return getComparableValue(el);
+    });
+    var upperInclusive = last.dx === 0;
+
+    var lower = first.value;
+    var upper = last.value;
+    if (this.model.getType() === 'Number') {
+      upper += last.dx;
+    }
+    if (lower === upper) {
+      this.refineValue = new LeafValue({ content: lower });
     } else {
-      // multiple values
-      this.refineValue = new ListOperator({
-        $in: this.selectedValues.map(function(el) {
-          return el.d.value;
-        })
-      }, { parse: true });
+      this.refineValue = new Range(lower, upper, upperInclusive);
     }
   },
 
@@ -79,11 +113,11 @@ module.exports = {
    */
   handleRangeEvent: function(data) {
     if (data.evt[MODIFIERKEY]) {
-      this.selectedValues[1] = data;
-    } else if (this.selectedValues[0] && this.selectedValues[0].d.label === data.d.label) {
+      this.selectedValues[1] = data.d;
+    } else if (this.selectedValues[0] && this.selectedValues[0].value === data.d.value) {
       this.selectedValues = [];
     } else {
-      this.selectedValues = [data];
+      this.selectedValues = [data.d];
     }
     var firstSelected = this.selectedValues[0];
     // remove `.selected` class from all elements
@@ -101,17 +135,17 @@ module.exports = {
     } else {
       var getComparableValue = this._getComparableValue.bind(this);
       var first = _.min(this.selectedValues, function(el) {
-        return getComparableValue(el.d);
+        return getComparableValue(el);
       });
       var last = _.max(this.selectedValues, function(el) {
-        return getComparableValue(el.d);
+        return getComparableValue(el);
       });
 
       // use getComparableValue to determine what elements should be selected
-      var lower = getComparableValue(first.d);
-      var upper = getComparableValue(last.d);
+      var lower = getComparableValue(first);
+      var upper = getComparableValue(last);
       if (this.model.getType() === 'Number') {
-        upper += last.d.dx;
+        upper += last.dx;
       }
 
       /**
@@ -121,7 +155,7 @@ module.exports = {
        * inclusive ($lte).
        * This is indicated by the d.dx variable, which is only > 0 for binned ranges.
        */
-      var upperInclusive = last.d.dx === 0;
+      var upperInclusive = last.dx === 0;
       _.each(data.all, function(el) {
         var elData = getComparableValue(d3.select(el).data()[0]);
         if (elData >= lower && (upperInclusive ? elData <= upper : elData < upper)) {
@@ -129,53 +163,62 @@ module.exports = {
           el.classList.remove('unselected');
         }
       });
-
-      // now use .value to build query
-      lower = first.d.value;
-      upper = last.d.value;
-      if (this.model.getType() === 'Number') {
-        upper += last.d.dx;
-      }
-      if (lower === upper) {
-        this.refineValue = new LeafValue({ content: lower });
-      } else {
-        this.refineValue = new Range(lower, upper, upperInclusive);
-      }
     }
+  },
+  handleDragEvent: function(data) {
+    this.selectedValues = d3.selectAll(data.selected).data();
   },
   /**
    * Handles query builder events, routing them to the appropriate specific handler methods
-   * @param  {Object} data   contains information about the event, namely
+   * @param  {Object} data   contains information about the event.
+   *
+   * For `click` events, data looks like this:
    * {
    *   d: the data point
-   *   i: the index of the clicked element
    *   self: the dom element itself
    *   all: all clickable dom elements in this chart
    *   evt: the event object
-   *   type: the type of event (currently only 'click')
+   *   type: 'click'
    *   source: where the event originated, currently 'few', 'many', 'unique', 'date'
    * }
+   *
+   * For `drag` events, data looks like this:
+   * {
+   * 	 selected: array of selected values
+   * 	 type: 'click',
+   * 	 source: where the event originated, currently 'many', 'date'
+   * }
+   *
    */
   handleQueryBuilderEvent: function(data) {
-    data.evt.stopPropagation();
-    data.evt.preventDefault();
+    var distinctEvent = data.type === 'drag' ? this.handleDragEvent : this.handleDistinctEvent;
+    var rangeEvent = data.type === 'drag' ? this.handleDragEvent : this.handleRangeEvent;
+
+    if (data.type === 'click') {
+      data.evt.stopPropagation();
+      data.evt.preventDefault();
+    }
 
     switch (this.model.getType()) {
       case 'Boolean': // fall-through to String
       case 'String':
-        this.handleDistinctEvent(data);
+        distinctEvent.call(this, data);
+        this.buildDistinctQuery();
         break;
       case 'Number':
         if (data.source === 'unique') {
-          this.handleDistinctEvent(data);
+          distinctEvent.call(this, data);
+          this.buildDistinctQuery();
         } else {
-          this.handleRangeEvent(data);
+          rangeEvent.call(this, data);
+          this.buildRangeQuery();
         }
         break;
       case 'ObjectID': // fall-through to Date
       case 'Date':
         // @todo: for dates, data.all is not sorted, so this is not yet working
-        this.handleRangeEvent(data);
+        rangeEvent(data);
+        this.buildRangeQuery();
         break;
       default: // @todo other types not implemented yet
         break;
