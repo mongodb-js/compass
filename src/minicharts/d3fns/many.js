@@ -8,8 +8,8 @@ require('../d3-tip')(d3);
 
 var minicharts_d3fns_many = function() {
   // --- beginning chart setup ---
-  var width = 420; // default width
-  var height = 80; // default height
+  var width = 400; // default width
+  var height = 100; // default height
   var options = {
     view: null,
     bgbars: false,

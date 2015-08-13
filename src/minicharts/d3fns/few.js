@@ -9,8 +9,8 @@ require('../d3-tip')(d3);
 
 var minicharts_d3fns_few = function() {
   // --- beginning chart setup ---
-  var width = 420;
-  var height = 80;
+  var width = 400;
+  var height = 100;
   var barHeight = 25;
   var options = {
     view: null

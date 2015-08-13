@@ -7,8 +7,8 @@ var debug = require('debug')('scout:minicharts:boolean');
 
 var minicharts_d3fns_boolean = function() {
   // --- beginning chart setup ---
-  var width = 420;
-  var height = 80;
+  var width = 400;
+  var height = 100;
   var options = {
     view: null
   };
