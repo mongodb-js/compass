@@ -7,7 +7,7 @@ var debug = require('debug')('scout:minicharts:few');
 
 require('../d3-tip')(d3);
 
-var minicharts_d3fns_few_new = function() {
+var minicharts_d3fns_few = function() {
   // --- beginning chart setup ---
   var width = 420;
   var height = 80;
@@ -23,7 +23,6 @@ var minicharts_d3fns_few_new = function() {
     .attr('class', 'd3-tip')
     .direction('n')
     .offset([-9, 0]);
-
   // --- end chart setup ---
 
   var handleClick = function(d, i) {
@@ -47,6 +46,7 @@ var minicharts_d3fns_few_new = function() {
       var sumValues = d3.sum(values);
       var maxValue = d3.max(values);
       var percentFormat = shared.friendlyPercentFormat(maxValue / sumValues * 100);
+      var el = d3.select(this);
 
       xScale
         .domain([0, sumValues])
@@ -62,10 +62,10 @@ var minicharts_d3fns_few_new = function() {
             count: percentFormat(d.count / sumValues * 100, false)
           });
       });
-      this.call(tip);
+      el.call(tip);
 
       // select all g.bar elements
-      var bar = this.selectAll('g.bar')
+      var bar = el.selectAll('g.bar')
         .data(data, function(d) {
           return d.label;  // identify data by its label
         });
@@ -159,96 +159,4 @@ var minicharts_d3fns_few_new = function() {
   return chart;
 };
 
-var minicharts_d3fns_few = function(data, view, g, width, height) {
-  var handleClick = function(d, i) {
-    var fgRect = $(this).siblings('rect.fg')[0];
-    var evt = {
-      d: d,
-      i: i,
-      self: fgRect,
-      all: view.queryAll('rect.fg'),
-      evt: d3.event,
-      type: 'click',
-      source: 'few'
-    };
-    view.trigger('querybuilder', evt);
-  };
-
-  var barHeight = 25;
-  var values = _.pluck(data, 'count');
-  var sumValues = d3.sum(values);
-  var maxValue = d3.max(values);
-  var percentFormat = shared.friendlyPercentFormat(maxValue / sumValues * 100);
-
-  var x = d3.scale.linear()
-    .domain([0, sumValues])
-    .range([0, width]);
-
-  // set up tooltips
-  var tip = d3.tip()
-    .attr('class', 'd3-tip')
-    .html(function(d, i) {
-      if (typeof d.tooltip === 'function') {
-        return d.tooltip(d, i);
-      }
-      return d.tooltip || tooltipHtml({
-          label: shared.truncateTooltip(d.label),
-          count: percentFormat(d.count / sumValues * 100, false)
-        });
-    })
-    .direction('n')
-    .offset([-9, 0]);
-
-  // clear element first
-  g.selectAll('*').remove();
-  g.call(tip);
-
-  var bar = g.selectAll('.bar')
-    .data(data)
-    .enter().append('g')
-    .attr('class', 'bar few')
-    .attr('transform', function(d, i) {
-      var xpos = _.sum(_(data)
-        .slice(0, i)
-        .pluck('count')
-        .value()
-      );
-      return 'translate(' + x(xpos) + ', ' + (height - barHeight) / 2 + ')';
-    });
-
-  bar.append('rect')
-    .attr('class', function(d, i) {
-      return 'fg fg-' + i;
-    })
-    .attr('y', 0)
-    .attr('x', 0)
-    .attr('width', function(d) {
-      return x(d.count);
-    })
-    .attr('height', barHeight);
-
-  bar.append('text')
-    .attr('y', barHeight / 2)
-    .attr('dy', '0.3em')
-    .attr('dx', 10)
-    .attr('text-anchor', 'start')
-    .text(function(d) {
-      return d.label;
-    })
-    .attr('fill', 'white');
-
-  bar.append('rect')
-    .attr('class', 'glass')
-    .attr('y', 0)
-    .attr('x', 0)
-    .attr('width', function(d) {
-      return x(d.count);
-    })
-    .attr('height', barHeight)
-    .on('mouseover', tip.show)
-    .on('mouseout', tip.hide)
-    .on('click', handleClick);
-};
-
-// module.exports = minicharts_d3fns_few;
-module.exports.newFn = minicharts_d3fns_few_new;
+module.exports = minicharts_d3fns_few;
