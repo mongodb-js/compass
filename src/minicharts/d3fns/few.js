@@ -25,12 +25,11 @@ var minicharts_d3fns_few = function() {
     .offset([-9, 0]);
   // --- end chart setup ---
 
-  var handleClick = function(d, i) {
+  var handleClick = function(d) {
     if (!options.view) return;
     var fgRect = $(this).siblings('rect.fg')[0];
     var evt = {
       d: d,
-      i: i,
       self: fgRect,
       all: options.view.queryAll('rect.fg'),
       evt: d3.event,

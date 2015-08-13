@@ -85,6 +85,7 @@ var minicharts_d3fns_number = function(opts) {
       }
 
       options.labels = labels;
+      options.scale = true;
 
       manyChart
         .width(innerWidth)

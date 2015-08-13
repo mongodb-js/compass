@@ -141,7 +141,6 @@ var VizView = AmpersandView.extend({
   },
 
   redraw: function() {
-    debug('redraw', this.model.getType(), this.model.values.toJSON());
     this.chart
       .width(this.width)
       .height(this.height);

@@ -31,8 +31,8 @@ module.exports = {
       } else {
         this.selectedValues = [data];
       }
-    } else if (_.contains(_.pluck(this.selectedValues, 'i'), data.i)) {
-      _.remove(this.selectedValues, function(d) { return d.i === data.i; });
+    } else if (_.contains(_.pluck(this.selectedValues, 'd.label'), data.d.label)) {
+      _.remove(this.selectedValues, function(d) { return d.d.label === data.d.label; });
     } else {
       this.selectedValues.push(data);
     }
@@ -80,7 +80,7 @@ module.exports = {
   handleRangeEvent: function(data) {
     if (data.evt[MODIFIERKEY]) {
       this.selectedValues[1] = data;
-    } else if (this.selectedValues[0] && this.selectedValues[0].i === data.i) {
+    } else if (this.selectedValues[0] && this.selectedValues[0].d.label === data.d.label) {
       this.selectedValues = [];
     } else {
       this.selectedValues = [data];
