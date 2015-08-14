@@ -1,7 +1,9 @@
 var d3 = require('d3');
+var $ = require('jquery');
 var _ = require('lodash');
 var tooltipHtml = require('./tooltip.jade');
 var shared = require('./shared');
+var debug = require('debug')('scout:minicharts:many');
 
 require('../d3-tip')(d3);
 
@@ -32,9 +34,22 @@ var minicharts_d3fns_many = function() {
     .on('brushend', brushend);
   // --- end chart setup ---
 
+  function handleClick(d) {
+    if (!options.view) return;
+    var evt = {
+      d: d,
+      self: this,
+      all: options.view.queryAll('rect.fg'),
+      evt: d3.event,
+      type: 'click',
+      source: 'many'
+    };
+    options.view.trigger('querybuilder', evt);
+  }
+
   function brushed() {
     var bars = d3.selectAll(options.view.queryAll('rect.fg'));
-    var s = d3.event.target.extent();
+    var s = brush.extent();
 
     bars.classed('selected', function(d) {
       var left = xScale(d.label);
@@ -65,18 +80,36 @@ var minicharts_d3fns_many = function() {
     options.view.trigger('querybuilder', evt);
   }
 
-  var handleClick = function(d) {
-    if (!options.view) return;
-    var evt = {
-      d: d,
-      self: this,
-      all: options.view.queryAll('rect.fg'),
-      evt: d3.event,
-      type: 'click',
-      source: 'many'
-    };
-    options.view.trigger('querybuilder', evt);
-  };
+  function handleMouseDown() {
+    var bar = this;
+    var parent = $(this).closest('.minichart');
+    var background = parent.find('g.brush > rect.background')[0];
+    var brushNode = parent.find('g.brush')[0];
+    var start = d3.mouse(background)[0];
+
+    var w = d3.select(window)
+      .on('mousemove', mousemove)
+      .on('mouseup', mouseup);
+
+    d3.event.preventDefault(); // disable text dragging
+
+    function mousemove() {
+      var extent = [start, d3.mouse(background)[0]];
+      d3.select(brushNode).call(brush.extent(_.sortBy(extent)));
+      brushed.call(brushNode);
+    }
+
+    function mouseup() {
+      // bar.classed('selected', true);
+      w.on('mousemove', null).on('mouseup', null);
+      if (brush.empty()) {
+        // interpret as click
+        handleClick.call(bar, d3.select(bar).data()[0]);
+      } else {
+        brushend.call(brushNode);
+      }
+    }
+  }
 
   function chart(selection) {
     selection.each(function(data) {
@@ -180,13 +213,17 @@ var minicharts_d3fns_many = function() {
         legend.exit().remove();
       }
 
-      var gBrush = el.selectAll('.brush').data([0]);
-      gBrush.enter().append('g')
-        .attr('class', 'brush')
-        .call(brush)
-        .selectAll('rect')
-        .attr('y', 0)
-        .attr('height', height);
+      // @note currently the bgbars are only use for the day/week and hour/day charts.
+      // they don't support query building anyway.
+      if (!options.bgbars) {
+        var gBrush = el.selectAll('.brush').data([0]);
+        gBrush.enter().append('g')
+          .attr('class', 'brush')
+          .call(brush)
+          .selectAll('rect')
+          .attr('y', 0)
+          .attr('height', height);
+      }
 
       // select all g.bar elements
       var bar = el.selectAll('.bar')
@@ -224,14 +261,16 @@ var minicharts_d3fns_many = function() {
           .attr('width', xScale.rangeBand())
           .attr('height', height)
           .on('mouseover', tip.show)
-          .on('mouseout', tip.hide)
-          .on('click', handleClick);
+          .on('mouseout', tip.hide);
+          // @note currently the bgbars are only use for the day/week and hour/day charts.
+          // they don't support query building anyway.
+          // .on('mousedown', handleMouseDown)
       } else {
         // ... or attach tooltips directly to foreground bars if we don't use background bars
         bar.selectAll('.fg')
           .on('mouseover', tip.show)
           .on('mouseout', tip.hide)
-          .on('click', handleClick);
+          .on('mousedown', handleMouseDown);
       }
 
       if (options.labels) {

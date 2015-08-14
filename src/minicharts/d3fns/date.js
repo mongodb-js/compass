@@ -183,6 +183,14 @@ var minicharts_d3fns_date = function() {
           .attr('font-family', 'FontAwesome')
           .text('\uf017');
 
+      var gBrush = g.selectAll('.brush').data([0]);
+      gBrush.enter().append('g')
+        .attr('class', 'brush')
+        .call(brush)
+        .selectAll('rect')
+        .attr('y', barcodeTop)
+        .attr('height', barcodeBottom - barcodeTop);
+            
       var lines = g.selectAll('.line')
         .data(values, function(d) {
           return d.ts;
@@ -207,14 +215,6 @@ var minicharts_d3fns_date = function() {
         });
 
       lines.exit().remove();
-
-      var gBrush = g.selectAll('.brush').data([0]);
-      gBrush.enter().append('g')
-        .attr('class', 'brush')
-        .call(brush)
-        .selectAll('rect')
-        .attr('y', barcodeTop)
-        .attr('height', barcodeBottom - barcodeTop);
 
       var text = g.selectAll('.text')
         .data(barcodeX.domain());
