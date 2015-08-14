@@ -3,7 +3,7 @@ var _ = require('lodash');
 var $ = require('jquery');
 var tooltipHtml = require('./tooltip.jade');
 var shared = require('./shared');
-var debug = require('debug')('scout:minicharts:few');
+// var debug = require('debug')('scout:minicharts:few');
 
 require('../d3-tip')(d3);
 
@@ -49,7 +49,6 @@ var minicharts_d3fns_few = function() {
     var s = brush.extent();
 
     bars.classed('selected', function(d) {
-      debug('brushed', d);
       var left = xScale(d.xpos);
       var right = left + xScale(d.count);
       return s[0] <= right && left <= s[1];

@@ -2,7 +2,7 @@ var d3 = require('d3');
 var _ = require('lodash');
 var many = require('./many');
 var shared = require('./shared');
-var debug = require('debug')('scout:minicharts:number');
+// var debug = require('debug')('scout:minicharts:number');
 
 var minicharts_d3fns_number = function() {
   var width = 400;
