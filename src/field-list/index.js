@@ -90,7 +90,9 @@ var FieldView = View.extend({
           el: el,
           parent: this,
           collection: this.model.fields
-        }), { silent: true });
+        }), {
+          silent: true
+        });
         this.listenTo(this.fieldListView, 'change:refineQuery', this.onRefineClause);
         return this.fieldListView;
       }
@@ -103,7 +105,9 @@ var FieldView = View.extend({
           el: el,
           parent: this,
           collection: this.model.arrayFields
-        }), { silent: true });
+        }), {
+          silent: true
+        });
         this.listenTo(this.arrayFieldListView, 'change:refineQuery', this.onRefineClause);
         return this.arrayFieldListView;
       }
@@ -117,7 +121,7 @@ var FieldView = View.extend({
     this.renderWithTemplate(this);
     this.viewSwitcher = new ViewSwitcher(this.queryByHook('minichart-container'));
   },
-  onRefineClause: function(who, what) {
+  onRefineClause: function(who) {
     if (who.getType() === 'MinichartView') {
       this.refineClause.value = who.refineValue;
     }
@@ -133,12 +137,16 @@ var FieldView = View.extend({
     var clauses = [];
     if (this.fieldListView) {
       this.fieldListView.refineQuery.clauses.each(function(clause) {
-        if (clause.valid) clauses.push(this.prefixClauseKey(clause));
+        if (clause.valid) {
+          clauses.push(this.prefixClauseKey(clause));
+        }
       }.bind(this));
     }
     if (this.arrayFieldListView) {
       this.arrayFieldListView.refineQuery.clauses.each(function(clause) {
-        if (clause.valid) clauses.push(this.prefixClauseKey(clause));
+        if (clause.valid) {
+          clauses.push(this.prefixClauseKey(clause));
+        }
       }.bind(this));
     }
     if (this.refineClause.valid) {
@@ -174,7 +182,9 @@ FieldListView = View.extend({
     refineQuery: {
       type: 'state',
       required: true,
-      default: function() { return new Query(); }
+      default: function() {
+        return new Query();
+      }
     },
     queryContext: 'object'
   },

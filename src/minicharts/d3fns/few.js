@@ -3,7 +3,6 @@ var _ = require('lodash');
 var $ = require('jquery');
 var tooltipHtml = require('./tooltip.jade');
 var shared = require('./shared');
-var debug = require('debug')('scout:minicharts:few');
 
 require('../d3-tip')(d3);
 
@@ -66,11 +65,11 @@ var minicharts_d3fns_few = function() {
       // select all g.bar elements
       var bar = el.selectAll('g.bar')
         .data(data, function(d) {
-          return d.label;  // identify data by its label
+          return d.label; // identify data by its label
         });
 
       bar
-        .transition()  // only apply transition to already existing bars
+        .transition() // only apply transition to already existing bars
         .attr('transform', function(d, i) {
           var xpos = _.sum(_(data)
             .slice(0, i)

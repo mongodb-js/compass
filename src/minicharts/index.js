@@ -24,7 +24,9 @@ module.exports = AmpersandView.extend(QueryBuilderMixin, {
     },
     selectedValues: {
       type: 'array',
-      default: function() { return []; }
+      default: function() {
+        return [];
+      }
     }
   },
   initialize: function(opts) {

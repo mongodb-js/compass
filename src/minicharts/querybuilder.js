@@ -1,5 +1,4 @@
 var _ = require('lodash');
-var debug = require('debug')('scout:minicharts:index');
 var d3 = require('d3');
 
 var LeafValue = require('mongodb-language-model').LeafValue;
@@ -37,7 +36,9 @@ module.exports = {
         $in: this.selectedValues.map(function(el) {
           return el.value;
         })
-      }, { parse: true });
+      }, {
+        parse: true
+      });
     }
   },
 
@@ -55,7 +56,9 @@ module.exports = {
         this.selectedValues = [data.d];
       }
     } else if (_.contains(_.pluck(this.selectedValues, 'value'), data.d.value)) {
-      _.remove(this.selectedValues, function(d) { return d.value === data.d.value; });
+      _.remove(this.selectedValues, function(d) {
+        return d.value === data.d.value;
+      });
     } else {
       this.selectedValues.push(data.d);
     }
@@ -102,7 +105,9 @@ module.exports = {
       upper += last.dx;
     }
     if (lower === upper) {
-      this.refineValue = new LeafValue({ content: lower });
+      this.refineValue = new LeafValue({
+        content: lower
+      });
     } else {
       this.refineValue = new Range(lower, upper, upperInclusive);
     }
@@ -187,9 +192,9 @@ module.exports = {
    *
    * For `drag` events, data looks like this:
    * {
-   * 	 selected: array of selected values
-   * 	 type: 'click',
-   * 	 source: where the event originated, currently 'many', 'date'
+   *   selected: array of selected values
+   *   type: 'click',
+   *   source: where the event originated, currently 'many', 'date'
    * }
    *
    */
