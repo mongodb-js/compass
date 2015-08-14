@@ -1,5 +1,6 @@
 var d3 = require('d3');
 var _ = require('lodash');
+var $ = require('jquery');
 var moment = require('moment');
 var shared = require('./shared');
 var many = require('./many');
@@ -54,7 +55,7 @@ var minicharts_d3fns_date = function() {
 
   function brushed() {
     var lines = d3.selectAll(options.view.queryAll('.line'));
-    var s = d3.event.target.extent();
+    var s =brush.extent();
 
     lines.classed('selected', function(d) {
       return s[0] <= d.ts && d.ts <= s[1];
@@ -82,7 +83,6 @@ var minicharts_d3fns_date = function() {
     options.view.trigger('querybuilder', evt);
   }
   // --- end chart setup ---
-
   var handleClick = function(d) {
     var evt = {
       d: d,
@@ -94,6 +94,37 @@ var minicharts_d3fns_date = function() {
     };
     options.view.trigger('querybuilder', evt);
   };
+  function handleMouseDown() {
+    var line = this;
+    var parent = $(this).closest('.minichart');
+    var background = parent.find('g.brush > rect.background')[0];
+    var brushNode = parent.find('g.brush')[0];
+    var start = barcodeX.invert(d3.mouse(background)[0]);
+
+    var w = d3.select(window)
+      .on('mousemove', mousemove)
+      .on('mouseup', mouseup);
+
+    d3.event.preventDefault(); // disable text dragging
+
+    function mousemove() {
+      var extent = [start, barcodeX.invert(d3.mouse(background)[0])];
+      d3.select(brushNode).call(brush.extent(_.sortBy(extent)));
+      brushed.call(brushNode);
+    }
+
+    function mouseup() {
+      // bar.classed('selected', true);
+      w.on('mousemove', null).on('mouseup', null);
+      if (brush.empty()) {
+        // interpret as click
+        handleClick.call(line, d3.select(line).data()[0]);
+      } else {
+        brushend.call(brushNode);
+      }
+    }
+  }
+
 
   function chart(selection) {
     selection.each(function(data) {
@@ -190,7 +221,7 @@ var minicharts_d3fns_date = function() {
         .selectAll('rect')
         .attr('y', barcodeTop)
         .attr('height', barcodeBottom - barcodeTop);
-            
+
       var lines = g.selectAll('.line')
         .data(values, function(d) {
           return d.ts;
@@ -199,7 +230,8 @@ var minicharts_d3fns_date = function() {
       lines.enter().append('line')
         .attr('class', 'line')
         .on('mouseover', tip.show)
-        .on('mouseout', tip.hide);
+        .on('mouseout', tip.hide)
+        .on('mousedown', handleMouseDown);
 
         // disabling direct onClick handler in favor of click-drag
         // .on('click', handleClick);
