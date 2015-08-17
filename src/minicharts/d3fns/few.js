@@ -49,13 +49,13 @@ var minicharts_d3fns_few = function() {
     var s = brush.extent();
 
     bars.classed('selected', function(d) {
-      var left = xScale(d.xpos);
-      var right = left + xScale(d.count);
+      var left = d.xpos;
+      var right = left + d.count;
       return s[0] <= right && left <= s[1];
     });
     bars.classed('unselected', function(d) {
-      var left = xScale(d.xpos);
-      var right = left + xScale(d.count);
+      var left = d.xpos;
+      var right = left + d.count;
       return s[0] > right || left > s[1];
     });
   }
@@ -82,7 +82,7 @@ var minicharts_d3fns_few = function() {
     var parent = $(this).closest('.minichart');
     var background = parent.find('g.brush > rect.background')[0];
     var brushNode = parent.find('g.brush')[0];
-    var start = d3.mouse(background)[0];
+    var start = xScale.invert(d3.mouse(background)[0]);
 
     var w = d3.select(window)
       .on('mousemove', mousemove)
@@ -91,7 +91,7 @@ var minicharts_d3fns_few = function() {
     d3.event.preventDefault(); // disable text dragging
 
     function mousemove() {
-      var extent = [start, d3.mouse(background)[0]];
+      var extent = [start, xScale.invert(d3.mouse(background)[0])];
       d3.select(brushNode).call(brush.extent(_.sortBy(extent)));
       brushed.call(brushNode);
     }
