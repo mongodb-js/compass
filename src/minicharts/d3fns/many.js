@@ -3,7 +3,7 @@ var $ = require('jquery');
 var _ = require('lodash');
 var tooltipHtml = require('./tooltip.jade');
 var shared = require('./shared');
-// var debug = require('debug')('scout:minicharts:many');
+var debug = require('debug')('scout:minicharts:many');
 
 require('../d3-tip')(d3);
 
@@ -31,6 +31,7 @@ var minicharts_d3fns_many = function() {
 
   var brush = d3.svg.brush()
     .x(xScale)
+    .on('brushstart', brushstart)
     .on('brush', brushed)
     .on('brushend', brushend);
   // --- end chart setup ---
@@ -47,8 +48,21 @@ var minicharts_d3fns_many = function() {
     options.view.trigger('querybuilder', evt);
   }
 
+  function brushstart(clickedBar) {
+    // remove selections and half selections
+    var bars = d3.selectAll(options.view.queryAll('rect.selectable'));
+    bars.classed('half', false);
+    bars.classed('selected', function() {
+      return this === clickedBar;
+    });
+    bars.classed('unselected', function() {
+      return this !== clickedBar;
+    });
+  }
+
   function brushed() {
     var bars = d3.selectAll(options.view.queryAll('rect.selectable'));
+    var numSelected = options.view.queryAll('rect.selectable.selected').length;
     var s = brush.extent();
 
     bars.classed('selected', function(d) {
@@ -61,6 +75,16 @@ var minicharts_d3fns_many = function() {
       var right = left + xScale.rangeBand();
       return s[0] > right || left > s[1];
     });
+
+    if (!options.view) return;
+    if (numSelected !== options.view.queryAll('rect.selectable.selected').length) {
+      // number of selected items has changed, trigger querybuilder event
+      var evt = {
+        type: 'drag',
+        source: 'many'
+      };
+      options.view.trigger('querybuilder', evt);
+    }
   }
 
   function brushend() {
@@ -86,6 +110,7 @@ var minicharts_d3fns_many = function() {
     var background = parent.find('g.brush > rect.background')[0];
     var brushNode = parent.find('g.brush')[0];
     var start = d3.mouse(background)[0];
+    brushstart.call(brushNode, bar);
 
     var w = d3.select(window)
       .on('mousemove', mousemove)
@@ -265,12 +290,12 @@ var minicharts_d3fns_many = function() {
           // .on('mousedown', handleMouseDown)
       } else {
         // ... or attach tooltips directly to foreground bars if we don't use background bars
-        bar.selectAll('.fg')
+        barEnter.selectAll('.fg')
           .on('mouseover', tip.show)
           .on('mouseout', tip.hide);
 
         if (options.selectable) {
-          bar.on('mousedown', handleMouseDown);
+          barEnter.selectAll('.selectable').on('mousedown', handleMouseDown);
         }
       }
 

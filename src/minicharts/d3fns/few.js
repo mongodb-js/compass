@@ -12,6 +12,7 @@ var minicharts_d3fns_few = function() {
   var width = 400;
   var height = 100;
   var barHeight = 25;
+  var brushHeight = 80;
   var options = {
     view: null
   };
@@ -43,8 +44,21 @@ var minicharts_d3fns_few = function() {
     options.view.trigger('querybuilder', evt);
   }
 
+  function brushstart(clickedBar) {
+    // remove selections and half selections
+    var bars = d3.selectAll(options.view.queryAll('rect.selectable'));
+    bars.classed('half', false);
+    bars.classed('selected', function() {
+      return this === clickedBar;
+    });
+    bars.classed('unselected', function() {
+      return this !== clickedBar;
+    });
+  }
+
   function brushed() {
     var bars = d3.selectAll(options.view.queryAll('rect.selectable'));
+    var numSelected = options.view.queryAll('rect.selectable.selected').length;
     var s = brush.extent();
 
     bars.classed('selected', function(d) {
@@ -57,6 +71,16 @@ var minicharts_d3fns_few = function() {
       var right = left + d.count;
       return s[0] > right || left > s[1];
     });
+
+    if (!options.view) return;
+    if (numSelected !== options.view.queryAll('rect.selectable.selected').length) {
+      // number of selected items has changed, trigger querybuilder event
+      var evt = {
+        type: 'drag',
+        source: 'many'
+      };
+      options.view.trigger('querybuilder', evt);
+    }
   }
 
   function brushend() {
@@ -77,10 +101,12 @@ var minicharts_d3fns_few = function() {
 
   function handleMouseDown() {
     var bar = this;
+    var rect = $(this).find('rect.selectable')[0];
     var parent = $(this).closest('.minichart');
     var background = parent.find('g.brush > rect.background')[0];
     var brushNode = parent.find('g.brush')[0];
     var start = xScale.invert(d3.mouse(background)[0]);
+    brushstart.call(brushNode, rect);
 
     var w = d3.select(window)
       .on('mousemove', mousemove)
@@ -135,8 +161,8 @@ var minicharts_d3fns_few = function() {
         .attr('class', 'brush')
         .call(brush)
         .selectAll('rect')
-        .attr('y', 0)
-        .attr('height', height);
+        .attr('y', (height - brushHeight) / 2)
+        .attr('height', brushHeight);
 
       // select all g.bar elements
       var bar = el.selectAll('g.bar')
@@ -160,8 +186,8 @@ var minicharts_d3fns_few = function() {
           );
           d.xpos = xpos;
           return 'translate(' + xScale(xpos) + ', ' + (height - barHeight) / 2 + ')';
-        });
-
+        })
+        .on('mousedown', handleMouseDown);
 
       barEnter.append('rect')
         .attr('class', function(d, i) {
@@ -184,8 +210,7 @@ var minicharts_d3fns_few = function() {
         .attr('x', 0)
         .attr('height', barHeight)
         .on('mouseover', tip.show)
-        .on('mouseout', tip.hide)
-        .on('mousedown', handleMouseDown);
+        .on('mouseout', tip.hide);
 
       bar.select('rect.selectable')
         .transition()

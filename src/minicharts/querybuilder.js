@@ -68,6 +68,12 @@ module.exports = {
       this['buildQuery_' + queryType]();
       this['updateUI_' + queryType]();
     }
+
+    // setTimeout(function() {
+    //   this.selectedValues = [13, 39];
+    //   this.buildQuery_range();
+    //   this.updateUI_range();
+    // }.bind(this), 2000);
   },
 
   /**
@@ -209,6 +215,7 @@ module.exports = {
     var uiElements = this.queryAll('.selectable');
     _.each(uiElements, function(el) {
       el.classList.remove('selected');
+      el.classList.remove('half');
       if (!firstSelected) {
         el.classList.remove('unselected');
       } else {
@@ -232,6 +239,15 @@ module.exports = {
           el.classList.remove('unselected');
         }
       });
+
+      // if last bar is not fully included in range, mark it as "half selected"
+      if (res.isBinned) {
+        var last = _.last(this.queryAll('.selectable.selected'));
+        var lastData = d3.select(last).data()[0];
+        if (lastData.value + lastData.dx > res.upper) {
+          last.classList.add('half');
+        }
+      }
     }
   },
 

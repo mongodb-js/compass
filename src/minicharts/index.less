@@ -8,7 +8,8 @@
 
 @mc-bg: @gray8;
 @mc-fg: @mc-blue0;
-@mc-fg-selected: @chart0; // darken(@mc-blue0, 10%);
+@mc-fg-selected: @chart0;
+@mc-fg-halfselected: lighten(@chart0, 20%);
 @mc-fg-unselected: @gray6;
 
 div.minichart.unique {
@@ -108,10 +109,11 @@ svg.minichart {
 
       &.selected {
         fill: @mc-fg-selected;
-        // stroke: @pw;
-        // stroke-width: 1;
-        // stroke-dasharray: 1,1;
+        &.half {
+          mask: url(#mask-stripe);
+        }
       }
+
       &.unselected {
         fill: @mc-fg-unselected;
       }

@@ -93,7 +93,7 @@ var VizView = AmpersandView.extend({
           this.template = '<canvas data-hook="viz-container" id="canvas"></canvas>';
           break;
         case 'svg':
-          this.template = '<svg data-hook="viz-container"></svg>';
+          this.template = require('./svg-template.jade');
           break;
         case 'html':
         default:
