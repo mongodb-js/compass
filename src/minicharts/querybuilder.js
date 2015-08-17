@@ -81,10 +81,11 @@ module.exports = {
    * update the UI after a distinct query and mark appropriate elements with .select class.
    * @param  {Object} data   data object of the event
    */
-  updateUI_distinct: function(data) {
+  updateUI_distinct: function() {
+    debug('update ui distinct');
     var uiElements = this.queryAll('.selectable');
     _.each(uiElements, function(el) {
-      var elData = data.source === 'unique' ? el.innerText : d3.select(el).data()[0].value;
+      var elData = el.innerText || d3.select(el).data()[0].value;
       if (_.contains(_.pluck(this.selectedValues, 'value'), elData)) {
         el.classList.add('selected');
         el.classList.remove('unselected');
@@ -265,10 +266,11 @@ module.exports = {
     // now call appropriate event handlers and query build methods
     if (data.type === 'drag') {
       this.handleEvent_drag();
+      this['buildQuery_' + queryType]();
     } else {
       this['handleEvent_' + queryType](data);
+      this['buildQuery_' + queryType]();
+      this['updateUI_' + queryType]();
     }
-    this['buildQuery_' + queryType]();
-    this['updateUI_' + queryType](data);
   }
 };
