@@ -4,23 +4,24 @@ var d3 = require('d3');
 var LeafValue = require('mongodb-language-model').LeafValue;
 var ListOperator = require('mongodb-language-model').ListOperator;
 var Range = require('mongodb-language-model').helpers.Range;
+var debug = require('debug')('scout:minicharts:querybuilder');
 
 var MODIFIERKEY = 'shiftKey';
 
 module.exports = {
   /**
-   * Extract a value that can be compared
+   * Extract a value that can be ordered (e.g. number, date, ...)
    * @param  {Object} d   event data object triggered by the minichart
    * @return {Any}        value to be returned that can be used for comparisons < and >
    */
-  _getComparableValue: function(d) {
+  _getOrderedValue: function(d) {
     return d.value._bsontype === 'ObjectID' ? d.value.getTimestamp() : d.value;
   },
 
   /**
    * build new distinct ($in) query based on current selection and store as this.refineValue.
    */
-  buildDistinctQuery: function() {
+  buildQuery_distinct: function() {
     // build new refineValue
     if (this.selectedValues.length === 0) {
       // no value
@@ -43,25 +44,67 @@ module.exports = {
   },
 
   /**
+   * build new range ($gte, $lt(e)) query based on current selection and store as this.refineValue.
+   */
+  buildQuery_range: function() {
+    var firstSelected = this.selectedValues[0];
+    var getOrderedValue = this._getOrderedValue.bind(this);
+
+    if (!firstSelected) {
+      this.unset('refineValue');
+      return;
+    }
+    var first = _.min(this.selectedValues, function(el) {
+      return getOrderedValue(el);
+    });
+    var last = _.max(this.selectedValues, function(el) {
+      return getOrderedValue(el);
+    });
+    var upperInclusive = last.dx === 0;
+
+    var lower = first.value;
+    var upper = last.value;
+    if (this.model.getType() === 'Number') {
+      upper += last.dx;
+    }
+    if (lower === upper) {
+      this.refineValue = new LeafValue({
+        content: lower
+      });
+    } else {
+      this.refineValue = new Range(lower, upper, upperInclusive);
+    }
+  },
+
+  /**
    * Handler for query builder events that result in distinct selection, e.g. string and unique
    * type. Single click selects individual element, shift-click adds to selection.
-   * @param  {Object} data   the contains information about the event, @see handleQueryBuilderEvent
+   *
+   * For distinct-type minicharts, this.selectedValues contains an entry for each selected value.
+   *
+   * @param  {Object} data   contains information about the event, @see handleQueryBuilderEvent
    */
-  handleDistinctEvent: function(data) {
+  handleEvent_distinct: function(data) {
     // update selectedValues
     if (!data.evt[MODIFIERKEY]) {
       if (this.selectedValues.length === 1 && this.selectedValues[0].value === data.d.value) {
+        // case where 1 element is selected and it is clicked again (need to unselect)
         this.selectedValues = [];
       } else {
+        // case where multiple or no elements are selected (need to select that one item)
         this.selectedValues = [data.d];
       }
     } else if (_.contains(_.pluck(this.selectedValues, 'value'), data.d.value)) {
+      // case where selected element is shift-clicked (need to remove from selection)
       _.remove(this.selectedValues, function(d) {
         return d.value === data.d.value;
       });
     } else {
+      // case where unselected element is shift-clicked (need to add to selection)
       this.selectedValues.push(data.d);
     }
+
+    debug('selectedValues', this.selectedValues);
 
     // visual updates
     _.each(data.all, function(el) {
@@ -81,50 +124,25 @@ module.exports = {
   },
 
   /**
-   * build new range ($gte, $lt(e)) query based on current selection and store as this.refineValue.
-   */
-  buildRangeQuery: function() {
-    var firstSelected = this.selectedValues[0];
-    var getComparableValue = this._getComparableValue.bind(this);
-
-    if (!firstSelected) {
-      this.unset('refineValue');
-      return;
-    }
-    var first = _.min(this.selectedValues, function(el) {
-      return getComparableValue(el);
-    });
-    var last = _.max(this.selectedValues, function(el) {
-      return getComparableValue(el);
-    });
-    var upperInclusive = last.dx === 0;
-
-    var lower = first.value;
-    var upper = last.value;
-    if (this.model.getType() === 'Number') {
-      upper += last.dx;
-    }
-    if (lower === upper) {
-      this.refineValue = new LeafValue({
-        content: lower
-      });
-    } else {
-      this.refineValue = new Range(lower, upper, upperInclusive);
-    }
-  },
-
-  /**
    * Handler for query builder events that result in range selection, e.g. number type.
    * single click selects individual element, shift-click extends to range (the single click is
    * interpreted as one end of the range, shift-click as the other).
+   *
+   * For range-type minicharts, this.selectedValues contains two values, the lower and upper bound.
+   * The 0th value is the one selected via regular click, the 1st value is the shift-clicked one.
+   * If only a single value is selected ($eq), is stored at the 0th index.
+   *
    * @param  {Object} data   the contains information about the event, @see handleQueryBuilderEvent
    */
-  handleRangeEvent: function(data) {
+  handleEvent_range: function(data) {
     if (data.evt[MODIFIERKEY]) {
+      // shift-click modifies the value at index 1
       this.selectedValues[1] = data.d;
     } else if (this.selectedValues[0] && this.selectedValues[0].value === data.d.value) {
+      // case where single selected item is clicked again (need to unselect)
       this.selectedValues = [];
     } else {
+      // case where multiple or no elements are selected (need to just select one item)
       this.selectedValues = [data.d];
     }
     var firstSelected = this.selectedValues[0];
@@ -137,21 +155,18 @@ module.exports = {
         el.classList.add('unselected');
       }
     });
-    if (!firstSelected) {
-      // no value
-      this.unset('refineValue');
-    } else {
-      var getComparableValue = this._getComparableValue.bind(this);
+    if (firstSelected) {
+      var getOrderedValue = this._getOrderedValue.bind(this);
       var first = _.min(this.selectedValues, function(el) {
-        return getComparableValue(el);
+        return getOrderedValue(el);
       });
       var last = _.max(this.selectedValues, function(el) {
-        return getComparableValue(el);
+        return getOrderedValue(el);
       });
 
-      // use getComparableValue to determine what elements should be selected
-      var lower = getComparableValue(first);
-      var upper = getComparableValue(last);
+      // use getOrderedValue to determine what elements should be selected
+      var lower = getOrderedValue(first);
+      var upper = getOrderedValue(last);
       if (this.model.getType() === 'Number') {
         upper += last.dx;
       }
@@ -165,7 +180,7 @@ module.exports = {
        */
       var upperInclusive = last.dx === 0;
       _.each(data.all, function(el) {
-        var elData = getComparableValue(d3.select(el).data()[0]);
+        var elData = getOrderedValue(d3.select(el).data()[0]);
         if (elData >= lower && (upperInclusive ? elData <= upper : elData < upper)) {
           el.classList.add('selected');
           el.classList.remove('unselected');
@@ -173,7 +188,14 @@ module.exports = {
       });
     }
   },
-  handleDragEvent: function(data) {
+  /**
+   * Handler for query builder events created with a click-drag mouse action. The visual updates
+   * are handled by d3 directly, so all we have to do is update the selected values based on the
+   * selected elements.
+   *
+   * @param  {Object} data   the contains information about the event, @see handleQueryBuilderEvent
+   */
+  handleEvent_drag: function(data) {
     this.selectedValues = d3.selectAll(data.selected).data();
   },
   /**
@@ -199,37 +221,40 @@ module.exports = {
    *
    */
   handleQueryBuilderEvent: function(data) {
-    var distinctEvent = data.type === 'drag' ? this.handleDragEvent : this.handleDistinctEvent;
-    var rangeEvent = data.type === 'drag' ? this.handleDragEvent : this.handleRangeEvent;
+    var queryType;
 
     if (data.type === 'click') {
       data.evt.stopPropagation();
       data.evt.preventDefault();
     }
 
+    // determine what kind of query this is (distinct or range)
     switch (this.model.getType()) {
       case 'Boolean': // fall-through to String
       case 'String':
-        distinctEvent.call(this, data);
-        this.buildDistinctQuery();
+        queryType = 'distinct';
         break;
       case 'Number':
         if (data.source === 'unique') {
-          distinctEvent.call(this, data);
-          this.buildDistinctQuery();
+          queryType = 'distinct';
         } else {
-          rangeEvent.call(this, data);
-          this.buildRangeQuery();
+          queryType = 'range';
         }
         break;
       case 'ObjectID': // fall-through to Date
       case 'Date':
-        // @todo: for dates, data.all is not sorted, so this is not yet working
-        rangeEvent.call(this, data);
-        this.buildRangeQuery();
+        queryType = 'range';
         break;
       default: // @todo other types not implemented yet
-        break;
+        throw new Error('unsupported querybuilder type ' + this.model.getType());
     }
+
+    // now call appropriate event handlers and query build methods
+    if (data.type === 'drag') {
+      this.handleEvent_drag(data);
+    } else {
+      this['handleEvent_' + queryType](data);
+    }
+    this['buildQuery_' + queryType]();
   }
 };
