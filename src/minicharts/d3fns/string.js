@@ -73,7 +73,7 @@ var minicharts_d3fns_string = function() {
 
   chart.options = function(value) {
     if (!arguments.length) return options;
-    options = value;
+    _.assign(options, value);
     return chart;
   };
 

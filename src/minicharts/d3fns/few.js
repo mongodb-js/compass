@@ -32,11 +32,10 @@ var minicharts_d3fns_few = function() {
 
   function handleClick(d) {
     if (!options.view) return;
-    var fgRect = $(this).siblings('rect.fg')[0];
+    var fgRect = $(this).siblings('rect.selectable')[0];
     var evt = {
       d: d,
       self: fgRect,
-      all: options.view.queryAll('rect.fg'),
       evt: d3.event,
       type: 'click',
       source: 'few'
@@ -45,7 +44,7 @@ var minicharts_d3fns_few = function() {
   }
 
   function brushed() {
-    var bars = d3.selectAll(options.view.queryAll('rect.fg'));
+    var bars = d3.selectAll(options.view.queryAll('rect.selectable'));
     var s = brush.extent();
 
     bars.classed('selected', function(d) {
@@ -61,7 +60,7 @@ var minicharts_d3fns_few = function() {
   }
 
   function brushend() {
-    var bars = d3.selectAll(options.view.queryAll('rect.fg'));
+    var bars = d3.selectAll(options.view.queryAll('rect.selectable'));
     if (brush.empty()) {
       bars.classed('selected', false);
       bars.classed('unselected', false);
@@ -70,7 +69,6 @@ var minicharts_d3fns_few = function() {
 
     if (!options.view) return;
     var evt = {
-      selected: options.view.queryAll('rect.fg.selected'),
       type: 'drag',
       source: 'many'
     };
@@ -167,7 +165,7 @@ var minicharts_d3fns_few = function() {
 
       barEnter.append('rect')
         .attr('class', function(d, i) {
-          return 'fg fg-' + i;
+          return 'selectable fg fg-' + i;
         })
         .attr('y', 0)
         .attr('x', 0)
@@ -189,7 +187,7 @@ var minicharts_d3fns_few = function() {
         .on('mouseout', tip.hide)
         .on('mousedown', handleMouseDown);
 
-      bar.select('rect.fg')
+      bar.select('rect.selectable')
         .transition()
         .attr('width', function(d) {
           return xScale(d.count);
@@ -224,7 +222,7 @@ var minicharts_d3fns_few = function() {
 
   chart.options = function(value) {
     if (!arguments.length) return options;
-    options = value;
+    _.assign(options, value);
     return chart;
   };
 

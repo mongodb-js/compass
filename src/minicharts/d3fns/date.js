@@ -54,7 +54,7 @@ var minicharts_d3fns_date = function() {
     .on('brushend', brushend);
 
   function brushed() {
-    var lines = d3.selectAll(options.view.queryAll('.line'));
+    var lines = d3.selectAll(options.view.queryAll('.selectable'));
     var s = brush.extent();
 
     lines.classed('selected', function(d) {
@@ -67,7 +67,7 @@ var minicharts_d3fns_date = function() {
   }
 
   function brushend() {
-    var lines = d3.selectAll(options.view.queryAll('.line'));
+    var lines = d3.selectAll(options.view.queryAll('.selectable'));
     if (brush.empty()) {
       lines.classed('selected', false);
       lines.classed('unselected', false);
@@ -76,7 +76,6 @@ var minicharts_d3fns_date = function() {
 
     if (!options.view) return;
     var evt = {
-      selected: options.view.queryAll('line.line.selected'),
       type: 'drag',
       source: 'many'
     };
@@ -87,7 +86,6 @@ var minicharts_d3fns_date = function() {
     var evt = {
       d: d,
       self: this,
-      all: options.view.queryAll('line.line'),
       evt: d3.event,
       type: 'click',
       source: 'date'
@@ -222,13 +220,13 @@ var minicharts_d3fns_date = function() {
         .attr('y', barcodeTop)
         .attr('height', barcodeBottom - barcodeTop);
 
-      var lines = g.selectAll('.line')
+      var lines = g.selectAll('.selectable')
         .data(values, function(d) {
           return d.ts;
         });
 
       lines.enter().append('line')
-        .attr('class', 'line')
+        .attr('class', 'line selectable')
         .on('mouseover', tip.show)
         .on('mouseout', tip.hide)
         .on('mousedown', handleMouseDown);
@@ -278,10 +276,12 @@ var minicharts_d3fns_date = function() {
       var weekdayContainer = g.select('g.weekday').data([weekdays]);
 
       raf(function() {
+        var chartWidth = width / (upperRatio + 1) - upperMargin;
         var chart = many()
-          .width(width / (upperRatio + 1) - upperMargin)
+          .width(chartWidth)
           .height(upperBarBottom)
           .options({
+            selectable: false,
             bgbars: true,
             labels: {
               'text-anchor': 'middle',
@@ -301,6 +301,7 @@ var minicharts_d3fns_date = function() {
           .width(chartWidth)
           .height(upperBarBottom)
           .options({
+            selectable: false,
             bgbars: true,
             labels: {
               text: function(d, i) {
@@ -328,7 +329,7 @@ var minicharts_d3fns_date = function() {
 
   chart.options = function(value) {
     if (!arguments.length) return options;
-    options = value;
+    _.assign(options, value);
     return chart;
   };
 

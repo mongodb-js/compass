@@ -60,7 +60,6 @@ module.exports = VizView.extend({
         count: 1
       },
       self: evt.target,
-      all: this.queryAll('.bubble > code'),
       evt: evt,
       type: 'click',
       source: 'unique'

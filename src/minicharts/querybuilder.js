@@ -15,6 +15,7 @@ module.exports = {
    * @return {Any}        value to be returned that can be used for comparisons < and >
    */
   _getOrderedValue: function(d) {
+    if (!d.value._bsontype) return d.value;
     return d.value._bsontype === 'ObjectID' ? d.value.getTimestamp() : d.value;
   },
 
@@ -104,10 +105,9 @@ module.exports = {
       this.selectedValues.push(data.d);
     }
 
-    debug('selectedValues', this.selectedValues);
-
     // visual updates
-    _.each(data.all, function(el) {
+    var uiElements = this.queryAll('.selectable');
+    _.each(uiElements, function(el) {
       var elData = data.source === 'unique' ? el.innerText : d3.select(el).data()[0].value;
       if (_.contains(_.pluck(this.selectedValues, 'value'), elData)) {
         el.classList.add('selected');
@@ -147,7 +147,8 @@ module.exports = {
     }
     var firstSelected = this.selectedValues[0];
     // remove `.selected` class from all elements
-    _.each(data.all, function(el) {
+    var uiElements = this.queryAll('.selectable');
+    _.each(uiElements, function(el) {
       el.classList.remove('selected');
       if (!firstSelected) {
         el.classList.remove('unselected');
@@ -179,7 +180,7 @@ module.exports = {
        * This is indicated by the d.dx variable, which is only > 0 for binned ranges.
        */
       var upperInclusive = last.dx === 0;
-      _.each(data.all, function(el) {
+      _.each(uiElements, function(el) {
         var elData = getOrderedValue(d3.select(el).data()[0]);
         if (elData >= lower && (upperInclusive ? elData <= upper : elData < upper)) {
           el.classList.add('selected');
@@ -195,8 +196,8 @@ module.exports = {
    *
    * @param  {Object} data   the contains information about the event, @see handleQueryBuilderEvent
    */
-  handleEvent_drag: function(data) {
-    this.selectedValues = d3.selectAll(data.selected).data();
+  handleEvent_drag: function() {
+    this.selectedValues = d3.selectAll(this.queryAll('.selectable.selected')).data();
   },
   /**
    * Handles query builder events, routing them to the appropriate specific handler methods
@@ -206,7 +207,6 @@ module.exports = {
    * {
    *   d: the data point
    *   self: the dom element itself
-   *   all: all clickable dom elements in this chart
    *   evt: the event object
    *   type: 'click'
    *   source: where the event originated, currently 'few', 'many', 'unique', 'date'
@@ -251,7 +251,7 @@ module.exports = {
 
     // now call appropriate event handlers and query build methods
     if (data.type === 'drag') {
-      this.handleEvent_drag(data);
+      this.handleEvent_drag();
     } else {
       this['handleEvent_' + queryType](data);
     }

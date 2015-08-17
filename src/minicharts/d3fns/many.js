@@ -15,7 +15,8 @@ var minicharts_d3fns_many = function() {
     view: null,
     bgbars: false,
     scale: false,
-    labels: false // label defaults will be set further below
+    labels: false, // label defaults will be set further below
+    selectable: true  // setting to false disables query builder for this chart
   };
 
   var xScale = d3.scale.ordinal();
@@ -35,11 +36,10 @@ var minicharts_d3fns_many = function() {
   // --- end chart setup ---
 
   function handleClick(d) {
-    if (!options.view) return;
+    if (!options.view || !options.selectable) return;
     var evt = {
       d: d,
       self: this,
-      all: options.view.queryAll('rect.fg'),
       evt: d3.event,
       type: 'click',
       source: 'many'
@@ -48,7 +48,7 @@ var minicharts_d3fns_many = function() {
   }
 
   function brushed() {
-    var bars = d3.selectAll(options.view.queryAll('rect.fg'));
+    var bars = d3.selectAll(options.view.queryAll('rect.selectable'));
     var s = brush.extent();
 
     bars.classed('selected', function(d) {
@@ -64,7 +64,7 @@ var minicharts_d3fns_many = function() {
   }
 
   function brushend() {
-    var bars = d3.selectAll(options.view.queryAll('rect.fg'));
+    var bars = d3.selectAll(options.view.queryAll('rect.selectable'));
     if (brush.empty()) {
       bars.classed('selected', false);
       bars.classed('unselected', false);
@@ -73,7 +73,6 @@ var minicharts_d3fns_many = function() {
 
     if (!options.view) return;
     var evt = {
-      selected: options.view.queryAll('rect.fg.selected'),
       type: 'drag',
       source: 'many'
     };
@@ -81,6 +80,7 @@ var minicharts_d3fns_many = function() {
   }
 
   function handleMouseDown() {
+    if (!options.selectable) return;
     var bar = this;
     var parent = $(this).closest('.minichart');
     var background = parent.find('g.brush > rect.background')[0];
@@ -213,9 +213,7 @@ var minicharts_d3fns_many = function() {
         legend.exit().remove();
       }
 
-      // @note currently the bgbars are only use for the day/week and hour/day charts.
-      // they don't support query building anyway.
-      if (!options.bgbars) {
+      if (options.selectable) {
         var gBrush = el.selectAll('.brush').data([0]);
         gBrush.enter().append('g')
           .attr('class', 'brush')
@@ -249,7 +247,7 @@ var minicharts_d3fns_many = function() {
       // now attach the foreground bars
       barEnter
         .append('rect')
-        .attr('class', 'fg')
+        .attr('class', options.selectable ? 'fg selectable' : 'fg')
         .attr('x', 0)
         .attr('width', xScale.rangeBand());
 
@@ -269,8 +267,11 @@ var minicharts_d3fns_many = function() {
         // ... or attach tooltips directly to foreground bars if we don't use background bars
         bar.selectAll('.fg')
           .on('mouseover', tip.show)
-          .on('mouseout', tip.hide)
-          .on('mousedown', handleMouseDown);
+          .on('mouseout', tip.hide);
+
+        if (options.selectable) {
+          bar.on('mousedown', handleMouseDown);
+        }
       }
 
       if (options.labels) {
@@ -318,7 +319,7 @@ var minicharts_d3fns_many = function() {
 
   chart.options = function(value) {
     if (!arguments.length) return options;
-    options = value;
+    _.assign(options, value);
     return chart;
   };
 
