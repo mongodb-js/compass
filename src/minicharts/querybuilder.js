@@ -78,6 +78,79 @@ module.exports = {
   },
 
   /**
+   * update the UI after a distinct query and mark appropriate elements with .select class.
+   * @param  {Object} data   data object of the event
+   */
+  updateUI_distinct: function(data) {
+    var uiElements = this.queryAll('.selectable');
+    _.each(uiElements, function(el) {
+      var elData = data.source === 'unique' ? el.innerText : d3.select(el).data()[0].value;
+      if (_.contains(_.pluck(this.selectedValues, 'value'), elData)) {
+        el.classList.add('selected');
+        el.classList.remove('unselected');
+      } else {
+        el.classList.remove('selected');
+        if (this.selectedValues.length === 0) {
+          el.classList.remove('unselected');
+        } else {
+          el.classList.add('unselected');
+        }
+      }
+    }.bind(this));
+  },
+
+  /**
+   * update the UI after a range query and mark appropriate elements with .select class.
+   * @param  {Object} data   data object of the event
+   */
+  updateUI_range: function() {
+    var firstSelected = this.selectedValues[0];
+    // remove `.selected` class from all elements
+    var uiElements = this.queryAll('.selectable');
+    _.each(uiElements, function(el) {
+      el.classList.remove('selected');
+      if (!firstSelected) {
+        el.classList.remove('unselected');
+      } else {
+        el.classList.add('unselected');
+      }
+    });
+    if (firstSelected) {
+      var getOrderedValue = this._getOrderedValue.bind(this);
+      var first = _.min(this.selectedValues, function(el) {
+        return getOrderedValue(el);
+      });
+      var last = _.max(this.selectedValues, function(el) {
+        return getOrderedValue(el);
+      });
+
+      // use getOrderedValue to determine what elements should be selected
+      var lower = getOrderedValue(first);
+      var upper = getOrderedValue(last);
+      var dx = d3.select(_.last(uiElements)).data()[0].dx;
+      var isBinned = this.model.getType() === 'Number' && dx;
+      if (isBinned) {
+        upper += dx;
+      }
+
+      /**
+       * if the UI element represents a range (i.e. binned histograms where one bar represents
+       * 20-30, the next one 30-40, etc.) then the upper limit is non-inclusive ($lt).
+       * If however the UI elements represents a single number, then the upper limit is
+       * inclusive ($lte).
+       * This is indicated by the d.dx variable, which is only > 0 for binned ranges.
+       */
+      _.each(uiElements, function(el) {
+        var elData = getOrderedValue(d3.select(el).data()[0]);
+        if (elData >= lower && (isBinned ? elData < upper : elData <= upper)) {
+          el.classList.add('selected');
+          el.classList.remove('unselected');
+        }
+      });
+    }
+  },
+
+  /**
    * Handler for query builder events that result in distinct selection, e.g. string and unique
    * type. Single click selects individual element, shift-click adds to selection.
    *
@@ -104,23 +177,6 @@ module.exports = {
       // case where unselected element is shift-clicked (need to add to selection)
       this.selectedValues.push(data.d);
     }
-
-    // visual updates
-    var uiElements = this.queryAll('.selectable');
-    _.each(uiElements, function(el) {
-      var elData = data.source === 'unique' ? el.innerText : d3.select(el).data()[0].value;
-      if (_.contains(_.pluck(this.selectedValues, 'value'), elData)) {
-        el.classList.add('selected');
-        el.classList.remove('unselected');
-      } else {
-        el.classList.remove('selected');
-        if (this.selectedValues.length === 0) {
-          el.classList.remove('unselected');
-        } else {
-          el.classList.add('unselected');
-        }
-      }
-    }.bind(this));
   },
 
   /**
@@ -144,49 +200,6 @@ module.exports = {
     } else {
       // case where multiple or no elements are selected (need to just select one item)
       this.selectedValues = [data.d];
-    }
-    var firstSelected = this.selectedValues[0];
-    // remove `.selected` class from all elements
-    var uiElements = this.queryAll('.selectable');
-    _.each(uiElements, function(el) {
-      el.classList.remove('selected');
-      if (!firstSelected) {
-        el.classList.remove('unselected');
-      } else {
-        el.classList.add('unselected');
-      }
-    });
-    if (firstSelected) {
-      var getOrderedValue = this._getOrderedValue.bind(this);
-      var first = _.min(this.selectedValues, function(el) {
-        return getOrderedValue(el);
-      });
-      var last = _.max(this.selectedValues, function(el) {
-        return getOrderedValue(el);
-      });
-
-      // use getOrderedValue to determine what elements should be selected
-      var lower = getOrderedValue(first);
-      var upper = getOrderedValue(last);
-      if (this.model.getType() === 'Number') {
-        upper += last.dx;
-      }
-
-      /**
-       * if the UI element represents a range (i.e. binned histograms where one bar represents
-       * 20-30, the next one 30-40, etc.) then the upper limit is non-inclusive ($lt).
-       * If however the UI elements represents a single number, then the upper limit is
-       * inclusive ($lte).
-       * This is indicated by the d.dx variable, which is only > 0 for binned ranges.
-       */
-      var upperInclusive = last.dx === 0;
-      _.each(uiElements, function(el) {
-        var elData = getOrderedValue(d3.select(el).data()[0]);
-        if (elData >= lower && (upperInclusive ? elData <= upper : elData < upper)) {
-          el.classList.add('selected');
-          el.classList.remove('unselected');
-        }
-      });
     }
   },
   /**
@@ -256,5 +269,6 @@ module.exports = {
       this['handleEvent_' + queryType](data);
     }
     this['buildQuery_' + queryType]();
+    this['updateUI_' + queryType](data);
   }
 };
