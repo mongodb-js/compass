@@ -1,39 +1,45 @@
-.setup-user-info.animated
+.setup-user-info.animated.wizard-content
+  span.scout-logo
   h1 Tell us about yourself
-  form.form-horizontal.col-sm-12
-    .form-group.has-feedback
-      input.form-control.input-lg(
-        type='text', 
-        required='required', 
-        name='name', 
-        minlength=2,
-        maxlength=128,
-        placeholder='What is your name?')
-      span.form-control-feedback.on-error: .fa.fa-fw.fa-times
-      p.help-block.on-error Let's not be strangers&hellip;
-      
-      span.form-control-feedback.on-success: .fa.fa-fw.fa-check
-      p.help-block.on-success Nice to meet you!
-      
-      p.help-block.on-start
+  p.lead Just the basics so we can check in and see how you're using Scout and how Scout can improve for you.
+  .wizard-form-content: .row: .col-sm-8.col-sm-offset-2
+    form.form-horizontal
+      .form-group.has-feedback
+        label.col-sm-2.control-label(for='name') Name
+        .col-sm-8: input.form-control(
+          type='text', 
+          required='required', 
+          name='name', 
+          minlength=2,
+          maxlength=128,
+          placeholder='What is your name?')
+        span.form-control-feedback.on-error: .fa.fa-fw.fa-times
+        p.help-block.on-error Let's not be strangers&hellip;
         
-    .form-group.has-feedback
-      input.form-control.input-lg(
-        type='email', 
-        required='required', 
-        name='email', 
-        minlength=2,
-        maxlength=128,
-        placeholder='And your email address?')
-      span.form-control-feedback.on-error: .fa.fa-fw.fa-times
-      p.help-block.on-error How will we contact you if we have questions?
-      
-      span.form-control-feedback.on-success: .fa.fa-fw.fa-check
-      p.help-block.on-success Thanks! 
-      
-      p.help-block.on-start
+        span.form-control-feedback.on-success: .fa.fa-fw.fa-check
+        p.help-block.on-success Nice to meet you!
         
-    .form-group: button.btn.btn-primary.btn-lg(
-        type='submit', 
-        data-hook='continue'
-      ) Continue
+        p.help-block.on-start
+          
+      .form-group.has-feedback
+        label.col-sm-2.control-label(for='email') Email
+        .col-sm-8: input.form-control(
+          type='email', 
+          required='required', 
+          name='email', 
+          minlength=2,
+          maxlength=128,
+          placeholder='And your email address?')
+        span.form-control-feedback.on-error: .fa.fa-fw.fa-times
+        p.help-block.on-error How will we contact you if we have questions?
+        
+        span.form-control-feedback.on-success: .fa.fa-fw.fa-check
+        p.help-block.on-success Thanks! 
+        
+        p.help-block.on-start
+          
+  .wizard-stepper
+    button.btn.btn-primary(
+      type='submit', 
+      data-hook='continue'
+    ) Continue

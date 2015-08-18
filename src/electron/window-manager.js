@@ -9,20 +9,13 @@ var RESOURCES = path.resolve(__dirname, '../../');
 var CONNECT_URL = 'file://' + path.join(RESOURCES, 'index.html#connect');
 var SETUP_URL = 'file://' + path.join(RESOURCES, 'index.html#setup');
 
-var DEFAULT_WIDTH = 1024;
-var DEFAULT_HEIGHT = 700;
+var DEFAULT_WIDTH = 1280;
+var DEFAULT_HEIGHT = 800;
 
-var DEFAULT_HEIGHT_DIALOG;
-if (process.platform === 'win32') {
-  DEFAULT_HEIGHT_DIALOG = 460;
-} else if (process.platform === 'linux') {
-  DEFAULT_HEIGHT_DIALOG = 430;
-} else {
-  DEFAULT_HEIGHT_DIALOG = 400;
-}
+var DEFAULT_WIDTH_DIALOG = 640;
+var DEFAULT_HEIGHT_DIALOG = 480;
 
 var ICON = path.join(__dirname, '..', '..', 'images', 'mongodb-leaf.png');
-var DEFAULT_WIDTH_DIALOG = 600;
 
 var connectWindow;
 var setupWindow;
@@ -100,8 +93,8 @@ module.exports.openSetupDialog = function(opts) {
   opts = opts || {};
   opts = _.extend(opts || {}, {
     url: SETUP_URL,
-    height: 550,
-    width: 600,
+    height: 675,
+    width: 900,
     resizable: false
   });
   return module.exports.create(opts);
