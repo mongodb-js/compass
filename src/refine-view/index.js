@@ -1,30 +1,30 @@
 var AmpersandView = require('ampersand-view');
 var EJSON = require('mongodb-extended-json');
+var EditableQuery = require('../models/editable-query');
 var _ = require('lodash');
+var $ = require('jquery');
 var Query = require('mongodb-language-model').Query;
-// var debug = require('debug')('scout:refine-view:index');
+var debug = require('debug')('scout:refine-view:index');
 
 module.exports = AmpersandView.extend({
   template: require('./index.jade'),
-  props: {
-    valid: {
-      type: 'boolean',
-      default: true
-    }
-  },
   derived: {
     notEmpty: {
-      deps: ['model.queryString'],
+      deps: ['editableQuery.queryString'],
       fn: function() {
-        return this.model.queryString !== '{}';
+        return this.editableQuery.queryString !== '{}';
       }
     }
   },
+  children: {
+    editableQuery: EditableQuery
+  },
   bindings: {
-    'model.queryString': {
+    'editableQuery.rawString': {
       type: 'value',
       hook: 'refine-input'
     },
+    // @todo, rethink these
     notEmpty: [{
       type: 'toggle',
       hook: 'reset-button'
@@ -34,7 +34,7 @@ module.exports = AmpersandView.extend({
       yes: 'btn-info',
       no: 'btn-default'
     }],
-    valid: [
+    'editableQuery.valid': [
       // red input border while query is invalid
       {
         type: 'booleanClass',
@@ -57,50 +57,33 @@ module.exports = AmpersandView.extend({
     'input [data-hook=refine-input]': 'inputChanged',
     'submit form': 'submit'
   },
-  _cleanupInput: function(input) {
-    var output = input;
-    // accept whitespace-only input as empty query
-    if (_.trim(output) === '') {
-      output = '{}';
-    }
-    // replace single quotes with double quotes
-    output = output.replace(/'/g, '"');
-    // wrap field names in double quotes
-    output = output.replace(/([{,])\s*([^,{\s\'"]+)\s*:/g, ' $1 "$2" : ');
-    return output;
+  initialize: function() {
+    this.listenTo(this.model, 'change:queryString', this.onQueryChanged);
   },
-  /*eslint no-new: 0*/
+  onQueryChanged: function() {
+    this.editableQuery.rawString = this.model.queryString;
+  },
   inputChanged: function() {
-    // validate user input on the fly
-    var queryStr = this._cleanupInput(this.queryByHook('refine-input').value);
-    try {
-      // is it valid eJSON?
-      var queryObj = EJSON.parse(queryStr);
-      // is it a valid parsable Query according to the language?
-      new Query(queryObj, {
-        parse: true
-      });
-    } catch (e) {
-      this.valid = false;
-      return;
-    }
-    this.valid = true;
+    this.editableQuery.rawString = this.queryByHook('refine-input').value;
   },
   resetClicked: function() {
     this.model.query = new Query();
+    this.editableQuery.rawString = this.model.queryString;
     this.trigger('submit', this);
   },
   refineClicked: function() {
-    var queryStr = this._cleanupInput(this.queryByHook('refine-input').value);
-    var queryObj = new Query(EJSON.parse(queryStr), {
+    var queryObj = new Query(EJSON.parse(this.editableQuery.cleanString), {
       parse: true
     });
     this.model.query = queryObj;
+    this.editableQuery.rawString = this.model.queryString;
     this.trigger('submit', this);
   },
   submit: function(evt) {
     evt.preventDefault();
-    if (this.valid) {
+    // lose focus on input field first, see http://ampersandjs.com/docs#ampersand-dom-bindings-value
+    $(evt.delegateTarget).find('input').blur();
+    if (this.editableQuery.valid) {
       this.refineClicked();
     }
   }
