@@ -109,6 +109,14 @@ describe('Expression', function() {
     expr.clauses.reset([{baz: 2}, {booze: 5}]);
   });
 
+  it('shoud trigger a change:buffer event when adding a clause', function(done) {
+    var expr = new models.Expression([{foo: 1}, {bar: 2}], {
+      parse: true
+    });
+    expr.on('change:buffer', done);
+    expr.clauses.add(new models.LeafClause({baz: 4}, {parse: true}));
+  });
+
   it('should trigger a change:buffer event when a child buffer changes', function(done) {
     expr.clauses.add({
       bar: 1
