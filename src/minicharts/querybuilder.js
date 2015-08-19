@@ -194,6 +194,9 @@ module.exports = {
     var uiElements = this.queryAll('.selectable');
     _.each(uiElements, function(el) {
       var elData = el.innerText || d3.select(el).data()[0].value;
+      if (this.model.getType() === 'Number') {
+        elData = parseFloat(elData, 10);
+      }
       if (_.contains(this.selectedValues, elData)) {
         el.classList.add('selected');
         el.classList.remove('unselected');
@@ -373,13 +376,21 @@ module.exports = {
    */
   _getRangeBoundsHelper: function() {
     var getOrderedValueHelper = this._getOrderedValueHelper.bind(this);
-
-    var lower = _.min(this.selectedValues, function(el) {
-      return getOrderedValueHelper(el);
-    });
-    var upper = _.max(this.selectedValues, function(el) {
-      return getOrderedValueHelper(el);
-    });
+    var lower;
+    var upper;
+    if (this.model.getType() === 'Number') {
+      // numbers are ordered
+      lower = _.first(this.selectedValues);
+      upper = _.last(this.selectedValues);
+    } else {
+      // dates and objectids are not ordered
+      lower = _.min(this.selectedValues, function(el) {
+        return getOrderedValueHelper(el);
+      });
+      upper = _.max(this.selectedValues, function(el) {
+        return getOrderedValueHelper(el);
+      });
+    }
 
     // find out if data is binned or not
     var uiElements = this.queryAll('.selectable');

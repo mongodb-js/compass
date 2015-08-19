@@ -40,6 +40,8 @@ module.exports = VizView.extend({
       event.preventDefault();
     }
     this.render();
+    // re-apply selections after refresh
+    this.parent.updateUI_distinct();
   },
   stopTimer: function() {
     clearInterval(this.timer);
