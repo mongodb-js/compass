@@ -82,7 +82,7 @@ ol.document-list {
           cursor: pointer;
           display: block;
 
-          @caret-width-base: 6px;
+          @caret-width-base: 4px;
           .caret {
             display: inline-block;
             width: 12px;
@@ -103,14 +103,18 @@ ol.document-list {
         }
 
         ol.document-property-body {
-          margin-left: 5px;
-          border-left: 1px dotted @gray5;
+          // margin-left: 21px;
+          padding-left: 36px;
+          // border-left: 1px dotted @gray6;
           display: none;
         }
         &.expanded {
           > .document-property-header {
             > .caret {
               .caret-down;
+              vertical-align: bottom;
+              margin-left: 4px;
+              margin-right: 8px;
             }
           }
           > ol.document-property-body {
