@@ -14,6 +14,10 @@ module.exports = Model.extend({
       type: 'string',
       default: '{}',
       required: true
+    },
+    _queryObject: {
+      type: 'object',
+      default: null
     }
   },
   derived: {
@@ -47,15 +51,22 @@ module.exports = Model.extend({
         /*eslint no-new: 0*/
         try {
           // is it valid eJSON?
-          var queryObj = EJSON.parse(this.cleanString);
+          var parsed = EJSON.parse(this.cleanString);
           // is it a valid parsable Query according to the language?
-          new Query(queryObj, {
+          this._queryObject = new Query(parsed, {
             parse: true
           });
         } catch (e) {
+          this._queryObject = null;
           return false;
         }
         return true;
+      }
+    },
+    queryObject: {
+      deps: ['_queryObject'],
+      fn: function() {
+        return this._queryObject;
       }
     }
   }

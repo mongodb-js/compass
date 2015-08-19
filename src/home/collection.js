@@ -6,8 +6,9 @@ var RefineBarView = require('../refine-view');
 var SamplingMessageView = require('../sampling-message');
 var MongoDBCollection = require('../models/mongodb-collection');
 var SampledSchema = require('../models/sampled-schema');
-var debug = require('debug')('scout:home:collection');
 var app = require('ampersand-app');
+
+var debug = require('debug')('scout:home:collection');
 
 var MongoDBCollectionView = View.extend({
   modelType: 'Collection',
@@ -76,6 +77,7 @@ var MongoDBCollectionView = View.extend({
     }
     this.visible = true;
     app.queryOptions.reset();
+    app.volatileQueryOptions.reset();
 
     this.schema.ns = this.model._id = ns;
     debug('updating namespace to `%s`', ns);
@@ -90,6 +92,9 @@ var MongoDBCollectionView = View.extend({
     options.message = 'Analyzing documents...';
     this.schema.refine(options);
   },
+  /**
+   * handler for opening the document viewer sidebar.
+   */
   onSplitterClick: function() {
     this.toggle('sidebar_open');
   },
@@ -110,7 +115,8 @@ var MongoDBCollectionView = View.extend({
         var refineBarView = new RefineBarView({
           el: el,
           parent: this,
-          model: app.queryOptions
+          queryOptions: app.queryOptions,
+          volatileQueryOptions: app.volatileQueryOptions
         });
         this.listenTo(refineBarView, 'submit', this.onQueryChanged);
         return refineBarView;
