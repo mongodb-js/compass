@@ -261,6 +261,13 @@ module.exports = {
    * @return  {Object} message   no changes on message, just pass it through for consistency
    */
   updateUI_distinct: function(message) {
+    // in case message was not submitted (e.g. from unique minicharts), reconstruct it here
+    if (!message) {
+      message = {
+        selected: this.selectedValues,
+        elements: this.queryAll('.selectable')
+      };
+    }
     _.each(message.elements, function(el) {
       var elData = el.innerText || d3.select(el).data()[0].value;
       if (this.model.getType() === 'Number') {
