@@ -53,8 +53,20 @@ var minicharts_d3fns_date = function() {
     .on('brush', brushed)
     .on('brushend', brushend);
 
+  function brushstart(clickedLine) {
+    // remove selections and half selections
+    var lines = d3.selectAll(options.view.queryAll('.selectable'));
+    lines.classed('selected', function() {
+      return this === clickedLine;
+    });
+    lines.classed('unselected', function() {
+      return this !== clickedLine;
+    });
+  }
+
   function brushed() {
     var lines = d3.selectAll(options.view.queryAll('.selectable'));
+    var numSelected = options.view.queryAll('.selectable.selected').length;
     var s = brush.extent();
 
     lines.classed('selected', function(d) {
@@ -64,6 +76,15 @@ var minicharts_d3fns_date = function() {
       var pos = barcodeX(d.dt);
       return s[0] > pos || pos > s[1];
     });
+    if (!options.view) return;
+    if (numSelected !== options.view.queryAll('.selectable.selected').length) {
+      // number of selected items has changed, trigger querybuilder event
+      var evt = {
+        type: 'drag',
+        source: 'date'
+      };
+      options.view.trigger('querybuilder', evt);
+    }
   }
 
   function brushend() {
@@ -81,7 +102,6 @@ var minicharts_d3fns_date = function() {
     };
     options.view.trigger('querybuilder', evt);
   }
-  // --- end chart setup ---
   var handleClick = function(d) {
     var evt = {
       d: d,

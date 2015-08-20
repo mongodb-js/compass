@@ -3,7 +3,7 @@ var $ = require('jquery');
 var _ = require('lodash');
 var tooltipHtml = require('./tooltip.jade');
 var shared = require('./shared');
-var debug = require('debug')('scout:minicharts:many');
+// var debug = require('debug')('scout:minicharts:many');
 
 require('../d3-tip')(d3);
 
@@ -285,9 +285,6 @@ var minicharts_d3fns_many = function() {
           .attr('height', height)
           .on('mouseover', tip.show)
           .on('mouseout', tip.hide);
-          // @note currently the bgbars are only use for the day/week and hour/day charts.
-          // they don't support query building anyway.
-          // .on('mousedown', handleMouseDown)
       } else {
         // ... or attach tooltips directly to foreground bars if we don't use background bars
         barEnter.selectAll('.fg')
