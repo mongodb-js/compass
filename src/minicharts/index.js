@@ -18,20 +18,6 @@ module.exports = AmpersandView.extend(QueryBuilderMixin, {
   session: {
     subview: 'view',
     viewOptions: 'object',
-    value: {
-      type: 'object',
-      default: null
-    },
-    upperRangeOperator: {
-      type: 'string',
-      default: '$lt',
-      required: true
-    },
-    lowerRangeOperator: {
-      type: 'string',
-      default: '$gte',
-      required: true
-    },
     selectedValues: {
       type: 'array',
       default: function() {
@@ -49,7 +35,7 @@ module.exports = AmpersandView.extend(QueryBuilderMixin, {
       debounceRender: false,
       vizFn: vizFns[opts.model.getId().toLowerCase()] || null
     });
-    this.listenTo(app.volatileQueryOptions, 'change:query', this.volatileQueryChanged);
+    this.listenTo(app.volatileQueryOptions, 'change:query', this.handleVolatileQueryChange);
   },
   render: function() {
     this.renderWithTemplate(this);

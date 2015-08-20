@@ -66,7 +66,6 @@ module.exports = AmpersandView.extend({
     this.listenToAndRun(this.volatileQueryOptions, 'change:query', this.updateQueryListener);
   },
   updateQueryListener: function() {
-    debug('update query listener');
     this.stopListening(this.volatileQuery, 'change:buffer', this.onQueryBufferChanged);
     this.volatileQuery = this.volatileQueryOptions.query;
     this.listenTo(this.volatileQuery, 'change:buffer', this.onQueryBufferChanged);
