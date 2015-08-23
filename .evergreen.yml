@@ -106,7 +106,7 @@ buildvariants:
   run_on:
   - "osx-108"
   expansions:
-    add_environment: ""
+    add_environment: "SCOUT_INSTALLER_UNSIGNED=1"
     add_path: /opt/node/bin
     installer_content_type: "application/x-apple-diskimage"
     installer_filename: "MongoDB Scout.dmg"
