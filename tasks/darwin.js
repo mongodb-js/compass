@@ -80,10 +80,18 @@ var verify = function(done) {
 
 module.exports.installer = function(done) {
   debug('running packager...');
-  packager(CONFIG, function(err) {
-    if (err) return done(err);
+  var doCodeSign = process.env.SCOUT_INSTALLER_UNSIGNED === undefined;
 
-    codesign(function(err) {
+  // TODO: clean up with https://www.npmjs.com/package/run-series ?
+  if (! doCodeSign) {
+    CONFIG.sign = null;
+    packager(CONFIG, function(err) {
+      if (err) return done(err);
+
+      createDMG(CONFIG, done);
+    });
+  } else {
+    packager(CONFIG, function(err) {
       if (err) return done(err);
 
       verify(function(err) {
@@ -92,5 +100,5 @@ module.exports.installer = function(done) {
         createDMG(CONFIG, done);
       });
     });
-  });
+  }
 };
