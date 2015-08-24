@@ -86,7 +86,7 @@ tasks:
       bucket: mciuploads
       permissions: public-read
       content_type: ${installer_content_type|application/octet-stream}
-      display_name: Installer
+      display_name: "Installer: ${installer_filename}"
 
 # - name: test
 #   depends_on:
