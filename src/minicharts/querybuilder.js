@@ -317,7 +317,7 @@ module.exports = {
         } else if (message.dx === 0) {
           // handle non-binned ranges
           mustSelect = checkBounds[message.lowerOp](d.value, message.selected[0])
-                    && checkBounds[message.upperOp](d.value, message.selected[1]);
+            && checkBounds[message.upperOp](d.value, message.selected[1]);
         } else {
           // handle binned ranges
           var halfSelect = false;

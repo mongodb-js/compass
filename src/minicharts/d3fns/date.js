@@ -50,6 +50,7 @@ var minicharts_d3fns_date = function() {
 
   var brush = d3.svg.brush()
     .x(barcodeX)
+    .on('brushstart', brushstart)
     .on('brush', brushed)
     .on('brushend', brushend);
 
@@ -118,6 +119,7 @@ var minicharts_d3fns_date = function() {
     var background = parent.find('g.brush > rect.background')[0];
     var brushNode = parent.find('g.brush')[0];
     var start = barcodeX.invert(d3.mouse(background)[0]);
+    brushstart.call(brushNode, line);
 
     var w = d3.select(window)
       .on('mousemove', mousemove)
@@ -167,7 +169,9 @@ var minicharts_d3fns_date = function() {
       var upperBarBottom = innerHeight / 2 - 20;
 
       barcodeX
-        .domain(d3.extent(values, function(d) { return d.ts; }))
+        .domain(d3.extent(values, function(d) {
+          return d.ts;
+        }))
         .range([0, innerWidth]);
 
       // group by weekdays
@@ -210,27 +214,27 @@ var minicharts_d3fns_date = function() {
       gEnter.append('g')
         .attr('class', 'weekday')
         .append('text')
-          .attr('class', 'date-icon fa-fw')
-          .attr('x', 0)
-          .attr('dx', '-0.6em')
-          .attr('y', 0)
-          .attr('dy', '1em')
-          .attr('text-anchor', 'end')
-          .attr('font-family', 'FontAwesome')
-          .text('\uf133');
+        .attr('class', 'date-icon fa-fw')
+        .attr('x', 0)
+        .attr('dx', '-0.6em')
+        .attr('y', 0)
+        .attr('dy', '1em')
+        .attr('text-anchor', 'end')
+        .attr('font-family', 'FontAwesome')
+        .text('\uf133');
 
       gEnter.append('g')
         .attr('class', 'hour')
         .attr('transform', 'translate(' + (width / (upperRatio + 1) + upperMargin) + ', 0)')
         .append('text')
-          .attr('class', 'date-icon fa-fw')
-          .attr('x', 0)
-          .attr('dx', '-0.6em')
-          .attr('y', 0)
-          .attr('dy', '1em')
-          .attr('text-anchor', 'end')
-          .attr('font-family', 'FontAwesome')
-          .text('\uf017');
+        .attr('class', 'date-icon fa-fw')
+        .attr('x', 0)
+        .attr('dx', '-0.6em')
+        .attr('y', 0)
+        .attr('dy', '1em')
+        .attr('text-anchor', 'end')
+        .attr('font-family', 'FontAwesome')
+        .text('\uf017');
 
       var gBrush = g.selectAll('.brush').data([0]);
       gBrush.enter().append('g')
@@ -251,8 +255,8 @@ var minicharts_d3fns_date = function() {
         .on('mouseout', tip.hide)
         .on('mousedown', handleMouseDown);
 
-        // disabling direct onClick handler in favor of click-drag
-        // .on('click', handleClick);
+      // disabling direct onClick handler in favor of click-drag
+      // .on('click', handleClick);
 
       lines
         .attr('y1', barcodeTop)

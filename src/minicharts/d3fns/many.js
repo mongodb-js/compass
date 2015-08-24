@@ -16,7 +16,7 @@ var minicharts_d3fns_many = function() {
     bgbars: false,
     scale: false,
     labels: false, // label defaults will be set further below
-    selectable: true  // setting to false disables query builder for this chart
+    selectable: true // setting to false disables query builder for this chart
   };
 
   var xScale = d3.scale.ordinal();

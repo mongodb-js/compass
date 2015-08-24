@@ -2,7 +2,6 @@ var Model = require('ampersand-model');
 var EJSON = require('mongodb-extended-json');
 var Query = require('mongodb-language-model').Query;
 var _ = require('lodash');
-
 // var debug = require('debug')('scout:models:editable-query');
 
 /**
@@ -45,10 +44,10 @@ module.exports = Model.extend({
     //     // return the string without key quotes for display in RefineBarView
     //   }
     // },
+    /*eslint no-new: 0*/
     valid: {
       deps: ['cleanString'],
       fn: function() {
-        /*eslint no-new: 0*/
         try {
           // is it valid eJSON?
           var parsed = EJSON.parse(this.cleanString);
