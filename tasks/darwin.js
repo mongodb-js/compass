@@ -66,12 +66,6 @@ module.exports.build = function(done) {
   });
 };
 
-var codesign = function(done) {
-  var cmd = './tasks/darwin-sign-app.sh  "' + CONFIG.sign + '" "' + CONFIG.appPath + '"';
-  debug('Running', cmd);
-  cp.exec(cmd, done);
-};
-
 var verify = function(done) {
   var cmd = 'codesign --verify "' + CONFIG.appPath + '"';
   debug('Running', cmd);
@@ -83,7 +77,7 @@ module.exports.installer = function(done) {
   var doCodeSign = process.env.SCOUT_INSTALLER_UNSIGNED === undefined;
 
   // TODO: clean up with https://www.npmjs.com/package/run-series ?
-  if (! doCodeSign) {
+  if (!doCodeSign) {
     CONFIG.sign = null;
     packager(CONFIG, function(err) {
       if (err) return done(err);
