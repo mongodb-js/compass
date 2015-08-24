@@ -53,6 +53,10 @@
     "test": "mocha",
     "check": "mongodb-js-precommit"
   },
+  "pre-commit": [
+    "check",
+    "test"
+  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/10gen/scout.git"
