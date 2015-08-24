@@ -2,26 +2,22 @@ var AmpersandView = require('ampersand-view');
 var _ = require('lodash');
 var raf = require('raf');
 var app = require('ampersand-app');
-var Value = require('mongodb-language-model').Value;
 var VizView = require('./viz');
 var UniqueMinichartView = require('./unique');
 var vizFns = require('./d3fns');
 var QueryBuilderMixin = require('./querybuilder');
+// var debug = require('debug')('scout:minicharts:index');
 
-// a wrapper around VizView to set common default values
+
+/**
+ * a wrapper around VizView to set common default values
+ */
 module.exports = AmpersandView.extend(QueryBuilderMixin, {
   modelType: 'MinichartView',
   template: require('./minichart.jade'),
   session: {
     subview: 'view',
     viewOptions: 'object',
-    refineValue: {
-      type: 'state',
-      required: true,
-      default: function() {
-        return new Value();
-      }
-    },
     selectedValues: {
       type: 'array',
       default: function() {
@@ -39,6 +35,7 @@ module.exports = AmpersandView.extend(QueryBuilderMixin, {
       debounceRender: false,
       vizFn: vizFns[opts.model.getId().toLowerCase()] || null
     });
+    this.listenTo(app.volatileQueryOptions, 'change:query', this.handleVolatileQueryChange);
   },
   render: function() {
     this.renderWithTemplate(this);

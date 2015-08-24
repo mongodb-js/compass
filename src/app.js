@@ -57,9 +57,13 @@ var Application = View.extend({
      */
     instance: 'state',
     /**
-     * @see models/query-options.js
+     * query options in sync with the data, @see models/query-options.js
      */
     queryOptions: 'state',
+    /**
+     * temporary query options during query building, @see models/query-options.js
+     */
+    volatileQueryOptions: 'state',
     /**
      * @see http://learn.humanjavascript.com/react-ampersand/creating-a-router-and-pages
      */
@@ -148,6 +152,7 @@ app.extend({
     this.connection = new Connection();
     this.connection.use(uri);
     this.queryOptions = new QueryOptions();
+    this.volatileQueryOptions = new QueryOptions();
     this.instance = new MongoDBInstance();
 
     // feature flags
