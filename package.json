@@ -65,9 +65,11 @@
     "url": "git://github.com/10gen/scout.git"
   },
   "dependencies": {
+    "ampersand-form-view": "^5.1.1",
+    "ampersand-input-view": "^5.0.0",
     "debug": "^2.2.0",
-    "scout-server": "http://bin.mongodb.org/js/scout-server/v0.1.0/scout-server-0.1.0.tar.gz",
-    "electron-squirrel-startup": "^0.1.2"
+    "electron-squirrel-startup": "^0.1.2",
+    "scout-server": "http://bin.mongodb.org/js/scout-server/v0.1.0/scout-server-0.1.0.tar.gz"
   },
   "devDependencies": {
     "ampersand-app": "^1.0.4",
