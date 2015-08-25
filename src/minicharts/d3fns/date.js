@@ -113,13 +113,16 @@ var minicharts_d3fns_date = function() {
     };
     options.view.trigger('querybuilder', evt);
   };
+
   function handleMouseDown() {
     var line = this;
     var parent = $(this).closest('.minichart');
     var background = parent.find('g.brush > rect.background')[0];
     var brushNode = parent.find('g.brush')[0];
     var start = barcodeX.invert(d3.mouse(background)[0]);
-    brushstart.call(brushNode, line);
+    var brushstartOnce = _.once(function() {
+      brushstart.call(brushNode, line);
+    });
 
     var w = d3.select(window)
       .on('mousemove', mousemove)
@@ -128,6 +131,7 @@ var minicharts_d3fns_date = function() {
     d3.event.preventDefault(); // disable text dragging
 
     function mousemove() {
+      brushstartOnce();
       var extent = [start, barcodeX.invert(d3.mouse(background)[0])];
       d3.select(brushNode).call(brush.extent(_.sortBy(extent)));
       brushed.call(brushNode);
