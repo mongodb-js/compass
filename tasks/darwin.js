@@ -56,12 +56,21 @@ var CONFIG = module.exports = {
 
 debug('packager config: ', JSON.stringify(CONFIG, null, 2));
 
+var doCodeSign = function() {
+  return process.env.SCOUT_INSTALLER_UNSIGNED === undefined;
+};
+
 module.exports.build = function(done) {
   fs.exists(APP_PATH, function(exists) {
     if (exists) {
       debug('.app already exists.  skipping packager run.');
       return done();
     }
+
+    if (!doCodeSign()) {
+      CONFIG.sign = null;
+    }
+
     debug('running packager...');
     packager(CONFIG, done);
   });
@@ -75,11 +84,11 @@ var verify = function(done) {
 
 module.exports.installer = function(done) {
   debug('running packager...');
-  var doCodeSign = process.env.SCOUT_INSTALLER_UNSIGNED === undefined;
 
   // TODO: clean up with https://www.npmjs.com/package/run-series ?
-  if (!doCodeSign) {
+  if (!doCodeSign()) {
     CONFIG.sign = null;
+
     packager(CONFIG, function(err) {
       if (err) return done(err);
 
