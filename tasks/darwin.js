@@ -26,6 +26,7 @@ var CONFIG = module.exports = {
   icon: path.resolve(__dirname, '../images/darwin/scout.icns'),
   background: path.resolve(__dirname, '../images/darwin/background.png'),
   overwrite: true,
+  asar: true,
   prune: true,
   'app-bundle-id': 'com.mongodb.scout',
   'app-version': pkg.version,
