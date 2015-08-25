@@ -110,7 +110,9 @@ var minicharts_d3fns_many = function() {
     var background = parent.find('g.brush > rect.background')[0];
     var brushNode = parent.find('g.brush')[0];
     var start = d3.mouse(background)[0];
-    brushstart.call(brushNode, bar);
+    var brushstartOnce = _.once(function() {
+      brushstart.call(brushNode, bar);
+    });
 
     var w = d3.select(window)
       .on('mousemove', mousemove)
@@ -119,6 +121,7 @@ var minicharts_d3fns_many = function() {
     d3.event.preventDefault(); // disable text dragging
 
     function mousemove() {
+      brushstartOnce();
       var extent = [start, d3.mouse(background)[0]];
       d3.select(brushNode).call(brush.extent(_.sortBy(extent)));
       brushed.call(brushNode);
