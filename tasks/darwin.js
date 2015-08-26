@@ -2,6 +2,8 @@ var path = require('path');
 var pkg = require(path.resolve(__dirname, '../package.json'));
 var fs = require('fs');
 var cp = require('child_process');
+var series = require('run-series');
+var _ = require('lodash');
 
 var debug = require('debug')('scout:tasks:darwin');
 
@@ -54,6 +56,11 @@ var CONFIG = module.exports = {
   ]
 };
 
+// Adjust config via environment variables
+if (process.env.SCOUT_INSTALLER_UNSIGNED !== undefined) {
+  CONFIG.sign = null;
+}
+
 debug('packager config: ', JSON.stringify(CONFIG, null, 2));
 
 module.exports.build = function(done) {
@@ -62,6 +69,7 @@ module.exports.build = function(done) {
       debug('.app already exists.  skipping packager run.');
       return done();
     }
+
     debug('running packager...');
     packager(CONFIG, done);
   });
@@ -75,25 +83,18 @@ var verify = function(done) {
 
 module.exports.installer = function(done) {
   debug('running packager...');
-  var doCodeSign = process.env.SCOUT_INSTALLER_UNSIGNED === undefined;
 
-  // TODO: clean up with https://www.npmjs.com/package/run-series ?
-  if (!doCodeSign) {
-    CONFIG.sign = null;
-    packager(CONFIG, function(err) {
-      if (err) return done(err);
+  var tasks = [
+    _.partial(packager, CONFIG)
+  ];
 
-      createDMG(CONFIG, done);
-    });
-  } else {
-    packager(CONFIG, function(err) {
-      if (err) return done(err);
-
-      verify(function(err) {
-        if (err) return done(err);
-
-        createDMG(CONFIG, done);
-      });
-    });
+  if (CONFIG.sign) {
+    tasks.push(_.partial(verify, CONFIG));
   }
+
+  tasks.push(_.partial(createDMG, CONFIG));
+
+  series(tasks, function(err) {
+    if (err) return done(err);
+  });
 };
