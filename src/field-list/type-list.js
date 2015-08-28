@@ -3,14 +3,22 @@ var format = require('util').format;
 var numeral = require('numeral');
 var tooltipMixin = require('../tooltip-mixin');
 var _ = require('lodash');
-// var debug = require('debug')('scout:field-list:type-list');
+var debug = require('debug')('scout:field-list:type-list');
 
 var TypeListView;
 
 var TypeListItem = View.extend(tooltipMixin, {
   template: require('./type-list-item.jade'),
-  namespace: 'TypeListItem',
+  modelType: 'TypeListItem',
   bindings: {
+    active: {
+      type: 'booleanClass',
+      name: 'active'
+    },
+    selected: {
+      type: 'booleanClass',
+      name: 'selected'
+    },
     'model.name': [
       {
         hook: 'name'
@@ -34,13 +42,22 @@ var TypeListItem = View.extend(tooltipMixin, {
         // @see https://github.com/twbs/bootstrap/issues/14769
         this.tooltip({
           title: this.tooltip_message,
-          placement: this.hasSubtype ? 'bottom' : 'top'
+          placement: this.hasSubtype ? 'bottom' : 'top',
+          container: 'body'
         }).attr('data-original-title', this.tooltip_message);
       }
     }
   },
-  props: {
-    parent: 'state'
+  session: {
+    parent: 'state',
+    active: {
+      type: 'boolean',
+      default: false
+    },
+    selected: {
+      type: 'boolean',
+      default: false
+    }
   },
   derived: {
     probability_percentage: {
@@ -55,10 +72,10 @@ var TypeListItem = View.extend(tooltipMixin, {
         return format('%s (%s)', this.model.getId(), numeral(this.model.probability).format('%'));
       }
     },
-    hasSubtype: {
+    isSubtype: {
       deps: ['parent'],
       fn: function() {
-        return this.parent.hasSubtype;
+        return this.parent.hasSubtypes;
       }
     }
   },
@@ -73,48 +90,68 @@ var TypeListItem = View.extend(tooltipMixin, {
         return new TypeListView({
           el: el,
           parent: this,
-          hasSubtype: true,
+          hasSubtypes: true,
           collection: this.model.types
         });
       }
     }
   },
+  initialize: function() {
+    this.on('change:active', this.activeChanged);
+  },
   typeClicked: function(evt) {
     evt.stopPropagation();
 
-    // no clicks on Undefined allowed
-    if (this.model.getId() === 'Undefined') return;
+    if (this.active) {
+      // already active, query building mode
+      this.toggle('selected');
+    } else {
+      // no clicks on Undefined allowed
+      if (this.model.getId() === 'Undefined') return;
 
-    // find the field view, at most 2 levels up
-    var fieldView = this.parent.parent;
-    if (fieldView.getType() !== 'FieldView') {
-      fieldView = fieldView.parent.parent;
-    }
-
-    // if type model has changed, render its minichart
-    if (fieldView.type_model !== this.model) {
-      fieldView.type_model = this.model;
-      fieldView.renderMinicharts();
+      // find the field view, at most 2 levels up
+      var fieldView = this.parent.parent;
+      if (fieldView.getType() !== 'FieldView') {
+        fieldView = fieldView.parent.parent;
+      }
+      // if type model has changed, render its minichart
+      if (fieldView.type_model !== this.model) {
+        this.active = true;
+        fieldView.type_model = this.model;
+        fieldView.renderMinicharts();
+      }
     }
   },
-  render: function() {
-    this.renderWithTemplate(this);
+  activeChanged: function(view, value) {
+    debug('active changed to %s for %s -> %s', value, view.model.parent.name, view.model.name);
   }
 });
 
 
 TypeListView = module.exports = View.extend({
-  props: {
-    hasSubtype: {
+  modelType: 'TypeListView',
+  session: {
+    collectionView: 'object',
+    hasSubtypes: {
       type: 'boolean',
       default: false
-    }
+    },
+    parent: 'state'
   },
   template: require('./type-list.jade'),
+  deactivateOthers: function(view) {
+    if (!this.collectionView) return;
+    _.each(this.collectionView.views, function(typeView) {
+      if (view !== typeView) {
+        typeView.active = false;
+        typeView.selected = false;
+      }
+    });
+  },
   render: function() {
-    if (!_.get(this, 'parent.hasSubtype')) {
-      this.renderWithTemplate(this);
-      this.renderCollection(this.collection, TypeListItem, this.queryByHook('types'));
-    }
+    this.renderWithTemplate(this);
+    this.collectionView = this.renderCollection(this.collection, TypeListItem,
+      this.queryByHook('types'));
+    this.collectionView.views[0].active = true;
   }
 });
