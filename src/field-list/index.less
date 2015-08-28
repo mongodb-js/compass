@@ -82,7 +82,7 @@
 }
 .schema-field-type-list {
   border-radius: 1px;
-  // background: @gray6;
+  padding-top: 4px;
 
   .schema-field-wrapper {
     float: left;
@@ -91,6 +91,11 @@
 
     &.schema-field-type-undefined {
       cursor: default;
+    }
+
+    .schema-field-type-list .schema-field-type {
+      // nested array subtypes
+      background: @gray4;
     }
   }
 
