@@ -93,16 +93,24 @@
       cursor: default;
     }
 
-    .schema-field-type-list .schema-field-type {
+    &.active > .schema-field-type {
+      background: @gray1;
+    }
+
+    &.active.selected > .schema-field-type {
+      background: @chart0;
+    }
+
+    .schema-field-type-list > .schema-field-wrapper:not(.active) > .schema-field-type {
       // nested array subtypes
-      background: @gray4;
+      background: @gray5;
     }
   }
 
   .schema-field-type {
     height: 5px;
     margin-right: 2px;
-    background: @gray1;
+    background: @gray5;
   }
 
   .schema-field-type-label {
