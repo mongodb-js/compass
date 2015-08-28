@@ -1,4 +1,8 @@
 .schema-field-wrapper(data-hook='bar')
-  .schema-field-type(data-toggle='tooltip')
+  if hasSubtype
+    .schema-field-type(data-toggle='tooltip')
   span.schema-field-type-label
     = model.getId()
+  if !hasSubtype
+    .schema-field-type(data-toggle='tooltip')
+  div(data-hook='array-subtype-subview')
