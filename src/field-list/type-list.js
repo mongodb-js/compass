@@ -3,7 +3,7 @@ var format = require('util').format;
 var numeral = require('numeral');
 var tooltipMixin = require('../tooltip-mixin');
 var _ = require('lodash');
-var debug = require('debug')('scout:field-list:type-list');
+// var debug = require('debug')('scout:field-list:type-list');
 
 var TypeListView;
 
@@ -42,7 +42,7 @@ var TypeListItem = View.extend(tooltipMixin, {
         // @see https://github.com/twbs/bootstrap/issues/14769
         this.tooltip({
           title: this.tooltip_message,
-          placement: this.hasSubtype ? 'bottom' : 'top',
+          placement: this.isSubtype ? 'bottom' : 'top',
           container: 'body'
         }).attr('data-original-title', this.tooltip_message);
       }
@@ -83,7 +83,7 @@ var TypeListItem = View.extend(tooltipMixin, {
     'click .schema-field-wrapper': 'typeClicked'
   },
   subviews: {
-    subtypes: {
+    subtypeView: {
       hook: 'array-subtype-subview',
       waitFor: 'model.types',
       prepareView: function(el) {
@@ -95,9 +95,6 @@ var TypeListItem = View.extend(tooltipMixin, {
         });
       }
     }
-  },
-  initialize: function() {
-    this.on('change:active', this.activeChanged);
   },
   typeClicked: function(evt) {
     evt.stopPropagation();
@@ -116,14 +113,13 @@ var TypeListItem = View.extend(tooltipMixin, {
       }
       // if type model has changed, render its minichart
       if (fieldView.type_model !== this.model) {
+        fieldView.types.deactivateAll();
         this.active = true;
+        this.selected = false;
         fieldView.type_model = this.model;
         fieldView.renderMinicharts();
       }
     }
-  },
-  activeChanged: function(view, value) {
-    debug('active changed to %s for %s -> %s', value, view.model.parent.name, view.model.name);
   }
 });
 
@@ -139,19 +135,30 @@ TypeListView = module.exports = View.extend({
     parent: 'state'
   },
   template: require('./type-list.jade'),
-  deactivateOthers: function(view) {
+  deactivateAll: function() {
     if (!this.collectionView) return;
     _.each(this.collectionView.views, function(typeView) {
-      if (view !== typeView) {
-        typeView.active = false;
-        typeView.selected = false;
-      }
+      typeView.active = false;
+      typeView.selected = false;
     });
+    // also deactivate the array subtypes
+    if (!_.get(this, 'parent.isSubtype')) {
+      var arrayView = _.find(this.collectionView.views, function(view) {
+        return view.model.name === 'Array';
+      });
+      if (arrayView) {
+        arrayView.subtypeView.deactivateAll();
+      }
+    }
   },
   render: function() {
-    this.renderWithTemplate(this);
-    this.collectionView = this.renderCollection(this.collection, TypeListItem,
-      this.queryByHook('types'));
-    this.collectionView.views[0].active = true;
+    if (!_.get(this, 'parent.isSubtype')) {
+      this.renderWithTemplate(this);
+      this.collectionView = this.renderCollection(this.collection, TypeListItem,
+        this.queryByHook('types'));
+    }
+    if (!this.hasSubtypes) {
+      this.collectionView.views[0].active = true;
+    }
   }
 });
