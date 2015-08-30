@@ -12,7 +12,7 @@ module.exports = VizView.extend({
       min_length: _.min(this.model.lengths),
       max_length: _.max(this.model.lengths)
     };
-    if (this.model.parent.arrayFields.length > 0) {
+    if (this.model.parent.arrayFields) {
       parsed.fieldNames = this.model.parent.arrayFields.pluck('name');
       parsed.fieldsPluralized = pluralize('nested field', parsed.fieldNames.length, true);
     }
