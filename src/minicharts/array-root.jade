@@ -6,9 +6,9 @@ div(data-hook='viz-container')
       ul.list-inline
         each name, idx in fieldNames
           li= name + (idx < fieldNames.length-1 ? ',' : '')
-    dt array lengths
-    dd 
-      ul.list-inline
-        li min: #{min_length}, 
-        li average: #{average_length}, 
-        li max: #{max_length}
+  dt array lengths
+  dd 
+    ul.list-inline
+      li min: #{min_length}, 
+      li average: #{average_length}, 
+      li max: #{max_length}
