@@ -77,6 +77,7 @@
     "d3": "^3.5.5",
     "debug": "^2.2.0",
     "domready": "^1.0.8",
+    "electron-squirrel-startup": "^0.1.2",
     "event-stream": "^3.3.1",
     "font-awesome": "https://github.com/FortAwesome/Font-Awesome/archive/v4.3.0.tar.gz",
     "jade": "^1.11.0",
