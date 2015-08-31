@@ -1,5 +1,5 @@
 var View = require('ampersand-view');
-var debug = require('debug')('scout:setup:connect-mongodb');
+// var debug = require('debug')('scout:setup:connect-mongodb');
 
 module.exports = View.extend({
   events: {

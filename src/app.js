@@ -15,7 +15,9 @@ app.extend({
   },
   config: CONFIG,
   /**
-   * Feature flags.
+   * feature switch, returns boolean if feature `name` is enabled.
+   * @param  {String} name    name of the feature, e.g. 'querybuilder'
+   * @return {Boolean}        whether feature is enabled or not
    */
   isFeatureEnabled: function(name) {
     return Boolean(~~_.get(CONFIG, name + '.enabled'));
@@ -75,9 +77,13 @@ var Application = View.extend({
      */
     instance: 'state',
     /**
-     * @see models/query-options.js
+     * query options in sync with the data, @see models/query-options.js
      */
     queryOptions: 'state',
+    /**
+     * temporary query options during query building, @see models/query-options.js
+     */
+    volatileQueryOptions: 'state',
     /**
      * @see http://learn.humanjavascript.com/react-ampersand/creating-a-router-and-pages
      */
@@ -178,8 +184,10 @@ app.extend({
   },
   init: function() {
     state.statusbar = new Statusbar();
-    state.connection = new Connection();
-    state.connection.use(uri);
+    this.connection = new Connection();
+    this.connection.use(uri);
+    this.queryOptions = new QueryOptions();
+    this.volatileQueryOptions = new QueryOptions();
 
     state.queryOptions = new QueryOptions();
     state.instance = new MongoDBInstance();

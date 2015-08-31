@@ -3,14 +3,17 @@ var EJSON = require('mongodb-extended-json');
 var Query = require('mongodb-language-model').Query;
 // var debug = require('debug')('scout:models:query-options');
 
-var DEFAULT_QUERY = new Query({}, {
-  parse: true
-});
 var DEFAULT_SORT = {
   $natural: -1
 };
 var DEFAULT_LIMIT = 100;
 var DEFAULT_SKIP = 0;
+
+var getDefaultQuery = function() {
+  return new Query({}, {
+    parse: true
+  });
+};
 
 /**
  * Options for reading a collection of documents from MongoDB.
@@ -20,7 +23,7 @@ module.exports = Model.extend({
     query: {
       type: 'state',
       default: function() {
-        return DEFAULT_QUERY;
+        return getDefaultQuery();
       }
     },
     sort: {
@@ -41,6 +44,7 @@ module.exports = Model.extend({
   derived: {
     queryString: {
       deps: ['query'],
+      cache: false,
       fn: function() {
         return EJSON.stringify(this.query.serialize());
       }
@@ -53,7 +57,7 @@ module.exports = Model.extend({
   },
   reset: function() {
     this.set({
-      query: DEFAULT_QUERY,
+      query: getDefaultQuery(),
       sort: DEFAULT_SORT,
       limit: DEFAULT_LIMIT,
       skip: DEFAULT_SKIP

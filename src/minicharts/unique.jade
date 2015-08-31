@@ -1,9 +1,5 @@
 div(data-hook='viz-container')
   dl.dl-horizontal
-    //- dt min
-    //- dd
-    //-   = minValue
-
     dt
       a
         i.mms-icon-continuous(data-hook='refresh')
@@ -11,8 +7,4 @@ div(data-hook='viz-container')
       ul.list-inline
         each val in randomValues
           li.bubble
-            code= val
-
-    //- dt max
-    //- dd
-    //-   = maxValue
+            code.selectable= val

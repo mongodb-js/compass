@@ -1,7 +1,8 @@
 var AmpersandView = require('ampersand-view');
 var _ = require('lodash');
-var raf = require('raf');
 var $ = require('jquery');
+var d3 = require('d3');
+// var debug = require('debug')('scout:minicharts:viz');
 
 var VizView = AmpersandView.extend({
   _values: {},
@@ -11,6 +12,7 @@ var VizView = AmpersandView.extend({
     data: 'any',
     className: 'any',
     vizFn: 'any',
+    chart: 'function',
     debounceRender: {
       type: 'boolean',
       default: true
@@ -91,7 +93,7 @@ var VizView = AmpersandView.extend({
           this.template = '<canvas data-hook="viz-container" id="canvas"></canvas>';
           break;
         case 'svg':
-          this.template = '<svg data-hook="viz-container"></svg>';
+          this.template = require('./svg-template.jade');
           break;
         case 'html':
         default:
@@ -126,23 +128,25 @@ var VizView = AmpersandView.extend({
 
     // call viz function
     if (this.vizFn) {
-      var opts = {
-        width: this.width,
-        height: this.height,
-        model: this.model,
-        view: this,
-        el: this.el
-      };
-      var vizFn = this.vizFn.bind(this, opts);
-      raf(function minicharts_viz_call_vizfn() {
-        vizFn();
-      });
+      this.chart = this.vizFn()
+        .options({
+          model: this.model,
+          view: this,
+          el: this.el
+        });
+      this.redraw();
     }
     return this;
   },
+
   redraw: function() {
-    // currently just an alias for render
-    this.render();
+    this.chart
+      .width(this.width)
+      .height(this.height);
+
+    d3.select(this.el)
+      .datum(this.model.values.toJSON())
+      .call(this.chart);
   }
 });
 

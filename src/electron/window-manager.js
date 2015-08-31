@@ -43,7 +43,7 @@ module.exports.create = function(opts) {
     debug('got new-window event!', event, url, frameName, disposition);
     event.preventDefault();
     module.exports.create({
-      url: 'file://' + RESOURCES + '/index.html' + url.replace('file://', '')
+      url: 'file://' + RESOURCES + '/index.html' + decodeURIComponent(url.replace('file://', ''))
     });
   });
 
