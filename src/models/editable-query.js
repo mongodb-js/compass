@@ -28,8 +28,6 @@ module.exports = Model.extend({
         if (_.trim(output) === '') {
           output = '{}';
         }
-        // replace single quotes with double quotes
-        output = output.replace(/'/g, '"');
         // wrap field names in double quotes
         output = output.replace(/([{,])\s*([^,{\s\'"]+)\s*:/g, ' $1 "$2" : ');
         // replace multiple whitespace with single whitespace
