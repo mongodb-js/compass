@@ -60,7 +60,7 @@ module.exports = AmpersandView.extend(QueryBuilderMixin, {
       // otherwise, create a svg-based VizView for d3
       this.subview = new VizView(this.viewOptions);
     }
-    if (app.features.querybuilder) {
+    if (app.isFeatureEnabled('querybuilder')) {
       this.listenTo(this.subview, 'querybuilder', this.handleQueryBuilderEvent);
     }
     raf(function() {

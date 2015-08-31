@@ -1,5 +1,4 @@
 var _ = require('lodash');
-
 var BrowserWindow = require('browser-window');
 var app = require('app');
 var debug = require('debug')('scout-electron:window-manager');
@@ -7,41 +6,36 @@ var attachMenu = require('./menu');
 var path = require('path');
 
 var RESOURCES = path.resolve(__dirname, '../../');
-var DEFAULT_URL = 'file://' + path.join(RESOURCES, 'index.html#connect');
+var CONNECT_URL = 'file://' + path.join(RESOURCES, 'index.html#connect');
+var SETUP_URL = 'file://' + path.join(RESOURCES, 'index.html#setup');
 
-var DEFAULT_WIDTH = 1024;
-var DEFAULT_HEIGHT = 700;
+var DEFAULT_WIDTH = 1280;
+var DEFAULT_HEIGHT = 800;
 
-var DEFAULT_HEIGHT_DIALOG;
+var DEFAULT_WIDTH_DIALOG = 640;
+var DEFAULT_HEIGHT_DIALOG = 480;
 
-if (process.platform === 'win32') {
-  DEFAULT_HEIGHT_DIALOG = 460;
-} else if (process.platform === 'linux') {
-  DEFAULT_HEIGHT_DIALOG = 430;
-} else {
-  DEFAULT_HEIGHT_DIALOG = 400;
-}
-var DEFAULT_WIDTH_DIALOG = 600;
+var ICON = path.join(__dirname, '..', '..', 'images', 'mongodb-leaf.png');
 
 var connectWindow;
-var windowsOpenCount = 0;
+var setupWindow;
 
 module.exports.create = function(opts) {
   opts = _.defaults(opts || {}, {
     width: DEFAULT_WIDTH,
     height: DEFAULT_HEIGHT,
-    url: DEFAULT_URL
+    url: CONNECT_URL,
+    icon: ICON,
+    centered: true
+  });
+
+  opts['web-preferences'] = _.defaults(opts['web-preferences'] || {}, {
+    'subpixel-font-scaling': true,
+    'direct-write': true
   });
 
   debug('creating new window');
-  var _window = new BrowserWindow({
-    width: opts.width,
-    height: opts.height,
-    'web-preferences': {
-      'subpixel-font-scaling': true,
-      'direct-write': true
-    }
-  });
+  var _window = new BrowserWindow(opts);
   attachMenu(_window);
   _window.loadUrl(opts.url);
 
@@ -53,25 +47,28 @@ module.exports.create = function(opts) {
     });
   });
 
-  if (opts.url === DEFAULT_URL) {
+  if (opts.url === CONNECT_URL) {
     connectWindow = _window;
     connectWindow.on('closed', function() {
       debug('connect window closed.');
       connectWindow = null;
     });
   }
-  windowsOpenCount++;
-  _window.on('closed', function() {
-    windowsOpenCount--;
-    if (windowsOpenCount === 0) {
-      debug('all windows closed.  quitting.');
-      app.quit();
-    }
-  });
+
+  if (opts.url === SETUP_URL) {
+    setupWindow = _window;
+    setupWindow.on('closed', function() {
+      debug('setup window closed.');
+      setupWindow = null;
+    });
+  }
+
+  debug('emitting `window-opened`');
+  app.emit('window-opened', _window);
   return _window;
 };
 
-app.on('show connect dialog', function(opts) {
+module.exports.openConnectDialog = function(opts) {
   if (connectWindow) {
     connectWindow.focus();
     return connectWindow;
@@ -79,13 +76,26 @@ app.on('show connect dialog', function(opts) {
 
   opts = opts || {};
   opts = _.extend(opts || {}, {
+    url: CONNECT_URL,
     height: DEFAULT_HEIGHT_DIALOG,
     width: DEFAULT_WIDTH_DIALOG,
-    url: DEFAULT_URL
+    resizable: false
   });
-  module.exports.create(opts);
-});
+  return module.exports.create(opts);
+};
 
-app.on('ready', function() {
-  app.emit('show connect dialog');
-});
+module.exports.openSetupDialog = function(opts) {
+  if (setupWindow) {
+    setupWindow.focus();
+    return setupWindow;
+  }
+
+  opts = opts || {};
+  opts = _.extend(opts || {}, {
+    url: SETUP_URL,
+    height: 675,
+    width: 900,
+    resizable: false
+  });
+  return module.exports.create(opts);
+};

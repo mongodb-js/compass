@@ -1,19 +1,39 @@
+// Injected into index.html by the gulp build task.
+var CONFIG = window.CONFIG;
+
+// Do most basic setup of app here so we can get bugsnag listening
+// for errors as high in the stack as possible.
+var _ = require('lodash');
 var pkg = require('../package.json');
 var app = require('ampersand-app');
+/*eslint no-bitwise:0*/
 app.extend({
+  // @todo (imlucas): use http://npm.im/osx-release and include platform details
+  // in event tracking.
   meta: {
     'App Version': pkg.version
+  },
+  config: CONFIG,
+  /**
+   * feature switch, returns boolean if feature `name` is enabled.
+   * @param  {String} name    name of the feature, e.g. 'querybuilder'
+   * @return {Boolean}        whether feature is enabled or not
+   */
+  isFeatureEnabled: function(name) {
+    return Boolean(~~_.get(CONFIG, name + '.enabled'));
   }
 });
-require('./bugsnag').listen(app);
 
-var _ = require('lodash');
+require('./bugsnag');
+
 var domReady = require('domready');
 var qs = require('qs');
 var getOrCreateClient = require('scout-client');
 var ViewSwitcher = require('ampersand-view-switcher');
 var View = require('ampersand-view');
 var localLinks = require('local-links');
+var intercom = require('./intercom');
+var debug = require('debug')('scout:app');
 
 /**
  * The top-level application singleton that brings everything together!
@@ -67,11 +87,7 @@ var Application = View.extend({
     /**
      * @see http://learn.humanjavascript.com/react-ampersand/creating-a-router-and-pages
      */
-    router: 'object',
-    /**
-     * Enable/Disable features with one global switch
-     */
-    features: 'object'
+    router: 'object'
   },
   events: {
     'click a': 'onLinkClick'
@@ -84,6 +100,16 @@ var Application = View.extend({
     this.render();
 
     this.listenTo(this.router, 'page', this.onPageChange);
+
+    this.router.on('page', intercom.update);
+
+    /*eslint no-console:0*/
+    app.getOrCreateUser(function(err, user) {
+      if (err) return console.error(err);
+
+      this.user.set(user.serialize());
+      intercom.inject(user);
+    }.bind(this));
 
     this.router.history.start({
       pushState: false,
@@ -130,6 +156,7 @@ var Application = View.extend({
       event.preventDefault();
       this.router.history.navigate(pathname);
     }
+    intercom.update();
   }
 });
 
@@ -142,27 +169,45 @@ var state = new Application({
 var QueryOptions = require('./models/query-options');
 var Connection = require('./models/connection');
 var MongoDBInstance = require('./models/mongodb-instance');
+var User = require('./models/user');
 var Router = require('./router');
 var Statusbar = require('./statusbar');
 
+require('./context-menu-manager');
+
 app.extend({
-  client: null,
+  openSetupDialog: function() {
+    app.ipc.send('open-setup-dialog');
+  },
+  openConnectDialog: function() {
+    app.ipc.send('open-connect-dialog');
+  },
   init: function() {
     state.statusbar = new Statusbar();
     this.connection = new Connection();
     this.connection.use(uri);
     this.queryOptions = new QueryOptions();
     this.volatileQueryOptions = new QueryOptions();
-    this.instance = new MongoDBInstance();
 
-    // feature flags
-    this.features = {
-      querybuilder: true
-    };
+    state.queryOptions = new QueryOptions();
+    state.instance = new MongoDBInstance();
 
+    state.user = new User();
     state.router = new Router();
+
+    this.on('change:ipc', function() {
+      debug('ipc now available!');
+    });
   },
-  navigate: state.navigate.bind(state)
+  use: function(fn) {
+    fn.call(null, this);
+  },
+  intercom: intercom,
+  navigate: state.navigate.bind(state),
+  back: function() {
+    this.router.history.history.back();
+  },
+  getOrCreateUser: User.getOrCreate
 });
 
 Object.defineProperty(app, 'statusbar', {
@@ -171,17 +216,44 @@ Object.defineProperty(app, 'statusbar', {
   }
 });
 
+Object.defineProperty(app, 'user', {
+  get: function() {
+    return state.user;
+  }
+});
+
+Object.defineProperty(app, 'instance', {
+  get: function() {
+    return state.instance;
+  }
+});
+
+Object.defineProperty(app, 'queryOptions', {
+  get: function() {
+    return state.queryOptions;
+  }
+});
+
+Object.defineProperty(app, 'connection', {
+  get: function() {
+    return state.connection;
+  }
+});
+
+Object.defineProperty(app, 'router', {
+  get: function() {
+    return state.router;
+  }
+});
+
 Object.defineProperty(app, 'client', {
   get: function() {
     return getOrCreateClient({
-      seed: app.connection.uri
+      seed: state.connection.uri
     });
   }
 });
 app.init();
-
-// expose app globally for debugging purposes
-window.app = app;
 
 function render_app() {
   state._onDOMReady();
@@ -189,4 +261,5 @@ function render_app() {
 
 domReady(render_app);
 
+// expose app globally for debugging purposes
 window.app = app;

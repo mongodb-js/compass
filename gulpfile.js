@@ -12,6 +12,7 @@ var shell = require('gulp-shell');
 var path = require('path');
 var del = require('del');
 var spawn = require('child_process').spawn;
+var config = require('./src/electron/config');
 
 var notify = require('./tasks/notify');
 var pkg = require('./package.json');
@@ -127,7 +128,8 @@ gulp.task('pages', function() {
   return gulp.src('src/index.jade')
     .pipe(jade({
       locals: {
-        NODE_ENV: process.env.NODE_ENV
+        NODE_ENV: process.env.NODE_ENV,
+        CONFIG: JSON.stringify(config.toJSON())
       }
     }))
     .on('error', notify('jade'))
@@ -147,8 +149,13 @@ gulp.task('copy:images', function() {
 
 gulp.task('copy:electron', function() {
   return merge(
-    gulp.src(['main.js', 'package.json', 'settings.json', 'README.md'])
-      .pipe(gulp.dest('build/')),
+    gulp.src([
+      'main.js',
+      'package.json',
+      'config.json',
+      'node_modules/animate.css/animate.css',
+      'README.md'
+    ]).pipe(gulp.dest('build/')),
     gulp.src(['src/electron/*'])
       .pipe(gulp.dest('build/src/electron'))
   );

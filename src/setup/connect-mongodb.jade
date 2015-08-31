@@ -1,0 +1,21 @@
+div.animated.wizard-content
+  span.scout-logo
+  h1 Connect to MongoDB
+  p.lead Scout allows you to connect to multiple MongoDB deployments. Add your first connection to get started.
+  
+  .wizard-form-content: .row: .col-sm-8.col-sm-offset-2
+    form.form-horizontal
+      .form-group
+        label.col-sm-3.control-label(for='hostname') Hostname
+        .col-sm-8: input.form-control(type='text', name='hostname', placeholder='localhost')
+        span.form-control-feedback
+          //- i.fa.fa-fw.fa-check
+      .form-group
+        label.col-sm-3.control-label(for='port') Port
+        .col-sm-8: input.form-control(type='number', name='port', placeholder='27017')
+      .form-group
+        label.col-sm-3.control-label(for='name') Name (optional)
+        .col-sm-8: input.form-control(type='text', name='name', placeholder='e.g. "Dev Database"')
+  
+  .wizard-stepper
+    button.btn.btn-primary(data-hook='continue') Continue

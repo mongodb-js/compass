@@ -1,0 +1,70 @@
+@import "animate.css";
+
+.setup-user-info {
+  h1 {
+    margin-bottom: 20px;
+  }
+  form {
+    .form-group {
+      .help-block {
+        .lead;
+        padding-top: 10px;
+        padding-left: 16px;
+        display: block;
+      }
+      .on-error, .on-success {
+        display: none;
+      }
+
+      .on-start {
+        display: block;
+      }
+
+      &.has-error {
+        .on-error {
+          display: block;
+        }
+        .on-start, .on-success {
+          display: none;
+        }
+      }
+      &.has-success {
+        .on-success {
+          display: block;
+        }
+        .on-start, .on-error {
+          display: none;
+        }
+      }
+    }
+  }
+}
+
+.wizard-content {
+  padding: 50px;
+
+  .scout-logo {
+    display: block;
+    margin: -30px 0 60px -40px;
+    width: 142px;
+    height: 28px;
+    background: url('images/logo-scout.png') 0 0 no-repeat;
+    background-size: 142px 28px;
+  }
+  p.lead {
+    font-size: 16px;
+    line-height: 28px;
+  }
+}
+.btn-lg.btn-info.btn-connect-github {
+  padding: 15px 30px;
+}
+.wizard-form-content {
+  margin: 50px 0;
+}
+.wizard-stepper {
+  text-align: right;
+  border-top: 1px solid @gray7;
+  padding-top: 20px;
+  margin-top: 50px;
+}
