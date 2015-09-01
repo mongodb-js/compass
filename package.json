@@ -105,7 +105,7 @@
     "browserify": "^10.2.4",
     "del": "^1.2.0",
     "electron-installer-dmg": "^0.1.0",
-    "electron-installer-squirrel-windows": "^0.4.0",
+    "electron-installer-squirrel-windows": "mongodb-js/electron-installer-squirrel-windows#reset-munged-exe",
     "electron-packager": "^5.0.0",
     "eslint": "^0.24.1",
     "eslint-config-mongodb-js": "^0.1.4",
