@@ -63,7 +63,8 @@ var TypeListItem = View.extend(tooltipMixin, {
     probability_percentage: {
       deps: ['model.probability'],
       fn: function() {
-        return numeral(this.model.probability).format('0.00%');
+        // no rounding, use exact proportions for relative widths
+        return this.model.probability * 100 + '%';
       }
     },
     tooltip_message: {
