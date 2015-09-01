@@ -1,12 +1,12 @@
 div(data-hook='viz-container')
   dl
   if fieldNames
-    dt= fieldsPluralized
+    dt Array of documents with #{fieldsPluralized}
     dd 
       ul.list-inline
         each name, idx in fieldNames
           li= name + (idx < fieldNames.length-1 ? ',' : '')
-  dt array lengths
+  dt Array lengths
   dd 
     ul.list-inline
       li min: #{min_length}, 
