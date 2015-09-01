@@ -6,22 +6,17 @@ var packager = require('electron-packager');
 var createInstaller = require('electron-installer-squirrel-windows');
 var series = require('run-series');
 var _ = require('lodash');
-
 var debug = require('debug')('scout:tasks:win32');
 
-var NOSPACE_PRODUCT_NAME = pkg.product_name.replace(' ', '');
+var APP_PATH = path.resolve(__dirname, '../dist/MongoDBScout-win32-ia32');
+module.exports.BUILD = path.join(APP_PATH, 'resources', 'app');
+module.exports.ELECTRON = path.join(APP_PATH, 'MongoDBScout.exe');
 
-var APP_PATH = path.resolve(__dirname, '../dist/' + NOSPACE_PRODUCT_NAME + '-win32-ia32');
-
-var CONFIG = module.exports = {
-  name: NOSPACE_PRODUCT_NAME,
+var PACKAGER_CONFIG = {
+  name: 'MongoDBScout',
   dir: path.resolve(__dirname, '../build'),
   out: path.resolve(__dirname, '../dist'),
-  appPath: APP_PATH,
   path: APP_PATH,
-  BUILD: path.join(APP_PATH, 'resources', 'app'),
-  ELECTRON: path.join(APP_PATH, NOSPACE_PRODUCT_NAME + '.exe'),
-  exe: NOSPACE_PRODUCT_NAME + '.exe', // for installer
   platform: 'win32',
   arch: 'ia32',
   version: pkg.electron_version,
@@ -39,8 +34,15 @@ var CONFIG = module.exports = {
     InternalName: pkg.name
   }
 };
+var INSTALLER_CONFIG = {
+  name: 'MongoDBScout',
+  path: APP_PATH,
+  out: path.resolve(__dirname, '../dist'),
+  overwrite: true
+};
 
-debug('packager config: ', JSON.stringify(CONFIG, null, 2));
+debug('packager config: ', JSON.stringify(PACKAGER_CONFIG, null, 2));
+debug('installer config: ', JSON.stringify(INSTALLER_CONFIG, null, 2));
 
 module.exports.build = function(done) {
   fs.exists(APP_PATH, function(exists) {
@@ -49,7 +51,7 @@ module.exports.build = function(done) {
       return done();
     }
     debug('running packager to create electron binaries...');
-    packager(CONFIG, done);
+    packager(INSTALLER_CONFIG, done);
   });
 };
 
@@ -57,18 +59,14 @@ module.exports.installer = function(done) {
   debug('Packaging into `%s`', path.join(APP_PATH, 'resources', 'app.asar'));
 
   var tasks = [
-    _.partial(packager, CONFIG)
+    _.partial(packager, PACKAGER_CONFIG),
+    _.partial(createInstaller, INSTALLER_CONFIG),
+    _.partial(del, module.exports.BUILD)
   ];
-
-  if (CONFIG.asar) {
-    var unpacked = path.resolve(CONFIG.BUILD);
-    debug('Deleting `%s` so app is loaded from .asar', unpacked);
-    tasks.push(_.partial(del, unpacked));
-  }
-
-  tasks.push(_.partial(createInstaller, CONFIG));
 
   series(tasks, function(err) {
     if (err) return done(err);
+    console.log('Installer created!');
+    done();
   });
 };
