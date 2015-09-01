@@ -51,7 +51,7 @@ module.exports.build = function(done) {
       return done();
     }
     debug('running packager to create electron binaries...');
-    packager(INSTALLER_CONFIG, done);
+    packager(PACKAGER_CONFIG, done);
   });
 };
 
