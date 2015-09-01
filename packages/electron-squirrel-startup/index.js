@@ -15,15 +15,14 @@ var check = function() {
   if (process.platform === 'win32') {
     var cmd = process.argv[1];
     debug('processing squirrel command `%s`', cmd);
-
-    var target = '"' + path.basename(process.execPath) +'"';
+    var target = path.basename(process.execPath);
 
     if (cmd === '--squirrel-install' || cmd === '--squirrel-updated') {
-      run(['--createShortcut', target], app.quit);
+      run(['--createShortcut=' + target + ''], app.quit);
       return true;
     }
     if (cmd === '--squirrel-uninstall') {
-      run(['--removeShortcut', target], app.quit);
+      run(['--removeShortcut=' + target + ''], app.quit);
       return true;
     }
     if (cmd === '--squirrel-obsolete') {
