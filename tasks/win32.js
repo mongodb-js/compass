@@ -16,7 +16,6 @@ var PACKAGER_CONFIG = {
   name: 'MongoDBScout',
   dir: path.resolve(__dirname, '../build'),
   out: path.resolve(__dirname, '../dist'),
-  path: APP_PATH,
   platform: 'win32',
   arch: 'ia32',
   version: pkg.electron_version,
@@ -51,7 +50,7 @@ module.exports.build = function(done) {
       return done();
     }
     debug('running packager to create electron binaries...');
-    packager(INSTALLER_CONFIG, done);
+    packager(PACKAGER_CONFIG, done);
   });
 };
 

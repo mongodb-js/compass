@@ -1,29 +1,42 @@
 if (process.env.NODE_ENV === 'development') {
-  require('./livereload');
+  process.env.DEBUG = 'mon*,sco*';
 }
-
+if(require('electron-squirrel-startup')){
+  console.log('Squirrel.Windows event handled.');
+  return;
+}
 var app = require('app');
 var debug = require('debug')('scout-electron');
-var mongo = require('./mongo');
 
 app.on('window-all-closed', function() {
   debug('All windows closed.  Quitting app.');
   app.quit();
 });
 
-mongo.start(function() {
-  debug('mongo started!');
-});
+app.on('ready', function(){
+  if (process.env.NODE_ENV === 'development') {
+    require('./livereload');
+  }
 
-app.on('before-quit', function() {
-  mongo.stop(function() {
-    debug('mongo stopped');
+  // @todo (imlucas): Use subprocess instead?
+  process.nextTick(function(){
+    console.log('requiring scout-server...');
+    var server = require('scout-server');
+    process.nextTick(function(){
+      console.log('starting scout-server...');
+      server.start();
+    });
   });
 });
 
-module.exports = {
-  autoupdater: require('./auto-updater'),
-  crashreporter: require('./crash-reporter'),
-  windows: require('./window-manager'),
-  menu: require('./menu')
-};
+debug('requiring auto-updater...');
+require('./auto-updater');
+
+debug('requiring crash-reporter...');
+require('./crash-reporter');
+
+debug('requiring window-manager...');
+require('./window-manager');
+
+debug('requiring menu...');
+require('./menu');
