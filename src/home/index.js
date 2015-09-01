@@ -15,6 +15,17 @@ var HomeView = View.extend({
       type: 'string',
       allowNull: true,
       default: null
+    },
+    showZeroState: {
+      type: 'boolean',
+      default: true
+    }
+  },
+  bindings: {
+    showZeroState: {
+      hook: 'report-zero-state',
+      type: 'booleanClass',
+      no: 'hidden'
     }
   },
   initialize: function() {
@@ -46,6 +57,7 @@ var HomeView = View.extend({
 
     this.ns = model.getId();
     this.updateTitle(model);
+    this.showZeroState = false;
     app.navigate(format('schema/%s', model.getId()), {
       silent: true
     });

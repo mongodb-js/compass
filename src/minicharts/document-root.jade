@@ -1,0 +1,9 @@
+div(data-hook='viz-container') 
+  dl
+  dt= fieldsPluralized
+  dd
+    ul.list-inline
+      each name, idx in fieldNames
+        li= name + (idx < fieldNames.length-1 ? ',' : '')
+
+      

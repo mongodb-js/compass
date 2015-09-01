@@ -8,7 +8,7 @@
 
 @mc-bg: @gray8;
 @mc-fg: @mc-blue0;
-@mc-fg-selected: @chart0; // darken(@mc-blue0, 10%);
+@mc-fg-selected: @chart0;
 @mc-fg-unselected: @gray6;
 
 div.minichart.unique {
@@ -90,9 +90,14 @@ svg.minichart {
     opacity: 0;
   }
 
+  g.brush rect.extent {
+    fill: @mc-fg-selected;
+    fill-opacity:0.2;
+  }
+
   .bar {
     shape-rendering: crispEdges;
-    cursor: pointer;
+    cursor: crosshair;
 
     rect.bg {
       fill: @mc-bg;
@@ -103,10 +108,11 @@ svg.minichart {
 
       &.selected {
         fill: @mc-fg-selected;
-        // stroke: @pw;
-        // stroke-width: 1;
-        // stroke-dasharray: 1,1;
+        &.half {
+          mask: url(#mask-stripe);
+        }
       }
+
       &.unselected {
         fill: @mc-fg-unselected;
       }
