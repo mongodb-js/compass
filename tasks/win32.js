@@ -4,6 +4,9 @@ var fs = require('fs');
 var del = require('del');
 var packager = require('electron-packager');
 var createInstaller = require('electron-installer-squirrel-windows');
+var series = require('run-series');
+var _ = require('lodash');
+
 var debug = require('debug')('scout:tasks:win32');
 
 var NOSPACE_PRODUCT_NAME = pkg.product_name.replace(' ', '');
@@ -18,7 +21,7 @@ var CONFIG = module.exports = {
   path: APP_PATH,
   BUILD: path.join(APP_PATH, 'resources', 'app'),
   ELECTRON: path.join(APP_PATH, NOSPACE_PRODUCT_NAME + '.exe'),
-  exe: NOSPACE_PRODUCT_NAME + '.exe',      // for installer
+  exe: NOSPACE_PRODUCT_NAME + '.exe', // for installer
   platform: 'win32',
   arch: 'ia32',
   version: pkg.electron_version,
@@ -52,16 +55,20 @@ module.exports.build = function(done) {
 
 module.exports.installer = function(done) {
   debug('Packaging into `%s`', path.join(APP_PATH, 'resources', 'app.asar'));
-  packager(CONFIG, function(err) {
-    if (err) return done(err);
 
+  var tasks = [
+    _.partial(packager, CONFIG)
+  ];
+
+  if (CONFIG.asar) {
     var unpacked = path.resolve(CONFIG.BUILD);
     debug('Deleting `%s` so app is loaded from .asar', unpacked);
-    del(unpacked, function() {
-      createInstaller(CONFIG, function(err) {
-        if (err) return done(err);
-        done();
-      });
-    });
+    tasks.push(_.partial(del, unpacked));
+  }
+
+  tasks.push(_.partial(createInstaller, CONFIG));
+
+  series(tasks, function(err) {
+    if (err) return done(err);
   });
 };
