@@ -6,18 +6,16 @@ var packager = require('electron-packager');
 var createInstaller = require('electron-installer-squirrel-windows');
 var debug = require('debug')('scout:tasks:win32');
 
-var NOSPACE_PRODUCT_NAME = pkg.product_name.replace(' ', '-');
-
-var APP_PATH = path.resolve(__dirname, '../dist/' + NOSPACE_PRODUCT_NAME + '-win32-ia32');
+var APP_PATH = path.resolve(__dirname, '../dist/' + pkg.product_name + '-win32-ia32');
 
 var CONFIG = module.exports = {
-  name: NOSPACE_PRODUCT_NAME,
+  name: pkg.product_name,
   dir: path.resolve(__dirname, '../build'),
   out: path.resolve(__dirname, '../dist'),
   appPath: APP_PATH,
   path: APP_PATH,
   BUILD: path.join(APP_PATH, 'resources', 'app'),
-  ELECTRON: path.join(APP_PATH, NOSPACE_PRODUCT_NAME + '.exe'),
+  ELECTRON: path.join(APP_PATH, pkg.product_name + '.exe'),
   platform: 'win32',
   arch: 'ia32',
   version: pkg.electron_version,
