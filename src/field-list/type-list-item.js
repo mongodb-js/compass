@@ -38,8 +38,8 @@ module.exports = View.extend(tooltipMixin, {
     probability_percentage: {
       deps: ['model.probability'],
       fn: function() {
-        // round down probability so that the bar widths can never sum up to > 100%
-        return numeral(Math.floor(this.model.probability * 100.0) / 100.0).format('0.00%');
+        // no rounding, use exact proportions for relative widths
+        return this.model.probability * 100 + '%';
       }
     },
     tooltip_message: {
