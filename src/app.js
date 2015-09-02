@@ -14,6 +14,10 @@ var getOrCreateClient = require('scout-client');
 var ViewSwitcher = require('ampersand-view-switcher');
 var View = require('ampersand-view');
 var localLinks = require('local-links');
+var debug = require('debug')('scout:app');
+
+// Inter-process communication with main process (Electron window)
+var ipc = window.require('ipc');
 
 /**
  * The top-level application singleton that brings everything together!
@@ -130,6 +134,13 @@ var Application = View.extend({
       event.preventDefault();
       this.router.history.navigate(pathname);
     }
+  },
+  sendMessage: function(msg) {
+    ipc.send('message', msg);
+  },
+  onMessageReceived: function(msg) {
+    debug('message received from main process:', msg);
+    this.trigger(msg);
   }
 });
 
@@ -161,6 +172,9 @@ app.extend({
     };
 
     state.router = new Router();
+
+    // set up ipc
+    ipc.on('message', state.onMessageReceived.bind(this));
   },
   navigate: state.navigate.bind(state)
 });
@@ -180,13 +194,11 @@ Object.defineProperty(app, 'client', {
 });
 app.init();
 
-// expose app globally for debugging purposes
-window.app = app;
-
 function render_app() {
   state._onDOMReady();
 }
 
 domReady(render_app);
 
+// expose app globally for debugging purposes
 window.app = app;

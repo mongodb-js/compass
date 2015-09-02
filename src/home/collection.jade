@@ -1,5 +1,16 @@
 .collection-view.clearfix
   div(data-hook='sampling-message-subview')
+  div.modal.fade(tabindex='-1', role='dialog', arialabelledby='Share Schema Confirmation', data-hook='share-schema-confirmation')
+    div.modal-dialog.modal-sm
+      .modal-content
+        .modal-header
+          button.close(type='button', data-dismiss='modal', aria-label='Close')
+            span(aria-hidden='true')&times;
+          h4.modal-title Share Schema
+        .modal-body
+          p The schema definition in JSON format has been copied to the clipboard.
+        .modal-footer
+          button.btn.btn-default(type='button', data-dismiss='modal') Close
   header
     .row
       .col-md-6
