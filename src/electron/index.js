@@ -2,9 +2,9 @@ if (process.env.NODE_ENV === 'development') {
   process.env.DEBUG = 'mon*,sco*';
 }
 if(require('electron-squirrel-startup')){
-  console.log('Squirrel.Windows event handled.');
-  return;
+  return console.log('Squirrel.Windows event handled.');
 }
+var serverctl = require('./scout-server-ctl');
 var app = require('app');
 var debug = require('debug')('scout-electron');
 
@@ -14,17 +14,13 @@ app.on('window-all-closed', function() {
 });
 
 app.on('ready', function(){
-  if (process.env.NODE_ENV === 'development') {
-    require('./livereload');
-  }
-
-  // @todo (imlucas): Use subprocess instead?
   process.nextTick(function(){
-    console.log('requiring scout-server...');
-    var server = require('scout-server');
     process.nextTick(function(){
       console.log('starting scout-server...');
-      server.start();
+      serverctl.start(function(err){
+        if(err) return console.error(err);
+        console.log('Server started!');
+      });
     });
   });
 });
