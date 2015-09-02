@@ -158,7 +158,7 @@ gulp.task('dev:npm-install', ['copy:electron'], shell.task('npm install', {
   cwd: 'build/'
 }));
 
-gulp.task('release:npm-install', ['copy:electron'], shell.task('npm install --production && npm dedupe', {
+gulp.task('release:npm-install', ['copy:electron'], shell.task('npm install --production', {
   cwd: 'build/'
 }));
 
