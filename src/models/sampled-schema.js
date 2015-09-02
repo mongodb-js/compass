@@ -24,7 +24,7 @@ module.exports = Schema.extend({
       }
     }
   },
-  props: {
+  session: {
     is_fetching: {
       type: 'boolean',
       default: false
@@ -133,5 +133,14 @@ module.exports = Schema.extend({
       .pipe(es.map(parse))
       .pipe(es.map(addToDocuments))
       .pipe(es.wait(onEnd));
+  },
+  serialize: function() {
+    var res = this.getAttributes({
+      props: true,
+      derived: true
+    }, true);
+    res = _.omit(res, ['name', 'sample_size']);
+    res.fields = this.fields.serialize();
+    return res;
   }
 });

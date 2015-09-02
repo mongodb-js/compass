@@ -8,7 +8,10 @@ var MongoDBCollection = require('../models/mongodb-collection');
 var SampledSchema = require('../models/sampled-schema');
 var app = require('ampersand-app');
 
+var $ = require('jquery');
 var debug = require('debug')('scout:home:collection');
+
+require('bootstrap/js/modal');
 
 var MongoDBCollectionView = View.extend({
   // modelType: 'Collection',
@@ -66,7 +69,14 @@ var MongoDBCollectionView = View.extend({
   initialize: function() {
     this.model = new MongoDBCollection();
     app.statusbar.watch(this, this.schema);
+    debug('app', app);
+    app.on('menu-share-schema-json', this.shareSchemaRequested.bind(this));
     this.listenToAndRun(this.parent, 'change:ns', this.onCollectionChanged.bind(this));
+  },
+  shareSchemaRequested: function() {
+    var clipboard = window.require('clipboard');
+    clipboard.writeText(JSON.stringify(this.schema.serialize(), null, '  '));
+    $(this.queryByHook('share-schema-confirmation')).modal('show');
   },
   onCollectionChanged: function() {
     var ns = this.parent.ns;

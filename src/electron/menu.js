@@ -106,6 +106,18 @@ function getTemplate(_window) {
         ]
       },
       {
+        label: 'Share',
+        submenu: [
+          {
+            label: 'Share Schema as JSON',
+            accelerator: 'Alt+Command+S',
+            click: function() {
+              _window.webContents.send('message', 'menu-share-schema-json');
+            }
+          }
+        ]
+      },
+      {
         label: 'Window',
         submenu: [
           {
