@@ -131,7 +131,7 @@ buildvariants:
     add_environment: "APPDATA=C:\\Program Files (x86)\\nodejs\\node_modules"
     add_path: "/cygdrive/c/Program Files (x86)/nodejs"
     installer_content_type: "application/octet-stream"
-    installer_filename: "MongoDBScoutSetup.exe"
+    installer_filename: "MongoDB Scout.exe"
     exe: ".exe"
     num_cores: $(grep -c ^processor /proc/cpuinfo)
   tasks:
