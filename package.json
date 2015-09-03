@@ -10,7 +10,7 @@
     "ignore": [
       "build/**",
       "dist/**",
-      "src/minicharts/d3-tip.js",
+      "src/minicharts/d3-tip.js"
     ]
   },
   "dependency-check": {
