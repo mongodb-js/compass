@@ -99,8 +99,9 @@ gulp.task('watch', function() {
   gulp.watch('images/{*,**/*}', ['copy:images']);
   gulp.watch('fonts/*', ['copy:fonts']);
   gulp.watch(['src/electron/*', 'bin/*'], ['copy:js']);
-  gulp.watch('package.json', function(done) {
-    sequence('copy:package.json', 'npm:install', done);
+  gulp.watch('package.json', function() {
+    gutil.log('package.json changed!');
+    sequence('copy:package.json', 'npm:install');
   });
 });
 
