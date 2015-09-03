@@ -30,15 +30,8 @@ functions:
           set -o verbose
           export PATH="$PATH:${add_path|}"
           test -n "${add_environment|}" && export "${add_environment|}"
-          # Install npm 3 beta
-          npm install -g npm@3
-          # Fix $PATH on Windows so the version of npm we just
-          # installed is used, instead of what's already installed.
-          export PATH="`npm -g bin`:$PATH"
           ${node|node} --version
-          which ${node|node}
           ${npm|npm} --version
-          which ${npm|npm}
           ${npm|npm} install
   "npm test" :
     - command: shell.exec
