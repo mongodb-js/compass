@@ -40,10 +40,12 @@ var platform = require(path.join(__dirname, 'tasks', process.platform));
  */
 gulp.task('release', function(done) {
   process.env.NODE_ENV = 'production';
-  sequence([
+  sequence(
     'build',
+    'electron:build',
+    'build:server',
     'electron:build-installer'
-  ], done);
+    , done);
 });
 
 /**
@@ -60,9 +62,7 @@ gulp.task('build', function(done) {
       'copy:js'
     ],
     'npm:install',
-    'build:js',
-    'electron:build',
-    'build:server'
+    'build:js'
     , done);
 });
 
@@ -76,6 +76,8 @@ gulp.task('dev', function(done) {
   process.env.NODE_ENV = 'development';
   sequence(
     'build',
+    'electron:build',
+    'build:server',
     'electron:start',
     'watch'
     , done);

@@ -18,6 +18,7 @@ var CONFIG = module.exports = {
   name: pkg.product_name,
   dir: path.resolve(__dirname, '../build'),
   out: path.resolve(__dirname, '../dist'),
+  ignore: new RegExp('(scout-server.asar|node_modules/scout-server)'),
   appPath: APP_PATH,
   PACKAGE: PACKAGE,
   BUILD: path.join(APP_PATH, 'Contents', 'Resources', 'app'),
@@ -56,6 +57,8 @@ var CONFIG = module.exports = {
   ]
 };
 
+module.exports.RESOURCES = path.join(APP_PATH, 'Contents', 'Resources');
+
 // Adjust config via environment variables
 if (process.env.SCOUT_INSTALLER_UNSIGNED !== undefined) {
   CONFIG.sign = null;
@@ -69,8 +72,7 @@ module.exports.build = function(done) {
       debug('.app already exists.  skipping packager run.');
       return done();
     }
-
-    debug('running packager...');
+    debug('running packager to create electron binaries...');
     packager(CONFIG, done);
   });
 };
