@@ -43,6 +43,7 @@ gulp.task('release', function(done) {
   sequence(
     'build',
     'electron:build',
+    'copy:bin',
     'build:server',
     'electron:build-installer'
     , done);
@@ -79,6 +80,7 @@ gulp.task('dev', function(done) {
     'build',
     'electron:build',
     'build:server',
+    'copy:bin',
     'electron:start',
     'watch'
     , done);
@@ -181,6 +183,13 @@ gulp.task('build:server', function() {
     .pipe(gulp.dest(platform.RESOURCES));
 });
 
+gulp.task('server:prune', function() {
+  debug('packaging `scout-server` into app resources...');
+  return gulp.src('./node_modules/scout-server/{*,**/*}')
+    .pipe(asar('scout-server.asar'))
+    .pipe(gulp.dest(platform.RESOURCES));
+});
+
 /**
  * ## electron
  */
@@ -235,13 +244,18 @@ gulp.task('copy:js', function() {
     gulp.src(['main.js'])
       .pipe(gulp.dest('build/')),
     gulp.src(['src/electron/*'])
-      .pipe(gulp.dest('build/src/electron')),
-    gulp.src(['bin/*'])
-      .pipe(gulp.dest('build/bin'))
+      .pipe(gulp.dest('build/src/electron'))
   );
 });
 
-gulp.task('npm:install', shell.task('npm install --production', {
+gulp.task('copy:bin', function() {
+  return gulp.src(['bin/*'])
+    .pipe(gulp.dest(
+      path.join(platform.RESOURCES, 'bin')
+      ));
+});
+
+gulp.task('npm:install', shell.task('npm install --production && npm dedupe', {
   cwd: 'build/'
 }));
 
