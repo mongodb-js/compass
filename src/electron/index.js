@@ -1,3 +1,10 @@
+// Start crash-reporter asap so if anything goes
+// wrong, we can at least view the crash reports
+// locally.  When a crash occurs, a `.dmp` file
+// will be created in `/tmp/Scout`
+// (`~\AppData\Local\Temp\Scout` on Windows).
+require('./crash-reporter');
+
 var app = require('app');
 var serverctl = require('./scout-server-ctl');
 var debug = require('debug')('scout-electron');
@@ -26,6 +33,5 @@ serverctl.start(function(err) {
 });
 
 require('./auto-updater');
-require('./crash-reporter');
 require('./menu');
 require('./window-manager');
