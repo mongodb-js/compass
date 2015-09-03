@@ -19,9 +19,13 @@ var debug = require('debug')('scout:electron:scout-server-ctl');
 var PID_FILE = path.resolve(app.getPath('appData'), '.mongodb-scout-server.pid');
 
 // Path to the file we'll fork.
-var BIN = path.resolve(__dirname, '../../bin/mongodb-scout-server.js');
+var BIN = path.resolve(process.resourcesPath, './bin/mongodb-scout-server.js');
 
-// Load the pid from `PID_FILE`
+/**
+ * Load the pid from `PID_FILE`
+ * @param {Function} done - `(err, number)` callback
+ * @api private
+ */
 var getPID = function(done) {
   fs.exists(PID_FILE, function(exists) {
     if (!exists) return done(null, -1);
@@ -34,6 +38,15 @@ var getPID = function(done) {
   });
 };
 
+/**
+ * If there is something in `PID_FILE`,
+ * a previous attempt to start may have
+ * gone awry and we should treat it as
+ * an orphaned process.  However,
+ * we also handle the case of the
+ * `PID_FILE` just not being cleaned up properly.
+ * @param {Function} done - `(err)` callback
+ */
 var killIfRunning = function(done) {
   getPID(function(err, pid) {
     if (err) return done(err);
@@ -56,17 +69,41 @@ var killIfRunning = function(done) {
   });
 };
 
+/**
+ * Try and start scout-server as a child_process.
+ * @param {Function} done - `(err)` callback
+ */
 module.exports.start = function(done) {
   killIfRunning(function(err) {
     if (err) return done(err);
 
-    var server = child_process.fork(BIN, [], {
+    // @note (imlucas): You're probably flinching that
+    // spaces in these paths aren't escaped.  But fear
+    // not!  `child_process.exec` has space escape issues
+    // but not `child_process.spawn`!
+    debug('spawning: `%s %s`...', process.execPath, BIN);
+    var server = child_process.spawn(process.execPath, [BIN], {
       env: {
-        ATOM_SHELL_INTERNAL_RUN_AS_NODE: 1,
+        ATOM_SHELL_INTERNAL_RUN_AS_NODE: '1',
         RESOURCES_PATH: process.resourcesPath
-      }
+      },
+      cwd: process.resourcesPath
     });
-    debug('scout-server started with pid `%s`', server.pid);
+    server.stdout.on('data', function(buf) {
+      debug('> server: %s', buf.toString('utf-8'));
+    });
+    server.stderr.on('data', function(buf) {
+      debug('> server-stderr: %s', buf.toString('utf-8'));
+    });
+
+    // @todo (imlucas): Use `require('http').createClient()` and
+    // http://npm.im/backoff to hit `http://localhost:29017/health-check`.
+    // If the HTTP request fails or returns a non 200 HTTP status
+    // the server didn't actually start and we should treat it as an
+    // error starting the server.  This handles the case of user's
+    // having another service that is *not* `scout-server` occupying
+    // our default port.
+    debug('scout-server started with pid `%s`!', server.pid);
     fs.writeFile(PID_FILE, server.pid, done);
   });
 };
