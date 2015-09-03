@@ -45,8 +45,9 @@ module.exports.create = function(opts) {
   attachMenu(_window);
   _window.loadUrl(opts.url);
 
-  _window.webContents.on('new-window', function(event, url, frameName, disposition) {
-    debug('intercepting new-window (disregard the "error" message preventDefault is about to cause)');
+  _window.webContents.on('new-window', function(event, url) {
+    debug('intercepting new-window (disregard the "error" message '
+      + 'preventDefault is about to cause)');
     event.preventDefault();
     module.exports.create({
       url: 'file://' + RESOURCES + '/index.html' + decodeURIComponent(url.replace('file://', ''))
