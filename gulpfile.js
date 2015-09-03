@@ -256,7 +256,7 @@ gulp.task('copy:bin', function() {
       ));
 });
 
-gulp.task('npm:install', shell.task('npm install --production && npm dedupe', {
+gulp.task('npm:install', shell.task('npm install --production && npm dedupe --quiet --loglevel error', {
   cwd: 'build/'
 }));
 
