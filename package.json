@@ -10,7 +10,7 @@
     "ignore": [
       "build/**",
       "dist/**",
-      "src/minicharts/d3-tip.js"
+      "src/minicharts/d3-tip.js",
     ]
   },
   "dependency-check": {
@@ -27,7 +27,10 @@
       "browser-window",
       "menu",
       "jade",
-      "ampersand-state"
+      "ampersand-state",
+      "scout-server",
+      "tiny-lr",
+      "watch"
     ]
   },
   "fonts": [

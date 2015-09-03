@@ -59,7 +59,8 @@ gulp.task('build', function(done) {
       'copy:fonts',
       'copy:images',
       'copy:text',
-      'copy:js'
+      'copy:js',
+      'copy:package.json'
     ],
     'npm:install',
     'build:js'
