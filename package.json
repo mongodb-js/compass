@@ -1,9 +1,9 @@
 {
-  "name": "scout",
+  "name": "mongodb-scout",
   "description": "The MongoDB GUI.",
   "version": "0.3.0",
   "main": "bin/mongodb-scout.js",
-  "electron_version": "0.30.5",
+  "electron_version": "0.30.6",
   "product_name": "MongoDB Scout",
   "authors": "MongoDB Inc.",
   "check": {
