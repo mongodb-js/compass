@@ -7,11 +7,11 @@ var FEED_URL = 'http://squirrel.mongodb.parts/scout/releases/latest?version=' + 
 debug('Using feed url', FEED_URL);
 
 updater.on('checking-for-update', function() {
-  debug('checking for update', arguments);
+  debug('checking for update...');
 });
 
-updater.on('error', function(err) {
-  debug('error checking for update', err);
+updater.on('error', function() {
+  debug('error checking for update');
 });
 
 updater.on('update-available', function() {
@@ -26,7 +26,7 @@ updater.on('update-downloaded', function() {
   debug('Update downloaded', arguments);
 });
 
-app.on('check for updates', function(){
+app.on('check for updates', function() {
   debug('checking for updates...');
   updater.checkForUpdates();
 });

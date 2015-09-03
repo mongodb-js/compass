@@ -1,11 +1,5 @@
-if (process.env.NODE_ENV === 'development') {
-  process.env.DEBUG = 'mon*,sco*';
-}
-if(require('electron-squirrel-startup')){
-  return console.log('Squirrel.Windows event handled.');
-}
-var serverctl = require('./scout-server-ctl');
 var app = require('app');
+var serverctl = require('./scout-server-ctl');
 var debug = require('debug')('scout-electron');
 
 app.on('window-all-closed', function() {
@@ -13,26 +7,25 @@ app.on('window-all-closed', function() {
   app.quit();
 });
 
-app.on('ready', function(){
-  process.nextTick(function(){
-    process.nextTick(function(){
-      console.log('starting scout-server...');
-      serverctl.start(function(err){
-        if(err) return console.error(err);
-        console.log('Server started!');
-      });
-    });
+app.on('quit', function() {
+  debug('app quitting!  stopping server..');
+  serverctl.stop(function(err) {
+    if (err) {
+      debug('Error stopping server...', err);
+    }
+    debug('Server stopped!  Bye!');
   });
 });
 
-debug('requiring auto-updater...');
+serverctl.start(function(err) {
+  if (err) {
+    debug('Error starting server...', err);
+  } else {
+    debug('Server started!');
+  }
+});
+
 require('./auto-updater');
-
-debug('requiring crash-reporter...');
 require('./crash-reporter');
-
-debug('requiring window-manager...');
-require('./window-manager');
-
-debug('requiring menu...');
 require('./menu');
+require('./window-manager');

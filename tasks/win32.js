@@ -1,7 +1,6 @@
 var path = require('path');
 var pkg = require(path.resolve(__dirname, '../package.json'));
 var fs = require('fs');
-var del = require('del');
 var packager = require('electron-packager');
 var createInstaller = require('electron-installer-squirrel-windows');
 var series = require('run-series');
@@ -9,14 +8,16 @@ var _ = require('lodash');
 var debug = require('debug')('scout:tasks:win32');
 
 var APP_PATH = path.resolve(__dirname, '../dist/MongoDBScout-win32-ia32');
-module.exports.BUILD = path.join(APP_PATH, 'resources', 'app');
 module.exports.ELECTRON = path.join(APP_PATH, 'MongoDBScout.exe');
+module.exports.RESOURCES = path.join(APP_PATH, 'resources');
+
 
 var PACKAGER_CONFIG = {
   name: 'MongoDBScout',
   dir: path.resolve(__dirname, '../build'),
   out: path.resolve(__dirname, '../dist'),
   platform: 'win32',
+  ignore: new RegExp('(scout-server.asar|node_modules/scout-server)'),
   arch: 'ia32',
   version: pkg.electron_version,
   icon: path.resolve(__dirname, '../images/win32/scout.icon'),
@@ -40,17 +41,18 @@ var INSTALLER_CONFIG = {
   overwrite: true
 };
 
-debug('packager config: ', JSON.stringify(PACKAGER_CONFIG, null, 2));
-debug('installer config: ', JSON.stringify(INSTALLER_CONFIG, null, 2));
-
 module.exports.build = function(done) {
   fs.exists(APP_PATH, function(exists) {
     if (exists) {
       debug('.app already exists.  skipping packager run.');
-      return done();
+      return done(null, false);
     }
     debug('running packager to create electron binaries...');
-    packager(PACKAGER_CONFIG, done);
+    packager(PACKAGER_CONFIG, function(err, res) {
+      if (err) return done(err);
+      debug('Packager result', res);
+      done(null, true);
+    });
   });
 };
 
@@ -59,8 +61,7 @@ module.exports.installer = function(done) {
 
   var tasks = [
     _.partial(packager, PACKAGER_CONFIG),
-    _.partial(createInstaller, INSTALLER_CONFIG),
-    _.partial(del, module.exports.BUILD)
+    _.partial(createInstaller, INSTALLER_CONFIG)
   ];
 
   series(tasks, function(err) {
