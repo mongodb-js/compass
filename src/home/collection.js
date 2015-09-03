@@ -69,11 +69,21 @@ var MongoDBCollectionView = View.extend({
   },
   initialize: function() {
     app.statusbar.watch(this, this.schema);
-    debug('app', app);
-    app.on('menu-share-schema-json', this.shareSchemaRequested.bind(this));
+    this.listenTo(this.schema, 'sync', this.schemaIsSynced.bind(this));
+    this.listenTo(this.schema, 'request', this.schemaIsRequested.bind(this));
     this.listenToAndRun(this.parent, 'change:ns', this.onCollectionChanged.bind(this));
   },
-  shareSchemaRequested: function() {
+  schemaIsSynced: function() {
+    // only listen to share menu events if we have a sync'ed schema
+    // @todo enable share menu item here
+    this.listenTo(app, 'menu-share-schema-json', this.onShareSchema.bind(this));
+  },
+  schemaIsRequested: function() {
+    // while a new schema is requested, don't let the user share via the menu option
+    // @todo disable share menu item here
+    this.stopListening(app, 'menu-share-schema-json');
+  },
+  onShareSchema: function() {
     var clipboard = window.require('clipboard');
     clipboard.writeText(JSON.stringify(this.schema.serialize(), null, '  '));
     $(this.queryByHook('share-schema-confirmation')).modal('show');
