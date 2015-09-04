@@ -23,7 +23,7 @@ var merge = require('merge-stream');
 var shell = require('gulp-shell');
 var del = require('del');
 var sequence = require('run-sequence');
-var asar = require('gulp-asar');
+
 var notify = require('./tasks/notify');
 var pkg = require('./package.json');
 
@@ -178,10 +178,10 @@ gulp.task('build:pages', function() {
  * @see bin/mongodb-scout-server.js
  */
 gulp.task('build:server', function() {
-  debug('packaging `scout-server` into app resources...');
-  return gulp.src('./node_modules/scout-server/{*,**/*}')
-    .pipe(asar('scout-server.asar'))
-    .pipe(gulp.dest(platform.RESOURCES));
+  // debug('packaging `scout-server` into app resources...');
+  // return gulp.src('./node_modules/scout-server/{*,**/*}')
+  //   .pipe(asar('scout-server.asar'))
+  //   .pipe(gulp.dest(platform.RESOURCES));
 });
 
 gulp.task('server:prune', function() {
@@ -256,7 +256,7 @@ gulp.task('copy:bin', function() {
       ));
 });
 
-gulp.task('npm:install', shell.task('npm install --production && npm dedupe --quiet --loglevel error', {
+gulp.task('npm:install', shell.task('npm install --production --quiet --loglevel error', {
   cwd: 'build/'
 }));
 

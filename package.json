@@ -114,7 +114,7 @@
     "eslint": "^0.24.1",
     "eslint-config-mongodb-js": "^0.1.4",
     "gulp": "^3.9.0",
-    "gulp-asar": "0.0.2",
+    "gulp-asar": "mongodb-js/gulp-asar",
     "gulp-jade": "^1.0.1",
     "gulp-less": "^3.0.3",
     "gulp-shell": "^0.4.2",
