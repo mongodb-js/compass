@@ -8,7 +8,7 @@ var debug = require('debug')('scout:models:connection');
  * Configuration for connecting to a MongoDB Deployment.
  */
 module.exports = Model.extend({
-  namespace: 'Connection',
+  modelType: 'Connection',
   idAttribute: 'uri',
   props: {
     /**

@@ -5,19 +5,21 @@
         .message.alert(style='margin-top: 10px;', data-hook='message')
         hr
         .form-group
-          label.col-sm-2.control-label Name
-          .col-sm-10
-            input.form-control(type='text', name='name', placeholder='Local')
-        .form-group
           label.col-sm-2.control-label Hostname
           .col-sm-10
-            input.form-control(type='text', name='hostname', placeholder='localhost')
+            input.form-control(type='text', name='hostname', placeholder='localhost', data-hook='hostname')
         .form-group
           label.col-sm-2.control-label Port
           .col-sm-10
-            input.form-control(type='number', name='port', placeholder='27017')
+            input.form-control(type='number', name='port', placeholder='27017', data-hook='port')
+        .form-group
+          label.col-sm-2.control-label Connection Name (optional)
+          a.btn.btn-info.btn-circle.btn-circle-micro(tabindex="0", role="button", data-toggle="popover", data-trigger="focus", title="Connection Name", data-content="You can choose a friendly connection name for this connection, for example \"Development Server\". The connection will appear on the left side under this name.")
+            i.fa.fa-question
+          .col-sm-10
+            input.form-control(type='text', name='name', placeholder='My Localhost', data-hook='name')
         .form-group
           .col-sm-offset-2.col-sm-10
             button.btn.btn-primary(type='submit') Connect
-
+            
   div(data-hook='sidebar-subview')
