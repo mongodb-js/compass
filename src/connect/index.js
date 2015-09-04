@@ -19,7 +19,7 @@ var ConnectionView = View.extend({
     }
   },
   events: {
-    click: 'onClick',
+    'click a': 'onClick',
     dblclick: 'onDoubleClick',
     mouseover: 'onMouseOver',
     mouseout: 'onMouseOut',
@@ -119,37 +119,47 @@ var ConnectView = View.extend({
     ]
   },
   events: {
-    'click .btn-info': 'onInfoClicked',
     'input [data-hook=name]': 'onNameChanged',
     'input [data-hook=port]': 'onPortChanged',
     'input [data-hook=hostname]': 'onHostNameChanged',
     'submit form': 'onSubmit'
   },
-  onInfoClicked: function(evt) {
-    evt.stopPropagation();
-    // debug('info clicked');
-  },
   onNameChanged: function(evt) {
     this.displayedConnection.name = evt.target.value;
   },
   onPortChanged: function(evt) {
-    this.displayedConnection.port = parseInt(evt.target.value, 10);
+    this.displayedConnection.portString = evt.target.value;
   },
   onHostNameChanged: function(evt) {
     this.displayedConnection.hostname = evt.target.value;
   },
   initialize: function() {
     document.title = 'Connect to MongoDB';
+    this.displayedConnection.set({
+      name: '',
+      portString: '',
+      hostname: ''
+    });
     this.connections.fetch();
   },
   onSubmit: function(event) {
     event.stopPropagation();
     event.preventDefault();
 
+    // choose default connection values if unset
+    if (!this.displayedConnection.hostname) {
+      this.displayedConnection.unset('hostname');
+    }
+    if (!this.displayedConnection.portString) {
+      this.displayedConnection.unset('portString');
+    }
+
     this.has_error = false;
 
     var existingConnection = this.connections.get(this.displayedConnection.uri);
-    if (existingConnection && existingConnection.name !== this.displayedConnection.name) {
+    if (this.displayedConnection.name !== ''
+      && existingConnection
+      && existingConnection.name !== this.displayedConnection.name) {
       // the connection uri (`host:port`) exists already, but under a different name
       app.statusbar.hide();
       this.has_error = true;
@@ -162,11 +172,13 @@ var ConnectView = View.extend({
 
     // now test if the connection name already exists with another uri
     existingConnection = this.connections.get(this.displayedConnection.name, 'name');
-    if (existingConnection && existingConnection.uri !== this.displayedConnection.uri) {
+    if (this.displayedConnection.name !== ''
+      && existingConnection
+      && existingConnection.uri !== this.displayedConnection.uri) {
       // the connection name exists already, but with a different uri
       app.statusbar.hide();
       this.has_error = true;
-      this.message = format('A different connection with the name "%s" already exists. Please '
+      this.message = format('Another connection with the name "%s" already exists. Please '
       + 'choose a different name.',
         existingConnection.name);
       return;
@@ -174,7 +186,6 @@ var ConnectView = View.extend({
 
     // now test if the server is reachable
     app.statusbar.show();
-    this.message = format('Testing connection...');
     this.displayedConnection.test(this.onConnectionTested.bind(this));
   },
   onConnectionTested: function(err, model) {
@@ -184,15 +195,17 @@ var ConnectView = View.extend({
       this.message = format('Could not connect to %s, please check that a MongoDB instance '
         + 'is running there.', model.uri);
     } else {
-      model.save();
-      this.connections.add(model);
-      this.message = 'Connected!';
+      if (model.name !== '') {
+        // only store if the user chose a name to save the connection
+        model.save();
+        this.connections.add(model);
+      }
       window.open(format('%s?uri=%s#schema', window.location.origin, model.uri));
 
       setTimeout(this.set.bind(this, {
         message: ''
       }), 500);
-      // setTimeout(window.close, 1000);
+      setTimeout(window.close, 1000);
     }
   },
   render: function() {
