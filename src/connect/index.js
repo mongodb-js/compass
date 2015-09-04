@@ -157,12 +157,25 @@ var ConnectView = View.extend({
       + 'under the name "%s". Click "Connect" again to connect to this host.',
         existingConnection.name);
       this.displayedConnection.name = existingConnection.name;
-    } else {
-      // now test if the server is reachable
-      app.statusbar.show();
-      this.message = format('Testing connection...');
-      this.displayedConnection.test(this.onConnectionTested.bind(this));
+      return;
     }
+
+    // now test if the connection name already exists with another uri
+    existingConnection = this.connections.get(this.displayedConnection.name, 'name');
+    if (existingConnection && existingConnection.uri !== this.displayedConnection.uri) {
+      // the connection name exists already, but with a different uri
+      app.statusbar.hide();
+      this.has_error = true;
+      this.message = format('A different connection with the name "%s" already exists. Please '
+      + 'choose a different name.',
+        existingConnection.name);
+      return;
+    }
+
+    // now test if the server is reachable
+    app.statusbar.show();
+    this.message = format('Testing connection...');
+    this.displayedConnection.test(this.onConnectionTested.bind(this));
   },
   onConnectionTested: function(err, model) {
     app.statusbar.hide();
