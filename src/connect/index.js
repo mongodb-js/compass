@@ -5,6 +5,11 @@ var format = require('util').format;
 var $ = require('jquery');
 var app = require('ampersand-app');
 
+// var debug = require('debug')('scout:connect:index');
+
+require('bootstrap/js/popover');
+require('bootstrap/js/tooltip');
+
 var ConnectionView = View.extend({
   props: {
     model: Connection,
@@ -34,9 +39,8 @@ var ConnectionView = View.extend({
     event.stopPropagation();
     event.preventDefault();
 
-    $('[name=hostname]').val(this.model.hostname);
-    $('[name=port]').val(this.model.port);
-    $('[name=name]').val(this.model.name);
+    // fill in the form with the clicked connection details
+    this.parent.parent.displayedConnection.set(this.model.serialize());
   },
   onDoubleClick: function(event) {
     this.onClick(event);
@@ -55,6 +59,7 @@ var ConnectionView = View.extend({
   }
 });
 
+
 var SidebarView = View.extend({
   template: require('./sidebar.jade'),
   render: function() {
@@ -67,6 +72,10 @@ var SidebarView = View.extend({
  * @todo (imlucas) Use ampersand-form-view.
  */
 var ConnectView = View.extend({
+  template: require('./index.jade'),
+  children: {
+    displayedConnection: Connection
+  },
   collections: {
     connections: ConnectionCollection
   },
@@ -81,6 +90,18 @@ var ConnectView = View.extend({
     }
   },
   bindings: {
+    'displayedConnection.name': {
+      type: 'value',
+      hook: 'name'
+    },
+    'displayedConnection.hostname': {
+      type: 'value',
+      hook: 'hostname'
+    },
+    'displayedConnection.port': {
+      type: 'value',
+      hook: 'port'
+    },
     has_error: {
       hook: 'message',
       type: 'booleanClass',
@@ -98,7 +119,24 @@ var ConnectView = View.extend({
     ]
   },
   events: {
+    'click .btn-info': 'onInfoClicked',
+    'input [data-hook=name]': 'onNameChanged',
+    'input [data-hook=port]': 'onPortChanged',
+    'input [data-hook=hostname]': 'onHostNameChanged',
     'submit form': 'onSubmit'
+  },
+  onInfoClicked: function(evt) {
+    evt.stopPropagation();
+    // debug('info clicked');
+  },
+  onNameChanged: function(evt) {
+    this.displayedConnection.name = evt.target.value;
+  },
+  onPortChanged: function(evt) {
+    this.displayedConnection.port = parseInt(evt.target.value, 10);
+  },
+  onHostNameChanged: function(evt) {
+    this.displayedConnection.hostname = evt.target.value;
   },
   initialize: function() {
     document.title = 'Connect to MongoDB';
@@ -107,25 +145,31 @@ var ConnectView = View.extend({
   onSubmit: function(event) {
     event.stopPropagation();
     event.preventDefault();
-    app.statusbar.show();
-    this.message = format('Testing connection...');
+
     this.has_error = false;
 
-    var hostname = $(this.el).find('[name=hostname]').val() || 'localhost';
-    var port = parseInt($(this.el).find('[name=port]').val() || 27017, 10);
-    var name = $(this.el).find('[name=name]').val() || 'Local';
-
-    new Connection({
-      name: name,
-      hostname: hostname,
-      port: port
-    }).test(this.onConnectionTested.bind(this));
+    var existingConnection = this.connections.get(this.displayedConnection.uri);
+    if (existingConnection && existingConnection.name !== this.displayedConnection.name) {
+      // the connection uri (`host:port`) exists already, but under a different name
+      app.statusbar.hide();
+      this.has_error = true;
+      this.message = format('A connection to this host and port already exists '
+      + 'under the name "%s". Click "Connect" again to connect to this host.',
+        existingConnection.name);
+      this.displayedConnection.name = existingConnection.name;
+    } else {
+      // now test if the server is reachable
+      app.statusbar.show();
+      this.message = format('Testing connection...');
+      this.displayedConnection.test(this.onConnectionTested.bind(this));
+    }
   },
   onConnectionTested: function(err, model) {
     app.statusbar.hide();
     if (err) {
       this.has_error = true;
-      this.message = format('Could not connect to %s', model.uri);
+      this.message = format('Could not connect to %s, please check that a MongoDB instance '
+        + 'is running there.', model.uri);
     } else {
       model.save();
       this.connections.add(model);
@@ -135,10 +179,19 @@ var ConnectView = View.extend({
       setTimeout(this.set.bind(this, {
         message: ''
       }), 500);
-      setTimeout(window.close, 1000);
+      // setTimeout(window.close, 1000);
     }
   },
-  template: require('./index.jade'),
+  render: function() {
+    this.renderWithTemplate(this);
+    // enable popovers
+    $(this.query('[data-toggle="popover"]'))
+      .popover({
+        container: 'body',
+        placement: 'top',
+        trigger: 'hover'
+      });
+  },
   subviews: {
     sidebar: {
       waitFor: 'connections',
