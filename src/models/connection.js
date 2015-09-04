@@ -16,21 +16,24 @@ module.exports = Model.extend({
      */
     name: {
       type: 'string',
-      default: 'Local'
+      default: '',
+      required: true
     },
     /**
      * Hostname or IP address of the Instance to connect to in the Deployment.
      */
     hostname: {
       type: 'string',
-      default: 'localhost'
+      default: 'localhost',
+      required: true
     },
     /**
      * Port the Instance to connect to in the Deployment is listening on.
      */
-    port: {
-      type: 'number',
-      default: 27017
+    portString: {
+      type: 'string',
+      default: '27017',
+      required: true
     },
     /**
      * Updated on each successful connection to the Deployment.
@@ -38,6 +41,12 @@ module.exports = Model.extend({
     last_used: 'date'
   },
   derived: {
+    port: {
+      deps: ['portString'],
+      fn: function() {
+        return parseInt(this.portString, 10);
+      }
+    },
     uri: {
       deps: ['hostname', 'port'],
       fn: function() {
@@ -47,7 +56,7 @@ module.exports = Model.extend({
   },
   use: function(uri) {
     var data = types.url(uri).data;
-    this.port = data.hosts[0].port;
+    this.portString = '' + data.hosts[0].port;
     this.hostname = data.hosts[0].host.toLowerCase();
     this.fetch();
   },
