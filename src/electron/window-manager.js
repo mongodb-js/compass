@@ -15,13 +15,13 @@ var DEFAULT_HEIGHT = 700;
 var DEFAULT_HEIGHT_DIALOG;
 
 if (process.platform === 'win32') {
-  DEFAULT_HEIGHT_DIALOG = 460;
+  DEFAULT_HEIGHT_DIALOG = 500;
 } else if (process.platform === 'linux') {
-  DEFAULT_HEIGHT_DIALOG = 430;
+  DEFAULT_HEIGHT_DIALOG = 470;
 } else {
-  DEFAULT_HEIGHT_DIALOG = 400;
+  DEFAULT_HEIGHT_DIALOG = 440;
 }
-var DEFAULT_WIDTH_DIALOG = 600;
+var DEFAULT_WIDTH_DIALOG = 640;
 
 var connectWindow;
 var windowsOpenCount = 0;
