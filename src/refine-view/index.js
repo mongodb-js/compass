@@ -105,7 +105,9 @@ module.exports = AmpersandView.extend({
   refineClicked: function() {
     // The UI should not allow hitting refine on invalid queries, but just to be sure we
     // deny it here, too.
-    if (!this.editableQuery.valid) return;
+    if (!this.editableQuery.valid) {
+      return;
+    }
     this.volatileQueryOptions.query = this.editableQuery.queryObject;
     // clone the query
     this.queryOptions.query = new Query(this.volatileQueryOptions.query.serialize(), {

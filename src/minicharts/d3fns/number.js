@@ -77,8 +77,12 @@ var minicharts_d3fns_number = function() {
       } else {
         labels = {
           text: function(d, i) {
-            if (i === 0) return 'min: ' + d3.min(data);
-            if (i === grouped.length - 1) return 'max: ' + d3.max(data);
+            if (i === 0) {
+              return 'min: ' + d3.min(data);
+            }
+            if (i === grouped.length - 1) {
+              return 'max: ' + d3.max(data);
+            }
             return '';
           }
         };
@@ -97,19 +101,25 @@ var minicharts_d3fns_number = function() {
   }
 
   chart.width = function(value) {
-    if (!arguments.length) return width;
+    if (!arguments.length) {
+      return width;
+    }
     width = value;
     return chart;
   };
 
   chart.height = function(value) {
-    if (!arguments.length) return height;
+    if (!arguments.length) {
+      return height;
+    }
     height = value;
     return chart;
   };
 
   chart.options = function(value) {
-    if (!arguments.length) return options;
+    if (!arguments.length) {
+      return options;
+    }
     _.assign(options, value);
     return chart;
   };

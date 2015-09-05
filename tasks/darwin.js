@@ -29,7 +29,6 @@ var CONFIG = module.exports = {
   icon: path.resolve(__dirname, '../images/darwin/scout.icns'),
   background: path.resolve(__dirname, '../images/darwin/background.png'),
   overwrite: true,
-  asar: true,
   prune: true,
   'app-bundle-id': 'com.mongodb.scout',
   'app-version': pkg.version,
@@ -97,6 +96,8 @@ module.exports.installer = function(done) {
   tasks.push(_.partial(createDMG, CONFIG));
 
   series(tasks, function(err) {
-    if (err) return done(err);
+    if (err) {
+      return done(err);
+    }
   });
 };

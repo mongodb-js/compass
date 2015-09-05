@@ -15,7 +15,9 @@ module.exports = {
 
     var success = options.success;
     options.success = function(resp) {
-      if (!model.set(model.parse(resp, options), options)) return false;
+      if (!model.set(model.parse(resp, options), options)) {
+        return false;
+      }
       if (success) {
         success(model, resp, options);
       }
@@ -25,7 +27,9 @@ module.exports = {
     wrapError(this, options);
 
     var done = function(err, res) {
-      if (err) return options.error({}, 'error', err.message);
+      if (err) {
+        return options.error({}, 'error', err.message);
+      }
       raf(function call_scout_client_success() {
         options.success(res, 'success', res);
       });

@@ -110,7 +110,9 @@ module.exports = Schema.extend({
 
     var onEnd = function(err) {
       model.is_fetching = false;
-      if (err) return options.error(model, err);
+      if (err) {
+        return options.error(model, err);
+      }
       model.documents.reset(docs);
       model.documents.trigger('sync');
       options.success({});

@@ -19,7 +19,9 @@ var debug = require('debug')('scout:electron:scout-server-ctl');
 var PID_FILE = path.resolve(app.getPath('appData'), '.mongodb-scout-server.pid');
 
 // Path to the file we'll fork.
-var BIN = path.resolve(process.resourcesPath, './bin/mongodb-scout-server.js');
+// var BIN = path.resolve(process.resourcesPath,
+//   './app/node_modules/scout-server/bin/scout-server.js');
+var BIN = path.resolve(__dirname, '../../node_modules/scout-server/bin/scout-server.js');
 
 /**
  * Load the pid from `PID_FILE`
@@ -28,10 +30,14 @@ var BIN = path.resolve(process.resourcesPath, './bin/mongodb-scout-server.js');
  */
 var getPID = function(done) {
   fs.exists(PID_FILE, function(exists) {
-    if (!exists) return done(null, -1);
+    if (!exists) {
+      return done(null, -1);
+    }
 
     fs.readFile(PID_FILE, 'utf-8', function(err, buf) {
-      if (err) return done(err);
+      if (err) {
+        return done(err);
+      }
 
       done(null, parseInt(buf, 10));
     });
@@ -49,7 +55,9 @@ var getPID = function(done) {
  */
 var killIfRunning = function(done) {
   getPID(function(err, pid) {
-    if (err) return done(err);
+    if (err) {
+      return done(err);
+    }
 
     if (pid === -1) {
       debug('no pid file');
@@ -75,7 +83,9 @@ var killIfRunning = function(done) {
  */
 module.exports.start = function(done) {
   killIfRunning(function(err) {
-    if (err) return done(err);
+    if (err) {
+      return done(err);
+    }
 
     // @note (imlucas): You're probably flinching that
     // spaces in these paths aren't escaped.  But fear

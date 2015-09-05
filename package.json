@@ -2,7 +2,7 @@
   "name": "mongodb-scout",
   "description": "The MongoDB GUI.",
   "version": "0.3.0",
-  "main": "bin/mongodb-scout.js",
+  "main": "main.js",
   "electron_version": "0.30.6",
   "product_name": "MongoDB Scout",
   "authors": "MongoDB Inc.",
@@ -30,7 +30,9 @@
       "ampersand-state",
       "scout-server",
       "tiny-lr",
-      "watch"
+      "watch",
+      "glob",
+      "electron-squirrel-startup"
     ]
   },
   "fonts": [

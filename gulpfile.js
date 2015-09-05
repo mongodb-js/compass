@@ -1,3 +1,5 @@
+process.env.DEBUG = '*';
+
 /**
  * # Welcome to Scout's gulpfile!
  *
@@ -43,7 +45,6 @@ gulp.task('release', function(done) {
   sequence(
     'build',
     'electron:build',
-    'copy:bin',
     'build:server',
     'electron:build-installer'
     , done);
@@ -80,7 +81,6 @@ gulp.task('dev', function(done) {
     'build',
     'electron:build',
     'build:server',
-    'copy:bin',
     'electron:start',
     'watch'
     , done);
@@ -185,10 +185,10 @@ gulp.task('build:server', function() {
 });
 
 gulp.task('server:prune', function() {
-  debug('packaging `scout-server` into app resources...');
-  return gulp.src('./node_modules/scout-server/{*,**/*}')
-    .pipe(asar('scout-server.asar'))
-    .pipe(gulp.dest(platform.RESOURCES));
+  // debug('packaging `scout-server` into app resources...');
+  // return gulp.src('./node_modules/scout-server/{*,**/*}')
+  //   .pipe(asar('scout-server.asar'))
+  //   .pipe(gulp.dest(platform.RESOURCES));
 });
 
 /**
@@ -205,10 +205,12 @@ gulp.task('electron:start', function() {
 
 gulp.task('electron:build', function(done) {
   platform.build(function(err) {
-    if (err) return done(err);
+    if (err) {
+      return done(err);
+    }
     if (process.env.NODE_ENV === 'development') {
-      debug('removing `%s` for dev mode...', path.join(platform.RESOURCES, 'app.asar'));
-      return del(path.join(platform.RESOURCES, 'app.asar'), done);
+      debug('removing `%s` for dev mode...', path.join(platform.RESOURCES, 'app'));
+      return del(path.join(platform.RESOURCES, 'app'), done);
     }
     done();
   });
@@ -247,13 +249,6 @@ gulp.task('copy:js', function() {
     gulp.src(['src/electron/*'])
       .pipe(gulp.dest('build/src/electron'))
   );
-});
-
-gulp.task('copy:bin', function() {
-  return gulp.src(['bin/*'])
-    .pipe(gulp.dest(
-      path.join(platform.RESOURCES, 'bin')
-      ));
 });
 
 gulp.task('npm:install', shell.task('npm install --production --quiet --loglevel error', {

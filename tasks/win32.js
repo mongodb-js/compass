@@ -22,7 +22,6 @@ var PACKAGER_CONFIG = {
   version: pkg.electron_version,
   icon: path.resolve(__dirname, '../images/win32/scout.icon'),
   overwrite: true,
-  asar: true,
   prune: true,
   'version-string': {
     CompanyName: 'MongoDB Inc.',
@@ -49,7 +48,9 @@ module.exports.build = function(done) {
     }
     debug('running packager to create electron binaries...');
     packager(PACKAGER_CONFIG, function(err, res) {
-      if (err) return done(err);
+      if (err) {
+        return done(err);
+      }
       debug('Packager result', res);
       done(null, true);
     });
@@ -65,7 +66,9 @@ module.exports.installer = function(done) {
   ];
 
   series(tasks, function(err) {
-    if (err) return done(err);
+    if (err) {
+      return done(err);
+    }
     console.log('Installer created!');
     done();
   });

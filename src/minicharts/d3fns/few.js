@@ -32,7 +32,9 @@ var minicharts_d3fns_few = function() {
   // --- end chart setup ---
 
   function handleClick(d) {
-    if (!options.view) return;
+    if (!options.view) {
+      return;
+    }
     var fgRect = $(this).siblings('rect.selectable')[0];
     var evt = {
       d: d,
@@ -72,7 +74,9 @@ var minicharts_d3fns_few = function() {
       return s[0] > right || left > s[1];
     });
 
-    if (!options.view) return;
+    if (!options.view) {
+      return;
+    }
     if (numSelected !== options.view.queryAll('rect.selectable.selected').length) {
       // number of selected items has changed, trigger querybuilder event
       var evt = {
@@ -91,7 +95,9 @@ var minicharts_d3fns_few = function() {
     }
     d3.select(this).call(brush.clear());
 
-    if (!options.view) return;
+    if (!options.view) {
+      return;
+    }
     var evt = {
       type: 'drag',
       source: 'many'
@@ -237,19 +243,25 @@ var minicharts_d3fns_few = function() {
   }
 
   chart.width = function(value) {
-    if (!arguments.length) return width;
+    if (!arguments.length) {
+      return width;
+    }
     width = value;
     return chart;
   };
 
   chart.height = function(value) {
-    if (!arguments.length) return height;
+    if (!arguments.length) {
+      return height;
+    }
     height = value;
     return chart;
   };
 
   chart.options = function(value) {
-    if (!arguments.length) return options;
+    if (!arguments.length) {
+      return options;
+    }
     _.assign(options, value);
     return chart;
   };

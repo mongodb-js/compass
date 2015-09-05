@@ -4,13 +4,12 @@
  * [1]: https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247(v=vs.85).aspx#maxpath
  */
 process.env.DEBUG = '*';
-var fs = require('fs');
 var path = require('path');
 var debug = require('debug')('windows-max-path-length-check');
 var platform = require(path.join(__dirname, process.platform));
 var glob = require('glob');
 
-const MAX_PATH = 260;
+var MAX_PATH = 260;
 
 module.exports = function(src, dest, done) {
   if (typeof dest === 'function') {
@@ -21,7 +20,9 @@ module.exports = function(src, dest, done) {
   src = path.resolve(src);
 
   glob.glob(src, {}, function(err, files) {
-    if (err) return done(err);
+    if (err) {
+      return done(err);
+    }
 
     debug('Checking %d files', files.length);
     var destPaths = files.map(function(file) {
