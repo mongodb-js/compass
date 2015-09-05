@@ -98,13 +98,12 @@ gulp.task('watch', function() {
   gulp.watch(['src/*.jade'], ['build:pages']);
   gulp.watch('images/{*,**/*}', ['copy:images']);
   gulp.watch('fonts/*', ['copy:fonts']);
-  gulp.watch(['src/electron/*', 'bin/*'], ['copy:js']);
+  gulp.watch(['src/electron/*'], ['copy:js']);
   gulp.watch('package.json', function() {
     gutil.log('package.json changed!');
     sequence('copy:package.json', 'npm:install');
   });
 });
-
 
 /**
  * Use browserify to compile the UI js.
@@ -171,25 +170,15 @@ gulp.task('build:pages', function() {
 });
 
 /**
- * Creates an [asar](http://npm.im/asar) of scout-server
- * and copies it into the electron app.  This allows
- * the server to run as a child_process of the main
- * electron process.
- * @see bin/mongodb-scout-server.js
+ * Install scout-server separately while we're
+ * using tarballs from S3 as they're filtered
+ * out by default.
  */
-gulp.task('build:server', function() {
-  // debug('packaging `scout-server` into app resources...');
-  // return gulp.src('./node_modules/scout-server/{*,**/*}')
-  //   .pipe(asar('scout-server.asar'))
-  //   .pipe(gulp.dest(platform.RESOURCES));
-});
-
-gulp.task('server:prune', function() {
-  // debug('packaging `scout-server` into app resources...');
-  // return gulp.src('./node_modules/scout-server/{*,**/*}')
-  //   .pipe(asar('scout-server.asar'))
-  //   .pipe(gulp.dest(platform.RESOURCES));
-});
+gulp.task('build:server', shell.task(
+  'npm version && npm install --production --quiet --loglevel error '
+   + pkg.dependencies['scout-server'], {
+    cwd: path.join(platform.RESOURCES, 'app')
+  }));
 
 /**
  * ## electron
@@ -207,10 +196,6 @@ gulp.task('electron:build', function(done) {
   platform.build(function(err) {
     if (err) {
       return done(err);
-    }
-    if (process.env.NODE_ENV === 'development') {
-      debug('removing `%s` for dev mode...', path.join(platform.RESOURCES, 'app'));
-      return del(path.join(platform.RESOURCES, 'app'), done);
     }
     done();
   });

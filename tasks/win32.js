@@ -58,14 +58,7 @@ module.exports.build = function(done) {
 };
 
 module.exports.installer = function(done) {
-  debug('Packaging into `%s`', path.join(APP_PATH, 'resources', 'app.asar'));
-
-  var tasks = [
-    _.partial(packager, PACKAGER_CONFIG),
-    _.partial(createInstaller, INSTALLER_CONFIG)
-  ];
-
-  series(tasks, function(err) {
+  createInstaller(INSTALLER_CONFIG, function(err) {
     if (err) {
       return done(err);
     }

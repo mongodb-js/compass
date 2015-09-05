@@ -5,33 +5,35 @@
 // (`~\AppData\Local\Temp\Scout` on Windows).
 require('./crash-reporter');
 
-var app = require('app');
-var serverctl = require('./scout-server-ctl');
-var debug = require('debug')('scout-electron');
+if(!require('electron-squirrel-startup')){
+  var app = require('app');
+  var serverctl = require('./scout-server-ctl');
+  var debug = require('debug')('scout-electron');
 
-app.on('window-all-closed', function() {
-  debug('All windows closed.  Quitting app.');
-  app.quit();
-});
-
-app.on('quit', function() {
-  debug('app quitting!  stopping server..');
-  serverctl.stop(function(err) {
-    if (err) {
-      debug('Error stopping server...', err);
-    }
-    debug('Server stopped!  Bye!');
+  app.on('window-all-closed', function() {
+    debug('All windows closed.  Quitting app.');
+    app.quit();
   });
-});
 
-serverctl.start(function(err) {
-  if (err) {
-    debug('Error starting server...', err);
-  } else {
-    debug('Server started!');
-  }
-});
+  app.on('quit', function() {
+    debug('app quitting!  stopping server..');
+    serverctl.stop(function(err) {
+      if (err) {
+        debug('Error stopping server...', err);
+      }
+      debug('Server stopped!  Bye!');
+    });
+  });
 
-require('./auto-updater');
-require('./menu');
-require('./window-manager');
+  serverctl.start(function(err) {
+    if (err) {
+      debug('Error starting server...', err);
+    } else {
+      debug('Server started!');
+    }
+  });
+
+  require('./auto-updater');
+  require('./menu');
+  require('./window-manager');
+}
