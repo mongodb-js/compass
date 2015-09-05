@@ -11,7 +11,7 @@ var app = require('ampersand-app');
 var debug = require('debug')('scout:home:collection');
 
 var MongoDBCollectionView = View.extend({
-  modelType: 'Collection',
+  //modelType: 'Collection',
   template: require('./collection.jade'),
   props: {
     sidebar_open: {
@@ -61,10 +61,10 @@ var MongoDBCollectionView = View.extend({
     ]
   },
   children: {
-    model: MongoDBCollection,
     schema: SampledSchema
   },
   initialize: function() {
+    this.model = new MongoDBCollection();
     app.statusbar.watch(this, this.schema);
     this.listenToAndRun(this.parent, 'change:ns', this.onCollectionChanged.bind(this));
   },
