@@ -11,7 +11,7 @@ var app = require('ampersand-app');
 var debug = require('debug')('scout:home:collection');
 
 var MongoDBCollectionView = View.extend({
-  //modelType: 'Collection',
+  // modelType: 'Collection',
   template: require('./collection.jade'),
   props: {
     sidebar_open: {

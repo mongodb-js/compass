@@ -29,8 +29,6 @@ var sequence = require('run-sequence');
 var notify = require('./tasks/notify');
 var pkg = require('./package.json');
 
-var debug = require('debug')('scout:gulp');
-
 // Platform specific tasks
 var platform = require(path.join(__dirname, 'tasks', process.platform));
 
@@ -177,7 +175,7 @@ gulp.task('build:pages', function() {
 var format = require('util').format;
 gulp.task('build:server', shell.task(
   format('npm install --production %s',
-   pkg.dependencies['scout-server']), {
+    pkg.dependencies['scout-server']), {
     cwd: path.join(platform.RESOURCES, 'app')
   }));
 

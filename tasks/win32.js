@@ -3,14 +3,11 @@ var pkg = require(path.resolve(__dirname, '../package.json'));
 var fs = require('fs');
 var packager = require('electron-packager');
 var createInstaller = require('electron-installer-squirrel-windows');
-var series = require('run-series');
-var _ = require('lodash');
 var debug = require('debug')('scout:tasks:win32');
 
 var APP_PATH = path.resolve(__dirname, '../dist/MongoDBScout-win32-x64');
 module.exports.ELECTRON = path.join(APP_PATH, 'MongoDBScout.exe');
 module.exports.RESOURCES = path.join(APP_PATH, 'resources');
-
 
 var PACKAGER_CONFIG = {
   name: 'MongoDBScout',
@@ -22,7 +19,6 @@ var PACKAGER_CONFIG = {
   version: pkg.electron_version,
   icon: path.resolve(__dirname, '../images/win32/scout.icon'),
   overwrite: true,
-  prune: true,
   'version-string': {
     CompanyName: 'MongoDB Inc.',
     LegalCopyright: '2015 MongoDB Inc.',

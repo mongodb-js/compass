@@ -5,7 +5,7 @@
 // (`~\AppData\Local\Temp\Scout` on Windows).
 require('./crash-reporter');
 
-if(!require('electron-squirrel-startup')){
+if (!require('electron-squirrel-startup')) {
   var app = require('app');
   var serverctl = require('./scout-server-ctl');
   var debug = require('debug')('scout-electron');
