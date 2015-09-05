@@ -163,8 +163,8 @@ var ConnectView = View.extend({
       // the connection uri (`host:port`) exists already, but under a different name
       app.statusbar.hide();
       this.has_error = true;
-      this.message = format('A connection to this host and port already exists '
-      + 'under the name "%s". Click "Connect" again to connect to this host.',
+      this.message = format('This connection already exists '
+      + 'under the name "%s". Click "Connect" again to use this connection.',
         existingConnection.name);
       this.displayedConnection.name = existingConnection.name;
       return;
@@ -186,6 +186,7 @@ var ConnectView = View.extend({
 
     // now test if the server is reachable
     app.statusbar.show();
+    this.message = '';
     this.displayedConnection.test(this.onConnectionTested.bind(this));
   },
   onConnectionTested: function(err, model) {
