@@ -7,7 +7,7 @@ var series = require('run-series');
 var _ = require('lodash');
 var debug = require('debug')('scout:tasks:win32');
 
-var APP_PATH = path.resolve(__dirname, '../dist/MongoDBScout-win32-ia32');
+var APP_PATH = path.resolve(__dirname, '../dist/MongoDBScout-win32-x64');
 module.exports.ELECTRON = path.join(APP_PATH, 'MongoDBScout.exe');
 module.exports.RESOURCES = path.join(APP_PATH, 'resources');
 
@@ -18,7 +18,7 @@ var PACKAGER_CONFIG = {
   out: path.resolve(__dirname, '../dist'),
   platform: 'win32',
   ignore: new RegExp('(scout-server.asar|node_modules/scout-server)'),
-  arch: 'ia32',
+  arch: 'x64',
   version: pkg.electron_version,
   icon: path.resolve(__dirname, '../images/win32/scout.icon'),
   overwrite: true,

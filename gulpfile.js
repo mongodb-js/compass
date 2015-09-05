@@ -174,9 +174,10 @@ gulp.task('build:pages', function() {
  * using tarballs from S3 as they're filtered
  * out by default.
  */
+var format = require('util').format;
 gulp.task('build:server', shell.task(
-  'npm version && npm install --production --quiet --loglevel error '
-   + pkg.dependencies['scout-server'], {
+  format('npm install --production %s',
+   pkg.dependencies['scout-server']), {
     cwd: path.join(platform.RESOURCES, 'app')
   }));
 
