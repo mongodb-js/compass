@@ -21,15 +21,31 @@ functions:
     - command: git.apply_patch
       params:
         directory: src
-  "npm install" :
+  "upgrade npm" :
     - command: shell.exec
       params:
         working_dir: src
         script: |
           set -o errexit
           set -o verbose
-          export PATH="$PATH:${add_path|}"
+          export PATH="$PATH:${node_path|}"
           test -n "${add_environment|}" && export "${add_environment|}"
+
+          if [ -z "${npm_version|}" ]
+          then
+            echo "upgrade_npm: npm_version is unset; skipping"
+            exit 0
+          fi
+          ${npm|npm} install -g npm@${npm_version|xx}
+  "npm install" :
+    - command: shell.exec
+      params:
+        working_dir: src
+        script: |
+          set -v -e
+          export PATH="$PATH:${node_path|}"
+          test -n "${add_environment|}" && export "${add_environment|}"
+          export PATH="`npm -g bin`:$PATH"
           ${node|node} --version
           ${npm|npm} --version
           ${npm|npm} install
@@ -38,30 +54,30 @@ functions:
       params:
         working_dir: src
         script: |
-          set -o errexit
-          set -o verbose
-          export PATH="$PATH:${add_path|}"
+          set -v -e
+          export PATH="$PATH:${node_path|}"
           test -n "${add_environment|}" && export "${add_environment|}"
+          export PATH="`npm -g bin`:$PATH"
           ${npm|npm} run test
   "npm check" :
     - command: shell.exec
       params:
         working_dir: src
         script: |
-          set -o errexit
-          set -o verbose
-          export PATH="$PATH:${add_path|}"
+          set -v -e
+          export PATH="$PATH:${node_path|}"
           test -n "${add_environment|}" && export "${add_environment|}"
+          export PATH="`npm -g bin`:$PATH"
           ${npm|npm} run check
   "npm release" :
     - command: shell.exec
       params:
         working_dir: src
         script: |
-          set -o errexit
-          set -o verbose
-          export PATH="$PATH:${add_path|}"
+          set -v -e
+          export PATH="$PATH:${node_path|}"
           test -n "${add_environment|}" && export "${add_environment|}"
+          export PATH="`npm -g bin`:$PATH"
           ${npm|npm} run release
 
 #######################################
@@ -73,6 +89,7 @@ tasks:
   depends_on: []
   commands:
   - func: "fetch source"
+  - func: "upgrade npm"
   - func: "npm install"
   - func: "npm test"
 #  - func: "npm check"
@@ -107,7 +124,7 @@ buildvariants:
   - "osx-108"
   expansions:
     add_environment: "SCOUT_INSTALLER_UNSIGNED=1"
-    add_path: /opt/node/bin
+    node_path: /opt/node/bin
     installer_content_type: "application/x-apple-diskimage"
     installer_filename: "MongoDB Scout.dmg"
     num_cores: $(sysctl -n hw.logicalcpu)
@@ -122,10 +139,11 @@ buildvariants:
   - "windows-64-vs2013-test"
   expansions:
     add_environment: "APPDATA=C:\\Program Files (x86)\\nodejs\\node_modules"
-    add_path: "/cygdrive/c/Program Files (x86)/nodejs"
+    node_path: "/cygdrive/c/Program Files (x86)/nodejs"
     installer_content_type: "application/octet-stream"
-    installer_filename: "MongoDB Scout.exe"
+    installer_filename: "MongoDBScoutSetup.exe"
     exe: ".exe"
+    npm_version: "3"
     num_cores: $(grep -c ^processor /proc/cpuinfo)
   tasks:
   - name: compile
@@ -140,7 +158,7 @@ buildvariants:
 #   - "ubuntu1404-test"
 #   expansions:
 #     add_environment: ""
-#     add_path: "/opt/node/bin"
+#     node_path: "/opt/node/bin"
 #     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
 #     num_cores: $(grep -c ^processor /proc/cpuinfo)
 #   tasks:
