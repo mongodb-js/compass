@@ -42,7 +42,7 @@ module.exports = function stateMixin(Reflux) {
       if (changed) {
         this.state = update(this.state, {$merge: state});
 
-        if (_.isFunction(this.storeDidUpdate)) {
+        if (utils.isFunction(this.storeDidUpdate)) {
           this.storeDidUpdate(prevState);
         }
 
@@ -52,7 +52,7 @@ module.exports = function stateMixin(Reflux) {
     },
 
     init: function () {
-      if (_.isFunction(this.getInitialState)) {
+      if (utils.isFunction(this.getInitialState)) {
         this.state = this.getInitialState();
         for (var key in this.state) {
           if (this.state.hasOwnProperty(key)) {
@@ -65,21 +65,21 @@ module.exports = function stateMixin(Reflux) {
     connect: function (store, key) {
       return {
         getInitialState: function () {
-          if (!_.isFunction(store.getInitialState)) {
+          if (!utils.isFunction(store.getInitialState)) {
             return {};
           } else if (key === undefined) {
             return store.state;
           } else {
-            return _.object([key], [store.state[key]]);
+            return utils.object([key], [store.state[key]]);
           }
         },
         componentDidMount: function () {
-          _.extend(this, Reflux.ListenerMethods);
+          utils.extend(this, Reflux.ListenerMethods);
           var noKey = key === undefined;
           var me = this,
               cb = (noKey ? this.setState : function (v) {
                 if (typeof me.isMounted === "undefined" || me.isMounted() === true) {
-                  me.setState(_.object([key], [v]));
+                  me.setState(utils.object([key], [v]));
                 }
               }),
               listener = noKey ? store : store[key];
