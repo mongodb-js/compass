@@ -89,7 +89,7 @@ module.exports.installer = function(done) {
   ];
 
   if (CONFIG.sign) {
-    tasks.push(_.partial(verify, CONFIG));
+    tasks.push(verify);
   }
 
   tasks.push(_.partial(createDMG, CONFIG));
