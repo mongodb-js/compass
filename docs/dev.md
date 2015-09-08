@@ -78,7 +78,7 @@ is available in [the patternlib][less-variables].
 ## Dev Dependencies
 
 There are a few dev dependencies that will be installed you might be
-interested that make developing Scout a complete joy.
+interested that make developing Compass a complete joy.
 
 ### Gulp
 
