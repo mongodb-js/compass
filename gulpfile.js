@@ -1,7 +1,7 @@
 process.env.DEBUG = '*';
 
 /**
- * # Welcome to Scout's gulpfile!
+ * # Welcome to Compass's gulpfile!
  *
  * Here are a few tips to guide you on your quest:
  *
@@ -35,7 +35,7 @@ var platform = require(path.join(__dirname, 'tasks', process.platform));
 /**
  * # release
  *
- * `npm run release` calls this to build Scout
+ * `npm run release` calls this to build Compass
  * and generate installers for users.
  */
 gulp.task('release', function(done) {

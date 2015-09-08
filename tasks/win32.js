@@ -5,12 +5,12 @@ var packager = require('electron-packager');
 var createInstaller = require('electron-installer-squirrel-windows');
 var debug = require('debug')('scout:tasks:win32');
 
-var APP_PATH = path.resolve(__dirname, '../dist/MongoDBScout-win32-x64');
-module.exports.ELECTRON = path.join(APP_PATH, 'MongoDBScout.exe');
+var APP_PATH = path.resolve(__dirname, '../dist/MongoDBCompass-win32-x64');
+module.exports.ELECTRON = path.join(APP_PATH, 'MongoDBCompass.exe');
 module.exports.RESOURCES = path.join(APP_PATH, 'resources');
 
 var PACKAGER_CONFIG = {
-  name: 'MongoDBScout',
+  name: 'MongoDBCompass',
   dir: path.resolve(__dirname, '../build'),
   out: path.resolve(__dirname, '../dist'),
   platform: 'win32',
@@ -31,7 +31,7 @@ var PACKAGER_CONFIG = {
 };
 
 var INSTALLER_CONFIG = {
-  name: 'MongoDBScout',
+  name: 'MongoDBCompass',
   path: APP_PATH,
   out: path.resolve(__dirname, '../dist'),
   overwrite: true

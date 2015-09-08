@@ -1,8 +1,8 @@
 // Start crash-reporter asap so if anything goes
 // wrong, we can at least view the crash reports
 // locally.  When a crash occurs, a `.dmp` file
-// will be created in `/tmp/Scout`
-// (`~\AppData\Local\Temp\Scout` on Windows).
+// will be created in `/tmp/Compass`
+// (`~\AppData\Local\Temp\Compass` on Windows).
 require('./crash-reporter');
 
 if (!require('electron-squirrel-startup')) {

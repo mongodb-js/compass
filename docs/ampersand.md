@@ -1,12 +1,12 @@
-# scout-ui
+# compass-ui
 
-The frontend for scout.
+The frontend for compass.
 
 ## Some Tips and Tricks using Ampersand.js
 
 ### View Hierarchy
 
-This diagram shows the view hierarchy of Scout and where the `.js` files and `.jade` templates for each view are.
+This diagram shows the view hierarchy of Compass and where the `.js` files and `.jade` templates for each view are.
 
 ![](./docs/view_hierarchy.png)
 

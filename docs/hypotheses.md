@@ -20,16 +20,16 @@
 
 ## Positioning
 
-- We do not believe Scout is an enterprise-only feature.
-- We believe Scout will provide insight into MongoDB's market penetration that will be a critical factor to the success of MongoDB Inc.
-- We believe Scout will provide insight into MongoDB feature usage that will be a critical factor to the success of MongoDB Inc.
-- We believe Scout will provide a channel for MongoDB Inc. to communicate with those that do not want to sign-up for our newsletters.
-- We believe Scout will provide a channel for MongoDB Inc. that will substantially reduce support costs.
-- We believe Scout will provide a channel for MongoDB Inc. that will substantially improve the support experience.
-- We believe Scout will allow MongoDB University to source more qualified sales leads.
-- We believe Scout will allow MongoDB Cloud to source more qualified sales leads.
-- We believe Scout will fill a critical gap in our sales cycle, between the millions of anonymous downloaders and the premium offerings of  MongoDB Inc.
-- We do not believe Scout alone will convert existing users into paying MongoDB Enterprise customers.
+- We do not believe Compass is an enterprise-only feature.
+- We believe Compass will provide insight into MongoDB's market penetration that will be a critical factor to the success of MongoDB Inc.
+- We believe Compass will provide insight into MongoDB feature usage that will be a critical factor to the success of MongoDB Inc.
+- We believe Compass will provide a channel for MongoDB Inc. to communicate with those that do not want to sign-up for our newsletters.
+- We believe Compass will provide a channel for MongoDB Inc. that will substantially reduce support costs.
+- We believe Compass will provide a channel for MongoDB Inc. that will substantially improve the support experience.
+- We believe Compass will allow MongoDB University to source more qualified sales leads.
+- We believe Compass will allow MongoDB Cloud to source more qualified sales leads.
+- We believe Compass will fill a critical gap in our sales cycle, between the millions of anonymous downloaders and the premium offerings of  MongoDB Inc.
+- We do not believe Compass alone will convert existing users into paying MongoDB Enterprise customers.
 
 ## PHPMyAdmin (CRUD Admin Tool)
 
@@ -38,7 +38,7 @@
 ## Real-time
 
 - We believe there is sufficient demand for investigating a "real-time" value proposition (e.g. visualizing data from the query profiler, visualizing db.serverStats() data).
-- We believe the core technologies used in Scout could be delivered as a new agent managed by automation that would enable real-time, bi-directional interaction from the MongoDB Cloud web application to any MongoDB deployment managed by MongoDB Cloud.
+- We believe the core technologies used in Compass could be delivered as a new agent managed by automation that would enable real-time, bi-directional interaction from the MongoDB Cloud web application to any MongoDB deployment managed by MongoDB Cloud.
 
 ## Platform Support
 
@@ -78,4 +78,4 @@
 
 ## OTHER
 
-- We believe Scout should help #{TargetCustomer}'s solve problems, but not do it automatically.
+- We believe Compass should help #{TargetCustomer}'s solve problems, but not do it automatically.

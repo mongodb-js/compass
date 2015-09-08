@@ -126,7 +126,7 @@ buildvariants:
     add_environment: "SCOUT_INSTALLER_UNSIGNED=1"
     node_path: /opt/node/bin
     installer_content_type: "application/x-apple-diskimage"
-    installer_filename: "MongoDB Scout.dmg"
+    installer_filename: "MongoDB Compass.dmg"
     num_cores: $(sysctl -n hw.logicalcpu)
   tasks:
   - name: compile
@@ -141,7 +141,7 @@ buildvariants:
     add_environment: "APPDATA=C:\\Program Files (x86)\\nodejs\\node_modules"
     node_path: "/cygdrive/c/Program Files (x86)/nodejs"
     installer_content_type: "application/octet-stream"
-    installer_filename: "MongoDBScoutSetup.exe"
+    installer_filename: "MongoDBCompassSetup.exe"
     exe: ".exe"
     npm_version: "3"
     num_cores: $(grep -c ^processor /proc/cpuinfo)

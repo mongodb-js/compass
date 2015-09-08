@@ -1,6 +1,6 @@
 > Source: [Integrations Flowdock Conversation](https://www.flowdock.com/app/10gen/integrations/threads/FM5IQ0IYllwXeuTSHiXz44hLFft)
 
-@thomasr, this just reminded me of our co-creation of value story (e.g. "Hey Scout, you dummy, I'm using short key aliasing to save disk space.  Let me give you some aliases so when you see a key `u` display as `url`, `c` displays as `username`, and so on." ).  Let's just call this **"key packing"**.
+@thomasr, this just reminded me of our co-creation of value story (e.g. "Hey Compass, you dummy, I'm using short key aliasing to save disk space.  Let me give you some aliases so when you see a key `u` display as `url`, `c` displays as `username`, and so on." ).  Let's just call this **"key packing"**.
 
 Similarly, "value packing". Some examples of value packing:
 

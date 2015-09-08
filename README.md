@@ -1,4 +1,4 @@
-# scout
+# compass
 
 Explore your MongoDB.
 
@@ -12,7 +12,7 @@ Explore your MongoDB.
 ## Modules
 
 <dl>
-  <dt><a href="https://github.com/10gen/scout">scout</a></dt>
+  <dt><a href="https://github.com/10gen/scout">Compass</a></dt>
   <dd>
     The default Ampersand.js single-page application people actually interact with.
     <a href="https://github.com/10gen/scout/blob/dev/src/models/scout-client-mixin.js">ScoutClientMixin</a>

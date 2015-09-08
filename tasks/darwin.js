@@ -27,7 +27,7 @@ var PACKAGER_CONFIG = {
   icon: path.resolve(__dirname, '../images/darwin/scout.icns'),
   overwrite: true,
   prune: true,
-  'app-bundle-id': 'com.mongodb.scout',
+  'app-bundle-id': 'com.mongodb.compass',
   'app-version': pkg.version,
   sign: '90E39AA7832E95369F0FC6DAF823A04DFBD9CF7A',
   protocols: [
