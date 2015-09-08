@@ -11,7 +11,9 @@ var SampledSchema = require('../models/sampled-schema');
 function handleCaret(el) {
   var $el = $(el);
   // only apply to own caret, not children carets
-  if ($el.next().text() !== this.model.name) return;
+  if ($el.next().text() !== this.model.name) {
+    return;
+  }
   if (this.model.fields || this.model.arrayFields) {
     $el.addClass('caret');
   } else {

@@ -53,7 +53,9 @@ module.exports = View.extend(tooltipMixin, {
   },
   typeClicked: function() {
     // no clicks on Undefined allowed
-    if (this.model.getId() === 'Undefined') return;
+    if (this.model.getId() === 'Undefined') {
+      return;
+    }
     var fieldView = this.parent.parent;
     if (fieldView.type_model !== this.model) {
       fieldView.type_model = this.model;

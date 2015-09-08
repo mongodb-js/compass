@@ -1,27 +1,24 @@
 var path = require('path');
 var pkg = require(path.resolve(__dirname, '../package.json'));
 var fs = require('fs');
-var del = require('del');
 var packager = require('electron-packager');
 var createInstaller = require('electron-installer-squirrel-windows');
 var debug = require('debug')('scout:tasks:win32');
 
-var APP_PATH = path.resolve(__dirname, '../dist/' + pkg.product_name + '-win32-ia32');
+var APP_PATH = path.resolve(__dirname, '../dist/MongoDBScout-win32-x64');
+module.exports.ELECTRON = path.join(APP_PATH, 'MongoDBScout.exe');
+module.exports.RESOURCES = path.join(APP_PATH, 'resources');
 
-var CONFIG = module.exports = {
-  name: pkg.product_name,
+var PACKAGER_CONFIG = {
+  name: 'MongoDBScout',
   dir: path.resolve(__dirname, '../build'),
   out: path.resolve(__dirname, '../dist'),
-  appPath: APP_PATH,
-  path: APP_PATH,
-  BUILD: path.join(APP_PATH, 'resources', 'app'),
-  ELECTRON: path.join(APP_PATH, pkg.product_name + '.exe'),
   platform: 'win32',
-  arch: 'ia32',
+  arch: 'x64',
   version: pkg.electron_version,
   icon: path.resolve(__dirname, '../images/win32/scout.icon'),
   overwrite: true,
-  asar: true,
+  prune: true,
   'version-string': {
     CompanyName: 'MongoDB Inc.',
     LegalCopyright: '2015 MongoDB Inc.',
@@ -33,31 +30,36 @@ var CONFIG = module.exports = {
   }
 };
 
-debug('packager config: ', JSON.stringify(CONFIG, null, 2));
+var INSTALLER_CONFIG = {
+  name: 'MongoDBScout',
+  path: APP_PATH,
+  out: path.resolve(__dirname, '../dist'),
+  overwrite: true
+};
 
 module.exports.build = function(done) {
   fs.exists(APP_PATH, function(exists) {
     if (exists) {
       debug('.app already exists.  skipping packager run.');
-      return done();
+      return done(null, false);
     }
     debug('running packager to create electron binaries...');
-    packager(CONFIG, done);
+    packager(PACKAGER_CONFIG, function(err, res) {
+      if (err) {
+        return done(err);
+      }
+      debug('Packager result', res);
+      done(null, true);
+    });
   });
 };
 
 module.exports.installer = function(done) {
-  debug('Packaging into `%s`', path.join(APP_PATH, 'resources', 'app.asar'));
-  packager(CONFIG, function(err) {
-    if (err) return done(err);
-
-    var unpacked = path.resolve(__dirname, '..' + path.join(APP_PATH, 'resources', 'app'));
-    debug('Deleting `%s` so app is loaded from .asar', unpacked);
-    del(unpacked, function() {
-      createInstaller(CONFIG, function(err) {
-        if (err) return done(err);
-        done();
-      });
-    });
+  createInstaller(INSTALLER_CONFIG, function(err) {
+    if (err) {
+      return done(err);
+    }
+    console.log('Installer created!');
+    done();
   });
 };

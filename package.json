@@ -1,9 +1,9 @@
 {
-  "name": "scout",
+  "name": "mongodb-scout",
   "description": "The MongoDB GUI.",
   "version": "0.3.0",
   "main": "main.js",
-  "electron_version": "0.30.5",
+  "electron_version": "0.30.6",
   "product_name": "MongoDB Scout",
   "authors": "MongoDB Inc.",
   "check": {
@@ -27,7 +27,12 @@
       "browser-window",
       "menu",
       "jade",
-      "ampersand-state"
+      "ampersand-state",
+      "scout-server",
+      "tiny-lr",
+      "watch",
+      "glob",
+      "electron-squirrel-startup"
     ]
   },
   "fonts": [
@@ -62,6 +67,11 @@
     "url": "git://github.com/10gen/scout.git"
   },
   "dependencies": {
+    "debug": "^2.2.0",
+    "scout-server": "http://bin.mongodb.org/js/scout-server/v0.0.4/scout-server-0.0.4.tar.gz",
+    "electron-squirrel-startup": "^0.1.2"
+  },
+  "devDependencies": {
     "ampersand-app": "^1.0.4",
     "ampersand-collection": "^1.4.5",
     "ampersand-collection-filterable": "^0.2.1",
@@ -75,10 +85,10 @@
     "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz",
     "bugsnag-js": "^2.4.8",
     "d3": "^3.5.5",
-    "debug": "^2.2.0",
     "domready": "^1.0.8",
     "event-stream": "^3.3.1",
     "font-awesome": "https://github.com/FortAwesome/Font-Awesome/archive/v4.3.0.tar.gz",
+    "glob": "^5.0.14",
     "jade": "^1.11.0",
     "jquery": "^2.1.4",
     "local-links": "^1.4.0",
@@ -96,15 +106,12 @@
     "raf": "^3.0.0",
     "scout-brain": "http://bin.mongodb.org/js/scout-brain/v0.0.2/scout-brain-0.0.2.tar.gz",
     "scout-client": "http://bin.mongodb.org/js/scout-client/v0.0.5/scout-client-0.0.5.tar.gz",
-    "scout-server": "http://bin.mongodb.org/js/scout-server/v0.0.4/scout-server-0.0.4.tar.gz",
     "tiny-lr": "^0.1.6",
-    "watch": "^0.16.0"
-  },
-  "devDependencies": {
+    "watch": "^0.16.0",
     "browserify": "^10.2.4",
     "del": "^1.2.0",
     "electron-installer-dmg": "^0.1.0",
-    "electron-installer-squirrel-windows": "0.0.1",
+    "electron-installer-squirrel-windows": "^0.4.0",
     "electron-packager": "^5.0.0",
     "eslint": "^0.24.1",
     "eslint-config-mongodb-js": "^0.1.4",
@@ -123,6 +130,7 @@
     "node-notifier": "^4.2.3",
     "phantomjs": "^1.9.17",
     "pre-commit": "^1.0.10",
+    "run-sequence": "^1.1.2",
     "run-series": "^1.1.2",
     "stream-combiner2": "^1.0.2",
     "vinyl-buffer": "^1.0.0",

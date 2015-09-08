@@ -60,19 +60,25 @@ var minicharts_d3fns_string = function() {
   }
 
   chart.width = function(value) {
-    if (!arguments.length) return width;
+    if (!arguments.length) {
+      return width;
+    }
     width = value;
     return chart;
   };
 
   chart.height = function(value) {
-    if (!arguments.length) return height;
+    if (!arguments.length) {
+      return height;
+    }
     height = value;
     return chart;
   };
 
   chart.options = function(value) {
-    if (!arguments.length) return options;
+    if (!arguments.length) {
+      return options;
+    }
     _.assign(options, value);
     return chart;
   };

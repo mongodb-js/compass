@@ -77,7 +77,9 @@ var minicharts_d3fns_date = function() {
       var pos = barcodeX(d.dt);
       return s[0] > pos || pos > s[1];
     });
-    if (!options.view) return;
+    if (!options.view) {
+      return;
+    }
     if (numSelected !== options.view.queryAll('.selectable.selected').length) {
       // number of selected items has changed, trigger querybuilder event
       var evt = {
@@ -96,7 +98,9 @@ var minicharts_d3fns_date = function() {
     }
     d3.select(this).call(brush.clear());
 
-    if (!options.view) return;
+    if (!options.view) {
+      return;
+    }
     var evt = {
       type: 'drag',
       source: 'many'
@@ -344,19 +348,25 @@ var minicharts_d3fns_date = function() {
   }
 
   chart.width = function(value) {
-    if (!arguments.length) return width;
+    if (!arguments.length) {
+      return width;
+    }
     width = value;
     return chart;
   };
 
   chart.height = function(value) {
-    if (!arguments.length) return height;
+    if (!arguments.length) {
+      return height;
+    }
     height = value;
     return chart;
   };
 
   chart.options = function(value) {
-    if (!arguments.length) return options;
+    if (!arguments.length) {
+      return options;
+    }
     _.assign(options, value);
     return chart;
   };

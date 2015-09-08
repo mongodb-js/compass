@@ -37,7 +37,9 @@ var minicharts_d3fns_many = function() {
   // --- end chart setup ---
 
   function handleClick(d) {
-    if (!options.view || !options.selectable) return;
+    if (!options.view || !options.selectable) {
+      return;
+    }
     var evt = {
       d: d,
       self: this,
@@ -76,7 +78,9 @@ var minicharts_d3fns_many = function() {
       return s[0] > right || left > s[1];
     });
 
-    if (!options.view) return;
+    if (!options.view) {
+      return;
+    }
     if (numSelected !== options.view.queryAll('rect.selectable.selected').length) {
       // number of selected items has changed, trigger querybuilder event
       var evt = {
@@ -95,7 +99,9 @@ var minicharts_d3fns_many = function() {
     }
     d3.select(this).call(brush.clear());
 
-    if (!options.view) return;
+    if (!options.view) {
+      return;
+    }
     var evt = {
       type: 'drag',
       source: 'many'
@@ -104,7 +110,9 @@ var minicharts_d3fns_many = function() {
   }
 
   function handleMouseDown() {
-    if (!options.selectable) return;
+    if (!options.selectable) {
+      return;
+    }
     var bar = this;
     var parent = $(this).closest('.minichart');
     var background = parent.find('g.brush > rect.background')[0];
@@ -160,13 +168,21 @@ var minicharts_d3fns_many = function() {
       if (options.labels) {
         _.defaults(labels, {
           'text-anchor': function(d, i) {
-            if (i === 0) return 'start';
-            if (i === data.length - 1) return 'end';
+            if (i === 0) {
+              return 'start';
+            }
+            if (i === data.length - 1) {
+              return 'end';
+            }
             return 'middle';
           },
           x: labels['text-anchor'] === 'middle' ? xScale.rangeBand() / 2 : function(d, i) {
-            if (i === 0) return 0;
-            if (i === data.length - 1) return xScale.rangeBand();
+            if (i === 0) {
+              return 0;
+            }
+            if (i === data.length - 1) {
+              return xScale.rangeBand();
+            }
             return xScale.rangeBand() / 2;
           },
           y: height + 5,
@@ -331,19 +347,25 @@ var minicharts_d3fns_many = function() {
   }
 
   chart.width = function(value) {
-    if (!arguments.length) return width;
+    if (!arguments.length) {
+      return width;
+    }
     width = value;
     return chart;
   };
 
   chart.height = function(value) {
-    if (!arguments.length) return height;
+    if (!arguments.length) {
+      return height;
+    }
     height = value;
     return chart;
   };
 
   chart.options = function(value) {
-    if (!arguments.length) return options;
+    if (!arguments.length) {
+      return options;
+    }
     _.assign(options, value);
     return chart;
   };

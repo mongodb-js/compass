@@ -411,7 +411,9 @@ module.exports = {
    * @param  {Value} value  value pushed down from refine bar for this minichart
    */
   processValue: function(value) {
-    if (!this.rendered) return;
+    if (!this.rendered) {
+      return;
+    }
 
     var message = {
       elements: this.queryAll('.selectable')
@@ -473,7 +475,9 @@ module.exports = {
    * @return {Any}        value to be returned that can be used for comparisons < and >
    */
   _getOrderedValueHelper: function(d) {
-    if (!d._bsontype) return d;
+    if (!d._bsontype) {
+      return d;
+    }
     return d._bsontype === 'ObjectID' ? d.getTimestamp() : d;
   },
   /**

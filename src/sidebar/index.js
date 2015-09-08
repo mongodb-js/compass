@@ -25,7 +25,9 @@ var SidebarView = View.extend({
     }, {
       type: function() {
         var content = document.querySelector('.content');
-        if (!content) return;
+        if (!content) {
+          return;
+        }
         if (this.open) {
           content.classList.add('with-sidebar');
         } else {
