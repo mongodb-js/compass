@@ -82,12 +82,9 @@ var verify = function(done) {
 };
 
 module.exports.installer = function(done) {
-  debug('running packager...');
+  debug('creating installer...');
 
-  var tasks = [
-    _.partial(packager, CONFIG)
-  ];
-
+  var tasks = [];
   if (CONFIG.sign) {
     tasks.push(verify);
   }
@@ -96,7 +93,10 @@ module.exports.installer = function(done) {
 
   series(tasks, function(err) {
     if (err) {
+      console.error(err.stack);
       return done(err);
     }
+    console.log('Installer created!');
+    done();
   });
 };
