@@ -14,11 +14,11 @@ var PACKAGER_CONFIG = {
   dir: path.resolve(__dirname, '../build'),
   out: path.resolve(__dirname, '../dist'),
   platform: 'win32',
-  ignore: new RegExp('(scout-server.asar|node_modules/scout-server)'),
   arch: 'x64',
   version: pkg.electron_version,
   icon: path.resolve(__dirname, '../images/win32/scout.icon'),
   overwrite: true,
+  prune: true,
   'version-string': {
     CompanyName: 'MongoDB Inc.',
     LegalCopyright: '2015 MongoDB Inc.',
@@ -29,6 +29,7 @@ var PACKAGER_CONFIG = {
     InternalName: pkg.name
   }
 };
+
 var INSTALLER_CONFIG = {
   name: 'MongoDBScout',
   path: APP_PATH,

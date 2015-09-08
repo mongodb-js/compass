@@ -14,21 +14,19 @@ var APP_PATH = path.join(PACKAGE, NAME + '.app');
 var packager = require('electron-packager');
 var createDMG = require('electron-installer-dmg');
 
-var CONFIG = module.exports = {
+module.exports.ELECTRON = path.join(APP_PATH, 'Contents', 'MacOS', 'Electron');
+module.exports.RESOURCES = path.join(APP_PATH, 'Contents', 'Resources');
+
+var PACKAGER_CONFIG = {
   name: pkg.product_name,
   dir: path.resolve(__dirname, '../build'),
   out: path.resolve(__dirname, '../dist'),
-  ignore: new RegExp('(scout-server.asar|node_modules/scout-server)'),
-  appPath: APP_PATH,
-  PACKAGE: PACKAGE,
-  BUILD: path.join(APP_PATH, 'Contents', 'Resources', 'app'),
-  ELECTRON: path.join(APP_PATH, 'Contents', 'MacOS', 'Electron'),
   platform: 'darwin',
   arch: 'x64',
   version: pkg.electron_version,
   icon: path.resolve(__dirname, '../images/darwin/scout.icns'),
-  background: path.resolve(__dirname, '../images/darwin/background.png'),
   overwrite: true,
+  prune: true,
   'app-bundle-id': 'com.mongodb.scout',
   'app-version': pkg.version,
   sign: '90E39AA7832E95369F0FC6DAF823A04DFBD9CF7A',
@@ -37,7 +35,23 @@ var CONFIG = module.exports = {
       name: 'MongoDB Prototcol',
       schemes: ['mongodb']
     }
-  ],
+  ]
+};
+
+// Adjust config via environment variables
+if (process.env.SCOUT_INSTALLER_UNSIGNED !== undefined) {
+  PACKAGER_CONFIG.sign = null;
+}
+
+// @todo (imlucas): Standardize `electron-installer-dmg`
+// options w/ `electron-installer-squirrel-windows`.
+var INSTALLER_CONFIG = {
+  name: pkg.product_name,
+  out: path.resolve(__dirname, '../dist'),
+  icon: path.resolve(__dirname, '../images/darwin/scout.icns'),
+  appPath: APP_PATH,
+  overwrite: true,
+  background: path.resolve(__dirname, '../images/darwin/background.png'),
   // The following only modifies "x","y" values from defaults
   contents: [
     {
@@ -55,15 +69,6 @@ var CONFIG = module.exports = {
   ]
 };
 
-module.exports.RESOURCES = path.join(APP_PATH, 'Contents', 'Resources');
-
-// Adjust config via environment variables
-if (process.env.SCOUT_INSTALLER_UNSIGNED !== undefined) {
-  CONFIG.sign = null;
-}
-
-debug('packager config: ', JSON.stringify(CONFIG, null, 2));
-
 module.exports.build = function(done) {
   fs.exists(APP_PATH, function(exists) {
     if (exists) {
@@ -71,12 +76,12 @@ module.exports.build = function(done) {
       return done();
     }
     debug('running packager to create electron binaries...');
-    packager(CONFIG, done);
+    packager(PACKAGER_CONFIG, done);
   });
 };
 
 var verify = function(done) {
-  var cmd = 'codesign --verify "' + CONFIG.appPath + '"';
+  var cmd = 'codesign --verify "' + PACKAGER_CONFIG.appPath + '"';
   debug('Running', cmd);
   cp.exec(cmd, done);
 };
@@ -85,11 +90,11 @@ module.exports.installer = function(done) {
   debug('creating installer...');
 
   var tasks = [];
-  if (CONFIG.sign) {
+  if (PACKAGER_CONFIG.sign) {
     tasks.push(verify);
   }
 
-  tasks.push(_.partial(createDMG, CONFIG));
+  tasks.push(_.partial(createDMG, INSTALLER_CONFIG));
 
   series(tasks, function(err) {
     if (err) {

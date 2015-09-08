@@ -43,7 +43,6 @@ gulp.task('release', function(done) {
   sequence(
     'build',
     'electron:build',
-    'build:server',
     'electron:build-installer'
     , done);
 });
@@ -78,7 +77,6 @@ gulp.task('dev', function(done) {
   sequence(
     'build',
     'electron:build',
-    'build:server',
     'electron:start',
     'watch'
     , done);
@@ -166,18 +164,6 @@ gulp.task('build:pages', function() {
     .on('error', notify('jade'))
     .pipe(gulp.dest('build/'));
 });
-
-/**
- * Install scout-server separately while we're
- * using tarballs from S3 as they're filtered
- * out by default.
- */
-var format = require('util').format;
-gulp.task('build:server', shell.task(
-  format('npm install --production %s',
-    pkg.dependencies['scout-server']), {
-    cwd: path.join(platform.RESOURCES, 'app')
-  }));
 
 /**
  * ## electron
