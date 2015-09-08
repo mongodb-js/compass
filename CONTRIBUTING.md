@@ -10,7 +10,7 @@ Great to have you here. These are a few ways you can help make this project bett
   if there is something you need this project to do that it currently doesn't.
   We're always more than happy to chat about other projects.
 
-More information to help you work on Scout is available in
+More information to help you work on Compass is available in
 [the dev guide](https://github.com/10gen/scout/blob/dev/docs/dev.md).
 
 ## Workflow

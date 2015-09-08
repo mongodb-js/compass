@@ -1,5 +1,5 @@
 /**
- * Bugsnag captures errors in real-time from Scout, which helps us understand
+ * Bugsnag captures errors in real-time from Compass, which helps us understand
  * and resolve them as fast as possible.  It's very similar to
  * [Sentry](https://getsentry.com), [Exceptional](https://www.exceptional.io/),
  * and [airbrake](https://airbrake.io/).  We trust it because it's used in

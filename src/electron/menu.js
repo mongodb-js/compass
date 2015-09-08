@@ -6,10 +6,10 @@ function getTemplate(_window) {
   if (process.platform === 'darwin') {
     return [
       {
-        label: 'MongoDB Scout',
+        label: 'MongoDB Compass',
         submenu: [
           {
-            label: 'About Scout',
+            label: 'About Compass',
             selector: 'orderFrontStandardAboutPanel:'
           },
           {

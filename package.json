@@ -1,10 +1,10 @@
 {
-  "name": "mongodb-scout",
+  "name": "mongodb-compass",
   "description": "The MongoDB GUI.",
   "version": "0.3.0",
   "main": "main.js",
   "electron_version": "0.30.6",
-  "product_name": "MongoDB Scout",
+  "product_name": "MongoDB Compass",
   "authors": "MongoDB Inc.",
   "check": {
     "ignore": [
