@@ -8,6 +8,9 @@ mixin jsvalue(value, _type)
   else
     if _type === 'Date'
       - value = moment(value).format('LLL')
+    if _type === 'String'
+      - // cap at 500 char for strings
+      - value = value.length > 500 ? value.substring(0, 500) + '...' : value
     .document-property-value(title=value)= value
 
 mixin jsarray(items)
