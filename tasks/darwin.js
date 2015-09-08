@@ -81,8 +81,8 @@ module.exports.build = function(done) {
 };
 
 var verify = function(done) {
-  var cmd = 'codesign --verify "' + PACKAGER_CONFIG.appPath + '"';
-  debug('Running', cmd);
+  var cmd = 'codesign --verify "' + APP_PATH + '"';
+  debug('Verifying `%s` has been signed...', APP_PATH);
   cp.exec(cmd, done);
 };
 
