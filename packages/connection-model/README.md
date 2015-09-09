@@ -33,3 +33,4 @@ Apache 2.0
 [npm_img]: https://img.shields.io/npm/v/mongodb-connection-model.svg
 [npm_url]: https://www.npmjs.org/package/mongodb-connection-model
 [gitter_img]: https://badges.gitter.im/Join%20Chat.svg
+[gitter_url]: http://gitter.im/mongodb-js/mongodb-js
