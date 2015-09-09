@@ -2,7 +2,7 @@
   "name": "mongodb-connection-model",
   "description": "MongoDB connection model.",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "bugs": "https://github.com/mongodb-js/mongodb-connection-model/issues",
   "homepage": "https://github.com/mongodb-js/mongodb-connection-model",
   "repository": "git://github.com/mongodb-js/mongodb-connection-model.git",
@@ -15,7 +15,10 @@
     "test": "mocha",
     "check": "mongodb-js-precommit"
   },
-  "precommit": ["check", "test"],
+  "precommit": [
+    "check",
+    "test"
+  ],
   "dependencies": {
     "ampersand-model": "^5.0.3",
     "ampersand-rest-collection": "^4.0.0"
