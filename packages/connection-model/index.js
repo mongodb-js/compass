@@ -160,7 +160,6 @@ var Connection = AmpersandModel.extend({
         return this.instance_id.split(':')[0];
       }
     },
-
     /**
      * Get the URI which can be passed to `MongoClient.connect`.
      * @see http://mongodb.github.io/node-mongodb-native/2.0/api/MongoClient.html#.connect
