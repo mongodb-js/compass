@@ -1,5 +1,3 @@
-process.env.DEBUG = '*';
-
 /**
  * # Welcome to Compass's gulpfile!
  *
@@ -25,7 +23,8 @@ var merge = require('merge-stream');
 var shell = require('gulp-shell');
 var del = require('del');
 var sequence = require('run-sequence');
-
+var watch = require('gulp-watch');
+// var livereload = require('gulp-livereload');
 var notify = require('./tasks/notify');
 var pkg = require('./package.json');
 
@@ -99,6 +98,27 @@ gulp.task('watch', function() {
     gutil.log('package.json changed!');
     sequence('copy:package.json', 'npm:install');
   });
+
+  /**
+   * @todo (imlucas) fix tiny-lr so it actually works with
+   * npm@3...
+   *   var livereload = require('gulp-livereload');
+   *   // Fix so tiny-lr actually works with npm@3
+   *   var opts = {
+   *     livereload: path.resolve(
+   *       require.resolve('livereload-js'),
+   *       '../dist/livereload.js')
+   *   };
+   *   .pipe(livereload(opts));
+   *
+   *   livereload.listen(opts);
+  */
+
+  // Copy any changes from `build/` into electron's
+  // `resources/app` so changes are actually reflected.
+  gulp.src(['build/{*,**/*,!node_modules/*}'])
+    .pipe(watch('build/{*,**/*,!node_modules/*}'))
+    .pipe(gulp.dest(path.join(platform.RESOURCES, 'app')));
 });
 
 /**
@@ -169,7 +189,7 @@ gulp.task('build:pages', function() {
  * ## electron
  */
 gulp.task('electron:start', function() {
-  var child = spawn(path.resolve(platform.ELECTRON), ['build/']);
+  var child = spawn(path.resolve(platform.ELECTRON), []);
   child.stderr.pipe(process.stderr);
   child.stdout.pipe(process.stdout);
   child.on('exit', function(code) {

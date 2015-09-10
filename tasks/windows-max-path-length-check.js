@@ -37,4 +37,5 @@ module.exports = function(src, dest, done) {
   });
 };
 
-module.exports(path.join(process.cwd(), 'build/{!*.asar,*,**/*}'), path.resolve(platform.RESOURCES), console.error.bind(console));
+module.exports(path.join(process.cwd(), 'build/{!*.asar,*,**/*}'),
+  path.resolve(platform.RESOURCES), console.error.bind(console));
