@@ -7,8 +7,8 @@ var SamplingMessageView = require('../sampling-message');
 var MongoDBCollection = require('../models/mongodb-collection');
 var SampledSchema = require('../models/sampled-schema');
 var app = require('ampersand-app');
-
 var $ = require('jquery');
+var _ = require('lodash');
 var debug = require('debug')('scout:home:collection');
 
 require('bootstrap/js/modal');
@@ -102,9 +102,9 @@ var MongoDBCollectionView = View.extend({
     this.schema.ns = this.model._id = ns;
     debug('updating namespace to `%s`', ns);
     this.schema.reset();
-    this.schema.fetch({
+    this.schema.fetch(_.assign({}, app.volatileQueryOptions.serialize(), {
       message: 'Analyzing documents...'
-    });
+    }));
     this.model.fetch();
   },
   onQueryChanged: function() {

@@ -6,7 +6,7 @@ var Query = require('mongodb-language-model').Query;
 var DEFAULT_SORT = {
   $natural: -1
 };
-var DEFAULT_LIMIT = 100;
+var DEFAULT_SIZE = 100;
 var DEFAULT_SKIP = 0;
 
 var getDefaultQuery = function() {
@@ -32,9 +32,9 @@ module.exports = Model.extend({
         return DEFAULT_SORT;
       }
     },
-    limit: {
+    size: {
       type: 'number',
-      default: DEFAULT_LIMIT
+      default: DEFAULT_SIZE
     },
     skip: {
       type: 'number',
@@ -59,7 +59,7 @@ module.exports = Model.extend({
     this.set({
       query: getDefaultQuery(),
       sort: DEFAULT_SORT,
-      limit: DEFAULT_LIMIT,
+      size: DEFAULT_SIZE,
       skip: DEFAULT_SKIP
     });
     this.trigger('reset', this);
