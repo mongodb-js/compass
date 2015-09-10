@@ -1,7 +1,7 @@
 {
   "name": "mongodb-compass",
   "description": "The MongoDB GUI.",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "main": "main.js",
   "electron_version": "0.30.6",
   "product_name": "MongoDB Compass",
