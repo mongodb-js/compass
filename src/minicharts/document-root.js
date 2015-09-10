@@ -7,7 +7,6 @@ module.exports = VizView.extend({
   render: function() {
     var fieldNames = this.model.parent.fields.pluck('name');
     this.renderWithTemplate({
-      fieldNames: fieldNames,
       fieldsPluralized: pluralize('nested field', fieldNames.length, true)
     });
   }

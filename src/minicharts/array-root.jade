@@ -1,14 +1,12 @@
 div(data-hook='viz-container')
   dl
-  if fieldNames
-    dt Array of documents with #{fieldsPluralized}
+    if fieldNames
+      dt Array of documents with #{fieldsPluralized}
+      dd
+  
+    dt Array lengths
     dd 
       ul.list-inline
-        each name, idx in fieldNames
-          li= name + (idx < fieldNames.length-1 ? ',' : '')
-  dt Array lengths
-  dd 
-    ul.list-inline
-      li min: #{min_length}, 
-      li average: #{average_length}, 
-      li max: #{max_length}
+        li min: #{min_length}, 
+        li average: #{average_length}, 
+        li max: #{max_length}
