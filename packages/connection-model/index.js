@@ -19,12 +19,13 @@ var Connection = AmpersandModel.extend({
       type: 'string',
       default: 'Local'
     },
-    /**
-     * `hostname:port` of the Instance in the Deployment we're connecting to.
-     */
-    instance_id: {
+    hostname: {
       type: 'string',
-      default: 'localhost:27017'
+      default: 'localhost'
+    },
+    port: {
+      type: 'number',
+      default: 27017
     },
     mongodb_username: {
       type: 'string',
@@ -147,17 +148,10 @@ var Connection = AmpersandModel.extend({
   },
 
   derived: {
-    port: {
-      deps: ['instance_id'],
+    instance_id: {
+      deps: ['hostname', 'port'],
       fn: function() {
-        return parseInt(this.instance_id.split(':')[1], 10);
-      }
-    },
-    hostname: {
-      deps: ['instance_id'],
-      fn: function() {
-        this.instance_id = this.instance_id.replace('mongodb://', '');
-        return this.instance_id.split(':')[0];
+        return format('%s:%s', this.hostname, this.port);
       }
     },
     /**

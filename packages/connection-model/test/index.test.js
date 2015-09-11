@@ -11,7 +11,8 @@ describe('mongodb-connection-model', function() {
   describe('validation', function() {
     it('should allow valid GSSAPI and ssl states', function() {
       var connection = new Connection({
-        instance_id: 'localhost:27017',
+        hostname: 'localhost',
+        port: 27017,
         auth_mechanism: 'GSSAPI',
         gssapi_service_name: 'mongodb',
         ssl: true,
@@ -23,7 +24,8 @@ describe('mongodb-connection-model', function() {
     it('should not allow specifying GSSAPI as the auth_mechanism '
       + 'without also specifying the service name', function() {
         var connection = new Connection({
-          instance_id: 'localhost:27017',
+          hostname: 'localhost',
+          port: 27017,
           auth_mechanism: 'GSSAPI'
         });
         assert.equal(connection.isValid(), false);
@@ -35,7 +37,8 @@ describe('mongodb-connection-model', function() {
     it('should not allow specifying gssapi_service_name without using '
       + 'GSSAPI as the auth mechanism', function() {
         var connection = new Connection({
-          instance_id: 'localhost:27017',
+          hostname: 'localhost',
+          port: 27017,
           auth_mechanism: 'PLAIN',
           gssapi_service_name: 'mongodb'
         });
@@ -48,7 +51,8 @@ describe('mongodb-connection-model', function() {
 
     it('should not allow specifying ssl_validate without turning on ssl', function() {
       var connection = new Connection({
-        instance_id: 'localhost:27017',
+        hostname: 'localhost',
+        port: 27017,
         ssl_validate: true
       });
       assert.equal(connection.isValid(), false);
@@ -59,7 +63,8 @@ describe('mongodb-connection-model', function() {
 
     it('should not allow specifying ssl_ca without turning on ssl', function() {
       var connection = new Connection({
-        instance_id: 'localhost:27017',
+        hostname: 'localhost',
+        port: 27017,
         ssl_ca: ['ca1']
       });
       assert.equal(connection.isValid(), false);
@@ -70,7 +75,8 @@ describe('mongodb-connection-model', function() {
 
     it('should not allow specifying ssl_cert without turning on ssl', function() {
       var connection = new Connection({
-        instance_id: 'localhost:27017',
+        hostname: 'localhost',
+        port: 27017,
         ssl_cert: 'cert'
       });
       assert.equal(connection.isValid(), false);
@@ -81,7 +87,8 @@ describe('mongodb-connection-model', function() {
 
     it('should not allow specifying ssl_key without turning on ssl', function() {
       var connection = new Connection({
-        instance_id: 'localhost:27017',
+        hostname: 'localhost',
+        port: 27017,
         ssl_private_key: 'key'
       });
       assert.equal(connection.isValid(), false);
@@ -92,7 +99,8 @@ describe('mongodb-connection-model', function() {
 
     it('should not allow specifying ssl_vpass without turning on ssl', function() {
       var connection = new Connection({
-        instance_id: 'localhost:27017',
+        hostname: 'localhost',
+        port: 27017,
         ssl_private_key_password: 'pass'
       });
       assert.equal(connection.isValid(), false);
@@ -123,33 +131,6 @@ describe('mongodb-connection-model', function() {
         },
         mongos: {}
       };
-      verifyConnection(connection, correctURL, correctOptions, done);
-    });
-
-    it('should produce a good connection string with no auth and a mongodb://', function(done) {
-      var connection = new Connection({
-        instance_id: 'mongodb://localhost:27017'
-      });
-      var correctURL = url.format({
-        protocol: 'mongodb',
-        slashes: true,
-        hostname: 'localhost',
-        port: '27017',
-        query: {
-          slaveOk: true,
-          authSource: 'admin'
-        }
-      });
-      var correctOptions = {
-        uri_decode_auth: true,
-        db: {},
-        server: {},
-        replSet: {
-          connectWithNoPrimary: true
-        },
-        mongos: {}
-      };
-
       verifyConnection(connection, correctURL, correctOptions, done);
     });
 
@@ -186,7 +167,8 @@ describe('mongodb-connection-model', function() {
       var connection = new Connection({
         mongodb_username: 'arlo',
         mongodb_password: 'dog',
-        instance_id: 'scr@ppy:27017'
+        hostname: 'scr@ppy',
+        port: 27017
       });
       var correctURL = url.format({
         protocol: 'mongodb',
@@ -216,7 +198,8 @@ describe('mongodb-connection-model', function() {
       var connection = new Connection({
         mongodb_username: 'my@rlo',
         mongodb_password: 'dog',
-        instance_id: 'scrappy:27017'
+        hostname: 'scrappy',
+        port: 27017
       });
       var correctURL = url.format({
         protocol: 'mongodb',
@@ -246,7 +229,8 @@ describe('mongodb-connection-model', function() {
       var connection = new Connection({
         mongodb_username: 'arlo',
         mongodb_password: 'd?g',
-        instance_id: 'scrappy:27017'
+        hostname: 'scrappy',
+        port: 27017
       });
       var correctURL = url.format({
         protocol: 'mongodb',
@@ -696,7 +680,8 @@ describe('mongodb-connection-model', function() {
 
     it('should work for standard kerberos', function(done) {
       var connection = new Connection({
-        instance_id: 'ldaptest.10gen.cc',
+        hostname: 'ldaptest.10gen.cc',
+        port: null,
         mongodb_username: 'integrations@LDAPTEST.10GEN.CC',
         auth_mechanism: 'GSSAPI',
         gssapi_service_name: 'mongodb'
@@ -729,7 +714,8 @@ describe('mongodb-connection-model', function() {
 
     it('should work for standard kerberos with a password', function(done) {
       var connection = new Connection({
-        instance_id: 'ldaptest.10gen.cc',
+        hostname: 'ldaptest.10gen.cc',
+        port: null,
         mongodb_username: 'integrations@LDAPTEST.10GEN.CC',
         mongodb_password: 'compass',
         auth_mechanism: 'GSSAPI',
@@ -763,7 +749,8 @@ describe('mongodb-connection-model', function() {
 
     it('should work for standard kerberos with a password urlencoded', function(done) {
       var connection = new Connection({
-        instance_id: 'ldaptest.10gen.cc',
+        hostname: 'ldaptest.10gen.cc',
+        port: null,
         mongodb_username: 'integrations@LDAPTEST.10GEN.CC',
         mongodb_password: 'comp@ss',
         auth_mechanism: 'GSSAPI',
