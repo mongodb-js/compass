@@ -105,7 +105,9 @@ var TypeListItem = View.extend(tooltipMixin, {
     // this.toggle('selected');
     } else {
       // no clicks on Undefined allowed
-      if (this.model.getId() === 'Undefined') return;
+      if (this.model.getId() === 'Undefined') {
+        return;
+      }
 
       // find the field view, at most 2 levels up
       var fieldView = this.parent.parent;
@@ -137,7 +139,9 @@ TypeListView = module.exports = View.extend({
   },
   template: require('./type-list.jade'),
   deactivateAll: function() {
-    if (!this.collectionView) return;
+    if (!this.collectionView) {
+      return;
+    }
     _.each(this.collectionView.views, function(typeView) {
       typeView.active = false;
       typeView.selected = false;
