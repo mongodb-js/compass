@@ -55,6 +55,7 @@ module.exports = AmpersandView.extend(QueryBuilderMixin, {
       this.subview = new DocumentRootMinichartView(this.viewOptions);
     } else if (this.model.name === 'Array') {
       // arrays get a div-based ArrayRootMinichart
+      this.viewOptions.height = 55;
       this.subview = new ArrayRootMinichartView(this.viewOptions);
     } else {
       // otherwise, create a svg-based VizView for d3
