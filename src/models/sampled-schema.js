@@ -64,11 +64,11 @@ module.exports = Schema.extend({
    * Take another sample on top of what you currently have.
    *
    * @example
-   * schema.fetch({limit: 100});
+   * schema.fetch({size: 100});
    * // schema.documents.length is now 100
-   * schema.more({limit: 100});
+   * schema.more({size: 100});
    * // schema.documents.length is now 200
-   * schema.more({limit: 10});
+   * schema.more({size: 10});
    * // schema.documents.length is now 210
    * @param {Object} options - Passthrough options.
    */

@@ -44,7 +44,7 @@ var SamplingMessageView = View.extend({
     is_sample: {
       deps: ['schema_sample_size'],
       fn: function() {
-        return this.schema_sample_size === app.queryOptions.limit;
+        return this.schema_sample_size === app.queryOptions.size;
       }
     },
     sample_size_message: {
