@@ -14,7 +14,9 @@
 
     .schema-field-list {
       // second level
-      .schema-field-name,
+      .schema-field-name {
+        margin-left: 36px;
+      }
       .schema-field-type-list,
       hr.field-divider {
         margin-left: 48px;
@@ -22,7 +24,9 @@
 
       .schema-field-list {
         // third level
-        .schema-field-name,
+        .schema-field-name {
+          margin-left: 84px;
+        }
         .schema-field-type-list,
         hr.field-divider {
           margin-left: 96px;
@@ -30,7 +34,9 @@
 
         .schema-field-list {
           // fourth level
-          .schema-field-name,
+          .schema-field-name {
+            margin-left: 132px;
+          }
           .schema-field-type-list,
           hr.field-divider {
             margin-left: 144px;
@@ -46,6 +52,8 @@
       text-overflow: ellipsis;
       white-space: nowrap;
       display: inline-block;
+      padding-left: 12px;
+      margin-left: -12px;
     }
 
     &.schema-field-basic {
@@ -61,7 +69,9 @@
     &.expanded {
       .caret {
         .caret-down;
-        margin-right: 6px;
+        margin-right: 4px;
+        margin-left: -12px;
+        cursor: pointer;
       }
       > .schema-field-list {
         display: block;
@@ -70,7 +80,9 @@
     &.collapsed {
       .caret {
         .caret-right;
-        margin-right: 10px;
+        margin-right: 8px;
+        margin-left: -12px;
+        cursor: pointer;
       }
 
       > .schema-field-list {

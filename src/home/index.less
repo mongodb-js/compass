@@ -68,7 +68,7 @@
 
 .collection-view {
   header {
-    padding: 12px 20px;
+    padding: 12px 25px;
     position: relative;
     z-index: 1;
   }
@@ -93,8 +93,9 @@
   }
 
   .main {
-    padding: 0 0 0 20px;
+    padding: 0 0 0 26px;
     flex: 1;
+    overflow-x: hidden;
   }
 
   .side {
@@ -132,9 +133,10 @@
   .column-container.sidebar-open {
     .side {
       width: 33%;
+      right: 0;
     }
     .splitter {
-      right: -15px;
+      right: -2px;
     }
     .splitter-button-open {
       display: none;
