@@ -4,7 +4,7 @@ var Query = require('mongodb-language-model').Query;
 // var debug = require('debug')('scout:models:query-options');
 
 var DEFAULT_SORT = {
-  $natural: -1
+  _id: -1
 };
 var DEFAULT_SIZE = 100;
 var DEFAULT_SKIP = 0;
