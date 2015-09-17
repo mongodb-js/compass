@@ -3,7 +3,6 @@ var CollectionStatsView = require('../collection-stats');
 var FieldListView = require('../field-list');
 var DocumentListView = require('../document-list');
 var RefineBarView = require('../refine-view');
-var SamplingMessageView = require('../sampling-message');
 var MongoDBCollection = require('../models/mongodb-collection');
 var SampledSchema = require('../models/sampled-schema');
 var app = require('ampersand-app');
@@ -159,15 +158,6 @@ var MongoDBCollectionView = View.extend({
           el: el,
           parent: this,
           collection: this.schema.documents
-        });
-      }
-    },
-    sampling_message: {
-      hook: 'sampling-message-subview',
-      prepareView: function(el) {
-        return new SamplingMessageView({
-          el: el,
-          parent: this
         });
       }
     }
