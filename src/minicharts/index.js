@@ -8,8 +8,12 @@ var DocumentRootMinichartView = require('./document-root');
 var ArrayRootMinichartView = require('./array-root');
 var vizFns = require('./d3fns');
 var QueryBuilderMixin = require('./querybuilder');
-// var debug = require('debug')('scout:minicharts:index');
+var debug = require('debug')('scout:minicharts:index');
+var Collection = require('ampersand-collection');
 
+var ArrayCollection = Collection.extend({
+  model: Array
+});
 
 /**
  * a wrapper around VizView to set common default values
@@ -54,9 +58,37 @@ module.exports = AmpersandView.extend(QueryBuilderMixin, {
       this.viewOptions.height = 55;
       this.subview = new DocumentRootMinichartView(this.viewOptions);
     } else if (this.model.name === 'Array') {
-      // arrays get a div-based ArrayRootMinichart
-      this.viewOptions.height = 55;
-      this.subview = new ArrayRootMinichartView(this.viewOptions);
+      var isCoordinates = false;
+
+      // are these coordinates? Do a basic check for now, until we support semantic schema types
+      var lengths = this.model.lengths;
+      var coords;
+      if (_.min(lengths) === 2 && _.max(lengths) === 2) {
+        // now check value bounds
+        var values = this.model.types.get('Number').values.serialize();
+        var lons = values.filter(function(val, idx) {
+          return idx % 2 === 0;
+        });
+        var lats = values.filter(function(val, idx) {
+          return idx % 2 === 1;
+        });
+        if (_.min(lons) >= -180 && _.max(lons) <= 180 && _.min(lats) >= -90 && _.max(lats) <= 90) {
+          isCoordinates = true;
+          // attach the zipped up coordinates to the model where VizView would expect it
+          this.model.values = new ArrayCollection(_.zip(lons, lats));
+          debug('model.values', this.model.values);
+        }
+      }
+      if (isCoordinates) {
+        // coordinates get an HTML-based d3 VizView with `coordinates` vizFn
+        this.viewOptions.renderMode = 'html';
+        this.viewOptions.vizFn = vizFns.coordinates;
+        this.subview = new VizView(this.viewOptions);
+      } else {
+        // plain arrays get a div-based ArrayRootMinichart
+        this.viewOptions.height = 55;
+        this.subview = new ArrayRootMinichartView(this.viewOptions);
+      }
     } else {
       // otherwise, create a svg-based VizView for d3
       this.subview = new VizView(this.viewOptions);
