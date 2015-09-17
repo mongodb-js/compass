@@ -1,7 +1,9 @@
 var View = require('ampersand-view');
 var mousetrap = require('mousetrap');
+var InstancePropertiesView = require('./instance-properties');
 var CollectionFilterView = require('./collection-filter');
 var CollectionListView = require('./collection-list');
+var app = require('ampersand-app');
 
 var SidebarView = View.extend({
   props: {
@@ -33,6 +35,16 @@ var SidebarView = View.extend({
   },
   template: require('./index.jade'),
   subviews: {
+    instance_properties: {
+      hook: 'instance-properties-subview',
+      prepareView: function(el) {
+        return new InstancePropertiesView({
+          el: el,
+          parent: this,
+          instance: app.instance
+        });
+      }
+    },
     collections_filter: {
       hook: 'collection-filter-subview',
       prepareView: function(el) {

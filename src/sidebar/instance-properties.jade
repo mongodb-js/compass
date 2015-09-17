@@ -1,0 +1,14 @@
+div.instance-properties
+  span.hostname(data-hook='hostname')
+  span.version
+    | version&nbsp;
+    span(data-hook='version')
+  div.db-stats
+    span.num-databases
+      strong(data-hook='num-databases')
+      | &nbsp;DBs
+    span.num-collections
+      strong(data-hook='num-collections')
+      | &nbsp;Colls.
+    button.refresh-collections
+      i.fa.fa-repeat

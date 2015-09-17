@@ -2,6 +2,7 @@ var View = require('ampersand-view');
 var pluralize = require('pluralize');
 var format = require('util').format;
 var app = require('ampersand-app');
+var debug = require('debug')('scout:sampling-message:index');
 
 var SamplingMessageView = View.extend({
   session: {
@@ -50,21 +51,22 @@ var SamplingMessageView = View.extend({
     sample_size_message: {
       deps: ['schema_sample_size'],
       fn: function() {
-        return format('%d %s', this.parent.schema.sample_size,
-          pluralize('document', this.parent.schema.sample_size));
+        return format('%d %s', this.parent.parent.schema.sample_size,
+          pluralize('document', this.parent.parent.schema.sample_size));
       }
     }
   },
   template: require('./index.jade'),
   initialize: function() {
-    this.listenTo(this.parent.schema, 'request', this.hide.bind(this));
-    this.listenTo(this.parent.schema, 'sync', this.show.bind(this));
+    this.listenTo(this.parent.parent.schema, 'request', this.hide.bind(this));
+    this.listenTo(this.parent.parent.schema, 'sync', this.show.bind(this));
   },
   hide: function() {
     this.schema_sample_size = 0;
   },
   show: function() {
-    this.schema_sample_size = this.parent.schema.sample_size;
+    debug('actual count', this.parent.parent.schema.total);
+    this.schema_sample_size = this.parent.parent.schema.sample_size;
   }
 });
 module.exports = SamplingMessageView;
