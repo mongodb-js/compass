@@ -82,6 +82,7 @@ module.exports = AmpersandView.extend(QueryBuilderMixin, {
       if (isCoordinates) {
         // coordinates get an HTML-based d3 VizView with `coordinates` vizFn
         this.viewOptions.renderMode = 'html';
+        this.viewOptions.height = 250;
         this.viewOptions.vizFn = vizFns.coordinates;
         this.subview = new VizView(this.viewOptions);
       } else {
