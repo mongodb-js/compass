@@ -8,7 +8,7 @@ module.exports = Collection.extend(lodashMixin, restMixin, {
   namespace: 'ConnectionCollection',
   model: Connection,
   comparator: 'last_used',
-  mainIndex: 'uri',
+  mainIndex: 'instance_id',
   indexes: ['name'],
   sync: connectionSync
 });

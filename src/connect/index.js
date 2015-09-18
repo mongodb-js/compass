@@ -273,12 +273,7 @@ var ConnectView = View.extend({
       submitCallback: function(obj) {
         debug('form submitted with data:', obj);
 
-        // @todo make this and ConnectionCollection work with mongodb-connection-model instead
-        var connection = new Connection({
-          name: obj.name,
-          hostname: obj.hostname,
-          portString: '' + obj.port
-        });
+        var connection = new Connection(obj);
 
         var existingName = connectView.checkExistingConnection(connection);
         if (existingName) {
@@ -335,7 +330,7 @@ var ConnectView = View.extend({
 
         if (obj.auth_mechanism) {
           // default fields for auth
-          obj.authdb = obj.authdb || 'admin';
+          obj.database_name = obj.database_name || 'admin';
         }
 
         return obj;

@@ -1,5 +1,5 @@
 var InputView = require('./input-view');
-
+var inputTemplate = require('./input-default.jade');
 /**
  * Define different input fields for authentication methods here. The tabs will automatically
  * render the fields correctly and provide name:value in the resulting object returned by the form.
@@ -15,7 +15,7 @@ var InputView = require('./input-view');
  * Input field for username. Stores its result in `mongodb_username`.
  */
 var username = new InputView({
-  template: require('./input-default.jade'),
+  template: inputTemplate,
   name: 'mongodb_username',
   label: 'Username',
   placeholder: '',
@@ -23,11 +23,11 @@ var username = new InputView({
 });
 
 /**
- * Input field for authentication database. Stores its result in `authdb`.
+ * Input field for authentication database. Stores its result in `database_name`.
  */
-var authdb = new InputView({
-  template: require('./input-default.jade'),
-  name: 'authdb',
+var database_name = new InputView({
+  template: inputTemplate,
+  name: 'database_name',
   label: 'Authentication Database',
   placeholder: 'admin',
   required: false
@@ -38,7 +38,7 @@ var authdb = new InputView({
  * hide input.
  */
 var password = new InputView({
-  template: require('./input-default.jade'),
+  template: inputTemplate,
   type: 'password',
   name: 'mongodb_password',
   label: 'Password',
@@ -50,7 +50,7 @@ var password = new InputView({
  * Input field for GSSAPI service name (Kerberos). Stores its result in `gssapi_service_name`.
  */
 var service_name = new InputView({
-  template: require('./input-default.jade'),
+  template: inputTemplate,
   name: 'gssapi_service_name',
   label: 'Kerberos Service Name',
   placeholder: '',
@@ -65,13 +65,13 @@ module.exports = {
   'SCRAM-SHA-1': [
     username,
     password,
-    authdb
+    database_name
   ],
 
   'MONGODB-CR': [
     username,
     password,
-    authdb
+    database_name
   ],
 
   GSSAPI: [

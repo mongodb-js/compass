@@ -24,7 +24,7 @@
           div(data-hook='auth-container')
             ul.nav.nav-tabs(role='tablist')
               li.active(role='presentation')
-                a(href='#SCRAM-SHA-1', aria-controls='scram-sha-1', role='tab', data-toggle='tab', data-method='SCRAM-SHA-1') SCRAM-SHA-1
+                a(href='#SCRAM-SHA-1', aria-controls='scram-sha-1', role='tab', data-toggle='tab', data-method='SCRAM-SHA-1') User/Password
               //- li(role='presentation')
               //-   a(href='#MONGODB-CR', aria-controls='mongodb-cr', role='tab', data-toggle='tab', data-method='MONGODB-CR') MONGODB-CR
               li(role='presentation')
@@ -36,11 +36,9 @@
 
             div.tab-content
               div.tab-pane.active(role='tabpanel', id='SCRAM-SHA-1')
-                h4 SCRAM-SHA-1 Authentication
               //- div.tab-pane(role='tabpanel', id='MONGODB-CR')
               //-   h4 MONGODB-CR Authentication
               div.tab-pane(role='tabpanel', id='GSSAPI')
-                h4 Kerberos Authentication
               //- div.tab-pane(role='tabpanel', id='MONGODB-X509')
               //-   h4 X.509 Authentication
               //- div.tab-pane(role='tabpanel', id='PLAIN')

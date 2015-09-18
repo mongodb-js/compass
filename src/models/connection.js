@@ -1,4 +1,5 @@
 var Model = require('ampersand-model');
+var Connection = require('mongodb-connection-model');
 var format = require('util').format;
 var connectionSync = require('./connection-sync')();
 var types = require('./types');
@@ -7,56 +8,16 @@ var debug = require('debug')('scout:models:connection');
 /**
  * Configuration for connecting to a MongoDB Deployment.
  */
-module.exports = Model.extend({
-  modelType: 'Connection',
-  idAttribute: 'uri',
-  props: {
-    /**
-     * User specified name for this connection.
-     */
-    name: {
-      type: 'string',
-      default: '',
-      required: true
-    },
-    /**
-     * Hostname or IP address of the Instance to connect to in the Deployment.
-     */
-    hostname: {
-      type: 'string',
-      default: 'localhost',
-      required: true
-    },
-    /**
-     * Port the Instance to connect to in the Deployment is listening on.
-     */
-    portString: {
-      type: 'string',
-      default: '27017',
-      required: true
-    },
+module.exports = Connection.extend({
+  session: {
     /**
      * Updated on each successful connection to the Deployment.
      */
     last_used: 'date'
   },
-  derived: {
-    port: {
-      deps: ['portString'],
-      fn: function() {
-        return parseInt(this.portString, 10);
-      }
-    },
-    uri: {
-      deps: ['hostname', 'port'],
-      fn: function() {
-        return format('mongodb://%s:%d', this.hostname, this.port);
-      }
-    }
-  },
   use: function(uri) {
     var data = types.url(uri).data;
-    this.portString = '' + data.hosts[0].port;
+    this.port = data.hosts[0].port;
     this.hostname = data.hosts[0].host.toLowerCase();
     this.fetch();
   },
