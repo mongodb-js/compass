@@ -1,6 +1,9 @@
 var pkg = require('../package.json');
 var app = require('ampersand-app');
 app.extend({
+  // @todo (imlucas) Move to config
+  // `scout-server` to point at.
+  endpoint: 'http://localhost:29017',
   meta: {
     'App Version': pkg.version
   }
@@ -187,9 +190,7 @@ Object.defineProperty(app, 'statusbar', {
 
 Object.defineProperty(app, 'client', {
   get: function() {
-    return getOrCreateClient({
-      seed: app.connection.uri
-    });
+    return getOrCreateClient(app.endpoint, app.connection.instance_id, app.connection);
   }
 });
 app.init();
