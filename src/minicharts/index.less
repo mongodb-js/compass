@@ -78,23 +78,35 @@ div.minichart.unique {
   }
 }
 
-.coords, .coords svg {
+.layer, .layer svg {
   position: absolute;
 }
 
-.coords svg {
-  width: 60px;
+.layer svg.marker {
+  width: 20px;
   height: 20px;
-  padding-right: 100px;
-  font: 10px sans-serif;
+
+  circle {
+    fill: @mc-fg;
+    stroke: @pw;
+    stroke-width: 1.5px;
+
+    &.selected {
+      fill: @mc-fg-selected;
+    }
+  }
 }
 
-.coords circle {
-  fill: @mc-fg;
-  stroke: @pw;
-  stroke-width: 1.5px;
-}
+.layer svg.selection {
+  visibility: hidden;
 
+  circle {
+    fill: @mc-fg-selected;
+    fill-opacity:0.2;
+    stroke: @mc-fg-selected;
+    stroke-width: 2px;
+  }
+}
 
 svg.minichart {
   font-size: 10px;
