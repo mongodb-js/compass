@@ -2,12 +2,21 @@ var app = require('ampersand-app');
 var Connection = require('mongodb-connection-model');
 var connectionSync = require('./connection-sync')();
 var types = require('./types');
-var testClientConnection = require('scout-client').test;
+var client = require('scout-client');
 var debug = require('debug')('scout:models:connection');
+var uuid = require('uuid');
 /**
  * Configuration for connecting to a MongoDB Deployment.
  */
 module.exports = Connection.extend({
+  props: {
+    _id: {
+      type: 'string',
+      default: function() {
+        return uuid.v4();
+      }
+    }
+  },
   session: {
     /**
      * Updated on each successful connection to the Deployment.
@@ -23,8 +32,7 @@ module.exports = Connection.extend({
   test: function(done) {
     var model = this;
     debug('Testing connection to `%j`...', this);
-
-    testClientConnection(app.endpoint, this, function(err) {
+    client.test(app.endpoint, this, function(err) {
       if (err) return done(err);
 
       debug('test worked!');

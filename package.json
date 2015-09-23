@@ -133,6 +133,7 @@
     "scout-brain": "http://bin.mongodb.org/js/scout-brain/v0.0.2/scout-brain-0.0.2.tar.gz",
     "scout-client": "http://bin.mongodb.org/js/scout-client/v0.1.2/scout-client-0.1.2.tar.gz",
     "stream-combiner2": "^1.0.2",
+    "uuid": "^2.0.1",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
     "watchify": "^3.2.3"
