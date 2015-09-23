@@ -249,8 +249,10 @@ var ConnectView = View.extend({
     }
     return false;
   },
-  onConnectionError: function(err, model) {
-    window.alert('Connection Error: ', err.message);
+  /* (err, model) */
+  onConnectionError: function() {
+    this.message = 'Could not connect to MongoDB.  '
+      + 'Please double check your info.';
   },
   onConnectionAccepted: function(model) {
     // save connection if a name was provided
@@ -261,12 +263,11 @@ var ConnectView = View.extend({
 
     // connect
     debug('all good, connecting:', model.serialize());
-    window.alert('yay!');
-    // window.open(format('%s?uri=%s#schema', window.location.origin, connection.uri));
-    // setTimeout(connectView.set.bind(connectView, {
-    //   message: ''
-    // }), 500);
-    // setTimeout(window.close, 1000);
+    window.open(format('%s?connection_id=%s#schema', window.location.origin, model.getId()));
+    setTimeout(this.set.bind(this, {
+      message: ''
+    }), 500);
+    setTimeout(window.close, 1000);
   },
 
   render: function() {
