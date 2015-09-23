@@ -1,23 +1,19 @@
 var View = require('ampersand-view');
-var FormView = require('ampersand-form-view');
-var InputView = require('./input-view');
-var Connection = require('../models/connection');
-var ConnectionCollection = require('../models/connection-collection');
 var authFields = require('./auth-fields');
 var sslFields = require('./ssl-fields');
 var SidebarView = require('./sidebar');
+var ConnectionCollection = require('../models/connection-collection');
 
 var format = require('util').format;
 var $ = require('jquery');
 var _ = require('lodash');
 var app = require('ampersand-app');
-
+var ConnectFormView = require('./connect-form-view');
 var debug = require('debug')('scout:connect:index');
 
 require('bootstrap/js/tab');
 require('bootstrap/js/popover');
 require('bootstrap/js/tooltip');
-
 
 /**
  * Main Connect Dialog, uses ampersand-form to render the form. By default, the authentication
@@ -253,132 +249,33 @@ var ConnectView = View.extend({
     }
     return false;
   },
+  onConnectionError: function(err, model) {
+    window.alert('Connection Error: ', err.message);
+  },
+  onConnectionAccepted: function(model) {
+    // save connection if a name was provided
+    if (model.name !== '') {
+      model.save();
+      this.connections.add(model);
+    }
+
+    // connect
+    debug('all good, connecting:', model.serialize());
+    window.alert('yay!');
+    // window.open(format('%s?uri=%s#schema', window.location.origin, connection.uri));
+    // setTimeout(connectView.set.bind(connectView, {
+    //   message: ''
+    // }), 500);
+    // setTimeout(window.close, 1000);
+  },
 
   render: function() {
     this.renderWithTemplate();
-
-    var connectView = this;
-
-    // The form wrapper class
-    this.form = new FormView({
+    this.form = new ConnectFormView({
+      parent: this,
+      el: this.queryByHook('connect-form'),
       autoRender: true,
-      autoAppend: false,
-      el: connectView.queryByHook('connect-form'),
-      /**
-       * callback when user hits submit (or presses enter). Run some general checks here
-       * (connection works, etc) and set general error message at the top, or open the connection.
-       *
-       * @param {Object} obj     contains the clean()'ed up data from the form.
-       */
-      submitCallback: function(obj) {
-        debug('form submitted with data:', obj);
-
-        var connection = new Connection(obj);
-
-        var existingName = connectView.checkExistingConnection(connection);
-        if (existingName) {
-          this.valid = false;
-          this.setValue('name', existingName);
-          return;
-        }
-
-        existingName = connectView.checkExistingName(connection);
-        if (existingName) {
-          this.valid = false;
-          return;
-        }
-
-        // @todo do connection test here
-        app.statusbar.show();
-        connection.test(function(err, conn) {
-          app.statusbar.hide();
-          if (err) {
-            // @todo handle error
-            return;
-          }
-
-          // save connection if a name was provided
-          if (conn.name !== '') {
-            conn.save();
-            connectView.connections.add(conn);
-          }
-
-          // connect
-          debug('all good, connecting:', conn.serialize());
-          // window.open(format('%s?uri=%s#schema', window.location.origin, connection.uri));
-          // setTimeout(connectView.set.bind(connectView, {
-          //   message: ''
-          // }), 500);
-          // setTimeout(window.close, 1000);
-        });
-      },
-      clean: function(obj) {
-        // clean up the form values here, e.g. conversion to numbers etc.
-
-        // get auth mechanism from parent view
-        obj.auth_mechanism = this.parent.authMethod;
-
-        // is SSL enabled (options are open)
-        obj.ssl = this.parent.sslOpen;
-
-        // fill in all default fields
-        obj.hostname = obj.hostname || 'localhost';
-        obj.port = obj.port || 27017;
-
-        // port number must be numeric
-        obj.port = Number(obj.port);
-
-        if (obj.auth_mechanism) {
-          // default fields for auth
-          obj.database_name = obj.database_name || 'admin';
-        }
-
-        return obj;
-      },
-      /**
-       * These are the default form fields that are always present in the connect dialog. Auth and
-       * SSL fields are added/removed dynamically, depending on whether the options are expanded or
-       * collapsed.
-       */
-      fields: [
-        // hostname field
-        new InputView({
-          template: require('./input-default.jade'),
-          el: connectView.queryByHook('hostname-subview'),
-          name: 'hostname',
-          label: 'Hostname',
-          placeholder: 'localhost',
-          required: false
-        }),
-        // port number field
-        new InputView({
-          template: require('./input-default.jade'),
-          el: connectView.queryByHook('port-subview'),
-          name: 'port',
-          label: 'Port',
-          placeholder: '27017',
-          required: false,
-          tests: [function(value) {
-            if (isNaN(value)) {
-              debug('checking for number');
-              return 'port must be a number.';
-            }
-          }, function(value) {
-            if (parseInt(value, 10) < 0) {
-              return 'port number must be positive.';
-            }
-          }
-          ]
-        }),
-        // connection name field
-        new InputView({
-          template: require('./input-saveas.jade'),
-          el: this.queryByHook('saveas-subview'),
-          name: 'name',
-          placeholder: 'Connection Name',
-          required: false
-        })
-      ]
+      autoAppend: false
     });
 
     this.registerSubview(this.form);

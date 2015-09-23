@@ -6,6 +6,7 @@ var Connection = require('../models/connection');
  * or it can be deleted via the X on the right side.
  */
 var SidebarItemView = View.extend({
+  namespace: 'SidebarItemView',
   props: {
     model: Connection,
     hover: {
@@ -31,15 +32,10 @@ var SidebarItemView = View.extend({
   },
   template: require('./connection.jade'),
   onClick: function(event) {
-    event.stopPropagation();
-    event.preventDefault();
-
-    // fill in the form with the clicked connection details
-    // @todo need to fill the form with the stored values, use this.parent.form.setValues()
+    this.parent.onItemClick(event, this.model);
   },
   onDoubleClick: function(event) {
-    this.onClick(event);
-    this.parent.parent.onSubmit(event);
+    this.parent.onItemDoubleClick(event, this.model);
   },
   onCloseClick: function(event) {
     event.stopPropagation();
@@ -58,10 +54,25 @@ var SidebarItemView = View.extend({
 /**
  * Renders all existing connections in the sidebar.
  */
-module.exports = View.extend({
+var SidebarView = View.extend({
+  namespace: 'SidebarView',
   template: require('./sidebar.jade'),
   render: function() {
     this.renderWithTemplate();
     this.renderCollection(this.collection, SidebarItemView, this.queryByHook('connection-list'));
+  },
+  onItemClick: function(event, model) {
+    event.stopPropagation();
+    event.preventDefault();
+
+    // fill in the form with the clicked connection details
+    this.parent.form.setValues(model.serialize());
+  },
+  onItemDoubleClick: function(event, model) {
+    this.onItemClick(event, model);
+    this.parent.form.onSubmit(event);
   }
 });
+
+
+module.exports = SidebarView;
