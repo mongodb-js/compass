@@ -163,14 +163,30 @@ function start() {
   state.router = new Router();
   domReady(state._onDOMReady.bind(state));
 }
+// @todo (imlucas): Feature flags can be overrideen
+// via `window.localStorage`.
+var FEATURES = {
+  querybuilder: true,
+  'Connect with SSL': false,
+  'Connect with Kerberos': true,
+  'Connect with LDAP': false,
+  'Connect with X.509': false
+};
 
 app.extend({
   client: null,
+  // @note (imlucas): Backwards compat for querybuilder
+  features: FEATURES,
+  /**
+   * Check whether a feature flag is currently enabled.
+   *
+   * @param {String} id - A key in `FEATURES`.
+   * @return {Boolean}
+   */
+  isFeatureEnabled: function(id) {
+    return FEATURES[id] === true;
+  },
   init: function() {
-    // feature flags
-    this.features = {
-      querybuilder: true
-    };
     state.statusbar = new Statusbar();
 
     if (connection_id) {
