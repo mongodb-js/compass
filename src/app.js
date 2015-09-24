@@ -161,7 +161,7 @@ var Statusbar = require('./statusbar');
 
 function start() {
   state.router = new Router();
-  domReady(state._onDOMReady.bind(state));
+  state._onDOMReady();
 }
 // @todo (imlucas): Feature flags can be overrideen
 // via `window.localStorage`.
@@ -187,29 +187,31 @@ app.extend({
     return FEATURES[id] === true;
   },
   init: function() {
-    state.statusbar = new Statusbar();
+    domReady(function() {
+      state.statusbar = new Statusbar();
 
-    if (connection_id) {
-      state.connection = new Connection({
-        _id: connection_id
-      });
+      if (connection_id) {
+        state.connection = new Connection({
+          _id: connection_id
+        });
 
 
-      debug('looking up connection `%s`...', connection_id);
-      state.connection.fetch({
-        success: function() {
-          debug('got connection `%j`...', state.connection.serialize());
-          app.client = getOrCreateClient(app.endpoint, state.connection.serialize());
+        debug('looking up connection `%s`...', connection_id);
+        state.connection.fetch({
+          success: function() {
+            debug('got connection `%j`...', state.connection.serialize());
+            app.client = getOrCreateClient(app.endpoint, state.connection.serialize());
 
-          state.queryOptions = new QueryOptions();
-          state.volatileQueryOptions = new QueryOptions();
-          state.instance = new MongoDBInstance();
-          start();
-        }
-      });
-    } else {
-      start();
-    }
+            state.queryOptions = new QueryOptions();
+            state.volatileQueryOptions = new QueryOptions();
+            state.instance = new MongoDBInstance();
+            start();
+          }
+        });
+      } else {
+        start();
+      }
+    });
     // set up ipc
     ipc.on('message', state.onMessageReceived.bind(this));
   },

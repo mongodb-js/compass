@@ -206,51 +206,6 @@ var ConnectView = View.extend({
     this.previousAuthMethod = this.authMethod;
     debug('form data now has the following fields', Object.keys(this.form.data));
   },
-
-  /**
-   * Checks if the connection already exists under a different name. Returns null if the
-   * connection doesn't exist yet, or the name of the connection, if it does.
-   *
-   * @param  {Object} connection - The new connection to check
-   * @return {String|null} - Name of the connection that is otherwise identical to obj
-   */
-  checkExistingConnection: function(connection) {
-    var existingConnection = this.connections.get(connection.uri);
-
-    if (connection.name !== ''
-      && existingConnection
-      && connection.name !== existingConnection.name) {
-      app.statusbar.hide();
-      this.has_error = true;
-      this.message = format('This connection already exists under the name "%s". '
-      + 'Click "Connect" again to use that connection.',
-        existingConnection.name);
-      return existingConnection.name;
-    }
-    return null;
-  },
-
-  /**
-   * Checks if the connection name already exists but with different details.
-   *
-   * @param  {Connection} model - A connection to check.
-   * @return {Boolean} - Whether or not the connection name already exists.
-   */
-  checkExistingName: function(model) {
-    var existingConnection = this.connections.get(model.name, 'name');
-
-    if (model.name !== ''
-      && existingConnection
-      && existingConnection.uri !== connection.uri) {
-      app.statusbar.hide();
-      this.has_error = true;
-      this.message = format('Another connection with the name "%s" already exists. Please '
-      + 'delete the existing connection first or choose a different name.',
-        existingConnection.name);
-      return true;
-    }
-    return false;
-  },
   /**
    * Use a connection to view schemas, such as after
    * submitting a form or when double-clicking on
@@ -262,6 +217,10 @@ var ConnectView = View.extend({
    * @api public
    */
   connect: function(model, options) {
+    options = _.defaults(options, {
+      close: false
+    });
+
     app.statusbar.show();
 
     debug('testing credentials are usable...');
@@ -285,6 +244,9 @@ var ConnectView = View.extend({
    * @api private
    */
   onConnectionSuccessful: function(model, options) {
+    options = _.defaults(options, {
+      close: false
+    });
     /**
      * The save method will handle calling the correct method
      * of the sync being used by the model, whether that's
@@ -302,10 +264,7 @@ var ConnectView = View.extend({
      *     ssl: model.ssl
      *   });
      */
-    if (model.isNew()) {
-      debug('yay!  its a new successful connection!');
-      this.connections.add(model);
-    }
+    this.connections.add(model);
 
     debug('opening schema view for', model.serialize());
     window.open(format('%s?connection_id=%s#schema', window.location.origin, model.getId()));
@@ -342,11 +301,28 @@ var ConnectView = View.extend({
    */
   onFormSubmitted: function(model) {
     this.reset();
+
+    if (!model.name) {
+      // If no name specified, the connection name
+      // will be `Untitled (1)`.  If there are existing
+      // `Untitled (\d)` connections, increment a counter
+      // on them like every MS Office does.
+      var untitleds = _.chain(this.connections.models)
+        .filter(function(model) {
+          return _.startsWith(model.name, 'Untitled (');
+        })
+        .sort('name')
+        .value();
+
+      model.name = format('Untitled (%d)', untitleds.length + 1);
+    }
+
+    // @todo (imlucas): Dont allow duplicate names?
+
     if (!model.isValid()) {
       this.onError(model.validationError);
     }
 
-    // @todo: Check if already exists.
     this.connect(model);
   },
   /**
