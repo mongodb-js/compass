@@ -18,33 +18,7 @@ var ConnectFormView = FormView.extend({
    */
   submitCallback: function(obj) {
     debug('form submitted', obj);
-
-    var connection = new Connection(obj);
-
-    var existingName = this.parent.checkExistingConnection(connection);
-    if (existingName) {
-      this.valid = false;
-      this.setValue('name', existingName);
-      return;
-    }
-
-    existingName = this.parent.checkExistingName(connection);
-    if (existingName) {
-      this.valid = false;
-      return;
-    }
-
-    app.statusbar.show();
-
-    debug('testing credentials are usable...');
-    connection.test(function(err) {
-      app.statusbar.hide();
-      if (err) {
-        this.parent.onConnectionError(err, connection);
-        return;
-      }
-      this.parent.onConnectionAccepted(connection);
-    }.bind(this));
+    this.parent.onFormSubmitted(new Connection(obj));
   },
   clean: function(obj) {
     // clean up the form values here, e.g. conversion to numbers etc.

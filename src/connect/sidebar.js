@@ -52,7 +52,7 @@ var SidebarItemView = View.extend({
 
 
 /**
- * Renders all existing connections in the sidebar.
+ * Renders all existing connections as list in the sidebar.
  */
 var SidebarView = View.extend({
   namespace: 'SidebarView',
@@ -64,15 +64,12 @@ var SidebarView = View.extend({
   onItemClick: function(event, model) {
     event.stopPropagation();
     event.preventDefault();
-
-    // fill in the form with the clicked connection details
-    this.parent.form.setValues(model.serialize());
+    this.parent.onConnection(model);
   },
   onItemDoubleClick: function(event, model) {
     this.onItemClick(event, model);
-    this.parent.form.onSubmit(event);
+    this.parent.connect(model);
   }
 });
-
 
 module.exports = SidebarView;

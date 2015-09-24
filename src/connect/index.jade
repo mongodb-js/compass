@@ -2,9 +2,7 @@
   .content.with-sidebar
     .container-fluid
       form.form-horizontal(data-hook='connect-form', style='margin-top: 20px;')
-        
         .message.alert(data-hook='message')
-        
         div(data-hook='hostname-subview')
         div(data-hook='port-subview')
         
@@ -12,52 +10,43 @@
         
         div(data-hook='saveas-subview')
         
-        hr
-        
-        .form-group
-          label.control-label
-            a(href="javascript:void(0);", data-hook='openAuth')
-              i
-              span(data-hook='open-auth-label')
-        
-        .form-group
-          div(data-hook='auth-container')
-            ul.nav.nav-tabs(role='tablist')
-              li.active(role='presentation')
-                a(href='#SCRAM-SHA-1', aria-controls='scram-sha-1', role='tab', data-toggle='tab', data-method='SCRAM-SHA-1') User/Password
-              //- li(role='presentation')
-              //-   a(href='#MONGODB-CR', aria-controls='mongodb-cr', role='tab', data-toggle='tab', data-method='MONGODB-CR') MONGODB-CR
-              li(role='presentation')
-                a(href='#GSSAPI', aria-controls='kerberos', role='tab', data-toggle='tab', data-method='GSSAPI') Kerberos
-              //- li(role='presentation')
-              //-   a(href='#MONGODB-X509', aria-controls='x509', role='tab', data-toggle='tab', data-method='MONGODB-X509') X.509
-              //- li(role='presentation')
-              //-   a(href='#PLAIN', aria-controls='ldap', role='tab', data-toggle='tab', data-method='PLAIN') LDAP
+        #connect-authentication-settings
+          hr
+          .form-group
+            label.control-label
+              a(href="javascript:void(0);", data-hook='openAuth')
+                i
+                span(data-hook='open-auth-label')
+          
+          .form-group
+            div(data-hook='auth-container')
+              ul.nav.nav-tabs
+                - for method, i in authMethods
+                  - classNames = []
+                  - if (!method.enabled) classNames.push('hidden')
+                  - if (i === 0) classNames.push('active')
+                  li(class=classNames)
+                    a(href="##{method._id}", data-toggle='tab', data-method=method._id)= method.title
 
-            div.tab-content
-              div.tab-pane.active(role='tabpanel', id='SCRAM-SHA-1')
-              //- div.tab-pane(role='tabpanel', id='MONGODB-CR')
-              //-   h4 MONGODB-CR Authentication
-              div.tab-pane(role='tabpanel', id='GSSAPI')
-              //- div.tab-pane(role='tabpanel', id='MONGODB-X509')
-              //-   h4 X.509 Authentication
-              //- div.tab-pane(role='tabpanel', id='PLAIN')
-              //-   h4 LDAP Authentication
-
-        hr
-        
-        .form-group
-          label.control-label
-            a(href="javascript:void(0);", data-hook='openSSL')
-              i
-              span(data-hook='open-ssl-label')
-        
-          div(data-hook='ssl-container')
-            h4 SSL Settings
-
-
-        hr
-        
+              .tab-content
+                - for method, i in authMethods
+                  - classNames = []
+                  - if (!method.enabled) classNames.push('hidden')
+                  - if (i === 0) classNames.push('active')
+                  .tab-pane(class=classNames)
+                  
+        #connect-ssl-settings(class=getFeatureClass('Connect with SSL'))
+          hr
+          .form-group
+            label.control-label
+              a(href="javascript:void(0);", data-hook='openSSL')
+                i
+                | &nbsp;
+                span(data-hook='open-ssl-label')
+          
+            div(data-hook='ssl-container')
+              h4 SSL Settings
+        hr        
         .form-group
           button.submit.btn.btn-primary(type='submit', data-hook='submit-button') Connect
 
