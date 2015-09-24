@@ -1,77 +1,36 @@
-var Model = require('ampersand-model');
-var format = require('util').format;
+var app = require('ampersand-app');
+var Connection = require('mongodb-connection-model');
 var connectionSync = require('./connection-sync')();
-var types = require('./types');
-var ScoutClient = require('scout-client/lib/client');
+var client = require('scout-client');
 var debug = require('debug')('scout:models:connection');
+var uuid = require('uuid');
 /**
  * Configuration for connecting to a MongoDB Deployment.
  */
-module.exports = Model.extend({
-  modelType: 'Connection',
-  idAttribute: 'uri',
+module.exports = Connection.extend({
+  idAttribute: '_id',
   props: {
-    /**
-     * User specified name for this connection.
-     */
-    name: {
+    _id: {
       type: 'string',
-      default: '',
-      required: true
-    },
-    /**
-     * Hostname or IP address of the Instance to connect to in the Deployment.
-     */
-    hostname: {
-      type: 'string',
-      default: 'localhost',
-      required: true
-    },
-    /**
-     * Port the Instance to connect to in the Deployment is listening on.
-     */
-    portString: {
-      type: 'string',
-      default: '27017',
-      required: true
-    },
+      default: function() {
+        return uuid.v4();
+      }
+    }
+  },
+  session: {
     /**
      * Updated on each successful connection to the Deployment.
      */
     last_used: 'date'
   },
-  derived: {
-    port: {
-      deps: ['portString'],
-      fn: function() {
-        return parseInt(this.portString, 10);
-      }
-    },
-    uri: {
-      deps: ['hostname', 'port'],
-      fn: function() {
-        return format('mongodb://%s:%d', this.hostname, this.port);
-      }
-    }
-  },
-  use: function(uri) {
-    var data = types.url(uri).data;
-    this.portString = '' + data.hosts[0].port;
-    this.hostname = data.hosts[0].host.toLowerCase();
-    this.fetch();
-  },
   test: function(done) {
     var model = this;
     debug('Testing connection to `%j`...', this);
-    var client = new ScoutClient({
-      seed: this.uri
-    }).on('readable', function() {
-      debug('successfully connected!');
-      client.close();
+    client.test(app.endpoint, this, function(err) {
+      if (err) return done(err);
+
+      debug('test worked!');
       done(null, model);
-    }).on('error', function(err) {
-      done(err, model);
-      client.close();
     });
     return this;
   },

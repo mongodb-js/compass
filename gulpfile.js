@@ -24,12 +24,14 @@ var shell = require('gulp-shell');
 var del = require('del');
 var sequence = require('run-sequence');
 var watch = require('gulp-watch');
-// var livereload = require('gulp-livereload');
 var notify = require('./tasks/notify');
 var pkg = require('./package.json');
 
 // Platform specific tasks
 var platform = require(path.join(__dirname, 'tasks', process.platform));
+
+// Where we'll put everything so it runs in Electron.
+// var DEST = path.join(platform.RESOURCES, 'app');
 
 /**
  * # release

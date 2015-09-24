@@ -1,6 +1,9 @@
 var pkg = require('../package.json');
 var app = require('ampersand-app');
 app.extend({
+  // @todo (imlucas) Move to config
+  // `scout-server` to point at.
+  endpoint: 'http://localhost:29017',
   meta: {
     'App Version': pkg.version
   }
@@ -145,9 +148,9 @@ var Application = View.extend({
 });
 
 var params = qs.parse(window.location.search.replace('?', ''));
-var uri = params.uri || 'mongodb://localhost:27017';
+var connection_id = params.connection_id;
 var state = new Application({
-  uri: uri
+  connection_id: connection_id
 });
 
 var QueryOptions = require('./models/query-options');
@@ -156,23 +159,41 @@ var MongoDBInstance = require('./models/mongodb-instance');
 var Router = require('./router');
 var Statusbar = require('./statusbar');
 
+function start() {
+  state.router = new Router();
+  domReady(state._onDOMReady.bind(state));
+}
+
 app.extend({
   client: null,
   init: function() {
-    state.statusbar = new Statusbar();
-    this.connection = new Connection();
-    this.connection.use(uri);
-    this.queryOptions = new QueryOptions();
-    this.volatileQueryOptions = new QueryOptions();
-    this.instance = new MongoDBInstance();
-
     // feature flags
     this.features = {
       querybuilder: true
     };
+    state.statusbar = new Statusbar();
 
-    state.router = new Router();
+    if (connection_id) {
+      state.connection = new Connection({
+        _id: connection_id
+      });
 
+
+      debug('looking up connection `%s`...', connection_id);
+      state.connection.fetch({
+        success: function() {
+          debug('got connection `%j`...', state.connection.serialize());
+          app.client = getOrCreateClient(app.endpoint, state.connection.serialize());
+
+          state.queryOptions = new QueryOptions();
+          state.volatileQueryOptions = new QueryOptions();
+          state.instance = new MongoDBInstance();
+          start();
+        }
+      });
+    } else {
+      start();
+    }
     // set up ipc
     ipc.on('message', state.onMessageReceived.bind(this));
   },
@@ -185,20 +206,37 @@ Object.defineProperty(app, 'statusbar', {
   }
 });
 
-Object.defineProperty(app, 'client', {
+Object.defineProperty(app, 'instance', {
   get: function() {
-    return getOrCreateClient({
-      seed: app.connection.uri
-    });
+    return state.instance;
   }
 });
+
+Object.defineProperty(app, 'queryOptions', {
+  get: function() {
+    return state.queryOptions;
+  }
+});
+
+Object.defineProperty(app, 'volatileQueryOptions', {
+  get: function() {
+    return state.volatileQueryOptions;
+  }
+});
+
+Object.defineProperty(app, 'connection', {
+  get: function() {
+    return state.connection;
+  }
+});
+
+Object.defineProperty(app, 'router', {
+  get: function() {
+    return state.router;
+  }
+});
+
 app.init();
-
-function render_app() {
-  state._onDOMReady();
-}
-
-domReady(render_app);
 
 // expose app globally for debugging purposes
 window.app = app;

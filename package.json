@@ -65,9 +65,12 @@
     "url": "git://github.com/10gen/scout.git"
   },
   "dependencies": {
+    "ampersand-form-view": "^5.1.1",
+    "ampersand-input-view": "^5.0.0",
     "debug": "^2.2.0",
-    "scout-server": "http://bin.mongodb.org/js/scout-server/v0.1.0/scout-server-0.1.0.tar.gz",
-    "electron-squirrel-startup": "^0.1.2"
+    "electron-squirrel-startup": "^0.1.2",
+    "mongodb-connection-model": "0.0.2",
+    "scout-server": "http://bin.mongodb.org/js/scout-server/v0.2.1/scout-server-0.2.1.tar.gz"
   },
   "devDependencies": {
     "ampersand-app": "^1.0.4",
@@ -128,8 +131,9 @@
     "run-sequence": "^1.1.2",
     "run-series": "^1.1.2",
     "scout-brain": "http://bin.mongodb.org/js/scout-brain/v0.0.2/scout-brain-0.0.2.tar.gz",
-    "scout-client": "http://bin.mongodb.org/js/scout-client/v0.0.5/scout-client-0.0.5.tar.gz",
+    "scout-client": "http://bin.mongodb.org/js/scout-client/v0.1.2/scout-client-0.1.2.tar.gz",
     "stream-combiner2": "^1.0.2",
+    "uuid": "^2.0.1",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
     "watchify": "^3.2.3"
