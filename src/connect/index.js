@@ -372,12 +372,13 @@ var ConnectView = View.extend({
     // fields in the form because it's a top-level constraint
     // so we need to get a list of what keys are currently
     // available to set.
-    var fields = _.flatten('name', 'port', 'hostname',
+    var fields = _.flatten(['name', 'port', 'hostname'],
       authFields[this.authMethod] || []);
     debug('Populating form fields', fields);
+    var values = _.pick(model, fields);
 
     // Populates the form from values in the model.
-    this.form.setValues(_.pick(model, fields));
+    this.form.setValues(values);
   },
   render: function() {
     // @todo (imlucas): Consolidate w/ `./auth-fields.js`.

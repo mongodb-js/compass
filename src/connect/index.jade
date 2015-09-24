@@ -33,7 +33,7 @@
                   - classNames = []
                   - if (!method.enabled) classNames.push('hidden')
                   - if (i === 0) classNames.push('active')
-                  .tab-pane(class=classNames)
+                  .tab-pane(class=classNames, id=method._id)
                   
         #connect-ssl-settings(class=getFeatureClass('Connect with SSL'))
           hr

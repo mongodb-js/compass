@@ -64,7 +64,7 @@ var SidebarView = View.extend({
   onItemClick: function(event, model) {
     event.stopPropagation();
     event.preventDefault();
-    this.parent.onConnection(model);
+    this.parent.onConnectionSelected(model);
   },
   onItemDoubleClick: function(event, model) {
     this.onItemClick(event, model);
