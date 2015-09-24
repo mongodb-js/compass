@@ -58,7 +58,9 @@
     "test": "mocha",
     "ci": "npm run check && npm run release",
     "check": "mongodb-js-precommit",
-    "fmt": "mongodb-js-fmt src/{**/*.js,*.js}"
+    "fmt": "mongodb-js-fmt src/{**/*.js,*.js}",
+    "chromedriver": "node_modules/.bin/chromedriver --url-base=/wd/hub --port=9515",
+    "test": "./node_modules/.bin/wdio test/wd.conf.js"
   },
   "pre-commit": [
     "check"
@@ -97,6 +99,7 @@
     "chalk": "^1.1.1",
     "d3": "^3.5.6",
     "del": "^2.0.2",
+    "chromedriver": "^2.19.0",
     "domready": "^1.0.8",
     "electron-installer-dmg": "^0.1.0",
     "electron-installer-squirrel-windows": "^0.4.0",
@@ -127,6 +130,7 @@
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^0.2.2",
     "mongodb-language-model": "^0.2.3",
+    "mongodb-runner": "mongodb-js/runner",
     "mongodb-schema": "^3.3.0",
     "mousetrap": "^1.5.3",
     "node-notifier": "^4.3.1",
@@ -143,6 +147,7 @@
     "uuid": "^2.0.1",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
-    "watchify": "^3.4.0"
+    "watchify": "^3.4.0",
+    "webdriverio": "mongodb-js/webdriverio"
   }
 }
