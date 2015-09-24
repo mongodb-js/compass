@@ -60,12 +60,11 @@ var KERBEROS = {
       placeholder: '',
       helpEntry: 'connect-kerberos-principal',
       required: true,
-      tests: [
-        function(value) {
-          if (!value.match(/\S+@\S+/)) {
-            return 'Principal must contain a realm, e.g. user@REALM';
-          }
+      tests: [function(value) {
+        if (!value.match(/\S+@\S+/)) {
+          return 'Principal must contain a realm, e.g. user@REALM';
         }
+      }
       ]
     }),
     new InputView({

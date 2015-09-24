@@ -134,8 +134,7 @@ var HelpPage = View.extend({
        *   - the content, @see ./entries/*.md files
        *   - "related" template, @see ./related.jade
        */
-      template:
-        '<div>'
+      template: '<div>'
         + tagTemplate({
           tags: entry.tags,
           devOnly: entry.devOnly

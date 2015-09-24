@@ -61,7 +61,7 @@
     "start": "gulp dev",
     "release": "gulp release",
     "test": "mocha",
-    "ci": "npm run check && npm test && npm run release",
+    "ci": "npm run check && npm run release && npm test",
     "check": "mongodb-js-precommit --debug ./*.js src/{**/*.js,*.js} test/{**/*.js,*.js} tasks/*.js",
     "fmt": "mongodb-js-fmt ./*.js src/{**/*.js,*.js} test/{**/*.js,*.js} tasks/*.js"
   },
@@ -93,7 +93,6 @@
     "async": "^1.5.0",
     "backoff": "^2.4.1",
     "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz",
-    "chalk": "^1.1.1",
     "d3": "^3.5.6",
     "debug": "^2.2.0",
     "domready": "^1.0.8",
@@ -141,6 +140,9 @@
   },
   "devDependencies": {
     "browserify": "^12.0.1",
+    "chai": "^3.4.1",
+    "chai-as-promised": "^5.1.0",
+    "chalk": "^1.1.1",
     "del": "^2.0.2",
     "electron-installer-codesign": "^0.1.1",
     "electron-installer-dmg": "^0.1.0",
@@ -163,9 +165,11 @@
     "mocha": "^2.3.3",
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^0.2.8",
+    "mongodb-runner": "mongodb-js/runner",
     "npm": "^3.4.1",
     "npm-registry-client": "^7.0.9",
     "pre-commit": "^1.1.2",
+    "spectron": "^0.34.1",
     "watchify": "^3.6.0",
     "which": "^1.2.0"
   }

@@ -1,11 +1,19 @@
 language: node_js
 node_js:
-  - '4.2.1'
-# Need to add CXX env flag and g++-4.8 (in ubuntu-toolchain-r-test source)
-# @see https://github.com/travis-ci/travis-ci/issues/4771
-# @see https://github.com/redis/hiredis-node/blob/master/.travis.yml
+- 4.2.1
 env:
+  matrix:
   - CXX=g++-4.8
+  global:
+    secure: kx+3p/x5hEju6fKYzb0SCk9VJLq6bOxrizCQ/skvRB9OwiQUFm68KHDRys6DonUgudfJK9QF+2IvTPo7V+6bzh15hNDd4TnMuz/L9Fcb7+BwTENwjRKlWltuWBtLbJ+XxOeCAg2uWT7D8bH5S2NADIboIVUstAqNM9LKw9V9BVc=
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - g++-4.8
+    - libkrb5-dev
+    - libgnome-keyring-dev
 before_install:
   - npm install -g npm@3
   - npm config set loglevel error
@@ -13,18 +21,13 @@ before_install:
   - npm --version
 # write a log message to the log every minute to allow for > 10min installs
 install: travis_wait npm install
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - libgnome-keyring-dev
-      - g++-4.8
-
+before_script:
+- "export DISPLAY=:99.0"
+- "sh -e /etc/init.d/xvfb start"
+- sleep 3
 script: npm run-script ci
-# cache:
-#   directories:
-#     - node_modules
-# Post build notifications to the Integrations Flowdock
 notifications:
   flowdock: e3dc17bc8a2c1b3412abe3e5747f8291
+cache:
+  directories:
+  - node_modules

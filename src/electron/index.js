@@ -36,7 +36,9 @@ if (!require('electron-squirrel-startup')) {
     }
   });
 
-  require('./auto-updater');
+  if (process.platform !== 'linux') {
+    require('./auto-updater');
+  }
   var AppMenu = require('./menu');
   AppMenu.init();
   require('./window-manager');
