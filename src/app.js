@@ -239,7 +239,7 @@ app.extend({
       if (!connection_id) {
         // Not serving a part of the app which uses the client,
         // so we can just start everything up now.
-        state.start();
+        state.startRouter();
         return;
       }
 
