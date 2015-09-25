@@ -115,6 +115,14 @@ module.exports.create = function(opts) {
       app.quit();
     }
   });
+
+  // When in dev mode, automaticaly open devtools
+  // detached for ease of debugging.
+  if (process.env.NODE_ENV === 'development') {
+    _window.openDevTools({
+      detach: true
+    });
+  }
   return _window;
 };
 
