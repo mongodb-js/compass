@@ -272,7 +272,7 @@ var ConnectView = View.extend({
    */
   onConnectionSuccessful: function(model, options) {
     options = _.defaults(options, {
-      close: false
+      close: true
     });
     /**
      * The save method will handle calling the correct method
@@ -281,6 +281,7 @@ var ConnectView = View.extend({
      *
      * @see http://ampersandjs.com/docs#ampersand-model-save
      */
+    model.last_used = new Date();
     model.save();
     /**
      * @todo (imlucas): So we can see what auth mechanisms
@@ -291,7 +292,9 @@ var ConnectView = View.extend({
      *     ssl: model.ssl
      *   });
      */
-    this.connections.add(model);
+    this.connections.add(model, {
+      merge: true
+    });
 
     debug('opening schema view for', model.serialize());
     window.open(format('%s?connection_id=%s#schema', window.location.origin, model.getId()));
@@ -329,7 +332,7 @@ var ConnectView = View.extend({
   onFormSubmitted: function(model) {
     this.reset();
 
-    if (!model.name) {
+    if (_.trim(model.name) === '') {
       // If no name specified, the connection name
       // will be `Untitled (1)`.  If there are existing
       // `Untitled (\d)` connections, increment a counter

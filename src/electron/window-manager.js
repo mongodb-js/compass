@@ -32,7 +32,7 @@ var DEFAULT_HEIGHT = 700;
  * windows like the connection and setup dialogs.
  */
 var DEFAULT_WIDTH_DIALOG = 640;
-var DEFAULT_HEIGHT_DIALOG = 600;
+var DEFAULT_HEIGHT_DIALOG = 470;
 /**
  * Adjust the heights to account for platforms
  * that use a single menu bar at the top of the screen.
@@ -116,13 +116,14 @@ module.exports.create = function(opts) {
     }
   });
 
+  // @todo (imlucas)
   // When in dev mode, automaticaly open devtools
   // detached for ease of debugging.
-  if (process.env.NODE_ENV === 'development') {
-    _window.openDevTools({
-      detach: true
-    });
-  }
+  // if (process.env.NODE_ENV === 'development') {
+  //   _window.openDevTools({
+  //     detach: true
+  //   });
+  // }
   return _window;
 };
 
