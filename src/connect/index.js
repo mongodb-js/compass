@@ -258,7 +258,6 @@ var ConnectView = View.extend({
         }
         this.onConnectionSuccessful(model, options);
       }.bind(this));
-
     }.bind(this));
   },
   /**

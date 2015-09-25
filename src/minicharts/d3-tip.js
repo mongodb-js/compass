@@ -33,7 +33,9 @@
 
     function tip(vis) {
       svg = getSVGNode(vis);
-      if (!svg) return;
+      if (!svg) {
+        return;
+      }
       point = svg.createSVGPoint();
       document.body.appendChild(node);
     }
@@ -127,7 +129,9 @@
     //
     // Returns tip or direction
     tip.direction = function(v) {
-      if (!arguments.length) return direction;
+      if (!arguments.length) {
+        return direction;
+      }
       direction = v == null ? v : d3.functor(v);
 
       return tip;
@@ -139,7 +143,9 @@
     //
     // Returns offset or
     tip.offset = function(v) {
-      if (!arguments.length) return offset;
+      if (!arguments.length) {
+        return offset;
+      }
       offset = v == null ? v : d3.functor(v);
 
       return tip;
@@ -151,7 +157,9 @@
     //
     // Returns html value or tip
     tip.html = function(v) {
-      if (!arguments.length) return html;
+      if (!arguments.length) {
+        return html;
+      }
       html = v == null ? v : d3.functor(v);
 
       return tip;
@@ -270,9 +278,12 @@
 
     function getSVGNode(el) {
       el = el.node();
-      if (!el) return;
-      if (el.tagName.toLowerCase() === 'svg')
+      if (!el) {
+        return;
+      }
+      if (el.tagName.toLowerCase() === 'svg') {
         return el;
+      }
 
       return el.ownerSVGElement;
     }

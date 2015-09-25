@@ -159,9 +159,9 @@ var minicharts_d3fns_few = function() {
           return d.tooltip(d, i);
         }
         return d.tooltip || tooltipHtml({
-            label: shared.truncateTooltip(d.label),
-            count: percentFormat(d.count / sumValues * 100, false)
-          });
+          label: shared.truncateTooltip(d.label),
+          count: percentFormat(d.count / sumValues * 100, false)
+        });
       });
       el.call(tip);
 

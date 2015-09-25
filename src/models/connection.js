@@ -25,7 +25,9 @@ module.exports = Connection.extend({
     var model = this;
     debug('Testing connection to `%j`...', this);
     client.test(app.endpoint, this, function(err) {
-      if (err) return done(err);
+      if (err) {
+        return done(err);
+      }
 
       debug('test worked!');
       done(null, model);
