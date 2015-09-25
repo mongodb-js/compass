@@ -62,13 +62,7 @@ var service_name = new InputView({
  * Define fields for each auth method here
  */
 module.exports = {
-  'SCRAM-SHA-1': [
-    username,
-    password,
-    database_name
-  ],
-
-  'MONGODB-CR': [
+  DEFAULT: [
     username,
     password,
     database_name

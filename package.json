@@ -69,7 +69,7 @@
     "ampersand-input-view": "^5.0.0",
     "debug": "^2.2.0",
     "electron-squirrel-startup": "^0.1.2",
-    "mongodb-connection-model": "0.0.2",
+    "mongodb-connection-model": "^0.0.3",
     "scout-server": "http://bin.mongodb.org/js/scout-server/v0.2.1/scout-server-0.2.1.tar.gz"
   },
   "devDependencies": {

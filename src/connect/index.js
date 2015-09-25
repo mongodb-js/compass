@@ -150,7 +150,7 @@ var ConnectView = View.extend({
     evt.preventDefault();
     this.toggle('authOpen');
     if (this.authOpen) {
-      this.authMethod = this.previousAuthMethod || 'SCRAM-SHA-1';
+      this.authMethod = this.previousAuthMethod || 'DEFAULT';
     } else {
       this.authMethod = null;
     }
@@ -235,30 +235,12 @@ var ConnectView = View.extend({
     debug('testing credentials are usable...');
     model.test(function(err) {
       app.statusbar.hide();
-      if (!err) {
-        this.onConnectionSuccessful(model, options);
-        return;
-      }
-
-      if (model.auth_mechanism !== 'SCRAM-SHA-1') {
+      if (err) {
         debug('failed to connect', err);
         this.onError(new Error('Could not connect to MongoDB.'), model);
         return;
       }
-
-      // For Kernel 2.6.x
-      model.auth_mechanism = 'MONGODB-CR';
-      debug('trying again w/ MONGODB-CR...');
-      app.statusbar.show();
-
-      model.test(function(err) {
-        if (err) {
-          debug('failed to connect again... bailing', err);
-          this.onError(new Error('Could not connect to MongoDB.'), model);
-          return;
-        }
-        this.onConnectionSuccessful(model, options);
-      }.bind(this));
+      this.onConnectionSuccessful(model, options);
     }.bind(this));
   },
   /**
@@ -393,7 +375,7 @@ var ConnectView = View.extend({
     // @todo (imlucas): Consolidate w/ `./auth-fields.js`.
     var authMethods = [
       {
-        _id: 'SCRAM-SHA-1',
+        _id: 'DEFAULT',
         title: 'User/Password',
         enabled: true
       },
