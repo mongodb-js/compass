@@ -217,7 +217,7 @@ var ConnectView = View.extend({
    * @api public
    */
   connect: function(model, options) {
-    options = _.defaults(options, {
+    options = _.defaults(options || {}, {
       close: false
     });
 
@@ -226,12 +226,30 @@ var ConnectView = View.extend({
     debug('testing credentials are usable...');
     model.test(function(err) {
       app.statusbar.hide();
-      if (err) {
+      if (!err) {
+        this.onConnectionSuccessful(model, options);
+        return;
+      }
+
+      if (model.auth_mechanism !== 'SCRAM-SHA-1') {
         debug('failed to connect', err);
         this.onError(new Error('Could not connect to MongoDB.'), model);
         return;
       }
-      this.onConnectionSuccessful(model, options);
+
+      // For Kernel 2.6.x
+      model.auth_mechanism = 'MONGODB-CR';
+      debug('trying again w/ MONGODB-CR...');
+      app.statusbar.show();
+
+      model.test(function(err) {
+        if (err) {
+          debug('failed to connect again... bailing', err);
+          this.onError(new Error('Could not connect to MongoDB.'), model);
+          return;
+        }
+        this.onConnectionSuccessful(model, options);
+      }.bind(this));
     }.bind(this));
   },
   /**
