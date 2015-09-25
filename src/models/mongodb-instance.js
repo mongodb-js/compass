@@ -1,20 +1,19 @@
-var MongoDBInstance = require('scout-brain').models.Instance;
-var MongoDBCollectionCollection = require('scout-brain').models.CollectionCollection;
+var MongoDBInstance = require('mongodb-instance-model');
 var MongoDBCollection = require('./mongodb-collection');
 var scoutClientMixin = require('./scout-client-mixin');
 var selectableMixin = require('./selectable-collection-mixin');
-var types = require('./types');
+var toNS = require('mongodb-ns');
 
 /**
  * A user selectable collection of `MongoDBCollection`'s with `specialish`
   * collections filtered out.
  */
-var MongoDBCollectionOnInstanceCollection = MongoDBCollectionCollection.extend(selectableMixin, {
+var MongoDBCollectionOnInstanceCollection = MongoDBCollection.Collection.extend(selectableMixin, {
   namespace: 'MongoDBCollectionOnInstanceCollection',
   model: MongoDBCollection,
   parse: function(res) {
     return res.filter(function(d) {
-      return !types.ns(d._id).specialish;
+      return !toNS(d._id).specialish;
     });
   }
 });
@@ -22,11 +21,12 @@ var MongoDBCollectionOnInstanceCollection = MongoDBCollectionCollection.extend(s
 /**
  * Metadata for a MongoDB Instance, such as a `db.hostInfo()`, `db.listDatabases()`,
  * `db.buildInfo()`, and more.
- * @see https://github.com/10gen/scout/blob/dev/scout-brain/lib/models/instance.js
+ *
+ * @see http://npm.im/mongodb-instance-model
  */
 module.exports = MongoDBInstance.extend(scoutClientMixin, {
   namespace: 'MongoDBInstance',
-  children: {
+  collections: {
     collections: MongoDBCollectionOnInstanceCollection
   },
   url: '/instance'

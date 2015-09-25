@@ -92,7 +92,7 @@ var MongoDBCollectionView = View.extend({
     var ns = this.parent.ns;
     if (!ns) {
       this.visible = false;
-      debug('not updating because parent has no collection namespace.');
+      debug('No active collection namespace so no schema has been requested yet.');
       return;
     }
     this.visible = true;
