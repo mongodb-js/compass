@@ -123,9 +123,12 @@ var Application = View.extend({
     app.statusbar.hide();
   },
   onFatalError: function(id, err) {
+    debug('clearing client stall timeout...');
+    clearTimeout(this.clientStalledTimeout);
+
     console.error('Fatal Error!: ', id, err);
-    bugsnag.notifyException(err, 'fatal!' + id);
-    window.alert('Fatal Error: ' + id + ': ' + err.message);
+    bugsnag.notifyException(err, 'Fatal Error: ' + id);
+    app.statusbar.fatal(err);
   },
   // ms we'll wait for a `scout-client` instance
   // to become readable before giving up and showing
