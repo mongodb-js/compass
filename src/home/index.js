@@ -1,9 +1,9 @@
 var View = require('ampersand-view');
 var format = require('util').format;
 var SidebarView = require('../sidebar');
-var debug = require('debug')('scout-ui:home');
 var CollectionView = require('./collection');
 var app = require('ampersand-app');
+var debug = require('debug')('scout:home');
 
 var HomeView = View.extend({
   props: {
@@ -32,6 +32,7 @@ var HomeView = View.extend({
     this.listenTo(app.instance, 'sync', this.onInstanceFetched);
     this.listenTo(app.connection, 'change:name', this.updateTitle);
     this.once('change:rendered', this.onRendered);
+    debug('fetching instance model...');
     app.instance.fetch();
   },
   onInstanceFetched: function() {

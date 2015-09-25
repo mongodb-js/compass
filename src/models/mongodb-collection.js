@@ -1,13 +1,13 @@
-var MongoDBCollection = require('scout-brain').models.Collection;
-var types = require('./types');
+var MongoDBCollection = require('mongodb-collection-model');
+var toNS = require('mongodb-ns');
 var scoutClientMixin = require('./scout-client-mixin');
 var format = require('util').format;
 
 /**
  * Metadata for a MongoDB Collection.
- * @see https://github.com/10gen/scout/blob/dev/scout-brain/lib/models/collection.js
+ * @see http://npm.im/mongodb-collection-model
  */
-module.exports = MongoDBCollection.extend(scoutClientMixin, {
+var CollectionModel = MongoDBCollection.extend(scoutClientMixin, {
   namespace: 'MongoDBCollection',
   session: {
     selected: {
@@ -19,14 +19,14 @@ module.exports = MongoDBCollection.extend(scoutClientMixin, {
     name: {
       deps: ['_id'],
       fn: function() {
-        return types.ns(this._id).collection;
+        return toNS(this._id).collection;
       }
     },
     specialish: {
       name: {
         deps: ['_id'],
         fn: function() {
-          return types.ns(this._id).specialish;
+          return toNS(this._id).specialish;
         }
       }
     },
@@ -42,4 +42,10 @@ module.exports = MongoDBCollection.extend(scoutClientMixin, {
       props: true
     }, true);
   }
+});
+
+module.exports = CollectionModel;
+
+module.exports.Collection = MongoDBCollection.Collection.extend({
+  model: CollectionModel
 });

@@ -1,3 +1,5 @@
+/* eslint no-console:0 */
+
 var pkg = require('../package.json');
 var app = require('ampersand-app');
 app.extend({
@@ -8,7 +10,9 @@ app.extend({
     'App Version': pkg.version
   }
 });
-require('./bugsnag').listen(app);
+
+var bugsnag = require('./bugsnag');
+bugsnag.listen(app);
 
 var _ = require('lodash');
 var domReady = require('domready');
@@ -17,6 +21,13 @@ var getOrCreateClient = require('scout-client');
 var ViewSwitcher = require('ampersand-view-switcher');
 var View = require('ampersand-view');
 var localLinks = require('local-links');
+
+var QueryOptions = require('./models/query-options');
+var Connection = require('./models/connection');
+var MongoDBInstance = require('./models/mongodb-instance');
+var Router = require('./router');
+var Statusbar = require('./statusbar');
+
 var debug = require('debug')('scout:app');
 
 // Inter-process communication with main process (Electron window)
@@ -78,24 +89,62 @@ var Application = View.extend({
     /**
      * Enable/Disable features with one global switch
      */
-    features: 'object'
+    features: 'object',
+    clientStartedAt: 'date',
+    clientStalledTimeout: 'number'
   },
   events: {
     'click a': 'onLinkClick'
   },
-  /**
-   * We have what we need, we can now start our router and show the appropriate page!
-   */
-  _onDOMReady: function() {
-    this.el = document.querySelector('#application');
-    this.render();
+  onClientReady: function() {
+    debug('Client ready! Took %dms to become readable',
+      new Date() - this.clientStartedAt);
 
+    debug('clearing client stall timeout...');
+    clearTimeout(this.clientStalledTimeout);
+
+    debug('initializing singleton models... ');
+    this.queryOptions = new QueryOptions();
+    this.volatileQueryOptions = new QueryOptions();
+    this.instance = new MongoDBInstance();
+
+    this.startRouter();
+  },
+  startRouter: function() {
+    this.router = new Router();
+    debug('Listening for page changes from the router...');
     this.listenTo(this.router, 'page', this.onPageChange);
 
+    debug('Starting router...');
     this.router.history.start({
       pushState: false,
       root: '/'
     });
+    app.statusbar.hide();
+  },
+  onFatalError: function(id, err) {
+    debug('clearing client stall timeout...');
+    clearTimeout(this.clientStalledTimeout);
+
+    console.error('Fatal Error!: ', id, err);
+    bugsnag.notifyException(err, 'Fatal Error: ' + id);
+    app.statusbar.fatal(err);
+  },
+  // ms we'll wait for a `scout-client` instance
+  // to become readable before giving up and showing
+  // a fatal error message.
+  CLIENT_STALLED_REDLINE: 5 * 1000,
+  startClientStalledTimer: function() {
+    this.clientStartedAt = new Date();
+
+    debug('Starting client stalled timer to bail in %dms...',
+      this.CLIENT_STALLED_REDLINE);
+
+    this.clientStalledTimeout = setTimeout(function() {
+      this.onFatalError('client stalled',
+        new Error('Error connecting to MongoDB.  '
+          + 'Please reload the page.'));
+    }.bind(this), this.CLIENT_STALLED_REDLINE);
   },
   /**
    * When you want to go to a different page in the app or just save
@@ -117,15 +166,25 @@ var Application = View.extend({
       trigger: !options.silent
     });
   },
+  /**
+   * Called a soon as the DOM is ready so we can
+   * start showing status indicators as
+   * quickly as possible.
+   */
   render: function() {
+    debug('Rendering app container...');
+
+    this.el = document.querySelector('#application');
     this.renderWithTemplate(this);
     this.pageSwitcher = new ViewSwitcher(this.queryByHook('layout-container'), {
       show: function() {
         document.scrollTop = 0;
       }
     });
-
-    this.statusbar.el = this.queryByHook('statusbar');
+    debug('rendering statusbar...');
+    this.statusbar = new Statusbar({
+      el: this.queryByHook('statusbar')
+    });
     this.statusbar.render();
   },
   onPageChange: function(view) {
@@ -153,47 +212,68 @@ var state = new Application({
   connection_id: connection_id
 });
 
-var QueryOptions = require('./models/query-options');
-var Connection = require('./models/connection');
-var MongoDBInstance = require('./models/mongodb-instance');
-var Router = require('./router');
-var Statusbar = require('./statusbar');
-
-function start() {
-  state.router = new Router();
-  domReady(state._onDOMReady.bind(state));
-}
+// @todo (imlucas): Feature flags can be overrideen
+// via `window.localStorage`.
+var FEATURES = {
+  querybuilder: true,
+  'Connect with SSL': false,
+  'Connect with Kerberos': true,
+  'Connect with LDAP': false,
+  'Connect with X.509': false
+};
 
 app.extend({
   client: null,
+  // @note (imlucas): Backwards compat for querybuilder
+  features: FEATURES,
+  /**
+   * Check whether a feature flag is currently enabled.
+   *
+   * @param {String} id - A key in `FEATURES`.
+   * @return {Boolean}
+   */
+  isFeatureEnabled: function(id) {
+    return FEATURES[id] === true;
+  },
   init: function() {
-    // feature flags
-    this.features = {
-      querybuilder: true
-    };
-    state.statusbar = new Statusbar();
+    domReady(function() {
+      state.render();
 
-    if (connection_id) {
+      if (!connection_id) {
+        // Not serving a part of the app which uses the client,
+        // so we can just start everything up now.
+        state.startRouter();
+        return;
+      }
+
+      app.statusbar.show('Retrieving connection details...');
+
       state.connection = new Connection({
         _id: connection_id
       });
 
-
       debug('looking up connection `%s`...', connection_id);
       state.connection.fetch({
         success: function() {
-          debug('got connection `%j`...', state.connection.serialize());
-          app.client = getOrCreateClient(app.endpoint, state.connection.serialize());
+          app.statusbar.show('Connection details loaded! Initializing client...');
 
-          state.queryOptions = new QueryOptions();
-          state.volatileQueryOptions = new QueryOptions();
-          state.instance = new MongoDBInstance();
-          start();
+          var endpoint = app.endpoint;
+          var connection = state.connection.serialize();
+
+          app.client = getOrCreateClient(endpoint, connection)
+            .on('readable', state.onClientReady.bind(state))
+            .on('error', state.onFatalError.bind(state, 'create client'));
+
+          state.startClientStalledTimer();
+        },
+        error: function() {
+          // @todo (imlucas) `ampersand-sync-localforage` currently drops
+          // the real error so for now just use a generic.
+          state.onFatalError(state, 'fetch connection',
+            new Error('Error retrieving connection.  Please reload the page.'));
         }
       });
-    } else {
-      start();
-    }
+    });
     // set up ipc
     ipc.on('message', state.onMessageReceived.bind(this));
   },

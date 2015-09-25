@@ -67,13 +67,6 @@ module.exports = {
     password,
     database_name
   ],
-
-  'MONGODB-CR': [
-    username,
-    password,
-    database_name
-  ],
-
   GSSAPI: [
     username,
     service_name

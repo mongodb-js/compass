@@ -87,6 +87,15 @@ var ConnectView = View.extend({
         selector: '[data-hook=openAuth] > i',
         yes: 'caret',
         no: 'caret-right'
+      },
+      {
+        type: function(el, authOpen) {
+          if (authOpen) {
+            window.resizeTo(window.outerWidth, 630);
+          } else {
+            window.resizeTo(window.outerWidth, 410);
+          }
+        }
       }
     ],
     sslOpen: [
@@ -131,8 +140,10 @@ var ConnectView = View.extend({
     this.connections.fetch();
   },
   /**
-   * Triggers when the user expands/collapses the auth section
-   * @param  {Object} evt    the click event
+   * Triggers when the user clicks the disclosure icon to expand/collapse
+   * the auth section.
+   *
+   * @param {MouseEvent} evt
    */
   onOpenAuthClicked: function(evt) {
     evt.stopPropagation();
@@ -146,7 +157,8 @@ var ConnectView = View.extend({
   },
   /**
    * Triggers when the user expands/collapses the SSL section
-   * @param  {Object} evt    the click event
+   *
+   * @param {MouseEvent} evt - The click event
    */
   onOpenSSLClicked: function(evt) {
     evt.stopPropagation();
@@ -172,7 +184,7 @@ var ConnectView = View.extend({
 
   /**
    * Triggers when the user switches between auth tabs
-   * @param  {Object} evt    the click event
+   * @param  {MouseEvent} evt - the click event
    */
   onAuthTabClicked: function(evt) {
     this.authMethod = $(evt.target).data('method');
@@ -186,14 +198,14 @@ var ConnectView = View.extend({
 
     // remove and unregister old fields
     var oldFields = authFields[this.previousAuthMethod];
-    // debug('removing fields:', _.pluck(oldFields, 'name'));
+    debug('removing fields:', _.pluck(oldFields, 'name'));
     _.each(oldFields, function(field) {
       this.form.removeField(field.name);
     }.bind(this));
 
     // register new with form, render, append to DOM
     var newFields = authFields[this.authMethod];
-    // debug('adding fields:', _.pluck(newFields, 'name'));
+    debug('adding fields:', _.pluck(newFields, 'name'));
 
     _.each(newFields, function(field) {
       this.form.addField(field.render());
@@ -203,75 +215,213 @@ var ConnectView = View.extend({
     this.previousAuthMethod = this.authMethod;
     debug('form data now has the following fields', Object.keys(this.form.data));
   },
-
   /**
-   * checks if the connection already exists under a different name. Returns null if the
-   * connection doesn't exist yet, or the name of the connection, if it does.
+   * Use a connection to view schemas, such as after
+   * submitting a form or when double-clicking on
+   * a list item like in `./sidebar`.
    *
-   * @param  {Object} connection      The new connection to check
-   * @return {String|null}            Name of the connection that is otherwise identical to obj
+   * @param {Connection} model
+   * @param {Object} [options]
+   * @option {Boolean} close - Close the connect dialog on success [Default: `false`].
+   * @api public
    */
-  checkExistingConnection: function(connection) {
-    var existingConnection = this.connections.get(connection.uri);
+  connect: function(model, options) {
+    options = _.defaults(options || {}, {
+      close: false
+    });
 
-    if (connection.name !== ''
-      && existingConnection
-      && connection.name !== existingConnection.name) {
-      app.statusbar.hide();
-      this.has_error = true;
-      this.message = format('This connection already exists under the name "%s". '
-      + 'Click "Connect" again to use that connection.',
-        existingConnection.name);
-      return existingConnection.name;
-    }
-    return null;
+    app.statusbar.show();
+
+    debug('testing credentials are usable...');
+    model.test(function(err) {
+      if (!err) {
+        this.onConnectionSuccessful(model, options);
+        return;
+      }
+
+      if (model.auth_mechanism !== 'SCRAM-SHA-1') {
+        debug('failed to connect', err);
+        this.onError(new Error('Could not connect to MongoDB.'), model);
+        return;
+      }
+
+      // For Kernel 2.6.x
+      model.auth_mechanism = 'MONGODB-CR';
+      debug('trying again w/ MONGODB-CR...');
+      app.statusbar.show();
+
+      model.test(function(err) {
+        if (err) {
+          debug('failed to connect again... bailing', err);
+          this.onError(new Error('Could not connect to MongoDB.'), model);
+          return;
+        }
+        this.onConnectionSuccessful(model, options);
+      }.bind(this));
+
+    }.bind(this));
   },
-
   /**
-   * checks if the connection name already exists but with different details. Returns true
-   * if the name already exists, or false otherwise.
+   * If the connection is useable, save/update it in the
+   * store and open a new window that will show the schema
+   * view using it.
    *
-   * @param  {Object} connection      The new connection to check
-   * @return {Boolean}                Whether or not the connection name already exists
+   * @param {Connection} model
+   * @param {Object} [options]
+   * @api private
    */
-  checkExistingName: function(connection) {
-    var existingConnection = this.connections.get(connection.name, 'name');
+  onConnectionSuccessful: function(model, options) {
+    options = _.defaults(options, {
+      close: true
+    });
+    /**
+     * The save method will handle calling the correct method
+     * of the sync being used by the model, whether that's
+     * `create` or `update`.
+     *
+     * @see http://ampersandjs.com/docs#ampersand-model-save
+     */
+    model.last_used = new Date();
+    model.save();
+    /**
+     * @todo (imlucas): So we can see what auth mechanisms
+     * and accoutrement people are actually using IRL.
+     *
+     *   metrics.trackEvent('connect success', {
+     *     auth_mechanism: model.auth_mechanism,
+     *     ssl: model.ssl
+     *   });
+     */
+    this.connections.add(model, {
+      merge: true
+    });
 
-    if (connection.name !== ''
-      && existingConnection
-      && existingConnection.uri !== connection.uri) {
-      app.statusbar.hide();
-      this.has_error = true;
-      this.message = format('Another connection with the name "%s" already exists. Please '
-      + 'delete the existing connection first or choose a different name.',
-        existingConnection.name);
-      return true;
-    }
-    return false;
-  },
-  /* (err, model) */
-  onConnectionError: function() {
-    this.message = 'Could not connect to MongoDB.  '
-      + 'Please double check your info.';
-  },
-  onConnectionAccepted: function(model) {
-    // save connection if a name was provided
-    if (model.name !== '') {
-      model.save();
-      this.connections.add(model);
-    }
-
-    // connect
-    debug('all good, connecting:', model.serialize());
+    debug('opening schema view for', model.serialize());
     window.open(format('%s?connection_id=%s#schema', window.location.origin, model.getId()));
     setTimeout(this.set.bind(this, {
       message: ''
     }), 500);
-    setTimeout(window.close, 1000);
-  },
 
+    if (options.close) {
+      setTimeout(window.close, 1000);
+    }
+  },
+  /**
+   * If there is a validation or connection error show a nice message.
+   *
+   * @param {Error} err
+   * @param {Connection} model
+   * @api private
+   */
+  onError: function(err, model) {
+    // @todo (imlucas): `metrics.trackEvent('connect error', auth_mechanism + ssl boolean)`
+    debug('showing error message', {
+      err: err,
+      model: model
+    });
+    this.message = err.message;
+    this.has_error = true;
+  },
+  /**
+   * When the form is submitted, validate the resulting model
+   * and then connect using it.
+   *
+   * @param {Connection} model
+   * @api private
+   */
+  onFormSubmitted: function(model) {
+    this.reset();
+
+    if (_.trim(model.name) === '') {
+      // If no name specified, the connection name
+      // will be `Untitled (1)`.  If there are existing
+      // `Untitled (\d)` connections, increment a counter
+      // on them like every MS Office does.
+      var untitleds = _.chain(this.connections.models)
+        .filter(function(model) {
+          return _.startsWith(model.name, 'Untitled (');
+        })
+        .sort('name')
+        .value();
+
+      model.name = format('Untitled (%d)', untitleds.length + 1);
+    }
+
+    // @todo (imlucas): Dont allow duplicate names?
+
+    if (!model.isValid()) {
+      this.onError(model.validationError);
+    }
+
+    this.connect(model);
+  },
+  /**
+   * Update the form's state based on an existing
+   * connection, e.g. clicking on a list item
+   * like in `./sidebar.js`.
+   *
+   * @param {Connection} model
+   * @api public
+   */
+  onConnectionSelected: function(model) {
+    // If the new model has auth, expand the auth options container
+    // and select the correct tab.
+    this.authMethod = model.auth_mechanism;
+
+    if (model.auth_mechanism !== null) {
+      this.authOpen = true;
+    } else {
+      this.authOpen = false;
+    }
+
+    // Changing `this.authMethod` dynamically updates the
+    // fields in the form because it's a top-level constraint
+    // so we need to get a list of what keys are currently
+    // available to set.
+    var keys = ['name', 'port', 'hostname'];
+    if (model.auth_mechanism) {
+      keys.push.apply(keys, _.pluck(authFields[this.authMethod], 'name'));
+    }
+
+    debug('Populating form fields with keys', keys);
+    var values = _.pick(model, keys);
+
+    // Populates the form from values in the model.
+    this.form.setValues(values);
+  },
   render: function() {
-    this.renderWithTemplate();
+    // @todo (imlucas): Consolidate w/ `./auth-fields.js`.
+    var authMethods = [
+      {
+        _id: 'SCRAM-SHA-1',
+        title: 'User/Password',
+        enabled: true
+      },
+      {
+        _id: 'GSSAPI',
+        title: 'Kerberos',
+        enabled: app.isFeatureEnabled('Connect with Kerberos')
+      },
+      {
+        _id: 'PLAIN',
+        title: 'LDAP',
+        enabled: app.isFeatureEnabled('Connect with LDAP')
+      },
+      {
+        _id: 'MONGODB-X509',
+        title: 'X.509',
+        enabled: app.isFeatureEnabled('Connect with X.509')
+      }
+    ];
+    this.renderWithTemplate({
+      authMethods: authMethods,
+      getFeatureClass: function getFeatureClass(feature_id) {
+        if (!app.isFeatureEnabled(feature_id)) {
+          return ['hidden'];
+        }
+      }
+    });
+
     this.form = new ConnectFormView({
       parent: this,
       el: this.queryByHook('connect-form'),
@@ -289,6 +439,15 @@ var ConnectView = View.extend({
         placement: 'top',
         trigger: 'hover'
       });
+  },
+  /**
+   * Return to a clean state between form submissions.
+   *
+   * @api private
+   */
+  reset: function() {
+    this.message = '';
+    this.has_error = false;
   },
   subviews: {
     sidebar: {

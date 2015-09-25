@@ -18,33 +18,7 @@ var ConnectFormView = FormView.extend({
    */
   submitCallback: function(obj) {
     debug('form submitted', obj);
-
-    var connection = new Connection(obj);
-
-    var existingName = this.parent.checkExistingConnection(connection);
-    if (existingName) {
-      this.valid = false;
-      this.setValue('name', existingName);
-      return;
-    }
-
-    existingName = this.parent.checkExistingName(connection);
-    if (existingName) {
-      this.valid = false;
-      return;
-    }
-
-    app.statusbar.show();
-
-    debug('testing credentials are usable...');
-    connection.test(function(err) {
-      app.statusbar.hide();
-      if (err) {
-        this.parent.onConnectionError(err, connection);
-        return;
-      }
-      this.parent.onConnectionAccepted(connection);
-    }.bind(this));
+    this.parent.onFormSubmitted(new Connection(obj));
   },
   clean: function(obj) {
     // clean up the form values here, e.g. conversion to numbers etc.
@@ -73,6 +47,8 @@ var ConnectFormView = FormView.extend({
    * These are the default form fields that are always present in the connect dialog. Auth and
    * SSL fields are added/removed dynamically, depending on whether the options are expanded or
    * collapsed.
+   *
+   * @return {Array<InputView>}
    */
   fields: function() {
     return [
@@ -110,7 +86,7 @@ var ConnectFormView = FormView.extend({
         template: require('./input-saveas.jade'),
         el: this.parent.queryByHook('saveas-subview'),
         name: 'name',
-        placeholder: 'Connection Name',
+        placeholder: 'e.g. Shared Dev, Stats Box, PRODUCTION',
         required: false
       })
     ];

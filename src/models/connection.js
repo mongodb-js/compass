@@ -15,9 +15,7 @@ module.exports = Connection.extend({
       default: function() {
         return uuid.v4();
       }
-    }
-  },
-  session: {
+    },
     /**
      * Updated on each successful connection to the Deployment.
      */

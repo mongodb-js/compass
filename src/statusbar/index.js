@@ -7,10 +7,20 @@ var StatusbarView = View.extend({
     },
     message: {
       type: 'string'
+    },
+    loading: {
+      type: 'boolean',
+      default: true
     }
   },
   template: require('./index.jade'),
   bindings: {
+    loading: {
+      hook: 'loading',
+      type: 'booleanClass',
+      yes: 'visible',
+      no: 'hidden'
+    },
     message: [
       {
         hook: 'message'
@@ -68,13 +78,20 @@ var StatusbarView = View.extend({
   onComplete: function() {
     this.hide();
   },
+  fatal: function(err) {
+    this.loading = false;
+    this.message = 'Fatal Error: ' + err.message;
+    this.width = 100;
+  },
   show: function(message) {
     this.message = message || '';
     this.width = 100;
+    this.loading = true;
   },
   hide: function() {
     this.message = '';
     this.width = 0;
+    this.loading = false;
   }
 });
 

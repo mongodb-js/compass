@@ -28,6 +28,20 @@ var SidebarItemView = View.extend({
     hover: {
       type: 'toggle',
       hook: 'close'
+    },
+    has_auth: {
+      type: 'booleanClass',
+      hook: 'has-auth',
+      yes: 'visible',
+      no: 'hidden'
+    }
+  },
+  derived: {
+    has_auth: {
+      deps: ['model.auth_mechanism'],
+      fn: function() {
+        return this.model.auth_mechanism !== null;
+      }
     }
   },
   template: require('./connection.jade'),
@@ -52,7 +66,7 @@ var SidebarItemView = View.extend({
 
 
 /**
- * Renders all existing connections in the sidebar.
+ * Renders all existing connections as list in the sidebar.
  */
 var SidebarView = View.extend({
   namespace: 'SidebarView',
@@ -64,15 +78,12 @@ var SidebarView = View.extend({
   onItemClick: function(event, model) {
     event.stopPropagation();
     event.preventDefault();
-
-    // fill in the form with the clicked connection details
-    this.parent.form.setValues(model.serialize());
+    this.parent.onConnectionSelected(model);
   },
   onItemDoubleClick: function(event, model) {
     this.onItemClick(event, model);
-    this.parent.form.onSubmit(event);
+    this.parent.connect(model);
   }
 });
-
 
 module.exports = SidebarView;
