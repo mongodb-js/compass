@@ -198,14 +198,14 @@ var ConnectView = View.extend({
 
     // remove and unregister old fields
     var oldFields = authFields[this.previousAuthMethod];
-    // debug('removing fields:', _.pluck(oldFields, 'name'));
+    debug('removing fields:', _.pluck(oldFields, 'name'));
     _.each(oldFields, function(field) {
       this.form.removeField(field.name);
     }.bind(this));
 
     // register new with form, render, append to DOM
     var newFields = authFields[this.authMethod];
-    // debug('adding fields:', _.pluck(newFields, 'name'));
+    debug('adding fields:', _.pluck(newFields, 'name'));
 
     _.each(newFields, function(field) {
       this.form.addField(field.render());
@@ -378,10 +378,13 @@ var ConnectView = View.extend({
     // fields in the form because it's a top-level constraint
     // so we need to get a list of what keys are currently
     // available to set.
-    var fields = _.flatten(['name', 'port', 'hostname'],
-      authFields[this.authMethod] || []);
-    debug('Populating form fields', fields);
-    var values = _.pick(model, fields);
+    var keys = ['name', 'port', 'hostname'];
+    if (model.auth_mechanism) {
+      keys.push.apply(keys, _.pluck(authFields[this.authMethod], 'name'));
+    }
+
+    debug('Populating form fields with keys', keys);
+    var values = _.pick(model, keys);
 
     // Populates the form from values in the model.
     this.form.setValues(values);
