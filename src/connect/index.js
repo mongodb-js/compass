@@ -87,6 +87,15 @@ var ConnectView = View.extend({
         selector: '[data-hook=openAuth] > i',
         yes: 'caret',
         no: 'caret-right'
+      },
+      {
+        type: function(el, authOpen) {
+          if (authOpen) {
+            window.resizeTo(window.outerWidth, 630);
+          } else {
+            window.resizeTo(window.outerWidth, 410);
+          }
+        }
       }
     ],
     sslOpen: [
