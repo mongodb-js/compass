@@ -62,12 +62,11 @@ var service_name = new InputView({
  * Define fields for each auth method here
  */
 module.exports = {
-  DEFAULT: [
+  'SCRAM-SHA-1': [
     username,
     password,
     database_name
   ],
-
   GSSAPI: [
     username,
     service_name
