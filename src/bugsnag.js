@@ -28,6 +28,8 @@ function beforeNotify(d) {
   debug('redacted bugsnag report\n', JSON.stringify(d, null, 2));
 }
 
+module.exports = bugsnag;
+
 /**
  * Configure bugsnag's api client which attaches a handler to
  * `window.onerror` so any uncaught exceptions are trapped and logged
