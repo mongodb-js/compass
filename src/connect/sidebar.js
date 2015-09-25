@@ -28,6 +28,20 @@ var SidebarItemView = View.extend({
     hover: {
       type: 'toggle',
       hook: 'close'
+    },
+    has_auth: {
+      type: 'booleanClass',
+      hook: 'has-auth',
+      yes: 'visible',
+      no: 'hidden'
+    }
+  },
+  derived: {
+    has_auth: {
+      deps: ['model.auth_mechanism'],
+      fn: function() {
+        return this.model.auth_mechanism !== null;
+      }
     }
   },
   template: require('./connection.jade'),
