@@ -342,7 +342,7 @@ module.exports = {
             mustSelect = mustSelect && d.value < message.selected[1];
             halfSelect = halfSelect || d.value + message.dx > message.selected[1];
           }
-          // mustSelect = lowerSelect && upperSelect;
+        // mustSelect = lowerSelect && upperSelect;
         }
         if (mustSelect) {
           el.classList.add('selected');

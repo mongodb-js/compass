@@ -47,6 +47,8 @@ var ConnectFormView = FormView.extend({
    * These are the default form fields that are always present in the connect dialog. Auth and
    * SSL fields are added/removed dynamically, depending on whether the options are expanded or
    * collapsed.
+   *
+   * @return {Array<InputView>}
    */
   fields: function() {
     return [

@@ -42,7 +42,7 @@ module.exports = Model.extend({
     //     // return the string without key quotes for display in RefineBarView
     //   }
     // },
-    /*eslint no-new: 0*/
+    /* eslint no-new: 0 */
     valid: {
       deps: ['cleanString'],
       fn: function() {
