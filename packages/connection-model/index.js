@@ -44,11 +44,29 @@ var Connection = AmpersandModel.extend({
       default: 'admin'
     },
     /**
-     * GSSAPI = Kerberos, PLAIN = LDAP
+     * ## `null`
+     * No authentication.
+     #
+     * ## GSSAPI
+     * Kerberos
+     *
+     * ## PLAIN
+     * LDAP
+     *
+     * ## DEFAULT
+     * driver will autoselect SCRAM-SHA-1 | MONGODB-CR
+     * depending on the servers capabilities.
+     * @see https://github.com/mongodb/node-mongodb-native/pull/1299
      */
     auth_mechanism: {
       type: 'string',
-      values: [null, 'SCRAM-SHA-1', 'MONGODB-CR', 'MONGODB-X509', 'GSSAPI', 'PLAIN'],
+      values: [
+        null,
+        'DEFAULT', 'SCRAM-SHA-1', 'MONGODB-CR',
+        'MONGODB-X509',
+        'GSSAPI',
+        'PLAIN'
+      ],
       default: null
     },
     gssapi_service_name: {
@@ -111,7 +129,6 @@ var Connection = AmpersandModel.extend({
       default: null
     }
   },
-
   validate: function(attrs) {
     if (attrs.auth_mechanism === 'GSSAPI') {
       if (!attrs.gssapi_service_name) {
