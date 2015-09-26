@@ -46,10 +46,10 @@ var SidebarItemView = View.extend({
   },
   template: require('./connection.jade'),
   onClick: function(event) {
-    this.parent.onItemClick(event, this.model);
+    this.parent.onItemClick(event, this);
   },
   onDoubleClick: function(event) {
-    this.parent.onItemDoubleClick(event, this.model);
+    this.parent.onItemDoubleClick(event, this);
   },
   onCloseClick: function(event) {
     event.stopPropagation();
@@ -69,20 +69,44 @@ var SidebarItemView = View.extend({
  * Renders all existing connections as list in the sidebar.
  */
 var SidebarView = View.extend({
+  session: {
+    active_item_view: {
+      type: 'state'
+    }
+  },
+  events: {
+    'click a[data-hook=new-connection]': 'onNewConnectionClick'
+  },
   namespace: 'SidebarView',
   template: require('./sidebar.jade'),
   render: function() {
     this.renderWithTemplate();
     this.renderCollection(this.collection, SidebarItemView, this.queryByHook('connection-list'));
   },
-  onItemClick: function(event, model) {
+  onNewConnectionClick: function(event) {
     event.stopPropagation();
     event.preventDefault();
-    this.parent.onConnectionSelected(model);
+
+    if (this.active_item_view) {
+      this.active_item_view.el.classList.remove('active');
+      this.active_item_view = null;
+    }
+    this.parent.createNewConnection();
   },
-  onItemDoubleClick: function(event, model) {
-    this.onItemClick(event, model);
-    this.parent.connect(model);
+  onItemClick: function(event, view) {
+    event.stopPropagation();
+    event.preventDefault();
+    if (this.active_item_view) {
+      this.active_item_view.el.classList.remove('active');
+    }
+
+    this.active_item_view = view;
+    this.active_item_view.el.classList.add('active');
+    this.parent.onConnectionSelected(view.model);
+  },
+  onItemDoubleClick: function(event, view) {
+    this.onItemClick(event, view);
+    this.parent.connect(view.model);
   }
 });
 
