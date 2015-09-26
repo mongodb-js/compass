@@ -197,6 +197,13 @@ var ConnectView = View.extend({
     this.authMethod = null;
     this.authOpen = false;
   },
+  onConnectionDestroyed: function() {
+    this.reset();
+    this.form.connection_id = '';
+    this.form.reset();
+    this.authMethod = null;
+    this.authOpen = false;
+  },
 
   /**
    * Triggers when the auth methods has changed (or set back to null)

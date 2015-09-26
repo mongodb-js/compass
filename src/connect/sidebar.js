@@ -19,7 +19,7 @@ var SidebarItemView = View.extend({
     dblclick: 'onDoubleClick',
     mouseover: 'onMouseOver',
     mouseout: 'onMouseOut',
-    'click [data-hook=close]': 'onCloseClick'
+    'click [data-hook=close]': 'onRemoveClick'
   },
   bindings: {
     'model.name': {
@@ -51,10 +51,11 @@ var SidebarItemView = View.extend({
   onDoubleClick: function(event) {
     this.parent.onItemDoubleClick(event, this);
   },
-  onCloseClick: function(event) {
+  onRemoveClick: function(event) {
     event.stopPropagation();
     event.preventDefault();
     this.model.destroy();
+    this.parent.onRemoveClick(event, this);
   },
   onMouseOver: function() {
     this.hover = true;
@@ -92,6 +93,12 @@ var SidebarView = View.extend({
       this.active_item_view = null;
     }
     this.parent.createNewConnection();
+  },
+  onRemoveClick: function(event, view) {
+    event.stopPropagation();
+    event.preventDefault();
+    view.model.destroy();
+    this.parent.onConnectionDestroyed();
   },
   onItemClick: function(event, view) {
     event.stopPropagation();
