@@ -6,7 +6,7 @@ var Query = require('mongodb-language-model').Query;
 var DEFAULT_SORT = {
   _id: -1
 };
-var DEFAULT_SIZE = 100;
+var DEFAULT_SIZE = 1000;
 var DEFAULT_SKIP = 0;
 
 var getDefaultQuery = function() {
