@@ -189,6 +189,21 @@ var ConnectView = View.extend({
   onAuthTabClicked: function(evt) {
     this.authMethod = $(evt.target).data('method');
   },
+  createNewConnection: function() {
+    debug('new connection requested');
+    this.reset();
+    this.form.connection_id = '';
+    this.form.reset();
+    this.authMethod = null;
+    this.authOpen = false;
+  },
+  onConnectionDestroyed: function() {
+    this.reset();
+    this.form.connection_id = '';
+    this.form.reset();
+    this.authMethod = null;
+    this.authOpen = false;
+  },
 
   /**
    * Triggers when the auth methods has changed (or set back to null)
@@ -221,21 +236,15 @@ var ConnectView = View.extend({
    * a list item like in `./sidebar`.
    *
    * @param {Connection} model
-   * @param {Object} [options]
-   * @option {Boolean} close - Close the connect dialog on success [Default: `false`].
    * @api public
    */
-  connect: function(model, options) {
-    options = _.defaults(options || {}, {
-      close: false
-    });
-
+  connect: function(model) {
     app.statusbar.show();
 
     debug('testing credentials are usable...');
     model.test(function(err) {
       if (!err) {
-        this.onConnectionSuccessful(model, options);
+        this.onConnectionSuccessful(model);
         return;
       }
 
@@ -256,7 +265,7 @@ var ConnectView = View.extend({
           this.onError(new Error('Could not connect to MongoDB.'), model);
           return;
         }
-        this.onConnectionSuccessful(model, options);
+        this.onConnectionSuccessful(model);
       }.bind(this));
     }.bind(this));
   },
@@ -266,13 +275,12 @@ var ConnectView = View.extend({
    * view using it.
    *
    * @param {Connection} model
-   * @param {Object} [options]
    * @api private
    */
-  onConnectionSuccessful: function(model, options) {
-    options = _.defaults(options, {
-      close: true
-    });
+  onConnectionSuccessful: function(model) {
+    app.statusbar.hide();
+    this.form.connection_id = '';
+
     /**
      * The save method will handle calling the correct method
      * of the sync being used by the model, whether that's
@@ -301,9 +309,7 @@ var ConnectView = View.extend({
       message: ''
     }), 500);
 
-    if (options.close) {
-      setTimeout(window.close, 1000);
-    }
+    setTimeout(window.close, 1000);
   },
   /**
    * If there is a validation or connection error show a nice message.
@@ -350,6 +356,7 @@ var ConnectView = View.extend({
 
     if (!model.isValid()) {
       this.onError(model.validationError);
+      return;
     }
 
     this.connect(model);
@@ -363,7 +370,7 @@ var ConnectView = View.extend({
    * @api public
    */
   onConnectionSelected: function(model) {
-    // If the new model has auth, expand the auth options container
+    // If the new model has auth, expand the auth settings container
     // and select the correct tab.
     this.authMethod = model.auth_mechanism;
 
@@ -384,6 +391,8 @@ var ConnectView = View.extend({
 
     debug('Populating form fields with keys', keys);
     var values = _.pick(model, keys);
+
+    this.form.connection_id = model.getId();
 
     // Populates the form from values in the model.
     this.form.setValues(values);

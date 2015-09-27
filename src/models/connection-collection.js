@@ -7,7 +7,9 @@ var restMixin = require('ampersand-collection-rest-mixin');
 module.exports = Collection.extend(lodashMixin, restMixin, {
   namespace: 'ConnectionCollection',
   model: Connection,
-  comparator: 'last_used',
+  comparator: function(model) {
+    return -model.last_used;
+  },
   mainIndex: '_id',
   sync: connectionSync
 });
