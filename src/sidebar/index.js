@@ -55,7 +55,7 @@ var SidebarView = View.extend({
     }
   },
   filterCollections: function(pattern) {
-    var re = new RegExp('^' + pattern);
+    var re = new RegExp(pattern);
 
     this.collection.filter(function(model) {
       return re.test(model.getId());
