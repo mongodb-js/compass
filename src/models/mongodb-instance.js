@@ -1,6 +1,7 @@
 var MongoDBInstance = require('mongodb-instance-model');
 var MongoDBCollection = require('./mongodb-collection');
 var scoutClientMixin = require('./scout-client-mixin');
+var filterableMixin = require('ampersand-collection-filterable');
 var selectableMixin = require('./selectable-collection-mixin');
 var toNS = require('mongodb-ns');
 
@@ -8,7 +9,7 @@ var toNS = require('mongodb-ns');
  * A user selectable collection of `MongoDBCollection`'s with `specialish`
   * collections filtered out.
  */
-var MongoDBCollectionOnInstanceCollection = MongoDBCollection.Collection.extend(selectableMixin, {
+var MongoDBCollectionOnInstanceCollection = MongoDBCollection.Collection.extend({
   namespace: 'MongoDBCollectionOnInstanceCollection',
   model: MongoDBCollection,
   parse: function(res) {
@@ -16,7 +17,7 @@ var MongoDBCollectionOnInstanceCollection = MongoDBCollection.Collection.extend(
       return !toNS(d._id).specialish;
     });
   }
-});
+}, filterableMixin, selectableMixin);
 
 /**
  * Metadata for a MongoDB Instance, such as a `db.hostInfo()`, `db.listDatabases()`,
