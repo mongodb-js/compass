@@ -1,15 +1,7 @@
 var View = require('ampersand-view');
-var _ = require('lodash');
 var mousetrap = require('mousetrap');
 var CollectionFilterView = require('./collection-filter');
 var CollectionListView = require('./collection-list');
-
-function fast_filter_collection(collection, pattern) {
-  var re = new RegExp(pattern || '.*');
-  collection.filter(function(model) {
-    return re.test(model.getId());
-  });
-}
 
 var SidebarView = View.extend({
   props: {
@@ -63,7 +55,11 @@ var SidebarView = View.extend({
     }
   },
   filterCollections: function(pattern) {
-    _.defer(fast_filter_collection, this.collection, pattern);
+    var re = new RegExp(pattern);
+
+    this.collection.filter(function(model) {
+      return re.test(model.getId());
+    });
   }
 });
 
