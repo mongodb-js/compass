@@ -250,6 +250,7 @@ var ConnectView = View.extend({
 
       if (model.auth_mechanism !== 'SCRAM-SHA-1') {
         debug('failed to connect', err);
+        app.statusbar.hide();
         this.onError(new Error('Could not connect to MongoDB.'), model);
         return;
       }
@@ -261,6 +262,7 @@ var ConnectView = View.extend({
 
       model.test(function(err) {
         if (err) {
+          app.statusbar.hide();
           debug('failed to connect again... bailing', err);
           this.onError(new Error('Could not connect to MongoDB.'), model);
           return;
