@@ -75,7 +75,7 @@
     "mongodb-connection-model": "^0.0.3",
     "mongodb-instance-model": "^0.2.0",
     "mongodb-ns": "^1.0.0",
-    "scout-server": "http://bin.mongodb.org/js/scout-server/v0.2.3/scout-server-0.2.3.tar.gz"
+    "scout-server": "http://bin.mongodb.org/js/scout-server/v0.2.4/scout-server-0.2.4.tar.gz"
   },
   "devDependencies": {
     "ampersand-app": "^1.0.4",
