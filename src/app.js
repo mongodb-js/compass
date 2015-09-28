@@ -217,7 +217,7 @@ var state = new Application({
 var FEATURES = {
   querybuilder: true,
   'Connect with SSL': false,
-  'Connect with Kerberos': true,
+  'Connect with Kerberos': false,
   'Connect with LDAP': false,
   'Connect with X.509': false
 };
