@@ -2,6 +2,8 @@
 
 var pkg = require('../package.json');
 var app = require('ampersand-app');
+var backoff = require('backoff');
+
 app.extend({
   // @todo (imlucas) Move to config
   // `scout-server` to point at.
@@ -29,6 +31,31 @@ var Router = require('./router');
 var Statusbar = require('./statusbar');
 
 var debug = require('debug')('scout:app');
+
+function getConnection(model, done) {
+  function _fetch(fn) {
+    model.fetch({
+      success: function() {
+        debug('_fetch connection succeeded!');
+        fn();
+      },
+      error: function() {
+        debug('_fetch connection failed', arguments);
+        fn(new Error('Error retrieving connection details'));
+      }
+    });
+  }
+
+  var call = backoff.call(_fetch, done);
+  call.setStrategy(new backoff.ExponentialStrategy({
+    randomisationFactor: 0,
+    initialDelay: 10,
+    maxDelay: 500
+  }));
+  call.failAfter(10);
+  call.start();
+}
+
 
 // Inter-process communication with main process (Electron window)
 var ipc = window.require('ipc');
@@ -253,25 +280,21 @@ app.extend({
       });
 
       debug('looking up connection `%s`...', connection_id);
-      state.connection.fetch({
-        success: function() {
-          app.statusbar.show('Connection details loaded! Initializing client...');
-
-          var endpoint = app.endpoint;
-          var connection = state.connection.serialize();
-
-          app.client = getOrCreateClient(endpoint, connection)
-            .on('readable', state.onClientReady.bind(state))
-            .on('error', state.onFatalError.bind(state, 'create client'));
-
-          state.startClientStalledTimer();
-        },
-        error: function() {
-          // @todo (imlucas) `ampersand-sync-localforage` currently drops
-          // the real error so for now just use a generic.
-          state.onFatalError(state, 'fetch connection',
-            new Error('Error retrieving connection.  Please reload the page.'));
+      getConnection(state.connection, function(err) {
+        if (err) {
+          state.onFatalError('fetch connection', err);
+          return;
         }
+        app.statusbar.show('Connecting to MongoDB...');
+
+        var endpoint = app.endpoint;
+        var connection = state.connection.serialize();
+
+        app.client = getOrCreateClient(endpoint, connection)
+          .on('readable', state.onClientReady.bind(state))
+          .on('error', state.onFatalError.bind(state, 'create client'));
+
+        state.startClientStalledTimer();
       });
     });
     // set up ipc
