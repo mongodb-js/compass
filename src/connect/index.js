@@ -374,7 +374,14 @@ var ConnectView = View.extend({
   onConnectionSelected: function(model) {
     // If the new model has auth, expand the auth settings container
     // and select the correct tab.
-    this.authMethod = model.auth_mechanism;
+    // @note (imlucas): gross, but `this.authMethod` is only used
+    // for managing auth-fields.js so make this pretty when
+    // there's more time.
+    if (model.auth_mechanism === 'MONGODB-CR') {
+      this.authMethod = 'SCRAM-SHA-1';
+    } else {
+      this.authMethod = model.auth_mechanism;
+    }
 
     if (model.auth_mechanism !== null) {
       this.authOpen = true;
