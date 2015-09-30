@@ -54,12 +54,12 @@
     "start": "gulp dev",
     "release": "gulp release",
     "test": "mocha",
+    "ci": "npm run check",
     "check": "mongodb-js-precommit",
     "fmt": "mongodb-js-fmt src/{**/*.js,*.js}"
   },
   "pre-commit": [
-    "check",
-    "test"
+    "check"
   ],
   "repository": {
     "type": "git",
