@@ -39,6 +39,7 @@
     "fonts/*"
   ],
   "browserify": {
+    "debug": true,
     "entries": [
       "./src/index.js"
     ]
