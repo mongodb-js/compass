@@ -1,50 +1,70 @@
-# compass
+# compass [![][travis_img]][travis_url]
 
-Explore your MongoDB.
+> Explore your MongoDB.
 
-## Developing
+## Development
 
 1. Follow the setup instructions for [OSX][setup-osx], [Windows][setup-windows] or [Linux][setup-linux].
-2. Clone this repo
+2. Run `git clone git@github.com:10gen/compass.git ~/compass` to get the source code
 3. Run `npm install` to install dependencies
-4. Run `npm start` to launch
+4. Run `npm start` to build the app and launch it
 
-## Modules
+Already setup and prefer a simple copy and paste?
+
+```bash
+git clone git@github.com:10gen/compass.git ~/compass;
+cd ~/compass;
+npm install;
+npm start;
+```
+
+## Key Modules
 
 <dl>
-  <dt><a href="https://github.com/10gen/scout">Compass</a></dt>
+  <dt><a href="https://github.com/10gen/compass">compass</a></dt>
   <dd>
     The default Ampersand.js single-page application people actually interact with.
-    <a href="https://github.com/10gen/scout/blob/dev/src/models/scout-client-mixin.js">ScoutClientMixin</a>
-    connects the <a href="https://github.com/10gen/scout/tree/dev/src/models">models</a> to
-    <a href="https://github.com/mongodb-js/scout-client">scout-client</a>.
   </dd>
-    <dt><a href="https://github.com/mongodb-js/scout-brain">scout-brain</a></dt>
+  <dt><a href="https://github.com/10gen/scout-client">scout-client</a></dt>
   <dd>
-    Needs to be broken down into topic based models but for now, this is where
-    all the business logic code lives we want to share between modules running
-    in the browser, nodejs, or electron.
-  </dd>
-  <dt><a href="https://github.com/mongodb-js/scout-client">scout-client</a></dt>
-  <dd>
-    Provides a clean API for <a href="https://github.com/mongodb-js/scout-server">scout-server</a>
+    Provides a clean API for `compass` to talk to <a href="https://github.com/mongodb-js/scout-server">scout-server</a>
     that works in the browser, nodejs, or electron.
   </dd>
-  <dt><a href="https://github.com/mongodb-js/scout-server">scout-server</a></dt>
+  <dt><a href="https://github.com/10gen/scout-server">scout-server</a></dt>
   <dd>
-    An express.js application which provides REST and socket.io connectivity
+    An express.js application which provides REST and socket.io endpoints
     to the mongodb node.js driver.
+  </dd>
+  <dt><a href="https://github.com/mongodb-js/mongodb-connection-model">mongodb-connection-model</a></dt>
+  <dd>
+    A shared Ampersand.js model used by `compass`, `scout-client`, and `scout-server` that encapsulates
+    all of the business logic for generating valid parameters to hand to the driver to connect to MongoDB.
+  </dd>
+  <dt><a href="https://github.com/mongodb-js/mongodb-collection-sample">mongodb-collection-sample</a></dt>
+  <dd>
+    Provides a single interface for `scout-server` to request a sample of documents from a collection that automatically uses the `$sample` operator if available, falling back to a client-side reservoir sample.
+  </dd>
+  <dt><a href="https://github.com/mongodb-js/mongodb-schema">mongodb-schema</a></dt>
+  <dd>
+    `compass` uses `scout-client` to get a sample of documents from `scout-server` via `mongodb-collection-sample` which is piped into `mongodb-schema` to create a probabilistic representation of what the schema for a given collection most likely is. 
   </dd>
 </dl>
 
+
 ## Building Releases
 
-To compile electron + the app and the installer for your current platform:
+After you've made some local changes, the next thing you'll probably want to do
+is create an artifact to share. There is only one command you need to run to compile the app,
+sign it if the signing certificate is available on your machine, and generate a single file
+installer for your current platform:
 
 ```bash
-npm run release
+cd ~/compass;
+npm run release;
 ```
 
 [setup-osx]: https://github.com/mongodb-js/mongodb-js/blob/master/docs/setup.md#osx-setup
 [setup-windows]: https://github.com/mongodb-js/mongodb-js/blob/master/docs/setup.md#windows-setup
 [setup-linux]: https://github.com/mongodb-js/mongodb-js/blob/master/docs/setup.md#linux-setup
+[travis_img]: https://magnum.travis-ci.com/10gen/compass.svg?token=q2zsnxCbboarF6KYRYxM&branch=master
+[travis_url]: https://magnum.travis-ci.com/10gen/compass
