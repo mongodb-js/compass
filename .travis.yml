@@ -3,6 +3,9 @@ node_js:
   - 'iojs-v2.3.4'
 before_install:
   - npm install -g npm@3
+  - npm config set loglevel error
+  - npm config -g list -l
+  - npm --version
 script: npm run-script ci
 cache:
   directories:
