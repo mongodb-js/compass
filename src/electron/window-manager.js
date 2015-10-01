@@ -8,6 +8,7 @@ var _ = require('lodash');
 var app = require('app');
 var attachMenu = require('./menu');
 var BrowserWindow = require('browser-window');
+var config = require('./config');
 var debug = require('debug')('scout-electron:window-manager');
 
 /**
@@ -20,30 +21,6 @@ var RESOURCES = path.resolve(__dirname, '../../');
  * created by the `build:pages` gulp task.
  */
 var DEFAULT_URL = 'file://' + path.join(RESOURCES, 'index.html#connect');
-
-/**
- * The outer dimensions to use for new windows.
- */
-var DEFAULT_WIDTH = 1024;
-var DEFAULT_HEIGHT = 700;
-
-/**
- * The outer window dimensions to use for new dialog
- * windows like the connection and setup dialogs.
- */
-var DEFAULT_WIDTH_DIALOG = 640;
-var DEFAULT_HEIGHT_DIALOG = 470;
-/**
- * Adjust the heights to account for platforms
- * that use a single menu bar at the top of the screen.
- */
-if (process.platform === 'linux') {
-  DEFAULT_HEIGHT_DIALOG -= 30;
-  DEFAULT_HEIGHT -= 30;
-} else if (process.platform === 'darwin') {
-  DEFAULT_HEIGHT_DIALOG -= 60;
-  DEFAULT_HEIGHT -= 60;
-}
 
 /**
  * We want want the Connect dialog window to be special
@@ -71,8 +48,8 @@ var windowsOpenCount = 0;
  */
 module.exports.create = function(opts) {
   opts = _.defaults(opts || {}, {
-    width: DEFAULT_WIDTH,
-    height: DEFAULT_HEIGHT,
+    width: config.windows.DEFAULT_WIDTH,
+    height: config.windows.DEFAULT_HEIGHT,
     url: DEFAULT_URL
   });
 
@@ -135,8 +112,8 @@ app.on('show connect dialog', function(opts) {
 
   opts = opts || {};
   opts = _.extend(opts || {}, {
-    height: DEFAULT_HEIGHT_DIALOG,
-    width: DEFAULT_WIDTH_DIALOG,
+    width: config.windows.DEFAULT_WIDTH_DIALOG,
+    height: config.windows.DEFAULT_HEIGHT_DIALOG,
     url: DEFAULT_URL
   });
   module.exports.create(opts);

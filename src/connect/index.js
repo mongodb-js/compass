@@ -3,6 +3,7 @@ var authFields = require('./auth-fields');
 var sslFields = require('./ssl-fields');
 var SidebarView = require('./sidebar');
 var ConnectionCollection = require('../models/connection-collection');
+var config = require('../electron/config');
 
 var format = require('util').format;
 var $ = require('jquery');
@@ -90,11 +91,14 @@ var ConnectView = View.extend({
       },
       {
         type: function(el, authOpen) {
+          var width = config.windows.DEFAULT_WIDTH_DIALOG;
+          var height = config.windows.DEFAULT_HEIGHT_DIALOG;
           if (authOpen) {
-            window.resizeTo(window.outerWidth, 630);
-          } else {
-            window.resizeTo(window.outerWidth, 410);
+            // Account for extra height added by auth fields so
+            // the user doesnt have to scroll.
+            height += 220;
           }
+          window.resizeTo(width, height);
         }
       }
     ],

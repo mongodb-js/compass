@@ -95,7 +95,7 @@ gulp.task('watch', function() {
   gulp.watch(['src/*.jade'], ['build:pages']);
   gulp.watch('images/{*,**/*}', ['copy:images']);
   gulp.watch('fonts/*', ['copy:fonts']);
-  gulp.watch(['src/electron/*'], ['copy:js']);
+  gulp.watch(['src/electron/{*,**/*}'], ['copy:js']);
   gulp.watch('package.json', function() {
     gutil.log('package.json changed!');
     sequence('copy:package.json', 'npm:install');
@@ -238,7 +238,7 @@ gulp.task('copy:js', function() {
   return merge(
     gulp.src(['main.js'])
       .pipe(gulp.dest('build/')),
-    gulp.src(['src/electron/*'])
+    gulp.src(['src/electron/{*,**/*}'])
       .pipe(gulp.dest('build/src/electron'))
   );
 });
