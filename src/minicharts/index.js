@@ -58,11 +58,10 @@ module.exports = AmpersandView.extend(QueryBuilderMixin, {
       this.viewOptions.height = 55;
       this.subview = new DocumentRootMinichartView(this.viewOptions);
     } else if (this.model.name === 'Array') {
-      var isCoordinates = false;
+      var isGeo = false;
 
       // are these coordinates? Do a basic check for now, until we support semantic schema types
       var lengths = this.model.lengths;
-      var coords;
       if (_.min(lengths) === 2 && _.max(lengths) === 2) {
         // now check value bounds
         var values = this.model.types.get('Number').values.serialize();
@@ -73,17 +72,17 @@ module.exports = AmpersandView.extend(QueryBuilderMixin, {
           return idx % 2 === 1;
         });
         if (_.min(lons) >= -180 && _.max(lons) <= 180 && _.min(lats) >= -90 && _.max(lats) <= 90) {
-          isCoordinates = true;
+          isGeo = true;
           // attach the zipped up coordinates to the model where VizView would expect it
           this.model.values = new ArrayCollection(_.zip(lons, lats));
           debug('model.values', this.model.values);
         }
       }
-      if (isCoordinates) {
+      if (isGeo) {
         // coordinates get an HTML-based d3 VizView with `coordinates` vizFn
         this.viewOptions.renderMode = 'html';
         this.viewOptions.height = 250;
-        this.viewOptions.vizFn = vizFns.coordinates;
+        this.viewOptions.vizFn = vizFns.geo;
         this.subview = new VizView(this.viewOptions);
       } else {
         // plain arrays get a div-based ArrayRootMinichart

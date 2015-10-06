@@ -40,8 +40,6 @@ var minicharts_d3fns_coordinates = function() {
       .attr('cx', radius + padding)
       .attr('cy', radius + padding);
 
-    debug('start selection', d3.mouse(frame));
-
     d3.select(window)
       .on('mousemove', function() {
         var m = d3.mouse(frame);
@@ -63,6 +61,25 @@ var minicharts_d3fns_coordinates = function() {
           .classed('selected', function(d) {
             return Math.pow(d.x - center[0], 2) + Math.pow(d.y - center[1], 2) <= radius_sqr;
           });
+
+        if (!options.view) {
+          return;
+        }
+
+        var currentPoint = new google.maps.Point(m[0], m[1]);
+        var centerPoint = new google.maps.Point(center[0], center[1]);
+        var currentCoord = projection.fromContainerPixelToLatLng(currentPoint);
+        var centerCoord = projection.fromContainerPixelToLatLng(centerPoint);
+        var mileDistance = (google.maps.geometry.spherical.computeDistanceBetween(
+          centerCoord, currentCoord) / 1600).toFixed(2);
+
+        var evt = {
+          type: 'geo',
+          source: 'geo',
+          center: [centerCoord.lng(), centerCoord.lat()],
+          distance: mileDistance
+        };
+        options.view.trigger('querybuilder', evt);
       })
       .on('mouseup', function() {
         d3.select(window)
@@ -84,6 +101,14 @@ var minicharts_d3fns_coordinates = function() {
         var centerCoord = projection.fromContainerPixelToLatLng(centerPoint);
         var mileDistance = (google.maps.geometry.spherical.computeDistanceBetween(
           centerCoord, currentCoord) / 1600).toFixed(2);
+
+        var evt = {
+          type: 'geo',
+          source: 'geo',
+          center: [centerCoord.lng(), centerCoord.lat()],
+          distance: mileDistance
+        };
+        options.view.trigger('querybuilder', evt);
       });
   }
   // --- end chart setup ---

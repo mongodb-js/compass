@@ -4,5 +4,5 @@ module.exports = {
   date: require('./date'),
   string: require('./string'),
   objectid: require('./date'),
-  coordinates: require('./coordinates')
+  geo: require('./geo')
 };

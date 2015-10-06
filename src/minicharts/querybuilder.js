@@ -6,6 +6,7 @@ var app = require('ampersand-app');
 var LeafValue = require('mongodb-language-model').LeafValue;
 var LeafClause = require('mongodb-language-model').LeafClause;
 var ListOperator = require('mongodb-language-model').ListOperator;
+var OperatorObject = require('mongodb-language-model').OperatorObject;
 var Range = require('mongodb-language-model').helpers.Range;
 // var debug = require('debug')('scout:minicharts:querybuilder');
 
@@ -58,7 +59,7 @@ module.exports = {
     // defocus currently active element (likely the refine bar) so it can update the query
     $(document.activeElement).blur();
 
-    // determine what kind of query this is (distinct or range)
+    // determine what kind of query this is (distinct, range, geo, ...)
     switch (this.model.getType()) {
       case 'Boolean': // fall-through to String
       case 'String':
@@ -73,7 +74,15 @@ module.exports = {
         break;
       case 'ObjectID': // fall-through to Date
       case 'Date':
-        queryType = 'range';
+          queryType = 'range';
+        break;
+      case 'Array':
+      case 'Document':
+        if (data.source === 'geo') {
+          queryType = 'geo';
+        } else {
+          throw new Error('unsupported querybuilder type ' + this.model.getType());
+        }
         break;
       default: // @todo other types not implemented yet
         throw new Error('unsupported querybuilder type ' + this.model.getType());
@@ -84,8 +93,8 @@ module.exports = {
       data: data
     };
 
-    if (data.type === 'drag') {
-      message = this.updateSelection_drag(message);
+    if (data.type === 'drag' || data.type === 'geo') {
+      message = this['updateSelection_' + data.type](message);
       message = this['buildQuery_' + queryType](message);
     } else {
       message = this['updateSelection_' + queryType](message);
@@ -173,6 +182,23 @@ module.exports = {
     return message;
   },
   /**
+   * updates `selected` for query builder events created on a geo map.
+   * The visual updates are handled by d3 directly, selected will just contain the center
+   * longitude, latitude and distance in miles.
+   *
+   * @param   {Object} message   message with key: data
+   * @return  {Object} message   message with keys: data, selected
+   */
+  updateSelection_geo: function(message) {
+    this.selectedValues = [
+      message.data.center[0],
+      message.data.center[1],
+      message.distance
+    ];
+    message.selected = this.selectedValues;
+    return message;
+  },
+  /**
    * build new distinct ($in) query based on current selection
    *
    * @param   {Object} message   message with keys: data, selected
@@ -254,6 +280,34 @@ module.exports = {
 
     return message;
   },
+
+  /**
+   * build new geo ($geoWithin) query based on current selection
+   *
+   * @param   {Object} message   message with keys: data, selected
+   * @return  {Object} message   message with keys: data, selected, value, elements, op
+   */
+  buildQuery_geo: function(message) {
+    message.elements = this.queryAll('.selectable');
+    message.op = '$geoWithin';
+
+    // build new value
+    if (message.selected.length === 0) {
+      // no value
+      message.value = null;
+    } else {
+      // multiple values
+      message.value = new OperatorObject({
+        $geoWithin: {
+          $centerSphere: [ [message.selected[0], message.selected[1] ], message.selected[2] ]
+        }
+      }, {
+        parse: true
+      });
+    }
+    return message;
+  },
+
 
   /**
    * update the UI after a distinct query and mark appropriate elements with .select class.
