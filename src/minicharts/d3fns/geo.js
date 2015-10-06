@@ -1,77 +1,19 @@
 var d3 = require('d3');
 var _ = require('lodash');
 var shared = require('./shared');
-var debug = require('debug')('scout:minicharts:geo');
+var debug = require('debug')('scout:minicharts:coordinates');
 var GoogleMapsLoader = require('google-maps');
 var mapStyle = require('./mapstyle');
-var SHIFTKEY = 16;
-var async = require('async');
-var app = require('ampersand-app');
 
-
-/* eslint wrap-iife:0 */
-var Singleton = (function() {
-  var instance;
-
-  function createInstance() {
-    var object = {};
-    return object;
-  }
-
-  return {
-    getInstance: function() {
-      if (!instance) {
-        instance = createInstance();
-      }
-      return instance;
-    }
-  };
-})();
-
-// From: http://davidbcalhoun.com/2014/async.parallel-with-a-simple-timeout-node-js/
-// async.parallel with optional timeout (options.timeoutMS)
-function parallel(options, tasks, cb) {
-  //  sanity checks
-  options = options || {};
-
-  // no timeout wrapper; passthrough to async.parallel
-  if (typeof options.timeoutMS != 'number') return async.parallel(tasks, cb);
-
-  var timeout = setTimeout(function() {
-    // remove timeout, so we'll know we already erred out
-    timeout = null;
-
-    // error out
-    cb('async.parallel timed out out after ' + options.timeoutMS + 'ms.', null);
-  }, options.timeoutMS);
-
-  async.parallel(tasks, function(err, result) {
-    // after all tasks are complete
-
-    // noop if timeout was called and annulled
-    if (!timeout) return;
-
-    // cancel timeout (if timeout was set longer, and all parallel tasks finished sooner)
-    clearTimeout(timeout);
-
-    // passthrough the data to the cb
-    cb(err, result);
-  });
-}
-
-
-var singleton = Singleton.getInstance();
-
-var minicharts_d3fns_geo = function() {
+var minicharts_d3fns_coordinates = function() {
   // --- beginning chart setup ---
   var width = 400;
   var height = 100;
 
+  var google = null;
   var googleMap = null;
   var overlay = null;
   var projection = null;
-  var selectionCircle;
-  var currentCoord;
 
   var options = {
     view: null
@@ -79,83 +21,63 @@ var minicharts_d3fns_geo = function() {
 
   var margin = shared.margin;
 
-  function pointInCircle(point, radius, center) {
-    return singleton.google.maps.geometry.spherical.computeDistanceBetween(point, center) <= radius;
-  }
-
-  function selectPoints() {
-    var frame = options.el;
-    var google = singleton.google;
-
-    if (selectionCircle.getRadius() === 0) {
-      d3.select(frame).selectAll('.marker circle')
-        .classed('selected', false);
-      return;
-    }
-
-    d3.select(frame).selectAll('.marker circle')
-      .classed('selected', function(d) {
-        var p = new google.maps.LatLng(d[1], d[0]);
-        return pointInCircle(p, selectionCircle.getRadius(), selectionCircle.getCenter());
-      });
-  }
-
-  function onKeyDown() {
-    if (d3.event.keyCode === SHIFTKEY) {
-      // disable dragging while shift is pressed
-      googleMap.setOptions({ draggable: false });
-    }
-  }
-
-  function onKeyUp() {
-    if (d3.event.keyCode === SHIFTKEY) {
-      // disable dragging while shift is pressed
-      googleMap.setOptions({ draggable: true });
-    }
-  }
-
   function startSelection() {
-    if (!d3.event.shiftKey) {
-      return;
-    }
-
-    var google = singleton.google;
-
     var frame = this;
     var center = d3.mouse(frame);
+    var radius = 0;
+    var padding = 2;
 
-    // set selectionCoordinates, they are needed to pan the selection circle
-    var centerPoint = new google.maps.Point(center[0], center[1]);
-    var centerCoord = projection.fromContainerPixelToLatLng(centerPoint);
+    var selectionSvg = d3.select('svg.selection');
+    selectionSvg
+      .style('left', center[0] - radius - padding + 'px')
+      .style('top', center[1] - radius - padding + 'px')
+      .style('width', 2 * (radius + padding))
+      .style('height', 2 * (radius + padding))
+      .style('visibility', 'visible');
 
-    selectionCircle.setCenter(centerCoord);
-    selectionCircle.setRadius(0);
-    selectionCircle.setVisible(true);
-
-    var currentPoint;
-    var meterDistance;
+    selectionSvg.select('circle')
+      .attr('r', radius)
+      .attr('cx', radius + padding)
+      .attr('cy', radius + padding);
 
     d3.select(window)
       .on('mousemove', function() {
         var m = d3.mouse(frame);
+        var radius_sqr = Math.pow(m[0] - center[0], 2) + Math.pow(m[1] - center[1], 2);
+        radius = Math.sqrt(radius_sqr);
+
+        selectionSvg
+          .style('left', center[0] - radius - padding + 'px')
+          .style('top', center[1] - radius - padding + 'px')
+          .style('width', 2 * (radius + padding))
+          .style('height', 2 * (radius + padding));
+
+        selectionSvg.select('circle')
+          .attr('r', radius)
+          .attr('cx', radius + padding)
+          .attr('cy', radius + padding);
+
+        d3.select(frame).selectAll('.marker circle')
+          .classed('selected', function(d) {
+            return Math.pow(d.x - center[0], 2) + Math.pow(d.y - center[1], 2) <= radius_sqr;
+          });
 
         if (!options.view) {
           return;
         }
 
-        currentPoint = new google.maps.Point(m[0], m[1]);
-        currentCoord = projection.fromContainerPixelToLatLng(currentPoint);
-        meterDistance = google.maps.geometry.spherical.computeDistanceBetween(
-          centerCoord, currentCoord);
-
-        selectionCircle.setRadius(meterDistance);
-        selectPoints();
+        var currentPoint = new google.maps.Point(m[0], m[1]);
+        var centerPoint = new google.maps.Point(center[0], center[1]);
+        var currentCoord = projection.fromContainerPixelToLatLng(currentPoint);
+        var centerCoord = projection.fromContainerPixelToLatLng(centerPoint);
+        var mileDistance = (google.maps.geometry.spherical.computeDistanceBetween(
+          centerCoord, currentCoord) / 1600).toFixed(2);
 
         var evt = {
           type: 'geo',
           source: 'geo',
           center: [centerCoord.lng(), centerCoord.lat()],
-          distance: meterDistance / 1600
+          distance: mileDistance
         };
         options.view.trigger('querybuilder', evt);
       })
@@ -164,25 +86,27 @@ var minicharts_d3fns_geo = function() {
           .on('mouseup', null)
           .on('mousemove', null);
 
-        if (selectionCircle.getRadius() === 0) {
-          selectionCircle.setVisible(false);
-
+        if (radius === 0) {
+          selectionSvg
+            .style('visibility', 'hidden');
           d3.select(frame).selectAll('.marker circle')
             .classed('selected', false);
-
-          var evt = {
-            type: 'geo',
-            source: 'geo'
-          };
-          options.view.trigger('querybuilder', evt);
           return;
         }
 
-        evt = {
+        var m = d3.mouse(frame);
+        var currentPoint = new google.maps.Point(m[0], m[1]);
+        var centerPoint = new google.maps.Point(center[0], center[1]);
+        var currentCoord = projection.fromContainerPixelToLatLng(currentPoint);
+        var centerCoord = projection.fromContainerPixelToLatLng(centerPoint);
+        var mileDistance = (google.maps.geometry.spherical.computeDistanceBetween(
+          centerCoord, currentCoord) / 1600).toFixed(2);
+
+        var evt = {
           type: 'geo',
           source: 'geo',
           center: [centerCoord.lng(), centerCoord.lat()],
-          distance: meterDistance / 1600
+          distance: mileDistance
         };
         options.view.trigger('querybuilder', evt);
       });
@@ -191,37 +115,17 @@ var minicharts_d3fns_geo = function() {
 
   function chart(selection) {
     selection.each(function(data) {
-      var el = d3.select(this);
-
-      if (!singleton.google) {
-        parallel({ timeoutMS: 3000 }, [  // 10 second timeout
-          // tasks
-          function(done) {
-            GoogleMapsLoader.KEY = 'AIzaSyDrhE1qbcnNIh4sK3t7GEcbLRdCNKWjlt0';
-            GoogleMapsLoader.LIBRARIES = ['geometry'];
-            GoogleMapsLoader.load(function(g) {
-              done(null, g);
-            });
-          }
-        ],
-        // calback
-        function(err, results) {
-          debug('err/res', err, results);
-          if (err) {
-            debug('Error: Google map could not be loaded, disabling feature', el);
-            // google map load timed out, disable geo feature for runtime remainder and reload
-            app.setFeature('Geo Minicharts', false);
-            options.view.parent.render();
-            return;
-          }
-          singleton.google = results[0];
+      if (!google) {
+        // GoogleMapsLoader.KEY = 'AIzaSyDrhE1qbcnNIh4sK3t7GEcbLRdCNKWjlt0';
+        GoogleMapsLoader.LIBRARIES = ['geometry'];
+        GoogleMapsLoader.load(function(g) {
+          google = g;
           chart.call(this, selection);
         });
         return;
       }
 
-      var google = singleton.google;
-
+      var el = d3.select(this);
       var bounds = new google.maps.LatLngBounds();
       _.each(data, function(d) {
         var p = new google.maps.LatLng(d[1], d[0]);
@@ -229,101 +133,73 @@ var minicharts_d3fns_geo = function() {
       });
 
       if (!googleMap) {
+        el.on('mousedown', startSelection);
+
         // Create the Google Map
         googleMap = new google.maps.Map(el.node(), {
           disableDefaultUI: true,
-          // disableDoubleClickZoom: true,
+          disableDoubleClickZoom: true,
           scrollwheel: true,
-          draggable: true,
-          zoomControl: true,
-          mapTypeId: google.maps.MapTypeId.ROADMAP,
-          styles: mapStyle
+          draggable: false,
+          panControl: false,
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+          // styles: mapStyle
         });
 
         // Add the container when the overlay is added to the map.
         overlay = new google.maps.OverlayView();
         overlay.onAdd = function() {
-          d3.select(this.getPanes().overlayMouseTarget).append('div')
+          var layer = d3.select(this.getPanes().overlayMouseTarget).append('div')
             .attr('class', 'layer');
+
+          // Draw each marker as a separate SVG element.
+          // We could use a single SVG, but what size would it have?
+          overlay.draw = function() {
+            projection = this.getProjection();
+            var padding = 9;
+
+            var marker = layer.selectAll('svg.marker')
+                .data(data)
+                .each(transform) // update existing markers
+              .enter().append('svg:svg')
+                .each(transform)
+                .attr('class', 'marker');
+
+            // Add a circle
+            marker.append('circle')
+                .attr('r', 4.5)
+                .attr('cx', padding)
+                .attr('cy', padding);
+
+            // add selection circle (hidden by default)
+            var selectionSvg = layer.selectAll('svg.selection')
+              .data([null])
+              .enter().append('svg:svg')
+                .attr('class', 'selection');
+
+            selectionSvg.append('circle')
+              .attr('r', 50)
+              .attr('cx', 50)
+              .attr('cy', 50);
+
+            function transform(d) {
+              var p = new google.maps.LatLng(d[1], d[0]);
+              p = projection.fromLatLngToDivPixel(p);
+              d.x = p.x;
+              d.y = p.y;
+              return d3.select(this)
+                .style('left', p.x - padding + 'px')
+                .style('top', p.y - padding + 'px');
+            }
+          }; // end overlay.draw
         }; // end overlay.onAdd
-
-        // Draw each marker as a separate SVG element.
-        overlay.draw = function() {
-          var layer = d3.select('div.layer');
-          projection = this.getProjection();
-          var padding = 9;
-
-          var marker = layer.selectAll('svg.marker')
-              .data(data)
-              .each(transform) // update existing markers
-            .enter().append('svg:svg')
-              .each(transform)
-              .attr('class', 'marker');
-
-          // Add a circle
-          marker.append('circle')
-              .attr('r', 4.5)
-              .attr('cx', padding)
-              .attr('cy', padding);
-
-          function transform(d) {
-            var p = new google.maps.LatLng(d[1], d[0]);
-            p = projection.fromLatLngToDivPixel(p);
-            d.x = p.x;
-            d.y = p.y;
-            var self = d3.select(this);
-            self
-              .style('left', p.x - padding + 'px')
-              .style('top', p.y - padding + 'px');
-            return self;
-          }
-        }; // end overlay.draw
-
         overlay.setMap(googleMap);
-        el.on('mousedown', startSelection);
-
-        d3.select('body')
-        .on('keydown', onKeyDown)
-        .on('keyup', onKeyUp);
       } // end if (!googleMap) ...
 
       // var innerWidth = width - margin.left - margin.right;
       // var innerHeight = height - margin.top - margin.bottom;
 
       googleMap.fitBounds(bounds);
-
-      if (!selectionCircle) {
-        selectionCircle = new google.maps.Circle({
-          strokeColor: '#F68A1E',
-          strokeOpacity: 0.8,
-          strokeWeight: 2,
-          fillColor: '#F68A1E',
-          fillOpacity: 0.35,
-          map: googleMap,
-          center: { lat: 0, lng: 0 },
-          radius: 0,
-          visible: false,
-          draggable: true
-          // editable: true
-        });
-
-        selectionCircle.addListener('drag', function() {
-          var centerCoord = selectionCircle.getCenter();
-          selectPoints();
-          var evt = {
-            type: 'geo',
-            source: 'geo',
-            center: [centerCoord.lng(), centerCoord.lat()],
-            distance: selectionCircle.getRadius() / 1600
-          };
-          options.view.trigger('querybuilder', evt);
-        });
-      }
-
-      _.defer(function() {
-        google.maps.event.trigger(googleMap, 'resize');
-        googleMap.fitBounds(bounds);
-      }, 100);
     }); // end selection.each()
   }
 
@@ -351,21 +227,7 @@ var minicharts_d3fns_geo = function() {
     return chart;
   };
 
-  chart.geoSelection = function(value) {
-    if (!value) {
-      selectionCircle.setVisible(false);
-      selectionCircle.setRadius(0);
-      selectPoints();
-      return;
-    }
-    selectionCircle.setVisible(true);
-    var c = new google.maps.LatLng(value[0][1], value[0][0]);
-    selectionCircle.setCenter(c);
-    selectionCircle.setRadius(value[1] * 1600);
-    selectPoints();
-  }
-
   return chart;
 };
 
-module.exports = minicharts_d3fns_geo;
+module.exports = minicharts_d3fns_coordinates;
