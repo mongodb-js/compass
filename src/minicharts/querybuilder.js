@@ -6,9 +6,9 @@ var app = require('ampersand-app');
 var LeafValue = require('mongodb-language-model').LeafValue;
 var LeafClause = require('mongodb-language-model').LeafClause;
 var ListOperator = require('mongodb-language-model').ListOperator;
-var OperatorObject = require('mongodb-language-model').OperatorObject;
+var GeoOperator = require('mongodb-language-model').GeoOperator;
 var Range = require('mongodb-language-model').helpers.Range;
-// var debug = require('debug')('scout:minicharts:querybuilder');
+var debug = require('debug')('scout:minicharts:querybuilder');
 
 var MODIFIERKEY = 'shiftKey';
 var checkBounds = {
@@ -190,11 +190,15 @@ module.exports = {
    * @return  {Object} message   message with keys: data, selected
    */
   updateSelection_geo: function(message) {
-    this.selectedValues = [
-      message.data.center[0],
-      message.data.center[1],
-      message.distance
-    ];
+    if (!message.data.center || !message.data.distance) {
+      this.selectedValues = [];
+    } else {
+      this.selectedValues = [
+        message.data.center[0],
+        message.data.center[1],
+        message.data.distance / 3963.2 // equatorial radius of earth in miles
+      ];
+    }
     message.selected = this.selectedValues;
     return message;
   },
@@ -297,7 +301,7 @@ module.exports = {
       message.value = null;
     } else {
       // multiple values
-      message.value = new OperatorObject({
+      message.value = new GeoOperator({
         $geoWithin: {
           $centerSphere: [ [message.selected[0], message.selected[1] ], message.selected[2] ]
         }

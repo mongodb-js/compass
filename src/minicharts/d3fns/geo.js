@@ -70,8 +70,8 @@ var minicharts_d3fns_coordinates = function() {
         var centerPoint = new google.maps.Point(center[0], center[1]);
         var currentCoord = projection.fromContainerPixelToLatLng(currentPoint);
         var centerCoord = projection.fromContainerPixelToLatLng(centerPoint);
-        var mileDistance = (google.maps.geometry.spherical.computeDistanceBetween(
-          centerCoord, currentCoord) / 1600).toFixed(2);
+        var mileDistance = google.maps.geometry.spherical.computeDistanceBetween(
+          centerCoord, currentCoord) / 1600;
 
         var evt = {
           type: 'geo',
@@ -91,6 +91,11 @@ var minicharts_d3fns_coordinates = function() {
             .style('visibility', 'hidden');
           d3.select(frame).selectAll('.marker circle')
             .classed('selected', false);
+          var evt = {
+            type: 'geo',
+            source: 'geo'
+          };
+          options.view.trigger('querybuilder', evt);
           return;
         }
 
@@ -99,8 +104,8 @@ var minicharts_d3fns_coordinates = function() {
         var centerPoint = new google.maps.Point(center[0], center[1]);
         var currentCoord = projection.fromContainerPixelToLatLng(currentPoint);
         var centerCoord = projection.fromContainerPixelToLatLng(centerPoint);
-        var mileDistance = (google.maps.geometry.spherical.computeDistanceBetween(
-          centerCoord, currentCoord) / 1600).toFixed(2);
+        var mileDistance = google.maps.geometry.spherical.computeDistanceBetween(
+          centerCoord, currentCoord) / 1600;
 
         var evt = {
           type: 'geo',
