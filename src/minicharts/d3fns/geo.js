@@ -205,6 +205,10 @@ var minicharts_d3fns_coordinates = function() {
       // var innerHeight = height - margin.top - margin.bottom;
 
       googleMap.fitBounds(bounds);
+
+      googleMap.addListener('dragstart', function() {
+        debug('drag start');
+      });
     }); // end selection.each()
   }
 
