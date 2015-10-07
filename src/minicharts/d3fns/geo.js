@@ -107,7 +107,7 @@ var minicharts_d3fns_coordinates = function() {
         var mileDistance = google.maps.geometry.spherical.computeDistanceBetween(
           centerCoord, currentCoord) / 1600;
 
-        var evt = {
+        evt = {
           type: 'geo',
           source: 'geo',
           center: [centerCoord.lng(), centerCoord.lat()],
@@ -142,13 +142,13 @@ var minicharts_d3fns_coordinates = function() {
 
         // Create the Google Map
         googleMap = new google.maps.Map(el.node(), {
-          disableDefaultUI: true,
+          disableDefaultUI: false,
           disableDoubleClickZoom: true,
           scrollwheel: true,
           draggable: false,
           panControl: false,
-          mapTypeId: google.maps.MapTypeId.ROADMAP
-          // styles: mapStyle
+          mapTypeId: google.maps.MapTypeId.ROADMAP,
+          styles: mapStyle
         });
 
         // Add the container when the overlay is added to the map.
