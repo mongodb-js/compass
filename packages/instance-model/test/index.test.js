@@ -3,8 +3,15 @@ var Instance = require('../');
 var hostname = require('os').hostname();
 
 describe('mongodb-instance-model', function() {
-  it('should work', function() {
-    assert(Instance);
+  it('should have a derived hostname property', function() {
+    assert.equal(new Instance({
+      _id: 'localhost:27017'
+    }).hostname, 'localhost');
+  });
+  it('should have a derived port property', function() {
+    assert.equal(new Instance({
+      _id: 'localhost:27017'
+    }).port, 27017);
   });
   describe('getId()', function() {
     it('should substitute localhost as the cannonical hostname', function() {

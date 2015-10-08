@@ -57,6 +57,26 @@ var Instance = AmpersandModel.extend({
       type: 'string'
     }
   },
+  derived: {
+    hostname: {
+      deps: ['_id'],
+      fn: function() {
+        if (!this._id) {
+          return undefined;
+        }
+        return this._id.split(':')[0];
+      }
+    },
+    port: {
+      deps: ['_id'],
+      fn: function() {
+        if (!this._id) {
+          return undefined;
+        }
+        return parseInt(this._id.split(':')[1], 10);
+      }
+    }
+  },
   collections: {
     databases: DatabaseCollection,
     collections: CollectionCollection
