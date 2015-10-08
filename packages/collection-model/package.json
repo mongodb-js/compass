@@ -11,25 +11,24 @@
     "mongodb-js"
   ],
   "scripts": {
-    "ci": "mocha",
+    "ci": "npm run check && npm test",
     "test": "mocha",
     "check": "mongodb-js-precommit"
   },
   "precommit": [
-    "check",
-    "test"
+    "check"
   ],
   "dependencies": {
-    "ampersand-model": "^5.0.3",
-    "ampersand-rest-collection": "^4.0.0",
+    "ampersand-model": "^6.0.2",
+    "ampersand-rest-collection": "^5.0.0",
     "lodash.foreach": "^3.0.3",
     "mongodb-index-model": "^0.1.0",
     "mongodb-ns": "^1.0.0"
   },
   "devDependencies": {
-    "eslint-config-mongodb-js": "^0.1.5",
+    "eslint-config-mongodb-js": "^0.1.6",
     "mocha": "^2.3.3",
-    "mongodb-js-precommit": "^0.1.4",
+    "mongodb-js-precommit": "^0.2.2",
     "pre-commit": "^1.1.1"
   }
 }
