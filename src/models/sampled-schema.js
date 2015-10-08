@@ -17,9 +17,9 @@ var metrics = {
       err = null;
     }
     if (err) {
-      debugMetrics('metrics error: ', err, obj);
+      debugMetrics(label, err, obj);
     } else {
-      debugMetrics('metrics log: ', obj);
+      debugMetrics(label, obj);
     }
   }
 };
@@ -123,7 +123,6 @@ module.exports = Schema.extend({
     };
     var start = new Date();
     var timeAtFirstDoc;
-    var avgTimePerDoc = 0;
     var erroredOnDocs = [];
 
     // No results found
@@ -144,7 +143,6 @@ module.exports = Schema.extend({
       if (!timeAtFirstDoc) {
         timeAtFirstDoc = new Date();
       }
-      var timePerDoc = new Date();
       try {
         model.parse(doc);
       } catch (err) {
@@ -154,9 +152,6 @@ module.exports = Schema.extend({
           schema: model.serialize()
         });
       }
-      timePerDoc = new Date() - timePerDoc;
-      avgTimePerDoc += timePerDoc;
-      debug('avg time', timePerDoc);
       cb(null, doc);
     };
 
@@ -172,13 +167,16 @@ module.exports = Schema.extend({
       model.documents.trigger('sync');
 
       // @note (imlucas): Any other metrics?  Feedback on `Schema *`?
+      var totalTime = new Date() - start;
+      var timeToFirstDoc = timeAtFirstDoc - start;
+
       metrics.track('Schema: Complete', {
-        Duration: new Date() - start,
+        Duration: totalTime,
         'Total Document Count': model.total,
         'Sample Size': model.documents.length,
         'Errored Document Count': erroredOnDocs.length,
-        'Time to First Doc': timeAtFirstDoc - start,
-        'Average Time Per Doc': avgTimePerDoc / model.documents.length
+        'Time to First Doc': timeToFirstDoc,
+        'Average Time Per Doc': (totalTime - timeToFirstDoc) / model.documents.length
         // 'Schema Height': model.height, // # of top level keys
         // 'Schema Width': model.width, // max nesting depth
         // 'Schema Sparsity': model.sparsity // lots of fields missing or consistent
