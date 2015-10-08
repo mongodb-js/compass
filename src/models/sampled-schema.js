@@ -123,6 +123,7 @@ module.exports = Schema.extend({
     };
     var start = new Date();
     var timeAtFirstDoc;
+    var avgTimePerDoc = 0;
     var erroredOnDocs = [];
 
     // No results found
@@ -143,6 +144,7 @@ module.exports = Schema.extend({
       if (!timeAtFirstDoc) {
         timeAtFirstDoc = new Date();
       }
+      var timePerDoc = new Date();
       try {
         model.parse(doc);
       } catch (err) {
@@ -152,6 +154,9 @@ module.exports = Schema.extend({
           schema: model.serialize()
         });
       }
+      timePerDoc = new Date() - timePerDoc;
+      avgTimePerDoc += timePerDoc;
+      debug('avg time', timePerDoc);
       cb(null, doc);
     };
 
@@ -170,12 +175,13 @@ module.exports = Schema.extend({
       metrics.track('Schema: Complete', {
         Duration: new Date() - start,
         'Total Document Count': model.total,
-        'Document Count': model.documents,
+        'Sample Size': model.documents.length,
         'Errored Document Count': erroredOnDocs.length,
         'Time to First Doc': timeAtFirstDoc - start,
-        'Schema Height': model.height, // # of top level keys
-        'Schema Width': model.width, // max nesting depth
-        'Schema Sparsity': model.sparsity // lots of fields missing or consistent
+        'Average Time Per Doc': avgTimePerDoc / model.documents.length
+        // 'Schema Height': model.height, // # of top level keys
+        // 'Schema Width': model.width, // max nesting depth
+        // 'Schema Sparsity': model.sparsity // lots of fields missing or consistent
       });
       options.success({});
     };
