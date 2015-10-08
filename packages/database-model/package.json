@@ -2,7 +2,7 @@
   "name": "mongodb-database-model",
   "description": "MongoDB database model.",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "bugs": "https://github.com/mongodb-js/mongodb-database-model/issues",
   "homepage": "https://github.com/mongodb-js/mongodb-database-model",
   "repository": "git://github.com/mongodb-js/mongodb-database-model.git",
