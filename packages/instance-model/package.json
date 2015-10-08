@@ -28,7 +28,7 @@
   },
   "devDependencies": {
     "eslint-config-mongodb-js": "^0.1.5",
-    "mocha": "^2.2.5",
+    "mocha": "^2.3.3",
     "mongodb-js-precommit": "^0.1.4",
     "pre-commit": "^1.1.1"
   }
