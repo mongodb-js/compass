@@ -40,7 +40,8 @@ var BuildInfo = AmpersandState.extend({
     javascript_engine: 'string',
     debug: 'boolean',
     for_bits: 'number',
-    max_bson_object_size: 'number'
+    max_bson_object_size: 'number',
+    enterprise_module: 'boolean'
   }
 });
 
