@@ -1,5 +1,12 @@
 .sampling-message
-  span(data-hook='is_sample') Query returned ### documents. This report is based on a sample of&nbsp;
-  span(data-hook='is_query') Query returned&nbsp;
-  span(data-hook='sample_size_message')
-  |.
+  if is_sample
+    | Query returned&nbsp;
+    b #{formatted_total_count}
+    | &nbsp;#{total_count_document}.
+    | This report is based on a sample of&nbsp;
+    b #{formatted_sample_size}
+    | &nbsp;#{sample_size_document}.
+  else
+    | Query returned&nbsp;
+    b #{formatted_sample_size}
+    | &nbsp;#{sample_size_document}.
