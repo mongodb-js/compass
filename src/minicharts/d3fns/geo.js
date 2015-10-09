@@ -144,6 +144,7 @@ var minicharts_d3fns_coordinates = function() {
 
   function chart(selection) {
     selection.each(function(data) {
+      // debugger;
       if (!singleton.google) {
         // GoogleMapsLoader.KEY = 'AIzaSyDrhE1qbcnNIh4sK3t7GEcbLRdCNKWjlt0';
         GoogleMapsLoader.LIBRARIES = ['geometry'];
@@ -260,6 +261,7 @@ var minicharts_d3fns_coordinates = function() {
       googleMap.addListener('dragstart', function() {
         debug('drag start');
       });
+      google.maps.event.trigger(googleMap, 'resize');
     }); // end selection.each()
   }
 

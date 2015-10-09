@@ -237,6 +237,7 @@ var state = new Application({
 var FEATURES = {
   querybuilder: true,
   'First Run Tour': false,
+  'Geo Minicharts': true,
   'Connect with SSL': false,
   'Connect with Kerberos': false,
   'Connect with LDAP': false,
@@ -245,8 +246,6 @@ var FEATURES = {
 
 app.extend({
   client: null,
-  // @note (imlucas): Backwards compat for querybuilder
-  features: FEATURES,
   /**
    * Check whether a feature flag is currently enabled.
    *
