@@ -48,6 +48,7 @@
     "paths": [
       "node_modules/font-awesome/less",
       "node_modules/bootstrap/less",
+      "node_modules/bootstrap-switch/src/less/bootstrap3",
       "node_modules/octicons/octicons"
     ]
   },
@@ -70,6 +71,7 @@
     "ampersand-form-view": "^5.1.1",
     "ampersand-input-view": "^5.0.0",
     "ampersand-rest-collection": "^5.0.0",
+    "bootstrap-switch": "^3.3.2",
     "debug": "^2.2.0",
     "electron-squirrel-startup": "^0.1.2",
     "mongodb-collection-model": "^0.1.0",
