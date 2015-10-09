@@ -247,32 +247,16 @@ var ConnectView = View.extend({
 
     debug('testing credentials are usable...');
     model.test(function(err) {
+      app.statusbar.hide();
       if (!err) {
         this.onConnectionSuccessful(model);
         return;
       }
 
-      if (model.auth_mechanism !== 'SCRAM-SHA-1') {
-        debug('failed to connect', err);
-        app.statusbar.hide();
-        this.onError(new Error('Could not connect to MongoDB.'), model);
-        return;
-      }
+      debug('failed to connect', err);
 
-      // For Kernel 2.6.x
-      model.auth_mechanism = 'MONGODB-CR';
-      debug('trying again w/ MONGODB-CR...');
-      app.statusbar.show();
-
-      model.test(function(err) {
-        if (err) {
-          app.statusbar.hide();
-          debug('failed to connect again... bailing', err);
-          this.onError(new Error('Could not connect to MongoDB.'), model);
-          return;
-        }
-        this.onConnectionSuccessful(model);
-      }.bind(this));
+      this.onError(new Error('Could not connect to MongoDB.'), model);
+      return;
     }.bind(this));
   },
   /**
