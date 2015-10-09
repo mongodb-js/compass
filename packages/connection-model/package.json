@@ -2,7 +2,7 @@
   "name": "mongodb-connection-model",
   "description": "MongoDB connection model.",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "bugs": "https://github.com/mongodb-js/mongodb-connection-model/issues",
   "homepage": "https://github.com/mongodb-js/mongodb-connection-model",
   "repository": "git://github.com/mongodb-js/mongodb-connection-model.git",
