@@ -31,7 +31,14 @@ var ConnectView = View.extend({
     form: 'object',
     authMethod: {
       type: 'string',
-      default: null
+      default: 'NONE',
+      values: [
+        'NONE',
+        'MONGODB',
+        'KERBEROS',
+        'X509',
+        'LDAP'
+      ]
     },
     previousAuthMethod: {
       type: 'string',
@@ -156,7 +163,7 @@ var ConnectView = View.extend({
     if (this.authOpen) {
       this.authMethod = this.previousAuthMethod || 'MONGODB';
     } else {
-      this.authMethod = null;
+      this.authMethod = 'NONE';
     }
   },
   /**
@@ -198,14 +205,14 @@ var ConnectView = View.extend({
     this.reset();
     this.form.connection_id = '';
     this.form.reset();
-    this.authMethod = null;
+    this.authMethod = 'NONE';
     this.authOpen = false;
   },
   onConnectionDestroyed: function() {
     this.reset();
     this.form.connection_id = '';
     this.form.reset();
-    this.authMethod = null;
+    this.authMethod = 'NONE';
     this.authOpen = false;
   },
 
@@ -362,6 +369,7 @@ var ConnectView = View.extend({
   onConnectionSelected: function(model) {
     // If the new model has auth, expand the auth settings container
     // and select the correct tab.
+    model.authentication = model.authentication || 'NONE';
     this.authMethod = model.authentication;
 
     if (model.authentication !== 'NONE') {

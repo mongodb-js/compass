@@ -78,6 +78,7 @@ var kerberos_password = new InputView({
  * Define fields for each auth method here
  */
 module.exports = {
+  NONE: [],
   MONGODB: [
     mongodb_username,
     mongodb_password,
@@ -89,5 +90,5 @@ module.exports = {
     kerberos_password
   ],
   X509: [],
-  PLAIN: []
+  LDAP: []
 };
