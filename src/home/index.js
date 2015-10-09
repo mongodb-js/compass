@@ -48,7 +48,7 @@ var HomeView = View.extend({
     app.instance.fetch();
   },
   onInstanceFetched: function() {
-    if(_.size(app.instance.collections) === 0) {
+    if (app.instance.collections.length === 0) {
       this.showNoCollectionsZeroState = true;
     } else {
       this.showDefaultZeroState = true;
@@ -82,6 +82,8 @@ var HomeView = View.extend({
   },
   onClickShowConnectWindow: function() {
     // code to close current connection window and open connect dialog
+    app.sendMessage('show connect dialog');
+    window.close();
   },
   template: require('./index.jade'),
   subviews: {

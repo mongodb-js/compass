@@ -5,8 +5,8 @@
 /**
 * The outer dimensions to use for new windows.
 */
-exports.DEFAULT_WIDTH = 1024;
-exports.DEFAULT_HEIGHT = 700;
+exports.DEFAULT_WIDTH = 1280;
+exports.DEFAULT_HEIGHT = 800;
 
 /**
 * The outer window dimensions to use for new dialog
