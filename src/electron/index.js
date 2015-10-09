@@ -1,3 +1,6 @@
+if (!process.env.NODE_ENV) {
+  process.env.NODE_ENV = 'production';
+}
 // Start crash-reporter asap so if anything goes
 // wrong, we can at least view the crash reports
 // locally.  When a crash occurs, a `.dmp` file
