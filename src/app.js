@@ -223,13 +223,6 @@ var Application = View.extend({
       event.preventDefault();
       this.router.history.navigate(pathname);
     }
-  },
-  sendMessage: function(msg) {
-    ipc.send('message', msg);
-  },
-  onMessageReceived: function(msg) {
-    debug('message received from main process:', msg);
-    this.trigger(msg);
   }
 });
 
@@ -261,6 +254,13 @@ app.extend({
    */
   isFeatureEnabled: function(id) {
     return FEATURES[id] === true;
+  },
+  sendMessage: function(msg) {
+    ipc.send('message', msg);
+  },
+  onMessageReceived: function(msg) {
+    debug('message received from main process:', msg);
+    this.trigger(msg);
   },
   init: function() {
     domReady(function() {
@@ -298,7 +298,7 @@ app.extend({
       });
     });
     // set up ipc
-    ipc.on('message', state.onMessageReceived.bind(this));
+    ipc.on('message', this.onMessageReceived.bind(this));
   },
   navigate: state.navigate.bind(state)
 });
