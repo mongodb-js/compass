@@ -71,7 +71,7 @@
     "ampersand-input-view": "^5.0.0",
     "ampersand-rest-collection": "^5.0.0",
     "debug": "^2.2.0",
-    "electron-squirrel-startup": "^0.1.2",
+    "electron-squirrel-startup": "^0.1.4",
     "mongodb-collection-model": "^0.1.0",
     "mongodb-connection-model": "^0.0.3",
     "mongodb-instance-model": "^0.2.0",
