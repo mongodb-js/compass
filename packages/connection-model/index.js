@@ -394,7 +394,7 @@ assign(derived, {
       // if (this.ssl_private_key_password) {
       //   opts.server.sslPass = this.ssl_private_key_password;
       // }
-      return connectionOptions;
+      return opts;
     }
   }
 });
