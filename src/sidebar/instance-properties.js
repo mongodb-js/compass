@@ -6,8 +6,6 @@ var _ = require('lodash');
 var InstancePropertiesView = module.exports = View.extend({
   template: require('./instance-properties.jade'),
   session: {
-    hostname: 'string',
-    version: 'string',
     numDatabases: 'number',
     numCollections: 'number',
     instance: 'state',
