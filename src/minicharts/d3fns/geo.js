@@ -25,7 +25,7 @@ var Singleton = (function() {
 
 var singleton = Singleton.getInstance();
 
-var minicharts_d3fns_coordinates = function() {
+var minicharts_d3fns_geo = function() {
   // --- beginning chart setup ---
   var width = 400;
   var height = 100;
@@ -144,7 +144,6 @@ var minicharts_d3fns_coordinates = function() {
 
   function chart(selection) {
     selection.each(function(data) {
-      // debugger;
       if (!singleton.google) {
         // GoogleMapsLoader.KEY = 'AIzaSyDrhE1qbcnNIh4sK3t7GEcbLRdCNKWjlt0';
         GoogleMapsLoader.LIBRARIES = ['geometry'];
@@ -261,7 +260,10 @@ var minicharts_d3fns_coordinates = function() {
       googleMap.addListener('dragstart', function() {
         debug('drag start');
       });
-      google.maps.event.trigger(googleMap, 'resize');
+      _.defer(function() {
+        google.maps.event.trigger(googleMap, 'resize');
+        googleMap.fitBounds(bounds);
+      }, 100);
     }); // end selection.each()
   }
 
@@ -292,4 +294,4 @@ var minicharts_d3fns_coordinates = function() {
   return chart;
 };
 
-module.exports = minicharts_d3fns_coordinates;
+module.exports = minicharts_d3fns_geo;
