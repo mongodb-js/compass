@@ -30,7 +30,8 @@
       "ampersand-state",
       "scout-server",
       "glob",
-      "electron-squirrel-startup"
+      "electron-squirrel-startup",
+      "ipc"
     ]
   },
   "fonts": [
