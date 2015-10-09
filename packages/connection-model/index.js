@@ -496,9 +496,14 @@ Connection = AmpersandModel.extend({
   serialize: function(options) {
     options = options || {};
     options.credentials = options.credentials || false;
+    options.all = options.all || false;
 
     var credentialKeys = AUTHENTICATION_TO_FIELD_NAMES[this.authentication];
     var res = AmpersandModel.prototype.serialize.call(this, options);
+    if (options.all) {
+      return res;
+    }
+
     var args = [res];
     args.push.apply(args, credentialKeys);
 
