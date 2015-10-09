@@ -191,7 +191,9 @@ gulp.task('build:pages', function() {
  * ## electron
  */
 gulp.task('electron:start', function() {
-  var child = spawn(path.resolve(platform.ELECTRON), []);
+  var child = spawn(path.resolve(platform.ELECTRON), [], {
+    env: process.env
+  });
   child.stderr.pipe(process.stderr);
   child.stdout.pipe(process.stdout);
   child.on('exit', function(code) {

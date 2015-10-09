@@ -34,7 +34,7 @@ module.exports = Connection.extend({
 
       debug('test worked!');
       debug('making sure we can get collection list...');
-      client.instance(function(err, res) {
+      client(app.endpoint, this).instance(function(err, res) {
         if (!err) {
           debug('woot.  all gravy!  able to see %s collections', res.collections.length);
           done(null, model);

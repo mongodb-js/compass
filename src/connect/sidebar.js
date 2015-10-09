@@ -38,9 +38,9 @@ var SidebarItemView = View.extend({
   },
   derived: {
     has_auth: {
-      deps: ['model.auth_mechanism'],
+      deps: ['model.authentication'],
       fn: function() {
-        return this.model.auth_mechanism !== null;
+        return this.model.authentication !== 'NONE';
       }
     }
   },
