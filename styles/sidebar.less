@@ -18,7 +18,7 @@
   .instance-properties {
     position: absolute;
     top: 78px;
-    left: 30px;
+    left: 10px;
 
     .hostname {
       display: block;
@@ -29,13 +29,16 @@
     }
     .version {
       display: block;
-      font-size: 14px;
+      font-size: 13px;
+      line-height: 14px;
       font-weight: normal;
       color: @gray5;
     }
     .db-stats {
       color: @gray5;
-      margin-top: 6px;
+      margin-top: 8px;
+      font-style: 13px;
+      line-height: 13px;
 
       .num-databases,
       .num-collections {
@@ -45,14 +48,22 @@
         margin-right: 10px;
       }
       strong {
-        color: @pw;
+        color: @gray7;
         font-weight: bold;
       }
       button.refresh-collections {
         background: none;
         border: none;
-        color: @pw;
-        font-size: 14px;
+        color: @gray7;
+        font-size: 13px;
+        border-radius: 2px;
+        padding: 4px 5px;
+        transition: all 150ms ease;
+
+        &:hover {
+          background: @slate0;
+          color: @pw;
+        }
       }
     }
   }
@@ -61,7 +72,7 @@
     position: absolute;
     top: 156px;
     width: 100%;
-    padding-bottom: 12px;
+    // padding-bottom: 12px;
     box-shadow: 0 2px 0 rgba(0,0,0,0.2);
 
     i.search {
@@ -69,18 +80,37 @@
       position: absolute;
       margin-top: 9px;
       margin-left: 10px;
-      color: @gray5;
+      color: @gray7;
     }
+    // input {
+    //   padding: 0;
+    //   margin-left: 30px;
+    //   margin-top: 7px;
+    //   height: auto;
+    //   background: @slate1;
+    //   color: @pw;
+    //   width: 174px;
+    //   border: none;
+    //   border-bottom: 1px solid lighten(@slate1, 5%);
+    // }
+    // input[type=search] {
+    //   border-radius: 18px;
+    // }
     input {
-      padding: 0;
-      margin-left: 30px;
-      margin-top: 7px;
+      padding: 7px 5px 5px 30px;
       height: auto;
-      background: @slate1;
+      background: lighten(@slate1, 5%);
       color: @pw;
-      width: 174px;
+      width: 100%;
       border: none;
-      border-bottom: 1px solid lighten(@slate1, 5%);
+      transition: all 150ms ease;
+
+      &:focus {
+        background: lighten(@slate1, 8%);
+      }
+    }
+    input::-webkit-input-placeholder {
+      color: @gray5;
     }
     // input[type=search] {
     //   border-radius: 18px;
@@ -93,7 +123,7 @@
   .list-group {
     line-height: 24px;
     position: absolute;
-    top: 196px;
+    top: 189px;
     bottom: 0px;
     overflow-y: auto;
     width: 100%;
