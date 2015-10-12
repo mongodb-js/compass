@@ -22,7 +22,9 @@
     "email": "yonatnamn@gmail.com"
   },
   "license": "ISC",
-  "dependencies": {},
+  "dependencies": {
+    "react-addons-update": "^0.14.0"
+  },
   "peerDependencies": {
     "reflux": "^0.2.5"
   },
