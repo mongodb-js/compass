@@ -1,7 +1,11 @@
 div.instance-properties
-  span.hostname(data-hook='hostname')
+  span.hostname
+    span(data-hook='hostname')
+    |:
+    span(data-hook='port')
   span.version
-    | version&nbsp;
+    span(data-hook='module')
+    | &nbsp;version&nbsp;
     span(data-hook='version')
   div.db-stats
     span.num-databases

@@ -14,10 +14,22 @@ var InstancePropertiesView = module.exports = View.extend({
       default: true
     }
   },
+  derived: {
+    module: {
+      deps: ['instance.build.enterprise_module'],
+      fn: function() {
+        return app.instance.build.enterprise_module ? 'Enterprise' : 'Community';
+      }
+    }
+  },
   bindings: {
-    'instance.host.hostname': {
+    'instance.hostname': {
       type: 'text',
       hook: 'hostname'
+    },
+    'instance.port': {
+      type: 'text',
+      hook: 'port'
     },
     'instance.build.version': {
       type: 'text',
@@ -30,6 +42,10 @@ var InstancePropertiesView = module.exports = View.extend({
     numDatabases: {
       type: 'text',
       hook: 'num-databases'
+    },
+    module: {
+      type: 'text',
+      hook: 'module'
     },
     is_fetching: {
       type: 'booleanClass',
