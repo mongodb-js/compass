@@ -59,23 +59,23 @@ module.exports = {
 
     // determine what kind of query this is (distinct or range)
     switch (this.model.getType()) {
-    case 'Boolean': // fall-through to String
-    case 'String':
-      queryType = 'distinct';
-      break;
-    case 'Number':
-      if (data.source === 'unique') {
+      case 'Boolean': // fall-through to String
+      case 'String':
         queryType = 'distinct';
-      } else {
+        break;
+      case 'Number':
+        if (data.source === 'unique') {
+          queryType = 'distinct';
+        } else {
+          queryType = 'range';
+        }
+        break;
+      case 'ObjectID': // fall-through to Date
+      case 'Date':
         queryType = 'range';
-      }
-      break;
-    case 'ObjectID': // fall-through to Date
-    case 'Date':
-      queryType = 'range';
-      break;
-    default: // @todo other types not implemented yet
-      throw new Error('unsupported querybuilder type ' + this.model.getType());
+        break;
+      default: // @todo other types not implemented yet
+        throw new Error('unsupported querybuilder type ' + this.model.getType());
     }
 
     // now call appropriate event handlers and query build methods

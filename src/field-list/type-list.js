@@ -101,8 +101,8 @@ var TypeListItem = View.extend(tooltipMixin, {
     evt.stopPropagation();
 
     if (this.active) {
-    // @todo rueckstiess: already active, query building mode
-    // this.toggle('selected');
+      // @todo rueckstiess: already active, query building mode
+      // this.toggle('selected');
     } else {
       // no clicks on Undefined allowed
       if (this.model.getId() === 'Undefined') {
