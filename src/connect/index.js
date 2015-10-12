@@ -161,7 +161,11 @@ var ConnectView = View.extend({
     evt.preventDefault();
     this.toggle('authOpen');
     if (this.authOpen) {
-      this.authMethod = 'MONGODB';
+      if (this.previousAuthMethod === 'NONE') {
+        this.authMethod = 'MONGODB';
+      } else {
+        this.authMethod = this.previousAuthMethod;
+      }
     } else {
       this.authMethod = 'NONE';
     }

@@ -26,7 +26,9 @@ module.exports = Connection.extend({
   test: function(done) {
     var model = this;
     debug('Testing connection to `%j`...', this);
-    client.test(app.endpoint, model.serialize({all: true}), function(err) {
+    client.test(app.endpoint, model.serialize({
+      all: true
+    }), function(err) {
       if (err) {
         bugsnag.notify(err, 'connection test failed');
         return done(err);
@@ -34,7 +36,9 @@ module.exports = Connection.extend({
 
       debug('test worked!');
       debug('making sure we can get collection list...');
-      client(app.endpoint, model.serialize({all: true})).instance(function(err, res) {
+      client(app.endpoint, model.serialize({
+        all: true
+      })).instance(function(err, res) {
         if (!err) {
           debug('woot.  all gravy!  able to see %s collections', res.collections.length);
           done(null, model);
@@ -47,5 +51,10 @@ module.exports = Connection.extend({
     });
     return this;
   },
-  sync: connectionSync
+  sync: connectionSync,
+  serialize: function(){
+    return Connection.prototype.serialize.call(this, {
+      all: true
+    });
+  }
 });
