@@ -2,9 +2,9 @@ var Base = require('./base'),
     debug = require('debug')('models:operator');
 
 /**
- * Operator is the common class for all possible operators, including 
- * LogicalOperator, ListOperator, ValueOperator.
- * 
+ * Operator is the common class for all possible operators, including
+ * LogicalOperator, ListOperator, ValueOperator, GeoOperator.
+ *
  * @type {Base}
  */
 var Operator = module.exports = Base.extend({
@@ -13,7 +13,7 @@ var Operator = module.exports = Base.extend({
       deps: ['parent'],
       cache: false,
       fn: function () {
-        // for LeafValues wanting to listen to the key: 
+        // for LeafValues wanting to listen to the key:
         // this operator's key is really its parent key
         return this.parent ? this.parent.key : null;
       }
@@ -22,7 +22,7 @@ var Operator = module.exports = Base.extend({
   session: {
     className: {
       type: 'string',
-      default: 'Operator'   
+      default: 'Operator'
     }
   },
 });

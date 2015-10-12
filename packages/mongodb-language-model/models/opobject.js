@@ -1,6 +1,7 @@
 var Operator = require('./operator'),
   Value = require('./value'),
   ChildCollection = require('./childcollection'),
+  definitions = require('./definitions'),
   debug = require('debug')('models:logical-operator');
 
 
@@ -11,11 +12,15 @@ var Operator = require('./operator'),
 var OperatorCollection = ChildCollection.extend({
   mainIndex: 'operator',
   model: function(attrs, options) {
+    var GeoOperator = require('./geo').GeoOperator;
     var key = _.keys(attrs)[0];
     var value = attrs[key];
-    if (value instanceof Array) {
+
+    if (definitions.listOperators.indexOf(key) !== -1) {
       return new ListOperator(attrs, options);
-    } else {
+    } else if (definitions.geoOperators.indexOf(key) !== -1) {
+      return new GeoOperator(attrs, options);
+    } else if (definitions.valueOperators.indexOf(key) !== -1) {
       return new ValueOperator(attrs, options);
     }
   },
