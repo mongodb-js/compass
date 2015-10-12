@@ -1,3 +1,4 @@
+/* eslint indent:0 */
 var AmpersandView = require('ampersand-view');
 var _ = require('lodash');
 var $ = require('jquery');
@@ -89,16 +90,16 @@ var VizView = AmpersandView.extend({
     // pick html, canvas or svg template
     if (!this.template) {
       switch (this.renderMode) {
-      case 'canvas':
-        this.template = '<canvas data-hook="viz-container" id="canvas"></canvas>';
-        break;
-      case 'svg':
-        this.template = require('./svg-template.jade');
-        break;
-      case 'html':
-      default:
-        this.template = '<div data-hook="viz-container"></div>';
-        break;
+        case 'canvas':
+          this.template = '<canvas data-hook="viz-container" id="canvas"></canvas>';
+          break;
+        case 'svg':
+          this.template = require('./svg-template.jade');
+          break;
+        case 'html':
+        default:
+          this.template = '<div data-hook="viz-container"></div>';
+          break;
       }
     }
   },

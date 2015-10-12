@@ -39,10 +39,6 @@ module.exports = bugsnag;
  *   https://github.com/bugsnag/bugsnag-js#user
  */
 module.exports.listen = function listen() {
-  if (!process.env.NODE_ENV) {
-    process.env.NODE_ENV = 'development';
-  }
-
   _.assign(bugsnag, {
     apiKey: TOKEN,
     autoNotify: true,

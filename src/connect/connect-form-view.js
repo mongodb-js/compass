@@ -31,22 +31,11 @@ var ConnectFormView = FormView.extend({
     // clean up the form values here, e.g. conversion to numbers etc.
 
     // get auth mechanism from parent view
-    obj.auth_mechanism = this.parent.authMethod;
-
-    // is SSL enabled (options are open)
-    obj.ssl = this.parent.sslOpen;
+    obj.authentication = this.parent.authMethod;
 
     // fill in all default fields
     obj.hostname = obj.hostname || 'localhost';
-    obj.port = obj.port || 27017;
-
-    // port number must be numeric
-    obj.port = Number(obj.port);
-
-    if (obj.auth_mechanism) {
-      // default fields for auth
-      obj.database_name = obj.database_name || 'admin';
-    }
+    obj.port = parseInt(obj.port || 27017, 10);
 
     return obj;
   },

@@ -31,7 +31,14 @@ var ConnectView = View.extend({
     form: 'object',
     authMethod: {
       type: 'string',
-      default: null
+      default: 'NONE',
+      values: [
+        'NONE',
+        'MONGODB',
+        'KERBEROS',
+        'X509',
+        'LDAP'
+      ]
     },
     previousAuthMethod: {
       type: 'string',
@@ -154,9 +161,13 @@ var ConnectView = View.extend({
     evt.preventDefault();
     this.toggle('authOpen');
     if (this.authOpen) {
-      this.authMethod = this.previousAuthMethod || 'SCRAM-SHA-1';
+      if (this.previousAuthMethod === 'NONE') {
+        this.authMethod = 'MONGODB';
+      } else {
+        this.authMethod = this.previousAuthMethod;
+      }
     } else {
-      this.authMethod = null;
+      this.authMethod = 'NONE';
     }
   },
   /**
@@ -198,14 +209,14 @@ var ConnectView = View.extend({
     this.reset();
     this.form.connection_id = '';
     this.form.reset();
-    this.authMethod = null;
+    this.authMethod = 'NONE';
     this.authOpen = false;
   },
   onConnectionDestroyed: function() {
     this.reset();
     this.form.connection_id = '';
     this.form.reset();
-    this.authMethod = null;
+    this.authMethod = 'NONE';
     this.authOpen = false;
   },
 
@@ -247,32 +258,16 @@ var ConnectView = View.extend({
 
     debug('testing credentials are usable...');
     model.test(function(err) {
+      app.statusbar.hide();
       if (!err) {
         this.onConnectionSuccessful(model);
         return;
       }
 
-      if (model.auth_mechanism !== 'SCRAM-SHA-1') {
-        debug('failed to connect', err);
-        app.statusbar.hide();
-        this.onError(new Error('Could not connect to MongoDB.'), model);
-        return;
-      }
+      debug('failed to connect', err);
 
-      // For Kernel 2.6.x
-      model.auth_mechanism = 'MONGODB-CR';
-      debug('trying again w/ MONGODB-CR...');
-      app.statusbar.show();
-
-      model.test(function(err) {
-        if (err) {
-          app.statusbar.hide();
-          debug('failed to connect again... bailing', err);
-          this.onError(new Error('Could not connect to MongoDB.'), model);
-          return;
-        }
-        this.onConnectionSuccessful(model);
-      }.bind(this));
+      this.onError(new Error('Could not connect to MongoDB.'), model);
+      return;
     }.bind(this));
   },
   /**
@@ -301,7 +296,7 @@ var ConnectView = View.extend({
      * and accoutrement people are actually using IRL.
      *
      *   metrics.trackEvent('connect success', {
-     *     auth_mechanism: model.auth_mechanism,
+     *     authentication: model.authentication,
      *     ssl: model.ssl
      *   });
      */
@@ -325,7 +320,7 @@ var ConnectView = View.extend({
    * @api private
    */
   onError: function(err, model) {
-    // @todo (imlucas): `metrics.trackEvent('connect error', auth_mechanism + ssl boolean)`
+    // @todo (imlucas): `metrics.trackEvent('connect error', authentication + ssl boolean)`
     debug('showing error message', {
       err: err,
       model: model
@@ -378,16 +373,10 @@ var ConnectView = View.extend({
   onConnectionSelected: function(model) {
     // If the new model has auth, expand the auth settings container
     // and select the correct tab.
-    // @note (imlucas): gross, but `this.authMethod` is only used
-    // for managing auth-fields.js so make this pretty when
-    // there's more time.
-    if (model.auth_mechanism === 'MONGODB-CR') {
-      this.authMethod = 'SCRAM-SHA-1';
-    } else {
-      this.authMethod = model.auth_mechanism;
-    }
+    model.authentication = model.authentication || 'NONE';
+    this.authMethod = model.authentication;
 
-    if (model.auth_mechanism !== null) {
+    if (model.authentication !== 'NONE') {
       this.authOpen = true;
     } else {
       this.authOpen = false;
@@ -398,7 +387,7 @@ var ConnectView = View.extend({
     // so we need to get a list of what keys are currently
     // available to set.
     var keys = ['name', 'port', 'hostname'];
-    if (model.auth_mechanism) {
+    if (model.authentication !== 'NONE') {
       keys.push.apply(keys, _.pluck(authFields[this.authMethod], 'name'));
     }
 
@@ -414,22 +403,22 @@ var ConnectView = View.extend({
     // @todo (imlucas): Consolidate w/ `./auth-fields.js`.
     var authMethods = [
       {
-        _id: 'SCRAM-SHA-1',
+        _id: 'MONGODB',
         title: 'User/Password',
         enabled: true
       },
       {
-        _id: 'GSSAPI',
+        _id: 'KERBEROS',
         title: 'Kerberos',
         enabled: app.isFeatureEnabled('Connect with Kerberos')
       },
       {
-        _id: 'PLAIN',
+        _id: 'LDAP',
         title: 'LDAP',
         enabled: app.isFeatureEnabled('Connect with LDAP')
       },
       {
-        _id: 'MONGODB-X509',
+        _id: 'X509',
         title: 'X.509',
         enabled: app.isFeatureEnabled('Connect with X.509')
       }
