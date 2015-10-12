@@ -1,3 +1,4 @@
+/* eslint indent:0 */
 var _ = require('lodash');
 var $ = require('jquery');
 var d3 = require('d3');
