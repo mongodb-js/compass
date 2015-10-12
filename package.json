@@ -3,7 +3,7 @@
   "description": "The MongoDB GUI.",
   "version": "0.4.2",
   "main": "main.js",
-  "electron_version": "0.30.6",
+  "electron_version": "0.30.8",
   "product_name": "MongoDB Compass",
   "authors": "MongoDB Inc.",
   "check": {
