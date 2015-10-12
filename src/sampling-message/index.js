@@ -2,69 +2,83 @@ var View = require('ampersand-view');
 var pluralize = require('pluralize');
 var format = require('util').format;
 var app = require('ampersand-app');
+var numeral = require('numeral');
+var debug = require('debug')('scout:sampling-message:index');
 
 var SamplingMessageView = View.extend({
+  template: require('./index.jade'),
   session: {
     parent: 'state'
   },
-  bindings: {
-    visible: {
-      type: 'booleanClass',
-      no: 'hidden'
-    },
-    sample_size_message: {
-      hook: 'sample_size_message'
-    },
-    is_sample: [
-      {
-        hook: 'is_sample',
-        type: 'booleanClass',
-        no: 'hidden'
-      },
-      {
-        hook: 'is_query',
-        type: 'booleanClass',
-        yes: 'hidden'
-      }
-    ]
-  },
   props: {
-    schema_sample_size: {
+    sample_size: {
+      type: 'number',
+      default: 0
+    },
+    total_count: {
       type: 'number',
       default: 0
     }
   },
   derived: {
     visible: {
-      deps: ['schema_sample_size'],
+      deps: ['sample_size'],
       fn: function() {
-        return this.schema_sample_size > 0;
+        return this.sample_size > 0;
       }
     },
     is_sample: {
-      deps: ['schema_sample_size'],
+      deps: ['sample_size'],
       fn: function() {
-        return this.schema_sample_size === app.queryOptions.size;
+        return this.sample_size === app.queryOptions.size;
       }
     },
-    sample_size_message: {
-      deps: ['schema_sample_size'],
+    formatted_total_count: {
+      deps: ['total_count'],
       fn: function() {
-        return format('%d %s', this.parent.schema.sample_size,
-          pluralize('document', this.parent.schema.sample_size));
+        return numeral(this.total_count).format('0,0');
+      }
+    },
+    formatted_sample_size: {
+      deps: ['sample_size'],
+      fn: function() {
+        return numeral(this.sample_size).format('0,0');
+      }
+    },
+    total_count_document: {
+      deps: ['total_count'],
+      fn: function() {
+        return pluralize('document', this.total_count);
+      }
+    },
+    sample_size_document: {
+      deps: ['sample_size'],
+      fn: function() {
+        return pluralize('document', this.sample_size);
       }
     }
   },
-  template: require('./index.jade'),
+  bindings: {
+    visible: {
+      type: 'booleanClass',
+      no: 'hidden'
+    }
+  },
   initialize: function() {
-    this.listenTo(this.parent.schema, 'request', this.hide.bind(this));
-    this.listenTo(this.parent.schema, 'sync', this.show.bind(this));
+    this.listenTo(this.parent.parent.schema, 'request', this.hide.bind(this));
+    this.listenTo(this.parent.parent.schema, 'sync', this.show.bind(this));
   },
   hide: function() {
-    this.schema_sample_size = 0;
+    this.sample_size = 0;
+    this.total_count = 0;
   },
   show: function() {
-    this.schema_sample_size = this.parent.schema.sample_size;
+    this.sample_size = this.parent.parent.schema.sample_size;
+    this.total_count = this.parent.parent.schema.total;
+    this.render();
+  },
+  render: function() {
+    this.renderWithTemplate(this);
   }
 });
 module.exports = SamplingMessageView;

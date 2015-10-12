@@ -3,6 +3,8 @@ var EditableQuery = require('../models/editable-query');
 var $ = require('jquery');
 var EJSON = require('mongodb-extended-json');
 var Query = require('mongodb-language-model').Query;
+var SamplingMessageView = require('../sampling-message');
+
 // var debug = require('debug')('scout:refine-view:index');
 
 module.exports = AmpersandView.extend({
@@ -54,6 +56,17 @@ module.exports = AmpersandView.extend({
         yes: null
       }
     ]
+  },
+  subviews: {
+    sampling_message: {
+      hook: 'sampling-message-subview',
+      prepareView: function(el) {
+        return new SamplingMessageView({
+          el: el,
+          parent: this
+        });
+      }
+    }
   },
   events: {
     'click [data-hook=refine-button]': 'refineClicked',

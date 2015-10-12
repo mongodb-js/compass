@@ -16,17 +16,29 @@ var HomeView = View.extend({
       allowNull: true,
       default: null
     },
-    showZeroState: {
+    showDefaultZeroState: {
       type: 'boolean',
-      default: true
+      default: false
+    },
+    showNoCollectionsZeroState: {
+      type: 'boolean',
+      default: false
     }
   },
   bindings: {
-    showZeroState: {
+    showDefaultZeroState: {
       hook: 'report-zero-state',
       type: 'booleanClass',
       no: 'hidden'
+    },
+    showNoCollectionsZeroState: {
+      hook: 'no-collections-zero-state',
+      type: 'booleanClass',
+      no: 'hidden'
     }
+  },
+  events: {
+    'click a.show-connect-window': 'onClickShowConnectWindow'
   },
   initialize: function() {
     this.listenTo(app.instance, 'sync', this.onInstanceFetched);
@@ -36,6 +48,11 @@ var HomeView = View.extend({
     app.instance.fetch();
   },
   onInstanceFetched: function() {
+    if (app.instance.collections.length === 0) {
+      this.showNoCollectionsZeroState = true;
+    } else {
+      this.showDefaultZeroState = true;
+    }
     if (!this.ns) {
       app.instance.collections.unselectAll();
     } else {
@@ -58,10 +75,15 @@ var HomeView = View.extend({
 
     this.ns = model.getId();
     this.updateTitle(model);
-    this.showZeroState = false;
+    this.showDefaultZeroState = false;
     app.navigate(format('schema/%s', model.getId()), {
       silent: true
     });
+  },
+  onClickShowConnectWindow: function() {
+    // code to close current connection window and open connect dialog
+    app.sendMessage('show connect dialog');
+    window.close();
   },
   template: require('./index.jade'),
   subviews: {
