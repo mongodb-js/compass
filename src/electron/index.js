@@ -7,11 +7,11 @@ if (!process.env.NODE_ENV) {
 // will be created in `/tmp/Compass`
 // (`~\AppData\Local\Temp\Compass` on Windows).
 require('./crash-reporter');
+var debug = require('debug')('electron:index');
 
 if (!require('electron-squirrel-startup')) {
   var app = require('app');
   var serverctl = require('./scout-server-ctl');
-  var debug = require('debug')('scout-electron');
 
   app.on('window-all-closed', function() {
     debug('All windows closed.  Quitting app.');

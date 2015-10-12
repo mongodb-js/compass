@@ -128,3 +128,9 @@ app.on('show connect dialog', function(opts) {
 app.on('ready', function() {
   app.emit('show connect dialog');
 });
+
+var ipc = require('ipc');
+ipc.on('message', function(event, msg) {
+  debug('message received in main process', msg);
+  app.emit(msg);
+});

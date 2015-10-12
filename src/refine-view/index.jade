@@ -1,6 +1,10 @@
-.refine-view-container: .row: .col-md-12
-  form: .input-group(data-hook='refine-input-group')
+.refine-view-container
+  .query-input-container: .row: .col-md-12: form: .input-group(data-hook='refine-input-group')
     input.form-control.input-sm(type='text', data-hook='refine-input')
     span.input-group-btn
       button.btn.btn-info.btn-sm(type='button', data-hook='refine-button') Apply
       button.btn.btn-default.btn-sm(type='button', data-hook='reset-button') Reset
+  div(data-hook='sampling-message-subview')
+
+  //- .sampling-message
+  //-   span Query returned 9867 documents. This report is based on a sample of 1000 documents (10.13%).

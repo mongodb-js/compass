@@ -34,7 +34,7 @@ var CollectionStatsView = AmpersandView.extend({
   format: function(propertyName) {
     var value = this.model.get(propertyName) || 0;
     var precision = value <= 1000 ? '0' : '0.0';
-    var format = propertyName.indexOf('_size') > -1 ? 'b' : 'a';
+    var format = propertyName.indexOf('_size') > -1 ? ' b' : 'a';
     return numeral(value).format(precision + format);
   },
   derived: {

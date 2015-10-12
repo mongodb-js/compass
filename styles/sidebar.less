@@ -1,4 +1,4 @@
-@sidebar-bg: @slate0;
+@sidebar-bg: @slate1;
 @sidebar-width: 220px;
 
 .sidebar {
@@ -9,14 +9,70 @@
   margin-bottom: 0;
 
   .compass-logo {
-    background: @slate1 url("images/logo-compass-on-dark.png") center center no-repeat;
+    background: @slate0 url("images/logo-compass-on-dark.png") center center no-repeat;
     background-size: 162px 28px;
     width: @sidebar-width;
-    height: 72px;
+    height: 60px;
+  }
+
+  .instance-properties {
+    position: absolute;
+    top: 78px;
+    left: 10px;
+
+    .hostname {
+      display: block;
+      font-size: 16px;
+      line-height: 16px;
+      font-weight: 200;
+      color: @pw;
+    }
+    .version {
+      display: block;
+      font-size: 13px;
+      line-height: 14px;
+      font-weight: normal;
+      color: @gray5;
+    }
+    .db-stats {
+      color: @gray5;
+      margin-top: 8px;
+      font-style: 13px;
+      line-height: 13px;
+
+      .num-databases,
+      .num-collections {
+        display: inline-block;
+        border-right: 1px solid @slate2;
+        padding-right: 10px;
+        margin-right: 10px;
+      }
+      strong {
+        color: @gray7;
+        font-weight: bold;
+      }
+      button.refresh-collections {
+        background: none;
+        border: none;
+        color: @gray7;
+        font-size: 13px;
+        border-radius: 2px;
+        padding: 4px 5px;
+        transition: all 150ms ease;
+
+        &:hover {
+          background: @slate0;
+          color: @pw;
+        }
+      }
+    }
   }
 
   .list-filter {
-    padding: 12px;
+    position: absolute;
+    top: 156px;
+    width: 100%;
+    // padding-bottom: 12px;
     box-shadow: 0 2px 0 rgba(0,0,0,0.2);
 
     i.search {
@@ -24,19 +80,41 @@
       position: absolute;
       margin-top: 9px;
       margin-left: 10px;
-      color: @gray5;
+      color: @gray7;
     }
+    // input {
+    //   padding: 0;
+    //   margin-left: 30px;
+    //   margin-top: 7px;
+    //   height: auto;
+    //   background: @slate1;
+    //   color: @pw;
+    //   width: 174px;
+    //   border: none;
+    //   border-bottom: 1px solid lighten(@slate1, 5%);
+    // }
+    // input[type=search] {
+    //   border-radius: 18px;
+    // }
     input {
-      padding: 5px 5px 5px 30px;
+      padding: 7px 5px 5px 30px;
       height: auto;
-      background: @slate0;
+      background: lighten(@slate1, 5%);
       color: @pw;
       width: 100%;
-      border: 1px solid lighten(@slate0, 5%);
+      border: none;
+      transition: all 150ms ease;
+
+      &:focus {
+        background: lighten(@slate1, 8%);
+      }
     }
-    input[type=search] {
-      border-radius: 18px;
+    input::-webkit-input-placeholder {
+      color: @gray5;
     }
+    // input[type=search] {
+    //   border-radius: 18px;
+    // }
   }
 
   .panel-title {
@@ -45,7 +123,7 @@
   .list-group {
     line-height: 24px;
     position: absolute;
-    top: 128px;
+    top: 189px;
     bottom: 0px;
     overflow-y: auto;
     width: 100%;
@@ -60,10 +138,10 @@
       color: @gray5;
 
       &:hover {
-        background: lighten(@slate0, 5%);
+        background: lighten(@slate1, 5%);
         a {
           color: @pw;
-          border-left: 4px solid lighten(@slate0, 5%);
+          border-left: 4px solid lighten(@slate1, 5%);
           text-decoration: none;
         }
       }
