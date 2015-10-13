@@ -14,6 +14,11 @@ pre:
 post:
 - command: shell.cleanup
 
+variables:
+- &release_artifact_variants
+  - osx-108
+  - windows-64
+
 #######################################
 #            Functions                #
 #######################################
@@ -103,18 +108,22 @@ functions:
         permissions: public-read
         content_type: ${installer_content_type|application/octet-stream}
         display_name: "Installer: ${installer_filename}"
+        #
+        # CONDITIONAL based on release_artifact_variants (specified above)
+        #
+        build_variants:
+          *release_artifact_variants
 
 #######################################
 #               Tasks                 #
 #######################################
 
-# FIXME: simplify to one "compile" task as soon as we can hammer out the irregularities
-# between the platforms:
+# FIXME: simplify to one "compile" task as soon as we can hammer out
+# the irregularities between platforms:
 # - one way of installing Node
-# - build artifacts for all platforms
 
 tasks:
-- name: compile_osx
+- name: compile
   depends_on: []
   commands:
   - func: "fetch source"
@@ -131,15 +140,6 @@ tasks:
   - func: "npm install"
   - func: "build"
   - func: "save release"
-
-- name: compile_linux
-  depends_on: []
-  commands:
-  - func: "fetch source"
-  - func: "fetch npm tarball"
-  - func: "npm install"
-  - func: "build"
-  # - func: "save release"
 
 
 #######################################
@@ -159,7 +159,7 @@ buildvariants:
     installer_filename: "MongoDB Compass.dmg"
     num_cores: $(sysctl -n hw.logicalcpu)
   tasks:
-  - name: compile_osx
+  - name: compile
 
 - name: windows-64
   display_name: Windows 64-bit
@@ -187,4 +187,4 @@ buildvariants:
     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
     num_cores: $(grep -c ^processor /proc/cpuinfo)
   tasks:
-  - name: compile_linux
+  - name: compile
