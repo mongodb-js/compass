@@ -1,4 +1,4 @@
-var utils = {}
+var utils = {};
 
 utils.object = function (keys, vals) {
     var o = {}, i = 0;

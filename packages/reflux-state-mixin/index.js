@@ -1,6 +1,5 @@
 'use strict';
 
-var update = require('react-addons-update');
 var utils = require('./utils.js');
 
 /**
@@ -28,7 +27,7 @@ module.exports = function stateMixin(Reflux) {
   return {
     setState: function (state) {
       var changed = false;
-      var prevState = update({}, {$merge: this.state});
+      var prevState = utils.extend({}, this.state);
 
       for (var key in state) {
         if (state.hasOwnProperty(key)) {
@@ -40,7 +39,7 @@ module.exports = function stateMixin(Reflux) {
       }
 
       if (changed) {
-        this.state = update(this.state, {$merge: state});
+        this.state = utils.extend(this.state, state);
 
         if (utils.isFunction(this.storeDidUpdate)) {
           this.storeDidUpdate(prevState);
