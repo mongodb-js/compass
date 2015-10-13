@@ -4,6 +4,7 @@ var shared = require('./shared');
 var debug = require('debug')('scout:minicharts:geo');
 var GoogleMapsLoader = require('google-maps');
 var mapStyle = require('./mapstyle');
+var SHIFTKEY = 16;
 
 var Singleton = (function() {
   var instance;
@@ -60,6 +61,20 @@ var minicharts_d3fns_geo = function() {
         var p = new google.maps.LatLng(d[1], d[0]);
         return pointInCircle(p, selectionCircle.getRadius(), selectionCircle.getCenter());
       });
+  }
+
+  function onKeyDown() {
+    if (d3.event.keyCode === SHIFTKEY) {
+      // disable dragging while shift is pressed
+      googleMap.setOptions({ draggable: false });
+    }
+  }
+
+  function onKeyUp() {
+    if (d3.event.keyCode === SHIFTKEY) {
+      // disable dragging while shift is pressed
+      googleMap.setOptions({ draggable: true });
+    }
   }
 
   function startSelection() {
@@ -166,11 +181,11 @@ var minicharts_d3fns_geo = function() {
       if (!googleMap) {
         // Create the Google Map
         googleMap = new google.maps.Map(el.node(), {
-          // disableDefaultUI: false,
+          disableDefaultUI: true,
           // disableDoubleClickZoom: true,
-          // scrollwheel: true,
-          draggable: false,
-          panControl: true,
+          scrollwheel: true,
+          draggable: true,
+          zoomControl: true,
           mapTypeId: google.maps.MapTypeId.ROADMAP,
           styles: mapStyle
         });
@@ -257,14 +272,14 @@ var minicharts_d3fns_geo = function() {
         options.view.trigger('querybuilder', evt);
       });
 
-      googleMap.addListener('dragstart', function() {
-        debug('drag start');
-      });
       _.defer(function() {
         google.maps.event.trigger(googleMap, 'resize');
         googleMap.fitBounds(bounds);
       }, 100);
     }); // end selection.each()
+    d3.select('body')
+    .on('keydown', onKeyDown)
+    .on('keyup', onKeyUp);
   }
 
   chart.width = function(value) {
