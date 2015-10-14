@@ -6,6 +6,7 @@ var GoogleMapsLoader = require('google-maps');
 var mapStyle = require('./mapstyle');
 var SHIFTKEY = 16;
 
+/* eslint wrap-iife:0 */
 var Singleton = (function() {
   var instance;
 
@@ -156,6 +157,7 @@ var minicharts_d3fns_geo = function() {
   function chart(selection) {
     selection.each(function(data) {
       if (!singleton.google) {
+        // @todo: replace with corporate api key
         GoogleMapsLoader.KEY = 'AIzaSyDrhE1qbcnNIh4sK3t7GEcbLRdCNKWjlt0';
         GoogleMapsLoader.LIBRARIES = ['geometry'];
         GoogleMapsLoader.load(function(g) {

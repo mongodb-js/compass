@@ -44,7 +44,6 @@ module.exports = AmpersandView.extend(QueryBuilderMixin, {
     this.listenTo(app.volatileQueryOptions, 'change:query', this.handleVolatileQueryChange);
   },
   _mangleGeoCoordinates: function(values) {
-    debug('mangle values', values)
     // now check value bounds
     var lons = values.filter(function(val, idx) {
       return idx % 2 === 0;
@@ -53,7 +52,6 @@ module.exports = AmpersandView.extend(QueryBuilderMixin, {
       return idx % 2 === 1;
     });
     if (_.min(lons) >= -180 && _.max(lons) <= 180 && _.min(lats) >= -90 && _.max(lats) <= 90) {
-
       // attach the zipped up coordinates to the model where VizView would expect it
       return new ArrayCollection(_.zip(lons, lats));
     }
