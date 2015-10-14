@@ -14,11 +14,6 @@ pre:
 post:
 - command: shell.cleanup
 
-variables:
-- &release_artifact_variants
-  - osx-108
-  - windows-64
-
 #######################################
 #            Functions                #
 #######################################
@@ -108,19 +103,10 @@ functions:
         permissions: public-read
         content_type: ${installer_content_type|application/octet-stream}
         display_name: "Installer: ${installer_filename}"
-        #
-        # CONDITIONAL based on release_artifact_variants (specified above)
-        #
-        build_variants:
-          *release_artifact_variants
 
 #######################################
 #               Tasks                 #
 #######################################
-
-# FIXME: simplify to one "compile" task as soon as we can hammer out
-# the irregularities between platforms:
-# - one way of installing Node
 
 tasks:
 - name: compile
@@ -128,18 +114,21 @@ tasks:
   commands:
   - func: "fetch source"
   - func: "fetch npm tarball"
-  - func: "npm install"
-  - func: "build"
-  - func: "save release"
-
-- name: compile_windows
-  depends_on: []
-  commands:
-  - func: "fetch source"
+    params:
+      variants:         # all except windows
+      - "osx-108"
+      - "ubuntu"
   - func: "upgrade npm windows"
+    params:
+      variants:         # only windows
+      - "windows-64"
   - func: "npm install"
   - func: "build"
   - func: "save release"
+    params:
+      variants:         # all except ubuntu
+      - "osx-108"
+      - "windows-64"
 
 
 #######################################
@@ -174,7 +163,7 @@ buildvariants:
     installer_filename: "MongoDBCompassSetup.exe"
     num_cores: $(grep -c ^processor /proc/cpuinfo)
   tasks:
-  - name: compile_windows
+  - name: compile
 
 - name: ubuntu
   display_name: Ubuntu 14.04
