@@ -1,7 +1,7 @@
 var d3 = require('d3');
 var _ = require('lodash');
 var shared = require('./shared');
-var debug = require('debug')('scout:minicharts:geo');
+// var debug = require('debug')('scout:minicharts:geo');
 var GoogleMapsLoader = require('google-maps');
 var mapStyle = require('./mapstyle');
 var SHIFTKEY = 16;
@@ -47,7 +47,8 @@ var minicharts_d3fns_geo = function() {
     return singleton.google.maps.geometry.spherical.computeDistanceBetween(point, center) <= radius;
   }
 
-  function selectPoints(frame) {
+  function selectPoints() {
+    var frame = options.el;
     var google = singleton.google;
 
     if (selectionCircle.getRadius() === 0) {
@@ -102,11 +103,6 @@ var minicharts_d3fns_geo = function() {
       .on('mousemove', function() {
         var m = d3.mouse(frame);
 
-        // d3.select(frame).selectAll('.marker circle')
-        //   .classed('selected', function(d) {
-        //     return Math.pow(d.x - center[0], 2) + Math.pow(d.y - center[1], 2) <= radius_sqr;
-        //   });
-
         if (!options.view) {
           return;
         }
@@ -117,7 +113,7 @@ var minicharts_d3fns_geo = function() {
           centerCoord, currentCoord);
 
         selectionCircle.setRadius(meterDistance);
-        selectPoints(frame);
+        selectPoints();
 
         var evt = {
           type: 'geo',
@@ -160,7 +156,7 @@ var minicharts_d3fns_geo = function() {
   function chart(selection) {
     selection.each(function(data) {
       if (!singleton.google) {
-        // GoogleMapsLoader.KEY = 'AIzaSyDrhE1qbcnNIh4sK3t7GEcbLRdCNKWjlt0';
+        GoogleMapsLoader.KEY = 'AIzaSyDrhE1qbcnNIh4sK3t7GEcbLRdCNKWjlt0';
         GoogleMapsLoader.LIBRARIES = ['geometry'];
         GoogleMapsLoader.load(function(g) {
           singleton.google = g;
@@ -227,19 +223,14 @@ var minicharts_d3fns_geo = function() {
               .style('top', p.y - padding + 'px');
             return self;
           }
-
-          // function transformRadius(d) {
-          //   var p = projection.fromLatLngToDivPixel(currentCoord);
-          //   debug('transformRadius', currentCoord, p);
-          //   if (!p) return d3.select(this);
-          //   var r = Math.sqrt(Math.pow(d.x - p.x, 2) + Math.pow(d.y - p.y, 2));
-          //   debug('radius', r);
-          //   return d3.select(this).attr('r', r);
-          // }
         }; // end overlay.draw
 
         overlay.setMap(googleMap);
         el.on('mousedown', startSelection);
+
+        d3.select('body')
+        .on('keydown', onKeyDown)
+        .on('keyup', onKeyUp);
       } // end if (!googleMap) ...
 
       // var innerWidth = width - margin.left - margin.right;
@@ -247,39 +238,39 @@ var minicharts_d3fns_geo = function() {
 
       googleMap.fitBounds(bounds);
 
-      selectionCircle = new google.maps.Circle({
-        strokeColor: '#F68A1E',
-        strokeOpacity: 0.8,
-        strokeWeight: 2,
-        fillColor: '#F68A1E',
-        fillOpacity: 0.35,
-        map: googleMap,
-        center: { lat: 0, lng: 0 },
-        radius: 0,
-        visible: false,
-        draggable: true
-      });
+      if (!selectionCircle) {
+        selectionCircle = new google.maps.Circle({
+          strokeColor: '#F68A1E',
+          strokeOpacity: 0.8,
+          strokeWeight: 2,
+          fillColor: '#F68A1E',
+          fillOpacity: 0.35,
+          map: googleMap,
+          center: { lat: 0, lng: 0 },
+          radius: 0,
+          visible: false,
+          draggable: true
+          // editable: true
+        });
 
-      selectionCircle.addListener('drag', function() {
-        var centerCoord = selectionCircle.getCenter();
-        selectPoints(el.node());
-        var evt = {
-          type: 'geo',
-          source: 'geo',
-          center: [centerCoord.lng(), centerCoord.lat()],
-          distance: selectionCircle.getRadius() / 1600
-        };
-        options.view.trigger('querybuilder', evt);
-      });
+        selectionCircle.addListener('drag', function() {
+          var centerCoord = selectionCircle.getCenter();
+          selectPoints();
+          var evt = {
+            type: 'geo',
+            source: 'geo',
+            center: [centerCoord.lng(), centerCoord.lat()],
+            distance: selectionCircle.getRadius() / 1600
+          };
+          options.view.trigger('querybuilder', evt);
+        });
+      }
 
       _.defer(function() {
         google.maps.event.trigger(googleMap, 'resize');
         googleMap.fitBounds(bounds);
       }, 100);
     }); // end selection.each()
-    d3.select('body')
-    .on('keydown', onKeyDown)
-    .on('keyup', onKeyUp);
   }
 
   chart.width = function(value) {
@@ -305,6 +296,20 @@ var minicharts_d3fns_geo = function() {
     _.assign(options, value);
     return chart;
   };
+
+  chart.geoSelection = function(value) {
+    if (!value) {
+      selectionCircle.setVisible(false);
+      selectionCircle.setRadius(0);
+      selectPoints();
+      return;
+    }
+    selectionCircle.setVisible(true);
+    var c = new google.maps.LatLng(value[0][1], value[0][0]);
+    selectionCircle.setCenter(c);
+    selectionCircle.setRadius(value[1] * 1600);
+    selectPoints();
+  }
 
   return chart;
 };

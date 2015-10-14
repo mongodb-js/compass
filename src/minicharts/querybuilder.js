@@ -416,6 +416,23 @@ module.exports = {
     return message;
   },
   /**
+   * update the UI after a geo query was manipulated in the refine bar.
+   *
+   * @param  {Object} message   message with keys: data, selected, value
+   * @return {Object} message   no changes on message, just pass it through for consistency
+   */
+  updateUI_geo: function(message) {
+    if (this.selectedValues && this.selectedValues.length) {
+      // convert radius back to miles
+      var params = this.selectedValues.slice();
+      params[1] *= 3963.2;
+      this.subview.chart.geoSelection(params);
+    } else {
+      this.subview.chart.geoSelection(null);
+    }
+    return message;
+  },
+  /**
    * Query Builder upwards pass
    * The user interacted with the minichart to build a query. We need to ask the volatile query
    * if a relevant clause exists already, and replace the value, or create a new clause. In the
@@ -481,10 +498,14 @@ module.exports = {
 
     if (!value || !value.valid) {
       this.selectedValues = [];
-      // updateUI_distinct will do the right thing here and clear any selection,
-      // even in the case where the minichart is a range type.
       message.selected = this.selectedValues;
-      this.updateUI_distinct(message);
+      if (_.has(this.subview.chart, 'geoSelection')) {
+        this.updateUI_geo(message);
+      } else {
+        // updateUI_distinct will do the right thing here and clear any selection,
+        // even in the case where the minichart is a range type.
+        this.updateUI_distinct(message);
+      }
       return;
     }
     if (value.className === 'LeafValue') {
@@ -499,6 +520,14 @@ module.exports = {
         this.selectedValues = inOperator.values.serialize();
         message.selected = this.selectedValues;
         this.updateUI_distinct(message);
+        return;
+      }
+      var geoOperator = value.operators.get('$geoWithin');
+      if (geoOperator) {
+        // case: $geoWithin query
+        this.selectedValues = geoOperator.shape.parameters;
+        message.selected = this.selectedValues;
+        this.updateUI_geo(message);
         return;
       }
       if (['$gt', '$lt', '$gte', '$lte'].indexOf(value.operators.at(0).operator) !== -1) {
