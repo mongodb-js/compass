@@ -27,6 +27,15 @@ var SamplingMessageView = View.extend({
         return this.sample_size > 0;
       }
     },
+    percentage: {
+      deps: ['sample_size', 'total_count'],
+      fn: function() {
+        if (this.total_count === 0) {
+          return '0%';
+        }
+        return numeral(this.sample_size / this.total_count).format('0.00%')
+      }
+    },
     is_sample: {
       deps: ['sample_size'],
       fn: function() {
