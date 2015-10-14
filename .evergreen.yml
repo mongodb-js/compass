@@ -14,6 +14,22 @@ pre:
 post:
 - command: shell.cleanup
 
+variables:
+# all except windows
+- &fetch_npm_tarball_variants
+  - osx-108
+  - ubuntu
+
+# only windows
+- &upgrade_npm_variants
+  - windows-64
+
+# all except ubuntu
+- &save_release_variants
+  - osx-108
+  - windows-64
+
+
 #######################################
 #            Functions                #
 #######################################
@@ -26,15 +42,17 @@ functions:
     - command: git.apply_patch
       params:
         directory: src
-
-  "fetch npm tarball" :
     - command: shell.exec
       params:
         working_dir: src
         script: |
           mkdir .deps
+
+  "fetch npm tarball" :
     - command: s3.get
       params:
+        variants:
+          *fetch_npm_tarball_variants
         aws_key: ${aws_key_evergreen_integrations}
         aws_secret: ${aws_secret_evergreen_integrations}
         bucket: mongodb-dx-public
@@ -42,6 +60,8 @@ functions:
         local_file: src/.deps/${fetch_npm_tarball}
     - command: shell.exec
       params:
+        variants:
+          *fetch_npm_tarball_variants
         working_dir: src/.deps
         script: |
           set -ev
@@ -52,6 +72,8 @@ functions:
   "upgrade npm windows" :
     - command: shell.exec
       params:
+        variants:
+          *upgrade_npm_variants
         working_dir: src
         script: |
           set -ev
@@ -95,6 +117,8 @@ functions:
   "save release":
     - command: s3.put
       params:
+        variants:
+          *save_release_variants
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
         local_file: "src/dist/${installer_filename}"
@@ -108,38 +132,16 @@ functions:
 #               Tasks                 #
 #######################################
 
-# FIXME: simplify to one "compile" task as soon as we can hammer out the irregularities
-# between the platforms:
-# - one way of installing Node
-# - build artifacts for all platforms
-
 tasks:
-- name: compile_osx
+- name: compile
   depends_on: []
   commands:
   - func: "fetch source"
   - func: "fetch npm tarball"
-  - func: "npm install"
-  - func: "build"
-  - func: "save release"
-
-- name: compile_windows
-  depends_on: []
-  commands:
-  - func: "fetch source"
   - func: "upgrade npm windows"
   - func: "npm install"
   - func: "build"
   - func: "save release"
-
-- name: compile_linux
-  depends_on: []
-  commands:
-  - func: "fetch source"
-  - func: "fetch npm tarball"
-  - func: "npm install"
-  - func: "build"
-  # - func: "save release"
 
 
 #######################################
@@ -159,7 +161,7 @@ buildvariants:
     installer_filename: "MongoDB Compass.dmg"
     num_cores: $(sysctl -n hw.logicalcpu)
   tasks:
-  - name: compile_osx
+  - name: compile
 
 - name: windows-64
   display_name: Windows 64-bit
@@ -174,7 +176,7 @@ buildvariants:
     installer_filename: "MongoDBCompassSetup.exe"
     num_cores: $(grep -c ^processor /proc/cpuinfo)
   tasks:
-  - name: compile_windows
+  - name: compile
 
 - name: ubuntu
   display_name: Ubuntu 14.04
@@ -187,4 +189,4 @@ buildvariants:
     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
     num_cores: $(grep -c ^processor /proc/cpuinfo)
   tasks:
-  - name: compile_linux
+  - name: compile
