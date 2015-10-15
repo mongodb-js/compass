@@ -7,6 +7,11 @@ var CollectionListItemView = View.extend({
     'model._id': {
       hook: 'ns'
     },
+    title: {
+      type: 'attribute',
+      hook: 'ns',
+      name: 'title',
+    },
     'model.selected': {
       type: 'booleanClass',
       name: 'active'
@@ -27,6 +32,16 @@ var CollectionListItemView = View.extend({
           return false;
         }
         return toNS(this.model._id).specialish;
+      }
+    },
+    title: {
+      deps: ['model._id', 'is_special'],
+      fn: function() {
+        var title = this.model._id;
+        if (this.is_special) {
+          title += ' (internal collection)';
+        }
+        return title;
       }
     }
   },
