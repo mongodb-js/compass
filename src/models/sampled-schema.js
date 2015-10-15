@@ -165,6 +165,7 @@ module.exports = Schema.extend({
       }
       model.documents.reset(docs);
       model.documents.trigger('sync');
+      app.statusbar.hide();
 
       // @note (imlucas): Any other metrics?  Feedback on `Schema *`?
       var totalTime = new Date() - start;
@@ -200,8 +201,25 @@ module.exports = Schema.extend({
       }
 
       debug('creating sample stream');
+      var status = 0;
+      var counter = 0;
+      app.statusbar.show();
       app.client.sample(model.ns, options)
         .pipe(es.map(parse))
+        .once('data', function() {
+          // disable trickling
+          status = app.statusbar.status();
+          debug('first doc arrived', status);
+        })
+        .on('data', function() {
+          counter ++;
+          if (counter % 7 === 0) {
+            var inc = (1.0 - status) * 7 / options.size;
+            app.statusbar.inc(inc);
+          }
+          // inc statusbar
+          // debug('more docs', inc);
+        })
         .pipe(es.map(addToDocuments))
         .pipe(es.wait(onEnd));
     });

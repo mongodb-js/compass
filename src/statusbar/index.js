@@ -1,9 +1,12 @@
 var View = require('ampersand-view');
+var NProgress = require('nprogress');
+var debug = require('debug')('scout:statusbar:index');
+
 var StatusbarView = View.extend({
   props: {
     width: {
       type: 'number',
-      default: 0
+      default: 100
     },
     message: {
       type: 'string'
@@ -61,14 +64,18 @@ var StatusbarView = View.extend({
       }
     }
   },
+  render: function() {
+    this.renderWithTemplate(this);
+    NProgress.configure({ parent: '#statusbar', easing: 'ease', speed: 800, trickle: true });
+  },
   watch: function(view, collection) {
-    view.listenTo(collection, 'sync', this.onComplete.bind(this));
-    view.listenTo(collection, 'request', this.onRequest.bind(this));
+    // view.listenTo(collection, 'sync', this.onComplete.bind(this));
+    // view.listenTo(collection, 'request', this.onRequest.bind(this));
     return this;
   },
   unwatch: function(view, collection) {
-    view.stopListening(collection, 'sync', this.onComplete.bind(this));
-    view.stopListening(collection, 'request', this.onRequest.bind(this));
+    // view.stopListening(collection, 'sync', this.onComplete.bind(this));
+    // view.stopListening(collection, 'request', this.onRequest.bind(this));
     return this;
   },
   onRequest: function(model, resp, options) {
@@ -81,16 +88,31 @@ var StatusbarView = View.extend({
   fatal: function(err) {
     this.loading = false;
     this.message = 'Fatal Error: ' + err.message;
-    this.width = 100;
   },
   show: function(message) {
+    debug('show');
+    NProgress.start()
     this.message = message || '';
-    this.width = 100;
+    // this.width = 100;
     this.loading = true;
   },
+  inc: function(val) {
+    NProgress.inc(val);
+    debug('NProgress', NProgress);
+  },
+  trickle: function(bool) {
+    NProgress.configure({ trickle: bool });
+  },
+  status: function() {
+    return NProgress.status;
+  },
   hide: function() {
+    NProgress.set(1);
+    _.delay(function() {
+      NProgress.done();
+    }, 800);
     this.message = '';
-    this.width = 0;
+    // this.width = 0;
     this.loading = false;
   }
 });
