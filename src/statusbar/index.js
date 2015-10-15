@@ -1,12 +1,12 @@
 var View = require('ampersand-view');
-var NProgress = require('nprogress');
 var debug = require('debug')('scout:statusbar:index');
 
 var StatusbarView = View.extend({
   props: {
+    trickleTimer: 'any',
     width: {
       type: 'number',
-      default: 100
+      default: 0
     },
     message: {
       type: 'string'
@@ -64,10 +64,6 @@ var StatusbarView = View.extend({
       }
     }
   },
-  render: function() {
-    this.renderWithTemplate(this);
-    NProgress.configure({ parent: '#statusbar', easing: 'ease', speed: 800, trickle: true });
-  },
   watch: function(view, collection) {
     // view.listenTo(collection, 'sync', this.onComplete.bind(this));
     // view.listenTo(collection, 'request', this.onRequest.bind(this));
@@ -88,32 +84,33 @@ var StatusbarView = View.extend({
   fatal: function(err) {
     this.loading = false;
     this.message = 'Fatal Error: ' + err.message;
-  },
-  show: function(message) {
-    debug('show');
-    NProgress.start()
-    this.message = message || '';
-    // this.width = 100;
-    this.loading = true;
-  },
-  inc: function(val) {
-    NProgress.inc(val);
-    debug('NProgress', NProgress);
+    this.width = 100;
+    clearInterval(this.trickleTimer);
   },
   trickle: function(bool) {
-    NProgress.configure({ trickle: bool });
+    if (bool) {
+      this.trickleTimer = setInterval(function() {
+        var inc = _.random(1, 5);
+        this.width = Math.min(96, this.width + inc);
+      }.bind(this), 800);
+    } else {
+      clearInterval(this.trickleTimer);
+    }
   },
-  status: function() {
-    return NProgress.status;
+  show: function(message) {
+    this.message = message || '';
+    this.width = 100;
+    this.loading = true;
   },
   hide: function() {
-    NProgress.set(1);
-    _.delay(function() {
-      NProgress.done();
-    }, 800);
+    this.width = 100;
     this.message = '';
-    // this.width = 0;
     this.loading = false;
+    clearInterval(this.trickleTimer);
+    var model = this;
+    _.delay(function() {
+      model.width = 0;
+    }, 1000);
   }
 });
 

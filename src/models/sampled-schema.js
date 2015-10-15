@@ -203,22 +203,22 @@ module.exports = Schema.extend({
       debug('creating sample stream');
       var status = 0;
       var counter = 0;
-      app.statusbar.show();
+      app.statusbar.show('Sampling collection...');
+      app.statusbar.width = 1;
+      app.statusbar.trickle(true);
       app.client.sample(model.ns, options)
         .pipe(es.map(parse))
         .once('data', function() {
-          // disable trickling
-          status = app.statusbar.status();
-          debug('first doc arrived', status);
+          status = app.statusbar.width;
+          app.statusbar.message = 'Analyzing documents...';
+          app.statusbar.trickle(false);
         })
         .on('data', function() {
           counter ++;
           if (counter % 7 === 0) {
-            var inc = (1.0 - status) * 7 / options.size;
-            app.statusbar.inc(inc);
+            var inc = (100 - status) * 7 / options.size;
+            app.statusbar.width += inc;
           }
-          // inc statusbar
-          // debug('more docs', inc);
         })
         .pipe(es.map(addToDocuments))
         .pipe(es.wait(onEnd));
