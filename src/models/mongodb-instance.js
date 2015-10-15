@@ -14,7 +14,7 @@ var MongoDBCollectionOnInstanceCollection = MongoDBCollection.Collection.extend(
   model: MongoDBCollection,
   parse: function(res) {
     return res.filter(function(d) {
-      return !toNS(d._id).specialish;
+      return !toNS(d._id).system;
     });
   }
 }, filterableMixin, selectableMixin);

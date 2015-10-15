@@ -137,6 +137,18 @@
       background: none;
       color: @gray5;
 
+      &.special {
+        a {
+          color: @gray3;
+        }
+        i {
+          color: @gray3;
+        }
+        &:hover a {
+          color: @gray3;
+        }
+      }
+
       &:hover {
         background: lighten(@slate1, 5%);
         a {
