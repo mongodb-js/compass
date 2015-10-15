@@ -65,13 +65,13 @@ var StatusbarView = View.extend({
     }
   },
   watch: function(view, collection) {
-    // view.listenTo(collection, 'sync', this.onComplete.bind(this));
-    // view.listenTo(collection, 'request', this.onRequest.bind(this));
+    view.listenTo(collection, 'sync', this.onComplete.bind(this));
+    view.listenTo(collection, 'request', this.onRequest.bind(this));
     return this;
   },
   unwatch: function(view, collection) {
-    // view.stopListening(collection, 'sync', this.onComplete.bind(this));
-    // view.stopListening(collection, 'request', this.onRequest.bind(this));
+    view.stopListening(collection, 'sync', this.onComplete.bind(this));
+    view.stopListening(collection, 'request', this.onRequest.bind(this));
     return this;
   },
   onRequest: function(model, resp, options) {
