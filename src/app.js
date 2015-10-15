@@ -254,6 +254,16 @@ app.extend({
   isFeatureEnabled: function(id) {
     return FEATURES[id] === true;
   },
+  /**
+   * Enable or disable a feature programatically.
+   *
+   * @param {String} id - A key in `FEATURES`.
+   * @param {Boolean} bool - whether to enable (true) or disable (false)
+   * @return {Boolean}
+   */
+  setFeature: function(id, bool) {
+    FEATURES[id] = bool;
+  },
   sendMessage: function(msg) {
     ipc.send('message', msg);
   },
