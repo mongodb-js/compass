@@ -90,8 +90,7 @@ var StatusbarView = View.extend({
   trickle: function(bool) {
     if (bool) {
       this.trickleTimer = setInterval(function() {
-        var inc = _.random(1, 5);
-        this.width = Math.min(96, this.width + inc);
+        this.width = Math.min(98, this.width + _.random(1, 3));
       }.bind(this), 800);
     } else {
       clearInterval(this.trickleTimer);

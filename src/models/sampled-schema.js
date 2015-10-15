@@ -172,15 +172,16 @@ module.exports = Schema.extend({
       var timeToFirstDoc = timeAtFirstDoc - start;
 
       metrics.track('Schema: Complete', {
-        Duration: totalTime,
-        'Total Document Count': model.total,
-        'Sample Size': model.documents.length,
-        'Errored Document Count': erroredOnDocs.length,
-        'Time to First Doc': timeToFirstDoc,
-        'Average Time Per Doc': (totalTime - timeToFirstDoc) / model.documents.length
-      // 'Schema Height': model.height, // # of top level keys
-      // 'Schema Width': model.width, // max nesting depth
-      // 'Schema Sparsity': model.sparsity // lots of fields missing or consistent
+        duration: totalTime,
+        'total document count': model.total,
+        'sample size': model.documents.length,
+        'errored document count': erroredOnDocs.length,
+        'total sample time': timeToFirstDoc,
+        'total analysis time': totalTime - timeToFirstDoc,
+        'average analysis time per doc': (totalTime - timeToFirstDoc) / model.documents.length
+        // 'Schema Height': model.height, // # of top level keys
+        // 'Schema Width': model.width, // max nesting depth
+        // 'Schema Sparsity': model.sparsity // lots of fields missing or consistent
       });
       options.success({});
     };
