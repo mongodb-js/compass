@@ -23,10 +23,16 @@ var InstancePropertiesView = module.exports = View.extend({
     }
   },
   bindings: {
-    'instance.hostname': {
+    'instance.hostname': [
+    {
       type: 'text',
       hook: 'hostname'
     },
+    {
+      type: 'attribute',
+      name: 'title',
+      hook: 'hostname'
+    }],
     'instance.port': {
       type: 'text',
       hook: 'port'
