@@ -52,7 +52,7 @@ module.exports = Connection.extend({
     return this;
   },
   sync: connectionSync,
-  serialize: function(){
+  serialize: function() {
     return Connection.prototype.serialize.call(this, {
       all: true
     });
