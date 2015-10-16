@@ -27,7 +27,8 @@ require('bootstrap-switch');
  *
  */
 var ConnectView = View.extend({
-  template: require('./index.jade'),
+  template: require('./static-connect.jade'),
+  // template: require('./index.jade'),
   session: {
     form: 'object',
     authMethod: {
