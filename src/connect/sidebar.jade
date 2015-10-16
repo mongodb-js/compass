@@ -1,11 +1,50 @@
-div
-  .sidebar.panel
-    .panel-heading(style='padding: 10px;')
-      .panel-title Recent Connections
-    ul.list-group(data-hook='connection-list', style='top: 32px;position: initial;')
-    ul.list-group(data-hook='connection-list-controls', style='top: initial;')
-      li.list-group-item
-        a(href="#new-connection", data-hook="new-connection")
-          i.fa.fa-fw.fa-plus
-          | New Connection
-  .sidebar-bg
+.sidebar
+  .compass-logo
+  .connections-container
+    .panel-title-out.selected
+      i.bolt &#xf0e7;
+      .panel-title Quick Connect
+
+    .panel-title-out 
+      i &#xf114;
+      .panel-title Favorites
+
+    ul.connection-list.favorites
+      li 
+        a standalone.26.compass
+      li 
+        a replset.4.compass-prod
+      li 
+        a cluster.9.compass-test
+      li 
+        a.selected cluster.10.compass-test
+      li 
+        a replset.4.compass-prod.ec2-blabla-this-is-long.com
+      li 
+        a standalone.26.compass
+      li 
+        a cluster.9.compass-test
+      li 
+        a cluster.10.compass-test
+
+    .panel-title-out 
+      i &#xf114;
+      .panel-title History
+
+    ul.connection-list.history
+      li 
+        a cluster.9.compass-test
+      li 
+        a cluster.10.compass-test
+      li 
+        a replset.4.compass-prod
+      li 
+        a standalone.26.compass
+      li 
+        a replset.4.compass-prod
+      li 
+        a cluster.9.compass-test
+      li 
+        a standalone.26.compass
+      li 
+        a cluster.10.compass-test
