@@ -9,12 +9,12 @@ notifications:
   email: false
 node_js:
   - '4'
-before_install:
-  - npm install -g npm@3
-  - npm config set loglevel error
-  - npm config set cache ./node_modules/.npm
-before_script:
-  - npm prune
+# before_install:
+#   - npm install -g npm@3
+#   - npm config set loglevel error
+#   - npm config set cache ./node_modules/.npm
+# before_script:
+#   - npm prune
 after_success:
   - npm run semantic-release
 branches:
