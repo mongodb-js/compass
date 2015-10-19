@@ -2,10 +2,12 @@
   "name": "mongodb-connection-model",
   "description": "MongoDB connection model.",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
-  "version": "1.0.2",
   "bugs": "https://github.com/mongodb-js/mongodb-connection-model/issues",
   "homepage": "https://github.com/mongodb-js/mongodb-connection-model",
-  "repository": "git://github.com/mongodb-js/mongodb-connection-model.git",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/mongodb-connection-model.git"
+  },
   "license": "Apache-2.0",
   "keywords": [
     "mongodb-js"
@@ -13,7 +15,8 @@
   "scripts": {
     "ci": "npm run check && npm test",
     "test": "mocha",
-    "check": "mongodb-js-precommit"
+    "check": "mongodb-js-precommit",
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "precommit": [
     "check"
@@ -32,6 +35,7 @@
     "eslint-config-mongodb-js": "^1.0.3",
     "mocha": "^2.3.3",
     "mongodb-js-precommit": "^0.2.2",
-    "pre-commit": "^1.1.1"
+    "pre-commit": "^1.1.1",
+    "semantic-release": "^4.3.5"
   }
 }
