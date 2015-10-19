@@ -1,8 +1,8 @@
 div.instance-properties
   span.hostname
-    span(data-hook='hostname')
-    |:
-    span(data-hook='port')
+    span.hostname-hostname(data-hook='hostname')
+    span.hostname-colon :
+    span.hostname-port(data-hook='port')
   span.version
     span(data-hook='module')
     | &nbsp;version&nbsp;
@@ -13,6 +13,6 @@ div.instance-properties
       | &nbsp;DBs
     span.num-collections
       strong(data-hook='num-collections')
-      | &nbsp;Collections
+      | &nbsp;Colls.
     button.refresh-collections(data-hook='refresh-button')
       i.fa(data-hook='refresh-icon')
