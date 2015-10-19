@@ -29,7 +29,7 @@
     "mongodb-url": "^1.0.0"
   },
   "devDependencies": {
-    "eslint-config-mongodb-js": "^0.1.6",
+    "eslint-config-mongodb-js": "^1.0.3",
     "mocha": "^2.3.3",
     "mongodb-js-precommit": "^0.2.2",
     "pre-commit": "^1.1.1"
