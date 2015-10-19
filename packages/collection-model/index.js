@@ -96,14 +96,18 @@ var Collection = AmpersandModel.extend({
     name: {
       deps: ['_id'],
       fn: function() {
-        if (!this._id) return undefined;
+        if (!this._id) {
+          return undefined;
+        }
         return ns(this._id).collection;
       }
     },
     specialish: {
       deps: ['_id'],
       fn: function() {
-        if (!this._id) return undefined;
+        if (!this._id) {
+          return undefined;
+        }
         return ns(this._id).specialish;
       }
     }

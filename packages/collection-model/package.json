@@ -11,9 +11,10 @@
     "mongodb-js"
   ],
   "scripts": {
+    "check": "mongodb-js-precommit",
     "ci": "npm run check && npm test",
-    "test": "mocha",
-    "check": "mongodb-js-precommit"
+    "fmt": "mongodb-js-fmt test/*.js bin/*.js index.js",
+    "test": "mocha"
   },
   "precommit": [
     "check"
@@ -26,8 +27,9 @@
     "mongodb-ns": "^1.0.0"
   },
   "devDependencies": {
-    "eslint-config-mongodb-js": "^0.1.6",
+    "eslint-config-mongodb-js": "^1.0.3",
     "mocha": "^2.3.3",
+    "mongodb-js-fmt": "0.0.3",
     "mongodb-js-precommit": "^0.2.2",
     "pre-commit": "^1.1.1"
   }
