@@ -51,6 +51,39 @@ assign(derived, {
   }
 });
 
+var dataTypes = {};
+
+dataTypes.authentication = {
+  type: 'string',
+  values: [
+    /**
+     * Use no authentication.
+     */
+    'NONE',
+    /**
+     * Allow the driver to autodetect and select SCRAM-SHA-1
+     * or MONGODB-CR depending on server capabilities.
+     */
+    'MONGODB',
+    /**
+     * @enterprise
+     * @see http://bit.ly/mongodb-node-driver-x509
+     */
+    'X509',
+    /**
+     * @enterprise
+     * @see http://bit.ly/mongodb-node-driver-kerberos
+     */
+    'KERBEROS',
+    /**
+     * @enterprise
+     * @see http://bit.ly/mongodb-node-driver-ldap
+     */
+    'LDAP'
+  ],
+  default: 'NONE'
+};
+
 /**
  * ## Authentication
  */
@@ -58,36 +91,7 @@ assign(props, {
   /**
    * `auth_mechanism` for humans.
    */
-  authentication: {
-    type: 'string',
-    values: [
-      /**
-       * Use no authentication.
-       */
-      'NONE',
-      /**
-       * Allow the driver to autodetect and select SCRAM-SHA-1
-       * or MONGODB-CR depending on server capabilities.
-       */
-      'MONGODB',
-      /**
-       * @enterprise
-       * @see http://bit.ly/mongodb-node-driver-x509
-       */
-      'X509',
-      /**
-       * @enterprise
-       * @see http://bit.ly/mongodb-node-driver-kerberos
-       */
-      'KERBEROS',
-      /**
-       * @enterprise
-       * @see http://bit.ly/mongodb-node-driver-ldap
-       */
-      'LDAP'
-    ],
-    default: 'NONE'
-  }
+  authentication: 'authentication'
 });
 
 // For `connection-model` -> `URL`
@@ -176,7 +180,6 @@ assign(props, {
 /**
  * ### `authentication = KERBEROS`
  */
-
 assign(props, {
   /**
    * Any program or computer you access over a network. Examples of
@@ -223,50 +226,65 @@ assign(props, {
  *
  * @note (imlucas): Not to be confused with `authentication=X509`!
  */
-// assign(props, {
-//   ssl: {
-//     type: 'boolean',
-//     default: false
-//   },
-//   ssl_validate: {
-//     type: 'boolean',
-//     default: false
-//   },
-//
-//   /**
-//    * Array of valid certificates either as Buffers or Strings
-//    * (needs to have a mongod server with ssl support, 2.4 or higher).
-//    */
-//   ssl_ca: {
-//     type: 'array',
-//     default: undefined
-//   },
-//
-//   /**
-//    * String or buffer containing the certificate we wish to present
-//    * (needs to have a mongod server with ssl support, 2.4 or higher).
-//    */
-//   ssl_cert: {
-//     type: 'string',
-//     default: undefined
-//   },
-//   /**
-//    * String or buffer containing the certificate private key we wish to present
-//    * (needs to have a mongod server with ssl support, 2.4 or higher).
-//    */
-//   ssl_private_key: {
-//     type: 'string',
-//     default: undefined
-//   },
-//   /**
-//    * String or buffer containing the certificate password
-//    * (needs to have a mongod server with ssl support, 2.4 or higher).
-//    */
-//   ssl_private_key_password: {
-//     type: 'string',
-//     default: undefined
-//   }
-// });
+dataTypes.ssl = {
+  type: 'string',
+  values: [
+    /**
+     * Do not use SSL for anything.
+     */
+    'NONE',
+    /**
+     * Use SSL but do not perform any validation of the certificate chain.
+     */
+    'UNVALIDATED',
+    /**
+     * The driver should validate the server certificate and fail to connect if validation fails.
+     */
+    'SERVER',
+    /**
+     * The driver must present a valid certificate and validate the server certificate.
+     */
+    'ALL'
+  ],
+  default: 'NONE'
+};
+
+assign(props, {
+  ssl: 'ssl',
+  /**
+   * Array of valid certificates either as Buffers or Strings
+   * (needs to have a mongod server with ssl support, 2.4 or higher).
+   */
+  ssl_ca: {
+    type: 'array',
+    default: undefined
+  },
+
+  /**
+   * String or buffer containing the certificate we wish to present
+   * (needs to have a mongod server with ssl support, 2.4 or higher).
+   */
+  ssl_certificate: {
+    type: 'string',
+    default: undefined
+  },
+  /**
+   * String or buffer containing the certificate private key we wish to present
+   * (needs to have a mongod server with ssl support, 2.4 or higher).
+   */
+  ssl_private_key: {
+    type: 'string',
+    default: undefined
+  },
+  /**
+   * String or buffer containing the certificate password
+   * (needs to have a mongod server with ssl support, 2.4 or higher).
+   */
+  ssl_private_key_password: {
+    type: 'string',
+    default: undefined
+  }
+});
 
 /**
  * ## Driver Connection Options
@@ -306,14 +324,6 @@ assign(derived, {
         }
       };
 
-      if (this.ssl) {
-        req.query.ssl = 'true';
-      }
-
-      if (this.authentication === 'NONE') {
-        return toURL(req);
-      }
-
       if (this.authentication === 'MONGODB') {
         assign(req, {
           auth: format('%s:%s', this.mongodb_username, this.mongodb_password),
@@ -322,10 +332,7 @@ assign(derived, {
             authSource: this.mongodb_database_name || 'admin'
           }
         });
-        return toURL(req);
-      }
-
-      if (this.authentication === 'KERBEROS') {
+      } else if (this.authentication === 'KERBEROS') {
         assign(req, {
           pathname: 'kerberos',
           query: {
@@ -343,10 +350,13 @@ assign(derived, {
           req.auth = format('%s',
             encodeURIComponent(this.kerberos_principal));
         }
-        return toURL(req);
       }
 
-      throw new TypeError('Unspported authentication method.');
+      if (contains(this.ssl, 'UNVALIDATED', 'SERVER', 'ALL')) {
+        req.query.ssl = 'true';
+      }
+
+      return toURL(req);
     }
   },
   /**
@@ -357,9 +367,9 @@ assign(derived, {
    */
   driver_options: {
     deps: [
-      'ssl_validate',
+      'ssl',
       'ssl_ca',
-      'ssl_cert',
+      'ssl_certificate',
       'ssl_private_key',
       'ssl_private_key_password'
     ],
@@ -370,30 +380,30 @@ assign(derived, {
           // important!  or slaveOk=true set above no worky!
           readPreference: 'nearest'
         },
-        server: {},
         replSet: {
-          ha: false,
           connectWithNoPrimary: true
-        },
-        mongos: {}
+        }
       };
-
-      // @todo (imlucas): Circle back on SSL after compass 0.4.3.
-      // if (this.ssl_validate) {
-      //   opts.server.sslValidate = true;
-      // }
-      // if (this.ssl_ca) {
-      //   opts.server.sslCA = this.ssl_ca;
-      // }
-      // if (this.ssl_cert) {
-      //   opts.server.sslCert = this.ssl_cert;
-      // }
-      // if (this.ssl_private_key) {
-      //   opts.server.sslKey = this.ssl_private_key;
-      // }
-      // if (this.ssl_private_key_password) {
-      //   opts.server.sslPass = this.ssl_private_key_password;
-      // }
+      if (this.authentication === 'X509') {
+        throw new TypeError('X509 not currently supported');
+      } else if (this.ssl === 'SERVER') {
+        assign(opts, {
+          server: {
+            sslValidate: true,
+            sslCA: this.ssl_ca
+          }
+        });
+      } else if (this.ssl === 'ALL') {
+        assign(opts, {
+          server: {
+            sslValidate: true,
+            sslCA: this.ssl_ca,
+            sslKey: this.ssl_private_key,
+            sslCert: this.ssl_certificate,
+            sslPass: this.ssl_private_key_password
+          }
+        });
+      }
       return opts;
     }
   }
@@ -409,13 +419,19 @@ Connection = AmpersandModel.extend({
   idAttribute: 'instance_id',
   props: props,
   derived: derived,
+  dataTypes: dataTypes,
   initialize: function(attrs) {
     attrs = attrs || {};
     debug('initialize', attrs);
     this.parse(attrs);
   },
   parse: function(attrs) {
-    debug('parsing `%j`', attrs);
+    if (attrs.mongodb_username) {
+      this.authentication = 'MONGODB';
+    } else if (attrs.kerberos_principal) {
+      this.authentication = 'KERBEROS';
+    }
+
     if (attrs.authentication === 'MONGODB') {
       if (!attrs.mongodb_database_name) {
         attrs.mongodb_database_name = 'admin';
@@ -426,9 +442,9 @@ Connection = AmpersandModel.extend({
         attrs.kerberos_service_name = 'mongodb';
       }
     }
-    debug('parse result `%j`', attrs);
     return attrs;
   },
+
   validate: function(attrs) {
     debug('validating...');
     try {
@@ -440,58 +456,65 @@ Connection = AmpersandModel.extend({
         throw new TypeError('LDAP authentication not yet supported.');
       }
 
-      /**
-       * Enforce constraints for SSL.
-       */
-      // @todo (imlucas): Circle back on SSL after compass 0.4.3.
-      // if (!attrs.ssl) {
-      //   if (attrs.ssl_validate) {
-      //     throw new TypeError('The ssl_validate field requires ssl.');
-      //   }
-      //   if (attrs.ssl_ca) {
-      //     throw new TypeError('The ssl_ca field requires ssl.');
-      //   }
-      //   if (attrs.ssl_cert) {
-      //     throw new TypeError('The ssl_cert field requires ssl.');
-      //   }
-      //   if (attrs.ssl_private_key) {
-      //     throw new TypeError('The ssl_private_key field requires ssl.');
-      //   }
-      //   if (attrs.ssl_private_key_password) {
-      //     throw new TypeError('The ssl_private_key_password field requires ssl.');
-      //   }
-      // }
-
-      /**
-       * Enforce constraints for Kerberos.
-       */
-      if (attrs.authentication !== 'KERBEROS') {
-        if (attrs.kerberos_service_name) {
-          throw new TypeError(format(
-            'The kerberos_service_name field does not apply when '
-            + 'using %s for authentication.', attrs.authentication));
-        }
-        if (attrs.kerberos_principal) {
-          throw new TypeError(format(
-            'The kerberos_principal field does not apply when '
-            + 'using %s for authentication.', attrs.authentication));
-        }
-        if (attrs.kerberos_password) {
-          throw new TypeError(format(
-            'The kerberos_password field does not apply when '
-            + 'using %s for authentication.', attrs.authentication));
-        }
-      }
-
-      if (attrs.authentication === 'KERBEROS') {
-        if (!attrs.kerberos_principal) {
-          throw new TypeError(format(
-            'The kerberos_principal field is required when '
-            + 'using KERBEROS for authentication.'));
-        }
-      }
+      this.validate_ssl();
+      this.validate_kerberos();
     } catch (err) {return err;}
     debug('attributes are valid');
+  },
+  /**
+   * Enforce constraints for SSL.
+   * @param {Object} attrs - Incoming attributes.
+   */
+  validate_ssl: function(attrs) {
+    if (!attrs.ssl || contains(['NONE', 'UNVALIDATED'], attrs.ssl)) {
+      return;
+    }
+    if (attrs.ssl === 'SERVER' && !attrs.ssl_ca) {
+      throw new TypeError('ssl_ca is required when ssl is SERVER.');
+    } else if (attrs.ssl === 'ALL') {
+      if (!attrs.ssl_ca) {
+        throw new TypeError('ssl_ca is required when ssl is ALL.');
+      }
+
+      if (!attrs.ssl_private_key) {
+        throw new TypeError('ssl_private_key is required when ssl is ALL.');
+      }
+
+      if (!attrs.ssl_certificate) {
+        throw new TypeError('ssl_certificate is required when ssl is ALL.');
+      }
+    }
+  },
+  /**
+   * Enforce constraints for Kerberos.
+   * @param {Object} attrs - Incoming attributes.
+   */
+  validate_kerberos: function(attrs) {
+    if (attrs.authentication !== 'KERBEROS') {
+      if (attrs.kerberos_service_name) {
+        throw new TypeError(format(
+          'The kerberos_service_name field does not apply when '
+          + 'using %s for authentication.', attrs.authentication));
+      }
+      if (attrs.kerberos_principal) {
+        throw new TypeError(format(
+          'The kerberos_principal field does not apply when '
+          + 'using %s for authentication.', attrs.authentication));
+      }
+      if (attrs.kerberos_password) {
+        throw new TypeError(format(
+          'The kerberos_password field does not apply when '
+          + 'using %s for authentication.', attrs.authentication));
+      }
+    }
+
+    if (attrs.authentication === 'KERBEROS') {
+      if (!attrs.kerberos_principal) {
+        throw new TypeError(format(
+          'The kerberos_principal field is required when '
+          + 'using KERBEROS for authentication.'));
+      }
+    }
   },
   serialize: function(options) {
     options = options || {};
@@ -512,7 +535,7 @@ Connection = AmpersandModel.extend({
       return pick.apply(null, args);
     }
 
-    if (credentialKeys.length == 0) {
+    if (credentialKeys.length === 0) {
       return res;
     }
 
