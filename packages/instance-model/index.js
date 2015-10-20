@@ -102,5 +102,5 @@ module.exports.getId = function(id) {
   if (typeof id === 'number') {
     id = 'localhost:' + id;
   }
-  return id.toLowerCase().replace(hostname, 'localhost').replace('mongodb://', '');
+  return id.toLowerCase().replace(hostname.toLowerCase(), 'localhost').replace('mongodb://', '');
 };

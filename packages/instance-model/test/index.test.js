@@ -14,7 +14,7 @@ describe('mongodb-instance-model', function() {
     }).port, 27017);
   });
   describe('getId()', function() {
-    it('should substitute localhost as the cannonical hostname', function() {
+    it('should substitute localhost as the canonical hostname', function() {
       assert.equal(Instance.getId(hostname), 'localhost');
     });
     it('should treat a number param as the port', function() {
