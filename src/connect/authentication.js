@@ -1,5 +1,9 @@
+/**
+ * ### authentication
+ *
+ * @see https://github.com/mongodb-js/mongodb-connection-model#trait-authentication
+ */
 var app = require('ampersand-app');
-
 var AuthenticationOption = require('./models/authentication-option');
 var AuthenticationOptionCollection = require('./models/authentication-option-collection');
 
