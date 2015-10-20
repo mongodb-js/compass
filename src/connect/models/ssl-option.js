@@ -1,4 +1,5 @@
 var State = require('ampersand-state');
+var Connection = require('../../models/connection');
 
 var SslOption = State.extend({
   namespace: 'SslOption',
@@ -19,17 +20,9 @@ var SslOption = State.extend({
       default: true
     }
   },
+  // To pull in the ENUM used by `SslOption._id`
   dataTypes: {
-    ssl: {
-      type: 'string',
-      default: 'NONE',
-      values: [
-        'NONE',
-        'UNVALIDATED',
-        'SERVER',
-        'ALL'
-      ]
-    }
+    ssl: Connection.dataTypes.ssl
   }
 });
 
