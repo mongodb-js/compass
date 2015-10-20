@@ -1,9 +1,10 @@
 var View = require('ampersand-view');
 var Connection = require('../models/connection');
+var debug = require('debug')('scout:connect:sidebar');
+var FilteredCollection = require('ampersand-filtered-subcollection');
 
 /**
  * View for a connection in the sidebar. It can be clicked (will copy details to the form view)
- * or it can be deleted via the X on the right side.
  */
 var SidebarItemView = View.extend({
   namespace: 'SidebarItemView',
@@ -16,18 +17,11 @@ var SidebarItemView = View.extend({
   },
   events: {
     'click a': 'onClick',
-    dblclick: 'onDoubleClick',
-    mouseover: 'onMouseOver',
-    mouseout: 'onMouseOut',
-    'click [data-hook=close]': 'onRemoveClick'
+    dblclick: 'onDoubleClick'
   },
   bindings: {
     'model.name': {
       hook: 'name'
-    },
-    hover: {
-      type: 'toggle',
-      hook: 'close'
     },
     has_auth: {
       type: 'booleanClass',
@@ -56,12 +50,6 @@ var SidebarItemView = View.extend({
     event.preventDefault();
     this.model.destroy();
     this.parent.onRemoveClick(event, this);
-  },
-  onMouseOver: function() {
-    this.hover = true;
-  },
-  onMouseOut: function() {
-    this.hover = false;
   }
 });
 
@@ -82,7 +70,19 @@ var SidebarView = View.extend({
   template: require('./sidebar.jade'),
   render: function() {
     this.renderWithTemplate();
-    this.renderCollection(this.collection, SidebarItemView, this.queryByHook('connection-list'));
+    // create a collection proxy that filters favorite collections and sorts alphabetically
+    var favoriteConnections = new FilteredCollection(this.collection, {
+      where: {
+        is_favorite: true
+      },
+      comparator: function(model) {
+        return model.name.toLowerCase();
+      }
+    });
+    this.renderCollection(favoriteConnections, SidebarItemView,
+      this.queryByHook('connection-list-favorites'));
+    this.renderCollection(this.collection, SidebarItemView,
+      this.queryByHook('connection-list-recent'));
   },
   onNewConnectionClick: function(event) {
     event.stopPropagation();
