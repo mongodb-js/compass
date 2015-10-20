@@ -5,9 +5,7 @@ var AuthenticationOption = State.extend({
   namespace: 'AuthenticationOption',
   mainIndex: '_id',
   props: {
-    _id: {
-      type: 'authentication'
-    },
+    _id: Connection.dataTypes.authentication,
     title: {
       type: 'string'
     },
@@ -39,9 +37,9 @@ var AuthenticationOption = State.extend({
     }
   },
   // To pull in the ENUM used by `AuthenticationOption._id`
-  dataTypes: {
-    authentication: Connection.dataTypes.authentication
-  }
+  // dataTypes: {
+  //   authentication: Connection.dataTypes.authentication
+  // }
 });
 
 module.exports = AuthenticationOption;

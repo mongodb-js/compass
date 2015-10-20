@@ -6,7 +6,7 @@ var SslOption = State.extend({
   mainIndex: '_id',
   props: {
     _id: {
-      type: 'ssl'
+      type: Connection.dataTypes.ssl
     },
     title: {
       type: 'string'
@@ -19,11 +19,11 @@ var SslOption = State.extend({
       type: 'boolean',
       default: true
     }
-  },
-  // To pull in the ENUM used by `SslOption._id`
-  dataTypes: {
-    ssl: Connection.dataTypes.ssl
   }
+  // // To pull in the ENUM used by `SslOption._id`
+  // dataTypes: {
+  //   ssl: Connection.dataTypes.ssl
+  // }
 });
 
 module.exports = SslOption;

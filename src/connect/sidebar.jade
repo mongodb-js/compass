@@ -9,42 +9,10 @@
       i &#xf114;
       .panel-title Favorites
 
-    ul.connection-list.favorites
-      li 
-        a standalone.26.compass
-      li 
-        a replset.4.compass-prod
-      li 
-        a cluster.9.compass-test
-      li 
-        a.selected cluster.10.compass-test
-      li 
-        a replset.4.compass-prod.ec2-blabla-this-is-long.com
-      li 
-        a standalone.26.compass
-      li 
-        a cluster.9.compass-test
-      li 
-        a cluster.10.compass-test
+    ul.connection-list.favorites(data-hook='connection-list-favorites')
 
     .panel-title-out 
       i &#xf114;
       .panel-title History
 
-    ul.connection-list.history
-      li 
-        a cluster.9.compass-test
-      li 
-        a cluster.10.compass-test
-      li 
-        a replset.4.compass-prod
-      li 
-        a standalone.26.compass
-      li 
-        a replset.4.compass-prod
-      li 
-        a cluster.9.compass-test
-      li 
-        a standalone.26.compass
-      li 
-        a cluster.10.compass-test
+    ul.connection-list.history(data-hook='connection-list-recent')

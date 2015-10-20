@@ -86,6 +86,7 @@
     "ampersand-collection-filterable": "^0.2.1",
     "ampersand-collection-lodash-mixin": "^2.0.1",
     "ampersand-collection-rest-mixin": "^5.0.0",
+    "ampersand-filtered-subcollection": "^2.0.4",
     "ampersand-model": "^6.0.2",
     "ampersand-router": "^3.0.2",
     "ampersand-sync-localforage": "^0.1.1",

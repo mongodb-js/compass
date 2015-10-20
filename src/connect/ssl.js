@@ -4,7 +4,7 @@
  * @see https://github.com/mongodb-js/mongodb-connection-model#trait-ssl
  */
 var app = require('ampersand-app');
-var AuthenticationOptionCollection = require('./models/authentication-option-collection');
+var SSLOptionCollection = require('./models/ssl-option-collection');
 
 var InputView = require('./input-view');
 var inputTemplate = require('./input-default.jade');
@@ -82,7 +82,7 @@ var ALL = {
   ]
 };
 
-module.exports = new AuthenticationOptionCollection([
+module.exports = new SSLOptionCollection([
   NONE,
   UNVALIDATED,
   SERVER,
