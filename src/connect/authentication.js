@@ -4,7 +4,6 @@
  * @see https://github.com/mongodb-js/mongodb-connection-model#trait-authentication
  */
 var app = require('ampersand-app');
-var AuthenticationOption = require('./models/authentication-option');
 var AuthenticationOptionCollection = require('./models/authentication-option-collection');
 
 var InputView = require('./input-view');
@@ -49,7 +48,9 @@ var MONGODB = {
 var KERBEROS = {
   _id: 'KERBEROS',
   title: 'Kerberos',
-  enabled: app.isFeatureEnabled('Connect with Kerberos'),
+  // @todo (imlucas) Fix `app.isFeatureEnabled` is not a function.
+  // enabled: app.isFeatureEnabled('Connect with Kerberos'),
+  enabled: true,
   fields: [
     new InputView({
       template: inputTemplate,
@@ -79,14 +80,18 @@ var KERBEROS = {
 var X509 = {
   _id: 'X509',
   title: 'X.509',
-  enabled: app.isFeatureEnabled('Connect with X.509'),
+  // @todo (imlucas) Fix `app.isFeatureEnabled` is not a function.
+  // enabled: app.isFeatureEnabled('Connect with X.509'),
+  enabled: false,
   fields: []
 };
 
 var LDAP = {
   _id: 'LDAP',
   title: 'LDAP',
-  enabled: app.isFeatureEnabled('Connect with LDAP'),
+  // @todo (imlucas) Fix `app.isFeatureEnabled` is not a function.
+  // enabled: app.isFeatureEnabled('Connect with LDAP'),
+  enabled: false,
   fields: []
 };
 
