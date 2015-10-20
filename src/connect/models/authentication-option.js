@@ -1,4 +1,5 @@
 var State = require('ampersand-state');
+var Connection = require('../../models/connection');
 
 var AuthenticationOption = State.extend({
   namespace: 'AuthenticationOption',
@@ -37,18 +38,9 @@ var AuthenticationOption = State.extend({
       }
     }
   },
+  // To pull in the ENUM used by `AuthenticationOption._id`
   dataTypes: {
-    authentication: {
-      type: 'string',
-      default: 'NONE',
-      values: [
-        'NONE',
-        'MONGODB',
-        'KERBEROS',
-        'X509',
-        'LDAP'
-      ]
-    }
+    authentication: Connection.dataTypes.authentication
   }
 });
 
