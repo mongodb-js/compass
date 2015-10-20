@@ -21,7 +21,12 @@ module.exports = Connection.extend({
     /**
      * Updated on each successful connection to the Deployment.
      */
-    last_used: 'date'
+    last_used: 'date',
+    is_favorite: {
+      type: 'boolean',
+      default: false
+    }
+
   },
   test: function(done) {
     var model = this;
