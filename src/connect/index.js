@@ -1,8 +1,7 @@
 var View = require('ampersand-view');
-var authFields = require('./auth-fields');
-var sslFields = require('./ssl-fields');
 var SidebarView = require('./sidebar');
 var ConnectionCollection = require('../models/connection-collection');
+var Connection = require('../models/connection');
 var config = require('../electron/config');
 
 var format = require('util').format;
@@ -11,6 +10,16 @@ var _ = require('lodash');
 var app = require('ampersand-app');
 var ConnectFormView = require('./connect-form-view');
 var debug = require('debug')('scout:connect:index');
+
+/**
+ * `AuthenticationOptionCollection`
+ */
+var authentication = require('./authentication');
+
+/**
+ * `SslOptionCollection`
+ */
+var ssl = require('./ssl');
 
 require('bootstrap/js/tab');
 require('bootstrap/js/popover');
@@ -27,20 +36,13 @@ require('bootstrap-switch');
  *
  */
 var ConnectView = View.extend({
+  dataTypes: Connection.dataTypes,
   template: require('./static-connect.jade'),
   // template: require('./index.jade'),
   session: {
     form: 'object',
     authMethod: {
-      type: 'string',
-      default: 'NONE',
-      values: [
-        'NONE',
-        'MONGODB',
-        'KERBEROS',
-        'X509',
-        'LDAP'
-      ]
+      type: 'authentication'
     },
     previousAuthMethod: {
       type: 'string',
@@ -229,14 +231,14 @@ var ConnectView = View.extend({
     debug('auth method has changed from', this.previousAuthMethod, 'to', this.authMethod);
 
     // remove and unregister old fields
-    var oldFields = authFields[this.previousAuthMethod];
+    var oldFields = authentication.get(this.previousAuthMethod).fields;
     debug('removing fields:', _.pluck(oldFields, 'name'));
     _.each(oldFields, function(field) {
       this.form.removeField(field.name);
     }.bind(this));
 
     // register new with form, render, append to DOM
-    var newFields = authFields[this.authMethod];
+    var newFields = authentication.get(this.authMethod).fields;
     debug('adding fields:', _.pluck(newFields, 'name'));
 
     _.each(newFields, function(field) {
@@ -390,7 +392,7 @@ var ConnectView = View.extend({
     // available to set.
     var keys = ['name', 'port', 'hostname'];
     if (model.authentication !== 'NONE') {
-      keys.push.apply(keys, _.pluck(authFields[this.authMethod], 'name'));
+      keys.push.apply(keys, _.pluck(authentication.get(this.authMethod).fields, 'name'));
     }
 
     debug('Populating form fields with keys', keys);
