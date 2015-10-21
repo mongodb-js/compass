@@ -20,48 +20,15 @@
         - classNames = []
         - if (!method.enabled) classNames.push('hidden')
         - if (i === 0) classNames.push('active')
-        div(class=classNames, id=method._id)
-        
-      //- #auth-user-password.form-group
-      //-   .form-item
-      //-     label Username
-      //-     input.form-control(type="text", name="username")
-      //- 
-      //-   .form-item
-      //-     label Password
-      //-     input.form-control(type="password", name="password")
-      //- 
-      //-   .form-item 
-      //-     label Authentication Database
-      //-     input.form-control(type="text", name="authenticationDatabase", placeholder="admin")
-      //- 
-      //- #auth-kerberos.form-group          
-      //-   .form-item 
-      //-     label Server
-      //-     input.form-control(type="text", name="server")
-      //- 
-      //-   .form-item 
-      //-     label Principal
-      //-     input.form-control(type="text", name="principal")
-      //- 
-      //- .form-item 
-      //-   label SSL
-      //-   input(type="checkbox", name="ssl")
-
-      //- #ssl.form-group
-      //-   .form-item 
-      //-     label Upload CA File
-      //-     .form-item-file
-      //-       input(type="file", name="uploadCAFile")
-      //- 
-      //-   .form-item 
-      //-     label Upload Key File
-      //-     .form-item-file
-      //-       input(type="file", name="uploadKeyFile")
-      //- 
-      //-   .form-item 
-      //-     label SSL Password
-      //-     input.form-control(type="text", name="sslPassword")
+        div(class=classNames, id='auth-#{method._id}')
+              
+      div(data-hook='sslselect-subview')
+      
+      - for method, i in sslMethods
+        - classNames = []
+        - if (!method.enabled) classNames.push('hidden')
+        - if (i === 0) classNames.push('active')
+        div(class=classNames, id='ssl-#{method._id}')
 
       hr
 
