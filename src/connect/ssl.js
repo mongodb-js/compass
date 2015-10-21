@@ -42,7 +42,7 @@ var SERVER = {
     // new InputView({
     //   template: inputTemplate,
     //   name: 'ssl_ca',
-    //   label: 'Path to SSL CA file',
+    //   label: 'SSL CA file',
     //   placeholder: '',
     //   required: true
     // }),
@@ -52,7 +52,7 @@ var SERVER = {
       callback: function(fileInputView, data) {
         debug('file selected callback', fileInputView, data);
       },
-      label: 'Path to Certificate Authority file',
+      label: 'Certificate Authority file',
       placeholder: '',
       type: 'file'
     })
@@ -74,7 +74,7 @@ var ALL = {
       callback: function(fileInputView, data) {
         debug('file selected callback', fileInputView, data);
       },
-      label: 'Path to Certificate Authority file',
+      label: 'Certificate Authority file',
       placeholder: '',
       type: 'file'
     }),
@@ -84,7 +84,7 @@ var ALL = {
       callback: function(fileInputView, data) {
         debug('file selected callback', fileInputView, data);
       },
-      label: 'Path to Private Key file',
+      label: 'Private Key file',
       placeholder: '',
       type: 'file'
     }),
@@ -94,7 +94,7 @@ var ALL = {
       callback: function(fileInputView, data) {
         debug('file selected callback', fileInputView, data);
       },
-      label: 'Path to Certificate file',
+      label: 'Certificate file',
       placeholder: '',
       type: 'file'
     }),
