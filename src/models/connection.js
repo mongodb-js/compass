@@ -96,7 +96,7 @@ var Connection = BaseConnection.extend({
      * they are viable IRL and should be merged back into
      * `mongodb-connection-model` for compass@0.5.0.
      */
-    ssl: 'ssl',
+    ssl: dataTypes.ssl,
     /**
       * Array of valid certificates either as Buffers or Strings
       * (needs to have a mongod server with ssl support, 2.4 or higher).
