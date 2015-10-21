@@ -47,9 +47,6 @@ var ConnectFormView = FormView.extend({
     // clean up the form values here, e.g. conversion to numbers etc.
     debug('cleaning up form values');
 
-    // get auth mechanism from parent view
-    obj.authentication = this.parent.authMethod;
-
     // fill in all default fields
     obj.hostname = obj.hostname || 'localhost';
     obj.port = parseInt(obj.port || 27017, 10);
@@ -140,9 +137,10 @@ var ConnectFormView = FormView.extend({
       }),
       // connection name field
       new InputView({
-        template: require('./input-saveas.jade'),
+        template: require('./input-default.jade'),
         el: this.parent.queryByHook('saveas-subview'),
         name: 'name',
+        label: 'Name',
         placeholder: 'e.g. Shared Dev, Stats Box, PRODUCTION',
         required: false
       })
