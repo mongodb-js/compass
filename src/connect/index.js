@@ -2,6 +2,7 @@ var View = require('ampersand-view');
 var SidebarView = require('./sidebar');
 var ConnectionCollection = require('../models/connection-collection');
 var ConnectFormView = require('./connect-form-view');
+var Connection = require('../models/connection');
 var debug = require('debug')('scout:connect:index');
 
 /**
@@ -19,7 +20,17 @@ var ConnectView = View.extend({
   template: require('./static-connect.jade'),
   props: {
     form: 'object',
-    isReady: 'boolean',
+    uiState: {
+      type: 'string',
+      default: 'NEW CONNECTION',
+      values: [
+        'NEW CONNECTION',
+        'EDITABLE: FAVORITE',
+        'EDITABLE: RECENT',
+        'EDITED: NAME CHANGED',
+        'EDITED: NAME UNCHANGED'
+      ]
+    },
     authMethod: {
       type: 'string',
       default: 'MONGODB'
@@ -42,7 +53,10 @@ var ConnectView = View.extend({
   },
   events: {
     'change select[name=authentication]': 'onAuthMethodChanged',
-    'change select[name=ssl]': 'onSslMethodChanged'
+    'change select[name=ssl]': 'onSslMethodChanged',
+    'click [data-hook=create-favorite-button]': 'onCreateFavoriteClicked'
+  },
+  bindings: {
   },
   subviews: {
     sidebar: {
@@ -221,14 +235,6 @@ var ConnectView = View.extend({
 
     setTimeout(window.close, 1000);
   },
-  onFormSubmitted: function(connection) {
-    this.reset();
-    if (!connection.isValid()) {
-      this.onError(connection.validationError);
-      return;
-    }
-    this.connect(connection);
-  },
   /**
    * Update the form's state based on an existing connection, e.g. clicking on a list item
    * like in `./sidebar.js`.
@@ -258,6 +264,38 @@ var ConnectView = View.extend({
 
     // Populates the form from values in the model.
     this.form.setValues(values);
+  },
+  onCreateFavoriteClicked: function(evt) {
+    var connection = new Connection(this.form.data);
+    if (!connection.isValid()) {
+      this.onError(connection.validationError);
+      return;
+    }
+    
+    connection.is_favorite = true;
+    connection.last_used = new Date();
+
+    debug('create favorite clicked', this.form.data, connection);
+    connection.save();
+    this.connections.add(connection, {
+      merge: true
+    });
+  },
+  onRemoveFavoriteClicked: function(evt) {
+    debug('remove favorite clicked');
+  },
+  onSaveChangesClicked: function(evt) {
+    debug('save changes clicked');
+  },
+  onFormSubmitted: function(connection) {
+    debug('on form submitted');
+
+    this.reset();
+    if (!connection.isValid()) {
+      this.onError(connection.validationError);
+      return;
+    }
+    this.connect(connection);
   }
 });
 
