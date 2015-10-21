@@ -115,6 +115,8 @@ console.log(model.driver_url);
 
 ![][enterprise_img]
 
+- `x509_username` (**required**, String) ... The x.509 certificate derived user name, e.g. `CN=user,OU=OrgUnit,O=myOrg,...`.
+
 [node.js driver X509 reference](http://bit.ly/mongodb-node-driver-x509)
 
 ```javascript
@@ -133,6 +135,9 @@ replSet: { connectWithNoPrimary: true } }
 #### A6. LDAP
 
 ![][enterprise_img]
+
+- `ldap_username` (**required**, String)
+- `ldap_password` (**required**, String)
 
 [node.js driver LDAP reference](http://bit.ly/mongodb-node-driver-ldap)
 
