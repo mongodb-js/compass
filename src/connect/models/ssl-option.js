@@ -11,6 +11,9 @@ var SslOption = State.extend({
     title: {
       type: 'string'
     },
+    description: {
+      type: 'string'
+    },
     selected: {
       type: 'boolean',
       default: false
@@ -18,6 +21,16 @@ var SslOption = State.extend({
     enabled: {
       type: 'boolean',
       default: true
+    },
+    /**
+     * @property {Array<InputView>} fields - Form fields
+     * @see ./src/connect/ssl.js
+     */
+    fields: {
+      type: 'array',
+      default: function() {
+        return [];
+      }
     }
   }
 });

@@ -12,7 +12,7 @@ var authMethods = require('./authentication');
 /**
  * SslOptionCollection
  */
-var ssl = require('./ssl');
+var sslMethods = require('./ssl');
 
 
 var ConnectView = View.extend({
@@ -27,13 +27,22 @@ var ConnectView = View.extend({
     previousAuthMethod: {
       type: 'string',
       default: null
+    },
+    sslMethod: {
+      type: 'string',
+      default: 'NONE'
+    },
+    previousSslMethod: {
+      type: 'string',
+      default: null
     }
   },
   collections: {
     connections: ConnectionCollection
   },
   events: {
-    'change select[name=authentication]': 'onAuthMethodChanged'
+    'change select[name=authentication]': 'onAuthMethodChanged',
+    'change select[name=ssl]': 'onSslMethodChanged'
   },
   subviews: {
     sidebar: {
@@ -53,7 +62,8 @@ var ConnectView = View.extend({
   },
   render: function() {
     this.renderWithTemplate({
-      authMethods: authMethods.serialize()
+      authMethods: authMethods.serialize(),
+      sslMethods: sslMethods.serialize()
     });
 
     this.form = new ConnectFormView({
@@ -79,11 +89,33 @@ var ConnectView = View.extend({
     var newFields = authMethods.get(this.authMethod).fields;
     _.each(newFields, function(field) {
       this.form.addField(field.render());
-      this.query('#' + this.authMethod).appendChild(field.el);
+      this.query('#auth-' + this.authMethod).appendChild(field.el);
     }.bind(this));
 
     this.previousAuthMethod = this.authMethod;
-    debug('form data now has the following fields', Object.keys(this.form.data));
+    debug('auth form data now has the following fields', Object.keys(this.form.data));
+  },
+  onSslMethodChanged: function(evt) {
+    this.sslMethod = evt.target.value;
+    debug('ssl method was changed from', this.previousSslMethod, 'to', this.sslMethod);
+
+    // remove and unregister old fields
+    var oldFields = _.get(sslMethods.get(this.previousSslMethod), 'fields', []);
+    debug('old SSL fields', oldFields);
+    _.each(oldFields, function(field) {
+      this.form.removeField(field.name);
+    }.bind(this));
+
+    // register new with form, render, append to DOM
+    var newFields = sslMethods.get(this.sslMethod).fields;
+    debug('new SSL fields', newFields);
+    _.each(newFields, function(field) {
+      this.form.addField(field.render());
+      this.query('#ssl-' + this.sslMethod).appendChild(field.el);
+    }.bind(this));
+
+    this.previousSslMethod = this.sslMethod;
+    debug('ssl form data now has the following fields', Object.keys(this.form.data));
   },
   /**
    * Return to a clean state between form submissions.
@@ -122,7 +154,7 @@ var ConnectView = View.extend({
    * If there is a validation or connection error show a nice message.
    *
    * @param {Error} err
-   * @param {Connection} model
+   * @param {Connection} connection
    * @api private
    */
   onError: function(err, connection) {
@@ -181,12 +213,10 @@ var ConnectView = View.extend({
    * connection, e.g. clicking on a list item
    * like in `./sidebar.js`.
    *
-   * @param {Connection} model
+   * @param {Connection} connection
    * @api public
    */
   onConnectionSelected: function(connection) {
-    debugger;
-    
     // If the new model has auth, expand the auth settings container
     // and select the correct tab.
     connection.authentication = connection.authentication || 'NONE';
