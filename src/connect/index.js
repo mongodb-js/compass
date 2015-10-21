@@ -271,7 +271,7 @@ var ConnectView = View.extend({
       this.onError(connection.validationError);
       return;
     }
-    
+
     connection.is_favorite = true;
     connection.last_used = new Date();
 

@@ -5,7 +5,11 @@ var AuthenticationOption = State.extend({
   namespace: 'AuthenticationOption',
   mainIndex: '_id',
   props: {
-    _id: Connection.dataTypes.authentication,
+    _id: {
+      type: 'string',
+      values: Connection.AUTHENTICATION_VALUES,
+      default: Connection.AUTHENTICATION_DEFAULT
+    },
     title: {
       type: 'string'
     },
