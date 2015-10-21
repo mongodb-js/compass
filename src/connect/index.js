@@ -58,6 +58,7 @@ var ConnectView = View.extend({
     }
   },
   initialize: function() {
+    document.title = 'Connect to MongoDB';
     this.connections.fetch();
   },
   render: function() {
