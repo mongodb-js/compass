@@ -15,6 +15,7 @@
   "scripts": {
     "ci": "npm run check && npm test",
     "test": "mocha",
+    "fmt": "mongodb-js-fmt ./*.js ./test/*.js",
     "check": "mongodb-js-precommit",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
@@ -27,6 +28,7 @@
     "debug": "^2.2.0",
     "lodash.assign": "^3.2.0",
     "lodash.contains": "^2.4.3",
+    "lodash.defaults": "^3.1.2",
     "lodash.omit": "^3.1.0",
     "lodash.pick": "^3.1.0",
     "mongodb-url": "^1.0.0"
@@ -34,6 +36,7 @@
   "devDependencies": {
     "eslint-config-mongodb-js": "^1.0.3",
     "mocha": "^2.3.3",
+    "mongodb-js-fmt": "0.0.3",
     "mongodb-js-precommit": "^0.2.2",
     "pre-commit": "^1.1.1",
     "semantic-release": "^4.3.5"

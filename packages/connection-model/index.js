@@ -3,6 +3,7 @@ var format = require('util').format;
 var AmpersandModel = require('ampersand-model');
 var AmpersandCollection = require('ampersand-rest-collection');
 var assign = require('lodash.assign');
+var defaults = require('lodash.defaults');
 var contains = require('lodash.contains');
 var pick = require('lodash.pick');
 var omit = require('lodash.omit');
@@ -51,91 +52,61 @@ assign(derived, {
   }
 });
 
-var dataTypes = {};
-
-dataTypes.authentication = {
-  type: 'string',
-  values: [
-    /**
-     * Use no authentication.
-     */
-    'NONE',
-    /**
-     * Allow the driver to autodetect and select SCRAM-SHA-1
-     * or MONGODB-CR depending on server capabilities.
-     */
-    'MONGODB',
-    /**
-     * @enterprise
-     * @see http://bit.ly/mongodb-node-driver-x509
-     */
-    'X509',
-    /**
-     * @enterprise
-     * @see http://bit.ly/mongodb-node-driver-kerberos
-     */
-    'KERBEROS',
-    /**
-     * @enterprise
-     * @see http://bit.ly/mongodb-node-driver-ldap
-     */
-    'LDAP'
-  ],
-  default: 'NONE'
-};
+/**
+ * @constant {Array} - Allowed values for the `authentication` field.
+ */
+var AUTHENTICATION_VALUES = [
+  /**
+   * Use no authentication.
+   */
+  'NONE',
+  /**
+   * Allow the driver to autodetect and select SCRAM-SHA-1
+   * or MONGODB-CR depending on server capabilities.
+   */
+  'MONGODB',
+  /**
+   * @enterprise
+   * @see http://bit.ly/mongodb-node-driver-x509
+   */
+  'X509',
+  /**
+   * @enterprise
+   * @see http://bit.ly/mongodb-node-driver-kerberos
+   */
+  'KERBEROS',
+  /**
+   * @enterprise
+   * @see http://bit.ly/mongodb-node-driver-ldap
+   */
+  'LDAP'
+];
 
 /**
- * ## Authentication
+ * @constant {String} - The default value for `authentication`.
  */
+var AUTHENTICATION_DEFAULT = 'NONE';
+
 assign(props, {
   /**
-   * `auth_mechanism` for humans.
+   * @property {String} authentication - `auth_mechanism` for humans.
    */
-  authentication: 'authentication'
+  authentication: {
+    type: 'string',
+    values: AUTHENTICATION_VALUES,
+    default: AUTHENTICATION_DEFAULT
+  }
 });
 
-// For `connection-model` -> `URL`
+/**
+ * @constant {Object} - Maps driver auth_mechanism to `authentication`.
+ */
 var AUTHENICATION_TO_AUTH_MECHANISM = {
   NONE: undefined,
-  /**
-   * @todo (imlucas): Double check latest driver
-   * that `url_parser.js` no longer barfs if
-   * the url contains `auth_mechanism=DEFAULT`
-   * and uncomment the below as we would
-   * much rather this be explicit.
-   */
-  // 'MONGODB': 'DEFAULT',
-  MONGODB: undefined,
+  MONGODB: 'DEFAULT',
   KERBEROS: 'GSSAPI',
   X509: 'MONGODB-X509',
   LDAP: 'PLAIN'
-};
-
-// For `URL` -> `connection-model`
-var AUTH_MECHANISM_TO_AUTHENTICATION = {
-  '': 'NONE',
-  DEFAULT: 'MONGODB',
-  'SCRAM-SHA-1': 'MONGODB',
-  'MONGODB-CR': 'MONGODB',
-  'MONGODB-X509': 'X509',
-  GSSAPI: 'KERBEROS',
-  PLAIN: 'LDAP'
-};
-
-var AUTHENTICATION_TO_FIELD_NAMES = {
-  NONE: [],
-  MONGODB: [
-    'mongodb_username', // required
-    'mongodb_password', // required
-    'mongodb_database_name' // optional
-  ],
-  KERBEROS: [
-    'kerberos_principal', // required
-    'kerberos_password', // optional
-    'kerberos_service_name' // optional
-  ],
-  X509: [],
-  LDAP: []
 };
 
 assign(derived, {
@@ -153,7 +124,56 @@ assign(derived, {
 });
 
 /**
+ * @constant {Object} - Maps `authentication` to driver auth_mechanism.
+ */
+var AUTH_MECHANISM_TO_AUTHENTICATION = {
+  '': 'NONE',
+  DEFAULT: 'MONGODB',
+  'SCRAM-SHA-1': 'MONGODB',
+  'MONGODB-CR': 'MONGODB',
+  'MONGODB-X509': 'X509',
+  GSSAPI: 'KERBEROS',
+  PLAIN: 'LDAP'
+};
+
+/**
+ * @constant {Object} - Array of field names associated with each `authentication`.
+ */
+var AUTHENTICATION_TO_FIELD_NAMES = {
+  NONE: [],
+  MONGODB: [
+    'mongodb_username', // required
+    'mongodb_password', // required
+    'mongodb_database_name' // optional
+  ],
+  KERBEROS: [
+    'kerberos_principal', // required
+    'kerberos_password', // optional
+    'kerberos_service_name' // optional
+  ],
+  X509: [
+    'x509_username' // required
+  ],
+  LDAP: [
+    'ldap_username', // required
+    'ldap_password' // required
+  ]
+};
+
+/**
  * ### `authentication = MONGODB`
+ *
+ * @example
+ *   var c = new Connection({
+ *     mongodb_username: 'arlo',
+ *     mongodb_password: 'w@of'
+ *   });
+ *   console.log(c.driver_url)
+ *   >>> mongodb://arlo:w%40of@localhost:27017?slaveOk=true&authSource=admin
+ *   console.log(c.driver_options)
+ *   >>> { uri_decode_auth: true,
+ *     db: { readPreference: 'nearest' },
+ *     replSet: { connectWithNoPrimary: true } }
  */
 assign(props, {
   mongodb_username: {
@@ -167,7 +187,7 @@ assign(props, {
   /**
    * The database name associated with the user's credentials.
    * If `authentication === 'MONGODB'`,
-   * the value for `authSource` to pass to the driver.
+   * The value for `authSource` to pass to the driver.
    *
    * @see http://docs.mongodb.org/manual/reference/connection-string/#uri.authSource
    */
@@ -179,6 +199,22 @@ assign(props, {
 
 /**
  * ### `authentication = KERBEROS`
+ *
+ * @example
+ *   var c = new Connection({
+ *     kerberos_service_name: 'mongodb',
+ *     kerberos_password: 'w@@f',
+ *     kerberos_principal: 'arlo/dog@krb5.mongodb.parts'
+ *   });
+ *   console.log(c.driver_url)
+ *   >>> mongodb://arlo%252Fdog%2540krb5.mongodb.parts:w%40%40f@localhost:27017/kerberos?slaveOk=true&gssapiServiceName=mongodb&authMechanism=GSSAPI
+ *   console.log(c.driver_options)
+ *   >>> { uri_decode_auth: true,
+ *     db: { readPreference: 'nearest' },
+ *     replSet: { connectWithNoPrimary: true } }
+ *
+ * @enterprise
+ * @see http://bit.ly/mongodb-node-driver-kerberos
  */
 assign(props, {
   /**
@@ -222,35 +258,112 @@ assign(props, {
 });
 
 /**
+ * ### `authentication = LDAP`
+ *
+ * @example
+ *    var c = new Connection({
+ *     ldap_username: 'arlo',
+ *     ldap_password: 'w@of'
+ *   });
+ *   console.log(c.driver_url)
+ *   >>> mongodb://arlo:w%40of@localhost:27017?slaveOk=true&authMechanism=PLAIN
+ *   console.log(c.driver_options)
+ *   >>> { uri_decode_auth: true,
+ *     db: { readPreference: 'nearest' },
+ *     replSet: { connectWithNoPrimary: true } }
+ *
+ * @enterprise
+ * @see http://bit.ly/mongodb-node-driver-ldap
+ */
+assign(props, {
+  /**
+   * @see http://bit.ly/mongodb-node-driver-ldap
+   * @see http://bit.ly/mongodb-ldap
+   */
+  ldap_username: {
+    type: 'string',
+    default: undefined
+  },
+  /**
+   * @see http://bit.ly/mongodb-node-driver-ldap
+   * @see http://bit.ly/mongodb-ldap
+   */
+  ldap_password: {
+    type: 'string',
+    default: undefined
+  }
+});
+
+/**
+ * ### `authentication = X509`
+ *
+ * @todo (imlucas): We've been assuming authenticaiton=X509 that SSL=ALL is implied,
+ * but the driver docs only send `ssl_private_key` and `ssl_certificate`
+ * so we may need to add another value to `SSL_VALUES`.  Need to verify this and
+ * then update the example below.
+ *
+ * @example
+ *   var c = new Connection({
+ *    'x509_username': 'CN=client,OU=arlo,O=MongoDB,L=Philadelphia,ST=Pennsylvania,C=US',
+ *   });
+ *   console.log(c.driver_url)
+ *   >>> mongodb://CN%253Dclient%252COU%253Darlo%252CO%253DMongoDB%252CL%253DPhiladelphia%252CST%253DPennsylvania%252CC%253DUS@localhost:27017?slaveOk=true&authMechanism=MONGODB-X509
+ *   console.log(c.driver_options)
+ *   >>> { uri_decode_auth: true,
+ *    db: { readPreference: 'nearest' },
+ *    replSet: { connectWithNoPrimary: true } }
+ *
+ * @see http://bit.ly/mongodb-node-driver-x509
+ * @see http://bit.ly/mongodb-x509
+ */
+assign(props, {
+  /**
+   * The x.509 certificate derived user name, e.g. "CN=user,OU=OrgUnit,O=myOrg,..."
+   */
+  x509_username: {
+    type: 'string',
+    default: undefined
+  }
+});
+
+/**
  * ## SSL
  *
  * @note (imlucas): Not to be confused with `authentication=X509`!
  */
-dataTypes.ssl = {
-  type: 'string',
-  values: [
-    /**
-     * Do not use SSL for anything.
-     */
-    'NONE',
-    /**
-     * Use SSL but do not perform any validation of the certificate chain.
-     */
-    'UNVALIDATED',
-    /**
-     * The driver should validate the server certificate and fail to connect if validation fails.
-     */
-    'SERVER',
-    /**
-     * The driver must present a valid certificate and validate the server certificate.
-     */
-    'ALL'
-  ],
-  default: 'NONE'
-};
+/**
+ * @constant {Array} - Allowed values for the `ssl` field.
+ */
+var SSL_VALUES = [
+  /**
+   * Do not use SSL for anything.
+   */
+  'NONE',
+  /**
+   * Use SSL but do not perform any validation of the certificate chain.
+   */
+  'UNVALIDATED',
+  /**
+   * The driver should validate the server certificate and fail to connect if validation fails.
+   */
+  'SERVER',
+  /**
+   * The driver must present a valid certificate and validate the server certificate.
+   */
+  'ALL'
+];
+
+/**
+ * @constant {String} - The default value for `ssl`.
+ */
+var SSL_DEFAULT = 'NONE';
 
 assign(props, {
-  ssl: 'ssl',
+  ssl: {
+    type: 'string',
+    values: SSL_VALUES,
+    default: SSL_DEFAULT
+  },
   /**
    * Array of valid certificates either as Buffers or Strings
    * (needs to have a mongod server with ssl support, 2.4 or higher).
@@ -325,21 +438,13 @@ assign(derived, {
       };
 
       if (this.authentication === 'MONGODB') {
-        assign(req, {
-          auth: format('%s:%s', this.mongodb_username, this.mongodb_password),
-          query: {
-            slaveOk: 'true',
-            authSource: this.mongodb_database_name || 'admin'
-          }
-        });
+        req.auth = format('%s:%s', this.mongodb_username, this.mongodb_password);
+        req.query.authSource = this.mongodb_database_name || 'admin';
       } else if (this.authentication === 'KERBEROS') {
-        assign(req, {
-          pathname: 'kerberos',
-          query: {
-            slaveOk: 'true',
-            gssapiServiceName: this.kerberos_service_name,
-            authMechanism: this.driver_auth_mechanism
-          }
+        req.pathname = 'kerberos';
+        defaults(req.query, {
+          gssapiServiceName: this.kerberos_service_name,
+          authMechanism: this.driver_auth_mechanism
         });
 
         if (this.kerberos_password) {
@@ -350,6 +455,18 @@ assign(derived, {
           req.auth = format('%s',
             encodeURIComponent(this.kerberos_principal));
         }
+      } else if (this.authentication === 'X509') {
+        req.auth = encodeURIComponent(this.x509_username);
+        defaults(req.query, {
+          authMechanism: this.driver_auth_mechanism
+        });
+      } else if (this.authentication === 'LDAP') {
+        req.auth = format('%s:%s',
+          encodeURIComponent(this.ldap_username),
+          this.ldap_password);
+        defaults(req.query, {
+          authMechanism: this.driver_auth_mechanism
+        });
       }
 
       if (contains(this.ssl, 'UNVALIDATED', 'SERVER', 'ALL')) {
@@ -384,9 +501,7 @@ assign(derived, {
           connectWithNoPrimary: true
         }
       };
-      if (this.authentication === 'X509') {
-        throw new TypeError('X509 not currently supported');
-      } else if (this.ssl === 'SERVER') {
+      if (this.ssl === 'SERVER') {
         assign(opts, {
           server: {
             sslValidate: true,
@@ -419,7 +534,6 @@ Connection = AmpersandModel.extend({
   idAttribute: 'instance_id',
   props: props,
   derived: derived,
-  dataTypes: dataTypes,
   initialize: function(attrs) {
     attrs = attrs || {};
     debug('initialize', attrs);
@@ -430,6 +544,10 @@ Connection = AmpersandModel.extend({
       this.authentication = 'MONGODB';
     } else if (attrs.kerberos_principal) {
       this.authentication = 'KERBEROS';
+    } else if (attrs.ldap_username) {
+      this.authentication = 'LDAP';
+    } else if (attrs.x509_username) {
+      this.authentication = 'X509';
     }
 
     if (attrs.authentication === 'MONGODB') {
@@ -448,17 +566,17 @@ Connection = AmpersandModel.extend({
   validate: function(attrs) {
     debug('validating...');
     try {
-      if (attrs.authentication === 'X509') {
-        throw new TypeError('X.509 authentication not yet supported.');
-      }
-
-      if (attrs.authentication === 'LDAP') {
-        throw new TypeError('LDAP authentication not yet supported.');
-      }
-
-      this.validate_ssl();
-      this.validate_kerberos();
-    } catch (err) {return err;}
+      /**
+       * @todo (imlucas): Validation for LDAP
+       */
+      /**
+       * @todo (imlucas): Validation for X509
+       */
+      this.validate_ssl(attrs);
+      this.validate_kerberos(attrs);
+    } catch (err) {
+      return err;
+    }
     debug('attributes are valid');
   },
   /**
@@ -516,26 +634,41 @@ Connection = AmpersandModel.extend({
       }
     }
   },
+  /**
+   * Transoform used by `.toJSON()` and `sync()`.
+   *
+   * @param {Object} [options] - By default you won't get the fields which
+   * need to go into the native system keychain implementation which are any
+   * field name containing `password`, e.g. `mongodb_password`,
+   * `ssl_private_key_password`, etc.
+   * @option {Boolean} [keychain] - Only return password fields [Default: `false`].
+   * @option {Boolean} [all] - All fields including passwords [Default: `false`].
+   */
   serialize: function(options) {
     options = options || {};
-    options.credentials = options.credentials || false;
+    options.keychain = options.keychain || false;
     options.all = options.all || false;
 
-    var credentialKeys = AUTHENTICATION_TO_FIELD_NAMES[this.authentication];
     var res = AmpersandModel.prototype.serialize.call(this, options);
     if (options.all) {
       return res;
     }
+    var passwordKeys = Object.keys(res).filter(function(key) {
+      return key.indexOf('password') > -1;
+    });
 
     var args = [res];
-    args.push.apply(args, credentialKeys);
-
-    if (options.credentials) {
-      if (credentialKeys.length === 0) return undefined;
+    if (passwordKeys.length > 0) {
+      args.push.apply(args, passwordKeys);
+    }
+    if (options.keychain) {
+      if (passwordKeys.length === 0) {
+        return undefined;
+      }
       return pick.apply(null, args);
     }
 
-    if (credentialKeys.length === 0) {
+    if (passwordKeys.length === 0) {
       return res;
     }
 
@@ -567,8 +700,15 @@ Connection.from = function(url) {
     port: parsed.servers[0].port
   };
 
-  if (parsed.username && !parsed.authMechanism) {
-    parsed.authMechanism = 'DEFAULT';
+  if (!parsed.authMechanism) {
+    /**
+     * @todo (imlucas): This case is ambiguous... support `mongodb+ldap://user:pass@host`.
+     */
+    if (parsed.username && parsed.password) {
+      parsed.authMechanism = 'DEFAULT';
+    } else if (parsed.username && !parsed.password) {
+      parsed.authMechanism = 'MONGODB-X509';
+    }
   }
 
   if (parsed.authMechanism) {
@@ -578,6 +718,11 @@ Connection.from = function(url) {
       attrs.mongodb_username = parsed.username;
       attrs.mongodb_password = parsed.password;
       attrs.mongodb_database_name = parsed.dbName;
+    } else if (attrs.authentication === 'LDAP') {
+      attrs.ldap_username = parsed.username;
+      attrs.ldap_password = parsed.password;
+    } else if (attrs.authentication === 'X509') {
+      attrs.x509_username = parsed.username;
     }
   }
   return new Connection(attrs);
@@ -593,6 +738,11 @@ Connection.from = function(url) {
 Connection.getFieldNames = function(authentication) {
   return AUTHENTICATION_TO_FIELD_NAMES[authentication];
 };
+
+Connection.AUTHENTICATION_VALUES = AUTHENTICATION_VALUES;
+Connection.AUTHENTICATION_DEFAULT = AUTHENTICATION_DEFAULT;
+Connection.SSL_VALUES = SSL_VALUES;
+Connection.SSL_DEFAULT = SSL_DEFAULT;
 
 var ConnectionCollection = AmpersandCollection.extend({
   comparator: 'instance_id',

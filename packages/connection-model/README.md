@@ -61,13 +61,16 @@ console.log(new Connection().driver_url);
 - `mongodb_database_name` (optional, String) [Default: `admin`]
 
 ```javascript
-var model = new Connection({
-  authentication: 'MONGODB',
+var c = new Connection({
   mongodb_username: 'arlo',
-  mongodb_password: 'B@sil'
+  mongodb_password: 'w@of'
 });
-console.log(model.driver_url);
->>> 'mongodb://arlo:B%40sil@localhost:27017?slaveOk=true&authSource=admin'
+console.log(c.driver_url)
+>>> 'mongodb://arlo:w%40of@localhost:27017?slaveOk=true&authSource=admin'
+console.log(c.driver_options)
+>>> { uri_decode_auth: true,
+  db: { readPreference: 'nearest' },
+  replSet: { connectWithNoPrimary: true } }
 ```
 
 #### A3. Kerberos
@@ -81,12 +84,17 @@ console.log(model.driver_url);
 [node.js driver Kerberos reference](http://bit.ly/mongodb-node-driver-kerberos)
 
 ```javascript
-var model = new Connection({
-  authentication: 'KERBEROS',
-  kerberos_principal: 'arlo@MONGODB.PARTS'
-});
-console.log(model.driver_url);
->>> 'mongodb://arlo%2540MONGODB.PARTS@localhost:27017/kerberos?slaveOk=true&gssapiServiceName=mongodb&authMechanism=GSSAPI'
+ var c = new Connection({
+   kerberos_service_name: 'mongodb',
+   kerberos_password: 'w@@f',
+   kerberos_principal: 'arlo/dog@krb5.mongodb.parts'
+ });
+ console.log(c.driver_url)
+ >>> 'mongodb://arlo%252Fdog%2540krb5.mongodb.parts:w%40%40f@localhost:27017/kerberos?slaveOk=true&gssapiServiceName=mongodb&authMechanism=GSSAPI'
+ console.log(c.driver_options)
+ >>> { uri_decode_auth: true,
+   db: { readPreference: 'nearest' },
+   replSet: { connectWithNoPrimary: true } }
 ```
 
 #### A4. Kerberos on Windows
@@ -95,7 +103,6 @@ console.log(model.driver_url);
 
 ```javascript
 var model = new Connection({
-  authentication: 'KERBEROS',
   kerberos_principal: 'arlo/admin@MONGODB.PARTS',
   kerberos_password: 'B@sil',
   kerberos_service_name: 'MongoDB'
@@ -106,15 +113,41 @@ console.log(model.driver_url);
 
 #### A5. X509
 
-![][enterprise_img] ![][coming_soon_img]
+![][enterprise_img]
 
 [node.js driver X509 reference](http://bit.ly/mongodb-node-driver-x509)
 
+```javascript
+var c = new Connection({
+  x509_username: 'CN=client,OU=arlo,O=MongoDB,L=Philadelphia,ST=Pennsylvania,C=US'
+});
+console.log(c.driver_url)
+>>> 'mongodb://CN%253Dclient%252COU%253Darlo%252CO%253DMongoDB%252CL%253DPhiladelphia%252CST%253DPennsylvania%252CC%253DUS@localhost:27017?slaveOk=true&authMechanism=MONGODB-X509'
+console.log(c.driver_options)
+>>> { uri_decode_auth: true,
+db: { readPreference: 'nearest' },
+replSet: { connectWithNoPrimary: true } }
+```
+
+
 #### A6. LDAP
 
-![][enterprise_img] ![][coming_soon_img]
+![][enterprise_img]
 
 [node.js driver LDAP reference](http://bit.ly/mongodb-node-driver-ldap)
+
+```javascript
+var c = new Connection({
+ ldap_username: 'arlo',
+ ldap_password: 'w@of'
+});
+console.log(c.driver_url)
+>>> 'mongodb://arlo:w%40of@localhost:27017?slaveOk=true&authMechanism=PLAIN'
+console.log(c.driver_options)
+>>> { uri_decode_auth: true,
+ db: { readPreference: 'nearest' },
+ replSet: { connectWithNoPrimary: true } }
+```
 
 ### Trait: SSL
 
@@ -164,10 +197,6 @@ npm test
 ## License
 
 Apache 2.0
-
-## Questions
-
-[![][gitter_img]][gitter_url]
 
 [travis_img]: https://img.shields.io/travis/mongodb-js/mongodb-connection-model.svg?style=flat-square
 [travis_url]: https://travis-ci.org/mongodb-js/mongodb-connection-model
