@@ -97,6 +97,7 @@ var ConnectFormView = FormView.extend({
       // authentication select dropdown
       new SelectView({
         name: 'authentication',
+        label: 'Authentication',
         el: this.parent.queryByHook('authselect-subview'),
         // @see https://github.com/AmpersandJS/ampersand-select-view/issues/55
         template: require('./select-default.jade')(),
@@ -118,6 +119,7 @@ var ConnectFormView = FormView.extend({
       // authentication select dropdown
       new SelectView({
         name: 'ssl',
+        label: 'SSL',
         el: this.parent.queryByHook('sslselect-subview'),
         // @see https://github.com/AmpersandJS/ampersand-select-view/issues/55
         template: require('./select-default.jade')(),
