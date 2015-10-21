@@ -4,6 +4,7 @@
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
   "bugs": "https://github.com/mongodb-js/mongodb-connection-model/issues",
   "homepage": "https://github.com/mongodb-js/mongodb-connection-model",
+  "version": "1.0.2",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/mongodb-connection-model.git"
@@ -16,8 +17,7 @@
     "ci": "npm run check && npm test",
     "test": "mocha",
     "fmt": "mongodb-js-fmt ./*.js ./test/*.js",
-    "check": "mongodb-js-precommit",
-    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
+    "check": "mongodb-js-precommit"
   },
   "precommit": [
     "check"
@@ -38,7 +38,6 @@
     "mocha": "^2.3.3",
     "mongodb-js-fmt": "0.0.3",
     "mongodb-js-precommit": "^0.2.2",
-    "pre-commit": "^1.1.1",
-    "semantic-release": "^4.3.5"
+    "pre-commit": "^1.1.1"
   }
 }
