@@ -540,14 +540,18 @@ Connection = AmpersandModel.extend({
     this.parse(attrs);
   },
   parse: function(attrs) {
+    if (!attrs) {
+      return attrs;
+    }
+    debug('parsing...');
     if (attrs.mongodb_username) {
-      this.authentication = 'MONGODB';
+      attrs.authentication = 'MONGODB';
     } else if (attrs.kerberos_principal) {
-      this.authentication = 'KERBEROS';
+      attrs.authentication = 'KERBEROS';
     } else if (attrs.ldap_username) {
-      this.authentication = 'LDAP';
+      attrs.authentication = 'LDAP';
     } else if (attrs.x509_username) {
-      this.authentication = 'X509';
+      attrs.authentication = 'X509';
     }
 
     if (attrs.authentication === 'MONGODB') {
@@ -560,6 +564,7 @@ Connection = AmpersandModel.extend({
         attrs.kerberos_service_name = 'mongodb';
       }
     }
+    debug('parsing complete');
     return attrs;
   },
 
