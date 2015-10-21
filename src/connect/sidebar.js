@@ -16,7 +16,7 @@ var SidebarItemView = View.extend({
     }
   },
   events: {
-    'click a': 'onClick',
+    click: 'onClick',
     dblclick: 'onDoubleClick'
   },
   bindings: {
@@ -39,17 +39,11 @@ var SidebarItemView = View.extend({
     }
   },
   template: require('./connection.jade'),
-  onClick: function(event) {
-    this.parent.onItemClick(event, this);
+  onClick: function(evt) {
+    this.parent.onItemClick(evt, this);
   },
-  onDoubleClick: function(event) {
-    this.parent.onItemDoubleClick(event, this);
-  },
-  onRemoveClick: function(event) {
-    event.stopPropagation();
-    event.preventDefault();
-    this.model.destroy();
-    this.parent.onRemoveClick(event, this);
+  onDoubleClick: function(evt) {
+    this.parent.onItemDoubleClick(evt, this);
   }
 });
 
@@ -59,7 +53,7 @@ var SidebarItemView = View.extend({
  */
 var SidebarView = View.extend({
   session: {
-    active_item_view: {
+    activeItemView: {
       type: 'state'
     }
   },
@@ -88,27 +82,26 @@ var SidebarView = View.extend({
     event.stopPropagation();
     event.preventDefault();
 
-    if (this.active_item_view) {
-      this.active_item_view.el.classList.remove('active');
-      this.active_item_view = null;
+    if (this.activeItemView) {
+      this.activeItemView.el.classList.remove('active');
+      this.activeItemView = null;
     }
     this.parent.createNewConnection();
   },
-  onRemoveClick: function(event, view) {
-    event.stopPropagation();
-    event.preventDefault();
-    view.model.destroy();
-    this.parent.onConnectionDestroyed();
-  },
+  // onRemoveClick: function(event, view) {
+  //   event.stopPropagation();
+  //   event.preventDefault();
+  //   view.model.destroy();
+  //   this.parent.onConnectionDestroyed();
+  // },
   onItemClick: function(event, view) {
     event.stopPropagation();
     event.preventDefault();
-    if (this.active_item_view) {
-      this.active_item_view.el.classList.remove('active');
+    if (this.activeItemView) {
+      this.activeItemView.el.classList.remove('active');
     }
-
-    this.active_item_view = view;
-    this.active_item_view.el.classList.add('active');
+    this.activeItemView = view;
+    this.activeItemView.el.classList.add('active');
     this.parent.onConnectionSelected(view.model);
   },
   onItemDoubleClick: function(event, view) {

@@ -75,11 +75,31 @@ var ConnectView = View.extend({
     });
 
     this.registerSubview(this.form);
+    this.listenToAndRun(this, 'change:authMethod', this.replaceAuthMethodFields.bind(this));
+    this.listenToAndRun(this, 'change:sslMethod', this.replaceSslMethodFields.bind(this));
   },
+  /**
+   * called when user switches select input to another authentication method
+   *
+   * @param {Object} evt   onchange event
+   */
   onAuthMethodChanged: function(evt) {
-    this.authMethod = evt.target.value;
     debug('auth method was changed from', this.previousAuthMethod, 'to', this.authMethod);
-
+    this.authMethod = evt.target.value;
+  },
+  /**
+   * called when user switches select input to another SSL method
+   *
+   * @param {Object} evt   onchange event
+   */
+  onSslMethodChanged: function(evt) {
+    debug('ssl method was changed from', this.previousSslMethod, 'to', this.sslMethod);
+    this.sslMethod = evt.target.value;
+  },
+  /**
+   * called when this.authMethod changes. Replaces the fields in `this.form`.
+   */
+  replaceAuthMethodFields: function() {
     // remove and unregister old fields
     var oldFields = _.get(authMethods.get(this.previousAuthMethod), 'fields', []);
     _.each(oldFields, function(field) {
@@ -96,10 +116,10 @@ var ConnectView = View.extend({
     this.previousAuthMethod = this.authMethod;
     debug('auth form data now has the following fields', Object.keys(this.form.data));
   },
-  onSslMethodChanged: function(evt) {
-    this.sslMethod = evt.target.value;
-    debug('ssl method was changed from', this.previousSslMethod, 'to', this.sslMethod);
-
+  /**
+   * called when this.sslMethod changes. Replaces the fields in `this.form`.
+   */
+  replaceSslMethodFields: function() {
     // remove and unregister old fields
     var oldFields = _.get(sslMethods.get(this.previousSslMethod), 'fields', []);
     debug('old SSL fields', oldFields);
@@ -210,36 +230,29 @@ var ConnectView = View.extend({
     this.connect(connection);
   },
   /**
-   * Update the form's state based on an existing
-   * connection, e.g. clicking on a list item
+   * Update the form's state based on an existing connection, e.g. clicking on a list item
    * like in `./sidebar.js`.
    *
    * @param {Connection} connection
    * @api public
    */
   onConnectionSelected: function(connection) {
-    // If the new model has auth, expand the auth settings container
-    // and select the correct tab.
-    connection.authentication = connection.authentication || 'NONE';
+    // If the new model has auth, expand the auth settings container and select the correct tab.
     this.authMethod = connection.authentication;
+    this.sslMethod = connection.ssl;
 
+    // Changing `this.authMethod` and `this.sslMethod` dynamically updates the form fields
+    // so we need to get a list of what keys are currently available to set.
+    var keys = ['name', 'port', 'hostname', 'authentication', 'ssl'];
     if (connection.authentication !== 'NONE') {
-      this.authOpen = true;
-    } else {
-      this.authOpen = false;
+      keys.push.apply(keys, _.pluck(authMethods.get(this.authMethod).fields, 'name'));
+    }
+    if (connection.ssl !== 'NONE') {
+      keys.push.apply(keys, _.pluck(sslMethods.get(this.sslMethod).fields, 'name'));
     }
 
-    // Changing `this.authMethod` dynamically updates the
-    // fields in the form because it's a top-level constraint
-    // so we need to get a list of what keys are currently
-    // available to set.
-    var keys = ['name', 'port', 'hostname'];
-    if (connection.authentication !== 'NONE') {
-      keys.push.apply(keys, _.pluck(authentication.get(this.authMethod).fields, 'name'));
-    }
-
-    debug('Populating form fields with keys', keys);
     var values = _.pick(connection, keys);
+    debug('Populating form fields with:', values);
 
     this.form.connection_id = connection.getId();
 

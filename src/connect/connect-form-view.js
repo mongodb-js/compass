@@ -106,7 +106,7 @@ var ConnectFormView = FormView.extend({
         options: enabledAuthOptions,
         // and pick an item from the collection as the selected one
         // @todo thomasr: pick the "model.selected" one (via .find() ?)
-        value: enabledAuthOptions.at(0),
+        value: enabledAuthOptions.get('MONGODB'),
         // here you specify which attribute on the objects in the collection
         // to use for the value returned.
         idAttribute: '_id',
@@ -128,7 +128,7 @@ var ConnectFormView = FormView.extend({
         options: enabledSslOptions,
         // and pick an item from the collection as the selected one
         // @todo thomasr: pick the "model.selected" one (via .find() ?)
-        value: enabledSslOptions.at(0),
+        value: enabledSslOptions.get('NONE'),
         // here you specify which attribute on the objects in the collection
         // to use for the value returned.
         idAttribute: '_id',
