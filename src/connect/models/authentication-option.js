@@ -35,11 +35,7 @@ var AuthenticationOption = State.extend({
         return [];
       }
     }
-  },
-  // To pull in the ENUM used by `AuthenticationOption._id`
-  // dataTypes: {
-  //   authentication: Connection.dataTypes.authentication
-  // }
+  }
 });
 
 module.exports = AuthenticationOption;

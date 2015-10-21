@@ -20,10 +20,6 @@ var SslOption = State.extend({
       default: true
     }
   }
-  // // To pull in the ENUM used by `SslOption._id`
-  // dataTypes: {
-  //   ssl: Connection.dataTypes.ssl
-  // }
 });
 
 module.exports = SslOption;

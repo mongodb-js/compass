@@ -22,13 +22,6 @@ var MONGODB = {
   fields: [
     new InputView({
       template: inputTemplate,
-      name: 'mongodb_database_name',
-      label: 'Database Name',
-      placeholder: 'admin',
-      required: false
-    }),
-    new InputView({
-      template: inputTemplate,
       name: 'mongodb_username',
       label: 'Username',
       placeholder: '',
@@ -40,6 +33,13 @@ var MONGODB = {
       name: 'mongodb_password',
       label: 'Password',
       placeholder: '',
+      required: false
+    }),
+    new InputView({
+      template: inputTemplate,
+      name: 'mongodb_database_name',
+      label: 'Database Name',
+      placeholder: 'admin',
       required: false
     })
   ]

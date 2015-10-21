@@ -89,6 +89,7 @@
     "ampersand-filtered-subcollection": "^2.0.4",
     "ampersand-model": "^6.0.2",
     "ampersand-router": "^3.0.2",
+    "ampersand-select-view": "^4.3.2",
     "ampersand-sync-localforage": "^0.1.1",
     "ampersand-view": "^8.0.1",
     "ampersand-view-switcher": "^2.0.0",

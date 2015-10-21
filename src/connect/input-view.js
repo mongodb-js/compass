@@ -7,7 +7,7 @@ var InputView = require('ampersand-input-view');
 module.exports = InputView.extend({
   initialize: function() {
     this.invalidClass = 'has-error';
-    this.validityClassSelector = '.form-group';
+    this.validityClassSelector = '.form-item';
     InputView.prototype.initialize.apply(this, arguments);
   },
   render: function() {
