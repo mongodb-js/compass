@@ -43,12 +43,50 @@ var ConnectFormView = FormView.extend({
     debug('form submitted', obj);
     this.parent.onFormSubmitted(new Connection(obj));
   },
+  makeFriendlyName: function(obj) {
+    if (obj.name) return;
+    if (!(obj.hostname && obj.port)) {
+      obj.name = 'Unnamed Connection';
+      return;
+    }
+    var name = obj.hostname + ':' + obj.port;
+    debug('obj', obj);
+    switch (obj.authentication) {
+    case 'MONGODB':
+      if (obj.mongodb_username) {
+        name = obj.mongodb_username + '@' + name;
+      }
+      break;
+    case 'KERBEROS':
+      if (obj.kerberos_principal) {
+        name = obj.kerberos_principal + '@' + name;
+      }
+      break;
+    case 'X509':
+      if (obj.x509_username) {
+        name = obj.x509_username + '@' + name;
+      }
+      break;
+    case 'LDAP':
+      if (obj.ldap_username) {
+        name = obj.ldap_username + '@' + name;
+      }
+      break;
+    case 'NONE':
+    default:
+      break;
+    }
+    obj.name = name;
+  },
   clean: function(obj) {
     // clean up the form values here, e.g. conversion to numbers etc.
 
     // fill in all default fields
     obj.hostname = obj.hostname || 'localhost';
     obj.port = parseInt(obj.port || 27017, 10);
+
+    // make a friendly connection name
+    this.makeFriendlyName(obj);
 
     return obj;
   },

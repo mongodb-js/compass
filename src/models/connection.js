@@ -2,6 +2,7 @@ var app = require('ampersand-app');
 var BaseConnection = require('mongodb-connection-model');
 var connectionSync = require('./connection-sync')();
 var client = require('scout-client');
+var uuid = require('uuid');
 var debug = require('debug')('scout:models:connection');
 var bugsnag = require('../bugsnag');
 
@@ -14,7 +15,7 @@ var Connection = BaseConnection.extend({
     _id: {
       type: 'string',
       default: function() {
-        return this.friendlyName;
+        return uuid.v4();
       }
     },
     /**
@@ -28,33 +29,6 @@ var Connection = BaseConnection.extend({
     has_connected: {
       type: 'boolean',
       default: false
-    }
-  },
-  derived: {
-    friendlyName: {
-      deps: ['name'],
-      fn: function() {
-        if (this.name) return this.name;
-        var name = this.hostname + ':' + this.port;
-        switch (this.authentication) {
-        case 'MONGODB':
-          name = this.mongodb_username + '@' + name;
-          break;
-        case 'KERBEROS':
-          name = this.kerberos_principal + '@' + name;
-          break;
-        case 'X509':
-          name = this.x509_username + '@' + name;
-          break;
-        case 'LDAP':
-          name = this.ldap_username + '@' + name;
-          break;
-        case 'NONE':
-        default:
-          break;
-        }
-        return name;
-      }
     }
   },
   /**
