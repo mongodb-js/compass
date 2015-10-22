@@ -207,6 +207,13 @@ var ConnectView = View.extend({
       return;
     }.bind(this));
   },
+  createNewConnection: function() {
+    debug('new connection requested');
+    this.reset();
+    this.form.connection_id = '';
+    this.form.reset();
+    this.authMethod = 'MONGODB';
+  },
   /**
    * If there is a validation or connection error show a nice message.
    *
@@ -234,6 +241,7 @@ var ConnectView = View.extend({
      * @see http://ampersandjs.com/docs#ampersand-model-save
      */
     connection.last_used = new Date();
+    connection.has_connected = true;
     connection.save();
     /**
      * @todo (imlucas): So we can see what auth mechanisms

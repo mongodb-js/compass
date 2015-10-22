@@ -24,6 +24,10 @@ var Connection = BaseConnection.extend({
     is_favorite: {
       type: 'boolean',
       default: false
+    },
+    has_connected: {
+      type: 'boolean',
+      default: false
     }
   },
   derived: {
