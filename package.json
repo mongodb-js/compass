@@ -142,7 +142,7 @@
     "raf": "^3.1.0",
     "run-sequence": "^1.1.4",
     "run-series": "^1.1.4",
-    "scout-client": "http://bin.mongodb.org/js/scout-client/v0.2.0/scout-client-0.2.0.tar.gz",
+    "scout-client": "http://bin.mongodb.org/js/scout-client/v0.3.0/scout-client-0.3.0.tar.gz",
     "stream-combiner2": "^1.0.2",
     "uuid": "^2.0.1",
     "vinyl-buffer": "^1.0.0",
