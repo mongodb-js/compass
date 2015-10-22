@@ -33,7 +33,7 @@ var MONGODB = {
       name: 'mongodb_password',
       label: 'Password',
       placeholder: '',
-      required: false
+      required: true
     }),
     new InputView({
       template: inputTemplate,

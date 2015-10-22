@@ -3,7 +3,6 @@ var BaseConnection = require('mongodb-connection-model');
 var connectionSync = require('./connection-sync')();
 var client = require('scout-client');
 var debug = require('debug')('scout:models:connection');
-var uuid = require('uuid');
 var bugsnag = require('../bugsnag');
 
 /**
@@ -15,7 +14,7 @@ var Connection = BaseConnection.extend({
     _id: {
       type: 'string',
       default: function() {
-        return uuid.v4();
+        return this.friendlyName;
       }
     },
     /**
@@ -27,12 +26,40 @@ var Connection = BaseConnection.extend({
       default: false
     }
   },
+  derived: {
+    friendlyName: {
+      deps: ['name'],
+      fn: function() {
+        if (this.name) return this.name;
+        var name = this.hostname + ':' + this.port;
+        switch (this.authentication) {
+        case 'MONGODB':
+          name = this.mongodb_username + '@' + name;
+          break;
+        case 'KERBEROS':
+          name = this.kerberos_principal + '@' + name;
+          break;
+        case 'X509':
+          name = this.x509_username + '@' + name;
+          break;
+        case 'LDAP':
+          name = this.ldap_username + '@' + name;
+          break;
+        case 'NONE':
+        default:
+          break;
+        }
+        return name;
+      }
+    }
+  },
   /**
    * Called by `./src/connect/index.js` to make sure
    * the user can connect to MongoDB before trying to
    * open the schema view.
    * @param {Function} done - Callback `(err, model)`
    *
+   * @return {Object}    this
    * @see `scout-client#test()` http://git.io/vWLRf
    */
   test: function(done) {
@@ -42,6 +69,8 @@ var Connection = BaseConnection.extend({
     });
 
     var onInstanceFetched = function(err, res) {
+      client(app.endpoint, connection).close()
+
       if (!err) {
         debug('woot.  all gravy!  able to see %s collections', res.collections.length);
         done(null, model);

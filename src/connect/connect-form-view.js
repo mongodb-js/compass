@@ -45,7 +45,6 @@ var ConnectFormView = FormView.extend({
   },
   clean: function(obj) {
     // clean up the form values here, e.g. conversion to numbers etc.
-    debug('cleaning up form values');
 
     // fill in all default fields
     obj.hostname = obj.hostname || 'localhost';
@@ -81,12 +80,15 @@ var ConnectFormView = FormView.extend({
         required: false,
         tests: [function(value) {
           if (isNaN(value)) {
-            debug('checking for number');
             return 'port must be a number.';
           }
         }, function(value) {
           if (parseInt(value, 10) < 0) {
             return 'port number must be positive.';
+          }
+        }, function(value) {
+          if (parseInt(value, 10) >= 65536) {
+            return 'port number must be below 65536';
           }
         }
         ]

@@ -4,6 +4,7 @@ var ConnectionCollection = require('../models/connection-collection');
 var ConnectFormView = require('./connect-form-view');
 var Connection = require('../models/connection');
 var debug = require('debug')('scout:connect:index');
+var format = require('util').format;
 
 /**
  * AuthenticationOptionCollection
@@ -20,6 +21,10 @@ var ConnectView = View.extend({
   template: require('./static-connect.jade'),
   props: {
     form: 'object',
+    message: {
+      type: 'string',
+      default: ''
+    },
     uiState: {
       type: 'string',
       default: 'NEW CONNECTION',
@@ -48,6 +53,14 @@ var ConnectView = View.extend({
       default: null
     }
   },
+  derived: {
+    hasError: {
+      deps: ['message'],
+      fn: function() {
+        return this.message !== '';
+      }
+    }
+  },
   collections: {
     connections: ConnectionCollection
   },
@@ -57,6 +70,16 @@ var ConnectView = View.extend({
     'click [data-hook=create-favorite-button]': 'onCreateFavoriteClicked'
   },
   bindings: {
+    // show error div
+    hasError: {
+      type: 'toggle',
+      hook: 'message-div',
+      mode: 'visibility'
+    },
+    // show message in error div
+    message: {
+      hook: 'message'
+    }
   },
   subviews: {
     sidebar: {
@@ -159,7 +182,6 @@ var ConnectView = View.extend({
    */
   reset: function() {
     this.message = '';
-    this.has_error = false;
   },
   /**
    * Use a connection to view schemas, such as after submitting a form or when double-clicking on
@@ -181,7 +203,7 @@ var ConnectView = View.extend({
 
       debug('failed to connect', err);
 
-      this.onError(new Error('Could not connect to MongoDB.'), connection);
+      this.onError(err, connection);
       return;
     }.bind(this));
   },
@@ -199,7 +221,6 @@ var ConnectView = View.extend({
       model: connection
     });
     this.message = err.message;
-    this.has_error = true;
   },
   onConnectionSuccessful: function(connection) {
     app.statusbar.hide();
@@ -213,7 +234,7 @@ var ConnectView = View.extend({
      * @see http://ampersandjs.com/docs#ampersand-model-save
      */
     connection.last_used = new Date();
-    // connection.save();
+    connection.save();
     /**
      * @todo (imlucas): So we can see what auth mechanisms
      * and accoutrement people are actually using IRL.
