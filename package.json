@@ -49,6 +49,7 @@
     "paths": [
       "node_modules/font-awesome/less",
       "node_modules/bootstrap/less",
+      "node_modules/bootstrap-switch/src/less/bootstrap3",
       "node_modules/octicons/octicons"
     ]
   },
@@ -87,13 +88,17 @@
     "ampersand-collection-filterable": "^0.2.1",
     "ampersand-collection-lodash-mixin": "^2.0.1",
     "ampersand-collection-rest-mixin": "^5.0.0",
+    "ampersand-filereader-input-view": "^1.1.0",
+    "ampersand-filtered-subcollection": "^2.0.4",
     "ampersand-model": "^6.0.2",
     "ampersand-router": "^3.0.2",
+    "ampersand-select-view": "^4.3.2",
     "ampersand-sync-localforage": "^0.1.1",
     "ampersand-view": "^8.0.1",
     "ampersand-view-switcher": "^2.0.0",
     "backoff": "^2.4.1",
     "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz",
+    "bootstrap-switch": "^3.3.2",
     "browserify": "^11.2.0",
     "bugsnag-js": "^2.4.8",
     "chalk": "^1.1.1",

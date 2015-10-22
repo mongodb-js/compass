@@ -1,11 +1,18 @@
-div
-  .sidebar.panel
-    .panel-heading(style='padding: 10px;')
-      .panel-title Recent Connections
-    ul.list-group(data-hook='connection-list', style='top: 32px;position: initial;')
-    ul.list-group(data-hook='connection-list-controls', style='top: initial;')
-      li.list-group-item
-        a(href="#new-connection", data-hook="new-connection")
-          i.fa.fa-fw.fa-plus
-          | New Connection
-  .sidebar-bg
+.sidebar
+  .compass-logo
+  .connections-container
+    .panel-title-out.selected
+      i.bolt &#xf0e7;
+      .panel-title Quick Connect
+
+    .panel-title-out 
+      i &#xf114;
+      .panel-title Favorites
+
+    ul.connection-list.favorites(data-hook='connection-list-favorites')
+
+    .panel-title-out 
+      i &#xf114;
+      .panel-title History
+
+    ul.connection-list.history(data-hook='connection-list-recent')

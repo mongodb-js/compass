@@ -1,0 +1,142 @@
+// sidebar
+.connect .sidebar {
+  .compass-logo {
+    border-bottom: 3px solid @gray1;
+  }
+
+  .connections-container {
+    position: absolute;
+    top: 72px;
+    left: 0;
+    bottom: 0;
+    width: 220px;
+    overflow-y: auto;
+
+    .panel-title-out {
+      padding: 8px 0;
+      overflow: auto;
+
+      > * {
+        float: left;
+      }
+      .panel-title {
+        font-size: 13px;
+        margin-bottom: 3px;
+      }
+      i {
+        font: normal 16px FontAwesome;
+        margin: 0 12px 0 18px;
+        color: @gray7;
+        width: 20px;
+        height: 20px;
+      }
+      i.bolt {
+        font-size: 18px;
+        transform: translateY(3px) rotate(30deg);
+      }
+    }
+    .panel-title-out.selected {
+      border-left: 3px solid @green2;
+
+      i.bolt, .panel-title {
+        color: @green2;
+      }
+      i.bolt {
+        width: 17px;
+      }
+    }
+    ul.connection-list {
+      margin: 0;
+      padding: 0;
+
+      li {
+        list-style: none;
+      }
+      a {
+        color: @gray5;
+        padding: 4px 0 4px 49px;
+        display: block;
+        cursor: pointer;
+      }
+      a.selected {
+        border-left: 3px solid @green2;
+        color: @green2;
+        padding: 4px 0 4px 46px;
+      }
+      a:hover {
+        text-decoration: none;
+      }
+    }
+  }
+}
+
+// form
+.connect .form-container {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 220px;
+  overflow-y: scroll;
+
+  header {
+    height: 73px;
+    background-color: @gray8;
+    border-bottom: 3px solid @gray6;
+    margin-bottom: 30px;
+
+    h2 {
+      display: inline-block;
+      margin: 23px 0 0 30px;
+      font-size: 24px;
+      font-weight: light;
+    }
+  }
+
+  .error {
+    background-color: @lightRed;
+    border-bottom: 3px solid @red;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 72px;
+    width: 100%;
+
+    p {
+      margin: 26px auto;
+      width: 70%;
+      color: @red;
+      text-align: center;
+      font-weight: bold;
+    }
+  }
+
+  .form-item {
+    margin: 15px auto 15px;
+    width: 475px;
+    overflow: auto;
+
+    > * {
+      float: left;
+      overflow: auto;
+    }
+    label {
+      width: 40%;
+      text-align: right;
+      padding: 5px 15px 0 0;
+    }
+    input, select, .form-item-file {
+      width: 60%;
+    }
+    .form-item-file {
+      input {
+        height: 34px;
+        margin: 5px 0 0;
+      }
+    }
+    button {
+      float: right;
+      margin-left: 10px;
+    }
+  }
+}

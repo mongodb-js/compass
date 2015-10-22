@@ -1,11 +1,27 @@
 var FormView = require('ampersand-form-view');
 var InputView = require('./input-view');
+var SelectView = require('ampersand-select-view');
 var Connection = require('../models/connection');
+var authOptions = require('./authentication');
+var sslOptions = require('./ssl');
+var FilteredCollection = require('ampersand-filtered-subcollection');
 var debug = require('debug')('scout:connect:connect-form-view');
 
-require('bootstrap/js/tab');
+
 require('bootstrap/js/popover');
 require('bootstrap/js/tooltip');
+
+// create proxy collections that only contains the enabled auth options
+var enabledAuthOptions = new FilteredCollection(authOptions, {
+  where: {
+    enabled: true
+  }
+});
+var enabledSslOptions = new FilteredCollection(sslOptions, {
+  where: {
+    enabled: true
+  }
+});
 
 var ConnectFormView = FormView.extend({
   props: {
@@ -29,6 +45,7 @@ var ConnectFormView = FormView.extend({
   },
   clean: function(obj) {
     // clean up the form values here, e.g. conversion to numbers etc.
+    debug('cleaning up form values');
 
     // get auth mechanism from parent view
     obj.authentication = this.parent.authMethod;
@@ -76,6 +93,48 @@ var ConnectFormView = FormView.extend({
           }
         }
         ]
+      }),
+      // authentication select dropdown
+      new SelectView({
+        name: 'authentication',
+        el: this.parent.queryByHook('authselect-subview'),
+        // @see https://github.com/AmpersandJS/ampersand-select-view/issues/55
+        template: require('./select-default.jade')(),
+        parent: this,
+        // you can pass in a collection here too
+        options: enabledAuthOptions,
+        // and pick an item from the collection as the selected one
+        // @todo thomasr: pick the "model.selected" one (via .find() ?)
+        value: enabledAuthOptions.at(0),
+        // here you specify which attribute on the objects in the collection
+        // to use for the value returned.
+        idAttribute: '_id',
+        // you can also specify which model attribute to use as the title
+        textAttribute: 'title',
+        // here you can specify if it should return the selected model from the
+        // collection, or just the id attribute.  defaults `true`
+        yieldModel: false
+      }),
+      // authentication select dropdown
+      new SelectView({
+        name: 'ssl',
+        el: this.parent.queryByHook('sslselect-subview'),
+        // @see https://github.com/AmpersandJS/ampersand-select-view/issues/55
+        template: require('./select-default.jade')(),
+        parent: this,
+        // you can pass in a collection here too
+        options: enabledSslOptions,
+        // and pick an item from the collection as the selected one
+        // @todo thomasr: pick the "model.selected" one (via .find() ?)
+        value: enabledSslOptions.at(0),
+        // here you specify which attribute on the objects in the collection
+        // to use for the value returned.
+        idAttribute: '_id',
+        // you can also specify which model attribute to use as the title
+        textAttribute: 'title',
+        // here you can specify if it should return the selected model from the
+        // collection, or just the id attribute.  defaults `true`
+        yieldModel: false
       }),
       // connection name field
       new InputView({

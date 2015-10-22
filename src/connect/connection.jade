@@ -1,9 +1,5 @@
-li.list-group-item
-  .close-icon(data-hook='close')
-    i.fa.fa-close
-  a()
+li
+  a
     span(data-hook='name')
-    span(style='padding-left: 4px;',
-      data-hook='has-auth',
-      title='This connection has authentication enabled.')
+    span(style='padding-left: 4px;', data-hook='has-auth', title='This connection has authentication enabled.')
       i.fa.fa-lock
