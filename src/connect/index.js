@@ -30,8 +30,8 @@ var ConnectView = View.extend({
       default: 'NEW CONNECTION',
       values: [
         'NEW CONNECTION',
-        'EDITABLE: FAVORITE',
-        'EDITABLE: RECENT',
+        'EDITABLE: EXISTING FAVORITE',
+        'EDITABLE: NEW FAVORITE',
         'EDITED: NAME CHANGED',
         'EDITED: NAME UNCHANGED'
       ]
@@ -67,7 +67,10 @@ var ConnectView = View.extend({
   events: {
     'change select[name=authentication]': 'onAuthMethodChanged',
     'change select[name=ssl]': 'onSslMethodChanged',
-    'click [data-hook=create-favorite-button]': 'onCreateFavoriteClicked'
+    'click [data-hook=create-favorite-button]': 'onCreateFavoriteClicked',
+    'click [data-hook=remove-favorite-button]': 'onRemoveFavoriteClicked',
+    'change input': 'onInputChanged',
+    'change select': 'onInputChanged'
   },
   bindings: {
     // show error div
@@ -97,6 +100,7 @@ var ConnectView = View.extend({
   initialize: function() {
     document.title = 'Connect to MongoDB';
     this.connections.fetch();
+    this.on('change:uiState', this.uiStateChanged.bind(this));
   },
   render: function() {
     this.renderWithTemplate({
@@ -208,7 +212,7 @@ var ConnectView = View.extend({
     }.bind(this));
   },
   createNewConnection: function() {
-    debug('new connection requested');
+    this.uiState = 'NEW CONNECTION';
     this.reset();
     this.form.connection_id = '';
     this.form.reset();
@@ -262,7 +266,7 @@ var ConnectView = View.extend({
       message: ''
     }), 500);
 
-    setTimeout(window.close, 1000);
+    // setTimeout(window.close, 1000);
   },
   /**
    * Update the form's state based on an existing connection, e.g. clicking on a list item
@@ -312,6 +316,13 @@ var ConnectView = View.extend({
   },
   onRemoveFavoriteClicked: function(evt) {
     debug('remove favorite clicked');
+    var connection = this.connections.get(this.form.connection_id);
+    if (!connection) {
+      debug('favorite connection to be removed doesn\'t exist. this should not happen!');
+      return;
+    }
+    connection.destroy();
+    this.createNewConnection();
   },
   onSaveChangesClicked: function(evt) {
     debug('save changes clicked');
@@ -325,7 +336,14 @@ var ConnectView = View.extend({
       return;
     }
     this.connect(connection);
-  }
+  },
+  onInputChanged: function() {
+    debug('form data is %j', this.form.data);
+  },
+  uiStateChanged: function() {
+    debug('ui state has changed to', this.uiState);
+  },
+
 });
 
 module.exports = ConnectView;
