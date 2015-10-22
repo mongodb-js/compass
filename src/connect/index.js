@@ -2,7 +2,9 @@ var View = require('ampersand-view');
 var SidebarView = require('./sidebar');
 var ConnectionCollection = require('../models/connection-collection');
 var ConnectFormView = require('./connect-form-view');
+var Connection = require('../models/connection');
 var debug = require('debug')('scout:connect:index');
+var format = require('util').format;
 
 /**
  * AuthenticationOptionCollection
@@ -19,7 +21,21 @@ var ConnectView = View.extend({
   template: require('./static-connect.jade'),
   props: {
     form: 'object',
-    isReady: 'boolean',
+    message: {
+      type: 'string',
+      default: ''
+    },
+    uiState: {
+      type: 'string',
+      default: 'NEW CONNECTION',
+      values: [
+        'NEW CONNECTION',
+        'EDITABLE: EXISTING FAVORITE',
+        'EDITABLE: NEW FAVORITE',
+        'EDITED: NAME CHANGED',
+        'EDITED: NAME UNCHANGED'
+      ]
+    },
     authMethod: {
       type: 'string',
       default: 'MONGODB'
@@ -37,12 +53,36 @@ var ConnectView = View.extend({
       default: null
     }
   },
+  derived: {
+    hasError: {
+      deps: ['message'],
+      fn: function() {
+        return this.message !== '';
+      }
+    }
+  },
   collections: {
     connections: ConnectionCollection
   },
   events: {
     'change select[name=authentication]': 'onAuthMethodChanged',
-    'change select[name=ssl]': 'onSslMethodChanged'
+    'change select[name=ssl]': 'onSslMethodChanged',
+    'click [data-hook=create-favorite-button]': 'onCreateFavoriteClicked',
+    'click [data-hook=remove-favorite-button]': 'onRemoveFavoriteClicked',
+    'change input': 'onInputChanged',
+    'change select': 'onInputChanged'
+  },
+  bindings: {
+    // show error div
+    hasError: {
+      type: 'toggle',
+      hook: 'message-div',
+      mode: 'visibility'
+    },
+    // show message in error div
+    message: {
+      hook: 'message'
+    }
   },
   subviews: {
     sidebar: {
@@ -58,7 +98,9 @@ var ConnectView = View.extend({
     }
   },
   initialize: function() {
+    document.title = 'Connect to MongoDB';
     this.connections.fetch();
+    this.on('change:uiState', this.uiStateChanged.bind(this));
   },
   render: function() {
     this.renderWithTemplate({
@@ -74,11 +116,31 @@ var ConnectView = View.extend({
     });
 
     this.registerSubview(this.form);
+    this.listenToAndRun(this, 'change:authMethod', this.replaceAuthMethodFields.bind(this));
+    this.listenToAndRun(this, 'change:sslMethod', this.replaceSslMethodFields.bind(this));
   },
+  /**
+   * called when user switches select input to another authentication method
+   *
+   * @param {Object} evt   onchange event
+   */
   onAuthMethodChanged: function(evt) {
-    this.authMethod = evt.target.value;
     debug('auth method was changed from', this.previousAuthMethod, 'to', this.authMethod);
-
+    this.authMethod = evt.target.value;
+  },
+  /**
+   * called when user switches select input to another SSL method
+   *
+   * @param {Object} evt   onchange event
+   */
+  onSslMethodChanged: function(evt) {
+    debug('ssl method was changed from', this.previousSslMethod, 'to', this.sslMethod);
+    this.sslMethod = evt.target.value;
+  },
+  /**
+   * called when this.authMethod changes. Replaces the fields in `this.form`.
+   */
+  replaceAuthMethodFields: function() {
     // remove and unregister old fields
     var oldFields = _.get(authMethods.get(this.previousAuthMethod), 'fields', []);
     _.each(oldFields, function(field) {
@@ -95,10 +157,10 @@ var ConnectView = View.extend({
     this.previousAuthMethod = this.authMethod;
     debug('auth form data now has the following fields', Object.keys(this.form.data));
   },
-  onSslMethodChanged: function(evt) {
-    this.sslMethod = evt.target.value;
-    debug('ssl method was changed from', this.previousSslMethod, 'to', this.sslMethod);
-
+  /**
+   * called when this.sslMethod changes. Replaces the fields in `this.form`.
+   */
+  replaceSslMethodFields: function() {
     // remove and unregister old fields
     var oldFields = _.get(sslMethods.get(this.previousSslMethod), 'fields', []);
     debug('old SSL fields', oldFields);
@@ -124,7 +186,6 @@ var ConnectView = View.extend({
    */
   reset: function() {
     this.message = '';
-    this.has_error = false;
   },
   /**
    * Use a connection to view schemas, such as after submitting a form or when double-clicking on
@@ -146,9 +207,16 @@ var ConnectView = View.extend({
 
       debug('failed to connect', err);
 
-      this.onError(new Error('Could not connect to MongoDB.'), connection);
+      this.onError(err, connection);
       return;
     }.bind(this));
+  },
+  createNewConnection: function() {
+    this.uiState = 'NEW CONNECTION';
+    this.reset();
+    this.form.connection_id = '';
+    this.form.reset();
+    this.authMethod = 'MONGODB';
   },
   /**
    * If there is a validation or connection error show a nice message.
@@ -164,7 +232,6 @@ var ConnectView = View.extend({
       model: connection
     });
     this.message = err.message;
-    this.has_error = true;
   },
   onConnectionSuccessful: function(connection) {
     app.statusbar.hide();
@@ -178,7 +245,8 @@ var ConnectView = View.extend({
      * @see http://ampersandjs.com/docs#ampersand-model-save
      */
     connection.last_used = new Date();
-    // connection.save();
+    connection.has_connected = true;
+    connection.save();
     /**
      * @todo (imlucas): So we can see what auth mechanisms
      * and accoutrement people are actually using IRL.
@@ -198,9 +266,70 @@ var ConnectView = View.extend({
       message: ''
     }), 500);
 
-    setTimeout(window.close, 1000);
+    // setTimeout(window.close, 1000);
+  },
+  /**
+   * Update the form's state based on an existing connection, e.g. clicking on a list item
+   * like in `./sidebar.js`.
+   *
+   * @param {Connection} connection
+   * @api public
+   */
+  onConnectionSelected: function(connection) {
+    // If the new model has auth, expand the auth settings container and select the correct tab.
+    this.authMethod = connection.authentication;
+    this.sslMethod = connection.ssl;
+
+    // Changing `this.authMethod` and `this.sslMethod` dynamically updates the form fields
+    // so we need to get a list of what keys are currently available to set.
+    var keys = ['name', 'port', 'hostname', 'authentication', 'ssl'];
+    if (connection.authentication !== 'NONE') {
+      keys.push.apply(keys, _.pluck(authMethods.get(this.authMethod).fields, 'name'));
+    }
+    if (connection.ssl !== 'NONE') {
+      keys.push.apply(keys, _.pluck(sslMethods.get(this.sslMethod).fields, 'name'));
+    }
+
+    var values = _.pick(connection, keys);
+    debug('Populating form fields with:', values);
+
+    this.form.connection_id = connection.getId();
+
+    // Populates the form from values in the model.
+    this.form.setValues(values);
+  },
+  onCreateFavoriteClicked: function(evt) {
+    var connection = new Connection(this.form.data);
+    if (!connection.isValid()) {
+      this.onError(connection.validationError);
+      return;
+    }
+
+    connection.is_favorite = true;
+    connection.last_used = new Date();
+
+    debug('create favorite clicked', this.form.data, connection);
+    connection.save();
+    this.connections.add(connection, {
+      merge: true
+    });
+  },
+  onRemoveFavoriteClicked: function(evt) {
+    debug('remove favorite clicked');
+    var connection = this.connections.get(this.form.connection_id);
+    if (!connection) {
+      debug('favorite connection to be removed doesn\'t exist. this should not happen!');
+      return;
+    }
+    connection.destroy();
+    this.createNewConnection();
+  },
+  onSaveChangesClicked: function(evt) {
+    debug('save changes clicked');
   },
   onFormSubmitted: function(connection) {
+    debug('on form submitted');
+
     this.reset();
     if (!connection.isValid()) {
       this.onError(connection.validationError);
@@ -208,43 +337,13 @@ var ConnectView = View.extend({
     }
     this.connect(connection);
   },
-  /**
-   * Update the form's state based on an existing
-   * connection, e.g. clicking on a list item
-   * like in `./sidebar.js`.
-   *
-   * @param {Connection} connection
-   * @api public
-   */
-  onConnectionSelected: function(connection) {
-    // If the new model has auth, expand the auth settings container
-    // and select the correct tab.
-    connection.authentication = connection.authentication || 'NONE';
-    this.authMethod = connection.authentication;
+  onInputChanged: function() {
+    debug('form data is %j', this.form.data);
+  },
+  uiStateChanged: function() {
+    debug('ui state has changed to', this.uiState);
+  },
 
-    if (connection.authentication !== 'NONE') {
-      this.authOpen = true;
-    } else {
-      this.authOpen = false;
-    }
-
-    // Changing `this.authMethod` dynamically updates the
-    // fields in the form because it's a top-level constraint
-    // so we need to get a list of what keys are currently
-    // available to set.
-    var keys = ['name', 'port', 'hostname'];
-    if (connection.authentication !== 'NONE') {
-      keys.push.apply(keys, _.pluck(authentication.get(this.authMethod).fields, 'name'));
-    }
-
-    debug('Populating form fields with keys', keys);
-    var values = _.pick(connection, keys);
-
-    this.form.connection_id = connection.getId();
-
-    // Populates the form from values in the model.
-    this.form.setValues(values);
-  }
 });
 
 module.exports = ConnectView;

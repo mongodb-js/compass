@@ -4,8 +4,8 @@
     header
       h2 Connect to Host
 
-    .message.error(data-hook="message", hidden)
-      p Please enter a valid user name and password
+    .message.error(data-hook="message-div")
+      p(data-hook='message')
 
     form(data-hook="connect-form")
       #host-port.form-group
@@ -32,12 +32,10 @@
 
       hr
 
-      .form-item 
-        label Name
-        input.form-control(type="text", name="name")
-
-      .form-item 
-        button.btn.btn-primary(type='submit', data-hook='submit-button', name="connect") Connect
-        button.btn.btn-default(name="createFavorite") Create Favorite
-        //- button.btn.btn-default(hidden) Remove Favorite
-        button.btn.btn-default(name="saveChanges", disabled) Save Changes
+      div(data-hook='saveas-subview')
+      
+      .form-item
+        button.btn.btn-primary(type='submit', name="connect", data-hook='connect-button') Connect
+        button.btn.btn-default(type='button', name="createFavorite", data-hook='create-favorite-button') Create Favorite
+        button.btn.btn-default(type='button', name="removeFavorite", data-hook='remove-favorite-button') Remove Favorite
+        button.btn.btn-default(type='button', name="saveChanges", data-hook='save-changes-button') Save Changes

@@ -1,14 +1,15 @@
 .sidebar
   .compass-logo
   .connections-container
-    .panel-title-out.selected
-      i.bolt &#xf0e7;
-      .panel-title Quick Connect
+    a(data-hook='new-connection')
+      .panel-title-out
+        i.bolt &#xf0e7;
+        .panel-title New Connection
 
     .panel-title-out 
       i &#xf114;
       .panel-title Favorites
-
+    
     ul.connection-list.favorites(data-hook='connection-list-favorites')
 
     .panel-title-out 

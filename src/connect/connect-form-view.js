@@ -43,16 +43,50 @@ var ConnectFormView = FormView.extend({
     debug('form submitted', obj);
     this.parent.onFormSubmitted(new Connection(obj));
   },
+  makeFriendlyName: function(obj) {
+    if (obj.name) return;
+    if (!(obj.hostname && obj.port)) {
+      obj.name = 'Unnamed Connection';
+      return;
+    }
+    var name = obj.hostname + ':' + obj.port;
+    debug('obj', obj);
+    switch (obj.authentication) {
+    case 'MONGODB':
+      if (obj.mongodb_username) {
+        name = obj.mongodb_username + '@' + name;
+      }
+      break;
+    case 'KERBEROS':
+      if (obj.kerberos_principal) {
+        name = obj.kerberos_principal + '@' + name;
+      }
+      break;
+    case 'X509':
+      if (obj.x509_username) {
+        name = obj.x509_username + '@' + name;
+      }
+      break;
+    case 'LDAP':
+      if (obj.ldap_username) {
+        name = obj.ldap_username + '@' + name;
+      }
+      break;
+    case 'NONE':
+    default:
+      break;
+    }
+    obj.name = name;
+  },
   clean: function(obj) {
     // clean up the form values here, e.g. conversion to numbers etc.
-    debug('cleaning up form values');
-
-    // get auth mechanism from parent view
-    obj.authentication = this.parent.authMethod;
 
     // fill in all default fields
     obj.hostname = obj.hostname || 'localhost';
     obj.port = parseInt(obj.port || 27017, 10);
+
+    // make a friendly connection name
+    this.makeFriendlyName(obj);
 
     return obj;
   },
@@ -84,12 +118,15 @@ var ConnectFormView = FormView.extend({
         required: false,
         tests: [function(value) {
           if (isNaN(value)) {
-            debug('checking for number');
             return 'port must be a number.';
           }
         }, function(value) {
           if (parseInt(value, 10) < 0) {
             return 'port number must be positive.';
+          }
+        }, function(value) {
+          if (parseInt(value, 10) >= 65536) {
+            return 'port number must be below 65536';
           }
         }
         ]
@@ -97,6 +134,7 @@ var ConnectFormView = FormView.extend({
       // authentication select dropdown
       new SelectView({
         name: 'authentication',
+        label: 'Authentication',
         el: this.parent.queryByHook('authselect-subview'),
         // @see https://github.com/AmpersandJS/ampersand-select-view/issues/55
         template: require('./select-default.jade')(),
@@ -105,7 +143,7 @@ var ConnectFormView = FormView.extend({
         options: enabledAuthOptions,
         // and pick an item from the collection as the selected one
         // @todo thomasr: pick the "model.selected" one (via .find() ?)
-        value: enabledAuthOptions.at(0),
+        value: enabledAuthOptions.get('MONGODB'),
         // here you specify which attribute on the objects in the collection
         // to use for the value returned.
         idAttribute: '_id',
@@ -118,6 +156,7 @@ var ConnectFormView = FormView.extend({
       // authentication select dropdown
       new SelectView({
         name: 'ssl',
+        label: 'SSL',
         el: this.parent.queryByHook('sslselect-subview'),
         // @see https://github.com/AmpersandJS/ampersand-select-view/issues/55
         template: require('./select-default.jade')(),
@@ -126,7 +165,7 @@ var ConnectFormView = FormView.extend({
         options: enabledSslOptions,
         // and pick an item from the collection as the selected one
         // @todo thomasr: pick the "model.selected" one (via .find() ?)
-        value: enabledSslOptions.at(0),
+        value: enabledSslOptions.get('NONE'),
         // here you specify which attribute on the objects in the collection
         // to use for the value returned.
         idAttribute: '_id',
@@ -138,9 +177,10 @@ var ConnectFormView = FormView.extend({
       }),
       // connection name field
       new InputView({
-        template: require('./input-saveas.jade'),
+        template: require('./input-default.jade'),
         el: this.parent.queryByHook('saveas-subview'),
         name: 'name',
+        label: 'Name',
         placeholder: 'e.g. Shared Dev, Stats Box, PRODUCTION',
         required: false
       })
