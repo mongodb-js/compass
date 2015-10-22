@@ -6,9 +6,9 @@ var SslOption = State.extend({
   mainIndex: '_id',
   props: {
     _id: {
-        type: 'string',
-        values: Connection.SSL_VALUES,
-        default: Connection.SSL_DEFAULT
+      type: 'string',
+      values: Connection.SSL_VALUES,
+      default: Connection.SSL_DEFAULT
     },
     title: {
       type: 'string'

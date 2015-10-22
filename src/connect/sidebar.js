@@ -20,7 +20,7 @@ var SidebarItemView = View.extend({
     dblclick: 'onDoubleClick'
   },
   bindings: {
-    'model.name': {
+    'model.friendlyName': {
       hook: 'name'
     },
     has_auth: {

@@ -7,7 +7,6 @@ var app = require('ampersand-app');
 var SSLOptionCollection = require('./models/ssl-option-collection');
 
 var InputView = require('./input-view');
-var FileReaderInputView = require('ampersand-filereader-input-view');
 var inputTemplate = require('./input-default.jade');
 var fileReaderTemplate = require('./filereader-default.jade');
 
@@ -46,15 +45,13 @@ var SERVER = {
     //   placeholder: '',
     //   required: true
     // }),
-    new FileReaderInputView({
-      name: 'ssl_ca',
+    new InputView({
       template: fileReaderTemplate,
-      callback: function(fileInputView, data) {
-        debug('file selected callback', fileInputView, data);
-      },
+      name: 'ssl_ca',
+      type: 'file',
       label: 'Certificate Authority file',
       placeholder: '',
-      type: 'file'
+      required: true
     })
   ]
 };
@@ -68,35 +65,29 @@ var ALL = {
   // enabled: app.isFeatureEnabled('Connect with SSL ALL'),
   enabled: true,
   fields: [
-    new FileReaderInputView({
-      name: 'ssl_ca',
+    new InputView({
       template: fileReaderTemplate,
-      callback: function(fileInputView, data) {
-        debug('file selected callback', fileInputView, data);
-      },
+      name: 'ssl_ca',
+      type: 'file',
       label: 'Certificate Authority file',
       placeholder: '',
-      type: 'file'
+      required: true
     }),
-    new FileReaderInputView({
+    new InputView({
+      template: fileReaderTemplate,
       name: 'ssl_private_key',
-      template: fileReaderTemplate,
-      callback: function(fileInputView, data) {
-        debug('file selected callback', fileInputView, data);
-      },
-      label: 'Private Key file',
+      type: 'file',
+      label: 'Certificate Key file',
       placeholder: '',
-      type: 'file'
+      required: true
     }),
-    new FileReaderInputView({
-      name: 'ssl_certificate',
+    new InputView({
       template: fileReaderTemplate,
-      callback: function(fileInputView, data) {
-        debug('file selected callback', fileInputView, data);
-      },
+      name: 'ssl_certificate',
+      type: 'file',
       label: 'Certificate file',
       placeholder: '',
-      type: 'file'
+      required: true
     }),
     new InputView({
       template: inputTemplate,
