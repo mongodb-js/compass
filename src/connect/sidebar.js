@@ -20,9 +20,16 @@ var SidebarItemView = View.extend({
     dblclick: 'onDoubleClick'
   },
   bindings: {
-    'model.friendlyName': {
-      hook: 'name'
-    },
+    'model.friendlyName': [
+      {
+        hook: 'name'
+      },
+      {
+        type: 'attribute',
+        hook: 'name',
+        name: 'title'
+      }
+    ],
     has_auth: {
       type: 'booleanClass',
       hook: 'has-auth',
@@ -75,7 +82,13 @@ var SidebarView = View.extend({
     });
     this.renderCollection(favoriteConnections, SidebarItemView,
       this.queryByHook('connection-list-favorites'));
-    this.renderCollection(this.collection, SidebarItemView,
+
+    var historyConnections = new FilteredCollection(this.collection, {
+      where: {
+        has_connected: true
+      }
+    });
+    this.renderCollection(historyConnections, SidebarItemView,
       this.queryByHook('connection-list-recent'));
   },
   onNewConnectionClick: function(event) {
@@ -83,7 +96,7 @@ var SidebarView = View.extend({
     event.preventDefault();
 
     if (this.activeItemView) {
-      this.activeItemView.el.classList.remove('active');
+      this.activeItemView.el.classList.remove('selected');
       this.activeItemView = null;
     }
     this.parent.createNewConnection();
@@ -98,10 +111,10 @@ var SidebarView = View.extend({
     event.stopPropagation();
     event.preventDefault();
     if (this.activeItemView) {
-      this.activeItemView.el.classList.remove('active');
+      this.activeItemView.el.classList.remove('selected');
     }
     this.activeItemView = view;
-    this.activeItemView.el.classList.add('active');
+    this.activeItemView.el.classList.add('selected');
     this.parent.onConnectionSelected(view.model);
   },
   onItemDoubleClick: function(event, view) {
