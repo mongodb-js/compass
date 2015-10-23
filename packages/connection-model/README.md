@@ -197,21 +197,11 @@ The driver must present a valid certificate and validate the server certificate.
 
 ## Matrix
 
-| authentication:ssl |  NONE  |  UNVALIDATED  | SERVER | ALL |
-| :----------------- | :----- | :------------ | :----- | :-- |
-| NONE               |        |               |        |     |
-| MONGODB            |        |               |        |     |
-| KERBEROS           |        |               |        |     |
-| KERBEROS_WINDOWS   |        |               |        |     |
-| X509               |        |               |        |     |
-| LDAP               |        |               |        |     |
+> @todo (imlucas) Update this from last week's whiteboard session.
 
+## See Also
 
-## Testing
-
-```
-npm test
-```
+-
 
 ## License
 
