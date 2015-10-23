@@ -16,6 +16,7 @@ function handleCaret(el) {
   }
   if (this.model.fields || this.model.arrayFields) {
     $el.addClass('caret');
+    $el.next().css('cursor', 'pointer');
   } else {
     $el.removeClass('caret');
   }
