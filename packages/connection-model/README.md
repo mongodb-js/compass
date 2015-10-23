@@ -41,7 +41,8 @@ It's useful to think of the remaining properties as two primary traits: `authent
   - `X509`
   - `LDAP`
 
-<h4 id="authentication-none">A1. No Authentication</h4>
+#### A1. No Authentication
+<a name="authentication-none"></a>
 
 ```javascript
 var model = new Connection({
