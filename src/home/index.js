@@ -2,6 +2,7 @@ var View = require('ampersand-view');
 var format = require('util').format;
 var SidebarView = require('../sidebar');
 var CollectionView = require('./collection');
+var TourView = require('../tour');
 var app = require('ampersand-app');
 var debug = require('debug')('scout:home');
 
@@ -46,6 +47,10 @@ var HomeView = View.extend({
     this.once('change:rendered', this.onRendered);
     debug('fetching instance model...');
     app.instance.fetch();
+  },
+  render: function() {
+    this.renderWithTemplate(this);
+    this.renderSubview(new TourView(), this.queryByHook('tour-container'));
   },
   onInstanceFetched: function() {
     if (app.instance.collections.length === 0) {
