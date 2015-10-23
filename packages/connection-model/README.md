@@ -32,6 +32,7 @@ var Connection = require('mongodb-connection-model');
 
 It's useful to think of the remaining properties as two primary traits: `authentication` and `ssl`.
 
+<a name="authentication"></a>
 ### Trait: Authentication
 
 - `authentication` (optional, String) ... The desired authetication strategy [Default: `NONE`]
@@ -41,8 +42,8 @@ It's useful to think of the remaining properties as two primary traits: `authent
   - `X509`
   - `LDAP`
 
-#### A1. No Authentication
 <a name="authentication-none"></a>
+#### A1. No Authentication
 
 ```javascript
 var model = new Connection({
@@ -55,6 +56,7 @@ console.log(new Connection().driver_url);
 >>> 'mongodb://localhost:27017?slaveOk=true'
 ```
 
+<a name="authentication-mongodb"></a>
 #### A2. MongoDB
 
 - `mongodb_username` (**required**, String)
@@ -74,6 +76,7 @@ console.log(c.driver_options)
   replSet: { connectWithNoPrimary: true } }
 ```
 
+<a name="authentication-kerberos"></a>
 #### A3. Kerberos
 
 ![][enterprise_img]
@@ -82,7 +85,10 @@ console.log(c.driver_options)
 - `kerberos_password` (optional, String) ... [Default: `undefined`].
 - `kerberos_service_name` (optional, String) ... [Default: `mongodb`].
 
-[node.js driver Kerberos reference](http://bit.ly/mongodb-node-driver-kerberos)
+##### See Also
+
+- [node.js driver Kerberos reference](http://bit.ly/mongodb-node-driver-kerberos)
+- [node.js driver Kerberos functional test][kerberos-functional]
 
 ```javascript
  var c = new Connection({
@@ -112,13 +118,17 @@ console.log(model.driver_url);
 >>> 'mongodb://arlo%252Fadmin%2540MONGODB.PARTS:B%40sil@localhost:27017/kerberos?slaveOk=true&gssapiServiceName=MongoDB&authMechanism=GSSAPI'
 ```
 
+<a name="authentication-x509"></a>
 #### A5. X509
 
 ![][enterprise_img]
 
 - `x509_username` (**required**, String) ... The x.509 certificate derived user name, e.g. `CN=user,OU=OrgUnit,O=myOrg,...`.
 
-[node.js driver X509 reference](http://bit.ly/mongodb-node-driver-x509)
+##### See Also
+
+- [node.js driver X509 reference](http://bit.ly/mongodb-node-driver-x509)
+- [node.js driver X509 functional test][x509-functional]
 
 ```javascript
 var c = new Connection({
@@ -132,7 +142,7 @@ db: { readPreference: 'nearest' },
 replSet: { connectWithNoPrimary: true } }
 ```
 
-
+<a name="authentication-ldap"></a>
 #### A6. LDAP
 
 ![][enterprise_img]
@@ -140,7 +150,10 @@ replSet: { connectWithNoPrimary: true } }
 - `ldap_username` (**required**, String)
 - `ldap_password` (**required**, String)
 
-[node.js driver LDAP reference](http://bit.ly/mongodb-node-driver-ldap)
+##### See Also
+
+- [node.js driver LDAP reference](http://bit.ly/mongodb-node-driver-ldap)
+- [node.js driver X509 functional test][ldap-functional]
 
 ```javascript
 var c = new Connection({
@@ -212,3 +225,6 @@ Apache 2.0
 [gitter_url]: http://gitter.im/mongodb-js/mongodb-js
 [enterprise_img]: https://img.shields.io/badge/MongoDB-Enterprise-blue.svg?style=flat-square
 [coming_soon_img]: https://img.shields.io/badge/-Coming%20Soon-ff69b4.svg?style=flat-square
+[kerberos-functional]: https://github.com/mongodb/node-mongodb-native/blob/2.0/test/functional/kerberos_tests.js
+[ldap-functional]: https://github.com/mongodb/node-mongodb-native/blob/2.0/test/functional/ldap_tests.js
+[x509-functional]: https://github.com/mongodb/node-mongodb-native/blob/2.0/test/functional/ssl_x509_tests.js
