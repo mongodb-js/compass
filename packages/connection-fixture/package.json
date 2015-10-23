@@ -1,7 +1,7 @@
 {
   "name": "mongodb-connection-fixture",
   "description": "Fixture data used by mongodb-connection-model for testing.",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "scripts": {
     "fmt": "mongodb-js-fmt",
     "check": "mongodb-js-precommit",
