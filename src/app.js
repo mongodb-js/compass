@@ -226,11 +226,7 @@ var Application = View.extend({
   }
 });
 
-var params = qs.parse(window.location.search.replace('?', ''));
-var connection_id = params.connection_id;
-var state = new Application({
-  connection_id: connection_id
-});
+var state = new Application();
 
 // @todo (imlucas): Feature flags can be overrideen
 // via `window.localStorage`.
@@ -273,6 +269,13 @@ app.extend({
     domReady(function() {
       state.render();
 
+      /**
+       * Parse the `Connection._id` from the window URL.
+       *
+       * @see ./src/connect/index.js#ConnectView.onConnectionSuccessful
+       */
+      var params = qs.parse(window.location.search.replace('?', ''));
+      var connection_id = params.connection_id;
       if (!connection_id) {
         // Not serving a part of the app which uses the client,
         // so we can just start everything up now.
@@ -295,7 +298,13 @@ app.extend({
         app.statusbar.show('Connecting to MongoDB...');
 
         var endpoint = app.endpoint;
-        var connection = state.connection.serialize();
+        /**
+         * @todo (imlucas): This is brittle and hard to track
+         * down and will definitely cause other bugs.
+         */
+        var connection = state.connection.serialize({
+          all: true
+        });
 
         app.client = getOrCreateClient(endpoint, connection)
           .on('readable', state.onClientReady.bind(state))

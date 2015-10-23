@@ -72,7 +72,19 @@ var Connection = BaseConnection.extend({
     });
     return this;
   },
-  sync: connectionSync
+  sync: connectionSync,
+  serialize: function(options) {
+    /**
+     * @todo (imlucas): For the time being, need to serialize everything
+     * always here so other app windows can actually use the connection id
+     * to create new client instances.  This is all super confusing and
+     * needs fresh eyes.
+     * @see https://jira.mongodb.org/browse/INT-484
+     */
+    options = options || {};
+    options.all = true;
+    return BaseConnection.prototype.serialize.call(this, options);
+  }
 });
 
 module.exports = Connection;

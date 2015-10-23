@@ -261,6 +261,9 @@ var ConnectView = View.extend({
     });
 
     debug('opening schema view for', connection.serialize());
+    /**
+     * @see ./src/app.js `params.connection_id`
+     */
     window.open(format('%s?connection_id=%s#schema', window.location.origin, connection.getId()));
     setTimeout(this.set.bind(this, {
       message: ''
