@@ -120,111 +120,111 @@ exports.MONGODB.FANCLUB = {
  * Test MongoDB deployments running on Cloud Manager maintained
  * by @mongodb-js/compass team.
  *
- * @note (imlucas): 🔒All deployments currently have auth enabled.
+ * @note (imlucas): All deployments currently have auth enabled.
  */
 exports.INSTANCES = [
   {
-    name: '🔒3.0 Standalone: Store 1',
+    name: '3.0 Standalone: Store 1',
     hostname: 'standalone.compass-test-1.mongodb.parts',
     port: 27000
   },
   {
-    name: '🔒2.6 Standalone: Store 1',
+    name: '2.6 Standalone: Store 1',
     hostname: 'standalone.compass-test-1.mongodb.parts',
     port: 26000
   },
   {
-    name: '🔒3.0 Replicaset: Store 1',
+    name: '3.0 Replicaset: Store 1',
     hostname: 'replset-0.compass-test-1.mongodb.parts',
     port: 27000
   },
   {
-    name: '🔒3.0 Replicaset: Store 2',
+    name: '3.0 Replicaset: Store 2',
     hostname: 'replset-1.compass-test-1.mongodb.parts',
     port: 27000
   },
   {
-    name: '🔒3.0 Replicaset: Store 3',
+    name: '3.0 Replicaset: Store 3',
     hostname: 'replset-2.compass-test-1.mongodb.parts',
     port: 27000
   },
   {
-    name: '🔒3.0 Cluster: Router 1',
+    name: '3.0 Cluster: Router 1',
     hostname: 'replset-0.compass-test-1.mongodb.parts',
     port: 28017
   },
   {
-    name: '🔒3.0 Cluster: Router 2',
+    name: '3.0 Cluster: Router 2',
     hostname: 'replset-1.compass-test-1.mongodb.parts',
     port: 28017
   },
   {
-    name: '🔒3.0 Cluster: Router 3',
+    name: '3.0 Cluster: Router 3',
     hostname: 'replset-2.compass-test-1.mongodb.parts',
     port: 28017
   },
   {
-    name: '🔒3.0 Cluster: Config 1',
+    name: '3.0 Cluster: Config 1',
     hostname: 'replset-0.compass-test-1.mongodb.parts',
     port: 28200
   },
   {
-    name: '🔒3.0 Cluster: Config 2',
+    name: '3.0 Cluster: Config 2',
     hostname: 'replset-0.compass-test-1.mongodb.parts',
     port: 28200
   },
   {
-    name: '🔒3.0 Cluster: Config 3',
+    name: '3.0 Cluster: Config 3',
     hostname: 'replset-0.compass-test-1.mongodb.parts',
     port: 28200
   },
   {
-    name: '🔒3.0 Cluster: Store 1',
+    name: '3.0 Cluster: Store 1',
     hostname: 'replset-0.compass-test-1.mongodb.parts',
     port: 28100
   },
   {
-    name: '🔒3.0 Cluster: Store 2',
+    name: '3.0 Cluster: Store 2',
     hostname: 'replset-0.compass-test-1.mongodb.parts',
     port: 28100
   },
   {
-    name: '🔒3.0 Cluster: Store 3',
+    name: '3.0 Cluster: Store 3',
     hostname: 'replset-0.compass-test-1.mongodb.parts',
     port: 28100
   },
   {
-    name: '🔒2.6 Cluster: Router 1',
+    name: '2.6 Cluster: Router 1',
     hostname: 'replset-0.compass-test-1.mongodb.parts',
     port: 26017
   },
   {
-    name: '🔒2.6 Cluster: Store 1',
+    name: '2.6 Cluster: Store 1',
     hostname: 'replset-0.compass-test-1.mongodb.parts',
     port: 26100
   },
   {
-    name: '🔒2.6 Cluster: Store 2',
+    name: '2.6 Cluster: Store 2',
     hostname: 'replset-1.compass-test-1.mongodb.parts',
     port: 26100
   },
   {
-    name: '🔒2.6 Cluster: Store 3',
+    name: '2.6 Cluster: Store 3',
     hostname: 'replset-2.compass-test-1.mongodb.parts',
     port: 26100
   },
   {
-    name: '🔒2.6 Cluster: Config 1',
+    name: '2.6 Cluster: Config 1',
     hostname: 'replset-0.compass-test-1.mongodb.parts',
     port: 26200
   },
   {
-    name: '🔒2.6 Cluster: Config 2',
+    name: '2.6 Cluster: Config 2',
     hostname: 'replset-1.compass-test-1.mongodb.parts',
     port: 26200
   },
   {
-    name: '🔒2.6 Cluster: Config 3',
+    name: '2.6 Cluster: Config 3',
     hostname: 'replset-2.compass-test-1.mongodb.parts',
     port: 26200
   }
@@ -235,6 +235,8 @@ exports.MATRIX = _.chain(exports.INSTANCES)
     var options = _.clone(instance);
     return _.map(exports.MONGODB, function(creds) {
       _.extend(options, creds);
+      options.name = format('🔒 %s@%s',
+        creds.mongodb_username, options.name);
       return options;
     });
   }).value();
