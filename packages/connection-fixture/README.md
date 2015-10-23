@@ -1,6 +1,6 @@
 # mongodb-connection-fixture [![travis][travis_img]][travis_url] [![npm][npm_img]][npm_url]
 
-> Fixture data used by [mongodb-connection-model] for testing.
+> Fixture data used by [mongodb-connection-model][mongodb-connection-model] for testing.
 
 ## Example
 

@@ -56,8 +56,8 @@ exports.KERBEROS = {
  */
 exports.X509 = {
   name: 'Enterprise: x509',
-  ssl_certificate: exports.X509.client,
-  ssl_private_key: exports.X509.client,
+  ssl_certificate: exports.ssl.client,
+  ssl_private_key: exports.ssl.client,
   x509_username: 'CN=client,OU=kerneluser,O=10Gen,L=New York City,ST=New York,C=US'
 };
 
