@@ -5,25 +5,6 @@ var figures = require('figures');
 var format = require('util').format;
 
 /**
- * For `authentication=X509`
- * @see https://github.com/mongodb/node-mongodb-native/tree/2.0/test/functional/ssl/x509
- */
-exports.X509 = {
-  ca: path.join(__dirname, 'X509', 'ca.pem'),
-  client: path.join(__dirname, 'X509', 'client.pem'),
-  client_revoked: path.join(__dirname, 'X509', 'client_revoked.pem'),
-  'cluster-cert': path.join(__dirname, 'X509', 'cluster-cert.pem'),
-  crl: path.join(__dirname, 'X509', 'crl.pem'),
-  crl_client_revoked: path.join(__dirname, 'X509', 'crl_client_revoked.pem'),
-  crl_expired: path.join(__dirname, 'X509', 'crl_expired.pem'),
-  localhostnameCN: path.join(__dirname, 'X509', 'localhostnameCN.pem'),
-  localhostnameSAN: path.join(__dirname, 'X509', 'localhostnameSAN.pem'),
-  password_protected: path.join(__dirname, 'X509', 'password_protected.pem'),
-  server: path.join(__dirname, 'X509', 'server.pem'),
-  smoke: path.join(__dirname, 'X509', 'smoke.pem')
-};
-
-/**
  * For `ssl=SERVER || ssl=ALL`
  * @see https://github.com/mongodb/node-mongodb-native/tree/2.0/test/functional/ssl
  */
@@ -45,32 +26,46 @@ exports.ssl = {
 };
 
 /**
- * @see https://github.com/mongodb/node-mongodb-native/blob/2.0/test/functional/ldap_tests.js
+ * For `authentication=LDAP`
+ *
+ * @see https://github.com/mongodb-js/connection-model#authentication-ldap
  */
 exports.LDAP = {
+  name: 'Enterprise: LDAP (evergreen only)',
   hostname: 'ldaptest.10gen.cc',
-  port: 27017,
   ldap_username: 'drivers-team',
   ldap_password: 'mongor0x$xgen'
 };
 
 /**
- * @see https://github.com/mongodb/node-mongodb-native/blob/2.0/test/functional/kerberos_tests.js
+ * For `authentication=KERBEROS`
+ *
+ * @see https://github.com/mongodb-js/connection-model#authentication-kerberos
  */
 exports.KERBEROS = {
+  name: 'Enterprise: Kerberos (evergreen only)',
   hostname: 'ldaptest.10gen.cc',
+  port: 27017,
   kerberos_principal: 'drivers@LDAPTEST.10GEN.CC'
 };
 
 /**
- * @see https://github.com/mongodb/node-mongodb-native/blob/2.0/test/functional/ssl_x509_connect_tests.js
+ * For `authentication=X509`
+ *
+ * @see https://github.com/mongodb-js/connection-model#authentication-x509
  */
 exports.X509 = {
+  name: 'Enterprise: x509',
   ssl_certificate: exports.X509.client,
   ssl_private_key: exports.X509.client,
   x509_username: 'CN=client,OU=kerneluser,O=10Gen,L=New York City,ST=New York,C=US'
 };
 
+/**
+ * For `authentication=MONGODB`
+ *
+ * @see https://github.com/mongodb-js/connection-model#authentication-mongodb
+ */
 exports.MONGODB = {};
 
 /**
@@ -232,13 +227,31 @@ exports.INSTANCES = [
 
 exports.MATRIX = _.chain(exports.INSTANCES)
   .map(function(instance) {
-    var options = _.clone(instance);
     return _.map(exports.MONGODB, function(creds) {
-      _.extend(options, creds);
+      var options = _.clone(instance);
+      _.assign(options, creds);
       options.name = format('🔒 %s@%s',
         creds.mongodb_username, options.name);
       return options;
     });
   }).value();
+
+/**
+ * Resources only accessible via evergreen boxes.
+ */
+if (process.env.EVERGREEN) {
+  exports.MATRIX.push.apply(exports.MATRIX, [
+    exports.LDAP,
+    exports.KERBEROS
+  /**
+   * @todo (imlucas) Hostname for X509 instance?
+   */
+  // exports.X509
+  ]);
+}
+
+/**
+ * @todo (imlucas) Add SSL boxes to MATRIX when stabilized.
+ */
 
 module.exports = exports;
