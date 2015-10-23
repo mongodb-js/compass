@@ -4,8 +4,8 @@ if (!process.env.NODE_ENV) {
 // Start crash-reporter asap so if anything goes
 // wrong, we can at least view the crash reports
 // locally.  When a crash occurs, a `.dmp` file
-// will be created in `/tmp/Compass`
-// (`~\AppData\Local\Temp\Compass` on Windows).
+// will be created in `/tmp/Compass\ Crashes/completed`
+// (`~\AppData\Local\Temp\Compass/ Crashes\completed` on Windows).
 require('./crash-reporter');
 var debug = require('debug')('electron:index');
 
