@@ -24,7 +24,6 @@ var ssl = require('./ssl');
 require('bootstrap/js/tab');
 require('bootstrap/js/popover');
 require('bootstrap/js/tooltip');
-require('bootstrap-switch');
 
 /**
  * Main Connect Dialog, uses ampersand-form to render the form. By default, the authentication
