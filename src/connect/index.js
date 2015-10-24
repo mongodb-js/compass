@@ -269,7 +269,7 @@ var ConnectView = View.extend({
       message: ''
     }), 500);
 
-    // setTimeout(window.close, 1000);
+  // setTimeout(window.close, 1000);
   },
   /**
    * Update the form's state based on an existing connection, e.g. clicking on a list item

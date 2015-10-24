@@ -47,7 +47,7 @@ var Connection = BaseConnection.extend({
     });
 
     var onInstanceFetched = function(err, res) {
-      client(app.endpoint, connection).close()
+      client(app.endpoint, connection).close();
 
       if (!err) {
         debug('woot.  all gravy!  able to see %s collections', res.collections.length);

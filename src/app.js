@@ -1,8 +1,39 @@
 /* eslint no-console:0 */
 
+var _ = require('lodash');
 var pkg = require('../package.json');
 var app = require('ampersand-app');
 var backoff = require('backoff');
+var debug = require('debug')('mongodb-compass:app');
+
+// @todo (imlucas): Feature flags can be overriden
+// via `window.localStorage`.
+var FEATURES = {
+  querybuilder: true,
+  /**
+   * @see ./src/connect/index.js
+   * @todo (thomasr): Make a `Feature` model and `FeatureCollection`?
+   */
+  keychain: false,
+  'Connect with SSL': false,
+  'Connect with Kerberos': false,
+  'Connect with LDAP': false,
+  'Connect with X.509': false,
+  'Connect with SSL NONE': true,
+  'Connect with SSL UNVALIDATED': false,
+  'Connect with SSL SERVER': false,
+  'Connect with SSL ALL': true
+};
+
+// if (typeof window !== 'undefined') {
+//   _.each(FEATURES, function(enabledByDefalt, name) {
+//     var local = window.localStorage.getItem(name);
+//     if (local !== undefined) {
+//       debug('Feature `%s` overridden!', name, Boolean(local));
+//       FEATURES[name] = Boolean(local);
+//     }
+//   });
+// }
 
 app.extend({
   // @todo (imlucas) Move to config
@@ -10,6 +41,17 @@ app.extend({
   endpoint: 'http://localhost:29017',
   meta: {
     'App Version': pkg.version
+  },
+  // @note (imlucas): Backwards compat for querybuilder
+  features: FEATURES,
+  /**
+   * Check whether a feature flag is currently enabled.
+   *
+   * @param {String} id - A key in `FEATURES`.
+   * @return {Boolean}
+   */
+  isFeatureEnabled: function(id) {
+    return FEATURES[id] === true;
   }
 });
 
@@ -228,36 +270,8 @@ var Application = View.extend({
 
 var state = new Application();
 
-// @todo (imlucas): Feature flags can be overrideen
-// via `window.localStorage`.
-var FEATURES = {
-  querybuilder: true,
-  /**
-   * @see ./src/connect/index.js
-   */
-  'Connect with SSL': false,
-  'Connect with Kerberos': false,
-  'Connect with LDAP': false,
-  'Connect with X.509': false,
-  'Connect with SSL NONE': true,
-  'Connect with SSL UNVALIDATED': false,
-  'Connect with SSL SERVER': false,
-  'Connect with SSL ALL': true
-};
-
 app.extend({
   client: null,
-  // @note (imlucas): Backwards compat for querybuilder
-  features: FEATURES,
-  /**
-   * Check whether a feature flag is currently enabled.
-   *
-   * @param {String} id - A key in `FEATURES`.
-   * @return {Boolean}
-   */
-  isFeatureEnabled: function(id) {
-    return FEATURES[id] === true;
-  },
   sendMessage: function(msg) {
     ipc.send('message', msg);
   },
