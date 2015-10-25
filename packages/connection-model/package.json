@@ -13,6 +13,7 @@
   "keywords": [
     "mongodb-js"
   ],
+  "browser": "browser.js",
   "scripts": {
     "ci": "npm run check && npm test",
     "test": "mocha",
@@ -40,5 +41,9 @@
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^0.2.2",
     "pre-commit": "^1.1.2"
+  },
+  "optionalDependencies": {
+    "backoff": "^2.4.1",
+    "mongodb": "^2.0.46"
   }
 }
