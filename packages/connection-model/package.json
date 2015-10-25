@@ -32,7 +32,8 @@
     "lodash.defaults": "^3.1.2",
     "lodash.omit": "^3.1.0",
     "lodash.pick": "^3.1.0",
-    "mongodb-url": "^1.0.0"
+    "mongodb-url": "^1.0.0",
+    "run-parallel": "^1.1.4"
   },
   "devDependencies": {
     "eslint-config-mongodb-js": "^1.0.3",

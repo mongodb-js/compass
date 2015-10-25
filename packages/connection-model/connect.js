@@ -2,8 +2,43 @@ var MongoClient = require('mongodb').MongoClient;
 var backoff = require('backoff');
 var Connection = require('./model');
 var debug = require('debug')('mongodb-connection-model:connect');
+var fs = require('fs');
+var parallel = require('run-parallel');
 
-function connect(model, done) {
+function loadOptions(model, done) {
+  if (model.ssl === 'NONE' || model.ssl === 'UNVALIDATED') {
+    process.nextTick(function() {
+      done(null, model.driver_options);
+    });
+    return;
+  }
+
+  var tasks = {};
+  var opts = model.driver_options;
+  Object.keys(opts).map(function(key) {
+    if (key.indexOf('ssl') === -1) {
+      return;
+    }
+    if (typeof opts[key] !== 'string') {
+      return;
+    }
+    /**
+     * @todo (imlucas) filter private key password
+     */
+    tasks[key] = fs.readFile.bind(null, opts[key]);
+  });
+  parallel(tasks, function(err, res) {
+    if (err) {
+      return done(err);
+    }
+    Object.keys(res).map(function(key) {
+      opts[key] = res[key];
+    });
+    done(null, opts);
+  });
+}
+
+function connectWithBackoff(model, done) {
   if (!(model instanceof Connection)) {
     model = new Connection(model);
   }
@@ -34,4 +69,21 @@ function connect(model, done) {
   call.start();
 }
 
-module.exports = connect;
+function connect(model, done) {
+  if (!(model instanceof Connection)) {
+    model = new Connection(model);
+  }
+  var url = model.driver_url;
+  loadOptions(model, function(err, opts) {
+    if (err) {
+      return done(err);
+    }
+    MongoClient.connect(url, opts, done);
+  });
+}
+
+if (process.env.MONGODB_BACKOFF) {
+  module.exports = connectWithBackoff;
+} else {
+  module.exports = connect;
+}
