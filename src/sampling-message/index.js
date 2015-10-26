@@ -33,7 +33,7 @@ var SamplingMessageView = View.extend({
         if (this.total_count === 0) {
           return '0%';
         }
-        return numeral(this.sample_size / this.total_count).format('0.00%')
+        return numeral(this.sample_size / this.total_count).format('0.00%');
       }
     },
     is_sample: {

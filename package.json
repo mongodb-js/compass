@@ -49,6 +49,7 @@
     "paths": [
       "node_modules/font-awesome/less",
       "node_modules/bootstrap/less",
+      "node_modules/bootstrap-switch/src/less/bootstrap3",
       "node_modules/octicons/octicons"
     ]
   },
@@ -58,7 +59,9 @@
     "test": "mocha",
     "ci": "npm run check && npm run release",
     "check": "mongodb-js-precommit",
-    "fmt": "mongodb-js-fmt src/{**/*.js,*.js}"
+    "fmt": "mongodb-js-fmt src/{**/*.js,*.js}",
+    "chromedriver": "node_modules/.bin/chromedriver --url-base=/wd/hub --port=9515",
+    "test": "./node_modules/.bin/wdio test/wd.conf.js"
   },
   "pre-commit": [
     "check"
@@ -74,7 +77,7 @@
     "debug": "^2.2.0",
     "electron-squirrel-startup": "^0.1.4",
     "mongodb-collection-model": "^0.1.0",
-    "mongodb-connection-model": "^1.0.2",
+    "mongodb-connection-model": "^2.0.1",
     "mongodb-instance-model": "^0.2.3",
     "mongodb-ns": "^1.0.0",
     "scout-server": "http://bin.mongodb.org/js/scout-server/v0.3.1/scout-server-0.3.1.tar.gz"
@@ -85,18 +88,22 @@
     "ampersand-collection-filterable": "^0.2.1",
     "ampersand-collection-lodash-mixin": "^2.0.1",
     "ampersand-collection-rest-mixin": "^5.0.0",
+    "ampersand-filtered-subcollection": "^2.0.4",
     "ampersand-model": "^6.0.2",
     "ampersand-router": "^3.0.2",
+    "ampersand-select-view": "^4.3.2",
     "ampersand-sync-localforage": "^0.1.1",
     "ampersand-view": "^8.0.1",
     "ampersand-view-switcher": "^2.0.0",
     "backoff": "^2.4.1",
     "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz",
+    "bootstrap-switch": "^3.3.2",
     "browserify": "^11.2.0",
     "bugsnag-js": "^2.4.8",
     "chalk": "^1.1.1",
     "d3": "^3.5.6",
     "del": "^2.0.2",
+    "chromedriver": "^2.19.0",
     "domready": "^1.0.8",
     "electron-installer-dmg": "^0.1.0",
     "electron-installer-squirrel-windows": "^0.4.0",
@@ -127,6 +134,7 @@
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^0.2.2",
     "mongodb-language-model": "^0.2.3",
+    "mongodb-runner": "mongodb-js/runner",
     "mongodb-schema": "^3.3.0",
     "mousetrap": "^1.5.3",
     "node-notifier": "^4.3.1",
@@ -138,11 +146,12 @@
     "raf": "^3.1.0",
     "run-sequence": "^1.1.4",
     "run-series": "^1.1.4",
-    "scout-client": "http://bin.mongodb.org/js/scout-client/v0.2.0/scout-client-0.2.0.tar.gz",
+    "scout-client": "http://bin.mongodb.org/js/scout-client/v0.3.0/scout-client-0.3.0.tar.gz",
     "stream-combiner2": "^1.0.2",
     "uuid": "^2.0.1",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
-    "watchify": "^3.4.0"
+    "watchify": "^3.4.0",
+    "webdriverio": "mongodb-js/webdriverio"
   }
 }

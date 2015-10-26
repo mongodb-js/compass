@@ -236,10 +236,17 @@ var state = new Application({
 // via `window.localStorage`.
 var FEATURES = {
   querybuilder: true,
+  /**
+   * @see ./src/connect/index.js
+   */
   'Connect with SSL': false,
   'Connect with Kerberos': false,
   'Connect with LDAP': false,
-  'Connect with X.509': false
+  'Connect with X.509': false,
+  'Connect with SSL NONE': true,
+  'Connect with SSL UNVALIDATED': false,
+  'Connect with SSL SERVER': false,
+  'Connect with SSL ALL': true
 };
 
 app.extend({

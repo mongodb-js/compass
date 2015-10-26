@@ -62,6 +62,11 @@ cd ~/compass;
 npm run release;
 ```
 
+## Running Tests
+
+1. `npm run chromedriver`
+1. `npm test`
+
 [setup-osx]: https://github.com/mongodb-js/mongodb-js/blob/master/docs/setup.md#osx-setup
 [setup-windows]: https://github.com/mongodb-js/mongodb-js/blob/master/docs/setup.md#windows-setup
 [setup-linux]: https://github.com/mongodb-js/mongodb-js/blob/master/docs/setup.md#linux-setup

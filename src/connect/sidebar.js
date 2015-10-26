@@ -1,9 +1,10 @@
 var View = require('ampersand-view');
 var Connection = require('../models/connection');
+var debug = require('debug')('scout:connect:sidebar');
+var FilteredCollection = require('ampersand-filtered-subcollection');
 
 /**
  * View for a connection in the sidebar. It can be clicked (will copy details to the form view)
- * or it can be deleted via the X on the right side.
  */
 var SidebarItemView = View.extend({
   namespace: 'SidebarItemView',
@@ -15,20 +16,20 @@ var SidebarItemView = View.extend({
     }
   },
   events: {
-    'click a': 'onClick',
-    dblclick: 'onDoubleClick',
-    mouseover: 'onMouseOver',
-    mouseout: 'onMouseOut',
-    'click [data-hook=close]': 'onRemoveClick'
+    click: 'onClick',
+    dblclick: 'onDoubleClick'
   },
   bindings: {
-    'model.name': {
-      hook: 'name'
-    },
-    hover: {
-      type: 'toggle',
-      hook: 'close'
-    },
+    'model.name': [
+      {
+        hook: 'name'
+      },
+      {
+        type: 'attribute',
+        hook: 'name',
+        name: 'title'
+      }
+    ],
     has_auth: {
       type: 'booleanClass',
       hook: 'has-auth',
@@ -45,23 +46,11 @@ var SidebarItemView = View.extend({
     }
   },
   template: require('./connection.jade'),
-  onClick: function(event) {
-    this.parent.onItemClick(event, this);
+  onClick: function(evt) {
+    this.parent.onItemClick(evt, this);
   },
-  onDoubleClick: function(event) {
-    this.parent.onItemDoubleClick(event, this);
-  },
-  onRemoveClick: function(event) {
-    event.stopPropagation();
-    event.preventDefault();
-    this.model.destroy();
-    this.parent.onRemoveClick(event, this);
-  },
-  onMouseOver: function() {
-    this.hover = true;
-  },
-  onMouseOut: function() {
-    this.hover = false;
+  onDoubleClick: function(evt) {
+    this.parent.onItemDoubleClick(evt, this);
   }
 });
 
@@ -71,7 +60,7 @@ var SidebarItemView = View.extend({
  */
 var SidebarView = View.extend({
   session: {
-    active_item_view: {
+    activeItemView: {
       type: 'state'
     }
   },
@@ -82,33 +71,50 @@ var SidebarView = View.extend({
   template: require('./sidebar.jade'),
   render: function() {
     this.renderWithTemplate();
-    this.renderCollection(this.collection, SidebarItemView, this.queryByHook('connection-list'));
+    // create a collection proxy that filters favorite collections and sorts alphabetically
+    var favoriteConnections = new FilteredCollection(this.collection, {
+      where: {
+        is_favorite: true
+      },
+      comparator: function(model) {
+        return model.name.toLowerCase();
+      }
+    });
+    this.renderCollection(favoriteConnections, SidebarItemView,
+      this.queryByHook('connection-list-favorites'));
+
+    var historyConnections = new FilteredCollection(this.collection, {
+      where: {
+        has_connected: true
+      }
+    });
+    this.renderCollection(historyConnections, SidebarItemView,
+      this.queryByHook('connection-list-recent'));
   },
   onNewConnectionClick: function(event) {
     event.stopPropagation();
     event.preventDefault();
 
-    if (this.active_item_view) {
-      this.active_item_view.el.classList.remove('active');
-      this.active_item_view = null;
+    if (this.activeItemView) {
+      this.activeItemView.el.classList.remove('selected');
+      this.activeItemView = null;
     }
     this.parent.createNewConnection();
   },
-  onRemoveClick: function(event, view) {
-    event.stopPropagation();
-    event.preventDefault();
-    view.model.destroy();
-    this.parent.onConnectionDestroyed();
-  },
+  // onRemoveClick: function(event, view) {
+  //   event.stopPropagation();
+  //   event.preventDefault();
+  //   view.model.destroy();
+  //   this.parent.onConnectionDestroyed();
+  // },
   onItemClick: function(event, view) {
     event.stopPropagation();
     event.preventDefault();
-    if (this.active_item_view) {
-      this.active_item_view.el.classList.remove('active');
+    if (this.activeItemView) {
+      this.activeItemView.el.classList.remove('selected');
     }
-
-    this.active_item_view = view;
-    this.active_item_view.el.classList.add('active');
+    this.activeItemView = view;
+    this.activeItemView.el.classList.add('selected');
     this.parent.onConnectionSelected(view.model);
   },
   onItemDoubleClick: function(event, view) {
