@@ -30,24 +30,23 @@ var TourView = View.extend({
       that.$featuresLI[that.tourCount].className = '';
 
       if (that.tourCount == 4) {
-        // do last
         that.tourCount = 0;
-        that.$featuresLI[that.tourCount].className = 'selected';        
-        that.$animationGIF.src = that.tourImagesFolder + that.tourImages [that.tourCount];      
       } else {
-        // advance
         that.tourCount++;
-        that.$featuresLI[that.tourCount].className = 'selected';
-        that.$animationGIF.src = that.tourImagesFolder + that.tourImages [that.tourCount];      
       }
+      that.$featuresLI[that.tourCount].className = 'selected';
+      that.$animationGIF.src = that.tourImagesFolder + that.tourImages [that.tourCount];      
     }, 1000 * 7);
   },
 
   showFeature: function(ev) {
-    var nFeature = parseInt(ev.target.getAttribute ('data-n'), 2);
+    var nCLick = ev.target.getAttribute ('data-n');
+    if (nCLick == null) {
+      return false;
+    }
+    var nFeature = parseInt(nCLick, 10);
     this.$featuresLI[this.tourCount].className = '';
     ev.target.className = 'selected';
-    this.$tourRemove.className = 'btn btn-primary';
     this.$animationGIF.src = this.tourImagesFolder + ev.target.id + '.gif';    
     this.tourCount = nFeature;
     clearInterval(this.playAuto);
