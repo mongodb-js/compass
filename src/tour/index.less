@@ -1,0 +1,78 @@
+#tour-out {
+  position: absolute;
+  top: 0;
+  left: 0;  
+  right: 0;  
+  bottom: 0;  
+  z-index: 20;  
+}
+#tour-bg {
+  position: absolute;
+  top: 0;
+  left: 0;  
+  right: 0;  
+  bottom: 0;  
+  background-color: black;
+  opacity: .5;
+}
+#tour {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+
+  width: 80%;
+  max-width: 925px;
+  // height: 420px;
+  position: absolute;
+  background-color: white;
+  border-radius: 9px;
+
+  #animation, #features {
+    float: left;
+  }
+  #animation {
+    width: 66%;
+
+    img {
+      width: 80%;
+      margin: 60px auto;
+      display: block;
+      border: 1px lightgrey solid;
+    }
+  }
+  #features {
+    width: 33%;
+
+    h2 {
+      margin: 60px 0 0;
+      padding: 0; 
+      text-transform: uppercase;
+      font-weight: normal;
+      font-size: 13px;     
+      line-height: 20px;     
+      border-bottom: 1px lightgrey solid;
+      width: 80%;
+    }
+    ul {
+      margin: 15px 0 20px -33px;  
+      padding: 0;
+    }
+    li {
+      margin: 0 0 6px 0;
+      padding: 0 0 0 30px;      
+      font-weight: 200;
+      font-size: 23px;
+      list-style: none;
+      position: relative;
+      cursor: pointer;
+    }
+    li.selected {
+      color: #24b8eb;
+      background-image: url(images/tour/tour-selected.png);
+      background-size: 25px 20px;
+      background-repeat: no-repeat;
+      background-position: 0px 4px;
+    }
+  }
+}
