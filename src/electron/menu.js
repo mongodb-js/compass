@@ -3,144 +3,142 @@ var Menu = require('menu');
 var debug = require('debug')('scout-electron:menu');
 
 function getTemplate(_window) {
-  if (process.platform === 'darwin') {
-    return [
-      {
-        label: 'MongoDB Compass',
-        submenu: [
-          {
-            label: 'About Compass',
-            selector: 'orderFrontStandardAboutPanel:'
-          },
-          {
-            type: 'separator'
-          },
-          {
-            label: 'Hide',
-            accelerator: 'Command+H',
-            selector: 'hide:'
-          },
-          {
-            label: 'Hide Others',
-            accelerator: 'Command+Shift+H',
-            selector: 'hideOtherApplications:'
-          },
-          {
-            label: 'Show All',
-            selector: 'unhideAllApplications:'
-          },
-          {
-            type: 'separator'
-          },
-          {
-            label: 'Quit',
-            accelerator: 'Command+Q',
-            click: function() {
-              app.quit();
-            }
+  return [
+    {
+      label: 'MongoDB Compass',
+      submenu: [
+        {
+          label: 'About Compass',
+          selector: 'orderFrontStandardAboutPanel:'
+        },
+        {
+          type: 'separator'
+        },
+        {
+          label: 'Hide',
+          accelerator: 'Command+H',
+          selector: 'hide:'
+        },
+        {
+          label: 'Hide Others',
+          accelerator: 'Command+Shift+H',
+          selector: 'hideOtherApplications:'
+        },
+        {
+          label: 'Show All',
+          selector: 'unhideAllApplications:'
+        },
+        {
+          type: 'separator'
+        },
+        {
+          label: 'Quit',
+          accelerator: 'Command+Q',
+          click: function() {
+            app.quit();
           }
-        ]
-      },
-      {
-        label: 'Edit',
-        submenu: [
-          {
-            label: 'Undo',
-            accelerator: 'Command+Z',
-            selector: 'undo:'
-          },
-          {
-            label: 'Redo',
-            accelerator: 'Shift+Command+Z',
-            selector: 'redo:'
-          },
-          {
-            type: 'separator'
-          },
-          {
-            label: 'Cut',
-            accelerator: 'Command+X',
-            selector: 'cut:'
-          },
-          {
-            label: 'Copy',
-            accelerator: 'Command+C',
-            selector: 'copy:'
-          },
-          {
-            label: 'Paste',
-            accelerator: 'Command+V',
-            selector: 'paste:'
-          },
-          {
-            label: 'Select All',
-            accelerator: 'Command+A',
-            selector: 'selectAll:'
+        }
+      ]
+    },
+    {
+      label: 'Edit',
+      submenu: [
+        {
+          label: 'Undo',
+          accelerator: 'Command+Z',
+          selector: 'undo:'
+        },
+        {
+          label: 'Redo',
+          accelerator: 'Shift+Command+Z',
+          selector: 'redo:'
+        },
+        {
+          type: 'separator'
+        },
+        {
+          label: 'Cut',
+          accelerator: 'Command+X',
+          selector: 'cut:'
+        },
+        {
+          label: 'Copy',
+          accelerator: 'Command+C',
+          selector: 'copy:'
+        },
+        {
+          label: 'Paste',
+          accelerator: 'Command+V',
+          selector: 'paste:'
+        },
+        {
+          label: 'Select All',
+          accelerator: 'Command+A',
+          selector: 'selectAll:'
+        }
+      ]
+    },
+    {
+      label: 'View',
+      submenu: [
+        {
+          label: 'Connect to...',
+          accelerator: 'Command+N',
+          click: function() {
+            app.emit('show connect dialog');
           }
-        ]
-      },
-      {
-        label: 'View',
-        submenu: [
-          {
-            label: 'Connect to...',
-            accelerator: 'Command+N',
-            click: function() {
-              app.emit('show connect dialog');
-            }
-          },
-          {
-            label: 'Reload',
-            accelerator: 'Command+R',
-            click: function() {
-              _window.restart();
-            }
-          },
-          {
-            label: 'Toggle DevTools',
-            accelerator: 'Alt+Command+I',
-            click: function() {
-              _window.toggleDevTools();
-            }
+        },
+        {
+          label: 'Reload',
+          accelerator: 'Command+R',
+          click: function() {
+            _window.restart();
           }
-        ]
-      },
-      {
-        label: 'Share',
-        submenu: [
-          {
-            label: 'Share Schema as JSON',
-            accelerator: 'Alt+Command+S',
-            click: function() {
-              _window.webContents.send('message', 'menu-share-schema-json');
-            }
+        },
+        {
+          label: 'Toggle DevTools',
+          accelerator: 'Alt+Command+I',
+          click: function() {
+            _window.toggleDevTools();
           }
-        ]
-      },
-      {
-        label: 'Window',
-        submenu: [
-          {
-            label: 'Minimize',
-            accelerator: 'Command+M',
-            selector: 'performMiniaturize:'
-          },
-          {
-            label: 'Close',
-            accelerator: 'Command+W',
-            selector: 'performClose:'
-          },
-          {
-            type: 'separator'
-          },
-          {
-            label: 'Bring All to Front',
-            selector: 'arrangeInFront:'
+        }
+      ]
+    },
+    {
+      label: 'Share',
+      submenu: [
+        {
+          label: 'Share Schema as JSON',
+          accelerator: 'Alt+Command+S',
+          click: function() {
+            _window.webContents.send('message', 'menu-share-schema-json');
           }
-        ]
-      }
-    ];
-  }
+        }
+      ]
+    },
+    {
+      label: 'Window',
+      submenu: [
+        {
+          label: 'Minimize',
+          accelerator: 'Command+M',
+          selector: 'performMiniaturize:'
+        },
+        {
+          label: 'Close',
+          accelerator: 'Command+W',
+          selector: 'performClose:'
+        },
+        {
+          type: 'separator'
+        },
+        {
+          label: 'Bring All to Front',
+          selector: 'arrangeInFront:'
+        }
+      ]
+    }
+  ];
 
   return [
     {
