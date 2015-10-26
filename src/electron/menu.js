@@ -46,12 +46,12 @@ function getTemplate(_window) {
         {
           label: 'Undo',
           accelerator: 'Command+Z',
-          selector: 'undo:'
+          role: 'undo'
         },
         {
           label: 'Redo',
           accelerator: 'Shift+Command+Z',
-          selector: 'redo:'
+          role: 'redo'
         },
         {
           type: 'separator'
@@ -59,22 +59,22 @@ function getTemplate(_window) {
         {
           label: 'Cut',
           accelerator: 'Command+X',
-          selector: 'cut:'
+          role: 'cut'
         },
         {
           label: 'Copy',
           accelerator: 'Command+C',
-          selector: 'copy:'
+          role: 'copy'
         },
         {
           label: 'Paste',
           accelerator: 'Command+V',
-          selector: 'paste:'
+          role: 'paste'
         },
         {
           label: 'Select All',
           accelerator: 'Command+A',
-          selector: 'selectAll:'
+          role: 'selectall'
         }
       ]
     },
@@ -122,12 +122,12 @@ function getTemplate(_window) {
         {
           label: 'Minimize',
           accelerator: 'Command+M',
-          selector: 'performMiniaturize:'
+          role: 'minimize'
         },
         {
           label: 'Close',
           accelerator: 'Command+W',
-          selector: 'performClose:'
+          role: 'close'
         },
         {
           type: 'separator'
