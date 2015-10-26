@@ -23,9 +23,23 @@
     .hostname {
       display: block;
       font-size: 16px;
-      line-height: 16px;
+      line-height: 17px;
       font-weight: 200;
       color: @pw;
+
+      .hostname-hostname {
+        display: block;
+        float: left;
+        max-width: 140px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .hostname-colon,
+      .hostname-port {
+        display: block;
+        float: left;
+      }
     }
     .version {
       display: block;
