@@ -15,24 +15,34 @@ function loadOptions(model, done) {
 
   var tasks = {};
   var opts = model.driver_options;
-  Object.keys(opts).map(function(key) {
+  Object.keys(opts.server).map(function(key) {
     if (key.indexOf('ssl') === -1) {
       return;
     }
-    if (typeof opts[key] !== 'string') {
+
+    if (Array.isArray(opts.server[key])) {
+      tasks[key] = function(cb) {
+        parallel(opts.server[key].map(function(k) {
+          return fs.readFile.bind(null, k);
+        }), cb);
+      };
+    }
+
+    if (typeof opts.server[key] !== 'string') {
       return;
     }
-    /**
-     * @todo (imlucas) filter private key password
-     */
-    tasks[key] = fs.readFile.bind(null, opts[key]);
+    if (key === 'sslPass') {
+      return;
+    }
+
+    tasks[key] = fs.readFile.bind(null, opts.server[key]);
   });
   parallel(tasks, function(err, res) {
     if (err) {
       return done(err);
     }
     Object.keys(res).map(function(key) {
-      opts[key] = res[key];
+      opts.server[key] = res[key];
     });
     done(null, opts);
   });
@@ -87,3 +97,5 @@ if (process.env.MONGODB_BACKOFF) {
 } else {
   module.exports = connect;
 }
+
+module.exports.loadOptions = loadOptions;

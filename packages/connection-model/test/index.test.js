@@ -1,6 +1,8 @@
 var assert = require('assert');
 var Connection = require('../');
+var loadOptions = require('../connect').loadOptions;
 var parse = require('mongodb-url');
+var fixture = require('mongodb-connection-fixture');
 var format = require('util').format;
 
 function isNotValidAndHasMessage(model, msg) {
@@ -20,6 +22,30 @@ function isNotValidAndHasMessage(model, msg) {
  */
 describe('mongodb-connection-model', function() {
   describe('ssl', function() {
+    describe('load', function() {
+      it('should load all of the files from the filesystem', function(done) {
+        var c = new Connection({
+          ssl: 'ALL',
+          ssl_ca: [fixture.ssl.ca],
+          ssl_certificate: fixture.ssl.server,
+          ssl_private_key: fixture.ssl.server
+        });
+
+        loadOptions(c, function(err, driverOptions) {
+          if (err) {
+            return done(err);
+          }
+          var opts = driverOptions.server;
+          assert.equal(opts.sslValidate, true);
+          assert(Array.isArray(opts.sslCA));
+          assert(Buffer.isBuffer(opts.sslCA[0]));
+          assert.equal(opts.sslPass, undefined);
+          assert(Buffer.isBuffer(opts.sslCert));
+          assert(Buffer.isBuffer(opts.sslKey));
+          done();
+        });
+      });
+    });
     describe('When ssl is NONE', function() {
       it('should produce the correct driver URL');
       it('should produce the correct driver options');
