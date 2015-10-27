@@ -5,8 +5,6 @@ var AmpersandCollection = require('ampersand-rest-collection');
 var assign = require('lodash.assign');
 var defaults = require('lodash.defaults');
 var contains = require('lodash.contains');
-var pick = require('lodash.pick');
-var omit = require('lodash.omit');
 var parse = require('mongodb-url');
 var debug = require('debug')('mongodb-connection-model');
 
@@ -638,46 +636,6 @@ Connection = AmpersandModel.extend({
           + 'using KERBEROS for authentication.'));
       }
     }
-  },
-  /**
-   * Transoform used by `.toJSON()` and `sync()`.
-   *
-   * @param {Object} [options] - By default you won't get the fields which
-   * need to go into the native system keychain implementation which are any
-   * field name containing `password`, e.g. `mongodb_password`,
-   * `ssl_private_key_password`, etc.
-   * @option {Boolean} [keychain] - Only return password fields [Default: `false`].
-   * @option {Boolean} [all] - All fields including passwords [Default: `false`].
-   */
-  serialize: function(options) {
-    options = options || {};
-    options.keychain = options.keychain || false;
-    options.all = options.all || false;
-
-    var res = AmpersandModel.prototype.serialize.call(this, options);
-    if (options.all) {
-      return res;
-    }
-    var passwordKeys = Object.keys(res).filter(function(key) {
-      return key.indexOf('password') > -1;
-    });
-
-    var args = [res];
-    if (passwordKeys.length > 0) {
-      args.push.apply(args, passwordKeys);
-    }
-    if (options.keychain) {
-      if (passwordKeys.length === 0) {
-        return undefined;
-      }
-      return pick.apply(null, args);
-    }
-
-    if (passwordKeys.length === 0) {
-      return res;
-    }
-
-    return omit.apply(null, args);
   }
 });
 
