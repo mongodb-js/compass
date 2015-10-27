@@ -276,7 +276,6 @@ var ConnectView = View.extend({
      * @see http://ampersandjs.com/docs#ampersand-model-save
      */
     connection.last_used = new Date();
-    connection.has_connected = true;
     connection.save();
     /**
      * @todo (imlucas): So we can see what auth mechanisms
@@ -335,8 +334,16 @@ var ConnectView = View.extend({
     this.form.setValues(values);
   },
   onCreateFavoriteClicked: function(evt) {
-    var connection = new Connection(this.form.data);
-    connection._id = this.form.connection_id;
+    var connection = null;
+    if (this.form.connection_id) {
+      connection = this.connections.get(this.form.connection_id);
+    }
+    debug('connection retrieved', connection);
+    if (!connection) {
+      connection = new Connection(this.form.data);
+    }
+    _.assign(connection, this.form.data);
+    debug('new connection', connection);
 
     if (!connection.isValid()) {
       this.onError(connection.validationError);

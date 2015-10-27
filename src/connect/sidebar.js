@@ -84,8 +84,8 @@ var SidebarView = View.extend({
       this.queryByHook('connection-list-favorites'));
 
     var historyConnections = new FilteredCollection(this.collection, {
-      where: {
-        has_connected: true
+      filter: function(model) {
+        return Boolean(model.last_used);
       }
     });
     this.renderCollection(historyConnections, SidebarItemView,

@@ -21,12 +21,11 @@ var Connection = BaseConnection.extend({
     /**
      * Updated on each successful connection to the Deployment.
      */
-    last_used: 'date',
-    is_favorite: {
-      type: 'boolean',
-      default: false
+    last_used: {
+      type: 'date',
+      default: null
     },
-    has_connected: {
+    is_favorite: {
       type: 'boolean',
       default: false
     }
