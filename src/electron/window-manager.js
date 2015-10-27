@@ -23,7 +23,7 @@ var RESOURCES = path.resolve(__dirname, '../../');
 var DEFAULT_URL = 'file://' + path.join(RESOURCES, 'index.html#connect');
 
 /**
- * We want the Connect dialog window to be special
+ * We want want the Connect dialog window to be special
  * and for there to ever only be one instance of it
  * so we'll use scope to essentially make it a Singleton.
  */
@@ -62,23 +62,6 @@ module.exports.create = function(opts) {
       'direct-write': true
     }
   });
-
-  // makes the application a single instance application
-  // see "app.makeSingleInstance" in https://github.com/atom/electron/blob/master/docs/api/app.md
-  var shouldQuit = app.makeSingleInstance(function(commandLine, workingDirectory) {
-  // Someone tried to run a second instance, we should focus our window
-    if (_window) {
-      if (_window.isMinimized()) _window.restore();
-      _window.focus();
-    }
-    return true;
-  });
-
-  if (shouldQuit) {
-    app.quit();
-    return;
-  }
-
   attachMenu(_window);
   _window.loadUrl(opts.url);
 
