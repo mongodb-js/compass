@@ -234,7 +234,11 @@ exports.MATRIX = _.chain(exports.INSTANCES)
         creds.mongodb_username, options.name);
       return options;
     });
-  }).value();
+  })
+  .filter(function(c) {
+    return c.mongodb_password;
+  })
+  .value();
 
 /**
  * Resources only accessible via evergreen boxes.
