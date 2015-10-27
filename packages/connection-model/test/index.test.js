@@ -1,5 +1,6 @@
 var assert = require('assert');
 var Connection = require('../');
+var parse = require('mongodb-url');
 var format = require('util').format;
 
 function isNotValidAndHasMessage(model, msg) {
@@ -120,10 +121,17 @@ describe('mongodb-connection-model', function() {
       });
 
       it('should *only* require a principal', function() {
-        assert.equal(new Connection({
+        var c = new Connection({
           authentication: 'KERBEROS',
           kerberos_principal: 'lucas@kerb.mongodb.parts'
-        }).isValid(), true);
+        });
+        assert.equal(c.isValid(), true);
+        assert.doesNotThrow(function() {
+          parse(c.driver_url);
+        });
+        assert.equal(c.driver_url,
+          'mongodb://lucas%2540kerb.mongodb.parts:@localhost:27017/'
+          + 'kerberos?slaveOk=true&gssapiServiceName=&authMechanism=GSSAPI');
       });
 
       it('should return the correct URL for the driver', function() {
@@ -136,6 +144,8 @@ describe('mongodb-connection-model', function() {
         assert.equal(c.driver_url,
           'mongodb://arlo%252Fdog%2540krb5.mongodb.parts:w%40%40f@localhost:27017/'
           + 'kerberos?slaveOk=true&gssapiServiceName=mongodb&authMechanism=GSSAPI');
+
+        parse(c.driver_url);
       });
     });
   });

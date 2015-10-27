@@ -452,7 +452,7 @@ assign(derived, {
             encodeURIComponent(this.kerberos_principal),
             this.kerberos_password);
         } else {
-          req.auth = format('%s',
+          req.auth = format('%s:',
             encodeURIComponent(this.kerberos_principal));
         }
       } else if (this.authentication === 'X509') {
