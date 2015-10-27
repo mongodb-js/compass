@@ -11,5 +11,6 @@ module.exports = Collection.extend(lodashMixin, restMixin, {
     return -model.last_used;
   },
   mainIndex: '_id',
+  indexes: ['name'],
   sync: connectionSync
 });
