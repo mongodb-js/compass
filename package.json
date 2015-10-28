@@ -31,7 +31,8 @@
       "scout-server",
       "glob",
       "electron-squirrel-startup",
-      "ipc"
+      "ipc",
+      "keytar"
     ]
   },
   "fonts": [
@@ -71,7 +72,7 @@
     "ampersand-form-view": "^5.1.1",
     "ampersand-input-view": "^5.0.0",
     "ampersand-rest-collection": "^5.0.0",
-    "async": "^1.4.2",
+    "async": "^1.5.0",
     "debug": "^2.2.0",
     "electron-squirrel-startup": "^0.1.4",
     "keytar": "^3.0.0",

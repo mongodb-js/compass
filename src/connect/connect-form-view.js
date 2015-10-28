@@ -53,30 +53,22 @@ var ConnectFormView = FormView.extend({
     }
     var name = obj.hostname + ':' + obj.port;
     debug('obj', obj);
-    switch (obj.authentication) {
-      case 'MONGODB':
-        if (obj.mongodb_username) {
-          name = obj.mongodb_username + '@' + name;
-        }
-        break;
-      case 'KERBEROS':
-        if (obj.kerberos_principal) {
-          name = obj.kerberos_principal + '@' + name;
-        }
-        break;
-      case 'X509':
-        if (obj.x509_username) {
-          name = obj.x509_username + '@' + name;
-        }
-        break;
-      case 'LDAP':
-        if (obj.ldap_username) {
-          name = obj.ldap_username + '@' + name;
-        }
-        break;
-      case 'NONE':
-      default:
-        break;
+    if (obj.authentication === 'MONGODB') {
+      if (obj.mongodb_username) {
+        name = obj.mongodb_username + '@' + name;
+      }
+    } else if (obj.authentication === 'KERBEROS') {
+      if (obj.kerberos_principal) {
+        name = obj.kerberos_principal + '@' + name;
+      }
+    } else if (obj.authentication === 'X509') {
+      if (obj.x509_username) {
+        name = obj.x509_username + '@' + name;
+      }
+    } else if (obj.authentication === 'LDAP') {
+      if (obj.ldap_username) {
+        name = obj.ldap_username + '@' + name;
+      }
     }
     obj.name = name;
   },

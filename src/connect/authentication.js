@@ -3,7 +3,6 @@
  *
  * @see https://github.com/mongodb-js/mongodb-connection-model#trait-authentication
  */
-var app = require('ampersand-app');
 var AuthenticationOptionCollection = require('./models/authentication-option-collection');
 
 var InputView = require('./input-view');

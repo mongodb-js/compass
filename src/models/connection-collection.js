@@ -2,8 +2,8 @@ var Collection = require('ampersand-collection');
 var lodashMixin = require('ampersand-collection-lodash-mixin');
 var Connection = require('./connection');
 var connectionSync = require('./connection-sync')();
+var _ = require('lodash');
 var restMixin = require('ampersand-collection-rest-mixin');
-var debug = require('debug')('scout:models:connection-collection');
 
 module.exports = Collection.extend(lodashMixin, restMixin, {
   namespace: 'ConnectionCollection',
@@ -15,9 +15,9 @@ module.exports = Collection.extend(lodashMixin, restMixin, {
     return a.is_favorite ? -1 : 1;
   },
   mainIndex: '_id',
-  indexes: ['name'],
-  maxLength: 5,
   sync: connectionSync,
+  indexes: ['name'],
+  maxLength: 3,
   _prune: function() {
     var nonFavorites = this.filter(function(model) {
       return !model.is_favorite;
@@ -27,7 +27,7 @@ module.exports = Collection.extend(lodashMixin, restMixin, {
       var oldestItems = _.sortBy(nonFavorites, 'last_used');
       var toRemove = this.remove(oldestItems.slice(0, nonFavorites.length - this.maxLength));
       _.map(toRemove, function(model) {
-        model.destroy()
+        model.remove();
       });
     }
   },
@@ -66,4 +66,5 @@ module.exports = Collection.extend(lodashMixin, restMixin, {
     });
     this.reset();
   }
+
 });

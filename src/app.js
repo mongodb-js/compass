@@ -289,8 +289,8 @@ app.extend({
        * @see ./src/connect/index.js#ConnectView.onConnectionSuccessful
        */
       var params = qs.parse(window.location.search.replace('?', ''));
-      var connection_id = params.connection_id;
-      if (!connection_id) {
+      var connectionId = params.connection_id;
+      if (!connectionId) {
         // Not serving a part of the app which uses the client,
         // so we can just start everything up now.
         state.startRouter();
@@ -300,10 +300,10 @@ app.extend({
       app.statusbar.show('Retrieving connection details...');
 
       state.connection = new Connection({
-        _id: connection_id
+        _id: connectionId
       });
 
-      debug('looking up connection `%s`...', connection_id);
+      debug('looking up connection `%s`...', connectionId);
       getConnection(state.connection, function(err) {
         if (err) {
           state.onFatalError('fetch connection', err);

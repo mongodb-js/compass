@@ -4,6 +4,8 @@ var ConnectionCollection = require('../models/connection-collection');
 var ConnectFormView = require('./connect-form-view');
 var Connection = require('../models/connection');
 var debug = require('debug')('scout:connect:index');
+var _ = require('lodash');
+var app = require('ampersand-app');
 var format = require('util').format;
 
 /**
@@ -87,7 +89,7 @@ var ConnectView = View.extend({
     'change select[name=ssl]': 'onSslMethodChanged',
     'click [data-hook=create-favorite-button]': 'onCreateFavoriteClicked',
     'click [data-hook=remove-favorite-button]': 'onRemoveFavoriteClicked',
-    'input input[name=name]': 'onNameInputChanged',
+    'input input[name=name]': 'onNameInputChanged'
   },
   bindings: {
     // show error div
@@ -333,7 +335,7 @@ var ConnectView = View.extend({
     // Populates the form from values in the model.
     this.form.setValues(values);
   },
-  onCreateFavoriteClicked: function(evt) {
+  onCreateFavoriteClicked: function() {
     var connection = null;
     if (this.form.connection_id) {
       connection = this.connections.get(this.form.connection_id);
@@ -359,7 +361,7 @@ var ConnectView = View.extend({
       merge: true
     });
   },
-  onRemoveFavoriteClicked: function(evt) {
+  onRemoveFavoriteClicked: function() {
     debug('remove favorite clicked');
     var connection = this.connections.get(this.form.connection_id);
     if (!connection) {
@@ -369,7 +371,7 @@ var ConnectView = View.extend({
     connection.is_favorite = false;
     this.createNewConnection();
   },
-  onSaveChangesClicked: function(evt) {
+  onSaveChangesClicked: function() {
     debug('save changes clicked');
   },
   onFormSubmitted: function(connection) {
@@ -382,13 +384,12 @@ var ConnectView = View.extend({
     }
     this.connect(connection);
   },
-  onNameInputChanged: function(evt) {
+  onNameInputChanged: function() {
     this.connectionName = this.form.data.name;
   },
   uiStateChanged: function() {
     debug('ui state has changed to', this.uiState);
-  },
-
+  }
 });
 
 module.exports = ConnectView;
