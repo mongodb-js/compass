@@ -41,6 +41,18 @@ function getTemplate(_window) {
       ]
     },
     {
+      label: 'Connect',
+      submenu: [
+        {
+          label: 'Connect to...',
+          accelerator: 'Command+N',
+          click: function() {
+            app.emit('show connect dialog');
+          }
+        }
+      ]
+    },
+    {
       label: 'Edit',
       submenu: [
         {
@@ -81,13 +93,6 @@ function getTemplate(_window) {
     {
       label: 'View',
       submenu: [
-        {
-          label: 'Connect to...',
-          accelerator: 'Command+N',
-          click: function() {
-            app.emit('show connect dialog');
-          }
-        },
         {
           label: 'Reload',
           accelerator: 'Command+R',
