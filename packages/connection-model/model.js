@@ -373,7 +373,7 @@ assign(props, {
    * (needs to have a mongod server with ssl support, 2.4 or higher).
    */
   ssl_ca: {
-    type: 'array',
+    type: 'any',
     default: undefined
   },
 
@@ -540,14 +540,15 @@ Connection = AmpersandModel.extend({
   props: props,
   derived: derived,
   initialize: function(attrs) {
-    attrs = attrs || {};
     debug('initialize', attrs);
-    this.parse(attrs);
+    if (attrs) {
+      if (attrs.ssl_ca && !Array.isArray(attrs.ssl_ca)) {
+        this.ssl_ca = attrs.ssl_ca = [attrs.ssl_ca];
+      }
+      this.parse(attrs);
+    }
   },
   parse: function(attrs) {
-    if (!attrs) {
-      return attrs;
-    }
     debug('parsing...');
     if (attrs.mongodb_username) {
       this.authentication = attrs.authentication = 'MONGODB';
@@ -570,10 +571,6 @@ Connection = AmpersandModel.extend({
         attrs.kerberos_service_name = KERBEROS_SERVICE_NAME_DEFAULT;
       }
       this.kerberos_service_name = attrs.kerberos_service_name;
-    }
-
-    if (attrs.ssl_ca && !Array.isArray(attrs.ssl_ca)) {
-      this.ssl_ca = attrs.ssl_ca = [attrs.ssl_ca];
     }
 
     debug('parsing complete');
