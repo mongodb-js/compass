@@ -367,7 +367,14 @@ describe('mongodb-connection-model', function() {
     });
 
     describe('When ssl is ALL', function() {
-      it('should cooerce a string value for `ssl_ca` into an array');
+      it('should cooerce a string value for `ssl_ca` into an array', function(){
+        assert.doesNotThrow(function(){
+          var c = new Connection({
+            ssl_ca: fixture.ssl.ca
+          });
+          assert(Array.isArray(c.ssl_ca));
+        });
+      });
       it('should produce the correct driver URL');
       it('should produce the correct driver options');
     });

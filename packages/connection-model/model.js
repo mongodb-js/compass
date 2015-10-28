@@ -571,6 +571,11 @@ Connection = AmpersandModel.extend({
       }
       this.kerberos_service_name = attrs.kerberos_service_name;
     }
+
+    if (attrs.ssl_ca && !Array.isArray(attrs.ssl_ca)) {
+      this.ssl_ca = attrs.ssl_ca = [attrs.ssl_ca];
+    }
+    
     debug('parsing complete');
     return attrs;
   },
