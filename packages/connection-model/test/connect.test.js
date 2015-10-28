@@ -166,6 +166,8 @@ console.log('Fixture matrix has %s connections we can test', data.MATRIX.length)
 describe('mongodb-connection#connect', function() {
   describe('local', function() {
     before(function(done) {
+      this.timeout(10000);
+      this.slow(10000);
       debug('checking if mongodb is running...');
       running(function(err, res) {
         debug('is-mongodb-running returned', err, res);
