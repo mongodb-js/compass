@@ -575,7 +575,7 @@ Connection = AmpersandModel.extend({
     if (attrs.ssl_ca && !Array.isArray(attrs.ssl_ca)) {
       this.ssl_ca = attrs.ssl_ca = [attrs.ssl_ca];
     }
-    
+
     debug('parsing complete');
     return attrs;
   },

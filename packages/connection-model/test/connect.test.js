@@ -63,7 +63,9 @@ function getDatabaseNames(db, done) {
     var names = res.databases.map(function(d) {
       return d.name;
     }).filter(function(name) {
-      if (name === 'admin') return false;
+      if (name === 'admin') {
+        return false;
+      }
       return true;
     });
     debug('list database names succeeded!', {
