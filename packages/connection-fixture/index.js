@@ -225,19 +225,19 @@ exports.INSTANCES = [
   }
 ];
 
-exports.MATRIX = _.chain(exports.INSTANCES)
-  .map(function(instance) {
-    return _.map(exports.MONGODB, function(creds) {
-      var options = _.clone(instance);
-      _.assign(options, creds);
+exports.MATRIX = _.chain(exports.MONGODB)
+  .filter(function(d) {
+    return d.mongodb_password !== undefined;
+  })
+  .map(function(d) {
+    return _.map(exports.INSTANCES, function(instance) {
+      var options = _.assign(_.clone(instance), d);
       options.name = format('🔒 %s@%s',
-        creds.mongodb_username, options.name);
+        d.mongodb_username, options.name);
       return options;
     });
   })
-  .filter(function(c) {
-    return c.mongodb_password;
-  })
+  .flatten()
   .value();
 
 /**
