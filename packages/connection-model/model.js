@@ -131,7 +131,9 @@ var AUTH_MECHANISM_TO_AUTHENTICATION = {
   'MONGODB-CR': 'MONGODB',
   'MONGODB-X509': 'X509',
   GSSAPI: 'KERBEROS',
-  PLAIN: 'LDAP'
+  SSAPI: 'KERBEROS',
+  PLAIN: 'LDAP',
+  LDAP: 'LDAP'
 };
 
 /**
@@ -194,6 +196,8 @@ assign(props, {
     default: undefined
   }
 });
+
+var MONGODB_DATABASE_NAME_DEFAULT = 'admin';
 
 /**
  * ### `authentication = KERBEROS`
@@ -440,11 +444,11 @@ assign(derived, {
 
       if (this.authentication === 'MONGODB') {
         req.auth = format('%s:%s', this.mongodb_username, this.mongodb_password);
-        req.query.authSource = this.mongodb_database_name || 'admin';
+        req.query.authSource = this.mongodb_database_name;
       } else if (this.authentication === 'KERBEROS') {
         req.pathname = '/kerberos';
         defaults(req.query, {
-          gssapiServiceName: this.kerberos_service_name || KERBEROS_SERVICE_NAME_DEFAULT,
+          gssapiServiceName: this.kerberos_service_name,
           authMechanism: this.driver_auth_mechanism
         });
 
@@ -546,24 +550,26 @@ Connection = AmpersandModel.extend({
     }
     debug('parsing...');
     if (attrs.mongodb_username) {
-      attrs.authentication = 'MONGODB';
+      this.authentication = attrs.authentication = 'MONGODB';
     } else if (attrs.kerberos_principal) {
-      attrs.authentication = 'KERBEROS';
+      this.authentication = attrs.authentication = 'KERBEROS';
     } else if (attrs.ldap_username) {
-      attrs.authentication = 'LDAP';
+      this.authentication = attrs.authentication = 'LDAP';
     } else if (attrs.x509_username) {
-      attrs.authentication = 'X509';
+      this.authentication = attrs.authentication = 'X509';
     }
 
     if (attrs.authentication === 'MONGODB') {
       if (!attrs.mongodb_database_name) {
-        attrs.mongodb_database_name = 'admin';
+        attrs.mongodb_database_name = MONGODB_DATABASE_NAME_DEFAULT;
       }
+      this.mongodb_database_name = attrs.mongodb_database_name;
     }
     if (attrs.authentication === 'KERBEROS') {
       if (!attrs.kerberos_service_name) {
-        attrs.kerberos_service_name = 'mongodb';
+        attrs.kerberos_service_name = KERBEROS_SERVICE_NAME_DEFAULT;
       }
+      this.kerberos_service_name = attrs.kerberos_service_name;
     }
     debug('parsing complete');
     return attrs;
@@ -572,14 +578,11 @@ Connection = AmpersandModel.extend({
   validate: function(attrs) {
     debug('validating...');
     try {
-      /**
-       * @todo (imlucas): Validation for LDAP
-       */
-      /**
-       * @todo (imlucas): Validation for X509
-       */
       this.validate_ssl(attrs);
+      this.validate_mongodb(attrs);
       this.validate_kerberos(attrs);
+      this.validate_x509(attrs);
+      this.validate_ldap(attrs);
     } catch (err) {
       return err;
     }
@@ -606,6 +609,21 @@ Connection = AmpersandModel.extend({
 
       if (!attrs.ssl_certificate) {
         throw new TypeError('ssl_certificate is required when ssl is ALL.');
+      }
+    }
+  },
+  validate_mongodb: function(attrs) {
+    if (attrs.authentication === 'MONGODB') {
+      if (!attrs.mongodb_username) {
+        throw new TypeError(format(
+          'The mongodb_username field is required when '
+          + 'using MONGODB for authentication.'));
+      }
+
+      if (!attrs.mongodb_password) {
+        throw new TypeError(format(
+          'The mongodb_password field is required when '
+          + 'using MONGODB for authentication.'));
       }
     }
   },
@@ -639,6 +657,29 @@ Connection = AmpersandModel.extend({
           + 'using KERBEROS for authentication.'));
       }
     }
+  },
+  validate_x509: function(attrs) {
+    if (attrs.authentication === 'X509') {
+      if (!attrs.x509_username) {
+        throw new TypeError(format(
+          'The x509_username field is required when '
+          + 'using X509 for authentication.'));
+      }
+    }
+  },
+  validate_ldap: function(attrs) {
+    if (attrs.authentication === 'LDAP') {
+      if (!attrs.ldap_username) {
+        throw new TypeError(format(
+          'The ldap_username field is required when '
+          + 'using LDAP for authentication.'));
+      }
+      if (!attrs.ldap_password) {
+        throw new TypeError(format(
+          'The ldap_password field is required when '
+          + 'using LDAP for authentication.'));
+      }
+    }
   }
 });
 
@@ -656,41 +697,54 @@ Connection = AmpersandModel.extend({
  * @return {Connection}
  */
 Connection.from = function(url) {
+  /* eslint camelcase:0 */
   if (!url) {
     url = 'mongodb://localhost:27017';
   }
 
   var parsed = parse(url);
+  debug('parsed url `%s`', url, parsed);
+  debug('authMechanism is', parsed.db_options.authMechanism);
+
   var attrs = {
     hostname: parsed.servers[0].host,
     port: parsed.servers[0].port
   };
 
-  if (!parsed.authMechanism) {
+  if (parsed.auth) {
     /**
      * @todo (imlucas): This case is ambiguous... support `mongodb+ldap://user:pass@host`.
      */
-    if (parsed.username && parsed.password) {
+    if (parsed.auth.user && parsed.auth.password) {
       parsed.authMechanism = 'DEFAULT';
-    } else if (parsed.username && !parsed.password) {
+    } else if (parsed.auth.user && !parsed.auth.password) {
       parsed.authMechanism = 'MONGODB-X509';
     }
   }
 
-  if (parsed.authMechanism) {
-    attrs.authentication = parsed.authMechanism[AUTH_MECHANISM_TO_AUTHENTICATION];
+  if (parsed.auth && parsed.db_options) {
+    // Handles cannonicalizing all possible values for each
+    // `authentication` into the correct one.
+    attrs.authentication = AUTH_MECHANISM_TO_AUTHENTICATION[parsed.db_options.authMechanism];
 
-    if (contains(['DEFAULT', 'SCRAM-SHA-1', 'MONGODB-CR'], attrs.authentication)) {
-      attrs.mongodb_username = parsed.username;
-      attrs.mongodb_password = parsed.password;
-      attrs.mongodb_database_name = parsed.dbName;
-    } else if (attrs.authentication === 'LDAP') {
-      attrs.ldap_username = parsed.username;
-      attrs.ldap_password = parsed.password;
+    if (attrs.authentication === 'LDAP') {
+      attrs.ldap_username = decodeURIComponent(parsed.auth.user);
+      attrs.ldap_password = decodeURIComponent(parsed.auth.password);
     } else if (attrs.authentication === 'X509') {
-      attrs.x509_username = parsed.username;
+      attrs.x509_username = decodeURIComponent(parsed.auth.user);
+    } else if (attrs.authentication === 'KERBEROS') {
+      attrs.kerberos_principal = decodeURIComponent(parsed.auth.user);
+      attrs.kerberos_password = decodeURIComponent(parsed.auth.password);
+    // attrs.kerberos_service_name = parsed.
+    } else {
+      attrs.authentication = 'MONGODB';
+      attrs.mongodb_username = decodeURIComponent(parsed.auth.user);
+      attrs.mongodb_password = decodeURIComponent(parsed.auth.password);
+      attrs.mongodb_database_name = decodeURIComponent(parsed.dbName);
     }
   }
+
+  debug('parsed connection attributes', attrs);
   return new Connection(attrs);
 };
 
@@ -709,6 +763,7 @@ Connection.AUTHENTICATION_VALUES = AUTHENTICATION_VALUES;
 Connection.AUTHENTICATION_DEFAULT = AUTHENTICATION_DEFAULT;
 Connection.SSL_VALUES = SSL_VALUES;
 Connection.SSL_DEFAULT = SSL_DEFAULT;
+Connection.MONGODB_DATABASE_NAME_DEFAULT = MONGODB_DATABASE_NAME_DEFAULT;
 Connection.KERBEROS_SERVICE_NAME_DEFAULT = KERBEROS_SERVICE_NAME_DEFAULT;
 
 var ConnectionCollection = AmpersandCollection.extend({
