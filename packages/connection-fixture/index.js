@@ -232,7 +232,7 @@ exports.MATRIX = _.chain(exports.MONGODB)
   .map(function(d) {
     return _.map(exports.INSTANCES, function(instance) {
       var options = _.assign(_.clone(instance), d);
-      options.name = format('🔒 %s@%s',
+      options.name = format('🔒  %s@%s',
         d.mongodb_username, options.name);
       return options;
     });
