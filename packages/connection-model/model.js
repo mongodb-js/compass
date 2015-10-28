@@ -255,6 +255,8 @@ assign(props, {
   }
 });
 
+var KERBEROS_SERVICE_NAME_DEFAULT = 'mongodb';
+
 /**
  * ### `authentication = LDAP`
  *
@@ -430,6 +432,7 @@ assign(derived, {
         slashes: true,
         hostname: this.hostname,
         port: this.port,
+        pathname: '/',
         query: {
           slaveOk: 'true'
         }
@@ -439,9 +442,9 @@ assign(derived, {
         req.auth = format('%s:%s', this.mongodb_username, this.mongodb_password);
         req.query.authSource = this.mongodb_database_name || 'admin';
       } else if (this.authentication === 'KERBEROS') {
-        req.pathname = 'kerberos';
+        req.pathname = '/kerberos';
         defaults(req.query, {
-          gssapiServiceName: this.kerberos_service_name,
+          gssapiServiceName: this.kerberos_service_name || KERBEROS_SERVICE_NAME_DEFAULT,
           authMechanism: this.driver_auth_mechanism
         });
 
@@ -706,6 +709,7 @@ Connection.AUTHENTICATION_VALUES = AUTHENTICATION_VALUES;
 Connection.AUTHENTICATION_DEFAULT = AUTHENTICATION_DEFAULT;
 Connection.SSL_VALUES = SSL_VALUES;
 Connection.SSL_DEFAULT = SSL_DEFAULT;
+Connection.KERBEROS_SERVICE_NAME_DEFAULT = KERBEROS_SERVICE_NAME_DEFAULT;
 
 var ConnectionCollection = AmpersandCollection.extend({
   comparator: 'instance_id',

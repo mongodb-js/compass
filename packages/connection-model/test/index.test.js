@@ -2,6 +2,7 @@ var assert = require('assert');
 var Connection = require('../');
 var loadOptions = require('../connect').loadOptions;
 var parse = require('mongodb-url');
+var driverParse = require('mongodb/lib/url_parser');
 var fixture = require('mongodb-connection-fixture');
 var format = require('util').format;
 
@@ -15,6 +16,7 @@ function isNotValidAndHasMessage(model, msg) {
     format('Unexpected error message!  Expected to match `%s` but got `%s`.',
       msg, err.message));
 }
+
 /**
  * Test that the connection URL and options are createdb
  * properly for all of the different authentication features
@@ -69,8 +71,17 @@ describe('mongodb-connection-model', function() {
 
   describe('When authentication is NONE', function() {
     it('should return the correct URL for the driver', function() {
-      assert.equal(new Connection().driver_url,
-        'mongodb://localhost:27017?slaveOk=true');
+      var c = new Connection();
+      assert.equal(c.driver_url,
+        'mongodb://localhost:27017/?slaveOk=true');
+
+      assert.doesNotThrow(function() {
+        parse(c.driver_url);
+      });
+
+      assert.doesNotThrow(function() {
+        driverParse(c.driver_url);
+      });
     });
   });
 
@@ -90,18 +101,33 @@ describe('mongodb-connection-model', function() {
           authentication: 'MONGODB'
         });
         assert.equal(c.driver_url,
-          'mongodb://arlo:woof@localhost:27017?slaveOk=true&authSource=admin');
+          'mongodb://arlo:woof@localhost:27017/?slaveOk=true&authSource=admin');
+        assert.doesNotThrow(function() {
+          parse(c.driver_url);
+        });
+
+        assert.doesNotThrow(function() {
+          driverParse(c.driver_url);
+        });
       });
 
       it('should urlencode fields', function() {
-        var url = new Connection({
+        var c = new Connection({
           mongodb_username: '@rlo',
           mongodb_password: 'w@of',
           mongodb_database_name: '@dmin',
           authentication: 'MONGODB'
-        }).driver_url;
-        assert.equal(url,
-          'mongodb://%40rlo:w%40of@localhost:27017?slaveOk=true&authSource=%40dmin');
+        });
+        assert.equal(c.driver_url,
+          'mongodb://%40rlo:w%40of@localhost:27017/?slaveOk=true&authSource=%40dmin');
+
+        assert.doesNotThrow(function() {
+          parse(c.driver_url);
+        });
+
+        assert.doesNotThrow(function() {
+          driverParse(c.driver_url);
+        });
       });
     });
   });
@@ -119,6 +145,17 @@ describe('mongodb-connection-model', function() {
             ldap_password: 'w@of'
           });
           assert.equal(c.driver_auth_mechanism, 'PLAIN');
+
+          assert.equal(c.driver_url,
+            'mongodb://arlo:w%40of@localhost:27017/?slaveOk=true&authMechanism=PLAIN');
+
+          assert.doesNotThrow(function() {
+            parse(c.driver_url);
+          });
+
+          assert.doesNotThrow(function() {
+            driverParse(c.driver_url);
+          });
         });
       });
     });
@@ -134,8 +171,18 @@ describe('mongodb-connection-model', function() {
               + 'ST=Pennsylvania,C=US'
           });
           assert.equal(c.driver_auth_mechanism, 'MONGODB-X509');
+          assert.equal(c.driver_url,
+            'mongodb://CN%253Dclient%252COU%253Darlo%252CO%253DMongoDB%252CL%253DPhiladelphia'
+            + '%252CST%253DPennsylvania%252CC%253DUS@localhost:27017/'
+            + '?slaveOk=true&authMechanism=MONGODB-X509');
+          assert.doesNotThrow(function() {
+            parse(c.driver_url);
+          });
+
+          assert.doesNotThrow(function() {
+            driverParse(c.driver_url);
+          });
         });
-        it('should urlencode x509_username');
       });
     });
 
@@ -152,12 +199,18 @@ describe('mongodb-connection-model', function() {
           kerberos_principal: 'lucas@kerb.mongodb.parts'
         });
         assert.equal(c.isValid(), true);
+
+        assert.equal(c.driver_url,
+          'mongodb://lucas%2540kerb.mongodb.parts:@localhost:27017/'
+          + 'kerberos?slaveOk=true&gssapiServiceName=mongodb&authMechanism=GSSAPI');
+
         assert.doesNotThrow(function() {
           parse(c.driver_url);
         });
-        assert.equal(c.driver_url,
-          'mongodb://lucas%2540kerb.mongodb.parts:@localhost:27017/'
-          + 'kerberos?slaveOk=true&gssapiServiceName=&authMechanism=GSSAPI');
+
+        assert.doesNotThrow(function() {
+          driverParse(c.driver_url);
+        });
       });
 
       it('should return the correct URL for the driver', function() {
@@ -171,7 +224,13 @@ describe('mongodb-connection-model', function() {
           'mongodb://arlo%252Fdog%2540krb5.mongodb.parts:w%40%40f@localhost:27017/'
           + 'kerberos?slaveOk=true&gssapiServiceName=mongodb&authMechanism=GSSAPI');
 
-        parse(c.driver_url);
+        assert.doesNotThrow(function() {
+          parse(c.driver_url);
+        });
+
+        assert.doesNotThrow(function() {
+          driverParse(c.driver_url);
+        });
       });
     });
   });
