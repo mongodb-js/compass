@@ -81,8 +81,16 @@ var X509 = {
   title: 'X.509',
   // @todo (imlucas) Fix `app.isFeatureEnabled` is not a function.
   // enabled: app.isFeatureEnabled('Connect with X.509'),
-  enabled: false,
-  fields: []
+  enabled: true,
+  fields: [
+    new InputView({
+      template: inputTemplate,
+      name: 'x509_username',
+      label: 'Username',
+      placeholder: '',
+      required: true
+    })
+  ]
 };
 
 var LDAP = {
@@ -90,8 +98,24 @@ var LDAP = {
   title: 'LDAP',
   // @todo (imlucas) Fix `app.isFeatureEnabled` is not a function.
   // enabled: app.isFeatureEnabled('Connect with LDAP'),
-  enabled: false,
-  fields: []
+  enabled: true,
+  fields: [
+    new InputView({
+      template: inputTemplate,
+      name: 'ldap_username',
+      label: 'Username',
+      placeholder: '',
+      required: true
+    }),
+    new InputView({
+      template: inputTemplate,
+      type: 'password',
+      name: 'ldap_password',
+      label: 'Password',
+      placeholder: '',
+      required: true
+    })
+  ]
 };
 
 module.exports = new AuthenticationOptionCollection([

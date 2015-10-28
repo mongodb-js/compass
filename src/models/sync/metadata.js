@@ -153,6 +153,7 @@ Metadata.prototype.find = function(collection, options, done) {
         return _.startsWith(key, prefix);
       })
       .each(function(key) {
+        // this is for the keychain store which doesn't support a find() and needs a list of ids
         options.ids.push(key.split('/')[1]);
       })
       .map(function(key) {

@@ -109,6 +109,11 @@ var ConnectFormView = FormView.extend({
     obj.hostname = obj.hostname || 'localhost';
     obj.port = parseInt(obj.port || 27017, 10);
 
+    // defaults for Kerberos authentication
+    if (obj.authentication === 'KERBEROS') {
+      obj.kerberos_service_name = obj.kerberos_service_name || 'mongodb';
+    }
+
     // make a friendly connection name
     this.makeFriendlyName(obj);
 

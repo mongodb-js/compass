@@ -207,7 +207,7 @@ var ConnectView = View.extend({
   connect: function(connection) {
     app.statusbar.show();
 
-    debug('testing credentials are usable...');
+    debug('testing connection url %s with options %j', connection.driver_url, connection.driver_options);
     connection.test(function(err) {
       app.statusbar.hide();
       if (!err) {
@@ -353,10 +353,8 @@ var ConnectView = View.extend({
   },
   updateConflictingNames: function() {
     var conflicts = this.connections.filter(function(model) {
-      debug('inside', model.getId(), this.form.connection_id);
       return model.is_favorite && model.getId() !== _.get(this.form, 'connection_id');
     }.bind(this));
-    debug('favorites (excluding self)', _.pluck(conflicts, 'name'));
     var nameField = this.form.getField('name');
     nameField.conflicting = _.pluck(conflicts, 'name');
   },
