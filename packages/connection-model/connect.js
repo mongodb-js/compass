@@ -1,9 +1,11 @@
+var fs = require('fs');
+var parallel = require('run-parallel');
+var series = require('run-series');
 var MongoClient = require('mongodb').MongoClient;
 var backoff = require('backoff');
 var Connection = require('./model');
+var parseURL = require('mongodb/lib/url_parser');
 var debug = require('debug')('mongodb-connection-model:connect');
-var fs = require('fs');
-var parallel = require('run-parallel');
 
 function loadOptions(model, done) {
   if (model.ssl === 'NONE' || model.ssl === 'UNVALIDATED') {
@@ -48,6 +50,32 @@ function loadOptions(model, done) {
   });
 }
 
+/**
+ * Make sure the driver doesn't puke on the URL and cause
+ * an uncaughtException.
+ *
+ * @param {Connection} model
+ * @param {Function} done
+ */
+function validateURL(model, done) {
+  var url = model.driver_url;
+  debug('validating URL with driver...');
+  try {
+    parseURL(url);
+    debug('URL parsed ok');
+    done(null, url);
+  } catch (e) {
+    debug('error parsing URL', e);
+    // URL parsing errors are just generic `Error` instances
+    // so overwrite name so mongodb-js-server will know
+    // the message is safe to display.
+    e.name = 'MongoError';
+    process.nextTick(function() {
+      done(e);
+    });
+  }
+}
+
 function connectWithBackoff(model, done) {
   if (!(model instanceof Connection)) {
     model = new Connection(model);
@@ -83,19 +111,32 @@ function connect(model, done) {
   if (!(model instanceof Connection)) {
     model = new Connection(model);
   }
-  var url = model.driver_url;
-  loadOptions(model, function(err, opts) {
+  debug('preparing model...');
+  series([
+    validateURL.bind(null, model),
+    loadOptions.bind(null, model)
+  ], function(err, args) {
     if (err) {
+      debug('error preparing model', err);
       return done(err);
     }
-    MongoClient.connect(url, opts, done);
+    var url = args[0];
+    var options = args[1];
+    debug('model prepared!  calling driver.connect...');
+    MongoClient.connect(url, options, done);
   });
 }
 
 if (process.env.MONGODB_BACKOFF) {
-  module.exports = connectWithBackoff;
+  exports = connectWithBackoff;
 } else {
-  module.exports = connect;
+  exports = connect;
 }
 
-module.exports.loadOptions = loadOptions;
+exports.loadOptions = loadOptions;
+exports.validateURL = validateURL;
+exports.connectWithBackoff = connectWithBackoff;
+exports.connect = connect;
+
+
+module.exports = exports;
