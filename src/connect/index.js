@@ -27,17 +27,6 @@ var ConnectView = View.extend({
       type: 'string',
       default: ''
     },
-    uiState: {
-      type: 'string',
-      default: 'NEW CONNECTION',
-      values: [
-        'NEW CONNECTION',
-        'EDITABLE: EXISTING FAVORITE',
-        'EDITABLE: NEW FAVORITE',
-        'EDITED: NAME CHANGED',
-        'EDITED: NAME UNCHANGED'
-      ]
-    },
     connectionName: {
       type: 'string',
       default: ''
@@ -69,16 +58,6 @@ var ConnectView = View.extend({
       fn: function() {
         return this.message !== '';
       }
-    },
-    nameConflict: {
-      deps: ['connectionName'],
-      fn: function() {
-        if (this.connectionName === '') return false;
-        var conflict = this.connections.get(this.connectionName, 'name');
-        if (!conflict) return false;
-        if (!conflict.is_favorite) return false;
-        return conflict._id !== this.form.connection_id;
-      }
     }
   },
   collections: {
@@ -89,7 +68,8 @@ var ConnectView = View.extend({
     'change select[name=ssl]': 'onSslMethodChanged',
     'click [data-hook=create-favorite-button]': 'onCreateFavoriteClicked',
     'click [data-hook=remove-favorite-button]': 'onRemoveFavoriteClicked',
-    'input input[name=name]': 'onNameInputChanged'
+    'input input[name=name]': 'onNameInputChanged',
+    'change input[name=name]': 'onNameInputChanged'
   },
   bindings: {
     // show error div
@@ -107,16 +87,14 @@ var ConnectView = View.extend({
       yes: '[data-hook=remove-favorite-button]',
       no: '[data-hook=create-favorite-button]'
     },
-    nameConflict: [
+    connectionName: [
       {
-        type: 'booleanAttribute',
-        hook: 'save-changes-button',
-        no: 'disabled'
+        type: 'toggle',
+        hook: 'favorite-buttons'
       },
       {
-        type: 'booleanAttribute',
-        hook: 'create-favorite-button',
-        yes: 'disabled'
+        type: 'toggle',
+        hook: 'save-changes-button'
       }
     ]
   },
@@ -135,8 +113,8 @@ var ConnectView = View.extend({
   },
   initialize: function() {
     document.title = 'Connect to MongoDB';
+    this.connections.on('sync', this.updateConflictingNames.bind(this));
     this.connections.fetch();
-    this.on('change:uiState', this.uiStateChanged.bind(this));
   },
   render: function() {
     this.renderWithTemplate({
@@ -244,12 +222,13 @@ var ConnectView = View.extend({
     }.bind(this));
   },
   createNewConnection: function() {
-    this.uiState = 'NEW CONNECTION';
     this.reset();
-    this.form.connection_id = '';
     this.isFavorite = false;
-    this.form.reset();
+    this.connectionName = '';
     this.authMethod = 'MONGODB';
+    this.form.connection_id = '';
+    this.form.reset();
+    this.updateConflictingNames();
   },
   /**
    * If there is a validation or connection error show a nice message.
@@ -270,13 +249,8 @@ var ConnectView = View.extend({
     app.statusbar.hide();
     // this.form.connection_id = '';
 
-    /**
-     * The save method will handle calling the correct method
-     * of the sync being used by the model, whether that's
-     * `create` or `update`.
-     *
-     * @see http://ampersandjs.com/docs#ampersand-model-save
-     */
+    // if a connection with same name already exists, get that instead
+    connection = this.connections.get(connection.name, 'name') || connection;
     connection.last_used = new Date();
     connection.save();
     /**
@@ -291,6 +265,8 @@ var ConnectView = View.extend({
     this.connections.add(connection, {
       merge: true
     });
+    // update sidebar view, it may have changed
+    this.sidebar.render();
 
     debug('opening schema view for', connection.serialize());
     /**
@@ -301,7 +277,7 @@ var ConnectView = View.extend({
       message: ''
     }), 500);
 
-  // setTimeout(window.close, 1000);
+    setTimeout(window.close, 1000);
   },
   /**
    * Update the form's state based on an existing connection, e.g. clicking on a list item
@@ -314,7 +290,6 @@ var ConnectView = View.extend({
     // If the new model has auth, expand the auth settings container and select the correct tab.
     this.authMethod = connection.authentication;
     this.sslMethod = connection.ssl;
-
     this.isFavorite = connection.is_favorite;
 
     // Changing `this.authMethod` and `this.sslMethod` dynamically updates the form fields
@@ -328,24 +303,26 @@ var ConnectView = View.extend({
     }
 
     var values = _.pick(connection, keys);
-    debug('Populating form fields with:', values, connection.getId());
-
     this.form.connection_id = connection.getId();
+    this.updateConflictingNames();
+
+    // make connection active, and (implicitly) all others inactive
+    connection.active = true;
+    debug('connection is active now?', connection.active);
 
     // Populates the form from values in the model.
     this.form.setValues(values);
+    this.connectionName = this.form.data.name;
   },
   onCreateFavoriteClicked: function() {
     var connection = null;
     if (this.form.connection_id) {
       connection = this.connections.get(this.form.connection_id);
     }
-    debug('connection retrieved', connection);
     if (!connection) {
       connection = new Connection(this.form.data);
     }
     _.assign(connection, this.form.data);
-    debug('new connection', connection);
 
     if (!connection.isValid()) {
       this.onError(connection.validationError);
@@ -355,11 +332,12 @@ var ConnectView = View.extend({
     connection.is_favorite = true;
     this.isFavorite = true;
 
-    debug('create favorite clicked', this.form.data, connection);
     connection.save();
     this.connections.add(connection, {
       merge: true
     });
+    this.form.connection_id = connection.getId();
+    this.updateConflictingNames();
   },
   onRemoveFavoriteClicked: function() {
     debug('remove favorite clicked');
@@ -369,14 +347,23 @@ var ConnectView = View.extend({
       return;
     }
     connection.is_favorite = false;
+    connection.save();
     this.createNewConnection();
+    this.updateConflictingNames();
+  },
+  updateConflictingNames: function() {
+    var conflicts = this.connections.filter(function(model) {
+      debug('inside', model.getId(), this.form.connection_id);
+      return model.is_favorite && model.getId() !== _.get(this.form, 'connection_id');
+    }.bind(this));
+    debug('favorites (excluding self)', _.pluck(conflicts, 'name'));
+    var nameField = this.form.getField('name');
+    nameField.conflicting = _.pluck(conflicts, 'name');
   },
   onSaveChangesClicked: function() {
     debug('save changes clicked');
   },
   onFormSubmitted: function(connection) {
-    debug('on form submitted');
-
     this.reset();
     if (!connection.isValid()) {
       this.onError(connection.validationError);
@@ -384,11 +371,8 @@ var ConnectView = View.extend({
     }
     this.connect(connection);
   },
-  onNameInputChanged: function() {
-    this.connectionName = this.form.data.name;
-  },
-  uiStateChanged: function() {
-    debug('ui state has changed to', this.uiState);
+  onNameInputChanged: function(evt) {
+    this.connectionName = evt.target.value;
   }
 });
 

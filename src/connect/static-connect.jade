@@ -36,6 +36,7 @@
       
       .form-item
         button.btn.btn-primary(type='submit', name="connect", data-hook='connect-button') Connect
-        button.btn.btn-default(type='button', name="createFavorite", data-hook='create-favorite-button') Create Favorite
-        button.btn.btn-default(type='button', name="removeFavorite", data-hook='remove-favorite-button') Remove Favorite
-        button.btn.btn-default(type='button', name="saveChanges", data-hook='save-changes-button') Save Changes
+        span.buttons(data-hook='favorite-buttons')
+          button.btn.btn-default(type='button', name="createFavorite", data-hook='create-favorite-button') Create Favorite
+          button.btn.btn-default(type='button', name="removeFavorite", data-hook='remove-favorite-button') Remove Favorite
+        //- button.btn.btn-default(type='button', name="saveChanges", data-hook='save-changes-button') Save Changes

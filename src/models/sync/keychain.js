@@ -78,7 +78,7 @@ Keychain.prototype.findOne = function(model, options, done) {
  * @see http://ampersandjs.com/docs#ampersand-model-destroy
  */
 Keychain.prototype.remove = function(model, options, done) {
-  keytar.removePassword(this.service, model.getId());
+  keytar.deletePassword(this.service, model.getId());
   done();
 };
 

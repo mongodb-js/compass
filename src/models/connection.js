@@ -30,6 +30,12 @@ module.exports = Connection.extend({
       default: false
     }
   },
+  session: {
+    active: {
+      type: 'boolean',
+      default: false
+    }
+  },
   test: function(done) {
     var model = this;
     debug('Testing connection to `%j`...', this);

@@ -1,4 +1,6 @@
 .form-item 
   label(data-hook='label')= label
+  .message.message-below.message-error(data-hook='message-container')
+    p(data-hook='message-text')
   .form-item-file
     input(type="file", name="uploadKeyFile")

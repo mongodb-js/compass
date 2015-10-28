@@ -19,15 +19,17 @@ module.exports = Collection.extend(lodashMixin, restMixin, {
   indexes: ['name'],
   maxLength: 3,
   _prune: function() {
-    var nonFavorites = this.filter(function(model) {
-      return !model.is_favorite;
+    var usedConnections = this.filter(function(model) {
+      return model.last_used !== null;
     });
-    if (nonFavorites.length > this.maxLength) {
+    if (usedConnections.length > this.maxLength) {
+      var usedNonFavorites = _.sortBy(this.filter(function(model) {
+        return model.last_used !== null && !model.is_favorite;
+      }), 'last_used');
       // if there is no space anymore, remove the oldest non-favorite event first
-      var oldestItems = _.sortBy(nonFavorites, 'last_used');
-      var toRemove = this.remove(oldestItems.slice(0, nonFavorites.length - this.maxLength));
+      var toRemove = this.remove(usedNonFavorites.slice(0, usedConnections.length - this.maxLength));
       _.map(toRemove, function(model) {
-        model.remove();
+        model.destroy();
       });
     }
   },
@@ -44,6 +46,11 @@ module.exports = Collection.extend(lodashMixin, restMixin, {
       });
       this.trigger('activate', changedModel);
     }
+  },
+  deactivateAll: function() {
+    this.each(function(model) {
+      model.active = false;
+    });
   },
   pinnedChanged: function(changedModel) {
     if (!changedModel.is_favorite) {

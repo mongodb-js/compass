@@ -23,10 +23,40 @@ var enabledSslOptions = new FilteredCollection(sslOptions, {
   }
 });
 
+
+/**
+ * special input view that validates against a list of conflicting values, which can be
+ * set (and changed) externally.
+ */
+var ConflictingValuesInputView = InputView.extend({
+  props: {
+    conflicting: {
+      type: 'array',
+      default: function() {
+        return [];
+      }
+    }
+  },
+  tests: [
+    function(value) {
+      if (this.conflicting.indexOf(value) !== -1) {
+        return 'This name already exists. Please choose another name.';
+      }
+    }
+  ]
+});
+
+
 var ConnectFormView = FormView.extend({
   props: {
     connection_id: {
       type: 'string'
+    },
+    conflictingNames: {
+      type: 'array',
+      default: function() {
+        return [];
+      }
     }
   },
   namespace: 'ConnectFormView',
@@ -170,7 +200,7 @@ var ConnectFormView = FormView.extend({
         yieldModel: false
       }),
       // connection name field
-      new InputView({
+      new ConflictingValuesInputView({
         template: require('./input-default.jade'),
         el: this.parent.queryByHook('saveas-subview'),
         name: 'name',

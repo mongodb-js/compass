@@ -9,7 +9,6 @@ var FilteredCollection = require('ampersand-filtered-subcollection');
 var SidebarItemView = View.extend({
   namespace: 'SidebarItemView',
   props: {
-    model: Connection,
     hover: {
       type: 'boolean',
       default: false
@@ -30,6 +29,11 @@ var SidebarItemView = View.extend({
         name: 'title'
       }
     ],
+    'model.active': {
+      type: 'booleanClass',
+      hook: 'a-connection-tag',
+      name: 'selected'
+    },
     has_auth: {
       type: 'booleanClass',
       hook: 'has-auth',
@@ -61,11 +65,28 @@ var SidebarItemView = View.extend({
 var SidebarView = View.extend({
   session: {
     activeItemView: {
-      type: 'state'
+      type: 'state',
+      default: null
+    }
+  },
+  derived: {
+    newConnectionActive: {
+      deps: ['activeItemView'],
+      fn: function() {
+        debug('activeItemView is', this.activeItemView);
+        return this.activeItemView === null;
+      }
     }
   },
   events: {
     'click a[data-hook=new-connection]': 'onNewConnectionClick'
+  },
+  bindings: {
+    newConnectionActive: {
+      type: 'booleanClass',
+      hook: 'panel-title-out',
+      name: 'selected'
+    }
   },
   namespace: 'SidebarView',
   template: require('./sidebar.jade'),
@@ -86,6 +107,9 @@ var SidebarView = View.extend({
     var historyConnections = new FilteredCollection(this.collection, {
       filter: function(model) {
         return Boolean(model.last_used);
+      },
+      comparator: function(model) {
+        return -model.last_used;
       }
     });
     this.renderCollection(historyConnections, SidebarItemView,
@@ -96,25 +120,15 @@ var SidebarView = View.extend({
     event.preventDefault();
 
     if (this.activeItemView) {
-      this.activeItemView.el.classList.remove('selected');
       this.activeItemView = null;
     }
+    this.collection.deactivateAll();
     this.parent.createNewConnection();
   },
-  // onRemoveClick: function(event, view) {
-  //   event.stopPropagation();
-  //   event.preventDefault();
-  //   view.model.destroy();
-  //   this.parent.onConnectionDestroyed();
-  // },
   onItemClick: function(event, view) {
     event.stopPropagation();
     event.preventDefault();
-    if (this.activeItemView) {
-      this.activeItemView.el.classList.remove('selected');
-    }
     this.activeItemView = view;
-    this.activeItemView.el.classList.add('selected');
     this.parent.onConnectionSelected(view.model);
   },
   onItemDoubleClick: function(event, view) {
