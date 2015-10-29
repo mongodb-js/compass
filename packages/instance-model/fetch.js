@@ -100,24 +100,22 @@ function getDatabases(db, done) {
   });
 }
 
-function getDatabaseCollections(db, name, done) {
-  debug('getDatabaseCollections for `%s`...', name);
+function getDatabaseCollections(db, done) {
+  debug('getDatabaseCollections...');
 
   var options = {
     readPreference: ReadPreference.nearest
   };
+
   var spec = {};
 
-  db.db(name)
-    // @note: Need to pass readPreference in options for 3.x
-    .listCollections(spec, options)
-    .toArray(function(err) {
-      if (err) {
-        err.command = 'listCollections';
-        return done(err);
-      }
-      done();
-    });
+  db.listCollections(spec, options).toArray(function(err) {
+    if (err) {
+      err.command = 'listCollections';
+      return done(err);
+    }
+    done();
+  });
 }
 
 function getAllCollections(db, done) {
@@ -128,7 +126,7 @@ function getAllCollections(db, done) {
     }
 
     var tasks = names.map(function(name) {
-      return getDatabaseCollections.bind(null, db, name);
+      return getDatabaseCollections.bind(null, db.db(name));
     });
 
     async.parallel(tasks, function(_err) {
@@ -152,3 +150,12 @@ module.exports = function(db, done) {
     getHostInfo.bind(null, db)
   ], done);
 };
+
+module.exports.getDatabaseNames = getDatabaseNames;
+module.exports.getAllCollections = getAllCollections;
+module.exports.getDatabaseCollections = getDatabaseCollections;
+module.exports.getDatabases = getDatabases;
+module.exports.getDatabase = getDatabase;
+module.exports.getBuildInfo = getBuildInfo;
+module.exports.getHostInfo = getHostInfo;
+module.exports.getDatabaseNames = getDatabaseNames;
