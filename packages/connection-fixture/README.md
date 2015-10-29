@@ -57,22 +57,55 @@ Connect to 0 instances in the cloud #slow
 ```
 
 0 functional tests isn't so good... Fortunately, there are 4 environment variables
-we can use to make this > 0: `EVERGREEN`, `MONGODB_PASSWORD_INTEGRATIONS`,
-`MONGODB_PASSWORD_COMPASS`, `MONGODB_PASSWORD_FANCLUB`.  Here's what we
-get when we play with those:
+we can use to make this > 0:
+
+- `MONGODB_KERBEROS`
+- `MONGODB_KERBEROS_PASSWORD`
+- `MONGODB_LDAP_PASSWORD`
+- `MONGODB_PASSWORD_INTEGRATIONS`
+- `MONGODB_PASSWORD_COMPASS`
+- `MONGODB_PASSWORD_FANCLUB`
 
 ```bash
-EVERGREEN=1 npm run example;
+MONGODB_KERBEROS=1 npm run example;
+```
+
+```
+Connect to 1 instances in the cloud #slow
+  - should connect to `Enterprise: Kerberos (evergreen only)`
+
+
+0 passing (8ms)
+1 pending
+```
+
+```bash
+MONGODB_KERBEROS=1 MONGODB_KERBEROS_PASSWORD=arlo npm run example;
 ```
 
 ```
 Connect to 2 instances in the cloud #slow
+  - should connect to `Enterprise: Kerberos (evergreen only)`
+  - should connect to `Enterprise: Kerberos w/ password (evergreen only)`
+
+
+0 passing (7ms)
+2 pending
+```
+
+```bash
+MONGODB_KERBEROS=1 MONGODB_KERBEROS_PASSWORD=arlo MONGODB_LDAP_PASSWORD=basil npm run example;
+```
+
+```
+Connect to 3 instances in the cloud #slow
   - should connect to `Enterprise: LDAP (evergreen only)`
   - should connect to `Enterprise: Kerberos (evergreen only)`
+  - should connect to `Enterprise: Kerberos w/ password (evergreen only)`
 
 
-0 passing (5ms)
-2 pending
+0 passing (6ms)
+3 pending
 ```
 
 ```bash

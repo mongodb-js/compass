@@ -17,7 +17,7 @@ exports.LDAP = {
   name: 'Enterprise: LDAP (evergreen only)',
   hostname: 'ldaptest.10gen.cc',
   ldap_username: 'drivers-team',
-  ldap_password: 'mongor0x$xgen'
+  ldap_password: process.env.MONGODB_LDAP_PASSWORD
 };
 
 /**
@@ -224,16 +224,25 @@ exports.MATRIX = _.chain(exports.MONGODB)
 /**
  * Resources only accessible via evergreen boxes.
  */
-if (process.env.EVERGREEN) {
-  exports.MATRIX.push.apply(exports.MATRIX, [
-    exports.LDAP,
-    exports.KERBEROS
-  /**
-   * @todo (imlucas) Hostname for X509 instance?
-   */
-  // exports.X509
-  ]);
+if (process.env.MONGODB_LDAP_PASSWORD) {
+  exports.MATRIX.push(exports.LDAP);
 }
+
+if (process.env.MONGODB_KERBEROS) {
+  exports.MATRIX.push(exports.KERBEROS);
+}
+
+if (process.env.MONGODB_KERBEROS_PASSWORD) {
+  exports.MATRIX.push(_.assign(_.clone(exports.KERBEROS), {
+    name: 'Enterprise: Kerberos w/ password (evergreen only)',
+    kerberos_password: process.env.MONGODB_KERBEROS_PASSWORD
+  }));
+}
+
+/**
+ * @todo (imlucas) Hostname for X509 instance?
+ */
+// exports.X509
 
 debug('%d fixture connections available', exports.MATRIX.length);
 
