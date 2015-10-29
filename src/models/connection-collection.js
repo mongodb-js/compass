@@ -17,7 +17,7 @@ module.exports = Collection.extend(lodashMixin, restMixin, {
   mainIndex: '_id',
   sync: connectionSync,
   indexes: ['name'],
-  maxLength: 3,
+  maxLength: 10,
   _prune: function() {
     var usedConnections = this.filter(function(model) {
       return model.last_used !== null;

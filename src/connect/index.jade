@@ -1,52 +1,42 @@
 .page.connect
-  .content.with-sidebar
-    .container-fluid
-      form.form-horizontal(data-hook='connect-form', style='margin-top: 20px;')
-        .message.alert(data-hook='message')
+  div(data-hook='sidebar-subview')
+  .form-container
+    header
+      h2 Connect to Host
+
+    .message.error(data-hook="message-div")
+      p(data-hook='message')
+
+    form(data-hook="connect-form")
+      #host-port.form-group
         div(data-hook='hostname-subview')
         div(data-hook='port-subview')
-        
-        hr
-        
-        div(data-hook='saveas-subview')
-        
-        #connect-authentication-settings
-          hr
-          .form-group
-            label.control-label
-              a(href="javascript:void(0);", data-hook='openAuth')
-                i
-                span(style='padding-left: 4px;', data-hook='open-auth-label')
-          
-          .form-group
-            div(data-hook='auth-container')
-              ul.nav.nav-tabs
-                - for method, i in authMethods
-                  - classNames = []
-                  - if (!method.enabled) classNames.push('hidden')
-                  - if (i === 0) classNames.push('active')
-                  li(class=classNames)
-                    a(href="##{method._id}", data-toggle='tab', data-method=method._id)= method.title
 
-              .tab-content
-                - for method, i in authMethods
-                  - classNames = []
-                  - if (!method.enabled) classNames.push('hidden')
-                  - if (i === 0) classNames.push('active')
-                  .tab-pane(class=classNames, id=method._id)
-                  
-        #connect-ssl-settings(class=getFeatureClass('Connect with SSL'))
-          hr
-          .form-group
-            label.control-label
-              a(href="javascript:void(0);", data-hook='openSSL')
-                i
-                span(style='padding-left: 4px;', data-hook='open-ssl-label')
-          
-            div(data-hook='ssl-container')
-              h4 SSL Settings
-        hr        
-        .form-group
-          button.submit.btn.btn-primary(type='submit', data-hook='submit-button') Connect
+      hr
 
-  div(data-hook='sidebar-subview')
+      div(data-hook='authselect-subview')
+
+      - for method, i in authMethods
+        - classNames = []
+        - if (!method.enabled) classNames.push('hidden')
+        - if (i === 0) classNames.push('active')
+        div(class=classNames, id='auth-#{method._id}')
+              
+      div(data-hook='sslselect-subview')
+      
+      - for method, i in sslMethods
+        - classNames = []
+        - if (!method.enabled) classNames.push('hidden')
+        - if (i === 0) classNames.push('active')
+        div(class=classNames, id='ssl-#{method._id}')
+
+      hr
+
+      div(data-hook='saveas-subview')
+      
+      .form-item
+        button.btn.btn-primary(type='submit', name="connect", data-hook='connect-button') Connect
+        span.buttons(data-hook='favorite-buttons')
+          button.btn.btn-default(type='button', name="createFavorite", data-hook='create-favorite-button') Create Favorite
+          button.btn.btn-default(type='button', name="removeFavorite", data-hook='remove-favorite-button') Remove Favorite
+        //- button.btn.btn-default(type='button', name="saveChanges", data-hook='save-changes-button') Save Changes

@@ -20,7 +20,7 @@ var sslMethods = require('./ssl');
 
 
 var ConnectView = View.extend({
-  template: require('./static-connect.jade'),
+  template: require('./index.jade'),
   props: {
     form: 'object',
     message: {
@@ -32,6 +32,14 @@ var ConnectView = View.extend({
       default: ''
     },
     isFavorite: {
+      type: 'boolean',
+      default: false
+    },
+    formModified: {
+      type: 'boolean',
+      default: false
+    },
+    existingConnection: {
       type: 'boolean',
       default: false
     },
@@ -69,7 +77,9 @@ var ConnectView = View.extend({
     'click [data-hook=create-favorite-button]': 'onCreateFavoriteClicked',
     'click [data-hook=remove-favorite-button]': 'onRemoveFavoriteClicked',
     'input input[name=name]': 'onNameInputChanged',
-    'change input[name=name]': 'onNameInputChanged'
+    'change input[name=name]': 'onNameInputChanged',
+    'change input': 'onAnyInputChanged',
+    'change select': 'onAnyInputChanged'
   },
   bindings: {
     // show error div
@@ -86,6 +96,11 @@ var ConnectView = View.extend({
       type: 'toggle',
       yes: '[data-hook=remove-favorite-button]',
       no: '[data-hook=create-favorite-button]'
+    },
+    existingConnection: {
+      type: 'booleanAttribute',
+      selector: 'input[name=name]',
+      name: 'disabled'
     },
     connectionName: [
       {
@@ -167,7 +182,7 @@ var ConnectView = View.extend({
     }.bind(this));
 
     this.previousAuthMethod = this.authMethod;
-    debug('auth form data now has the following fields', Object.keys(this.form.data));
+    // debug('auth form data now has the following fields', Object.keys(this.form.data));
   },
   /**
    * called when this.sslMethod changes. Replaces the fields in `this.form`.
@@ -187,7 +202,7 @@ var ConnectView = View.extend({
     }.bind(this));
 
     this.previousSslMethod = this.sslMethod;
-    debug('ssl form data now has the following fields', Object.keys(this.form.data));
+    // debug('ssl form data now has the following fields', Object.keys(this.form.data));
   },
   /**
    * Return to a clean state between form submissions.
@@ -228,6 +243,7 @@ var ConnectView = View.extend({
     this.authMethod = 'MONGODB';
     this.form.connection_id = '';
     this.form.reset();
+    this.existingConnection = false;
     this.updateConflictingNames();
   },
   /**
@@ -250,7 +266,10 @@ var ConnectView = View.extend({
     // this.form.connection_id = '';
 
     // if a connection with same name already exists, get that instead
-    connection = this.connections.get(connection.name, 'name') || connection;
+    var existingConnection = this.connections.get(connection.name, 'name');
+    if (!existingConnection.is_favorite) {
+      connection = existingConnection;
+    }
     connection.last_used = new Date();
     connection.save();
     /**
@@ -277,7 +296,7 @@ var ConnectView = View.extend({
       message: ''
     }), 500);
 
-    setTimeout(window.close, 1000);
+    // setTimeout(window.close, 1000);
   },
   /**
    * Update the form's state based on an existing connection, e.g. clicking on a list item
@@ -291,6 +310,7 @@ var ConnectView = View.extend({
     this.authMethod = connection.authentication;
     this.sslMethod = connection.ssl;
     this.isFavorite = connection.is_favorite;
+    this.formModified = false;
 
     // Changing `this.authMethod` and `this.sslMethod` dynamically updates the form fields
     // so we need to get a list of what keys are currently available to set.
@@ -303,12 +323,13 @@ var ConnectView = View.extend({
     }
 
     var values = _.pick(connection, keys);
+
     this.form.connection_id = connection.getId();
+    this.existingConnection = true;
     this.updateConflictingNames();
 
     // make connection active, and (implicitly) all others inactive
     connection.active = true;
-    debug('connection is active now?', connection.active);
 
     // Populates the form from values in the model.
     this.form.setValues(values);
@@ -337,6 +358,7 @@ var ConnectView = View.extend({
       merge: true
     });
     this.form.connection_id = connection.getId();
+    this.existingConnection = true;
     this.updateConflictingNames();
   },
   onRemoveFavoriteClicked: function() {
@@ -358,9 +380,9 @@ var ConnectView = View.extend({
     var nameField = this.form.getField('name');
     nameField.conflicting = _.pluck(conflicts, 'name');
   },
-  onSaveChangesClicked: function() {
-    debug('save changes clicked');
-  },
+  // onSaveChangesClicked: function() {
+  //   debug('save changes clicked');
+  // },
   onFormSubmitted: function(connection) {
     this.reset();
     if (!connection.isValid()) {
@@ -371,6 +393,9 @@ var ConnectView = View.extend({
   },
   onNameInputChanged: function(evt) {
     this.connectionName = evt.target.value;
+  },
+  onAnyInputChanged: function() {
+    this.formModified = true;
   }
 });
 

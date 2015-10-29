@@ -3,14 +3,13 @@
  *
  * @see https://github.com/mongodb-js/mongodb-connection-model#trait-ssl
  */
-var app = require('ampersand-app');
 var SSLOptionCollection = require('./models/ssl-option-collection');
 
 var InputView = require('./input-view');
 var inputTemplate = require('./input-default.jade');
 var fileReaderTemplate = require('./filereader-default.jade');
 
-var debug = require('debug')('scout:connect:ssl');
+// var debug = require('debug')('scout:connect:ssl');
 
 var NONE = {
   _id: 'NONE',
