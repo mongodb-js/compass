@@ -81,6 +81,7 @@ var TypeListItem = View.extend(tooltipMixin, {
     }
   },
   events: {
+    'click .schema-field-type-document': 'documentTypeClicked',
     'click .schema-field-wrapper': 'typeClicked'
   },
   subviews: {
@@ -96,6 +97,10 @@ var TypeListItem = View.extend(tooltipMixin, {
         });
       }
     }
+  },
+  documentTypeClicked: function(evt) {
+    // expands the nested subdocument fields by triggering click in FieldView
+    this.parent.parent.click();
   },
   typeClicked: function(evt) {
     evt.stopPropagation();
