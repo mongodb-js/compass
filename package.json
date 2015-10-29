@@ -74,7 +74,7 @@
     "debug": "^2.2.0",
     "electron-squirrel-startup": "^0.1.4",
     "mongodb-collection-model": "^0.1.0",
-    "mongodb-connection-model": "^1.0.2",
+    "mongodb-connection-model": "^3.0.4",
     "mongodb-instance-model": "^0.2.3",
     "mongodb-ns": "^1.0.0",
     "scout-server": "http://bin.mongodb.org/js/scout-server/v0.3.1/scout-server-0.3.1.tar.gz"
