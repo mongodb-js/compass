@@ -170,7 +170,7 @@ function genericMenu(window) {
         {
           label: 'About Compass',
           click: function() {
-            app.emit('show windows about dialog');
+            app.emit('show about dialog');
           }
         },
       ]

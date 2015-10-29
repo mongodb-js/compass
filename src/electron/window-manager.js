@@ -137,7 +137,7 @@ app.on('show connect dialog', function(opts) {
   module.exports.create(opts);
 });
 
-app.on('show windows about dialog', function() {
+app.on('show about dialog', function() {
   dialog.showMessageBox({
     type: 'info', 
     message: 'MongoDB Compass Version: ' + app.getVersion(), 
