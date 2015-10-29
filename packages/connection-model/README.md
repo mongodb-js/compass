@@ -207,8 +207,8 @@ The driver must present a valid certificate and validate the server certificate.
 
 Apache 2.0
 
-[travis_img]: https://img.shields.io/travis/mongodb-js/mongodb-connection-model.svg?style=flat-square
-[travis_url]: https://travis-ci.org/mongodb-js/mongodb-connection-model
+[travis_img]: https://img.shields.io/travis/mongodb-js/connection-model.svg?style=flat-square
+[travis_url]: https://travis-ci.org/mongodb-js/connection-model
 [npm_img]: https://img.shields.io/npm/v/mongodb-connection-model.svg?style=flat-square
 [npm_url]: https://www.npmjs.org/package/mongodb-connection-model
 [gitter_img]: https://badges.gitter.im/Join%20Chat.svg
