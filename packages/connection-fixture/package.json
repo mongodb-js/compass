@@ -6,7 +6,8 @@
     "fmt": "mongodb-js-fmt",
     "check": "mongodb-js-precommit",
     "test": "mocha",
-    "ci": "npm run check && npm test"
+    "ci": "npm run check && npm test",
+    "example": "dry=1 mocha examples/mocha.js"
   },
   "homepage": "http://github.com/mongodb-js/connection-fixture",
   "repository": {
@@ -14,8 +15,7 @@
     "url": "git://github.com/mongodb-js/connection-fixture.git"
   },
   "dependencies": {
-    "chalk": "^1.1.1",
-    "figures": "^1.4.0",
+    "debug": "^2.2.0",
     "lodash": "^3.10.1"
   },
   "devDependencies": {

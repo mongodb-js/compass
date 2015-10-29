@@ -1,29 +1,12 @@
 var _ = require('lodash');
-var path = require('path');
-var chalk = require('chalk');
-var figures = require('figures');
+var debug = require('debug')('mongodb-connection-fixture');
 var format = require('util').format;
 
 /**
  * For `ssl=SERVER || ssl=ALL`
  * @see https://github.com/mongodb/node-mongodb-native/tree/2.0/test/functional/ssl
  */
-exports.ssl = {
-  authTestsKey: path.join(__dirname, 'ssl', 'authTestsKey'),
-  ca: path.join(__dirname, 'ssl', 'ca.pem'),
-  client: path.join(__dirname, 'ssl', 'client.pem'),
-  client_revoked: path.join(__dirname, 'ssl', 'client_revoked.pem'),
-  'cluster-cert': path.join(__dirname, 'ssl', 'cluster-cert.pem'),
-  crl: path.join(__dirname, 'ssl', 'crl.pem'),
-  crl_client_revoked: path.join(__dirname, 'ssl', 'crl_client_revoked.pem'),
-  crl_expired: path.join(__dirname, 'ssl', 'crl_expired.pem'),
-  localhostnameCN: path.join(__dirname, 'ssl', 'localhostnameCN.pem'),
-  localhostnameSAN: path.join(__dirname, 'ssl', 'localhostnameSAN.pem'),
-  mycert: path.join(__dirname, 'ssl', 'mycert.pem'),
-  password_protected: path.join(__dirname, 'ssl', 'password_protected.pem'),
-  server: path.join(__dirname, 'ssl', 'server.pem'),
-  smoke: path.join(__dirname, 'ssl', 'smoke.pem')
-};
+exports.ssl = require('./ssl');
 
 /**
  * For `authentication=LDAP`
@@ -82,11 +65,9 @@ Object.keys(USERNAME_TO_ENV).map(function(username) {
   /* eslint no-console:0 */
   var key = USERNAME_TO_ENV[username];
   if (!process.env[key]) {
-    console.error(chalk.yellow(figures.warning), '',
-      chalk.gray('mongodb-connection-fixture'),
-      format(' The environment variable `%s` containing the '
-      + 'password for `%s` MONGODB user is not set!',
-        key, username));
+    debug(' The environment variable `%s` containing the '
+    + 'password for `%s` MONGODB user is not set!',
+      key, username);
   }
 });
 
@@ -253,6 +234,8 @@ if (process.env.EVERGREEN) {
   // exports.X509
   ]);
 }
+
+debug('%d fixture connections available', exports.MATRIX.length);
 
 /**
  * @todo (imlucas) Add SSL boxes to MATRIX when stabilized.
