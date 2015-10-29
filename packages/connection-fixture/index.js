@@ -228,15 +228,15 @@ if (process.env.MONGODB_LDAP_PASSWORD) {
   exports.MATRIX.push(exports.LDAP);
 }
 
-if (process.env.MONGODB_KERBEROS) {
-  exports.MATRIX.push(exports.KERBEROS);
+if (process.env.MONGODB_KERBEROS_PASSWORD) {
+  var kerberosWithPassword = _.clone(exports.KERBEROS);
+  kerberosWithPassword.name = 'Enterprise: Kerberos w/ password (evergreen only)';
+  kerberosWithPassword.kerberos_password = process.env.MONGODB_KERBEROS_PASSWORD;
+  exports.MATRIX.push(kerberosWithPassword);
 }
 
-if (process.env.MONGODB_KERBEROS_PASSWORD) {
-  exports.MATRIX.push(_.assign(_.clone(exports.KERBEROS), {
-    name: 'Enterprise: Kerberos w/ password (evergreen only)',
-    kerberos_password: process.env.MONGODB_KERBEROS_PASSWORD
-  }));
+if (process.env.MONGODB_KERBEROS) {
+  exports.MATRIX.push(exports.KERBEROS);
 }
 
 /**
@@ -249,5 +249,4 @@ debug('%d fixture connections available', exports.MATRIX.length);
 /**
  * @todo (imlucas) Add SSL boxes to MATRIX when stabilized.
  */
-
 module.exports = exports;
