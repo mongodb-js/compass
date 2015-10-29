@@ -1,10 +1,17 @@
 var pick = require('lodash').pick;
 var map = require('lodash').map;
-var keytar = window.require('keytar');
 var debug = require('debug')('mongodb-compass:models:sync:keychain');
 var inherits = require('util').inherits;
 var _ = require('lodash');
 var Base = require('./base');
+
+var keytar;
+
+try {
+  keytar = window.require('keytar');
+} catch (e) {
+  debug('keytar unavailable!  passwords will not be stored!');
+}
 
 /**
  * Securely get, add, replace, and delete passwords via the OS keychain
@@ -36,8 +43,10 @@ inherits(Keychain, Base);
  * @see http://ampersandjs.com/docs#ampersand-collection-fetch
  */
 Keychain.prototype.find = function(collection, options, done) {
-  // this is useless!
-  // var res = keytar.findPassword(this.service);
+  if (!keytar) {
+    debug('keytar unavailable');
+    return done(null, []);
+  }
   var ids = options.ids || [];
   var service = this.service;
   var res = _.map(ids, function(id) {
@@ -61,6 +70,10 @@ Keychain.prototype.find = function(collection, options, done) {
  * @see http://ampersandjs.com/docs#ampersand-model-fetch
  */
 Keychain.prototype.findOne = function(model, options, done) {
+  if (!keytar) {
+    debug('keytar unavailable');
+    return done(null, {});
+  }
   var msg = keytar.getPassword(this.service, model.getId());
   if (!msg) {
     return done();
@@ -78,6 +91,10 @@ Keychain.prototype.findOne = function(model, options, done) {
  * @see http://ampersandjs.com/docs#ampersand-model-destroy
  */
 Keychain.prototype.remove = function(model, options, done) {
+  if (!keytar) {
+    debug('keytar unavailable');
+    return done();
+  }
   keytar.deletePassword(this.service, model.getId());
   done();
 };
@@ -92,6 +109,10 @@ Keychain.prototype.remove = function(model, options, done) {
  * @see http://ampersandjs.com/docs#ampersand-model-save
  */
 Keychain.prototype.update = function(model, options, done) {
+  if (!keytar) {
+    debug('keytar unavailable');
+    return done();
+  }
   keytar.replacePassword(this.service, model.getId(),
     JSON.stringify(this.serialize(model)));
   done();
@@ -107,6 +128,10 @@ Keychain.prototype.update = function(model, options, done) {
  * @see http://ampersandjs.com/docs#ampersand-model-save
  */
 Keychain.prototype.create = function(model, options, done) {
+  if (!keytar) {
+    debug('keytar unavailable');
+    return done();
+  }
   keytar.addPassword(this.service, model.getId(),
     JSON.stringify(this.serialize(model)));
   done();
