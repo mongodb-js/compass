@@ -7,6 +7,7 @@
   "homepage": "https://github.com/mongodb-js/mongodb-instance-model",
   "repository": "git://github.com/mongodb-js/mongodb-instance-model.git",
   "license": "Apache-2.0",
+  "browser": "browser.js",
   "keywords": [
     "mongodb-js"
   ],
@@ -22,15 +23,18 @@
   "dependencies": {
     "ampersand-model": "^6.0.2",
     "ampersand-rest-collection": "^5.0.0",
-    "ampersand-state": "^4.6.0",
-    "mongodb-collection-model": "^0.1.0",
-    "mongodb-database-model": "^0.1.1"
+    "ampersand-state": "^4.7.0",
+    "async": "^1.5.0",
+    "debug": "^2.2.0",
+    "mongodb-collection-model": "^0.1.1",
+    "mongodb-database-model": "^0.1.2",
+    "mongodb-read-preference": "^1.0.4"
   },
   "devDependencies": {
-    "eslint-config-mongodb-js": "^1.0.3",
+    "eslint-config-mongodb-js": "^1.0.4",
     "mocha": "^2.3.3",
     "mongodb-js-fmt": "0.0.3",
     "mongodb-js-precommit": "^0.2.2",
-    "pre-commit": "^1.1.1"
+    "pre-commit": "^1.1.2"
   }
 }
