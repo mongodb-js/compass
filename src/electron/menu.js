@@ -14,6 +14,8 @@ var menu = (function() {
   };
 }());
 
+module.exports = menu;
+
 // menus
 function darwinMenu(window) {
   return [
@@ -160,8 +162,19 @@ function darwinMenu(window) {
   ];
 };
 
-function nonDarwinMenu(window) {
+function genericMenu(window) {
   return [
+    {
+      label: 'MongoDB Compass',
+      submenu: [
+        {
+          label: 'About Compass',
+          click: function() {
+            app.emit('show windows about dialog');
+          }
+        },
+      ]
+    },
     {
       label: 'File',
       submenu: [
@@ -205,5 +218,3 @@ function nonDarwinMenu(window) {
     }
   ];
 };
-
-module.exports = menu;
