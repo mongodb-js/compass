@@ -411,6 +411,17 @@ assign(props, {
  * will always blindly pass to the driver when connecting to mongodb:
  * `MongoClient.connect(model.driver_url, model.driver_options)`.
  */
+var DRIVER_OPTIONS_DEFAULT = {
+  uri_decode_auth: true,
+  db: {
+    // important!  or slaveOk=true set above no worky!
+    readPreference: 'nearest'
+  },
+  replSet: {
+    connectWithNoPrimary: true
+  }
+};
+
 assign(derived, {
   /**
    * Get the URL which can be passed to `MongoClient.connect`.
@@ -496,16 +507,7 @@ assign(derived, {
       'ssl_private_key_password'
     ],
     fn: function() {
-      var opts = {
-        uri_decode_auth: true,
-        db: {
-          // important!  or slaveOk=true set above no worky!
-          readPreference: 'nearest'
-        },
-        replSet: {
-          connectWithNoPrimary: true
-        }
-      };
+      var opts = DRIVER_OPTIONS_DEFAULT;
       if (this.ssl === 'SERVER') {
         assign(opts, {
           server: {
@@ -767,6 +769,7 @@ Connection.SSL_VALUES = SSL_VALUES;
 Connection.SSL_DEFAULT = SSL_DEFAULT;
 Connection.MONGODB_DATABASE_NAME_DEFAULT = MONGODB_DATABASE_NAME_DEFAULT;
 Connection.KERBEROS_SERVICE_NAME_DEFAULT = KERBEROS_SERVICE_NAME_DEFAULT;
+Connection.DRIVER_OPTIONS_DEFAULT = DRIVER_OPTIONS_DEFAULT;
 
 var ConnectionCollection = AmpersandCollection.extend({
   comparator: 'instance_id',

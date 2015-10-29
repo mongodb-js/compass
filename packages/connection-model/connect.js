@@ -61,8 +61,8 @@ function validateURL(model, done) {
   var url = model.driver_url;
   debug('validating URL with driver...');
   try {
-    parseURL(url);
-    debug('URL parsed ok');
+    var res = parseURL(url);
+    debug('URL parsed ok', res);
     done(null, url);
   } catch (e) {
     debug('error parsing URL', e);
