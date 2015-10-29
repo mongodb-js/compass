@@ -6,10 +6,10 @@
 var path = require('path');
 var _ = require('lodash');
 var app = require('app');
-var attachMenu = require('./menu');
 var BrowserWindow = require('browser-window');
 var config = require('./config');
 var debug = require('debug')('scout-electron:window-manager');
+var menu = require('./menu');
 
 /**
  * When running in electron, we're in `RESOURCES/src/electron`.
@@ -62,6 +62,7 @@ module.exports.create = function(opts) {
       'direct-write': true
     }
   });
+  menu.init(_window);
 
   // makes the application a single instance application
   // see "app.makeSingleInstance" in https://github.com/atom/electron/blob/master/docs/api/app.md
@@ -79,7 +80,6 @@ module.exports.create = function(opts) {
     return;
   }
 
-  attachMenu(_window);
   _window.loadUrl(opts.url);
 
   _window.webContents.on('new-window', function(event, url) {
