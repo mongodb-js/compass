@@ -103,7 +103,7 @@
     "electron-packager": "^5.1.0",
     "eslint": "^1.6.0",
     "eslint-config-mongodb-js": "^0.1.6",
-    "event-stream": "^3.3.1",
+    "event-stream": "^3.3.2",
     "figures": "^1.4.0",
     "font-awesome": "https://github.com/FortAwesome/Font-Awesome/archive/v4.4.0.tar.gz",
     "glob": "^5.0.15",
