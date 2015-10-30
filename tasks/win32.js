@@ -2,9 +2,13 @@
 var path = require('path');
 var pkg = require(path.resolve(__dirname, '../package.json'));
 var fs = require('fs');
+var format = require('util').format;
+var chalk = require('chalk');
+var figures = require('figures');
 var packager = require('electron-packager');
 var createInstaller = require('electron-installer-squirrel-windows');
 var debug = require('debug')('scout:tasks:win32');
+
 
 var APP_PATH = path.resolve(__dirname, '../dist/MongoDBCompass-win32-x64');
 module.exports.ELECTRON = path.join(APP_PATH, 'MongoDBCompass.exe');
@@ -38,6 +42,24 @@ var INSTALLER_CONFIG = {
   overwrite: true
 };
 
+/**
+ * Checks if the current environment can actually sign builds.
+ * If signing can be done, `electron-installer-squirrel-windows`'s config
+ * will be updated to sign artifacts.  If not, gracefully degrade
+ *
+ * @param {Function} fn - Callback.
+ */
+function addCodesignIdentityIfAvailable(fn) {
+  if (process.env.SIGNTOOL_PARAMS) {
+    INSTALLER_CONFIG.sign_with_params = process.env.SIGNTOOL_PARAMS;
+    console.log(chalk.green.bold(figures.tick),
+                format(' This build will be signed using signtool.exe `%s`',
+                  INSTALLER_CONFIG.sign_with_params));
+  }
+  fn();
+  return;
+}
+
 module.exports.build = function(done) {
   fs.exists(APP_PATH, function(exists) {
     if (exists) {
@@ -56,11 +78,16 @@ module.exports.build = function(done) {
 };
 
 module.exports.installer = function(done) {
-  createInstaller(INSTALLER_CONFIG, function(err) {
+  addCodesignIdentityIfAvailable(function(err) {
     if (err) {
       return done(err);
     }
-    console.log('Installer created!');
-    done();
+    createInstaller(INSTALLER_CONFIG, function(err2) {
+      if (err2) {
+        return done(err2);
+      }
+      console.log('Installer created!');
+      done();
+    });
   });
 };
