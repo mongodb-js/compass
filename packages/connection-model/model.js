@@ -577,6 +577,10 @@ Connection = AmpersandModel.extend({
     }
   },
   parse: function(attrs) {
+    if (!attrs) {
+      debug('skipping falsy parse for', attrs);
+      return;
+    }
     debug('parsing...');
     if (attrs.mongodb_username) {
       this.authentication = attrs.authentication = 'MONGODB';
