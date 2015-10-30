@@ -63,7 +63,7 @@ module.exports.create = function(opts) {
       'direct-write': true
     }
   });
-  menu.init(_window);
+  menu.init();
 
   // makes the application a single instance application
   // see "app.makeSingleInstance" in https://github.com/atom/electron/blob/master/docs/api/app.md

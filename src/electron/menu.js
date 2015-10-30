@@ -1,12 +1,13 @@
 var app = require('app');
+var BrowserWindow = require('browser-window');
 var Menu = require('menu');
 
 var menu = (function() {
   return {
-    init: function(window) {
+    init: function() {
       /* eslint-disable no-extra-parens */
       var menu = (process.platform == 'darwin')
-        ? darwinMenu(window) : nonDarwinMenu(window);
+        ? darwinMenu() : nonDarwinMenu();
       /* eslint-enable no-extra-parens */
       menu = Menu.buildFromTemplate(menu);
       Menu.setApplicationMenu(menu);
@@ -17,7 +18,7 @@ var menu = (function() {
 module.exports = menu;
 
 // menus
-function darwinMenu(window) {
+function darwinMenu() {
   return [
     {
       label: 'MongoDB Compass',
@@ -46,27 +47,10 @@ function darwinMenu(window) {
         {
           type: 'separator'
         },
-        {
-          label: 'Quit',
-          accelerator: 'Command+Q',
-          click: function() {
-            app.quit();
-          }
-        }
+        quitSubMenu()
       ]
     },
-    {
-      label: 'Connect',
-      submenu: [
-        {
-          label: 'Connect to...',
-          accelerator: 'Command+N',
-          click: function() {
-            app.emit('show connect dialog');
-          }
-        }
-      ]
-    },
+    connectSubMenu(),
     {
       label: 'Edit',
       submenu: [
@@ -105,38 +89,8 @@ function darwinMenu(window) {
         }
       ]
     },
-    {
-      label: 'View',
-      submenu: [
-        {
-          label: 'Reload',
-          accelerator: 'Command+R',
-          click: function() {
-            window.restart();
-          }
-        },
-        {
-          label: 'Toggle DevTools',
-          accelerator: 'Alt+Command+I',
-          click: function() {
-            window.toggleDevTools();
-          }
-        }
-      ]
-    },
-
-    {
-      label: 'Share',
-      submenu: [
-        {
-          label: 'Share Schema as JSON',
-          accelerator: 'Alt+Command+S',
-          click: function() {
-            window.webContents.send('message', 'menu-share-schema-json');
-          }
-        }
-      ]
-    },
+    viewSubMenu(),
+    shareSubMenu(),
     {
       label: 'Window',
       submenu: [
@@ -162,7 +116,7 @@ function darwinMenu(window) {
   ];
 };
 
-function genericMenu(window) {
+function genericMenu() {
   return [
     {
       label: 'MongoDB Compass',
@@ -173,48 +127,74 @@ function genericMenu(window) {
             app.emit('show about dialog');
           }
         },
+        quitSubMenu()
       ]
     },
-    {
-      label: 'File',
-      submenu: [
-        {
-          label: 'Connect to...',
-          accelerator: 'Ctrl+N',
-          click: function() {
-            app.emit('show connect dialog');
-          }
-        },
-        {
-          type: 'separator'
-        },
-        {
-          label: 'Quit',
-          accelerator: 'Ctrl+Q',
-          click: function() {
-            app.quit();
-          }
-        }
-      ]
-    },
-    {
-      label: 'View',
-      submenu: [
-        {
-          label: 'Reload',
-          accelerator: 'Ctrl+R',
-          click: function() {
-            window.restart();
-          }
-        },
-        {
-          label: 'Toggle DevTools',
-          accelerator: 'Alt+Ctrl+I',
-          click: function() {
-            window.toggleDevTools();
-          }
-        }
-      ]
-    }
+    connectSubMenu(),
+    viewSubMenu(),
+    shareSubMenu()
   ];
 };
+
+// submenus
+function connectSubMenu() {
+  return {
+    label: 'Connect',
+    submenu: [
+      {
+        label: 'Connect to...', // todo: hide if there's a connect window
+        accelerator: 'CmdOrCtrl+N',
+        click: function() {
+          app.emit('show connect dialog');
+        }
+      }
+    ]
+  };
+}
+
+function quitSubMenu() {
+  return {
+    label: 'Quit',
+    accelerator: 'CmdOrCtrl+Q',
+    click: function() {
+      app.quit();
+    }
+  };
+}
+
+function shareSubMenu() {
+  return {
+    label: 'Share',
+    submenu: [
+      {
+        label: 'Share Schema as JSON', // show if there's a schema to share
+        accelerator: 'Alt+CmdOrCtrl+S',
+        click: function() {
+          BrowserWindow.getFocusedWindow().webContents.send('message', 'menu-share-schema-json');
+        }
+      }
+    ]
+  };
+}
+
+function viewSubMenu() {
+  return {
+    label: 'View',
+    submenu: [
+      {
+        label: 'Reload',
+        accelerator: 'CmdOrCtrl+R',
+        click: function() {
+          BrowserWindow.getFocusedWindow().restart();
+        }
+      },
+      {
+        label: 'Toggle DevTools',
+        accelerator: 'Alt+CmdOrCtrl+I',
+        click: function() {
+          BrowserWindow.getFocusedWindow().toggleDevTools();
+        }
+      }
+    ]
+  };
+}
