@@ -177,9 +177,9 @@ module.exports = Schema.extend({
         'Errored Document Count': erroredOnDocs.length,
         'Time to First Doc': timeToFirstDoc,
         'Average Time Per Doc': (totalTime - timeToFirstDoc) / model.documents.length
-        // 'Schema Height': model.height, // # of top level keys
-        // 'Schema Width': model.width, // max nesting depth
-        // 'Schema Sparsity': model.sparsity // lots of fields missing or consistent
+      // 'Schema Height': model.height, // # of top level keys
+      // 'Schema Width': model.width, // max nesting depth
+      // 'Schema Sparsity': model.sparsity // lots of fields missing or consistent
       });
       options.success({});
     };

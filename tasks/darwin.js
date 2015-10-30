@@ -1,3 +1,4 @@
+/* eslint no-console: 0 */
 var path = require('path');
 var pkg = require(path.resolve(__dirname, '../package.json'));
 var fs = require('fs');
@@ -102,7 +103,9 @@ function addCodesignIdentityIfAvailable(fn) {
 
 module.exports.build = function(done) {
   addCodesignIdentityIfAvailable(function(err) {
-    if (err) return done(err);
+    if (err) {
+      return done(err);
+    }
 
     fs.exists(APP_PATH, function(exists) {
       if (exists && process.env.NODE_ENV !== 'production') {

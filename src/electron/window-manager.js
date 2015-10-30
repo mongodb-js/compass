@@ -67,9 +67,14 @@ module.exports.create = function(opts) {
   // makes the application a single instance application
   // see "app.makeSingleInstance" in https://github.com/atom/electron/blob/master/docs/api/app.md
   var shouldQuit = app.makeSingleInstance(function(commandLine, workingDirectory) {
-  // Someone tried to run a second instance, we should focus our window
+    debug('Someone tried to run a second instance! We should focus our window', {
+      commandLine: commandLine,
+      workingDirectory: workingDirectory
+    });
     if (_window) {
-      if (_window.isMinimized()) _window.restore();
+      if (_window.isMinimized()) {
+        _window.restore();
+      }
       _window.focus();
     }
     return true;
@@ -77,7 +82,7 @@ module.exports.create = function(opts) {
 
   if (shouldQuit) {
     app.quit();
-    return;
+    return null;
   }
 
   _window.loadUrl(opts.url);

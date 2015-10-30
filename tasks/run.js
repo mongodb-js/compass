@@ -5,6 +5,29 @@ var which = require('which');
 var debug = require('debug')('scout:tasks:run');
 
 /**
+ * Gets the absolute path for a `cmd`.
+ * @param {String} cmd - e.g. `codesign`.
+ * @param {Function} fn - Callback which receives `(err, binPath)`.
+ * @return {void}
+ */
+function getBinPath(cmd, fn) {
+  which(cmd, function(err, bin) {
+    if (err) {
+      return fn(err);
+    }
+
+    fs.exists(bin, function(exists) {
+      if (!exists) {
+        return fn(new Error(format(
+          'Expected file for `%s` does not exist at `%s`',
+          cmd, bin)));
+      }
+      fn(null, bin);
+    });
+  });
+}
+
+/**
  * Use me when you want to run an external command instead
  * of using `child_process` directly because I'll handle
  * lots of platform edge cases for you and provide
@@ -39,7 +62,9 @@ function run(cmd, args, opts, fn) {
   }
 
   getBinPath(cmd, function(err, bin) {
-    if (err) return fn(err);
+    if (err) {
+      return fn(err);
+    }
 
     debug('running %j', {
       cmd: cmd,
@@ -80,27 +105,6 @@ function run(cmd, args, opts, fn) {
       });
 
       fn(null, Buffer.concat(output).toString('utf-8'));
-    });
-  });
-}
-
-/**
- * Gets the absolute path for a `cmd`.
- * @param {String} cmd - e.g. `codesign`.
- * @param {Function} fn - Callback which receives `(err, binPath)`.
- * @return {void}
- */
-function getBinPath(cmd, fn) {
-  which(cmd, function(err, bin) {
-    if (err) return fn(err);
-
-    fs.exists(bin, function(exists) {
-      if (!exists) {
-        return fn(new Error(format(
-          'Expected file for `%s` does not exist at `%s`',
-          cmd, bin)));
-      }
-      fn(null, bin);
     });
   });
 }
