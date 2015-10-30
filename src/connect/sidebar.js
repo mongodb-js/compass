@@ -133,7 +133,7 @@ var SidebarView = View.extend({
   },
   onItemDoubleClick: function(event, view) {
     this.onItemClick(event, view);
-    this.parent.connect(view.model);
+    this.parent.useConnection(view.model);
   }
 });
 
