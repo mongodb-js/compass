@@ -8,18 +8,9 @@
 
 stepback: false
 
-pre:
-- command: shell.track
-
-post:
-- command: shell.cleanup
-
 variables:
-# function "fetch npm tarball" is conditional on the following
+# function "fetch npm tarball" is conditional on {fetch_npm_tarball}
 # -> all except windows
-- &fetch_npm_tarball_variants
-  - osx-108
-  - ubuntu
 
 # function "upgrade npm windows" is conditional based on {upgrade_npm_version}
 # as set in the buildvariant declaration
@@ -44,99 +35,123 @@ functions:
     - command: git.apply_patch
       params:
         directory: src
-    - command: shell.exec
-      params:
-        working_dir: src
-        script: |
-          mkdir .deps
 
   # Install node,npm from a tarball in S3 to src/.deps/bin
   # To use "npm" installed by this, each shell.exec script must add:
   #     export PATH="$PATH:${node_path|}"
-  "fetch npm tarball" :
-    - command: s3.get
-      params:
-        build_variants:
-          *fetch_npm_tarball_variants
-        aws_key: ${aws_key_evergreen_integrations}
-        aws_secret: ${aws_secret_evergreen_integrations}
-        bucket: mongodb-dx-public
-        remote_file: evergreen-deps/${fetch_npm_tarball}
-        local_file: src/.deps/${fetch_npm_tarball}
-    - command: shell.exec
-      params:
-        working_dir: src/.deps
-        script: |
-          if [ -z "${fetch_npm_tarball|}" ]; then
-            echo "fetch_npm_tarball: fetch_npm_tarball is unset; skipping"
-            exit 0
-          fi
-          set -ev
-          tar xzf ${fetch_npm_tarball} --strip-components=1
-          ls
+  #
+  # Only when this is a single-step command can we reuse via *fetch_npm_tarball below.
+  #
+  # Ubuntu:   has curl+wget
+  # Windows:  has curl
+  # OSX:      has curl
+  #
+  # So we use curl.
+  # Tried "command: s3.get" but it's challenging to blend into "setup ci" below.
+  # Also, command "s3.get"s extract_to target chokes on symlinks. EVG-609.
+  #
+  "fetch npm tarball" : &fetch_npm_tarball
+    command: shell.exec
+    params:
+      working_dir: src
+      script: |
+        mkdir -p .deps
+        set -ev
+        if [ -z "${fetch_npm_tarball|}" ]; then
+          echo "fetch_npm_tarball: fetch_npm_tarball is unset; skipping"
+          exit 0
+        fi
+        curl -fs \
+          -o ".deps/${fetch_npm_tarball}" \
+          --url "http://mongodb-dx-public.s3.amazonaws.com/evergreen-deps/${fetch_npm_tarball}"
+        cd .deps
+        tar xzf ${fetch_npm_tarball} --strip-components=1
 
   # THIS COMMAND WORKS ON WINDOWS ONLY, SHOULD BE CONSIDERED OBSOLETE
   # To use "npm" installed by this, each shell.exec script must add:
   #     export PATH="`npm -g bin`:$PATH"
-  "upgrade npm windows" :
-    - command: shell.exec
-      params:
-        working_dir: src
-        script: |
-          if [ -z "${upgrade_npm_version|}" ]; then
-            echo "upgrade_npm: upgrade_npm_version is unset; skipping"
-            exit 0
-          fi
-          set -ev
-          test -n "${add_environment|}" && export "${add_environment|}"
-          export PATH="$PATH:${node_path|}"
-          ${npm|npm} install -g npm@${upgrade_npm_version|xx}
+  "upgrade npm windows" : &upgrade_npm_windows
+    command: shell.exec
+    params:
+      working_dir: src
+      script: |
+        if [ -z "${upgrade_npm_version|}" ]; then
+          echo "upgrade_npm: upgrade_npm_version is unset; skipping"
+          exit 0
+        fi
+        set -ev
+        test -n "${node_environment|}" && export "${node_environment|}"
+        export PATH="$PATH:${node_path|}"
+        ${npm|npm} install -g npm@${upgrade_npm_version|xx}
 
   "npm install" :
-    - command: shell.exec
-      params:
-        working_dir: src
-        script: |
-          set -ev
-          test -n "${add_environment|}" && export "${add_environment|}"
-          export PATH="$PATH:${node_path|}"
-          export PATH="`npm -g bin`:$PATH"
-          ${node|node} --version
-          ${npm|npm} --version
-          ${npm|npm} config set loglevel error
-          ${npm|npm} config -g list -l
-          ${npm|npm} install
+    command: shell.exec
+    params:
+      working_dir: src
+      script: |
+        set -ev
+        test -n "${node_environment|}" && export "${node_environment|}"
+        export PATH="$PATH:${node_path|}"
+        export PATH="`npm -g bin`:$PATH"
+        ${node|node} --version
+        ${npm|npm} --version
+        ${npm|npm} config set loglevel error
+        ${npm|npm} config -g list -l
+        ${npm|npm} install
 
   "build" :
-    - command: shell.exec
-      params:
-        working_dir: src
-        script: |
-          set -ev
-          test -n "${add_environment|}" && export "${add_environment|}"
-          export PATH="$PATH:${node_path|}"
-          export PATH="`npm -g bin`:$PATH"
-          ${npm|npm} run ci
-          ${npm|npm} run test
-          ${npm|npm} run release
+    command: shell.exec
+    params:
+      working_dir: src
+      script: |
+        set -ev
+        test -n "${node_environment|}" && export "${node_environment|}"
+        export PATH="$PATH:${node_path|}"
+        export PATH="`npm -g bin`:$PATH"
+        export CI=1 EVERGREEN=1
+        test -n "${add_environment|}" && export ${add_environment|}
+        ${npm|npm} run ci
+        ${npm|npm} run test
+        ${npm|npm} run release
 
   "save release":
-    - command: s3.put
-      params:
-        build_variants:
-          *save_release_variants
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: "src/dist/${installer_filename}"
-        remote_file: "mongodbjs-scout-master/${build_variant}/${revision}/${installer_filename}"
-        bucket: mciuploads
-        permissions: public-read
-        content_type: ${installer_content_type|application/octet-stream}
-        display_name: "Installer: ${installer_filename}"
+    command: s3.put
+    params:
+      build_variants:
+        *save_release_variants
+      aws_key: ${aws_key}
+      aws_secret: ${aws_secret}
+      local_file: "src/dist/${installer_filename}"
+      remote_file: "mongodbjs-scout-master/${build_variant}/${revision}/${installer_filename}"
+      bucket: mciuploads
+      permissions: public-read
+      content_type: ${installer_content_type|application/octet-stream}
+      display_name: "Installer: ${installer_filename}"
+
 
 #######################################
 #               Tasks                 #
 #######################################
+
+pre:
+- command: shell.track
+- command: shell.exec
+  params:
+    silent: true
+    script: |
+      ${killall_evergreen|pkill -9 mongod; pkill -9 mongos; pkill -9 mongo} >/dev/null 2>&1
+      rm -rf src /data/db/*
+      mkdir -p src
+
+post:
+- command: shell.exec
+  params:
+    silent: true
+    script: |
+      ${killall_evergreen|pkill -9 mongod; pkill -9 mongos; pkill -9 mongo} >/dev/null 2>&1
+      exit 0
+- command: shell.cleanup
+
 
 tasks:
 - name: compile
@@ -149,6 +164,10 @@ tasks:
   - func: "build"
   - func: "save release"
 
+# Define shortcut for use below
+variables:
+- &all_tasks
+  - name: compile
 
 #######################################
 #           Buildvariants             #
@@ -167,7 +186,7 @@ buildvariants:
     installer_filename: "MongoDB Compass.dmg"
     num_cores: $(sysctl -n hw.logicalcpu)
   tasks:
-  - name: compile
+    *all_tasks
 
 - name: windows-64
   display_name: Windows 64-bit
@@ -175,14 +194,14 @@ buildvariants:
   run_on:
   - "windows-64-vs2013-test"
   expansions:
-    add_environment: "APPDATA=C:\\Program Files (x86)\\nodejs\\node_modules"
+    node_environment: "APPDATA=C:\\Program Files (x86)\\nodejs\\node_modules"
     upgrade_npm_version: "3"
     node_path: "/cygdrive/c/Program Files (x86)/nodejs"
     installer_content_type: "application/octet-stream"
     installer_filename: "MongoDBCompassSetup.exe"
     num_cores: $(grep -c ^processor /proc/cpuinfo)
   tasks:
-  - name: compile
+    *all_tasks
 
 - name: ubuntu
   display_name: Ubuntu 14.04
@@ -195,4 +214,4 @@ buildvariants:
     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
     num_cores: $(grep -c ^processor /proc/cpuinfo)
   tasks:
-  - name: compile
+    *all_tasks
