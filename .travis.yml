@@ -2,6 +2,8 @@ language: node_js
 node_js:
   - 'iojs-v2.3.4'
 before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -y libgnome-keyring-dev
   - npm install -g npm@3
   - npm config set loglevel error
   - npm config -g list -l
