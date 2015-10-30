@@ -126,7 +126,7 @@
     "mongodb-extended-json": "^1.5.2",
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^0.2.2",
-    "mongodb-language-model": "^0.2.3",
+    "mongodb-language-model": "^0.3.0",
     "mongodb-schema": "^3.3.0",
     "mousetrap": "^1.5.3",
     "node-notifier": "^4.3.1",
