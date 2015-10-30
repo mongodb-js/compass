@@ -123,7 +123,7 @@
     "merge-stream": "^1.0.0",
     "mocha": "^2.3.3",
     "moment": "^2.10.6",
-    "mongodb-extended-json": "^1.5.2",
+    "mongodb-extended-json": "^1.5.3",
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^0.2.4",
     "mongodb-language-model": "^0.3.0",
