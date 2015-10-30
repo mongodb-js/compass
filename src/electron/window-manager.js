@@ -8,6 +8,7 @@ var _ = require('lodash');
 var app = require('app');
 var BrowserWindow = require('browser-window');
 var config = require('./config');
+var dialog = require('dialog');
 var debug = require('debug')('scout-electron:window-manager');
 var menu = require('./menu');
 
@@ -62,7 +63,7 @@ module.exports.create = function(opts) {
       'direct-write': true
     }
   });
-  menu.init(_window);
+  menu.init();
 
   // makes the application a single instance application
   // see "app.makeSingleInstance" in https://github.com/atom/electron/blob/master/docs/api/app.md
@@ -134,6 +135,14 @@ app.on('show connect dialog', function(opts) {
     url: DEFAULT_URL
   });
   module.exports.create(opts);
+});
+
+app.on('show about dialog', function() {
+  dialog.showMessageBox({
+    type: 'info', 
+    message: 'MongoDB Compass Version: ' + app.getVersion(), 
+    buttons: []
+  });
 });
 
 /**
