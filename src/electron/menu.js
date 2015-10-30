@@ -1,19 +1,6 @@
 var app = require('app');
 var Menu = require('menu');
 
-var menu = (function() {
-  return {
-    init: function(window) {
-      /* eslint-disable no-extra-parens */
-      var menu = (process.platform == 'darwin')
-        ? darwinMenu(window) : nonDarwinMenu(window);
-      /* eslint-enable no-extra-parens */
-      menu = Menu.buildFromTemplate(menu);
-      Menu.setApplicationMenu(menu);
-    }
-  };
-}());
-
 // menus
 function darwinMenu(window) {
   return [
@@ -158,7 +145,7 @@ function darwinMenu(window) {
       ]
     }
   ];
-};
+}
 
 function nonDarwinMenu(window) {
   return [
@@ -204,6 +191,21 @@ function nonDarwinMenu(window) {
       ]
     }
   ];
-};
+}
+
+var menu = (function() {
+  return {
+    init: function(window) {
+      var m;
+      if (process.platform === 'darwin') {
+        m = darwinMenu(window);
+      } else {
+        m = nonDarwinMenu(window);
+      }
+      m = Menu.buildFromTemplate(m);
+      Menu.setApplicationMenu(m);
+    }
+  };
+}());
 
 module.exports = menu;

@@ -1,3 +1,4 @@
+/* eslint no-use-before-define:1 */
 var d3 = require('d3');
 var _ = require('lodash');
 var $ = require('jquery');
@@ -309,7 +310,7 @@ var minicharts_d3fns_date = function() {
 
       raf(function() {
         var chartWidth = width / (upperRatio + 1) - upperMargin;
-        var chart = many()
+        var manyChart = many()
           .width(chartWidth)
           .height(upperBarBottom)
           .options({
@@ -323,13 +324,13 @@ var minicharts_d3fns_date = function() {
             },
             view: options.view
           });
-        weekdayContainer.call(chart);
+        weekdayContainer.call(manyChart);
       });
 
       var hourContainer = g.select('g.hour').data([hours]);
       raf(function() {
         var chartWidth = width / (upperRatio + 1) * upperRatio - upperMargin;
-        var chart = many()
+        var manyChart = many()
           .width(chartWidth)
           .height(upperBarBottom)
           .options({
@@ -342,7 +343,7 @@ var minicharts_d3fns_date = function() {
             },
             view: options.view
           });
-        hourContainer.call(chart);
+        hourContainer.call(manyChart);
       });
     });
   }

@@ -1,9 +1,7 @@
 var View = require('ampersand-view');
 var pluralize = require('pluralize');
-var format = require('util').format;
 var app = require('ampersand-app');
 var numeral = require('numeral');
-var debug = require('debug')('scout:sampling-message:index');
 
 var SamplingMessageView = View.extend({
   template: require('./index.jade'),
@@ -33,7 +31,7 @@ var SamplingMessageView = View.extend({
         if (this.total_count === 0) {
           return '0%';
         }
-        return numeral(this.sample_size / this.total_count).format('0.00%')
+        return numeral(this.sample_size / this.total_count).format('0.00%');
       }
     },
     is_sample: {

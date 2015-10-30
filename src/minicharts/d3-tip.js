@@ -1,13 +1,11 @@
+/* eslint no-use-before-define: 1, one-var: 1, no-else-return: 1, no-unused-vars: 1, eqeqeq: 1, no-shadow: 1, yoda: 1, consistent-return: 1, one-var: 1 */
 // d3.tip
 // Copyright (c) 2013 Justin Palmer
 //
 // Tooltips for d3.js SVG visualizations
 
 (function(root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    // AMD. Register as an anonymous module with d3 as a dependency.
-    define(['d3'], factory);
-  } else if (typeof module === 'object' && module.exports) {
+  if (typeof module === 'object' && module.exports) {
     // CommonJS
     module.exports = function(d3) {
       d3.tip = factory(d3);
@@ -18,18 +16,17 @@
     root.d3.tip = factory(root.d3);
   }
 }(this, function(d3) {
-
   // Public - contructs a new tooltip
   //
   // Returns a tip
   return function() {
-    var direction = d3_tip_direction,
-      offset = d3_tip_offset,
-      html = d3_tip_html,
-      node = initNode(),
-      svg = null,
-      point = null,
-      target = null;
+    var direction = d3_tip_direction;
+    var offset = d3_tip_offset;
+    var html = d3_tip_html;
+    var node = initNode();
+    var svg = null;
+    var point = null;
+    var target = null;
 
     function tip(vis) {
       svg = getSVGNode(vis);
@@ -349,5 +346,4 @@
 
     return tip;
   };
-
 }));

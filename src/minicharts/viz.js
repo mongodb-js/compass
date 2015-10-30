@@ -1,4 +1,4 @@
-/* eslint indent:0 */
+/* eslint indent:0, complexity:0 */
 var AmpersandView = require('ampersand-view');
 var _ = require('lodash');
 var $ = require('jquery');

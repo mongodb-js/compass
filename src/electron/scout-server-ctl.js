@@ -12,7 +12,7 @@
 var fs = require('fs');
 var path = require('path');
 var app = require('app');
-var child_process = require('child_process');
+var spawn = require('child_process').spawn;
 var debug = require('debug')('scout:electron:scout-server-ctl');
 
 // Where we'll keep the process id.
@@ -67,8 +67,8 @@ var killIfRunning = function(done) {
     debug('killing existing pid', pid);
     try {
       process.kill(pid, 'SIGTERM');
-    } catch (err) {
-      if (err.code === 'ESRCH') {
+    } catch (e) {
+      if (e.code === 'ESRCH') {
         debug('orphaned pid file');
       }
     }
@@ -92,7 +92,7 @@ module.exports.start = function(done) {
     // not!  `child_process.exec` has space escape issues
     // but not `child_process.spawn`!
     debug('spawning: `%s %s`...', process.execPath, BIN);
-    var server = child_process.spawn(process.execPath, [BIN], {
+    var server = spawn(process.execPath, [BIN], {
       env: {
         ATOM_SHELL_INTERNAL_RUN_AS_NODE: '1',
         RESOURCES_PATH: process.resourcesPath

@@ -344,8 +344,8 @@ var ConnectView = View.extend({
       // `Untitled (\d)` connections, increment a counter
       // on them like every MS Office does.
       var untitleds = _.chain(this.connections.models)
-        .filter(function(model) {
-          return _.startsWith(model.name, 'Untitled (');
+        .filter(function(m) {
+          return _.startsWith(m.name, 'Untitled (');
         })
         .sort('name')
         .value();
