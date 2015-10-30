@@ -4,6 +4,7 @@ var loadOptions = require('../connect').loadOptions;
 var parse = require('mongodb-url');
 var driverParse = require('mongodb/lib/url_parser');
 var fixture = require('mongodb-connection-fixture');
+var clone = require('lodash.clone');
 var format = require('util').format;
 
 function isNotValidAndHasMessage(model, msg) {
@@ -130,7 +131,8 @@ describe('mongodb-connection-model', function() {
           var c = new Connection({
             authentication: 'LDAP',
             ldap_username: 'arlo',
-            ldap_password: 'w@of'
+            ldap_password: 'w@of',
+            ns: 'ldap'
           });
 
           it('should have the correct authMechanism', function() {
@@ -139,7 +141,7 @@ describe('mongodb-connection-model', function() {
 
           it('should urlencode credentials', function() {
             assert.equal(c.driver_url,
-              'mongodb://arlo:w%40of@localhost:27017/?slaveOk=true&authMechanism=PLAIN');
+              'mongodb://arlo:w%40of@localhost:27017/ldap?slaveOk=true&authMechanism=PLAIN');
           });
 
           it('should be parse in the browser', function() {
@@ -225,31 +227,54 @@ describe('mongodb-connection-model', function() {
           assert.equal(c.isValid(), true);
         });
         describe('driver_url', function() {
-          var c = new Connection({
-            kerberos_principal: 'arlo/dog@krb5.mongodb.parts',
-            kerberos_password: 'w@@f',
-            kerberos_service_name: 'mongodb'
-          });
+          describe('When a password is provided', function() {
+            var c = new Connection({
+              kerberos_principal: 'arlo/dog@krb5.mongodb.parts',
+              kerberos_password: 'w@@f',
+              kerberos_service_name: 'mongodb'
+            });
 
-          it('should have the correct authMechanism', function() {
-            assert.equal(c.driver_auth_mechanism, 'GSSAPI');
-          });
+            it('should have the GSSAPI authMechanism', function() {
+              assert.equal(c.driver_auth_mechanism, 'GSSAPI');
+            });
 
-          it('should urlencode the principal', function() {
-            assert.equal(c.driver_url,
-              'mongodb://arlo%252Fdog%2540krb5.mongodb.parts:w%40%40f@localhost:27017/'
-              + 'kerberos?slaveOk=true&gssapiServiceName=mongodb&authMechanism=GSSAPI');
-          });
+            it('should urlencode the principal', function() {
+              var expectedPrefix = 'mongodb://arlo%252Fdog%2540krb5.mongodb.parts:w%40%40f@localhost:27017';
+              assert.equal(c.driver_url.indexOf(expectedPrefix), 0);
+            });
 
-          it('should be parse in the browser', function() {
-            assert.doesNotThrow(function() {
-              parse(c.driver_url);
+            it('should be parse in the browser', function() {
+              assert.doesNotThrow(function() {
+                parse(c.driver_url);
+              });
+            });
+
+            it('should parse on the server', function() {
+              assert.doesNotThrow(function() {
+                driverParse(c.driver_url);
+              });
             });
           });
 
-          it('should parse on the server', function() {
-            assert.doesNotThrow(function() {
-              driverParse(c.driver_url);
+          describe('When a password is NOT provided', function() {
+            var c = new Connection({
+              kerberos_principal: 'arlo/dog@krb5.mongodb.parts'
+            });
+
+            it('should have the GSSAPI authMechanism', function() {
+              assert.equal(c.driver_auth_mechanism, 'GSSAPI');
+            });
+
+            it('should be parse in the browser', function() {
+              assert.doesNotThrow(function() {
+                parse(c.driver_url);
+              });
+            });
+
+            it('should parse on the server', function() {
+              assert.doesNotThrow(function() {
+                driverParse(c.driver_url);
+              });
             });
           });
         });
@@ -258,9 +283,8 @@ describe('mongodb-connection-model', function() {
             var c = new Connection({
               kerberos_principal: 'lucas@kerb.mongodb.parts'
             });
-            assert.equal(c.driver_url,
-              'mongodb://lucas%2540kerb.mongodb.parts:@localhost:27017/'
-              + 'kerberos?slaveOk=true&gssapiServiceName=mongodb&authMechanism=GSSAPI');
+            var expectedPrefix = 'mongodb://lucas%2540kerb.mongodb.parts:@localhost:27017';
+            assert.equal(c.driver_url.indexOf(expectedPrefix), 0);
           });
         });
       });
@@ -280,6 +304,25 @@ describe('mongodb-connection-model', function() {
       });
     });
 
+    describe('if model initialized with string', function() {
+      var c = Connection.from('krb5.mongodb.parts:1234');
+      it('should not have a validationError', function() {
+        assert.equal(c.validationError, undefined);
+      });
+
+      it('should be valid', function() {
+        assert(c.isValid());
+      });
+
+      it('should have the correct hostname', function() {
+        assert.equal(c.hostname, 'krb5.mongodb.parts');
+      });
+
+      it('should have the correct port', function() {
+        assert.equal(c.port, 1234);
+      });
+    });
+
     describe('authentication', function() {
       it('should parse MONGODB', function() {
         var c = Connection.from('mongodb://%40rlo:w%40of@localhost:27017/'
@@ -295,22 +338,24 @@ describe('mongodb-connection-model', function() {
       describe('enterprise', function() {
         it('should parse LDAP', function() {
           var c = Connection.from('mongodb://arlo:w%40of@localhost:27017/'
-            + '?slaveOk=true&authMechanism=PLAIN');
+            + 'ldap?slaveOk=true&authMechanism=PLAIN');
           assert.equal(c.hostname, 'localhost');
           assert.equal(c.port, 27017);
           assert.equal(c.authentication, 'LDAP');
           assert.equal(c.ldap_username, 'arlo');
           assert.equal(c.ldap_password, 'w@of');
+          assert.equal(c.ns, 'ldap');
         });
 
         it('should parse X509', function() {
           var c = Connection.from('mongodb://CN%253Dclient%252COU%253Darlo%252CO%253DMongoDB%252CL%253DPhiladelphia'
             + '%252CST%253DPennsylvania%252CC%253DUS@localhost:27017/'
-            + '?slaveOk=true&authMechanism=MONGODB-X509');
+            + 'x509?slaveOk=true&authMechanism=MONGODB-X509');
           assert.equal(c.hostname, 'localhost');
           assert.equal(c.port, 27017);
           assert.equal(c.authentication, 'X509');
           assert.equal(c.x509_username, 'CN=client,OU=arlo,O=MongoDB,L=Philadelphia,ST=Pennsylvania,C=US');
+          assert.equal(c.ns, 'x509');
         });
 
         it('should parse KERBEROS', function() {
@@ -321,6 +366,7 @@ describe('mongodb-connection-model', function() {
           assert.equal(c.authentication, 'KERBEROS');
           assert.equal(c.kerberos_principal, 'arlo/dog@krb5.mongodb.parts');
           assert.equal(c.kerberos_password, 'w@@f');
+          assert.equal(c.ns, 'kerberos');
         });
       });
     });
@@ -352,18 +398,52 @@ describe('mongodb-connection-model', function() {
       });
     });
     describe('When ssl is NONE', function() {
-      it('should produce the correct driver URL');
-      it('should produce the correct driver options');
+      var sslNone = new Connection({
+        ssl: 'NONE'
+      });
+
+      it('should produce the correct driver URL', function() {
+        assert.equal(sslNone.driver_url, 'mongodb://localhost:27017/?slaveOk=true');
+      });
+      it('should produce the correct driver options', function() {
+        assert.deepEqual(sslNone.driver_options,
+          Connection.DRIVER_OPTIONS_DEFAULT);
+      });
     });
 
     describe('When ssl is UNVALIDATED', function() {
-      it('should produce the correct driver URL');
-      it('should produce the correct driver options');
+      var sslUnvalidated = new Connection({
+        ssl: 'UNVALIDATED'
+      });
+
+      it('should produce the correct driver URL', function() {
+        assert.equal(sslUnvalidated.driver_url,
+          'mongodb://localhost:27017/?slaveOk=true&ssl=true');
+      });
+      it('should produce the correct driver options', function() {
+        assert.deepEqual(sslUnvalidated.driver_options,
+          Connection.DRIVER_OPTIONS_DEFAULT);
+      });
     });
 
     describe('When ssl is SERVER', function() {
-      it('should produce the correct driver URL');
-      it('should produce the correct driver options');
+      var sslServer = new Connection({
+        ssl: 'SERVER',
+        ssl_ca: fixture.ssl.ca
+      });
+
+      it('should produce the correct driver URL', function() {
+        assert.equal(sslServer.driver_url,
+          'mongodb://localhost:27017/?slaveOk=true&ssl=true');
+      });
+      it('should produce the correct driver options', function() {
+        var expected = clone(Connection.DRIVER_OPTIONS_DEFAULT);
+        expected.server = {
+          sslCA: [fixture.ssl.ca],
+          sslValidate: true
+        };
+        assert.deepEqual(sslServer.driver_options, expected);
+      });
     });
 
     describe('When ssl is ALL', function() {
@@ -375,8 +455,62 @@ describe('mongodb-connection-model', function() {
           assert(Array.isArray(c.ssl_ca));
         });
       });
-      it('should produce the correct driver URL');
-      it('should produce the correct driver options');
+      describe('passwordless private keys', function() {
+        var c = new Connection({
+          ssl: 'ALL',
+          ssl_ca: fixture.ssl.ca,
+          ssl_certificate: fixture.ssl.server,
+          ssl_private_key: fixture.ssl.server
+        });
+        it('should be valid', function() {
+          assert.equal(c.isValid(), true);
+        });
+        it('should produce the correct driver_url', function() {
+          assert.equal(c.driver_url,
+            'mongodb://localhost:27017/?slaveOk=true&ssl=true');
+        });
+
+        it('should produce the correct driver_options', function() {
+          var expected = clone(Connection.DRIVER_OPTIONS_DEFAULT);
+          expected.server = {
+            sslCA: [fixture.ssl.ca],
+            sslCert: fixture.ssl.server,
+            sslKey: fixture.ssl.server,
+            sslValidate: true
+          };
+          assert.deepEqual(c.driver_options, expected);
+        });
+      });
+      describe('password protected private keys', function() {
+        var c = new Connection({
+          ssl: 'ALL',
+          ssl_ca: fixture.ssl.ca,
+          ssl_certificate: fixture.ssl.server,
+          ssl_private_key: fixture.ssl.server,
+          ssl_private_key_password: 'woof'
+        });
+
+        it('should be valid', function() {
+          assert.equal(c.isValid(), true);
+        });
+
+        it('should produce the correct driver_url', function() {
+          assert.equal(c.driver_url,
+            'mongodb://localhost:27017/?slaveOk=true&ssl=true');
+        });
+
+        it('should produce the correct driver_options', function() {
+          var expected = clone(Connection.DRIVER_OPTIONS_DEFAULT);
+          expected.server = {
+            sslCA: [fixture.ssl.ca],
+            sslCert: fixture.ssl.server,
+            sslKey: fixture.ssl.server,
+            sslPass: 'woof',
+            sslValidate: true
+          };
+          assert.deepEqual(c.driver_options, expected);
+        });
+      });
     });
   });
 });

@@ -5,6 +5,7 @@ var AmpersandCollection = require('ampersand-rest-collection');
 var assign = require('lodash.assign');
 var defaults = require('lodash.defaults');
 var contains = require('lodash.contains');
+var clone = require('lodash.clone');
 var parse = require('mongodb-url');
 var debug = require('debug')('mongodb-connection-model');
 
@@ -35,6 +36,10 @@ assign(props, {
   port: {
     type: 'number',
     default: 27017
+  },
+  ns: {
+    type: 'string',
+    default: undefined
   }
 });
 
@@ -131,7 +136,7 @@ var AUTH_MECHANISM_TO_AUTHENTICATION = {
   'MONGODB-CR': 'MONGODB',
   'MONGODB-X509': 'X509',
   GSSAPI: 'KERBEROS',
-  SSAPI: 'KERBEROS',
+  SSPI: 'KERBEROS',
   PLAIN: 'LDAP',
   LDAP: 'LDAP'
 };
@@ -206,7 +211,8 @@ var MONGODB_DATABASE_NAME_DEFAULT = 'admin';
  *   var c = new Connection({
  *     kerberos_service_name: 'mongodb',
  *     kerberos_password: 'w@@f',
- *     kerberos_principal: 'arlo/dog@krb5.mongodb.parts'
+ *     kerberos_principal: 'arlo/dog@krb5.mongodb.parts',
+ *     ns: 'kerberos'
  *   });
  *   console.log(c.driver_url)
  *   >>> mongodb://arlo%252Fdog%2540krb5.mongodb.parts:w%40%40f@localhost:27017/kerberos?slaveOk=true&gssapiServiceName=mongodb&authMechanism=GSSAPI
@@ -267,10 +273,11 @@ var KERBEROS_SERVICE_NAME_DEFAULT = 'mongodb';
  * @example
  *    var c = new Connection({
  *     ldap_username: 'arlo',
- *     ldap_password: 'w@of'
+ *     ldap_password: 'w@of',
+ *     ns: 'ldap'
  *   });
  *   console.log(c.driver_url)
- *   >>> mongodb://arlo:w%40of@localhost:27017?slaveOk=true&authMechanism=PLAIN
+ *   >>> mongodb://arlo:w%40of@localhost:27017/ldap?slaveOk=true&authMechanism=PLAIN
  *   console.log(c.driver_options)
  *   >>> { uri_decode_auth: true,
  *     db: { readPreference: 'nearest' },
@@ -382,7 +389,7 @@ assign(props, {
    * (needs to have a mongod server with ssl support, 2.4 or higher).
    */
   ssl_certificate: {
-    type: 'string',
+    type: 'any',
     default: undefined
   },
   /**
@@ -390,7 +397,7 @@ assign(props, {
    * (needs to have a mongod server with ssl support, 2.4 or higher).
    */
   ssl_private_key: {
-    type: 'string',
+    type: 'any',
     default: undefined
   },
   /**
@@ -453,11 +460,14 @@ assign(derived, {
         }
       };
 
+      if (this.ns) {
+        req.pathname = format('/%s', this.ns);
+      }
+
       if (this.authentication === 'MONGODB') {
         req.auth = format('%s:%s', this.mongodb_username, this.mongodb_password);
         req.query.authSource = this.mongodb_database_name;
       } else if (this.authentication === 'KERBEROS') {
-        req.pathname = '/kerberos';
         defaults(req.query, {
           gssapiServiceName: this.kerberos_service_name,
           authMechanism: this.driver_auth_mechanism
@@ -485,7 +495,7 @@ assign(derived, {
         });
       }
 
-      if (contains(this.ssl, 'UNVALIDATED', 'SERVER', 'ALL')) {
+      if (contains(['UNVALIDATED', 'SERVER', 'ALL'], this.ssl)) {
         req.query.ssl = 'true';
       }
 
@@ -507,7 +517,7 @@ assign(derived, {
       'ssl_private_key_password'
     ],
     fn: function() {
-      var opts = DRIVER_OPTIONS_DEFAULT;
+      var opts = clone(DRIVER_OPTIONS_DEFAULT, true);
       if (this.ssl === 'SERVER') {
         assign(opts, {
           server: {
@@ -521,10 +531,13 @@ assign(derived, {
             sslValidate: true,
             sslCA: this.ssl_ca,
             sslKey: this.ssl_private_key,
-            sslCert: this.ssl_certificate,
-            sslPass: this.ssl_private_key_password
+            sslCert: this.ssl_certificate
           }
         });
+
+        if (this.ssl_private_key_password) {
+          opts.server.sslPass = this.ssl_private_key_password;
+        }
       }
       return opts;
     }
@@ -544,6 +557,19 @@ Connection = AmpersandModel.extend({
   initialize: function(attrs) {
     debug('initialize', attrs);
     if (attrs) {
+      if (typeof attrs === 'string') {
+        var url = attrs;
+        try {
+          debug('trying to parse url `%s`...', url);
+          attrs = Connection.from(attrs);
+          debug('successfully parsed `%s` ->', url, attrs);
+        } catch (e) {
+          debug('error parsing url `%s`', url, e);
+          this.validationError = e;
+          return;
+        }
+      }
+
       if (attrs.ssl_ca && !Array.isArray(attrs.ssl_ca)) {
         this.ssl_ca = attrs.ssl_ca = [attrs.ssl_ca];
       }
@@ -714,6 +740,13 @@ Connection.from = function(url) {
     hostname: parsed.servers[0].host,
     port: parsed.servers[0].port
   };
+
+  // Don't want to inherit the drivers default values
+  // into our model's default values so only set `ns`
+  // if it was actually in the URL and not a default.
+  if (url.indexOf(parsed.dbName) > -1) {
+    attrs.ns = parsed.dbName;
+  }
 
   if (parsed.auth) {
     /**

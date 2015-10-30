@@ -20,6 +20,7 @@ var Connection = require('mongodb-connection-model');
 - `hostname` (optional, String) ... Hostname of a MongoDB Instance [Default: `localhost`].
 - `port` (optional, Number) ... TCP port of a MongoDB Instance [Default: `27017`].
 - `name` (optional, String) ... User specified name [Default: `My MongoDB`].
+- `ns` (optional, String) ... A valid [ns][ns] the user can read from [Default: `undefined`].
 
 ## Derived Properties
 
@@ -50,10 +51,10 @@ var model = new Connection({
   authentication: 'NONE'
 });
 console.log(model.driver_url);
->>> 'mongodb://localhost:27017?slaveOk=true'
+>>> 'mongodb://localhost:27017/?slaveOk=true'
 
 console.log(new Connection().driver_url);
->>> 'mongodb://localhost:27017?slaveOk=true'
+>>> 'mongodb://localhost:27017/?slaveOk=true'
 ```
 
 <a name="authentication-mongodb"></a>
@@ -69,7 +70,7 @@ var c = new Connection({
   mongodb_password: 'w@of'
 });
 console.log(c.driver_url)
->>> 'mongodb://arlo:w%40of@localhost:27017?slaveOk=true&authSource=admin'
+>>> 'mongodb://arlo:w%40of@localhost:27017/?slaveOk=true&authSource=admin'
 console.log(c.driver_options)
 >>> { uri_decode_auth: true,
   db: { readPreference: 'nearest' },
@@ -94,10 +95,11 @@ console.log(c.driver_options)
  var c = new Connection({
    kerberos_service_name: 'mongodb',
    kerberos_password: 'w@@f',
-   kerberos_principal: 'arlo/dog@krb5.mongodb.parts'
+   kerberos_principal: 'arlo/dog@krb5.mongodb.parts',
+   ns: 'toys'
  });
  console.log(c.driver_url)
- >>> 'mongodb://arlo%252Fdog%2540krb5.mongodb.parts:w%40%40f@localhost:27017/kerberos?slaveOk=true&gssapiServiceName=mongodb&authMechanism=GSSAPI'
+ >>> 'mongodb://arlo%252Fdog%2540krb5.mongodb.parts:w%40%40f@localhost:27017/toys?slaveOk=true&gssapiServiceName=mongodb&authMechanism=GSSAPI'
  console.log(c.driver_options)
  >>> { uri_decode_auth: true,
    db: { readPreference: 'nearest' },
@@ -112,10 +114,11 @@ console.log(c.driver_options)
 var model = new Connection({
   kerberos_principal: 'arlo/admin@MONGODB.PARTS',
   kerberos_password: 'B@sil',
-  kerberos_service_name: 'MongoDB'
+  kerberos_service_name: 'MongoDB',
+  ns: 'cat_toys'
 });
 console.log(model.driver_url);
->>> 'mongodb://arlo%252Fadmin%2540MONGODB.PARTS:B%40sil@localhost:27017/kerberos?slaveOk=true&gssapiServiceName=MongoDB&authMechanism=GSSAPI'
+>>> 'mongodb://arlo%252Fadmin%2540MONGODB.PARTS:B%40sil@localhost:27017/cat_toys?slaveOk=true&gssapiServiceName=MongoDB&authMechanism=GSSAPI'
 ```
 
 <a name="authentication-x509"></a>
@@ -158,10 +161,11 @@ replSet: { connectWithNoPrimary: true } }
 ```javascript
 var c = new Connection({
  ldap_username: 'arlo',
- ldap_password: 'w@of'
+ ldap_password: 'w@of',
+ ns: 'toys'
 });
 console.log(c.driver_url)
->>> 'mongodb://arlo:w%40of@localhost:27017?slaveOk=true&authMechanism=PLAIN'
+>>> 'mongodb://arlo:w%40of@localhost:27017/toys?slaveOk=true&authMechanism=PLAIN'
 console.log(c.driver_options)
 >>> { uri_decode_auth: true,
  db: { readPreference: 'nearest' },
@@ -199,10 +203,6 @@ The driver must present a valid certificate and validate the server certificate.
 
 > @todo (imlucas) Update this from last week's whiteboard session.
 
-## See Also
-
--
-
 ## License
 
 Apache 2.0
@@ -218,3 +218,4 @@ Apache 2.0
 [kerberos-functional]: https://github.com/mongodb/node-mongodb-native/blob/2.0/test/functional/kerberos_tests.js
 [ldap-functional]: https://github.com/mongodb/node-mongodb-native/blob/2.0/test/functional/ldap_tests.js
 [x509-functional]: https://github.com/mongodb/node-mongodb-native/blob/2.0/test/functional/ssl_x509_tests.js
+[ns]: https://github.com/mongodb-js/ns

@@ -13,21 +13,8 @@ var format = require('util').format;
 var data = require('mongodb-connection-fixture');
 
 describe('mongodb-connection#connect', function() {
-  describe('url parsing', function() {
-    it.skip('should cleanly detect URL parsing errors', function(done) {
-      assert.doesNotThrow(function() {
-        var model = Connection.from('mongodb://localhost:27017?slaveOk=true');
-        connect(model, function(err, db) {
-          assert.equal(db, undefined, 'That shouldnt have connected!');
-          assert(err);
-          console.log(JSON.stringify(err, null, 2));
-          done();
-        });
-      });
-    });
-  });
   describe('local', function() {
-    before(require('mongodb-runner/mocha/before'));
+    before(require('mongodb-runner/mocha/before')());
     it('should connect to `localhost:27017`', function(done) {
       var model = Connection.from('mongodb://localhost:27017');
       connect(model, function(err, _db) {
