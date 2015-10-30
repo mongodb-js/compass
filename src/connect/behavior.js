@@ -82,7 +82,7 @@ module.exports = State.extend({
    * @return {String}          new state as defined above
    */
   reduce: function(state, action) {
-    /* eslint indent: [2, 2, {"SwitchIndent": 1}] */
+    /* eslint indent: 0 */
 
     // check if the current state allows the given action
     if (this.validTransitions[state].indexOf(action) === -1) {
@@ -95,6 +95,7 @@ module.exports = State.extend({
       case 'favorite connection clicked': return 'FAV_UNCHANGED';
       case 'history connection clicked': return 'HISTORY_UNCHANGED';
       case 'connect clicked': return 'CONNECTING';
+      default: break;
     }
 
     // state specific actions
@@ -138,9 +139,6 @@ module.exports = State.extend({
       case 'HISTORY_CHANGED':
         assert.equal(action, 'create favorite clicked');
         return 'FAV_UNCHANGED';
-
-
-      // ...
 
       default:
         throw new Error('state not handled in connect dialog.');

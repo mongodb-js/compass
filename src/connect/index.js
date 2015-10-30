@@ -228,6 +228,7 @@ var ConnectView = View.extend({
     }
   },
 
+
   // === External hooks
 
   /**
@@ -262,6 +263,7 @@ var ConnectView = View.extend({
   submitForm: function() {
     this.dispatch('connect clicked');
   },
+
 
   // === State Machine related methods
 
@@ -304,8 +306,6 @@ var ConnectView = View.extend({
 
     this.showFavoriteButtons = false;
     this.showSaveButton = false;
-    // this.existingConnection = false;
-    // this.updateConflictingNames();
   },
 
   _stateNewNamed: function() {
@@ -407,9 +407,7 @@ var ConnectView = View.extend({
    * Called by `this._stateFavUnchanged` and `this._stateHistoryUnchanged`.
    *
    * @param {Connection} connection
-   * @api public
    */
-
   updateConnection: function() {
     if (this.connection) {
       debug('updating existing connection from form data');
@@ -420,6 +418,12 @@ var ConnectView = View.extend({
     }
   },
 
+  /**
+   * Runs a validation on the connection. If it fails, show error banner.
+   *
+   * @param {Connection} connection
+   * @return {Boolean}   success or failure of the validation
+   */
   validateConnection: function(connection) {
     if (!connection.isValid()) {
       this.onError(connection.validationError);
@@ -428,6 +432,11 @@ var ConnectView = View.extend({
     return true;
   },
 
+  /**
+   * Will open a new schema window with the connection details and close the connection dialog
+   *
+   * @param {Object} connection    can also be externally called (e.g. Sidebar#onItemDoubleClick)
+   */
   useConnection: function(connection) {
     connection = connection || this.connection;
     app.statusbar.hide();
@@ -440,7 +449,7 @@ var ConnectView = View.extend({
      *     ssl: model.ssl
      *   });
      */
-    debug('opening schema view for', format('%s?connection_id=%s#schema', window.location.origin, connection.getId()));
+
     /**
      * @see ./src/app.js `params.connection_id`
      */
@@ -448,10 +457,14 @@ var ConnectView = View.extend({
     setTimeout(this.set.bind(this, {
       message: ''
     }), 500);
-    // setTimeout(window.close, 1000);
+    setTimeout(window.close, 1000);
   },
 
-
+  /**
+   * Updates the input field view responsible for the friendly name. Provides a list of
+   * existing connection names so that the field can validate against them. We want to avoid
+   * creating connection favorites with duplicate names.
+   */
   updateConflictingNames: function() {
     var conflicts = this.connections.filter(function(model) {
       if (this.connection && this.connection.getId() === model.getId()) {
@@ -463,6 +476,9 @@ var ConnectView = View.extend({
     nameField.conflicting = _.pluck(conflicts, 'name');
   },
 
+  /**
+   * Fill in the form based on this.connection, also adds/removes the auth and ssl fields.
+   */
   updateForm: function() {
     this.updateConflictingNames();
 
@@ -524,7 +540,6 @@ var ConnectView = View.extend({
     }.bind(this));
 
     this.previousAuthMethod = this.authMethod;
-    // debug('auth form data now has the following fields', Object.keys(this.form.data));
   },
 
   /**
@@ -545,7 +560,6 @@ var ConnectView = View.extend({
     }.bind(this));
 
     this.previousSslMethod = this.sslMethod;
-    // debug('ssl form data now has the following fields', Object.keys(this.form.data));
   }
 
 });
