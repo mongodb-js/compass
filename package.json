@@ -100,7 +100,7 @@
     "domready": "^1.0.8",
     "electron-installer-dmg": "^0.1.0",
     "electron-installer-squirrel-windows": "^0.4.0",
-    "electron-packager": "^5.1.0",
+    "electron-packager": "^5.1.1",
     "eslint-config-mongodb-js": "^1.0.5",
     "event-stream": "^3.3.2",
     "figures": "^1.4.0",
