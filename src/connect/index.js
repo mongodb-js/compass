@@ -154,11 +154,30 @@ var ConnectView = View.extend({
       type: 'toggle',
       hook: 'save-changes-button'
     },
-    'form.valid': {
-      type: 'booleanAttribute',
-      hook: 'save-changes-button',
-      no: 'disabled'
-    }
+    'form.valid': [
+      {
+        type: 'booleanAttribute',
+        hook: 'save-changes-button',
+        no: 'disabled'
+      },
+      {
+        type: 'booleanAttribute',
+        hook: 'create-favorite-button',
+        no: 'disabled'
+      }
+    ],
+    connectionNameEmpty: [
+      {
+        type: 'booleanAttribute',
+        hook: 'save-changes-button',
+        yes: 'disabled'
+      },
+      {
+        type: 'booleanAttribute',
+        hook: 'create-favorite-button',
+        yes: 'disabled'
+      }
+    ]
   },
   subviews: {
     sidebar: {
