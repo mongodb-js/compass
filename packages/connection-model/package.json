@@ -28,6 +28,7 @@
     "ampersand-rest-collection": "^5.0.0",
     "debug": "^2.2.0",
     "lodash.assign": "^3.2.0",
+    "lodash.clone": "^3.0.3",
     "lodash.contains": "^2.4.3",
     "lodash.defaults": "^3.1.2",
     "mongodb-url": "^1.0.1"

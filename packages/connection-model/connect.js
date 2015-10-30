@@ -1,6 +1,7 @@
 var fs = require('fs');
 var parallel = require('run-parallel');
 var series = require('run-series');
+var clone = require('lodash.clone');
 var MongoClient = require('mongodb').MongoClient;
 var backoff = require('backoff');
 var Connection = require('./model');
@@ -16,7 +17,7 @@ function loadOptions(model, done) {
   }
 
   var tasks = {};
-  var opts = model.driver_options;
+  var opts = clone(model.driver_options, true);
   Object.keys(opts.server).map(function(key) {
     if (key.indexOf('ssl') === -1) {
       return;
