@@ -1,5 +1,6 @@
 var View = require('ampersand-view');
 var SidebarView = require('./sidebar');
+var BehaviorStateMachine = require('./behavior');
 var ConnectionCollection = require('../models/connection-collection');
 var ConnectFormView = require('./connect-form-view');
 var Connection = require('../models/connection');
@@ -7,6 +8,7 @@ var debug = require('debug')('scout:connect:index');
 var _ = require('lodash');
 var app = require('ampersand-app');
 var format = require('util').format;
+var assert = require('assert');
 
 /**
  * AuthenticationOptionCollection
@@ -18,30 +20,27 @@ var authMethods = require('./authentication');
  */
 var sslMethods = require('./ssl');
 
-
 var ConnectView = View.extend({
   template: require('./index.jade'),
   props: {
     form: 'object',
+    stateMachine: 'state',
+    connection: 'state',
     message: {
       type: 'string',
       default: ''
     },
+    showFavoriteButtons: {
+      type: 'boolean',
+      default: false
+    },
+    showSaveButton: {
+      type: 'boolean',
+      default: false
+    },
     connectionName: {
       type: 'string',
       default: ''
-    },
-    isFavorite: {
-      type: 'boolean',
-      default: false
-    },
-    formModified: {
-      type: 'boolean',
-      default: false
-    },
-    existingConnection: {
-      type: 'boolean',
-      default: false
     },
     authMethod: {
       type: 'string',
@@ -66,6 +65,18 @@ var ConnectView = View.extend({
       fn: function() {
         return this.message !== '';
       }
+    },
+    connectionNameEmpty: {
+      deps: ['connectionName'],
+      fn: function() {
+        return this.connectionName === '';
+      }
+    },
+    isFavorite: {
+      deps: ['stateMachine.state'],
+      fn: function() {
+        return _.startsWith(this.stateMachine.state, 'FAV_');
+      }
     }
   },
   collections: {
@@ -78,9 +89,42 @@ var ConnectView = View.extend({
     'click [data-hook=remove-favorite-button]': 'onRemoveFavoriteClicked',
     'input input[name=name]': 'onNameInputChanged',
     'change input[name=name]': 'onNameInputChanged',
-    'change input': 'onAnyInputChanged',
+    'input input': 'onAnyInputChanged',
     'change select': 'onAnyInputChanged'
   },
+
+  /**
+   * Event handlers listening to UI events. These are very lightweight methods that
+   * simply set a property or dispatch an action. The heavy lifting should be done
+   * in the _state* methods below.
+   *
+   * @see `events` above
+   */
+
+  onAuthMethodChanged: function(evt) {
+    this.authMethod = evt.target.value;
+  },
+
+  onSslMethodChanged: function(evt) {
+    this.sslMethod = evt.target.value;
+  },
+
+  onNameInputChanged: function(evt) {
+    this.connectionName = evt.target.value;
+  },
+
+  onAnyInputChanged: function() {
+    this.dispatch('any field changed');
+  },
+
+  onCreateFavoriteClicked: function() {
+    this.dispatch('create favorite clicked');
+  },
+
+  onRemoveFavoriteClicked: function() {
+    this.dispatch('remove favorite clicked');
+  },
+
   bindings: {
     // show error div
     hasError: {
@@ -102,16 +146,14 @@ var ConnectView = View.extend({
       selector: 'input[name=name]',
       name: 'disabled'
     },
-    connectionName: [
-      {
-        type: 'toggle',
-        hook: 'favorite-buttons'
-      },
-      {
-        type: 'toggle',
-        hook: 'save-changes-button'
-      }
-    ]
+    showFavoriteButtons: {
+      type: 'toggle',
+      hook: 'favorite-buttons'
+    },
+    showSaveButton: {
+      type: 'toggle',
+      hook: 'save-changes-button'
+    }
   },
   subviews: {
     sidebar: {
@@ -130,6 +172,8 @@ var ConnectView = View.extend({
     document.title = 'Connect to MongoDB';
     this.connections.on('sync', this.updateConflictingNames.bind(this));
     this.connections.fetch();
+    this.stateMachine = new BehaviorStateMachine(this);
+    this.on('change:connectionNameEmpty', this.connectionNameEmptyChanged.bind(this));
   },
   render: function() {
     this.renderWithTemplate({
@@ -147,23 +191,340 @@ var ConnectView = View.extend({
     this.registerSubview(this.form);
     this.listenToAndRun(this, 'change:authMethod', this.replaceAuthMethodFields.bind(this));
     this.listenToAndRun(this, 'change:sslMethod', this.replaceSslMethodFields.bind(this));
+
+    // always start in NEW_EMPTY state
+    this._stateNewEmpty();
   },
+
+  connectionNameEmptyChanged: function() {
+    if (this.connectionNameEmpty) {
+      this.dispatch('name removed');
+    } else {
+      this.dispatch('name added');
+    }
+  },
+
+  // === External hooks
+
   /**
-   * called when user switches select input to another authentication method
-   *
-   * @param {Object} evt   onchange event
+   * called by SidebarView#onNewConnectionClicked
+   * @see ./sidebar.js
    */
-  onAuthMethodChanged: function(evt) {
-    this.authMethod = evt.target.value;
+  createNewConnection: function() {
+    this.dispatch('new connection clicked');
+    this.connection = new Connection();
   },
+
   /**
-   * called when user switches select input to another SSL method
-   *
-   * @param {Object} evt   onchange event
+   * called by SidebarView#onItemClick
+   * @param {Object} connection   the selected connection model
+   * @see ./sidebar.js
    */
-  onSslMethodChanged: function(evt) {
-    this.sslMethod = evt.target.value;
+  selectExistingConnection: function(connection) {
+    this.connection = connection;
+    this.updateForm();
+    if (connection.is_favorite) {
+      this.dispatch('favorite connection clicked');
+    } else {
+      this.dispatch('history connection clicked');
+    }
   },
+
+  /**
+   * called by SidebarView#submitCallback
+   * @param {Object} obj   the submitted data
+   * @see ./sidebar.js
+   */
+  submitForm: function() {
+    this.dispatch('connect clicked');
+  },
+
+  // === State Machine related methods
+
+  /**
+   * dispatches an action with the state machine, gets the new state, and calls the appropriate
+   * method. The state is converted to camelCase style. Methods are expected to match the states
+   * defined in the state machine.
+   *
+   * @param  {String} action  the action to dispatch
+   */
+  dispatch: function(action) {
+    var oldState = this.stateMachine.state;
+    var newState = this.stateMachine.dispatch(action);
+    if (oldState === newState) return;
+    var stateMethod = '_state' + _.capitalize(_.camelCase(newState));
+    if (this[stateMethod] === undefined) {
+      debug('Connect dialog does not have a state method called %s', stateMethod);
+    } else {
+      this[stateMethod](action, oldState);
+    }
+  },
+
+  /**
+   * state methods below are called via dispatch().
+   */
+
+  _stateNewEmpty: function(action) {
+    if (action === 'remove favorite clicked') {
+      this.connection.is_favorite = false;
+      this.connection.save();
+      this.sidebar.activeItemView = null;
+      this.sidebar.collection.deactivateAll();
+    }
+    this.authMethod = 'MONGODB';
+    this.form.reset();
+
+    this.message = '';
+    this.connection = null;
+    this.connectionName = '';
+
+    this.showFavoriteButtons = false;
+    this.showSaveButton = false;
+    // this.existingConnection = false;
+    // this.updateConflictingNames();
+  },
+
+  _stateNewNamed: function() {
+    this.showSaveButton = false;
+    this.showFavoriteButtons = true;
+  },
+
+  _stateFavUnchanged: function(action) {
+    if (action !== 'favorite connection clicked') {
+      this.updateConnection();
+      this.connection.is_favorite = true;
+      this.connection.save();
+      this.connections.add(this.connection, {
+        merge: true
+      });
+    }
+
+    this.showSaveButton = false;
+    this.showFavoriteButtons = true;
+  },
+
+  _stateFavChanged: function() {
+    this.showSaveButton = true;
+    this.showFavoriteButtons = true;
+  },
+
+  _stateHistoryUnchanged: function() {
+    // should always have connection here
+    assert.ok(this.connection);
+
+    this.connection.is_favorite = false;
+    if (this.connection.last_used) {
+      this.connection.save();
+    } else {
+      this.connection.destroy();
+    }
+
+    this.showSaveButton = false;
+    this.showFavoriteButtons = true;
+
+    this.updateConflictingNames();
+    this.updateForm();
+  },
+
+  _stateHistoryChanged: function() {
+    this.showSaveButton = false;
+    this.showFavoriteButtons = true;
+  },
+
+  _stateConnecting: function(action, oldState) {
+    var connection;
+    debugger;
+
+    if (!_.endsWith(oldState, '_UNCHANGED')) {
+      // the user has modified the form fields and opted not to save the changes. We need to
+      // create a new connection and leave the old one intact.
+      connection = new Connection(this.form.data);
+    } else {
+      connection = this.connection;
+    }
+
+    if (!this.validateConnection(connection)) {
+      // reverting to old state
+      this.stateMachine.state = oldState;
+      return;
+    }
+
+    app.statusbar.show();
+    connection.test(function(err) {
+      app.statusbar.hide();
+
+      // @todo remove
+      err = null;
+
+      if (!err) {
+        // now save connection
+        this.connection = connection;
+        this.connection.last_used = new Date();
+        this.connection.save();
+        this.connections.add(this.connection, {
+          merge: true
+        });
+        this.sidebar.render();
+
+        this.onConnectionSuccessful(connection);
+        return;
+      }
+      this.stateMachine.state = oldState;
+      this.onError(err, connection);
+      return;
+    }.bind(this));
+  },
+
+  // === end of state methods
+
+
+  /**
+   * If there is a validation or connection error show a nice message.
+   *
+   * @param {Error} err
+   * @param {Connection} connection
+   * @api private
+   */
+  onError: function(err, connection) {
+    // @todo (imlucas): `metrics.trackEvent('connect error', authentication + ssl boolean)`
+    debug('showing error message', {
+      err: err,
+      model: connection
+    });
+    this.message = err.message;
+  },
+  // onConnectionSuccessful: function(connection) {
+  //   app.statusbar.hide();
+  //   // this.form.connection_id = '';
+  //
+  //   // if a connection with same name already exists, get that instead
+  //   var existingConnection = this.connections.get(connection.name, 'name');
+  //   if (existingConnection && !existingConnection.is_favorite) {
+  //     connection = existingConnection;
+  //   }
+  //   connection.last_used = new Date();
+  //   connection.save();
+  //   /**
+  //    * @todo (imlucas): So we can see what auth mechanisms
+  //    * and accoutrement people are actually using IRL.
+  //    *
+  //    *   metrics.trackEvent('connect success', {
+  //    *     authentication: model.authentication,
+  //    *     ssl: model.ssl
+  //    *   });
+  //    */
+  //   this.connections.add(connection, {
+  //     merge: true
+  //   });
+  //   // update sidebar view, it may have changed
+  //   this.sidebar.render();
+  //
+  //   debug('opening schema view for', connection.serialize());
+  //   /**
+  //    * @see ./src/app.js `params.connection_id`
+  //    */
+  //   window.open(format('%s?connection_id=%s#schema', window.location.origin, connection.getId()));
+  //   setTimeout(this.set.bind(this, {
+  //     message: ''
+  //   }), 500);
+  //
+  //   // setTimeout(window.close, 1000);
+  // },
+  /**
+   * Update the form's state based on an existing connection. This will update the auth fields
+   * and populate all fields with the connection details.
+   *
+   * Called by `this._stateFavUnchanged` and `this._stateHistoryUnchanged`.
+   *
+   * @param {Connection} connection
+   * @api public
+   */
+
+  updateConnection: function() {
+    if (this.connection) {
+      debug('updating existing connection from form data');
+      this.connection.set(this.form.data);
+    } else {
+      debug('creating new connection from form data');
+      this.connection = new Connection(this.form.data);
+    }
+  },
+
+  validateConnection: function(connection) {
+    if (!connection.isValid()) {
+      this.onError(connection.validationError);
+      return false;
+    }
+    return true;
+  },
+
+  updateForm: function() {
+    this.updateConflictingNames();
+
+    // If the new model has auth, expand the auth settings container and select the correct tab.
+    this.authMethod = this.connection.authentication;
+    this.sslMethod = this.connection.ssl;
+
+    // Changing `this.authMethod` and `this.sslMethod` dynamically updates the form fields
+    // so we need to get a list of what keys are currently available to set.
+    var keys = ['name', 'port', 'hostname', 'authentication', 'ssl'];
+    if (this.connection.authentication !== 'NONE') {
+      keys.push.apply(keys, _.pluck(authMethods.get(this.authMethod).fields, 'name'));
+    }
+    if (this.connection.ssl !== 'NONE') {
+      keys.push.apply(keys, _.pluck(sslMethods.get(this.sslMethod).fields, 'name'));
+    }
+
+    // make connection active, and (implicitly) all others inactive
+    this.connection.active = true;
+
+    // populate the form from values in the model.
+    var values = _.pick(this.connection, keys);
+    this.form.setValues(values);
+
+    this.connectionName = values.name;
+  },
+
+  // onCreateFavoriteClicked: function() {
+  //   var connection = null;
+  //   if (this.form.connection_id) {
+  //     connection = this.connections.get(this.form.connection_id);
+  //   }
+  //   if (!connection) {
+  //     connection = new Connection(this.form.data);
+  //   }
+  //   _.assign(connection, this.form.data);
+  //
+  //   if (!connection.isValid()) {
+  //     this.onError(connection.validationError);
+  //     return;
+  //   }
+  //
+  //   connection.is_favorite = true;
+  //   this.isFavorite = true;
+  //
+  //   connection.save();
+  //   this.connections.add(connection, {
+  //     merge: true
+  //   });
+  //   this.form.connection_id = connection.getId();
+  //   this.existingConnection = true;
+  //   this.updateConflictingNames();
+  // },
+
+  // onRemoveFavoriteClicked: function() {
+  //   debug('remove favorite clicked');
+  //   var connection = this.connections.get(this.form.connection_id);
+  //   if (!connection) {
+  //     debug('favorite connection to be removed doesn\'t exist. this should not happen!');
+  //     return;
+  //   }
+  //   connection.is_favorite = false;
+  //   connection.save();
+  //   this.createNewConnection();
+  //   this.updateConflictingNames();
+  // },
+
   /**
    * called when this.authMethod changes. Replaces the fields in `this.form`.
    */
@@ -205,14 +566,6 @@ var ConnectView = View.extend({
     // debug('ssl form data now has the following fields', Object.keys(this.form.data));
   },
   /**
-   * Return to a clean state between form submissions.
-   *
-   * @api private
-   */
-  reset: function() {
-    this.message = '';
-  },
-  /**
    * Use a connection to view schemas, such as after submitting a form or when double-clicking on
    * a list item like in `./sidebar`.
    *
@@ -220,183 +573,32 @@ var ConnectView = View.extend({
    * @api public
    */
   connect: function(connection) {
-    app.statusbar.show();
-
-    debug('testing connection url %s with options %j', connection.driver_url, connection.driver_options);
-    connection.test(function(err) {
-      app.statusbar.hide();
-      if (!err) {
-        this.onConnectionSuccessful(connection);
-        return;
-      }
-
-      debug('failed to connect', err);
-
-      this.onError(err, connection);
-      return;
-    }.bind(this));
   },
-  createNewConnection: function() {
-    this.reset();
-    this.isFavorite = false;
-    this.connectionName = '';
-    this.authMethod = 'MONGODB';
-    this.form.connection_id = '';
-    this.form.reset();
-    this.existingConnection = false;
-    this.updateConflictingNames();
-  },
-  /**
-   * If there is a validation or connection error show a nice message.
-   *
-   * @param {Error} err
-   * @param {Connection} connection
-   * @api private
-   */
-  onError: function(err, connection) {
-    // @todo (imlucas): `metrics.trackEvent('connect error', authentication + ssl boolean)`
-    debug('showing error message', {
-      err: err,
-      model: connection
-    });
-    this.message = err.message;
-  },
-  onConnectionSuccessful: function(connection) {
-    app.statusbar.hide();
-    // this.form.connection_id = '';
 
-    // if a connection with same name already exists, get that instead
-    var existingConnection = this.connections.get(connection.name, 'name');
-    if (!existingConnection.is_favorite) {
-      connection = existingConnection;
-    }
-    connection.last_used = new Date();
-    connection.save();
-    /**
-     * @todo (imlucas): So we can see what auth mechanisms
-     * and accoutrement people are actually using IRL.
-     *
-     *   metrics.trackEvent('connect success', {
-     *     authentication: model.authentication,
-     *     ssl: model.ssl
-     *   });
-     */
-    this.connections.add(connection, {
-      merge: true
-    });
-    // update sidebar view, it may have changed
-    this.sidebar.render();
-
-    debug('opening schema view for', connection.serialize());
-    /**
-     * @see ./src/app.js `params.connection_id`
-     */
-    window.open(format('%s?connection_id=%s#schema', window.location.origin, connection.getId()));
-    setTimeout(this.set.bind(this, {
-      message: ''
-    }), 500);
-
-    // setTimeout(window.close, 1000);
-  },
-  /**
-   * Update the form's state based on an existing connection, e.g. clicking on a list item
-   * like in `./sidebar.js`.
-   *
-   * @param {Connection} connection
-   * @api public
-   */
-  onConnectionSelected: function(connection) {
-    // If the new model has auth, expand the auth settings container and select the correct tab.
-    this.authMethod = connection.authentication;
-    this.sslMethod = connection.ssl;
-    this.isFavorite = connection.is_favorite;
-    this.formModified = false;
-
-    // Changing `this.authMethod` and `this.sslMethod` dynamically updates the form fields
-    // so we need to get a list of what keys are currently available to set.
-    var keys = ['name', 'port', 'hostname', 'authentication', 'ssl'];
-    if (connection.authentication !== 'NONE') {
-      keys.push.apply(keys, _.pluck(authMethods.get(this.authMethod).fields, 'name'));
-    }
-    if (connection.ssl !== 'NONE') {
-      keys.push.apply(keys, _.pluck(sslMethods.get(this.sslMethod).fields, 'name'));
-    }
-
-    var values = _.pick(connection, keys);
-
-    this.form.connection_id = connection.getId();
-    this.existingConnection = true;
-    this.updateConflictingNames();
-
-    // make connection active, and (implicitly) all others inactive
-    connection.active = true;
-
-    // Populates the form from values in the model.
-    this.form.setValues(values);
-    this.connectionName = this.form.data.name;
-  },
-  onCreateFavoriteClicked: function() {
-    var connection = null;
-    if (this.form.connection_id) {
-      connection = this.connections.get(this.form.connection_id);
-    }
-    if (!connection) {
-      connection = new Connection(this.form.data);
-    }
-    _.assign(connection, this.form.data);
-
-    if (!connection.isValid()) {
-      this.onError(connection.validationError);
-      return;
-    }
-
-    connection.is_favorite = true;
-    this.isFavorite = true;
-
-    connection.save();
-    this.connections.add(connection, {
-      merge: true
-    });
-    this.form.connection_id = connection.getId();
-    this.existingConnection = true;
-    this.updateConflictingNames();
-  },
-  onRemoveFavoriteClicked: function() {
-    debug('remove favorite clicked');
-    var connection = this.connections.get(this.form.connection_id);
-    if (!connection) {
-      debug('favorite connection to be removed doesn\'t exist. this should not happen!');
-      return;
-    }
-    connection.is_favorite = false;
-    connection.save();
-    this.createNewConnection();
-    this.updateConflictingNames();
-  },
   updateConflictingNames: function() {
     var conflicts = this.connections.filter(function(model) {
-      return model.is_favorite && model.getId() !== _.get(this.form, 'connection_id');
+      if (this.connection && this.connection.getId() === model.getId()) {
+        return false;
+      }
+      return model.is_favorite;
     }.bind(this));
     var nameField = this.form.getField('name');
     nameField.conflicting = _.pluck(conflicts, 'name');
-  },
+  }
+
   // onSaveChangesClicked: function() {
   //   debug('save changes clicked');
   // },
-  onFormSubmitted: function(connection) {
-    this.reset();
-    if (!connection.isValid()) {
-      this.onError(connection.validationError);
-      return;
-    }
-    this.connect(connection);
-  },
-  onNameInputChanged: function(evt) {
-    this.connectionName = evt.target.value;
-  },
-  onAnyInputChanged: function() {
-    this.formModified = true;
-  }
+
+  // submitForm: function(connection) {
+  //   this.message = '';
+  //   if (!connection.isValid()) {
+  //     this.onError(connection.validationError);
+  //     return;
+  //   }
+  //   this.connect(connection);
+  // },
+
 });
 
 module.exports = ConnectView;

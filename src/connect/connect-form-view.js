@@ -1,7 +1,6 @@
 var FormView = require('ampersand-form-view');
 var InputView = require('./input-view');
 var SelectView = require('ampersand-select-view');
-var Connection = require('../models/connection');
 var authOptions = require('./authentication');
 var sslOptions = require('./ssl');
 var FilteredCollection = require('ampersand-filtered-subcollection');
@@ -48,17 +47,6 @@ var ConflictingValuesInputView = InputView.extend({
 
 
 var ConnectFormView = FormView.extend({
-  props: {
-    connection_id: {
-      type: 'string'
-    },
-    conflictingNames: {
-      type: 'array',
-      default: function() {
-        return [];
-      }
-    }
-  },
   namespace: 'ConnectFormView',
   /**
    * callback when user hits submit (or presses enter). Run some general checks here
@@ -66,12 +54,8 @@ var ConnectFormView = FormView.extend({
    *
    * @param {Object} obj     contains the clean()'ed up data from the form.
    */
-  submitCallback: function(obj) {
-    if (this.connection_id !== '') {
-      obj._id = this.connection_id;
-    }
-    debug('form submitted', obj);
-    this.parent.onFormSubmitted(new Connection(obj));
+  submitCallback: function() {
+    this.parent.submitForm();
   },
   makeFriendlyName: function(obj) {
     if (obj.name) {

@@ -61,10 +61,8 @@ function connectionSyncHandler() {
         } else {
           _.assign(res[0], res[1]);
         }
-        done(null, res[0]);
-      } else {
-        done();
       }
+      done(null, res[0]);
     });
   };
 }

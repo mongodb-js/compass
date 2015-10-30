@@ -79,7 +79,7 @@ var SidebarView = View.extend({
     }
   },
   events: {
-    'click a[data-hook=new-connection]': 'onNewConnectionClick'
+    'click a[data-hook=new-connection]': 'onNewConnectionClicked'
   },
   bindings: {
     newConnectionActive: {
@@ -115,7 +115,7 @@ var SidebarView = View.extend({
     this.renderCollection(historyConnections, SidebarItemView,
       this.queryByHook('connection-list-recent'));
   },
-  onNewConnectionClick: function(event) {
+  onNewConnectionClicked: function(event) {
     event.stopPropagation();
     event.preventDefault();
 
@@ -129,7 +129,7 @@ var SidebarView = View.extend({
     event.stopPropagation();
     event.preventDefault();
     this.activeItemView = view;
-    this.parent.onConnectionSelected(view.model);
+    this.parent.selectExistingConnection(view.model);
   },
   onItemDoubleClick: function(event, view) {
     this.onItemClick(event, view);
