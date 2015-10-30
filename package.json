@@ -73,9 +73,9 @@
     "ampersand-rest-collection": "^5.0.0",
     "debug": "^2.2.0",
     "electron-squirrel-startup": "^0.1.4",
-    "mongodb-connection-model": "^3.0.4",
     "mongodb-instance-model": "^0.2.3",
     "mongodb-collection-model": "^0.1.1",
+    "mongodb-connection-model": "^3.0.5",
     "mongodb-ns": "^1.0.0",
     "scout-server": "http://bin.mongodb.org/js/scout-server/v0.4.0/scout-server-0.4.0.tar.gz"
   },
