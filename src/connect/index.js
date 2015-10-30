@@ -42,6 +42,10 @@ var ConnectView = View.extend({
       type: 'string',
       default: ''
     },
+    nameConflict: {
+      type: 'boolean',
+      default: false
+    },
     authMethod: {
       type: 'string',
       default: 'MONGODB'
@@ -112,9 +116,12 @@ var ConnectView = View.extend({
 
   onNameInputChanged: function(evt) {
     this.connectionName = evt.target.value;
+    var nameField = this.form.getField('name');
+    this.nameConflict = nameField.value && !nameField.valid;
   },
 
   onAnyInputChanged: function() {
+    this.form.checkValid();
     this.dispatch('any field changed');
   },
 
@@ -154,16 +161,16 @@ var ConnectView = View.extend({
       type: 'toggle',
       hook: 'save-changes-button'
     },
-    'form.valid': [
+    nameConflict: [
       {
         type: 'booleanAttribute',
         hook: 'save-changes-button',
-        no: 'disabled'
+        yes: 'disabled'
       },
       {
         type: 'booleanAttribute',
         hook: 'create-favorite-button',
-        no: 'disabled'
+        yes: 'disabled'
       }
     ],
     connectionNameEmpty: [

@@ -13,7 +13,7 @@ exports.DEFAULT_HEIGHT = 800;
 * windows like the connection and setup dialogs.
 */
 exports.DEFAULT_WIDTH_DIALOG = 800;
-exports.DEFAULT_HEIGHT_DIALOG = 680;
+exports.DEFAULT_HEIGHT_DIALOG = 700;
 /**
 * Adjust the heights to account for platforms
 * that use a single menu bar at the top of the screen.
