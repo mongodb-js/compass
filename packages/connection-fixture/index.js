@@ -17,7 +17,8 @@ exports.LDAP = {
   name: 'Enterprise: LDAP (evergreen only)',
   hostname: 'ldaptest.10gen.cc',
   ldap_username: 'drivers-team',
-  ldap_password: process.env.MONGODB_LDAP_PASSWORD
+  ldap_password: process.env.MONGODB_LDAP_PASSWORD,
+  ns: 'ldap'
 };
 
 /**
@@ -29,7 +30,8 @@ exports.KERBEROS = {
   name: 'Enterprise: Kerberos (evergreen only)',
   hostname: 'ldaptest.10gen.cc',
   port: 27017,
-  kerberos_principal: 'drivers@LDAPTEST.10GEN.CC'
+  kerberos_principal: 'drivers@LDAPTEST.10GEN.CC',
+  ns: 'kerberos'
 };
 
 /**
