@@ -98,6 +98,7 @@ functions:
         ${npm|npm} config set loglevel error
         ${npm|npm} config -g list -l
         ${npm|npm} install
+        ${npm|npm} install
 
   "build" :
     command: shell.exec
