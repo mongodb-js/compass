@@ -66,8 +66,8 @@
       }
       coords = direction_callbacks.get(dir).apply(this);
       nodel.classed(dir, true).style({
-        top: (coords.top + poffset[0]) + scrollTop + 'px',
-        left: (coords.left + poffset[1]) + scrollLeft + 'px'
+        top: (coords.top + poffset[0] + scrollTop).toString() + 'px',
+        left: (coords.left + poffset[1] + scrollLeft).toString() + 'px'
       });
 
       return tip;
