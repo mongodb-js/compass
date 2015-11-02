@@ -1,3 +1,6 @@
+// based off of https://github.com/atom/atom/blob/master/src/browser/application-menu.coffee
+// use js2.coffee to convert it to JS
+
 var app = require('app');
 var BrowserWindow = require('browser-window');
 var Menu = require('menu');
@@ -180,51 +183,76 @@ function windowSubMenu() {
 }
 
 // menus
-function darwinMenu(showShareSubMenu) {
+function darwinMenu(showConnectSubMenu, showShareSubMenu) {
   var m = [
-    darwinCompassSubMenu(),
-    connectSubMenu(),
-    editSubMenu(),
-    viewSubMenu(),
-    windowSubMenu()
+    darwinCompassSubMenu()
   ];
-  if (showShareSubMenu) {
-    m.splice(4, 0, shareSubMenu());
-  }
-  return m;
-}
 
-function nonDarwinMenu(showShareSubMenu) {
-  var m = [
-    nonDarwinCompassSubMenu(),
-    connectSubMenu(),
-    viewSubMenu()
-  ];
+  if (showConnectSubMenu) {
+    m.push(connectSubMenu());
+  }
+
+  m.push(editSubMenu());
+  m.push(viewSubMenu());
+
   if (showShareSubMenu) {
     m.push(shareSubMenu());
   }
+
+  m.push(windowSubMenu());
+
+  return m;
+}
+
+function nonDarwinMenu(showConnectSubMenu, showShareSubMenu) {
+  var m = [
+    nonDarwinCompassSubMenu()
+  ];
+
+  if (showConnectSubMenu) {
+    m.push(connectSubMenu());
+  }
+
+  m.push(viewSubMenu());
+
+  if (showShareSubMenu) {
+    m.push(shareSubMenu());
+  }
+
   return m;
 }
 
 // menu singleton
 var menu = (function() {
   return {
-    init: function() {
+    load: function(showConnectSubMenu, showShareSubMenu) {
+      if (typeof showConnectSubMenu === 'undefined') {
+        showConnectSubMenu = true;
+      }
+
+      if (typeof showShareSubMenu === 'undefined') {
+        showShareSubMenu = true;
+      }
+
       var m;
       if (process.platform === 'darwin') {
-        m = darwinMenu();
+        m = darwinMenu(showConnectSubMenu, showShareSubMenu);
       } else {
-        m = nonDarwinMenu();
+        m = nonDarwinMenu(showConnectSubMenu, showShareSubMenu);
       }
       m = Menu.buildFromTemplate(m);
       Menu.setApplicationMenu(m);
-    },
-    hideShareSubMenu: function() {
-
-    },
-    showShareSubMenu: function() {
-
     }
+    // hideShareSubMenu: function() {
+    //   this.load(false);
+    // },
+    // hideConnectSubMenu: function() {
+    // },
+    // showConnectSubMenu: function() {
+    // },
+    // showShareSubMenu: function() {
+    //   this.load(true);
+    // }
   };
 }());
 
