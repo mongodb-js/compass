@@ -1,5 +1,4 @@
 var View = require('ampersand-view');
-var Connection = require('../models/connection');
 var debug = require('debug')('scout:connect:sidebar');
 var FilteredCollection = require('ampersand-filtered-subcollection');
 

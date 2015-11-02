@@ -1,6 +1,7 @@
 var State = require('ampersand-state');
 var debug = require('debug')('scout:connect:behavior');
 var assert = require('assert');
+var _ = require('lodash');
 
 module.exports = State.extend({
   props: {
@@ -78,11 +79,12 @@ module.exports = State.extend({
   },
   /**
    * return new state based on current state and action
+   * @param  {String} state    one of the states defined above
    * @param  {String} action   one of the actions defined above
    * @return {String}          new state as defined above
    */
   reduce: function(state, action) {
-    /* eslint indent: 0 */
+    /* eslint indent: 0 complexity: 0 */
 
     // check if the current state allows the given action
     if (this.validTransitions[state].indexOf(action) === -1) {
@@ -111,6 +113,7 @@ module.exports = State.extend({
         if (action === 'name removed') {
           return 'NEW_EMPTY';
         }
+        break;
 
       case 'FAV_UNCHANGED':
         if (action === 'any field changed') {
@@ -119,6 +122,7 @@ module.exports = State.extend({
         if (action === 'remove favorite clicked') {
           return 'NEW_EMPTY';
         }
+        break;
 
       case 'FAV_CHANGED':
         if (action === 'remove favorite clicked') {
@@ -127,6 +131,7 @@ module.exports = State.extend({
         if (action === 'save changes clicked') {
           return 'FAV_UNCHANGED';
         }
+        break;
 
       case 'HISTORY_UNCHANGED':
         if (action === 'create favorite clicked') {
@@ -135,6 +140,7 @@ module.exports = State.extend({
         if (action === 'any field changed') {
           return 'HISTORY_CHANGED';
         }
+        break;
 
       case 'HISTORY_CHANGED':
         assert.equal(action, 'create favorite clicked');

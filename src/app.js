@@ -58,7 +58,6 @@ app.extend({
 var bugsnag = require('./bugsnag');
 bugsnag.listen(app);
 
-var _ = require('lodash');
 var domReady = require('domready');
 var qs = require('qs');
 var getOrCreateClient = require('scout-client');
@@ -71,8 +70,6 @@ var Connection = require('./models/connection');
 var MongoDBInstance = require('./models/mongodb-instance');
 var Router = require('./router');
 var Statusbar = require('./statusbar');
-
-var debug = require('debug')('scout:app');
 
 function getConnection(model, done) {
   function _fetch(fn) {
@@ -268,26 +265,7 @@ var Application = View.extend({
   }
 });
 
-<<<<<<< HEAD
 var state = new Application();
-=======
-var params = qs.parse(window.location.search.replace('?', ''));
-var connection_id = params.connection_id;
-var state = new Application({
-  connection_id: connection_id
-});
-
-// @todo (imlucas): Feature flags can be overrideen
-// via `window.localStorage`.
-var FEATURES = {
-  querybuilder: true,
-  'First Run Tour': false,
-  'Connect with SSL': false,
-  'Connect with Kerberos': false,
-  'Connect with LDAP': false,
-  'Connect with X.509': false
-};
->>>>>>> master
 
 app.extend({
   client: null,
