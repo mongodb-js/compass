@@ -22,13 +22,19 @@ module.exports = [
   },
   {
     featureType: 'poi',
-    elementType: 'geometry',
+    elementType: 'all',
     stylers: [
       {
-        visibility: 'simplified'
-      },
+        visibility: 'off'
+      }
+    ]
+  },
+  {
+    featureType: 'transit.station',
+    elementType: 'all',
+    stylers: [
       {
-        color: '#fcfcfc'
+        visibility: 'off'
       }
     ]
   },

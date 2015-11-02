@@ -4,9 +4,10 @@ var shared = require('./shared');
 var debug = require('debug')('scout:minicharts:geo');
 var GoogleMapsLoader = require('google-maps');
 var mapStyle = require('./mapstyle');
-var SHIFTKEY = 16;
 var async = require('async');
 var app = require('ampersand-app');
+
+var SHIFTKEY = 16;
 
 
 /* eslint wrap-iife:0 */
@@ -35,7 +36,7 @@ function parallel(options, tasks, cb) {
   options = options || {};
 
   // no timeout wrapper; passthrough to async.parallel
-  if (typeof options.timeoutMS != 'number') return async.parallel(tasks, cb);
+  if (typeof options.timeoutMS !== 'number') return async.parallel(tasks, cb);
 
   var timeout = setTimeout(function() {
     // remove timeout, so we'll know we already erred out
