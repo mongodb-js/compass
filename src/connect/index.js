@@ -332,6 +332,7 @@ var ConnectView = View.extend({
 
     this.showSaveButton = false;
     this.showFavoriteButtons = true;
+    this.message = '';
   },
 
   _stateFavChanged: function() {
@@ -352,6 +353,7 @@ var ConnectView = View.extend({
 
     this.showSaveButton = false;
     this.showFavoriteButtons = true;
+    this.message = '';
 
     this.updateConflictingNames();
     this.updateForm();
@@ -382,9 +384,6 @@ var ConnectView = View.extend({
     app.statusbar.show();
     connection.test(function(err) {
       app.statusbar.hide();
-
-      // @todo remove
-      err = null;
 
       if (!err) {
         // now save connection
