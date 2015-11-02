@@ -243,16 +243,6 @@ var menu = (function() {
       m = Menu.buildFromTemplate(m);
       Menu.setApplicationMenu(m);
     }
-    // hideShareSubMenu: function() {
-    //   this.load(false);
-    // },
-    // hideConnectSubMenu: function() {
-    // },
-    // showConnectSubMenu: function() {
-    // },
-    // showShareSubMenu: function() {
-    //   this.load(true);
-    // }
   };
 }());
 
