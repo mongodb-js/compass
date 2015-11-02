@@ -1,3 +1,4 @@
+/* eslint no-console: 0 */
 /**
  * Will you hit the [Windows Maximum Path Length Limitation][1]?
  *

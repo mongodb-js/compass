@@ -10,7 +10,7 @@ var CollectionListItemView = View.extend({
     title: {
       type: 'attribute',
       hook: 'ns',
-      name: 'title',
+      name: 'title'
     },
     'model.selected': {
       type: 'booleanClass',

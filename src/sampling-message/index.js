@@ -1,9 +1,7 @@
 var View = require('ampersand-view');
 var pluralize = require('pluralize');
-var format = require('util').format;
 var app = require('ampersand-app');
 var numeral = require('numeral');
-var debug = require('debug')('scout:sampling-message:index');
 
 var SamplingMessageView = View.extend({
   template: require('./index.jade'),

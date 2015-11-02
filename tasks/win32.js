@@ -1,3 +1,4 @@
+/* eslint no-console: 0 */
 var path = require('path');
 var pkg = require(path.resolve(__dirname, '../package.json'));
 var fs = require('fs');

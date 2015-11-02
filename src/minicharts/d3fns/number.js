@@ -16,13 +16,14 @@ var minicharts_d3fns_number = function() {
 
   function chart(selection) {
     selection.each(function(data) {
+      var grouped;
       var el = d3.select(this);
       var innerWidth = width - margin.left - margin.right;
       var innerHeight = height - margin.top - margin.bottom;
 
       // transform data
       if (options.model.unique < 20) {
-        var grouped = _(data)
+        grouped = _(data)
           .groupBy(function(d) {
             return d;
           })

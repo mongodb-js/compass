@@ -1,8 +1,8 @@
 var app = require('app');
 var Menu = require('menu');
-var debug = require('debug')('scout-electron:menu');
 
-function getTemplate(_window) {
+// menus
+function darwinMenu(window) {
   return [
     {
       label: 'MongoDB Compass',
@@ -36,6 +36,18 @@ function getTemplate(_window) {
           accelerator: 'Command+Q',
           click: function() {
             app.quit();
+          }
+        }
+      ]
+    },
+    {
+      label: 'Connect',
+      submenu: [
+        {
+          label: 'Connect to...',
+          accelerator: 'Command+N',
+          click: function() {
+            app.emit('show connect dialog');
           }
         }
       ]
@@ -82,28 +94,22 @@ function getTemplate(_window) {
       label: 'View',
       submenu: [
         {
-          label: 'Connect to...',
-          accelerator: 'Command+N',
-          click: function() {
-            app.emit('show connect dialog');
-          }
-        },
-        {
           label: 'Reload',
           accelerator: 'Command+R',
           click: function() {
-            _window.restart();
+            window.restart();
           }
         },
         {
           label: 'Toggle DevTools',
           accelerator: 'Alt+Command+I',
           click: function() {
-            _window.toggleDevTools();
+            window.toggleDevTools();
           }
         }
       ]
     },
+
     {
       label: 'Share',
       submenu: [
@@ -111,7 +117,7 @@ function getTemplate(_window) {
           label: 'Share Schema as JSON',
           accelerator: 'Alt+Command+S',
           click: function() {
-            _window.webContents.send('message', 'menu-share-schema-json');
+            window.webContents.send('message', 'menu-share-schema-json');
           }
         }
       ]
@@ -139,7 +145,9 @@ function getTemplate(_window) {
       ]
     }
   ];
+}
 
+function nonDarwinMenu(window) {
   return [
     {
       label: 'File',
@@ -170,14 +178,14 @@ function getTemplate(_window) {
           label: 'Reload',
           accelerator: 'Ctrl+R',
           click: function() {
-            _window.restart();
+            window.restart();
           }
         },
         {
           label: 'Toggle DevTools',
           accelerator: 'Alt+Ctrl+I',
           click: function() {
-            _window.toggleDevTools();
+            window.toggleDevTools();
           }
         }
       ]
@@ -185,13 +193,19 @@ function getTemplate(_window) {
   ];
 }
 
-/**
- * @param {BrowserWindow} _window - The window to attach to.
- * @see https://github.com/atom/electron/blob/master/docs/api/menu.md
- */
-module.exports = function(_window) {
-  debug('attaching window menu');
-  var template = getTemplate(_window);
-  var menu = Menu.buildFromTemplate(template);
-  Menu.setApplicationMenu(menu);
-};
+var menu = (function() {
+  return {
+    init: function(window) {
+      var m;
+      if (process.platform === 'darwin') {
+        m = darwinMenu(window);
+      } else {
+        m = nonDarwinMenu(window);
+      }
+      m = Menu.buildFromTemplate(m);
+      Menu.setApplicationMenu(m);
+    }
+  };
+}());
+
+module.exports = menu;

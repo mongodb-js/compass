@@ -312,6 +312,7 @@ module.exports = {
       _.each(message.elements, function(el) {
         var d = getOrderedValueHelper(d3.select(el).data()[0]);
         var mustSelect = false;
+        var halfSelect;
         if (message.selected.length === 1) {
           // handle single selection of non-binned data
           mustSelect = d.value === message.selected[0];
@@ -321,7 +322,7 @@ module.exports = {
             && checkBounds[message.upperOp](d.value, message.selected[1]);
         } else {
           // handle binned ranges
-          var halfSelect = false;
+          halfSelect = false;
           /**
            * 4 cases to consider: upper/lower bound  x  hit bound exactly/not
            */
