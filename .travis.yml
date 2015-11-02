@@ -1,6 +1,8 @@
 language: node_js
 node_js:
   - '4.2.1'
+env:
+  - CXX=g++-4.8
 before_install:
   - npm install -g npm@3
   - npm config set loglevel error
@@ -8,8 +10,12 @@ before_install:
   - npm --version
 addons:
   apt:
+    sources:
+      - ubuntu-toolchain-r-test
     packages:
       - libgnome-keyring-dev
+      - g++-4.8
+
 script: npm run-script ci
 # cache:
 #   directories:
