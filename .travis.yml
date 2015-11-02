@@ -2,16 +2,18 @@ language: node_js
 node_js:
   - '4.2.1'
 before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -y libgnome-keyring-dev
   - npm install -g npm@3
   - npm config set loglevel error
   - npm config -g list -l
   - npm --version
+addons:
+  apt:
+    packages:
+      - libgnome-keyring-dev
 script: npm run-script ci
-cache:
-  directories:
-    - node_modules
+# cache:
+#   directories:
+#     - node_modules
 # Post build notifications to the Integrations Flowdock
 notifications:
   flowdock: e3dc17bc8a2c1b3412abe3e5747f8291
