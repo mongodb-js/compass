@@ -75,6 +75,7 @@ var MongoDBCollectionView = View.extend({
   schemaIsSynced: function() {
     // only listen to share menu events if we have a sync'ed schema
     // @todo enable share menu item here
+    GLOBAL.menu.showShareMenu();
     this.listenTo(app, 'menu-share-schema-json', this.onShareSchema.bind(this));
   },
   schemaIsRequested: function() {

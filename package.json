@@ -24,6 +24,7 @@
       "app",
       "auto-updater",
       "crash-reporter",
+      "dialog",
       "browser-window",
       "menu",
       "jade",
