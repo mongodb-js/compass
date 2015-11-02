@@ -1,7 +1,7 @@
 // sidebar
 .connect .sidebar {
   .compass-logo {
-    border-bottom: 3px solid @gray1;
+    height: 72px;
   }
 
   .connections-container {
@@ -15,38 +15,46 @@
     .panel-title-out {
       padding: 8px 0;
       overflow: auto;
+      border-top: 1px solid lighten(@slate1, 5%);
+      border-left: 4px solid transparent;
+
+      &:first-child {
+        border-top: none;
+      }
 
       &.new-connection {
         cursor: pointer;
+
+        .panel-title {
+          font-weight: bold;
+          color: @pw;
+        }
+        i {
+          color: @pw;
+        }
+        &:hover {
+          background: lighten(@slate1, 5%);
+        }
       }
 
       > * {
         float: left;
       }
       .panel-title {
-        font-size: 13px;
-        margin-bottom: 3px;
+        font-size: 12px;
+        font-weight: normal;
       }
       i {
-        font: normal 16px FontAwesome;
-        margin: 0 12px 0 18px;
-        color: @gray7;
-        width: 20px;
-        height: 20px;
-      }
-      i.bolt {
-        font-size: 18px;
-        transform: translateY(3px) rotate(30deg);
+        width: 40px;
+        text-align: center;
+        color: @gray5;
       }
     }
     .panel-title-out.selected {
-      border-left: 3px solid @green2;
+      border-left: 4px solid @green3;
 
-      i.bolt, .panel-title {
-        color: @green2;
-      }
-      i.bolt {
-        width: 17px;
+      i, .panel-title {
+        color: @green3;
       }
     }
     ul.connection-list {
@@ -58,17 +66,23 @@
       }
       a {
         color: @gray5;
-        padding: 4px 0 4px 49px;
+        padding: 2px 0 2px 40px;
         display: block;
         cursor: pointer;
+        border-left: 4px solid transparent;
       }
       a.selected {
-        border-left: 3px solid @green2;
-        color: @green2;
-        padding: 4px 0 4px 46px;
+        border-left: 4px solid @green3;
+        color: @green3;
+
+        &:hover {
+          color: @green3;
+        }
       }
       a:hover {
         text-decoration: none;
+        background: lighten(@slate1, 5%);
+        color: @pw;
       }
     }
   }
@@ -84,16 +98,16 @@
   overflow-y: scroll;
 
   header {
-    height: 73px;
+    height: 72px;
     background-color: @gray8;
-    border-bottom: 3px solid @gray6;
+    border-bottom: 2px solid @gray7;
     margin-bottom: 30px;
 
     h2 {
       display: inline-block;
       margin: 23px 0 0 30px;
       font-size: 24px;
-      font-weight: light;
+      line-height: 30px;
     }
   }
 
@@ -117,7 +131,7 @@
 
   .form-item {
     margin: 15px auto 15px;
-    width: 475px;
+    width: 425px;
     overflow: auto;
 
     > * {
@@ -125,12 +139,12 @@
       overflow: auto;
     }
     label {
-      width: 40%;
+      width: 32%;
       text-align: right;
       padding: 5px 15px 0 0;
     }
     input, select, .form-item-file {
-      width: 60%;
+      width: 68%;
     }
     .form-item-file {
       input {
