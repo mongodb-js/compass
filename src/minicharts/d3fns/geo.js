@@ -1,6 +1,6 @@
 var d3 = require('d3');
 var _ = require('lodash');
-var shared = require('./shared');
+// var shared = require('./shared');
 var debug = require('debug')('scout:minicharts:geo');
 var GoogleMapsLoader = require('google-maps');
 var mapStyle = require('./mapstyle');
@@ -78,7 +78,7 @@ var minicharts_d3fns_geo = function() {
     view: null
   };
 
-  var margin = shared.margin;
+  // var margin = shared.margin;
 
   function pointInCircle(point, radius, center) {
     return singleton.google.maps.geometry.spherical.computeDistanceBetween(point, center) <= radius;
@@ -135,6 +135,7 @@ var minicharts_d3fns_geo = function() {
 
     var currentPoint;
     var meterDistance;
+    var evt;
 
     d3.select(window)
       .on('mousemove', function() {
@@ -152,7 +153,7 @@ var minicharts_d3fns_geo = function() {
         selectionCircle.setRadius(meterDistance);
         selectPoints();
 
-        var evt = {
+        evt = {
           type: 'geo',
           source: 'geo',
           center: [centerCoord.lng(), centerCoord.lat()],
@@ -171,7 +172,7 @@ var minicharts_d3fns_geo = function() {
           d3.select(frame).selectAll('.marker circle')
             .classed('selected', false);
 
-          var evt = {
+          evt = {
             type: 'geo',
             source: 'geo'
           };
@@ -250,6 +251,8 @@ var minicharts_d3fns_geo = function() {
         // Draw each marker as a separate SVG element.
         overlay.draw = function() {
           var layer = d3.select('div.layer');
+          var transform;
+
           projection = this.getProjection();
           var padding = 9;
 
@@ -266,7 +269,7 @@ var minicharts_d3fns_geo = function() {
               .attr('cx', padding)
               .attr('cy', padding);
 
-          function transform(d) {
+          transform = function(d) {
             var p = new google.maps.LatLng(d[1], d[0]);
             p = projection.fromLatLngToDivPixel(p);
             d.x = p.x;
@@ -276,7 +279,7 @@ var minicharts_d3fns_geo = function() {
               .style('left', p.x - padding + 'px')
               .style('top', p.y - padding + 'px');
             return self;
-          }
+          };
         }; // end overlay.draw
 
         overlay.setMap(googleMap);
@@ -376,11 +379,11 @@ var minicharts_d3fns_geo = function() {
       return;
     }
     selectionCircle.setVisible(true);
-    var c = new google.maps.LatLng(value[0][1], value[0][0]);
+    var c = new singleton.google.maps.LatLng(value[0][1], value[0][0]);
     selectionCircle.setCenter(c);
     selectionCircle.setRadius(value[1] * 1600);
     selectPoints();
-  }
+  };
 
   return chart;
 };
