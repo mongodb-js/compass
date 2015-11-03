@@ -82,6 +82,7 @@ module.exports = AmpersandView.extend(QueryBuilderMixin, {
       // we have a GeoJSON document: {type: "Point", coordinates: [lng, lat]}
       this.model.values = coords;
       this.model.fields.reset();
+      this.model.name = 'Coordinates';
       return true;
     } else if (this.model.name === 'Array') {
       var lengths = this.model.lengths;
@@ -91,6 +92,8 @@ module.exports = AmpersandView.extend(QueryBuilderMixin, {
       if (!coords) return false;
       // we have a legacy coordinate pair: [lng, lat]
       this.model.values = coords;
+      this.model.types.reset();
+      this.model.name = 'Coordinates';
       return true;
     }
     return false;

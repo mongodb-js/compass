@@ -80,6 +80,7 @@ module.exports = {
         break;
       case 'Array':
       case 'Document':
+      case 'Coordinates':
         if (data.source === 'geo') {
           queryType = 'geo';
         } else {
