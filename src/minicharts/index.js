@@ -8,8 +8,9 @@ var DocumentRootMinichartView = require('./document-root');
 var ArrayRootMinichartView = require('./array-root');
 var vizFns = require('./d3fns');
 var QueryBuilderMixin = require('./querybuilder');
-var debug = require('debug')('scout:minicharts:index');
 var Collection = require('ampersand-collection');
+
+// var debug = require('debug')('scout:minicharts:index');
 
 var ArrayCollection = Collection.extend({
   model: Array
@@ -57,7 +58,11 @@ module.exports = AmpersandView.extend(QueryBuilderMixin, {
     }
     return false;
   },
+  /* eslint complexity: 0 */
   render: function() {
+    var isGeo = false;
+    var coords;
+
     this.renderWithTemplate(this);
 
     if (['String', 'Number'].indexOf(this.model.name) !== -1
@@ -70,7 +75,6 @@ module.exports = AmpersandView.extend(QueryBuilderMixin, {
     } else if (this.model.name === 'Document') {
       // are these coordinates? Do a basic check for now, until we support semantic schema types
       // here we check for GeoJSON form: { loc: {type: "Point", "coordinates": [47.80, 9.63] } }
-      var isGeo = false;
       if (app.isFeatureEnabled('Geo Minicharts')) {
         if (this.model.fields.length === 2
           && this.model.fields.get('type')
@@ -81,7 +85,7 @@ module.exports = AmpersandView.extend(QueryBuilderMixin, {
              === this.model.fields.get('coordinates').count
           && this.model.fields.get('coordinates').types.get('Array').average_length === 2
         ) {
-          var coords =this._mangleGeoCoordinates(
+          coords = this._mangleGeoCoordinates(
             this.model.fields.get('coordinates').types.get('Array')
             .types.get('Number').values.serialize());
           if (coords) {
@@ -103,13 +107,13 @@ module.exports = AmpersandView.extend(QueryBuilderMixin, {
         this.subview = new DocumentRootMinichartView(this.viewOptions);
       }
     } else if (this.model.name === 'Array') {
-      var isGeo = false;
+      isGeo = false;
       if (app.isFeatureEnabled('Geo Minicharts')) {
         // are these coordinates? Do a basic check for now, until we support semantic schema types
         // here we check for legacy coordinates in array form: { loc: [47.80, 9.63] }
         var lengths = this.model.lengths;
         if (_.min(lengths) === 2 && _.max(lengths) === 2) {
-          var coords = this._mangleGeoCoordinates(
+          coords = this._mangleGeoCoordinates(
             this.model.types.get('Number').values.serialize());
           if (coords) {
             this.model.values = coords;

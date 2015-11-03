@@ -8,7 +8,8 @@ var LeafClause = require('mongodb-language-model').LeafClause;
 var ListOperator = require('mongodb-language-model').ListOperator;
 var GeoOperator = require('mongodb-language-model').GeoOperator;
 var Range = require('mongodb-language-model').helpers.Range;
-var debug = require('debug')('scout:minicharts:querybuilder');
+
+// var debug = require('debug')('scout:minicharts:querybuilder');
 
 var MODIFIERKEY = 'shiftKey';
 var checkBounds = {
@@ -48,6 +49,7 @@ module.exports = {
    * }
    *
    */
+  /* eslint complexity: 0 */
   handleQueryBuilderEvent: function(data) {
     var queryType;
 

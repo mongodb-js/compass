@@ -195,7 +195,7 @@ var minicharts_d3fns_geo = function() {
       var el = d3.select(this);
 
       if (!singleton.google) {
-        parallel({ timeoutMS: 3000 }, [  // 10 second timeout
+        parallel({ timeoutMS: 5000 }, [  // 5 second timeout
           // tasks
           function(done) {
             GoogleMapsLoader.KEY = 'AIzaSyDrhE1qbcnNIh4sK3t7GEcbLRdCNKWjlt0';
@@ -321,10 +321,28 @@ var minicharts_d3fns_geo = function() {
         });
       }
 
-      _.defer(function() {
-        google.maps.event.trigger(googleMap, 'resize');
-        googleMap.fitBounds(bounds);
-      }, 100);
+      // need to fit the map bounds after view became visible
+      var fieldView = options.view.parent.parent;
+      if (fieldView.parent.parent.modelType === 'FieldView') {
+        debug('we are in a nested field, wait until it expands...');
+        // we're inside a nested list, wait until expanded
+        var parentFieldView = fieldView.parent.parent;
+        parentFieldView.on('change:expanded', function(view, value) {
+          if (value) {
+            debug('field %s expanded. fitting map.', view.model.name);
+            _.defer(function() {
+              google.maps.event.trigger(googleMap, 'resize');
+              googleMap.fitBounds(bounds);
+            });
+          }
+        });
+      } else {
+        debug('toplevel location field. fitting map.');
+        _.defer(function() {
+          google.maps.event.trigger(googleMap, 'resize');
+          googleMap.fitBounds(bounds);
+        });
+      }
     }); // end selection.each()
   }
 
