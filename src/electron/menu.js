@@ -1,206 +1,244 @@
+// based off of https://github.com/atom/atom/blob/master/src/browser/application-menu.coffee
+// use js2.coffee to convert it to JS
+
 var app = require('app');
+var BrowserWindow = require('browser-window');
 var Menu = require('menu');
 
+// submenus
+function quitSubMenu() {
+  return {
+    label: 'Quit',
+    accelerator: 'CmdOrCtrl+Q',
+    click: function() {
+      app.quit();
+    }
+  };
+}
+
+function darwinCompassSubMenu() {
+  return {
+    label: 'MongoDB Compass',
+    submenu: [
+      {
+        label: 'About Compass',
+        selector: 'orderFrontStandardAboutPanel:'
+      },
+      {
+        type: 'separator'
+      },
+      {
+        label: 'Hide',
+        accelerator: 'Command+H',
+        selector: 'hide:'
+      },
+      {
+        label: 'Hide Others',
+        accelerator: 'Command+Shift+H',
+        selector: 'hideOtherApplications:'
+      },
+      {
+        label: 'Show All',
+        selector: 'unhideAllApplications:'
+      },
+      {
+        type: 'separator'
+      },
+      quitSubMenu()
+    ]
+  };
+}
+
+function connectSubMenu() {
+  return {
+    label: 'Connect',
+    submenu: [
+      {
+        label: 'Connect to...',
+        accelerator: 'CmdOrCtrl+N',
+        click: function() {
+          app.emit('show connect dialog');
+        }
+      }
+    ]
+  };
+}
+
+function editSubMenu() {
+  return {
+    label: 'Edit',
+    submenu: [
+      {
+        label: 'Undo',
+        accelerator: 'Command+Z',
+        role: 'undo'
+      },
+      {
+        label: 'Redo',
+        accelerator: 'Shift+Command+Z',
+        role: 'redo'
+      },
+      {
+        type: 'separator'
+      },
+      {
+        label: 'Cut',
+        accelerator: 'Command+X',
+        role: 'cut'
+      },
+      {
+        label: 'Copy',
+        accelerator: 'Command+C',
+        role: 'copy'
+      },
+      {
+        label: 'Paste',
+        accelerator: 'Command+V',
+        role: 'paste'
+      },
+      {
+        label: 'Select All',
+        accelerator: 'Command+A',
+        role: 'selectall'
+      }
+    ]
+  };
+}
+
+function nonDarwinCompassSubMenu() {
+  return {
+    label: 'MongoDB Compass',
+    submenu: [
+      {
+        label: 'About Compass',
+        click: function() {
+          app.emit('show about dialog');
+        }
+      },
+      quitSubMenu()
+    ]
+  };
+}
+
+function shareSubMenu() {
+  return {
+    label: 'Share',
+    submenu: [
+      {
+        label: 'Share Schema as JSON',
+        accelerator: 'Alt+CmdOrCtrl+S',
+        click: function() {
+          BrowserWindow.getFocusedWindow().webContents.send('message', 'menu-share-schema-json');
+        }
+      }
+    ]
+  };
+}
+
+function viewSubMenu() {
+  return {
+    label: 'View',
+    submenu: [
+      {
+        label: 'Reload',
+        accelerator: 'CmdOrCtrl+R',
+        click: function() {
+          BrowserWindow.getFocusedWindow().restart();
+        }
+      },
+      {
+        label: 'Toggle DevTools',
+        accelerator: 'Alt+CmdOrCtrl+I',
+        click: function() {
+          BrowserWindow.getFocusedWindow().toggleDevTools();
+        }
+      }
+    ]
+  };
+}
+
+function windowSubMenu() {
+  return {
+    label: 'Window',
+    submenu: [
+      {
+        label: 'Minimize',
+        accelerator: 'Command+M',
+        role: 'minimize'
+      },
+      {
+        label: 'Close',
+        accelerator: 'Command+W',
+        role: 'close'
+      },
+      {
+        type: 'separator'
+      },
+      {
+        label: 'Bring All to Front',
+        selector: 'arrangeInFront:'
+      }
+    ]
+  };
+}
+
 // menus
-function darwinMenu(window) {
-  return [
-    {
-      label: 'MongoDB Compass',
-      submenu: [
-        {
-          label: 'About Compass',
-          selector: 'orderFrontStandardAboutPanel:'
-        },
-        {
-          type: 'separator'
-        },
-        {
-          label: 'Hide',
-          accelerator: 'Command+H',
-          selector: 'hide:'
-        },
-        {
-          label: 'Hide Others',
-          accelerator: 'Command+Shift+H',
-          selector: 'hideOtherApplications:'
-        },
-        {
-          label: 'Show All',
-          selector: 'unhideAllApplications:'
-        },
-        {
-          type: 'separator'
-        },
-        {
-          label: 'Quit',
-          accelerator: 'Command+Q',
-          click: function() {
-            app.quit();
-          }
-        }
-      ]
-    },
-    {
-      label: 'Connect',
-      submenu: [
-        {
-          label: 'Connect to...',
-          accelerator: 'Command+N',
-          click: function() {
-            app.emit('show connect dialog');
-          }
-        }
-      ]
-    },
-    {
-      label: 'Edit',
-      submenu: [
-        {
-          label: 'Undo',
-          accelerator: 'Command+Z',
-          role: 'undo'
-        },
-        {
-          label: 'Redo',
-          accelerator: 'Shift+Command+Z',
-          role: 'redo'
-        },
-        {
-          type: 'separator'
-        },
-        {
-          label: 'Cut',
-          accelerator: 'Command+X',
-          role: 'cut'
-        },
-        {
-          label: 'Copy',
-          accelerator: 'Command+C',
-          role: 'copy'
-        },
-        {
-          label: 'Paste',
-          accelerator: 'Command+V',
-          role: 'paste'
-        },
-        {
-          label: 'Select All',
-          accelerator: 'Command+A',
-          role: 'selectall'
-        }
-      ]
-    },
-    {
-      label: 'View',
-      submenu: [
-        {
-          label: 'Reload',
-          accelerator: 'Command+R',
-          click: function() {
-            window.restart();
-          }
-        },
-        {
-          label: 'Toggle DevTools',
-          accelerator: 'Alt+Command+I',
-          click: function() {
-            window.toggleDevTools();
-          }
-        }
-      ]
-    },
-
-    {
-      label: 'Share',
-      submenu: [
-        {
-          label: 'Share Schema as JSON',
-          accelerator: 'Alt+Command+S',
-          click: function() {
-            window.webContents.send('message', 'menu-share-schema-json');
-          }
-        }
-      ]
-    },
-    {
-      label: 'Window',
-      submenu: [
-        {
-          label: 'Minimize',
-          accelerator: 'Command+M',
-          role: 'minimize'
-        },
-        {
-          label: 'Close',
-          accelerator: 'Command+W',
-          role: 'close'
-        },
-        {
-          type: 'separator'
-        },
-        {
-          label: 'Bring All to Front',
-          selector: 'arrangeInFront:'
-        }
-      ]
-    }
+function darwinMenu(showConnectSubMenu, showShareSubMenu) {
+  var m = [
+    darwinCompassSubMenu()
   ];
+
+  if (showConnectSubMenu) {
+    m.push(connectSubMenu());
+  }
+
+  m.push(editSubMenu());
+  m.push(viewSubMenu());
+
+  if (showShareSubMenu) {
+    m.push(shareSubMenu());
+  }
+
+  m.push(windowSubMenu());
+
+  return m;
 }
 
-function nonDarwinMenu(window) {
-  return [
-    {
-      label: 'File',
-      submenu: [
-        {
-          label: 'Connect to...',
-          accelerator: 'Ctrl+N',
-          click: function() {
-            app.emit('show connect dialog');
-          }
-        },
-        {
-          type: 'separator'
-        },
-        {
-          label: 'Quit',
-          accelerator: 'Ctrl+Q',
-          click: function() {
-            app.quit();
-          }
-        }
-      ]
-    },
-    {
-      label: 'View',
-      submenu: [
-        {
-          label: 'Reload',
-          accelerator: 'Ctrl+R',
-          click: function() {
-            window.restart();
-          }
-        },
-        {
-          label: 'Toggle DevTools',
-          accelerator: 'Alt+Ctrl+I',
-          click: function() {
-            window.toggleDevTools();
-          }
-        }
-      ]
-    }
+function nonDarwinMenu(showConnectSubMenu, showShareSubMenu) {
+  var m = [
+    nonDarwinCompassSubMenu()
   ];
+
+  if (showConnectSubMenu) {
+    m.push(connectSubMenu());
+  }
+
+  m.push(viewSubMenu());
+
+  if (showShareSubMenu) {
+    m.push(shareSubMenu());
+  }
+
+  return m;
 }
 
+// menu singleton
 var menu = (function() {
   return {
-    init: function(window) {
+    load: function(showConnectSubMenu, showShareSubMenu) {
+      if (typeof showConnectSubMenu === 'undefined') {
+        showConnectSubMenu = true;
+      }
+
+      if (typeof showShareSubMenu === 'undefined') {
+        showShareSubMenu = true;
+      }
+
       var m;
       if (process.platform === 'darwin') {
-        m = darwinMenu(window);
+        m = darwinMenu(showConnectSubMenu, showShareSubMenu);
       } else {
-        m = nonDarwinMenu(window);
+        m = nonDarwinMenu(showConnectSubMenu, showShareSubMenu);
       }
       m = Menu.buildFromTemplate(m);
       Menu.setApplicationMenu(m);
