@@ -50,8 +50,9 @@ var HomeView = View.extend({
   },
   render: function() {
     this.renderWithTemplate(this);
-    if (app.isFeatureEnabled('First Run Tour')) {
+    if (typeof localStorage.tourHasRun === 'undefined') {
       this.renderSubview(new TourView(), this.queryByHook('tour-container'));
+      localStorage.tourHasRun = 'true';
     }
   },
   onInstanceFetched: function() {
