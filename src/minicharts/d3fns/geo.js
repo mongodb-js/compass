@@ -207,7 +207,6 @@ var minicharts_d3fns_geo = function() {
         ],
         // calback
         function(err, results) {
-          debug('err/res', err, results);
           if (err) {
             debug('Error: Google map could not be loaded, disabling feature', el);
             // google map load timed out, disable geo feature for runtime remainder and reload
@@ -324,12 +323,11 @@ var minicharts_d3fns_geo = function() {
       // need to fit the map bounds after view became visible
       var fieldView = options.view.parent.parent;
       if (fieldView.parent.parent.modelType === 'FieldView') {
-        debug('we are in a nested field, wait until it expands...');
         // we're inside a nested list, wait until expanded
         var parentFieldView = fieldView.parent.parent;
         parentFieldView.on('change:expanded', function(view, value) {
           if (value) {
-            debug('field %s expanded. fitting map.', view.model.name);
+            // debug('field %s expanded. fitting map.', view.model.name);
             _.defer(function() {
               google.maps.event.trigger(googleMap, 'resize');
               googleMap.fitBounds(bounds);

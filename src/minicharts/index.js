@@ -9,6 +9,7 @@ var ArrayRootMinichartView = require('./array-root');
 var vizFns = require('./d3fns');
 var QueryBuilderMixin = require('./querybuilder');
 var Collection = require('ampersand-collection');
+var navigator = window.navigator;
 
 // var debug = require('debug')('scout:minicharts:index');
 
@@ -59,13 +60,49 @@ module.exports = AmpersandView.extend(QueryBuilderMixin, {
     return false;
   },
   /* eslint complexity: 0 */
-  render: function() {
-    var isGeo = false;
+  _geoCoordinateCheck: function() {
     var coords;
+    if (!app.isFeatureEnabled('Geo Minicharts')) return false;
+    if (!navigator.onLine) return false;
 
+    if (this.model.name === 'Document') {
+      if (this.model.fields.length !== 2
+        || !this.model.fields.get('type')
+        || this.model.fields.get('type').type !== 'String'
+        || this.model.fields.get('type').types.get('String').unique !== 1
+        || this.model.fields.get('type').types.get('String').values.at(0).value !== 'Point'
+        || this.model.fields.get('coordinates').types.get('Array').count
+           !== this.model.fields.get('coordinates').count
+        || this.model.fields.get('coordinates').types.get('Array').average_length !== 2
+      ) return false;
+      coords = this._mangleGeoCoordinates(
+        this.model.fields.get('coordinates').types.get('Array')
+        .types.get('Number').values.serialize());
+      if (!coords) return false;
+      // we have a GeoJSON document: {type: "Point", coordinates: [lng, lat]}
+      this.model.values = coords;
+      this.model.fields.reset();
+      return true;
+    } else if (this.model.name === 'Array') {
+      var lengths = this.model.lengths;
+      if (_.min(lengths) !== 2 || _.max(lengths) !== 2) return false;
+      coords = this._mangleGeoCoordinates(
+        this.model.types.get('Number').values.serialize());
+      if (!coords) return false;
+      // we have a legacy coordinate pair: [lng, lat]
+      this.model.values = coords;
+      return true;
+    }
+    return false;
+  },
+  render: function() {
     this.renderWithTemplate(this);
-
-    if (['String', 'Number'].indexOf(this.model.name) !== -1
+    if (this._geoCoordinateCheck()) {
+      this.viewOptions.renderMode = 'html';
+      this.viewOptions.height = 250;
+      this.viewOptions.vizFn = vizFns.geo;
+      this.subview = new VizView(this.viewOptions);
+    } else if (['String', 'Number'].indexOf(this.model.name) !== -1
       && this.model.unique === this.model.count) {
       // unique values get a div-based UniqueMinichart
       this.viewOptions.renderMode = 'html';
@@ -73,65 +110,11 @@ module.exports = AmpersandView.extend(QueryBuilderMixin, {
       this.viewOptions.className = 'minichart unique';
       this.subview = new UniqueMinichartView(this.viewOptions);
     } else if (this.model.name === 'Document') {
-      // are these coordinates? Do a basic check for now, until we support semantic schema types
-      // here we check for GeoJSON form: { loc: {type: "Point", "coordinates": [47.80, 9.63] } }
-      if (app.isFeatureEnabled('Geo Minicharts')) {
-        if (this.model.fields.length === 2
-          && this.model.fields.get('type')
-          && this.model.fields.get('type').type === 'String'
-          && this.model.fields.get('type').types.get('String').unique === 1
-          && this.model.fields.get('type').types.get('String').values.at(0).value === 'Point'
-          && this.model.fields.get('coordinates').types.get('Array').count
-             === this.model.fields.get('coordinates').count
-          && this.model.fields.get('coordinates').types.get('Array').average_length === 2
-        ) {
-          coords = this._mangleGeoCoordinates(
-            this.model.fields.get('coordinates').types.get('Array')
-            .types.get('Number').values.serialize());
-          if (coords) {
-            this.model.values = coords;
-            this.model.fields.reset();
-            isGeo = true;
-          }
-        }
-      }
-      if (isGeo) {
-        // coordinates get an HTML-based d3 VizView with `coordinates` vizFn
-        this.viewOptions.renderMode = 'html';
-        this.viewOptions.height = 250;
-        this.viewOptions.vizFn = vizFns.geo;
-        this.subview = new VizView(this.viewOptions);
-      } else {
-        // nested objects get a div-based DocumentRootMinichart
-        this.viewOptions.height = 55;
-        this.subview = new DocumentRootMinichartView(this.viewOptions);
-      }
+      this.viewOptions.height = 55;
+      this.subview = new DocumentRootMinichartView(this.viewOptions);
     } else if (this.model.name === 'Array') {
-      isGeo = false;
-      if (app.isFeatureEnabled('Geo Minicharts')) {
-        // are these coordinates? Do a basic check for now, until we support semantic schema types
-        // here we check for legacy coordinates in array form: { loc: [47.80, 9.63] }
-        var lengths = this.model.lengths;
-        if (_.min(lengths) === 2 && _.max(lengths) === 2) {
-          coords = this._mangleGeoCoordinates(
-            this.model.types.get('Number').values.serialize());
-          if (coords) {
-            this.model.values = coords;
-            isGeo = true;
-          }
-        }
-      }
-      if (isGeo) {
-        // coordinates get an HTML-based d3 VizView with `coordinates` vizFn
-        this.viewOptions.renderMode = 'html';
-        this.viewOptions.height = 250;
-        this.viewOptions.vizFn = vizFns.geo;
-        this.subview = new VizView(this.viewOptions);
-      } else {
-        // plain arrays get a div-based ArrayRootMinichart
-        this.viewOptions.height = 55;
-        this.subview = new ArrayRootMinichartView(this.viewOptions);
-      }
+      this.viewOptions.height = 55;
+      this.subview = new ArrayRootMinichartView(this.viewOptions);
     } else {
       // otherwise, create a svg-based VizView for d3
       this.subview = new VizView(this.viewOptions);
