@@ -1,5 +1,5 @@
-var Base = require('./base'),
-    debug = require('debug')('models:operator');
+var Base = require('./base');
+// var debug = require('debug')('models:operator');
 
 /**
  * Operator is the common class for all possible operators, including
@@ -7,12 +7,12 @@ var Base = require('./base'),
  *
  * @type {Base}
  */
-var Operator = module.exports = Base.extend({
+module.exports = Base.extend({
   derived: {
     key: {
       deps: ['parent'],
       cache: false,
-      fn: function () {
+      fn: function() {
         // for LeafValues wanting to listen to the key:
         // this operator's key is really its parent key
         return this.parent ? this.parent.key : null;
@@ -24,5 +24,5 @@ var Operator = module.exports = Base.extend({
       type: 'string',
       default: 'Operator'
     }
-  },
+  }
 });

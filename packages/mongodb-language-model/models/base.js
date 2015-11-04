@@ -7,7 +7,7 @@ var AmpersandState = require('ampersand-state');
  * @property {boolean} valid  describes if the query portion of this model is valid.
  * @property {any} buffer     contains the query portion that this model covers.
  */
-var Base = module.exports = AmpersandState.extend({
+module.exports = AmpersandState.extend({
   extraProperties: 'reject',
   props: {
     valid: {

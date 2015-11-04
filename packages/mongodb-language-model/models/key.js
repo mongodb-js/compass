@@ -8,7 +8,7 @@ var Base = require('./base');
  * @property {string} buffer   (derived) same as content, read-only.
  * @property {string} valid    (derived) valid if non-empty.
  */
-var Key = module.exports = Base.extend({
+module.exports = Base.extend({
   props: {
     content: {
       type: 'string',
@@ -40,7 +40,7 @@ var Key = module.exports = Base.extend({
   serialize: function() {
     return this.buffer;
   },
-  parse: function(attrs, options) {
+  parse: function(attrs) {
     return {
       content: attrs
     };

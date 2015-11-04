@@ -1,7 +1,5 @@
 var models = require('../models');
 var assert = require('assert');
-var _ = require('lodash');
-
 
 describe('ChildCollection', function() {
   it('should set the model.parent property to parent of the collection', function() {

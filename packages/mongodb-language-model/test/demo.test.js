@@ -2,7 +2,7 @@ var Query = require('../').Query;
 var assert = require('assert');
 
 describe('Demo', function() {
-  describe('Query example with 2 different top-level clauses', function () {
+  describe('Query example with 2 different top-level clauses', function() {
     var query;
 
     beforeEach(function() {
@@ -36,13 +36,13 @@ describe('Demo', function() {
       assert.equal(exprTree.className, 'ExpressionTree');
 
       // get the list of clause keys
-      var keys = exprTree.expressions.map(function (expr) {
+      var keys = exprTree.expressions.map(function(expr) {
         return expr.clauses.at(0).key.serialize();
       });
       assert.deepEqual(keys, ['bar', 'baz']);
 
       // get the list of clause values
-      var values = exprTree.expressions.map(function (expr) {
+      var values = exprTree.expressions.map(function(expr) {
         return expr.clauses.at(0).value.serialize();
       });
       assert.deepEqual(values, [false, 'hello']);

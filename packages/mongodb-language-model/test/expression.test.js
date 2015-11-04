@@ -25,7 +25,7 @@ describe('Expression', function() {
       str: 'foo',
       bool: true
     };
-    var expr = new models.Expression(query, {
+    expr = new models.Expression(query, {
       parse: true
     });
 
@@ -80,12 +80,11 @@ describe('Expression', function() {
       parse: true
     });
     assert.deepEqual(expr.serialize(), input);
-
   });
 
   it('should trigger a change:buffer event when adding/removing a clause', function(done) {
     var counter = 0;
-    var expr = new models.Expression([], {
+    expr = new models.Expression([], {
       parse: true
     });
     expr.on('change:buffer', function() {
@@ -102,7 +101,7 @@ describe('Expression', function() {
   });
 
   it('shoud trigger a change:buffer event when resetting the clause collection', function(done) {
-    var expr = new models.Expression([{foo: 1}, {bar: 2}], {
+    expr = new models.Expression([{foo: 1}, {bar: 2}], {
       parse: true
     });
     expr.on('change:buffer', _.once(done));
@@ -110,7 +109,7 @@ describe('Expression', function() {
   });
 
   it('shoud trigger a change:buffer event when adding a clause', function(done) {
-    var expr = new models.Expression([{foo: 1}, {bar: 2}], {
+    expr = new models.Expression([{foo: 1}, {bar: 2}], {
       parse: true
     });
     expr.on('change:buffer', done);
@@ -132,7 +131,7 @@ describe('Expression', function() {
     expr = new models.Expression({
       foo: 1
     }, {
-      parse: true,
+      parse: true
     });
     var value = expr.clauses.at(0).value;
     expr.on('change:valid', function() {
@@ -146,7 +145,7 @@ describe('Expression', function() {
     for (var i = 0; i < 10; i++) {
       var doc = {};
       doc['key' + i] = 'foo';
-      var c = expr.clauses.add(doc);
+      expr.clauses.add(doc);
     }
     assert.equal(expr.clauses.length, 10);
   });

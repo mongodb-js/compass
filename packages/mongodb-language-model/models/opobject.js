@@ -1,9 +1,11 @@
-var Operator = require('./operator'),
-  Value = require('./value'),
-  ChildCollection = require('./childcollection'),
-  definitions = require('./definitions'),
-  debug = require('debug')('models:logical-operator');
-
+var Operator = require('./operator');
+var Value = require('./value');
+var ChildCollection = require('./childcollection');
+var ListOperator = require('./listop');
+var ValueOperator = require('./valueop');
+var definitions = require('./definitions');
+var _ = require('lodash');
+// var debug = require('debug')('models:logical-operator');
 
 /**
  * OperatorCollection is a collection of Operators
@@ -14,7 +16,6 @@ var OperatorCollection = ChildCollection.extend({
   model: function(attrs, options) {
     var GeoOperator = require('./geo').GeoOperator;
     var key = _.keys(attrs)[0];
-    var value = attrs[key];
 
     if (definitions.listOperators.indexOf(key) !== -1) {
       return new ListOperator(attrs, options);
@@ -38,7 +39,7 @@ var OperatorCollection = ChildCollection.extend({
  *
  * @type {Value}
  */
-var OperatorObject = module.exports = Value.extend({
+module.exports = Value.extend({
   collections: {
     operators: OperatorCollection
   },
@@ -80,7 +81,7 @@ var OperatorObject = module.exports = Value.extend({
       }
     }
   },
-  parse: function(attrs, options) {
+  parse: function(attrs) {
     // turn {$gt: 5, $lt: 9} into [ {$gt: 5}, {$lt: 9} ]
     var result = _.map(attrs, function(v, k) {
       var doc = {};

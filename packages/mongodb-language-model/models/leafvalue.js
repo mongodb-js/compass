@@ -1,10 +1,6 @@
 var Value = require('./value');
 var bson = require('bson');
-var debug = require('debug')('models:leafvalue');
-
-function isNumber(n) {
-  return !isNaN(parseFloat(n)) && isFinite(n);
-}
+// var debug = require('debug')('models:leafvalue');
 
 /**
  * LeafValue contains the leaf values of the query tree. Those can be of any type, including
@@ -17,7 +13,7 @@ function isNumber(n) {
  * @property {any} buffer     returns the actual (potentially cleaned-up) value. read-only.
  * @property {boolean} valid  is always true.
  */
-var LeafValue = module.exports = Value.extend({
+module.exports = Value.extend({
   props: {
     content: {
       type: 'any',
@@ -34,6 +30,7 @@ var LeafValue = module.exports = Value.extend({
     type: {
       cache: false,
       deps: ['content'],
+      /* eslint complexity: 0 */
       fn: function() {
         if (this.content === null) return 'null';
         if (this.content instanceof Date) return 'date';
@@ -68,7 +65,7 @@ var LeafValue = module.exports = Value.extend({
       }
     }
   },
-  parse: function(attrs, options) {
+  parse: function(attrs) {
     return {
       content: attrs
     };

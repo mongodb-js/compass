@@ -1,24 +1,27 @@
 {
-
-
-  "// docs, basically" : "https://github.com/paulirish/sublime-jsfmt#formatting-rules",
   "preset": "default",
   "plugins": [
-        "esformatter-quotes",
-        "esformatter-semicolons",
-        "esformatter-braces"
+      "esformatter-quotes",
+      "esformatter-semicolons",
+      "esformatter-braces",
+      "esformatter-quote-props",
+      "esformatter-dot-notation",
+      "esformatter-var-each",
+      "esformatter-parseint",
+      "esformatter-eol-last",
+      "esformatter-spaced-lined-comment",
+      "esformatter-remove-trailing-commas"
     ],
     "quotes": {
-        "type": "single",
-        "avoidEscape": false
+      "type": "single",
+      "avoidEscape": false
     },
     "indent": {
-        "value": "  "
+      "value": "  "
     },
     "whiteSpace" : {
     "value" : " ",
     "removeTrailing" : 1,
-
     "before" : {
       "ArrayExpressionOpening" : 0,
       "ArrayExpressionClosing" : 0,

@@ -1,11 +1,13 @@
-var ChildCollection = require('./childcollection'),
-  Base = require('./base'),
-  definitions = require('./definitions'),
-  Clause = require('./clause'),
-  LeafClause = require('./leafclause'),
-  debug = require('debug')('models:expression'),
-  _ = require('lodash');
+var ChildCollection = require('./childcollection');
+var Base = require('./base');
+var definitions = require('./definitions');
+var Clause = require('./clause');
+var LeafClause = require('./leafclause');
+// var debug = require('debug')('models:expression');
+var _ = require('lodash');
 
+var Expression;
+var ExpressionTree;
 
 /**
  * ExpressionCollection is a collection of Expressions
@@ -20,7 +22,6 @@ var ExpressionCollection = ChildCollection.extend({
   }
 });
 
-
 /**
  * ClauseCollection is a polymorphic collection of clauses
  * and/or expression trees.
@@ -33,9 +34,8 @@ var ClauseCollection = ChildCollection.extend({
   model: function(attrs, options) {
     if (definitions.treeOperators.indexOf(_.keys(attrs)[0]) !== -1) { // $and, $or, $nor
       return new ExpressionTree(attrs, options);
-    } else {
-      return new LeafClause(attrs, options);
     }
+    return new LeafClause(attrs, options);
   },
   isModel: function(model) {
     return (model instanceof Clause);
@@ -49,7 +49,7 @@ var ClauseCollection = ChildCollection.extend({
  *
  * @type {Clause}
  */
-var ExpressionTree = module.exports.ExpressionTree = Clause.extend({
+ExpressionTree = module.exports.ExpressionTree = Clause.extend({
   idAttribute: 'id',
   props: {
     operator: {
@@ -99,7 +99,7 @@ var ExpressionTree = module.exports.ExpressionTree = Clause.extend({
   collections: {
     expressions: ExpressionCollection
   },
-  parse: function(attrs, options) {
+  parse: function(attrs) {
     var operator = _.keys(attrs)[0];
     var expressions = attrs[operator];
     return {
@@ -123,7 +123,7 @@ var ExpressionTree = module.exports.ExpressionTree = Clause.extend({
  * @property {boolean} valid              (derived) set to true if the overall expression is valid.
  * @property {object} buffer              contains the full expression as object. read-only.
  */
-var Expression = module.exports.Expression = Base.extend({
+Expression = module.exports.Expression = Base.extend({
   session: {
     className: {
       type: 'string',
@@ -158,7 +158,7 @@ var Expression = module.exports.Expression = Base.extend({
       }
     }
   },
-  parse: function(attrs, options) {
+  parse: function(attrs) {
     var result = _.map(attrs, function(v, k) {
       var doc = {};
       doc[k] = v; return doc;

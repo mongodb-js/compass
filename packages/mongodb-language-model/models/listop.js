@@ -1,8 +1,9 @@
-var Operator = require('./operator'),
-  ChildCollection = require('./childcollection'),
-  LeafValue = require('./leafvalue'),
-  definitions = require('./definitions'),
-  debug = require('debug')('models:list-operator');
+var Operator = require('./operator');
+var ChildCollection = require('./childcollection');
+var LeafValue = require('./leafvalue');
+var definitions = require('./definitions');
+var _ = require('lodash');
+// var debug = require('debug')('models:list-operator');
 
 
 /**
@@ -24,14 +25,13 @@ var ValueCollection = ChildCollection.extend({
 });
 
 
-
 /**
  * ListOperator is an operator that takes an array of values as its value,
  * e.g. { $in: [1, 2, 3] }. Its `.values` property is a collection of LeafValue.
  *
  * @type {Operator}
  */
-var ListOperator = module.exports = Operator.extend({
+module.exports = Operator.extend({
   props: {
     operator: {
       type: 'string',
@@ -69,12 +69,13 @@ var ListOperator = module.exports = Operator.extend({
   collections: {
     values: ValueCollection
   },
-  parse: function(attrs, options) {
+  parse: function(attrs) {
     // assume {$op: [v1, v2, v3]} format
     var key = _.keys(attrs)[0];
     var values = attrs[key];
-    if (!(values instanceof Array))
-      throw TypeError('value for operator ' + key + ' must be an array.');
+    if (!(values instanceof Array)) {
+      throw new TypeError('value for operator ' + key + ' must be an array.');
+    }
     return {
       operator: key,
       values: values

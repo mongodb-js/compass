@@ -1,7 +1,5 @@
 var models = require('../models');
 var assert = require('assert');
-var _ = require('lodash');
-
 
 describe('LeafClause', function() {
   var clause;
@@ -81,8 +79,8 @@ describe('LeafClause', function() {
       parse: true
     });
     assert.ok(clause.value instanceof models.OperatorObject);
-    assert.ok(clause.value.operators.at(0) instanceof ValueOperator);
-    assert.ok(clause.value.operators.at(1) instanceof ListOperator);
+    assert.ok(clause.value.operators.at(0) instanceof models.ValueOperator);
+    assert.ok(clause.value.operators.at(1) instanceof models.ListOperator);
     assert.deepEqual(clause.value.serialize(), {
       $gt: 5,
       $nin: [8, 9]
@@ -93,7 +91,7 @@ describe('LeafClause', function() {
     clause = new models.LeafClause({
       foo: 'bar'
     }, {
-      parse: true,
+      parse: true
     });
     assert.ok(clause.valid);
 
@@ -109,8 +107,8 @@ describe('LeafClause', function() {
     }, {
       parse: true
     });
-    expr.clauses.forEach(function(clause) {
-      assert.equal(clause.parent, expr);
+    expr.clauses.forEach(function(cl) {
+      assert.equal(cl.parent, expr);
     });
   });
 

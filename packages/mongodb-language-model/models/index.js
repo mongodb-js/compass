@@ -17,5 +17,5 @@ module.exports = {
   LegacyShape: require('./geo').LegacyShape,
   Geometry: require('./geo').Geometry,
   Operator: require('./operator'),
-  OperatorObject: require('./opobject'),
+  OperatorObject: require('./opobject')
 };

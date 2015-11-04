@@ -53,7 +53,8 @@ describe('ListOperator', function() {
 
   it('should throw an error if the value is not an array', function() {
     assert.throws(function() {
-      new models.ListOperator({
+      /* eslint no-unused-vars: 0 */
+      var invalid = new models.ListOperator({
         $in: 'foo'
       }, {
         parse: true
@@ -103,8 +104,8 @@ describe('ListOperator', function() {
     }, {
       parse: true
     });
-    opob.operators.forEach(function(listop) {
-      assert.equal(listop.parent, opob);
+    opob.operators.forEach(function(lo) {
+      assert.equal(lo.parent, opob);
     });
   });
 

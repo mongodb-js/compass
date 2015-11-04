@@ -6,5 +6,5 @@ var Base = require('./base');
  *
  * @type {Base}
  */
-var Clause = module.exports = Base.extend({
+module.exports = Base.extend({
 });

@@ -1,6 +1,6 @@
-var AmpersandCollection = require('ampersand-collection'),
-  lodashMixin = require('ampersand-collection-lodash-mixin'),
-  _ = require('lodash');
+var AmpersandCollection = require('ampersand-collection');
+var lodashMixin = require('ampersand-collection-lodash-mixin');
+var _ = require('lodash');
 
 /**
  * ChildCollection is a regular AmpersandCollection with the lodash mixin and
@@ -9,7 +9,7 @@ var AmpersandCollection = require('ampersand-collection'),
  *
  * @type {AmpersandCollection}
  */
-var ChildCollection = module.exports = AmpersandCollection.extend(lodashMixin, {
+module.exports = AmpersandCollection.extend(lodashMixin, {
   set: function(models, options) {
     // set model parent to collection's parent
     var parent = this.parent;

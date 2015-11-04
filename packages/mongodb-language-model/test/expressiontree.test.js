@@ -1,10 +1,13 @@
 var models = require('../models');
 var assert = require('assert');
-var _ = require('lodash');
 
 
 describe('ExpressionTree', function() {
-  var input, outerExpr, tree, innerExpr0, innerExpr1;
+  var input;
+  var outerExpr;
+  var tree;
+  var innerExpr0;
+  var innerExpr1;
 
   beforeEach(function() {
     input = {

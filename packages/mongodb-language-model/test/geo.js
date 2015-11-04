@@ -1,13 +1,11 @@
 var models = require('../models');
 var assert = require('assert');
-var _ = require('lodash');
-
 
 describe('LegacyShape', function() {
   var legacyShape;
 
   beforeEach(function() {
-    legacyShape = new models.LegacyShape({ $centerSphere: [ [ -88, 30 ], 10/3963.2 ] }, {
+    legacyShape = new models.LegacyShape({ $centerSphere: [ [ -88, 30 ], 10 / 3963.2 ] }, {
       parse: true
     });
   });
@@ -26,14 +24,15 @@ describe('LegacyShape', function() {
 
   it('should not allow unknown shape keys', function() {
     assert.throws(function() {
+      /* eslint no-unused-vars: 0 */
       var invalidShape = new models.LegacyShape({$someInvalidShape: [1, 2, 3] }, {
         parse: true
       }, TypeError);
-    })
+    });
   });
 
   it('should construct the buffer correctly from its inputs', function() {
-    var input = { $centerSphere: [ [ -88, 30 ], 10/3963.2 ] };
+    var input = { $centerSphere: [ [ -88, 30 ], 10 / 3963.2 ] };
     legacyShape = new models.LegacyShape(input, {
       parse: true
     });
@@ -41,7 +40,7 @@ describe('LegacyShape', function() {
   });
 
   it('should not be valid for more than 2 array parameters', function() {
-    var input = { $centerSphere: [ [ -88, 30 ], 10/3963.2, false /* invalid 3rd parameter */ ] };
+    var input = { $centerSphere: [ [ -88, 30 ], 10 / 3963.2, false /* invalid 3rd parameter */ ] };
     legacyShape = new models.LegacyShape(input, {
       parse: true
     });
@@ -49,13 +48,12 @@ describe('LegacyShape', function() {
   });
 
   it('should not be valid for more or less than 2 coordinates', function() {
-    var input = { $centerSphere: [ [ -88 /* missing 2nd coordinate */ ], 10/3963.2 ] };
+    var input = { $centerSphere: [ [ -88 /* missing 2nd coordinate */ ], 10 / 3963.2 ] };
     legacyShape = new models.LegacyShape(input, {
       parse: true
     });
     assert.equal(legacyShape.valid, false);
   });
-
 });
 
 describe('GeoOperator', function() {
@@ -66,7 +64,7 @@ describe('GeoOperator', function() {
       geoop = new models.GeoOperator({
         $geoWithin: {
           $geometry: {
-            type : "Polygon" ,
+            type: 'Polygon',
             coordinates: [ [ [ 0, 0 ], [ 3, 6 ], [ 6, 1 ], [ 0, 0 ] ] ]
           }
         }
@@ -81,9 +79,8 @@ describe('GeoOperator', function() {
   });
 
   describe('$geoWithin - legacy shapes', function() {
-
     beforeEach(function() {
-      geoop = new models.GeoOperator({ $geoWithin: { $centerSphere: [ [ -88, 30 ], 10/3963.2 ] } }, {
+      geoop = new models.GeoOperator({ $geoWithin: { $centerSphere: [ [ -88, 30 ], 10 / 3963.2 ] } }, {
         parse: true
       });
     });
@@ -98,7 +95,8 @@ describe('GeoOperator', function() {
 
     it('should refuse to parse an invalid shape definition', function() {
       assert.throws(function() {
-        new models.GeoOperator({ $geoWithin: { $centerHyperCube: [ [ -88, 30 ], 10/3963.2 ] } }, {
+        var invalidOp = new models.GeoOperator({ $geoWithin: { $centerHyperCube:
+        [ [ -88, 30 ], 10 / 3963.2 ] } }, {
           parse: true
         });
       });
@@ -109,8 +107,7 @@ describe('GeoOperator', function() {
         assert.ok(!geoop.valid);
         done();
       });
-      geoop.shape.parameters = [[ -54, 21.1 ], 20/3963.2, false];
+      geoop.shape.parameters = [[ -54, 21.1 ], 20 / 3963.2, false];
     });
   });
-
 });

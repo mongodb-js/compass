@@ -1,11 +1,9 @@
 var Clause = require('./clause');
-Key = require('./key'),
-LeafValue = require('./leafvalue'),
-OperatorObject = require('./opobject'),
-ListOperator = require('./listop'),
-ValueOperator = require('./valueop'),
-_ = require('lodash'),
-debug = require('debug')('models:clause');
+var Key = require('./key');
+var LeafValue = require('./leafvalue');
+var OperatorObject = require('./opobject');
+var _ = require('lodash');
+// var debug = require('debug')('models:clause');
 
 /**
  * LeafClause describes a single clause ( e.g. `{age: 31}` ) of the query. It has
@@ -16,7 +14,7 @@ debug = require('debug')('models:clause');
  * @property {boolean} valid   (derived) is true if both key and value are valid.
  * @property {any} buffer      (derived) a simple object with key and value.
  */
-var LeafClause = module.exports = Clause.extend({
+module.exports = Clause.extend({
   idAttribute: 'id',
   props: {
     value: {
@@ -69,8 +67,8 @@ var LeafClause = module.exports = Clause.extend({
     if (typeof obj === 'object') {
       var keys = _.keys(obj);
       if (_.some(keys, function(key) {
-          return key.indexOf('$') === 0;
-        })) {
+        return key.indexOf('$') === 0;
+      })) {
         // object has key(s) starting with $, it's not a leaf object
         return new OperatorObject(obj, options);
       }
@@ -95,12 +93,12 @@ var LeafClause = module.exports = Clause.extend({
     this.listenTo(this.value, 'change:buffer', this.bufferChanged);
 
     // listen to new value
-    this.listenTo(this, 'change:value', function(self, val, options) {
+    this.listenTo(this, 'change:value', function(self, val) {
       this.stopListening(this.previousAttributes().value);
       this.listenTo(val, 'change:buffer', this.bufferChanged);
     });
   },
-  parse: function(attrs, options) {
+  parse: function(attrs) {
     var key = _.keys(attrs)[0];
     var value = attrs[key];
     return {

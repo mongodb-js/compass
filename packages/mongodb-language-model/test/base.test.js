@@ -1,7 +1,5 @@
 var models = require('../models');
 var assert = require('assert');
-var _ = require('lodash');
-
 
 describe('Base', function() {
   var base;

@@ -1,7 +1,5 @@
 var models = require('../models');
 var assert = require('assert');
-var _ = require('lodash');
-
 
 describe('OperatorObject', function() {
   var opob;
@@ -27,8 +25,8 @@ describe('OperatorObject', function() {
     }, {
       parse: true
     });
-    assert.ok(opob.operators.at(0) instanceof ValueOperator);
-    assert.ok(opob.operators.at(1) instanceof ValueOperator);
+    assert.ok(opob.operators.at(0) instanceof models.ValueOperator);
+    assert.ok(opob.operators.at(1) instanceof models.ValueOperator);
 
     opob = new models.OperatorObject({
       $in: [1, 2, 3],
@@ -36,8 +34,8 @@ describe('OperatorObject', function() {
     }, {
       parse: true
     });
-    assert.ok(opob.operators.at(0) instanceof ListOperator);
-    assert.ok(opob.operators.at(1) instanceof ListOperator);
+    assert.ok(opob.operators.at(0) instanceof models.ListOperator);
+    assert.ok(opob.operators.at(1) instanceof models.ListOperator);
 
     opob = new models.OperatorObject({
       $gt: 5,
@@ -45,8 +43,8 @@ describe('OperatorObject', function() {
     }, {
       parse: true
     });
-    assert.ok(opob.operators.at(0) instanceof ValueOperator);
-    assert.ok(opob.operators.at(1) instanceof ListOperator);
+    assert.ok(opob.operators.at(0) instanceof models.ValueOperator);
+    assert.ok(opob.operators.at(1) instanceof models.ListOperator);
   });
 
   it('should accept a single operator', function() {
@@ -59,6 +57,7 @@ describe('OperatorObject', function() {
   });
 
   it('should merge same operators', function() {
+    /* eslint no-dupe-keys: 0 */
     opob = new models.OperatorObject({
       $ne: null,
       $ne: true
@@ -150,10 +149,10 @@ describe('OperatorObject', function() {
     assert.equal(opob.operators.get('$foo'), undefined);
   });
 
-    it('should parse a $geoWithin query correctly', function() {
+  it('should parse a $geoWithin query correctly', function() {
     opob = new models.OperatorObject({
       $geoWithin: {
-        $centerSphere: [ [ -88, 30 ], 10/3963.2 ]
+        $centerSphere: [ [ -88, 30 ], 10 / 3963.2 ]
       }
     }, {
       parse: true

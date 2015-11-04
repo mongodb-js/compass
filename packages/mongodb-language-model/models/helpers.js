@@ -1,7 +1,7 @@
 var OperatorObject = require('./opobject');
-var LeafValue = require('./leafvalue');
+var ValueOperator = require('./valueop');
 var _ = require('lodash');
-var debug = require('debug')('models:range');
+// var debug = require('debug')('models:range');
 
 var Range = OperatorObject.extend({
   props: {
@@ -18,7 +18,7 @@ var Range = OperatorObject.extend({
     var parseObj = {};
 
     if (lower !== undefined) {
-      parseObj['$gte'] = lower;
+      parseObj.$gte = lower;
     }
     if (upper !== undefined) {
       parseObj[isUpperInclusive ? '$lte' : '$lt'] = upper;
@@ -27,7 +27,7 @@ var Range = OperatorObject.extend({
       parse: true
     });
   },
-  initialize: function(attr, options) {
+  initialize: function() {
     // track lower and upper ValueOperators
     this.lowerOp = this.operators.find(function(op) {
       return _.startsWith(op.operator, '$gt');
@@ -56,14 +56,12 @@ var Range = OperatorObject.extend({
               this.trigger('change:lower');
             }
           }
-        } else {
-          if (val !== undefined) {
-            var parseObj = {};
-            parseObj['$gte'] = val;
-            this.lowerOp = this.operators.add(new ValueOperator(parseObj, {
-              parse: true
-            }));
-          }
+        } else if (val !== undefined) {
+          var parseObj = {};
+          parseObj.$gte = val;
+          this.lowerOp = this.operators.add(new ValueOperator(parseObj, {
+            parse: true
+          }));
         }
       }
     });
@@ -84,19 +82,17 @@ var Range = OperatorObject.extend({
               this.trigger('change:upper');
             }
           }
-        } else {
-          if (val !== undefined) {
-            var parseObj = {};
-            parseObj[this.isUpperInclusive ? '$lte' : '$lt'] = val;
-            this.upperOp = this.operators.add(new ValueOperator(parseObj, {
-              parse: true
-            }));
-          }
+        } else if (val !== undefined) {
+          var parseObj = {};
+          parseObj[this.isUpperInclusive ? '$lte' : '$lt'] = val;
+          this.upperOp = this.operators.add(new ValueOperator(parseObj, {
+            parse: true
+          }));
         }
       }
     });
   },
-  isUpperInclusiveChanged: function(evt) {
+  isUpperInclusiveChanged: function() {
     this.upperOp.operator = this.isUpperInclusive ? '$lte' : '$lt';
     this.trigger('change:upper');
   }

@@ -96,8 +96,8 @@ describe('ValueOperator', function() {
     }, {
       parse: true
     });
-    opob.operators.forEach(function(valueop) {
-      assert.equal(valueop.parent, opob);
+    opob.operators.forEach(function(vo) {
+      assert.equal(vo.parent, opob);
     });
   });
 

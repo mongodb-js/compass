@@ -9,6 +9,14 @@
     "type": "git",
     "url": "https://github.com/mongodb-js/mongodb-language-model"
   },
+  "dependency-check": {
+  "entries": [
+    "./index.js"
+  ],
+  "ignore": [
+    "debug"
+  ]
+},
   "license": "Apache-2.0",
   "keywords": [
     "mongodb-js",
@@ -19,10 +27,15 @@
     "ampersand"
   ],
   "scripts": {
-    "test": "mocha"
+    "ci": "npm run check && npm test",
+    "test": "mocha",
+    "fmt": "mongodb-js-fmt ./*.js ./test/*.js",
+    "check": "mongodb-js-precommit ./*.js models/{**/*.js,*.js} test/{**/*.js,*.js}",
+    "lint": "jshint .",
+    "validate": "npm ls"
   },
   "precommit": [
-    "test"
+    "check"
   ],
   "main": "index.js",
   "dependencies": {
@@ -34,7 +47,10 @@
     "lodash": "^3.0.1"
   },
   "devDependencies": {
-    "mocha": "^2.1.0",
-    "precommit-hook": "^1.0.7"
+    "eslint-config-mongodb-js": "^1.0.4",
+    "mongodb-js-fmt": "^0.0.3",
+    "mongodb-js-precommit": "^0.2.2",
+    "pre-commit": "^1.1.2",
+    "mocha": "^2.3.3"
   }
 }

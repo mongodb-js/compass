@@ -1,8 +1,8 @@
-var Operator = require('./operator'),
-  LeafValue = require('./leafvalue'),
-  _ = require('lodash'),
-  definitions = require('./definitions'),
-  debug = require('debug')('models:value-operator');
+var Operator = require('./operator');
+var LeafValue = require('./leafvalue');
+var _ = require('lodash');
+var definitions = require('./definitions');
+// var debug = require('debug')('models:value-operator');
 
 
 /**
@@ -11,7 +11,7 @@ var Operator = require('./operator'),
  *
  * @type {Operator}
  */
-var ValueOperator = module.exports = Operator.extend({
+module.exports = Operator.extend({
   props: {
     operator: {
       type: 'string',
@@ -47,11 +47,11 @@ var ValueOperator = module.exports = Operator.extend({
       }
     }
   },
-  initialize: function(attrs, options) {
+  initialize: function() {
     // bubble up buffer change events
     this.listenTo(this.value, 'change:buffer', this.bufferChanged);
   },
-  parse: function(attrs, options) {
+  parse: function(attrs) {
     // assume {$op: value} format
     if (attrs) {
       var key = _.keys(attrs)[0];

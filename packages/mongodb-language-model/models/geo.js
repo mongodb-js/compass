@@ -1,9 +1,7 @@
-var Operator = require('./operator'),
-  OperatorObject = require('./opobject'),
-  LeafValue = require('./leafvalue'),
-  _ = require('lodash'),
-  definitions = require('./definitions'),
-  debug = require('debug')('models:geo-operator');
+var Operator = require('./operator');
+var _ = require('lodash');
+var definitions = require('./definitions');
+// var debug = require('debug')('models:geo-operator');
 
 
 var Geometry = module.exports.Geometry = Operator.extend({
@@ -34,7 +32,7 @@ var Geometry = module.exports.Geometry = Operator.extend({
       default: 'Geometry'
     }
   },
-  parse: function(attrs, options) {
+  parse: function(attrs) {
     return _.values(attrs)[0];
   },
   serialize: function() {
@@ -86,7 +84,7 @@ var LegacyShape = module.exports.LegacyShape = Operator.extend({
       }
     }
   },
-  parse: function(attrs, options) {
+  parse: function(attrs) {
     if (attrs) {
       var type = _.keys(attrs)[0];
       return {
@@ -147,18 +145,19 @@ module.exports.GeoOperator = Operator.extend({
       }
     }
   },
-  initialize: function(attrs, options) {
+  initialize: function() {
     // bubble up buffer change events
     this.listenTo(this.shape, 'change:buffer', this.bufferChanged);
   },
-  parse: function(attrs, options) {
+  parse: function(attrs) {
     if (attrs) {
       var key = _.keys(attrs)[0];
       var shape = attrs[key];
+      var geoShape;
       if (_.keys(shape)[0] === '$geometry') {
-        var geoShape = new Geometry(shape, {parse: true});
+        geoShape = new Geometry(shape, {parse: true});
       } else {
-        var geoShape = new LegacyShape(shape, {parse: true});
+        geoShape = new LegacyShape(shape, {parse: true});
       }
       return {
         operator: key,

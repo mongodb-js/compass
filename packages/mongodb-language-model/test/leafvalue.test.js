@@ -1,6 +1,5 @@
 var models = require('../models');
 var assert = require('assert');
-var _ = require('lodash');
 var bson = require('bson');
 var debug = require('debug')('mongodb-language-model:test');
 
@@ -73,7 +72,7 @@ describe('LeafValue', function() {
   });
 
   it('should parse the value', function() {
-    var value = new models.LeafValue('this_is_a_string', {
+    value = new models.LeafValue('this_is_a_string', {
       parse: true
     });
     assert.equal(value.type, 'string');
@@ -92,7 +91,7 @@ describe('LeafValue', function() {
     assert.equal(value.content, null);
   });
 
-  it('should work with MongoDB BSON values', function () {
+  it('should work with MongoDB BSON values', function() {
     var types = [
       'ObjectID',
       'Long',
@@ -105,8 +104,7 @@ describe('LeafValue', function() {
       'DBRef',
       'Binary'
     ];
-    var value;
-    types.forEach(function (type) {
+    types.forEach(function(type) {
       value = new models.LeafValue(new bson[type](), {
         parse: true
       });
