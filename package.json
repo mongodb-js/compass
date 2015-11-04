@@ -79,7 +79,7 @@
     "mongodb-connection-model": "^3.0.6",
     "mongodb-instance-model": "^1.0.2",
     "mongodb-ns": "^1.0.0",
-    "scout-server": "http://bin.mongodb.org/js/scout-server/v0.4.2/scout-server-0.4.2.tar.gz",
+    "scout-server": "http://bin.mongodb.org/js/scout-server/v0.4.3/scout-server-0.4.3.tar.gz",
     "google-maps": "^3.1.0"
   },
   "devDependencies": {
