@@ -251,10 +251,21 @@ var minicharts_d3fns_geo = function() {
         // Draw each marker as a separate SVG element.
         overlay.draw = function() {
           var layer = d3.select('div.layer');
-          var transform;
 
           projection = this.getProjection();
           var padding = 9;
+
+          var transform = function(d) {
+            var p = new google.maps.LatLng(d[1], d[0]);
+            p = projection.fromLatLngToDivPixel(p);
+            d.x = p.x;
+            d.y = p.y;
+            var self = d3.select(this);
+            self
+              .style('left', p.x - padding + 'px')
+              .style('top', p.y - padding + 'px');
+            return self;
+          };
 
           var marker = layer.selectAll('svg.marker')
               .data(data)
@@ -268,18 +279,6 @@ var minicharts_d3fns_geo = function() {
               .attr('r', 4.5)
               .attr('cx', padding)
               .attr('cy', padding);
-
-          transform = function(d) {
-            var p = new google.maps.LatLng(d[1], d[0]);
-            p = projection.fromLatLngToDivPixel(p);
-            d.x = p.x;
-            d.y = p.y;
-            var self = d3.select(this);
-            self
-              .style('left', p.x - padding + 'px')
-              .style('top', p.y - padding + 'px');
-            return self;
-          };
         }; // end overlay.draw
 
         overlay.setMap(googleMap);
