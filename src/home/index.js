@@ -1,4 +1,3 @@
-var _ = require('lodash');
 var View = require('ampersand-view');
 var format = require('util').format;
 var SidebarView = require('../sidebar');
@@ -51,8 +50,7 @@ var HomeView = View.extend({
   },
   render: function() {
     this.renderWithTemplate(this);
-    if (_.isUndefined(localStorage.lastKnownVersion)
-      || localStorage.lastKnownVersion !== app.meta['App Version']) {
+    if (localStorage.lastKnownVersion !== app.meta['App Version']) {
       this.renderSubview(new TourView(), this.queryByHook('tour-container'));
       localStorage.lastKnownVersion = app.meta['App Version'];
     }
