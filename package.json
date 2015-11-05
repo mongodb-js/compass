@@ -79,7 +79,8 @@
     "mongodb-connection-model": "^3.0.6",
     "mongodb-instance-model": "^1.0.2",
     "mongodb-ns": "^1.0.0",
-    "scout-server": "http://bin.mongodb.org/js/scout-server/v0.4.2/scout-server-0.4.2.tar.gz"
+    "scout-server": "http://bin.mongodb.org/js/scout-server/v0.4.3/scout-server-0.4.3.tar.gz",
+    "google-maps": "^3.1.0"
   },
   "devDependencies": {
     "ampersand-app": "^1.0.4",
@@ -92,6 +93,7 @@
     "ampersand-sync-localforage": "^0.1.1",
     "ampersand-view": "^9.0.0",
     "ampersand-view-switcher": "^2.0.0",
+    "async": "^1.5.0",
     "backoff": "^2.4.1",
     "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz",
     "browserify": "^12.0.1",

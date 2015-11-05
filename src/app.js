@@ -236,7 +236,7 @@ var state = new Application({
 // via `window.localStorage`.
 var FEATURES = {
   querybuilder: true,
-  'First Run Tour': false,
+  'Geo Minicharts': true,
   'Connect with SSL': false,
   'Connect with Kerberos': false,
   'Connect with LDAP': false,
@@ -245,8 +245,6 @@ var FEATURES = {
 
 app.extend({
   client: null,
-  // @note (imlucas): Backwards compat for querybuilder
-  features: FEATURES,
   /**
    * Check whether a feature flag is currently enabled.
    *
@@ -255,6 +253,15 @@ app.extend({
    */
   isFeatureEnabled: function(id) {
     return FEATURES[id] === true;
+  },
+  /**
+   * Enable or disable a feature programatically.
+   *
+   * @param {String} id - A key in `FEATURES`.
+   * @param {Boolean} bool - whether to enable (true) or disable (false)
+   */
+  setFeature: function(id, bool) {
+    FEATURES[id] = bool;
   },
   sendMessage: function(msg) {
     ipc.send('message', msg);

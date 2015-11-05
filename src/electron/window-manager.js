@@ -99,7 +99,7 @@ module.exports.create = function(opts) {
   });
 
   if (opts.url === DEFAULT_URL) { // if it's the connect dialog
-    AppMenu.hideConnectSubMenu(_window);
+    AppMenu.hideConnect(_window);
     connectWindow = _window;
     connectWindow.on('closed', function() {
       debug('connect window closed.');
@@ -117,14 +117,6 @@ module.exports.create = function(opts) {
     }
   });
 
-  // @todo (imlucas)
-  // When in dev mode, automaticaly open devtools
-  // detached for ease of debugging.
-  if (_.contains(['testing', 'development'], process.env.NODE_ENV)) {
-    _window.openDevTools({
-      detach: true
-    });
-  }
   return _window;
 };
 
@@ -152,19 +144,23 @@ app.on('show about dialog', function() {
 });
 
 app.on('hide connect submenu', function() {
-  AppMenu.hideConnectSubMenu();
+  AppMenu.hideConnect();
 });
 
 app.on('hide share submenu', function() {
-  AppMenu.hideShareSubMenu();
+  AppMenu.hideShare();
+});
+
+app.on('show compass overview submenu', function() {
+  AppMenu.showCompassOverview();
 });
 
 app.on('show connect submenu', function() {
-  AppMenu.showConnectSubMenu();
+  AppMenu.showConnect();
 });
 
 app.on('show share submenu', function() {
-  AppMenu.showShareSubMenu();
+  AppMenu.showShare();
 });
 
 /**

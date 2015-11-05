@@ -44,17 +44,24 @@ var HomeView = View.extend({
   initialize: function() {
     this.listenTo(app.instance, 'sync', this.onInstanceFetched);
     this.listenTo(app.connection, 'change:name', this.updateTitle);
+    this.listenTo(app, 'show-compass-overview', this.renderTour);
+
     this.once('change:rendered', this.onRendered);
     debug('fetching instance model...');
     app.instance.fetch();
 
+    app.sendMessage('show compass overview submenu');
     app.sendMessage('show connect submenu');
   },
   render: function() {
     this.renderWithTemplate(this);
-    if (app.isFeatureEnabled('First Run Tour')) {
-      this.renderSubview(new TourView(), this.queryByHook('tour-container'));
+    if (localStorage.lastKnownVersion !== app.meta['App Version']) {
+      this.renderTour();
+      localStorage.lastKnownVersion = app.meta['App Version'];
     }
+  },
+  renderTour: function() {
+    this.renderSubview(new TourView(), this.queryByHook('tour-container'));
   },
   onInstanceFetched: function() {
     if (app.instance.collections.length === 0) {

@@ -6,7 +6,9 @@ var app = require('ampersand-app');
 var LeafValue = require('mongodb-language-model').LeafValue;
 var LeafClause = require('mongodb-language-model').LeafClause;
 var ListOperator = require('mongodb-language-model').ListOperator;
+var GeoOperator = require('mongodb-language-model').GeoOperator;
 var Range = require('mongodb-language-model').helpers.Range;
+
 // var debug = require('debug')('scout:minicharts:querybuilder');
 
 var MODIFIERKEY = 'shiftKey';
@@ -47,6 +49,7 @@ module.exports = {
    * }
    *
    */
+  /* eslint complexity: 0 */
   handleQueryBuilderEvent: function(data) {
     var queryType;
 
@@ -58,7 +61,7 @@ module.exports = {
     // defocus currently active element (likely the refine bar) so it can update the query
     $(document.activeElement).blur();
 
-    // determine what kind of query this is (distinct or range)
+    // determine what kind of query this is (distinct, range, geo, ...)
     switch (this.model.getType()) {
       case 'Boolean': // fall-through to String
       case 'String':
@@ -73,7 +76,16 @@ module.exports = {
         break;
       case 'ObjectID': // fall-through to Date
       case 'Date':
-        queryType = 'range';
+          queryType = 'range';
+        break;
+      case 'Array':
+      case 'Document':
+      case 'Coordinates':
+        if (data.source === 'geo') {
+          queryType = 'geo';
+        } else {
+          throw new Error('unsupported querybuilder type ' + this.model.getType());
+        }
         break;
       default: // @todo other types not implemented yet
         throw new Error('unsupported querybuilder type ' + this.model.getType());
@@ -84,8 +96,8 @@ module.exports = {
       data: data
     };
 
-    if (data.type === 'drag') {
-      message = this.updateSelection_drag(message);
+    if (data.type === 'drag' || data.type === 'geo') {
+      message = this['updateSelection_' + data.type](message);
       message = this['buildQuery_' + queryType](message);
     } else {
       message = this['updateSelection_' + queryType](message);
@@ -173,6 +185,27 @@ module.exports = {
     return message;
   },
   /**
+   * updates `selected` for query builder events created on a geo map.
+   * The visual updates are handled by d3 directly, selected will just contain the center
+   * longitude, latitude and distance in miles.
+   *
+   * @param   {Object} message   message with key: data
+   * @return  {Object} message   message with keys: data, selected
+   */
+  updateSelection_geo: function(message) {
+    if (!message.data.center || !message.data.distance) {
+      this.selectedValues = [];
+    } else {
+      this.selectedValues = [
+        message.data.center[0],
+        message.data.center[1],
+        message.data.distance / 3963.2 // equatorial radius of earth in miles
+      ];
+    }
+    message.selected = this.selectedValues;
+    return message;
+  },
+  /**
    * build new distinct ($in) query based on current selection
    *
    * @param   {Object} message   message with keys: data, selected
@@ -254,6 +287,34 @@ module.exports = {
 
     return message;
   },
+
+  /**
+   * build new geo ($geoWithin) query based on current selection
+   *
+   * @param   {Object} message   message with keys: data, selected
+   * @return  {Object} message   message with keys: data, selected, value, elements, op
+   */
+  buildQuery_geo: function(message) {
+    message.elements = this.queryAll('.selectable');
+    message.op = '$geoWithin';
+
+    // build new value
+    if (message.selected.length === 0) {
+      // no value
+      message.value = null;
+    } else {
+      // multiple values
+      message.value = new GeoOperator({
+        $geoWithin: {
+          $centerSphere: [ [message.selected[0], message.selected[1] ], message.selected[2] ]
+        }
+      }, {
+        parse: true
+      });
+    }
+    return message;
+  },
+
 
   /**
    * update the UI after a distinct query and mark appropriate elements with .select class.
@@ -358,6 +419,23 @@ module.exports = {
     return message;
   },
   /**
+   * update the UI after a geo query was manipulated in the refine bar.
+   *
+   * @param  {Object} message   message with keys: data, selected, value
+   * @return {Object} message   no changes on message, just pass it through for consistency
+   */
+  updateUI_geo: function(message) {
+    if (this.selectedValues && this.selectedValues.length) {
+      // convert radius back to miles
+      var params = this.selectedValues.slice();
+      params[1] *= 3963.2;
+      this.subview.chart.geoSelection(params);
+    } else {
+      this.subview.chart.geoSelection(null);
+    }
+    return message;
+  },
+  /**
    * Query Builder upwards pass
    * The user interacted with the minichart to build a query. We need to ask the volatile query
    * if a relevant clause exists already, and replace the value, or create a new clause. In the
@@ -423,10 +501,14 @@ module.exports = {
 
     if (!value || !value.valid) {
       this.selectedValues = [];
-      // updateUI_distinct will do the right thing here and clear any selection,
-      // even in the case where the minichart is a range type.
       message.selected = this.selectedValues;
-      this.updateUI_distinct(message);
+      if (_.has(this.subview.chart, 'geoSelection')) {
+        this.updateUI_geo(message);
+      } else {
+        // updateUI_distinct will do the right thing here and clear any selection,
+        // even in the case where the minichart is a range type.
+        this.updateUI_distinct(message);
+      }
       return;
     }
     if (value.className === 'LeafValue') {
@@ -441,6 +523,14 @@ module.exports = {
         this.selectedValues = inOperator.values.serialize();
         message.selected = this.selectedValues;
         this.updateUI_distinct(message);
+        return;
+      }
+      var geoOperator = value.operators.get('$geoWithin');
+      if (geoOperator) {
+        // case: $geoWithin query
+        this.selectedValues = geoOperator.shape.parameters;
+        message.selected = this.selectedValues;
+        this.updateUI_geo(message);
         return;
       }
       if (['$gt', '$lt', '$gte', '$lte'].indexOf(value.operators.at(0).operator) !== -1) {

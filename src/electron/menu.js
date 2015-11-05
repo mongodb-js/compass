@@ -8,13 +8,28 @@ var debug = require('debug')('electron:menu');
 var Menu = require('menu');
 var State = require('ampersand-state');
 
-// submenus
-function quitSubMenu() {
+// submenu related
+function separator() {
   return {
-    label: 'Quit',
+    type: 'separator'
+  };
+}
+
+function quitSubMenu(label) {
+  return {
+    label: label,
     accelerator: 'CmdOrCtrl+Q',
     click: function() {
       app.quit();
+    }
+  };
+}
+
+function compassOverviewSubMenu() {
+  return {
+    label: 'Compass Overview',
+    click: function() {
+      BrowserWindow.getFocusedWindow().webContents.send('message', 'show-compass-overview');
     }
   };
 }
@@ -27,9 +42,7 @@ function darwinCompassSubMenu() {
         label: 'About Compass',
         selector: 'orderFrontStandardAboutPanel:'
       },
-      {
-        type: 'separator'
-      },
+      separator(),
       {
         label: 'Hide',
         accelerator: 'Command+H',
@@ -44,10 +57,8 @@ function darwinCompassSubMenu() {
         label: 'Show All',
         selector: 'unhideAllApplications:'
       },
-      {
-        type: 'separator'
-      },
-      quitSubMenu()
+      separator(),
+      quitSubMenu('Quit')
     ]
   };
 }
@@ -81,9 +92,7 @@ function editSubMenu() {
         accelerator: 'Shift+Command+Z',
         role: 'redo'
       },
-      {
-        type: 'separator'
-      },
+      separator(),
       {
         label: 'Cut',
         accelerator: 'Command+X',
@@ -108,17 +117,40 @@ function editSubMenu() {
   };
 }
 
+function nonDarwinAboutSubMenu() {
+  return {
+    label: 'About Compass',
+    click: function() {
+      app.emit('show about dialog');
+    }
+  };
+}
+
+function helpSubMenu(showCompassOverview) {
+  var subMenu = [];
+  if (showCompassOverview) {
+    subMenu.push(compassOverviewSubMenu());
+
+    if (process.platform !== 'darwin') {
+      subMenu.push(separator());
+    }
+  }
+
+  if (process.platform !== 'darwin') {
+    subMenu.push(nonDarwinAboutSubMenu());
+  }
+
+  return {
+    label: 'Help',
+    submenu: subMenu
+  };
+}
+
 function nonDarwinCompassSubMenu() {
   return {
     label: 'MongoDB Compass',
     submenu: [
-      {
-        label: 'About Compass',
-        click: function() {
-          app.emit('show about dialog');
-        }
-      },
-      quitSubMenu()
+      quitSubMenu('Exit')
     ]
   };
 }
@@ -174,9 +206,7 @@ function windowSubMenu() {
         accelerator: 'Command+W',
         role: 'close'
       },
-      {
-        type: 'separator'
-      },
+      separator(),
       {
         label: 'Bring All to Front',
         selector: 'arrangeInFront:'
@@ -191,18 +221,22 @@ function darwinMenu(menuState) {
     darwinCompassSubMenu()
   ];
 
-  if (menuState.showConnectSubMenu) {
+  if (menuState.showConnect) {
     menu.push(connectSubMenu());
   }
 
   menu.push(editSubMenu());
   menu.push(viewSubMenu());
 
-  if (menuState.showShareSubMenu) {
+  if (menuState.showShare) {
     menu.push(shareSubMenu());
   }
 
   menu.push(windowSubMenu());
+
+  if (menuState.showCompassOverview) {
+    menu.push(helpSubMenu(menuState.showCompassOverview));
+  }
 
   return menu;
 }
@@ -212,23 +246,26 @@ function nonDarwinMenu(menuState) {
     nonDarwinCompassSubMenu()
   ];
 
-  if (menuState.showConnectSubMenu) {
+  if (menuState.showConnect) {
     menu.push(connectSubMenu());
   }
 
   menu.push(viewSubMenu());
 
-  if (menuState.showShareSubMenu) {
+  if (menuState.showShare) {
     menu.push(shareSubMenu());
   }
+
+  menu.push(helpSubMenu(menuState.showCompassOverview));
 
   return menu;
 }
 
 var MenuState = State.extend({
   props: {
-    showConnectSubMenu: { type: 'boolean', default: true },
-    showShareSubMenu: { type: 'boolean', default: false }
+    showCompassOverview: { type: 'boolean', default: false },
+    showConnect: { type: 'boolean', default: true },
+    showShare: { type: 'boolean', default: false }
   }
 });
 
@@ -243,6 +280,7 @@ var AppMenu = (function() {
         return function() {
           debug('WINDOW ' + _window.id + ' focused');
           debug('lastFocusedWindow set to WINDOW ' + _window.id);
+
           _this.lastFocusedWindow = _window;
           _this.load(this);
         };
@@ -252,6 +290,7 @@ var AppMenu = (function() {
       _window.once('closed', (function(_this) {
         return function() {
           debug('WINDOW ' + _window.id + ' closed');
+
           _this.windowTemplates.delete(_window.id);
           _window.removeListener('focus', focusHandler);
         };
@@ -261,9 +300,10 @@ var AppMenu = (function() {
     getTemplate: function(winID) {
       var menuState = this.windowTemplates.get(winID);
 
-      debug('Menu State for WINDOW ' + winID);
-      debug('showConnectSubMenu: ' + menuState.showConnectSubMenu);
-      debug('showShareSubMenu: ' + menuState.showShareSubMenu);
+      debug("WINDOW's " + winID + ' Menu State');
+      debug('showCompassOverview: ' + menuState.showCompassOverview);
+      debug('showConnect: ' + menuState.showConnect);
+      debug('showShare: ' + menuState.showShare);
 
       if (process.platform === 'darwin') {
         return darwinMenu(menuState);
@@ -304,20 +344,24 @@ var AppMenu = (function() {
     },
 
     // share/hide submenu fns
-    hideConnectSubMenu: function(_window) {
-      this.updateMenu('showConnectSubMenu', false, _window);
+    hideConnect: function(_window) {
+      this.updateMenu('showConnect', false, _window);
     },
 
-    hideShareSubMenu: function() {
-      this.updateMenu('showShareSubMenu', false);
+    hideShare: function() {
+      this.updateMenu('showShare', false);
     },
 
-    showConnectSubMenu: function() {
-      this.updateMenu('showConnectSubMenu', true);
+    showCompassOverview: function() {
+      this.updateMenu('showCompassOverview', true);
     },
 
-    showShareSubMenu: function() {
-      this.updateMenu('showShareSubMenu', true);
+    showConnect: function() {
+      this.updateMenu('showConnect', true);
+    },
+
+    showShare: function() {
+      this.updateMenu('showShare', true);
     },
 
     updateMenu: function(property, val, _window) {
