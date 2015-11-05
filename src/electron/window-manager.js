@@ -116,14 +116,6 @@ module.exports.create = function(opts) {
     }
   });
 
-  // @todo (imlucas)
-  // When in dev mode, automaticaly open devtools
-  // detached for ease of debugging.
-  if (_.contains(['testing', 'development'], process.env.NODE_ENV)) {
-    _window.openDevTools({
-      detach: true
-    });
-  }
   return _window;
 };
 
