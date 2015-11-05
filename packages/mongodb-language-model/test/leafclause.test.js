@@ -1,5 +1,6 @@
 var models = require('../models');
 var assert = require('assert');
+// var debug = require('debug')('language-model:test:leafclause');
 
 describe('LeafClause', function() {
   var clause;

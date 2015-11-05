@@ -3,7 +3,7 @@ var Key = require('./key');
 var LeafValue = require('./leafvalue');
 var OperatorObject = require('./opobject');
 var _ = require('lodash');
-// var debug = require('debug')('models:clause');
+// var debug = require('debug')('language-model:models:clause');
 
 /**
  * LeafClause describes a single clause ( e.g. `{age: 31}` ) of the query. It has
@@ -19,7 +19,7 @@ module.exports = Clause.extend({
   props: {
     value: {
       type: 'any',
-      default: null
+      default: undefined
     }
   },
   session: {
@@ -77,8 +77,8 @@ module.exports = Clause.extend({
   },
   initialize: function(attrs, options) {
     // initialize value manually (since it is polymorphic)
-    if (attrs) {
-      this.value = this._initializeValue(attrs.value, options);
+    if (this.value !== undefined) {
+      this.value = this._initializeValue(this.value, options);
     } else {
       // if no attrs given use a null LeafValue as placeholder
       options = _.assign(options, {

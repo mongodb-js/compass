@@ -161,7 +161,8 @@ Expression = module.exports.Expression = Base.extend({
   parse: function(attrs) {
     var result = _.map(attrs, function(v, k) {
       var doc = {};
-      doc[k] = v; return doc;
+      doc[k] = v;
+      return doc;
     });
     return {
       clauses: result

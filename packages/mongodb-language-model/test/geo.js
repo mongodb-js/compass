@@ -59,7 +59,7 @@ describe('LegacyShape', function() {
 describe('GeoOperator', function() {
   var geoop;
 
-  describe('$geoWithin - legacy shapes', function() {
+  describe('$geoWithin with polygon', function() {
     beforeEach(function() {
       geoop = new models.GeoOperator({
         $geoWithin: {
@@ -78,7 +78,7 @@ describe('GeoOperator', function() {
     });
   });
 
-  describe('$geoWithin - legacy shapes', function() {
+  describe('$geoWithin with legacy shapes', function() {
     beforeEach(function() {
       geoop = new models.GeoOperator({ $geoWithin: { $centerSphere: [ [ -88, 30 ], 10 / 3963.2 ] } }, {
         parse: true
