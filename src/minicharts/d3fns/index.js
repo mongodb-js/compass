@@ -3,5 +3,6 @@ module.exports = {
   boolean: require('./boolean'),
   date: require('./date'),
   string: require('./string'),
-  objectid: require('./date')
+  objectid: require('./date'),
+  geo: require('./geo')
 };

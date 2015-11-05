@@ -147,9 +147,9 @@ FieldListView = View.extend({
   },
   makeFieldVisible: function() {
     var views = this.fieldCollectionView.views;
-    _.each(views, function(field_view) {
+    _.each(views, function(fieldView) {
       raf(function() {
-        field_view.visible = true;
+        fieldView.visible = true;
       });
     });
   },

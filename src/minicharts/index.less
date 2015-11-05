@@ -78,6 +78,36 @@ div.minichart.unique {
   }
 }
 
+.layer, .layer svg {
+  position: absolute;
+}
+
+.layer svg.marker {
+  width: 20px;
+  height: 20px;
+
+  circle {
+    fill: @mc-fg;
+    stroke: @pw;
+    stroke-width: 1.5px;
+
+    &.selected {
+      fill: @mc-fg-selected;
+    }
+  }
+}
+
+.layer svg.selection {
+  visibility: hidden;
+
+  circle {
+    fill: @mc-fg-selected;
+    fill-opacity:0.2;
+    stroke: @mc-fg-selected;
+    stroke-width: 2px;
+  }
+}
+
 svg.minichart {
   font-size: 10px;
 
