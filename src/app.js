@@ -236,6 +236,7 @@ var state = new Application({
 // via `window.localStorage`.
 var FEATURES = {
   querybuilder: true,
+  keychain: true,
   'Geo Minicharts': true,
   'Connect with SSL': false,
   'Connect with Kerberos': false,

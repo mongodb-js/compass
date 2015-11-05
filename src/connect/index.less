@@ -1,5 +1,169 @@
-.connect form {
+// sidebar
+.connect .sidebar {
+  .compass-logo {
+    height: 72px;
+  }
 
+  .connections-container {
+    position: absolute;
+    top: 72px;
+    left: 0;
+    bottom: 0;
+    width: 220px;
+    overflow-y: auto;
+
+    .panel-title-out {
+      padding: 8px 0;
+      overflow: auto;
+      border-top: 1px solid lighten(@slate1, 5%);
+      border-left: 4px solid transparent;
+
+      &:first-child {
+        border-top: none;
+      }
+
+      &.new-connection {
+        cursor: pointer;
+
+        .panel-title {
+          font-weight: bold;
+          color: @pw;
+        }
+        i {
+          color: @pw;
+        }
+        &:hover {
+          background: lighten(@slate1, 5%);
+        }
+      }
+
+      > * {
+        float: left;
+      }
+      .panel-title {
+        font-size: 12px;
+        font-weight: normal;
+      }
+      i {
+        width: 40px;
+        text-align: center;
+        color: @gray5;
+      }
+    }
+    .panel-title-out.selected {
+      border-left: 4px solid @green3;
+
+      i, .panel-title {
+        color: @green3;
+      }
+    }
+    ul.connection-list {
+      margin: 0;
+      padding: 0;
+
+      li {
+        list-style: none;
+      }
+      a {
+        color: @gray5;
+        padding: 2px 0 2px 40px;
+        display: block;
+        cursor: pointer;
+        border-left: 4px solid transparent;
+      }
+      a.selected {
+        border-left: 4px solid @green3;
+        color: @green3;
+
+        &:hover {
+          color: @green3;
+        }
+      }
+      a:hover {
+        text-decoration: none;
+        background: lighten(@slate1, 5%);
+        color: @pw;
+      }
+    }
+  }
+}
+
+// form
+.connect .form-container {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 220px;
+  overflow-y: scroll;
+
+  header {
+    height: 72px;
+    background-color: @gray8;
+    border-bottom: 2px solid @gray7;
+    margin-bottom: 30px;
+
+    h2 {
+      display: inline-block;
+      margin: 23px 0 0 30px;
+      font-size: 24px;
+      line-height: 30px;
+    }
+  }
+
+  .error {
+    background-color: @lightRed;
+    border-bottom: 3px solid @red;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 72px;
+    width: 100%;
+
+    p {
+      margin: 26px auto;
+      width: 70%;
+      color: @red;
+      text-align: center;
+      font-weight: bold;
+    }
+  }
+
+  .form-item {
+    margin: 15px auto 15px;
+    width: 425px;
+    overflow: auto;
+
+    > * {
+      float: left;
+      overflow: auto;
+    }
+    label {
+      width: 32%;
+      text-align: right;
+      padding: 5px 15px 0 0;
+    }
+    input, select, .form-item-file {
+      width: 68%;
+    }
+    .form-item-file {
+      input {
+        height: 34px;
+        margin: 5px 0 0;
+      }
+    }
+    span.buttons {
+      float: right
+    }
+
+    button {
+      float: right;
+      margin-left: 10px;
+    }
+  }
+}
+
+.connect form {
   .message.message-error > p {
     margin: 0;
     font-size: 11px;

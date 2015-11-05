@@ -21,7 +21,20 @@ module.exports = Connection.extend({
     /**
      * Updated on each successful connection to the Deployment.
      */
-    last_used: 'date'
+    last_used: {
+      type: 'date',
+      default: null
+    },
+    is_favorite: {
+      type: 'boolean',
+      default: false
+    }
+  },
+  session: {
+    active: {
+      type: 'boolean',
+      default: false
+    }
   },
   test: function(done) {
     var model = this.serialize();
