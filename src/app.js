@@ -96,7 +96,7 @@ var Application = View.extend({
     /**
      * @see statusbar.js
      */
-    statusbar: 'view',
+    statusbar: 'state',
     /**
      * Details of the MongoDB Instance we're currently connected to.
      */

@@ -36,9 +36,7 @@ var FieldView = View.extend({
       type: 'boolean',
       default: false
     },
-    minichartView: 'view',
-    fieldListView: 'view',
-    arrayFieldListView: 'view'
+    minichartView: 'any'
   },
   bindings: {
     'model.name': {
@@ -78,32 +76,26 @@ var FieldView = View.extend({
         });
       }
     },
-    fields: {
+    fieldListView: {
       hook: 'fields-subview',
       waitFor: 'model.fields',
       prepareView: function(el) {
-        this.set('fieldListView', new FieldListView({
+        return new FieldListView({
           el: el,
           parent: this,
           collection: this.model.fields
-        }), {
-          silent: true
         });
-        return this.fieldListView;
       }
     },
-    arrayFields: {
+    arrayFieldListView: {
       hook: 'arrayfields-subview',
       waitFor: 'model.arrayFields',
       prepareView: function(el) {
-        this.set('arrayFieldListView', new FieldListView({
+        return new FieldListView({
           el: el,
           parent: this,
           collection: this.model.arrayFields
-        }), {
-          silent: true
         });
-        return this.arrayFieldListView;
       }
     }
   },
@@ -135,7 +127,7 @@ var FieldView = View.extend({
 FieldListView = View.extend({
   modelType: 'FieldListView',
   session: {
-    fieldCollectionView: 'view'
+    fieldCollectionView: 'object'
   },
   template: require('./index.jade'),
   initialize: function() {

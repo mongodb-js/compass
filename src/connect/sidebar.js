@@ -1,5 +1,4 @@
 var View = require('ampersand-view');
-var Connection = require('../models/connection');
 
 /**
  * View for a connection in the sidebar. It can be clicked (will copy details to the form view)
@@ -8,7 +7,6 @@ var Connection = require('../models/connection');
 var SidebarItemView = View.extend({
   namespace: 'SidebarItemView',
   props: {
-    model: Connection,
     hover: {
       type: 'boolean',
       default: false

@@ -13,7 +13,7 @@ var VizView = AmpersandView.extend({
     data: 'any',
     className: 'any',
     vizFn: 'any',
-    chart: 'function',
+    chart: 'any',
     debounceRender: {
       type: 'boolean',
       default: true

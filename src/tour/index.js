@@ -3,19 +3,30 @@ var View = require('ampersand-view');
 
 var TourView = View.extend({
   props: {
-    isAnimating: { type: 'boolean', default: true },
-    tourCount: { type: 'number', default: 0 },
-    tourImages: { type: 'array', default: function() {
-      return [
-        { file: 'f1.gif', duration: 4000 },
-        { file: 'f2.gif', duration: 9000 },
-        { file: 'f3.gif', duration: 9000 },
-        { file: 'f4.gif', duration: 6000 },
-        { file: 'f5.gif', duration: 9000 }
-      ];
-    }
+    isAnimating: {
+      type: 'boolean',
+      default: true
     },
-    tourImagesFolder: { type: 'string', default: './images/tour/' }
+    tourCount: {
+      type: 'number',
+      default: 0
+    },
+    tourImages: {
+      type: 'array',
+      default: function() {
+        return [
+          { file: 'f1.gif', duration: 4000 },
+          { file: 'f2.gif', duration: 9000 },
+          { file: 'f3.gif', duration: 9000 },
+          { file: 'f4.gif', duration: 6000 },
+          { file: 'f5.gif', duration: 9000 }
+        ];
+      }
+    },
+    tourImagesFolder: {
+      type: 'string',
+      default: './images/tour/'
+    }
   },
   template: require('./index.jade'),
   events: {

@@ -24,7 +24,7 @@ module.exports = AmpersandView.extend(QueryBuilderMixin, {
   modelType: 'MinichartView',
   template: require('./minichart.jade'),
   session: {
-    subview: 'view',
+    subview: 'state',
     viewOptions: 'object',
     selectedValues: {
       type: 'array',
