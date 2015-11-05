@@ -260,7 +260,6 @@ app.extend({
    *
    * @param {String} id - A key in `FEATURES`.
    * @param {Boolean} bool - whether to enable (true) or disable (false)
-   * @return {Boolean}
    */
   setFeature: function(id, bool) {
     FEATURES[id] = bool;
