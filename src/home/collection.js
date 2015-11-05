@@ -74,13 +74,11 @@ var MongoDBCollectionView = View.extend({
   },
   schemaIsSynced: function() {
     // only listen to share menu events if we have a sync'ed schema
-    // @todo enable share menu item here
-    // GLOBAL.menu.showShareMenu();
     this.listenTo(app, 'menu-share-schema-json', this.onShareSchema.bind(this));
+    app.sendMessage('show share submenu');
   },
   schemaIsRequested: function() {
-    // while a new schema is requested, don't let the user share via the menu option
-    // @todo disable share menu item here
+    app.sendMessage('hide share submenu');
     this.stopListening(app, 'menu-share-schema-json');
   },
   onShareSchema: function() {

@@ -6,11 +6,11 @@
 var path = require('path');
 var _ = require('lodash');
 var app = require('app');
+var AppMenu = require('./menu');
 var BrowserWindow = require('browser-window');
 var config = require('./config');
 var debug = require('debug')('scout-electron:window-manager');
 var dialog = require('dialog');
-var menu = require('./menu');
 
 /**
  * When running in electron, we're in `RESOURCES/src/electron`.
@@ -63,7 +63,7 @@ module.exports.create = function(opts) {
       'direct-write': true
     }
   });
-  menu.load();
+  AppMenu.load(_window);
 
   // makes the application a single instance application
   // see "app.makeSingleInstance" in https://github.com/atom/electron/blob/master/docs/api/app.md
@@ -98,7 +98,8 @@ module.exports.create = function(opts) {
     });
   });
 
-  if (opts.url === DEFAULT_URL) {
+  if (opts.url === DEFAULT_URL) { // if it's the connect dialog
+    AppMenu.hideConnectSubMenu(_window);
     connectWindow = _window;
     connectWindow.on('closed', function() {
       debug('connect window closed.');
@@ -140,6 +141,22 @@ app.on('show about dialog', function() {
     message: 'MongoDB Compass Version: ' + app.getVersion(),
     buttons: []
   });
+});
+
+app.on('hide connect submenu', function() {
+  AppMenu.hideConnectSubMenu();
+});
+
+app.on('hide share submenu', function() {
+  AppMenu.hideShareSubMenu();
+});
+
+app.on('show connect submenu', function() {
+  AppMenu.showConnectSubMenu();
+});
+
+app.on('show share submenu', function() {
+  AppMenu.showShareSubMenu();
 });
 
 /**
