@@ -35,6 +35,9 @@ var minicharts_d3fns_number = function() {
             v.count = v.length;
             return v;
           })
+          .sortBy(function(v) {
+            return v.value;
+          })
           .value();
       } else {
         // use the linear scale just to get nice binning values
