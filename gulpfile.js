@@ -26,6 +26,7 @@ var sequence = require('run-sequence');
 var watch = require('gulp-watch');
 var notify = require('./tasks/notify');
 var pkg = require('./package.json');
+var debug = require('debug')('scout:gulpfile');
 
 // Platform specific tasks
 var platform = require(path.join(__dirname, 'tasks', process.platform));
@@ -44,6 +45,7 @@ gulp.task('release', function(done) {
   sequence(
     'build',
     'electron:build',
+    'electron-rebuild',
     'electron:build-installer'
     , done);
 });
@@ -78,6 +80,7 @@ gulp.task('dev', function(done) {
   sequence(
     'build',
     'electron:build',
+    'electron-rebuild',
     'electron:start',
     'watch'
     , done);
@@ -251,4 +254,28 @@ gulp.task('npm:install', shell.task('npm install --production --optional --quiet
 
 gulp.task('clean', function(done) {
   del(['build/', 'dist/', 'node_modules/'], done);
+});
+
+var er = require('electron-rebuild');
+
+gulp.task('electron-rebuild', function(done) {
+  debug('checking if native modules need rebuilding...');
+  er.shouldRebuildNativeModules(platform.ELECTRON)
+  .then(function(shouldBuild) {
+    if (!shouldBuild) {
+      debug('dont need to rebuild');
+      done();
+      return;
+    }
+    debug('yep!  downloading headers for `%s`...', pkg.electron_version);
+    er.installNodeHeaders(pkg.electron_version)
+      .then(function() {
+        debug('rebuilding any native modules in `build/node_modules` for electron `%s`...', pkg.electron_version);
+        return er.rebuildNativeModules(pkg.electron_version, 'build/node_modules');
+      })
+      .then(done)
+      .catch(function(err) {
+        done(err);
+      });
+  });
 });
