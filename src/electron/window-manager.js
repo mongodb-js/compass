@@ -11,6 +11,8 @@ var config = require('./config');
 var debug = require('debug')('scout-electron:window-manager');
 var dialog = require('dialog');
 var menu = require('./menu');
+var Menu = require('menu');
+var Tray = require('tray');
 
 /**
  * When running in electron, we're in `RESOURCES/src/electron`.
@@ -142,6 +144,17 @@ app.on('show about dialog', function() {
   });
 });
 
+app.on('show bugsnag OS notification', function(errorMsg) {
+  if (_.contains(['development', 'testing'], process.env.NODE_ENV)) {
+    var appIcon = new Tray(RESOURCES + '/images/bugsnag-notification.png');
+    var contextMenu = Menu.buildFromTemplate([
+      { label: 'MongoDB Compass: ' + errorMsg }
+    ]);
+    appIcon.setContextMenu(contextMenu);
+    appIcon.popUpContextMenu();
+  }
+});
+
 /**
  * When electron's main renderer has completed setup,
  * we'll always show the [connect][./src/connect] dialog
@@ -153,7 +166,7 @@ app.on('ready', function() {
 });
 
 var ipc = require('ipc');
-ipc.on('message', function(event, msg) {
+ipc.on('message', function(event, msg, arg1) {
   debug('message received in main process', msg);
-  app.emit(msg);
+  app.emit(msg, arg1);
 });
