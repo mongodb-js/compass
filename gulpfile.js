@@ -245,7 +245,7 @@ gulp.task('copy:js', function() {
   );
 });
 
-gulp.task('npm:install', shell.task('npm install --production --quiet --loglevel error', {
+gulp.task('npm:install', shell.task('npm install --production --optional --quiet --loglevel error', {
   cwd: 'build/'
 }));
 
