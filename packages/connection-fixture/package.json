@@ -22,7 +22,7 @@
     "eslint-config-mongodb-js": "^1.0.5",
     "mocha": "^2.3.3",
     "mongodb-js-fmt": "0.0.3",
-    "mongodb-js-precommit": "^0.2.4",
+    "mongodb-js-precommit": "^0.2.5",
     "mongodb-connection-model": "mongodb-js/mongodb-connection-model",
     "pre-commit": "^1.1.2"
   },
