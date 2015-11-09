@@ -17,6 +17,8 @@ var TOKEN = '0d11ab5f4d97452cc83d3365c21b491c';
 
 // @todo (imlucas): use mongodb-redact
 function beforeNotify(d) {
+  app.sendMessage('show bugsnag OS notification', d.message);
+
   d.stacktrace = redact(d.stacktrace);
   d.context = redact(d.context);
   d.file = redact(d.file);

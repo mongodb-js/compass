@@ -264,8 +264,8 @@ app.extend({
   setFeature: function(id, bool) {
     FEATURES[id] = bool;
   },
-  sendMessage: function(msg) {
-    ipc.send('message', msg);
+  sendMessage: function(msg, arg1) {
+    ipc.send('message', msg, arg1);
   },
   onMessageReceived: function(msg) {
     debug('message received from main process:', msg);
