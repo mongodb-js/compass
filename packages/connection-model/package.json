@@ -47,7 +47,7 @@
   "//": "deps only used for server marked optional so we can use same model w/ browserify.",
   "optionalDependencies": {
     "backoff": "^2.4.1",
-    "mongodb": "^2.0.47",
+    "mongodb": "^2.0.48",
     "run-parallel": "^1.1.4",
     "run-series": "^1.1.4"
   }
