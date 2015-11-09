@@ -2,7 +2,6 @@ var State = require('ampersand-state');
 var debug = require('debug')('scout:connect:behavior');
 var assert = require('assert');
 var Connection = require('../models/connection');
-var app = require('ampersand-app');
 var _ = require('lodash');
 
 module.exports = State.extend({
@@ -19,8 +18,13 @@ module.exports = State.extend({
         'FAV_CHANGED',
         'HISTORY_UNCHANGED',
         'HISTORY_CHANGED',
-        'CONNECTING'
+        'CONNECTING',
+        'ERROR'
       ]
+    },
+    beforeErrorState: {
+      type: 'string',
+      default: null
     },
     action: {
       type: 'string',
@@ -36,6 +40,7 @@ module.exports = State.extend({
         'remove favorite clicked',
         'save changes clicked',
         'connect clicked',
+        'error received',
         'any field changed'
       ]
     },
@@ -49,7 +54,8 @@ module.exports = State.extend({
           FAV_CHANGED: ['save changes clicked', 'remove favorite clicked'],
           HISTORY_UNCHANGED: ['create favorite clicked', 'any field changed'],
           HISTORY_CHANGED: ['create favorite clicked'],
-          CONNECTING: []
+          CONNECTING: ['error received'],
+          ERROR: ['any field changed']
         };
 
         // these actions are valid in any state, add to all transitions
@@ -115,18 +121,6 @@ module.exports = State.extend({
         break;
       case 'connect clicked':
         newState = 'CONNECTING';
-        if (!_.endsWith(state, '_UNCHANGED')) {
-          // the user has modified the form fields and opted not to save the changes. We need to
-          // create a new connection and leave the old one intact.
-          view.form.setValues({name: ''});
-          connection = new Connection(view.form.data);
-        } else {
-          connection = view.connection;
-        }
-        if (!view.validateConnection(connection)) {
-          // reverting to old state
-          newState = state;
-        }
         break;
       default:
         break;
@@ -177,6 +171,17 @@ module.exports = State.extend({
         case 'HISTORY_CHANGED':
           assert.equal(action, 'create favorite clicked');
           newState = 'FAV_UNCHANGED';
+          break;
+
+        case 'CONNECTING':
+          assert.equal(action, 'error received');
+          newState = 'ERROR';
+          break;
+
+        case 'ERROR':
+          assert.equal(action, 'any field changed');
+          newState = this.beforeErrorState;
+          view.message = '';
           break;
 
         default:
@@ -234,24 +239,22 @@ module.exports = State.extend({
         break;
 
       case 'CONNECTING':
-        app.statusbar.show();
-        connection.test(function(err) {
-          app.statusbar.hide();
-          if (!err) {
-            // now save connection
-            view.connection = connection;
-            view.connection.last_used = new Date();
-            view.connection.save();
-            view.connections.add(view.connection, {
-              merge: true
-            });
-            view.sidebar.render();
-            view.useConnection();
-          } else {
-            newState = state;
-            view.onError(err, connection);
-          }
-        });
+        this.beforeErrorState = state;
+        if (!_.endsWith(state, '_UNCHANGED')) {
+          // the user has modified the form fields and opted not to save the
+          // changes. We need to create a new connection and leave the old
+          // one intact.
+          view.form.setValues({name: ''});
+          connection = new Connection(view.form.data);
+        } else {
+          connection = view.connection;
+        }
+        view.validateConnection(connection);
+        break;
+
+      case 'ERROR':
+        view.showSaveButton = false;
+        view.showFavoriteButtons = false;
         break;
 
       default:

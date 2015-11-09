@@ -331,14 +331,32 @@ var ConnectView = View.extend({
    * Runs a validation on the connection. If it fails, show error banner.
    *
    * @param {Connection} connection
-   * @return {Boolean}   success or failure of the validation
    */
   validateConnection: function(connection) {
     if (!connection.isValid()) {
       this.onError(connection.validationError);
-      return false;
+      this.dispatch('error received');
+      return;
     }
-    return true;
+    app.statusbar.show();
+    connection.test(function(err) {
+      app.statusbar.hide();
+      if (!err) {
+        // now save connection
+        this.connection = connection;
+        this.connection.last_used = new Date();
+        this.connection.save();
+        this.connections.add(this.connection, {
+          merge: true
+        });
+        this.sidebar.render();
+        this.useConnection();
+      } else {
+        this.onError(err, connection);
+        this.dispatch('error received');
+        return;
+      }
+    }.bind(this));
   },
 
   /**
