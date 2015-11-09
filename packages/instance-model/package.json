@@ -2,7 +2,7 @@
   "name": "mongodb-instance-model",
   "description": "MongoDB instance model.",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "bugs": "https://github.com/mongodb-js/mongodb-instance-model/issues",
   "homepage": "https://github.com/mongodb-js/mongodb-instance-model",
   "repository": "git://github.com/mongodb-js/mongodb-instance-model.git",
@@ -23,7 +23,7 @@
   "dependencies": {
     "ampersand-model": "^6.0.2",
     "ampersand-rest-collection": "^5.0.0",
-    "ampersand-state": "^4.7.0",
+    "ampersand-state": "^4.6.0",
     "async": "^1.5.0",
     "debug": "^2.2.0",
     "lodash": "^3.10.1",
@@ -36,9 +36,9 @@
   "devDependencies": {
     "eslint-config-mongodb-js": "^1.0.4",
     "mocha": "^2.3.3",
-    "mongodb-connection-fixture": "0.0.10",
+    "mongodb-connection-fixture": "^0.0.10",
     "mongodb-connection-model": "^3.0.6",
-    "mongodb-js-fmt": "0.0.3",
+    "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^0.2.5",
     "mongodb-runner": "^3.1.13",
     "pre-commit": "^1.1.2"
