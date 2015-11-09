@@ -91,6 +91,7 @@ exports.MONGODB.FANCLUB = {
   mongodb_username: 'fanclub',
   mongodb_database_name: 'mongodb',
   mongodb_password: process.env.MONGODB_PASSWORD_FANCLUB,
+  ns: 'mongodb',
   roles: ['read@mongodb']
 };
 
