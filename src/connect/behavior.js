@@ -1,6 +1,7 @@
 var State = require('ampersand-state');
 var debug = require('debug')('scout:connect:behavior');
 var assert = require('assert');
+var Connection = require('../models/connection');
 var _ = require('lodash');
 
 module.exports = State.extend({
@@ -17,8 +18,13 @@ module.exports = State.extend({
         'FAV_CHANGED',
         'HISTORY_UNCHANGED',
         'HISTORY_CHANGED',
-        'CONNECTING'
+        'CONNECTING',
+        'ERROR'
       ]
+    },
+    beforeErrorState: {
+      type: 'string',
+      default: null
     },
     action: {
       type: 'string',
@@ -34,6 +40,7 @@ module.exports = State.extend({
         'remove favorite clicked',
         'save changes clicked',
         'connect clicked',
+        'error received',
         'any field changed'
       ]
     },
@@ -47,7 +54,8 @@ module.exports = State.extend({
           FAV_CHANGED: ['save changes clicked', 'remove favorite clicked'],
           HISTORY_UNCHANGED: ['create favorite clicked', 'any field changed'],
           HISTORY_CHANGED: ['create favorite clicked'],
-          CONNECTING: []
+          CONNECTING: ['error received'],
+          ERROR: ['any field changed']
         };
 
         // these actions are valid in any state, add to all transitions
@@ -84,6 +92,10 @@ module.exports = State.extend({
    * @return {String}          new state as defined above
    */
   reduce: function(state, action) {
+    var view = this.view;
+    var newState = null;
+    var connection;
+
     /* eslint indent: 0 complexity: 0 */
 
     // check if the current state allows the given action
@@ -93,61 +105,162 @@ module.exports = State.extend({
     }
     // general actions, independent of state
     switch (action) {
-      case 'new connection clicked': return 'NEW_EMPTY';
-      case 'favorite connection clicked': return 'FAV_UNCHANGED';
-      case 'history connection clicked': return 'HISTORY_UNCHANGED';
-      case 'connect clicked': return 'CONNECTING';
-      default: break;
+      case 'new connection clicked':
+        newState = 'NEW_EMPTY';
+        view.authMethod = 'MONGODB';
+        view.form.reset();
+        view.message = '';
+        view.connection = null;
+        view.connectionName = '';
+        break;
+      case 'favorite connection clicked':
+        newState = 'FAV_UNCHANGED';
+        break;
+      case 'history connection clicked':
+        newState = 'HISTORY_UNCHANGED';
+        break;
+      case 'connect clicked':
+        newState = 'CONNECTING';
+        break;
+      default:
+        break;
     }
 
     // state specific actions
-    switch (state) {
+    if (!newState) {
+      switch (state) {
+        case 'NEW_EMPTY':
+          assert.equal(action, 'name added');
+          newState = 'NEW_NAMED';
+          break;
+
+        case 'NEW_NAMED':
+          if (action === 'create favorite clicked') {
+            newState = 'FAV_UNCHANGED';
+          } else if (action === 'name removed') {
+            newState = 'NEW_EMPTY';
+          }
+          break;
+
+        case 'FAV_UNCHANGED':
+          if (action === 'any field changed') {
+            newState = 'FAV_CHANGED';
+          } else if (action === 'remove favorite clicked') {
+            newState = 'NEW_EMPTY';
+            view.removeFavoriteConnection();
+          }
+          break;
+
+        case 'FAV_CHANGED':
+          if (action === 'remove favorite clicked') {
+            newState = 'NEW_EMPTY';
+            view.removeFavoriteConnection();
+          } else if (action === 'save changes clicked') {
+            newState = 'FAV_UNCHANGED';
+          }
+          break;
+
+        case 'HISTORY_UNCHANGED':
+          if (action === 'create favorite clicked') {
+            newState = 'FAV_UNCHANGED';
+          } else if (action === 'any field changed') {
+            newState = 'HISTORY_CHANGED';
+          }
+          break;
+
+        case 'HISTORY_CHANGED':
+          assert.equal(action, 'create favorite clicked');
+          newState = 'FAV_UNCHANGED';
+          break;
+
+        case 'CONNECTING':
+          assert.equal(action, 'error received');
+          newState = 'ERROR';
+          break;
+
+        case 'ERROR':
+          assert.equal(action, 'any field changed');
+          newState = this.beforeErrorState;
+          view.message = '';
+          break;
+
+        default:
+          throw new Error('state not handled in connect dialog.');
+      }
+    }
+
+    // behavior based on new state alone
+    switch (newState) {
       case 'NEW_EMPTY':
-        assert.equal(action, 'name added');
-        return 'NEW_NAMED';
+        view.showFavoriteButtons = false;
+        view.showSaveButton = false;
+        break;
 
       case 'NEW_NAMED':
-        if (action === 'create favorite clicked') {
-          return 'FAV_UNCHANGED';
-        }
-        if (action === 'name removed') {
-          return 'NEW_EMPTY';
-        }
+        view.showSaveButton = false;
+        view.showFavoriteButtons = true;
         break;
 
       case 'FAV_UNCHANGED':
-        if (action === 'any field changed') {
-          return 'FAV_CHANGED';
+        if (action !== 'favorite connection clicked') {
+          view.updateConnection();
         }
-        if (action === 'remove favorite clicked') {
-          return 'NEW_EMPTY';
-        }
+        view.showSaveButton = false;
+        view.showFavoriteButtons = true;
+        view.message = '';
         break;
 
       case 'FAV_CHANGED':
-        if (action === 'remove favorite clicked') {
-          return 'NEW_EMPTY';
-        }
-        if (action === 'save changes clicked') {
-          return 'FAV_UNCHANGED';
-        }
+        view.showSaveButton = true;
+        view.showFavoriteButtons = true;
         break;
 
       case 'HISTORY_UNCHANGED':
-        if (action === 'create favorite clicked') {
-          return 'FAV_UNCHANGED';
+        assert.ok(view.connection);
+
+        view.connection.is_favorite = false;
+        if (view.connection.last_used) {
+          view.connection.save();
+        } else {
+          view.connection.destroy();
         }
-        if (action === 'any field changed') {
-          return 'HISTORY_CHANGED';
-        }
+
+        view.showSaveButton = false;
+        view.showFavoriteButtons = true;
+        view.message = '';
+
+        view.updateConflictingNames();
+        view.updateForm();
         break;
 
       case 'HISTORY_CHANGED':
-        assert.equal(action, 'create favorite clicked');
-        return 'FAV_UNCHANGED';
+        view.showSaveButton = false;
+        view.showFavoriteButtons = true;
+        break;
+
+      case 'CONNECTING':
+        this.beforeErrorState = state;
+        if (!_.endsWith(state, '_UNCHANGED')) {
+          // the user has modified the form fields and opted not to save the
+          // changes. We need to create a new connection and leave the old
+          // one intact.
+          view.form.setValues({name: ''});
+          connection = new Connection(view.form.data);
+        } else {
+          connection = view.connection;
+        }
+        _.defer(view.validateConnection.bind(view), connection);
+        break;
+
+      case 'ERROR':
+        view.showSaveButton = false;
+        view.showFavoriteButtons = false;
+        break;
 
       default:
-        throw new Error('state not handled in connect dialog.');
+        throw new Error('Unexpected! newState should be defined by now.');
     }
+
+    return newState;
   }
 });

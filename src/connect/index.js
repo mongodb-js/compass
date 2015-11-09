@@ -8,7 +8,6 @@ var debug = require('debug')('scout:connect:index');
 var _ = require('lodash');
 var app = require('ampersand-app');
 var format = require('util').format;
-var assert = require('assert');
 
 /**
  * AuthenticationOptionCollection
@@ -99,9 +98,9 @@ var ConnectView = View.extend({
   },
 
   /**
-   * Event handlers listening to UI events. These are very lightweight methods that
-   * simply set a property or dispatch an action. The heavy lifting should be done
-   * in the _state* methods below.
+   * Event handlers listening to UI events. These are very lightweight
+   * methods that simply set a property or dispatch an action. The heavy
+   * lifting is done in @see ./querybuilder.js.
    *
    * @see `events` above
    */
@@ -117,7 +116,7 @@ var ConnectView = View.extend({
   onNameInputChanged: function(evt) {
     this.connectionName = evt.target.value;
     var nameField = this.form.getField('name');
-    this.nameConflict = nameField.value && !nameField.valid;
+    this.nameConflict = Boolean(nameField.value && !nameField.valid);
   },
 
   onAnyInputChanged: function() {
@@ -204,7 +203,8 @@ var ConnectView = View.extend({
     this.connections.on('sync', this.updateConflictingNames.bind(this));
     this.connections.fetch();
     this.stateMachine = new BehaviorStateMachine(this);
-    this.on('change:connectionNameEmpty', this.connectionNameEmptyChanged.bind(this));
+    this.on('change:connectionNameEmpty',
+      this.connectionNameEmptyChanged.bind(this));
   },
   render: function() {
     this.renderWithTemplate({
@@ -220,11 +220,13 @@ var ConnectView = View.extend({
     });
 
     this.registerSubview(this.form);
-    this.listenToAndRun(this, 'change:authMethod', this.replaceAuthMethodFields.bind(this));
-    this.listenToAndRun(this, 'change:sslMethod', this.replaceSslMethodFields.bind(this));
+    this.listenToAndRun(this, 'change:authMethod',
+      this.replaceAuthMethodFields.bind(this));
+    this.listenToAndRun(this, 'change:sslMethod',
+      this.replaceSslMethodFields.bind(this));
 
     // always start in NEW_EMPTY state
-    this._stateNewEmpty();
+    this.dispatch('new connection clicked');
   },
 
   connectionNameEmptyChanged: function() {
@@ -271,120 +273,79 @@ var ConnectView = View.extend({
     this.dispatch('connect clicked');
   },
 
-
-  // === State Machine related methods
-
   /**
-   * dispatches an action with the state machine, gets the new state, and calls the appropriate
-   * method. The state is converted to camelCase style. Methods are expected to match the states
-   * defined in the state machine.
+   * convenience method that dispatches an action with the state machine.
    *
    * @param  {String} action  the action to dispatch
    */
   dispatch: function(action) {
-    var oldState = this.stateMachine.state;
-    var newState = this.stateMachine.dispatch(action);
-    if (oldState === newState) return;
-    var stateMethod = '_state' + _.capitalize(_.camelCase(newState));
-    if (this[stateMethod] === undefined) {
-      debug('Connect dialog does not have a state method called %s', stateMethod);
-    } else {
-      this[stateMethod](action, oldState);
-    }
+    this.stateMachine.dispatch(action);
   },
 
   /**
-   * state methods below are called via dispatch().
+   * Update the form's state based on an existing connection. This will update
+   * the auth fields and populate all fields with the connection details.
+   *
+   * Called by `this._stateFavUnchanged` and `this._stateHistoryUnchanged`.
+   *
+   * @param {Connection} connection
    */
-
-  _stateNewEmpty: function(action) {
-    if (action === 'remove favorite clicked') {
-      this.connection.is_favorite = false;
-      this.connection.save();
-      this.sidebar.activeItemView = null;
-      this.sidebar.collection.deactivateAll();
+  updateConnection: function() {
+    if (this.connection) {
+      debug('updating existing connection from form data');
+      // set previous auth fields
+      var authFields = Connection.getFieldNames(this.previousAuthMethod);
+      debug('authFields', authFields);
+      this.connection.set(this.form.data);
+      debug('after', this.connection.serialize());
+    } else {
+      debug('creating new connection from form data');
+      this.connection = new Connection(this.form.data);
     }
-    this.authMethod = 'MONGODB';
-    this.form.reset();
-
-    this.message = '';
-    this.connection = null;
-    this.connectionName = '';
-
-    this.showFavoriteButtons = false;
-    this.showSaveButton = false;
+    this.connection.is_favorite = true;
+    this.connection.save(null, {validate: false});
+    this.connections.add(this.connection, {
+      merge: true
+    });
   },
 
-  _stateNewNamed: function() {
-    this.showSaveButton = false;
-    this.showFavoriteButtons = true;
-  },
-
-  _stateFavUnchanged: function(action) {
-    if (action !== 'favorite connection clicked') {
-      this.updateConnection();
-      this.connection.is_favorite = true;
-      this.connection.save();
-      this.connections.add(this.connection, {
-        merge: true
-      });
-    }
-
-    this.showSaveButton = false;
-    this.showFavoriteButtons = true;
-    this.message = '';
-  },
-
-  _stateFavChanged: function() {
-    this.showSaveButton = true;
-    this.showFavoriteButtons = true;
-  },
-
-  _stateHistoryUnchanged: function() {
-    // should always have connection here
-    assert.ok(this.connection);
-
+  /**
+   *
+   * remove favorite, then saves the connection (if it has been used before)
+   * or destroys it (if it was never used).
+   *
+   * @param {Connection} connection
+   */
+  removeFavoriteConnection: function() {
     this.connection.is_favorite = false;
-    if (this.connection.last_used) {
-      this.connection.save();
-    } else {
+    if (this.connection.last_used === null) {
       this.connection.destroy();
-    }
-
-    this.showSaveButton = false;
-    this.showFavoriteButtons = true;
-    this.message = '';
-
-    this.updateConflictingNames();
-    this.updateForm();
-  },
-
-  _stateHistoryChanged: function() {
-    this.showSaveButton = false;
-    this.showFavoriteButtons = true;
-  },
-
-  _stateConnecting: function(action, oldState) {
-    var connection;
-
-    if (!_.endsWith(oldState, '_UNCHANGED')) {
-      // the user has modified the form fields and opted not to save the changes. We need to
-      // create a new connection and leave the old one intact.
-      connection = new Connection(this.form.data);
     } else {
-      connection = this.connection;
+      this.connection.save();
     }
+    this.sidebar.activeItemView = null;
+    this.sidebar.collection.deactivateAll();
+  },
 
-    if (!this.validateConnection(connection)) {
-      // reverting to old state
-      this.stateMachine.state = oldState;
+  /**
+   * Runs a validation on the connection. If it fails, show error banner.
+   *
+   * @param {Connection} connection
+   */
+  validateConnection: function(connection) {
+    if (!connection.isValid()) {
+      this.onError(connection.validationError);
+      this.dispatch('error received');
       return;
     }
-
     app.statusbar.show();
+    debug('trying to connect with URL %s and options %j',
+      connection.driver_url,
+      connection.driver_options
+    );
+
     connection.test(function(err) {
       app.statusbar.hide();
-
       if (!err) {
         // now save connection
         this.connection = connection;
@@ -395,53 +356,20 @@ var ConnectView = View.extend({
         });
         this.sidebar.render();
         this.useConnection();
+      } else {
+        this.onError(err, connection);
+        this.dispatch('error received');
         return;
       }
-      this.stateMachine.state = oldState;
-      this.onError(err, connection);
-      return;
     }.bind(this));
   },
 
-  // === end of state methods
-
-
   /**
-   * Update the form's state based on an existing connection. This will update the auth fields
-   * and populate all fields with the connection details.
+   * Will open a new schema window with the connection details and close the
+   * connection dialog
    *
-   * Called by `this._stateFavUnchanged` and `this._stateHistoryUnchanged`.
-   *
-   * @param {Connection} connection
-   */
-  updateConnection: function() {
-    if (this.connection) {
-      debug('updating existing connection from form data');
-      this.connection.set(this.form.data);
-    } else {
-      debug('creating new connection from form data');
-      this.connection = new Connection(this.form.data);
-    }
-  },
-
-  /**
-   * Runs a validation on the connection. If it fails, show error banner.
-   *
-   * @param {Connection} connection
-   * @return {Boolean}   success or failure of the validation
-   */
-  validateConnection: function(connection) {
-    if (!connection.isValid()) {
-      this.onError(connection.validationError);
-      return false;
-    }
-    return true;
-  },
-
-  /**
-   * Will open a new schema window with the connection details and close the connection dialog
-   *
-   * @param {Object} connection    can also be externally called (e.g. Sidebar#onItemDoubleClick)
+   * @param {Object} connection    can also be externally called (e.g.
+   * Sidebar#onItemDoubleClick)
    */
   useConnection: function(connection) {
     connection = connection || this.connection;
@@ -459,7 +387,11 @@ var ConnectView = View.extend({
     /**
      * @see ./src/app.js `params.connection_id`
      */
-    window.open(format('%s?connection_id=%s#schema', window.location.origin, connection.getId()));
+    window.open(
+      format('%s?connection_id=%s#schema',
+      window.location.origin,
+      connection.getId())
+    );
     setTimeout(this.set.bind(this, {
       message: ''
     }), 500);
@@ -467,9 +399,9 @@ var ConnectView = View.extend({
   },
 
   /**
-   * Updates the input field view responsible for the friendly name. Provides a list of
-   * existing connection names so that the field can validate against them. We want to avoid
-   * creating connection favorites with duplicate names.
+   * Updates the input field view responsible for the friendly name. Provides
+   * a list of existing connection names so that the field can validate against
+   * them. We want to avoid creating connection favorites with duplicate names.
    */
   updateConflictingNames: function() {
     var conflicts = this.connections.filter(function(model) {
@@ -483,17 +415,20 @@ var ConnectView = View.extend({
   },
 
   /**
-   * Fill in the form based on this.connection, also adds/removes the auth and ssl fields.
+   * Fill in the form based on this.connection, also adds/removes the auth
+   * and ssl fields.
    */
   updateForm: function() {
     this.updateConflictingNames();
 
-    // If the new model has auth, expand the auth settings container and select the correct tab.
+    // If the new model has auth, expand the auth settings container and select
+    // the correct tab.
     this.authMethod = this.connection.authentication;
     this.sslMethod = this.connection.ssl;
 
-    // Changing `this.authMethod` and `this.sslMethod` dynamically updates the form fields
-    // so we need to get a list of what keys are currently available to set.
+    // Changing `this.authMethod` and `this.sslMethod` dynamically updates
+    // the form fields so we need to get a list of what keys are currently
+    // available to set.
     var keys = ['name', 'port', 'hostname', 'authentication', 'ssl'];
     if (this.connection.authentication !== 'NONE') {
       keys.push.apply(keys, _.pluck(authMethods.get(this.authMethod).fields, 'name'));
@@ -520,7 +455,8 @@ var ConnectView = View.extend({
    * @api private
    */
   onError: function(err, connection) {
-    // @todo (imlucas): `metrics.trackEvent('connect error', authentication + ssl boolean)`
+    // @todo (imlucas): `metrics.trackEvent('connect error', authentication
+    // + ssl boolean)`
     debug('showing error message', {
       err: err,
       model: connection
@@ -536,6 +472,9 @@ var ConnectView = View.extend({
     var oldFields = _.get(authMethods.get(this.previousAuthMethod), 'fields', []);
     _.each(oldFields, function(field) {
       this.form.removeField(field.name);
+      if (this.connection) {
+        this.connection.unset(field.name);
+      }
     }.bind(this));
 
     // register new with form, render, append to DOM

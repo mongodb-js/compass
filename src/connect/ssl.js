@@ -37,18 +37,11 @@ var SERVER = {
   // enabled: app.isFeatureEnabled('Connect with SSL SERVER'),
   enabled: true,
   fields: [
-    // new InputView({
-    //   template: inputTemplate,
-    //   name: 'ssl_ca',
-    //   label: 'SSL CA file',
-    //   placeholder: '',
-    //   required: true
-    // }),
     new InputView({
       template: fileReaderTemplate,
       name: 'ssl_ca',
       type: 'file',
-      label: 'Certificate Authority file',
+      label: 'Certificate Authority',
       placeholder: '',
       required: true
     })
@@ -68,7 +61,7 @@ var ALL = {
       template: fileReaderTemplate,
       name: 'ssl_ca',
       type: 'file',
-      label: 'Certificate Authority file',
+      label: 'Certificate Authority',
       placeholder: '',
       required: true
     }),
@@ -76,7 +69,7 @@ var ALL = {
       template: fileReaderTemplate,
       name: 'ssl_private_key',
       type: 'file',
-      label: 'Certificate Key file',
+      label: 'Certificate Key',
       placeholder: '',
       required: true
     }),
@@ -84,7 +77,7 @@ var ALL = {
       template: fileReaderTemplate,
       name: 'ssl_certificate',
       type: 'file',
-      label: 'Certificate file',
+      label: 'Certificate',
       placeholder: '',
       required: true
     }),

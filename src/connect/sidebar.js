@@ -1,5 +1,5 @@
 var View = require('ampersand-view');
-var debug = require('debug')('scout:connect:sidebar');
+// var debug = require('debug')('scout:connect:sidebar');
 var FilteredCollection = require('ampersand-filtered-subcollection');
 
 /**
@@ -72,7 +72,6 @@ var SidebarView = View.extend({
     newConnectionActive: {
       deps: ['activeItemView'],
       fn: function() {
-        debug('activeItemView is', this.activeItemView);
         return this.activeItemView === null;
       }
     }
@@ -132,7 +131,7 @@ var SidebarView = View.extend({
   },
   onItemDoubleClick: function(event, view) {
     this.onItemClick(event, view);
-    this.parent.useConnection(view.model);
+    this.parent.validateConnection(view.model);
   }
 });
 
