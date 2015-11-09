@@ -579,7 +579,7 @@ Connection = AmpersandModel.extend({
   parse: function(attrs) {
     if (!attrs) {
       debug('skipping falsy parse for', attrs);
-      return;
+      return attrs;
     }
     debug('parsing...');
     if (attrs.mongodb_username) {
