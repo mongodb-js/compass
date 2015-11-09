@@ -29,7 +29,6 @@
       "menu",
       "jade",
       "scout-server",
-      "tray",
       "glob",
       "electron-squirrel-startup",
       "ipc",

@@ -11,7 +11,7 @@ var BrowserWindow = require('browser-window');
 var config = require('./config');
 var debug = require('debug')('scout-electron:window-manager');
 var dialog = require('dialog');
-var notifier = require('node-notifier');
+var Notifier = require('node-notifier');
 
 /**
  * When running in electron, we're in `RESOURCES/src/electron`.
@@ -166,17 +166,11 @@ app.on('show share submenu', function() {
 
 app.on('show bugsnag OS notification', function(errorMsg) {
   if (_.contains(['development', 'testing'], process.env.NODE_ENV)) {
-    notifier.notify({
+    Notifier.notify({
       'icon': RESOURCES + '/images/scout.png',
       'message': errorMsg,
       'title': 'MongoDB Compass Exception',
       'wait': true
-    });
-
-    notifier.on('click', function() {
-      AppMenu.lastFocusedWindow.openDevTools({
-        detach: true
-      });
     });
   }
 });
@@ -189,6 +183,12 @@ app.on('show bugsnag OS notification', function(errorMsg) {
  */
 app.on('ready', function() {
   app.emit('show connect dialog');
+
+  Notifier.on('click', function() {
+    AppMenu.lastFocusedWindow.openDevTools({
+      detach: true
+    });
+  });
 });
 
 var ipc = require('ipc');
