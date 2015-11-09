@@ -19,7 +19,7 @@
     "lodash": "^3.10.1"
   },
   "devDependencies": {
-    "eslint-config-mongodb-js": "^1.0.3",
+    "eslint-config-mongodb-js": "^1.0.5",
     "mocha": "^2.3.3",
     "mongodb-js-fmt": "0.0.3",
     "mongodb-js-precommit": "^0.2.4",
