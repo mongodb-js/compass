@@ -249,7 +249,7 @@ module.exports = State.extend({
         } else {
           connection = view.connection;
         }
-        view.validateConnection(connection);
+        _.defer(view.validateConnection.bind(view), connection);
         break;
 
       case 'ERROR':

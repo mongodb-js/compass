@@ -339,6 +339,11 @@ var ConnectView = View.extend({
       return;
     }
     app.statusbar.show();
+    debug('trying to connect with URL %s and options %j',
+      connection.driver_url,
+      connection.driver_options
+    );
+
     connection.test(function(err) {
       app.statusbar.hide();
       if (!err) {
