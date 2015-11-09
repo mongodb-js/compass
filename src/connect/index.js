@@ -117,7 +117,7 @@ var ConnectView = View.extend({
   onNameInputChanged: function(evt) {
     this.connectionName = evt.target.value;
     var nameField = this.form.getField('name');
-    this.nameConflict = nameField.value && !nameField.valid;
+    this.nameConflict = Boolean(nameField.value && !nameField.valid);
   },
 
   onAnyInputChanged: function() {
@@ -300,7 +300,11 @@ var ConnectView = View.extend({
   _stateNewEmpty: function(action) {
     if (action === 'remove favorite clicked') {
       this.connection.is_favorite = false;
-      this.connection.save();
+      if (this.connection.last_used === null) {
+        this.connection.destroy();
+      } else {
+        this.connection.save();
+      }
       this.sidebar.activeItemView = null;
       this.sidebar.collection.deactivateAll();
     }
@@ -324,7 +328,7 @@ var ConnectView = View.extend({
     if (action !== 'favorite connection clicked') {
       this.updateConnection();
       this.connection.is_favorite = true;
-      this.connection.save();
+      this.connection.save(null, {validate: false});
       this.connections.add(this.connection, {
         merge: true
       });
@@ -370,6 +374,7 @@ var ConnectView = View.extend({
     if (!_.endsWith(oldState, '_UNCHANGED')) {
       // the user has modified the form fields and opted not to save the changes. We need to
       // create a new connection and leave the old one intact.
+      this.form.setValues({name: ''});
       connection = new Connection(this.form.data);
     } else {
       connection = this.connection;
@@ -417,7 +422,11 @@ var ConnectView = View.extend({
   updateConnection: function() {
     if (this.connection) {
       debug('updating existing connection from form data');
+      // set previous auth fields
+      var authFields = Connection.getFieldNames(this.previousAuthMethod);
+      debug('authFields', authFields);
       this.connection.set(this.form.data);
+      debug('after', this.connection.serialize());
     } else {
       debug('creating new connection from form data');
       this.connection = new Connection(this.form.data);
@@ -536,6 +545,9 @@ var ConnectView = View.extend({
     var oldFields = _.get(authMethods.get(this.previousAuthMethod), 'fields', []);
     _.each(oldFields, function(field) {
       this.form.removeField(field.name);
+      if (this.connection) {
+        this.connection.unset(field.name);
+      }
     }.bind(this));
 
     // register new with form, render, append to DOM
