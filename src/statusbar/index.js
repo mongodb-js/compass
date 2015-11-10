@@ -1,5 +1,6 @@
 var View = require('ampersand-view');
-var debug = require('debug')('scout:statusbar:index');
+var _ = require('lodash');
+// var debug = require('debug')('scout:statusbar:index');
 
 var StatusbarView = View.extend({
   props: {
@@ -11,14 +12,18 @@ var StatusbarView = View.extend({
     message: {
       type: 'string'
     },
-    loading: {
+    loadingIndicator: {
       type: 'boolean',
       default: true
+    },
+    visible: {
+      type: 'boolean',
+      default: false
     }
   },
   template: require('./index.jade'),
   bindings: {
-    loading: {
+    loadingIndicator: {
       hook: 'loading',
       type: 'booleanClass',
       yes: 'visible',
@@ -49,9 +54,14 @@ var StatusbarView = View.extend({
       },
       {
         type: 'booleanClass',
+        hook: 'outer-bar',
         no: 'hidden'
       }
-    ]
+    ],
+    visible: {
+      type: 'booleanClass',
+      no: 'hidden'
+    }
   },
   derived: {
     /**
@@ -82,9 +92,11 @@ var StatusbarView = View.extend({
     this.hide();
   },
   fatal: function(err) {
-    this.loading = false;
+    this.visible = true;
+    this.loadingIndicator = false;
     this.message = 'Fatal Error: ' + err.message;
-    this.width = 100;
+    this.width = 0;
+    this.trickle(false);
     clearInterval(this.trickleTimer);
   },
   trickle: function(bool) {
@@ -97,19 +109,26 @@ var StatusbarView = View.extend({
     }
   },
   show: function(message) {
+    this.visible = true;
     this.message = message || '';
     this.width = 100;
-    this.loading = true;
+    this.loadingIndicator = true;
   },
-  hide: function() {
-    this.width = 100;
+  hide: function(completed) {
     this.message = '';
-    this.loading = false;
+    this.loadingIndicator = false;
     clearInterval(this.trickleTimer);
-    var model = this;
-    _.delay(function() {
-      model.width = 0;
-    }, 1000);
+    if (completed) {
+      this.width = 100;
+      var model = this;
+      _.delay(function() {
+        model.width = 0;
+        model.visible = false;
+      }, 1000);
+    } else {
+      this.width = 0;
+      this.visible = false;
+    }
   }
 });
 

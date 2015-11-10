@@ -165,7 +165,7 @@ module.exports = Schema.extend({
       }
       model.documents.reset(docs);
       model.documents.trigger('sync');
-      app.statusbar.hide();
+      app.statusbar.hide(true);
 
       // @note (imlucas): Any other metrics?  Feedback on `Schema *`?
       var totalTime = new Date() - start;
@@ -201,9 +201,11 @@ module.exports = Schema.extend({
         return onEmpty();
       }
 
-      debug('creating sample stream');
       var status = 0;
       var counter = 0;
+      var numSamples = Math.min(options.size, count.count);
+      var stepSize = Math.ceil(Math.max(1, numSamples / 10));
+
       app.statusbar.show('Sampling collection...');
       app.statusbar.width = 1;
       app.statusbar.trickle(true);
@@ -216,8 +218,9 @@ module.exports = Schema.extend({
         })
         .on('data', function() {
           counter ++;
-          if (counter % 7 === 0) {
-            var inc = (100 - status) * 7 / options.size;
+          if (counter % stepSize === 0) {
+            var inc = (100 - status) * stepSize / numSamples;
+            debug(inc);
             app.statusbar.width += inc;
           }
         })

@@ -14,10 +14,10 @@ var _ = require('lodash');
 var debug = require('debug')('scout:bugsnag');
 
 var TOKEN = '0d11ab5f4d97452cc83d3365c21b491c';
-
 // @todo (imlucas): use mongodb-redact
 function beforeNotify(d) {
   app.sendMessage('show bugsnag OS notification', d.message);
+  app.statusbar.hide();
 
   d.stacktrace = redact(d.stacktrace);
   d.context = redact(d.context);
@@ -25,7 +25,6 @@ function beforeNotify(d) {
   d.message = redact(d.message);
   d.url = redact(d.url);
   d.name = redact(d.name);
-  d.file = redact(d.file);
   d.metaData = redact(d.metaData);
   debug('redacted bugsnag report\n', JSON.stringify(d, null, 2));
 }
