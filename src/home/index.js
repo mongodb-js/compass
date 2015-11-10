@@ -76,7 +76,7 @@ var HomeView = View.extend({
     }
   },
   updateTitle: function(model) {
-    var title = app.connection.uri;
+    var title = 'mongodb://' + app.connection.instance_id;
     if (model) {
       title += '/' + model.getId();
     }
