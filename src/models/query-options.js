@@ -1,3 +1,4 @@
+var ms = require('ms');
 var Model = require('ampersand-model');
 var EJSON = require('mongodb-extended-json');
 var Query = require('mongodb-language-model').Query;
@@ -8,6 +9,7 @@ var DEFAULT_SORT = {
 };
 var DEFAULT_SIZE = 100;
 var DEFAULT_SKIP = 0;
+var DEFAULT_MAX_TIME_MS = ms('10 seconds');
 
 var getDefaultQuery = function() {
   return new Query({}, {
@@ -39,6 +41,10 @@ module.exports = Model.extend({
     skip: {
       type: 'number',
       default: DEFAULT_SKIP
+    },
+    maxTimeMS: {
+      type: 'number',
+      default: DEFAULT_MAX_TIME_MS
     }
   },
   derived: {
@@ -60,7 +66,8 @@ module.exports = Model.extend({
       query: getDefaultQuery(),
       sort: DEFAULT_SORT,
       size: DEFAULT_SIZE,
-      skip: DEFAULT_SKIP
+      skip: DEFAULT_SKIP,
+      maxTimeMS: DEFAULT_MAX_TIME_MS
     });
     this.trigger('reset', this);
   }
