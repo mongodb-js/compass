@@ -165,21 +165,23 @@ module.exports = Schema.extend({
       }
       model.documents.reset(docs);
       model.documents.trigger('sync');
+      app.statusbar.hide(true);
 
       // @note (imlucas): Any other metrics?  Feedback on `Schema *`?
       var totalTime = new Date() - start;
       var timeToFirstDoc = timeAtFirstDoc - start;
 
       metrics.track('Schema: Complete', {
-        Duration: totalTime,
-        'Total Document Count': model.total,
-        'Sample Size': model.documents.length,
-        'Errored Document Count': erroredOnDocs.length,
-        'Time to First Doc': timeToFirstDoc,
-        'Average Time Per Doc': (totalTime - timeToFirstDoc) / model.documents.length
-      // 'Schema Height': model.height, // # of top level keys
-      // 'Schema Width': model.width, // max nesting depth
-      // 'Schema Sparsity': model.sparsity // lots of fields missing or consistent
+        duration: totalTime,
+        'total document count': model.total,
+        'sample size': model.documents.length,
+        'errored document count': erroredOnDocs.length,
+        'total sample time': timeToFirstDoc,
+        'total analysis time': totalTime - timeToFirstDoc,
+        'average analysis time per doc': (totalTime - timeToFirstDoc) / model.documents.length
+        // 'Schema Height': model.height, // # of top level keys
+        // 'Schema Width': model.width, // max nesting depth
+        // 'Schema Sparsity': model.sparsity // lots of fields missing or consistent
       });
       options.success({});
     };
@@ -199,9 +201,29 @@ module.exports = Schema.extend({
         return onEmpty();
       }
 
-      debug('creating sample stream');
+      var status = 0;
+      var counter = 0;
+      var numSamples = Math.min(options.size, count.count);
+      var stepSize = Math.ceil(Math.max(1, numSamples / 10));
+
+      app.statusbar.show('Sampling collection...');
+      app.statusbar.width = 1;
+      app.statusbar.trickle(true);
       app.client.sample(model.ns, options)
         .pipe(es.map(parse))
+        .once('data', function() {
+          status = app.statusbar.width;
+          app.statusbar.message = 'Analyzing documents...';
+          app.statusbar.trickle(false);
+        })
+        .on('data', function() {
+          counter ++;
+          if (counter % stepSize === 0) {
+            var inc = (100 - status) * stepSize / numSamples;
+            debug(inc);
+            app.statusbar.width += inc;
+          }
+        })
         .pipe(es.map(addToDocuments))
         .pipe(es.wait(onEnd));
     });

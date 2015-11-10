@@ -67,7 +67,6 @@ var MongoDBCollectionView = View.extend({
   },
   initialize: function() {
     this.model = new MongoDBCollection();
-    app.statusbar.watch(this, this.schema);
     this.listenTo(this.schema, 'sync', this.schemaIsSynced.bind(this));
     this.listenTo(this.schema, 'request', this.schemaIsRequested.bind(this));
     this.listenToAndRun(this.parent, 'change:ns', this.onCollectionChanged.bind(this));
