@@ -220,8 +220,18 @@ svg.minichart {
 
   .axis path, .axis line {
     fill: none;
-    stroke: #000;
+    stroke: @gray7;
     shape-rendering: crispEdges;
+  }
+
+  .circle {
+    fill: @mc-fg;
+    stroke: @pw;
+    stroke-width: 1.5px;
+
+    &.selected {
+      fill: @mc-fg-selected;
+    }
   }
 }
 

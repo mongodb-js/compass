@@ -2,66 +2,45 @@ var d3 = require('d3');
 var _ = require('lodash');
 // var shared = require('./shared');
 var debug = require('debug')('scout:minicharts:geo');
-var GoogleMapsLoader = require('google-maps');
 var mapStyle = require('./mapstyle');
 var async = require('async');
+var xor = require('xor-it');
 var app = require('ampersand-app');
+var format = require('util').format;
+
 
 var SHIFTKEY = 16;
+var APIKEY = '\u0004;\b\u000e!Cd5\u0007*V\u001d\u0007C\u0003/9HW\u001c>_\u0010\u0017)*\u0017B.7D/!*3\u000f\bX\u0010';
 
-
-/* eslint wrap-iife:0 */
-var Singleton = (function() {
-  var instance;
-
-  function createInstance() {
-    var object = {};
-    return object;
-  }
-
-  return {
-    getInstance: function() {
-      if (!instance) {
-        instance = createInstance();
-      }
-      return instance;
-    }
-  };
-})();
+function produceKey(text) {
+  var key = 'Error: Google map could not be loaded, disabling feature';
+  var res = xor(key, text);
+  return res;
+}
 
 // From: http://davidbcalhoun.com/2014/async.parallel-with-a-simple-timeout-node-js/
 // async.parallel with optional timeout (options.timeoutMS)
-function parallel(options, tasks, cb) {
-  //  sanity checks
-  options = options || {};
-
-  // no timeout wrapper; passthrough to async.parallel
-  if (typeof options.timeoutMS !== 'number') return async.parallel(tasks, cb);
-
-  var timeout = setTimeout(function() {
-    // remove timeout, so we'll know we already erred out
-    timeout = null;
-
-    // error out
-    cb('async.parallel timed out out after ' + options.timeoutMS + 'ms.', null);
-  }, options.timeoutMS);
-
-  async.parallel(tasks, function(err, result) {
-    // after all tasks are complete
-
-    // noop if timeout was called and annulled
-    if (!timeout) return;
-
-    // cancel timeout (if timeout was set longer, and all parallel tasks finished sooner)
-    clearTimeout(timeout);
-
-    // passthrough the data to the cb
-    cb(err, result);
-  });
-}
-
-
-var singleton = Singleton.getInstance();
+// function parallel(options, tasks, cb) {
+//   //  sanity checks
+//   options = options || {};
+//   // no timeout wrapper; passthrough to async.parallel
+//   if (typeof options.timeoutMS !== 'number') return async.parallel(tasks, cb);
+//   var timeout = setTimeout(function() {
+//     // remove timeout, so we'll know we already erred out
+//     timeout = null;
+//     // error out
+//     cb('Loading Google Maps timed out out after ' + options.timeoutMS + 'ms.', null);
+//   }, options.timeoutMS);
+//   async.parallel(tasks, function(err, result) {
+//     // after all tasks are complete
+//     // noop if timeout was called and annulled
+//     if (!timeout) return;
+//     // cancel timeout (if timeout was set longer, and all parallel tasks finished sooner)
+//     clearTimeout(timeout);
+//     // passthrough the data to the cb
+//     cb(err, result);
+//   });
+// }
 
 var minicharts_d3fns_geo = function() {
   // --- beginning chart setup ---
@@ -80,13 +59,48 @@ var minicharts_d3fns_geo = function() {
 
   // var margin = shared.margin;
 
+  function disableMapsFeature() {
+    app.setFeature('Google Map Minicharts', false);
+    delete window.google;
+    debug('parent render', options.view.parent.render());
+    options.view.parent.render();
+  }
+
+  function loadGoogleMaps(done) {
+    var originalAlert = window.alert;
+
+    window.alert = function(text) {
+      window.alert = originalAlert;
+      var match = text.match(/Error Code: (.*)$/);
+      var errorCode = null;
+      if (match) {
+        errorCode = match[1].trim();
+      }
+      debug('Error with code "%s" while loading Google Maps. Disabling Geo Querybuilder feature.', errorCode);
+      disableMapsFeature();
+    };
+
+    var script = document.createElement('script');
+    script.setAttribute('type', 'text/javascript');
+    script.src = format('https://maps.googleapis.com/maps/api/js?key=%s&libraries=geometry',
+      produceKey(APIKEY));
+    script.onerror = function() {
+      done('Error ocurred while loading Google Maps.');
+    };
+    script.onload = function() {
+      done(null, window.google);
+    };
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+
   function pointInCircle(point, radius, center) {
-    return singleton.google.maps.geometry.spherical.computeDistanceBetween(point, center) <= radius;
+    return window.google.maps.geometry.spherical.computeDistanceBetween(point, center) <= radius;
   }
 
   function selectPoints() {
     var frame = options.el;
-    var google = singleton.google;
+    var google = window.google;
 
     if (selectionCircle.getRadius() === 0) {
       d3.select(frame).selectAll('.marker circle')
@@ -120,7 +134,7 @@ var minicharts_d3fns_geo = function() {
       return;
     }
 
-    var google = singleton.google;
+    var google = window.google;
 
     var frame = this;
     var center = d3.mouse(frame);
@@ -195,33 +209,41 @@ var minicharts_d3fns_geo = function() {
     selection.each(function(data) {
       var el = d3.select(this);
 
-      if (!singleton.google) {
-        parallel({ timeoutMS: 5000 }, [  // 5 second timeout
-          // tasks
-          function(done) {
-            GoogleMapsLoader.KEY = 'AIzaSyDrhE1qbcnNIh4sK3t7GEcbLRdCNKWjlt0';
-            GoogleMapsLoader.LIBRARIES = ['geometry'];
-            GoogleMapsLoader.load(function(g) {
-              done(null, g);
-            });
-          }
-        ],
-        // calback
-        function(err, results) {
+      if (!window.google) {
+        loadGoogleMaps(function(err) {
           if (err) {
-            debug('Error: Google map could not be loaded, disabling feature', el);
-            // google map load timed out, disable geo feature for runtime remainder and reload
-            app.setFeature('Geo Minicharts', false);
-            options.view.parent.render();
-            return;
+            disableMapsFeature();
+          } else {
+            chart.call(this, selection);
           }
-          singleton.google = results[0];
-          chart.call(this, selection);
         });
         return;
       }
+      //   parallel({ timeoutMS: 5000 }, [  // 5 second timeout
+      //     // tasks
+      //     function(done) {
+      //       loadGoogleMaps(function(err, res) {
+      //         if (err) {
+      //           done(err);
+      //         }
+      //         done(null, res);
+      //       }, options);
+      //     }
+      //   ],
+      //   // callback
+      //   function(err, results) {
+      //     if (err) {
+      //       disableMapsFeature(options);
+      //       return;
+      //     }
+      //     debug('result', results[0]);
+      //     window.google = results[0];
+      //     chart.call(this, selection);
+      //   });
+      //   return;
+      // }
 
-      var google = singleton.google;
+      var google = window.google;
 
       var bounds = new google.maps.LatLngBounds();
       _.each(data, function(d) {
@@ -378,7 +400,7 @@ var minicharts_d3fns_geo = function() {
       return;
     }
     selectionCircle.setVisible(true);
-    var c = new singleton.google.maps.LatLng(value[0][1], value[0][0]);
+    var c = new window.google.maps.LatLng(value[0][1], value[0][0]);
     selectionCircle.setCenter(c);
     selectionCircle.setRadius(value[1] * 1600);
     selectPoints();
