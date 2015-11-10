@@ -234,7 +234,7 @@ var minicharts_d3fns_date = function() {
 
       gEnter.append('g')
         .attr('class', 'hour')
-        .attr('transform', 'translate(' + (width / (upperRatio + 1) + upperMargin) + ', 0)')
+        .attr('transform', 'translate(' + (innerWidth / (upperRatio + 1) + upperMargin) + ', 0)')
         .append('text')
         .attr('class', 'date-icon fa-fw')
         .attr('x', 0)
@@ -289,7 +289,7 @@ var minicharts_d3fns_date = function() {
 
       text
         .attr('x', function(d, i) {
-          return i * width;
+          return i * innerWidth;
         })
         .attr('text-anchor', function(d, i) {
           return i ? 'end' : 'start';
@@ -309,7 +309,7 @@ var minicharts_d3fns_date = function() {
       var weekdayContainer = g.select('g.weekday').data([weekdays]);
 
       raf(function() {
-        var chartWidth = width / (upperRatio + 1) - upperMargin;
+        var chartWidth = innerWidth / (upperRatio + 1) - upperMargin;
         var manyChart = many()
           .width(chartWidth)
           .height(upperBarBottom)
@@ -329,7 +329,7 @@ var minicharts_d3fns_date = function() {
 
       var hourContainer = g.select('g.hour').data([hours]);
       raf(function() {
-        var chartWidth = width / (upperRatio + 1) * upperRatio - upperMargin;
+        var chartWidth = innerWidth / (upperRatio + 1) * upperRatio - upperMargin;
         var manyChart = many()
           .width(chartWidth)
           .height(upperBarBottom)
