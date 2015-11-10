@@ -6,8 +6,8 @@
 var SSLOptionCollection = require('./models/ssl-option-collection');
 
 var InputView = require('./input-view');
+var FileReaderView = require('./filereader-view');
 var inputTemplate = require('./input-default.jade');
-var fileReaderTemplate = require('./filereader-default.jade');
 
 // var debug = require('debug')('scout:connect:ssl');
 
@@ -37,8 +37,7 @@ var SERVER = {
   // enabled: app.isFeatureEnabled('Connect with SSL SERVER'),
   enabled: true,
   fields: [
-    new InputView({
-      template: fileReaderTemplate,
+    new FileReaderView({
       name: 'ssl_ca',
       type: 'file',
       label: 'Certificate Authority',
@@ -57,24 +56,21 @@ var ALL = {
   // enabled: app.isFeatureEnabled('Connect with SSL ALL'),
   enabled: true,
   fields: [
-    new InputView({
-      template: fileReaderTemplate,
+    new FileReaderView({
       name: 'ssl_ca',
       type: 'file',
       label: 'Certificate Authority',
       placeholder: '',
       required: true
     }),
-    new InputView({
-      template: fileReaderTemplate,
+    new FileReaderView({
       name: 'ssl_private_key',
       type: 'file',
       label: 'Certificate Key',
       placeholder: '',
       required: true
     }),
-    new InputView({
-      template: fileReaderTemplate,
+    new FileReaderView({
       name: 'ssl_certificate',
       type: 'file',
       label: 'Certificate',
