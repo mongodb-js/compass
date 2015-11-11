@@ -1,0 +1,32 @@
+{
+  "name": "mongodb-js-metrics",
+  "description": "Shareable metric recording.",
+  "version": "0.0.0",
+  "scripts": {
+    "fmt": "mongodb-js-fmt",
+    "check": "mongodb-js-precommit",
+    "test": "mocha",
+    "ci": "npm run check && npm test"
+  },
+  "homepage": "http://github.com/mongodb-js/metrics",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mongodb-js/metrics.git"
+  },
+  "dependencies": {
+    "bugsnag-js": "^2.4.8",
+    "debug": "^2.2.0",
+    "lodash": "^3.10.1"
+  },
+  "devDependencies": {
+    "eslint-config-mongodb-js": "^1.0.5",
+    "mocha": "^2.3.3",
+    "mongodb-js-fmt": "0.0.3",
+    "mongodb-js-precommit": "^0.2.5",
+    "pre-commit": "^1.1.2"
+  },
+  "license": "Apache-2.0",
+  "precommit": [
+    "check"
+  ]
+}

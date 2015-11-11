@@ -1,0 +1,6 @@
+{
+  "extends": [
+    "mongodb-js/node",
+    "mongodb-js/browser"
+  ]
+}
