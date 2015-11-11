@@ -3,20 +3,20 @@ var _ = require('lodash');
 // var shared = require('./shared');
 var debug = require('debug')('scout:minicharts:geo');
 var mapStyle = require('./mapstyle');
-var async = require('async');
-var xor = require('xor-it');
+// var async = require('async');
+// var xor = require('xor-it');
 var app = require('ampersand-app');
 var format = require('util').format;
 
 
 var SHIFTKEY = 16;
-var APIKEY = '\u0004;\b\u000e!Cd5\u0007*V\u001d\u0007C\u0003/9HW\u001c>_\u0010\u0017)*\u0017B.7D/!*3\u000f\bX\u0010';
+var APIKEY = 'AIzaSyDrhE1qbcnNIh4sK3t7GEcbLRdCNKWjlt0';
 
-function produceKey(text) {
-  var key = 'Error: Google map could not be loaded, disabling feature';
-  var res = xor(key, text);
-  return res;
-}
+// function produceKey(text) {
+//   var key = 'Error: Google map could not be loaded, disabling feature';
+//   var res = xor(key, text);
+//   return res;
+// }
 
 // From: http://davidbcalhoun.com/2014/async.parallel-with-a-simple-timeout-node-js/
 // async.parallel with optional timeout (options.timeoutMS)
@@ -60,7 +60,9 @@ var minicharts_d3fns_geo = function() {
   // var margin = shared.margin;
 
   function disableMapsFeature() {
+    // disable both in feature flag (for this run) and localStorage
     app.setFeature('Google Map Minicharts', false);
+    localStorage.disableGoogleMaps = true;
     delete window.google;
     debug('parent render', options.view.parent.render());
     options.view.parent.render();
@@ -83,7 +85,7 @@ var minicharts_d3fns_geo = function() {
     var script = document.createElement('script');
     script.setAttribute('type', 'text/javascript');
     script.src = format('https://maps.googleapis.com/maps/api/js?key=%s&libraries=geometry',
-      produceKey(APIKEY));
+      APIKEY);
     script.onerror = function() {
       done('Error ocurred while loading Google Maps.');
     };

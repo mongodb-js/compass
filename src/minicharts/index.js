@@ -105,8 +105,9 @@ module.exports = AmpersandView.extend(QueryBuilderMixin, {
     if (this.model.name === 'Coordinates') {
       // check if we can load google maps or if we need to fall back to
       // a simpler coordinate chart
-      // @todo (thomasr) add condition on localStorage for permanent disable
-      if (app.isFeatureEnabled('Google Map Minicharts') && navigator.onLine) {
+      if (app.isFeatureEnabled('Google Map Minicharts')
+        && navigator.onLine
+        && !localStorage.disableGoogleMaps) {
         this.viewOptions.renderMode = 'html';
         this.viewOptions.height = 250;
         this.viewOptions.vizFn = vizFns.geo;
