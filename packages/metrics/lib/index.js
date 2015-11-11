@@ -20,6 +20,7 @@ exports.error = function(err, title, meta) {
   });
 
   exports.bugsnag.notifyException(err, title, meta);
+  exports.intercom.track('Error: ' + title + ': ' + err.message, meta);
 };
 
 exports.listen = function(app) {
