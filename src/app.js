@@ -13,8 +13,8 @@ app.extend({
   }
 });
 
-var bugsnag = require('./bugsnag');
-bugsnag.listen(app);
+var metrics = require('mongodb-js-metrics');
+metrics.listen(app);
 
 var _ = require('lodash');
 var domReady = require('domready');
@@ -150,7 +150,7 @@ var Application = View.extend({
     clearTimeout(this.clientStalledTimeout);
 
     console.error('Fatal Error!: ', id, err);
-    bugsnag.notifyException(err, 'Fatal Error: ' + id);
+    metrics.error(err, 'Fatal Error: ' + id);
     app.statusbar.fatal(err);
   },
   // ms we'll wait for a `scout-client` instance
