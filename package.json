@@ -77,7 +77,7 @@
     "mongodb-connection-model": "^3.0.6",
     "mongodb-instance-model": "^1.0.2",
     "mongodb-ns": "^1.0.1",
-    "mongodb-js-metrics": "^0.0.2",
+    "mongodb-js-metrics": "^0.0.8",
     "ms": "^0.7.1",
     "node-notifier": "^4.3.1",
     "scout-server": "http://bin.mongodb.org/js/scout-server/v0.4.6/scout-server-0.4.6.tar.gz"

@@ -14,8 +14,6 @@ app.extend({
 });
 
 var metrics = require('mongodb-js-metrics');
-metrics.listen(app);
-
 var _ = require('lodash');
 var domReady = require('domready');
 var qs = require('qs');
@@ -115,8 +113,10 @@ var Application = View.extend({
      */
     router: 'object',
     clientStartedAt: 'date',
-    clientStalledTimeout: 'number',
-    user: 'state'
+    clientStalledTimeout: 'number'
+  },
+  children: {
+    user: User
   },
   events: {
     'click a': 'onLinkClick'
@@ -146,13 +146,15 @@ var Application = View.extend({
       root: '/'
     });
 
-    this.user = new User();
+    metrics.listen(app);
+
     User.getOrCreate(function(err, user) {
       if (err) {
         metrics.error(err, 'user: get or create');
         return;
       }
       this.user.set(user.serialize());
+      this.user.trigger('sync');
     }.bind(this));
 
     app.statusbar.hide();
@@ -288,6 +290,7 @@ app.extend({
     debug('message received from main process:', msg);
     this.trigger(msg);
   },
+  metrics: metrics,
   init: function() {
     domReady(function() {
       state.render();
