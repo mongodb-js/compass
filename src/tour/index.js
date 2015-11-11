@@ -18,6 +18,7 @@ var TourView = View.extend({
     'click .previous-slide': 'showPreviousFeature',
     'click .next-slide': 'showNextFeature',
     'click #tour-remove': 'tourRemove',
+    'click .tour-close-button': 'tourRemove',
     'click #tour-bg': 'tourRemove'
   },
   render: function() {
@@ -58,7 +59,7 @@ var TourView = View.extend({
     // select new
     ev.target.className = 'selected';
 
-    $('#animation-gif').one('webkitTransitionEnd', function(event) {
+    $('#animation-gif').one('webkitTransitionEnd', function() {
       that.$animationGIF.src = that.tourImagesFolder + ev.target.id + '.gif';
       $('#animation-gif').css('opacity', '1');
     });

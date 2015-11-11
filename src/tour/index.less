@@ -30,6 +30,20 @@
   background-color: @pw;
   -webkit-transform: translate(-50%, -50%);
 
+  a.tour-close-button {
+    position: absolute;
+    right: 10px;
+    top: 0;
+    color: @gray6;
+    font-size: 28px;
+    font-weight: 200;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: none;
+      color: @gray5;
+    }
+  }
   #animation, #features {
     float: left;
   }
@@ -37,13 +51,11 @@
     width: 66%;
 
     img {
-      // opacity: 0;
       width: 90%;
       margin: 20px auto 40px;
       display: block;
       border: 1px @gray6 solid;
       box-shadow: 0 8px 15px rgba(0,0,0,0.1);
-      // animation: fade-in 1000ms ease-out forwards;
       transition: opacity 250ms ease-out;
     }
   }
@@ -64,6 +76,7 @@
     }
     .pager {
       position: relative;
+      -webkit-user-select: none;
 
       a {
         position: absolute;
