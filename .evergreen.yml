@@ -81,7 +81,6 @@ functions:
         test -n "${add_environment|}" && export ${add_environment|}
         ${npm|npm} run ci
         ${npm|npm} run test
-        ${npm|npm} run release
 
   "save release":
     command: s3.put
