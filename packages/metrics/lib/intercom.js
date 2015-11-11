@@ -2,14 +2,16 @@
 var _ = require('lodash');
 var debug = require('debug')('mongodb-js-metrics:intercom');
 
-var intercom = function() {
-  intercom.c(arguments);
+var i = function() {
+  i.c(arguments);
 };
-intercom.q = [];
-intercom.c = function(args) {
-  intercom.q.push(args);
+i.q = [];
+i.c = function(args) {
+  i.q.push(args);
 };
-
+if (typeof window !== 'undefined') {
+  window.Intercom = i;
+}
 
 exports.app = null;
 
@@ -26,7 +28,7 @@ exports.track = function(eventName, data) {
   if (!exports.app.isFeatureEnabled('intercom')) {
     return;
   }
-  intercom('trackEvent', eventName, data);
+  window.Intercom('trackEvent', eventName, data);
 };
 
 function boot() {
@@ -35,14 +37,14 @@ function boot() {
   });
   config.user_id = exports.app.user.id;
   debug('Syncing user info w/ intercom', config);
-  intercom('boot', config);
+  window.Intercom('boot', config);
 }
 
 exports.open = function(opts) {
   if (opts && opts.message) {
-    intercom('showNewMessage', opts.message);
+    window.Intercom('showNewMessage', opts.message);
   } else {
-    intercom('show');
+    window.Intercom('show');
   }
 };
 
@@ -94,9 +96,5 @@ exports.listen = function(app) {
   debug('adding listener to router to update intercom');
   app.router.on('page', exports.update);
 };
-
-if (typeof window !== 'undefined') {
-  window.Intercom = intercom;
-}
 
 module.exports = exports;
