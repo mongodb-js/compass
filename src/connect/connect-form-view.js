@@ -36,12 +36,11 @@ var ConflictingValuesInputView = InputView.extend({
       }
     }
   },
-  tests: [
-    function(value) {
-      if (this.conflicting.indexOf(value) !== -1) {
-        return 'This name already exists. Please choose another name.';
-      }
+  tests: [function(value) {
+    if (this.conflicting.indexOf(value) !== -1) {
+      return 'This name already exists. Please choose another name.';
     }
+  }
   ]
 });
 

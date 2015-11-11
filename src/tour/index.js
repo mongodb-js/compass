@@ -28,13 +28,13 @@ var TourView = View.extend({
     this.$tourRemove = this.query('#tour-remove');
   },
   showHidePreviousNextButtons: function() {
-    if(this.tourCount === 0) {
+    if (this.tourCount === 0) {
       $('.previous-slide').addClass('hide');
     } else {
       $('.previous-slide').removeClass('hide');
     }
 
-    if(this.tourCount === 4) {
+    if (this.tourCount === 4) {
       $('.next-slide').addClass('hide');
       $('#tour-remove').removeClass('hide');
     } else {
@@ -44,17 +44,17 @@ var TourView = View.extend({
   },
   showFeature: function(ev) {
     var nCLick = ev.target.getAttribute('data-n'),
-        that = this;
-    
+      that = this;
+
     if (nCLick === null) {
       return false;
     }
     var nFeature = parseInt(nCLick, 10);
-    
+
     // deselect old
     $('#features li.selected').removeClass('selected');
     $('.feature-content.active').removeClass('active');
-    
+
     // select new
     ev.target.className = 'selected';
 
@@ -63,21 +63,21 @@ var TourView = View.extend({
       $('#animation-gif').css('opacity', '1');
     });
     $('#animation-gif').css('opacity', '0');
-    
+
     $('.feature-content#f' + nFeature + '-content').addClass('active');
-    
+
     this.tourCount = nFeature;
     this.showHidePreviousNextButtons();
   },
-  showPreviousFeature: function(ev) {
+  showPreviousFeature: function() {
     var currentFeature = this.tourCount,
-        previousFeature = this.tourCount - 1,
-        that = this;
-    
+      previousFeature = this.tourCount - 1,
+      that = this;
+
     // deselect old
     $('#features li.selected').removeClass('selected');
     $('.feature-content.active').removeClass('active');
-    
+
     // select new
     $('#features li#f' + previousFeature).addClass('selected');
 
@@ -86,30 +86,30 @@ var TourView = View.extend({
       $('#animation-gif').css('opacity', '1');
     });
     $('#animation-gif').css('opacity', '0');
-    
+
     $('.feature-content#f' + previousFeature + '-content').addClass('active');
 
     this.tourCount = previousFeature;
     this.showHidePreviousNextButtons();
   },
-  showNextFeature: function(ev) {
+  showNextFeature: function() {
     var currentFeature = this.tourCount,
-        nextFeature = this.tourCount + 1,
-        that = this;
-    
+      nextFeature = this.tourCount + 1,
+      that = this;
+
     // deselect old
     $('#features li.selected').removeClass('selected');
     $('.feature-content.active').removeClass('active');
-    
+
     // select new
     $('#features li#f' + nextFeature).addClass('selected');
-    
+
     $('#animation-gif').one('webkitTransitionEnd', function(event) {
       that.$animationGIF.src = that.tourImagesFolder + 'f' + nextFeature + '.gif';
       $('#animation-gif').css('opacity', '1');
     });
     $('#animation-gif').css('opacity', '0');
-    
+
     $('.feature-content#f' + nextFeature + '-content').addClass('active');
 
     this.tourCount = nextFeature;
