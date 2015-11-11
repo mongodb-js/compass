@@ -87,7 +87,13 @@ exports.listen = function(app) {
   script.src = 'https://widget.intercom.io/widget/p57suhg7';
   head.appendChild(script);
   if (app.user) {
+    debug('adding listener to user to boot intercom');
     app.user.on('sync', boot.bind(null, app));
+  }
+
+  if (app.router) {
+    debug('adding listener to router to update intercom');
+    app.router.on('page', exports.update);
   }
 };
 

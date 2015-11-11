@@ -8,6 +8,8 @@ exports.track = function(title, meta) {
     title: title,
     meta: meta
   });
+
+  exports.intercom.track(title, meta);
 };
 
 exports.error = function(err, title, meta) {

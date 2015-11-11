@@ -18,10 +18,17 @@ var _ = require('lodash');
 var debug = require('debug')('mongodb-js-metrics:bugsnag');
 
 var TOKEN = '0d11ab5f4d97452cc83d3365c21b491c';
-// @todo (imlucas): use mongodb-redact
+/**
+ * @todo (imlucas): use mongodb-redact
+ * @param {Object} d - Notification data.
+ */
 function beforeNotify(d) {
-  // app.sendMessage('show bugsnag OS notification', d.message);
-  // app.statusbar.hide();
+  if (exports.app && exports.app.sendMessage) {
+    exports.app.sendMessage('show bugsnag OS notification', d.message);
+  }
+  if (exports.app && exports.app.statusbar) {
+    exports.app.statusbar.hide();
+  }
 
   d.stacktrace = redact(d.stacktrace);
   d.context = redact(d.context);
@@ -35,6 +42,8 @@ function beforeNotify(d) {
 
 exports = bugsnag;
 
+exports.app = null;
+
 /**
  * Configure bugsnag's api client which attaches a handler to
  * `window.onerror` so any uncaught exceptions are trapped and logged
@@ -42,6 +51,7 @@ exports = bugsnag;
  * @see https://github.com/bugsnag/bugsnag-js#configuration
  * @todo (imlucas): When first-run branch merged, include user id:
  *   https://github.com/bugsnag/bugsnag-js#user
+ * @param {Object} app
  */
 exports.listen = function(app) {
   _.assign(bugsnag, {
@@ -55,6 +65,7 @@ exports.listen = function(app) {
   });
 
   app.bugsnag = bugsnag;
+  exports.app = app;
 };
 
 module.exports = exports;
