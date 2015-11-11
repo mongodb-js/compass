@@ -3,4 +3,7 @@
   .message.message-below.message-error(data-hook='message-container')
     p(data-hook='message-text')
   .form-item-file
-    input(type="file", name="uploadKeyFile", multiple)
+    .btn.btn-default(data-hook='load-file-button', style='text-transform: none;') 
+      i.fa.fa-file
+      | &nbsp;
+      span(data-hook='button-label')= buttonTitle

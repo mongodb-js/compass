@@ -94,7 +94,9 @@ var ConnectView = View.extend({
     'input input[name=name]': 'onNameInputChanged',
     'change input[name=name]': 'onNameInputChanged',
     'input input': 'onAnyInputChanged',
-    'change select': 'onAnyInputChanged'
+    'change input': 'onAnyInputChanged',
+    'change select': 'onAnyInputChanged',
+    'click div.btn': 'onAnyInputChanged'
   },
 
   /**
@@ -292,14 +294,8 @@ var ConnectView = View.extend({
    */
   updateConnection: function() {
     if (this.connection) {
-      debug('updating existing connection from form data');
-      // set previous auth fields
-      var authFields = Connection.getFieldNames(this.previousAuthMethod);
-      debug('authFields', authFields);
       this.connection.set(this.form.data);
-      debug('after', this.connection.serialize());
     } else {
-      debug('creating new connection from form data');
       this.connection = new Connection(this.form.data);
     }
     this.connection.is_favorite = true;
@@ -339,10 +335,6 @@ var ConnectView = View.extend({
       return;
     }
     app.statusbar.show();
-    debug('trying to connect with URL %s and options %j',
-      connection.driver_url,
-      connection.driver_options
-    );
 
     connection.test(function(err) {
       app.statusbar.hide();

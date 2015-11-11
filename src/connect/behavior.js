@@ -1,8 +1,9 @@
 var State = require('ampersand-state');
-var debug = require('debug')('scout:connect:behavior');
 var assert = require('assert');
 var Connection = require('../models/connection');
 var _ = require('lodash');
+
+// var debug = require('debug')('scout:connect:behavior');
 
 module.exports = State.extend({
   props: {
@@ -79,9 +80,9 @@ module.exports = State.extend({
   },
   dispatch: function(action) {
     var newState = this.reduce(this.state, action);
-    if (newState !== this.state) {
-      debug('transition: (%s, %s) ==> %s', this.state, action, newState);
-    }
+    // if (newState !== this.state) {
+    //   debug('transition: (%s, %s) ==> %s', this.state, action, newState);
+    // }
     this.state = newState;
     return this.state;
   },
@@ -100,7 +101,7 @@ module.exports = State.extend({
 
     // check if the current state allows the given action
     if (this.validTransitions[state].indexOf(action) === -1) {
-      debug('ignoring action `%s` in state `%s`', action, state);
+      // debug('ignoring action `%s` in state `%s`', action, state);
       return state;
     }
     // general actions, independent of state
