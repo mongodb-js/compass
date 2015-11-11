@@ -181,7 +181,7 @@ buildvariants:
   run_on:
   - "osx-108"
   expansions:
-    fetch_npm_tarball: node-v0.12.7-npm-3.3.5-darwin-x64.tgz
+    fetch_npm_tarball: node-v4.2.2-npm-3.3.12-darwin-x64.tgz
     node_path: "$(pwd)/.deps/bin"
     installer_content_type: "application/x-apple-diskimage"
     installer_filename: "MongoDB Compass.dmg"
@@ -210,7 +210,7 @@ buildvariants:
   run_on:
   - "ubuntu1404-test"
   expansions:
-    fetch_npm_tarball: node-v0.12.7-npm-3.3.5-linux-x64.tar.gz
+    fetch_npm_tarball: node-v4.2.2-npm-3.3.12-linux-x64.tgz
     node_path: "$(pwd)/.deps/bin"
     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
     num_cores: $(grep -c ^processor /proc/cpuinfo)
