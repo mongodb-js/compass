@@ -73,6 +73,14 @@ exports.listen = function(app) {
     return;
   }
 
+  if (typeof window === 'undefined') {
+    /**
+     * @todo (imlucas) Update to use new intercom module
+     * that works in browser or server.
+     */
+    return;
+  }
+
   var head = document.getElementsByTagName('head')[0];
   var script = document.createElement('script');
   script.type = 'text/javascript';
