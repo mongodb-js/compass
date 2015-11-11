@@ -188,7 +188,7 @@ var ConnectFormView = FormView.extend({
         el: this.parent.queryByHook('saveas-subview'),
         name: 'name',
         label: 'Name',
-        placeholder: 'e.g. Shared Dev, Stats Box, PRODUCTION',
+        placeholder: 'e.g. Shared Dev, QA Box, PRODUCTION',
         required: false
       })
     ];

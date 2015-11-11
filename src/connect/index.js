@@ -95,7 +95,8 @@ var ConnectView = View.extend({
     'change input[name=name]': 'onNameInputChanged',
     'input input': 'onAnyInputChanged',
     'change input': 'onAnyInputChanged',
-    'change select': 'onAnyInputChanged'
+    'change select': 'onAnyInputChanged',
+    'click div.btn': 'onAnyInputChanged'
   },
 
   /**
