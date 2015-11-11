@@ -89,6 +89,7 @@ exports.listen = function(app) {
   head.appendChild(script);
   debug('adding listener to user to boot intercom');
   app.user.on('sync', boot.bind(null, app));
+  boot(app);
 
   debug('adding listener to router to update intercom');
   app.router.on('page', exports.update);
