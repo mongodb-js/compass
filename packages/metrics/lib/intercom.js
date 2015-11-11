@@ -81,20 +81,17 @@ exports.listen = function(app) {
     return;
   }
 
+  debug('injecting widget');
   var head = document.getElementsByTagName('head')[0];
   var script = document.createElement('script');
   script.type = 'text/javascript';
   script.src = 'https://widget.intercom.io/widget/p57suhg7';
   head.appendChild(script);
-  if (app.user) {
-    debug('adding listener to user to boot intercom');
-    app.user.on('sync', boot.bind(null, app));
-  }
+  debug('adding listener to user to boot intercom');
+  app.user.on('sync', boot.bind(null, app));
 
-  if (app.router) {
-    debug('adding listener to router to update intercom');
-    app.router.on('page', exports.update);
-  }
+  debug('adding listener to router to update intercom');
+  app.router.on('page', exports.update);
 };
 
 if (typeof window !== 'undefined') {
