@@ -9,13 +9,6 @@
 stepback: false
 
 variables:
-# function "fetch npm tarball" is conditional on {fetch_npm_tarball}
-# -> all except windows
-
-# function "upgrade npm windows" is conditional based on {upgrade_npm_version}
-# as set in the buildvariant declaration
-# -> only windows
-
 # function "save release variants" is conditional on the following
 # -> all except ubuntu
 - &save_release_variants
@@ -57,32 +50,11 @@ functions:
       script: |
         mkdir -p .deps
         set -ev
-        if [ -z "${fetch_npm_tarball|}" ]; then
-          echo "fetch_npm_tarball: fetch_npm_tarball is unset; skipping"
-          exit 0
-        fi
         curl -fs \
           -o ".deps/${fetch_npm_tarball}" \
           --url "http://mongodb-dx-public.s3.amazonaws.com/evergreen-deps/${fetch_npm_tarball}"
         cd .deps
         tar xzf ${fetch_npm_tarball} --strip-components=1
-
-  # THIS COMMAND WORKS ON WINDOWS ONLY, SHOULD BE CONSIDERED OBSOLETE
-  # To use "npm" installed by this, each shell.exec script must add:
-  #     export PATH="`npm -g bin`:$PATH"
-  "upgrade npm windows" : &upgrade_npm_windows
-    command: shell.exec
-    params:
-      working_dir: src
-      script: |
-        if [ -z "${upgrade_npm_version|}" ]; then
-          echo "upgrade_npm: upgrade_npm_version is unset; skipping"
-          exit 0
-        fi
-        set -ev
-        test -n "${node_environment|}" && export "${node_environment|}"
-        export PATH="$PATH:${node_path|}"
-        ${npm|npm} install -g npm@${upgrade_npm_version|xx}
 
   "npm install" :
     command: shell.exec
@@ -90,9 +62,7 @@ functions:
       working_dir: src
       script: |
         set -ev
-        test -n "${node_environment|}" && export "${node_environment|}"
-        export PATH="$PATH:${node_path|}"
-        export PATH="`npm -g bin`:$PATH"
+        export PATH="${node_path}:$PATH"
         ${node|node} --version
         ${npm|npm} --version
         ${npm|npm} config set loglevel error
@@ -106,9 +76,7 @@ functions:
       working_dir: src
       script: |
         set -ev
-        test -n "${node_environment|}" && export "${node_environment|}"
-        export PATH="$PATH:${node_path|}"
-        export PATH="`npm -g bin`:$PATH"
+        export PATH="${node_path}:$PATH"
         export CI=1 EVERGREEN=1
         test -n "${add_environment|}" && export ${add_environment|}
         ${npm|npm} run ci
@@ -160,7 +128,6 @@ tasks:
   commands:
   - func: "fetch source"
   - func: "fetch npm tarball"
-  - func: "upgrade npm windows"
   - func: "npm install"
   - func: "build"
   - func: "save release"
@@ -195,9 +162,8 @@ buildvariants:
   run_on:
   - "windows-64-vs2013-test"
   expansions:
-    node_environment: "APPDATA=C:\\Program Files (x86)\\nodejs\\node_modules"
-    upgrade_npm_version: "3"
-    node_path: "/cygdrive/c/Program Files (x86)/nodejs"
+    fetch_npm_tarball: node-v4.2.2-npm-3.3.12-windows-x64.tgz
+    node_path: "$(pwd)/.deps"
     installer_content_type: "application/octet-stream"
     installer_filename: "MongoDBCompassSetup.exe"
     num_cores: $(grep -c ^processor /proc/cpuinfo)
