@@ -11,18 +11,18 @@
         p.feature-description See a list of collections in the left sidebar. Select a collection and Compass will instantly start analyzing the schema data. Use the search filter at the top to narrow your list of collections.
       #f1-content.feature-content
         h3.feature-title Browse the Schema
-        p.feature-description Once a collection is loaded Compass will visualize the collection schema. Field are listed as rows in the main view. The left side of the row displays the field name and datatype distribution. The right side of the row displays a visualization of some of the data stored in the field.
+        p.feature-description Once a collection is loaded Compass will visualize the collection schema. Field are listed as rows in the main view. The left side of the row displays the field name and datatype distribution, the right side displays a visualization of the data.
       #f2-content.feature-content
         h3.feature-title View Data Distribution
-        p.feature-description -------
+        p.feature-description View the charts in the right-hand column of each row to see data distribution at a high level. Hover over charts to see more detail.
       #f3-content.feature-content
         h3.feature-title Build Queries
-        p.feature-description -------
+        p.feature-description Click on charts to build MongoDB queries. Click and drag within bar charts to select multiple values. Edit your query by typing directly into the query bar.
       #f4-content.feature-content
         h3.feature-title View Documents
-        p.feature-description -------
+        p.feature-description Open the document drawer on the right to view the raw JSON documents in the result set.
       .pager
-        a.previous-slide Previous
+        a.previous-slide.hide Previous
         ul
           li#f0.selected(data-n="0", title="Choose a collection")
           li#f1(data-n="1", title="Browse schema")
@@ -30,5 +30,6 @@
           li#f3(data-n="3", title="Build queries")
           li#f4(data-n="4", title="View documents")
         a.next-slide Next
-      //- button#tour-remove(type="button", class="btn btn-info") Get Started
+      .get-started-button-holder
+        button#tour-remove.hide(type="button", class="btn btn-info") Get Started
 

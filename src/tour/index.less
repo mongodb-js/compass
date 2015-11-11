@@ -1,3 +1,8 @@
+@keyframes fade-in {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+
 #tour-out {
   position: absolute;
   top: 0;
@@ -32,11 +37,14 @@
     width: 66%;
 
     img {
+      // opacity: 0;
       width: 90%;
       margin: 20px auto 40px;
       display: block;
       border: 1px @gray6 solid;
       box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+      // animation: fade-in 1000ms ease-out forwards;
+      transition: opacity 250ms ease-out;
     }
   }
   #features {
@@ -44,6 +52,7 @@
 
     .feature-content {
       display: none;
+      animation: fade-in 500ms ease-out;
 
       &.active {
         display: block;
@@ -105,6 +114,15 @@
     li.selected {
       background: @green2;
       border-color: @green2;
+    }
+    .get-started-button-holder {
+      text-align: center;
+      margin-top: 100px;
+
+      #tour-remove {
+        opacity: 0;
+        animation: fade-in 750ms ease-out 500ms forwards;
+      }
     }
   }
 }

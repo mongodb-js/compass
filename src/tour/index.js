@@ -27,8 +27,25 @@ var TourView = View.extend({
     this.$animationGIF = this.query('#animation-gif');
     this.$tourRemove = this.query('#tour-remove');
   },
+  showHidePreviousNextButtons: function() {
+    if(this.tourCount === 0) {
+      $('.previous-slide').addClass('hide');
+    } else {
+      $('.previous-slide').removeClass('hide');
+    }
+
+    if(this.tourCount === 4) {
+      $('.next-slide').addClass('hide');
+      $('#tour-remove').removeClass('hide');
+    } else {
+      $('.next-slide').removeClass('hide');
+      $('#tour-remove').addClass('hide');
+    }
+  },
   showFeature: function(ev) {
-    var nCLick = ev.target.getAttribute('data-n');
+    var nCLick = ev.target.getAttribute('data-n'),
+        that = this;
+    
     if (nCLick === null) {
       return false;
     }
@@ -40,13 +57,22 @@ var TourView = View.extend({
     
     // select new
     ev.target.className = 'selected';
-    this.$animationGIF.src = this.tourImagesFolder + ev.target.id + '.gif';
+
+    $('#animation-gif').one('webkitTransitionEnd', function(event) {
+      that.$animationGIF.src = that.tourImagesFolder + ev.target.id + '.gif';
+      $('#animation-gif').css('opacity', '1');
+    });
+    $('#animation-gif').css('opacity', '0');
+    
     $('.feature-content#f' + nFeature + '-content').addClass('active');
+    
     this.tourCount = nFeature;
+    this.showHidePreviousNextButtons();
   },
   showPreviousFeature: function(ev) {
-    var currentFeature = this.tourCount;
-    var previousFeature = this.tourCount - 1;
+    var currentFeature = this.tourCount,
+        previousFeature = this.tourCount - 1,
+        that = this;
     
     // deselect old
     $('#features li.selected').removeClass('selected');
@@ -54,14 +80,22 @@ var TourView = View.extend({
     
     // select new
     $('#features li#f' + previousFeature).addClass('selected');
-    this.$animationGIF.src = this.tourImagesFolder + 'f' + previousFeature + '.gif';
+
+    $('#animation-gif').one('webkitTransitionEnd', function(event) {
+      that.$animationGIF.src = that.tourImagesFolder + 'f' + previousFeature + '.gif';
+      $('#animation-gif').css('opacity', '1');
+    });
+    $('#animation-gif').css('opacity', '0');
+    
     $('.feature-content#f' + previousFeature + '-content').addClass('active');
 
     this.tourCount = previousFeature;
+    this.showHidePreviousNextButtons();
   },
   showNextFeature: function(ev) {
-    var currentFeature = this.tourCount;
-    var nextFeature = this.tourCount + 1;
+    var currentFeature = this.tourCount,
+        nextFeature = this.tourCount + 1,
+        that = this;
     
     // deselect old
     $('#features li.selected').removeClass('selected');
@@ -69,10 +103,17 @@ var TourView = View.extend({
     
     // select new
     $('#features li#f' + nextFeature).addClass('selected');
-    this.$animationGIF.src = this.tourImagesFolder + 'f' + nextFeature + '.gif';
+    
+    $('#animation-gif').one('webkitTransitionEnd', function(event) {
+      that.$animationGIF.src = that.tourImagesFolder + 'f' + nextFeature + '.gif';
+      $('#animation-gif').css('opacity', '1');
+    });
+    $('#animation-gif').css('opacity', '0');
+    
     $('.feature-content#f' + nextFeature + '-content').addClass('active');
 
     this.tourCount = nextFeature;
+    this.showHidePreviousNextButtons();
   },
   tourRemove: function() {
     this.remove();
