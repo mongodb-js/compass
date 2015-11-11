@@ -246,7 +246,9 @@ module.exports = State.extend({
           // the user has modified the form fields and opted not to save the
           // changes. We need to create a new connection and leave the old
           // one intact.
-          view.form.setValues({name: ''});
+          view.form.setValues({
+            name: ''
+          });
           connection = new Connection(view.form.data);
         } else {
           connection = view.connection;

@@ -179,9 +179,9 @@ module.exports = Schema.extend({
         'total sample time': timeToFirstDoc,
         'total analysis time': totalTime - timeToFirstDoc,
         'average analysis time per doc': (totalTime - timeToFirstDoc) / model.documents.length
-        // 'Schema Height': model.height, // # of top level keys
-        // 'Schema Width': model.width, // max nesting depth
-        // 'Schema Sparsity': model.sparsity // lots of fields missing or consistent
+      // 'Schema Height': model.height, // # of top level keys
+      // 'Schema Width': model.width, // max nesting depth
+      // 'Schema Sparsity': model.sparsity // lots of fields missing or consistent
       });
       options.success({});
     };
@@ -217,7 +217,7 @@ module.exports = Schema.extend({
           app.statusbar.trickle(false);
         })
         .on('data', function() {
-          counter ++;
+          counter++;
           if (counter % stepSize === 0) {
             var inc = (100 - status) * stepSize / numSamples;
             debug(inc);

@@ -299,7 +299,9 @@ var ConnectView = View.extend({
       this.connection = new Connection(this.form.data);
     }
     this.connection.is_favorite = true;
-    this.connection.save(null, {validate: false});
+    this.connection.save(null, {
+      validate: false
+    });
     this.connections.add(this.connection, {
       merge: true
     });
@@ -381,8 +383,8 @@ var ConnectView = View.extend({
      */
     window.open(
       format('%s?connection_id=%s#schema',
-      window.location.origin,
-      connection.getId())
+        window.location.origin,
+        connection.getId())
     );
     setTimeout(this.set.bind(this, {
       message: ''

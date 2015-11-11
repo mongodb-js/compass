@@ -263,9 +263,18 @@ function nonDarwinMenu(menuState) {
 
 var MenuState = State.extend({
   props: {
-    showCompassOverview: { type: 'boolean', default: false },
-    showConnect: { type: 'boolean', default: true },
-    showShare: { type: 'boolean', default: false }
+    showCompassOverview: {
+      type: 'boolean',
+      default: false
+    },
+    showConnect: {
+      type: 'boolean',
+      default: true
+    },
+    showShare: {
+      type: 'boolean',
+      default: false
+    }
   }
 });
 
@@ -300,7 +309,7 @@ var AppMenu = (function() {
     getTemplate: function(winID) {
       var menuState = this.windowTemplates.get(winID);
 
-      debug("WINDOW's " + winID + ' Menu State');
+      debug('WINDOW\'s ' + winID + ' Menu State');
       debug('showCompassOverview: ' + menuState.showCompassOverview);
       debug('showConnect: ' + menuState.showConnect);
       debug('showShare: ' + menuState.showShare);
@@ -329,9 +338,9 @@ var AppMenu = (function() {
         }
 
         this.setTemplate(_window.id);
-        debug('WINDOW ' + _window.id + "'s menu loaded");
+        debug('WINDOW ' + _window.id + '\'s menu loaded');
       } else {
-        debug('WINDOW ' + _window.id + "'s menu already loaded");
+        debug('WINDOW ' + _window.id + '\'s menu already loaded');
       }
     },
 

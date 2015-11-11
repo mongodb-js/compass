@@ -88,7 +88,9 @@ module.exports = InputView.extend({
     if (spec.multi) {
       this.multi = spec.multi;
     }
-    _.defaults(spec, {value: []});
+    _.defaults(spec, {
+      value: []
+    });
     this.invalidClass = 'has-error';
     this.validityClassSelector = '.form-item-file';
     InputView.prototype.initialize.call(this, spec);
@@ -118,8 +120,7 @@ module.exports = InputView.extend({
    * Turn into no-op, as we don't work on input elements
    * @see ampersand-input-view.js#handleTypeChange
    */
-  handleTypeChange: function() {
-  },
+  handleTypeChange: function() {},
   /**
    * Turn into identity, as we don't need to trim the value
    * @param  {Array} val   the value to pass through
