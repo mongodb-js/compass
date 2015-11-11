@@ -43,8 +43,8 @@ var TourView = View.extend({
     }
   },
   showFeature: function(ev) {
-    var nCLick = ev.target.getAttribute('data-n'),
-      that = this;
+    var nCLick = ev.target.getAttribute('data-n');
+    var that = this;
 
     if (nCLick === null) {
       return false;
@@ -70,9 +70,8 @@ var TourView = View.extend({
     this.showHidePreviousNextButtons();
   },
   showPreviousFeature: function() {
-    var currentFeature = this.tourCount,
-      previousFeature = this.tourCount - 1,
-      that = this;
+    var previousFeature = this.tourCount - 1;
+    var that = this;
 
     // deselect old
     $('#features li.selected').removeClass('selected');
@@ -81,7 +80,7 @@ var TourView = View.extend({
     // select new
     $('#features li#f' + previousFeature).addClass('selected');
 
-    $('#animation-gif').one('webkitTransitionEnd', function(event) {
+    $('#animation-gif').one('webkitTransitionEnd', function() {
       that.$animationGIF.src = that.tourImagesFolder + 'f' + previousFeature + '.gif';
       $('#animation-gif').css('opacity', '1');
     });
@@ -93,9 +92,8 @@ var TourView = View.extend({
     this.showHidePreviousNextButtons();
   },
   showNextFeature: function() {
-    var currentFeature = this.tourCount,
-      nextFeature = this.tourCount + 1,
-      that = this;
+    var nextFeature = this.tourCount + 1;
+    var that = this;
 
     // deselect old
     $('#features li.selected').removeClass('selected');
@@ -104,7 +102,7 @@ var TourView = View.extend({
     // select new
     $('#features li#f' + nextFeature).addClass('selected');
 
-    $('#animation-gif').one('webkitTransitionEnd', function(event) {
+    $('#animation-gif').one('webkitTransitionEnd', function() {
       that.$animationGIF.src = that.tourImagesFolder + 'f' + nextFeature + '.gif';
       $('#animation-gif').css('opacity', '1');
     });
