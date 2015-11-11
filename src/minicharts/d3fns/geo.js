@@ -1,6 +1,6 @@
 var d3 = require('d3');
 var _ = require('lodash');
-// var shared = require('./shared');
+var shared = require('./shared');
 var debug = require('debug')('scout:minicharts:geo');
 var mapStyle = require('./mapstyle');
 // var async = require('async');
@@ -11,7 +11,7 @@ var format = require('util').format;
 
 var SHIFTKEY = 16;
 var APIKEY = 'AIzaSyDrhE1qbcnNIh4sK3t7GEcbLRdCNKWjlt0';
-
+// var APIKEY = 'AIzaSyDrhE1qbcnNIh4sZp47GEcbLRdCNKWjlt4';  // wrong one
 // function produceKey(text) {
 //   var key = 'Error: Google map could not be loaded, disabling feature';
 //   var res = xor(key, text);
@@ -57,14 +57,13 @@ var minicharts_d3fns_geo = function() {
     view: null
   };
 
-  // var margin = shared.margin;
+  var margin = shared.margin;
 
   function disableMapsFeature() {
     // disable both in feature flag (for this run) and localStorage
     app.setFeature('Google Map Minicharts', false);
     localStorage.disableGoogleMaps = true;
     delete window.google;
-    debug('parent render', options.view.parent.render());
     options.view.parent.render();
   }
 
@@ -211,6 +210,15 @@ var minicharts_d3fns_geo = function() {
     selection.each(function(data) {
       var el = d3.select(this);
 
+      var innerDiv = el.selectAll('div.map').data([null]);
+      innerDiv.enter().append('div')
+        .attr('class', 'map')
+        .style({
+          width: (width - margin.left - margin.right) + 'px',
+          height: (height - margin.top - margin.bottom) + 'px',
+          padding: margin.top + 'px ' + margin.right + 'px ' + margin.bottom + 'px ' + margin.left + 'px;'
+        });
+
       if (!window.google) {
         loadGoogleMaps(function(err) {
           if (err) {
@@ -255,7 +263,7 @@ var minicharts_d3fns_geo = function() {
 
       if (!googleMap) {
         // Create the Google Map
-        googleMap = new google.maps.Map(el.node(), {
+        googleMap = new google.maps.Map(innerDiv.node(), {
           disableDefaultUI: true,
           // disableDoubleClickZoom: true,
           scrollwheel: true,
@@ -306,7 +314,7 @@ var minicharts_d3fns_geo = function() {
         }; // end overlay.draw
 
         overlay.setMap(googleMap);
-        el.on('mousedown', startSelection);
+        innerDiv.on('mousedown', startSelection);
 
         d3.select('body')
         .on('keydown', onKeyDown)
@@ -361,7 +369,6 @@ var minicharts_d3fns_geo = function() {
           }
         });
       } else {
-        debug('toplevel location field. fitting map.');
         _.defer(function() {
           google.maps.event.trigger(googleMap, 'resize');
           googleMap.fitBounds(bounds);
