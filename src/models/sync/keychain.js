@@ -47,6 +47,7 @@ Keychain.prototype.find = function(collection, options, done) {
     debug('keytar unavailable');
     return done(null, []);
   }
+
   var ids = options.ids || [];
   var service = this.service;
   var res = _.map(ids, function(id) {
@@ -74,6 +75,7 @@ Keychain.prototype.findOne = function(model, options, done) {
     debug('keytar unavailable');
     return done(null, {});
   }
+
   var msg = keytar.getPassword(this.service, model.getId());
   if (!msg) {
     return done();
@@ -113,6 +115,7 @@ Keychain.prototype.update = function(model, options, done) {
     debug('keytar unavailable');
     return done();
   }
+
   keytar.replacePassword(this.service, model.getId(),
     JSON.stringify(this.serialize(model)));
   done();
@@ -132,6 +135,7 @@ Keychain.prototype.create = function(model, options, done) {
     debug('keytar unavailable');
     return done();
   }
+
   keytar.addPassword(this.service, model.getId(),
     JSON.stringify(this.serialize(model)));
   done();
