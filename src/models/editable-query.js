@@ -28,8 +28,10 @@ module.exports = Model.extend({
         if (_.trim(output) === '') {
           output = '{}';
         }
-        // wrap field names in double quotes
-        output = output.replace(/([{,])\s*([^,{\s\'"]+)\s*:/g, ' $1 "$2" : ');
+        // wrap field names in double quotes. I appologize for the next line of code.
+        // @see http://stackoverflow.com/questions/6462578/alternative-to-regex-match-all-instances-not-inside-quotes
+        // @see https://regex101.com/r/xM7iH6/1
+        output = output.replace(/([{,])\s*([^,{\s\'"]+)\s*:(?=([^"\\]*(\\.|"([^"\\]*\\.)*[^"\\]*"))*[^"]*$)/g, '$1"$2":');
         // replace multiple whitespace with single whitespace
         output = output.replace(/\s+/g, ' ');
         return output;
