@@ -113,10 +113,6 @@ var Application = View.extend({
      * @see http://learn.humanjavascript.com/react-ampersand/creating-a-router-and-pages
      */
     router: 'object',
-    /**
-     * Enable/Disable features with one global switch
-     */
-    features: 'object',
     clientStartedAt: 'date',
     clientStalledTimeout: 'number'
   },
@@ -237,7 +233,7 @@ var state = new Application({
 var FEATURES = {
   querybuilder: true,
   keychain: true,
-  'Geo Minicharts': true,
+  'Google Map Minicharts': true,
   'Connect with SSL': false,
   'Connect with Kerberos': false,
   'Connect with LDAP': false,

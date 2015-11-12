@@ -10,7 +10,6 @@ var VizView = AmpersandView.extend({
   _autoWidth: false,
   _autoHeight: false,
   props: {
-    data: 'any',
     className: 'any',
     vizFn: 'any',
     chart: 'any',

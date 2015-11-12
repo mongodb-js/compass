@@ -54,17 +54,17 @@ module.exports = AmpersandView.extend(QueryBuilderMixin, {
       return idx % 2 === 1;
     });
     if (_.min(lons) >= -180 && _.max(lons) <= 180 && _.min(lats) >= -90 && _.max(lats) <= 90) {
-      // attach the zipped up coordinates to the model where VizView would expect it
       return new ArrayCollection(_.zip(lons, lats));
     }
     return false;
   },
   /* eslint complexity: 0 */
-  _geoCoordinateCheck: function() {
+  _geoCoordinateTransform: function() {
     var coords;
-    if (!app.isFeatureEnabled('Geo Minicharts')) return false;
-    if (!navigator.onLine) return false;
-
+    if (this.model.name === 'Coordinates') {
+      // been here before, don't need to do it again
+      return true;
+    }
     if (this.model.name === 'Document') {
       if (this.model.fields.length !== 2
         || !this.model.fields.get('type')
@@ -100,11 +100,26 @@ module.exports = AmpersandView.extend(QueryBuilderMixin, {
   },
   render: function() {
     this.renderWithTemplate(this);
-    if (this._geoCoordinateCheck()) {
-      this.viewOptions.renderMode = 'html';
-      this.viewOptions.height = 250;
-      this.viewOptions.vizFn = vizFns.geo;
-      this.subview = new VizView(this.viewOptions);
+    this._geoCoordinateTransform();
+
+    if (this.model.name === 'Coordinates') {
+      // check if we can load google maps or if we need to fall back to
+      // a simpler coordinate chart
+      if (app.isFeatureEnabled('Google Map Minicharts')
+        && navigator.onLine
+        && !localStorage.disableGoogleMaps) {
+        this.viewOptions.renderMode = 'html';
+        this.viewOptions.height = 250;
+        this.viewOptions.vizFn = vizFns.geo;
+        this.subview = new VizView(this.viewOptions);
+      } else {
+        // we have coordinates but cannot load google maps (offline, invalid
+        // key, etc.). Fall back to simplified coordinate chart.
+        this.viewOptions.renderMode = 'svg';
+        this.viewOptions.height = 250;
+        this.viewOptions.vizFn = vizFns.coordinates;
+        this.subview = new VizView(this.viewOptions);
+      }
     } else if (['String', 'Number'].indexOf(this.model.name) !== -1
       && this.model.unique === this.model.count) {
       // unique values get a div-based UniqueMinichart
@@ -122,6 +137,7 @@ module.exports = AmpersandView.extend(QueryBuilderMixin, {
       // otherwise, create a svg-based VizView for d3
       this.subview = new VizView(this.viewOptions);
     }
+
     if (app.isFeatureEnabled('querybuilder')) {
       this.listenTo(this.subview, 'querybuilder', this.handleQueryBuilderEvent);
     }
