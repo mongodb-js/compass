@@ -187,7 +187,7 @@ var ConnectFormView = FormView.extend({
         template: require('./input-default.jade'),
         el: this.parent.queryByHook('saveas-subview'),
         name: 'name',
-        label: 'Name',
+        label: 'Favorite Name',
         placeholder: 'e.g. Shared Dev, QA Box, PRODUCTION',
         required: false
       })
