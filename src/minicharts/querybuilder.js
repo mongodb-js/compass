@@ -76,7 +76,7 @@ module.exports = {
         break;
       case 'ObjectID': // fall-through to Date
       case 'Date':
-          queryType = 'range';
+        queryType = 'range';
         break;
       case 'Array':
       case 'Document':
@@ -306,7 +306,7 @@ module.exports = {
       // multiple values
       message.value = new GeoOperator({
         $geoWithin: {
-          $centerSphere: [ [message.selected[0], message.selected[1] ], message.selected[2] ]
+          $centerSphere: [[message.selected[0], message.selected[1]], message.selected[2]]
         }
       }, {
         parse: true

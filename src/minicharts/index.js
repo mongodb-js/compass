@@ -65,6 +65,12 @@ module.exports = AmpersandView.extend(QueryBuilderMixin, {
       // been here before, don't need to do it again
       return true;
     }
+    if (!app.isFeatureEnabled('Geo Minicharts')) {
+      return false;
+    }
+    if (!navigator.onLine) {
+      return false;
+    }
     if (this.model.name === 'Document') {
       if (this.model.fields.length !== 2
         || !this.model.fields.get('type')
@@ -72,13 +78,17 @@ module.exports = AmpersandView.extend(QueryBuilderMixin, {
         || this.model.fields.get('type').types.get('String').unique !== 1
         || this.model.fields.get('type').types.get('String').values.at(0).value !== 'Point'
         || this.model.fields.get('coordinates').types.get('Array').count
-           !== this.model.fields.get('coordinates').count
+        !== this.model.fields.get('coordinates').count
         || this.model.fields.get('coordinates').types.get('Array').average_length !== 2
-      ) return false;
+      ) {
+        return false;
+      }
       coords = this._mangleGeoCoordinates(
         this.model.fields.get('coordinates').types.get('Array')
-        .types.get('Number').values.serialize());
-      if (!coords) return false;
+          .types.get('Number').values.serialize());
+      if (!coords) {
+        return false;
+      }
       // we have a GeoJSON document: {type: "Point", coordinates: [lng, lat]}
       this.model.values = coords;
       this.model.fields.reset();
@@ -86,10 +96,14 @@ module.exports = AmpersandView.extend(QueryBuilderMixin, {
       return true;
     } else if (this.model.name === 'Array') {
       var lengths = this.model.lengths;
-      if (_.min(lengths) !== 2 || _.max(lengths) !== 2) return false;
+      if (_.min(lengths) !== 2 || _.max(lengths) !== 2) {
+        return false;
+      }
       coords = this._mangleGeoCoordinates(
         this.model.types.get('Number').values.serialize());
-      if (!coords) return false;
+      if (!coords) {
+        return false;
+      }
       // we have a legacy coordinate pair: [lng, lat]
       this.model.values = coords;
       this.model.types.reset();
