@@ -2,10 +2,10 @@ var d3 = require('d3');
 var _ = require('lodash');
 var shared = require('./shared');
 var tooltipHtml = require('./tooltip.jade');
-var format = require('util').format;
+
 require('../d3-tip')(d3);
 
-var debug = require('debug')('scout:minicharts:coordinates');
+// var debug = require('debug')('scout:minicharts:coordinates');
 
 var minicharts_d3fns_coordinates = function() {
   // --- beginning chart setup ---
