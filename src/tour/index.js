@@ -1,8 +1,21 @@
 var $ = require('jquery');
 var View = require('ampersand-view');
+// var debug = require('debug')('scout:tour:index');
+
+var ESC_KEY = 27;
+var LEFT_ARROW_KEY = 37;
+var RIGHT_ARROW_KEY = 39;
+var TAB_KEY = 9;
+var ENTER_KEY = 13;
+var SPACE_KEY = 32;
 
 var TourView = View.extend({
-  props: {
+  session: {
+    body: 'any',
+    numFeatures: {
+      type: 'number',
+      default: 5
+    },
     tourCount: {
       type: 'number',
       default: 0
@@ -20,6 +33,26 @@ var TourView = View.extend({
     'click #tour-remove': 'tourRemove',
     'click .tour-close-button': 'tourRemove',
     'click #tour-bg': 'tourRemove'
+  },
+  onKeyPress: function(evt) {
+    if (evt.keyCode === ESC_KEY) {
+      evt.preventDefault();
+      evt.stopPropagation();
+      this.tourRemove();
+    } else if ([
+      RIGHT_ARROW_KEY,
+      TAB_KEY,
+      ENTER_KEY,
+      SPACE_KEY].indexOf(evt.keyCode) !== -1) {
+      this.showNextFeature();
+    } else if (evt.keyCode === LEFT_ARROW_KEY) {
+      this.showPreviousFeature();
+    }
+  },
+  initialize: function() {
+    this.onKeyPress = this.onKeyPress.bind(this);
+    this.body = document.getElementsByTagName('body')[0];
+    this.body.addEventListener('keydown', this.onKeyPress);
   },
   render: function() {
     this.renderWithTemplate(this);
@@ -71,6 +104,9 @@ var TourView = View.extend({
     this.showHidePreviousNextButtons();
   },
   showPreviousFeature: function() {
+    if (this.tourCount <= 0) {
+      return;
+    }
     var previousFeature = this.tourCount - 1;
     var that = this;
 
@@ -93,6 +129,9 @@ var TourView = View.extend({
     this.showHidePreviousNextButtons();
   },
   showNextFeature: function() {
+    if (this.tourCount >= this.numFeatures - 1) {
+      return;
+    }
     var nextFeature = this.tourCount + 1;
     var that = this;
 
@@ -115,6 +154,7 @@ var TourView = View.extend({
     this.showHidePreviousNextButtons();
   },
   tourRemove: function() {
+    this.body.removeEventListener('keydown', this.onKeyPress);
     this.remove();
   }
 });
