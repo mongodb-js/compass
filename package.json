@@ -18,21 +18,22 @@
       "./src/index.js"
     ],
     "ignore": [
-      "bootstrap",
-      "font-awesome",
-      "octicons",
-      "app",
-      "auto-updater",
-      "crash-reporter",
-      "dialog",
-      "browser-window",
-      "menu",
-      "jade",
-      "scout-server",
-      "glob",
-      "electron-squirrel-startup",
-      "ipc",
-      "keytar"
+      "app", 
+      "auto-updater", 
+      "bootstrap", 
+      "browser-window", 
+      "clipboard",
+      "crash-reporter", 
+      "dialog", 
+      "electron-squirrel-startup", 
+      "font-awesome", 
+      "glob", 
+      "ipc", 
+      "jade", 
+      "keytar", 
+      "menu", 
+      "octicons", 
+      "scout-server"
     ]
   },
   "fonts": [

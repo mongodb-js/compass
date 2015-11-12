@@ -227,6 +227,8 @@ var ConnectView = View.extend({
       this.replaceAuthMethodFields.bind(this));
     this.listenToAndRun(this, 'change:sslMethod',
       this.replaceSslMethodFields.bind(this));
+    this.listenTo(app, 'update-connection',
+      this.updateConnectionFromMsg.bind(this));
 
     // always start in NEW_EMPTY state
     this.dispatch('new connection clicked');
@@ -306,6 +308,16 @@ var ConnectView = View.extend({
     this.connections.add(this.connection, {
       merge: true
     });
+  },
+
+  updateConnectionFromMsg: function(connection) {
+    this.connection = new Connection();
+    /* eslint guard-for-in: 0 */
+    for (var attr in connection) {
+      this.connection[attr] = connection[attr];
+    }
+    /* eslint guard-for-in: 1 */
+    this.updateForm();
   },
 
   /**
