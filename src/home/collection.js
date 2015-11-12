@@ -6,11 +6,12 @@ var RefineBarView = require('../refine-view');
 var MongoDBCollection = require('../models/mongodb-collection');
 var SampledSchema = require('../models/sampled-schema');
 var app = require('ampersand-app');
-var $ = require('jquery');
 var _ = require('lodash');
+var remote = window.require('remote');
+var dialog = remote.require('dialog');
+var BrowserWindow = remote.require('browser-window');
+var format = require('util').format;
 var debug = require('debug')('scout:home:collection');
-
-require('bootstrap/js/modal');
 
 var MongoDBCollectionView = View.extend({
   // modelType: 'Collection',
@@ -83,7 +84,16 @@ var MongoDBCollectionView = View.extend({
   onShareSchema: function() {
     var clipboard = window.require('clipboard');
     clipboard.writeText(JSON.stringify(this.schema.serialize(), null, '  '));
-    $(this.queryByHook('share-schema-confirmation')).modal('show');
+
+    var detail = format('The schema definition of %s has been copied to your '
+      + 'clipboard in JSON format.', this.model._id);
+
+    dialog.showMessageBox(BrowserWindow.getFocusedWindow(), {
+      type: 'info',
+      message: 'Share Schema',
+      detail: detail,
+      buttons: ['OK']
+    });
   },
   onCollectionChanged: function() {
     var ns = this.parent.ns;

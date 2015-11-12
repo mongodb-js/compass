@@ -3,6 +3,7 @@ var _ = require('lodash');
 var path = require('path');
 var remote = window.require('remote');
 var dialog = remote.require('dialog');
+var BrowserWindow = remote.require('browser-window');
 var format = require('util').format;
 var bindings = require('ampersand-dom-bindings');
 var fileReaderTemplate = require('./filereader-default.jade');
@@ -172,7 +173,7 @@ module.exports = InputView.extend({
     this.runTests();
   },
   loadFileButtonClicked: function() {
-    dialog.showOpenDialog({
+    dialog.showOpenDialog(BrowserWindow.getFocusedWindow(), {
       properties: ['openFile', 'multiSelections']
     }, function(filenames) {
       this.inputValue = filenames || [];

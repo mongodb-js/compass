@@ -4,20 +4,21 @@ var shared = require('./shared');
 var debug = require('debug')('scout:minicharts:geo');
 var mapStyle = require('./mapstyle');
 // var async = require('async');
-// var xor = require('xor-it');
 var app = require('ampersand-app');
 var format = require('util').format;
-
+var remote = window.require('remote');
+var dialog = remote.require('dialog');
+var BrowserWindow = remote.require('browser-window');
 
 var SHIFTKEY = 16;
 var APIKEY = 'AIzaSyDrhE1qbcnNIh4sK3t7GEcbLRdCNKWjlt0';
-// var APIKEY = 'AIzaSyDrhE1qbcnNIh4sZp47GEcbLRdCNKWjlt4';  // wrong one
-// function produceKey(text) {
-//   var key = 'Error: Google map could not be loaded, disabling feature';
-//   var res = xor(key, text);
-//   return res;
-// }
 
+var FATAL_GOOGLE_ERROR_CODES = [
+  'InvalidKeyOrUnauthorizedURLMapError',
+  'NotLoadingAPIFromGoogleMapError',
+  'TOSViolationMapError',
+  'UnauthorizedURLForClientIdMapError'
+];
 // From: http://davidbcalhoun.com/2014/async.parallel-with-a-simple-timeout-node-js/
 // async.parallel with optional timeout (options.timeoutMS)
 // function parallel(options, tasks, cb) {
@@ -59,10 +60,12 @@ var minicharts_d3fns_geo = function() {
 
   var margin = shared.margin;
 
-  function disableMapsFeature() {
+  function disableMapsFeature(permanent) {
     // disable both in feature flag (for this run) and localStorage
     app.setFeature('Google Map Minicharts', false);
-    localStorage.disableGoogleMaps = true;
+    if (permanent) {
+      localStorage.disableGoogleMaps = true;
+    }
     delete window.google;
     options.view.parent.render();
   }
@@ -77,8 +80,38 @@ var minicharts_d3fns_geo = function() {
       if (match) {
         errorCode = match[1].trim();
       }
-      debug('Error with code "%s" while loading Google Maps. Disabling Geo Querybuilder feature.', errorCode);
-      disableMapsFeature();
+      var message;
+      var detail;
+      if (FATAL_GOOGLE_ERROR_CODES.indexOf(errorCode) !== -1) {
+        // maps API key is not valid, we may have had to deactivate it
+        message = 'The Google Maps API key used in Compass is no longer '
+          + 'valid.';
+        detail = 'Compass will disable the Google Map feature permanently and '
+          + 'replace the map with a simplified coordinate chart. Please check '
+          + 'for an update to Compass to re-enable this feature.';
+        disableMapsFeature(true);
+        debug('Error with code "%s" while loading Google Maps. Disabling Geo '
+          + 'Querybuilder feature permanently.', errorCode);
+      } else {
+        message = 'There was a problem loading the Google Map.';
+        detail = 'Compass will disable the Google Map feature temporarily '
+          + 'and replace the map with a simplified coordinate chart. Compass '
+          + 'will try to load a Google Map again next time you use the '
+          + 'application.';
+        disableMapsFeature(false);
+        debug('Error with code "%s" while loading Google Maps. Disabling Geo '
+          + 'Querybuilder feature temporarily.', errorCode);
+      }
+      // show error dialog
+      dialog.showMessageBox(BrowserWindow.getFocusedWindow(), {
+        type: 'error',
+        title: 'Error loading Google Maps',
+        message: message,
+        detail: detail,
+        buttons: ['OK']
+      });
+
+      // @todo thomasr/imlucas: add call to metrics.error here with errror code
     };
 
     var script = document.createElement('script');
@@ -216,7 +249,8 @@ var minicharts_d3fns_geo = function() {
         .style({
           width: (width - margin.left - margin.right) + 'px',
           height: (height - margin.top - margin.bottom) + 'px',
-          padding: margin.top + 'px ' + margin.right + 'px ' + margin.bottom + 'px ' + margin.left + 'px;'
+          padding: margin.top + 'px ' + margin.right + 'px ' + margin.bottom
+            + 'px ' + margin.left + 'px;'
         });
 
       if (!window.google) {
