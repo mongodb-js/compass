@@ -255,7 +255,8 @@ var FEATURES = {
   'Connect with LDAP': false,
   'Connect with X.509': false,
   intercom: true,
-  bugsnag: true
+  bugsnag: true,
+  'google-analytics': true
 };
 
 app.extend({
