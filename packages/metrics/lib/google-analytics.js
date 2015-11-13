@@ -102,9 +102,11 @@ exports.pageview = function() {
   /**
    * @todo (imlucas) Add `req` arg for usage from express middleware.
    */
-  var params = {
-    documentPath: document.location.pathname + document.location.hash
-  };
+  var params = {};
+  params.documentPath = '/'
+    + (document.location.pathname + document.location.hash)
+    .split(new RegExp('.html'))[1];
+
   exports.send('pageview', params);
 };
 
