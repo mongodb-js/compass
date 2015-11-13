@@ -95,6 +95,7 @@ gulp.task('watch', function() {
   gulp.watch(['src/*.jade'], ['build:pages']);
   gulp.watch('images/{*,**/*}', ['copy:images']);
   gulp.watch('fonts/*', ['copy:fonts']);
+  gulp.watch('src/help/entries/*.md', ['copy:text']);
   gulp.watch(['src/electron/{*,**/*}'], ['copy:js']);
   gulp.watch('package.json', function() {
     gutil.log('package.json changed!');
@@ -232,8 +233,12 @@ gulp.task('copy:package.json', function() {
 });
 
 gulp.task('copy:text', function() {
-  return gulp.src(['README.md'])
-    .pipe(gulp.dest('build/'));
+  return merge(
+    gulp.src('README.md')
+      .pipe(gulp.dest('build/')),
+    gulp.src('src/help/entries/*.md')
+      .pipe(gulp.dest('build/src/help/entries'))
+  );
 });
 
 // Copy non-UI js into the build.

@@ -41,6 +41,7 @@ var SERVER = {
       name: 'ssl_ca',
       multi: true,
       label: 'Certificate Authority',
+      helpEntry: 'connect-ssl-certificate-authority',
       required: true
     })
   ]
@@ -59,22 +60,26 @@ var ALL = {
       name: 'ssl_ca',
       multi: true,
       label: 'Certificate Authority',
+      helpEntry: 'connect-ssl-certificate-authority',
       required: true
     }),
     new FileReaderView({
       name: 'ssl_private_key',
       label: 'Client Private Key',
+      helpEntry: 'connect-ssl-client-certificate-key',
       required: true
     }),
     new FileReaderView({
       name: 'ssl_certificate',
       label: 'Client Certificate',
+      helpEntry: 'connect-ssl-client-certificate',
       required: true
     }),
     new InputView({
       template: inputTemplate,
       name: 'ssl_private_key_password',
-      label: 'Private Key Password',
+      label: 'Client Key Password',
+      helpEntry: 'connect-ssl-private-key-password',
       required: false
     })
   ]

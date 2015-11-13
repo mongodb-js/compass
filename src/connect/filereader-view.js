@@ -30,6 +30,10 @@ module.exports = InputView.extend({
       type: 'boolean',
       required: true,
       default: false
+    },
+    helpEntry: {
+      type: 'string',
+      default: null
     }
   },
   derived: {
@@ -91,6 +95,9 @@ module.exports = InputView.extend({
     _.defaults(spec, {
       value: []
     });
+    if (spec.helpEntry) {
+      this.helpEntry = spec.helpEntry;
+    }
     this.invalidClass = 'has-error';
     this.validityClassSelector = '.form-item-file';
     InputView.prototype.initialize.call(this, spec);

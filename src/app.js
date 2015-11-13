@@ -28,6 +28,8 @@ var MongoDBInstance = require('./models/mongodb-instance');
 var User = require('./models/user');
 var Router = require('./router');
 var Statusbar = require('./statusbar');
+var Help = require('./help');
+var $ = require('jquery');
 
 var debug = require('debug')('scout:app');
 
@@ -119,7 +121,12 @@ var Application = View.extend({
     user: User
   },
   events: {
-    'click a': 'onLinkClick'
+    'click a': 'onLinkClick',
+    'click i.help': 'onHelpClicked'
+  },
+  onHelpClicked: function(evt) {
+    var id = $(evt.target).attr('data-hook');
+    Help.open(id);
   },
   onClientReady: function() {
     debug('Client ready! Took %dms to become readable',
