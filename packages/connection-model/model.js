@@ -800,6 +800,10 @@ Connection.getFieldNames = function(authentication) {
   return AUTHENTICATION_TO_FIELD_NAMES[authentication];
 };
 
+Connection.isURI = function(str) {
+  return str.indexOf('mongodb://') > -1;
+};
+
 Connection.AUTHENTICATION_VALUES = AUTHENTICATION_VALUES;
 Connection.AUTHENTICATION_DEFAULT = AUTHENTICATION_DEFAULT;
 Connection.SSL_VALUES = SSL_VALUES;
