@@ -39,6 +39,7 @@ var SERVER = {
   fields: [
     new FileReaderView({
       name: 'ssl_ca',
+      multi: true,
       label: 'Certificate Authority',
       required: true
     })
@@ -56,6 +57,7 @@ var ALL = {
   fields: [
     new FileReaderView({
       name: 'ssl_ca',
+      multi: true,
       label: 'Certificate Authority',
       required: true
     }),
