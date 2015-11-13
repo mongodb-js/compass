@@ -16,7 +16,8 @@
   "dependencies": {
     "bugsnag-js": "^2.4.8",
     "debug": "^2.2.0",
-    "lodash": "^3.10.1"
+    "lodash": "^3.10.1",
+    "universal-analytics": "^0.3.9"
   },
   "devDependencies": {
     "eslint-config-mongodb-js": "^1.0.5",

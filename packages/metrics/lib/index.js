@@ -1,7 +1,9 @@
 exports.bugsnag = require('./bugsnag');
-exports.ga = require('./ga');
+exports.googleAnalytics = require('./google-analytics');
 exports.intercom = require('./intercom');
 var debug = require('debug')('mongodb-js-metrics');
+
+exports.timing = function() {};
 
 exports.track = function(title, meta) {
   debug('track', {
@@ -10,6 +12,7 @@ exports.track = function(title, meta) {
   });
 
   exports.intercom.track(title, meta);
+  exports.googleAnalytics.track(title, meta);
 };
 
 exports.error = function(err, title, meta) {
@@ -20,7 +23,8 @@ exports.error = function(err, title, meta) {
   });
 
   exports.bugsnag.notifyException(err, title, meta);
-  exports.intercom.track('Error: ' + title + ': ' + err.message, meta);
+  exports.intercom.error(err, title, meta);
+  exports.googleAnalytics.error(err, title, meta);
 };
 
 exports.listen = function(app) {
@@ -29,5 +33,5 @@ exports.listen = function(app) {
   }
   exports.intercom.listen(app);
   exports.bugsnag.listen(app);
-  exports.ga.listen(app);
+  exports.googleAnalytics.listen(app);
 };
