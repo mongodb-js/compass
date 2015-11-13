@@ -84,7 +84,7 @@ exports.getIntercomSettings = function(user) {
  * @api private
  */
 exports.setUser = function(user) {
-  if (exports.app) {
+  if (!exports.app) {
     throw new TypeError('metrics.intercom.setUser called before exports.app set!');
   }
 

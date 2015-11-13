@@ -16,7 +16,7 @@ exports.visitor = null;
  * @api private
  */
 exports.setUser = function(user) {
-  if (exports.app) {
+  if (!exports.app) {
     throw new TypeError('metrics.googleAnalytics.setUser called before exports.app set!');
   }
 
