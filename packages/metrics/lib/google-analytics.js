@@ -36,6 +36,7 @@ exports.setUser = function(user) {
     debug('debugging enabled');
   }
   debug('booted!');
+  exports.pageview();
 };
 
 /**
