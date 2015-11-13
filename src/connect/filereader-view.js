@@ -31,7 +31,7 @@ module.exports = InputView.extend({
       deps: ['inputValue'],
       fn: function() {
         if (this.inputValue.length === 0) {
-          return 'Choose certificate(s)';
+          return 'Choose file(s)';
         } else if (this.inputValue.length === 1) {
           return path.basename(this.inputValue[0]);
         }
