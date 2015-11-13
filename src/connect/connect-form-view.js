@@ -148,8 +148,7 @@ var ConnectFormView = FormView.extend({
         // you can pass in a collection here too
         options: enabledAuthOptions,
         // and pick an item from the collection as the selected one
-        // @todo thomasr: pick the "model.selected" one (via .find() ?)
-        value: enabledAuthOptions.get('MONGODB'),
+        value: enabledAuthOptions.get('NONE'),
         // here you specify which attribute on the objects in the collection
         // to use for the value returned.
         idAttribute: '_id',
@@ -186,7 +185,7 @@ var ConnectFormView = FormView.extend({
         template: require('./input-default.jade'),
         el: this.parent.queryByHook('saveas-subview'),
         name: 'name',
-        label: 'Name',
+        label: 'Favorite Name',
         placeholder: 'e.g. Shared Dev, QA Box, PRODUCTION',
         required: false
       })

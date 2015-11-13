@@ -39,6 +39,7 @@ var SERVER = {
   fields: [
     new FileReaderView({
       name: 'ssl_ca',
+      multi: true,
       label: 'Certificate Authority',
       required: true
     })
@@ -56,23 +57,24 @@ var ALL = {
   fields: [
     new FileReaderView({
       name: 'ssl_ca',
+      multi: true,
       label: 'Certificate Authority',
       required: true
     }),
     new FileReaderView({
       name: 'ssl_private_key',
-      label: 'Certificate Key',
+      label: 'Client Certificate Key',
       required: true
     }),
     new FileReaderView({
       name: 'ssl_certificate',
-      label: 'Certificate',
+      label: 'Client Certificate',
       required: true
     }),
     new InputView({
       template: inputTemplate,
       name: 'ssl_private_key_password',
-      label: 'Private Key Password',
+      label: 'Client Key Password',
       required: false
     })
   ]

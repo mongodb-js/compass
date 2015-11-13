@@ -108,7 +108,7 @@ module.exports = State.extend({
     switch (action) {
       case 'new connection clicked':
         newState = 'NEW_EMPTY';
-        view.authMethod = 'MONGODB';
+        view.authMethod = 'NONE';
         view.sslMethod = 'NONE';
         view.form.reset();
         view.message = '';

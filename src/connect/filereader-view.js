@@ -7,12 +7,18 @@ var BrowserWindow = remote.require('browser-window');
 var format = require('util').format;
 var bindings = require('ampersand-dom-bindings');
 var fileReaderTemplate = require('./filereader-default.jade');
+var assert = require('assert');
 
 // var debug = require('debug')('scout:connect:filereader-view');
 
 module.exports = InputView.extend({
   template: fileReaderTemplate,
   props: {
+    multi: {
+      type: 'boolean',
+      required: true,
+      default: false
+    },
     inputValue: {
       type: 'array',
       required: true,
@@ -31,10 +37,11 @@ module.exports = InputView.extend({
       deps: ['inputValue'],
       fn: function() {
         if (this.inputValue.length === 0) {
-          return 'Choose certificate(s)';
+          return this.multi ? 'Choose file(s)' : 'Choose file';
         } else if (this.inputValue.length === 1) {
           return path.basename(this.inputValue[0]);
         }
+        assert.equal(this.multi, true);
         return format('%d files selected', this.inputValue.length);
       }
     },
@@ -78,6 +85,9 @@ module.exports = InputView.extend({
    */
   initialize: function(spec) {
     spec = spec || {};
+    if (spec.multi) {
+      this.multi = spec.multi;
+    }
     _.defaults(spec, {value: []});
     this.invalidClass = 'has-error';
     this.validityClassSelector = '.form-item-file';
@@ -173,8 +183,12 @@ module.exports = InputView.extend({
     this.runTests();
   },
   loadFileButtonClicked: function() {
+    var properties = ['openFile'];
+    if (this.multi) {
+      properties.push('multiSelections');
+    }
     dialog.showOpenDialog(BrowserWindow.getFocusedWindow(), {
-      properties: ['openFile', 'multiSelections']
+      properties: properties
     }, function(filenames) {
       this.inputValue = filenames || [];
       this.handleChange();

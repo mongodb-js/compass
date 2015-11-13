@@ -47,7 +47,7 @@ var ConnectView = View.extend({
     },
     authMethod: {
       type: 'string',
-      default: 'MONGODB'
+      default: 'NONE'
     },
     previousAuthMethod: {
       type: 'string',
