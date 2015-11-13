@@ -66,13 +66,6 @@ module.exports = AmpersandView.extend(QueryBuilderMixin, {
       return true;
     }
 
-    if (!app.isFeatureEnabled('Geo Minicharts')) {
-      return false;
-    }
-    if (!navigator.onLine) {
-      return false;
-    }
-
     if (this.model.name === 'Document') {
       if (this.model.fields.length !== 2
         || !this.model.fields.get('type')
