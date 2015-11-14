@@ -68,7 +68,6 @@ functions:
         ${npm|npm} config set loglevel error
         ${npm|npm} config -g list -l
         ${npm|npm} install
-        ${npm|npm} install
 
   # For Windows: retrieve a fake "signtool.exe" which proxies to notary-service,
   # and remove the real one from our path. Must run after "npm install"
@@ -103,8 +102,8 @@ functions:
         export NOTARY_SIGNING_COMMENT="Evergreen project mongodb/compass ${revision} - ${build_variant} - ${branch_name}"
         export SIGNTOOL_PARAMS="yes"
         test -n "${add_environment|}" && export ${add_environment|}
+        node -p process.env
         ${npm|npm} run ci
-        ${npm|npm} run test
 
   "save release":
     command: s3.put
