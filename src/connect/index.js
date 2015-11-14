@@ -1,14 +1,19 @@
-var View = require('ampersand-view');
-var SidebarView = require('./sidebar');
 var BehaviorStateMachine = require('./behavior');
-var ConnectionCollection = require('../models/connection-collection');
 var ConnectFormView = require('./connect-form-view');
 var Connection = require('../models/connection');
-var debug = require('debug')('scout:connect:index');
+var ConnectionCollection = require('../models/connection-collection');
+var MongoDBConnection = require('mongodb-connection-model');
+var SidebarView = require('./sidebar');
+var View = require('ampersand-view');
+
 var _ = require('lodash');
 var app = require('ampersand-app');
+var debug = require('debug')('scout:connect:index');
 var format = require('util').format;
 var metrics = require('mongodb-js-metrics');
+
+var remote = window.require('remote');
+var Clipboard = remote.require('clipboard');
 
 /**
  * AuthenticationOptionCollection
@@ -227,11 +232,38 @@ var ConnectView = View.extend({
       this.replaceAuthMethodFields.bind(this));
     this.listenToAndRun(this, 'change:sslMethod',
       this.replaceSslMethodFields.bind(this));
-    this.listenTo(app, 'update-connection',
-      this.updateConnectionFromMsg.bind(this));
+
+    this.listenTo(app, 'autofill-connection-from-clipboard',
+      this.autofillFromClipboard.bind(this));
+    this.listenTo(app, 'connect-window-focused',
+      this.checkIfCanAutofillFromClipboard.bind(this));
 
     // always start in NEW_EMPTY state
     this.dispatch('new connection clicked');
+  },
+
+  autofillFromClipboard: function() {
+    var connectionFromCB = MongoDBConnection.from(this.lastClipboardTxt).toJSON();
+    this.connection = new Connection();
+    /* eslint guard-for-in: 0 */
+    for (var attr in connectionFromCB) {
+      this.connection[attr] = connectionFromCB[attr];
+    }
+    /* eslint guard-for-in: 1 */
+    this.updateForm();
+  },
+
+  checkIfCanAutofillFromClipboard: function() {
+    var cbTxt = Clipboard.readText();
+    if (cbTxt === this.lastClipboardTxt) {
+      return;
+    }
+    this.lastClipboardTxt = cbTxt;
+
+    if (MongoDBConnection.isURI(cbTxt)) {
+      debug('mongoURI detected.');
+      app.sendMessage('show autofill connection notification');
+    }
   },
 
   connectionNameEmptyChanged: function() {
@@ -241,7 +273,6 @@ var ConnectView = View.extend({
       this.dispatch('name added');
     }
   },
-
 
   // === External hooks
 
@@ -308,16 +339,6 @@ var ConnectView = View.extend({
     this.connections.add(this.connection, {
       merge: true
     });
-  },
-
-  updateConnectionFromMsg: function(connection) {
-    this.connection = new Connection();
-    /* eslint guard-for-in: 0 */
-    for (var attr in connection) {
-      this.connection[attr] = connection[attr];
-    }
-    /* eslint guard-for-in: 1 */
-    this.updateForm();
   },
 
   /**

@@ -75,7 +75,7 @@
     "keytar": "^3.0.0",
     "localforage": "^1.3.0",
     "mongodb-collection-model": "^0.1.1",
-    "mongodb-connection-model": "^3.0.6",
+    "mongodb-connection-model": "^3.0.7",
     "mongodb-instance-model": "^1.0.2",
     "mongodb-ns": "^1.0.1",
     "mongodb-js-metrics": "^0.2.2",

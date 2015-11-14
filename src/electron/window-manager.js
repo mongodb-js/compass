@@ -7,27 +7,26 @@
 var AppMenu = require('./menu');
 var BrowserWindow = require('browser-window');
 var Clipboard = require('clipboard');
-var Connection = require('mongodb-connection-model');
 var Notifier = require('node-notifier');
+var Path = require('path');
 
 var _ = require('lodash');
 var app = require('app');
 var config = require('./config');
 var debug = require('debug')('scout-electron:window-manager');
 var dialog = require('dialog');
-var path = require('path');
 
 /**
  * When running in electron, we're in `RESOURCES/src/electron`.
  */
-var RESOURCES = path.resolve(__dirname, '../../');
+var RESOURCES = Path.resolve(__dirname, '../../');
 var SCOUT_ICON_PATH = RESOURCES + '/images/scout.png';
 
 /**
  * The app's HTML shell which is the output of `./src/index.jade`
  * created by the `build:pages` gulp task.
  */
-var DEFAULT_URL = 'file://' + path.join(RESOURCES, 'index.html#connect');
+var DEFAULT_URL = 'file://' + Path.join(RESOURCES, 'index.html#connect');
 
 /**
  * We want the Connect dialog window to be special
@@ -35,26 +34,14 @@ var DEFAULT_URL = 'file://' + path.join(RESOURCES, 'index.html#connect');
  * so we'll use scope to essentially make it a Singleton.
  */
 var connectWindow;
-var curNotifierOnClickFn;
-var lastClipboardTxt;
 
 // @todo (imlucas): Removed in setup branch as we dont need to do this anymore
 // as a `all-windows-closed` event has been added to the `app` event api
 // since this code was laid down.
 var windowsOpenCount = 0;
 
-var autofillConnect = function() {
-  debug('autofillConnect()');
-  var connection = Connection.from(Clipboard.readText()).toJSON();
-  connectWindow.webContents.send('message', 'update-connection', connection);
-};
-
 function isConnectDialog(url) {
   return url === DEFAULT_URL;
-}
-
-function isMongoURI(str) {
-  return str.indexOf('mongodb://') > -1;
 }
 
 // returns true if the application is a single instance application otherwise
@@ -137,22 +124,7 @@ module.exports.create = function(opts) {
     connectWindow = _window;
     connectWindow.on('focus', function() {
       debug('connect window focused.');
-      var cbTxt = Clipboard.readText();
-      if (cbTxt === lastClipboardTxt) {
-        return;
-      }
-      lastClipboardTxt = cbTxt;
-
-      if (isMongoURI(cbTxt)) {
-        debug('mongoURI detected.');
-        curNotifierOnClickFn = autofillConnect;
-        Notifier.notify({
-          'icon': SCOUT_ICON_PATH,
-          'message': 'Click this notification to autofill the connection fields from your clipboard.',
-          'title': 'Autofill Connection',
-          'wait': true
-        });
-      }
+      connectWindow.webContents.send('message', 'connect-window-focused');
     });
     connectWindow.on('closed', function() {
       debug('connect window closed.');
@@ -196,6 +168,19 @@ app.on('show about dialog', function() {
   });
 });
 
+app.on('show autofill connection notification', function() {
+  Notifier.notify({
+    'icon': SCOUT_ICON_PATH,
+    'message': 'Click this notification to autofill the connection fields from your clipboard.',
+    'title': 'Autofill Connection',
+    'wait': true
+  }, function(err, resp) {
+    if (resp === 'Activate\n') {
+      connectWindow.webContents.send('message', 'autofill-connection-from-clipboard');
+    }
+  });
+});
+
 app.on('hide connect submenu', function() {
   AppMenu.hideConnect();
 });
@@ -218,12 +203,15 @@ app.on('show share submenu', function() {
 
 app.on('show bugsnag OS notification', function(errorMsg) {
   if (_.contains(['development', 'testing'], process.env.NODE_ENV)) {
-    curNotifierOnClickFn = openDevTools;
     Notifier.notify({
       'icon': SCOUT_ICON_PATH,
       'message': errorMsg,
       'title': 'MongoDB Compass Exception',
       'wait': true
+    }, function(err, resp) {
+      if (resp === 'Activate\n') {
+        openDevTools();
+      }
     });
   }
 });
@@ -236,10 +224,6 @@ app.on('show bugsnag OS notification', function(errorMsg) {
  */
 app.on('ready', function() {
   app.emit('show connect dialog');
-
-  Notifier.on('click', function() {
-    curNotifierOnClickFn();
-  });
 });
 
 var ipc = require('ipc');
