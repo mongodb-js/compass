@@ -31,6 +31,7 @@ var HelpEntryCollection = Collection.extend(selectableMixin, {
   onSuccess = function(entries) {
     debug('got entries', entries);
     ipc.removeListener('/help/entries/error', onError);
+    done(null, entries);
   };
 
   debug('loading help entries...');

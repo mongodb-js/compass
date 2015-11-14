@@ -11,7 +11,7 @@ module.exports = AmpersandRouter.extend({
     connect: 'connect',
     'schema/:ns': 'schema',
     help: 'help',
-    'help/:itemId': 'help',
+    'help/:entryId': 'help',
     '(*path)': 'catchAll'
   },
   schema: function(ns) {
@@ -19,9 +19,9 @@ module.exports = AmpersandRouter.extend({
       ns: ns
     }));
   },
-  help: function(itemId) {
+  help: function(entryId) {
     this.trigger('page', new HelpPage({
-      itemId: itemId
+      entryId: entryId
     }));
   },
   catchAll: function() {

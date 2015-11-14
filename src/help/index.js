@@ -2,42 +2,94 @@ var View = require('ampersand-view');
 var format = require('util').format;
 var debug = require('debug')('scout:help');
 var HelpEntryCollection = require('../models/help-entry-collection');
+var HelpEntry = require('../models/help-entry');
 var SidebarView = require('./sidebar');
+var ViewSwitcher = require('ampersand-view-switcher');
+var app = require('ampersand-app');
+
+var ENTRIES = new HelpEntryCollection();
 
 var HelpPage = View.extend({
   session: {
-    itemId: 'string'
+    entryId: 'string'
   },
-  collections: {
-    entries: HelpEntryCollection
+  children: {
+    entry: HelpEntry
+  },
+  derived: {
+    title: {
+      deps: ['entry.title'],
+      fn: function() {
+        var t = 'MongoDB Compass: Help';
+        if (this.entry.title) {
+          t += ': ' + this.entry.title;
+        }
+        return t;
+      }
+    }
+  },
+  bindings: {
+    'entry.title': {
+      hook: 'help-entry-title'
+    },
+    title: {
+      type: function(el, newVal) {
+        document.title = newVal;
+      }
+    }
   },
   template: require('./index.jade'),
   initialize: function(spec) {
     spec = spec || {};
-    this.entries.fetch();
+    ENTRIES.fetch();
 
-    if (spec.itemId) {
-      this.itemId = spec.itemId;
-      debug('initialized with itemId `%s`', this.itemId);
+    if (spec.entryId) {
+      this.entryId = spec.entryId;
+      debug('initialized with entryId `%s`', this.entryId);
     }
-  },
-  render: function() {
-    this.renderWithTemplate(this);
-    /**
-     * @todo (imlucas) switch to `ampersand-view-switcher`.
-     */
-    if (this.itemId) {
-      if (this.entries.length === 0) {
-        this.listenTo(this.entries, 'sync', this.render.bind(this));
-        return;
+    this.listenTo(this, 'change:rendered', function() {
+      this.viewSwitcher = new ViewSwitcher(this.queryByHook('help-entry-content'));
+
+      if (this.entryId) {
+        this.show(this.entryId);
       }
-      debug('rendering item `%s`', this.itemId);
-      var item = this.entries.get(this.itemId);
-
-      var subview = new View();
-      subview.template = item.content;
-      this.renderSubview(subview, this.queryByHook('item-subview'));
+    });
+  },
+  show: function(entryId) {
+    debug('show `%s`', entryId);
+    if (ENTRIES.length === 0) {
+      ENTRIES.once('sync', this.show.bind(this, entryId));
+      debug('entries not synced yet.  queuing...');
+      return;
     }
+
+    var entry = ENTRIES.get(entryId);
+
+    if (!entry) {
+      debug('entry not found');
+      return;
+    }
+
+    if (!ENTRIES.select(entry)) {
+      debug('already selected');
+      return;
+    }
+
+    if (!entry) {
+      debug('unknown entry');
+      this.viewSwitcher.clear();
+      return;
+    }
+    var view = new View({
+      template: '<div>' + entry.content + '</div>'
+    });
+    this.viewSwitcher.set(view);
+
+    this.entry.set(entry.serialize());
+    app.navigate(format('help/%s', this.entry.getId()), {
+      silent: true
+    });
+
   },
   subviews: {
     sidebar: {
@@ -46,7 +98,7 @@ var HelpPage = View.extend({
         return new SidebarView({
           el: el,
           parent: this,
-          entries: this.entries
+          entries: ENTRIES
         });
       }
     }
@@ -56,17 +108,17 @@ var HelpPage = View.extend({
 /**
  * Convenience to open the help window if needed and show an item.
  *
- * @param {String} [itemId] - Optional filename to show from `./items/#{itemId}.jade`.
+ * @param {String} [entryId] - Optional filename to show from `./items/#{entryId}.jade`.
  *
  * @todo (imlucas) Add helper to `./src/electron/window-manager.js` so this works
  * like connect window (singleton w/ custom dimensions).
  */
-HelpPage.open = function(itemId) {
+HelpPage.open = function(entryId) {
   var url = format('%s?#help', window.location.origin);
-  if (itemId) {
-    url += '/' + itemId;
+  if (entryId) {
+    url += '/' + entryId;
   }
-  debug('Opening item `%s`', itemId);
+  debug('Opening item `%s`', entryId);
   window.open(url);
 };
 

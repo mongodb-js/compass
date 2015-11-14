@@ -1,12 +1,14 @@
 var View = require('ampersand-view');
 var jade = require('jade');
-var HelpEntryCollection = require('../models/help-entry-collection');
+var debug = require('debug')('scout:help:sidebar');
 
 var SidebarItemView = View.extend({
   namespace: 'HelpSidebarItemView',
   bindings: {
     'model.url': {
-      hook: 'url'
+      hook: 'url',
+      type: 'attribute',
+      name: 'href'
     },
     'model.title': {
       hook: 'title'
@@ -16,23 +18,32 @@ var SidebarItemView = View.extend({
     },
     'model.selected': {
       type: 'booleanClass',
-      yes: 'active'
+      yes: 'selected'
     }
+  },
+  events: {
+    'click a': 'show'
+  },
+  show: function(evt) {
+    evt.stopPropagation();
+    evt.preventDefault();
+    this.parent.parent.show(this.model.getId());
   },
   template: jade.compile([
     'a.list-group-item(data-hook="url")',
-    '  h4.list-group-item-heading(data-hook="title")'
+    '  span(data-hook="title")'
   ].join('\n'))
 });
 
 var SidebarView = View.extend({
-  collections: {
-    entries: HelpEntryCollection
+  initialize: function(spec) {
+    this.entries = spec.entries;
   },
   namespace: 'HelpSidebarView',
   template: require('./sidebar.jade'),
   render: function() {
-    this.renderWithTemplate({});
+    this.renderWithTemplate(this);
+    debug('rendering collection', this.entries);
     this.renderCollection(this.entries, SidebarItemView, this.queryByHook('help-entry-list'));
   }
 });

@@ -1,4 +1,6 @@
 .page.help
   div(data-hook='sidebar-subview')
-  h3 Compass Help
-  div(data-hook='item-subview')
+  .content.with-sidebar
+    h3 Compass Help&nbsp;
+      small(data-hook='help-entry-title')
+    .help-entry(data-hook='help-entry-content')
