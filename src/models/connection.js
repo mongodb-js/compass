@@ -4,7 +4,7 @@ var connectionSync = require('./connection-sync')();
 var client = require('scout-client');
 var debug = require('debug')('scout:models:connection');
 var uuid = require('uuid');
-var bugsnag = require('../bugsnag');
+var metrics = require('mongodb-js-metrics');
 
 /**
  * Configuration for connecting to a MongoDB Deployment.
@@ -46,13 +46,13 @@ module.exports = Connection.extend({
         return;
       }
       debug('could not get collection list :( sending to bugsnag for follow up...');
-      bugsnag.notify(err, 'collection list failed');
+      metrics.error(err, 'collection list failed');
       done(err);
     }.bind(this);
 
     var onTested = function(err) {
       if (err) {
-        bugsnag.notify(err, 'connection test failed');
+        metrics.error(err, 'connection test failed');
         return done(err);
       }
 

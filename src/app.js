@@ -13,9 +13,7 @@ app.extend({
   }
 });
 
-var bugsnag = require('./bugsnag');
-bugsnag.listen(app);
-
+var metrics = require('mongodb-js-metrics');
 var _ = require('lodash');
 var domReady = require('domready');
 var qs = require('qs');
@@ -27,6 +25,7 @@ var localLinks = require('local-links');
 var QueryOptions = require('./models/query-options');
 var Connection = require('./models/connection');
 var MongoDBInstance = require('./models/mongodb-instance');
+var User = require('./models/user');
 var Router = require('./router');
 var Statusbar = require('./statusbar');
 
@@ -116,6 +115,9 @@ var Application = View.extend({
     clientStartedAt: 'date',
     clientStalledTimeout: 'number'
   },
+  children: {
+    user: User
+  },
   events: {
     'click a': 'onLinkClick'
   },
@@ -143,6 +145,18 @@ var Application = View.extend({
       pushState: false,
       root: '/'
     });
+
+    metrics.listen(app);
+
+    User.getOrCreate(function(err, user) {
+      if (err) {
+        metrics.error(err, 'user: get or create');
+        return;
+      }
+      this.user.set(user.serialize());
+      this.user.trigger('sync');
+    }.bind(this));
+
     app.statusbar.hide();
   },
   onFatalError: function(id, err) {
@@ -150,7 +164,7 @@ var Application = View.extend({
     clearTimeout(this.clientStalledTimeout);
 
     console.error('Fatal Error!: ', id, err);
-    bugsnag.notifyException(err, 'Fatal Error: ' + id);
+    metrics.error(err, 'Fatal Error: ' + id);
     app.statusbar.fatal(err);
   },
   // ms we'll wait for a `scout-client` instance
@@ -228,8 +242,10 @@ var state = new Application({
   connection_id: connection_id
 });
 
-// @todo (imlucas): Feature flags can be overrideen
-// via `window.localStorage`.
+/**
+ * @todo (imlucas): Feature flags can be overridden
+ * via `window.localStorage`.
+ */
 var FEATURES = {
   querybuilder: true,
   keychain: true,
@@ -237,11 +253,19 @@ var FEATURES = {
   'Connect with SSL': false,
   'Connect with Kerberos': false,
   'Connect with LDAP': false,
-  'Connect with X.509': false
+  'Connect with X.509': false,
+  intercom: true,
+  bugsnag: true,
+  'google-analytics': true
 };
 
 app.extend({
   client: null,
+  config: {
+    intercom: {
+      app_id: 'p57suhg7'
+    }
+  },
   /**
    * Check whether a feature flag is currently enabled.
    *
@@ -267,6 +291,7 @@ app.extend({
     debug('message received from main process:', msg);
     this.trigger(msg);
   },
+  metrics: metrics,
   init: function() {
     domReady(function() {
       state.render();
@@ -343,6 +368,13 @@ Object.defineProperty(app, 'router', {
     return state.router;
   }
 });
+
+Object.defineProperty(app, 'user', {
+  get: function() {
+    return state.user;
+  }
+});
+
 
 app.init();
 

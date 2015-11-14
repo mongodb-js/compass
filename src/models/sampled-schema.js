@@ -6,23 +6,8 @@ var filterableMixin = require('ampersand-collection-filterable');
 var SampledDocumentCollection = require('./sampled-document-collection');
 var es = require('event-stream');
 var debug = require('debug')('scout:models:schema');
-var debugMetrics = require('debug')('scout:metrics');
+var metrics = require('mongodb-js-metrics');
 var app = require('ampersand-app');
-
-// @todo: stub for metrics module. currently just logs debug messages with scout:metrics marker
-var metrics = {
-  track: function(label, err, obj) {
-    if (!obj) {
-      obj = err;
-      err = null;
-    }
-    if (err) {
-      debugMetrics(label, err, obj);
-    } else {
-      debugMetrics(label, obj);
-    }
-  }
-};
 
 /**
  * wrapping mongodb-schema's FieldCollection with a filterable mixin
@@ -147,7 +132,7 @@ module.exports = Schema.extend({
         model.parse(doc);
       } catch (err) {
         erroredOnDocs.push(doc);
-        metrics.track('Schema: Error: Parse', err, {
+        metrics.error(err, 'Schema: Error: Parse', {
           doc: doc,
           schema: model.serialize()
         });
@@ -158,7 +143,7 @@ module.exports = Schema.extend({
     var onEnd = function(err) {
       model.is_fetching = false;
       if (err) {
-        metrics.track('Schema: Error: End', err, {
+        metrics.error(err, 'Schema: Error: End', {
           schema: model
         });
         return options.error(model, err);
@@ -179,9 +164,9 @@ module.exports = Schema.extend({
         'total sample time': timeToFirstDoc,
         'total analysis time': totalTime - timeToFirstDoc,
         'average analysis time per doc': (totalTime - timeToFirstDoc) / model.documents.length
-        // 'Schema Height': model.height, // # of top level keys
-        // 'Schema Width': model.width, // max nesting depth
-        // 'Schema Sparsity': model.sparsity // lots of fields missing or consistent
+      // 'Schema Height': model.height, // # of top level keys
+      // 'Schema Width': model.width, // max nesting depth
+      // 'Schema Sparsity': model.sparsity // lots of fields missing or consistent
       });
       options.success({});
     };
@@ -190,7 +175,7 @@ module.exports = Schema.extend({
 
     app.client.count(model.ns, options, function(err, count) {
       if (err) {
-        metrics.track('Schema: Error: Count', err, {
+        metrics.error(err, 'Schema: Error: Count', {
           schema: model
         });
         return options.error(model, err);
@@ -217,7 +202,7 @@ module.exports = Schema.extend({
           app.statusbar.trickle(false);
         })
         .on('data', function() {
-          counter ++;
+          counter++;
           if (counter % stepSize === 0) {
             var inc = (100 - status) * stepSize / numSamples;
             debug(inc);

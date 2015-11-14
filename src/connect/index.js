@@ -8,6 +8,7 @@ var debug = require('debug')('scout:connect:index');
 var _ = require('lodash');
 var app = require('ampersand-app');
 var format = require('util').format;
+var metrics = require('mongodb-js-metrics');
 
 /**
  * AuthenticationOptionCollection
@@ -299,7 +300,9 @@ var ConnectView = View.extend({
       this.connection = new Connection(this.form.data);
     }
     this.connection.is_favorite = true;
-    this.connection.save(null, {validate: false});
+    this.connection.save(null, {
+      validate: false
+    });
     this.connections.add(this.connection, {
       merge: true
     });
@@ -366,23 +369,18 @@ var ConnectView = View.extend({
   useConnection: function(connection) {
     connection = connection || this.connection;
     app.statusbar.hide();
-    /**
-     * @todo (imlucas): So we can see what auth mechanisms
-     * and accoutrement people are actually using IRL.
-     *
-     *   metrics.trackEvent('connect success', {
-     *     authentication: model.authentication,
-     *     ssl: model.ssl
-     *   });
-     */
+    metrics.track('connect success', {
+      authentication: connection.authentication,
+      ssl: connection.ssl
+    });
 
     /**
      * @see ./src/app.js `params.connection_id`
      */
     window.open(
       format('%s?connection_id=%s#schema',
-      window.location.origin,
-      connection.getId())
+        window.location.origin,
+        connection.getId())
     );
     setTimeout(this.set.bind(this, {
       message: ''
@@ -447,8 +445,11 @@ var ConnectView = View.extend({
    * @api private
    */
   onError: function(err, connection) {
-    // @todo (imlucas): `metrics.trackEvent('connect error', authentication
-    // + ssl boolean)`
+    metrics.error(err, 'connect error', {
+      authentication: connection.authentication,
+      ssl: connection.ssl
+    });
+
     debug('showing error message', {
       err: err,
       model: connection
