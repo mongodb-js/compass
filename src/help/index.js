@@ -1,28 +1,73 @@
 var View = require('ampersand-view');
 var format = require('util').format;
-// var debug = require('debug')('scout:help:index');
+var debug = require('debug')('scout:help');
+var HelpEntryCollection = require('../models/help-entry-collection');
+var SidebarView = require('./sidebar');
 
-module.exports = View.extend({
+var HelpPage = View.extend({
   session: {
-    id: 'string',
-    default: '',
-    required: true
+    itemId: 'string'
+  },
+  collections: {
+    entries: HelpEntryCollection
   },
   template: require('./index.jade'),
-  initialize: function(id) {
-    // @imlucas how does the id get passed in here?
-    this.id = id;
+  initialize: function(spec) {
+    spec = spec || {};
+    this.entries.fetch();
+
+    if (spec.itemId) {
+      this.itemId = spec.itemId;
+      debug('initialized with itemId `%s`', this.itemId);
+    }
   },
   render: function() {
     this.renderWithTemplate(this);
-    var subview = new View();
-    subview.template = require(format('./items/%s.jade', this.id));
-    this.renderSubview(subview, this.queryByHook('item-subview'));
+    /**
+     * @todo (imlucas) switch to `ampersand-view-switcher`.
+     */
+    if (this.itemId) {
+      if (this.entries.length === 0) {
+        this.listenTo(this.entries, 'sync', this.render.bind(this));
+        return;
+      }
+      debug('rendering item `%s`', this.itemId);
+      var item = this.entries.get(this.itemId);
+
+      var subview = new View();
+      subview.template = item.content;
+      this.renderSubview(subview, this.queryByHook('item-subview'));
+    }
+  },
+  subviews: {
+    sidebar: {
+      hook: 'sidebar-subview',
+      prepareView: function(el) {
+        return new SidebarView({
+          el: el,
+          parent: this,
+          entries: this.entries
+        });
+      }
+    }
   }
 });
 
-// convenience helper method to open the Help window with the right id
-module.exports.open = function(id) {
-  var url = format('%s?id=%s#help', window.location.origin, id);
+/**
+ * Convenience to open the help window if needed and show an item.
+ *
+ * @param {String} [itemId] - Optional filename to show from `./items/#{itemId}.jade`.
+ *
+ * @todo (imlucas) Add helper to `./src/electron/window-manager.js` so this works
+ * like connect window (singleton w/ custom dimensions).
+ */
+HelpPage.open = function(itemId) {
+  var url = format('%s?#help', window.location.origin);
+  if (itemId) {
+    url += '/' + itemId;
+  }
+  debug('Opening item `%s`', itemId);
   window.open(url);
 };
+
+module.exports = HelpPage;
