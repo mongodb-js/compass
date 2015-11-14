@@ -6,7 +6,6 @@
 
 var AppMenu = require('./menu');
 var BrowserWindow = require('browser-window');
-var Clipboard = require('clipboard');
 var Notifier = require('node-notifier');
 var Path = require('path');
 
@@ -175,6 +174,9 @@ app.on('show autofill connection notification', function() {
     'title': 'Autofill Connection',
     'wait': true
   }, function(err, resp) {
+    if (err) {
+      debug(err);
+    }
     if (resp === 'Activate\n') {
       connectWindow.webContents.send('message', 'autofill-connection-from-clipboard');
     }
@@ -209,6 +211,9 @@ app.on('show bugsnag OS notification', function(errorMsg) {
       'title': 'MongoDB Compass Exception',
       'wait': true
     }, function(err, resp) {
+      if (err) {
+        debug(err);
+      }
       if (resp === 'Activate\n') {
         openDevTools();
       }
