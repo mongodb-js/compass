@@ -89,7 +89,6 @@ var HelpPage = View.extend({
     app.navigate(format('help/%s', this.entry.getId()), {
       silent: true
     });
-
   },
   subviews: {
     sidebar: {
