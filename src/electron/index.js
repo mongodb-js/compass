@@ -40,4 +40,8 @@ if (!require('electron-squirrel-startup')) {
   var AppMenu = require('./menu');
   AppMenu.init();
   require('./window-manager');
+
+  app.on('ready', function() {
+    require('./help');
+  });
 }
