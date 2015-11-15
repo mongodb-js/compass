@@ -28,6 +28,9 @@ var HelpPage = View.extend({
       }
     }
   },
+  events: {
+    'click a': 'onLinkClicked'
+  },
   bindings: {
     'entry.title': {
       hook: 'help-entry-title'
@@ -36,6 +39,15 @@ var HelpPage = View.extend({
       type: function(el, newVal) {
         document.title = newVal;
       }
+    }
+  },
+  onLinkClicked: function(evt) {
+    evt.preventDefault();
+    evt.stopPropagation();
+    // @todo handle external links
+    var entryId = evt.delegateTarget.hash.slice(1);
+    if (entryId) {
+      this.show(entryId);
     }
   },
   template: require('./index.jade'),
