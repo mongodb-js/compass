@@ -9,7 +9,8 @@ var HelpEntry = State.extend({
     title: 'string',
     content: 'string',
     tags: 'array',
-    related: 'array'
+    related: 'array',
+    devOnly: 'boolean'
   },
   derived: {
     url: {
@@ -32,6 +33,7 @@ var HelpEntry = State.extend({
       title: resp.meta.title,
       tags: resp.meta.tags || [],
       related: resp.meta.related || [],
+      devOnly: !!resp.meta.devOnly,
       content: resp.content
     };
   }

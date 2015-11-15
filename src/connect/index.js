@@ -6,11 +6,10 @@ var ConnectFormView = require('./connect-form-view');
 var Connection = require('../models/connection');
 var debug = require('debug')('scout:connect:index');
 var _ = require('lodash');
-var $ = require('jquery');
 var app = require('ampersand-app');
 var format = require('util').format;
 var metrics = require('mongodb-js-metrics');
-var Help = require('../help');
+
 /**
  * AuthenticationOptionCollection
  */
@@ -98,8 +97,7 @@ var ConnectView = View.extend({
     'input input': 'onAnyInputChanged',
     'change input': 'onAnyInputChanged',
     'change select': 'onAnyInputChanged',
-    'click div.btn': 'onAnyInputChanged',
-    'click i.help': 'onHelpClicked'
+    'click div.btn': 'onAnyInputChanged'
   },
 
   /**
@@ -139,11 +137,6 @@ var ConnectView = View.extend({
 
   onSaveChangesClicked: function() {
     this.dispatch('save changes clicked');
-  },
-
-  onHelpClicked: function(evt) {
-    var id = $(evt.target).attr('data-hook');
-    Help.open(id);
   },
 
   bindings: {

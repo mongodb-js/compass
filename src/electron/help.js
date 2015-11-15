@@ -1,6 +1,7 @@
 var path = require('path');
 var ipc = require('ipc');
 var mm = require('marky-mark');
+var _ = require('lodash');
 var debug = require('debug')('scout:electron:help');
 
 debug('adding ipc listener for `/help/entries`...');
@@ -14,6 +15,12 @@ ipc.on('/help/entries', function(evt) {
       return;
     }
     debug('successfully parsed!', posts);
+    // in production don't return the dev-only entries
+    if (process.env.NODE_ENV === 'production') {
+      posts = _.filter(posts, function(post) {
+        return !post.meta.devOnly;
+      });
+    }
     evt.sender.send('/help/entries/success', posts);
   });
 });

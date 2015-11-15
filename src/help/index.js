@@ -2,6 +2,7 @@ var View = require('ampersand-view');
 var format = require('util').format;
 var debug = require('debug')('scout:help');
 var relatedTemplate = require('./related.jade');
+var tagTemplate = require('./tags.jade');
 var HelpEntryCollection = require('../models/help-entry-collection');
 var HelpEntry = require('../models/help-entry');
 var SidebarView = require('./sidebar');
@@ -9,7 +10,7 @@ var ViewSwitcher = require('ampersand-view-switcher');
 var app = require('ampersand-app');
 var _ = require('lodash');
 
-var ENTRIES = new HelpEntryCollection();
+var entries = new HelpEntryCollection();
 
 var HelpPage = View.extend({
   session: {
@@ -55,7 +56,7 @@ var HelpPage = View.extend({
   template: require('./index.jade'),
   initialize: function(spec) {
     spec = spec || {};
-    ENTRIES.fetch();
+    entries.fetch();
 
     if (spec.entryId) {
       this.entryId = spec.entryId;
@@ -71,14 +72,14 @@ var HelpPage = View.extend({
   },
   show: function(entryId) {
     debug('show `%s`', entryId);
-    if (ENTRIES.length === 0) {
-      ENTRIES.once('sync', this.show.bind(this, entryId));
+    if (entries.length === 0) {
+      entries.once('sync', this.show.bind(this, entryId));
       debug('entries not synced yet.  queuing...');
       return;
     }
 
 
-    var entry = ENTRIES.get(entryId);
+    var entry = entries.get(entryId);
 
     if (!entry) {
       debug('Unknown help entry', entryId);
@@ -89,20 +90,28 @@ var HelpPage = View.extend({
 
     app.statusbar.hide();
 
-    if (!ENTRIES.select(entry)) {
+    if (!entries.select(entry)) {
       debug('already selected');
       return;
     }
 
     // get related entries
     var relatedEntries = _.map(entry.related, function(relEntry) {
-      return ENTRIES.get(relEntry);
+      return entries.get(relEntry);
     });
 
     var view = new View({
-      template: '<div>' + entry.content + relatedTemplate({
-        relatedEntries: relatedEntries
-      }) + '</div>'
+      template:
+        '<div>'
+        + tagTemplate({
+          tags: entry.tags,
+          devOnly: entry.devOnly
+        })
+        + entry.content
+        + relatedTemplate({
+          relatedEntries: relatedEntries
+        })
+        + '</div>'
     });
     this.viewSwitcher.set(view);
 
@@ -118,7 +127,7 @@ var HelpPage = View.extend({
         return new SidebarView({
           el: el,
           parent: this,
-          entries: ENTRIES
+          entries: entries
         });
       }
     }
