@@ -1,6 +1,7 @@
 ---
 title: Client Certificate Key
 tags:
+  - authentication
   - connect
   - ssl
 ---

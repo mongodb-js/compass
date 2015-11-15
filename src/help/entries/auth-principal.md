@@ -1,6 +1,7 @@
 ---
 title: Principal
 tags:
+  - authentication
   - connect
   - kerberos
 ---

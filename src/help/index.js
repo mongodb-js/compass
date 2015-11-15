@@ -75,23 +75,23 @@ var HelpPage = View.extend({
       return;
     }
 
+
     var entry = ENTRIES.get(entryId);
 
     if (!entry) {
-      debug('entry not found');
+      debug('Unknown help entry', entryId);
+      this.viewSwitcher.clear();
+      app.statusbar.showMessage('Help entry not found.');
       return;
     }
+
+    app.statusbar.hide();
 
     if (!ENTRIES.select(entry)) {
       debug('already selected');
       return;
     }
 
-    if (!entry) {
-      debug('unknown entry');
-      this.viewSwitcher.clear();
-      return;
-    }
     var view = new View({
       template: '<div>' + entry.content + '</div>'
     });

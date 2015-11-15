@@ -114,6 +114,11 @@ var StatusbarView = View.extend({
     this.width = 100;
     this.loadingIndicator = true;
   },
+  showMessage: function(message) {
+    this.visible = true;
+    this.message = message || '';
+    this.loadingIndicator = false;
+  },
   hide: function(completed) {
     this.message = '';
     this.loadingIndicator = false;

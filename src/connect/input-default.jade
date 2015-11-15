@@ -1,5 +1,9 @@
 .form-item
-  label(data-hook='label')= label
+  label
+    span(data-hook='label')= label
+    if helpEntry
+      | &nbsp;
+      i.help.fa.fa-info-circle(data-hook='#{helpEntry}')
   .message.message-above.message-error(data-hook='message-container')
     p(data-hook='message-text')
   input.form-control(placeholder='#{placeholder}')

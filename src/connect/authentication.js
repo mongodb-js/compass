@@ -39,6 +39,7 @@ var MONGODB = {
       name: 'mongodb_database_name',
       label: 'Database Name',
       placeholder: 'admin',
+      helpEntry: 'auth-auth-source',
       required: false
     })
   ]

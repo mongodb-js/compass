@@ -1,6 +1,7 @@
 ---
 title: Certificate Authority File
 tags:
+  - authentication
   - connect
   - ssl
 ---

@@ -6,7 +6,17 @@ var InputView = require('ampersand-input-view');
  * so that label gets correctly rendered on subsequent render() calls.
  */
 module.exports = InputView.extend({
-  initialize: function() {
+  props: {
+    helpEntry: {
+      type: 'string',
+      default: null
+    }
+  },
+  initialize: function(spec) {
+    spec = spec || {};
+    if (spec.helpEntry) {
+      this.helpEntry = spec.helpEntry;
+    }
     this.invalidClass = 'has-error';
     this.validityClassSelector = '.form-item';
     InputView.prototype.initialize.apply(this, arguments);
