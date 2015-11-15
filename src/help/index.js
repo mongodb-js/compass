@@ -101,6 +101,13 @@ var HelpPage = View.extend({
     });
 
     var view = new View({
+      /**
+       * constructing the final help window template here, which consists of
+       * 	 - surrounding <div></div>
+       *   - "tags" template, @see ./tags.jade
+       *   - the content, @see ./entries/*.md files
+       *   - "related" template, @see ./related.jade
+       */
       template:
         '<div>'
         + tagTemplate({
