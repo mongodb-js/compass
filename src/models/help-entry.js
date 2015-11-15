@@ -8,7 +8,8 @@ var HelpEntry = State.extend({
     id: 'string',
     title: 'string',
     content: 'string',
-    tags: 'array'
+    tags: 'array',
+    related: 'array'
   },
   derived: {
     url: {
@@ -30,6 +31,7 @@ var HelpEntry = State.extend({
       id: resp.filename.replace('.md', ''),
       title: resp.meta.title,
       tags: resp.meta.tags || [],
+      related: resp.meta.related || [],
       content: resp.content
     };
   }

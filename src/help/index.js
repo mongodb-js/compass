@@ -1,11 +1,13 @@
 var View = require('ampersand-view');
 var format = require('util').format;
 var debug = require('debug')('scout:help');
+var relatedTemplate = require('./related.jade');
 var HelpEntryCollection = require('../models/help-entry-collection');
 var HelpEntry = require('../models/help-entry');
 var SidebarView = require('./sidebar');
 var ViewSwitcher = require('ampersand-view-switcher');
 var app = require('ampersand-app');
+var _ = require('lodash');
 
 var ENTRIES = new HelpEntryCollection();
 
@@ -92,8 +94,15 @@ var HelpPage = View.extend({
       return;
     }
 
+    // get related entries
+    var relatedEntries = _.map(entry.related, function(relEntry) {
+      return ENTRIES.get(relEntry);
+    });
+
     var view = new View({
-      template: '<div>' + entry.content + '</div>'
+      template: '<div>' + entry.content + relatedTemplate({
+        relatedEntries: relatedEntries
+      }) + '</div>'
     });
     this.viewSwitcher.set(view);
 

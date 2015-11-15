@@ -7,6 +7,7 @@ var ipc = window.require('ipc');
 
 var HelpEntryCollection = Collection.extend(selectableMixin, {
   namespace: 'HelpEntryCollection',
+  comparator: 'title',
   model: HelpEntry
 }, withSync(function(options, done) {
   if (options.method !== 'read') {
