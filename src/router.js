@@ -6,13 +6,16 @@ var HelpPage = require('./help');
 
 module.exports = AmpersandRouter.extend({
   routes: {
-    '': 'connect',
+    '': 'index',
     schema: 'index',
     connect: 'connect',
     'schema/:ns': 'schema',
     help: 'help',
     'help/:entryId': 'help',
     '(*path)': 'catchAll'
+  },
+  index: function() {
+    this.trigger('page', new HomePage({}));
   },
   schema: function(ns) {
     this.trigger('page', new HomePage({
