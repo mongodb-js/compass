@@ -18,7 +18,7 @@ To add a help button (little round info circle) anywhere in the app, go to
 the `.jade` file and add a font-awesome symbol like so:
 
 ```
-i.help.fa.fa-info(data-hook='my-help-entry')
+i.help(data-hook='my-help-entry')
 ```
 
 The data-hook needs to point to a valid help entry key, in this case

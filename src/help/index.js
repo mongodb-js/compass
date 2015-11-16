@@ -78,7 +78,6 @@ var HelpPage = View.extend({
       return;
     }
 
-
     var entry = entries.get(entryId);
 
     if (!entry) {
@@ -96,9 +95,14 @@ var HelpPage = View.extend({
     }
 
     // get related entries
-    var relatedEntries = _.map(entry.related, function(relEntry) {
-      return entries.get(relEntry);
-    });
+    var relatedEntries = _(entry.related)
+      .map(function(relEntry) {
+        return entries.get(relEntry);
+      })
+      .filter(function(relEntry) {
+        return relEntry;
+      })
+      .value();
 
     var view = new View({
       /**

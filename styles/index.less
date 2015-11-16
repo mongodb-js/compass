@@ -6,7 +6,6 @@
 // Configuration
 // @import "./variables.less";
 @octicons-font-path: "fonts";
-
 @fa-font-path: "fonts";
 
 // Tweaks to bootstrap
@@ -60,5 +59,20 @@ html, body {
         background-color: #6ba442;
       }
     }
+  }
+}
+
+// make all help buttons consistent
+i.help {
+  .fa-icon;
+  margin: 0 5px;
+  cursor: pointer;
+  color: @gray5;
+
+  &:hover {
+    color: @alertOrange;
+  }
+  &:before {
+    content: @fa-var-info-circle;
   }
 }
