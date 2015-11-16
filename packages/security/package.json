@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "description": "Portable business logic of MongoDB security model",
   "author": "Lucas Hrabovsky <hrabovsky.lucas@gmail.com> (http://imlucas.com)",
-  "license": "MIT",
+  "license": "Apcahe-2.0",
   "homepage": "http://github.com/mongodb-js/security",
   "repository": {
     "type": "git",
@@ -14,10 +14,20 @@
     "mongodb.js"
   ],
   "scripts": {
-    "test": "mocha"
+    "check": "mongodb-js-precommit",
+    "fmt": "mongodb-js-fmt",
+    "test": "mocha",
+    "ci": "npm run check && npm test"
   },
-  "dependencies": {},
+  "dependencies": {
+    "debug": "^2.2.0"
+  },
   "devDependencies": {
-    "mocha": "^1.20.1"
-  }
+    "eslint-config-mongodb-js": "^1.0.6",
+    "mocha": "^2.3.4",
+    "mongodb-js-fmt": "0.0.3",
+    "mongodb-js-precommit": "^0.2.8",
+    "pre-commit": "^1.1.2"
+  },
+  "precommit": ["check"]
 }
