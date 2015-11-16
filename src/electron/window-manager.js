@@ -3,26 +3,29 @@
  * [BrowserWindow](https://github.com/atom/electron/blob/master/docs/api/browser-window.md)
  * class
  */
-var path = require('path');
-var _ = require('lodash');
-var app = require('app');
+
 var AppMenu = require('./menu');
 var BrowserWindow = require('browser-window');
+var Notifier = require('node-notifier');
+var Path = require('path');
+
+var _ = require('lodash');
+var app = require('app');
 var config = require('./config');
 var debug = require('debug')('scout-electron:window-manager');
 var dialog = require('dialog');
-var Notifier = require('node-notifier');
 
 /**
  * When running in electron, we're in `RESOURCES/src/electron`.
  */
-var RESOURCES = path.resolve(__dirname, '../../');
+var RESOURCES = Path.resolve(__dirname, '../../');
+var SCOUT_ICON_PATH = RESOURCES + '/images/scout.png';
 
 /**
  * The app's HTML shell which is the output of `./src/index.jade`
  * created by the `build:pages` gulp task.
  */
-var DEFAULT_URL = 'file://' + path.join(RESOURCES, 'index.html#connect');
+var DEFAULT_URL = 'file://' + Path.join(RESOURCES, 'index.html#connect');
 
 /**
  * We want the Connect dialog window to be special
@@ -35,6 +38,38 @@ var connectWindow;
 // as a `all-windows-closed` event has been added to the `app` event api
 // since this code was laid down.
 var windowsOpenCount = 0;
+
+function isConnectDialog(url) {
+  return url === DEFAULT_URL;
+}
+
+// returns true if the application is a single instance application otherwise
+// focus the second window (which we'll quit from) and return false
+// see "app.makeSingleInstance" in https://github.com/atom/electron/blob/master/docs/api/app.md
+function isSingleInstance(_window) {
+  var isNotSingle = app.makeSingleInstance(function(commandLine, workingDirectory) {
+    debug('Someone tried to run a second instance! We should focus our window', {
+      commandLine: commandLine,
+      workingDirectory: workingDirectory
+    });
+    if (_window) {
+      if (_window.isMinimized()) {
+        _window.restore();
+      }
+      _window.focus();
+    }
+    return true;
+  });
+
+  return !isNotSingle;
+}
+
+function openDevTools() {
+  debug('openDevTools()');
+  AppMenu.lastFocusedWindow.openDevTools({
+    detach: true
+  });
+}
 
 /**
  * Call me instead of using `new BrowserWindow()` directly because i'll:
@@ -66,23 +101,7 @@ module.exports.create = function(opts) {
   });
   AppMenu.load(_window);
 
-  // makes the application a single instance application
-  // see "app.makeSingleInstance" in https://github.com/atom/electron/blob/master/docs/api/app.md
-  var shouldQuit = app.makeSingleInstance(function(commandLine, workingDirectory) {
-    debug('Someone tried to run a second instance! We should focus our window', {
-      commandLine: commandLine,
-      workingDirectory: workingDirectory
-    });
-    if (_window) {
-      if (_window.isMinimized()) {
-        _window.restore();
-      }
-      _window.focus();
-    }
-    return true;
-  });
-
-  if (shouldQuit) {
+  if (!isSingleInstance(_window)) {
     app.quit();
     return null;
   }
@@ -99,9 +118,13 @@ module.exports.create = function(opts) {
     });
   });
 
-  if (opts.url === DEFAULT_URL) { // if it's the connect dialog
+  if (isConnectDialog(opts.url)) {
     AppMenu.hideConnect(_window);
     connectWindow = _window;
+    connectWindow.on('focus', function() {
+      debug('connect window focused.');
+      connectWindow.webContents.send('message', 'connect-window-focused');
+    });
     connectWindow.on('closed', function() {
       debug('connect window closed.');
       connectWindow = null;
@@ -167,10 +190,17 @@ app.on('show share submenu', function() {
 app.on('show bugsnag OS notification', function(errorMsg) {
   if (_.contains(['development', 'testing'], process.env.NODE_ENV)) {
     Notifier.notify({
-      'icon': RESOURCES + '/images/scout.png',
+      'icon': SCOUT_ICON_PATH,
       'message': errorMsg,
       'title': 'MongoDB Compass Exception',
       'wait': true
+    }, function(err, resp) {
+      if (err) {
+        debug(err);
+      }
+      if (resp === 'Activate\n') {
+        openDevTools();
+      }
     });
   }
 });
@@ -183,12 +213,6 @@ app.on('show bugsnag OS notification', function(errorMsg) {
  */
 app.on('ready', function() {
   app.emit('show connect dialog');
-
-  Notifier.on('click', function() {
-    AppMenu.lastFocusedWindow.openDevTools({
-      detach: true
-    });
-  });
 });
 
 var ipc = require('ipc');
