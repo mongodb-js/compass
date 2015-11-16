@@ -15,7 +15,11 @@
   },
   "dependency-check": {
     "entries": [
-      "./src/index.js"
+      "./src/index.js",
+      "./gulpfile.js",
+      "./tasks/darwin.js",
+      "./tasks/win32.js",
+      "./tasks/linux.js"
     ],
     "ignore": [
       "app", 
@@ -77,8 +81,8 @@
     "mongodb-collection-model": "^0.1.1",
     "mongodb-connection-model": "^3.0.7",
     "mongodb-instance-model": "^1.0.2",
-    "mongodb-ns": "^1.0.1",
     "mongodb-js-metrics": "^0.2.2",
+    "mongodb-ns": "^1.0.1",
     "ms": "^0.7.1",
     "node-notifier": "^4.3.1",
     "scout-server": "http://bin.mongodb.org/js/scout-server/v0.4.6/scout-server-0.4.6.tar.gz"
@@ -156,6 +160,7 @@
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
     "watchify": "^3.6.0",
+    "which": "^1.2.0",
     "xor-it": "^1.0.1"
   }
 }
