@@ -167,21 +167,21 @@ app.on('show about dialog', function() {
   });
 });
 
-app.on('show autofill connection notification', function() {
-  Notifier.notify({
-    'icon': SCOUT_ICON_PATH,
-    'message': 'Click this notification to autofill the connection fields from your clipboard.',
-    'title': 'Autofill Connection',
-    'wait': true
-  }, function(err, resp) {
-    if (err) {
-      debug(err);
-    }
-    if (resp === 'Activate\n') {
-      connectWindow.webContents.send('message', 'autofill-connection-from-clipboard');
-    }
-  });
-});
+// app.on('show autofill connection notification', function() {
+//   Notifier.notify({
+//     'icon': SCOUT_ICON_PATH,
+//     'message': 'Click this notification to autofill the connection fields from your clipboard.',
+//     'title': 'Autofill Connection',
+//     'wait': true
+//   }, function(err, resp) {
+//     if (err) {
+//       debug(err);
+//     }
+//     if (resp === 'Activate\n') {
+//       connectWindow.webContents.send('message', 'autofill-connection-from-clipboard');
+//     }
+//   });
+// });
 
 app.on('hide connect submenu', function() {
   AppMenu.hideConnect();

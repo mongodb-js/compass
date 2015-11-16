@@ -3,7 +3,7 @@ var assert = require('assert');
 var Connection = require('../models/connection');
 var _ = require('lodash');
 
-// var debug = require('debug')('scout:connect:behavior');
+var debug = require('debug')('scout:connect:behavior');
 
 module.exports = State.extend({
   props: {
@@ -81,7 +81,7 @@ module.exports = State.extend({
   dispatch: function(action) {
     var newState = this.reduce(this.state, action);
     // if (newState !== this.state) {
-    //   debug('transition: (%s, %s) ==> %s', this.state, action, newState);
+    debug('transition: (%s, %s) ==> %s', this.state, action, newState);
     // }
     this.state = newState;
     return this.state;

@@ -8,12 +8,15 @@ var View = require('ampersand-view');
 
 var _ = require('lodash');
 var app = require('ampersand-app');
-var debug = require('debug')('scout:connect:index');
 var format = require('util').format;
 var metrics = require('mongodb-js-metrics');
 
 var remote = window.require('remote');
+var dialog = remote.require('dialog');
 var Clipboard = remote.require('clipboard');
+var BrowserWindow = remote.require('browser-window');
+
+var debug = require('debug')('scout:connect:index');
 
 /**
  * AuthenticationOptionCollection
@@ -66,6 +69,10 @@ var ConnectView = View.extend({
     previousSslMethod: {
       type: 'string',
       default: null
+    },
+    clipboardText: {
+      type: 'string',
+      default: ''
     }
   },
   derived: {
@@ -233,36 +240,53 @@ var ConnectView = View.extend({
     this.listenToAndRun(this, 'change:sslMethod',
       this.replaceSslMethodFields.bind(this));
 
-    this.listenTo(app, 'autofill-connection-from-clipboard',
-      this.autofillFromClipboard.bind(this));
+    // this.listenTo(app, 'autofill-connection-from-clipboard',
+    //   this.autofillFromClipboard.bind(this));
+
     this.listenTo(app, 'connect-window-focused',
-      this.checkIfCanAutofillFromClipboard.bind(this));
+      this.onConnectWindowFocused.bind(this));
 
     // always start in NEW_EMPTY state
     this.dispatch('new connection clicked');
   },
 
+  // === MongoDB URI clipboard Handling
+
+  /**
+   * Called when the user clicked "YES" in the message dialog after
+   * a MongoDB URI was detected.
+   */
   autofillFromClipboard: function() {
-    var connectionFromCB = MongoDBConnection.from(this.lastClipboardTxt).toJSON();
-    this.connection = new Connection();
-    /* eslint guard-for-in: 0 */
-    for (var attr in connectionFromCB) {
-      this.connection[attr] = connectionFromCB[attr];
-    }
-    /* eslint guard-for-in: 1 */
+    this.connection = MongoDBConnection.from(this.clipboardText);
     this.updateForm();
   },
 
-  checkIfCanAutofillFromClipboard: function() {
-    var cbTxt = Clipboard.readText();
-    if (cbTxt === this.lastClipboardTxt) {
+  /**
+   * Called when the Connect Window receives focus.
+   */
+  onConnectWindowFocused: function() {
+    var clipboardText = Clipboard.readText();
+    if (clipboardText === this.clipboardText) {
+      // we have seen this value already, don't ask user again
       return;
     }
-    this.lastClipboardTxt = cbTxt;
+    this.clipboardText = clipboardText;
 
-    if (MongoDBConnection.isURI(cbTxt)) {
-      debug('mongoURI detected.');
-      app.sendMessage('show autofill connection notification');
+    if (MongoDBConnection.isURI(clipboardText)) {
+      debug('MongoDB URI detected.', clipboardText);
+      // ask user if Compass should use it to fill out form
+      dialog.showMessageBox(BrowserWindow.getFocusedWindow(), {
+        type: 'info',
+        message: 'MongoDB connection string detected',
+        detail: 'Compass detected a MongoDB connection string in your '
+          + 'clipboard. Do you want to use the connection string to '
+          + 'fill out this form?',
+        buttons: ['Yes', 'No']
+      }, function(response) {
+        if (response === 0) {
+          this.autofillFromClipboard();
+        }
+      }.bind(this));
     }
   },
 
