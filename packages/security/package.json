@@ -1,6 +1,6 @@
 {
   "name": "mongodb-security",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Portable business logic of MongoDB security model",
   "author": "Lucas Hrabovsky <hrabovsky.lucas@gmail.com> (http://imlucas.com)",
   "license": "Apcahe-2.0",
@@ -29,5 +29,7 @@
     "mongodb-js-precommit": "^0.2.8",
     "pre-commit": "^1.1.2"
   },
-  "precommit": ["check"]
+  "precommit": [
+    "check"
+  ]
 }
