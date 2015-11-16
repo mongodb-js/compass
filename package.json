@@ -58,7 +58,7 @@
     "start": "gulp dev",
     "release": "gulp release",
     "test": "mocha",
-    "ci": "npm run check && npm run release",
+    "ci": "npm run check && npm test && npm run release",
     "check": "mongodb-js-precommit ./*.js src/{**/*.js,*.js} test/{**/*.js,*.js} tasks/*.js",
     "fmt": "mongodb-js-fmt ./*.js src/{**/*.js,*.js} test/{**/*.js,*.js} tasks/*.js"
   },
