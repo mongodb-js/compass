@@ -2,6 +2,7 @@
 title: Compass Taxonomy
 tags:
   - taxonomy
+  - needs work
 devOnly: true
 ---
 
@@ -9,15 +10,6 @@ The [docs style guide][docs-style] has a beautifully detailed and thorough
 taxonomy which covers most of the tech taxonomy and it is strongly recommended
 you spend some time reviewing it.
 
-## mongoscope
-
-```
-i.fa.fa-fw.fa-scope
-```
-
-Consider synonymous with web admin, webmin, web ui, 28017,
-"dbwebserver.cpp", etc.  This is the product you're most likely working on
-if your name begins with an "L" and sounds like "mucus".
 
 ## deployment
 

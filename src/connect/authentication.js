@@ -37,9 +37,9 @@ var MONGODB = {
     new InputView({
       template: inputTemplate,
       name: 'mongodb_database_name',
-      label: 'Database Name',
+      label: 'Authentication Database',
       placeholder: 'admin',
-      helpEntry: 'connect-userpass-auth-source',
+      helpEntry: 'connect-userpass-auth-db',
       required: false
     })
   ]

@@ -3,7 +3,7 @@ title: Favorite Name
 tags:
   - authentication
   - connect
-  - kerberos
+  - favorite
 ---
 
 <strong>Favorite name for a saved connection.</strong>

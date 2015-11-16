@@ -10,8 +10,6 @@ devOnly: true
 
 <strong>Ampersand.js is the Model and View layer used by Compass.</strong>
 
-## Some Tips and Tricks using Ampersand.js
-
 ### View Hierarchy
 
 This diagram shows the view hierarchy of Compass and where the `.js` files and `.jade` templates for each view are.
@@ -33,7 +31,7 @@ var ControlPanelView = require('./controlpanel');
 module.exports = AmpersandView.extend({
   template: require('./my-view.jade'),
   subviews: {
-    controlpanel: { // just a name, choose something
+    controlview: { // accessible via `self.controlview`
       container: '[data-hook=controlpanel-subview]',  // use *-subiew hook
       waitFor: 'model.controls',  // waits until model.controls becomes true-thy
       prepareView: function (el) {

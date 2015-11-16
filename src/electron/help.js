@@ -16,7 +16,6 @@ ipc.on('/help/entries', function(evt) {
     marked: {
       highlight: function(code) {
         var result = highlight.highlightAuto(code).value;
-        debug('result', result);
         return result;
       }
     }
