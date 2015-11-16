@@ -26,7 +26,7 @@ This diagram shows the view hierarchy of Compass and where the `.js` files and `
 
 Subviews can be defined inside a `subviews` property when extending an AmpersandView, see [ampersand-view subviews](http://ampersandjs.com/docs#ampersand-view-subviews). An example would look like this:
 
-```javascript
+```js
 var AmpersandView = require('ampersand-view');
 var ControlPanelView = require('./controlpanel');
 
