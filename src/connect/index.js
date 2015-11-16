@@ -235,15 +235,14 @@ var ConnectView = View.extend({
     });
 
     this.registerSubview(this.form);
+
     this.listenToAndRun(this, 'change:authMethod',
       this.replaceAuthMethodFields.bind(this));
+
     this.listenToAndRun(this, 'change:sslMethod',
       this.replaceSslMethodFields.bind(this));
 
-    // this.listenTo(app, 'autofill-connection-from-clipboard',
-    //   this.autofillFromClipboard.bind(this));
-
-    this.listenTo(app, 'connect-window-focused',
+    this.listenToAndRun(app, 'connect-window-focused',
       this.onConnectWindowFocused.bind(this));
 
     // always start in NEW_EMPTY state
