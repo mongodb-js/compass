@@ -1,3 +1,4 @@
+/* eslint no-console:0 */
 var notifier = require('node-notifier');
 var path = require('path');
 var gutil = require('gulp-util');
