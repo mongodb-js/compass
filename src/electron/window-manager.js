@@ -86,7 +86,7 @@ module.exports.create = function(opts) {
     url: DEFAULT_URL
   });
 
-  debug('creating new window');
+  debug('creating new window: ' + opts.url);
   var _window = new BrowserWindow({
     width: opts.width,
     height: opts.height,
@@ -136,6 +136,11 @@ function createWindow(opts, url) {
   return module.exports.create(opts);
 }
 
+app.on('close connect', function() {
+  connectWindow.close();
+  connectWindow = null;
+});
+
 app.on('show about dialog', function() {
   dialog.showMessageBox({
     type: 'info',
@@ -154,10 +159,6 @@ app.on('show connect dialog', function(opts) {
   connectWindow.on('focus', function() {
     debug('connect window focused.');
     connectWindow.webContents.send('message', 'connect-window-focused');
-  });
-  connectWindow.on('closed', function() {
-    debug('connect window closed.');
-    connectWindow = null;
   });
 });
 
