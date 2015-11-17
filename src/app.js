@@ -28,7 +28,6 @@ var MongoDBInstance = require('./models/mongodb-instance');
 var User = require('./models/user');
 var Router = require('./router');
 var Statusbar = require('./statusbar');
-var Help = require('./help');
 var $ = require('jquery');
 
 var debug = require('debug')('scout:app');

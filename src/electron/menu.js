@@ -127,6 +127,16 @@ function nonDarwinAboutSubMenuItem() {
   };
 }
 
+function helpWindowSubMenuItem() {
+  return {
+    label: 'Help',
+    accelerator: 'CmdOrCtrl+H',
+    click: function() {
+      app.emit('show help window');
+    }
+  };
+}
+
 function helpSubMenu(showCompassOverview) {
   var subMenu = [];
   subMenu.push(helpWindowSubMenuItem());
@@ -143,16 +153,6 @@ function helpSubMenu(showCompassOverview) {
   return {
     label: 'Help',
     submenu: subMenu
-  };
-}
-
-function helpWindowSubMenuItem() {
-  return {
-    label: 'Help',
-    accelerator: 'CmdOrCtrl+H',
-    click: function() {
-      app.emit('show help window');
-    }
   };
 }
 
