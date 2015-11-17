@@ -165,20 +165,12 @@ app.on('show help window', function(id) {
   });
 });
 
-app.on('hide connect submenu', function() {
-  AppMenu.hideConnect();
-});
-
 app.on('hide share submenu', function() {
   AppMenu.hideShare();
 });
 
 app.on('show compass overview submenu', function() {
   AppMenu.showCompassOverview();
-});
-
-app.on('show connect submenu', function() {
-  AppMenu.showConnect();
 });
 
 app.on('show share submenu', function() {
