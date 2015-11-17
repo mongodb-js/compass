@@ -149,7 +149,7 @@ app.on('show about dialog', function() {
   });
 });
 
-app.on('show connect dialog', function(opts) {
+app.on('show connect dialog', function() {
   if (connectWindow) {
     connectWindow.focus();
     return connectWindow;
