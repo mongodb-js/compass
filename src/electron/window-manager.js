@@ -154,8 +154,8 @@ app.on('show help window', function(id) {
   if (helpWindow) {
     helpWindow.focus();
     if (_.isString(id)) {
-      var selectTopicJS = '$(\'a[href=\"/' + id + '\"]\')[0].click()';
-      helpWindow.webContents.executeJavaScript(selectTopicJS, true);
+      var selectTopicJS = '$(\'a[href=\"/help/' + id + '\"]\')[0].click()';
+      helpWindow.webContents.executeJavaScript(selectTopicJS);
     }
     return helpWindow;
   }
