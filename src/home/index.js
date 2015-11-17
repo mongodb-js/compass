@@ -64,13 +64,14 @@ var HomeView = View.extend({
     this.renderSubview(new TourView(), this.queryByHook('tour-container'));
   },
   onInstanceFetched: function() {
-    if (app.instance.collections.length === 0) {
-      this.showNoCollectionsZeroState = true;
-    } else {
-      this.showDefaultZeroState = true;
-    }
     if (!this.ns) {
       app.instance.collections.unselectAll();
+
+      if (app.instance.collections.length === 0) {
+        this.showNoCollectionsZeroState = true;
+      } else {
+        this.showDefaultZeroState = true;
+      }
     } else {
       this.showCollection(app.instance.collections.get(this.ns));
     }
