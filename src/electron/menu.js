@@ -71,7 +71,7 @@ function connectSubMenuItem() {
       app.emit('show connect dialog');
     }
   };
-};
+}
 
 function connectSubMenu(nonDarwin) {
   var subMenu = [connectSubMenuItem()];
