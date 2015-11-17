@@ -146,19 +146,19 @@ app.on('show connect dialog', function() {
 });
 
 app.on('show help window', function(id) {
-  if (helpWindow) {
-    helpWindow.focus();
-    if (_.isString(id)) {
-      var selectTopicJS = '$(\'a[href=\"/help/' + id + '\"]\')[0].click()';
-      helpWindow.webContents.executeJavaScript(selectTopicJS);
-    }
-    return helpWindow;
-  }
-
   var url = HELP_URL;
   if (_.isString(id)) {
     url += '/' + id;
   }
+
+  if (helpWindow) {
+    helpWindow.focus();
+    if (_.isString(id)) {
+      helpWindow.webContents.loadURL(url);
+    }
+    return;
+  }
+
   helpWindow = createWindow({}, url);
   helpWindow.on('closed', function() {
     helpWindow = null;
