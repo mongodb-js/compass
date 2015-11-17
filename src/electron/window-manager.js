@@ -102,15 +102,6 @@ module.exports.create = function(opts) {
     });
   });
 
-  if (opts.url === DEFAULT_URL) { // if it's the connect dialog
-    AppMenu.hideConnect(_window);
-    connectWindow = _window;
-    connectWindow.on('closed', function() {
-      debug('connect window closed.');
-      connectWindow = null;
-    });
-  }
-
   // @see `all-windows-closed` above
   windowsOpenCount++;
   _window.on('closed', function() {
@@ -147,7 +138,11 @@ app.on('show connect dialog', function(opts) {
     return connectWindow;
   }
 
-  createWindow({}, DEFAULT_URL);
+  connectWindow = createWindow({}, DEFAULT_URL);
+  connectWindow.on('closed', function() {
+    debug('connect window closed.');
+    connectWindow = null;
+  });
 });
 
 app.on('show help window', function(id) {
@@ -176,6 +171,10 @@ app.on('hide connect submenu', function() {
 
 app.on('hide share submenu', function() {
   AppMenu.hideShare();
+});
+
+app.on('show compass overview submenu', function() {
+  AppMenu.showCompassOverview();
 });
 
 app.on('show connect submenu', function() {

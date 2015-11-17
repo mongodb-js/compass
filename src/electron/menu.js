@@ -231,10 +231,7 @@ function darwinMenu(menuState) {
     darwinCompassSubMenu()
   ];
 
-  if (menuState.showConnect) {
-    menu.push(connectSubMenu());
-  }
-
+  menu.push(connectSubMenu());
   menu.push(editSubMenu());
   menu.push(viewSubMenu());
 
@@ -253,10 +250,7 @@ function nonDarwinMenu(menuState) {
     nonDarwinCompassSubMenuItem()
   ];
 
-  if (menuState.showConnect) {
-    menu.push(connectSubMenu());
-  }
-
+  menu.push(connectSubMenu());
   menu.push(viewSubMenu());
 
   if (menuState.showShare) {
@@ -273,10 +267,6 @@ var MenuState = State.extend({
     showCompassOverview: {
       type: 'boolean',
       default: false
-    },
-    showConnect: {
-      type: 'boolean',
-      default: true
     },
     showShare: {
       type: 'boolean',
@@ -354,21 +344,12 @@ var AppMenu = (function() {
       Menu.setApplicationMenu(menu);
     },
 
-    // share/hide submenu fns
-    hideConnect: function(_window) {
-      this.updateMenu('showConnect', false, _window);
-    },
-
     hideShare: function() {
       this.updateMenu('showShare', false);
     },
 
     showCompassOverview: function() {
       this.updateMenu('showCompassOverview', true);
-    },
-
-    showConnect: function() {
-      this.updateMenu('showConnect', true);
     },
 
     showShare: function() {
