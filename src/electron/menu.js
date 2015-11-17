@@ -63,18 +63,27 @@ function darwinCompassSubMenu() {
   };
 }
 
-function connectSubMenu() {
+function connectSubMenuItem() {
+  return {
+    label: 'Connect to...',
+    accelerator: 'CmdOrCtrl+N',
+    click: function() {
+      app.emit('show connect dialog');
+    }
+  };
+}
+
+function connectSubMenu(nonDarwin) {
+  var subMenu = [connectSubMenuItem()];
+
+  if (nonDarwin) {
+    subMenu.push(separator());
+    subMenu.push(quitSubMenu('Exit'));
+  }
+
   return {
     label: 'Connect',
-    submenu: [
-      {
-        label: 'Connect to...',
-        accelerator: 'CmdOrCtrl+N',
-        click: function() {
-          app.emit('show connect dialog');
-        }
-      }
-    ]
+    submenu: subMenu
   };
 }
 
@@ -146,15 +155,6 @@ function helpSubMenu(showCompassOverview) {
   };
 }
 
-function nonDarwinCompassSubMenu() {
-  return {
-    label: 'MongoDB Compass',
-    submenu: [
-      quitSubMenu('Exit')
-    ]
-  };
-}
-
 function shareSubMenu() {
   return {
     label: 'Share',
@@ -222,7 +222,7 @@ function darwinMenu(menuState) {
   ];
 
   if (menuState.showConnect) {
-    menu.push(connectSubMenu());
+    menu.push(connectSubMenu(false));
   }
 
   menu.push(editSubMenu());
@@ -243,14 +243,9 @@ function darwinMenu(menuState) {
 
 function nonDarwinMenu(menuState) {
   var menu = [
-    nonDarwinCompassSubMenu()
+    connectSubMenu(true),
+    viewSubMenu()
   ];
-
-  if (menuState.showConnect) {
-    menu.push(connectSubMenu());
-  }
-
-  menu.push(viewSubMenu());
 
   if (menuState.showShare) {
     menu.push(shareSubMenu());
