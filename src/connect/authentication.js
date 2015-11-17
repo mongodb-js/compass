@@ -53,17 +53,17 @@ var KERBEROS = {
   fields: [
     new InputView({
       template: inputTemplate,
-      name: 'kerberos_service_name',
-      label: 'Kerberos Service Name',
-      placeholder: 'mongodb',
-      required: false
-    }),
-    new InputView({
-      template: inputTemplate,
       name: 'kerberos_principal',
-      label: 'Kerberos Principal',
+      label: 'Principal',
       placeholder: '',
-      required: true
+      required: true,
+      tests: [
+        function(value) {
+          if (!value.match(/\S+@\S+/)) {
+            return 'Principal must contain a realm, e.g. user@REALM';
+          }
+        }
+      ]
     }),
     new InputView({
       template: inputTemplate,
@@ -71,6 +71,13 @@ var KERBEROS = {
       name: 'kerberos_password',
       label: 'Password',
       placeholder: '',
+      required: false
+    }),
+    new InputView({
+      template: inputTemplate,
+      name: 'kerberos_service_name',
+      label: 'Service Name',
+      placeholder: 'mongodb',
       required: false
     })
   ]
