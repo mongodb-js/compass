@@ -69,6 +69,8 @@ var HelpPage = View.extend({
         this.show(this.entryId);
       }
     });
+
+    this.listenTo(app, 'show-help-entry', this.show.bind(this));
   },
   show: function(entryId) {
     debug('show `%s`', entryId);
@@ -144,22 +146,5 @@ var HelpPage = View.extend({
     }
   }
 });
-
-/**
- * Convenience to open the help window if needed and show an item.
- *
- * @param {String} [entryId] - Optional filename to show from `./items/#{entryId}.jade`.
- *
- * @todo (imlucas) Add helper to `./src/electron/window-manager.js` so this works
- * like connect window (singleton w/ custom dimensions).
- */
-HelpPage.open = function(entryId) {
-  var url = format('%s?#help', window.location.origin);
-  if (entryId) {
-    url += '/' + entryId;
-  }
-  debug('Opening item `%s`', entryId);
-  window.open(url);
-};
 
 module.exports = HelpPage;
