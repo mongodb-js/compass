@@ -1,12 +1,13 @@
 // based off of https://github.com/atom/atom/blob/master/src/browser/application-menu.coffee
 // use js2.coffee to convert it to JS
 
-var _ = require('lodash');
-var app = require('app');
 var BrowserWindow = require('browser-window');
-var debug = require('debug')('electron:menu');
 var Menu = require('menu');
 var State = require('ampersand-state');
+
+var _ = require('lodash');
+var app = require('app');
+var debug = require('debug')('electron:menu');
 
 // submenu related
 function separator() {
@@ -15,7 +16,7 @@ function separator() {
   };
 }
 
-function quitSubMenu(label) {
+function quitSubMenuItem(label) {
   return {
     label: label,
     accelerator: 'CmdOrCtrl+Q',
@@ -25,7 +26,7 @@ function quitSubMenu(label) {
   };
 }
 
-function compassOverviewSubMenu() {
+function compassOverviewSubMenuItem() {
   return {
     label: 'Compass Overview',
     click: function() {
@@ -58,7 +59,7 @@ function darwinCompassSubMenu() {
         selector: 'unhideAllApplications:'
       },
       separator(),
-      quitSubMenu('Quit')
+      quitSubMenuItem('Quit')
     ]
   };
 }
@@ -117,7 +118,7 @@ function editSubMenu() {
   };
 }
 
-function nonDarwinAboutSubMenu() {
+function nonDarwinAboutSubMenuItem() {
   return {
     label: 'About Compass',
     click: function() {
@@ -128,16 +129,15 @@ function nonDarwinAboutSubMenu() {
 
 function helpSubMenu(showCompassOverview) {
   var subMenu = [];
-  if (showCompassOverview) {
-    subMenu.push(compassOverviewSubMenu());
+  subMenu.push(helpWindowSubMenuItem());
 
-    if (process.platform !== 'darwin') {
-      subMenu.push(separator());
-    }
+  if (showCompassOverview) {
+    subMenu.push(compassOverviewSubMenuItem());
   }
 
   if (process.platform !== 'darwin') {
-    subMenu.push(nonDarwinAboutSubMenu());
+    subMenu.push(separator());
+    subMenu.push(nonDarwinAboutSubMenuItem());
   }
 
   return {
@@ -146,11 +146,21 @@ function helpSubMenu(showCompassOverview) {
   };
 }
 
-function nonDarwinCompassSubMenu() {
+function helpWindowSubMenuItem() {
+  return {
+    label: 'Help',
+    accelerator: 'CmdOrCtrl+H',
+    click: function() {
+      app.emit('show help window');
+    }
+  };
+}
+
+function nonDarwinCompassSubMenuItem() {
   return {
     label: 'MongoDB Compass',
     submenu: [
-      quitSubMenu('Exit')
+      quitSubMenuItem('Exit')
     ]
   };
 }
@@ -233,17 +243,14 @@ function darwinMenu(menuState) {
   }
 
   menu.push(windowSubMenu());
-
-  if (menuState.showCompassOverview) {
-    menu.push(helpSubMenu(menuState.showCompassOverview));
-  }
+  menu.push(helpSubMenu(menuState.showCompassOverview));
 
   return menu;
 }
 
 function nonDarwinMenu(menuState) {
   var menu = [
-    nonDarwinCompassSubMenu()
+    nonDarwinCompassSubMenuItem()
   ];
 
   if (menuState.showConnect) {
@@ -308,11 +315,6 @@ var AppMenu = (function() {
 
     getTemplate: function(winID) {
       var menuState = this.windowTemplates.get(winID);
-
-      debug('WINDOW\'s ' + winID + ' Menu State');
-      debug('showCompassOverview: ' + menuState.showCompassOverview);
-      debug('showConnect: ' + menuState.showConnect);
-      debug('showShare: ' + menuState.showShare);
 
       if (process.platform === 'darwin') {
         return darwinMenu(menuState);

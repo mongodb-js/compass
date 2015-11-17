@@ -126,7 +126,7 @@ var Application = View.extend({
   },
   onHelpClicked: function(evt) {
     var id = $(evt.target).attr('data-hook');
-    Help.open(id);
+    app.sendMessage('show help window', id);
   },
   onClientReady: function() {
     debug('Client ready! Took %dms to become readable',

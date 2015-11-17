@@ -3,15 +3,16 @@
  * [BrowserWindow](https://github.com/atom/electron/blob/master/docs/api/browser-window.md)
  * class
  */
-var path = require('path');
-var _ = require('lodash');
-var app = require('app');
 var AppMenu = require('./menu');
 var BrowserWindow = require('browser-window');
+var Notifier = require('node-notifier');
+
+var _ = require('lodash');
+var app = require('app');
 var config = require('./config');
 var debug = require('debug')('scout-electron:window-manager');
 var dialog = require('dialog');
-var Notifier = require('node-notifier');
+var path = require('path');
 
 /**
  * When running in electron, we're in `RESOURCES/src/electron`.
@@ -23,13 +24,15 @@ var RESOURCES = path.resolve(__dirname, '../../');
  * created by the `build:pages` gulp task.
  */
 var DEFAULT_URL = 'file://' + path.join(RESOURCES, 'index.html#connect');
+var HELP_URL = 'file://' + path.join(RESOURCES, 'index.html#help');
 
 /**
- * We want the Connect dialog window to be special
- * and for there to ever only be one instance of it
- * so we'll use scope to essentially make it a Singleton.
+ * We want the Connect and Help window to be special
+ * and for there to ever only be one instance of each of them
+ * so we'll use scope to essentially make each of them a Singleton.
  */
 var connectWindow;
+var helpWindow;
 
 // @todo (imlucas): Removed in setup branch as we dont need to do this anymore
 // as a `all-windows-closed` event has been added to the `app` event api
@@ -121,20 +124,14 @@ module.exports.create = function(opts) {
   return _window;
 };
 
-app.on('show connect dialog', function(opts) {
-  if (connectWindow) {
-    connectWindow.focus();
-    return connectWindow;
-  }
-
-  opts = opts || {};
-  opts = _.extend(opts || {}, {
+function createWindow(opts, url) {
+  opts = _.extend(opts, {
     width: config.windows.DEFAULT_WIDTH_DIALOG,
     height: config.windows.DEFAULT_HEIGHT_DIALOG,
-    url: DEFAULT_URL
+    url: url
   });
-  module.exports.create(opts);
-});
+  return module.exports.create(opts);
+}
 
 app.on('show about dialog', function() {
   dialog.showMessageBox({
@@ -144,16 +141,41 @@ app.on('show about dialog', function() {
   });
 });
 
+app.on('show connect dialog', function(opts) {
+  if (connectWindow) {
+    connectWindow.focus();
+    return connectWindow;
+  }
+
+  createWindow({}, DEFAULT_URL);
+});
+
+app.on('show help window', function(id) {
+  if (helpWindow) {
+    helpWindow.focus();
+    if (_.isString(id)) {
+      var selectTopicJS = '$(\'a[href=\"/' + id + '\"]\')[0].click()';
+      helpWindow.webContents.executeJavaScript(selectTopicJS, true);
+    }
+    return helpWindow;
+  }
+
+  var url = HELP_URL;
+  if (_.isString(id)) {
+    url += '/' + id;
+  }
+  helpWindow = createWindow({}, url);
+  helpWindow.on('closed', function() {
+    helpWindow = null;
+  });
+});
+
 app.on('hide connect submenu', function() {
   AppMenu.hideConnect();
 });
 
 app.on('hide share submenu', function() {
   AppMenu.hideShare();
-});
-
-app.on('show compass overview submenu', function() {
-  AppMenu.showCompassOverview();
 });
 
 app.on('show connect submenu', function() {
