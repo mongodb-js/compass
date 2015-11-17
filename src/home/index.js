@@ -51,7 +51,6 @@ var HomeView = View.extend({
     app.instance.fetch();
 
     app.sendMessage('show compass overview submenu');
-    app.sendMessage('show connect submenu');
   },
   render: function() {
     this.renderWithTemplate(this);

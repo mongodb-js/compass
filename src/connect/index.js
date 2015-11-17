@@ -438,10 +438,7 @@ var ConnectView = View.extend({
         window.location.origin,
         connection.getId())
     );
-    setTimeout(this.set.bind(this, {
-      message: ''
-    }), 500);
-    setTimeout(window.close, 1000);
+    app.sendMessage('close connect');
   },
 
   /**

@@ -221,10 +221,7 @@ function darwinMenu(menuState) {
     darwinCompassSubMenu()
   ];
 
-  if (menuState.showConnect) {
-    menu.push(connectSubMenu(false));
-  }
-
+  menu.push(connectSubMenu(false));
   menu.push(editSubMenu());
   menu.push(viewSubMenu());
 
@@ -261,10 +258,6 @@ var MenuState = State.extend({
     showCompassOverview: {
       type: 'boolean',
       default: false
-    },
-    showConnect: {
-      type: 'boolean',
-      default: true
     },
     showShare: {
       type: 'boolean',
@@ -306,7 +299,6 @@ var AppMenu = (function() {
 
       debug('WINDOW\'s ' + winID + ' Menu State');
       debug('showCompassOverview: ' + menuState.showCompassOverview);
-      debug('showConnect: ' + menuState.showConnect);
       debug('showShare: ' + menuState.showShare);
 
       if (process.platform === 'darwin') {
@@ -348,20 +340,12 @@ var AppMenu = (function() {
     },
 
     // share/hide submenu fns
-    hideConnect: function(_window) {
-      this.updateMenu('showConnect', false, _window);
-    },
-
     hideShare: function() {
       this.updateMenu('showShare', false);
     },
 
     showCompassOverview: function() {
       this.updateMenu('showCompassOverview', true);
-    },
-
-    showConnect: function() {
-      this.updateMenu('showConnect', true);
     },
 
     showShare: function() {

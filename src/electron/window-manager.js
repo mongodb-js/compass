@@ -39,10 +39,6 @@ var connectWindow;
 // since this code was laid down.
 var windowsOpenCount = 0;
 
-function isConnectDialog(url) {
-  return url === DEFAULT_URL;
-}
-
 // returns true if the application is a single instance application otherwise
 // focus the second window (which we'll quit from) and return false
 // see "app.makeSingleInstance" in https://github.com/atom/electron/blob/master/docs/api/app.md
@@ -90,7 +86,7 @@ module.exports.create = function(opts) {
     url: DEFAULT_URL
   });
 
-  debug('creating new window');
+  debug('creating new window: ' + opts.url);
   var _window = new BrowserWindow({
     width: opts.width,
     height: opts.height,
@@ -118,19 +114,6 @@ module.exports.create = function(opts) {
     });
   });
 
-  if (isConnectDialog(opts.url)) {
-    AppMenu.hideConnect(_window);
-    connectWindow = _window;
-    connectWindow.on('focus', function() {
-      debug('connect window focused.');
-      connectWindow.webContents.send('message', 'connect-window-focused');
-    });
-    connectWindow.on('closed', function() {
-      debug('connect window closed.');
-      connectWindow = null;
-    });
-  }
-
   // @see `all-windows-closed` above
   windowsOpenCount++;
   _window.on('closed', function() {
@@ -144,19 +127,18 @@ module.exports.create = function(opts) {
   return _window;
 };
 
-app.on('show connect dialog', function(opts) {
-  if (connectWindow) {
-    connectWindow.focus();
-    return connectWindow;
-  }
-
-  opts = opts || {};
-  opts = _.extend(opts || {}, {
+function createWindow(opts, url) {
+  opts = _.extend(opts, {
     width: config.windows.DEFAULT_WIDTH_DIALOG,
     height: config.windows.DEFAULT_HEIGHT_DIALOG,
-    url: DEFAULT_URL
+    url: url
   });
-  module.exports.create(opts);
+  return module.exports.create(opts);
+}
+
+app.on('close connect', function() {
+  connectWindow.close();
+  connectWindow = null;
 });
 
 app.on('show about dialog', function() {
@@ -167,8 +149,17 @@ app.on('show about dialog', function() {
   });
 });
 
-app.on('hide connect submenu', function() {
-  AppMenu.hideConnect();
+app.on('show connect dialog', function() {
+  if (connectWindow) {
+    connectWindow.focus();
+    return connectWindow;
+  }
+
+  connectWindow = createWindow({}, DEFAULT_URL);
+  connectWindow.on('focus', function() {
+    debug('connect window focused.');
+    connectWindow.webContents.send('message', 'connect-window-focused');
+  });
 });
 
 app.on('hide share submenu', function() {
@@ -177,10 +168,6 @@ app.on('hide share submenu', function() {
 
 app.on('show compass overview submenu', function() {
   AppMenu.showCompassOverview();
-});
-
-app.on('show connect submenu', function() {
-  AppMenu.showConnect();
 });
 
 app.on('show share submenu', function() {
