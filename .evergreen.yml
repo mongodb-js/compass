@@ -63,11 +63,10 @@ functions:
       script: |
         set -ev
         export PATH="${node_path}:$PATH"
-        ${node|node} --version
-        ${npm|npm} --version
+        test -n "${add_environment|}" && export ${add_environment|}
+        ${npm|npm} version --json
         ${npm|npm} config set loglevel error
-        ${npm|npm} config -g list -l
-        ${npm|npm} install
+        ${npm|npm} config -g list
         ${npm|npm} install
 
   # For Windows: retrieve a fake "signtool.exe" which proxies to notary-service,
@@ -104,7 +103,6 @@ functions:
         export SIGNTOOL_PARAMS="yes"
         test -n "${add_environment|}" && export ${add_environment|}
         ${npm|npm} run ci
-        ${npm|npm} run test
 
   "save release":
     command: s3.put
@@ -191,6 +189,7 @@ buildvariants:
     installer_content_type: "application/octet-stream"
     installer_filename: "MongoDBCompassSetup.exe"
     num_cores: $(grep -c ^processor /proc/cpuinfo)
+    add_environment: APPDATA=C:\\Users\\Administrator\\
   tasks:
     *all_tasks
 

@@ -5,14 +5,7 @@ var inherits = require('util').inherits;
 var _ = require('lodash');
 var Base = require('./base');
 
-var keytar;
-
-try {
-  keytar = window.require('keytar');
-} catch (e) {
-  debug('keytar unavailable!  passwords will not be stored!');
-}
-
+var keytar = window.require('keytar');
 /**
  * Securely get, add, replace, and delete passwords via the OS keychain
  * using GitHub's [keytar](http://npm.im/keytar). The OS keychains are:

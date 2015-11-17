@@ -126,8 +126,9 @@ gulp.task('watch', function() {
 /**
  * Use browserify to compile the UI js.
  */
+var jadeify = require('jadeify');
 gulp.task('build:js', function() {
-  var bundler = browserify(pkg.browserify).transform('jadeify');
+  var bundler = browserify(pkg.browserify).transform(jadeify);
   if (process.env.NODE_ENV === 'production') {
     return bundler.bundle()
       .on('error', notify('js'))
