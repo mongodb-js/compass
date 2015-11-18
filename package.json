@@ -117,6 +117,7 @@
     "moment": "^2.10.6",
     "mongodb-collection-model": "^0.1.1",
     "mongodb-connection-model": "^3.0.7",
+    "mongodb-database-model": "^0.1.2",
     "mongodb-extended-json": "^1.5.3",
     "mongodb-instance-model": "^2.0.2",
     "mongodb-js-metrics": "^0.2.2",

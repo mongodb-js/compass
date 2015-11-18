@@ -1,0 +1,10 @@
+li
+  if nested
+    div
+      i.icon.fa(data-hook='icon')
+      span.value(data-hook-'value')= value
+  else
+    a
+      i.icon.fa(data-hook='icon')
+      span.value(data-hook='value')= value
+  div(data-hook='nested-list-subview')

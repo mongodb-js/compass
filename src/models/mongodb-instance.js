@@ -1,5 +1,7 @@
 var MongoDBInstance = require('mongodb-instance-model');
 var MongoDBCollection = require('./mongodb-collection');
+var BaseDatabaseModel = require('mongodb-database-model');
+var BaseDatabaseCollection = require('mongodb-database-model').Collection;
 var scoutClientMixin = require('./scout-client-mixin');
 var filterableMixin = require('ampersand-collection-filterable');
 var selectableMixin = require('./selectable-collection-mixin');
@@ -19,6 +21,17 @@ var MongoDBCollectionOnInstanceCollection = MongoDBCollection.Collection.extend(
   }
 }, filterableMixin, selectableMixin);
 
+
+var DatabaseModel = BaseDatabaseModel.extend({
+  collections: {
+    collections: MongoDBCollectionOnInstanceCollection
+  }
+});
+
+var DatabaseCollection = BaseDatabaseCollection.extend({
+  model: DatabaseModel
+}, filterableMixin);
+
 /**
  * Metadata for a MongoDB Instance, such as a `db.hostInfo()`, `db.listDatabases()`,
  * `db.buildInfo()`, and more.
@@ -28,6 +41,7 @@ var MongoDBCollectionOnInstanceCollection = MongoDBCollection.Collection.extend(
 module.exports = MongoDBInstance.extend(scoutClientMixin, {
   namespace: 'MongoDBInstance',
   collections: {
+    databases: DatabaseCollection,
     collections: MongoDBCollectionOnInstanceCollection
   },
   url: '/instance'

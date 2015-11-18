@@ -1,8 +1,8 @@
 var View = require('ampersand-view');
-var debug = require('debug')('scout:sidebar:collection-filter');
+var debug = require('debug')('scout:sidebar:filter');
 
 var CollectionFilterView = View.extend({
-  template: require('./collection-filter.jade'),
+  template: require('./filter.jade'),
   props: {
     search: 'string'
   },
@@ -24,8 +24,7 @@ var CollectionFilterView = View.extend({
   },
   applyFilter: function() {
     debug('applying filter for `%s`', this.search);
-    this.parent.filterCollections(this.search);
-    debug('filter applied');
+    this.parent.filterItems(this.search);
   }
 });
 module.exports = CollectionFilterView;

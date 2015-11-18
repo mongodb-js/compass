@@ -2,6 +2,7 @@ var View = require('ampersand-view');
 var format = require('util').format;
 var SidebarView = require('../sidebar');
 var CollectionView = require('./collection');
+var InstancePropertyView = require('./instance-properties');
 var TourView = require('../tour');
 var app = require('ampersand-app');
 var debug = require('debug')('scout:home');
@@ -62,6 +63,12 @@ var HomeView = View.extend({
     this.renderSubview(new TourView(), this.queryByHook('tour-container'));
   },
   onInstanceFetched: function() {
+    debug('app.instance fetched', app.instance.serialize());
+    if (app.instance.collections.length === 0) {
+      this.showNoCollectionsZeroState = true;
+    } else {
+      this.showDefaultZeroState = true;
+    }
     if (!this.ns) {
       app.instance.collections.unselectAll();
 
@@ -117,7 +124,20 @@ var HomeView = View.extend({
         return new SidebarView({
           el: el,
           parent: this,
-          collection: app.instance.collections
+          filterEnabled: true,
+          displayProp: '_id',
+          icon: 'fa-database',
+          widgets: [{
+            viewClass: InstancePropertyView,
+            options: {
+              instance: app.instance
+            }
+          }],
+          nested: {
+            collectionName: 'collections',
+            displayProp: 'name'
+          },
+          collection: app.instance.databases
         }).on('show', this.showCollection.bind(this));
       }
     }

@@ -1,76 +1,130 @@
 var View = require('ampersand-view');
-var mousetrap = require('mousetrap');
-var InstancePropertiesView = require('./instance-properties');
-var CollectionFilterView = require('./collection-filter');
-var CollectionListView = require('./collection-list');
-var app = require('ampersand-app');
+var ListView = require('./list');
+var FilterView = require('./filter');
+var ListItemView = require('./list-item');
+var _ = require('lodash');
+// var debug = require('debug')('scout:sidebar:index');
+
 
 var SidebarView = View.extend({
   props: {
-    open: {
+    widgets: {
+      type: 'array',
+      default: function() {
+        return [];
+      },
+      required: true
+    },
+    filterEnabled: {
       type: 'boolean',
-      default: true
+      default: false,
+      required: true
+    },
+    displayProp: {
+      type: 'string',
+      default: 'name',
+      required: true
+    },
+    itemViewClass: {
+      type: 'any',
+      default: null,
+      required: false
+    },
+    icon: {
+      type: 'string',
+      default: '',
+      required: false
+    },
+    nested: {
+      type: 'object',
+      default: null,
+      required: false
     }
   },
   bindings: {
-    open: [{
-      type: 'booleanClass',
-      no: 'hidden'
-    }, {
-      type: function() {
-        var content = document.querySelector('.content');
-        if (!content) {
-          return;
-        }
-        if (this.open) {
-          content.classList.add('with-sidebar');
-        } else {
-          content.classList.remove('with-sidebar');
-        }
-      }
-    }]
-  },
-  initialize: function() {
-    mousetrap.bind('command+k', this.toggle.bind(this, 'open'));
+    filterEnabled: {
+      type: 'toggle',
+      hook: 'filter'
+    }
   },
   template: require('./index.jade'),
   subviews: {
-    instance_properties: {
-      hook: 'instance-properties-subview',
+    filter: {
+      hook: 'filter-subview',
+      waitFor: 'filterEnabled',
       prepareView: function(el) {
-        return new InstancePropertiesView({
-          el: el,
-          parent: this,
-          instance: app.instance
-        });
-      }
-    },
-    collections_filter: {
-      hook: 'collection-filter-subview',
-      prepareView: function(el) {
-        return new CollectionFilterView({
+        return new FilterView({
           el: el,
           parent: this
         });
       }
     },
-    collections: {
-      hook: 'collection-list-subview',
+    list: {
+      hook: 'list-subview',
       prepareView: function(el) {
-        var view = new CollectionListView({
+        var displayProp = this.displayProp;
+        var icon = this.icon;
+
+        var ItemViewClass = this.itemViewClass || ListItemView.extend({
+          props: {
+            icon: {
+              type: 'string',
+              default: icon,
+              required: false
+            }
+          },
+          derived: {
+            value: {
+              deps: ['model.' + displayProp],
+              fn: function() {
+                return _.get(this.model, displayProp);
+              }
+            }
+          }
+        });
+
+        return new ListView({
           el: el,
           parent: this,
-          collection: this.collection
+          collection: this.collection,
+          itemViewClass: ItemViewClass,
+          nested: this.nested
         });
-        return view;
       }
     }
   },
-  filterCollections: function(pattern) {
-    var re = new RegExp(pattern);
+  show: function(model) {
+    this.trigger('show', model);
+  },
+  render: function() {
+    this.renderWithTemplate(this);
+    // render widgets
+    _.each(this.widgets, function(widget) {
+      widget.options = _.defaults({
+        parent: this
+      }, widget.options || {});
+      /* eslint new-cap: 0 */
+      this.renderSubview(new widget.viewClass(widget.options),
+        this.queryByHook('widget-container'));
+    }.bind(this));
+  },
+  filterItems: function(searchString) {
+    var re = new RegExp(searchString);
+    var displayProp = this.displayProp;
+    var nested = this.nested;
 
     this.collection.filter(function(model) {
-      return re.test(model.getId());
+      if (re.test(_.get(model, displayProp))) {
+        model[nested.collectionName].unfilter();
+        return true;
+      }
+      if (nested) {
+        model[nested.collectionName].filter(function(nestedModel) {
+          return re.test(_.get(nestedModel, nested.displayProp));
+        });
+        return (model[nested.collectionName].length > 0);
+      }
+      return false;
     });
   }
 });

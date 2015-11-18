@@ -2,6 +2,9 @@
 @sidebar-width: 220px;
 
 .sidebar {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
   border-radius: 0;
   position: fixed;
   z-index: 10;
@@ -15,78 +18,13 @@
     height: 60px;
   }
 
-  .instance-properties {
-    position: absolute;
-    top: 18px;
-    left: 10px;
-
-    .hostname {
-      display: block;
-      font-size: 16px;
-      line-height: 17px;
-      font-weight: 200;
-      color: @pw;
-
-      .hostname-hostname {
-        display: block;
-        float: left;
-        max-width: 140px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-      .hostname-colon,
-      .hostname-port {
-        display: block;
-        float: left;
-      }
-    }
-    .version {
-      display: block;
-      font-size: 13px;
-      line-height: 14px;
-      font-weight: normal;
-      color: @gray5;
-    }
-    .db-stats {
-      color: @gray5;
-      margin-top: 8px;
-      font-style: 13px;
-      line-height: 13px;
-
-      .num-databases,
-      .num-collections {
-        display: inline-block;
-        border-right: 1px solid @slate2;
-        padding-right: 10px;
-        margin-right: 10px;
-      }
-      strong {
-        color: @gray7;
-        font-weight: bold;
-      }
-      button.refresh-collections {
-        background: none;
-        border: none;
-        color: @gray7;
-        font-size: 13px;
-        border-radius: 2px;
-        padding: 4px 5px;
-        transition: all 150ms ease;
-
-        &:hover {
-          background: @slate0;
-          color: @pw;
-        }
-      }
-    }
+  .widget-container > div {
+    margin: 18px 10px;
+    width: @sidebar-width;
   }
 
   .list-filter {
-    position: absolute;
-    top: 96px;
     width: 100%;
-    // padding-bottom: 12px;
     box-shadow: 0 2px 0 rgba(0,0,0,0.2);
 
     i.search {
@@ -96,20 +34,6 @@
       margin-left: 10px;
       color: @gray7;
     }
-    // input {
-    //   padding: 0;
-    //   margin-left: 30px;
-    //   margin-top: 7px;
-    //   height: auto;
-    //   background: @slate1;
-    //   color: @pw;
-    //   width: 174px;
-    //   border: none;
-    //   border-bottom: 1px solid lighten(@slate1, 5%);
-    // }
-    // input[type=search] {
-    //   border-radius: 18px;
-    // }
     input {
       padding: 7px 5px 5px 30px;
       height: auto;
@@ -126,9 +50,6 @@
     input::-webkit-input-placeholder {
       color: @gray5;
     }
-    // input[type=search] {
-    //   border-radius: 18px;
-    // }
   }
 
   .panel-title {
@@ -136,20 +57,46 @@
   }
   .list-group {
     line-height: 24px;
-    position: absolute;
-    top: 129px;
-    bottom: 0px;
     overflow-y: auto;
     width: 100%;
     z-index: -1;
 
+    &.root {
+      // position: absolute;
+      // top: 129px;
+      bottom: 0px;
+      padding-top: 5px;
+    }
+
+    i.icon {
+      margin: 0 8px;
+    }
+
+    .list-group-item-heading {
+      // padding-left: 10px;
+      cursor: default;
+      color: @gray5;
+      font-weight: bold;
+
+      // &.active {
+      //   background: none;
+      //   color: @green3;
+      //
+      //   i {
+      //     color: @green3;
+      //   }
+      // }
+
+    }
+
     .list-group-item {
+      padding: 0;
       cursor: pointer;
       border-top-width: 0;
       border-bottom-width: 0;
-      padding: 0;
       background: none;
       color: @gray5;
+      font-weight: normal;
 
       &.special {
         a {
@@ -175,7 +122,7 @@
       a {
         display: block;
         color: @gray5;
-        padding: 0 6px;
+        padding: 0 8px;
         text-decoration: none;
         white-space: nowrap;
         overflow: hidden;
@@ -186,22 +133,16 @@
       i {
         color: lighten(@text-color, 40%);
         line-height: 24px;
-        margin-right: 5px;
       }
+
       &.active {
         background: none;
-
         a {
           color: @green3;
           border-left: 4px solid @green3;
         }
         i {
           color: @green3;
-        }
-        .list-group-item-heading {
-          color: @green2;
-          font-weight: bold;
-
         }
       }
 
@@ -218,10 +159,10 @@
 }
 
 .sidebar {
-  top: 0px;
+  top: 0;
   left: 0;
   bottom: 0;
-  width: 220px;
+  width: @sidebar-width;
   background: @sidebar-bg;
   border-left-width: 0;
   border-top-width: 0;
