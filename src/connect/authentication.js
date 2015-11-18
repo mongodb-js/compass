@@ -84,23 +84,6 @@ var KERBEROS = {
   ]
 };
 
-var X509 = {
-  _id: 'X509',
-  title: 'X.509',
-  // @todo (imlucas) Fix `app.isFeatureEnabled` is not a function.
-  // enabled: app.isFeatureEnabled('Connect with X.509'),
-  enabled: false,
-  fields: [
-    new InputView({
-      template: inputTemplate,
-      name: 'x509_username',
-      label: 'Username',
-      placeholder: '',
-      required: true
-    })
-  ]
-};
-
 var LDAP = {
   _id: 'LDAP',
   title: 'LDAP',
@@ -120,6 +103,23 @@ var LDAP = {
       type: 'password',
       name: 'ldap_password',
       label: 'Password',
+      placeholder: '',
+      required: true
+    })
+  ]
+};
+
+var X509 = {
+  _id: 'X509',
+  title: 'X.509',
+  // @todo (imlucas) Fix `app.isFeatureEnabled` is not a function.
+  // enabled: app.isFeatureEnabled('Connect with X.509'),
+  enabled: false,
+  fields: [
+    new InputView({
+      template: inputTemplate,
+      name: 'x509_username',
+      label: 'Username',
       placeholder: '',
       required: true
     })
