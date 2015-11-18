@@ -129,6 +129,6 @@ module.exports = new AuthenticationOptionCollection([
   NONE,
   MONGODB,
   KERBEROS,
-  X509,
-  LDAP
+  LDAP,
+  X509
 ]);
