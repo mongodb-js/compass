@@ -34,12 +34,12 @@ npm start;
     An express.js application which provides REST and socket.io endpoints
     to the mongodb node.js driver.
   </dd>
-  <dt><a href="https://travis-ci.org/mongodb-js/mongodb-connection-model"><img src="https://secure.travis-ci.org/mongodb-js/mongodb-connection-model.svg?branch=master" height="10" /></a>&nbsp;<a href="https://github.com/mongodb-js/mongodb-connection-model">mongodb-connection-model</a></dt>
+  <dt><a href="https://travis-ci.org/mongodb-js/connection-model"><img src="https://secure.travis-ci.org/mongodb-js/connection-model.svg?branch=master" height="10" /></a>&nbsp;<a href="https://github.com/mongodb-js/connection-model">mongodb-connection-model</a></dt>
   <dd>
     A shared Ampersand.js model used by `compass`, `scout-client`, and `scout-server` that encapsulates
     all of the business logic for generating valid parameters to hand to the driver to connect to MongoDB.
   </dd>
-  <dt><a href="https://travis-ci.org/mongodb-js/mongodb-collection-sample"><img src="https://secure.travis-ci.org/mongodb-js/mongodb-collection-sample.svg?branch=master" height="10" /></a>&nbsp;<a href="https://github.com/mongodb-js/mongodb-collection-sample">mongodb-collection-sample</a></dt>
+  <dt><a href="https://travis-ci.org/mongodb-js/collection-sample"><img src="https://secure.travis-ci.org/mongodb-js/collection-sample.svg?branch=master" height="10" /></a>&nbsp;<a href="https://github.com/mongodb-js/collection-sample">mongodb-collection-sample</a></dt>
   <dd>
     Provides a single interface for `scout-server` to request a sample of documents from a collection that automatically uses the `$sample` operator if available, falling back to a client-side reservoir sample.
   </dd>

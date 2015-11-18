@@ -61,7 +61,7 @@ module.exports = {
     if (model.selected) {
       return false;
     }
-    raf(function selectable_mark_selected() {
+    raf(function selectableMarkModelSelected() {
       var current = this.selected;
       if (current) {
         current.selected = false;

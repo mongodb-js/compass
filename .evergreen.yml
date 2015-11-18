@@ -63,13 +63,31 @@ functions:
       script: |
         set -ev
         export PATH="${node_path}:$PATH"
-        ${node|node} --version
-        ${npm|npm} --version
+        test -n "${add_environment|}" && export ${add_environment|}
+        ${npm|npm} version --json
         ${npm|npm} config set loglevel error
-        ${npm|npm} config -g list -l
-        ${npm|npm} install
+        ${npm|npm} config -g list
         ${npm|npm} install
 
+  # For Windows: retrieve a fake "signtool.exe" which proxies to notary-service,
+  # and remove the real one from our path. Must run after "npm install"
+  "fetch signtool" : &fetch_signtool
+    command: shell.exec
+    build_variants:
+      - windows-64
+    params:
+      working_dir: src
+      script: |
+        curl -fs \
+          -o "signtool.exe" \
+          --url "https://s3.amazonaws.com/boxes.10gen.com/build/signtool.exe"
+        rm node_modules/electron-installer-squirrel-windows/vendor/signtool.exe
+
+  # Environment variables set for use by notary-service signtool.exe on Windows:
+  # NOTARY_URL, NOTARY_AUTH_TOKEN, NOTARY_SIGNING_KEY, NOTARY_SIGNING_COMMENT
+  #
+  # SIGNTOOL_PARAMS is set to a non-empty value to activate signing logic in Squirrel.Windows
+  #
   "build" :
     command: shell.exec
     params:
@@ -78,9 +96,13 @@ functions:
         set -ev
         export PATH="${node_path}:$PATH"
         export CI=1 EVERGREEN=1
+        export NOTARY_URL="http://notary-service.build.10gen.cc:5000"
+        export NOTARY_AUTH_TOKEN="${signing_auth_token}"
+        export NOTARY_SIGNING_KEY="${signing_key_name}"
+        export NOTARY_SIGNING_COMMENT="Evergreen project mongodb/compass ${revision} - ${build_variant} - ${branch_name}"
+        export SIGNTOOL_PARAMS="yes"
         test -n "${add_environment|}" && export ${add_environment|}
         ${npm|npm} run ci
-        ${npm|npm} run test
 
   "save release":
     command: s3.put
@@ -90,7 +112,7 @@ functions:
       aws_key: ${aws_key}
       aws_secret: ${aws_secret}
       local_file: "src/dist/${installer_filename}"
-      remote_file: "mongodbjs-scout-master/${build_variant}/${revision}/${installer_filename}"
+      remote_file: "mongodb-compass-master/${build_variant}/${revision}/${installer_filename}"
       bucket: mciuploads
       permissions: public-read
       content_type: ${installer_content_type|application/octet-stream}
@@ -128,6 +150,7 @@ tasks:
   - func: "fetch source"
   - func: "fetch npm tarball"
   - func: "npm install"
+  - func: "fetch signtool"
   - func: "build"
   - func: "save release"
 
@@ -166,6 +189,7 @@ buildvariants:
     installer_content_type: "application/octet-stream"
     installer_filename: "MongoDBCompassSetup.exe"
     num_cores: $(grep -c ^processor /proc/cpuinfo)
+    add_environment: APPDATA=C:\\Users\\Administrator\\
   tasks:
     *all_tasks
 

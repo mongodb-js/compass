@@ -64,18 +64,27 @@ function darwinCompassSubMenu() {
   };
 }
 
-function connectSubMenu() {
+function connectSubMenuItem() {
+  return {
+    label: 'Connect to...',
+    accelerator: 'CmdOrCtrl+N',
+    click: function() {
+      app.emit('show connect dialog');
+    }
+  };
+}
+
+function connectSubMenu(nonDarwin) {
+  var subMenu = [connectSubMenuItem()];
+
+  if (nonDarwin) {
+    subMenu.push(separator());
+    subMenu.push(quitSubMenuItem('Exit'));
+  }
+
   return {
     label: 'Connect',
-    submenu: [
-      {
-        label: 'Connect to...',
-        accelerator: 'CmdOrCtrl+N',
-        click: function() {
-          app.emit('show connect dialog');
-        }
-      }
-    ]
+    submenu: subMenu
   };
 }
 
@@ -231,7 +240,7 @@ function darwinMenu(menuState) {
     darwinCompassSubMenu()
   ];
 
-  menu.push(connectSubMenu());
+  menu.push(connectSubMenu(false));
   menu.push(editSubMenu());
   menu.push(viewSubMenu());
 
