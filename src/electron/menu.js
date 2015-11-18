@@ -138,8 +138,8 @@ function nonDarwinAboutSubMenuItem() {
 
 function helpWindowSubMenuItem() {
   return {
-    label: 'Help',
-    accelerator: 'CmdOrCtrl+H',
+    label: 'Show Compass Help',
+    accelerator: 'F1',
     click: function() {
       app.emit('show help window');
     }
