@@ -1,6 +1,6 @@
 var assert = require('assert');
 var Connection = require('../');
-var loadOptions = require('../connect').loadOptions;
+var loadOptions = Connection.connect.loadOptions;
 var parse = require('mongodb-url');
 var driverParse = require('mongodb/lib/url_parser');
 var fixture = require('mongodb-connection-fixture');

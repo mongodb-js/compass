@@ -1,7 +1,7 @@
 /* eslint no-console:0 */
 var assert = require('assert');
-var Connection = require('../model');
-var connect = require('../connect');
+var Connection = require('../');
+var connect = Connection.connect;
 var Instance = require('mongodb-instance-model');
 
 var shouldGetInstanceDetails = function(db, done) {
