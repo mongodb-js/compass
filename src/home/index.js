@@ -49,7 +49,6 @@ var HomeView = View.extend({
     this.once('change:rendered', this.onRendered);
     debug('fetching instance model...');
     app.instance.fetch();
-
     app.sendMessage('show compass overview submenu');
   },
   render: function() {

@@ -37,8 +37,9 @@ var MONGODB = {
     new InputView({
       template: inputTemplate,
       name: 'mongodb_database_name',
-      label: 'Database Name',
+      label: 'Authentication Database',
       placeholder: 'admin',
+      helpEntry: 'connect-userpass-auth-db',
       required: false
     })
   ]
@@ -56,6 +57,7 @@ var KERBEROS = {
       name: 'kerberos_service_name',
       label: 'Kerberos Service Name',
       placeholder: 'mongodb',
+      helpEntry: 'connect-kerberos-service-name',
       required: false
     }),
     new InputView({
@@ -63,6 +65,7 @@ var KERBEROS = {
       name: 'kerberos_principal',
       label: 'Kerberos Principal',
       placeholder: '',
+      helpEntry: 'connect-kerberos-principal',
       required: true
     }),
     new InputView({

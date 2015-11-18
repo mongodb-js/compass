@@ -43,7 +43,8 @@ var TourView = View.extend({
       RIGHT_ARROW_KEY,
       TAB_KEY,
       ENTER_KEY,
-      SPACE_KEY].indexOf(evt.keyCode) !== -1) {
+      SPACE_KEY
+    ].indexOf(evt.keyCode) !== -1) {
       this.showNextFeature();
     } else if (evt.keyCode === LEFT_ARROW_KEY) {
       this.showPreviousFeature();
