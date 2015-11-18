@@ -25,6 +25,7 @@ var del = require('del');
 var sequence = require('run-sequence');
 var watch = require('gulp-watch');
 var notify = require('./tasks/notify');
+var electronRebuild = require('electron-rebuild');
 var pkg = require('./package.json');
 
 // Platform specific tasks
@@ -63,6 +64,7 @@ gulp.task('build', function(done) {
       'copy:package.json'
     ],
     'npm:install',
+    'electron-rebuild',
     'build:js'
     , done);
 });
@@ -257,4 +259,22 @@ gulp.task('npm:install', shell.task('npm install --production --quiet --loglevel
 
 gulp.task('clean', function(done) {
   del(['build/', 'dist/', 'node_modules/'], done);
+});
+
+gulp.task('electron-rebuild', function(done) {
+  electronRebuild.shouldRebuildNativeModules(platform.ELECTRON)
+  .then(function(shouldBuild) {
+    if (!shouldBuild) {
+      done();
+      return;
+    }
+    electronRebuild.installNodeHeaders(pkg.electron_version)
+      .then(function() {
+        return electronRebuild.rebuildNativeModules(pkg.electron_version, 'build/node_modules');
+      })
+      .then(done)
+      .catch(function(err) {
+        done(err);
+      });
+  });
 });
