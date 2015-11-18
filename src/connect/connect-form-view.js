@@ -137,6 +137,14 @@ var ConnectFormView = FormView.extend({
         }
         ]
       }),
+      new InputView({
+        template: require('./input-default.jade'),
+        el: this.parent.queryByHook('ns-subview'),
+        name: 'ns',
+        label: 'ns',
+        placeholder: '',
+        required: false
+      }),
       // authentication select dropdown
       new SelectView({
         name: 'authentication',
