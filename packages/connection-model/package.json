@@ -16,7 +16,7 @@
   "browser": "browser.js",
   "scripts": {
     "ci": "npm run check && npm test",
-    "test": "mocha",
+    "test": "electron-mocha",
     "fmt": "mongodb-js-fmt ./*.js ./test/*.js",
     "check": "mongodb-js-precommit"
   },
@@ -34,6 +34,8 @@
     "mongodb-url": "^1.0.1"
   },
   "devDependencies": {
+    "electron-mocha": "^0.6.1",
+    "electron-prebuilt": "^0.34.3",
     "eslint-config-mongodb-js": "^1.0.5",
     "mocha": "^2.3.3",
     "mongodb-connection-fixture": "^0.0.10",
