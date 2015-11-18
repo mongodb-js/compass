@@ -63,7 +63,7 @@ var ALL = {
     }),
     new FileReaderView({
       name: 'ssl_private_key',
-      label: 'Client Certificate Key',
+      label: 'Client Private Key',
       required: true
     }),
     new FileReaderView({
@@ -74,7 +74,7 @@ var ALL = {
     new InputView({
       template: inputTemplate,
       name: 'ssl_private_key_password',
-      label: 'Client Key Password',
+      label: 'Private Key Password',
       required: false
     })
   ]
