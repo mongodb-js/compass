@@ -1,4 +1,4 @@
-# mongodb-connection-model [![][travis_img]][travis_url] [![][npm_img]][npm_url]
+# mongodb-connection-model [![][travis_img]][travis_url] [![][npm_img]][npm_url] [![]inch_img][inch_url]
 
 > MongoDB connection model.
 
@@ -27,7 +27,7 @@ var Connection = require('mongodb-connection-model');
 - `instance_id` (String) ... The mongoscope `instance_id` [Default: `localhost:27017`].
 - `driver_url` (String) ... The first argument `mongoscope-server` passes to `mongodb.connect` [Default: `mongodb://localhost:27017/?slaveOk=true`].
 - `driver_options` (Object) ... The second argument `mongoscope-server` passes to `mongodb.connect` [Default: `{}`].
-
+s
 
 ## Traits
 
@@ -211,6 +211,8 @@ Apache 2.0
 [travis_url]: https://travis-ci.org/mongodb-js/connection-model
 [npm_img]: https://img.shields.io/npm/v/mongodb-connection-model.svg?style=flat-square
 [npm_url]: https://www.npmjs.org/package/mongodb-connection-model
+[inch_img]: http://inch-ci.org/github/mongodb-js/connection-model.svg?branch=master
+[inch_url]: http://inch-ci.org/github/mongodb-js/connection-model
 [gitter_img]: https://badges.gitter.im/Join%20Chat.svg
 [gitter_url]: http://gitter.im/mongodb-js/mongodb-js
 [enterprise_img]: https://img.shields.io/badge/MongoDB-Enterprise-blue.svg?style=flat-square
