@@ -7,6 +7,7 @@ var AuthenticationOptionCollection = require('./models/authentication-option-col
 
 var InputView = require('./input-view');
 var inputTemplate = require('./input-default.jade');
+var _ = require('lodash');
 
 var NONE = {
   _id: 'NONE',
@@ -88,7 +89,7 @@ var X509 = {
   title: 'X.509',
   // @todo (imlucas) Fix `app.isFeatureEnabled` is not a function.
   // enabled: app.isFeatureEnabled('Connect with X.509'),
-  enabled: true,
+  enabled: false,
   fields: [
     new InputView({
       template: inputTemplate,
@@ -125,10 +126,12 @@ var LDAP = {
   ]
 };
 
-module.exports = new AuthenticationOptionCollection([
+var allAuthModes = [
   NONE,
   MONGODB,
   KERBEROS,
   LDAP,
   X509
-]);
+];
+
+module.exports = new AuthenticationOptionCollection(_.filter(allAuthModes, 'enabled'));
