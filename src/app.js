@@ -290,12 +290,12 @@ app.extend({
   setFeature: function(id, bool) {
     FEATURES[id] = bool;
   },
-  sendMessage: function(msg, arg1) {
-    ipc.send('message', msg, arg1);
+  sendMessage: function(msg, arg) {
+    ipc.send('message', msg, arg);
   },
-  onMessageReceived: function(msg) {
-    debug('message received from main process:', msg);
-    this.trigger(msg);
+  onMessageReceived: function(msg, arg) {
+    debug('message received from main process:', msg, arg);
+    this.trigger(msg, arg);
   },
   metrics: metrics,
   init: function() {

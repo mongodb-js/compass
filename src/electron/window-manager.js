@@ -146,17 +146,17 @@ app.on('show connect dialog', function() {
 });
 
 app.on('show help window', function(id) {
-  var url = HELP_URL;
-  if (_.isString(id)) {
-    url += '/' + id;
-  }
-
   if (helpWindow) {
     helpWindow.focus();
     if (_.isString(id)) {
-      helpWindow.webContents.loadURL(url);
+      helpWindow.webContents.send('message', 'show-help-entry', id);
     }
     return;
+  }
+
+  var url = HELP_URL;
+  if (_.isString(id)) {
+    url += '/' + id;
   }
 
   helpWindow = createWindow({}, url);
@@ -205,7 +205,7 @@ app.on('ready', function() {
 });
 
 var ipc = require('ipc');
-ipc.on('message', function(event, msg, arg1) {
-  debug('message received in main process', msg);
-  app.emit(msg, arg1);
+ipc.on('message', function(event, msg, arg) {
+  debug('message received in main process', msg, arg);
+  app.emit(msg, arg, event);
 });
