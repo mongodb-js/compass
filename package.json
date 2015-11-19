@@ -6,6 +6,8 @@
   "electron_version": "0.34.3",
   "product_name": "MongoDB Compass",
   "authors": "MongoDB Inc.",
+  "license": "UNLICENSED",
+  "private": true,
   "check": {
     "ignore": [
       "build/**",
