@@ -70,7 +70,7 @@ functions:
         ${npm|npm} config -g list
         which -a npm
         node -p process.env
-        # ${npm|npm} install
+        ${npm|npm} install
 
   # For Windows: retrieve a fake "signtool.exe" which proxies to notary-service,
   # and remove the real one from our path. Must run after "npm install"
