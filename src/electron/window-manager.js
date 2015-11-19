@@ -18,6 +18,7 @@ var path = require('path');
  * When running in electron, we're in `RESOURCES/src/electron`.
  */
 var RESOURCES = path.resolve(__dirname, '../../');
+var SCOUT_ICON_PATH = RESOURCES + '/images/scout.png';
 
 /**
  * The app's HTML shell which is the output of `./src/index.jade`

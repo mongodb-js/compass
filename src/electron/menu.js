@@ -79,7 +79,7 @@ function connectSubMenu(nonDarwin) {
 
   if (nonDarwin) {
     subMenu.push(separator());
-    subMenu.push(quitSubMenu('Exit'));
+    subMenu.push(quitSubMenuItem('Exit'));
   }
 
   return {
