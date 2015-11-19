@@ -265,7 +265,7 @@ var minicharts_d3fns_date = function() {
         .on('mousedown', handleMouseDown);
 
       // disabling direct onClick handler in favor of click-drag
-      // .on('click', handleClick);
+        // .on('click', handleClick);
 
       lines
         .attr('y1', barcodeTop)

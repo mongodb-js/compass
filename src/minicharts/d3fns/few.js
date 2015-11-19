@@ -30,7 +30,7 @@ var minicharts_d3fns_few = function() {
     .attr('class', 'd3-tip')
     .direction('n')
     .offset([-9, 0]);
-  // --- end chart setup ---
+    // --- end chart setup ---
 
   function handleClick(d) {
     if (!options.view) {
