@@ -56,15 +56,23 @@ var minicharts_d3fns_coordinates = function() {
 
       xScale
         .domain([
-          d3.min(data, function(d) { return d[0]; }) - 3,
-          d3.max(data, function(d) { return d[0]; }) + 3
+          d3.min(data, function(d) {
+            return d[0];
+          }) - 3,
+          d3.max(data, function(d) {
+            return d[0];
+          }) + 3
         ])
         .range([0, innerWidth]);
 
       yScale
         .domain([
-          d3.min(data, function(d) { return d[1]; }) - 3,
-          d3.max(data, function(d) { return d[1]; }) + 3
+          d3.min(data, function(d) {
+            return d[1];
+          }) - 3,
+          d3.max(data, function(d) {
+            return d[1];
+          }) + 3
         ])
         .range([innerHeight, 0]);
 
@@ -82,26 +90,26 @@ var minicharts_d3fns_coordinates = function() {
         .attr('class', 'x axis')
         .attr('transform', 'translate(0, ' + innerHeight + ')')
         .append('text')
-          // .attr('class', 'label')
-          .attr('x', innerWidth)
-          .attr('y', -6)
-          .style('text-anchor', 'end')
-          .text('lng');
+        // .attr('class', 'label')
+        .attr('x', innerWidth)
+        .attr('y', -6)
+        .style('text-anchor', 'end')
+        .text('lng');
       x.call(xAxis);
 
       var y = g.selectAll('.y.axis').data([null]);
       y.enter().append('g')
         .attr('class', 'y axis')
         .append('text')
-          // .attr('class', 'label')
-          .attr('transform', 'rotate(-90)')
-          .attr('y', 6)
-          .attr('dy', '.71em')
-          .style('text-anchor', 'end')
-          .text('lat');
+        // .attr('class', 'label')
+        .attr('transform', 'rotate(-90)')
+        .attr('y', 6)
+        .attr('dy', '.71em')
+        .style('text-anchor', 'end')
+        .text('lat');
       y.call(yAxis);
 
-        // select all g.bar elements
+      // select all g.bar elements
       var circle = g.selectAll('circle.circle')
         .data(data);
 

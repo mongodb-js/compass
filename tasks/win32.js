@@ -53,8 +53,8 @@ function addCodesignIdentityIfAvailable(fn) {
   if (process.env.SIGNTOOL_PARAMS) {
     INSTALLER_CONFIG.sign_with_params = process.env.SIGNTOOL_PARAMS;
     console.log(chalk.green.bold(figures.tick),
-                format(' This build will be signed using signtool.exe `%s`',
-                  INSTALLER_CONFIG.sign_with_params));
+      format(' This build will be signed using signtool.exe `%s`',
+        INSTALLER_CONFIG.sign_with_params));
   }
   fn();
   return;
