@@ -1,0 +1,68 @@
+#application > div {
+  height: 100%;
+}
+.page.help  {
+  .container-fluid;
+
+  .sidebar {
+    .compass-logo {
+      height: 72px;
+    }
+
+    .panel {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 220px;
+      overflow-y: auto;
+      background: none;
+
+      .panel-title {
+        padding: 8px 0;
+        overflow: auto;
+        border-left: 4px solid transparent;
+      }
+
+      .list-group {
+        position: initial;
+
+        a.list-group-item {
+          color: @gray5;
+          padding: 2px 0 2px 10px;
+          display: block;
+          cursor: pointer;
+          border-left: 4px solid transparent;
+          font-weight: bold;
+
+          &.selected {
+            border-left: 4px solid @green3;
+            color: @green3;
+
+            &:hover {
+              color: @green3;
+            }
+          }
+          &:hover {
+            text-decoration: none;
+            background: lighten(@slate1, 5%);
+            color: @pw;
+          }
+        }
+      }
+    }
+  }
+
+  .help-entry {
+
+    img {
+      max-width: 100%;
+    }
+    .related {
+      padding-top: 20px;
+    }
+    .tags {
+      padding-bottom: 20px;
+    }
+  }
+}

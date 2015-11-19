@@ -28,6 +28,7 @@ var MongoDBInstance = require('./models/mongodb-instance');
 var User = require('./models/user');
 var Router = require('./router');
 var Statusbar = require('./statusbar');
+var $ = require('jquery');
 
 var debug = require('debug')('scout:app');
 
@@ -119,7 +120,12 @@ var Application = View.extend({
     user: User
   },
   events: {
-    'click a': 'onLinkClick'
+    'click a': 'onLinkClick',
+    'click i.help': 'onHelpClicked'
+  },
+  onHelpClicked: function(evt) {
+    var id = $(evt.target).attr('data-hook');
+    app.sendMessage('show help window', id);
   },
   onClientReady: function() {
     debug('Client ready! Took %dms to become readable',
@@ -284,12 +290,12 @@ app.extend({
   setFeature: function(id, bool) {
     FEATURES[id] = bool;
   },
-  sendMessage: function(msg, arg1) {
-    ipc.send('message', msg, arg1);
+  sendMessage: function(msg, arg) {
+    ipc.send('message', msg, arg);
   },
-  onMessageReceived: function(msg) {
-    debug('message received from main process:', msg);
-    this.trigger(msg);
+  onMessageReceived: function(msg, arg) {
+    debug('message received from main process:', msg, arg);
+    this.trigger(msg, arg);
   },
   metrics: metrics,
   init: function() {

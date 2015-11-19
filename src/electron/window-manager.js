@@ -3,36 +3,37 @@
  * [BrowserWindow](https://github.com/atom/electron/blob/master/docs/api/browser-window.md)
  * class
  */
-
 var AppMenu = require('./menu');
 var BrowserWindow = require('browser-window');
 var Notifier = require('node-notifier');
-var Path = require('path');
 
 var _ = require('lodash');
 var app = require('app');
 var config = require('./config');
 var debug = require('debug')('scout-electron:window-manager');
 var dialog = require('dialog');
+var path = require('path');
 
 /**
  * When running in electron, we're in `RESOURCES/src/electron`.
  */
-var RESOURCES = Path.resolve(__dirname, '../../');
+var RESOURCES = path.resolve(__dirname, '../../');
 var SCOUT_ICON_PATH = RESOURCES + '/images/scout.png';
 
 /**
  * The app's HTML shell which is the output of `./src/index.jade`
  * created by the `build:pages` gulp task.
  */
-var DEFAULT_URL = 'file://' + Path.join(RESOURCES, 'index.html#connect');
+var DEFAULT_URL = 'file://' + path.join(RESOURCES, 'index.html#connect');
+var HELP_URL = 'file://' + path.join(RESOURCES, 'index.html#help');
 
 /**
- * We want the Connect dialog window to be special
- * and for there to ever only be one instance of it
- * so we'll use scope to essentially make it a Singleton.
+ * We want the Connect and Help window to be special
+ * and for there to ever only be one instance of each of them
+ * so we'll use scope to essentially make each of them a Singleton.
  */
 var connectWindow;
+var helpWindow;
 
 // @todo (imlucas): Removed in setup branch as we dont need to do this anymore
 // as a `all-windows-closed` event has been added to the `app` event api
@@ -136,11 +137,6 @@ function createWindow(opts, url) {
   return module.exports.create(opts);
 }
 
-app.on('close connect', function() {
-  connectWindow.close();
-  connectWindow = null;
-});
-
 app.on('show about dialog', function() {
   dialog.showMessageBox({
     type: 'info',
@@ -156,9 +152,29 @@ app.on('show connect dialog', function() {
   }
 
   connectWindow = createWindow({}, DEFAULT_URL);
-  connectWindow.on('focus', function() {
-    debug('connect window focused.');
-    connectWindow.webContents.send('message', 'connect-window-focused');
+  connectWindow.on('closed', function() {
+    debug('connect window closed.');
+    connectWindow = null;
+  });
+});
+
+app.on('show help window', function(id) {
+  if (helpWindow) {
+    helpWindow.focus();
+    if (_.isString(id)) {
+      helpWindow.webContents.send('message', 'show-help-entry', id);
+    }
+    return;
+  }
+
+  var url = HELP_URL;
+  if (_.isString(id)) {
+    url += '/' + id;
+  }
+
+  helpWindow = createWindow({}, url);
+  helpWindow.on('closed', function() {
+    helpWindow = null;
   });
 });
 
@@ -203,7 +219,7 @@ app.on('ready', function() {
 });
 
 var ipc = require('ipc');
-ipc.on('message', function(event, msg, arg1) {
-  debug('message received in main process', msg);
-  app.emit(msg, arg1);
+ipc.on('message', function(event, msg, arg) {
+  debug('message received in main process', msg, arg);
+  app.emit(msg, arg, event);
 });
