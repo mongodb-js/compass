@@ -23,7 +23,7 @@ var HelpPage = View.extend({
     title: {
       deps: ['entry.title'],
       fn: function() {
-        var t = 'MongoDB Compass: Help';
+        var t = 'MongoDB Compass Help';
         if (this.entry.title) {
           t += ': ' + this.entry.title;
         }
