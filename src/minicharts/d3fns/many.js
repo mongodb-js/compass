@@ -35,7 +35,7 @@ var minicharts_d3fns_many = function() {
     .on('brushstart', brushstart)
     .on('brush', brushed)
     .on('brushend', brushend);
-  // --- end chart setup ---
+    // --- end chart setup ---
 
   function handleClick(d) {
     if (!options.view || !options.selectable) {

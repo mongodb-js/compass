@@ -111,7 +111,7 @@ var minicharts_d3fns_geo = function() {
         buttons: ['OK']
       });
 
-      // @todo thomasr/imlucas: add call to metrics.error here with errror code
+    // @todo thomasr/imlucas: add call to metrics.error here with errror code
     };
 
     var script = document.createElement('script');
@@ -152,14 +152,18 @@ var minicharts_d3fns_geo = function() {
   function onKeyDown() {
     if (d3.event.keyCode === SHIFTKEY) {
       // disable dragging while shift is pressed
-      googleMap.setOptions({ draggable: false });
+      googleMap.setOptions({
+        draggable: false
+      });
     }
   }
 
   function onKeyUp() {
     if (d3.event.keyCode === SHIFTKEY) {
       // disable dragging while shift is pressed
-      googleMap.setOptions({ draggable: true });
+      googleMap.setOptions({
+        draggable: true
+      });
     }
   }
 
@@ -334,25 +338,25 @@ var minicharts_d3fns_geo = function() {
           };
 
           var marker = layer.selectAll('svg.marker')
-              .data(data)
-              .each(transform) // update existing markers
+            .data(data)
+            .each(transform) // update existing markers
             .enter().append('svg:svg')
-              .each(transform)
-              .attr('class', 'marker');
+            .each(transform)
+            .attr('class', 'marker');
 
           // Add a circle
           marker.append('circle')
-              .attr('r', 4.5)
-              .attr('cx', padding)
-              .attr('cy', padding);
+            .attr('r', 4.5)
+            .attr('cx', padding)
+            .attr('cy', padding);
         }; // end overlay.draw
 
         overlay.setMap(googleMap);
         innerDiv.on('mousedown', startSelection);
 
         d3.select('body')
-        .on('keydown', onKeyDown)
-        .on('keyup', onKeyUp);
+          .on('keydown', onKeyDown)
+          .on('keyup', onKeyUp);
       } // end if (!googleMap) ...
 
       // var innerWidth = width - margin.left - margin.right;
@@ -368,11 +372,14 @@ var minicharts_d3fns_geo = function() {
           fillColor: '#F68A1E',
           fillOpacity: 0.35,
           map: googleMap,
-          center: { lat: 0, lng: 0 },
+          center: {
+            lat: 0,
+            lng: 0
+          },
           radius: 0,
           visible: false,
           draggable: true
-          // editable: true
+        // editable: true
         });
 
         selectionCircle.addListener('drag', function() {

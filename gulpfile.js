@@ -25,7 +25,11 @@ var del = require('del');
 var sequence = require('run-sequence');
 var watch = require('gulp-watch');
 var notify = require('./tasks/notify');
+var format = require('util').format;
 var pkg = require('./package.json');
+
+var which = require('which');
+console.log('which npm?', which.sync('npm', {all: true}));
 
 // Platform specific tasks
 var platform = require(path.join(__dirname, 'tasks', process.platform));
@@ -63,6 +67,7 @@ gulp.task('build', function(done) {
       'copy:package.json'
     ],
     'npm:install',
+    'electron-rebuild',
     'build:js'
     , done);
 });
@@ -258,3 +263,18 @@ gulp.task('npm:install', shell.task('npm install --production --quiet --loglevel
 gulp.task('clean', function(done) {
   del(['build/', 'dist/', 'node_modules/'], done);
 });
+
+
+/**
+ * @note (imlucas): When our electron updates to node@5.x, we'll need to update
+ * the `--node-module-version` used here to `47`.
+ * You're very welcome, @futurelucas.
+ */
+gulp.task('electron-rebuild',
+  shell.task(format([
+    'electron-rebuild',
+    '--version %s',
+    '--node-module-version 46',
+    '--module-dir ./build/node_modules',
+    '--which-module keytar'
+  ].join(' '), pkg.electron_version)));
