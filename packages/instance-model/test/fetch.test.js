@@ -3,7 +3,7 @@ var assert = require('assert');
 var Connection = require('mongodb-connection-model');
 var connect = Connection.connect;
 var format = require('util').format;
-var fetch = require('../fetch');
+var fetch = require('../').fetch;
 var debug = require('debug')('mongodb-instance-model:test:fetch');
 
 var fixtures = require('mongodb-connection-fixture').MATRIX.map(function(model) {
@@ -28,55 +28,75 @@ describe('mongodb-instance-model#fetch', function() {
         done();
       });
     });
-    it('should list collections', function(done) {
-      assert(db);
-      fetch.getAllCollections(db, function(err, res) {
-        if (err) {
-          return done(err);
-        }
-        debug('list collections', JSON.stringify(res, null, 2));
-        done();
-      });
-    });
-
-    it('should list databases', function(done) {
-      assert(db);
-      fetch.getDatabases(db, function(err, res) {
-        if (err) {
-          return done(err);
-        }
-        debug('list databases', JSON.stringify(res, null, 2));
-        done();
-      });
-    });
-
-    it('should get build info', function(done) {
-      assert(db);
-      fetch.getBuildInfo(db, function(err, res) {
-        if (err) {
-          return done(err);
-        }
-        debug('build info', JSON.stringify(res, null, 2));
-        done();
-      });
-    });
-
-    it('should get host info', function(done) {
-      assert(db);
-      fetch.getHostInfo(db, function(err, res) {
-        if (err) {
-          return done(err);
-        }
-        debug('host info', JSON.stringify(res, null, 2));
-        done();
-      });
-    });
+    // it('should list collections', function(done) {
+    //   assert(db);
+    //   fetch.getAllCollections(db, function(err, res) {
+    //     if (err) {
+    //       return done(err);
+    //     }
+    //     debug('list collections', JSON.stringify(res, null, 2));
+    //     done();
+    //   });
+    // });
+    //
+    // it('should list databases', function(done) {
+    //   assert(db);
+    //   fetch.getDatabases(db, function(err, res) {
+    //     if (err) {
+    //       return done(err);
+    //     }
+    //     debug('list databases', JSON.stringify(res, null, 2));
+    //     done();
+    //   });
+    // });
+    //
+    // it('should get build info', function(done) {
+    //   assert(db);
+    //   fetch.getBuildInfo(db, function(err, res) {
+    //     if (err) {
+    //       return done(err);
+    //     }
+    //     debug('build info', JSON.stringify(res, null, 2));
+    //     done();
+    //   });
+    // });
+    //
+    // it('should get host info', function(done) {
+    //   assert(db);
+    //   fetch.getHostInfo(db, function(err, res) {
+    //     if (err) {
+    //       return done(err);
+    //     }
+    //     debug('host info', JSON.stringify(res, null, 2));
+    //     done();
+    //   });
+    // });
 
     it('should get instance details', function(done) {
       assert(db);
       fetch(db, function(err, res) {
         if (err) {
           return done(err);
+        }
+        debug('instance details', JSON.stringify(res, null, 2));
+        done();
+      });
+    });
+  });
+
+  /**
+   * @todo (imlucas) After mongodb-tools rewrite, http://npm.im/mongodb-runner
+   * will be able to properly spin up deployments w authentication.
+   */
+  it.skip('should get instance details for john doe', function(done) {
+    var connection = Connection.from('john:doe@localhost:30000/admin?authMechanism=MONGODB-CR');
+    connect(connection, function(err, db) {
+      if (err) {
+        return done(err);
+      }
+      fetch(db, function(_err, res) {
+        if (_err) {
+          return done(_err);
         }
         debug('instance details', JSON.stringify(res, null, 2));
         done();
@@ -154,7 +174,10 @@ describe('mongodb-instance-model#fetch', function() {
                 this.slow(5000);
                 this.timeout(10000);
                 assert(db, 'requires successful connection');
-                fetch(db, done);
+                fetch(db, function(err, res) {
+                  debug('got instance details', res);
+                  done(err, res);
+                });
               });
 
               after(function() {

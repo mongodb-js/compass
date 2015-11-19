@@ -1,2 +1,2 @@
-module.exports = require('./model');
-module.exports.fetch = require('./fetch');
+module.exports = require('./lib/model');
+module.exports.fetch = require('./lib/fetch');
