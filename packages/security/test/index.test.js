@@ -1,6 +1,5 @@
 var assert = require('assert');
 var security = require('../');
-var each = require('lodash.foreach');
 var pluck = require('lodash.pluck');
 var user = require('../res/user.json');
 var admin = require('../res/admin.json');

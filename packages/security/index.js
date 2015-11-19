@@ -1,12 +1,12 @@
-var actions = require('./res/actions.json');
-var roles = require('./res/roles.json');
+var ACTIONS = require('./res/actions.json');
+var ROLES = require('./res/roles.json');
 
 var each = require('lodash.foreach');
 var every = require('lodash.every');
 var debug = require('debug')('mongodb-security');
 
 function inflateAction(name) {
-  var def = actions[name];
+  var def = ACTIONS[name];
   def._id = name;
   return def;
 }
@@ -17,7 +17,7 @@ var special = {
   },
   collection: function(s) {
     return s.startsWith('system.');
-    // return ['system.profile', 'system.indexes', 'system.js', 'system.namespaces'].indexOf(s) > -1;
+  // return ['system.profile', 'system.indexes', 'system.js', 'system.namespaces'].indexOf(s) > -1;
   }
 };
 
@@ -54,8 +54,8 @@ var filterResources = function(resources, key) {
       return resource.db !== '' && resource.collection !== '';
     }
     return false;
-  })
-}
+  });
+};
 
 
 /**
@@ -121,8 +121,8 @@ var inflate = function(userOrRole) {
 };
 
 module.exports = {
-  actions: actions,
-  roles: roles,
+  ACTIONS: ACTIONS,
+  ROLES: ROLES,
   inflate: inflate,
   filterResources: filterResources,
   getResourcesWithActions: getResourcesWithActions

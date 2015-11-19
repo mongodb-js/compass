@@ -1,3 +1,4 @@
+/* eslint handle-callback-err: 1, no-shadow: 1, no-unused-vars: 1, indent: 1 */
 var MongoClient = require('mongodb').MongoClient;
 var security = require('../');
 var format = require('util').format;
@@ -9,17 +10,12 @@ var authDB = 'reporting';
 var url = 'mongodb://localhost:30000/%s';
 
 MongoClient.connect(format(url, authDB), function(err, db) {
-
   if (err) {
     throw err;
   }
 
   // log in as that user
   db.authenticate(username, password, function(err, res) {
-
-    var adminDb = db.admin();
-    var databases;
-
     // get the user info with privileges
     db.command({
       usersInfo: {
@@ -28,7 +24,6 @@ MongoClient.connect(format(url, authDB), function(err, db) {
       },
       showPrivileges: true
     }, function(err, res) {
-
       if (err) {
         throw err;
       }
