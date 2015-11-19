@@ -1,4 +1,4 @@
-# mongodb-connection-model [![][travis_img]][travis_url] [![][npm_img]][npm_url] [![]inch_img][inch_url]
+# mongodb-connection-model [![][travis_img]][travis_url] [![][npm_img]][npm_url] [![][inch_img]][inch_url]
 
 > MongoDB connection model.
 
