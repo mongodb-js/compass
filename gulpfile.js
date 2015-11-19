@@ -28,6 +28,9 @@ var notify = require('./tasks/notify');
 var format = require('util').format;
 var pkg = require('./package.json');
 
+var which = require('which');
+cnosole.log('which npm?', which.async('npm', {all: true}));
+
 // Platform specific tasks
 var platform = require(path.join(__dirname, 'tasks', process.platform));
 
