@@ -6,6 +6,8 @@
   "electron_version": "0.34.3",
   "product_name": "MongoDB Compass",
   "authors": "MongoDB Inc.",
+  "license": "UNLICENSED",
+  "private": true,
   "check": {
     "ignore": [
       "build/**",
@@ -80,6 +82,7 @@
     "kerberos": "0.0.17",
     "keytar": "mongodb-js/node-keytar",
     "localforage": "^1.3.0",
+    "marked": "^0.3.5",
     "marky-mark": "^1.2.1",
     "mongodb-collection-model": "^0.1.1",
     "mongodb-connection-model": "^3.0.7",
@@ -147,7 +150,6 @@
     "mongodb-language-model": "^0.3.3",
     "mongodb-schema": "^3.3.1",
     "mousetrap": "^1.5.3",
-    "node-notifier": "^4.3.1",
     "numeral": "^1.5.3",
     "octicons": "https://github.com/github/octicons/archive/v3.1.0.tar.gz",
     "pluralize": "^1.2.1",
