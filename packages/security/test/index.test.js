@@ -9,14 +9,6 @@ describe('mongodb-security', function() {
     assert(security);
   });
 
-  it('should have roles', function() {
-    assert(security.roles);
-  });
-
-  it('should have actions', function() {
-    assert(security.actions);
-  });
-
   describe('getResourcesWithActions', function() {
     it('should filter the right resources', function() {
       var resources = security.getResourcesWithActions(user, ['update']);
