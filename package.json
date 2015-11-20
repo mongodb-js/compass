@@ -116,7 +116,7 @@
     "mongodb-collection-model": "^0.1.1",
     "mongodb-connection-model": "^3.0.7",
     "mongodb-extended-json": "^1.5.3",
-    "mongodb-instance-model": "^2.0.0",
+    "mongodb-instance-model": "^2.0.1",
     "mongodb-js-metrics": "^0.2.2",
     "mongodb-language-model": "^0.3.3",
     "mongodb-ns": "^1.0.1",
