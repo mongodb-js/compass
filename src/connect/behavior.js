@@ -190,34 +190,32 @@ module.exports = Behavior.extend({
     /* eslint complexity: 1 */
   },
   transition: function(action, state, view) {
-    if (action === 'new connection clicked') {
-      view.authMethod = 'NONE';
-      view.sslMethod = 'NONE';
-      view.form.reset();
-      view.message = '';
-      view.connection = null;
-      view.connectionName = '';
-    }
-
     // check actionToNewState to see if the action will lead to a new state
     var newState = this.actionToNewState[action];
     if (!_.isUndefined(newState)) {
+      // apply the effects of the new state
+      if (action === 'new connection clicked') {
+        view.authMethod = 'NONE';
+        view.sslMethod = 'NONE';
+        view.form.reset();
+        view.message = '';
+        view.connection = null;
+        view.connectionName = '';
+      }
       return newState;
     }
 
     // otherwise, then check stateAndActionToNewState to see if the state and
     // action will lead to a new state
     newState = this.stateAndActionToNewState[state][action];
-
-    // apply the effects of the new state
-    if (_.includes(['FAV_CHANGED', 'FAV_UNCHANGED'], state) && action === 'remove favorite clicked') {
-      view.removeFavoriteConnection();
-    } else if (state === 'ERROR' && action === 'any field changed') {
-      view.message = '';
-      return this.beforeErrorState;
-    }
-
     if (!_.isUndefined(newState)) {
+      // apply the effects of the new state
+      if (_.includes(['FAV_CHANGED', 'FAV_UNCHANGED'], state) && action === 'remove favorite clicked') {
+        view.removeFavoriteConnection();
+      } else if (state === 'ERROR' && action === 'any field changed') {
+        view.message = '';
+        return this.beforeErrorState;
+      }
       return newState;
     }
 
