@@ -95,17 +95,6 @@ module.exports = Behavior.extend({
       ]
     }
   },
-  /**
-   * return new state based on current state and action
-   * @param  {String} state    one of the states defined above
-   * @param  {String} action   one of the actions defined above
-   * @return {String}          new state as defined above
-   */
-  reduce: function(action, state, view) {
-    var newState = this.transition(action, state, view);
-    this.applyNewState(action, newState, state, view);
-    return newState;
-  },
   applyNewState: function(action, newState, state, view) {
     /* eslint complexity: 0 */
 
