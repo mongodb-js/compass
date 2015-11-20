@@ -165,15 +165,6 @@ function helpSubMenu(showCompassOverview) {
   };
 }
 
-function nonDarwinCompassSubMenuItem() {
-  return {
-    label: 'MongoDB Compass',
-    submenu: [
-      quitSubMenuItem('Exit')
-    ]
-  };
-}
-
 function shareSubMenu() {
   return {
     label: 'Share',
@@ -256,11 +247,9 @@ function darwinMenu(menuState) {
 
 function nonDarwinMenu(menuState) {
   var menu = [
-    nonDarwinCompassSubMenuItem()
+    connectSubMenu(true),
+    viewSubMenu()
   ];
-
-  menu.push(connectSubMenu());
-  menu.push(viewSubMenu());
 
   if (menuState.showShare) {
     menu.push(shareSubMenu());
