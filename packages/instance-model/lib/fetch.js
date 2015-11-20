@@ -1,9 +1,7 @@
 var async = require('async');
 var ReadPreference = require('mongodb-read-preference');
 var isNotAuthorized = require('mongodb-js-errors').isNotAuthorized;
-var Connection = require('mongodb-connection-model');
 var toNS = require('mongodb-ns');
-var connect = Connection.connect;
 var security = require('mongodb-security');
 var _ = require('lodash');
 
@@ -280,42 +278,30 @@ function getDatabases(done, results) {
 
 function getUserInfo(done, results) {
   var db = results.db;
-  var connection = results.connection;
-  var user;
 
-  // @todo push this logic down to connection-model
-  if (connection.authentication === 'MONGODB') {
-    user = {
-      user: connection.mongodb_username,
-      db: connection.mongodb_database_name
-    };
-  } else if (connection.authentication === 'NONE') {
-    user = false;
-  } else if (connection.authentication === 'KERBEROS') {
-    user = {
-      user: connection.kerberos_principal,
-      db: '$external'
-    };
-  }
-
-  if (!user) {
-    debug('no user provided, returning empty document');
-    return done(null, {});
-  }
-
-  // get the user info with privileges
+  // get the user privileges
   db.command({
-    usersInfo: {
-      user: user.user,
-      db: user.db
-    },
+    connectionStatus: 1,
     showPrivileges: true
   }, function(err, res) {
     if (err) {
       done(err);
     }
-    res = res.users[0];
-    done(null, res);
+    var user = res.authInfo.authenticatedUsers[0];
+    if (!user) {
+      debug('no logged in user, returning empty document');
+      return done(null, {});
+    }
+
+    db.command({
+      usersInfo: user,
+      showPrivileges: true
+    }, function(_err, _res) {
+      if (_err) {
+        done(_err);
+      }
+      done(null, _res.users[0]);
+    });
   });
 }
 
@@ -354,6 +340,7 @@ function getAllowedCollections(done, results) {
     });
 
   collections = _.map(collections, parseCollection);
+  debug('allowed collections', collections);
   done(null, collections);
 }
 
@@ -420,32 +407,22 @@ function listCollections(done, results) {
   });
 }
 
-function getDb(connection, done) {
-  connect(connection, function(err, db) {
-    if (err) {
-      return done(err);
-    }
-    done(null, db);
-  });
-}
-
 function attach(anything, done) {
   done(null, anything);
 }
 
 /**
  * pass in a connection model and get instance details back.
- * @param  {Connection}   connection   connection model to connect to
- * @param  {Function} done             callback
+ * @param  {Mongo.db}   db     database handle from the node driver
+ * @param  {Function} done     callback
  */
-function getInstanceDetail(connection, done) {
+function getInstanceDetail(db, done) {
   var tasks = {
-    db: getDb.bind(null, connection),
-    connection: attach.bind(null, connection),
+    db: attach.bind(null, db),
+    userInfo: ['db', getUserInfo],
 
     host: ['db', getHostInfo],
     build: ['db', getBuildInfo],
-    userInfo: ['db', 'connection', getUserInfo],
 
     listDatabases: ['db', 'userInfo', listDatabases],
     allowedDatabases: ['userInfo', getAllowedDatabases],
@@ -465,8 +442,8 @@ function getInstanceDetail(connection, done) {
     }
     // cleanup
     results.db.close();
-    results = _.omit(results, ['db', 'connection', 'listDatabases',
-      'allowedDatabases', 'userInfo', 'listCollections', 'allowedCollections']);
+    results = _.omit(results, ['db', 'listDatabases', 'allowedDatabases',
+      'userInfo', 'listCollections', 'allowedCollections']);
     return done(null, results);
   });
 }
