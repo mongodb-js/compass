@@ -304,6 +304,12 @@ describe('mongodb-connection-model', function() {
       });
     });
 
+    it('should not require a port number', function() {
+      var c = Connection.from('mongodb://data.mongodb.com/');
+      assert.equal(c.hostname, 'data.mongodb.com');
+      assert.equal(c.port, 27017);
+    });
+
     describe('if model initialized with string', function() {
       var c = Connection.from('krb5.mongodb.parts:1234');
       it('should not have a validationError', function() {
@@ -333,7 +339,22 @@ describe('mongodb-connection-model', function() {
         assert.equal(c.authentication, 'MONGODB');
         assert.equal(c.mongodb_username, '@rlo');
         assert.equal(c.mongodb_password, 'w@of');
-        assert.equal(c.mongodb_database_name, 'admin');
+        // this is the authSource, not dbName!
+        assert.equal(c.mongodb_database_name, '@dmin');
+      });
+      it('should work with explicit authSource', function() {
+        var c = Connection.from('mongodb://%40rlo:w%40of@localhost:27017/dogdb'
+          + '?authMechanism=SCRAM-SHA-1&authSource=catdb');
+        assert(c);
+        assert.equal(c.ns, 'dogdb');
+        assert.equal(c.mongodb_database_name, 'catdb');
+      });
+      it('should fall back to dbName if authSource is not specified', function() {
+        var c = Connection.from('mongodb://%40rlo:w%40of@localhost:27017/dogdb'
+          + '?authMechanism=SCRAM-SHA-1');
+        assert(c);
+        assert.equal(c.ns, 'dogdb');
+        assert.equal(c.mongodb_database_name, 'dogdb');
       });
       describe('enterprise', function() {
         it('should parse LDAP', function() {

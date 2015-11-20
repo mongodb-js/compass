@@ -781,7 +781,10 @@ Connection.from = function(url) {
       attrs.authentication = 'MONGODB';
       attrs.mongodb_username = decodeURIComponent(parsed.auth.user);
       attrs.mongodb_password = decodeURIComponent(parsed.auth.password);
-      attrs.mongodb_database_name = decodeURIComponent(parsed.dbName);
+      // authSource takes precedence, but fall back to dbName
+      // @see https://docs.mongodb.org/v3.0/reference/connection-string/#uri.authSource
+      attrs.mongodb_database_name = decodeURIComponent(
+        parsed.db_options.authSource || parsed.dbName);
     }
   }
 

@@ -14,7 +14,10 @@ var data = require('mongodb-connection-fixture');
 
 describe('mongodb-connection#connect', function() {
   describe('local', function() {
+    this.slow(2000);
+    this.timeout(10000);
     before(require('mongodb-runner/mocha/before')());
+    after(require('mongodb-runner/mocha/after')());
     it('should connect to `localhost:27017`', function(done) {
       var model = Connection.from('mongodb://localhost:27017');
       connect(model, function(err, _db) {

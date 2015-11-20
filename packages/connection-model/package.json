@@ -31,7 +31,7 @@
     "lodash.clone": "^3.0.3",
     "lodash.contains": "^2.4.3",
     "lodash.defaults": "^3.1.2",
-    "mongodb-url": "^1.0.1"
+    "mongodb-url": "^1.0.2"
   },
   "devDependencies": {
     "electron-mocha": "^0.6.1",
@@ -39,7 +39,7 @@
     "eslint-config-mongodb-js": "^1.0.5",
     "mocha": "^2.3.3",
     "mongodb-connection-fixture": "^0.0.10",
-    "mongodb-instance-model": "^1.0.4",
+    "mongodb-instance-model": "^2.0.1",
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^0.2.5",
     "mongodb-ns": "^1.0.0",
