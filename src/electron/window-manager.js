@@ -158,6 +158,12 @@ app.on('show connect dialog', function() {
   });
 });
 
+app.on('close connect window', function() {
+  if (connectWindow) {
+    connectWindow.close();
+  }
+});
+
 app.on('show help window', function(id) {
   if (helpWindow) {
     helpWindow.focus();
