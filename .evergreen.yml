@@ -64,7 +64,7 @@ functions:
         set -ev
         export PATH="${node_path}:$PATH"
         ls -alh ${node_path}
-        test -n "${add_environment|}" && export ${add_environment|}
+        test -n '${add_env_appdata|}' && export APPDATA='${add_env_appdata|}'
         ${npm|npm} version --json
         ${npm|npm} config set loglevel error
         ${npm|npm} config -g list
@@ -76,11 +76,12 @@ functions:
   # and remove the real one from our path. Must run after "npm install"
   "fetch signtool" : &fetch_signtool
     command: shell.exec
-    build_variants:
+    variants:
       - windows-64
     params:
       working_dir: src
       script: |
+        set -ev
         curl -fs \
           -o "signtool.exe" \
           --url "https://s3.amazonaws.com/boxes.10gen.com/build/signtool.exe"
@@ -97,6 +98,10 @@ functions:
       working_dir: src
       script: |
         set -ev
+        rm -f ~/compass_build.log
+        cat <<EOF_BUILD_SH > ~/compass_build.sh
+        set -ev
+        cd $(pwd)
         export PATH="${node_path}:$PATH"
         export CI=1 EVERGREEN=1
         export NOTARY_URL="http://notary-service.build.10gen.cc:5000"
@@ -104,8 +109,31 @@ functions:
         export NOTARY_SIGNING_KEY="${signing_key_name}"
         export NOTARY_SIGNING_COMMENT="Evergreen project mongodb/compass ${revision} - ${build_variant} - ${branch_name}"
         export SIGNTOOL_PARAMS="yes"
-        test -n "${add_environment|}" && export ${add_environment|}
+        test -n '${add_env_appdata|}' && export APPDATA='${add_env_appdata|}'
         ${npm|npm} run ci
+        EOF_BUILD_SH
+        #
+        # Use ".", not "source" below to read script. Required for /bin/sh on Ubuntu.
+        #
+        if [ -n "${build_via_local_tunnel|}" ]
+        then
+          ssh -v -p 2222 localhost ". compass_build.sh"
+        else
+          . ~/compass_build.sh
+        fi
+
+  "test_ssh_localhost" :
+    command: shell.exec
+    variants:
+      - osx-108
+    params:
+      working_dir: src
+      script: |
+        set -ev
+        if [ -n "${build_via_local_tunnel|}" ]
+        then
+          ssh -p 2222 localhost "echo SSH_LOCALHOST_TEST_OK"
+        fi
 
   "save release":
     command: s3.put
@@ -150,6 +178,7 @@ tasks:
 - name: compile
   depends_on: []
   commands:
+  - func: "test_ssh_localhost"
   - func: "fetch source"
   - func: "fetch npm tarball"
   - func: "npm install"
@@ -171,8 +200,9 @@ buildvariants:
   display_name: OS X 10.8
   modules: ~
   run_on:
-  - "osx-108"
+  - "osx-108-compass"
   expansions:
+    build_via_local_tunnel: true
     fetch_npm_tarball: node-v4.2.2-npm-3.3.12-darwin-x64.tgz
     node_path: "$(pwd)/.deps/bin"
     installer_content_type: "application/x-apple-diskimage"
@@ -192,7 +222,7 @@ buildvariants:
     installer_content_type: "application/octet-stream"
     installer_filename: "MongoDBCompassSetup.exe"
     num_cores: $(grep -c ^processor /proc/cpuinfo)
-    add_environment: APPDATA=C:\\Users\\Administrator\\
+    add_env_appdata: Z:\
   tasks:
     *all_tasks
 
