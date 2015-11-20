@@ -438,7 +438,7 @@ var ConnectView = View.extend({
         window.location.origin,
         connection.getId())
     );
-    app.sendMessage('close connect');
+    app.sendMessage('close connect window');
   },
 
   /**
