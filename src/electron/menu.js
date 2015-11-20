@@ -16,7 +16,7 @@ function separator() {
   };
 }
 
-function quitSubMenuItem(label) {
+function quitItem(label) {
   return {
     label: label,
     accelerator: 'CmdOrCtrl+Q',
@@ -26,7 +26,7 @@ function quitSubMenuItem(label) {
   };
 }
 
-function compassOverviewSubMenuItem() {
+function compassOverviewItem() {
   return {
     label: 'Compass Overview',
     click: function() {
@@ -59,12 +59,12 @@ function darwinCompassSubMenu() {
         selector: 'unhideAllApplications:'
       },
       separator(),
-      quitSubMenuItem('Quit')
+      quitItem('Quit')
     ]
   };
 }
 
-function connectSubMenuItem() {
+function connectItem() {
   return {
     label: 'Connect to...',
     accelerator: 'CmdOrCtrl+N',
@@ -75,11 +75,11 @@ function connectSubMenuItem() {
 }
 
 function connectSubMenu(nonDarwin) {
-  var subMenu = [connectSubMenuItem()];
+  var subMenu = [connectItem()];
 
   if (nonDarwin) {
     subMenu.push(separator());
-    subMenu.push(quitSubMenuItem('Exit'));
+    subMenu.push(quitItem('Exit'));
   }
 
   return {
@@ -127,7 +127,7 @@ function editSubMenu() {
   };
 }
 
-function nonDarwinAboutSubMenuItem() {
+function nonDarwinAboutItem() {
   return {
     label: 'About Compass',
     click: function() {
@@ -136,7 +136,7 @@ function nonDarwinAboutSubMenuItem() {
   };
 }
 
-function helpWindowSubMenuItem() {
+function helpWindowItem() {
   return {
     label: 'Show Compass Help',
     accelerator: 'F1',
@@ -146,17 +146,29 @@ function helpWindowSubMenuItem() {
   };
 }
 
+function intercomItem() {
+  return {
+    label: 'Contact MongoDB',
+    click: function() {
+      BrowserWindow.getFocusedWindow().webContents.executeJavaScript('Intercom(\'show\')');
+    }
+  };
+}
+
 function helpSubMenu(showCompassOverview) {
   var subMenu = [];
-  subMenu.push(helpWindowSubMenuItem());
+  subMenu.push(helpWindowItem());
 
   if (showCompassOverview) {
-    subMenu.push(compassOverviewSubMenuItem());
+    subMenu.push(compassOverviewItem());
   }
+
+  subMenu.push(separator());
+  subMenu.push(intercomItem());
 
   if (process.platform !== 'darwin') {
     subMenu.push(separator());
-    subMenu.push(nonDarwinAboutSubMenuItem());
+    subMenu.push(nonDarwinAboutItem());
   }
 
   return {
