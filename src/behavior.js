@@ -1,5 +1,6 @@
 var State = require('ampersand-state');
 
+var _ = require('lodash');
 var debug = require('debug')('scout:behavior');
 
 module.exports = State.extend({
@@ -25,6 +26,16 @@ module.exports = State.extend({
     this.state = newState;
   },
   isValidTransition: function(state, action) {
-    return this.validTransitions[state].indexOf(action) !== -1;
+    var newState = this.actionToNewState[action];
+    if (_.isString(newState)) {
+      return true;
+    }
+
+    var actionToNewState = this.stateAndActionToNewState[state];
+    if (_.isUndefined(actionToNewState)) {
+      return false;
+    }
+    newState = actionToNewState[action];
+    return !_.isUndefined(newState);
   }
 });

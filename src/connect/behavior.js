@@ -7,6 +7,7 @@ var assert = require('assert');
 
 module.exports = Behavior.extend({
   props: {
+    // actions that apply to all states
     actionToNewState: {
       type: 'object',
       default: function() {
@@ -33,6 +34,7 @@ module.exports = Behavior.extend({
         'ERROR'
       ]
     },
+    // actions that apply to certain states
     stateAndActionToNewState: {
       type: 'object',
       default: function() {
@@ -61,6 +63,11 @@ module.exports = Behavior.extend({
           },
           'CONNECTING': {
             'error received': 'ERROR'
+          },
+          'ERROR': {
+            'any field changed': function() {
+              return this.beforeErrorState();
+            }
           }
         };
       }
@@ -86,34 +93,6 @@ module.exports = Behavior.extend({
         'error received',
         'any field changed'
       ]
-    },
-    validTransitions: {
-      type: 'object',
-      default: function() {
-        var transitions = {
-          NEW_EMPTY: ['name added', 'connect clicked'],
-          NEW_NAMED: ['name removed', 'create favorite clicked'],
-          FAV_UNCHANGED: ['remove favorite clicked', 'any field changed'],
-          FAV_CHANGED: ['save changes clicked', 'remove favorite clicked'],
-          HISTORY_UNCHANGED: ['create favorite clicked', 'any field changed'],
-          HISTORY_CHANGED: ['create favorite clicked'],
-          CONNECTING: ['error received'],
-          ERROR: ['any field changed']
-        };
-
-        // these actions are valid in any state, add to all transitions
-        var validActions = [
-          'new connection clicked',
-          'favorite connection clicked',
-          'history connection clicked',
-          'connect clicked'
-        ];
-        _.each(transitions, function(value, key) {
-          transitions[key] = validActions.concat(value);
-        });
-
-        return transitions;
-      }
     }
   },
   /**
@@ -208,13 +187,15 @@ module.exports = Behavior.extend({
     // otherwise, then check stateAndActionToNewState to see if the state and
     // action will lead to a new state
     newState = this.stateAndActionToNewState[state][action];
+    if (_.isFunction(newState)) {
+      newState = newState();
+    }
     if (!_.isUndefined(newState)) {
       // apply the effects of the new state
       if (_.includes(['FAV_CHANGED', 'FAV_UNCHANGED'], state) && action === 'remove favorite clicked') {
         view.removeFavoriteConnection();
       } else if (state === 'ERROR' && action === 'any field changed') {
         view.message = '';
-        return this.beforeErrorState;
       }
       return newState;
     }
