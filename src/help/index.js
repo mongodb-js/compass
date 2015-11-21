@@ -3,9 +3,10 @@ var format = require('util').format;
 var debug = require('debug')('scout:help');
 var relatedTemplate = require('./related.jade');
 var tagTemplate = require('./tags.jade');
+var HelpSectionCollection = require('../models/help-section-collection');
 var HelpEntryCollection = require('../models/help-entry-collection');
 var HelpEntry = require('../models/help-entry');
-var SidebarView = require('./sidebar');
+var SidebarView = require('../sidebar');
 var ViewSwitcher = require('ampersand-view-switcher');
 var app = require('ampersand-app');
 var _ = require('lodash');
@@ -18,6 +19,9 @@ var HelpPage = View.extend({
   },
   children: {
     entry: HelpEntry
+  },
+  collections: {
+    sections: HelpSectionCollection
   },
   derived: {
     title: {
@@ -44,17 +48,10 @@ var HelpPage = View.extend({
       }
     }
   },
-  onLinkClicked: function(evt) {
-    evt.preventDefault();
-    evt.stopPropagation();
-    // @todo handle external links
-    var entryId = evt.delegateTarget.hash.slice(1);
-    if (entryId) {
-      this.show(entryId);
-    }
-  },
   template: require('./index.jade'),
   initialize: function(spec) {
+    debug('initialize');
+
     spec = spec || {};
     entries.fetch();
 
@@ -64,19 +61,43 @@ var HelpPage = View.extend({
     }
     this.listenTo(this, 'change:rendered', function() {
       this.viewSwitcher = new ViewSwitcher(this.queryByHook('help-entry-content'));
-
-      if (this.entryId) {
-        this.show(this.entryId);
-      }
+      this.show(this.entryId);
     });
 
     this.listenTo(app, 'show-help-entry', this.show.bind(this));
   },
+  onLinkClicked: function(evt) {
+    evt.preventDefault();
+    evt.stopPropagation();
+    // @todo handle external links
+    var entryId = evt.delegateTarget.hash.slice(1);
+    if (entryId) {
+      this.show(entryId);
+    }
+  },
+  onSynced: function(entryId) {
+    // group by sections
+    this.sections.reset(
+      _.map(entries.groupBy('section'), function(value, key) {
+        return {
+          name: key === 'undefined' ? 'General' : key,
+          entries: value
+        };
+      }), {
+        parse: true
+      }
+    );
+    this.show(entryId);
+  },
   show: function(entryId) {
     debug('show `%s`', entryId);
     if (entries.length === 0) {
-      entries.once('sync', this.show.bind(this, entryId));
+      entries.once('sync', this.onSynced.bind(this, entryId));
       debug('entries not synced yet.  queuing...');
+      return;
+    }
+
+    if (!entryId) {
       return;
     }
 
@@ -136,12 +157,20 @@ var HelpPage = View.extend({
   subviews: {
     sidebar: {
       hook: 'sidebar-subview',
+      // waitFor: 'sections',
       prepareView: function(el) {
         return new SidebarView({
           el: el,
           parent: this,
-          entries: entries
-        });
+          collection: this.sections,
+          displayProp: 'name',
+          filterEnabled: true,
+          icon: 'fa-book',
+          nested: {
+            displayProp: 'title',
+            collectionName: 'entries'
+          }
+        }).on('show', this.show.bind(this));
       }
     }
   }

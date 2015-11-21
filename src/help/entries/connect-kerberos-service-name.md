@@ -5,6 +5,7 @@ tags:
   - connect
   - kerberos
   - needs review
+section: Connect
 ---
 
 <strong>

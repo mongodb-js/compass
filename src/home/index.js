@@ -3,6 +3,7 @@ var format = require('util').format;
 var SidebarView = require('../sidebar');
 var CollectionView = require('./collection');
 var InstancePropertyView = require('./instance-properties');
+var CollectionListItemView = require('./collection-list-item');
 var TourView = require('../tour');
 var app = require('ampersand-app');
 var debug = require('debug')('scout:home');
@@ -134,8 +135,9 @@ var HomeView = View.extend({
             }
           }],
           nested: {
-            collectionName: 'collections',
-            displayProp: 'name'
+            itemViewClass: CollectionListItemView,
+            collectionName: 'collections'
+            // displayProp: 'name'
           },
           collection: app.instance.databases
         }).on('show', this.showCollection.bind(this));

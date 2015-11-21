@@ -7,6 +7,7 @@ tags:
   - needs review
 related:
   - connect-kerberos-service-name
+section: Connect
 ---
 
 <strong>

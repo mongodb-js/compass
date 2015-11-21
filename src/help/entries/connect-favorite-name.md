@@ -4,6 +4,7 @@ tags:
   - authentication
   - connect
   - favorite
+section: Connect
 ---
 
 <strong>Favorite name for a saved connection.</strong>

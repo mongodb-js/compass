@@ -4,13 +4,25 @@ var debug = require('debug')('scout:sidebar:filter');
 var CollectionFilterView = View.extend({
   template: require('./filter.jade'),
   props: {
-    search: 'string'
+    search: 'string',
+    placeholder: {
+      type: 'string',
+      default: 'filter',
+      required: false
+    }
   },
   initialize: function() {
     this.listenTo(this, 'change:search', this.applyFilter);
   },
   events: {
     'input [data-hook=search]': 'handleInputChanged'
+  },
+  bindings: {
+    placeholder: {
+      type: 'attribute',
+      name: 'placeholder',
+      hook: 'search'
+    }
   },
   render: function() {
     this.renderWithTemplate(this);

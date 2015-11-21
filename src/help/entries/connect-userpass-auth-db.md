@@ -3,6 +3,7 @@ title: Authentication Database
 tags:
   - authentication
   - connect
+section: Connect
 ---
 <strong>This field represents the _Authentication Database_ (also called
 _Authentication Source_) for User/Password authentication.</strong>

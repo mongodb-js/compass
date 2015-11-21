@@ -7,6 +7,7 @@ tags:
 related:
   - schema-how-sampling-works
   - schema-query-bar
+section: Schema
 ---
 <strong>
 The message below the Query Bar provides information about the

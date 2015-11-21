@@ -9,6 +9,7 @@ related:
   - connect-ssl-client-certificate-key
   - connect-ssl-client-certificate
   - connect-ssl-private-key-password
+section: Connect
 ---
 
 <strong>

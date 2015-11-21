@@ -6,6 +6,7 @@ tags:
   - view
   - model
 devOnly: true
+section: Development
 ---
 
 <strong>Ampersand.js is the Model and View layer used by Compass.</strong>

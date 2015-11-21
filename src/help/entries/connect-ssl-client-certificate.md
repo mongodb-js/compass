@@ -9,6 +9,7 @@ related:
   - connect-ssl-certificate-authority
   - connect-ssl-client-certificate-key
   - connect-ssl-private-key-password
+section: Connect
 ---
 Describes what the `Client Certificate` field in the connect dialog does.
 

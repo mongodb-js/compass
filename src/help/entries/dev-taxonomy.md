@@ -4,6 +4,7 @@ tags:
   - taxonomy
   - needs work
 devOnly: true
+section: Development
 ---
 
 The [docs style guide][docs-style] has a beautifully detailed and thorough

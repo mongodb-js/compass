@@ -3,6 +3,7 @@ title: How Sampling Works
 tags:
   - schema
   - sampling
+section: Schema
 ---
 <strong>Sampling in MongoDB Compass is the practice of selecting a subset of data from the desired collection and analyzing the documents within the sample set.</strong>
 

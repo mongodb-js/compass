@@ -3,6 +3,7 @@ title: Compass Help System
 tags:
   - help
 devOnly: true
+section: Development
 ---
 
 <strong>This entry explains the help system in Compass.</strong>

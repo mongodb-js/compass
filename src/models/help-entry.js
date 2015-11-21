@@ -10,7 +10,8 @@ var HelpEntry = State.extend({
     content: 'string',
     tags: 'array',
     related: 'array',
-    devOnly: 'boolean'
+    devOnly: 'boolean',
+    section: 'string'
   },
   derived: {
     url: {
@@ -32,9 +33,10 @@ var HelpEntry = State.extend({
       id: resp.filename.replace('.md', ''),
       title: resp.meta.title,
       tags: resp.meta.tags || [],
+      content: resp.content,
       related: resp.meta.related || [],
       devOnly: !!resp.meta.devOnly,
-      content: resp.content
+      section: resp.meta.section
     };
   }
 });
