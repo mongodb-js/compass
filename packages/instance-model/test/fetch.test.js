@@ -82,6 +82,20 @@ describe('mongodb-instance-model#fetch', function() {
         done();
       });
     });
+    it('should not close the db after getting instance details', function(done) {
+      assert(db);
+      fetch(db, function(err) {
+        if (err) {
+          return done(err);
+        }
+        db.admin().ping(function(_err, pingResult) {
+          if (_err) {
+            done(_err);
+          }
+          done(null, pingResult);
+        });
+      });
+    });
   });
 
   /**

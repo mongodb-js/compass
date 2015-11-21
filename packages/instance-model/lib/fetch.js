@@ -441,7 +441,6 @@ function getInstanceDetail(db, done) {
       return done(err);
     }
     // cleanup
-    results.db.close();
     results = _.omit(results, ['db', 'listDatabases', 'allowedDatabases',
       'userInfo', 'listCollections', 'allowedCollections']);
     return done(null, results);
