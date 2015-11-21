@@ -5,7 +5,7 @@ var toNS = require('mongodb-ns');
 var security = require('mongodb-security');
 var _ = require('lodash');
 
-var debug = require('debug')('mongodb-instance-model:autofetch');
+var debug = require('debug')('mongodb-instance-model:fetch');
 
 /**
  * aggregates stats across all found databases
@@ -407,6 +407,18 @@ function listCollections(done, results) {
   });
 }
 
+function getHierarchy(done, results) {
+  var databases = results.databases;
+  var collections = _.groupBy(results.collections, function(collection) {
+    return collection.database;
+  });
+  _.each(databases, function(db) {
+    db.collections = collections[db.name] || [];
+  });
+  done();
+}
+
+
 function attach(anything, done) {
   done(null, anything);
 }
@@ -431,6 +443,8 @@ function getInstanceDetail(db, done) {
     listCollections: ['db', 'databases', listCollections],
     allowedCollections: ['userInfo', getAllowedCollections],
     collections: ['db', 'listCollections', 'allowedCollections', getCollections],
+
+    hierarchy: ['databases', 'collections', getHierarchy],
 
     stats: ['databases', getStats]
   };
