@@ -94,6 +94,11 @@ module.exports = AmpersandView.extend(QueryBuilderMixin, {
       if (_.min(lengths) !== 2 || _.max(lengths) !== 2) {
         return false;
       }
+      // make sure the array only contains numbers, otherwise not coords
+      if (this.model.types.length !== 1
+        || this.model.types.at(0).name !== 'Number') {
+        return false;
+      }
       coords = this._mangleGeoCoordinates(
         this.model.types.get('Number').values.serialize());
       if (!coords) {
