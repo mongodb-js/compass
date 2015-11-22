@@ -11,6 +11,8 @@ before_install:
   - npm config set loglevel error
   - npm config -g list -l
   - npm --version
+# write a log message to the log every minute to allow for > 10min installs
+install: travis_wait npm install
 addons:
   apt:
     sources:
