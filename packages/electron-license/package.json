@@ -1,7 +1,7 @@
 {
   "name": "electron-license",
   "description": "Tools for electron apps to work with licenses",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "scripts": {
     "fmt": "mongodb-js-fmt",
     "check": "mongodb-js-precommit",
