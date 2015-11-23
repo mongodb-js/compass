@@ -136,8 +136,8 @@ var HomeView = View.extend({
           }],
           nested: {
             itemViewClass: CollectionListItemView,
-            collectionName: 'collections'
-            // displayProp: 'name'
+            collectionName: 'collections',
+            displayProp: 'name'
           },
           collection: app.instance.databases
         }).on('show', this.showCollection.bind(this));
