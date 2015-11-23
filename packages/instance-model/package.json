@@ -2,7 +2,7 @@
   "name": "mongodb-instance-model",
   "description": "MongoDB instance model.",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "bugs": "https://github.com/mongodb-js/mongodb-instance-model/issues",
   "homepage": "https://github.com/mongodb-js/mongodb-instance-model",
   "repository": "git://github.com/mongodb-js/mongodb-instance-model.git",
