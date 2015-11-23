@@ -1,3 +1,4 @@
+var _ = require('lodash');
 var AmpersandModel = require('ampersand-model');
 var AmpersandCollection = require('ampersand-rest-collection');
 var AmpersandState = require('ampersand-state');
@@ -55,6 +56,20 @@ var Instance = AmpersandModel.extend({
     },
     name: {
       type: 'string'
+    },
+    /**
+     * @todo (imlucas) Stabilize and cleanup
+     * `replicaset`, `state`, and `aliases`.
+     *
+     * See: http://npm.im/mongodb-replicaset
+     */
+    replicaset: 'string',
+    state: 'string',
+    aliases: {
+      type: 'array',
+      default: function() {
+        return [];
+      }
     }
   },
   derived: {
@@ -84,6 +99,28 @@ var Instance = AmpersandModel.extend({
   children: {
     host: HostInfo,
     build: BuildInfo
+  },
+  /**
+   * Override `AmpersandModel.serialize()` to
+   * make logging less chatty and problems easier
+   * to debug.
+   *
+   * @return {Object}
+   */
+  serialize: function() {
+    var res = this.getAttributes({
+      props: true,
+      derived: true
+    }, true);
+    if (this.databases.length > 0) {
+      _.each(this._children, function(value, key) {
+        res[key] = this[key].serialize();
+      }, this);
+      _.each(this._collections, function(value, key) {
+        res[key] = this[key].serialize();
+      }, this);
+    }
+    return res;
   }
 });
 
