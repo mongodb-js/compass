@@ -32,7 +32,7 @@
     "mongodb-js-errors": "^0.0.1",
     "mongodb-ns": "^1.0.1",
     "mongodb-read-preference": "^1.0.4",
-    "mongodb-security": "0.0.3"
+    "mongodb-security": "0.0.4"
   },
   "devDependencies": {
     "eslint-config-mongodb-js": "^1.0.6",
