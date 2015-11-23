@@ -3,7 +3,7 @@
   "version": "0.0.3",
   "description": "Portable business logic of MongoDB security model",
   "author": "Lucas Hrabovsky <hrabovsky.lucas@gmail.com> (http://imlucas.com)",
-  "license": "Apcahe-2.0",
+  "license": "Apache-2.0",
   "homepage": "http://github.com/mongodb-js/security",
   "repository": {
     "type": "git",
