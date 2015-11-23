@@ -30,7 +30,7 @@
   background-color: @pw;
   -webkit-transform: translate(-50%, -50%);
 
-  a.tour-close-button {
+  button.tour-close-button {
     position: absolute;
     right: 10px;
     top: 0;
@@ -38,6 +38,8 @@
     font-size: 28px;
     font-weight: 200;
     cursor: pointer;
+    border: none;
+    background: none;
 
     &:hover {
       text-decoration: none;
@@ -78,23 +80,25 @@
       position: relative;
       -webkit-user-select: none;
 
-      a {
+      button {
         position: absolute;
         display: block;
         color: @green2;
+        border: none;
+        background: none;
 
         &:hover {
           text-decoration: none;
           cursor: pointer;
         }
       }
-      a.previous-slide {
+      button.previous-slide {
         background: url('images/tour/pager-arrow-left.png') left 0 no-repeat;
         background-size: 10px 22px;
         padding: 1px 0 0 20px;
         left: 0;
       }
-      a.next-slide {
+      button.next-slide {
         background: url('images/tour/pager-arrow-right.png') right 0 no-repeat;
         background-size: 10px 22px;
         padding: 1px 20px 0 0;

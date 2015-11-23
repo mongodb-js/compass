@@ -3,7 +3,7 @@
   #tour
     .modal-header
       h2 Welcome to MongoDB Compass
-      a.tour-close-button &times;
+      button.tour-close-button &times;
     #animation
       img#animation-gif(src="./images/tour/f0.gif")
     #features
@@ -23,14 +23,14 @@
         h3.feature-title View Documents
         p.feature-description Open the document drawer on the right to view the raw JSON documents in the result set.
       .pager
-        a.previous-slide.hide Previous
+        button.previous-slide.hide Previous
         ul
           li#f0.selected(data-n="0", title="Choose a collection")
           li#f1(data-n="1", title="Browse schema")
           li#f2(data-n="2", title="View data distribution")
           li#f3(data-n="3", title="Build queries")
           li#f4(data-n="4", title="View documents")
-        a.next-slide Next
+        button.next-slide Next
       .get-started-button-holder
         button#tour-remove.hide(type="button", class="btn btn-info") Get Started
 
