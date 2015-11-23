@@ -25,11 +25,10 @@ var del = require('del');
 var sequence = require('run-sequence');
 var watch = require('gulp-watch');
 var notify = require('./tasks/notify');
+var license = require('electron-license');
 var format = require('util').format;
 var pkg = require('./package.json');
 
-var which = require('which');
-console.log('which npm?', which.sync('npm', {all: true}));
 
 // Platform specific tasks
 var platform = require(path.join(__dirname, 'tasks', process.platform));
@@ -48,6 +47,7 @@ gulp.task('release', function(done) {
   sequence(
     'build',
     'electron:build',
+    'license:build',
     'electron:build-installer'
     , done);
 });
@@ -278,3 +278,12 @@ gulp.task('electron-rebuild',
     '--module-dir ./build/node_modules',
     '--which-module keytar'
   ].join(' '), pkg.electron_version)));
+
+var fs = require('fs');
+gulp.task('license:build', function(done) {
+  license.build({path: path.join(platform.RESOURCES, 'app')}, function(err, contents) {
+    if (err) return done(err);
+
+    fs.writeFile(path.join(platform.RESOURCES, '..', 'LICENSE'), contents, done);
+  });
+});
