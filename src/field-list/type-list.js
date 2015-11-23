@@ -98,9 +98,12 @@ var TypeListItem = View.extend(tooltipMixin, {
       }
     }
   },
-  documentTypeClicked: function() {
+  documentTypeClicked: function(evt) {
     // expands the nested subdocument fields by triggering click in FieldView
-    this.parent.parent.click();
+    var fieldView = this.parent.parent;
+    if (fieldView.modelType === 'FieldView') {
+      fieldView.click(evt);
+    }
   },
   typeClicked: function(evt) {
     evt.stopPropagation();
