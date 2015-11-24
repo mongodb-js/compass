@@ -6,6 +6,7 @@ var Query = require('mongodb-language-model').Query;
 var SamplingMessageView = require('../sampling-message');
 
 // var debug = require('debug')('scout:refine-view:index');
+var EMPTY_QUERY = '{}';
 
 module.exports = AmpersandView.extend({
   template: require('./index.jade'),
@@ -18,7 +19,7 @@ module.exports = AmpersandView.extend({
     notEmpty: {
       deps: ['editableQuery.queryString'],
       fn: function() {
-        return this.editableQuery.queryString !== '{}';
+        return this.editableQuery.queryString !== EMPTY_QUERY;
       }
     }
   },
@@ -103,10 +104,13 @@ module.exports = AmpersandView.extend({
    * the original query string (default is `{}`).
    */
   resetClicked: function() {
-    this.queryOptions.reset();
-    this.volatileQueryOptions.reset();
-    this.editableQuery.rawString = this.queryOptions.queryString;
-    this.trigger('submit', this);
+    if (this.queryOptions.queryString !== EMPTY_QUERY) {
+      this.queryOptions.reset();
+      this.volatileQueryOptions.reset();
+      this.trigger('submit', this);
+    }
+
+    this.editableQuery.rawString = EMPTY_QUERY;
   },
   /**
    * When the user hits refine, copy the query created from editableQuery to queryOptions (and
