@@ -1,8 +1,8 @@
 var app = require('ampersand-app');
 var Connection = require('mongodb-connection-model');
 var connectionSync = require('./connection-sync')();
-var client = require('scout-client');
-var debug = require('debug')('scout:models:connection');
+var client = require('mongodb-scope-client');
+var debug = require('debug')('mongodb-compass:models:connection');
 var uuid = require('uuid');
 var metrics = require('mongodb-js-metrics');
 
