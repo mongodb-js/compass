@@ -233,7 +233,7 @@ gulp.task('copy:images', function() {
 });
 
 gulp.task('copy:package.json', function() {
-  return gulp.src('package.json')
+  return gulp.src(['package.json', 'npm-shrinkwrap.json*'])
     .pipe(gulp.dest('build/'));
 });
 
