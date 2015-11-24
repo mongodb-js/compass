@@ -33,5 +33,4 @@ $RECYCLE.BIN/
 
 node_modules/
 .tmp
-dist
-/src/scripts/main.js
+lib

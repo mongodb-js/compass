@@ -3,15 +3,15 @@ import utils from './utils.js';
 
 const componentRef = '__CONNECTED_COMPONENT_REF__';
 
-export default function connectToStore(store, key) {
-  let noKey = typeof key !== 'string';
+export default function (store, key) {
+  let noKey = key === undefined;
 
   return function (Component) {
     return class ConnectorWrapper extends React.Component {
 
       componentDidMount() {
         let findInnerComponent = function (instance){
-          //recursively find inner most 'real react component', aloowing multiple decorators
+          //recursively find inner most 'real react component', allowing multiple decorators
           if (instance.refs[componentRef]){return findInnerComponent(instance.refs[componentRef]); }
           return instance;
         };
@@ -40,14 +40,12 @@ export default function connectToStore(store, key) {
 
       render() {
         return (
-            <div>
             <Component
-        ref={componentRef}
-        {...this.props}
-      />
-      </div>
+                ref={componentRef}
+                {...this.props}
+                />
 
-      );
+        );
       }
     };
   };
