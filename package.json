@@ -136,7 +136,7 @@
     "run-sequence": "^1.1.4",
     "run-series": "^1.1.4",
     "scout-client": "http://bin.mongodb.org/js/scout-client/v0.4.3/scout-client-0.4.3.tar.gz",
-    "scout-server": "http://bin.mongodb.org/js/scout-server/v0.5.1/scout-server-0.5.1.tar.gz",
+    "mongodb-scope-server": "http://bin.mongodb.org/js/mongodb-scope-server/v0.9.0/mongodb-scope-server-0.9.0.tar.gz",
     "stream-combiner2": "^1.1.1",
     "uuid": "^2.0.1",
     "vinyl-buffer": "^1.0.0",

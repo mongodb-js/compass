@@ -1,11 +1,11 @@
 /**
- * Run scout-server as a child_process so the UI is more
+ * Run mongodb-scope-server as a child_process so the UI is more
  * insulated from potential network problems and so the
  * rest of the app has a much smaller footprint on the
  * main electron process.
  *
- * `scout-server-ctl` forks a new process of
- * `bin/mongodb-scout-server.js` tracking it's PID
+ * `mongodb-scope-server-ctl` forks a new process of
+ * `bin/mongodb-mongodb-scope-server.js` tracking it's PID
  * so it can be killed off when the main process quits,
  * as well as cleaning up any zombie processes on start.
  */
@@ -13,15 +13,15 @@ var fs = require('fs');
 var path = require('path');
 var app = require('app');
 var spawn = require('child_process').spawn;
-var debug = require('debug')('scout:electron:scout-server-ctl');
+var debug = require('debug')('scout:electron:mongodb-scope-server-ctl');
 
 // Where we'll keep the process id.
-var PID_FILE = path.resolve(app.getPath('appData'), '.mongodb-scout-server.pid');
+var PID_FILE = path.resolve(app.getPath('appData'), '.mongodb-mongodb-scope-server.pid');
 
 // Path to the file we'll fork.
 // var BIN = path.resolve(process.resourcesPath,
-//   './app/node_modules/scout-server/bin/scout-server.js');
-var BIN = path.resolve(__dirname, '../../node_modules/scout-server/bin/scout-server.js');
+//   './app/node_modules/mongodb-scope-server/bin/mongodb-scope-server.js');
+var BIN = path.resolve(__dirname, '../../node_modules/mongodb-scope-server/bin/mongodb-scope-server.js');
 
 /**
  * Load the pid from `PID_FILE`
@@ -78,7 +78,7 @@ var killIfRunning = function(done) {
 };
 
 /**
- * Try and start scout-server as a child_process.
+ * Try and start mongodb-scope-server as a child_process.
  * @param {Function} done - `(err)` callback
  */
 module.exports.start = function(done) {
@@ -111,9 +111,9 @@ module.exports.start = function(done) {
     // If the HTTP request fails or returns a non 200 HTTP status
     // the server didn't actually start and we should treat it as an
     // error starting the server.  This handles the case of user's
-    // having another service that is *not* `scout-server` occupying
+    // having another service that is *not* `mongodb-scope-server` occupying
     // our default port.
-    debug('scout-server started with pid `%s`!', server.pid);
+    debug('mongodb-scope-server started with pid `%s`!', server.pid);
     fs.writeFile(PID_FILE, server.pid, done);
   });
 };
