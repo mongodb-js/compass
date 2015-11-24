@@ -5,20 +5,26 @@ Mixin for [reflux](https://www.npmjs.com/packages/reflux) stores to enable them 
 
 ## Usage
 
+### Installation
+
+```bash
+$ npm install reflux-state-mixin --save
+```
+( If your'e using version older than 0.6.0 see : [old readme](./old_readme.md) )
+
 ### in store:
 
 ```javascript
-
 // myStore.js
 var Reflux = require('reflux');
-var StateMixin = require('reflux-state-mixin')(Reflux); //call this mixin like that
+var StateMixin = require('reflux-state-mixin');
 var Actions = require('./../actions/AnimalsActions'); 
 
 var AnimalStore = module.exports = Reflux.createStore({
-  mixins: [StateMixin],
+  mixins: [StateMixin.store],
   listenables: Actions, //or any other way of listening... 
 
-  getInitialState(){      
+  getInitialState: function(){      //that's a must!
     return{
       dogs:5,
       cats:3
@@ -45,7 +51,52 @@ var AnimalStore = module.exports = Reflux.createStore({
 
 ### in component:
 
-#### 1:
+
+#### 1. easiest - connect mixin or decorator:
+
+```javascript
+// PetsComponent.js
+var AnimalStore = require('./AnimalStore.js');
+var StateMixin = require('reflux-state-mixin');
+
+var PetsComponent = React.createClass({
+    mixins:[
+        StateMixin.connect(AnimalStore, 'dogs')
+        StateMixin.connect(AnimalStore, 'cats')
+        //OR
+        StateMixin.connect(AnimalStore) //now PetsComponent.state includes AnimalStore.state
+        ],
+
+    render: function () {
+        return (<div><p>We have {this.state.dogs} dogs</p></div>);
+    }
+})
+
+```
+
+and if you use React's es6 classes, use the es7 decorator:
+
+```javascript
+import {connector} from 'reflux-state-mixin';
+import {AnimalStore} from './AnimalStore';
+
+//@viewPortDecorator // make sure other decorators that returns a Component (usually those who provide props) are above `connector` (since it controls state).
+@connector(AnimalStore, 'cats')
+@connector(AnimalStore, 'dogs')
+//or the entire store
+@connector(AnimalStore)
+//@autobind //other decorators could be anywhere
+class PetsComponent extends React.Component {
+    render(){
+        let {dogs, cats} = this.state;
+        return (<div>We have {dogs} dogs</div>);
+        }
+}
+
+```
+
+
+#### 2:
 ```javascript
 
 var AnimalStore = require('./AnimalStore.js');
@@ -73,7 +124,7 @@ var DogsComponent = React.createClass({
 });
 
 ```
-#### 2. listen to an entire store:
+#### 3. listen to an entire store:
 
 ```javascript
 var AnimalStore = require('./AnimalStore.js');
@@ -103,38 +154,18 @@ var PetsComponent = React.createClass({
     }
 })
 ```
-#### 3. connect:
 
-```javascript
-var AnimalStore = require('./AnimalStore.js');
-var StateMixin = require('reflux-state-mixin')(Reflux);
-
-var PetsComponent = React.createClass({
-    mixins:[
-        StateMixin.connect(AnimalStore, 'dogs')
-        //OR
-        StateMixin.connect(AnimalStore) //now PetsComponent.state === AnimalStore.state
-        ],
-
-    render: function () {
-        return (<div><p>We have {this.state.dogs} dogs</p></div>);
-    }
-})
-```
-## Installation
-
-```bash
-$ npm install reflux-state-mixin --save
-```
 
 ## some details
-`GetInitialState()` in store should have all of the states from the beginning.  
+`GetInitialState()` in store should have all of the states from the beginning.
+Store should not have any method that are declared in state, since you can listen to MyStore.dogs
 `setState()` is checking to see if there is a difference between new `state.key` from current `state.key`. If not, this specific `state.key` it's not triggering.
 For any `setState()` the entire store is triggering (regardless of changes), allowing any Component or other Store to listen to the entire Store's state.
 
 ## acknowledgments
-This mixin is combination of two other mixins - 
-[triggerables-mixin](https://github.com/jesstelford/reflux-triggerable-mixin), a really useful mixin for controlling the trigger of the stores. Also see [this](https://github.com/spoike/refluxjs/issues/158) for details. 
-And [state-mixin](https://github.com/spoike/refluxjs/issues/290) 
+This mixin was inspired by (a.k.a shamelessly stole from) -
+[triggerables-mixin](https://github.com/jesstelford/reflux-triggerable-mixin). Also see [this](https://github.com/spoike/refluxjs/issues/158) for details.
+[reflux-provides-store](https://github.com/brigand/reflux-provides-store)
+And [state-mixin](https://github.com/spoike/refluxjs/issues/290).
 
-I thank @jehoshua02 and @jesstelford for their valuable code. 
+I thank @jehoshua02 @brigand and @jesstelford for their valuable code.
