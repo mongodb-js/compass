@@ -1,6 +1,6 @@
 {
   "name": "reflux-state-mixin",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Reflux stores mixin adding 'state' syntax similar to React components. es6 classes supported",
   "main": "lib/index.js",
   "repository": {
