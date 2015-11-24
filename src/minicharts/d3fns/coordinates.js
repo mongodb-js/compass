@@ -5,7 +5,7 @@ var tooltipHtml = require('./tooltip.jade');
 
 require('../d3-tip')(d3);
 
-// var debug = require('debug')('scout:minicharts:coordinates');
+// var debug = require('debug')('mongodb-compass:minicharts:coordinates');
 
 var minicharts_d3fns_coordinates = function() {
   // --- beginning chart setup ---

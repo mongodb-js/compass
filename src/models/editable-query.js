@@ -2,7 +2,7 @@ var Model = require('ampersand-model');
 var EJSON = require('mongodb-extended-json');
 var Query = require('mongodb-language-model').Query;
 var _ = require('lodash');
-// var debug = require('debug')('scout:models:editable-query');
+// var debug = require('debug')('mongodb-compass:models:editable-query');
 
 /**
  * Editable Query, for the Refine Bar. Wrapper around a string with cleanup and validation.

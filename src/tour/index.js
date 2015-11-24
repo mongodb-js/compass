@@ -1,6 +1,6 @@
 var $ = require('jquery');
 var View = require('ampersand-view');
-// var debug = require('debug')('scout:tour:index');
+// var debug = require('debug')('mongodb-compass:tour:index');
 
 var ESC_KEY = 27;
 var LEFT_ARROW_KEY = 37;

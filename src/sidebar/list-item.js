@@ -1,5 +1,5 @@
 var View = require('ampersand-view');
-var debug = require('debug')('scout:sidebar:list-item');
+var debug = require('debug')('mongodb-compass:sidebar:list-item');
 var ListView = require('./list');
 var _ = require('lodash');
 

@@ -1,5 +1,5 @@
 var InputView = require('ampersand-input-view');
-// var debug = require('debug')('scout:connect:input-view');
+// var debug = require('debug')('mongodb-compass:connect:input-view');
 
 /**
  * Need to overwrite render() method and pass in `this` for renderWithTemplate()

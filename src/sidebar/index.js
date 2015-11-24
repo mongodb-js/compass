@@ -3,7 +3,7 @@ var ListView = require('./list');
 var FilterView = require('./filter');
 var ListItemView = require('./list-item');
 var _ = require('lodash');
-// var debug = require('debug')('scout:sidebar:index');
+// var debug = require('debug')('mongodb-compass:sidebar:index');
 
 
 /**

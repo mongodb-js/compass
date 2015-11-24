@@ -1,7 +1,7 @@
 var ListItemView = require('../sidebar/list-item');
 var toNS = require('mongodb-ns');
 var _ = require('lodash');
-// var debug = require('debug')('scout:sidebar:collection-list-item');
+// var debug = require('debug')('mongodb-compass:sidebar:collection-list-item');
 
 var CollectionListItemView = ListItemView.extend({
   props: {

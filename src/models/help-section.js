@@ -1,7 +1,7 @@
 var State = require('ampersand-state');
 var HelpEntryCollection = require('./help-entry-collection');
 
-var debug = require('debug')('scout:models:help-section');
+var debug = require('debug')('mongodb-compass:models:help-section');
 
 var HelpSection = State.extend({
   namespace: 'HelpSection',

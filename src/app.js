@@ -6,7 +6,7 @@ var backoff = require('backoff');
 
 app.extend({
   // @todo (imlucas) Move to config
-  // `scout-server` to point at.
+  // `mongodb-scope-server` to point at.
   endpoint: 'http://localhost:29017',
   meta: {
     'App Version': pkg.version
@@ -30,7 +30,7 @@ var Router = require('./router');
 var Statusbar = require('./statusbar');
 var $ = require('jquery');
 
-var debug = require('debug')('scout:app');
+var debug = require('debug')('mongodb-compass:app');
 
 function getConnection(model, done) {
   function _fetch(fn) {
@@ -68,7 +68,7 @@ var ipc = window.require('ipc');
  *   console.log(app);
  *   // What are the current query options?
  *   console.log('Query options are', app.queryOptions);
- *   // Make API calls to `scout-server` via `scout-client`:
+ *   // Make API calls to `mongodb-scope-server` via `mongodb-scope-client`:
  *   app.client.instance(function(err, data){
  *     if(err) return console.error(err);
  *     console.log('Details of current MongoDB instance we\'re connected to: ', data)
@@ -173,7 +173,7 @@ var Application = View.extend({
     metrics.error(err, 'Fatal Error: ' + id);
     app.statusbar.fatal(err);
   },
-  // ms we'll wait for a `scout-client` instance
+  // ms we'll wait for a `mongodb-scope-client` instance
   // to become readable before giving up and showing
   // a fatal error message.
   CLIENT_STALLED_REDLINE: 5 * 1000,

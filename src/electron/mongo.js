@@ -2,7 +2,7 @@
 // process.env.PATH = path.resolve(__dirname + '/../bin:') + process.env.PATH;
 
 // var mkdirp = require('mkdirp');
-// var debug = require('debug')('scout-electron:mongo');
+// var debug = require('debug')('mongodb-compass:mongo');
 // var proc = require('child_process');
 
 // var untildify = require('untildify');
@@ -13,7 +13,7 @@ module.exports.start = function(done) {
   done();
 // debug('starting bundled mongodb on port 27017');
 // var bin = path.resolve(__dirname + '/../../bin/mongod');
-// var dbpath = untildify('~/.mongodb/scout-demo');
+// var dbpath = untildify('~/.mongodb/mongodb-compass-demo');
 // mkdirp(dbpath, function() {
 //   mongo = proc.spawn(bin, ['--port', '27017', '--dbpath', dbpath, '--bind_ip', '127.0.0.1']);
 //   mongo.stderr.pipe(process.stderr);

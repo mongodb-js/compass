@@ -10,7 +10,7 @@ var Notifier = require('node-notifier');
 var _ = require('lodash');
 var app = require('app');
 var config = require('./config');
-var debug = require('debug')('scout-electron:window-manager');
+var debug = require('debug')('mongodb-compass:electron:window-manager');
 var dialog = require('dialog');
 var path = require('path');
 
@@ -18,7 +18,10 @@ var path = require('path');
  * When running in electron, we're in `RESOURCES/src/electron`.
  */
 var RESOURCES = path.resolve(__dirname, '../../');
-var SCOUT_ICON_PATH = RESOURCES + '/images/scout.png';
+/**
+ * @todo (imlucas) Missing this PNG.
+ */
+var COMPASS_ICON_PATH = RESOURCES + '/images/mongodb-compass.png';
 
 /**
  * The app's HTML shell which is the output of `./src/index.jade`
@@ -199,7 +202,7 @@ app.on('show share submenu', function() {
 app.on('show bugsnag OS notification', function(errorMsg) {
   if (_.contains(['development', 'testing'], process.env.NODE_ENV)) {
     Notifier.notify({
-      'icon': SCOUT_ICON_PATH,
+      'icon': COMPASS_ICON_PATH,
       'message': errorMsg,
       'title': 'MongoDB Compass Exception',
       'wait': true

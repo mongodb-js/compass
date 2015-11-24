@@ -16,7 +16,7 @@ var dialog = remote.require('dialog');
 var Clipboard = remote.require('clipboard');
 var BrowserWindow = remote.require('browser-window');
 
-var debug = require('debug')('scout:connect:index');
+var debug = require('debug')('mongodb-compass:connect:index');
 
 /**
  * AuthenticationOptionCollection

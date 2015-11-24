@@ -4,7 +4,7 @@ var lodashMixin = require('ampersand-collection-lodash-mixin');
 var selectableMixin = require('./selectable-collection-mixin');
 var filterableMixin = require('ampersand-collection-filterable');
 var withSync = require('./with-sync');
-var debug = require('debug')('scout:models:help-entry-collection');
+var debug = require('debug')('mongodb-compass:models:help-entry-collection');
 var ipc = window.require('ipc');
 
 var HelpEntryCollection = Collection.extend(

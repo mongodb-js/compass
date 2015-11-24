@@ -1,7 +1,7 @@
 var d3 = require('d3');
 var _ = require('lodash');
 var shared = require('./shared');
-var debug = require('debug')('scout:minicharts:geo');
+var debug = require('debug')('mongodb-compass:minicharts:geo');
 var mapStyle = require('./mapstyle');
 // var async = require('async');
 var app = require('ampersand-app');

@@ -1,13 +1,13 @@
 var MongoDBCollection = require('mongodb-collection-model');
 var toNS = require('mongodb-ns');
-var scoutClientMixin = require('./scout-client-mixin');
+var clientMixin = require('./mongodb-scope-client-mixin');
 var format = require('util').format;
 
 /**
  * Metadata for a MongoDB Collection.
  * @see http://npm.im/mongodb-collection-model
  */
-var CollectionModel = MongoDBCollection.extend(scoutClientMixin, {
+var CollectionModel = MongoDBCollection.extend(clientMixin, {
   namespace: 'MongoDBCollection',
   session: {
     selected: {

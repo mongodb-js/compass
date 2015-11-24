@@ -11,7 +11,7 @@ var remote = window.require('remote');
 var dialog = remote.require('dialog');
 var BrowserWindow = remote.require('browser-window');
 var format = require('util').format;
-var debug = require('debug')('scout:home:collection');
+var debug = require('debug')('mongodb-compass:home:collection');
 
 var MongoDBCollectionView = View.extend({
   // modelType: 'Collection',

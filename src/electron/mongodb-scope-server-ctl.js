@@ -13,7 +13,7 @@ var fs = require('fs');
 var path = require('path');
 var app = require('app');
 var spawn = require('child_process').spawn;
-var debug = require('debug')('scout:electron:mongodb-scope-server-ctl');
+var debug = require('debug')('mongodb-compass:electron:mongodb-scope-server-ctl');
 
 // Where we'll keep the process id.
 var PID_FILE = path.resolve(app.getPath('appData'), '.mongodb-mongodb-scope-server.pid');

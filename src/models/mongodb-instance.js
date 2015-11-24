@@ -2,7 +2,7 @@ var MongoDBInstance = require('mongodb-instance-model');
 var MongoDBCollection = require('./mongodb-collection');
 var BaseDatabaseModel = require('mongodb-database-model');
 var BaseDatabaseCollection = require('mongodb-database-model').Collection;
-var scoutClientMixin = require('./scout-client-mixin');
+var clientMixin = require('./mongodb-scope-client-mixin');
 var filterableMixin = require('ampersand-collection-filterable');
 var selectableMixin = require('./selectable-collection-mixin');
 var toNS = require('mongodb-ns');
@@ -38,7 +38,7 @@ var DatabaseCollection = BaseDatabaseCollection.extend({
  *
  * @see http://npm.im/mongodb-instance-model
  */
-module.exports = MongoDBInstance.extend(scoutClientMixin, {
+module.exports = MongoDBInstance.extend(clientMixin, {
   namespace: 'MongoDBInstance',
   collections: {
     databases: DatabaseCollection,

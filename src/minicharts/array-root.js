@@ -2,7 +2,7 @@ var VizView = require('./viz');
 var _ = require('lodash');
 var pluralize = require('pluralize');
 var numeral = require('numeral');
-// var debug = require('debug')('scout:minicharts:array-root');
+// var debug = require('debug')('mongodb-compass:minicharts:array-root');
 
 module.exports = VizView.extend({
   template: require('./array-root.jade'),

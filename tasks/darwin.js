@@ -10,7 +10,7 @@ var packager = require('electron-packager');
 var createDMG = require('electron-installer-dmg');
 var codesign = require('electron-installer-codesign');
 
-var debug = require('debug')('scout:tasks:darwin');
+var debug = require('debug')('mongodb-compass:tasks:darwin');
 
 var NAME = pkg.product_name;
 var PACKAGE = path.join('dist', NAME + '-darwin-x64');
@@ -27,7 +27,7 @@ var PACKAGER_CONFIG = {
   platform: 'darwin',
   arch: 'x64',
   version: pkg.electron_version,
-  icon: path.resolve(__dirname, '../images/darwin/scout.icns'),
+  icon: path.resolve(__dirname, '../images/darwin/mongodb-compass.icns'),
   overwrite: true,
   prune: true,
   'app-bundle-id': 'com.mongodb.compass',
@@ -45,7 +45,7 @@ var PACKAGER_CONFIG = {
 var INSTALLER_CONFIG = {
   name: pkg.product_name,
   out: path.resolve(__dirname, '../dist'),
-  icon: path.resolve(__dirname, '../images/darwin/scout.icns'),
+  icon: path.resolve(__dirname, '../images/darwin/mongodb-compass.icns'),
   appPath: APP_PATH,
   overwrite: true,
   background: path.resolve(__dirname, '../images/darwin/background.png'),

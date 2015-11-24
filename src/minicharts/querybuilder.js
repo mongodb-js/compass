@@ -9,7 +9,7 @@ var ListOperator = require('mongodb-language-model').ListOperator;
 var GeoOperator = require('mongodb-language-model').GeoOperator;
 var Range = require('mongodb-language-model').helpers.Range;
 
-// var debug = require('debug')('scout:minicharts:querybuilder');
+// var debug = require('debug')('mongodb-compass:minicharts:querybuilder');
 
 var MODIFIERKEY = 'shiftKey';
 var checkBounds = {
