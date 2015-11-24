@@ -23,5 +23,8 @@ describe('mongodb-instance-model', function() {
     it('should remove mongodb://', function() {
       assert.equal(Instance.getId('mongodb://localhost:27017'), 'localhost:27017');
     });
+    it('should substitute localhost for 127.0.0.1', function() {
+      assert.equal(Instance.getId('127.0.0.1:27017'), 'localhost:27017');
+    });
   });
 });
