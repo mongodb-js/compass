@@ -7,6 +7,9 @@ export default function (store, key) {
   let noKey = key === undefined;
 
   return function (Component) {
+    //if no explicit state declaration in 'constructor'
+    Component.prototype.state = {};
+
     return class ConnectorWrapper extends React.Component {
 
       componentDidMount() {
