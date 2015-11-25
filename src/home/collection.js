@@ -38,7 +38,7 @@ var MongoDBCollectionView = View.extend({
     'click .splitter': 'onSplitterClick'
   },
   bindings: {
-    'model.name': {
+    'model._id': {
       hook: 'name'
     },
     sidebar_open: {
