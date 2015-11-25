@@ -10,7 +10,6 @@ Mixin for [reflux](https://www.npmjs.com/packages/reflux) stores to enable them 
 ```bash
 $ npm install reflux-state-mixin --save
 ```
-( If your'e using version older than 0.6.0 see : [old readme](./old_readme.md) )
 
 ### in store:
 
