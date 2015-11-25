@@ -5,9 +5,10 @@ var EditableQuery = require('../models/editable-query');
 var EJSON = require('mongodb-extended-json');
 var Query = require('mongodb-language-model').Query;
 var SamplingMessageView = require('../sampling-message');
+var QueryOptions = require('../models/query-options');
+// var debug = require('debug')('scout:refine-view:index');
 
-// var debug = require('debug')('mongodb-compass:refine-view:index');
-var EMPTY_QUERY = '{}';
+var DEFAULT_QUERY = JSON.stringify(QueryOptions.DEFAULT_QUERY);
 
 module.exports = AmpersandView.extend({
   template: require('./index.jade'),
@@ -20,7 +21,19 @@ module.exports = AmpersandView.extend({
     notEmpty: {
       deps: ['editableQuery.rawString'],
       fn: function() {
-        return this.editableQuery.rawString !== EMPTY_QUERY;
+        return this.editableQuery.rawString !== DEFAULT_QUERY;
+      }
+    },
+    hasChanges: {
+      deps: ['editableQuery.cleanString', 'queryOptions.queryString'],
+      fn: function() {
+        return this.editableQuery.cleanString !== this.queryOptions.queryString;
+      }
+    },
+    applyEnabled: {
+      deps: ['editableQuery.valid', 'hasChanges'],
+      fn: function() {
+        return this.editableQuery.valid && this.hasChanges;
       }
     }
   },
@@ -40,25 +53,21 @@ module.exports = AmpersandView.extend({
         }
       }
     ],
-    'editableQuery.valid': [
-      // red input border while query is invalid
-      {
-        type: 'booleanClass',
-        hook: 'refine-input-group',
-        yes: '',
-        no: 'has-error'
-      },
-      // disable button while query is invalid
-      {
-        type: 'booleanAttribute',
-        hook: 'apply-btn',
-        no: 'disabled',
-        yes: null
-      }
-    ],
+    // red input border while query is invalid
+    'editableQuery.valid': {
+      type: 'booleanClass',
+      hook: 'refine-input-group',
+      yes: '',
+      no: 'has-error'
+    },
     notEmpty: {
       type: 'toggle',
       hook: 'reset-button'
+    },
+    applyEnabled: {
+      type: 'booleanAttribute',
+      no: 'disabled',
+      hook: 'apply-btn'
     }
   },
   subviews: {
@@ -107,13 +116,15 @@ module.exports = AmpersandView.extend({
    * the original query string (default is `{}`).
    */
   resetClicked: function() {
-    if (this.queryOptions.queryString !== EMPTY_QUERY) {
+    if (this.queryOptions.queryString !== DEFAULT_QUERY) {
       this.queryOptions.reset();
       this.volatileQueryOptions.reset();
       this.trigger('submit', this);
+    } else {
+      // currently still showing the view of default query `{}`, no need to resample
+      this.editableQuery.rawString = DEFAULT_QUERY;
+      this.volatileQueryOptions.query = this.editableQuery.queryObject;
     }
-
-    this.editableQuery.rawString = EMPTY_QUERY;
   },
   /**
    * When the user hits refine, copy the query created from editableQuery to queryOptions (and

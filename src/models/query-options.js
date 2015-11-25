@@ -4,6 +4,7 @@ var EJSON = require('mongodb-extended-json');
 var Query = require('mongodb-language-model').Query;
 // var debug = require('debug')('mongodb-compass:models:query-options');
 
+var DEFAULT_QUERY = {};
 var DEFAULT_SORT = {
   _id: -1
 };
@@ -12,7 +13,7 @@ var DEFAULT_SKIP = 0;
 var DEFAULT_MAX_TIME_MS = ms('10 seconds');
 
 var getDefaultQuery = function() {
-  return new Query({}, {
+  return new Query(DEFAULT_QUERY, {
     parse: true
   });
 };
@@ -72,3 +73,9 @@ module.exports = Model.extend({
     this.trigger('reset', this);
   }
 });
+
+module.exports.DEFAULT_QUERY = DEFAULT_QUERY;
+module.exports.DEFAULT_SORT = DEFAULT_SORT;
+module.exports.DEFAULT_SIZE = DEFAULT_SIZE;
+module.exports.DEFAULT_SKIP = DEFAULT_SKIP;
+module.exports.DEFAULT_MAX_TIME_MS = DEFAULT_MAX_TIME_MS;
