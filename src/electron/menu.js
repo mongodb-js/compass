@@ -66,7 +66,7 @@ function darwinCompassSubMenu() {
 
 function connectItem() {
   return {
-    label: 'Connect to...',
+    label: '&Connect to...',
     accelerator: 'CmdOrCtrl+N',
     click: function() {
       app.emit('show connect dialog');
@@ -79,11 +79,11 @@ function connectSubMenu(nonDarwin) {
 
   if (nonDarwin) {
     subMenu.push(separator());
-    subMenu.push(quitItem('Exit'));
+    subMenu.push(quitItem('E&xit'));
   }
 
   return {
-    label: 'Connect',
+    label: '&Connect',
     submenu: subMenu
   };
 }
@@ -129,7 +129,7 @@ function editSubMenu() {
 
 function nonDarwinAboutItem() {
   return {
-    label: 'About Compass',
+    label: '&About Compass',
     click: function() {
       app.emit('show about dialog');
     }
@@ -138,7 +138,7 @@ function nonDarwinAboutItem() {
 
 function helpWindowItem() {
   return {
-    label: 'Show Compass Help',
+    label: '&Show Compass Help',
     accelerator: 'F1',
     click: function() {
       app.emit('show help window');
@@ -148,7 +148,7 @@ function helpWindowItem() {
 
 function intercomItem() {
   return {
-    label: 'Contact MongoDB',
+    label: '&Contact MongoDB',
     click: function() {
       BrowserWindow.getFocusedWindow().webContents.executeJavaScript('Intercom(\'show\')');
     }
@@ -172,17 +172,17 @@ function helpSubMenu(showCompassOverview) {
   }
 
   return {
-    label: 'Help',
+    label: '&Help',
     submenu: subMenu
   };
 }
 
 function shareSubMenu() {
   return {
-    label: 'Share',
+    label: '&Share',
     submenu: [
       {
-        label: 'Share Schema as JSON',
+        label: '&Share Schema as JSON',
         accelerator: 'Alt+CmdOrCtrl+S',
         click: function() {
           BrowserWindow.getFocusedWindow().webContents.send('message', 'menu-share-schema-json');
@@ -194,17 +194,17 @@ function shareSubMenu() {
 
 function viewSubMenu() {
   return {
-    label: 'View',
+    label: '&View',
     submenu: [
       {
-        label: 'Reload',
+        label: '&Reload',
         accelerator: 'CmdOrCtrl+R',
         click: function() {
           BrowserWindow.getFocusedWindow().restart();
         }
       },
       {
-        label: 'Toggle DevTools',
+        label: '&Toggle DevTools',
         accelerator: 'Alt+CmdOrCtrl+I',
         click: function() {
           BrowserWindow.getFocusedWindow().toggleDevTools();
