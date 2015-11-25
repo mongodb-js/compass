@@ -1,3 +1,4 @@
+var DebugMenu = require('../debug-menu');
 var View = require('ampersand-view');
 var format = require('util').format;
 var SidebarView = require('../sidebar');
@@ -52,6 +53,8 @@ var HomeView = View.extend({
     debug('fetching instance model...');
     app.instance.fetch();
     app.sendMessage('show compass overview submenu');
+
+    DebugMenu.install();
   },
   render: function() {
     this.renderWithTemplate(this);

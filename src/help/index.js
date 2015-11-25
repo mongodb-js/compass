@@ -1,3 +1,4 @@
+var DebugMenu = require('../debug-menu');
 var View = require('ampersand-view');
 var format = require('util').format;
 var debug = require('debug')('scout:help');
@@ -65,6 +66,8 @@ var HelpPage = View.extend({
     });
 
     this.listenTo(app, 'show-help-entry', this.show.bind(this));
+
+    DebugMenu.install();
   },
   onLinkClicked: function(evt) {
     evt.preventDefault();

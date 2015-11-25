@@ -2,6 +2,7 @@ var BehaviorStateMachine = require('./behavior');
 var ConnectFormView = require('./connect-form-view');
 var Connection = require('../models/connection');
 var ConnectionCollection = require('../models/connection-collection');
+var DebugMenu = require('../debug-menu');
 var MongoDBConnection = require('mongodb-connection-model');
 var SidebarView = require('./sidebar');
 var View = require('ampersand-view');
@@ -12,9 +13,9 @@ var format = require('util').format;
 var metrics = require('mongodb-js-metrics');
 
 var remote = window.require('remote');
-var dialog = remote.require('dialog');
-var Clipboard = remote.require('clipboard');
 var BrowserWindow = remote.require('browser-window');
+var Clipboard = remote.require('clipboard');
+var dialog = remote.require('dialog');
 
 var debug = require('debug')('scout:connect:index');
 
@@ -220,6 +221,8 @@ var ConnectView = View.extend({
     this.stateMachine = new BehaviorStateMachine(this);
     this.on('change:connectionNameEmpty',
       this.connectionNameEmptyChanged.bind(this));
+
+    DebugMenu.install();
   },
   render: function() {
     this.renderWithTemplate({
