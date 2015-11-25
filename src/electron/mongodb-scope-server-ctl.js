@@ -95,7 +95,9 @@ module.exports.start = function(done) {
     var server = spawn(process.execPath, [BIN], {
       env: {
         ATOM_SHELL_INTERNAL_RUN_AS_NODE: '1',
-        RESOURCES_PATH: process.resourcesPath
+        RESOURCES_PATH: process.resourcesPath,
+        DEBUG: process.env.DEBUG,
+        PARENT_PID: process.pid
       },
       cwd: process.resourcesPath
     });
