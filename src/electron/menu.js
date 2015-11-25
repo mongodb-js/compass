@@ -28,7 +28,7 @@ function quitItem(label) {
 
 function compassOverviewItem() {
   return {
-    label: 'Compass Overview',
+    label: 'Compass &Overview',
     click: function() {
       BrowserWindow.getFocusedWindow().webContents.send('message', 'show-compass-overview');
     }
