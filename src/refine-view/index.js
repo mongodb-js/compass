@@ -1,6 +1,7 @@
+var $ = require('jquery');
+var _ = require('lodash');
 var AmpersandView = require('ampersand-view');
 var EditableQuery = require('../models/editable-query');
-var $ = require('jquery');
 var EJSON = require('mongodb-extended-json');
 var Query = require('mongodb-language-model').Query;
 var SamplingMessageView = require('../sampling-message');
@@ -17,9 +18,9 @@ module.exports = AmpersandView.extend({
   },
   derived: {
     notEmpty: {
-      deps: ['editableQuery.queryString'],
+      deps: ['editableQuery.rawString'],
       fn: function() {
-        return this.editableQuery.queryString !== EMPTY_QUERY;
+        return this.editableQuery.rawString !== EMPTY_QUERY;
       }
     }
   },
@@ -27,20 +28,18 @@ module.exports = AmpersandView.extend({
     editableQuery: EditableQuery
   },
   bindings: {
-    'editableQuery.rawString': {
-      type: 'value',
-      hook: 'refine-input'
-    },
-    // @todo, rethink these
-    notEmpty: [{
-      type: 'toggle',
-      hook: 'reset-button'
-    }, {
-      type: 'booleanClass',
-      hook: 'refine-button',
-      yes: 'btn-info',
-      no: 'btn-default'
-    }],
+    'editableQuery.rawString': [
+      {
+        type: 'value',
+        hook: 'refine-input'
+      },
+      {
+        hook: 'apply-btn',
+        type: function(el) {
+          this.highlightApplyBtnIfQueryNotApplied(el);
+        }
+      }
+    ],
     'editableQuery.valid': [
       // red input border while query is invalid
       {
@@ -52,11 +51,15 @@ module.exports = AmpersandView.extend({
       // disable button while query is invalid
       {
         type: 'booleanAttribute',
-        hook: 'refine-button',
+        hook: 'apply-btn',
         no: 'disabled',
         yes: null
       }
-    ]
+    ],
+    notEmpty: {
+      type: 'toggle',
+      hook: 'reset-button'
+    }
   },
   subviews: {
     sampling_message: {
@@ -70,7 +73,7 @@ module.exports = AmpersandView.extend({
     }
   },
   events: {
-    'click [data-hook=refine-button]': 'refineClicked',
+    'click [data-hook=apply-btn]': 'applyClicked',
     'click [data-hook=reset-button]': 'resetClicked',
     'input [data-hook=refine-input]': 'inputChanged',
     'submit form': 'submit'
@@ -119,7 +122,7 @@ module.exports = AmpersandView.extend({
    *
    * Then copy the resulting string so that we show the correctly formatted query (with quotes).
    */
-  refineClicked: function() {
+  applyClicked: function() {
     // The UI should not allow hitting refine on invalid queries, but just to be sure we
     // deny it here, too.
     if (!this.editableQuery.valid) {
@@ -133,10 +136,12 @@ module.exports = AmpersandView.extend({
     // update the refine bar with a valid query string
     this.editableQuery.rawString = this.queryOptions.queryString;
     this.trigger('submit', this);
+
+    this.unhighlightBtn($('[data-hook=\'apply-btn\']')[0]);
   },
   /**
    * Handler for hitting enter inside the input field. First defocus, then just delegate to
-   * refineClicked.
+   * applyClicked.
    * @param  {Object} evt    the submit event.
    */
   submit: function(evt) {
@@ -144,7 +149,24 @@ module.exports = AmpersandView.extend({
     // lose focus on input field first, see http://ampersandjs.com/docs#ampersand-dom-bindings-value
     $(evt.delegateTarget).find('input').blur();
     if (this.editableQuery.valid) {
-      this.refineClicked();
+      this.applyClicked();
     }
+  },
+  highlightApplyBtnIfQueryNotApplied: function(applyBtn) {
+    if (!_.isUndefined(applyBtn)) {
+      if (this.editableQuery.valid && this.editableQuery.rawString !== this.queryOptions.queryString) {
+        this.highlightBtn(applyBtn);
+      } else {
+        this.unhighlightBtn(applyBtn);
+      }
+    }
+  },
+  highlightBtn: function(btn) {
+    btn.classList.remove('btn-default');
+    btn.classList.add('btn-info');
+  },
+  unhighlightBtn: function(btn) {
+    btn.classList.remove('btn-info');
+    btn.classList.add('btn-default');
   }
 });
