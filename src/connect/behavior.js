@@ -242,6 +242,9 @@ module.exports = State.extend({
 
       case 'CONNECTING':
         this.beforeErrorState = state;
+        view.showFavoriteButtons = false;
+        view.showSaveButton = false;
+
         if (!_.endsWith(state, '_UNCHANGED')) {
           // the user has modified the form fields and opted not to save the
           // changes. We need to create a new connection and leave the old
