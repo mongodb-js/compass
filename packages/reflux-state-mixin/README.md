@@ -52,7 +52,7 @@ var AnimalStore = module.exports = Reflux.createStore({
 ### in component:
 
 
-#### 1. easiest - connect mixin or decorator:
+#### 1. the easy way - connect, with mixin or decorator:
 
 ```javascript
 // PetsComponent.js
@@ -68,13 +68,13 @@ var PetsComponent = React.createClass({
         ],
 
     render: function () {
-        return (<div><p>We have {this.state.dogs} dogs</p></div>);
+        return (<div><p>We have {this.state.dogs + this.state.cats} pets</p></div>);
     }
 })
 
 ```
 
-and if you use React's es6 classes, use the es7 decorator:
+and if you use React's es6 classes, use the es7 `connector` decorator:
 
 ```javascript
 import {connector} from 'reflux-state-mixin';
@@ -89,14 +89,16 @@ import {AnimalStore} from './AnimalStore';
 class PetsComponent extends React.Component {
     render(){
         let {dogs, cats} = this.state;
-        return (<div>We have {dogs} dogs</div>);
+        return (<div>We have {dogs + cats} pets</div>);
         }
 }
 
 ```
 
 
-#### 2:
+#### or if you want to take the long way:
+##### listening to a specific property of Store's state
+
 ```javascript
 
 var AnimalStore = require('./AnimalStore.js');
@@ -124,7 +126,7 @@ var DogsComponent = React.createClass({
 });
 
 ```
-#### 3. listen to an entire store:
+##### listen to an entire store:
 
 ```javascript
 var AnimalStore = require('./AnimalStore.js');
