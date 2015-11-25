@@ -10,6 +10,7 @@ var debug = require('debug')('scout:tasks:linux');
 var APP_PATH = path.resolve(__dirname, '../dist/MongoDBCompass-linux-x64');
 module.exports.ELECTRON = path.join(APP_PATH, 'MongoDBCompass');
 module.exports.RESOURCES = path.join(APP_PATH, 'resources');
+module.exports.HOME = APP_PATH;
 
 var PACKAGER_CONFIG = {
   name: 'MongoDBCompass',

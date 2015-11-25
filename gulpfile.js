@@ -48,6 +48,7 @@ gulp.task('release', function(done) {
     'build',
     'electron:build',
     'license:build',
+    'write-version-file',
     'electron:build-installer'
     , done);
 });
@@ -239,7 +240,7 @@ gulp.task('copy:package.json', function() {
 
 gulp.task('copy:text', function() {
   return merge(
-    gulp.src('README.md')
+    gulp.src(['README.md', 'LICENSE'])
       .pipe(gulp.dest('build/')),
     gulp.src('src/help/entries/*.md')
       .pipe(gulp.dest('build/src/help/entries'))
@@ -281,9 +282,17 @@ gulp.task('electron-rebuild',
 
 var fs = require('fs');
 gulp.task('license:build', function(done) {
-  license.build({path: path.join(platform.RESOURCES, 'app')}, function(err, contents) {
-    if (err) return done(err);
+  license.build({
+    path: path.join(__dirname, 'build')
+  }, function(err, contents) {
+    if (err) {
+      return done(err);
+    }
 
-    fs.writeFile(path.join(platform.RESOURCES, '..', 'LICENSE'), contents, done);
+    fs.writeFile(path.join(platform.HOME, 'LICENSE'), contents, done);
   });
+});
+
+gulp.task('write-version-file', function(done) {
+  fs.writeFile(path.join(platform.HOME, 'version'), pkg.version, done);
 });
