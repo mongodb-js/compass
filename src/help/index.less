@@ -17,6 +17,7 @@
       width: 220px;
       overflow-y: auto;
       background: none;
+      border: none;
 
       .panel-title {
         padding: 8px 0;
@@ -33,7 +34,6 @@
           display: block;
           cursor: pointer;
           border-left: 4px solid transparent;
-          font-weight: bold;
 
           &.selected {
             border-left: 4px solid @green3;
@@ -52,17 +52,21 @@
       }
     }
   }
-
+  .content.with-sidebar {
+    padding: 0 15px 15px 15px;    
+  }
+  .related {
+    margin-top: 20px;
+  }
   .help-entry {
-
+    h4 {
+      margin-bottom: 5px;
+    }
     img {
       max-width: 100%;
     }
-    .related {
-      padding-top: 20px;
-    }
     .tags {
-      padding-bottom: 20px;
+      padding-bottom: 10px;
     }
   }
 }
