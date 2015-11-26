@@ -222,7 +222,9 @@ var ConnectView = View.extend({
     this.on('change:connectionNameEmpty',
       this.connectionNameEmptyChanged.bind(this));
 
-    DebugMenu.install();
+    if (remote.process.env.NODE_ENV !== 'production') {
+      DebugMenu.install();
+    }
   },
   render: function() {
     this.renderWithTemplate({
