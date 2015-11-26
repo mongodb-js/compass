@@ -1,72 +1,37 @@
-var View = require('ampersand-view');
-// var debug = require('debug')('mongodb-compass:connect:sidebar');
+var SidebarView = require('../sidebar');
+var Collection = require('ampersand-collection');
+var State = require('ampersand-state');
 var FilteredCollection = require('ampersand-filtered-subcollection');
+var View = require('ampersand-view');
 
-/**
- * View for a connection in the sidebar. It can be clicked (will copy details to the form view)
- */
-var SidebarItemView = View.extend({
-  namespace: 'SidebarItemView',
+var debug = require('debug')('mongodb-compass:connect:sidebar');
+
+var Section = State.extend({
+  idAttribute: 'name',
   props: {
-    hover: {
-      type: 'boolean',
-      default: false
-    }
-  },
-  events: {
-    click: 'onClick',
-    dblclick: 'onDoubleClick'
-  },
-  bindings: {
-    'model.name': [
-      {
-        hook: 'name'
-      },
-      {
-        type: 'attribute',
-        hook: 'name',
-        name: 'title'
-      }
-    ],
-    'model.active': {
-      type: 'booleanClass',
-      hook: 'a-connection-tag',
-      name: 'selected'
-    },
-    has_auth: {
-      type: 'booleanClass',
-      hook: 'has-auth',
-      yes: 'visible',
-      no: 'hidden'
-    }
-  },
-  derived: {
-    has_auth: {
-      deps: ['model.authentication'],
-      fn: function() {
-        return this.model.authentication !== 'NONE';
-      }
-    }
-  },
-  template: require('./connection.jade'),
-  onClick: function(evt) {
-    this.parent.onItemClick(evt, this);
-  },
-  onDoubleClick: function(evt) {
-    this.parent.onItemDoubleClick(evt, this);
+    name: 'string',
+    icon: 'any',
+    connections: 'any'
   }
 });
 
+var SectionCollection = Collection.extend({
+  namespace: 'SectionCollection',
+  model: Section
+});
 
-/**
- * Renders all existing connections as list in the sidebar.
- */
-var SidebarView = View.extend({
+module.exports = View.extend({
+  template: '<div data-hook="sidebar-subview"></div>',
   session: {
     activeItemView: {
       type: 'state',
-      default: null
-    }
+      default: null,
+      required: false
+    },
+    connections: 'any'
+  },
+  collections: {
+    sections: SectionCollection
   },
   derived: {
     newConnectionActive: {
@@ -76,22 +41,34 @@ var SidebarView = View.extend({
       }
     }
   },
-  events: {
-    'click a[data-hook=new-connection]': 'onNewConnectionClicked'
-  },
-  bindings: {
-    newConnectionActive: {
-      type: 'booleanClass',
-      hook: 'panel-title-out',
-      name: 'selected'
+  subviews: {
+    sidebar: {
+      hook: 'sidebar-subview',
+      waitFor: 'sections',
+      prepareView: function(el) {
+        return new SidebarView({
+          el: el,
+          parent: this,
+          icon: function(view) {
+            return view.model.icon;
+          },
+          collection: this.sections,
+          displayProp: 'name',
+          nested: {
+            icon: 'fa-fw',
+            collectionName: 'connections',
+            displayProp: 'name'
+          }
+        }).on('show', this.onItemClick.bind(this));
+      }
     }
   },
-  namespace: 'SidebarView',
-  template: require('./sidebar.jade'),
   render: function() {
-    this.renderWithTemplate();
-    // create a collection proxy that filters favorite collections and sorts alphabetically
-    var favoriteConnections = new FilteredCollection(this.collection, {
+    this.renderWithTemplate(this);
+    this.connections.once('sync', this.onSynced.bind(this));
+  },
+  onSynced: function() {
+    var favoriteConnections = new FilteredCollection(this.connections, {
       where: {
         is_favorite: true
       },
@@ -99,20 +76,64 @@ var SidebarView = View.extend({
         return model.name.toLowerCase();
       }
     });
-    this.renderCollection(favoriteConnections, SidebarItemView,
-      this.queryByHook('connection-list-favorites'));
-
-    var historyConnections = new FilteredCollection(this.collection, {
+    var historyConnections = new FilteredCollection(this.connections, {
       filter: function(model) {
-        return Boolean(model.last_used);
+        return !model.is_favorite;
       },
       comparator: function(model) {
         return -model.last_used;
       }
     });
-    this.renderCollection(historyConnections, SidebarItemView,
-      this.queryByHook('connection-list-recent'));
+
+    this.sections.reset([
+      {
+        name: 'New Connection',
+        icon: ['fa-fw', 'fa-bolt']
+      },
+      {
+        name: 'Favorites',
+        icon: ['fa-fw', 'fa-star'],
+        connections: favoriteConnections
+      },
+      {
+        name: 'Recent',
+        icon: ['fa-fw', 'fa-history'],
+        connections: historyConnections
+      }
+    ]);
+    // debug('favconn', favoriteConnections.serialize());
+    //
+    // var favoriteSection = new Section({
+    //   name: 'Favorites',
+    //   icon: 'fa-star',
+    //   connections: favoriteConnections
+    // });
+    // this.sections.add(favoriteSection);
+
+    // var historySection = new Section({
+    //   name: 'Previous Connections',
+    //   icon: 'fa-history',
+    //   connections:
+    // });
+    // this.sections.add(historySection);
+    // group by sections
+    // this.sections.reset(
+    //   _.map(this.collection.groupBy('is_favorite'), function(value, key) {
+    //     debug('key', key, 'value', value)
+    //     return {
+    //       name: key === 'true' ? 'Favorites' : 'Recent Connections',
+    //       connections: value
+    //     };
+    //   }), {
+    //     parse: true
+    //   }
+    // );
+    debug('this.sections', this.sections);
   },
+
+  // events: {
+  //   'click a[data-hook=new-connection]': 'onNewConnectionClicked'
+  // },
   onNewConnectionClicked: function(event) {
     event.stopPropagation();
     event.preventDefault();
@@ -120,19 +141,17 @@ var SidebarView = View.extend({
     if (this.activeItemView) {
       this.activeItemView = null;
     }
-    this.collection.deactivateAll();
+    this.connections.deactivateAll();
     this.parent.createNewConnection();
   },
-  onItemClick: function(event, view) {
-    event.stopPropagation();
-    event.preventDefault();
-    this.activeItemView = view;
-    this.parent.selectExistingConnection(view.model);
-  },
-  onItemDoubleClick: function(event, view) {
-    this.onItemClick(event, view);
-    this.parent.validateConnection(view.model);
+  onItemClick: function(model) {
+    if (!this.connections.select(model)) {
+      return debug('already selected %s', model);
+    }
+    this.parent.selectExistingConnection(model);
   }
+  // onItemDoubleClick: function(view) {
+  //   this.onItemClick(event, view);
+  //   this.parent.validateConnection(view.model);
+  // }
 });
-
-module.exports = SidebarView;

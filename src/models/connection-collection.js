@@ -3,8 +3,9 @@ var Connection = require('./connection');
 var storageMixin = require('storage-mixin');
 var _ = require('lodash');
 var pkg = require('../../package.json');
+var selectableMixin = require('./selectable-collection-mixin');
 
-module.exports = Collection.extend(storageMixin, {
+module.exports = Collection.extend(selectableMixin, storageMixin, {
   model: Connection,
   namespace: 'Connections',
   storage: {

@@ -38,10 +38,14 @@ module.exports = Connection.extend(storageMixin, {
     }
   },
   session: {
-    active: {
+    selected: {
       type: 'boolean',
       default: false
     }
+    // active: {
+    //   type: 'boolean',
+    //   default: false
+    // }
   },
   test: function(done) {
     var model = this.serialize();

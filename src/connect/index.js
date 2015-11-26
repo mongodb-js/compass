@@ -3,7 +3,8 @@ var ConnectFormView = require('./connect-form-view');
 var Connection = require('../models/connection');
 var ConnectionCollection = require('../models/connection-collection');
 var MongoDBConnection = require('mongodb-connection-model');
-var SidebarView = require('./sidebar');
+
+var SidebarWrapperView = require('./sidebar');
 var View = require('ampersand-view');
 
 var _ = require('lodash');
@@ -204,10 +205,10 @@ var ConnectView = View.extend({
     sidebar: {
       hook: 'sidebar-subview',
       prepareView: function(el) {
-        return new SidebarView({
+        return new SidebarWrapperView({
           el: el,
           parent: this,
-          collection: this.connections
+          connections: this.connections
         });
       }
     }
