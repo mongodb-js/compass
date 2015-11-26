@@ -1,4 +1,4 @@
-var Reflux = require('Reflux');
+var Reflux = require('reflux');
 var utils = require('./utils.js');
 
 
