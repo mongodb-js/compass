@@ -1,3 +1,4 @@
+var DebugMenu = require('../debug-menu');
 var View = require('ampersand-view');
 var format = require('util').format;
 var debug = require('debug')('scout:help');
@@ -9,6 +10,7 @@ var HelpEntry = require('../models/help-entry');
 var SidebarView = require('../sidebar');
 var ViewSwitcher = require('ampersand-view-switcher');
 var app = require('ampersand-app');
+var remote = window.require('remote');
 var _ = require('lodash');
 
 var entries = new HelpEntryCollection();
@@ -65,6 +67,10 @@ var HelpPage = View.extend({
     });
 
     this.listenTo(app, 'show-help-entry', this.show.bind(this));
+
+    if (remote.process.env.NODE_ENV !== 'production') {
+      DebugMenu.install();
+    }
   },
   onLinkClicked: function(evt) {
     evt.preventDefault();

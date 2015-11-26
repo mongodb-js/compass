@@ -1,3 +1,4 @@
+var DebugMenu = require('../debug-menu');
 var View = require('ampersand-view');
 var format = require('util').format;
 var SidebarView = require('../sidebar');
@@ -7,6 +8,7 @@ var CollectionListItemView = require('./collection-list-item');
 var TourView = require('../tour');
 var app = require('ampersand-app');
 var debug = require('debug')('scout:home');
+var remote = window.require('remote');
 
 var HomeView = View.extend({
   props: {
@@ -52,6 +54,10 @@ var HomeView = View.extend({
     debug('fetching instance model...');
     app.instance.fetch();
     app.sendMessage('show compass overview submenu');
+
+    if (remote.process.env.NODE_ENV !== 'production') {
+      DebugMenu.install();
+    }
   },
   render: function() {
     this.renderWithTemplate(this);
