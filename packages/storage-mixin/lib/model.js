@@ -151,7 +151,6 @@ var Preference = Model.extend({
         break;
       default:
         debug('`%s` storage layer not implemented.', model.storage);
-        return
     }
   }
 });
