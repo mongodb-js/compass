@@ -1,4 +1,5 @@
 module.exports = {
   local: require('./local'),
-  disk: require('./disk')
+  disk: require('./disk'),
+  null: require('./null')
 };

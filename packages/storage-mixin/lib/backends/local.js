@@ -1,38 +1,49 @@
 var inherits = require('util').inherits;
-var format = require('util').format;
 var localforage = require('localforage');
 var BaseBackend = require('./base');
 var _ = require('lodash');
 var async = require('async');
-var debug = require('debug')('storage-mixin:sync:local');
 
+var debug = require('debug')('storage-mixin:backends:local');
+
+// singleton holding all stores keyed by namespace
+var globalStores = {};
 
 function LocalBackend(options) {
   if (!(this instanceof LocalBackend)) {
     return new LocalBackend(options);
   }
   options = _.defaults(options, {
-    driver: 'INDEXEDDB'
+    driver: 'LOCALSTORAGE'
   });
 
   this.namespace = options.namespace;
 
-  // configure localforage
-  localforage.config({
-    driver: localforage[options.driver],
-    name: 'storage-mixin',
-    storeName: this.namespace
-  });
+  // create one unique store for each namespace
+  if (this.namespace in globalStores) {
+    this.store = globalStores[this.namespace];
+  } else {
+    this.store = localforage.createInstance({
+      driver: localforage[options.driver],
+      name: 'storage-mixin',
+      storeName: this.namespace
+    });
+    globalStores[this.namespace] = this.store;
+  }
 }
 inherits(LocalBackend, BaseBackend);
 
 /**
- * Clear the entire namespace. Use with caution!
+ * Static function to clear the entire namespace. Use with caution!
  *
  * @param {Function} done
  */
-LocalBackend.prototype.clear = function(done) {
-  localforage.clear(done);
+LocalBackend.clear = function(namespace, done) {
+  if (namespace in globalStores) {
+    globalStores[namespace].clear(done);
+  } else {
+    done();
+  }
 };
 
 /**
@@ -43,12 +54,13 @@ LocalBackend.prototype.clear = function(done) {
  *
  * @api private
  */
-LocalBackend.prototype._key = function(model) {
-  return model.getId();
+LocalBackend.prototype._key = function(modelOrKey) {
+  debug('model or key', modelOrKey);
+  return (typeof modelOrKey === 'string') ? modelOrKey : modelOrKey.getId();
 };
 
 /**
- * The `localforage` API doesn't support atomic updates
+ * The `_key` API doesn't support atomic updates
  * so `update` and `create` are the same under the hood.
  *
  * @param {ampersand-model} model
@@ -57,7 +69,7 @@ LocalBackend.prototype._key = function(model) {
  * @api private
  */
 LocalBackend.prototype._write = function(model, options, done) {
-  localforage.setItem(this._key(model), model.serialize(), done);
+  this.store.setItem(this._key(model), model.serialize(), done);
 };
 
 /**
@@ -70,7 +82,7 @@ LocalBackend.prototype._write = function(model, options, done) {
  * @see http://ampersandjs.com/docs#ampersand-model-fetch
  */
 LocalBackend.prototype.findOne = function(model, options, done) {
-  localforage.getItem(this._key(model), done);
+  this.store.getItem(this._key(model), done);
 };
 
 /**
@@ -83,7 +95,7 @@ LocalBackend.prototype.findOne = function(model, options, done) {
  * @see http://ampersandjs.com/docs#ampersand-model-destroy
  */
 LocalBackend.prototype.remove = function(model, options, done) {
-  localforage.removeItem(this._key(model), done);
+  this.store.removeItem(this._key(model), done);
 };
 
 /**
@@ -106,33 +118,23 @@ LocalBackend.prototype.create = LocalBackend.prototype._write;
  * @see http://ampersandjs.com/docs#ampersand-collection-fetch
  */
 LocalBackend.prototype.find = function(collection, options, done) {
-  var prefix = format('%s/', this.namespace);
-  localforage.keys(function(err, keys) {
+  var self = this;
+
+  // var prefix = format('%s/', this.namespace);
+  this.store.keys(function(err, keys) {
     if (err) {
-      debug('error fetching keys for prefix `%s`:',
-        prefix, err);
       return done(err);
     }
 
     if (keys.length === 0) {
-      debug('no keys stored');
+      debug('no keys found for namespace `%s`', this.namespace);
       return done(null, []);
     }
-    options.ids = [];
-    var tasks = _.chain(keys)
-      .filter(function(key) {
-        return _.startsWith(key, prefix);
-      })
-      .map(function(key) {
-        return localforage.getItem.bind(localforage, key);
-      })
-      .value();
 
-    if (tasks.length === 0) {
-      debug('no keys found for prefix `%s`', prefix);
-      return done(null, []);
-    }
-    debug('fetching `%d` keys...', tasks.length);
+    var tasks = keys.map(function(key) {
+      return self.findOne.bind(self, key, options);
+    });
+    debug('fetching `%d` keys on namespace `%s`', tasks.length, self.namespace);
     async.parallel(tasks, done);
   });
 };

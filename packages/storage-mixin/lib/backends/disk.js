@@ -6,7 +6,7 @@ var async = require('async');
 var _ = require('lodash');
 var rimraf = require('rimraf');
 
-var debug = require('debug')('storage-mixin:sync:disk');
+var debug = require('debug')('storage-mixin:backends:disk');
 
 function DiskBackend(options) {
   if (!(this instanceof DiskBackend)) {
@@ -17,6 +17,7 @@ function DiskBackend(options) {
     basepath: '.'
   });
 
+  this.basepath = options.basepath;
   this.namespace = options.namespace;
   this.path = path.join(options.basepath, options.namespace);
 
@@ -36,14 +37,21 @@ inherits(DiskBackend, BaseBackend);
 /**
  * Clear the entire namespace. Use with caution!
  *
+ * @param {String} basepath
+ * @param {String} namespace
  * @param {Function} done
  */
-DiskBackend.prototype.clear = function(done) {
-  rimraf(path.join(this.path, '*'), done);
+DiskBackend.clear = function(basepath, namespace, done) {
+  if (done === undefined) {
+    done = namespace;
+    namespace = '.';
+  }
+  rimraf(path.join(basepath, namespace), done);
 };
 
-DiskBackend.prototype._getFilePath = function(model) {
-  var id = (typeof model === 'string') ? model : model.getId();
+DiskBackend.prototype._getFilePath = function(modelOrFilename) {
+  var id = (typeof modelOrFilename === 'string') ?
+    modelOrFilename : modelOrFilename.getId();
   return path.join(this.path, id + '.json');
 };
 
@@ -101,6 +109,7 @@ DiskBackend.prototype.create = DiskBackend.prototype._write;
  */
 DiskBackend.prototype.findOne = function(model, options, done) {
   var file = this._getFilePath(model);
+  debug('file', file);
   fs.exists(file, function(exists) {
     if (!exists) {
       return done(null, {});
@@ -124,17 +133,23 @@ DiskBackend.prototype.findOne = function(model, options, done) {
  * @see http://ampersandjs.com/docs#ampersand-collection-fetch
  */
 DiskBackend.prototype.find = function(collection, options, done) {
+  var self = this;
+
   fs.readdir(this.path, function(err, files) {
     if (err) {
       return done(err);
     }
-    var tasks = files.map(function(file) {
-      return this.findOne.bind(this, file);
-    });
-    if (tasks.length === 0) {
+
+    if (files.length === 0) {
       debug('no keys found for namespace `%s`', this.namespace);
       return done(null, []);
     }
+
+    var tasks = files.map(function(file) {
+      return self.findOne.bind(self,
+        path.basename(file, path.extname(file)), options);
+    });
+
     debug('fetching %d models', tasks.length);
     async.parallel(tasks, done);
   });

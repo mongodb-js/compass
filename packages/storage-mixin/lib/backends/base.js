@@ -1,5 +1,5 @@
 var createErrback = require('./create-errback');
-// var debug = require('debug')('storage-mixin:sync:base');
+var debug = require('debug')('storage-mixin:backends:base');
 
 /**
  * @class {BaseBackend}
@@ -111,6 +111,7 @@ BaseBackend.prototype.exec = function(method, model, options, done) {
   if (!done) {
     done = createErrback(method, model, options);
   }
+  debug('method', method);
 
   if (method === 'read') {
     if (model.isCollection) {
