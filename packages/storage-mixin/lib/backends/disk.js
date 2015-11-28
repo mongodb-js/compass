@@ -38,7 +38,7 @@ inherits(DiskBackend, BaseBackend);
  *
  * @param {Function} done
  */
-BaseBackend.prototype.clear = function(done) {
+DiskBackend.prototype.clear = function(done) {
   rimraf(path.join(this.path, '*'), done);
 };
 
