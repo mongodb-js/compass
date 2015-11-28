@@ -6,10 +6,11 @@ var Collection = require('ampersand-rest-collection');
 var assert = require('assert');
 var format = require('util').format;
 var async = require('async');
+var fs = require('fs');
 
 var backends = require('../lib/backends');
 
-var debug = require('debug')('storage-mixin:test');
+// var debug = require('debug')('storage-mixin:test');
 
 var Spaceship = Model.extend({
   idAttribute: 'name',
@@ -37,6 +38,14 @@ var Fleet = Collection.extend({
   model: Spaceship
 });
 
+
+function clearNamespaces(backendName, namespaces, done) {
+  var tasks = namespaces.map(function(name) {
+    return backends[backendName].clear.bind(null, name);
+  });
+  async.parallel(tasks, done);
+}
+
 describe('storage-mixin', function() {
   Object.keys(backends).forEach(function(backendName) {
     if (backendName === 'null') {
@@ -45,17 +54,10 @@ describe('storage-mixin', function() {
     describe(format('storage backend `%s`', backendName), function() {
       // clear namespaces of this backend before and after the tests
       before(function(done) {
-        var tasks = ['Spaceships', 'Planets'].map(function(name) {
-          return backends[backendName].clear.bind(name);
-        });
-        async.parallel(tasks, done);
+        clearNamespaces(backendName, ['Spaceships', 'Planets'], done);
       });
-
       after(function(done) {
-        var tasks = ['Spaceships', 'Planets'].map(function(name) {
-          return backends[backendName].clear.bind(name);
-        });
-        async.parallel(tasks, done);
+        clearNamespaces(backendName, ['Spaceships', 'Planets'], done);
       });
 
       var StorableSpaceship;
@@ -70,6 +72,7 @@ describe('storage-mixin', function() {
           }
         });
         StorableFleet = Fleet.extend(storageMixin, {
+          model: StorableSpaceship,
           storage: {
             backend: backendName
           }
@@ -93,7 +96,7 @@ describe('storage-mixin', function() {
             var otherSpaceship = new StorableSpaceship({
               name: 'Battlestar Galactica'
             });
-            otherSpaceship.on('sync', function() {
+            otherSpaceship.once('sync', function() {
               assert.equal(otherSpaceship.warpSpeed, 3.14);
               done();
             });
@@ -138,10 +141,19 @@ describe('storage-mixin', function() {
         });
       });
 
-      it('should work with collections', function(done) {
-        fleet.on('sync', function() {
-          debug('fleet:', fleet.toJSON());
-          assert.equal(fleet.length, 2);
+      it('should create a new model in a collection', function(done) {
+        fleet.once('sync', function() {
+          done();
+        });
+        fleet.create({
+          name: 'Serenity',
+          enableJetpack: true
+        });
+      });
+
+      it('should fetch collections', function(done) {
+        fleet.once('sync', function() {
+          assert.equal(fleet.length, 3);
           done();
         });
         fleet.fetch();
@@ -150,9 +162,8 @@ describe('storage-mixin', function() {
       it('should remove correctly', function(done) {
         spaceship.destroy({
           success: function() {
-            fleet.on('sync', function() {
-              debug('fleet:', fleet.toJSON());
-              assert.equal(fleet.length, 1);
+            fleet.once('sync', function() {
+              assert.equal(fleet.length, 2);
               done();
             });
             fleet.fetch();
@@ -162,6 +173,7 @@ describe('storage-mixin', function() {
       });
     });
   });
+
   describe('storage backend `null`', function() {
     var NullSpaceship;
 
@@ -202,6 +214,16 @@ describe('storage-mixin', function() {
         },
         error: done
       });
+    });
+  });
+
+  it('should not leave any orphaned directories after tests', function(done) {
+    async.some(['./Planets', './Spaceships'], fs.exists, function(result) {
+      // if result is true then at least one of the files exists
+      if (result) {
+        return done(new Error('orphaned files left after tests.'));
+      }
+      done();
     });
   });
 });

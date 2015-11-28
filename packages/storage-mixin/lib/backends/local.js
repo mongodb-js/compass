@@ -14,7 +14,7 @@ function LocalBackend(options) {
     return new LocalBackend(options);
   }
   options = _.defaults(options, {
-    driver: 'LOCALSTORAGE'
+    driver: 'INDEXEDDB'
   });
 
   this.namespace = options.namespace;
@@ -36,6 +36,7 @@ inherits(LocalBackend, BaseBackend);
 /**
  * Static function to clear the entire namespace. Use with caution!
  *
+ * @param {Function} namespace
  * @param {Function} done
  */
 LocalBackend.clear = function(namespace, done) {
@@ -47,16 +48,16 @@ LocalBackend.clear = function(namespace, done) {
 };
 
 /**
- * Get the primary key `model` is stored under.
+ * Get the primary key `modelOrKey` is stored under. If key is a string,
+ * just return it, otherwise
  *
- * @param {ampersand-model} model
+ * @param {ampersand-model | String} modelOrKey
  * @return {Any}
  *
  * @api private
  */
 LocalBackend.prototype._key = function(modelOrKey) {
-  debug('model or key', modelOrKey);
-  return (typeof modelOrKey === 'string') ? modelOrKey : modelOrKey.getId();
+  return (typeof modelOrKey === 'object') ? modelOrKey.getId() : modelOrKey;
 };
 
 /**
