@@ -7,20 +7,33 @@ var async = require('async');
 var debug = require('debug')('storage-mixin:sync:local');
 
 
-function LocalBackend(namespace) {
+function LocalBackend(options) {
   if (!(this instanceof LocalBackend)) {
-    return new LocalBackend(namespace);
+    return new LocalBackend(options);
   }
-  this.namespace = namespace;
+  options = _.defaults(options, {
+    driver: 'INDEXEDDB'
+  });
+
+  this.namespace = options.namespace;
 
   // configure localforage
   localforage.config({
-    driver: localforage.LOCALSTORAGE,
+    driver: localforage[options.driver],
     name: 'storage-mixin',
-    storeName: namespace
+    storeName: this.namespace
   });
 }
 inherits(LocalBackend, BaseBackend);
+
+/**
+ * Clear the entire namespace. Use with caution!
+ *
+ * @param {Function} done
+ */
+LocalBackend.prototype.clear = function(done) {
+  localforage.clear(done);
+};
 
 /**
  * Get the primary key `model` is stored under.

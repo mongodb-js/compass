@@ -2,15 +2,24 @@ var createErrback = require('./create-errback');
 // var debug = require('debug')('storage-mixin:sync:base');
 
 /**
- * @class {Base}
- * @interface {Base} A base interface to extend from to implement
+ * @class {BaseBackend}
+ * @interface {BaseBackend} A base interface to extend from to implement
  * storage backends for `ampersand-model` and `ampersand-collection`.
  *
  * @example `./disk.js`
  * @example `./local.js`
  */
-function Base() {
+function BaseBackend() {
 }
+
+/**
+ * Clear the entire namespace. Use with caution!
+ *
+ * @param {Function} done
+ */
+BaseBackend.prototype.clear = function(done) {
+  done(new Error('Not implemented'));
+};
 
 /**
  * Respond to `read` requests for models.
@@ -21,7 +30,7 @@ function Base() {
  *
  * @see http://ampersandjs.com/docs#ampersand-model-fetch
  */
-Base.prototype.findOne = function(model, options, done) {
+BaseBackend.prototype.findOne = function(model, options, done) {
   done(new Error('Not implemented'));
 };
 
@@ -34,7 +43,7 @@ Base.prototype.findOne = function(model, options, done) {
  *
  * @see http://ampersandjs.com/docs#ampersand-model-save
  */
-Base.prototype.create = function(model, options, done) {
+BaseBackend.prototype.create = function(model, options, done) {
   done(new Error('Not implemented'));
 };
 
@@ -47,7 +56,7 @@ Base.prototype.create = function(model, options, done) {
  *
  * @see http://ampersandjs.com/docs#ampersand-model-save
  */
-Base.prototype.update = function(model, options, done) {
+BaseBackend.prototype.update = function(model, options, done) {
   done(new Error('Not implemented'));
 };
 
@@ -60,7 +69,7 @@ Base.prototype.update = function(model, options, done) {
  *
  * @see http://ampersandjs.com/docs#ampersand-model-destroy
  */
-Base.prototype.remove = function(model, options, done) {
+BaseBackend.prototype.remove = function(model, options, done) {
   done(new Error('Not implemented'));
 };
 
@@ -73,21 +82,9 @@ Base.prototype.remove = function(model, options, done) {
  *
  * @see http://ampersandjs.com/docs#ampersand-collection-fetch
  */
-Base.prototype.find = function(collection, options, done) {
+BaseBackend.prototype.find = function(collection, options, done) {
   done(new Error('Not implemented'));
 };
-
-
-/**
- * Prepare a model for persistence.
- *
- * @param {ampersand-model} model
- */
-// Base.prototype.serialize = function(model) {
-//   return model.serialize({
-//     all: true
-//   });
-// };
 
 /**
  * Deserialize from the backend.
@@ -95,7 +92,7 @@ Base.prototype.find = function(collection, options, done) {
  * @param {JSON}  msg
  * @return {ampersand-model}
  */
-Base.prototype.deserialize = function(msg) {
+BaseBackend.prototype.deserialize = function(msg) {
   return JSON.parse(msg);
 };
 
@@ -106,10 +103,11 @@ Base.prototype.deserialize = function(msg) {
  * @param {Function} [done] - Optional errback that will handle calling
  * `options.success` or `options.error`.  If not supplied, one will be created
  * automatically.
+ *
  * @api private
  * @see http://ampersandjs.com/docs#ampersand-model-sync
  */
-Base.prototype.exec = function(method, model, options, done) {
+BaseBackend.prototype.exec = function(method, model, options, done) {
   if (!done) {
     done = createErrback(method, model, options);
   }
@@ -129,4 +127,4 @@ Base.prototype.exec = function(method, model, options, done) {
   }
 };
 
-module.exports = Base;
+module.exports = BaseBackend;

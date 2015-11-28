@@ -3,17 +3,23 @@ var BaseBackend = require('./base');
 var fs = require('fs');
 var path = require('path');
 var async = require('async');
+var _ = require('lodash');
+var rimraf = require('rimraf');
 
 var debug = require('debug')('storage-mixin:sync:disk');
 
-
-function DiskBackend(namespace, storePath) {
-  storePath = storePath || '.';
+function DiskBackend(options) {
   if (!(this instanceof DiskBackend)) {
-    return new DiskBackend(namespace);
+    return new DiskBackend(options);
   }
-  this.namespace = namespace;
-  this.path = path.join(storePath, namespace);
+
+  options = _.defaults(options, {
+    basepath: '.'
+  });
+
+  this.namespace = options.namespace;
+  this.path = path.join(options.basepath, options.namespace);
+
   // create path synchronously so we can use the model right away
   try {
     /* eslint no-sync: 0 */
@@ -26,6 +32,15 @@ function DiskBackend(namespace, storePath) {
 }
 inherits(DiskBackend, BaseBackend);
 
+
+/**
+ * Clear the entire namespace. Use with caution!
+ *
+ * @param {Function} done
+ */
+BaseBackend.prototype.clear = function(done) {
+  rimraf(path.join(this.path, '*'), done);
+};
 
 DiskBackend.prototype._getFilePath = function(model) {
   var id = (typeof model === 'string') ? model : model.getId();

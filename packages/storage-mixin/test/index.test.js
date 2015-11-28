@@ -4,7 +4,7 @@ var Model = require('ampersand-model');
 var assert = require('assert');
 var format = require('util').format;
 
-var backendNames = Object.keys(require('../lib/backends'));
+var backends = require('../lib/backends');
 
 // var debug = require('debug')('storage-mixin:test');
 
@@ -30,11 +30,20 @@ var Spaceship = Model.extend({
 });
 
 describe('storage-mixin', function() {
-  backendNames.forEach(function(backendName) {
+  Object.keys(backends).forEach(function(backendName) {
     describe(format('storage backend `%s`', backendName), function() {
+      // clear namespace of this backend before the tests
+      before(function(done) {
+        var backend = new backends[backendName]({
+          namespace: 'Spaceship'
+        });
+        backend.clear(done);
+      });
+
       var StorableSpaceship;
       var spaceship;
 
+      // create a storable class with this backend
       before(function() {
         StorableSpaceship = Spaceship.extend(storageMixin, {
           storage: {
@@ -45,6 +54,7 @@ describe('storage-mixin', function() {
       });
 
       beforeEach(function() {
+        // instantiate a model of the storable class
         spaceship = new StorableSpaceship({
           name: 'Battlestar Galactica',
           enableJetpacks: true,
