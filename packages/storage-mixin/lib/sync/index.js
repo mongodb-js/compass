@@ -1,3 +1,4 @@
 module.exports = {
-  local: require('./local')
+  local: require('./local'),
+  disk: require('./disk')
 };

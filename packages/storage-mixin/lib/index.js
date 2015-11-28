@@ -20,24 +20,8 @@ var syncLayers = require('./sync');
  * @type {String}
  */
 module.exports = {
-  props: {
-    storage: {
-      type: 'string',
-      required: true,
-      default: 'local',
-      values: ['local', 'keychain', 'memory', 'disk', 'remote']
-    },
-    _synclayer: {
-      type: 'object',
-      default: null,
-      required: false
-    }
-  },
+  storage: 'none',
   initialize: function() {
-    this.listenToAndRun(this, 'change:storage', this._storageChanged.bind(this));
-  },
-  _storageChanged: function() {
-    // @todo uninitialize old storage layer
     this._synclayer = syncLayers[this.storage](this.namespace);
   },
   sync: function(method, model, options) {
