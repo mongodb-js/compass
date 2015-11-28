@@ -1,12 +1,12 @@
 {
-  "name": "app-preferences",
-  "description": "Store application preferences with various storage backends",
-  "bugs": "https://github.com/mongodb-js/app-preferences/issues",
-  "homepage": "https://github.com/mongodb-js/app-preferences",
+  "name": "storage-mixin",
+  "description": "Ampersand model mixin to persist data via various storage backends",
+  "bugs": "https://github.com/mongodb-js/storage-mixin/issues",
+  "homepage": "https://github.com/mongodb-js/storage-mixin",
   "version": "0.0.1",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mongodb-js/app-preferences.git"
+    "url": "https://github.com/mongodb-js/storage-mixin.git"
   },
   "contributors": [
     {

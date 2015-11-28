@@ -4,7 +4,7 @@ var localforage = require('localforage');
 var BaseLayer = require('./base');
 var _ = require('lodash');
 var async = require('async');
-var debug = require('debug')('app-preferences:sync:local');
+var debug = require('debug')('storage-mixin:sync:local');
 
 
 /**
@@ -50,23 +50,24 @@ function LocalLayer(namespace) {
 
   // configure localforage
   localforage.config({
-    driver: localforage.INDEXEDDB,
-    name: 'app-preferences',
+    // driver: localforage.INDEXEDDB,
+    driver: localforage.LOCALSTORAGE,
+    name: 'storage-mixin',
     storeName: namespace
   });
 }
 inherits(LocalLayer, BaseLayer);
 
-// /**
-//  * Exclude property names that contain `password`
-//  * because we don't want to store passwords in
-//  * plaintext.
-//  *
-//  * @param {ampersand-model} model
-//  * @return {Object}
-//  */
+/**
+ * Exclude property names that contain `password`
+ * because we don't want to store passwords in
+ * plaintext.
+ *
+ * @param {ampersand-model} model
+ * @return {Object}
+ */
 // LocalLayer.prototype.serialize = function(model) {
-//   return omit(model.serialize({
+//   return _.omit(model.serialize({
 //     all: true
 //   }), function(val, key) {
 //     return (/password/).test(key);
@@ -77,6 +78,8 @@ inherits(LocalLayer, BaseLayer);
  * Get the primary key `model` is stored under.
  *
  * @param {ampersand-model} model
+ * @return {Any}
+ *
  * @api private
  */
 LocalLayer.prototype._key = function(model) {
@@ -93,7 +96,7 @@ LocalLayer.prototype._key = function(model) {
  * @api private
  */
 LocalLayer.prototype._write = function(model, options, done) {
-  localforage.setItem(this._key(model), this.serialize(model), done);
+  localforage.setItem(this._key(model), model.serialize(), done);
 };
 
 /**

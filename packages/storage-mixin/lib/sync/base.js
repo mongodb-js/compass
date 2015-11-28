@@ -1,5 +1,5 @@
 var createErrback = require('./create-errback');
-var debug = require('debug')('app-preferences:sync:base');
+// var debug = require('debug')('storage-mixin:sync:base');
 
 /**
  * @class {Base}
@@ -22,7 +22,7 @@ function Base() {
  * @see http://ampersandjs.com/docs#ampersand-model-fetch
  */
 Base.prototype.findOne = function(model, options, done) {
-  return done(new Error('Not implemented'));
+  done(new Error('Not implemented'));
 };
 
 /**
@@ -35,7 +35,7 @@ Base.prototype.findOne = function(model, options, done) {
  * @see http://ampersandjs.com/docs#ampersand-model-save
  */
 Base.prototype.create = function(model, options, done) {
-  return done(new Error('Not implemented'));
+  done(new Error('Not implemented'));
 };
 
 /**
@@ -48,7 +48,7 @@ Base.prototype.create = function(model, options, done) {
  * @see http://ampersandjs.com/docs#ampersand-model-save
  */
 Base.prototype.update = function(model, options, done) {
-  return done(new Error('Not implemented'));
+  done(new Error('Not implemented'));
 };
 
 /**
@@ -61,7 +61,7 @@ Base.prototype.update = function(model, options, done) {
  * @see http://ampersandjs.com/docs#ampersand-model-destroy
  */
 Base.prototype.remove = function(model, options, done) {
-  return done(new Error('Not implemented'));
+  done(new Error('Not implemented'));
 };
 
 /**
@@ -74,7 +74,7 @@ Base.prototype.remove = function(model, options, done) {
  * @see http://ampersandjs.com/docs#ampersand-collection-fetch
  */
 Base.prototype.find = function(collection, options, done) {
-  return done(new Error('Not implemented'));
+  done(new Error('Not implemented'));
 };
 
 
@@ -83,16 +83,17 @@ Base.prototype.find = function(collection, options, done) {
  *
  * @param {ampersand-model} model
  */
-Base.prototype.serialize = function(model) {
-  return model.serialize({
-    all: true
-  });
-};
+// Base.prototype.serialize = function(model) {
+//   return model.serialize({
+//     all: true
+//   });
+// };
 
 /**
  * Deserialize from the backend.
  *
- * @param {ampersand-model} model
+ * @param {JSON}  msg
+ * @return {ampersand-model}
  */
 Base.prototype.deserialize = function(msg) {
   return JSON.parse(msg);
@@ -109,13 +110,6 @@ Base.prototype.deserialize = function(msg) {
  * @see http://ampersandjs.com/docs#ampersand-model-sync
  */
 Base.prototype.exec = function(method, model, options, done) {
-  debug('exec', {
-    method: method,
-    model: model,
-    options: options,
-    done: done
-  });
-
   if (!done) {
     done = createErrback(method, model, options);
   }
