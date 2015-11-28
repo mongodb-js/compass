@@ -6,8 +6,8 @@ var createErrback = require('./create-errback');
  * @interface {Base} A base interface to extend from to implement
  * storage backends for `ampersand-model` and `ampersand-collection`.
  *
- * @example `./keychain.js`
- * @example `./localforage.js`
+ * @example `./disk.js`
+ * @example `./local.js`
  */
 function Base() {
 }

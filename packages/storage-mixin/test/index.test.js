@@ -1,9 +1,10 @@
 var storageMixin = require('../lib');
+
 var Model = require('ampersand-model');
 var assert = require('assert');
 var format = require('util').format;
 
-var storageLayers = Object.keys(require('../lib/sync'));
+var backendNames = Object.keys(require('../lib/backends'));
 
 // var debug = require('debug')('storage-mixin:test');
 
@@ -29,14 +30,17 @@ var Spaceship = Model.extend({
 });
 
 describe('storage-mixin', function() {
-  storageLayers.forEach(function(layer) {
-    describe(format('storage layer `%s`', layer), function() {
+  backendNames.forEach(function(backendName) {
+    describe(format('storage backend `%s`', backendName), function() {
       var StorableSpaceship;
       var spaceship;
 
       before(function() {
         StorableSpaceship = Spaceship.extend(storageMixin, {
-          storage: layer
+          storage: {
+            backend: backendName
+            /* otherwise use default options here */
+          }
         });
       });
 

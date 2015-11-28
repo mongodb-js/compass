@@ -1,5 +1,5 @@
 var inherits = require('util').inherits;
-var BaseLayer = require('./base');
+var BaseBackend = require('./base');
 var fs = require('fs');
 var path = require('path');
 var async = require('async');
@@ -7,10 +7,10 @@ var async = require('async');
 var debug = require('debug')('storage-mixin:sync:disk');
 
 
-function DiskLayer(namespace, storePath) {
+function DiskBackend(namespace, storePath) {
   storePath = storePath || '.';
-  if (!(this instanceof DiskLayer)) {
-    return new DiskLayer(namespace);
+  if (!(this instanceof DiskBackend)) {
+    return new DiskBackend(namespace);
   }
   this.namespace = namespace;
   this.path = path.join(storePath, namespace);
@@ -24,10 +24,10 @@ function DiskLayer(namespace, storePath) {
     }
   }
 }
-inherits(DiskLayer, BaseLayer);
+inherits(DiskBackend, BaseBackend);
 
 
-DiskLayer.prototype._getFilePath = function(model) {
+DiskBackend.prototype._getFilePath = function(model) {
   var id = (typeof model === 'string') ? model : model.getId();
   return path.join(this.path, id + '.json');
 };
@@ -41,7 +41,7 @@ DiskLayer.prototype._getFilePath = function(model) {
  * @param {Function} done
  * @api private
  */
-DiskLayer.prototype._write = function(model, options, done) {
+DiskBackend.prototype._write = function(model, options, done) {
   var file = this._getFilePath(model);
   fs.writeFile(file, JSON.stringify(model.serialize()), 'utf8', done);
 };
@@ -55,7 +55,7 @@ DiskLayer.prototype._write = function(model, options, done) {
  *
  * @see http://ampersandjs.com/docs#ampersand-model-destroy
  */
-DiskLayer.prototype.remove = function(model, options, done) {
+DiskBackend.prototype.remove = function(model, options, done) {
   var file = this._getFilePath(model);
   fs.exists(file, function(exists) {
     if (!exists) {
@@ -68,12 +68,12 @@ DiskLayer.prototype.remove = function(model, options, done) {
 /**
  * Point `update` interface method at our `_write` method.
  */
-DiskLayer.prototype.update = DiskLayer.prototype._write;
+DiskBackend.prototype.update = DiskBackend.prototype._write;
 
 /**
  * Point `create` interface method at our `_write` method.
  */
-DiskLayer.prototype.create = DiskLayer.prototype._write;
+DiskBackend.prototype.create = DiskBackend.prototype._write;
 
 /**
  * Load a model from disk.
@@ -84,7 +84,7 @@ DiskLayer.prototype.create = DiskLayer.prototype._write;
  *
  * @see http://ampersandjs.com/docs#ampersand-model-fetch
  */
-DiskLayer.prototype.findOne = function(model, options, done) {
+DiskBackend.prototype.findOne = function(model, options, done) {
   var file = this._getFilePath(model);
   fs.exists(file, function(exists) {
     if (!exists) {
@@ -108,7 +108,7 @@ DiskLayer.prototype.findOne = function(model, options, done) {
  *
  * @see http://ampersandjs.com/docs#ampersand-collection-fetch
  */
-DiskLayer.prototype.find = function(collection, options, done) {
+DiskBackend.prototype.find = function(collection, options, done) {
   fs.readdir(this.path, function(err, files) {
     if (err) {
       return done(err);
@@ -125,4 +125,4 @@ DiskLayer.prototype.find = function(collection, options, done) {
   });
 };
 
-module.exports = DiskLayer;
+module.exports = DiskBackend;
