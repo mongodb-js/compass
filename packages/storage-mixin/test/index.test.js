@@ -66,13 +66,12 @@ describe('storage-mixin', function() {
       // create storable classes with this backend
       before(function() {
         StorableSpaceship = Spaceship.extend(storageMixin, {
-          storage: {
-            backend: backendName
-            /* otherwise use default options here */
-          }
+          // test with storage string
+          storage: backendName
         });
         StorableFleet = Fleet.extend(storageMixin, {
           model: StorableSpaceship,
+          // test with storage object
           storage: {
             backend: backendName
           }

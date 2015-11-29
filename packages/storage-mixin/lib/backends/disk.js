@@ -109,7 +109,6 @@ DiskBackend.prototype.create = DiskBackend.prototype._write;
  */
 DiskBackend.prototype.findOne = function(model, options, done) {
   var file = this._getFilePath(model);
-  debug('file', file);
   fs.exists(file, function(exists) {
     if (!exists) {
       return done(null, {});
