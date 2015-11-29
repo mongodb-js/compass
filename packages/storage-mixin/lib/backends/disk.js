@@ -6,6 +6,20 @@ var async = require('async');
 var _ = require('lodash');
 var rimraf = require('rimraf');
 
+if (_.isEmpty(fs)) {
+  /**
+   * looks like we're in a browser context. check if we can use electron's
+   * remote module to access fs.
+   */
+  try {
+    /* eslint no-undef: 0 */
+    fs = window.require('remote').require('fs');
+  } catch (e) {
+    // not possible, throw error
+    throw new Error('browser context, `fs` module not available for disk storage');
+  }
+}
+
 var debug = require('debug')('storage-mixin:backends:disk');
 
 function DiskBackend(options) {
@@ -26,9 +40,7 @@ function DiskBackend(options) {
     /* eslint no-sync: 0 */
     fs.mkdirSync(this.path);
   } catch (e) {
-    if (e.code !== 'EEXIST') {
-      throw e;
-    }
+    // ignore error
   }
 }
 inherits(DiskBackend, BaseBackend);
