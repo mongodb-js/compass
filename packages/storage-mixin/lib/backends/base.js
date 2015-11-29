@@ -22,6 +22,16 @@ BaseBackend.prototype.clear = function(done) {
 };
 
 /**
+ * Serialize the model. This base class just calls model.serialize() but
+ * other backends can overwrite this method.
+ *
+ * @param {ampersand-model} model
+ */
+BaseBackend.prototype.serialize = function(model) {
+  return model.serialize();
+};
+
+/**
  * Respond to `read` requests for models.
  *
  * @param {ampersand-model} model

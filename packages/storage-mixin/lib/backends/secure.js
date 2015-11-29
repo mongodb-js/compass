@@ -56,7 +56,7 @@ SecureBackend.prototype.remove = function(model, options, done) {
  */
 SecureBackend.prototype.update = function(model, options, done) {
   keytar.replacePassword(this.namespace, model.getId(),
-    JSON.stringify(model.serialize()));
+    JSON.stringify(this.serialize(model)));
   done();
 };
 
@@ -71,7 +71,7 @@ SecureBackend.prototype.update = function(model, options, done) {
  */
 SecureBackend.prototype.create = function(model, options, done) {
   keytar.addPassword(this.namespace, model.getId(),
-    JSON.stringify(model.serialize()));
+    JSON.stringify(this.serialize(model)));
   done();
 };
 

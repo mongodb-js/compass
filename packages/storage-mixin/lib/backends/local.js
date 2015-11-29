@@ -70,7 +70,7 @@ LocalBackend.prototype._key = function(modelOrKey) {
  * @api private
  */
 LocalBackend.prototype._write = function(model, options, done) {
-  this.store.setItem(this._key(model), model.serialize(), done);
+  this.store.setItem(this._key(model), this.serialize(model), done);
 };
 
 /**

@@ -78,7 +78,7 @@ DiskBackend.prototype._getFilePath = function(modelOrFilename) {
  */
 DiskBackend.prototype._write = function(model, options, done) {
   var file = this._getFilePath(model);
-  fs.writeFile(file, JSON.stringify(model.serialize()), 'utf8', done);
+  fs.writeFile(file, JSON.stringify(this.serialize(model)), 'utf8', done);
 };
 
 /**
