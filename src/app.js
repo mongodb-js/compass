@@ -25,6 +25,7 @@ var localLinks = require('local-links');
 var QueryOptions = require('./models/query-options');
 var Connection = require('./models/connection');
 var MongoDBInstance = require('./models/mongodb-instance');
+var Preferences = require('./models/preferences');
 var User = require('./models/user');
 var Router = require('./router');
 var Statusbar = require('./statusbar');
@@ -55,7 +56,6 @@ function getConnection(model, done) {
   call.failAfter(10);
   call.start();
 }
-
 
 // Inter-process communication with main process (Electron window)
 var ipc = window.require('ipc');
@@ -117,7 +117,8 @@ var Application = View.extend({
     clientStalledTimeout: 'number'
   },
   children: {
-    user: User
+    user: User,
+    preferences: Preferences
   },
   events: {
     'click a': 'onLinkClick',
@@ -153,15 +154,22 @@ var Application = View.extend({
     });
 
     metrics.listen(app);
-
-    User.getOrCreate(function(err, user) {
-      if (err) {
-        metrics.error(err, 'user: get or create');
-        return;
+    this.preferences.fetch({
+      success: function() {
+        User.getOrCreate(this.preferences.currentUserId, function(err, user) {
+          if (err) {
+            metrics.error(err, 'user: get or create');
+            return;
+          }
+          this.user.set(user.serialize());
+          this.user.trigger('sync');
+          this.preferences.save({currentUserId: user.id});
+        }.bind(this));
+      }.bind(this),
+      error: function(model, err) {
+        metrics.error(err, 'preferences: fetch');
       }
-      this.user.set(user.serialize());
-      this.user.trigger('sync');
-    }.bind(this));
+    });
 
     app.statusbar.hide();
   },
@@ -249,8 +257,7 @@ var state = new Application({
 });
 
 /**
- * @todo (imlucas): Feature flags can be overridden
- * via `window.localStorage`.
+ * @todo (imlucas): Feature flags can be overridden via preferences.
  */
 var FEATURES = {
   querybuilder: true,
@@ -354,6 +361,12 @@ Object.defineProperty(app, 'instance', {
 Object.defineProperty(app, 'queryOptions', {
   get: function() {
     return state.queryOptions;
+  }
+});
+
+Object.defineProperty(app, 'preferences', {
+  get: function() {
+    return state.preferences;
   }
 });
 

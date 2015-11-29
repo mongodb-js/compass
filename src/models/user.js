@@ -1,53 +1,49 @@
 var Model = require('ampersand-model');
-var MetadataSync = require('./sync/metadata');
-var sync = new MetadataSync('com.mongodb.compass.User');
+var storageMixin = require('storage-mixin');
 var uuid = require('uuid');
 
-var User = Model.extend({
-  modelType: 'User',
+// var debug = require('debug')('scout:user');
+
+var User = Model.extend(storageMixin, {
+  idAttribute: 'id',
+  namespace: 'Users',
+  storage: 'local',
   props: {
-    id: 'string',
+    id: {
+      type: 'string',
+      required: true,
+      default: function() {
+        return uuid.v4();
+      }
+    },
     name: 'string',
     email: 'string',
-    created_at: 'date',
-    avatar_url: 'string',
-    company_name: 'string'
-  // github_username: 'string',
-  /**
-   * `public_repos + public_gists + followers + following`
-   */
-  // github_score: 'number',
-  // github_last_activity_at: 'date'
-  },
-  sync: sync.exec.bind(sync)
+    createdAt: 'date',
+    lastUsed: 'date',
+    avatarUrl: 'string',
+    companyName: 'string'
+    // github_username: 'string',
+    // github_score: 'number',
+    // github_last_activity_at: 'date'
+  }
 });
 
-User.getOrCreate = function(done) {
-  var id = localStorage.getItem('user_id');
-  var user;
-
-  if (!id) {
-    id = uuid.v4();
-    localStorage.setItem('user_id', id);
-    user = new User({
-      id: id,
-      created_at: new Date()
-    });
-    user.save();
-    done(null, user);
-  } else {
-    user = new User({
-      id: id
-    });
-    user.fetch({
-      success: function() {
-        done(null, user);
-      },
-      error: function(model, err) {
-        done(err);
-      }
-    });
-  }
+User.getOrCreate = function(userId, done) {
+  var user = new User({
+    id: userId || uuid.v4(),
+    createdAt: new Date()
+  });
+  user.fetch({
+    success: function() {
+      user.save({
+        lastUsed: new Date()
+      });
+      done(null, user);
+    },
+    error: function(model, err) {
+      done(err);
+    }
+  });
 };
 
 module.exports = User;
