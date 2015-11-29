@@ -180,7 +180,6 @@ module.exports = Schema.extend({
         });
         return options.error(model, err);
       }
-      debug('options', options, 'count', count.count);
       model.total = count.count;
       if (model.total === 0) {
         return onEmpty();
@@ -205,7 +204,6 @@ module.exports = Schema.extend({
           counter++;
           if (counter % stepSize === 0) {
             var inc = (100 - status) * stepSize / numSamples;
-            debug(inc);
             app.statusbar.width += inc;
           }
         })

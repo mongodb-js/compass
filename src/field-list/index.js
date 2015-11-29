@@ -3,10 +3,10 @@ var TypeListView = require('./type-list');
 var MinichartView = require('../minicharts');
 var ViewSwitcher = require('ampersand-view-switcher');
 var $ = require('jquery');
-var debug = require('debug')('mongodb-compass:field-list');
 var _ = require('lodash');
 var raf = require('raf');
 var SampledSchema = require('../models/sampled-schema');
+// var debug = require('debug')('mongodb-compass:field-list');
 
 function handleCaret(el) {
   var $el = $(el);
@@ -110,7 +110,6 @@ var FieldView = View.extend({
     if (!this.type_model) {
       this.type_model = this.model.types.at(0);
     }
-    debug('setting miniview for type_model_id `%s`', this.type_model.getId());
     this.minichartView = new MinichartView({
       model: this.type_model,
       parent: this
