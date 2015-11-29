@@ -55,10 +55,15 @@ var HomeView = View.extend({
   },
   render: function() {
     this.renderWithTemplate(this);
-    if (localStorage.lastKnownVersion !== app.meta['App Version']) {
-      this.renderTour();
-      localStorage.lastKnownVersion = app.meta['App Version'];
-    }
+    var self = this;
+    // once prefs are synced (fetched in ../app.js), check if version
+    // is new and show tour.
+    app.preferences.once('sync', function() {
+      if (app.preferences.lastKnownVersion !== app.meta['App Version']) {
+        self.renderTour();
+        app.preferences.save('lastKnownVersion', app.meta['App Version']);
+      }
+    });
   },
   renderTour: function() {
     this.renderSubview(new TourView(), this.queryByHook('tour-container'));
