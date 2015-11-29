@@ -78,9 +78,6 @@ var StorableModel = Model.extend(storageMixin, {
 });
 ```
 
-The `backend` key is always required and decides which backend
-to use. All other keys are optional and backend-dependent.
-
 ### Backends
 
 The following backends are currently supported: `local`, `disk`, `remote`, `null`.
@@ -93,7 +90,7 @@ The backend uses the [`localforage`][localforage] npm module under the hood and
 supports IndexedDB, WebSQL and localStorage drivers. A separate instance of
 the store is created for each `namespace`.
 
-**Additional Options**
+Additional Options
 
 `driver`
 : The driver to be passed on to `localforage`. One of `INDEXEDDB`, `LOCALSTORAGE` or `WEBSQL`. The default is `INDEXEDDB`.
@@ -111,7 +108,7 @@ be stored as:
 /tmp/StorableModels/Apollo 13.json
 ```
 
-**Additional Options**
+Additional Options
 
 `basepath`
 : The base path for file storage. The default is `.`.
@@ -123,7 +120,7 @@ retrieves models to/from a remote server via asynchronous ajax / xhr requests.
 Pass in the [`url`][ampersand-model-url] value as an option or set it
 directly on the model.
 
-**Additional Options**
+Additional Options
 
 `url`
 : The url to fetch the model/collection, see [ampersand-model#url][ampersand-model-url].
@@ -142,12 +139,10 @@ Apache 2.0
 
 [travis_img]: https://img.shields.io/travis/mongodb-js/storage-mixin.svg?style=flat-square
 [travis_url]: https://travis-ci.org/mongodb-js/storage-mixin
-[npm_img]: https://img.shields.io/npm/v/mongodb-storage-mixin.svg?style=flat-square
-[npm_url]: https://www.npmjs.org/package/mongodb-storage-mixin
+[npm_img]: https://img.shields.io/npm/v/storage-mixin.svg?style=flat-square
+[npm_url]: https://www.npmjs.org/package/storage-mixin
 [inch_img]: http://inch-ci.org/github/mongodb-js/storage-mixin.svg?branch=master
 [inch_url]: http://inch-ci.org/github/mongodb-js/storage-mixin
-[gitter_img]: https://badges.gitter.im/Join%20Chat.svg
-[gitter_url]: http://gitter.im/mongodb-js/mongodb-js
 [ampersand-sync]: https://github.com/AmpersandJS/ampersand-sync
 [ampersand-save]: https://ampersandjs.com/docs/#ampersand-model-save
 [ampersand-model-url]: https://github.com/AmpersandJS/ampersand-model#url-modelurl-or-modelurl
