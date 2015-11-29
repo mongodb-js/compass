@@ -48,7 +48,8 @@ function clearNamespaces(backendName, namespaces, done) {
 
 describe('storage-mixin', function() {
   Object.keys(backends).forEach(function(backendName) {
-    if (backendName === 'null') {
+    if (['null', 'remote'].indexOf(backendName) !== -1) {
+      // don't test remote or null backends here
       return;
     }
     describe(format('storage backend `%s`', backendName), function() {
