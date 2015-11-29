@@ -98,11 +98,14 @@ Additional Options
 
 #### `disk` Backend
 
-Stores objects as `.json` files on disk at location `<basepath>/<namespace>/<id>.json`.
-Only works in a node.js / server context. `<basepath>` is provided as option.
-The `<namespace>` is set on the model directly, and the `<id>` is the property
-of the model specified by `idAttribute`. The first example on this page would
-be stored as:
+Stores objects as `.json` files on disk. Only works in a node.js / server
+context, or in Electron renderer process where `remote` module is available
+to get access to the `fs` module.
+
+The file location is `<basepath>/<namespace>/<id>.json`. `<basepath>` is
+provided as option. The `<namespace>` is set on the model directly, and the
+`<id>` is the property of the model specified by `idAttribute`. The first
+example on this page would be stored as:
 
 ```
 /tmp/StorableModels/Apollo 13.json
