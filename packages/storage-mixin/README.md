@@ -80,7 +80,9 @@ var StorableModel = Model.extend(storageMixin, {
 
 ### Backends
 
-The following backends are currently supported: `local`, `disk`, `remote`, `null`.
+The following backends are currently supported: `local`, `disk`, `remote`, `null`,
+`secure`, `splice`.
+
 The default is `local`.
 
 #### `local` Backend
@@ -93,7 +95,8 @@ the store is created for each `namespace`.
 Additional Options
 
 `driver`
-: The driver to be passed on to `localforage`. One of `INDEXEDDB`, `LOCALSTORAGE` or `WEBSQL`. The default is `INDEXEDDB`.
+: The driver to be passed on to `localforage`. One of `INDEXEDDB`, `LOCALSTORAGE`
+or `WEBSQL`. The default is `INDEXEDDB`.
 
 
 #### `disk` Backend
@@ -135,6 +138,65 @@ store anything but will return with successful callbacks on all method calls.
 For reads, it will return an empty object `{}` for models, or an empty array
 `[]` for collections.
 
+#### `secure` Backend
+
+The `secure` backend wraps the [`keytar`][keytar] module to persist data into
+a secure keychain, keyring or password manager (works for OS X, Linux, Windows).
+There are some limitations though as the interface does not allow to list all
+keys in a given namespace. Therefore, to fetch a collection, it has to be
+pre-populated with models containing the ids.
+
+```js
+// this won't work !
+var collection = new StorableCollection();
+collection.fetch();
+
+// do this instead
+var collection = new StorableCollection([
+  {id: 'some id'}, {id: 'some other id'}, {id: 'third id'}
+], {parse: true});
+collection.fetch();
+```
+
+The static `.clear()` method that other storage backends possess is also
+a no-op in the `secure` backend for the same reason. Keys have to be deleted
+manually.
+
+#### `splice` Backend
+
+This is a hybrid backend that consists of a `local` and `secure` backend
+under the hood. It also receives a `secureCondition` function as an optional
+argument that takes a `value` and `key` and returns whether or not this key
+should be stored in the `secure` or `local` backend. On retrieval, it merges
+the two results from both backends together to form a complete object again.
+
+This is particularly useful to store user-related data where some fields contain
+sensitive information and should not be stored as clear text, e.g. passwords.
+
+```js
+var Model = require('ampersand-model');
+var storageMixin = require('storage-mixin');
+
+var User = Model.extend(storageMixin, {
+  idAttribute: 'id',
+  namespace: 'Users',
+  storage: {
+    backend: 'splice',
+    secureCondition: function(val, key) {
+      return key.match(/password/i);
+    }
+  },
+  props: {
+    id: 'string',            // stored in `local`
+    name: 'string',          // stored in `local`
+    email: 'string',         // stored in `local`
+    lastLogin: 'date',       // stored in `local`
+    password: 'string',      // stored in `secure`
+    oldPassword: 'string'    // stored in `secure`
+  }
+});
+
+```
 
 ## License
 
@@ -150,3 +212,4 @@ Apache 2.0
 [ampersand-save]: https://ampersandjs.com/docs/#ampersand-model-save
 [ampersand-model-url]: https://github.com/AmpersandJS/ampersand-model#url-modelurl-or-modelurl
 [localforage]: http://mozilla.github.io/localForage/
+[keytar]: https://www.npmjs.com/package/keytar
