@@ -73,6 +73,10 @@ var ConnectView = View.extend({
     clipboardText: {
       type: 'string',
       default: ''
+    },
+    fetched: {
+      type: 'boolean',
+      default: false
     }
   },
   derived: {
@@ -203,7 +207,7 @@ var ConnectView = View.extend({
   subviews: {
     sidebar: {
       hook: 'sidebar-subview',
-      waitFor: 'connections',
+      waitFor: 'fetched',
       prepareView: function(el) {
         return new SidebarView({
           el: el,
@@ -446,6 +450,7 @@ var ConnectView = View.extend({
    * them. We want to avoid creating connection favorites with duplicate names.
    */
   updateConflictingNames: function() {
+    this.fetched = true;
     var conflicts = this.connections.filter(function(model) {
       if (this.connection && this.connection.getId() === model.getId()) {
         return false;

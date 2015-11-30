@@ -4,8 +4,8 @@ var storageMixin = require('storage-mixin');
 var _ = require('lodash');
 
 module.exports = Collection.extend(storageMixin, {
-  namespace: 'Collections',
   model: Connection,
+  namespace: 'Connections',
   storage: 'splice',
   comparator: function(a, b) {
     if (a.is_favorite === b.is_favorite) {
