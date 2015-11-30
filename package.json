@@ -36,6 +36,7 @@
       "glob",
       "ipc",
       "jade",
+      "keytar",
       "menu",
       "octicons",
       "mongodb-scope-server"
