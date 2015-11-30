@@ -1,18 +1,11 @@
 var storageMixin = require('../lib');
-
-var wrapErrback = require('../lib/backends/errback').wrapErrback;
-var helpers = require('./helpers');
 var assert = require('assert');
+var helpers = require('./helpers');
 
-// var debug = require('debug')('storage-mixin:splice:test');
+// var debug = require('debug')('storage-mixin:test');
 
-describe('storage backend `splice`', function() {
-  var backendOptions = {
-    backend: 'splice',
-    secureCondition: function(val, key) {
-      return key.match(/password/);
-    }
-  };
+describe('storage backend `secure`', function() {
+  var backendOptions = 'secure';
 
   var StorableSpaceship;
   var StorableFleet;
@@ -20,6 +13,7 @@ describe('storage backend `splice`', function() {
   var spaceship;
   var fleet;
 
+  // create storable classes with this backend
   StorableSpaceship = helpers.Spaceship.extend(storageMixin, {
     storage: backendOptions
   });
@@ -35,11 +29,11 @@ describe('storage backend `splice`', function() {
 
   // clear namespaces of this backend before and after the tests
   before(function(done) {
-    helpers.clearNamespaces('splice', ['Spaceships', 'Planets', 'Users'], done);
+    helpers.clearNamespaces('secure', ['Spaceships', 'Planets'], done);
   });
 
   after(function(done) {
-    helpers.clearNamespaces('splice', ['Spaceships', 'Planets', 'Users'], done);
+    helpers.clearNamespaces('secure', ['Spaceships', 'Planets'], done);
   });
 
   after(function(done) {
@@ -103,61 +97,4 @@ describe('storage backend `splice`', function() {
   it.skip('should create a new model in a collection');
   it.skip('should fetch collections');
   it.skip('should remove correctly');
-
-
-  describe('splitting and combining models', function() {
-    var user;
-    var StorableUser;
-
-    before(function() {
-      StorableUser = helpers.User.extend(storageMixin, {
-        storage: backendOptions
-      });
-    });
-
-    beforeEach(function() {
-      user = new StorableUser({
-        id: 'apollo',
-        name: 'Lee Adama',
-        email: 'apollo@galactica.com',
-        password: 'cyl0nHunt3r'
-      });
-    });
-
-    it('should not store the password in `local` backend', function(done) {
-      user.save(null, wrapErrback(function(err, res) {
-        if (err) {
-          return done(err);
-        }
-        user._storageBackend.localBackend.exec('read', 'apollo', wrapErrback(function(err2, stored) {
-          if (err2) {
-            return done(err2);
-          }
-          assert.ok(stored.id);
-          assert.ok(stored.name);
-          assert.ok(stored.email);
-          assert.equal(stored.password, undefined);
-          done(null, res);
-        }));
-      }));
-    });
-
-    it('should only store the password in `secure` backend', function(done) {
-      user.save(null, wrapErrback(function(err, res) {
-        if (err) {
-          return done(err);
-        }
-        user._storageBackend.secureBackend.exec('read', 'apollo', wrapErrback(function(err2, stored) {
-          if (err2) {
-            return done(err2);
-          }
-          assert.ok(stored.password);
-          assert.equal(stored.id, undefined);
-          assert.equal(stored.name, undefined);
-          assert.equal(stored.email, undefined);
-          done(null, res);
-        }));
-      }));
-    });
-  });
 });

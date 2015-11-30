@@ -6,6 +6,8 @@ var async = require('async');
 var _ = require('lodash');
 var rimraf = require('rimraf');
 
+var debug = require('debug')('storage-mixin:backends:disk');
+
 if (_.isEmpty(fs)) {
   /**
    * looks like we're in a browser context. check if we can use electron's
@@ -19,8 +21,6 @@ if (_.isEmpty(fs)) {
     throw new Error('browser context, `fs` module not available for disk storage');
   }
 }
-
-var debug = require('debug')('storage-mixin:backends:disk');
 
 function DiskBackend(options) {
   if (!(this instanceof DiskBackend)) {
@@ -152,7 +152,7 @@ DiskBackend.prototype.find = function(collection, options, done) {
     }
 
     if (files.length === 0) {
-      debug('no keys found for namespace `%s`', this.namespace);
+      debug('no keys found for namespace `%s`', self.namespace);
       return done(null, []);
     }
 

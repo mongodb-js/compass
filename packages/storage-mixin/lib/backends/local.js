@@ -116,7 +116,7 @@ LocalBackend.prototype.find = function(collection, options, done) {
     }
 
     if (keys.length === 0) {
-      debug('no keys found for namespace `%s`', this.namespace);
+      debug('no keys found for namespace `%s`', self.namespace);
       return done(null, []);
     }
 

@@ -101,6 +101,16 @@ BaseBackend.prototype.find = function(collection, options, done) {
 };
 
 /**
+ * Serialize model.
+ *
+ * @param {ampersand-model}  model
+ * @return {Object}
+ */
+BaseBackend.prototype.serialize = function(model) {
+  return model.serialize();
+};
+
+/**
  * Deserialize from the backend.
  *
  * @param {JSON}  msg

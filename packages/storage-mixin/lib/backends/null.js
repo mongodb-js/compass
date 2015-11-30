@@ -13,11 +13,11 @@ function NullBackend(options) {
 inherits(NullBackend, BaseBackend);
 
 
+NullBackend.clear = function(namespace, done) {
+  done();
+};
+
 NullBackend.prototype._done = function(model, options, done) {
-  // clear doesn't take model or options
-  if (done === undefined) {
-    done = model;
-  }
   done();
 };
 
@@ -28,7 +28,6 @@ NullBackend.prototype._done = function(model, options, done) {
 NullBackend.prototype.remove = NullBackend.prototype._done;
 NullBackend.prototype.update = NullBackend.prototype._done;
 NullBackend.prototype.create = NullBackend.prototype._done;
-NullBackend.prototype.clear = NullBackend.prototype._done;
 
 /**
  * Return an empty object for read on models
