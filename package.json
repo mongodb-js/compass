@@ -107,6 +107,7 @@
     "highlight.js": "^8.9.1",
     "jade": "^1.11.0",
     "jquery": "^2.1.4",
+    "keytar": "mongodb-js/node-keytar#compass-production",
     "local-links": "^1.4.0",
     "localforage": "^1.3.0",
     "lodash": "^3.10.1",
