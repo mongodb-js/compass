@@ -4,7 +4,7 @@ var SelectView = require('ampersand-select-view');
 var authOptions = require('./authentication');
 var sslOptions = require('./ssl');
 var FilteredCollection = require('ampersand-filtered-subcollection');
-// var debug = require('debug')('scout:connect:connect-form-view');
+// var debug = require('debug')('mongodb-compass:connect:connect-form-view');
 
 
 require('bootstrap/js/popover');

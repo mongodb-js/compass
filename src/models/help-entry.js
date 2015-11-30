@@ -1,6 +1,6 @@
 var State = require('ampersand-state');
 var format = require('util').format;
-var debug = require('debug')('scout:models:help-entry');
+var debug = require('debug')('mongodb-compass:models:help-entry');
 
 var HelpEntry = State.extend({
   namespace: 'HelpEntry',

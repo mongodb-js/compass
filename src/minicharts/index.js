@@ -11,7 +11,7 @@ var QueryBuilderMixin = require('./querybuilder');
 var Collection = require('ampersand-collection');
 var navigator = window.navigator;
 
-// var debug = require('debug')('scout:minicharts:index');
+// var debug = require('debug')('mongodb-compass:minicharts:index');
 
 var ArrayCollection = Collection.extend({
   model: Array

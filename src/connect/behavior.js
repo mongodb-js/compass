@@ -3,7 +3,7 @@ var assert = require('assert');
 var Connection = require('../models/connection');
 var _ = require('lodash');
 
-// var debug = require('debug')('scout:connect:behavior');
+// var debug = require('debug')('mongodb-compass:connect:behavior');
 
 module.exports = State.extend({
   props: {

@@ -5,7 +5,7 @@ var fs = require('fs');
 var chalk = require('chalk');
 var figures = require('figures');
 var packager = require('electron-packager');
-var debug = require('debug')('scout:tasks:linux');
+var debug = require('debug')('mongodb-compass:tasks:linux');
 
 var APP_PATH = path.resolve(__dirname, '../dist/MongoDBCompass-linux-x64');
 module.exports.ELECTRON = path.join(APP_PATH, 'MongoDBCompass');

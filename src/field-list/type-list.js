@@ -3,7 +3,7 @@ var format = require('util').format;
 var numeral = require('numeral');
 var tooltipMixin = require('../tooltip-mixin');
 var _ = require('lodash');
-// var debug = require('debug')('scout:field-list:type-list');
+// var debug = require('debug')('mongodb-compass:field-list:type-list');
 
 var TypeListView;
 

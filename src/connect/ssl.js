@@ -9,7 +9,7 @@ var InputView = require('./input-view');
 var FileReaderView = require('./filereader-view');
 var inputTemplate = require('./input-default.jade');
 
-// var debug = require('debug')('scout:connect:ssl');
+// var debug = require('debug')('mongodb-compass:connect:ssl');
 
 var NONE = {
   _id: 'NONE',

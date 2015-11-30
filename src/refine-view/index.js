@@ -6,7 +6,7 @@ var EJSON = require('mongodb-extended-json');
 var Query = require('mongodb-language-model').Query;
 var SamplingMessageView = require('../sampling-message');
 
-// var debug = require('debug')('scout:refine-view:index');
+// var debug = require('debug')('mongodb-compass:refine-view:index');
 var EMPTY_QUERY = '{}';
 
 module.exports = AmpersandView.extend({

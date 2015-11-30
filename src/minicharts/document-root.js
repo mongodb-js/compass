@@ -1,6 +1,6 @@
 var VizView = require('./viz');
 var pluralize = require('pluralize');
-// var debug = require('debug')('scout:minicharts:document-root');
+// var debug = require('debug')('mongodb-compass:minicharts:document-root');
 
 module.exports = VizView.extend({
   template: require('./document-root.jade'),

@@ -29,7 +29,6 @@ var license = require('electron-license');
 var format = require('util').format;
 var pkg = require('./package.json');
 
-
 // Platform specific tasks
 var platform = require(path.join(__dirname, 'tasks', process.platform));
 

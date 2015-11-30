@@ -1,4 +1,4 @@
-var debug = require('debug')('scout:models:with-sync');
+var debug = require('debug')('mongodb-compass:models:with-sync');
 var withSync = function(fn) {
   return {
     sync: function(method, model, options) {

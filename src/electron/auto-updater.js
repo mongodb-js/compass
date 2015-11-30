@@ -1,8 +1,8 @@
 var app = require('app');
 var updater = module.exports = require('auto-updater');
-var debug = require('debug')('scout-electron:auto-updater');
+var debug = require('debug')('mongodb-compass:auto-updater');
 
-var FEED_URL = 'http://squirrel.mongodb.parts/scout/releases/latest?version=' + app.getVersion();
+var FEED_URL = 'http://squirrel.mongodb.parts/mongodb-compass/releases/latest?version=' + app.getVersion();
 
 debug('Using feed url', FEED_URL);
 

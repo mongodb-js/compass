@@ -9,7 +9,7 @@ var bindings = require('ampersand-dom-bindings');
 var fileReaderTemplate = require('./filereader-default.jade');
 var assert = require('assert');
 
-// var debug = require('debug')('scout:connect:filereader-view');
+// var debug = require('debug')('mongodb-compass:connect:filereader-view');
 
 module.exports = InputView.extend({
   template: fileReaderTemplate,

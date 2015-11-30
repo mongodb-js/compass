@@ -6,7 +6,7 @@ var InstancePropertyView = require('./instance-properties');
 var CollectionListItemView = require('./collection-list-item');
 var TourView = require('../tour');
 var app = require('ampersand-app');
-var debug = require('debug')('scout:home');
+var debug = require('debug')('mongodb-compass:home');
 
 var HomeView = View.extend({
   props: {

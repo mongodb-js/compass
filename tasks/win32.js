@@ -7,7 +7,7 @@ var chalk = require('chalk');
 var figures = require('figures');
 var packager = require('electron-packager');
 var createInstaller = require('electron-installer-squirrel-windows');
-var debug = require('debug')('scout:tasks:win32');
+var debug = require('debug')('mongodb-compass:tasks:win32');
 
 
 var APP_PATH = path.resolve(__dirname, '../dist/MongoDBCompass-win32-x64');
@@ -22,7 +22,7 @@ var PACKAGER_CONFIG = {
   platform: 'win32',
   arch: 'x64',
   version: pkg.electron_version,
-  icon: path.resolve(__dirname, '../images/win32/scout.icon'),
+  icon: path.resolve(__dirname, '../images/win32/mongodb-compass.ico'),
   overwrite: true,
   prune: true,
   'version-string': {

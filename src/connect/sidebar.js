@@ -1,5 +1,5 @@
 var View = require('ampersand-view');
-// var debug = require('debug')('scout:connect:sidebar');
+// var debug = require('debug')('mongodb-compass:connect:sidebar');
 var FilteredCollection = require('ampersand-filtered-subcollection');
 
 /**

@@ -11,7 +11,7 @@ var debug = require('debug')('electron:index');
 
 if (!require('electron-squirrel-startup')) {
   var app = require('app');
-  var serverctl = require('./scout-server-ctl');
+  var serverctl = require('./mongodb-scope-server-ctl');
 
   app.on('window-all-closed', function() {
     debug('All windows closed.  Quitting app.');

@@ -4,7 +4,7 @@ var mm = require('marky-mark');
 var _ = require('lodash');
 var highlight = require('highlight.js');
 
-var debug = require('debug')('scout:electron:help');
+var debug = require('debug')('mongodb-compass:electron:help');
 
 debug('adding ipc listener for `/help/entries`...');
 ipc.on('/help/entries', function(evt) {

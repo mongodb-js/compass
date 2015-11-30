@@ -1,6 +1,6 @@
 var View = require('ampersand-view');
 var format = require('util').format;
-var debug = require('debug')('scout:help');
+var debug = require('debug')('mongodb-compass:help');
 var relatedTemplate = require('./related.jade');
 var tagTemplate = require('./tags.jade');
 var HelpSectionCollection = require('../models/help-section-collection');

@@ -1,6 +1,6 @@
 var View = require('ampersand-view');
 var app = require('ampersand-app');
-// var debug = require('debug')('scout:sidebar:instace-properties');
+// var debug = require('debug')('mongodb-compass:sidebar:instace-properties');
 var _ = require('lodash');
 
 var InstancePropertiesView = module.exports = View.extend({

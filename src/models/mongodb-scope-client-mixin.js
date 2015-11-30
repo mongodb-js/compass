@@ -30,7 +30,7 @@ module.exports = {
       if (err) {
         return options.error({}, 'error', err.message);
       }
-      raf(function onScoutClientSuccess() {
+      raf(function onClientSuccess() {
         options.success(res, 'success', res);
       });
     };

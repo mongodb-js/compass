@@ -1,6 +1,6 @@
 var View = require('ampersand-view');
 var _ = require('lodash');
-// var debug = require('debug')('scout:statusbar:index');
+// var debug = require('debug')('mongodb-compass:statusbar:index');
 
 var StatusbarView = View.extend({
   props: {

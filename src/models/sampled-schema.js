@@ -5,7 +5,7 @@ var FieldCollection = require('mongodb-schema').FieldCollection;
 var filterableMixin = require('ampersand-collection-filterable');
 var SampledDocumentCollection = require('./sampled-document-collection');
 var es = require('event-stream');
-var debug = require('debug')('scout:models:schema');
+var debug = require('debug')('mongodb-compass:models:schema');
 var metrics = require('mongodb-js-metrics');
 var app = require('ampersand-app');
 

@@ -1,6 +1,6 @@
 var View = require('ampersand-view');
 var jade = require('jade');
-var debug = require('debug')('scout:help:sidebar');
+var debug = require('debug')('mongodb-compass:help:sidebar');
 
 var SidebarItemView = View.extend({
   namespace: 'HelpSidebarItemView',
