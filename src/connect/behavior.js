@@ -222,7 +222,7 @@ module.exports = State.extend({
 
         view.connection.is_favorite = false;
         if (view.connection.last_used) {
-          view.connection.save();
+          view.connection.save(null);
         } else {
           view.connection.destroy();
         }

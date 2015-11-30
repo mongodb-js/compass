@@ -376,7 +376,7 @@ var ConnectView = View.extend({
     if (this.connection.last_used === null) {
       this.connection.destroy();
     } else {
-      this.connection.save();
+      this.connection.save(null);
     }
     this.sidebar.activeItemView = null;
     this.sidebar.collection.deactivateAll();
@@ -400,8 +400,7 @@ var ConnectView = View.extend({
       if (!err) {
         // now save connection
         this.connection = connection;
-        this.connection.last_used = new Date();
-        this.connection.save();
+        this.connection.save({last_used: new Date()});
         this.connections.add(this.connection, {
           merge: true
         });
