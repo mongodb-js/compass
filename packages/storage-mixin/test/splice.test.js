@@ -110,10 +110,28 @@ describe('storage backend `splice`', function() {
     });
   });
 
-  // secure backend doesn't support fetching all keys of a namespace/service.
-  it.skip('should create a new model in a collection');
-  it.skip('should remove correctly');
+  it('should create a new model in a collection', function(done) {
+    fleet.once('sync', function() {
+      done();
+    });
+    fleet.create({
+      name: 'Serenity',
+      enableJetpack: true
+    });
+  });
 
+  it('should remove correctly', function(done) {
+    spaceship.destroy({
+      success: function() {
+        fleet.once('sync', function() {
+          assert.equal(fleet.length, 2);
+          done();
+        });
+        fleet.fetch();
+      },
+      error: done
+    });
+  });
 
   describe('splitting and combining models', function() {
     var user;
