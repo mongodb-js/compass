@@ -1,7 +1,8 @@
 var View = require('ampersand-view');
-var debug = require('debug')('mongodb-compass:sidebar:list-item');
 var ListView = require('./list');
 var _ = require('lodash');
+
+// var debug = require('debug')('mongodb-compass:sidebar:list-item');
 
 var ListItemView = View.extend({
   template: require('./list-item.jade'),
@@ -90,9 +91,6 @@ var ListItemView = View.extend({
         });
       }
     }
-  },
-  initialize: function(options) {
-    debug('view options', options);
   },
   show: function(model) {
     // propagting up
