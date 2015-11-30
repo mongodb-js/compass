@@ -3,7 +3,6 @@ var storageMixin = require('../lib');
 var wrapErrback = require('../lib/backends/errback').wrapErrback;
 var helpers = require('./helpers');
 var assert = require('assert');
-
 var debug = require('debug')('storage-mixin:splice:test');
 
 describe('storage backend `splice`', function() {
@@ -73,6 +72,9 @@ describe('storage backend `splice`', function() {
   });
 
   it('should update and read correctly', function(done) {
+    if (!helpers.keytarAvailable) {
+      this.skip();
+    }
     spaceship.save({warpSpeed: 3.14}, {
       success: function() {
         var otherSpaceship = new StorableSpaceship({
@@ -145,6 +147,9 @@ describe('storage backend `splice`', function() {
     });
 
     it('should split and combine a model correctly', function(done) {
+      if (!helpers.keytarAvailable) {
+        this.skip();
+      }
       user.save({password: 'foobar'}, {
         success: function() {
           var sameUser = new StorableUser({
@@ -179,6 +184,9 @@ describe('storage backend `splice`', function() {
     });
 
     it('should only store the password in `secure` backend', function(done) {
+      if (!helpers.keytarAvailable) {
+        this.skip();
+      }
       user.save(null, wrapErrback(function(err, res) {
         if (err) {
           return done(err);
@@ -201,7 +209,7 @@ describe('storage backend `splice`', function() {
       users.once('sync', function() {
         debug('fetch collections', users.serialize());
         assert.equal(users.length, 1);
-        assert.equal(users.at(0).password, 'cyl0nHunt3r');
+        assert.equal(users.at(0).password, helpers.keytarAvailable ? 'cyl0nHunt3r' : '');
         done();
       });
       users.fetch();

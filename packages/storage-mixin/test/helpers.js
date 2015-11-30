@@ -1,8 +1,13 @@
 var backends = require('../lib/backends');
 var Model = require('ampersand-model');
 var Collection = require('ampersand-rest-collection');
-var keytar = require('keytar');
 var async = require('async');
+var keytar;
+try {
+  keytar = require('keytar');
+} catch (e) {
+  keytar = null;
+}
 
 var debug = require('debug')('storage-mixin:test:helpers');
 
@@ -24,20 +29,22 @@ var clearNamespaces = function(backendName, namespaces, done) {
  * suport clearing the entire namespace automatically. Deletes all keys
  * that are used in the tests.
  */
-backends.secure.clear = function(namespace, done) {
-  debug('monkey patched clear.');
-  var prefix = 'storage-mixin/';
-  if (namespace === 'Spaceships') {
-    keytar.deletePassword(prefix + 'Spaceships', 'Heart of Gold');
-    keytar.deletePassword(prefix + 'Spaceships', 'Serenity');
-    keytar.deletePassword(prefix + 'Spaceships', 'Battlestar Galactica');
-  } else if (namespace === 'Planets') {
-    keytar.deletePassword(prefix + 'Planets', 'Earth');
-  } else if (namespace === 'Users') {
-    keytar.deletePassword(prefix + 'Users', 'apollo');
-  }
-  done();
-};
+if (keytar) {
+  backends.secure.clear = function(namespace, done) {
+    debug('monkey patched clear.');
+    var prefix = 'storage-mixin/';
+    if (namespace === 'Spaceships') {
+      keytar.deletePassword(prefix + 'Spaceships', 'Heart of Gold');
+      keytar.deletePassword(prefix + 'Spaceships', 'Serenity');
+      keytar.deletePassword(prefix + 'Spaceships', 'Battlestar Galactica');
+    } else if (namespace === 'Planets') {
+      keytar.deletePassword(prefix + 'Planets', 'Earth');
+    } else if (namespace === 'Users') {
+      keytar.deletePassword(prefix + 'Users', 'apollo');
+    }
+    done();
+  };
+}
 
 var Spaceship = Model.extend({
   idAttribute: 'name',
@@ -103,6 +110,7 @@ var Users = Collection.extend({
 });
 
 module.exports = {
+  keytarAvailable: !!keytar,
   clearNamespaces: clearNamespaces,
   Spaceship: Spaceship,
   Fleet: Fleet,

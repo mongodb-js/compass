@@ -35,13 +35,17 @@
   "precommit": [
     "check"
   ],
+  "dependency-check": {
+    "ignore": [
+      "keytar"
+    ]
+  },
   "dependencies": {
     "ampersand-model": "^6.0.2",
     "ampersand-rest-collection": "^5.0.0",
     "ampersand-sync": "^4.0.3",
     "async": "^1.5.0",
     "debug": "^2.2.0",
-    "keytar": "^3.0.0",
     "localforage": "^1.3.0",
     "lodash": "^3.10.1",
     "rimraf": "^2.4.4"
@@ -54,5 +58,8 @@
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^0.2.5",
     "pre-commit": "^1.1.2"
+  },
+  "peerDepdendencies": {
+    "keytar": "^3.0.0"
   }
 }

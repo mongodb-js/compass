@@ -1,8 +1,17 @@
 var inherits = require('util').inherits;
 var BaseBackend = require('./base');
-var keytar = require('keytar');
+var NullBackend = require('./null');
 var async = require('async');
 var _ = require('lodash');
+var keytar;
+
+try {
+  keytar = require('keytar');
+} catch (e) {
+  console.warn('keytar module not available. `secure` storage engine will '
+    + 'fall back to `null` storage engine.');
+  keytar = null;
+}
 
 var debug = require('debug')('storage-mixin:backends:secure');
 
@@ -120,4 +129,4 @@ SecureBackend.prototype.find = function(collection, options, done) {
   async.parallel(tasks, done);
 };
 
-module.exports = SecureBackend;
+module.exports = keytar ? SecureBackend : NullBackend;

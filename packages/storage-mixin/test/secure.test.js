@@ -56,6 +56,9 @@ describe('storage backend `secure`', function() {
   });
 
   it('should update and read correctly', function(done) {
+    if (!helpers.keytarAvailable) {
+      this.skip();
+    }
     spaceship.save({warpSpeed: 3.14}, {
       success: function() {
         var otherSpaceship = new StorableSpaceship({
