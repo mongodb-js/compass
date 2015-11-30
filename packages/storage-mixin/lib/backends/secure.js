@@ -41,7 +41,7 @@ SecureBackend.clear = function(namespace, done) {
  * @see http://ampersandjs.com/docs#ampersand-model-destroy
  */
 SecureBackend.prototype.remove = function(model, options, done) {
-  keytar.deletePassword(this.namespace, model.getId());
+  keytar.deletePassword(this.namespace, this._getId(model));
   done();
 };
 
@@ -55,7 +55,7 @@ SecureBackend.prototype.remove = function(model, options, done) {
  * @see http://ampersandjs.com/docs#ampersand-model-save
  */
 SecureBackend.prototype.update = function(model, options, done) {
-  keytar.replacePassword(this.namespace, model.getId(),
+  keytar.replacePassword(this.namespace, this._getId(model),
     JSON.stringify(this.serialize(model)));
   done();
 };
@@ -70,7 +70,7 @@ SecureBackend.prototype.update = function(model, options, done) {
  * @see http://ampersandjs.com/docs#ampersand-model-save
  */
 SecureBackend.prototype.create = function(model, options, done) {
-  keytar.addPassword(this.namespace, model.getId(),
+  keytar.addPassword(this.namespace, this._getId(model),
     JSON.stringify(this.serialize(model)));
   done();
 };
@@ -85,7 +85,7 @@ SecureBackend.prototype.create = function(model, options, done) {
  * @see http://ampersandjs.com/docs#ampersand-model-fetch
  */
 SecureBackend.prototype.findOne = function(model, options, done) {
-  var msg = keytar.getPassword(this.namespace, model.getId());
+  var msg = keytar.getPassword(this.namespace, this._getId(model));
   if (!msg) {
     return done(null, {});
   }

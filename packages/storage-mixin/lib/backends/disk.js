@@ -61,7 +61,7 @@ DiskBackend.clear = function(basepath, namespace, done) {
   rimraf(path.join(basepath, namespace), done);
 };
 
-DiskBackend.prototype._getFilePath = function(modelOrFilename) {
+DiskBackend.prototype._getId = function(modelOrFilename) {
   var id = (typeof modelOrFilename === 'string') ?
     modelOrFilename : modelOrFilename.getId();
   return path.join(this.path, id + '.json');
@@ -77,7 +77,7 @@ DiskBackend.prototype._getFilePath = function(modelOrFilename) {
  * @api private
  */
 DiskBackend.prototype._write = function(model, options, done) {
-  var file = this._getFilePath(model);
+  var file = this._getId(model);
   fs.writeFile(file, JSON.stringify(this.serialize(model)), 'utf8', done);
 };
 
@@ -91,7 +91,7 @@ DiskBackend.prototype._write = function(model, options, done) {
  * @see http://ampersandjs.com/docs#ampersand-model-destroy
  */
 DiskBackend.prototype.remove = function(model, options, done) {
-  var file = this._getFilePath(model);
+  var file = this._getId(model);
   fs.exists(file, function(exists) {
     if (!exists) {
       return done({});
@@ -120,7 +120,7 @@ DiskBackend.prototype.create = DiskBackend.prototype._write;
  * @see http://ampersandjs.com/docs#ampersand-model-fetch
  */
 DiskBackend.prototype.findOne = function(model, options, done) {
-  var file = this._getFilePath(model);
+  var file = this._getId(model);
   fs.exists(file, function(exists) {
     if (!exists) {
       return done(null, {});

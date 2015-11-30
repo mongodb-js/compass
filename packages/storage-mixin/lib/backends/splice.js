@@ -3,10 +3,29 @@ var async = require('async');
 var BaseBackend = require('./base');
 var LocalBackend = require('./local');
 var SecureBackend = require('./secure');
-var createErrback = require('./create-errback');
+var wrapOptions = require('./errback').wrapOptions;
+var wrapErrback = require('./errback').wrapErrback;
 var inherits = require('util').inherits;
 
 var debug = require('debug')('storage-mixin:backends:splice');
+
+/**
+ * Helper function to patch the two backends' serialize() method.
+ *
+ * @param  {[type]} backend           instantiated backend, local or secure
+ * @param  {[type]} secureCondition   filter function that returns true when
+ *                                    the secure backend should be used, e.g.
+ *                                    when a key contains the string `password`
+ */
+// function patchSerializeFn(backend, secureCondition) {
+//   var fn = (backend instanceof SecureBackend) ? _.pick : _.omit;
+//   backend.serialize = function(model) {
+//     var ret = fn(model.serialize(), secureCondition);
+//     return ret;
+//   };
+//   return backend;
+// }
+
 
 function SpliceBackend(options) {
   if (!(this instanceof SpliceBackend)) {
@@ -14,16 +33,34 @@ function SpliceBackend(options) {
   }
 
   options = _.defaults(options, {
-    filter: function(val, key) {
-      return key.match(/warp/) ? 'secure' : 'local';
+    secureCondition: function(val, key) {
+      return key.match(/password/);
     }
   });
 
   this.namespace = options.namespace;
-  this.filter = options.filter;
-  this.localBackend = new LocalBackend(_.omit(options, 'filter'));
-  this.secureBackend = new SecureBackend(_.omit(options, 'filter'));
+
+  // instantiate backends and patch serialize methods
+  var condition = options.secureCondition;
+  // this.localBackend = patchSerializeFn(new LocalBackend(options), condition);
+  // this.secureBackend = patchSerializeFn(new SecureBackend(options), condition);
+
+  // create derived backends
+  LocalBackend.prototype.serialize = function(model) {
+    var res = _.omit(model.serialize(), condition);
+    debug('serialize', res);
+    return res;
+  };
+  this.localBackend = new LocalBackend(options);
+
+  SecureBackend.prototype.serialize = function(model) {
+    var res = _.pick(model.serialize(), condition);
+    debug('serialize', res);
+    return res;
+  };
+  this.secureBackend = new SecureBackend(options);
 }
+
 inherits(SpliceBackend, BaseBackend);
 
 /**
@@ -34,42 +71,39 @@ inherits(SpliceBackend, BaseBackend);
  */
 SpliceBackend.clear = function(namespace, done) {
   // call clear for all involved backends
-  var tasks = _.map(this.backends, function(backend) {
-    return backend.clear.bind(null, namespace);
-  });
+  var tasks = [
+    function(cb) {
+      LocalBackend.clear.bind(null, namespace, cb);
+    },
+    function(cb) {
+      SecureBackend.clear.bind(null, namespace, cb);
+    }
+  ];
   async.parallel(tasks, done);
 };
 
-SpliceBackend.prototype.exec = function(method, model, options) {
+SpliceBackend.prototype.exec = function(method, model, options, done) {
   var self = this;
-  var cb = createErrback(method, model, options);
-  var tasks;
+  done = done || wrapOptions(method, model, options);
 
-  var wrapCallback = function(done) {
-    return {
-      success: function(res) {
-        done(null, res);
-      },
-      error: function(res, err) {
-        done(err);
-      }
-    };
-  };
+  var tasks = [
+    function(cb) {
+      debug('calling secure');
+      self.secureBackend.exec(method, model, wrapErrback(cb));
+    },
+    function(cb) {
+      debug('calling local');
+      self.localBackend.exec(method, model, wrapErrback(cb));
+    }
+  ];
 
-  if (method === 'read') {
-    tasks = [
-      function(done) {
-        self.localBackend.exec('read', model, wrapCallback(done));
-      },
-      function(done) {
-        self.secureBackend.exec('read', model, wrapCallback(done));
-      }
-    ];
-    async.parallel(tasks, function(err, res) {
+  async.parallel(tasks, function(err, res) {
+    debug('async parallel method: %s', method, err, res);
+    if (method === 'read') {
+      // merge the two results together
       if (err) {
-        return cb(err);
+        return done(err);
       }
-      // merge results together
       if (model.isCollection) {
         _.each(_.zip(res[0], res[1]), function(pairs) {
           _.assign(pairs[0], pairs[1]);
@@ -77,31 +111,10 @@ SpliceBackend.prototype.exec = function(method, model, options) {
       } else {
         _.assign(res[0], res[1]);
       }
-      return cb(null, res[0]);
-    });
-  }
-
-  var serialized = model.serialize();
-  var models = _.mapValues({'local': 1, 'secure': 1}, function(v, backend) {
-    var keys = _.chain(serialized)
-      .keys()
-      .filter(function(key) {
-        var value = serialized[key];
-        return self.filter(value, key) === backend;
-      })
-      .value();
-    return _.pick(serialized, keys);
-  });
-  debug('spliced models', models);
-  tasks = [
-    function(done) {
-      self.localBackend.exec(method, models.local, wrapCallback(done));
-    },
-    function(done) {
-      self.secureBackend.exec(method, models.secure, wrapCallback(done));
     }
-  ];
-  async.parallel(tasks, cb);
+    debug('res[0] after merge', res[0]);
+    done(null, res[0]);
+  });
 };
 
 module.exports = SpliceBackend;

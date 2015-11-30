@@ -1,5 +1,5 @@
-var createErrback = require('./create-errback');
-var debug = require('debug')('storage-mixin:backends:base');
+var wrapOptions = require('./errback').wrapOptions;
+// var debug = require('debug')('storage-mixin:backends:base');
 
 /**
  * @class {BaseBackend}
@@ -22,13 +22,17 @@ BaseBackend.prototype.clear = function(done) {
 };
 
 /**
- * Serialize the model. This base class just calls model.serialize() but
+ * Returns the id of a model, or a string if model is a string
  * other backends can overwrite this method.
  *
- * @param {ampersand-model} model
+ * @param {ampersand-model} modelOrString
+ * @return {Any} id of the model
  */
-BaseBackend.prototype.serialize = function(model) {
-  return model.serialize();
+BaseBackend.prototype._getId = function(modelOrString) {
+  if (typeof modelOrString === 'string') {
+    return modelOrString;
+  }
+  return modelOrString.getId();
 };
 
 /**
@@ -118,10 +122,7 @@ BaseBackend.prototype.deserialize = function(msg) {
  * @see http://ampersandjs.com/docs#ampersand-model-sync
  */
 BaseBackend.prototype.exec = function(method, model, options, done) {
-  if (!done) {
-    done = createErrback(method, model, options);
-  }
-  debug('method', method);
+  done = done || wrapOptions(method, model, options);
 
   if (method === 'read') {
     if (model.isCollection) {

@@ -47,21 +47,9 @@ LocalBackend.clear = function(namespace, done) {
   }
 };
 
-/**
- * Get the primary key `modelOrKey` is stored under. If key is a string,
- * just return it, otherwise
- *
- * @param {ampersand-model | String} modelOrKey
- * @return {Any}
- *
- * @api private
- */
-LocalBackend.prototype._key = function(modelOrKey) {
-  return (typeof modelOrKey === 'object') ? modelOrKey.getId() : modelOrKey;
-};
 
 /**
- * The `_key` API doesn't support atomic updates
+ * The `_getId` API doesn't support atomic updates
  * so `update` and `create` are the same under the hood.
  *
  * @param {ampersand-model} model
@@ -70,7 +58,7 @@ LocalBackend.prototype._key = function(modelOrKey) {
  * @api private
  */
 LocalBackend.prototype._write = function(model, options, done) {
-  this.store.setItem(this._key(model), this.serialize(model), done);
+  this.store.setItem(this._getId(model), this.serialize(model), done);
 };
 
 /**
@@ -83,7 +71,7 @@ LocalBackend.prototype._write = function(model, options, done) {
  * @see http://ampersandjs.com/docs#ampersand-model-fetch
  */
 LocalBackend.prototype.findOne = function(model, options, done) {
-  this.store.getItem(this._key(model), done);
+  this.store.getItem(this._getId(model), done);
 };
 
 /**
@@ -96,7 +84,7 @@ LocalBackend.prototype.findOne = function(model, options, done) {
  * @see http://ampersandjs.com/docs#ampersand-model-destroy
  */
 LocalBackend.prototype.remove = function(model, options, done) {
-  this.store.removeItem(this._key(model), done);
+  this.store.removeItem(this._getId(model), done);
 };
 
 /**
