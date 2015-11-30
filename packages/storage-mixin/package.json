@@ -41,7 +41,7 @@
     "ampersand-sync": "^4.0.3",
     "async": "^1.5.0",
     "debug": "^2.2.0",
-    "keytar": "mongodb-js/node-keytar#compass-production",
+    "keytar": "^3.0.0",
     "localforage": "^1.3.0",
     "lodash": "^3.10.1",
     "rimraf": "^2.4.4"
