@@ -4,7 +4,8 @@ var Collection = require('ampersand-rest-collection');
 var async = require('async');
 var keytar;
 try {
-  keytar = require('keytar');
+  /* eslint no-undef: 0 */
+  keytar = window.require('keytar');
 } catch (e) {
   keytar = null;
 }

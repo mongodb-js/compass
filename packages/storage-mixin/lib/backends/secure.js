@@ -6,7 +6,8 @@ var _ = require('lodash');
 var keytar;
 
 try {
-  keytar = require('keytar');
+  /* eslint no-undef: 0 */
+  keytar = window.require('keytar');
 } catch (e) {
   console.warn('keytar module not available. `secure` storage engine will '
     + 'fall back to `null` storage engine.');

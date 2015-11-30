@@ -1,5 +1,4 @@
 var backends = require('./backends');
-// var debug = require('debug')('storage-mixin');
 
 /**
  * storage-mixin
@@ -9,7 +8,7 @@ var backends = require('./backends');
  */
 module.exports = {
   storage: 'local',
-  initialize: function() {
+  _initializeMixin: function() {
     var storage = (typeof this.storage === 'object') ? this.storage : {
       backend: this.storage
     };
@@ -17,6 +16,9 @@ module.exports = {
     this._storageBackend = new backends[storage.backend](storage);
   },
   sync: function(method, model, options) {
+    if (!this._storageBackend) {
+      this._initializeMixin();
+    }
     this._storageBackend.exec(method, model, options);
   }
 };
