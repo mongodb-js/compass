@@ -1,6 +1,6 @@
 var app = require('ampersand-app');
 var Connection = require('mongodb-connection-model');
-var connectionSync = require('./connection-sync')();
+var storageMixin = require('storage-mixin');
 var client = require('mongodb-scope-client');
 var debug = require('debug')('mongodb-compass:models:connection');
 var uuid = require('uuid');
@@ -9,8 +9,10 @@ var metrics = require('mongodb-js-metrics');
 /**
  * Configuration for connecting to a MongoDB Deployment.
  */
-module.exports = Connection.extend({
+module.exports = Connection.extend(storageMixin, {
   idAttribute: '_id',
+  namespace: 'Connections',
+  storage: 'splice',
   props: {
     _id: {
       type: 'string',
@@ -52,7 +54,6 @@ module.exports = Connection.extend({
     client.test(app.endpoint, model, onTested);
     return this;
   },
-  sync: connectionSync,
   serialize: function() {
     return Connection.prototype.serialize.call(this, {
       all: true

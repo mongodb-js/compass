@@ -1,13 +1,12 @@
-var Collection = require('ampersand-collection');
-var lodashMixin = require('ampersand-collection-lodash-mixin');
+var Collection = require('ampersand-rest-collection');
 var Connection = require('./connection');
-var connectionSync = require('./connection-sync')();
+var storageMixin = require('storage-mixin');
 var _ = require('lodash');
-var restMixin = require('ampersand-collection-rest-mixin');
 
-module.exports = Collection.extend(lodashMixin, restMixin, {
-  namespace: 'ConnectionCollection',
+module.exports = Collection.extend(storageMixin, {
+  namespace: 'Collections',
   model: Connection,
+  storage: 'splice',
   comparator: function(a, b) {
     if (a.is_favorite === b.is_favorite) {
       return a.last_used - b.last_used;
@@ -15,7 +14,6 @@ module.exports = Collection.extend(lodashMixin, restMixin, {
     return a.is_favorite ? -1 : 1;
   },
   mainIndex: '_id',
-  sync: connectionSync,
   indexes: ['name'],
   maxLength: 10,
   _prune: function() {
