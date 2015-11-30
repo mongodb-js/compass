@@ -62,27 +62,20 @@ SpliceBackend.prototype.exec = function(method, model, options, done) {
     function(cb) {
       self.localBackend.exec(method, model, wrapErrback(cb));
     },
-    function(cb) {
-      self.secureBackend.exec(method, model, wrapErrback(cb));
+    function(localRes, cb) {
+      // after receiving the result from `local`, we set it on the the
+      // model/collection here so that `secure` knows the ids.
+      model.set(localRes, {silent: true});
+      self.secureBackend.exec(method, model, wrapErrback(function(err, res) {
+        if (err) {
+          return cb(err);
+        }
+        // once `secure` returned its result, we merge it with `local`'s result
+        cb(null, _.merge(localRes, res));
+      }));
     }
   ];
-
-  async.parallel(tasks, function(err, res) {
-    if (method === 'read') {
-      // merge the two results together
-      if (err) {
-        return done(err);
-      }
-      if (model.isCollection) {
-        _.each(_.zip(res[0], res[1]), function(pairs) {
-          _.assign(pairs[0], pairs[1]);
-        });
-      } else {
-        _.assign(res[0], res[1]);
-      }
-    }
-    done(null, res[0]);
-  });
+  async.waterfall(tasks, done);
 };
 
 module.exports = SpliceBackend;

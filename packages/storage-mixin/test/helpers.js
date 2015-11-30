@@ -97,10 +97,16 @@ var User = Model.extend({
   }
 });
 
+var Users = Collection.extend({
+  namespace: 'Users',
+  model: User
+});
+
 module.exports = {
   clearNamespaces: clearNamespaces,
   Spaceship: Spaceship,
   Fleet: Fleet,
   Planet: Planet,
-  User: User
+  User: User,
+  Users: Users
 };

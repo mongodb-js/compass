@@ -4,7 +4,7 @@ var wrapErrback = require('../lib/backends/errback').wrapErrback;
 var helpers = require('./helpers');
 var assert = require('assert');
 
-// var debug = require('debug')('storage-mixin:splice:test');
+var debug = require('debug')('storage-mixin:splice:test');
 
 describe('storage backend `splice`', function() {
   var backendOptions = {
@@ -17,6 +17,8 @@ describe('storage backend `splice`', function() {
   var StorableSpaceship;
   var StorableFleet;
   var StorablePlanet;
+  var StorableUser;
+  var StorableUsers;
   var spaceship;
   var fleet;
 
@@ -30,6 +32,15 @@ describe('storage backend `splice`', function() {
   });
 
   StorablePlanet = helpers.Planet.extend(storageMixin, {
+    storage: backendOptions
+  });
+
+  StorableUser = helpers.User.extend(storageMixin, {
+    storage: backendOptions
+  });
+
+  StorableUsers = helpers.Users.extend(storageMixin, {
+    model: StorableUser,
     storage: backendOptions
   });
 
@@ -101,26 +112,33 @@ describe('storage backend `splice`', function() {
 
   // secure backend doesn't support fetching all keys of a namespace/service.
   it.skip('should create a new model in a collection');
-  it.skip('should fetch collections');
   it.skip('should remove correctly');
 
 
   describe('splitting and combining models', function() {
     var user;
-    var StorableUser;
-
-    before(function() {
-      StorableUser = helpers.User.extend(storageMixin, {
-        storage: backendOptions
-      });
-    });
-
     beforeEach(function() {
       user = new StorableUser({
         id: 'apollo',
         name: 'Lee Adama',
         email: 'apollo@galactica.com',
         password: 'cyl0nHunt3r'
+      });
+    });
+
+    it('should split and combine a model correctly', function(done) {
+      user.save({password: 'foobar'}, {
+        success: function() {
+          var sameUser = new StorableUser({
+            id: 'apollo'
+          });
+          sameUser.once('sync', function() {
+            assert.equal(sameUser.password, 'foobar');
+            done();
+          });
+          sameUser.fetch();
+        },
+        error: done
       });
     });
 
@@ -158,6 +176,17 @@ describe('storage backend `splice`', function() {
           done(null, res);
         }));
       }));
+    });
+
+    it('should fetch collections', function(done) {
+      var users = new StorableUsers();
+      users.once('sync', function() {
+        debug('fetch collections', users.serialize());
+        assert.equal(users.length, 1);
+        assert.equal(users.at(0).password, 'cyl0nHunt3r');
+        done();
+      });
+      users.fetch();
     });
   });
 });
