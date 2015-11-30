@@ -121,7 +121,7 @@ module.exports = AmpersandView.extend(QueryBuilderMixin, {
       // a simpler coordinate chart
       if (app.isFeatureEnabled('Google Map Minicharts')
         && navigator.onLine
-        && !localStorage.disableGoogleMaps) {
+        && !app.preferences.disableGoogleMaps) {
         this.viewOptions.renderMode = 'html';
         this.viewOptions.height = 250;
         this.viewOptions.vizFn = vizFns.geo;
