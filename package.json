@@ -136,7 +136,7 @@
     "run-series": "^1.1.4",
     "mongodb-scope-client": "http://bin.mongodb.org/js/mongodb-scope-client/v0.6.0/mongodb-scope-client-0.6.0.tar.gz",
     "mongodb-scope-server": "http://bin.mongodb.org/js/mongodb-scope-server/v0.10.0/mongodb-scope-server-0.10.0.tar.gz",
-    "storage-mixin": "^0.3.1",
+    "storage-mixin": "^0.4.0",
     "stream-combiner2": "^1.1.1",
     "uuid": "^2.0.1",
     "vinyl-buffer": "^1.0.0",

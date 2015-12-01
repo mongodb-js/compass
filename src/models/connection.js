@@ -5,6 +5,8 @@ var client = require('mongodb-scope-client');
 var debug = require('debug')('mongodb-compass:models:connection');
 var uuid = require('uuid');
 var metrics = require('mongodb-js-metrics');
+var pkg = require('../../package.json');
+
 
 /**
  * Configuration for connecting to a MongoDB Deployment.
@@ -12,7 +14,10 @@ var metrics = require('mongodb-js-metrics');
 module.exports = Connection.extend(storageMixin, {
   idAttribute: '_id',
   namespace: 'Connections',
-  storage: 'splice',
+  storage: {
+    backend: 'splice',
+    appName: pkg.product_name
+  },
   props: {
     _id: {
       type: 'string',

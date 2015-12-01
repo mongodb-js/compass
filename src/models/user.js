@@ -1,13 +1,17 @@
 var Model = require('ampersand-model');
 var storageMixin = require('storage-mixin');
 var uuid = require('uuid');
+var pkg = require('../../package.json');
 
 // var debug = require('debug')('scout:user');
 
 var User = Model.extend(storageMixin, {
   idAttribute: 'id',
   namespace: 'Users',
-  storage: 'local',
+  storage: {
+    backend: 'local',
+    appName: pkg.product_name
+  },
   props: {
     id: {
       type: 'string',

@@ -2,11 +2,15 @@ var Collection = require('ampersand-rest-collection');
 var Connection = require('./connection');
 var storageMixin = require('storage-mixin');
 var _ = require('lodash');
+var pkg = require('../../package.json');
 
 module.exports = Collection.extend(storageMixin, {
   model: Connection,
   namespace: 'Connections',
-  storage: 'splice',
+  storage: {
+    backend: 'splice',
+    appName: pkg.product_name
+  },
   comparator: function(a, b) {
     if (a.is_favorite === b.is_favorite) {
       return a.last_used - b.last_used;
