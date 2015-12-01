@@ -1,4 +1,5 @@
 var backends = require('./backends');
+// var debug = require('debug')('storage-mixin');
 
 /**
  * storage-mixin
@@ -8,6 +9,13 @@ var backends = require('./backends');
  */
 module.exports = {
   storage: 'local',
+  session: {
+    fetched: {
+      type: 'boolean',
+      required: true,
+      default: false
+    }
+  },
   _initializeMixin: function() {
     var storage = (typeof this.storage === 'object') ? this.storage : {
       backend: this.storage
@@ -19,6 +27,15 @@ module.exports = {
     if (!this._storageBackend) {
       this._initializeMixin();
     }
+    var self = this;
+    var success = options.success;
+    options.success = function(resp) {
+      if (success) {
+        self.fetched = true;
+        success.call(self, resp);
+      }
+    };
+    this.fetched = false;
     this._storageBackend.exec(method, model, options);
   }
 };

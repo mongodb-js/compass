@@ -9,6 +9,7 @@ try {
   /* eslint no-undef: 0 */
   keytar = window.require('keytar');
 } catch (e) {
+  /* eslint no-console: 0 */
   console.warn('keytar module not available. `secure` storage engine will '
     + 'fall back to `null` storage engine.');
   keytar = null;
@@ -91,6 +92,7 @@ SecureBackend.prototype.create = function(model, options, done) {
  * @param {ampersand-model} model
  * @param {Object} options
  * @param {Function} done
+ * @return {None}
  *
  * @see http://ampersandjs.com/docs#ampersand-model-fetch
  */
@@ -112,6 +114,7 @@ SecureBackend.prototype.findOne = function(model, options, done) {
  * @param {ampersand-collection} collection
  * @param {Object} options
  * @param {Function} done
+ * @return {None}
  *
  * @see http://ampersandjs.com/docs#ampersand-collection-fetch
  */
