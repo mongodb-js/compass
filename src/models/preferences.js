@@ -114,28 +114,46 @@ var Preferences = Model.extend(storageMixin, {
       default: true
     },
     /**
-     * Switches to enable/disable various authentication types
+     * Switches to enable/disable various authentication / ssl types
+     *
+     * Warning: currently not hooked into the code, see INT-859.
+     *
      * @type {Boolean}
      */
-    authWithSSL: {
+    authMongodb: {
+      type: 'boolean',
+      required: true,
+      default: true
+    },
+    authKerberos: {
+      type: 'boolean',
+      required: true,
+      default: true
+    },
+    authLdap: {
+      type: 'boolean',
+      required: true,
+      default: true
+    },
+    authX509: {
       type: 'boolean',
       required: true,
       default: false
     },
-    authWithKerberos: {
+    sslUnvalidated: {
       type: 'boolean',
       required: true,
-      default: false
+      default: true
     },
-    authWithLDAP: {
+    sslServer: {
       type: 'boolean',
       required: true,
-      default: false
+      default: true
     },
-    authWithX509: {
+    sslAll: {
       type: 'boolean',
       required: true,
-      default: false
+      default: true
     }
   },
   /**
