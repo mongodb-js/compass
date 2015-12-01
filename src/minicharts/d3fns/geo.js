@@ -60,12 +60,9 @@ var minicharts_d3fns_geo = function() {
 
   var margin = shared.margin;
 
-  function disableMapsFeature(permanent) {
-    // disable both in feature flag (for this run) and localStorage
-    app.setFeature('Google Map Minicharts', false);
-    if (permanent) {
-      localStorage.disableGoogleMaps = true;
-    }
+  function disableMapsFeature() {
+    // disable in preferences and persist
+    app.preferences.save('googleMaps', false);
     delete window.google;
     options.view.parent.render();
   }
@@ -86,19 +83,18 @@ var minicharts_d3fns_geo = function() {
         // maps API key is not valid, we may have had to deactivate it
         message = 'The Google Maps API key used in Compass is no longer '
           + 'valid.';
-        detail = 'Compass will disable the Google Map feature permanently and '
+        detail = 'Compass will disable the Google Map feature and '
           + 'replace the map with a simplified coordinate chart. Please check '
           + 'for an update to Compass to re-enable this feature.';
-        disableMapsFeature(true);
+        disableMapsFeature();
         debug('Error with code "%s" while loading Google Maps. Disabling Geo '
           + 'Querybuilder feature permanently.', errorCode);
       } else {
         message = 'There was a problem loading the Google Map.';
-        detail = 'Compass will disable the Google Map feature temporarily '
-          + 'and replace the map with a simplified coordinate chart. Compass '
-          + 'will try to load a Google Map again next time you use the '
-          + 'application.';
-        disableMapsFeature(false);
+        detail = 'Compass will disable the Google Map feature '
+          + 'and replace the map with a simplified coordinate chart. Please check '
+          + 'for an update to Compass to re-enable this feature.';
+        disableMapsFeature();
         debug('Error with code "%s" while loading Google Maps. Disabling Geo '
           + 'Querybuilder feature temporarily.', errorCode);
       }

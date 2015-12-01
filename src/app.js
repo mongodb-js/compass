@@ -153,7 +153,12 @@ var Application = View.extend({
       root: '/'
     });
 
-    metrics.listen(app);
+    // every time the preferences change, test if we should start one of
+    // the external services.
+    this.preferences.on('sync', function() {
+      metrics.listen(app);
+    });
+
     this.preferences.fetch({
       success: function() {
         User.getOrCreate(this.preferences.currentUserId, function(err, user) {
@@ -256,22 +261,6 @@ var state = new Application({
   connection_id: connectionId
 });
 
-/**
- * @todo (imlucas): Feature flags can be overridden via preferences.
- */
-var FEATURES = {
-  querybuilder: true,
-  keychain: true,
-  'Google Map Minicharts': true,
-  'Connect with SSL': false,
-  'Connect with Kerberos': false,
-  'Connect with LDAP': false,
-  'Connect with X.509': false,
-  intercom: true,
-  bugsnag: true,
-  'google-analytics': true
-};
-
 app.extend({
   client: null,
   config: {
@@ -279,23 +268,9 @@ app.extend({
       app_id: 'p57suhg7'
     }
   },
-  /**
-   * Check whether a feature flag is currently enabled.
-   *
-   * @param {String} id - A key in `FEATURES`.
-   * @return {Boolean}
-   */
-  isFeatureEnabled: function(id) {
-    return FEATURES[id] === true;
-  },
-  /**
-   * Enable or disable a feature programatically.
-   *
-   * @param {String} id - A key in `FEATURES`.
-   * @param {Boolean} bool - whether to enable (true) or disable (false)
-   */
-  setFeature: function(id, bool) {
-    FEATURES[id] = bool;
+  isFeatureEnabled: function(feature) {
+    // proxy to preferences for now
+    return this.preferences.isFeatureEnabled(feature);
   },
   sendMessage: function(msg, arg) {
     ipc.send('message', msg, arg);

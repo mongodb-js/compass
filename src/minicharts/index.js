@@ -119,9 +119,8 @@ module.exports = AmpersandView.extend(QueryBuilderMixin, {
     if (this.model.name === 'Coordinates') {
       // check if we can load google maps or if we need to fall back to
       // a simpler coordinate chart
-      if (app.isFeatureEnabled('Google Map Minicharts')
-        && navigator.onLine
-        && !app.preferences.disableGoogleMaps) {
+      if (app.isFeatureEnabled('googleMaps')
+        && navigator.onLine) {
         this.viewOptions.renderMode = 'html';
         this.viewOptions.height = 250;
         this.viewOptions.vizFn = vizFns.geo;
@@ -152,7 +151,7 @@ module.exports = AmpersandView.extend(QueryBuilderMixin, {
       this.subview = new VizView(this.viewOptions);
     }
 
-    if (app.isFeatureEnabled('querybuilder')) {
+    if (app.isFeatureEnabled('queryBuilder')) {
       this.listenTo(this.subview, 'querybuilder', this.handleQueryBuilderEvent);
     }
     raf(function() {

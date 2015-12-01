@@ -94,23 +94,12 @@ var Preferences = Model.extend(storageMixin, {
     },
     /**
      * Switch to enable/disable automatic updates
+     *
+     * Warning: currently not hooked into the code!
+     *
      * @type {Boolean}
      */
     autoUpdates: {
-      type: 'boolean',
-      required: true,
-      default: false
-    },
-    /**
-     * Switch to anable/disable keychain storage (via the keytar module).
-     *
-     * Warning: currently, this will break connecting to authenticated
-     * connection where a password is required, because it will be lost
-     * between Connect and Schema window.
-     *
-     * @type {Boolean}
-     */
-    keychainStorage: {
       type: 'boolean',
       required: true,
       default: false
@@ -122,7 +111,7 @@ var Preferences = Model.extend(storageMixin, {
     queryBuilder: {
       type: 'boolean',
       required: true,
-      default: false
+      default: true
     },
     /**
      * Switches to enable/disable various authentication types
@@ -160,7 +149,7 @@ var Preferences = Model.extend(storageMixin, {
    *
    * @example
    * ```
-   * app.preferences.isFeatureEnabled('authWithKerberos')
+   * app.isFeatureEnabled('authWithKerberos')
    * ```
    * returns either true or false
    */
