@@ -159,6 +159,10 @@ var Application = View.extend({
       metrics.listen(app);
     });
 
+    this.preferences.once('sync', function() {
+      this.preferences.trigger('page-refresh');
+    }.bind(this));
+
     this.preferences.fetch({
       success: function() {
         User.getOrCreate(this.preferences.currentUserId, function(err, user) {

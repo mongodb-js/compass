@@ -1,0 +1,33 @@
+#networkOptIn.modal.fade(tabindex='-1' role='dialog', data-hook='main-modal')
+  .modal-dialog
+    .model-content
+      .modal-header
+        button.close(type='button', data-dismiss='modal', aria-label='Close', data-hook='close-button')
+          span(aria-hidden='true') &times;
+        h4.modal-title Help us improve Compass
+      .modal-body
+        p We'd like to ask for your help to improve MongoDB Compass and get your feedback. Please choose from the options below: 
+        form
+          ul
+            li
+              p Enable the "Product Feedback" tool to send feedback right from the app and talk to our Product and Development teams.
+              label
+                span Enable Product Feedback
+                input(type='checkbox', name='productFeedback', data-hook='product-feedback-checkbox')
+            
+            li    
+              p Allow Compass to send crash reports containing stack traces and unhandled exceptions. 
+              label
+                span Enable Crash Reports
+                input(type='checkbox', name='crashReports', data-hook='crash-reports-checkbox')
+            
+            li
+              p Allow Compass to send anonymous usage statistics.  
+              label 
+                span Enable Usage Statistics
+                input(type='checkbox', name='usageStats', data-hook='usage-stats-checkbox')
+      
+        p With any of these options, no personal information or any of your stored data will be submitted. 
+                        
+      .modal-footer
+        button.btn.btn-primary(type='button', data-dismiss='modal', data-hook='start-button')

@@ -5,6 +5,7 @@ var CollectionView = require('./collection');
 var InstancePropertyView = require('./instance-properties');
 var CollectionListItemView = require('./collection-list-item');
 var TourView = require('../tour');
+var NetworkOptInView = require('../network-optin');
 var app = require('ampersand-app');
 var debug = require('debug')('mongodb-compass:home');
 
@@ -46,7 +47,8 @@ var HomeView = View.extend({
   initialize: function() {
     this.listenTo(app.instance, 'sync', this.onInstanceFetched);
     this.listenTo(app.connection, 'change:name', this.updateTitle);
-    this.listenTo(app, 'show-compass-overview', this.renderTour);
+    this.listenTo(app, 'show-compass-tour', this.showTour);
+    this.listenTo(app, 'show-network-optin', this.showOptIn);
 
     this.once('change:rendered', this.onRendered);
     debug('fetching instance model...');
@@ -55,18 +57,35 @@ var HomeView = View.extend({
   },
   render: function() {
     this.renderWithTemplate(this);
-    var self = this;
     // once prefs are synced (fetched in ../app.js), check if version
-    // is new and show tour.
-    app.preferences.once('sync', function() {
-      if (app.preferences.lastKnownVersion !== app.meta['App Version']) {
-        self.renderTour();
-        app.preferences.save('lastKnownVersion', app.meta['App Version']);
-      }
-    });
+    // is new and show tour and optin modal.
+    if (app.preferences.fetched) {
+      this.preferencesSynced();
+    } else {
+      app.preferences.once('sync', this.preferencesSynced.bind(this));
+    }
   },
-  renderTour: function() {
-    this.renderSubview(new TourView(), this.queryByHook('tour-container'));
+  preferencesSynced: function() {
+    if (app.preferences.lastKnownVersion !== app.meta['App Version']) {
+      app.preferences.save('lastKnownVersion', app.meta['App Version']);
+      this.showTour();
+    } else {
+      this.tourClosed();
+    }
+  },
+  showTour: function() {
+    var tourView = new TourView();
+    tourView.on('close', this.tourClosed.bind(this));
+    this.renderSubview(tourView, this.queryByHook('tour-container'));
+  },
+  showOptIn: function() {
+    var networkOptInView = new NetworkOptInView();
+    this.renderSubview(networkOptInView, this.queryByHook('optin-container'));
+  },
+  tourClosed: function() {
+    if (!app.preferences.showedNetworkOptIn) {
+      this.showOptIn();
+    }
   },
   onInstanceFetched: function() {
     debug('app.instance fetched', app.instance.serialize());

@@ -150,6 +150,7 @@ var TourView = View.extend({
     this.showHidePreviousNextButtons();
   },
   tourRemove: function() {
+    this.trigger('close');
     this.body.removeEventListener('keydown', this.onKeyPress);
     this.remove();
   }

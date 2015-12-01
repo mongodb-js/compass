@@ -30,7 +30,16 @@ function compassOverviewItem() {
   return {
     label: 'Compass &Overview',
     click: function() {
-      BrowserWindow.getFocusedWindow().webContents.send('message', 'show-compass-overview');
+      BrowserWindow.getFocusedWindow().webContents.send('message', 'show-compass-tour');
+    }
+  };
+}
+
+function networkOptInDialogItem() {
+  return {
+    label: 'Help &Improve Compass',
+    click: function() {
+      BrowserWindow.getFocusedWindow().webContents.send('message', 'show-network-optin');
     }
   };
 }
@@ -161,6 +170,7 @@ function helpSubMenu(showCompassOverview) {
 
   if (showCompassOverview) {
     subMenu.push(compassOverviewItem());
+    subMenu.push(networkOptInDialogItem());
   }
 
   subMenu.push(separator());

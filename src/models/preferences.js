@@ -3,8 +3,10 @@ var storageMixin = require('storage-mixin');
 var pkg = require('../../package.json');
 var _ = require('lodash');
 var format = require('util').format;
+var debug = require('debug')('mongodb-compass:models:preferences');
 
 var Preferences = Model.extend(storageMixin, {
+  extraProperties: 'reject',  // prevents bugs
   idAttribute: 'id',
   namespace: 'Preferences',
   storage: {
@@ -28,6 +30,16 @@ var Preferences = Model.extend(storageMixin, {
     lastKnownVersion: {
       type: 'string',
       required: false
+    },
+    /**
+     * Stores whether or not the network opt-in screen has been shown to
+     * the user already.
+     * @type {String}
+     */
+    showedNetworkOptIn: {
+      type: 'boolean',
+      required: true,
+      default: false
     },
     /**
      * Stores a unique anonymous user ID (uuid) for the current user
@@ -54,7 +66,7 @@ var Preferences = Model.extend(storageMixin, {
     networkTraffic: {
       type: 'boolean',
       required: true,
-      default: false
+      default: true
     },
     /**
      * Switch to enable/disable google maps rendering
@@ -171,6 +183,21 @@ var Preferences = Model.extend(storageMixin, {
    * ```
    * returns either true or false
    */
+  initialize: function() {
+    this.on('page-refresh', this.onPageRefresh.bind(this));
+    this.on('app-restart', this.onAppRestart.bind(this));
+    this.on('app-version-mismatch', this.onAppVersionMismatch.bind(this));
+  },
+  onPageRefresh: function() {
+    debug('app page refresh detected');
+  },
+  onAppRestart: function() {
+    debug('app restart detected');
+  },
+  onAppVersionMismatch: function(lastKnownVersion, currentVersion) {
+    debug('version mismatch detected: was %s, now %s',
+      lastKnownVersion, currentVersion);
+  },
   isFeatureEnabled: function(feature) {
     // master network switch overwrites all network related features
     if (['googleMaps', 'bugsnag', 'intercom',
