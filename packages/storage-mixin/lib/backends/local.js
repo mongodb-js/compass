@@ -14,6 +14,7 @@ function LocalBackend(options) {
     return new LocalBackend(options);
   }
   options = _.defaults(options, {
+    appName: 'storage-mixin',
     driver: 'INDEXEDDB'
   });
 
@@ -25,7 +26,7 @@ function LocalBackend(options) {
   } else {
     this.store = localforage.createInstance({
       driver: localforage[options.driver],
-      name: 'storage-mixin',
+      name: options.appName,
       storeName: this.namespace
     });
     globalStores[this.namespace] = this.store;

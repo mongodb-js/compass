@@ -92,11 +92,16 @@ The backend uses the [`localforage`][localforage] npm module under the hood and
 supports IndexedDB, WebSQL and localStorage drivers. A separate instance of
 the store is created for each `namespace`.
 
-Additional Options
+###### Additional Options
 
 `driver`
 : The driver to be passed on to `localforage`. One of `INDEXEDDB`, `LOCALSTORAGE`
 or `WEBSQL`. The default is `INDEXEDDB`.
+
+`appName`
+: The name of the IndexedDB database (not the data store inside the database,
+  which is the model's `namespace`). Most users will never see this, but it's
+  best practice to use your application name here. Default is `storage-mixin`.
 
 
 #### `disk` Backend
@@ -114,7 +119,7 @@ example on this page would be stored as:
 /tmp/StorableModels/Apollo 13.json
 ```
 
-Additional Options
+###### Additional Options
 
 `basepath`
 : The base path for file storage. The default is `.`.
@@ -126,7 +131,7 @@ retrieves models to/from a remote server via asynchronous ajax / xhr requests.
 Pass in the [`url`][ampersand-model-url] value as an option or set it
 directly on the model.
 
-Additional Options
+###### Additional Options
 
 `url`
 : The url to fetch the model/collection, see [ampersand-model#url][ampersand-model-url].
@@ -162,6 +167,14 @@ The static `.clear()` method that other storage backends possess is also
 a no-op in the `secure` backend for the same reason. Keys have to be deleted
 manually.
 
+
+###### Additional Options
+
+`appName`
+: Entries in the keychain have a key of `<appName>/<namespace>`. As this is
+  visible to the user, you should use your application name here. Default
+  is `storage-mixin`.
+
 #### `splice` Backend
 
 This is a hybrid backend that consists of a `local` and `secure` backend
@@ -173,6 +186,27 @@ the two results from both backends together to form a complete object again.
 This is particularly useful to store user-related data where some fields contain
 sensitive information and should not be stored as clear text, e.g. passwords.
 
+
+###### Additional Options
+
+`appName`
+: Passed to both the `local` and `secure` backends, that acts as a global
+scope (e.g. database name in IndexedDB, prefix in keychain keys). Use your
+application name here. Default is `storage-mixin`.
+
+`secureCondition`
+: Function that decides which keys/values of a model should be stored in the
+`secure` backend vs. the `local` backend. The function takes a value and key
+and must return `true` for the keys that need to be stored securely. Default
+is:
+```js
+function(val, key) {
+  return key.match(/password/i);
+}
+```
+
+###### Example
+
 ```js
 var Model = require('ampersand-model');
 var storageMixin = require('storage-mixin');
@@ -182,6 +216,7 @@ var User = Model.extend(storageMixin, {
   namespace: 'Users',
   storage: {
     backend: 'splice',
+    appName: 'My Cool App',
     secureCondition: function(val, key) {
       return key.match(/password/i);
     }

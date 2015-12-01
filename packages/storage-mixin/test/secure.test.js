@@ -96,6 +96,30 @@ describe('storage backend `secure`', function() {
     });
   });
 
+  it('should use the correct appName/namespace key', function(done) {
+    if (!helpers.keytarAvailable) {
+      this.skip();
+    }
+    var keytar = require('keytar');
+    helpers.clearNamespaces('secure', ['Spaceships', 'Planets'], function(err) {
+      if (err) {
+        done(err);
+      }
+      var earth = new StorablePlanet({
+        name: 'Earth',
+        population: 7000000000
+      });
+      earth.save(null, {
+        success: function() {
+          // check that a key exists with key "storage-mixin/Planets"
+          assert.ok(keytar.findPassword('storage-mixin/Planets'));
+          done();
+        },
+        error: done
+      });
+    });
+  });
+
   // secure backend doesn't support fetching all keys of a namespace/service.
   it.skip('should create a new model in a collection');
   it.skip('should fetch collections');

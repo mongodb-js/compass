@@ -15,6 +15,7 @@ function SpliceBackend(options) {
   }
 
   options = _.defaults(options, {
+    appName: 'storage-mixin',
     secureCondition: function(val, key) {
       return key.match(/password/);
     }

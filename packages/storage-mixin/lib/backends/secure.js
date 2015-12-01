@@ -22,10 +22,10 @@ function SecureBackend(options) {
   }
 
   options = _.defaults(options, {
-    prefix: 'storage-mixin'
+    appName: 'storage-mixin'
   });
 
-  this.namespace = options.prefix + '/' + options.namespace;
+  this.namespace = options.appName + '/' + options.namespace;
 }
 inherits(SecureBackend, BaseBackend);
 
