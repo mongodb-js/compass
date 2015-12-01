@@ -73,10 +73,6 @@ var ConnectView = View.extend({
     clipboardText: {
       type: 'string',
       default: ''
-    },
-    fetched: {
-      type: 'boolean',
-      default: false
     }
   },
   derived: {
@@ -207,7 +203,7 @@ var ConnectView = View.extend({
   subviews: {
     sidebar: {
       hook: 'sidebar-subview',
-      waitFor: 'fetched',
+      waitFor: 'connections.fetched',
       prepareView: function(el) {
         return new SidebarView({
           el: el,
@@ -219,11 +215,16 @@ var ConnectView = View.extend({
   },
   initialize: function() {
     document.title = 'Connect to MongoDB';
-    this.connections.on('sync', this.updateConflictingNames.bind(this));
+    this.connections.once('sync', this.connectionsFetched.bind(this));
     this.connections.fetch();
     this.stateMachine = new BehaviorStateMachine(this);
     this.on('change:connectionNameEmpty',
       this.connectionNameEmptyChanged.bind(this));
+  },
+  connectionsFetched: function() {
+    // this change event will cause the sidebar subview to get rendered
+    this.trigger('change');
+    this.updateConflictingNames();
   },
   render: function() {
     this.renderWithTemplate({
@@ -450,7 +451,6 @@ var ConnectView = View.extend({
    * them. We want to avoid creating connection favorites with duplicate names.
    */
   updateConflictingNames: function() {
-    this.fetched = true;
     var conflicts = this.connections.filter(function(model) {
       if (this.connection && this.connection.getId() === model.getId()) {
         return false;
