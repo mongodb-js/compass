@@ -23,6 +23,7 @@ if (isBrowser) {
  * @api private
  */
 exports.app = null;
+exports.setupDone = false;
 
 /**
  * @param {String} eventName
@@ -83,16 +84,17 @@ exports.getIntercomSettings = function(user) {
  *
  * @api private
  */
-exports.setUser = function(user) {
+exports.setUser = function() {
   if (!exports.app) {
     throw new TypeError('metrics.intercom.setUser called before exports.app set!');
   }
 
   if (!exports.app.isFeatureEnabled('intercom')) {
-    debug('not enabled');
+    debug('intercom is disabled');
     return;
   }
 
+  var user = exports.app.user;
   window.Intercom('boot', exports.getIntercomSettings(user));
 };
 
@@ -155,6 +157,24 @@ exports.update = function() {
   window.Intercom('update', d);
 };
 
+exports.unlisten = function() {
+  if (!exports.setupDone) {
+    return;
+  }
+  if (exports.app) {
+    if (exports.app.user) {
+      debug('removing listener to user');
+      exports.app.user.off('sync', exports.setUser);
+    }
+
+    if (exports.app.router) {
+      debug('removing listener to router');
+      exports.app.router.off('page', exports.update);
+    }
+  }
+  exports.setupDone = false;
+};
+
 /**
  * Injects the intercom client script.
  *
@@ -162,8 +182,16 @@ exports.update = function() {
  * @api private
  */
 exports.listen = function(app) {
+  exports.app = app;
+
   if (!app.isFeatureEnabled('intercom')) {
-    debug('intercom is not enabled');
+    exports.unlisten();
+    debug('intercom is disabled');
+    return;
+  }
+
+  if (exports.setupDone) {
+    debug('intercom set up already.');
     return;
   }
 
@@ -172,8 +200,6 @@ exports.listen = function(app) {
       + 'Update to use new intercom module so this works for server.');
     return;
   }
-
-  exports.app = app;
 
   debug('injecting widget...');
   var head = document.getElementsByTagName('head')[0];
@@ -184,7 +210,13 @@ exports.listen = function(app) {
 
   if (app.user) {
     debug('adding listener to user to boot intercom');
-    app.user.on('sync', exports.setUser.bind(null, app.user));
+    // if user already fetched, set user now
+    if (app.user.fetched) {
+      exports.setUser(app.user);
+    }
+
+    // listen to updates to the user object
+    app.user.on('sync', exports.setUser);
   } else {
     /* eslint no-console:0 */
     console.warn('mongodb-js-metrics:intercom: No `app.user` '
@@ -199,6 +231,7 @@ exports.listen = function(app) {
     console.warn('mongodb-js-metrics:intercom: No `app.router` '
       + 'found so you must call `metrics.intercom.update` manually!');
   }
+  exports.setupDone = true;
   debug('listening!');
 };
 

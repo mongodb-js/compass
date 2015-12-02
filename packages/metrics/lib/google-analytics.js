@@ -3,27 +3,32 @@ var debug = require('debug')('mongodb-js-metrics:google-analytics');
 var _ = require('lodash');
 var TID = 'UA-7301842-14';
 
-exports.visitor = null;
 
 /**
  * @todo (imlucas) Add support for Application Name, ID, Version, etc.
  * https://github.com/peaksandpies/universal-analytics/blob/master/AcceptableParams.md#application-name
  */
 
+exports.visitor = null;
+exports.app = null;
+exports.setupDone = false;
+
 /**
  * @param {Object} [user]
  *
  * @api private
  */
-exports.setUser = function(user) {
+exports.setUser = function() {
   if (!exports.app) {
     throw new TypeError('metrics.googleAnalytics.setUser called before exports.app set!');
   }
 
-  if (!exports.app.isFeatureEnabled('google-analytics')) {
-    debug('not enabled');
+  if (!exports.app.isFeatureEnabled('googleAnalytics')) {
+    debug('google analytics is disabled');
     return;
   }
+
+  var user = exports.app.user;
 
   if (user && user.getId()) {
     exports.visitor = ua(TID, user.getId());
@@ -43,8 +48,8 @@ exports.setUser = function(user) {
  * @param {String} hitType - One of `pageview|screenview|event|transaction|item|social|exception|timing`.
  */
 exports.send = function(hitType, params) {
-  if (!exports.app.isFeatureEnabled('google-analytics')) {
-    debug('not enabled');
+  if (!exports.app.isFeatureEnabled('googleAnalytics')) {
+    debug('google analytics is disabled');
     return;
   }
 
@@ -122,17 +127,41 @@ exports.track = function(title, data) {
   exports.send('event', params);
 };
 
+exports.unlisten = function() {
+  if (!exports.setupDone) {
+    return;
+  }
+  if (exports.app) {
+    if (exports.app.user) {
+      debug('removing listener to user');
+      exports.app.user.off('sync', exports.setUser);
+    }
+
+    if (exports.app.router) {
+      debug('removing listener to router');
+      exports.app.router.off('page', exports.update);
+    }
+  }
+  exports.setupDone = false;
+};
+
 exports.listen = function(app) {
-  if (!app.isFeatureEnabled('google-analytics')) {
-    debug('not enabled');
+  exports.app = app;
+
+  if (!app.isFeatureEnabled('googleAnalytics')) {
+    exports.unlisten();
+    debug('google analytics is disabled');
     return;
   }
 
-  exports.app = app;
-
   if (app.user) {
     debug('adding listener to user');
-    app.user.on('sync', exports.setUser.bind(null, app.user));
+    // if user already fetched, set user now
+    if (app.user.fetched) {
+      exports.setUser(app.user);
+    }
+    // listen to updates to the user object
+    app.user.on('sync', exports.setUser);
   } else {
     /* eslint no-console:0 */
     console.warn('mongodb-js-metrics:google-analytics: No `app.user` '
@@ -148,6 +177,7 @@ exports.listen = function(app) {
       + 'found so you must call `metrics.googleAnalytics.pageView` manually!');
   }
   debug('listening!');
+  exports.setupDone = true;
 };
 
 module.exports = exports;

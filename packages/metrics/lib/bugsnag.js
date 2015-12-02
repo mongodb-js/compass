@@ -43,6 +43,18 @@ function beforeNotify(d) {
 exports = bugsnag;
 
 exports.app = null;
+exports.setupDone = null;
+
+
+exports.unlisten = function() {
+  if (!exports.setupDone) {
+    return;
+  }
+  if (exports.app.bugsnag) {
+    exports.app.bugsnag = null;
+  }
+  exports.setupDone = false;
+};
 
 /**
  * Configure bugsnag's api client which attaches a handler to
@@ -54,6 +66,22 @@ exports.app = null;
  * @param {Object} app
  */
 exports.listen = function(app) {
+  exports.app = app;
+
+  if (!app.isFeatureEnabled('bugsnag')) {
+    exports.unlisten();
+    debug('bugsnag is disabled');
+    return;
+  }
+
+  if (app.preferences.currentUserId) {
+    _.assign(bugsnag, {
+      user: {
+        id: app.preferences.currentUserId
+      }
+    });
+  }
+
   _.assign(bugsnag, {
     apiKey: TOKEN,
     autoNotify: true,
@@ -65,7 +93,7 @@ exports.listen = function(app) {
   });
 
   app.bugsnag = bugsnag;
-  exports.app = app;
+  exports.setupDone = true;
 };
 
 module.exports = exports;
