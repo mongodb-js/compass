@@ -120,7 +120,7 @@
     "mongodb-database-model": "^0.1.2",
     "mongodb-extended-json": "^1.5.3",
     "mongodb-instance-model": "^2.1.0",
-    "mongodb-js-metrics": "^0.2.2",
+    "mongodb-js-metrics": "^0.3.0",
     "mongodb-language-model": "^0.3.3",
     "mongodb-ns": "^1.0.1",
     "mongodb-schema": "^3.3.1",
