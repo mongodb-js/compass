@@ -64,6 +64,16 @@ html, body {
   }
 }
 
+// disable highlighting for everything but input and document viewer
+* {
+  user-select: none;
+  -webkit-user-select: none;
+}
+input, .document-list * {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
 // make all help buttons consistent
 i.help {
   .fa-icon;
