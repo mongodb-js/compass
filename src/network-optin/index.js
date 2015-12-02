@@ -31,8 +31,7 @@ var NetworkOptInView = View.extend({
   },
   events: {
     'click input[type=checkbox]': 'checkboxChanged',
-    'click button[data-hook=start-button]': 'buttonClicked',
-    'click button[data-hook=close-button]': 'buttonClicked'
+    'click button[data-hook=start-button]': 'buttonClicked'
   },
   bindings: {
     bugsnag: {
