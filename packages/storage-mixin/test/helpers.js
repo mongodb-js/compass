@@ -42,6 +42,7 @@ if (keytar) {
       keytar.deletePassword(prefix + 'Planets', 'Earth');
     } else if (namespace === 'Users') {
       keytar.deletePassword(prefix + 'Users', 'apollo');
+      keytar.deletePassword(prefix + 'Users', 'starbuck');
     }
     done();
   };

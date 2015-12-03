@@ -1,6 +1,6 @@
 language: node_js
 node_js:
-- 4
+- '4.2.1'
 env:
   - CXX=g++-4.8
 before_install:
@@ -16,8 +16,8 @@ addons:
     sources:
       - ubuntu-toolchain-r-test
     packages:
-      - libgnome-keyring-dev
       - g++-4.8
+      - libgnome-keyring-dev
 script: npm run-script ci
 notifications:
   flowdock: e3dc17bc8a2c1b3412abe3e5747f8291

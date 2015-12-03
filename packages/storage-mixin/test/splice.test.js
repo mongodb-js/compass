@@ -3,6 +3,7 @@ var storageMixin = require('../lib');
 var wrapErrback = require('../lib/backends/errback').wrapErrback;
 var helpers = require('./helpers');
 var assert = require('assert');
+var async = require('async');
 var debug = require('debug')('storage-mixin:splice:test');
 
 describe('storage backend `splice`', function() {
@@ -209,10 +210,61 @@ describe('storage backend `splice`', function() {
       users.once('sync', function() {
         debug('fetch collections', users.serialize());
         assert.equal(users.length, 1);
-        assert.equal(users.at(0).password, helpers.keytarAvailable ? 'cyl0nHunt3r' : '');
+        if (helpers.keytarAvailable) {
+          assert.equal(users.at(0).password, helpers.keytarAvailable ? 'cyl0nHunt3r' : '');
+        }
         done();
       });
       users.fetch();
+    });
+
+    it('should work with custom collection sort orders', function(done) {
+      if (!helpers.keytarAvailable) {
+        this.skip();
+      }
+      var SortedUsers = helpers.Users.extend(storageMixin, {
+        model: StorableUser,
+        storage: backendOptions,
+        comparator: 'name'
+      });
+      var users = new SortedUsers();
+      async.series([
+        function(cb) {
+          users.create({
+            id: 'apollo',
+            name: 'Lee Adama',
+            email: 'apollo@galactica.com',
+            password: 'cyl0nHunt3r'
+          }, {
+            success: function(res) {
+              cb(null, res);
+            },
+            error: done
+          });
+        },
+        function(cb) {
+          users.create({
+            id: 'starbuck',
+            name: 'Kara Thrace',
+            email: 'kara@galactica.com',
+            password: 'caprica'
+          }, {
+            success: function(res) {
+              cb(null, res);
+            },
+            error: done
+          });
+        }
+      ], function() {
+        users = new SortedUsers();
+        users.on('sync', function() {
+          debug('users', users.serialize());
+          assert.equal(users.get('apollo').password, 'cyl0nHunt3r');
+          assert.equal(users.get('starbuck').password, 'caprica');
+          done();
+        });
+        users.fetch();
+      });
     });
   });
 });

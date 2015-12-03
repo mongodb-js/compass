@@ -2,10 +2,12 @@ var _ = require('lodash');
 var async = require('async');
 var BaseBackend = require('./base');
 var LocalBackend = require('./local');
+var NullBackend = require('./null');
 var SecureBackend = require('./secure');
 var wrapOptions = require('./errback').wrapOptions;
 var wrapErrback = require('./errback').wrapErrback;
 var inherits = require('util').inherits;
+var assert = require('assert');
 
 // var debug = require('debug')('storage-mixin:backends:splice');
 
@@ -66,10 +68,16 @@ SpliceBackend.prototype.exec = function(method, model, options, done) {
     function(localRes, cb) {
       // after receiving the result from `local`, we set it on the the
       // model/collection here so that `secure` knows the ids.
-      model.set(localRes, {silent: true});
+      model.set(localRes, {silent: true, sort: false});
       self.secureBackend.exec(method, model, wrapErrback(function(err, res) {
         if (err) {
           return cb(err);
+        }
+        if (model.isCollection && !(self.secureBackend instanceof NullBackend)) {
+          // INT-961: better check here that we merge the right objects together
+          _.each(localRes, function(m, i) {
+            assert.equal(m[model.mainIndex], res[i][model.mainIndex]);
+          });
         }
         // once `secure` returned its result, we merge it with `local`'s result
         cb(null, _.merge(localRes, res));

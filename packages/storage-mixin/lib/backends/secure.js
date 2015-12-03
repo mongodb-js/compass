@@ -111,6 +111,10 @@ SecureBackend.prototype.findOne = function(model, options, done) {
  * namespace (service). Thus this only works if the collection is
  * pre-populated with stub models that hold their ids already.
  *
+ * For merging secure data correctly in the splice backend, we also return
+ * the id value again for each object even though that information is not
+ * stored as part of the secure data.
+ *
  * @param {ampersand-collection} collection
  * @param {Object} options
  * @param {Function} done
@@ -130,7 +134,17 @@ SecureBackend.prototype.find = function(collection, options, done) {
   });
 
   debug('fetching %d models', tasks.length);
-  async.parallel(tasks, done);
+  async.parallel(tasks, function(err, res) {
+    if (err) {
+      return done(err);
+    }
+    var ids = collection.map(function(model) {
+      var doc = {};
+      doc[model.idAttribute] = model.getId();
+      return doc;
+    });
+    done(null, _.merge(ids, res));
+  });
 };
 
 module.exports = keytar ? SecureBackend : NullBackend;
