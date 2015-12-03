@@ -31,7 +31,8 @@ app.on('check for updates', function() {
   updater.checkForUpdates();
 });
 
-app.on('ready', function() {
-  updater.setFeedUrl(FEED_URL);
-  app.emit('check for updates');
-});
+// @todo (kangas) reenable update check after release-1
+// app.on('ready', function() {
+//   updater.setFeedUrl(FEED_URL);
+//   app.emit('check for updates');
+// });
