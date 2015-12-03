@@ -108,12 +108,14 @@ module.exports = State.extend({
     switch (action) {
       case 'new connection clicked':
         newState = 'NEW_EMPTY';
+        view.message = '';
+        // create new connection first
+        view.connection = new Connection();
+        // the next lines will implicitly modify view.connection
         view.authMethod = 'NONE';
         view.sslMethod = 'NONE';
-        view.form.reset();
-        view.message = '';
-        view.connection = null;
         view.connectionName = '';
+        view.form.reset();
         break;
       case 'favorite connection clicked':
         newState = 'FAV_UNCHANGED';

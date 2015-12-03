@@ -310,7 +310,6 @@ var ConnectView = View.extend({
    */
   createNewConnection: function() {
     this.dispatch('new connection clicked');
-    this.connection = new Connection();
   },
 
   /**
