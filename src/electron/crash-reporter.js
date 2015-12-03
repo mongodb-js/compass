@@ -1,8 +1,9 @@
-var reporter = module.exports = require('crash-reporter');
+// var reporter = module.exports = require('crash-reporter');
 
-reporter.start({
-  productName: 'Compass', // @todo (imlucas): standardize w/ package.json
-  companyName: 'MongoDB',
-  submitUrl: 'http://breakpad.mongodb.parts/post',
-  autoSubmit: true
-});
+// @todo (kangas) reenable crash-reporter after release-1
+// reporter.start({
+//   productName: 'Compass', // @todo (imlucas): standardize w/ package.json
+//   companyName: 'MongoDB',
+//   submitUrl: 'http://breakpad.mongodb.parts/post',
+//   autoSubmit: true
+// });
