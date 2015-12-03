@@ -28,50 +28,6 @@ describe('mongodb-instance-model#fetch', function() {
         done();
       });
     });
-    // it('should list collections', function(done) {
-    //   assert(db);
-    //   fetch.getAllCollections(db, function(err, res) {
-    //     if (err) {
-    //       return done(err);
-    //     }
-    //     debug('list collections', JSON.stringify(res, null, 2));
-    //     done();
-    //   });
-    // });
-    //
-    // it('should list databases', function(done) {
-    //   assert(db);
-    //   fetch.getDatabases(db, function(err, res) {
-    //     if (err) {
-    //       return done(err);
-    //     }
-    //     debug('list databases', JSON.stringify(res, null, 2));
-    //     done();
-    //   });
-    // });
-    //
-    // it('should get build info', function(done) {
-    //   assert(db);
-    //   fetch.getBuildInfo(db, function(err, res) {
-    //     if (err) {
-    //       return done(err);
-    //     }
-    //     debug('build info', JSON.stringify(res, null, 2));
-    //     done();
-    //   });
-    // });
-    //
-    // it('should get host info', function(done) {
-    //   assert(db);
-    //   fetch.getHostInfo(db, function(err, res) {
-    //     if (err) {
-    //       return done(err);
-    //     }
-    //     debug('host info', JSON.stringify(res, null, 2));
-    //     done();
-    //   });
-    // });
-
     it('should get instance details', function(done) {
       assert(db);
       fetch(db, function(err, res) {
@@ -141,44 +97,6 @@ describe('mongodb-instance-model#fetch', function() {
                   done();
                 });
               });
-
-              // it('should list databases', function(done) {
-              //   if (process.env.dry ) {
-              //     this.skip();
-              //     return;
-              //   }
-              //   this.slow(5000);
-              //   this.timeout(10000);
-              //   assert(db, 'requires successful connection');
-              //
-              //   fetch.getDatabases(db, function(err, res) {
-              //     if (err) return done(err);
-              //
-              //     assert(Array.isArray(res));
-              //     assert(res.length > 0, 'Database list is empty');
-              //     done();
-              //   });
-              // });
-              //
-              // it('should list collections', function(done) {
-              //   if (process.env.dry ) {
-              //     this.skip();
-              //     return;
-              //   }
-              //   this.slow(5000);
-              //   this.timeout(10000);
-              //   assert(db, 'requires successful connection');
-              //
-              //   fetch.getAllCollections(db, function(err, res) {
-              //     if (err) return done(err);
-              //
-              //     assert(Array.isArray(res));
-              //     assert(res.length > 0, 'Collection list is empty');
-              //     done();
-              //   });
-              // });
-
-
               it('should get instance details', function(done) {
                 if (process.env.dry) {
                   this.skip();

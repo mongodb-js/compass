@@ -65,6 +65,8 @@ function getBuildInfo(done, results) {
   debug('checking we can get buildInfo...');
   db.admin().buildInfo(function(err, res) {
     if (err) {
+      // buildInfo doesn't require any privileges to run, so if it fails,
+      // something really went wrong and we should return the error.
       debug('buildInfo failed!', err);
       err.command = 'buildInfo';
       return done(err);
@@ -131,24 +133,25 @@ function parseHostInfo(resp) {
 function getHostInfo(done, results) {
   var db = results.db;
 
-  debug('checking we can get hostInfo...');
   var spec = {
     hostInfo: 1
   };
   var options = {};
   db.admin().command(spec, options, function(err, res) {
     if (err) {
-      if (/^not authorized/.test(err.message)) {
-        debug('hostInfo unavailable for this user and thats ok!');
+      if (isNotAuthorized(err)) {
+        // if the error is that the user is not authorized, silently ignore it
+        // and return an empty document
+        debug('user does not have hostInfo privilege, returning empty document {}');
         done(null, {});
         return;
       }
+      // something else went wrong and we should return the error.
       debug('driver error', err);
       err.command = 'hostInfo';
       done(err);
       return;
     }
-    debug('got hostInfo successully!');
     done(null, parseHostInfo(res));
   });
 }
@@ -179,11 +182,12 @@ function listDatabases(done, results) {
   db.admin().command(spec, options, function(err, res) {
     if (err) {
       if (isNotAuthorized(err)) {
+        // we caught this further up already and really should never get here!
         debug('listDatabases failed. returning empty list []');
         done(null, []);
         return;
       }
-
+      // the command failed for another reason, report the error
       debug('listDatabases failed', err);
       err.command = 'listDatabases';
       done(err);
@@ -270,9 +274,7 @@ function getDatabases(done, results) {
   async.parallel(_.map(dbnames, function(name) {
     var result = _.partial(getDatabase, db, name);
     return result;
-  }), function(err, res) {
-    done(err, res);
-  });
+  }), done);
 }
 
 
@@ -284,6 +286,7 @@ function getUserInfo(done, results) {
     connectionStatus: 1,
     showPrivileges: true
   }, function(err, res) {
+    // no auth required, if this fails there was a real problem
     if (err) {
       done(err);
     }
@@ -297,6 +300,7 @@ function getUserInfo(done, results) {
       usersInfo: user,
       showPrivileges: true
     }, function(_err, _res) {
+      // should always succeed for the logged-in user
       if (_err) {
         done(_err);
       }
@@ -355,6 +359,15 @@ function getDatabaseCollections(db, done) {
 
   db.listCollections(spec, options).toArray(function(err, res) {
     if (err) {
+      if (isNotAuthorized(err)) {
+        // if the error is that the user is not authorized, silently ignore it
+        // and return an empty list
+        debug('not allowed to run `listCollections` command on %s, returning'
+          + ' empty result [].', db.databaseName);
+        return done(null, []);
+      }
+      // the command failed for another reason, report the error
+      debug('listCollections failed', err);
       err.command = 'listCollections';
       return done(err);
     }
@@ -463,10 +476,10 @@ function getInstanceDetail(db, done) {
 
 
 module.exports = getInstanceDetail;
-
-// module.exports.getCollections = getCollections;
-// module.exports.getDatabaseCollections = getDatabaseCollections;
-// module.exports.getDatabases = getDatabases;
-// module.exports.getDatabase = getDatabase;
-// module.exports.getBuildInfo = getBuildInfo;
-// module.exports.getHostInfo = getHostInfo;
+module.exports.getBuildInfo = getBuildInfo;
+module.exports.getHostInfo = getHostInfo;
+module.exports.listDatabases = listDatabases;
+module.exports.getAllowedDatabases = getAllowedDatabases;
+module.exports.getAllowedCollections = getAllowedCollections;
+module.exports.getDatabaseCollections = getDatabaseCollections;
+module.exports.listCollections = listCollections;
