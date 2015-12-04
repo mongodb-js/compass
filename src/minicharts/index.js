@@ -65,16 +65,18 @@ module.exports = AmpersandView.extend(QueryBuilderMixin, {
       // been here before, don't need to do it again
       return true;
     }
-
+    var fields = this.model.fields;
     if (this.model.name === 'Document') {
-      if (this.model.fields.length !== 2
-        || !this.model.fields.get('type')
-        || this.model.fields.get('type').type !== 'String'
-        || this.model.fields.get('type').types.get('String').unique !== 1
-        || this.model.fields.get('type').types.get('String').values.at(0).value !== 'Point'
-        || this.model.fields.get('coordinates').types.get('Array').count
-        !== this.model.fields.get('coordinates').count
-        || this.model.fields.get('coordinates').types.get('Array').average_length !== 2
+      if (fields.length !== 2
+        || !fields.get('type')
+        || !fields.get('coordinates')
+        || fields.get('type').type !== 'String'
+        || fields.get('type').types.get('String').unique !== 1
+        || fields.get('type').types.get('String').values.at(0).value !== 'Point'
+        || fields.get('coordinates').types.get('Array').count
+        !== fields.get('coordinates').count
+        || fields.get('coordinates').types.get('Array').average_length !== 2
+        || fields.get('coordinates').types.get('Array').types.get('Number') === undefined
       ) {
         return false;
       }
