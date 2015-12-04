@@ -331,7 +331,17 @@ module.exports = {
       };
     }
     _.each(message.elements, function(el) {
-      var elData = el.innerText || d3.select(el).data()[0].value;
+      var elData;
+      if (el.innerText !== undefined) {
+        elData = el.innerText;
+      } else {
+        elData = d3.select(el).data();
+        if (elData.length && elData[0].value !== undefined) {
+          elData = elData[0].value;
+        } else {
+          return message;
+        }
+      }
       if (this.model.getType() === 'Number') {
         elData = parseFloat(elData, 10);
       }
