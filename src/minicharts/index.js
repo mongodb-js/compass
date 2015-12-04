@@ -77,6 +77,7 @@ module.exports = AmpersandView.extend(QueryBuilderMixin, {
         !== fields.get('coordinates').count
         || fields.get('coordinates').types.get('Array').average_length !== 2
         || fields.get('coordinates').types.get('Array').types.get('Number') === undefined
+        || fields.get('coordinates').types.get('Array').types.get('Number').count !== 2
       ) {
         return false;
       }
