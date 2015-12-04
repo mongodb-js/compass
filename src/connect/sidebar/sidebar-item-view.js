@@ -1,4 +1,4 @@
-var View = require('../sidebar/list').ListItemView;
+var View = require('../../sidebar/list').ListItemView;
 var moment = require('moment');
 var _ = require('lodash');
 // var debug = require('debug')('mongodb-compass:connect:sidebar-item-view');

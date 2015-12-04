@@ -97,6 +97,18 @@
       color: @gray5;
       font-weight: normal;
 
+      &:hover {
+        background: lighten(@slate1, 5%);
+        a {
+          color: @pw;
+          border-left: 4px solid lighten(@slate1, 5%);
+          text-decoration: none;
+        }
+      }
+    }
+
+    .list-group-item, .list-group-item-heading {
+
       &.special {
         a {
           color: @gray3;
@@ -106,15 +118,6 @@
         }
         &:hover a {
           color: @gray3;
-        }
-      }
-
-      &:hover {
-        background: lighten(@slate1, 5%);
-        a {
-          color: @pw;
-          border-left: 4px solid lighten(@slate1, 5%);
-          text-decoration: none;
         }
       }
 

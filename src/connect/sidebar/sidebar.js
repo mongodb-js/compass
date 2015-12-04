@@ -1,8 +1,9 @@
-var SidebarView = require('../sidebar');
+var SidebarView = require('../../sidebar');
 var Collection = require('ampersand-collection');
 var State = require('ampersand-state');
 var FilteredCollection = require('ampersand-filtered-subcollection');
 var SidebarItemView = require('./sidebar-item-view');
+var NewConnectionWidget = require('./new-connection-widget');
 var View = require('ampersand-view');
 
 var debug = require('debug')('mongodb-compass:connect:sidebar');
@@ -53,6 +54,9 @@ module.exports = View.extend({
           icon: function(view) {
             return view.model.icon;
           },
+          widgets: [{
+            viewClass: NewConnectionWidget
+          }],
           collection: this.sections,
           displayProp: 'name',
           nested: {
@@ -92,17 +96,17 @@ module.exports = View.extend({
     });
 
     this.sections.reset([
-      {
-        name: 'New Connection',
-        icon: ['fa-fw', 'fa-bolt']
-      },
+      // {
+      //   name: 'New Connection',
+      //   icon: ['fa-fw', 'fa-bolt']
+      // },
       {
         name: 'Favorites',
         icon: ['fa-fw', 'fa-star'],
         connections: favoriteConnections
       },
       {
-        name: 'Recent',
+        name: 'Recent Connections',
         icon: ['fa-fw', 'fa-history'],
         connections: historyConnections
       }
