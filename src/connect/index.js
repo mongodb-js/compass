@@ -205,6 +205,7 @@ var ConnectView = View.extend({
     sidebar: {
       hook: 'sidebar-subview',
       prepareView: function(el) {
+        debug('sidebar prepare');
         return new SidebarWrapperView({
           el: el,
           parent: this,
@@ -381,11 +382,12 @@ var ConnectView = View.extend({
     this.connection.is_favorite = false;
     if (this.connection.last_used === null) {
       this.connection.destroy();
+      this.sidebar.activeItemView = null;
+      this.connections.deactivateAll();
+      this.createNewConnection();
     } else {
       this.connection.save(null);
     }
-    this.sidebar.activeItemView = null;
-    this.sidebar.collection.deactivateAll();
   },
 
   /**

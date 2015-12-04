@@ -2,6 +2,7 @@ var SidebarView = require('../sidebar');
 var Collection = require('ampersand-collection');
 var State = require('ampersand-state');
 var FilteredCollection = require('ampersand-filtered-subcollection');
+var SidebarItemView = require('./sidebar-item-view');
 var View = require('ampersand-view');
 
 var debug = require('debug')('mongodb-compass:connect:sidebar');
@@ -44,7 +45,7 @@ module.exports = View.extend({
   subviews: {
     sidebar: {
       hook: 'sidebar-subview',
-      waitFor: 'sections',
+      // waitFor: 'sections',
       prepareView: function(el) {
         return new SidebarView({
           el: el,
@@ -57,6 +58,7 @@ module.exports = View.extend({
           nested: {
             icon: 'fa-fw',
             collectionName: 'connections',
+            itemViewClass: SidebarItemView,
             displayProp: 'name'
           }
         }).on('show', this.onItemClick.bind(this));
@@ -65,7 +67,11 @@ module.exports = View.extend({
   },
   render: function() {
     this.renderWithTemplate(this);
-    this.connections.once('sync', this.onSynced.bind(this));
+    if (this.connections.fetched) {
+      this.onSynced();
+    } else {
+      this.connections.once('sync', this.onSynced.bind(this));
+    }
   },
   onSynced: function() {
     var favoriteConnections = new FilteredCollection(this.connections, {
@@ -73,12 +79,12 @@ module.exports = View.extend({
         is_favorite: true
       },
       comparator: function(model) {
-        return model.name.toLowerCase();
+        return -model.last_used;
       }
     });
     var historyConnections = new FilteredCollection(this.connections, {
-      filter: function(model) {
-        return !model.is_favorite;
+      where: {
+        is_favorite: false
       },
       comparator: function(model) {
         return -model.last_used;

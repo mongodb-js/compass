@@ -2,7 +2,8 @@ var View = require('ampersand-view');
 var ListView = require('./list');
 var FilterView = require('./filter');
 var _ = require('lodash');
-var debug = require('debug')('mongodb-compass:sidebar:index');
+
+// var debug = require('debug')('mongodb-compass:sidebar:index');
 
 /**
  * Generic Sidebar class that is used in Compass. It provides optional
@@ -125,7 +126,6 @@ var SidebarView = View.extend({
       prepareView: function(el) {
         var listOptions = _.pick(this, ['displayProp', 'icon',
           'itemViewClass', 'nested']);
-        debug('listOptions', listOptions);
         return new ListView({
           el: el,
           parent: this,
