@@ -382,7 +382,6 @@ var ConnectView = View.extend({
     this.connection.is_favorite = false;
     if (this.connection.last_used === null) {
       this.connection.destroy();
-      this.sidebar.activeItemView = null;
       this.connections.deactivateAll();
       this.createNewConnection();
     } else {

@@ -133,6 +133,9 @@ ListItemView = View.extend({
       }
     }
   },
+  render: function() {
+    this.renderWithTemplate(this);
+  },
   show: function(model) {
     // propagting up
     this.parent.parent.show(model);

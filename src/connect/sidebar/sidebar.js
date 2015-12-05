@@ -25,37 +25,27 @@ var SectionCollection = Collection.extend({
 module.exports = View.extend({
   template: '<div data-hook="sidebar-subview"></div>',
   session: {
-    activeItemView: {
-      type: 'state',
-      default: null,
-      required: false
-    },
     connections: 'any'
   },
   collections: {
     sections: SectionCollection
-  },
-  derived: {
-    newConnectionActive: {
-      deps: ['activeItemView'],
-      fn: function() {
-        return this.activeItemView === null;
-      }
-    }
   },
   subviews: {
     sidebar: {
       hook: 'sidebar-subview',
       // waitFor: 'sections',
       prepareView: function(el) {
-        return new SidebarView({
+        var sidebar = new SidebarView({
           el: el,
           parent: this,
           icon: function(view) {
             return view.model.icon;
           },
           widgets: [{
-            viewClass: NewConnectionWidget
+            viewClass: NewConnectionWidget,
+            options: {
+              parent: this
+            }
           }],
           collection: this.sections,
           displayProp: 'name',
@@ -65,7 +55,10 @@ module.exports = View.extend({
             itemViewClass: SidebarItemView,
             displayProp: 'name'
           }
-        }).on('show', this.onItemClick.bind(this));
+        });
+        sidebar.on('show', this.onItemClick.bind(this));
+        sidebar.on('new-connection', this.onNewConnectionClicked.bind(this));
+        return sidebar;
       }
     }
   },
@@ -141,23 +134,18 @@ module.exports = View.extend({
     debug('this.sections', this.sections);
   },
 
-  // events: {
-  //   'click a[data-hook=new-connection]': 'onNewConnectionClicked'
-  // },
   onNewConnectionClicked: function(event) {
     event.stopPropagation();
     event.preventDefault();
 
-    if (this.activeItemView) {
-      this.activeItemView = null;
-    }
-    this.connections.deactivateAll();
+    this.connections.unselectAll();
     this.parent.createNewConnection();
   },
   onItemClick: function(model) {
     if (!this.connections.select(model)) {
       return debug('already selected %s', model);
     }
+    this.sidebar.trigger('existing-connection');
     this.parent.selectExistingConnection(model);
   }
   // onItemDoubleClick: function(view) {
