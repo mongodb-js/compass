@@ -107,11 +107,10 @@ var HomeView = View.extend({
     }
   },
   updateTitle: function(model) {
-    var title = 'mongodb://' + app.connection.instance_id;
+    var title = 'MongoDB Compass - Schema - ' + app.connection.instance_id;
     if (model) {
       title += '/' + model.getId();
     }
-    title += ' (' + app.connection.name + ')';
     document.title = title;
   },
   showCollection: function(model) {
