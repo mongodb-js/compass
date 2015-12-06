@@ -157,7 +157,7 @@ function helpWindowItem() {
 
 function intercomItem() {
   return {
-    label: '&Contact MongoDB',
+    label: '&Provide Feedback',
     click: function() {
       BrowserWindow.getFocusedWindow().webContents.executeJavaScript('Intercom(\'show\')');
     }
