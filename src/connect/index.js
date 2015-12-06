@@ -216,18 +216,13 @@ var ConnectView = View.extend({
   },
   initialize: function() {
     document.title = 'MongoDB Compass - Connect';
-    this.connections.once('sync', this.connectionsFetched.bind(this));
+    this.connections.once('sync', this.updateConflictingNames.bind(this));
     // use {reset: true} to trigger `reset` event so ConnectionCollection
     // can add its listeners to the models.
     this.connections.fetch({reset: true});
     this.stateMachine = new BehaviorStateMachine(this);
     this.on('change:connectionNameEmpty',
       this.connectionNameEmptyChanged.bind(this));
-  },
-  connectionsFetched: function() {
-    // this change event will cause the sidebar subview to get rendered
-    this.trigger('change');
-    this.updateConflictingNames();
   },
   render: function() {
     this.renderWithTemplate({
