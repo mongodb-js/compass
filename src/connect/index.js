@@ -380,12 +380,14 @@ var ConnectView = View.extend({
    */
   removeFavoriteConnection: function() {
     this.connection.is_favorite = false;
+    this.connection.name = '';
     if (this.connection.last_used === null) {
       this.connection.destroy();
       this.connections.deactivateAll();
       this.createNewConnection();
     } else {
       this.connection.save(null);
+      this.updateForm();
     }
   },
 

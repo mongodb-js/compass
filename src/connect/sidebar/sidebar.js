@@ -52,8 +52,7 @@ module.exports = View.extend({
           nested: {
             icon: 'fa-fw',
             collectionName: 'connections',
-            itemViewClass: SidebarItemView,
-            displayProp: 'name'
+            itemViewClass: SidebarItemView
           }
         });
         sidebar.on('show', this.onItemClick.bind(this));

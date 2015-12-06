@@ -19,6 +19,21 @@ module.exports = ListItemView.extend({
         }
         return moment(this.model.last_used).format('lll');
       }
+    },
+    displayValue: {
+      deps: ['model.name', 'model.username', 'model.hostname', 'model.port'],
+      fn: function() {
+        if (this.model.name) {
+          return this.model.name;
+        }
+        // no existing name, derive from username/hostname/port
+        var name = this.model.hostname + ':' + this.model.port;
+        // if a username exists, prepend it with an @
+        if (this.model.username) {
+          name = this.model.username + '@' + name;
+        }
+        return name;
+      }
     }
     // user: {
     //   deps: ['model.authentication'],

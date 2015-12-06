@@ -57,21 +57,27 @@ ListItemView = View.extend({
     nested: ['any', false, undefined]
   },
   bindings: {
-    iconName: {
-      type: 'class',
-      hook: 'icon'
-    },
+    iconName: [
+      {
+        type: 'class',
+        hook: 'icon'
+      },
+      {
+        type: 'toggle',
+        hook: 'icon'
+      }
+    ],
     nested: {
       type: 'booleanClass',
       no: 'list-group-item',
       yes: 'list-group-item-heading'
     },
-    value: {
-      hook: 'value'
+    displayValue: {
+      hook: 'displayValue'
     },
     title: {
       type: 'attribute',
-      hook: 'value',
+      hook: 'displayValue',
       name: 'title'
     },
     'model.selected': {
@@ -89,7 +95,7 @@ ListItemView = View.extend({
         return (this.nested && this.model[this.nested.collectionName]);
       }
     },
-    value: {
+    displayValue: {
       deps: ['model', 'displayProp'],
       fn: function() {
         if (_.isFunction(this.displayProp)) {
@@ -111,10 +117,10 @@ ListItemView = View.extend({
       }
     },
     title: {
-      // in the basic item view this is identical to value
-      deps: ['value'],
+      // in the basic item view this is identical to displayValue
+      deps: ['displayValue'],
       fn: function() {
-        return this.value;
+        return this.displayValue;
       }
     }
   },

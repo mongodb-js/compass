@@ -47,6 +47,29 @@ module.exports = Connection.extend(storageMixin, {
     //   default: false
     // }
   },
+  derived: {
+    // canonical username independent of authentication method
+    username: {
+      deps: ['authentication'],
+      fn: function() {
+        if (this.authentication === 'NONE') {
+          return '';
+        }
+        if (this.authentication === 'MONGODB') {
+          return this.mongodb_username;
+        }
+        if (this.authentication === 'KERBEROS') {
+          return this.kerberos_principal;
+        }
+        if (this.authentication === 'X509') {
+          return this.x509_username;
+        }
+        if (this.authentication === 'LDAP') {
+          return this.ldap_username;
+        }
+      }
+    }
+  },
   test: function(done) {
     var model = this.serialize();
     var onTested = function(err) {

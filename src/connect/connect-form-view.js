@@ -56,34 +56,34 @@ var ConnectFormView = FormView.extend({
   submitCallback: function() {
     this.parent.submitForm();
   },
-  makeFriendlyName: function(obj) {
-    if (obj.name) {
-      return;
-    }
-    if (!(obj.hostname && obj.port)) {
-      obj.name = 'Unnamed Connection';
-      return;
-    }
-    var name = obj.hostname + ':' + obj.port;
-    if (obj.authentication === 'MONGODB') {
-      if (obj.mongodb_username) {
-        name = obj.mongodb_username + '@' + name;
-      }
-    } else if (obj.authentication === 'KERBEROS') {
-      if (obj.kerberos_principal) {
-        name = obj.kerberos_principal + '@' + name;
-      }
-    } else if (obj.authentication === 'X509') {
-      if (obj.x509_username) {
-        name = obj.x509_username + '@' + name;
-      }
-    } else if (obj.authentication === 'LDAP') {
-      if (obj.ldap_username) {
-        name = obj.ldap_username + '@' + name;
-      }
-    }
-    obj.name = name;
-  },
+  // makeFriendlyName: function(obj) {
+  //   if (obj.name) {
+  //     return;
+  //   }
+  //   if (!(obj.hostname && obj.port)) {
+  //     obj.name = 'Unnamed Connection';
+  //     return;
+  //   }
+  //   var name = obj.hostname + ':' + obj.port;
+  //   if (obj.authentication === 'MONGODB') {
+  //     if (obj.mongodb_username) {
+  //       name = obj.mongodb_username + '@' + name;
+  //     }
+  //   } else if (obj.authentication === 'KERBEROS') {
+  //     if (obj.kerberos_principal) {
+  //       name = obj.kerberos_principal + '@' + name;
+  //     }
+  //   } else if (obj.authentication === 'X509') {
+  //     if (obj.x509_username) {
+  //       name = obj.x509_username + '@' + name;
+  //     }
+  //   } else if (obj.authentication === 'LDAP') {
+  //     if (obj.ldap_username) {
+  //       name = obj.ldap_username + '@' + name;
+  //     }
+  //   }
+  //   obj.name = name;
+  // },
   clean: function(obj) {
     // clean up the form values here, e.g. conversion to numbers etc.
 
@@ -92,7 +92,7 @@ var ConnectFormView = FormView.extend({
     obj.port = parseInt(obj.port || 27017, 10);
 
     // make a friendly connection name
-    this.makeFriendlyName(obj);
+    // this.makeFriendlyName(obj);
 
     return obj;
   },
