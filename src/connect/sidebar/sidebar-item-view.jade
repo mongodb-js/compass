@@ -1,4 +1,10 @@
 li.list-group-item
   a
-    .date(data-hook='date')= date
-    .value(data-hook='displayValue')
+    .name(data-hook='name')
+    .date(data-hook='date')
+    .host(data-hook='host')
+      i.fa.fa-fw.fa-server
+      span(data-hook='host-text')
+    .user(data-hook='user')
+      i.fa.fa-fw.fa-user
+      span(data-hook='user-text')

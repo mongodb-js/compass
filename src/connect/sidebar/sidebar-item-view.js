@@ -1,6 +1,7 @@
 var ListItemView = require('../../sidebar/list').ListItemView;
 var moment = require('moment');
 var _ = require('lodash');
+var format = require('util').format;
 // var debug = require('debug')('mongodb-compass:connect:sidebar-item-view');
 
 var TWO_DAYS = 24 * 60 * 60 * 1000;
@@ -20,54 +21,53 @@ module.exports = ListItemView.extend({
         return moment(this.model.last_used).format('lll');
       }
     },
-    displayValue: {
-      deps: ['model.name', 'model.username', 'model.hostname', 'model.port'],
+    host: {
+      deps: ['model.hostname', 'model.port'],
       fn: function() {
-        if (this.model.name) {
-          return this.model.name;
-        }
-        // no existing name, derive from username/hostname/port
-        var name = this.model.hostname + ':' + this.model.port;
-        // if a username exists, prepend it with an @
-        if (this.model.username) {
-          name = this.model.username + '@' + name;
-        }
-        return name;
+        return this.model.hostname + ':' + this.model.port;
       }
     }
-    // user: {
-    //   deps: ['model.authentication'],
-    //   fn: function() {
-    //     if (this.model.authentication === 'NONE') {
-    //       return null;
-    //     }
-    //     if (this.model.authentication === 'MONGODB') {
-    //       return this.model.mongodb_username;
-    //     }
-    //     if (this.model.authentication === 'KERBEROS') {
-    //       return this.model.kerberos_principal;
-    //     }
-    //     if (this.model.authentication === 'PLAIN') {
-    //       return this.model.ldap_username;
-    //     }
-    //     if (this.model.authentication === 'X509') {
-    //       return this.model.x509_username;
-    //     }
-    //   }
-    // }
   },
   bindings: _.extend({}, ListItemView.prototype.bindings, {
     date: {
       hook: 'date'
-    }
-    // user: [
-    //   {
-    //     type: 'toggle',
-    //     hook: 'user'
-    //   },
-    //   {
-    //     hook: 'username'
-    //   }
-    // ]
+    },
+    'model.name': [
+      {
+        type: 'toggle',
+        hook: 'name'
+      },
+      {
+        hook: 'name'
+      }
+    ],
+    host: [
+      {
+        type: 'toggle',
+        hook: 'host'
+      },
+      {
+        hook: 'host-text'
+      },
+      {
+        type: 'attribute',
+        hook: 'host-text',
+        name: 'title'
+      }
+    ],
+    'model.username': [
+      {
+        type: 'toggle',
+        hook: 'user'
+      },
+      {
+        hook: 'user-text'
+      },
+      {
+        type: 'attribute',
+        hook: 'user-text',
+        name: 'title'
+      }
+    ]
   })
 });

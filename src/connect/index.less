@@ -31,39 +31,49 @@
     &.nested {
       margin-top: 10px;
     }
-  }
-  li.list-group-item-heading {
-    border-top: 1px solid lighten(@slate1, 5%);
-    padding-top: 9px;
-  }
-  li.list-group-item-heading > div > span {
-    font-size: 12px;
-    font-weight: normal;
-    text-transform: uppercase;
-  }
-  .list-group-item {
-    a {
-      padding: 2px 0px 2px 30px;
-      margin: 9px 0px;
 
-      i {
-        padding-right: 5px;
+    li.list-group-item-heading {
+      border-top: 1px solid lighten(@slate1, 5%);
+      padding-top: 9px;
+    }
+    li.list-group-item-heading > div > span {
+      font-size: 12px;
+      font-weight: normal;
+      text-transform: uppercase;
+    }
+    .list-group-item {
+      margin: 4px 0;
+
+      a {
+        padding: 2px 0px 2px 30px;
+        margin: 9px 0px;
+
+        i {
+          padding-right: 5px;
+        }
       }
-    }
-    .date {
-      font-size: 11px;
-      color: @gray3;
-    }
-    .server, .user, .value {
-      // font-size: 16px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+      .name {
+        font-size: 16px;
+        font-weight: bold;
+        margin-bottom: 8px;
+      }
 
-    &.active {
-      .value {
-        color: @green3;
+      .date {
+        font-size: 11px;
+        color: @gray3;
+      }
+
+      .host, .user {
+        // font-size: 16px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      &.active {
+        .value {
+          color: @green3;
+        }
       }
     }
   }
