@@ -214,7 +214,7 @@ var ConnectView = View.extend({
     }
   },
   initialize: function() {
-    document.title = 'Connect to MongoDB';
+    document.title = 'MongoDB Compass - Connect';
     this.connections.once('sync', this.connectionsFetched.bind(this));
     // use {reset: true} to trigger `reset` event so ConnectionCollection
     // can add its listeners to the models.
