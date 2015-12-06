@@ -4,11 +4,14 @@ tags:
   - authentication
   - connect
   - ssl
-  - todo
 related:
   - connect-ssl-certificate-authority
-  - connect-ssl-client-certificate-key
+  - connect-ssl-client-private-key
   - connect-ssl-client-certificate
 section: Connect
 ---
-Describes what the `Private Key Password` field in the connect dialog does. It's optional.
+
+<strong>A private key can optionally be encrypted with a password.</strong>
+
+If your private key is password protected, enter the password here.
+If not, leave the field blank.

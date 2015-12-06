@@ -4,7 +4,6 @@ tags:
   - authentication
   - connect
   - kerberos
-  - needs review
 related:
   - connect-kerberos-service-name
 section: Connect
