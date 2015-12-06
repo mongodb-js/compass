@@ -64,15 +64,15 @@ var ALL = {
       required: true
     }),
     new FileReaderView({
-      name: 'ssl_private_key',
-      label: 'Client Private Key',
-      helpEntry: 'connect-ssl-client-certificate-key',
-      required: true
-    }),
-    new FileReaderView({
       name: 'ssl_certificate',
       label: 'Client Certificate',
       helpEntry: 'connect-ssl-client-certificate',
+      required: true
+    }),
+    new FileReaderView({
+      name: 'ssl_private_key',
+      label: 'Client Private Key',
+      helpEntry: 'connect-ssl-client-certificate-key',
       required: true
     }),
     new InputView({
