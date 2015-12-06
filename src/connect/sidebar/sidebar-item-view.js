@@ -1,7 +1,6 @@
 var ListItemView = require('../../sidebar/list').ListItemView;
 var moment = require('moment');
 var _ = require('lodash');
-var format = require('util').format;
 // var debug = require('debug')('mongodb-compass:connect:sidebar-item-view');
 
 var TWO_DAYS = 24 * 60 * 60 * 1000;
