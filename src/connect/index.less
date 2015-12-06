@@ -24,6 +24,12 @@
     }
   }
 
+  // the favorites list needs more vertical spacing in between list items
+  ul.list-group.root > li.list-group-item-heading:first-child .list-group .list-group-item {
+    padding: 2px 0;
+    margin: 2px 0;
+  }
+
   ul.list-group {
     margin-bottom: 4px;
     line-height: 100%;
@@ -41,12 +47,11 @@
       font-weight: normal;
       text-transform: uppercase;
     }
-    .list-group-item {
-      margin: 4px 0;
 
+    .list-group-item {
       a {
         padding: 2px 0px 2px 30px;
-        margin: 9px 0px;
+        margin: 6px 0px;
 
         i {
           padding-right: 5px;

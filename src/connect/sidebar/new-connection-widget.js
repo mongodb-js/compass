@@ -8,7 +8,7 @@ module.exports = View.extend({
     'click a[data-hook=new-connection]': 'activate'
   },
   session: {
-    active: ['boolean', true, false]
+    active: ['boolean', true, true]
   },
   bindings: {
     active: {
