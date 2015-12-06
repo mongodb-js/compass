@@ -15,8 +15,7 @@ number of documents that matched the query, and the number of documents
 used for the schema report.
 </strong>
 
-There are two possible outcomes when you use the
-[Query Bar](#schema-query-bar) to refine the results.
+There are two possible outcomes when you use the Query Bar to refine the results.
 
 1. The query you specified matches _more than_ the sampling limit (currently
   100 documents).

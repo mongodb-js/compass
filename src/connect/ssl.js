@@ -72,7 +72,7 @@ var ALL = {
     new FileReaderView({
       name: 'ssl_private_key',
       label: 'Client Private Key',
-      helpEntry: 'connect-ssl-client-certificate-key',
+      helpEntry: 'connect-ssl-client-private-key',
       required: true
     }),
     new InputView({
