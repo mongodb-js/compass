@@ -101,9 +101,15 @@ var SidebarView = View.extend({
     }
   },
   bindings: {
-    title: {
-      hook: 'title'
-    },
+    title: [
+      {
+        hook: 'title'
+      },
+      {
+        type: 'toggle',
+        hook: 'title'
+      }
+    ],
     filterEnabled: {
       type: 'toggle',
       hook: 'filter'

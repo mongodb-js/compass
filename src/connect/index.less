@@ -3,11 +3,13 @@
   .widget-container {
 
     .list-group {
-      margin-bottom: 0;
+      margin-bottom: 0px;
       line-height: 24px;
     }
 
     .list-group-item-heading {
+      border-bottom: 1px solid lighten(@slate1, 5%);
+      padding-bottom: 9px;
       margin-bottom: 0;
       cursor: pointer;
       a, i {
@@ -42,6 +44,11 @@
       border-top: 1px solid lighten(@slate1, 5%);
       padding-top: 9px;
     }
+
+    li.list-group-item-heading:first-child {
+      border-top: 0;
+    }
+
     li.list-group-item-heading > div > span {
       font-size: 12px;
       font-weight: normal;
