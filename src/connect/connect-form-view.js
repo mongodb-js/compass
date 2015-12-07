@@ -88,7 +88,7 @@ var ConnectFormView = FormView.extend({
     // clean up the form values here, e.g. conversion to numbers etc.
 
     // fill in all default fields
-    obj.hostname = obj.hostname || 'localhost';
+    obj.hostname = obj.hostname.toLowerCase() || 'localhost';
     obj.port = parseInt(obj.port || 27017, 10);
 
     // make a friendly connection name
