@@ -1,31 +1,31 @@
 #networkOptIn.modal.fade(tabindex='-1' role='dialog', data-hook='main-modal')
   .modal-dialog
-    .model-content
+    .modal-content
       .modal-header
         h4.modal-title Help us improve Compass
       .modal-body
-        p We'd like to ask for your help to improve MongoDB Compass and get your feedback. Please choose from the options below: 
+        p We need your help to improve MongoDB Compass. Please choose from the options below:
         form
           ul
             li
-              p Enable the "Product Feedback" tool to send feedback right from the app and talk to our Product and Development teams.
               label
                 input(type='checkbox', name='productFeedback', data-hook='product-feedback-checkbox')
-                span Enable Product Feedback
+                span Enable Product Feedback Tool
+              p.option-description Enables a tool for sending feedback or talking to our Product and Development teams directly from Compass.
             
             li    
-              p Allow Compass to send crash reports containing stack traces and unhandled exceptions. 
               label
                 input(type='checkbox', name='crashReports', data-hook='crash-reports-checkbox')
                 span Enable Crash Reports
+              p.option-description Allow Compass to send crash reports containing stack traces and unhandled exceptions.
             
             li
-              p Allow Compass to send anonymous usage statistics.  
               label 
                 input(type='checkbox', name='usageStats', data-hook='usage-stats-checkbox')
                 span Enable Usage Statistics
+              p.option-description Allow Compass to send anonymous usage statistics.
       
-        p With any of these options, no personal information or any of your stored data will be submitted. 
+        p With any of these options, none of your personal information or stored data will be submitted.
                         
       .modal-footer
         button.btn.btn-primary(type='button', data-dismiss='modal', data-hook='start-button')
