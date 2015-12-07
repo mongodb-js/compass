@@ -29,7 +29,7 @@
     "lodash": "^3.10.1",
     "mongodb-collection-model": "^0.1.1",
     "mongodb-database-model": "^0.1.2",
-    "mongodb-js-errors": "^0.0.1",
+    "mongodb-js-errors": "^0.1.0",
     "mongodb-ns": "^1.0.1",
     "mongodb-read-preference": "^1.0.4",
     "mongodb-security": "0.0.4"
