@@ -53,6 +53,10 @@ function parseBuildInfo(resp) {
     max_bson_object_size: resp.maxBsonObjectSize,
     enterprise_module: false
   };
+  // cover both cases of detecting enterprise module, see SERVER-18099
+  if (resp.gitVersion.match(/enterprise/)) {
+    res.enterprise_module = true;
+  }
   if (resp.modules && resp.modules.indexOf('enterprise') !== -1) {
     res.enterprise_module = true;
   }

@@ -55,6 +55,26 @@ describe('unit tests on fetch functions', function() {
         done();
       }, results);
     });
+    it('should detect enterprise module correctly for 2.6 and 3.0', function(done) {
+      var results = {
+        db: makeMockDB(null, fixtures.BUILD_INFO_OLD)
+      };
+      fetch.getBuildInfo(function(err, res) {
+        assert.equal(err, null);
+        assert.equal(res.enterprise_module, true);
+        done();
+      }, results);
+    });
+    it('should detect enterprise module correctly for 3.2 +', function(done) {
+      var results = {
+        db: makeMockDB(null, fixtures.BUILD_INFO_3_2)
+      };
+      fetch.getBuildInfo(function(err, res) {
+        assert.equal(err, null);
+        assert.equal(res.enterprise_module, true);
+        done();
+      }, results);
+    });
   });
 
   describe('getHostInfo', function() {
