@@ -97,12 +97,12 @@ a help entry like so:
 ![](./images/help/my_image.png)
 ```
 
+##### External Links
+
+External links are supported and detected automatically, see for example the
+[MongoDB Manual](https://docs.mongodb.org/manual/). It should open in the user's
+default browser, not Compass.
+
 ### Known Issues
 
 - The help system currently doesn't support external links yet.
-- The help window is not yet a singleton
-- The help window is too big
-- The help window needs styling
-- The sidebar should have some hierarchy to find articles faster
-- The sidebar should have a filter at the top to find articles faster
-- The help system should be accessible from the Help menu

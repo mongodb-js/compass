@@ -22,6 +22,7 @@ var ViewSwitcher = require('ampersand-view-switcher');
 var View = require('ampersand-view');
 var localLinks = require('local-links');
 var async = require('async');
+var shell = window.require('shell');
 
 var QueryOptions = require('./models/query-options');
 var Connection = require('./models/connection');
@@ -258,10 +259,16 @@ var Application = View.extend({
     this.pageSwitcher.set(view);
   },
   onLinkClick: function(event) {
+    debug('onLinkClick', event);
     var pathname = localLinks.getLocalPathname(event);
     if (pathname) {
       event.preventDefault();
       this.router.history.navigate(pathname);
+      return;
+    } else if (event.currentTarget.getAttribute('href') !== '#') {
+      event.preventDefault();
+      event.stopPropagation();
+      shell.openExternal(event.target.href);
     }
   }
 });
@@ -271,6 +278,37 @@ var connectionId = params.connection_id;
 var state = new Application({
   connection_id: connectionId
 });
+
+function handleIntercomLinks() {
+  function getNodeObserver(fn) {
+    var observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        if (!mutation.addedNodes) {
+          return;
+        }
+        [].forEach.call(mutation.addedNodes, fn);
+      });
+    });
+    return observer;
+  }
+
+  var lookForLinks = getNodeObserver(function(element) {
+    if (element.nodeName === 'A') {
+      $(element).click(state.onLinkClick.bind(state));
+    }else {
+      $(element).find('a').click(state.onLinkClick.bind(state));
+    }
+  });
+
+  var waitForIntercom = getNodeObserver(function(element) {
+    if (element.id === 'intercom-container') { // if intercom is now available...
+      lookForLinks.observe(element, {childList: true, subtree: true});
+      waitForIntercom.disconnect(); // stop waiting for intercom
+    }
+  });
+
+  waitForIntercom.observe(document.body, {childList: true});
+}
 
 app.extend({
   client: null,
@@ -300,6 +338,8 @@ app.extend({
       state.startRouter();
       return;
     }
+
+    handleIntercomLinks();
 
     app.statusbar.show('Retrieving connection details...');
 
