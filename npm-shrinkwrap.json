@@ -1,6 +1,6 @@
 {
   "name": "mongodb-compass",
-  "version": "1.0.0-rc.1",
+  "version": "1.0.1-pre.0",
   "dependencies": {
     "abbrev": {
       "version": "1.0.7",
