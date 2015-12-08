@@ -25,8 +25,6 @@ describe('unit tests on fetch functions', function() {
       var db = {};
       db.admin = function() {
         return {
-          // add more db methods here as needed.
-
           // buildInfo is a separate function on the admin object
           buildInfo: function(callback) {
             return callback(err, res);
@@ -34,6 +32,27 @@ describe('unit tests on fetch functions', function() {
           // all other commands return the global err/res results
           command: function(command, options, callback) {
             return callback(err, res);
+          },
+          databaseName: 'admin',
+          // listCollections is a separate function on the admin object
+          listCollections: function() {
+            return {
+              toArray: function(callback) {
+                return callback(err, res);
+              }
+            };
+          }
+        };
+      };
+      db.db = function(databaseName) {
+        return {
+          databaseName: databaseName,
+          listCollections: function() {
+            return {
+              toArray: function(callback) {
+                return callback(err, res);
+              }
+            };
           }
         };
       };
@@ -108,7 +127,7 @@ describe('unit tests on fetch functions', function() {
     var results = {};
 
     beforeEach(function() {
-      results.userInfo = fixtures.USER_INFO;
+      results.userInfo = fixtures.USER_INFO_JOHN;
     });
 
     it('should ignore auth errors gracefully', function(done) {
@@ -136,20 +155,152 @@ describe('unit tests on fetch functions', function() {
   });
 
   describe('getAllowedDatabases', function() {
-    it('should return the correct results');
-    // ...
+    var results = {};
+
+    it('should return all databases for which the user can list collections', function(done) {
+      results.userInfo = fixtures.USER_INFO_JOHN;
+
+      fetch.getAllowedDatabases(function(err, res) {
+        assert.equal(err, null);
+        res.sort();
+        assert.deepEqual(res, ['accounts', 'products', 'reporting', 'sales']);
+        done();
+      }, results);
+    });
+
+    it('should return empty list for users with no list collections', function(done) {
+      results.userInfo = fixtures.USER_INFO_LISTDB_ONLY;
+
+      fetch.getAllowedDatabases(function(err, res) {
+        assert.equal(err, null);
+        assert.deepEqual(res, []);
+        done();
+      }, results);
+    });
   });
+
   describe('getAllowedCollections', function() {
-    it('should return the correct results');
-    // ...
+    var results = {};
+
+    it('should return all collections the user info says it can access', function(done) {
+      results.userInfo = fixtures.USER_INFO_JOHN;
+
+      fetch.getAllowedCollections(function(err, res) {
+        assert.equal(err, null);
+        var expected = [
+          {
+            '_id': 'tenants.mongodb',
+            'database': 'tenants',
+            'name': 'mongodb'
+          }
+        ];
+        assert.deepEqual(res, expected);
+        done();
+      }, results);
+    });
+
+    it('should return empty list for users with no collections', function(done) {
+      results.userInfo = fixtures.USER_INFO_LISTDB_ONLY;
+
+      fetch.getAllowedCollections(function(err, res) {
+        assert.equal(err, null);
+        assert.deepEqual(res, []);
+        done();
+      }, results);
+    });
   });
+
   describe('getDatabaseCollections', function() {
-    it('should ignore auth errors gracefully');
-    it('should pass on other errors from the listCollections command');
-    // ...
+    var results = {};
+    it('should ignore auth errors gracefully', function(done) {
+      results.db = makeMockDB(new Error('not authorized on fooBarDatabase to execute command '
+        + '{listCollections: true, filter: {}, cursor: {}'), null);
+
+      fetch.getDatabaseCollections(results.db.admin(), function(err, res) {
+        assert.equal(err, null);
+        assert.deepEqual(res, []);
+        done();
+      });
+    });
+
+    it('should pass on other errors from the listCollections command', function(done) {
+      results.db = makeMockDB(new Error('some other error from list collections'), null);
+
+      fetch.getDatabaseCollections(results.db.admin(), function(err, res) {
+        assert.ok(err);
+        assert.equal(err.command, 'listCollections');
+        assert.deepEqual(res, null);
+        done();
+      });
+    });
   });
+
   describe('listCollections', function() {
-    it('should merge the two collection lists correctly');
-    // ...
+    var results = {};
+
+    beforeEach(function() {
+      results.databases = [
+        {
+          'name': 'accounts'
+        },
+        {
+          'name': 'products'
+        },
+        {
+          'name': 'reporting'
+        },
+        {
+          'name': 'sales'
+        }
+      ];
+    });
+
+    it('should lists all collections for each listable db', function(done) {
+      results.userInfo = fixtures.USER_INFO_JOHN;
+      results.db = makeMockDB(null, [{
+        'name': 'testCol'
+      }]);
+
+      fetch.listCollections(function(err, res) {
+        assert.equal(err, null);
+        res.sort();
+        var expected = [
+          {
+            '_id': 'accounts.testCol',
+            'database': 'accounts',
+            'name': 'testCol'
+          },
+          {
+            '_id': 'products.testCol',
+            'database': 'products',
+            'name': 'testCol'
+          },
+          {
+            '_id': 'reporting.testCol',
+            'database': 'reporting',
+            'name': 'testCol'
+          },
+          {
+            '_id': 'sales.testCol',
+            'database': 'sales',
+            'name': 'testCol'
+          }
+        ];
+        expected.sort();
+        assert.deepEqual(res, expected);
+        done();
+      }, results);
+    });
+
+    it('should be empty for no privileges', function(done) {
+      results.userInfo = fixtures.USER_INFO_LISTDB_ONLY;
+      results.db = makeMockDB(null, []);
+
+      fetch.listCollections(function(err, res) {
+        assert.equal(err, null);
+        assert.deepEqual(res, []);
+        done();
+      }, results);
+    });
   });
 });
