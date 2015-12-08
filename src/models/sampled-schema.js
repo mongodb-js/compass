@@ -146,7 +146,10 @@ module.exports = Schema.extend({
         metrics.error(err, 'Schema: Error: End', {
           schema: model
         });
-        return options.error(model, err);
+        process.nextTick(options.error.bind(null, err));
+        app.statusbar.hide(true);
+        model.documents.reset();
+        return;
       }
       model.documents.reset(docs);
       model.documents.trigger('sync');
@@ -178,7 +181,7 @@ module.exports = Schema.extend({
         metrics.error(err, 'Schema: Error: Count', {
           schema: model
         });
-        return options.error(model, err);
+        return options.error(err);
       }
       model.total = count.count;
       if (model.total === 0) {
@@ -194,6 +197,9 @@ module.exports = Schema.extend({
       app.statusbar.width = 1;
       app.statusbar.trickle(true);
       app.client.sample(model.ns, options)
+        .on('error', function(dbErr) {
+          onEnd(dbErr);
+        })
         .pipe(es.map(parse))
         .once('data', function() {
           status = app.statusbar.width;
