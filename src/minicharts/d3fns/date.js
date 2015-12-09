@@ -168,7 +168,8 @@ var minicharts_d3fns_date = function() {
         };
       });
 
-      var innerWidth = width - margin.left - margin.right;
+      // without `-1` the tooltip won't always trigger on the rightmost value
+      var innerWidth = width - margin.left - margin.right - 1;
       var innerHeight = height - margin.top - margin.bottom;
       var el = d3.select(this);
 
