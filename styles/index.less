@@ -62,12 +62,17 @@ html, body {
   }
 }
 
-// disable highlighting for everything but input and document viewer
 * {
+  user-select: text;
+  -webkit-user-select: text;
+}
+// disable highlighting for most of the schema and document viewers
+.schema-field-list *, .document-list * {
   user-select: none;
   -webkit-user-select: none;
 }
-input, .document-list *, .feature-content * {
+// re-enable field names and individual documents
+.schema-field-name > span, .document-property-body * {
   user-select: text;
   -webkit-user-select: text;
 }
