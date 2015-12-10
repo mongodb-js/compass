@@ -21,6 +21,7 @@ var getOrCreateClient = require('mongodb-scope-client');
 var ViewSwitcher = require('ampersand-view-switcher');
 var View = require('ampersand-view');
 var localLinks = require('local-links');
+var async = require('async');
 
 var QueryOptions = require('./models/query-options');
 var Connection = require('./models/connection');
@@ -142,17 +143,21 @@ var Application = View.extend({
 
     this.startRouter();
   },
-  startRouter: function() {
-    this.router = new Router();
-    debug('Listening for page changes from the router...');
-    this.listenTo(this.router, 'page', this.onPageChange);
-
-    debug('Starting router...');
-    this.router.history.start({
-      pushState: false,
-      root: '/'
-    });
-
+  fetchUser: function(done) {
+    debug('preferences fetched, now getting user');
+    User.getOrCreate(this.preferences.currentUserId, function(err, user) {
+      if (err) {
+        metrics.error(err, 'user: get or create');
+        done(err);
+      }
+      this.user.set(user.serialize());
+      this.user.trigger('sync');
+      this.preferences.save({currentUserId: user.id});
+      debug('user fetch successful', user.serialize());
+      done(null, user);
+    }.bind(this));
+  },
+  fetchPreferences: function(done) {
     // every time the preferences change, test if we should start one of
     // the external services.
     this.preferences.on('sync', function() {
@@ -164,22 +169,24 @@ var Application = View.extend({
     }.bind(this));
 
     this.preferences.fetch({
-      success: function() {
-        User.getOrCreate(this.preferences.currentUserId, function(err, user) {
-          if (err) {
-            metrics.error(err, 'user: get or create');
-            return;
-          }
-          this.user.set(user.serialize());
-          this.user.trigger('sync');
-          this.preferences.save({currentUserId: user.id});
-        }.bind(this));
-      }.bind(this),
+      success: function(resp) {
+        done(null, resp);
+      },
       error: function(model, err) {
         metrics.error(err, 'preferences: fetch');
       }
     });
+  },
+  startRouter: function() {
+    this.router = new Router();
+    debug('Listening for page changes from the router...');
+    this.listenTo(this.router, 'page', this.onPageChange);
 
+    debug('Starting router...');
+    this.router.history.start({
+      pushState: false,
+      root: '/'
+    });
     app.statusbar.hide();
   },
   onFatalError: function(id, err) {
@@ -284,40 +291,51 @@ app.extend({
     this.trigger(msg, arg);
   },
   metrics: metrics,
-  init: function() {
-    domReady(function() {
-      state.render();
+  onDomReady: function() {
+    state.render();
 
-      if (!connectionId) {
-        // Not serving a part of the app which uses the client,
-        // so we can just start everything up now.
-        state.startRouter();
+    if (!connectionId) {
+      // Not serving a part of the app which uses the client,
+      // so we can just start everything up now.
+      state.startRouter();
+      return;
+    }
+
+    app.statusbar.show('Retrieving connection details...');
+
+    state.connection = new Connection({
+      _id: connectionId
+    });
+
+    debug('looking up connection `%s`...', connectionId);
+    getConnection(state.connection, function(err) {
+      if (err) {
+        state.onFatalError('fetch connection', err);
         return;
       }
+      app.statusbar.show('Connecting to MongoDB...');
 
-      app.statusbar.show('Retrieving connection details...');
+      var endpoint = app.endpoint;
+      var connection = state.connection.serialize();
 
-      state.connection = new Connection({
-        _id: connectionId
-      });
+      app.client = getOrCreateClient(endpoint, connection)
+        .on('readable', state.onClientReady.bind(state))
+        .on('error', state.onFatalError.bind(state, 'create client'));
 
-      debug('looking up connection `%s`...', connectionId);
-      getConnection(state.connection, function(err) {
-        if (err) {
-          state.onFatalError('fetch connection', err);
-          return;
-        }
-        app.statusbar.show('Connecting to MongoDB...');
-
-        var endpoint = app.endpoint;
-        var connection = state.connection.serialize();
-
-        app.client = getOrCreateClient(endpoint, connection)
-          .on('readable', state.onClientReady.bind(state))
-          .on('error', state.onFatalError.bind(state, 'create client'));
-
-        state.startClientStalledTimer();
-      });
+      state.startClientStalledTimer();
+    });
+  },
+  init: function() {
+    var self = this;
+    async.series([
+      state.fetchPreferences.bind(state),
+      state.fetchUser.bind(state)
+    ], function(err) {
+      if (err) {
+        throw err;
+      }
+      // as soon as dom is ready, render and set up the rest
+      domReady(self.onDomReady);
     });
     // set up ipc
     ipc.on('message', this.onMessageReceived.bind(this));
