@@ -57,15 +57,6 @@ var HomeView = View.extend({
   },
   render: function() {
     this.renderWithTemplate(this);
-    // once prefs are synced (fetched in ../app.js), check if version
-    // is new and show tour and optin modal.
-    if (app.preferences.fetched) {
-      this.preferencesSynced();
-    } else {
-      app.preferences.once('sync', this.preferencesSynced.bind(this));
-    }
-  },
-  preferencesSynced: function() {
     if (app.preferences.lastKnownVersion !== app.meta['App Version']) {
       app.preferences.save('lastKnownVersion', app.meta['App Version']);
       this.showTour();

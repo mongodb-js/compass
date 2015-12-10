@@ -203,7 +203,6 @@ var ConnectView = View.extend({
   subviews: {
     sidebar: {
       hook: 'sidebar-subview',
-      waitFor: 'connections.fetched',
       prepareView: function(el) {
         return new SidebarView({
           el: el,
