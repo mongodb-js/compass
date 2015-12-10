@@ -292,13 +292,13 @@ function getUserInfo(done, results) {
   }, function(err, res) {
     // no auth required, if this fails there was a real problem
     if (err) {
-      done(err);
+      return done(err);
     }
-    var user = res.authInfo.authenticatedUsers[0];
-    if (!user) {
+    if (!_.has(res, 'authInfo.authenticatedUsers') || !res.authInfo.authenticatedUsers[0]) {
       debug('no logged in user, returning empty document');
       return done(null, {});
     }
+    var user = res.authInfo.authenticatedUsers[0];
 
     db.command({
       usersInfo: user,
