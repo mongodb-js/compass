@@ -2735,9 +2735,9 @@
       "resolved": "https://registry.npmjs.org/mongodb-security/-/mongodb-security-0.0.4.tgz"
     },
     "mongodb-sharding": {
-      "version": "0.1.1",
-      "from": "mongodb-sharding@>=0.1.1 <0.2.0",
-      "resolved": "https://registry.npmjs.org/mongodb-sharding/-/mongodb-sharding-0.1.1.tgz"
+      "version": "0.1.2",
+      "from": "mongodb-sharding@>=0.1.2 <0.2.0",
+      "resolved": "https://registry.npmjs.org/mongodb-sharding/-/mongodb-sharding-0.1.2.tgz"
     },
     "mongodb-url": {
       "version": "1.0.2",
