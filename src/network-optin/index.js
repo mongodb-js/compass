@@ -2,6 +2,7 @@ var $ = require('jquery');
 var View = require('ampersand-view');
 var app = require('ampersand-app');
 var _ = require('lodash');
+var metrics = require('mongodb-js-metrics')();
 
 var debug = require('debug')('mongodb-compass:feature-optin:index');
 
@@ -78,7 +79,8 @@ var NetworkOptInView = View.extend({
   buttonClicked: function() {
     var features = ['intercom', 'googleAnalytics', 'bugsnag'];
     this.preferences.set('showedNetworkOptIn', true);
-    this.preferences.set(_.pick(this.serialize(), features));
+    var settings = _.pick(this.serialize(), features);
+    this.preferences.set(settings);
     this.preferences.save(null, {
       success: function(res) {
         debug('preferences saved:', _.pick(res.serialize(),
@@ -88,6 +90,12 @@ var NetworkOptInView = View.extend({
     _.delay(function() {
       this.remove();
     }.bind(this), 500);
+    var metadata = {
+      'usage stats': settings.googleAnalytics,
+      'product feedback': settings.intercom,
+      'error reports': settings.bugsnag
+    };
+    metrics.track('Network Opt-in', 'used', metadata);
   },
   render: function() {
     this.renderWithTemplate(this);

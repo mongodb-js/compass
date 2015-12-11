@@ -13,7 +13,6 @@ app.extend({
   }
 });
 
-var metrics = require('mongodb-js-metrics');
 var _ = require('lodash');
 var domReady = require('domready');
 var qs = require('qs');
@@ -31,6 +30,8 @@ var Preferences = require('./models/preferences');
 var User = require('./models/user');
 var Router = require('./router');
 var Statusbar = require('./statusbar');
+var metricsSetup = require('./metrics');
+var metrics = require('mongodb-js-metrics')();
 var $ = require('jquery');
 
 var debug = require('debug')('mongodb-compass:app');
@@ -148,7 +149,6 @@ var Application = View.extend({
     debug('preferences fetched, now getting user');
     User.getOrCreate(this.preferences.currentUserId, function(err, user) {
       if (err) {
-        metrics.error(err, 'user: get or create');
         done(err);
       }
       this.user.set(user.serialize());
@@ -159,12 +159,6 @@ var Application = View.extend({
     }.bind(this));
   },
   fetchPreferences: function(done) {
-    // every time the preferences change, test if we should start one of
-    // the external services.
-    this.preferences.on('sync', function() {
-      metrics.listen(app);
-    });
-
     this.preferences.once('sync', function() {
       this.preferences.trigger('page-refresh');
     }.bind(this));
@@ -172,9 +166,6 @@ var Application = View.extend({
     this.preferences.fetch({
       success: function(resp) {
         done(null, resp);
-      },
-      error: function(model, err) {
-        metrics.error(err, 'preferences: fetch');
       }
     });
   },
@@ -195,7 +186,7 @@ var Application = View.extend({
     clearTimeout(this.clientStalledTimeout);
 
     console.error('Fatal Error!: ', id, err);
-    metrics.error(err, 'Fatal Error: ' + id);
+    metrics.error(err);
     app.statusbar.fatal(err);
   },
   // ms we'll wait for a `mongodb-scope-client` instance
@@ -256,6 +247,7 @@ var Application = View.extend({
     this.statusbar.render();
   },
   onPageChange: function(view) {
+    metrics.track('App', 'viewed', view.screenName);
     this.pageSwitcher.set(view);
   },
   onLinkClick: function(event) {
@@ -312,23 +304,19 @@ function handleIntercomLinks() {
 
 app.extend({
   client: null,
-  config: {
-    intercom: {
-      app_id: 'p57suhg7'
-    }
-  },
+  navigate: state.navigate.bind(state),
   isFeatureEnabled: function(feature) {
     // proxy to preferences for now
     return this.preferences.isFeatureEnabled(feature);
   },
   sendMessage: function(msg, arg) {
+    debug('sending message to main process:', msg, arg);
     ipc.send('message', msg, arg);
   },
   onMessageReceived: function(msg, arg) {
     debug('message received from main process:', msg, arg);
     this.trigger(msg, arg);
   },
-  metrics: metrics,
   onDomReady: function() {
     state.render();
 
@@ -340,7 +328,6 @@ app.extend({
     }
 
     handleIntercomLinks();
-
     app.statusbar.show('Retrieving connection details...');
 
     state.connection = new Connection({
@@ -367,20 +354,29 @@ app.extend({
   },
   init: function() {
     var self = this;
+
+    // set up ipc
+    ipc.on('message', this.onMessageReceived.bind(this));
+
     async.series([
+      // get preferences from IndexedDB
       state.fetchPreferences.bind(state),
+      // get user from IndexedDB
       state.fetchUser.bind(state)
     ], function(err) {
       if (err) {
         throw err;
       }
+      // set up metrics
+      metricsSetup();
+
+      // signal to main process that app is ready
+      self.sendMessage('renderer ready');
+
       // as soon as dom is ready, render and set up the rest
       domReady(self.onDomReady);
     });
-    // set up ipc
-    ipc.on('message', this.onMessageReceived.bind(this));
-  },
-  navigate: state.navigate.bind(state)
+  }
 });
 
 Object.defineProperty(app, 'statusbar', {
@@ -431,6 +427,14 @@ Object.defineProperty(app, 'user', {
   }
 });
 
+// open intercom panel when user chooses it from menu
+app.on('show-intercom-panel', function() {
+  /* eslint new-cap: 0 */
+  if (window.Intercom && app.preferences.intercom) {
+    window.Intercom('show');
+    metrics.track('Intercom Panel', 'used');
+  }
+});
 
 app.init();
 

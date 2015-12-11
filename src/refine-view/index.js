@@ -6,6 +6,7 @@ var EJSON = require('mongodb-extended-json');
 var Query = require('mongodb-language-model').Query;
 var SamplingMessageView = require('../sampling-message');
 var QueryOptions = require('../models/query-options');
+// var metrics = require('mongodb-js-metrics')();
 // var debug = require('debug')('scout:refine-view:index');
 
 var DEFAULT_QUERY = JSON.stringify(QueryOptions.DEFAULT_QUERY);

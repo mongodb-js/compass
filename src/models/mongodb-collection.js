@@ -23,11 +23,9 @@ var CollectionModel = MongoDBCollection.extend(clientMixin, {
       }
     },
     specialish: {
-      name: {
-        deps: ['_id'],
-        fn: function() {
-          return toNS(this._id).specialish;
-        }
+      deps: ['_id'],
+      fn: function() {
+        return toNS(this._id).specialish;
       }
     },
     url: {

@@ -4,7 +4,7 @@ var storageMixin = require('storage-mixin');
 var client = require('mongodb-scope-client');
 var debug = require('debug')('mongodb-compass:models:connection');
 var uuid = require('uuid');
-var metrics = require('mongodb-js-metrics');
+var metrics = require('mongodb-js-metrics')();
 var pkg = require('../../package.json');
 
 
@@ -74,7 +74,7 @@ module.exports = Connection.extend(storageMixin, {
     var model = this.serialize();
     var onTested = function(err) {
       if (err) {
-        metrics.error(err, 'connection test failed');
+        metrics.error(err);
         return done(err);
       }
 

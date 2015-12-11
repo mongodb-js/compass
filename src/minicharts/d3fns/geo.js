@@ -8,6 +8,7 @@ var app = require('ampersand-app');
 var format = require('util').format;
 var remote = window.require('remote');
 var dialog = remote.require('dialog');
+var metrics = require('mongodb-js-metrics')();
 var BrowserWindow = remote.require('browser-window');
 
 var SHIFTKEY = 16;
@@ -106,8 +107,13 @@ var minicharts_d3fns_geo = function() {
         detail: detail,
         buttons: ['OK']
       });
-
-    // @todo thomasr/imlucas: add call to metrics.error here with errror code
+      metrics.error(new Error('Error loading Google Maps.'), {
+        details: {
+          errorCode: errorCode,
+          message: message,
+          detail: detail
+        }
+      });
     };
 
     var script = document.createElement('script');

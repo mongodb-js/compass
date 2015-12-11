@@ -1,5 +1,7 @@
 var $ = require('jquery');
 var View = require('ampersand-view');
+var metrics = require('mongodb-js-metrics')();
+
 // var debug = require('debug')('mongodb-compass:tour:index');
 
 var ESC_KEY = 27;
@@ -23,6 +25,9 @@ var TourView = View.extend({
     tourImagesFolder: {
       type: 'string',
       default: './images/tour/'
+    },
+    timeAtStart: {
+      type: 'date'
     }
   },
   template: require('./index.jade'),
@@ -56,6 +61,7 @@ var TourView = View.extend({
     this.$featuresLI = this.queryAll('#features li');
     this.$animationGIF = this.query('#animation-gif');
     this.$tourRemove = this.query('#tour-remove');
+    this.timeAtStart = new Date();
   },
   showHidePreviousNextButtons: function() {
     if (this.tourCount === 0) {
@@ -150,6 +156,10 @@ var TourView = View.extend({
     this.showHidePreviousNextButtons();
   },
   tourRemove: function() {
+    metrics.track('Feature Tour', 'used', {
+      lastSlide: this.tourCount,
+      totalTime: new Date() - this.timeAtStart
+    });
     this.trigger('close');
     this.body.removeEventListener('keydown', this.onKeyPress);
     this.remove();

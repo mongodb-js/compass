@@ -10,12 +10,12 @@ var View = require('ampersand-view');
 var _ = require('lodash');
 var app = require('ampersand-app');
 var format = require('util').format;
-var metrics = require('mongodb-js-metrics');
 
 var remote = window.require('remote');
 var dialog = remote.require('dialog');
 var Clipboard = remote.require('clipboard');
 var BrowserWindow = remote.require('browser-window');
+var metrics = require('mongodb-js-metrics')();
 
 var debug = require('debug')('mongodb-compass:connect:index');
 
@@ -31,6 +31,7 @@ var sslMethods = require('./ssl');
 
 var ConnectView = View.extend({
   template: require('./index.jade'),
+  screenName: 'Connect',
   props: {
     form: 'state',
     stateMachine: 'state',
@@ -285,6 +286,10 @@ var ConnectView = View.extend({
           + 'fill out this form?',
         buttons: ['Yes', 'No']
       }, function(response) {
+        // track clipboard feature with user response
+        metrics.track('Clipboard Detection', 'used', {
+          answer: response === 0 ? 'yes' : 'no'
+        });
         if (response === 0) {
           this.autofillFromClipboard();
         }
@@ -428,9 +433,12 @@ var ConnectView = View.extend({
   useConnection: function(connection) {
     connection = connection || this.connection;
     app.statusbar.hide();
-    metrics.track('connect success', {
+    metrics.track('Connection', 'used', {
       authentication: connection.authentication,
-      ssl: connection.ssl
+      ssl: connection.ssl,
+      'localhost': connection.hostname === 'localhost',
+      'default port': connection.port === 27017,
+      'outcome': 'success'
     });
 
     /**
@@ -501,11 +509,14 @@ var ConnectView = View.extend({
    * @api private
    */
   onError: function(err, connection) {
-    metrics.error(err, 'connect error', {
+    metrics.track('Connection', 'used', {
       authentication: connection.authentication,
-      ssl: connection.ssl
+      ssl: connection.ssl,
+      'localhost': connection.hostname === 'localhost',
+      'default port': connection.port === 27017,
+      'outcome': 'error'
     });
-
+    metrics.error(err);
     debug('showing error message', {
       err: err,
       model: connection

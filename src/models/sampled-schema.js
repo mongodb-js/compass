@@ -5,7 +5,7 @@ var FieldCollection = require('mongodb-schema').FieldCollection;
 var filterableMixin = require('ampersand-collection-filterable');
 var es = require('event-stream');
 var debug = require('debug')('mongodb-compass:models:schema');
-var metrics = require('mongodb-js-metrics');
+var metrics = require('mongodb-js-metrics')();
 var app = require('ampersand-app');
 
 /**
@@ -122,10 +122,7 @@ module.exports = Schema.extend({
         model.parse(doc);
       } catch (err) {
         erroredOnDocs.push(doc);
-        metrics.error(err, 'Schema: Error: Parse', {
-          doc: doc,
-          schema: model.serialize()
-        });
+        metrics.error(err);
       }
       sampleCount++;
       cb(null, doc);
@@ -134,9 +131,7 @@ module.exports = Schema.extend({
     var onEnd = function(err) {
       model.is_fetching = false;
       if (err) {
-        metrics.error(err, 'Schema: Error: End', {
-          schema: model
-        });
+        metrics.error(err);
         process.nextTick(options.error.bind(null, err));
         app.statusbar.hide(true);
         return;
@@ -147,17 +142,15 @@ module.exports = Schema.extend({
       var totalTime = new Date() - start;
       var timeToFirstDoc = timeAtFirstDoc - start;
 
-      metrics.track('Schema: Complete', {
+      metrics.track('Schema', 'sampled', {
         duration: totalTime,
+        'query clauses count': _.keys(options.query).length,
         'total document count': model.total,
         'sample size': sampleCount,
         'errored document count': erroredOnDocs.length,
         'total sample time': timeToFirstDoc,
         'total analysis time': totalTime - timeToFirstDoc,
         'average analysis time per doc': (totalTime - timeToFirstDoc) / sampleCount
-      // 'Schema Height': model.height, // # of top level keys
-      // 'Schema Width': model.width, // max nesting depth
-      // 'Schema Sparsity': model.sparsity // lots of fields missing or consistent
       });
       options.success({});
     };
@@ -166,9 +159,7 @@ module.exports = Schema.extend({
 
     app.client.count(model.ns, options, function(err, count) {
       if (err) {
-        metrics.error(err, 'Schema: Error: Count', {
-          schema: model
-        });
+        metrics.error(err);
         return options.error(err);
       }
       model.total = count.count;

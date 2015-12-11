@@ -9,6 +9,7 @@ var ArrayRootMinichartView = require('./array-root');
 var vizFns = require('./d3fns');
 var QueryBuilderMixin = require('./querybuilder');
 var Collection = require('ampersand-collection');
+var metrics = require('mongodb-js-metrics')();
 var navigator = window.navigator;
 
 // var debug = require('debug')('mongodb-compass:minicharts:index');
@@ -120,6 +121,7 @@ module.exports = AmpersandView.extend(QueryBuilderMixin, {
     this._geoCoordinateTransform();
 
     if (this.model.name === 'Coordinates') {
+      metrics.track('Geo Data', 'detected');
       // check if we can load google maps or if we need to fall back to
       // a simpler coordinate chart
       if (app.isFeatureEnabled('googleMaps')

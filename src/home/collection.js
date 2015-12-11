@@ -13,6 +13,7 @@ var remote = window.require('remote');
 var dialog = remote.require('dialog');
 var BrowserWindow = remote.require('browser-window');
 var format = require('util').format;
+var metrics = require('mongodb-js-metrics')();
 var debug = require('debug')('mongodb-compass:home:collection');
 
 var MongoDBCollectionView = View.extend({
@@ -130,6 +131,8 @@ var MongoDBCollectionView = View.extend({
       detail: detail,
       buttons: ['OK']
     });
+
+    metrics.track('Share Schema', 'used');
   },
   onCollectionChanged: function() {
     var ns = this.parent.ns;
@@ -163,7 +166,18 @@ var MongoDBCollectionView = View.extend({
         alert(msg);
       }
     }));
+    this.model.once('sync', this.onCollectionFetched.bind(this));
     this.model.fetch();
+  },
+  onCollectionFetched: function(model) {
+    // track collection information
+    var metadata = _.omit(model.serialize(), ['_id', 'database',
+      'index_details', 'wired_tiger']);
+    metadata.specialish = model.specialish;
+    metadata['database name length'] = model.database.length;
+    metadata['collection name length'] = model.getId().length -
+      model.database.length - 1;
+    metrics.track('Collection', 'fetched', metadata);
   },
   onQueryChanged: function() {
     var options = app.queryOptions.serialize();
@@ -175,6 +189,9 @@ var MongoDBCollectionView = View.extend({
    */
   onSplitterClick: function() {
     this.toggle('sidebar_open');
+    metrics.track('Document Viewer', 'used', {
+      opened: this.sidebar_open
+    });
   },
   subviews: {
     stats: {

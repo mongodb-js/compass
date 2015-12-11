@@ -43,6 +43,9 @@ var helpWindow;
 // since this code was laid down.
 var windowsOpenCount = 0;
 
+// track if app was launched, @see `renderer ready` handler below
+var appLaunched = false;
+
 // returns true if the application is a single instance application otherwise
 // focus the second window (which we'll quit from) and return false
 // see "app.makeSingleInstance" in https://github.com/atom/electron/blob/master/docs/api/app.md
@@ -195,11 +198,31 @@ app.on('hide share submenu', function() {
 });
 
 app.on('show compass overview submenu', function() {
+  debug('show compass overview');
   AppMenu.showCompassOverview();
 });
 
 app.on('show share submenu', function() {
   AppMenu.showShare();
+});
+
+/**
+ * can't use webContents `did-finish-load` event here because
+ * metrics aren't set up at that point. renderer app sends custom event
+ * `renderer ready` when metrics are set up. If first app launch, send back
+ * `app launched` message at that point.
+ */
+app.on('renderer ready', function(arg, event) {
+  if (!appLaunched) {
+    appLaunched = true;
+    debug('sending `app-launched` msg back');
+    event.sender.send('message', 'app-launched');
+  }
+});
+
+app.on('before-quit', function() {
+  debug('sending `app-quit` msg');
+  BrowserWindow.getAllWindows()[0].webContents.send('message', 'app-quit');
 });
 
 app.on('show bugsnag OS notification', function(errorMsg) {

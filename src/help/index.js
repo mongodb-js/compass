@@ -9,12 +9,14 @@ var HelpEntry = require('../models/help-entry');
 var SidebarView = require('../sidebar');
 var ViewSwitcher = require('ampersand-view-switcher');
 var app = require('ampersand-app');
+var metrics = require('mongodb-js-metrics')();
 var _ = require('lodash');
 
 var entries = new HelpEntryCollection();
 
 var HelpPage = View.extend({
   template: require('./index.jade'),
+  screenName: 'Help',
   session: {
     entryId: 'string'
   },
@@ -169,6 +171,9 @@ var HelpPage = View.extend({
     this.entry.set(entry.serialize());
     app.navigate(format('help/%s', this.entry.getId()), {
       silent: true
+    });
+    metrics.track('Help Window', 'used', {
+      topic: this.entry.title
     });
   }
 });

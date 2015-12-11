@@ -168,21 +168,6 @@ var Preferences = Model.extend(storageMixin, {
       default: true
     }
   },
-  /**
-   * returns whether or not a given feature is enabled. In most cases, it just
-   * passes through whatever property is asked for, but some checks are more
-   * complex, like the `disableNetworkTraffic` master switch, which overwrites
-   * other feature flags.
-   *
-   * @param  {String} feature    check for this feature
-   * @return {Boolean}           enabled = true, disabled = false
-   *
-   * @example
-   * ```
-   * app.isFeatureEnabled('authWithKerberos')
-   * ```
-   * returns either true or false
-   */
   initialize: function() {
     this.on('page-refresh', this.onPageRefresh.bind(this));
     this.on('app-restart', this.onAppRestart.bind(this));
@@ -198,6 +183,21 @@ var Preferences = Model.extend(storageMixin, {
     debug('version mismatch detected: was %s, now %s',
       lastKnownVersion, currentVersion);
   },
+  /**
+   * returns whether or not a given feature is enabled. In most cases, it just
+   * passes through whatever property is asked for, but some checks are more
+   * complex, like the `disableNetworkTraffic` master switch, which overwrites
+   * other feature flags.
+   *
+   * @param  {String} feature    check for this feature
+   * @return {Boolean}           enabled = true, disabled = false
+   *
+   * @example
+   * ```
+   * app.isFeatureEnabled('authWithKerberos')
+   * ```
+   * returns either true or false
+   */
   isFeatureEnabled: function(feature) {
     // master network switch overwrites all network related features
     if (['googleMaps', 'bugsnag', 'intercom',

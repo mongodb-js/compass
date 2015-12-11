@@ -159,7 +159,7 @@ function intercomItem() {
   return {
     label: '&Provide Feedback',
     click: function() {
-      BrowserWindow.getFocusedWindow().webContents.executeJavaScript('Intercom(\'show\')');
+      BrowserWindow.getFocusedWindow().webContents.send('message', 'show-intercom-panel');
     }
   };
 }

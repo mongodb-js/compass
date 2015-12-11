@@ -7,9 +7,12 @@ var CollectionListItemView = require('./collection-list-item');
 var TourView = require('../tour');
 var NetworkOptInView = require('../network-optin');
 var app = require('ampersand-app');
+var metrics = require('mongodb-js-metrics')();
+var _ = require('lodash');
 var debug = require('debug')('mongodb-compass:home');
 
 var HomeView = View.extend({
+  screenName: 'Schema',
   props: {
     switcher: {
       type: 'object',
@@ -85,6 +88,22 @@ var HomeView = View.extend({
     } else {
       this.showDefaultZeroState = true;
     }
+    metrics.track('Deployment', 'detected', {
+      'databases count': app.instance.databases.length,
+      'namespaces count': app.instance.collections.length,
+      'mongodb version': app.instance.build.version,
+      'enterprise module': app.instance.build.enterprise_module,
+      'longest database name length': _.max(app.instance.databases.map(function(db) {
+        return db._id.length;
+      })),
+      'longest collection name length': _.max(app.instance.collections.map(function(col) {
+        return col._id.split('.')[1].length;
+      })),
+      'server architecture': app.instance.host.arch,
+      'server cpu cores': app.instance.host.cpu_cores,
+      'server cpu frequency (mhz)': app.instance.host.cpu_frequency / 1000 / 1000,
+      'server memory size (gb)': app.instance.host.memory_bits / 1024 / 1024 / 1024
+    });
     if (!this.ns) {
       app.instance.collections.unselectAll();
 

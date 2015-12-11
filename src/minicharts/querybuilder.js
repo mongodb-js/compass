@@ -8,6 +8,7 @@ var LeafClause = require('mongodb-language-model').LeafClause;
 var ListOperator = require('mongodb-language-model').ListOperator;
 var GeoOperator = require('mongodb-language-model').GeoOperator;
 var Range = require('mongodb-language-model').helpers.Range;
+var metrics = require('mongodb-js-metrics')();
 
 // var debug = require('debug')('mongodb-compass:minicharts:querybuilder');
 
@@ -105,7 +106,15 @@ module.exports = {
       message = this['updateUI_' + queryType](message);
     }
     this.updateVolatileQuery(message);
+
+    // track query builder usage with type,but at most once per sec
+    this.trackMetrics('Query Builder', 'used', {
+      type: this.model.getType(),
+      unique: data.source === 'unique',
+      mode: queryType
+    });
   },
+  trackMetrics: _.debounce(metrics.track.bind(metrics), 1000),
   /**
    * adds `selected` for distinct query builder events, e.g. string and unique
    * type. Single click selects individual element, shift-click adds to selection.
