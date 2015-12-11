@@ -2698,9 +2698,9 @@
       "resolved": "https://registry.npmjs.org/mongodb-read-preference/-/mongodb-read-preference-1.0.4.tgz"
     },
     "mongodb-replicaset": {
-      "version": "0.1.0",
-      "from": "mongodb-replicaset@>=0.1.0 <0.2.0",
-      "resolved": "https://registry.npmjs.org/mongodb-replicaset/-/mongodb-replicaset-0.1.0.tgz"
+      "version": "0.1.1",
+      "from": "mongodb-replicaset@>=0.1.1 <0.2.0",
+      "resolved": "https://registry.npmjs.org/mongodb-replicaset/-/mongodb-replicaset-0.1.1.tgz"
     },
     "mongodb-schema": {
       "version": "3.3.1",
