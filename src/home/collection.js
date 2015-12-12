@@ -4,9 +4,11 @@ var FieldListView = require('../field-list');
 var DocumentListView = require('../document-list');
 var RefineBarView = require('../refine-view');
 var MongoDBCollection = require('../models/mongodb-collection');
+var QueryOptions = require('../models/query-options');
 var SampledSchema = require('../models/sampled-schema');
 var app = require('ampersand-app');
 var _ = require('lodash');
+var ms = require('ms');
 var remote = window.require('remote');
 var dialog = remote.require('dialog');
 var BrowserWindow = remote.require('browser-window');
@@ -110,7 +112,20 @@ var MongoDBCollectionView = View.extend({
     debug('updating namespace to `%s`', ns);
     this.schema.reset();
     this.schema.fetch(_.assign({}, app.volatileQueryOptions.serialize(), {
-      message: 'Analyzing documents...'
+      message: 'Analyzing documents...',
+      error: function(model, err) {
+        debug('Fetching schema had an error:', err);
+        var msg;
+        if (/operation exceeded time limit/.test(err.message)) {
+          msg = 'Your query took more than ' + ms(QueryOptions.DEFAULT_MAX_TIME_MS, {long: true}) +
+            ' to complete on the database. ' +
+            'As a safety measure, Compass aborts long-running queries. ' +
+            'This limit is currently not configurable.';
+        } else {
+          msg = err.message;
+        }
+        alert(msg);
+      }
     }));
     this.model.fetch();
   },
