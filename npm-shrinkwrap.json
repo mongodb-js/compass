@@ -2688,9 +2688,9 @@
       "resolved": "https://registry.npmjs.org/mongodb-language-model/-/mongodb-language-model-0.3.3.tgz"
     },
     "mongodb-ns": {
-      "version": "1.0.1",
-      "from": "mongodb-ns@>=1.0.1 <2.0.0",
-      "resolved": "https://registry.npmjs.org/mongodb-ns/-/mongodb-ns-1.0.1.tgz"
+      "version": "1.0.3",
+      "from": "mongodb-ns@>=1.0.3 <2.0.0",
+      "resolved": "https://registry.npmjs.org/mongodb-ns/-/mongodb-ns-1.0.3.tgz"
     },
     "mongodb-read-preference": {
       "version": "1.0.4",
