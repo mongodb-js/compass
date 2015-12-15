@@ -2658,9 +2658,9 @@
       }
     },
     "mongodb-instance-model": {
-      "version": "2.1.4",
-      "from": "mongodb-instance-model@2.1.4",
-      "resolved": "https://registry.npmjs.org/mongodb-instance-model/-/mongodb-instance-model-2.1.4.tgz"
+      "version": "2.1.6",
+      "from": "mongodb-instance-model@2.1.6",
+      "resolved": "https://registry.npmjs.org/mongodb-instance-model/-/mongodb-instance-model-2.1.6.tgz"
     },
     "mongodb-js-errors": {
       "version": "0.0.1",
