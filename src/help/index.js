@@ -67,11 +67,10 @@ var HelpPage = View.extend({
     this.listenTo(app, 'show-help-entry', this.show.bind(this));
   },
   onLinkClicked: function(evt) {
-    evt.preventDefault();
-    evt.stopPropagation();
-    // @todo handle external links
     var entryId = evt.delegateTarget.hash.slice(1);
-    if (entryId) {
+    if (entryId && entries.get(entryId)) {
+      evt.preventDefault();
+      evt.stopPropagation();
       this.show(entryId);
     }
   },
