@@ -2597,9 +2597,9 @@
       "resolved": "https://registry.npmjs.org/mongodb-collection-sample/-/mongodb-collection-sample-0.1.7.tgz"
     },
     "mongodb-connection-model": {
-      "version": "3.0.9",
-      "from": "mongodb-connection-model@>=3.0.7 <4.0.0",
-      "resolved": "https://registry.npmjs.org/mongodb-connection-model/-/mongodb-connection-model-3.0.9.tgz"
+      "version": "3.0.10",
+      "from": "mongodb-connection-model@>=3.0.10 <4.0.0",
+      "resolved": "https://registry.npmjs.org/mongodb-connection-model/-/mongodb-connection-model-3.0.10.tgz"
     },
     "mongodb-core": {
       "version": "1.2.24",
@@ -2708,14 +2708,14 @@
       "resolved": "https://registry.npmjs.org/mongodb-schema/-/mongodb-schema-3.3.1.tgz"
     },
     "mongodb-scope-client": {
-      "version": "0.6.0",
-      "from": "http://bin.mongodb.org/js/mongodb-scope-client/v0.6.0/mongodb-scope-client-0.6.0.tar.gz",
-      "resolved": "http://bin.mongodb.org/js/mongodb-scope-client/v0.6.0/mongodb-scope-client-0.6.0.tar.gz"
+      "version": "0.7.0",
+      "from": "http://bin.mongodb.org/js/mongodb-scope-client/v0.7.0/mongodb-scope-client-0.7.0.tar.gz",
+      "resolved": "http://bin.mongodb.org/js/mongodb-scope-client/v0.7.0/mongodb-scope-client-0.7.0.tar.gz"
     },
     "mongodb-scope-server": {
-      "version": "0.10.0",
-      "from": "http://bin.mongodb.org/js/mongodb-scope-server/v0.10.0/mongodb-scope-server-0.10.0.tar.gz",
-      "resolved": "http://bin.mongodb.org/js/mongodb-scope-server/v0.10.0/mongodb-scope-server-0.10.0.tar.gz",
+      "version": "0.12.0",
+      "from": "http://bin.mongodb.org/js/mongodb-scope-server/v0.12.0/mongodb-scope-server-0.12.0.tar.gz",
+      "resolved": "http://bin.mongodb.org/js/mongodb-scope-server/v0.12.0/mongodb-scope-server-0.12.0.tar.gz",
       "dependencies": {
         "boom": {
           "version": "3.0.0",
