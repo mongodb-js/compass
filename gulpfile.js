@@ -278,8 +278,7 @@ gulp.task('electron-rebuild',
     'electron-rebuild',
     '--version %s',
     '--node-module-version 47',
-    '--module-dir ./build/node_modules',
-    '--which-module keytar'
+    '--module-dir ./build/node_modules'
   ].join(' '), pkg.electron_version)));
 
 var fs = require('fs');
