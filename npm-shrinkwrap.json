@@ -2617,9 +2617,9 @@
       "resolved": "https://registry.npmjs.org/mongodb-deployment-model/-/mongodb-deployment-model-2.0.1.tgz"
     },
     "mongodb-extended-json": {
-      "version": "1.5.7",
-      "from": "mongodb-extended-json@>=1.5.7 <2.0.0",
-      "resolved": "https://registry.npmjs.org/mongodb-extended-json/-/mongodb-extended-json-1.5.7.tgz"
+      "version": "1.6.0",
+      "from": "mongodb-extended-json@>=1.6.0 <2.0.0",
+      "resolved": "https://registry.npmjs.org/mongodb-extended-json/-/mongodb-extended-json-1.6.0.tgz"
     },
     "mongodb-favicon": {
       "version": "0.0.1",
