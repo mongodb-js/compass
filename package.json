@@ -120,7 +120,7 @@
     "mongodb-language-model": "^0.3.3",
     "mongodb-ns": "^1.0.3",
     "mongodb-schema": "^3.3.1",
-    "mongodb-scope-client": "http://bin.mongodb.org/js/mongodb-scope-client/v0.7.0/mongodb-scope-client-0.7.0.tar.gz",
+    "mongodb-scope-client": "http://bin.mongodb.org/js/mongodb-scope-client/v0.8.0/mongodb-scope-client-0.8.0.tar.gz",
     "mongodb-scope-server": "http://bin.mongodb.org/js/mongodb-scope-server/v0.12.0/mongodb-scope-server-0.12.0.tar.gz",
     "mousetrap": "^1.5.3",
     "ms": "^0.7.1",
