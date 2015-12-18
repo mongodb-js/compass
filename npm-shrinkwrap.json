@@ -2708,9 +2708,9 @@
       "resolved": "https://registry.npmjs.org/mongodb-schema/-/mongodb-schema-3.3.1.tgz"
     },
     "mongodb-scope-client": {
-      "version": "0.7.0",
-      "from": "http://bin.mongodb.org/js/mongodb-scope-client/v0.7.0/mongodb-scope-client-0.7.0.tar.gz",
-      "resolved": "http://bin.mongodb.org/js/mongodb-scope-client/v0.7.0/mongodb-scope-client-0.7.0.tar.gz"
+      "version": "0.8.0",
+      "from": "http://bin.mongodb.org/js/mongodb-scope-client/v0.8.0/mongodb-scope-client-0.8.0.tar.gz",
+      "resolved": "http://bin.mongodb.org/js/mongodb-scope-client/v0.8.0/mongodb-scope-client-0.8.0.tar.gz"
     },
     "mongodb-scope-server": {
       "version": "0.12.0",
