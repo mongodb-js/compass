@@ -26,12 +26,6 @@
     }
   }
 
-  // the favorites list needs more vertical spacing in between list items
-  ul.list-group.root > li.list-group-item-heading:first-child .list-group .list-group-item {
-    padding: 2px 0;
-    margin: 2px 0;
-  }
-
   ul.list-group {
     margin-bottom: 4px;
     line-height: 100%;
@@ -64,19 +58,13 @@
           padding-right: 5px;
         }
       }
-      .name {
-        font-size: 16px;
-        font-weight: bold;
-        margin-bottom: 8px;
-      }
 
       .date {
         font-size: 11px;
         color: @gray3;
       }
 
-      .host, .user {
-        // font-size: 16px;
+      .name {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;

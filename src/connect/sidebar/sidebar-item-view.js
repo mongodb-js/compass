@@ -25,13 +25,26 @@ module.exports = ListItemView.extend({
       fn: function() {
         return this.model.hostname + ':' + this.model.port;
       }
+    },
+    name: {
+      deps: ['model.name', 'model.username', 'host'],
+      fn: function() {
+        if (this.model.is_favorite) {
+          return this.model.name;
+        }
+        var name = this.host;
+        if (this.model.authentication !== 'NONE') {
+          name = this.model.username + '@' + name;
+        }
+        return name;
+      }
     }
   },
   bindings: _.extend({}, ListItemView.prototype.bindings, {
     date: {
       hook: 'date'
     },
-    'model.name': [
+    name: [
       {
         type: 'toggle',
         hook: 'name'
@@ -40,33 +53,9 @@ module.exports = ListItemView.extend({
         hook: 'name'
       }
     ],
-    host: [
-      {
-        type: 'toggle',
-        hook: 'host'
-      },
-      {
-        hook: 'host-text'
-      },
-      {
-        type: 'attribute',
-        hook: 'host-text',
-        name: 'title'
-      }
-    ],
-    'model.username': [
-      {
-        type: 'toggle',
-        hook: 'user'
-      },
-      {
-        hook: 'user-text'
-      },
-      {
-        type: 'attribute',
-        hook: 'user-text',
-        name: 'title'
-      }
-    ]
+    host: {
+      type: 'attribute',
+      name: 'title'
+    }
   })
 });
