@@ -11,6 +11,17 @@ var debug = require('debug')('electron:index');
 
 if (!require('electron-squirrel-startup')) {
   var app = require('app');
+
+  var shouldQuit = app.makeSingleInstance(function(commandLine) {
+    debug('Second electron instance attempted:', commandLine);
+    return true;
+  });
+
+  if (shouldQuit) {
+    app.quit();
+    return;
+  }
+
   var serverctl = require('./mongodb-scope-server-ctl');
 
   app.on('window-all-closed', function() {
