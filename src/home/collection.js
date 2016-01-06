@@ -70,9 +70,22 @@ var MongoDBCollectionView = View.extend({
   },
   initialize: function() {
     this.model = new MongoDBCollection();
+    this.on('change:sidebar_open', function(payload, newValue) {
+      if (newValue) {
+        this.documents.loadDocuments();
+      } else {
+        this.documents.reset();
+      }
+    });
     this.listenTo(this.schema, 'sync', this.schemaIsSynced.bind(this));
     this.listenTo(this.schema, 'request', this.schemaIsRequested.bind(this));
     this.listenToAndRun(this.parent, 'change:ns', this.onCollectionChanged.bind(this));
+  },
+  render: function() {
+    this.renderWithTemplate(this);
+    this.query('.side').addEventListener('scroll',
+      this.documents.onViewerScroll.bind(this.documents, this.query('.side')));
+    return this;
   },
   schemaIsSynced: function() {
     // only listen to share menu events if we have a sync'ed schema
@@ -98,6 +111,7 @@ var MongoDBCollectionView = View.extend({
     });
   },
   onCollectionChanged: function() {
+    this.sidebar_open = false;
     var ns = this.parent.ns;
     if (!ns) {
       this.visible = false;
@@ -130,6 +144,7 @@ var MongoDBCollectionView = View.extend({
     this.model.fetch();
   },
   onQueryChanged: function() {
+    this.sidebar_open = false;
     var options = app.queryOptions.serialize();
     options.message = 'Analyzing documents...';
     this.schema.refine(options);
@@ -179,8 +194,7 @@ var MongoDBCollectionView = View.extend({
       prepareView: function(el) {
         return new DocumentListView({
           el: el,
-          parent: this,
-          collection: this.schema.documents
+          parent: this
         });
       }
     }

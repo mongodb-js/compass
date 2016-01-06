@@ -120,7 +120,7 @@ module.exports = Schema.extend({
 
     var docs = [];
     var addToDocuments = function(doc, cb) {
-      docs.push(doc);
+      docs.push({ _id: doc._id });
       cb();
     };
 
