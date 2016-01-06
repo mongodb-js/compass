@@ -150,7 +150,10 @@ app.on('show about dialog', function() {
 
 app.on('show connect dialog', function() {
   if (connectWindow) {
-    connectWindow.focus();
+    if (connectWindow.isMinimized()) {
+      connectWindow.restore();
+    }
+    connectWindow.show();
     return connectWindow;
   }
 

@@ -14,6 +14,7 @@ if (!require('electron-squirrel-startup')) {
 
   var shouldQuit = app.makeSingleInstance(function(commandLine) {
     debug('Second electron instance attempted:', commandLine);
+    app.emit('show connect dialog');
     return true;
   });
 
