@@ -142,5 +142,7 @@ module.exports.getId = function(id) {
   return id.toLowerCase()
     .replace(hostname.toLowerCase(), 'localhost')
     .replace('127.0.0.1', 'localhost')
-    .replace('mongodb://', '');
+    .replace('mongodb://', '')
+    .replace(/^[^@]+@/, '')
+    .replace(/\/?\?(?:\w+=[^&]+&)*\w+=[^&]+$/, '');
 };

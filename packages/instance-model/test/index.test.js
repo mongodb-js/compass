@@ -23,6 +23,18 @@ describe('mongodb-instance-model', function() {
     it('should remove mongodb://', function() {
       assert.equal(Instance.getId('mongodb://localhost:27017'), 'localhost:27017');
     });
+    it('should remove mongodb://user:pass@', function() {
+      assert.equal(Instance.getId('mongodb://matt:123@localhost:27017'), 'localhost:27017');
+    });
+    it('should remove user:pass@', function() {
+      assert.equal(Instance.getId('matt:123@localhost:27017'), 'localhost:27017');
+    });
+    it('should remove a trailing option', function() {
+      assert.equal(Instance.getId('localhost:27017/?option=thing'), 'localhost:27017');
+    });
+    it('should remove many trailing options', function() {
+      assert.equal(Instance.getId('localhost:27017/?option=thing&otherThing=coolStuff&zombies=true'), 'localhost:27017');
+    });
     it('should substitute localhost for 127.0.0.1', function() {
       assert.equal(Instance.getId('127.0.0.1:27017'), 'localhost:27017');
     });
