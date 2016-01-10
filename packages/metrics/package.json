@@ -14,10 +14,20 @@
     "url": "git://github.com/mongodb-js/metrics.git"
   },
   "dependencies": {
-    "bugsnag-js": "^2.4.8",
+    "ampersand-collection": "^1.5.0",
+    "ampersand-collection-lodash-mixin": "^2.0.1",
+    "ampersand-state": "^4.8.2",
+    "async": "^1.5.1",
+    "bugsnag-js": "^2.4.9",
+    "caller-id": "^0.1.0",
     "debug": "^2.2.0",
     "lodash": "^3.10.1",
-    "universal-analytics": "^0.3.9"
+    "mixpanel-browser": "^2.7.2",
+    "mongodb-redact": "0.1.0",
+    "request": "^2.67.0",
+    "singleton-js": "^1.0.0",
+    "universal-analytics": "^0.3.9",
+    "xhr": "^2.2.0"
   },
   "devDependencies": {
     "eslint-config-mongodb-js": "^1.0.5",
