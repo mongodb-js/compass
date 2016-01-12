@@ -33,7 +33,10 @@ var DocumentListView = View.extend({
     }
   },
   getDocumentIds: function() {
-    var _ids = this.parent.schema.documents.serialize().map(function(doc) { return doc._id; });
+    var _ids = [];
+    this.parent.schema.fields.get('_id').types.forEach(function(type) {
+      _ids = _ids.concat(type.values.serialize());
+    });
     return _ids;
   },
   loadDocuments: function() {

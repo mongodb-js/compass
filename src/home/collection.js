@@ -23,6 +23,10 @@ var MongoDBCollectionView = View.extend({
       type: 'boolean',
       default: false
     },
+    schema_synched: {
+      type: 'boolean',
+      default: false
+    },
     visible: {
       type: 'boolean',
       default: false
@@ -83,18 +87,26 @@ var MongoDBCollectionView = View.extend({
   },
   render: function() {
     this.renderWithTemplate(this);
-    this.query('.side').addEventListener('scroll',
-      this.documents.onViewerScroll.bind(this.documents, this.query('.side')));
+    var sidebar = this.query('.side');
+    sidebar.addEventListener('scroll', function() {
+      if (this.schema_synched) this.documents.onViewerScroll(sidebar);
+    }.bind(this));
     return this;
   },
   schemaIsSynced: function() {
     // only listen to share menu events if we have a sync'ed schema
+    this.schema_synched = true;
     this.listenTo(app, 'menu-share-schema-json', this.onShareSchema.bind(this));
     app.sendMessage('show share submenu');
+    if (this.sidebar_open) {
+      this.documents.loadDocuments();
+    }
   },
   schemaIsRequested: function() {
+    this.schema_synched = false;
     app.sendMessage('hide share submenu');
     this.stopListening(app, 'menu-share-schema-json');
+    if (this.sidebar_open && this.documents) this.documents.reset();
   },
   onShareSchema: function() {
     var clipboard = window.require('clipboard');
@@ -111,7 +123,6 @@ var MongoDBCollectionView = View.extend({
     });
   },
   onCollectionChanged: function() {
-    this.sidebar_open = false;
     var ns = this.parent.ns;
     if (!ns) {
       this.visible = false;
@@ -144,7 +155,6 @@ var MongoDBCollectionView = View.extend({
     this.model.fetch();
   },
   onQueryChanged: function() {
-    this.sidebar_open = false;
     var options = app.queryOptions.serialize();
     options.message = 'Analyzing documents...';
     this.schema.refine(options);

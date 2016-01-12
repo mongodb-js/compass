@@ -3,7 +3,6 @@ var Schema = require('mongodb-schema').Schema;
 var wrapError = require('./wrap-error');
 var FieldCollection = require('mongodb-schema').FieldCollection;
 var filterableMixin = require('ampersand-collection-filterable');
-var SampledDocumentCollection = require('./sampled-document-collection');
 var es = require('event-stream');
 var debug = require('debug')('mongodb-compass:models:schema');
 var metrics = require('mongodb-js-metrics');
@@ -35,8 +34,7 @@ module.exports = Schema.extend({
   },
   namespace: 'SampledSchema',
   collections: {
-    fields: FilterableFieldCollection,
-    documents: SampledDocumentCollection
+    fields: FilterableFieldCollection
   },
   /**
    * Clear any data accumulated from sampling.
@@ -45,7 +43,6 @@ module.exports = Schema.extend({
     debug('resetting');
     this.count = 0;
     this.fields.reset();
-    this.documents.reset();
   },
   /**
    * After you fetch an initial sample, next you'll want to drill-down to a
@@ -109,19 +106,12 @@ module.exports = Schema.extend({
     var start = new Date();
     var timeAtFirstDoc;
     var erroredOnDocs = [];
+    var sampleCount = 0;
 
     // No results found
     var onEmpty = function() {
       model.is_fetching = false;
-      model.documents.reset();
-      model.documents.trigger('sync');
       options.success({});
-    };
-
-    var docs = [];
-    var addToDocuments = function(doc, cb) {
-      docs.push({ _id: doc._id });
-      cb();
     };
 
     var parse = function(doc, cb) {
@@ -137,6 +127,7 @@ module.exports = Schema.extend({
           schema: model.serialize()
         });
       }
+      sampleCount++;
       cb(null, doc);
     };
 
@@ -148,11 +139,8 @@ module.exports = Schema.extend({
         });
         process.nextTick(options.error.bind(null, err));
         app.statusbar.hide(true);
-        model.documents.reset();
         return;
       }
-      model.documents.reset(docs);
-      model.documents.trigger('sync');
       app.statusbar.hide(true);
 
       // @note (imlucas): Any other metrics?  Feedback on `Schema *`?
@@ -162,11 +150,11 @@ module.exports = Schema.extend({
       metrics.track('Schema: Complete', {
         duration: totalTime,
         'total document count': model.total,
-        'sample size': model.documents.length,
+        'sample size': sampleCount,
         'errored document count': erroredOnDocs.length,
         'total sample time': timeToFirstDoc,
         'total analysis time': totalTime - timeToFirstDoc,
-        'average analysis time per doc': (totalTime - timeToFirstDoc) / model.documents.length
+        'average analysis time per doc': (totalTime - timeToFirstDoc) / sampleCount
       // 'Schema Height': model.height, // # of top level keys
       // 'Schema Width': model.width, // max nesting depth
       // 'Schema Sparsity': model.sparsity // lots of fields missing or consistent
@@ -213,7 +201,6 @@ module.exports = Schema.extend({
             app.statusbar.width += inc;
           }
         })
-        .pipe(es.map(addToDocuments))
         .pipe(es.wait(onEnd));
     });
   },
