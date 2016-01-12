@@ -36,7 +36,7 @@ function getStats(done, results) {
 /**
  * @example
  *
- * @param {Object} resp - Result of `db.admin().command({buildInfo: 1})`.
+ * @param {Object} resp - Result of `db.db('admin').command({buildInfo: 1})`.
  * @return {Object}
  */
 function parseBuildInfo(resp) {
@@ -67,7 +67,14 @@ function getBuildInfo(done, results) {
   var db = results.db;
 
   debug('checking we can get buildInfo...');
-  db.admin().buildInfo(function(err, res) {
+  var spec = {
+    buildInfo: 1
+  };
+  var options = {
+    readPreference: ReadPreference.nearest
+  };
+
+  db.db('admin').command(spec, options, function(err, res) {
     if (err) {
       // buildInfo doesn't require any privileges to run, so if it fails,
       // something really went wrong and we should return the error.
@@ -80,7 +87,7 @@ function getBuildInfo(done, results) {
 }
 
 /**
- * @param {Object} resp - Result of `db.admin().command({hostInfo: 1})`.
+ * @param {Object} resp - Result of `db.db('admin').command({hostInfo: 1})`.
  * @return {Object}
  */
 function parseHostInfo(resp) {
@@ -140,8 +147,11 @@ function getHostInfo(done, results) {
   var spec = {
     hostInfo: 1
   };
-  var options = {};
-  db.admin().command(spec, options, function(err, res) {
+  var options = {
+    readPreference: ReadPreference.nearest
+  };
+
+  db.db('admin').command(spec, options, function(err, res) {
     if (err) {
       if (isNotAuthorized(err)) {
         // if the error is that the user is not authorized, silently ignore it
@@ -183,7 +193,7 @@ function listDatabases(done, results) {
     listDatabases: 1
   };
 
-  db.admin().command(spec, options, function(err, res) {
+  db.db('admin').command(spec, options, function(err, res) {
     if (err) {
       if (isNotAuthorized(err)) {
         // we caught this further up already and really should never get here!
