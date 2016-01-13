@@ -76,8 +76,10 @@ var MongoDBCollectionView = View.extend({
     this.model = new MongoDBCollection();
     this.on('change:sidebar_open', function(payload, newValue) {
       if (newValue) {
+        // When sidebar_open changes to true, load documents.
         this.documents.loadDocuments();
       } else {
+        // When sidebar_open changes to false, dump all loaded documents.
         this.documents.reset();
       }
     });
@@ -89,7 +91,12 @@ var MongoDBCollectionView = View.extend({
     this.renderWithTemplate(this);
     var sidebar = this.query('.side');
     sidebar.addEventListener('scroll', function() {
-      if (this.schema_synched) this.documents.onViewerScroll(sidebar);
+      // If the sidebar is open, and our schema is ready...
+      if (this.schema_synched && this.sidebar_open) {
+        // call the scroll method on the document subview.
+        // It also needs to be passed the containing element.
+        this.documents.onViewerScroll(sidebar);
+      }
     }.bind(this));
     return this;
   },
@@ -106,7 +113,9 @@ var MongoDBCollectionView = View.extend({
     this.schema_synched = false;
     app.sendMessage('hide share submenu');
     this.stopListening(app, 'menu-share-schema-json');
-    if (this.sidebar_open && this.documents) this.documents.reset();
+    if (this.sidebar_open && this.documents) {
+      this.documents.reset();
+    }
   },
   onShareSchema: function() {
     var clipboard = window.require('clipboard');
@@ -142,7 +151,9 @@ var MongoDBCollectionView = View.extend({
         debug('Fetching schema had an error:', err);
         var msg;
         if (/operation exceeded time limit/.test(err.message)) {
-          msg = 'Your query took more than ' + ms(QueryOptions.DEFAULT_MAX_TIME_MS, {long: true}) +
+          msg = 'Your query took more than ' + ms(QueryOptions.DEFAULT_MAX_TIME_MS, {
+            long: true
+          }) +
             ' to complete on the database. ' +
             'As a safety measure, Compass aborts long-running queries. ' +
             'This limit is currently not configurable.';
