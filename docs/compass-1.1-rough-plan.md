@@ -1,9 +1,7 @@
 # Compass 1.1 Rough Plan
 
 Author: Matt Kangas  
-Last Updated: 2015-12-18
-
-AKA "Scope Document", but we already have another thing called "Scope"...
+Last Updated: 2016-01-13
 
 **Major goals for 1.1 (due Jan 31)**
 
@@ -12,7 +10,7 @@ AKA "Scope Document", but we already have another thing called "Scope"...
 
 Below is a sketch of subtasks required to complete these.
 
-## 1000 documents sample size
+## INT-550 1000 documents sample size
 
 - [x] INT-709 Evergreen dataset available via a shared Cloud Manager deployment
 - [ ] INT-476 Perfjankie to measure performance
@@ -21,7 +19,6 @@ Below is a sketch of subtasks required to complete these.
 - [x] INT-1079 Compass: Document viewer reads documents from query cursor
     - Build "doc viewer" DOM only after the panel is opened, not during processing. "Infiniscroll".
     - UI tests for document viewer
-    - ~~Rewrite doc viewer with React/Redux?~~
 - [ ] INT-1090 Compass: Run analysis in a background thread/process
 - [ ] INT-1094 Compass: Increase V8 max heap size from 1.6 GB
 - [ ] mongodb-sample module:
@@ -31,6 +28,12 @@ Below is a sketch of subtasks required to complete these.
 - [ ] mongodb-schema: Investigate performance for CPU-bound workloads (richly nested docs)
 - [ ] mongodb-schema: Abort processing early if document size is above a threshold
 - [ ] client/server tuning (Durran)
+
+Bulk of above copied from Thomas' [Requirements for sampling 1000+ docs][1000-docs-requirements-gdoc] Google Drive doc.
+
+**CUT from first draft**
+
+- ~~Rewrite doc viewer with React/Redux?~~
 - ~~Compass: Fix charts to to work when full docs not present~~
     - ObjectId "bar chart"
     - Numeric bar chart (binning)
@@ -40,8 +43,6 @@ Below is a sketch of subtasks required to complete these.
     - UX studies on how to best update UI while the user is interacting with it
     - Implement redraw() functionality on all UI elements in the main view
     - Rewrite main view (FieldList, TypeList, Minicharts) with React/Redux?
-
-Bulk of above copied from Thomas' [Requirements for sampling 1000+ docs][1000-docs-requirements-gdoc] Google Drive doc.
 
 ## Automatic updates
 
@@ -60,12 +61,15 @@ Bulk of above copied from Thomas' [Requirements for sampling 1000+ docs][1000-do
     - Reenable Squirrel client
 - [ ] Ensure build integrity
     - "Real" OS X signing
-    - Preemptive virus scans
-    - Reproducible (cryptographically auditable) builds. (OUT OF SCOPE)
 - [ ] Release notes visible in app
 - TEST IT
     - On Windows
     - On OS X
+
+**CUT from first draft**
+- ~~Reproducible (cryptographically auditable) builds. (OUT OF SCOPE)~~
+- ~~Preemptive virus scans~~
+
 
 ## Other improvements:
 
