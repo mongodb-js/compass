@@ -1,5 +1,5 @@
 @sidebar-bg: @slate1;
-@sidebar-width: 220px;
+@sidebar-width: 250px;
 
 .sidebar {
   display: flex;
@@ -54,23 +54,30 @@
 
   .panel-title {
     color: @gray5;
+    margin: 5px;
   }
   .list-group {
     margin-bottom: 10px;
-    // line-height: 24px;
+    line-height: 24px;
     overflow-y: auto;
     width: 100%;
     z-index: -1;
 
     &.root {
-      // position: absolute;
-      // top: 129px;
       bottom: 0px;
-      padding-top: 5px;
     }
 
-    i.icon {
-      margin: 0 8px;
+    &.nested {
+
+      .list-group-item, .list-group-item-heading {
+        a {
+          padding-left: 24px;
+        }
+
+        i.icon {
+          margin-left: 0px;
+        }
+      }
     }
 
     .list-group-item-heading {
@@ -99,6 +106,18 @@
       color: @gray5;
       font-weight: normal;
 
+      &:hover {
+        background: lighten(@slate1, 5%);
+        a {
+          color: @pw;
+          border-left: 4px solid lighten(@slate1, 5%);
+          text-decoration: none;
+        }
+      }
+    }
+
+    .list-group-item, .list-group-item-heading {
+
       &.special {
         a {
           color: @gray3;
@@ -111,19 +130,9 @@
         }
       }
 
-      &:hover {
-        background: lighten(@slate1, 5%);
-        a {
-          color: @pw;
-          border-left: 4px solid lighten(@slate1, 5%);
-          text-decoration: none;
-        }
-      }
-
       a {
         display: block;
         color: @gray5;
-        padding: 0 8px;
         text-decoration: none;
         white-space: nowrap;
         overflow: hidden;
@@ -131,9 +140,9 @@
         border-left: 4px solid transparent;
       }
 
-      i {
+      i.icon {
+        margin: 0 5px;
         color: lighten(@text-color, 40%);
-        // line-height: 24px;
       }
 
       &.active {

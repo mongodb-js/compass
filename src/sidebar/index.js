@@ -1,10 +1,9 @@
 var View = require('ampersand-view');
 var ListView = require('./list');
 var FilterView = require('./filter');
-var ListItemView = require('./list-item');
 var _ = require('lodash');
-// var debug = require('debug')('mongodb-compass:sidebar:index');
 
+// var debug = require('debug')('mongodb-compass:sidebar:index');
 
 /**
  * Generic Sidebar class that is used in Compass. It provides optional
@@ -16,6 +15,65 @@ var _ = require('lodash');
  */
 var SidebarView = View.extend({
   props: {
+    /**
+     * if provided, show a panel title between the filter and the item list.
+     * @type {String}
+     */
+    title: {
+      type: 'string',
+      default: null,
+      required: false
+    },
+    /**
+     * use this property of the model to display as string in sidebar
+     * @type {String}
+     */
+    displayProp: {
+      type: 'any',
+      default: 'getId',
+      required: true
+    },
+    /**
+     * a string corresponding to a fontawesome icon, e.g. `fa-database`. If
+     * provided, the string will be prepended with this icon
+     * @type {String}
+     */
+    icon: {
+      type: 'any',
+      default: undefined,
+      required: false
+    },
+    /**
+     * Provide a custom view class for the list-items. If provided, displayProp
+     * and icon will be ignored and will have to be set manually in the
+     * view class.
+     * @type {Object}
+     */
+    itemViewClass: {
+      type: 'any',
+      default: undefined,
+      required: false
+    },
+    /**
+     * Enables nested menus. Provide and object with the following keys:
+     * {
+     *   collectionName {String}   the nested items are in a collection with
+     *                             the given name. Default is `collection`.
+     *   displayProp {String|Fn}   displayProp for nested list items. Default
+     *                             is `name`.
+     *   icon {String|Fn}          icon for the nested list items. Default
+     *                             is '' (no icon).
+     * }
+     * Set to null to disable nesting.
+     * @type {Object || null}
+     */
+    nested: {
+      type: 'object',
+      default: null,
+      required: false
+    }
+  },
+  session: {
     /**
      * Provide widgets that are rendered above the sidebar. The format is
      * an array of documents:
@@ -40,57 +98,18 @@ var SidebarView = View.extend({
       type: 'boolean',
       default: false,
       required: true
-    },
-    /**
-     * use this property of the model to display as string in sidebar
-     * @type {String}
-     */
-    displayProp: {
-      type: 'string',
-      default: 'name',
-      required: true
-    },
-    /**
-     * a string corresponding to a fontawesome icon, e.g. `fa-database`. If
-     * provided, the string will be prepended with this icon
-     * @type {String}
-     */
-    icon: {
-      type: 'string',
-      default: '',
-      required: false
-    },
-    /**
-     * Provide a custom view class for the list-items. If provided, displayProp
-     * and icon will be ignored and will have to be set manually in the
-     * view class.
-     * @type {Object}
-     */
-    itemViewClass: {
-      type: 'any',
-      default: null,
-      required: false
-    },
-    /**
-     * Enables nested menus. Provide and object with the following keys:
-     * {
-     *   collectionName {String}   the nested items are in a collection with
-     *                             the given name. Default is `collection`.
-     *   displayProp {String}      displayProp for nested list items. Default
-     *                             is `name`.
-     *   icon {String}             icon for the nested list items. Default
-     *                             is '' (no icon).
-     * }
-     * Set to null to disable nesting.
-     * @type {Object || null}
-     */
-    nested: {
-      type: 'object',
-      default: null,
-      required: false
     }
   },
   bindings: {
+    title: [
+      {
+        hook: 'title'
+      },
+      {
+        type: 'toggle',
+        hook: 'title'
+      }
+    ],
     filterEnabled: {
       type: 'toggle',
       hook: 'filter'
@@ -111,35 +130,13 @@ var SidebarView = View.extend({
     list: {
       hook: 'list-subview',
       prepareView: function(el) {
-        var displayProp = this.displayProp;
-        var icon = this.icon;
-        // build a custom item view class here, if none is provided. this
-        // is necessary so we can have derived properties on a variable
-        // name, i.e. `model.<displayProp>`
-        var ItemViewClass = this.itemViewClass || ListItemView.extend({
-          props: {
-            icon: {
-              type: 'string',
-              default: icon,
-              required: false
-            }
-          },
-          derived: {
-            value: {
-              deps: ['model.' + displayProp],
-              fn: function() {
-                return _.get(this.model, displayProp);
-              }
-            }
-          }
-        });
-
+        var listOptions = _.pick(this, ['displayProp', 'icon',
+          'itemViewClass', 'nested']);
         return new ListView({
           el: el,
           parent: this,
           collection: this.collection,
-          itemViewClass: ItemViewClass,
-          nested: this.nested
+          listOptions: listOptions
         });
       }
     }
@@ -172,13 +169,13 @@ var SidebarView = View.extend({
 
     this.collection.filter(function(model) {
       if (re.test(_.result(model, displayProp))) {
-        if (nested) {
+        if (nested && model[nested.collectionName]) {
           // if the top-level matches, show all children
           model[nested.collectionName].unfilter();
         }
         return true;
       }
-      if (nested) {
+      if (nested && model[nested.collectionName]) {
         model[nested.collectionName].filter(function(nestedModel) {
           return re.test(_.result(nestedModel, nested.displayProp));
         });

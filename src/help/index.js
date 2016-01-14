@@ -14,6 +14,7 @@ var _ = require('lodash');
 var entries = new HelpEntryCollection();
 
 var HelpPage = View.extend({
+  template: require('./index.jade'),
   session: {
     entryId: 'string'
   },
@@ -48,10 +49,28 @@ var HelpPage = View.extend({
       }
     }
   },
-  template: require('./index.jade'),
+  subviews: {
+    sidebar: {
+      hook: 'sidebar-subview',
+      waitFor: 'sections',
+      prepareView: function(el) {
+        return new SidebarView({
+          el: el,
+          parent: this,
+          collection: this.sections,
+          title: 'Help Topics',
+          displayProp: 'name',
+          filterEnabled: true,
+          icon: 'fa-book',
+          nested: {
+            displayProp: 'title',
+            collectionName: 'entries'
+          }
+        }).on('show', this.show.bind(this));
+      }
+    }
+  },
   initialize: function(spec) {
-    debug('initialize');
-
     spec = spec || {};
     entries.fetch();
 
@@ -151,26 +170,6 @@ var HelpPage = View.extend({
     app.navigate(format('help/%s', this.entry.getId()), {
       silent: true
     });
-  },
-  subviews: {
-    sidebar: {
-      hook: 'sidebar-subview',
-      // waitFor: 'sections',
-      prepareView: function(el) {
-        return new SidebarView({
-          el: el,
-          parent: this,
-          collection: this.sections,
-          displayProp: 'name',
-          filterEnabled: true,
-          icon: 'fa-book',
-          nested: {
-            displayProp: 'title',
-            collectionName: 'entries'
-          }
-        }).on('show', this.show.bind(this));
-      }
-    }
   }
 });
 

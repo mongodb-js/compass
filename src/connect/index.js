@@ -3,7 +3,8 @@ var ConnectFormView = require('./connect-form-view');
 var Connection = require('../models/connection');
 var ConnectionCollection = require('../models/connection-collection');
 var MongoDBConnection = require('mongodb-connection-model');
-var SidebarView = require('./sidebar');
+
+var SidebarWrapperView = require('./sidebar');
 var View = require('ampersand-view');
 
 var _ = require('lodash');
@@ -204,28 +205,24 @@ var ConnectView = View.extend({
     sidebar: {
       hook: 'sidebar-subview',
       prepareView: function(el) {
-        return new SidebarView({
+        debug('sidebar prepare');
+        return new SidebarWrapperView({
           el: el,
           parent: this,
-          collection: this.connections
+          connections: this.connections
         });
       }
     }
   },
   initialize: function() {
     document.title = 'MongoDB Compass - Connect';
-    this.connections.once('sync', this.connectionsFetched.bind(this));
+    this.connections.once('sync', this.updateConflictingNames.bind(this));
     // use {reset: true} to trigger `reset` event so ConnectionCollection
     // can add its listeners to the models.
     this.connections.fetch({reset: true});
     this.stateMachine = new BehaviorStateMachine(this);
     this.on('change:connectionNameEmpty',
       this.connectionNameEmptyChanged.bind(this));
-  },
-  connectionsFetched: function() {
-    // this change event will cause the sidebar subview to get rendered
-    this.trigger('change');
-    this.updateConflictingNames();
   },
   render: function() {
     this.renderWithTemplate({
@@ -378,13 +375,15 @@ var ConnectView = View.extend({
    */
   removeFavoriteConnection: function() {
     this.connection.is_favorite = false;
+    this.connection.name = '';
     if (this.connection.last_used === null) {
       this.connection.destroy();
+      this.connections.deactivateAll();
+      this.createNewConnection();
     } else {
       this.connection.save(null);
+      this.updateForm();
     }
-    this.sidebar.activeItemView = null;
-    this.sidebar.collection.deactivateAll();
   },
 
   /**
