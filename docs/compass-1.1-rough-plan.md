@@ -10,7 +10,7 @@ Last Updated: 2016-01-13
 
 Below is a sketch of subtasks required to complete these.
 
-## INT-550 1000 documents sample size
+## (INT-550) 1000 documents sample size
 
 - [x] INT-709 Evergreen dataset available via a shared Cloud Manager deployment
 - [ ] INT-476 Perfjankie to measure performance
