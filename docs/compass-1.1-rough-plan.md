@@ -23,7 +23,7 @@ Below is a sketch of subtasks required to complete these.
 - [ ] INT-1094 Compass: Increase V8 max heap size from 1.6 GB
 - [ ] mongodb-sample module:
     - test $sample with 1000 docs on both mmapv1 and wiredtiger
-    - pre-3.2 sampling: batch finds into multiple $in queries. (currently issues one .find() per document, parallelized)
+    - INT-1095 pre-3.2 sampling: batch finds into multiple $in queries. (currently issues one .find() per document, parallelized)
 - [ ] mongodb-schema module: evict large values from schema
 - [ ] mongodb-schema: Investigate performance for CPU-bound workloads (richly nested docs)
 - [ ] mongodb-schema: Abort processing early if document size is above a threshold
