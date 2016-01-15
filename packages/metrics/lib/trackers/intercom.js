@@ -4,6 +4,7 @@ var singleton = require('singleton-js');
 var format = require('util').format;
 var debug = require('debug')('mongodb-js-metrics:trackers:intercom');
 var redact = require('mongodb-redact');
+var sentenceCase = require('../shared').sentenceCase;
 
 var os = (typeof window === 'undefined') ?
   require('os') : window.require('remote').require('os');
@@ -30,13 +31,19 @@ var IntercomTracker = State.extend({
   session: {
     intercomHandle: 'any',
     enabled: ['boolean', true, false],
+    panelEnabled: {
+      type: 'boolean',
+      required: true,
+      default: false
+    },
     hasBooted: ['boolean', true, false]
   },
   derived: {
     enabledAndConfigured: {
-      deps: ['enabled', 'appId', 'userId'],
+      deps: ['enabled', 'panelEnabled', 'appId', 'userId'],
       fn: function() {
-        return this.enabled && this.appId !== '' && this.userId !== '';
+        return (this.enabled || this.panelEnabled)
+          && this.appId !== '' && this.userId !== '';
       }
     }
   },
@@ -44,6 +51,7 @@ var IntercomTracker = State.extend({
    * Inject the intercom script into the page
    */
   _setup: function() {
+    debug('setup intercom');
     var self = this;
     if (typeof window === 'undefined') {
       return;
@@ -98,6 +106,7 @@ var IntercomTracker = State.extend({
    * Call this to remove the intercom panel.
    */
   _teardown: function() {
+    debug('teardown intercom');
     if (typeof window === 'undefined') {
       return;
     }
@@ -190,13 +199,8 @@ var IntercomTracker = State.extend({
     if (!this.enabled) {
       return;
     }
-    if (_.keys(metadata).length > 5) {
-      debug('Warning: meta-data contains more than 5 keys but Intercom only '
-        + 'supports 5 keys max.');
-    }
-
     // redact metadata
-    metadata = redact(metadata);
+    metadata = sentenceCase(redact(metadata));
 
     debug('sending event `%s` to intercom with metadata %j', eventName, metadata);
     if (typeof window !== 'undefined') {

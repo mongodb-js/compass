@@ -8,7 +8,6 @@ var debug = require('debug')('mongodb-js-metrics:trackers:bugsnag');
 
 var BugsnagTracker = State.extend({
   id: 'bugsnag',
-
   // assign properties to bugsnag handler
   props: {
     apiKey: ['string', true, ''],          // set through metrics.configure()
@@ -42,7 +41,7 @@ var BugsnagTracker = State.extend({
     },
     // this is just a rename of `appStage`, set by App resource, but bugsnag
     // requires the name to be releaseStage
-    releaseStage: {
+    'releaseStage': {
       deps: ['appStage'],
       fn: function() {
         return this.appStage;
@@ -91,8 +90,6 @@ var BugsnagTracker = State.extend({
    * @return {Boolean}           false to abort, true to send to bugsnag
    */
   beforeNotify: function(payload) {
-    debug('in beforeNotify, payload is', _.cloneDeep(payload));
-
     // never send if this tracker is disabled
     if (!this.enabled) {
       return false;
@@ -104,9 +101,8 @@ var BugsnagTracker = State.extend({
     payload.message = redact(payload.message);
     payload.url = redact(payload.url);
     payload.name = redact(payload.name);
-    payload.metaData = redact(payload.metaData);
 
-    debug('redacted payload is', payload);
+    debug('sending report to bugnsnag', payload);
     return true;
   },
   /**
@@ -123,7 +119,7 @@ var BugsnagTracker = State.extend({
       // this prevents the notification from going out
       return;
     }
-    this.bugsnagHandler.notifyException(error, 'Something bad happened', metadata, severity);
+    this.bugsnagHandler.notifyException(error, undefined, metadata, severity);
   }
 });
 

@@ -45,11 +45,13 @@ describe('metrics', function() {
 
   it('should be possible to configure single tracker and all at once', function() {
     metrics.configure('ga', {
+      enabled: true,
       trackingId: 'foo-bar'
     });
     assert.equal(metrics.trackers.get('ga').trackingId, 'foo-bar');
     metrics.configure({
       ga: {
+        enabled: true,
         trackingId: 'bar-baz'
       }
     });
@@ -61,6 +63,7 @@ describe('metrics', function() {
     metrics.trackers.get('ga').clear();
     assert.ok(!metrics.trackers.get('ga').enabled);
     metrics.configure('ga', {
+      enabled: true,
       trackingId: 'some-id'
     });
     assert.ok(metrics.trackers.get('ga').enabled);
@@ -72,6 +75,7 @@ describe('metrics', function() {
 
     before(function() {
       metrics.configure('ga', {
+        enabled: true,
         debug: DEBUG,
         trackingId: 'UA-71150609-2'
       });

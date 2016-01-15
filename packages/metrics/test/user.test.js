@@ -13,7 +13,8 @@ describe('User Resource', function() {
   beforeEach(function() {
     // create metrics object and initialize
     metrics.configure({
-      gaOptions: {
+      ga: {
+        enabled: true,
         debug: DEBUG,
         trackingId: 'UA-71150609-2'
       }

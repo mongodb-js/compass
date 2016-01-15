@@ -1,5 +1,5 @@
 # mongodb-js-metrics [![travis][travis_img]][travis_url] [![npm][npm_img]][npm_url]
-mongodb-js-metrics is a reusable metrics wrapper for a number of external tracking services. Currently, it supports [Google Analytics][ga], [Intercom][intercom] and [Bugsnag][bugsnag].
+mongodb-js-metrics is a reusable metrics wrapper for a number of external tracking services. Currently, it supports [Google Analytics][ga], [Intercom][intercom], [Mixpanel][mixpanel] and [Bugsnag][bugsnag].
 
 ## Quick Start
 Here is an example how to set up Google Analytics tracking of application launches, screen views and user logins within your app.
@@ -11,7 +11,8 @@ var metrics = require('mongodb-js-metrics')(); // note the () at the end
 
 // configure Google Analytics with our tracking id
 metrics.configure('ga', {
-  trackingId: 'UA-########-#'
+  trackingId: 'UA-########-#',
+  enabled: true
 });
 
 // create an app resource with name and version
@@ -67,34 +68,53 @@ var metrics = require('mongodb-js-metrics')();
 The `metrics` object holds references to trackers and resources, and makes the trackers available to the resources. It also contains convenient helper methods to  make tracking very easy.
 
 ### Trackers
-The current version supports 3 trackers:
-- Google Analytics (screen views, events, exceptions, timings)
-- Intercom (events, in-app communication)
-- Bugsnag (errors)
-- Mixpanel (events)
+The current version supports 4 trackers:
+
+##### Google Analytics
+
+Used to send _screen views_, _events_, _errors_, _timings_. Tracker name is `ga`. Requires **App** and **User** resources.
+
+##### Intercom
+
+Used to send _events_ and also provides _in-app communication_. Tracker name is `intercom`. Requires **App** and **User** resources.
+
+
+##### Mixpanel
+
+Used to send _events_. Tracker name is `mixpanel`. Requires **App** and **User** resources.
+
+##### Bugsnag
+
+Used to send _errors_. Tracker name is `bugsnag`. Requires **App** resource.
+
 
 #### Configuration
-You can configure individual trackers with the `.configure(name, options)` syntax.
+You can configure individual trackers with the `configure(name, options)` syntax. Note the different key names for the keys,
+which use each of the tracker's terminology for consistency. Trackers are disabled by default, so don't forget to enable them.
 
 ```js
 // configure Google Analytics
 metrics.configure('ga', {
-  trackingId: 'UA-########-#'
+  trackingId: 'UA-########-#',
+  enabled: true
 });
 
 // configure Bugsnag
 metrics.configure('bugsnag', {
-  apiKey: '################################'      
+  apiKey: '################################',
+  enabled: true
 });
 
 // configure Intercom
 metrics.configure('intercom', {
-  appId: '########'
+  appId: '########',
+  enabled: true
 });
 
 // configure Mixpanel
 metrics.configure('mixpanel', {
-  apiToken: '#####################'
+  apiToken: '#####################',
+  enabled: true
 });
 ```
 
@@ -103,10 +123,12 @@ You can also configure multiple trackers at once, by passing in a single object 
 ```js
 metrics.configure({
   ga: {
-    trackingId: 'UA-########-#'
+    trackingId: 'UA-########-#',
+    enabled: true
   },
   bugsnag: {
-    apiKey: '################################'  
+    apiKey: '################################',
+    enabled: true
   }
 });
 ```
@@ -120,15 +142,15 @@ For example, if you want to track application launches, you would create an _App
 
 Resources have access to the trackers, and by default assign their properties to all trackers that require the properties. For example, the _App_ resource has  a property called `appName`. When the resource is added to metrics, it automatically pushes the `appName` value to all trackers that define it as one of their properties.
 
-You need to add resources before you can track anything. The _App_ and _User_ resources are almost always required. Once they are added (see Quick Start for an example), you can use the `.track()` helper to conveniently track events.
+You need to add resources before you can track anything. The _App_ and _User_ resources are almost always required. Once they are added (see Quick Start for an example), you can use the `metrics.track()` helper to conveniently track events.
 
 The first argument to `track()` is the name of the resource (as a convention, all resources have uppercase names, and all actions have lowercase names). The second argument is the name of the action you want to call. Subsequent arguments are passed to the action method, including a potential `callback` parameter at the end.
 
 ```js
-metrics.track('Error', 'warning', new Error('this is probably bad!'), function(err, resp) {
+metrics.track('User', 'login', { timestamp: new Date(), team: 'Awesome' }, function(err, resp) {
   if (err) {
-    // warn and silently ignore if the error couldn't be tracked
-    console.warn('could not track error, because: ', err);
+    // warn and silently ignore if the action couldn't be tracked
+    console.warn('could not track user login, because: ', err);
     return;
   }
   // should return status code 200
@@ -157,6 +179,8 @@ mongodb-js-metrics comes with some commonly used built-in resources already. Tho
 - Feature (derive from this for each feature you use)
   - `used(metadata)`
 
+- Host (no tracking action, used for super properties)
+
 Example how to track the usage of a plasma cannon and what strength was used:
 
 ```js
@@ -169,6 +193,7 @@ var PlasmaCannon = FeatureResource.extend({
 
 metrics.addResource(new PlasmaCannon());
 
+// assumes trackers are configured and `App` and `User` resources added previously
 metrics.track('Plasma Cannon', 'used', {
   strength: 19
 });
@@ -187,3 +212,4 @@ Apache 2.0
 [ga]: https://analytics.google.com
 [intercom]: https://intercom.io
 [bugsnag]: https://bugsnag.com
+[mixpanel]: https://mixpanel.com

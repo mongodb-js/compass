@@ -4,12 +4,15 @@ var TrackerCollection = require('../models/tracker-collection');
 var _ = require('lodash');
 var format = require('util').format;
 var async = require('async');
+var sentenceCase = require('../shared').sentenceCase;
+var uuid = require('uuid');
 
 var debug = require('debug')('mongodb-js-metrics:resources:base');
 
 module.exports = State.extend({
   idAttribute: 'id',
   id: 'Base',
+  eventTrackers: ['ga', 'mixpanel', 'intercom'],
   collections: {
     trackers: TrackerCollection
   },
@@ -94,28 +97,43 @@ module.exports = State.extend({
     var that = this;
     var resource = _.get(metadata, 'resource', this.id);
     var action = _.get(metadata, 'action', callerId.getData().methodName);
+
+    // turn `camelCase` into `sentence case` words for properties
     metadata = _.omit(metadata, ['resource', 'action']);
+    metadata['event id'] = uuid.v4();
+    metadata = sentenceCase(metadata);
 
     var eventName = format('%s %s', resource, action);
 
-    var tasks = {
-      intercom: that._send_intercom.bind(that, eventName, metadata),
-      mixpanel: that._send_mixpanel.bind(that, eventName, metadata)
-    };
+    var tasks = {};
+    if (this.eventTrackers.indexOf('intercom') !== -1) {
+      tasks.intercom = that._send_intercom.bind(that, eventName, metadata);
+    }
+    if (this.eventTrackers.indexOf('mixpanel') !== -1) {
+      tasks.mixpanel = that._send_mixpanel.bind(that, eventName, metadata);
+    }
 
     // `Screen` and `Error` resources have their own hit type in Google
     // Analytics, don't send a as an `event` hittype here
-    if (['Screen', 'Error'].indexOf(resource) === -1) {
+    if (['Screen', 'Error'].indexOf(resource) === -1 &&
+      this.eventTrackers.indexOf('ga') !== -1) {
       var opts;
-      if (_.isEmpty(metadata)) {
+      // if there's no metadata, send a single event to GA with `eventCategory`
+      // set to the resource and `eventAction` set to the action
+      if (_.isEmpty(_.omit(metadata, 'event id'))) {
         opts = {
           hitType: 'event',
           eventCategory: resource,
-          eventAction: action
+          eventAction: action,
+          eventLabel: metadata['event id']
         };
         tasks.ga = that._send_ga.bind(that, opts);
       } else {
-        var gaTasks = _.map(metadata, function(value, key) {
+        // with metadata, send one event to GA for each key in the metadata,
+        // with `eventCategory` set to `resource action` (e.g. `App launched`)
+        // and `eventAction` set to the key (e.g. `appVersion`). Use
+        // `eventLabel` for string values and `eventValue` for numeric values.
+        var gaTasks = _.map(_.omit(metadata, 'event id'), function(value, key) {
           opts = {
             hitType: 'event',
             eventCategory: eventName,

@@ -49,7 +49,10 @@ module.exports = BaseResource.extend({
     var that = this;
 
     var options = {
+      // explicitly set resource and action here because it can't be
+      // extracted from inside the async.parallel call.
       resource: 'Screen',
+      action: 'viewed',
       screen: screenName
     };
     var gaOptions = {
@@ -61,6 +64,10 @@ module.exports = BaseResource.extend({
       event: that._send_event.bind(that, options),
       ga: that._send_ga.bind(that, gaOptions)
     }, function(err, res) {
+      /* eslint consistent-return: 0 */
+      if (!callback) {
+        return;
+      }
       if (err) {
         return callback(err);
       }

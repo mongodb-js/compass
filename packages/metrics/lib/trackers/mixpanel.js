@@ -2,6 +2,8 @@ var State = require('ampersand-state');
 var _ = require('lodash');
 var singleton = require('singleton-js');
 var redact = require('mongodb-redact');
+var sentenceCase = require('../shared').sentenceCase;
+
 var debug = require('debug')('mongodb-js-metrics:trackers:mixpanel');
 
 
@@ -47,7 +49,6 @@ var MixpanelTracker = State.extend({
    * whenever a property changes.
    */
   _configureMixpanel: function() {
-    debug('configuring mix panel here');
     if (this.enabledAndConfigured) {
       if (typeof window === 'undefined') {
         return;
@@ -56,16 +57,20 @@ var MixpanelTracker = State.extend({
         this.mixpanelHandler = require('mixpanel-browser');
         this.mixpanelHandler.init(this.apiToken);
       }
-      var options = _.omit(this.serialize({
+      var options = sentenceCase(_.omit(this.serialize({
         props: true,
         derived: false,
         session: false
-      }), _.isEmpty);
-      debug('initializing mixpanel and setting super properties %j', options);
+      }), _.isEmpty));
       this.mixpanelHandler.register(options);
-      this.mixpanelHandler.indentify(this.userId);
+      // for privacy purposes, overwrite the current url field, because it
+      // contains information about the username and database/collection names
+      this.mixpanelHandler.register_once({
+        $current_url: 'index.html'
+      });
+      this.mixpanelHandler.identify(this.userId);
       this.mixpanelHandler.people.set_once({
-        createdAt: this.createdAt
+        '$created': this.createdAt
       });
     }
   },
@@ -77,7 +82,6 @@ var MixpanelTracker = State.extend({
    * @param {Object} metadata   Metadata can be attached, @see https://mixpanel.com/help/reference/javascript
    */
   send: function(eventName, metadata, callback) {
-    debug('this', this.mixpanelHandler);
     if (!this.enabled) {
       if (callback) {
         return callback(null, false);
@@ -85,6 +89,7 @@ var MixpanelTracker = State.extend({
       /* eslint consistent-return:0 */
       return;
     }
+    debug('sending event `%s` to mixpanel with metadata %j', eventName, metadata);
     this.mixpanelHandler.track(eventName, redact(metadata), callback);
   }
 });

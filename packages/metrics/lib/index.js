@@ -19,8 +19,6 @@ var Metrics = State.extend({
     _.each(trackers, function(Tracker) {
       this.trackers.add(new Tracker());
     }.bind(this));
-
-    debug('initialized with %d trackers: %j', this.trackers.length, this.trackers.pluck('id'));
   },
   configure: function(name, options) {
     var tracker;
@@ -39,9 +37,9 @@ var Metrics = State.extend({
       if (tracker) {
         // also enable the tracker now by default (can be overwritten by
         // explicitly passing {enabled: false} in the options)
-        _.defaults(opts, {
-          enabled: true
-        });
+        // _.defaults(opts, {
+        //   enabled: true
+        // });
         debug('configuring tracker `%s` with %j', key, opts);
         tracker.set(opts);
       }
@@ -50,9 +48,7 @@ var Metrics = State.extend({
   addResource: function() {
     // add trackers to resources
     _.each(arguments, function(resource) {
-      debug('adding resource `%s`', resource.id);
       resource.trackers.reset(this.trackers.models);
-      debug('resource now has %d trackers: %j', resource.trackers.length, resource.trackers.pluck('id'));
       this.resources.add(resource);
     }.bind(this));
   },
@@ -64,7 +60,7 @@ var Metrics = State.extend({
     }
     var args = Array.prototype.slice.call(arguments, 2);
     if (resource[action]) {
-      debug('tracking resource %s with action %s', resourceId, action);
+      // debug('tracking resource %s with action %s', resourceId, action);
       resource[action].apply(resource, args);
     } else {
       debug('ignoring unknown action %s on resource %s', action, resourceId);

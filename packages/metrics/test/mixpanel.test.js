@@ -15,6 +15,7 @@ describe('Mixpanel Tracker', function() {
   beforeEach(function() {
     // create metrics object and initialize
     metrics.configure('mixpanel', {
+      enabled: true,
       apiToken: 'b61c82b6683a53688692fc2760cad5bd'
     });
 

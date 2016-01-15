@@ -13,6 +13,7 @@ describe('Feature Resource', function() {
     // create metrics object and initialize
     metrics.configure({
       'ga': {
+        enabled: true,
         debug: DEBUG,
         trackingId: 'UA-71150609-2'
       }
@@ -36,7 +37,7 @@ describe('Feature Resource', function() {
     // mock function to intercept options
     feature._send_ga = function(options) {
       assert.equal(options.hitType, 'event');
-      assert.equal(options.eventLabel, undefined);
+      assert.ok(typeof options.eventLabel === 'string');
       assert.equal(options.eventValue, undefined);
       assert.equal(options.eventCategory, 'Plasma Cannon');
       assert.equal(options.eventAction, 'used');
