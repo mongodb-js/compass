@@ -64,8 +64,7 @@ var HomeView = View.extend({
   },
   render: function() {
     this.renderWithTemplate(this);
-    if (app.preferences.lastKnownVersion !== app.meta['App Version']) {
-      app.preferences.save('lastKnownVersion', app.meta['App Version']);
+    if (app.preferences.showFeatureTour) {
       this.showTour();
     } else {
       this.tourClosed();
@@ -73,14 +72,20 @@ var HomeView = View.extend({
   },
   showTour: function() {
     var tourView = new TourView();
-    tourView.on('close', this.tourClosed.bind(this));
-    this.renderSubview(tourView, this.queryByHook('tour-container'));
+    if (tourView.features.length > 0) {
+      tourView.on('close', this.tourClosed.bind(this));
+      this.renderSubview(tourView, this.queryByHook('tour-container'));
+    } else {
+      this.tourClosed();
+    }
   },
   showOptIn: function() {
     var networkOptInView = new NetworkOptInView();
     this.renderSubview(networkOptInView, this.queryByHook('optin-container'));
   },
   tourClosed: function() {
+    app.preferences.unset('showFeatureTour');
+    app.preferences.save();
     if (!app.preferences.showedNetworkOptIn) {
       this.showOptIn();
     }

@@ -2,35 +2,26 @@
   #tour-bg
   #tour
     .modal-header
-      h2 Welcome to MongoDB Compass
+      h2(data-hook='title')
       button.tour-close-button &times;
     #animation
-      img#animation-gif(src="./images/tour/f0.gif")
+      - var first = features[0].image
+      img#animation-gif(src="./images/tour/#{first}")
     #features
-      #f0-content.feature-content.active
-        h3.feature-title Choose a Collection
-        p.feature-description See a list of collections in the left sidebar. Select a collection and Compass will instantly start analyzing the schema data. Use the search filter at the top to narrow your list of collections.
-      #f1-content.feature-content
-        h3.feature-title Browse the Schema
-        p.feature-description Once a collection is loaded Compass will visualize the collection schema. Field are listed as rows in the main view. The left side of the row displays the field name and datatype distribution, the right side displays a visualization of the data.
-      #f2-content.feature-content
-        h3.feature-title View Data Distribution
-        p.feature-description View the charts in the right-hand column of each row to see data distribution at a high level. Hover over charts to see more detail.
-      #f3-content.feature-content
-        h3.feature-title Build Queries
-        p.feature-description Click on charts to build MongoDB queries. Click and drag within bar charts to select multiple values. Edit your query by typing directly into the query bar.
-      #f4-content.feature-content
-        h3.feature-title View Documents
-        p.feature-description Open the document drawer on the right to view the raw JSON documents in the result set.
+      each feature, i in features
+        - var id = 'f' + i + '-content'
+        - var cls = 'feature-content'
+        - cls += (i === 0) ? ' active' : ''
+        div(id='#{id}', class='#{cls}')
+          h3.feature-title= feature.title
+          p.feature-description= feature.description
       .pager
         button.previous-slide.hide Previous
-        ul
-          li#f0.selected(data-n="0", title="Choose a collection")
-          li#f1(data-n="1", title="Browse schema")
-          li#f2(data-n="2", title="View data distribution")
-          li#f3(data-n="3", title="Build queries")
-          li#f4(data-n="4", title="View documents")
         button.next-slide Next
+        ul
+          each feature, i in features
+            - var id = 'f' + i
+            - var cls = (i === 0) ? 'selected' : null
+            li(id='#{id}', class='#{cls}', data-n='#{i}', title='#{feature.title}')
       .get-started-button-holder
         button#tour-remove.hide(type="button", class="btn btn-info") Get Started
-

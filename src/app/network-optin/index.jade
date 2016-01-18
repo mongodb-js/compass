@@ -9,19 +9,19 @@
           ul
             li
               label
-                input(type='checkbox', name='productFeedback', data-hook='product-feedback-checkbox')
+                input(type='checkbox', name='enableFeedbackPanel', data-hook='product-feedback-checkbox')
                 span Enable Product Feedback Tool
               p.option-description Enables a tool for sending feedback or talking to our Product and Development teams directly from Compass.
 
             li
               label
-                input(type='checkbox', name='crashReports', data-hook='crash-reports-checkbox')
+                input(type='checkbox', name='trackErrors', data-hook='track-errors-checkbox')
                 span Enable Crash Reports
               p.option-description Allow Compass to send crash reports containing stack traces and unhandled exceptions.
 
             li
-              label
-                input(type='checkbox', name='usageStats', data-hook='usage-stats-checkbox')
+              label 
+                input(type='checkbox', name='trackUsageStatistics', data-hook='usage-stats-checkbox')
                 span Enable Usage Statistics
               p.option-description Allow Compass to send anonymous usage statistics.
 
