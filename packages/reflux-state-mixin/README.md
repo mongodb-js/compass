@@ -4,16 +4,16 @@
 
 So - what's this all about? 
 
-React is cool - you use this magic `Component` class and jsx, and suddenly all of your view is controlled and changed automatically.
-But Flux, on the other hand - is not cool at all, no real code, no api, just good architecture. So then good people said - let's build a nice API for Flux, and suddenly: Redux, Reflux, Alt, Fluxxor etc.
+React is cool - you can use this magic `Component` class and jsx, and suddenly all of your views are controlled and changed automatically.
+But Flux, on the other hand - isn't very useful, there is no real code, no api, only good architecture. So then good people started thinking about many cool libraries for Flux, and suddenly: Redux, Reflux, Alt, Fluxxor etc.
 
-But, If we already have such a great API for React, why can't we do the same with Flux - Stores will control components, the same way Component controls DOM.  You just say the magic word - `setState` - and every thing just happens immediately!
+But, If we already have such a great API for React, why can't we do the same with Flux - Stores will control components, the same way Component controls DOM.  You just say the magic word - `setState` - and everything just happens immediately!
 
 When you make it that simple, it's easy to have all your Components controlled, and then suddenly your Components are purified (functionally speaking), they don't have any "real" state of their own - and as a bonus, you don't care about their hierarchy any more - you can move them around - regardless of their parents and `props`.
 
 So, the requirements for an API like this are straight forward:
 
-1. Stores should control all of the app's state. (This could be done with one main store or not)
+1. Stores should control all of the app's state (This could be done with one main store -redux style, or from multiple stores).
 2. Easy method called `setState` should change state of Store - no explicit changes (like reducers). 
 3. Complementary methods could be added - `getInitialState()` ,`shouldStoreUpdate()`, `storeDidUpdate()` - you know the drill.
 4. Every state change should notify all Components and force them to re-render (by altering their "controlled" state) - quite similar to what `render` method does. 
@@ -25,7 +25,7 @@ That's all.
 ### implementations
 Now the implementation could be done any way you want. With Redux, as a new flux library or any other way.
 
-Here I present a mixin for **Reflux** that's working really nice (so nice that according to npm stats, every second reflux user is downloading this), but feel free to add other implementations. 
+Here I present a mixin for **Reflux** that works really well (so well in fact, that according to npm stats, every other reflux user is downloading this), but feel free to add other implementations. 
 I really hope someone will implement this in **Redux**! 
 
 
