@@ -1,6 +1,6 @@
 # Super Simple Flux 
-
 ## making Flux look as pretty as React
+> if your'e here for reflux's mixin - [scroll down](#refluxMixin)
 
 So - what's this all about? 
 
@@ -31,7 +31,7 @@ I really hope someone will implement this in **Redux**!
 
 =================================================================================================
 =================================================================================================
-
+<a name="refluxMixin"></a>
 ## reflux-state-mixin
 
 Mixins for [reflux](https://www.npmjs.com/packages/reflux), to enable SSF (super simple flux) API
