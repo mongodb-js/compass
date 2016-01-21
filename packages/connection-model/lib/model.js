@@ -7,7 +7,8 @@ var defaults = require('lodash.defaults');
 var contains = require('lodash.contains');
 var clone = require('lodash.clone');
 var parse = require('mongodb-url');
-var debug = require('debug')('mongodb-connection-model');
+
+// var debug = require('debug')('mongodb-connection-model');
 
 var Connection = {};
 var props = {};
@@ -555,16 +556,11 @@ Connection = AmpersandModel.extend({
   props: props,
   derived: derived,
   initialize: function(attrs) {
-    debug('initialize', attrs);
     if (attrs) {
       if (typeof attrs === 'string') {
-        var url = attrs;
         try {
-          debug('trying to parse url `%s`...', url);
           attrs = Connection.from(attrs);
-          debug('successfully parsed `%s` ->', url, attrs);
         } catch (e) {
-          debug('error parsing url `%s`', url, e);
           this.validationError = e;
           return;
         }
@@ -578,10 +574,8 @@ Connection = AmpersandModel.extend({
   },
   parse: function(attrs) {
     if (!attrs) {
-      debug('skipping falsy parse for', attrs);
       return attrs;
     }
-    debug('parsing...');
     if (attrs.mongodb_username) {
       this.authentication = attrs.authentication = 'MONGODB';
     } else if (attrs.kerberos_principal) {
@@ -604,13 +598,10 @@ Connection = AmpersandModel.extend({
       }
       this.kerberos_service_name = attrs.kerberos_service_name;
     }
-
-    debug('parsing complete');
     return attrs;
   },
 
   validate: function(attrs) {
-    debug('validating...');
     try {
       this.validate_ssl(attrs);
       this.validate_mongodb(attrs);
@@ -620,7 +611,6 @@ Connection = AmpersandModel.extend({
     } catch (err) {
       return err;
     }
-    debug('attributes are valid');
   },
   /**
    * Enforce constraints for SSL.
@@ -737,9 +727,6 @@ Connection.from = function(url) {
   }
 
   var parsed = parse(url);
-  debug('parsed url `%s`', url, parsed);
-  debug('authMechanism is', parsed.db_options.authMechanism);
-
   var attrs = {
     hostname: parsed.servers[0].host,
     port: parsed.servers[0].port
@@ -788,7 +775,6 @@ Connection.from = function(url) {
     }
   }
 
-  debug('parsed connection attributes', attrs);
   return new Connection(attrs);
 };
 
