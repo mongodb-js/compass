@@ -60,6 +60,7 @@
   "scripts": {
     "start": "gulp dev",
     "release": "gulp release",
+    "perf": "gulp build",
     "test": "mocha",
     "ci": "npm run check && npm run release && npm test",
     "check": "mongodb-js-precommit --debug ./*.js src/{**/*.js,*.js} test/{**/*.js,*.js} tasks/*.js",
@@ -168,6 +169,7 @@
     "mongodb-runner": "mongodb-js/runner",
     "npm": "^3.4.1",
     "npm-registry-client": "^7.0.9",
+    "perfjankie": "^2.1.0",
     "pre-commit": "^1.1.2",
     "spectron": "^0.34.1",
     "watchify": "^3.6.0",
