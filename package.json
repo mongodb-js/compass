@@ -60,7 +60,6 @@
   "scripts": {
     "start": "gulp dev",
     "release": "gulp release",
-    "perf": "gulp build",
     "test": "mocha",
     "ci": "npm run check && npm run release && npm test",
     "check": "mongodb-js-precommit --debug ./*.js src/{**/*.js,*.js} test/{**/*.js,*.js} tasks/*.js",
