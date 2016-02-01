@@ -3,15 +3,16 @@
  * [BrowserWindow](https://github.com/atom/electron/blob/master/docs/api/browser-window.md)
  * class
  */
+var electron = require('electron');
 var AppMenu = require('./menu');
-var BrowserWindow = require('browser-window');
+var BrowserWindow = electron.BrowserWindow;
 var Notifier = require('node-notifier');
 
 var _ = require('lodash');
-var app = require('app');
+var app = electron.app;
 var config = require('./config');
 var debug = require('debug')('mongodb-compass:electron:window-manager');
-var dialog = require('dialog');
+var dialog = electron.dialog;
 var path = require('path');
 
 /**
@@ -109,7 +110,7 @@ module.exports.create = function(opts) {
     return null;
   }
 
-  _window.loadUrl(opts.url);
+  _window.loadURL(opts.url);
 
   _window.webContents.on('new-window', function(event, url) {
     debug('intercepting new-window (disregard the "error" message '
@@ -253,7 +254,7 @@ app.on('ready', function() {
   app.emit('show connect dialog');
 });
 
-var ipc = require('ipc');
+var ipc = electron.ipcMain;
 ipc.on('message', function(event, msg, arg) {
   debug('message received in main process', msg, arg);
   app.emit(msg, arg, event);

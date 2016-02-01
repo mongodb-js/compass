@@ -11,7 +11,8 @@
  */
 var fs = require('fs');
 var path = require('path');
-var app = require('app');
+var electron = require('electron');
+var app = electron.app;
 var spawn = require('child_process').spawn;
 var debug = require('debug')('mongodb-compass:electron:mongodb-scope-server-ctl');
 

@@ -1,12 +1,13 @@
 // based off of https://github.com/atom/atom/blob/master/src/browser/application-menu.coffee
 // use js2.coffee to convert it to JS
 
-var BrowserWindow = require('browser-window');
-var Menu = require('menu');
-var State = require('ampersand-state');
+var electron = require('electron');
+var BrowserWindow = electron.BrowserWindow;
+var Menu = electron.Menu;
+var app = electron.app;
 
+var State = require('ampersand-state');
 var _ = require('lodash');
-var app = require('app');
 var debug = require('debug')('electron:menu');
 
 // submenu related
@@ -315,6 +316,7 @@ var AppMenu = (function() {
 
       _window.once('closed', (function(_this) {
         return function() {
+          // @todo: Durran Exception here on connecting.
           debug('WINDOW ' + _window.id + ' closed');
 
           _this.windowTemplates.delete(_window.id);

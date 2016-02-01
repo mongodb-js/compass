@@ -264,6 +264,9 @@ gulp.task('clean', function(done) {
   del(['build/', 'dist/', 'node_modules/'], done);
 });
 
+gulp.task('clean:build', function(done) {
+  del(['build/', 'dist/'], done);
+});
 
 /**
  * @note (imlucas): When our electron updates to node@5.x, we'll need to update

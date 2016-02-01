@@ -1,4 +1,5 @@
-var app = require('app');
+var electron = require('electron');
+var app = electron.app;
 var updater = module.exports = require('auto-updater');
 var debug = require('debug')('mongodb-compass:auto-updater');
 
