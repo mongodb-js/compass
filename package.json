@@ -31,6 +31,7 @@
       "clipboard",
       "crash-reporter",
       "dialog",
+      "electron",
       "electron-squirrel-startup",
       "font-awesome",
       "glob",
