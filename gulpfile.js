@@ -277,7 +277,7 @@ gulp.task('electron-rebuild',
   shell.task(format([
     'electron-rebuild',
     '--version %s',
-    '--node-module-version 46',
+    '--node-module-version 47',
     '--module-dir ./build/node_modules',
     '--which-module keytar'
   ].join(' '), pkg.electron_version)));
