@@ -27,22 +27,22 @@ var HelpEntryCollection = Collection.extend(
     }
 
     var onSuccess;
-    var onError = function(err) {
+    var onError = function(evt, err) {
       debug('error', err);
       ipc.removeListener('/help/entries/success', onSuccess);
       done(err);
     };
 
-    onSuccess = function(entries) {
+    onSuccess = function(evt, entries) {
       debug('got entries', entries);
       ipc.removeListener('/help/entries/error', onError);
       done(null, entries);
     };
 
     debug('loading help entries...');
-    ipc.once('/help/entries/success', onSuccess)
-      .once('/help/entries/error', onError)
-      .send('/help/entries');
+    ipc.once('/help/entries/success', onSuccess);
+    ipc.once('/help/entries/error', onError);
+    ipc.send('/help/entries');
   }
 ));
 

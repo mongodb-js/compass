@@ -323,7 +323,7 @@ var AppMenu = (function() {
         };
       })(this));
 
-      _window.once('closed', (function(_this) {
+      _window.once('closed', (function() {
         return function() {
           debug('WINDOW closed');
           _window = null;
