@@ -314,12 +314,19 @@ var AppMenu = (function() {
       })(this);
       _window.on('focus', focusHandler);
 
-      _window.once('closed', (function(_this) {
+      _window.once('close', (function(_this) {
         return function() {
-          debug('WINDOW ' + _window.id + ' closed');
+          debug('WINDOW ' + _window.id + ' closing');
 
           _this.windowTemplates.delete(_window.id);
           _window.removeListener('focus', focusHandler);
+        };
+      })(this));
+
+      _window.once('closed', (function(_this) {
+        return function() {
+          debug('WINDOW closed');
+          _window = null;
         };
       })(this));
     },
