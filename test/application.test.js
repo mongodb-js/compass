@@ -1,10 +1,4 @@
-var chai = require('chai');
-var chaiAsPromised = require('chai-as-promised');
 var helpers = require('./helpers');
-var Application = require('spectron').Application;
-
-// var debug = require('debug')('scout:test:example');
-chai.use(chaiAsPromised);
 
 if (process.env.EVERGREEN) {
   /* eslint no-console:0 */
@@ -16,38 +10,10 @@ if (process.env.EVERGREEN) {
     this.slow(10000);
     this.timeout(30000);
 
-    beforeEach(function() {
-      this.app = new Application({
-        path: helpers.getElectronPath()
-      });
-      return this.app.start();
-    });
-
-    beforeEach(function() {
-      chaiAsPromised.transferPromiseness = this.app.client.transferPromiseness;
-      chai.should().exist(this.app.client);
-      return this.app.client.waitUntilWindowLoaded();
-    });
-
-    beforeEach(function() {
-      helpers.addCommands(this.app.client);
-    });
-
+    beforeEach(helpers.startApplication);
     afterEach(helpers.stopApplication);
 
     describe('Connect Window', function() {
-      it('should open correctly', function() {
-        return this.app.client
-          .getWindowCount().should.eventually.equal(1)
-          .isWindowMinimized().should.eventually.be.false
-          .isWindowDevToolsOpened().should.eventually.be.false
-          .isWindowVisible().should.eventually.be.true
-          .isWindowFocused().should.eventually.be.true
-          .getWindowWidth().should.eventually.be.above(0)
-          .getWindowHeight().should.eventually.be.above(0)
-          .getTitle().should.eventually.be.equal('MongoDB Compass - Connect');
-      });
-
       it('should correctly fill in authentication fields', function() {
         return this.app.client
           .waitForVisible('select[name=authentication]')
