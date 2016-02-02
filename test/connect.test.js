@@ -1,10 +1,7 @@
 var helpers = require('./helpers');
 
 if (process.env.EVERGREEN) {
-  /* eslint no-console:0 */
-  console.warn('Spectron acceptance tests skipped on '
-   + 'evergreen until the following is resolved: '
-   + 'https://jira.mongodb.org/browse/BUILD-1122');
+  helpers.warnEvergreen();
 } else {
   describe('Connect Window', function() {
     this.slow(10000);
@@ -13,7 +10,7 @@ if (process.env.EVERGREEN) {
     beforeEach(helpers.startApplication);
     afterEach(helpers.stopApplication);
 
-    describe('when opening the window', function() {
+    context('when opening the window', function() {
       it('renders the connect window', function() {
         return this.app.client
           .getWindowCount().should.eventually.equal(1)
@@ -27,16 +24,27 @@ if (process.env.EVERGREEN) {
       });
     });
 
-    describe('when connecting with no authentication', function() {
+    context('when connecting with no authentication', function() {
       context('when the server exists', function() {
         it('opens the schema window');
       });
 
       context('when the server does not exist', function() {
+        it('displays an error message', function() {
+          return this.app.client
+            .waitForVisible('select[name=authentication]')
+            .fillOutForm({
+              hostname: 'localhost',
+              port: 55555
+            })
+            .clickConnect()
+            .waitForVisible('.form-container .message.error')
+            .getText('.form-container .message.error').should.eventually.be.equal('MongoDB not running');
+        });
       });
     });
 
-    describe('when connecting with authentication', function() {
+    context('when connecting with authentication', function() {
       context('when connecting with user and password', function() {
         context('when the credentials are correct', function() {
           it('opens the schema window');
@@ -65,6 +73,10 @@ if (process.env.EVERGREEN) {
         context('when the credentials are incorrect', function() {
           it('displays an error message');
         });
+      });
+
+      context('when connecting with a recent connection', function() {
+        it('opens the schema window');
       });
     });
   });

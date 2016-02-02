@@ -45,18 +45,6 @@ if (process.env.EVERGREEN) {
           .getValue('input[name=ldap_password]').should.eventually.equal('foobar');
       });
 
-      it('should show an error message when MongoDB is not running', function() {
-        return this.app.client
-          .waitForVisible('select[name=authentication]')
-          .fillOutForm({
-            hostname: 'localhost',
-            port: 55555
-          })
-          .clickConnect()
-          .waitForVisible('.form-container .message.error')
-          .getText('.form-container .message.error').should.eventually.be.equal('MongoDB not running');
-      });
-
       /**
        * Start a local mongod and test if Compass can connect to it
        */

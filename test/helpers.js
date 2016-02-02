@@ -21,6 +21,13 @@ function responseValue(response) {
 
 module.exports.responseValue = responseValue;
 
+module.exports.warnEvergreen = function() {
+  /* eslint no-console:0 */
+  console.warn('Spectron acceptance tests skipped on '
+   + 'evergreen until the following is resolved: '
+   + 'https://jira.mongodb.org/browse/BUILD-1122');
+};
+
 module.exports.getElectronPath = function() {
   var platform = os.platform();
   var electronPath = ELECTRON_PATH[platform];
