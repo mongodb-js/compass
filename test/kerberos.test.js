@@ -1,15 +1,15 @@
 var assert = require('assert');
 var helpers = require('./helpers');
 
-describe('keytar', function() {
+describe('kerberos', function() {
   it('should be requirable', function() {
     assert.doesNotThrow(function() {
-      require('keytar');
+      require('kerberos');
     });
   });
 
   it('should be requirable in Electron', function(done) {
-    helpers.requireInElectron('keytar', 'getPassword',
+    helpers.requireInElectron('kerberos', 'Kerberos',
                               function(err) { done(err); });
   });
 });
