@@ -316,7 +316,6 @@ var AppMenu = (function() {
 
       _window.once('closed', (function(_this) {
         return function() {
-          // @todo: Durran Exception here on connecting.
           debug('WINDOW ' + _window.id + ' closed');
 
           _this.windowTemplates.delete(_window.id);

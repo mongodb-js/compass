@@ -61,7 +61,8 @@ function getConnection(model, done) {
 }
 
 // Inter-process communication with main process (Electron window)
-var ipc = window.require('ipc');
+var electron = window.require('electron');
+var ipc = electron.ipcRenderer;
 
 /**
  * The top-level application singleton that brings everything together!
