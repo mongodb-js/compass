@@ -3,6 +3,9 @@ var format = require('util').format;
 var Connection = require('mongodb-connection-model');
 var Application = require('spectron').Application;
 var os = require('os');
+var chai = require('chai');
+var chaiAsPromised = require('chai-as-promised');
+chai.use(chaiAsPromised);
 
 var ELECTRON_PATH = {
   linux: require('../tasks/linux').ELECTRON,
@@ -10,7 +13,7 @@ var ELECTRON_PATH = {
   darwin: require('../tasks/darwin').ELECTRON
 };
 
-var debug = require('debug')('scout:test:helpers');
+var debug = require('debug')('compass:test:helpers');
 
 function responseValue(response) {
   return response.value;
@@ -18,6 +21,12 @@ function responseValue(response) {
 
 module.exports.responseValue = responseValue;
 
+module.exports.warnEvergreen = function() {
+  /* eslint no-console:0 */
+  console.warn('Spectron acceptance tests skipped on '
+   + 'evergreen until the following is resolved: '
+   + 'https://jira.mongodb.org/browse/BUILD-1122');
+};
 
 module.exports.getElectronPath = function() {
   var platform = os.platform();
@@ -38,11 +47,19 @@ module.exports.getElectronPath = function() {
  *
  */
 module.exports.startApplication = function() {
+  debug('Starting Spectron Application');
   this.app = new Application({
     path: module.exports.getElectronPath()
   });
+  var app = this.app;
   debug('this.app', this.app);
-  return this.app.start();
+  return this.app.start()
+    .then(function() {
+      module.exports.addCommands(app.client);
+      chaiAsPromised.transferPromiseness = app.client.transferPromiseness;
+      chai.should().exist(app.client);
+      return app.client.waitUntilWindowLoaded();
+    });
 };
 
 /**
@@ -55,6 +72,7 @@ module.exports.startApplication = function() {
  */
 module.exports.stopApplication = function() {
   if (this.app && this.app.isRunning()) {
+    debug('Stopping Spectron Application');
     return this.app.stop();
   }
 };

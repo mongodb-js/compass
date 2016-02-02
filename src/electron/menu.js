@@ -1,12 +1,13 @@
 // based off of https://github.com/atom/atom/blob/master/src/browser/application-menu.coffee
 // use js2.coffee to convert it to JS
 
-var BrowserWindow = require('browser-window');
-var Menu = require('menu');
-var State = require('ampersand-state');
+var electron = require('electron');
+var BrowserWindow = electron.BrowserWindow;
+var Menu = electron.Menu;
+var app = electron.app;
 
+var State = require('ampersand-state');
 var _ = require('lodash');
-var app = require('app');
 var debug = require('debug')('electron:menu');
 
 // submenu related
@@ -313,12 +314,19 @@ var AppMenu = (function() {
       })(this);
       _window.on('focus', focusHandler);
 
-      _window.once('closed', (function(_this) {
+      _window.once('close', (function(_this) {
         return function() {
-          debug('WINDOW ' + _window.id + ' closed');
+          debug('WINDOW ' + _window.id + ' closing');
 
           _this.windowTemplates.delete(_window.id);
           _window.removeListener('focus', focusHandler);
+        };
+      })(this));
+
+      _window.once('closed', (function() {
+        return function() {
+          debug('WINDOW closed');
+          _window = null;
         };
       })(this));
     },

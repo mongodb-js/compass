@@ -11,10 +11,11 @@ var _ = require('lodash');
 var app = require('ampersand-app');
 var format = require('util').format;
 
-var remote = window.require('remote');
-var dialog = remote.require('dialog');
-var Clipboard = remote.require('clipboard');
-var BrowserWindow = remote.require('browser-window');
+var electron = window.require('electron');
+var remote = electron.remote;
+var dialog = remote.dialog;
+var Clipboard = remote.clipboard;
+var BrowserWindow = remote.BrowserWindow;
 var metrics = require('mongodb-js-metrics')();
 
 var debug = require('debug')('mongodb-compass:connect:index');

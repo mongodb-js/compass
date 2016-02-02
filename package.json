@@ -3,7 +3,7 @@
   "description": "The MongoDB GUI.",
   "version": "1.1.2-pre",
   "main": "main.js",
-  "electron_version": "0.34.3",
+  "electron_version": "0.36.7",
   "product_name": "MongoDB Compass",
   "authors": "MongoDB Inc.",
   "license": "UNLICENSED",
@@ -31,6 +31,7 @@
       "clipboard",
       "crash-reporter",
       "dialog",
+      "electron",
       "electron-squirrel-startup",
       "font-awesome",
       "glob",
@@ -63,7 +64,9 @@
     "test": "mocha",
     "ci": "npm run check && npm run release && npm test",
     "check": "mongodb-js-precommit --debug ./*.js src/{**/*.js,*.js} test/{**/*.js,*.js} tasks/*.js",
-    "fmt": "mongodb-js-fmt ./*.js src/{**/*.js,*.js} test/{**/*.js,*.js} tasks/*.js"
+    "fmt": "mongodb-js-fmt ./*.js src/{**/*.js,*.js} test/{**/*.js,*.js} tasks/*.js",
+    "clean": "gulp clean:build",
+    "dev": "gulp dev"
   },
   "pre-commit": [
     "check"

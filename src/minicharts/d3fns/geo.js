@@ -6,10 +6,11 @@ var mapStyle = require('./mapstyle');
 // var async = require('async');
 var app = require('ampersand-app');
 var format = require('util').format;
-var remote = window.require('remote');
-var dialog = remote.require('dialog');
+var electron = window.require('electron');
+var remote = electron.remote;
+var dialog = remote.dialog;
+var BrowserWindow = remote.BrowserWindow;
 var metrics = require('mongodb-js-metrics')();
-var BrowserWindow = remote.require('browser-window');
 
 var SHIFTKEY = 16;
 var APIKEY = 'AIzaSyDrhE1qbcnNIh4sK3t7GEcbLRdCNKWjlt0';

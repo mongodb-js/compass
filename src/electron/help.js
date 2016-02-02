@@ -1,5 +1,7 @@
+var electron = require('electron');
+var ipc = electron.ipcMain;
+
 var path = require('path');
-var ipc = require('ipc');
 var mm = require('marky-mark');
 var _ = require('lodash');
 var highlight = require('highlight.js');

@@ -8,9 +8,10 @@ if (!process.env.NODE_ENV) {
 // (`~\AppData\Local\Temp\Compass/ Crashes\completed` on Windows).
 require('./crash-reporter');
 var debug = require('debug')('electron:index');
+var electron = require('electron');
 
 if (!require('electron-squirrel-startup')) {
-  var app = require('app');
+  var app = electron.app;
 
   var shouldQuit = app.makeSingleInstance(function(commandLine) {
     debug('Second electron instance attempted:', commandLine);
