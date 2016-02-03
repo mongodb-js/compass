@@ -7,6 +7,9 @@ var os = require('os');
 var chai = require('chai');
 var chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
+var spawn = require('child_process').spawn;
+var MongoClient = require('mongodb').MongoClient;
+var assert = require('assert');
 
 var ELECTRON_PATH = {
   linux: '../dist/MongoDBCompass-linux-x64/MongoDBCompass',
@@ -77,6 +80,37 @@ module.exports.stopApplication = function() {
     debug('Stopping Spectron Application');
     return this.app.stop();
   }
+};
+
+var DOCUMENTS = [
+  { 'name': 'Aphex Twin' },
+  { 'name': 'Bonobo' },
+  { 'name': 'Arca' },
+  { 'name': 'Beacon' }
+];
+
+module.exports.insertTestDocuments = function() {
+  MongoClient.connect('mongodb://localhost:27018/compass-test', function(err, db) {
+    assert.equal(null, err);
+    var collection = db.collection('bands');
+    collection.insertMany(DOCUMENTS, function(error, result) {
+      assert.equal(null, error);
+      debug(result);
+      db.close();
+    });
+  });
+};
+
+module.exports.removeTestDocuments = function() {
+  MongoClient.connect('mongodb://localhost:27018/compass-test', function(err, db) {
+    assert.equal(null, err);
+    var collection = db.collection('bands');
+    collection.deleteMany({}, {}, function(error, result) {
+      assert.equal(null, error);
+      debug(result);
+      db.close();
+    });
+  });
 };
 
 /**
