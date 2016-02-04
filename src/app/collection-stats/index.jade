@@ -2,7 +2,7 @@ div.collection-stats-holder
   ul.collection-stats
     li.collection-stats-item
       .collection-stats-primary-label Documents
-      .collection-stats-primary-value(data-hook='document_count')
+      #document_count.collection-stats-primary-value(data-hook='document_count')
     li.collection-stats-item
       .collection-stats-label total size
       .collection-stats-value(data-hook='document_size')
@@ -12,7 +12,7 @@ div.collection-stats-holder
   ul.collection-stats
     li.collection-stats-item
       .collection-stats-primary-label Indexes
-      .collection-stats-primary-value(data-hook='index_count')
+      #index_count.collection-stats-primary-value(data-hook='index_count')
     li.collection-stats-item
       .collection-stats-label total size
       .collection-stats-value(data-hook='index_size')

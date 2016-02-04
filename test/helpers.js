@@ -11,6 +11,16 @@ var spawn = require('child_process').spawn;
 var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
 
+/**
+ * Test documents to sample with a local server.
+ */
+var DOCUMENTS = [
+  { 'name': 'Aphex Twin' },
+  { 'name': 'Bonobo' },
+  { 'name': 'Arca' },
+  { 'name': 'Beacon' }
+];
+
 var ELECTRON_PATH = {
   linux: '../dist/MongoDBCompass-linux-x64/MongoDBCompass',
   win32: '../dist/MongoDBCompass-win32-x64/MongoDBCompass.exe',
@@ -82,13 +92,9 @@ module.exports.stopApplication = function() {
   }
 };
 
-var DOCUMENTS = [
-  { 'name': 'Aphex Twin' },
-  { 'name': 'Bonobo' },
-  { 'name': 'Arca' },
-  { 'name': 'Beacon' }
-];
-
+/**
+ * Insert the test documents into the compass-test.bands collection.
+ */
 module.exports.insertTestDocuments = function() {
   MongoClient.connect('mongodb://localhost:27018/compass-test', function(err, db) {
     assert.equal(null, err);
@@ -101,6 +107,9 @@ module.exports.insertTestDocuments = function() {
   });
 };
 
+/**
+ * Remove all the test documents.
+ */
 module.exports.removeTestDocuments = function() {
   MongoClient.connect('mongodb://localhost:27018/compass-test', function(err, db) {
     assert.equal(null, err);
@@ -211,6 +220,49 @@ module.exports.addCommands = function(client) {
       .fillOutForm(connection)
       .clickConnect()
       .waitForSchemaWindow(ms);
+  });
+
+  /**
+   * Selects a collection from the schema window sidebar to analyse.
+   */
+  client.addCommand('selectCollection', function(name) {
+    return this
+      .waitForVisible('span[title="' + name + '"]')
+      .click('span[title="' + name + '"]')
+      .waitForVisible('div.schema-field-list');
+  });
+
+  /**
+   * Waits for the status bar to finish it's progress and unlock the page.
+   */
+  client.addCommand('waitForStatusBar', function() {
+    return this.waitForVisible('div#statusbar', 5000, true);
+  });
+
+  /**
+   * Opens the sample documents in the right panel.
+   */
+  client.addCommand('viewSampleDocuments', function() {
+    return this.waitForStatusBar()
+      .click('#view_sample')
+      .waitForVisible('div#sample_documents');
+  });
+
+  /**
+   * Refines the sample by entering the provided filter in the field and clicking apply.
+   */
+  client.addCommand('refineSample', function(query) {
+    return this.waitForStatusBar()
+      .setValue('input#refine_input', query)
+      .click('button#apply_button');
+  });
+
+  /**
+   * Resets the sample by clicking on the reset button.
+   */
+  client.addCommand('resetSample', function() {
+    return this.waitForStatusBar()
+      .click('button#reset_button');
   });
 
   /**
