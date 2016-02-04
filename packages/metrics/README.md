@@ -205,8 +205,8 @@ You can also build custom Resources that are specific to your app and use them a
 ## License
 Apache 2.0
 
-[travis_img]: https://img.shields.io/travis/mongodb-js/mongodb-js-metrics.svg
-[travis_url]: https://travis-ci.org/mongodb-js/mongodb-js-metrics
+[travis_img]: https://img.shields.io/travis/mongodb-js/metrics.svg
+[travis_url]: https://travis-ci.org/mongodb-js/metrics
 [npm_img]: https://img.shields.io/npm/v/mongodb-js-metrics.svg
 [npm_url]: https://npmjs.org/package/mongodb-js-metrics
 [ga]: https://analytics.google.com
