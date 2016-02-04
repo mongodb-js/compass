@@ -149,7 +149,7 @@
     "del": "^2.0.2",
     "electron-installer-codesign": "^0.1.1",
     "electron-installer-dmg": "^0.1.0",
-    "electron-installer-squirrel-windows": "^1.0.0",
+    "electron-installer-squirrel-windows": "^1.3.0",
     "electron-license": "^0.1.0",
     "electron-packager": "^5.1.1",
     "electron-rebuild": "^1.0.2",
