@@ -11,10 +11,6 @@ if (process.env.EVERGREEN) {
     afterEach(helpers.stopApplication);
 
     context('when databases exist', function() {
-      context('when no collections exist', function() {
-
-      });
-
       context('when collections exist', function() {
         before(require('mongodb-runner/mocha/before')({ port: 27018 }));
         after(require('mongodb-runner/mocha/after')());

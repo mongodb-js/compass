@@ -6,10 +6,11 @@ var Application = require('spectron').Application;
 var os = require('os');
 var chai = require('chai');
 var chaiAsPromised = require('chai-as-promised');
-chai.use(chaiAsPromised);
 var spawn = require('child_process').spawn;
 var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
+
+chai.use(chaiAsPromised);
 
 /**
  * Test documents to sample with a local server.
@@ -187,22 +188,44 @@ module.exports.addCommands = function(client) {
   });
 
   /**
-   * wait for the connect window to close and a schema window to open.
+   * Generic function to wait for a new window by the index in the order it was created.
    */
-  client.addCommand('waitForSchemaWindow', function(ms, interval) {
+  client.addCommand('waitForWindow', function(index, ms, interval) {
     ms = ms || 20000;
     interval = interval || 1000;
-    var schemaWindowHandle;
+    var newWindowHandle;
     return this.windowHandle().then(responseValue).then(function(connectHandle) {
       return this.waitUntil(function() {
         return this.windowHandles().then(responseValue).then(function(handles) {
-          schemaWindowHandle = handles[0];
-          return schemaWindowHandle !== connectHandle;
+          newWindowHandle = handles[index];
+          return newWindowHandle !== connectHandle;
         });
       }, ms, interval).then(function() {
-        return this.windowByIndex(0);
+        return this.windowByIndex(index);
       });
     });
+  });
+
+  /**
+   * Wait for the connect window to close and a schema window to open.
+   */
+  client.addCommand('waitForSchemaWindow', function(ms, interval) {
+    return this.waitForWindow(0, ms, interval);
+  });
+
+  /**
+   * Wait for the help dialog to open.
+   */
+  client.addCommand('waitForHelpDialog', function(ms, interval) {
+    return this.waitForWindow(1, ms, interval)
+      .waitForVisible('div.content h1.help-entry-title');
+  });
+
+  /**
+   * Filter the help topics.
+   */
+  client.addCommand('filterHelpTopics', function(topic) {
+    return this.setValue('input[placeholder=filter]', topic);
   });
 
   /**
