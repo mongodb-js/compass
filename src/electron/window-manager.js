@@ -148,6 +148,7 @@ app.on('show about dialog', function() {
   dialog.showMessageBox({
     type: 'info',
     message: 'MongoDB Compass Version: ' + app.getVersion(),
+    detail: 'release channel: ' + config.buildInfo.buildChannel,
     buttons: []
   });
 });
