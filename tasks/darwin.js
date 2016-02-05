@@ -34,7 +34,7 @@ var PACKAGER_CONFIG = {
   'app-version': pkg.version,
   protocols: [
     {
-      name: 'MongoDB Prototcol',
+      name: 'MongoDB Protocol',
       schemes: ['mongodb']
     }
   ]

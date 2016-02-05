@@ -9,7 +9,8 @@
  * - Remember to smile and floss
  */
 var path = require('path');
-var spawn = require('child_process').spawn;
+var os = require('os');
+var childProcess = require('child_process');
 var browserify = require('browserify');
 var watchify = require('watchify');
 var source = require('vinyl-source-stream');
@@ -31,6 +32,20 @@ var pkg = require('./package.json');
 
 // Platform specific tasks
 var platform = require(path.join(__dirname, 'tasks', process.platform));
+
+var getReleaseChannel = function() {
+  var channel;
+  switch (process.env.MONGODB_RELEASE_CHANNEL) {
+    case 'stable':
+    case 'testing':
+    case 'unstable':
+      channel = process.env.MONGODB_RELEASE_CHANNEL;
+      break;
+    default:
+      channel = 'unstable';
+  }
+  return channel;
+};
 
 // Where we'll put everything so it runs in Electron.
 // var DEST = path.join(platform.RESOURCES, 'app');
@@ -68,7 +83,8 @@ gulp.task('build', function(done) {
     ],
     'npm:install',
     'electron-rebuild',
-    'build:js'
+    'build:js',
+    'write-buildinfo-json'
     , done);
 });
 
@@ -198,7 +214,7 @@ gulp.task('build:pages', function() {
  * ## electron
  */
 gulp.task('electron:start', function() {
-  var child = spawn(path.resolve(platform.ELECTRON), [], {
+  var child = childProcess.spawn(path.resolve(platform.ELECTRON), [], {
     env: process.env
   });
   child.stderr.pipe(process.stderr);
@@ -296,4 +312,29 @@ gulp.task('license:build', function(done) {
 
 gulp.task('write-version-file', function(done) {
   fs.writeFile(path.join(platform.HOME, 'version'), pkg.version, done);
+});
+
+gulp.task('write-buildinfo-json', function(done) {
+  var buildInfoPath = path.join('build', 'buildinfo.json');
+  var buildInfo = {
+    buildDate: new Date().toISOString(),
+    buildHost: os.hostname(),
+    buildChannel: getReleaseChannel()
+  };
+
+  childProcess.exec('git rev-parse HEAD', function(err, stdout) {
+    if (err !== null) {
+      done(err);
+    }
+    buildInfo.gitCommit = stdout.trim();
+
+    childProcess.exec('git describe --long', function(err2, stdout2) {
+      if (err2 !== null) {
+        done(err2);
+      }
+      buildInfo.gitDescribe = stdout2.trim();
+
+      fs.writeFile(buildInfoPath, JSON.stringify(buildInfo), done);
+    });
+  });
 });
