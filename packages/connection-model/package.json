@@ -27,7 +27,7 @@
     "ampersand-model": "^6.0.2",
     "ampersand-rest-collection": "^5.0.0",
     "debug": "^2.2.0",
-    "lodash.assign": "^3.2.0",
+    "lodash.assign": "^4.0.2",
     "lodash.clone": "^3.0.3",
     "lodash.contains": "^2.4.3",
     "lodash.defaults": "^3.1.2",
