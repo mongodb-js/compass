@@ -315,7 +315,7 @@ gulp.task('write-version-file', function(done) {
 });
 
 gulp.task('write-buildinfo-json', function(done) {
-  var buildInfoPath = path.join('build', 'src', 'electron', 'config', 'buildinfo.json');
+  var buildInfoPath = path.join('build', 'buildinfo.json');
   var buildInfo = {
     buildDate: new Date().toISOString(),
     buildHost: os.hostname(),
