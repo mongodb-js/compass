@@ -83,8 +83,8 @@ gulp.task('build', function(done) {
     ],
     'npm:install',
     'electron-rebuild',
-    'build:js',
-    'write-buildinfo-json'
+    'write-buildinfo-json',
+    'build:js'
     , done);
 });
 
