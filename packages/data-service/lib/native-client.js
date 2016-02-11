@@ -43,6 +43,11 @@ NativeClient.prototype = (function() {
   return {
     constructor: NativeClient,
 
+    /**
+     * Get a list of databases for the server.
+     *
+     * @returns {Promise} The list of databases.
+     */
     databases: function() {
       return this.database.admin().listDatabases();
     },
@@ -53,7 +58,7 @@ NativeClient.prototype = (function() {
      * @param {string} ns - The namespace to search on.
      * @param {object} filter - The filter.
      * @param {object} options - The query options.
-     * @return {Cursor} The cursor.
+     * @returns {Cursor} The cursor.
      */
     find: function(ns, filter, options) {
       return this.database
