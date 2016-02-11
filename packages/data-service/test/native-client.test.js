@@ -1,32 +1,43 @@
-var chai = require('chai');
-var assert = require('assert');
-var expect = chai.expect;
+var helper = require('./helper');
+
+var assert = helper.assert;
+var expect = helper.expect;
 
 var NativeClient = require('../lib/native-client');
-var Connection = require('mongodb-connection-model');
 
 describe('DataService', function() {
+  var client = null;
+
   before(require('mongodb-runner/mocha/before')({ port: 27018 }));
   after(require('mongodb-runner/mocha/after')());
 
-  var connection = new Connection({ hostname: '127.0.0.1', port: 27018, ns: 'data-service' });
-  var client = new NativeClient(connection);
+  before(function() {
+    client = new NativeClient(helper.connection);
+  });
 
   describe('#new', function() {
     it('sets the connection on the instance', function() {
-      expect(client.connection).to.equal(connection);
+      expect(client.connection).to.equal(helper.connection);
+    });
+  });
+
+  describe('#databases', function() {
+    it('returns a list of the available databases', function(done) {
+      client.databases().then(function(dbs) {
+        var databases = dbs.databases;
+        expect(databases[0].name).to.equal('local');
+        done();
+      });
     });
   });
 
   describe('#find', function() {
     before(function() {
-      var collection = client.database.collection('test');
-      collection.insertMany([{ a: 1 }, { a: 2 }]);
+      helper.insertTestDocuments(client);
     });
 
     after(function() {
-      var collection = client.database.collection('test');
-      collection.deleteMany();
+      helper.deleteTestDocuments(client);
     });
 
     context('when a filter is provided', function() {

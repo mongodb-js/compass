@@ -1,3 +1,4 @@
+var assert = require('assert');
 var MongoClient = require('mongodb').MongoClient;
 
 /**
@@ -9,7 +10,8 @@ var MongoClient = require('mongodb').MongoClient;
 function NativeClient(connection) {
   var client = this;
   this.connection = connection;
-  MongoClient.connect(this.connection.driver_url).then(function(database) {
+  MongoClient.connect(this.connection.driver_url, function(error, database) {
+    assert.equal(null, error);
     client.setDatabase(database);
   });
 }
@@ -41,6 +43,10 @@ NativeClient.prototype = (function() {
   return {
     constructor: NativeClient,
 
+    databases: function() {
+      return this.database.admin().listDatabases();
+    },
+
     /**
      * Find documents for the provided filter and options on the collection.
      *
@@ -50,7 +56,10 @@ NativeClient.prototype = (function() {
      * @return {Cursor} The cursor.
      */
     find: function(ns, filter, options) {
-      return this.database.db(databaseName(ns)).collection(collectionName(ns)).find(filter, options);
+      return this.database
+        .db(databaseName(ns))
+        .collection(collectionName(ns))
+        .find(filter, options);
     },
 
     /**
