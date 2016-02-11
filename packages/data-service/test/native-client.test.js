@@ -5,7 +5,7 @@ var expect = helper.expect;
 
 var NativeClient = require('../lib/native-client');
 
-describe('DataService', function() {
+describe('NativeClient', function() {
   var client = null;
 
   before(require('mongodb-runner/mocha/before')({ port: 27018 }));

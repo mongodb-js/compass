@@ -8,12 +8,11 @@ var MongoClient = require('mongodb').MongoClient;
  * @param {Connection} connection - The Connection model.
  */
 function NativeClient(connection) {
-  var client = this;
   this.connection = connection;
-  MongoClient.connect(this.connection.driver_url, function(error, database) {
+  this.connect(function(error, database) {
     assert.equal(null, error);
-    client.setDatabase(database);
-  });
+    this.database = database;
+  }.bind(this));
 }
 
 /**
@@ -54,6 +53,16 @@ NativeClient.prototype = (function() {
     constructor: NativeClient,
 
     /**
+     * Connect to the server.
+     *
+     * @param {function} done - The callback function.
+     * @returns {Promise} The client promise.
+     */
+    connect: function(done) {
+      return MongoClient.connect(this.connection.driver_url, done);
+    },
+
+    /**
      * Count the number of documents in the collection for the provided filter
      * and options.
      *
@@ -85,15 +94,6 @@ NativeClient.prototype = (function() {
      */
     find: function(ns, filter, options) {
       return collection.call(this, ns).find(filter, options);
-    },
-
-    /**
-     * Set the database on the client once the connection is made.
-     *
-     * @param {DB} database - The database object.
-     */
-    setDatabase: function(database) {
-      this.database = database;
     }
   };
 })();
