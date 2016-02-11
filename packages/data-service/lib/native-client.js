@@ -1,4 +1,3 @@
-var assert = require('assert');
 var MongoClient = require('mongodb').MongoClient;
 
 /**
@@ -9,10 +8,7 @@ var MongoClient = require('mongodb').MongoClient;
  */
 function NativeClient(connection) {
   this.connection = connection;
-  this.connect(function(error, database) {
-    assert.equal(null, error);
-    this.database = database;
-  }.bind(this));
+  this.connect();
 }
 
 /**
@@ -58,8 +54,10 @@ NativeClient.prototype = (function() {
      * @param {function} done - The callback function.
      * @returns {Promise} The client promise.
      */
-    connect: function(done) {
-      return MongoClient.connect(this.connection.driver_url, done);
+    connect: function() {
+      return MongoClient.connect(this.connection.driver_url).then(function(database) {
+        this.database = database;
+      }.bind(this));
     },
 
     /**
