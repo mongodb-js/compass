@@ -40,8 +40,31 @@ NativeClient.prototype = (function() {
     return ns.split('.')[0];
   };
 
+  /**
+   * Get the collection to operate on.
+   *
+   * @param {string} ns - The namespace.
+   * @returns {Collection} The collection.
+   */
+  var collection = function(ns) {
+    return this.database.db(databaseName(ns)).collection(collectionName(ns));
+  };
+
   return {
     constructor: NativeClient,
+
+    /**
+     * Count the number of documents in the collection for the provided filter
+     * and options.
+     *
+     * @param {string} ns - The namespace to search on.
+     * @param {object} filter - The filter.
+     * @param {object} options - The query options.
+     * @returns {Promise} The count.
+     */
+    count: function(ns, filter, options) {
+      return collection.call(this, ns).count(filter, options);
+    },
 
     /**
      * Get a list of databases for the server.
@@ -61,10 +84,7 @@ NativeClient.prototype = (function() {
      * @returns {Cursor} The cursor.
      */
     find: function(ns, filter, options) {
-      return this.database
-        .db(databaseName(ns))
-        .collection(collectionName(ns))
-        .find(filter, options);
+      return collection.call(this, ns).find(filter, options);
     },
 
     /**

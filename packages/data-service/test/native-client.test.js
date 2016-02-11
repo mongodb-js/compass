@@ -70,4 +70,16 @@ describe('DataService', function() {
       });
     });
   });
+
+  describe('#count', function() {
+    context('when a filter is provided', function() {
+      it('returns a count for the matching documents', function(done) {
+        client.count('data-service.test', { a: 1 }, function(error, count) {
+          assert.equal(null, error);
+          expect(count).to.equal(0);
+          done();
+        });
+      });
+    });
+  });
 });
