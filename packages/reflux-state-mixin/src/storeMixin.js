@@ -2,14 +2,14 @@ var Reflux = require('reflux');
 var utils = require('./utils.js');
 
 
-function attachAction(options, actionName) {
+function attachAction(actionName) {
   if (this[actionName]) {
     console.warn(
         'Not attaching event ' + actionName + '; key already exists'
     );
     return;
   }
-  this[actionName] = Reflux.createAction(options);
+  this[actionName] = Reflux.createAction();
 }
 
 
@@ -44,7 +44,7 @@ module.exports = {
       this.state = this.getInitialState();
       for (var key in this.state) {
         if (this.state.hasOwnProperty(key)) {
-          attachAction.call(this, this.state[key], key);
+          attachAction.call(this, key);
         }
       }
     }
