@@ -1,5 +1,5 @@
 import React from 'react';
-import utils from './utils.js';
+import {object, isFunction} from './utils.js';
 
 const componentRef = '__CONNECTED_COMPONENT_REF__';
 
@@ -21,12 +21,12 @@ export default function (store, key) {
         let componentInstance = findInnerComponent(this.refs[componentRef]);
 
         let setStateFunc = state => {
-          let newState = noKey ? state : utils.object([key], [state]);
+          let newState = noKey ? state : object([key], [state]);
           componentInstance.setState(newState);
         };
 
         //setting `initialState` after Component's constructor method (where: `state={...}`)
-        if (!utils.isFunction(store.getInitialState)) {
+        if (!isFunction(store.getInitialState)) {
           console.warn('component ' + Component.name + ' is trying to connect to a store that lacks "getInitialState()" method');
           return;
         } else {

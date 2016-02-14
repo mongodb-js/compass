@@ -1,15 +1,15 @@
-import utils from './utils.js';
+import {isFunction, object} from './utils.js';
 
-module.exports = function (store, key) {
+export default function (store, key) {
   var noKey = key === undefined;
 
   return {
     getInitialState: function () {
-      if (!utils.isFunction(store.getInitialState)) {
+      if (!isFunction(store.getInitialState)) {
         console.warn('component ' + this.constructor.displayName + ' is trying to connect to a store that lacks "getInitialState()" method');
         return {};
       } else {
-        return noKey ? store.state : utils.object([key], [store.state[key]]);
+        return noKey ? store.state : object([key], [store.state[key]]);
       }
     },
     componentDidMount: function () {
@@ -17,7 +17,7 @@ module.exports = function (store, key) {
       var componentInstance = this;
 
       let setStateFunc = state => {
-        let newState = noKey ? state : utils.object([key], [state]);
+        let newState = noKey ? state : object([key], [state]);
 
         if (typeof componentInstance.isMounted === "undefined" || componentInstance.isMounted() === true) {
           componentInstance.setState(newState);

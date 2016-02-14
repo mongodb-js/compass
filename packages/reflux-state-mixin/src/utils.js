@@ -1,20 +1,20 @@
-var utils = {};
+//var utils = {};
 
-utils.object = function (keys, vals) {
+export function object(keys, vals) {
     var o = {}, i = 0;
     for (; i < keys.length; i++) {
         o[keys[i]] = vals[i];
     }
     return o;
-};
+}
 
-utils.isObject = function (obj) {
+function isObject (obj) {
     var type = typeof obj;
     return type === 'function' || type === 'object' && !!obj;
-};
+}
 
-utils.extend = function (obj) {
-    if (!utils.isObject(obj)) {
+export function extend (obj) {
+    if (!isObject(obj)) {
         return obj;
     }
     var source, prop;
@@ -30,10 +30,10 @@ utils.extend = function (obj) {
         }
     }
     return obj;
-};
+}
 
-utils.isFunction = function (value) {
+export function isFunction (value) {
     return typeof value === 'function';
-};
+}
 
-module.exports = utils;
+//module.exports = utils;

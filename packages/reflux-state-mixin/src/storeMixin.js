@@ -1,5 +1,7 @@
-var Reflux = require('reflux');
-var utils = require('./utils.js');
+//var Reflux = require('reflux');
+//var utils = require('./utils.js');
+import Reflux from 'reflux';
+import {extend, isFunction} from './utils.js';
 
 
 function attachAction(actionName) {
@@ -13,10 +15,10 @@ function attachAction(actionName) {
 }
 
 
-module.exports = {
+export default {
   setState: function (state) {
     var changed = false;
-    var prevState = utils.extend({}, this.state);
+    var prevState = extend({}, this.state);
 
     for (var key in state) {
       if (state.hasOwnProperty(key)) {
@@ -28,9 +30,9 @@ module.exports = {
     }
 
     if (changed) {
-      this.state = utils.extend(this.state, state);
+      this.state = extend(this.state, state);
 
-      if (utils.isFunction(this.storeDidUpdate)) {
+      if (isFunction(this.storeDidUpdate)) {
         this.storeDidUpdate(prevState);
       }
 
@@ -40,7 +42,7 @@ module.exports = {
   },
 
   init: function () {
-    if (utils.isFunction(this.getInitialState)) {
+    if (isFunction(this.getInitialState)) {
       this.state = this.getInitialState();
       for (var key in this.state) {
         if (this.state.hasOwnProperty(key)) {
