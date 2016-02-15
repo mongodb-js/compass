@@ -14,7 +14,7 @@ let port = () => {
 port.store = storeMixin;
 port.connect = connectMixin;
 port.connector = connectDecorator;
-
+export {storeMixin as store, connectMixin as connect, connectDecorator as connector}
 //don't remove `module.exports = port`, to enable common-js-non-es6 way of importing : import {x} from '..'
 module.exports = port;
 export default port;
