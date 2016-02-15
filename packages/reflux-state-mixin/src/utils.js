@@ -12,6 +12,15 @@ function isObject (obj) {
     var type = typeof obj;
     return type === 'function' || type === 'object' && !!obj;
 }
+export function setProp(obj, source, prop){
+    if (Object.getOwnPropertyDescriptor && Object.defineProperty) {
+        var propertyDescriptor = Object.getOwnPropertyDescriptor(source, prop);
+        Object.defineProperty(obj, prop, propertyDescriptor);
+    } else {
+        obj[prop] = source[prop];
+    }
+    return obj;
+}
 
 export function extend (obj) {
     if (!isObject(obj)) {
@@ -21,12 +30,7 @@ export function extend (obj) {
     for (var i = 1, length = arguments.length; i < length; i++) {
         source = arguments[i];
         for (prop in source) {
-            if (Object.getOwnPropertyDescriptor && Object.defineProperty) {
-                var propertyDescriptor = Object.getOwnPropertyDescriptor(source, prop);
-                Object.defineProperty(obj, prop, propertyDescriptor);
-            } else {
-                obj[prop] = source[prop];
-            }
+            obj = setProp(obj, source, prop)
         }
     }
     return obj;

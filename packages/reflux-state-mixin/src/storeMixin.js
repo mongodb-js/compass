@@ -1,7 +1,7 @@
 //var Reflux = require('reflux');
 //var utils = require('./utils.js');
 import Reflux from 'reflux';
-import {extend, isFunction} from './utils.js';
+import {extend, isFunction, setProp} from './utils.js';
 
 
 function attachAction(actionName) {
@@ -23,6 +23,8 @@ export default {
     for (var key in state) {
       if (state.hasOwnProperty(key)) {
         if (this.state[key] !== state[key]) {
+          this.state = setProp(this.state, state, key);
+          //this.state[key] = state[key];
           this[key].trigger(state[key]);
           changed = true;
         }
@@ -30,7 +32,7 @@ export default {
     }
 
     if (changed) {
-      this.state = extend(this.state, state);
+      //this.state = extend(this.state, state);
 
       if (isFunction(this.storeDidUpdate)) {
         this.storeDidUpdate(prevState);
