@@ -6,7 +6,6 @@ var os = require('os');
 var chai = require('chai');
 var chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
-var spawn = require('child_process').spawn;
 
 var ELECTRON_PATH = {
   linux: require('../tasks/linux').ELECTRON,
