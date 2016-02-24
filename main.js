@@ -1,4 +1,6 @@
 /**
- * The main entrpoint Electron will execute.
+ * The main entrypoint Electron will execute.
  */
-require('./src/electron');
+var appRoot = __dirname;
+
+require('electron-compile').init(appRoot, './src/electron');
