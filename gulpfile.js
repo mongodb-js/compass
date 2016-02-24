@@ -66,7 +66,6 @@ gulp.task('build', function(done) {
       'copy:js',
       'copy:package.json'
     ],
-    'npm:install',
     'electron-rebuild',
     'build:js'
     , done);
@@ -256,10 +255,6 @@ gulp.task('copy:js', function() {
   );
 });
 
-gulp.task('npm:install', shell.task('npm install --production --quiet --loglevel error', {
-  cwd: 'build/'
-}));
-
 gulp.task('clean', function(done) {
   del(['build/', 'dist/', 'node_modules/'], done);
 });
@@ -278,7 +273,7 @@ gulp.task('electron-rebuild',
     'electron-rebuild',
     '--version %s',
     '--node-module-version 47',
-    '--module-dir ./build/node_modules'
+    '--module-dir ./node_modules'
   ].join(' '), pkg.electron_version)));
 
 var fs = require('fs');
