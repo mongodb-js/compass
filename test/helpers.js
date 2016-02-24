@@ -39,32 +39,6 @@ module.exports.getElectronPath = function() {
   return ELECTRON_PATH[platform];
 };
 
-module.exports.requireInElectron = function(moduleName, property, done) {
-  var subtest = format([
-    "var assert = require('assert');",
-    "assert(require('%s').%s);",
-    "console.log('%s is properly installed');"
-  ].join(' '), moduleName, property, moduleName);
-
-  var proc = spawn(
-                module.exports.getElectronPath(),
-                ['-e', subtest],
-                { env: { ATOM_SHELL_INTERNAL_RUN_AS_NODE: '1' } }
-                );
-
-  proc.stderr.on('data', function(data) {
-    debug('requireInElectron %s', data.toString('utf-8'));
-  });
-
-  proc.on('exit', function(code) {
-    if (code === 0) {
-      done();
-      return;
-    }
-    done( new Error('process exited with code ' + code) );
-  });
-};
-
 /**
  * Call startApplication in beforeEach for all UI tests:
  * @returns {Promise}   promise that resolves when app starts

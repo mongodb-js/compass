@@ -7,9 +7,4 @@ describe('kerberos', function() {
       require('kerberos');
     });
   });
-
-  it('should be requirable in Electron', function(done) {
-    helpers.requireInElectron('kerberos', 'Kerberos',
-                              function(err) { done(err); });
-  });
 });
