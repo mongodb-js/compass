@@ -40,6 +40,7 @@ var INSTALLER_CONFIG = {
   name: 'MongoDBCompass',
   path: APP_PATH,
   out: path.resolve(__dirname, '../dist'),
+  loading_gif: path.resolve(__dirname, '../images/win32/mdb-compass-installer.gif'),
   overwrite: true
 };
 
