@@ -10,53 +10,55 @@ require('./crash-reporter');
 var debug = require('debug')('electron:index');
 var electron = require('electron');
 
-if (!require('electron-squirrel-startup')) {
-  var app = electron.app;
+(function() {
+  if (!require('electron-squirrel-startup')) {
+    var app = electron.app;
 
-  var shouldQuit = app.makeSingleInstance(function(commandLine) {
-    debug('Second electron instance attempted:', commandLine);
-    app.emit('show connect dialog');
-    return true;
-  });
-
-  if (shouldQuit) {
-    app.quit();
-    return;
-  }
-
-  var serverctl = require('./mongodb-scope-server-ctl');
-
-  app.on('window-all-closed', function() {
-    debug('All windows closed.  Quitting app.');
-    app.quit();
-  });
-
-  app.on('quit', function() {
-    debug('app quitting!  stopping server..');
-    serverctl.stop(function(err) {
-      if (err) {
-        debug('Error stopping server...', err);
-      }
-      debug('Server stopped!  Bye!');
+    var shouldQuit = app.makeSingleInstance(function(commandLine) {
+      debug('Second electron instance attempted:', commandLine);
+      app.emit('show connect dialog');
+      return true;
     });
-  });
 
-  serverctl.start(function(err) {
-    if (err) {
-      debug('Error starting server...', err);
-    } else {
-      debug('Server started!');
+    if (shouldQuit) {
+      app.quit();
+      return;
     }
-  });
 
-  if (process.platform !== 'linux') {
-    require('./auto-updater');
+    var serverctl = require('./mongodb-scope-server-ctl');
+
+    app.on('window-all-closed', function() {
+      debug('All windows closed.  Quitting app.');
+      app.quit();
+    });
+
+    app.on('quit', function() {
+      debug('app quitting!  stopping server..');
+      serverctl.stop(function(err) {
+        if (err) {
+          debug('Error stopping server...', err);
+        }
+        debug('Server stopped!  Bye!');
+      });
+    });
+
+    serverctl.start(function(err) {
+      if (err) {
+        debug('Error starting server...', err);
+      } else {
+        debug('Server started!');
+      }
+    });
+
+    if (process.platform !== 'linux') {
+      require('./auto-updater');
+    }
+    var AppMenu = require('./menu');
+    AppMenu.init();
+    require('./window-manager');
+
+    app.on('ready', function() {
+      require('./help');
+    });
   }
-  var AppMenu = require('./menu');
-  AppMenu.init();
-  require('./window-manager');
-
-  app.on('ready', function() {
-    require('./help');
-  });
-}
+}());
