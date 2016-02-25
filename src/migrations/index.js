@@ -36,7 +36,8 @@ function migrate(done) {
     if (err) {
       done(err);
     }
-    var currentVersion = pkg.version;
+    // strip any prerelease parts off
+    var currentVersion = pkg.version.split('-')[0];
     if (semver.lt(previousVersion, currentVersion)) {
       // pick migration tasks for upgrade
       debug('upgrading schema from version', previousVersion, 'to version', currentVersion);
@@ -47,7 +48,7 @@ function migrate(done) {
       tasks = _.mapValues(tasks, function(fn) {
         return fn.bind(null, previousVersion, currentVersion);
       });
-      debug('executing migration steps for versions %s', _.keys(tasks));
+      debug('executing migration steps for versions %j', _.keys(tasks));
       return async.series(tasks, done);
     }
     if (semver.gt(previousVersion, currentVersion)) {
@@ -69,5 +70,5 @@ function migrate(done) {
 
 module.exports = migrate;
 module.exports.migrations = {
-  '1.1.0': require('./1.1.0')
+  '1.1.2': require('./1.1.2')
 };
