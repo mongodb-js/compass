@@ -18,7 +18,8 @@ var path = require('path');
 /**
  * When running in electron, we're in `RESOURCES/src/electron`.
  */
-var RESOURCES = path.resolve(__dirname, '../../');
+var RESOURCES = path.resolve(__dirname, '../');
+
 /**
  * @todo (imlucas) Missing this PNG.
  */
@@ -28,8 +29,8 @@ var COMPASS_ICON_PATH = RESOURCES + '/images/mongodb-compass.png';
  * The app's HTML shell which is the output of `./src/index.jade`
  * created by the `build:pages` gulp task.
  */
-var DEFAULT_URL = 'file://' + path.join(RESOURCES, 'index.html#connect');
-var HELP_URL = 'file://' + path.join(RESOURCES, 'index.html#help');
+var DEFAULT_URL = 'file://' + path.join(RESOURCES, 'index.jade#connect');
+var HELP_URL = 'file://' + path.join(RESOURCES, 'index.jade#help');
 
 /**
  * We want the Connect and Help window to be special
@@ -118,7 +119,7 @@ module.exports.create = function(opts) {
     event.preventDefault();
 
     module.exports.create({
-      url: 'file://' + RESOURCES + '/index.html' + decodeURIComponent(url.replace('file://', ''))
+      url: 'file://' + RESOURCES + '/index.jade' + decodeURIComponent(url.replace('file://', ''))
     });
   });
 

@@ -4,6 +4,10 @@
     "sourceMaps": "inline"
   },
   "text/less": {
-    "dumpLineNumbers": "comments"
+    "dumpLineNumbers": "comments",
+    "paths": [
+      "node_modules/font-awesome/less",
+      "node_modules/bootstrap/less"
+      ]
   }
 }

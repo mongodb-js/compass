@@ -10,21 +10,21 @@
  */
 var path = require('path');
 var spawn = require('child_process').spawn;
-var browserify = require('browserify');
-var watchify = require('watchify');
-var source = require('vinyl-source-stream');
+// var browserify = require('browserify');
+// var watchify = require('watchify');
+// var source = require('vinyl-source-stream');
 var gulp = require('gulp');
 var gutil = require('gulp-util');
-var less = require('gulp-less');
-var jade = require('gulp-jade');
-var sourcemaps = require('gulp-sourcemaps');
-var buffer = require('vinyl-buffer');
+// var less = require('gulp-less');
+// var jade = require('gulp-jade');
+// var sourcemaps = require('gulp-sourcemaps');
+// var buffer = require('vinyl-buffer');
 var merge = require('merge-stream');
 var shell = require('gulp-shell');
 var del = require('del');
 var sequence = require('run-sequence');
 var watch = require('gulp-watch');
-var notify = require('./tasks/notify');
+// var notify = require('./tasks/notify');
 var license = require('electron-license');
 var format = require('util').format;
 var pkg = require('./package.json');
@@ -58,18 +58,17 @@ gulp.task('release', function(done) {
 gulp.task('build', function(done) {
   sequence(
     [
-      'build:pages',
-      'build:less',
-      'copy:fonts',
-      'copy:images',
-      'copy:text',
-      'copy:js',
-      'copy:package.json'
+      // 'build:pages',
+      // 'build:less',
+      'copy:fonts'
+      // 'copy:images',
+      // 'copy:text',
+      // 'copy:js',
+      // 'copy:package.json'
     ],
-    'npm:install',
     'electron-rebuild',
-    'build:js'
-    , done);
+    // 'build:js'
+    done);
 });
 
 /**
@@ -82,8 +81,8 @@ gulp.task('dev', function(done) {
   process.env.NODE_ENV = 'development';
   sequence(
     'build',
-    'electron:build',
-    'electron:start',
+    // 'electron:build',
+    // 'electron:start',
     'watch'
     , done);
 });
@@ -132,50 +131,50 @@ gulp.task('watch', function() {
 /**
  * Use browserify to compile the UI js.
  */
-var jadeify = require('jadeify');
-gulp.task('build:js', function() {
-  var bundler = browserify(pkg.browserify).transform(jadeify);
-  if (process.env.NODE_ENV === 'production') {
-    return bundler.bundle()
-      .on('error', notify('js'))
-      .pipe(source('index.js'))
-      .pipe(buffer())
-      .pipe(sourcemaps.init({
-        loadMaps: true
-      }))
-      .pipe(sourcemaps.write('./'))
-      .pipe(gulp.dest('build/'));
-  }
-  // @see [fast browserify builds recipe](http://git.io/iiCk-A)
-  var b;
-  function rebundle(files) {
-    if (files) {
-      gutil.log('Changed', '\'' + gutil.colors.cyan(files) + '\'');
-      gutil.log('Starting', '\'' + gutil.colors.cyan('rebundle') + '\'...');
-    }
-    return b.bundle()
-      .on('error', notify('js'))
-      .pipe(source('index.js'))
-      .pipe(gulp.dest('build/'))
-      .on('end', function() {
-        gutil.log('Finished', '\'' + gutil.colors.cyan('rebundle') + '\'...');
-      });
-  }
-  b = watchify(bundler).on('update', rebundle);
-  return rebundle();
-});
+// var jadeify = require('jadeify');
+// gulp.task('build:js', function() {
+//   var bundler = browserify(pkg.browserify).transform(jadeify);
+//   if (process.env.NODE_ENV === 'production') {
+//     return bundler.bundle()
+//       .on('error', notify('js'))
+//       .pipe(source('index.js'))
+//       .pipe(buffer())
+//       .pipe(sourcemaps.init({
+//         loadMaps: true
+//       }))
+//       .pipe(sourcemaps.write('./'))
+//       .pipe(gulp.dest('build/'));
+//   }
+//   // @see [fast browserify builds recipe](http://git.io/iiCk-A)
+//   var b;
+//   function rebundle(files) {
+//     if (files) {
+//       gutil.log('Changed', '\'' + gutil.colors.cyan(files) + '\'');
+//       gutil.log('Starting', '\'' + gutil.colors.cyan('rebundle') + '\'...');
+//     }
+//     return b.bundle()
+//       .on('error', notify('js'))
+//       .pipe(source('index.js'))
+//       .pipe(gulp.dest('build/'))
+//       .on('end', function() {
+//         gutil.log('Finished', '\'' + gutil.colors.cyan('rebundle') + '\'...');
+//       });
+//   }
+//   b = watchify(bundler).on('update', rebundle);
+//   return rebundle();
+// });
 
 /**
  * Compile LESS to CSS.
  */
-gulp.task('build:less', function() {
-  return gulp.src('src/*.less')
-    .pipe(sourcemaps.init())
-    .pipe(less(pkg.less))
-    .on('error', notify('less'))
-    .pipe(sourcemaps.write('./maps'))
-    .pipe(gulp.dest('build/'));
-});
+// gulp.task('build:less', function() {
+//   return gulp.src('src/*.less')
+//     .pipe(sourcemaps.init())
+//     .pipe(less(pkg.less))
+//     .on('error', notify('less'))
+//     .pipe(sourcemaps.write('./maps'))
+//     .pipe(gulp.dest('build/'));
+// });
 
 /**
  * Compile jade templates to static HTML files.
@@ -183,16 +182,16 @@ gulp.task('build:less', function() {
  * are compiled via the `jadeify` browserify transform.
  * @see build:js
  */
-gulp.task('build:pages', function() {
-  return gulp.src('src/index.jade')
-    .pipe(jade({
-      locals: {
-        NODE_ENV: process.env.NODE_ENV
-      }
-    }))
-    .on('error', notify('jade'))
-    .pipe(gulp.dest('build/'));
-});
+// gulp.task('build:pages', function() {
+//   return gulp.src('src/index.jade')
+//     .pipe(jade({
+//       locals: {
+//         NODE_ENV: process.env.NODE_ENV
+//       }
+//     }))
+//     .on('error', notify('jade'))
+//     .pipe(gulp.dest('build/'));
+// });
 
 /**
  * ## electron
@@ -224,18 +223,18 @@ gulp.task('electron:build-installer', platform.installer);
  */
 gulp.task('copy:fonts', function() {
   return gulp.src(pkg.fonts)
-    .pipe(gulp.dest('build/fonts'));
+    .pipe(gulp.dest('src/fonts'));
 });
 
-gulp.task('copy:images', function() {
-  return gulp.src('images/{*,**/*}')
-    .pipe(gulp.dest('build/images'));
-});
+// gulp.task('copy:images', function() {
+//   return gulp.src('images/{*,**/*}')
+//     .pipe(gulp.dest('build/images'));
+// });
 
-gulp.task('copy:package.json', function() {
-  return gulp.src(['package.json', 'npm-shrinkwrap.json*'])
-    .pipe(gulp.dest('build/'));
-});
+// gulp.task('copy:package.json', function() {
+//   return gulp.src(['package.json', 'npm-shrinkwrap.json*'])
+//     .pipe(gulp.dest('build/'));
+// });
 
 gulp.task('copy:text', function() {
   return merge(
@@ -256,10 +255,6 @@ gulp.task('copy:js', function() {
   );
 });
 
-gulp.task('npm:install', shell.task('npm install --production --quiet --loglevel error', {
-  cwd: 'build/'
-}));
-
 gulp.task('clean', function(done) {
   del(['build/', 'dist/', 'node_modules/'], done);
 });
@@ -278,7 +273,7 @@ gulp.task('electron-rebuild',
     'electron-rebuild',
     '--version %s',
     '--node-module-version 47',
-    '--module-dir ./build/node_modules'
+    '--module-dir ./node_modules'
   ].join(' '), pkg.electron_version)));
 
 var fs = require('fs');
