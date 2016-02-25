@@ -341,7 +341,7 @@ app.extend({
     debug('sending message to main process:', msg, arg);
     ipc.send('message', msg, arg);
   },
-  onMessageReceived: function(msg, arg) {
+  onMessageReceived: function(sender, msg, arg) {
     debug('message received from main process:', msg, arg);
     this.trigger(msg, arg);
   },
