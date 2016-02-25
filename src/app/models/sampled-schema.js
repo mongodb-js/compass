@@ -114,19 +114,19 @@ module.exports = Schema.extend({
       options.success({});
     };
 
-    var parse = function(doc, cb) {
-      if (!timeAtFirstDoc) {
-        timeAtFirstDoc = new Date();
-      }
-      try {
-        model.parse(doc);
-      } catch (err) {
-        erroredOnDocs.push(doc);
-        metrics.error(err);
-      }
-      sampleCount++;
-      cb(null, doc);
-    };
+    // var parse = function(doc, cb) {
+    //   if (!timeAtFirstDoc) {
+    //     timeAtFirstDoc = new Date();
+    //   }
+    //   try {
+    //     model.parse(doc);
+    //   } catch (err) {
+    //     erroredOnDocs.push(doc);
+    //     metrics.error(err);
+    //   }
+    //   sampleCount++;
+    //   cb(null, doc);
+    // };
 
     var onEnd = function(err) {
       model.is_fetching = false;
@@ -146,6 +146,8 @@ module.exports = Schema.extend({
         duration: totalTime,
         'query clauses count': _.keys(options.query).length,
         'total document count': model.total,
+        'schema width': model.width,
+        'schema depth': model.depth,
         'sample size': sampleCount,
         'errored document count': erroredOnDocs.length,
         'total sample time': timeToFirstDoc,
@@ -179,20 +181,26 @@ module.exports = Schema.extend({
         .on('error', function(dbErr) {
           onEnd(dbErr);
         })
-        .pipe(es.map(parse))
         .once('data', function() {
           status = app.statusbar.width;
           app.statusbar.message = 'Analyzing documents...';
           app.statusbar.trickle(false);
         })
-        .on('data', function() {
+        .pipe(model.stream(true))
+        .on('progress', function() {
           counter++;
           if (counter % stepSize === 0) {
             var inc = (100 - status) * stepSize / numSamples;
             app.statusbar.width += inc;
           }
         })
-        .pipe(es.wait(onEnd));
+        .on('error', function(dbErr) {
+          onEnd(dbErr);
+        })
+        .pipe(es.wait(onEnd))
+        .on('error', function(dbErr) {
+          onEnd(dbErr);
+        });
     });
   },
   serialize: function() {
