@@ -1,6 +1,6 @@
 var electron = require('electron');
 var app = electron.app;
-var updater = module.exports = require('auto-updater');
+var updater = module.exports = electron.autoUpdater;
 var debug = require('debug')('mongodb-compass:auto-updater');
 
 var FEED_URL = 'http://squirrel.mongodb.parts/mongodb-compass/releases/latest?version=' + app.getVersion();
