@@ -171,7 +171,7 @@ module.exports = Schema.extend({
 
       var status = 0;
       var counter = 0;
-      var numSamples = Math.min(options.size, count);
+      var numSamples = Math.min(options.size, count.count);
       var stepSize = Math.ceil(Math.max(1, numSamples / 10));
 
       app.statusbar.show('Sampling collection...');
@@ -188,8 +188,11 @@ module.exports = Schema.extend({
         })
         .pipe(model.stream(true))
         .on('progress', function() {
-          counter++;
-          if (counter % stepSize === 0) {
+          if (!timeAtFirstDoc) {
+            timeAtFirstDoc = new Date();
+          }
+          sampleCount++;
+          if (sampleCount % stepSize === 0) {
             var inc = (100 - status) * stepSize / numSamples;
             app.statusbar.width += inc;
           }
