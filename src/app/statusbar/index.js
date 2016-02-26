@@ -8,7 +8,10 @@ var indexTemplate = jade.compileFile(path.resolve(__dirname, 'index.jade'));
 
 var StatusbarView = View.extend({
   props: {
-    trickleTimer: 'any',
+    subview: {
+      type: 'object',
+      default: null
+    },
     width: {
       type: 'number',
       default: 0
@@ -16,31 +19,51 @@ var StatusbarView = View.extend({
     message: {
       type: 'string'
     },
-    loadingIndicator: {
+    animation: {
       type: 'boolean',
       default: true
     },
     visible: {
       type: 'boolean',
       default: false
+    },
+    progressbar: {
+      type: 'boolean',
+      default: true
+    }
+  },
+  session: {
+    trickleTimer: 'any'
+  },
+  derived: {
+    /**
+     * Outer-bar height.
+     */
+    height: {
+      deps: ['width', 'progressbar'],
+      fn: function() {
+        if (this.progressbar) {
+          return this.width > 0 ? 4 : 0;
+        }
+        return 0;
+      }
     }
   },
   template: indexTemplate,
   bindings: {
-    loadingIndicator: {
-      hook: 'loading',
-      type: 'booleanClass',
-      yes: 'visible',
-      no: 'hidden'
+    animation: {
+      type: 'toggle',
+      hook: 'animation',
+      mode: 'visibility'
     },
     message: [
       {
         hook: 'message'
       },
       {
-        hook: 'message-container',
-        type: 'booleanClass',
-        no: 'hidden'
+        type: 'toggle',
+        hook: 'message',
+        mode: 'visibility'
       }
     ],
     height: {
@@ -55,27 +78,15 @@ var StatusbarView = View.extend({
         type: function(el, value) {
           el.style.width = value + '%';
         }
-      },
-      {
-        type: 'booleanClass',
-        hook: 'outer-bar',
-        no: 'hidden'
       }
     ],
+    progressbar: {
+      type: 'toggle',
+      hook: 'outer-bar'
+    },
     visible: {
       type: 'booleanClass',
       no: 'hidden'
-    }
-  },
-  derived: {
-    /**
-     * Outer-bar height.
-     */
-    height: {
-      deps: ['width'],
-      fn: function() {
-        return this.width > 0 ? 4 : 0;
-      }
     }
   },
   watch: function(view, collection) {
@@ -97,7 +108,7 @@ var StatusbarView = View.extend({
   },
   fatal: function(err) {
     this.visible = true;
-    this.loadingIndicator = false;
+    this.animation = false;
     this.message = 'Fatal Error: ' + err.message;
     this.width = 0;
     this.trickle(false);
@@ -114,18 +125,30 @@ var StatusbarView = View.extend({
   },
   show: function(message) {
     this.visible = true;
+    this.progressbar = true;
     this.message = message || '';
     this.width = 100;
-    this.loadingIndicator = true;
+    this.animation = true;
   },
   showMessage: function(message) {
     this.visible = true;
     this.message = message || '';
-    this.loadingIndicator = false;
+    this.animation = false;
+  },
+  showSubview: function(subview) {
+    if (this.subview) {
+      this.subview.remove();
+    }
+    this.subview = subview;
+    subview.parent = this;
+    this.renderSubview(subview, this.queryByHook('subview-container'));
   },
   hide: function(completed) {
     this.message = '';
-    this.loadingIndicator = false;
+    this.animation = false;
+    if (this.subview) {
+      this.subview.remove();
+    }
     clearInterval(this.trickleTimer);
     if (completed) {
       this.width = 100;
@@ -135,7 +158,7 @@ var StatusbarView = View.extend({
         model.visible = false;
       }, 1000);
     } else {
-      this.width = 0;
+      this.progressbar = false;
       this.visible = false;
     }
   }
