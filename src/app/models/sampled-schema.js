@@ -2,11 +2,13 @@ var _ = require('lodash');
 var Schema = require('mongodb-schema').Schema;
 var wrapError = require('./wrap-error');
 var FieldCollection = require('mongodb-schema').FieldCollection;
+var SchemaStatusSubview = require('../statusbar/schema-subview');
 var filterableMixin = require('ampersand-collection-filterable');
 var es = require('event-stream');
 var debug = require('debug')('mongodb-compass:models:schema');
 var metrics = require('mongodb-js-metrics')();
 var app = require('ampersand-app');
+
 
 /**
  * wrapping mongodb-schema's FieldCollection with a filterable mixin
@@ -116,6 +118,7 @@ module.exports = Schema.extend({
 
 
     var onEnd = function(err) {
+      debug('onEnd', err);
       model.is_fetching = false;
       if (err) {
         metrics.error(err);
@@ -161,36 +164,49 @@ module.exports = Schema.extend({
       var numSamples = Math.min(options.size, count.count);
       var stepSize = Math.ceil(Math.max(1, numSamples / 10));
 
-      app.statusbar.show('Sampling collection...');
+      var schemaStatusSubview = new SchemaStatusSubview();
+      app.statusbar.show();
+      app.statusbar.showSubview(schemaStatusSubview);
       app.statusbar.width = 1;
       app.statusbar.trickle(true);
       app.dataService.sample(model.ns, options)
-        .on('error', function(dbErr) {
-          onEnd(dbErr);
-        })
-        .once('data', function() {
-          status = app.statusbar.width;
-          app.statusbar.message = 'Analyzing documents...';
+      app.client.sample(model.ns, options)
+        .on('error', function(sampleErr) {
+          debug('error received', sampleErr);
+          app.statusbar.animation = false;
           app.statusbar.trickle(false);
+          app.statusbar.progressbar = false;
+          return;
         })
-        .pipe(model.stream(true))
-        .on('progress', function() {
-          if (!timeAtFirstDoc) {
-            timeAtFirstDoc = new Date();
-          }
+        .on('data', function() {
+          debug('on progress');
           sampleCount++;
           if (sampleCount % stepSize === 0) {
             var inc = (100 - status) * stepSize / numSamples;
             app.statusbar.width += inc;
           }
         })
-        .on('error', function(dbErr) {
-          onEnd(dbErr);
-        })
-        .pipe(es.wait(onEnd))
-        .on('error', function(dbErr) {
-          onEnd(dbErr);
-        });
+        // .pipe(model.stream(true))
+        // .once('progress', function() {
+        //   debug('once progress');
+        //   timeAtFirstDoc = new Date();
+        //   status = app.statusbar.width;
+        //   schemaStatusSubview.activeStep = 'analyzing';
+        //   app.statusbar.trickle(false);
+        // })
+        // .on('progress', function() {
+        //   debug('on progress');
+        //   sampleCount++;
+        //   if (sampleCount % stepSize === 0) {
+        //     var inc = (100 - status) * stepSize / numSamples;
+        //     app.statusbar.width += inc;
+        //   }
+        // })
+        // .on('error', function(analysisErr) {
+        //   debug('on error');
+        //   onEnd(analysisErr);
+        // })
+        .pipe(es.wait(onEnd));
     });
   },
   serialize: function() {
