@@ -11,6 +11,10 @@ var QueryBuilderMixin = require('./querybuilder');
 var Collection = require('ampersand-collection');
 var metrics = require('mongodb-js-metrics')();
 var navigator = window.navigator;
+var jade = require('jade');
+var path = require('path');
+
+var minichartTemplate = jade.compileFile(path.resolve(__dirname, 'minichart.jade'));
 
 // var debug = require('debug')('mongodb-compass:minicharts:index');
 
@@ -23,7 +27,7 @@ var ArrayCollection = Collection.extend({
  */
 module.exports = AmpersandView.extend(QueryBuilderMixin, {
   modelType: 'MinichartView',
-  template: require('./minichart.jade'),
+  template: minichartTemplate,
   session: {
     subview: 'state',
     viewOptions: 'object',

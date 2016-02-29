@@ -1,5 +1,9 @@
 var View = require('ampersand-view');
 var _ = require('lodash');
+var jade = require('jade');
+var path = require('path');
+
+var indexTemplate = jade.compileFile(path.resolve(__dirname, 'index.jade'));
 // var debug = require('debug')('mongodb-compass:statusbar:index');
 
 var StatusbarView = View.extend({
@@ -21,7 +25,7 @@ var StatusbarView = View.extend({
       default: false
     }
   },
-  template: require('./index.jade'),
+  template: indexTemplate,
   bindings: {
     loadingIndicator: {
       hook: 'loading',

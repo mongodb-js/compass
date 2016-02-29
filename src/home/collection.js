@@ -16,10 +16,14 @@ var BrowserWindow = remote.BrowserWindow;
 var format = require('util').format;
 var metrics = require('mongodb-js-metrics')();
 var debug = require('debug')('mongodb-compass:home:collection');
+var jade = require('jade');
+var path = require('path');
+
+var collectionTemplate = jade.compileFile(path.resolve(__dirname, 'collection.jade'));
 
 var MongoDBCollectionView = View.extend({
   // modelType: 'Collection',
-  template: require('./collection.jade'),
+  template: collectionTemplate,
   props: {
     sidebar_open: {
       type: 'boolean',

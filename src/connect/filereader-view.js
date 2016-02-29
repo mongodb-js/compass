@@ -1,13 +1,15 @@
 var InputView = require('./input-view');
 var _ = require('lodash');
-var path = require('path');
 var electron = window.require('electron');
 var remote = electron.remote;
 var dialog = remote.dialog;
 var BrowserWindow = remote.BrowserWindow;
 var format = require('util').format;
 var bindings = require('ampersand-dom-bindings');
-var fileReaderTemplate = require('./filereader-default.jade');
+var jade = require('jade');
+var path = require('path');
+
+var fileReaderTemplate = jade.compileFile(path.resolve(__dirname, 'filereader-default.jade'));
 var assert = require('assert');
 
 // var debug = require('debug')('mongodb-compass:connect:filereader-view');

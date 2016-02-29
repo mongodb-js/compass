@@ -2,9 +2,13 @@ var View = require('ampersand-view');
 var pluralize = require('pluralize');
 var app = require('ampersand-app');
 var numeral = require('numeral');
+var jade = require('jade');
+var path = require('path');
+
+var indexTemplate = jade.compileFile(path.resolve(__dirname, 'index.jade'));
 
 var SamplingMessageView = View.extend({
-  template: require('./index.jade'),
+  template: indexTemplate,
   session: {
     parent: 'state'
   },

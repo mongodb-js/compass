@@ -6,6 +6,11 @@ var $ = require('jquery');
 var _ = require('lodash');
 var raf = require('raf');
 var SampledSchema = require('../models/sampled-schema');
+var jade = require('jade');
+var path = require('path');
+
+var fieldTemplate = jade.compileFile(path.resolve(__dirname, 'field.jade'));
+var indexTemplate = jade.compileFile(path.resolve(__dirname, 'index.jade'));
 // var debug = require('debug')('mongodb-compass:field-list');
 
 function handleCaret(el) {
@@ -63,7 +68,7 @@ var FieldView = View.extend({
   events: {
     'click .schema-field-name': 'click'
   },
-  template: require('./field.jade'),
+  template: fieldTemplate,
   subviews: {
     types: {
       hook: 'types-subview',
@@ -128,7 +133,7 @@ FieldListView = View.extend({
   session: {
     fieldCollectionView: 'object'
   },
-  template: require('./index.jade'),
+  template: indexTemplate,
   initialize: function() {
     if (this.collection.parent instanceof SampledSchema) {
       this.listenTo(this.collection.parent, 'sync', this.makeFieldVisible);

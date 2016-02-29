@@ -10,6 +10,10 @@ var app = require('ampersand-app');
 var metrics = require('mongodb-js-metrics')();
 var _ = require('lodash');
 var debug = require('debug')('mongodb-compass:home');
+var jade = require('jade');
+var path = require('path');
+
+var indexTemplate = jade.compileFile(path.resolve(__dirname, 'index.jade'));
 
 var HomeView = View.extend({
   screenName: 'Schema',
@@ -141,7 +145,7 @@ var HomeView = View.extend({
     app.sendMessage('show connect dialog');
     window.close();
   },
-  template: require('./index.jade'),
+  template: indexTemplate,
   subviews: {
     _collection: {
       hook: 'collection-subview',

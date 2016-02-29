@@ -3,12 +3,17 @@ var format = require('util').format;
 var numeral = require('numeral');
 var tooltipMixin = require('../tooltip-mixin');
 var _ = require('lodash');
+var jade = require('jade');
+var path = require('path');
+
+var typeListTemplate = jade.compileFile(path.resolve(__dirname, 'type-list.jade'));
+var typeListItemTemplate = jade.compileFile(path.resolve(__dirname, 'type-list-item.jade'));
 // var debug = require('debug')('mongodb-compass:field-list:type-list');
 
 var TypeListView;
 
 var TypeListItem = View.extend(tooltipMixin, {
-  template: require('./type-list-item.jade'),
+  template: typeListItemTemplate,
   modelType: 'TypeListItem',
   bindings: {
     active: {
@@ -145,7 +150,7 @@ TypeListView = module.exports = View.extend({
     },
     parent: 'state'
   },
-  template: require('./type-list.jade'),
+  template: typeListTemplate,
   deactivateAll: function() {
     if (!this.collectionView) {
       return;

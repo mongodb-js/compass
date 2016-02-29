@@ -1,9 +1,13 @@
 var View = require('ampersand-view');
+var jade = require('jade');
+var path = require('path');
+
+var newConnectionTemplate = jade.compileFile(path.resolve(__dirname, 'new-connection-widget.jade'));
 
 var debug = require('debug')('mongodb-compass:connect:sidebar:widget');
 
 module.exports = View.extend({
-  template: require('./new-connection-widget.jade'),
+  template: newConnectionTemplate,
   events: {
     'click a[data-hook=new-connection]': 'activate'
   },

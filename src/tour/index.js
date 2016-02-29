@@ -1,6 +1,10 @@
 var $ = require('jquery');
 var View = require('ampersand-view');
 var metrics = require('mongodb-js-metrics')();
+var jade = require('jade');
+var path = require('path');
+
+var indexTemplate = jade.compileFile(path.resolve(__dirname, 'index.jade'));
 
 // var debug = require('debug')('mongodb-compass:tour:index');
 
@@ -30,7 +34,7 @@ var TourView = View.extend({
       type: 'date'
     }
   },
-  template: require('./index.jade'),
+  template: indexTemplate,
   events: {
     'click #features ul': 'showFeature',
     'click .previous-slide': 'showPreviousFeature',

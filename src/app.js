@@ -64,6 +64,11 @@ function getConnection(model, done) {
 var electron = window.require('electron');
 var ipc = electron.ipcRenderer;
 
+var jade = require('jade');
+var path = require('path');
+
+var appTemplate = jade.compileFile(path.resolve(__dirname, 'app.jade'));
+
 /**
  * The top-level application singleton that brings everything together!
  *
@@ -83,7 +88,7 @@ var ipc = electron.ipcRenderer;
  * @see http://learn.humanjavascript.com/react-ampersand/application-pattern
  */
 var Application = View.extend({
-  template: require('./app.jade'),
+  template: appTemplate,
   props: {
     version: {
       type: 'string',

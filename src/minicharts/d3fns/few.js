@@ -2,8 +2,11 @@
 var d3 = require('d3');
 var _ = require('lodash');
 var $ = require('jquery');
-var tooltipHtml = require('./tooltip.jade');
 var shared = require('./shared');
+var jade = require('jade');
+var path = require('path');
+
+var tooltipTemplate = jade.compileFile(path.resolve(__dirname, 'tooltip.jade'));
 // var debug = require('debug')('mongodb-compass:minicharts:few');
 
 require('../d3-tip')(d3);
@@ -159,7 +162,7 @@ var minicharts_d3fns_few = function() {
         if (typeof d.tooltip === 'function') {
           return d.tooltip(d, i);
         }
-        return d.tooltip || tooltipHtml({
+        return d.tooltip || tooltipTemplate({
           label: shared.truncateTooltip(d.label),
           count: percentFormat(d.count / sumValues * 100, false)
         });

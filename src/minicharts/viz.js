@@ -4,6 +4,10 @@ var _ = require('lodash');
 var $ = require('jquery');
 var d3 = require('d3');
 // var debug = require('debug')('mongodb-compass:minicharts:viz');
+var jade = require('jade');
+var path = require('path');
+
+var svgTemplate = jade.compileFile(path.resolve(__dirname, 'svg-template.jade'));
 
 var VizView = AmpersandView.extend({
   _values: {},
@@ -93,7 +97,7 @@ var VizView = AmpersandView.extend({
           this.template = '<canvas data-hook="viz-container" id="canvas"></canvas>';
           break;
         case 'svg':
-          this.template = require('./svg-template.jade');
+          this.template = svgTemplate;
           break;
         case 'html':
         default:

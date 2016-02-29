@@ -1,8 +1,6 @@
 var View = require('ampersand-view');
 var format = require('util').format;
 var debug = require('debug')('mongodb-compass:help');
-var relatedTemplate = require('./related.jade');
-var tagTemplate = require('./tags.jade');
 var HelpSectionCollection = require('../models/help-section-collection');
 var HelpEntryCollection = require('../models/help-entry-collection');
 var HelpEntry = require('../models/help-entry');
@@ -11,11 +9,17 @@ var ViewSwitcher = require('ampersand-view-switcher');
 var app = require('ampersand-app');
 var metrics = require('mongodb-js-metrics')();
 var _ = require('lodash');
+var jade = require('jade');
+var path = require('path');
+
+var indexTemplate = jade.compileFile(path.resolve(__dirname, 'index.jade'));
+var relatedTemplate = jade.compileFile(path.resolve(__dirname, 'related.jade'));
+var tagsTemplate = jade.compileFile(path.resolve(__dirname, 'tags.jade'));
 
 var entries = new HelpEntryCollection();
 
 var HelpPage = View.extend({
-  template: require('./index.jade'),
+  template: indexTemplate,
   screenName: 'Help',
   session: {
     entryId: 'string'
@@ -156,7 +160,7 @@ var HelpPage = View.extend({
        *   - "related" template, @see ./related.jade
        */
       template: '<div>'
-        + tagTemplate({
+        + tagsTemplate({
           tags: entry.tags,
           devOnly: entry.devOnly
         })

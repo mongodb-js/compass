@@ -1,6 +1,10 @@
 var View = require('ampersand-view');
 var moment = require('moment');
 var _ = require('lodash');
+var jade = require('jade');
+var path = require('path');
+
+var documentListItemTemplate = jade.compileFile(path.resolve(__dirname, 'document-list-item.jade'));
 
 function getType(value) {
   if (_.isPlainObject(value)) {
@@ -25,7 +29,7 @@ var DocumentListItemView = View.extend({
     var el = event.delegateTarget.parentElement;
     el.classList.toggle('expanded');
   },
-  template: require('./document-list-item.jade'),
+  template: documentListItemTemplate,
   render: function() {
     this.renderWithTemplate({
       getType: getType,

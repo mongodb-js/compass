@@ -5,6 +5,11 @@ var authOptions = require('./authentication');
 var sslOptions = require('./ssl');
 var FilteredCollection = require('ampersand-filtered-subcollection');
 // var debug = require('debug')('mongodb-compass:connect:connect-form-view');
+var jade = require('jade');
+var path = require('path');
+
+var inputTemplate = jade.compileFile(path.resolve(__dirname, 'input-default.jade'));
+var selectTemplate = jade.compileFile(path.resolve(__dirname, 'select-default.jade'));
 
 
 require('bootstrap/js/popover');
@@ -79,7 +84,7 @@ var ConnectFormView = FormView.extend({
     return [
       // hostname field
       new InputView({
-        template: require('./input-default.jade'),
+        template: inputTemplate,
         el: this.parent.queryByHook('hostname-subview'),
         name: 'hostname',
         label: 'Hostname',
@@ -88,7 +93,7 @@ var ConnectFormView = FormView.extend({
       }),
       // port number field
       new InputView({
-        template: require('./input-default.jade'),
+        template: inputTemplate,
         el: this.parent.queryByHook('port-subview'),
         name: 'port',
         label: 'Port',
@@ -115,7 +120,7 @@ var ConnectFormView = FormView.extend({
         label: 'Authentication',
         el: this.parent.queryByHook('authselect-subview'),
         // @see https://github.com/AmpersandJS/ampersand-select-view/issues/55
-        template: require('./select-default.jade')(),
+        template: selectTemplate(),
         parent: this,
         // you can pass in a collection here too
         options: enabledAuthOptions,
@@ -136,7 +141,7 @@ var ConnectFormView = FormView.extend({
         label: 'SSL',
         el: this.parent.queryByHook('sslselect-subview'),
         // @see https://github.com/AmpersandJS/ampersand-select-view/issues/55
-        template: require('./select-default.jade')(),
+        template: selectTemplate(),
         parent: this,
         // you can pass in a collection here too
         options: enabledSslOptions,
@@ -154,7 +159,7 @@ var ConnectFormView = FormView.extend({
       }),
       // connection name field
       new ConflictingValuesInputView({
-        template: require('./input-default.jade'),
+        template: inputTemplate,
         el: this.parent.queryByHook('saveas-subview'),
         name: 'name',
         label: 'Favorite Name',

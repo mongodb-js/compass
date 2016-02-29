@@ -1,5 +1,9 @@
 var VizView = require('./viz');
 var _ = require('lodash');
+var jade = require('jade');
+var path = require('path');
+
+var uniqueTemplate = jade.compileFile(path.resolve(__dirname, 'unique.jade'));
 
 module.exports = VizView.extend({
   session: {
@@ -8,7 +12,7 @@ module.exports = VizView.extend({
       default: null
     }
   },
-  template: require('./unique.jade'),
+  template: uniqueTemplate,
   derived: {
     randomValues: {
       cache: false,

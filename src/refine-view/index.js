@@ -8,11 +8,15 @@ var SamplingMessageView = require('../sampling-message');
 var QueryOptions = require('../models/query-options');
 // var metrics = require('mongodb-js-metrics')();
 // var debug = require('debug')('scout:refine-view:index');
+var jade = require('jade');
+var path = require('path');
+
+var indexTemplate = jade.compileFile(path.resolve(__dirname, 'index.jade'));
 
 var DEFAULT_QUERY = JSON.stringify(QueryOptions.DEFAULT_QUERY);
 
 module.exports = AmpersandView.extend({
-  template: require('./index.jade'),
+  template: indexTemplate,
   session: {
     queryOptions: 'state',
     volatileQueryOptions: 'state',

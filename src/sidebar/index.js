@@ -2,6 +2,10 @@ var View = require('ampersand-view');
 var ListView = require('./list');
 var FilterView = require('./filter');
 var _ = require('lodash');
+var jade = require('jade');
+var path = require('path');
+
+var indexTemplate = jade.compileFile(path.resolve(__dirname, 'index.jade'));
 
 // var debug = require('debug')('mongodb-compass:sidebar:index');
 
@@ -115,7 +119,7 @@ var SidebarView = View.extend({
       hook: 'filter'
     }
   },
-  template: require('./index.jade'),
+  template: indexTemplate,
   subviews: {
     filter: {
       hook: 'filter-subview',

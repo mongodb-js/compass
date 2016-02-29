@@ -1,7 +1,10 @@
 var d3 = require('d3');
 var _ = require('lodash');
 var shared = require('./shared');
-var tooltipHtml = require('./tooltip.jade');
+var jade = require('jade');
+var path = require('path');
+
+var tooltipTemplate = jade.compileFile(path.resolve(__dirname, 'tooltip.jade'));
 
 require('../d3-tip')(d3);
 
@@ -48,7 +51,7 @@ var minicharts_d3fns_coordinates = function() {
 
       // setup tool tips
       tip.html(function(d) {
-        return tooltipHtml({
+        return tooltipTemplate({
           label: 'lng: ' + coordFormat(d[0]) + ', lat: ' + coordFormat(d[1])
         });
       });
