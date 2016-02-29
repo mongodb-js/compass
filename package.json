@@ -171,6 +171,7 @@
     "mongodb-runner": "mongodb-js/runner",
     "npm": "^3.4.1",
     "npm-registry-client": "^7.0.9",
+    "perfjankie": "^2.1.0",
     "pre-commit": "^1.1.2",
     "spectron": "^0.34.1",
     "watchify": "^3.6.0",
