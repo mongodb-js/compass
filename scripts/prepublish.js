@@ -2,6 +2,8 @@
 
 var pkg = require('../package.json');
 var format = require('util').format;
+var inInstall = require('in-publish').inInstall();
+
 var cli = require('mongodb-js-cli')('mongodb-compass:scripts:prepublish');
 cli.yargs.usage('$0 [options]')
   .option('verbose', {
@@ -97,7 +99,7 @@ if (cli.argv.platform === 'win32') {
   var HOME = PACKAGE;
 
   _.assign(CONFIG, {
-    icon: path.resolve(__dirname, '../src/images/darwin/mongodb-compass.icns'),
+    icon: path.resolve(__dirname, '../src/app/images/darwin/mongodb-compass.icns'),
     'app-bundle-id': 'com.mongodb.compass',
     'app-version': cli.argv.version,
     protocols: [
@@ -109,7 +111,7 @@ if (cli.argv.platform === 'win32') {
   });
   _.assign(CONFIG, {
     appPath: APP_PATH,
-    background: path.resolve(__dirname, '../src/images/darwin/background.png'),
+    background: path.resolve(__dirname, '../src/app/images/darwin/background.png'),
     // The following only modifies "x","y" values from defaults
     contents: [
       {
@@ -154,7 +156,7 @@ if (cli.argv.platform === 'win32') {
         if (_err) {
           return done(_err);
         }
-        done(null, path.join(CONFIG.out, INSTALLER_CONFIG.name + '.dmg'));
+        done(null, path.join(CONFIG.out, CONFIG.name + '.dmg'));
       });
     });
   }
@@ -235,6 +237,11 @@ function writeVersionFile(done) {
  */
 function transformPackageJson(done) {
   done();
+}
+
+if (inInstall) {
+  cli.info('noop.  @see http://bit.ly/npm-prepublish-flaws');
+  process.exit(0);
 }
 
 async.series([
