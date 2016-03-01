@@ -3,11 +3,13 @@
     "sourceMaps": "inline"
   },
   "text/less": {
-    "dumpLineNumbers": "comments",
+    "sourceMaps": "inline",
+    "modifyVars": {
+      "@fa-font-path": "./node_modules/font-awesome/fonts"
+    },
     "paths": [
-      "./src/styles",
-      "node_modules/font-awesome/less",
-      "node_modules/bootstrap/less"
-      ]
+      "src/app",
+      "src/app/styles"
+    ]
   }
 }

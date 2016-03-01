@@ -1,3 +1,2 @@
-build/**
 dist/**
 src/minicharts/d3-tip.js
