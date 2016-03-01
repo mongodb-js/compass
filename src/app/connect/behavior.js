@@ -66,6 +66,7 @@ module.exports = State.extend({
           'history connection clicked',
           'connect clicked'
         ];
+
         _.each(transitions, function(value, key) {
           transitions[key] = validActions.concat(value);
         });
@@ -73,10 +74,6 @@ module.exports = State.extend({
         return transitions;
       }
     }
-  },
-  initialize: function(view) {
-    // this is the connect view instance
-    this.view = view;
   },
   dispatch: function(action) {
     var newState = this.reduce(this.state, action);

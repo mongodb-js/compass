@@ -5,7 +5,7 @@ var client = require('mongodb-scope-client');
 var debug = require('debug')('mongodb-compass:models:connection');
 var uuid = require('uuid');
 var metrics = require('mongodb-js-metrics')();
-var pkg = require('../../package.json');
+var pkg = require('../../../package.json');
 
 
 /**

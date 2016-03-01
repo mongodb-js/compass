@@ -1,4 +1,4 @@
-var shared = require('../src/minicharts/d3fns/shared');
+var shared = require('../src/app/minicharts/d3fns/shared');
 var _ = require('lodash');
 var assert = require('assert');
 

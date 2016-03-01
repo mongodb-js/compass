@@ -211,7 +211,7 @@ function viewSubMenu() {
         label: '&Reload',
         accelerator: 'CmdOrCtrl+R',
         click: function() {
-          BrowserWindow.getFocusedWindow().restart();
+          BrowserWindow.getFocusedWindow().reload();
         }
       },
       {

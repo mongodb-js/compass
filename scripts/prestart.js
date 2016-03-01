@@ -12,7 +12,7 @@ if (cli.argv.verbose) {
   process.env.DEBUG = '*';
 }
 
-var cp = require('cp-file');
+// var cp = require('cp-file');
 
 // cli.spinner('Copying font-awesome\'s assets so they\'re properly includable');
 // cp('../node_modules/font-awesome/fonts/fontawesome-webfont*', '../src/fonts/').then(function() {

@@ -1,6 +1,6 @@
 var metrics = require('mongodb-js-metrics')();
 var resources = require('mongodb-js-metrics').resources;
-var pkg = require('../../package.json');
+var pkg = require('../../../package.json');
 var app = require('ampersand-app');
 var electron = window.require('electron');
 var process = electron.remote.process;

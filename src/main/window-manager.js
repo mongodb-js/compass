@@ -16,9 +16,9 @@ var dialog = electron.dialog;
 var path = require('path');
 
 /**
- * When running in electron, we're in `RESOURCES/src/electron`.
+ * When running in electron, we're in `/src/main`.
  */
-var RESOURCES = path.resolve(__dirname, '../');
+var RESOURCES = path.resolve(__dirname, '../app/');
 
 /**
  * @todo (imlucas) Missing this PNG.

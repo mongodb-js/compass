@@ -1,6 +1,9 @@
 /* eslint no-console:0 */
 
-var pkg = require('../package.json');
+/**
+ * The main entrypoint for the application!
+ */
+var pkg = require('../../package.json');
 var app = require('ampersand-app');
 var backoff = require('backoff');
 

@@ -2,7 +2,7 @@ var Collection = require('ampersand-rest-collection');
 var Connection = require('./connection');
 var storageMixin = require('storage-mixin');
 var _ = require('lodash');
-var pkg = require('../../package.json');
+var pkg = require('../../../package.json');
 var selectableMixin = require('./selectable-collection-mixin');
 
 module.exports = Collection.extend(selectableMixin, storageMixin, {

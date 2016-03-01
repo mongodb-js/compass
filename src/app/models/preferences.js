@@ -1,6 +1,6 @@
 var Model = require('ampersand-model');
 var storageMixin = require('storage-mixin');
-var pkg = require('../../package.json');
+var pkg = require('../../../package.json');
 var _ = require('lodash');
 var format = require('util').format;
 var debug = require('debug')('mongodb-compass:models:preferences');

@@ -1,3 +1,4 @@
+var path = require('path');
 var _ = require('lodash');
 var format = require('util').format;
 var Connection = require('mongodb-connection-model');
@@ -8,9 +9,10 @@ var chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 
 var ELECTRON_PATH = {
-  linux: require('../tasks/linux').ELECTRON,
-  win32: require('../tasks/win32').ELECTRON,
-  darwin: require('../tasks/darwin').ELECTRON
+  linux: '../dist/MongoDBCompass-linux-x64/MongoDBCompass',
+  win32: '../dist/MongoDBCompass-win32-x64/MongoDBCompass.exe',
+  darwin: path.resolve(__dirname, '..', 'dist', 'MongoDB Compass-darwin-x64',
+    'MongoDB Compass.app', 'Contents', 'MacOS', 'Electron')
 };
 
 var debug = require('debug')('mongodb-compass:test:helpers');

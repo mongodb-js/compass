@@ -226,7 +226,7 @@ var ConnectView = View.extend({
     // use {reset: true} to trigger `reset` event so ConnectionCollection
     // can add its listeners to the models.
     this.connections.fetch({reset: true});
-    this.stateMachine = new BehaviorStateMachine(this);
+    this.stateMachine = new BehaviorStateMachine({view: this});
     this.on('change:connectionNameEmpty',
       this.connectionNameEmptyChanged.bind(this));
   },
