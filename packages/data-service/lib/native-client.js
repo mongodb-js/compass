@@ -1,29 +1,21 @@
-var MongoClient = require('mongodb').MongoClient;
+'use strict';
+
+const MongoClient = require('mongodb').MongoClient;
 
 /**
- * Instantiate a new NativeClient object.
- *
- * @constructor
- * @param {Connection} connection - The Connection model.
+ * The native client class.
  */
-function NativeClient(connection) {
-  this.connection = connection;
-  this.connect();
-}
+class NativeClient {
 
-/**
- * The NativeClient API.
- */
-NativeClient.prototype = (function() {
   /**
    * Get the collection name from a namespace.
    *
    * @param {string} ns - The namespace in database.collection format.
    * @returns {string} The collection name.
    */
-  var collectionName = function(ns) {
+  collectionName(ns) {
     return ns.split('.')[1];
-  };
+  }
 
   /**
    * Get the database name from a namespace.
@@ -31,9 +23,9 @@ NativeClient.prototype = (function() {
    * @param {string} ns - The namespace in database.collection format.
    * @returns {string} The database name.
    */
-  var databaseName = function(ns) {
+  databaseName(ns) {
     return ns.split('.')[0];
-  };
+  }
 
   /**
    * Get the collection to operate on.
@@ -41,59 +33,66 @@ NativeClient.prototype = (function() {
    * @param {string} ns - The namespace.
    * @returns {Collection} The collection.
    */
-  var collection = function(ns) {
-    return this.database.db(databaseName(ns)).collection(collectionName(ns));
-  };
+  collection(ns) {
+    return this.database.db(this.databaseName(ns)).collection(this.collectionName(ns));
+  }
 
-  return {
-    constructor: NativeClient,
+  /**
+   * Instantiate a new NativeClient object.
+   *
+   * @constructor
+   * @param {Connection} connection - The Connection model.
+   */
+  constructor(connection) {
+    this.connection = connection;
+    this.connect();
+  }
 
-    /**
-     * Connect to the server.
-     *
-     * @param {function} done - The callback function.
-     * @returns {Promise} The client promise.
-     */
-    connect: function() {
-      return MongoClient.connect(this.connection.driver_url).then(function(database) {
-        this.database = database;
-      }.bind(this));
-    },
+  /**
+   * Connect to the server.
+   *
+   * @param {function} done - The callback function.
+   * @returns {Promise} The client promise.
+   */
+  connect() {
+    return MongoClient.connect(this.connection.driver_url).then((database) => {
+      this.database = database;
+    });
+  }
 
-    /**
-     * Count the number of documents in the collection for the provided filter
-     * and options.
-     *
-     * @param {string} ns - The namespace to search on.
-     * @param {object} filter - The filter.
-     * @param {object} options - The query options.
-     * @returns {Promise} The count.
-     */
-    count: function(ns, filter, options) {
-      return collection.call(this, ns).count(filter, options);
-    },
+  /**
+   * Count the number of documents in the collection for the provided filter
+   * and options.
+   *
+   * @param {string} ns - The namespace to search on.
+   * @param {object} filter - The filter.
+   * @param {object} options - The query options.
+   * @returns {Promise} The count.
+   */
+  count(ns, filter, options) {
+    return this.collection(ns).count(filter, options);
+  }
 
-    /**
-     * Get a list of databases for the server.
-     *
-     * @returns {Promise} The list of databases.
-     */
-    databases: function() {
-      return this.database.admin().listDatabases();
-    },
+  /**
+   * Get a list of databases for the server.
+   *
+   * @returns {Promise} The list of databases.
+   */
+  databases() {
+    return this.database.admin().listDatabases();
+  }
 
-    /**
-     * Find documents for the provided filter and options on the collection.
-     *
-     * @param {string} ns - The namespace to search on.
-     * @param {object} filter - The filter.
-     * @param {object} options - The query options.
-     * @returns {Cursor} The cursor.
-     */
-    find: function(ns, filter, options) {
-      return collection.call(this, ns).find(filter, options);
-    }
-  };
-})();
+  /**
+   * Find documents for the provided filter and options on the collection.
+   *
+   * @param {string} ns - The namespace to search on.
+   * @param {object} filter - The filter.
+   * @param {object} options - The query options.
+   * @returns {Cursor} The cursor.
+   */
+  find(ns, filter, options) {
+    return this.collection(ns).find(filter, options);
+  }
+}
 
 module.exports = NativeClient;
