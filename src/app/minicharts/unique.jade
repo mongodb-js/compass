@@ -5,6 +5,6 @@ div(data-hook='viz-container')
         i.mms-icon-continuous(data-hook='refresh')
     dd
       ul.list-inline
-        each val in randomValues
+        each val in randomValues || []
           li.bubble
             code.selectable= val

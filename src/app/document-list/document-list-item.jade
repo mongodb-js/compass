@@ -39,8 +39,8 @@ mixin jsproperty(key, value)
 
 mixin jsobject(obj)
   ol.document-property-body
-    for value, key in obj
+    for value, key in obj || {}
       +jsproperty(key, value)
 
 li.document-list-item
-  +jsobject(model.serialize())
+  +jsobject(model && model.serialize())

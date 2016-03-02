@@ -16,7 +16,7 @@
 
       div(data-hook='authselect-subview')
 
-      - for method, i in authMethods
+      - for method, i in authMethods || {}
         - classNames = []
         - if (!method.enabled) classNames.push('hidden')
         - if (i === 0) classNames.push('active')
@@ -26,7 +26,7 @@
           
       div(data-hook='sslselect-subview')
       
-      - for method, i in sslMethods
+      - for method, i in sslMethods || {}
         - classNames = []
         - if (!method.enabled) classNames.push('hidden')
         - if (i === 0) classNames.push('active')

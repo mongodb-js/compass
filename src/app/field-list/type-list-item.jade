@@ -2,7 +2,7 @@
   if isSubtype
     .schema-field-type(data-toggle='tooltip')
   span.schema-field-type-label
-    = model.getId()
+    = model && model.getId()
   if !isSubtype
     .schema-field-type(data-toggle='tooltip')
   .array-subtypes 
