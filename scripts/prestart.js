@@ -23,7 +23,8 @@ cli.yargs.usage('$0 [options]')
   .option('npm_version', {
     describe: 'What version of npm do we require be installed to work on Compass?',
     default: process.env.npm_package_engines_npm || pkg.engines.npm
-  });
+  })
+  .help('help');
 
 if (cli.argv.verbose) {
   process.env.DEBUG = '*';

@@ -14,7 +14,9 @@ cli.yargs.usage('$0 [options]')
     describe: 'Confused or trying to track down a bug and want lots of debug output?',
     type: 'boolean',
     default: false
-  });
+  })
+  .help('help')
+  .epilogue('a.k.a. `make clean`');
 
 if (cli.argv.verbose) {
   process.env.DEBUG = '*';
@@ -37,7 +39,7 @@ process.env.npm_config_runtime = 'electron';
  * TODO (imlucas) switch to using `electron-rebuild` as a module for more
  * fine grained control of conditions which require an actual rebuild
  * of native add-ons.  The current CLI implementation seems too greedy/eager
- * to rebuild all native add-ons and takes a long time. 
+ * to rebuild all native add-ons and takes a long time.
  */
 var args = [
   '--version',

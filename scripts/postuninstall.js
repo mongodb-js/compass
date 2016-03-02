@@ -7,6 +7,7 @@ cli.yargs.usage('$0 [options]')
     type: 'boolean',
     default: false
   })
+  .help('help')
   .epilogue('a.k.a `make clean`');
 
 if (cli.argv.verbose) {
