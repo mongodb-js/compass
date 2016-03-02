@@ -1,3 +1,6 @@
+@import "palette.less";
+@import "caret.less";
+
 .page {
   max-height: 100%;
   min-height: 100%;
@@ -28,28 +31,6 @@
 .hgroup {
   display: flex;
   flex-direction: row;
-}
-
-.caret {
-  display: inline-block;
-  width: 0;
-  height: 0;
-  margin-left: 2px;
-  vertical-align: middle;
-}
-.caret-down {
-  .caret;
-  border-top:   @caret-width-base solid;
-  border-right: @caret-width-base solid transparent;
-  border-left:  @caret-width-base solid transparent;
-}
-
-.caret-right {
-  .caret;
-  border-left:   @caret-width-base solid;
-  border-right: 0;
-  border-top:  @caret-width-base solid transparent;
-  border-bottom: @caret-width-base solid transparent;
 }
 
 .report-zero-state {
