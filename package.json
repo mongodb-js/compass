@@ -33,7 +33,7 @@
     "start": "electron .",
     "test": "electron-mocha",
     "postinstall": "node scripts/postinstall.js",
-    "prepublish": "node scripts/prepublish.js --verbose",
+    "prepublish": "node scripts/prepublish.js",
     "postuninstall": "node scripts/postuninstall.js",
     "//": [
       "/**",
@@ -83,7 +83,7 @@
     "in-publish": "^2.0.0",
     "jade": "^1.11.0",
     "jquery": "^2.1.4",
-    "keytar": "^3.0.0",
+    "keytar": "mongodb-js/node-keytar#compass-production",
     "local-links": "^1.4.0",
     "localforage": "^1.3.0",
     "lodash": "^3.10.1",

@@ -4,9 +4,6 @@
   },
   "text/less": {
     "sourceMaps": "inline",
-    "modifyVars": {
-      "@fa-font-path": "./node_modules/font-awesome/fonts"
-    },
     "paths": [
       "src/app",
       "src/app/styles"
