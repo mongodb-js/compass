@@ -1,6 +1,7 @@
 var metrics = require('mongodb-js-metrics')();
 var resources = require('mongodb-js-metrics').resources;
 var pkg = require('../../package.json');
+var buildInfo = require('../../build/buildinfo.json');
 var app = require('ampersand-app');
 var electron = window.require('electron');
 var process = electron.remote.process;
@@ -50,7 +51,7 @@ module.exports = function() {
     appName: pkg.product_name,
     appVersion: pkg.version,
     appPlatform: process.platform,
-    appStage: process.env.NODE_ENV
+    appStage: buildInfo.buildChannel
   });
 
   // create a user resource with client id (UUID v4 recommended)
