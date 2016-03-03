@@ -1,12 +1,11 @@
 var app = require('ampersand-app');
 var Connection = require('mongodb-connection-model');
 var storageMixin = require('storage-mixin');
-var client = require('mongodb-scope-client');
+var DataService = require('mongodb-data-service');
 var debug = require('debug')('mongodb-compass:models:connection');
 var uuid = require('uuid');
 var metrics = require('mongodb-js-metrics')();
 var pkg = require('../../../package.json');
-
 
 /**
  * Configuration for connecting to a MongoDB Deployment.
@@ -81,9 +80,9 @@ module.exports = Connection.extend(storageMixin, {
       debug('test worked!');
       done(null, this);
     }.bind(this);
-
+    var dataService = new DataService(model);
     debug('Testing connection to `%j`...', model);
-    client.test(app.endpoint, model, onTested);
+    dataService.connect(onTested);
     return this;
   },
   serialize: function() {
