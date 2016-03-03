@@ -24,10 +24,10 @@
     "ampersand-rest-collection": "^5.0.0"
   },
   "devDependencies": {
-    "eslint-config-mongodb-js": "^1.0.3",
     "mocha": "^2.3.3",
     "mongodb-js-fmt": "0.0.3",
     "mongodb-js-precommit": "^0.2.2",
     "pre-commit": "^1.1.1"
+    "eslint-config-mongodb-js": "^1.0.6",
   }
 }
