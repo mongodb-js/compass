@@ -10,7 +10,7 @@ var debug = require('debug')('mongodb-compass:electron:help');
 
 debug('adding ipc listener for `/help/entries`...');
 ipc.on('/help/entries', function(evt) {
-  var dir = path.join(__dirname, '..', 'help', 'entries');
+  var dir = path.join(__dirname, '..', 'app', 'help', 'entries');
   debug('parsing entries with marky-mark from `%s`', dir);
 
   // add syntax highlighting options, pass through to `marked` module

@@ -409,17 +409,18 @@ var ConnectView = View.extend({
     }
     app.statusbar.show();
 
+    var onSave = function() {
+      this.connections.add(this.connection, { merge: true });
+      this.sidebar.render();
+      this.useConnection();
+    };
+
     connection.test(function(err) {
       app.statusbar.hide();
       if (!err) {
         // now save connection
         this.connection = connection;
-        this.connection.save({last_used: new Date()});
-        this.connections.add(this.connection, {
-          merge: true
-        });
-        this.sidebar.render();
-        this.useConnection();
+        this.connection.save({ last_used: new Date() }, { success: onSave.bind(this) });
       } else {
         this.onError(err, connection);
         this.dispatch('error received');

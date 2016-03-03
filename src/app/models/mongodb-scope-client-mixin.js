@@ -35,6 +35,6 @@ module.exports = {
       });
     };
 
-    app.client.get(url, options, done);
+    app.dataService.get(url, options, done);
   }
 };

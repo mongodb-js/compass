@@ -22,10 +22,9 @@ var DOCUMENTS = [
 ];
 
 var ELECTRON_PATH = {
-  linux: '../dist/MongoDBCompass-linux-x64/MongoDBCompass',
-  win32: '../dist/MongoDBCompass-win32-x64/MongoDBCompass.exe',
-  darwin: path.resolve(__dirname, '..', 'dist', 'MongoDB Compass-darwin-x64',
-    'MongoDB Compass.app', 'Contents', 'MacOS', 'Electron')
+  linux: path.resolve(__dirname, '../node_modules/.bin/electron'),
+  win32: path.resolve(__dirname, '../node_modules/.bin/electron'),
+  darwin: path.resolve(__dirname, '../node_modules/.bin/electron')
 };
 
 var debug = require('debug')('mongodb-compass:test:helpers');

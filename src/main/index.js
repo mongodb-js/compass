@@ -25,29 +25,9 @@ var electron = require('electron');
       return;
     }
 
-    var serverctl = require('./mongodb-scope-server-ctl');
-
     app.on('window-all-closed', function() {
       debug('All windows closed.  Quitting app.');
       app.quit();
-    });
-
-    app.on('quit', function() {
-      debug('app quitting!  stopping server..');
-      serverctl.stop(function(err) {
-        if (err) {
-          debug('Error stopping server...', err);
-        }
-        debug('Server stopped!  Bye!');
-      });
-    });
-
-    serverctl.start(function(err) {
-      if (err) {
-        debug('Error starting server...', err);
-      } else {
-        debug('Server started!');
-      }
     });
 
     if (process.platform !== 'linux') {

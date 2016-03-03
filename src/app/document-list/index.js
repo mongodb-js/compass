@@ -80,14 +80,13 @@ var DocumentListView = View.extend({
     };
 
     var options = {
-      query: query,
       sort: {
         _id: -1
       },
       skip: this.documents.length,
       limit: 20
     };
-    app.client.find(ns, options, function(err, documents) {
+    app.dataService.find(ns, query, options, function(err, documents) {
       // If the document loading was canceled, do nothing.
       if (!this.loading) {
         return;

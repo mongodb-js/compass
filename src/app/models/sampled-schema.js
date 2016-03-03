@@ -157,25 +157,25 @@ module.exports = Schema.extend({
 
     model.trigger('request', {}, {}, options);
 
-    app.client.count(model.ns, options, function(err, count) {
+    app.dataService.count(model.ns, options.query, options, function(err, count) {
       if (err) {
         metrics.error(err);
         return options.error(err);
       }
-      model.total = count.count;
+      model.total = count;
       if (model.total === 0) {
         return onEmpty();
       }
 
       var status = 0;
       var counter = 0;
-      var numSamples = Math.min(options.size, count.count);
+      var numSamples = Math.min(options.size, count);
       var stepSize = Math.ceil(Math.max(1, numSamples / 10));
 
       app.statusbar.show('Sampling collection...');
       app.statusbar.width = 1;
       app.statusbar.trickle(true);
-      app.client.sample(model.ns, options)
+      app.dataService.sample(model.ns, options)
         .on('error', function(dbErr) {
           onEnd(dbErr);
         })
