@@ -3,9 +3,9 @@
   "description": "MongoDB instance model.",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
   "version": "2.1.7",
-  "bugs": "https://github.com/mongodb-js/mongodb-instance-model/issues",
-  "homepage": "https://github.com/mongodb-js/mongodb-instance-model",
-  "repository": "git://github.com/mongodb-js/mongodb-instance-model.git",
+  "bugs": "https://github.com/mongodb-js/instance-model/issues",
+  "homepage": "https://github.com/mongodb-js/instance-model",
+  "repository": "git://github.com/mongodb-js/instance-model.git",
   "license": "Apache-2.0",
   "browser": "browser.js",
   "keywords": [
