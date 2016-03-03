@@ -3,9 +3,9 @@
   "description": "MongoDB database model.",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
   "version": "0.1.1",
-  "bugs": "https://github.com/mongodb-js/mongodb-database-model/issues",
-  "homepage": "https://github.com/mongodb-js/mongodb-database-model",
-  "repository": "git://github.com/mongodb-js/mongodb-database-model.git",
+  "bugs": "https://github.com/mongodb-js/database-model/issues",
+  "homepage": "https://github.com/mongodb-js/database-model",
+  "repository": "git://github.com/mongodb-js/database-model.git",
   "license": "Apache-2.0",
   "keywords": [
     "mongodb-js"
