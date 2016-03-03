@@ -23,7 +23,7 @@
   "dependencies": {
     "ampersand-model": "^6.0.2",
     "ampersand-rest-collection": "^5.0.0",
-    "ampersand-state": "^4.8.2",
+    "ampersand-state": "4.8.2",
     "async": "^1.5.2",
     "debug": "^2.2.0",
     "lodash": "^3.10.1",
