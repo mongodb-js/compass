@@ -154,21 +154,6 @@ var MongoDBCollectionView = View.extend({
     this.schema.reset();
     this.schema.fetch(_.assign({}, app.volatileQueryOptions.serialize(), {
       message: 'Analyzing documents...'
-      // error: function(model, err) {
-      //   debug('Fetching schema had an error:', err);
-      //   var msg;
-      //   if (/operation exceeded time limit/.test(err.message)) {
-      //     msg = 'Your query took more than ' + ms(QueryOptions.DEFAULT_MAX_TIME_MS, {
-      //       long: true
-      //     }) +
-      //       ' to complete on the database. ' +
-      //       'As a safety measure, Compass aborts long-running queries. ' +
-      //       'This limit is currently not configurable.';
-      //   } else {
-      //     msg = err.message;
-      //   }
-      //   window.alert(msg);
-      // }
     }));
     this.model.once('sync', this.onCollectionFetched.bind(this));
     this.model.fetch();

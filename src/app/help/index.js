@@ -130,7 +130,9 @@ var HelpPage = View.extend({
     if (!entry) {
       debug('Unknown help entry', entryId);
       this.viewSwitcher.clear();
-      app.statusbar.showMessage('Help entry not found.');
+      app.statusbar.showMessage({
+        message: 'Help entry not found.'
+      });
       return;
     }
 

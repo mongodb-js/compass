@@ -1,11 +1,12 @@
 var View = require('ampersand-view');
 var pluralize = require('pluralize');
-var app = require('ampersand-app');
 var numeral = require('numeral');
 var jade = require('jade');
 var path = require('path');
 
 var indexTemplate = jade.compileFile(path.resolve(__dirname, 'index.jade'));
+
+// var debug = require('debug')('mongodb-compass:sampling-message');
 
 var SamplingMessageView = View.extend({
   template: indexTemplate,
@@ -39,9 +40,9 @@ var SamplingMessageView = View.extend({
       }
     },
     is_sample: {
-      deps: ['sample_size'],
+      deps: ['sample_size', 'total_count'],
       fn: function() {
-        return this.sample_size === app.queryOptions.size;
+        return this.sample_size < this.total_count;
       }
     },
     formatted_total_count: {

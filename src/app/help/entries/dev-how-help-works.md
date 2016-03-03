@@ -69,11 +69,28 @@ fields are optional.
 `tags` are added to the top of the article below the title, but currently
 don't have any other function. We might add search by tags in a later version.
 
+##### Local Links
+
+You can link to other help topics inside the text by using the following syntax:
+
+```
+This is a [link](#dev-taxonomy) to the Taxonomy help page.
+```
+
+Note that the string after the `#` symbol must match the help entry ID exactly.
+the help entry ID is the filename of the markdown file without its extension.
+
 ##### Related Links
 
 When you add one or more related entry keys under the `related` field, a
 "Related" section is automatically added at the bottom of the article, linking
 to the related entries.
+
+##### External Links
+
+External links are supported and detected automatically, see for example the
+[MongoDB Manual](https://docs.mongodb.org/manual/). It should open in the user's
+default browser, not Compass.
 
 ##### Entries for Developers
 
@@ -96,13 +113,3 @@ a help entry like so:
 ```
 ![](./images/help/my_image.png)
 ```
-
-##### External Links
-
-External links are supported and detected automatically, see for example the
-[MongoDB Manual](https://docs.mongodb.org/manual/). It should open in the user's
-default browser, not Compass.
-
-### Known Issues
-
-- The help system currently doesn't support external links yet.

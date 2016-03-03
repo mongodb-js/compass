@@ -3,8 +3,9 @@ var _ = require('lodash');
 var jade = require('jade');
 var path = require('path');
 
+var debug = require('debug')('mongodb-compass:statusbar:index');
+
 var indexTemplate = jade.compileFile(path.resolve(__dirname, 'index.jade'));
-// var debug = require('debug')('mongodb-compass:statusbar:index');
 
 var StatusbarView = View.extend({
   props: {
@@ -21,7 +22,7 @@ var StatusbarView = View.extend({
     },
     animation: {
       type: 'boolean',
-      default: true
+      default: false
     },
     visible: {
       type: 'boolean',
@@ -117,18 +118,22 @@ var StatusbarView = View.extend({
   trickle: function(bool) {
     if (bool) {
       this.trickleTimer = setInterval(function() {
-        this.width = Math.min(98, this.width + _.random(1, 3));
+        this.width = Math.min(98, this.width + _.random(0, 2));
       }.bind(this), 800);
     } else {
       clearInterval(this.trickleTimer);
     }
   },
-  show: function(message) {
-    this.visible = true;
-    this.progressbar = true;
-    this.message = message || '';
-    this.width = 100;
-    this.animation = true;
+  show: function(options) {
+    options = _.defaults(options || {}, {
+      visible: true,
+      progressbar: true,
+      message: '',
+      width: 100,
+      animation: false
+    });
+    debug('options are', options);
+    this.set(options);
   },
   showMessage: function(message) {
     this.visible = true;
