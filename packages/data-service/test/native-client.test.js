@@ -16,17 +16,21 @@ describe('NativeClient', function() {
   });
 
   describe('#new', function() {
-    it('sets the connection on the instance', function() {
-      expect(client.connection).to.equal(helper.connection);
+    it('sets the model on the instance', function() {
+      expect(client.model).to.equal(helper.connection);
     });
   });
 
   describe('#databases', function() {
     it('returns a list of the available databases', function(done) {
-      client.databases().then(function(dbs) {
-        var databases = dbs.databases;
-        expect(databases[0].name).to.equal('local');
-        done();
+      client.connect(function(error, c) {
+        assert.equal(null, error);
+        c.databases(function(err, dbs) {
+          assert.equal(null, err);
+          var databases = dbs.databases;
+          expect(databases[0].name).to.equal('local');
+          done();
+        });
       });
     });
   });
@@ -74,7 +78,7 @@ describe('NativeClient', function() {
   describe('#count', function() {
     context('when a filter is provided', function() {
       it('returns a count for the matching documents', function(done) {
-        client.count('data-service.test', { a: 1 }, function(error, count) {
+        client.count('data-service.test', { a: 1 }, {}, function(error, count) {
           assert.equal(null, error);
           expect(count).to.equal(0);
           done();

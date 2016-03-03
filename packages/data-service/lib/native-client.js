@@ -1,6 +1,6 @@
 'use strict';
 
-const MongoClient = require('mongodb').MongoClient;
+const createConnection = require('mongodb-connection-model').connect;
 
 /**
  * The native client class.
@@ -41,22 +41,21 @@ class NativeClient {
    * Instantiate a new NativeClient object.
    *
    * @constructor
-   * @param {Connection} connection - The Connection model.
+   * @param {Connection} model - The Connection model.
    */
-  constructor(connection) {
-    this.connection = connection;
-    this.connect();
+  constructor(model) {
+    this.model = model;
   }
 
   /**
    * Connect to the server.
    *
-   * @param {function} done - The callback function.
-   * @returns {Promise} The client promise.
+   * @param {function} callback - The callback function.
    */
-  connect() {
-    return MongoClient.connect(this.connection.driver_url).then((database) => {
+  connect(callback) {
+    createConnection(this.model, (error, database) => {
       this.database = database;
+      callback(error, this);
     });
   }
 
@@ -67,19 +66,19 @@ class NativeClient {
    * @param {string} ns - The namespace to search on.
    * @param {object} filter - The filter.
    * @param {object} options - The query options.
-   * @returns {Promise} The count.
+   * @param {function} callback - The callback function.
    */
-  count(ns, filter, options) {
-    return this.collection(ns).count(filter, options);
+  count(ns, filter, options, callback) {
+    this.collection(ns).count(filter, options, callback);
   }
 
   /**
    * Get a list of databases for the server.
    *
-   * @returns {Promise} The list of databases.
+   * @param {function} callback - The callback function.
    */
-  databases() {
-    return this.database.admin().listDatabases();
+  databases(callback) {
+    this.database.admin().listDatabases(callback);
   }
 
   /**
@@ -88,6 +87,7 @@ class NativeClient {
    * @param {string} ns - The namespace to search on.
    * @param {object} filter - The filter.
    * @param {object} options - The query options.
+   *
    * @returns {Cursor} The cursor.
    */
   find(ns, filter, options) {

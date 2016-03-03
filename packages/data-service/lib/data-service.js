@@ -1,6 +1,15 @@
 'use strict';
 
 const NativeClient = require('./native-client');
+const EventEmitter = require('events');
+
+/**
+ * Constants for generated events.
+ */
+const Events = {
+  Readable: 'DataService:Readable',
+  Error: 'DataService:Error'
+};
 
 /**
  * Instantiate a new DataService object.
@@ -8,16 +17,28 @@ const NativeClient = require('./native-client');
  * @constructor
  * @param {Connection} connection - The Connection model.
  */
-class DataService {
+class DataService extends EventEmitter {
 
   /**
    * Instantiate a new DataService object.
    *
    * @constructor
-   * @param {Connection} connection - The Connection model.
+   * @param {Object} model - The Connection model or object.
    */
-  constructor(connection) {
-    this.client = new NativeClient(connection);
+  constructor(model) {
+    super();
+    this.client = new NativeClient(model);
+  }
+
+  /**
+   * Connect to the server.
+   *
+   * @param {function} callback - The callback function.
+   */
+  connect(callback) {
+    this.client.connect((error) => {
+      callback(error, this);
+    });
   }
 
   /**
@@ -27,19 +48,19 @@ class DataService {
    * @param {string} ns - The namespace to search on.
    * @param {object} filter - The filter.
    * @param {object} options - The query options.
-   * @returns {Promise} The count.
+   * @param {function} callback - The callback function.
    */
-  count(ns, filter, options) {
-    return this.client.count(ns, filter, options);
+  count(ns, filter, options, callback) {
+    this.client.count(ns, filter, options, callback);
   }
 
   /**
    * Get a list of databases for the server.
    *
-   * @returns {Promise} The list of databases.
+   * @param {function} callback - The callback function.
    */
-  databases() {
-    return this.client.databases();
+  databases(callback) {
+    this.client.databases(callback);
   }
 
   /**
@@ -48,11 +69,12 @@ class DataService {
    * @param {string} ns - The namespace to search on.
    * @param {object} filter - The filter.
    * @param {object} options - The query options.
-   * @returns {Cursor} The cursor.
+   * @param {function} callback - The callback function.
    */
-  find(ns, filter, options) {
-    return this.client.find(ns, filter, options);
+  find(ns, filter, options, callback) {
+    this.client.find(ns, filter, options, callback);
   }
 }
 
 module.exports = DataService;
+module.exports.Events = Events;
