@@ -1,6 +1,8 @@
 'use strict';
 
 const createConnection = require('mongodb-connection-model').connect;
+const getInstance = require('mongodb-instance-model').fetch;
+const createSampleStream = require('mongodb-collection-sample');
 
 /**
  * The native client class.
@@ -92,6 +94,27 @@ class NativeClient {
    */
   find(ns, filter, options) {
     return this.collection(ns).find(filter, options);
+  }
+
+  /**
+   * Get the current instance details.
+   *
+   * @param {function} callback - The callback function.
+   */
+  instance(callback) {
+    getInstance(this.database, callback);
+  }
+
+  /**
+   * Sample documents from the collection.
+   *
+   * @param {String} ns - The namespace to sample.
+   * @param {Object} options - The sampling options.
+   *
+   * @return {Stream} The sample stream.
+   */
+  sample(ns, options) {
+    return createSampleStream(this.database, this.collectionName(ns), options);
   }
 }
 

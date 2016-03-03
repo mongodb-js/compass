@@ -12,6 +12,13 @@ const Events = {
 };
 
 /**
+ * Constants for routes.
+ */
+const Routes = {
+  '/instance': 'instance'
+};
+
+/**
  * Instantiate a new DataService object.
  *
  * @constructor
@@ -38,6 +45,7 @@ class DataService extends EventEmitter {
   connect(callback) {
     this.client.connect((error) => {
       callback(error, this);
+      this.emit(Events.Readable);
     });
   }
 
@@ -73,6 +81,40 @@ class DataService extends EventEmitter {
    */
   find(ns, filter, options, callback) {
     this.client.find(ns, filter, options, callback);
+  }
+
+  /**
+   * Get some data from the service in a RESTful manner.
+   *
+   * @param {String} url - The RESTful url.
+   * @param {Object} options - The options.
+   * @param {function} callback - The callback.
+   */
+  get(url, options, callback) {
+    console.log(url);
+    console.log(options);
+    this[Routes[url]].call(this, options, callback);
+  }
+
+  /**
+   * Get the current instance details.
+   *
+   * @param {function} callback - The callback function.
+   */
+  instance(options, callback) {
+    this.client.instance(callback);
+  }
+
+  /**
+   * Sample documents from the collection.
+   *
+   * @param {String} ns - The namespace to sample.
+   * @param {Object} options - The sampling options.
+   *
+   * @return {Stream} The sample stream.
+   */
+  sample(ns, options) {
+    return this.client.sample(ns, options);
   }
 }
 
