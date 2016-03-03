@@ -360,7 +360,9 @@ app.extend({
     }
 
     handleIntercomLinks();
-    app.statusbar.show('Retrieving connection details...');
+    app.statusbar.show({
+      message: 'Retrieving connection details...'
+    });
 
     state.connection = new Connection({
       _id: connectionId
@@ -372,7 +374,9 @@ app.extend({
         state.onFatalError('fetch connection', err);
         return;
       }
-      app.statusbar.show('Connecting to MongoDB...');
+      app.statusbar.show({
+        message: 'Connecting to MongoDB...'
+      });
 
       var connection = state.connection.serialize();
 
