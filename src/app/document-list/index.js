@@ -87,6 +87,7 @@ var DocumentListView = View.extend({
       skip: this.documents.length,
       limit: 20
     };
+    // TODO-DURRAN: Replace with service find.
     app.client.find(ns, options, function(err, documents) {
       // If the document loading was canceled, do nothing.
       if (!this.loading) {

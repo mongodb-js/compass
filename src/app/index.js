@@ -354,6 +354,7 @@ app.extend({
       var endpoint = app.endpoint;
       var connection = state.connection.serialize();
 
+      // TODO-DURRAN: Replace with service.
       app.client = getOrCreateClient(endpoint, connection)
         .on('readable', state.onClientReady.bind(state))
         .on('error', state.onFatalError.bind(state, 'create client'));
