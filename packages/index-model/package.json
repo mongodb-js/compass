@@ -3,9 +3,9 @@
   "description": "MongoDB index model.",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
   "version": "0.1.2",
-  "bugs": "https://github.com/mongodb-js/mongodb-index-model/issues",
-  "homepage": "https://github.com/mongodb-js/mongodb-index-model",
-  "repository": "git://github.com/mongodb-js/mongodb-index-model.git",
+  "bugs": "https://github.com/mongodb-js/index-model/issues",
+  "homepage": "https://github.com/mongodb-js/index-model",
+  "repository": "git://github.com/mongodb-js/index-model.git",
   "license": "Apache-2.0",
   "keywords": [
     "mongodb-js"
