@@ -94,7 +94,7 @@ var run = require('electron-installer-run');
 var DIR = path.join(__dirname, '..');
 var OUT = path.join(__dirname, '..', 'dist');
 
-var BASENAME = cli.argv.product_name;// 'MongoDB Compass';
+var BASENAME = cli.argv.product_name; // 'MongoDB Compass';
 
 var OSX_APPNAME = BASENAME;
 var OSX_OUT_X64 = path.join(OUT, format('%s-darwin-x64', OSX_APPNAME));
@@ -133,7 +133,6 @@ _.assign(CONFIG, {
   'app-copyright': format('%s MongoDB Inc.', new Date().getFullYear()),
   'build-version': cli.argv.version,
   'app-version': cli.argv.version,
-  'asar-unpack-directory': 'app',
   ignore: new RegExp('node_modules/|.cache/|dist/|test/|scripts/'),
   platform: cli.argv.platform,
   arch: cli.argv.arch,
