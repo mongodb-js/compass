@@ -1,14 +1,18 @@
 var View = require('ampersand-view');
 var ms = require('ms');
 var app = require('ampersand-app');
+var jade = require('jade');
+var path = require('path');
 
 // var debug = require('debug')('mongodb-compass:statusbar:schema-subview');
+var subviewTemplate = jade.compileFile(path.resolve(__dirname, 'schema-subview.jade'));
+
 
 var SHOW_STEPS_MS = 3000;
 var SHOW_ANALYZING_BUTTONS_MS = 10000;
 
 module.exports = View.extend({
-  template: require('./schema-subview.jade'),
+  template: subviewTemplate,
   props: {
     schema: {
       type: 'state',
