@@ -1,0 +1,44 @@
+.page.connect
+  div(data-hook='sidebar-subview')
+  .form-container
+    header
+      h2 Connect to Host
+
+    .message.error(data-hook="message-div")
+      p(data-hook='message')
+
+    form(data-hook="connect-form")
+      #host-port.form-group
+        div(data-hook='hostname-subview')
+        div(data-hook='port-subview')
+
+      hr
+
+      div(data-hook='authselect-subview')
+
+      - for method, i in authMethods || {}
+        - classNames = []
+        - if (!method.enabled) classNames.push('hidden')
+        - if (i === 0) classNames.push('active')
+        div(class=classNames, id='auth-#{method._id}')
+          
+      hr
+          
+      div(data-hook='sslselect-subview')
+      
+      - for method, i in sslMethods || {}
+        - classNames = []
+        - if (!method.enabled) classNames.push('hidden')
+        - if (i === 0) classNames.push('active')
+        div(class=classNames, id='ssl-#{method._id}')
+
+      hr
+
+      div(data-hook='saveas-subview')
+      
+      .form-item
+        button.btn.btn-primary(type='submit', name="connect", data-hook='connect-button') Connect
+        span.buttons(data-hook='favorite-buttons')
+          button.btn.btn-default(type='button', name="createFavorite", data-hook='create-favorite-button') Create Favorite
+          button.btn.btn-default(type='button', name="removeFavorite", data-hook='remove-favorite-button') Remove Favorite
+          button.btn.btn-default(type='button', name="saveChanges", data-hook='save-changes-button') Save Changes

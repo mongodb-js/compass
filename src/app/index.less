@@ -1,0 +1,47 @@
+// Dependencies
+@import "./styles/index.less";
+
+// Components
+@import "collection-stats/index.less";
+@import "connect/index.less";
+@import "document-list/index.less";
+@import "field-list/index.less";
+@import "help/index.less";
+@import "home/index.less";
+@import "minicharts/index.less";
+@import "refine-view/index.less";
+@import "sampling-message/index.less";
+@import "statusbar/index.less";
+@import "tour/index.less";
+@import "sidebar/index.less";
+@import "network-optin/index.less";
+
+#intercom-launcher {
+  height: 0px !important;
+  width: 0px !important;
+
+  .intercom-launcher-button {
+    display: none !important;
+  }
+}
+
+.intercom-sheet-header-minimize-button {
+  height: 0px !important;
+  width: 0px !important;
+  display: none !important;
+  pointer-events: none !important;
+  -webkit-pointer-events: none !important;
+}
+
+// style overrides for incoming messages
+#intercom-container .intercom-launcher-preview-caret {
+  display: none !important;
+}
+
+#intercom-container .intercom-launcher-preview.intercom-launcher-preview-multi-line {
+  right: 0 !important;
+}
+
+#intercom-container .intercom-launcher-badge {
+  z-index: 10 !important;
+}

@@ -1,4 +1,4 @@
 /**
- * The main entrpoint Electron will execute.
+ * The main entrypoint Electron will execute.
  */
-require('./src/electron');
+require('electron-compile').init(__dirname, './src/main');

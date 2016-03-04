@@ -1,3 +1,4 @@
+var path = require('path');
 var _ = require('lodash');
 var format = require('util').format;
 var Connection = require('mongodb-connection-model');
@@ -6,12 +7,12 @@ var os = require('os');
 var chai = require('chai');
 var chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
-var spawn = require('child_process').spawn;
 
 var ELECTRON_PATH = {
-  linux: require('../tasks/linux').ELECTRON,
-  win32: require('../tasks/win32').ELECTRON,
-  darwin: require('../tasks/darwin').ELECTRON
+  linux: '../dist/MongoDBCompass-linux-x64/MongoDBCompass',
+  win32: '../dist/MongoDBCompass-win32-x64/MongoDBCompass.exe',
+  darwin: path.resolve(__dirname, '..', 'dist', 'MongoDB Compass-darwin-x64',
+    'MongoDB Compass.app', 'Contents', 'MacOS', 'Electron')
 };
 
 var debug = require('debug')('mongodb-compass:test:helpers');
@@ -37,32 +38,6 @@ module.exports.getElectronPath = function() {
     throw new Error('Unknown platform: ' + platform);
   }
   return ELECTRON_PATH[platform];
-};
-
-module.exports.requireInElectron = function(moduleName, property, done) {
-  var subtest = format([
-    "var assert = require('assert');",
-    "assert(require('%s').%s);",
-    "console.log('%s is properly installed');"
-  ].join(' '), moduleName, property, moduleName);
-
-  var proc = spawn(
-                module.exports.getElectronPath(),
-                ['-e', subtest],
-                { env: { ATOM_SHELL_INTERNAL_RUN_AS_NODE: '1' } }
-                );
-
-  proc.stderr.on('data', function(data) {
-    debug('requireInElectron %s', data.toString('utf-8'));
-  });
-
-  proc.on('exit', function(code) {
-    if (code === 0) {
-      done();
-      return;
-    }
-    done( new Error('process exited with code ' + code) );
-  });
 };
 
 /**

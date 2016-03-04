@@ -62,6 +62,7 @@ functions:
       working_dir: src
       script: |
         set -ev
+        export CI=1 EVERGREEN=1
         export PATH="${node_path}:$PATH"
         ls -alh ${node_path}
         test -n '${add_env_appdata|}' && export APPDATA='${add_env_appdata|}'

@@ -1,0 +1,29 @@
+@import "palette.less";
+.refine-view-container {
+  position: relative;
+  z-index: 1;
+
+  .query-input-container {
+    padding: 12px 25px;
+    background: @gray8;
+
+    input[type='text'] {
+      font-family: @font-family-monospace;
+      background: @pw;
+      height: 28px;
+      & + .input-group-btn {
+        padding-left: 10px;
+
+        &:last-child > .btn {
+          margin-left: 2px;
+        }
+      }
+    }
+  }
+  .sampling-message {
+    font-size: 13px;
+    font-weight: 200;
+    padding: 5px 25px;
+    border-bottom: 2px solid @gray7
+  }
+}
