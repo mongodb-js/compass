@@ -1,9 +1,9 @@
 .refine-view-container
   .query-input-container: .row: .col-md-12: form: .input-group(data-hook='refine-input-group')
-    input.form-control.input-sm(type='text', data-hook='refine-input')
+    input#refine_input.form-control.input-sm(type='text', data-hook='refine-input')
     span.input-group-btn
-      button.btn.btn-default.btn-sm(type='button', data-hook='apply-btn') Apply
-      button.btn.btn-default.btn-sm(type='button', data-hook='reset-button') Reset
+      button#apply_button.btn.btn-default.btn-sm(type='button', data-hook='apply-btn') Apply
+      button#reset_button.btn.btn-default.btn-sm(type='button', data-hook='reset-button') Reset
   div(data-hook='sampling-message-subview')
 
   //- .sampling-message

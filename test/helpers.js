@@ -6,7 +6,21 @@ var Application = require('spectron').Application;
 var os = require('os');
 var chai = require('chai');
 var chaiAsPromised = require('chai-as-promised');
+var spawn = require('child_process').spawn;
+var MongoClient = require('mongodb').MongoClient;
+var assert = require('assert');
+
 chai.use(chaiAsPromised);
+
+/**
+ * Test documents to sample with a local server.
+ */
+var DOCUMENTS = [
+  { 'name': 'Aphex Twin' },
+  { 'name': 'Bonobo' },
+  { 'name': 'Arca' },
+  { 'name': 'Beacon' }
+];
 
 var ELECTRON_PATH = {
   linux: '../dist/MongoDBCompass-linux-x64/MongoDBCompass',
@@ -80,6 +94,36 @@ module.exports.stopApplication = function() {
 };
 
 /**
+ * Insert the test documents into the compass-test.bands collection.
+ */
+module.exports.insertTestDocuments = function() {
+  MongoClient.connect('mongodb://localhost:27018/compass-test', function(err, db) {
+    assert.equal(null, err);
+    var collection = db.collection('bands');
+    collection.insertMany(DOCUMENTS, function(error, result) {
+      assert.equal(null, error);
+      debug(result);
+      db.close();
+    });
+  });
+};
+
+/**
+ * Remove all the test documents.
+ */
+module.exports.removeTestDocuments = function() {
+  MongoClient.connect('mongodb://localhost:27018/compass-test', function(err, db) {
+    assert.equal(null, err);
+    var collection = db.collection('bands');
+    collection.deleteMany({}, {}, function(error, result) {
+      assert.equal(null, error);
+      debug(result);
+      db.close();
+    });
+  });
+};
+
+/**
  * add helper commands to the webdriverIO client in a describe block:
  * @param {Application#client} client    client to which to add the commands
  *
@@ -144,22 +188,44 @@ module.exports.addCommands = function(client) {
   });
 
   /**
-   * wait for the connect window to close and a schema window to open.
+   * Generic function to wait for a new window by the index in the order it was created.
    */
-  client.addCommand('waitForSchemaWindow', function(ms, interval) {
+  client.addCommand('waitForWindow', function(index, ms, interval) {
     ms = ms || 20000;
     interval = interval || 1000;
-    var schemaWindowHandle;
+    var newWindowHandle;
     return this.windowHandle().then(responseValue).then(function(connectHandle) {
       return this.waitUntil(function() {
         return this.windowHandles().then(responseValue).then(function(handles) {
-          schemaWindowHandle = handles[0];
-          return schemaWindowHandle !== connectHandle;
+          newWindowHandle = handles[index];
+          return newWindowHandle !== connectHandle;
         });
       }, ms, interval).then(function() {
-        return this.windowByIndex(0);
+        return this.windowByIndex(index);
       });
     });
+  });
+
+  /**
+   * Wait for the connect window to close and a schema window to open.
+   */
+  client.addCommand('waitForSchemaWindow', function(ms, interval) {
+    return this.waitForWindow(0, ms, interval);
+  });
+
+  /**
+   * Wait for the help dialog to open.
+   */
+  client.addCommand('waitForHelpDialog', function(ms, interval) {
+    return this.waitForWindow(1, ms, interval)
+      .waitForVisible('div.content h1.help-entry-title');
+  });
+
+  /**
+   * Filter the help topics.
+   */
+  client.addCommand('filterHelpTopics', function(topic) {
+    return this.setValue('input[placeholder=filter]', topic);
   });
 
   /**
@@ -177,6 +243,49 @@ module.exports.addCommands = function(client) {
       .fillOutForm(connection)
       .clickConnect()
       .waitForSchemaWindow(ms);
+  });
+
+  /**
+   * Selects a collection from the schema window sidebar to analyse.
+   */
+  client.addCommand('selectCollection', function(name) {
+    return this
+      .waitForVisible('span[title="' + name + '"]')
+      .click('span[title="' + name + '"]')
+      .waitForVisible('div.schema-field-list');
+  });
+
+  /**
+   * Waits for the status bar to finish it's progress and unlock the page.
+   */
+  client.addCommand('waitForStatusBar', function() {
+    return this.waitForVisible('div#statusbar', 5000, true);
+  });
+
+  /**
+   * Opens the sample documents in the right panel.
+   */
+  client.addCommand('viewSampleDocuments', function() {
+    return this.waitForStatusBar()
+      .click('#view_sample')
+      .waitForVisible('div#sample_documents');
+  });
+
+  /**
+   * Refines the sample by entering the provided filter in the field and clicking apply.
+   */
+  client.addCommand('refineSample', function(query) {
+    return this.waitForStatusBar()
+      .setValue('input#refine_input', query)
+      .click('button#apply_button');
+  });
+
+  /**
+   * Resets the sample by clicking on the reset button.
+   */
+  client.addCommand('resetSample', function() {
+    return this.waitForStatusBar()
+      .click('button#reset_button');
   });
 
   /**
