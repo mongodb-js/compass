@@ -8,9 +8,6 @@ var app = require('ampersand-app');
 var backoff = require('backoff');
 
 app.extend({
-  // @todo (imlucas) Move to config
-  // `mongodb-scope-server` to point at.
-  endpoint: 'http://localhost:29017',
   meta: {
     'App Version': pkg.version
   }
@@ -19,7 +16,6 @@ app.extend({
 var _ = require('lodash');
 var domReady = require('domready');
 var qs = require('qs');
-var getOrCreateClient = require('mongodb-scope-client');
 var ViewSwitcher = require('ampersand-view-switcher');
 var View = require('ampersand-view');
 var localLinks = require('local-links');
@@ -36,6 +32,7 @@ var Statusbar = require('./statusbar');
 var metricsSetup = require('./metrics');
 var metrics = require('mongodb-js-metrics')();
 var $ = require('jquery');
+var DataService = require('mongodb-data-service');
 
 var debug = require('debug')('mongodb-compass:app');
 
@@ -354,11 +351,14 @@ app.extend({
       var endpoint = app.endpoint;
       var connection = state.connection.serialize();
 
-      app.client = getOrCreateClient(endpoint, connection)
-        .on('readable', state.onClientReady.bind(state))
-        .on('error', state.onFatalError.bind(state, 'create client'));
+      console.log(connection);
+      app.client = new DataService(connection);
+      app.client.on(DataService.Events.Readable, state.onClientReady.bind(state))
+      app.client.on(DataService.Events.Error, state.onFatalError.bind(state, 'create client'));
 
-      state.startClientStalledTimer();
+      app.client.connect(() => {
+        state.startClientStalledTimer();
+      });
     });
   },
   init: function() {
