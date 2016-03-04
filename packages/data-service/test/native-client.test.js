@@ -21,17 +21,6 @@ describe('NativeClient', function() {
     });
   });
 
-  describe('#databases', function() {
-    it('returns a list of the available databases', function(done) {
-      client.databases(function(err, dbs) {
-        assert.equal(null, err);
-        var databases = dbs.databases;
-        expect(databases[0].name).to.equal('local');
-        done();
-      });
-    });
-  });
-
   describe('#find', function() {
     before(function() {
       helper.insertTestDocuments(client);
@@ -69,6 +58,52 @@ describe('NativeClient', function() {
           done();
         });
       });
+    });
+  });
+
+  describe('#collectionNames', function() {
+    it('returns the collection names', function(done) {
+      client.collectionNames('data-service', function(err, names) {
+        assert.equal(null, err);
+        expect(names[0]).to.equal('test');
+        done();
+      });
+    });
+  });
+
+  describe('#collections', function() {
+    it('returns the collections', function(done) {
+      client.collections('data-service', function(err, collections) {
+        assert.equal(null, err);
+        expect(collections[0].name).to.equal('test');
+        done();
+      });
+    });
+  });
+
+  describe('#collectionStats', function() {
+    it('returns an object with the collection stats', function(done) {
+      client.collectionStats('data-service', 'test', function(err, stats) {
+        assert.equal(null, err);
+        expect(stats.name).to.equal('test');
+        done();
+      });
+    });
+  });
+
+  describe('#databaseStats', function() {
+    context('when the user is authorized', function() {
+      it('returns an object with the db stats', function(done) {
+        client.databaseStats('native-service', function(err, stats) {
+          assert.equal(null, err);
+          expect(stats.document_count).to.equal(0);
+          done();
+        });
+      });
+    });
+
+    context('when the user is not authorized', function() {
+      it('passes an error to the callback');
     });
   });
 

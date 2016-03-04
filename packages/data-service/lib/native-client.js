@@ -1,5 +1,7 @@
 'use strict';
 
+const _ = require('lodash');
+const async = require('async');
 const createConnection = require('mongodb-connection-model').connect;
 const getInstance = require('mongodb-instance-model').fetch;
 const createSampleStream = require('mongodb-collection-sample');
@@ -74,30 +76,78 @@ class NativeClient {
     this.collection(ns).count(filter, options, callback);
   }
 
-  // database(name) {
-  // }
-  //
-  // databaseStats(name) {
-  //
-  // }
-  //
-  // collections(ns) {
-  //
-  // }
-  //
-  // collectionNames() {
-  //
+  // database(name, callback) {
   // }
 
   /**
-   * Get a list of databases for the server.
+   * Get the stats for all collections in the database.
    *
-   * @param {function} callback - The callback function.
-   *
-   * @todo: Remove.
+   * @param {String} databaseName - The database name.
+   * @param {Function} callback - The callback.
    */
-  databases(callback) {
-    this.database.admin().listDatabases(callback);
+  collections(databaseName, callback) {
+    this.collectionNames(databaseName, (error, names) => {
+      if (error) {
+        return callback(error);
+      }
+      async.parallel(_.map(names, (name) => {
+        return (done) => {
+          this.collectionStats(databaseName, name, done);
+        };
+      }), callback);
+    });
+  }
+
+  /**
+   * Get all the collection names for a database.
+   *
+   * @param {String} databaseName - The database name.
+   * @param {Function} callback - The callback.
+   */
+  collectionNames(databaseName, callback) {
+    var db = this._database(databaseName);
+    db.listCollections({}).toArray((error, data) => {
+      if (error) {
+        return callback(error);
+      }
+      var names = _.map(data, (collection) => {
+        return collection.name;
+      });
+      callback(null, names);
+    });
+  }
+
+  /**
+   * Get the stats for a collection.
+   *
+   * @param {String} databaseName - The database name.
+   * @param {String} collectionName - The collection name.
+   * @param {Function} callback - The callback.
+   */
+  collectionStats(databaseName, collectionName, callback) {
+    var db = this._database(databaseName);
+    db.command({ collStats: collectionName, verbose: 1 }, (error, data) => {
+      if (error) {
+        return callback(error);
+      }
+      callback(null, this._buildCollectionStats(databaseName, collectionName, data));
+    });
+  }
+
+  /**
+   * Get the stats for a database.
+   *
+   * @param {String} name - The database name.
+   * @param {Function} callback - The callback.
+   */
+  databaseStats(name, callback) {
+    var db = this._database(name);
+    db.command({ dbStats: 1 }, (error, data) => {
+      if (error) {
+        return callback(error);
+      }
+      callback(null, this._buildDatabaseStats(data));
+    });
   }
 
   /**
@@ -132,6 +182,59 @@ class NativeClient {
    */
   sample(ns, options) {
     return createSampleStream(this.database, this.collectionName(ns), options);
+  }
+
+  /**
+   * @todo: Durran: User JS style for keys, make builder.
+   *
+   * @param {Object} data - The result of the collStats command.
+   *
+   * @return {Object} The collection stats.
+   */
+  _buildCollectionStats(databaseName, collectionName, data) {
+    return {
+      ns: databaseName + '.' + collectionName,
+      name: collectionName,
+      database: databaseName,
+      is_capped: data.capped,
+      max: data.max,
+      is_power_of_two: data.userFlags === 1,
+      index_sizes: data.indexSizes,
+      document_count: data.count,
+      document_size: data.size,
+      storage_size: data.storageSize,
+      index_count: data.nindexes,
+      index_size: data.totalIndexSize,
+      padding_factor: data.paddingFactor,
+      extent_count: data.numExtents,
+      extent_last_size: data.lastExtentSize,
+      flags_user: data.userFlags,
+      flags_system: data.systemFlags
+    };
+  }
+
+  /**
+   * @todo: Durran: User JS style for keys, make builder.
+   *
+   * @param {Object} data - The result of the dbStats command.
+   *
+   * @return {Object} The database stats.
+   */
+  _buildDatabaseStats(data) {
+    return {
+      document_count: data.objects,
+      document_size: data.dataSize,
+      storage_size: data.storageSize,
+      index_count: data.indexes,
+      index_size: data.indexSize,
+      extent_count: data.numExtents,
+      file_size: data.fileSize,
+      ns_size: data.nsSizeMB * 1024 * 1024
+    };
+  }
+
+  _database(name) {
+    return this.database.db(name);
   }
 }
 
