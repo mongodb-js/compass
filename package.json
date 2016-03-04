@@ -100,7 +100,7 @@
     "mongodb-js-metrics": "^1.0.0",
     "mongodb-language-model": "^0.3.3",
     "mongodb-ns": "^1.0.3",
-    "mongodb-schema": "^3.3.1",
+    "mongodb-schema": "^4.0.0",
     "mousetrap": "^1.5.3",
     "ms": "^0.7.1",
     "node-notifier": "^4.3.1",
