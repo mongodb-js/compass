@@ -19,16 +19,16 @@ module.exports = function() {
   metrics.configure({
     ga: {
       trackingId: GA_KEY,
-      enabled: app.preferences.googleAnalytics
+      enabled: app.preferences.trackUsageStatistics
     },
     mixpanel: {
       apiToken: MIXPANEL_KEY,
-      enabled: app.preferences.googleAnalytics
+      enabled: app.preferences.trackUsageStatistics
     },
     intercom: {
       appId: INTERCOM_KEY,
-      enabled: app.preferences.googleAnalytics,
-      panelEnabled: app.preferences.intercom
+      enabled: app.preferences.trackUsageStatistics,
+      panelEnabled: app.preferences.enableFeedbackPanel
     },
     bugsnag: {
       // autoNotify: false,
@@ -41,7 +41,7 @@ module.exports = function() {
             + '/%s/users/show?user_id=%s', INTERCOM_KEY, app.user.id)
         }
       },
-      enabled: app.preferences.bugsnag
+      enabled: app.preferences.trackErrors
     }
   });
 
@@ -91,20 +91,20 @@ module.exports = function() {
   });
 
   // listen to preference changes
-  app.preferences.on('change:googleAnalytics', function(prefs, enabled) {
+  app.preferences.on('change:trackUsageStatistics', function(prefs, enabled) {
     // enable/disable event tracking
     metrics.trackers.get('ga').enabled = enabled;
     metrics.trackers.get('intercom').enabled = enabled;
     metrics.trackers.get('mixpanel').enabled = enabled;
   });
-  app.preferences.on('change:intercom', function(prefs, enabled) {
+  app.preferences.on('change:enableFeedbackPanel', function(prefs, enabled) {
     // enable/disable product feedback
     metrics.trackers.get('intercom').panelEnabled = enabled;
     if (!enabled && window.Intercom) {
       window.Intercom('hide');
     }
   });
-  app.preferences.on('change:bugsnag', function(prefs, enabled) {
+  app.preferences.on('change:trackErrors', function(prefs, enabled) {
     // enable/disable error reports
     /* eslint new-cap:0 */
     metrics.trackers.get('bugsnag').enabled = enabled;
