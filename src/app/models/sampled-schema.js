@@ -220,6 +220,7 @@ module.exports = Schema.extend({
         })
         .on('progress', function() {
           sampleCount++;
+          debug('progress', sampleCount);
           if (sampleCount % stepSize === 0) {
             var inc = (100 - status) * stepSize / numSamples;
             app.statusbar.width += inc;
@@ -230,7 +231,7 @@ module.exports = Schema.extend({
           onFail(analysisErr);
         })
         .on('data', function() {
-          if (sampleCount === numSamples) {
+          if (sampleCount >= numSamples) {
             return onEnd();
           }
           // workaround, as 'data' seems to be emitted even when sample stage
@@ -248,7 +249,11 @@ module.exports = Schema.extend({
       return;
     }
     this.is_fetching = false;
-    this.samplingStream.destroy();
+    // @todo thomasr, uncomment this line once we figured out why
+    // app.client.sample() is not emitting any events anymore.
+    // for now, we can use app.client.find instead.
+
+    // this.samplingStream.destroy();
     this.analyzingStream.destroy();
     app.statusbar.hide(true);
   },
