@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+process.env.DEBUG = '*';
+process.env.CI = process.env.EVERGREEN = '1';
+
 var cli = require('mongodb-js-cli')('mongodb-compass:scripts:postinstall');
 cli.yargs.usage('$0 [options]')
   .option('electron_version', {
@@ -34,6 +37,11 @@ var path = require('path');
 process.env.npm_config_disturl = 'https://atom.io/download/atom-shell';
 process.env.npm_config_target = argv.electron_version;
 process.env.npm_config_runtime = 'electron';
+
+if (process.platform === 'win32') {
+  cli.info('electron-rebuild on windows is broken :/');
+  process.exit(0);
+}
 
 /**
  * TODO (imlucas) switch to using `electron-rebuild` as a module for more
