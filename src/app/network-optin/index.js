@@ -13,12 +13,18 @@ var indexTemplate = jade.compileFile(path.resolve(__dirname, 'index.jade'));
 require('bootstrap/js/modal');
 require('bootstrap/js/transition');
 
+var NAME_TO_FEATURE_MAP = {
+  'crashReports': 'bugsnag',
+  'productFeedback': 'intercom',
+  'usageStats': 'googleAnalytics'
+};
+
 var NetworkOptInView = View.extend({
   template: indexTemplate,
   props: {
-    trackErrors: ['boolean', true, true],
-    enableFeedbackPanel: ['boolean', true, true],
-    trackUsageStatistics: ['boolean', true, true]
+    bugsnag: ['boolean', true, true],
+    intercom: ['boolean', true, true],
+    googleAnalytics: ['boolean', true, true]
   },
   session: {
     preferences: 'state',
@@ -33,17 +39,17 @@ var NetworkOptInView = View.extend({
     'click button[data-hook=start-button]': 'buttonClicked'
   },
   bindings: {
-    trackErrors: {
+    bugsnag: {
       type: 'booleanAttribute',
-      hook: 'track-errors-checkbox',
+      hook: 'crash-reports-checkbox',
       name: 'checked'
     },
-    enableFeedbackPanel: {
+    intercom: {
       type: 'booleanAttribute',
       hook: 'product-feedback-checkbox',
       name: 'checked'
     },
-    trackUsageStatistics: {
+    googleAnalytics: {
       type: 'booleanAttribute',
       hook: 'usage-stats-checkbox',
       name: 'checked'
@@ -58,24 +64,24 @@ var NetworkOptInView = View.extend({
       // first time, enable all checkboxes (but not features yet)
       debug('first time showing this dialog, propose to turn everything on');
       this.buttonTitle = 'Start Using Compass';
-      this.trackErrors = true;
-      this.enableFeedbackPanel = true;
-      this.trackUsageStatistics = true;
+      this.bugsnag = true;
+      this.intercom = true;
+      this.googleAnalytics = true;
     } else {
       debug('seen this dialog before, show the real settings');
       this.buttonTitle = 'Close';
-      this.trackErrors = app.preferences.trackErrors;
-      this.enableFeedbackPanel = app.preferences.enableFeedbackPanel;
-      this.trackUsageStatistics = app.preferences.trackUsageStatistics;
+      this.bugsnag = app.preferences.bugsnag;
+      this.intercom = app.preferences.intercom;
+      this.googleAnalytics = app.preferences.googleAnalytics;
     }
   },
   checkboxChanged: function(evt) {
-    var feature = evt.target.name;
+    var feature = NAME_TO_FEATURE_MAP[evt.target.name];
     var value = evt.target.checked;
     this.set(feature, value);
   },
   buttonClicked: function() {
-    var features = ['enableFeedbackPanel', 'trackUsageStatistics', 'trackErrors'];
+    var features = ['intercom', 'googleAnalytics', 'bugsnag'];
     this.preferences.set('showedNetworkOptIn', true);
     var settings = _.pick(this.serialize(), features);
     this.preferences.set(settings);
@@ -89,9 +95,9 @@ var NetworkOptInView = View.extend({
       this.remove();
     }.bind(this), 500);
     var metadata = {
-      'track usage stats': settings.trackUsageStatistics,
-      'product feedback': settings.enableFeedbackPanel,
-      'track errors': settings.trackErrors
+      'usage stats': settings.googleAnalytics,
+      'product feedback': settings.intercom,
+      'error reports': settings.bugsnag
     };
     metrics.track('Network Opt-in', 'used', metadata);
   },

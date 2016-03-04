@@ -5,9 +5,6 @@ var jade = require('jade');
 var path = require('path');
 
 var indexTemplate = jade.compileFile(path.resolve(__dirname, 'index.jade'));
-var app = require('ampersand-app');
-var semver = require('semver');
-var _ = require('lodash');
 
 // var debug = require('debug')('mongodb-compass:tour:index');
 
@@ -18,32 +15,13 @@ var TAB_KEY = 9;
 var ENTER_KEY = 13;
 var SPACE_KEY = 32;
 
-
-/**
- * The feature tour highlights some signature features of MongoDB Compass.
- * When Compass is started for the first time, it shows all the features in
- * below list that have the `initial` value set to true. This allows us to
- * highlight the top x (5?) features, especially when we add more features
- * over time.
- * The initial tour has a title of "Welcome to MongoDB Compass".
- *
- * When Compass has been run before and detects a version change, it will only
- * show the features that are newer than the previously ran version, and the
- * title will instead say: "What's New in MongoDB Compass". Now all features
- * since the last version are presented, the `initial` value is ignored.
- *
- * To add new features to the tour, simply add another object to the FEATURES
- * array below, and make sure the right version is set. This class will do
- * the rest.
- *
- * @type {Array}
- */
-var FEATURES = require('./features');
-
 var TourView = View.extend({
   session: {
     body: 'any',
-    features: 'array',
+    numFeatures: {
+      type: 'number',
+      default: 5
+    },
     tourCount: {
       type: 'number',
       default: 0
@@ -57,21 +35,6 @@ var TourView = View.extend({
     }
   },
   template: indexTemplate,
-  derived: {
-    previousVersion: {
-      deps: ['app.preferences.lastKnownVersion'],
-      fn: function() {
-        return app.preferences.lastKnownVersion;
-      }
-    },
-    title: {
-      deps: ['previousVersion'],
-      fn: function() {
-        return this.previousVersion === '0.0.0' ?
-          'Welcome to MongoDB Compass' : 'What\'s New in MongoDB Compass';
-      }
-    }
-  },
   events: {
     'click #features ul': 'showFeature',
     'click .previous-slide': 'showPreviousFeature',
@@ -79,11 +42,6 @@ var TourView = View.extend({
     'click #tour-remove': 'tourRemove',
     'click .tour-close-button': 'tourRemove',
     'click #tour-bg': 'tourRemove'
-  },
-  bindings: {
-    title: {
-      hook: 'title'
-    }
   },
   onKeyPress: function(evt) {
     if (evt.keyCode === ESC_KEY) {
@@ -96,24 +54,18 @@ var TourView = View.extend({
       this.showPreviousFeature();
     }
   },
-  initialize: function(options) {
+  initialize: function() {
     this.onKeyPress = this.onKeyPress.bind(this);
-    this.features = _.filter(FEATURES, function(feature) {
-      return (options.force && feature.initial)
-        || (this.previousVersion === '0.0.0' && feature.initial)
-        || (this.previousVersion !== '0.0.0' && semver.gt(feature.version, this.previousVersion));
-    }.bind(this));
+    this.body = document.getElementsByTagName('body')[0];
+    this.body.addEventListener('keydown', this.onKeyPress);
   },
   render: function() {
     this.renderWithTemplate(this);
-    this.body = document.getElementsByTagName('body')[0];
-    this.body.addEventListener('keydown', this.onKeyPress);
     this.$featuresUL = this.query('#features ul');
     this.$featuresLI = this.queryAll('#features li');
     this.$animationGIF = this.query('#animation-gif');
     this.$tourRemove = this.query('#tour-remove');
     this.timeAtStart = new Date();
-    _.defer(this.showHidePreviousNextButtons.bind(this));
   },
   showHidePreviousNextButtons: function() {
     if (this.tourCount === 0) {
@@ -122,7 +74,7 @@ var TourView = View.extend({
       $('.previous-slide').removeClass('hide');
     }
 
-    if (this.tourCount === this.features.length - 1) {
+    if (this.tourCount === 4) {
       $('.next-slide').addClass('hide');
       $('#tour-remove').removeClass('hide');
     } else {
@@ -147,10 +99,11 @@ var TourView = View.extend({
     ev.target.className = 'selected';
 
     $('#animation-gif').one('webkitTransitionEnd', function() {
-      that.$animationGIF.src = path.join(that.tourImagesFolder, that.features[nFeature].image);
+      that.$animationGIF.src = that.tourImagesFolder + ev.target.id + '.gif';
       $('#animation-gif').css('opacity', '1');
     });
     $('#animation-gif').css('opacity', '0');
+
     $('.feature-content#f' + nFeature + '-content').addClass('active');
 
     this.tourCount = nFeature;
@@ -171,17 +124,18 @@ var TourView = View.extend({
     $('#features li#f' + previousFeature).addClass('selected');
 
     $('#animation-gif').one('webkitTransitionEnd', function() {
-      that.$animationGIF.src = path.join(that.tourImagesFolder, that.features[previousFeature].image);
+      that.$animationGIF.src = that.tourImagesFolder + 'f' + previousFeature + '.gif';
       $('#animation-gif').css('opacity', '1');
     });
     $('#animation-gif').css('opacity', '0');
+
     $('.feature-content#f' + previousFeature + '-content').addClass('active');
 
     this.tourCount = previousFeature;
     this.showHidePreviousNextButtons();
   },
   showNextFeature: function() {
-    if (this.tourCount >= this.features.length - 1) {
+    if (this.tourCount >= this.numFeatures - 1) {
       return;
     }
     var nextFeature = this.tourCount + 1;
@@ -195,10 +149,11 @@ var TourView = View.extend({
     $('#features li#f' + nextFeature).addClass('selected');
 
     $('#animation-gif').one('webkitTransitionEnd', function() {
-      that.$animationGIF.src = path.join(that.tourImagesFolder, that.features[nextFeature].image);
+      that.$animationGIF.src = that.tourImagesFolder + 'f' + nextFeature + '.gif';
       $('#animation-gif').css('opacity', '1');
     });
     $('#animation-gif').css('opacity', '0');
+
     $('.feature-content#f' + nextFeature + '-content').addClass('active');
 
     this.tourCount = nextFeature;

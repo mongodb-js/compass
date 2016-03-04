@@ -111,7 +111,6 @@
     "raf": "^3.1.0",
     "run-sequence": "^1.1.4",
     "run-series": "^1.1.4",
-    "semver": "^5.1.0",
     "storage-mixin": "^0.5.1",
     "stream-combiner2": "^1.1.1",
     "uuid": "^2.0.1",
