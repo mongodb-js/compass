@@ -12,13 +12,6 @@ const Events = {
 };
 
 /**
- * Constants for routes.
- */
-const Routes = {
-  '/instance': 'instance'
-};
-
-/**
  * Instantiate a new DataService object.
  *
  * @constructor
@@ -90,11 +83,9 @@ class DataService extends EventEmitter {
    * @param {Object} options - The options.
    * @param {function} callback - The callback.
    */
-  get(url, options, callback) {
-    console.log(url);
-    console.log(options);
-    this[Routes[url]].call(this, options, callback);
-  }
+  // get(url, options, callback) {
+    // console.log(url);
+  // }
 
   /**
    * Get the current instance details.
