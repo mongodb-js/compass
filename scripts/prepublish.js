@@ -358,7 +358,7 @@ function writeLicenseFile(done) {
       return done(err);
     }
 
-    fs.writeFile(path.join(CONFIG.appPath, 'LICENSE'), contents, done);
+    fs.writeFile(path.join(CONFIG.appPath, '..', 'LICENSE'), contents, done);
   });
 }
 
@@ -367,7 +367,7 @@ function writeLicenseFile(done) {
  * @api public
  */
 function writeVersionFile(done) {
-  fs.writeFile(path.join(CONFIG.appPath, 'version'), pkg.version, done);
+  fs.writeFile(path.join(CONFIG.appPath, '..', 'version'), pkg.version, done);
 }
 
 /**
