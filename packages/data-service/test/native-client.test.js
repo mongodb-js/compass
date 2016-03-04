@@ -91,6 +91,17 @@ describe('NativeClient', function() {
     });
   });
 
+  describe('#databaseDetail', function() {
+    it('returns the database details', function(done) {
+      client.databaseDetail('data-service', function(err, database) {
+        assert.equal(null, err);
+        expect(database._id).to.equal('data-service');
+        expect(database.stats.document_count).to.equal(0);
+        done();
+      });
+    });
+  });
+
   describe('#databaseStats', function() {
     context('when the user is authorized', function() {
       it('returns an object with the db stats', function(done) {

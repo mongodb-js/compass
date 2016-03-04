@@ -46,8 +46,23 @@ class NativeClient {
     this._collection(ns).count(filter, options, callback);
   }
 
-  // database(name, callback) {
-  // }
+  /**
+   * Get the kitchen sink information about a database and all its collections.
+   *
+   * @param {String} name - The database name.
+   * @param {Function} callback - The callback.
+   */
+  databaseDetail(name, callback) {
+    async.parallel({
+      stats: this.databaseStats.bind(this, name),
+      collections: this.collections.bind(this, name)
+    }, (error, db) => {
+      if (error) {
+        return callback(error);
+      }
+      callback(null, this._buildDatabaseDetail(name, db));
+    });
+  }
 
   /**
    * Get the stats for all collections in the database.
@@ -185,6 +200,15 @@ class NativeClient {
     };
   }
 
+  _buildDatabaseDetail(name, db) {
+    return {
+      _id: name,
+      name: name,
+      stats: db.stats,
+      collections: db.collections
+    };
+  }
+
   /**
    * @todo: Durran: User JS style for keys, make builder.
    *
@@ -235,6 +259,13 @@ class NativeClient {
     return ns.split('.')[0];
   }
 
+  /**
+   * Get the database for the name.
+   *
+   * @param {String} name - The database name.
+   *
+   * @returns {DB} The database object.
+   */
   _database(name) {
     return this.database.db(name);
   }
