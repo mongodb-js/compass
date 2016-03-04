@@ -128,7 +128,7 @@
     "electron-installer-codesign": "^0.1.1",
     "electron-installer-dmg": "^0.1.0",
     "electron-installer-run": "^0.1.1",
-    "electron-installer-squirrel-windows": "^1.3.0",
+    "electron-installer-squirrel-windows": "1.2.2",
     "electron-license": "^0.1.0",
     "electron-mocha": "^0.8.0",
     "electron-packager": "^5.1.1",
