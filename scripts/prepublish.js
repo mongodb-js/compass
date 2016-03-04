@@ -1,9 +1,18 @@
 #!/usr/bin/env node
+process.env.NODE_ENV = 'production';
 
 var pkg = require('../package.json');
 var format = require('util').format;
-var inInstall = require('in-publish').inInstall();
+var path = require('path');
 
+/**
+ * TODO (imlucas) Document and use yargs environment variable support.
+ * @see http://yargs.js.org/docs/#methods-envprefix
+ */
+/**
+ * TODO (imlucas) Add examples
+ * @see http://yargs.js.org/docs/#methods-examplecmd-desc
+ */
 var cli = require('mongodb-js-cli')('mongodb-compass:scripts:prepublish');
 cli.yargs.usage('$0 [options]')
   .option('verbose', {
@@ -29,8 +38,8 @@ cli.yargs.usage('$0 [options]')
     describe: 'What version of the application are we building?',
     default: process.env.npm_package_version || pkg.version
   })
-  .option('name', {
-    describe: 'What is the dasherized name of the application?',
+  .option('internal_name', {
+    describe: 'What is the kebab cased name of the application?',
     default: process.env.npm_package_name || pkg.name
   })
   .option('product_name', {
@@ -41,198 +50,297 @@ cli.yargs.usage('$0 [options]')
     describe: 'What is the description of the application we should display to humans?',
     default: process.env.npm_package_description || pkg.description
   })
+  .option('channel', {
+    describe: 'What release channel is this build for?',
+    choices: ['testing', 'beta', 'stable'],
+    default: 'testing'
+  })
+  .option('electron_compile_cache', {
+    describe: 'What directory should electron-compile use for caching compilation artifacts?',
+    default: path.join(__dirname, '..', 'build', 'electron-compile-cache')
+  })
+  .option('sign', {
+    describe: 'Should this build be signed?',
+    type: 'boolean',
+    default: true
+  })
   .help('help')
   .epilogue('a.k.a `npm run release`');
 
 if (cli.argv.verbose) {
   process.env.DEBUG = '*';
 }
+
+/**
+ * TODO (imlucas) Duplicate this `electron_compile_cache` option in `./scripts/start.js`
+ * and `./scripts/postuninstall.js` so its consistent across lifecycle scripts.
+ */
+process.env.TEMP = cli.argv.electron_compile_cache;
+
+var ELECTRON_COMPILE_CACHE = path.join(__dirname, '..', '.cache');
+var ELECTRON_COMPILE_BIN = path.join(__dirname, '..', 'node_modules', '.bin', 'electron-compile');
+
+var inInstall = require('in-publish').inInstall();
 var del = require('del');
-var path = require('path');
-var fs = require('fs');
+var fs = require('fs-extra');
 var license = require('electron-license');
 var _ = require('lodash');
 var async = require('async');
+var series = require('async').series;
 var packager = require('electron-packager');
+var run = require('electron-installer-run');
 
-var CONFIG = {
-  name: 'MongoDBCompass',
-  dir: path.join(__dirname, '..'),
-  out: path.join(__dirname, '..', 'dist'),
+/* eslint */
+var DIR = path.join(__dirname, '..');
+var OUT = path.join(__dirname, '..', 'dist');
+
+var BASENAME = cli.argv.product_name;// 'MongoDB Compass';
+
+var OSX_APPNAME = BASENAME;
+var OSX_OUT_X64 = path.join(OUT, format('%s-darwin-x64', OSX_APPNAME));
+var OSX_DOT_APP = path.join(OSX_OUT_X64, format('%s.app', OSX_APPNAME));
+var OSX_DOT_APP_ESCAPED = OSX_DOT_APP.replace(/ /g, '\\ ').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
+var OSX_IDENTITY = 'Developer ID Application: Matt Kangas (ZD3CL9MT3L)';
+var OSX_IDENTITY_SHA1 = '90E39AA7832E95369F0FC6DAF823A04DFBD9CF7A';
+var OSX_RESOURCES = path.join(OSX_DOT_APP, 'Contents', 'Resources');
+var OSX_EXECUTABLE = path.join(OSX_DOT_APP, 'Contents', 'MacOS', 'Electron');
+var OSX_ICON = path.resolve(__dirname, format('../src/app/images/darwin/%s.icns', cli.argv.internal_name));
+var OSX_OUT_DMG = path.join(OUT, format('%s.dmg', OSX_APPNAME));
+
+var WINDOWS_APPNAME = BASENAME;
+var WINDOWS_OUT_X64 = path.join(OUT, format('%s-win32-x64', WINDOWS_APPNAME));
+var WINDOWS_RESOURCES = path.join(WINDOWS_OUT_X64, 'resources');
+var WINDOWS_EXECUTABLE = path.join(WINDOWS_OUT_X64, format('%s.exe', _.capitalize(WINDOWS_APPNAME)));
+var WINDOWS_ICON = path.resolve(__dirname, format('../src/images/win32/%s.ico', cli.argv.internal_name));
+var WINDOWS_SIGNTOOL_PARAMS = process.env.SIGNTOOL_PARAMS;
+
+var LINUX_APPNAME = BASENAME;
+var LINUX_OUT_X64 = path.join(OUT, format('%s-linux-x64', _.kebabCase(LINUX_APPNAME))); // aka APP_PATH
+var LINUX_EXECUTABLE = path.join(LINUX_OUT_X64, _.kebabCase(LINUX_APPNAME));
+var LINUX_RESOURCES = path.join(LINUX_OUT_X64, 'resources');
+
+
+/**
+ * Build the options object to pass to `electron-packager`
+ * and various `electron-installer-*` modules.
+ */
+var CONFIG = {};
+_.assign(CONFIG, {
+  name: BASENAME,
+  dir: DIR,
+  out: OUT,
   overwrite: true,
   'app-copyright': format('%s MongoDB Inc.', new Date().getFullYear()),
   'build-version': cli.argv.version,
   'app-version': cli.argv.version,
-  // asar: true,
   'asar-unpack-directory': 'app',
-  prune: true,
-  ignore: new RegExp('node_modules/|.cache/|dist/|test/|scripts/')
-};
-
-_.assign(CONFIG, {
+  ignore: new RegExp('node_modules/|.cache/|dist/|test/|scripts/'),
   platform: cli.argv.platform,
   arch: cli.argv.arch,
-  version: cli.argv.electron_version
-});
-
-if (cli.argv.platform === 'win32') {
-  var APP_PATH = path.resolve(__dirname, '../dist/MongoDBCompass-win32-x64');
-  var ELECTRON = path.join(APP_PATH, 'MongoDBCompass.exe');
-  var RESOURCES = path.join(APP_PATH, 'resources');
-  var HOME = APP_PATH;
-
-  CONFIG['version-string'] = {
+  version: cli.argv.electron_version,
+  'version-string': {
     CompanyName: 'MongoDB Inc.',
     FileDescription: cli.argv.description,
     ProductName: cli.argv.product_name,
     InternalName: cli.argv.name
-  };
-
-  CONFIG.icon = path.resolve(__dirname, '../src/images/win32/mongodb-compass.ico');
-
-  CONFIG.sign_with_params = process.env.SIGNTOOL_PARAMS;
-  if (CONFIG.sign_with_params) {
-    cli.ok(format('This build will be signed using `signtool.exe` with params `%s`',
-      CONFIG.sign_with_params));
-  }
-
-
-
-  CONFIG.createInstaller = require('electron-installer-squirrel-windows').bind(null, CONFIG);
-} else if (cli.argv.platform === 'darwin') {
-  CONFIG.name = cli.argv.product_name;
-  var NAME = cli.argv.product_name;
-  var PACKAGE = path.join('dist', NAME + '-darwin-x64');
-  var APP_PATH = path.join(PACKAGE, NAME + '.app');
-  var ELECTRON = path.join(APP_PATH, 'Contents', 'MacOS', 'Electron');
-  var RESOURCES = path.resolve(APP_PATH, 'Contents', 'Resources');
-  var HOME = PACKAGE;
-
-  _.assign(CONFIG, {
-    icon: path.resolve(__dirname, '../src/app/images/darwin/mongodb-compass.icns'),
-    'app-bundle-id': 'com.mongodb.compass',
-    'app-version': cli.argv.version,
-    /**
-     * @see http://bit.ly/LSApplicationCategoryType
-     */
-    'app-category-type': 'public.app-category.productivity',
-    protocols: [
-      {
-        name: 'MongoDB Prototcol',
-        schemes: ['mongodb']
-      }
-    ]
-  });
-  _.assign(CONFIG, {
-    appPath: APP_PATH,
-    background: path.resolve(__dirname, '../src/app/images/darwin/background.png'),
-    // The following only modifies "x","y" values from defaults
-    contents: [
-      {
-        x: 450,
-        y: 344,
-        type: 'link',
-        path: '/Applications'
-      },
-      {
-        x: 192,
-        y: 344,
-        type: 'file',
-        path: path.resolve(process.cwd(), APP_PATH)
-      }
-    ]
-  });
-
+  },
   /**
-   * TODO (imlucas) Move these to cli options.
+   * TODO (imlucas) Move to a cli option: `com_id`?
    */
-  CONFIG.CODESIGN_IDENTITY_COMMON_NAME = 'Developer ID Application: Matt Kangas (ZD3CL9MT3L)';
-  CONFIG.CODESIGN_IDENTITY_SHA1 = '90E39AA7832E95369F0FC6DAF823A04DFBD9CF7A';
+  'app-bundle-id': 'com.mongodb.compass',
+  /**
+   * TODO (imlucas) Move to a cli option:
+   * `.option('category', {choices: ['productivity', <others from http://bit.ly/LSApplicationCategoryType>]}`
+   * @see http://bit.ly/LSApplicationCategoryType
+   */
+  'app-category-type': 'public.app-category.productivity',
+  protocols: [
+    {
+      name: 'MongoDB Prototcol',
+      schemes: ['mongodb']
+    }
+  ],
+  createInstaller: function(done) {
+    return done(new TypeError('createInstaller not defined for this platform!'));
+  }
+});
 
+if (cli.argv.platform === 'win32') {
+  _.assign(CONFIG, {
+    icon: WINDOWS_ICON,
+    sign_with_params: WINDOWS_SIGNTOOL_PARAMS,
+    createInstaller: require('electron-installer-squirrel-windows').bind(null, CONFIG),
+    appPath: WINDOWS_OUT_X64,
+    resources: WINDOWS_RESOURCES,
+    executable: WINDOWS_EXECUTABLE
+  });
+  cli.info('Windows is the target platform and has the config: ' + JSON.stringify(CONFIG, null, 2));
+}
+
+if (cli.argv.platform === 'darwin') {
   var createDMG = require('electron-installer-dmg');
   var codesign = require('electron-installer-codesign');
-  CONFIG.createInstaller = function(done) {
-    cli.debug('creating installer...');
+
+  var OSX_CREATE_INSTALLER = function(done) {
+    cli.info('Creating `.dmg` installer');
 
     var tasks = [];
-    codesign.isIdentityAvailable(CONFIG.CODESIGN_IDENTITY_COMMON_NAME, function(err, available) {
+    codesign.isIdentityAvailable(OSX_IDENTITY, function(err, available) {
       if (err) {
         return done(err);
       }
-      if (available) {
+      if (available && cli.argv.sign) {
         tasks.push(_.partial(codesign, {
-          identity: CONFIG.CODESIGN_IDENTITY_SHA1,
-          appPath: APP_PATH
+          identity: OSX_IDENTITY_SHA1,
+          appPath: OSX_DOT_APP
         }));
       } else {
         codesign.printWarning();
       }
 
       tasks.push(_.partial(createDMG, CONFIG));
-      async.series(tasks, function(_err) {
+      series(tasks, function(_err) {
         if (_err) {
           return done(_err);
         }
-        done(null, path.join(CONFIG.out, CONFIG.name + '.dmg'));
+        done(null, OSX_OUT_DMG);
       });
     });
-  }
-} else {
-  var APP_PATH = path.resolve(__dirname, '../dist/MongoDBCompass-linux-x64');
-  var ELECTRON = path.join(APP_PATH, 'MongoDBCompass');
-  var RESOURCES = path.join(APP_PATH, 'resources');
-  var HOME = APP_PATH;
-
-  CONFIG.createInstaller = function(done) {
-    cli.warn('Linux installers coming soon!');
-    done();
   };
+
+  _.assign(CONFIG, {
+    icon: OSX_ICON,
+    appPath: OSX_DOT_APP,
+    resources: OSX_RESOURCES,
+    executable: OSX_EXECUTABLE,
+    /**
+     * Background image for `.dmg`.
+     * @see http://npm.im/electron-installer-dmg
+     */
+    background: path.resolve(__dirname, '../src/app/images/darwin/background.png'),
+    /**
+     * Layout for `.dmg`.
+     * The following only modifies "x","y" values from defaults.
+     * @see http://npm.im/electron-installer-dmg
+     */
+    contents: [
+      /**
+       * Show a shortcut on the right to `Applications` folder.
+       */
+      {
+        x: 450,
+        y: 344,
+        type: 'link',
+        path: '/Applications'
+      },
+      /**
+       * Show a shortcut on the left for the application icon.
+       */
+      {
+        x: 192,
+        y: 344,
+        type: 'file',
+        path: OSX_DOT_APP
+      }
+    ],
+    createInstaller: OSX_CREATE_INSTALLER
+  });
+  cli.info('OS X is the target platform and has the config: ' + JSON.stringify(CONFIG, null, 2));
+} else {
+  _.assign(CONFIG, {
+    resources: LINUX_RESOURCES,
+    executable: LINUX_EXECUTABLE,
+    createInstaller: function(done) {
+      cli.warn('Linux installers coming soon!');
+      done();
+    }
+  });
+  cli.info('Linux is the target platform and has the config: ' + JSON.stringify(CONFIG, null, 2));
 }
 
-cli.debug('CONFIG is', '%j', CONFIG);
+if (CONFIG.sign_with_params) {
+  cli.info(format('This build will be signed using `signtool.exe` with params `%s`',
+    CONFIG.sign_with_params));
+}
 
 /**
- * TODO (imlucas) Break these up into yargs subcommands.
+ * TODO (imlucas) Make each of the `@public` functions below available
+ * as yargs commands so we can easily test just 1 piece of the entire flow.
  */
 
 /**
- * ## Create Application
+ * ## 1. Create Application
  *
  * Run `electron-packager`
+ *
+ * @param {Function} done
+ * @api public
  */
 function createBrandedApplication(done) {
   cli.debug('running electron-packager to create branded application');
-  fs.exists(APP_PATH, function(exists) {
+  fs.exists(CONFIG.appPath, function(exists) {
     if (exists) {
-      cli.debug('`%s` already exists.  skipping packager run.', APP_PATH);
+      cli.debug('`%s` already exists.  skipping packager run.', CONFIG.appPath);
       return done(null, false);
     }
     packager(CONFIG, function(err, res) {
       if (err) {
         return done(err);
       }
-      cli.debug('Packager result', res);
+      cli.ok('Packager result is: ' + JSON.stringify(res, null, 2));
       done(null, true);
     });
   });
 }
 
+/**
+ * ## 2. Cleanup scaffold
+ *
+ * For some platforms, there will be extraneous (to us) folders generated
+ * we can remove to make the generated branded app less cluttered and easier
+ * to debug.
+ *
+ * @param {Function} done
+ * @api public
+ */
 function cleanupBrandedApplicationScaffold(done) {
-  if (CONFIG.platform === 'darwin') {
-    // rm -r ../dist/MongoDB\ Compass-darwin-x64/MongoDB\ Compass.app/Contents/Resources/*.lproj
-    cli.info('cleaning up extraneous files generated by packager ' +  RESOURCES + '/*.lproj');
-    return del(RESOURCES + '/*.proj').then(function(){
+  if (CONFIG.platform !== 'darwin') {
+    done(null, true);
+  } else {
+    var globsToDelete = [
+      path.join(OSX_DOT_APP_ESCAPED, 'Contents', 'Resources', '*.lproj')
+    ];
+    cli.info('cleaning up extraneous files generated by packager ' + JSON.stringify(globsToDelete, null, 2));
+    del(globsToDelete).then(function() {
       done(null, true);
     });
   }
-  done(null, true);
 }
 
 /**
- * ## Installers
+ *
+ * @param {Function} done
  */
-function createBrandedInstaller(done) {
-  CONFIG.createInstaller(done);
+function compileApplicationUI(done) {
+  var DEST = path.join(CONFIG.resources, 'app', '.cache');
+  function runElectronCompile(cb) {
+    var args = [
+      '--appDir',
+      path.resolve(__dirname, '..'),
+      path.resolve(__dirname, '..', 'src')
+    ];
+
+    run(ELECTRON_COMPILE_BIN, args, {env: process.env}, cb);
+  }
+
+  cli.info('Compiling application UI');
+
+  async.series([
+    fs.remove.bind(null, DEST),
+    fs.remove.bind(null, ELECTRON_COMPILE_CACHE),
+    runElectronCompile,
+    fs.move.bind(null, ELECTRON_COMPILE_CACHE, DEST)
+  ], done);
 }
 
 /**
@@ -240,6 +348,7 @@ function createBrandedInstaller(done) {
  *
  * Run after `createBrandedApplication` but before
  * `createBrandedInstaller`.
+ * @param {Function} done
  */
 function writeLicenseFile(done) {
   license.build({
@@ -249,12 +358,16 @@ function writeLicenseFile(done) {
       return done(err);
     }
 
-    fs.writeFile(path.join(HOME, 'LICENSE'), contents, done);
+    fs.writeFile(path.join(CONFIG.appPath, 'LICENSE'), contents, done);
   });
 }
 
+/**
+ * @param {Function} done
+ * @api public
+ */
 function writeVersionFile(done) {
-  fs.writeFile(path.join(HOME, 'version'), pkg.version, done);
+  fs.writeFile(path.join(CONFIG.appPath, 'version'), pkg.version, done);
 }
 
 /**
@@ -263,26 +376,106 @@ function writeVersionFile(done) {
  * - remove all `scripts`
  * - merge buildinfo.json into it
  * - this will serve as the `config.json` referenced in JIRA tickets!
+ *
+ * @param {Function} done
+ * @api public
  */
 function transformPackageJson(done) {
-  done();
+  var contents = _.clone(pkg);
+  delete contents.scripts;
+  delete contents.devDependencies;
+  delete contents['dependency-check'];
+  delete contents.repository;
+  delete contents.check;
+
+  /**
+   * TODO (imlucas) Because we're shipping the compiled application UI,
+   * we can also safely delete large packages that won't actually be used.
+   * There are lots of others.  This is just to experiment and see how much
+   * time/space can be saved.
+   */
+  contents.config = {
+    NODE_ENV: process.env.NODE_ENV,
+    build_time: new Date().toISOString(),
+    channel: cli.argv.channel
+  };
+
+  cli.info('Writing package.json: ' + JSON.stringify(contents, null, 2));
+  fs.writeJson(path.join(CONFIG.resources, 'app', 'package.json'), contents, done);
 }
 
+function installDependencies(done) {
+  var args = [
+    'install',
+    '--loglevel',
+    'info',
+    '--production'
+  ];
+  cli.info('Running npm install');
+  var opts = {
+    env: process.env,
+    cwd: path.join(CONFIG.resources, 'app')
+  };
+  run('npm', args, opts, done);
+}
+
+function finalizeApplication(done) {
+  // var globsToDelete = [
+  //   path.join(OSX_DOT_APP_ESCAPED, 'Contents', 'Resources', '*.lproj')
+  // ];
+  var DOT_FILES = [
+    '.DS_Store',
+    '.eslint*',
+    '.evergreen*',
+    '.travis*',
+    '.npm*',
+    '.jsfmt*',
+    '.git*'
+  ];
+  var globsToDelete = [
+    path.join(CONFIG.resources, 'app', 'test'),
+    path.join(CONFIG.resources, 'app', 'scripts'),
+    path.join(CONFIG.resources, 'app', '{' + DOT_FILES.join(',') + '}')
+  ];
+
+  cli.info('removing extraneous files' + JSON.stringify(globsToDelete, null, 2));
+  del(globsToDelete).then(function() {
+    done(null, true);
+  });
+}
+
+/**
+ * ## Installers
+ *
+ * @param {Function} done
+ * @api public
+ */
+function createBrandedInstaller(done) {
+  CONFIG.createInstaller(done);
+}
+
+/**
+ * ## Main
+ */
 if (inInstall) {
   cli.info('noop.  @see http://bit.ly/npm-prepublish-flaws');
   process.exit(0);
-}
+} else {
+  cli.spinner('Creating installer');
 
-cli.spinner('Creating installer')
-async.series([
-  createBrandedApplication,
-  cleanupBrandedApplicationScaffold,
-  writeLicenseFile,
-  writeVersionFile,
-  transformPackageJson,
-  createBrandedInstaller
-], function(err, res) {
-  cli.abortIfError(err);
-  var installerPath = res.pop();
-  cli.ok(format('Installer successfully written to `%s`.', installerPath));
-});
+  async.series([
+    createBrandedApplication,
+    cleanupBrandedApplicationScaffold,
+    compileApplicationUI,
+    writeLicenseFile,
+    writeVersionFile,
+    transformPackageJson,
+    installDependencies,
+    finalizeApplication,
+    createBrandedInstaller
+  ], function(err, res) {
+    cli.abortIfError(err);
+    var installerPath = res.pop();
+    cli.ok(format('Installer successfully written to `%s`.', installerPath));
+  });
+}
