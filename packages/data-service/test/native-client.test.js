@@ -6,13 +6,13 @@ var expect = helper.expect;
 var NativeClient = require('../lib/native-client');
 
 describe('NativeClient', function() {
-  var client = null;
+  var client = new NativeClient(helper.connection);
 
   before(require('mongodb-runner/mocha/before')({ port: 27018 }));
   after(require('mongodb-runner/mocha/after')());
 
-  before(function() {
-    client = new NativeClient(helper.connection);
+  before(function(done) {
+    client.connect(done);
   });
 
   describe('#new', function() {
@@ -23,14 +23,11 @@ describe('NativeClient', function() {
 
   describe('#databases', function() {
     it('returns a list of the available databases', function(done) {
-      client.connect(function(error, c) {
-        assert.equal(null, error);
-        c.databases(function(err, dbs) {
-          assert.equal(null, err);
-          var databases = dbs.databases;
-          expect(databases[0].name).to.equal('local');
-          done();
-        });
+      client.databases(function(err, dbs) {
+        assert.equal(null, err);
+        var databases = dbs.databases;
+        expect(databases[0].name).to.equal('local');
+        done();
       });
     });
   });

@@ -74,6 +74,21 @@ class NativeClient {
     this.collection(ns).count(filter, options, callback);
   }
 
+  // database(name) {
+  // }
+  //
+  // databaseStats(name) {
+  //
+  // }
+  //
+  // collections(ns) {
+  //
+  // }
+  //
+  // collectionNames() {
+  //
+  // }
+
   /**
    * Get a list of databases for the server.
    *
