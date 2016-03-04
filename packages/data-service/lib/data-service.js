@@ -1,6 +1,7 @@
 'use strict';
 
 const NativeClient = require('./native-client');
+const Router = require('./router');
 const EventEmitter = require('events');
 
 /**
@@ -28,6 +29,7 @@ class DataService extends EventEmitter {
   constructor(model) {
     super();
     this.client = new NativeClient(model);
+    this.router = new Router();
   }
 
   /**
@@ -56,15 +58,6 @@ class DataService extends EventEmitter {
   }
 
   /**
-   * Get a list of databases for the server.
-   *
-   * @param {function} callback - The callback function.
-   */
-  databases(callback) {
-    this.client.databases(callback);
-  }
-
-  /**
    * Find documents for the provided filter and options on the collection.
    *
    * @param {string} ns - The namespace to search on.
@@ -82,10 +75,14 @@ class DataService extends EventEmitter {
    * @param {String} url - The RESTful url.
    * @param {Object} options - The options.
    * @param {function} callback - The callback.
+   *
+   * @return {Object} The result of the delegated call.
    */
-  // get(url, options, callback) {
-    // console.log(url);
-  // }
+  get(url, options, callback) {
+    var route = this.router.resolve(url);
+    var args = this._generateArguments(route.args, options, callback);
+    return this[route.method].apply(this, args);
+  }
 
   /**
    * Get the current instance details.
@@ -106,6 +103,25 @@ class DataService extends EventEmitter {
    */
   sample(ns, options) {
     return this.client.sample(ns, options);
+  }
+
+  /**
+   * When Node supports ES6 default values for arguments, this can go away.
+   *
+   * @param {Array} args - The route arguments.
+   * @param {Object} options - The options passed to the method.
+   * @param {Function} callback - The callback.
+   *
+   * @return {Array} The generate arguments.
+   */
+  _generateArguments(args, options, callback) {
+    options = options || {};
+    if (typeof options === 'function') {
+      callback = options;
+      options = {};
+    }
+    args.push.apply(args, [options, callback]);
+    return args;
   }
 }
 

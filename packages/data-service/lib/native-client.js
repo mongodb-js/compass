@@ -78,6 +78,8 @@ class NativeClient {
    * Get a list of databases for the server.
    *
    * @param {function} callback - The callback function.
+   *
+   * @todo: Remove.
    */
   databases(callback) {
     this.database.admin().listDatabases(callback);

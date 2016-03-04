@@ -44,29 +44,62 @@ class Router {
    */
   constructor() {
     this.routes = [];
-    this.init();
+    this._init();
+  }
+
+  /**
+   * Resolve the route for the provided URL fragment.
+   *
+   * @param {String} fragment - The URL fragment.
+   *
+   * @return {Object} The route object.
+   */
+  resolve(fragment) {
+    var route = null;
+    this.routes.every((rule) => {
+      if (rule.regex.test(fragment)) {
+        route = { method: rule.method, args: this._params(rule, fragment) };
+        return false;
+      }
+      return true;
+    });
+    if (!route) {
+      throw new Error(`No route found for ${fragment}`);
+    }
+    return route;
   }
 
   /**
    * Initialize the Router, called in the constructor.
    *
-   * @api private
+   * This sets the routes as an object with spec, method, and regex keys.
    */
-  init() {
+  _init() {
     Object.keys(Routes).map((spec) => {
-      var regex = spec
-        .replace(ESCAPE, '\\$&')
-        .replace(OPTIONAL_PARAMETER, '(?:$1)?')
-        .replace(NAMED_PARAMETER, (match, optional) => {
-          return optional ? match : '([^/?]+)';
-        })
-        .replace(SPLAT_PARAMETER, '([^?]*?)');
+      var regex = this._parse(spec);
       this.routes.push({
         spec: spec,
         method: Routes[spec],
         regex: new RegExp('^' + regex + '(?:\\?([\\s\\S]*))?$')
       });
     });
+  }
+
+  /**
+   * Parse the specification.
+   *
+   * @param {String} spec - The route specification.
+   *
+   * @returns {Regex} The regular expression to match the spec.
+   */
+  _parse(spec) {
+    return spec
+      .replace(ESCAPE, '\\$&')
+      .replace(OPTIONAL_PARAMETER, '(?:$1)?')
+      .replace(NAMED_PARAMETER, (match, optional) => {
+        return optional ? match : '([^/?]+)';
+      })
+      .replace(SPLAT_PARAMETER, '([^?]*?)');
   }
 
   /**
@@ -77,7 +110,7 @@ class Router {
    *
    * @returns {Array} The parameters.
    */
-  params(route, fragment) {
+  _params(route, fragment) {
     var p = route.regex.exec(fragment).slice(1);
     if (!p[0]) {
       return [];
@@ -92,27 +125,6 @@ class Router {
     });
   }
 
-  /**
-   * Resolve the route for the provided URL fragment.
-   *
-   * @param {String} fragment - The URL fragment.
-   *
-   * @return {Object} The route object.
-   */
-  resolve(fragment) {
-    var route = null;
-    this.routes.every((rule) => {
-      if (rule.regex.test(fragment)) {
-        route = { method: rule.method, args: this.params(rule, fragment) };
-        return false;
-      }
-      return true;
-    });
-    if (!route) {
-      throw new Error(`No route found for ${fragment}`);
-    }
-    return route;
-  }
 }
 
 module.exports = Router;
