@@ -12,36 +12,6 @@ const createSampleStream = require('mongodb-collection-sample');
 class NativeClient {
 
   /**
-   * Get the collection name from a namespace.
-   *
-   * @param {string} ns - The namespace in database.collection format.
-   * @returns {string} The collection name.
-   */
-  collectionName(ns) {
-    return ns.split('.')[1];
-  }
-
-  /**
-   * Get the database name from a namespace.
-   *
-   * @param {string} ns - The namespace in database.collection format.
-   * @returns {string} The database name.
-   */
-  databaseName(ns) {
-    return ns.split('.')[0];
-  }
-
-  /**
-   * Get the collection to operate on.
-   *
-   * @param {string} ns - The namespace.
-   * @returns {Collection} The collection.
-   */
-  collection(ns) {
-    return this.database.db(this.databaseName(ns)).collection(this.collectionName(ns));
-  }
-
-  /**
    * Instantiate a new NativeClient object.
    *
    * @constructor
@@ -73,7 +43,7 @@ class NativeClient {
    * @param {function} callback - The callback function.
    */
   count(ns, filter, options, callback) {
-    this.collection(ns).count(filter, options, callback);
+    this._collection(ns).count(filter, options, callback);
   }
 
   // database(name, callback) {
@@ -160,7 +130,7 @@ class NativeClient {
    * @returns {Cursor} The cursor.
    */
   find(ns, filter, options) {
-    return this.collection(ns).find(filter, options);
+    return this._collection(ns).find(filter, options);
   }
 
   /**
@@ -181,12 +151,14 @@ class NativeClient {
    * @return {Stream} The sample stream.
    */
   sample(ns, options) {
-    return createSampleStream(this.database, this.collectionName(ns), options);
+    return createSampleStream(this.database, this._collectionName(ns), options);
   }
 
   /**
    * @todo: Durran: User JS style for keys, make builder.
    *
+   * @param {String} databaseName - The name of the database.
+   * @param {String} collectionName - The name of the collection.
    * @param {Object} data - The result of the collStats command.
    *
    * @return {Object} The collection stats.
@@ -231,6 +203,36 @@ class NativeClient {
       file_size: data.fileSize,
       ns_size: data.nsSizeMB * 1024 * 1024
     };
+  }
+
+  /**
+   * Get the collection to operate on.
+   *
+   * @param {string} ns - The namespace.
+   * @returns {Collection} The collection.
+   */
+  _collection(ns) {
+    return this._database(this._databaseName(ns)).collection(this._collectionName(ns));
+  }
+
+  /**
+   * Get the collection name from a namespace.
+   *
+   * @param {string} ns - The namespace in database.collection format.
+   * @returns {string} The collection name.
+   */
+  _collectionName(ns) {
+    return ns.split('.')[1];
+  }
+
+  /**
+   * Get the database name from a namespace.
+   *
+   * @param {string} ns - The namespace in database.collection format.
+   * @returns {string} The database name.
+   */
+  _databaseName(ns) {
+    return ns.split('.')[0];
   }
 
   _database(name) {
