@@ -25,6 +25,10 @@ var View = require('ampersand-view');
 var localLinks = require('local-links');
 var async = require('async');
 var shell = window.require('shell');
+var remote = window.require('remote');
+var dialog = remote.require('dialog');
+var format = require('util').format;
+var semver = require('semver');
 
 var QueryOptions = require('./models/query-options');
 var Connection = require('./models/connection');
@@ -33,6 +37,7 @@ var Preferences = require('./models/preferences');
 var User = require('./models/user');
 var Router = require('./router');
 var Statusbar = require('./statusbar');
+var migrateApp = require('./migrations');
 var metricsSetup = require('./metrics');
 var metrics = require('mongodb-js-metrics')();
 var $ = require('jquery');
@@ -168,15 +173,29 @@ var Application = View.extend({
     }.bind(this));
   },
   fetchPreferences: function(done) {
-    this.preferences.once('sync', function() {
-      this.preferences.trigger('page-refresh');
-    }.bind(this));
-
-    this.preferences.fetch({
-      success: function(resp) {
-        done(null, resp);
+    this.preferences.once('sync', function(prefs) {
+      prefs.trigger('page-refresh');
+      var oldVersion = _.get(prefs, 'lastKnownVersion', '0.0.0');
+      var currentVersion = pkg.version;
+      var save = false;
+      if (semver.lt(oldVersion, currentVersion)) {
+        prefs.showFeatureTour = oldVersion;
+        save = true;
+      }
+      if (semver.neq(oldVersion, currentVersion)) {
+        prefs.lastKnownVersion = currentVersion;
+        save = true;
+      }
+      if (save) {
+        prefs.save(null, {
+          success: done.bind(null, null)
+        });
+      } else {
+        done(null);
       }
     });
+
+    app.preferences.fetch();
   },
   startRouter: function() {
     this.router = new Router();
@@ -322,7 +341,7 @@ app.extend({
     debug('sending message to main process:', msg, arg);
     ipc.send('message', msg, arg);
   },
-  onMessageReceived: function(msg, arg) {
+  onMessageReceived: function(sender, msg, arg) {
     debug('message received from main process:', msg, arg);
     this.trigger(msg, arg);
   },
@@ -368,12 +387,16 @@ app.extend({
     ipc.on('message', this.onMessageReceived.bind(this));
 
     async.series([
+      // check if migrations are required
+      migrateApp.bind(state),
       // get preferences from IndexedDB
       state.fetchPreferences.bind(state),
       // get user from IndexedDB
       state.fetchUser.bind(state)
     ], function(err) {
       if (err) {
+        dialog.showErrorBox('Error', format('There was an error during startup '
+          + 'of MongoDB Compass. \n\n%s', err.message));
         throw err;
       }
       // set up metrics
@@ -439,7 +462,7 @@ Object.defineProperty(app, 'user', {
 // open intercom panel when user chooses it from menu
 app.on('show-intercom-panel', function() {
   /* eslint new-cap: 0 */
-  if (window.Intercom && app.preferences.intercom) {
+  if (window.Intercom && app.preferences.enableFeedbackPanel) {
     window.Intercom('show');
     metrics.track('Intercom Panel', 'used');
   }

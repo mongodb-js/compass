@@ -32,6 +32,16 @@ var Preferences = Model.extend(storageMixin, {
       required: false
     },
     /**
+     * Stores whether or not the feature tour should be presented to the
+     * user. This is set in the migration step (./migrations/index.js).
+     * @type {Boolean}
+     */
+    showFeatureTour: {
+      type: 'string',
+      required: false,
+      default: undefined
+    },
+    /**
      * Stores whether or not the network opt-in screen has been shown to
      * the user already.
      * @type {String}
@@ -78,28 +88,30 @@ var Preferences = Model.extend(storageMixin, {
       default: false
     },
     /**
-     * Switch to enable/disable Bugsnag
+     * Switch to enable/disable error reports (renamed from `bugsnag`)
      * @type {Boolean}
      */
-    bugsnag: {
+    trackErrors: {
       type: 'boolean',
       required: true,
       default: false
     },
     /**
-     * Switch to enable/disable Intercom
+     * Switch to enable/disable Intercom panel (renamed from `intercom`)
      * @type {Boolean}
      */
-    intercom: {
+    enableFeedbackPanel: {
       type: 'boolean',
       required: true,
       default: false
     },
     /**
-     * Switch to enable/disable Google Analytics
+     * Switch to enable/disable usage statistics collection
+     * (renamed from `googleAnalytics`)
+     *
      * @type {Boolean}
      */
-    googleAnalytics: {
+    trackUsageStatistics: {
       type: 'boolean',
       required: true,
       default: false
@@ -200,8 +212,8 @@ var Preferences = Model.extend(storageMixin, {
    */
   isFeatureEnabled: function(feature) {
     // master network switch overwrites all network related features
-    if (['googleMaps', 'bugsnag', 'intercom',
-      'googleAnalytics', 'autoUpdates'].indexOf(feature) !== -1) {
+    if (['googleMaps', 'trackErrors', 'enableFeedbackPanel',
+      'trackUsageStatistics', 'autoUpdates'].indexOf(feature) !== -1) {
       return this.networkTraffic && _.get(this, feature);
     }
     var res = _.get(this, feature, null);
