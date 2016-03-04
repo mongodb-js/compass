@@ -90,7 +90,12 @@ var series = require('async').series;
 var packager = require('electron-packager');
 var run = require('electron-installer-run');
 
-/* eslint */
+/**
+ * TODO (imlucas) Need to make all of these constants/config values
+ * accessible via a module and/or command to generate the expansions.yml
+ * for evergeen so it can do things like find artifacts that include
+ * a version/some other non-constant.
+ */
 var DIR = path.join(__dirname, '..');
 var OUT = path.join(__dirname, '..', 'dist');
 
@@ -107,18 +112,20 @@ var OSX_EXECUTABLE = path.join(OSX_DOT_APP, 'Contents', 'MacOS', 'Electron');
 var OSX_ICON = path.resolve(__dirname, format('../src/app/images/darwin/%s.icns', cli.argv.internal_name));
 var OSX_OUT_DMG = path.join(OUT, format('%s.dmg', OSX_APPNAME));
 
-var WINDOWS_APPNAME = BASENAME;
+var WINDOWS_APPNAME = _.trim(BASENAME, ' ');
 var WINDOWS_OUT_X64 = path.join(OUT, format('%s-win32-x64', WINDOWS_APPNAME));
 var WINDOWS_RESOURCES = path.join(WINDOWS_OUT_X64, 'resources');
 var WINDOWS_EXECUTABLE = path.join(WINDOWS_OUT_X64, format('%s.exe', _.capitalize(WINDOWS_APPNAME)));
 var WINDOWS_ICON = path.resolve(__dirname, format('../src/images/win32/%s.ico', cli.argv.internal_name));
 var WINDOWS_SIGNTOOL_PARAMS = process.env.SIGNTOOL_PARAMS;
+var WINDOWS_OUT_SETUP_EXE = path.join(WINDOWS_OUT_X64, 'MongoDBCompassSetup.exe');
 
-var LINUX_APPNAME = BASENAME;
-var LINUX_OUT_X64 = path.join(OUT, format('%s-linux-x64', _.kebabCase(LINUX_APPNAME))); // aka APP_PATH
+var LINUX_APPNAME = _.kebabCase(BASENAME);
+var LINUX_OUT_X64 = path.join(OUT, format('%s-linux-x64', LINUX_APPNAME)); // aka APP_PATH
 var LINUX_EXECUTABLE = path.join(LINUX_OUT_X64, _.kebabCase(LINUX_APPNAME));
 var LINUX_RESOURCES = path.join(LINUX_OUT_X64, 'resources');
 
+var createSquirrelWindowsInstaller = require('electron-installer-squirrel-windows');
 
 /**
  * Build the options object to pass to `electron-packager`
@@ -126,7 +133,6 @@ var LINUX_RESOURCES = path.join(LINUX_OUT_X64, 'resources');
  */
 var CONFIG = {};
 _.assign(CONFIG, {
-  name: BASENAME,
   dir: DIR,
   out: OUT,
   overwrite: true,
@@ -166,12 +172,14 @@ _.assign(CONFIG, {
 
 if (cli.argv.platform === 'win32') {
   _.assign(CONFIG, {
+    name: WINDOWS_APPNAME,
     icon: WINDOWS_ICON,
     sign_with_params: WINDOWS_SIGNTOOL_PARAMS,
-    createInstaller: require('electron-installer-squirrel-windows').bind(null, CONFIG),
     appPath: WINDOWS_OUT_X64,
     resources: WINDOWS_RESOURCES,
-    executable: WINDOWS_EXECUTABLE
+    executable: WINDOWS_EXECUTABLE,
+    installer_destination: WINDOWS_OUT_SETUP_EXE,
+    createInstaller: createSquirrelWindowsInstaller.bind(null, CONFIG)
   });
   cli.info('Windows is the target platform and has the config: ' + JSON.stringify(CONFIG, null, 2));
 }
@@ -208,10 +216,12 @@ if (cli.argv.platform === 'darwin') {
   };
 
   _.assign(CONFIG, {
+    name: OSX_APPNAME,
     icon: OSX_ICON,
     appPath: OSX_DOT_APP,
     resources: OSX_RESOURCES,
     executable: OSX_EXECUTABLE,
+    installer_destination: OSX_OUT_DMG,
     /**
      * Background image for `.dmg`.
      * @see http://npm.im/electron-installer-dmg
@@ -247,8 +257,10 @@ if (cli.argv.platform === 'darwin') {
   cli.info('OS X is the target platform and has the config: ' + JSON.stringify(CONFIG, null, 2));
 } else {
   _.assign(CONFIG, {
+    name: LINUX_APPNAME,
     resources: LINUX_RESOURCES,
     executable: LINUX_EXECUTABLE,
+    installer_destination: null,
     createInstaller: function(done) {
       cli.warn('Linux installers coming soon!');
       done();
@@ -345,8 +357,12 @@ function compileApplicationUI(done) {
 /**
  * ## Transforms
  *
- * Run after `createBrandedApplication` but before
- * `createBrandedInstaller`.
+ * Run after `createBrandedApplication` but before `createBrandedInstaller`.
+*/
+/**
+ * Replace the LICENSE file `electron-packager` creates w/ a LICENSE
+ * file specific to the project.
+ *
  * @param {Function} done
  */
 function writeLicenseFile(done) {
@@ -362,6 +378,8 @@ function writeLicenseFile(done) {
 }
 
 /**
+ * Replace the version file `electron-packager` creates w/ a version
+ * file specific to the project.
  * @param {Function} done
  * @api public
  */
@@ -370,7 +388,9 @@ function writeVersionFile(done) {
 }
 
 /**
- * TODO (imlucas) Update `./package.json` to live under the dir
+ * Update the project's `./package.json` (like npm does when it installs a package)
+ * for inclusion in the application `electron-packager` creates.
+ * TODO (imlucas)
  * electron-packager will create and overwrite it, eg:
  * - remove all `scripts`
  * - merge buildinfo.json into it
@@ -380,12 +400,14 @@ function writeVersionFile(done) {
  * @api public
  */
 function transformPackageJson(done) {
-  var contents = _.clone(pkg);
-  delete contents.scripts;
-  delete contents.devDependencies;
-  delete contents['dependency-check'];
-  delete contents.repository;
-  delete contents.check;
+  var packageKeysToRemove = [
+    'scripts',
+    'devDependencies',
+    'dependency-check',
+    'repository',
+    'check'
+  ];
+  var contents = _.omit(pkg, packageKeysToRemove);
 
   /**
    * TODO (imlucas) Because we're shipping the compiled application UI,
@@ -393,11 +415,14 @@ function transformPackageJson(done) {
    * There are lots of others.  This is just to experiment and see how much
    * time/space can be saved.
    */
-  contents.config = {
+  if (!contents.config) {
+    contents.config = {};
+  }
+  _.defaults(contents.config, {
     NODE_ENV: process.env.NODE_ENV,
     build_time: new Date().toISOString(),
     channel: cli.argv.channel
-  };
+  });
 
   cli.info('Writing package.json: ' + JSON.stringify(contents, null, 2));
   fs.writeJson(path.join(CONFIG.resources, 'app', 'package.json'), contents, done);
@@ -419,9 +444,6 @@ function installDependencies(done) {
 }
 
 function finalizeApplication(done) {
-  // var globsToDelete = [
-  //   path.join(OSX_DOT_APP_ESCAPED, 'Contents', 'Resources', '*.lproj')
-  // ];
   var DOT_FILES = [
     '.DS_Store',
     '.eslint*',
@@ -453,6 +475,40 @@ function createBrandedInstaller(done) {
   CONFIG.createInstaller(done);
 }
 
+function canonicalizeBrandedInstallerFilename(done) {
+  if (!CONFIG.installer_destination) {
+    return done();
+  }
+
+  var detailledFilenameParts = [
+    CONFIG['app-version'],
+    CONFIG.platform,
+    CONFIG.arch
+  ];
+
+  if (cli.argv.channel !== 'stable') {
+    detailledFilenameParts.push(cli.argv.channel);
+  }
+
+  if (CONFIG.platform === 'win32') {
+    var windowsDest = CONFIG.installer_destination
+      .replace('.exe', format('-%s.exe', detailledFilenameParts.join('-')));
+    cli.info('Copying Windows installer to `' + windowsDest + '`');
+
+    return fs.copy(CONFIG.installer_destination, windowsDest, done);
+  }
+
+  if (CONFIG.platform === 'darwin') {
+    var osxDest = CONFIG.installer_destination
+      .replace('.dmg', format('-%s.dmg', detailledFilenameParts.join('-')));
+    cli.info('Copying OSX installer to `' + osxDest + '`');
+
+    return fs.copy(CONFIG.installer_destination, osxDest, done);
+  }
+  return done(new TypeError('Unknown platform `' + cli.argv.platform + '`. ' +
+    ' If you\'re trying to add linux installer or mac app store support, email lucas@mongodb.com :)'));
+}
+
 /**
  * ## Main
  */
@@ -471,10 +527,10 @@ if (inInstall) {
     transformPackageJson,
     installDependencies,
     finalizeApplication,
-    createBrandedInstaller
-  ], function(err, res) {
+    createBrandedInstaller,
+    canonicalizeBrandedInstallerFilename,
+  ], function(err) {
     cli.abortIfError(err);
-    var installerPath = res.pop();
-    cli.ok(format('Installer successfully written to `%s`.', installerPath));
+    cli.ok(format('Installer successfully written to `%s`.', CONFIG.installer_destination));
   });
 }
