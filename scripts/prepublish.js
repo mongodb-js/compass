@@ -68,7 +68,7 @@ cli.yargs.usage('$0 [options]')
   .epilogue('a.k.a `npm run release`');
 
 if (cli.argv.verbose) {
-  process.env.DEBUG = '*';
+  require('debug').enable('*');
 }
 
 /**

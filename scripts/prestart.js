@@ -27,7 +27,7 @@ cli.yargs.usage('$0 [options]')
   .help('help');
 
 if (cli.argv.verbose) {
-  process.env.DEBUG = '*';
+  require('debug').enable('*');
 }
 
 var argv = cli.argv;

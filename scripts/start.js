@@ -1,8 +1,5 @@
 #!/usr/bin/env node
 process.env.NODE_ENV = 'development';
-
-var pkg = require('../package.json');
-var format = require('util').format;
 var path = require('path');
 
 var cli = require('mongodb-js-cli')('mongodb-compass:scripts:start');
@@ -19,9 +16,9 @@ cli.yargs.usage('$0 [options]')
   .help('help');
 
 if (cli.argv.verbose) {
-  process.env.DEBUG = '*';
+  require('debug').enable('*');
 }
-
+     
 /**
  * TODO (imlucas) Dedupe this code.
  */
