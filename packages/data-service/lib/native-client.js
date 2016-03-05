@@ -312,12 +312,13 @@ class NativeClient {
    * @returns {Object} The instance detail.
    */
   _buildInstance(data) {
-    var id = getId(data.host.hostname);
-    var parts = id.split(':');
+    var parts = data.host.hostname.split(':');
+    var hostname = getId(parts[0]);
+    var port = parseInt(parts[1], 10);
     return _.assignIn(data, {
-      _id: id,
-      hostname: parts[0],
-      port: parseInt(parts[1], 10)
+      _id: `${hostname}:${port}`,
+      hostname: hostname,
+      port: port
     });
   }
 
