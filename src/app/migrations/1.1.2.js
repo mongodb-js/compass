@@ -1,6 +1,6 @@
 var Preferences = require('../models/preferences');
 var ConnectionCollection = require('../models/connection-collection');
-var pkg = require('../../package.json');
+var pkg = require('../../../package.json');
 var async = require('async');
 var format = require('util').format;
 var _ = require('lodash');
