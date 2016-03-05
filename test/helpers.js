@@ -6,7 +6,6 @@ var Application = require('spectron').Application;
 var os = require('os');
 var chai = require('chai');
 var chaiAsPromised = require('chai-as-promised');
-var spawn = require('child_process').spawn;
 var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
 
