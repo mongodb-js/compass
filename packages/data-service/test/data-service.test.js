@@ -119,7 +119,7 @@ describe('DataService', function() {
           service.get('/databases/data-service', {}, function(err, database) {
             assert.equal(null, err);
             expect(database._id).to.equal('data-service');
-            expect(database.stats.document_count).to.equal(0);
+            expect(database.stats.document_count).to.not.equal(undefined);
             done();
           });
         });
@@ -130,7 +130,7 @@ describe('DataService', function() {
           service.get('/databases/data-service', function(err, database) {
             assert.equal(null, err);
             expect(database._id).to.equal('data-service');
-            expect(database.stats.document_count).to.equal(0);
+            expect(database.stats.document_count).to.not.equal(undefined);
             done();
           });
         });
@@ -143,7 +143,7 @@ describe('DataService', function() {
       service.instance({}, function(err, instance) {
         assert.equal(null, err);
         expect(instance._id).to.not.equal(undefined);
-        expect(instance.databases[0]._id).to.equal('data-service');
+        expect(instance.databases[0]._id).to.not.equal(undefined);
         done();
       });
     });
