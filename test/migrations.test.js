@@ -1,6 +1,5 @@
 var assert = require('assert');
 var _ = require('lodash');
-
 var debug = require('debug')('mongodb-compass:test:migrations');
 
 var mockMigrations = {
@@ -29,9 +28,14 @@ var mockMigrations = {
     cb(null, '1.2.5');
   }
 };
-
-// tests won't run because localforage is not available. Need to switch
-// to electron-mocha to make these tests work again.
+/**
+ * NOTE (imlucas) Tests won't run because localforage is not available?
+ * We've switched to `electron-mocha` but still getting the following error:
+ *
+ *     ReferenceError: self is not defined
+ *      at Object.<anonymous> (src/app/migrations/index.js:8:20)
+ *      at Context.<anonymous> (test/migrations.test.js:35:15)
+  */
 describe.skip('Schema Migration', function() {
   var migrate;
   before(function() {
