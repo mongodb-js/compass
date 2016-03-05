@@ -157,6 +157,8 @@ describe('NativeClient', function() {
       client.instance(function(err, instance) {
         assert.equal(null, err);
         expect(instance._id).to.not.equal(undefined);
+        expect(instance.hostname).to.equal('localhost');
+        expect(instance.port).to.equal(27018);
         expect(instance.databases[0]._id).to.not.equal(undefined);
         done();
       });

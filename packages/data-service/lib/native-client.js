@@ -198,7 +198,7 @@ class NativeClient {
       if (error) {
         return callback(error);
       }
-      callback(null, _.assignIn(data, { _id: getId(data.host.hostname) }));
+      callback(null, this._buildInstance(data));
     });
   }
 
@@ -302,6 +302,23 @@ class NativeClient {
       file_size: data.fileSize,
       ns_size: data.nsSizeMB * 1024 * 1024
     };
+  }
+
+  /**
+   * Build the instance detail.
+   *
+   * @param {Object} data The data.
+   *
+   * @returns {Object} The instance detail.
+   */
+  _buildInstance(data) {
+    var id = getId(data.host.hostname);
+    var parts = id.split(':');
+    return _.assignIn(data, {
+      _id: id,
+      hostname: parts[0],
+      port: parseInt(parts[1], 10)
+    });
   }
 
   /**
