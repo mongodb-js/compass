@@ -1,6 +1,5 @@
 #!/usr/bin/env node
-// process.env.NODE_ENV = 'production';
-process.env.DEBUG = '*';
+process.env.NODE_ENV = 'production';
 
 var pkg = require('../package.json');
 var format = require('util').format;
@@ -19,7 +18,7 @@ cli.yargs.usage('$0 [options]')
   .option('verbose', {
     describe: 'Confused or trying to track down a bug and want lots of debug output?',
     type: 'boolean',
-    default: true
+    default: false
   })
   .option('platform', {
     describe: 'What platform are we building for?',
