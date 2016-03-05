@@ -1,7 +1,6 @@
 /**
- * A high-level wrapper around electron's builtin
- * [BrowserWindow](https://github.com/atom/electron/blob/master/docs/api/browser-window.md)
- * class
+ * A high-level wrapper around electron's builtin [BrowserWindow][0] class.
+ * https://github.com/atom/electron/blob/master/docs/api/browser-window.md
  */
 var electron = require('electron');
 var AppMenu = require('./menu');
@@ -21,7 +20,7 @@ var path = require('path');
 var RESOURCES = path.resolve(__dirname, '../app/');
 
 /**
- * @todo (imlucas) Missing this PNG.
+ * TODO (imlucas) Missing this PNG.
  */
 var COMPASS_ICON_PATH = RESOURCES + '/images/mongodb-compass.png';
 
@@ -40,23 +39,36 @@ var HELP_URL = 'file://' + path.join(RESOURCES, 'index.jade#help');
 var connectWindow;
 var helpWindow;
 
-// @todo (imlucas): Removed in setup branch as we dont need to do this anymore
-// as a `all-windows-closed` event has been added to the `app` event api
-// since this code was laid down.
+/**
+ * TODO (imlucas): Removed in setup branch as we dont need to do this anymore
+ * as a `all-windows-closed` event has been added to the `app` event api
+ * since this code was laid down.
+ */
 var windowsOpenCount = 0;
 
 // track if app was launched, @see `renderer ready` handler below
 var appLaunched = false;
 
-// returns true if the application is a single instance application otherwise
-// focus the second window (which we'll quit from) and return false
-// see "app.makeSingleInstance" in https://github.com/atom/electron/blob/master/docs/api/app.md
+/**
+ * @see https://github.com/atom/electron/blob/master/docs/api/app.md
+ *
+ * @param {BrowserWindow} _window
+ * @returns {Boolean}
+ */
 function isSingleInstance(_window) {
-  var isNotSingle = app.makeSingleInstance(function(commandLine, workingDirectory) {
+  var isNotSingle = app.makeSingleInstance(function(argv, dir) {
+    /**
+     * TODO (imlucas) To make clicking on a `mongodb://` URL in chrome
+     * open Compass w/ connection dialog filled out, we can check if
+     * any argv[i] starts w/ `mongodb://` and if so, call
+     * `require('mongodb-connection-model').from(argv[i])` to parse the
+     * URL an get back an instance of the Connection model.
+     */
     debug('Someone tried to run a second instance! We should focus our window', {
-      commandLine: commandLine,
-      workingDirectory: workingDirectory
+      argv: argv,
+      dir: dir
     });
+
     if (_window) {
       if (_window.isMinimized()) {
         _window.restore();
@@ -82,7 +94,7 @@ function openDevTools() {
  * 1. Make sure the window is the right size
  * 2. Doesn't load a blank screen
  * 3. Overrides `window.open` so we have control over message passing via URL's
-
+ *
  *
  * @param {Object} opts - Smaller subset of [`BrowserWindow#options`][0].
  * @return {BrowserWindow}
@@ -122,6 +134,20 @@ module.exports.create = function(opts) {
       url: 'file://' + RESOURCES + '/index.jade' + decodeURIComponent(url.replace('file://', ''))
     });
   });
+
+  /**
+   * Open devtools for this window when it's opened.
+   *
+   * @example DEVTOOLS=1 npm start
+   * @see scripts/start.js
+   */
+  if (process.env.DEVTOOLS) {
+    _window.webContents.on('devtools-opened', function() {
+      _window.webContents.addWorkSpace(path.join(__dirname, '..', '..'));
+    });
+    _window.webContents.openDevTools({detach: true});
+  }
+
 
   // @see `all-windows-closed` above
   windowsOpenCount++;

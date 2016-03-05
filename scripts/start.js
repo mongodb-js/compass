@@ -13,12 +13,24 @@ cli.yargs.usage('$0 [options]')
     describe: 'What directory should electron-compile use for caching compilation artifacts?',
     default: path.join(__dirname, '..', 'build', 'electron-compile-cache')
   })
+  .option('devtools', {
+    describe: 'Automatically open devtools for new electron browser windows?',
+    type: 'boolean',
+    default: false
+  })
   .help('help');
 
 if (cli.argv.verbose) {
   require('debug').enable('*');
 }
-     
+
+/**
+ * @see ./src/main/window-manager.js
+ */
+if (cli.argv.devtools) {
+  process.env.DEVTOOLS = '1';
+}
+
 /**
  * TODO (imlucas) Dedupe this code.
  */
@@ -50,13 +62,14 @@ function startElectronPrebuilt(done) {
     cli.abort(err);
   }
 
-  function onReady(){
+  function onReady() {
     cli.ok('application started');
   }
 
   var proc = spawn(ELECTRON_PREBUILT_EXECUTABLE, args, opts);
   proc.on('error', onError);
   setTimeout(onReady, 1000);
+  proc.on('exit', done.bind(null, null));
 }
 
 async.series([
