@@ -162,8 +162,13 @@ class NativeClient {
    *
    * @returns {Cursor} The cursor.
    */
-  find(ns, filter, options) {
-    return this._collection(ns).find(filter, options);
+  find(ns, filter, options, callback) {
+    this._collection(ns).find(filter, options).toArray((error, documents) => {
+      if (error) {
+        return callback(error);
+      }
+      callback(null, documents);
+    });
   }
 
   /**

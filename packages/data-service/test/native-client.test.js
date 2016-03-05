@@ -33,7 +33,7 @@ describe('NativeClient', function() {
 
     context('when a filter is provided', function() {
       it('returns a cursor for the matching documents', function(done) {
-        client.find('data-service.test', { a: 1 }).toArray(function(error, docs) {
+        client.find('data-service.test', { a: 1 }, {}, function(error, docs) {
           assert.equal(null, error);
           expect(docs.length).to.equal(1);
           done();
@@ -43,7 +43,7 @@ describe('NativeClient', function() {
 
     context('when no filter is provided', function() {
       it('returns a cursor for all documents', function(done) {
-        client.find('data-service.test').toArray(function(error, docs) {
+        client.find('data-service.test', {}, {}, function(error, docs) {
           assert.equal(null, error);
           expect(docs.length).to.equal(2);
           done();
@@ -53,7 +53,7 @@ describe('NativeClient', function() {
 
     context('when options are provided', function() {
       it('returns a cursor for the documents', function(done) {
-        client.find('data-service.test', {}, { skip: 1 }).toArray(function(error, docs) {
+        client.find('data-service.test', {}, { skip: 1 }, function(error, docs) {
           assert.equal(null, error);
           expect(docs.length).to.equal(1);
           done();

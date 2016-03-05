@@ -82,10 +82,10 @@ class DataService extends EventEmitter {
   /**
    * Find documents for the provided filter and options on the collection.
    *
-   * @param {string} ns - The namespace to search on.
-   * @param {object} filter - The filter.
-   * @param {object} options - The query options.
-   * @param {function} callback - The callback function.
+   * @param {String} ns - The namespace to search on.
+   * @param {Object} filter - The query filter.
+   * @param {Object} options - The query options.
+   * @param {Function} callback - The callback function.
    */
   find(ns, filter, options, callback) {
     this.client.find(ns, filter, options, callback);
