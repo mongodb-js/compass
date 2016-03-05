@@ -152,6 +152,17 @@ describe('NativeClient', function() {
     });
   });
 
+  describe('#instance', function() {
+    it('returns the instance', function(done) {
+      client.instance(function(err, instance) {
+        assert.equal(null, err);
+        expect(instance._id).to.not.equal(undefined);
+        expect(instance.databases[0]._id).to.equal('data-service');
+        done();
+      });
+    });
+  });
+
   describe('#sample', function() {
     before(function() {
       helper.insertTestDocuments(client);
