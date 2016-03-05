@@ -21,8 +21,9 @@ cli.yargs.usage('$0 [options]')
   .help('help');
 
 if (cli.argv.verbose) {
-  require('debug').enable('*');
+  require('debug').enable('ele*,mon*');
 }
+
 
 /**
  * @see ./src/main/window-manager.js

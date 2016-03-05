@@ -67,7 +67,7 @@ cli.yargs.usage('$0 [options]')
   .epilogue('a.k.a `npm run release`');
 
 if (cli.argv.verbose) {
-  require('debug').enable('*');
+  require('debug').enable('ele*,mon*');
 }
 
 /**
@@ -127,7 +127,7 @@ var WINDOWS_EXECUTABLE = path.join(WINDOWS_OUT_X64,
     format('%s.exe', WINDOWS_APPNAME));
 var WINDOWS_ICON = path.resolve(__dirname, format(
   '../src/images/win32/%s.ico', cli.argv.internal_name));
-var WINDOWS_SIGNTOOL_PARAMS = process.env.SIGNTOOL_PARAMS;
+var WINDOWS_SIGNTOOL_PARAMS = cli.argv.signtool_params;
 
 var WINDOWS_OUT_SETUP_EXE = path.join(
     WINDOWS_OUT_X64, format('%sSetup.exe', WINDOWS_APPNAME));

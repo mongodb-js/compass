@@ -11,8 +11,9 @@ cli.yargs.usage('$0 [options]')
   .epilogue('a.k.a `make clean`');
 
 if (cli.argv.verbose) {
-  process.env.DEBUG = '*';
+  require('debug').enable('ele*,mon*');
 }
+
 
 var del = require('del');
 var async = require('async');
