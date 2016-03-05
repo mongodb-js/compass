@@ -33,6 +33,17 @@ class DataService extends EventEmitter {
   }
 
   /**
+   * Get the kitchen sink information about a collection.
+   *
+   * @param {String} ns - The namespace.
+   * @param {object} options - The options.
+   * @param {Function} callback - The callback.
+   */
+  collection(ns, options, callback) {
+    this.client.collectionDetail(ns, callback);
+  }
+
+  /**
    * Connect to the server.
    *
    * @param {function} callback - The callback function.
