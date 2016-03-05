@@ -1,15 +1,18 @@
+process.env.NODE_ENV = 'testing';
+
+var fs = require('fs');
 var path = require('path');
 var _ = require('lodash');
 var format = require('util').format;
-var Connection = require('mongodb-connection-model');
 var Application = require('spectron').Application;
-var os = require('os');
 var chai = require('chai');
 var chaiAsPromised = require('chai-as-promised');
 var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
 
 chai.use(chaiAsPromised);
+
+var Connection = require('mongodb-connection-model');
 
 /**
  * Test documents to sample with a local server.
@@ -21,10 +24,18 @@ var DOCUMENTS = [
   { 'name': 'Beacon' }
 ];
 
-var ELECTRON_PATH = {
-  linux: path.resolve(__dirname, '../node_modules/.bin/electron'),
-  win32: path.resolve(__dirname, '../node_modules/.bin/electron'),
-  darwin: path.resolve(__dirname, '../node_modules/.bin/electron')
+// var ELECTRON_PATH = {
+//   linux: path.resolve(__dirname, '../node_modules/.bin/electron'),
+//   win32: path.resolve(__dirname, '../node_modules/.bin/electron'),
+//   darwin: path.resolve(__dirname, '../node_modules/.bin/electron')
+
+var ELECTRON_PREBUILT_EXECUTABLE = require('electron-prebuilt');
+var DIST = path.resolve(__dirname, '..', 'dist');
+var ELECTRON_EXECUTABLE_BY_PLATFORM = {
+  linux: path.join(DIST, 'mongodb-compass-linux-x64', 'mongodb-compass'),
+  win32: path.join(DIST, 'MongoDBCompass-win32-x64', 'MongoDBCompass.exe'),
+  darwin: path.join(DIST, 'MongoDB Compass-darwin-x64', 'MongoDB Compass.app',
+    'Contents', 'MacOS', 'Electron')
 };
 
 var debug = require('debug')('mongodb-compass:test:helpers');
@@ -35,21 +46,41 @@ function responseValue(response) {
 
 module.exports.responseValue = responseValue;
 
+var _evergreenWarningShown = false;
 module.exports.warnEvergreen = function() {
   /* eslint no-console:0 */
-  console.warn('Spectron acceptance tests skipped on '
-   + 'evergreen until the following is resolved: '
-   + 'https://jira.mongodb.org/browse/BUILD-1122');
+  if (!_evergreenWarningShown) {
+    console.warn('Spectron acceptance tests skipped on '
+    + 'evergreen until the following is resolved: '
+    + 'https://jira.mongodb.org/browse/BUILD-1122');
+    _evergreenWarningShown = true;
+  }
 };
 
-module.exports.getElectronPath = function() {
-  var platform = os.platform();
-  var electronPath = ELECTRON_PATH[platform];
-  debug('platform', platform);
-  if (!electronPath) {
-    throw new Error('Unknown platform: ' + platform);
+module.exports.getApplication = function() {
+  if (process.env.TEST_WITH_PREBUILT) {
+    debug('Starting application with spectron using electron-prebuilt `%s`',
+      ELECTRON_PREBUILT_EXECUTABLE);
+
+    return new Application({
+      path: ELECTRON_PREBUILT_EXECUTABLE,
+      args: [path.join(__dirname, '..')],
+      env: process.env,
+      cwd: path.join(__dirname, '..')
+    });
   }
-  return ELECTRON_PATH[platform];
+  var ELECTRON_EXECUTABLE = ELECTRON_EXECUTABLE_BY_PLATFORM[process.platform];
+
+  debug('Starting application with spectron using Release executable `%s`',
+    ELECTRON_EXECUTABLE);
+
+  /* eslint no-sync:0 */
+  assert(fs.existsSync(ELECTRON_EXECUTABLE),
+    'Release executable not found!  Did you run `npm run prepublish`?');
+  return new Application({
+    path: ELECTRON_EXECUTABLE,
+    env: process.env
+  });
 };
 
 /**
@@ -61,11 +92,7 @@ module.exports.getElectronPath = function() {
  *
  */
 module.exports.startApplication = function() {
-  debug('Starting Spectron Application');
-  this.app = new Application({
-    path: module.exports.getElectronPath()
-  });
-  var app = this.app;
+  var app = this.app = module.exports.getApplication();
   debug('this.app', this.app);
   return this.app.start()
     .then(function() {
