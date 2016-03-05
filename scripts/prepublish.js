@@ -133,9 +133,9 @@ var WINDOWS_SIGNTOOL_PARAMS = process.env.SIGNTOOL_PARAMS;
 var WINDOWS_OUT_SETUP_EXE = path.join(
     WINDOWS_OUT_X64, format('%sSetup.exe', WINDOWS_APPNAME));
 
-var LINUX_APPNAME = _.kebabCase(BASENAME);
+var LINUX_APPNAME = cli.argv.internal_name;
 var LINUX_OUT_X64 = path.join(OUT, format('%s-linux-x64', LINUX_APPNAME));
-var LINUX_EXECUTABLE = path.join(LINUX_OUT_X64, _.kebabCase(LINUX_APPNAME));
+var LINUX_EXECUTABLE = path.join(LINUX_OUT_X64, LINUX_APPNAME);
 var LINUX_RESOURCES = path.join(LINUX_OUT_X64, 'resources');
 
 var createSquirrelWindowsInstaller = require('electron-installer-squirrel-windows');
@@ -541,7 +541,7 @@ if (inInstall) {
     installDependencies,
     finalizeApplication,
     createBrandedInstaller,
-    canonicalizeBrandedInstallerFilename,
+    canonicalizeBrandedInstallerFilename
   ], function(err) {
     cli.abortIfError(err);
     cli.ok(format('Installer successfully written to `%s`.', CONFIG.installer_destination));
