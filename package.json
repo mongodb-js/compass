@@ -41,7 +41,7 @@
       " */"
     ],
     "check": "mongodb-js-precommit ./*.js src/{**/*.js,*.js} test/{**/*.js,*.js} scipts/{**/*.js,*.js}",
-    "ci": "npm run check && npm run prepublish --verbose && npm test",
+    "ci": "npm run check && npm run prepublish -- --verbose && npm test",
     "clean": "npm run postuninstall",
     "fmt": "mongodb-js-fmt ./*.js src/{**/*.js,*.js} test/{**/*.js,*.js} scripts/*.js",
     "release": "npm run prepublish"
