@@ -18,7 +18,7 @@ cli.yargs.usage('$0 [options]')
   .option('verbose', {
     describe: 'Confused or trying to track down a bug and want lots of debug output?',
     type: 'boolean',
-    default: false
+    default: true
   })
   .option('platform', {
     describe: 'What platform are we building for?',
