@@ -30,7 +30,7 @@
   },
   "scripts": {
     "prestart": "node scripts/prestart.js",
-    "start": "electron .",
+    "start": "node scripts/start.js",
     "test": "electron-mocha",
     "postinstall": "node scripts/postinstall.js",
     "prepublish": "node scripts/prepublish.js",
