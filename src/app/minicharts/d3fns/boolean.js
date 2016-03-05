@@ -1,8 +1,10 @@
+/* eslint camelcase: 0 */
 var d3 = require('d3');
 var _ = require('lodash');
 var few = require('./few');
 var shared = require('./shared');
 // var debug = require('debug')('mongodb-compass:minicharts:boolean');
+
 
 var minicharts_d3fns_boolean = function() {
   // --- beginning chart setup ---

@@ -1,3 +1,4 @@
+/* eslint camelcase: 0 */
 var d3 = require('d3');
 
 // source: http://bit.ly/1Tc9Tp5
