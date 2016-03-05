@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-process.env.NODE_ENV = 'production';
+// process.env.NODE_ENV = 'production';
+process.env.DEBUG = '*';
 
 var pkg = require('../package.json');
 var format = require('util').format;
