@@ -1,8 +1,5 @@
 #!/usr/bin/env node
 
-process.env.DEBUG = '*';
-process.env.CI = process.env.EVERGREEN = '1';
-
 var cli = require('mongodb-js-cli')('mongodb-compass:scripts:postinstall');
 cli.yargs.usage('$0 [options]')
   .option('electron_version', {
@@ -22,7 +19,7 @@ cli.yargs.usage('$0 [options]')
   .epilogue('a.k.a. `make clean`');
 
 if (cli.argv.verbose) {
-  process.env.DEBUG = '*';
+  require('debug').enable('ele*,mon*');
 }
 var argv = cli.argv;
 var run = require('electron-installer-run');
