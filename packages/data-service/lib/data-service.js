@@ -58,6 +58,17 @@ class DataService extends EventEmitter {
   }
 
   /**
+   * Get the kitchen sink information about a database and all its collections.
+   *
+   * @param {String} name - The database name.
+   * @param {object} options - The query options.
+   * @param {Function} callback - The callback.
+   */
+  database(name, options, callback) {
+    this.client.databaseDetail(name, callback);
+  }
+
+  /**
    * Find documents for the provided filter and options on the collection.
    *
    * @param {string} ns - The namespace to search on.
