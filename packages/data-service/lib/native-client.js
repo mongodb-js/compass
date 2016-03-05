@@ -47,20 +47,20 @@ class NativeClient {
   }
 
   /**
-   * Get the kitchen sink information about a database and all its collections.
+   * Get the kitchen sink information about a collection.
    *
-   * @param {String} name - The database name.
+   * @param {String} ns - The namespace.
    * @param {Function} callback - The callback.
    */
-  databaseDetail(name, callback) {
+  collectionDetail(ns, callback) {
     async.parallel({
-      stats: this.databaseStats.bind(this, name),
-      collections: this.collections.bind(this, name)
-    }, (error, db) => {
+      stats: this.collectionStats.bind(this, this._databaseName(ns), this._collectionName(ns)),
+      indexes: this.indexes.bind(this, ns)
+    }, (error, coll) => {
       if (error) {
         return callback(error);
       }
-      callback(null, this._buildDatabaseDetail(name, db));
+      callback(null, this._buildCollectionDetail(ns, coll));
     });
   }
 
@@ -116,6 +116,24 @@ class NativeClient {
         return callback(error);
       }
       callback(null, this._buildCollectionStats(databaseName, collectionName, data));
+    });
+  }
+
+  /**
+   * Get the kitchen sink information about a database and all its collections.
+   *
+   * @param {String} name - The database name.
+   * @param {Function} callback - The callback.
+   */
+  databaseDetail(name, callback) {
+    async.parallel({
+      stats: this.databaseStats.bind(this, name),
+      collections: this.collections.bind(this, name)
+    }, (error, db) => {
+      if (error) {
+        return callback(error);
+      }
+      callback(null, this._buildDatabaseDetail(name, db));
     });
   }
 
@@ -186,6 +204,23 @@ class NativeClient {
   }
 
   /**
+   * Builds the collection detail.
+   *
+   * @param {String} ns - The namespace.
+   * @param {Object} data - The collection stats.
+   *
+   * @returns {Object} The collection detail.
+   */
+  _buildCollectionDetail(ns, data) {
+    return _.assignIn(data.stats, {
+      _id: ns,
+      name: this._collectionName(ns),
+      database: this._databaseName(ns),
+      indexes: data.indexes
+    });
+  }
+
+  /**
    * @todo: Durran: User JS style for keys, make builder.
    *
    * @param {String} databaseName - The name of the database.
@@ -212,7 +247,11 @@ class NativeClient {
       extent_count: data.numExtents,
       extent_last_size: data.lastExtentSize,
       flags_user: data.userFlags,
-      flags_system: data.systemFlags
+      flags_system: data.systemFlags,
+      max_document_size: data.maxSize,
+      size: data.size,
+      index_details: data.indexDetails || {},
+      wired_tiger: data.wiredTiger || {}
     };
   }
 

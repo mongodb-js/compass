@@ -62,6 +62,17 @@ describe('NativeClient', function() {
     });
   });
 
+  describe('#collectionDetail', function() {
+    it('returns the collection details', function(done) {
+      client.collectionDetail('data-service.test', function(err, coll) {
+        assert.equal(null, err);
+        expect(coll.ns).to.equal('data-service.test');
+        expect(coll.index_count).to.equal(1);
+        done();
+      });
+    });
+  });
+
   describe('#collectionNames', function() {
     it('returns the collection names', function(done) {
       client.collectionNames('data-service', function(err, names) {
