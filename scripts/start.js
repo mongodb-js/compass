@@ -24,19 +24,12 @@ if (cli.argv.verbose) {
   require('debug').enable('ele*,mon*');
 }
 
-
 /**
  * @see ./src/main/window-manager.js
  */
 if (cli.argv.devtools) {
   process.env.DEVTOOLS = '1';
 }
-
-/**
- * TODO (imlucas) Dedupe this code.
- */
-process.env.ELECTRON_COMPILE_CACHE = process.env.TEMP = cli.argv.electron_compile_cache;
-// var ELECTRON_COMPILE_CACHE = path.join(__dirname, '..', '.cache');
 
 var spawn = require('child_process').spawn;
 var del = require('del');
@@ -58,6 +51,12 @@ function startElectronPrebuilt(done) {
     env: process.env,
     stdio: 'inherit'
   };
+
+  /**
+   * So dev build artifacts for electron-compile are cached
+   * in an easily visible place instead of `/tmp`.
+   */
+  opts.env.TEMP = cli.argv.electron_compile_cache;
 
   function onError(err) {
     cli.abort(err);

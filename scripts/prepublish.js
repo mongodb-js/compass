@@ -54,14 +54,14 @@ cli.yargs.usage('$0 [options]')
     choices: ['testing', 'beta', 'stable'],
     default: 'testing'
   })
-  .option('electron_compile_cache', {
-    describe: 'What directory should electron-compile use for caching compilation artifacts?',
-    default: path.join(__dirname, '..', 'build', 'electron-compile-cache')
-  })
   .option('sign', {
     describe: 'Should this build be signed?',
     type: 'boolean',
     default: true
+  })
+  .option('signtool_params', {
+    describe: 'What extra cli arguments should be passed to signtool.exe?',
+    default: process.env.SIGNTOOL_PARAMS || null
   })
   .help('help')
   .epilogue('a.k.a `npm run release`');
@@ -70,14 +70,9 @@ if (cli.argv.verbose) {
   require('debug').enable('ele*,mon*');
 }
 
-/**
- * TODO (imlucas) Duplicate this `electron_compile_cache` option in `./scripts/start.js`
- * and `./scripts/postuninstall.js` so its consistent across lifecycle scripts.
- */
-process.env.TEMP = cli.argv.electron_compile_cache;
-
 var ELECTRON_COMPILE_CACHE = path.join(__dirname, '..', '.cache');
-var ELECTRON_COMPILE_BIN = path.join(__dirname, '..', 'node_modules', '.bin', 'electron-compile');
+var ELECTRON_COMPILE_BIN = path.join(__dirname, '..', 'node_modules',
+  '.bin', 'electron-compile');
 
 var inInstall = require('in-publish').inInstall();
 var del = require('del');
@@ -347,8 +342,10 @@ function compileApplicationUI(done) {
       path.resolve(__dirname, '..'),
       path.resolve(__dirname, '..', 'src')
     ];
-
-    run(ELECTRON_COMPILE_BIN, args, {env: process.env}, cb);
+    var opts = {
+      env: process.env
+    };
+    run(ELECTRON_COMPILE_BIN, args, opts, cb);
   }
 
   cli.info('Compiling application UI');
