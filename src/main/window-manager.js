@@ -135,6 +135,20 @@ module.exports.create = function(opts) {
     });
   });
 
+  /**
+   * Open devtools for this window when it's opened.
+   *
+   * @example DEVTOOLS=1 npm start
+   * @see scripts/start.js
+   */
+  if (process.env.DEVTOOLS) {
+    _window.webContents.on('devtools-opened', function() {
+      _window.webContents.addWorkSpace(path.join(__dirname, '..', '..'));
+    });
+    _window.webContents.openDevTools({detach: true});
+  }
+
+
   // @see `all-windows-closed` above
   windowsOpenCount++;
   _window.on('closed', function() {
