@@ -62,7 +62,8 @@ functions:
       working_dir: src
       script: |
         set -ev
-        export CI=1 EVERGREEN=1
+        export CI=1
+        export EVERGREEN=1
         export PATH="${node_path}:$PATH"
         ls -alh ${node_path}
         test -n '${add_env_appdata|}' && export APPDATA='${add_env_appdata|}'
@@ -104,7 +105,8 @@ functions:
         set -ev
         cd $(pwd)
         export PATH="${node_path}:$PATH"
-        export CI=1 EVERGREEN=1
+        export CI=1
+        export EVERGREEN=1
         export NOTARY_URL="http://notary-service.build.10gen.cc:5000"
         export NOTARY_AUTH_TOKEN="${signing_auth_token}"
         export NOTARY_SIGNING_KEY="${signing_key_name}"
