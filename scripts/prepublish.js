@@ -63,6 +63,21 @@ cli.yargs.usage('$0 [options]')
     describe: 'What extra cli arguments should be passed to signtool.exe?',
     default: process.env.SIGNTOOL_PARAMS || null
   })
+  .option('revision', {
+    description: 'revision on evergreen',
+    type: 'string',
+    default: undefined
+  })
+  .option('build_variant', {
+    description: 'build_variant on evergreen',
+    type: 'string',
+    default: undefined
+  })
+  .option('branch_name', {
+    description: 'branch_name on evergreen',
+    type: 'string',
+    default: undefined
+  })
   .help('help')
   .epilogue('a.k.a `npm run release`');
 
@@ -425,7 +440,10 @@ function transformPackageJson(done) {
   _.defaults(contents.config, {
     NODE_ENV: process.env.NODE_ENV || 'production',
     build_time: new Date().toISOString(),
-    channel: cli.argv.channel
+    channel: cli.argv.channel,
+    revision: cli.argv.revision,
+    build_variant: cli.argv.build_variant,
+    branch_name: cli.argv.branch_name
   });
 
   cli.info('Writing package.json: ' + JSON.stringify(contents, null, 2));
@@ -455,7 +473,8 @@ function finalizeApplication(done) {
     '.travis*',
     '.npm*',
     '.jsfmt*',
-    '.git*'
+    '.git*',
+    'report*'
   ];
   var globsToDelete = [
     path.join(CONFIG.resources, 'app', 'test'),

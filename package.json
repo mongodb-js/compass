@@ -31,20 +31,19 @@
   "scripts": {
     "prestart": "node scripts/prestart.js",
     "start": "node scripts/start.js",
+    "//": "Run only the fast unit tests",
     "test": "xvfb-maybe electron-mocha",
     "postinstall": "node scripts/postinstall.js",
     "prepublish": "node scripts/prepublish.js",
     "postuninstall": "node scripts/postuninstall.js",
-    "//": [
-      "/**",
-      " * Aliases for humans as some of the script hook names can be a bit too ambiguous.",
-      " */"
-    ],
     "check": "mongodb-js-precommit ./src/app/*.js ./src/app/**/**/*.js ./src/{app/**/*.js,main/**/*.js} ./{scripts,test}/*.js",
-    "ci": "npm run check && npm run prepublish && npm test",
+    "ci": "npm run test-unit",
     "clean": "npm run postuninstall",
     "fmt": "mongodb-js-fmt ./*.js src/{**/*.js,*.js} test/{**/*.js,*.js} scripts/*.js",
-    "release": "npm run prepublish"
+    "release": "npm run prepublish",
+    "test-renderer": "electron-mocha --renderer --grep='#renderer'",
+    "test-functional": "electron-mocha --grep='#spectron'",
+    "test-unit": "electron-mocha -i --grep='#renderer|#spectron'"
   },
   "repository": {
     "type": "git",
@@ -137,6 +136,7 @@
     "eslint-plugin-react": "^4.1.0",
     "fs-extra": "^0.26.5",
     "glob": "^5.0.15",
+    "mocha-evergreen-reporter": "0.0.7",
     "mongodb-js-cli": "^0.0.2",
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^0.2.8",
