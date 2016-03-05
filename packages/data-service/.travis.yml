@@ -8,3 +8,5 @@ cache:
   - node_modules
 notifications:
   flowdock: e3dc17bc8a2c1b3412abe3e5747f8291
+env:
+  - MONGODB_VERSION=3.2.x MONGODB_TOPOLOGY=standalone
