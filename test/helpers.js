@@ -41,17 +41,6 @@ function responseValue(response) {
 
 module.exports.responseValue = responseValue;
 
-var _evergreenWarningShown = false;
-module.exports.warnEvergreen = function() {
-  /* eslint no-console:0 */
-  if (!_evergreenWarningShown) {
-    console.warn('Spectron acceptance tests skipped on '
-    + 'evergreen until the following is resolved: '
-    + 'https://jira.mongodb.org/browse/BUILD-1122');
-    _evergreenWarningShown = true;
-  }
-};
-
 module.exports.getApplication = function() {
   if (process.env.TEST_WITH_PREBUILT) {
     debug('Starting application with spectron using electron-prebuilt `%s`',

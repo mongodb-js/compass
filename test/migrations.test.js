@@ -29,17 +29,14 @@ var mockMigrations = {
   }
 };
 /**
- * NOTE (imlucas) Tests won't run because localforage is not available?
- * We've switched to `electron-mocha` but still getting the following error:
- *
- *     ReferenceError: self is not defined
- *      at Object.<anonymous> (src/app/migrations/index.js:8:20)
- *      at Context.<anonymous> (test/migrations.test.js:35:15)
-  */
-describe.skip('Schema Migration', function() {
+ * NOTE (imlucas) This is current broken.  To repro:
+ * 1. Uncomment `.skip` below
+ * 2. Run `npm test-renderer`
+ */
+describe.skip('Schema Migration #renderer', function() {
   var migrate;
   before(function() {
-    migrate = require('../src/migrations');
+    migrate = require('../src/app/migrations');
   });
 
   it('should have the schema migration map', function() {
