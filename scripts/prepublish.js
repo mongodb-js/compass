@@ -275,6 +275,7 @@ if (cli.argv.platform === 'darwin') {
     resources: LINUX_RESOURCES,
     executable: LINUX_EXECUTABLE,
     installer_destination: null,
+    appPath: LINUX_OUT_X64,
     createInstaller: function(done) {
       cli.warn('Linux installers coming soon!');
       done();
