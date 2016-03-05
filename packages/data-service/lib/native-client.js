@@ -200,7 +200,8 @@ class NativeClient {
    * @return {Stream} The sample stream.
    */
   sample(ns, options) {
-    return createSampleStream(this.database, this._collectionName(ns), options);
+    var db = this._database(this._databaseName(ns));
+    return createSampleStream(db, this._collectionName(ns), options);
   }
 
   /**
