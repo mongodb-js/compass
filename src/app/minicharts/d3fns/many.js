@@ -1,4 +1,4 @@
-/* eslint no-use-before-define:1 */
+/* eslint no-use-before-define: 0, camelcase: 0 */
 var d3 = require('d3');
 var $ = require('jquery');
 var _ = require('lodash');
