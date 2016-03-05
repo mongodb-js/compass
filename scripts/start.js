@@ -62,13 +62,14 @@ function startElectronPrebuilt(done) {
     cli.abort(err);
   }
 
-  function onReady(){
+  function onReady() {
     cli.ok('application started');
   }
 
   var proc = spawn(ELECTRON_PREBUILT_EXECUTABLE, args, opts);
   proc.on('error', onError);
   setTimeout(onReady, 1000);
+  proc.on('exit', done.bind(null, null));
 }
 
 async.series([
