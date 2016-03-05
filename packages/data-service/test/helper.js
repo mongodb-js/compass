@@ -1,11 +1,13 @@
 var chai = require('chai');
 var assert = require('assert');
 var expect = chai.expect;
+var es = require('event-stream');
 var Connection = require('mongodb-connection-model');
 
 module.exports.chai = chai;
 module.exports.assert = assert;
 module.exports.expect = expect;
+module.exports.eventStream = es;
 
 module.exports.connection =
   new Connection({ hostname: '127.0.0.1', port: 27018, ns: 'data-service' });

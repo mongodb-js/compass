@@ -149,6 +149,22 @@ class NativeClient {
   }
 
   /**
+   * Get the indexes for the collection.
+   *
+   * @param {String} ns - The collection namespace.
+   * @param {Function} callback - The callback.
+   */
+  indexes(ns, callback) {
+    var coll = this._collection(ns);
+    coll.listIndexes({}).toArray((error, data) => {
+      if (error) {
+        return callback(error);
+      }
+      callback(null, data);
+    });
+  }
+
+  /**
    * Get the current instance details.
    *
    * @param {function} callback - The callback function.
@@ -200,6 +216,14 @@ class NativeClient {
     };
   }
 
+  /**
+   * Builds the database detail.
+   *
+   * @param {String} name - The database name.
+   * @param {Object} db - The database statistics.
+   *
+   * @returns {Object} The database detail.
+   */
   _buildDatabaseDetail(name, db) {
     return {
       _id: name,

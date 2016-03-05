@@ -2,6 +2,7 @@ var helper = require('./helper');
 
 var assert = helper.assert;
 var expect = helper.expect;
+var eventStream = helper.eventStream;
 
 var NativeClient = require('../lib/native-client');
 
@@ -126,6 +127,41 @@ describe('NativeClient', function() {
           expect(count).to.equal(0);
           done();
         });
+      });
+    });
+  });
+
+  describe('#indexes', function() {
+    it('returns the indexes', function(done) {
+      client.indexes('data-service.test', function(err, indexes) {
+        assert.equal(null, err);
+        expect(indexes[0].name).to.equal('_id_');
+        done();
+      });
+    });
+  });
+
+  describe('#sample', function() {
+    before(function() {
+      helper.insertTestDocuments(client);
+    });
+
+    after(function() {
+      helper.deleteTestDocuments(client);
+    });
+
+    context('when no filter is provided', function() {
+      it('returns a stream of sampled documents', function(done) {
+        var seen = 0;
+        client.sample('data-service.test')
+          .pipe(eventStream.through(function(doc) {
+            seen++;
+            this.emit('data', doc);
+          }, function() {
+            this.emit('end');
+            expect(seen).to.equal(2);
+            done();
+          }));
       });
     });
   });

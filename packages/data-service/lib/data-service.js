@@ -90,6 +90,7 @@ class DataService extends EventEmitter {
    * @return {Object} The result of the delegated call.
    */
   get(url, options, callback) {
+    console.log(url);
     var route = this.router.resolve(url);
     var args = this._generateArguments(route.args, options, callback);
     return this[route.method].apply(this, args);
