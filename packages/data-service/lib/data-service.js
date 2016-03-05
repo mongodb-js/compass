@@ -1,5 +1,6 @@
 'use strict';
 
+const debug = require('debug')('mongodb-data-service:data-service');
 const NativeClient = require('./native-client');
 const Router = require('./router');
 const EventEmitter = require('events');
@@ -40,6 +41,7 @@ class DataService extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   collection(ns, options, callback) {
+    debug(`#collection: ${ns}: options: ${options}`);
     this.client.collectionDetail(ns, callback);
   }
 
@@ -49,8 +51,10 @@ class DataService extends EventEmitter {
    * @param {function} callback - The callback function.
    */
   connect(callback) {
+    debug('Connecting to MongoDB.');
     this.client.connect((error) => {
       callback(error, this);
+      debug('Data Service is readable.');
       this.emit(Events.Readable);
     });
   }
@@ -65,6 +69,7 @@ class DataService extends EventEmitter {
    * @param {function} callback - The callback function.
    */
   count(ns, filter, options, callback) {
+    debug(`#count: ${ns}, filter: ${filter}, options: ${options}`);
     this.client.count(ns, filter, options, callback);
   }
 
@@ -76,6 +81,7 @@ class DataService extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   database(name, options, callback) {
+    debug(`#database: ${name}, options: ${options}`);
     this.client.databaseDetail(name, callback);
   }
 
@@ -88,6 +94,7 @@ class DataService extends EventEmitter {
    * @param {Function} callback - The callback function.
    */
   find(ns, filter, options, callback) {
+    debug(`#find: ${ns}, filter: ${filter}, options: ${options}`);
     this.client.find(ns, filter, options, callback);
   }
 
@@ -101,7 +108,7 @@ class DataService extends EventEmitter {
    * @return {Object} The result of the delegated call.
    */
   get(url, options, callback) {
-    console.log(url);
+    debug(`#get: ${url}, options: ${options}`);
     var route = this.router.resolve(url);
     var args = this._generateArguments(route.args, options, callback);
     return this[route.method].apply(this, args);
@@ -113,6 +120,7 @@ class DataService extends EventEmitter {
    * @param {function} callback - The callback function.
    */
   instance(options, callback) {
+    debug(`#instance: ${options}`);
     this.client.instance(callback);
   }
 
@@ -125,6 +133,7 @@ class DataService extends EventEmitter {
    * @return {Stream} The sample stream.
    */
   sample(ns, options) {
+    debug(`#sample: ${ns}, options: ${options}`);
     return this.client.sample(ns, options);
   }
 
