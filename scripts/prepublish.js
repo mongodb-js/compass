@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-process.env.NODE_ENV = 'production';
 
 var pkg = require('../package.json');
 var format = require('util').format;
@@ -433,7 +432,7 @@ function transformPackageJson(done) {
     contents.config = {};
   }
   _.defaults(contents.config, {
-    NODE_ENV: process.env.NODE_ENV,
+    NODE_ENV: process.env.NODE_ENV || 'production',
     build_time: new Date().toISOString(),
     channel: cli.argv.channel
   });

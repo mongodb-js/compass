@@ -40,7 +40,7 @@
       " * Aliases for humans as some of the script hook names can be a bit too ambiguous.",
       " */"
     ],
-    "check": "mongodb-js-precommit ./*.js src/{**/*.js,*.js} test/{**/*.js,*.js} scipts/{**/*.js,*.js}",
+    "check": "mongodb-js-precommit ./*.js src/{**/*.js,*.js} test/{**/*.js,*.js} scipts/*.js",
     "ci": "npm run check && npm run prepublish && npm test",
     "clean": "npm run postuninstall",
     "fmt": "mongodb-js-fmt ./*.js src/{**/*.js,*.js} test/{**/*.js,*.js} scripts/*.js",
