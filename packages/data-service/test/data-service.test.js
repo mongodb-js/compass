@@ -25,33 +25,11 @@ describe('DataService', function() {
       helper.deleteTestDocuments(service.client);
     });
 
-    context('when a filter is provided', function() {
-      it('returns a cursor for the matching documents', function(done) {
-        service.find('data-service.test', { a: 1 }, {}, function(error, docs) {
-          assert.equal(null, error);
-          expect(docs.length).to.equal(1);
-          done();
-        });
-      });
-    });
-
-    context('when no filter is provided', function() {
-      it('returns a cursor for all documents', function(done) {
-        service.find('data-service.test', {}, {}, function(error, docs) {
-          assert.equal(null, error);
-          expect(docs.length).to.equal(2);
-          done();
-        });
-      });
-    });
-
-    context('when options are provided', function() {
-      it('returns a cursor for the documents', function(done) {
-        service.find('data-service.test', {}, { skip: 1 }, function(error, docs) {
-          assert.equal(null, error);
-          expect(docs.length).to.equal(1);
-          done();
-        });
+    it('returns a cursor for the documents', function(done) {
+      service.find('data-service.test', {}, { skip: 1 }, function(error, docs) {
+        assert.equal(null, error);
+        expect(docs.length).to.equal(1);
+        done();
       });
     });
   });
