@@ -13,13 +13,6 @@ const createSampleStream = require('mongodb-collection-sample');
 class NativeClient {
 
   /**
-   * Close the client.
-   */
-  close() {
-    this.database.close(true);
-  }
-
-  /**
    * Instantiate a new NativeClient object.
    *
    * @constructor
@@ -164,10 +157,11 @@ class NativeClient {
   /**
    * Find documents for the provided filter and options on the collection.
    *
-   * @param {String} ns - The namespace to search on.
-   * @param {Object} filter - The filter.
-   * @param {Object} options - The query options.
-   * @param {Function} callback - The callback.
+   * @param {string} ns - The namespace to search on.
+   * @param {object} filter - The filter.
+   * @param {object} options - The query options.
+   *
+   * @returns {Cursor} The cursor.
    */
   find(ns, filter, options, callback) {
     this._collection(ns).find(filter, options).toArray((error, documents) => {

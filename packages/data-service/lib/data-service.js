@@ -22,15 +22,6 @@ const Events = {
 class DataService extends EventEmitter {
 
   /**
-   * Close the service.
-   *
-   * @param {Function} callback - The callback.
-   */
-  close() {
-    this.client.close();
-  }
-
-  /**
    * Instantiate a new DataService object.
    *
    * @constructor
@@ -62,9 +53,9 @@ class DataService extends EventEmitter {
   connect(callback) {
     debug('Connecting to MongoDB.');
     this.client.connect((error) => {
+      callback(error, this);
       debug('Data Service is readable.');
       this.emit(Events.Readable);
-      return callback(error, this);
     });
   }
 
@@ -112,7 +103,7 @@ class DataService extends EventEmitter {
    *
    * @param {String} url - The RESTful url.
    * @param {Object} options - The options.
-   * @param {Function} callback - The callback.
+   * @param {function} callback - The callback.
    *
    * @return {Object} The result of the delegated call.
    */
@@ -126,8 +117,7 @@ class DataService extends EventEmitter {
   /**
    * Get the current instance details.
    *
-   * @param {Object} options - The options.
-   * @param {Function} callback - The callback function.
+   * @param {function} callback - The callback function.
    */
   instance(options, callback) {
     debug(`#instance: ${options}`);
