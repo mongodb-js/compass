@@ -72,6 +72,7 @@
     "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz",
     "d3": "^3.5.6",
     "debug": "^2.2.0",
+    "debug-menu": "^0.3.0",
     "domready": "^1.0.8",
     "electron-compile": "^2.0.7",
     "electron-squirrel-startup": "^0.1.4",
