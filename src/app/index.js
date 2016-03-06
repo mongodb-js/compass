@@ -42,6 +42,8 @@ var metricsSetup = require('./metrics');
 var metrics = require('mongodb-js-metrics')();
 var $ = require('jquery');
 
+var addInspectElementMenu = require('debug-menu').install;
+
 var debug = require('debug')('mongodb-compass:app');
 
 function getConnection(model, done) {
@@ -259,6 +261,11 @@ var Application = View.extend({
    * quickly as possible.
    */
   render: function() {
+    debug('Rendering w/ NODE_ENV', process.env.NODE_ENV);
+    if (process.env.NODE_ENV !== 'production') {
+      debug('Installing "Inspect Element" context menu');
+      addInspectElementMenu();
+    }
     debug('Rendering app container...');
 
     this.el = document.querySelector('#application');
