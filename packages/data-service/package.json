@@ -4,7 +4,7 @@
   "author": "Durran Jordan <durran@gmail.com>",
   "bugs": "https://github.com/mongodb-js/data-service/issues",
   "homepage": "https://github.com/mongodb-js/data-service",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/data-service.git"
@@ -24,6 +24,7 @@
   ],
   "dependencies": {
     "async": "^1.5.2",
+    "bson": "^0.4.22",
     "debug": "^2.2.0",
     "lodash": "^4.6.1",
     "mongodb": "^2.1.6",
