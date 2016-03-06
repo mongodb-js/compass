@@ -117,7 +117,8 @@ class DataService extends EventEmitter {
   /**
    * Get the current instance details.
    *
-   * @param {function} callback - The callback function.
+   * @param {Object} options - The options.
+   * @param {Function} callback - The callback function.
    */
   instance(options, callback) {
     debug(`#instance: ${options}`);
