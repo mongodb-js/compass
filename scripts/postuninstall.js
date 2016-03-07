@@ -11,18 +11,17 @@ cli.yargs.usage('$0 [options]')
   .epilogue('a.k.a `make clean`');
 
 if (cli.argv.verbose) {
-  process.env.DEBUG = '*';
+  require('debug').enable('ele*,mon*');
 }
+
 
 var del = require('del');
 var async = require('async');
 var path = require('path');
 
-/**
- * TODO (imlucas) Figure out how to nuke `electron-compiler` cache as well.
- */
+
 cli.spinner('Removing build artifacts');
-async.parallel(['build/', 'dist/', 'node_modules/'].map(function(p) {
+async.parallel(['build/', 'dist/', 'node_modules/', '.cache'].map(function(p) {
   return function(cb) {
     del(path.join(__dirname, '..', p)).then(cb.bind(null, null));
   };

@@ -8,7 +8,7 @@
  *
  * @see https://github.com/atom/atom/blob/master/script/utils/verify-requirements.js
  */
-
+var pkg = require('../package.json');
 var cli = require('mongodb-js-cli')('mongodb-compass:scripts:prestart');
 cli.yargs.usage('$0 [options]')
   .option('verbose', {
@@ -27,7 +27,7 @@ cli.yargs.usage('$0 [options]')
   .help('help');
 
 if (cli.argv.verbose) {
-  process.env.DEBUG = '*';
+  require('debug').enable('ele*,mon*');
 }
 
 var argv = cli.argv;

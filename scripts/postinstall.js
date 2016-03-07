@@ -19,7 +19,7 @@ cli.yargs.usage('$0 [options]')
   .epilogue('a.k.a. `make clean`');
 
 if (cli.argv.verbose) {
-  process.env.DEBUG = '*';
+  require('debug').enable('ele*,mon*');
 }
 var argv = cli.argv;
 var run = require('electron-installer-run');
@@ -34,6 +34,11 @@ var path = require('path');
 process.env.npm_config_disturl = 'https://atom.io/download/atom-shell';
 process.env.npm_config_target = argv.electron_version;
 process.env.npm_config_runtime = 'electron';
+
+if (process.platform === 'win32') {
+  cli.info('electron-rebuild on windows is broken :/');
+  process.exit(0);
+}
 
 /**
  * TODO (imlucas) switch to using `electron-rebuild` as a module for more
