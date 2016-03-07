@@ -34,7 +34,7 @@
     "mongodb-url": "^1.0.2"
   },
   "devDependencies": {
-    "eslint-config-mongodb-js": "^1.0.6",
+    "eslint-config-mongodb-js": "^2.0.0",
     "mocha": "^2.3.4",
     "mongodb-connection-fixture": "^0.0.11",
     "mongodb-instance-model": "^2.1.6",
