@@ -53,9 +53,11 @@ class DataService extends EventEmitter {
   connect(callback) {
     debug('Connecting to MongoDB.');
     this.client.connect((error) => {
-      callback(error, this);
       debug('Data Service is readable.');
-      this.emit(Events.Readable);
+      process.nextTick(() => {
+        this.emit(Events.Readable);
+      });
+      return callback(error, this);
     });
   }
 
