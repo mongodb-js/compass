@@ -3,7 +3,7 @@
 const _ = require('lodash');
 const async = require('async');
 const createConnection = require('mongodb-connection-model').connect;
-const getInstance = require('mongodb-instance-model').fetch;
+const getInstance = require('mongodb-instance-model').get;
 const getId = require('mongodb-instance-model').getId;
 const createSampleStream = require('mongodb-collection-sample');
 
@@ -197,7 +197,7 @@ class NativeClient {
       if (error) {
         return callback(error);
       }
-      callback(null, this._buildInstance(data));
+      callback(null, data.serialize());
     });
   }
 
