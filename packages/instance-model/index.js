@@ -33,7 +33,10 @@ module.exports.get = function(db, done) {
        * from the users perspective.  The hostname returned by
        * fetch#getBuildInfo() may not (e.g. AWS' internal DNS for EC2).
        */
-      hostname = res.host.hostname;
+      hostname = URL.hostname(res.host.hostname);
+      if (/\:\d+/.test(res.host.hostname)) {
+        port = URL.port(res.host.hostname);
+      }
     }
 
     res._id = [hostname, port].join(':');
