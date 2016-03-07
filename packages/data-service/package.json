@@ -30,7 +30,7 @@
     "mongodb": "^2.1.6",
     "mongodb-collection-sample": "^1.0.0",
     "mongodb-connection-model": "^3.0.10",
-    "mongodb-instance-model": "^2.1.7",
+    "mongodb-instance-model": "^2.2.0",
     "mongodb-url": "^1.0.2"
   },
   "devDependencies": {
