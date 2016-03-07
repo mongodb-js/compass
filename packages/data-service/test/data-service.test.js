@@ -74,7 +74,8 @@ describe('DataService', function() {
         it('returns the instance details', function(done) {
           service.get('/instance', {}, function(err, instance) {
             assert.equal(null, err);
-            expect(instance.host).to.not.equal(null);
+            expect(instance.host).to.not.equal(undefined);
+            expect(instance.port).to.equal(27018);
             done();
           });
         });
@@ -84,7 +85,8 @@ describe('DataService', function() {
         it('returns the instance details', function(done) {
           service.get('/instance', function(err, instance) {
             assert.equal(null, err);
-            expect(instance.host).to.not.equal(null);
+            expect(instance.host).to.not.equal(undefined);
+            expect(instance.port).to.equal(27018);
             done();
           });
         });
