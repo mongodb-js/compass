@@ -4,7 +4,6 @@ const _ = require('lodash');
 const async = require('async');
 const createConnection = require('mongodb-connection-model').connect;
 const getInstance = require('mongodb-instance-model').get;
-const getId = require('mongodb-instance-model').getId;
 const createSampleStream = require('mongodb-collection-sample');
 
 /**
@@ -197,7 +196,7 @@ class NativeClient {
       if (error) {
         return callback(error);
       }
-      callback(null, data.serialize());
+      callback(null, this._buildInstance(data));
     });
   }
 
@@ -311,17 +310,11 @@ class NativeClient {
    * @returns {Object} The instance detail.
    */
   _buildInstance(data) {
-    if (data.host.hostname) {
-      var parts = data.host.hostname.split(':');
-      var hostname = getId(parts[0]);
-      var port = parseInt(parts[1], 10);
-      return _.assignIn(data, {
-        _id: `${hostname}:${port}`,
-        hostname: hostname,
-        port: port
-      });
-    }
-    return data;
+    var splitHost = data._id.split(':');
+    return _.assignIn(data, {
+      hostname: splitHost[0],
+      port: parseInt(splitHost[1], 10)
+    });
   }
 
   /**
