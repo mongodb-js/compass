@@ -146,6 +146,20 @@ describe('NativeClient', function() {
     });
   });
 
+  describe('#disconnect', function() {
+    after(function(done) {
+      client.connect(done);
+    });
+
+    it('disconnects the database', function(done) {
+      client.disconnect();
+      client.count('data-service.test', {}, {}, function(error) {
+        expect(error.message).to.equal('topology was destroyed');
+        done();
+      });
+    });
+  });
+
   describe('#indexes', function() {
     it('returns the indexes', function(done) {
       client.indexes('data-service.test', function(err, indexes) {

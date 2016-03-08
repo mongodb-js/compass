@@ -88,6 +88,13 @@ class DataService extends EventEmitter {
   }
 
   /**
+   * Disconnect the service.
+   */
+  disconnect() {
+    this.client.disconnect();
+  }
+
+  /**
    * Find documents for the provided filter and options on the collection.
    *
    * @param {String} ns - The namespace to search on.

@@ -72,6 +72,20 @@ describe('DataService', function() {
     });
   });
 
+  describe('#disconnect', function() {
+    after(function(done) {
+      service.connect(done);
+    });
+
+    it('disconnects the database', function(done) {
+      service.disconnect();
+      service.count('data-service.test', {}, {}, function(error) {
+        expect(error.message).to.equal('topology was destroyed');
+        done();
+      });
+    });
+  });
+
   describe('#get', function() {
     context('when the url is /instance', function() {
       context('when passing options', function() {

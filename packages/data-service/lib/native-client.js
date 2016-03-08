@@ -154,6 +154,13 @@ class NativeClient {
   }
 
   /**
+   * Disconnect the client.
+   */
+  disconnect() {
+    this.database.close();
+  }
+
+  /**
    * Find documents for the provided filter and options on the collection.
    *
    * @param {String} ns - The namespace to search on.
