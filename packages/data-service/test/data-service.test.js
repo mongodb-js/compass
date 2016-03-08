@@ -17,12 +17,16 @@ describe('DataService', function() {
   });
 
   describe('#find', function() {
-    before(function() {
-      helper.insertTestDocuments(service.client);
+    before(function(done) {
+      helper.insertTestDocuments(service.client, function() {
+        done();
+      });
     });
 
-    after(function() {
-      helper.deleteTestDocuments(service.client);
+    after(function(done) {
+      helper.deleteTestDocuments(service.client, function() {
+        done();
+      });
     });
 
     it('returns a cursor for the documents', function(done) {
@@ -130,12 +134,16 @@ describe('DataService', function() {
   });
 
   describe('#sample', function() {
-    before(function() {
-      helper.insertTestDocuments(service.client);
+    before(function(done) {
+      helper.insertTestDocuments(service.client, function() {
+        done();
+      });
     });
 
-    after(function() {
-      helper.deleteTestDocuments(service.client);
+    after(function(done) {
+      helper.deleteTestDocuments(service.client, function() {
+        done();
+      });
     });
 
     context('when no filter is provided', function() {

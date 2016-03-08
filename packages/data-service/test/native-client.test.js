@@ -23,12 +23,16 @@ describe('NativeClient', function() {
   });
 
   describe('#find', function() {
-    before(function() {
-      helper.insertTestDocuments(client);
+    before(function(done) {
+      helper.insertTestDocuments(client, function() {
+        done();
+      });
     });
 
-    after(function() {
-      helper.deleteTestDocuments(client);
+    after(function(done) {
+      helper.deleteTestDocuments(client, function() {
+        done();
+      });
     });
 
     context('when a filter is provided', function() {
@@ -165,12 +169,16 @@ describe('NativeClient', function() {
   });
 
   describe('#sample', function() {
-    before(function() {
-      helper.insertTestDocuments(client);
+    before(function(done) {
+      helper.insertTestDocuments(client, function() {
+        done();
+      });
     });
 
-    after(function() {
-      helper.deleteTestDocuments(client);
+    after(function(done) {
+      helper.deleteTestDocuments(client, function() {
+        done();
+      });
     });
 
     context('when no filter is provided', function() {

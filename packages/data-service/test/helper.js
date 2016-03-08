@@ -21,12 +21,12 @@ module.exports.authorizedConnection =
     password: 'password'
   });
 
-module.exports.insertTestDocuments = function(client) {
+module.exports.insertTestDocuments = function(client, callback) {
   var collection = client.database.collection('test');
-  collection.insertMany([{ a: 1 }, { a: 2 }]);
+  collection.insertMany([{ a: 1 }, { a: 2 }], callback);
 };
 
-module.exports.deleteTestDocuments = function(client) {
+module.exports.deleteTestDocuments = function(client, callback) {
   var collection = client.database.collection('test');
-  collection.deleteMany();
+  collection.deleteMany(callback);
 };
