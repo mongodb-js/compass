@@ -7,7 +7,6 @@ var debug = require('debug')('mongodb-instance-model');
 module.exports = Model;
 module.exports.fetch = fetch;
 module.exports.get = function(db, done) {
-  var instance = new Model();
   fetch(db, function(err, res) {
     if (err) {
       return done(err);
@@ -40,8 +39,7 @@ module.exports.get = function(db, done) {
     }
 
     res._id = [hostname, port].join(':');
-    instance.set(res);
-    debug('instance.get returning %j', instance);
-    done(null, instance);
+    debug('instance.get returning %j', res);
+    done(null, res);
   });
 };
