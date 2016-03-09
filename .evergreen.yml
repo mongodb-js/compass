@@ -72,14 +72,18 @@ functions:
         ${npm|npm} config -g list
         which -a npm
         node -p process.env
+        # less chatty installs: "--depth 0" reduces detail of "npm ls" tree output
+        export NPM_CONFIG_DEPTH=0
+        export NPM_CONFIG_LOGLEVEL=ERROR
         ${npm|npm} install
+        # INT-1081 Attach parseable log of installed packages.
+        # Don't allow it to fail build.
+        ${npm|npm} ls --depth=Infinity --json=true > npm_install.json || true
 
   # For Windows: retrieve a fake "signtool.exe" which proxies to notary-service,
   # and remove the real one from our path. Must run after "npm install"
   "fetch signtool" : &fetch_signtool
     command: shell.exec
-    variants:
-      - windows-64
     params:
       working_dir: src
       script: |
@@ -107,6 +111,7 @@ functions:
         export PATH="${node_path}:$PATH"
         export CI=1
         export EVERGREEN=1
+        export EVERGREEN_PROJECT=${project}
         export NOTARY_URL="http://notary-service.build.10gen.cc:5000"
         export NOTARY_AUTH_TOKEN="${signing_auth_token}"
         export NOTARY_SIGNING_KEY="${signing_key_name}"
@@ -124,7 +129,7 @@ functions:
         ${npm|npm} run check
 
         # Create a release build
-        ${npm|npm} run prepublish -- --verbose --revision=${revision} --build_variant=${build_variant} --branch_name=${branch_name}
+        ${npm|npm} run prepublish -- --revision=${revision} --build_variant=${build_variant} --branch_name=${branch_name}
 
         # TODO (imlucas) Uncomment when we can run spectron
         # and/or renderer tests on evergreen.
@@ -147,8 +152,6 @@ functions:
 
   "test_ssh_localhost" :
     command: shell.exec
-    variants:
-      - osx-1010
     params:
       working_dir: src
       script: |
@@ -158,6 +161,18 @@ functions:
           ssh -p 2222 localhost "echo SSH_LOCALHOST_TEST_OK"
         fi
 
+  "save npm_install.json":
+    command: s3.put
+    params:
+      aws_key: ${aws_key}
+      aws_secret: ${aws_secret}
+      local_file: "src/npm_install.json"
+      remote_file: "${project}/${build_variant}/${revision}/npm_install.json"
+      bucket: mciuploads
+      permissions: public-read
+      content_type: application/json
+      display_name: "npm_install.json"
+
   "save release":
     command: s3.put
     params:
@@ -166,7 +181,7 @@ functions:
       aws_key: ${aws_key}
       aws_secret: ${aws_secret}
       local_file: "src/dist/${installer_filename}"
-      remote_file: "mongodb-compass-master/${build_variant}/${revision}/${installer_filename}"
+      remote_file: "${project}/${build_variant}/${revision}/${installer_filename}"
       bucket: mciuploads
       permissions: public-read
       content_type: ${installer_content_type|application/octet-stream}
@@ -205,11 +220,16 @@ tasks:
   depends_on: []
   commands:
   - func: "test_ssh_localhost"
+    variants:
+      - osx-1010
   - func: "fetch source"
   - func: "fetch npm tarball"
   - func: "npm install"
   - func: "fetch signtool"
+    variants:
+      - windows-64
   - func: "build"
+  - func: "save npm_install.json"
   - func: "save release"
 
 # Define shortcut for use below
