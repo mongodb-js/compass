@@ -198,9 +198,8 @@ if (cli.argv.platform === 'win32') {
     createInstaller: createSquirrelWindowsInstaller.bind(null, CONFIG)
   });
   cli.info('Windows is the target platform and has the config: ' + JSON.stringify(CONFIG, null, 2));
-}
-
-if (cli.argv.platform === 'darwin') {
+  // ----
+} else if (cli.argv.platform === 'darwin') {
   var createDMG = require('electron-installer-dmg');
   var codesign = require('electron-installer-codesign');
 
@@ -271,6 +270,7 @@ if (cli.argv.platform === 'darwin') {
     createInstaller: OSX_CREATE_INSTALLER
   });
   cli.info('OS X is the target platform and has the config: ' + JSON.stringify(CONFIG, null, 2));
+  // ----
 } else {
   _.assign(CONFIG, {
     name: LINUX_APPNAME,
