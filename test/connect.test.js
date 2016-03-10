@@ -22,7 +22,9 @@ describe('Connect Window #spectron', function() {
   });
 
   context('when connecting with no authentication', function() {
-    before(require('mongodb-runner/mocha/before')({ port: 27018 }));
+    before(require('mongodb-runner/mocha/before')({
+      port: 27018
+    }));
     after(require('mongodb-runner/mocha/after')());
     context('when the server exists', function() {
       it('opens the schema window', function() {
@@ -57,16 +59,16 @@ describe('Connect Window #spectron', function() {
     context('when connecting with user and password', function() {
       context('when the credentials are correct', function() {
         // if (!process.env.MONGODB_PASSWORD_COMPASS) {
-          // this.skip();
-          // return null;
+        // this.skip();
+        // return null;
         // }
         // var connection = {
-          // hostname: 'standalone.compass-test-1.mongodb.parts',
-          // port: 27000,
-          // authentication: 'MONGODB',
-          // mongodb_username: 'compass',
-          // mongodb_password: process.env.MONGODB_PASSWORD_COMPASS,
-          // mongodb_database_name: 'admin'
+        // hostname: 'standalone.compass-test-1.mongodb.parts',
+        // port: 27000,
+        // authentication: 'MONGODB',
+        // mongodb_username: 'compass',
+        // mongodb_password: process.env.MONGODB_PASSWORD_COMPASS,
+        // mongodb_database_name: 'admin'
         // };
         // return this.app.client.gotoSchemaWindow(connection);
         it('opens the schema window');
