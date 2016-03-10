@@ -36,7 +36,9 @@ var format = require('util').format;
 var run = require('electron-installer-run');
 
 cli.spinner('verifying current environment meets requirements');
-run('npm', ['version', '--json', '--loglevel', 'error'], {env: process.env}, function(err, stdout) {
+run('npm', ['version', '--json', '--loglevel', 'error'], {
+  env: process.env
+}, function(err, stdout) {
   cli.abortIfError(err);
 
   var versions = JSON.parse(stdout);

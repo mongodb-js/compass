@@ -145,7 +145,9 @@ module.exports.create = function(opts) {
     _window.webContents.on('devtools-opened', function() {
       _window.webContents.addWorkSpace(path.join(__dirname, '..', '..'));
     });
-    _window.webContents.openDevTools({detach: true});
+    _window.webContents.openDevTools({
+      detach: true
+    });
   }
 
 

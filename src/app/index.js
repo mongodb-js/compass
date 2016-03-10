@@ -166,7 +166,9 @@ var Application = View.extend({
       }
       this.user.set(user.serialize());
       this.user.trigger('sync');
-      this.preferences.save({currentUserId: user.id});
+      this.preferences.save({
+        currentUserId: user.id
+      });
       debug('user fetch successful', user.serialize());
       done(null, user);
     }.bind(this));
@@ -319,19 +321,24 @@ function handleIntercomLinks() {
   var lookForLinks = getNodeObserver(function(element) {
     if (element.nodeName === 'A') {
       $(element).click(state.onLinkClick.bind(state));
-    }else {
+    } else {
       $(element).find('a').click(state.onLinkClick.bind(state));
     }
   });
 
   var waitForIntercom = getNodeObserver(function(element) {
     if (element.id === 'intercom-container') { // if intercom is now available...
-      lookForLinks.observe(element, {childList: true, subtree: true});
+      lookForLinks.observe(element, {
+        childList: true,
+        subtree: true
+      });
       waitForIntercom.disconnect(); // stop waiting for intercom
     }
   });
 
-  waitForIntercom.observe(document.body, {childList: true});
+  waitForIntercom.observe(document.body, {
+    childList: true
+  });
 }
 
 app.extend({

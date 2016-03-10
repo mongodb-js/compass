@@ -18,10 +18,18 @@ var Connection = require('mongodb-connection-model');
  * Test documents to sample with a local server.
  */
 var DOCUMENTS = [
-  { 'name': 'Aphex Twin' },
-  { 'name': 'Bonobo' },
-  { 'name': 'Arca' },
-  { 'name': 'Beacon' }
+  {
+    'name': 'Aphex Twin'
+  },
+  {
+    'name': 'Bonobo'
+  },
+  {
+    'name': 'Arca'
+  },
+  {
+    'name': 'Beacon'
+  }
 ];
 
 // var ELECTRON_PATH = {
