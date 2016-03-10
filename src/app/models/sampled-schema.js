@@ -177,9 +177,10 @@ module.exports = Schema.extend({
         return options.success({});
       }
 
+      debug('count', count);
+
       var status = 0;
-      var counter = 0;
-      var numSamples = Math.min(options.size, count.count);
+      var numSamples = Math.min(options.size, count);
       var stepSize = Math.ceil(Math.max(1, numSamples / 10));
 
       app.statusbar.show({
@@ -207,7 +208,6 @@ module.exports = Schema.extend({
         })
         .on('progress', function() {
           sampleCount++;
-          debug('progress', sampleCount);
           if (sampleCount % stepSize === 0) {
             var inc = (100 - status) * stepSize / numSamples;
             app.statusbar.width += inc;
@@ -223,6 +223,7 @@ module.exports = Schema.extend({
           }
           // workaround, as 'data' seems to be emitted even when sample stage
           // has an error. @ChristianKvalheim investigating.
+          debug('did not receive data from the driver.');
           onFail(new Error('did not receive data from driver.'));
         });
     });

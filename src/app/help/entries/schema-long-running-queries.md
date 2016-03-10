@@ -14,7 +14,7 @@ related:
 
 ### Slow Sampling
 
-All queries that Compass sends to your MongoDB instance have a [timeout flag][maxtimems-docs] set which automatically aborts a request if it takes longer than the specified timeout. This timeout is currently set to 10 seconds. If [sampling](#schema-how-sampling-works) on the database takes longer, Compass will notify you about the timeout and give you the options of retrying with a longer timeout (60 seconds) or running a different query.
+All queries that Compass sends to your MongoDB instance have a [timeout flag][maxtimems-docs] set which automatically aborts a request if it takes longer than the specified timeout. This timeout is currently set to 10 seconds. If [sampling](#schema-how-sampling-works) on the database takes longer, Compass will notify you about the timeout and give you the options of (a) retrying with a longer timeout (60 seconds) or (b) running a different query.
 
 Note that sampling time may be affected by a number of factors, like load on the server, number of documents and existence of a suitable index for your query.
 

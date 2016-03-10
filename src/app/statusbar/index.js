@@ -118,8 +118,8 @@ var StatusbarView = View.extend({
   trickle: function(bool) {
     if (bool) {
       this.trickleTimer = setInterval(function() {
-        this.width = Math.min(98, this.width + _.random(0, 2));
-      }.bind(this), 800);
+        this.width = Math.min(98, this.width + _.random(1, 3));
+      }.bind(this), 400);
     } else {
       clearInterval(this.trickleTimer);
     }
@@ -161,7 +161,7 @@ var StatusbarView = View.extend({
       _.delay(function() {
         model.width = 0;
         model.visible = false;
-      }, 1000);
+      }, 500);
     } else {
       this.progressbar = false;
       this.visible = false;
