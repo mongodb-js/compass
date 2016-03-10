@@ -353,7 +353,7 @@ function compileApplicationUI(done) {
   var DEST = path.join(CONFIG.resources, 'app', '.cache');
   function runElectronCompile(cb) {
     var args = [
-      '--appDir',
+      '--appdir',
       path.resolve(__dirname, '..'),
       path.resolve(__dirname, '..', 'src')
     ];
