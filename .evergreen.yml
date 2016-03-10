@@ -263,16 +263,17 @@ buildvariants:
     add_env_appdata: Z:\
   tasks:
     *all_tasks
-
-- name: ubuntu
-  display_name: Ubuntu 14.04
-  modules: ~
-  run_on:
-  - "ubuntu1404-test"
-  expansions:
-    fetch_npm_tarball: node-v5.5.0-npm-3.3.12-linux-x64.tgz
-    node_path: "$(pwd)/.deps/bin"
-    compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
-    num_cores: $(grep -c ^processor /proc/cpuinfo)
-  tasks:
-    *all_tasks
+# Ubuntu hosts are currently missing required dependencies.
+# @see http://jira.mongodb.org/browse/INT-1192
+# - name: ubuntu
+#   display_name: Ubuntu 14.04
+#   modules: ~
+#   run_on:
+#   - "ubuntu1404-test"
+#   expansions:
+#     fetch_npm_tarball: node-v5.5.0-npm-3.3.12-linux-x64.tgz
+#     node_path: "$(pwd)/.deps/bin"
+#     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
+#     num_cores: $(grep -c ^processor /proc/cpuinfo)
+#   tasks:
+#     *all_tasks
