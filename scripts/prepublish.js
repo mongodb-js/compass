@@ -1,5 +1,16 @@
 #!/usr/bin/env node
 
+/**
+ * ## prepublish
+ *
+ * @see [How Atom does this](https://git.io/vaYu3)
+ */
+if (require('in-publish').inInstall()) {
+  /* eslint no-console: 0 */
+  console.log('noop.  @see http://bit.ly/npm-prepublish-flaws');
+  process.exit(0);
+}
+
 var pkg = require('../package.json');
 var format = require('util').format;
 var path = require('path');
@@ -78,6 +89,15 @@ cli.yargs.usage('$0 [options]')
     type: 'string',
     default: undefined
   })
+  // .command('config', 'View configuration data', function(_yargs) {
+  //   return _yargs.option('format', {
+  //     choices: ['json', 'yaml', 'table'],
+  //     default: 'json'
+  //   })
+  //   .help();
+  // }, function() {
+  //   console.log('config', arguments);
+  // })
   .help('help')
   .epilogue('a.k.a `npm run release`');
 
@@ -89,24 +109,36 @@ var ELECTRON_COMPILE_CACHE = path.join(__dirname, '..', '.cache');
 var ELECTRON_COMPILE_BIN = path.join(__dirname, '..', 'node_modules',
   '.bin', 'electron-compile');
 
-var inInstall = require('in-publish').inInstall();
 var del = require('del');
 var fs = require('fs-extra');
-var license = require('electron-license');
 var _ = require('lodash');
 var async = require('async');
 var series = require('async').series;
 var packager = require('electron-packager');
 var run = require('electron-installer-run');
+var createDMG = require('electron-installer-dmg');
+var codesign = require('electron-installer-codesign');
+var license = require('electron-license');
 
 /**
  * TODO (imlucas) Need to make all of these constants/config values
  * accessible via a module and/or command to generate the expansions.yml
  * for evergeen so it can do things like find artifacts that include
  * a version/some other non-constant.
+ * @see https://jira.mongodb.org/browse/INT-880
  */
 var DIR = path.join(__dirname, '..');
 var OUT = path.join(__dirname, '..', 'dist');
+
+var CANONICAL_INSTALLER_FILENAME_PARTS = [
+  cli.argv.version,
+  cli.argv.platform,
+  cli.argv.arch
+];
+
+if (cli.argv.channel !== 'stable') {
+  CANONICAL_INSTALLER_FILENAME_PARTS.push(cli.argv.channel);
+}
 
 /**
  * e.g. 'MongoDB Compass'
@@ -123,25 +155,29 @@ var OSX_RESOURCES = path.join(OSX_DOT_APP, 'Contents', 'Resources');
 var OSX_EXECUTABLE = path.join(OSX_DOT_APP, 'Contents', 'MacOS', 'Electron');
 var OSX_ICON = path.resolve(__dirname, format('../src/app/images/darwin/%s.icns', cli.argv.internal_name));
 var OSX_OUT_DMG = path.join(OUT, format('%s.dmg', OSX_APPNAME));
+var OSX_OUT_DMG_CANONICAL = OSX_OUT_DMG.replace('.dmg',
+  format('-%s.dmg', CANONICAL_INSTALLER_FILENAME_PARTS.join('-')));
 
-var WINDOWS_APPNAME = _.trim(BASENAME, ' ');
+
+var WINDOWS_APPNAME = BASENAME.replace(/ /g, '');
 var WINDOWS_OUT_X64 = path.join(OUT, format('%s-win32-x64', WINDOWS_APPNAME));
 var WINDOWS_RESOURCES = path.join(WINDOWS_OUT_X64, 'resources');
 var WINDOWS_EXECUTABLE = path.join(WINDOWS_OUT_X64,
-    format('%s.exe', WINDOWS_APPNAME));
+  format('%s.exe', WINDOWS_APPNAME));
 var WINDOWS_ICON = path.resolve(__dirname, format(
   '../src/images/win32/%s.ico', cli.argv.internal_name));
 var WINDOWS_SIGNTOOL_PARAMS = cli.argv.signtool_params;
 
-var WINDOWS_OUT_SETUP_EXE = path.join(
-    WINDOWS_OUT_X64, format('%sSetup.exe', WINDOWS_APPNAME));
+var WINDOWS_SETUP_FILENAME = format('%sSetup.exe', WINDOWS_APPNAME);
+var WINDOWS_OUT_SETUP_EXE = path.join(OUT, WINDOWS_SETUP_FILENAME);
+var WINDOWS_OUT_SETUP_EXE_CANONICAL = WINDOWS_OUT_SETUP_EXE
+  .replace('.exe', format('-%s.exe',
+    CANONICAL_INSTALLER_FILENAME_PARTS.join('-')));
 
 var LINUX_APPNAME = cli.argv.internal_name;
 var LINUX_OUT_X64 = path.join(OUT, format('%s-linux-x64', LINUX_APPNAME));
 var LINUX_EXECUTABLE = path.join(LINUX_OUT_X64, LINUX_APPNAME);
 var LINUX_RESOURCES = path.join(LINUX_OUT_X64, 'resources');
-
-var createSquirrelWindowsInstaller = require('electron-installer-squirrel-windows');
 
 /**
  * Build the options object to pass to `electron-packager`
@@ -195,17 +231,47 @@ if (cli.argv.platform === 'win32') {
     resources: WINDOWS_RESOURCES,
     executable: WINDOWS_EXECUTABLE,
     installer_destination: WINDOWS_OUT_SETUP_EXE,
-    createInstaller: createSquirrelWindowsInstaller.bind(null, CONFIG)
+    installer_destination_canonical: WINDOWS_OUT_SETUP_EXE_CANONICAL,
+    createInstaller: function(done) {
+      var opts = _.clone(CONFIG);
+      opts.path = opts.appPath;
+      opts.version = opts['app-version'];
+      opts.loading_gif = path.join(__dirname, '..', 'src',
+        'app', 'images', 'win32', 'mongodb-compass-installer-loading.gif');
+
+      var electronInstaller = require('electron-winstaller');
+      electronInstaller.createWindowsInstaller({
+        appDirectory: WINDOWS_OUT_X64,
+        outputDirectory: OUT,
+        authors: 'MongoDB Inc.',
+        exe: 'MongoDBCompass.exe',
+        signWithParams: CONFIG.signtool_params,
+        loadingGif: opts.loading_gif,
+        title: cli.argv.product_name,
+        productName: cli.argv.product_name,
+        description: CONFIG.description,
+        // setupIcon: WINDOWS_ICON,
+        // iconUrl: 'https://www.mongodb.org/assets/global/favicon-1d2d833bba579ce81fcff283e0fd2be6769949a54650c8558a631a03af71f7f2.ico',
+        name: 'MongoDBCompass',
+        id: 'MongoDBCompass'
+      }).then(function() {
+        var EXE = path.join(OUT, 'MongoDB CompassSetup.exe');
+        // var MSI = path.join(OUT, 'MongoDB CompassSetup.msi');
+        async.parallel([EXE].map(function(p) {
+          return fs.move.bind(null, p, p.replace(/ /g, ''));
+        }), function(err) {
+          if (err) {
+            return done(err);
+          }
+          cli.ok('Successfully created installers');
+          done();
+        });
+      }, done);
+    }
   });
   cli.info('Windows is the target platform and has the config: ' + JSON.stringify(CONFIG, null, 2));
-  // ----
 } else if (cli.argv.platform === 'darwin') {
-  var createDMG = require('electron-installer-dmg');
-  var codesign = require('electron-installer-codesign');
-
   var OSX_CREATE_INSTALLER = function(done) {
-    cli.info('Creating `.dmg` installer');
-
     var tasks = [];
     codesign.isIdentityAvailable(OSX_IDENTITY, function(err, available) {
       if (err) {
@@ -237,6 +303,7 @@ if (cli.argv.platform === 'win32') {
     resources: OSX_RESOURCES,
     executable: OSX_EXECUTABLE,
     installer_destination: OSX_OUT_DMG,
+    installer_destination_canonical: OSX_OUT_DMG_CANONICAL,
     /**
      * Background image for `.dmg`.
      * @see http://npm.im/electron-installer-dmg
@@ -270,13 +337,14 @@ if (cli.argv.platform === 'win32') {
     createInstaller: OSX_CREATE_INSTALLER
   });
   cli.info('OS X is the target platform and has the config: ' + JSON.stringify(CONFIG, null, 2));
-  // ----
+// ----
 } else {
   _.assign(CONFIG, {
     name: LINUX_APPNAME,
     resources: LINUX_RESOURCES,
     executable: LINUX_EXECUTABLE,
     installer_destination: null,
+    installer_destination_canonical: null,
     appPath: LINUX_OUT_X64,
     createInstaller: function(done) {
       cli.warn('Linux installers coming soon!');
@@ -284,6 +352,20 @@ if (cli.argv.platform === 'win32') {
     }
   });
   cli.info('Linux is the target platform and has the config: ' + JSON.stringify(CONFIG, null, 2));
+}
+
+/**
+ * TODO (imlucas) When `electron-installer-zip` is published,
+ * include in this list (osx autoupdates).
+ *
+ * TODO (imlucas) On Windows for autoupdates we'll also need
+ * to add `-delta.nupkg`, `-full.nupkg` and `RELEASES`
+ * http://npm.im/electron-installer-squirrel-windows creates.
+ */
+var ARTIFACTS = [];
+if (CONFIG.installer_destination) {
+  ARTIFACTS.push.apply([CONFIG.installer_destination,
+    CONFIG.installer_destination_canonical]);
 }
 
 if (CONFIG.sign_with_params) {
@@ -297,8 +379,6 @@ if (CONFIG.sign_with_params) {
  */
 
 /**
- * ## 1. Create Application
- *
  * Run `electron-packager`
  *
  * @param {Function} done
@@ -322,8 +402,6 @@ function createBrandedApplication(done) {
 }
 
 /**
- * ## 2. Cleanup scaffold
- *
  * For some platforms, there will be extraneous (to us) folders generated
  * we can remove to make the generated branded app less cluttered and easier
  * to debug.
@@ -339,15 +417,19 @@ function cleanupBrandedApplicationScaffold(done) {
       path.join(OSX_DOT_APP, 'Contents', 'Resources', '*.lproj')
     ];
     cli.info('cleaning up extraneous files generated by packager ' + JSON.stringify(globsToDelete, null, 2));
-    del(globsToDelete).then(function() {
+    del(globsToDelete, {
+      force: true
+    }).then(function() {
       done(null, true);
     });
   }
 }
 
 /**
+ * Run `electron-compile`.
  *
  * @param {Function} done
+ * @api public
  */
 function compileApplicationUI(done) {
   var DEST = path.join(CONFIG.resources, 'app', '.cache');
@@ -370,21 +452,25 @@ function compileApplicationUI(done) {
     fs.remove.bind(null, ELECTRON_COMPILE_CACHE),
     runElectronCompile,
     fs.move.bind(null, ELECTRON_COMPILE_CACHE, DEST)
-  ], done);
+  ], function(err) {
+    if (err) {
+      return done(err);
+    }
+
+    cli.ok(format('Compiled application UI to `%s`', DEST));
+    done();
+  });
 }
 
-/**
- * ## Transforms
- *
- * Run after `createBrandedApplication` but before `createBrandedInstaller`.
-*/
 /**
  * Replace the LICENSE file `electron-packager` creates w/ a LICENSE
  * file specific to the project.
  *
  * @param {Function} done
+ * @api public
  */
 function writeLicenseFile(done) {
+  var LICENSE_DEST = path.join(CONFIG.appPath, '..', 'LICENSE');
   license.build({
     path: path.join(__dirname, '..')
   }, function(err, contents) {
@@ -392,7 +478,14 @@ function writeLicenseFile(done) {
       return done(err);
     }
 
-    fs.writeFile(path.join(CONFIG.appPath, '..', 'LICENSE'), contents, done);
+    fs.writeFile(LICENSE_DEST, contents, function(_err) {
+      if (_err) {
+        cli.error(_err);
+        return done(_err);
+      }
+      cli.ok(format('LICENSE written to `%s`', LICENSE_DEST));
+      done();
+    });
   });
 }
 
@@ -403,12 +496,23 @@ function writeLicenseFile(done) {
  * @api public
  */
 function writeVersionFile(done) {
-  fs.writeFile(path.join(CONFIG.appPath, '..', 'version'), pkg.version, done);
+  var VERSION_DEST = path.join(CONFIG.appPath, '..', 'version');
+  cli.info(format('Writing version file to `%s`', VERSION_DEST));
+  fs.writeFile(VERSION_DEST, pkg.version, function(err) {
+    if (err) {
+      cli.error(err);
+      return done(err);
+    }
+    cli.ok(format('version file written to `%s`', VERSION_DEST));
+    done();
+  });
 }
 
 /**
- * Update the project's `./package.json` (like npm does when it installs a package)
- * for inclusion in the application `electron-packager` creates.
+ * Update the project's `./package.json` (like npm does when it
+ * installs a package) for inclusion in the application
+ * `electron-packager` creates.
+ *
  * TODO (imlucas)
  * electron-packager will create and overwrite it, eg:
  * - remove all `scripts`
@@ -419,6 +523,7 @@ function writeVersionFile(done) {
  * @api public
  */
 function transformPackageJson(done) {
+  var PACKAGE_JSON_DEST = path.join(CONFIG.resources, 'app', 'package.json');
   var packageKeysToRemove = [
     'scripts',
     'devDependencies',
@@ -427,13 +532,6 @@ function transformPackageJson(done) {
     'check'
   ];
   var contents = _.omit(pkg, packageKeysToRemove);
-
-  /**
-   * TODO (imlucas) Because we're shipping the compiled application UI,
-   * we can also safely delete large packages that won't actually be used.
-   * There are lots of others.  This is just to experiment and see how much
-   * time/space can be saved.
-   */
   if (!contents.config) {
     contents.config = {};
   }
@@ -447,23 +545,49 @@ function transformPackageJson(done) {
   });
 
   cli.info('Writing package.json: ' + JSON.stringify(contents, null, 2));
-  fs.writeJson(path.join(CONFIG.resources, 'app', 'package.json'), contents, done);
+  fs.writeJson(PACKAGE_JSON_DEST, contents, done);
 }
 
+/**
+ * TODO (imlucas) Cache this... http://npm.im/npm-cache ?
+ * @see [generate-module-cache-task.coffee](https://git.io/vaY0O)
+ * @see [native-compile-cache](https://git.io/vaY0a)
+ * @see [module-cache.coffee](https://git.io/vaY0K)
+ *
+ * @param {Function} done
+ * @api public
+ */
 function installDependencies(done) {
   var args = [
     'install',
     '--production'
   ];
-  cli.info('Running npm install');
+  cli.info('Installing dependencies');
   var opts = {
     env: process.env,
     cwd: path.join(CONFIG.resources, 'app')
   };
-  run('npm', args, opts, done);
+  run('npm', args, opts, function(err) {
+    if (err) {
+      cli.err(err);
+      return done(err);
+    }
+    cli.ok('Dependencies installed');
+    done();
+  });
 }
 
+/**
+ * TODO (imlucas) Needs a better name.
+ *
+ * @param {Function} done
+ * @api public
+ */
 function finalizeApplication(done) {
+  if (CONFIG.platform !== 'darwin') {
+    done();
+    return;
+  }
   var DOT_FILES = [
     '.DS_Store',
     '.eslint*',
@@ -476,69 +600,78 @@ function finalizeApplication(done) {
   ];
   var globsToDelete = [
     path.join(CONFIG.resources, 'app', 'test'),
-    path.join(CONFIG.resources, 'app', 'scripts'),
-    path.join(CONFIG.resources, 'app', '{' + DOT_FILES.join(',') + '}')
+    path.join(CONFIG.resources, 'app', 'scripts')
   ];
 
-  cli.info('removing extraneous files' + JSON.stringify(globsToDelete, null, 2));
-  del(globsToDelete).then(function() {
+  if (CONFIG.platform === 'darwin') {
+    globsToDelete.push(path.join(CONFIG.resources,
+      'app', '{' + DOT_FILES.join(',') + '}'));
+  }
+
+  cli.info('Checking for extraneous files to remove:\n' +
+    JSON.stringify(globsToDelete, null, 2));
+
+  del(globsToDelete).then(function(paths) {
+    if (paths.length === 0) {
+      cli.ok('No extraneous files to remove');
+    } else {
+      cli.ok(format('%s extraneous files removed', paths.length));
+    }
     done(null, true);
+  }, function(err) {
+    cli.err(err);
+    done(err);
   });
 }
 
 /**
- * ## Installers
+ * TODO (imlucas) Stub for improved windows installation.
+ * @see How atom does this: https://git.io/vaY4O
+ * @param {Function} done
+ */
+function createApplicationAsar(done) {
+  done();
+}
+
+/**
+ * TODO (imlucas) Stub for autoupdates.  Use `electron-installer-zip`.
+ * @param {Function} done
+ */
+function createApplicationZip(done) {
+  done();
+}
+
+/**
+ * Create the application installer.
  *
  * @param {Function} done
  * @api public
  */
 function createBrandedInstaller(done) {
-  CONFIG.createInstaller(done);
+  cli.info('Creating installer');
+  CONFIG.createInstaller(function(err) {
+    if (err) {
+      return done(err);
+    }
+    if (CONFIG.installer_destination) {
+      cli.ok(format('Installer written to `%s`', CONFIG.installer_destination));
+    }
+    done();
+  });
 }
 
 function canonicalizeBrandedInstallerFilename(done) {
   if (!CONFIG.installer_destination) {
     return done();
   }
+  cli.info(format('Copy `%s` to `%s`', CONFIG.installer_destination,
+    CONFIG.installer_destination_canonical));
 
-  var detailledFilenameParts = [
-    CONFIG['app-version'],
-    CONFIG.platform,
-    CONFIG.arch
-  ];
-
-  if (cli.argv.channel !== 'stable') {
-    detailledFilenameParts.push(cli.argv.channel);
-  }
-
-  if (CONFIG.platform === 'win32') {
-    var windowsDest = CONFIG.installer_destination
-      .replace('.exe', format('-%s.exe', detailledFilenameParts.join('-')));
-    cli.info('Copying Windows installer to `' + windowsDest + '`');
-
-    return fs.copy(CONFIG.installer_destination, windowsDest, done);
-  }
-
-  if (CONFIG.platform === 'darwin') {
-    var osxDest = CONFIG.installer_destination
-      .replace('.dmg', format('-%s.dmg', detailledFilenameParts.join('-')));
-    cli.info('Copying OSX installer to `' + osxDest + '`');
-
-    return fs.copy(CONFIG.installer_destination, osxDest, done);
-  }
-  return done(new TypeError('Unknown platform `' + cli.argv.platform + '`. ' +
-    ' If you\'re trying to add linux installer or mac app store support, email lucas@mongodb.com :)'));
+  fs.copy(CONFIG.installer_destination,
+    CONFIG.installer_destination_canonical, done);
 }
 
-/**
- * ## Main
- */
-if (inInstall) {
-  cli.info('noop.  @see http://bit.ly/npm-prepublish-flaws');
-  process.exit(0);
-} else {
-  cli.spinner('Creating installer');
-
+function main() {
   async.series([
     createBrandedApplication,
     cleanupBrandedApplicationScaffold,
@@ -548,10 +681,24 @@ if (inInstall) {
     transformPackageJson,
     installDependencies,
     finalizeApplication,
+    createApplicationAsar,
+    createApplicationZip,
     createBrandedInstaller,
     canonicalizeBrandedInstallerFilename
   ], function(err) {
     cli.abortIfError(err);
-    cli.ok(format('Installer successfully written to `%s`.', CONFIG.installer_destination));
+    cli.ok(format('Successfully built `%s`.', CONFIG.appPath));
+    cli.info('Build artifacts:\n' + ARTIFACTS.map(function(p) {
+      return '- ' + p + '\n';
+    }));
   });
+}
+
+/**
+ * ## Main
+ */
+if (cli.argv.$0 && cli.argv.$0.indexOf('prepublish.js') === -1) {
+  module.exports = exports;
+} else {
+  main();
 }
