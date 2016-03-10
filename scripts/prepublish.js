@@ -453,8 +453,6 @@ function transformPackageJson(done) {
 function installDependencies(done) {
   var args = [
     'install',
-    '--loglevel',
-    'info',
     '--production'
   ];
   cli.info('Running npm install');
