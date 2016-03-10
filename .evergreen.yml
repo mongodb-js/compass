@@ -68,13 +68,9 @@ functions:
         ls -alh ${node_path}
         test -n '${add_env_appdata|}' && export APPDATA='${add_env_appdata|}'
         ${npm|npm} version --json
-        ${npm|npm} config set loglevel error
-        ${npm|npm} config -g list
-        which -a npm
-        node -p process.env
         # less chatty installs: "--depth 0" reduces detail of "npm ls" tree output
         export NPM_CONFIG_DEPTH=0
-        export NPM_CONFIG_LOGLEVEL=ERROR
+        export NPM_CONFIG_LOGLEVEL=error
         ${npm|npm} install
         # INT-1081 Attach parseable log of installed packages.
         # Don't allow it to fail build.
@@ -91,7 +87,9 @@ functions:
         curl -fs \
           -o "signtool.exe" \
           --url "https://s3.amazonaws.com/boxes.10gen.com/build/signtool.exe"
-        rm -f node_modules/electron-installer-squirrel-windows/vendor/signtool.exe
+        rm -f node_modules/electron-winstaller/vendor/signtool.exe
+        cp signtool.exe node_modules/electron-winstaller/vendor/signtool.exe
+        chmod +x node_modules/electron-winstaller/vendor/signtool.exe
 
   # Environment variables set for use by notary-service signtool.exe on Windows:
   # NOTARY_URL, NOTARY_AUTH_TOKEN, NOTARY_SIGNING_KEY, NOTARY_SIGNING_COMMENT
@@ -129,16 +127,7 @@ functions:
         ${npm|npm} run check
 
         # Create a release build
-        ${npm|npm} run prepublish -- --revision=${revision} --build_variant=${build_variant} --branch_name=${branch_name}
-
-        # TODO (imlucas) Uncomment when we can run spectron
-        # and/or renderer tests on evergreen.
-        #
-        # @see https://jira.mongodb.org/browse/BUILD-1122
-        # ${npm|npm} test -- --reporter mocha-evergreen-reporter
-
-        # For now, just run the unit tests
-        ${npm|npm} run test-unit -- --reporter mocha-evergreen-reporter
+        ${npm|npm} run prepublish -- --verbose;
         EOF_BUILD_SH
         #
         # Use ".", not "source" below to read script. Required for /bin/sh on Ubuntu.
