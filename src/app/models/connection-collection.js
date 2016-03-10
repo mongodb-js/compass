@@ -22,16 +22,13 @@ module.exports = Collection.extend(selectableMixin, storageMixin, {
   indexes: ['name'],
   maxLength: 10,
   _prune: function() {
-    var usedConnections = this.filter(function(model) {
-      return model.last_used !== null;
+    var recentConnections = this.filter(function(model) {
+      return !model.is_favorite;
     });
-    if (usedConnections.length > this.maxLength) {
-      var usedNonFavorites = _.sortBy(this.filter(function(model) {
-        return model.last_used !== null && !model.is_favorite;
-      }), 'last_used');
-      // if there is no space anymore, remove the oldest non-favorite event first
-      var toRemove = this.remove(usedNonFavorites.slice(0, usedConnections.length - this.maxLength));
-      _.map(toRemove, function(model) {
+    if (recentConnections.length > this.maxLength) {
+      // if there is no space anymore, remove the oldest recent connection first.
+      var toRemove = this.remove(recentConnections.slice(0, recentConnections.length - this.maxLength));
+      _.each(toRemove, function(model) {
         model.destroy();
       });
     }
