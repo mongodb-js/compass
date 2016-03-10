@@ -8,3 +8,4 @@ node_modules
 .cache*
 
 src/connect/static-connect.html
+report.json

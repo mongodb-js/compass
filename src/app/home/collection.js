@@ -168,7 +168,8 @@ var MongoDBCollectionView = View.extend({
         } else {
           msg = err.message;
         }
-        alert(msg);
+        /* eslint no-alert: 0 */
+        window.alert(msg);
       }
     }));
     this.model.once('sync', this.onCollectionFetched.bind(this));

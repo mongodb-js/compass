@@ -1,6 +1,5 @@
 var assert = require('assert');
 var _ = require('lodash');
-
 var debug = require('debug')('mongodb-compass:test:migrations');
 
 var mockMigrations = {
@@ -29,13 +28,15 @@ var mockMigrations = {
     cb(null, '1.2.5');
   }
 };
-
-// tests won't run because localforage is not available. Need to switch
-// to electron-mocha to make these tests work again.
-describe.skip('Schema Migration', function() {
+/**
+ * NOTE (imlucas) This is current broken.  To repro:
+ * 1. Uncomment `.skip` below
+ * 2. Run `npm test-renderer`
+ */
+describe.skip('Schema Migration #renderer', function() {
   var migrate;
   before(function() {
-    migrate = require('../src/migrations');
+    migrate = require('../src/app/migrations');
   });
 
   it('should have the schema migration map', function() {

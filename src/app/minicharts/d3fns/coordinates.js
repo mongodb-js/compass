@@ -1,3 +1,4 @@
+/* eslint camelcase: 0 */
 var d3 = require('d3');
 var _ = require('lodash');
 var shared = require('./shared');

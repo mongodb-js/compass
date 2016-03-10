@@ -62,7 +62,8 @@ functions:
       working_dir: src
       script: |
         set -ev
-        export CI=1 EVERGREEN=1
+        export CI=1
+        export EVERGREEN=1
         export PATH="${node_path}:$PATH"
         ls -alh ${node_path}
         test -n '${add_env_appdata|}' && export APPDATA='${add_env_appdata|}'
@@ -71,14 +72,18 @@ functions:
         ${npm|npm} config -g list
         which -a npm
         node -p process.env
+        # less chatty installs: "--depth 0" reduces detail of "npm ls" tree output
+        export NPM_CONFIG_DEPTH=0
+        export NPM_CONFIG_LOGLEVEL=ERROR
         ${npm|npm} install
+        # INT-1081 Attach parseable log of installed packages.
+        # Don't allow it to fail build.
+        ${npm|npm} ls --depth=Infinity --json=true > npm_install.json || true
 
   # For Windows: retrieve a fake "signtool.exe" which proxies to notary-service,
   # and remove the real one from our path. Must run after "npm install"
   "fetch signtool" : &fetch_signtool
     command: shell.exec
-    variants:
-      - windows-64
     params:
       working_dir: src
       script: |
@@ -104,14 +109,36 @@ functions:
         set -ev
         cd $(pwd)
         export PATH="${node_path}:$PATH"
-        export CI=1 EVERGREEN=1
+        export CI=1
+        export EVERGREEN=1
+        export EVERGREEN_PROJECT=${project}
         export NOTARY_URL="http://notary-service.build.10gen.cc:5000"
         export NOTARY_AUTH_TOKEN="${signing_auth_token}"
         export NOTARY_SIGNING_KEY="${signing_key_name}"
         export NOTARY_SIGNING_COMMENT="Evergreen project mongodb/compass ${revision} - ${build_variant} - ${branch_name}"
         export SIGNTOOL_PARAMS="yes"
         test -n '${add_env_appdata|}' && export APPDATA='${add_env_appdata|}'
-        ${npm|npm} run ci
+
+        # The env script is a special built-in command that can be used to
+        # list environment variables that will be available to the
+        # script at runtime.
+        # @see https://docs.npmjs.com/cli/run-script
+        ${npm|npm} run env
+
+        # Run static analysis on code and project configuration
+        ${npm|npm} run check
+
+        # Create a release build
+        ${npm|npm} run prepublish -- --revision=${revision} --build_variant=${build_variant} --branch_name=${branch_name}
+
+        # TODO (imlucas) Uncomment when we can run spectron
+        # and/or renderer tests on evergreen.
+        #
+        # @see https://jira.mongodb.org/browse/BUILD-1122
+        # ${npm|npm} test -- --reporter mocha-evergreen-reporter
+
+        # For now, just run the unit tests
+        ${npm|npm} run test-unit -- --reporter mocha-evergreen-reporter
         EOF_BUILD_SH
         #
         # Use ".", not "source" below to read script. Required for /bin/sh on Ubuntu.
@@ -125,8 +152,6 @@ functions:
 
   "test_ssh_localhost" :
     command: shell.exec
-    variants:
-      - osx-1010
     params:
       working_dir: src
       script: |
@@ -136,6 +161,18 @@ functions:
           ssh -p 2222 localhost "echo SSH_LOCALHOST_TEST_OK"
         fi
 
+  "save npm_install.json":
+    command: s3.put
+    params:
+      aws_key: ${aws_key}
+      aws_secret: ${aws_secret}
+      local_file: "src/npm_install.json"
+      remote_file: "${project}/${build_variant}/${revision}/npm_install.json"
+      bucket: mciuploads
+      permissions: public-read
+      content_type: application/json
+      display_name: "npm_install.json"
+
   "save release":
     command: s3.put
     params:
@@ -144,7 +181,7 @@ functions:
       aws_key: ${aws_key}
       aws_secret: ${aws_secret}
       local_file: "src/dist/${installer_filename}"
-      remote_file: "mongodb-compass-master/${build_variant}/${revision}/${installer_filename}"
+      remote_file: "${project}/${build_variant}/${revision}/${installer_filename}"
       bucket: mciuploads
       permissions: public-read
       content_type: ${installer_content_type|application/octet-stream}
@@ -166,6 +203,9 @@ pre:
       mkdir -p src
 
 post:
+- command: attach.results
+  params:
+    file_location: src/report.json
 - command: shell.exec
   params:
     silent: true
@@ -180,11 +220,16 @@ tasks:
   depends_on: []
   commands:
   - func: "test_ssh_localhost"
+    variants:
+      - osx-1010
   - func: "fetch source"
   - func: "fetch npm tarball"
   - func: "npm install"
   - func: "fetch signtool"
+    variants:
+      - windows-64
   - func: "build"
+  - func: "save npm_install.json"
   - func: "save release"
 
 # Define shortcut for use below
