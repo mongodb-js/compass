@@ -8,7 +8,7 @@ var DEFAULT_QUERY = {};
 var DEFAULT_SORT = {
   _id: -1
 };
-var DEFAULT_SIZE = 100;
+var DEFAULT_SIZE = 1000;
 var DEFAULT_SKIP = 0;
 var DEFAULT_MAX_TIME_MS = ms('10 seconds');
 
