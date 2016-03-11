@@ -1,19 +1,28 @@
 {
-  "name": "migrations",
-  "description": "This module makes it easier to do application schema migrations.",
-  "version": "0.0.0",
+  "name": "app-migrations",
+  "description": "Helper for application schema migrations.",
+  "version": "0.1.0",
   "scripts": {
     "fmt": "mongodb-js-fmt",
     "check": "mongodb-js-precommit",
     "test": "mocha",
     "ci": "npm run check && npm test"
   },
-  "homepage": "http://github.com/mongodb-js/migrations",
+  "author": "Thomas Rueckstiess <thomas@rueckstiess.net>",
+  "homepage": "http://github.com/mongodb-js/app-migrations",
   "repository": {
     "type": "git",
-    "url": "git://github.com/mongodb-js/migrations.git"
+    "url": "git://github.com/mongodb-js/app-migrations.git"
   },
-  "dependencies": {},
+  "bugs": {
+    "url": "https://github.com/mongodb-js/app-migrations/issues"
+  },
+  "dependencies": {
+    "async": "^1.5.2",
+    "debug": "^2.2.0",
+    "lodash": "^4.6.1",
+    "semver": "^5.1.0"
+  },
   "devDependencies": {
     "eslint-config-mongodb-js": "^1.0.6",
     "mocha": "^2.3.4",
