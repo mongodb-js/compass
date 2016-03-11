@@ -1,0 +1,28 @@
+{
+  "name": "migrations",
+  "description": "This module makes it easier to do application schema migrations.",
+  "version": "0.0.0",
+  "scripts": {
+    "fmt": "mongodb-js-fmt",
+    "check": "mongodb-js-precommit",
+    "test": "mocha",
+    "ci": "npm run check && npm test"
+  },
+  "homepage": "http://github.com/mongodb-js/migrations",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mongodb-js/migrations.git"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "eslint-config-mongodb-js": "^1.0.6",
+    "mocha": "^2.3.4",
+    "mongodb-js-fmt": "^0.0.3",
+    "mongodb-js-precommit": "^0.2.8",
+    "pre-commit": "^1.1.2"
+  },
+  "license": "Apache-2.0",
+  "precommit": [
+    "check"
+  ]
+}
