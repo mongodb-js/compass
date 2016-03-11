@@ -40,7 +40,6 @@ module.exports = function(done) {
     // strip any prerelease parts off
     previousVersion = previousVersion.split('-')[0];
     var currentVersion = pkg.version.split('-')[0];
-    debug('migrations', previousVersion, currentVersion);
     migrate(previousVersion, currentVersion, done);
   });
 };
