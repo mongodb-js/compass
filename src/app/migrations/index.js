@@ -1,12 +1,14 @@
-var semver = require('semver');
-var async = require('async');
-var _ = require('lodash');
 var pkg = require('../../../package.json');
-var format = require('util').format;
 var Model = require('ampersand-model');
 var storageMixin = require('storage-mixin');
 
 var debug = require('debug')('mongodb-compass:migrations:index');
+
+var migrations = {
+  '1.1.2': require('./1.1.2')
+};
+
+var migrate = require('app-migrations')(migrations);
 
 function getPreviousVersion(done) {
   var MiniPrefModel = Model.extend(storageMixin, {
@@ -30,51 +32,15 @@ function getPreviousVersion(done) {
   miniPrefs.fetch();
 }
 
-function migrateFromTo(previousVersion, currentVersion, done) {
-  var tasks;
-  if (semver.lt(previousVersion, currentVersion)) {
-    // pick migration tasks for upgrade
-    debug('upgrading schema from version', previousVersion, 'to version', currentVersion);
-    tasks = _.pick(module.exports.migrations, function(fn, version) {
-      return semver.gt(version, previousVersion) &&
-             semver.lte(version, currentVersion);
-    });
-    tasks = _.mapValues(tasks, function(fn) {
-      return fn.bind(null, previousVersion, currentVersion);
-    });
-    debug('executing migration steps for versions %j', _.keys(tasks));
-    return async.series(tasks, done);
-  }
-  if (semver.gt(previousVersion, currentVersion)) {
-    // check if the downgrade is compatible with the schema
-    tasks = _.pick(module.exports.migrations, function(fn, version) {
-      return semver.gt(version, currentVersion) &&
-             semver.lte(version, previousVersion);
-    });
-    if (_.keys(tasks).length > 0) {
-      // schema incompatible, return error
-      return done(new Error(format('Downgrade from version %s to %s'
-        + ' not possible due to schema incompatibilities.', previousVersion,
-        currentVersion)));
-    }
-  }
-  done(null, {});
-}
-
-function migrate(done) {
+module.exports = function(done) {
   getPreviousVersion(function(err, previousVersion) {
     if (err) {
       done(err);
     }
     // strip any prerelease parts off
+    previousVersion = previousVersion.split('-')[0];
     var currentVersion = pkg.version.split('-')[0];
-    migrateFromTo(previousVersion, currentVersion, done);
+    debug('migrations', previousVersion, currentVersion);
+    migrate(previousVersion, currentVersion, done);
   });
-}
-
-module.exports = migrate;
-module.exports.migrateFromTo = migrateFromTo;
-
-module.exports.migrations = {
-  '1.1.2': require('./1.1.2')
 };
