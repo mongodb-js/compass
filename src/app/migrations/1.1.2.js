@@ -96,6 +96,6 @@ module.exports = function(previousVersion, currentVersion, callback) {
     if (err) {
       return callback(err);
     }
-    callback(null, 'successful migration to 1.1.0');
+    callback(null, 'successful migration to 1.1.2');
   });
 };
