@@ -37,7 +37,7 @@ On every new launch, run `migrate()` with previous and current version.
 ##### upgrade from 1.0.0 (got nothing) to 2.0.0 (need jetpack and photon cannons)
 
 ```javascript
-migrate('1.0.5', '1.1.4', function(err, res) {
+migrate('1.0.0', '2.0.0', function(err, res) {
   if (err) return console.error('Error:', e.message);
   console.log('Success:', res);
 });
@@ -60,7 +60,7 @@ migrate('1.0.5', '1.1.4', function(err, res) {
 
 ##### upgrade from 1.0.4 to 1.0.4 (no changes needed)
 ```javascript
-migrate('1.0.5', '1.1.4', function(err, res) {
+migrate('1.0.4', '1.0.4', function(err, res) {
   if (err) return console.error('Error:', e.message);
   console.log('Success:', res);
 });
@@ -71,7 +71,7 @@ migrate('1.0.5', '1.1.4', function(err, res) {
 
 ##### downgrade from 1.0.8 to 1.0.6 (no internal changes, downgrade ok)
 ```javascript
-migrate('1.0.5', '1.1.4', function(err, res) {
+migrate('1.0.8', '1.0.6', function(err, res) {
   if (err) return console.error('Error:', e.message);
   console.log('Success:', res);
 });
@@ -82,7 +82,7 @@ migrate('1.0.5', '1.1.4', function(err, res) {
 
 ##### downgrade from 1.0.8 to 1.0.3 (incompatible due to internal changes)
 ```javascript
-migrate('1.0.5', '1.1.4', function(err, res) {
+migrate('1.0.8', '1.0.3', function(err, res) {
   if (err) return console.error('Error:', e.message);
   console.log('Success:', res);
 });
