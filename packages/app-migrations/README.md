@@ -14,6 +14,7 @@ version order.
 ## Examples
 
 ##### Set up migrations
+
 ```javascript
 // define your migrations functions, keyed to the version they were introduced at.
 var migrations = {
