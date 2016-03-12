@@ -127,7 +127,7 @@ functions:
         ${npm|npm} run check
 
         # Create a release build
-        ${npm|npm} run prepublish -- --verbose;
+        ${npm|npm} run prepublish;
         EOF_BUILD_SH
         #
         # Use ".", not "source" below to read script. Required for /bin/sh on Ubuntu.

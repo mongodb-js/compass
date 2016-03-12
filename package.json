@@ -140,6 +140,7 @@
     "eslint-plugin-react": "^4.1.0",
     "fs-extra": "^0.26.5",
     "glob": "^5.0.15",
+    "js-yaml": "^3.5.4",
     "mocha-evergreen-reporter": "0.0.7",
     "mongodb-js-cli": "^0.0.2",
     "mongodb-js-fmt": "^0.0.3",
