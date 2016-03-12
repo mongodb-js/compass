@@ -1,15 +1,10 @@
 #!/usr/bin/env node
 
+var electron_version = require('./config').options.electron_version;
+
 var cli = require('mongodb-js-cli')('mongodb-compass:scripts:postinstall');
 cli.yargs.usage('$0 [options]')
-  .option('electron_version', {
-    describe: 'What version of electron are we using?',
-    default: process.env.npm_package_electron_version || '0.36.7'
-  })
-  .option('electron_abi_version', {
-    describe: 'What is the node.js ABI version being targetted?',
-    default: process.env.npm_package_electron_abi_version || '47'
-  })
+  .option('electron_version', electron_version)
   .option('verbose', {
     describe: 'Confused or trying to track down a bug and want lots of debug output?',
     type: 'boolean',
@@ -21,23 +16,25 @@ cli.yargs.usage('$0 [options]')
 if (cli.argv.verbose) {
   require('debug').enable('ele*,mon*');
 }
+
 var argv = cli.argv;
 var run = require('electron-installer-run');
 var path = require('path');
 
 /**
- * `electron-rebuild` properly sets `HOME` relative to the node.js
- * version we're compiling for.
- *
  * @see https://github.com/atom/electron/blob/master/docs/tutorial/using-native-node-modules.md#the-npm-way
  */
 process.env.npm_config_disturl = 'https://atom.io/download/atom-shell';
 process.env.npm_config_target = argv.electron_version;
 process.env.npm_config_runtime = 'electron';
+process.env.HOME = '~/.electron-gyp';
 
 if (process.platform === 'win32') {
-  cli.info('electron-rebuild on windows is broken :/');
-  process.exit(0);
+  cli.spinner('Rebuilding native addons for Windows');
+  run('npm', ['rebuild'], {env: process.env}, function(err) {
+    cli.abortIfError(err);
+    process.exit(0);
+  });
 }
 
 /**

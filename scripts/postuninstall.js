@@ -1,5 +1,9 @@
 #!/usr/bin/env node
 
+/**
+ * @see [Atom's clean-task.coffee](https://git.io/vaZLw)
+ */
+
 var cli = require('mongodb-js-cli')('mongodb-compass:scripts:postuninstall');
 cli.yargs.usage('$0 [options]')
   .option('verbose', {
