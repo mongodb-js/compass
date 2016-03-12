@@ -25,11 +25,11 @@ var RESOURCES = path.resolve(__dirname, '../app/');
 var COMPASS_ICON_PATH = RESOURCES + '/images/mongodb-compass.png';
 
 /**
- * The app's HTML shell which is the output of `./src/index.jade`
+ * The app's HTML shell which is the output of `./src/index.html`
  * created by the `build:pages` gulp task.
  */
-var DEFAULT_URL = 'file://' + path.join(RESOURCES, 'index.jade#connect');
-var HELP_URL = 'file://' + path.join(RESOURCES, 'index.jade#help');
+var DEFAULT_URL = 'file://' + path.join(RESOURCES, 'index.html#connect');
+var HELP_URL = 'file://' + path.join(RESOURCES, 'index.html#help');
 
 /**
  * We want the Connect and Help window to be special
@@ -131,7 +131,7 @@ module.exports.create = function(opts) {
     event.preventDefault();
 
     module.exports.create({
-      url: 'file://' + RESOURCES + '/index.jade' + decodeURIComponent(url.replace('file://', ''))
+      url: 'file://' + RESOURCES + '/index.html' + decodeURIComponent(url.replace('file://', ''))
     });
   });
 

@@ -25,7 +25,7 @@ var path = require('path');
 
 
 cli.spinner('Removing build artifacts');
-async.parallel(['build/', 'dist/', 'node_modules/', '.cache'].map(function(p) {
+async.parallel(['dist/', 'node_modules/'].map(function(p) {
   return function(cb) {
     del(path.join(__dirname, '..', p)).then(cb.bind(null, null));
   };

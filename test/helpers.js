@@ -32,11 +32,6 @@ var DOCUMENTS = [
   }
 ];
 
-// var ELECTRON_PATH = {
-//   linux: path.resolve(__dirname, '../node_modules/.bin/electron'),
-//   win32: path.resolve(__dirname, '../node_modules/.bin/electron'),
-//   darwin: path.resolve(__dirname, '../node_modules/.bin/electron')
-
 var ELECTRON_PREBUILT_EXECUTABLE = require('electron-prebuilt');
 var DIST = path.resolve(__dirname, '..', 'dist');
 var ELECTRON_EXECUTABLE_BY_PLATFORM = {
