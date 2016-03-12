@@ -118,51 +118,15 @@ function cleanupBrandedApplicationScaffold(CONFIG, done) {
 }
 
 /**
- * Run `electron-compile`.
+ * TODO (imlucas) Currently just a stub.
  *
  * @see [Atom's `prebuild-less-task.coffee`](https://git.io/vaZkL)
- * @see https://npm.im/electron-compile
  * @param {Object} CONFIG
  * @param {Function} done
  * @api public
  */
 function compileApplicationUI(CONFIG, done) {
-  var ELECTRON_COMPILE_CACHE = path.join(CONFIG.dir, '.cache');
-  var ELECTRON_COMPILE_BIN = path.join(
-    CONFIG.dir,
-    'node_modules',
-    '.bin',
-    'electron-compile'
-  );
-
-  var DEST = path.join(CONFIG.resources, 'app', '.cache');
-  function runElectronCompile(cb) {
-    var args = [
-      '--appdir',
-      path.resolve(__dirname, '..'),
-      path.resolve(__dirname, '..', 'src')
-    ];
-    var opts = {
-      env: process.env
-    };
-    run(ELECTRON_COMPILE_BIN, args, opts, cb);
-  }
-
-  cli.debug('Compiling application UI');
-
-  async.series([
-    fs.remove.bind(null, DEST),
-    fs.remove.bind(null, ELECTRON_COMPILE_CACHE),
-    runElectronCompile,
-    fs.move.bind(null, ELECTRON_COMPILE_CACHE, DEST)
-  ], function(err) {
-    if (err) {
-      return done(err);
-    }
-
-    cli.debug(format('Compiled application UI to `%s`', DEST));
-    done();
-  });
+  done();
 }
 
 /**
@@ -400,8 +364,11 @@ function main() {
 
     async.series(tasks, function(_err) {
       cli.abortIfError(_err);
-      cli.ok('Success');
-      CONFIG.table();
+      cli.ok(format('%d artifacts successfully built',
+        CONFIG.artifacts.length));
+      CONFIG.artifacts.map(function(artifact) {
+        cli.info(artifact);
+      });
     });
   });
 }

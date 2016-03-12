@@ -18,9 +18,7 @@ if (cli.argv.verbose) {
 }
 
 var argv = cli.argv;
-var which = require('which');
 var run = require('electron-installer-run');
-var path = require('path');
 
 /**
  * @see https://github.com/atom/electron/blob/master/docs/tutorial/using-native-node-modules.md#the-npm-way
@@ -37,30 +35,3 @@ if (process.platform === 'win32') {
     process.exit(0);
   });
 }
-
-/**
- * TODO (imlucas) switch to using `electron-rebuild` as a module for more
- * fine grained control of conditions which require an actual rebuild
- * of native add-ons.  The current CLI implementation seems too greedy/eager
- * to rebuild all native add-ons and takes a long time.
- */
-var args = [
-  '--version',
-  argv.electron_version,
-  '--node-module-version',
-  argv.electron_abi_version,
-  '--module-dir',
-  path.join(__dirname, '..', 'node_modules'),
-  /**
-   * @see https://github.com/electronjs/electron-rebuild#node-pre-gyp-workaround
-   */
-  '--pre-gyp-fix'
-];
-
-cli.spinner('Rebuilding native modules if needed');
-run('electron-rebuild', args, {
-  env: process.env
-}, function(err) {
-  cli.abortIfError(err);
-  cli.ok('native modules (possibly) rebuilt for correct electron ABI version');
-});

@@ -9,10 +9,6 @@ cli.yargs.usage('$0 [options]')
     type: 'boolean',
     default: false
   })
-  .option('electron_compile_cache', {
-    describe: 'What directory should electron-compile use for caching compilation artifacts?',
-    default: path.join(__dirname, '..', 'build', 'electron-compile-cache')
-  })
   .option('devtools', {
     describe: 'Automatically open devtools for new electron browser windows?',
     type: 'boolean',
@@ -32,16 +28,7 @@ if (cli.argv.devtools) {
 }
 
 var spawn = require('child_process').spawn;
-var del = require('del');
 var async = require('async');
-
-function clearElectronCompileCache(done) {
-  cli.info('clearing any existing electron-compile cache artifacts');
-  del(cli.argv.electron_compile_cache).then(function() {
-    cli.ok('electron-compile cache cleared');
-    done();
-  });
-}
 
 function startElectronPrebuilt(done) {
   cli.info('Spawning electron-prebuilt');
@@ -51,12 +38,6 @@ function startElectronPrebuilt(done) {
     env: process.env,
     stdio: 'inherit'
   };
-
-  /**
-   * So dev build artifacts for electron-compile are cached
-   * in an easily visible place instead of `/tmp`.
-   */
-  opts.env.TEMP = cli.argv.electron_compile_cache;
 
   function onError(err) {
     cli.abort(err);
@@ -73,7 +54,6 @@ function startElectronPrebuilt(done) {
 }
 
 async.series([
-  clearElectronCompileCache,
   startElectronPrebuilt
 ], function(err) {
   cli.abortIfError(err);

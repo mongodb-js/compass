@@ -1,4 +1,9 @@
 /* eslint no-console:0 */
+/**
+ * Explicitly require debug module in browser mode,
+ * or no messages will be logged to the devtools console.
+ */
+require('debug/browser');
 
 /**
  * The main entrypoint for the application!
