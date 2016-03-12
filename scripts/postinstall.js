@@ -18,6 +18,7 @@ if (cli.argv.verbose) {
 }
 
 var argv = cli.argv;
+var which = require('which');
 var run = require('electron-installer-run');
 var path = require('path');
 
