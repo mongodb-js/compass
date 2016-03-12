@@ -50,7 +50,8 @@ describe('Connect Window #spectron', function() {
           })
           .clickConnect()
           .waitForVisible('.form-container .message.error')
-          .getText('.form-container .message.error').should.eventually.be.equal('MongoDB not running');
+          .getText('.form-container .message.error')
+          .should.eventually.be.equal('connect ECONNREFUSED 127.0.0.1:55555');
       });
     });
   });
