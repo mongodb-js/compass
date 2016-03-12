@@ -32,18 +32,18 @@
     "prestart": "node scripts/prestart.js",
     "start": "node scripts/start.js",
     "//": "Run only the fast unit tests",
-    "test": "xvfb-maybe electron-mocha",
+    "test": "xvfb-maybe node scripts/test.js",
     "postinstall": "node scripts/postinstall.js",
     "prepublish": "node scripts/prepublish.js",
     "postuninstall": "node scripts/postuninstall.js",
     "check": "mongodb-js-precommit ./src/app/*.js ./src/app/**/**/*.js ./src/{app/**/*.js,main/**/*.js} ./{scripts,test}/*.js",
-    "ci": "npm run test-unit",
+    "ci": "npm run test",
     "clean": "npm run postuninstall",
     "fmt": "mongodb-js-fmt ./*.js src/{**/*.js,*.js} test/{**/*.js,*.js} scripts/*.js",
     "release": "npm run prepublish",
-    "test-renderer": "electron-mocha --renderer --grep='#renderer'",
-    "test-functional": "electron-mocha --grep='#spectron'",
-    "test-unit": "electron-mocha -i --grep='#renderer|#spectron'"
+    "test-functional": "npm test -- --functional",
+    "test-unit": "npm test -- --unit",
+    "test-release": "npm test -- --release"
   },
   "repository": {
     "type": "git",
