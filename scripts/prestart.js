@@ -34,38 +34,60 @@ var argv = cli.argv;
 var semver = require('semver');
 var format = require('util').format;
 var run = require('electron-installer-run');
+var checkPython = require('check-python');
+var async = require('async');
 
-cli.spinner('verifying current environment meets requirements');
-run('npm', ['version', '--json', '--loglevel', 'error'], {
-  env: process.env
-}, function(err, stdout) {
-  cli.abortIfError(err);
+function checkNpmAndNodejs(done) {
+  run('npm', ['version', '--json', '--loglevel', 'error'], {
+    env: process.env
+  }, function(err, stdout) {
+    if (err) {
+      return done(err);
+    }
 
-  var versions = JSON.parse(stdout);
-  /**
-   * TODO (imlucas) Improve language and provide links to fix issues.
-   */
-  if (!semver.satisfies(versions.node, argv.nodejs_version)) {
-    var nodeMessage = format('Your current nodejs (v%s) does not meet the requirement `%s`.',
-      versions.node, argv.nodejs_version);
-    cli.abort(nodeMessage);
-  } else {
-    cli.ok(format('Your installed version of nodejs (v%s) meets the requirement `%s`.',
+    var versions = JSON.parse(stdout);
+    /**
+     * TODO (imlucas) Improve language and provide links to fix issues.
+     */
+    if (!semver.satisfies(versions.node, argv.nodejs_version)) {
+      return done(new Error(format(
+        'Your current nodejs (v%s) does not meet the requirement `%s`.',
+        versions.node, argv.nodejs_version
+      )));
+    }
+
+    cli.debug(format(
+      'Your installed version of nodejs (v%s) meets the requirement `%s`.',
       versions.node, argv.nodejs_version));
-  }
 
-  if (!semver.satisfies(versions.npm, argv.npm_version)) {
-    var npmMessage = format('Your current npm (v%s) does not meet the requirement `%s`.',
-      versions.npm, argv.npm_version);
-    cli.abort(npmMessage);
-  } else {
-    cli.ok(format('Your installed version of npm (v%s) meets the requirement.',
+    if (!semver.satisfies(versions.npm, argv.npm_version)) {
+      return done(new Error(format(
+        'Your current npm (v%s) does not meet the requirement `%s`.',
+        versions.npm, argv.npm_version)));
+    }
+
+    cli.debug(format(
+      'Your installed version of npm (v%s) meets the requirement.',
       versions.npm, argv.npm_version));
-  }
+    done(null, versions);
+  });
+}
 
-  /**
-   * TODO (imlucas) Also check Python requirements like atom team does.
-   * @see https://github.com/atom/atom/blob/master/script/utils/verify-requirements.js
-   */
-  cli.ok('Environment verified as sane!');
-});
+function main() {
+  cli.spinner('verifying current environment meets requirements');
+  async.series([
+    checkPython,
+    checkNpmAndNodejs
+  ], function(err) {
+    cli.abortIfError(err);
+    cli.debug('Environment verified as sane!');
+    process.exit(0);
+  });
+}
+
+/**
+ * ## Main
+ */
+if (cli.argv.$0 && cli.argv.$0.indexOf('prestart.js') > -1) {
+  main();
+}

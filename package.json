@@ -123,6 +123,8 @@
     "babel-preset-react": "^6.5.0",
     "chai": "^3.4.1",
     "chai-as-promised": "^5.1.0",
+    "check-python": "^1.0.0",
+    "cli-table": "^0.3.1",
     "del": "^2.0.2",
     "electron-compilers": "^2.0.6",
     "electron-installer-codesign": "^0.1.1",
