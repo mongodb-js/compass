@@ -140,9 +140,6 @@ module.exports = Schema.extend({
       schemaStatusSubview.error = true;
       schemaStatusSubview.showButtons();
 
-      // // destroy the stream
-      // this.destroy();
-
       // track error
       metrics.error(err);
 
