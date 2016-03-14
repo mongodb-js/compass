@@ -93,7 +93,7 @@
     "moment": "^2.10.6",
     "mongodb-collection-model": "^0.1.1",
     "mongodb-connection-model": "^4.0.0",
-    "mongodb-data-service": "^0.0.7",
+    "mongodb-data-service": "^0.0.8",
     "mongodb-database-model": "^0.1.2",
     "mongodb-extended-json": "^1.6.0",
     "mongodb-instance-model": "^2.1.7",
