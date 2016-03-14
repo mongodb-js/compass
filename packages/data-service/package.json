@@ -27,7 +27,7 @@
     "bson": "^0.4.22",
     "debug": "^2.2.0",
     "lodash": "^4.6.1",
-    "mongodb": "^2.1.6",
+    "mongodb": "^2.1.8",
     "mongodb-collection-sample": "^1.0.0",
     "mongodb-connection-model": "^3.0.10",
     "mongodb-instance-model": "^3.0.0",
