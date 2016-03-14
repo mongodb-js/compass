@@ -11,7 +11,7 @@ var _ = require('lodash');
 var app = require('ampersand-app');
 var format = require('util').format;
 
-var electron = window.require('electron');
+var electron = require('electron');
 var remote = electron.remote;
 var dialog = remote.dialog;
 var Clipboard = remote.clipboard;
