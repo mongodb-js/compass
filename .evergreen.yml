@@ -55,6 +55,7 @@ functions:
           --url "http://mongodb-dx-public.s3.amazonaws.com/evergreen-deps/${fetch_npm_tarball}"
         cd .deps
         tar xzf ${fetch_npm_tarball} --strip-components=1
+        chmod +x npm.cmd || true
 
   "npm install" :
     command: shell.exec
