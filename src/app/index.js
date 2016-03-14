@@ -3,31 +3,28 @@
  * Explicitly require debug module in browser mode,
  * or no messages will be logged to the devtools console.
  */
-require('debug/browser');
+var debug = require('debug/browser')('mongodb-compass:app');
+console.time('app/index.js');
+
 
 /**
  * The main entrypoint for the application!
  */
-var pkg = require('../../package.json');
+var electron = require('electron');
+var shell = electron.shell;
+var dialog = electron.dialog;
+var ipc = electron.ipcRenderer;
 var app = require('ampersand-app');
 var backoff = require('backoff');
-
-app.extend({
-  meta: {
-    'App Version': pkg.version
-  }
-});
+var APP_VERSION = electron.remote.app.getVersion();
 
 var _ = require('lodash');
-var domReady = require('domready');
 var qs = require('qs');
 var ViewSwitcher = require('ampersand-view-switcher');
 var View = require('ampersand-view');
 var localLinks = require('local-links');
 var async = require('async');
-var electron = require('electron');
-var shell = electron.shell;
-var dialog = electron.dialog;
+
 var format = require('util').format;
 var semver = require('semver');
 
@@ -41,12 +38,8 @@ var Statusbar = require('./statusbar');
 var migrateApp = require('./migrations');
 var metricsSetup = require('./metrics');
 var metrics = require('mongodb-js-metrics')();
-var $ = require('jquery');
-var DataService = require('mongodb-data-service');
 
 var addInspectElementMenu = require('debug-menu').install;
-
-var debug = require('debug')('mongodb-compass:app');
 
 function getConnection(model, done) {
   function _fetch(fn) {
@@ -72,14 +65,6 @@ function getConnection(model, done) {
   call.start();
 }
 
-// Inter-process communication with main process (Electron window)
-var ipc = electron.ipcRenderer;
-
-var jade = require('jade');
-var path = require('path');
-
-var appTemplate = jade.compileFile(path.resolve(__dirname, 'app.jade'));
-
 /**
  * The top-level application singleton that brings everything together!
  *
@@ -99,11 +84,18 @@ var appTemplate = jade.compileFile(path.resolve(__dirname, 'app.jade'));
  * @see http://learn.humanjavascript.com/react-ampersand/application-pattern
  */
 var Application = View.extend({
-  template: appTemplate,
+  template: function() {
+    return [
+      '<div id="application">',
+      '  <div data-hook="statusbar"></div>',
+      '  <div data-hook="layout-container"></div>',
+      '</div>'
+    ].join('\n');
+  },
   props: {
     version: {
       type: 'string',
-      default: pkg.version
+      default: APP_VERSION
     }
   },
   session: {
@@ -145,7 +137,7 @@ var Application = View.extend({
     'click i.help': 'onHelpClicked'
   },
   onHelpClicked: function(evt) {
-    var id = $(evt.target).attr('data-hook');
+    var id = evt.target.dataset.hook;
     app.sendMessage('show help window', id);
   },
   onClientReady: function() {
@@ -181,7 +173,7 @@ var Application = View.extend({
     this.preferences.once('sync', function(prefs) {
       prefs.trigger('page-refresh');
       var oldVersion = _.get(prefs, 'lastKnownVersion', '0.0.0');
-      var currentVersion = pkg.version;
+      var currentVersion = APP_VERSION;
       var save = false;
       if (semver.lt(oldVersion, currentVersion)) {
         prefs.showFeatureTour = oldVersion;
@@ -264,11 +256,6 @@ var Application = View.extend({
    * quickly as possible.
    */
   render: function() {
-    debug('Rendering w/ NODE_ENV', process.env.NODE_ENV);
-    if (process.env.NODE_ENV !== 'production') {
-      debug('Installing "Inspect Element" context menu');
-      addInspectElementMenu();
-    }
     debug('Rendering app container...');
 
     this.el = document.querySelector('#application');
@@ -279,10 +266,15 @@ var Application = View.extend({
       }
     });
     debug('rendering statusbar...');
+
     this.statusbar = new Statusbar({
       el: this.queryByHook('statusbar')
     });
     this.statusbar.render();
+    if (process.env.NODE_ENV !== 'production') {
+      debug('Installing "Inspect Element" context menu');
+      addInspectElementMenu();
+    }
   },
   onPageChange: function(view) {
     metrics.track('App', 'viewed', view.screenName);
@@ -323,6 +315,7 @@ function handleIntercomLinks() {
   }
 
   var lookForLinks = getNodeObserver(function(element) {
+    var $ = window.jQuery || require('jquery');
     if (element.nodeName === 'A') {
       $(element).click(state.onLinkClick.bind(state));
     } else {
@@ -390,7 +383,7 @@ app.extend({
       });
 
       var connection = state.connection.serialize();
-
+      var DataService = require('mongodb-data-service');
       app.dataService = new DataService(connection)
         .on(DataService.Events.Readable, state.onClientReady.bind(state))
         .on(DataService.Events.Error, state.onFatalError.bind(state, 'create client'));
@@ -426,7 +419,7 @@ app.extend({
       self.sendMessage('renderer ready');
 
       // as soon as dom is ready, render and set up the rest
-      domReady(self.onDomReady);
+      self.onDomReady();
     });
   }
 });
@@ -492,3 +485,5 @@ app.init();
 
 // expose app globally for debugging purposes
 window.app = app;
+
+console.timeEnd('app/index.js');
