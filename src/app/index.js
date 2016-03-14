@@ -25,9 +25,9 @@ var ViewSwitcher = require('ampersand-view-switcher');
 var View = require('ampersand-view');
 var localLinks = require('local-links');
 var async = require('async');
-var shell = window.require('shell');
-var remote = window.require('remote');
-var dialog = remote.require('dialog');
+var electron = require('electron');
+var shell = electron.shell;
+var dialog = electron.dialog;
 var format = require('util').format;
 var semver = require('semver');
 
@@ -73,7 +73,6 @@ function getConnection(model, done) {
 }
 
 // Inter-process communication with main process (Electron window)
-var electron = window.require('electron');
 var ipc = electron.ipcRenderer;
 
 var jade = require('jade');
