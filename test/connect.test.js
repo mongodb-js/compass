@@ -7,7 +7,7 @@ describe('Connect Window #spectron', function() {
   beforeEach(helpers.startApplication);
   afterEach(helpers.stopApplication);
 
-  context('when opening the window', function() {
+  describe('when opening the window', function() {
     it('renders the connect window', function() {
       return this.app.client
         .getWindowCount().should.eventually.equal(1)
@@ -21,12 +21,12 @@ describe('Connect Window #spectron', function() {
     });
   });
 
-  context('when connecting with no authentication', function() {
+  describe('when connecting with no authentication', function() {
     before(require('mongodb-runner/mocha/before')({
       port: 27018
     }));
     after(require('mongodb-runner/mocha/after')());
-    context('when the server exists', function() {
+    describe('when the server exists', function() {
       it('opens the schema window', function() {
         return this.app.client
           .waitForVisible('select[name=authentication]')
@@ -40,7 +40,7 @@ describe('Connect Window #spectron', function() {
       });
     });
 
-    context('when the server does not exist', function() {
+    describe('when the server does not exist', function() {
       it('displays an error message', function() {
         return this.app.client
           .waitForVisible('select[name=authentication]')
@@ -56,9 +56,9 @@ describe('Connect Window #spectron', function() {
     });
   });
 
-  context('when connecting with authentication', function() {
-    context('when connecting with user and password', function() {
-      context('when the credentials are correct', function() {
+  describe('when connecting with authentication', function() {
+    describe('when connecting with user and password', function() {
+      describe('when the credentials are correct', function() {
         // if (!process.env.MONGODB_PASSWORD_COMPASS) {
         // this.skip();
         // return null;
@@ -75,32 +75,32 @@ describe('Connect Window #spectron', function() {
         it('opens the schema window');
       });
 
-      context('when the credentials are incorrect', function() {
+      describe('when the credentials are incorrect', function() {
         it('displays an error message');
       });
     });
 
-    context('when connecting with LDAP', function() {
-      context('when the credentials are correct', function() {
+    describe('when connecting with LDAP', function() {
+      describe('when the credentials are correct', function() {
         it('opens the schema window');
       });
 
-      context('when the credentials are incorrect', function() {
+      describe('when the credentials are incorrect', function() {
         it('displays an error message');
       });
     });
 
-    context('when connecting with Kerberos', function() {
-      context('when the credentials are correct', function() {
+    describe('when connecting with Kerberos', function() {
+      describe('when the credentials are correct', function() {
         it('opens the schema window');
       });
 
-      context('when the credentials are incorrect', function() {
+      describe('when the credentials are incorrect', function() {
         it('displays an error message');
       });
     });
 
-    context('when connecting with a recent connection', function() {
+    describe('when connecting with a recent connection', function() {
       it('opens the schema window');
     });
   });
