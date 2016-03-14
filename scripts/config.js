@@ -17,6 +17,7 @@ var electronWinstaller = require('electron-winstaller');
 var createCLI = require('mongodb-js-cli');
 var Table = require('cli-table');
 var yaml = require('js-yaml');
+var electronPrebuiltVersion = require('electron-prebuilt/package.json').version;
 
 exports.options = {
   verbose: {
@@ -36,7 +37,7 @@ exports.options = {
   },
   electron_version: {
     describe: 'What version of electron are we using?',
-    default: process.env.npm_package_electron_version || pkg.electron_version
+    default: electronPrebuiltVersion
   },
   version: {
     describe: 'What version of the application are we building?',
