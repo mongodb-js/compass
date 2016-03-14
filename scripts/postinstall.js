@@ -17,6 +17,12 @@ if (cli.argv.verbose) {
   require('debug').enable('ele*,mon*');
 }
 
+if (process.env.EVERGREEN) {
+  cli.info('enabling debug on evergreen for ' +
+    'https://jira.mongodb.org/browse/INT-1229');
+  require('debug').enable('ele*,mon*');
+}
+
 var argv = cli.argv;
 var run = require('electron-installer-run');
 
@@ -29,7 +35,7 @@ process.env.npm_config_runtime = 'electron';
 process.env.HOME = '~/.electron-gyp';
 
 if (process.platform === 'win32') {
-  cli.spinner('Rebuilding native addons for Windows');
+  cli.info('Rebuilding native addons for Windows');
   run('npm', ['rebuild'], {env: process.env}, function(err) {
     cli.abortIfError(err);
     process.exit(0);

@@ -31,6 +31,7 @@ if (cli.argv.verbose) {
 
 var path = require('path');
 var spawn = require('child_process').spawn;
+var which = require('which');
 
 var args = [
   /**
@@ -61,11 +62,16 @@ var opts = {
   cwd: path.join(__dirname, '..')
 };
 
-var proc = spawn('electron-mocha', args, opts);
-proc.stderr.pipe(process.stderr);
-proc.stdout.pipe(process.stdout);
-process.stdin.pipe(proc.stdin);
+which('electron-mocha', function(err, bin) {
+  cli.abortIfError(err);
+  cli.debug('Using electron-mocha: ', bin);
 
-proc.on('exit', function(code) {
-  process.exit(code);
+  var proc = spawn(bin, args, opts);
+  proc.stderr.pipe(process.stderr);
+  proc.stdout.pipe(process.stdout);
+  process.stdin.pipe(proc.stdin);
+
+  proc.on('exit', function(code) {
+    process.exit(code);
+  });
 });
