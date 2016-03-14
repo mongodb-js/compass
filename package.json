@@ -8,24 +8,20 @@
   "authors": "MongoDB Inc.",
   "license": "UNLICENSED",
   "private": true,
-  "check": {
-    "ignore": [
-      "src/minicharts/d3-tip.js"
-    ]
-  },
   "dependency-check": {
     "entries": [
       "./src/main/index.js",
       "./src/app/index.js",
-      "./src/main/index.js",
+      "./scripts/config.js",
       "./scripts/postinstall.js",
       "./scripts/postuninstall.js",
       "./scripts/prepublish.js",
-      "./scripts/prestart.js"
+      "./scripts/prestart.js",
+      "./scripts/start.js",
+      "./scripts/test.js"
     ],
     "ignore": [
-      "electron",
-      "mongodb-scope-server"
+      "electron"
     ]
   },
   "scripts": {
