@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
-var electron_version = require('./config').options.electron_version;
+var electronVersionOption = require('./config').options.electron_version;
 
 var cli = require('mongodb-js-cli')('mongodb-compass:scripts:postinstall');
 cli.yargs.usage('$0 [options]')
-  .option('electron_version', electron_version)
+  .option('electron_version', electronVersionOption)
   .option('verbose', {
     describe: 'Confused or trying to track down a bug and want lots of debug output?',
     type: 'boolean',
