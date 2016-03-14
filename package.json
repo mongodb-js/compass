@@ -3,7 +3,7 @@
   "description": "The MongoDB GUI.",
   "version": "1.1.2-pre",
   "main": "src/main.js",
-  "electron_version": "0.36.7",
+  "electron_version": "0.36.11",
   "product_name": "MongoDB Compass",
   "authors": "MongoDB Inc.",
   "license": "UNLICENSED",
@@ -129,7 +129,7 @@
     "electron-license": "^0.1.0",
     "electron-mocha": "^0.8.0",
     "electron-packager": "^5.1.1",
-    "electron-prebuilt": "^0.36.8",
+    "electron-prebuilt": "^0.36.11",
     "electron-winstaller": "^2.0.5",
     "eslint-config-mongodb-js": "^1.0.6",
     "eslint-plugin-react": "^4.1.0",
@@ -149,6 +149,6 @@
   "engines": {
     "node": "^5.0.0",
     "npm": "^3.0.0",
-    "electron": "^0.36.7"
+    "electron": "^0.36.11"
   }
 }
