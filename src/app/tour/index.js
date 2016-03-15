@@ -8,9 +8,6 @@ var jade = require('jade');
 var path = require('path');
 
 var indexTemplate = jade.compileFile(path.resolve(__dirname, 'index.jade'));
-var app = require('ampersand-app');
-var semver = require('semver');
-var _ = require('lodash');
 
 // var debug = require('debug')('mongodb-compass:tour:index');
 

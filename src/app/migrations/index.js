@@ -2,8 +2,6 @@ var pkg = require('../../../package.json');
 var Model = require('ampersand-model');
 var storageMixin = require('storage-mixin');
 
-var debug = require('debug')('mongodb-compass:migrations:index');
-
 var migrations = {
   '1.1.2': require('./1.1.2')
 };
