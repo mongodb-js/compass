@@ -44,6 +44,7 @@ var del = require('del');
 var fs = require('fs-extra');
 var _ = require('lodash');
 var async = require('async');
+var asar = require('asar');
 var packager = require('electron-packager');
 var run = require('electron-installer-run');
 var license = require('electron-license');
@@ -303,7 +304,7 @@ function removeDevelopmentFiles(CONFIG, done) {
 }
 
 /**
- * TODO (imlucas) Stub for improved windows installation.
+ * Package the application as a single `asar` file.
  *
  * @see [Atom's generate-asar-task.coffee](https://git.io/vaY4O)
  * @see https://gist.github.com/imlucas/7a8956cf153595168109
@@ -312,7 +313,28 @@ function removeDevelopmentFiles(CONFIG, done) {
  * @param {Function} done
  */
 function createApplicationAsar(CONFIG, done) {
-  done();
+  var opts = {
+    /**
+     * TODO (imlucas) Find a good way to automate generating
+     * the hints file using `ELECTRON_LOG_ASAR_READS=1`.
+     *
+     *  ordering: path.resolve(__dirname, '..',
+     *   'resources', 'asar-ordering-hint.txt'),
+     */
+    unpack: '{' + [
+      '*.node',
+      '**/vendor/**'
+    ].join(',') + '}'
+  };
+
+  var src = path.join(CONFIG.resources, 'app');
+  var dest = path.join(CONFIG.resources, 'app.asar');
+
+  asar.createPackageWithOptions(src, dest, opts, function() {
+    del(src, {force: true}).then(function() {
+      done();
+    }, done);
+  });
 }
 
 /**
