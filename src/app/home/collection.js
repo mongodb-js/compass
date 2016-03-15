@@ -7,11 +7,11 @@ var MongoDBCollection = require('../models/mongodb-collection');
 var SampledSchema = require('../models/sampled-schema');
 var app = require('ampersand-app');
 var _ = require('lodash');
-// var ms = require('ms');
-var electron = window.require('electron');
+var electron = require('electron');
 var remote = electron.remote;
 var dialog = remote.dialog;
 var BrowserWindow = remote.BrowserWindow;
+var clipboard = remote.clipboard;
 var format = require('util').format;
 var metrics = require('mongodb-js-metrics')();
 var debug = require('debug')('mongodb-compass:home:collection');
@@ -123,7 +123,6 @@ var MongoDBCollectionView = View.extend({
     }
   },
   onShareSchema: function() {
-    var clipboard = window.require('clipboard');
     clipboard.writeText(JSON.stringify(this.schema.serialize(), null, '  '));
 
     var detail = format('The schema definition of %s has been copied to your '

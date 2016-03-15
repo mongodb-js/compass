@@ -18,16 +18,19 @@ var Connection = require('mongodb-connection-model');
  * Test documents to sample with a local server.
  */
 var DOCUMENTS = [
-  { 'name': 'Aphex Twin' },
-  { 'name': 'Bonobo' },
-  { 'name': 'Arca' },
-  { 'name': 'Beacon' }
+  {
+    'name': 'Aphex Twin'
+  },
+  {
+    'name': 'Bonobo'
+  },
+  {
+    'name': 'Arca'
+  },
+  {
+    'name': 'Beacon'
+  }
 ];
-
-// var ELECTRON_PATH = {
-//   linux: path.resolve(__dirname, '../node_modules/.bin/electron'),
-//   win32: path.resolve(__dirname, '../node_modules/.bin/electron'),
-//   darwin: path.resolve(__dirname, '../node_modules/.bin/electron')
 
 var ELECTRON_PREBUILT_EXECUTABLE = require('electron-prebuilt');
 var DIST = path.resolve(__dirname, '..', 'dist');

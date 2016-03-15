@@ -5,7 +5,7 @@ var selectableMixin = require('./selectable-collection-mixin');
 var filterableMixin = require('ampersand-collection-filterable');
 var withSync = require('./with-sync');
 var debug = require('debug')('mongodb-compass:models:help-entry-collection');
-var electron = window.require('electron');
+var electron = require('electron');
 var ipc = electron.ipcRenderer;
 
 var HelpEntryCollection = Collection.extend(

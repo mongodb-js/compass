@@ -65,6 +65,6 @@ featureResources.Collection = new CollectionResource();
 featureResources.Deployment = new DeploymentResource();
 featureResources.Schema = new SchemaResource();
 
-debug(featureResources);
+debug('feature resources', featureResources);
 
 module.exports = featureResources;

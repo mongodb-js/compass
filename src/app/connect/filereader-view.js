@@ -1,6 +1,6 @@
 var InputView = require('./input-view');
 var _ = require('lodash');
-var electron = window.require('electron');
+var electron = require('electron');
 var remote = electron.remote;
 var dialog = remote.dialog;
 var BrowserWindow = remote.BrowserWindow;

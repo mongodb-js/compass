@@ -1,9 +1,4 @@
 var AmpersandRouter = require('ampersand-router');
-
-var HomePage = require('./home');
-var ConnectPage = require('./connect');
-var HelpPage = require('./help');
-
 module.exports = AmpersandRouter.extend({
   routes: {
     '': 'index',
@@ -15,14 +10,16 @@ module.exports = AmpersandRouter.extend({
     '(*path)': 'catchAll'
   },
   index: function() {
-    this.trigger('page', new HomePage({}));
+    this.schema();
   },
   schema: function(ns) {
+    var HomePage = require('./home');
     this.trigger('page', new HomePage({
       ns: ns
     }));
   },
   help: function(entryId) {
+    var HelpPage = require('./help');
     this.trigger('page', new HelpPage({
       entryId: entryId
     }));
@@ -31,6 +28,7 @@ module.exports = AmpersandRouter.extend({
     this.redirectTo('');
   },
   connect: function() {
+    var ConnectPage = require('./connect');
     this.trigger('page', new ConnectPage({}));
   }
 });

@@ -11,10 +11,6 @@ var path = require('path');
 var inputTemplate = jade.compileFile(path.resolve(__dirname, 'input-default.jade'));
 var selectTemplate = jade.compileFile(path.resolve(__dirname, 'select-default.jade'));
 
-
-require('bootstrap/js/popover');
-require('bootstrap/js/tooltip');
-
 // create proxy collections that only contains the enabled auth options
 var enabledAuthOptions = new FilteredCollection(authOptions, {
   where: {
@@ -81,6 +77,10 @@ var ConnectFormView = FormView.extend({
    * @return {Array<InputView>}
    */
   fields: function() {
+    window.jQuery = require('jquery');
+    require('bootstrap/js/tooltip');
+    require('bootstrap/js/popover');
+
     return [
       // hostname field
       new InputView({
