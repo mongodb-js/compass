@@ -101,6 +101,7 @@
     "uuid": "^2.0.1"
   },
   "devDependencies": {
+    "asar": "^0.10.0",
     "chai": "^3.4.1",
     "chai-as-promised": "^5.1.0",
     "check-python": "^1.0.0",
