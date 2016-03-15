@@ -52,7 +52,7 @@
     "ampersand-collection-lodash-mixin": "^2.0.1",
     "ampersand-dom-bindings": "^3.7.0",
     "ampersand-filtered-subcollection": "^2.0.4",
-    "ampersand-form-view": "^5.1.1",
+    "ampersand-form-view": "mongodb-js/ampersand-form-view#remove-zuul-from-dependencies",
     "ampersand-input-view": "^5.0.0",
     "ampersand-model": "^6.0.2",
     "ampersand-rest-collection": "^5.0.0",
