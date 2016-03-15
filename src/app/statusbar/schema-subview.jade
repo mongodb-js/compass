@@ -1,0 +1,25 @@
+div#schema-status-subview
+  
+  div(data-hook='steps')
+    ul.steps
+      li
+        i(data-hook='sampling-indicator')
+        | Sampling Collection
+      li
+        i(data-hook='analyzing-indicator') 
+        | Analyzing documents
+
+  div.buttons(data-hook='buttons')  
+    div#buttons-sampling
+      div.alert.alert-danger(role='alert', data-hook='sampling-info') 
+        | Sampling took longer than&nbsp;
+        span(data-hook='maxtimems') 10 seconds
+        | &nbsp;on the database. As a safety measure, Compass aborts long-running queries. &nbsp;
+        i.help(data-hook='schema-long-running-queries')
+      div.btn.btn-info(data-hook='increase-maxtimems-button') Try for 1 minute
+      div.btn.btn-info(data-hook='create-new-query-button') Create new query
+
+    div#buttons-analyzing
+      div.alert.alert-info(role='alert', data-hook='analyzing-info') Analyzing is taking longer than expected. &nbsp;
+        i.help(data-hook='schema-long-running-queries')
+      div.btn.btn-info(data-hook='stop-analyzing-button') Stop and show partial results

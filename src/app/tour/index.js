@@ -1,6 +1,9 @@
 var $ = require('jquery');
 var View = require('ampersand-view');
 var metrics = require('mongodb-js-metrics')();
+var app = require('ampersand-app');
+var semver = require('semver');
+var _ = require('lodash');
 var jade = require('jade');
 var path = require('path');
 

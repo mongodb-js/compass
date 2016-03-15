@@ -2,8 +2,8 @@ var _ = require('lodash');
 var Schema = require('mongodb-schema').Schema;
 var wrapError = require('./wrap-error');
 var FieldCollection = require('mongodb-schema').FieldCollection;
+var SchemaStatusSubview = require('../statusbar/schema-subview');
 var filterableMixin = require('ampersand-collection-filterable');
-var es = require('event-stream');
 var debug = require('debug')('mongodb-compass:models:schema');
 var metrics = require('mongodb-js-metrics')();
 var app = require('ampersand-app');
@@ -26,6 +26,8 @@ module.exports = Schema.extend({
   },
   session: {
     // total number of documents counted under the given query
+    samplingStream: 'object',
+    analyzingStream: 'object',
     total: 'number',
     is_fetching: {
       type: 'boolean',
@@ -35,6 +37,9 @@ module.exports = Schema.extend({
   namespace: 'SampledSchema',
   collections: {
     fields: FilterableFieldCollection
+  },
+  initialize: function() {
+    this.stopAnalyzing = this.stopAnalyzing.bind(this);
   },
   /**
    * Clear any data accumulated from sampling.
@@ -103,38 +108,38 @@ module.exports = Schema.extend({
       }
       model.trigger('sync');
     };
+
     var start = new Date();
     var timeAtFirstDoc;
     var erroredOnDocs = [];
     var sampleCount = 0;
 
-    // No results found
-    var onEmpty = function() {
-      model.is_fetching = false;
-      options.success({});
+    var schemaStatusSubview = new SchemaStatusSubview({schema: this});
+
+
+    var onFail = function(err) {
+      // hide statusbar animation, progressbar (top)
+      app.statusbar.animation = false;
+      app.statusbar.trickle(false);
+      app.statusbar.progressbar = false;
+
+      // show error box with buttons for current stage (sampling/analyzing)
+      schemaStatusSubview.error = true;
+      schemaStatusSubview.showButtons();
+
+      // track error
+      metrics.error(err);
+
+      // call error callback
+      process.nextTick(options.error.bind(null, err));
     };
 
-    var parse = function(doc, cb) {
-      if (!timeAtFirstDoc) {
-        timeAtFirstDoc = new Date();
-      }
-      try {
-        model.parse(doc);
-      } catch (err) {
-        erroredOnDocs.push(doc);
-        metrics.error(err);
-      }
-      sampleCount++;
-      cb(null, doc);
-    };
 
     var onEnd = function(err) {
       model.is_fetching = false;
+
       if (err) {
-        metrics.error(err);
-        process.nextTick(options.error.bind(null, err));
-        app.statusbar.hide(true);
-        return;
+        return onFail(err);
       }
       app.statusbar.hide(true);
 
@@ -146,6 +151,8 @@ module.exports = Schema.extend({
         duration: totalTime,
         'query clauses count': _.keys(options.query).length,
         'total document count': model.total,
+        'schema width': model.width,
+        'schema depth': model.depth,
         'sample size': sampleCount,
         'errored document count': erroredOnDocs.length,
         'total sample time': timeToFirstDoc,
@@ -159,41 +166,81 @@ module.exports = Schema.extend({
 
     app.dataService.count(model.ns, options.query, options, function(err, count) {
       if (err) {
-        metrics.error(err);
-        return options.error(err);
+        return onFail(err);
       }
       model.total = count;
       if (model.total === 0) {
-        return onEmpty();
+        model.is_fetching = false;
+        return options.success({});
       }
 
+      debug('count', count);
+
       var status = 0;
-      var counter = 0;
       var numSamples = Math.min(options.size, count);
       var stepSize = Math.ceil(Math.max(1, numSamples / 10));
 
-      app.statusbar.show('Sampling collection...');
+      app.statusbar.show({
+        animation: true
+      });
+      app.statusbar.showSubview(schemaStatusSubview);
       app.statusbar.width = 1;
       app.statusbar.trickle(true);
-      app.dataService.sample(model.ns, options)
-        .on('error', function(dbErr) {
-          onEnd(dbErr);
+
+      model.samplingStream = app.dataService.sample(model.ns, options);
+      // pass in true for native (fast) sampler, false for ampersand-sampler
+      model.analyzingStream = model.stream(true);
+
+      model.samplingStream
+        .on('error', function(sampleErr) {
+          this.destroy();
+          onFail(sampleErr);
         })
-        .pipe(es.map(parse))
-        .once('data', function() {
+        .pipe(model.analyzingStream)
+        .once('progress', function() {
+          timeAtFirstDoc = new Date();
           status = app.statusbar.width;
-          app.statusbar.message = 'Analyzing documents...';
+          schemaStatusSubview.activeStep = 'analyzing';
           app.statusbar.trickle(false);
         })
-        .on('data', function() {
-          counter++;
-          if (counter % stepSize === 0) {
+        .on('progress', function() {
+          sampleCount++;
+          if (sampleCount % stepSize === 0) {
             var inc = (100 - status) * stepSize / numSamples;
             app.statusbar.width += inc;
           }
         })
-        .pipe(es.wait(onEnd));
+        .on('error', function(analysisErr) {
+          schemaStatusSubview.error = true;
+          onFail(analysisErr);
+        })
+        .on('data', function() {
+          if (sampleCount >= numSamples) {
+            return onEnd();
+          }
+          // workaround, as 'data' seems to be emitted even when sample stage
+          // has an error. @ChristianKvalheim investigating.
+          debug('did not receive data from the driver.');
+          onFail(new Error('did not receive data from driver.'));
+        });
     });
+  },
+  reSampleWithLongerTimeout: function() {
+    app.queryOptions.maxTimeMS = 60000;
+    this.fetch();
+  },
+  stopAnalyzing: function() {
+    if (!this.is_fetching) {
+      return;
+    }
+    this.is_fetching = false;
+    // @todo thomasr, uncomment this line once we figured out why
+    // app.client.sample() is not emitting any events anymore.
+    // for now, we can use app.client.find instead.
+
+    // this.samplingStream.destroy();
+    this.analyzingStream.destroy();
+    app.statusbar.hide(true);
   },
   serialize: function() {
     var res = this.getAttributes({
