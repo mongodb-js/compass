@@ -7,7 +7,6 @@ var MongoDBCollection = require('../models/mongodb-collection');
 var SampledSchema = require('../models/sampled-schema');
 var app = require('ampersand-app');
 var _ = require('lodash');
-// var ms = require('ms');
 var electron = require('electron');
 var remote = electron.remote;
 var dialog = remote.dialog;
