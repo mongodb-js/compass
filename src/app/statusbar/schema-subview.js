@@ -77,6 +77,16 @@ module.exports = View.extend({
       hook: 'buttons',
       mode: 'visibility'
     },
+    // thomasr, can't get this block to work
+    // activeStep: {
+    //   type: 'switchClass',
+    //   name: 'is-active',
+    //   cases: {
+    //     sampling: '#sampling-step',
+    //     analyzing: '#analyzing-step'
+    //   }
+    // },
+    // END
     activeStep: {
       type: 'switch',
       hook: 'buttons',
@@ -93,7 +103,7 @@ module.exports = View.extend({
       type: function(el, value) {
         switch (value) {
           case 'active': el.className = 'fa fa-fw fa-spin fa-circle-o-notch'; break;
-          case 'complete': el.className = 'fa fa-fw fa-check'; break;
+          case 'complete': el.className = 'mms-icon-check'; break;
           case 'error': el.className = 'fa fa-fw fa-warning'; break;
           default: el.className = 'fa fa-fw';
         }
@@ -104,7 +114,7 @@ module.exports = View.extend({
       type: function(el, value) {
         switch (value) {
           case 'active': el.className = 'fa fa-fw fa-spin fa-circle-o-notch'; break;
-          case 'complete': el.className = 'fa fa-fw fa-check'; break;
+          case 'complete': el.className = 'mms-icon-check'; break;
           case 'error': el.className = 'fa fa-fw fa-warning'; break;
           default: el.className = 'fa fa-fw';
         }
