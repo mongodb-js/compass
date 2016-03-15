@@ -6,12 +6,12 @@ div#schema-status-subview
         i(data-hook='sampling-indicator')
         | Sampling Collection
       li#analyzing-step
-        i(data-hook='analyzing-indicator') 
+        i(data-hook='analyzing-indicator')
         | Analyzing documents
 
-  div.buttons(data-hook='buttons')  
+  div.buttons(data-hook='buttons')
     div#buttons-sampling
-      div.alert.alert-warning(role='alert', data-hook='sampling-info') 
+      div.alert.alert-warning(role='alert', data-hook='sampling-info')
         | Sampling took longer than&nbsp;
         span(data-hook='maxtimems') 10 seconds
         | &nbsp;on the database. As a safety measure, Compass aborts long-running queries. &nbsp;
