@@ -32,6 +32,7 @@ if (cli.argv.verbose) {
 var path = require('path');
 var spawn = require('child_process').spawn;
 var which = require('which');
+var _ = require('lodash');
 
 var args = [
   /**
@@ -56,6 +57,16 @@ if (!cli.argv.release) {
 if (process.env.EVERGREEN) {
   args.push.apply(args, ['--reporter', 'mocha-evergreen-reporter']);
 }
+
+// pass all additional args to electron-mocha (e.g. --grep, positional arguments, etc.)
+var otherOpts = _.filter(_.flatten(_.pairs(_.mapKeys(_.omit(cli.argv, 'unit',
+  'functional', 'release', 'verbose', '$0', 'help', '_'), function(v, k) {
+  return k.length === 1 ? '-' + k : '--' + k;
+}))), function(el) {
+  return !_.isBoolean(el);
+});
+args.push.apply(args, otherOpts);
+args.push.apply(args, cli.argv._);
 
 var opts = {
   env: process.env,
