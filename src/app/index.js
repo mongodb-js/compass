@@ -3,7 +3,8 @@
  * Explicitly require debug module in browser mode,
  * or no messages will be logged to the devtools console.
  */
-var debug = require('debug/browser')('mongodb-compass:app');
+require('debug/browser');
+var debug = require('debug')('mongodb-compass:app');
 console.time('app/index.js');
 
 
