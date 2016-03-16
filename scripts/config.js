@@ -204,8 +204,10 @@ exports.get = function(cli, callback) {
     var WINDOWS_RESOURCES = path.join(WINDOWS_OUT_X64, 'resources');
     var WINDOWS_EXECUTABLE = path.join(WINDOWS_OUT_X64,
       format('%s.exe', WINDOWS_APPNAME));
-    var WINDOWS_ICON = path.resolve(__dirname, format(
-      '../src/images/win32/%s.ico', cli.argv.internal_name));
+
+    var WINDOWS_ICON = path.resolve(CONFIG.images, 'win32',
+      format('%s.ico', cli.argv.internal_name));
+
     var WINDOWS_SIGNTOOL_PARAMS = cli.argv.signtool_params;
     var WINDOWS_LOADING_GIF = path.join(IMAGES,
       'win32', 'mongodb-compass-installer-loading.gif');
