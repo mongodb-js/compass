@@ -134,9 +134,12 @@ var Application = View.extend({
   },
   events: {
     'click a': 'onLinkClick',
-    'click i.help': 'onHelpClicked'
+    'click i.help': 'onHelpClicked',
+    'click a.help': 'onHelpClicked',
   },
   onHelpClicked: function(evt) {
+    evt.preventDefault();
+    evt.stopPropagation();
     var id = evt.target.dataset.hook;
     app.sendMessage('show help window', id);
   },
@@ -281,6 +284,10 @@ var Application = View.extend({
     this.pageSwitcher.set(view);
   },
   onLinkClick: function(event) {
+    // ignore help links, they're handled in `onHelpClicked`
+    if (event.target.className === 'help') {
+      return;
+    }
     debug('onLinkClick', event);
     var pathname = localLinks.getLocalPathname(event);
     if (pathname) {

@@ -77,24 +77,24 @@ module.exports = View.extend({
       hook: 'buttons',
       mode: 'visibility'
     },
-    // thomasr, can't get this block to work
-    // activeStep: {
-    //   type: 'switchClass',
-    //   name: 'is-active',
-    //   cases: {
-    //     sampling: '#sampling-step',
-    //     analyzing: '#analyzing-step'
-    //   }
-    // },
-    // END
-    activeStep: {
-      type: 'switch',
-      hook: 'buttons',
-      cases: {
-        sampling: '#buttons-sampling',
-        analyzing: '#buttons-analyzing'
+    activeStep: [
+      {
+        type: 'switch',
+        hook: 'buttons',
+        cases: {
+          sampling: '#buttons-sampling',
+          analyzing: '#buttons-analyzing'
+        }
+      },
+      {
+        type: 'switchClass',
+        name: 'is-active',
+        cases: {
+          sampling: '#sampling-step',
+          analyzing: '#analyzing-step'
+        }
       }
-    },
+    ],
     maxTimeMSStr: {
       hook: 'maxtimems'
     },

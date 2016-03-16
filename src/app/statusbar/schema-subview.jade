@@ -15,7 +15,9 @@ div#schema-status-subview
         | Sampling took longer than&nbsp;
         span(data-hook='maxtimems') 10 seconds
         | &nbsp;on the database. As a safety measure, Compass aborts long-running queries. &nbsp;
-        i.help(data-hook='schema-long-running-queries')
+        a.help(data-hook='schema-long-running-queries')
+          | Learn More
+          i.fa.fa-fw.fa-info-circle
       br
       div.btn.btn-info(data-hook='increase-maxtimems-button') Try for 1 minute
       div.btn.btn-info(data-hook='create-new-query-button') Create new query
