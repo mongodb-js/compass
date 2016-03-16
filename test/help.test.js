@@ -1,6 +1,6 @@
 var helpers = require('./helpers');
 
-describe('Help Dialog #spectron', function() {
+describe.skip('Help Dialog #spectron', function() {
   this.slow(10000);
   this.timeout(30000);
 
