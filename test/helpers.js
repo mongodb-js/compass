@@ -85,7 +85,6 @@ module.exports.getApplication = function() {
  */
 module.exports.startApplication = function() {
   var app = this.app = module.exports.getApplication();
-  debug('this.app', this.app);
   return this.app.start()
     .then(function() {
       module.exports.addCommands(app.client);
@@ -242,7 +241,8 @@ module.exports.addCommands = function(client) {
    * Filter the help topics.
    */
   client.addCommand('filterHelpTopics', function(topic) {
-    return this.setValue('input[placeholder=filter]', topic);
+    return this.waitForVisible('input[placeholder=filter]')
+      .setValue('input[placeholder=filter]', topic);
   });
 
   /**
