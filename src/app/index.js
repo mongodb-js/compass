@@ -135,7 +135,7 @@ var Application = View.extend({
   events: {
     'click a': 'onLinkClick',
     'click i.help': 'onHelpClicked',
-    'click a.help': 'onHelpClicked',
+    'click a.help': 'onHelpClicked'
   },
   onHelpClicked: function(evt) {
     evt.preventDefault();
