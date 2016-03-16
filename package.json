@@ -73,7 +73,7 @@
     "highlight.js": "^8.9.1",
     "jade": "^1.11.0",
     "jquery": "^2.1.4",
-    "keytar": "mongodb-js/node-keytar#compass-production",
+    "keytar": "mongodb-js/node-keytar#node-pre-gyp",
     "less": "^2.6.1",
     "local-links": "^1.4.0",
     "lodash": "^3.10.1",
