@@ -3,11 +3,9 @@ var format = require('util').format;
 var numeral = require('numeral');
 var tooltipMixin = require('../tooltip-mixin');
 var _ = require('lodash');
-var jade = require('jade');
-var path = require('path');
 
-var typeListTemplate = jade.compileFile(path.resolve(__dirname, 'type-list.jade'));
-var typeListItemTemplate = jade.compileFile(path.resolve(__dirname, 'type-list-item.jade'));
+var typeListTemplate = require('../templates')['field-list']['type-list'];
+var typeListItemTemplate = require('../templates')['field-list']['type-list-item'];
 // var debug = require('debug')('mongodb-compass:field-list:type-list');
 
 var TypeListView;

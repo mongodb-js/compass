@@ -4,10 +4,8 @@ var _ = require('lodash');
 var $ = require('jquery');
 var d3 = require('d3');
 // var debug = require('debug')('mongodb-compass:minicharts:viz');
-var jade = require('jade');
-var path = require('path');
 
-var svgTemplate = jade.compileFile(path.resolve(__dirname, 'svg-template.jade'));
+var svgTemplate = require('../templates').minicharts['svg-template'];
 
 var VizView = AmpersandView.extend({
   _values: {},

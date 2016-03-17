@@ -50,13 +50,14 @@ function responseValue(response) {
 module.exports.responseValue = responseValue;
 
 module.exports.getApplication = function() {
+
   if (process.env.TEST_WITH_PREBUILT) {
     debug('Starting application with spectron using electron-prebuilt `%s`',
       ELECTRON_PREBUILT_EXECUTABLE);
 
     return new Application({
       path: ELECTRON_PREBUILT_EXECUTABLE,
-      args: [path.join(__dirname, '..')],
+      args: [ path.join(__dirname, '..') ],
       env: process.env,
       cwd: path.join(__dirname, '..')
     });
@@ -90,7 +91,7 @@ module.exports.startApplication = function() {
       module.exports.addCommands(app.client);
       chaiAsPromised.transferPromiseness = app.client.transferPromiseness;
       chai.should().exist(app.client);
-      return app.client.waitUntilWindowLoaded();
+      return app.client.waitUntilWindowLoaded(20000);
     });
 };
 
@@ -112,7 +113,7 @@ module.exports.stopApplication = function() {
 /**
  * Insert the test documents into the compass-test.bands collection.
  */
-module.exports.insertTestDocuments = function() {
+module.exports.insertTestDocuments = function(done) {
   MongoClient.connect('mongodb://localhost:27018/compass-test', function(err, db) {
     assert.equal(null, err);
     var collection = db.collection('bands');
@@ -120,6 +121,7 @@ module.exports.insertTestDocuments = function() {
       assert.equal(null, error);
       debug(result);
       db.close();
+      done();
     });
   });
 };
@@ -127,7 +129,7 @@ module.exports.insertTestDocuments = function() {
 /**
  * Remove all the test documents.
  */
-module.exports.removeTestDocuments = function() {
+module.exports.removeTestDocuments = function(done) {
   MongoClient.connect('mongodb://localhost:27018/compass-test', function(err, db) {
     assert.equal(null, err);
     var collection = db.collection('bands');
@@ -135,6 +137,7 @@ module.exports.removeTestDocuments = function() {
       assert.equal(null, error);
       debug(result);
       db.close();
+      done();
     });
   });
 };
@@ -246,6 +249,21 @@ module.exports.addCommands = function(client) {
   });
 
   /**
+   * Click on the 'start using compass' button in the opt-in dialog and
+   * wait for it to fade out.
+   */
+  client.addCommand('startUsingCompass', function() {
+    return this.waitForVisible('button[data-hook=start-button]')
+      .click('button[data-hook=start-button]')
+      .waitForVisible('button[data-hook=start-button]', true)
+      .waitUntil(function() {
+        return this.getText('div[data-hook=optin-container]').then(function(text) {
+          return text.length === 0;
+        });
+      });
+  });
+
+  /**
    * Connects to the given connection or localhost:27017 and returns
    * the schema window.
    */
@@ -266,9 +284,9 @@ module.exports.addCommands = function(client) {
    * Selects a collection from the schema window sidebar to analyse.
    */
   client.addCommand('selectCollection', function(name) {
-    return this
-      .waitForVisible('span[title="' + name + '"]')
-      .click('span[title="' + name + '"]')
+    return this.waitForStatusBar()
+      .waitForVisible('a span[title="' + name + '"]')
+      .click('a span[title="' + name + '"]')
       .waitForVisible('div.schema-field-list');
   });
 
@@ -276,7 +294,7 @@ module.exports.addCommands = function(client) {
    * Waits for the status bar to finish it's progress and unlock the page.
    */
   client.addCommand('waitForStatusBar', function() {
-    return this.waitForVisible('div#statusbar', 5000, true);
+    return this.waitForVisible('div#statusbar', 15000, true);
   });
 
   /**
