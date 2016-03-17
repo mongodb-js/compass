@@ -10,18 +10,14 @@
       <div data-hook="statusbar"></div>
       <div data-hook="layout-container"></div>
     </div>
+    <script src="index.js" charset="UTF-8" async></script>
     <script>
     window.less = {
       env: process.env.NODE_ENV,
       logLevel: 2,
       async: true
     };
-    if (process.env.NODE_ENV !== 'production') {
-      require('debug').enable('mon*');
-    }
     </script>
-    <script src="index.js" charset="UTF-8" async></script>
-    <script src="../../node_modules/less/dist/less.js" charset="UTF-8"></script>
-    <script>// less.watch();</script>
+    <script src="../../node_modules/less/dist/less.js" charset="UTF-8" async></script>
   </body>
 </html>
