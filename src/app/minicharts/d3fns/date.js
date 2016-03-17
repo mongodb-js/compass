@@ -263,7 +263,7 @@ var minicharts_d3fns_date = function() {
       lines.enter().append('line')
         .attr('class', 'line selectable')
         .style('opacity', function() {
-          return values.length > 100 ? 0.3 : 1.0;
+          return values.length > 200 ? 0.3 : 1.0;
         })
         .on('mouseover', tip.show)
         .on('mouseout', tip.hide)
