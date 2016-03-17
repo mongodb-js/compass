@@ -193,7 +193,8 @@ module.exports = Schema.extend({
 
       model.samplingStream
         .on('error', function(sampleErr) {
-          this.destroy();
+          model.samplingStream.destroy();
+          model.analyzingStream.destroy();
           onFail(sampleErr);
         })
         .pipe(model.analyzingStream)
