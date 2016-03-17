@@ -21,10 +21,7 @@
     "ignore": [
       "electron",
       "marked",
-      "templates",
-      "./templates",
-      "../templates",
-      "../../templates"
+      "templates"
     ]
   },
   "scripts": {
