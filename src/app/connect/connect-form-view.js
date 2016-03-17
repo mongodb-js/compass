@@ -5,11 +5,9 @@ var authOptions = require('./authentication');
 var sslOptions = require('./ssl');
 var FilteredCollection = require('ampersand-filtered-subcollection');
 // var debug = require('debug')('mongodb-compass:connect:connect-form-view');
-var jade = require('jade');
-var path = require('path');
 
-var inputTemplate = jade.compileFile(path.resolve(__dirname, 'input-default.jade'));
-var selectTemplate = jade.compileFile(path.resolve(__dirname, 'select-default.jade'));
+var inputTemplate = require('../templates').connect['input-default'];
+var selectTemplate = require('../templates').connect['select-default'];
 
 // create proxy collections that only contains the enabled auth options
 var enabledAuthOptions = new FilteredCollection(authOptions, {

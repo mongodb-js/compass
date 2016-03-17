@@ -1,23 +1,18 @@
 var helpers = require('./helpers');
 
-describe.skip('Help Dialog #spectron', function() {
+describe('Help Dialog #spectron', function() {
   this.slow(10000);
   this.timeout(30000);
 
   before(helpers.startApplication);
   after(helpers.stopApplication);
-  /**
-   * TODO (imlucas) Failing on travis...
-   * `undefined: element (div.content h1.help-entry-title)
-   * still not visible after 5000ms`
-   * @see https://travis-ci.com/10gen/compass/builds/22388525
-   */
+
   context('when selecting a topic', function() {
     it('displays the help contents', function() {
       return this.app.client
         .waitForVisible('i.help')
         .click('i.help')
-        .waitForHelpDialog()
+        .waitForHelpDialog(30000)
         .getText('div.content h1.help-entry-title').should.eventually.be.equal('Favorite Name');
     });
   });

@@ -1,10 +1,8 @@
 var View = require('ampersand-view');
 var pluralize = require('pluralize');
 var numeral = require('numeral');
-var jade = require('jade');
-var path = require('path');
 
-var indexTemplate = jade.compileFile(path.resolve(__dirname, 'index.jade'));
+var indexTemplate = require('../templates')['sampling-message'].index;
 
 // var debug = require('debug')('mongodb-compass:sampling-message');
 

@@ -6,11 +6,9 @@
 var AuthenticationOptionCollection = require('./models/authentication-option-collection');
 
 var InputView = require('./input-view');
-var jade = require('jade');
-var path = require('path');
-
-var inputTemplate = jade.compileFile(path.resolve(__dirname, 'input-default.jade'));
 var _ = require('lodash');
+
+var inputTemplate = require('../templates').connect['input-default'];
 
 var NONE = {
   _id: 'NONE',
