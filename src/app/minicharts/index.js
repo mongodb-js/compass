@@ -143,7 +143,7 @@ module.exports = AmpersandView.extend(QueryBuilderMixin, {
         this.subview = new VizView(this.viewOptions);
       }
     } else if (['String', 'Number'].indexOf(this.model.name) !== -1
-      && this.model.unique === this.model.count) {
+      && !this.model.has_duplicates) {
       // unique values get a div-based UniqueMinichart
       this.viewOptions.renderMode = 'html';
       this.viewOptions.vizFn = null;
