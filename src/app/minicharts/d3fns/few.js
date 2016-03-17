@@ -4,7 +4,7 @@ var _ = require('lodash');
 var $ = require('jquery');
 var shared = require('./shared');
 
-var tooltipTemplate = require('../../templates').minicharts.d3fns['tooltip'];
+var tooltipTemplate = require('../../templates').minicharts.d3fns.tooltip;
 // var debug = require('debug')('mongodb-compass:minicharts:few');
 
 require('../d3-tip')(d3);
