@@ -17,11 +17,11 @@ mixin jsarray(items)
   ol.document-property-body
     each item,index in items
       +jsproperty(index, item)
-      
+
 mixin keyvalue(key, value)
   .document-property-key= key
-  |:   
-  +jsvalue(value, _type) 
+  |:
+  +jsvalue(value, _type)
 
 mixin jsproperty(key, value)
   - _type = getType(value)
@@ -30,7 +30,7 @@ mixin jsproperty(key, value)
       .document-property-header
         .caret
         +keyvalue(key, value)
-    else 
+    else
       +keyvalue(key, value)
     if _type === 'Array'
       +jsarray(value)

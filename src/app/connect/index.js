@@ -19,10 +19,6 @@ var BrowserWindow = remote.BrowserWindow;
 var metrics = require('mongodb-js-metrics')();
 
 var debug = require('debug')('mongodb-compass:connect:index');
-var jade = require('jade');
-var path = require('path');
-
-var indexTemplate = jade.compileFile(path.resolve(__dirname, 'index.jade'));
 
 /**
  * AuthenticationOptionCollection
@@ -35,7 +31,7 @@ var authMethods = require('./authentication');
 var sslMethods = require('./ssl');
 
 var ConnectView = View.extend({
-  template: indexTemplate,
+  template: require('../templates').connect.index,
   screenName: 'Connect',
   props: {
     form: 'state',

@@ -2,10 +2,8 @@ var View = require('ampersand-view');
 var ListView = require('./list');
 var FilterView = require('./filter');
 var _ = require('lodash');
-var jade = require('jade');
-var path = require('path');
 
-var indexTemplate = jade.compileFile(path.resolve(__dirname, 'index.jade'));
+var indexTemplate = require('../templates').sidebar.index;
 
 // var debug = require('debug')('mongodb-compass:sidebar:index');
 
