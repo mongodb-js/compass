@@ -9,7 +9,7 @@ var subviewTemplate = jade.compileFile(path.resolve(__dirname, 'schema-subview.j
 
 
 var SHOW_STEPS_MS = 3000;
-var SHOW_ANALYZING_BUTTONS_MS = 10000;
+var SHOW_ANALYZING_BUTTONS_MS = app.queryOptions.maxTimeMS + 1000;
 
 module.exports = View.extend({
   template: subviewTemplate,
@@ -41,6 +41,13 @@ module.exports = View.extend({
     }
   },
   derived: {
+    nextActionLabel: {
+      deps: ['activeStep'],
+      fn: function() {
+        return this.activeStep === 'sampling' ?
+          'Create new Query' : 'Show partial results';
+      }
+    },
     samplingState: {
       deps: ['activeStep', 'error'],
       fn: function() {
@@ -67,6 +74,10 @@ module.exports = View.extend({
     }
   },
   bindings: {
+    nextActionLabel: {
+      hook: 'next-action-button',
+      type: 'text'
+    },
     stepsVisible: {
       type: 'toggle',
       hook: 'steps',
@@ -77,15 +88,20 @@ module.exports = View.extend({
       hook: 'buttons',
       mode: 'visibility'
     },
+    error: {
+      type: 'toggle',
+      no: '#buttons-waiting',
+      yes: '#buttons-error'
+    },
     activeStep: [
-      {
-        type: 'switch',
-        hook: 'buttons',
-        cases: {
-          sampling: '#buttons-sampling',
-          analyzing: '#buttons-analyzing'
-        }
-      },
+      // {
+      //   type: 'switch',
+      //   hook: 'buttons',
+      //   cases: {
+      //     sampling: '#buttons-sampling',
+      //     analyzing: '#buttons-analyzing'
+      //   }
+      // },
       {
         type: 'switchClass',
         name: 'is-active',
@@ -123,7 +139,8 @@ module.exports = View.extend({
   },
   events: {
     'click [data-hook=stop-analyzing-button]': 'stopAnalyzingClicked',
-    'click [data-hook=create-new-query-button]': 'createNewQueryClicked',
+    'click [data-hook=partial-results-button]': 'stopAnalyzingClicked',
+    'click [data-hook=next-action-button]': 'nextActionClicked',
     'click [data-hook=increase-maxtimems-button]': 'resampleWithLongerTimoutClicked'
   },
   render: function() {
@@ -150,7 +167,10 @@ module.exports = View.extend({
   resampleWithLongerTimoutClicked: function() {
     this.schema.reSampleWithLongerTimeout();
   },
-  createNewQueryClicked: function() {
+  nextActionClicked: function() {
+    if (this.schema && this.schema.count > 0) {
+      return this.schema.stopAnalyzing();
+    }
     app.statusbar.hide();
   },
   remove: function() {
