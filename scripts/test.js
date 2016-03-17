@@ -33,7 +33,6 @@ var path = require('path');
 var spawn = require('child_process').spawn;
 var which = require('which');
 var _ = require('lodash');
-var generateTemplates = require('./templatize');
 
 var args = [
   /**
@@ -78,14 +77,12 @@ which('electron-mocha', function(err, bin) {
   cli.abortIfError(err);
   cli.debug('Using electron-mocha: ', bin);
 
-  generateTemplates(function() {
-    var proc = spawn(bin, args, opts);
-    proc.stderr.pipe(process.stderr);
-    proc.stdout.pipe(process.stdout);
-    process.stdin.pipe(proc.stdin);
+  var proc = spawn(bin, args, opts);
+  proc.stderr.pipe(process.stderr);
+  proc.stdout.pipe(process.stdout);
+  process.stdin.pipe(proc.stdin);
 
-    proc.on('exit', function(code) {
-      process.exit(code);
-    });
+  proc.on('exit', function(code) {
+    process.exit(code);
   });
 });

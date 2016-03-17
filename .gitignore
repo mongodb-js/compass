@@ -6,6 +6,6 @@ node_modules
 .idea/
 *.iml
 .cache*
-src/app/templates.js
+
 src/connect/static-connect.html
 report.json
