@@ -19,11 +19,6 @@ var path = require('path');
 var RESOURCES = path.resolve(__dirname, '../app/');
 
 /**
- * TODO (imlucas) Missing this PNG.
- */
-var COMPASS_ICON_PATH = RESOURCES + '/images/mongodb-compass.png';
-
-/**
  * The app's HTML shell which is the output of `./src/index.html`
  * created by the `build:pages` gulp task.
  */
@@ -78,13 +73,6 @@ function isSingleInstance(_window) {
   });
 
   return !isNotSingle;
-}
-
-function openDevTools() {
-  debug('openDevTools()');
-  AppMenu.lastFocusedWindow.openDevTools({
-    detach: true
-  });
 }
 
 /**
