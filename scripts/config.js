@@ -83,6 +83,10 @@ exports.options = {
     description: 'branch_name on evergreen',
     type: 'string',
     default: undefined
+  },
+  favicon_url: {
+    description: 'A URL to an ICO file to use as the application icon (e.g. Windows: displayed in Control Panel > Programs and Features)',
+    default: 'https://raw.githubusercontent.com/mongodb-js/favicon/master/favicon.ico'
   }
 };
 
@@ -144,6 +148,7 @@ exports.get = function(cli, callback) {
       InternalName: cli.argv.internal_name
     },
     images: path.join(__dirname, '..', 'src', 'app', 'images'),
+    favicon_url: cli.argv.favicon_url,
     table: function() {
       /**
        * Print the assembled `CONFIG` data as a nice table.
@@ -269,14 +274,7 @@ exports.get = function(cli, callback) {
          *  https://raw.githubusercontent.com/Squirrel/Squirrel.Windows/master/src/Setup/Setup.ico
          * setupIcon: WINDOWS_ICON,
          */
-        /**
-         * TODO (imlucas) A URL to an ICO file to use as the application icon
-         * (displayed in Control Panel > Programs and Features). Defaults
-         * to the Atom icon.
-         * Defaults to:
-         * 'https://raw.githubusercontent.com/atom/electron/master/atom/browser/resources/win/atom.ico',
-         * iconUrl: 'https://www.mongodb.org/assets/global/favicon-1d2d833bba579ce81fcff283e0fd2be6769949a54650c8558a631a03af71f7f2.ico',
-         */
+        iconUrl: CONFIG.favicon_url,
         name: CONFIG.name,
         id: CONFIG.name
       }).then(function(res) {
