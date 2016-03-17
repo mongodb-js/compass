@@ -1,11 +1,9 @@
 var View = require('ampersand-view');
 var ms = require('ms');
 var app = require('ampersand-app');
-var jade = require('jade');
-var path = require('path');
 
 // var debug = require('debug')('mongodb-compass:statusbar:schema-subview');
-var subviewTemplate = jade.compileFile(path.resolve(__dirname, 'schema-subview.jade'));
+var subviewTemplate = require('../templates').statusbar['schema-subview'];
 
 
 var SHOW_STEPS_MS = 3000;
