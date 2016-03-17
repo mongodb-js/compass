@@ -2,10 +2,8 @@
 var d3 = require('d3');
 var _ = require('lodash');
 var shared = require('./shared');
-var jade = require('jade');
-var path = require('path');
 
-var tooltipTemplate = jade.compileFile(path.resolve(__dirname, 'tooltip.jade'));
+var tooltipTemplate = require('../../templates').minicharts.d3fns.tooltip;
 
 require('../d3-tip')(d3);
 

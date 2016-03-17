@@ -20,7 +20,11 @@
     ],
     "ignore": [
       "electron",
-      "marked"
+      "marked",
+      "templates",
+      "./templates",
+      "../templates",
+      "../../templates"
     ]
   },
   "scripts": {
@@ -70,6 +74,7 @@
     "font-awesome": "https://github.com/FortAwesome/Font-Awesome/archive/v4.4.0.tar.gz",
     "highlight.js": "^8.9.1",
     "jade": "^1.11.0",
+    "@lukekarrys/jade-runtime": "^1.11.1",
     "jquery": "^2.1.4",
     "keytar": "mongodb-js/node-keytar#node-pre-gyp",
     "less": "^2.6.1",
@@ -79,11 +84,11 @@
     "marky-mark": "^1.2.1",
     "moment": "^2.10.6",
     "mongodb-collection-model": "^0.1.1",
-    "mongodb-connection-model": "^4.0.0",
+    "mongodb-connection-model": "^4.0.2",
     "mongodb-data-service": "^0.0.9",
     "mongodb-database-model": "^0.1.2",
     "mongodb-extended-json": "^1.6.0",
-    "mongodb-instance-model": "^2.1.7",
+    "mongodb-instance-model": "^3.0.0",
     "mongodb-js-metrics": "^1.0.0",
     "mongodb-language-model": "^0.3.3",
     "mongodb-ns": "^1.0.3",
@@ -126,6 +131,7 @@
     "mongodb-runner": "^3.1.15",
     "semver": "^5.1.0",
     "spectron": "^0.34.1",
+    "templatizer": "^2.0.3",
     "which": "^1.2.0",
     "xvfb-maybe": "^0.1.3"
   },
