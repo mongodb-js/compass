@@ -106,7 +106,6 @@ module.exports = Schema.extend({
       if (success) {
         success(model, resp, options);
       }
-      model.trigger('sync');
     };
 
     var start = new Date();
@@ -159,6 +158,7 @@ module.exports = Schema.extend({
         'total analysis time': totalTime - timeToFirstDoc,
         'average analysis time per doc': (totalTime - timeToFirstDoc) / sampleCount
       });
+      model.trigger('sync');
       options.success({});
     };
 
@@ -173,8 +173,6 @@ module.exports = Schema.extend({
         model.is_fetching = false;
         return options.success({});
       }
-
-      debug('count', count);
 
       var status = 0;
       var numSamples = Math.min(options.size, count);
@@ -215,14 +213,10 @@ module.exports = Schema.extend({
           schemaStatusSubview.error = true;
           onFail(analysisErr);
         })
-        .on('data', function() {
-          if (sampleCount >= numSamples) {
+        .on('end', function() {
+          if (sampleCount === numSamples) {
             return onEnd();
           }
-          // workaround, as 'data' seems to be emitted even when sample stage
-          // has an error. @ChristianKvalheim investigating.
-          debug('did not receive data from the driver.');
-          onFail(new Error('did not receive data from driver.'));
         });
     });
   },
@@ -231,17 +225,13 @@ module.exports = Schema.extend({
     this.fetch();
   },
   stopAnalyzing: function() {
-    if (!this.is_fetching) {
-      return;
+    if (this.is_fetching) {
+      this.is_fetching = false;
+      this.samplingStream.destroy();
+      this.analyzingStream.destroy();
     }
-    this.is_fetching = false;
-    // @todo thomasr, uncomment this line once we figured out why
-    // app.client.sample() is not emitting any events anymore.
-    // for now, we can use app.client.find instead.
-
-    // this.samplingStream.destroy();
-    this.analyzingStream.destroy();
     app.statusbar.hide(true);
+    this.trigger('sync');
   },
   serialize: function() {
     var res = this.getAttributes({
