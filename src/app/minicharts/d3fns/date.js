@@ -6,6 +6,7 @@ var moment = require('moment');
 var shared = require('./shared');
 var many = require('./many');
 var raf = require('raf');
+
 // var debug = require('debug')('mongodb-compass:minicharts:date');
 
 require('../d3-tip')(d3);
@@ -261,6 +262,9 @@ var minicharts_d3fns_date = function() {
 
       lines.enter().append('line')
         .attr('class', 'line selectable')
+        .style('opacity', function() {
+          return values.length > 100 ? 0.3 : 1.0;
+        })
         .on('mouseover', tip.show)
         .on('mouseout', tip.hide)
         .on('mousedown', handleMouseDown);
