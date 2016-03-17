@@ -20,8 +20,7 @@
     ],
     "ignore": [
       "electron",
-      "marked",
-      "template"
+      "marked"
     ]
   },
   "scripts": {
@@ -81,11 +80,9 @@
     "marky-mark": "^1.2.1",
     "moment": "^2.10.6",
     "mongodb-collection-model": "^0.1.1",
-    "mongodb-connection-model": "^4.0.2",
     "mongodb-data-service": "^0.0.9",
     "mongodb-database-model": "^0.1.2",
     "mongodb-extended-json": "^1.6.0",
-    "mongodb-instance-model": "^3.0.0",
     "mongodb-js-metrics": "^1.0.0",
     "mongodb-language-model": "^0.3.3",
     "mongodb-ns": "^1.0.3",

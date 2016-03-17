@@ -3,7 +3,7 @@ var d3 = require('d3');
 var _ = require('lodash');
 var shared = require('./shared');
 
-var tooltipTemplate = require('../../templates').minicharts.d3fns.tooltip;
+var tooltipTemplate = require('../../templates').minicharts.d3fns['tooltip'];
 
 require('../d3-tip')(d3);
 

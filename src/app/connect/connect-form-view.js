@@ -5,6 +5,8 @@ var authOptions = require('./authentication');
 var sslOptions = require('./ssl');
 var FilteredCollection = require('ampersand-filtered-subcollection');
 // var debug = require('debug')('mongodb-compass:connect:connect-form-view');
+var jade = require('jade');
+var path = require('path');
 
 var inputTemplate = require('../templates').connect['input-default'];
 var selectTemplate = require('../templates').connect['select-default'];
