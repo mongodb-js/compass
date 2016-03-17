@@ -8,8 +8,8 @@ var FilteredCollection = require('ampersand-filtered-subcollection');
 var jade = require('jade');
 var path = require('path');
 
-var inputTemplate = require('../templates').connect['input-default'];
-var selectTemplate = require('../templates').connect['select-default'];
+var inputTemplate = jade.compileFile(path.resolve(__dirname, 'input-default.jade'));
+var selectTemplate = jade.compileFile(path.resolve(__dirname, 'select-default.jade'));
 
 // create proxy collections that only contains the enabled auth options
 var enabledAuthOptions = new FilteredCollection(authOptions, {

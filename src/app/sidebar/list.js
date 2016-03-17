@@ -1,9 +1,11 @@
 var View = require('ampersand-view');
 var raf = require('raf');
 var _ = require('lodash');
+var jade = require('jade');
+var path = require('path');
 
-var listTemplate = require('../templates').sidebar['list'];
-var listItemTemplate = require('../templates').sidebar['list-item'];
+var listTemplate = jade.compileFile(path.resolve(__dirname, 'list.jade'));
+var listItemTemplate = jade.compileFile(path.resolve(__dirname, 'list-item.jade'));
 
 var ListItemView;
 

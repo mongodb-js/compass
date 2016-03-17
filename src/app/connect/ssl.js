@@ -4,8 +4,10 @@
  * @see https://github.com/mongodb-js/mongodb-connection-model#trait-ssl
  */
 var SSLOptionCollection = require('./models/ssl-option-collection');
+var jade = require('jade');
+var path = require('path');
 
-var inputTemplate = require('../templates').connect['input-default'];
+var inputTemplate = jade.compileFile(path.resolve(__dirname, 'input-default.jade'));
 
 var InputView = require('./input-view');
 var FileReaderView = require('./filereader-view');

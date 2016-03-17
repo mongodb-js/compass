@@ -5,8 +5,10 @@ var _ = require('lodash');
 var metrics = require('mongodb-js-metrics')();
 
 var debug = require('debug')('mongodb-compass:feature-optin:index');
+var jade = require('jade');
+var path = require('path');
 
-var indexTemplate = require('../templates')['network-optin'].index;
+var indexTemplate = jade.compileFile(path.resolve(__dirname, 'index.jade'));
 
 require('bootstrap/js/modal');
 require('bootstrap/js/transition');

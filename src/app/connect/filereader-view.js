@@ -6,9 +6,10 @@ var dialog = remote.dialog;
 var BrowserWindow = remote.BrowserWindow;
 var format = require('util').format;
 var bindings = require('ampersand-dom-bindings');
+var jade = require('jade');
 var path = require('path');
 
-var fileReaderTemplate = require('../templates').connect['filereader-default'];
+var fileReaderTemplate = jade.compileFile(path.resolve(__dirname, 'filereader-default.jade'));
 var assert = require('assert');
 
 // var debug = require('debug')('mongodb-compass:connect:filereader-view');

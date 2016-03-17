@@ -9,10 +9,12 @@ var ViewSwitcher = require('ampersand-view-switcher');
 var app = require('ampersand-app');
 var metrics = require('mongodb-js-metrics')();
 var _ = require('lodash');
+var jade = require('jade');
+var path = require('path');
 
-var indexTemplate = require('../templates').help.index;
-var relatedTemplate = require('../templates').help.related;
-var tagsTemplate = require('../templates').help.tags;
+var indexTemplate = jade.compileFile(path.resolve(__dirname, 'index.jade'));
+var relatedTemplate = jade.compileFile(path.resolve(__dirname, 'related.jade'));
+var tagsTemplate = jade.compileFile(path.resolve(__dirname, 'tags.jade'));
 
 var entries = new HelpEntryCollection();
 

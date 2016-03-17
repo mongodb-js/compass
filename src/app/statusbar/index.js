@@ -1,9 +1,11 @@
 var View = require('ampersand-view');
 var _ = require('lodash');
+var jade = require('jade');
+var path = require('path');
 
 var debug = require('debug')('mongodb-compass:statusbar:index');
 
-var indexTemplate = require('../templates').statusbar.index;
+var indexTemplate = jade.compileFile(path.resolve(__dirname, 'index.jade'));
 
 var StatusbarView = View.extend({
   props: {

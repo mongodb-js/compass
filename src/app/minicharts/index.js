@@ -11,8 +11,10 @@ var QueryBuilderMixin = require('./querybuilder');
 var Collection = require('ampersand-collection');
 var metrics = require('mongodb-js-metrics')();
 var navigator = window.navigator;
+var jade = require('jade');
+var path = require('path');
 
-var minichartTemplate = require('../templates').minicharts.minichart;
+var minichartTemplate = jade.compileFile(path.resolve(__dirname, 'minichart.jade'));
 
 // var debug = require('debug')('mongodb-compass:minicharts:index');
 

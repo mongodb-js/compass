@@ -3,8 +3,10 @@ var SampledDocumentCollection = require('../models/sampled-document-collection')
 var DocumentListItemView = require('./document-list-item');
 var app = require('ampersand-app');
 var debug = require('debug')('mongodb-compass:document-list');
+var jade = require('jade');
+var path = require('path');
 
-var indexTemplate = require('../templates')['document-list'].index;
+var indexTemplate = jade.compileFile(path.resolve(__dirname, 'index.jade'));
 
 var DocumentListView = View.extend({
   template: indexTemplate,

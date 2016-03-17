@@ -50,7 +50,6 @@ var run = require('electron-installer-run');
 var license = require('electron-license');
 var createCLI = require('mongodb-js-cli');
 var config = require('./config');
-var generateTemplates = require('./templatize');
 
 /**
  * TODO (imlucas) Document and use yargs environment variable support.
@@ -377,7 +376,6 @@ function main() {
       writeVersionFile,
       transformPackageJson,
       installDependencies,
-      generateTemplates,
       removeDevelopmentFiles,
       createApplicationAsar,
       createApplicationZip,
