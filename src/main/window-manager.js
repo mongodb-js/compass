@@ -5,7 +5,6 @@
 var electron = require('electron');
 var AppMenu = require('./menu');
 var BrowserWindow = electron.BrowserWindow;
-var Notifier = require('node-notifier');
 
 var _ = require('lodash');
 var app = electron.app;
@@ -253,24 +252,6 @@ app.on('renderer ready', function(arg, event) {
 app.on('before-quit', function() {
   debug('sending `app-quit` msg');
   BrowserWindow.getAllWindows()[0].webContents.send('message', 'app-quit');
-});
-
-app.on('show bugsnag OS notification', function(errorMsg) {
-  if (_.contains(['development', 'testing'], process.env.NODE_ENV)) {
-    Notifier.notify({
-      'icon': COMPASS_ICON_PATH,
-      'message': errorMsg,
-      'title': 'MongoDB Compass Exception',
-      'wait': true
-    }, function(err, resp) {
-      if (err) {
-        debug(err);
-      }
-      if (resp === 'Activate\n') {
-        openDevTools();
-      }
-    });
-  }
 });
 
 /**
