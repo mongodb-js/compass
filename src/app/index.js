@@ -1,12 +1,10 @@
 /* eslint no-console:0 */
-/**
- * Explicitly require debug module in browser mode,
- * or no messages will be logged to the devtools console.
- */
-require('debug/browser');
+if (process.env.NODE_ENV !== 'production') {
+  require('debug').enable('mon*');
+}
+
 var debug = require('debug')('mongodb-compass:app');
 console.time('app/index.js');
-
 
 /**
  * The main entrypoint for the application!
