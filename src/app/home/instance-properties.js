@@ -1,6 +1,6 @@
 var View = require('ampersand-view');
 var app = require('ampersand-app');
-// var debug = require('debug')('mongodb-compass:sidebar:instace-properties');
+// var debug = require('debug')('mongodb-compass:home:instance-properties');
 var _ = require('lodash');
 var jade = require('jade');
 var path = require('path');

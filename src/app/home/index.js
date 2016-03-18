@@ -12,6 +12,7 @@ var _ = require('lodash');
 var debug = require('debug')('mongodb-compass:home');
 var jade = require('jade');
 var path = require('path');
+var toNS = require('mongodb-ns');
 
 var indexTemplate = jade.compileFile(path.resolve(__dirname, 'index.jade'));
 
@@ -133,6 +134,13 @@ var HomeView = View.extend({
     document.title = title;
   },
   showCollection: function(model) {
+    // get the equivalent collection model that's nested in the
+    // db/collection hierarchy under app.instance.databases[].collections[]
+    var ns = toNS(model.getId());
+    model = app.instance
+      .databases.get(ns.database)
+      .collections.get(ns.ns);
+
     var collection = app.instance.collections;
     if (!collection.select(model)) {
       return debug('already selected %s', model);
