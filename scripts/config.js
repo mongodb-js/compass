@@ -262,7 +262,7 @@ exports.get = function(cli, callback) {
         authors: CONFIG['version-string'].CompanyName,
         version: CONFIG['app-version'],
         exe: format('%s.exe', CONFIG.name),
-        signWithParams: CONFIG.signtool_params,
+        signWithParams: CONFIG.sign_with_params,
         loadingGif: CONFIG.loading_gif,
         title: CONFIG.name,
         productName: CONFIG.name,
