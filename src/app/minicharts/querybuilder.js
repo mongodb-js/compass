@@ -586,7 +586,7 @@ module.exports = {
    * @return {Any}        value to be returned that can be used for comparisons < and >
    */
   _getOrderedValueHelper: function(d) {
-    if (!d._bsontype) {
+    if (!d || !d._bsontype) {
       return d;
     }
     return d._bsontype === 'ObjectID' ? d.getTimestamp() : d;

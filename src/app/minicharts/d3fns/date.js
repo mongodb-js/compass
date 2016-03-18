@@ -255,15 +255,17 @@ var minicharts_d3fns_date = function() {
         .attr('y', barcodeTop)
         .attr('height', barcodeBottom - barcodeTop);
 
-      var lines = g.selectAll('.selectable')
-        .data(values, function(d) {
-          return d.ts;
-        });
+      var lineContainer = gEnter.append('g')
+        .attr('class', 'line-container');
+
+      var lines = lineContainer.selectAll('.selectable').data(values, function(d) {
+        return d.ts;
+      });
 
       lines.enter().append('line')
         .attr('class', 'line selectable')
         .style('opacity', function() {
-          return values.length > 200 ? 0.3 : 1.0;
+          return lines.size() > 200 ? 0.3 : 1.0;
         })
         .on('mouseover', tip.show)
         .on('mouseout', tip.hide)
