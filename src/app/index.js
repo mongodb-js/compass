@@ -371,7 +371,8 @@ app.extend({
 
     handleIntercomLinks();
     app.statusbar.show({
-      message: 'Retrieving connection details...'
+      message: 'Retrieving connection details...',
+      staticSidebar: true
     });
 
     state.connection = new Connection({

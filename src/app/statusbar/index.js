@@ -20,6 +20,10 @@ var StatusbarView = View.extend({
     message: {
       type: 'string'
     },
+    staticSidebar: {
+      type: 'boolean',
+      default: false
+    },
     animation: {
       type: 'boolean',
       default: false
@@ -52,6 +56,10 @@ var StatusbarView = View.extend({
   },
   template: indexTemplate,
   bindings: {
+    staticSidebar: {
+      type: 'toggle',
+      hook: 'static-sidebar'
+    },
     animation: {
       type: 'toggle',
       hook: 'animation',
@@ -151,6 +159,7 @@ var StatusbarView = View.extend({
   hide: function(completed) {
     this.message = '';
     this.animation = false;
+    this.staticSidebar = false;
     if (this.subview) {
       this.subview.remove();
     }
