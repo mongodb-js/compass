@@ -9,8 +9,13 @@ var NativeClient = require('../lib/native-client');
 describe('NativeClient', function() {
   var client = new NativeClient(helper.connection);
 
-  before(require('mongodb-runner/mocha/before')({ port: 27018 }));
-  after(require('mongodb-runner/mocha/after')());
+  before(require('mongodb-runner/mocha/before')({
+    port: 27018
+  }));
+
+  after(require('mongodb-runner/mocha/after')({
+    port: 27018
+  }));
 
   before(function(done) {
     client.connect(done);
@@ -208,6 +213,18 @@ describe('NativeClient', function() {
             done();
           }));
       });
+    });
+  });
+  /**
+   * @see https://jira.mongodb.org/browse/INT-1294
+   */
+  describe('INT-1294: Collection name with `.`', () => {
+    var ns = 'mydb.events.periodic';
+    it('should return the correct databaseName', () => {
+      expect(client._databaseName(ns)).to.equal('mydb');
+    });
+    it('should return the correct collectionName', () => {
+      expect(client._collectionName(ns)).to.equal('events.periodic');
     });
   });
 });

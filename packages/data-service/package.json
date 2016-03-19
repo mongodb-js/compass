@@ -31,6 +31,7 @@
     "mongodb-collection-sample": "^1.0.0",
     "mongodb-connection-model": "^4.0.2",
     "mongodb-instance-model": "^3.0.0",
+    "mongodb-ns": "^1.0.3",
     "mongodb-url": "^1.0.2"
   },
   "devDependencies": {

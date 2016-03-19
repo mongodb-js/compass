@@ -5,6 +5,7 @@ const async = require('async');
 const createConnection = require('mongodb-connection-model').connect;
 const getInstance = require('mongodb-instance-model').get;
 const createSampleStream = require('mongodb-collection-sample');
+const parseNamespace = require('mongodb-ns');
 
 /**
  * The native client class.
@@ -341,7 +342,7 @@ class NativeClient {
    * @returns {string} The collection name.
    */
   _collectionName(ns) {
-    return ns.split('.')[1];
+    return parseNamespace(ns).collection;
   }
 
   /**
@@ -351,7 +352,7 @@ class NativeClient {
    * @returns {string} The database name.
    */
   _databaseName(ns) {
-    return ns.split('.')[0];
+    return parseNamespace(ns).database;
   }
 
   /**
