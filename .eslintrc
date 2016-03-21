@@ -8,6 +8,8 @@
   },
   "extends": [
     "mongodb-js/node",
-    "mongodb-js/browser"
+    "mongodb-js/browser",
+    "mongodb-js/react"
   ]
 }
+

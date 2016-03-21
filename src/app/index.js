@@ -1,7 +1,12 @@
 /* eslint no-console:0 */
+'use strict';
+
 if (process.env.NODE_ENV !== 'production') {
   require('debug').enable('mon*');
 }
+
+const Environment = require('../environment');
+Environment.init();
 
 var debug = require('debug')('mongodb-compass:app');
 console.time('app/index.js');

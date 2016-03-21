@@ -1,4 +1,9 @@
+'use strict';
+
 process.env.NODE_ENV = 'testing';
+
+const Environment = require('../src/environment');
+Environment.init();
 
 var fs = require('fs');
 var path = require('path');
