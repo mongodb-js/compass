@@ -45,6 +45,8 @@ var args = [
    */
 ];
 
+args.push.apply(args, ['--recursive']);
+
 if (cli.argv.unit) {
   args.push.apply(args, ['--invert', '--grep', 'spectron']);
 } else if (cli.argv.functional) {

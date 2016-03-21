@@ -72,14 +72,16 @@ const packageRead = Reflux.createAction({
 });
 
 /**
- * The action for the application workspace being ready to interact with.
+ * The action for a package directory scan failing.
  */
-const workspaceReady = Reflux.createAction({
+const packageScanFailed = Reflux.createAction({
   /**
    * Log the action.
+   *
+   * @param {Error} error - The error.
    */
-  preEmit: function() {
-    debug('Compass workspace ready.');
+  preEmit: function(error) {
+    debug(`Package director scan failed: ${error.message}.`);
   }
 });
 
@@ -87,5 +89,5 @@ module.exports.componentDeregistered = componentDeregistered;
 module.exports.componentRegistered = componentRegistered;
 module.exports.packageActivationCompleted = packageActivationCompleted;
 module.exports.packageActivated = packageActivated;
+module.exports.packageScanFailed = packageScanFailed;
 module.exports.packageRead = packageRead;
-module.exports.workspaceReady = workspaceReady;
