@@ -1,6 +1,6 @@
 {
   "name": "mongodb-compass",
-  "version": "1.1.2-pre",
+  "version": "1.1.3-testing",
   "dependencies": {
     "acorn": {
       "version": "2.7.0",
