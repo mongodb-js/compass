@@ -124,6 +124,16 @@ class DataService extends EventEmitter {
   }
 
   /**
+   * Get the indexes for the collection.
+   *
+   * @param {String} ns - The collection namespace.
+   * @param {Function} callback - The callback.
+   */
+  indexes(ns, callback) {
+    this.client.indexes(ns, callback);
+  }
+
+  /**
    * Get the current instance details.
    *
    * @param {Object} options - The options.

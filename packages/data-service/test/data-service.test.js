@@ -147,6 +147,16 @@ describe('DataService', function() {
     });
   });
 
+  describe('#indexes', function() {
+    it('returns the indexes', function(done) {
+      service.indexes('data-service.test', function(err, indexes) {
+        assert.equal(null, err);
+        expect(indexes[0].name).to.equal('_id_');
+        done();
+      });
+    });
+  });
+
   describe('#sample', function() {
     before(function(done) {
       helper.insertTestDocuments(service.client, function() {
