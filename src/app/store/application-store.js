@@ -1,0 +1,29 @@
+'use strict';
+
+const _ = require('lodash');
+const Reflux = require('reflux');
+
+/**
+ * The store that backs the core compass application and is the source
+ * of truth for its current state.
+ */
+const ApplicationStore = Reflux.createStore({
+
+  /**
+   * Gets the current namespace being worked with in the application.
+   */
+  get ns() {
+    return this.ns;
+  },
+
+  /**
+   * Set the current namespace being worked on in the applicaiton.
+   *
+   * @param {String} ns - The current ns.
+   */
+  set ns(ns) {
+    this.ns = ns;
+  }
+});
+
+module.exports = ApplicationStore;
