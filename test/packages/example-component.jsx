@@ -12,7 +12,10 @@ const ExampleComponent = React.createClass({
    * @returns {Object} The component HTML.
    */
   render: function() {
-    return '';
+    return (
+      <div>
+      </div>
+    );
   }
 });
 

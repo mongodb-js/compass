@@ -17,6 +17,7 @@ class Environment {
     mod.globalPaths.push(exportDir);
     process.env.NODE_PATH = mod.globalPaths.join(path.delimiter);
     mod._initPaths();
+    this._registerBabel();
   }
 
   /**
@@ -26,6 +27,13 @@ class Environment {
    */
   packageJSON() {
     return pkg;
+  }
+
+  /**
+   * Register babel to transform .jsx files.
+   */
+  _registerBabel() {
+    require("babel-register")({ extensions: [".jsx"] });
   }
 }
 
