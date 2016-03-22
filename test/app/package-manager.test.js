@@ -19,7 +19,7 @@ describe('PackageManager', function() {
 
     it('activates all the packages', function(done) {
       var unsubscribe = Action.packageActivationCompleted.listen(function() {
-        expect(manager.packages).to.have.length(0);
+        expect(manager.packages).to.have.length(1);
         unsubscribe();
         done();
       });
