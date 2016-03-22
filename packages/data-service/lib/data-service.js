@@ -129,7 +129,7 @@ class DataService extends EventEmitter {
    * @param {String} ns - The collection namespace.
    * @param {Function} callback - The callback.
    */
-  indexes(ns, callback) {
+  indexes(ns, options, callback) {
     this.client.indexes(ns, callback);
   }
 

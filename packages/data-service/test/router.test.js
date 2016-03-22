@@ -9,7 +9,7 @@ describe('Router', function() {
 
   describe('#new', function() {
     it('initializes the routes', function() {
-      expect(router.routes).to.have.length(8);
+      expect(router.routes).to.have.length(9);
     });
   });
 
