@@ -1,5 +1,7 @@
 # Super Simple Flux 
 ## making Flux look as pretty as React
+
+#### check out this cool new implementation - [Cartiv](https://github.com/yonatanmn/Cartiv) 
 > if your'e here for reflux's mixin - [scroll down](#refluxMixin)
 
 So - what's this all about? 
