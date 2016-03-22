@@ -70,6 +70,7 @@ var otherOpts = _.filter(_.flatten(_.pairs(_.mapKeys(_.omit(cli.argv, 'unit',
 });
 args.push.apply(args, otherOpts);
 args.push.apply(args, cli.argv._);
+args.push.apply(args, ['./test', './src/packages']);
 
 var opts = {
   env: process.env,
