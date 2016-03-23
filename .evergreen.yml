@@ -85,6 +85,7 @@ functions:
           -o "signtool.exe" \
           --url "https://s3.amazonaws.com/boxes.10gen.com/build/signtool.exe"
         rm -f node_modules/electron-installer-squirrel-windows/vendor/signtool.exe
+        chmod +x signtool.exe
 
   # Environment variables set for use by notary-service signtool.exe on Windows:
   # NOTARY_URL, NOTARY_AUTH_TOKEN, NOTARY_SIGNING_KEY, NOTARY_SIGNING_COMMENT
