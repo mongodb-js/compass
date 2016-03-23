@@ -101,6 +101,7 @@
     "event-stream": "^3.3.2",
     "figures": "^1.4.0",
     "font-awesome": "https://github.com/FortAwesome/Font-Awesome/archive/v4.4.0.tar.gz",
+    "get-object-path": "azer/get-object-path",
     "highlight.js": "^8.9.1",
     "jade": "^1.11.0",
     "jquery": "^2.1.4",
