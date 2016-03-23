@@ -71,7 +71,7 @@ function getBuildInfo(done, results) {
     buildInfo: 1
   };
   var options = {
-    readPreference: ReadPreference.nearest
+    readPreference: ReadPreference.secondaryPreferred
   };
 
   db.db('admin').command(spec, options, function(err, res) {
@@ -148,7 +148,7 @@ function getHostInfo(done, results) {
     hostInfo: 1
   };
   var options = {
-    readPreference: ReadPreference.nearest
+    readPreference: ReadPreference.secondaryPreferred
   };
 
   db.db('admin').command(spec, options, function(err, res) {
@@ -186,7 +186,7 @@ function listDatabases(done, results) {
   }
 
   var options = {
-    readPreference: ReadPreference.nearest
+    readPreference: ReadPreference.secondaryPreferred
   };
 
   var spec = {
@@ -366,7 +366,7 @@ function getDatabaseCollections(db, done) {
   debug('getDatabaseCollections...');
 
   var options = {
-    readPreference: ReadPreference.nearest
+    readPreference: ReadPreference.secondaryPreferred
   };
 
   var spec = {};
