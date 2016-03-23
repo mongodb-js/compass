@@ -5,6 +5,15 @@ process.env.NODE_ENV = 'testing';
 const Environment = require('../src/environment');
 Environment.init();
 
+const Connection = require('mongodb-connection-model');
+const DataService = require('mongodb-data-service');
+const ApplicationStore = require('compass-store').ApplicationStore;
+
+const TEST_DATABASE = 'compass-test';
+const TEST_COLLECTION = 'bands';
+const TEST_NAMESPACE = `${TEST_DATABASE}.${TEST_COLLECTION}`;
+const TEST_CONNECTION = new Connection({ hostname: '127.0.0.1', port: 27018, ns: TEST_DATABASE });
+
 var fs = require('fs');
 var path = require('path');
 var _ = require('lodash');
@@ -16,8 +25,6 @@ var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
 
 chai.use(chaiAsPromised);
-
-var Connection = require('mongodb-connection-model');
 
 /**
  * Test documents to sample with a local server.
@@ -144,6 +151,22 @@ module.exports.removeTestDocuments = function(done) {
       done();
     });
   });
+};
+
+module.exports.setupApplicationStore = function(done) {
+  var dataService = new DataService(TEST_CONNECTION);
+  dataService.connect(function() {
+    ApplicationStore.dataService = dataService;
+    ApplicationStore.ns = TEST_NAMESPACE;
+    done();
+  });
+};
+
+module.exports.tearDownApplicationStore = function(done) {
+  ApplicationStore.dataService.disconnect();
+  ApplicationStore.dataService = null;
+  ApplicationStore.ns = null;
+  done();
 };
 
 /**

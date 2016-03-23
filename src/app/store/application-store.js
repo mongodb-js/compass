@@ -10,10 +10,28 @@ const Reflux = require('reflux');
 const ApplicationStore = Reflux.createStore({
 
   /**
+   * Get the data service for the application.
+   *
+   * @returns {DataService} The data service.
+   */
+  get dataService() {
+    return this._dataService;
+  },
+
+  /**
+   * Set the data service for the application.
+   *
+   * @param {DataService} dataService - The data service.
+   */
+  set dataService(dataService) {
+    this._dataService = dataService;
+  },
+
+  /**
    * Gets the current namespace being worked with in the application.
    */
   get ns() {
-    return this.ns;
+    return this._ns;
   },
 
   /**
@@ -22,7 +40,7 @@ const ApplicationStore = Reflux.createStore({
    * @param {String} ns - The current ns.
    */
   set ns(ns) {
-    this.ns = ns;
+    this._ns = ns;
   }
 });
 
