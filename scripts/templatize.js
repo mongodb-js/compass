@@ -3,15 +3,19 @@ var path = require('path');
 var createCLI = require('mongodb-js-cli');
 var cli = createCLI('mongodb-compass:scripts:templatize');
 
-function generateTemplates(CONFIG, done) {
+function generateTemplates(config, done) {
+  var callback = done;
+  if (typeof config === 'function') {
+    callback = config;
+  }
   var appdir = path.join(__dirname, '..', 'src', 'app');
-  templatizer(appdir, path.join(appdir, 'templates.js'), done);
+  templatizer(appdir, path.join(appdir, 'templates.js'), callback);
 }
 
 module.exports = generateTemplates;
 
 function main() {
-  generateTemplates({}, function() {
+  generateTemplates(function() {
     cli.debug('Generated jade template functions.');
   });
 }
