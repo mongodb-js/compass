@@ -33,6 +33,7 @@ var path = require('path');
 var spawn = require('child_process').spawn;
 var which = require('which');
 var _ = require('lodash');
+var fs = require('fs-extra');
 
 var args = [
   /**
@@ -74,15 +75,18 @@ var opts = {
 };
 
 which('electron-mocha', function(err, bin) {
-  cli.abortIfError(err);
-  cli.debug('Using electron-mocha: ', bin);
+  fs.remove(path.resolve(__dirname, '..', '.user-data'), function() {
+    cli.debug('Removed .user-data directory');
+    cli.abortIfError(err);
+    cli.debug('Using electron-mocha: ', bin);
 
-  var proc = spawn(bin, args, opts);
-  proc.stderr.pipe(process.stderr);
-  proc.stdout.pipe(process.stdout);
-  process.stdin.pipe(proc.stdin);
+    var proc = spawn(bin, args, opts);
+    proc.stderr.pipe(process.stderr);
+    proc.stdout.pipe(process.stdout);
+    process.stdin.pipe(proc.stdin);
 
-  proc.on('exit', function(code) {
-    process.exit(code);
+    proc.on('exit', function(code) {
+      process.exit(code);
+    });
   });
 });
