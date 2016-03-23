@@ -50,7 +50,6 @@ function responseValue(response) {
 module.exports.responseValue = responseValue;
 
 module.exports.getApplication = function() {
-
   if (process.env.TEST_WITH_PREBUILT) {
     debug('Starting application with spectron using electron-prebuilt `%s`',
       ELECTRON_PREBUILT_EXECUTABLE);
