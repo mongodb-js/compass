@@ -24,7 +24,7 @@
     ]
   },
   "scripts": {
-    "prestart": "node scripts/prestart.js",
+    "prestart": "node scripts/templatize.js && node scripts/prestart.js",
     "start": "node scripts/start.js",
     "//": "Run only the fast unit tests",
     "pretest": "rm -rf .user-data && node scripts/templatize.js",
