@@ -9,10 +9,17 @@ if (!process.env.NODE_ENV) {
 require('./crash-reporter');
 var debug = require('debug')('electron:index');
 var electron = require('electron');
+var path = require('path');
 
 (function() {
   if (!require('electron-squirrel-startup')) {
     var app = electron.app;
+
+    // For testing set a clean slate for the user data.
+    if (process.env.NODE_ENV === 'testing') {
+      var userDataDir = path.resolve(path.join(__dirname, '..', '..', '.user-data'));
+      app.setPath('userData', userDataDir);
+    }
 
     var shouldQuit = app.makeSingleInstance(function(commandLine) {
       debug('Second electron instance attempted:', commandLine);

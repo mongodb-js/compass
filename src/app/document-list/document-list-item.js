@@ -1,10 +1,8 @@
 var View = require('ampersand-view');
 var moment = require('moment');
 var _ = require('lodash');
-var jade = require('jade');
-var path = require('path');
 
-var documentListItemTemplate = jade.compileFile(path.resolve(__dirname, 'document-list-item.jade'));
+var documentListItemTemplate = require('../templates')['document-list']['document-list-item'];
 
 function getType(value) {
   if (_.isPlainObject(value)) {
