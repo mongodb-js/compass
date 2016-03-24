@@ -94,7 +94,7 @@ function canonicalize(cli, CONFIG, paths) {
   var tasks = [];
   paths.map(function(src) {
     var dest = src.replace(/\.(exe|zip|dmg|msi)/,
-      CONFIG.canonical_filename_parts.join('-') + '.$1');
+      '-' + CONFIG.canonical_filename_parts.join('-') + '.$1');
     CONFIG.artifacts.push(dest);
 
     tasks.push(function(cb) {
@@ -349,7 +349,7 @@ exports.get = function(cli, callback) {
       'app-category-type': 'public.app-category.productivity',
       protocols: [
         {
-          name: 'MongoDB Prototcol',
+          name: 'MongoDB Protocol',
           schemes: ['mongodb']
         }
       ]
