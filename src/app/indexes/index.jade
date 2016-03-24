@@ -2,7 +2,8 @@
   .modal-dialog.modal-lg
     .modal-content
       .modal-header
-        h4.modal-title Indexes on #{model._id}
+        h4.modal-title Indexes on&nbsp;
+          span(data-hook='ns')
       .modal-body
         ul.list-group(data-hook='indexes')
 

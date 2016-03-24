@@ -13,22 +13,22 @@ var IndexItemView = View.extend({
 module.exports = View.extend({
   template: indexTemplate,
   props: {
-    // indexJSON: {
-    //   type: 'string',
-    //   default: ''
-    // }
+    ns: {
+      type: 'string',
+      default: ''
+    }
   },
-  // bindings: {
-  //   indexJSON: {
-  //     hook: 'indexes'
-  //   }
-  // },
+  bindings: {
+    ns: {
+      hook: 'ns'
+    }
+  },
   initialize: function() {
-    // this.listenTo(this.model, 'sync', this.onModelSynced.bind(this));
+    this.listenTo(this.model, 'sync', this.onModelSynced.bind(this));
   },
-  // onModelSynced: function() {
-  //   this.indexJSON = JSON.stringify(this.model.indexes.serialize(), null, ' ');
-  // },
+  onModelSynced: function() {
+    this.ns = this.model._id;
+  },
   render: function() {
     this.renderWithTemplate(this);
     this.renderCollection(this.model.indexes, IndexItemView,
