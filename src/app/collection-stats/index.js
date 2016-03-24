@@ -1,5 +1,9 @@
+var $ = window.jQuery = require('jquery');
 var AmpersandView = require('ampersand-view');
 var numeral = require('numeral');
+
+require('bootstrap/js/modal');
+require('bootstrap/js/transition');
 
 var indexTemplate = require('../templates')['collection-stats'].index;
 
@@ -27,6 +31,9 @@ var CollectionStatsView = AmpersandView.extend({
       hook: 'index_size_average'
     }
   },
+  events: {
+    click: 'clicked'
+  },
   /**
    * Use [numeral.js][numeral.js] to format a collection stat as a nice string.
    * @param {String} propertyName of `this.model` to format as a string.
@@ -38,6 +45,10 @@ var CollectionStatsView = AmpersandView.extend({
     var precision = value <= 1000 ? '0' : '0.0';
     var format = propertyName.indexOf('_size') > -1 ? ' b' : 'a';
     return numeral(value).format(precision + format);
+  },
+  clicked: function() {
+    $('[data-hook=index-modal]').modal({
+    });
   },
   derived: {
     document_count: {

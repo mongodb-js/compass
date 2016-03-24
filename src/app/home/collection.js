@@ -2,6 +2,7 @@ var View = require('ampersand-view');
 var CollectionStatsView = require('../collection-stats');
 var ViewSwitcher = require('ampersand-view-switcher');
 var SchemaView = require('./schema');
+var IndexView = require('../indexes');
 var MongoDBCollection = require('../models/mongodb-collection');
 var _ = require('lodash');
 
@@ -62,6 +63,17 @@ var MongoDBCollectionView = View.extend({
       waitFor: 'ns',
       prepareView: function(el) {
         return new CollectionStatsView({
+          el: el,
+          parent: this,
+          model: this.model
+        });
+      }
+    },
+    indexes: {
+      hook: 'index-subview',
+      waitFor: 'ns',
+      prepareView: function(el) {
+        return new IndexView({
           el: el,
           parent: this,
           model: this.model
