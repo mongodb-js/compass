@@ -287,15 +287,16 @@ exports.get = function(cli, callback) {
      * ## OS X Configuration
      */
     var OSX_APPNAME = cli.argv.product_name;
+    var OSX_APPNAME_UNDERSCORE = OSX_APPNAME.replace(/ /, '_');
     var OSX_OUT_X64 = path.join(CONFIG.out, format('%s-darwin-x64',
-      OSX_APPNAME));
+      OSX_APPNAME_UNDERSCORE));
     var OSX_DOT_APP = path.join(OSX_OUT_X64, format('%s.app', OSX_APPNAME));
     var OSX_IDENTITY = 'Developer ID Application: Matt Kangas (ZD3CL9MT3L)';
     var OSX_IDENTITY_SHA1 = '90E39AA7832E95369F0FC6DAF823A04DFBD9CF7A';
     var OSX_RESOURCES = path.join(OSX_DOT_APP, 'Contents', 'Resources');
     var OSX_EXECUTABLE = path.join(OSX_DOT_APP, 'Contents', 'MacOS', 'Electron');
     var OSX_ICON = path.resolve(__dirname, format('../src/app/images/darwin/%s.icns', cli.argv.internal_name));
-    var OSX_OUT_DMG = path.join(CONFIG.out, format('%s.dmg', OSX_APPNAME));
+    var OSX_OUT_DMG = path.join(CONFIG.out, format('%s.dmg', OSX_APPNAME_UNDERSCORE));
 
     _.assign(CONFIG, {
       name: OSX_APPNAME,
