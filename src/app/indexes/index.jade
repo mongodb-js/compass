@@ -1,0 +1,10 @@
+#index-modal.modal.fade(tabindex='-1' role='dialog', data-hook='index-modal')
+  .modal-dialog.modal-lg
+    .modal-content
+      .modal-header
+        h4.modal-title Indexes on #{model._id}
+      .modal-body
+        ul.list-group(data-hook='indexes')
+
+      .modal-footer
+        button.btn.btn-primary(type='button', data-dismiss='modal', data-hook='start-button') Close

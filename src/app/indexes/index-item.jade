@@ -1,0 +1,5 @@
+li.list-group-item= model.name
+  br
+  each field in model.fields.serialize()
+    | #{field.field}: #{field.value}
+  
