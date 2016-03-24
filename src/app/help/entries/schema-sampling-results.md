@@ -18,9 +18,9 @@ used for the schema report.
 There are two possible outcomes when you use the Query Bar to refine the results.
 
 1. The query you specified matches _more than_ the sampling limit (currently
-  100 documents).
+  1000 documents).
 
-  In this case, Compass samples 100 documents randomly from
+  In this case, Compass samples 1000 documents randomly from
   the matching documents, and builds a schema report based on that sample.
   You will see a message that provides both the number of matched documents
   and the size of the sample set. Example:
@@ -28,7 +28,7 @@ There are two possible outcomes when you use the Query Bar to refine the results
   ![](./images/help/schema/sampling-results-sample.png)
 
 2. The query you specified matches _less than or equal to_ the sampling limit
-  (currently 100 documents).
+  (currently 1000 documents).
 
   In this case, Compass uses all matched documents
   to build a schema report. You will see a message that provides the number
