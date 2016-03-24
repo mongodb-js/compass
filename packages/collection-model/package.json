@@ -23,7 +23,7 @@
     "ampersand-model": "^6.0.2",
     "ampersand-rest-collection": "^5.0.0",
     "lodash.foreach": "^3.0.3",
-    "mongodb-index-model": "^0.1.0",
+    "mongodb-index-model": "^0.2.0",
     "mongodb-ns": "^1.0.0"
   },
   "devDependencies": {
