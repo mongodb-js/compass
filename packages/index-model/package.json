@@ -21,9 +21,11 @@
   ],
   "dependencies": {
     "ampersand-model": "^6.0.2",
-    "ampersand-rest-collection": "^5.0.0"
+    "ampersand-rest-collection": "^5.0.0",
+    "lodash": "^4.6.1"
   },
   "devDependencies": {
+    "debug": "^2.2.0",
     "eslint-config-mongodb-js": "^2.0.0",
     "mocha": "^2.4.5",
     "mongodb-js-fmt": "^0.0.3",
