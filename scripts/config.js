@@ -205,7 +205,8 @@ exports.get = function(cli, callback) {
      * ## Windows Configuration
      */
     var WINDOWS_APPNAME = cli.argv.product_name.replace(/ /g, '');
-    var WINDOWS_OUT_X64 = path.join(CONFIG.out, format('%s-win32-x64', WINDOWS_APPNAME));
+    var WINDOWS_APPNAME_UNDERSCORE = cli.argv.product_name.replace(/ /g, '_');
+    var WINDOWS_OUT_X64 = path.join(CONFIG.out, format('%s-win32-x64', WINDOWS_APPNAME_UNDERSCORE));
     var WINDOWS_RESOURCES = path.join(WINDOWS_OUT_X64, 'resources');
     var WINDOWS_EXECUTABLE = path.join(WINDOWS_OUT_X64,
       format('%s.exe', WINDOWS_APPNAME));
@@ -218,13 +219,13 @@ exports.get = function(cli, callback) {
       'win32', 'mongodb-compass-installer-loading.gif');
 
     var WINDOWS_OUT_SETUP_EXE = path.join(CONFIG.out,
-      format('%sSetup.exe', WINDOWS_APPNAME));
+      format('%s.Setup.exe', WINDOWS_APPNAME_UNDERSCORE));
 
     var WINDOWS_OUT_MSI = path.join(CONFIG.out,
-      format('%sSetup.msi', WINDOWS_APPNAME));
+      format('%s.Setup.msi', WINDOWS_APPNAME_UNDERSCORE));
 
     var WINDOWS_OUT_FULL_NUPKG = path.join(CONFIG.out,
-      format('%s-%s-full.nupkg', WINDOWS_APPNAME, CONFIG['app-version']));
+      format('%s-%s-full.nupkg', WINDOWS_APPNAME_UNDERSCORE, CONFIG['app-version']));
 
     var WINDOWS_OUT_RELEASES = path.join(CONFIG.out, 'RELEASES');
 
