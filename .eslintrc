@@ -10,7 +10,6 @@
   },
   "rules": {
     "jsx-quotes": [2, "prefer-single"],
-    "strict": 0,
     "camelcase": 1
   },
   "plugins": ["react"],
