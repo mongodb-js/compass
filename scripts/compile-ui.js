@@ -8,7 +8,7 @@ var fs = require('fs');
 
 function generateLessCache(CONFIG, done) {
   var appDir = path.join(__dirname, '..', 'src', 'app');
-  var cacheDir = path.join(appDir, '.less-compile-cache');
+  var cacheDir = path.join(appDir, 'compiled-less');
   var src = path.join(appDir, 'index.less');
 
   var callback = done;
@@ -16,11 +16,7 @@ function generateLessCache(CONFIG, done) {
     callback = CONFIG;
   }
 
-  var lessCache = new LessCache({
-    cacheDir: cacheDir,
-    resourcePath: appDir,
-    importPaths: []
-  });
+  var lessCache = new LessCache({ cacheDir: cacheDir, resourcePath: appDir });
 
   fs.readFile(src, 'utf-8', function(err, contents) {
     if (err) {

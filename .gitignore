@@ -10,4 +10,4 @@ src/app/templates.js
 src/connect/static-connect.html
 report.json
 .user-data/
-src/app/.less-compile-cache/
+src/app/compiled-less/
