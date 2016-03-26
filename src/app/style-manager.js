@@ -29,6 +29,6 @@ StyleManager.prototype.writeStyles = function() {
   var style = document.createElement('style');
   style.textContent = this.cache.readFileSync(BASE_STYLES);
   document.head.appendChild(style);
-}
+};
 
 module.exports = new StyleManager();
