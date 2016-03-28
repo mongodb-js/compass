@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-
+require('debug').enable('ele*,mon*');
 /**
  * ## prepublish
  *
@@ -9,17 +9,9 @@
 
 /**
  * TODO (imlucas) If darwin, dump symbols for breakpad
- * and include in artifacts.
+ * and include in assets.
  * @see [Atom's dump-symbols-task.coffee](https://git.io/va3fG)
  */
-
-/**
- * TODO (imlucas) Need to make all of these constants/config values
- * accessible via a module and/or command to generate the expansions.yml
- * for evergeen so it can do things like find artifacts that include
- * a version/some other non-constant.
- * @see https://jira.mongodb.org/browse/INT-880
-  */
 
 /**
  * Check if prepublish is being called as a sideeffect of `npm install`
@@ -36,23 +28,8 @@ if (require('in-publish').inInstall()) {
   process.exit(0);
 }
 
-var pkg = require('../package.json');
-var util = require('util');
-var format = util.format;
-var path = require('path');
-var del = require('del');
-var fs = require('fs-extra');
-var _ = require('lodash');
-var async = require('async');
-var asar = require('asar');
-var packager = require('electron-packager');
-var run = require('electron-installer-run');
-var license = require('electron-license');
-var createCLI = require('mongodb-js-cli');
 var config = require('./config');
-var compileUI = require('./compile-ui');
-var generateTemplates = compileUI.generateTemplates;
-var generateLessCache = compileUI.generateLessCache;
+var createCLI = require('mongodb-js-cli');
 
 /**
  * TODO (imlucas) Document and use yargs environment variable support.
@@ -70,6 +47,23 @@ cli.yargs.usage('$0 [options]')
 if (cli.argv.verbose) {
   require('debug').enable('ele*,mon*');
 }
+
+var pkg = require('../package.json');
+var util = require('util');
+var format = util.format;
+var path = require('path');
+var del = require('del');
+var fs = require('fs-extra');
+var _ = require('lodash');
+var async = require('async');
+var asar = require('asar');
+var packager = require('electron-packager');
+var run = require('electron-installer-run');
+var zip = require('electron-installer-zip');
+var license = require('electron-license');
+var compileUI = require('./compile-ui');
+var generateTemplates = compileUI.generateTemplates;
+var generateLessCache = compileUI.generateLessCache;
 
 /**
  * Run `electron-packager`
@@ -199,15 +193,16 @@ function transformPackageJson(CONFIG, done) {
     contents.config = {};
   }
   _.defaults(contents.config, {
-    NODE_ENV: process.env.NODE_ENV || 'production',
+    NODE_ENV: 'production',
     build_time: new Date().toISOString(),
-    channel: cli.argv.channel,
+    channel: CONFIG.channel,
     revision: cli.argv.revision,
     build_variant: cli.argv.build_variant,
     branch_name: cli.argv.branch_name
   });
 
-  cli.debug('Writing ' + PACKAGE_JSON_DEST + ': ' + JSON.stringify(contents, null, 2));
+  cli.debug('Writing ' + PACKAGE_JSON_DEST + ': ' +
+    JSON.stringify(contents, null, 2));
   fs.writeFile(PACKAGE_JSON_DEST, JSON.stringify(contents, null, 2), done);
 }
 
@@ -329,13 +324,35 @@ function createApplicationAsar(CONFIG, done) {
 }
 
 /**
- * TODO (imlucas) Stub for autoupdates.  Use `electron-installer-zip`.
+ * Packages the app as a plain zip using `electron-installer-zip`
+ * for auto updates.
+ *
+ * NOTE (imlucas) This should be run after the installers have been
+ * created.  The modules that generate the installers also
+ * handle signinging the assets. If we zip unsigned assets
+ * and publish them for the release, auto updates will be rejected.
  *
  * @param {Object} CONFIG
  * @param {Function} done
  */
 function createApplicationZip(CONFIG, done) {
-  done();
+  if (CONFIG.platform === 'linux') {
+    done();
+    return;
+  }
+
+  var DEST = CONFIG.assets.filter(function(asset) {
+    return path.extname(asset.path) === '.zip';
+  })[0].path;
+  cli.debug('Zipping `%s` to `%s`', CONFIG.appPath, DEST);
+
+  var options = {
+    dir: CONFIG.appPath,
+    dest: DEST,
+    platform: CONFIG.platform
+  };
+
+  zip(options, done);
 }
 
 /**
@@ -370,18 +387,18 @@ function main() {
       installDependencies,
       removeDevelopmentFiles,
       createApplicationAsar,
-      createApplicationZip,
-      createBrandedInstaller
+      createBrandedInstaller,
+      createApplicationZip
     ].map(function(task) {
       return _.partial(task, CONFIG);
     });
 
     async.series(tasks, function(_err) {
       cli.abortIfError(_err);
-      cli.ok(format('%d artifacts successfully built',
-        CONFIG.artifacts.length));
-      CONFIG.artifacts.map(function(artifact) {
-        cli.info(artifact);
+      cli.ok(format('%d assets successfully built',
+        CONFIG.assets.length));
+      CONFIG.assets.map(function(asset) {
+        cli.info(asset.path);
       });
     });
   });
