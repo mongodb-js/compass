@@ -62,7 +62,7 @@ class PackageManager {
       pkg.activate();
       this._completeActivation();
     });
-    Action.packageScanFailed.listen((error) => {
+    Action.packageScanFailed.listen(() => {
       this._completeActivation();
     });
     this._read();

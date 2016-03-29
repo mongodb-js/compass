@@ -20,7 +20,9 @@
     ],
     "ignore": [
       "electron",
-      "marked"
+      "marked",
+      "compass-core",
+      "compass-store"
     ]
   },
   "scripts": {
