@@ -1,5 +1,23 @@
-li.list-group-item= model.name
-  br
-  each field in model.fields.serialize()
-    | #{field.field}: #{field.value}
-  
+tr
+  td
+    div.name= model.name
+    div.definition
+      each field in model.fields.serialize()
+        - var cls = ''
+        - if (['2d', '2dsphere', 'geoHaystack'].indexOf(field.value) > -1) cls = 'geo'
+        - if (field.value === 'text') cls = 'text'
+        - if (field.value === 'hashed') cls = 'hashed'
+        div.pair
+          div.field= field.field
+          div(class='value #{cls}')= field.value
+  td
+    div.quantity(data-hook='index-size')
+    div.unit(data-hook='index-size-unit')
+  td
+    div.quantity(data-hook='usage-count')
+    div.unit since&nbsp;
+      span(data-hook='usage-since')
+  td
+    div.properties
+      each prop in model.properties
+        div.property= prop
