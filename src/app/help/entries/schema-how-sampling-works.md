@@ -21,4 +21,4 @@ Collections in MongoDB 3.0 and 2.6 are sampled via a backwards compatible algori
 
 The choice of sampling method is transparent in usage to the end-user.
 
-`sampleSize` is currently set to 100 documents.
+`sampleSize` is currently set to 1000 documents.
