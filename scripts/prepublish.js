@@ -50,7 +50,9 @@ var run = require('electron-installer-run');
 var license = require('electron-license');
 var createCLI = require('mongodb-js-cli');
 var config = require('./config');
-var generateTemplates = require('./templatize');
+var compileUI = require('./compile-ui');
+var generateTemplates = compileUI.generateTemplates;
+var generateLessCache = compileUI.generateLessCache;
 
 /**
  * TODO (imlucas) Document and use yargs environment variable support.
@@ -117,18 +119,6 @@ function cleanupBrandedApplicationScaffold(CONFIG, done) {
     cli.debug(format('%d extraneous files removed', paths.length));
     done(null, true);
   }, done);
-}
-
-/**
- * TODO (imlucas) Currently just a stub.
- *
- * @see [Atom's `prebuild-less-task.coffee`](https://git.io/vaZkL)
- * @param {Object} CONFIG
- * @param {Function} done
- * @api public
- */
-function compileApplicationUI(CONFIG, done) {
-  done();
 }
 
 /**
@@ -372,12 +362,12 @@ function main() {
     var tasks = [
       createBrandedApplication,
       cleanupBrandedApplicationScaffold,
-      compileApplicationUI,
+      generateTemplates,
+      generateLessCache,
       writeLicenseFile,
       writeVersionFile,
       transformPackageJson,
       installDependencies,
-      generateTemplates,
       removeDevelopmentFiles,
       createApplicationAsar,
       createApplicationZip,

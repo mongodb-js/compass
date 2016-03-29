@@ -36,7 +36,9 @@ var format = require('util').format;
 var run = require('electron-installer-run');
 var checkPython = require('check-python');
 var async = require('async');
-var generateTemplates = require('./templatize');
+var compileUI = require('./compile-ui');
+var generateTemplates = compileUI.generateTemplates;
+var generateLessCache = compileUI.generateLessCache;
 
 function checkNpmAndNodejs(done) {
   run('npm', ['version', '--json', '--loglevel', 'error'], {
@@ -79,7 +81,8 @@ function main() {
   async.series([
     checkPython,
     checkNpmAndNodejs,
-    generateTemplates
+    generateTemplates,
+    generateLessCache
   ], function(err) {
     cli.abortIfError(err);
     cli.debug('Environment verified as sane!');
