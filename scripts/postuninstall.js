@@ -18,14 +18,14 @@ if (cli.argv.verbose) {
   require('debug').enable('ele*,mon*');
 }
 
-
 var del = require('del');
 var async = require('async');
 var path = require('path');
 
+var COMPILED_LESS = path.join('src', 'app', 'compiled-less');
 
 cli.spinner('Removing build artifacts');
-async.parallel(['dist/', 'node_modules/'].map(function(p) {
+async.parallel(['dist/', 'node_modules/', COMPILED_LESS].map(function(p) {
   return function(cb) {
     del(path.join(__dirname, '..', p)).then(cb.bind(null, null));
   };
