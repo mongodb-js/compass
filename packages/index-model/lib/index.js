@@ -54,9 +54,11 @@ var IndexModel = Model.extend({
       }
     },
     geo: {
-      deps: ['extra'],
+      deps: ['extra', 'key'],
       fn: function() {
-        return !!this.extra['2dsphereIndexVersion'];
+        return !!this.extra['2dsphereIndexVersion'] ||
+          _.values(this.key).indexOf('2d') > -1 ||
+          _.values(this.key).indexOf('geoHaystack') > -1;
       }
     },
     compound: {
@@ -75,6 +77,16 @@ var IndexModel = Model.extend({
       deps: ['extra'],
       fn: function() {
         return !!this.extra.textIndexVersion;
+      }
+    },
+    properties: {
+      deps: ['unique', 'sparse', 'partial', 'ttl'],
+      fn: function() {
+        var model = this;
+        var props = ['unique', 'sparse', 'partial', 'ttl'];
+        return _.filter(props, function(prop) {
+          return !!model[prop];
+        });
       }
     }
   },

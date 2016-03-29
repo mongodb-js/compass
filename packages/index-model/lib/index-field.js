@@ -18,6 +18,14 @@ var IndexField = Model.extend({
       fn: function() {
         return format('%s_%s', this.field, this.value);
       }
+    },
+    geo: {
+      deps: ['value'],
+      fn: function() {
+        return this.value === '2dsphere' ||
+          this.value === '2d' ||
+          this.value === 'geoHaystack';
+      }
     }
   }
 });

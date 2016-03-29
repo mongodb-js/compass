@@ -58,6 +58,15 @@ describe('mongodb-index-model', function() {
       assert.equal(indexes.get('email_1_favorite_features_1', 'name').compound, true);
     });
 
+    it('should return the correct `properties` array', function() {
+      var index = indexes.get('seniors', 'name');
+      assert.deepEqual(index.properties, ['partial']);
+      index = indexes.get('last_login_-1', 'name');
+      assert.deepEqual(index.properties, []);
+      index = indexes.get('_id_', 'name');
+      assert.deepEqual(index.properties, ['unique']);
+    });
+
     it('should recognize text indexes', function() {
       assert.equal(indexes.get('$**_text', 'name').text, true);
     });
@@ -109,6 +118,11 @@ describe('mongodb-index-model', function() {
 
     it('should accept selected strings as index field values', function() {
       assert.equal(indexes.get('last_position_2dsphere', 'name').fields.at(0).value, '2dsphere');
+    });
+
+    it('should correctly set the `geo` flag', function() {
+      assert.equal(indexes.get('seniors', 'name').fields.at(0).geo, false);
+      assert.equal(indexes.get('last_position_2dsphere', 'name').fields.at(0).geo, true);
     });
 
     it('should not allow arbitary strings as values', function() {
