@@ -9,7 +9,7 @@ var IndexField = Model.extend({
     field: 'string',
     value: {
       type: 'any',
-      values: [1, -1, '2dsphere', '2d', 'haystack', 'text', 'hashed']
+      values: [1, -1, '2dsphere', '2d', 'geoHaystack', 'text', 'hashed']
     }
   },
   derived: {
