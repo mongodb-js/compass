@@ -41,6 +41,7 @@ const ApplicationStore = Reflux.createStore({
    */
   set ns(ns) {
     this._ns = ns;
+    this.trigger(this);
   }
 });
 

@@ -5,7 +5,7 @@ if (process.env.NODE_ENV !== 'production') {
   require('debug').enable('mon*');
 }
 
-const Environment = require('../environment');
+var Environment = require('../environment');
 Environment.init();
 
 var debug = require('debug')('mongodb-compass:app');
@@ -47,6 +47,7 @@ var metricsSetup = require('./metrics');
 var metrics = require('mongodb-js-metrics')();
 
 var addInspectElementMenu = require('debug-menu').install;
+var ApplicationStore = require('compass-store').ApplicationStore;
 
 function getConnection(model, done) {
   function _fetch(fn) {
@@ -163,6 +164,8 @@ var Application = View.extend({
     this.instance = new MongoDBInstance();
 
     this.startRouter();
+    // The application store holds all the global application state.
+    ApplicationStore.dataService = app.dataService;
   },
   fetchUser: function(done) {
     debug('preferences fetched, now getting user');
