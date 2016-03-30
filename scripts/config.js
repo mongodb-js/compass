@@ -94,7 +94,7 @@ function canonicalize(cli, CONFIG, paths) {
   var tasks = [];
   paths.map(function(src) {
     var dest = src.replace(/\.(exe|zip|dmg|msi)/,
-      '-' + CONFIG.canonical_filename_parts.join('-') + '.$1');
+      CONFIG.canonical_filename_parts.join('-') + '.$1');
     CONFIG.artifacts.push(dest);
 
     tasks.push(function(cb) {
@@ -205,8 +205,7 @@ exports.get = function(cli, callback) {
      * ## Windows Configuration
      */
     var WINDOWS_APPNAME = cli.argv.product_name.replace(/ /g, '');
-    var WINDOWS_APPNAME_UNDERSCORE = cli.argv.product_name.replace(/ /g, '_');
-    var WINDOWS_OUT_X64 = path.join(CONFIG.out, format('%s-win32-x64', WINDOWS_APPNAME_UNDERSCORE));
+    var WINDOWS_OUT_X64 = path.join(CONFIG.out, format('%s-win32-x64', WINDOWS_APPNAME));
     var WINDOWS_RESOURCES = path.join(WINDOWS_OUT_X64, 'resources');
     var WINDOWS_EXECUTABLE = path.join(WINDOWS_OUT_X64,
       format('%s.exe', WINDOWS_APPNAME));
@@ -219,13 +218,13 @@ exports.get = function(cli, callback) {
       'win32', 'mongodb-compass-installer-loading.gif');
 
     var WINDOWS_OUT_SETUP_EXE = path.join(CONFIG.out,
-      format('%s.Setup.exe', WINDOWS_APPNAME_UNDERSCORE));
+      format('%sSetup.exe', WINDOWS_APPNAME));
 
     var WINDOWS_OUT_MSI = path.join(CONFIG.out,
-      format('%s.Setup.msi', WINDOWS_APPNAME_UNDERSCORE));
+      format('%sSetup.msi', WINDOWS_APPNAME));
 
     var WINDOWS_OUT_FULL_NUPKG = path.join(CONFIG.out,
-      format('%s-%s-full.nupkg', WINDOWS_APPNAME_UNDERSCORE, CONFIG['app-version']));
+      format('%s-%s-full.nupkg', WINDOWS_APPNAME, CONFIG['app-version']));
 
     var WINDOWS_OUT_RELEASES = path.join(CONFIG.out, 'RELEASES');
 
@@ -288,16 +287,15 @@ exports.get = function(cli, callback) {
      * ## OS X Configuration
      */
     var OSX_APPNAME = cli.argv.product_name;
-    var OSX_APPNAME_UNDERSCORE = OSX_APPNAME.replace(/ /, '_');
     var OSX_OUT_X64 = path.join(CONFIG.out, format('%s-darwin-x64',
-      OSX_APPNAME_UNDERSCORE));
+      OSX_APPNAME));
     var OSX_DOT_APP = path.join(OSX_OUT_X64, format('%s.app', OSX_APPNAME));
     var OSX_IDENTITY = 'Developer ID Application: Matt Kangas (ZD3CL9MT3L)';
     var OSX_IDENTITY_SHA1 = '90E39AA7832E95369F0FC6DAF823A04DFBD9CF7A';
     var OSX_RESOURCES = path.join(OSX_DOT_APP, 'Contents', 'Resources');
     var OSX_EXECUTABLE = path.join(OSX_DOT_APP, 'Contents', 'MacOS', 'Electron');
     var OSX_ICON = path.resolve(__dirname, format('../src/app/images/darwin/%s.icns', cli.argv.internal_name));
-    var OSX_OUT_DMG = path.join(CONFIG.out, format('%s.dmg', OSX_APPNAME_UNDERSCORE));
+    var OSX_OUT_DMG = path.join(CONFIG.out, format('%s.dmg', OSX_APPNAME));
 
     _.assign(CONFIG, {
       name: OSX_APPNAME,
@@ -351,7 +349,7 @@ exports.get = function(cli, callback) {
       'app-category-type': 'public.app-category.productivity',
       protocols: [
         {
-          name: 'MongoDB Protocol',
+          name: 'MongoDB Prototcol',
           schemes: ['mongodb']
         }
       ]
