@@ -80,7 +80,6 @@ module.exports = AmpersandView.extend(QueryBuilderMixin, {
         !== fields.get('coordinates').count
         || fields.get('coordinates').types.get('Array').average_length !== 2
         || fields.get('coordinates').types.get('Array').types.get('Number') === undefined
-        || fields.get('coordinates').types.get('Array').types.get('Number').count !== 2
       ) {
         return false;
       }
@@ -129,14 +128,14 @@ module.exports = AmpersandView.extend(QueryBuilderMixin, {
       if (app.isFeatureEnabled('googleMaps')
         && navigator.onLine) {
         this.viewOptions.renderMode = 'html';
-        this.viewOptions.height = 250;
+        this.viewOptions.height = 300;
         this.viewOptions.vizFn = vizFns.geo;
         this.subview = new VizView(this.viewOptions);
       } else {
         // we have coordinates but cannot load google maps (offline, invalid
         // key, etc.). Fall back to simplified coordinate chart.
         this.viewOptions.renderMode = 'svg';
-        this.viewOptions.height = 250;
+        this.viewOptions.height = 300;
         this.viewOptions.vizFn = vizFns.coordinates;
         this.subview = new VizView(this.viewOptions);
       }

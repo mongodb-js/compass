@@ -101,6 +101,9 @@
     "raf": "^3.1.0",
     "semver": "^5.1.0",
     "storage-mixin": "^0.5.1",
+    "turf-destination": "^1.2.1",
+    "turf-distance": "^1.1.0",
+    "turf-point": "^2.0.1",
     "uuid": "^2.0.1"
   },
   "devDependencies": {
