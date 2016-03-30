@@ -13,7 +13,7 @@ var turfDestination = require('turf-destination');
 var SELECTED_COLOR = '#F68A1E';
 var UNSELECTED_COLOR = '#43B1E5';
 var CONTROL_COLOR = '#ed271c';
-
+var TOKEN = 'pk.eyJ1IjoibW9uZ29kYi1jb21wYXNzIiwiYSI6ImNpbWUxZjNudjAwZTZ0emtrczByanZ4MzIifQ.6Mha4zoflraopcZKOLSpYQ';
 
 var minicharts_d3fns_geo = function() {
   // --- beginning chart setup ---
@@ -322,6 +322,11 @@ var minicharts_d3fns_geo = function() {
             + 'px ' + margin.left + 'px;'
         });
 
+      // append info sprinkle
+      el.selectAll('i.help').data([null]).enter().append('i')
+        .classed('help', true)
+        .attr('data-hook', 'schema-geo-query-builder');
+
       // compute bounds from data
       var bounds = new mapboxgl.LngLatBounds();
       _.each(data, function(d) {
@@ -330,11 +335,12 @@ var minicharts_d3fns_geo = function() {
 
       // create the map once
       if (!map) {
-        mapboxgl.accessToken = 'pk.eyJ1IjoibWRiLWNvbXBhc3MiLCJhIjoiY2lsdzRpbHB6MDFva3Uwa3MzYzhyMTVtOSJ9.n0y5HNv5QPrvK5G1NL-Z7g';
+        mapboxgl.accessToken = TOKEN;
         map = new mapboxgl.Map({
           container: innerDiv[0][0],
-          attributionControl: false,
-          style: 'mapbox://styles/mdb-compass/cim0b3mn1003ra0m4ln42v71a',
+          // not allowed to whitelabel the map without enterprise license
+          // attributionControl: false,
+          style: 'mapbox://styles/mapbox/light-v8',
           center: bounds.getCenter()
         });
         map.dragPan.enable();
@@ -342,7 +348,7 @@ var minicharts_d3fns_geo = function() {
         map.boxZoom.disable();
 
         // Add zoom and rotation controls to the map
-        map.addControl(new mapboxgl.Navigation());
+        map.addControl(new mapboxgl.Navigation({position: 'top-left'}));
 
         // Setup our svg layer that we can manipulate with d3
         var container = map.getCanvasContainer();
