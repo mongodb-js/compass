@@ -21,6 +21,7 @@
     "ignore": [
       "electron",
       "marked",
+      "compass-component",
       "compass-core",
       "compass-store"
     ]
