@@ -22,22 +22,9 @@ npm start;
 
 <dl>
   <dt><a href="https://magnum.travis-ci.com/10gen/compass"><img src="https://magnum.travis-ci.com/10gen/compass.svg?token=q2zsnxCbboarF6KYRYxM&branch=master" height="10" /></a>&nbsp;<a href="https://github.com/10gen/compass">compass</a> </dt>
-  <dd>
-    The default Ampersand.js single-page application people actually interact with.
-  </dd>
   <dt><a href="https://travis-ci.org/mongodb-js/connection-model"><img src="https://secure.travis-ci.org/mongodb-js/connection-model.svg?branch=master" height="10" /></a>&nbsp;<a href="https://github.com/mongodb-js/connection-model">mongodb-connection-model</a></dt>
-  <dd>
-    A shared Ampersand.js model used by `compass`, `mongodb-scope-client`, and `mongodb-scope-server` that encapsulates
-    all of the business logic for generating valid parameters to hand to the driver to connect to MongoDB.
-  </dd>
   <dt><a href="https://travis-ci.org/mongodb-js/collection-sample"><img src="https://secure.travis-ci.org/mongodb-js/collection-sample.svg?branch=master" height="10" /></a>&nbsp;<a href="https://github.com/mongodb-js/collection-sample">mongodb-collection-sample</a></dt>
-  <dd>
-    Provides a single interface for `mongodb-scope-server` to request a sample of documents from a collection that automatically uses the `$sample` operator if available, falling back to a client-side reservoir sample.
-  </dd>
   <dt><a href="https://travis-ci.org/mongodb-js/mongodb-schema"><img src="https://secure.travis-ci.org/mongodb-js/mongodb-schema.svg?branch=master" height="10" /></a>&nbsp;<a href="https://github.com/mongodb-js/mongodb-schema">mongodb-schema</a></dt>
-  <dd>
-    `compass` uses `mongodb-scope-client` to get a sample of documents from `mongodb-scope-server` via `mongodb-collection-sample` which is piped into `mongodb-schema` to create a probabilistic representation of what the schema for a given collection most likely is.
-  </dd>
 </dl>
 
 
