@@ -25,19 +25,6 @@ npm start;
   <dd>
     The default Ampersand.js single-page application people actually interact with.
   </dd>
-  <!--
-  /**
-   * @todo (imlucas) Update travis and github URL's when scope repos transferred.
-  -->
-  <dt><a href="https://magnum.travis-ci.com/10gen/scout-client"><img src="https://magnum.travis-ci.com/10gen/scout-client.svg?token=q2zsnxCbboarF6KYRYxM&branch=master" height="10" /></a>&nbsp;<a href="https://github.com/10gen/scout-client">mongodb-scope-client</a></dt>
-  <dd>
-    Provides a clean API for `compass` to talk to `mongodb-scope-server` that works in the browser, node.js, or electron.
-  </dd>
-  <dt><a href="https://magnum.travis-ci.com/10gen/scout-server"><img src="https://magnum.travis-ci.com/10gen/scout-server.svg?token=q2zsnxCbboarF6KYRYxM&branch=master" height="10" /></a>&nbsp;<a href="https://github.com/10gen/scout-server">mongodb-scope-server</a></dt>
-  <dd>
-    An express.js application which provides REST and socket.io endpoints
-    to the mongodb node.js driver.
-  </dd>
   <dt><a href="https://travis-ci.org/mongodb-js/connection-model"><img src="https://secure.travis-ci.org/mongodb-js/connection-model.svg?branch=master" height="10" /></a>&nbsp;<a href="https://github.com/mongodb-js/connection-model">mongodb-connection-model</a></dt>
   <dd>
     A shared Ampersand.js model used by `compass`, `mongodb-scope-client`, and `mongodb-scope-server` that encapsulates
