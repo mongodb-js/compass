@@ -23,7 +23,9 @@
     "check"
   ],
   "dependencies": {
-    "lodash": "^4.6.1"
+    "debug": "^2.2.0",
+    "lodash": "^4.6.1",
+    "reflux": "^0.4.0"
   },
   "devDependencies": {
     "chai": "^3.4.1",
@@ -31,6 +33,7 @@
     "mocha": "^2.3.4",
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^0.2.8",
-    "pre-commit": "^1.1.2"
+    "pre-commit": "^1.1.2",
+    "react": "^0.14.8"
   }
 }
