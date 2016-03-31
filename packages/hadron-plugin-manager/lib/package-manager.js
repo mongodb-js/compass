@@ -26,7 +26,7 @@ class PackageManager {
   /**
    * Instantiate the PackageManager.
    *
-   * @todo: Durran: Move to separate mongodb-js module. Can be reused by other apps.
+   * @param {String} packagesPath - The extra paackages paths.
    */
   constructor(packagesPath) {
     this.packagePaths = [ packagesPath, CPM_PACKAGES_PATH ];
