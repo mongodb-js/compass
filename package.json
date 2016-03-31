@@ -50,6 +50,7 @@
     "url": "git://github.com/10gen/compass.git"
   },
   "dependencies": {
+    "@lukekarrys/jade-runtime": "^1.11.1",
     "ampersand-app": "^1.0.4",
     "ampersand-collection": "^1.5.0",
     "ampersand-collection-filterable": "^0.2.1",
@@ -79,7 +80,6 @@
     "get-object-path": "azer/get-object-path",
     "highlight.js": "^8.9.1",
     "jade": "^1.11.0",
-    "@lukekarrys/jade-runtime": "^1.11.1",
     "jquery": "^2.1.4",
     "keytar": "mongodb-js/node-keytar#node-pre-gyp",
     "less": "^2.6.1",
@@ -98,6 +98,7 @@
     "mongodb-js-metrics": "^1.0.0",
     "mongodb-language-model": "^0.3.3",
     "mongodb-ns": "^1.0.3",
+    "mongodb-package-manager": "0.0.1",
     "mongodb-schema": "^4.2.0",
     "ms": "^0.7.1",
     "numeral": "^1.5.3",
