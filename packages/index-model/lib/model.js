@@ -1,5 +1,4 @@
 var Model = require('ampersand-model');
-var Collection = require('ampersand-rest-collection');
 var _ = require('lodash');
 
 var IndexFieldCollection = require('./index-field').Collection;
@@ -13,6 +12,7 @@ var indexModelProps = {
   size: 'number',
   usageCount: 'number',
   usageSince: 'date',
+  usageHost: 'string',
   version: 'number',
   extra: 'object'
 };
@@ -80,7 +80,7 @@ var IndexModel = Model.extend({
       }
     },
     properties: {
-      deps: ['unique', 'sparse', 'partial', 'ttl'],
+      deps: ['unique', 'sparse', 'partial', 'ttl', 'compound', 'single'],
       fn: function() {
         var model = this;
         var props = ['unique', 'sparse', 'partial', 'ttl'];
@@ -121,11 +121,4 @@ var IndexModel = Model.extend({
   }
 });
 
-var IndexCollection = Collection.extend({
-  model: IndexModel,
-  mainIndex: 'id',
-  indexes: ['name']
-});
-
 module.exports = IndexModel;
-module.exports.Collection = IndexCollection;

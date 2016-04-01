@@ -5,7 +5,10 @@
   "version": "0.3.0",
   "bugs": "https://github.com/mongodb-js/index-model/issues",
   "homepage": "https://github.com/mongodb-js/index-model",
-  "repository": "git://github.com/mongodb-js/index-model.git",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/index-model"
+  },
   "license": "Apache-2.0",
   "keywords": [
     "mongodb-js"
@@ -22,7 +25,9 @@
   "dependencies": {
     "ampersand-model": "^6.0.2",
     "ampersand-rest-collection": "^5.0.0",
-    "lodash": "^4.6.1"
+    "async": "^1.5.2",
+    "lodash": "^4.6.1",
+    "mongodb-ns": "^1.0.3"
   },
   "devDependencies": {
     "debug": "^2.2.0",
@@ -30,6 +35,7 @@
     "mocha": "^2.4.5",
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^0.2.8",
+    "mongodb-runner": "^3.2.0",
     "pre-commit": "^1.1.2"
   }
 }
