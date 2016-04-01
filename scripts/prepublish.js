@@ -169,12 +169,6 @@ function writeVersionFile(CONFIG, done) {
  * installs a package) for inclusion in the application
  * `electron-packager` creates.
  *
- * TODO (imlucas)
- * electron-packager will create and overwrite it, eg:
- * - remove all `scripts`
- * - merge buildinfo.json into it
- * - this will serve as the `config.json` referenced in JIRA tickets!
- *
  * @param {Object} CONFIG
  * @param {Function} done
  * @api public
