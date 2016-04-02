@@ -119,7 +119,7 @@
     "electron-license": "^0.1.0",
     "electron-mocha": "^0.8.0",
     "electron-packager": "^5.1.1",
-    "electron-prebuilt": "^0.36.11",
+    "electron-prebuilt": "^0.37.5",
     "electron-winstaller": "^2.0.5",
     "eslint-config-mongodb-js": "^1.0.6",
     "eslint-plugin-react": "^4.1.0",
