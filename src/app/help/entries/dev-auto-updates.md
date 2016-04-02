@@ -21,23 +21,6 @@ Second, we will merge the latest changes from `master` into a new release
 branch the `beta` channel will point to every 6 weeks (2 sprints).  We'll refer
 to this process just as the Atom team does: "roll the railcars".
 
-## Taxonomy
-
-<dl>
-  <dt>release</dt>
-  <dd></dd>
-  <dt>release manager</dt>
-  <dd></dd>
-  <dt>channel</dt>
-  <dd></dd>
-  <dt>hotfix</dt>
-  <dd></dd>
-  <dt>release branch</dt>
-  <dd></dd>
-  <dt>publishing a new release</dt>
-  <dd></dd>
-</dl>
-
 ## FAQ
 
 ### When does the stable channel change and what is the result?
@@ -121,3 +104,7 @@ Migrations in Compass are handled in across any version range change w/ a single
 ### Can Compass be published to the Mac App Store?
 
 While technically possible, we have no plans currently to support distributing or updating Compass via the Mac App Store at this time.  For more details, please see [this blog post from the Electron team](http://blog.atom.io/2015/11/05/electron-updates-mac-app-store-and-windows-auto-updater.html).
+
+### What is the relationship between `NODE_ENV` and channels?
+
+None. The `NODE_ENV` environment variable is a convention the node.js community has established for declaring a high-level mode of operation.  If the `NODE_ENV` is not set, it defaults to `process.env.NODE_ENV = 'production';`. For more details, please see the [React](https://facebook.github.io/react/downloads.html#npm) or [Express](http://expressjs.com/en/api.html#app.settings.table) documentation.
