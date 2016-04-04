@@ -14,10 +14,9 @@
     "mongodb-js"
   ],
   "scripts": {
-    "ci": "npm run check && npm test",
+    "ci": "npm test",
     "test": "mocha --recursive",
-    "fmt": "mongodb-js-fmt ./*.js ./test/*.js",
-    "check": "mongodb-js-precommit"
+    "fmt": "mongodb-js-fmt ./*.js ./test/*.js"
   },
   "precommit": [
     "check"
