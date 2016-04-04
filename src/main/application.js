@@ -56,6 +56,7 @@ var Application = Model.extend({
   initialize: function() {
     this.setupUserDataDirectory();
     this.setupJavaScriptArguments();
+    this.setupProtocolHandler();
 
     this.autoUpdateManager = new AutoUpdateManager();
     this.applicationMenu = new ApplicationMenu({
@@ -70,6 +71,8 @@ var Application = Model.extend({
 
       app.setPath('userData', userDataDir);
     }
+
+    debug('User data directory is `%s`', app.getPath('userData'));
   },
   setupJavaScriptArguments: function() {
     app.commandLine.appendSwitch('js-flags', '--harmony');
@@ -225,8 +228,8 @@ var Application = Model.extend({
       width: opts.width,
       height: opts.height,
       webPreferences: {
-        'subpixel-font-scaling': true,
-        'direct-write': true
+        subpixelFontScaling: true,
+        directWrite: true
       }
     });
     this.applicationMenu.load(_window);
@@ -266,6 +269,9 @@ var Application = Model.extend({
   },
   open: function() {
     this.showConnectWindow();
+  },
+  setupProtocolHandler: function() {
+    app.setAsDefaultProtocolClient('mongodb');
   }
 });
 

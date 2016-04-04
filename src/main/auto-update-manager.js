@@ -45,7 +45,7 @@ var AutoUpdateManager = Model.extend({
     feed_url: {
       deps: ['platform', 'channel'],
       fn: function() {
-        return format('%s/updates?version=',
+        return format('%s/updates?version=%s',
           AUTO_UPDATE_SERVICE, this.version);
       }
     },
@@ -64,6 +64,9 @@ var AutoUpdateManager = Model.extend({
     }
   },
   initialize: function() {
+    this.version = app.getVersion();
+    debug('Channel is `%s`', this.channel);
+
     autoUpdater.on('error', this.onError.bind(this));
     debug('Feed URL', this.feed_url);
     autoUpdater.setFeedURL(this.feed_url);
@@ -101,6 +104,11 @@ var AutoUpdateManager = Model.extend({
   },
   onError: function(event, message) {
     this.state = 'error';
+    if (message === 'Could not get code signature for running application') {
+      debug('This is an unsigned development build and does ' +
+        'not support autoupdates.');
+      return;
+    }
     console.error('Error Downloading Update: ' + message);
   },
   onUpdateError: function(event, message) {
