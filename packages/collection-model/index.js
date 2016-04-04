@@ -112,14 +112,6 @@ var Collection = AmpersandModel.extend({
       }
     }
   },
-  parse: function(d) {
-    if (d.index_sizes) {
-      each(d.indexes, function(data, name) {
-        d.indexes[name].size = d.index_sizes[name];
-      });
-    }
-    return d;
-  },
   serialize: function() {
     var res = this.getAttributes({
       props: true,
