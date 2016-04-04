@@ -5,13 +5,9 @@ const ApplicationStore = require('../lib/application-store');
 
 describe('ApplicationStore', function() {
   describe('#set dataService', function() {
-    it('triggers a store event', function(done) {
-      var unsubscribe = ApplicationStore.listen(function(store) {
-        expect(store.dataService).to.equal('test');
-        unsubscribe();
-        done();
-      });
+    it('sets the data service', function() {
       ApplicationStore.dataService = 'test';
+      expect(ApplicationStore.dataService).to.equal('test');
     });
   });
 });
