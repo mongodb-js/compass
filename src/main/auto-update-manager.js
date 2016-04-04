@@ -3,10 +3,10 @@ var app = electron.app;
 var dialog = electron.dialog;
 var autoUpdater = electron.autoUpdater;
 var format = require('util').format;
-
 var Model = require('ampersand-model');
+var debug = require('debug')('mongodb-compass:main:auto-update-manager');
 
-var AUTO_UPDATE_SERVICE = 'https://compass-mongodb-com.herokuapp.com/';
+var AUTO_UPDATE_SERVICE = 'https://compass-mongodb-com.herokuapp.com';
 
 var AutoUpdateManager = Model.extend({
   properties: {
@@ -45,7 +45,8 @@ var AutoUpdateManager = Model.extend({
     feed_url: {
       deps: ['platform', 'channel'],
       fn: function() {
-        return AUTO_UPDATE_SERVICE + '/';
+        return format('%s/updates?version=',
+          AUTO_UPDATE_SERVICE, this.version);
       }
     },
     channel: {
@@ -62,15 +63,40 @@ var AutoUpdateManager = Model.extend({
       default: 'stable'
     }
   },
+  initialize: function() {
+    autoUpdater.on('error', this.onError.bind(this));
+    debug('Feed URL', this.feed_url);
+    autoUpdater.setFeedURL(this.feed_url);
+
+    autoUpdater.on('checking-for-update',
+      this.set.bind(this, {state: 'checking'}));
+
+    autoUpdater.on('update-not-available',
+      this.set.bind(this, {state: 'no-update-available'}));
+
+    autoUpdater.on('update-available',
+      this.set.bind(this, {state: 'downloading'}));
+
+    autoUpdater.on('update-downloaded',
+      this.onUpdateDownloaded.bind(this));
+
+    if (process.platform === 'linux') {
+      this.set({state: 'unsupported'});
+    }
+
+    this.listenTo(this, 'change:state', function() {
+      debug('state is now `%s`', this.state);
+    }.bind(this));
+  },
   onUpdateNotAvailable: function() {
     autoUpdater.removeListener('error', this.onUpdateError);
-    return dialog.showMessageBox({
+    dialog.showMessageBox({
       type: 'info',
       buttons: ['OK'],
       icon: this.iconPath,
       message: 'No update available.',
       title: 'No Update Available',
-      detail: format('Version %s is the latest version.', this.version);
+      detail: format('Version %s is the latest version.', this.version)
     });
   },
   onError: function(event, message) {
@@ -80,7 +106,7 @@ var AutoUpdateManager = Model.extend({
   onUpdateError: function(event, message) {
     autoUpdater.removeListener(
       'update-not-available', this.onUpdateNotAvailable);
-    return dialog.showMessageBox({
+    dialog.showMessageBox({
       type: 'warning',
       buttons: ['OK'],
       icon: this.iconPath,
@@ -89,86 +115,49 @@ var AutoUpdateManager = Model.extend({
       detail: message
     });
   },
-  start: function() {
-      autoUpdater.on('error', this.onError.bind(this));
-      autoUpdater.setFeedUrl(this.feed_url);
-
-      autoUpdater.on('checking-for-update',
-        this.set.bind(this, {state: 'checking'}));
-
-      autoUpdater.on('update-not-available',
-        this.set.bind(this, {state: 'no-update-available'}));
-
-      autoUpdater.on('update-available',
-        this.set.bind(this, {state: 'downloading'}));
-
-      autoUpdater.on('update-downloaded',
-        this.onUpdateDownloaded.bind(this));
-
-      if (!autoUpdater.supportsUpdates()) {
-        this.set({state: 'unsupported'});
-      }
-    },
-    emitUpdateAvailableEvent: function() {
-      var atomWindow, i, len, windows;
-      windows = 1 <= arguments.length ? slice.call(arguments, 0) : [];
-      if (this.releaseVersion == null) {
-        return;
-      }
-      for (i = 0, len = windows.length; i < len; i++) {
-        atomWindow = windows[i];
-        atomWindow.sendMessage('update-available', {
-          releaseVersion: this.releaseVersion
-        });
-      }
-    },
-    setState: function(state) {
-      if (this.state === state) {
-        return;
-      }
-      this.state = state;
-      return this.emit('state-changed', this.state);
-    },
-    getState: function() {
-      return this.state;
-    },
-    onUpdateDownloaded: function(event, releaseNotes, releaseVersion) {
-      _this.releaseVersion = releaseVersion;
-      _this.setState(UpdateAvailableState);
-      return _this.emitUpdateAvailableEvent.apply(_this, _this.getWindows());
-    },
-    scheduleUpdateCheck: function() {
-      var checkForUpdates, fourHours;
-      if (!(/\w{7}/.test(this.version) || this.checkForUpdatesIntervalID)) {
-        checkForUpdates = (function(_this) {
-          return function() {
-            return _this.check({
-              hidePopups: true
-            });
-          };
-        })(this);
-        fourHours = 1000 * 60 * 60 * 4;
-        this.checkForUpdatesIntervalID = setInterval(checkForUpdates, fourHours);
-        return checkForUpdates();
-      }
-    },
-    cancelScheduledUpdateCheck: function() {
-      if (this.checkForUpdatesIntervalID) {
-        clearInterval(this.checkForUpdatesIntervalID);
-        this.checkForUpdatesIntervalID = null;
-      }
-    },
-    check: function(opts) {
-      opts = opts || {};
-      if (!opts.hidePopups) {
-        autoUpdater.once('update-not-available', this.onUpdateNotAvailable);
-        autoUpdater.once('error', this.onUpdateError);
-      }
-      return autoUpdater.checkForUpdates();
-    },
-    install: function() {
-      return autoUpdater.quitAndInstall();
+  onUpdateDownloaded: function(event, releaseNotes, releaseVersion) {
+    this.new_release_version = releaseVersion;
+    this.new_release_notes = releaseNotes;
+    this.state = 'update-available';
+  },
+  scheduleUpdateCheck: function() {
+    if ((/\w{7}/.test(this.version) || !this.checkForUpdatesIntervalID)) {
+      return;
     }
+
+    var checkForUpdates = function() {
+      this.checkForUpdates({
+        hidePopups: true
+      });
+    }.bind(this);
+
+    var fourHours = 1000 * 60 * 60 * 4;
+    this.checkForUpdatesIntervalID = setInterval(checkForUpdates, fourHours);
+    checkForUpdates();
+  },
+  cancelScheduledUpdateCheck: function() {
+    if (this.checkForUpdatesIntervalID) {
+      clearInterval(this.checkForUpdatesIntervalID);
+      this.checkForUpdatesIntervalID = null;
+    }
+  },
+  checkForUpdates: function(opts) {
+    opts = opts || {};
+    if (!opts.hidePopups) {
+      autoUpdater.once('update-not-available', this.onUpdateNotAvailable);
+      autoUpdater.once('error', this.onUpdateError);
+    }
+    autoUpdater.checkForUpdates();
+  },
+  enable: function() {
+    this.scheduleUpdateCheck();
+  },
+  disable: function() {
+    this.cancelScheduledUpdateCheck();
+  },
+  install: function() {
+    autoUpdater.quitAndInstall();
+  }
 });
 
 module.exports = AutoUpdateManager;

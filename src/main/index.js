@@ -12,7 +12,7 @@ function main() {
 
   app.on('ready', function() {
     var Application = require('./application');
-    Application.open();
+    Application.get().open();
   });
 }
 

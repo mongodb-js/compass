@@ -47,7 +47,7 @@ if (process.platform === 'linux') {
 }
 
 var RESOURCES = path.resolve(__dirname, '../app/');
-var DEFAULT_URL = 'file://' + path.join(RESOURCES, 'index.html#connect');
+var CONNECT_URL = 'file://' + path.join(RESOURCES, 'index.html#connect');
 
 var Application = Model.extend({
   helpWindow: null,
@@ -58,7 +58,9 @@ var Application = Model.extend({
     this.setupJavaScriptArguments();
 
     this.autoUpdateManager = new AutoUpdateManager();
-    this.applicationMenu = new ApplicationMenu();
+    this.applicationMenu = new ApplicationMenu({
+      autoUpdateManager: this.autoUpdateManager
+    });
   },
   setupUserDataDirectory: function() {
     // For testing set a clean slate for the user data.
@@ -101,8 +103,6 @@ var Application = Model.extend({
       debug('sending `app-quit` msg');
       BrowserWindow.getAllWindows()[0].webContents.send('message', 'app-quit');
     });
-
-    app.on('ready', this.showConnectWindow.bind(this));
 
     ipc.on('message', function(event, msg, arg) {
       debug('message received in main process', msg, arg);
@@ -161,10 +161,7 @@ var Application = Model.extend({
       return;
     }
 
-    this.connectWindow = this.createDialogWindow({
-      width: DEFAULT_WIDTH_DIALOG,
-      height: DEFAULT_HEIGHT_DIALOG
-    });
+    this.connectWindow = this.createDialogWindow(CONNECT_URL);
 
     this.connectWindow.on('closed', function() {
       debug('connect window closed.');
@@ -220,14 +217,14 @@ var Application = Model.extend({
     opts = _.defaults(opts || {}, {
       width: DEFAULT_WIDTH,
       height: DEFAULT_HEIGHT,
-      url: DEFAULT_URL
+      url: CONNECT_URL
     });
 
     debug('creating new window: ' + opts.url);
     var _window = new BrowserWindow({
       width: opts.width,
       height: opts.height,
-      'web-preferences': {
+      webPreferences: {
         'subpixel-font-scaling': true,
         'direct-write': true
       }
@@ -266,7 +263,18 @@ var Application = Model.extend({
       });
     }
     return _window;
+  },
+  open: function() {
+    this.showConnectWindow();
   }
 });
+
+var _app = null;
+Application.get = function(opts) {
+  if (!_app) {
+    _app = new Application(opts);
+  }
+  return _app;
+};
 
 module.exports = Application;

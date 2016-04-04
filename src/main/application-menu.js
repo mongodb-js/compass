@@ -47,6 +47,12 @@ function darwinCompassSubMenu() {
     label: 'MongoDB Compass',
     submenu: [
       {
+        label: 'Check for Update',
+        metadata: {
+          autoUpdate: true
+        }
+      },
+      {
         label: 'About Compass',
         selector: 'orderFrontStandardAboutPanel:'
       },
@@ -294,6 +300,36 @@ var MenuState = State.extend({
 });
 
 var ApplicationMenu = State.extend({
+  windowTemplates: new Map(),
+  initialize: function(opts) {
+    this.autoUpdateManager = opts.autoUpdateManager;
+    this.autoUpdateManager.on('change:state',
+      this.showUpdateMenuItem.bind(this));
+  },
+  showUpdateMenuItem: function(state) {
+
+  },
+    // checkForUpdateItem = _.find(@flattenMenuItems(@menu), ({label}) -> label is 'Check for Update')
+    // checkingForUpdateItem = _.find(@flattenMenuItems(@menu), ({label}) -> label is 'Checking for Update')
+    // downloadingUpdateItem = _.find(@flattenMenuItems(@menu), ({label}) -> label is 'Downloading Update')
+    // installUpdateItem = _.find(@flattenMenuItems(@menu), ({label}) -> label is 'Restart and Install Update')
+    //
+    // return unless checkForUpdateItem? and checkingForUpdateItem? and downloadingUpdateItem? and installUpdateItem?
+    //
+    // checkForUpdateItem.visible = false
+    // checkingForUpdateItem.visible = false
+    // downloadingUpdateItem.visible = false
+    // installUpdateItem.visible = false
+    //
+    // switch state
+    //   when 'idle', 'error', 'no-update-available'
+    //     checkForUpdateItem.visible = true
+    //   when 'checking'
+    //     checkingForUpdateItem.visible = true
+    //   when 'downloading'
+    //     downloadingUpdateItem.visible = true
+    //   when 'update-available'
+    //     installUpdateItem.visible = true
   addWindow: function(_window) {
     debug('lastFocusedWindow set to WINDOW ' + _window.id);
     this.lastFocusedWindow = _window;
