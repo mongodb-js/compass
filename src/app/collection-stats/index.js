@@ -1,13 +1,20 @@
-var $ = window.jQuery = require('jquery');
 var AmpersandView = require('ampersand-view');
 var numeral = require('numeral');
 
-require('bootstrap/js/modal');
-require('bootstrap/js/transition');
-
 var indexTemplate = require('../templates')['collection-stats'].index;
+var _ = require('lodash');
+
+// var debug = require('debug')('mongodb-compass:collection-stats');
 
 var CollectionStatsView = AmpersandView.extend({
+  props: {
+    activeStats: {
+      type: 'string',
+      required: true,
+      default: 'documents',
+      values: ['documents', 'indexes']
+    }
+  },
   bindings: {
     'model.name': {
       hook: 'name'
@@ -29,10 +36,22 @@ var CollectionStatsView = AmpersandView.extend({
     },
     index_size_average: {
       hook: 'index_size_average'
+    },
+    activeStats: {
+      type: 'class'
     }
   },
   events: {
-    click: 'clicked'
+    'click [data-hook=document-stats]': 'documentClicked',
+    'click [data-hook=index-stats]': 'indexClicked'
+  },
+  documentClicked: function() {
+    this.activeStats = 'documents';
+    _.delay(this.parent.switchViews.bind(this.parent, this.activeStats), 100);
+  },
+  indexClicked: function() {
+    this.activeStats = 'indexes';
+    _.delay(this.parent.switchViews.bind(this.parent, this.activeStats), 100);
   },
   /**
    * Use [numeral.js][numeral.js] to format a collection stat as a nice string.
@@ -45,10 +64,6 @@ var CollectionStatsView = AmpersandView.extend({
     var precision = value <= 1000 ? '0' : '0.0';
     var format = propertyName.indexOf('_size') > -1 ? ' b' : 'a';
     return numeral(value).format(precision + format);
-  },
-  clicked: function() {
-    $('[data-hook=index-modal]').modal({
-    });
   },
   derived: {
     document_count: {

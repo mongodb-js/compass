@@ -1,18 +1,9 @@
-#index-modal.modal.fade(tabindex='-1' role='dialog', data-hook='index-modal')
-  .modal-dialog.modal-lg
-    .modal-content
-      .modal-header
-        h4.modal-title Indexes on&nbsp;
-          span(data-hook='ns')
-      .modal-body
-        table
-          thead
-            tr
-              th Name and Definition
-              th Size
-              th Utilization
-              th Properties
-          tbody.table(data-hook='indexes')
-
-      .modal-footer
-        button.btn.btn-primary(type='button', data-dismiss='modal', data-hook='start-button') Close
+.index-container
+  table
+    thead
+      tr
+        th Name and Definition
+        th Size
+        th Utilization
+        th Properties
+    tbody.table(data-hook='indexes')

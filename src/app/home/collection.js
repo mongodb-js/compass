@@ -1,6 +1,5 @@
 var View = require('ampersand-view');
 var CollectionStatsView = require('../collection-stats');
-var ViewSwitcher = require('ampersand-view-switcher');
 var SchemaView = require('./schema');
 var IndexView = require('../indexes');
 var MongoDBCollection = require('../models/mongodb-collection');
@@ -16,6 +15,12 @@ var MongoDBCollectionView = View.extend({
   template: collectionTemplate,
   props: {
     viewSwitcher: 'object',
+    activeView: {
+      type: 'string',
+      required: true,
+      default: 'schema',
+      values: ['documents', 'indexes']
+    },
     ns: 'string'
   },
   initialize: function() {
@@ -23,6 +28,16 @@ var MongoDBCollectionView = View.extend({
     this.listenToAndRun(this.parent, 'change:ns', this.onCollectionChanged.bind(this));
   },
   onCollectionChanged: function() {
+    this.activeView = 'documents';
+    if (this.indexView) {
+      this.indexView.visible = false;
+    }
+    if (this.documentsView) {
+      this.documentsView.visible = true;
+    }
+    if (this.statsView) {
+      this.statsView.activeStats = 'documents';
+    }
     this.ns = this.parent.ns;
     if (!this.ns) {
       this.visible = false;
@@ -33,14 +48,15 @@ var MongoDBCollectionView = View.extend({
     this.model.once('sync', this.onCollectionFetched.bind(this));
     this.model.fetch();
   },
-  render: function() {
-    this.renderWithTemplate(this);
-    this.viewSwitcher = new ViewSwitcher(this.queryByHook('collection-view-body'), {
-      view: new SchemaView({
-        parent: this,
-        model: this.model
-      })
-    });
+  switchViews: function(view) {
+    if (view === 'indexes') {
+      this.documentsView.visible = false;
+      this.indexView.visible = true;
+    } else {
+      this.indexView.visible = false;
+      this.documentsView.visible = true;
+    }
+    this.activeView = view;
   },
   onCollectionFetched: function(model) {
     // track collection information
@@ -58,7 +74,7 @@ var MongoDBCollectionView = View.extend({
     }
   },
   subviews: {
-    header: {
+    statsView: {
       hook: 'stats-subview',
       waitFor: 'ns',
       prepareView: function(el) {
@@ -69,7 +85,18 @@ var MongoDBCollectionView = View.extend({
         });
       }
     },
-    indexes: {
+    documentsView: {
+      hook: 'schema-subview',
+      waitFor: 'ns',
+      prepareView: function(el) {
+        return new SchemaView({
+          el: el,
+          parent: this,
+          model: this.model
+        });
+      }
+    },
+    indexView: {
       hook: 'index-subview',
       waitFor: 'ns',
       prepareView: function(el) {
