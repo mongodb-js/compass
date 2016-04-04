@@ -4,6 +4,7 @@ const _ = require('lodash');
 const async = require('async');
 const createConnection = require('mongodb-connection-model').connect;
 const getInstance = require('mongodb-instance-model').get;
+const getIndexes = require('mongodb-index-model').fetch;
 const createSampleStream = require('mongodb-collection-sample');
 const parseNamespace = require('mongodb-ns');
 
@@ -185,8 +186,7 @@ class NativeClient {
    * @param {Function} callback - The callback.
    */
   indexes(ns, callback) {
-    var coll = this._collection(ns);
-    coll.listIndexes({}).toArray((error, data) => {
+    getIndexes(this.database, ns, (error, data) => {
       if (error) {
         return callback(error);
       }

@@ -152,6 +152,7 @@ describe('DataService', function() {
       service.indexes('data-service.test', {}, function(err, indexes) {
         assert.equal(null, err);
         expect(indexes[0].name).to.equal('_id_');
+        expect(indexes[0].size).to.be.a('number');
         done();
       });
     });
