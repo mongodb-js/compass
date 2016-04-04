@@ -65,12 +65,6 @@ var IndexItemView = View.extend({
     return numeral(value).format(precision + format);
   },
   render: function() {
-    // @debug thomasr remove these lines
-    this.model.size = 153335495;
-    this.model.usageCount = 6445;
-    this.model.usageSince = new Date('2016-01-03');
-    // --
-
     this.model.fields.each(function(field) {
       debug('- ', field.field, field.value, field.geo);
     });
@@ -85,11 +79,20 @@ module.exports = View.extend({
     ns: {
       type: 'string',
       default: ''
+    },
+    visible: {
+      type: 'boolean',
+      required: true,
+      default: false
     }
   },
   bindings: {
     ns: {
       hook: 'ns'
+    },
+    visible: {
+      type: 'booleanClass',
+      no: 'hidden'
     }
   },
   initialize: function() {
