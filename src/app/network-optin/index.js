@@ -16,7 +16,8 @@ var NetworkOptInView = View.extend({
   props: {
     trackErrors: ['boolean', true, true],
     enableFeedbackPanel: ['boolean', true, true],
-    trackUsageStatistics: ['boolean', true, true]
+    trackUsageStatistics: ['boolean', true, true],
+    automaticallyUpdates: ['boolean', true, true]
   },
   session: {
     preferences: 'state',
@@ -46,6 +47,11 @@ var NetworkOptInView = View.extend({
       hook: 'usage-stats-checkbox',
       name: 'checked'
     },
+    automaticallyUpdate: {
+      type: 'booleanAttribute',
+      hook: 'auto-update-checkbox',
+      name: 'checked'
+    },
     buttonTitle: {
       hook: 'start-button'
     }
@@ -73,7 +79,12 @@ var NetworkOptInView = View.extend({
     this.set(feature, value);
   },
   buttonClicked: function() {
-    var features = ['enableFeedbackPanel', 'trackUsageStatistics', 'trackErrors'];
+    var features = [
+      'enableFeedbackPanel',
+      'trackUsageStatistics',
+      'trackErrors',
+      'automaticallyUpdate'
+    ];
     this.preferences.set('showedNetworkOptIn', true);
     var settings = _.pick(this.serialize(), features);
     this.preferences.set(settings);
@@ -89,7 +100,8 @@ var NetworkOptInView = View.extend({
     var metadata = {
       'track usage stats': settings.trackUsageStatistics,
       'product feedback': settings.enableFeedbackPanel,
-      'track errors': settings.trackErrors
+      'track errors': settings.trackErrors,
+      'automatically update': settings.automaticallyUpdate
     };
     metrics.track('Network Opt-in', 'used', metadata);
   },

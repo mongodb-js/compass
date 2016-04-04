@@ -117,13 +117,11 @@ var Preferences = Model.extend(storageMixin, {
       default: false
     },
     /**
-     * Switch to enable/disable automatic updates
-     *
-     * Warning: currently not hooked into the code!
+     * Switch to enable/disable automatic updates.
      *
      * @type {Boolean}
      */
-    autoUpdates: {
+    automaticallyUpdate: {
       type: 'boolean',
       required: true,
       default: false

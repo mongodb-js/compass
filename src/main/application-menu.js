@@ -1,6 +1,3 @@
-// based off of https://github.com/atom/atom/blob/master/src/browser/application-menu.coffee
-// use js2.coffee to convert it to JS
-
 var electron = require('electron');
 var BrowserWindow = electron.BrowserWindow;
 var Menu = electron.Menu;
@@ -296,107 +293,98 @@ var MenuState = State.extend({
   }
 });
 
-// menu singleton
-var AppMenu = (function() {
-  return {
-    addWindow: function(_window) {
-      debug('lastFocusedWindow set to WINDOW ' + _window.id);
-      this.lastFocusedWindow = _window;
+var ApplicationMenu = State.extend({
+  addWindow: function(_window) {
+    debug('lastFocusedWindow set to WINDOW ' + _window.id);
+    this.lastFocusedWindow = _window;
 
-      var focusHandler = (function(_this) {
-        return function() {
-          debug('WINDOW ' + _window.id + ' focused');
-          debug('lastFocusedWindow set to WINDOW ' + _window.id);
+    var focusHandler = (function(_this) {
+      return function() {
+        debug('WINDOW ' + _window.id + ' focused');
+        debug('lastFocusedWindow set to WINDOW ' + _window.id);
 
-          _this.lastFocusedWindow = _window;
-          _this.load(this);
-        };
-      })(this);
-      _window.on('focus', focusHandler);
+        _this.lastFocusedWindow = _window;
+        _this.load(this);
+      };
+    })(this);
+    _window.on('focus', focusHandler);
 
-      _window.once('close', (function(_this) {
-        return function() {
-          debug('WINDOW ' + _window.id + ' closing');
+    _window.once('close', (function(_this) {
+      return function() {
+        debug('WINDOW ' + _window.id + ' closing');
 
-          _this.windowTemplates.delete(_window.id);
-          _window.removeListener('focus', focusHandler);
-        };
-      })(this));
+        _this.windowTemplates.delete(_window.id);
+        _window.removeListener('focus', focusHandler);
+      };
+    })(this));
 
-      _window.once('closed', (function() {
-        return function() {
-          debug('WINDOW closed');
-          _window = null;
-        };
-      })(this));
-    },
+    _window.once('closed', (function() {
+      return function() {
+        debug('WINDOW closed');
+        _window = null;
+      };
+    })(this));
+  },
 
-    getTemplate: function(winID) {
-      var menuState = this.windowTemplates.get(winID);
+  getTemplate: function(winID) {
+    var menuState = this.windowTemplates.get(winID);
 
-      if (process.platform === 'darwin') {
-        return darwinMenu(menuState);
-      }
-
-      return nonDarwinMenu(menuState);
-    },
-
-    init: function() {
-      debug('init()');
-      this.windowTemplates = new Map();
-    },
-
-    load: function(_window) {
-      debug('WINDOW ' + _window.id + ' load()');
-
-      if (_window.id !== this.currentWindowMenuLoaded) {
-        if (_.isUndefined(this.windowTemplates.get(_window.id))) {
-          this.addWindow(_window);
-
-          debug('create menu state for new WINDOW ' + _window.id);
-          this.windowTemplates.set(_window.id, new MenuState());
-        }
-
-        this.setTemplate(_window.id);
-        debug('WINDOW ' + _window.id + '\'s menu loaded');
-      } else {
-        debug('WINDOW ' + _window.id + '\'s menu already loaded');
-      }
-    },
-
-    setTemplate: function(winID) {
-      debug('WINDOW ' + winID + ' setTemplate()');
-      this.currentWindowMenuLoaded = winID;
-      var template = this.getTemplate(winID);
-      var menu = Menu.buildFromTemplate(template);
-      Menu.setApplicationMenu(menu);
-    },
-
-    hideShare: function() {
-      this.updateMenu('showShare', false);
-    },
-
-    showCompassOverview: function() {
-      this.updateMenu('showCompassOverview', true);
-    },
-
-    showShare: function() {
-      this.updateMenu('showShare', true);
-    },
-
-    updateMenu: function(property, val, _window) {
-      debug('updateMenu() set ' + property + ' to ' + val);
-
-      if (_.isUndefined(_window)) {
-        _window = this.lastFocusedWindow;
-      }
-
-      var menuState = this.windowTemplates.get(_window.id);
-      menuState[property] = val;
-      this.windowTemplates.set(_window.id, menuState);
-      this.setTemplate(_window.id);
+    if (process.platform === 'darwin') {
+      return darwinMenu(menuState);
     }
-  };
-}());
 
-module.exports = AppMenu;
+    return nonDarwinMenu(menuState);
+  },
+  load: function(_window) {
+    debug('WINDOW ' + _window.id + ' load()');
+
+    if (_window.id !== this.currentWindowMenuLoaded) {
+      if (_.isUndefined(this.windowTemplates.get(_window.id))) {
+        this.addWindow(_window);
+
+        debug('create menu state for new WINDOW ' + _window.id);
+        this.windowTemplates.set(_window.id, new MenuState());
+      }
+
+      this.setTemplate(_window.id);
+      debug('WINDOW ' + _window.id + '\'s menu loaded');
+    } else {
+      debug('WINDOW ' + _window.id + '\'s menu already loaded');
+    }
+  },
+
+  setTemplate: function(winID) {
+    debug('WINDOW ' + winID + ' setTemplate()');
+    this.currentWindowMenuLoaded = winID;
+    var template = this.getTemplate(winID);
+    var menu = Menu.buildFromTemplate(template);
+    Menu.setApplicationMenu(menu);
+  },
+
+  hideShare: function() {
+    this.updateMenu('showShare', false);
+  },
+
+  showCompassOverview: function() {
+    this.updateMenu('showCompassOverview', true);
+  },
+
+  showShare: function() {
+    this.updateMenu('showShare', true);
+  },
+
+  updateMenu: function(property, val, _window) {
+    debug('updateMenu() set ' + property + ' to ' + val);
+
+    if (_.isUndefined(_window)) {
+      _window = this.lastFocusedWindow;
+    }
+
+    var menuState = this.windowTemplates.get(_window.id);
+    menuState[property] = val;
+    this.windowTemplates.set(_window.id, menuState);
+    this.setTemplate(_window.id);
+  }
+});
+
+module.exports = ApplicationMenu;
