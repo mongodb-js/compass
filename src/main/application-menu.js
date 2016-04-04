@@ -5,7 +5,7 @@ var app = electron.app;
 
 var State = require('ampersand-state');
 var _ = require('lodash');
-var debug = require('debug')('electron:menu');
+var debug = require('debug')('mongodb-compass:main:application-menu');
 
 // submenu related
 function separator() {
@@ -47,14 +47,28 @@ function darwinCompassSubMenu() {
     label: 'MongoDB Compass',
     submenu: [
       {
-        label: 'Check for Update',
-        metadata: {
-          autoUpdate: true
-        }
-      },
-      {
         label: 'About Compass',
         selector: 'orderFrontStandardAboutPanel:'
+      },
+      {
+        label: 'Restart and Install Update',
+        command: 'application:install-update',
+        visible: false
+      },
+      {
+        label: 'Check for Update',
+        command: 'application:check-for-update',
+        visible: false
+      },
+      {
+        label: 'Checking for Update',
+        enabled: false,
+        visible: false
+      },
+      {
+        label: 'Downloading Update',
+        enabled: false,
+        visible: false
       },
       separator(),
       {
@@ -306,62 +320,88 @@ var ApplicationMenu = State.extend({
     this.autoUpdateManager.on('change:state',
       this.showUpdateMenuItem.bind(this));
   },
-  showUpdateMenuItem: function(state) {
-
+  /**
+   * Flattens the given menu and submenu items into an single Array.
+   *
+   * @param {Menu} menu - A complete menu configuration object
+   * for electron's menu API.
+   * @return {Array} of native menu items.
+   */
+  flattenMenuItems: function(menu) {
+    var items = [];
+    _.each(menu.items || {}, function(item) {
+      items.push(item);
+      if (item.submenu) {
+        items = items.concat(this.flattenMenuItems(item.submenu));
+      }
+    }, this);
+    return items;
   },
-    // checkForUpdateItem = _.find(@flattenMenuItems(@menu), ({label}) -> label is 'Check for Update')
-    // checkingForUpdateItem = _.find(@flattenMenuItems(@menu), ({label}) -> label is 'Checking for Update')
-    // downloadingUpdateItem = _.find(@flattenMenuItems(@menu), ({label}) -> label is 'Downloading Update')
-    // installUpdateItem = _.find(@flattenMenuItems(@menu), ({label}) -> label is 'Restart and Install Update')
-    //
-    // return unless checkForUpdateItem? and checkingForUpdateItem? and downloadingUpdateItem? and installUpdateItem?
-    //
-    // checkForUpdateItem.visible = false
-    // checkingForUpdateItem.visible = false
-    // downloadingUpdateItem.visible = false
-    // installUpdateItem.visible = false
-    //
-    // switch state
-    //   when 'idle', 'error', 'no-update-available'
-    //     checkForUpdateItem.visible = true
-    //   when 'checking'
-    //     checkingForUpdateItem.visible = true
-    //   when 'downloading'
-    //     downloadingUpdateItem.visible = true
-    //   when 'update-available'
-    //     installUpdateItem.visible = true
+  /**
+   * @param {String} label
+   * @return {MenuItem}
+   */
+  getMenuItemWithLabel: function(label) {
+    return _.find(this.flattenMenuItems(this.menu), function(l) {
+      return label === l;
+    });
+  },
+  showUpdateMenuItem: function() {
+    var checkForUpdateItem = this.getMenuItemWithLabel(
+      'Check for Update');
+
+    var checkingForUpdateItem = this.getMenuItemWithLabel(
+      'Checking for Update');
+
+    var downloadingUpdateItem = this.getMenuItemWithLabel(
+      'Downloading Update');
+
+    var installUpdateItem = this.getMenuItemWithLabel(
+      'Restart and Install Update');
+
+    // if (!checkForUpdateItem && !checkingForUpdateItem) {
+    //   return;
+    // }
+    checkForUpdateItem.visible = false;
+    checkingForUpdateItem.visible = false;
+    downloadingUpdateItem.visible = false;
+    installUpdateItem.visible = false;
+
+    if (this.autoUpdateManager.state === 'checking') {
+      checkingForUpdateItem.visible = true;
+    } else if (this.autoUpdateManager.state === 'downloading') {
+      downloadingUpdateItem.visible = true;
+    } else if (this.autoUpdateManager.state === 'update-available') {
+      installUpdateItem.visible = true;
+    } else {
+      checkForUpdateItem.visible = true;
+    }
+  },
+  /**
+   * Register a BrowserWindow with this application menu.
+   * @param {BrowserWindow} _window
+   */
   addWindow: function(_window) {
-    debug('lastFocusedWindow set to WINDOW ' + _window.id);
     this.lastFocusedWindow = _window;
 
-    var focusHandler = (function(_this) {
-      return function() {
-        debug('WINDOW ' + _window.id + ' focused');
-        debug('lastFocusedWindow set to WINDOW ' + _window.id);
+    var focusHandler = function() {
+      debug('%s focused and becoming lastFocusedWindow', _window.id);
+      this.lastFocusedWindow = _window;
+      this.load(_window);
+    }.bind(this);
 
-        _this.lastFocusedWindow = _window;
-        _this.load(this);
-      };
-    })(this);
     _window.on('focus', focusHandler);
 
-    _window.once('close', (function(_this) {
-      return function() {
-        debug('WINDOW ' + _window.id + ' closing');
+    _window.once('close', function() {
+      debug('%s closing', _window.id);
+      this.windowTemplates.delete(_window.id);
+      _window.removeListener('focus', focusHandler);
+    }.bind(this));
 
-        _this.windowTemplates.delete(_window.id);
-        _window.removeListener('focus', focusHandler);
-      };
-    })(this));
-
-    _window.once('closed', (function() {
-      return function() {
-        debug('WINDOW closed');
-        _window = null;
-      };
-    })(this));
+    _window.once('closed', function() {
+      _window = null;
+    });
   },
-
   getTemplate: function(winID) {
     var menuState = this.windowTemplates.get(winID);
 
@@ -383,32 +423,26 @@ var ApplicationMenu = State.extend({
       }
 
       this.setTemplate(_window.id);
-      debug('WINDOW ' + _window.id + '\'s menu loaded');
+      debug('menu loaded for %s', _window.id);
     } else {
-      debug('WINDOW ' + _window.id + '\'s menu already loaded');
+      debug('menu already loaded for %s', _window.id);
     }
   },
-
   setTemplate: function(winID) {
-    debug('WINDOW ' + winID + ' setTemplate()');
     this.currentWindowMenuLoaded = winID;
     var template = this.getTemplate(winID);
-    var menu = Menu.buildFromTemplate(template);
-    Menu.setApplicationMenu(menu);
+    this.menu = Menu.buildFromTemplate(template);
+    Menu.setApplicationMenu(this.menu);
   },
-
   hideShare: function() {
     this.updateMenu('showShare', false);
   },
-
   showCompassOverview: function() {
     this.updateMenu('showCompassOverview', true);
   },
-
   showShare: function() {
     this.updateMenu('showShare', true);
   },
-
   updateMenu: function(property, val, _window) {
     debug('updateMenu() set ' + property + ' to ' + val);
 

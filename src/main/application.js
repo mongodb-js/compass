@@ -56,7 +56,6 @@ var Application = Model.extend({
   initialize: function() {
     this.setupUserDataDirectory();
     this.setupJavaScriptArguments();
-    this.setupProtocolHandler();
 
     this.autoUpdateManager = new AutoUpdateManager();
     this.applicationMenu = new ApplicationMenu({
@@ -86,6 +85,12 @@ var Application = Model.extend({
         buttons: []
       });
     });
+
+    app.on('install-update',
+      this.autoUpdateManager.install.bind(this.autoUpdateManager));
+
+    app.on('check-for-update',
+      this.autoUpdateManager.checkForUpdate.bind(this.autoUpdateManager));
 
     app.on('show connect dialog', this.showConnectWindow.bind(this));
     app.on('close connect window', this.closeConnectWindow.bind(this));
@@ -269,9 +274,6 @@ var Application = Model.extend({
   },
   open: function() {
     this.showConnectWindow();
-  },
-  setupProtocolHandler: function() {
-    app.setAsDefaultProtocolClient('mongodb');
   }
 });
 

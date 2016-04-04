@@ -155,6 +155,7 @@ var AutoUpdateManager = Model.extend({
       autoUpdater.once('update-not-available', this.onUpdateNotAvailable);
       autoUpdater.once('error', this.onUpdateError);
     }
+    debug('checking for updates...');
     autoUpdater.checkForUpdates();
   },
   enable: function() {
