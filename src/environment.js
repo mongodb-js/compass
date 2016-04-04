@@ -24,7 +24,6 @@ class Environment {
    * Initialize the environment.
    */
   init() {
-    this.addGlobalModules(path.resolve('src', 'export'));
     this._registerBabel();
   }
 
