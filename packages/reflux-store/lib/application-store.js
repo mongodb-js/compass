@@ -24,24 +24,6 @@ const ApplicationStore = Reflux.createStore({
    */
   set dataService(dataService) {
     this._dataService = dataService;
-    this.trigger(this);
-  },
-
-  /**
-   * Gets the current namespace being worked with in the application.
-   */
-  get ns() {
-    return this._ns;
-  },
-
-  /**
-   * Set the current namespace being worked on in the applicaiton.
-   *
-   * @param {String} ns - The current ns.
-   */
-  set ns(ns) {
-    this._ns = ns;
-    this.trigger(this);
   }
 });
 
