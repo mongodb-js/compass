@@ -4,6 +4,7 @@ var Connection = require('mongodb-connection-model');
 var connect = Connection.connect;
 var format = require('util').format;
 var fetch = require('../').fetch;
+var runner = require('mongodb-runner');
 var debug = require('debug')('mongodb-instance-model:test:fetch');
 
 var fixtures = require('mongodb-connection-fixture').MATRIX.map(function(model) {
@@ -12,7 +13,9 @@ var fixtures = require('mongodb-connection-fixture').MATRIX.map(function(model) 
 describe('mongodb-instance-model#fetch', function() {
   describe('local', function() {
     var db;
-    before(require('mongodb-runner/mocha/before')());
+    before(function(done) {
+      runner.start({}, done);
+    });
     after(function() {
       if (db) {
         db.close();

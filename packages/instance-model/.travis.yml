@@ -1,18 +1,11 @@
 sudo: false
 language: node_js
 node_js:
-- '4.2.1'
-before_install:
-- npm install -g npm@3
-- npm config set loglevel error
-- npm config -g list -l
-- npm --version
+- 5
 script: npm run-script ci
-# cache:
-#   directories:
-#   - node_modules
-notifications:
-  flowdock: e3dc17bc8a2c1b3412abe3e5747f8291
+cache:
+  directories:
+  - node_modules
 env:
   global:
     secure: NaNWn2GcNe+XqvYeKAjXkyTnj8vWkQ1uMW8XXrceOGrqSA6weVswD9/n+ar5HT7tzTEi8S9HTUJogO07k9Sefnu4mQcbyPj731egVMga8FRPTjOs1DRZlBF0GuouQiSew8ImKulQDqJa31R1JJgmFoblhTnPVMTZqfveUpQBOJ7k6Vz93Q1g01p2KwlgzOn4r6WFdGT6fdI/7zA6daVTUQd6FHS1HfyEguigqnDqCOmAzn5iFpw3vL3SEkCTBHwyVB1yj3lpLB4SeBOk/vzEU3KIsEVGkkid9GFMzgOQq2HdoUB19b16s2m74ZVXi19lMa/wtTV7Hv6o4u3ssGPE/TmxWSc8aBU5G1BzUq2Wj+OgYhsXZOtSm7hFSxamieVC48ft8J1Y+oHC/FBwgJaR0InNwBykIYEBJMxJ37yF2A4kVZZOU24JQkArPJNOBnfdwnpLqa74FhE7mm2gmfpzMORjgYjj/FjYEdEogijviUrsf784JEoReTv0RnxxfXvh8tB/aD3PU7k/STcEulYGe+tKIyVLLLZo+c/zwA958xCUkiphLnJJa6T3vN501UkQfJoBIbUKbWJwIiyucT9nkDLwiQtUVPY7d1Jsh7kJ82iaVhnShEQe1VyBHmwoEuBaebzhZogtagb4HTD8NSYvUT8jklstNWSpGil0szFHkWM=

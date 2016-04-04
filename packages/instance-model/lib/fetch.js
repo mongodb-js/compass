@@ -420,7 +420,7 @@ function listCollections(done, results) {
   var databases = results.databases;
 
   // merge and de-dupe databases
-  var dbnames = _.pluck(databases, 'name');
+  var dbnames = _.pick(databases, 'name');
   var tasks = _.map(dbnames, function(name) {
     return getDatabaseCollections.bind(null, db.db(name));
   });

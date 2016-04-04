@@ -5,7 +5,7 @@ var fixtures = require('./fixtures');
 // var debug = require('debug')('mongodb-instance-model:test:fetch-mocked');
 
 
-describe('unit tests on fetch functions', function() {
+describe('fetch-mocked', function() {
   var makeMockDB;
 
   before(function() {
@@ -254,7 +254,7 @@ describe('unit tests on fetch functions', function() {
       ];
     });
 
-    it('should lists all collections for each listable db', function(done) {
+    it.skip('should lists all collections for each listable db', function(done) {
       results.userInfo = fixtures.USER_INFO_JOHN;
       results.db = makeMockDB(null, [{
         'name': 'testCol'
