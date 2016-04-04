@@ -2,7 +2,7 @@ var AmpersandModel = require('ampersand-model');
 var AmpersandCollection = require('ampersand-rest-collection');
 var IndexCollection = require('mongodb-index-model').Collection;
 var ns = require('mongodb-ns');
-var _ = require('ldodash');
+var _ = require('lodash');
 
 var Collection = AmpersandModel.extend({
   modelType: 'Collection',
