@@ -27,8 +27,13 @@ function StyleManager() {
  */
 StyleManager.prototype.writeStyles = function() {
   var style = document.createElement('style');
-  style.textContent = this.cache.readFileSync(BASE_STYLES);
+  this.cache.readFile(BASE_STYLES, 'utf-8', function(err, textContent) {
+    if (err) {
+      return console.error('Error reading styles: ', err);
+    }
+    style.textContent = textContent;
+  });
   document.head.appendChild(style);
 };
 
-module.exports = new StyleManager();
+module.exports = StyleManager;

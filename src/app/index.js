@@ -7,7 +7,7 @@ var debug = require('debug')('mongodb-compass:app');
 console.time('app/index.js');
 
 var StyleManager = require('./style-manager');
-StyleManager.writeStyles();
+new StyleManager().writeStyles();
 
 var path = require('path');
 
