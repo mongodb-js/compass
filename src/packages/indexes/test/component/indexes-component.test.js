@@ -1,10 +1,10 @@
 'use strict';
 
+const StoreSupport = require('mongodb-test-utils').StoreSupport;
 const expect = require('chai').expect;
 const React = require('react');
 const ReactTestUtils = require('react-addons-test-utils');
 const IndexesComponent = require('../../lib/component/indexes-component');
-const StoreSupport = require('mongodb-test-utils').StoreSupport;
 const Connection = require('mongodb-connection-model');
 
 const DATABASE = 'compass-test';

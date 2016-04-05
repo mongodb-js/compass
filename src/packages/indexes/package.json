@@ -3,5 +3,26 @@
   "version": "0.0.1",
   "main": "./lib/main",
   "description": "Indexes View package for Compass",
-  "license": "Apache"
+  "license": "Apache",
+  "scripts": {
+    "test": "NODE_ENV=testing mocha --recursive"
+  },
+  "dependencies": {
+    "babel-preset-react": "^6.5.0",
+    "babel-register": "^6.5.2",
+    "mongodb-component-registry": "^0.0.5",
+    "mongodb-reflux-store": "0.0.1",
+    "react": "^0.14.7",
+    "react-dom": "^0.14.7",
+    "reflux": "^0.3.0"
+  },
+  "devDependencies": {
+    "mocha-evergreen-reporter": "^0.0.7",
+    "mongodb-test-utils": "^0.0.3",
+    "react-addons-test-utils": "^0.14.7"
+  },
+  "engines": {
+    "node": "^5.0.0",
+    "npm": "^3.0.0"
+  }
 }
