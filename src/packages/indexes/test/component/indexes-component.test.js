@@ -4,16 +4,21 @@ const expect = require('chai').expect;
 const React = require('react');
 const ReactTestUtils = require('react-addons-test-utils');
 const IndexesComponent = require('../../lib/component/indexes-component');
-const helpers = require('../../../../../test/helpers');
+const StoreSupport = require('mongodb-test-utils').StoreSupport;
+const Connection = require('mongodb-connection-model');
+
+const DATABASE = 'compass-test';
+const COLLECTION = 'bands';
+const CONNECTION = new Connection({ hostname: '127.0.0.1', port: 27018, ns: DATABASE });
 
 describe('IndexesComponent', function() {
 
   before(function(done) {
-    helpers.setupApplicationStore(done);
+    StoreSupport.setup(DATABASE, COLLECTION, CONNECTION, done);
   });
 
   after(function(done) {
-    helpers.tearDownApplicationStore(done);
+    StoreSupport.teardown(done);
   });
 
   describe('#render', function() {

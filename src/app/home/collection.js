@@ -14,7 +14,7 @@ var BrowserWindow = remote.BrowserWindow;
 var clipboard = remote.clipboard;
 var format = require('util').format;
 var metrics = require('mongodb-js-metrics')();
-var ApplicationStore = require('compass-store').ApplicationStore;
+var NamespaceStore = require('mongodb-reflux-store').NamespaceStore;
 var debug = require('debug')('mongodb-compass:home:collection');
 
 var collectionTemplate = require('../templates').home.collection;
@@ -150,7 +150,7 @@ var MongoDBCollectionView = View.extend({
     this.schema.ns = this.model._id = ns;
     debug('updating namespace to `%s`', ns);
     // Need to keep the global state in sync.
-    ApplicationStore.ns = ns;
+    NamespaceStore.ns = ns;
     this.schema.reset();
     this.schema.fetch(_.assign({}, app.volatileQueryOptions.serialize(), {
       message: 'Analyzing documents...'

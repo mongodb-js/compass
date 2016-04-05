@@ -47,7 +47,7 @@ var metricsSetup = require('./metrics');
 var metrics = require('mongodb-js-metrics')();
 
 var addInspectElementMenu = require('debug-menu').install;
-var ApplicationStore = require('compass-store').ApplicationStore;
+var ApplicationStore = require('mongodb-reflux-store').ApplicationStore;
 
 function getConnection(model, done) {
   function _fetch(fn) {

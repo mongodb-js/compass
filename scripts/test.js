@@ -61,6 +61,8 @@ if (process.env.EVERGREEN) {
   args.push.apply(args, ['--reporter', 'mocha-evergreen-reporter']);
 }
 
+process.env.NODE_ENV = 'testing';
+
 // pass all additional args to electron-mocha (e.g. --grep, positional arguments, etc.)
 var otherOpts = _.filter(_.flatten(_.pairs(_.mapKeys(_.omit(cli.argv, 'unit',
   'functional', 'release', 'verbose', '$0', 'help', '_'), function(v, k) {
