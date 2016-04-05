@@ -19,7 +19,7 @@ ModuleCache.add(resourcePath);
 var CompileCache = require('hadron-compile-cache');
 CompileCache.setHomeDirectory(resourcePath);
 
-var StyleManager = require('./style-manager');
+var StyleManager = require('../style-manager');
 StyleManager.writeStyles();
 
 /**
