@@ -22,14 +22,14 @@
     "check"
   ],
   "dependencies": {
-    "babel-preset-react": "^6.5.0",
-    "babel-register": "^6.5.2",
     "debug": "^2.2.0",
     "lodash": "^4.6.1",
     "react": "^0.14.8",
     "reflux": "^0.4.0"
   },
   "devDependencies": {
+    "babel-preset-react": "^6.5.0",
+    "babel-register": "^6.5.2",
     "chai": "^3.4.1",
     "eslint-config-mongodb-js": "^1.0.6",
     "mocha": "^2.3.4",
