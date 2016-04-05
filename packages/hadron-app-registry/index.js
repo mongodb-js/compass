@@ -1,7 +1,5 @@
 'use strict';
 
-require("babel-register")({ extensions: [".jsx"] });
-
 const ComponentRegistry = require('./lib/component-registry');
 module.exports = ComponentRegistry;
 module.exports.ComponentRegistry = ComponentRegistry;
