@@ -1,7 +1,6 @@
 'use strict';
 
-const core = require('compass-core');
-const ComponentRegistry = core.ComponentRegistry;
+const ComponentRegistry = require('mongodb-component-registry');
 const IndexesComponent = require('./component/indexes-component');
 
 module.exports = {

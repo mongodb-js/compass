@@ -20,10 +20,7 @@
     ],
     "ignore": [
       "electron",
-      "marked",
-      "compass-component",
-      "compass-core",
-      "compass-store"
+      "marked"
     ]
   },
   "scripts": {
@@ -90,7 +87,7 @@
     "marky-mark": "^1.2.1",
     "moment": "^2.10.6",
     "mongodb-collection-model": "^0.1.1",
-    "mongodb-component-registry": "^0.0.1",
+    "mongodb-component-registry": "^0.0.5",
     "mongodb-connection-model": "^4.0.2",
     "mongodb-data-service": "^0.0.12",
     "mongodb-database-model": "^0.1.2",
