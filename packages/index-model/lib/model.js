@@ -83,7 +83,7 @@ var IndexModel = Model.extend({
       deps: ['unique', 'sparse', 'partial', 'ttl', 'compound', 'single'],
       fn: function() {
         var model = this;
-        var props = ['unique', 'sparse', 'partial', 'ttl'];
+        var props = ['unique', 'sparse', 'partial', 'ttl', 'compound', 'single'];
         return _.filter(props, function(prop) {
           return !!model[prop];
         });
