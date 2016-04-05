@@ -1,16 +1,21 @@
 var View = require('ampersand-view');
 var format = require('util').format;
 var numeral = require('numeral');
-var tooltipMixin = require('../tooltip-mixin');
 var _ = require('lodash');
 
 var typeListTemplate = require('../templates')['field-list']['type-list'];
 var typeListItemTemplate = require('../templates')['field-list']['type-list-item'];
 // var debug = require('debug')('mongodb-compass:field-list:type-list');
 
+var $ = window.jQuery = window.$ = require('jquery');
+
+require('bootstrap/js/dropdown');
+require('bootstrap/js/collapse');
+require('bootstrap/js/tooltip');
+
 var TypeListView;
 
-var TypeListItem = View.extend(tooltipMixin, {
+var TypeListItem = View.extend({
   template: typeListItemTemplate,
   modelType: 'TypeListItem',
   bindings: {
@@ -134,6 +139,9 @@ var TypeListItem = View.extend(tooltipMixin, {
         fieldView.renderMinicharts();
       }
     }
+  },
+  tooltip: function(opts) {
+    return $(this.el).tooltip(opts);
   }
 });
 
