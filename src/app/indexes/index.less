@@ -1,6 +1,14 @@
 .index-container {
+
+  @index-type-color: #5196b6;
+  @index-property-color:#636592;
+  @index-geo-color: #669585;
+  @index-hashed-color: #8C7A54;
+  @index-text-color: #B05745;
+  @index-quantity-color: @gray3;
+
   padding: 0 20px;
-  
+
   table {
     table-layout: auto;
     border-collapse: collapse;
@@ -18,11 +26,6 @@
       margin-bottom: 5px;
     }
 
-    .definition {
-      font-family: @font-family-monospace;
-      font-size: 12px;
-    }
-
     .pair {
       margin-right: 10px;
     }
@@ -33,15 +36,18 @@
     }
 
     .field {
+      font-family: @font-family-monospace;
+      font-size: 12px;
       margin-right: 5px;
     }
 
-    .value, .property {
-      font-weight: bold;
-      min-width: 30px;
-      padding: 0 10px;
-      color: @pw;
+    .pill(@color) {
+      color: @color;
+      background-color: lighten(@color, 45%);
+      font-weight: normal;
       border-radius: 500px;
+      padding: 0 10px;
+      min-width: 30px;
     }
 
     .quantity {
@@ -55,24 +61,49 @@
     }
 
     .value {
-      background-color: @blue3;
+      .pill(@index-type-color);
     }
 
     .value.geo {
-      background-color: @green2;
+      color: @index-geo-color;
+      background-color: lighten(@index-geo-color, 45%);
     }
 
     .value.text {
-      background-color: @red;
+      color: @index-text-color;
+      background-color: lighten(@index-text-color, 45%);
     }
 
     .value.hashed {
-      background-color: @chart4;
+      color: @index-hashed-color;
+      background-color: lighten(@index-hashed-color, 45%);
     }
 
     .property {
-      background-color: black;
+      .pill(@index-property-color);
       margin-right: 15px;
+    }
+
+    .property.simple {
+      .pill(@index-quantity-color);
+    }
+
+    i.link {
+      .fa-icon;
+      margin-left: 5px;
+      margin-right: -4px;
+      cursor: pointer;
+      font-size: 14px;
+      position: relative;
+      top: 1px;
+      opacity: 0.5;
+
+      &:hover {
+        color: @alertOrange;
+      }
+      &:before {
+        content: @fa-var-info-circle;
+      }
     }
   }
 }
