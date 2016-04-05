@@ -4,6 +4,10 @@ var indexTemplate = require('../templates').indexes.index;
 var indexItemTemplate = require('../templates').indexes['index-item'];
 var numeral = require('numeral');
 var moment = require('moment');
+var _ = require('lodash');
+
+var electron = require('electron');
+var shell = electron.shell;
 
 var debug = require('debug')('mongodb-compass:indexes');
 
@@ -36,6 +40,9 @@ var IndexItemView = View.extend({
         return moment(this.model.usageSince).format('lll');
       }
     }
+  },
+  events: {
+    'click i.link': 'linkIconClicked'
   },
   bindings: {
     index_size: {
@@ -70,6 +77,28 @@ var IndexItemView = View.extend({
     });
 
     this.renderWithTemplate(this);
+  },
+  linkIconClicked: function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    var urlMap = {
+      single: 'https://docs.mongodb.org/manual/core/index-single/',
+      compound: 'https://docs.mongodb.org/manual/core/index-compound/',
+      unique: 'https://docs.mongodb.org/manual/core/index-unique/',
+      partial: 'https://docs.mongodb.org/manual/core/index-partial/',
+      sparse: 'https://docs.mongodb.org/manual/core/index-sparse/',
+      ttl: 'https://docs.mongodb.org/manual/core/index-ttl/',
+      '2d': 'https://docs.mongodb.org/manual/core/2d/',
+      '2dsphere': 'https://docs.mongodb.org/manual/core/2dsphere/',
+      geoHaystack: 'https://docs.mongodb.org/manual/core/geohaystack/',
+      text: 'https://docs.mongodb.org/manual/core/index-text/',
+      hashed: 'https://docs.mongodb.org/manual/core/index-hashed/',
+      unknown: null
+    };
+    var url = _.get(urlMap, event.target.parentNode.innerText, 'unknown');
+    if (url) {
+      shell.openExternal(url);
+    }
   }
 });
 
