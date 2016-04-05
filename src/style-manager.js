@@ -4,12 +4,12 @@ var LessCache = require('less-cache');
 /**
  * The compile cache directory.
  */
-var COMPILE_CACHE_DIR = path.join(__dirname, 'compiled-less');
+var COMPILE_CACHE_DIR = path.join(__dirname, 'app', 'compiled-less');
 
 /**
  * The name of the base styles.
  */
-var BASE_STYLES = path.join(__dirname, 'index.less');
+var BASE_STYLES = path.join(__dirname, 'app', 'index.less');
 
 /**
  * The style manager, well, manages styles.
@@ -31,4 +31,4 @@ StyleManager.prototype.writeStyles = function() {
   document.head.appendChild(style);
 };
 
-module.exports = new StyleManager();
+module.exports = StyleManager;

@@ -6,8 +6,8 @@ if (process.env.NODE_ENV !== 'production') {
 var debug = require('debug')('mongodb-compass:app');
 console.time('app/index.js');
 
-var StyleManager = require('./style-manager');
-StyleManager.writeStyles();
+var StyleManager = require('../style-manager');
+new StyleManager().writeStyles();
 
 var path = require('path');
 
