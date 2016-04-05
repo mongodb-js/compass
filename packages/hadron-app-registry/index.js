@@ -1,4 +1,10 @@
-module.exports.ComponentRegistry = require('./lib/component-registry');
+'use strict';
+
+require("babel-register")({ extensions: [".jsx"] });
+
+const ComponentRegistry = require('./lib/component-registry');
+module.exports = ComponentRegistry;
+module.exports.ComponentRegistry = ComponentRegistry;
 module.exports.Action = require('./lib/action');
 module.exports.Flexbox = require('./lib/component/flexbox');
 module.exports.FormGroup = require('./lib/component/form-group');
