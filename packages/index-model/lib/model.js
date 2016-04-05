@@ -67,6 +67,12 @@ var IndexModel = Model.extend({
         return _.keys(this.key).length > 1;
       }
     },
+    single: {
+      deps: ['compound'],
+      fn: function() {
+        return !this.compound;
+      }
+    },
     partial: {
       deps: ['extra'],
       fn: function() {
@@ -86,6 +92,16 @@ var IndexModel = Model.extend({
         var props = ['unique', 'sparse', 'partial', 'ttl', 'compound', 'single'];
         return _.filter(props, function(prop) {
           return !!model[prop];
+        }).sort(function(a, b) {
+          var order = {
+            'single': 1,
+            'compound': 2,
+            'unique': 3,
+            'sparse': 4,
+            'partial': 5,
+            'ttl': 6
+          };
+          return order[a] - order[b];
         });
       }
     }
