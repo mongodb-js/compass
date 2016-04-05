@@ -13,6 +13,44 @@ var GA_KEY = 'UA-71150609-2';
 var BUGSNAG_KEY = '0d11ab5f4d97452cc83d3365c21b491c';
 var MIXPANEL_KEY = '6255131ccadb383ba609dae3f07631ad';
 
+function listenForIntercomLinks() {
+  function getNodeObserver(fn) {
+    var observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        if (!mutation.addedNodes) {
+          return;
+        }
+        [].forEach.call(mutation.addedNodes, fn);
+      });
+    });
+    return observer;
+  }
+
+  var lookForLinks = getNodeObserver(function(element) {
+    var $ = window.jQuery || require('jquery');
+    if (element.nodeName === 'A') {
+      $(element).click(app.onLinkClick.bind(app));
+    } else {
+      $(element).find('a').click(app.onLinkClick.bind(app));
+    }
+  });
+
+  var waitForIntercom = getNodeObserver(function(element) {
+    if (element.id === 'intercom-container') { // if intercom is now available...
+      lookForLinks.observe(element, {
+        childList: true,
+        subtree: true
+      });
+      waitForIntercom.disconnect(); // stop waiting for intercom
+    }
+  });
+
+  waitForIntercom.observe(document.body, {
+    childList: true
+  });
+}
+
+
 module.exports = function() {
   metrics.configure({
     ga: {
@@ -107,6 +145,17 @@ module.exports = function() {
     /* eslint new-cap:0 */
     metrics.trackers.get('bugsnag').enabled = enabled;
   });
+
+  // open intercom panel when user chooses it from menu
+  app.on('show-intercom-panel', function() {
+    /* eslint new-cap: 0 */
+    if (window.Intercom && app.preferences.enableFeedbackPanel) {
+      window.Intercom('show');
+      metrics.track('Intercom Panel', 'used');
+    }
+  });
+
+  listenForIntercomLinks();
 
   app.metrics = metrics;
 };
