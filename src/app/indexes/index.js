@@ -37,7 +37,7 @@ var IndexItemView = View.extend({
     usage_since: {
       deps: ['model.usageSince'],
       fn: function() {
-        return moment(this.model.usageSince).format('lll');
+        return moment(this.model.usageSince).format('L');
       }
     }
   },
