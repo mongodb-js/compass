@@ -356,45 +356,9 @@ var state = new Application({
   connection_id: connectionId
 });
 
-function handleIntercomLinks() {
-  function getNodeObserver(fn) {
-    var observer = new MutationObserver(function(mutations) {
-      mutations.forEach(function(mutation) {
-        if (!mutation.addedNodes) {
-          return;
-        }
-        [].forEach.call(mutation.addedNodes, fn);
-      });
-    });
-    return observer;
-  }
-
-  var lookForLinks = getNodeObserver(function(element) {
-    var $ = window.jQuery || require('jquery');
-    if (element.nodeName === 'A') {
-      $(element).click(state.onLinkClick.bind(state));
-    } else {
-      $(element).find('a').click(state.onLinkClick.bind(state));
-    }
-  });
-
-  var waitForIntercom = getNodeObserver(function(element) {
-    if (element.id === 'intercom-container') { // if intercom is now available...
-      lookForLinks.observe(element, {
-        childList: true,
-        subtree: true
-      });
-      waitForIntercom.disconnect(); // stop waiting for intercom
-    }
-  });
-
-  waitForIntercom.observe(document.body, {
-    childList: true
-  });
-}
-
 app.extend({
   client: null,
+  onLinkClick: state.onLinkClick.bind(state),
   navigate: state.navigate.bind(state),
   isFeatureEnabled: function(feature) {
     // proxy to preferences for now
@@ -408,7 +372,7 @@ app.extend({
     debug('message received from main process:', msg, arg);
     this.trigger(msg, arg);
   },
-  onDomReady: function() {
+  onRendererReady: function() {
     state.render();
 
     if (!connectionId) {
@@ -418,7 +382,6 @@ app.extend({
       return;
     }
 
-    handleIntercomLinks();
     app.statusbar.show({
       message: 'Retrieving connection details...',
       staticSidebar: true
@@ -475,7 +438,7 @@ app.extend({
       self.sendMessage('renderer ready');
 
       // as soon as dom is ready, render and set up the rest
-      self.onDomReady();
+      self.onRendererReady();
     });
   }
 });
@@ -525,15 +488,6 @@ Object.defineProperty(app, 'router', {
 Object.defineProperty(app, 'user', {
   get: function() {
     return state.user;
-  }
-});
-
-// open intercom panel when user chooses it from menu
-app.on('show-intercom-panel', function() {
-  /* eslint new-cap: 0 */
-  if (window.Intercom && app.preferences.enableFeedbackPanel) {
-    window.Intercom('show');
-    metrics.track('Intercom Panel', 'used');
   }
 });
 
