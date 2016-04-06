@@ -3,12 +3,12 @@
 /**
  * # config
  */
+var fs = require('fs-extra');
 var pkg = require('../package.json');
 var util = require('util');
 var format = util.format;
 var inspect = util.inspect;
 var path = require('path');
-var fs = require('fs-extra');
 var _ = require('lodash');
 var async = require('async');
 var createDMG = require('electron-installer-dmg');
@@ -55,11 +55,6 @@ exports.options = {
     describe: 'What is the description of the application we should display to humans?',
     default: process.env.npm_package_description || pkg.description
   },
-  channel: {
-    describe: 'What release channel is this build for?',
-    choices: ['testing', 'beta', 'stable'],
-    default: 'testing'
-  },
   sign: {
     describe: 'Should this build be signed?',
     type: 'boolean',
@@ -90,24 +85,6 @@ exports.options = {
   }
 };
 
-function canonicalize(cli, CONFIG, paths) {
-  var tasks = [];
-  paths.map(function(src) {
-    var dest = src.replace(/\.(exe|zip|dmg|msi)/,
-      CONFIG.canonical_filename_parts.join('-') + '.$1');
-    CONFIG.artifacts.push(dest);
-
-    tasks.push(function(cb) {
-      cli.debug(format('Copy `%s` to canonical `%s`', src, dest));
-      fs.copy(src, dest, cb);
-    });
-  });
-
-  return function(done) {
-    async.parallel(tasks, done);
-  };
-}
-
 exports.get = function(cli, callback) {
   /**
    * a.k.a What directory is package.json in?
@@ -122,6 +99,32 @@ exports.get = function(cli, callback) {
   /**
    * Build the options object to pass to `electron-packager`
    * and various `electron-installer-*` modules.
+   */
+  var channel = 'stable';
+  if (cli.argv.version.indexOf('-beta') > -1) {
+    channel = 'beta';
+  } else if (cli.argv.version.indexOf('-dev') > -1) {
+    channel = 'dev';
+  }
+
+  var PRODUCT_NAME = cli.argv.product_name;
+
+  if (channel === 'beta') {
+    PRODUCT_NAME += ' (Beta)';
+  } else if (channel === 'dev') {
+    PRODUCT_NAME += ' (Dev)';
+  }
+
+  var ID = cli.argv.internal_name;
+
+  /**
+   * TODO (imlucas) beta and dev channels should have different
+   * icons.
+   */
+
+  /**
+   * TODO (imlucas) Make `CONFIG` a proper interface class
+   * with implementors based on `platform`.
    */
   var CONFIG = {};
 
@@ -149,6 +152,7 @@ exports.get = function(cli, callback) {
     },
     images: path.join(__dirname, '..', 'src', 'app', 'images'),
     favicon_url: cli.argv.favicon_url,
+    channel: channel,
     table: function() {
       /**
        * Print the assembled `CONFIG` data as a nice table.
@@ -172,19 +176,6 @@ exports.get = function(cli, callback) {
   });
 
   /**
-   * @see `canonicalizeFilename(CONFIG, paths, done)`
-   */
-  CONFIG.canonical_filename_parts = [
-    cli.argv.version,
-    cli.argv.platform,
-    cli.argv.arch
-  ];
-
-  if (cli.argv.channel !== 'stable') {
-    CONFIG.canonical_filename_parts.push(cli.argv.channel);
-  }
-
-  /**
    * Next, define stubs for platform specific options.
    */
   _.assign(CONFIG, {
@@ -193,7 +184,7 @@ exports.get = function(cli, callback) {
     appPath: null,
     resources: null,
     executable: null,
-    artifacts: [],
+    assets: [],
     createInstaller: function(done) {
       return done(new TypeError(
         'createInstaller not defined for this platform!'));
@@ -204,8 +195,10 @@ exports.get = function(cli, callback) {
     /**
      * ## Windows Configuration
      */
-    var WINDOWS_APPNAME = cli.argv.product_name.replace(/ /g, '');
-    var WINDOWS_OUT_X64 = path.join(CONFIG.out, format('%s-win32-x64', WINDOWS_APPNAME));
+    var WINDOWS_APPNAME = PRODUCT_NAME.replace(/ /g, '');
+    var WINDOWS_OUT_X64 = path.join(CONFIG.out,
+      format('%s-win32-x64', WINDOWS_APPNAME));
+
     var WINDOWS_RESOURCES = path.join(WINDOWS_OUT_X64, 'resources');
     var WINDOWS_EXECUTABLE = path.join(WINDOWS_OUT_X64,
       format('%s.exe', WINDOWS_APPNAME));
@@ -213,7 +206,6 @@ exports.get = function(cli, callback) {
     var WINDOWS_ICON = path.resolve(CONFIG.images, 'win32',
       format('%s.ico', cli.argv.internal_name));
 
-    var WINDOWS_SIGNTOOL_PARAMS = cli.argv.signtool_params;
     var WINDOWS_LOADING_GIF = path.join(IMAGES,
       'win32', 'mongodb-compass-installer-loading.gif');
 
@@ -223,37 +215,42 @@ exports.get = function(cli, callback) {
     var WINDOWS_OUT_MSI = path.join(CONFIG.out,
       format('%sSetup.msi', WINDOWS_APPNAME));
 
-    var WINDOWS_OUT_FULL_NUPKG = path.join(CONFIG.out,
-      format('%s-%s-full.nupkg', WINDOWS_APPNAME, CONFIG['app-version']));
-
-    var WINDOWS_OUT_RELEASES = path.join(CONFIG.out, 'RELEASES');
-
-    /**
-     * TODO (imlucas) When we get to autoupdates, uncomment
-     * below and add to CONFIG.artifacts.
-     *  var WINDOWS_OUT_DELTA_NUPKG = path.join(CONFIG.out,
-     *  format('%s-%s-delta.nupkg', WINDOWS_APPNAME, CONFIG['app-version']));
-     */
     _.assign(CONFIG, {
       name: WINDOWS_APPNAME,
       icon: WINDOWS_ICON,
       loading_gif: WINDOWS_LOADING_GIF,
-      sign_with_params: WINDOWS_SIGNTOOL_PARAMS,
+      sign_with_params: cli.argv.signtool_params,
       appPath: WINDOWS_OUT_X64,
       resources: WINDOWS_RESOURCES,
       executable: WINDOWS_EXECUTABLE,
-      artifacts: [
-        WINDOWS_OUT_SETUP_EXE,
-        WINDOWS_OUT_MSI,
-        WINDOWS_OUT_RELEASES,
-        WINDOWS_OUT_FULL_NUPKG
+      assets: [
+        {
+          name: path.basename(WINDOWS_OUT_SETUP_EXE),
+          label: 'Windows Installer',
+          path: WINDOWS_OUT_SETUP_EXE
+        },
+        {
+          name: path.basename(WINDOWS_OUT_MSI),
+          label: 'Windows Installer Package',
+          path: WINDOWS_OUT_MSI
+        },
+        {
+          path: path.join(CONFIG.out, 'RELEASES')
+        },
+        {
+          path: path.join(CONFIG.out, format('%s-%s-full.nupkg',
+            WINDOWS_APPNAME, CONFIG['app-version']))
+        },
+        {
+          name: format('%s-windows.zip', ID),
+          path: path.join(CONFIG.out, format('%s.zip', WINDOWS_APPNAME))
+        }
+        /**
+         * TODO (imlucas) Uncomment when compass.mongodb.com deployed.
+         path.join(CONFIG.out, format('%s-%s-delta.nupkg', WINDOWS_APPNAME, CONFIG['app-version']));
+         */
       ]
     });
-
-    var canonicalizeWindowsArtifacts = canonicalize(cli, CONFIG, [
-      WINDOWS_OUT_SETUP_EXE,
-      WINDOWS_OUT_MSI
-    ]);
 
     CONFIG.createInstaller = function(done) {
       electronWinstaller.createWindowsInstaller({
@@ -264,9 +261,14 @@ exports.get = function(cli, callback) {
         exe: format('%s.exe', CONFIG.name),
         signWithParams: CONFIG.sign_with_params,
         loadingGif: CONFIG.loading_gif,
-        title: CONFIG.name,
-        productName: CONFIG.name,
+        title: PRODUCT_NAME,
+        productName: PRODUCT_NAME,
         description: CONFIG.description,
+        /**
+         * TODO (imlucas) Uncomment when compass.mongodb.com deployed.
+         * remoteReleases: 'https://compass.mongodb.com',
+         * remoteToken: process.env.GITHUB_TOKEN,
+         */
         /**
          * TODO (imlucas) The ICO file to use as the icon for the
          * generated Setup.exe. Defaults to the weird
@@ -279,23 +281,30 @@ exports.get = function(cli, callback) {
         id: CONFIG.name
       }).then(function(res) {
         cli.debug('Successfully created installers', res);
-        canonicalizeWindowsArtifacts(done);
+        done();
       }, done);
     };
   } else if (cli.argv.platform === 'darwin') {
     /**
      * ## OS X Configuration
      */
-    var OSX_APPNAME = cli.argv.product_name;
+    var OSX_APPNAME = PRODUCT_NAME;
     var OSX_OUT_X64 = path.join(CONFIG.out, format('%s-darwin-x64',
       OSX_APPNAME));
     var OSX_DOT_APP = path.join(OSX_OUT_X64, format('%s.app', OSX_APPNAME));
     var OSX_IDENTITY = 'Developer ID Application: Matt Kangas (ZD3CL9MT3L)';
     var OSX_IDENTITY_SHA1 = '90E39AA7832E95369F0FC6DAF823A04DFBD9CF7A';
     var OSX_RESOURCES = path.join(OSX_DOT_APP, 'Contents', 'Resources');
-    var OSX_EXECUTABLE = path.join(OSX_DOT_APP, 'Contents', 'MacOS', 'Electron');
-    var OSX_ICON = path.resolve(__dirname, format('../src/app/images/darwin/%s.icns', cli.argv.internal_name));
-    var OSX_OUT_DMG = path.join(CONFIG.out, format('%s.dmg', OSX_APPNAME));
+    var OSX_EXECUTABLE = path.join(OSX_DOT_APP,
+      'Contents', 'MacOS', 'Electron');
+
+    var OSX_ICON = path.resolve(__dirname, format('../src/app/images/darwin/%s.icns', ID));
+
+    var OSX_OUT_DMG = path.join(CONFIG.out,
+      format('%s.dmg', OSX_APPNAME));
+
+    var OSX_OUT_ZIP = path.join(CONFIG.out,
+      format('%s.zip', OSX_APPNAME));
 
     _.assign(CONFIG, {
       name: OSX_APPNAME,
@@ -303,8 +312,15 @@ exports.get = function(cli, callback) {
       appPath: OSX_DOT_APP,
       resources: OSX_RESOURCES,
       executable: OSX_EXECUTABLE,
-      artifacts: [
-        OSX_OUT_DMG
+      assets: [
+        {
+          name: format('%s.dmg', ID),
+          path: OSX_OUT_DMG
+        },
+        {
+          name: format('%s-mac.zip', ID),
+          path: OSX_OUT_ZIP
+        }
       ],
       /**
        * Background image for `.dmg`.
@@ -349,15 +365,11 @@ exports.get = function(cli, callback) {
       'app-category-type': 'public.app-category.productivity',
       protocols: [
         {
-          name: 'MongoDB Prototcol',
+          name: 'MongoDB Protocol',
           schemes: ['mongodb']
         }
       ]
     });
-
-    var canonicalizeDarwinArtifacts = canonicalize(cli, CONFIG, [
-      OSX_OUT_DMG
-    ]);
 
     CONFIG.createInstaller = function(done) {
       var tasks = [];
@@ -375,12 +387,7 @@ exports.get = function(cli, callback) {
         }
 
         tasks.push(_.partial(createDMG, CONFIG));
-        async.series(tasks, function(_err) {
-          if (_err) {
-            return done(_err);
-          }
-          canonicalizeDarwinArtifacts(done);
-        });
+        async.series(tasks, done);
       });
     };
   } else {
@@ -398,12 +405,20 @@ exports.get = function(cli, callback) {
       resources: LINUX_RESOURCES,
       executable: LINUX_EXECUTABLE,
       appPath: LINUX_OUT_X64,
+      assets: [],
       createInstaller: function(done) {
         cli.warn('Linux installers coming soon!');
         done();
       }
     });
   }
+
+  // Normalize asset names for GitHub or else spaces
+  // will automatically be replaced with `.`s.
+  CONFIG.assets = CONFIG.assets.map(function(asset) {
+    asset.name = asset.name.replace(/ /g, '-').toLowerCase();
+    return asset;
+  });
   callback(null, CONFIG);
 };
 

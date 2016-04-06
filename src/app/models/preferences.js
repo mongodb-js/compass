@@ -6,7 +6,7 @@ var format = require('util').format;
 var debug = require('debug')('mongodb-compass:models:preferences');
 
 var Preferences = Model.extend(storageMixin, {
-  extraProperties: 'reject',  // prevents bugs
+  // extraProperties: 'reject',  // prevents bugs
   idAttribute: 'id',
   namespace: 'Preferences',
   storage: {
@@ -117,13 +117,11 @@ var Preferences = Model.extend(storageMixin, {
       default: false
     },
     /**
-     * Switch to enable/disable automatic updates
-     *
-     * Warning: currently not hooked into the code!
+     * Switch to enable/disable automatic updates.
      *
      * @type {Boolean}
      */
-    autoUpdates: {
+    automaticallyUpdate: {
       type: 'boolean',
       required: true,
       default: false
