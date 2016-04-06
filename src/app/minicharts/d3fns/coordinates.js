@@ -16,7 +16,7 @@ var minicharts_d3fns_coordinates = function() {
   var options = {
     view: null
   };
-  var margin = _.copy(shared.margin);
+  var margin = _.clone(shared.margin);
   margin.bottom = 20;
 
   var xScale = d3.scale.linear();
