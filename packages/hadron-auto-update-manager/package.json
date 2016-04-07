@@ -1,7 +1,7 @@
 {
   "name": "hadron-auto-update-manager",
   "description": "Atoms AutoUpdateManager class as a standalone module.",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "scripts": {
     "fmt": "mongodb-js-fmt",
     "test": "electron-mocha",
