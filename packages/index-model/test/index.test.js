@@ -13,17 +13,20 @@ describe('mongodb-index-model', function() {
 
   context('IndexModel', function() {
     it('should have all indexes in the collection', function() {
-      assert.equal(indexes.length, 6);
+      assert.equal(indexes.length, 9);
     });
 
     it('should get the names right', function() {
       assert.deepEqual(indexes.pluck('name').sort(), [
         '$**_text',
         '_id_',
+        '_id_1_gender_-1',
+        'big-index',
         'email_1_favorite_features_1',
         'last_login_-1',
         'last_position_2dsphere',
-        'seniors']);
+        'seniors',
+        'seniors-inverse']);
     });
 
     it('should have the correct namespace', function() {
@@ -60,11 +63,11 @@ describe('mongodb-index-model', function() {
 
     it('should return the correct `properties` array', function() {
       var index = indexes.get('seniors', 'name');
-      assert.deepEqual(index.properties, ['partial']);
+      assert.deepEqual(index.properties, ['compound', 'partial']);
       index = indexes.get('last_login_-1', 'name');
-      assert.deepEqual(index.properties, []);
+      assert.deepEqual(index.properties, ['single']);
       index = indexes.get('_id_', 'name');
-      assert.deepEqual(index.properties, ['unique']);
+      assert.deepEqual(index.properties, ['single', 'unique']);
     });
 
     it('should recognize text indexes', function() {

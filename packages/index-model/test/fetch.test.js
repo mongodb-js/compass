@@ -6,7 +6,7 @@ var _ = require('lodash');
 
 // var debug = require('debug')('mongodb-index-model:text:fetch');
 
-describe('index-model fetch()', function() {
+describe('fetch()', function() {
   before(require('mongodb-runner/mocha/before')());
   after(require('mongodb-runner/mocha/after')());
 

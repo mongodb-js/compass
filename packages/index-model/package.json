@@ -23,11 +23,13 @@
     "check"
   ],
   "dependencies": {
+    "ampersand-collection": "^1.6.1",
     "ampersand-model": "^6.0.2",
     "ampersand-rest-collection": "^5.0.0",
     "async": "^1.5.2",
-    "lodash": "^4.6.1",
-    "mongodb-ns": "^1.0.3"
+    "lodash": "^4.8.2",
+    "mongodb-ns": "^1.0.3",
+    "triejs": "^0.1.5"
   },
   "devDependencies": {
     "debug": "^2.2.0",
