@@ -11,7 +11,7 @@ var PreferenceMigrationModel = Preferences.extend({
   namespace: 'Preferences',
   storage: {
     backend: 'local',
-    appName: pkg.product_name
+    appName: pkg.productName
   },
   props: {
     intercom: ['boolean', false],

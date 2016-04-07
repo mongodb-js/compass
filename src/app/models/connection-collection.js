@@ -10,7 +10,7 @@ module.exports = Collection.extend(selectableMixin, storageMixin, {
   namespace: 'Connections',
   storage: {
     backend: 'splice',
-    appName: pkg.product_name
+    appName: pkg.productName
   },
   comparator: function(a, b) {
     if (a.is_favorite === b.is_favorite) {

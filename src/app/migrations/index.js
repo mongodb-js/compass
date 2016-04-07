@@ -15,7 +15,7 @@ function getPreviousVersion(done) {
     namespace: 'Preferences',
     storage: {
       backend: 'local',
-      appName: pkg.product_name
+      appName: pkg.productName
     },
     props: {
       id: ['string', true, 'General'],
