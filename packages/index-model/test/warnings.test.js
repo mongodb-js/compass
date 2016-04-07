@@ -11,7 +11,7 @@ var IndexWithWarningsCollection = IndexCollection.extend(WarningsMixin);
 
 describe('Index Warnings', function() {
   var indexes;
-  before(function() {
+  beforeEach(function() {
     indexes = new IndexWithWarningsCollection(INDEX_FIXTURE, {parse: true});
   });
 
@@ -64,6 +64,26 @@ describe('Index Warnings', function() {
       indexes.updateIndexWarnings();
       assert.ok(idx.warnings.length === 0);
     });
+
+    it('should remove the warning if the condition has changed', function() {
+      indexes.add({
+        'v': 1,
+        'key': {
+          'last_login': -1
+        },
+        'name': 'dupe',
+        'ns': 'mongodb.fanclub'
+      }, {parse: true});
+
+      var idx = indexes.get('last_login_-1', 'name');
+      idx.usageCount = 50;
+      indexes.updateIndexWarnings();
+
+      assert.ok(idx.warnings.length === 1);
+      indexes.remove('mongodb.fanclub.dupe');
+      indexes.updateIndexWarnings();
+      assert.ok(idx.warnings.length === 0);
+    });
   });
 
   context('IXWARN_UNUSED', function() {
@@ -81,6 +101,26 @@ describe('Index Warnings', function() {
     it('should not warn if the index is the default _id index', function() {
       var idx = indexes.get('_id_', 'name');
       idx.usageCount = 0;
+      indexes.updateIndexWarnings();
+      assert.ok(idx.warnings.length === 0);
+    });
+
+    it('should not add multiple warnings of the same type', function() {
+      var idx = indexes.get('seniors', 'name');
+      idx.usageCount = 0;
+      indexes.updateIndexWarnings();
+      indexes.updateIndexWarnings();
+      indexes.updateIndexWarnings();
+      indexes.updateIndexWarnings();
+      assert.ok(idx.warnings.length === 1);
+    });
+
+    it('should remove the warning if the condition has changed', function() {
+      var idx = indexes.get('seniors', 'name');
+      idx.usageCount = 0;
+      indexes.updateIndexWarnings();
+      assert.ok(idx.warnings.length === 1);
+      idx.usageCount = 1;
       indexes.updateIndexWarnings();
       assert.ok(idx.warnings.length === 0);
     });

@@ -34,6 +34,12 @@ var WarningCollection = Collection.extend({
   model: WarningModel
 });
 
+/**
+ * Mixin for IndexCollection.
+ *
+ * Call updateIndexWarnings() to update warnings for all indexes based on
+ * the current collection of indexes. Currently, this has to be done manually.
+ */
 var WarningsMixin = {
   /**
    * create index definition string based on keys and values, joined by `_`
@@ -83,10 +89,14 @@ var WarningsMixin = {
         collection.addWarningToIndex(WARNINGS.IXWARN_PREFIX, idx, {
           otherIndex: dupes[0]
         });
+      } else {
+        idx.warnings.remove(WARNINGS.IXWARN_PREFIX);
       }
       // check for unused indexes
       if (idx.name !== '_id_' && idx.usageCount === 0) {
         collection.addWarningToIndex(WARNINGS.IXWARN_UNUSED, idx, {});
+      } else {
+        idx.warnings.remove(WARNINGS.IXWARN_UNUSED);
       }
     });
   }
