@@ -84,7 +84,7 @@ exports.options = {
   },
   favicon_url: {
     description: 'A URL to an ICO file to use as the application icon (e.g. Windows: displayed in Control Panel > Programs and Features)',
-    default: 'https://raw.githubusercontent.com/mongodb-js/favicon/master/favicon.ico'
+    default: _.get(pkg, 'hadron.build.win32.favicon_url')
   },
   commit_sha1: {
     // TODO (imlucas) evergeen sets an environment variable
@@ -223,11 +223,11 @@ exports.get = function(cli, callback) {
     var WINDOWS_EXECUTABLE = path.join(WINDOWS_OUT_X64,
       format('%s.exe', WINDOWS_APPNAME));
 
-    var WINDOWS_ICON = path.resolve(CONFIG.images, 'win32',
-      format('%s.ico', cli.argv.internal_name));
+    var WINDOWS_ICON = path.join(process.cwd,
+      _.get(pkg, 'hadron.build.win32.icon'));
 
-    var WINDOWS_LOADING_GIF = path.join(IMAGES,
-      'win32', 'mongodb-compass-installer-loading.gif');
+    var WINDOWS_LOADING_GIF = path.join(process.cwd,
+      _.get(pkg, 'hadron.build.win32.loading_gif'));
 
     var WINDOWS_OUT_SETUP_EXE = path.join(CONFIG.out,
       format('%sSetup.exe', WINDOWS_APPNAME));
@@ -266,7 +266,7 @@ exports.get = function(cli, callback) {
           path: path.join(CONFIG.out, format('%s.zip', WINDOWS_APPNAME))
         }
         /**
-         * TODO (imlucas) Uncomment when compass.mongodb.com deployed.
+         * TODO (imlucas) Uncomment when hadron-endpoint-server deployed.
          path.join(CONFIG.out, format('%s-%s-delta.nupkg', WINDOWS_APPNAME, CONFIG['app-version']));
          */
       ]
@@ -285,8 +285,8 @@ exports.get = function(cli, callback) {
         productName: PRODUCT_NAME,
         description: CONFIG.description,
         /**
-         * TODO (imlucas) Uncomment when compass.mongodb.com deployed.
-         * remoteReleases: 'https://compass.mongodb.com',
+         * TODO (imlucas) Uncomment when hadron-endpoint-server deployed.
+         * remoteReleases: _.get(pkg, 'hadron.endpoint'),
          * remoteToken: process.env.GITHUB_TOKEN,
          */
         /**
@@ -309,16 +309,16 @@ exports.get = function(cli, callback) {
      * ## OS X Configuration
      */
     var OSX_APPNAME = PRODUCT_NAME;
-    var OSX_OUT_X64 = path.join(CONFIG.out, format('%s-darwin-x64',
-      OSX_APPNAME));
+    var OSX_OUT_X64 = path.join(CONFIG.out,
+      format('%s-darwin-x64', OSX_APPNAME));
     var OSX_DOT_APP = path.join(OSX_OUT_X64, format('%s.app', OSX_APPNAME));
-    var OSX_IDENTITY = 'Developer ID Application: Matt Kangas (ZD3CL9MT3L)';
-    var OSX_IDENTITY_SHA1 = '90E39AA7832E95369F0FC6DAF823A04DFBD9CF7A';
+    var OSX_IDENTITY = _.get(pkg, 'hadron.build.darwin.codesign_identity');
+    var OSX_IDENTITY_SHA1 = _.get(pkg, 'hadron.build.darwin.codesign_sha1');
     var OSX_RESOURCES = path.join(OSX_DOT_APP, 'Contents', 'Resources');
     var OSX_EXECUTABLE = path.join(OSX_DOT_APP,
       'Contents', 'MacOS', 'Electron');
 
-    var OSX_ICON = path.resolve(__dirname, format('../src/app/images/darwin/%s.icns', ID));
+    var OSX_ICON = path.resolve(process.cwd, _.get(pkg, 'hadron.build.darwin.icon'));
 
     var OSX_OUT_DMG = path.join(CONFIG.out,
       format('%s.dmg', OSX_APPNAME));
@@ -346,7 +346,7 @@ exports.get = function(cli, callback) {
        * Background image for `.dmg`.
        * @see http://npm.im/electron-installer-dmg
        */
-      background: path.resolve(__dirname, '../src/app/images/darwin/background.png'),
+      background: path.resolve(process.cwd, _.get(pkg, 'hadron.build.darwin.dmg_background')),
       /**
        * Layout for `.dmg`.
        * The following only modifies "x","y" values from defaults.
@@ -372,23 +372,12 @@ exports.get = function(cli, callback) {
           path: OSX_DOT_APP
         }
       ],
+      'app-bundle-id': _.get(pkg, 'hadron.build.darwin.app_bundle_id'),
       /**
-       * TODO (imlucas) Move to a cli option: `com_id`?
-       */
-      'app-bundle-id': 'com.mongodb.compass',
-      /**
-       * TODO (imlucas) Move to a cli option:
-       * `.option('category', {choices: ['productivity',
-       *   <others from http://bit.ly/LSApplicationCategoryType>]}`
        * @see http://bit.ly/LSApplicationCategoryType
        */
-      'app-category-type': 'public.app-category.productivity',
-      protocols: [
-        {
-          name: 'MongoDB Protocol',
-          schemes: ['mongodb']
-        }
-      ]
+      'app-category-type': _.get(pkg, 'hadron.build.darwin.app_category_type'),
+      protocols: _.get(pkg, 'hadron.protocols')
     });
 
     CONFIG.createInstaller = function(done) {
@@ -442,29 +431,31 @@ exports.get = function(cli, callback) {
   callback(null, CONFIG);
 };
 
+module.exports = exports;
 
-// function main(cli) {
-//   exports.get(cli, function(err, CONFIG) {
-//     cli.abortIfError(err);
-//     /* eslint no-console: 0 */
-//     if (cli.argv.format === 'json') {
-//       console.log(JSON.stringify(CONFIG.serialize(), null, 2));
-//     } else if (cli.argv.format === 'yaml') {
-//       console.log(yaml.dump(CONFIG.serialize()));
-//     } else {
-//       console.log(CONFIG.table());
-//     }
-//   });
-// }
+var yaml = require('js-yaml');
 
-var configCLI = createCLI('mongodb-compass:scripts:config');
-configCLI.yargs.usage('$0 [options]')
-  .options(exports.options)
-  .option('format', {
+exports.builder = {
+  format: {
     choices: ['table', 'yaml', 'json'],
     description: 'What output format would you like?',
     default: 'table'
-  })
-  .help('help');
+  }
+};
 
-module.exports = exports;
+exports.handler = function(argv) {
+  var cli = createCLI('hadron-build:config');
+  cli.argv = argv;
+
+  exports.get(cli, function(err, CONFIG) {
+    cli.abortIfError(err);
+    /* eslint no-console: 0 */
+    if (cli.argv.format === 'json') {
+      console.log(JSON.stringify(CONFIG.serialize(), null, 2));
+    } else if (cli.argv.format === 'yaml') {
+      console.log(yaml.dump(CONFIG.serialize()));
+    } else {
+      console.log(CONFIG.table());
+    }
+  });
+};
