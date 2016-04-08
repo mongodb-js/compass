@@ -1,0 +1,56 @@
+{
+  "name": "hadron-build",
+  "description": "Build tools for Hadron apps built on Electron.",
+  "version": "0.0.0",
+  "scripts": {
+    "fmt": "mongodb-js-fmt",
+    "check": "mongodb-js-precommit",
+    "test": "mocha",
+    "ci": "npm run check && npm test"
+  },
+  "bin": {
+    "hadron-build": "cli.js"
+  },
+  "homepage": "http://github.com/mongodb-js/hadron-build",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mongodb-js/hadron-build.git"
+  },
+  "dependencies": {
+    "asar": "^0.10.0",
+    "async": "^2.0.0-rc.3",
+    "check-python": "^1.0.0",
+    "cli-table": "^0.3.1",
+    "debug": "^2.2.0",
+    "del": "^2.0.2",
+    "electron-installer-codesign": "^0.1.1",
+    "electron-installer-dmg": "^0.1.0",
+    "electron-installer-run": "^0.1.1",
+    "electron-license": "^0.1.0",
+    "electron-mocha": "^0.8.0",
+    "electron-packager": "^5.1.1",
+    "electron-prebuilt": "^0.36.11",
+    "electron-winstaller": "^2.0.5",
+    "fs-extra": "^0.26.5",
+    "glob": "^5.0.15",
+    "in-publish": "^2.0.0",
+    "js-yaml": "^3.5.4",
+    "less-cache": "^0.23.0",
+    "lodash": "^4.8.2",
+    "mocha-evergreen-reporter": "^0.0.7",
+    "mongodb-js-cli": "^0.0.2",
+    "normalize-package-data": "^2.3.5",
+    "parse-github-repo-url": "^1.0.0",
+    "semver": "^5.1.0",
+    "templatizer": "^2.0.3",
+    "which": "^1.2.0",
+    "yargs": "^4.4.0"
+  },
+  "devDependencies": {
+    "eslint-config-mongodb-js": "^1.0.6",
+    "mocha": "^2.3.4",
+    "mongodb-js-fmt": "^0.0.3",
+    "mongodb-js-precommit": "^0.2.8"
+  },
+  "license": "Apache-2.0"
+}
