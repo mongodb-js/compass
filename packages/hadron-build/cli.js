@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /* eslint no-unused-expressions: 0 */
 require('yargs')
+  .wrap(120)
   .usage('$0 <command> [options]')
   .command('release [options]',
     ':shipit:',
