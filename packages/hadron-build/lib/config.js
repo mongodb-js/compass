@@ -109,12 +109,7 @@ exports.get = function(cli, callback) {
   /**
    * a.k.a What directory is package.json in?
    */
-  var PROJECT_ROOT = path.join(__dirname, '..');
-
-  /**
-   * Directory for application's image assets.
-   */
-  var IMAGES = path.join(PROJECT_ROOT, 'src', 'app', 'images');
+  var PROJECT_ROOT = process.cwd;
 
   /**
    * Build the options object to pass to `electron-packager`
