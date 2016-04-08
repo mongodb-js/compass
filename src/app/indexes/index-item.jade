@@ -22,9 +22,12 @@ tr
       span(data-hook='usage-since')
   td
     div.properties
-      each prop in model.properties
+      each prop in extended_properties
         - var cls = ''
         - if (['single', 'compound'].indexOf(prop) > -1) cls = 'simple'
+        - if (prop === 'geospatial') cls = 'geospatial'
+        - if (prop === 'text') cls = 'text'
+        - if (prop === 'hashed') cls = 'hashed'
         div(class='property #{cls}')
           = prop
           i.link

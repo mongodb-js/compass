@@ -9,7 +9,7 @@ var _ = require('lodash');
 var electron = require('electron');
 var shell = electron.shell;
 
-var debug = require('debug')('mongodb-compass:indexes');
+// var debug = require('debug')('mongodb-compass:indexes');
 
 var IndexItemView = View.extend({
   template: indexItemTemplate,
@@ -37,7 +37,23 @@ var IndexItemView = View.extend({
     usage_since: {
       deps: ['model.usageSince'],
       fn: function() {
-        return moment(this.model.usageSince).format('L');
+        return moment(this.model.usageSince).format('Do MMM YYYY');
+      }
+    },
+    extended_properties: {
+      deps: ['model.properties'],
+      fn: function() {
+        var props = this.model.properties.slice();
+        if (this.model.text) {
+          props.push('text');
+        }
+        if (this.model.hashed) {
+          props.push('hashed');
+        }
+        if (this.model.geo) {
+          props.push('geospatial');
+        }
+        return props;
       }
     }
   },
@@ -72,30 +88,27 @@ var IndexItemView = View.extend({
     return numeral(value).format(precision + format);
   },
   render: function() {
-    this.model.fields.each(function(field) {
-      debug('- ', field.field, field.value, field.geo);
-    });
-
     this.renderWithTemplate(this);
   },
   linkIconClicked: function(event) {
     event.preventDefault();
     event.stopPropagation();
     var urlMap = {
-      single: 'https://docs.mongodb.org/manual/core/index-single/',
-      compound: 'https://docs.mongodb.org/manual/core/index-compound/',
-      unique: 'https://docs.mongodb.org/manual/core/index-unique/',
-      partial: 'https://docs.mongodb.org/manual/core/index-partial/',
-      sparse: 'https://docs.mongodb.org/manual/core/index-sparse/',
-      ttl: 'https://docs.mongodb.org/manual/core/index-ttl/',
-      '2d': 'https://docs.mongodb.org/manual/core/2d/',
-      '2dsphere': 'https://docs.mongodb.org/manual/core/2dsphere/',
-      geoHaystack: 'https://docs.mongodb.org/manual/core/geohaystack/',
-      text: 'https://docs.mongodb.org/manual/core/index-text/',
-      hashed: 'https://docs.mongodb.org/manual/core/index-hashed/',
-      unknown: null
+      SINGLE: 'https://docs.mongodb.org/manual/core/index-single/',
+      COMPOUND: 'https://docs.mongodb.org/manual/core/index-compound/',
+      UNIQUE: 'https://docs.mongodb.org/manual/core/index-unique/',
+      PARTIAL: 'https://docs.mongodb.org/manual/core/index-partial/',
+      SPARSE: 'https://docs.mongodb.org/manual/core/index-sparse/',
+      TTL: 'https://docs.mongodb.org/manual/core/index-ttl/',
+      '2D': 'https://docs.mongodb.org/manual/core/2d/',
+      '2DSPHERE': 'https://docs.mongodb.org/manual/core/2dsphere/',
+      GEOHAYSTACK: 'https://docs.mongodb.org/manual/core/geohaystack/',
+      GEOSPATIAL: 'https://docs.mongodb.org/manual/applications/geospatial-indexes/#geospatial-indexes',
+      TEXT: 'https://docs.mongodb.org/manual/core/index-text/',
+      HASHED: 'https://docs.mongodb.org/manual/core/index-hashed/',
+      UNKNOWN: null
     };
-    var url = _.get(urlMap, event.target.parentNode.innerText, 'unknown');
+    var url = _.get(urlMap, event.target.parentNode.innerText, 'UNKNOWN');
     if (url) {
       shell.openExternal(url);
     }
