@@ -117,21 +117,16 @@ functions:
         export SIGNTOOL_PARAMS="yes"
         test -n '${add_env_appdata|}' && export APPDATA='${add_env_appdata|}'
 
-        # The env script is a special built-in command that can be used to
-        # list environment variables that will be available to the
-        # script at runtime.
-        # @see https://docs.npmjs.com/cli/run-script
-        ${npm|npm} run env
-
         # Run static analysis on code and project configuration
-        ${npm|npm} run check
+        # ${npm|npm} run check
 
         # Create a release build
-        ${npm|npm} run prepublish;
+        ${npm|npm} run release;
 
         # Test the release build
         ${npm|npm} run test-unit;
         EOF_BUILD_SH
+
         #
         # Use ".", not "source" below to read script. Required for /bin/sh on Ubuntu.
         #
@@ -166,18 +161,25 @@ functions:
       display_name: "npm_install.json"
 
   "save release":
-    command: s3.put
+    command: shell.exec
     params:
-      build_variants:
-        *save_release_variants
-      aws_key: ${aws_key}
-      aws_secret: ${aws_secret}
-      local_file: "src/dist/${installer_filename}"
-      remote_file: "${project}/${build_variant}/${revision}/${installer_filename}"
-      bucket: mciuploads
-      permissions: public-read
-      content_type: ${installer_content_type|application/octet-stream}
-      display_name: "Installer: ${installer_filename}"
+      working_dir: src
+      script: |
+        set -ev
+        export DEBUG=*;
+        export PATH="${node_path}:$PATH"
+        export CI=1
+        export EVERGREEN=1
+        export EVERGREEN_AWS_ACCESS_KEY_ID=${aws_key}
+        export EVERGREEN_AWS_SECRET_ACCESS_KEY=${aws_secret}
+        export EVERGREEN_PROJECT=${project}
+        export EVERGREEN_BUILD_VARIANT=${build_variant}
+        export EVERGREEN_REVISION=${revision}
+        export EVERGREEN_S3_BUCKET=mciuploads
+        export EVERGREEN_S3_KEY_PREFIX=${project}/${build_variant}/${revision}
+
+        test -n '${add_env_appdata|}' && export APPDATA='${add_env_appdata|}'
+        ${npm|npm} run upload;
 
 
 #######################################
@@ -243,8 +245,6 @@ buildvariants:
     build_via_local_tunnel: true
     fetch_npm_tarball: node-v5.5.0-npm-3.3.12-darwin-x64.tgz
     node_path: "$(pwd)/.deps/bin"
-    installer_content_type: "application/x-apple-diskimage"
-    installer_filename: "MongoDB Compass.dmg"
     num_cores: $(sysctl -n hw.logicalcpu)
   tasks:
     *all_tasks
@@ -257,8 +257,6 @@ buildvariants:
   expansions:
     fetch_npm_tarball: node-v5.5.0-npm-3.3.12-windows-x64.tgz
     node_path: "$(pwd)/.deps"
-    installer_content_type: "application/octet-stream"
-    installer_filename: "MongoDBCompassSetup.exe"
     num_cores: $(grep -c ^processor /proc/cpuinfo)
     add_env_appdata: Z:\
   tasks:

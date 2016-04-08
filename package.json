@@ -2,21 +2,49 @@
   "name": "mongodb-compass",
   "productName": "MongoDB Compass",
   "description": "The MongoDB GUI.",
-  "version": "1.2.0-pre.0",
+  "version": "1.2.0-dev",
   "main": "src/main.js",
   "authors": "MongoDB Inc.",
   "license": "UNLICENSED",
   "private": true,
+  "config": {
+    "hadron": {
+      "endpoint": "https://compass-mongodb-com.herokuapp.com",
+      "protocols": [
+        {
+          "name": "MongoDB Protocol",
+          "schemes": [
+            "mongodb"
+          ]
+        },
+        {
+          "name": "MongoDB Compass Protocol",
+          "schemes": [
+            "compass"
+          ]
+        }
+      ],
+      "build": {
+        "win32": {
+          "icon": "src/images/win32/mongodb-compass.ico",
+          "favicon_url": "https://raw.githubusercontent.com/mongodb-js/favicon/master/favicon.ico",
+          "loading_gif": "src/app/images/win32/mongodb-compass-installer-loading.gif"
+        },
+        "darwin": {
+          "icon": "src/app/images/darwin/mongodb-compass.icns",
+          "dmg_background": "src/app/images/darwin/background.png",
+          "codesign_identity": "Developer ID Application: Matt Kangas (ZD3CL9MT3L)",
+          "codesign_sha1": "90E39AA7832E95369F0FC6DAF823A04DFBD9CF7A",
+          "app_bundle_id": "com.mongodb.compass",
+          "app_category_type": "public.app-category.productivity"
+        }
+      }
+    }
+  },
   "dependency-check": {
     "entries": [
       "./src/main/index.js",
-      "./src/app/index.js",
-      "./scripts/config.js",
-      "./scripts/postuninstall.js",
-      "./scripts/prepublish.js",
-      "./scripts/prestart.js",
-      "./scripts/start.js",
-      "./scripts/test.js"
+      "./src/app/index.js"
     ],
     "ignore": [
       "electron",
@@ -24,24 +52,19 @@
     ]
   },
   "scripts": {
-    "prestart": "node scripts/prestart.js",
-    "start": "node scripts/start.js",
-    "//": "Run only the fast unit tests",
-    "pretest": "npm run compile-ui",
-    "test": "xvfb-maybe node scripts/test.js",
-    "prepublish": "node scripts/prepublish.js",
-    "postuninstall": "node scripts/postuninstall.js",
-    "precheck": "npm run compile-ui",
-    "check": "mongodb-js-precommit ./src/app/*.js ./src/app/**/**/*.js ./src/{app/**/*.js,main/**/*.js} ./{scripts,test}/*.js",
+    "start": "hadron-build develop",
+    "test": "xvfb-maybe hadron-build test",
+    "check": "mongodb-js-precommit ./src/app/*.js ./src/app/**/**/*.js ./src/{app/**/*.js,main/**/*.js} ./test/*.js",
     "ci": "npm run test",
-    "clean": "npm run postuninstall",
-    "compile-ui": "node scripts/compile-ui.js",
-    "fmt": "mongodb-js-fmt ./*.js src/{**/*.js,*.js} test/{**/*.js,*.js} scripts/*.js",
-    "release": "npm run prepublish",
+    "clean": "hadron-build clean",
+    "compile-ui": "hadron-build ui",
+    "fmt": "mongodb-js-fmt ./*.js src/{**/*.js,*.js} test/{**/*.js,*.js}",
+    "release": "hadron-build config --format=yaml && hadron-build release",
     "test-functional": "npm test -- --functional",
     "test-unit": "npm test -- --unit",
     "test-release": "npm test -- --release",
-    "export": "asar e 'dist/MongoDB Compass-darwin-x64/MongoDB Compass.app/Contents/Resources/app.asar' ../app-asar"
+    "export": "asar e 'dist/MongoDB Compass-darwin-x64/MongoDB Compass.app/Contents/Resources/app.asar' ../app-asar",
+    "upload": "hadron-build upload"
   },
   "repository": {
     "type": "git",
@@ -110,38 +133,22 @@
     "uuid": "^2.0.1"
   },
   "devDependencies": {
-    "asar": "^0.10.0",
     "chai": "^3.4.1",
     "chai-as-promised": "^5.1.0",
-    "check-python": "^1.0.0",
-    "cli-table": "^0.3.1",
-    "del": "^2.0.2",
-    "electron-installer-codesign": "^0.1.1",
-    "electron-installer-dmg": "^0.1.0",
-    "electron-installer-run": "^0.1.1",
-    "electron-license": "^0.1.0",
-    "electron-mocha": "^0.8.0",
-    "electron-packager": "^5.1.1",
-    "electron-prebuilt": "^0.37.5",
-    "electron-winstaller": "^2.0.5",
     "eslint-config-mongodb-js": "^1.0.6",
     "eslint-plugin-react": "^4.1.0",
-    "fs-extra": "^0.26.5",
-    "glob": "^5.0.15",
-    "in-publish": "^2.0.0",
-    "js-yaml": "^3.5.4",
-    "mocha-evergreen-reporter": "^0.0.7",
-    "mongodb-js-cli": "^0.0.2",
+    "hadron-build": "^0.3.0",
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^0.2.8",
     "mongodb-runner": "^3.1.15",
-    "semver": "^5.1.0",
     "spectron": "^0.34.1",
-    "which": "^1.2.0",
     "xvfb-maybe": "^0.1.3"
   },
   "engines": {
     "node": "^5.0.0",
     "npm": "^3.0.0"
+  },
+  "bugs": {
+    "url": "https://github.com/10gen/compass/issues"
   }
 }
