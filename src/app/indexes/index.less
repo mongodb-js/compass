@@ -1,11 +1,11 @@
 .index-container {
 
-  @index-type-color: #5196b6;
+  @index-type-color: @gray4;
   @index-property-color:#636592;
   @index-geo-color: #669585;
   @index-hashed-color: #8C7A54;
   @index-text-color: #B05745;
-  @index-quantity-color: @gray3;
+  @index-quantity-color: #5196b6;
 
   padding: 0 20px;
 
@@ -29,14 +29,19 @@
       margin-bottom: 2px;
     }
 
-    .pair {
-      margin-right: 10px;
+    .definition {
+      display: inline-block;
+      padding: 2px 0 2px 12px;
       background: @gray8;
       border-radius: 20px;
-      padding: 1px 10px;
     }
 
-    .value, .field, .pair, .property, .quantity, .unit, .since, .properties, .usage-since {
+    .pair {
+      margin-right: 10px;
+      vertical-align: bottom;
+    }
+
+    .sort, .type, .field, .pair, .property, .quantity, .unit, .since, .properties, .usage-since {
       display: inline-block;
       text-align: center;
     }
@@ -47,12 +52,29 @@
       margin-right: 5px;
     }
 
+    .type {
+      color: @pw;
+      background-color: @gray4;
+      border-radius: 20px;
+      min-width: 20px;
+      padding: 0 8px;
+      font-size: 11px;
+      font-weight: bold;
+    }
+
+    .sort {
+      font-size: 13px;
+      color: @gray4;
+    }
+
     .pill(@color) {
       color: @color;
       background-color: lighten(@color, 45%);
-      font-weight: normal;
+      font-size: 11px;
+      font-weight: bold;
+      text-transform: uppercase;
       border-radius: 20px;
-      padding: 0 10px;
+      padding: 3px 10px;
       min-width: 30px;
     }
 
@@ -75,30 +97,20 @@
       margin-left: 4px;
     }
 
-    .value {
-      // .pill(@index-type-color);
-      color: @pw;
-      background-color: @gray5;
-      font-weight: normal;
-      font-size: 12px;
-      border-radius: 20px;
-      min-width: 20px;
-    }
-
-    .value.geo {
-      color: @index-geo-color;
-      background-color: lighten(@index-geo-color, 45%);
-    }
-
-    .value.text {
-      color: @index-text-color;
-      background-color: lighten(@index-text-color, 45%);
-    }
-
-    .value.hashed {
-      color: @index-hashed-color;
-      background-color: lighten(@index-hashed-color, 45%);
-    }
+    // .value.geo {
+    //   color: @index-geo-color;
+    //   background-color: lighten(@index-geo-color, 45%);
+    // }
+    //
+    // .value.text {
+    //   color: @index-text-color;
+    //   background-color: lighten(@index-text-color, 45%);
+    // }
+    //
+    // .value.hashed {
+    //   color: @index-hashed-color;
+    //   background-color: lighten(@index-hashed-color, 45%);
+    // }
 
     .property {
       .pill(@index-property-color);
