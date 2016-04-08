@@ -8,7 +8,7 @@ var format = util.format;
 var inspect = util.inspect;
 var path = require('path');
 var normalizePkg = require('normalize-package-data');
-var pkg = normalizePkg(require(path.join(process.cwd, 'package.json')));
+var pkg = require(path.join(process.cwd(), 'package.json'));
 var _ = require('lodash');
 var async = require('async');
 var createDMG = require('electron-installer-dmg');
@@ -19,6 +19,7 @@ var Table = require('cli-table');
 var parseGitHubRepoURL = require('parse-github-repo-url');
 var electronPrebuiltVersion = require('electron-prebuilt/package.json').version;
 
+normalizePkg(pkg);
 var parsedGit = parseGitHubRepoURL(pkg.repository.url);
 
 
@@ -109,7 +110,7 @@ exports.get = function(cli, callback) {
   /**
    * a.k.a What directory is package.json in?
    */
-  var PROJECT_ROOT = process.cwd;
+  var PROJECT_ROOT = process.cwd();
 
   /**
    * Build the options object to pass to `electron-packager`
@@ -165,7 +166,7 @@ exports.get = function(cli, callback) {
       ProductName: cli.argv.product_name,
       InternalName: cli.argv.internal_name
     },
-    images: path.join(process.cwd, 'src', 'app', 'images'),
+    images: path.join(process.cwd(), 'src', 'app', 'images'),
     favicon_url: cli.argv.favicon_url,
     channel: channel,
     table: function() {
@@ -218,10 +219,10 @@ exports.get = function(cli, callback) {
     var WINDOWS_EXECUTABLE = path.join(WINDOWS_OUT_X64,
       format('%s.exe', WINDOWS_APPNAME));
 
-    var WINDOWS_ICON = path.join(process.cwd,
+    var WINDOWS_ICON = path.join(process.cwd(),
       _.get(pkg, 'hadron.build.win32.icon'));
 
-    var WINDOWS_LOADING_GIF = path.join(process.cwd,
+    var WINDOWS_LOADING_GIF = path.join(process.cwd(),
       _.get(pkg, 'hadron.build.win32.loading_gif'));
 
     var WINDOWS_OUT_SETUP_EXE = path.join(CONFIG.out,
@@ -313,7 +314,7 @@ exports.get = function(cli, callback) {
     var OSX_EXECUTABLE = path.join(OSX_DOT_APP,
       'Contents', 'MacOS', 'Electron');
 
-    var OSX_ICON = path.resolve(process.cwd, _.get(pkg, 'hadron.build.darwin.icon'));
+    var OSX_ICON = path.resolve(process.cwd(), _.get(pkg, 'hadron.build.darwin.icon'));
 
     var OSX_OUT_DMG = path.join(CONFIG.out,
       format('%s.dmg', OSX_APPNAME));
@@ -341,7 +342,7 @@ exports.get = function(cli, callback) {
        * Background image for `.dmg`.
        * @see http://npm.im/electron-installer-dmg
        */
-      background: path.resolve(process.cwd, _.get(pkg, 'hadron.build.darwin.dmg_background')),
+      background: path.resolve(process.cwd(), _.get(pkg, 'hadron.build.darwin.dmg_background')),
       /**
        * Layout for `.dmg`.
        * The following only modifies "x","y" values from defaults.

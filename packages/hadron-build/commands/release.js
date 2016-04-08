@@ -25,7 +25,7 @@ var util = require('util');
 var format = util.format;
 var path = require('path');
 
-var pkg = require(path.join(process.cwd, 'package.json'));
+var pkg = require(path.join(process.cwd(), 'package.json'));
 var del = require('del');
 var fs = require('fs-extra');
 var _ = require('lodash');
@@ -105,7 +105,7 @@ function cleanupBrandedApplicationScaffold(CONFIG, done) {
 function writeLicenseFile(CONFIG, done) {
   var LICENSE_DEST = path.join(CONFIG.appPath, '..', 'LICENSE');
   license.build({
-    path: process.cwd
+    path: process.cwd()
   }, function(err, contents) {
     if (err) {
       return done(err);
@@ -276,7 +276,7 @@ function createApplicationAsar(CONFIG, done) {
      * TODO (imlucas) Find a good way to automate generating
      * the hints file using `ELECTRON_LOG_ASAR_READS=1`.
      *
-     *  ordering: path.join(process.cwd,
+     *  ordering: path.join(process.cwd(),
      *   'resources', 'asar-ordering-hint.txt'),
      */
     unpack: '{' + [
@@ -465,7 +465,6 @@ function maybePublishRelease(CONFIG, done) {
     cli.ok('done');
   });
 }
-
 
 exports.builder = config.options;
 

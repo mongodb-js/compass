@@ -37,7 +37,7 @@ exports.tasks = function(argv) {
 };
 
 exports.generateLessCache = function(opts, done) {
-  const appDir = path.join(process.cwd, 'src', 'app');
+  const appDir = path.join(process.cwd(), 'src', 'app');
   const src = path.join(appDir, 'index.less');
 
   const lessCache = new LessCache({

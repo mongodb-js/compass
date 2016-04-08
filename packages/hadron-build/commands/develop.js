@@ -34,7 +34,7 @@ exports.handler = function(argv) {
 };
 
 exports.startElectronPrebuilt = function(opts, done) {
-  var args = [process.cwd];
+  var args = [process.cwd()];
 
   var proc = spawn(ELECTRON_PREBUILT_EXECUTABLE, args, {
     env: process.env,
