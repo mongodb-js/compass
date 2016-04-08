@@ -1,6 +1,6 @@
 # hadron-build [![travis][travis_img]][travis_url] [![npm][npm_img]][npm_url]
 
-> Build tools for Hadron apps.
+> Tooling for Hadron apps.
 
 ## bins/commands
 

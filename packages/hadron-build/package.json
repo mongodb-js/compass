@@ -1,6 +1,6 @@
 {
   "name": "hadron-build",
-  "description": "Build tools for Hadron apps built on Electron.",
+  "description": "Tooling for Hadron apps.",
   "version": "0.0.0",
   "scripts": {
     "fmt": "mongodb-js-fmt",
