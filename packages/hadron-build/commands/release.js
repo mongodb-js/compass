@@ -12,13 +12,6 @@
 var config = require('../lib/config');
 var createCLI = require('mongodb-js-cli');
 
-/**
- * TODO (imlucas) Document and use yargs environment variable support.
- * @see http://yargs.js.org/docs/#methods-envprefix
- *
- * TODO (imlucas) Add examples
- * @see http://yargs.js.org/docs/#methods-examplecmd-desc
- */
 var cli = createCLI('hadron-build:release');
 
 var util = require('util');
@@ -161,6 +154,8 @@ function transformPackageJson(CONFIG, done) {
     'check'
   ];
   var contents = _.omit(pkg, packageKeysToRemove);
+  delete contents.config.hadron.build;
+
   if (!contents.config) {
     contents.config = {};
   }
@@ -468,15 +463,17 @@ function maybePublishRelease(CONFIG, done) {
 
 exports.builder = config.options;
 
+_.assign(exports.builder, ui.builder);
+
 exports.handler = function(argv) {
   cli.argv = argv;
 
   config.get(cli, function(err, CONFIG) {
     cli.abortIfError(err);
-    var tasks = [
-      _.partial(createBrandedApplication),
-      _.partial(cleanupBrandedApplicationScaffold),
-      ui.tasks(CONFIG),
+    var tasks = _.flatten([
+      _.partial(createBrandedApplication, CONFIG),
+      _.partial(cleanupBrandedApplicationScaffold, CONFIG),
+      ui.tasks(argv),
       _.partial(writeLicenseFile, CONFIG),
       _.partial(writeVersionFile, CONFIG),
       _.partial(transformPackageJson, CONFIG),
@@ -486,7 +483,7 @@ exports.handler = function(argv) {
       _.partial(createBrandedInstaller, CONFIG),
       _.partial(createApplicationZip, CONFIG),
       _.partial(maybePublishRelease, CONFIG)
-    ];
+    ]);
 
     async.series(tasks, function(_err) {
       cli.abortIfError(_err);

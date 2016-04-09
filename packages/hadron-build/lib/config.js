@@ -85,7 +85,7 @@ exports.options = {
   },
   favicon_url: {
     description: 'A URL to an ICO file to use as the application icon (e.g. Windows: displayed in Control Panel > Programs and Features)',
-    default: _.get(pkg, 'hadron.build.win32.favicon_url')
+    default: _.get(pkg, 'config.hadron.build.win32.favicon_url')
   },
   commit_sha1: {
     // TODO (imlucas) evergeen sets an environment variable
@@ -155,7 +155,7 @@ exports.get = function(cli, callback) {
     'app-copyright': format('%s %s', new Date().getFullYear(), CONFIG.author),
     'build-version': cli.argv.version,
     'app-version': cli.argv.version,
-    ignore: new RegExp('node_modules/|.cache/|dist/|test/'),
+    ignore: new RegExp('node_modules/|.cache/|dist/|test/|.user-data'),
     platform: cli.argv.platform,
     arch: cli.argv.arch,
     version: cli.argv.electron_version,
@@ -220,10 +220,10 @@ exports.get = function(cli, callback) {
       format('%s.exe', WINDOWS_APPNAME));
 
     var WINDOWS_ICON = path.join(process.cwd(),
-      _.get(pkg, 'hadron.build.win32.icon'));
+      _.get(pkg, 'config.hadron.build.win32.icon'));
 
     var WINDOWS_LOADING_GIF = path.join(process.cwd(),
-      _.get(pkg, 'hadron.build.win32.loading_gif'));
+      _.get(pkg, 'config.hadron.build.win32.loading_gif'));
 
     var WINDOWS_OUT_SETUP_EXE = path.join(CONFIG.out,
       format('%sSetup.exe', WINDOWS_APPNAME));
@@ -282,7 +282,7 @@ exports.get = function(cli, callback) {
         description: CONFIG.description,
         /**
          * TODO (imlucas) Uncomment when hadron-endpoint-server deployed.
-         * remoteReleases: _.get(pkg, 'hadron.endpoint'),
+         * remoteReleases: _.get(pkg, 'config.hadron.endpoint'),
          * remoteToken: process.env.GITHUB_TOKEN,
          */
         /**
@@ -308,13 +308,14 @@ exports.get = function(cli, callback) {
     var OSX_OUT_X64 = path.join(CONFIG.out,
       format('%s-darwin-x64', OSX_APPNAME));
     var OSX_DOT_APP = path.join(OSX_OUT_X64, format('%s.app', OSX_APPNAME));
-    var OSX_IDENTITY = _.get(pkg, 'hadron.build.darwin.codesign_identity');
-    var OSX_IDENTITY_SHA1 = _.get(pkg, 'hadron.build.darwin.codesign_sha1');
+    var OSX_IDENTITY = _.get(pkg, 'config.hadron.build.darwin.codesign_identity');
+    var OSX_IDENTITY_SHA1 = _.get(pkg, 'config.hadron.build.darwin.codesign_sha1');
     var OSX_RESOURCES = path.join(OSX_DOT_APP, 'Contents', 'Resources');
     var OSX_EXECUTABLE = path.join(OSX_DOT_APP,
       'Contents', 'MacOS', 'Electron');
 
-    var OSX_ICON = path.resolve(process.cwd(), _.get(pkg, 'hadron.build.darwin.icon'));
+    var OSX_ICON = path.resolve(process.cwd(),
+      _.get(pkg, 'config.hadron.build.darwin.icon'));
 
     var OSX_OUT_DMG = path.join(CONFIG.out,
       format('%s.dmg', OSX_APPNAME));
@@ -323,6 +324,7 @@ exports.get = function(cli, callback) {
       format('%s.zip', OSX_APPNAME));
 
     _.assign(CONFIG, {
+      sign: null,
       name: OSX_APPNAME,
       icon: OSX_ICON,
       appPath: OSX_DOT_APP,
@@ -342,7 +344,7 @@ exports.get = function(cli, callback) {
        * Background image for `.dmg`.
        * @see http://npm.im/electron-installer-dmg
        */
-      background: path.resolve(process.cwd(), _.get(pkg, 'hadron.build.darwin.dmg_background')),
+      background: path.resolve(process.cwd(), _.get(pkg, 'config.hadron.build.darwin.dmg_background')),
       /**
        * Layout for `.dmg`.
        * The following only modifies "x","y" values from defaults.
@@ -368,12 +370,12 @@ exports.get = function(cli, callback) {
           path: OSX_DOT_APP
         }
       ],
-      'app-bundle-id': _.get(pkg, 'hadron.build.darwin.app_bundle_id'),
+      'app-bundle-id': _.get(pkg, 'config.hadron.build.darwin.app_bundle_id'),
       /**
        * @see http://bit.ly/LSApplicationCategoryType
        */
-      'app-category-type': _.get(pkg, 'hadron.build.darwin.app_category_type'),
-      protocols: _.get(pkg, 'hadron.protocols')
+      'app-category-type': _.get(pkg, 'config.hadron.build.darwin.app_category_type'),
+      protocols: _.get(pkg, 'config.hadron.protocols')
     });
 
     CONFIG.createInstaller = function(done) {
