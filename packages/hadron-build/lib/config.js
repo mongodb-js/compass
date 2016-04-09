@@ -384,7 +384,7 @@ exports.get = function(cli, callback) {
         if (err) {
           return done(err);
         }
-        if (available && cli.argv.sign) {
+        if (available) {
           tasks.push(_.partial(codesign, {
             identity: OSX_IDENTITY_SHA1,
             appPath: OSX_DOT_APP
