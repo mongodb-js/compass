@@ -6,27 +6,29 @@
  *
  * @see https://github.com/atom/atom/blob/master/script/utils/verify-requirements.js
  */
+const _ = require('lodash');
 const async = require('async');
 const semver = require('semver');
 const format = require('util').format;
 const run = require('electron-installer-run');
 const abortIfError = require('../lib/abort-if-error');
 const debug = require('debug')('hadron-build:commands:verify');
+const pkg = require('../lib/package');
 
 exports.builder = {
   nodejs_version: {
     describe: 'What version of node.js is required for this app?',
-    default: process.env.npm_package_engines_node
+    default: _.get(pkg, 'engines.node') || '^5.0.0'
   },
   npm_version: {
     describe: 'What version of npm is required for this app?',
-    default: process.env.npm_package_engines_npm
+    default: _.get(pkg, 'engines.npm') || '^3.0.0'
   }
 };
 
 exports.tasks = function(argv) {
   return [
-    exports.checkPythonVersion.bind(null, argv),
+    exports.checkPythonVersion,
     exports.checkNpmAndNodejsVersions.bind(null, argv)
   ];
 };

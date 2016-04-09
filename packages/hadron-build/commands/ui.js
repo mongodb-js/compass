@@ -14,11 +14,11 @@ exports.describe = 'Compile the app UI';
 exports.builder = {
   template_cache: {
     description: 'Path for template cache',
-    default: '.cache/templates.js'
+    default: 'src/app/templates.js'
   },
   less_cache: {
     description: 'Path for less cache',
-    default: '.cache/less/'
+    default: 'src/app/compiled-less'
   }
 };
 
@@ -58,6 +58,6 @@ exports.generateLessCache = function(opts, done) {
  * TODO (imlucas) Watch for changes?
  */
 exports.generateTemplateCache = function(opts, done) {
-  var appdir = path.join(process.cwd, 'src', 'app');
+  var appdir = path.join(process.cwd(), 'src', 'app');
   templatizer(appdir, opts.template_cache, done);
 };

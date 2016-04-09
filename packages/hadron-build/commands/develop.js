@@ -20,6 +20,8 @@ exports.builder = {
   }
 };
 
+_.assign(exports.builder, verify.builder, ui.builder);
+
 exports.handler = function(argv) {
   process.env.NODE_ENV = 'development';
 
