@@ -40,7 +40,7 @@
     "less-cache": "^0.23.0",
     "lodash": "^4.8.2",
     "mocha-evergreen-reporter": "^0.0.7",
-    "mongodb-js-cli": "^0.0.2",
+    "mongodb-js-cli": "^0.0.3",
     "normalize-package-data": "^2.3.5",
     "parse-github-repo-url": "^1.0.0",
     "semver": "^5.1.0",
