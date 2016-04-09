@@ -33,6 +33,7 @@
     "electron-prebuilt": "^0.36.11",
     "electron-winstaller": "^2.0.5",
     "fs-extra": "^0.26.5",
+    "github": "^0.2.4",
     "glob": "^5.0.15",
     "in-publish": "^2.0.0",
     "js-yaml": "^3.5.4",
