@@ -53,6 +53,7 @@ var config = require('./config');
 var compileUI = require('./compile-ui');
 var generateTemplates = compileUI.generateTemplates;
 var generateLessCache = compileUI.generateLessCache;
+var createModuleCache = require('./module-cache');
 
 /**
  * TODO (imlucas) Document and use yargs environment variable support.
@@ -369,6 +370,7 @@ function main() {
       transformPackageJson,
       installDependencies,
       removeDevelopmentFiles,
+      createModuleCache,
       createApplicationAsar,
       createApplicationZip,
       createBrandedInstaller
