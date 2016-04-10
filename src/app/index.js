@@ -9,6 +9,13 @@ console.time('app/index.js');
 var StyleManager = require('./style-manager');
 StyleManager.writeStyles();
 
+var path = require('path');
+
+var resourcePath = path.join(__dirname, '..', '..');
+var ModuleCache = require('hadron-module-cache');
+ModuleCache.register(resourcePath);
+ModuleCache.add(resourcePath);
+
 /**
  * The main entrypoint for the application!
  */

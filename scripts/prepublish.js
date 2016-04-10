@@ -51,6 +51,7 @@ var license = require('electron-license');
 var createCLI = require('mongodb-js-cli');
 var config = require('./config');
 var compileUI = require('./compile-ui');
+var createModuleCache = require('./module-cache');
 var generateTemplates = compileUI.generateTemplates;
 var generateLessCache = compileUI.generateLessCache;
 
@@ -369,6 +370,7 @@ function main() {
       transformPackageJson,
       installDependencies,
       removeDevelopmentFiles,
+      createModuleCache,
       createApplicationAsar,
       createApplicationZip,
       createBrandedInstaller
