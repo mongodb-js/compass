@@ -6,6 +6,13 @@ if (process.env.NODE_ENV !== 'production') {
 var debug = require('debug')('mongodb-compass:app');
 console.time('app/index.js');
 
+var path = require('path');
+
+var resourcePath = path.join(__dirname, '..', '..');
+var ModuleCache = require('hadron-module-cache');
+ModuleCache.register(resourcePath);
+ModuleCache.add(resourcePath);
+
 /**
  * The main entrypoint for the application!
  */
