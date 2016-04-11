@@ -1,6 +1,6 @@
 {
-  "name": "mongodb-component-registry",
-  "description": "MongoDB Component Registry",
+  "name": "hadron-component-registry",
+  "description": "Hadron Component Registry",
   "author": "Durran Jordan <durran@gmail.com>",
   "bugs": "https://github.com/mongodb-js/component-registry/issues",
   "homepage": "https://github.com/mongodb-js/component-registry",
