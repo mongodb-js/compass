@@ -1,14 +1,30 @@
 'use strict';
 
-const abortIfError = require('../lib/abort-if-error');
-const templatizer = require('templatizer');
+const Promise = require('bluebird');
+const templatizer = Promise.promisify(require('templatizer'));
 const path = require('path');
 const LessCache = require('less-cache');
-const fs = require('fs');
+const fs = Promise.promisifyAll(require('fs-extra'));
+const cli = require('mongodb-js-cli')('hadron-build:ui');
+const abortIfError = cli.abortIfError.bind(cli);
 
-exports.command = 'ui [options]';
+let generateLessCache = (opts) => {
+  const appDir = path.join(process.cwd(), 'src', 'app');
+  const src = path.join(appDir, 'index.less');
 
-exports.describe = 'Compile the app UI';
+  const lessCache = new LessCache({
+    cacheDir: opts.less_cache,
+    resourcePath: appDir
+  });
+
+  return fs.readFile(src, 'utf-8')
+    .then((contents) => lessCache.cssForFile(src, contents));
+};
+
+let generateTemplateCache = function(opts) {
+  var appdir = path.join(process.cwd(), 'src', 'app');
+  return templatizer(appdir, opts.template_cache);
+};
 
 exports.builder = {
   template_cache: {
@@ -21,39 +37,14 @@ exports.builder = {
   }
 };
 
-exports.handler = function(argv) {
+exports.handler = (argv) => {
+  cli.argv = argv;
   exports.task(argv).catch(abortIfError);
 };
 
 exports.tasks = (argv) => {
   return Promise.all([
-    exports.generateTemplateCache(argv),
-    exports.generateLessCache(argv)
+    generateTemplateCache(argv),
+    generateLessCache(argv)
   ]);
-};
-
-exports.generateLessCache = (opts) => {
-  const appDir = path.join(process.cwd(), 'src', 'app');
-  const src = path.join(appDir, 'index.less');
-
-  const lessCache = new LessCache({
-    cacheDir: opts.less_cache,
-    resourcePath: appDir
-  });
-
-  const p = new Promise();
-  fs.readFile(src, 'utf-8', (err, contents) => {
-    if (err) p.reject(err);
-
-    p.resolve(lessCache.cssForFile(src, contents));
-  });
-  return p;
-};
-
-/**
- * TODO (imlucas) Watch for changes if NODE_ENV === `development`?
- */
-exports.generateTemplateCache = function(opts, done) {
-  var appdir = path.join(process.cwd(), 'src', 'app');
-  templatizer(appdir, opts.template_cache, done);
 };

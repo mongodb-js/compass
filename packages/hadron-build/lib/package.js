@@ -1,6 +1,15 @@
-var path = require('path');
-var normalizePkg = require('normalize-package-data');
-var pkg = require(path.join(process.cwd(), 'package.json'));
-normalizePkg(pkg);
+'use strict';
 
-module.exports = pkg;
+const path = require('path');
+const normalizePkg = require('normalize-package-data');
+
+let get = (directory) => {
+  const _path = path.join(directory, 'package.json');
+  let pkg = require(_path);
+  normalizePkg(pkg);
+  pkg._path = _path;
+  return pkg;
+};
+
+module.exports = get(process.cwd());
+module.exports.get = get;

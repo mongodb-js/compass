@@ -10,12 +10,10 @@
  * @see [Atom's dump-symbols-task.coffee](https://git.io/va3fG)
  */
 const config = require('../lib/config');
-const createCLI = require('mongodb-js-cli');
-const cli = createCLI('hadron-build:release');
+const cli = require('mongodb-js-cli')('hadron-build:release');
 const util = require('util');
 const format = util.format;
 const path = require('path');
-const pkg = require(path.join(process.cwd(), 'package.json'));
 const del = require('del');
 const fs = require('fs-extra');
 const _ = require('lodash');
@@ -25,7 +23,9 @@ const packager = require('electron-packager');
 const run = require('electron-installer-run');
 const zip = require('electron-installer-zip');
 const license = require('electron-license');
+const ModuleCache = require('hadron-module-cache');
 
+const pkg = require('../lib/package');
 const ui = require('./ui');
 const verify = require('./verify');
 
@@ -327,37 +327,51 @@ function createBrandedInstaller(CONFIG, done) {
   CONFIG.createInstaller(done);
 }
 
-exports.builder = config.options;
+let createModuleCache = (CONFIG, done) => {
+  const appDir = path.join(CONFIG.resources, 'app');
+  ModuleCache.create(appDir);
 
-_.assign(exports.builder, ui.builder, verify.builder);
+  let metadata = pkg.from(appDir);
 
-exports.handler = function(argv) {
+  for (let folder in _.get(metadata, '_compassModuleCache.folders')) {
+    if (_.includes(folder.paths, '')) {
+      folder.paths = ['', 'test', 'src', 'src/app'];
+    }
+  }
+  fs.writeFile(metadata._path, JSON.stringify(metadata, null, 2), done);
+};
+
+exports.builder = {};
+
+_.assign(exports.builder, config.options, ui.builder, verify.builder);
+
+exports.handler = (argv) => {
   cli.argv = argv;
 
-  config.get(cli, function(err, CONFIG) {
-    cli.abortIfError(err);
-    var tasks = _.flatten([
-      verify.tasks(argv),
-      ui.tasks(argv),
-      _.partial(createBrandedApplication, CONFIG),
-      _.partial(cleanupBrandedApplicationScaffold, CONFIG),
-      _.partial(writeLicenseFile, CONFIG),
-      _.partial(writeVersionFile, CONFIG),
-      _.partial(transformPackageJson, CONFIG),
-      _.partial(installDependencies, CONFIG),
-      _.partial(removeDevelopmentFiles, CONFIG),
-      _.partial(createApplicationAsar, CONFIG),
-      _.partial(createBrandedInstaller, CONFIG),
-      _.partial(createApplicationZip, CONFIG)
-    ]);
+  let CONFIG = config.get(cli);
 
-    async.series(tasks, function(_err) {
-      cli.abortIfError(_err);
-      cli.ok(format('%d assets successfully built',
-        CONFIG.assets.length));
-      CONFIG.assets.map(function(asset) {
-        cli.info(asset.path);
-      });
+  var tasks = _.flatten([
+    verify.tasks(argv),
+    ui.tasks(argv),
+    _.partial(createBrandedApplication, CONFIG),
+    _.partial(cleanupBrandedApplicationScaffold, CONFIG),
+    _.partial(writeLicenseFile, CONFIG),
+    _.partial(writeVersionFile, CONFIG),
+    _.partial(transformPackageJson, CONFIG),
+    _.partial(installDependencies, CONFIG),
+    _.partial(createModuleCache, CONFIG),
+    _.partial(removeDevelopmentFiles, CONFIG),
+    _.partial(createApplicationAsar, CONFIG),
+    _.partial(createBrandedInstaller, CONFIG),
+    _.partial(createApplicationZip, CONFIG)
+  ]);
+
+  async.series(tasks, (_err) => {
+    cli.abortIfError(_err);
+    cli.ok(format('%d assets successfully built',
+      CONFIG.assets.length));
+    CONFIG.assets.map(function(asset) {
+      cli.info(asset.path);
     });
   });
 };

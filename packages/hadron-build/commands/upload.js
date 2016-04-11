@@ -6,18 +6,20 @@
  *
  * @see https://github.com/atom/atom/blob/master/script/utils/verify-requirements.js
  */
+const Promise = require('bluebird');
 const fs = require('fs-extra');
 const _ = require('lodash');
-const format = require('util').format;
 const GitHub = require('github');
 const github = new GitHub({version: '3.0.0', 'User-Agent': 'hadron-build'});
 const cli = require('mongodb-js-cli')('hadron-build:upload');
+const abortIfError = cli.abortIfError.bind(cli);
 
 const config = require('../lib/config');
 const AWS = require('aws-sdk');
 
 
-function createGitHubRelease(CONFIG) {
+let createGitHubRelease = (CONFIG) => {
+  const p = Promise.defer();
   var opts = {
     owner: CONFIG.github_owner,
     repo: CONFIG.github_repo,
@@ -32,18 +34,17 @@ function createGitHubRelease(CONFIG) {
 
   cli.debug('Creating release', opts);
 
-  const p = new Promise();
   github.releases.createRelease(opts, function(err, res) {
     if (err) p.reject(err);
 
     cli.debug('Created release', res);
     p.resolve(res);
   });
-  return p;
-}
+  return p.promise;
+};
 
-function getOrCreateGitHubRelease(CONFIG) {
-  const p = new Promise();
+let getOrCreateGitHubRelease = (CONFIG) => {
+  const p = Promise.defer();
   const opts = {
     owner: CONFIG.github_owner,
     repo: CONFIG.github_repo
@@ -65,10 +66,10 @@ function getOrCreateGitHubRelease(CONFIG) {
     createGitHubRelease(CONFIG).then(p);
   });
   return p;
-}
+};
 
-function removeGitHubReleaseAssetIfExists(CONFIG, release, asset) {
-  var existing = _.chain(release.assets)
+let removeGitHubReleaseAssetIfExists = (CONFIG, release, asset) => {
+  let existing = _.chain(release.assets)
     .filter((a) => a.name === asset.name)
     .first()
     .value();
@@ -77,14 +78,14 @@ function removeGitHubReleaseAssetIfExists(CONFIG, release, asset) {
     return Promise.resolve(false);
   }
 
-  cli.debug('Removing existing `%s`', asset.name);
-  var opts = {
+  cli.debug(`Removing existing asset ${asset.name}`);
+  const opts = {
     owner: CONFIG.github_owner,
     repo: CONFIG.github_repo,
     id: existing.id
   };
 
-  const p = new Promise();
+  const p = Promise.defer();
   github.releases.deleteAsset(opts, (err, res) => {
     if (err) {
       return p.reject(err);
@@ -92,11 +93,11 @@ function removeGitHubReleaseAssetIfExists(CONFIG, release, asset) {
     cli.debug('Asset deleted', res);
     return p.resolve(true);
   });
-  return p;
+  return p.promise;
 }
 
-function doGitHubReleaseAssetUpload(CONFIG, release, asset) {
-  var opts = {
+let doGitHubReleaseAssetUpload = (CONFIG, release, asset) => {
+  const opts = {
     owner: CONFIG.github_owner,
     repo: CONFIG.github_repo,
     id: release.id,
@@ -105,32 +106,29 @@ function doGitHubReleaseAssetUpload(CONFIG, release, asset) {
   };
 
   cli.spinner(`Uploading ${asset.name}`);
-  var promise = new Promise();
+
+  const p = Promise.defer();
   github.releases.uploadAsset(opts, function(err, res) {
     if (err) {
       err.stack = err.stack || '<no stacktrace>';
       cli.error(`Failed to upload ${asset.name}`);
-      return promise.reject(err);
+      return p.reject(err);
     }
     cli.debug('Asset upload returned', res);
     cli.ok(`Uploaded ${asset.name}`);
-    promise.resolve(asset);
+    p.resolve(asset);
   });
-  return promise;
-}
+  return p.promise;
+};
 
-function uploadGitHubReleaseAsset(CONFIG, release, asset) {
+let uploadGitHubReleaseAsset = (CONFIG, release, asset) => {
   return removeGitHubReleaseAssetIfExists(CONFIG, release, asset)
     .then(() => doGitHubReleaseAssetUpload(CONFIG, release, asset));
-}
+};
 
-function uploadAllGitHubReleaseAssets(CONFIG, release) {
-  return CONFIG.assets.map( (asset) => uploadGitHubReleaseAsset(CONFIG, release, asset));
-}
-
-function maybePublishGitHubRelease(CONFIG) {
+let maybePublishGitHubRelease = (CONFIG) => {
   if (CONFIG.channel === 'dev') {
-    cli.info('Skipping publish release for dev channel.');
+    cli.info('Skipping publish GitHub release for dev channel.');
     return Promise.resolve();
   }
 
@@ -145,10 +143,14 @@ function maybePublishGitHubRelease(CONFIG) {
   });
 
   getOrCreateGitHubRelease(CONFIG)
-    .then((release) => uploadAllGitHubReleaseAssets(CONFIG, release));
-}
+    .then((release) => {
+      return CONFIG.assets.map((asset) => uploadGitHubReleaseAsset(CONFIG, release, asset))
+    });
+};
 
 let uploadEvergreenAssetToS3 = (asset) => {
+  const p = Promise.defer();
+
   const params = {
     Bucket: process.env.EVERGREEN_BUCKET,
     Key: `${process.env.EVERGREEN_S3_KEY_PREFIX}/${asset.name}`,
@@ -162,60 +164,71 @@ let uploadEvergreenAssetToS3 = (asset) => {
     }
   };
 
-  const s3 = new AWS.S3({
-    accessKeyId: process.env.EVERGREEN_AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.EVERGREEN_AWS_SECRET_ACCESS_KEY
-  });
-
-  const promise = new Promise();
-
-  s3.upload(params)
-    .on('httpUploadProgress', (evt) => {
-      if (!evt.total) return;
-      cli.debug(`upload ${asset.name}: ${evt.total / evt.loaded}`);
-    })
-    .send(function(err, data) {
+  try {
+    const upload = new AWS.S3.ManagedUpload({
+      accessKeyId: process.env.EVERGREEN_AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.EVERGREEN_AWS_SECRET_ACCESS_KEY,
+      params: params
+    });
+    upload.send(function(err, data) {
       if (err) {
         cli.debug(`uploading ${asset.name} failed: ${err}`);
-        promise.reject(err);
+        p.reject(err);
         return;
       }
       cli.debug(`upload of ${asset.name} complete`);
-      promise.resolve(data);
+      p.resolve(data);
     });
-  return promise;
+    upload.on('httpUploadProgress', (evt) => {
+      cli.debug('got httpUploadProgress', evt);
+      if (!evt.total) return;
+      cli.debug(`upload ${asset.name}: ${evt.total / evt.loaded}`);
+    });
+  } catch (err) {
+    return Promise.reject(err);
+  }
+  return p.promise;
 };
 
 function requireEnvironmentVariables(keys) {
-  keys.forEach((key) => {
+  for (let key of keys) {
     if (process.env[key]) return true;
     throw new TypeError(`Please set the environment variable ${key}`);
-  });
+  }
 }
 
 let maybeUploadEvergreenAssets = (CONFIG) => {
   if (!process.env.EVERGREEN) {
-    cli.debug('EVERGREEN environment var not set.  Skipping upload assets.');
-    return Promise.resolve();
+    cli.info('`EVERGREEN` environment variable not set.  ' +
+      'Skipping upload of Evergreen assets to S3.');
+    return Promise.resolve(false);
   }
 
-  requireEnvironmentVariables([
-    'EVERGREEN_AWS_ACCESS_KEY_ID',
-    'EVERGREEN_AWS_SECRET_ACCESS_KEY',
-    'EVERGREEN_BUCKET',
-    'EVERGREEN_S3_KEY_PREFIX'
-  ]);
+  try {
+    requireEnvironmentVariables([
+      'EVERGREEN_AWS_ACCESS_KEY_ID',
+      'EVERGREEN_AWS_SECRET_ACCESS_KEY',
+      'EVERGREEN_BUCKET',
+      'EVERGREEN_S3_KEY_PREFIX'
+    ]);
+  } catch (err) {
+    return Promise.reject(err);
+  }
 
-  return CONFIG.assets.map(uploadEvergreenAssetToS3);
+  cli.debug(`Uploading ${CONFIG.assets.length} assets produced by evergreen to S3...`);
+  cli.debug(` - EVERGREEN_BUCKET: ${process.env.EVERGREEN_BUCKET}`);
+  cli.debug(` - EVERGREEN_S3_KEY_PREFIX: ${process.env.EVERGREEN_S3_KEY_PREFIX}`);
+  return Promise.all(CONFIG.assets.map(uploadEvergreenAssetToS3));
 };
 
 exports.builder = {};
+_.assign(exports.builder, config.options);
 
 exports.handler = function(argv) {
   cli.argv = argv;
   var CONFIG = config.get(cli);
 
-  Promise.all(maybeUploadEvergreenAssets(CONFIG))
+  maybeUploadEvergreenAssets(CONFIG)
     .then(() => maybePublishGitHubRelease(CONFIG))
-    .catch((err) => cli.abortIfError(err));
+    .catch(abortIfError);
 };

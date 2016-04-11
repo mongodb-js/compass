@@ -1,5 +1,6 @@
 'use strict';
 
+const Promise = require('bluebird');
 const _ = require('lodash');
 const spawn = require('child_process').spawn;
 const ui = require('./ui');
@@ -29,7 +30,8 @@ exports.tasks = function(argv) {
   }
 
   return Promise.all([
-    verify.tasks(argv), ui.tasks(argv)
+    verify.tasks(argv),
+    ui.tasks(argv)
   ])
   .then(exports.startElectronPrebuilt);
 };
@@ -44,9 +46,9 @@ exports.startElectronPrebuilt = () => {
     stdio: 'inherit'
   };
 
-  const p = new Promise();
+  const p = Promise.defer();
   spawn(ELECTRON_PREBUILT_EXECUTABLE, [cwd], options)
     .on('error', p.reject)
     .on('exit', p.resolve);
-  return p;
+  return p.promise;
 };

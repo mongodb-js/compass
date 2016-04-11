@@ -1,5 +1,6 @@
 /* eslint no-sync: 0 */
-const execFile = require('child_process').execFile;
+const Promise = require('bluebird');
+const execFile = Promise.promisify(require('child_process').execFile);
 const execFileSync = require('child_process').execFileSync;
 const which = require('which');
 
@@ -56,12 +57,7 @@ const getExecArgs = (sha) => {
  * @return {Promise}
  */
 exports.getTag = (sha) => {
-  const p = new Promise();
-  const args = getExecArgs(sha);
-  args.push((_, stdout) => p.resolve(parse(stdout)));
-
-  execFile.apply(null, args);
-  return p;
+  return execFile.apply(null, getExecArgs(sha)).then(parse);
 };
 
 exports.getTagSync = (sha) => {
