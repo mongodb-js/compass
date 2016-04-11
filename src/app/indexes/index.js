@@ -40,22 +40,43 @@ var IndexItemView = View.extend({
         return moment(this.model.usageSince).format('Do MMM YYYY');
       }
     },
-    extended_properties: {
-      deps: ['model.properties'],
+    index_cardinality: {
+      deps: ['model.single', 'model.compound'],
       fn: function() {
-        var props = this.model.properties.slice();
+        return this.model.single ? 'single' : 'compound';
+      }
+    },
+    index_type: {
+      deps: ['model.text', 'model.hashed', 'model.geospatial'],
+      fn: function() {
         if (this.model.text) {
-          props.push('text');
+          return 'text';
         }
         if (this.model.hashed) {
-          props.push('hashed');
+          return 'hashed';
         }
         if (this.model.geo) {
-          props.push('geospatial');
+          return 'geospatial';
         }
-        return props;
+        return null;
       }
     }
+    // extended_properties: {
+    //   deps: ['model.properties'],
+    //   fn: function() {
+    //     var props = this.model.properties.slice();
+    //     if (this.model.text) {
+    //       props.push('text');
+    //     }
+    //     if (this.model.hashed) {
+    //       props.push('hashed');
+    //     }
+    //     if (this.model.geo) {
+    //       props.push('geospatial');
+    //     }
+    //     return props;
+    //   }
+    // }
   },
   events: {
     'click i.link': 'linkIconClicked'
@@ -72,6 +93,9 @@ var IndexItemView = View.extend({
     },
     'usage_since': {
       hook: 'usage-since'
+    },
+    index_type: {
+      hook: 'index-type'
     }
   },
   /**

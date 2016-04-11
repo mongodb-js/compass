@@ -21,13 +21,22 @@ tr
     div.usage-since since&nbsp;
       span(data-hook='usage-since')
   td
+    if index_type
+      div(class="property #{index_type}")
+        = index_type
+        i.link
+  //- td
+  //-   div.property.simple
+  //-     = index_cardinality
+  //-     i.link
+  td
     div.properties
-      each prop in extended_properties
+      each prop in model.properties
         - var cls = ''
-        - if (['single', 'compound'].indexOf(prop) > -1) cls = 'simple'
-        - if (prop === 'geospatial') cls = 'geospatial'
-        - if (prop === 'text') cls = 'text'
-        - if (prop === 'hashed') cls = 'hashed'
+        - if (['single', 'compound'].indexOf(prop) > -1) continue
+        //- - if (prop === 'geospatial') cls = 'geospatial'
+        //- - if (prop === 'text') cls = 'text'
+        //- - if (prop === 'hashed') cls = 'hashed'
         div(class='property #{cls}')
           = prop
           i.link
