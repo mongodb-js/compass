@@ -9,32 +9,27 @@
  * and include in assets.
  * @see [Atom's dump-symbols-task.coffee](https://git.io/va3fG)
  */
-var config = require('../lib/config');
-var createCLI = require('mongodb-js-cli');
+const config = require('../lib/config');
+const createCLI = require('mongodb-js-cli');
+const cli = createCLI('hadron-build:release');
+const util = require('util');
+const format = util.format;
+const path = require('path');
+const pkg = require(path.join(process.cwd(), 'package.json'));
+const del = require('del');
+const fs = require('fs-extra');
+const _ = require('lodash');
+const async = require('async');
+const asar = require('asar');
+const packager = require('electron-packager');
+const run = require('electron-installer-run');
+const zip = require('electron-installer-zip');
+const license = require('electron-license');
+const GitHub = require('github');
+const github = new GitHub({version: '3.0.0', 'User-Agent': 'hadron-build'});
 
-var cli = createCLI('hadron-build:release');
-
-var util = require('util');
-var format = util.format;
-var path = require('path');
-
-var pkg = require(path.join(process.cwd(), 'package.json'));
-var del = require('del');
-var fs = require('fs-extra');
-var _ = require('lodash');
-var async = require('async');
-var asar = require('asar');
-var packager = require('electron-packager');
-var run = require('electron-installer-run');
-var zip = require('electron-installer-zip');
-var license = require('electron-license');
-var GitHub = require('github');
-var github = new GitHub({
-  version: '3.0.0',
-  'User-Agent': 'hadron-build'
-});
-
-var ui = require('./ui');
+const ui = require('./ui');
+const verify = require('./verify');
 
 /**
  * Run `electron-packager`
@@ -463,7 +458,7 @@ function maybePublishRelease(CONFIG, done) {
 
 exports.builder = config.options;
 
-_.assign(exports.builder, ui.builder);
+_.assign(exports.builder, ui.builder, verify.builder);
 
 exports.handler = function(argv) {
   cli.argv = argv;
@@ -471,9 +466,10 @@ exports.handler = function(argv) {
   config.get(cli, function(err, CONFIG) {
     cli.abortIfError(err);
     var tasks = _.flatten([
+      verify.tasks(argv),
+      ui.tasks(argv),
       _.partial(createBrandedApplication, CONFIG),
       _.partial(cleanupBrandedApplicationScaffold, CONFIG),
-      ui.tasks(argv),
       _.partial(writeLicenseFile, CONFIG),
       _.partial(writeVersionFile, CONFIG),
       _.partial(transformPackageJson, CONFIG),
