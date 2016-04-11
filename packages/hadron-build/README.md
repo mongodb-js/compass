@@ -1,3 +1,5 @@
+![](https://cldup.com/CtkkzVUJC6-2000x2000.png)
+
 # hadron-build [![travis][travis_img]][travis_url] [![npm][npm_img]][npm_url]
 
 > Tooling for Hadron apps.
