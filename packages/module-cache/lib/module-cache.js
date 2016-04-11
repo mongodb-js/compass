@@ -1,3 +1,4 @@
+/* eslint-disable */
 var Module = require('module');
 var path = require('path');
 var semver = require('semver');
@@ -12,12 +13,12 @@ var semver = require('semver');
  */
 function __extends(child, parent) {
   for (var key in parent) { if (parent.hasOwnProperty(key)) child[key] = parent[key]; }
-  function ctor() { this.constructor = child; }
-  ctor.prototype = parent.prototype;
-  child.prototype = new ctor;
+  function Ctor() { this.constructor = child; }
+  Ctor.prototype = parent.prototype;
+  child.prototype = new Ctor;
   child.__super__ = parent.prototype;
   return child;
-};
+}
 
 /**
  * Common electron builtin modules.
@@ -91,7 +92,6 @@ var cache = {
 };
 
 if (process.platform === 'win32') {
-
   /**
    * Check if the path is an absolute path.
    *
@@ -101,9 +101,8 @@ if (process.platform === 'win32') {
    */
   function isAbsolute(pathToCheck) {
     return pathToCheck && (pathToCheck[1] === ':' || (pathToCheck[0] === '\\' && pathToCheck[1] === '\\'));
-  };
+  }
 } else {
-
   /**
    * Check if the path is an absolute path.
    *
@@ -113,7 +112,20 @@ if (process.platform === 'win32') {
    */
   function isAbsolute(pathToCheck) {
     return pathToCheck && pathToCheck[0] === '/';
-  };
+  }
+}
+
+/**
+ * Determine if the provided metadata has the named package dependency.
+ *
+ * @param {Object} metadata - The metadata to check.
+ * @param {String} name - The package name.
+ *
+ * @return {Boolean} If the metadata has the package dependency.
+ */
+function hasPackageDependency(metadata, name) {
+  var packageDeps = metadata.packageDependencies;
+  return (packageDeps != null) && packageDeps.hasOwnProperty(name);
 }
 
 /**
@@ -125,7 +137,7 @@ if (process.platform === 'win32') {
  */
 function isCorePath(pathToCheck) {
   return pathToCheck.startsWith(cache.resourcePathWithTrailingSlash);
-};
+}
 
 /**
  * Load all the dependencies of the application recursively.
@@ -138,7 +150,7 @@ function isCorePath(pathToCheck) {
 function loadDependencies(modulePath, rootPath, rootMetadata, moduleCache) {
   var fs = require('fs-plus');
   var modules = fs.listSync(path.join(modulePath, 'node_modules'));
-  for (childPath in modules) {
+  for (var childPath in modules) {
     if (path.basename(childPath) === '.bin') {
       continue;
     }
@@ -167,7 +179,7 @@ function loadDependencies(modulePath, rootPath, rootMetadata, moduleCache) {
       loadDependencies(childPath, rootPath, rootMetadata, moduleCache);
     }
   }
-};
+}
 
 /**
  * Recursively load appropriate files in compatible folders.
@@ -186,8 +198,8 @@ function loadFolderCompatibility(modulePath, rootPath, rootMetadata, moduleCache
   var metadata = JSON.parse(fs.readFileSync(metadataPath));
   var deps = (metadata != null) ? metadata.dependencies : {};
   var dependencies = (deps != null) ? deps : {};
-  for (name in dependencies) {
-    version = dependencies[name];
+  for (var name in dependencies) {
+    var version = dependencies[name];
     try {
       new Range(version);
     } catch (error) {
@@ -196,15 +208,16 @@ function loadFolderCompatibility(modulePath, rootPath, rootMetadata, moduleCache
   }
   function onDirectory(childPath) {
     return path.basename(childPath) !== 'node_modules';
-  };
+  }
   var paths = {};
   function onFile(childPath) {
     var extname = path.extname(childPath);
     if (extname && EXTENSIONS.indexOf(extname) >= 0) {
-      relativePath = path.relative(rootPath, path.dirname(childPath));
-      return paths[relativePath] = true;
+      var relativePath = path.relative(rootPath, path.dirname(childPath));
+      paths[relativePath] = true;
+      return true;
     }
-  };
+  }
   fs.traverseTreeSync(modulePath, onFile, onDirectory);
   paths = Object.keys(paths);
   if (paths.length > 0 && Object.keys(dependencies).length > 0) {
@@ -214,7 +227,7 @@ function loadFolderCompatibility(modulePath, rootPath, rootMetadata, moduleCache
     });
   }
   var modules = fs.listSync(path.join(modulePath, 'node_modules'));
-  for (childPath in modules) {
+  for (var childPath in modules) {
     if (path.basename(childPath) === '.bin') {
       continue;
     }
@@ -223,7 +236,7 @@ function loadFolderCompatibility(modulePath, rootPath, rootMetadata, moduleCache
     }
     loadFolderCompatibility(childPath, rootPath, rootMetadata, moduleCache);
   }
-};
+}
 
 /**
  * Load extensions, excluding tests.
@@ -263,7 +276,7 @@ function loadExtensions(modulePath, rootPath, rootMetadata, moduleCache) {
       }
       return moduleCache.extensions[extension].push(filePath);
     }
-  };
+  }
   function onDirectory(childPath) {
     if (rootMetadata.name === 'nylas') {
       var parentPath = path.dirname(childPath);
@@ -275,22 +288,9 @@ function loadExtensions(modulePath, rootPath, rootMetadata, moduleCache) {
       }
     }
     return true;
-  };
+  }
   fs.traverseTreeSync(rootPath, onFile, onDirectory);
-};
-
-/**
- * Determine if the provided metadata has the named package dependency.
- *
- * @param {Object} metadata - The metadata to check.
- * @param {String} name - The package name.
- *
- * @return {Boolean} If the metadata has the package dependency.
- */
-function hasPackageDependency(metadata, name) {
-  var packageDeps = metadata.packageDependencies;
-  return (packageDeps != null) && packageDeps.hasOwnProperty(name);
-};
+}
 
 /**
  * Check if the provided version satifies the range.
@@ -307,7 +307,7 @@ function satisfies(version, rawRange) {
     cache.ranges[rawRange] = parsedRange;
   }
   return parsedRange.test(version);
-};
+}
 
 /**
  * Resolve the file path.
@@ -346,7 +346,7 @@ function resolveFilePath(relativePath, parentModule) {
       }
     }
   }
-};
+}
 
 /**
  * Resolve the module path.
@@ -387,7 +387,7 @@ function resolveModulePath(relativePath, parentModule) {
   if (candidates == null) {
     return;
   }
-  for (version in candidates) {
+  for (var version in candidates) {
     var resolvedPath = candidates[version];
     if (Module._cache.hasOwnProperty(resolvedPath) || isCorePath(resolvedPath)) {
       if (satisfies(version, range)) {
@@ -395,7 +395,7 @@ function resolveModulePath(relativePath, parentModule) {
       }
     }
   }
-};
+}
 
 /**
  * Register core electron modules in the cache.
@@ -403,16 +403,16 @@ function resolveModulePath(relativePath, parentModule) {
 function registerBuiltins() {
   var electronRoot = path.join(process.resourcesPath, 'atom.asar');
   var commonRoot = path.join(electronRoot, 'common', 'api', 'lib');
-  for (builtin in COMMON_BUILTINS) {
-    cache.builtins[builtin] = path.join(commonRoot, "" + builtin + ".js");
+  for (var commonBuiltin in COMMON_BUILTINS) {
+    cache.builtins[commonBuiltin] = path.join(commonRoot, '' + commonBuiltin + '.js');
   }
   var rendererRoot = path.join(electronRoot, 'renderer', 'api');
   var results = [];
-  for (builtin in RENDERER_BUILTINS) {
-    results.push(cache.builtins[builtin] = path.join(rendererRoot, "" + builtin + ".js"));
+  for (var builtin in RENDERER_BUILTINS) {
+    results.push(cache.builtins[builtin] = path.join(rendererRoot, '' + builtin + '.js'));
   }
   return results;
-};
+}
 
 /**
  * Create the module cache from the module path.
@@ -421,16 +421,16 @@ function registerBuiltins() {
  */
 function create(modulePath) {
   var fs = require('fs-plus');
-  var modulePath = fs.realpathSync(modulePath);
+  modulePath = fs.realpathSync(modulePath);
   var metadataPath = path.join(modulePath, 'package.json');
   var metadata = JSON.parse(fs.readFileSync(metadataPath));
-  moduleCache = { version: 1, dependencies: [], extensions: {}, folders: [] };
+  var moduleCache = { version: 1, dependencies: [], extensions: {}, folders: [] };
   loadDependencies(modulePath, modulePath, metadata, moduleCache);
   loadFolderCompatibility(modulePath, modulePath, metadata, moduleCache);
   loadExtensions(modulePath, modulePath, metadata, moduleCache);
   metadata._compassModuleCache = moduleCache;
   fs.writeFileSync(metadataPath, JSON.stringify(metadata, null, 2));
-};
+}
 
 /**
  * Register the resource path with the cache. All requires under the path will
@@ -454,7 +454,7 @@ function register(resourcePath) {
   cache.resourcePath = resourcePath;
   cache.resourcePathWithTrailingSlash = resourcePath + path.sep;
   registerBuiltins();
-};
+}
 
 /**
  * Adds the directory to the cache.
@@ -463,7 +463,7 @@ function register(resourcePath) {
  * @param {Object} metadata - The optional package.json for the directory.
  */
 function add(directoryPath) {
-  var metadata = require(directoryPath + path.sep + "package.json");
+  var metadata = require(directoryPath + path.sep + 'package.json');
   var cacheToAdd = metadata._compassModuleCache;
 
   if (cacheToAdd == null) {
@@ -472,7 +472,7 @@ function add(directoryPath) {
 
   var dependencies = cacheToAdd.dependencies;
   var deps = (dependencies != null) ? dependencies : [];
-  for (dependency in deps) {
+  for (var dependency in deps) {
     if (!cache.dependencies[dependency.name]) {
       cache.dependencies[dependency.name] = {};
     }
@@ -483,25 +483,25 @@ function add(directoryPath) {
 
   var cacheFolders = cacheToAdd.folders;
   var folders = (cacheFolders != null) ? cacheFolders : [];
-  for (folder in folders) {
-    for (folderPath in folder.paths) {
+  for (var folder in folders) {
+    for (var folderPath in folder.paths) {
       if (folderPath) {
-        cache.folders[directoryPath + path.sep + folderPath] = entry.dependencies;
+        cache.folders[directoryPath + path.sep + folderPath] = folder.dependencies;
       } else {
         cache.folders[directoryPath] = folder.dependencies;
       }
     }
   }
 
-  for (extension in cacheToAdd.extensions) {
+  for (var extension in cacheToAdd.extensions) {
     if (cache.extensions[extension] == null) {
       cache.extensions[extension] = new Set();
     }
-    for (filePath in cacheToAdd.extensions[extension]) {
+    for (var filePath in cacheToAdd.extensions[extension]) {
       cache.extensions[extension].add(directoryPath + path.sep + filePath);
     }
   }
-};
+}
 
 module.exports.cache = cache;
 module.exports.create = create;
