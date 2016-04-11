@@ -25,4 +25,5 @@ require('yargs')
   .demand(1, 'Please specify a command.')
   .strict()
   .help()
+  .showHelpOnFail(false)
   .argv;
