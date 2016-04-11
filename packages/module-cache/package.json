@@ -1,0 +1,38 @@
+{
+  "name": "hadron-module-cache",
+  "description": "Hadron Module Cache",
+  "author": "Durran Jordan <durran@gmail.com>",
+  "bugs": "https://github.com/mongodb-js/module-cache/issues",
+  "homepage": "https://github.com/mongodb-js/module-cache",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/module-cache.git"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "mongodb-js"
+  ],
+  "scripts": {
+    "ci": "npm run check && npm test",
+    "test": "mocha",
+    "fmt": "mongodb-js-fmt ./*.js ./test/*.js",
+    "check": "mongodb-js-precommit"
+  },
+  "precommit": [
+    "check"
+  ],
+  "dependencies": {
+    "debug": "^2.2.0",
+    "fs-plus": "^2.8.2",
+    "semver": "^5.1.0"
+  },
+  "devDependencies": {
+    "chai": "^3.4.1",
+    "eslint-config-mongodb-js": "^1.0.6",
+    "mocha": "^2.3.4",
+    "mongodb-js-fmt": "^0.0.3",
+    "mongodb-js-precommit": "^0.2.8",
+    "pre-commit": "^1.1.2"
+  }
+}
