@@ -1,6 +1,5 @@
 'use strict';
 
-const async = require('async');
 const abortIfError = require('../lib/abort-if-error');
 const templatizer = require('templatizer');
 const path = require('path');
@@ -23,20 +22,17 @@ exports.builder = {
 };
 
 exports.handler = function(argv) {
-  async.series(exports.tasks(argv), function(err) {
-    abortIfError(err);
-    process.exit(0);
-  });
+  exports.task(argv).catch(abortIfError);
 };
 
-exports.tasks = function(argv) {
-  return [
-    exports.generateTemplateCache.bind(null, argv),
-    exports.generateLessCache.bind(null, argv)
-  ];
+exports.tasks = (argv) => {
+  return Promise.all([
+    exports.generateTemplateCache(argv),
+    exports.generateLessCache(argv)
+  ]);
 };
 
-exports.generateLessCache = function(opts, done) {
+exports.generateLessCache = (opts) => {
   const appDir = path.join(process.cwd(), 'src', 'app');
   const src = path.join(appDir, 'index.less');
 
@@ -45,17 +41,17 @@ exports.generateLessCache = function(opts, done) {
     resourcePath: appDir
   });
 
-  fs.readFile(src, 'utf-8', function(err, contents) {
-    if (err) {
-      return done(err);
-    }
-    lessCache.cssForFile(src, contents);
-    done();
+  const p = new Promise();
+  fs.readFile(src, 'utf-8', (err, contents) => {
+    if (err) p.reject(err);
+
+    p.resolve(lessCache.cssForFile(src, contents));
   });
+  return p;
 };
 
 /**
- * TODO (imlucas) Watch for changes?
+ * TODO (imlucas) Watch for changes if NODE_ENV === `development`?
  */
 exports.generateTemplateCache = function(opts, done) {
   var appdir = path.join(process.cwd(), 'src', 'app');

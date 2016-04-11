@@ -13,11 +13,13 @@ exports.describe = 'Remove generated directories.';
 
 exports.builder = _.clone(ui.builder);
 
-exports.handler = function(argv) {
-  del([
+exports.tasks = (argv) => {
+  return del([
     'dist/',
     'node_modules/',
     argv.less_cache,
     argv.template_cache
-  ]).catch(abortIfError);
+  ]);
 };
+
+exports.handler = (argv) => exports.tasks(argv).catch(abortIfError);

@@ -27,8 +27,8 @@ exports.builder = {
   }
 };
 
-exports.getMochaArgs = function(argv) {
-  let args = [
+exports.getMochaArgs = (argv) => {
+  const args = [
     /**
      * TODO (imlucas) Using `--renderer` doesn't work
      * properly on Windows (process never exits, EPERM
@@ -77,7 +77,7 @@ exports.getMochaArgs = function(argv) {
   return _.concat(argvPairs, args);
 }
 
-exports.handler = function(argv) {
+exports.handler = (argv) => {
   if (!argv.release) {
     process.env.TEST_WITH_PREBUILT = '1';
   }

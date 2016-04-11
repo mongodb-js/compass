@@ -7,13 +7,11 @@
  * @see https://github.com/atom/atom/blob/master/script/utils/verify-requirements.js
  */
 const _ = require('lodash');
-const async = require('async');
 const semver = require('semver');
-const format = require('util').format;
 const run = require('electron-installer-run');
 const abortIfError = require('../lib/abort-if-error');
-const debug = require('debug')('hadron-build:commands:verify');
 const pkg = require('../lib/package');
+const pythonChecker = require('check-python');
 
 exports.builder = {
   nodejs_version: {
@@ -26,53 +24,46 @@ exports.builder = {
   }
 };
 
-exports.tasks = function(argv) {
-  return [
-    exports.checkPythonVersion,
-    exports.checkNpmAndNodejsVersions.bind(null, argv)
-  ];
+exports.tasks = (argv) => {
+  return exports.checkPythonVersion()
+    .then(() => exports.checkNpmAndNodejsVersions(argv));
 };
 
-exports.handler = function(argv) {
-  async.series(exports.tasks(argv), function(err) {
-    abortIfError(err);
+exports.handler = (argv) => {
+  exports.tasks(argv).catch((err) => abortIfError(err));
+};
+
+exports.checkPythonVersion = () => {
+  const p = new Promise();
+  pythonChecker((err) => {
+    if (err) return p.reject(err);
+    p.resolve();
   });
+  return p;
 };
 
-exports.checkPythonVersion = require('check-python');
+exports.checkNpmAndNodejsVersions = (opts) => {
+  const p = new Promise();
+  const expectNodeVersion = opts.nodejs_version;
+  const expectNpmVersion = opts.npm_version;
+  const args = ['version', '--json', '--loglevel', 'error'];
+  run('npm', args, {env: process.env}, (err, stdout) => {
+    if (err) return p.reject(err);
 
-exports.checkNpmAndNodejsVersions = function(opts, done) {
-  run('npm', ['version', '--json', '--loglevel', 'error'], {
-    env: process.env
-  }, function(err, stdout) {
-    if (err) {
-      return done(err);
-    }
+    const versions = JSON.parse(stdout);
 
-    var versions = JSON.parse(stdout);
     /**
      * TODO (imlucas) Improve language and provide links to fix issues.
      */
-    if (!semver.satisfies(versions.node, opts.nodejs_version)) {
-      return done(new Error(format(
-        'Your current node.js (v%s) does not satisfy the version required by this project (v%s).',
-        versions.node, opts.nodejs_version
-      )));
+    if (!semver.satisfies(versions.node, expectNodeVersion)) {
+      p.reject(new Error(`Your current node.js (v${versions.node}) ` +
+        `does not satisfy the version required by this project (v%s).`));
+    } else if (!semver.satisfies(versions.npm, expectNpmVersion)) {
+      p.reject(new Error(`Your current npm (v${versions.npm}) ` +
+        `does not meet the requirement ${expectNpmVersion}.`));
     }
 
-    debug(format(
-      'Your installed version of node.js (v%s) satisfies the version required by this project (v%s).',
-      versions.node, opts.nodejs_version));
-
-    if (!semver.satisfies(versions.npm, opts.npm_version)) {
-      return done(new Error(format(
-        'Your current npm (v%s) does not meet the requirement `%s`.',
-        versions.npm, opts.npm_version)));
-    }
-
-    debug(format(
-      'Your installed version of npm (v%s) meets the requirement.',
-      versions.npm, opts.npm_version));
-    done(null, versions);
+    p.resolve(versions);
   });
+  return p;
 };

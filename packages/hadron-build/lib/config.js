@@ -426,7 +426,10 @@ exports.get = function(cli, callback) {
     asset.name = asset.name.replace(/ /g, '-').toLowerCase();
     return asset;
   });
-  callback(null, CONFIG);
+  if (callback) {
+    return callback(null, CONFIG);
+  }
+  return CONFIG;
 };
 
 module.exports = exports;

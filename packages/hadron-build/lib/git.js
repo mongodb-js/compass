@@ -1,38 +1,36 @@
-const path = require('path');
+/* eslint no-sync: 0 */
 const execFile = require('child_process').execFile;
+const execFileSync = require('child_process').execFileSync;
 const which = require('which');
 
-/**
- * @param {String} sha
- * @param {Function} done
- * @example
- * > git.isTag('2557def1585d4ac6752f9c21fc4e9af4e41979df', function(){console.log(arguments);});
- * > { '0': null, '1': false }
- * > git.isTag('1a65be32d833f0eb5b3e3c68b15dbeff20ddcd35', function(){console.log(arguments);});
- * > { '0': null, '1': true }
- */
-exports.isTag = function(sha, done) {
-  exports.getTag(sha, function(err, tag) {
-    if (err) {
-      return done(err);
-    }
-    done(null, tag !== null);
-  });
+const parse = (stdout) => {
+  const tag = stdout.toString('utf-8').split('\n')[0];
+  return tag || null;
 };
 
 /**
  * @param {String} sha
  * @param {Function} done
  * @example
- * > git.getTag('2557def1585d4ac6752f9c21fc4e9af4e41979df', function(){console.log(arguments);});
- * > { '0': null, '1': null }
- * > git.getGitTag('1a65be32d833f0eb5b3e3c68b15dbeff20ddcd35', function(){console.log(arguments);});
- > { '0': null, '1': 'v1.2.0-pre.0' }
+ * > git.isTag('2557def1585d4ac6752f9c21fc4e9af4e41979df');
+ * > { '0': null, '1': false }
+ * > git.isTag('1a65be32d833f0eb5b3e3c68b15dbeff20ddcd35');
+ * > { '0': null, '1': true }
+ * @return {Promise}
  */
-exports.getTag = function(sha, done) {
+exports.isTag = (sha) => {
+  return exports.getTag(sha)
+    .then((tag) => tag !== null);
+};
+
+exports.isTagSync = (sha) => {
+  return exports.getTagSync(sha) !== null;
+};
+
+const getExecArgs = (sha) => {
   const GIT = which.sync('git');
   const opts = {
-    cwd: path.join(__dirname, '..'),
+    cwd: process.cwd(),
     env: process.env
   };
 
@@ -41,16 +39,31 @@ exports.getTag = function(sha, done) {
     '--exact-match',
     sha
   ];
-  execFile(GIT, args, opts, function(err, stdout, stderr) {
-    if (!err) {
-      const tag = stdout.toString('utf-8').split('\n')[0];
-      done(null, tag);
-      return;
-    }
-    if (stderr.toString('utf-8').indexOf('no tag exactly matches') > -1) {
-      done(null, null);
-      return;
-    }
-    done(err);
-  });
+
+  return [
+    GIT, args, opts
+  ];
+};
+
+/**
+ * @param {String} sha
+ * @param {Function} done
+ * @example
+ * > git.getTag('2557def1585d4ac6752f9c21fc4e9af4e41979df');
+ * > { '0': null, '1': null }
+ * > git.getGitTag('1a65be32d833f0eb5b3e3c68b15dbeff20ddcd35');
+ > { '0': null, '1': 'v1.2.0-pre.0' }
+ * @return {Promise}
+ */
+exports.getTag = (sha) => {
+  const p = new Promise();
+  const args = getExecArgs(sha);
+  args.push((_, stdout) => p.resolve(parse(stdout)));
+
+  execFile.apply(null, args);
+  return p;
+};
+
+exports.getTagSync = (sha) => {
+  return parse(execFileSync.apply(null, getExecArgs(sha)));
 };

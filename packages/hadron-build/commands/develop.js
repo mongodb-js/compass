@@ -2,7 +2,6 @@
 
 const _ = require('lodash');
 const spawn = require('child_process').spawn;
-const async = require('async');
 const ui = require('./ui');
 const verify = require('./verify');
 const abortIfError = require('../lib/abort-if-error');
@@ -22,34 +21,32 @@ exports.builder = {
 
 _.assign(exports.builder, verify.builder, ui.builder);
 
-exports.handler = function(argv) {
+exports.tasks = function(argv) {
   process.env.NODE_ENV = 'development';
 
   if (argv.devtools) {
     process.env.DEVTOOLS = '1';
   }
 
-  async.series(exports.tasks(argv), function(err) {
-    abortIfError(err);
-    process.exit(0);
-  });
+  return Promise.all([
+    verify.tasks(argv), ui.tasks(argv)
+  ])
+  .then(exports.startElectronPrebuilt);
 };
 
-exports.startElectronPrebuilt = function(opts, done) {
-  var args = [process.cwd()];
+exports.handler = (argv) => exports.tasks(argv).catch(abortIfError);
 
-  var proc = spawn(ELECTRON_PREBUILT_EXECUTABLE, args, {
+exports.startElectronPrebuilt = () => {
+  const cwd = process.cwd();
+  const options = {
     env: process.env,
+    cwd: cwd,
     stdio: 'inherit'
-  });
-  proc.on('error', abortIfError);
-  proc.on('exit', done.bind(null, null));
-};
+  };
 
-exports.tasks = function(argv) {
-  return _.flatten([
-    verify.tasks(argv),
-    ui.tasks(argv),
-    exports.startElectronPrebuilt.bind(null, argv)
-  ]);
+  const p = new Promise();
+  spawn(ELECTRON_PREBUILT_EXECUTABLE, [cwd], options)
+    .on('error', p.reject)
+    .on('exit', p.resolve);
+  return p;
 };
