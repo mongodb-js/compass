@@ -13,6 +13,9 @@ require('yargs')
   .command('test [options]',
     'Run app tests.',
     require('./commands/test'))
+  .command('upload [options]',
+    'Upload assets from `release`.',
+    require('./commands/upload'))
   .command('ui [options]',
     'Compile the app UI.',
     require('./commands/ui'))
