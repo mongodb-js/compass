@@ -1,10 +1,10 @@
 {
-  "name": "mongodb-package-manager",
-  "description": "MongoDB Package Manager",
+  "name": "hadron-package-manager",
+  "description": "Hadron Package Manager",
   "author": "Durran Jordan <durran@gmail.com>",
   "bugs": "https://github.com/mongodb-js/package-manager/issues",
   "homepage": "https://github.com/mongodb-js/package-manager",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/package-manager.git"
