@@ -25,8 +25,6 @@ const packager = require('electron-packager');
 const run = require('electron-installer-run');
 const zip = require('electron-installer-zip');
 const license = require('electron-license');
-const GitHub = require('github');
-const github = new GitHub({version: '3.0.0', 'User-Agent': 'hadron-build'});
 
 const ui = require('./ui');
 const verify = require('./verify');
@@ -329,133 +327,6 @@ function createBrandedInstaller(CONFIG, done) {
   CONFIG.createInstaller(done);
 }
 
-function createRelease(CONFIG, done) {
-  var version = CONFIG.version;
-
-  var opts = {
-    owner: CONFIG.github_owner,
-    repo: CONFIG.github_repo,
-    draft: true,
-    tag_name: 'v' + version,
-    name: version,
-    target_commitish: cli.argv.commit_sha1,
-    body: '### Notable Changes\n\n* Something new'
-  };
-
-  cli.debug('Creating release', opts);
-  github.releases.createRelease(opts, function(err, res) {
-    if (err) {
-      return done(err);
-    }
-    cli.debug('Created release', res);
-    done(null, res);
-  });
-}
-
-function getOrCreateRelease(CONFIG, done) {
-  github.releases.listReleases({
-    owner: CONFIG.github_owner,
-    repo: CONFIG.github_repo
-  }, function(err, releases) {
-    if (err) {
-      return done(err);
-    }
-
-    var latestDraft = _.chain(releases)
-      .filter('draft')
-      .first()
-      .value();
-
-    cli.debug('Latest draft is', latestDraft);
-    if (latestDraft) {
-      return done(null, latestDraft);
-    }
-    cli.debug('Creating new draft release');
-    createRelease(CONFIG, done);
-  });
-}
-
-function removeReleaseAssetIfExists(CONFIG, release, asset, done) {
-  cli.debug('removeReleaseAssetIfExists', release, asset);
-  var existing = release.assets.filter(function(a) {
-    return a.name === asset.name;
-  })[0];
-
-  if (!existing) {
-    return done();
-  }
-
-  cli.debug('Removing existing `%s`', asset.name);
-  var opts = {
-    owner: CONFIG.github_owner,
-    repo: CONFIG.github_repo,
-    id: existing.id
-  };
-
-  github.releases.deleteAsset(opts, done);
-}
-
-function doReleaseAssetUpload(CONFIG, release, asset, done) {
-  var opts = {
-    owner: CONFIG.github_owner,
-    repo: CONFIG.github_repo,
-    id: release.id,
-    name: asset.name,
-    filePath: asset.path
-  };
-
-  cli.spinner(format('Uploading %s', asset.name));
-  github.releases.uploadAsset(opts, function(_err, res) {
-    if (_err) {
-      _err.stack = _err.stack || '<no stacktrace>';
-      cli.error(format('Failed to upload %s', asset.name));
-      done(_err);
-      return;
-    }
-    cli.debug('Asset upload returned', res);
-    cli.ok(format('Uploaded %s', asset.name));
-    done();
-  });
-}
-
-function uploadReleaseAsset(CONFIG, release, asset, done) {
-  async.series([
-    removeReleaseAssetIfExists.bind(null, CONFIG, release, asset),
-    doReleaseAssetUpload.bind(null, CONFIG, release, asset)
-  ], done);
-}
-
-function uploadAllReleaseAssets(CONFIG, release, done) {
-  async.series(CONFIG.assets.map(function(asset) {
-    return uploadReleaseAsset.bind(null, CONFIG, release, asset);
-  }), done);
-}
-
-function maybePublishRelease(CONFIG, done) {
-  if (CONFIG.channel === 'dev') {
-    cli.info('Skipping publish release for dev channel.');
-    return done();
-  }
-
-  if (!CONFIG.github_token) {
-    cli.warn('Skipping publish release because github_token not set.');
-    return done();
-  }
-
-  github.authenticate({
-    token: CONFIG.github_token,
-    type: 'oauth'
-  });
-
-  async.waterfall([
-    getOrCreateRelease.bind(null, CONFIG),
-    uploadAllReleaseAssets.bind(null, CONFIG)
-  ], function(_err) {
-    cli.abortIfError(_err);
-    cli.ok('done');
-  });
-}
-
 exports.builder = config.options;
 
 _.assign(exports.builder, ui.builder, verify.builder);
@@ -477,8 +348,7 @@ exports.handler = function(argv) {
       _.partial(removeDevelopmentFiles, CONFIG),
       _.partial(createApplicationAsar, CONFIG),
       _.partial(createBrandedInstaller, CONFIG),
-      _.partial(createApplicationZip, CONFIG),
-      _.partial(maybePublishRelease, CONFIG)
+      _.partial(createApplicationZip, CONFIG)
     ]);
 
     async.series(tasks, function(_err) {

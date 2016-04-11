@@ -80,7 +80,9 @@ describe('hadron-build', () => {
       it('should spawn electron-mocha');
     });
   });
+  describe('::upload', () => {
 
+  });
   describe('::ui', () => {
     it('should include a `less_cache` option', () => {
       expect(commands.ui.builder).to.have.property('less_cache');

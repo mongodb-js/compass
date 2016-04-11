@@ -19,6 +19,7 @@
   "dependencies": {
     "asar": "^0.10.0",
     "async": "^2.0.0-rc.3",
+    "aws-sdk": "^2.3.2",
     "check-python": "^1.0.0",
     "cli-table": "^0.3.1",
     "debug": "^2.2.0",
