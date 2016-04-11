@@ -1,10 +1,10 @@
 {
-  "name": "mongodb-reflux-store",
-  "description": "MongoDB Reflux Stores",
+  "name": "hadron-reflux-store",
+  "description": "Hadron Reflux Stores",
   "author": "Durran Jordan <durran@gmail.com>",
   "bugs": "https://github.com/mongodb-js/reflux-store/issues",
   "homepage": "https://github.com/mongodb-js/reflux-store",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/reflux-store.git"
