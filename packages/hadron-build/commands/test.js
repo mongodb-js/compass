@@ -48,19 +48,33 @@ exports.getMochaArgs = function(argv) {
     args.push.apply(args, ['--reporter', 'mocha-evergreen-reporter']);
   }
 
+  const omitKeys = _.flatten([
+    '$0',
+    '_',
+    'help',
+    'debug',
+    _.keys(exports.builder)
+  ]);
+
+  const argvPairs = _.chain(argv)
+    .omit(omitKeys)
+    .toPairs()
+    .map(function(arg) {
+      const dashes = arg[0].length === 1 ? '-' : '--';
+      const updated = [];
+      updated[0] = `${dashes}${arg[0]}`;
+
+      if (!_.isBoolean(arg[1])) {
+        updated[1] = arg[1];
+      }
+      return updated;
+    })
+    .flatten()
+    .value();
+
   // pass all additional args to electron-mocha
   // (e.g. --grep, positional arguments, etc.)
-  return _.concat(
-    _.chain(argv)
-      .omitKeys(_.flatten([
-        '$0',
-        '_',
-        'help',
-        'debug',
-        _.keys(exports.builder)
-      ]))
-      .pairs()
-      .value(), args);
+  return _.concat(argvPairs, args);
 }
 
 exports.handler = function(argv) {
