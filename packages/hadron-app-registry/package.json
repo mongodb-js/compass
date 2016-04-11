@@ -4,7 +4,7 @@
   "author": "Durran Jordan <durran@gmail.com>",
   "bugs": "https://github.com/mongodb-js/component-registry/issues",
   "homepage": "https://github.com/mongodb-js/component-registry",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/component-registry.git"
