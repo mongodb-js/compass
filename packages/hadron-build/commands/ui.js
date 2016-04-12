@@ -4,7 +4,7 @@ const Promise = require('bluebird');
 const templatizer = Promise.promisify(require('templatizer'));
 const path = require('path');
 const LessCache = require('less-cache');
-const fs = Promise.promisifyAll(require('fs-extra'));
+const fs = require('fs-extra');
 const cli = require('mongodb-js-cli')('hadron-build:ui');
 const abortIfError = cli.abortIfError.bind(cli);
 
@@ -17,7 +17,7 @@ let generateLessCache = (opts) => {
     resourcePath: appDir
   });
 
-  return fs.readFile(src, 'utf-8')
+  return Promise.promisify(fs.readFile)(src, 'utf-8')
     .then((contents) => lessCache.cssForFile(src, contents));
 };
 

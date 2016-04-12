@@ -351,8 +351,12 @@ exports.handler = (argv) => {
   let CONFIG = config.get(cli);
 
   var tasks = _.flatten([
-    verify.tasks(argv),
-    ui.tasks(argv),
+    function(cb) {
+      verify.tasks(argv)
+        .then( () => ui.tasks(argv))
+        .then( () => cb())
+        .catch(cb);
+    },
     _.partial(createBrandedApplication, CONFIG),
     _.partial(cleanupBrandedApplicationScaffold, CONFIG),
     _.partial(writeLicenseFile, CONFIG),
