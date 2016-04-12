@@ -1,22 +1,34 @@
-![](https://cldup.com/CtkkzVUJC6-2000x2000.png)
-
-# hadron-build [![travis][travis_img]][travis_url] [![npm][npm_img]][npm_url]
+![](logo.png)
 
 > Tooling for Hadron apps.
 
-## bins/commands/todos
+[![travis][travis_img]][travis_url] [![npm][npm_img]][npm_url]
+
+
+## Configuration
 
 ```json
 {
-  "check": "mongodb-js-precommit ./src/app/*.js ./src/app/**/**/*.js ./src/{app/**/*.js,main/**/*.js} ./test/*.js",
-  "fmt": "mongodb-js-fmt ./*.js src/{**/*.js,*.js} test/{**/*.js,*.js}",
-  "test": "xvfb-maybe hadron-build test"
-}
-```
-
-
-```json
-{
+  "config": {
+    "hadron": {
+      "build": {
+        "win32": {
+          "icon": "resources/win32/<your-project-id>.ico",
+          "favicon_url": "https://raw.githubusercontent.com/mongodb-js/favicon/master/favicon.ico",
+          "loading_gif": "resources/win32/loading.gif"
+        },
+        "darwin": {
+          "icon": "resources/darwin/<your-project-id>.icns",
+          "dmg_background": "resources/darwin/background.png",
+          "codesign_identity": "Developer ID Application: <your-name> (<your-apple-developer-id>)",
+          "codesign_sha1": "<your-certs-sha1>",
+          "app_bundle_id": "com.<your-company>.<your-project-id>",
+          "app_category_type": "public.app-category.productivity"
+        }
+      },
+      "endpoint": "<hadron-endpoint-server-url>"
+    }
+  },
   "scripts": {
     "check": "hadron-build check",
     "ci": "npm run test",
@@ -33,6 +45,15 @@
   }
 }
 ```
+
+## Todo
+
+- Tests for `release` command
+- `railcars` command
+- `check` command ->  `mongodb-js-precommit`
+- `fmt` command ->  `mongodb-js-fmt`
+- Make `test` use `xvfb-maybe` by default
+
 
 ## License
 
