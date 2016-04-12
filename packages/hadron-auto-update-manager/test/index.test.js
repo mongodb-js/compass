@@ -1,8 +1,10 @@
-var AutoUpdateManager = require('../');
-var assert = require('assert');
+'use strict';
 
-describe('hadron-auto-update-manager', function() {
-  it('should work', function() {
+let AutoUpdateManager = require('../');
+const assert = require('assert');
+
+describe('hadron-auto-update-manager', () => {
+  it('should work', () => {
     assert(AutoUpdateManager);
     assert(new AutoUpdateManager());
   });

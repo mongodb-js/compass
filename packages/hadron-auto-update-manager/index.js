@@ -1,10 +1,12 @@
-var electron = require('electron');
-var app = electron.app;
-var dialog = electron.dialog;
-var format = require('util').format;
-var State = require('ampersand-state');
-var autoUpdater = require('./auto-updater');
-var debug = require('debug')('hadron-auto-update-manager');
+'use strict';
+
+const electron = require('electron');
+const app = electron.app;
+const dialog = electron.dialog;
+const format = require('util').format;
+const State = require('ampersand-state');
+const autoUpdater = require('./auto-updater');
+const debug = require('debug')('hadron-auto-update-manager');
 
 const ENOSIGNATURE = 'Could not get code signature for running application';
 

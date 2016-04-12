@@ -1,6 +1,8 @@
-var EventEmitter = require('events').EventEmitter;
-var got = require('got');
-var debug = require('debug')('hadron-auto-update-manager:linux');
+'use strict';
+
+const EventEmitter = require('events').EventEmitter;
+const got = require('got');
+const debug = require('debug')('hadron-auto-update-manager:linux');
 
 /**
  * Electron can't currently provide a consistent upgrade path for linux users.
