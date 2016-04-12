@@ -45,7 +45,7 @@ module.exports = function() {
 
   // create an app resource with name and version
   var appResource = new resources.AppResource({
-    appName: pkg.product_name,
+    appName: pkg.productName,
     appVersion: pkg.version,
     appPlatform: process.platform,
     appStage: process.env.NODE_ENV

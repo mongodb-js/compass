@@ -11,7 +11,7 @@ var Preferences = Model.extend(storageMixin, {
   namespace: 'Preferences',
   storage: {
     backend: 'local',
-    appName: pkg.product_name
+    appName: pkg.productName
   },
   props: {
     /**

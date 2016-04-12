@@ -49,7 +49,7 @@ exports.options = {
   },
   product_name: {
     describe: 'What is the name of the application we should display to humans?',
-    default: process.env.npm_package_product_name || pkg.product_name
+    default: process.env.npm_package_productName || pkg.productName
   },
   description: {
     describe: 'What is the description of the application we should display to humans?',

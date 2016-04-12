@@ -14,7 +14,7 @@ module.exports = Connection.extend(storageMixin, {
   namespace: 'Connections',
   storage: {
     backend: 'splice',
-    appName: pkg.product_name
+    appName: pkg.productName
   },
   props: {
     _id: {

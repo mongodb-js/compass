@@ -10,7 +10,7 @@ var User = Model.extend(storageMixin, {
   namespace: 'Users',
   storage: {
     backend: 'local',
-    appName: pkg.product_name
+    appName: pkg.productName
   },
   props: {
     id: {
