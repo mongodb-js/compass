@@ -1,6 +1,7 @@
-<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" height="100%" class="canvas">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  version="1.1" x="0px" y="0px" viewBox="0 0 436 136"
+  enable-background="new 0 0 436 136" xml:space="preserve">
   <defs></defs>
-  <!-- translate(569.484375, 453.5)  -->
   <g id="symbol" class="logo-entity" transform="scale(1.6)"><g class="logo-entity-inner">
     <g data-noun-id="3004" data-attribution="" transform="scale(0.9957777903384514)">
       <polygon points="61.866,31.14 65.454,29.609 64.841,28.109 61.213,29.656 " transform="translate(-6.104000091552734,0.1889999806880951)" fill="#E24F6A"></polygon>
