@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 /* eslint no-unused-expressions: 0 */
-require('yargs')
+
+const cli = require('mongodb-js-cli')('hadron-build');
+const yargs = require('yargs')
   .wrap(120)
   .usage('$0 <command> [options]')
   .command('release [options]',
@@ -24,6 +26,12 @@ require('yargs')
     require('./commands/verify'))
   .demand(1, 'Please specify a command.')
   .strict()
-  .help()
-  .showHelpOnFail(false)
-  .argv;
+  .help('help')
+  .fail(function(msg, err) {
+    cli.abortIfError(err);
+    cli.error(`${msg}\n\n`);
+    yargs.showHelp();
+  });
+
+
+yargs.argv;
