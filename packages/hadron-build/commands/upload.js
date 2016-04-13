@@ -221,6 +221,10 @@ let maybeUploadEvergreenAssets = (CONFIG) => {
   return Promise.all(CONFIG.assets.map(uploadEvergreenAssetToS3));
 };
 
+exports.command = 'upload [options]';
+
+exports.describe = 'Upload assets from `release`.';
+
 exports.builder = {};
 _.assign(exports.builder, config.options);
 

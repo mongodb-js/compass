@@ -29,6 +29,11 @@ const pkg = require('../lib/package');
 const ui = require('./ui');
 const verify = require('./verify');
 
+exports.command = 'release';
+
+exports.describe = ':shipit:';
+
+
 /**
  * Run `electron-packager`
  *

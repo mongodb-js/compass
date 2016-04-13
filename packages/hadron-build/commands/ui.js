@@ -8,6 +8,10 @@ const fs = require('fs-extra');
 const cli = require('mongodb-js-cli')('hadron-build:ui');
 const abortIfError = cli.abortIfError.bind(cli);
 
+exports.command = 'ui [options]';
+
+exports.describe = 'Compile the app UI.';
+
 let generateLessCache = (opts) => {
   const appDir = path.join(process.cwd(), 'src', 'app');
   const src = path.join(appDir, 'index.less');

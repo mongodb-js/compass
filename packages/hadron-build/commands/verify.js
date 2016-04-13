@@ -14,6 +14,9 @@ const cli = require('mongodb-js-cli')('hadron-build:verify');
 const pkg = require('../lib/package');
 const checkPython = Promise.promisify(require('check-python'));
 
+exports.command = 'verify [options]';
+exports.describe = 'Verify the current environment meets the app\'s requirements.';
+
 exports.builder = {
   nodejs_version: {
     describe: 'What version of node.js is required for this app?',
