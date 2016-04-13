@@ -44,7 +44,7 @@ exports.describe = ':shipit:';
  */
 function createBrandedApplication(CONFIG, done) {
   cli.debug('running electron-packager');
-  packager(CONFIG, function(err, res) {
+  packager(CONFIG.packagerOptions, function(err, res) {
     if (err) {
       return done(err);
     }

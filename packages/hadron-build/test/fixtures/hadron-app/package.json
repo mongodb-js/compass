@@ -1,0 +1,65 @@
+{
+  "name": "hadron-app",
+  "description": "Hadron build's test fixture app.",
+  "version": "1.2.0-dev",
+  "main": "src/main.js",
+  "product_name": "Hadron App",
+  "authors": "MongoDB Inc.",
+  "config": {
+    "hadron": {
+      "build": {
+        "win32": {
+          "icon": "src/images/win32/hadron-app.ico",
+          "favicon_url": "https://raw.githubusercontent.com/mongodb-js/favicon/master/favicon.ico",
+          "loading_gif": "src/app/images/win32/hadron-app-installer-loading.gif"
+        },
+        "darwin": {
+          "icon": "src/app/images/darwin/hadron-app.icns",
+          "dmg_background": "src/app/images/darwin/background.png",
+          "codesign_identity": "Developer ID Application: Hadron Fixture (1234567890A)",
+          "codesign_sha1": "1111111111111111111111111111111111111111",
+          "app_bundle_id": "com.mongodb.hadron",
+          "app_category_type": "public.app-category.productivity"
+        }
+      },
+      "endpoint": "https://hadron-app.herokuapp.com",
+      "protocols": [
+        {
+          "name": "Hadron Protocol",
+          "schemes": ["hadron"]
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "start": "hadron-build develop",
+    "test": "xvfb-maybe hadron-build test",
+    "prepublish": "hadron-build release",
+    "postuninstall": "hadron-build clean",
+    "ci": "npm run test",
+    "clean": "hadron-build clean",
+    "compile-ui": "hadron-build ui",
+    "release": "hadron-build release",
+    "test-functional": "npm test -- --functional",
+    "test-unit": "npm test -- --unit",
+    "test-release": "npm test -- --release",
+    "upload": "hadron-build upload"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mongodb-js/hadron-fixture-app.git"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "hadron-build": "^0.1.9",
+    "mongodb-js-fmt": "^0.0.3",
+    "mongodb-js-precommit": "^0.2.8",
+    "mongodb-runner": "^3.1.15",
+    "spectron": "^0.34.1",
+    "xvfb-maybe": "^0.1.3"
+  },
+  "engines": {
+    "node": "^5.0.0",
+    "npm": "^3.0.0"
+  }
+}

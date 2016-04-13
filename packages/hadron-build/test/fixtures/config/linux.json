@@ -1,0 +1,29 @@
+{
+  "platform": "linux",
+  "arch": "x64",
+  "electron_version": "0.36.12",
+  "internal_name": "hadron-app",
+  "product_name": "Hadron App",
+  "description": "Hadron build's test fixture app.",
+  "commit_sha1": "master",
+  "github_token": "1111111111111111111111111111111111111111",
+  "author": "MongoDB Inc.",
+  "packagerOptions": {
+    "dir": "../hadron-app",
+    "out": "../hadron-app/dist",
+    "overwrite": true,
+    "app-copyright": "2016 MongoDB Inc.",
+    "ignore": "node_modules/|.cache/|dist/|test/|.user-data",
+    "platform": "linux",
+    "arch": "x64",
+    "version": "0.36.12",
+    "sign": null,
+    "name": "hadron-app"
+  },
+  "out": "../hadron-app/dist",
+  "version": "0.36.12",
+  "channel": "dev",
+  "resources": "../hadron-app/dist/hadron-app-linux-x64/resources",
+  "appPath": "../hadron-app/dist/hadron-app-linux-x64",
+  "assets": []
+}

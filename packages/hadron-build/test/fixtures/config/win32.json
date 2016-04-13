@@ -1,0 +1,72 @@
+{
+  "platform": "win32",
+  "arch": "x64",
+  "electron_version": "0.36.12",
+  "internal_name": "hadron-app",
+  "product_name": "Hadron App",
+  "description": "Hadron build's test fixture app.",
+  "commit_sha1": "master",
+  "github_token": "1111111111111111111111111111111111111111",
+  "author": "MongoDB Inc.",
+  "packagerOptions": {
+    "dir": "../hadron-app",
+    "out": "../hadron-app/dist",
+    "overwrite": true,
+    "app-copyright": "2016 MongoDB Inc.",
+    "ignore": "node_modules/|.cache/|dist/|test/|.user-data",
+    "platform": "win32",
+    "arch": "x64",
+    "version": "0.36.12",
+    "sign": null,
+    "name": "HadronApp(Dev)",
+    "icon": "../hadron-app/src/images/win32/hadron-app.ico",
+    "version-string": {
+      "CompanyName": "MongoDB Inc.",
+      "FileDescription": "Hadron build's test fixture app.",
+      "ProductName": "Hadron App (Dev)",
+      "InternalName": "hadron-app"
+    }
+  },
+  "out": "../hadron-app/dist",
+  "version": "0.36.12",
+  "channel": "dev",
+  "appPath": "../hadron-app/dist/HadronApp(Dev)-win32-x64",
+  "resources": "../hadron-app/dist/HadronApp(Dev)-win32-x64/resources",
+  "assets": [
+    {
+      "name": "hadronapp(dev)setup.exe",
+      "label": "Windows Installer",
+      "path": "../hadron-app/dist/HadronApp(Dev)Setup.exe"
+    },
+    {
+      "name": "hadronapp(dev)setup.msi",
+      "label": "Windows Installer Package",
+      "path": "../hadron-app/dist/HadronApp(Dev)Setup.msi"
+    },
+    {
+      "name": "RELEASES",
+      "path": "../hadron-app/dist/RELEASES"
+    },
+    {
+      "name": "hadronapp(dev)-undefined-full.nupkg",
+      "path": "../hadron-app/dist/HadronApp(Dev)-undefined-full.nupkg"
+    },
+    {
+      "name": "hadron-app-windows.zip",
+      "path": "../hadron-app/dist/HadronApp(Dev).zip"
+    }
+  ],
+  "installerOptions": {
+    "loadingGif": "../hadron-app/src/app/images/win32/hadron-app-installer-loading.gif",
+    "signWithParams": null,
+    "iconUrl": "https://raw.githubusercontent.com/mongodb-js/favicon/master/favicon.ico",
+    "appDirectory": "../hadron-app/dist/HadronApp(Dev)-win32-x64",
+    "outputDirectory": "../hadron-app/dist",
+    "authors": "MongoDB Inc.",
+    "version": "0.36.12",
+    "exe": "HadronApp(Dev).exe",
+    "title": "Hadron App (Dev)",
+    "productName": "Hadron App (Dev)",
+    "description": "Hadron build's test fixture app."
+  }
+}

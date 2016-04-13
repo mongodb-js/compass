@@ -10,8 +10,6 @@ exports.command = 'config';
 
 exports.describe = 'Configuration.';
 
-_.assign(exports.builder, config.options);
-
 exports.builder = {
   format: {
     choices: ['table', 'yaml', 'json'],
@@ -19,6 +17,8 @@ exports.builder = {
     default: 'table'
   }
 };
+
+_.assign(exports.builder, config.options);
 
 const serialize = (CONFIG) => {
   return _.omit(CONFIG, function(value) {
@@ -33,7 +33,7 @@ const toTable = (CONFIG) => {
   var configTable = new Table({
     head: ['Key', 'Value']
   });
-  _.forIn(serialize(CONFIG), function(value, key) {
+  _.forIn(CONFIG, function(value, key) {
     configTable.push([key, inspect(value, {
       depth: null,
       colors: true
@@ -52,6 +52,6 @@ exports.handler = (argv) => {
   } else if (cli.argv.format === 'yaml') {
     console.log(yaml.dump(serialize(CONFIG)));
   } else {
-    console.log(toTable(CONFIG));
+    console.log(toTable(serialize(CONFIG)));
   }
 };
