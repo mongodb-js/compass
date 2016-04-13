@@ -63,11 +63,11 @@ describe('mongodb-index-model', function() {
 
     it('should return the correct `properties` array', function() {
       var index = indexes.get('seniors', 'name');
-      assert.deepEqual(index.properties, ['compound', 'partial']);
+      assert.deepEqual(index.properties, ['partial']);
       index = indexes.get('last_login_-1', 'name');
-      assert.deepEqual(index.properties, ['single']);
+      assert.deepEqual(index.properties, []);
       index = indexes.get('_id_', 'name');
-      assert.deepEqual(index.properties, ['single', 'unique']);
+      assert.deepEqual(index.properties, ['unique']);
     });
 
     it('should recognize text indexes', function() {
@@ -97,6 +97,8 @@ describe('mongodb-index-model', function() {
       assert.ok(index.name);
       assert.ok(index.version);
       assert.ok(index.extra);
+      assert.ok(index.type);
+      assert.ok(index.cardinality);
       assert.ok('unique' in index);
       assert.ok('sparse' in index);
       assert.ok('ttl' in index);

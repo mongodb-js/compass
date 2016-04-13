@@ -23,6 +23,9 @@ var IndexModel = Model.extend({
   idAttribute: 'id',
   extraProperties: 'reject',
   props: indexModelProps,
+  session: {
+    relativeSize: 'number'
+  },
   derived: {
     id: {
       deps: ['name', 'ns'],
@@ -86,21 +89,40 @@ var IndexModel = Model.extend({
         return !!this.extra.textIndexVersion;
       }
     },
+    type: {
+      deps: ['geo', 'hashed', 'text'],
+      fn: function() {
+        if (this.geo) {
+          return 'geospatial';
+        }
+        if (this.hashed) {
+          return 'hashed';
+        }
+        if (this.text) {
+          return 'text';
+        }
+        return 'regular';
+      }
+    },
+    cardinality: {
+      deps: ['single'],
+      fn: function() {
+        return this.single ? 'single' : 'compound';
+      }
+    },
     properties: {
-      deps: ['unique', 'sparse', 'partial', 'ttl', 'compound', 'single'],
+      deps: ['unique', 'sparse', 'partial', 'ttl'],
       fn: function() {
         var model = this;
-        var props = ['unique', 'sparse', 'partial', 'ttl', 'compound', 'single'];
+        var props = ['unique', 'sparse', 'partial', 'ttl'];
         return _.filter(props, function(prop) {
           return !!model[prop];
         }).sort(function(a, b) {
           var order = {
-            'single': 1,
-            'compound': 2,
-            'unique': 3,
-            'sparse': 4,
-            'partial': 5,
-            'ttl': 6
+            'unique': 1,
+            'sparse': 2,
+            'partial': 3,
+            'ttl': 4
           };
           return order[a] - order[b];
         });
