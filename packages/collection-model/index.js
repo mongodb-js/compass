@@ -2,7 +2,7 @@ var AmpersandModel = require('ampersand-model');
 var AmpersandCollection = require('ampersand-rest-collection');
 var IndexCollection = require('mongodb-index-model').Collection;
 var ns = require('mongodb-ns');
-var _ = require('lodash');
+var each = require('lodash.foreach');
 
 var Collection = AmpersandModel.extend({
   modelType: 'Collection',
@@ -118,10 +118,10 @@ var Collection = AmpersandModel.extend({
       derived: true
     }, true);
 
-    _.each(this._children, function(value, key) {
+    each(this._children, function(value, key) {
       res[key] = this[key].serialize();
     }, this);
-    _.each(this._collections, function(value, key) {
+    each(this._collections, function(value, key) {
       res[key] = this[key].serialize();
     }, this);
     return res;
