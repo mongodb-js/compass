@@ -11,9 +11,7 @@
   ],
   "homepage": "http://pthurlow.github.com/triejs",
   "contibutors": [],
-  "dependencies": {
-    "foounit": ""
-  },
+  "dependencies": {},
   "scripts": {
     "test": "node tests/vendor/suite.js"
   },
@@ -22,7 +20,9 @@
     "type": "git",
     "url": "git://github.com/pthurlow/triejs.git"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "foounit": "0.1.2"
+  },
   "engines": {
     "node": "*"
   }
