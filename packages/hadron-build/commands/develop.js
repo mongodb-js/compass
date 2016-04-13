@@ -5,7 +5,7 @@ const _ = require('lodash');
 const spawn = require('child_process').spawn;
 const ui = require('./ui');
 const verify = require('./verify');
-const abortIfError = require('../lib/abort-if-error');
+const cli = require('mongodb-js-cli')('hadron-build:develop');
 const ELECTRON_PREBUILT_EXECUTABLE = require('electron-prebuilt');
 
 exports.command = 'develop [options]';
@@ -36,7 +36,10 @@ exports.tasks = function(argv) {
   .then(exports.startElectronPrebuilt);
 };
 
-exports.handler = (argv) => exports.tasks(argv).catch(abortIfError);
+exports.handler = (argv) => {
+  exports.tasks(argv)
+    .catch((err) => cli.abortIfError(err));
+};
 
 exports.startElectronPrebuilt = () => {
   const cwd = process.cwd();

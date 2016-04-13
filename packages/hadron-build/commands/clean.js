@@ -4,7 +4,7 @@
  */
 const _ = require('lodash');
 const del = require('del');
-const abortIfError = require('../lib/abort-if-error');
+const cli = require('mongodb-js-cli')('hadron-build:clean');
 const ui = require('./ui');
 
 exports.command = 'clean';
@@ -22,4 +22,7 @@ exports.tasks = (argv) => {
   ]);
 };
 
-exports.handler = (argv) => exports.tasks(argv).catch(abortIfError);
+exports.handler = (argv) => {
+  exports.tasks(argv)
+    .catch((err) => cli.abortIfError(err));
+};

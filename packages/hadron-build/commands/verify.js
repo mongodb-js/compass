@@ -10,7 +10,7 @@ const Promise = require('bluebird');
 const _ = require('lodash');
 const semver = require('semver');
 const run = Promise.promisify(require('electron-installer-run'));
-const abortIfError = require('../lib/abort-if-error');
+const cli = require('mongodb-js-cli')('hadron-build:verify');
 const pkg = require('../lib/package');
 const checkPython = Promise.promisify(require('check-python'));
 
@@ -31,7 +31,7 @@ exports.tasks = (argv) => {
 };
 
 exports.handler = (argv) => {
-  exports.tasks(argv).catch((err) => abortIfError(err));
+  exports.tasks(argv).catch((err) => cli.abortIfError(err));
 };
 
 exports.checkPythonVersion = () => checkPython();
