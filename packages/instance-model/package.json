@@ -27,7 +27,7 @@
     "async": "^1.5.2",
     "debug": "^2.2.0",
     "lodash": "^4.8.1",
-    "mongodb-collection-model": "^0.2.2",
+    "mongodb-collection-model": "^0.2.6",
     "mongodb-database-model": "^0.1.2",
     "mongodb-js-errors": "^0.1.0",
     "mongodb-ns": "^1.0.1",
