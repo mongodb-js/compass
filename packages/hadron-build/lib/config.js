@@ -8,7 +8,7 @@ var format = util.format;
 var inspect = util.inspect;
 var path = require('path');
 var normalizePkg = require('normalize-package-data');
-var pkg = require(path.join(process.cwd(), 'package.json'));
+var pkg = require('./package');
 var _ = require('lodash');
 var async = require('async');
 var createDMG = require('electron-installer-dmg');
@@ -18,10 +18,6 @@ var createCLI = require('mongodb-js-cli');
 var Table = require('cli-table');
 var parseGitHubRepoURL = require('parse-github-repo-url');
 var electronPrebuiltVersion = require('electron-prebuilt/package.json').version;
-
-normalizePkg(pkg);
-var parsedGit = parseGitHubRepoURL(pkg.repository.url);
-
 
 exports.options = {
   verbose: {
@@ -96,10 +92,10 @@ exports.options = {
     default: process.env.GITHUB_TOKEN
   },
   github_owner: {
-    default: parsedGit[0]
+    default: undefined
   },
   github_repo: {
-    default: parsedGit[1]
+    default: undefined
   },
   author: {
     default: pkg.author || pkg.authors
