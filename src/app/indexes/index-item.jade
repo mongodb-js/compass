@@ -1,0 +1,56 @@
+tr
+  td
+    div.name= model.name
+    div.definition
+      each field in model.fields.serialize()
+        div.pair
+          div.field= field.field
+          if (field.value === 1)
+            div.sort
+              i.fa.fa-arrow-circle-up.fa-lg
+          else if (field.value === -1)
+            div.sort
+              i.fa.fa-arrow-circle-down.fa-lg
+          else
+            div.type= field.value
+  td
+    - var type = model.type
+    if type
+      if type === 'text'
+        // tooltips required on text indexes
+        div(class="property #{type}", data-toggle='tooltip', title=text_tooltip)
+          =type
+          i.link
+      else
+        //- no tooltips on other types
+        div(class="property #{type}")
+           = type
+           i.link
+  td
+    div.quantity(data-hook='index-size')
+    div.unit(data-hook='index-size-unit')
+    div.progress(data-toggle='tooltip', title='#{model.relativeSize}% compared to largest index')
+      div.progress-bar(role='progressbar', data-hook='progressbar')
+  td.util-column
+    div.quantity(data-hook='usage-count')
+    div.usage-since since&nbsp;
+      span(data-hook='usage-since')
+  td
+    div.property.cardinality
+      = model.cardinality
+      i.link
+  td
+    div.properties
+      each prop in model.properties
+        if prop === 'ttl'
+          div(class='property', data-toggle='tooltip', title=ttl_tooltip)
+            = prop
+            i.link
+        else if prop === 'partial'
+          div(class='property', data-toggle='tooltip', title=partial_tooltip)
+            = prop
+            i.link
+        else
+          div(class='property')
+            = prop
+            i.link

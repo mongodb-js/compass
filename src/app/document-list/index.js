@@ -70,7 +70,7 @@ var DocumentListView = View.extend({
       return;
     }
     this.loading = true;
-    var ns = this.parent.parent.ns;
+    var ns = this.parent.parent.parent.ns;
     var query = {
       _id: {
         '$in': _ids

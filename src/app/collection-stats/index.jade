@@ -1,5 +1,6 @@
 div.collection-stats-holder
-  ul.collection-stats
+  div.selection-bar
+  ul.collection-stats(data-hook='document-stats')
     li.collection-stats-item
       .collection-stats-primary-label Documents
       #document_count.collection-stats-primary-value(data-hook='document_count')
@@ -9,7 +10,7 @@ div.collection-stats-holder
     li.collection-stats-item
       .collection-stats-label avg. size
       .collection-stats-value(data-hook='document_size_average')
-  ul.collection-stats
+  ul.collection-stats(data-hook='index-stats')
     li.collection-stats-item
       .collection-stats-primary-label Indexes
       #index_count.collection-stats-primary-value(data-hook='index_count')
