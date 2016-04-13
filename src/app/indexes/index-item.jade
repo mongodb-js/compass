@@ -14,39 +14,34 @@ tr
           else
             div.type= field.value
   td
+    - var type = model.type
+    if type
+      if type === 'text'
+        // tooltips required on text indexes
+        div(class="property #{type}", data-toggle='tooltip', title=text_tooltip)
+          =type
+          i.link
+      else
+        //- no tooltips on other types
+        div(class="property #{type}")
+           = type
+           i.link
+  td
     div.quantity(data-hook='index-size')
     div.unit(data-hook='index-size-unit')
     div.progress(data-toggle='tooltip', title='#{model.relativeSize}% compared to largest index')
       div.progress-bar(role='progressbar', data-hook='progressbar')
-  td
+  td.util-column
     div.quantity(data-hook='usage-count')
     div.usage-since since&nbsp;
       span(data-hook='usage-since')
   td
-    if index_type
-      if index_type === 'text'
-        // tooltips required on text indexes
-        div(class="property #{index_type}", data-toggle='tooltip', title=text_tooltip)
-          = index_type
-          i.link
-      else
-        //- no tooltips on other types
-        div(class="property #{index_type}")
-           = index_type
-           i.link
-
-  //- td
-  //-   div.property.simple
-  //-     = index_cardinality
-  //-     i.link
+    div.property.cardinality
+      = model.cardinality
+      i.link
   td
     div.properties
       each prop in model.properties
-        - var cls = ''
-        - if (['single', 'compound'].indexOf(prop) > -1) continue
-        //- - if (prop === 'geospatial') cls = 'geospatial'
-        //- - if (prop === 'text') cls = 'text'
-        //- - if (prop === 'hashed') cls = 'hashed'
         if prop === 'ttl'
           div(class='property', data-toggle='tooltip', title=ttl_tooltip)
             = prop
@@ -56,6 +51,6 @@ tr
             = prop
             i.link
         else
-          div(class='property #{cls}')
+          div(class='property')
             = prop
             i.link

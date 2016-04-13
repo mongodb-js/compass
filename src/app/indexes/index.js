@@ -6,15 +6,21 @@ var numeral = require('numeral');
 var moment = require('moment');
 var format = require('util').format;
 var _ = require('lodash');
+var semver = require('semver');
+var app = require('ampersand-app');
 
 var electron = require('electron');
 var shell = electron.shell;
 
 // var debug = require('debug')('mongodb-compass:indexes');
 
+/**
+ * View of a single index row in the table
+ */
 var IndexItemView = View.extend(tooltipMixin, {
   template: indexItemTemplate,
   derived: {
+    // tooltips for various types and properties
     partial_tooltip: {
       deps: ['model.partial', 'model.extra'],
       fn: function() {
@@ -45,6 +51,13 @@ var IndexItemView = View.extend(tooltipMixin, {
         return format('expireAfterSeconds: %d', this.model.extra.expireAfterSeconds);
       }
     },
+    progressbar_tooltip_message: {
+      deps: ['model.relativeSize'],
+      fn: function() {
+        return format('%s% compared to largest index', numeral(this.model.relativeSize).format('0'));
+      }
+    },
+    // split index size into value and unit (e.g. KB, MB)
     index_size: {
       deps: ['model.size'],
       fn: function() {
@@ -70,50 +83,7 @@ var IndexItemView = View.extend(tooltipMixin, {
       fn: function() {
         return moment(this.model.usageSince).format('Do MMM YYYY');
       }
-    },
-    index_cardinality: {
-      deps: ['model.single', 'model.compound'],
-      fn: function() {
-        return this.model.single ? 'single' : 'compound';
-      }
-    },
-    index_type: {
-      deps: ['model.text', 'model.hashed', 'model.geospatial'],
-      fn: function() {
-        if (this.model.text) {
-          return 'text';
-        }
-        if (this.model.hashed) {
-          return 'hashed';
-        }
-        if (this.model.geo) {
-          return 'geospatial';
-        }
-        return null;
-      }
-    },
-    progressbar_tooltip_message: {
-      deps: ['model.relativeSize'],
-      fn: function() {
-        return format('%s% compared to largest index', numeral(this.model.relativeSize).format('0'));
-      }
     }
-    // extended_properties: {
-    //   deps: ['model.properties'],
-    //   fn: function() {
-    //     var props = this.model.properties.slice();
-    //     if (this.model.text) {
-    //       props.push('text');
-    //     }
-    //     if (this.model.hashed) {
-    //       props.push('hashed');
-    //     }
-    //     if (this.model.geo) {
-    //       props.push('geospatial');
-    //     }
-    //     return props;
-    //   }
-    // }
   },
   events: {
     'click i.link': 'linkIconClicked'
@@ -144,9 +114,6 @@ var IndexItemView = View.extend(tooltipMixin, {
     'usage_since': {
       hook: 'usage-since'
     },
-    index_type: {
-      hook: 'index-type'
-    },
     'model.relativeSize': {
       hook: 'progressbar',
       type: function(el, value) {
@@ -156,9 +123,11 @@ var IndexItemView = View.extend(tooltipMixin, {
   },
   /**
    * Use [numeral.js][numeral.js] to format a collection stat as a nice string.
+   *
    * @param {String} propertyName of `this.model` to format as a string.
    * @param {Boolean} bytes flag whether or not the result is a byte size.
    * @return {String} Nicely formatted value.
+   *
    * [numeral.js]: http://numeraljs.com/
    */
   format: function(propertyName, bytes) {
@@ -181,6 +150,7 @@ var IndexItemView = View.extend(tooltipMixin, {
   linkIconClicked: function(event) {
     event.preventDefault();
     event.stopPropagation();
+    // which pill info sprinkles go to which website
     var urlMap = {
       SINGLE: 'https://docs.mongodb.org/manual/core/index-single/',
       COMPOUND: 'https://docs.mongodb.org/manual/core/index-compound/',
@@ -203,6 +173,9 @@ var IndexItemView = View.extend(tooltipMixin, {
   }
 });
 
+/**
+ * View of the entire Indexes Table
+ */
 module.exports = View.extend({
   template: indexTemplate,
   props: {
@@ -225,6 +198,22 @@ module.exports = View.extend({
       values: ['fa-sort-asc', 'fa-sort-desc']
     }
   },
+  session: {
+    appVersion: 'string'
+  },
+  // only show utilization column if version is >= 3.2.0, lower versions
+  // don't support index usage stats.
+  derived: {
+    showUtilizationColumn: {
+      deps: ['appVersion'],
+      fn: function() {
+        if (!this.appVersion) {
+          return false;
+        }
+        return semver.gte(this.appVersion, '3.2.0');
+      }
+    }
+  },
   bindings: {
     ns: {
       hook: 'ns'
@@ -237,15 +226,20 @@ module.exports = View.extend({
       type: 'switch',
       cases: {
         'Name and Definition': '[data-hook=sort-name]',
+        'Type': '[data-hook=sort-type]',
         'Size': '[data-hook=sort-size]',
         'Utilization': '[data-hook=sort-utilization]',
-        'Type': '[data-hook=sort-type]',
+        'Cardinality': '[data-hook=sort-cardinality]',
         'Properties': '[data-hook=sort-properties]'
       }
     },
     sortOrder: {
       type: 'class',
       selector: 'i.sort'
+    },
+    showUtilizationColumn: {
+      type: 'toggle',
+      selector: '.util-column'
     }
   },
   events: {
@@ -253,6 +247,8 @@ module.exports = View.extend({
   },
   initialize: function() {
     this.listenTo(this.model, 'sync', this.onModelSynced.bind(this));
+    // to detect version and show/hide utilization column accordingly
+    this.listenToOnce(app.instance, 'sync', this.onInstanceSynced.bind(this));
   },
   onModelSynced: function() {
     this.ns = this.model._id;
@@ -264,13 +260,19 @@ module.exports = View.extend({
       idx.relativeSize = idx.size / maxSize * 100;
     });
   },
+  onInstanceSynced: function() {
+    this.appVersion = app.instance.build.version;
+  },
   onHeaderClicked: function(e) {
     var headerText = e.target.innerText;
     if (this.sortField === headerText) {
+      // same header clicked again, just reverse sort order
       this.toggle('sortOrder');
     } else {
+      // new header clicked, reset sort order depending on sort field
       this.sortField = headerText;
-      this.sortOrder = 'fa-sort-asc';
+      this.sortOrder = headerText === 'Name and Definition' ?
+        'fa-sort-asc' : 'fa-sort-desc';
     }
     var indexes = this.model.indexes;
     var field;
@@ -281,7 +283,7 @@ module.exports = View.extend({
     } else {
       field = this.sortField.toLowerCase();
     }
-    // @todo thomasr move .type into index-model to enable sorting on type
+    // set a sort function depending on sort field and order
     var order = this.sortOrder === 'fa-sort-asc' ? 1 : -1;
     indexes.comparator = function(a, b) {
       if (a[field] > b[field]) {
@@ -296,6 +298,7 @@ module.exports = View.extend({
   },
   render: function() {
     this.renderWithTemplate(this);
+    // initially sort indexes by name ascending
     this.model.indexes.comparator = 'name';
     this.model.indexes.sort();
     this.renderCollection(this.model.indexes, IndexItemView,
