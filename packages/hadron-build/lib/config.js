@@ -3,20 +3,14 @@
 /**
  * # config
  */
-var util = require('util');
-var format = util.format;
-var inspect = util.inspect;
+var format = require('util').format;
 var path = require('path');
-var normalizePkg = require('normalize-package-data');
 var pkg = require('./package');
 var _ = require('lodash');
 var async = require('async');
 var createDMG = require('electron-installer-dmg');
 var codesign = require('electron-installer-codesign');
 var electronWinstaller = require('electron-winstaller');
-var createCLI = require('mongodb-js-cli');
-var Table = require('cli-table');
-var parseGitHubRepoURL = require('parse-github-repo-url');
 var electronPrebuiltVersion = require('electron-prebuilt/package.json').version;
 
 exports.options = {
@@ -164,27 +158,7 @@ exports.get = function(cli, callback) {
     },
     images: path.join(process.cwd(), 'src', 'app', 'images'),
     favicon_url: cli.argv.favicon_url,
-    channel: channel,
-    table: function() {
-      /**
-       * Print the assembled `CONFIG` data as a nice table.
-       */
-      var configTable = new Table({
-        head: ['Key', 'Value']
-      });
-      _.forIn(CONFIG.serialize(), function(value, key) {
-        configTable.push([key, inspect(value, {
-          depth: null,
-          colors: true
-        })]);
-      });
-      return configTable.toString();
-    },
-    serialize: function() {
-      return _.omit(CONFIG, function(value) {
-        return _.isFunction(value) || _.isRegExp(value);
-      });
-    }
+    channel: channel
   });
 
   /**
@@ -429,30 +403,3 @@ exports.get = function(cli, callback) {
 };
 
 module.exports = exports;
-
-var yaml = require('js-yaml');
-
-exports.builder = {
-  format: {
-    choices: ['table', 'yaml', 'json'],
-    description: 'What output format would you like?',
-    default: 'table'
-  }
-};
-
-exports.handler = function(argv) {
-  var cli = createCLI('hadron-build:config');
-  cli.argv = argv;
-
-  exports.get(cli, function(err, CONFIG) {
-    cli.abortIfError(err);
-    /* eslint no-console: 0 */
-    if (cli.argv.format === 'json') {
-      console.log(JSON.stringify(CONFIG.serialize(), null, 2));
-    } else if (cli.argv.format === 'yaml') {
-      console.log(yaml.dump(CONFIG.serialize()));
-    } else {
-      console.log(CONFIG.table());
-    }
-  });
-};
