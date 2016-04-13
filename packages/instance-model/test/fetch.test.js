@@ -14,6 +14,7 @@ describe('mongodb-instance-model#fetch', function() {
   describe('local', function() {
     var db;
     before(function(done) {
+      this.timeout(20000);
       runner.start({}, done);
     });
     after(function() {

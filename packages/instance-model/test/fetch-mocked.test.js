@@ -254,7 +254,7 @@ describe('fetch-mocked', function() {
       ];
     });
 
-    it.skip('should lists all collections for each listable db', function(done) {
+    it('should lists all collections for each listable db', function(done) {
       results.userInfo = fixtures.USER_INFO_JOHN;
       results.db = makeMockDB(null, [{
         'name': 'testCol'

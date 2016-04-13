@@ -420,9 +420,8 @@ function listCollections(done, results) {
   var databases = results.databases;
 
   // merge and de-dupe databases
-  var dbnames = _.pick(databases, 'name');
-  var tasks = _.map(dbnames, function(name) {
-    return getDatabaseCollections.bind(null, db.db(name));
+  var tasks = _.map(databases, function(_db) {
+    return getDatabaseCollections.bind(null, db.db(_db.name));
   });
 
   async.parallel(tasks, function(err, res) {

@@ -112,13 +112,15 @@ var Instance = AmpersandModel.extend({
       props: true,
       derived: true
     }, true);
+
+    var model = this;
     if (this.databases.length > 0) {
-      _.each(this._children, function(value, key) {
-        res[key] = this[key].serialize();
-      }, this);
-      _.each(this._collections, function(value, key) {
-        res[key] = this[key].serialize();
-      }, this);
+      _.each(model._children, function(value, key) {
+        res[key] = model[key].serialize();
+      });
+      _.each(model._collections, function(value, key) {
+        res[key] = model[key].serialize();
+      });
     }
     return res;
   }
