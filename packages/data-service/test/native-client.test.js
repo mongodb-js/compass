@@ -151,6 +151,19 @@ describe('NativeClient', function() {
     });
   });
 
+  describe('#explain', function() {
+    context('when a filter is provided', function() {
+      it('returns an explain object for the provided filter', function(done) {
+        client.explain('data-service.test', { a: 1 }, {}, function(error, explanation) {
+          assert.equal(null, error);
+          expect(explanation).to.be.an('object');
+          expect(explanation).to.contain.all.keys(['queryPlanner', 'executionStats']);
+          done();
+        });
+      });
+    });
+  });
+
   describe('#disconnect', function() {
     after(function(done) {
       client.connect(done);

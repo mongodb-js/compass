@@ -180,6 +180,26 @@ class NativeClient {
   }
 
   /**
+   * Returns explain plan for the provided filter and options on the collection.
+   *
+   * @param {String} ns - The namespace to search on.
+   * @param {Object} filter - The query filter.
+   * @param {Object} options - The query options, namely the explain verbosity,
+   *                           e.g. {verbosity: 'allPlansExecution'}.
+   * @param {Function} callback - The callback function.
+   */
+  explain(ns, filter, options, callback) {
+    // @todo thomasr: driver explain() does not yet support verbosity,
+    // once it does, should be passed along from the options object.
+    this._collection(ns).find(filter).explain((error, explanation) => {
+      if (error) {
+        return callback(error);
+      }
+      callback(null, explanation);
+    });
+  }
+
+  /**
    * Get the indexes for the collection.
    *
    * @param {String} ns - The collection namespace.

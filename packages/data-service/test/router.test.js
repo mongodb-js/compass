@@ -9,7 +9,7 @@ describe('Router', function() {
 
   describe('#new', function() {
     it('initializes the routes', function() {
-      expect(router.routes).to.have.length(9);
+      expect(router.routes).to.have.length(10);
     });
   });
 
@@ -94,6 +94,18 @@ describe('Router', function() {
       });
 
       it('returns the find arguments', function() {
+        expect(resolved.args[0]).to.equal('data-service');
+      });
+    });
+
+    context('when the route is /collections/:ns/explain', function() {
+      var resolved = router.resolve('/collections/data-service/explain');
+
+      it('returns the explain method', function() {
+        expect(resolved.method).to.equal('explain');
+      });
+
+      it('returns the explain arguments', function() {
         expect(resolved.args[0]).to.equal('data-service');
       });
     });

@@ -108,6 +108,19 @@ class DataService extends EventEmitter {
   }
 
   /**
+   * Returns explain plan for the provided filter and options on the collection.
+   *
+   * @param {String} ns - The namespace to search on.
+   * @param {Object} filter - The query filter.
+   * @param {Object} options - The query options.
+   * @param {Function} callback - The callback function.
+   */
+  explain(ns, filter, options, callback) {
+    debug(`#explain: ${ns}, filter: ${filter}, options: ${options}`);
+    this.client.explain(ns, filter, options, callback);
+  }
+
+  /**
    * Get some data from the service in a RESTful manner.
    *
    * @param {String} url - The RESTful url.
@@ -127,6 +140,7 @@ class DataService extends EventEmitter {
    * Get the indexes for the collection.
    *
    * @param {String} ns - The collection namespace.
+   * @param {Object} options - The options (unused).
    * @param {Function} callback - The callback.
    */
   indexes(ns, options, callback) {

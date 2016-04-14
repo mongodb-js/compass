@@ -11,6 +11,7 @@ const Routes = {
   '/collections/:ns': 'collection',
   '/collections/:ns/count': 'count',
   '/collections/:ns/find': 'find',
+  '/collections/:ns/explain': 'explain',
   '/collections/:ns/indexes': 'indexes',
   '/collections/:ns/aggregate': 'aggregate'
 };
