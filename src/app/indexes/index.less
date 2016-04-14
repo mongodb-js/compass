@@ -1,11 +1,21 @@
 .index-container {
 
   @index-type-color: @gray4;
-  @index-property-color:#636592;
-  @index-geo-color: #669585;
-  @index-hashed-color: #8C7A54;
-  @index-text-color: #B05745;
-  @index-quantity-color: #5196b6;
+
+  @index-property-color:#545383;
+  @index-property-bg: #E6E4ED;
+
+  @index-geo-color: #548273;
+  @index-geo-bg: #E8ECEB;
+
+  @index-hashed-color: #968875;
+  @index-hashed-bg: #EEEAE5;
+
+  @index-text-color: #947872;
+  @index-text-bg: #F5EDEB;
+
+  @index-quantity-color: #5382A8;
+  @index-quantity-bg: #EAEDF4;
 
   padding: 0 20px;
 
@@ -73,10 +83,10 @@
       color: @index-type-color;
     }
 
-    .pill(@color) {
+    .pill(@color, @bg) {
       cursor: default;
       color: @color;
-      background-color: lighten(@color, 45%);
+      background-color: @bg;
       font-size: 11px;
       font-weight: bold;
       text-transform: uppercase;
@@ -116,24 +126,24 @@
     }
 
     .property {
-      .pill(@index-property-color);
+      .pill(@index-property-color, @index-property-bg);
       margin-right: 15px;
     }
 
     .property.cardinality {
-      .pill(@index-quantity-color);
+      .pill(@index-quantity-color, @index-quantity-bg);
     }
 
     .property.geospatial {
-      .pill(@index-geo-color);
+      .pill(@index-geo-color, @index-geo-bg);
     }
 
     .property.hashed {
-      .pill(@index-hashed-color);
+      .pill(@index-hashed-color, @index-hashed-bg);
     }
 
     .property.text {
-      .pill(@index-text-color);
+      .pill(@index-text-color, @index-text-bg);
     }
 
     i.link {
