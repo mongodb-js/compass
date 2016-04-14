@@ -1,5 +1,6 @@
 'use strict';
 
+const _ = require('lodash');
 const electron = require('electron');
 const isRenderer = require('is-electron-renderer');
 const isPromise = require('is-promise');
@@ -48,6 +49,13 @@ exports.call = function(methodName, ...args) {
 };
 
 exports.respondTo = (methodName, handler) => {
+  if (_.isPlainObject(methodName)) {
+    _.forIn(methodName, (methodHandler, name) => {
+      exports.respondTo(name, methodHandler);
+    });
+    return exports;
+  }
+
   const responseChannel = getResponseChannel(methodName);
   const errorResponseChannel = `${responseChannel}-error`;
 
@@ -72,4 +80,5 @@ exports.respondTo = (methodName, handler) => {
       resolve(res);
     }
   });
+  return exports;
 };

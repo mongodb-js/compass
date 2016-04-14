@@ -8,6 +8,11 @@
     "test": "xvfb-maybe electron-mocha",
     "ci": "npm run check && npm test"
   },
+  "dependency-check": {
+    "ignore": [
+      "electron"
+    ]
+  },
   "homepage": "http://github.com/mongodb-js/hadron-ipc",
   "repository": {
     "type": "git",
@@ -16,7 +21,8 @@
   "dependencies": {
     "debug": "mongodb-js/debug",
     "is-electron-renderer": "^2.0.0",
-    "is-promise": "^2.1.0"
+    "is-promise": "^2.1.0",
+    "lodash": "^4.11.1"
   },
   "devDependencies": {
     "electron-mocha": "^1.2.0",
