@@ -4,12 +4,12 @@ var LessCache = require('less-cache');
 /**
  * The compile cache directory.
  */
-var COMPILE_CACHE_DIR = path.join(__dirname, 'compiled-less');
+var COMPILE_CACHE_DIR = path.join(__dirname, 'app', 'compiled-less');
 
 /**
  * The name of the base styles.
  */
-var BASE_STYLES = path.join(__dirname, 'index.less');
+var BASE_STYLES = path.join(__dirname, 'app', 'index.less');
 
 /**
  * The style manager, well, manages styles.
@@ -27,12 +27,7 @@ function StyleManager() {
  */
 StyleManager.prototype.writeStyles = function() {
   var style = document.createElement('style');
-  this.cache.readFile(BASE_STYLES, 'utf-8', function(err, textContent) {
-    if (err) {
-      return console.error('Error reading styles: ', err);
-    }
-    style.textContent = textContent;
-  });
+  style.textContent = this.cache.readFileSync(BASE_STYLES);
   document.head.appendChild(style);
 };
 
