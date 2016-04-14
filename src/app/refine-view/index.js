@@ -4,8 +4,8 @@ var AmpersandView = require('ampersand-view');
 var EditableQuery = require('../models/editable-query');
 var EJSON = require('mongodb-extended-json');
 var Query = require('mongodb-language-model').Query;
-var SamplingMessageView = require('../sampling-message');
 var QueryOptions = require('../models/query-options');
+
 // var metrics = require('mongodb-js-metrics')();
 // var debug = require('debug')('scout:refine-view:index');
 
@@ -15,6 +15,12 @@ var DEFAULT_QUERY = JSON.stringify(QueryOptions.DEFAULT_QUERY);
 
 module.exports = AmpersandView.extend({
   template: indexTemplate,
+  props: {
+    visible: {
+      type: 'boolean',
+      default: true
+    }
+  },
   session: {
     queryOptions: 'state',
     volatileQueryOptions: 'state',
@@ -44,6 +50,10 @@ module.exports = AmpersandView.extend({
     editableQuery: EditableQuery
   },
   bindings: {
+    visible: {
+      type: 'booleanClass',
+      no: 'hidden'
+    },
     'editableQuery.rawString': [
       {
         type: 'value',
@@ -71,17 +81,6 @@ module.exports = AmpersandView.extend({
       type: 'booleanAttribute',
       no: 'disabled',
       hook: 'apply-btn'
-    }
-  },
-  subviews: {
-    sampling_message: {
-      hook: 'sampling-message-subview',
-      prepareView: function(el) {
-        return new SamplingMessageView({
-          el: el,
-          parent: this
-        });
-      }
     }
   },
   events: {

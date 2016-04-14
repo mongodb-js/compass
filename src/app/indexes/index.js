@@ -196,15 +196,17 @@ module.exports = View.extend({
       type: 'string',
       default: 'fa-sort-asc',
       values: ['fa-sort-asc', 'fa-sort-desc']
-    }
+    },
+    // no refine bar for index view
+    hasRefineBar: ['boolean', true, false]
   },
   session: {
     appVersion: 'string'
   },
-  // only show utilization column if version is >= 3.2.0, lower versions
+  // only show usage column if version is >= 3.2.0, lower versions
   // don't support index usage stats.
   derived: {
-    showUtilizationColumn: {
+    showUsageColumn: {
       deps: ['appVersion'],
       fn: function() {
         if (!this.appVersion) {
@@ -228,7 +230,7 @@ module.exports = View.extend({
         'Name and Definition': '[data-hook=sort-name]',
         'Type': '[data-hook=sort-type]',
         'Size': '[data-hook=sort-size]',
-        'Utilization': '[data-hook=sort-utilization]',
+        'Usage': '[data-hook=sort-usage]',
         'Cardinality': '[data-hook=sort-cardinality]',
         'Properties': '[data-hook=sort-properties]'
       }
@@ -237,7 +239,7 @@ module.exports = View.extend({
       type: 'class',
       selector: 'i.sort'
     },
-    showUtilizationColumn: {
+    showUsageColumn: {
       type: 'toggle',
       selector: '.util-column'
     }
@@ -247,8 +249,9 @@ module.exports = View.extend({
   },
   initialize: function() {
     this.listenTo(this.model, 'sync', this.onModelSynced.bind(this));
-    // to detect version and show/hide utilization column accordingly
+    // to detect version and show/hide usage column accordingly
     this.listenToOnce(app.instance, 'sync', this.onInstanceSynced.bind(this));
+    this.on('change:visible', this.onVisibleChanged.bind(this));
   },
   onModelSynced: function() {
     this.ns = this.model._id;
@@ -259,6 +262,11 @@ module.exports = View.extend({
     this.model.indexes.each(function(idx) {
       idx.relativeSize = idx.size / maxSize * 100;
     });
+  },
+  onVisibleChanged: function() {
+    if (this.visible) {
+      this.parent.refineBarView.visible = this.hasRefineBar;
+    }
   },
   onInstanceSynced: function() {
     this.appVersion = app.instance.build.version;
@@ -278,7 +286,7 @@ module.exports = View.extend({
     var field;
     if (this.sortField === 'Name and Definition') {
       field = 'name';
-    } else if (this.sortField === 'Utilization') {
+    } else if (this.sortField === 'Usage') {
       field = 'usageCount';
     } else {
       field = this.sortField.toLowerCase();

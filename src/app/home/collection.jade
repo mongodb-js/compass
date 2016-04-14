@@ -5,5 +5,20 @@
         h1(data-hook='name')
       .col-md-6
         div(data-hook='stats-subview')
+    .row
+      ul.nav.nav-tabs(role='tablist')
+        li(role='presentation', data-hook='document-tab')
+          a Documents
+        li(role='presentation', data-hook='schema-tab')
+          a Schema
+        //- li(role='presentation', data-hook='explain-tab')
+        //-   a Explain Plan
+        li(role='presentation', data-hook='index-tab')
+          a Indexes
+    .row
+      div(data-hook='refine-bar-subview')
+  
+  div(data-hook='document-subview')
   div(data-hook='schema-subview')
+  div(data-hook='explain-subview')
   div(data-hook='index-subview')

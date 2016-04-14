@@ -25,7 +25,7 @@ var SamplingMessageView = View.extend({
     visible: {
       deps: ['sample_size'],
       fn: function() {
-        return this.sample_size > 0;
+        return this.sample_size > 0 || !this.model;
       }
     },
     percentage: {
@@ -40,7 +40,7 @@ var SamplingMessageView = View.extend({
     is_sample: {
       deps: ['sample_size', 'total_count'],
       fn: function() {
-        return this.sample_size < this.total_count;
+        return this.model && (this.sample_size < this.total_count);
       }
     },
     formatted_total_count: {
@@ -75,16 +75,18 @@ var SamplingMessageView = View.extend({
     }
   },
   initialize: function() {
-    this.listenTo(this.parent.parent.schema, 'request', this.hide.bind(this));
-    this.listenTo(this.parent.parent.schema, 'sync', this.show.bind(this));
+    if (this.model) {
+      this.listenTo(this.model, 'request', this.hide.bind(this));
+      this.listenTo(this.model, 'sync', this.show.bind(this));
+    }
   },
   hide: function() {
     this.sample_size = 0;
     this.total_count = 0;
   },
   show: function() {
-    this.sample_size = this.parent.parent.schema.sample_size;
-    this.total_count = this.parent.parent.schema.total;
+    this.sample_size = this.model.sample_size;
+    this.total_count = this.model.total;
     this.render();
   },
   render: function() {

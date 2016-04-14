@@ -5,9 +5,19 @@
   max-width: 100%;
 }
 
+.scroll-container {
+  overflow: auto;
+  height: 100%;
+  padding: .5rem;
+  -webkit-overflow-scrolling: touch;
+  -ms-overflow-style: none;
+  position: relative;
+}
+
 ol.document-list {
   .list-unstyled;
-  padding-bottom: 30px;
+  padding-top: 20px;
+  padding-bottom: 20px;
   position: relative;
 
   li[data-hook="loading"] {

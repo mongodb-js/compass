@@ -1,20 +1,8 @@
 .schema-container
-  div(data-hook='refine-bar')
   .hidden(data-hook='empty')
     ul.message-background.with-sidebar.centered: li
       p No documents found.
-  .column-container(data-hook='column-container')
+  div(data-hook='sampling-message-subview')
+  .column-container.with-refinebar-and-message(data-hook='column-container')
     .column.main
       div(data-hook='fields-subview')
-    .splitter
-      button#view_sample.btn.btn-link.splitter-button.splitter-button-open(title='View Sampled Documents')
-        i.fa.fa-caret-left
-        | &nbsp;
-        i.fa.fa-file-text-o
-
-      button#hide_sample.btn.btn-link.splitter-button.splitter-button-close(title='Hide Sampled Documents')
-        i.fa.fa-file-text-o
-        | &nbsp;
-        i.fa.fa-caret-right
-    #sample_documents.column.side
-      div(data-hook='documents-subview')

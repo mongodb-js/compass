@@ -1,8 +1,7 @@
 var View = require('ampersand-view');
 var FieldListView = require('../field-list');
-var DocumentListView = require('../document-list');
-var RefineBarView = require('../refine-view');
 var SampledSchema = require('../models/sampled-schema');
+var SamplingMessageView = require('../sampling-message');
 var app = require('ampersand-app');
 var _ = require('lodash');
 var electron = require('electron');
@@ -21,18 +20,11 @@ var SchemaView = View.extend({
   // modelType: 'Collection',
   template: collectionTemplate,
   props: {
-    sidebar_open: {
-      type: 'boolean',
-      default: false
-    },
-    schema_synched: {
-      type: 'boolean',
-      default: false
-    },
     visible: {
       type: 'boolean',
       default: false
-    }
+    },
+    hasRefineBar: ['boolean', true, true]
   },
   derived: {
     is_empty: {
@@ -46,11 +38,6 @@ var SchemaView = View.extend({
     'click .splitter': 'onSplitterClick'
   },
   bindings: {
-    sidebar_open: {
-      type: 'booleanClass',
-      yes: 'sidebar-open',
-      hook: 'column-container'
-    },
     visible: {
       type: 'booleanClass',
       no: 'hidden'
@@ -72,48 +59,27 @@ var SchemaView = View.extend({
     schema: SampledSchema
   },
   initialize: function() {
-    this.on('change:sidebar_open', function(payload, newValue) {
-      if (newValue) {
-        // When sidebar_open changes to true, load documents.
-        this.documents.loadDocuments();
-      } else {
-        // When sidebar_open changes to false, dump all loaded documents.
-        this.documents.reset();
-      }
-    });
     this.listenTo(this.schema, 'sync', this.schemaIsSynced.bind(this));
     this.listenTo(this.schema, 'request', this.schemaIsRequested.bind(this));
     this.listenTo(this.model, 'sync', this.onCollectionFetched.bind(this));
-    // this.listenToAndRun(this.parent, 'change:ns', this.onCollectionChanged.bind(this));
+    this.listenTo(this.parent, 'submit:query', this.onQueryChanged.bind(this));
+    this.on('change:visible', this.onVisibleChanged.bind(this));
   },
   render: function() {
     this.renderWithTemplate(this);
-    var sidebar = this.query('.side');
-    sidebar.addEventListener('scroll', function() {
-      // If the sidebar is open, and our schema is ready...
-      if (this.schema_synched && this.sidebar_open) {
-        // call the scroll method on the document subview.
-        // It also needs to be passed the containing element.
-        this.documents.onViewerScroll(sidebar);
-      }
-    }.bind(this));
-    return this;
   },
   schemaIsSynced: function() {
     // only listen to share menu events if we have a sync'ed schema
-    this.schema_synched = true;
     this.listenTo(app, 'menu-share-schema-json', this.onShareSchema.bind(this));
     app.sendMessage('show share submenu');
-    if (this.sidebar_open) {
-      this.documents.loadDocuments();
-    }
   },
   schemaIsRequested: function() {
-    this.schema_synched = false;
     app.sendMessage('hide share submenu');
     this.stopListening(app, 'menu-share-schema-json');
-    if (this.sidebar_open && this.documents) {
-      this.documents.reset();
+  },
+  onVisibleChanged: function() {
+    if (this.visible) {
+      this.parent.refineBarView.visible = this.hasRefineBar;
     }
   },
   onShareSchema: function() {
@@ -142,7 +108,7 @@ var SchemaView = View.extend({
     //   return;
     // }
 
-    this.visible = true;
+    // this.visible = true;
     app.queryOptions.reset();
     app.volatileQueryOptions.reset();
 
@@ -165,27 +131,15 @@ var SchemaView = View.extend({
     options.message = 'Analyzing documents...';
     this.schema.refine(options);
   },
-  /**
-   * handler for opening the document viewer sidebar.
-   */
-  onSplitterClick: function() {
-    this.toggle('sidebar_open');
-    metrics.track('Document Viewer', 'used', {
-      opened: this.sidebar_open
-    });
-  },
   subviews: {
-    refine_bar: {
-      hook: 'refine-bar',
+    sampling_message: {
+      hook: 'sampling-message-subview',
       prepareView: function(el) {
-        var refineBarView = new RefineBarView({
+        return new SamplingMessageView({
           el: el,
           parent: this,
-          queryOptions: app.queryOptions,
-          volatileQueryOptions: app.volatileQueryOptions
+          model: this.schema
         });
-        this.listenTo(refineBarView, 'submit', this.onQueryChanged);
-        return refineBarView;
       }
     },
     fields: {
@@ -195,15 +149,6 @@ var SchemaView = View.extend({
           el: el,
           parent: this,
           collection: this.schema.fields
-        });
-      }
-    },
-    documents: {
-      hook: 'documents-subview',
-      prepareView: function(el) {
-        return new DocumentListView({
-          el: el,
-          parent: this
         });
       }
     }
