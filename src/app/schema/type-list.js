@@ -4,8 +4,8 @@ var numeral = require('numeral');
 var tooltipMixin = require('../tooltip-mixin');
 var _ = require('lodash');
 
-var typeListTemplate = require('../templates')['field-list']['type-list'];
-var typeListItemTemplate = require('../templates')['field-list']['type-list-item'];
+var typeListTemplate = require('../templates').schema['type-list'];
+var typeListItemTemplate = require('../templates').schema['type-list-item'];
 // var debug = require('debug')('mongodb-compass:field-list:type-list');
 
 var TypeListView;

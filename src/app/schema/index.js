@@ -1,5 +1,5 @@
 var View = require('ampersand-view');
-var FieldListView = require('../field-list');
+var FieldListView = require('./field-list.js');
 var SampledSchema = require('../models/sampled-schema');
 var SamplingMessageView = require('../sampling-message');
 var app = require('ampersand-app');
@@ -12,13 +12,13 @@ var clipboard = remote.clipboard;
 var format = require('util').format;
 var metrics = require('mongodb-js-metrics')();
 
-var debug = require('debug')('mongodb-compass:home:schema');
+var debug = require('debug')('mongodb-compass:schema:index');
 
-var collectionTemplate = require('../templates').home.schema;
+var indexTemplate = require('../templates').schema.index;
 
 var SchemaView = View.extend({
   // modelType: 'Collection',
-  template: collectionTemplate,
+  template: indexTemplate,
   props: {
     visible: {
       type: 'boolean',
