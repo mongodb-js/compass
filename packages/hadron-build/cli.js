@@ -15,6 +15,7 @@ const yargs = require('yargs')
   .command(require('./commands/verify'))
   .demand(1, 'Please specify a command.')
   .strict()
+  .env()
   .help('help')
   .fail(function(msg, err) {
     cli.abortIfError(err);

@@ -149,10 +149,10 @@ function transformPackageJson(CONFIG, done) {
     'devDependencies',
     'dependency-check',
     'repository',
-    'check'
+    'check',
+    'config.hadron.build'
   ];
   var contents = _.omit(pkg, packageKeysToRemove);
-  delete contents.config.hadron.build;
 
   if (!contents.config) {
     contents.config = {};

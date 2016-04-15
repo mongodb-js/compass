@@ -58,38 +58,34 @@ exports.options = {
     describe: 'What extra cli arguments should be passed to signtool.exe?',
     default: process.env.SIGNTOOL_PARAMS || null
   },
-  revision: {
-    description: 'revision on evergreen',
-    type: 'string',
-    default: undefined
-  },
-  build_variant: {
-    description: 'build_variant on evergreen',
-    type: 'string',
-    default: undefined
-  },
-  branch_name: {
-    description: 'branch_name on evergreen',
-    type: 'string',
-    default: undefined
-  },
   favicon_url: {
     description: 'A URL to an ICO file to use as the application icon (e.g. Windows: displayed in Control Panel > Programs and Features)',
     default: _.get(pkg, 'config.hadron.build.win32.favicon_url')
   },
-  commit_sha1: {
-    // TODO (imlucas) evergeen sets an environment variable
-    default: 'master'
+  evergreen_revision: {
+    description: 'What revision, aka commit sha1 is evergreen building?',
+    type: 'string',
+    default: process.env.EVERGREEN_REVISION
+  },
+  evergreen_build_variant: {
+    description: 'build_variant on evergreen',
+    type: 'string',
+    default: process.env.EVERGREEN_BUILD_VARIANT
+  },
+  evergreen_branch_name: {
+    description: 'branch_name on evergreen',
+    type: 'string',
+    default: process.env.EVERGREEN_BRANCH_NAME
   },
   github_token: {
     description: 'GitHub API token.',
     default: process.env.GITHUB_TOKEN
   },
   github_owner: {
-    default: undefined
+    default: pkg.github_owner
   },
   github_repo: {
-    default: undefined
+    default: pkg.github_repo
   },
   author: {
     default: pkg.author || pkg.authors
@@ -151,7 +147,7 @@ exports.get = function(cli, callback) {
     ignore: IGNORE_DIRECTORIES,
     platform: CONFIG.platform,
     arch: CONFIG.arch,
-    version: cli.argv.electron_version,
+    version: CONFIG.electron_version,
     sign: null
   };
   /**
