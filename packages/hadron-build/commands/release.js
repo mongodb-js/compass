@@ -336,7 +336,7 @@ let createModuleCache = (CONFIG, done) => {
   const appDir = path.join(CONFIG.resources, 'app');
   ModuleCache.create(appDir);
 
-  let metadata = pkg.get(appDir);
+  let metadata = pkg.get(process.cwd());
 
   for (let folder in _.get(metadata, '_compassModuleCache.folders')) {
     if (_.includes(folder.paths, '')) {
