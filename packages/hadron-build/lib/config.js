@@ -43,7 +43,7 @@ exports.options = {
   },
   product_name: {
     describe: 'What is the name of the application we should display to humans?',
-    default: process.env.npm_package_product_name || pkg.product_name
+    default: _.get(pkg, ['productName', 'product_name'])
   },
   description: {
     describe: 'What is the description of the application we should display to humans?',
@@ -133,7 +133,7 @@ exports.get = function(cli, callback) {
    * with implementors based on `platform`.
    */
   var CONFIG = _.omit(cli.argv, [
-    '_', 'help', 'verbose', 'sign', 'format', 'version', '$0',
+    '_', 'help', 'verbose', 'sign', 'format', '$0',
     'signtool_params', 'favicon_url'
   ]);
 
