@@ -309,6 +309,7 @@ exports.get = function(cli, callback) {
     ];
 
     CONFIG.installerOptions = {
+      title: PRODUCT_NAME,
       overwrite: true,
       out: CONFIG.out,
       icon: OSX_ICON,
