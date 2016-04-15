@@ -37,7 +37,7 @@ exports.options = {
     describe: 'What version of the application are we building?',
     default: process.env.npm_package_version || pkg.version
   },
-  internal_name: {
+  name: {
     describe: 'What is the kebab cased name of the application?',
     default: process.env.npm_package_name || pkg.name
   },
@@ -121,7 +121,7 @@ exports.get = function(cli, callback) {
     PRODUCT_NAME += ' (Dev)';
   }
 
-  var ID = cli.argv.internal_name;
+  var ID = cli.argv.name;
 
   /**
    * TODO (imlucas) beta and dev channels should have different
@@ -224,7 +224,7 @@ exports.get = function(cli, callback) {
         CompanyName: CONFIG.author,
         FileDescription: CONFIG.description,
         ProductName: PRODUCT_NAME,
-        InternalName: CONFIG.internal_name
+        InternalName: CONFIG.name
       }
     });
 
@@ -373,7 +373,7 @@ exports.get = function(cli, callback) {
     /**
      * ## Linux Configuration
      */
-    var LINUX_APPNAME = cli.argv.internal_name;
+    var LINUX_APPNAME = cli.argv.name;
     var LINUX_OUT_X64 = path.join(CONFIG.out,
       format('%s-linux-x64', LINUX_APPNAME));
     var LINUX_RESOURCES = path.join(LINUX_OUT_X64, 'resources');
