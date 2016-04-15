@@ -1,15 +1,28 @@
-var helpers = require('./helpers');
+'use strict';
+
+const SpectronSupport = require('mongodb-test-utils').SpectronSupport;
+const path = require('path');
+const dist = path.join(__dirname, '..', 'dist');
 
 describe('Connect Window #spectron', function() {
   this.slow(10000);
   this.timeout(30000);
+  var app = null;
 
-  before(helpers.startApplication);
-  after(helpers.stopApplication);
+  before(function(done) {
+    SpectronSupport.startApplication(dist).then(function(application) {
+      app = application;
+      done();
+    });
+  });
+
+  after(function(done) {
+    SpectronSupport.stopApplication(app).then(done);
+  });
 
   describe('when opening the window', function() {
     it('renders the connect window', function() {
-      return this.app.client
+      return app.client
         .getWindowCount().should.eventually.equal(1)
         .isWindowMinimized().should.eventually.be.false
         .isWindowDevToolsOpened().should.eventually.be.false
@@ -30,7 +43,7 @@ describe('Connect Window #spectron', function() {
 
     describe('when the server does not exist', function() {
       it('displays an error message', function() {
-        return this.app.client
+        return app.client
           .waitForVisible('select[name=authentication]')
           .fillOutForm({ hostname: 'localhost', port: 55555 })
           .clickConnect()
@@ -42,7 +55,7 @@ describe('Connect Window #spectron', function() {
 
     describe('when the server exists', function() {
       it('opens the schema window', function() {
-        return this.app.client
+        return app.client
           .fillOutForm({ hostname: 'localhost', port: 27018 })
           .clickConnect()
           .waitForSchemaWindow()

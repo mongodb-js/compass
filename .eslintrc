@@ -1,11 +1,19 @@
 {
+  "ecmaFeatures": {
+    "blockBindings": true,
+    "jsx": true
+  },
   "env": {
     "mocha": true,
     "node": true,
+    "es6": true
   },
   "rules": {
+    "jsx-quotes": [2, "prefer-single"],
+    "strict": 0,
     "camelcase": 1
   },
+  "plugins": ["react"],
   "extends": [
     "mongodb-js/node",
     "mongodb-js/browser"

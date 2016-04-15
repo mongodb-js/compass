@@ -1,15 +1,28 @@
-var helpers = require('./helpers');
+'use strict';
+
+const SpectronSupport = require('mongodb-test-utils').SpectronSupport;
+const path = require('path');
+const dist = path.join(__dirname, '..', 'dist');
 
 describe('Help Dialog #spectron', function() {
   this.slow(10000);
   this.timeout(30000);
+  var app = null;
 
-  before(helpers.startApplication);
-  after(helpers.stopApplication);
+  before(function(done) {
+    SpectronSupport.startApplication(dist).then(function(application) {
+      app = application;
+      done();
+    });
+  });
+
+  after(function(done) {
+    SpectronSupport.stopApplication(app).then(done);
+  });
 
   context('when selecting a topic', function() {
     it('displays the help contents', function() {
-      return this.app.client
+      return app.client
         .waitForVisible('i.help')
         .click('i.help')
         .waitForHelpDialog(30000)
@@ -19,7 +32,7 @@ describe('Help Dialog #spectron', function() {
 
   context('when filtering topics', function() {
     it('displays the matching topics', function() {
-      return this.app.client
+      return app.client
         .filterHelpTopics('Sampling Results')
         .getText('li.list-group-item span').should.eventually.be.equal('Sampling Results');
     });
