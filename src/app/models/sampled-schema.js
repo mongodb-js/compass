@@ -118,9 +118,9 @@ module.exports = Schema.extend({
 
     var onFail = function(err) {
       // hide statusbar animation, progressbar (top)
-      // app.statusbar.animation = false;
-      // app.statusbar.trickle(false);
-      // app.statusbar.progressbar = false;
+      app.statusbar.animation = false;
+      app.statusbar.trickle(false);
+      app.statusbar.progressbar = false;
 
       // show error box with buttons for current stage (sampling/analyzing)
       schemaStatusSubview.error = true;
@@ -131,6 +131,9 @@ module.exports = Schema.extend({
 
       // call error callback
       process.nextTick(options.error.bind(null, err));
+
+      // trigger error so schema view can dismiss status bar
+      model.trigger('error');
     };
 
 
@@ -140,7 +143,7 @@ module.exports = Schema.extend({
       if (err) {
         return onFail(err);
       }
-      // app.statusbar.hide(true);
+      app.statusbar.hide(true);
 
       // @note (imlucas): Any other metrics?  Feedback on `Schema *`?
       var totalTime = new Date() - start;
@@ -171,19 +174,21 @@ module.exports = Schema.extend({
       model.total = count;
       if (model.total === 0) {
         model.is_fetching = false;
-        return options.success({});
+        return onEnd();
       }
 
-      // var status = 0;
+      var status = 0;
       var numSamples = Math.min(options.size, count);
       var stepSize = Math.ceil(Math.max(1, numSamples / 10));
 
-      // app.statusbar.show({
-      //   animation: true
-      // });
-      // app.statusbar.showSubview(schemaStatusSubview);
-      // app.statusbar.width = 1;
-      // app.statusbar.trickle(true);
+      app.statusbar.set({
+        animation: true,
+        progressbar: true,
+        width: 100
+      });
+      app.statusbar.showSubview(schemaStatusSubview);
+      app.statusbar.width = 1;
+      app.statusbar.trickle(true);
 
       model.samplingStream = app.dataService.sample(model.ns, options);
       // pass in true for native (fast) sampler, false for ampersand-sampler
@@ -198,15 +203,15 @@ module.exports = Schema.extend({
         .pipe(model.analyzingStream)
         .once('progress', function() {
           timeAtFirstDoc = new Date();
-          // status = app.statusbar.width;
+          status = app.statusbar.width;
           schemaStatusSubview.activeStep = 'analyzing';
-          // app.statusbar.trickle(false);
+          app.statusbar.trickle(false);
         })
         .on('progress', function() {
           sampleCount++;
           if (sampleCount % stepSize === 0) {
-            // var inc = (100 - status) * stepSize / numSamples;
-            // app.statusbar.width += inc;
+            var inc = (100 - status) * stepSize / numSamples;
+            app.statusbar.width += inc;
           }
         })
         .on('error', function(analysisErr) {
@@ -230,7 +235,7 @@ module.exports = Schema.extend({
       this.samplingStream.destroy();
       this.analyzingStream.destroy();
     }
-    // app.statusbar.hide(true);
+    app.statusbar.hide(true);
     this.trigger('sync');
   },
   serialize: function() {

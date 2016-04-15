@@ -24,6 +24,10 @@ var SchemaView = View.extend({
       type: 'boolean',
       default: false
     },
+    sampling: {
+      type: 'boolean',
+      default: false
+    },
     hasRefineBar: ['boolean', true, true]
   },
   derived: {
@@ -59,7 +63,7 @@ var SchemaView = View.extend({
     schema: SampledSchema
   },
   initialize: function() {
-    this.listenTo(this.schema, 'sync', this.schemaIsSynced.bind(this));
+    this.listenTo(this.schema, 'sync error', this.schemaIsSynced.bind(this));
     this.listenTo(this.schema, 'request', this.schemaIsRequested.bind(this));
     this.listenTo(this.model, 'sync', this.onCollectionFetched.bind(this));
     this.listenTo(this.parent, 'submit:query', this.onQueryChanged.bind(this));
@@ -70,16 +74,23 @@ var SchemaView = View.extend({
   },
   schemaIsSynced: function() {
     // only listen to share menu events if we have a sync'ed schema
+    this.sampling = false;
     this.listenTo(app, 'menu-share-schema-json', this.onShareSchema.bind(this));
     app.sendMessage('show share submenu');
   },
   schemaIsRequested: function() {
     app.sendMessage('hide share submenu');
     this.stopListening(app, 'menu-share-schema-json');
+    this.sampling = true;
   },
   onVisibleChanged: function() {
     if (this.visible) {
       this.parent.refineBarView.visible = this.hasRefineBar;
+    }
+    if (this.visible && this.sampling) {
+      app.statusbar.visible = true;
+    } else {
+      app.statusbar.visible = false;
     }
   },
   onShareSchema: function() {
