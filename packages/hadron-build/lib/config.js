@@ -43,7 +43,7 @@ exports.options = {
   },
   product_name: {
     describe: 'What is the name of the application we should display to humans?',
-    default: _.get(pkg, ['productName', 'product_name'])
+    default: pkg.productName
   },
   description: {
     describe: 'What is the description of the application we should display to humans?',
@@ -96,6 +96,7 @@ exports.options = {
   }
 };
 
+var assert = require('assert');
 exports.get = function(cli, callback) {
   /**
    * a.k.a What directory is package.json in?
@@ -114,6 +115,7 @@ exports.get = function(cli, callback) {
   }
 
   var PRODUCT_NAME = cli.argv.product_name;
+  assert(cli.argv.product_name);
 
   if (channel === 'beta') {
     PRODUCT_NAME += ' (Beta)';
