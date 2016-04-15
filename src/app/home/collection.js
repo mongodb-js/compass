@@ -1,6 +1,6 @@
 var View = require('ampersand-view');
 var CollectionStatsView = require('../collection-stats');
-var DocumentView = require('./documents');
+var DocumentView = require('../documents');
 var SchemaView = require('./schema');
 var IndexView = require('../indexes');
 var RefineBarView = require('../refine-view');

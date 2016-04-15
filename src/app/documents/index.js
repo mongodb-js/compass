@@ -1,13 +1,13 @@
 var View = require('ampersand-view');
-var DocumentListView = require('../document-list');
+var DocumentListView = require('./document-list.js');
 // var SamplingMessageView = require('../sampling-message');
 
 // var debug = require('debug')('mongodb-compass:home:documents');
 
-var documentTemplate = require('../templates').home.documents;
+var indexTemplate = require('../templates').documents.index;
 
 var DocumentView = View.extend({
-  template: documentTemplate,
+  template: indexTemplate,
   props: {
     visible: {
       type: 'boolean',
