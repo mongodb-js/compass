@@ -161,7 +161,6 @@ exports.get = function(cli, callback) {
   CONFIG.out = path.join(PROJECT_ROOT, 'dist');
   CONFIG.platform = cli.argv.platform;
   CONFIG.arch = cli.argv.arch;
-  CONFIG.version = cli.argv.electron_version;
   CONFIG.channel = channel;
 
   if (cli.argv.platform === 'win32') {

@@ -21,7 +21,7 @@ exports.builder = {
 _.assign(exports.builder, config.options);
 
 const serialize = (CONFIG) => {
-  return _.omit(CONFIG, function(value) {
+  return _.omitBy(CONFIG, function(value) {
     return _.isFunction(value) || _.isRegExp(value);
   });
 };
