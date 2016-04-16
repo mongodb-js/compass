@@ -1,13 +1,15 @@
 'use strict';
 
+const _ = require('lodash');
+const fs = require('fs');
 const path = require('path');
 const normalizePkg = require('normalize-package-data');
 const parseGitHubRepoURL = require('parse-github-repo-url');
 
 let get = (directory) => {
   const _path = path.join(directory, 'package.json');
-  let pkg = require(_path);
-  normalizePkg(pkg);
+  let pkg = JSON.parse(fs.readFileSync(_path));
+  // normalizePkg(pkg);
   pkg._path = _path;
 
   const g = parseGitHubRepoURL(pkg.repository.url);

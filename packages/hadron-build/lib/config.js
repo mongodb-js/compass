@@ -306,6 +306,7 @@ exports.get = function(cli, callback) {
     ];
 
     CONFIG.installerOptions = {
+      dmgPath: OSX_OUT_DMG,
       title: PRODUCT_NAME,
       overwrite: true,
       out: CONFIG.out,
