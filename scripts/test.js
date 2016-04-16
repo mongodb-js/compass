@@ -60,7 +60,7 @@ if (process.env.EVERGREEN) {
 }
 
 // pass all additional args to electron-mocha (e.g. --grep, positional arguments, etc.)
-var otherOpts = _.filter(_.flatten(_.pairs(_.mapKeys(_.omit(cli.argv, 'unit',
+var otherOpts = _.filter(_.flatten(_.toPairs(_.mapKeys(_.omit(cli.argv, 'unit',
   'functional', 'release', 'verbose', '$0', 'help', '_'), function(v, k) {
   return k.length === 1 ? '-' + k : '--' + k;
 }))), function(el) {
