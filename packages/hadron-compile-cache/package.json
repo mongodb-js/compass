@@ -15,7 +15,7 @@
   ],
   "scripts": {
     "ci": "npm run check && npm test",
-    "test": "mocha",
+    "test": "mocha --recursive",
     "fmt": "mongodb-js-fmt ./*.js ./test/*.js",
     "check": "mongodb-js-precommit"
   },
