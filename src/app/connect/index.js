@@ -467,7 +467,7 @@ var ConnectView = View.extend({
       return model.is_favorite;
     }.bind(this));
     var nameField = this.form.getField('name');
-    nameField.conflicting = _.pluck(conflicts, 'name');
+    nameField.conflicting = _.pick(conflicts, 'name');
   },
 
   /**
@@ -487,10 +487,10 @@ var ConnectView = View.extend({
     // available to set.
     var keys = ['name', 'port', 'hostname', 'authentication', 'ssl'];
     if (this.connection.authentication !== 'NONE') {
-      keys.push.apply(keys, _.pluck(authMethods.get(this.authMethod).fields, 'name'));
+      keys.push.apply(keys, _.pick(authMethods.get(this.authMethod).fields, 'name'));
     }
     if (this.connection.ssl !== 'NONE') {
-      keys.push.apply(keys, _.pluck(sslMethods.get(this.sslMethod).fields, 'name'));
+      keys.push.apply(keys, _.pick(sslMethods.get(this.sslMethod).fields, 'name'));
     }
 
     // make connection active, and (implicitly) all others inactive

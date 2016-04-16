@@ -188,7 +188,7 @@ module.exports = {
   updateSelection_drag: function(message) {
     var data = d3.selectAll(this.queryAll('.selectable.selected')).data();
     message.dx = _.has(data[0], 'dx') ? data[0].dx : 0;
-    this.selectedValues = _.pluck(data, 'value');
+    this.selectedValues = _.pick(data, 'value');
     message.selected = this.selectedValues;
 
     return message;

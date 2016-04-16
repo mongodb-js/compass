@@ -7,7 +7,7 @@ var documentRootTemplate = require('../templates').minicharts['document-root'];
 module.exports = VizView.extend({
   template: documentRootTemplate,
   render: function() {
-    var fieldNames = this.model.parent.fields.pluck('name');
+    var fieldNames = _.pick(this.model.parent.fields.models, 'name');
     this.renderWithTemplate({
       fieldsPluralized: pluralize('nested field', fieldNames.length, true)
     });

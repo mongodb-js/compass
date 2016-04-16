@@ -15,7 +15,7 @@ module.exports = VizView.extend({
       max_length: _.max(this.model.lengths)
     };
     if (this.model.parent.arrayFields) {
-      parsed.fieldNames = this.model.parent.arrayFields.pluck('name');
+      parsed.fieldNames = _.pick(this.model.parent.arrayFields.models, 'name');
       parsed.fieldsPluralized = pluralize('nested field', parsed.fieldNames.length, true);
     }
     this.renderWithTemplate(parsed);
