@@ -163,7 +163,7 @@ exports.get = function(cli, callback) {
     /**
      * ## Windows Configuration
      */
-    var WINDOWS_APPNAME = PRODUCT_NAME;
+    var WINDOWS_APPNAME = PRODUCT_NAME.replace(/ /g, '');
     var WINDOWS_OUT_X64 = path.join(CONFIG.out,
       format('%s-win32-x64', WINDOWS_APPNAME));
 
