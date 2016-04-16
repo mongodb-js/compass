@@ -10,4 +10,5 @@ src/app/templates.js
 src/connect/static-connect.html
 report.json
 .user-data/
+.compiled-sources/
 src/app/compiled-less/

@@ -12,7 +12,7 @@ var Collection = require('ampersand-collection');
 var metrics = require('mongodb-js-metrics')();
 var navigator = window.navigator;
 
-var minichartTemplate = require('../templates').minicharts.minichart;
+var minichartTemplate = require('./minichart.jade');
 
 // var debug = require('debug')('mongodb-compass:minicharts:index');
 

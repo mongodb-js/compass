@@ -52,7 +52,9 @@ var createCLI = require('mongodb-js-cli');
 var config = require('./config');
 var compileUI = require('./compile-ui');
 var createModuleCache = require('./module-cache');
-var generateTemplates = compileUI.generateTemplates;
+var compileCache = require('./compile-cache');
+var createCompileCache = compileCache.createCompileCache;
+var cleanCompileCache = compileCache.cleanCompileCache;
 var generateLessCache = compileUI.generateLessCache;
 
 /**
@@ -88,6 +90,18 @@ function createBrandedApplication(CONFIG, done) {
     }
     cli.debug('Packager result is: ' + JSON.stringify(res, null, 2));
     done(null, true);
+  });
+}
+
+/**
+ * Delete the local user data directory.
+ *
+ * @param {Object} CONFIG
+ * @param {Function} done
+ */
+function cleanupUserData(CONFIG, done) {
+  fs.remove(path.resolve(CONFIG.dir, '.user-data'), function() {
+    done();
   });
 }
 
@@ -361,9 +375,11 @@ function main() {
   config.get(cli, function(err, CONFIG) {
     cli.abortIfError(err);
     var tasks = [
+      cleanupUserData,
+      cleanCompileCache,
+      createCompileCache,
       createBrandedApplication,
       cleanupBrandedApplicationScaffold,
-      generateTemplates,
       generateLessCache,
       writeLicenseFile,
       writeVersionFile,

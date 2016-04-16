@@ -8,7 +8,7 @@ var AuthenticationOptionCollection = require('./models/authentication-option-col
 var InputView = require('./input-view');
 var _ = require('lodash');
 
-var inputTemplate = require('../templates').connect['input-default'];
+var inputTemplate = require('./input-default.jade');
 
 var NONE = {
   _id: 'NONE',

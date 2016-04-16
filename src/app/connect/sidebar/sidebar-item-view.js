@@ -2,7 +2,7 @@ var ListItemView = require('../../sidebar/list').ListItemView;
 var moment = require('moment');
 var _ = require('lodash');
 
-var sidebarItemTemplate = require('../../templates').connect.sidebar['sidebar-item-view'];
+var sidebarItemTemplate = require('./sidebar-item-view.jade');
 // var debug = require('debug')('mongodb-compass:connect:sidebar-item-view');
 
 var TWO_DAYS = 24 * 60 * 60 * 1000;

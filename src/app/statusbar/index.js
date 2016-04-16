@@ -3,7 +3,7 @@ var _ = require('lodash');
 
 var debug = require('debug')('mongodb-compass:statusbar:index');
 
-var indexTemplate = require('../templates').statusbar.index;
+var indexTemplate = require('./index.jade');
 
 var StatusbarView = View.extend({
   props: {

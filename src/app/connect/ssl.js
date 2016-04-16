@@ -5,7 +5,7 @@
  */
 var SSLOptionCollection = require('./models/ssl-option-collection');
 
-var inputTemplate = require('../templates').connect['input-default'];
+var inputTemplate = require('./input-default.jade');
 
 var InputView = require('./input-view');
 var FileReaderView = require('./filereader-view');

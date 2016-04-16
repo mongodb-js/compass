@@ -2,8 +2,8 @@ var View = require('ampersand-view');
 var raf = require('raf');
 var _ = require('lodash');
 
-var listTemplate = require('../templates').sidebar.list;
-var listItemTemplate = require('../templates').sidebar['list-item'];
+var listTemplate = require('./list.jade');
+var listItemTemplate = require('./list-item.jade');
 
 var ListItemView;
 

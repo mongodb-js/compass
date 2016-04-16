@@ -21,11 +21,11 @@
         - if (!method.enabled) classNames.push('hidden')
         - if (i === 0) classNames.push('active')
         div(class=classNames, id='auth-#{method._id}')
-          
+
       hr
-          
+
       div(data-hook='sslselect-subview')
-      
+
       - for method, i in sslMethods || {}
         - classNames = []
         - if (!method.enabled) classNames.push('hidden')
@@ -35,7 +35,7 @@
       hr
 
       div(data-hook='saveas-subview')
-      
+
       .form-item
         button.btn.btn-primary(type='submit', name="connect", data-hook='connect-button') Connect
         span.buttons(data-hook='favorite-buttons')

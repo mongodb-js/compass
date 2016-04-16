@@ -10,7 +10,7 @@ describe('Help Dialog #spectron', function() {
   context('when selecting a topic', function() {
     it('displays the help contents', function() {
       return this.app.client
-        .waitForVisible('i.help')
+        .waitForVisible('i.help', 15000)
         .click('i.help')
         .waitForHelpDialog(30000)
         .getText('div.content h1.help-entry-title').should.eventually.be.equal('Favorite Name');

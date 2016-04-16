@@ -37,7 +37,6 @@ var run = require('electron-installer-run');
 var checkPython = require('check-python');
 var async = require('async');
 var compileUI = require('./compile-ui');
-var generateTemplates = compileUI.generateTemplates;
 var generateLessCache = compileUI.generateLessCache;
 
 function checkNpmAndNodejs(done) {
@@ -81,7 +80,6 @@ function main() {
   async.series([
     checkPython,
     checkNpmAndNodejs,
-    generateTemplates,
     generateLessCache
   ], function(err) {
     cli.abortIfError(err);

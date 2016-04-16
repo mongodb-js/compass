@@ -4,17 +4,21 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 var debug = require('debug')('mongodb-compass:app');
+
 console.time('app/index.js');
 
-var StyleManager = require('./style-manager');
-StyleManager.writeStyles();
-
 var path = require('path');
-
 var resourcePath = path.join(__dirname, '..', '..');
+
 var ModuleCache = require('hadron-module-cache');
 ModuleCache.register(resourcePath);
 ModuleCache.add(resourcePath);
+
+var CompileCache = require('hadron-compile-cache');
+CompileCache.setHomeDirectory(resourcePath);
+
+var StyleManager = require('./style-manager');
+StyleManager.writeStyles();
 
 /**
  * The main entrypoint for the application!

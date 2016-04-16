@@ -4,7 +4,7 @@ var DocumentListView = require('./document-list.js');
 
 // var debug = require('debug')('mongodb-compass:home:documents');
 
-var indexTemplate = require('../templates').documents.index;
+var indexTemplate = require('./index.jade');
 
 var DocumentView = View.extend({
   template: indexTemplate,

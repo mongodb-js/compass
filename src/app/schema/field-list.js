@@ -7,9 +7,8 @@ var _ = require('lodash');
 var raf = require('raf');
 var SampledSchema = require('../models/sampled-schema');
 
-var fieldTemplate = require('../templates').schema.field;
-var fieldListTemplate = require('../templates').schema['field-list'];
-
+var fieldTemplate = require('./field.jade');
+var fieldListTemplate = require('./field-list.jade');
 // var debug = require('debug')('mongodb-compass:schema:field-list');
 
 function handleCaret(el) {

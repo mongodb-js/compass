@@ -3,8 +3,7 @@ var ms = require('ms');
 var app = require('ampersand-app');
 
 // var debug = require('debug')('mongodb-compass:statusbar:schema-subview');
-var subviewTemplate = require('../templates').statusbar['schema-subview'];
-
+var subviewTemplate = require('./schema-subview.jade');
 
 var SHOW_STEPS_MS = 3000;
 var SHOW_ANALYZING_BUTTONS_MS = app.queryOptions.maxTimeMS + 1000;

@@ -8,7 +8,7 @@ var format = require('util').format;
 var bindings = require('ampersand-dom-bindings');
 var path = require('path');
 
-var fileReaderTemplate = require('../templates').connect['filereader-default'];
+var fileReaderTemplate = require('./filereader-default.jade');
 var assert = require('assert');
 
 // var debug = require('debug')('mongodb-compass:connect:filereader-view');

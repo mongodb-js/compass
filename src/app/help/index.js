@@ -10,9 +10,9 @@ var app = require('ampersand-app');
 var metrics = require('mongodb-js-metrics')();
 var _ = require('lodash');
 
-var indexTemplate = require('../templates').help.index;
-var relatedTemplate = require('../templates').help.related;
-var tagsTemplate = require('../templates').help.tags;
+var indexTemplate = require('./index.jade');
+var relatedTemplate = require('./related.jade');
+var tagsTemplate = require('./tags.jade');
 
 var entries = new HelpEntryCollection();
 

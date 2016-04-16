@@ -23,9 +23,11 @@ var async = require('async');
 var path = require('path');
 
 var COMPILED_LESS = path.join('src', 'app', 'compiled-less');
+var COMPILE_CACHE = path.join('.compiled-sources');
+var USER_DATA = path.join('.user-data');
 
 cli.spinner('Removing build artifacts');
-async.parallel(['dist/', 'node_modules/', COMPILED_LESS].map(function(p) {
+async.parallel(['dist/', 'node_modules/', COMPILED_LESS, COMPILE_CACHE, USER_DATA].map(function(p) {
   return function(cb) {
     del(path.join(__dirname, '..', p)).then(cb.bind(null, null));
   };

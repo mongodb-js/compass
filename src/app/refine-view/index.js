@@ -9,7 +9,7 @@ var QueryOptions = require('../models/query-options');
 // var metrics = require('mongodb-js-metrics')();
 // var debug = require('debug')('scout:refine-view:index');
 
-var indexTemplate = require('../templates')['refine-view'].index;
+var indexTemplate = require('./index.jade');
 
 var DEFAULT_QUERY = JSON.stringify(QueryOptions.DEFAULT_QUERY);
 

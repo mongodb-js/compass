@@ -3,7 +3,7 @@ var _ = require('lodash');
 var pluralize = require('pluralize');
 var numeral = require('numeral');
 
-var arrayRootTemplate = require('../templates').minicharts['array-root'];
+var arrayRootTemplate = require('./array-root.jade');
 // var debug = require('debug')('mongodb-compass:minicharts:array-root');
 
 module.exports = VizView.extend({

@@ -12,7 +12,7 @@ var _ = require('lodash');
 var debug = require('debug')('mongodb-compass:home');
 var toNS = require('mongodb-ns');
 
-var indexTemplate = require('../templates').home.index;
+var indexTemplate = require('./index.jade');
 
 var HomeView = View.extend({
   screenName: 'Schema',
