@@ -5,6 +5,7 @@ const config = require('../lib/config');
 const Table = require('cli-table');
 const yaml = require('js-yaml');
 const inspect = require('util').inspect;
+const fs = require('fs');
 
 exports.command = 'config';
 
@@ -15,6 +16,9 @@ exports.builder = {
     choices: ['table', 'yaml', 'json'],
     description: 'What output format would you like?',
     default: 'table'
+  },
+  out: {
+    description: 'Output to a file'
   }
 };
 
@@ -22,7 +26,7 @@ _.assign(exports.builder, config.options);
 
 const serialize = (CONFIG) => {
   return _.omitBy(CONFIG, function(value) {
-    return _.isFunction(value) || _.isRegExp(value);
+    return _.isFunction(value) || _.isRegExp(value) || _.isUndefined(value);
   });
 };
 
@@ -46,13 +50,20 @@ exports.handler = (argv) => {
   cli.argv = argv;
 
   let CONFIG = config.get(cli);
-  /* eslint no-console: 0 */
+  let res = '';
+
+  /* eslint no-console: 0, no-sync: 0 */
   if (cli.argv.format === 'json') {
-    console.log(JSON.stringify(serialize(CONFIG), null, 2));
+    res = JSON.stringify(serialize(CONFIG), null, 2);
   } else if (cli.argv.format === 'yaml') {
-    console.log('---');
-    console.log(yaml.dump(serialize(CONFIG)));
+    res = yaml.dump(serialize(CONFIG));
   } else {
-    console.log(toTable(serialize(CONFIG)));
+    res = toTable(serialize(CONFIG));
   }
+
+  if (argv.output) {
+    return fs.writeFileSync(argv.output, res);
+  }
+
+  console.log(res);
 };
