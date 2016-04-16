@@ -176,10 +176,10 @@ exports.get = function(cli, callback) {
       _.get(pkg, 'config.hadron.build.win32.loading_gif'));
 
     var WINDOWS_OUT_SETUP_EXE = path.join(CONFIG.out,
-      format('%sSetup.exe', WINDOWS_APPNAME));
+      format('%sSetup.exe', PRODUCT_NAME));
 
     var WINDOWS_OUT_MSI = path.join(CONFIG.out,
-      format('%sSetup.msi', WINDOWS_APPNAME));
+      format('%sSetup.msi', PRODUCT_NAME));
 
     CONFIG.appPath = WINDOWS_OUT_X64;
     CONFIG.resources = WINDOWS_RESOURCES;
@@ -234,6 +234,7 @@ exports.get = function(cli, callback) {
       authors: CONFIG.author,
       version: CONFIG.version,
       exe: format('%s.exe', CONFIG.packagerOptions.name),
+      setupExe: format('%sSetup.exe', CONFIG.packagerOptions.name),
       title: PRODUCT_NAME,
       productName: PRODUCT_NAME,
       description: CONFIG.description,
@@ -392,12 +393,12 @@ exports.get = function(cli, callback) {
 
   // Normalize asset names for GitHub or else spaces
   // will automatically be replaced with `.`s.
-  CONFIG.assets = CONFIG.assets.map(function(asset) {
-    if (asset.name !== 'RELEASES') {
-      asset.name = asset.name.replace(/ /g, '-').toLowerCase();
-    }
-    return asset;
-  });
+  // CONFIG.assets = CONFIG.assets.map(function(asset) {
+  //   if (asset.name !== 'RELEASES') {
+  //     asset.name = asset.name.replace(/ /g, '-').toLowerCase();
+  //   }
+  //   return asset;
+  // });
   if (callback) {
     return callback(null, CONFIG);
   }
