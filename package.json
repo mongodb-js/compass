@@ -78,7 +78,7 @@
     "highlight.js": "^8.9.1",
     "jade": "^1.11.0",
     "jquery": "^2.1.4",
-    "kerberos": "mongodb-js/kerberos#c26677040730aed79397b30127b1dcef2d2f72c3",
+    "kerberos": "mongodb-js/kerberos#116a9b6dbaf7323d50318e54f9e036f6f1a69818",
     "keytar": "mongodb-js/node-keytar#38bf08b793fbf030e9ad77398be4275504e21913",
     "less": "^2.6.1",
     "less-cache": "^0.23.0",
