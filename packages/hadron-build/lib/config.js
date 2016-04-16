@@ -163,7 +163,7 @@ exports.get = function(cli, callback) {
     /**
      * ## Windows Configuration
      */
-    var WINDOWS_APPNAME = PRODUCT_NAME.replace(/ /g, '');
+    var WINDOWS_APPNAME = PRODUCT_NAME;
     var WINDOWS_OUT_X64 = path.join(CONFIG.out,
       format('%s-win32-x64', WINDOWS_APPNAME));
 
@@ -237,8 +237,8 @@ exports.get = function(cli, callback) {
       title: PRODUCT_NAME,
       productName: PRODUCT_NAME,
       description: CONFIG.description,
-      name: CONFIG.name,
-      id: CONFIG.name
+      name: CONFIG.name.replace('-', '_'),
+      id: CONFIG.name.replace('-', '_')
       /**
        * TODO (imlucas) Uncomment when hadron-endpoint-server deployed.
        * remoteReleases: _.get(pkg, 'config.hadron.endpoint'),
