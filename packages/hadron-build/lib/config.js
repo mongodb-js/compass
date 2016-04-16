@@ -183,6 +183,21 @@ exports.get = function(cli, callback) {
 
     CONFIG.appPath = WINDOWS_OUT_X64;
     CONFIG.resources = WINDOWS_RESOURCES;
+
+    CONFIG.windows_msi_filename = path.basename(WINDOWS_OUT_MSI);
+    CONFIG.windows_msi_label = 'Windows Installer Package';
+
+    CONFIG.windows_setup_filename = path.basename(WINDOWS_OUT_SETUP_EXE);
+    CONFIG.windows_setup_label = 'Windows Installer';
+
+    CONFIG.windows_zip_filename = format('%s.zip', WINDOWS_APPNAME);
+    CONFIG.windows_zip_label = 'Windows Zip';
+
+    CONFIG.windows_nupkg_full_filename = format('%s-%s-full.nupkg',
+      WINDOWS_APPNAME, CONFIG.version);
+    CONFIG.windows_nupkg_full_label = format('%s-%s-full.nupkg',
+      WINDOWS_APPNAME, CONFIG.version);
+
     CONFIG.assets = [
       {
         name: path.basename(WINDOWS_OUT_SETUP_EXE),
@@ -191,7 +206,7 @@ exports.get = function(cli, callback) {
       },
       {
         name: path.basename(WINDOWS_OUT_MSI),
-        label: 'Windows Installer Package',
+        label: CONFIG.windows_msi_label,
         path: WINDOWS_OUT_MSI
       },
       {
@@ -292,6 +307,12 @@ exports.get = function(cli, callback) {
       'app-category-type': _.get(pkg, 'config.hadron.build.darwin.app_category_type'),
       protocols: _.get(pkg, 'config.hadron.protocols')
     });
+
+    CONFIG.osx_dmg_filename = path.basename(OSX_OUT_DMG);
+    CONFIG.osx_dmg_label = 'OS X Installer';
+
+    CONFIG.osx_zip_filename = path.basename(OSX_OUT_ZIP);
+    CONFIG.osx_zip_label = 'OS X Zip';
 
     CONFIG.appPath = OSX_DOT_APP;
     CONFIG.resources = OSX_RESOURCES;
