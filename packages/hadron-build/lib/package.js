@@ -1,9 +1,9 @@
 'use strict';
-
-const _ = require('lodash');
+/* eslint no-sync: 0 */
+// const _ = require('lodash');
 const fs = require('fs');
 const path = require('path');
-const normalizePkg = require('normalize-package-data');
+// const normalizePkg = require('normalize-package-data');
 const parseGitHubRepoURL = require('parse-github-repo-url');
 
 let get = (directory) => {
