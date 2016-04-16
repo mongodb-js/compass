@@ -114,9 +114,9 @@ exports.get = function(cli, callback) {
   assert(cli.argv.product_name);
 
   if (channel === 'beta') {
-    PRODUCT_NAME += ' (Beta)';
+    PRODUCT_NAME += ' Beta';
   } else if (channel === 'dev') {
-    PRODUCT_NAME += ' (Dev)';
+    PRODUCT_NAME += ' Dev';
   }
 
   var ID = cli.argv.name;
