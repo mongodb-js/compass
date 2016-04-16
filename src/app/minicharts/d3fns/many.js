@@ -151,7 +151,7 @@ var minicharts_d3fns_many = function() {
 
   function chart(selection) {
     selection.each(function(data) {
-      var values = _.pluck(data, 'count');
+      var values = _.pick(data, 'count');
       var maxValue = d3.max(values);
       var sumValues = d3.sum(values);
       var percentFormat = shared.friendlyPercentFormat(maxValue / sumValues * 100);
@@ -159,7 +159,7 @@ var minicharts_d3fns_many = function() {
       var el = d3.select(this);
 
       xScale
-        .domain(_.pluck(data, 'label'))
+        .domain(_.pick(data, 'label'))
         .rangeBands([0, width], 0.3, 0.0);
 
       yScale

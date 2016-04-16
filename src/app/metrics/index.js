@@ -64,8 +64,8 @@ module.exports = function() {
   metrics.addResource.apply(metrics, _.values(features));
 
   debug('metrics configured with trackers %j and resources %j',
-    _.pluck(metrics.trackers.filter('enabled'), 'id'),
-    metrics.resources.pluck('id'));
+    _.pick(metrics.trackers.filter('enabled'), 'id'),
+    _.pick(metrics.resources.models, 'id'));
 
   // track app launch and quit events
   app.once('app-launched', function() {

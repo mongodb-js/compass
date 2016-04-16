@@ -145,7 +145,7 @@ var minicharts_d3fns_few = function() {
 
   function chart(selection) {
     selection.each(function(data) {
-      var values = _.pluck(data, 'count');
+      var values = _.pick(data, 'count');
       var sumValues = d3.sum(values);
       var maxValue = d3.max(values);
       var percentFormat = shared.friendlyPercentFormat(maxValue / sumValues * 100);
@@ -192,7 +192,7 @@ var minicharts_d3fns_few = function() {
         .attr('transform', function(d, i) { // repeat transform attr here but without transition
           var xpos = _.sum(_(data)
             .slice(0, i)
-            .pluck('count')
+            .pick('count')
             .value()
           );
           d.xpos = xpos;
