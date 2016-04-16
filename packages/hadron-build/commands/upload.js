@@ -152,7 +152,7 @@ let uploadEvergreenAssetToS3 = (asset) => {
   const p = Promise.defer();
 
   const params = {
-    Bucket: process.env.EVERGREEN_BUCKET,
+    Bucket: process.env.EVERGREEN_S3_BUCKET,
     Key: `${process.env.EVERGREEN_S3_KEY_PREFIX}/${asset.name}`,
     Body: fs.createReadStream(asset.path),
     ACL: 'public-read',
@@ -208,7 +208,7 @@ let maybeUploadEvergreenAssets = (CONFIG) => {
     requireEnvironmentVariables([
       'EVERGREEN_AWS_ACCESS_KEY_ID',
       'EVERGREEN_AWS_SECRET_ACCESS_KEY',
-      'EVERGREEN_BUCKET',
+      'EVERGREEN_S3_BUCKET',
       'EVERGREEN_S3_KEY_PREFIX'
     ]);
   } catch (err) {
@@ -216,7 +216,7 @@ let maybeUploadEvergreenAssets = (CONFIG) => {
   }
 
   cli.debug(`Uploading ${CONFIG.assets.length} assets produced by evergreen to S3...`);
-  cli.debug(` - EVERGREEN_BUCKET: ${process.env.EVERGREEN_BUCKET}`);
+  cli.debug(` - EVERGREEN_S3_BUCKET: ${process.env.EVERGREEN_S3_BUCKET}`);
   cli.debug(` - EVERGREEN_S3_KEY_PREFIX: ${process.env.EVERGREEN_S3_KEY_PREFIX}`);
   return Promise.all(CONFIG.assets.map(uploadEvergreenAssetToS3));
 };
