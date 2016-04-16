@@ -4,10 +4,10 @@ var DocumentListItemView = require('./document-list-item');
 var app = require('ampersand-app');
 var debug = require('debug')('mongodb-compass:document-list');
 
-var indexTemplate = require('../templates')['document-list'].index;
+var documentListTemplate = require('../templates').documents['document-list'];
 
 var DocumentListView = View.extend({
-  template: indexTemplate,
+  template: documentListTemplate,
   props: {
     loading: {
       type: 'boolean',
@@ -23,14 +23,27 @@ var DocumentListView = View.extend({
   collections: {
     documents: SampledDocumentCollection
   },
+  initialize: function() {
+    this.listenTo(app.queryOptions, 'change:query', this.onQueryChanged.bind(this));
+  },
+  onQueryChanged: function() {
+    this.documents.reset();
+    this.loadDocuments();
+  },
   render: function() {
     this.renderWithTemplate();
     this.renderCollection(this.documents, DocumentListItemView,
       this.queryByHook('document-list-container'));
+
+    var scrollContainer = this.el.parentNode;
+    scrollContainer.addEventListener('scroll', function() {
+      this.onViewerScroll(scrollContainer);
+    }.bind(this));
+
     return this;
   },
   /**
-   * When the DOM element scrolls, check to see if it's within 30px of the bottom.
+   * When the DOM element scrolls, check to see if it's within 100px of the bottom.
    * If it is, load more documents.
    *
    * @param {Element} docListEl The element in the DOM that was scrolled.
@@ -39,22 +52,9 @@ var DocumentListView = View.extend({
     // scrollHeight: total height including off-screen content.
     // scrollTop:    total distance between the top and the visible content.
     // clientHeight: total height of the element on screen.
-    if (docListEl.scrollHeight - docListEl.scrollTop <= docListEl.clientHeight + 30) {
+    if (docListEl.scrollHeight - docListEl.scrollTop <= docListEl.clientHeight + 100) {
       this.loadDocuments();
     }
-  },
-  /**
-   * Returns an array of _id's currently present in the sampled schema.
-   *
-   * @return {Array}
-   */
-  getDocumentIds: function() {
-    var _ids = [];
-    // In case there are multiple types of _id's, we need to handle all of them.
-    this.parent.schema.fields.get('_id').types.forEach(function(type) {
-      _ids = _ids.concat(type.values.serialize());
-    });
-    return _ids;
   },
   /**
    * Incrementally loads the documents present in the sample schema into the doc viewer.
@@ -64,23 +64,14 @@ var DocumentListView = View.extend({
     if (this.loading) {
       return;
     }
-    var _ids = this.getDocumentIds();
-    // If this already has all of the documents, do nothing.
-    if (this.documents.length >= _ids.length) {
+    // If namespace not set yet, do nothing.
+    var ns = this.model.getId();
+    if (!ns) {
       return;
     }
     this.loading = true;
-    var ns = this.parent.parent.ns;
-    var query = {
-      _id: {
-        '$in': _ids
-      }
-    };
-
+    var query = app.queryOptions.query.serialize();
     var options = {
-      sort: {
-        _id: -1
-      },
       skip: this.documents.length,
       limit: 20
     };
@@ -101,6 +92,11 @@ var DocumentListView = View.extend({
   reset: function() {
     this.loading = false;
     this.documents.reset();
+  },
+  remove: function() {
+    var scrollContainer = this.el.parentNode;
+    scrollContainer.removeEventListener('scroll');
+    View.prototype.remove.call(this);
   }
 });
 module.exports = DocumentListView;

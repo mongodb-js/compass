@@ -4,6 +4,7 @@ var numeral = require('numeral');
 var indexTemplate = require('../templates')['collection-stats'].index;
 
 var CollectionStatsView = AmpersandView.extend({
+  extraProperties: 'ignore',
   bindings: {
     'model.name': {
       hook: 'name'

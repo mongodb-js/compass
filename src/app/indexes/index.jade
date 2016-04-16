@@ -1,0 +1,19 @@
+.index-container
+  .column-container
+    .column.main
+      table
+        thead
+          tr
+            th.name Name and Definition
+              i.sort.fa.fa-fw(data-hook='sort-name')
+            th Type
+              i.sort.fa.fa-fw(data-hook='sort-type')
+            th Size
+              i.sort.fa.fa-fw(data-hook='sort-size')
+            th.util-column Usage
+              i.sort.fa.fa-fw(data-hook='sort-usage')
+            th Cardinality
+              i.sort.fa.fa-fw(data-hook='sort-cardinality')
+            th Properties
+              i.sort.fa.fa-fw(data-hook='sort-properties')
+        tbody.table(data-hook='indexes')

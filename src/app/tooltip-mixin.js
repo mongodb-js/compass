@@ -6,6 +6,6 @@ require('bootstrap/js/tooltip');
 
 module.exports = {
   tooltip: function(opts) {
-    return $(this.el).tooltip(opts);
+    return $(opts.el || this.el).tooltip(opts);
   }
 };

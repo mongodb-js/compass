@@ -286,6 +286,8 @@ module.exports.addCommands = function(client) {
     return this.waitForStatusBar()
       .waitForVisible('a span[title="' + name + '"]')
       .click('a span[title="' + name + '"]')
+      .waitForVisible('div.collection-view')
+      .click('li#schema-tab')
       .waitForVisible('div.schema-field-list');
   });
 

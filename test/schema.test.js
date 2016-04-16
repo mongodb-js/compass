@@ -37,14 +37,14 @@ describe('Schema Window #spectron', function() {
             .getText('div#index_count').should.eventually.be.equal('1');
         });
 
-        context('when selecting the sampled documents', function() {
-          it('displays the documents in the sidebar', function() {
-            return this.app.client
-              .viewSampleDocuments()
-              .getText('div#sample_documents ol.document-list li.string div.document-property-key')
-              .should.eventually.exist;
-          });
-        });
+        // context('when selecting the sampled documents', function() {
+        //   it('displays the documents in the sidebar', function() {
+        //     return this.app.client
+        //       .viewSampleDocuments()
+        //       .getText('div#sample_documents ol.document-list li.string div.document-property-key')
+        //       .should.eventually.exist;
+        //   });
+        // });
 
         context('when refining the sample', function() {
           it('displays the matching documents', function() {

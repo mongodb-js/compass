@@ -7,9 +7,10 @@ var _ = require('lodash');
 var raf = require('raf');
 var SampledSchema = require('../models/sampled-schema');
 
-var fieldTemplate = require('../templates')['field-list'].field;
-var indexTemplate = require('../templates')['field-list'].index;
-// var debug = require('debug')('mongodb-compass:field-list');
+var fieldTemplate = require('../templates').schema.field;
+var fieldListTemplate = require('../templates').schema['field-list'];
+
+// var debug = require('debug')('mongodb-compass:schema:field-list');
 
 function handleCaret(el) {
   var $el = $(el);
@@ -131,7 +132,7 @@ FieldListView = View.extend({
   session: {
     fieldCollectionView: 'object'
   },
-  template: indexTemplate,
+  template: fieldListTemplate,
   initialize: function() {
     if (this.collection.parent instanceof SampledSchema) {
       this.listenTo(this.collection.parent, 'sync', this.makeFieldVisible);

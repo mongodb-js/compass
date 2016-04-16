@@ -131,6 +131,9 @@ module.exports = Schema.extend({
 
       // call error callback
       process.nextTick(options.error.bind(null, err));
+
+      // trigger error so schema view can dismiss status bar
+      model.trigger('error');
     };
 
 
@@ -171,15 +174,17 @@ module.exports = Schema.extend({
       model.total = count;
       if (model.total === 0) {
         model.is_fetching = false;
-        return options.success({});
+        return onEnd();
       }
 
       var status = 0;
       var numSamples = Math.min(options.size, count);
       var stepSize = Math.ceil(Math.max(1, numSamples / 10));
 
-      app.statusbar.show({
-        animation: true
+      app.statusbar.set({
+        animation: true,
+        progressbar: true,
+        width: 100
       });
       app.statusbar.showSubview(schemaStatusSubview);
       app.statusbar.width = 1;
