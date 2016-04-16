@@ -1,13 +1,15 @@
 var path = require('path');
 var fs = require('fs-plus');
 
+var BabelCompiler = require('./compiler/babel-compiler');
 var JadeCompiler = require('./compiler/jade-compiler');
 
 /**
  * Maps file extensions to compilers.
  */
 var COMPILERS = {
-  '.jade': new JadeCompiler()
+  '.jade': new JadeCompiler(),
+  '.jsx': new BabelCompiler()
 };
 
 /**
@@ -58,7 +60,7 @@ CompileCache.prototype.setHomeDirectory = function(home) {
  */
 CompileCache.prototype.compileFileAtPath = function(compiler, filePath) {
   var sourceCode = fs.readFileSync(filePath, UTF8);
-  if (compiler.shouldCompile(sourceCode, filePath)) {
+  if (compiler.shouldCompile(filePath)) {
     var cachePath = compiler.getCachePath(sourceCode, filePath);
     var compiledCode = this._readCachedJavascript(cachePath);
     if (compiledCode === null) {

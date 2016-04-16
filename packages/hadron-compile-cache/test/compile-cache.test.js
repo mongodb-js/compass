@@ -51,4 +51,14 @@ describe('CompileCache', function() {
       expect(file).to.not.equal(null);
     });
   });
+
+  describe('.COMPILERS', function() {
+    it('includes the jade compiler', function() {
+      expect(CompileCache.COMPILERS['.jade']).to.be.a('object');
+    });
+
+    it('includes the babel compiler', function() {
+      expect(CompileCache.COMPILERS['.jsx']).to.be.a('object');
+    });
+  });
 });
