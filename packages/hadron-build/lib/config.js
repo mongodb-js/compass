@@ -200,9 +200,9 @@ exports.get = function(cli, callback) {
       },
       {
         name: format('%s-%s-full.nupkg',
-          WINDOWS_APPNAME, CONFIG['app-version']),
+          WINDOWS_APPNAME, CONFIG.version),
         path: path.join(CONFIG.out, format('%s-%s-full.nupkg',
-          WINDOWS_APPNAME, CONFIG['app-version']))
+          WINDOWS_APPNAME, CONFIG.version))
       },
       {
         name: format('%s-windows.zip', ID),
