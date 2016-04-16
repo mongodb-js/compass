@@ -11,6 +11,11 @@ var COMPILERS = {
 };
 
 /**
+ * UTF-8 constant for file reading.
+ */
+var UTF8 = 'utf8';
+
+/**
  * The directory where cached js is stored.
  *
  * @note Things with 'cache' in the name are stripped out of our build process.
@@ -52,7 +57,7 @@ CompileCache.prototype.setHomeDirectory = function(home) {
  * @returns {String} The compiled file.
  */
 CompileCache.prototype.compileFileAtPath = function(compiler, filePath) {
-  var sourceCode = fs.readFileSync(filePath, 'utf8');
+  var sourceCode = fs.readFileSync(filePath, UTF8);
   if (compiler.shouldCompile(sourceCode, filePath)) {
     var cachePath = compiler.getCachePath(sourceCode, filePath);
     var compiledCode = this._readCachedJavascript(cachePath);
@@ -76,7 +81,7 @@ CompileCache.prototype._readCachedJavascript = function(relativeCachePath) {
   var cachePath = path.join(this.cacheDirectory, relativeCachePath);
   if (fs.isFileSync(cachePath)) {
     try {
-      return fs.readFileSync(cachePath, 'utf8');
+      return fs.readFileSync(cachePath, UTF8);
     } catch (error) {
       return null;
     }
@@ -92,7 +97,7 @@ CompileCache.prototype._readCachedJavascript = function(relativeCachePath) {
  */
 CompileCache.prototype._writeCachedJavascript = function(relativeCachePath, code) {
   var cachePath = path.join(this.cacheDirectory, relativeCachePath);
-  fs.writeFileSync(cachePath, code, 'utf8');
+  fs.writeFileSync(cachePath, code, UTF8);
 };
 
 /**
@@ -125,3 +130,5 @@ Object.keys(COMPILERS).forEach(function(extension) {
     }
   });
 });
+
+module.exports.COMPILERS = COMPILERS;

@@ -7,10 +7,15 @@ var path = require('path');
 var JADE = 'jade';
 
 /**
+ * UTF-8 constant for file reading.
+ */
+var UTF8 = 'utf8';
+
+/**
  * Instantiate the Jade compiler.
  */
 function JadeCompiler() {
-  this.jade = require('jade');
+  this.jade = require(JADE);
 }
 
 /**
@@ -32,7 +37,7 @@ JadeCompiler.prototype.shouldCompile = function() {
 JadeCompiler.prototype.getCachePath = function(sourceCode) {
   return path.join(
     JADE,
-    crypto.createHash('sha1').update(sourceCode, 'utf8').digest('hex') + '.js'
+    crypto.createHash('sha1').update(sourceCode, UTF8).digest('hex') + '.js'
   );
 };
 
