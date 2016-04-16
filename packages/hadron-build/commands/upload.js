@@ -165,9 +165,11 @@ let uploadEvergreenAssetToS3 = (asset) => {
   };
 
   try {
-    const upload = new AWS.S3.ManagedUpload({
+    AWS.config.update({
       accessKeyId: process.env.EVERGREEN_AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.EVERGREEN_AWS_SECRET_ACCESS_KEY,
+      secretAccessKey: process.env.EVERGREEN_AWS_SECRET_ACCESS_KEY
+    });
+    const upload = new AWS.S3.ManagedUpload({
       params: params
     });
     upload.send(function(err, data) {
