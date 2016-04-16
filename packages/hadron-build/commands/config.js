@@ -50,6 +50,7 @@ exports.handler = (argv) => {
   if (cli.argv.format === 'json') {
     console.log(JSON.stringify(serialize(CONFIG), null, 2));
   } else if (cli.argv.format === 'yaml') {
+    console.log('---');
     console.log(yaml.dump(serialize(CONFIG)));
   } else {
     console.log(toTable(serialize(CONFIG)));
