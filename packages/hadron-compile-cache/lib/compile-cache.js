@@ -55,10 +55,10 @@ CompileCache.prototype.compileFileAtPath = function(compiler, filePath) {
   var sourceCode = fs.readFileSync(filePath, 'utf8');
   if (compiler.shouldCompile(sourceCode, filePath)) {
     var cachePath = compiler.getCachePath(sourceCode, filePath);
-    var compiledCode = this.readCachedJavascript(cachePath);
+    var compiledCode = this._readCachedJavascript(cachePath);
     if (compiledCode === null) {
       compiledCode = compiler.compile(sourceCode, filePath);
-      this.writeCachedJavascript(cachePath, compiledCode);
+      this._writeCachedJavascript(cachePath, compiledCode);
     }
     return compiledCode;
   }
@@ -72,7 +72,7 @@ CompileCache.prototype.compileFileAtPath = function(compiler, filePath) {
  *
  * @returns {String} The javascript from the cache.
  */
-CompileCache.prototype.readCachedJavascript = function(relativeCachePath) {
+CompileCache.prototype._readCachedJavascript = function(relativeCachePath) {
   var cachePath = path.join(this.cacheDirectory, relativeCachePath);
   if (fs.isFileSync(cachePath)) {
     try {
@@ -90,7 +90,7 @@ CompileCache.prototype.readCachedJavascript = function(relativeCachePath) {
  * @param {String} relativeCachePath - The relative path.
  * @param {String} code - The compiled code.
  */
-CompileCache.prototype.writeCachedJavascript = function(relativeCachePath, code) {
+CompileCache.prototype._writeCachedJavascript = function(relativeCachePath, code) {
   var cachePath = path.join(this.cacheDirectory, relativeCachePath);
   fs.writeFileSync(cachePath, code, 'utf8');
 };
