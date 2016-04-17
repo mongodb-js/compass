@@ -59,17 +59,17 @@ CompileCache.prototype.setHomeDirectory = function(home) {
  * @returns {String} The compiled file.
  */
 CompileCache.prototype.compileFileAtPath = function(compiler, filePath) {
+  var sourceCode = fs.readFileSync(filePath, UTF8);
   if (compiler.shouldCompile(filePath)) {
-    var cachePath = compiler.getCachePath(filePath);
+    var cachePath = compiler.getCachePath(sourceCode, filePath);
     var compiledCode = this._readCachedJavascript(cachePath);
     if (compiledCode === null) {
-      var sourceCode = fs.readFileSync(filePath, UTF8);
       compiledCode = compiler.compile(sourceCode, filePath);
       this._writeCachedJavascript(cachePath, compiledCode);
     }
     return compiledCode;
   }
-  return fs.readFileSync(filePath, UTF8);
+  return sourceCode;
 };
 
 /**
@@ -81,11 +81,14 @@ CompileCache.prototype.compileFileAtPath = function(compiler, filePath) {
  */
 CompileCache.prototype._readCachedJavascript = function(relativeCachePath) {
   var cachePath = path.join(this.cacheDirectory, relativeCachePath);
-  try {
-    return fs.readFileSync(cachePath, UTF8);
-  } catch (error) {
-    return null;
+  if (fs.isFileSync(cachePath)) {
+    try {
+      return fs.readFileSync(cachePath, UTF8);
+    } catch (error) {
+      return null;
+    }
   }
+  return null;
 };
 
 /**
