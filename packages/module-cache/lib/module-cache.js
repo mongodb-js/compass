@@ -33,7 +33,7 @@ var RENDERER_BUILTINS = [ 'ipc', 'remote' ];
 /**
  * Dependency extensions.
  */
-var EXTENSIONS = [ '.js', '.json', '.node' ];
+var EXTENSIONS = [ '.js', '.json', '.node', '.jade', '.jsx' ];
 
 /**
  * Extend the core semver Range prototype to match versions in the cache.
