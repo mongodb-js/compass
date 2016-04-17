@@ -176,7 +176,7 @@ exports.get = function(cli, callback) {
       _.get(pkg, 'config.hadron.build.win32.loading_gif'));
 
     var WINDOWS_OUT_SETUP_EXE = path.join(CONFIG.out,
-      format('%sSetup.exe', PRODUCT_NAME));
+      format('%sSetup.exe', CONFIG.packagerOptions.name));
 
     var WINDOWS_OUT_MSI = path.join(CONFIG.out,
       format('%sSetup.msi', PRODUCT_NAME));
