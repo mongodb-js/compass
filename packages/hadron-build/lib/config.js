@@ -181,6 +181,8 @@ exports.get = function(cli, callback) {
     var WINDOWS_OUT_MSI = path.join(CONFIG.out,
       format('%sSetup.msi', PRODUCT_NAME));
 
+    var WINDOWS_NUGET_ID = CONFIG.name.replace('-', '_');
+
     CONFIG.appPath = WINDOWS_OUT_X64;
     CONFIG.resources = WINDOWS_RESOURCES;
 
@@ -194,9 +196,9 @@ exports.get = function(cli, callback) {
     CONFIG.windows_zip_label = 'Windows Zip';
 
     CONFIG.windows_nupkg_full_filename = format('%s-%s-full.nupkg',
-      WINDOWS_APPNAME, CONFIG.version);
+      WINDOWS_NUGET_ID, CONFIG.version);
     CONFIG.windows_nupkg_full_label = format('%s-%s-full.nupkg',
-      WINDOWS_APPNAME, CONFIG.version);
+      WINDOWS_NUGET_ID, CONFIG.version);
 
     CONFIG.assets = [
       {
@@ -215,9 +217,9 @@ exports.get = function(cli, callback) {
       },
       {
         name: format('%s-%s-full.nupkg',
-          WINDOWS_APPNAME, CONFIG.version),
+          WINDOWS_NUGET_ID, CONFIG.version),
         path: path.join(CONFIG.out, format('%s-%s-full.nupkg',
-          WINDOWS_APPNAME, CONFIG.version))
+          WINDOWS_NUGET_ID, CONFIG.version))
       },
       {
         name: format('%s-windows.zip', ID),
@@ -253,8 +255,8 @@ exports.get = function(cli, callback) {
       title: PRODUCT_NAME,
       productName: PRODUCT_NAME,
       description: CONFIG.description,
-      name: CONFIG.name.replace('-', '_'),
-      id: CONFIG.name.replace('-', '_')
+      name: WINDOWS_NUGET_ID,
+      id: WINDOWS_NUGET_ID
       /**
        * TODO (imlucas) Uncomment when hadron-endpoint-server deployed.
        * remoteReleases: _.get(pkg, 'config.hadron.endpoint'),
