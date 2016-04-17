@@ -94,7 +94,7 @@ let removeGitHubReleaseAssetIfExists = (CONFIG, release, asset) => {
     return p.resolve(true);
   });
   return p.promise;
-}
+};
 
 let doGitHubReleaseAssetUpload = (CONFIG, release, asset) => {
   const opts = {
@@ -144,7 +144,7 @@ let maybePublishGitHubRelease = (CONFIG) => {
 
   getOrCreateGitHubRelease(CONFIG)
     .then((release) => {
-      return CONFIG.assets.map((asset) => uploadGitHubReleaseAsset(CONFIG, release, asset))
+      return CONFIG.assets.map((asset) => uploadGitHubReleaseAsset(CONFIG, release, asset));
     });
 };
 
@@ -199,6 +199,7 @@ function requireEnvironmentVariables(keys) {
   }
 }
 
+/* eslint no-unused-vars: 0 */
 let maybeUploadEvergreenAssets = (CONFIG) => {
   if (!process.env.EVERGREEN) {
     cli.info('`EVERGREEN` environment variable not set.  ' +
@@ -234,7 +235,7 @@ exports.handler = function(argv) {
   cli.argv = argv;
   var CONFIG = config.get(cli);
 
-  maybeUploadEvergreenAssets(CONFIG)
-    .then(() => maybePublishGitHubRelease(CONFIG))
+  // maybeUploadEvergreenAssets(CONFIG)
+  maybePublishGitHubRelease(CONFIG)
     .catch(abortIfError);
 };
