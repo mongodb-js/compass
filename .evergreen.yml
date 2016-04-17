@@ -55,7 +55,14 @@ functions:
           --url "http://mongodb-dx-public.s3.amazonaws.com/evergreen-deps/${fetch_npm_tarball}"
         cd .deps
         tar xzf ${fetch_npm_tarball} --strip-components=1
-        chmod +x npm.cmd || true
+
+  "chmod npm" :
+    command: shell.exec
+    params:
+      working_dir: src/.deps
+      script: |
+        set -ev
+        chmod +x npm.cmd
 
   "npm install" :
     command: shell.exec
@@ -123,6 +130,8 @@ functions:
         # Create a release build
         ${npm|npm} run release;
 
+        ls -alh dist/
+
         # Test the release build
         ${npm|npm} run test-unit;
         EOF_BUILD_SH
@@ -160,7 +169,115 @@ functions:
       content_type: application/json
       display_name: "npm_install.json"
 
-  "save release":
+  "save windows setup":
+    command: s3.put
+    params:
+      aws_key: ${aws_key}
+      aws_secret: ${aws_secret}
+      local_file: "src/dist/${windows_setup_filename}"
+      remote_file: "${project}/${build_variant}/${revision}/${windows_setup_filename}"
+      bucket: mciuploads
+      permissions: public-read
+      content_type: application/octet-stream
+      display_name: "${windows_setup_label}"
+
+  "save windows msi":
+    command: s3.put
+    params:
+      aws_key: ${aws_key}
+      aws_secret: ${aws_secret}
+      local_file: "src/dist/${windows_msi_filename}"
+      remote_file: "${project}/${build_variant}/${revision}/${windows_msi_filename}"
+      bucket: mciuploads
+      permissions: public-read
+      content_type: application/octet-stream
+      display_name: "${windows_msi_label}"
+
+  "save windows zip":
+    command: s3.put
+    params:
+      aws_key: ${aws_key}
+      aws_secret: ${aws_secret}
+      local_file: "src/dist/${windows_zip_filename}"
+      remote_file: "${project}/${build_variant}/${revision}/${windows_zip_filename}"
+      bucket: mciuploads
+      permissions: public-read
+      content_type: application/zip
+      display_name: "${windows_zip_label}"
+
+  "save windows RELEASES":
+    command: s3.put
+    params:
+      aws_key: ${aws_key}
+      aws_secret: ${aws_secret}
+      local_file: "src/dist/RELEASES"
+      remote_file: "${project}/${build_variant}/${revision}/RELEASES"
+      bucket: mciuploads
+      permissions: public-read
+      content_type: application/octet-stream
+      display_name: "RELEASES"
+
+  "save windows nupkg full":
+    command: s3.put
+    params:
+      aws_key: ${aws_key}
+      aws_secret: ${aws_secret}
+      local_file: "src/dist/${windows_nupkg_full_filename}"
+      remote_file: "${project}/${build_variant}/${revision}/${windows_nupkg_full_filename}"
+      bucket: mciuploads
+      permissions: public-read
+      content_type: application/octet-stream
+      display_name: "${windows_nupkg_full_label}"
+
+  "save osx dmg":
+    command: s3.put
+    params:
+      aws_key: ${aws_key}
+      aws_secret: ${aws_secret}
+      local_file: "src/dist/${osx_dmg_filename}"
+      remote_file: "${project}/${build_variant}/${revision}/${osx_dmg_filename}"
+      bucket: mciuploads
+      permissions: public-read
+      content_type: "application/x-apple-diskimage"
+      display_name: "${osx_dmg_label}"
+
+  "save osx zip":
+    command: s3.put
+    params:
+      aws_key: ${aws_key}
+      aws_secret: ${aws_secret}
+      local_file: "src/dist/${osx_zip_filename}"
+      remote_file: "${project}/${build_variant}/${revision}/${osx_zip_filename}"
+      bucket: mciuploads
+      permissions: public-read
+      content_type: application/zip
+      display_name: "${osx_zip_label}"
+
+  "save LICENSE":
+    command: s3.put
+    params:
+      aws_key: ${aws_key}
+      aws_secret: ${aws_secret}
+      local_file: "src/dist/LICENSE"
+      remote_file: "${project}/${build_variant}/${revision}/LICENSE"
+      bucket: mciuploads
+      permissions: public-read
+      content_type: text/plain
+      display_name: LICENSE
+
+  "save version":
+    command: s3.put
+    params:
+      aws_key: ${aws_key}
+      aws_secret: ${aws_secret}
+      local_file: "src/dist/version"
+      remote_file: "${project}/${build_variant}/${revision}/version"
+      bucket: mciuploads
+      permissions: public-read
+      content_type: text/plain
+      display_name: version
+
+  "upload release":
     command: shell.exec
     params:
       working_dir: src
@@ -170,14 +287,6 @@ functions:
         export PATH="${node_path}:$PATH"
         export CI=1
         export EVERGREEN=1
-        export EVERGREEN_AWS_ACCESS_KEY_ID=${aws_key}
-        export EVERGREEN_AWS_SECRET_ACCESS_KEY=${aws_secret}
-        export EVERGREEN_PROJECT=${project}
-        export EVERGREEN_BUILD_VARIANT=${build_variant}
-        export EVERGREEN_REVISION=${revision}
-        export EVERGREEN_S3_BUCKET=mciuploads
-        export EVERGREEN_S3_KEY_PREFIX=${project}/${build_variant}/${revision}
-
         test -n '${add_env_appdata|}' && export APPDATA='${add_env_appdata|}'
         ${npm|npm} run upload;
 
@@ -218,13 +327,55 @@ tasks:
       - osx-1010
   - func: "fetch source"
   - func: "fetch npm tarball"
+  - func: "chmod npm"
+    variants:
+      - windows-64
   - func: "npm install"
+  - command: shell.exec
+    params:
+      working_dir: src
+      script: |
+        set -ev
+        export PATH="${node_path}:$PATH"
+        test -n '${add_env_appdata|}' && export APPDATA='${add_env_appdata|}'
+        ${npm|npm} run evergreen-expansions
+        cat expansions.yml
+  - command: expansions.update
+    params:
+      file: src/expansions.yml
   - func: "fetch signtool"
     variants:
       - windows-64
   - func: "build"
   - func: "save npm_install.json"
-  - func: "save release"
+  - func: "save windows setup"
+    variants:
+      - windows-64
+  - func: "save windows RELEASES"
+    variants:
+      - windows-64
+  - func: "save windows msi"
+    variants:
+      - windows-64
+  - func: "save windows zip"
+    variants:
+      - windows-64
+  - func: "save windows nupkg full"
+    variants:
+      - windows-64
+  - func: "save osx dmg"
+    variants:
+      - osx-1010
+  - func: "save osx zip"
+    variants:
+      - osx-1010
+  - func: "save LICENSE"
+    variants:
+      - windows-64
+  - func: "save version"
+    variants:
+      - windows-64
+  - func: "upload release"
 
 # Define shortcut for use below
 variables:

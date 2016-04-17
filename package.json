@@ -59,12 +59,13 @@
     "clean": "hadron-build clean",
     "compile-ui": "hadron-build ui",
     "fmt": "mongodb-js-fmt ./*.js src/{**/*.js,*.js} test/{**/*.js,*.js}",
-    "release": "hadron-build config --format=yaml && hadron-build release",
+    "release": "hadron-build release",
     "test-functional": "npm test -- --functional",
     "test-unit": "npm test -- --unit",
     "test-release": "npm test -- --release",
     "export": "asar e 'dist/MongoDB Compass-darwin-x64/MongoDB Compass.app/Contents/Resources/app.asar' ../app-asar",
-    "upload": "hadron-build upload"
+    "upload": "hadron-build upload",
+    "evergreen-expansions": "hadron-build config --format=yaml --output=expansions.yml --flatten"
   },
   "repository": {
     "type": "git",
