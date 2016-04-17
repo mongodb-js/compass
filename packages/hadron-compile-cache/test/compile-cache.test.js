@@ -32,7 +32,7 @@ describe('CompileCache', function() {
     var compiler = new JadeCompiler();
     var filePath = path.join(__dirname, 'compiler', 'test.jade');
     var home = path.join(__dirname);
-    var filename = '03eaa8c98e7727a979078896122176d204725bd4.js';
+    var filename = 'ae3db3aa6d88ad68dc36e189750a130150ec62b8.js';
     var cachePath = path.join(home, '.compiled-sources');
     var cachedFilePath = path.join(cachePath, 'jade', filename);
 

@@ -30,14 +30,14 @@ JadeCompiler.prototype.shouldCompile = function() {
 /**
  * Get the cache path for all compiled jade templates.
  *
- * @param {String} sourceCode - The source code.
+ * @param {String} filePath - The file path.
  *
  * @returns {String} The cache path for compiled jade templates.
  */
-JadeCompiler.prototype.getCachePath = function(sourceCode) {
+JadeCompiler.prototype.getCachePath = function(filePath) {
   return path.join(
     JADE,
-    crypto.createHash('sha1').update(sourceCode, UTF8).digest('hex') + '.js'
+    crypto.createHash('sha1').update(filePath, UTF8).digest('hex') + '.js'
   );
 };
 

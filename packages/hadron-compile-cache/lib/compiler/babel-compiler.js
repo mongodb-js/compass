@@ -41,16 +41,16 @@ BabelCompiler.prototype.shouldCompile = function(filePath) {
 /**
  * Get the cache path for the source code.
  *
- * @param {String} sourceCode - The source.
+ * @param {String} filePath - The file path.
  *
  * @returns {String} The cache path.
  */
-BabelCompiler.prototype.getCachePath = function(sourceCode) {
+BabelCompiler.prototype.getCachePath = function(filePath) {
   return path.join(
     this.versionDirectory,
     crypto
       .createHash('sha1')
-      .update(sourceCode, UTF8)
+      .update(filePath, UTF8)
       .digest('hex') + '.js'
   );
 };
