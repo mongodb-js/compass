@@ -127,7 +127,7 @@ Object.keys(COMPILERS).forEach(function(extension) {
     enumerable: true,
     writable: true,
     value: function(module, filePath) {
-      var code = CACHE.compileFileAtPath(compiler, filePath, extension);
+      var code = CACHE.compileFileAtPath(compiler, filePath);
       return module._compile(code, filePath);
     }
   });
