@@ -6,6 +6,7 @@ const Table = require('cli-table');
 const yaml = require('js-yaml');
 const inspect = require('util').inspect;
 const fs = require('fs');
+const flatten = require('flatnest').flatten;
 
 exports.command = 'config';
 
@@ -19,6 +20,11 @@ exports.builder = {
   },
   out: {
     description: 'Output to a file'
+  },
+  flatten: {
+    description: 'Flatten the config object into dot notation',
+    type: 'boolean',
+    default: false
   }
 };
 
@@ -50,6 +56,10 @@ exports.handler = (argv) => {
   cli.argv = argv;
 
   let CONFIG = config.get(cli);
+
+  if (argv.flatten) {
+    CONFIG = flatten(CONFIG);
+  }
   let res = '';
 
   /* eslint no-console: 0, no-sync: 0 */
