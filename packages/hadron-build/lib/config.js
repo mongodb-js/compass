@@ -158,6 +158,7 @@ exports.get = function(cli, callback) {
   CONFIG.platform = cli.argv.platform;
   CONFIG.arch = cli.argv.arch;
   CONFIG.channel = channel;
+  CONFIG.dir = PROJECT_ROOT;
 
   if (cli.argv.platform === 'win32') {
     /**

@@ -51,7 +51,7 @@ exports.startElectronPrebuilt = () => {
 
   const p = Promise.defer();
   spawn(ELECTRON_PREBUILT_EXECUTABLE, [cwd], options)
-    .on('error', p.reject)
-    .on('exit', p.resolve);
+    .on('error', (err) => p.reject(err))
+    .on('exit', () => p.resolve());
   return p.promise;
 };
