@@ -3,6 +3,7 @@ var helper = require('./helper');
 var assert = helper.assert;
 var expect = helper.expect;
 var eventStream = helper.eventStream;
+var Connection = require('mongodb-connection-model');
 
 var NativeClient = require('../lib/native-client');
 
@@ -19,6 +20,21 @@ describe('NativeClient', function() {
 
   before(function(done) {
     client.connect(done);
+  });
+
+  describe('#connect', function() {
+    context('when an invalid connection was provided', function() {
+      var badConnection =
+        new Connection({ hostname: '127.0.0.1', port: 27050, ns: 'data-service' });
+      var badClient = new NativeClient(badConnection);
+      var message = 'MongoDB not running on the provided host and port';
+      it('maps the error message', function(done) {
+        badClient.connect(function(error) {
+          expect(error.message).to.equal(message);
+          done();
+        });
+      });
+    });
   });
 
   describe('#new', function() {
@@ -236,6 +252,7 @@ describe('NativeClient', function() {
     it('should return the correct databaseName', () => {
       expect(client._databaseName(ns)).to.equal('mydb');
     });
+
     it('should return the correct collectionName', () => {
       expect(client._collectionName(ns)).to.equal('events.periodic');
     });

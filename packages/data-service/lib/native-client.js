@@ -7,6 +7,7 @@ const getInstance = require('mongodb-instance-model').get;
 const getIndexes = require('mongodb-index-model').fetch;
 const createSampleStream = require('mongodb-collection-sample');
 const parseNamespace = require('mongodb-ns');
+const translate = require('mongodb-js-errors').translate;
 
 /**
  * The native client class.
@@ -31,7 +32,7 @@ class NativeClient {
   connect(callback) {
     createConnection(this.model, (error, database) => {
       this.database = database;
-      callback(error, this);
+      callback(this._translateMessage(error), this);
     });
   }
 
@@ -60,7 +61,7 @@ class NativeClient {
       indexes: this.indexes.bind(this, ns)
     }, (error, coll) => {
       if (error) {
-        return callback(error);
+        return callback(this._translateMessage(error));
       }
       callback(null, this._buildCollectionDetail(ns, coll));
     });
@@ -75,7 +76,7 @@ class NativeClient {
   collections(databaseName, callback) {
     this.collectionNames(databaseName, (error, names) => {
       if (error) {
-        return callback(error);
+        return callback(this._translateMessage(error));
       }
       async.parallel(_.map(names, (name) => {
         return (done) => {
@@ -95,7 +96,7 @@ class NativeClient {
     var db = this._database(databaseName);
     db.listCollections({}).toArray((error, data) => {
       if (error) {
-        return callback(error);
+        return callback(this._translateMessage(error));
       }
       var names = _.map(data, (collection) => {
         return collection.name;
@@ -115,7 +116,7 @@ class NativeClient {
     var db = this._database(databaseName);
     db.command({ collStats: collectionName, verbose: 1 }, (error, data) => {
       if (error) {
-        return callback(error);
+        return callback(this._translateMessage(error));
       }
       callback(null, this._buildCollectionStats(databaseName, collectionName, data));
     });
@@ -133,7 +134,7 @@ class NativeClient {
       collections: this.collections.bind(this, name)
     }, (error, db) => {
       if (error) {
-        return callback(error);
+        return callback(this._translateMessage(error));
       }
       callback(null, this._buildDatabaseDetail(name, db));
     });
@@ -149,7 +150,7 @@ class NativeClient {
     var db = this._database(name);
     db.command({ dbStats: 1 }, (error, data) => {
       if (error) {
-        return callback(error);
+        return callback(this._translateMessage(error));
       }
       callback(null, this._buildDatabaseStats(data));
     });
@@ -173,7 +174,7 @@ class NativeClient {
   find(ns, filter, options, callback) {
     this._collection(ns).find(filter, options).toArray((error, documents) => {
       if (error) {
-        return callback(error);
+        return callback(this._translateMessage(error));
       }
       callback(null, documents);
     });
@@ -193,7 +194,7 @@ class NativeClient {
     // once it does, should be passed along from the options object.
     this._collection(ns).find(filter).explain((error, explanation) => {
       if (error) {
-        return callback(error);
+        return callback(this._translateMessage(error));
       }
       callback(null, explanation);
     });
@@ -208,7 +209,7 @@ class NativeClient {
   indexes(ns, callback) {
     getIndexes(this.database, ns, (error, data) => {
       if (error) {
-        return callback(error);
+        return callback(this._translateMessage(error));
       }
       callback(null, data);
     });
@@ -222,7 +223,7 @@ class NativeClient {
   instance(callback) {
     getInstance(this.database, (error, data) => {
       if (error) {
-        return callback(error);
+        return callback(this._translateMessage(error));
       }
       callback(null, this._buildInstance(data));
     });
@@ -384,6 +385,21 @@ class NativeClient {
    */
   _database(name) {
     return this.database.db(name);
+  }
+
+  /**
+   * Translates the error message to something human readable.
+   *
+   * @param {Error} error - The error.
+   *
+   * @returns {Error} The error with message translated.
+   */
+  _translateMessage(error) {
+    var mapping = translate(error);
+    if (mapping) {
+      error.message = mapping.message;
+    }
+    return error;
   }
 }
 
