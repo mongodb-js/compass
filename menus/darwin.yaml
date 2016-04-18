@@ -1,0 +1,104 @@
+---
+menu:
+  -
+    label: "MongoDB Compass"
+    submenu:
+      -
+        label: "About Compass"
+        selector: "orderFrontStandardAboutPanel:"
+      - &separator
+        type: separator
+      -
+        label: "Hide"
+        accelerator: "Command+H"
+        selector: "hide:"
+      -
+        label: "Hide Others"
+        accelerator: "Command+Shift+H"
+        selector: "hideOtherApplications:"
+      -
+        label: "Show All"
+        selector: "unhideAllApplications:"
+      - *separator
+      -
+        label: "Quit"
+        accelerator: "CmdOrCtrl+Q"
+  -
+    label: "Connect"
+    submenu:
+      -
+        label: "Connect to..."
+        accelerator: "CmdOrCtrl+N"
+  -
+    label: "Edit"
+    submenu:
+      -
+        label: "Undo"
+        accelerator: "Command+Z"
+        role: "undo"
+      -
+        label: "Redo"
+        accelerator: "Shift+Command+Z"
+        role: "redo"
+      - *separator
+      -
+        label: "Cut"
+        accelerator: "Command+X"
+        role: "cut"
+      -
+        label: "Copy"
+        accelerator: "Command+C"
+        role: "copy"
+      -
+        label: "Paste"
+        accelerator: "Command+V"
+        role: "paste"
+      -
+        label: "Select All"
+        accelerator: "Command+A"
+        role: "selectall"
+  -
+    label: "View"
+    submenu:
+      -
+        label: "Reload"
+        accelerator: "CmdOrCtrl+R"
+      -
+        label: "Toggle DevTools"
+        accelerator: "Alt+CmdOrCtrl+I"
+  -
+    label: "Share"
+    submenu:
+      -
+        label: "Share Schema as JSON"
+        accelerator: "Alt+CmdOrCtrl+S"
+  -
+    label: "Window"
+    submenu:
+      -
+        label: "Minimize"
+        accelerator: "Command+M"
+        role: "minimize"
+      -
+        label: "Close"
+        accelerator: "Command+W"
+        role: "close"
+      - *separator
+      -
+        label: "Bring All to Front"
+        selector: "arrangeInFront:"
+  -
+    label: "Help"
+    submenu:
+      -
+        label: "Show Compass Help"
+        accelerator: "F1"
+      -
+        label: "Compass Overview"
+      -
+        label: "Help Improve Compass"
+      - *separator
+      -
+        label: "Provide Feedback"
+
+context-menu:
