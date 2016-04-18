@@ -25,13 +25,15 @@ var debug = require('debug')('mongodb-compass:connect:index');
  */
 var authMethods = require('./authentication');
 
+var indexTemplate = require('./index.jade');
+
 /**
  * SslOptionCollection
  */
 var sslMethods = require('./ssl');
 
 var ConnectView = View.extend({
-  template: require('../templates').connect.index,
+  template: indexTemplate,
   screenName: 'Connect',
   props: {
     form: 'state',

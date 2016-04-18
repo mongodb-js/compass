@@ -6,7 +6,7 @@ var metrics = require('mongodb-js-metrics')();
 
 var debug = require('debug')('mongodb-compass:feature-optin:index');
 
-var indexTemplate = require('../templates')['network-optin'].index;
+var indexTemplate = require('./index.jade');
 
 require('bootstrap/js/modal');
 require('bootstrap/js/transition');

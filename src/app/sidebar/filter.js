@@ -1,7 +1,7 @@
 var View = require('ampersand-view');
 var debug = require('debug')('mongodb-compass:sidebar:filter');
 
-var filterTemplate = require('../templates').sidebar.filter;
+var filterTemplate = require('./filter.jade');
 
 var CollectionFilterView = View.extend({
   template: filterTemplate,

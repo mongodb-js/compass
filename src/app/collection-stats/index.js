@@ -1,7 +1,7 @@
 var AmpersandView = require('ampersand-view');
 var numeral = require('numeral');
 
-var indexTemplate = require('../templates')['collection-stats'].index;
+var indexTemplate = require('./index.jade');
 
 var CollectionStatsView = AmpersandView.extend({
   extraProperties: 'ignore',

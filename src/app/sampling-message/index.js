@@ -2,7 +2,7 @@ var View = require('ampersand-view');
 var pluralize = require('pluralize');
 var numeral = require('numeral');
 
-var indexTemplate = require('../templates')['sampling-message'].index;
+var indexTemplate = require('./index.jade');
 
 // var debug = require('debug')('mongodb-compass:sampling-message');
 

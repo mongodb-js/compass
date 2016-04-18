@@ -5,7 +5,7 @@ var $ = require('jquery');
 var d3 = require('d3');
 // var debug = require('debug')('mongodb-compass:minicharts:viz');
 
-var svgTemplate = require('../templates').minicharts['svg-template'];
+var svgTemplate = require('./svg-template.jade');
 
 var VizView = AmpersandView.extend({
   _values: {},

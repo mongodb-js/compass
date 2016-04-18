@@ -11,7 +11,7 @@ var app = require('ampersand-app');
 var metrics = require('mongodb-js-metrics')();
 var debug = require('debug')('mongodb-compass:home:collection');
 
-var collectionTemplate = require('../templates').home.collection;
+var collectionTemplate = require('./collection.jade');
 
 var MongoDBCollectionView = View.extend({
   // modelType: 'Collection',

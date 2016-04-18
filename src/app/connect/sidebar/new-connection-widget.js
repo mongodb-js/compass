@@ -1,6 +1,6 @@
 var View = require('ampersand-view');
 
-var newConnectionTemplate = require('../../templates').connect.sidebar['new-connection-widget'];
+var newConnectionTemplate = require('./new-connection-widget.jade');
 
 var debug = require('debug')('mongodb-compass:connect:sidebar:widget');
 

@@ -6,7 +6,7 @@ var semver = require('semver');
 var _ = require('lodash');
 var path = require('path');
 
-var indexTemplate = require('../templates').tour.index;
+var indexTemplate = require('./index.jade');
 
 // var debug = require('debug')('mongodb-compass:tour:index');
 

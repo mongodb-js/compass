@@ -1,5 +1,4 @@
 var async = require('async');
-var templatizer = require('templatizer');
 var path = require('path');
 var createCLI = require('mongodb-js-cli');
 var cli = createCLI('mongodb-compass:scripts:compile-ui');
@@ -27,21 +26,10 @@ function generateLessCache(CONFIG, done) {
   });
 }
 
-function generateTemplates(CONFIG, done) {
-  var callback = done;
-  if (typeof CONFIG === 'function') {
-    callback = CONFIG;
-  }
-  var appdir = path.join(__dirname, '..', 'src', 'app');
-  templatizer(appdir, path.join(appdir, 'templates.js'), callback);
-}
-
-module.exports.generateTemplates = generateTemplates;
 module.exports.generateLessCache = generateLessCache;
 
 function main() {
   async.series([
-    generateTemplates,
     generateLessCache
   ], function(err) {
     cli.abortIfError(err);

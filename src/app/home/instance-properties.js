@@ -3,7 +3,7 @@ var app = require('ampersand-app');
 // var debug = require('debug')('mongodb-compass:home:instance-properties');
 var _ = require('lodash');
 
-var instancePropertiesTemplate = require('../templates').home['instance-properties'];
+var instancePropertiesTemplate = require('./instance-properties.jade');
 
 var InstancePropertiesView = module.exports = View.extend({
   template: instancePropertiesTemplate,

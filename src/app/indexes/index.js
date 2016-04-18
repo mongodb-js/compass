@@ -1,6 +1,4 @@
 var View = require('ampersand-view');
-var indexTemplate = require('../templates').indexes.index;
-var indexItemTemplate = require('../templates').indexes['index-item'];
 var tooltipMixin = require('../tooltip-mixin');
 var numeral = require('numeral');
 var moment = require('moment');
@@ -12,6 +10,8 @@ var app = require('ampersand-app');
 var electron = require('electron');
 var shell = electron.shell;
 
+var indexTemplate = require('./index.jade');
+var indexItemTemplate = require('./index-item.jade');
 // var debug = require('debug')('mongodb-compass:indexes');
 
 /**

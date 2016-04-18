@@ -86,7 +86,9 @@ which('electron-mocha', function(err, bin) {
     process.stdin.pipe(proc.stdin);
 
     proc.on('exit', function(code) {
-      process.exit(code);
+      fs.remove(path.resolve(__dirname, '..', '.user-data'), function() {
+        process.exit(code);
+      });
     });
   });
 });

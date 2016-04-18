@@ -4,7 +4,7 @@ var DocumentListItemView = require('./document-list-item');
 var app = require('ampersand-app');
 var debug = require('debug')('mongodb-compass:document-list');
 
-var documentListTemplate = require('../templates').documents['document-list'];
+var documentListTemplate = require('./document-list.jade');
 
 var DocumentListView = View.extend({
   template: documentListTemplate,

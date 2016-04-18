@@ -14,7 +14,7 @@ var metrics = require('mongodb-js-metrics')();
 
 var debug = require('debug')('mongodb-compass:schema:index');
 
-var indexTemplate = require('../templates').schema.index;
+var indexTemplate = require('./index.jade');
 
 var SchemaView = View.extend({
   // modelType: 'Collection',

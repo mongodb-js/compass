@@ -2,7 +2,7 @@ var View = require('ampersand-view');
 var moment = require('moment');
 var _ = require('lodash');
 
-var documentListItemTemplate = require('../templates').documents['document-list-item'];
+var documentListItemTemplate = require('./document-list-item.jade');
 
 function getType(value) {
   if (_.isPlainObject(value)) {

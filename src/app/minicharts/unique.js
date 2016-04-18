@@ -1,7 +1,7 @@
 var VizView = require('./viz');
 var _ = require('lodash');
 
-var uniqueTemplate = require('../templates').minicharts.unique;
+var uniqueTemplate = require('./unique.jade');
 
 module.exports = VizView.extend({
   session: {
