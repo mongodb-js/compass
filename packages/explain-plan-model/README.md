@@ -1,6 +1,6 @@
 # explain-plan-model [![travis][travis_img]][travis_url] [![npm][npm_img]][npm_url]
 
-> Ampersand model abstraction for MongoDB explain plans (3.0+)
+Ampersand model abstraction for MongoDB explain plans (3.0+)
 
 ## Example
 

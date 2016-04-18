@@ -1,0 +1,41 @@
+{
+  "cursor": "BasicCursor",
+  "isMultiKey": false,
+  "n": 50051,
+  "nscannedObjects": 50051,
+  "nscanned": 50051,
+  "nscannedObjectsAllPlans": 50051,
+  "nscannedAllPlans": 50051,
+  "scanAndOrder": false,
+  "indexOnly": false,
+  "nYields": 391,
+  "nChunkSkips": 0,
+  "millis": 19,
+  "allPlans": [
+    {
+      "cursor": "BasicCursor",
+      "isMultiKey": false,
+      "n": 50051,
+      "nscannedObjects": 50051,
+      "nscanned": 50051,
+      "scanAndOrder": false,
+      "indexOnly": false,
+      "nChunkSkips": 0
+    }
+  ],
+  "server": "Groot.local:27017",
+  "filterSet": false,
+  "stats": {
+    "type": "COLLSCAN",
+    "works": 50053,
+    "yields": 391,
+    "unyields": 391,
+    "invalidates": 0,
+    "advanced": 50051,
+    "needTime": 1,
+    "needFetch": 0,
+    "isEOF": 1,
+    "docsTested": 50051,
+    "children": []
+  }
+}

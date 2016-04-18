@@ -13,7 +13,12 @@
     "type": "git",
     "url": "git://github.com/mongodb-js/explain-plan-model.git"
   },
-  "dependencies": {},
+  "dependencies": {
+    "ampersand-model": "^6.0.3",
+    "lodash.assign": "^4.0.8",
+    "lodash.foreach": "^4.2.0",
+    "lodash.set": "^4.1.0"
+  },
   "devDependencies": {
     "eslint-config-mongodb-js": "^1.0.6",
     "mocha": "^2.3.4",
