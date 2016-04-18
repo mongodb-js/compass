@@ -83,12 +83,12 @@ var Application = Model.extend({
     app.on('window-all-closed', app.quit);
     app.on('before-quit', function() {
       _.first(BrowserWindow.getAllWindows())
-        .webContents.send('message', 'application:quit');
+        .webContents.send('message', 'app:quit');
     });
   },
   setupCommandHandlers: function() {
     ipc.respondTo({
-      'application:renderer-ready': (arg, event) => {
+      'app:renderer-ready': (arg, event) => {
         /**
          * Can't use webContents `did-finish-load` event here because
          * metrics aren't set up at that point. renderer app sends custom event
@@ -97,9 +97,9 @@ var Application = Model.extend({
          */
         if (this.launched) return;
         this.launched = true;
-        event.sender.send('application:launched');
+        event.sender.send('app:launched');
       },
-      'application:open-about': () => {
+      'app:open-about': () => {
         // TODO (imlucas) Icon + window title fixes.
         dialog.showMessageBox({
           type: 'info',
@@ -107,36 +107,19 @@ var Application = Model.extend({
           buttons: []
         });
       },
-      'application:install-update': () => this.autoUpdateManager.install(),
-      'application:check-for-update': () => this.autoUpdateManager.checkForUpdate()
+      'app:install-update': () => this.autoUpdateManager.install(),
+      'app:check-for-update': () => this.autoUpdateManager.checkForUpdate(),
+      'app:auto-update-manager': () => this.autoUpdateManager.serialize(),
+      'app:open-connect': () => this.openConnectWindow(),
+      'app:close-connect': () => this.closeConnectWindow(),
+      'app:open-help': () => this.openHelp(),
+      'app:hide-menu-item': () => this.applicationMenu.hideMenuItem(),
+      'app:show-menu-item': () => this.applicationMenu.showMenuItem(),
+      'window:toggle-full-screen': () => this.windowToggleFullScreen(),
+      'window:reload': () => this.windowReload(),
+      'window:toggle-developer-tools': () => this.windowToggleDeveloperTools()
     });
-
-    // TODO (imlucas) `application:get-auto-update-manager`
-
-    ipc.respondTo('application:open-connect',
-      this.openConnectWindow.bind(this));
-
-    ipc.respondTo('application:close-connect',
-      this.closeConnectWindow.bind(this));
-
-    ipc.respondTo('application:open-help',
-      this.openHelp.bind(this));
-
-    ipc.respondTo('application:hide-menu-item',
-      this.applicationMenu.hideMenuItem.bind(this.applicationMenu));
-
-    ipc.respondTo('application:show-menu-item',
-      this.applicationMenu.showMenuItem.bind(this.applicationMenu));
-
-    ipc.respondTo('window:toggle-full-screen',
-      this.windowToggleFullScreen.bind(this));
-
-    ipc.respondTo('window:reload', this.windowReload.bind(this));
-
-    ipc.respondTo('window:toggle-developer-tools',
-      this.windowToggleDeveloperTools.bind(this));
   },
-
   /**
    * @see https://github.com/atom/electron/blob/master/docs/api/app.md
    *
@@ -253,7 +236,7 @@ var Application = Model.extend({
      */
     if (process.env.DEVTOOLS) {
       _window.webContents.on('devtools-opened', function() {
-        _window.webContents.addWorkSpace(path.join(__dirname, '..', '..'));
+        _window.webContents.addWorkSpace(app.getAppPath());
       });
       _window.webContents.openDevTools({
         detach: true
@@ -296,7 +279,7 @@ Application.main = function() {
   if (!Application._instance) {
     Application._instance = new Application();
   }
-  return Application._instance;
+  Application._instance.open();
 };
 
 var _app = null;
