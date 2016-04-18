@@ -62,7 +62,7 @@ function cleanCompileCache(CONFIG, done) {
 function createCompileCache(CONFIG, done) {
   cli.debug('creating compile cache');
   CompileCache.setHomeDirectory(CONFIG.dir);
-  glob(CACHE_PATTERN, function(error, files) {
+  glob(`src/${CACHE_PATTERN}`, function(error, files) {
     cli.abortIfError(error);
     _.each(files, function(file) {
       var compiler = CompileCache.COMPILERS[path.extname(file)];
