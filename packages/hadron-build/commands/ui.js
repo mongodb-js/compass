@@ -1,7 +1,6 @@
 'use strict';
 
 const Promise = require('bluebird');
-const templatizer = Promise.promisify(require('templatizer'));
 const path = require('path');
 const LessCache = require('less-cache');
 const fs = require('fs-extra');
@@ -25,16 +24,7 @@ let generateLessCache = (opts) => {
     .then((contents) => lessCache.cssForFile(src, contents));
 };
 
-let generateTemplateCache = function(opts) {
-  var appdir = path.join(process.cwd(), 'src', 'app');
-  return templatizer(appdir, opts.template_cache);
-};
-
 exports.builder = {
-  template_cache: {
-    description: 'Path for template cache',
-    default: 'src/app/templates.js'
-  },
   less_cache: {
     description: 'Path for less cache',
     default: 'src/app/compiled-less'
@@ -48,7 +38,6 @@ exports.handler = (argv) => {
 
 exports.tasks = (argv) => {
   return Promise.all([
-    generateTemplateCache(argv),
     generateLessCache(argv)
   ]);
 };

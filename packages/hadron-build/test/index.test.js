@@ -17,14 +17,12 @@ describe('hadron-build', () => {
   describe('::clean', () => {
     it('should include options from commands::ui', () => {
       expect(commands.clean.builder).to.have.property('less_cache');
-      expect(commands.clean.builder).to.have.property('template_cache');
     });
   });
 
   describe('::develop', () => {
     it('should include options from commands::ui', () => {
       expect(commands.develop.builder).to.have.property('less_cache');
-      expect(commands.develop.builder).to.have.property('template_cache');
     });
 
     it('should include tasks from commands::ui');
@@ -47,7 +45,6 @@ describe('hadron-build', () => {
   describe('::release', () => {
     it('should include options from commands::ui', () => {
       expect(commands.release.builder).to.have.property('less_cache');
-      expect(commands.release.builder).to.have.property('template_cache');
     });
 
     it('should include options from commands::verify', () => {
@@ -90,15 +87,7 @@ describe('hadron-build', () => {
 
     it('should default `less_cache` to `src/app/less-cache`');
 
-    it('should have a `template_cache` option', () => {
-      expect(commands.ui.builder).to.have.property('template_cache');
-    });
-
-    it('should default `template_cache` to `src/app/templates.js`');
-
     it('should generate the less cache');
-
-    it('should generate the template cache');
   });
 
   describe('::verify', () => {

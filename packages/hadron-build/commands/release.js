@@ -13,6 +13,7 @@ const config = require('../lib/config');
 const cli = require('mongodb-js-cli')('hadron-build:release');
 const util = require('util');
 const format = util.format;
+const glob = require('glob');
 const path = require('path');
 const del = require('del');
 const fs = require('fs-extra');
@@ -24,6 +25,7 @@ const run = require('electron-installer-run');
 const zip = require('electron-installer-zip');
 const license = require('electron-license');
 const ModuleCache = require('hadron-module-cache');
+const CompileCache = require('hadron-compile-cache');
 
 const pkg = require('../lib/package');
 const ui = require('./ui');
@@ -33,6 +35,42 @@ exports.command = 'release';
 
 exports.describe = ':shipit:';
 
+const COMPILE_CACHE = '.compiled-sources';
+const CACHE_PATTERN = '**/*.{jade,jsx}';
+
+/**
+ * Clean out the existing development compile cache.
+ *
+ * @param {Object} CONFIG
+ * @param {Function} done
+ * @api public
+ */
+function cleanCompileCache(CONFIG, done) {
+  cli.debug('cleaning out development compile cache');
+  fs.remove(path.resolve(CONFIG.dir, COMPILE_CACHE), function() {
+    done();
+  });
+}
+
+/**
+ * Create a precompiled cache of .jade and .jsx sources.
+ *
+ * @param {Object} CONFIG
+ * @param {Function} done
+ * @api public
+ */
+function createCompileCache(CONFIG, done) {
+  cli.debug('creating compile cache');
+  CompileCache.setHomeDirectory(CONFIG.dir);
+  glob(CACHE_PATTERN, function(error, files) {
+    cli.abortIfError(error);
+    _.each(files, function(file) {
+      var compiler = CompileCache.COMPILERS[path.extname(file)];
+      CompileCache.compileFileAtPath(compiler, file);
+    });
+    done();
+  });
+}
 
 /**
  * Run `electron-packager`
@@ -362,6 +400,8 @@ exports.handler = (argv) => {
         .then( () => cb())
         .catch(cb);
     },
+    _.partial(cleanCompileCache, CONFIG),
+    _.partial(createCompileCache, CONFIG),
     _.partial(createBrandedApplication, CONFIG),
     _.partial(cleanupBrandedApplicationScaffold, CONFIG),
     _.partial(writeLicenseFile, CONFIG),
