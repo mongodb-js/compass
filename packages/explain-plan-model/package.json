@@ -1,7 +1,7 @@
 {
   "name": "explain-plan-model",
   "description": "Ampersand model abstraction for MongoDB explain plans (3.0+)",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "scripts": {
     "fmt": "mongodb-js-fmt",
     "check": "mongodb-js-precommit",
