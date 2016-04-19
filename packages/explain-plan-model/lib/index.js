@@ -32,7 +32,7 @@ var ExplainPlanModel = Model.extend(stageIterationMixin, {
           var mtch = this.rawExplainObject.cursor.match(/BTreeCursor (\S+)$/);
           return mtch ? mtch[1] : null;
         }
-        var ixscan = this._findStageByName('IXSCAN');
+        var ixscan = this.findStageByName('IXSCAN');
         return ixscan ? ixscan.indexName : null;
       }
     },
@@ -46,7 +46,7 @@ var ExplainPlanModel = Model.extend(stageIterationMixin, {
         if (this.totalDocsExamined > 0) {
           return false;
         }
-        var ixscan = this._findStageByName('IXSCAN');
+        var ixscan = this.findStageByName('IXSCAN');
         return !ixscan.parent || ixscan.parent.stage !== 'FETCH';
       }
     },
@@ -56,7 +56,7 @@ var ExplainPlanModel = Model.extend(stageIterationMixin, {
         if (this.legacyMode) {
           return this.rawExplainObject.isMultiKey;
         }
-        var ixscan = this._findStageByName('IXSCAN');
+        var ixscan = this.findStageByName('IXSCAN');
         return Boolean(ixscan && ixscan.isMultiKey);
       }
     },
@@ -67,7 +67,7 @@ var ExplainPlanModel = Model.extend(stageIterationMixin, {
         if (this.legacyMode) {
           return this.rawExplainObject.scanAndOrder;
         }
-        return this._findStageByName('SORT') !== null;
+        return this.findStageByName('SORT') !== null;
       }
     },
     isCollectionScan: {
@@ -76,7 +76,7 @@ var ExplainPlanModel = Model.extend(stageIterationMixin, {
         if (this.legacyMode) {
           return this.rawExplainObject.cursor === 'BasicCursor';
         }
-        return this._findStageByName('COLLSCAN') !== null;
+        return this.findStageByName('COLLSCAN') !== null;
       }
     }
   },
@@ -100,6 +100,30 @@ var ExplainPlanModel = Model.extend(stageIterationMixin, {
       set(result, newVal, attrs[oldVal]);
     });
     return result;
+  },
+  /**
+   * Walks the tree of execution stages from a given node (or root) and returns
+   * the first stage with the specified name, or null if no stage is found.
+   * Equally-named children stage are traversed and returned in order.
+   * Returns null if legacyMode is true.
+   *
+   * @param  {String} name   - name of stage to return
+   * @param  {Object} root   - stage to start from. If unspecified, start from
+   *                           executionStages root node.
+   * @return {Object|null}   - stage object or null
+   */
+  findStageByName: function(name, root) {
+    // not supported for legacy mode
+    if (this.legacyMode) {
+      return null;
+    }
+    var it = this._getStageIterator(root);
+    for (var stage = it.next(); stage !== null; stage = it.next()) {
+      if (stage.stage === name) {
+        return stage;
+      }
+    }
+    return null;
   },
   /**
    * pre-process explain output to match the structure of this model.

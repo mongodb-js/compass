@@ -37,30 +37,6 @@ var stageIterationMixin = {
     return iterator;
   },
   /**
-   * Walks the tree of execution stages from a given node (or root) and returns
-   * the first stage with the specified name, or null if no stage is found.
-   * Equally-named children stage are traversed and returned in order.
-   * Returns null if legacyMode is true.
-   *
-   * @param  {String} name   - name of stage to return
-   * @param  {Object} root   - stage to start from. If unspecified, start from
-   *                           executionStages root node.
-   * @return {Object|null}   - stage object or null
-   */
-  _findStageByName: function(name, root) {
-    // not supported for legacy mode
-    if (this.legacyMode) {
-      return null;
-    }
-    var it = this._getStageIterator(root);
-    for (var stage = it.next(); stage !== null; stage = it.next()) {
-      if (stage.stage === name) {
-        return stage;
-      }
-    }
-    return null;
-  },
-  /**
    * returns child stage or stages of current stage as array. If there are
    * no more child stages, returns empty array []. Not supported for legacy
    * mode.

@@ -211,21 +211,21 @@ describe('explain-plan-model', function() {
     });
 
     it('should find a stage by name from the root stage', function() {
-      var ixscan = model._findStageByName('IXSCAN');
+      var ixscan = model.findStageByName('IXSCAN');
       assert.equal(ixscan.indexName, 'age_1');
     });
 
     it('should find a stage by name from a provided stage', function() {
-      var fetch = model._findStageByName('FETCH');
+      var fetch = model.findStageByName('FETCH');
       assert.equal(fetch.stage, 'FETCH');
-      var ixscan = model._findStageByName('IXSCAN', fetch);
+      var ixscan = model.findStageByName('IXSCAN', fetch);
       assert.equal(ixscan.indexName, 'age_1');
     });
 
     it('should find a stage if it is the provided root stage', function() {
-      var fetch = model._findStageByName('FETCH');
+      var fetch = model.findStageByName('FETCH');
       assert.equal(fetch.stage, 'FETCH');
-      var fetch2 = model._findStageByName('FETCH', fetch);
+      var fetch2 = model.findStageByName('FETCH', fetch);
       assert.equal(fetch, fetch2);
     });
 
