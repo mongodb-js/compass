@@ -423,7 +423,7 @@ var DRIVER_OPTIONS_DEFAULT = {
   uri_decode_auth: true,
   db: {
     // important!  or slaveOk=true set above no worky!
-    readPreference: 'nearest'
+    readPreference: 'secondaryPreferred'
   },
   replSet: {
     connectWithNoPrimary: true
