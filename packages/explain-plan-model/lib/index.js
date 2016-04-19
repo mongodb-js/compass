@@ -3,7 +3,11 @@ var assign = require('lodash.assign');
 var set = require('lodash.set');
 var each = require('lodash.foreach');
 
-var ExplainPlanModel = Model.extend({
+var stageIterationMixin = require('./stage-iteration');
+
+// var debug = require('debug')('mongodb-explain-plan-model');
+
+var ExplainPlanModel = Model.extend(stageIterationMixin, {
   extraProperties: 'ignore',
   props: {
     namespace: 'string',
@@ -13,14 +17,67 @@ var ExplainPlanModel = Model.extend({
     executionTimeMillis: 'number',
     totalKeysExamined: 'number',
     totalDocsExamined: 'number',
-    inMemorySort: 'boolean',
-    isSharded: 'boolean',
-    usedIndex: 'string',
     rawExplainObject: 'object',
     legacyMode: {
       type: 'boolean',       // true if ingested from 2.6 or before version
       required: true,
       default: false
+    }
+  },
+  derived: {
+    usedIndex: {
+      deps: ['rawExplainObject', 'legacyMode'],
+      fn: function() {
+        if (this.legacyMode) {
+          var mtch = this.rawExplainObject.cursor.match(/BTreeCursor (\S+)$/);
+          return mtch ? mtch[1] : null;
+        }
+        var ixscan = this._findStageByName('IXSCAN');
+        return ixscan ? ixscan.indexName : null;
+      }
+    },
+    // https://docs.mongodb.org/manual/reference/explain-results/#covered-queries
+    isCovered: {
+      deps: ['rawExplainObject', 'legacyMode'],
+      fn: function() {
+        if (this.legacyMode) {
+          return Boolean(this.rawExplainObject.indexOnly);
+        }
+        if (this.totalDocsExamined > 0) {
+          return false;
+        }
+        var ixscan = this._findStageByName('IXSCAN');
+        return !ixscan.parent || ixscan.parent.stage !== 'FETCH';
+      }
+    },
+    isMultiKey: {
+      deps: ['rawExplainObject', 'legacyMode'],
+      fn: function() {
+        if (this.legacyMode) {
+          return this.rawExplainObject.isMultiKey;
+        }
+        var ixscan = this._findStageByName('IXSCAN');
+        return Boolean(ixscan && ixscan.isMultiKey);
+      }
+    },
+    // https://docs.mongodb.org/manual/reference/explain-results/#sort-stage
+    inMemorySort: {
+      deps: ['rawExplainObject', 'legacyMode'],
+      fn: function() {
+        if (this.legacyMode) {
+          return this.rawExplainObject.scanAndOrder;
+        }
+        return this._findStageByName('SORT') !== null;
+      }
+    },
+    isCollectionScan: {
+      deps: ['rawExplainObject', 'legacyMode'],
+      fn: function() {
+        if (this.legacyMode) {
+          return this.rawExplainObject.cursor === 'BasicCursor';
+        }
+        return this._findStageByName('COLLSCAN') !== null;
+      }
     }
   },
   /**
@@ -35,7 +92,8 @@ var ExplainPlanModel = Model.extend({
       n: 'nReturned',
       nscanned: 'totalKeysExamined',
       nscannedObjects: 'totalDocsExamined',
-      millis: 'executionTimeMillis'
+      millis: 'executionTimeMillis',
+      indexOnly: 'coveredQuery'
     };
     var result = {};
     each(legacyMap, function(newVal, oldVal) {

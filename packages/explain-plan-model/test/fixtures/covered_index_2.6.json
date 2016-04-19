@@ -1,0 +1,78 @@
+{
+  "cursor": "BtreeCursor age_1",
+  "isMultiKey": false,
+  "n": 9633,
+  "nscannedObjects": 0,
+  "nscanned": 9633,
+  "nscannedObjectsAllPlans": 0,
+  "nscannedAllPlans": 9633,
+  "scanAndOrder": false,
+  "indexOnly": true,
+  "nYields": 75,
+  "nChunkSkips": 0,
+  "millis": 10,
+  "indexBounds": {
+    "age": [
+      [
+        33,
+        40
+      ]
+    ]
+  },
+  "allPlans": [
+    {
+      "cursor": "BtreeCursor age_1",
+      "isMultiKey": false,
+      "n": 9633,
+      "nscannedObjects": 0,
+      "nscanned": 9633,
+      "scanAndOrder": false,
+      "indexOnly": true,
+      "nChunkSkips": 0,
+      "indexBounds": {
+        "age": [
+          [
+            33,
+            40
+          ]
+        ]
+      }
+    }
+  ],
+  "server": "Groot.local:27017",
+  "filterSet": false,
+  "stats": {
+    "type": "PROJECTION",
+    "works": 9634,
+    "yields": 75,
+    "unyields": 75,
+    "invalidates": 0,
+    "advanced": 9633,
+    "needTime": 0,
+    "needFetch": 0,
+    "isEOF": 1,
+    "children": [
+      {
+        "type": "IXSCAN",
+        "works": 9634,
+        "yields": 75,
+        "unyields": 75,
+        "invalidates": 0,
+        "advanced": 9633,
+        "needTime": 0,
+        "needFetch": 0,
+        "isEOF": 1,
+        "keyPattern": "{ age: 1.0 }",
+        "isMultiKey": 0,
+        "boundsVerbose": "field #0['age']: [33, 40]",
+        "yieldMovedCursor": 0,
+        "dupsTested": 0,
+        "dupsDropped": 0,
+        "seenInvalidated": 0,
+        "matchTested": 0,
+        "keysExamined": 9633,
+        "children": []
+      }
+    ]
+  }
+}

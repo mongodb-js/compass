@@ -23,7 +23,7 @@
       "nChunkSkips": 0
     }
   ],
-  "server": "Groot.local:27017",
+  "server": "my-server.local:27017",
   "filterSet": false,
   "stats": {
     "type": "COLLSCAN",
