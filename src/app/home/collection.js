@@ -4,6 +4,7 @@ var DocumentView = require('../documents');
 var SchemaView = require('../schema');
 var IndexView = require('../indexes');
 var RefineBarView = require('../refine-view');
+var ExplainView = require('../explain-plan');
 var MongoDBCollection = require('../models/mongodb-collection');
 var _ = require('lodash');
 
@@ -88,6 +89,16 @@ var MongoDBCollectionView = View.extend({
       hook: 'index-subview',
       prepareView: function(el) {
         return new IndexView({
+          el: el,
+          parent: this,
+          model: this.model
+        });
+      }
+    },
+    explainView: {
+      hook: 'explain-subview',
+      prepareView: function(el) {
+        return new ExplainView({
           el: el,
           parent: this,
           model: this.model
