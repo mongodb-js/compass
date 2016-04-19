@@ -1,0 +1,37 @@
+.explain-container
+  .column-container
+    .column.main
+      .summary-container
+        h4 Query Performance Summary
+        .row
+          .col-md-4
+            i.help(data-hook='index-usage')
+            span.index-message(data-hook='index-message')
+            .index-definition
+              span(data-hook='index-name')
+          .col-md-4
+            .stat
+              i.help
+              span.stat-label Index Keys Examined: 
+              span.stat-value(data-hook='total-keys-examined')
+            .stat
+              i.help
+              span.stat-label Document Examined: 
+              span.stat-value(data-hook='total-docs-examined')       
+            .stat
+              i.help
+              span.stat-label Documents Returned: 
+              span.stat-value(data-hook='n-returned')
+          .col-md-4
+            .stat
+              i.help
+              span.stat-label Query Execution Time (ms): 
+              span.stat-value(data-hook='execution-time-millis')
+            .stat
+              i.help
+              span.stat-label Sorted in Memory: 
+              span.stat-value(data-hook='in-memory-sort')       
+
+      .detail-container
+        h4 Raw Explain Output
+        pre(data-hook='raw-output')
