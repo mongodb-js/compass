@@ -169,89 +169,86 @@ functions:
       content_type: application/json
       display_name: "npm_install.json"
 
-  "save windows setup":
-    command: s3.put
-    params:
-      aws_key: ${aws_key}
-      aws_secret: ${aws_secret}
-      local_file: "src/dist/${windows_setup_filename}"
-      remote_file: "${project}/${build_variant}/${revision}/${windows_setup_filename}"
-      bucket: mciuploads
-      permissions: public-read
-      content_type: application/octet-stream
-      display_name: "${windows_setup_label}"
+  "save windows artifacts":
+    # setup
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: "src/dist/${windows_setup_filename}"
+        remote_file: "${project}/${build_variant}/${revision}/${windows_setup_filename}"
+        bucket: mciuploads
+        permissions: public-read
+        content_type: application/octet-stream
+        display_name: "${windows_setup_label}"
+    # MSI
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: "src/dist/${windows_msi_filename}"
+        remote_file: "${project}/${build_variant}/${revision}/${windows_msi_filename}"
+        bucket: mciuploads
+        permissions: public-read
+        content_type: application/octet-stream
+        display_name: "${windows_msi_label}"
+    # ZIP
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: "src/dist/${windows_zip_filename}"
+        remote_file: "${project}/${build_variant}/${revision}/${windows_zip_filename}"
+        bucket: mciuploads
+        permissions: public-read
+        content_type: application/zip
+        display_name: "${windows_zip_label}"
+    # RELEASES file
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: "src/dist/RELEASES"
+        remote_file: "${project}/${build_variant}/${revision}/RELEASES"
+        bucket: mciuploads
+        permissions: public-read
+        content_type: application/octet-stream
+        display_name: "RELEASES"
+    # nupkg full
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: "src/dist/${windows_nupkg_full_filename}"
+        remote_file: "${project}/${build_variant}/${revision}/${windows_nupkg_full_filename}"
+        bucket: mciuploads
+        permissions: public-read
+        content_type: application/octet-stream
+        display_name: "${windows_nupkg_full_label}"
 
-  "save windows msi":
-    command: s3.put
-    params:
-      aws_key: ${aws_key}
-      aws_secret: ${aws_secret}
-      local_file: "src/dist/${windows_msi_filename}"
-      remote_file: "${project}/${build_variant}/${revision}/${windows_msi_filename}"
-      bucket: mciuploads
-      permissions: public-read
-      content_type: application/octet-stream
-      display_name: "${windows_msi_label}"
-
-  "save windows zip":
-    command: s3.put
-    params:
-      aws_key: ${aws_key}
-      aws_secret: ${aws_secret}
-      local_file: "src/dist/${windows_zip_filename}"
-      remote_file: "${project}/${build_variant}/${revision}/${windows_zip_filename}"
-      bucket: mciuploads
-      permissions: public-read
-      content_type: application/zip
-      display_name: "${windows_zip_label}"
-
-  "save windows RELEASES":
-    command: s3.put
-    params:
-      aws_key: ${aws_key}
-      aws_secret: ${aws_secret}
-      local_file: "src/dist/RELEASES"
-      remote_file: "${project}/${build_variant}/${revision}/RELEASES"
-      bucket: mciuploads
-      permissions: public-read
-      content_type: application/octet-stream
-      display_name: "RELEASES"
-
-  "save windows nupkg full":
-    command: s3.put
-    params:
-      aws_key: ${aws_key}
-      aws_secret: ${aws_secret}
-      local_file: "src/dist/${windows_nupkg_full_filename}"
-      remote_file: "${project}/${build_variant}/${revision}/${windows_nupkg_full_filename}"
-      bucket: mciuploads
-      permissions: public-read
-      content_type: application/octet-stream
-      display_name: "${windows_nupkg_full_label}"
-
-  "save osx dmg":
-    command: s3.put
-    params:
-      aws_key: ${aws_key}
-      aws_secret: ${aws_secret}
-      local_file: "src/dist/${osx_dmg_filename}"
-      remote_file: "${project}/${build_variant}/${revision}/${osx_dmg_filename}"
-      bucket: mciuploads
-      permissions: public-read
-      content_type: "application/x-apple-diskimage"
-      display_name: "${osx_dmg_label}"
-
-  "save osx zip":
-    command: s3.put
-    params:
-      aws_key: ${aws_key}
-      aws_secret: ${aws_secret}
-      local_file: "src/dist/${osx_zip_filename}"
-      remote_file: "${project}/${build_variant}/${revision}/${osx_zip_filename}"
-      bucket: mciuploads
-      permissions: public-read
-      content_type: application/zip
-      display_name: "${osx_zip_label}"
+  "save osx artifacts":
+    # .dmg
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: "src/dist/${osx_dmg_filename}"
+        remote_file: "${project}/${build_variant}/${revision}/${osx_dmg_filename}"
+        bucket: mciuploads
+        permissions: public-read
+        content_type: "application/x-apple-diskimage"
+        display_name: "${osx_dmg_label}"
+    # .zip
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: "src/dist/${osx_zip_filename}"
+        remote_file: "${project}/${build_variant}/${revision}/${osx_zip_filename}"
+        bucket: mciuploads
+        permissions: public-read
+        content_type: application/zip
+        display_name: "${osx_zip_label}"
 
   "save LICENSE":
     command: s3.put
@@ -348,25 +345,10 @@ tasks:
       - windows-64
   - func: "build"
   - func: "save npm_install.json"
-  - func: "save windows setup"
+  - func: "save windows artifacts"
     variants:
       - windows-64
-  - func: "save windows RELEASES"
-    variants:
-      - windows-64
-  - func: "save windows msi"
-    variants:
-      - windows-64
-  - func: "save windows zip"
-    variants:
-      - windows-64
-  - func: "save windows nupkg full"
-    variants:
-      - windows-64
-  - func: "save osx dmg"
-    variants:
-      - osx-1010
-  - func: "save osx zip"
+  - func: "save osx artifacts"
     variants:
       - osx-1010
   - func: "save LICENSE"
