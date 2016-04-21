@@ -25,7 +25,7 @@ var MongoDBCollectionView = View.extend({
     activeView: {
       type: 'string',
       required: true,
-      default: 'documentView',
+      default: 'schemaView',
       values: ['documentView', 'schemaView', 'explainView', 'indexView']
     },
     ns: 'string'

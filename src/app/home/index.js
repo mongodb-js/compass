@@ -125,7 +125,7 @@ var HomeView = View.extend({
     }
   },
   updateTitle: function(model) {
-    var title = 'MongoDB Compass - Schema - ' + app.connection.instance_id;
+    var title = 'MongoDB Compass - ' + app.connection.instance_id;
     if (model) {
       title += '/' + model.getId();
     }
