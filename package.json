@@ -115,6 +115,7 @@
     "mongodb-connection-model": "^4.0.2",
     "mongodb-data-service": "^0.0.16",
     "mongodb-database-model": "^0.1.2",
+    "mongodb-explain-plan-model": "^0.1.1",
     "mongodb-extended-json": "^1.6.0",
     "mongodb-instance-model": "^3.1.2",
     "mongodb-js-metrics": "^1.0.0",

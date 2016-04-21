@@ -1,5 +1,7 @@
 var View = require('ampersand-view');
 var tooltipMixin = require('../tooltip-mixin');
+var IndexDefinitionView = require('./index-definition');
+
 var numeral = require('numeral');
 var moment = require('moment');
 var format = require('util').format;
@@ -118,6 +120,18 @@ var IndexItemView = View.extend(tooltipMixin, {
       hook: 'progressbar',
       type: function(el, value) {
         el.style.width = value + '%';
+      }
+    }
+  },
+  subviews: {
+    indexDefinitionView: {
+      hook: 'index-definition-subview',
+      prepareView: function(el) {
+        return new IndexDefinitionView({
+          el: el,
+          parent: this,
+          model: this.model
+        });
       }
     }
   },

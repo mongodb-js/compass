@@ -4,6 +4,7 @@ var DocumentView = require('../documents');
 var SchemaView = require('../schema');
 var IndexView = require('../indexes');
 var RefineBarView = require('../refine-view');
+var ExplainView = require('../explain-plan');
 var MongoDBCollection = require('../models/mongodb-collection');
 var _ = require('lodash');
 
@@ -94,6 +95,16 @@ var MongoDBCollectionView = View.extend({
         });
       }
     },
+    explainView: {
+      hook: 'explain-subview',
+      prepareView: function(el) {
+        return new ExplainView({
+          el: el,
+          parent: this,
+          model: this.model
+        });
+      }
+    },
     refineBarView: {
       hook: 'refine-bar-subview',
       prepareView: function(el) {
@@ -126,17 +137,17 @@ var MongoDBCollectionView = View.extend({
       'Explain Plan': 'explainView',
       'Indexes': 'indexView'
     };
-    this.switchViews(tabToViewMap[e.target.innerText]);
+    this.switchView(tabToViewMap[e.target.innerText]);
   },
-  switchViews: function(view) {
+  switchView: function(viewStr) {
     // disable all views but the active one
     _.each(this._subviews, function(subview) {
       subview.visible = false;
     });
-    if (this[view]) {
-      this[view].visible = true;
+    if (this[viewStr]) {
+      this[viewStr].visible = true;
     }
-    this.activeView = view;
+    this.activeView = viewStr;
   },
   onCollectionChanged: function() {
     this.ns = this.parent.ns;
@@ -151,7 +162,7 @@ var MongoDBCollectionView = View.extend({
     this.model.fetch();
   },
   onCollectionFetched: function(model) {
-    this.switchViews(this.activeView);
+    this.switchView(this.activeView);
     // track collection information
     var metadata = _.omit(model.serialize(), ['_id', 'database',
       'index_details', 'wired_tiger']);
