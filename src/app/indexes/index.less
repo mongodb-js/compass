@@ -27,6 +27,25 @@
     cursor: pointer;
     user-select: none;
     -webkit-user-select: none;
+
+    .fa-sort {
+      font-size: 13px;
+      color: @index-type-color;
+      display: none;
+    }
+
+    &.active .sort {
+      display: inline-block;
+    }
+
+    &:not(.active) .sort {
+      display: none;
+    }
+
+    &:hover:not(.active) .fa-sort {
+      display: inline-block;
+    }
+
   }
 
   table tr {

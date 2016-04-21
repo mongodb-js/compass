@@ -4,16 +4,22 @@
       table
         thead
           tr
-            th.name Name and Definition
-              i.sort.fa.fa-fw(data-hook='sort-name')
-            th Type
-              i.sort.fa.fa-fw(data-hook='sort-type')
-            th Size
-              i.sort.fa.fa-fw(data-hook='sort-size')
-            th.util-column Usage
-              i.sort.fa.fa-fw(data-hook='sort-usage')
-            th Cardinality
-              i.sort.fa.fa-fw(data-hook='sort-cardinality')
-            th Properties
-              i.sort.fa.fa-fw(data-hook='sort-properties')
+            th.name(data-hook='th-name') Name and Definition
+              i.sort.fa.fa-fw
+              i.fa.fa-fw.fa-sort
+            th(data-hook='th-type') Type
+              i.sort.fa.fa-fw
+              i.fa.fa-fw.fa-sort
+            th(data-hook='th-size') Size
+              i.sort.fa.fa-fw
+              i.fa.fa-fw.fa-sort
+            th.util-column(data-hook='th-usage') Usage
+              i.sort.fa.fa-fw
+              i.fa.fa-fw.fa-sort
+            th(data-hook='th-cardinality') Cardinality
+              i.sort.fa.fa-fw
+              i.fa.fa-fw.fa-sort
+            th(data-hook='th-properties') Properties
+              i.sort.fa.fa-fw
+              i.fa.fa-fw.fa-sort
         tbody.table(data-hook='indexes')
