@@ -65,7 +65,7 @@ let getOrCreateGitHubRelease = (CONFIG) => {
     cli.debug('Creating new draft release');
     createGitHubRelease(CONFIG).then(p);
   });
-  return p;
+  return p.promise;
 };
 
 let removeGitHubReleaseAssetIfExists = (CONFIG, release, asset) => {
@@ -142,7 +142,7 @@ let maybePublishGitHubRelease = (CONFIG) => {
     type: 'oauth'
   });
 
-  getOrCreateGitHubRelease(CONFIG)
+  return getOrCreateGitHubRelease(CONFIG)
     .then((release) => {
       return CONFIG.assets.map((asset) => uploadGitHubReleaseAsset(CONFIG, release, asset));
     });
