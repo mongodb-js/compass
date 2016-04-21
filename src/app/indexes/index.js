@@ -225,14 +225,15 @@ module.exports = View.extend({
       no: 'hidden'
     },
     sortField: {
-      type: 'switch',
+      type: 'switchClass',
+      name: 'active',
       cases: {
-        'Name and Definition': '[data-hook=sort-name]',
-        'Type': '[data-hook=sort-type]',
-        'Size': '[data-hook=sort-size]',
-        'Usage': '[data-hook=sort-usage]',
-        'Cardinality': '[data-hook=sort-cardinality]',
-        'Properties': '[data-hook=sort-properties]'
+        'Name and Definition': '[data-hook=th-name]',
+        'Type': '[data-hook=th-type]',
+        'Size': '[data-hook=th-size]',
+        'Usage': '[data-hook=th-usage]',
+        'Cardinality': '[data-hook=th-cardinality]',
+        'Properties': '[data-hook=th-properties]'
       }
     },
     sortOrder: {
