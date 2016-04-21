@@ -1,21 +1,21 @@
+@index-type-color: @gray4;
+
+@index-property-color:#545383;
+@index-property-bg: #E6E4ED;
+
+@index-geo-color: #548273;
+@index-geo-bg: #E8ECEB;
+
+@index-hashed-color: #968875;
+@index-hashed-bg: #EEEAE5;
+
+@index-text-color: #947872;
+@index-text-bg: #F5EDEB;
+
+@index-quantity-color: #5382A8;
+@index-quantity-bg: #EAEDF4;
+
 .index-container {
-
-  @index-type-color: @gray4;
-
-  @index-property-color:#545383;
-  @index-property-bg: #E6E4ED;
-
-  @index-geo-color: #548273;
-  @index-geo-bg: #E8ECEB;
-
-  @index-hashed-color: #968875;
-  @index-hashed-bg: #EEEAE5;
-
-  @index-text-color: #947872;
-  @index-text-bg: #F5EDEB;
-
-  @index-quantity-color: #5382A8;
-  @index-quantity-bg: #EAEDF4;
 
   table {
     table-layout: auto;
@@ -43,42 +43,9 @@
       margin-bottom: 2px;
     }
 
-    .definition {
-      display: inline-block;
-      padding: 2px 0 2px 12px;
-      background: @gray8;
-      border-radius: 20px;
-    }
-
-    .pair {
-      margin-right: 10px;
-      vertical-align: bottom;
-    }
-
-    .sort, .type, .field, .pair, .property, .quantity, .unit, .since, .properties, .usage-since {
+    .property, .quantity, .unit, .since, .properties, .usage-since {
       display: inline-block;
       text-align: center;
-    }
-
-    .field {
-      font-size: 13px;
-      color: @gray0;
-      margin-right: 5px;
-    }
-
-    .type {
-      color: @pw;
-      background-color: @index-type-color;
-      border-radius: 20px;
-      min-width: 20px;
-      padding: 0 8px;
-      font-size: 11px;
-      font-weight: bold;
-    }
-
-    .sort {
-      font-size: 13px;
-      color: @index-type-color;
     }
 
     .pill(@color, @bg) {
@@ -162,5 +129,46 @@
         content: @fa-var-info-circle;
       }
     }
+  }
+}
+
+
+.index-container, .explain-container {
+  .definition {
+    display: inline-block;
+    padding: 2px 0 2px 12px;
+    background: @gray8;
+    border-radius: 20px;
+  }
+
+  .field {
+    font-size: 13px;
+    color: @gray0;
+    margin-right: 5px;
+  }
+
+  .type {
+    color: @pw;
+    background-color: @index-type-color;
+    border-radius: 20px;
+    min-width: 20px;
+    padding: 0 8px;
+    font-size: 11px;
+    font-weight: bold;
+  }
+
+  .sort {
+    font-size: 13px;
+    color: @index-type-color;
+  }
+
+  .pair {
+    margin-right: 10px;
+    vertical-align: bottom;
+  }
+
+  .sort, .type, .field, .pair {
+    display: inline-block;
+    text-align: center;
   }
 }
