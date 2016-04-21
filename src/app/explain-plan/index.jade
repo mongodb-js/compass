@@ -6,9 +6,14 @@
         .row
           .col-md-4
             i.help(data-hook='index-usage')
-            span.index-message(data-hook='index-message')
+            span.index-message(data-hook='index-message-container')
+              //- i(data-hook='index-message-icon')
+              span(data-hook='index-message-text')                
             .index-definition
-              span(data-hook='index-name')
+              div(data-hook='link-to-indexes-container')
+                a(href="#", data-hook='indexes-link') View all indexes
+              div(data-hook='index-definition-container')
+                div(data-hook='index-definition-subview')
           .col-md-4
             .stat
               i.help
@@ -34,4 +39,6 @@
 
       .detail-container
         h4 Raw Explain Output
-        pre(data-hook='raw-output')
+        .panel.panel-default
+          .panel-body
+            ol.document-list(data-hook='raw-subview')

@@ -137,17 +137,17 @@ var MongoDBCollectionView = View.extend({
       'Explain Plan': 'explainView',
       'Indexes': 'indexView'
     };
-    this.switchViews(tabToViewMap[e.target.innerText]);
+    this.switchView(tabToViewMap[e.target.innerText]);
   },
-  switchViews: function(view) {
+  switchView: function(viewStr) {
     // disable all views but the active one
     _.each(this._subviews, function(subview) {
       subview.visible = false;
     });
-    if (this[view]) {
-      this[view].visible = true;
+    if (this[viewStr]) {
+      this[viewStr].visible = true;
     }
-    this.activeView = view;
+    this.activeView = viewStr;
   },
   onCollectionChanged: function() {
     this.ns = this.parent.ns;
@@ -162,7 +162,7 @@ var MongoDBCollectionView = View.extend({
     this.model.fetch();
   },
   onCollectionFetched: function(model) {
-    this.switchViews(this.activeView);
+    this.switchView(this.activeView);
     // track collection information
     var metadata = _.omit(model.serialize(), ['_id', 'database',
       'index_details', 'wired_tiger']);
