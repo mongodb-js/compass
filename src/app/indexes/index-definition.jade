@@ -1,0 +1,12 @@
+div.definition
+  each field in model.fields.serialize()
+    div.pair
+      div.field= field.field
+      if (field.value === 1)
+        div.sort
+          i.fa.fa-arrow-circle-up.fa-lg
+      else if (field.value === -1)
+        div.sort
+          i.fa.fa-arrow-circle-down.fa-lg
+      else
+        div.type= field.value
