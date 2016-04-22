@@ -24,7 +24,7 @@ let createGitHubRelease = (CONFIG) => {
     owner: CONFIG.github_owner,
     repo: CONFIG.github_repo,
     draft: true,
-    tag_name: `${CONFIG.version}`,
+    tag_name: `v${CONFIG.version}`,
     name: CONFIG.version,
     target_commitish: CONFIG.target_commitish,
     body: `### Notable Changes
