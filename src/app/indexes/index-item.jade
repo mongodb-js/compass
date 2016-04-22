@@ -1,8 +1,8 @@
 tr
-  td
+  td.name-column
     div.name= model.name
     div(data-hook='index-definition-subview')
-  td
+  td.type-column
     - var type = model.type
     if type
       if type === 'text'
@@ -15,7 +15,7 @@ tr
         div(class="property #{type}")
            = type
            i.link
-  td
+  td.size-column
     div.quantity(data-hook='index-size')
     div.unit(data-hook='index-size-unit')
     div.progress(data-toggle='tooltip', title='#{model.relativeSize}% compared to largest index')
@@ -24,11 +24,11 @@ tr
     div.quantity(data-hook='usage-count')
     div.usage-since since&nbsp;
       span(data-hook='usage-since')
-  td
+  td.property1-column
     div.property.cardinality
       = model.cardinality
       i.link
-  td
+  td.property2-column
     div.properties
       each prop in model.properties
         if prop === 'ttl'
