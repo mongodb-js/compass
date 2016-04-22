@@ -132,10 +132,10 @@ var MongoDBCollectionView = View.extend({
 
     // map tab label to correct view and switch views
     var tabToViewMap = {
-      'Documents': 'documentView',
-      'Schema': 'schemaView',
-      'Explain Plan': 'explainView',
-      'Indexes': 'indexView'
+      'DOCUMENTS': 'documentView',
+      'SCHEMA': 'schemaView',
+      'EXPLAIN PLAN': 'explainView',
+      'INDEXES': 'indexView'
     };
     this.switchView(tabToViewMap[e.target.innerText]);
   },
