@@ -14,9 +14,11 @@ let get = (directory) => {
   normalizePkg(pkg);
   pkg._path = _path;
 
-  const g = parseGitHubRepoURL(pkg.repository.url);
-  pkg.github_owner = g[0];
-  pkg.github_repo = g[1];
+  if (pkg.repository) {
+    const g = parseGitHubRepoURL(pkg.repository.url);
+    pkg.github_owner = g[0];
+    pkg.github_repo = g[1];
+  }
   return pkg;
 };
 
