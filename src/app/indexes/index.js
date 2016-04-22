@@ -2,6 +2,7 @@ var View = require('ampersand-view');
 var tooltipMixin = require('../tooltip-mixin');
 var IndexDefinitionView = require('./index-definition');
 
+var metrics = require('mongodb-js-metrics')();
 var numeral = require('numeral');
 var moment = require('moment');
 var format = require('util').format;
@@ -277,6 +278,30 @@ module.exports = View.extend({
     this.model.indexes.each(function(idx) {
       idx.relativeSize = idx.size / maxSize * 100;
     });
+    this._computeMetrics();
+  },
+  _computeMetrics: function() {
+    var metadata = {};
+    // total index count
+    metadata['index count'] = this.model.indexes.length;
+
+    // average fields per index
+    var numFields = _.sum(this.model.indexes.map(function(idx) {
+      return idx.fields.length;
+    }));
+    metadata['average fields per index'] = numFields / metadata['index count'];
+
+    // are certain types of indexes included
+    metadata['geo index present'] = !!this.model.indexes.find('geo');
+    metadata['text index present'] = !!this.model.indexes.find('text');
+    metadata['hashed index present'] = !!this.model.indexes.find('hashed');
+
+    // count index properties
+    metadata['unique index count'] = this.model.indexes.filter('unique').length;
+    metadata['sparse index count'] = this.model.indexes.filter('sparse').length;
+    metadata['partial index count'] = this.model.indexes.filter('partial').length;
+    metadata['ttl index count'] = this.model.indexes.filter('ttl').length;
+    metrics.track('Indexes', 'detected', metadata);
   },
   onVisibleChanged: function() {
     if (this.visible) {
