@@ -138,6 +138,15 @@ var Preferences = Model.extend(storageMixin, {
       default: true
     },
     /**
+     * Switch to enable/disable the "Explain Plan" tab on the collection level
+     * @type {Boolean}
+     */
+    showExplainPlanTab: {
+      type: 'boolean',
+      required: true,
+      default: false
+    },
+    /**
      * Switches to enable/disable various authentication / ssl types
      *
      * Warning: currently not hooked into the code, see INT-859.
