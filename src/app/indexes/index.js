@@ -301,6 +301,8 @@ module.exports = View.extend({
     metadata['sparse index count'] = this.model.indexes.filter('sparse').length;
     metadata['partial index count'] = this.model.indexes.filter('partial').length;
     metadata['ttl index count'] = this.model.indexes.filter('ttl').length;
+    metadata['single index count'] = this.model.indexes.filter('single').length;
+
     metrics.track('Indexes', 'detected', metadata);
   },
   onVisibleChanged: function() {
