@@ -301,7 +301,6 @@ var Application = View.extend({
     if (event.target.className === 'help') {
       return;
     }
-    debug('onLinkClick', event);
     var pathname = localLinks.getLocalPathname(event);
     if (pathname) {
       event.preventDefault();

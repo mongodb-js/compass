@@ -13,7 +13,8 @@ var features = [
   'Share Schema',
   'Intercom Panel',
   'Feature Tour',
-  'Connection'
+  'Connection',
+  'Indexes'
 ];
 
 var featureResources = _.object(_.map(features, function(feature) {
@@ -60,10 +61,20 @@ var SchemaResource = BaseResource.extend({
   }
 });
 
+// Index resource uses `detected` as action
+var IndexesResource = BaseResource.extend({
+  id: 'Indexes',
+  eventTrackers: ['ga', 'intercom', 'mixpanel'],
+  detected: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  }
+});
+
 featureResources['Geo Data'] = new GeoDataResource();
 featureResources.Collection = new CollectionResource();
 featureResources.Deployment = new DeploymentResource();
 featureResources.Schema = new SchemaResource();
+featureResources.Indexes = new IndexesResource();
 
 debug('feature resources', featureResources);
 

@@ -128,14 +128,6 @@ var SchemaView = View.extend({
     this.schema.fetch(_.assign({}, app.volatileQueryOptions.serialize(), {
       message: 'Analyzing documents...'
     }));
-
-    var metadata = _.omit(model.serialize(), ['_id', 'database',
-      'index_details', 'wired_tiger']);
-    metadata.specialish = model.specialish;
-    metadata['database name length'] = model.database.length;
-    metadata['collection name length'] = model.getId().length -
-      model.database.length - 1;
-    metrics.track('Collection', 'fetched', metadata);
   },
   onQueryChanged: function() {
     var options = app.queryOptions.serialize();
