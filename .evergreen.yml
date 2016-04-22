@@ -79,6 +79,7 @@ functions:
         # less chatty installs: "--depth 0" reduces detail of "npm ls" tree output
         export NPM_CONFIG_DEPTH=0
         export NPM_CONFIG_LOGLEVEL=error
+        ${npm|npm} install node-gyp 
         ${npm|npm} install
         # INT-1081 Attach parseable log of installed packages.
         # Don't allow it to fail build.
