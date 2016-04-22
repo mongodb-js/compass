@@ -63,7 +63,9 @@ let getOrCreateGitHubRelease = (CONFIG) => {
     if (latestDraft) return p.resolve(latestDraft);
 
     cli.debug('Creating new draft release');
-    createGitHubRelease(CONFIG).then(p);
+    createGitHubRelease(CONFIG)
+      .then( (release) => p.resolve(release))
+      .catch( (_err) => p.reject(_err));
   });
   return p.promise;
 };
