@@ -50,3 +50,5 @@ exports.broadcast = (methodName, ...args) => {
     }
   });
 };
+
+module.exports = exports;

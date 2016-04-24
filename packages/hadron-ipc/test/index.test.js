@@ -7,7 +7,7 @@ describe('hadron-ipc', () => {
   it('should have a respondTo method', () => {
     assert(ipc.respondTo);
   });
-  it('should have a call method', () => {
-    assert(ipc.call);
+  it('should have a broadcast method', () => {
+    assert(ipc.broadcast);
   });
 });

@@ -28,3 +28,5 @@ exports.call = function(methodName, ...args) {
     ipcRenderer.send(methodName, ...args);
   });
 };
+
+module.exports = exports;
