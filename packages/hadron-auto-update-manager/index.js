@@ -1,236 +1,170 @@
 'use strict';
-
+/* eslint eqeqeq: 1, no-console:0 no-else-return: 1, no-cond-assign: 1, consistent-return: 1 */
+const path = require('path');
+const fs = require('fs');
 const electron = require('electron');
-const app = electron.app;
 const dialog = electron.dialog;
-const format = require('util').format;
-const State = require('ampersand-state');
+const _ = require('lodash');
+const EventEmitter = require('events').EventEmitter;
 const autoUpdater = require('./auto-updater');
 const debug = require('debug')('hadron-auto-update-manager');
-
+const BrowserWindow = require('electron').BrowserWindow;
 const ENOSIGNATURE = 'Could not get code signature for running application';
+const app = electron.app;
 
-var AutoUpdateManager = State.extend({
-  properties: {
-    version: {
-      type: 'string',
-      required: true
-    },
-    /**
-     * e.g. 'https://compass-mongodb-com.herokuapp.com'
-     */
-    endpoint: {
-      type: 'string',
-      required: true
-    },
-    platform: {
-      type: 'string',
-      default: function() {
-        return process.platform;
-      }
-    },
-    arch: {
-      type: 'string',
-      default: function() {
-        return process.arch;
-      }
-    },
-    state: {
-      type: 'string',
-      values: [
-        'idle',
-        'error',
-        'no-update-available',
-        'checking',
-        'downloading',
-        'update-available',
-        'unsupported'
-      ],
-      default: 'idle'
-    },
-    new_release_version: {
-      type: 'string'
-    },
-    new_release_notes: {
-      type: 'string'
-    },
-    /**
-     * Application .png to use for electron.dialogs.
-     */
-    icon_path: {
-      type: 'string'
-    },
-    error_message: {
-      type: 'string'
-    }
-  },
-  derived: {
-    feed_url: {
-      deps: ['endpoint', 'version'],
-      fn: function() {
-        return format('%s/updates?version=%s&platform=%s&arch=%s',
-          this.endpoint, this.version, this.platform, this.arch);
-      }
-    },
-    channel: {
-      deps: ['version'],
-      fn: function() {
-        if (app.getVersion().indexOf('-dev') > -1) {
-          return 'dev';
-        } else if (app.getVersion().indexOf('-beta') > -1) {
-          return 'beta';
-        }
-        return 'stable';
-      },
-      values: ['dev', 'beta', 'stable'],
-      default: 'stable'
-    }
-  },
-  initialize: function() {
-    this.listenTo(this, 'change:state', () => {
-      this.trigger(this.state);
-    });
+const IdleState = 'idle';
+const CheckingState = 'checking';
+const DownloadingState = 'downloading';
+const UpdateAvailableState = 'update-available';
+const NoUpdateAvailableState = 'no-update-available';
+const UnsupportedState = 'unsupported';
+const ErrorState = 'error';
 
-    autoUpdater.on('error', (event, message) => {
-      if (message === ENOSIGNATURE) {
-        this.state = 'unsupported';
+function AutoUpdateManager(endpointURL) {
+  this.endpointURL = endpointURL;
+  this.version = app.getVersion();
+  this.onUpdateError = _.bind(this.onUpdateError, this);
+  this.onUpdateNotAvailable = _.bind(this.onUpdateNotAvailable, this);
+  this.state = IdleState;
+  this.feedURL = `${endpointURL}/updates?version=${this.version}`;
+  debug('auto updater ready and waiting.', {
+    version: this.version,
+    feedURL: this.feedURL
+  });
+
+  process.nextTick( () => this.setupAutoUpdater());
+}
+_.extend(AutoUpdateManager.prototype, EventEmitter.prototype);
+
+AutoUpdateManager.prototype.setupAutoUpdater = function() {
+  autoUpdater.setFeedURL(this.feedURL);
+  autoUpdater.on('error', (event, message) => {
+    if (message === ENOSIGNATURE) {
+      return debug('no auto updater for unsigned builds');
+    }
+    debug('Error Downloading Update: ' + message);
+    return this.setState(ErrorState);
+  });
+
+  autoUpdater.on('checking-for-update', () => {
+    this.setState(CheckingState);
+  });
+
+  autoUpdater.on('update-not-available', () => {
+    this.setState(NoUpdateAvailableState);
+  });
+  autoUpdater.on('update-available', () => {
+    this.setState(DownloadingState);
+  });
+  autoUpdater.on('update-downloaded', (event, releaseNotes, releaseVersion) => {
+    this.releaseNotes = releaseNotes;
+    this.releaseVersion = releaseVersion;
+    this.setState(UpdateAvailableState);
+    this.emitUpdateAvailableEvent();
+  });
+
+  this.check({
+    hidePopups: true
+  });
+  setInterval((function(_this) {
+    return function() {
+      var ref;
+      if ((ref = _this.state) === UpdateAvailableState || ref === UnsupportedState) {
+        console.log('Skipping update check... update ready to install, or updater unavailable.');
         return;
       }
-      this.state = 'error';
-      this.error_message = message;
-      /* eslint no-console: 0 */
-      console.error('Error Downloading Update: ' + message);
-    })
-    .on('checking-for-update', () => {
-      this.state = 'checking';
-    })
-    .on('update-not-available', () => {
-      this.state = 'no-update-available';
-    })
-    .on('update-available', () => {
-      this.state = 'downloading';
-    })
-    .on('update-downloaded', (event, releaseNotes, releaseVersion) => {
-      this.new_release_version = releaseVersion;
-      this.new_release_notes = releaseNotes;
-      this.state = 'update-available';
-    });
-
-    this.version = app.getVersion();
-    debug('Channel is `%s`', this.channel);
-
-    debug('Feed URL', this.feed_url);
-    autoUpdater.setFeedURL(this.feed_url);
-
-    debug('Ready and waiting! %j', this);
-  },
-  onUpdateNotAvailable: function() {
-    autoUpdater.removeListener('error', this.onUpdateError);
-    dialog.showMessageBox({
-      type: 'info',
-      buttons: ['OK'],
-      icon: this.icon_path,
-      message: 'No update available.',
-      title: 'No Update Available',
-      detail: format('Version %s is the latest version.', this.version)
-    });
-  },
-  onUpdateError: function(event, message) {
-    autoUpdater.removeListener(
-      'update-not-available', this.onUpdateNotAvailable);
-    dialog.showMessageBox({
-      type: 'warning',
-      buttons: ['OK'],
-      icon: this.icon_path,
-      message: 'There was an error checking for updates.',
-      title: 'Update Error',
-      detail: message
-    });
-  },
-  /**
-   * @api private
-   * @return {Boolean} Check scheduled?
-   */
-  scheduleUpdateCheck: function() {
-    if (this.checkForUpdatesIntervalID) {
-      debug('Update check already scheduled');
-      return false;
+      return _this.check({
+        hidePopups: true
+      });
+    };
+  })(this), 1000 * 60 * 30);
+  if (autoUpdater.supportsUpdates != null) {
+    if (!autoUpdater.supportsUpdates()) {
+      return this.setState(UnsupportedState);
     }
-
-    var fourHours = 1000 * 60 * 60 * 4;
-    var checkForUpdates = this.checkForUpdates.bind(this, {
-      hidePopups: true
-    });
-    this.checkForUpdatesIntervalID = setInterval(checkForUpdates, fourHours);
-    checkForUpdates();
-    return true;
-  },
-  /**
-   * @api private
-   * @return {Boolean} Scheduled check cancelled?
-   */
-  cancelScheduledUpdateCheck: function() {
-    if (this.checkForUpdatesIntervalID) {
-      clearInterval(this.checkForUpdatesIntervalID);
-      this.checkForUpdatesIntervalID = null;
-      debug('cancelled scheduled update check');
-      return true;
-    }
-    return false;
-  },
-  checkForUpdates: function(opts) {
-    opts = opts || {};
-    if (!opts.hidePopups) {
-      autoUpdater.once('update-not-available', this.onUpdateNotAvailable);
-      autoUpdater.once('error', this.onUpdateError);
-    }
-    debug('checking for updates...');
-    autoUpdater.checkForUpdates();
-    return true;
-  },
-  /**
-   * @api public
-   * @return {Boolean} Auto updates enabled?
-   */
-  enable: function() {
-    if (this.state === 'unsupported') {
-      debug('Not scheduling because updates are not supported.');
-      return false;
-    }
-    return this.scheduleUpdateCheck();
-  },
-  /**
-   * @api public
-   */
-  disable: function() {
-    this.cancelScheduledUpdateCheck();
-  },
-  /**
-   * @api public
-   * @return {Boolean} Quit and install update?
-   */
-  install: function() {
-    if (this.state !== 'update-available') {
-      debug('No update to install');
-      return false;
-    }
-
-    debug('installing via autoUpdater.quitAndInstall()');
-    autoUpdater.quitAndInstall();
-    return true;
-  },
-  /**
-   * Check for updates now bypassing scheduled check.
-   * @api public
-   * @return {Boolean} Update check requested?
-   */
-  check: function() {
-    if (this.state === 'unsupported') {
-      debug('Updates are not supported.');
-      return false;
-    }
-    return this.checkForUpdates();
   }
-});
+};
+
+AutoUpdateManager.prototype.emitUpdateAvailableEvent = function() {
+  if (!this.releaseVersion) {
+    return;
+  }
+  BrowserWindow.getAllWindows().each((_browserWindow) => {
+    debug('sending app:update-available');
+    if (_browserWindow.webContents) {
+      _browserWindow.webContents.send('app:update-available', {
+        releaseVersion: this.releaseVersion,
+        releaseNotes: this.releaseNotes
+      });
+    }
+  });
+};
+
+AutoUpdateManager.prototype.setState = function(state) {
+  if (this.state === state) {
+    return;
+  }
+  this.state = state;
+  return this.emit('state-changed', this.state);
+};
+
+AutoUpdateManager.prototype.getState = function() {
+  return this.state;
+};
+
+AutoUpdateManager.prototype.check = function(arg) {
+  var hidePopups;
+  hidePopups = (arg != null ? arg : {}).hidePopups;
+  if (!hidePopups) {
+    autoUpdater.once('update-not-available', this.onUpdateNotAvailable);
+    autoUpdater.once('error', this.onUpdateError);
+  }
+  if (process.platform === 'win32') {
+    return autoUpdater.downloadAndInstallUpdate();
+  } else {
+    return autoUpdater.checkForUpdates();
+  }
+};
+
+AutoUpdateManager.prototype.install = function() {
+  if (process.platform === 'win32') {
+    return autoUpdater.restartN1();
+  } else {
+    return autoUpdater.quitAndInstall();
+  }
+};
+
+AutoUpdateManager.prototype.iconURL = function() {
+  var url;
+  url = path.join(process.resourcesPath, 'app', 'nylas.png');
+  if (!fs.existsSync(url)) {
+    return void 0;
+  }
+  return url;
+};
+
+AutoUpdateManager.prototype.onUpdateNotAvailable = function() {
+  autoUpdater.removeListener('error', this.onUpdateError);
+  return dialog.showMessageBox({
+    type: 'info',
+    buttons: ['OK'],
+    icon: this.iconURL(),
+    message: 'No update available.',
+    title: 'No Update Available',
+    detail: 'You\'re running the latest version of N1 (' + this.version + ').'
+  });
+};
+
+AutoUpdateManager.prototype.onUpdateError = function(event, message) {
+  autoUpdater.removeListener('update-not-available', this.onUpdateNotAvailable);
+  return dialog.showMessageBox({
+    type: 'warning',
+    buttons: ['OK'],
+    icon: this.iconURL(),
+    message: 'There was an error checking for updates.',
+    title: 'Update Error',
+    detail: message
+  });
+};
 
 module.exports = AutoUpdateManager;
