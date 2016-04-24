@@ -21,6 +21,9 @@ const UnsupportedState = 'unsupported';
 const ErrorState = 'error';
 
 function AutoUpdateManager(endpointURL) {
+  if (!endpointURL) {
+    throw new TypeError('endpointURL is required!');
+  }
   this.endpointURL = endpointURL;
   this.version = app.getVersion();
   this.onUpdateError = _.bind(this.onUpdateError, this);

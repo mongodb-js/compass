@@ -2,10 +2,20 @@
 
 let AutoUpdateManager = require('../');
 const assert = require('assert');
+const electronVersion = require('electron-prebuilt/package.json').version;
 
 describe('hadron-auto-update-manager', () => {
-  it('should work', () => {
+  it('should have an export', () => {
     assert(AutoUpdateManager);
-    assert(new AutoUpdateManager());
+  });
+  it('should require an arg to the constructor', () => {
+    assert.throws( () => new AutoUpdateManager());
+  });
+  it('should setup', () => {
+    const endpoint = 'https://hadron-endpoint.herokuapp.com';
+    const autoUpdateManager = new AutoUpdateManager(endpoint);
+    assert.equal(autoUpdateManager.version, electronVersion);
+    assert.equal(autoUpdateManager.feedURL,
+      `https://hadron-endpoint.herokuapp.com/updates?version=${electronVersion}`);
   });
 });
