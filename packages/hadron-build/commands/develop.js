@@ -17,6 +17,11 @@ exports.builder = {
     describe: 'Automatically open devtools?',
     type: 'boolean',
     default: false
+  },
+  interactive: {
+    describe: 'Launch a main process repl after app started?',
+    type: 'boolean',
+    default: false
   }
 };
 
@@ -33,7 +38,7 @@ exports.tasks = function(argv) {
     verify.tasks(argv),
     ui.tasks(argv)
   ])
-  .then(exports.startElectronPrebuilt);
+  .then( () => exports.startElectronPrebuilt(argv));
 };
 
 exports.handler = (argv) => {
@@ -41,16 +46,24 @@ exports.handler = (argv) => {
     .catch((err) => cli.abortIfError(err));
 };
 
-exports.startElectronPrebuilt = () => {
-  const cwd = process.cwd();
+exports.startElectronPrebuilt = (argv) => {
+  argv = argv || {};
+
+  const cwd = argv.cwd || process.cwd();
   const options = {
     env: process.env,
     cwd: cwd,
     stdio: 'inherit'
   };
 
+  let args = [];
+  if (argv.interactive) {
+    args.push('--interactive');
+  }
+  args.push(cwd);
+
   const p = Promise.defer();
-  spawn(ELECTRON_PREBUILT_EXECUTABLE, [cwd], options)
+  spawn(ELECTRON_PREBUILT_EXECUTABLE, args, options)
     .on('error', (err) => p.reject(err))
     .on('exit', () => p.resolve());
   return p.promise;
