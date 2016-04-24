@@ -20,22 +20,26 @@ const NoUpdateAvailableState = 'no-update-available';
 const UnsupportedState = 'unsupported';
 const ErrorState = 'error';
 
-function AutoUpdateManager(endpointURL) {
+function AutoUpdateManager(endpointURL, iconURL) {
   if (!endpointURL) {
     throw new TypeError('endpointURL is required!');
   }
   this.endpointURL = endpointURL;
+  this.iconURL = iconURL;
   this.version = app.getVersion();
   this.onUpdateError = _.bind(this.onUpdateError, this);
   this.onUpdateNotAvailable = _.bind(this.onUpdateNotAvailable, this);
   this.state = IdleState;
   this.feedURL = `${endpointURL}/updates?version=${this.version}`;
+
   debug('auto updater ready and waiting.', {
     version: this.version,
     feedURL: this.feedURL
   });
 
-  process.nextTick( () => this.setupAutoUpdater());
+  process.nextTick(() => {
+    this.setupAutoUpdater();
+  });
 }
 _.extend(AutoUpdateManager.prototype, EventEmitter.prototype);
 
@@ -69,27 +73,94 @@ AutoUpdateManager.prototype.setupAutoUpdater = function() {
     this.setState(UpdateAvailableState);
     this.emitUpdateAvailableEvent();
   });
+};
 
-  this.check({
+/**
+  * @api private
+  * @return {Boolean} Check scheduled?
+  */
+AutoUpdateManager.prototype.scheduleUpdateCheck = function() {
+  if (this.checkForUpdatesIntervalID) {
+    debug('Update check already scheduled');
+    return false;
+  }
+  var fourHours = 1000 * 60 * 60 * 4;
+  var checkForUpdates = this.checkForUpdates.bind(this, {
     hidePopups: true
   });
-  setInterval((function(_this) {
-    return function() {
-      var ref;
-      if ((ref = _this.state) === UpdateAvailableState || ref === UnsupportedState) {
-        console.log('Skipping update check... update ready to install, or updater unavailable.');
-        return;
-      }
-      return _this.check({
-        hidePopups: true
-      });
-    };
-  })(this), 1000 * 60 * 30);
-  if (autoUpdater.supportsUpdates != null) {
-    if (!autoUpdater.supportsUpdates()) {
-      return this.setState(UnsupportedState);
-    }
+  this.checkForUpdatesIntervalID = setInterval(checkForUpdates, fourHours);
+  checkForUpdates();
+  return true;
+},
+/**
+* @api private
+* @return {Boolean} Scheduled check cancelled?
+*/
+AutoUpdateManager.prototype.cancelScheduledUpdateCheck = function() {
+  if (this.checkForUpdatesIntervalID) {
+    clearInterval(this.checkForUpdatesIntervalID);
+    this.checkForUpdatesIntervalID = null;
+    debug('cancelled scheduled update check');
+    return true;
   }
+  return false;
+};
+
+AutoUpdateManager.prototype.checkForUpdates = function(opts) {
+  opts = opts || {};
+  if (!opts.hidePopups) {
+    autoUpdater.once('update-not-available', this.onUpdateNotAvailable);
+    autoUpdater.once('error', this.onUpdateError);
+  }
+  debug('checking for updates...');
+  autoUpdater.checkForUpdates();
+  return true;
+};
+
+/**
+ * @api public
+ * @return {Boolean} Auto updates enabled?
+ */
+AutoUpdateManager.prototype.enable = function() {
+  if (this.state === 'unsupported') {
+    debug('Not scheduling because updates are not supported.');
+    return false;
+  }
+  return this.scheduleUpdateCheck();
+};
+
+/**
+ * @api public
+ */
+AutoUpdateManager.prototype.disable = function() {
+  this.cancelScheduledUpdateCheck();
+};
+
+/**
+ * @api public
+ * @return {Boolean} Quit and install update?
+ */
+AutoUpdateManager.prototype.install = function() {
+  if (this.state !== 'update-available') {
+    debug('No update to install');
+    return false;
+  }
+  debug('installing via autoUpdater.quitAndInstall()');
+  autoUpdater.quitAndInstall();
+  return true;
+};
+
+/**
+ * Check for updates now bypassing scheduled check.
+ * @api public
+ * @return {Boolean} Update check requested?
+ */
+AutoUpdateManager.prototype.check = function() {
+  if (this.state === 'unsupported') {
+    debug('Updates are not supported.');
+    return false;
+  }
+  return this.checkForUpdates();
 };
 
 AutoUpdateManager.prototype.emitUpdateAvailableEvent = function() {
@@ -119,43 +190,12 @@ AutoUpdateManager.prototype.getState = function() {
   return this.state;
 };
 
-AutoUpdateManager.prototype.check = function(arg) {
-  var hidePopups;
-  hidePopups = (arg != null ? arg : {}).hidePopups;
-  if (!hidePopups) {
-    autoUpdater.once('update-not-available', this.onUpdateNotAvailable);
-    autoUpdater.once('error', this.onUpdateError);
-  }
-  if (process.platform === 'win32') {
-    return autoUpdater.downloadAndInstallUpdate();
-  } else {
-    return autoUpdater.checkForUpdates();
-  }
-};
-
-AutoUpdateManager.prototype.install = function() {
-  if (process.platform === 'win32') {
-    return autoUpdater.restartN1();
-  } else {
-    return autoUpdater.quitAndInstall();
-  }
-};
-
-AutoUpdateManager.prototype.iconURL = function() {
-  var url;
-  url = path.join(process.resourcesPath, 'app', 'nylas.png');
-  if (!fs.existsSync(url)) {
-    return void 0;
-  }
-  return url;
-};
-
 AutoUpdateManager.prototype.onUpdateNotAvailable = function() {
   autoUpdater.removeListener('error', this.onUpdateError);
   return dialog.showMessageBox({
     type: 'info',
     buttons: ['OK'],
-    icon: this.iconURL(),
+    icon: this.iconURL,
     message: 'No update available.',
     title: 'No Update Available',
     detail: 'You\'re running the latest version of N1 (' + this.version + ').'
@@ -167,7 +207,7 @@ AutoUpdateManager.prototype.onUpdateError = function(event, message) {
   return dialog.showMessageBox({
     type: 'warning',
     buttons: ['OK'],
-    icon: this.iconURL(),
+    icon: this.iconURL,
     message: 'There was an error checking for updates.',
     title: 'Update Error',
     detail: message
