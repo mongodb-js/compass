@@ -3,7 +3,7 @@
 const isRenderer = require('is-electron-renderer');
 
 if (isRenderer) {
-  module.exports = require('./renderer');
+  module.exports = require('./lib/renderer');
 } else {
-  module.exports = require('./main');
+  module.exports = require('./lib/main');
 }
