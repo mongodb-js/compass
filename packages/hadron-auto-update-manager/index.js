@@ -40,7 +40,9 @@ function AutoUpdateManager(endpointURL) {
 _.extend(AutoUpdateManager.prototype, EventEmitter.prototype);
 
 AutoUpdateManager.prototype.setupAutoUpdater = function() {
-  autoUpdater.setFeedURL(this.feedURL);
+  // Need to set error event handler before setting feedURL.
+  // Else we get the default node.js error event handling:
+  // die hard if errors are unhandled.
   autoUpdater.on('error', (event, message) => {
     if (message === ENOSIGNATURE) {
       return debug('no auto updater for unsigned builds');
@@ -48,6 +50,8 @@ AutoUpdateManager.prototype.setupAutoUpdater = function() {
     debug('Error Downloading Update: ' + message);
     return this.setState(ErrorState);
   });
+
+  autoUpdater.setFeedURL(this.feedURL);
 
   autoUpdater.on('checking-for-update', () => {
     this.setState(CheckingState);
