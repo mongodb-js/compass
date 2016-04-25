@@ -12,6 +12,7 @@ var config = require('./config');
 var debug = require('debug')('mongodb-compass:electron:window-manager');
 var dialog = electron.dialog;
 var path = require('path');
+var ipc = require('hadron-ipc');
 
 /**
  * When running in electron, we're in `/src/main`.
@@ -160,15 +161,7 @@ function createWindow(opts, url) {
   return module.exports.create(opts);
 }
 
-app.on('show about dialog', function() {
-  dialog.showMessageBox({
-    type: 'info',
-    message: 'MongoDB Compass Version: ' + app.getVersion(),
-    buttons: []
-  });
-});
-
-app.on('show connect dialog', function() {
+function showConnectDialog() {
   if (connectWindow) {
     if (connectWindow.isMinimized()) {
       connectWindow.restore();
@@ -182,45 +175,51 @@ app.on('show connect dialog', function() {
     debug('connect window closed.');
     connectWindow = null;
   });
-});
+}
 
-app.on('close connect window', function() {
-  if (connectWindow) {
-    connectWindow.close();
-  }
-});
-
-app.on('show help window', function(id) {
-  if (helpWindow) {
-    helpWindow.focus();
-    if (_.isString(id)) {
-      helpWindow.webContents.send('message', 'show-help-entry', id);
+ipc.respondTo({
+  'app:show-about-dialog': function() {
+    dialog.showMessageBox({
+      type: 'info',
+      message: 'MongoDB Compass Version: ' + app.getVersion(),
+      buttons: []
+    });
+  },
+  'app:show-connect-dialog': showConnectDialog,
+  'app:close-connect-window': function() {
+    if (connectWindow) {
+      connectWindow.close();
     }
-    return;
+  },
+  'app:show-help-window': function(id) {
+    if (helpWindow) {
+      helpWindow.focus();
+      if (_.isString(id)) {
+        helpWindow.webContents.send('app:show-help-entry', id);
+      }
+      return;
+    }
+
+    var url = HELP_URL;
+    if (_.isString(id)) {
+      url += '/' + id;
+    }
+
+    helpWindow = createWindow({}, url);
+    helpWindow.on('closed', function() {
+      helpWindow = null;
+    });
+  },
+  'app:hide-share-submenu': function() {
+    AppMenu.hideShare();
+  },
+  'window:show-compass-overview-submenu': function() {
+    debug('show compass overview');
+    AppMenu.showCompassOverview();
+  },
+  'window:show-share-submenu': function() {
+    AppMenu.showShare();
   }
-
-  var url = HELP_URL;
-  if (_.isString(id)) {
-    url += '/' + id;
-  }
-
-  helpWindow = createWindow({}, url);
-  helpWindow.on('closed', function() {
-    helpWindow = null;
-  });
-});
-
-app.on('hide share submenu', function() {
-  AppMenu.hideShare();
-});
-
-app.on('show compass overview submenu', function() {
-  debug('show compass overview');
-  AppMenu.showCompassOverview();
-});
-
-app.on('show share submenu', function() {
-  AppMenu.showShare();
 });
 
 /**
@@ -249,5 +248,5 @@ app.on('before-quit', function() {
  * state between application launches.
  */
 app.on('ready', function() {
-  app.emit('show connect dialog');
+  showConnectDialog();
 });

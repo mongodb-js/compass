@@ -31,7 +31,7 @@ function compassOverviewItem() {
   return {
     label: 'Compass &Overview',
     click: function() {
-      BrowserWindow.getFocusedWindow().webContents.send('message', 'show-compass-tour');
+      BrowserWindow.getFocusedWindow().webContents.send('window:show-compass-tour');
     }
   };
 }
@@ -40,7 +40,7 @@ function networkOptInDialogItem() {
   return {
     label: 'Help &Improve Compass',
     click: function() {
-      BrowserWindow.getFocusedWindow().webContents.send('message', 'show-network-optin');
+      BrowserWindow.getFocusedWindow().webContents.send('window:show-network-optin');
     }
   };
 }
@@ -160,19 +160,17 @@ function intercomItem() {
   return {
     label: '&Provide Feedback',
     click: function() {
-      BrowserWindow.getFocusedWindow().webContents.send('message', 'show-intercom-panel');
+      BrowserWindow.getFocusedWindow().webContents.send('window:show-intercom-panel');
     }
   };
 }
 
-function helpSubMenu(showCompassOverview) {
+function helpSubMenu() {
   var subMenu = [];
   subMenu.push(helpWindowItem());
 
-  if (showCompassOverview) {
-    subMenu.push(compassOverviewItem());
-    subMenu.push(networkOptInDialogItem());
-  }
+  subMenu.push(compassOverviewItem());
+  subMenu.push(networkOptInDialogItem());
 
   subMenu.push(separator());
   subMenu.push(intercomItem());
@@ -196,7 +194,7 @@ function shareSubMenu() {
         label: '&Share Schema as JSON',
         accelerator: 'Alt+CmdOrCtrl+S',
         click: function() {
-          BrowserWindow.getFocusedWindow().webContents.send('message', 'menu-share-schema-json');
+          BrowserWindow.getFocusedWindow().webContents.send('window:menu-share-schema-json');
         }
       }
     ]

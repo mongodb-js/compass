@@ -9,6 +9,7 @@ var View = require('ampersand-view');
 
 var _ = require('lodash');
 var app = require('ampersand-app');
+var ipc = require('hadron-ipc');
 var format = require('util').format;
 
 var electron = require('electron');
@@ -453,7 +454,7 @@ var ConnectView = View.extend({
         window.location.origin,
         connection.getId())
     );
-    app.sendMessage('close connect window');
+    ipc.call('app:close-connect-window');
   },
 
   /**
