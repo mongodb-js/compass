@@ -11,6 +11,7 @@ var metrics = require('mongodb-js-metrics')();
 var _ = require('lodash');
 var debug = require('debug')('mongodb-compass:home');
 var toNS = require('mongodb-ns');
+var ipc = require('hadron-ipc');
 
 var indexTemplate = require('./index.jade');
 
@@ -53,13 +54,12 @@ var HomeView = View.extend({
   initialize: function() {
     this.listenTo(app.instance, 'sync', this.onInstanceFetched);
     this.listenTo(app.connection, 'change:name', this.updateTitle);
-    this.listenTo(app, 'show-compass-tour', this.showTour.bind(this, true));
-    this.listenTo(app, 'show-network-optin', this.showOptIn);
+    ipc.on('window:show-compass-tour', this.showTour.bind(this, true));
+    ipc.on('window:show-network-optin', this.showOptIn.bind(this));
 
     this.once('change:rendered', this.onRendered);
     debug('fetching instance model...');
     app.instance.fetch();
-    app.sendMessage('show compass overview submenu');
   },
   render: function() {
     this.renderWithTemplate(this);
@@ -153,7 +153,7 @@ var HomeView = View.extend({
   },
   onClickShowConnectWindow: function() {
     // code to close current connection window and open connect dialog
-    app.sendMessage('show connect dialog');
+    ipc.call('app:show-connect-dialog');
     window.close();
   },
   template: indexTemplate,

@@ -11,6 +11,7 @@ var BrowserWindow = remote.BrowserWindow;
 var clipboard = remote.clipboard;
 var format = require('util').format;
 var metrics = require('mongodb-js-metrics')();
+var ipc = require('hadron-ipc');
 
 var debug = require('debug')('mongodb-compass:schema:index');
 
@@ -75,12 +76,11 @@ var SchemaView = View.extend({
   schemaIsSynced: function() {
     // only listen to share menu events if we have a sync'ed schema
     this.sampling = false;
-    this.listenTo(app, 'menu-share-schema-json', this.onShareSchema.bind(this));
-    app.sendMessage('show share submenu');
+    ipc.on('window:menu-share-schema-json', this.onShareSchema.bind(this));
+    ipc.call('window:show-share-submenu');
   },
   schemaIsRequested: function() {
-    app.sendMessage('hide share submenu');
-    this.stopListening(app, 'menu-share-schema-json');
+    ipc.call('window:hide-share-submenu');
     this.sampling = true;
   },
   onVisibleChanged: function() {
@@ -108,7 +108,7 @@ var SchemaView = View.extend({
 
     metrics.track('Share Schema', 'used');
   },
-  onCollectionFetched: function(model) {
+  onCollectionFetched: function() {
     debug('collection fetched in schema');
     // track collection information
 

@@ -348,14 +348,6 @@ app.extend({
     // proxy to preferences for now
     return this.preferences.isFeatureEnabled(feature);
   },
-  sendMessage: function(msg, arg) {
-    debug('sending message to main process:', msg, arg);
-    ipc.send('message', msg, arg);
-  },
-  onMessageReceived: function(msg, arg) {
-    debug('message received from main process:', msg, arg);
-    this.trigger(msg, arg);
-  },
   onDomReady: function() {
     state.render();
 
@@ -398,10 +390,6 @@ app.extend({
   },
   init: function() {
     var self = this;
-
-    // set up ipc
-    ipc.on('message', this.onMessageReceived.bind(this));
-
     async.series([
       // check if migrations are required
       migrateApp.bind(state),

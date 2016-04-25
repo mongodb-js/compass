@@ -1,6 +1,7 @@
 var View = require('ampersand-view');
 var app = require('ampersand-app');
-var metrics = require('mongodb-js-metrics')();
+var ipc = require('hadron-ipc');
+// var metrics = require('mongodb-js-metrics')();
 var debug = require('debug')('mongodb-compass:notification-update-available');
 
 /**
@@ -49,9 +50,9 @@ var NotificationUpdateAvailable = View.extend({
     if (app.isFeatureEnabled('autoUpdates')) {
       this.listenToAndRun(app.preferences, 'change:autoUpdate', function() {
         if (app.isFeatureEnabled('autoUpdates')) {
-          app.sendMessage('app:enable-auto-update');
+          ipc.call('app:enable-auto-update');
         } else {
-          app.sendMessage('app:disable-auto-update');
+          ipc.call('app:disable-auto-update');
         }
       });
     }
@@ -61,7 +62,7 @@ var NotificationUpdateAvailable = View.extend({
     return false;
   },
   installUpdate: function() {
-    app.sendMessage('app:install-update');
+    ipc.call('app:install-update');
     return false;
   }
 });
