@@ -27,7 +27,6 @@ StyleManager.writeStyles();
 var electron = require('electron');
 var shell = electron.shell;
 var dialog = electron.dialog;
-var ipc = electron.ipcRenderer;
 var app = require('ampersand-app');
 var backoff = require('backoff');
 var APP_VERSION = electron.remote.app.getVersion();
@@ -52,6 +51,7 @@ var Statusbar = require('./statusbar');
 var migrateApp = require('./migrations');
 var metricsSetup = require('./metrics');
 var metrics = require('mongodb-js-metrics')();
+var ipc = require('hadron-ipc');
 
 var addInspectElementMenu = require('debug-menu').install;
 
@@ -155,7 +155,12 @@ var Application = View.extend({
     evt.preventDefault();
     evt.stopPropagation();
     var id = evt.target.dataset.hook;
-    app.sendMessage('show help window', id);
+    var url = 'compass://help';
+    if (id) {
+      url += '/' + id;
+    }
+
+    ipc.call('app:open-url', id);
   },
   onClientReady: function() {
     debug('Client ready! Took %dms to become readable',
@@ -437,7 +442,7 @@ app.extend({
       metricsSetup();
 
       // signal to main process that app is ready
-      self.sendMessage('renderer ready');
+      ipc.call('app:renderer-ready');
 
       // as soon as dom is ready, render and set up the rest
       self.onDomReady();
@@ -448,6 +453,12 @@ app.extend({
 Object.defineProperty(app, 'statusbar', {
   get: function() {
     return state.statusbar;
+  }
+});
+
+Object.defineProperty(app, 'autoUpdate', {
+  get: function() {
+    return state.autoUpdate;
   }
 });
 
@@ -490,15 +501,6 @@ Object.defineProperty(app, 'router', {
 Object.defineProperty(app, 'user', {
   get: function() {
     return state.user;
-  }
-});
-
-// open intercom panel when user chooses it from menu
-app.on('show-intercom-panel', function() {
-  /* eslint new-cap: 0 */
-  if (window.Intercom && app.preferences.enableFeedbackPanel) {
-    window.Intercom('show');
-    metrics.track('Intercom Panel', 'used');
   }
 });
 

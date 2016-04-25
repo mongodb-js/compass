@@ -2,9 +2,10 @@ var metrics = require('mongodb-js-metrics')();
 var resources = require('mongodb-js-metrics').resources;
 var pkg = require('../../../package.json');
 var app = require('ampersand-app');
-var features = require('./features');
 var _ = require('lodash');
 var format = require('util').format;
+var intercom = require('./intercom');
+var features = require('./features');
 
 var debug = require('debug')('mongodb-compass:metrics');
 
@@ -107,6 +108,13 @@ module.exports = function() {
     /* eslint new-cap:0 */
     metrics.trackers.get('bugsnag').enabled = enabled;
   });
+
+  /**
+   * Listen for links in the Intercom chat window
+   * such that when a link is clicked, the event is properly
+   * passed off to `app.router` and a web page actually opens.
+   */
+  intercom.configure(metrics);
 
   app.metrics = metrics;
 };
