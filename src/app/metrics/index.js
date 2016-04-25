@@ -4,6 +4,7 @@ var pkg = require('../../../package.json');
 var app = require('ampersand-app');
 var _ = require('lodash');
 var format = require('util').format;
+var ipc = require('hadron-ipc');
 var intercom = require('./intercom');
 var features = require('./features');
 
@@ -69,7 +70,7 @@ module.exports = function() {
     metrics.resources.pluck('id'));
 
   // track app launch and quit events
-  app.once('app-launched', function() {
+  ipc.once('app:launched', function() {
     // bug in electron (?) causes the event to be triggered twice even though
     // it is only emitted once. only track app launch once.
     metrics.track('App', 'launched');
@@ -80,7 +81,7 @@ module.exports = function() {
     }
   });
 
-  app.once('app-quit', function() {
+  ipc.once('app:quit', function() {
     metrics.track('App', 'quit');
   });
 
