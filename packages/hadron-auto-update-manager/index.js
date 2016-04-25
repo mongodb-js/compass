@@ -49,7 +49,8 @@ AutoUpdateManager.prototype.setupAutoUpdater = function() {
   // die hard if errors are unhandled.
   autoUpdater.on('error', (event, message) => {
     if (message === ENOSIGNATURE) {
-      return debug('no auto updater for unsigned builds');
+      debug('no auto updater for unsigned builds');
+      return this.setState('unsupported');
     }
     debug('Error Downloading Update: ' + message);
     return this.setState(ErrorState);
@@ -107,6 +108,7 @@ AutoUpdateManager.prototype.cancelScheduledUpdateCheck = function() {
 };
 
 AutoUpdateManager.prototype.checkForUpdates = function(opts) {
+  debug('checkForUpdates with options', opts);
   opts = opts || {};
   if (!opts.hidePopups) {
     autoUpdater.once('update-not-available', this.onUpdateNotAvailable);
@@ -183,6 +185,7 @@ AutoUpdateManager.prototype.setState = function(state) {
     return;
   }
   this.state = state;
+  debug('state is now', state);
   return this.emit('state-changed', this.state);
 };
 
