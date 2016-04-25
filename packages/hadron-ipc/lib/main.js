@@ -8,6 +8,8 @@ const BrowserWindow = electron.BrowserWindow;
 const ipcMain = electron.ipcMain;
 const debug = require('debug')('hadron-ipc:main');
 
+exports = ipcMain;
+
 exports.respondTo = (methodName, handler) => {
   if (_.isPlainObject(methodName)) {
     _.forIn(methodName, (methodHandler, name) => {

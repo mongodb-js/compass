@@ -5,6 +5,8 @@ const electron = require('electron');
 const ipcRenderer = electron.ipcRenderer;
 const debug = require('debug')('hadron-ipc:main');
 
+exports = ipcRenderer;
+
 exports.call = function(methodName, ...args) {
   debug(`calling ${methodName} with args`, args);
   const responseChannel = getResponseChannel(methodName);
