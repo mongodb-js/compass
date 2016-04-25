@@ -16,7 +16,6 @@ function Application() {
   this.setupApplicationMenu();
 
   require('./window-manager');
-  require('./help');
 }
 inherits(Application, EventEmitter);
 
