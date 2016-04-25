@@ -194,6 +194,7 @@ AutoUpdateManager.prototype.getState = function() {
 };
 
 AutoUpdateManager.prototype.onUpdateNotAvailable = function() {
+  debug('update not available', arguments);
   autoUpdater.removeListener('error', this.onUpdateError);
   return dialog.showMessageBox({
     type: 'info',
@@ -206,6 +207,7 @@ AutoUpdateManager.prototype.onUpdateNotAvailable = function() {
 };
 
 AutoUpdateManager.prototype.onUpdateError = function(event, message) {
+  debug('update error', arguments);
   autoUpdater.removeListener('update-not-available', this.onUpdateNotAvailable);
   return dialog.showMessageBox({
     type: 'warning',
