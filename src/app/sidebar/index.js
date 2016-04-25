@@ -1,3 +1,4 @@
+var app = require('ampersand-app');
 var View = require('ampersand-view');
 var ListView = require('./list');
 var FilterView = require('./filter');
@@ -156,6 +157,15 @@ var SidebarView = View.extend({
       /* eslint new-cap: 0 */
       this.renderSubview(new widget.viewClass(widget.options),
         this.queryByHook('widget-container'));
+    }.bind(this));
+
+    this.listenToAndRun(app.autoUpdate, 'change:visible', function() {
+      var el = this.el.querySelector('.sidebar');
+      if (app.autoUpdate.visible) {
+        el.classList.add('auto-update-available');
+      } else {
+        el.classList.remove('auto-update-available');
+      }
     }.bind(this));
   },
   filterItems: function(searchString) {

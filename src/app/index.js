@@ -38,6 +38,7 @@ var ViewSwitcher = require('ampersand-view-switcher');
 var View = require('ampersand-view');
 var localLinks = require('local-links');
 var async = require('async');
+var ipc = require('hadron-ipc');
 
 var format = require('util').format;
 var semver = require('semver');
@@ -52,7 +53,8 @@ var Statusbar = require('./statusbar');
 var migrateApp = require('./migrations');
 var metricsSetup = require('./metrics');
 var metrics = require('mongodb-js-metrics')();
-var ipc = require('hadron-ipc');
+
+var AutoUpdate = require('../auto-update');
 
 var addInspectElementMenu = require('debug-menu').install;
 
@@ -102,7 +104,9 @@ var Application = View.extend({
   template: function() {
     return [
       '<div id="application">',
+      '  <div data-hook="auto-update"></div>',
       '  <div data-hook="statusbar"></div>',
+      '  <div data-hook="notifications"></div>',
       '  <div data-hook="layout-container"></div>',
       '</div>'
     ].join('\n');
@@ -120,6 +124,10 @@ var Application = View.extend({
      * @see models/connection.js
      */
     connection: 'state',
+    /**
+     * @see notifications.js
+     */
+    notifications: 'state',
     /**
      * @see statusbar.js
      */
@@ -294,6 +302,12 @@ var Application = View.extend({
       el: this.queryByHook('statusbar')
     });
     this.statusbar.render();
+
+    this.autoUpdate = new AutoUpdate({
+      el: this.queryByHook('auto-update')
+    });
+    this.autoUpdate.render();
+
     if (process.env.NODE_ENV !== 'production') {
       debug('Installing "Inspect Element" context menu');
       addInspectElementMenu();
@@ -327,43 +341,6 @@ var state = new Application({
   connection_id: connectionId
 });
 
-function handleIntercomLinks() {
-  function getNodeObserver(fn) {
-    var observer = new MutationObserver(function(mutations) {
-      mutations.forEach(function(mutation) {
-        if (!mutation.addedNodes) {
-          return;
-        }
-        [].forEach.call(mutation.addedNodes, fn);
-      });
-    });
-    return observer;
-  }
-
-  var lookForLinks = getNodeObserver(function(element) {
-    var $ = window.jQuery || require('jquery');
-    if (element.nodeName === 'A') {
-      $(element).click(state.onLinkClick.bind(state));
-    } else {
-      $(element).find('a').click(state.onLinkClick.bind(state));
-    }
-  });
-
-  var waitForIntercom = getNodeObserver(function(element) {
-    if (element.id === 'intercom-container') { // if intercom is now available...
-      lookForLinks.observe(element, {
-        childList: true,
-        subtree: true
-      });
-      waitForIntercom.disconnect(); // stop waiting for intercom
-    }
-  });
-
-  waitForIntercom.observe(document.body, {
-    childList: true
-  });
-}
-
 app.extend({
   client: null,
   navigate: state.navigate.bind(state),
@@ -375,7 +352,7 @@ app.extend({
     debug('sending message to main process:', msg, arg);
     ipc.send('message', msg, arg);
   },
-  onMessageReceived: function(sender, msg, arg) {
+  onMessageReceived: function(msg, arg) {
     debug('message received from main process:', msg, arg);
     this.trigger(msg, arg);
   },
@@ -389,7 +366,6 @@ app.extend({
       return;
     }
 
-    handleIntercomLinks();
     app.statusbar.show({
       message: 'Retrieving connection details...',
       staticSidebar: true
