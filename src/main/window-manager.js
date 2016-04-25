@@ -229,17 +229,17 @@ app.on('show share submenu', function() {
  * `renderer ready` when metrics are set up. If first app launch, send back
  * `app launched` message at that point.
  */
-app.on('renderer ready', function(arg, event) {
+app.on('window:renderer-ready', function(arg, event) {
   if (!appLaunched) {
     appLaunched = true;
-    debug('sending `app-launched` msg back');
-    event.sender.send('message', 'app-launched');
+    debug('sending `app:launched` msg back');
+    event.sender.send('app:launched');
   }
 });
 
 app.on('before-quit', function() {
-  debug('sending `app-quit` msg');
-  BrowserWindow.getAllWindows()[0].webContents.send('message', 'app-quit');
+  debug('sending `app:quit` msg');
+  _.first(BrowserWindow.getAllWindows()).webContents.send('app:quit');
 });
 
 /**
@@ -250,10 +250,4 @@ app.on('before-quit', function() {
  */
 app.on('ready', function() {
   app.emit('show connect dialog');
-});
-
-var ipc = electron.ipcMain;
-ipc.on('message', function(event, msg, arg) {
-  debug('message received in main process', msg, arg);
-  app.emit(msg, arg, event);
 });
