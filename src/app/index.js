@@ -2,6 +2,7 @@
 if (process.env.NODE_ENV !== 'production') {
   require('debug');
   require('debug/browser');
+  require('debug').enable('mon*,had*');
 }
 
 var debug = require('debug')('mongodb-compass:app');
