@@ -16,7 +16,8 @@ var NetworkOptInView = View.extend({
   props: {
     trackErrors: ['boolean', true, true],
     enableFeedbackPanel: ['boolean', true, true],
-    trackUsageStatistics: ['boolean', true, true]
+    trackUsageStatistics: ['boolean', true, true],
+    autoUpdates: ['boolean', true, true]
   },
   session: {
     preferences: 'state',
@@ -46,6 +47,11 @@ var NetworkOptInView = View.extend({
       hook: 'usage-stats-checkbox',
       name: 'checked'
     },
+    autoUpdates: {
+      type: 'booleanAttribute',
+      hook: 'auto-updates-checkbox',
+      name: 'checked'
+    },
     buttonTitle: {
       hook: 'start-button'
     }
@@ -59,12 +65,14 @@ var NetworkOptInView = View.extend({
       this.trackErrors = true;
       this.enableFeedbackPanel = true;
       this.trackUsageStatistics = true;
+      this.autoUpdates = true;
     } else {
       debug('seen this dialog before, show the real settings');
       this.buttonTitle = 'Close';
       this.trackErrors = app.preferences.trackErrors;
       this.enableFeedbackPanel = app.preferences.enableFeedbackPanel;
       this.trackUsageStatistics = app.preferences.trackUsageStatistics;
+      this.autoUpdates = app.preferences.autoUpdates;
     }
   },
   checkboxChanged: function(evt) {
@@ -73,7 +81,12 @@ var NetworkOptInView = View.extend({
     this.set(feature, value);
   },
   buttonClicked: function() {
-    var features = ['enableFeedbackPanel', 'trackUsageStatistics', 'trackErrors'];
+    var features = [
+      'enableFeedbackPanel',
+      'trackUsageStatistics',
+      'autoUpdates'
+    ];
+
     this.preferences.set('showedNetworkOptIn', true);
     var settings = _.pick(this.serialize(), features);
     this.preferences.set(settings);
@@ -89,7 +102,8 @@ var NetworkOptInView = View.extend({
     var metadata = {
       'track usage stats': settings.trackUsageStatistics,
       'product feedback': settings.enableFeedbackPanel,
-      'track errors': settings.trackErrors
+      'track errors': settings.trackErrors,
+      'auto updates': settings.autoUpdates
     };
     metrics.track('Network Opt-in', 'used', metadata);
   },
