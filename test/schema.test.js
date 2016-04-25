@@ -27,7 +27,7 @@ describe('Schema Window #spectron', function() {
             .startUsingCompass()
             .selectCollection('compass-test.bands')
             .getTitle().should.eventually.be.equal(
-            'MongoDB Compass - Schema - localhost:27018/compass-test.bands'
+            'MongoDB Compass - localhost:27018/compass-test.bands'
           );
         });
 
