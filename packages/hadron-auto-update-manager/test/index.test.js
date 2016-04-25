@@ -16,6 +16,6 @@ describe('hadron-auto-update-manager', () => {
     const autoUpdateManager = new AutoUpdateManager(endpoint);
     assert.equal(autoUpdateManager.version, electronVersion);
     assert.equal(autoUpdateManager.feedURL,
-      `https://hadron-endpoint.herokuapp.com/updates?version=${electronVersion}`);
+      `https://hadron-endpoint.herokuapp.com/update?version=${electronVersion}&platform=${process.platform}&arch=${process.arch}`);
   });
 });
