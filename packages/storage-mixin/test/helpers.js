@@ -112,7 +112,6 @@ var Users = Collection.extend({
 });
 
 module.exports = {
-  keytarAvailable: !!keytar,
   clearNamespaces: clearNamespaces,
   Spaceship: Spaceship,
   Fleet: Fleet,

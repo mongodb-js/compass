@@ -1,10 +1,20 @@
 var inherits = require('util').inherits;
-var localforage = require('localforage');
 var BaseBackend = require('./base');
+var NullBackend = require('./null');
 var _ = require('lodash');
 var async = require('async');
+var localforage;
 
 var debug = require('debug')('storage-mixin:backends:local');
+
+try {
+  localforage = require('localforage');
+} catch (e) {
+  /* eslint no-console: 0 */
+  console.warn('localforage module not available in non-browser context. '
+    + '`local` storage engine will fall back to `null` storage engine.');
+  localforage = null;
+}
 
 // singleton holding all stores keyed by namespace
 var globalStores = {};
@@ -129,4 +139,4 @@ LocalBackend.prototype.find = function(collection, options, done) {
   });
 };
 
-module.exports = LocalBackend;
+module.exports = localforage ? LocalBackend : NullBackend;

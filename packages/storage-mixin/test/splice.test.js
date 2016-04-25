@@ -1,5 +1,5 @@
 var storageMixin = require('../lib');
-
+var SecureBackend = require('../lib/backends').secure;
 var wrapErrback = require('../lib/backends/errback').wrapErrback;
 var helpers = require('./helpers');
 var assert = require('assert');
@@ -73,7 +73,7 @@ describe('storage backend `splice`', function() {
   });
 
   it('should update and read correctly', function(done) {
-    if (!helpers.keytarAvailable) {
+    if (SecureBackend.isNullBackend) {
       this.skip();
     }
     spaceship.save({warpSpeed: 3.14}, {
@@ -124,6 +124,9 @@ describe('storage backend `splice`', function() {
   });
 
   it('should remove correctly', function(done) {
+    if (SecureBackend.isNullBackend) {
+      this.skip();
+    }
     spaceship.destroy({
       success: function() {
         fleet.once('sync', function() {
@@ -148,7 +151,7 @@ describe('storage backend `splice`', function() {
     });
 
     it('should split and combine a model correctly', function(done) {
-      if (!helpers.keytarAvailable) {
+      if (SecureBackend.isNullBackend) {
         this.skip();
       }
       user.save({password: 'foobar'}, {
@@ -167,6 +170,10 @@ describe('storage backend `splice`', function() {
     });
 
     it('should not store the password in `local` backend', function(done) {
+      if (SecureBackend.isNullBackend) {
+        this.skip();
+      }
+
       user.save(null, wrapErrback(function(err, res) {
         if (err) {
           return done(err);
@@ -185,7 +192,7 @@ describe('storage backend `splice`', function() {
     });
 
     it('should only store the password in `secure` backend', function(done) {
-      if (!helpers.keytarAvailable) {
+      if (SecureBackend.isNullBackend) {
         this.skip();
       }
       user.save(null, wrapErrback(function(err, res) {
@@ -206,12 +213,15 @@ describe('storage backend `splice`', function() {
     });
 
     it('should fetch collections', function(done) {
+      if (SecureBackend.isNullBackend) {
+        this.skip();
+      }
       var users = new StorableUsers();
       users.once('sync', function() {
         debug('fetch collections', users.serialize());
         assert.equal(users.length, 1);
-        if (helpers.keytarAvailable) {
-          assert.equal(users.at(0).password, helpers.keytarAvailable ? 'cyl0nHunt3r' : '');
+        if (!SecureBackend.isNullBackend) {
+          assert.equal(users.at(0).password, SecureBackend.isNullBackend ? '' : 'cyl0nHunt3r');
         }
         done();
       });
@@ -219,7 +229,7 @@ describe('storage backend `splice`', function() {
     });
 
     it('should work with custom collection sort orders', function(done) {
-      if (!helpers.keytarAvailable) {
+      if (SecureBackend.isNullBackend) {
         this.skip();
       }
       var SortedUsers = helpers.Users.extend(storageMixin, {

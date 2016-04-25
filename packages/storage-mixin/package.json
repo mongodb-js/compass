@@ -28,7 +28,7 @@
   ],
   "scripts": {
     "ci": "npm run check && npm test",
-    "test": "electron-mocha --renderer",
+    "test": "electron-mocha --renderer && mocha",
     "fmt": "mongodb-js-fmt ./*.js ./test/*.js",
     "check": "mongodb-js-precommit"
   },

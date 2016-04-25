@@ -1,4 +1,5 @@
 var storageMixin = require('../lib');
+var SecureBackend = require('../lib/backends').secure;
 var assert = require('assert');
 var helpers = require('./helpers');
 
@@ -56,7 +57,7 @@ describe('storage backend `secure`', function() {
   });
 
   it('should update and read correctly', function(done) {
-    if (!helpers.keytarAvailable) {
+    if (SecureBackend.isNullBackend) {
       this.skip();
     }
     spaceship.save({warpSpeed: 3.14}, {
@@ -97,7 +98,7 @@ describe('storage backend `secure`', function() {
   });
 
   it('should use the correct appName/namespace key', function(done) {
-    if (!helpers.keytarAvailable) {
+    if (SecureBackend.isNullBackend) {
       this.skip();
     }
     var keytar = require('keytar');

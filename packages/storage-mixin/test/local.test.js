@@ -1,4 +1,5 @@
 var storageMixin = require('../lib');
+var LocalBackend = require('../lib/backends').local;
 var assert = require('assert');
 var helpers = require('./helpers');
 
@@ -58,6 +59,9 @@ describe('storage backend `local`', function() {
   });
 
   it('should update and read correctly', function(done) {
+    if (LocalBackend.isNullBackend) {
+      this.skip();
+    }
     spaceship.save({warpSpeed: 3.14}, {
       success: function() {
         var otherSpaceship = new StorableSpaceship({
@@ -106,6 +110,9 @@ describe('storage backend `local`', function() {
   });
 
   it('should fetch collections', function(done) {
+    if (LocalBackend.isNullBackend) {
+      this.skip();
+    }
     fleet.once('sync', function() {
       assert.equal(fleet.length, 3);
       done();
@@ -114,6 +121,9 @@ describe('storage backend `local`', function() {
   });
 
   it('should remove correctly', function(done) {
+    if (LocalBackend.isNullBackend) {
+      this.skip();
+    }
     spaceship.destroy({
       success: function() {
         fleet.once('sync', function() {

@@ -55,4 +55,6 @@ NullBackend.prototype.find = function(collection, options, done) {
   done(null, []);
 };
 
+NullBackend.isNullBackend = true;
+
 module.exports = NullBackend;

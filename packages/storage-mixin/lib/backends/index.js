@@ -3,6 +3,6 @@ module.exports = {
   disk: require('./disk'),
   secure: require('./secure'),
   remote: require('./remote'),
-  null: require('./null'),
-  splice: require('./splice')
+  'null': require('./null'),
+  'splice': require('./splice')
 };
