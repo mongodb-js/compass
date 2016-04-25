@@ -169,7 +169,7 @@ AutoUpdateManager.prototype.emitUpdateAvailableEvent = function() {
   if (!this.releaseVersion) {
     return;
   }
-  BrowserWindow.getAllWindows().each((_browserWindow) => {
+  BrowserWindow.getAllWindows().forEach((_browserWindow) => {
     debug('sending app:update-available');
     if (_browserWindow.webContents) {
       _browserWindow.webContents.send('app:update-available', {
