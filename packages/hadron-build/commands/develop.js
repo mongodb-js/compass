@@ -1,5 +1,8 @@
 'use strict';
 
+/**
+ * TODO (imlucas) Use nodemon so main process has livereload.
+ */
 const Promise = require('bluebird');
 const _ = require('lodash');
 const spawn = require('child_process').spawn;

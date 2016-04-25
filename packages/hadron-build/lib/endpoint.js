@@ -9,6 +9,8 @@ class Client {
 
   /**
    * Refresh GitHub releases cache.
+   * @param {String} secret
+   * @returns {Promise}
    */
   refresh(secret) {
     return got.post(`${this.url}/refresh`, {

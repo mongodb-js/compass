@@ -17,8 +17,7 @@ exports.tasks = (argv) => {
   return del([
     'dist/',
     'node_modules/',
-    argv.less_cache,
-    argv.template_cache
+    argv.less_cache
   ]);
 };
 
