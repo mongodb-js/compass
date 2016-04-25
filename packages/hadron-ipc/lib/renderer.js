@@ -3,7 +3,7 @@
 const getResponseChannel = require('./common').getResponseChannel;
 const electron = require('electron');
 const ipcRenderer = electron.ipcRenderer;
-const debug = require('debug')('hadron-ipc:main');
+const debug = require('debug')('hadron-ipc:renderer');
 
 exports = ipcRenderer;
 
