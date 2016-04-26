@@ -58,9 +58,14 @@
 
 .collection-view {
   header {
-    padding: 12px 25px 0;
+    padding: 12px 0 0;
     position: relative;
     z-index: 1;
+    background: @pw;
+    .row {
+      margin-left: 0;
+      margin-right: 0;
+    }
   }
   h1 {
     margin-top: 12px;
@@ -69,7 +74,7 @@
   .column-container {
     display: flex;
     overflow: hidden;
-    height: 100vh;
+    height: 100vh; // this isn't working properly at 100, is it a flexbox bug?
     margin-top: -161px; // total computed header + .refine-view-container height
     padding-top: 161px; // total computed header + .refine-view-container height
     position: relative;
@@ -98,6 +103,7 @@
     padding: 0 26px;
     flex: 1;
     overflow-x: hidden;
+    background-color: @gray8;
   }
 
   .side {
@@ -212,6 +218,43 @@
           color: @pw;
         }
       }
+    }
+  }
+}
+
+ul.nav-tabs {
+  border-bottom: 1px solid @gray7;
+  li {
+    a {
+      font-size: 12px;
+      font-weight: normal;
+      border: 1px solid @pw;
+      border-bottom: none;
+      color: @chart1;
+      cursor: pointer;
+      text-transform: uppercase;
+      margin-right: 3px;
+      padding: 6px 32px 8px;
+      position: relative;
+      border-top-left-radius: 3px;
+      border-top-right-radius: 3px;
+      top: 1px;
+      transition: all 250ms ease;
+      &:hover {
+        background-color: @gray8;
+        color: @chart1;
+        border-color: @gray8;
+      }
+    }
+    &:first-child {
+      margin-left: 15px;
+    }
+    &.active a,
+    &.active a:hover {
+      color: @gray0;
+      padding-bottom: 9px;
+      border: 1px solid @gray7;
+      border-bottom: none;
     }
   }
 }

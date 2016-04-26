@@ -3,8 +3,9 @@
 
   .schema-field {
     // .list-group-item;
-    // padding: 12px 0;
-    margin: 12px 0;
+    padding: 24px 0 24px 25px;
+    border-bottom: 3px solid @gray8;
+    background: @pw;
 
     hr.field-divider {
       margin-bottom: 12px;
@@ -17,8 +18,20 @@
       }
     }
 
+    .schema-field {
+      border-bottom: 1px solid @gray7;
+      &:first-child {
+        border-top: 1px solid @gray7;
+        margin-top: 24px;
+      }
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+
     .schema-field-list {
       // second level
+
       .schema-field-name {
         margin-left: 36px;
       }
@@ -59,11 +72,6 @@
       display: inline-block;
       padding-left: 12px;
       margin-left: -12px;
-    }
-
-    &.schema-field-basic {
-      // min-height: 141px;
-      margin: 24px 0;
     }
 
     &.schema-field-object, &.schema-field-array {

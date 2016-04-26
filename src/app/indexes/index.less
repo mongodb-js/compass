@@ -17,6 +17,8 @@
 
 .index-container {
 
+
+
   table {
     table-layout: auto;
     border-collapse: collapse;
@@ -45,16 +47,33 @@
     &:hover:not(.active) .fa-sort {
       display: inline-block;
     }
-
   }
 
-  table tr {
+  table thead tr {
+    margin-top: 30px;
     height: 50px;
   }
 
+  table tbody tr {
+    height: 50px;
+    background-color: white;
+  }
+
+
   table tr td {
-    border-top: 2px solid @gray8;
-    padding: 10px 12px 10px 0px;
+    border-bottom: 3px solid @gray8;
+    padding: 13px 0;
+
+    &.name-column {
+      width: 20%;
+      padding-left: 13px;
+    }
+    &.size-column, &.util-column {
+      width: 20%;
+    }
+    &.type-column, &.property1-column, &.property2-column {
+      width: 13.3%;
+    }
 
     .name {
       font-size: 12px;
@@ -94,7 +113,7 @@
 
     .progress {
       min-width: 100px;
-      width: 100%;
+      width: 80%;
       height: 5px;
       border-radius: 20px;
 
