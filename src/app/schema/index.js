@@ -3,7 +3,6 @@ var FieldListView = require('./field-list.js');
 var SampledSchema = require('../models/sampled-schema');
 var SamplingMessageView = require('../sampling-message');
 var app = require('ampersand-app');
-var _ = require('lodash');
 var electron = require('electron');
 var remote = electron.remote;
 var dialog = remote.dialog;
@@ -125,13 +124,17 @@ var SchemaView = View.extend({
 
     this.schema.ns = this.model._id;
     this.schema.reset();
-    this.schema.fetch(_.assign({}, app.volatileQueryOptions.serialize(), {
-      message: 'Analyzing documents...'
-    }));
+    var options = app.volatileQueryOptions.serialize();
+    if (this.visible) {
+      app.statusbar.visible = true;
+    }
+    this.schema.fetch(options);
   },
   onQueryChanged: function() {
     var options = app.queryOptions.serialize();
-    options.message = 'Analyzing documents...';
+    if (this.visible) {
+      app.statusbar.visible = true;
+    }
     this.schema.refine(options);
   },
   subviews: {
