@@ -37,6 +37,7 @@
     "clean": "npm run postuninstall",
     "compile-ui": "node scripts/compile-ui.js",
     "fmt": "mongodb-js-fmt ./*.js src/{**/*.js,*.js} test/{**/*.js,*.js} scripts/*.js",
+    "pretest": "mongodb-runner start && mongodb-runner stop",
     "release": "npm run prepublish",
     "test-functional": "npm test -- --functional",
     "test-unit": "npm test -- --unit",
