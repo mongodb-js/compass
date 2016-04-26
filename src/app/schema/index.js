@@ -125,13 +125,17 @@ var SchemaView = View.extend({
 
     this.schema.ns = this.model._id;
     this.schema.reset();
-    this.schema.fetch(_.assign({}, app.volatileQueryOptions.serialize(), {
-      message: 'Analyzing documents...'
-    }));
+    var options = app.volatileQueryOptions.serialize();
+    if (this.visible) {
+      app.statusbar.visible = true;
+    }
+    this.schema.fetch(options);
   },
   onQueryChanged: function() {
     var options = app.queryOptions.serialize();
-    options.message = 'Analyzing documents...';
+    if (this.visible) {
+      app.statusbar.visible = true;
+    }
     this.schema.refine(options);
   },
   subviews: {
