@@ -3,6 +3,7 @@
  * TODO (imlucas) :axe: hadron-package like atom/src/package.coffee
  */
 /* eslint no-sync: 0 */
+const _ = require('lodash');
 const fs = require('fs');
 const path = require('path');
 const normalizePkg = require('normalize-package-data');
@@ -10,7 +11,7 @@ const parseGitHubRepoURL = require('parse-github-repo-url');
 
 let get = (directory) => {
   const _path = path.join(directory, 'package.json');
-  let pkg = JSON.parse(fs.readFileSync(_path));
+  let pkg = _.cloneDeep(JSON.parse(fs.readFileSync(_path)));
   normalizePkg(pkg);
   pkg._path = _path;
 
