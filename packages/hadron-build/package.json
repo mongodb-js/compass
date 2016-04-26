@@ -28,7 +28,7 @@
     "electron-installer-codesign": "^0.1.1",
     "electron-installer-dmg": "^0.1.1",
     "electron-installer-run": "^0.1.1",
-    "electron-installer-zip": "^0.1.1",
+    "electron-installer-zip": "^0.1.2",
     "electron-license": "^0.1.0",
     "electron-mocha": "^0.8.0",
     "electron-packager": "^5.1.1",

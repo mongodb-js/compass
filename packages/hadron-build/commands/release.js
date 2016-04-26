@@ -344,7 +344,7 @@ function createApplicationZip(CONFIG, done) {
     return;
   }
 
-  var DIR = path.join(CONFIG.appPath, '..');
+  var DIR = CONFIG.appPath;
 
   var OUT = CONFIG.assets.filter(function(asset) {
     return path.extname(asset.path) === '.zip';
