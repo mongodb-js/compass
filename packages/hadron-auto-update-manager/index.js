@@ -147,7 +147,10 @@ AutoUpdateManager.prototype.install = function() {
     debug('No update to install');
     return false;
   }
+
+  debug('removing all event listeners for app#all-windows-closed');
   app.removeAllListeners('all-windows-closed');
+
   debug('installing via autoUpdater.quitAndInstall()');
   autoUpdater.quitAndInstall();
   return true;
