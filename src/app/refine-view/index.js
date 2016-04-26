@@ -108,10 +108,15 @@ module.exports = AmpersandView.extend({
    * itself.
    */
   inputChanged: function() {
-    this.editableQuery.rawString = this.queryByHook('refine-input').value;
-    if (this.editableQuery.valid) {
-      this.volatileQueryOptions.query = this.editableQuery.queryObject;
+    var view = this;
+    view.editableQuery.rawString = view.queryByHook('refine-input').value;
+    if (view.editableQuery.valid) {
+      view.volatileQueryOptions.query = view.editableQuery.queryObject;
     }
+    // re-focus the input field after the minicharts have updated
+    _.defer(function() {
+      $(view.queryByHook('refine-input')).focus();
+    });
   },
   /**
    * When the user hits reset, restore the original query options and update the refine bar to show
