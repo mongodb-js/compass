@@ -115,7 +115,7 @@ module.exports = function() {
    * such that when a link is clicked, the event is properly
    * passed off to `app.router` and a web page actually opens.
    */
-  intercom.configure(metrics);
+  intercom.configure();
 
   app.metrics = metrics;
 };

@@ -25,8 +25,7 @@ var NotificationUpdateAvailable = View.extend({
     'click a[data-hook=cancel]': 'cancel',
     'click a[data-hook=install-update]': 'installUpdate'
   },
-  initialize: function(opts) {
-    this.set(opts);
+  initialize: function() {
     ipc.on('app:checking-for-update', function() {
       debug('checking for update');
       metrics.track('Auto Update', 'checking-for-update');
@@ -50,15 +49,13 @@ var NotificationUpdateAvailable = View.extend({
       metrics.track('Auto Update', 'update-downloaded');
     });
 
-    if (app.isFeatureEnabled('autoUpdates')) {
-      this.listenToAndRun(app.preferences, 'change:autoUpdate', function() {
-        if (app.isFeatureEnabled('autoUpdates')) {
-          ipc.call('app:enable-auto-update');
-        } else {
-          ipc.call('app:disable-auto-update');
-        }
-      });
-    }
+    this.listenToAndRun(app.preferences, 'change:autoUpdates', function() {
+      if (app.isFeatureEnabled('autoUpdates')) {
+        ipc.call('app:enable-auto-update');
+      } else {
+        ipc.call('app:disable-auto-update');
+      }
+    });
   },
   cancel: function() {
     this.visible = false;
