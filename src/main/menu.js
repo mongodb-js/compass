@@ -8,7 +8,7 @@ var app = electron.app;
 
 var State = require('ampersand-state');
 var _ = require('lodash');
-var debug = require('debug')('electron:menu');
+var debug = require('debug')('mongodb-compass:menu');
 
 // submenu related
 function separator() {
