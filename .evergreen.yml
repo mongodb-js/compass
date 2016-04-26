@@ -8,6 +8,9 @@
 
 stepback: false
 
+# Upper bound on any shell.exec task. 30 min should be plenty of time.
+exec_timeout_secs: 1800
+
 variables:
 # function "save release variants" is conditional on the following
 # -> all except ubuntu
