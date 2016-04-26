@@ -3,7 +3,6 @@ var FieldListView = require('./field-list.js');
 var SampledSchema = require('../models/sampled-schema');
 var SamplingMessageView = require('../sampling-message');
 var app = require('ampersand-app');
-var _ = require('lodash');
 var electron = require('electron');
 var remote = electron.remote;
 var dialog = remote.dialog;
