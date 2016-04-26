@@ -344,14 +344,14 @@ function createApplicationZip(CONFIG, done) {
     return;
   }
 
-  var DEST = CONFIG.assets.filter(function(asset) {
+  var OUT = CONFIG.assets.filter(function(asset) {
     return path.extname(asset.path) === '.zip';
   })[0].path;
-  cli.debug('Zipping `%s` to `%s`', CONFIG.appPath, DEST);
+  cli.debug('Zipping `%s` to `%s`', CONFIG.appPath, OUT);
 
   var options = {
     dir: CONFIG.appPath,
-    dest: DEST,
+    out: OUT,
     platform: CONFIG.platform
   };
 
