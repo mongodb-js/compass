@@ -34,13 +34,6 @@ var HELP_URL = 'file://' + path.join(RESOURCES, 'index.html#help');
 var connectWindow;
 var helpWindow;
 
-/**
- * TODO (imlucas): Removed in setup branch as we dont need to do this anymore
- * as a `all-windows-closed` event has been added to the `app` event api
- * since this code was laid down.
- */
-var windowsOpenCount = 0;
-
 // track if app was launched, @see `renderer ready` handler below
 var appLaunched = false;
 
@@ -137,18 +130,6 @@ module.exports.create = function(opts) {
       detach: true
     });
   }
-
-
-  // @see `all-windows-closed` above
-  windowsOpenCount++;
-  _window.on('closed', function() {
-    windowsOpenCount--;
-    if (windowsOpenCount === 0) {
-      debug('all windows closed.  quitting.');
-      app.quit();
-    }
-  });
-
   return _window;
 };
 
