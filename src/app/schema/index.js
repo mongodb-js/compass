@@ -108,7 +108,7 @@ var SchemaView = View.extend({
 
     metrics.track('Share Schema', 'used');
   },
-  onCollectionFetched: function(model) {
+  onCollectionFetched: function() {
     debug('collection fetched in schema');
     // track collection information
 
