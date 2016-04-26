@@ -8,6 +8,9 @@
 
 stepback: false
 
+# Upper bound on any shell.exec task. 30 min should be plenty of time.
+exec_timeout_secs: 1800
+
 variables:
 # function "save release variants" is conditional on the following
 # -> all except ubuntu
@@ -129,12 +132,12 @@ functions:
         # ${npm|npm} run check
 
         # Create a release build
-        ${npm|npm} run release;
-
+        npm run release;
         ls -alh dist/
 
         # Test the release build
-        ${npm|npm} run test-unit;
+        npm run test-unit;
+        # npm run test
         EOF_BUILD_SH
 
         #
@@ -378,6 +381,7 @@ buildvariants:
   expansions:
     build_via_local_tunnel: true
     fetch_npm_tarball: node-v5.5.0-npm-3.3.12-darwin-x64.tgz
+    killall_evergreen: 'pkill -9 Electron; pkill -9 mongod; pkill -9 mongos; pkill -9 mongo'
     node_path: "$(pwd)/.deps/bin"
     num_cores: $(sysctl -n hw.logicalcpu)
   tasks:
@@ -390,6 +394,7 @@ buildvariants:
   - "windows-64-vs2013-test"
   expansions:
     fetch_npm_tarball: node-v5.5.0-npm-3.3.12-windows-x64.tgz
+    killall_evergreen: 'pkill -9 Electron; pkill -9 mongod; pkill -9 mongos; pkill -9 mongo'
     node_path: "$(pwd)/.deps"
     num_cores: $(grep -c ^processor /proc/cpuinfo)
     add_env_appdata: Z:\
@@ -403,6 +408,7 @@ buildvariants:
   - "ubuntu1404-test"
   expansions:
     fetch_npm_tarball: node-v5.5.0-npm-3.3.12-linux-x64.tgz
+    killall_evergreen: 'pkill -9 electron; pkill -9 mongod; pkill -9 mongos; pkill -9 mongo'
     node_path: "$(pwd)/.deps/bin"
     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
     num_cores: $(grep -c ^processor /proc/cpuinfo)
