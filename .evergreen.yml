@@ -195,6 +195,7 @@ pre:
   params:
     silent: true
     script: |
+      set -ev
       ${killall_evergreen|pkill -9 mongod; pkill -9 mongos; pkill -9 mongo} >/dev/null 2>&1
       rm -rf src /data/db/*
       mkdir -p src
@@ -207,6 +208,7 @@ post:
   params:
     silent: true
     script: |
+      set -ev
       ${killall_evergreen|pkill -9 mongod; pkill -9 mongos; pkill -9 mongo} >/dev/null 2>&1
       exit 0
 - command: shell.cleanup
