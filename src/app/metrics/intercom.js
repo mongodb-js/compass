@@ -1,5 +1,6 @@
 var ipc = require('hadron-ipc');
 var app = require('ampersand-app');
+var metrics = require('mongodb-js-metrics')();
 
 function getNodeObserver(fn) {
   var observer = new MutationObserver(function(mutations) {
@@ -13,7 +14,7 @@ function getNodeObserver(fn) {
   return observer;
 }
 
-module.exports.configure = function(metrics) {
+module.exports.configure = function() {
   // open intercom panel when user chooses it from menu
   ipc.on('window:show-intercom-panel', function() {
     /* eslint new-cap: 0 */
