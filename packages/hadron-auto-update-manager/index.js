@@ -147,6 +147,7 @@ AutoUpdateManager.prototype.install = function() {
     debug('No update to install');
     return false;
   }
+  app.removeAllListeners('all-windows-closed');
   debug('installing via autoUpdater.quitAndInstall()');
   autoUpdater.quitAndInstall();
   return true;
