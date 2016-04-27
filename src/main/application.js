@@ -1,3 +1,5 @@
+var _ = require('lodash');
+var pkg = require('../../package.json');
 var electron = require('electron');
 var app = electron.app;
 var path = require('path');
@@ -25,11 +27,7 @@ Application.prototype.setupJavaScriptArguments = function() {
 
 Application.prototype.setupAutoUpdate = function() {
   this.autoUpdateManager = new AutoUpdateManager(
-    /**
-     * TODO (imlucas) Move this to an application-level
-     * config.
-     */
-     'https://compass-mongodb-com.herokuapp.com'
+    _.get(pkg, 'config.hadron.endpoint')
     /**
      * TODO (imlucas) Extract .pngs from .icns so we can
      * have nice Compass icons in dialogs.

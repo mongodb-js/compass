@@ -9,7 +9,7 @@
   "private": true,
   "config": {
     "hadron": {
-      "endpoint": "https://compass-mongodb-com.herokuapp.com",
+      "endpoint": "https://compass.mongodb.com",
       "protocols": [
         {
           "name": "MongoDB Protocol",
@@ -27,7 +27,7 @@
       "build": {
         "win32": {
           "icon": "src/images/win32/mongodb-compass.ico",
-          "favicon_url": "https://raw.githubusercontent.com/mongodb-js/favicon/master/favicon.ico",
+          "favicon_url": "https://compass.mongodb.com/favicon.ico",
           "loading_gif": "src/app/images/win32/mongodb-compass-installer-loading.gif"
         },
         "darwin": {
