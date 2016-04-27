@@ -2,9 +2,11 @@ var metrics = require('mongodb-js-metrics')();
 var resources = require('mongodb-js-metrics').resources;
 var pkg = require('../../../package.json');
 var app = require('ampersand-app');
-var features = require('./features');
 var _ = require('lodash');
 var format = require('util').format;
+var ipc = require('hadron-ipc');
+var intercom = require('./intercom');
+var features = require('./features');
 
 var debug = require('debug')('mongodb-compass:metrics');
 
@@ -68,7 +70,7 @@ module.exports = function() {
     metrics.resources.pluck('id'));
 
   // track app launch and quit events
-  app.once('app-launched', function() {
+  ipc.once('app:launched', function() {
     // bug in electron (?) causes the event to be triggered twice even though
     // it is only emitted once. only track app launch once.
     metrics.track('App', 'launched');
@@ -79,7 +81,7 @@ module.exports = function() {
     }
   });
 
-  app.once('app-quit', function() {
+  ipc.once('app:quit', function() {
     metrics.track('App', 'quit');
   });
 
@@ -107,6 +109,13 @@ module.exports = function() {
     /* eslint new-cap:0 */
     metrics.trackers.get('bugsnag').enabled = enabled;
   });
+
+  /**
+   * Listen for links in the Intercom chat window
+   * such that when a link is clicked, the event is properly
+   * passed off to `app.router` and a web page actually opens.
+   */
+  intercom.configure();
 
   app.metrics = metrics;
 };

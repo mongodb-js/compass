@@ -12,6 +12,7 @@ var config = require('./config');
 var debug = require('debug')('mongodb-compass:electron:window-manager');
 var dialog = electron.dialog;
 var path = require('path');
+var ipc = require('hadron-ipc');
 
 /**
  * When running in electron, we're in `/src/main`.
@@ -32,13 +33,6 @@ var HELP_URL = 'file://' + path.join(RESOURCES, 'index.html#help');
  */
 var connectWindow;
 var helpWindow;
-
-/**
- * TODO (imlucas): Removed in setup branch as we dont need to do this anymore
- * as a `all-windows-closed` event has been added to the `app` event api
- * since this code was laid down.
- */
-var windowsOpenCount = 0;
 
 // track if app was launched, @see `renderer ready` handler below
 var appLaunched = false;
@@ -136,18 +130,6 @@ module.exports.create = function(opts) {
       detach: true
     });
   }
-
-
-  // @see `all-windows-closed` above
-  windowsOpenCount++;
-  _window.on('closed', function() {
-    windowsOpenCount--;
-    if (windowsOpenCount === 0) {
-      debug('all windows closed.  quitting.');
-      app.quit();
-    }
-  });
-
   return _window;
 };
 
@@ -160,15 +142,7 @@ function createWindow(opts, url) {
   return module.exports.create(opts);
 }
 
-app.on('show about dialog', function() {
-  dialog.showMessageBox({
-    type: 'info',
-    message: 'MongoDB Compass Version: ' + app.getVersion(),
-    buttons: []
-  });
-});
-
-app.on('show connect dialog', function() {
+function showConnectDialog() {
   if (connectWindow) {
     if (connectWindow.isMinimized()) {
       connectWindow.restore();
@@ -182,45 +156,51 @@ app.on('show connect dialog', function() {
     debug('connect window closed.');
     connectWindow = null;
   });
-});
+}
 
-app.on('close connect window', function() {
-  if (connectWindow) {
-    connectWindow.close();
-  }
-});
-
-app.on('show help window', function(id) {
-  if (helpWindow) {
-    helpWindow.focus();
-    if (_.isString(id)) {
-      helpWindow.webContents.send('message', 'show-help-entry', id);
+ipc.respondTo({
+  'app:show-about-dialog': function() {
+    dialog.showMessageBox({
+      type: 'info',
+      message: 'MongoDB Compass Version: ' + app.getVersion(),
+      buttons: []
+    });
+  },
+  'app:show-connect-dialog': showConnectDialog,
+  'app:close-connect-window': function() {
+    if (connectWindow) {
+      connectWindow.close();
     }
-    return;
+  },
+  'app:show-help-window': function(id) {
+    if (helpWindow) {
+      helpWindow.focus();
+      if (_.isString(id)) {
+        helpWindow.webContents.send('app:show-help-entry', id);
+      }
+      return;
+    }
+
+    var url = HELP_URL;
+    if (_.isString(id)) {
+      url += '/' + id;
+    }
+
+    helpWindow = createWindow({}, url);
+    helpWindow.on('closed', function() {
+      helpWindow = null;
+    });
+  },
+  'app:hide-share-submenu': function() {
+    AppMenu.hideShare();
+  },
+  'window:show-compass-overview-submenu': function() {
+    debug('show compass overview');
+    AppMenu.showCompassOverview();
+  },
+  'window:show-share-submenu': function() {
+    AppMenu.showShare();
   }
-
-  var url = HELP_URL;
-  if (_.isString(id)) {
-    url += '/' + id;
-  }
-
-  helpWindow = createWindow({}, url);
-  helpWindow.on('closed', function() {
-    helpWindow = null;
-  });
-});
-
-app.on('hide share submenu', function() {
-  AppMenu.hideShare();
-});
-
-app.on('show compass overview submenu', function() {
-  debug('show compass overview');
-  AppMenu.showCompassOverview();
-});
-
-app.on('show share submenu', function() {
-  AppMenu.showShare();
 });
 
 /**
@@ -229,17 +209,17 @@ app.on('show share submenu', function() {
  * `renderer ready` when metrics are set up. If first app launch, send back
  * `app launched` message at that point.
  */
-app.on('renderer ready', function(arg, event) {
+app.on('window:renderer-ready', function(arg, event) {
   if (!appLaunched) {
     appLaunched = true;
-    debug('sending `app-launched` msg back');
-    event.sender.send('message', 'app-launched');
+    debug('sending `app:launched` msg back');
+    event.sender.send('app:launched');
   }
 });
 
 app.on('before-quit', function() {
-  debug('sending `app-quit` msg');
-  BrowserWindow.getAllWindows()[0].webContents.send('message', 'app-quit');
+  debug('sending `app:quit` msg');
+  _.first(BrowserWindow.getAllWindows()).webContents.send('app:quit');
 });
 
 /**
@@ -249,11 +229,5 @@ app.on('before-quit', function() {
  * state between application launches.
  */
 app.on('ready', function() {
-  app.emit('show connect dialog');
-});
-
-var ipc = electron.ipcMain;
-ipc.on('message', function(event, msg, arg) {
-  debug('message received in main process', msg, arg);
-  app.emit(msg, arg, event);
+  showConnectDialog();
 });
