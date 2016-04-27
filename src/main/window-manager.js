@@ -9,6 +9,7 @@ var BrowserWindow = electron.BrowserWindow;
 var _ = require('lodash');
 var app = electron.app;
 var config = require('./config');
+var migrate = require('./migrations');
 var debug = require('debug')('mongodb-compass:electron:window-manager');
 var dialog = electron.dialog;
 var path = require('path');
@@ -229,5 +230,10 @@ app.on('before-quit', function() {
  * state between application launches.
  */
 app.on('ready', function() {
-  showConnectDialog();
+  migrate(function(err) {
+    if (err) {
+      // ignore migration errors silently.
+    }
+    showConnectDialog();
+  });
 });

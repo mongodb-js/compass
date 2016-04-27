@@ -1,17 +1,17 @@
 var Model = require('ampersand-model');
 var storageMixin = require('storage-mixin');
-var pkg = require('../../../package.json');
 var _ = require('lodash');
 var format = require('util').format;
+var electronApp = require('electron').remote.app;
 var debug = require('debug')('mongodb-compass:models:preferences');
 
 var Preferences = Model.extend(storageMixin, {
   extraProperties: 'reject',  // prevents bugs
   idAttribute: 'id',
-  namespace: 'Preferences',
+  namespace: 'AppPreferences',
   storage: {
-    backend: 'local',
-    appName: pkg.productName
+    backend: 'disk',
+    basepath: electronApp.getPath('userData')
   },
   props: {
     /**
