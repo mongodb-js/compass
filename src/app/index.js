@@ -1,6 +1,6 @@
 /* eslint no-console:0 */
 if (process.env.NODE_ENV !== 'production') {
-  require('debug');
+  require('debug').enable('mon*,had*');
   require('debug/browser');
   require('debug').enable('mon*,had*');
 }
