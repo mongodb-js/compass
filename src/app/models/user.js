@@ -1,7 +1,8 @@
 var Model = require('ampersand-model');
 var storageMixin = require('storage-mixin');
 var uuid = require('uuid');
-var pkg = require('../../../package.json');
+var electronApp = require('electron').remote.app;
+
 
 // var debug = require('debug')('scout:user');
 
@@ -9,8 +10,8 @@ var User = Model.extend(storageMixin, {
   idAttribute: 'id',
   namespace: 'Users',
   storage: {
-    backend: 'local',
-    appName: pkg.productName
+    backend: 'disk',
+    basepath: electronApp.getPath('userData')
   },
   props: {
     id: {
