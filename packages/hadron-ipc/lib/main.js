@@ -25,10 +25,16 @@ exports.respondTo = (methodName, handler) => {
     const browserWindow = BrowserWindow.fromWebContents(event.sender);
     const resolve = (result) => {
       debug(`responding with result for ${methodName}`, result);
+      if (browserWindow.isDestroyed()) {
+        return debug('browserWindow went away.  nothing to send response to.');
+      }
       event.sender.send(responseChannel, result);
     };
     const reject = (err) => {
       debug(`responding with error for ${methodName}`, err);
+      if (browserWindow.isDestroyed()) {
+        return debug('browserWindow went away.  nothing to send response to.');
+      }
       event.sender.send(errorResponseChannel, err);
     };
 
