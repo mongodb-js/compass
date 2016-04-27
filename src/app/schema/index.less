@@ -3,13 +3,12 @@
 
   .schema-field {
     // .list-group-item;
-    padding: 24px 0 24px 25px;
+    padding: 24px 0 0 25px;
     border-bottom: 3px solid @gray8;
     background: @pw;
 
-    hr.field-divider {
-      margin-bottom: 12px;
-      border-top: 1px solid @gray7;
+    .row {
+      margin-bottom: 24px;
     }
 
     .array-subtypes {
@@ -19,47 +18,31 @@
     }
 
     .schema-field {
-      border-bottom: 1px solid @gray7;
+      border-bottom: 3px solid @gray8;
+      border-left: 24px solid @gray8;
+      margin-left: -25px;
+
+      animation-duration: 250ms;
+      position: relative;
+      animation-name: fadein;
+      @keyframes fadein {
+        from {
+          left: -20px;
+          opacity: 0;
+        }
+
+        to {
+          left: 0px;
+          opacity: 1;
+        }
+      }
+
       &:first-child {
-        border-top: 1px solid @gray7;
+        border-top: 3px solid @gray8;
         margin-top: 24px;
       }
       &:last-child {
-        border-bottom: none;
-      }
-    }
-
-    .schema-field-list {
-      // second level
-
-      .schema-field-name {
-        margin-left: 36px;
-      }
-      .schema-field-type-list,
-      hr.field-divider {
-        margin-left: 48px;
-      }
-
-      .schema-field-list {
-        // third level
-        .schema-field-name {
-          margin-left: 84px;
-        }
-        .schema-field-type-list,
-        hr.field-divider {
-          margin-left: 96px;
-        }
-
-        .schema-field-list {
-          // fourth level
-          .schema-field-name {
-            margin-left: 132px;
-          }
-          .schema-field-type-list,
-          hr.field-divider {
-            margin-left: 144px;
-          }
-        }
+        border-bottom: 3px solid @gray8;
       }
     }
 
