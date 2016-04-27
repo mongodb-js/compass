@@ -80,6 +80,7 @@ var SchemaView = View.extend({
     ipc.call('window:show-share-submenu');
   },
   schemaIsRequested: function() {
+    ipc.removeListener('window:menu-share-schema-json', this.onShareSchema.bind(this));
     ipc.call('window:hide-share-submenu');
     this.sampling = true;
   },
