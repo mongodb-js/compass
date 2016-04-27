@@ -59,6 +59,7 @@ var NetworkOptInView = View.extend({
       this.trackErrors = true;
       this.enableFeedbackPanel = true;
       this.trackUsageStatistics = true;
+      // this.autoUpdates = true;
     } else {
       debug('seen this dialog before, show the real settings');
       this.buttonTitle = 'Close';
@@ -73,7 +74,11 @@ var NetworkOptInView = View.extend({
     this.set(feature, value);
   },
   buttonClicked: function() {
-    var features = ['enableFeedbackPanel', 'trackUsageStatistics', 'trackErrors'];
+    var features = [
+      'enableFeedbackPanel',
+      'trackUsageStatistics'
+    ];
+
     this.preferences.set('showedNetworkOptIn', true);
     var settings = _.pick(this.serialize(), features);
     this.preferences.set(settings);

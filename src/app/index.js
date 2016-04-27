@@ -2,6 +2,7 @@
 if (process.env.NODE_ENV !== 'production') {
   require('debug');
   require('debug/browser');
+  require('debug').enable('mon*,had*');
 }
 
 var debug = require('debug')('mongodb-compass:app');
@@ -27,7 +28,6 @@ StyleManager.writeStyles();
 var electron = require('electron');
 var shell = electron.shell;
 var dialog = electron.dialog;
-var ipc = electron.ipcRenderer;
 var app = require('ampersand-app');
 var backoff = require('backoff');
 var APP_VERSION = electron.remote.app.getVersion();
@@ -38,6 +38,7 @@ var ViewSwitcher = require('ampersand-view-switcher');
 var View = require('ampersand-view');
 var localLinks = require('local-links');
 var async = require('async');
+var ipc = require('hadron-ipc');
 
 var format = require('util').format;
 var semver = require('semver');
@@ -52,6 +53,8 @@ var Statusbar = require('./statusbar');
 var migrateApp = require('./migrations');
 var metricsSetup = require('./metrics');
 var metrics = require('mongodb-js-metrics')();
+
+var AutoUpdate = require('../auto-update');
 
 var addInspectElementMenu = require('debug-menu').install;
 
@@ -101,7 +104,9 @@ var Application = View.extend({
   template: function() {
     return [
       '<div id="application">',
+      '  <div data-hook="auto-update"></div>',
       '  <div data-hook="statusbar"></div>',
+      '  <div data-hook="notifications"></div>',
       '  <div data-hook="layout-container"></div>',
       '</div>'
     ].join('\n');
@@ -119,6 +124,10 @@ var Application = View.extend({
      * @see models/connection.js
      */
     connection: 'state',
+    /**
+     * @see notifications.js
+     */
+    notifications: 'state',
     /**
      * @see statusbar.js
      */
@@ -155,7 +164,12 @@ var Application = View.extend({
     evt.preventDefault();
     evt.stopPropagation();
     var id = evt.target.dataset.hook;
-    app.sendMessage('show help window', id);
+    var url = 'compass://help';
+    if (id) {
+      url += '/' + id;
+    }
+
+    ipc.call('app:open-url', id);
   },
   onClientReady: function() {
     debug('Client ready! Took %dms to become readable',
@@ -288,6 +302,12 @@ var Application = View.extend({
       el: this.queryByHook('statusbar')
     });
     this.statusbar.render();
+
+    this.autoUpdate = new AutoUpdate({
+      el: this.queryByHook('auto-update')
+    });
+    this.autoUpdate.render();
+
     if (process.env.NODE_ENV !== 'production') {
       debug('Installing "Inspect Element" context menu');
       addInspectElementMenu();
@@ -321,57 +341,12 @@ var state = new Application({
   connection_id: connectionId
 });
 
-function handleIntercomLinks() {
-  function getNodeObserver(fn) {
-    var observer = new MutationObserver(function(mutations) {
-      mutations.forEach(function(mutation) {
-        if (!mutation.addedNodes) {
-          return;
-        }
-        [].forEach.call(mutation.addedNodes, fn);
-      });
-    });
-    return observer;
-  }
-
-  var lookForLinks = getNodeObserver(function(element) {
-    var $ = window.jQuery || require('jquery');
-    if (element.nodeName === 'A') {
-      $(element).click(state.onLinkClick.bind(state));
-    } else {
-      $(element).find('a').click(state.onLinkClick.bind(state));
-    }
-  });
-
-  var waitForIntercom = getNodeObserver(function(element) {
-    if (element.id === 'intercom-container') { // if intercom is now available...
-      lookForLinks.observe(element, {
-        childList: true,
-        subtree: true
-      });
-      waitForIntercom.disconnect(); // stop waiting for intercom
-    }
-  });
-
-  waitForIntercom.observe(document.body, {
-    childList: true
-  });
-}
-
 app.extend({
   client: null,
   navigate: state.navigate.bind(state),
   isFeatureEnabled: function(feature) {
     // proxy to preferences for now
     return this.preferences.isFeatureEnabled(feature);
-  },
-  sendMessage: function(msg, arg) {
-    debug('sending message to main process:', msg, arg);
-    ipc.send('message', msg, arg);
-  },
-  onMessageReceived: function(sender, msg, arg) {
-    debug('message received from main process:', msg, arg);
-    this.trigger(msg, arg);
   },
   onDomReady: function() {
     state.render();
@@ -383,7 +358,6 @@ app.extend({
       return;
     }
 
-    handleIntercomLinks();
     app.statusbar.show({
       message: 'Retrieving connection details...',
       staticSidebar: true
@@ -416,10 +390,6 @@ app.extend({
   },
   init: function() {
     var self = this;
-
-    // set up ipc
-    ipc.on('message', this.onMessageReceived.bind(this));
-
     async.series([
       // check if migrations are required
       migrateApp.bind(state),
@@ -437,7 +407,7 @@ app.extend({
       metricsSetup();
 
       // signal to main process that app is ready
-      self.sendMessage('renderer ready');
+      ipc.call('app:renderer-ready');
 
       // as soon as dom is ready, render and set up the rest
       self.onDomReady();
@@ -448,6 +418,12 @@ app.extend({
 Object.defineProperty(app, 'statusbar', {
   get: function() {
     return state.statusbar;
+  }
+});
+
+Object.defineProperty(app, 'autoUpdate', {
+  get: function() {
+    return state.autoUpdate;
   }
 });
 
@@ -490,15 +466,6 @@ Object.defineProperty(app, 'router', {
 Object.defineProperty(app, 'user', {
   get: function() {
     return state.user;
-  }
-});
-
-// open intercom panel when user chooses it from menu
-app.on('show-intercom-panel', function() {
-  /* eslint new-cap: 0 */
-  if (window.Intercom && app.preferences.enableFeedbackPanel) {
-    window.Intercom('show');
-    metrics.track('Intercom Panel', 'used');
   }
 });
 

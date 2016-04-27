@@ -8,6 +8,19 @@
   -webkit-transform: translateZ(0);
   margin-bottom: 0;
 
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: @sidebar-width;
+  background: @sidebar-bg;
+  border-left-width: 0;
+  border-top-width: 0;
+  border-bottom-width: 0;
+
+  &.auto-update-available {
+    top: 40px;
+  }
+
   .compass-logo {
     background: @slate0 url("images/logo-compass-on-dark.png") center center no-repeat;
     background-size: 162px 28px;
@@ -163,15 +176,4 @@
       }
     }
   }
-}
-
-.sidebar {
-  top: 0;
-  left: 0;
-  bottom: 0;
-  width: @sidebar-width;
-  background: @sidebar-bg;
-  border-left-width: 0;
-  border-top-width: 0;
-  border-bottom-width: 0;
 }

@@ -19,7 +19,7 @@ module.exports = AmpersandRouter.extend({
     }));
   },
   help: function(entryId) {
-    var HelpPage = require('./help');
+    var HelpPage = require('../help');
     this.trigger('page', new HelpPage({
       entryId: entryId
     }));

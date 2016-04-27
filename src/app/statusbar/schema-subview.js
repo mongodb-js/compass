@@ -6,7 +6,6 @@ var app = require('ampersand-app');
 var subviewTemplate = require('./schema-subview.jade');
 
 var SHOW_STEPS_MS = 3000;
-var SHOW_ANALYZING_BUTTONS_MS = app.queryOptions.maxTimeMS + 1000;
 
 module.exports = View.extend({
   template: subviewTemplate,
@@ -146,6 +145,7 @@ module.exports = View.extend({
     this.timer = setTimeout(this.showSteps.bind(this), SHOW_STEPS_MS);
   },
   analyzingBegun: function() {
+    var SHOW_ANALYZING_BUTTONS_MS = app.queryOptions.maxTimeMS + 1000;
     setTimeout(this.showButtons.bind(this), SHOW_ANALYZING_BUTTONS_MS);
   },
   showSteps: function() {
