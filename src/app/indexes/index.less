@@ -36,6 +36,14 @@
       display: none;
     }
 
+    &[data-hook="th-name"],
+    &[data-hook="th-type"],
+    &[data-hook="th-size"],
+    &[data-hook="th-cardinality"],
+    &[data-hook="th-properties"] {
+      padding-left: 24px;
+    }
+
     &.active .sort {
       display: inline-block;
     }
@@ -57,6 +65,30 @@
   table tbody tr {
     height: 50px;
     background-color: white;
+    &:hover {
+
+      .name-column .name {
+        color: @gray3;
+      }
+
+      .definition {
+        background: @pw;
+        border: 1px solid @chart1;
+        box-shadow: 0px 2px 0px rgba(0,0,0,.1);
+      }
+
+      .field {
+        color: @gray0;
+      }
+
+      .type {
+        background-color: @index-type-color;
+      }
+
+      .sort {
+        color: @index-type-color;
+      }
+    }
   }
 
 
@@ -65,14 +97,43 @@
     padding: 13px 0;
 
     &.name-column {
-      width: 20%;
-      padding-left: 13px;
+      cursor: pointer;
+      padding: 0 0 24px 12px;
+      position: relative;
+      height: 48px;
+      width: 30%;
+
+      &:hover {
+        .name {
+          overflow: auto;
+          max-width: 100vw;
+          text-overflow: ellipsis;
+        }
+
+        .definition {
+          opacity: 1;
+          overflow: auto;
+          position: absolute;
+          width: auto;
+          max-width: 100vw;
+        }
+      }
     }
-    &.size-column, &.util-column {
-      width: 20%;
+
+    &.size-column {
+      width: 10%;
+      padding-left: 24px;
+      padding-right: 24px;
     }
+
+    &.util-column {
+      width: 18%;
+    }
+
     &.type-column, &.property1-column, &.property2-column {
-      width: 13.3%;
+      width: 14%;
+      padding-left: 24px;
+      padding-right: 24px;
     }
 
     .name {
@@ -84,6 +145,7 @@
     .property, .quantity, .unit, .since, .properties, .usage-since {
       display: inline-block;
       text-align: center;
+      white-space: nowrap;
     }
 
     .pill(@color, @bg) {
@@ -172,22 +234,49 @@
 
 
 .index-container, .explain-container {
+
+  .name,
+  .definition {
+    transition: all 250ms ease-out;
+  }
+
+  .name-column .name {
+    background: @pw;
+    width: auto;
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    margin-left: 13px;
+    padding-right: 5px;
+    position: absolute;
+    top: 9px;
+  }
+
   .definition {
     display: inline-block;
+    width: auto;
+    max-width: 100%;
     padding: 2px 0 2px 12px;
-    background: @gray8;
+    background: @gray7;
+    border: 1px solid @gray7;
     border-radius: 20px;
+    z-index: 3;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    position: absolute;
   }
 
   .field {
-    font-size: 13px;
-    color: @gray0;
+    font-size: 12px;
     margin-right: 5px;
+    font-family: @font-family-monospace;
   }
 
   .type {
     color: @pw;
-    background-color: @index-type-color;
+    background-color: @gray5;
     border-radius: 20px;
     min-width: 20px;
     padding: 0 8px;
@@ -197,7 +286,7 @@
 
   .sort {
     font-size: 13px;
-    color: @index-type-color;
+    color: @gray5;
   }
 
   .pair {
@@ -206,7 +295,7 @@
   }
 
   .sort, .type, .field, .pair {
-    display: inline-block;
     text-align: center;
+    transition: all 250ms ease-out;
   }
 }
