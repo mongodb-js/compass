@@ -134,6 +134,7 @@ module.exports.create = function(opts) {
   return _window;
 };
 
+
 function createWindow(opts, url) {
   opts = _.extend(opts, {
     width: config.windows.DEFAULT_WIDTH_DIALOG,
@@ -143,7 +144,7 @@ function createWindow(opts, url) {
   return module.exports.create(opts);
 }
 
-function showConnectDialog() {
+function showConnectWindow() {
   if (connectWindow) {
     if (connectWindow.isMinimized()) {
       connectWindow.restore();
@@ -159,50 +160,65 @@ function showConnectDialog() {
   });
 }
 
-ipc.respondTo({
-  'app:show-about-dialog': function() {
-    dialog.showMessageBox({
-      type: 'info',
-      message: 'MongoDB Compass Version: ' + app.getVersion(),
-      buttons: []
-    });
-  },
-  'app:show-connect-dialog': showConnectDialog,
-  'app:close-connect-window': function() {
-    if (connectWindow) {
-      connectWindow.close();
-    }
-  },
-  'app:show-help-window': function(id) {
-    if (helpWindow) {
-      helpWindow.focus();
-      if (_.isString(id)) {
-        helpWindow.webContents.send('app:show-help-entry', id);
-      }
-      return;
-    }
-
-    var url = HELP_URL;
-    if (_.isString(id)) {
-      url += '/' + id;
-    }
-
-    helpWindow = createWindow({}, url);
-    helpWindow.on('closed', function() {
-      helpWindow = null;
-    });
-  },
-  'app:hide-share-submenu': function() {
-    AppMenu.hideShare();
-  },
-  'window:show-compass-overview-submenu': function() {
-    debug('show compass overview');
-    AppMenu.showCompassOverview();
-  },
-  'window:show-share-submenu': function() {
-    AppMenu.showShare();
+function closeConnectWindow() {
+  if (connectWindow) {
+    connectWindow.close();
   }
+}
+
+function showAboutDialog() {
+  dialog.showMessageBox({
+    type: 'info',
+    message: 'MongoDB Compass Version: ' + app.getVersion(),
+    buttons: []
+  });
+}
+
+function showHelpWindow(id) {
+  if (helpWindow) {
+    helpWindow.focus();
+    if (_.isString(id)) {
+      helpWindow.webContents.send('app:show-help-entry', id);
+    }
+    return;
+  }
+  var url = HELP_URL;
+  if (_.isString(id)) {
+    url += '/' + id;
+  }
+  helpWindow = createWindow({}, url);
+  helpWindow.on('closed', function() {
+    helpWindow = null;
+  });
+}
+
+function showCompassOverview() {
+  AppMenu.showCompassOverview();
+}
+
+function showShareSubmenu() {
+  AppMenu.showShare();
+}
+
+function hideShareSubmenu() {
+  AppMenu.hideShare();
+}
+
+// respond to events from the renderer process
+ipc.respondTo({
+  'app:show-connect-window': showConnectWindow,
+  'app:close-connect-window': closeConnectWindow,
+  'app:show-help-window': showHelpWindow,
+  'window:show-about-dialog': showAboutDialog,
+  'window:show-share-submenu': showShareSubmenu,
+  'window:hide-share-submenu': hideShareSubmenu,
+  'window:show-compass-overview-submenu': showCompassOverview
 });
+
+// respond to events from the main process
+app.on('window:show-about-dialog', showAboutDialog);
+app.on('app:show-connect-window', showConnectWindow);
+app.on('app:show-help-window', showHelpWindow);
 
 /**
  * can't use webContents `did-finish-load` event here because
@@ -234,6 +250,6 @@ app.on('ready', function() {
     if (err) {
       // ignore migration errors silently.
     }
-    showConnectDialog();
+    showConnectWindow();
   });
 });
