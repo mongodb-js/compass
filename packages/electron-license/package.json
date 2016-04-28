@@ -20,6 +20,7 @@
     "bluebird": "^3.3.5",
     "chalk": "^1.1.1",
     "csv-write-stream": "^1.0.0",
+    "debug": "^2.2.0",
     "event-stream": "^3.3.2",
     "figures": "^1.4.0",
     "lodash": "^4.0.0",
