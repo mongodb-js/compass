@@ -276,7 +276,7 @@ module.exports = View.extend({
     },
     showUsageColumn: {
       type: 'toggle',
-      selector: '.util-column'
+      selector: '.usage-column'
     }
   },
   events: {
