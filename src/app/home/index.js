@@ -148,7 +148,7 @@ var HomeView = View.extend({
   },
   onClickShowConnectWindow: function() {
     // code to close current connection window and open connect dialog
-    ipc.call('app:show-connect-dialog');
+    ipc.call('app:show-connect-window');
     window.close();
   },
   template: indexTemplate,

@@ -79,7 +79,7 @@ function connectItem() {
     label: '&Connect to...',
     accelerator: 'CmdOrCtrl+N',
     click: function() {
-      app.emit('show connect dialog');
+      app.emit('app:show-connect-window');
     }
   };
 }
@@ -141,7 +141,7 @@ function nonDarwinAboutItem() {
   return {
     label: '&About Compass',
     click: function() {
-      app.emit('show about dialog');
+      app.emit('window:show-about-dialog');
     }
   };
 }
@@ -151,7 +151,7 @@ function helpWindowItem() {
     label: '&Show Compass Help',
     accelerator: 'F1',
     click: function() {
-      app.emit('show help window');
+      app.emit('app:show-help-window');
     }
   };
 }
