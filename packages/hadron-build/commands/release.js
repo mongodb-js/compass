@@ -1,4 +1,5 @@
 'use strict';
+/* eslint no-sync: 0 */
 /**
  * @see [Atom's publish-build-task.coffee](https://git.io/vaYu3)
  * - https://github.com/atom/electron/blob/master/script/create-dist.py
@@ -9,6 +10,7 @@
  * and include in assets.
  * @see [Atom's dump-symbols-task.coffee](https://git.io/va3fG)
  */
+const Promise = require('bluebird');
 const config = require('../lib/config');
 const cli = require('mongodb-js-cli')('hadron-build:release');
 const util = require('util');
@@ -128,27 +130,22 @@ function cleanupBrandedApplicationScaffold(CONFIG, done) {
  *
  * @see [Atom's generate-license-task.coffee](https://git.io/vaZI7)
  * @param {Object} CONFIG
- * @param {Function} done
+ * @returns {Promise}
  * @api public
  */
-function writeLicenseFile(CONFIG, done) {
+let writeLicenseFile = (CONFIG) => {
   var LICENSE_DEST = path.join(CONFIG.appPath, '..', 'LICENSE');
-  license.build({
-    path: process.cwd()
-  }, function(err, contents) {
-    if (err) {
-      return done(err);
-    }
-
-    fs.writeFile(LICENSE_DEST, contents, function(_err) {
-      if (_err) {
-        return done(_err);
-      }
+  var opts = {
+    dir: CONFIG.dir,
+    production: true,
+    excludeOrg: 'mongodb-js,10gen,christkv'
+  };
+  return license.build(opts)
+    .then((contents) => {
+      fs.writeFileSync(LICENSE_DEST, contents);
       cli.debug(format('LICENSE written to `%s`', LICENSE_DEST));
-      done();
     });
-  });
-}
+};
 
 /**
  * Replace the version file `electron-packager` creates w/ a version
@@ -156,20 +153,22 @@ function writeLicenseFile(CONFIG, done) {
  *
  * @see [Atom's set-version-task.coffee](https://git.io/vaZkN)
  * @param {Object} CONFIG
- * @param {Function} done
+ * @returns {Promise}
  * @api public
  */
-function writeVersionFile(CONFIG, done) {
-  var VERSION_DEST = path.join(CONFIG.appPath, '..', 'version');
-  cli.debug(format('Writing version file to `%s`', VERSION_DEST));
-  fs.writeFile(VERSION_DEST, CONFIG.version, function(err) {
-    if (err) {
-      return done(err);
-    }
-    cli.debug(format('version file written to `%s`', VERSION_DEST));
-    done();
+let writeVersionFile = (CONFIG) => {
+  const VERSION_DEST = path.join(CONFIG.appPath, '..', 'version');
+  return new Promise((resolve, reject) => {
+    cli.debug(format('Writing version file to `%s`', VERSION_DEST));
+    fs.writeFile(VERSION_DEST, CONFIG.version, function(err) {
+      if (err) {
+        return reject(err);
+      }
+      cli.debug(format('version file written to `%s`', VERSION_DEST));
+      resolve(CONFIG.version);
+    });
   });
-}
+};
 
 /**
  * Update the project's `./package.json` (like npm does when it
@@ -398,16 +397,20 @@ exports.handler = (argv) => {
   var tasks = _.flatten([
     function(cb) {
       verify.tasks(argv)
-        .then( () => ui.tasks(argv))
-        .then( () => cb())
+        .then(() => ui.tasks(argv))
+        .then(() => cb())
         .catch(cb);
     },
     _.partial(cleanCompileCache, CONFIG),
     _.partial(createCompileCache, CONFIG),
     _.partial(createBrandedApplication, CONFIG),
     _.partial(cleanupBrandedApplicationScaffold, CONFIG),
-    _.partial(writeLicenseFile, CONFIG),
-    _.partial(writeVersionFile, CONFIG),
+    function(cb) {
+      Promise.all([
+        writeLicenseFile(CONFIG),
+        writeVersionFile(CONFIG)
+      ]).then(() => cb()).catch(cb);
+    },
     _.partial(transformPackageJson, CONFIG),
     _.partial(installDependencies, CONFIG),
     _.partial(createModuleCache, CONFIG),
