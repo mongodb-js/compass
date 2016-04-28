@@ -91,6 +91,7 @@ module.exports.create = function(opts) {
   opts = _.defaults(opts || {}, {
     width: config.windows.DEFAULT_WIDTH,
     height: config.windows.DEFAULT_HEIGHT,
+    minwidth: config.windows.MIN_WIDTH,
     url: DEFAULT_URL
   });
 
@@ -98,6 +99,7 @@ module.exports.create = function(opts) {
   var _window = new BrowserWindow({
     width: opts.width,
     height: opts.height,
+    'min-width': opts.minwidth,
     'web-preferences': {
       'subpixel-font-scaling': true,
       'direct-write': true
@@ -155,6 +157,7 @@ function createWindow(opts, url) {
   opts = _.extend(opts, {
     width: config.windows.DEFAULT_WIDTH_DIALOG,
     height: config.windows.DEFAULT_HEIGHT_DIALOG,
+    minwidth: config.windows.MIN_WIDTH_DIALOG,
     url: url
   });
   return module.exports.create(opts);
