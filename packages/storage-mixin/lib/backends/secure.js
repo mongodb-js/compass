@@ -5,17 +5,17 @@ var async = require('async');
 var _ = require('lodash');
 var keytar;
 
+var debug = require('debug')('storage-mixin:backends:secure');
+
 try {
   /* eslint no-undef: 0 */
   keytar = window.require('keytar');
 } catch (e) {
   /* eslint no-console: 0 */
-  console.warn('keytar module not available. `secure` storage engine will '
+  debug('keytar module not available. `secure` storage engine will '
     + 'fall back to `null` storage engine.');
   keytar = null;
 }
-
-var debug = require('debug')('storage-mixin:backends:secure');
 
 function SecureBackend(options) {
   if (!(this instanceof SecureBackend)) {

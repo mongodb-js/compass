@@ -11,7 +11,7 @@ try {
   localforage = require('localforage');
 } catch (e) {
   /* eslint no-console: 0 */
-  console.warn('localforage module not available in non-browser context. '
+  debug('localforage module not available in non-browser context. '
     + '`local` storage engine will fall back to `null` storage engine.');
   localforage = null;
 }
