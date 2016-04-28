@@ -60,6 +60,12 @@ var IndexItemView = View.extend(tooltipMixin, {
         return format('%s% compared to largest index', numeral(this.model.relativeSize).format('0'));
       }
     },
+    usage_tooltip_message: {
+      deps: ['usage_stats'],
+      fn: function() {
+        return format('%s index hits since index creation or last\n server restart', this.usage_stats);
+      }
+    },
     // split index size into value and unit (e.g. KB, MB)
     index_size: {
       deps: ['model.size'],
@@ -103,6 +109,19 @@ var IndexItemView = View.extend(tooltipMixin, {
           placement: 'bottom',
           container: 'body'
         }).attr('data-original-title', this.progressbar_tooltip_message);
+      }
+    },
+    usage_tooltip_message: {
+      selector: '.usage',
+      type: function(el) {
+        // need to set `title` and `data-original-title` due to bug in bootstrap's tooltip
+        // @see https://github.com/twbs/bootstrap/issues/14769
+        this.tooltip({
+          el: el,
+          title: this.usage_tooltip_message,
+          placement: 'bottom',
+          container: 'body'
+        }).attr('data-original-title', this.usage_tooltip_message);
       }
     },
     index_size: {
@@ -311,7 +330,7 @@ module.exports = View.extend({
     }
   },
   onInstanceSynced: function() {
-    this.appVersion = app.instance.build.version;
+    this.appVersion = _.get(app.instance, 'build.version', null);
   },
   onHeaderClicked: function(e) {
     var headerText = e.target.innerText;

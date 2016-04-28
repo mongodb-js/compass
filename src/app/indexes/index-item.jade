@@ -21,9 +21,10 @@ tr
     div.progress(data-toggle='tooltip', title='#{model.relativeSize}% compared to largest index')
       div.progress-bar(role='progressbar', data-hook='progressbar')
   td.util-column
-    div.quantity(data-hook='usage-count')
-    div.usage-since since&nbsp;
-      span(data-hook='usage-since')
+    span.usage(data-toggle='tooltip')
+      div.quantity(data-hook='usage-count')
+      div.usage-since since&nbsp;
+        span(data-hook='usage-since')
   td.property1-column
     div.property.cardinality
       = model.cardinality
