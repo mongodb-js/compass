@@ -82,7 +82,7 @@ functions:
         # less chatty installs: "--depth 0" reduces detail of "npm ls" tree output
         export NPM_CONFIG_DEPTH=0
         export NPM_CONFIG_LOGLEVEL=error
-        ${npm|npm} install node-gyp 
+        ${npm|npm} install node-gyp
         ${npm|npm} install
         # INT-1081 Attach parseable log of installed packages.
         # Don't allow it to fail build.
@@ -132,11 +132,11 @@ functions:
         # ${npm|npm} run check
 
         # Create a release build
-        npm run release;
+        ${npm|npm} run release;
         ls -alh dist/
 
         # Test the release build
-        npm run test-unit
+        ${npm|npm} run test-unit
         pkill mongod || true
         # end of embedded script
         EOF_BUILD_SH
