@@ -136,7 +136,8 @@ functions:
         ls -alh dist/
 
         # Test the release build
-        npm run test-unit;
+        npm run test-unit
+        pkill mongod || true
         # end of embedded script
         EOF_BUILD_SH
 
