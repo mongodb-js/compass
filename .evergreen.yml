@@ -137,7 +137,7 @@ functions:
 
         # Test the release build
         npm run test-unit;
-        # npm run test
+        # end of embedded script
         EOF_BUILD_SH
 
         #
@@ -297,13 +297,11 @@ functions:
 #######################################
 
 pre:
-- command: shell.track
 - command: shell.exec
   params:
     silent: true
     script: |
       set -ev
-      ${killall_evergreen|pkill -9 mongod; pkill -9 mongos; pkill -9 mongo} >/dev/null 2>&1
       rm -rf src /data/db/*
       mkdir -p src
 
@@ -311,14 +309,6 @@ post:
 - command: attach.results
   params:
     file_location: src/report.json
-- command: shell.exec
-  params:
-    silent: true
-    script: |
-      set -ev
-      ${killall_evergreen|pkill -9 mongod; pkill -9 mongos; pkill -9 mongo} >/dev/null 2>&1
-      exit 0
-- command: shell.cleanup
 
 
 tasks:
@@ -383,7 +373,6 @@ buildvariants:
   expansions:
     build_via_local_tunnel: true
     fetch_npm_tarball: node-v5.5.0-npm-3.3.12-darwin-x64.tgz
-    killall_evergreen: 'pkill -9 Electron; pkill -9 mongod; pkill -9 mongos; pkill -9 mongo'
     node_path: "$(pwd)/.deps/bin"
     num_cores: $(sysctl -n hw.logicalcpu)
   tasks:
@@ -396,7 +385,6 @@ buildvariants:
   - "windows-64-vs2013-test"
   expansions:
     fetch_npm_tarball: node-v5.5.0-npm-3.3.12-windows-x64.tgz
-    killall_evergreen: 'pkill -9 Electron; pkill -9 mongod; pkill -9 mongos; pkill -9 mongo'
     node_path: "$(pwd)/.deps"
     num_cores: $(grep -c ^processor /proc/cpuinfo)
     add_env_appdata: Z:\
@@ -410,7 +398,6 @@ buildvariants:
   - "ubuntu1404-test"
   expansions:
     fetch_npm_tarball: node-v5.5.0-npm-3.3.12-linux-x64.tgz
-    killall_evergreen: 'pkill -9 electron; pkill -9 mongod; pkill -9 mongos; pkill -9 mongo'
     node_path: "$(pwd)/.deps/bin"
     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
     num_cores: $(grep -c ^processor /proc/cpuinfo)
