@@ -73,8 +73,7 @@
 
       .definition {
         background: @pw;
-        border: 1px solid @chart1;
-        box-shadow: 0px 2px 0px rgba(0,0,0,.1);
+        border: 1px solid @gray4;
       }
 
       .field {
@@ -97,7 +96,6 @@
     padding: 13px 0;
 
     &.name-column {
-      cursor: pointer;
       padding: 0 0 24px 12px;
       position: relative;
       height: 48px;
@@ -111,10 +109,10 @@
         }
 
         .definition {
-          opacity: 1;
           overflow: auto;
           position: absolute;
           width: auto;
+          box-shadow: 0px 2px 0px rgba(0,0,0,.1);
           max-width: 100vw;
         }
       }
@@ -257,7 +255,7 @@
     display: inline-block;
     width: auto;
     max-width: 100%;
-    padding: 2px 0 2px 12px;
+    padding: 1px 0 1px 12px;
     background: @gray7;
     border: 1px solid @gray7;
     border-radius: 20px;
@@ -269,9 +267,8 @@
   }
 
   .field {
-    font-size: 12px;
+    font-size: 13px;
     margin-right: 5px;
-    font-family: @font-family-monospace;
   }
 
   .type {
