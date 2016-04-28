@@ -91,11 +91,6 @@ var HomeView = View.extend({
   },
   onInstanceFetched: function() {
     debug('app.instance fetched', app.instance.serialize());
-    if (app.instance.collections.length === 0) {
-      this.showNoCollectionsZeroState = true;
-    } else {
-      this.showDefaultZeroState = true;
-    }
     metrics.track('Deployment', 'detected', {
       'databases count': app.instance.databases.length,
       'namespaces count': app.instance.collections.length,
@@ -114,7 +109,6 @@ var HomeView = View.extend({
     });
     if (!this.ns) {
       app.instance.collections.unselectAll();
-
       if (app.instance.collections.length === 0) {
         this.showNoCollectionsZeroState = true;
       } else {
@@ -146,6 +140,7 @@ var HomeView = View.extend({
 
     this.ns = model.getId();
     this.updateTitle(model);
+    this.showNoCollectionsZeroState = false;
     this.showDefaultZeroState = false;
     app.navigate(format('schema/%s', model.getId()), {
       silent: true
