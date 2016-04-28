@@ -344,6 +344,29 @@ function list(opts) {
   let production = opts.production || false;
   let excludeOrg = (opts.excludeOrg || '').split(',');
 
+  _.assign(overrides, {
+    'ms@ms@0.7.1': {
+      license: 'MIT'
+    },
+    'marky-mark@1.2.1': {
+      license: 'MIT'
+    },
+    'uuid@2.0.1': {
+      license: 'MIT'
+    },
+    'electron@0.36.12': {
+      repository: 'git+https://github.com/atom/electron',
+      license: 'MIT',
+      source: 'package.json',
+      id: 'electron@0.36.12',
+      name: 'electron',
+      version: '0.36.12',
+      url: 'https://github.com/atom/electron',
+      github_owner: 'atom',
+      github_repo: 'electron'
+    }
+  });
+
   debug('list options %j', {
     dir: dir,
     overrides: overrides,
@@ -364,7 +387,6 @@ function list(opts) {
         omitPermissiveLicenses(licenseSummary);
       }
       debug('licenseSummary', licenseSummary);
-
       return _.chain(licenseSummary)
         .map( (d, id) => {
           debug('checking', id);
@@ -389,6 +411,10 @@ function list(opts) {
         })
         .uniqBy('name')
         .filter( (pkg) => {
+          if (pkg.name === 'electron') {
+            return true;
+          }
+
           if (_.startsWith(pkg.name, 'lodash.')) {
             return false;
           }
@@ -448,12 +474,10 @@ module.exports.build = function(opts) {
     dir: process.cwd(),
     overrides: {}
   });
+  const appLicense = fs.readFileSync(path.join(opts.dir, 'LICENSE'), 'utf-8');
+  const licenseTpl = fs.readFileSync(path.join(__dirname, '..', 'LICENSE.tpl.md'), 'utf-8');
 
-  return Promise.all([
-    list(opts),
-    fs.readFileAsync(path.join(opts.dir, 'LICENSE')),
-    fs.readFileAsync(path.join(__dirname, '..', 'LICENSE.tpl.md'))
-  ]).then( (deps, appLicense, licenseTpl) => {
+  return list(opts).then( (deps) => {
     return _.template(licenseTpl)({
       app_license: appLicense,
       deps: deps

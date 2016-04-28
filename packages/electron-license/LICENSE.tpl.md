@@ -1,42 +1,7 @@
 <%= app_license %>
 
-This application bundles the following third-party packages in accordance
-with the following licenses:
-
--------------------------------------------------------------------------
----
-name: electron
-version: 0.34.3
-license: MIT
-url: https://github.com/atom/electron
----
-Copyright (c) 2015 GitHub Inc.
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NON-INFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-<% _.each(deps, function(d) {%>
--------------------------------------------------------------------------
----
-name: <%= d.name %>
-license: <%= d.license %>
-url: <%= d.url %>
----
-<%= d.sourceText %>
+<% _.each(_.groupBy(deps, 'license'), function(d, license) {%>
+This product also includes the following libraries which are covered by the <%= license %> license:
+<% _.each(d, function(pkg) {%>
+- <%= pkg.name %><% }); %>
 <% }); %>
