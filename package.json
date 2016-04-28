@@ -58,7 +58,6 @@
     "ci": "npm run test",
     "clean": "hadron-build clean",
     "compile-ui": "hadron-build ui",
-    "pretest": "mongodb-runner start && mongodb-runner stop",
     "fmt": "mongodb-js-fmt ./*.js src/{**/*.js,*.js} test/{**/*.js,*.js}",
     "release": "hadron-build release",
     "test-functional": "npm test -- --functional",
