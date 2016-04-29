@@ -3,13 +3,21 @@
 
   .schema-field {
     // .list-group-item;
-    padding: 24px 0 24px 25px;
+    padding: 24px 0 0 0;
     border-bottom: 3px solid @gray8;
     background: @pw;
+    transition: all 250ms ease-out;
 
-    hr.field-divider {
-      margin-bottom: 12px;
-      border-top: 1px solid @gray7;
+    .row {
+      margin-bottom: 24px;
+    }
+
+    .schema-field-type-list {
+      padding-left: 24px;
+    }
+
+    .schema-field-name {
+      padding-left: 24px;
     }
 
     .array-subtypes {
@@ -18,49 +26,94 @@
       }
     }
 
+
+
     .schema-field {
-      border-bottom: 1px solid @gray7;
+      // second level
+      border-bottom: 3px solid @gray8;
+      border-left: 24px solid @gray8;
+      animation-duration: 250ms;
+      position: relative;
+      animation-name: fadein;
+      @keyframes fadein {
+        from {
+          left: -20px;
+          opacity: 0;
+        }
+
+        to {
+          left: 0px;
+          opacity: 1;
+        }
+      }
+
       &:first-child {
-        border-top: 1px solid @gray7;
+        border-top: 3px solid @gray8;
         margin-top: 24px;
       }
       &:last-child {
-        border-bottom: none;
+        border-bottom: 3px solid @gray8;
       }
-    }
 
-    .schema-field-list {
-      // second level
+      .row {
+        margin-left: -39px;
+      }
 
+      .schema-field-type-list {
+        padding-left: 48px;
+      }
       .schema-field-name {
-        margin-left: 36px;
+        padding-left: 48px;
       }
-      .schema-field-type-list,
-      hr.field-divider {
-        margin-left: 48px;
-      }
-
-      .schema-field-list {
+      .schema-field {
         // third level
+        .schema-field-type-list {
+          padding-left: 72px;
+        }
         .schema-field-name {
-          margin-left: 84px;
+          padding-left: 72px;
         }
-        .schema-field-type-list,
-        hr.field-divider {
-          margin-left: 96px;
+        .row {
+          margin-left: -63px;
         }
-
-        .schema-field-list {
+        .schema-field {
           // fourth level
-          .schema-field-name {
-            margin-left: 132px;
+          .schema-field-type-list {
+            padding-left: 96px;
           }
-          .schema-field-type-list,
-          hr.field-divider {
-            margin-left: 144px;
+          .schema-field-name {
+            padding-left: 96px;
+          }
+          .row {
+            margin-left: -87px;
+          }
+          .schema-field {
+            // fifth level
+            .schema-field-type-list {
+              padding-left: 120px;
+            }
+            .schema-field-name {
+              padding-left: 120px;
+            }
+            .row {
+              margin-left: -111px;
+            }
+            .schema-field {
+              // sixth level
+              .schema-field-type-list {
+                padding-left: 144px;
+              }
+              .schema-field-name {
+                padding-left: 144px;
+              }
+              .row {
+                margin-left: -135px;
+              }
+            }
           }
         }
       }
+
     }
 
     .schema-field-name {
@@ -70,8 +123,6 @@
       text-overflow: ellipsis;
       white-space: nowrap;
       display: inline-block;
-      padding-left: 12px;
-      margin-left: -12px;
     }
 
     &.schema-field-object, &.schema-field-array {

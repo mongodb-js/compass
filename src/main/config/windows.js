@@ -8,12 +8,16 @@
 exports.DEFAULT_WIDTH = 1280;
 exports.DEFAULT_HEIGHT = 800;
 
+exports.MIN_WIDTH = 1024;
+
 /**
 * The outer window dimensions to use for new dialog
 * windows like the connection and setup dialogs.
 */
 exports.DEFAULT_WIDTH_DIALOG = 900;
 exports.DEFAULT_HEIGHT_DIALOG = 760;
+
+exports.MIN_WIDTH_DIALOG = 768;
 /**
 * Adjust the heights to account for platforms
 * that use a single menu bar at the top of the screen.
