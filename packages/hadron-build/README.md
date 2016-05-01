@@ -1,6 +1,6 @@
-# ![](logo.png)
+# hadron-build
 
-> Tooling for Hadron apps.
+> Complete tooling for large-scale [Electron](http://electron.atom.io/) apps.
 
 [![travis][travis_img]][travis_url] [![npm][npm_img]][npm_url]
 
@@ -44,6 +44,25 @@
     "test-release": "npm test -- --release"
   }
 }
+```
+
+## Usage
+
+```bash
+hadron-build <command> [options]
+
+Commands:
+  release            :shipit:
+  clean              Remove generated directories.
+  config             Configuration.
+  develop [options]  Run the app in development mode.
+  test [options]     Run app tests.
+  upload [options]   Upload assets from `release`.
+  ui [options]       Compile the app UI.
+  verify [options]   Verify the current environment meets the app's requirements.
+
+Options:
+  --help  Show help                                                    [boolean]
 ```
 
 ## Todo
