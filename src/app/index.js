@@ -5,6 +5,9 @@ if (process.env.NODE_ENV !== 'production') {
   require('debug').enable('mon*,had*');
 }
 
+var Environment = require('../environment');
+Environment.init();
+
 var debug = require('debug')('mongodb-compass:app');
 
 console.time('app/index.js');
@@ -47,6 +50,7 @@ var QueryOptions = require('./models/query-options');
 var Connection = require('./models/connection');
 var MongoDBInstance = require('./models/mongodb-instance');
 var Preferences = require('./models/preferences');
+var ApplicationStore = require('mongodb-reflux-store').ApplicationStore;
 var User = require('./models/user');
 var Router = require('./router');
 var Statusbar = require('./statusbar');
@@ -179,6 +183,7 @@ var Application = View.extend({
     clearTimeout(this.clientStalledTimeout);
 
     debug('initializing singleton models... ');
+    ApplicationStore.dataService = app.dataService;
     this.queryOptions = new QueryOptions();
     this.volatileQueryOptions = new QueryOptions();
     this.instance = new MongoDBInstance();
