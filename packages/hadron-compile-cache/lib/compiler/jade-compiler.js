@@ -49,15 +49,6 @@ function JadeCompiler() {
 }
 
 /**
- * Should we compile all .jade files?
- *
- * @returns {Boolean} Always true.
- */
-JadeCompiler.prototype.shouldCompile = function() {
-  return true;
-};
-
-/**
  * Get the cache path for all compiled jade templates.
  *
  * @param {String} filePath - The shortened file path.

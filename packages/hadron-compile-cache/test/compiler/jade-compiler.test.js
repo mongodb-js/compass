@@ -6,14 +6,6 @@ var expect = chai.expect;
 var JadeCompiler = require('../../lib/compiler/jade-compiler');
 
 describe('JadeCompiler', function() {
-  describe('#shouldCompile', function() {
-    var compiler = new JadeCompiler();
-
-    it('returns true', function() {
-      expect(compiler.shouldCompile()).to.equal(true);
-    });
-  });
-
   describe('#getCachePath', function() {
     var compiler = new JadeCompiler();
     var file = fs.readFileSync(path.join(__dirname, 'test.jade'), 'utf8');

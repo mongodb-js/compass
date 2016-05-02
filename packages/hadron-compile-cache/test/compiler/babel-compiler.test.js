@@ -17,26 +17,6 @@ describe('BabelCompiler', function() {
     });
   });
 
-  describe('#shouldCompile', function() {
-    var compiler = new BabelCompiler();
-
-    context('when the file is jsx', function() {
-      var filePath = 'test.jsx';
-
-      it('returns true', function() {
-        expect(compiler.shouldCompile(filePath)).to.equal(true);
-      });
-    });
-
-    context('when the file is not jsx', function() {
-      var filePath = 'test.js';
-
-      it('returns false', function() {
-        expect(compiler.shouldCompile(filePath)).to.equal(false);
-      });
-    });
-  });
-
   describe('#getCachePath', function() {
     var compiler = new BabelCompiler();
     var file = fs.readFileSync(path.join(__dirname, 'test.jsx'), 'utf8');

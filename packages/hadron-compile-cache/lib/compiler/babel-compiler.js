@@ -22,11 +22,6 @@ var EXT = '.js';
 var HEX = 'hex';
 
 /**
- * jsx constant.
- */
-var JSX = '.jsx';
-
-/**
  * SHA1 constant.
  */
 var SHA1 = 'sha1';
@@ -43,20 +38,6 @@ function BabelCompiler() {
   this.babel = require(BABEL_CORE);
   this.versionDirectory = this._createVersionDirectory();
 }
-
-/**
- * Checks if the file should be compiled. Currently only .jsx is supported.
- *
- * @param {String} filePath - The path to the file.
- *
- * @returns {Boolean} If the compiler should compile the file.
- */
-BabelCompiler.prototype.shouldCompile = function(filePath) {
-  if (filePath.endsWith(JSX)) {
-    return true;
-  }
-  return false;
-};
 
 /**
  * Get the cache path for the source code.

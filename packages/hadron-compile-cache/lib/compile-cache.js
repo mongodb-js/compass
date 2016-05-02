@@ -61,18 +61,15 @@ CompileCache.prototype.setHomeDirectory = function(home) {
  * @returns {String} The compiled file.
  */
 CompileCache.prototype.compileFileAtPath = function(compiler, filePath) {
-  if (compiler.shouldCompile(filePath)) {
-    var shortPath = this._shorten(filePath);
-    var digestedPath = compiler.getCachePath(shortPath);
-    var compiledCode = this._readCachedJavascript(digestedPath);
-    if (compiledCode === null) {
-      var sourceCode = fs.readFileSync(filePath, UTF8);
-      compiledCode = compiler.compile(sourceCode, filePath);
-      this._writeCachedJavascript(digestedPath, compiledCode);
-    }
-    return compiledCode;
+  var shortPath = this._shorten(filePath);
+  var digestedPath = compiler.getCachePath(shortPath);
+  var compiledCode = this._readCachedJavascript(digestedPath);
+  if (compiledCode === null) {
+    var sourceCode = fs.readFileSync(filePath, UTF8);
+    compiledCode = compiler.compile(sourceCode, filePath);
+    this._writeCachedJavascript(digestedPath, compiledCode);
   }
-  return fs.readFileSync(filePath, UTF8);
+  return compiledCode;
 };
 
 /**
