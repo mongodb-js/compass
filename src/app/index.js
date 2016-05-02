@@ -169,7 +169,7 @@ var Application = View.extend({
       url += '/' + id;
     }
 
-    ipc.call('app:open-url', id);
+    ipc.call('app:show-help-window', id);
   },
   onClientReady: function() {
     debug('Client ready! Took %dms to become readable',
