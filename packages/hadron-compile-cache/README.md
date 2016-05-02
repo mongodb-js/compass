@@ -15,7 +15,7 @@ npm install --save hadron-compile-cache
 
 const path = require('path');
 const CompileCache = require('hadron-compile-cache');
-const home = path.joing('path', 'to', 'my', 'root');
+const home = path.join('path', 'to', 'my', 'root');
 
 CompileCache.setHomeDirectory(home);
 
