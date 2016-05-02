@@ -1,6 +1,8 @@
 /* eslint no-console:0 */
-
 console.time('app/index.js');
+
+var Environment = require('../environment');
+Environment.init();
 
 var path = require('path');
 var resourcePath = path.join(__dirname, '..', '..');
@@ -42,6 +44,7 @@ var QueryOptions = require('./models/query-options');
 var Connection = require('./models/connection');
 var MongoDBInstance = require('./models/mongodb-instance');
 var Preferences = require('./models/preferences');
+var ApplicationStore = require('mongodb-reflux-store').ApplicationStore;
 var User = require('./models/user');
 var Router = require('./router');
 var Statusbar = require('./statusbar');
@@ -184,6 +187,7 @@ var Application = View.extend({
     clearTimeout(this.clientStalledTimeout);
 
     debug('initializing singleton models... ');
+    ApplicationStore.dataService = app.dataService;
     this.queryOptions = new QueryOptions();
     this.volatileQueryOptions = new QueryOptions();
     this.instance = new MongoDBInstance();
