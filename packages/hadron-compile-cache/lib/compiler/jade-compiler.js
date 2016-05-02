@@ -34,7 +34,7 @@ var LINE_BREAK = '\n';
 /**
  * The module export for the template.
  */
-var MODULE_EXPORT = 'module.exports = template;'
+var MODULE_EXPORT = 'module.exports = template;';
 
 /**
  * UTF-8 constant for file reading.

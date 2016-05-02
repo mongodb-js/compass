@@ -79,7 +79,7 @@ describe('CompileCache', function() {
     });
 
     it('strips the home directory from the front of the path', function() {
-      expect(CompileCache._shorten(filePath)).to.equal(`${path.sep}${relativePath}`);
+      expect(CompileCache._shorten(filePath)).to.equal(path.sep + relativePath);
     });
   });
 });
