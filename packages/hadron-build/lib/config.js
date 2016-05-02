@@ -291,8 +291,8 @@ exports.get = function(cli, callback) {
     var OSX_IDENTITY_SHA1 = _.get(pkg, 'config.hadron.build.darwin.codesign_sha1');
     var OSX_RESOURCES = path.join(OSX_DOT_APP, 'Contents', 'Resources');
 
-    var OSX_ICON = path.resolve(process.cwd(),
-      _.get(pkg, 'config.hadron.build.darwin.icon'));
+    var OSX_ICON = path.resolve(CONFIG.dir,
+      _.get(pkg, 'config.hadron.build.darwin.icon', `${ID}.icns`));
 
     var OSX_OUT_DMG = path.join(CONFIG.out,
       format('%s.dmg', OSX_APPNAME));
@@ -303,13 +303,21 @@ exports.get = function(cli, callback) {
     _.assign(CONFIG.packagerOptions, {
       name: OSX_APPNAME,
       icon: OSX_ICON,
-      'app-bundle-id': _.get(pkg, 'config.hadron.build.darwin.app_bundle_id'),
+      'app-bundle-id': cli.argv.app_bundle_id || _.get(pkg,
+        'config.hadron.build.darwin.app_bundle_id'),
       /**
        * @see http://bit.ly/LSApplicationCategoryType
        */
-      'app-category-type': _.get(pkg, 'config.hadron.build.darwin.app_category_type'),
-      protocols: _.get(pkg, 'config.hadron.protocols')
+      'app-category-type': _.get(pkg,
+        'config.hadron.build.darwin.app_category_type',
+        'public.app-category.productivity'
+      ),
+      protocols: _.get(pkg, 'config.hadron.protocols', [])
     });
+
+    if (CONFIG.channel !== 'stable') {
+      CONFIG.packagerOptions['app-bundle-id'] += `.${CONFIG.channel}`;
+    }
 
     CONFIG.osx_dmg_filename = path.basename(OSX_OUT_DMG);
     CONFIG.osx_dmg_label = 'OS X Installer';
@@ -343,8 +351,8 @@ exports.get = function(cli, callback) {
        * Background image for `.dmg`.
        * @see http://npm.im/electron-installer-dmg
        */
-      background: path.resolve(process.cwd(),
-        _.get(pkg, 'config.hadron.build.darwin.dmg_background')),
+      background: path.resolve(CONFIG.dir,
+        _.get(pkg, 'config.hadron.build.darwin.dmg_background', 'background.png')),
       /**
        * Layout for `.dmg`.
        * The following only modifies "x","y" values from defaults.
