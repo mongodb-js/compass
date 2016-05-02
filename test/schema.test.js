@@ -1,11 +1,39 @@
-var helpers = require('./helpers');
+var utils = require('hadron-test-utils');
+var SpectronSupport = utils.SpectronSupport;
+var CrudSupport = utils.CrudSupport;
+var path = require('path');
+var dist = path.join(__dirname, '..', 'dist');
+var Connection = require('mongodb-connection-model');
+
+var DATABASE = 'compass-test';
+var COLLECTION = 'bands';
+var CONNECTION = new Connection({ hostname: '127.0.0.1', port: 27018, ns: DATABASE });
+
+/**
+ * Test documents to sample with a local server.
+ */
+var DOCUMENTS = [
+  { 'name': 'Aphex Twin' },
+  { 'name': 'Bonobo' },
+  { 'name': 'Arca' },
+  { 'name': 'Beacon' }
+];
 
 describe('Schema Window #spectron', function() {
   this.slow(10000);
   this.timeout(30000);
+  var app = null;
 
-  before(helpers.startApplication);
-  after(helpers.stopApplication);
+  before(function(done) {
+    SpectronSupport.startApplication(dist).then(function(application) {
+      app = application;
+      done();
+    });
+  });
+
+  after(function(done) {
+    SpectronSupport.stopApplication(app).then(done);
+  });
 
   context('when databases exist', function() {
     context('when collections exist', function() {
@@ -14,15 +42,15 @@ describe('Schema Window #spectron', function() {
 
       context('when selecting a collection', function() {
         before(function(done) {
-          helpers.insertTestDocuments(done);
+          CrudSupport.insertMany(CONNECTION, COLLECTION, DOCUMENTS, done);
         });
 
         after(function(done) {
-          helpers.removeTestDocuments(done);
+          CrudSupport.removeAll(CONNECTION, COLLECTION, done);
         });
 
         it('renders the sample collection in the title', function() {
-          return this.app.client
+          return app.client
             .gotoSchemaWindow({ port: 27018 }, 30000)
             .startUsingCompass()
             .selectCollection('compass-test.bands')
@@ -32,7 +60,7 @@ describe('Schema Window #spectron', function() {
         });
 
         it('displays the schema sample for the collection', function() {
-          return this.app.client
+          return app.client
             .getText('div#document_count').should.eventually.be.equal('4')
             .getText('div#index_count').should.eventually.be.equal('1');
         });
@@ -48,7 +76,7 @@ describe('Schema Window #spectron', function() {
 
         context('when refining the sample', function() {
           it('displays the matching documents', function() {
-            return this.app.client
+            return app.client
               .refineSample('{ "name":"Arca" }')
               .waitForStatusBar()
               .getText('div.sampling-message b').should.eventually.be.equal('1');
@@ -57,7 +85,7 @@ describe('Schema Window #spectron', function() {
 
         context('when resetting a sample refinement', function() {
           it('resets the sample to the original', function() {
-            return this.app.client
+            return app.client
               .resetSample()
               .waitForStatusBar()
               .getText('div.sampling-message b').should.eventually.be.equal('4');
