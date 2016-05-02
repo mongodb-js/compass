@@ -63,7 +63,6 @@
     "test-functional": "npm test -- --functional",
     "test-unit": "npm test -- --unit",
     "test-release": "npm test -- --release",
-    "export": "asar e 'dist/MongoDB Compass-darwin-x64/MongoDB Compass.app/Contents/Resources/app.asar' ../app-asar",
     "upload": "hadron-build upload",
     "evergreen-expansions": "hadron-build config --format=yaml --output=expansions.yml --flatten"
   },
@@ -98,7 +97,7 @@
     "font-awesome": "https://github.com/FortAwesome/Font-Awesome/archive/v4.4.0.tar.gz",
     "get-object-path": "azer/get-object-path#74eb42de0cfd02c14ffdd18552f295aba723d394",
     "hadron-auto-update-manager": "^0.0.12",
-    "hadron-compile-cache": "^0.0.3",
+    "hadron-compile-cache": "^0.0.4",
     "hadron-ipc": "^0.0.7",
     "hadron-module-cache": "^0.0.3",
     "highlight.js": "^8.9.1",
