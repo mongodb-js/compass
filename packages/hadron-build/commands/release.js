@@ -136,8 +136,8 @@ function cleanupBrandedApplicationScaffold(CONFIG, done) {
 let writeLicenseFile = (CONFIG) => {
   var LICENSE_DEST = path.join(CONFIG.appPath, '..', 'LICENSE');
   var opts = {
-    dir: CONFIG.dir,
-    production: true,
+    dir: path.join(CONFIG.resources, 'app'),
+    production: false,
     excludeOrg: 'mongodb-js,10gen,christkv'
   };
   return license.build(opts)
@@ -405,14 +405,10 @@ exports.handler = (argv) => {
     _.partial(createCompileCache, CONFIG),
     _.partial(createBrandedApplication, CONFIG),
     _.partial(cleanupBrandedApplicationScaffold, CONFIG),
-    function(cb) {
-      Promise.all([
-        writeLicenseFile(CONFIG),
-        writeVersionFile(CONFIG)
-      ]).then(() => cb()).catch(cb);
-    },
+    _.partial(writeVersionFile, CONFIG),
     _.partial(transformPackageJson, CONFIG),
     _.partial(installDependencies, CONFIG),
+    _.partial(writeLicenseFile, CONFIG),
     _.partial(createModuleCache, CONFIG),
     _.partial(removeDevelopmentFiles, CONFIG),
     _.partial(createApplicationAsar, CONFIG),
