@@ -1,6 +1,4 @@
-process.env.NODE_ENV = 'testing';
-
-var SpectronSupport = require('mongodb-test-utils').SpectronSupport;
+var SpectronSupport = require('hadron-test-utils').SpectronSupport;
 var path = require('path');
 var dist = path.join(__dirname, '..', 'dist');
 
