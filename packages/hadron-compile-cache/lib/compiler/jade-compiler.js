@@ -2,9 +2,39 @@ var crypto = require('crypto');
 var path = require('path');
 
 /**
+ * Hex constant.
+ */
+var HEX = 'hex';
+
+/**
+ * SHA1 constant.
+ */
+var SHA1 = 'sha1';
+
+/**
  * The jade constant.
  */
 var JADE = 'jade';
+
+/**
+ * The require for the Jade runtime.
+ */
+var JADE_REQUIRE = 'var jade = require("@lukekarrys/jade-runtime");';
+
+/**
+ * js extension constant.
+ */
+var EXT = '.js';
+
+/**
+ * The line break character.
+ */
+var LINE_BREAK = '\n';
+
+/**
+ * The module export for the template.
+ */
+var MODULE_EXPORT = 'module.exports = template;'
 
 /**
  * UTF-8 constant for file reading.
@@ -30,14 +60,14 @@ JadeCompiler.prototype.shouldCompile = function() {
 /**
  * Get the cache path for all compiled jade templates.
  *
- * @param {String} sourceCode - The source code.
+ * @param {String} filePath - The shortened file path.
  *
  * @returns {String} The cache path for compiled jade templates.
  */
-JadeCompiler.prototype.getCachePath = function(sourceCode) {
+JadeCompiler.prototype.getCachePath = function(filePath) {
   return path.join(
     JADE,
-    crypto.createHash('sha1').update(sourceCode, UTF8).digest('hex') + '.js'
+    crypto.createHash(SHA1).update(filePath, UTF8).digest(HEX) + EXT
   );
 };
 
@@ -67,11 +97,7 @@ JadeCompiler.prototype.compile = function(sourceCode, filePath) {
  * @returns {String} The code with the exported function.
  */
 JadeCompiler.prototype._appendExports = function(code) {
-  return 'var jade = require("@lukekarrys/jade-runtime");' +
-    '\n' +
-    code +
-    '\n' +
-    'module.exports = template;';
+  return JADE_REQUIRE + LINE_BREAK + code + LINE_BREAK + MODULE_EXPORT;
 };
 
 module.exports = JadeCompiler;

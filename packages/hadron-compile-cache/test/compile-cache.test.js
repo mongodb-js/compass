@@ -21,6 +21,7 @@ describe('CompileCache', function() {
 
     afterEach(function() {
       CompileCache.cacheDirectory = null;
+      CompileCache.homeDirectory = null;
     });
 
     it('sets the cache directory under the home dir', function() {
@@ -32,7 +33,7 @@ describe('CompileCache', function() {
     var compiler = new JadeCompiler();
     var filePath = path.join(__dirname, 'compiler', 'test.jade');
     var home = path.join(__dirname);
-    var filename = '03eaa8c98e7727a979078896122176d204725bd4.js';
+    var filename = '3db75a24664929212b3e9c8aa34528976f205cb8.js';
     var cachePath = path.join(home, '.compiled-sources');
     var cachedFilePath = path.join(cachePath, 'jade', filename);
 
@@ -43,6 +44,7 @@ describe('CompileCache', function() {
 
     afterEach(function() {
       CompileCache.cacheDirectory = null;
+      CompileCache.homeDirectory = null;
       fs.removeSync(cachePath);
     });
 
@@ -59,6 +61,25 @@ describe('CompileCache', function() {
 
     it('includes the babel compiler', function() {
       expect(CompileCache.COMPILERS['.jsx']).to.be.a('object');
+    });
+  });
+
+  describe('._shorten', function() {
+    var home = path.join(__dirname);
+    var relativePath = path.join('src', 'app', 'connect', 'test.js');
+    var filePath = path.join(home, relativePath);
+
+    beforeEach(function() {
+      CompileCache.setHomeDirectory(home);
+    });
+
+    afterEach(function() {
+      CompileCache.cacheDirectory = null;
+      CompileCache.homeDirectory = null;
+    });
+
+    it('strips the home directory from the front of the path', function() {
+      expect(CompileCache._shorten(filePath)).to.equal(`${path.sep}${relativePath}`);
     });
   });
 });

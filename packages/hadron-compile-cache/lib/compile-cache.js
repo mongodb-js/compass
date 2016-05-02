@@ -33,6 +33,7 @@ var ROOT = 'root';
  * Create a new compile cache.
  */
 function CompileCache() {
+  this.homeDirectory = null;
   this.cacheDirectory = null;
 }
 
@@ -46,6 +47,7 @@ CompileCache.prototype.setHomeDirectory = function(home) {
   if (this._isRoot()) {
     cacheDir = path.join(cacheDir, ROOT);
   }
+  this.homeDirectory = home;
   this.cacheDirectory = cacheDir;
 };
 
@@ -59,28 +61,29 @@ CompileCache.prototype.setHomeDirectory = function(home) {
  * @returns {String} The compiled file.
  */
 CompileCache.prototype.compileFileAtPath = function(compiler, filePath) {
-  var sourceCode = fs.readFileSync(filePath, UTF8);
   if (compiler.shouldCompile(filePath)) {
-    var cachePath = compiler.getCachePath(sourceCode, filePath);
-    var compiledCode = this._readCachedJavascript(cachePath);
+    var shortPath = this._shorten(filePath);
+    var digestedPath = compiler.getCachePath(shortPath);
+    var compiledCode = this._readCachedJavascript(digestedPath);
     if (compiledCode === null) {
+      var sourceCode = fs.readFileSync(filePath, UTF8);
       compiledCode = compiler.compile(sourceCode, filePath);
-      this._writeCachedJavascript(cachePath, compiledCode);
+      this._writeCachedJavascript(digestedPath, compiledCode);
     }
     return compiledCode;
   }
-  return sourceCode;
+  return fs.readFileSync(filePath, UTF8);
 };
 
 /**
  * Read javascript from the cache.
  *
- * @param {String} relativeCachePath - The relative path.
+ * @param {String} digestedPath - The digested path to the file.
  *
  * @returns {String} The javascript from the cache.
  */
-CompileCache.prototype._readCachedJavascript = function(relativeCachePath) {
-  var cachePath = path.join(this.cacheDirectory, relativeCachePath);
+CompileCache.prototype._readCachedJavascript = function(digestedPath) {
+  var cachePath = path.join(this.cacheDirectory, digestedPath);
   if (fs.isFileSync(cachePath)) {
     try {
       return fs.readFileSync(cachePath, UTF8);
@@ -89,6 +92,17 @@ CompileCache.prototype._readCachedJavascript = function(relativeCachePath) {
     }
   }
   return null;
+};
+
+/**
+ * Get the shortened file path with the home directory stripped off the front.
+ *
+ * @param {String} filePath - The absolute file path.
+ *
+ * @returns {String} The shortened file path.
+ */
+CompileCache.prototype._shorten = function(filePath) {
+  return filePath.replace(this.homeDirectory, '');
 };
 
 /**
