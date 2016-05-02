@@ -8,6 +8,20 @@
 npm install --save hadron-compile-cache
 ```
 
+## Usage
+
+```javascript
+'use strict';
+
+const path = require('path');
+const CompileCache = require('hadron-compile-cache');
+const home = path.joing('path', 'to', 'my', 'root');
+
+CompileCache.setHomeDirectory(home);
+
+require('mysource.jsx'); // Will be hooked into the cache.
+```
+
 ## License
 
 Apache 2.0
