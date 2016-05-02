@@ -1,6 +1,4 @@
-process.env.NODE_ENV = 'testing';
-
-var utils = require('mongodb-test-utils');
+var utils = require('hadron-test-utils');
 var SpectronSupport = utils.SpectronSupport;
 var CrudSupport = utils.CrudSupport;
 var path = require('path');
