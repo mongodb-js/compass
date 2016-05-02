@@ -177,7 +177,7 @@ function showAboutDialog() {
   });
 }
 
-function showHelpWindow(id) {
+function showHelpWindow(win, id) {
   if (helpWindow) {
     helpWindow.focus();
     if (_.isString(id)) {
