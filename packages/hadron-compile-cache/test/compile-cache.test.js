@@ -33,9 +33,9 @@ describe('CompileCache', function() {
     var compiler = new JadeCompiler();
     var filePath = path.join(__dirname, 'compiler', 'test.jade');
     var home = path.join(__dirname);
-    var filename = 'e0bf538b028619d962118895489c0c80303baaf1.js';
+    var filename = path.join('jade', 'e0bf538b028619d962118895489c0c80303baaf1.js');
     var cachePath = path.join(home, '.compiled-sources');
-    var cachedFilePath = path.join(cachePath, 'jade', filename);
+    var cachedFilePath = path.join(cachePath, filename);
 
     beforeEach(function() {
       CompileCache.setHomeDirectory(home);
@@ -51,6 +51,10 @@ describe('CompileCache', function() {
     it('compiles the source and saves in the cache directory', function() {
       var file = fs.readFileSync(cachedFilePath, 'utf8');
       expect(file).to.not.equal(null);
+    });
+
+    it('adds the digest mapping', function() {
+      expect(CompileCache.digestMappings[filePath]).to.equal(filename);
     });
   });
 
