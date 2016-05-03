@@ -10,6 +10,7 @@ describe('Connect Window #spectron', function() {
   describe('when opening the window', function() {
     it('renders the connect window', function() {
       return this.app.client
+        .waitForVisible('select[name=authentication]', 30000)
         .getWindowCount().should.eventually.equal(1)
         .isWindowMinimized().should.eventually.be.false
         .isWindowDevToolsOpened().should.eventually.be.false
