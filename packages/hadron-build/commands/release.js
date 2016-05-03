@@ -38,6 +38,7 @@ exports.command = 'release';
 exports.describe = ':shipit:';
 
 const COMPILE_CACHE = '.compiled-sources';
+const COMPILE_CACHE_MAPPINGS = '_compileCacheMappings';
 const CACHE_PATTERN = '**/*.{jade,jsx}';
 
 /**
@@ -63,14 +64,18 @@ function cleanCompileCache(CONFIG, done) {
  */
 function createCompileCache(CONFIG, done) {
   cli.debug('creating compile cache');
-  CompileCache.setHomeDirectory(CONFIG.dir);
+  CompileCache.setHomeDirectory(CONFIG.resources);
   glob(`src/${CACHE_PATTERN}`, function(error, files) {
     cli.abortIfError(error);
     _.each(files, function(file) {
       var compiler = CompileCache.COMPILERS[path.extname(file)];
       CompileCache.compileFileAtPath(compiler, file);
     });
-    done();
+    // Write the compile cache mappings to the package.json.
+    var appDir = path.join(CONFIG.resources, 'app');
+    var metadata = pkg.get(appDir);
+    metadata[COMPILE_CACHE_MAPPINGS] = CompileCache.digestMappings;
+    fs.writeFile(metadata._path, JSON.stringify(metadata, null, 2), done);
   });
 }
 
@@ -401,13 +406,13 @@ exports.handler = (argv) => {
         .catch(cb);
     },
     _.partial(cleanCompileCache, CONFIG),
-    _.partial(createCompileCache, CONFIG),
     _.partial(createBrandedApplication, CONFIG),
     _.partial(cleanupBrandedApplicationScaffold, CONFIG),
     _.partial(writeVersionFile, CONFIG),
     _.partial(transformPackageJson, CONFIG),
     _.partial(installDependencies, CONFIG),
     _.partial(writeLicenseFile, CONFIG),
+    _.partial(createCompileCache, CONFIG),
     _.partial(createModuleCache, CONFIG),
     _.partial(removeDevelopmentFiles, CONFIG),
     _.partial(createApplicationAsar, CONFIG),
