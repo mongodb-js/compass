@@ -10,7 +10,6 @@
  * and include in assets.
  * @see [Atom's dump-symbols-task.coffee](https://git.io/va3fG)
  */
-const Promise = require('bluebird');
 const config = require('../lib/config');
 const cli = require('mongodb-js-cli')('hadron-build:release');
 const util = require('util');
@@ -184,8 +183,8 @@ let writeVersionFile = (CONFIG, done) => {
  * @api public
  */
 function transformPackageJson(CONFIG, done) {
-  var PACKAGE_JSON_DEST = path.join(CONFIG.resources, 'app', 'package.json');
-  var packageKeysToRemove = [
+  const PACKAGE_JSON_DEST = path.join(CONFIG.resources, 'app', 'package.json');
+  const packageKeysToRemove = [
     'scripts',
     'devDependencies',
     'dependency-check',
@@ -193,22 +192,14 @@ function transformPackageJson(CONFIG, done) {
     'check',
     'config.hadron.build'
   ];
-  var contents = _.omit(pkg, packageKeysToRemove);
 
-  if (!contents.config) {
-    contents.config = {};
-  }
-  _.defaults(contents.config, {
-    NODE_ENV: 'production',
-    build_time: new Date().toISOString(),
-    channel: CONFIG.channel,
-    revision: cli.argv.revision,
-    build_variant: cli.argv.build_variant,
-    branch_name: cli.argv.branch_name
+  let contents = _.omit(pkg, packageKeysToRemove);
+
+  _.assign(contents, {
+    productName: CONFIG.productName,
+    channel: CONFIG.channel
   });
 
-  cli.debug('Writing ' + PACKAGE_JSON_DEST + ': ' +
-    JSON.stringify(contents, null, 2));
   fs.writeFile(PACKAGE_JSON_DEST, JSON.stringify(contents, null, 2), done);
 }
 
