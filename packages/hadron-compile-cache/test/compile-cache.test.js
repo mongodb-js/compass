@@ -36,9 +36,11 @@ describe('CompileCache', function() {
     var filename = path.join('jade', 'e0bf538b028619d962118895489c0c80303baaf1.js');
     var cachePath = path.join(home, '.compiled-sources');
     var cachedFilePath = path.join(cachePath, filename);
+    var shortPath = null;
 
     beforeEach(function() {
       CompileCache.setHomeDirectory(home);
+      shortPath = CompileCache._shorten(filePath);
       CompileCache.compileFileAtPath(compiler, filePath);
     });
 
@@ -54,7 +56,7 @@ describe('CompileCache', function() {
     });
 
     it('adds the digest mapping', function() {
-      expect(CompileCache.digestMappings[filePath]).to.equal(filename);
+      expect(CompileCache.digestMappings[shortPath]).to.equal(filename);
     });
   });
 

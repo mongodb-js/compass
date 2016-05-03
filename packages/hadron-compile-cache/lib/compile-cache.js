@@ -80,11 +80,11 @@ CompileCache.prototype.compileFileAtPath = function(compiler, filePath) {
  * @returns {String} The digested path.
  */
 CompileCache.prototype._digestedPath = function(compiler, filePath) {
-  var digestedPath = this.digestMappings[filePath];
+  var shortPath = this._shorten(filePath);
+  var digestedPath = this.digestMappings[shortPath];
   if (!digestedPath) {
-    var shortPath = this._shorten(filePath);
     digestedPath = compiler.getCachePath(shortPath);
-    this.digestMappings[filePath] = digestedPath;
+    this.digestMappings[shortPath] = digestedPath;
   }
   return digestedPath;
 };
