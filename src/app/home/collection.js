@@ -6,6 +6,7 @@ var IndexView = require('../indexes');
 var RefineBarView = require('../refine-view');
 var ExplainView = require('../explain-plan');
 var MongoDBCollection = require('../models/mongodb-collection');
+var NamespaceStore = require('mongodb-reflux-store').NamespaceStore;
 var _ = require('lodash');
 
 var app = require('ampersand-app');
@@ -167,6 +168,8 @@ var MongoDBCollectionView = View.extend({
     }
     this.visible = true;
     this.model._id = this.ns;
+    // Need to keep the global state in sync.
+    NamespaceStore.ns = this.ns;
     this.model.once('sync', this.onCollectionFetched.bind(this));
     this.model.fetch();
   },
