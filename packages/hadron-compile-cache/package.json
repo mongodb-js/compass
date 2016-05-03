@@ -4,7 +4,7 @@
   "author": "Durran Jordan <durran@gmail.com>",
   "bugs": "https://github.com/mongodb-js/hadron-compile-cache/issues",
   "homepage": "https://github.com/mongodb-js/hadron-compile-cache",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/hadron-compile-cache.git"
