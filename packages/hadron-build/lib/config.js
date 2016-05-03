@@ -178,7 +178,7 @@ exports.get = (cli, callback) => {
      */
     const WINDOWS_APPNAME = CONFIG.productName.replace(/ /g, '');
     // TODO (imlucas) electron-packager calls this `basename`.
-    const WINDOWS_OUT_X64 = CONFIG.dest(`${WINDOWS_APPNAME}-win32-x64`);
+    const WINDOWS_OUT_X64 = CONFIG.dest(`${CONFIG.productName}-win32-x64`);
 
     const WINDOWS_RESOURCES = path.join(WINDOWS_OUT_X64, 'resources');
 
