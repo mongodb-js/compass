@@ -26,7 +26,7 @@
       ],
       "build": {
         "win32": {
-          "icon": "src/images/win32/mongodb-compass.ico",
+          "icon": "src/app/images/win32/mongodb-compass.ico",
           "favicon_url": "https://compass.mongodb.com/favicon.ico",
           "loading_gif": "src/app/images/win32/mongodb-compass-installer-loading.gif"
         },
@@ -142,7 +142,7 @@
     "chai-as-promised": "^5.1.0",
     "eslint-config-mongodb-js": "^1.0.6",
     "eslint-plugin-react": "^4.1.0",
-    "hadron-build": "^0.4.4",
+    "hadron-build": "^0.4.5",
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^0.2.8",
     "mongodb-runner": "^3.2.2",
