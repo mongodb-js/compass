@@ -64,7 +64,8 @@ function cleanCompileCache(CONFIG, done) {
  */
 function createCompileCache(CONFIG, done) {
   cli.debug('creating compile cache');
-  CompileCache.setHomeDirectory(CONFIG.resources);
+  var appDir = path.join(CONFIG.resources, 'app');
+  CompileCache.setHomeDirectory(appDir);
   glob(`src/${CACHE_PATTERN}`, function(error, files) {
     cli.abortIfError(error);
     _.each(files, function(file) {
@@ -72,7 +73,6 @@ function createCompileCache(CONFIG, done) {
       CompileCache.compileFileAtPath(compiler, file);
     });
     // Write the compile cache mappings to the package.json.
-    var appDir = path.join(CONFIG.resources, 'app');
     var metadata = pkg.get(appDir);
     metadata[COMPILE_CACHE_MAPPINGS] = CompileCache.digestMappings;
     fs.writeFile(metadata._path, JSON.stringify(metadata, null, 2), done);
