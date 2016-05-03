@@ -133,7 +133,7 @@ function cleanupBrandedApplicationScaffold(CONFIG, done) {
  * @returns {Promise}
  * @api public
  */
-let writeLicenseFile = (CONFIG) => {
+let writeLicenseFile = (CONFIG, done) => {
   var LICENSE_DEST = path.join(CONFIG.appPath, '..', 'LICENSE');
   var opts = {
     dir: path.join(CONFIG.resources, 'app'),
@@ -144,6 +144,7 @@ let writeLicenseFile = (CONFIG) => {
     .then((contents) => {
       fs.writeFileSync(LICENSE_DEST, contents);
       cli.debug(format('LICENSE written to `%s`', LICENSE_DEST));
+      done(null, true);
     });
 };
 
@@ -156,17 +157,15 @@ let writeLicenseFile = (CONFIG) => {
  * @returns {Promise}
  * @api public
  */
-let writeVersionFile = (CONFIG) => {
+let writeVersionFile = (CONFIG, done) => {
   const VERSION_DEST = path.join(CONFIG.appPath, '..', 'version');
-  return new Promise((resolve, reject) => {
-    cli.debug(format('Writing version file to `%s`', VERSION_DEST));
-    fs.writeFile(VERSION_DEST, CONFIG.version, function(err) {
-      if (err) {
-        return reject(err);
-      }
-      cli.debug(format('version file written to `%s`', VERSION_DEST));
-      resolve(CONFIG.version);
-    });
+  cli.debug(format('Writing version file to `%s`', VERSION_DEST));
+  fs.writeFile(VERSION_DEST, CONFIG.version, function(err) {
+    if (err) {
+      return done(err);
+    }
+    cli.debug(format('version file written to `%s`', VERSION_DEST));
+    done(null, CONFIG.version);
   });
 };
 
