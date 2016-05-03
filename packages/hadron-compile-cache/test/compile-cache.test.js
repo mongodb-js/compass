@@ -33,7 +33,7 @@ describe('CompileCache', function() {
     var compiler = new JadeCompiler();
     var filePath = path.join(__dirname, 'compiler', 'test.jade');
     var home = path.join(__dirname);
-    var filename = '3db75a24664929212b3e9c8aa34528976f205cb8.js';
+    var filename = 'e0bf538b028619d962118895489c0c80303baaf1.js';
     var cachePath = path.join(home, '.compiled-sources');
     var cachedFilePath = path.join(cachePath, 'jade', filename);
 
@@ -65,21 +65,44 @@ describe('CompileCache', function() {
   });
 
   describe('._shorten', function() {
-    var home = path.join(__dirname);
-    var relativePath = path.join('src', 'app', 'connect', 'test.js');
-    var filePath = path.join(home, relativePath);
+    context('when the path is absolute', function() {
 
-    beforeEach(function() {
-      CompileCache.setHomeDirectory(home);
+      var home = path.join(__dirname);
+      var relativePath = path.join('src', 'app', 'connect', 'test.js');
+      var filePath = path.join(home, relativePath);
+
+      beforeEach(function() {
+        CompileCache.setHomeDirectory(home);
+      });
+
+      afterEach(function() {
+        CompileCache.cacheDirectory = null;
+        CompileCache.homeDirectory = null;
+      });
+
+      it('strips the home directory from the front of the path', function() {
+        expect(CompileCache._shorten(filePath)).to.equal(relativePath);
+      });
     });
 
-    afterEach(function() {
-      CompileCache.cacheDirectory = null;
-      CompileCache.homeDirectory = null;
-    });
+    context('when the path is relative', function() {
+      context('when the path is the same', function() {
+        var home = path.join(__dirname);
+        var relativePath = path.join('src', 'app', 'connect', 'test.js');
 
-    it('strips the home directory from the front of the path', function() {
-      expect(CompileCache._shorten(filePath)).to.equal(path.sep + relativePath);
+        beforeEach(function() {
+          CompileCache.setHomeDirectory(home);
+        });
+
+        afterEach(function() {
+          CompileCache.cacheDirectory = null;
+          CompileCache.homeDirectory = null;
+        });
+
+        it('does not strip anything', function() {
+          expect(CompileCache._shorten(relativePath)).to.equal(relativePath);
+        });
+      });
     });
   });
 });

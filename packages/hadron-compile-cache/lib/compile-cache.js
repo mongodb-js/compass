@@ -99,7 +99,7 @@ CompileCache.prototype._readCachedJavascript = function(digestedPath) {
  * @returns {String} The shortened file path.
  */
 CompileCache.prototype._shorten = function(filePath) {
-  return filePath.replace(this.homeDirectory, '');
+  return filePath.replace(this.homeDirectory + path.sep, '');
 };
 
 /**
