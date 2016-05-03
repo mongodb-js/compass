@@ -35,6 +35,7 @@ var ROOT = 'root';
 function CompileCache() {
   this.homeDirectory = null;
   this.cacheDirectory = null;
+  this.digestMappings = {};
 }
 
 /**
@@ -56,13 +57,11 @@ CompileCache.prototype.setHomeDirectory = function(home) {
  *
  * @param {Object} compiler - The compiler to use.
  * @param {String} filePath - The path to the file.
- * @param {String} extension - The file extension.
  *
  * @returns {String} The compiled file.
  */
 CompileCache.prototype.compileFileAtPath = function(compiler, filePath) {
-  var shortPath = this._shorten(filePath);
-  var digestedPath = compiler.getCachePath(shortPath);
+  var digestedPath = this._digestedPath(compiler, filePath);
   var compiledCode = this._readCachedJavascript(digestedPath);
   if (compiledCode === null) {
     var sourceCode = fs.readFileSync(filePath, UTF8);
@@ -70,6 +69,24 @@ CompileCache.prototype.compileFileAtPath = function(compiler, filePath) {
     this._writeCachedJavascript(digestedPath, compiledCode);
   }
   return compiledCode;
+};
+
+/**
+ * Get the digested path for the compiler and filepath.
+ *
+ * @param {Object} compiler - The compiler to use.
+ * @param {String} filePath - The path to the file.
+ *
+ * @returns {String} The digested path.
+ */
+CompileCache.prototype._digestedPath = function(compiler, filePath) {
+  var digestedPath = this.digestMappings[filePath];
+  if (!digestedPath) {
+    var shortPath = this._shorten(filePath);
+    digestedPath = compiler.getCachePath(shortPath);
+    this.digestMappings[filePath] = digestedPath;
+  }
+  return digestedPath;
 };
 
 /**

@@ -66,7 +66,6 @@ describe('CompileCache', function() {
 
   describe('._shorten', function() {
     context('when the path is absolute', function() {
-
       var home = path.join(__dirname);
       var relativePath = path.join('src', 'app', 'connect', 'test.js');
       var filePath = path.join(home, relativePath);
