@@ -44,7 +44,7 @@ var MongoDBCollectionView = View.extend({
       no: 'hidden'
     },
     'model._id': {
-      hook: 'name'
+      hook: 'collection-name'
     },
     activeView: {
       type: 'switchClass',
