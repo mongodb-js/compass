@@ -53,6 +53,7 @@
   },
   "scripts": {
     "start": "hadron-build develop",
+    "pretest": "mongodb-runner install",
     "test": "xvfb-maybe hadron-build test",
     "check": "mongodb-js-precommit ./src/app/*.js ./src/app/**/**/*.js ./src/{app/**/*.js,main/**/*.js} ./test/*.js",
     "ci": "npm run test",
@@ -144,7 +145,7 @@
     "hadron-build": "^0.4.4",
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^0.2.8",
-    "mongodb-runner": "^3.1.15",
+    "mongodb-runner": "^3.2.2",
     "spectron": "^0.34.1",
     "xvfb-maybe": "^0.1.3"
   },
