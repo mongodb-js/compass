@@ -12,6 +12,7 @@ var _ = require('lodash');
 var debug = require('debug')('mongodb-compass:home');
 var toNS = require('mongodb-ns');
 var ipc = require('hadron-ipc');
+var WindowEvent = require('hadron-events').WindowEvent;
 
 var indexTemplate = require('./index.jade');
 
@@ -54,8 +55,8 @@ var HomeView = View.extend({
   initialize: function() {
     this.listenTo(app.instance, 'sync', this.onInstanceFetched);
     this.listenTo(app.connection, 'change:name', this.updateTitle);
-    ipc.on('window:show-compass-tour', this.showTour.bind(this, true));
-    ipc.on('window:show-network-optin', this.showOptIn.bind(this));
+    ipc.on(WindowEvent.SHOW_COMPASS_TOUR, this.showTour.bind(this, true));
+    ipc.on(WindowEvent.SHOW_NETWORK_OPTIN, this.showOptIn.bind(this));
 
     this.once('change:rendered', this.onRendered);
     debug('fetching instance model...');

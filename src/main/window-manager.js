@@ -14,6 +14,7 @@ var debug = require('debug')('mongodb-compass:electron:window-manager');
 var dialog = electron.dialog;
 var path = require('path');
 var ipc = require('hadron-ipc');
+var WindowEvent = require('hadron-events').WindowEvent;
 
 /**
  * When running in electron, we're in `/src/main`.
@@ -227,16 +228,17 @@ function rendererReady(sender) {
 ipc.respondTo({
   'app:show-connect-window': showConnectWindow,
   'app:close-connect-window': closeConnectWindow,
-  'app:show-help-window': showHelpWindow,
-  'window:show-about-dialog': showAboutDialog,
-  'window:show-share-submenu': showShareSubmenu,
-  'window:hide-share-submenu': hideShareSubmenu,
-  'window:show-compass-overview-submenu': showCompassOverview,
-  'window:renderer-ready': rendererReady
+  'app:show-help-window': showHelpWindow
 });
 
+ipc.respondTo(WindowEvent.SHOW_ABOUT_DIALOG, showAboutDialog);
+ipc.respondTo(WindowEvent.SHOW_SHARE_SUBMENU, showShareSubmenu);
+ipc.respondTo(WindowEvent.HIDE_SHARE_SUBMENU, hideShareSubmenu);
+ipc.respondTo(WindowEvent.SHOW_COMPASS_OVERVIEW_SUBMENU, showCompassOverview);
+ipc.respondTo(WindowEvent.RENDERER_READY, rendererReady);
+
 // respond to events from the main process
-app.on('window:show-about-dialog', showAboutDialog);
+app.on(WindowEvent.SHOW_ABOUT_DIALOG, showAboutDialog);
 app.on('app:show-connect-window', showConnectWindow);
 app.on('app:show-help-window', showHelpWindow);
 

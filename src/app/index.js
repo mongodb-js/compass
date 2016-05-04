@@ -50,6 +50,7 @@ var metricsSetup = require('./metrics');
 var metrics = require('mongodb-js-metrics')();
 
 var AutoUpdate = require('../auto-update');
+var WindowEvent = require('hadron-events').WindowEvent;
 
 var addInspectElementMenu = require('debug-menu').install;
 
@@ -412,7 +413,7 @@ app.extend({
       metricsSetup();
 
       // signal to main process that app is ready
-      ipc.call('window:renderer-ready');
+      ipc.call(WindowEvent.RENDERER_READY);
 
       // as soon as dom is ready, render and set up the rest
       self.onDomReady();
