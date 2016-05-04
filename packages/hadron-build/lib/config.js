@@ -154,6 +154,8 @@ exports.get = (cli, callback) => {
   CONFIG.arch = cli.argv.arch;
   CONFIG.channel = channel;
   CONFIG.productName = PRODUCT_NAME;
+  CONFIG.productNameReal = cli.argv.product_name;
+  CONFIG.productNameRealTitleCase = CONFIG.productNameReal.replace(/ /g, '');
   CONFIG.dir = PROJECT_ROOT;
 
   CONFIG.src = function() {
@@ -176,15 +178,14 @@ exports.get = (cli, callback) => {
     /**
      * ## Windows Configuration
      */
-    const WINDOWS_APPNAME = CONFIG.productName.replace(/ /g, '');
     // TODO (imlucas) electron-packager calls this `basename`.
-    const WINDOWS_OUT_X64 = CONFIG.dest(`${CONFIG.productName}-win32-x64`);
+    const WINDOWS_OUT_X64 = CONFIG.dest(`${CONFIG.titleCaseName}-win32-x64`);
 
     const WINDOWS_RESOURCES = path.join(WINDOWS_OUT_X64, 'resources');
 
     const WINDOWS_ICON = CONFIG.src(_.get(pkg, 'config.hadron.build.win32.icon'));
 
-    const WINDOWS_OUT_SETUP_EXE = CONFIG.dest(`${WINDOWS_APPNAME}Setup.exe`);
+    const WINDOWS_OUT_SETUP_EXE = CONFIG.dest(`${CONFIG.productName}Setup.exe`);
 
     const WINDOWS_OUT_MSI = CONFIG.dest(`${CONFIG.productName}Setup.msi`);
 
@@ -197,11 +198,11 @@ exports.get = (cli, callback) => {
     CONFIG.windows_setup_filename = path.basename(WINDOWS_OUT_SETUP_EXE);
     CONFIG.windows_setup_label = 'Windows Installer';
 
-    CONFIG.windows_zip_filename = `${WINDOWS_APPNAME}-windows.zip`;
+    CONFIG.windows_zip_filename = `${CONFIG.productName}-windows.zip`;
     CONFIG.windows_zip_label = 'Windows Zip';
 
-    CONFIG.windows_nupkg_full_filename = `${WINDOWS_APPNAME}-${CONFIG.version}-full.nupkg`;
-    CONFIG.windows_nupkg_full_label = `${WINDOWS_APPNAME}-${CONFIG.version}-full.nupkg`;
+    CONFIG.windows_nupkg_full_filename = `${CONFIG.productNameRealTitleCase}-${CONFIG.version}-full.nupkg`;
+    CONFIG.windows_nupkg_full_label = `${CONFIG.productNameRealTitleCase}-${CONFIG.version}-full.nupkg`;
 
     CONFIG.assets = [
       {
@@ -235,7 +236,7 @@ exports.get = (cli, callback) => {
     ];
 
     _.assign(CONFIG.packagerOptions, {
-      name: CONFIG.productName,
+      name: CONFIG.titleCaseName,
       icon: WINDOWS_ICON,
       'version-string': {
         CompanyName: CONFIG.author,
@@ -253,12 +254,12 @@ exports.get = (cli, callback) => {
       outputDirectory: CONFIG.out,
       authors: CONFIG.author,
       version: CONFIG.version,
-      exe: `${CONFIG.productName}.exe`,
-      setupExe: `${WINDOWS_APPNAME}Setup.exe`,
+      exe: `${CONFIG.packagerOptions.name}.exe`,
+      setupExe: CONFIG.windows_setup_filename,
       title: CONFIG.productName,
       productName: CONFIG.productName,
       description: CONFIG.description,
-      name: WINDOWS_APPNAME
+      name: CONFIG.productNameRealTitleCase
       /**
        * TODO (imlucas) Uncomment when hadron-endpoint-server deployed.
        * remoteReleases: _.get(pkg, 'config.hadron.endpoint'),
