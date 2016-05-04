@@ -8,7 +8,9 @@ var inherits = require('util').inherits;
 var AutoUpdateManager = require('hadron-auto-update-manager');
 var ipc = require('hadron-ipc');
 var debug = require('debug')('mongodb-compass:main:application');
-var AppEvent = require('hadron-events').AppEvent;
+var evnt = require('hadron-events')
+var AppEvent = evnt.AppEvent;
+var ElectronEvent = evnt.ElectronEvent;
 
 function Application() {
   this.setupUserDirectory();
@@ -92,7 +94,7 @@ Application.prototype.setupUserDirectory = function() {
 };
 
 Application.prototype.setupLifecycleListeners = function() {
-  app.on('window-all-closed', function() {
+  app.on(ElectronEvent.ALL_WINDOWS_CLOSED, function() {
     debug('All windows closed.  Quitting app.');
     app.quit();
   });
@@ -115,7 +117,7 @@ Application.prototype.setupUserDirectory = function() {
 };
 
 Application.prototype.setupLifecycleListeners = function() {
-  app.on('window-all-closed', function() {
+  app.on(ElectronEvent.ALL_WINDOWS_CLOSED, function() {
     debug('All windows closed.  Quitting app.');
     app.quit();
   });

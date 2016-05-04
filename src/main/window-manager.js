@@ -17,6 +17,7 @@ var ipc = require('hadron-ipc');
 var evnt = require('hadron-events');
 var AppEvent = evnt.AppEvent;
 var WindowEvent = evnt.WindowEvent;
+var ElectronEvent = evnt.ElectronEvent;
 
 /**
  * When running in electron, we're in `/src/main`.
@@ -242,7 +243,7 @@ app.on(WindowEvent.SHOW_ABOUT_DIALOG, showAboutDialog);
 app.on(AppEvent.SHOW_CONNECT_WINDOW, showConnectWindow);
 app.on(AppEvent.SHOW_HELP_WINDOW, showHelpWindow);
 
-app.on('before-quit', function() {
+app.on(ElectronEvent.BEFORE_QUIT, function() {
   debug('sending `app:quit` msg');
   _.first(BrowserWindow.getAllWindows()).webContents.send(AppEvent.QUIT);
 });
@@ -253,7 +254,7 @@ app.on('before-quit', function() {
  * on start which is responsible for retaining it's own
  * state between application launches.
  */
-app.on('ready', function() {
+app.on(ElectronEvent.READY, function() {
   migrate(function(err) {
     if (err) {
       // ignore migration errors silently.
