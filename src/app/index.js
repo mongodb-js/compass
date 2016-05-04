@@ -409,7 +409,7 @@ app.extend({
       metricsSetup();
 
       // signal to main process that app is ready
-      ipc.call('app:renderer-ready');
+      ipc.call('window:renderer-ready');
 
       // as soon as dom is ready, render and set up the rest
       self.onDomReady();
