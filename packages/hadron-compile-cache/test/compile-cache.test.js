@@ -33,7 +33,7 @@ describe('CompileCache', function() {
     var compiler = new JadeCompiler();
     var filePath = path.join(__dirname, 'compiler', 'test.jade');
     var home = path.join(__dirname);
-    var filename = path.join('jade', 'e0bf538b028619d962118895489c0c80303baaf1.js');
+    var filename = path.join('jade', 'fb840da9fcb09bc55a074a444f124067a973ce1a.js');
     var cachePath = path.join(home, '.compiled-sources');
     var cachedFilePath = path.join(cachePath, filename);
     var shortPath = null;
@@ -86,7 +86,7 @@ describe('CompileCache', function() {
       });
 
       it('strips the home directory from the front of the path', function() {
-        expect(CompileCache._shorten(filePath)).to.equal(relativePath);
+        expect(CompileCache._shorten(filePath)).to.equal('src-app-connect-test.js');
       });
     });
 
@@ -105,7 +105,7 @@ describe('CompileCache', function() {
         });
 
         it('does not strip anything', function() {
-          expect(CompileCache._shorten(relativePath)).to.equal(relativePath);
+          expect(CompileCache._shorten(relativePath)).to.equal('src-app-connect-test.js');
         });
       });
     });

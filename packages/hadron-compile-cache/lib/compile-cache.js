@@ -22,7 +22,7 @@ var UTF8 = 'utf8';
  *
  * @note Things with 'cache' in the name are stripped out of our build process.
  */
-var CACHE_DIRECTORY = 'compiled-sources';
+var CACHE_DIRECTORY = '.compiled-sources';
 
 /**
  * The root user string.
@@ -116,7 +116,8 @@ CompileCache.prototype._readCachedJavascript = function(digestedPath) {
  * @returns {String} The shortened file path.
  */
 CompileCache.prototype._shorten = function(filePath) {
-  return filePath.replace(this.homeDirectory + path.sep, '');
+  var stripped = filePath.replace(this.homeDirectory + path.sep, '');
+  return stripped.replace(/(\\|\/)/g, '-');
 };
 
 /**
