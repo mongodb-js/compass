@@ -154,6 +154,7 @@ exports.get = (cli, callback) => {
   CONFIG.arch = cli.argv.arch;
   CONFIG.channel = channel;
   CONFIG.productName = PRODUCT_NAME;
+  CONFIG.productNameTitleCase = CONFIG.productName.replace(/ /g, '');
   CONFIG.productNameReal = cli.argv.product_name;
   CONFIG.productNameRealTitleCase = CONFIG.productNameReal.replace(/ /g, '');
   CONFIG.dir = PROJECT_ROOT;
@@ -179,7 +180,7 @@ exports.get = (cli, callback) => {
      * ## Windows Configuration
      */
     // TODO (imlucas) electron-packager calls this `basename`.
-    const WINDOWS_OUT_X64 = CONFIG.dest(`${CONFIG.titleCaseName}-win32-x64`);
+    const WINDOWS_OUT_X64 = CONFIG.dest(`${CONFIG.productNameTitleCase}-win32-x64`);
 
     const WINDOWS_RESOURCES = path.join(WINDOWS_OUT_X64, 'resources');
 
@@ -236,7 +237,7 @@ exports.get = (cli, callback) => {
     ];
 
     _.assign(CONFIG.packagerOptions, {
-      name: CONFIG.titleCaseName,
+      name: CONFIG.productNameTitleCase,
       icon: WINDOWS_ICON,
       'version-string': {
         CompanyName: CONFIG.author,
