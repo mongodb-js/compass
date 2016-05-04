@@ -7,6 +7,7 @@ var format = require('util').format;
 var ipc = require('hadron-ipc');
 var intercom = require('./intercom');
 var features = require('./features');
+var AppEvent = require('hadron-events').AppEvent;
 
 var debug = require('debug')('mongodb-compass:metrics');
 
@@ -70,7 +71,7 @@ module.exports = function() {
     metrics.resources.pluck('id'));
 
   // track app launch and quit events
-  ipc.once('app:launched', function() {
+  ipc.once(AppEvent.LAUNCHED, function() {
     // bug in electron (?) causes the event to be triggered twice even though
     // it is only emitted once. only track app launch once.
     metrics.track('App', 'launched');
@@ -81,7 +82,7 @@ module.exports = function() {
     }
   });
 
-  ipc.once('app:quit', function() {
+  ipc.once(AppEvent.QUIT, function() {
     metrics.track('App', 'quit');
   });
 

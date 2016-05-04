@@ -12,7 +12,9 @@ var _ = require('lodash');
 var debug = require('debug')('mongodb-compass:home');
 var toNS = require('mongodb-ns');
 var ipc = require('hadron-ipc');
-var WindowEvent = require('hadron-events').WindowEvent;
+var evnt = require('hadron-events');
+var AppEvent = evnt.AppEvent;
+var WindowEvent = evnt.WindowEvent;
 
 var indexTemplate = require('./index.jade');
 
@@ -149,7 +151,7 @@ var HomeView = View.extend({
   },
   onClickShowConnectWindow: function() {
     // code to close current connection window and open connect dialog
-    ipc.call('app:show-connect-window');
+    ipc.call(AppEvent.SHOW_CONNECT_WINDOW);
     window.close();
   },
   template: indexTemplate,

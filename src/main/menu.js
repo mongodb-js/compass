@@ -5,7 +5,9 @@ var electron = require('electron');
 var BrowserWindow = electron.BrowserWindow;
 var Menu = electron.Menu;
 var app = electron.app;
-var WindowEvent = require('hadron-events').WindowEvent;
+var evnt = require('hadron-events');
+var AppEvent = evnt.AppEvent;
+var WindowEvent = evnt.WindowEvent;
 
 var State = require('ampersand-state');
 var _ = require('lodash');
@@ -80,7 +82,7 @@ function connectItem() {
     label: '&Connect to...',
     accelerator: 'CmdOrCtrl+N',
     click: function() {
-      app.emit('app:show-connect-window');
+      app.emit(AppEvent.SHOW_CONNECT_WINDOW);
     }
   };
 }
@@ -152,7 +154,7 @@ function helpWindowItem() {
     label: '&Show Compass Help',
     accelerator: 'F1',
     click: function() {
-      app.emit('app:show-help-window');
+      app.emit(AppEvent.SHOW_HELP_WINDOW);
     }
   };
 }

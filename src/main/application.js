@@ -8,6 +8,7 @@ var inherits = require('util').inherits;
 var AutoUpdateManager = require('hadron-auto-update-manager');
 var ipc = require('hadron-ipc');
 var debug = require('debug')('mongodb-compass:main:application');
+var AppEvent = require('hadron-events').AppEvent;
 
 function Application() {
   this.setupUserDirectory();
@@ -41,38 +42,36 @@ Application.prototype.setupAutoUpdate = function() {
   });
 
   this.autoUpdateManager.on('checking-for-update', function() {
-    ipc.broadcast('app:checking-for-update');
+    ipc.broadcast(AppEvent.CHECKING_FOR_UPDATE);
   });
 
   this.autoUpdateManager.on('update-not-available', function() {
-    ipc.broadcast('app:update-not-available');
+    ipc.broadcast(AppEvent.UPDATE_NOT_AVAILABLE);
   });
 
   this.autoUpdateManager.on('update-available', function() {
-    ipc.broadcast('app:update-available');
+    ipc.broadcast(AppEvent.UPDATE_AVAILABLE);
   });
 
   this.autoUpdateManager.on('update-downloaded', function() {
-    ipc.broadcast('app:update-downloaded', {
+    ipc.broadcast(AppEvent.UPDATE_DOWNLOADED, {
       releaseNotes: this.autoUpdateManager.releaseNotes,
       releaseVersion: this.autoUpdateManager.releaseVersion
     });
   }.bind(this));
 
   var updateManager = this.autoUpdateManager;
-  ipc.respondTo({
-    'app:install-update': function() {
-      updateManager.install();
-    },
-    'app:enable-auto-update': function() {
-      updateManager.enable();
-    },
-    'app:disable-auto-update': function() {
-      updateManager.disable();
-    },
-    'app:check-for-update': function() {
-      updateManager.check();
-    }
+  ipc.respondTo(AppEvent.INSTALL_UPDATE, function() {
+    updateManager.install();
+  });
+  ipc.respondTo(AppEvent.ENABLE_AUTO_UPDATE, function() {
+    updateManager.enable();
+  });
+  ipc.respondTo(AppEvent.DISABLE_AUTO_UPDATE, function() {
+    updateManager.disable();
+  });
+  ipc.respondTo(AppEvent.CHECK_FOR_UPDATE, function() {
+    updateManager.check();
   });
 };
 
