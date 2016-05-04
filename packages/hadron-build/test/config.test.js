@@ -112,7 +112,7 @@ describe('hadron-build::config', () => {
     it('should append the channel name to the product name', () => {
       expect(res.productName).to.equal('Hadron Beta');
       let versionString = res.packagerOptions['version-string'];
-      expect(versionString.ProductName).to.equal('Hadron Beta')
+      expect(versionString.ProductName).to.equal('Hadron Beta');
       // expect(versionString.InternalName).to.equal('hadron-beta');
     });
 
