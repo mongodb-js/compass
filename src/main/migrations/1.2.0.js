@@ -1,6 +1,4 @@
-// var async = require('async');
 var ncp = require('ncp');
-var rimraf = require('rimraf');
 var path = require('path');
 var app = require('electron').app;
 
@@ -24,12 +22,7 @@ function changeUserDataDirectoryLocation(done) {
       if (errCp) {
         return done(errCp);
       }
-      rimraf(oldUserDir, function(errRm) {
-        if (errRm) {
-          return done(errRm);
-        }
-        done();
-      });
+      done();
     });
   } catch (e) {
     // failed migration, handle gracefully

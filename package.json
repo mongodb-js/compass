@@ -129,7 +129,6 @@
     "pluralize": "^1.2.1",
     "qs": "^5.2.0",
     "raf": "^3.1.0",
-    "rimraf": "^2.5.2",
     "semver": "^5.1.0",
     "storage-mixin": "^0.6.1",
     "turf-destination": "^1.2.1",
