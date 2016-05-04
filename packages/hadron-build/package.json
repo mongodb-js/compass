@@ -39,7 +39,7 @@
     "github": "^0.2.4",
     "glob": "^5.0.15",
     "got": "^6.3.0",
-    "hadron-compile-cache": "^0.0.8",
+    "hadron-compile-cache": "^0.0.9",
     "hadron-module-cache": "^0.0.3",
     "in-publish": "^2.0.0",
     "js-yaml": "^3.5.4",
