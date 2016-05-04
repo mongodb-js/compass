@@ -347,7 +347,7 @@ function createApplicationZip(CONFIG, done) {
 
   var options = {
     dir: DIR,
-    out: OUT,
+    out: CONFIG.dest(OUT),
     platform: CONFIG.platform
   };
 
