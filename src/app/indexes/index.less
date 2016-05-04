@@ -39,7 +39,6 @@
     &[data-hook="th-name"],
     &[data-hook="th-type"],
     &[data-hook="th-size"],
-    &[data-hook="th-cardinality"],
     &[data-hook="th-properties"] {
       padding-left: 24px;
     }
@@ -99,7 +98,7 @@
       padding: 0 0 24px 12px;
       position: relative;
       height: 48px;
-      width: 30%;
+      width: 40%;
 
       &:hover {
         .name {
@@ -124,14 +123,14 @@
       padding-right: 24px;
     }
 
-    &.util-column {
-      width: 18%;
-    }
-
-    &.type-column, &.property1-column, &.property2-column {
-      width: 14%;
+    &.type-column, &.property-column {
+      width: auto;
       padding-left: 24px;
       padding-right: 24px;
+    }
+
+    &.usage-column {
+      width: 20%;
     }
 
     .name {

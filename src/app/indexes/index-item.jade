@@ -25,11 +25,7 @@ tr
       div.quantity(data-hook='usage-count')
       div.usage-since since&nbsp;
         span(data-hook='usage-since')
-  td.property1-column
-    div.property.cardinality
-      = model.cardinality
-      i.link
-  td.property2-column
+  td.property-column
     div.properties
       each prop in model.properties
         if prop === 'ttl'
@@ -44,3 +40,7 @@ tr
           div(class='property')
             = prop
             i.link
+      if model.cardinality === 'compound'
+        div.property.cardinality
+          = model.cardinality
+          i.link
