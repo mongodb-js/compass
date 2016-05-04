@@ -253,7 +253,7 @@ exports.get = (cli, callback) => {
       outputDirectory: CONFIG.out,
       authors: CONFIG.author,
       version: CONFIG.version,
-      exe: `${WINDOWS_APPNAME}.exe`,
+      exe: `${CONFIG.productName}.exe`,
       setupExe: `${WINDOWS_APPNAME}Setup.exe`,
       title: CONFIG.productName,
       productName: CONFIG.productName,
