@@ -209,26 +209,26 @@ exports.get = (cli, callback) => {
       {
         name: CONFIG.windows_setup_filename,
         label: CONFIG.windows_setup_label,
-        path: CONFIG.windows_setup_filename
+        path: CONFIG.dest(CONFIG.windows_setup_filename)
       },
       {
         name: CONFIG.windows_msi_filename,
         label: CONFIG.windows_msi_label,
-        path: CONFIG.windows_msi_filename
+        path: CONFIG.dest(CONFIG.windows_msi_filename)
       },
       {
         name: 'RELEASES',
-        path: 'RELEASES'
+        path: CONFIG.dest('RELEASES')
       },
       {
         name: CONFIG.windows_nupkg_full_filename,
         label: CONFIG.windows_nupkg_full_label,
-        path: CONFIG.windows_nupkg_full_filename
+        path: CONFIG.dest(CONFIG.windows_nupkg_full_filename)
       },
       {
         name: CONFIG.windows_zip_filename,
         label: CONFIG.windows_zip_label,
-        path: CONFIG.windows_zip_filename
+        path: CONFIG.dest(CONFIG.windows_zip_filename)
       }
       /**
        * TODO (imlucas) Uncomment when hadron-endpoint-server deployed.
