@@ -1,11 +1,4 @@
 /* eslint no-console:0 */
-if (process.env.NODE_ENV !== 'production') {
-  require('debug').enable('mon*,had*');
-  require('debug/browser');
-  require('debug').enable('mon*,had*');
-}
-
-var debug = require('debug')('mongodb-compass:app');
 
 console.time('app/index.js');
 
@@ -59,6 +52,16 @@ var metrics = require('mongodb-js-metrics')();
 var AutoUpdate = require('../auto-update');
 
 var addInspectElementMenu = require('debug-menu').install;
+
+ipc.once('app:launched', function() {
+  console.log('in app:launched');
+  if (process.env.NODE_ENV !== 'production') {
+    require('debug').enable('mon*,had*');
+    require('debug/browser');
+  }
+});
+
+var debug = require('debug')('mongodb-compass:app');
 
 function getConnection(model, done) {
   function _fetch(fn) {
@@ -409,7 +412,7 @@ app.extend({
       metricsSetup();
 
       // signal to main process that app is ready
-      ipc.call('app:renderer-ready');
+      ipc.call('window:renderer-ready');
 
       // as soon as dom is ready, render and set up the rest
       self.onDomReady();

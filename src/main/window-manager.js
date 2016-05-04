@@ -207,6 +207,22 @@ function hideShareSubmenu() {
   AppMenu.hideShare();
 }
 
+/**
+ * can't use webContents `did-finish-load` event here because
+ * metrics aren't set up at that point. renderer app sends custom event
+ * `window:renderer-ready` when metrics are set up. If first app launch,
+ * send back `app:launched` message at that point.
+ *
+ * @param {Object} sender   original sender of the event
+ */
+function rendererReady(sender) {
+  if (!appLaunched) {
+    appLaunched = true;
+    debug('sending `app:launched` msg back');
+    sender.send('app:launched');
+  }
+}
+
 // respond to events from the renderer process
 ipc.respondTo({
   'app:show-connect-window': showConnectWindow,
@@ -215,27 +231,14 @@ ipc.respondTo({
   'window:show-about-dialog': showAboutDialog,
   'window:show-share-submenu': showShareSubmenu,
   'window:hide-share-submenu': hideShareSubmenu,
-  'window:show-compass-overview-submenu': showCompassOverview
+  'window:show-compass-overview-submenu': showCompassOverview,
+  'window:renderer-ready': rendererReady
 });
 
 // respond to events from the main process
 app.on('window:show-about-dialog', showAboutDialog);
 app.on('app:show-connect-window', showConnectWindow);
 app.on('app:show-help-window', showHelpWindow);
-
-/**
- * can't use webContents `did-finish-load` event here because
- * metrics aren't set up at that point. renderer app sends custom event
- * `renderer ready` when metrics are set up. If first app launch, send back
- * `app launched` message at that point.
- */
-app.on('window:renderer-ready', function(arg, event) {
-  if (!appLaunched) {
-    appLaunched = true;
-    debug('sending `app:launched` msg back');
-    event.sender.send('app:launched');
-  }
-});
 
 app.on('before-quit', function() {
   debug('sending `app:quit` msg');
