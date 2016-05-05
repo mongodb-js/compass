@@ -3,6 +3,7 @@ var app = require('ampersand-app');
 var ipc = require('hadron-ipc');
 var metrics = require('mongodb-js-metrics')();
 var debug = require('debug')('mongodb-compass:notification-update-available');
+var AppEvent = require('hadron-events').AppEvent;
 
 var indexTemplate = require('./index.jade');
 
@@ -29,16 +30,16 @@ var NotificationUpdateAvailable = View.extend({
     if (!app.isFeatureEnabled('autoUpdates')) {
       return debug('autoUpdates feature flag off');
     }
-    ipc.on('app:checking-for-update', function() {
+    ipc.on(AppEvent.CHECKING_FOR_UPDATE, function() {
       debug('checking for update');
       metrics.track('Auto Update', 'checking-for-update');
     });
 
-    ipc.on('app:update-not-available', function() {
+    ipc.on(AppEvent.UPDATE_NOT_AVAILABLE, function() {
       metrics.track('Auto Update', 'update-not-available');
     });
 
-    ipc.on('app:update-available', function(_opts) {
+    ipc.on(AppEvent.UPDATE_AVAILABLE, function(_opts) {
       debug('new update available!  wanna update to', _opts, '?');
       metrics.track('Auto Update', 'update-available', {
         releaseNotes: _opts.releaseNotes,
@@ -47,16 +48,16 @@ var NotificationUpdateAvailable = View.extend({
       this.visible = true;
     }.bind(this));
 
-    ipc.on('app:update-downloaded', function() {
+    ipc.on(AppEvent.UPDATE_DOWNLOADED, function() {
       debug('the update has been downloaded.');
       metrics.track('Auto Update', 'update-downloaded');
     });
 
     this.listenToAndRun(app.preferences, 'change:autoUpdates', function() {
       if (app.isFeatureEnabled('autoUpdates')) {
-        ipc.call('app:enable-auto-update');
+        ipc.call(AppEvent.ENABLE_AUTO_UPDATE);
       } else {
-        ipc.call('app:disable-auto-update');
+        ipc.call(AppEvent.DISABLE_AUTO_UPDATE);
       }
     });
   },
@@ -65,10 +66,10 @@ var NotificationUpdateAvailable = View.extend({
     return false;
   },
   installUpdate: function() {
-    ipc.call('app:install-update');
+    ipc.call(AppEvent.INSTALL_UPDATE);
   },
   checkForUpdate: function() {
-    ipc.call('app:check-for-update');
+    ipc.call(AppEvent.CHECK_FOR_UPDATE);
   }
 });
 

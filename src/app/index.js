@@ -50,10 +50,13 @@ var metricsSetup = require('./metrics');
 var metrics = require('mongodb-js-metrics')();
 
 var AutoUpdate = require('../auto-update');
+var evnt = require('hadron-events');
+var AppEvent = evnt.AppEvent;
+var WindowEvent = evnt.WindowEvent;
 
 var addInspectElementMenu = require('debug-menu').install;
 
-ipc.once('app:launched', function() {
+ipc.once(AppEvent.LAUNCHED, function() {
   console.log('in app:launched');
   if (process.env.NODE_ENV !== 'production') {
     require('debug').enable('mon*,had*');
@@ -174,7 +177,7 @@ var Application = View.extend({
       url += '/' + id;
     }
 
-    ipc.call('app:show-help-window', id);
+    ipc.call(AppEvent.SHOW_HELP_WINDOW, id);
   },
   onClientReady: function() {
     debug('Client ready! Took %dms to become readable',
@@ -412,7 +415,7 @@ app.extend({
       metricsSetup();
 
       // signal to main process that app is ready
-      ipc.call('window:renderer-ready');
+      ipc.call(WindowEvent.RENDERER_READY);
 
       // as soon as dom is ready, render and set up the rest
       self.onDomReady();

@@ -5,6 +5,9 @@ var electron = require('electron');
 var BrowserWindow = electron.BrowserWindow;
 var Menu = electron.Menu;
 var app = electron.app;
+var evnt = require('hadron-events');
+var AppEvent = evnt.AppEvent;
+var WindowEvent = evnt.WindowEvent;
 
 var State = require('ampersand-state');
 var _ = require('lodash');
@@ -31,7 +34,7 @@ function compassOverviewItem() {
   return {
     label: 'Compass &Overview',
     click: function() {
-      BrowserWindow.getFocusedWindow().webContents.send('window:show-compass-tour');
+      BrowserWindow.getFocusedWindow().webContents.send(WindowEvent.SHOW_COMPASS_TOUR);
     }
   };
 }
@@ -40,7 +43,7 @@ function networkOptInDialogItem() {
   return {
     label: 'Help &Improve Compass',
     click: function() {
-      BrowserWindow.getFocusedWindow().webContents.send('window:show-network-optin');
+      BrowserWindow.getFocusedWindow().webContents.send(WindowEvent.SHOW_NETWORK_OPTIN);
     }
   };
 }
@@ -79,7 +82,7 @@ function connectItem() {
     label: '&Connect to...',
     accelerator: 'CmdOrCtrl+N',
     click: function() {
-      app.emit('app:show-connect-window');
+      app.emit(AppEvent.SHOW_CONNECT_WINDOW);
     }
   };
 }
@@ -141,7 +144,7 @@ function nonDarwinAboutItem() {
   return {
     label: '&About Compass',
     click: function() {
-      app.emit('window:show-about-dialog');
+      app.emit(WindowEvent.SHOW_ABOUT_DIALOG);
     }
   };
 }
@@ -151,7 +154,7 @@ function helpWindowItem() {
     label: '&Show Compass Help',
     accelerator: 'F1',
     click: function() {
-      app.emit('app:show-help-window');
+      app.emit(AppEvent.SHOW_HELP_WINDOW);
     }
   };
 }
@@ -160,7 +163,7 @@ function intercomItem() {
   return {
     label: '&Provide Feedback',
     click: function() {
-      BrowserWindow.getFocusedWindow().webContents.send('window:show-intercom-panel');
+      BrowserWindow.getFocusedWindow().webContents.send(WindowEvent.SHOW_INTERCOM_PANEL);
     }
   };
 }
@@ -194,7 +197,7 @@ function shareSubMenu() {
         label: '&Share Schema as JSON',
         accelerator: 'Alt+CmdOrCtrl+S',
         click: function() {
-          BrowserWindow.getFocusedWindow().webContents.send('window:menu-share-schema-json');
+          BrowserWindow.getFocusedWindow().webContents.send(WindowEvent.SHARE_SCHEMA_JSON);
         }
       }
     ]

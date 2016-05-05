@@ -14,6 +14,10 @@ var debug = require('debug')('mongodb-compass:electron:window-manager');
 var dialog = electron.dialog;
 var path = require('path');
 var ipc = require('hadron-ipc');
+var evnt = require('hadron-events');
+var AppEvent = evnt.AppEvent;
+var WindowEvent = evnt.WindowEvent;
+var ElectronEvent = evnt.ElectronEvent;
 
 /**
  * When running in electron, we're in `/src/main`.
@@ -181,7 +185,7 @@ function showHelpWindow(win, id) {
   if (helpWindow) {
     helpWindow.focus();
     if (_.isString(id)) {
-      helpWindow.webContents.send('app:show-help-entry', id);
+      helpWindow.webContents.send(AppEvent.SHOW_HELP_ENTRY, id);
     }
     return;
   }
@@ -219,30 +223,29 @@ function rendererReady(sender) {
   if (!appLaunched) {
     appLaunched = true;
     debug('sending `app:launched` msg back');
-    sender.send('app:launched');
+    sender.send(AppEvent.LAUNCHED);
   }
 }
 
 // respond to events from the renderer process
-ipc.respondTo({
-  'app:show-connect-window': showConnectWindow,
-  'app:close-connect-window': closeConnectWindow,
-  'app:show-help-window': showHelpWindow,
-  'window:show-about-dialog': showAboutDialog,
-  'window:show-share-submenu': showShareSubmenu,
-  'window:hide-share-submenu': hideShareSubmenu,
-  'window:show-compass-overview-submenu': showCompassOverview,
-  'window:renderer-ready': rendererReady
-});
+ipc.respondTo(AppEvent.SHOW_CONNECT_WINDOW, showConnectWindow);
+ipc.respondTo(AppEvent.CLOSE_CONNECT_WINDOW, closeConnectWindow);
+ipc.respondTo(AppEvent.SHOW_HELP_WINDOW, showHelpWindow);
+
+ipc.respondTo(WindowEvent.SHOW_ABOUT_DIALOG, showAboutDialog);
+ipc.respondTo(WindowEvent.SHOW_SHARE_SUBMENU, showShareSubmenu);
+ipc.respondTo(WindowEvent.HIDE_SHARE_SUBMENU, hideShareSubmenu);
+ipc.respondTo(WindowEvent.SHOW_COMPASS_OVERVIEW_SUBMENU, showCompassOverview);
+ipc.respondTo(WindowEvent.RENDERER_READY, rendererReady);
 
 // respond to events from the main process
-app.on('window:show-about-dialog', showAboutDialog);
-app.on('app:show-connect-window', showConnectWindow);
-app.on('app:show-help-window', showHelpWindow);
+app.on(WindowEvent.SHOW_ABOUT_DIALOG, showAboutDialog);
+app.on(AppEvent.SHOW_CONNECT_WINDOW, showConnectWindow);
+app.on(AppEvent.SHOW_HELP_WINDOW, showHelpWindow);
 
-app.on('before-quit', function() {
+app.on(ElectronEvent.BEFORE_QUIT, function() {
   debug('sending `app:quit` msg');
-  _.first(BrowserWindow.getAllWindows()).webContents.send('app:quit');
+  _.first(BrowserWindow.getAllWindows()).webContents.send(AppEvent.QUIT);
 });
 
 /**
@@ -251,7 +254,7 @@ app.on('before-quit', function() {
  * on start which is responsible for retaining it's own
  * state between application launches.
  */
-app.on('ready', function() {
+app.on(ElectronEvent.READY, function() {
   migrate(function(err) {
     if (err) {
       // ignore migration errors silently.

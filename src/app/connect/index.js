@@ -18,6 +18,7 @@ var dialog = remote.dialog;
 var Clipboard = remote.clipboard;
 var BrowserWindow = remote.BrowserWindow;
 var metrics = require('mongodb-js-metrics')();
+var AppEvent = require('hadron-events').AppEvent;
 
 var debug = require('debug')('mongodb-compass:connect:index');
 
@@ -454,7 +455,7 @@ var ConnectView = View.extend({
         window.location.origin,
         connection.getId())
     );
-    ipc.call('app:close-connect-window');
+    ipc.call(AppEvent.CLOSE_CONNECT_WINDOW);
   },
 
   /**
