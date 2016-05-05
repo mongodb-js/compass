@@ -47,6 +47,7 @@
     "url": "git://github.com/10gen/compass.git"
   },
   "dependencies": {
+    "@lukekarrys/jade-runtime": "^1.11.1",
     "ampersand-app": "^1.0.4",
     "ampersand-collection": "^1.5.0",
     "ampersand-collection-filterable": "^0.2.1",
@@ -72,9 +73,9 @@
     "electron-squirrel-startup": "^0.1.4",
     "font-awesome": "https://github.com/FortAwesome/Font-Awesome/archive/v4.4.0.tar.gz",
     "get-object-path": "azer/get-object-path",
+    "hadron-module-cache": "0.0.2",
     "highlight.js": "^8.9.1",
     "jade": "^1.11.0",
-    "@lukekarrys/jade-runtime": "^1.11.1",
     "jquery": "^2.1.4",
     "keytar": "mongodb-js/node-keytar#node-pre-gyp",
     "less": "^2.6.1",
@@ -113,7 +114,7 @@
     "electron-installer-codesign": "^0.1.1",
     "electron-installer-dmg": "^0.1.0",
     "electron-installer-run": "^0.1.1",
-    "electron-license": "^0.1.0",
+    "electron-license": "0.1.0",
     "electron-mocha": "^0.8.0",
     "electron-packager": "^5.1.1",
     "electron-prebuilt": "^0.36.11",
