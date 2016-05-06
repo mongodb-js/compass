@@ -54,15 +54,13 @@ let getOrCreateGitHubRelease = (CONFIG) => {
       return p.reject(err);
     }
 
-    var latestDraft = _.chain(releases)
-      .filter('draft')
-      .first()
-      .value();
+    let existing = _.find(releases, (release) => release.name === CONFIG.version);
+    if (existing) {
+      cli.debug(`Found existsing release for ${CONFIG.version}`, existing);
+      return p.resolve(existing);
+    }
 
-    cli.debug('Latest draft is', latestDraft);
-    if (latestDraft) return p.resolve(latestDraft);
-
-    cli.debug('Creating new draft release');
+    cli.debug(`Creating new draft release for ${CONFIG.version}`);
     createGitHubRelease(CONFIG)
       .then( (release) => p.resolve(release))
       .catch( (_err) => p.reject(_err));
@@ -124,7 +122,7 @@ let doGitHubReleaseAssetUpload = (CONFIG, release, asset) => {
 };
 
 let uploadGitHubReleaseAsset = (CONFIG, release, asset) => {
-  if (!process.env.EVERGREEN) {
+  if (release.draft === true) {
     return removeGitHubReleaseAssetIfExists(CONFIG, release, asset)
       .then(() => doGitHubReleaseAssetUpload(CONFIG, release, asset));
   }
@@ -135,7 +133,7 @@ let uploadGitHubReleaseAsset = (CONFIG, release, asset) => {
     .value();
 
   if (existing) {
-    cli.debug('Asset already exists.  skipping.', existing);
+    cli.debug('Asset already exists and release is currently not a draft.  skipping.', existing);
     return Promise.resolve(existing);
   }
 
