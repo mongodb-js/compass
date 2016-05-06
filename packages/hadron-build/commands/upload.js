@@ -124,8 +124,22 @@ let doGitHubReleaseAssetUpload = (CONFIG, release, asset) => {
 };
 
 let uploadGitHubReleaseAsset = (CONFIG, release, asset) => {
-  return removeGitHubReleaseAssetIfExists(CONFIG, release, asset)
-    .then(() => doGitHubReleaseAssetUpload(CONFIG, release, asset));
+  if (!process.env.EVERGREEN) {
+    return removeGitHubReleaseAssetIfExists(CONFIG, release, asset)
+      .then(() => doGitHubReleaseAssetUpload(CONFIG, release, asset));
+  }
+
+  let existing = _.chain(release.assets)
+    .filter((a) => a.name === asset.name)
+    .first()
+    .value();
+
+  if (existing) {
+    cli.debug('Asset already exists.  skipping.', existing);
+    return Promise.resolve(existing);
+  }
+
+  return doGitHubReleaseAssetUpload(CONFIG, release, asset);
 };
 
 let maybePublishGitHubRelease = (CONFIG) => {
