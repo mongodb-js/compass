@@ -71,11 +71,8 @@ describe('hadron-build::config', () => {
 
       it('should have the platform specific evergreen expansions', () => {
         expect(res.windows_msi_filename).to.equal('HadronSetup.msi');
-        expect(res.windows_msi_label).to.equal('Windows Installer Package');
         expect(res.windows_setup_filename).to.equal('HadronSetup.exe');
-        expect(res.windows_setup_label).to.equal('Windows Installer');
         expect(res.windows_zip_filename).to.equal('Hadron-windows.zip');
-        expect(res.windows_zip_label).to.equal('Windows Zip');
         expect(res.windows_nupkg_full_filename).to.equal('Hadron-1.2.0-full.nupkg');
         expect(res.windows_nupkg_full_label).to.equal('Hadron-1.2.0-full.nupkg');
       });
@@ -120,7 +117,7 @@ describe('hadron-build::config', () => {
       expect(res.windows_msi_filename).to.equal('Hadron BetaSetup.msi');
       expect(res.windows_setup_filename).to.equal('Hadron BetaSetup.exe');
       expect(res.windows_zip_filename).to.equal('Hadron Beta-windows.zip');
-      expect(res.windows_nupkg_full_filename).to.equal('Hadron-1.2.0-beta.1-full.nupkg');
+      expect(res.windows_nupkg_full_filename).to.equal('Hadron-1.2.0-beta1-full.nupkg');
     });
 
     it('should have the platform specific installer options', () => {

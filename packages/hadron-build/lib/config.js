@@ -193,17 +193,18 @@ exports.get = (cli, callback) => {
     CONFIG.appPath = WINDOWS_OUT_X64;
     CONFIG.resources = WINDOWS_RESOURCES;
 
-    CONFIG.windows_msi_filename = path.basename(WINDOWS_OUT_MSI);
-    CONFIG.windows_msi_label = 'Windows Installer Package';
+    CONFIG.windows_msi_label = CONFIG.windows_msi_filename = path.basename(WINDOWS_OUT_MSI);
 
-    CONFIG.windows_setup_filename = path.basename(WINDOWS_OUT_SETUP_EXE);
-    CONFIG.windows_setup_label = 'Windows Installer';
+    CONFIG.windows_setup_label = CONFIG.windows_setup_filename = path.basename(WINDOWS_OUT_SETUP_EXE);
 
-    CONFIG.windows_zip_filename = `${CONFIG.productName}-windows.zip`;
-    CONFIG.windows_zip_label = 'Windows Zip';
+    CONFIG.windows_zip_label = CONFIG.windows_zip_filename = `${CONFIG.productName}-windows.zip`;
 
-    CONFIG.windows_nupkg_full_filename = `${CONFIG.productNameRealTitleCase}-${CONFIG.version}-full.nupkg`;
-    CONFIG.windows_nupkg_full_label = `${CONFIG.productNameRealTitleCase}-${CONFIG.version}-full.nupkg`;
+    let NUGET_VERSION = CONFIG.version;
+    if (CONFIG.channel === 'beta') {
+      NUGET_VERSION = CONFIG.version.replace(/-beta\.(\d+)/, '-beta$1');
+    }
+    const NUGET_NAME = CONFIG.productNameRealTitleCase;
+    CONFIG.windows_nupkg_full_label = CONFIG.windows_nupkg_full_filename = `${NUGET_NAME}-${NUGET_VERSION}-full.nupkg`;
 
     CONFIG.assets = [
       {
@@ -260,7 +261,7 @@ exports.get = (cli, callback) => {
       title: CONFIG.productName,
       productName: CONFIG.productName,
       description: CONFIG.description,
-      name: CONFIG.productNameRealTitleCase
+      name: NUGET_NAME
       /**
        * TODO (imlucas) Uncomment when hadron-endpoint-server deployed.
        * remoteReleases: _.get(pkg, 'config.hadron.endpoint'),
