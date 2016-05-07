@@ -115,8 +115,6 @@ exports.get = (cli, callback) => {
     PRODUCT_NAME += ' Dev';
   }
 
-  let ID = cli.argv.name;
-
   /**
    * TODO (imlucas) beta and dev channels should have different
    * icons.
@@ -149,6 +147,7 @@ exports.get = (cli, callback) => {
    * First add to `CONFIG` the common keys which are
    * not platform specific.
    */
+  CONFIG.id = cli.argv.name;
   CONFIG.out = path.join(PROJECT_ROOT, 'dist');
   CONFIG.platform = cli.argv.platform;
   CONFIG.arch = cli.argv.arch;
@@ -209,33 +208,41 @@ exports.get = (cli, callback) => {
     CONFIG.assets = [
       {
         name: CONFIG.windows_setup_filename,
-        label: CONFIG.windows_setup_label,
-        path: CONFIG.dest(CONFIG.windows_setup_filename)
+        path: CONFIG.dest(CONFIG.windows_setup_filename),
+        canonical: `${CONFIG.id}-${CONFIG.version}-${CONFIG.platform}-${CONFIG.arch}.exe`
       },
       {
         name: CONFIG.windows_msi_filename,
-        label: CONFIG.windows_msi_label,
-        path: CONFIG.dest(CONFIG.windows_msi_filename)
+        path: CONFIG.dest(CONFIG.windows_msi_filename),
+        canonical: `${CONFIG.id}-${CONFIG.version}-${CONFIG.platform}-${CONFIG.arch}.msi`
+      },
+      {
+        name: CONFIG.windows_zip_filename,
+        path: CONFIG.dest(CONFIG.windows_zip_filename),
+        canonical: `${CONFIG.id}-${CONFIG.version}-${CONFIG.platform}-${CONFIG.arch}.zip`
       },
       {
         name: 'RELEASES',
         path: CONFIG.dest('RELEASES')
       },
       {
-        name: CONFIG.windows_nupkg_full_filename,
-        label: CONFIG.windows_nupkg_full_label,
-        path: CONFIG.dest(CONFIG.windows_nupkg_full_filename)
+        name: 'LICENSE',
+        path: CONFIG.dest('LICENSE')
       },
       {
-        name: CONFIG.windows_zip_filename,
-        label: CONFIG.windows_zip_label,
-        path: CONFIG.dest(CONFIG.windows_zip_filename)
+        name: 'version',
+        path: CONFIG.dest('version')
+      },
+      {
+        name: CONFIG.windows_nupkg_full_filename,
+        path: CONFIG.dest(CONFIG.windows_nupkg_full_filename)
       }
-      /**
-       * TODO (imlucas) Uncomment when hadron-endpoint-server deployed.
-       path.join(CONFIG.out, format('%s-%s-delta.nupkg', WINDOWS_APPNAME, CONFIG['app-version']));
-       */
     ];
+
+    /**
+     * TODO (imlucas) Uncomment when hadron-endpoint-server deployed.
+     path.join(CONFIG.out, format('%s-%s-delta.nupkg', WINDOWS_APPNAME, CONFIG['app-version']));
+     */
 
     _.assign(CONFIG.packagerOptions, {
       name: CONFIG.productNameTitleCase,
@@ -292,7 +299,7 @@ exports.get = (cli, callback) => {
     const OSX_DOT_APP = path.join(OSX_OUT_X64, `${OSX_APPNAME}.app`);
     const OSX_RESOURCES = path.join(OSX_DOT_APP, 'Contents', 'Resources');
 
-    const OSX_ICON = CONFIG.src(_.get(pkg, 'config.hadron.build.darwin.icon', `${ID}.icns`));
+    const OSX_ICON = CONFIG.src(_.get(pkg, 'config.hadron.build.darwin.icon', `${CONFIG.id}.icns`));
 
     const OSX_OUT_DMG = CONFIG.dest(`${OSX_APPNAME}.dmg`);
 
@@ -317,22 +324,21 @@ exports.get = (cli, callback) => {
       CONFIG.packagerOptions['app-bundle-id'] += `.${CONFIG.channel}`;
     }
 
-    CONFIG.osx_dmg_filename = path.basename(OSX_OUT_DMG);
-    CONFIG.osx_dmg_label = 'OS X Installer';
-
-    CONFIG.osx_zip_filename = path.basename(OSX_OUT_ZIP);
-    CONFIG.osx_zip_label = 'OS X Zip';
+    CONFIG.osx_dmg_label = CONFIG.osx_dmg_filename = path.basename(OSX_OUT_DMG);
+    CONFIG.osx_zip_label = CONFIG.osx_zip_filename = path.basename(OSX_OUT_ZIP);
 
     CONFIG.appPath = OSX_DOT_APP;
     CONFIG.resources = OSX_RESOURCES;
     CONFIG.assets = [
       {
-        name: `${ID}.dmg`,
-        path: OSX_OUT_DMG
+        name: `${CONFIG.id}.dmg`,
+        path: OSX_OUT_DMG,
+        canonical: `${CONFIG.id}-${CONFIG.version}-${CONFIG.platform}-${CONFIG.arch}.dmg`
       },
       {
-        name: `${ID}-mac.zip`,
-        path: OSX_OUT_ZIP
+        name: `${CONFIG.id}-mac.zip`,
+        path: OSX_OUT_ZIP,
+        canonical: `${CONFIG.id}-${CONFIG.version}-${CONFIG.platform}-${CONFIG.arch}.zip`
       }
     ];
 
