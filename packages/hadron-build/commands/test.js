@@ -24,6 +24,10 @@ exports.builder = {
   release: {
     description: 'Test using release assets',
     default: false
+  },
+  packages: {
+    description: 'Only run the package tests',
+    default: false
   }
 };
 
@@ -42,10 +46,16 @@ exports.getMochaArgs = (argv) => {
     args.push.apply(args, ['--invert', '--grep', 'spectron']);
   } else if (argv.functional) {
     args.push.apply(args, ['--grep', 'spectron']);
+  } else if (argv.packages) {
+    args.push.apply(args, ['--recursive']);
   }
 
   if (process.env.EVERGREEN) {
     args.push.apply(args, ['--reporter', 'mocha-evergreen-reporter']);
+  }
+
+  if (argv.packages) {
+    args.push.apply(args, ['./src/internal-packages']);
   }
 
   const omitKeys = _.flatten([

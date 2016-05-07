@@ -55,18 +55,34 @@ describe('hadron-build', () => {
 
   describe('::test', () => {
     describe('::getMochaArgs', () => {
-      it('should allow pass through of mocha cli options', () => {
-        var argv = {
-          _: [],
-          $0: 'hadron-build',
-          help: false,
-          recursive: true,
-          grep: '#spectron'
-        };
+      context('when the arguments are default', () => {
+        it('should allow pass through of mocha cli options', () => {
+          var argv = {
+            _: [],
+            $0: 'hadron-build',
+            help: false,
+            recursive: true,
+            grep: '#spectron'
+          };
 
-        expect(commands.test.getMochaArgs(argv)).to.deep.equal([
-          '--recursive', '--grep', '#spectron'
-        ]);
+          expect(commands.test.getMochaArgs(argv)).to.deep.equal([
+            '--recursive', '--grep', '#spectron'
+          ]);
+        });
+      });
+
+      context('when executing package tests', () => {
+        it('adds the recursive options and defaults to test internal-packages', () => {
+          var argv = {
+            _: [],
+            $0: 'hadron-build',
+            packages: true
+          };
+
+          expect(commands.test.getMochaArgs(argv)).to.deep.equal([
+            '--recursive', './src/internal-packages'
+          ]);
+        });
       });
     });
 
