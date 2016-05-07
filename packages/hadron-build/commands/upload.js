@@ -7,7 +7,6 @@
  * @see https://github.com/atom/atom/blob/master/script/utils/verify-requirements.js
  */
 const Promise = require('bluebird');
-const fs = require('fs-extra');
 const _ = require('lodash');
 const GitHub = require('github');
 const github = new GitHub({version: '3.0.0', 'User-Agent': 'hadron-build'});
@@ -15,7 +14,6 @@ const cli = require('mongodb-js-cli')('hadron-build:upload');
 const abortIfError = cli.abortIfError.bind(cli);
 
 const config = require('../lib/config');
-const AWS = require('aws-sdk');
 
 
 let createGitHubRelease = (CONFIG) => {
@@ -160,82 +158,6 @@ let maybePublishGitHubRelease = (CONFIG) => {
     .then((release) => {
       return CONFIG.assets.map((asset) => uploadGitHubReleaseAsset(CONFIG, release, asset));
     });
-};
-
-let uploadEvergreenAssetToS3 = (asset) => {
-  const p = Promise.defer();
-
-  const params = {
-    Bucket: process.env.EVERGREEN_S3_BUCKET,
-    Key: `${process.env.EVERGREEN_S3_KEY_PREFIX}/${asset.name}`,
-    Body: fs.createReadStream(asset.path),
-    ACL: 'public-read',
-    Metadata: {
-      Name: asset.label || asset.name,
-      EvergreenProject: process.env.EVERGREEN_PROJECT,
-      EvergreenBuildVariant: process.env.EVERGREEN_BUILD_VARIANT,
-      EvergreenRevision: process.env.EVERGREEN_REVISION
-    }
-  };
-
-  try {
-    AWS.config.update({
-      accessKeyId: process.env.EVERGREEN_AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.EVERGREEN_AWS_SECRET_ACCESS_KEY
-    });
-    const upload = new AWS.S3.ManagedUpload({
-      params: params
-    });
-    upload.send(function(err, data) {
-      if (err) {
-        cli.debug(`uploading ${asset.name} failed: ${err}`);
-        p.reject(err);
-        return;
-      }
-      cli.debug(`upload of ${asset.name} complete`);
-      p.resolve(data);
-    });
-    upload.on('httpUploadProgress', (evt) => {
-      cli.debug('got httpUploadProgress', evt);
-      if (!evt.total) return;
-      cli.debug(`upload ${asset.name}: ${evt.total / evt.loaded}`);
-    });
-  } catch (err) {
-    return Promise.reject(err);
-  }
-  return p.promise;
-};
-
-function requireEnvironmentVariables(keys) {
-  for (let key of keys) {
-    if (process.env[key]) return true;
-    throw new TypeError(`Please set the environment variable ${key}`);
-  }
-}
-
-/* eslint no-unused-vars: 0 */
-let maybeUploadEvergreenAssets = (CONFIG) => {
-  if (!process.env.EVERGREEN) {
-    cli.info('`EVERGREEN` environment variable not set.  ' +
-      'Skipping upload of Evergreen assets to S3.');
-    return Promise.resolve(false);
-  }
-
-  try {
-    requireEnvironmentVariables([
-      'EVERGREEN_AWS_ACCESS_KEY_ID',
-      'EVERGREEN_AWS_SECRET_ACCESS_KEY',
-      'EVERGREEN_S3_BUCKET',
-      'EVERGREEN_S3_KEY_PREFIX'
-    ]);
-  } catch (err) {
-    return Promise.reject(err);
-  }
-
-  cli.debug(`Uploading ${CONFIG.assets.length} assets produced by evergreen to S3...`);
-  cli.debug(` - EVERGREEN_S3_BUCKET: ${process.env.EVERGREEN_S3_BUCKET}`);
-  cli.debug(` - EVERGREEN_S3_KEY_PREFIX: ${process.env.EVERGREEN_S3_KEY_PREFIX}`);
-  return Promise.all(CONFIG.assets.map(uploadEvergreenAssetToS3));
 };
 
 exports.command = 'upload [options]';
