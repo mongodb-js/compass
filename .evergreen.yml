@@ -290,6 +290,8 @@ functions:
         export CI=1
         export EVERGREEN=1
         export GITHUB_TOKEN=${leafybot_github_token}
+        export DOWNLOAD_CENTER_AWS_ACCESS_KEY_ID=${aws_key_evergreen_integrations}
+        export DOWNLOAD_CENTER_AWS_SECRET_ACCESS_KEY=${aws_secret_evergreen_integrations}
         test -n '${add_env_appdata|}' && export APPDATA='${add_env_appdata|}'
         ${npm|npm} run upload;
 
