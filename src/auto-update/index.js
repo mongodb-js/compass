@@ -26,9 +26,6 @@ var NotificationUpdateAvailable = View.extend({
     'click a[data-hook=install-update]': 'installUpdate'
   },
   initialize: function() {
-    if (!app.isFeatureEnabled('autoUpdates')) {
-      return debug('autoUpdates feature flag off');
-    }
     ipc.on('app:checking-for-update', function() {
       debug('checking for update');
       metrics.track('Auto Update', 'checking-for-update');
