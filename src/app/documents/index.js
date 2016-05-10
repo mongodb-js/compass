@@ -1,5 +1,6 @@
 var View = require('ampersand-view');
 var DocumentListView = require('./document-list.js');
+var Action = require('hadron-action');
 // var SamplingMessageView = require('../sampling-message');
 
 // var debug = require('debug')('mongodb-compass:home:documents');
@@ -28,6 +29,7 @@ var DocumentView = View.extend({
   render: function() {
     this.renderWithTemplate(this);
     this.documents.loadDocuments();
+    Action.filterChanged(app.queryOptions.query.serialize());
     return this;
   },
   onVisibleChanged: function() {
@@ -38,6 +40,7 @@ var DocumentView = View.extend({
   onQueryChanged: function() {
     this.documents.reset();
     this.documents.loadDocuments();
+    Action.filterChanged(app.queryOptions.query.serialize());
   },
   subviews: {
     documents: {
