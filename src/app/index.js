@@ -44,7 +44,7 @@ var QueryOptions = require('./models/query-options');
 var Connection = require('./models/connection');
 var MongoDBInstance = require('./models/mongodb-instance');
 var Preferences = require('./models/preferences');
-var ApplicationStore = require('mongodb-reflux-store').ApplicationStore;
+var ApplicationStore = require('hadron-reflux-store').ApplicationStore;
 var User = require('./models/user');
 var Router = require('./router');
 var Statusbar = require('./statusbar');
@@ -65,6 +65,13 @@ ipc.once('app:launched', function() {
 });
 
 var debug = require('debug')('mongodb-compass:app');
+
+// Setup everything for packages on the app singleton.
+var ComponentRegistry = require('hadron-component-registry');
+var PackageManager = require('hadron-package-manager').PackageManager;
+app.componentRegistry = new ComponentRegistry();
+app.packageManager = new PackageManager(path.join(__dirname, '..', 'internal-packages'));
+app.packageManager.activate();
 
 function getConnection(model, done) {
   function _fetch(fn) {
@@ -187,7 +194,6 @@ var Application = View.extend({
     clearTimeout(this.clientStalledTimeout);
 
     debug('initializing singleton models... ');
-    ApplicationStore.dataService = app.dataService;
     this.queryOptions = new QueryOptions();
     this.volatileQueryOptions = new QueryOptions();
     this.instance = new MongoDBInstance();
@@ -393,6 +399,7 @@ app.extend({
         .on(DataService.Events.Error, state.onFatalError.bind(state, 'create client'));
 
       app.dataService.connect(function() {
+        ApplicationStore.dataService = app.dataService;
         state.startClientStalledTimer();
       });
     });
