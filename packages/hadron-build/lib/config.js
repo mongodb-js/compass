@@ -193,9 +193,7 @@ exports.get = (cli, callback) => {
     CONFIG.resources = WINDOWS_RESOURCES;
 
     CONFIG.windows_msi_label = CONFIG.windows_msi_filename = path.basename(WINDOWS_OUT_MSI);
-
     CONFIG.windows_setup_label = CONFIG.windows_setup_filename = path.basename(WINDOWS_OUT_SETUP_EXE);
-
     CONFIG.windows_zip_label = CONFIG.windows_zip_filename = `${CONFIG.productName}-windows.zip`;
 
     let NUGET_VERSION = CONFIG.version;
@@ -207,19 +205,16 @@ exports.get = (cli, callback) => {
 
     CONFIG.assets = [
       {
-        name: CONFIG.windows_setup_filename,
-        path: CONFIG.dest(CONFIG.windows_setup_filename),
-        canonical: `${CONFIG.id}-${CONFIG.version}-${CONFIG.platform}-${CONFIG.arch}.exe`
+        name: `${CONFIG.id}-${CONFIG.version}-${CONFIG.platform}-${CONFIG.arch}.exe`,
+        path: CONFIG.dest(CONFIG.windows_setup_filename)
       },
       {
-        name: CONFIG.windows_msi_filename,
-        path: CONFIG.dest(CONFIG.windows_msi_filename),
-        canonical: `${CONFIG.id}-${CONFIG.version}-${CONFIG.platform}-${CONFIG.arch}.msi`
+        name: `${CONFIG.id}-${CONFIG.version}-${CONFIG.platform}-${CONFIG.arch}.msi`,
+        path: CONFIG.dest(CONFIG.windows_msi_filename)
       },
       {
-        name: CONFIG.windows_zip_filename,
-        path: CONFIG.dest(CONFIG.windows_zip_filename),
-        canonical: `${CONFIG.id}-${CONFIG.version}-${CONFIG.platform}-${CONFIG.arch}.zip`
+        name: `${CONFIG.id}-${CONFIG.version}-${CONFIG.platform}-${CONFIG.arch}.zip`,
+        path: CONFIG.dest(CONFIG.windows_zip_filename)
       },
       {
         name: 'RELEASES',
@@ -331,14 +326,12 @@ exports.get = (cli, callback) => {
     CONFIG.resources = OSX_RESOURCES;
     CONFIG.assets = [
       {
-        name: `${CONFIG.id}.dmg`,
-        path: OSX_OUT_DMG,
-        canonical: `${CONFIG.id}-${CONFIG.version}-${CONFIG.platform}-${CONFIG.arch}.dmg`
+        name: `${CONFIG.id}-${CONFIG.version}-${CONFIG.platform}-${CONFIG.arch}.dmg`,
+        path: OSX_OUT_DMG
       },
       {
-        name: `${CONFIG.id}-mac.zip`,
-        path: OSX_OUT_ZIP,
-        canonical: `${CONFIG.id}-${CONFIG.version}-${CONFIG.platform}-${CONFIG.arch}.zip`
+        name: `${CONFIG.id}-${CONFIG.version}-${CONFIG.platform}-${CONFIG.arch}.zip`,
+        path: OSX_OUT_ZIP
       }
     ];
 

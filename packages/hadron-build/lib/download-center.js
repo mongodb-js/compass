@@ -7,10 +7,10 @@ const AWS = require('aws-sdk');
 
 const MANIFEST_BUCKET = 'info-mongodb-com';
 
-let upload = (asset) => {
+let upload = (CONFIG, asset) => {
   const params = {
     Bucket: 'downloads.10gen.com',
-    Key: `${process.env.DOWNLOAD_CENTER_APP_PREFIX}/${asset.canonical || asset.name}`,
+    Key: `${CONFIG.download_center_key_prefix}/${asset.name}`,
     Body: fs.createReadStream(asset.path),
     ACL: 'public-read',
     Metadata: {
@@ -117,7 +117,7 @@ exports.maybeUpload = (CONFIG) => {
     CONFIG.download_center_key_prefix += `/${CONFIG.channel}`;
   }
 
-  return Promise.all(CONFIG.assets.map(upload))
+  return Promise.all(CONFIG.assets.map( (asset) => upload(CONFIG, asset)))
     .then(maybeUploadManifest(CONFIG));
 };
 

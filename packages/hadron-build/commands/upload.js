@@ -14,7 +14,7 @@ const cli = require('mongodb-js-cli')('hadron-build:upload');
 const abortIfError = cli.abortIfError.bind(cli);
 
 const config = require('../lib/config');
-// const downloadCenter = require('../lib/download-center');
+const downloadCenter = require('../lib/download-center');
 
 
 let createGitHubRelease = (CONFIG) => {
@@ -172,5 +172,6 @@ exports.handler = function(argv) {
   cli.argv = argv;
   var CONFIG = config.get(cli);
   maybePublishGitHubRelease(CONFIG)
+    .then( () => downloadCenter.maybeUpload(CONFIG))
     .catch(abortIfError);
 };
