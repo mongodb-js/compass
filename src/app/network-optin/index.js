@@ -16,7 +16,8 @@ var NetworkOptInView = View.extend({
   props: {
     trackErrors: ['boolean', true, true],
     enableFeedbackPanel: ['boolean', true, true],
-    trackUsageStatistics: ['boolean', true, true]
+    trackUsageStatistics: ['boolean', true, true],
+    autoUpdates: ['boolean', true, true]
   },
   session: {
     preferences: 'state',
