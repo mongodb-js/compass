@@ -1,7 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
-const Action = require('./action');
+const Action = require('hadron-action');
 
 /**
  * Is a registry for all user interface components in the application.

@@ -3,7 +3,7 @@
 require('./helper');
 
 const expect = require('chai').expect;
-const Action = require('../lib/action');
+const Action = require('hadron-action');
 const ComponentRegistry = require('../lib/component-registry');
 const ExampleComponent = require('./example-component');
 
