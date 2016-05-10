@@ -181,33 +181,33 @@ functions:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
         local_file: "src/dist/${windows_setup_filename}"
-        remote_file: "${project}/${build_variant}/${revision}/${windows_setup_filename}"
+        remote_file: "${project}/${build_variant}/${revision}/${name}-${version}-${platform}-${arch}.exe"
         bucket: mciuploads
         permissions: public-read
         content_type: application/octet-stream
-        display_name: "${windows_setup_label}"
+        display_name: "${name}-${version}-${platform}-${arch}.exe"
     # MSI
     - command: s3.put
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
         local_file: "src/dist/${windows_msi_filename}"
-        remote_file: "${project}/${build_variant}/${revision}/${windows_msi_filename}"
+        remote_file: "${project}/${build_variant}/${revision}/${name}-${version}-${platform}-${arch}.msi"
         bucket: mciuploads
         permissions: public-read
         content_type: application/octet-stream
-        display_name: "${windows_msi_label}"
+        display_name: "${name}-${version}-${platform}-${arch}.msi"
     # ZIP
     - command: s3.put
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
         local_file: "src/dist/${windows_zip_filename}"
-        remote_file: "${project}/${build_variant}/${revision}/${windows_zip_filename}"
+        remote_file: "${project}/${build_variant}/${revision}/${name}-${version}-${platform}-${arch}.zip"
         bucket: mciuploads
         permissions: public-read
         content_type: application/zip
-        display_name: "${windows_zip_label}"
+        display_name: "${name}-${version}-${platform}-${arch}.zip"
     # RELEASES file
     - command: s3.put
       params:
@@ -238,22 +238,22 @@ functions:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
         local_file: "src/dist/${osx_dmg_filename}"
-        remote_file: "${project}/${build_variant}/${revision}/${osx_dmg_filename}"
+        remote_file: "${project}/${build_variant}/${revision}/${name}-${version}-${platform}-${arch}.dmg"
         bucket: mciuploads
         permissions: public-read
         content_type: "application/x-apple-diskimage"
-        display_name: "${osx_dmg_label}"
+        display_name: "${name}-${version}-${platform}-${arch}.dmg"
     # .zip
     - command: s3.put
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
         local_file: "src/dist/${osx_zip_filename}"
-        remote_file: "${project}/${build_variant}/${revision}/${osx_zip_filename}"
+        remote_file: "${project}/${build_variant}/${revision}/${name}-${version}-${platform}-${arch}.zip"
         bucket: mciuploads
         permissions: public-read
         content_type: application/zip
-        display_name: "${osx_zip_label}"
+        display_name: "${name}-${version}-${platform}-${arch}.zip"
 
   "save LICENSE":
     command: s3.put
