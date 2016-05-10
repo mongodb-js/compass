@@ -136,12 +136,13 @@ FieldListView = View.extend({
     if (this.collection.parent instanceof SampledSchema) {
       this.listenTo(this.collection.parent, 'sync', this.makeFieldVisible);
     } else {
-      this.listenTo(this.parent, 'change:visible', this.makeFieldVisible);
+      // lazy rendering of nested subviews
+      this.listenTo(this.parent, 'change:expanded', this.makeFieldVisible);
     }
   },
   makeFieldVisible: function() {
     var views = this.fieldCollectionView.views;
-    _.each(views, function(fieldView) {
+    _.each(_.filter(views, 'visible', false), function(fieldView) {
       raf(function() {
         fieldView.visible = true;
       });
