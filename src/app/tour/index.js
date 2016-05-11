@@ -17,7 +17,6 @@ var TAB_KEY = 9;
 var ENTER_KEY = 13;
 var SPACE_KEY = 32;
 
-
 /**
  * The feature tour highlights some signature features of MongoDB Compass.
  * When Compass is started for the first time, it shows all the features in
@@ -42,7 +41,15 @@ var FEATURES = require('./features');
 var TourView = View.extend({
   session: {
     body: 'any',
-    features: 'array',
+    features: {
+      type: 'array',
+      required: false,
+      default: undefined
+    },
+    force: {
+      type: 'boolean',
+      default: false
+    },
     tourCount: {
       type: 'number',
       default: 0
@@ -58,9 +65,9 @@ var TourView = View.extend({
   template: indexTemplate,
   derived: {
     previousVersion: {
-      deps: ['app.preferences.lastKnownVersion'],
+      deps: ['app.preferences.showFeatureTour'],
       fn: function() {
-        return app.preferences.lastKnownVersion;
+        return app.preferences.showFeatureTour;
       }
     },
     title: {
@@ -95,13 +102,21 @@ var TourView = View.extend({
       this.showPreviousFeature();
     }
   },
-  initialize: function(options) {
+  initialize: function() {
     this.onKeyPress = this.onKeyPress.bind(this);
-    this.features = _.filter(FEATURES, function(feature) {
-      return (options.force && feature.initial)
-        || (this.previousVersion === '0.0.0' && feature.initial)
-        || (this.previousVersion !== '0.0.0' && semver.gt(feature.version, this.previousVersion));
-    }.bind(this));
+    this._getFeatures();
+  },
+  _getFeatures: function() {
+    var model = this;
+    if (_.isArray(model.features)) {
+      return model.features;
+    }
+    model.features = _.filter(FEATURES, function(feature) {
+      return (model.force && feature.initial)
+        || (model.previousVersion === '0.0.0' && feature.initial)
+        || (model.previousVersion !== '0.0.0' && semver.gt(feature.version, model.previousVersion));
+    });
+    return model.features;
   },
   render: function() {
     this.renderWithTemplate(this);
