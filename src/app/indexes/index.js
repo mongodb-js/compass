@@ -69,7 +69,6 @@ module.exports = View.extend({
         'Type': '[data-hook=th-type]',
         'Size': '[data-hook=th-size]',
         'Usage': '[data-hook=th-usage]',
-        'Cardinality': '[data-hook=th-cardinality]',
         'Properties': '[data-hook=th-properties]'
       }
     },
