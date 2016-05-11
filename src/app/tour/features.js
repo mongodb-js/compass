@@ -29,9 +29,30 @@ module.exports = [
   },
   {
     title: 'View Documents',
-    description: 'Open the document drawer on the right to view the raw JSON documents in the result set.',
+    description: 'Click the Documents tab to view the raw JSON documents in the result set.',
     image: 'f4.gif',
     version: '1.0.0',
     initial: true
+  },
+  {
+    title: 'View Indexes',
+    description: 'Click the Index tab to view the definition, attributes, size, and usage of your indexes.',
+    image: 'f5.gif',
+    version: '1.2.0',
+    initial: true
   }
+  // {
+  //   title: 'Find with Location',
+  //   description: 'Collections with location data can be used as a filter. Click and drag across the map for a geographic query. Click "Apply" to resample with the coordinates.',
+  //   image: 'f6.gif',
+  //   version: '1.2.0',
+  //   initial: true
+  // },
+  // {
+  //   title: 'Examine Performance with Explain Plan',
+  //   description: 'I see indexes',
+  //   image: 'f7.gif',
+  //   version: '1.2.0',
+  //   initial: true
+  // }
 ];
