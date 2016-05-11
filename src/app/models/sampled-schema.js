@@ -32,7 +32,8 @@ module.exports = Schema.extend({
     is_fetching: {
       type: 'boolean',
       default: false
-    }
+    },
+    lastOptions: 'object'
   },
   namespace: 'SampledSchema',
   collections: {
@@ -92,11 +93,12 @@ module.exports = Schema.extend({
    */
   fetch: function(options) {
     this.is_fetching = true;
-    options = _.defaults(options || {}, {
-      size: 100,
+    options = _.defaults(options || this.lastOptions || {}, {
+      size: 1000,
       query: {},
       fields: null
     });
+    this.lastOptions = _.clone(options);
 
     var model = this;
     wrapError(this, options);
@@ -167,6 +169,15 @@ module.exports = Schema.extend({
 
     model.trigger('request', {}, {}, options);
 
+    app.statusbar.set({
+      animation: true,
+      progressbar: true,
+      width: 100
+    });
+    app.statusbar.showSubview(schemaStatusSubview);
+    app.statusbar.width = 1;
+    app.statusbar.trickle(true);
+
     app.dataService.count(model.ns, options.query, options, function(err, count) {
       if (err) {
         return onFail(err);
@@ -180,15 +191,6 @@ module.exports = Schema.extend({
       var status = 0;
       var numSamples = Math.min(options.size, count);
       var stepSize = Math.ceil(Math.max(1, numSamples / 10));
-
-      app.statusbar.set({
-        animation: true,
-        progressbar: true,
-        width: 100
-      });
-      app.statusbar.showSubview(schemaStatusSubview);
-      app.statusbar.width = 1;
-      app.statusbar.trickle(true);
 
       model.samplingStream = app.dataService.sample(model.ns, options);
       // pass in true for native (fast) sampler, false for ampersand-sampler
