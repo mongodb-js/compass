@@ -16,7 +16,8 @@ var NetworkOptInView = View.extend({
   props: {
     trackErrors: ['boolean', true, true],
     enableFeedbackPanel: ['boolean', true, true],
-    trackUsageStatistics: ['boolean', true, true]
+    trackUsageStatistics: ['boolean', true, true],
+    autoUpdates: ['boolean', true, true]
   },
   session: {
     preferences: 'state',
@@ -41,6 +42,11 @@ var NetworkOptInView = View.extend({
       hook: 'product-feedback-checkbox',
       name: 'checked'
     },
+    autoUpdates: {
+      type: 'booleanAttribute',
+      hook: 'auto-updates-checkbox',
+      name: 'checked'
+    },
     trackUsageStatistics: {
       type: 'booleanAttribute',
       hook: 'usage-stats-checkbox',
@@ -59,13 +65,14 @@ var NetworkOptInView = View.extend({
       this.trackErrors = true;
       this.enableFeedbackPanel = true;
       this.trackUsageStatistics = true;
-      // this.autoUpdates = true;
+      this.autoUpdates = true;
     } else {
       debug('seen this dialog before, show the real settings');
       this.buttonTitle = 'Close';
       this.trackErrors = app.preferences.trackErrors;
       this.enableFeedbackPanel = app.preferences.enableFeedbackPanel;
       this.trackUsageStatistics = app.preferences.trackUsageStatistics;
+      this.autoUpdates = app.preferences.autoUpdates;
     }
   },
   checkboxChanged: function(evt) {
@@ -76,7 +83,9 @@ var NetworkOptInView = View.extend({
   buttonClicked: function() {
     var features = [
       'enableFeedbackPanel',
-      'trackUsageStatistics'
+      'trackUsageStatistics',
+      'trackErrors',
+      'autoUpdates'
     ];
 
     this.preferences.set('showedNetworkOptIn', true);
@@ -94,7 +103,8 @@ var NetworkOptInView = View.extend({
     var metadata = {
       'track usage stats': settings.trackUsageStatistics,
       'product feedback': settings.enableFeedbackPanel,
-      'track errors': settings.trackErrors
+      'track errors': settings.trackErrors,
+      'auto updates': settings.autoUpdates
     };
     metrics.track('Network Opt-in', 'used', metadata);
   },
