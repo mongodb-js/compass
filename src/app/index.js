@@ -14,7 +14,7 @@ var CompileCache = require('hadron-compile-cache');
 CompileCache.setHomeDirectory(resourcePath);
 CompileCache.digestMappings = pkg._compileCacheMappings || {};
 
-var StyleManager = require('./style-manager');
+var StyleManager = require('../style-manager');
 StyleManager.writeStyles();
 
 /**

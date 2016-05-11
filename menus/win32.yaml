@@ -1,0 +1,44 @@
+---
+menu:
+  -
+    label: "&Connect"
+    submenu:
+      -
+        label: "&Connect to..."
+        accelerator: "CmdOrCtrl+N"
+      - &separator
+        type: separator
+      -
+        label: "E&xit"
+        accelerator: "CmdOrCtrl+Q"
+  -
+    label: "&View"
+    submenu:
+      -
+        label: "&Reload"
+        accelerator: "CmdOrCtrl+R"
+      -
+        label: "&Toggle DevTools"
+        accelerator: "Alt+CmdOrCtrl+I"
+  -
+    label: "&Share"
+    submenu:
+      -
+        label: "&Share Schema as JSON"
+        accelerator: "Alt+CmdOrCtrl+S"
+  -
+    label: "&Help"
+    submenu:
+      -
+        label: "&Show Compass Help"
+        accelerator: "F1"
+      -
+        label: "Compass &Overview"
+      -
+        label: "Help &Improve Compass"
+      - *separator
+      -
+        label: "&Provide Feedback"
+
+context-menu:
+  
