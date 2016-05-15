@@ -157,6 +157,11 @@ const HEADER_CLASS = 'document-property-header';
 const CARET = 'caret';
 
 /**
+ * The expanded class name.
+ */
+const EXPANDED = 'expanded';
+
+/**
  * The expandable label class.
  */
 const LABEL_CLASS = 'document-property-type-label';
@@ -167,12 +172,29 @@ const LABEL_CLASS = 'document-property-type-label';
 class ExpandableElement extends React.Component {
 
   /**
+   * Initialize the element.
+   *
+   * @param {Object} props - The properties.
+   */
+  constructor(props) {
+    super(props);
+    this.state = { expanded: false };
+  }
+
+  /**
+   * Toggles the expandable aspect of the element.
+   */
+  toggleExpandable() {
+    this.setState({ expanded: !this.state.expanded });
+  }
+
+  /**
    * Render an expandable element - array or object.
    */
   render() {
     return (
-      <li className={`${PROPERTY_CLASS} ${this.props.type.toLowerCase()}`}>
-        <div className={HEADER_CLASS}>
+      <li className={`${this._elementClass()} `}>
+        <div className={HEADER_CLASS} onClick={this.toggleExpandable.bind(this)}>
           <div className={CARET}>
           </div>
           <Field field={this.props.field} />
@@ -186,6 +208,17 @@ class ExpandableElement extends React.Component {
         </ol>
       </li>
     );
+  }
+
+  /**
+   * Get the class of the element - varies if the element is expanded or not.
+   */
+  _elementClass() {
+    var typeClass = this.props.type.toLowerCase();
+    if (this.state.expanded) {
+      return `${PROPERTY_CLASS} ${typeClass} ${EXPANDED}`
+    }
+    return `${PROPERTY_CLASS} ${typeClass}`;
   }
 }
 

@@ -1,8 +1,5 @@
 var View = require('ampersand-view');
-var SampledDocumentCollection = require('../models/sampled-document-collection');
-var DocumentListItemView = require('./document-list-item');
 var app = require('ampersand-app');
-var debug = require('debug')('mongodb-compass:document-list');
 var Action = require('hadron-action');
 var React = require('react');
 var ReactDOM = require('react-dom');
@@ -20,9 +17,6 @@ var DocumentListView = View.extend({
       hook: 'loading'
     }
   },
-  collections: {
-    // documents: SampledDocumentCollection
-  },
   initialize: function() {
     this.documentList = app.componentRegistry.findByRole('Collection:DocumentList')[0];
     this.listenTo(app.queryOptions, 'change:query', this.onQueryChanged.bind(this));
@@ -32,7 +26,6 @@ var DocumentListView = View.extend({
   },
   render: function() {
     ReactDOM.render(React.createElement(this.documentList), this.el.parentNode);
-    // this.renderWithTemplate();
     // this.renderCollection(this.documents, DocumentListItemView,
       // this.queryByHook('document-list-container'));
 
@@ -57,43 +50,9 @@ var DocumentListView = View.extend({
       // this.loadDocuments();
     // }
   },
-  /**
-   * Incrementally loads the documents present in the sample schema into the doc viewer.
-   */
-  loadDocuments: function() {
-    // If this is already loading more documents, do nothing.
-    // if (this.loading) {
-      // return;
-    // }
-    // If namespace not set yet, do nothing.
-    // var ns = this.model.getId();
-    // if (!ns) {
-      // return;
-    // }
-    // this.loading = true;
-    // var query = app.queryOptions.query.serialize();
-    // var options = {
-      // skip: this.documents.length,
-      // limit: 20
-    // };
-    // app.dataService.find(ns, query, options, function(err, documents) {
-      // If the document loading was canceled, do nothing.
-      // if (!this.loading) {
-        // return;
-      // }
-      // if (err) {
-        // debug('error reading document', err);
-      // }
-      // if (documents) {
-        // this.documents.add(documents);
-      // }
-      // this.loading = false;
-    // }.bind(this));
-  },
   reset: function() {
-    Action.filterChanged(app.queryOptions.query.serialize());
+    Action.filterChanged({});
     this.loading = false;
-    this.documents.reset();
   },
   remove: function() {
     // var scrollContainer = this.el.parentNode;
