@@ -4,6 +4,9 @@ const _ = require('lodash');
 const moment = require('moment');
 const React = require('react');
 const app = require('ampersand-app');
+const component = require('hadron-component-registry');
+const Element = component.Element;
+const ExpandableElement = component.ExpandableElement;
 const TypeChecker = require('../model/type-checker');
 const DocumentListStore = require('../store/document-list-store');
 
@@ -109,136 +112,6 @@ class DocumentListItem extends React.Component {
     );
   }
 }
-
-/**
- * The property class.
- */
-const PROPERTY_CLASS = 'document-property';
-
-/**
- * The document field class.
- */
-const FIELD_CLASS = 'document-property-key';
-
-/**
- * The document value class.
- */
-const VALUE_CLASS = 'document-property-value';
-
-/**
- * General element component.
- */
-class Element extends React.Component {
-
-  /**
-   * Render a single element in a document.
-   */
-  render() {
-    return (
-      <li className={`${PROPERTY_CLASS} ${this.props.type.toLowerCase()}`}>
-        <Field field={this.props.field} />
-        :
-        <div className={VALUE_CLASS} title={this.props.value}>
-          {this.props.value}
-        </div>
-      </li>
-    );
-  }
-}
-
-/**
- * The header class for expandable elements.
- */
-const HEADER_CLASS = 'document-property-header';
-
-/**
- * The caret for expanding elements.
- */
-const CARET = 'caret';
-
-/**
- * The expanded class name.
- */
-const EXPANDED = 'expanded';
-
-/**
- * The expandable label class.
- */
-const LABEL_CLASS = 'document-property-type-label';
-
-/**
- * Component for an element that can be expanded.
- */
-class ExpandableElement extends React.Component {
-
-  /**
-   * Initialize the element.
-   *
-   * @param {Object} props - The properties.
-   */
-  constructor(props) {
-    super(props);
-    this.state = { expanded: false };
-  }
-
-  /**
-   * Toggles the expandable aspect of the element.
-   */
-  toggleExpandable() {
-    this.setState({ expanded: !this.state.expanded });
-  }
-
-  /**
-   * Render an expandable element - array or object.
-   */
-  render() {
-    return (
-      <li className={`${this._elementClass()} `}>
-        <div className={HEADER_CLASS} onClick={this.toggleExpandable.bind(this)}>
-          <div className={CARET}>
-          </div>
-          <Field field={this.props.field} />
-          :
-          <div className={LABEL_CLASS}>
-            {this.props.label}
-          </div>
-        </div>
-        <ol className={DOCUMENT_CLASS}>
-          {elements(this.props.value)}
-        </ol>
-      </li>
-    );
-  }
-
-  /**
-   * Get the class of the element - varies if the element is expanded or not.
-   */
-  _elementClass() {
-    var typeClass = this.props.type.toLowerCase();
-    if (this.state.expanded) {
-      return `${PROPERTY_CLASS} ${typeClass} ${EXPANDED}`
-    }
-    return `${PROPERTY_CLASS} ${typeClass}`;
-  }
-}
-
-/**
- * The component for the field name.
- */
-class Field extends React.Component {
-
-  /**
-   * Render the field name for the element.
-   */
-  render() {
-    return (
-      <div className={FIELD_CLASS}>
-        {this.props.field}
-      </div>
-    );
-  }
-}
-
 /**
  * Component for array types.
  */
@@ -250,6 +123,7 @@ class ArrayElement extends React.Component {
   render() {
     return (
       <ExpandableElement
+        elements={elements(this.props.value)}
         field={this.props.field}
         value={this.props.value}
         type={this.props.type}
@@ -285,6 +159,7 @@ class ObjectElement extends React.Component {
   render() {
     return (
       <ExpandableElement
+        elements={elements(this.props.value)}
         field={this.props.field}
         value={this.props.value}
         type={this.props.type}
@@ -322,8 +197,6 @@ ArrayElement.displayName = 'ArrayElement';
 DateElement.displayName = 'DateElement';
 DocumentList.displayName = 'DocumentList';
 DocumentListItem.displayName = 'DocumentListItem';
-Element.displayName = 'Element';
-ExpandableElement.displayName = 'ExpandableElement';
 ObjectElement.displayName = 'ObjectElement';
 StringElement.displayName = 'StringElement';
 
