@@ -28,6 +28,7 @@
     "hadron-action": "0.0.1",
     "lodash": "^4.6.1",
     "react": "^0.14.8",
+    "react-dom": "^0.14.8",
     "reflux": "^0.4.0"
   },
   "devDependencies": {

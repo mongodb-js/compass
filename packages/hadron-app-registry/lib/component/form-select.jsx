@@ -26,4 +26,6 @@ class FormSelect extends React.Component {
   }
 }
 
+FormSelect.displayName = 'FormSelect';
+
 module.exports = FormSelect;

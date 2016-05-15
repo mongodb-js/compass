@@ -27,4 +27,6 @@ class FormItem extends React.Component {
   }
 }
 
+FormItem.displayName = 'FormItem';
+
 module.exports = FormItem;

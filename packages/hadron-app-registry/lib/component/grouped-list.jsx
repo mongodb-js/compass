@@ -28,4 +28,6 @@ class GroupedList extends React.Component {
   }
 }
 
+GroupedList.displayName = 'GroupedList';
+
 module.exports = GroupedList;

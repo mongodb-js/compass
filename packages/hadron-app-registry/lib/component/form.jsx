@@ -21,4 +21,6 @@ class Form extends React.Component {
   }
 }
 
+Form.displayName = 'Form';
+
 module.exports = Form;

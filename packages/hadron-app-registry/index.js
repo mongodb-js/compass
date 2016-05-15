@@ -8,6 +8,9 @@ require('babel-register')({
 const ComponentRegistry = require('./lib/component-registry');
 module.exports = ComponentRegistry;
 module.exports.ComponentRegistry = ComponentRegistry;
+module.exports.Element = require('./lib/component/element');
+module.exports.ExpandableElement = require('./lib/component/expandable-element');
+module.exports.Field = require('./lib/component/field');
 module.exports.Flexbox = require('./lib/component/flexbox');
 module.exports.FormGroup = require('./lib/component/form-group');
 module.exports.FormInput = require('./lib/component/form-input');

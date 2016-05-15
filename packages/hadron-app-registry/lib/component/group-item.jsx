@@ -39,4 +39,6 @@ class GroupItem extends React.Component {
   }
 }
 
+GroupItem.displayName = 'GroupItem';
+
 module.exports = GroupItem;

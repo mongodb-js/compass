@@ -26,5 +26,9 @@ describe('FormOption', function() {
     it('sets the child name', function() {
       expect(output.props.children).to.equal(props.name);
     });
+
+    it('has a displayName', function() {
+      expect(FormOption.displayName).to.equal('FormOption');
+    });
   });
 });

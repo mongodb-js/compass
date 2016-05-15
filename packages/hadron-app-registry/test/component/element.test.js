@@ -6,24 +6,25 @@ const expect = require('chai').expect;
 const React = require('react');
 const ReactTestUtils = require('react-addons-test-utils');
 
-const GroupItem = require('../../lib/component/group-item');
+const Element = require('../../lib/component/element');
 
-describe('GroupItem', function() {
+describe('Element', function() {
   describe('#render', function() {
     var renderer = ReactTestUtils.createRenderer();
-    renderer.render(React.createElement(GroupItem));
+    var props = { field: '_id', value: 1, type: 'Integer' };
+    renderer.render(React.createElement(Element, props));
     var output = renderer.getRenderOutput();
 
-    it('returns the group li', function() {
+    it('returns the element li', function() {
       expect(output.type).to.equal('li');
     });
 
     it('sets the className', function() {
-      expect(output.props.className).to.equal('group-item');
+      expect(output.props.className).to.equal('document-property integer');
     });
 
     it('has a displayName', function() {
-      expect(GroupItem.displayName).to.equal('GroupItem');
+      expect(Element.displayName).to.equal('Element');
     });
   });
 });

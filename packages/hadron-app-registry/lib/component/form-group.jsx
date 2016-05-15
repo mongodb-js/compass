@@ -26,4 +26,6 @@ class FormGroup extends React.Component {
   }
 }
 
+FormGroup.displayName = 'FormGroup';
+
 module.exports = FormGroup;

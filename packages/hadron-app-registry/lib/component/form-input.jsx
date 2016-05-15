@@ -33,4 +33,6 @@ class FormInput extends React.Component {
   }
 }
 
+FormInput.displayName = 'FormInput';
+
 module.exports = FormInput;

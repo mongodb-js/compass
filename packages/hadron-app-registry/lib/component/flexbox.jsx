@@ -25,4 +25,6 @@ class Flexbox extends React.Component {
   }
 }
 
+Flexbox.displayName = 'Flexbox';
+
 module.exports = Flexbox;

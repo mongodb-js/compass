@@ -21,4 +21,6 @@ class FormOption extends React.Component {
   }
 }
 
+FormOption.displayName = 'FormOption';
+
 module.exports = FormOption;

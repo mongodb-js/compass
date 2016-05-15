@@ -21,5 +21,9 @@ describe('Group', function() {
     it('sets the className', function() {
       expect(output.props.className).to.equal('group');
     });
+
+    it('has a displayName', function() {
+      expect(Group.displayName).to.equal('Group');
+    });
   });
 });

@@ -34,4 +34,6 @@ class Group extends React.Component {
   }
 }
 
+Group.displayName = 'Group';
+
 module.exports = Group;

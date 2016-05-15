@@ -21,5 +21,9 @@ describe('GroupedList', function() {
     it('sets the className', function() {
       expect(output.props.className).to.equal('grouped-list');
     });
+
+    it('has a displayName', function() {
+      expect(GroupedList.displayName).to.equal('GroupedList');
+    });
   });
 });

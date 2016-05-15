@@ -21,5 +21,9 @@ describe('FormItem', function() {
     it('sets the wrapper class name', function() {
       expect(output.props.className).to.equal('form-item');
     });
+
+    it('has a displayName', function() {
+      expect(FormItem.displayName).to.equal('FormItem');
+    });
   });
 });

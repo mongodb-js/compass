@@ -21,5 +21,9 @@ describe('FormInput', function() {
     it('sets the class name', function() {
       expect(output.props.className).to.equal('form-control');
     });
+
+    it('has a displayName', function() {
+      expect(FormInput.displayName).to.equal('FormInput');
+    });
   });
 });

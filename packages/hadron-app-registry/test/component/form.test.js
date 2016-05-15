@@ -17,5 +17,9 @@ describe('Form', function() {
     it('returns the form', function() {
       expect(output.type).to.equal('form');
     });
+
+    it('has a displayName', function() {
+      expect(Form.displayName).to.equal('Form');
+    });
   });
 });

@@ -21,5 +21,9 @@ describe('FormGroup', function() {
     it('sets the wrapper class name', function() {
       expect(output.props.className).to.equal('form-group');
     });
+
+    it('has a displayName', function() {
+      expect(FormGroup.displayName).to.equal('FormGroup');
+    });
   });
 });
