@@ -101,12 +101,8 @@
     "get-object-path": "azer/get-object-path#74eb42de0cfd02c14ffdd18552f295aba723d394",
     "hadron-action": "0.0.1",
     "hadron-auto-update-manager": "^0.0.12",
-<<<<<<< 6e45beb7088e8fb2e3718b5d8270bd83ce658c82
     "hadron-compile-cache": "^0.0.9",
-=======
-    "hadron-compile-cache": "^0.0.5",
     "hadron-component-registry": "^0.0.7",
->>>>>>> First pass 'R' in 'CRUD' with package
     "hadron-ipc": "^0.0.7",
     "hadron-module-cache": "^0.0.3",
     "hadron-package-manager": "0.0.2",
