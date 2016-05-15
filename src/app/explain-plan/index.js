@@ -186,7 +186,8 @@ module.exports = View.extend({
         parent: view
       }), '[data-hook=raw-subview]');
       // expand all top-level fields in the explain output
-      var toplevel = 'li.document-list-item > ol > li.document-property.object';
+      var toplevel = 'li.document-list-item > ol > li.document-property.object,' +
+        'li.document-list-item > ol > li.document-property.array';
       _.each(view.queryAll(toplevel), function(el) {
         el.classList.toggle('expanded');
       });
