@@ -3,10 +3,13 @@
 const _ = require('lodash');
 const moment = require('moment');
 const React = require('react');
+const ReactDOM = require('react-dom');
 const app = require('ampersand-app');
 const component = require('hadron-component-registry');
+const Action = require('hadron-action');
 const Element = component.Element;
 const ExpandableElement = component.ExpandableElement;
+const Waypoint = require('react-waypoint');
 const TypeChecker = require('../model/type-checker');
 const DocumentListStore = require('../store/document-list-store');
 
@@ -41,6 +44,8 @@ function elementComponent(type) {
  */
 const LIST_CLASS = 'document-list';
 
+const SCROLL_EVENT = 'scroll';
+
 /**
  * Component for the entire document list.
  */
@@ -50,37 +55,83 @@ class DocumentList extends React.Component {
    * Fetch the state when the component mounts.
    */
   componentDidMount() {
-    DocumentListStore.listen((documents) => {
-      this.setState({ docs: documents });
+    // @todo: Move the DOM node out of the state.
+    this.state.node = ReactDOM.findDOMNode(this);
+    var containerNode = this.state.node.parentNode;
+    containerNode.addEventListener(SCROLL_EVENT, this._handleScroll.bind(this));
+
+    DocumentListStore.listen((documents, reset) => {
+      if (reset) {
+        // If resetting, then we need to go back to page one with
+        // the documents as the filter changed.
+        this.setState({ docs: this._documentListItems(documents), currentPage: 1 });
+      } else {
+        // If not resetting we append the documents to the existing
+        // list and increment the page.
+        this.setState({
+          docs: this.state.docs.concat(this._documentListItems(documents)),
+          page: (this.state.currentPage + 1)
+        });
+      }
     });
   }
 
   /**
    * The component constructor.
+   *
+   * @param {Object} props - The properties.
    */
   constructor(props) {
     super(props);
-    this.state = { docs: [] };
-  }
-
-  /**
-   * Get the document list item components.
-   */
-  documentListItems() {
-    return _.map(this.state.docs, (doc) => {
-      return React.createElement(DocumentListItem, { doc: doc, key: doc._id });
-    });
+    this.state = { docs: [], currentPage: 0 };
   }
 
   /**
    * Render the document list.
+   *
+   * @returns {React.Component} The document list.
    */
   render() {
     return (
       <ol className={LIST_CLASS}>
-        {this.documentListItems()}
+        {this.state.docs}
       </ol>
     );
+  }
+
+  /**
+   * Get the document list item components.
+   *
+   * @param {Array} docs - The raw documents.
+   *
+   * @return {Array} The document list item components.
+   */
+  _documentListItems(docs) {
+    return _.map(docs, (doc) => {
+      return React.createElement(DocumentListItem, { doc: doc, key: doc._id });
+    });
+  }
+
+  _handleScroll(evt) {
+    // Check if the number of documents in the collection against the
+    // number of documents we have loaded.
+    if (evt.srcElement.scrollTop > (this.state.node.offsetHeight / 2)) {
+      // MVP: if we are scrolling down, and are about to run out of docs:
+      this._nextBatch();
+    }
+    // Bonus: if we have passed a certain number of docs that are out of view:
+    // this._unloadPreviousBatch();
+    // Bonus: if we are scrolling back up and are running out of previous docs:
+    // this._previousBatch();
+    // Bonus: if we are scrolling up and docs below are out of view:
+    // this._unloadNextBatch();
+  }
+
+  /**
+   * Get the next batch of documents.
+   */
+  _nextBatch() {
+    Action.fetchNextDocuments(this.state.currentPage);
   }
 }
 

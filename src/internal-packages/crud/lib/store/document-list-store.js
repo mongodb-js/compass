@@ -1,6 +1,7 @@
 'use strict';
 
 const Reflux = require('reflux');
+const app = require('ampersand-app');
 const stores = require('hadron-reflux-store');
 const ApplicationStore = stores.ApplicationStore;
 const NamespaceStore = stores.NamespaceStore;
@@ -15,7 +16,8 @@ const DocumentListStore = Reflux.createStore({
    * Initialize the document list store.
    */
   init: function() {
-    this.listenTo(Action.filterChanged, this.filterChanged);
+    this.listenTo(Action.filterChanged, this._resetDocuments);
+    this.listenTo(Action.fetchNextDocuments, this._fetchNextDocuments);
   },
 
   /**
@@ -23,12 +25,30 @@ const DocumentListStore = Reflux.createStore({
    *
    * @param {Object} filter - The query filter.
    */
-  filterChanged: function(filter) {
-    var ns = NamespaceStore.ns
-    var dataService = ApplicationStore.dataService;
-    dataService.find(ns, filter, { limit: 20 }, (error, documents) => {
-      this.trigger(documents);
-    });
+  _resetDocuments: function(filter) {
+    var ns = NamespaceStore.ns;
+    if (ns) {
+      var dataService = ApplicationStore.dataService;
+      dataService.find(ns, filter, { limit: 20, sort: { _id: 1 }}, (error, documents) => {
+        this.trigger(documents, true);
+      });
+    }
+  },
+
+  /**
+   * Fetch the next page of documents.
+   *
+   * @param {Integer} page - The current page.
+   */
+  _fetchNextDocuments: function(page) {
+    var ns = NamespaceStore.ns;
+    if (ns) {
+      var dataService = ApplicationStore.dataService;
+      var filter = app.queryOptions.query.serialize();
+      dataService.find(ns, filter, { skip: (page * 20), limit: 20, sort: { _id: 1 }}, (error, documents) => {
+        this.trigger(documents, false);
+      });
+    }
   }
 });
 
