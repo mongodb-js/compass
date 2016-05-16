@@ -44,6 +44,9 @@ function elementComponent(type) {
  */
 const LIST_CLASS = 'document-list';
 
+/**
+ * The scroll event name.
+ */
 const SCROLL_EVENT = 'scroll';
 
 /**
@@ -55,22 +58,32 @@ class DocumentList extends React.Component {
    * Fetch the state when the component mounts.
    */
   componentDidMount() {
-    // @todo: Move the DOM node out of the state.
-    this.state.node = ReactDOM.findDOMNode(this);
-    var containerNode = this.state.node.parentNode;
-    containerNode.addEventListener(SCROLL_EVENT, this._handleScroll.bind(this));
-
-    DocumentListStore.listen((documents, reset) => {
+    this._attachScrollEvent();
+    DocumentListStore.listen((documents, reset, count) => {
+      var ids = _.map(documents, (doc) => {
+        return doc._id;
+      });
+      console.log(ids);
       if (reset) {
+        console.log(`Setting the first ${documents.length} documents`);
         // If resetting, then we need to go back to page one with
-        // the documents as the filter changed.
-        this.setState({ docs: this._documentListItems(documents), currentPage: 1 });
+        // the documents as the filter changed. The loaded count and
+        // total count are reset here as well.
+        this.setState({
+          docs: this._documentListItems(documents),
+          currentPage: 1,
+          count: count,
+          loadedCount: documents.length
+        });
       } else {
+        console.log(`Appending ${documents.length} documents.`);
         // If not resetting we append the documents to the existing
-        // list and increment the page.
+        // list and increment the page. The loaded count is incremented
+        // by the number of new documents.
         this.setState({
           docs: this.state.docs.concat(this._documentListItems(documents)),
-          page: (this.state.currentPage + 1)
+          currentPage: (this.state.currentPage + 1),
+          loadedCount: (this.state.loadedCount + documents.length)
         });
       }
     });
@@ -100,6 +113,17 @@ class DocumentList extends React.Component {
   }
 
   /**
+   * Attach the scroll event to the parent container.
+   */
+  _attachScrollEvent() {
+    this.documentListNode = ReactDOM.findDOMNode(this);
+    this.documentListNode.parentNode.addEventListener(
+      SCROLL_EVENT,
+      this._handleScroll.bind(this)
+    );
+  }
+
+  /**
    * Get the document list item components.
    *
    * @param {Array} docs - The raw documents.
@@ -112,11 +136,16 @@ class DocumentList extends React.Component {
     });
   }
 
+  /**
+   * Handle the scroll event of the parent container.
+   *
+   * @param {Event} evt - The scroll event.
+   */
   _handleScroll(evt) {
-    // Check if the number of documents in the collection against the
-    // number of documents we have loaded.
-    if (evt.srcElement.scrollTop > (this.state.node.offsetHeight / 2)) {
-      // MVP: if we are scrolling down, and are about to run out of docs:
+    var container = evt.srcElement;
+    if (container.scrollTop > (this.documentListNode.offsetHeight - this._scrollDelta())) {
+      // If we are scrolling downwards, and have hit the distance to initiate a scroll
+      // from the end of the list, we will fire the event to load more documents.
       this._nextBatch();
     }
     // Bonus: if we have passed a certain number of docs that are out of view:
@@ -128,10 +157,26 @@ class DocumentList extends React.Component {
   }
 
   /**
-   * Get the next batch of documents.
+   * Get the next batch of documents. Will only fire if there are more documents
+   * in the collection to load.
    */
   _nextBatch() {
-    Action.fetchNextDocuments(this.state.currentPage);
+    if (this.state.loadedCount < this.state.count) {
+      Action.fetchNextDocuments(this.state.currentPage);
+    }
+  }
+
+  /**
+   * Get the distance in pixels from the end of the document list to the point when
+   * scrolling where we want to load more documents.
+   *
+   * @returns {Integer} The distance.
+   */
+  _scrollDelta() {
+    if (!this.scrollDelta) {
+      this.scrollDelta = this.documentListNode.offsetHeight;
+    }
+    return this.scrollDelta;
   }
 }
 
