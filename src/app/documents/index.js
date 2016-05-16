@@ -38,7 +38,7 @@ var DocumentView = View.extend({
     }
   },
   onQueryChanged: function() {
-    Action.filterChanged({});
+    Action.filterChanged(app.queryOptions.query.serialize());
   },
   subviews: {
     documents: {
