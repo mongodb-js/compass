@@ -60,12 +60,7 @@ class DocumentList extends React.Component {
   componentDidMount() {
     this._attachScrollEvent();
     DocumentListStore.listen((documents, reset, count) => {
-      var ids = _.map(documents, (doc) => {
-        return doc._id;
-      });
-      console.log(ids);
       if (reset) {
-        console.log(`Setting the first ${documents.length} documents`);
         // If resetting, then we need to go back to page one with
         // the documents as the filter changed. The loaded count and
         // total count are reset here as well.
@@ -76,7 +71,6 @@ class DocumentList extends React.Component {
           loadedCount: documents.length
         });
       } else {
-        console.log(`Appending ${documents.length} documents.`);
         // If not resetting we append the documents to the existing
         // list and increment the page. The loaded count is incremented
         // by the number of new documents.
