@@ -86,7 +86,7 @@ class ComponentRegistry {
     this.registry[component.displayName] = {
       component: component,
       container: options.container,
-      role: options.role
+      role: options.role,
     };
     Action.componentRegistered(component, options);
     return this;

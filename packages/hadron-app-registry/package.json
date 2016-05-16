@@ -16,7 +16,8 @@
   "scripts": {
     "ci": "npm test",
     "test": "mocha --recursive",
-    "fmt": "mongodb-js-fmt ./*.js ./test/*.js"
+    "fmt": "mongodb-js-fmt ./*.js ./test/*.js",
+    "check": "mongodb-js-precommit ./lib/*.js ./test/*.js"
   },
   "precommit": [
     "check"
@@ -27,6 +28,7 @@
     "debug": "^2.2.0",
     "hadron-action": "0.0.1",
     "lodash": "^4.6.1",
+    "moment": "^2.13.0",
     "react": "^0.14.8",
     "react-dom": "^0.14.8",
     "reflux": "^0.4.0"
