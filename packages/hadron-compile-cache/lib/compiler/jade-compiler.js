@@ -1,4 +1,5 @@
 var crypto = require('crypto');
+var debug = require('debug')('hadron-compile-cache:jade-compiler');
 var path = require('path');
 
 /**
@@ -71,6 +72,7 @@ JadeCompiler.prototype.getCachePath = function(filePath) {
  * @returns {String} The compiled javascript as a string.
  */
 JadeCompiler.prototype.compile = function(sourceCode, filePath) {
+  debug('Compiling ' + filePath);
   if (process.platform === 'win32') {
     filePath = 'file:///' + path.resolve(filePath).replace(/\\/g, '/');
   }

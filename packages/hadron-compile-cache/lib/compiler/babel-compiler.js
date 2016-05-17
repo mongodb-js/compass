@@ -1,4 +1,5 @@
 var crypto = require('crypto');
+var debug = require('debug')('hadron-compile-cache:babel-compiler');
 var path = require('path');
 
 /**
@@ -65,6 +66,7 @@ BabelCompiler.prototype.getCachePath = function(filePath) {
  * @returns {String} The compiled javascript as a string.
  */
 BabelCompiler.prototype.compile = function(sourceCode, filePath) {
+  debug('Compiling ' + filePath);
   var options = { filename: filePath };
   for (var key in DEFAULTS) {  // eslint-disable-line guard-for-in
     options[key] = DEFAULTS[key];
