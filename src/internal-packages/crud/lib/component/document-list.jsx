@@ -28,7 +28,7 @@ class DocumentList extends React.Component {
    */
   componentDidMount() {
     this._attachScrollEvent();
-    DocumentListStore.listen((documents, reset, count) => {
+    this.unsubscribe = DocumentListStore.listen((documents, reset, count) => {
       if (reset) {
         // If resetting, then we need to go back to page one with
         // the documents as the filter changed. The loaded count and
@@ -50,6 +50,13 @@ class DocumentList extends React.Component {
         });
       }
     });
+  }
+
+  /**
+   * Unsibscribe from the document list store when unmounting.
+   */
+  componentWillUnmount() {
+    this.unsubscribe();
   }
 
   /**
