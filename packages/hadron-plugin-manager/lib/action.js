@@ -1,6 +1,6 @@
 'use strict';
 
-const debug = require('debug')('mongodb-package-manager:action');
+const debug = require('debug')('hadron-package-manager:action');
 const Reflux = require('reflux');
 
 /**

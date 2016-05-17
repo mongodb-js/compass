@@ -4,7 +4,7 @@ const _ = require('lodash');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const debug = require('debug')('mongodb-package-manager:package-manager');
+const debug = require('debug')('hadron-package-manager:package-manager');
 const Package = require('./package');
 const Action = require('./action');
 
