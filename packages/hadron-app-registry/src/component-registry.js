@@ -36,7 +36,7 @@ class ComponentRegistry {
    * @returns {ComponentRegistry} This instance.
    */
   deregisterAll() {
-    _.each(this.registry, value => {
+    _.each(this.registry, (value) => {
       this.deregister(value.component);
     });
     return this;
@@ -86,7 +86,7 @@ class ComponentRegistry {
     this.registry[component.displayName] = {
       component: component,
       container: options.container,
-      role: options.role
+      role: options.role,
     };
     Action.componentRegistered(component, options);
     return this;
