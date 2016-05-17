@@ -40,7 +40,10 @@ class Environment {
    * Register babel to transform .jsx files.
    */
   _registerBabel() {
-    require("babel-register")({ extensions: [".jsx"] });
+    require('babel-register')({
+      extensions: ['.jsx'],
+      ignore: false
+    });
   }
 }
 
