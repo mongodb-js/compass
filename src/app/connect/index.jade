@@ -34,6 +34,16 @@
 
       hr
 
+      div(data-hook='sshselect-subview')
+
+      - for method, i in sshTunnelMethods || {}
+        - classNames = []
+        - if (!method.enabled) classNames.push('hidden')
+        - if (i === 0) classNames.push('active')
+        div(class=classNames, id='ssh-#{method._id}')
+
+      hr
+
       div(data-hook='saveas-subview')
 
       .form-item
