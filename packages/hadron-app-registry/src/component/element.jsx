@@ -29,7 +29,7 @@ class Element extends React.Component {
         <Field field={this.props.field} />
         :
         <div className={VALUE_CLASS} title={this.props.value}>
-          {this.props.value}
+          {String(this.props.value)}
         </div>
       </li>
     );

@@ -32,7 +32,7 @@ class Element extends React.Component {
       React.createElement(
         'div',
         { className: VALUE_CLASS, title: this.props.value },
-        this.props.value
+        String(this.props.value)
       )
     );
   }
