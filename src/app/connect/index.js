@@ -33,6 +33,11 @@ var indexTemplate = require('./index.jade');
  */
 var sslMethods = require('./ssl');
 
+/**
+ * SshTunnelOptionCollection
+ */
+var sshTunnelMethods = require('./ssh-tunnel');
+
 var ConnectView = View.extend({
   template: indexTemplate,
   screenName: 'Connect',
@@ -73,6 +78,14 @@ var ConnectView = View.extend({
       default: 'NONE'
     },
     previousSslMethod: {
+      type: 'string',
+      default: null
+    },
+    sshTunnelMethod: {
+      type: 'string',
+      default: 'NONE'
+    },
+    previousSshTunnelMethod: {
       type: 'string',
       default: null
     },
@@ -232,7 +245,8 @@ var ConnectView = View.extend({
   render: function() {
     this.renderWithTemplate({
       authMethods: authMethods.serialize(),
-      sslMethods: sslMethods.serialize()
+      sslMethods: sslMethods.serialize(),
+      sshTunnelMethods: sshTunnelMethods.serialize()
     });
 
     this.form = new ConnectFormView({
@@ -488,7 +502,7 @@ var ConnectView = View.extend({
     // Changing `this.authMethod` and `this.sslMethod` dynamically updates
     // the form fields so we need to get a list of what keys are currently
     // available to set.
-    var keys = ['name', 'port', 'hostname', 'authentication', 'ssl'];
+    var keys = ['name', 'port', 'hostname', 'authentication', 'ssl', 'ssh-tunnel'];
     if (this.connection.authentication !== 'NONE') {
       keys.push.apply(keys, _.pluck(authMethods.get(this.authMethod).fields, 'name'));
     }

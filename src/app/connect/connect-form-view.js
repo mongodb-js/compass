@@ -3,6 +3,7 @@ var InputView = require('./input-view');
 var SelectView = require('ampersand-select-view');
 var authOptions = require('./authentication');
 var sslOptions = require('./ssl');
+var sshTunnelOptions = require('./ssh-tunnel');
 var FilteredCollection = require('ampersand-filtered-subcollection');
 // var debug = require('debug')('mongodb-compass:connect:connect-form-view');
 
@@ -15,12 +16,18 @@ var enabledAuthOptions = new FilteredCollection(authOptions, {
     enabled: true
   }
 });
+
 var enabledSslOptions = new FilteredCollection(sslOptions, {
   where: {
     enabled: true
   }
 });
 
+var enabledSshTunnelOptions = new FilteredCollection(sshTunnelOptions, {
+  where: {
+    enabled: true
+  }
+});
 
 /**
  * special input view that validates against a list of conflicting values, which can be
@@ -146,6 +153,28 @@ var ConnectFormView = FormView.extend({
         // and pick an item from the collection as the selected one
         // @todo thomasr: pick the "model.selected" one (via .find() ?)
         value: enabledSslOptions.get('NONE'),
+        // here you specify which attribute on the objects in the collection
+        // to use for the value returned.
+        idAttribute: '_id',
+        // you can also specify which model attribute to use as the title
+        textAttribute: 'title',
+        // here you can specify if it should return the selected model from the
+        // collection, or just the id attribute.  defaults `true`
+        yieldModel: false
+      }),
+      // SSH Tunnel select subview.
+      new SelectView({
+        name: 'ssh-tunnel',
+        label: 'SSH Tunnel',
+        el: this.parent.queryByHook('ssh-tunnel-select-subview'),
+        // @see https://github.com/AmpersandJS/ampersand-select-view/issues/55
+        template: selectTemplate(),
+        parent: this,
+        // you can pass in a collection here too
+        options: enabledSshTunnelOptions,
+        // and pick an item from the collection as the selected one
+        // @todo thomasr: pick the "model.selected" one (via .find() ?)
+        value: enabledSshTunnelOptions.get('NONE'),
         // here you specify which attribute on the objects in the collection
         // to use for the value returned.
         idAttribute: '_id',
