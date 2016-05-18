@@ -167,21 +167,12 @@ var ConnectFormView = FormView.extend({
         name: 'ssh-tunnel',
         label: 'SSH Tunnel',
         el: this.parent.queryByHook('ssh-tunnel-select-subview'),
-        // @see https://github.com/AmpersandJS/ampersand-select-view/issues/55
         template: selectTemplate(),
         parent: this,
-        // you can pass in a collection here too
         options: enabledSshTunnelOptions,
-        // and pick an item from the collection as the selected one
-        // @todo thomasr: pick the "model.selected" one (via .find() ?)
         value: enabledSshTunnelOptions.get('NONE'),
-        // here you specify which attribute on the objects in the collection
-        // to use for the value returned.
         idAttribute: '_id',
-        // you can also specify which model attribute to use as the title
         textAttribute: 'title',
-        // here you can specify if it should return the selected model from the
-        // collection, or just the id attribute.  defaults `true`
         yieldModel: false
       }),
       // connection name field
