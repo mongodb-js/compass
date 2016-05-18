@@ -92,6 +92,7 @@
     "backoff": "^2.4.1",
     "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz",
     "d3": "^3.5.6",
+    "d3-flextree": "github:klortho/d3-flextree",
     "debug": "mongodb-js/debug#ca4477297589a8c78d8a6d6eb29b2f67dce0e03e",
     "debug-menu": "^0.3.0",
     "electron-squirrel-startup": "^0.1.4",
