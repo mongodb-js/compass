@@ -8,6 +8,8 @@ var app = require('ampersand-app');
 var ExplainPlanModel = require('mongodb-explain-plan-model');
 var DocumentView = require('../documents/document-list-item');
 var IndexDefinitionView = require('../indexes/index-definition');
+var TreeView = require('./tree-view');
+var StageModel = require('./stage-model');
 
 var debug = require('debug')('mongodb-compass:explain-plan');
 
@@ -36,6 +38,7 @@ module.exports = View.extend({
   },
   session: {
     rawSubview: 'object',
+    treeSubview: 'object',
     indexDefinitionSubview: 'object'
   },
   derived: {
@@ -174,6 +177,22 @@ module.exports = View.extend({
         return debug('error', err);
       }
       view.explainPlan.set(view.explainPlan.parse(explain));
+
+      // remove old tree view
+      if (view.treeSubview) {
+        view.treeSubview.remove();
+      }
+      // render new tree view
+      view.explainPlan.rawExplainObject = require('./fixture.json');
+      debug(view.explainPlan.rawExplainObject);
+      var stageModel = new StageModel(view.explainPlan.rawExplainObject.executionStats.executionStages, {
+        parse: true
+      });
+      view.treeSubview = view.renderSubview(new TreeView({
+        model: stageModel,
+        parent: view
+      }), '[data-hook=tree-subview]');
+
       // create new document model from raw explain output
       var rawDocModel = new DocumentModel(view.explainPlan.rawExplainObject);
       // remove old view if present
