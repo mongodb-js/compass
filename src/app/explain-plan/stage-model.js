@@ -38,6 +38,12 @@ Stage = State.extend({
     depth: 'number'
   },
   derived: {
+    isShard: {
+      deps: ['details'],
+      fn: function() {
+        return !!this.details.shardName;
+      }
+    },
     highlightValues: {
       deps: ['name', 'details'],
       fn: function() {
@@ -65,18 +71,19 @@ Stage = State.extend({
   },
   parse: function(attrs) {
     var parsed = {
-      name: attrs.stage,
+      name: attrs.stage || attrs.shardName,
       nReturned: attrs.nReturned,
-      curStageExecTimeMS: attrs.executionTimeMillisEstimate,
-      details: attrs,
+      curStageExecTimeMS: attrs.executionTimeMillisEstimate !== undefined ?
+        attrs.executionTimeMillisEstimate : attrs.executionTimeMillis,
+      details: _.omit(attrs, ['inputStage', 'inputStages', 'shards', 'executionStages']),
       x: attrs.x,
       y: attrs.y,
       depth: attrs.depth
     };
     if (attrs.inputStage) {
       parsed.children = [attrs.inputStage];
-    } else if (attrs.inputStages) {
-      parsed.children = attrs.inputStages;
+    } else if (attrs.inputStages || attrs.shards || attrs.executionStages) {
+      parsed.children = attrs.inputStages || attrs.shards || attrs.executionStages;
     } else {
       parsed.children = [];
     }

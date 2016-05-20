@@ -1,14 +1,37 @@
 var $ = require('jquery');
 var View = require('ampersand-view');
-var d3 = require('d3');
+// var d3 = require('d3');
 
 var debug = require('debug')('mongodb-compass:explain:stage-view');
 
+var stageTemplate = require('./stage-view.jade');
+var shardTemplate = require('./shard-view.jade');
+
+var zIndexCounter = 100;
+
 module.exports = View.extend({
-  template: require('./stage-view.jade'),
+  template: stageTemplate,
+  props: {
+    detailsOpen: {
+      type: 'boolean',
+      default: false,
+      required: true
+    }
+  },
+  derived: {
+    detailsJSON: {
+      deps: ['model.details'],
+      fn: function() {
+        return JSON.stringify(this.model.details, null, ' ');
+      }
+    }
+  },
+  events: {
+    'click [data-hook=details]': 'detailsClicked'
+  },
   bindings: {
     'model.name': {
-      hook: 'stage-name'
+      hook: 'name'
     },
     'model.nReturned': {
       hook: 'n-returned'
@@ -25,11 +48,28 @@ module.exports = View.extend({
       type: function(el, value) {
         $(el).css('top', value);
       }
+    },
+    'detailsJSON': {
+      hook: 'stage-details'
+    },
+    detailsOpen: {
+      type: 'booleanClass',
+      name: 'open',
+      hook: 'details'
+    }
+  },
+  initialize: function() {
+    if (this.model.isShard) {
+      this.template = shardTemplate;
     }
   },
   render: function() {
     this.renderWithTemplate(this);
     // this.calld3();
+  },
+  detailsClicked: function() {
+    this.toggle('detailsOpen');
+    $(this.query()).css('z-index', this.detailsOpen ? zIndexCounter++ : 'initial');
   }
   // calld3: function() {
   //   debug('calling d3');

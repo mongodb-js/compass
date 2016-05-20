@@ -8,10 +8,11 @@ var d3 = window.d3 = require('d3');
 // this plugin allows for tree layout of variable-sized nodes
 require('d3-flextree');
 
-// var debug = require('debug')('mongodb-compass:explain:tree');
+var debug = require('debug')('mongodb-compass:explain:tree');
 
 var DEFAULT_CARD_WIDTH = 276;        // width of a card
 var DEFAULT_CARD_HEIGHT = 132;       // height of a card without highlighted fields
+var SHARD_CARD_HEIGHT = 57;          // height of a shard label card
 var HIGHLIGHT_FIELD_HEIGHT = 41;     // height of a single "heighlighted" field
 var VERTICAL_PADDING = 50;           // vertical space between two cards
 
@@ -31,12 +32,15 @@ module.exports = View.extend({
   },
   render: function() {
     this.renderWithTemplate(this);
-
+    this.drawd3();
+  },
+  drawd3: function() {
     var tree = d3.layout.flextree()
       .setNodeSizes(true)
       .nodeSize(function(d) {
-        var height = DEFAULT_CARD_HEIGHT + VERTICAL_PADDING
-          + (d.highlightPairs.length * HIGHLIGHT_FIELD_HEIGHT);
+        var height = d.isShard ? SHARD_CARD_HEIGHT : DEFAULT_CARD_HEIGHT +
+          (d.highlightPairs.length * HIGHLIGHT_FIELD_HEIGHT);
+        height += VERTICAL_PADDING;
         return [DEFAULT_CARD_WIDTH, height];
       })
       .spacing(function separation(a, b) {

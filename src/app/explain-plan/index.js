@@ -183,8 +183,6 @@ module.exports = View.extend({
         view.treeSubview.remove();
       }
       // render new tree view
-      view.explainPlan.rawExplainObject = require('./fixture.json');
-      debug(view.explainPlan.rawExplainObject);
       var stageModel = new StageModel(view.explainPlan.rawExplainObject.executionStats.executionStages, {
         parse: true
       });
