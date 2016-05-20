@@ -3,7 +3,7 @@ var Collection = require('ampersand-collection');
 var lodashMixin = require('ampersand-collection-lodash-mixin');
 var _ = require('lodash');
 
-var debug = require('debug')('mongodb-compass:explain:stage-model');
+// var debug = require('debug')('mongodb-compass:explain:stage-model');
 
 var Stage;
 
@@ -16,17 +16,10 @@ var StageCollection = Collection.extend(lodashMixin, {
   }
 });
 
-var counter = 0;
-
 Stage = State.extend({
   idAttribute: 'id',
   props: {
-    id: {
-      type: 'string',
-      default: function() {
-        return 'stage-' + counter++;
-      }
-    },
+    id: 'string',
     name: 'string',
     nReturned: 'number',
     totalExecTimeMS: 'number',
