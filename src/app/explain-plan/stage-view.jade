@@ -1,5 +1,5 @@
 .card(id='#{model.id}')
-  h3(data-hook='stage-name')
+  h3(data-hook='name')
   
   ul.core
     li.key-value-pair.nReturned
@@ -19,7 +19,7 @@
         span.key= valuePair[0]
         span.value= valuePair[1]
   
-  .details
+  .details(data-hook='details')
     h4 Details
     .details-output
       pre

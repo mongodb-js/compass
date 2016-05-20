@@ -154,16 +154,28 @@
       }
 
       .details-output {
-        padding: 12px;
-        background: #f4f6f7;
+        // padding: 12px;
+        // background: #f4f6f7;
         border-radius: 3px;
         display: none;
       }
 
+      .details.open .details-output {
+        display: block;
+      }
+
       .details-output pre {
+        background: none;
+        word-break: break-word;
+        border: none;
         margin: 0;
-        font-size: 12px;
-        line-height: 1.6;
+        font-size: 11px;
+        // line-height: 1.2;
+      }
+
+      .details-output pre code {
+        background: none;
+        margin: 0;
       }
 
     } // .card
