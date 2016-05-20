@@ -120,6 +120,7 @@ var ConnectView = View.extend({
   events: {
     'change select[name=authentication]': 'onAuthMethodChanged',
     'change select[name=ssl]': 'onSslMethodChanged',
+    'change select[name=ssh-tunnel]': 'onSshTunnelMethodChanged',
     'click [data-hook=create-favorite-button]': 'onCreateFavoriteClicked',
     'click [data-hook=remove-favorite-button]': 'onRemoveFavoriteClicked',
     'click [data-hook=save-changes-button]': 'onSaveChangesClicked',
@@ -145,6 +146,10 @@ var ConnectView = View.extend({
 
   onSslMethodChanged: function(evt) {
     this.sslMethod = evt.target.value;
+  },
+
+  onSshTunnelMethodChanged: function(evt) {
+    this.sshTunnelMethod = evt.target.value;
   },
 
   onNameInputChanged: function(evt) {
@@ -263,6 +268,9 @@ var ConnectView = View.extend({
 
     this.listenToAndRun(this, 'change:sslMethod',
       this.replaceSslMethodFields.bind(this));
+
+    this.listenToAndRun(this, 'change:sshTunnelMethod',
+      this.replaceSshTunnelMethodFields.bind(this));
 
     this.listenToAndRun(app, 'connect-window-focused',
       this.onConnectWindowFocused.bind(this));
@@ -584,6 +592,26 @@ var ConnectView = View.extend({
     }.bind(this));
 
     this.previousSslMethod = this.sslMethod;
+  },
+
+  /**
+   * called when this.sshTunnelMethod changes. Replaces the fields in `this.form`.
+   */
+  replaceSshTunnelMethodFields: function() {
+    // remove and unregister old fields
+    var oldFields = _.get(sshTunnelMethods.get(this.previousSshTunnelMethod), 'fields', []);
+    _.each(oldFields, function(field) {
+      this.form.removeField(field.name);
+    }.bind(this));
+
+    // register new with form, render, append to DOM
+    var newFields = sshTunnelMethods.get(this.sshTunnelMethod).fields;
+    _.each(newFields, function(field) {
+      this.form.addField(field.render());
+      this.query('#ssh-tunnel-' + this.sshTunnelMethod).appendChild(field.el);
+    }.bind(this));
+
+    this.previousSshTunnelMethod = this.sshTunnelMethod;
   }
 
 });
