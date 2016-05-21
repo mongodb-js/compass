@@ -1,6 +1,8 @@
 /* eslint no-console:0 */
-
 console.time('app/index.js');
+
+var Environment = require('../environment');
+Environment.init();
 
 var path = require('path');
 var resourcePath = path.join(__dirname, '..', '..');
@@ -8,6 +10,9 @@ var resourcePath = path.join(__dirname, '..', '..');
 var ModuleCache = require('hadron-module-cache');
 ModuleCache.register(resourcePath);
 ModuleCache.add(resourcePath);
+
+var ComponentRegistry = require('hadron-component-registry');
+var PackageManager = require('hadron-package-manager').PackageManager;
 
 var pkg = require('../../package.json');
 var CompileCache = require('hadron-compile-cache');
@@ -42,6 +47,7 @@ var QueryOptions = require('./models/query-options');
 var Connection = require('./models/connection');
 var MongoDBInstance = require('./models/mongodb-instance');
 var Preferences = require('./models/preferences');
+var ApplicationStore = require('hadron-reflux-store').ApplicationStore;
 var User = require('./models/user');
 var Router = require('./router');
 var Statusbar = require('./statusbar');
@@ -62,6 +68,14 @@ ipc.once('app:launched', function() {
 });
 
 var debug = require('debug')('mongodb-compass:app');
+
+// @note: Durran: the registry and package manager are set up here in
+//   order to ensure that the compile cache has already been loaded and
+//   hooked into require.extensions. Otherwise, packages will not have
+//   use of the compile cache.
+app.componentRegistry = new ComponentRegistry();
+app.packageManager = new PackageManager(path.join(__dirname, '..', 'internal-packages'));
+app.packageManager.activate();
 
 function getConnection(model, done) {
   function _fetch(fn) {
@@ -389,6 +403,7 @@ app.extend({
         .on(DataService.Events.Error, state.onFatalError.bind(state, 'create client'));
 
       app.dataService.connect(function() {
+        ApplicationStore.dataService = app.dataService;
         state.startClientStalledTimer();
       });
     });
