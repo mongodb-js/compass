@@ -34,13 +34,13 @@
 
       hr
 
-      div(data-hook='ssh-tunnel-select-subview')
+      div(data-hook='ssh_tunnel-select-subview')
 
       - for method, i in sshTunnelMethods || {}
         - classNames = []
         - if (!method.enabled) classNames.push('hidden')
         - if (i === 0) classNames.push('active')
-        div(class=classNames, id='ssh-tunnel-#{method._id}')
+        div(class=classNames, id='ssh_tunnel-#{method._id}')
 
       hr
 

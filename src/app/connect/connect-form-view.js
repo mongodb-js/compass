@@ -164,9 +164,9 @@ var ConnectFormView = FormView.extend({
       }),
       // SSH Tunnel select subview.
       new SelectView({
-        name: 'ssh-tunnel',
+        name: 'ssh_tunnel',
         label: 'SSH Tunnel',
-        el: this.parent.queryByHook('ssh-tunnel-select-subview'),
+        el: this.parent.queryByHook('ssh_tunnel-select-subview'),
         template: selectTemplate(),
         parent: this,
         options: enabledSshTunnelOptions,

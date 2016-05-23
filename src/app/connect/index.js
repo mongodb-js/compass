@@ -120,7 +120,7 @@ var ConnectView = View.extend({
   events: {
     'change select[name=authentication]': 'onAuthMethodChanged',
     'change select[name=ssl]': 'onSslMethodChanged',
-    'change select[name=ssh-tunnel]': 'onSshTunnelMethodChanged',
+    'change select[name=ssh_tunnel]': 'onSshTunnelMethodChanged',
     'click [data-hook=create-favorite-button]': 'onCreateFavoriteClicked',
     'click [data-hook=remove-favorite-button]': 'onRemoveFavoriteClicked',
     'click [data-hook=save-changes-button]': 'onSaveChangesClicked',
@@ -510,7 +510,7 @@ var ConnectView = View.extend({
     // Changing `this.authMethod` and `this.sslMethod` dynamically updates
     // the form fields so we need to get a list of what keys are currently
     // available to set.
-    var keys = ['name', 'port', 'hostname', 'authentication', 'ssl', 'ssh-tunnel'];
+    var keys = ['name', 'port', 'hostname', 'authentication', 'ssl', 'ssh_tunnel'];
     if (this.connection.authentication !== 'NONE') {
       keys.push.apply(keys, _.pluck(authMethods.get(this.authMethod).fields, 'name'));
     }
@@ -608,7 +608,7 @@ var ConnectView = View.extend({
     var newFields = sshTunnelMethods.get(this.sshTunnelMethod).fields;
     _.each(newFields, function(field) {
       this.form.addField(field.render());
-      this.query('#ssh-tunnel-' + this.sshTunnelMethod).appendChild(field.el);
+      this.query('#ssh_tunnel-' + this.sshTunnelMethod).appendChild(field.el);
     }.bind(this));
 
     this.previousSshTunnelMethod = this.sshTunnelMethod;

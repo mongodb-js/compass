@@ -93,5 +93,5 @@ var IDENTITY_FILE = {
 module.exports = new SSHTunnelOptionCollection([
   NONE,
   USER_PASSWORD,
-  IDENTITY_FILE,
+  IDENTITY_FILE
 ]);

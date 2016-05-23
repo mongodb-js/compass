@@ -1,16 +1,14 @@
 var State = require('ampersand-state');
+var Connection = require('../../models/connection');
 
 var SSHTunnelOption = State.extend({
   namespace: 'SSHTunnelOption',
   mainIndex: '_id',
   props: {
-    /**
-     * @todo: Durran: Move into connection model constant.
-     */
     _id: {
       type: 'string',
-      values: ['NONE', 'USER_PASSWORD', 'IDENTITY_FILE'],
-      default: 'NONE'
+      values: Connection.SSH_TUNNEL_VALUES,
+      default: Connection.SSH_TUNNEL_DEFAULT
     },
     title: {
       type: 'string'

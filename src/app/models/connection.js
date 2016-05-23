@@ -14,7 +14,10 @@ module.exports = Connection.extend(storageMixin, {
   namespace: 'Connections',
   storage: {
     backend: 'splice',
-    appName: pkg.productName
+    appName: pkg.productName,
+    secureCondition: function(val, key) {
+      return key.match(/(password|passphrase)/i);
+    }
   },
   props: {
     _id: {
