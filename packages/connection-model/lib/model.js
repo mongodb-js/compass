@@ -412,6 +412,79 @@ assign(props, {
 });
 
 /**
+ * @constant {Array} - Allowed values for the `ssh_tunnel` field.
+ */
+var SSH_TUNNEL_VALUES = [
+  /**
+   * Do not use SSH tunneling.
+   */
+  'NONE',
+  /**
+   * The tunnel is created with username and password only.
+   */
+  'USER_PASSWORD',
+  /**
+   * The tunnel is created using an identity file.
+   */
+  'IDENTITY_FILE'
+];
+
+/**
+ * @constant {String} - The default value for `ssh_tunnel`.
+ */
+var SSH_TUNNEL_DEFAULT = 'NONE';
+
+assign(props, {
+  ssh_tunnel: {
+    type: 'string',
+    values: SSH_TUNNEL_VALUES,
+    default: SSH_TUNNEL_DEFAULT
+  },
+  /**
+   * The hostname to open the ssh tunnel to.
+   */
+  ssh_tunnel_hostname: {
+    type: 'string',
+    default: undefined
+  },
+  /**
+   * The local port for the ssh tunnel.
+   */
+  ssh_tunnel_port: {
+    type: 'string',
+    default: undefined
+  },
+  /**
+   * The ssh username.
+   */
+  ssh_tunnel_username: {
+    type: 'string',
+    default: undefined
+  },
+  /**
+   * The ssh password.
+   */
+  ssh_tunnel_password: {
+    type: 'string',
+    default: undefined
+  },
+  /**
+   * The path to the ssh identity file.
+   */
+  ssh_tunnel_identity_file: {
+    type: 'string',
+    default: undefined
+  },
+  /**
+   * The passphrase for the identity file.
+   */
+  ssh_tunnel_passphrase: {
+    type: 'string',
+    default: undefined
+  }
+});
+
+/**
  * ## Driver Connection Options
  *
  * So really everything above is all about putting
@@ -460,6 +533,11 @@ assign(derived, {
           slaveOk: 'true'
         }
       };
+
+      if (this.ssh_tunnel !== 'NONE') {
+        req.hostname = 'localhost';
+        req.port = this.ssh_tunnel_port;
+      }
 
       if (this.ns) {
         req.pathname = format('/%s', this.ns);
@@ -608,6 +686,7 @@ Connection = AmpersandModel.extend({
       this.validate_kerberos(attrs);
       this.validate_x509(attrs);
       this.validate_ldap(attrs);
+      this.validate_ssh_tunnel(attrs);
     } catch (err) {
       return err;
     }
@@ -704,6 +783,33 @@ Connection = AmpersandModel.extend({
           + 'using LDAP for authentication.'));
       }
     }
+  },
+  validate_ssh_tunnel: function(attrs) {
+    if (!attrs.ssh_tunnel || attrs.ssh_tunnel === SSH_TUNNEL_DEFAULT) {
+      return;
+    }
+    if (attrs.ssh_tunnel === 'USER_PASSWORD') {
+      this.validate_standard_ssh_tunnel_options(attrs);
+      if (!attrs.ssh_tunnel_password) {
+        throw new TypeError('ssl_tunnel_password is required when ssh_tunnel is USER_PASSWORD.');
+      }
+    } else if (attrs.ssh_tunnel === 'IDENTITY_FILE') {
+      this.validate_standard_ssh_tunnel_options(attrs);
+      if (!attrs.ssh_tunnel_identity_file) {
+        throw new TypeError('ssl_tunnel_identity_file is required when ssh_tunnel is IDENTITY_FILE.');
+      }
+    }
+  },
+  validate_standard_ssh_tunnel_options: function(attrs) {
+    if (!attrs.ssh_tunnel_username) {
+      throw new TypeError('ssl_tunnel_username is required when ssh_tunnel is not NONE.');
+    }
+    if (!attrs.ssh_tunnel_hostname) {
+      throw new TypeError('ssl_tunnel_hostname is required when ssh_tunnel is not NONE.');
+    }
+    if (!attrs.ssh_tunnel_port) {
+      throw new TypeError('ssl_tunnel_port is required when ssh_tunnel is not NONE.');
+    }
   }
 });
 
@@ -797,6 +903,8 @@ Connection.AUTHENTICATION_VALUES = AUTHENTICATION_VALUES;
 Connection.AUTHENTICATION_DEFAULT = AUTHENTICATION_DEFAULT;
 Connection.SSL_VALUES = SSL_VALUES;
 Connection.SSL_DEFAULT = SSL_DEFAULT;
+Connection.SSH_TUNNEL_VALUES = SSH_TUNNEL_VALUES;
+Connection.SSH_TUNNEL_DEFAULT = SSH_TUNNEL_DEFAULT;
 Connection.MONGODB_DATABASE_NAME_DEFAULT = MONGODB_DATABASE_NAME_DEFAULT;
 Connection.KERBEROS_SERVICE_NAME_DEFAULT = KERBEROS_SERVICE_NAME_DEFAULT;
 Connection.DRIVER_OPTIONS_DEFAULT = DRIVER_OPTIONS_DEFAULT;

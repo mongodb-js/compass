@@ -534,4 +534,171 @@ describe('mongodb-connection-model', function() {
       });
     });
   });
+
+  describe('ssh tunnel', function() {
+    describe('#driver_url', function() {
+      var c = new Connection({
+        hostname: '127.0.0.1',
+        ssh_tunnel: 'USER_PASSWORD',
+        ssh_tunnel_hostname: '127.0.0.1',
+        ssh_tunnel_port: '5000',
+        ssh_tunnel_username: 'username',
+        ssh_tunnel_password: 'password'
+      });
+      it('replaces the host and port with localhost and the ssh tunnel port', function() {
+        assert.equal(c.driver_url, 'mongodb://localhost:5000/?slaveOk=true');
+      });
+    });
+    describe('#validate', function() {
+      context('when ssh_tunnel is NONE', function() {
+        var c = new Connection({
+          ssh_tunnel: 'NONE'
+        });
+
+        it('does not fail validation', function() {
+          assert(c.isValid());
+        });
+      });
+
+      context('when ssh_tunnel is USER_PASSWORD', function() {
+        context('when hostname is missing', function() {
+          var c = new Connection({
+            ssh_tunnel: 'USER_PASSWORD',
+            ssh_tunnel_port: '22',
+            ssh_tunnel_username: 'username',
+            ssh_tunnel_password: 'password'
+          });
+
+          it('fails validation', function() {
+            assert(!c.isValid());
+          });
+        });
+
+        context('when port is missing', function() {
+          var c = new Connection({
+            ssh_tunnel: 'USER_PASSWORD',
+            ssh_tunnel_hostname: '127.0.0.1',
+            ssh_tunnel_username: 'username',
+            ssh_tunnel_password: 'password'
+          });
+
+          it('fails validation', function() {
+            assert(!c.isValid());
+          });
+        });
+
+        context('when username is missing', function() {
+          var c = new Connection({
+            ssh_tunnel: 'USER_PASSWORD',
+            ssh_tunnel_hostname: '127.0.0.1',
+            ssh_tunnel_port: '22',
+            ssh_tunnel_password: 'password'
+          });
+
+          it('fails validation', function() {
+            assert(!c.isValid());
+          });
+        });
+
+        context('when password is missing', function() {
+          var c = new Connection({
+            ssh_tunnel: 'USER_PASSWORD',
+            ssh_tunnel_hostname: '127.0.0.1',
+            ssh_tunnel_port: '22',
+            ssh_tunnel_username: 'username'
+          });
+
+          it('fails validation', function() {
+            assert(!c.isValid());
+          });
+        });
+
+        context('when the connection is valid', function() {
+          var c = new Connection({
+            ssh_tunnel: 'USER_PASSWORD',
+            ssh_tunnel_hostname: '127.0.0.1',
+            ssh_tunnel_port: '22',
+            ssh_tunnel_username: 'username',
+            ssh_tunnel_password: 'password'
+          });
+
+          it('does not fail validation', function() {
+            assert(c.isValid());
+          });
+        });
+      });
+
+      context('when ssh_tunnel is IDENTITY_FILE', function() {
+        context('when hostname is missing', function() {
+          var c = new Connection({
+            ssh_tunnel: 'IDENTITY_FILE',
+            ssh_tunnel_identity_file: '/path/to/.ssh/me.pub',
+            ssh_tunnel_port: '22',
+            ssh_tunnel_username: 'username'
+          });
+
+          it('fails validation', function() {
+            assert(!c.isValid());
+          });
+        });
+
+        context('when port is missing', function() {
+          var c = new Connection({
+            ssh_tunnel: 'IDENTITY_FILE',
+            ssh_tunnel_identity_file: '/path/to/.ssh/me.pub',
+            ssh_tunnel_hostname: '127.0.0.1',
+            ssh_tunnel_username: 'username',
+            ssh_tunnel_passphrase: 'password'
+          });
+
+          it('fails validation', function() {
+            assert(!c.isValid());
+          });
+        });
+
+        context('when username is missing', function() {
+          var c = new Connection({
+            ssh_tunnel: 'IDENTITY_FILE',
+            ssh_tunnel_identity_file: '/path/to/.ssh/me.pub',
+            ssh_tunnel_hostname: '127.0.0.1',
+            ssh_tunnel_port: '22',
+            ssh_tunnel_passphrase: 'password'
+          });
+
+          it('fails validation', function() {
+            assert(!c.isValid());
+          });
+        });
+
+        context('when identity file is missing', function() {
+          var c = new Connection({
+            ssh_tunnel: 'IDENTITY_FILE',
+            ssh_tunnel_username: 'username',
+            ssh_tunnel_hostname: '127.0.0.1',
+            ssh_tunnel_port: '22',
+            ssh_tunnel_passphrase: 'password'
+          });
+
+          it('fails validation', function() {
+            assert(!c.isValid());
+          });
+        });
+
+        context('when the connection is valid', function() {
+          var c = new Connection({
+            ssh_tunnel: 'IDENTITY_FILE',
+            ssh_tunnel_identity_file: '/path/to/.ssh/me.pub',
+            ssh_tunnel_hostname: '127.0.0.1',
+            ssh_tunnel_port: '22',
+            ssh_tunnel_username: 'username',
+            ssh_tunnel_passphrase: 'password'
+          });
+
+          it('does not fail validation', function() {
+            assert(c.isValid());
+          });
+        });
+      });
+    });
+  });
 });
