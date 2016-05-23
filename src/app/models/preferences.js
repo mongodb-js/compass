@@ -142,7 +142,7 @@ var Preferences = Model.extend(storageMixin, {
     showExplainPlanTab: {
       type: 'boolean',
       required: true,
-      default: false
+      default: true
     },
     /**
      * Switches to enable/disable various authentication / ssl types
