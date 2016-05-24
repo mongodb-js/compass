@@ -120,7 +120,7 @@
     "marky-mark": "^1.2.1",
     "moment": "^2.10.6",
     "mongodb-collection-model": "^0.2.3",
-    "mongodb-connection-model": "^4.0.2",
+    "mongodb-connection-model": "^4.1.0",
     "mongodb-data-service": "^0.0.16",
     "mongodb-database-model": "^0.1.2",
     "mongodb-explain-plan-model": "^0.1.3",
