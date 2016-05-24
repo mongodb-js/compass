@@ -7,10 +7,13 @@ const AWS = require('aws-sdk');
 
 const MANIFEST_BUCKET = 'info-mongodb-com';
 
-let upload = (CONFIG, asset) => {
+let maybeUpload = (CONFIG, asset) => {
+  const bucket = 'downloads.10gen.com';
+  const key = `${CONFIG.download_center_key_prefix}/${asset.name}`;
+
   const params = {
-    Bucket: 'downloads.10gen.com',
-    Key: `${CONFIG.download_center_key_prefix}/${asset.name}`,
+    Bucket: bucket,
+    Key: key,
     Body: fs.createReadStream(asset.path),
     ACL: 'public-read',
     Metadata: {
@@ -18,22 +21,41 @@ let upload = (CONFIG, asset) => {
     }
   };
 
-  const req = new AWS.S3.ManagedUpload({
-    params: params
-  });
+
   return new Promise((resolve, reject) => {
-    req.send(function(err, data) {
-      if (err) {
-        debug(`uploading ${asset.name} failed: ${err}`);
+    new AWS.S3({
+      params: {
+        Bucket: bucket,
+        Key: key
+      }
+    }).headObject( (err, data) => {
+      if (data) {
+        debug(`Asset at s3://${bucket}/${key} already exists.  Skipping.`);
+        return resolve(data);
+      }
+
+      if (err && err.code !== 'NotFound') {
         return reject(err);
       }
-      debug(`upload of ${asset.name} complete`);
-      resolve(data);
-    });
-    req.on('httpUploadProgress', (evt) => {
-      debug('got httpUploadProgress', evt);
-      if (!evt.total) return;
-      debug(`upload ${asset.name}: ${evt.total / evt.loaded}`);
+
+      const uploadReq = new AWS.S3.ManagedUpload({
+        params: params
+      });
+
+      uploadReq.send(function(uploadErr, res) {
+        if (uploadErr) {
+          debug(`uploading ${asset.name} failed: ${uploadErr}`);
+          return reject(err);
+        }
+        debug(`upload of ${asset.name} complete`);
+        resolve(res);
+      });
+
+      uploadReq.on('httpUploadProgress', (evt) => {
+        debug('got httpUploadProgress', evt);
+        if (!evt.total) return;
+        debug(`upload ${asset.name}: ${evt.total / evt.loaded}`);
+      });
     });
   });
 };
@@ -117,7 +139,7 @@ exports.maybeUpload = (CONFIG) => {
     CONFIG.download_center_key_prefix += `/${CONFIG.channel}`;
   }
 
-  return Promise.all(CONFIG.assets.map( (asset) => upload(CONFIG, asset)))
+  return Promise.all(CONFIG.assets.map( (asset) => maybeUpload(CONFIG, asset)))
     .then(maybeUploadManifest(CONFIG));
 };
 
