@@ -18,7 +18,7 @@ module.exports = [
     description: 'View the charts in the right-hand column of each row to see data distribution at a high level. Hover over charts to see more detail.',
     image: 'f2.gif',
     version: '1.0.0',
-    initial: true
+    initial: false
   },
   {
     title: 'Build Queries',
@@ -39,6 +39,13 @@ module.exports = [
     description: 'Click the Index tab to view the definition, attributes, size, and usage of your indexes.',
     image: 'f5.gif',
     version: '1.2.0',
+    initial: false
+  },
+  {
+    title: 'Examine Query Performance with Explain Plans',
+    description: 'Click the Explain Plan tab to view a performance summary of the executed query and get access to the detailed explain plan report.',
+    image: 'f7.gif',
+    version: '1.2.0',
     initial: true
   }
   // {
@@ -48,11 +55,4 @@ module.exports = [
   //   version: '1.2.0',
   //   initial: true
   // },
-  // {
-  //   title: 'Examine Performance with Explain Plan',
-  //   description: 'I see indexes',
-  //   image: 'f7.gif',
-  //   version: '1.2.0',
-  //   initial: true
-  // }
 ];
