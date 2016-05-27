@@ -28,6 +28,8 @@ Stage = State.extend({
     details: 'object',
     x: 'number',
     y: 'number',
+    xoffset: ['number', true, 0],
+    yoffset: ['number', true, 0],
     depth: 'number'
   },
   derived: {
