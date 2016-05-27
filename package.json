@@ -147,7 +147,7 @@
   "devDependencies": {
     "eslint-config-mongodb-js": "^1.0.6",
     "eslint-plugin-react": "^4.1.0",
-    "hadron-build": "^0.4.14",
+    "hadron-build": "^0.6.0",
     "hadron-test-utils": "^0.0.8",
     "xvfb-maybe": "^0.1.3"
   },
