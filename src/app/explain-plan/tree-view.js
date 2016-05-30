@@ -62,11 +62,16 @@ module.exports = View.extend({
     var leafNode = _.max(nodes, 'depth');
     var rightMostNode = _.max(nodes, 'x');
     var leftMostNode = _.min(nodes, 'x');
+
     var xDelta = leftMostNode.x;
     view.height = leafNode.y + leafNode.y_size;
     view.width = rightMostNode.x + rightMostNode.x_size - leftMostNode.x;
 
+    var totalExecTimeMS = this._computeExecTimes(nodes[0]);
+
     nodes.forEach(function(d, i) {
+      // set total exec time for all nodes
+      d.totalExecTimeMS = totalExecTimeMS;
       // align left most node to the left edge
       d.x += -xDelta;
       // set the id here, so that already existing stage models can be merged
@@ -124,5 +129,17 @@ module.exports = View.extend({
       .attr('d', elbow);
 
     link.exit().remove();
+  },
+  _computeExecTimes: function(node) {
+    if (!node.children || node.children.length === 0) {
+      node.prevStageExecTimeMS = 0;
+    } else {
+      var execTimes = _.map(node.children, this._computeExecTimes.bind(this));
+      node.prevStageExecTimeMS = _.max(execTimes);
+    }
+    if (node.isShard) {
+      node.curStageExecTimeMS = 0;
+    }
+    return node.prevStageExecTimeMS + node.curStageExecTimeMS;
   }
 });

@@ -75,6 +75,7 @@ module.exports = View.extend({
     if (this.model.isShard) {
       this.template = shardTemplate;
     }
+    this.listenTo(this.model, 'change:totalExecTimeMS', this.drawArcs.bind(this));
   },
   render: function() {
     this.renderWithTemplate(this);
@@ -86,9 +87,9 @@ module.exports = View.extend({
   },
   drawArcs: function() {
     // inputs from explain plan stage
-    var totalExMillis = 1300;
-    var curStageExMillis = 934;
-    var prevStageExMillis = 350;
+    var totalExMillis = this.model.totalExecTimeMS;
+    var curStageExMillis = this.model.curStageExecTimeMS;
+    var prevStageExMillis = this.model.prevStageExecTimeMS;
 
     // transforms to get the right percentage of arc for each piece of the clock
     var curArcStart = (prevStageExMillis / totalExMillis) * 2 * Math.PI;
@@ -108,7 +109,8 @@ module.exports = View.extend({
 
     // Create the SVG container, and apply a transform such that the origin is the
     // center of the canvas. This way, we don't need to position arcs individually.
-    var svgClock = d3.select(this.query('.clock')).append('svg')
+    var svgClock = d3.select(this.query('.clock')).selectAll('svg').data([null])
+      .enter().append('svg')
       .attr('width', clockWidth)
       .attr('height', clockHeight)
       .append('g')
