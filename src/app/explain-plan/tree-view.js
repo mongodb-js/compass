@@ -93,30 +93,44 @@ module.exports = View.extend({
     // cards and drag behavior (via d3.behavior.zoom)
     var svg = d3.select(view.el).selectAll('svg.links').data([null]);
     var container;
+    var moveTree;
+
     var zoom = d3.behavior.zoom()
       .scaleExtent([1, 1])
       .on('zoom', function() {
-        var tx = d3.event.translate[0];
-        tx = Math.min(0, Math.max(tx, -(view.width - DEFAULT_CARD_WIDTH)));
-        zoom.translate([tx, 0]);
-        container.attr('transform', 'translate(' + tx + ')');
-        nodes.forEach(function(d) {
-          d.xoffset = tx;
-        });
-        view.stages.set(nodes);
+        var dx = d3.event.translate[0];
+        moveTree(dx);
       });
+
+    function pan() {
+      var TRANSLATE_FACTOR = 4; // determines speed at which to move the tree
+      var currentTranslate = d3.transform(container.attr('transform')).translate;
+      var dx = d3.event.wheelDeltaX / TRANSLATE_FACTOR + currentTranslate[0];
+      moveTree(dx);
+      d3.event.stopPropagation();
+    }
+
+    moveTree = function(dx) {
+      dx = Math.min(0, Math.max(dx, -(view.width - DEFAULT_CARD_WIDTH)));
+      zoom.translate([dx, 0]);
+      container.attr('transform', 'translate(' + dx + ', 0)');
+      nodes.forEach(function(d) {
+        d.xoffset = dx;
+      });
+      view.stages.set(nodes);
+    };
 
     container = svg.enter().append('svg')
       .attr('class', 'links')
       .attr('width', '100%')
       .attr('height', view.height)
       .call(zoom)
+        .on('wheel.zoom', pan)
     .append('g');
 
     // remove unneeded event handlers
     svg.on('dblclick.zoom', null)
       .on('touchstart.zoom', null)
-      .on('wheel.zoom', null)
       .on('mousewheel.zoom', null)
       .on('MozMousePixelScroll.zoom', null);
 
