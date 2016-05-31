@@ -451,7 +451,7 @@ assign(props, {
    * The local port for the ssh tunnel.
    */
   ssh_tunnel_port: {
-    type: 'string',
+    type: 'number',
     default: undefined
   },
   /**
@@ -617,6 +617,38 @@ assign(derived, {
         if (this.ssl_private_key_password) {
           opts.server.sslPass = this.ssl_private_key_password;
         }
+      }
+      return opts;
+    }
+  },
+  ssh_tunnel_options: {
+    deps: [
+      'ssh_tunnel',
+      'ssh_tunnel_hostname',
+      'ssh_tunnel_port',
+      'ssh_tunnel_username',
+      'ssh_tunnel_password',
+      'ssh_tunnel_identity_file',
+      'ssh_tunnel_passphrase'
+    ],
+    fn: function() {
+      if (this.ssh_tunnel === 'NONE') {
+        return {};
+      }
+      var opts = {
+        dstHost: this.hostname,
+        dstPort: this.port,
+        username: this.ssh_tunnel_username,
+        host: this.ssh_tunnel_hostname,
+        localPort: this.ssh_tunnel_port
+      };
+      if (this.ssh_tunnel === 'USER_PASSWORD') {
+        assign(opts, { password: this.ssh_tunnel_password });
+      } else if (this.ssh_tunnel == 'IDENTITY_FILE') {
+        assign(opts, {
+          password: this.ssh_tunnel_passphrase,
+          privateKey: this.ssh_tunnel_identity_file
+        });
       }
       return opts;
     }

@@ -541,7 +541,7 @@ describe('mongodb-connection-model', function() {
         hostname: '127.0.0.1',
         ssh_tunnel: 'USER_PASSWORD',
         ssh_tunnel_hostname: '127.0.0.1',
-        ssh_tunnel_port: '5000',
+        ssh_tunnel_port: 5000,
         ssh_tunnel_username: 'username',
         ssh_tunnel_password: 'password'
       });
@@ -549,6 +549,41 @@ describe('mongodb-connection-model', function() {
         assert.equal(c.driver_url, 'mongodb://localhost:5000/?slaveOk=true');
       });
     });
+
+    describe('#ssh_tunnel_options', function() {
+      context('when ssh_tunnel is NONE', function() {
+        var c = new Connection({
+          hostname: '127.0.0.1',
+          ssh_tunnel: 'NONE'
+        });
+
+        it('returns an empty object', function() {
+          assert.equal(c.ssh_tunnel_options.hostname, null);
+        });
+      });
+
+      context('when ssh_tunnel is USER_PASSWORD', function() {
+        var c = new Connection({
+          hostname: '127.0.0.1',
+          ssh_tunnel: 'USER_PASSWORD',
+          ssh_tunnel_hostname: '127.0.0.1',
+          ssh_tunnel_port: 5000,
+          ssh_tunnel_username: 'username',
+          ssh_tunnel_password: 'password'
+        });
+      });
+
+      context('when ssh_tunnel is IDENTITY_FILE', function() {
+        context('when a passphrase exists', function() {
+
+        });
+
+        context('when a passphrase does not exist', function() {
+
+        });
+      })
+    });
+
     describe('#validate', function() {
       context('when ssh_tunnel is NONE', function() {
         var c = new Connection({
@@ -564,7 +599,7 @@ describe('mongodb-connection-model', function() {
         context('when hostname is missing', function() {
           var c = new Connection({
             ssh_tunnel: 'USER_PASSWORD',
-            ssh_tunnel_port: '22',
+            ssh_tunnel_port: 5000,
             ssh_tunnel_username: 'username',
             ssh_tunnel_password: 'password'
           });
@@ -591,7 +626,7 @@ describe('mongodb-connection-model', function() {
           var c = new Connection({
             ssh_tunnel: 'USER_PASSWORD',
             ssh_tunnel_hostname: '127.0.0.1',
-            ssh_tunnel_port: '22',
+            ssh_tunnel_port: 5000,
             ssh_tunnel_password: 'password'
           });
 
@@ -604,7 +639,7 @@ describe('mongodb-connection-model', function() {
           var c = new Connection({
             ssh_tunnel: 'USER_PASSWORD',
             ssh_tunnel_hostname: '127.0.0.1',
-            ssh_tunnel_port: '22',
+            ssh_tunnel_port: 5000,
             ssh_tunnel_username: 'username'
           });
 
@@ -617,7 +652,7 @@ describe('mongodb-connection-model', function() {
           var c = new Connection({
             ssh_tunnel: 'USER_PASSWORD',
             ssh_tunnel_hostname: '127.0.0.1',
-            ssh_tunnel_port: '22',
+            ssh_tunnel_port: 5000,
             ssh_tunnel_username: 'username',
             ssh_tunnel_password: 'password'
           });
@@ -633,7 +668,7 @@ describe('mongodb-connection-model', function() {
           var c = new Connection({
             ssh_tunnel: 'IDENTITY_FILE',
             ssh_tunnel_identity_file: '/path/to/.ssh/me.pub',
-            ssh_tunnel_port: '22',
+            ssh_tunnel_port: 5000,
             ssh_tunnel_username: 'username'
           });
 
@@ -661,7 +696,7 @@ describe('mongodb-connection-model', function() {
             ssh_tunnel: 'IDENTITY_FILE',
             ssh_tunnel_identity_file: '/path/to/.ssh/me.pub',
             ssh_tunnel_hostname: '127.0.0.1',
-            ssh_tunnel_port: '22',
+            ssh_tunnel_port: 5000,
             ssh_tunnel_passphrase: 'password'
           });
 
@@ -675,7 +710,7 @@ describe('mongodb-connection-model', function() {
             ssh_tunnel: 'IDENTITY_FILE',
             ssh_tunnel_username: 'username',
             ssh_tunnel_hostname: '127.0.0.1',
-            ssh_tunnel_port: '22',
+            ssh_tunnel_port: 5000,
             ssh_tunnel_passphrase: 'password'
           });
 
@@ -689,7 +724,7 @@ describe('mongodb-connection-model', function() {
             ssh_tunnel: 'IDENTITY_FILE',
             ssh_tunnel_identity_file: '/path/to/.ssh/me.pub',
             ssh_tunnel_hostname: '127.0.0.1',
-            ssh_tunnel_port: '22',
+            ssh_tunnel_port: 5000,
             ssh_tunnel_username: 'username',
             ssh_tunnel_passphrase: 'password'
           });
