@@ -159,10 +159,11 @@ Expression = module.exports.Expression = Base.extend({
     }
   },
   parse: function(attrs) {
-    var result = _.map(attrs, function(v, k) {
+    var result = [];
+    _.forOwn(attrs, function(v, k) {
       var doc = {};
       doc[k] = v;
-      return doc;
+      result.push(doc);
     });
     return {
       clauses: result

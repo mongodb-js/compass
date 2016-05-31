@@ -47,6 +47,28 @@ describe('Expression', function() {
     assert.equal(expr.clauses.at(1).value.type, 'number');
   });
 
+  it('should parse a query with a `length` property correctly', function() {
+    var query = {
+      str: 'foo',
+      length: 200
+    };
+    expr = new models.Expression(query, {
+      parse: true
+    });
+
+    assert.equal(expr.clauses.length, 2);
+    expr.clauses.forEach(function(clause) {
+      assert.ok(clause instanceof models.LeafClause);
+    });
+    assert.deepEqual(expr.clauses.get('str').buffer, {
+      str: 'foo'
+    });
+    assert.deepEqual(expr.clauses.get('length').buffer, {
+      length: 200
+    });
+  });
+
+
   it('should parse and serialize complex queries with operators', function() {
     var query = {
       a: 1,

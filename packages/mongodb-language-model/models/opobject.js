@@ -83,9 +83,11 @@ module.exports = Value.extend({
   },
   parse: function(attrs) {
     // turn {$gt: 5, $lt: 9} into [ {$gt: 5}, {$lt: 9} ]
-    var result = _.map(attrs, function(v, k) {
+    var result = [];
+    _.forOwn(attrs, function(v, k) {
       var doc = {};
-      doc[k] = v; return doc;
+      doc[k] = v;
+      result.push(doc);
     });
     return {
       operators: result
