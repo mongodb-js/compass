@@ -9,7 +9,7 @@ var d3 = window.d3 = require('d3');
 // this plugin allows for tree layout of variable-sized nodes
 require('d3-flextree');
 
-var debug = require('debug')('mongodb-compass:explain:tree');
+// var debug = require('debug')('mongodb-compass:explain:tree');
 
 var DEFAULT_CARD_WIDTH = 276;        // width of a card
 var DEFAULT_CARD_HEIGHT = 132;       // height of a card without highlighted fields
@@ -20,8 +20,8 @@ var VERTICAL_PADDING = 50;           // vertical space between two cards
 module.exports = View.extend({
   template: require('./tree-view.jade'),
   props: {
-    height: 'number', // height of the tree
-    width: 'number'   // width of the tree
+    height: 'number', // height of the tree in px
+    width: 'number'   // width of the tree in px
   },
   bindings: {
     height: {
