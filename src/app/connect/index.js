@@ -506,6 +506,7 @@ var ConnectView = View.extend({
     // the correct tab.
     this.authMethod = this.connection.authentication;
     this.sslMethod = this.connection.ssl;
+    this.sshTunnelMethod = this.connection.ssh_tunnel;
 
     // Changing `this.authMethod` and `this.sslMethod` dynamically updates
     // the form fields so we need to get a list of what keys are currently
@@ -516,6 +517,9 @@ var ConnectView = View.extend({
     }
     if (this.connection.ssl !== 'NONE') {
       keys.push.apply(keys, _.pluck(sslMethods.get(this.sslMethod).fields, 'name'));
+    }
+    if (this.connection.ssh_tunnel !== 'NONE') {
+      keys.push.apply(keys, _.pluck(sshTunnelMethods.get(this.sshTunnelMethod).fields, 'name'));
     }
 
     // make connection active, and (implicitly) all others inactive
