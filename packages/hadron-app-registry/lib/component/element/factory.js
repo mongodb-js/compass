@@ -11,6 +11,7 @@ const TypeChecker = require('./type-checker');
  */
 const MAPPINGS = {
   'Array': './array-element',
+  'Binary': './binary-element',
   'Date': './date-element',
   'Object': './object-element',
   'String': './string-element'

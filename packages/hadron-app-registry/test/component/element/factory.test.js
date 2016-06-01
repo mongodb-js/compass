@@ -5,6 +5,7 @@ require('../../helper');
 const expect = require('chai').expect;
 const Factory = require('../../../lib/component/element/factory');
 const ArrayElement = require('../../../lib/component/element/array-element');
+const BinaryElement = require('../../../lib/component/element/binary-element');
 const DateElement = require('../../../lib/component/element/date-element');
 const ObjectElement = require('../../../lib/component/element/object-element');
 const StringElement = require('../../../lib/component/element/string-element');
@@ -15,6 +16,12 @@ describe('Factory', function() {
     context('when the element type is Array', function() {
       it('returns the array element', function() {
         expect(Factory._elementComponent('Array')).to.equal(ArrayElement);
+      });
+    });
+
+    context('when the element type is Binary', function() {
+      it('returns the binary element', function() {
+        expect(Factory._elementComponent('Binary')).to.equal(BinaryElement);
       });
     });
 
