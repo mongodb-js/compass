@@ -21,4 +21,6 @@ class FormButton extends React.Component {
   }
 }
 
+FormButton.displayName = 'FormButton';
+
 module.exports = FormButton;
