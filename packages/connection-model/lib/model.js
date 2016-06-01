@@ -7,6 +7,7 @@ var defaults = require('lodash.defaults');
 var contains = require('lodash.contains');
 var clone = require('lodash.clone');
 var parse = require('mongodb-url');
+var fs = require('fs');
 
 // var debug = require('debug')('mongodb-connection-model');
 
@@ -472,7 +473,7 @@ assign(props, {
    * The path to the ssh identity file.
    */
   ssh_tunnel_identity_file: {
-    type: 'string',
+    type: 'any',
     default: undefined
   },
   /**
@@ -644,11 +645,13 @@ assign(derived, {
       };
       if (this.ssh_tunnel === 'USER_PASSWORD') {
         assign(opts, { password: this.ssh_tunnel_password });
-      } else if (this.ssh_tunnel == 'IDENTITY_FILE') {
+      } else if (this.ssh_tunnel === 'IDENTITY_FILE') {
         assign(opts, {
-          password: this.ssh_tunnel_passphrase,
-          privateKey: this.ssh_tunnel_identity_file
+          privateKey: fs.readFileSync(this.ssh_tunnel_identity_file[0])
         });
+        if (this.ssh_tunnel_passphrase) {
+          assign(opts, { password: this.ssh_tunnel_passphrase });
+        }
       }
       return opts;
     }

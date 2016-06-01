@@ -6,6 +6,8 @@ var driverParse = require('mongodb/lib/url_parser');
 var fixture = require('mongodb-connection-fixture');
 var clone = require('lodash.clone');
 var format = require('util').format;
+var fs = require('fs');
+var path = require('path');
 
 function isNotValidAndHasMessage(model, msg) {
   assert.equal(model.isValid(), false,
@@ -563,25 +565,121 @@ describe('mongodb-connection-model', function() {
       });
 
       context('when ssh_tunnel is USER_PASSWORD', function() {
-        var c = new Connection({
-          hostname: '127.0.0.1',
+        var options = new Connection({
           ssh_tunnel: 'USER_PASSWORD',
-          ssh_tunnel_hostname: '127.0.0.1',
-          ssh_tunnel_port: 5000,
-          ssh_tunnel_username: 'username',
+          ssh_tunnel_hostname: 'my.ssh-server.com',
+          ssh_tunnel_username: 'my-user',
+          hostname: 'mongodb.my-internal-host.com',
+          port: 27000,
+          ssh_tunnel_port: 3000,
           ssh_tunnel_password: 'password'
+        }).ssh_tunnel_options;
+
+        it('maps ssh_tunnel_hostname -> host', function() {
+          assert.equal(options.host, 'my.ssh-server.com');
+        });
+
+        it('maps ssh_tunnel_username -> username', function() {
+          assert.equal(options.username, 'my-user');
+        });
+
+        it('maps hostname -> dstHost', function() {
+          assert.equal(options.dstHost, 'mongodb.my-internal-host.com');
+        });
+
+        it('maps port -> dstPort', function() {
+          assert.equal(options.dstPort, 27000);
+        });
+
+        it('maps ssh_tunnel_port -> localPort', function() {
+          assert.equal(options.localPort, 3000);
+        });
+
+        it('maps ssh_tunnel_password -> password', function() {
+          assert.equal(options.password, 'password');
         });
       });
 
       context('when ssh_tunnel is IDENTITY_FILE', function() {
         context('when a passphrase exists', function() {
+          var fileName = path.join(__dirname, 'test.pem');
+          var options = new Connection({
+            ssh_tunnel: 'IDENTITY_FILE',
+            ssh_tunnel_hostname: 'my.ssh-server.com',
+            ssh_tunnel_username: 'my-user',
+            ssh_tunnel_identity_file: fileName,
+            hostname: 'mongodb.my-internal-host.com',
+            port: 27000,
+            ssh_tunnel_port: 3000,
+            ssh_tunnel_passphrase: 'password'
+          }).ssh_tunnel_options;
 
+          it('maps ssh_tunnel_hostname -> host', function() {
+            assert.equal(options.host, 'my.ssh-server.com');
+          });
+
+          it('maps ssh_tunnel_username -> username', function() {
+            assert.equal(options.username, 'my-user');
+          });
+
+          it('maps ssh_tunnel_identity_file -> privateKey', function() {
+            assert.equal(options.privateKey.toString(), fs.readFileSync(fileName).toString());
+          });
+
+          it('maps hostname -> dstHost', function() {
+            assert.equal(options.dstHost, 'mongodb.my-internal-host.com');
+          });
+
+          it('maps port -> dstPort', function() {
+            assert.equal(options.dstPort, 27000);
+          });
+
+          it('maps ssh_tunnel_port -> localPort', function() {
+            assert.equal(options.localPort, 3000);
+          });
+
+          it('maps ssh_tunnel_passphrase -> password', function() {
+            assert.equal(options.password, 'password');
+          });
         });
 
         context('when a passphrase does not exist', function() {
+          var fileName = path.join(__dirname, 'test.pem');
+          var options = new Connection({
+            ssh_tunnel: 'IDENTITY_FILE',
+            ssh_tunnel_hostname: 'my.ssh-server.com',
+            ssh_tunnel_username: 'my-user',
+            ssh_tunnel_identity_file: fileName,
+            hostname: 'mongodb.my-internal-host.com',
+            port: 27000,
+            ssh_tunnel_port: 3000
+          }).ssh_tunnel_options;
 
+          it('maps ssh_tunnel_hostname -> host', function() {
+            assert.equal(options.host, 'my.ssh-server.com');
+          });
+
+          it('maps ssh_tunnel_username -> username', function() {
+            assert.equal(options.username, 'my-user');
+          });
+
+          it('maps ssh_tunnel_identity_file -> privateKey', function() {
+            assert.equal(options.privateKey.toString(), fs.readFileSync(fileName).toString());
+          });
+
+          it('maps hostname -> dstHost', function() {
+            assert.equal(options.dstHost, 'mongodb.my-internal-host.com');
+          });
+
+          it('maps port -> dstPort', function() {
+            assert.equal(options.dstPort, 27000);
+          });
+
+          it('maps ssh_tunnel_port -> localPort', function() {
+            assert.equal(options.localPort, 3000);
+          });
         });
-      })
+      });
     });
 
     describe('#validate', function() {
