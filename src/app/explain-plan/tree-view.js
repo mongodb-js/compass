@@ -146,14 +146,15 @@ module.exports = View.extend({
   },
   _computeExecTimes: function(node) {
     if (!node.children || node.children.length === 0) {
+      // leaf nodes
       node.prevStageExecTimeMS = 0;
     } else {
       var execTimes = _.map(node.children, this._computeExecTimes.bind(this));
       node.prevStageExecTimeMS = _.max(execTimes);
     }
     if (node.isShard) {
-      node.curStageExecTimeMS = 0;
+      node.curStageExecTimeMS = node.prevStageExecTimeMS;
     }
-    return node.prevStageExecTimeMS + node.curStageExecTimeMS;
+    return node.curStageExecTimeMS;
   }
 });

@@ -37,6 +37,12 @@ module.exports = View.extend({
       fn: function() {
         return this.model.y + this.model.yoffset;
       }
+    },
+    deltaExecTime: {
+      deps: ['model.curStageExecTimeMS', 'model.prevStageExecTimeMS'],
+      fn: function() {
+        return this.model.curStageExecTimeMS - this.model.prevStageExecTimeMS;
+      }
     }
   },
   events: {
@@ -49,7 +55,8 @@ module.exports = View.extend({
     'model.nReturned': {
       hook: 'n-returned'
     },
-    'model.curStageExecTimeMS': {
+    // 'model.curStageExecTimeMS': {
+    deltaExecTime: { // only show the time THIS stage actually used up.
       hook: 'exec-ms'
     },
     'posx': {
@@ -91,11 +98,13 @@ module.exports = View.extend({
     var curStageExMillis = this.model.curStageExecTimeMS;
     var prevStageExMillis = this.model.prevStageExecTimeMS;
 
+    debug(this.model.name, totalExMillis, curStageExMillis, prevStageExMillis);
+
     // transforms to get the right percentage of arc for each piece of the clock
     var curArcStart = (prevStageExMillis / totalExMillis) * 2 * Math.PI;
     var curArcEnd = (curStageExMillis / totalExMillis) * 2 * Math.PI;
 
-    // var prevArcStart = 0;
+    var prevArcStart = 0;
     var prevArcEnd = curArcStart;
 
     var clockWidth = 60;
@@ -118,14 +127,14 @@ module.exports = View.extend({
 
     // Add the prevStageArc arc
     var prevStageArc = svgClock.append('path')
-      .datum({endAngle: 0, startAngle: 0, innerRadius: 24, outerRadius: 29})
+      .datum({endAngle: prevArcStart, startAngle: prevArcStart, innerRadius: 24, outerRadius: 29})
       // .style('stroke', '#bbb')
       .style('fill', '#dfdfdf')
       .attr('d', arcInit);
 
     // Add the curStageArc arc in blue
     var curStageArc = svgClock.append('path')
-      .datum({endAngle: prevArcEnd, startAngle: prevArcEnd, innerRadius: 24, outerRadius: 29})
+      .datum({endAngle: curArcStart, startAngle: curArcStart, innerRadius: 24, outerRadius: 29})
       .style('fill', '#43B1E5')
       .attr('d', arcInit);
 
