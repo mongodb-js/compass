@@ -607,7 +607,7 @@ describe('mongodb-connection-model', function() {
             ssh_tunnel: 'IDENTITY_FILE',
             ssh_tunnel_hostname: 'my.ssh-server.com',
             ssh_tunnel_username: 'my-user',
-            ssh_tunnel_identity_file: fileName,
+            ssh_tunnel_identity_file: [fileName],
             hostname: 'mongodb.my-internal-host.com',
             port: 27000,
             ssh_tunnel_port: 3000,
@@ -649,7 +649,7 @@ describe('mongodb-connection-model', function() {
             ssh_tunnel: 'IDENTITY_FILE',
             ssh_tunnel_hostname: 'my.ssh-server.com',
             ssh_tunnel_username: 'my-user',
-            ssh_tunnel_identity_file: fileName,
+            ssh_tunnel_identity_file: [fileName],
             hostname: 'mongodb.my-internal-host.com',
             port: 27000,
             ssh_tunnel_port: 3000
