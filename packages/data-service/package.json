@@ -29,12 +29,13 @@
     "lodash": "^4.6.1",
     "mongodb": "^2.1.10",
     "mongodb-collection-sample": "^1.2.0",
-    "mongodb-connection-model": "^4.0.3",
+    "mongodb-connection-model": "^4.1.0",
     "mongodb-index-model": "^0.5.0",
     "mongodb-instance-model": "^3.1.0",
     "mongodb-js-errors": "^0.2.1",
     "mongodb-ns": "^1.0.3",
-    "mongodb-url": "^1.0.2"
+    "mongodb-url": "^1.0.2",
+    "tunnel-ssh": "^2.1.1"
   },
   "devDependencies": {
     "chai": "^3.4.1",

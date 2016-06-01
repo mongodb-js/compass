@@ -2,6 +2,7 @@
 
 const debug = require('debug')('mongodb-data-service:data-service');
 const NativeClient = require('./native-client');
+const SshTunnelConnector = require('./ssh-tunnel-connector');
 const Router = require('./router');
 const EventEmitter = require('events');
 
@@ -29,6 +30,7 @@ class DataService extends EventEmitter {
    */
   constructor(model) {
     super();
+    this.model = model;
     this.client = new NativeClient(model);
     this.router = new Router();
   }
@@ -52,12 +54,20 @@ class DataService extends EventEmitter {
    */
   connect(callback) {
     debug('Connecting to MongoDB.');
-    this.client.connect((error) => {
-      debug('Data Service is readable.');
-      process.nextTick(() => {
-        this.emit(Events.Readable);
+    new SshTunnelConnector(this.model.ssh_tunnel_options).connect((tunnelError) => {
+      if (tunnelError) {
+        process.nextTick(() => {
+          this.emit(Events.Error, tunnelError);
+        });
+        return callback(tunnelError, this);
+      }
+      this.client.connect((error) => {
+        debug('Data Service is readable.');
+        process.nextTick(() => {
+          this.emit(Events.Readable);
+        });
+        return callback(error, this);
       });
-      return callback(error, this);
     });
   }
 
