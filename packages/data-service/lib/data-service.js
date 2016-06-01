@@ -10,6 +10,7 @@ const EventEmitter = require('events');
  * Constants for generated events.
  */
 const Events = {
+  Connecting: 'DataService:Connecting',
   Readable: 'DataService:Readable',
   Error: 'DataService:Error'
 };
@@ -30,9 +31,21 @@ class DataService extends EventEmitter {
    */
   constructor(model) {
     super();
-    this.model = model;
+    this.connector = new SshTunnelConnector(model.ssh_tunnel_options);
     this.client = new NativeClient(model);
     this.router = new Router();
+
+    this.connector.on(SshTunnelConnector.Events.Connecting, (message) => {
+      process.nextTick(() => {
+        this.emit(Events.Connecting, message);
+      });
+    });
+
+    this.connector.on(SshTunnelConnector.Events.Error, (message) => {
+      process.nextTick(() => {
+        this.emit(Events.Error, message);
+      });
+    });
   }
 
   /**
@@ -54,11 +67,8 @@ class DataService extends EventEmitter {
    */
   connect(callback) {
     debug('Connecting to MongoDB.');
-    new SshTunnelConnector(this.model.ssh_tunnel_options).connect((tunnelError) => {
+    this.connector.connect((tunnelError) => {
       if (tunnelError) {
-        process.nextTick(() => {
-          this.emit(Events.Error, tunnelError);
-        });
         return callback(tunnelError, this);
       }
       this.client.connect((error) => {

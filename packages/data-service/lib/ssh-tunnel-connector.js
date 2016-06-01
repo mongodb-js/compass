@@ -2,6 +2,12 @@
 
 const debug = require('debug')('mongodb-data-service:ssh-tunnel-connector');
 const tunnel = require('tunnel-ssh');
+const EventEmitter = require('events');
+
+const Events = {
+  Connecting: 'SshTunnelConnector:Connecting',
+  Error: 'SshTunnelConnector:Error'
+};
 
 /**
  * Instantiate a new SshTunnelConnector object.
@@ -9,7 +15,7 @@ const tunnel = require('tunnel-ssh');
  * @constructor
  * @param {Object} options - The ssh tunnel options.
  */
-class SshTunnelConnector {
+class SshTunnelConnector extends EventEmitter {
 
   /**
    * Instantiate a new SshTunnelConnector object.
@@ -18,6 +24,7 @@ class SshTunnelConnector {
    * @param {Object} options - The ssh tunnel options.
    */
   constructor(options) {
+    super();
     this.options = options;
   }
 
@@ -30,14 +37,38 @@ class SshTunnelConnector {
    */
   connect(callback) {
     if (this.options.host) {
-      debug('Found SSH tunnel options, opening SSH tunnel.');
+      var connectMessage = this._connectMessage();
+      debug(connectMessage);
+      this.emit(Events.Connecting, connectMessage);
       return tunnel(this.options, function(result, error) {
+        if (error) {
+          this.emit(Events.Error, this._errorMessage());
+        }
         return callback(error);
       });
     }
     debug('No SSH tunnel options found - using direct connection.');
     return callback(null);
   }
+
+  /**
+   * Get the connecting message.
+   *
+   * @returns {String} The connecting message.
+   */
+  _connectMessage() {
+    return `Attempting SSH connection to server at ${this.options.host}`;
+  }
+
+  /**
+   * Get the error message.
+   *
+   * @returns {String} The error message.
+   */
+  _errorMessage() {
+    return `Failed to connect to ${this.options.host} via SSH tunnel.`;
+  }
 }
 
 module.exports = SshTunnelConnector;
+module.exports.Events = Events;
