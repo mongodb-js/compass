@@ -32,7 +32,22 @@ var USER_PASSWORD = {
       template: inputTemplate,
       name: 'ssh_tunnel_port',
       label: 'SSH Tunnel Port',
-      required: true
+      required: true,
+      tests: [
+        function(value) {
+          if (isNaN(value)) {
+            return 'port must be a number.';
+          }
+        }, function(value) {
+          if (parseInt(value, 10) < 0) {
+            return 'port number must be positive.';
+          }
+        }, function(value) {
+          if (parseInt(value, 10) >= 65536) {
+            return 'port number must be below 65536';
+          }
+        }
+      ]
     }),
     new InputView({
       template: inputTemplate,

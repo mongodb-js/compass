@@ -72,7 +72,6 @@ module.exports = Connection.extend(storageMixin, {
     }
   },
   test: function(done) {
-    var model = this.serialize();
     var onTested = function(err) {
       if (err) {
         metrics.error(err);
@@ -82,8 +81,8 @@ module.exports = Connection.extend(storageMixin, {
       debug('test worked!');
       done(null, this);
     }.bind(this);
-    var dataService = new DataService(model);
-    debug('Testing connection to `%j`...', model);
+    var dataService = new DataService(this);
+    debug('Testing connection to `%j`...', this.serialize());
     dataService.connect(onTested);
     return this;
   },
