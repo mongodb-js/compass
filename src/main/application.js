@@ -27,7 +27,7 @@ Application.prototype.setupJavaScriptArguments = function() {
 
 Application.prototype.setupAutoUpdate = function() {
   this.autoUpdateManager = new AutoUpdateManager(
-    'http://localhost:3000'
+    'https://localhost:8433'
     // _.get(pkg, 'config.hadron.endpoint')
 
     /**
