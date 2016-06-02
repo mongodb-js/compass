@@ -1,5 +1,5 @@
-// var _ = require('lodash');
-// var pkg = require('../../package.json');
+var _ = require('lodash');
+var pkg = require('../../package.json');
 var electron = require('electron');
 var app = electron.app;
 var path = require('path');
@@ -31,8 +31,8 @@ Application.prototype.setupJavaScriptArguments = function() {
 
 Application.prototype.setupAutoUpdate = function() {
   this.autoUpdateManager = new AutoUpdateManager(
-    'https://localhost:8433'
-    // _.get(pkg, 'config.hadron.endpoint')
+    // 'https://localhost:8433'
+    _.get(pkg, 'config.hadron.endpoint')
 
     /**
      * TODO (imlucas) Extract .pngs from .icns so we can
@@ -43,7 +43,7 @@ Application.prototype.setupAutoUpdate = function() {
   );
 
   this.autoUpdateManager.on('state-changed', function(state) {
-    debug('new state =>', state);
+    debug('new state =>' + state);
     ipc.broadcast('app:' + state);
   });
 

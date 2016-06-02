@@ -30,6 +30,7 @@ var NotificationUpdateAvailable = View.extend({
   },
   bindings: {
     message: {
+      type: 'innerHTML',
       hook: 'message'
     },
     visible: {
@@ -80,7 +81,6 @@ var NotificationUpdateAvailable = View.extend({
   },
   cancel: function() {
     this.visible = false;
-    return false;
   },
   confirm: function() {
     this.visible = false;
