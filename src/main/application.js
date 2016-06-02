@@ -1,5 +1,5 @@
-var _ = require('lodash');
-var pkg = require('../../package.json');
+// var _ = require('lodash');
+// var pkg = require('../../package.json');
 var electron = require('electron');
 var app = electron.app;
 var path = require('path');
@@ -26,10 +26,10 @@ Application.prototype.setupJavaScriptArguments = function() {
 };
 
 Application.prototype.setupAutoUpdate = function() {
-  var endpoint = process.env.NODE_ENV === 'development' ?
-    'http://localhost:3000' : _.get(pkg, 'config.hadron.endpoint');
   this.autoUpdateManager = new AutoUpdateManager(
-    endpoint
+    'http://localhost:3000'
+    // _.get(pkg, 'config.hadron.endpoint')
+
     /**
      * TODO (imlucas) Extract .pngs from .icns so we can
      * have nice Compass icons in dialogs.
@@ -63,6 +63,9 @@ Application.prototype.setupAutoUpdate = function() {
 
   var updateManager = this.autoUpdateManager;
   ipc.respondTo({
+    'app:download-update': function() {
+      updateManager.download();
+    },
     'app:install-update': function() {
       updateManager.install();
     },

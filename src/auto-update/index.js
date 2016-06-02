@@ -75,6 +75,9 @@ var NotificationUpdateAvailable = View.extend({
         ipc.call('app:disable-auto-update');
       }
     });
+
+    // check initially
+    this.checkForUpdate();
   },
   cancel: function() {
     this.visible = false;
