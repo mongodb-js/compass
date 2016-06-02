@@ -7,7 +7,11 @@ var EventEmitter = require('events').EventEmitter;
 var inherits = require('util').inherits;
 var AutoUpdateManager = require('hadron-auto-update-manager');
 var ipc = require('hadron-ipc');
-var debug = require('debug')('mongodb-compass:main:application');
+// var debug = require('debug')('mongodb-compass:main:application');
+
+var debug = function(txt) {
+  console.log('mongodb-compass:main:application', txt);
+};
 
 function Application() {
   this.setupUserDirectory();
@@ -65,28 +69,26 @@ Application.prototype.setupAutoUpdate = function() {
   var updateManager = this.autoUpdateManager;
   ipc.respondTo({
     'app:download-update': function() {
+      debug('respond to app:download-update');
       updateManager.download();
     },
     'app:install-update': function() {
+      debug('respond to app:install-update');
       updateManager.install();
     },
     'app:enable-auto-update': function() {
+      debug('respond to app:enable-auto-update');
       updateManager.enable();
     },
     'app:disable-auto-update': function() {
+      debug('respond to app:disable-auto-update');
       updateManager.disable();
     },
     'app:check-for-update': function() {
+      debug('respond to app:check-for-update');
       updateManager.check();
     }
   });
-};
-
-Application.prototype.setupApplicationMenu = function() {
-  // this.applicationMenu = new ApplicationMenu({
-  //   autoUpdateManager: this.autoUpdateManager
-  // });
-  require('./menu').init();
 };
 
 Application.prototype.setupUserDirectory = function() {
