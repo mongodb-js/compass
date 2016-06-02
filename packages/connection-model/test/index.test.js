@@ -602,7 +602,7 @@ describe('mongodb-connection-model', function() {
 
       context('when ssh_tunnel is IDENTITY_FILE', function() {
         context('when a passphrase exists', function() {
-          var fileName = path.join(__dirname, 'test.pem');
+          var fileName = path.join(__dirname, 'fake-identity-file.txt');
           var options = new Connection({
             ssh_tunnel: 'IDENTITY_FILE',
             ssh_tunnel_hostname: 'my.ssh-server.com',
@@ -644,7 +644,7 @@ describe('mongodb-connection-model', function() {
         });
 
         context('when a passphrase does not exist', function() {
-          var fileName = path.join(__dirname, 'test.pem');
+          var fileName = path.join(__dirname, 'fake-identity-file.txt');
           var options = new Connection({
             ssh_tunnel: 'IDENTITY_FILE',
             ssh_tunnel_hostname: 'my.ssh-server.com',
