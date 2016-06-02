@@ -70,7 +70,31 @@ var IndexesResource = BaseResource.extend({
   }
 });
 
+var AutoUpdateResource = BaseResource.extend({
+  id: 'Auto Updates',
+  eventTrackers: ['ga', 'intercom', 'mixpanel'],
+  checking: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  },
+  uptodate: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  },
+  available: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  },
+  downloaded: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  },
+  installed: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  },
+  rejected: function(metadata, callback) {
+    this._send_event(metadata, callback);
+  }
+});
+
 featureResources['Geo Data'] = new GeoDataResource();
+featureResources['Auto Update'] = new AutoUpdateResource();
 featureResources.Collection = new CollectionResource();
 featureResources.Deployment = new DeploymentResource();
 featureResources.Schema = new SchemaResource();

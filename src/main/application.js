@@ -26,8 +26,10 @@ Application.prototype.setupJavaScriptArguments = function() {
 };
 
 Application.prototype.setupAutoUpdate = function() {
+  var endpoint = process.env.NODE_ENV === 'development' ?
+    'http://localhost:3000' : _.get(pkg, 'config.hadron.endpoint');
   this.autoUpdateManager = new AutoUpdateManager(
-    _.get(pkg, 'config.hadron.endpoint')
+    endpoint
     /**
      * TODO (imlucas) Extract .pngs from .icns so we can
      * have nice Compass icons in dialogs.

@@ -1,6 +1,6 @@
 #auto-update
   .btn-group.pull-right
     a.btn.btn-default(data-hook='cancel') No Thanks
-    a.btn.btn-primary(data-hook='install-update') Yes Please
+    a.btn.btn-primary(data-hook='confirm') Yes Please
     
-  p A newer version of Compass is now available! Would you like to install it and restart Compass?
+  p(data-hook='message')
