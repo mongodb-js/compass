@@ -42,8 +42,8 @@ Application.prototype.setupAutoUpdate = function() {
      */
   );
 
-  this.autoUpdateManager.on('state-change', function(state, meta) {
-    debug('new state', state);
+  this.autoUpdateManager.on('state-changed', function(state, meta) {
+    debug('new state =>', state);
     ipc.broadcast('app:' + state, meta);
   });
 
