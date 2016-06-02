@@ -19,11 +19,13 @@ var NotificationUpdateAvailable = View.extend({
     }
   },
   derived: {
-    deps: ['step'],
-    fn: function() {
-      return this.step === 'download' ?
-        'A newer version of Compass is now available. Would you like to download and install it?' :
-        'The new version has finished installing. Do you want to restart Compass now?';
+    message: {
+      deps: ['step'],
+      fn: function() {
+        return this.step === 'download' ?
+          'A newer version of Compass is now available. Would you like to download and install it now?' :
+          'The new version has finished installing. Do you want to restart Compass now?';
+      }
     }
   },
   bindings: {
