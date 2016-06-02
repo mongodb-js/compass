@@ -38,28 +38,29 @@ Application.prototype.setupAutoUpdate = function() {
      */
   );
 
-  this.autoUpdateManager.on('state-change', function(newState) {
-    debug('new state', newState);
+  this.autoUpdateManager.on('state-change', function(state, meta) {
+    debug('new state', state);
+    ipc.broadcast('app:' + state, meta);
   });
 
-  this.autoUpdateManager.on('checking-for-update', function() {
-    ipc.broadcast('app:checking-for-update');
-  });
-
-  this.autoUpdateManager.on('update-not-available', function() {
-    ipc.broadcast('app:update-not-available');
-  });
-
-  this.autoUpdateManager.on('update-available', function() {
-    ipc.broadcast('app:update-available');
-  });
-
-  this.autoUpdateManager.on('update-downloaded', function() {
-    ipc.broadcast('app:update-downloaded', {
-      releaseNotes: this.autoUpdateManager.releaseNotes,
-      releaseVersion: this.autoUpdateManager.releaseVersion
-    });
-  }.bind(this));
+  // this.autoUpdateManager.on('checking-for-update', function() {
+  //   ipc.broadcast('app:checking-for-update');
+  // });
+  //
+  // this.autoUpdateManager.on('update-not-available', function() {
+  //   ipc.broadcast('app:update-not-available');
+  // });
+  //
+  // this.autoUpdateManager.on('update-available', function() {
+  //   ipc.broadcast('app:update-available');
+  // });
+  //
+  // this.autoUpdateManager.on('update-downloaded', function() {
+  //   ipc.broadcast('app:update-downloaded', {
+  //     releaseNotes: this.autoUpdateManager.releaseNotes,
+  //     releaseVersion: this.autoUpdateManager.releaseVersion
+  //   });
+  // }.bind(this));
 
   var updateManager = this.autoUpdateManager;
   ipc.respondTo({
