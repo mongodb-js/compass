@@ -71,13 +71,19 @@ var NotificationUpdateAvailable = View.extend({
       metrics.track('Auto Update', 'downloaded');
     }.bind(this));
 
-    this.listenToAndRun(app.preferences, 'change:autoUpdates', function() {
+    this.listenTo(app.preferences, 'change:autoUpdates', function() {
       if (app.isFeatureEnabled('autoUpdates')) {
         ipc.call('app:enable-auto-update');
       } else {
         ipc.call('app:disable-auto-update');
       }
     });
+
+    ipc.once('app:launched', function() {
+      // check for updates on application start
+      debug('checking for updates at app launch');
+      this.checkForUpdate({hidePopups: true});
+    }.bind(this));
   },
   cancel: function() {
     if (this.step === 'download') {
@@ -100,8 +106,8 @@ var NotificationUpdateAvailable = View.extend({
       step: this.step
     });
   },
-  checkForUpdate: function() {
-    ipc.call('app:check-for-update');
+  checkForUpdate: function(opts) {
+    ipc.call('app:check-for-update', opts);
   }
 });
 
