@@ -71,7 +71,7 @@ var IndexesResource = BaseResource.extend({
 });
 
 var AutoUpdateResource = BaseResource.extend({
-  id: 'Auto Updates',
+  id: 'Auto Update',
   eventTrackers: ['ga', 'intercom', 'mixpanel'],
   checking: function(metadata, callback) {
     this._send_event(metadata, callback);
@@ -85,10 +85,10 @@ var AutoUpdateResource = BaseResource.extend({
   downloaded: function(metadata, callback) {
     this._send_event(metadata, callback);
   },
-  installed: function(metadata, callback) {
+  cancelled: function(metadata, callback) {
     this._send_event(metadata, callback);
   },
-  rejected: function(metadata, callback) {
+  confirmed: function(metadata, callback) {
     this._send_event(metadata, callback);
   }
 });

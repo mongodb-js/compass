@@ -25,7 +25,7 @@ var NotificationUpdateAvailable = View.extend({
       fn: function() {
         return this.step === 'download' ?
           'A newer version of Compass is now available. Would you like to download and install it now?' :
-          'The new version has finished installing. Do you want to restart Compass now?';
+          'The new version is installed and available on next restart. Do you want to restart Compass now?';
       }
     }
   },
@@ -58,7 +58,6 @@ var NotificationUpdateAvailable = View.extend({
     ipc.on('app:update-available', function(_opts) {
       debug('new update available!  wanna update to', _opts, '?');
       metrics.track('Auto Update', 'available', {
-        releaseNotes: _opts.releaseNotes,
         releaseVersion: _opts.releaseVersion
       });
       this.step = 'download';
@@ -70,7 +69,7 @@ var NotificationUpdateAvailable = View.extend({
       this.step = 'install';
       this.visible = true;
       metrics.track('Auto Update', 'downloaded');
-    });
+    }.bind(this));
 
     this.listenToAndRun(app.preferences, 'change:autoUpdates', function() {
       if (app.isFeatureEnabled('autoUpdates')) {
@@ -81,6 +80,13 @@ var NotificationUpdateAvailable = View.extend({
     });
   },
   cancel: function() {
+    if (this.step === 'download') {
+      // user doesn't want to update now, disable auto-update until next restart
+      ipc.call('app:disable-auto-update');
+      metrics.track('Auto Update', 'cancelled', {
+        step: this.step
+      });
+    }
     this.visible = false;
   },
   confirm: function() {
@@ -90,6 +96,9 @@ var NotificationUpdateAvailable = View.extend({
     } else {
       ipc.call('app:install-update');
     }
+    metrics.track('Auto Update', 'confirmed', {
+      step: this.step
+    });
   },
   checkForUpdate: function() {
     ipc.call('app:check-for-update');
