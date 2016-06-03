@@ -24,7 +24,7 @@ var NotificationUpdateAvailable = View.extend({
       deps: ['step'],
       fn: function() {
         return this.step === 'download' ?
-          'A newer version of Compass is now available. Would you like to download and install it now?' :
+          'A newer version of Compass is available. Would you like to download and install it now?' :
           'The new version is installed and available on next restart. Do you want to restart Compass now?';
       }
     }
