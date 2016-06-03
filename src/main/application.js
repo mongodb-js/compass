@@ -41,12 +41,6 @@ Application.prototype.setupAutoUpdate = function() {
      * path.join(__dirname, '..', 'resources', 'mongodb-compass.png')
      */
   );
-
-  this.autoUpdateManager.on('state-changed', function(state) {
-    debug('new state =>' + state);
-    ipc.broadcast('app:' + state);
-  });
-
   this.autoUpdateManager.on('checking-for-update', function() {
     ipc.broadcast('app:checking-for-update');
   });
