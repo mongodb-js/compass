@@ -2,6 +2,7 @@ var View = require('ampersand-view');
 var app = require('ampersand-app');
 var ipc = require('hadron-ipc');
 var metrics = require('mongodb-js-metrics')();
+
 var debug = require('debug')('mongodb-compass:notification-update-available');
 
 var indexTemplate = require('./index.jade');
@@ -66,9 +67,9 @@ var NotificationUpdateAvailable = View.extend({
 
     ipc.on('app:update-downloaded', function() {
       debug('the update has been downloaded.');
-      metrics.track('Auto Update', 'downloaded');
       this.step = 'install';
       this.visible = true;
+      metrics.track('Auto Update', 'downloaded');
     });
 
     this.listenToAndRun(app.preferences, 'change:autoUpdates', function() {
