@@ -7,11 +7,7 @@ var EventEmitter = require('events').EventEmitter;
 var inherits = require('util').inherits;
 var AutoUpdateManager = require('hadron-auto-update-manager');
 var ipc = require('hadron-ipc');
-// var debug = require('debug')('mongodb-compass:main:application');
-
-var debug = function(txt) {
-  console.log('mongodb-compass:main:application', txt);
-};
+var debug = require('debug')('mongodb-compass:main:application');
 
 function Application() {
   this.setupUserDirectory();
@@ -31,9 +27,7 @@ Application.prototype.setupJavaScriptArguments = function() {
 
 Application.prototype.setupAutoUpdate = function() {
   this.autoUpdateManager = new AutoUpdateManager(
-    // 'https://localhost:8433'
     _.get(pkg, 'config.hadron.endpoint')
-
     /**
      * TODO (imlucas) Extract .pngs from .icns so we can
      * have nice Compass icons in dialogs.
@@ -92,6 +86,13 @@ Application.prototype.setupAutoUpdate = function() {
   });
 };
 
+Application.prototype.setupApplicationMenu = function() {
+  // this.applicationMenu = new ApplicationMenu({
+  //   autoUpdateManager: this.autoUpdateManager
+  // });
+  require('./menu').init();
+};
+
 Application.prototype.setupUserDirectory = function() {
   // For testing set a clean slate for the user data.
   if (process.env.NODE_ENV === 'testing') {
@@ -106,13 +107,6 @@ Application.prototype.setupLifecycleListeners = function() {
     debug('All windows closed.  Quitting app.');
     app.quit();
   });
-};
-
-Application.prototype.setupApplicationMenu = function() {
-  // this.applicationMenu = new ApplicationMenu({
-  //   autoUpdateManager: this.autoUpdateManager
-  // });
-  require('./menu').init();
 };
 
 Application.prototype.setupUserDirectory = function() {
