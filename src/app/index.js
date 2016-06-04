@@ -50,11 +50,15 @@ var Preferences = require('./models/preferences');
 var ApplicationStore = require('hadron-reflux-store').ApplicationStore;
 var User = require('./models/user');
 var Router = require('./router');
-var Statusbar = require('./statusbar');
+// var Statusbar = require('./statusbar');
 var migrateApp = require('./migrations');
 var metricsSetup = require('./metrics');
 var metrics = require('mongodb-js-metrics')();
 
+var StatusActions = require('../internal-packages/status/lib/actions');
+
+var React = require('react');
+var ReactDOM = require('react-dom');
 var AutoUpdate = require('../auto-update');
 
 var addInspectElementMenu = require('debug-menu').install;
@@ -254,7 +258,7 @@ var Application = View.extend({
       pushState: false,
       root: '/'
     });
-    app.statusbar.hide();
+    StatusActions.hide();
   },
   onFatalError: function(id, err) {
     debug('clearing client stall timeout...');
@@ -262,7 +266,7 @@ var Application = View.extend({
 
     console.error('Fatal Error!: ', id, err);
     metrics.error(err);
-    app.statusbar.fatal(err);
+    StatusActions.setMessage(err);
   },
   // ms we'll wait for a `mongodb-scope-client` instance
   // to become readable before giving up and showing
@@ -317,10 +321,13 @@ var Application = View.extend({
     });
     debug('rendering statusbar...');
 
-    this.statusbar = new Statusbar({
-      el: this.queryByHook('statusbar')
-    });
-    this.statusbar.render();
+    // this.statusbar = new Statusbar({
+    //   el: this.queryByHook('statusbar')
+    // });
+    // this.statusbar.render();
+
+    this.statusComponent = app.componentRegistry.findByRole('App:Status')[0];
+    ReactDOM.render(React.createElement(this.statusComponent), this.queryByHook('statusbar'));
 
     this.autoUpdate = new AutoUpdate({
       el: this.queryByHook('auto-update')
@@ -377,9 +384,11 @@ app.extend({
       return;
     }
 
-    app.statusbar.show({
+    StatusActions.configure({
       message: 'Retrieving connection details...',
-      staticSidebar: true
+      progressbar: true,
+      progress: 100,
+      sidebar: true
     });
 
     state.connection = new Connection({
@@ -392,9 +401,7 @@ app.extend({
         state.onFatalError('fetch connection', err);
         return;
       }
-      app.statusbar.show({
-        message: 'Connecting to MongoDB...'
-      });
+      StatusActions.setMessage('Connecting to MongoDB...');
 
       var DataService = require('mongodb-data-service');
       app.dataService = new DataService(state.connection)
@@ -434,11 +441,11 @@ app.extend({
   }
 });
 
-Object.defineProperty(app, 'statusbar', {
-  get: function() {
-    return state.statusbar;
-  }
-});
+// Object.defineProperty(app, 'statusbar', {
+//   get: function() {
+//     return state.statusbar;
+//   }
+// });
 
 Object.defineProperty(app, 'autoUpdate', {
   get: function() {
