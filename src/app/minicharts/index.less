@@ -144,9 +144,11 @@ svg.minichart {
 
       &.selected {
         fill: @mc-fg-selected;
-        &.half {
-          mask: url(#mask-stripe);
-        }
+      }
+
+      &.half-selected {
+        fill: @mc-fg-selected;
+        mask: url(#mask-stripe);
       }
 
       &.unselected {

@@ -5,6 +5,7 @@ var IdentifyView = require('../identify');
 var CollectionView = require('./collection');
 var InstancePropertyView = require('./instance-properties');
 var CollectionListItemView = require('./collection-list-item');
+var NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 var TourView = require('../tour');
 var NetworkOptInView = require('../network-optin');
 var app = require('ampersand-app');
@@ -141,6 +142,7 @@ var HomeView = View.extend({
     }
 
     this.ns = model.getId();
+    NamespaceStore.ns = ns.ns;
     this.updateTitle(model);
     this.showNoCollectionsZeroState = false;
     this.showDefaultZeroState = false;

@@ -3,9 +3,10 @@ var CollectionStatsView = require('../collection-stats');
 var DocumentView = require('../documents');
 var SchemaView = require('../schema');
 var IndexView = require('../indexes');
-var RefineBarView = require('../refine-view');
 var ExplainView = require('../explain-plan');
 var MongoDBCollection = require('../models/mongodb-collection');
+var React = require('react');
+var ReactDOM = require('react-dom');
 var NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 var _ = require('lodash');
 
@@ -14,6 +15,14 @@ var metrics = require('mongodb-js-metrics')();
 var debug = require('debug')('mongodb-compass:home:collection');
 
 var collectionTemplate = require('./collection.jade');
+
+// map tab label to correct view and switch views
+var tabToViewMap = {
+  'DOCUMENTS': 'documentView',
+  'SCHEMA': 'schemaView',
+  'EXPLAIN PLAN': 'explainView',
+  'INDEXES': 'indexView'
+};
 
 var MongoDBCollectionView = View.extend({
   // modelType: 'Collection',
@@ -68,6 +77,7 @@ var MongoDBCollectionView = View.extend({
     },
     documentView: {
       hook: 'document-subview',
+      waitFor: 'ns',
       prepareView: function(el) {
         return new DocumentView({
           el: el,
@@ -78,6 +88,7 @@ var MongoDBCollectionView = View.extend({
     },
     schemaView: {
       hook: 'schema-subview',
+      waitFor: 'ns',
       prepareView: function(el) {
         return new SchemaView({
           el: el,
@@ -88,6 +99,7 @@ var MongoDBCollectionView = View.extend({
     },
     indexView: {
       hook: 'index-subview',
+      waitFor: 'ns',
       prepareView: function(el) {
         return new IndexView({
           el: el,
@@ -105,52 +117,54 @@ var MongoDBCollectionView = View.extend({
           model: this.model
         });
       }
-    },
-    refineBarView: {
-      hook: 'refine-bar-subview',
-      prepareView: function(el) {
-        var view = new RefineBarView({
-          el: el,
-          parent: this,
-          queryOptions: app.queryOptions,
-          volatileQueryOptions: app.volatileQueryOptions
-        });
-        view.on('submit', function() {
-          this.trigger('submit:query');
-        }.bind(this));
-        return view;
-      }
     }
+    // refineBarView: {
+    //   hook: 'refine-bar-subview',
+    //   prepareView: function(el) {
+    //     var view = new RefineBarView({
+    //       el: el,
+    //       parent: this,
+    //       queryOptions: app.queryOptions,
+    //       volatileQueryOptions: app.volatileQueryOptions
+    //     });
+    //     view.on('submit', function() {
+    //       this.trigger('submit:query');
+    //     }.bind(this));
+    //     return view;
+    //   }
+    // }
   },
   initialize: function() {
     this.model = new MongoDBCollection();
-    this.listenToAndRun(this.parent, 'change:ns', this.onCollectionChanged.bind(this));
+    NamespaceStore.listen( this.onCollectionChanged.bind(this) );
+    // this.listenToAndRun(this.parent, 'change:ns', this.onCollectionChanged.bind(this));
+  },
+  render: function() {
+    this.renderWithTemplate(this);
+    // render query bar here for now
+    var queryBarComponent = app.componentRegistry.findByRole('App:QueryBar')[0];
+    ReactDOM.render(React.createElement(queryBarComponent), this.queryByHook('refine-bar-subview'));
   },
   onTabClicked: function(e) {
     e.preventDefault();
     e.stopPropagation();
-
-    // map tab label to correct view and switch views
-    var tabToViewMap = {
-      'DOCUMENTS': 'documentView',
-      'SCHEMA': 'schemaView',
-      'EXPLAIN PLAN': 'explainView',
-      'INDEXES': 'indexView'
-    };
     this.switchView(tabToViewMap[e.target.innerText]);
   },
   switchView: function(viewStr) {
+    debug('switching to', viewStr);
     // disable all views but the active one
-    _.each(this._subviews, function(subview) {
-      subview.visible = false;
-    });
-    if (this[viewStr]) {
-      this[viewStr].visible = true;
-    }
     this.activeView = viewStr;
+    _.each(_.values(tabToViewMap), function(subview) {
+      if (!this[subview]) return;
+      if (subview === viewStr) {
+        this[viewStr].el.classList.remove('hidden');
+      } else {
+        this[subview].el.classList.add('hidden');
+      }
+    }.bind(this));
   },
   onCollectionChanged: function() {
-    this.ns = this.parent.ns;
+    this.ns = NamespaceStore.ns;
     if (!this.ns) {
       this.visible = false;
       debug('No active collection namespace so no schema has been requested yet.');
@@ -158,8 +172,6 @@ var MongoDBCollectionView = View.extend({
     }
     this.visible = true;
     this.model._id = this.ns;
-    // Need to keep the global state in sync.
-    NamespaceStore.ns = this.ns;
     this.model.once('sync', this.onCollectionFetched.bind(this));
     this.model.fetch();
   },

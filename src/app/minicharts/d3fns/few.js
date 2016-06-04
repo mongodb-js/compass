@@ -145,7 +145,14 @@ var minicharts_d3fns_few = function() {
 
   function chart(selection) {
     selection.each(function(data) {
-      var values = _.pluck(data, 'count');
+      var values = _.map(data, 'count');
+      _.each(data, (d, i) => {
+        data[i].xpos = _.sum(_(data)
+          .slice(0, i)
+          .map('count')
+          .value()
+        );
+      });
       var sumValues = d3.sum(values);
       var maxValue = d3.max(values);
       var percentFormat = shared.friendlyPercentFormat(maxValue / sumValues * 100);
