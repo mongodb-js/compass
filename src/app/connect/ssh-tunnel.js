@@ -84,7 +84,8 @@ var IDENTITY_FILE = {
       template: inputTemplate,
       name: 'ssh_tunnel_port',
       label: 'SSH Tunnel Port',
-      required: true
+      placeholder: '22',
+      required: false
     }),
     new InputView({
       template: inputTemplate,
