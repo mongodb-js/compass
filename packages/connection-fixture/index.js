@@ -47,6 +47,52 @@ exports.X509 = {
 };
 
 /**
+ * For SSH tunnel connections with an identity file.
+ */
+exports.SSH_TUNNEL_IDENTITY_FILE = {
+  name: 'SSH tunnel connection using an identity file',
+  hostname: 'standalone.compass-test-1.mongodb.parts',
+  port: 27000,
+  ns: 'fanclub',
+  mongodb_username: 'integrations',
+  mongodb_password: process.env.MONGODB_PASSWORD_INTEGRATIONS,
+  ssh_tunnel_hostname: process.env.MONGODB_SSH_TUNNEL_IDENTITY_FILE_HOST,
+  ssh_tunnel_user: process.env.MONGODB_SSH_TUNNEL_IDENTITY_FILE_USER,
+  ssh_tunnel_identity_file: [ process.env.MONGODB_SSH_TUNNEL_IDENTITY_FILE ]
+};
+
+/**
+ * For SSH tunnel connections with an identity file and passphrase.
+ */
+exports.SSH_TUNNEL_IDENTITY_FILE_WITH_PASSPHRASE = {
+  name: 'SSH tunnel connection using an identity file with passphrase',
+  hostname: 'standalone.compass-test-1.mongodb.parts',
+  port: 27000,
+  ns: 'fanclub',
+  mongodb_username: 'integrations',
+  mongodb_password: process.env.MONGODB_PASSWORD_INTEGRATIONS,
+  ssh_tunnel_hostname: process.env.MONGODB_SSH_TUNNEL_IDENTITY_FILE_WITH_PASSPHRASE_HOST,
+  ssh_tunnel_user: process.env.MONGODB_SSH_TUNNEL_IDENTITY_FILE_WITH_PASSPHRASE_USER,
+  ssh_tunnel_identity_file: [ process.env.MONGODB_SSH_TUNNEL_IDENTITY_FILE_WITH_PASSPHRASE ],
+  ssh_tunnel_passphrase: process.env.MONGODB_SSH_TUNNEL_IDENTITY_FILE_PASSPHRASE
+};
+
+/**
+ * For SSH tunnel connections with username/password.
+ */
+exports.SSH_TUNNEL_USER_PASSWORD = {
+  name: 'SSH tunnel connection using a username and password',
+  hostname: 'standalone.compass-test-1.mongodb.parts',
+  port: 27000,
+  ns: 'fanclub',
+  mongodb_username: 'integrations',
+  mongodb_password: process.env.MONGODB_PASSWORD_INTEGRATIONS,
+  ssh_tunnel_hostname: process.env.MONGODB_SSH_TUNNEL_USER_PASSWORD_HOST,
+  ssh_tunnel_user: process.env.MONGODB_SSH_TUNNEL_USER_PASSWORD_USER,
+  ssh_tunnel_password: process.env.MONGODB_SSH_TUNNEL_PASSWORD
+};
+
+/**
  * For `authentication=MONGODB`
  *
  * @see https://github.com/mongodb-js/connection-model#authentication-mongodb
@@ -223,6 +269,51 @@ exports.MATRIX = _.chain(exports.MONGODB)
   })
   .flatten()
   .value();
+
+function hasSshTunnelIdentityFileEnv() {
+  return (
+    process.env.MONGODB_PASSWORD_INTEGRATIONS &&
+    process.env.MONGODB_SSH_TUNNEL_IDENTITY_FILE_HOST &&
+    process.env.MONGODB_SSH_TUNNEL_IDENTITY_FILE_USER &&
+    process.env.MONGODB_SSH_TUNNEL_IDENTITY_FILE
+  );
+}
+
+function hasSshTunnelIdentityFileWithPassphraseEnv() {
+  return (
+    process.env.MONGODB_PASSWORD_INTEGRATIONS &&
+    process.env.MONGODB_SSH_TUNNEL_IDENTITY_FILE_WITH_PASSPHRASE_HOST &&
+    process.env.MONGODB_SSH_TUNNEL_IDENTITY_FILE_WITH_PASSPHRASE_USER &&
+    process.env.MONGODB_SSH_TUNNEL_IDENTITY_FILE_WITH_PASSPHRASE &&
+    process.env.MONGODB_SSH_TUNNEL_IDENTITY_FILE_PASSPHRASE
+  );
+}
+
+function hasSshTunnelUserPasswordEnv() {
+  return (
+    process.env.MONGODB_PASSWORD_INTEGRATIONS &&
+    process.env.MONGODB_SSH_TUNNEL_USER_PASSWORD_HOST &&
+    process.env.MONGODB_SSH_TUNNEL_USER_PASSWORD_USER &&
+    process.env.MONGODB_SSH_TUNNEL_PASSWORD
+  );
+}
+
+/**
+ * Separate matrix for SSH tunnel connections.
+ */
+exports.SSH_TUNNEL_MATRIX = [];
+
+if (hasSshTunnelIdentityFileEnv()) {
+  exports.SSH_TUNNEL_MATRIX.push(exports.SSH_TUNNEL_IDENTITY_FILE);
+}
+
+if (hasSshTunnelIdentityFileWithPassphraseEnv()) {
+  exports.SSH_TUNNEL_MATRIX.push(exports.SSH_TUNNEL_IDENTITY_FILE_WITH_PASSPHRASE);
+}
+
+if (hasSshTunnelUserPasswordEnv()) {
+  exports.SSH_TUNNEL_MATRIX.push(exports.SSH_TUNNEL_USER_PASSWORD);
+}
 
 /**
  * Resources only accessible via evergreen boxes.
