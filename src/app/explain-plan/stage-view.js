@@ -46,7 +46,7 @@ module.exports = View.extend({
     }
   },
   events: {
-    'click [data-hook=details]': 'detailsClicked'
+    'click [data-hook=details] > h4': 'detailsClicked'
   },
   bindings: {
     'model.name': {
@@ -91,6 +91,7 @@ module.exports = View.extend({
   detailsClicked: function() {
     this.toggle('detailsOpen');
     $(this.query()).css('z-index', this.detailsOpen ? zIndexCounter++ : 'initial');
+    this.parent.trigger('resize');
   },
   drawArcs: function() {
     // inputs from explain plan stage

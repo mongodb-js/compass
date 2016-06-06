@@ -34,6 +34,12 @@ module.exports = View.extend({
     stages: StageCollection
   },
   initialize: function() {
+    this.on('resize', this.onResize.bind(this));
+  },
+  onResize: function() {
+    this.height = Math.max.apply(null, _.map(this.queryAll('.card'), function(card) {
+      return card.offsetTop + card.offsetHeight + VERTICAL_PADDING;
+    }));
   },
   render: function() {
     this.renderWithTemplate(this);
@@ -123,7 +129,7 @@ module.exports = View.extend({
     container = svg.enter().append('svg')
       .attr('class', 'links')
       .attr('width', '100%')
-      .attr('height', view.height)
+      .attr('height', '100%')
       .call(zoom)
         .on('wheel.zoom', pan)
     .append('g');
