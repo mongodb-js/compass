@@ -12,15 +12,6 @@ module.exports.eventStream = es;
 module.exports.connection =
   new Connection({ hostname: '127.0.0.1', port: 27018, ns: 'data-service' });
 
-module.exports.authorizedConnection =
-  new Connection({
-    hostname: '127.0.0.1',
-    port: 27018,
-    ns: 'data-service',
-    username: 'user',
-    password: 'password'
-  });
-
 module.exports.insertTestDocuments = function(client, callback) {
   var collection = client.database.collection('test');
   collection.insertMany([{ a: 1 }, { a: 2 }], callback);
