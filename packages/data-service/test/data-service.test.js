@@ -16,6 +16,22 @@ describe('DataService', function() {
     service.connect(done);
   });
 
+  describe('#deleteOne', function() {
+    it('deletes the document from the collection', function(done) {
+      service.insertOne('data-service.test', { a: 500 }, {}, function(err) {
+        assert.equal(null, err);
+        service.deleteOne('data-service.test', { a: 500 }, {}, function(er) {
+          assert.equal(null, er);
+          service.find('data-service.test', { a: 500 }, {}, function(error, docs) {
+            assert.equal(null, error);
+            expect(docs.length).to.equal(0);
+            done();
+          });
+        });
+      });
+    });
+  });
+
   describe('#find', function() {
     before(function(done) {
       helper.insertTestDocuments(service.client, function() {
@@ -158,6 +174,25 @@ describe('DataService', function() {
     });
   });
 
+  describe('#insertOne', function() {
+    after(function(done) {
+      helper.deleteTestDocuments(service.client, function() {
+        done();
+      });
+    });
+
+    it('inserts the document into the collection', function(done) {
+      service.insertOne('data-service.test', { a: 500 }, {}, function(err) {
+        assert.equal(null, err);
+        service.find('data-service.test', { a: 500 }, {}, function(error, docs) {
+          assert.equal(null, error);
+          expect(docs.length).to.equal(1);
+          done();
+        });
+      });
+    });
+  });
+
   describe('#sample', function() {
     before(function(done) {
       helper.insertTestDocuments(service.client, function() {
@@ -183,6 +218,28 @@ describe('DataService', function() {
             expect(seen).to.equal(2);
             done();
           }));
+      });
+    });
+  });
+
+  describe('#updateOne', function() {
+    after(function(done) {
+      helper.deleteTestDocuments(service.client, function() {
+        done();
+      });
+    });
+
+    it('updates the document', function(done) {
+      service.insertOne('data-service.test', { a: 500 }, {}, function(err) {
+        assert.equal(null, err);
+        service.updateOne('data-service.test', { a: 500 }, { '$set': { a: 600 }}, {}, function(er) {
+          assert.equal(null, er);
+          service.find('data-service.test', { a: 600 }, {}, function(error, docs) {
+            assert.equal(null, error);
+            expect(docs.length).to.equal(1);
+            done();
+          });
+        });
       });
     });
   });

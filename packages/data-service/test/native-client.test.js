@@ -180,6 +180,22 @@ describe('NativeClient', function() {
     });
   });
 
+  describe('#deleteOne', function() {
+    it('deletes the document from the collection', function(done) {
+      client.insertOne('data-service.test', { a: 500 }, {}, function(err) {
+        assert.equal(null, err);
+        client.deleteOne('data-service.test', { a: 500 }, {}, function(er) {
+          assert.equal(null, er);
+          client.find('data-service.test', { a: 500 }, {}, function(error, docs) {
+            assert.equal(null, error);
+            expect(docs.length).to.equal(0);
+            done();
+          });
+        });
+      });
+    });
+  });
+
   describe('#disconnect', function() {
     after(function(done) {
       client.connect(done);
@@ -216,6 +232,25 @@ describe('NativeClient', function() {
     });
   });
 
+  describe('#insertOne', function() {
+    after(function(done) {
+      helper.deleteTestDocuments(client, function() {
+        done();
+      });
+    });
+
+    it('inserts the document into the collection', function(done) {
+      client.insertOne('data-service.test', { a: 500 }, {}, function(err) {
+        assert.equal(null, err);
+        client.find('data-service.test', { a: 500 }, {}, function(error, docs) {
+          assert.equal(null, error);
+          expect(docs.length).to.equal(1);
+          done();
+        });
+      });
+    });
+  });
+
   describe('#sample', function() {
     before(function(done) {
       helper.insertTestDocuments(client, function() {
@@ -244,6 +279,7 @@ describe('NativeClient', function() {
       });
     });
   });
+
   /**
    * @see https://jira.mongodb.org/browse/INT-1294
    */
@@ -255,6 +291,28 @@ describe('NativeClient', function() {
 
     it('should return the correct collectionName', () => {
       expect(client._collectionName(ns)).to.equal('events.periodic');
+    });
+  });
+
+  describe('#updateOne', function() {
+    after(function(done) {
+      helper.deleteTestDocuments(client, function() {
+        done();
+      });
+    });
+
+    it('updates the document', function(done) {
+      client.insertOne('data-service.test', { a: 500 }, {}, function(err) {
+        assert.equal(null, err);
+        client.updateOne('data-service.test', { a: 500 }, { '$set': { a: 600 }}, {}, function(er) {
+          assert.equal(null, er);
+          client.find('data-service.test', { a: 600 }, {}, function(error, docs) {
+            assert.equal(null, error);
+            expect(docs.length).to.equal(1);
+            done();
+          });
+        });
+      });
     });
   });
 });

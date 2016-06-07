@@ -108,6 +108,19 @@ class DataService extends EventEmitter {
   }
 
   /**
+   * Delete a single document from the collection.
+   *
+   * @param {String} ns - The namespace.
+   * @param {Object} filter - The filter.
+   * @param {Object} options - The options.
+   * @param {Function} callback - The callback.
+   */
+  deleteOne(ns, filter, options, callback) {
+    debug(`#deleteOne: ${ns}, filter: ${filter}`);
+    this.client.deleteOne(ns, filter, options, callback);
+  }
+
+  /**
    * Disconnect the service.
    */
   disconnect() {
@@ -179,6 +192,19 @@ class DataService extends EventEmitter {
   }
 
   /**
+   * Insert a single document into the database.
+   *
+   * @param {String} ns - The namespace.
+   * @param {Object} doc - The document to insert.
+   * @param {Object} options - The options.
+   * @param {Function} callback - The callback.
+   */
+  insertOne(ns, doc, options, callback) {
+    debug(`#insertOne: ${ns}, doc: ${doc}`);
+    this.client.insertOne(ns, doc, options, callback);
+  }
+
+  /**
    * Sample documents from the collection.
    *
    * @param {String} ns - The namespace to sample.
@@ -189,6 +215,20 @@ class DataService extends EventEmitter {
   sample(ns, options) {
     debug(`#sample: ${ns}, options: ${options}`);
     return this.client.sample(ns, options);
+  }
+
+  /**
+   * Update a single document in the collection.
+   *
+   * @param {String} ns - The namespace.
+   * @param {Object} filter - The filter.
+   * @param {Object} update - The update.
+   * @param {Object} options - The options.
+   * @param {Function} callback - The callback.
+   */
+  updateOne(ns, filter, update, options, callback) {
+    debug(`#updateOne: ${ns}, filter: ${filter}, update: ${update}`);
+    this.client.updateOne(ns, filter, update, options, callback);
   }
 
   /**

@@ -157,6 +157,23 @@ class NativeClient {
   }
 
   /**
+   * Delete a single document from the collection.
+   *
+   * @param {String} ns - The namespace.
+   * @param {Object} filter - The filter.
+   * @param {Object} options - The options.
+   * @param {Function} callback - The callback.
+   */
+  deleteOne(ns, filter, options, callback) {
+    this._collection(ns).deleteOne(filter, options, (error, result) => {
+      if (error) {
+        return callback(this._translateMessage(error));
+      }
+      callback(null, result);
+    });
+  }
+
+  /**
    * Disconnect the client.
    */
   disconnect() {
@@ -216,6 +233,23 @@ class NativeClient {
   }
 
   /**
+   * Insert a single document into the database.
+   *
+   * @param {String} ns - The namespace.
+   * @param {Object} doc - The document to insert.
+   * @param {Object} options - The options.
+   * @param {Function} callback - The callback.
+   */
+  insertOne(ns, doc, options, callback) {
+    this._collection(ns).insertOne(doc, options, (error, result) => {
+      if (error) {
+        return callback(this._translateMessage(error));
+      }
+      callback(null, result);
+    });
+  }
+
+  /**
    * Get the current instance details.
    *
    * @param {function} callback - The callback function.
@@ -240,6 +274,24 @@ class NativeClient {
   sample(ns, options) {
     var db = this._database(this._databaseName(ns));
     return createSampleStream(db, this._collectionName(ns), options);
+  }
+
+  /**
+   * Update a single document in the collection.
+   *
+   * @param {String} ns - The namespace.
+   * @param {Object} filter - The filter.
+   * @param {Object} update - The update.
+   * @param {Object} options - The options.
+   * @param {Function} callback - The callback.
+   */
+  updateOne(ns, filter, update, options, callback) {
+    this._collection(ns).updateOne(filter, update, options, (error, result) => {
+      if (error) {
+        return callback(this._translateMessage(error));
+      }
+      callback(null, result);
+    });
   }
 
   /**
