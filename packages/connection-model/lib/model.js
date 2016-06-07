@@ -453,7 +453,7 @@ assign(props, {
    */
   ssh_tunnel_port: {
     type: 'number',
-    default: undefined
+    default: 22
   },
   /**
    * The ssh username.
@@ -641,7 +641,7 @@ assign(derived, {
         dstPort: this.port,
         username: this.ssh_tunnel_username,
         host: this.ssh_tunnel_hostname,
-        localPort: this.ssh_tunnel_port
+        sshPort: this.ssh_tunnel_port
       };
       if (this.ssh_tunnel === 'USER_PASSWORD') {
         assign(opts, { password: this.ssh_tunnel_password });

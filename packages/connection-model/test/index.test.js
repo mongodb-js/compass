@@ -591,8 +591,8 @@ describe('mongodb-connection-model', function() {
           assert.equal(options.dstPort, 27000);
         });
 
-        it('maps ssh_tunnel_port -> localPort', function() {
-          assert.equal(options.localPort, 3000);
+        it('maps ssh_tunnel_port -> sshPort', function() {
+          assert.equal(options.sshPort, 3000);
         });
 
         it('maps ssh_tunnel_password -> password', function() {
@@ -634,8 +634,8 @@ describe('mongodb-connection-model', function() {
             assert.equal(options.dstPort, 27000);
           });
 
-          it('maps ssh_tunnel_port -> localPort', function() {
-            assert.equal(options.localPort, 3000);
+          it('maps ssh_tunnel_port -> sshPort', function() {
+            assert.equal(options.sshPort, 3000);
           });
 
           it('maps ssh_tunnel_passphrase -> password', function() {
@@ -675,8 +675,8 @@ describe('mongodb-connection-model', function() {
             assert.equal(options.dstPort, 27000);
           });
 
-          it('maps ssh_tunnel_port -> localPort', function() {
-            assert.equal(options.localPort, 3000);
+          it('maps ssh_tunnel_port -> sshPort', function() {
+            assert.equal(options.sshPort, 3000);
           });
         });
       });
@@ -698,19 +698,6 @@ describe('mongodb-connection-model', function() {
           var c = new Connection({
             ssh_tunnel: 'USER_PASSWORD',
             ssh_tunnel_port: 5000,
-            ssh_tunnel_username: 'username',
-            ssh_tunnel_password: 'password'
-          });
-
-          it('fails validation', function() {
-            assert(!c.isValid());
-          });
-        });
-
-        context('when port is missing', function() {
-          var c = new Connection({
-            ssh_tunnel: 'USER_PASSWORD',
-            ssh_tunnel_hostname: '127.0.0.1',
             ssh_tunnel_username: 'username',
             ssh_tunnel_password: 'password'
           });
@@ -768,20 +755,6 @@ describe('mongodb-connection-model', function() {
             ssh_tunnel_identity_file: '/path/to/.ssh/me.pub',
             ssh_tunnel_port: 5000,
             ssh_tunnel_username: 'username'
-          });
-
-          it('fails validation', function() {
-            assert(!c.isValid());
-          });
-        });
-
-        context('when port is missing', function() {
-          var c = new Connection({
-            ssh_tunnel: 'IDENTITY_FILE',
-            ssh_tunnel_identity_file: '/path/to/.ssh/me.pub',
-            ssh_tunnel_hostname: '127.0.0.1',
-            ssh_tunnel_username: 'username',
-            ssh_tunnel_passphrase: 'password'
           });
 
           it('fails validation', function() {
