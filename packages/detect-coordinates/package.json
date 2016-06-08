@@ -1,7 +1,8 @@
 {
   "name": "detect-coordinates",
   "description": "Geo coordinates detection based of a mongodb-schema type.",
-  "version": "0.0.0",
+  "author": "Thomas Rueckstiess <thomas@rueckstiess.net>",
+  "version": "0.1.0",
   "scripts": {
     "fmt": "mongodb-js-fmt",
     "check": "mongodb-js-precommit",
