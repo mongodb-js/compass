@@ -23,7 +23,7 @@
     "check"
   ],
   "dependencies": {
-    "ampersand-collection": "^1.6.1",
+    "ampersand-collection": "^2.0.0",
     "ampersand-model": "^6.0.2",
     "ampersand-rest-collection": "^5.0.0",
     "async": "^1.5.2",
