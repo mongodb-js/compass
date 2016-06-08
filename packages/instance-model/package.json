@@ -39,7 +39,7 @@
     "eslint-config-mongodb-js": "^2.0.0",
     "mocha": "^2.3.4",
     "mongodb": "^2.1.16",
-    "mongodb-connection-fixture": "^0.0.12",
+    "mongodb-connection-fixture": "^0.0.13",
     "mongodb-connection-model": "^4.0.2",
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^0.2.8",
