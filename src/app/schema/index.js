@@ -11,6 +11,7 @@ var clipboard = remote.clipboard;
 var format = require('util').format;
 var metrics = require('mongodb-js-metrics')();
 var ipc = require('hadron-ipc');
+var eJSON = require('mongodb-extended-json');
 
 var debug = require('debug')('mongodb-compass:schema:index');
 
@@ -94,7 +95,7 @@ var SchemaView = View.extend({
     }
   },
   onShareSchema: function() {
-    clipboard.writeText(JSON.stringify(this.schema.serialize(), null, '  '));
+    clipboard.writeText(eJSON.stringify(this.schema.serialize(), null, '  '));
 
     var detail = format('The schema definition of %s has been copied to your '
       + 'clipboard in JSON format.', this.model._id);
