@@ -24,7 +24,7 @@
     "check"
   ],
   "dependencies": {
-    "ampersand-model": "^6.0.2",
+    "ampersand-model": "^8.0.0",
     "ampersand-rest-collection": "^5.0.0",
     "debug": "^2.2.0",
     "lodash.assign": "^4.0.2",
