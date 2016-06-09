@@ -107,4 +107,52 @@ describe('Element', function() {
       });
     });
   });
+
+  describe('#revert', function() {
+    context('when the element is edited', function() {
+      var element = new Element('name', 'Aphex Twin');
+
+      before(function() {
+        element.edit('alias', 'APX');
+        element.revert();
+      });
+
+      it('sets the keys back to the original', function() {
+        expect(element.key).to.equal('name');
+        expect(element.currentKey).to.equal('name');
+      });
+
+      it('sets the values back to the original', function() {
+        expect(element.value).to.equal('Aphex Twin');
+        expect(element.currentValue).to.equal('Aphex Twin');
+      });
+
+      it('resets the flags', function() {
+        expect(element.isEdited()).to.equal(false);
+      });
+    });
+
+    context('when the element is removed', function() {
+      var element = new Element('name', 'Aphex Twin');
+
+      before(function() {
+        element.remove();
+        element.revert();
+      });
+
+      it('sets the keys back to the original', function() {
+        expect(element.key).to.equal('name');
+        expect(element.currentKey).to.equal('name');
+      });
+
+      it('sets the values back to the original', function() {
+        expect(element.value).to.equal('Aphex Twin');
+        expect(element.currentValue).to.equal('Aphex Twin');
+      });
+
+      it('resets the flags', function() {
+        expect(element.isRemoved()).to.equal(false);
+      });
+    });
+  });
 });

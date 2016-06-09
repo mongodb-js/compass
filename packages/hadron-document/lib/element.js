@@ -73,9 +73,17 @@ class Element {
    * Flag the element for removal.
    */
   remove() {
+    this.revert();
+    this.removed = true;
+  }
+
+  /**
+   * Revert the changes to the element.
+   */
+  revert() {
     this.currentKey = this.key;
     this.currentValue = this.value;
-    this.removed = true;
+    this.removed = false;
   }
 
   /**
