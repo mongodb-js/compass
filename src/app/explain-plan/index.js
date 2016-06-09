@@ -34,7 +34,12 @@ module.exports = View.extend({
       default: false
     },
     // refine bar for explain view
-    hasRefineBar: ['boolean', true, true]
+    hasRefineBar: ['boolean', true, true],
+    activeDetailView: {
+      type: 'string',
+      default: 'json',
+      values: ['json', 'tree']
+    }
   },
   session: {
     rawSubview: 'object',
@@ -80,7 +85,9 @@ module.exports = View.extend({
     }
   },
   events: {
-    'click [data-hook=indexes-link]': 'indexLinkClicked'
+    'click [data-hook=indexes-link]': 'indexLinkClicked',
+    'click [data-hook=json-button]': 'jsonButtonClicked',
+    'click [data-hook=tree-button]': 'treeButtonClicked'
   },
   bindings: {
     ns: {
@@ -95,6 +102,23 @@ module.exports = View.extend({
       name: 'title',
       hook: 'index-definition-container'
     },
+    activeDetailView: [
+      {
+        type: 'switch',
+        cases: {
+          'tree': '.tree-container',
+          'json': '.json-container'
+        }
+      },
+      {
+        type: 'switchClass',
+        name: 'active',
+        cases: {
+          'tree': '[data-hook=tree-button]',
+          'json': '[data-hook=json-button]'
+        }
+      }
+    ],
     'explainPlan.totalKeysExamined': {
       hook: 'total-keys-examined'
     },
@@ -166,6 +190,12 @@ module.exports = View.extend({
     e.stopPropagation();
     e.preventDefault();
     this.parent.switchView('indexView');
+  },
+  jsonButtonClicked: function() {
+    this.activeDetailView = 'json';
+  },
+  treeButtonClicked: function() {
+    this.activeDetailView = 'tree';
   },
   fetchExplainPlan: function() {
     var filter = app.queryOptions.query.serialize();

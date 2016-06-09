@@ -37,14 +37,21 @@
               span.stat-label Sorted in Memory: 
               span.stat-value(data-hook='in-memory-sort')       
 
+      hr
+      .details-container
+        h4 Explain Plan Details
+        .row
+          .col-md-12
+            .view-switcher
+              span View As
+              .btn-group.btn-group-xs(role="group")
+                button.btn.btn-default(data-hook='json-button') Raw JSON
+                button.btn.btn-default(data-hook='tree-button') Visual Tree
+      
       .tree-container
-        h4 Explain Plan Diagram
-        //- .panel.panel-default
-        //-   .panel-body
         div(data-hook='tree-subview')
 
-      .detail-container
-        h4 Raw Explain Output
+      .json-container
         .panel.panel-default
           .panel-body
             ol.document-list(data-hook='raw-subview')
