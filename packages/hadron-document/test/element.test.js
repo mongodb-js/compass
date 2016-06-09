@@ -5,6 +5,60 @@ const expect = chai.expect;
 const Element = require('../lib/element');
 
 describe('Element', function() {
+  describe('#new', function() {
+    context('when the element is primitive', function() {
+      var element = new Element('name', 'Aphex Twin');
+
+      it('sets the key', function() {
+        expect(element.key).to.equal('name');
+      });
+
+      it('sets the current key', function() {
+        expect(element.currentKey).to.equal('name');
+      });
+
+      it('sets the value', function() {
+        expect(element.value).to.equal('Aphex Twin');
+      });
+
+      it('sets the current value', function() {
+        expect(element.currentValue).to.equal('Aphex Twin');
+      });
+    });
+
+    context('when the element is an array', function() {
+      var element = new Element('albums', [ 'Windowlicker' ]);
+
+      it('sets the key', function() {
+        expect(element.key).to.equal('albums');
+      });
+
+      it('sets the current key', function() {
+        expect(element.currentKey).to.equal('albums');
+      });
+
+      it('sets the elements', function() {
+        expect(element.elements.length).to.equal(1);
+      });
+    });
+
+    context('when the element is an embedded document', function() {
+      var element = new Element('email', { work: 'test@example.com' });
+
+      it('sets the key', function() {
+        expect(element.key).to.equal('email');
+      });
+
+      it('sets the current key', function() {
+        expect(element.currentKey).to.equal('email');
+      });
+
+      it('sets the elements', function() {
+        expect(element.elements.length).to.equal(1);
+      });
+    });
+  });
+
   describe('#edit', function() {
     context('when the element is not a document', function() {
       context('when the value is changed', function() {
