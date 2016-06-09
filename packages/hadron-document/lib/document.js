@@ -3,38 +3,28 @@
 const keys = require('lodash.keys');
 const map = require('lodash.map');
 const isObject = require('lodash.isobject');
+const Element = require('./element');
 
-class Element {
-  get absoluteKey() {
-    return this.parentElement ? `${this.parentElement.absoluteKey}.${this.key}` : this.key;
-  }
-
-  constructor(key, value, parentElement) {
-    this.key = key;
-    this.currentKey = key;
-    this.parentElement = parentElement;
-
-    if (isObject(value)) {
-      this.value = this._sequence(value);
-    } else {
-      this.value = value;
-      this.currentValue = value;
-    }
-  }
-
-  _sequence(object) {
-    return map(keys(object), (key) => {
-      return new Element(key, object[key], this);
-    });
-  }
-}
-
+/**
+ * Represents a document.
+ */
 class Document {
+
+  /**
+   * Create the new document from the provided object.
+   *
+   * @param {Object} doc - The document.
+   */
   constructor(doc) {
     this.doc = doc;
     this.elements = this._sequence();
   }
 
+  /**
+   * Generates a sequence of elements.
+   *
+   * @returns {Array} The elements.
+   */
   _sequence() {
     return map(keys(this.doc), (key) => {
       return new Element(key, this.doc[key]);
