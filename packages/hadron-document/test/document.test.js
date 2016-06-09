@@ -128,7 +128,32 @@ describe('Document', function() {
       });
 
       context('when the document has an array of embedded documents', function() {
+        var object = { emails: [{ work: 'test@example.com' }]};
+        var doc = new Document(object);
 
+        it('creates the element', function() {
+          expect(doc.elements.length).to.equal(1);
+        });
+
+        it('sets the element original key', function() {
+          expect(doc.elements[0].key).to.equal('emails');
+        });
+
+        it('sets the embedded element key', function() {
+          expect(doc.elements[0].value[0].key).to.equal('0');
+        });
+
+        it('sets the multi embedded element key', function() {
+          expect(doc.elements[0].value[0].value[0].key).to.equal('work');
+        });
+
+        it('sets the embedded element original value', function() {
+          expect(doc.elements[0].value[0].value[0].value).to.equal('test@example.com');
+        });
+
+        it('determines the correct path', function() {
+          expect(doc.elements[0].value[0].value[0].absoluteKey).to.equal('emails.0.work');
+        });
       });
     });
   });
