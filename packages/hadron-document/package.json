@@ -25,9 +25,11 @@
   "dependencies": {
     "debug": "^2.2.0",
     "lodash.clonedeep": "^4.3.2",
+    "lodash.foreach": "^4.3.0",
     "lodash.isobject": "^3.0.2",
     "lodash.keys": "^4.0.7",
-    "lodash.map": "^4.4.0"
+    "lodash.map": "^4.4.0",
+    "lodash.reduce": "^4.4.0"
   },
   "devDependencies": {
     "chai": "^3.4.1",
