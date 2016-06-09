@@ -1,1 +1,1 @@
-module.exports = require('./lib/change-tracker');
+module.exports = require('./lib/document');
