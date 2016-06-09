@@ -76,4 +76,35 @@ describe('Element', function() {
       });
     });
   });
+
+  describe('#remove', function() {
+    context('when the element has not been edited', function() {
+      var element = new Element('name', 'Aphex Twin');
+
+      before(function() {
+        element.remove();
+      });
+
+      it('flags the element as removed', function() {
+        expect(element.isRemoved()).to.equal(true);
+      });
+    });
+
+    context('when the element has been edited', function() {
+      var element = new Element('name', 'Aphex Twin');
+
+      before(function() {
+        element.edit('name', 'APX');
+        element.remove();
+      });
+
+      it('flags the element as removed', function() {
+        expect(element.isRemoved()).to.equal(true);
+      });
+
+      it('resets the edits to the original', function() {
+        expect(element.isEdited()).to.equal(false);
+      });
+    });
+  });
 });

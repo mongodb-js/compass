@@ -29,6 +29,7 @@ class Element {
     this.key = key;
     this.currentKey = key;
     this.parentElement = parentElement;
+    this.removed = false;
 
     if (isObject(value)) {
       this.elements = this._generateElements(value);
@@ -57,6 +58,24 @@ class Element {
    */
   isEdited() {
     return this.key !== this.currentKey || this.value !== this.currentValue;
+  }
+
+  /**
+   * Is the element flagged for removal?
+   *
+   * @returns {Boolean} If the element is flagged for removal.
+   */
+  isRemoved() {
+    return this.removed;
+  }
+
+  /**
+   * Flag the element for removal.
+   */
+  remove() {
+    this.currentKey = this.key;
+    this.currentValue = this.value;
+    this.removed = true;
   }
 
   /**
