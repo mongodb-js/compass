@@ -3,11 +3,22 @@
 const keys = require('lodash.keys');
 const map = require('lodash.map');
 const isObject = require('lodash.isobject');
+const removeValues = require('lodash.remove');
 
 /**
  * Represents an element in a document.
  */
 class Element {
+
+  /**
+   * Add a new element to this element.
+   *
+   * @param {String} key - The element key.
+   * @param {Object} value - The value.
+   */
+  add(key, value) {
+    this.elements.push(new Element(key, value, true, this));
+  }
 
   /**
    * Get the absolute key, ie (contact.emails.work) for the element.
@@ -23,12 +34,14 @@ class Element {
    *
    * @param {String} key - The key.
    * @param {Object} value - The value.
+   * @param {Boolean} added - Is the element a new 'addition'?
    * @param {Element} parentElement - The parent element.
    */
-  constructor(key, value, parentElement) {
+  constructor(key, value, added, parentElement) {
     this.key = key;
     this.currentKey = key;
     this.parentElement = parentElement;
+    this.added = added;
     this.removed = false;
 
     if (isObject(value)) {
@@ -48,6 +61,10 @@ class Element {
   edit(key, value) {
     this.currentKey = key;
     this.currentValue = value;
+  }
+
+  isAdded() {
+    return this.added;
   }
 
   /**
@@ -83,6 +100,7 @@ class Element {
   revert() {
     this.currentKey = this.key;
     this.currentValue = this.value;
+    this._removeAddedElements();
     this.removed = false;
   }
 
@@ -95,7 +113,16 @@ class Element {
    */
   _generateElements(object) {
     return map(keys(object), (key) => {
-      return new Element(key, object[key], this);
+      return new Element(key, object[key], false, this);
+    });
+  }
+
+  /**
+   * Removes the added elements from the element.
+   */
+  _removeAddedElements() {
+    removeValues(this.elements, (element) => {
+      return element.isAdded();
     });
   }
 }

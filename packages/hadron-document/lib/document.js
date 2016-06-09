@@ -26,7 +26,7 @@ class Document {
    */
   _generateElements() {
     return map(keys(this.doc), (key) => {
-      return new Element(key, this.doc[key]);
+      return new Element(key, this.doc[key], false);
     });
   }
 }
