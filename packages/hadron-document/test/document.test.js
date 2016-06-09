@@ -94,7 +94,7 @@ describe('Document', function() {
         });
 
         it('determines the correct path', function() {
-          expect(doc.elements[0].elements[0].absoluteKey).to.equal('email.work');
+          expect(doc.elements[0].elements[0].absolutePath).to.equal('email.work');
         });
       });
 
@@ -123,7 +123,7 @@ describe('Document', function() {
         });
 
         it('determines the correct path', function() {
-          expect(doc.elements[0].elements[0].elements[0].absoluteKey).to.equal('contact.email.work');
+          expect(doc.elements[0].elements[0].elements[0].absolutePath).to.equal('contact.email.work');
         });
       });
 
@@ -152,7 +152,7 @@ describe('Document', function() {
         });
 
         it('determines the correct path', function() {
-          expect(doc.elements[0].elements[0].elements[0].absoluteKey).to.equal('emails.0.work');
+          expect(doc.elements[0].elements[0].elements[0].absolutePath).to.equal('emails.0.work');
         });
       });
 
@@ -187,7 +187,7 @@ describe('Document', function() {
         });
 
         it('determines the correct path', function() {
-          expect(doc.elements[0].elements[0].elements[0].elements[0].absoluteKey).to.equal(
+          expect(doc.elements[0].elements[0].elements[0].elements[0].absolutePath).to.equal(
             'contact.emails.0.work'
           );
         });

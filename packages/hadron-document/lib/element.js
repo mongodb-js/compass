@@ -12,10 +12,10 @@ class Element {
   /**
    * Get the absolute key, ie (contact.emails.work) for the element.
    *
-   * @returns {String} The absolute key.
+   * @returns {String} The absolute path.
    */
-  get absoluteKey() {
-    return this.parentElement ? `${this.parentElement.absoluteKey}.${this.key}` : this.key;
+  get absolutePath() {
+    return this.parentElement ? `${this.parentElement.absolutePath}.${this.key}` : this.key;
   }
 
   /**
@@ -36,6 +36,27 @@ class Element {
       this.value = value;
       this.currentValue = value;
     }
+  }
+
+  /**
+   * Edit the element.
+   *
+   * @param {String} key - The new key.
+   * @param {Object} value - The new value.
+   */
+  edit(key, value) {
+    this.currentKey = key;
+    this.currentValue = value;
+  }
+
+  /**
+   * Determine if the element is edited - returns true if
+   * the key or value changed.
+   *
+   * @returns {Boolean} If the element is edited.
+   */
+  isEdited() {
+    return this.key !== this.currentKey || this.value !== this.currentValue;
   }
 
   /**
