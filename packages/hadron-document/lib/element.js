@@ -31,7 +31,7 @@ class Element {
     this.parentElement = parentElement;
 
     if (isObject(value)) {
-      this.value = this._sequence(value);
+      this.elements = this._generateElements(value);
     } else {
       this.value = value;
       this.currentValue = value;
@@ -45,7 +45,7 @@ class Element {
    *
    * @returns {Array} The elements.
    */
-  _sequence(object) {
+  _generateElements(object) {
     return map(keys(object), (key) => {
       return new Element(key, object[key], this);
     });

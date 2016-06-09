@@ -48,18 +48,18 @@ describe('Document', function() {
       });
 
       it('sets the element indexes', function() {
-        expect(doc.elements[0].value[0].key).to.equal('0');
-        expect(doc.elements[0].value[1].key).to.equal('1');
+        expect(doc.elements[0].elements[0].key).to.equal('0');
+        expect(doc.elements[0].elements[1].key).to.equal('1');
       });
 
       it('sets the element original values', function() {
-        expect(doc.elements[0].value[0].value).to.equal('London');
-        expect(doc.elements[0].value[1].value).to.equal('New York');
+        expect(doc.elements[0].elements[0].value).to.equal('London');
+        expect(doc.elements[0].elements[1].value).to.equal('New York');
       });
 
       it('sets the element current values', function() {
-        expect(doc.elements[0].value[0].currentValue).to.equal('London');
-        expect(doc.elements[0].value[1].currentValue).to.equal('New York');
+        expect(doc.elements[0].elements[0].currentValue).to.equal('London');
+        expect(doc.elements[0].elements[1].currentValue).to.equal('New York');
       });
     });
 
@@ -81,20 +81,20 @@ describe('Document', function() {
         });
 
         it('sets the embedded element key', function() {
-          expect(doc.elements[0].value[0].key).to.equal('work');
-          expect(doc.elements[0].value[0].currentKey).to.equal('work');
+          expect(doc.elements[0].elements[0].key).to.equal('work');
+          expect(doc.elements[0].elements[0].currentKey).to.equal('work');
         });
 
         it('sets the embedded element original value', function() {
-          expect(doc.elements[0].value[0].value).to.equal('test@example.com');
+          expect(doc.elements[0].elements[0].value).to.equal('test@example.com');
         });
 
         it('sets the embedded element current value', function() {
-          expect(doc.elements[0].value[0].currentValue).to.equal('test@example.com');
+          expect(doc.elements[0].elements[0].currentValue).to.equal('test@example.com');
         });
 
         it('determines the correct path', function() {
-          expect(doc.elements[0].value[0].absoluteKey).to.equal('email.work');
+          expect(doc.elements[0].elements[0].absoluteKey).to.equal('email.work');
         });
       });
 
@@ -111,19 +111,19 @@ describe('Document', function() {
         });
 
         it('sets the embedded element key', function() {
-          expect(doc.elements[0].value[0].key).to.equal('email');
+          expect(doc.elements[0].elements[0].key).to.equal('email');
         });
 
         it('sets the multi embedded element key', function() {
-          expect(doc.elements[0].value[0].value[0].key).to.equal('work');
+          expect(doc.elements[0].elements[0].elements[0].key).to.equal('work');
         });
 
         it('sets the embedded element original value', function() {
-          expect(doc.elements[0].value[0].value[0].value).to.equal('test@example.com');
+          expect(doc.elements[0].elements[0].elements[0].value).to.equal('test@example.com');
         });
 
         it('determines the correct path', function() {
-          expect(doc.elements[0].value[0].value[0].absoluteKey).to.equal('contact.email.work');
+          expect(doc.elements[0].elements[0].elements[0].absoluteKey).to.equal('contact.email.work');
         });
       });
 
@@ -140,19 +140,19 @@ describe('Document', function() {
         });
 
         it('sets the embedded element key', function() {
-          expect(doc.elements[0].value[0].key).to.equal('0');
+          expect(doc.elements[0].elements[0].key).to.equal('0');
         });
 
         it('sets the multi embedded element key', function() {
-          expect(doc.elements[0].value[0].value[0].key).to.equal('work');
+          expect(doc.elements[0].elements[0].elements[0].key).to.equal('work');
         });
 
         it('sets the embedded element original value', function() {
-          expect(doc.elements[0].value[0].value[0].value).to.equal('test@example.com');
+          expect(doc.elements[0].elements[0].elements[0].value).to.equal('test@example.com');
         });
 
         it('determines the correct path', function() {
-          expect(doc.elements[0].value[0].value[0].absoluteKey).to.equal('emails.0.work');
+          expect(doc.elements[0].elements[0].elements[0].absoluteKey).to.equal('emails.0.work');
         });
       });
 
@@ -169,23 +169,27 @@ describe('Document', function() {
         });
 
         it('sets the embedded element key', function() {
-          expect(doc.elements[0].value[0].key).to.equal('emails');
+          expect(doc.elements[0].elements[0].key).to.equal('emails');
         });
 
         it('sets the multi embedded element key', function() {
-          expect(doc.elements[0].value[0].value[0].key).to.equal('0');
+          expect(doc.elements[0].elements[0].elements[0].key).to.equal('0');
         });
 
         it('sets the lowest level embedded element key', function() {
-          expect(doc.elements[0].value[0].value[0].value[0].key).to.equal('work');
+          expect(doc.elements[0].elements[0].elements[0].elements[0].key).to.equal('work');
         });
 
         it('sets the embedded element original value', function() {
-          expect(doc.elements[0].value[0].value[0].value[0].value).to.equal('test@example.com');
+          expect(doc.elements[0].elements[0].elements[0].elements[0].value).to.equal(
+            'test@example.com'
+          );
         });
 
         it('determines the correct path', function() {
-          expect(doc.elements[0].value[0].value[0].value[0].absoluteKey).to.equal('contact.emails.0.work');
+          expect(doc.elements[0].elements[0].elements[0].elements[0].absoluteKey).to.equal(
+            'contact.emails.0.work'
+          );
         });
       });
     });

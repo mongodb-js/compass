@@ -16,7 +16,7 @@ class Document {
    */
   constructor(doc) {
     this.doc = doc;
-    this.elements = this._sequence();
+    this.elements = this._generateElements();
   }
 
   /**
@@ -24,7 +24,7 @@ class Document {
    *
    * @returns {Array} The elements.
    */
-  _sequence() {
+  _generateElements() {
     return map(keys(this.doc), (key) => {
       return new Element(key, this.doc[key]);
     });
