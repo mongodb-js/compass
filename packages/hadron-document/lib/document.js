@@ -2,7 +2,6 @@
 
 const keys = require('lodash.keys');
 const map = require('lodash.map');
-const isObject = require('lodash.isobject');
 const Element = require('./element');
 
 /**
