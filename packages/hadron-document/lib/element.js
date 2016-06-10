@@ -63,6 +63,11 @@ class Element {
     this.currentValue = value;
   }
 
+  /**
+   * Is the element a newly added element?
+   *
+   * @returns {Boolean} If the element is newly added.
+   */
   isAdded() {
     return this.added;
   }

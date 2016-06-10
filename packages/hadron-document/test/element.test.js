@@ -26,6 +26,27 @@ describe('Element', function() {
         expect(element.elements[1].isAdded()).to.equal(true);
       });
     });
+
+    context('when the embedded element is an array', function() {
+      var element = new Element('emails', [ 'work@example.com' ], false);
+
+      before(function() {
+        element.add('1', 'home@example.com');
+      });
+
+      it('adds the new embedded element', function() {
+        expect(element.elements[1].key).to.equal('1');
+        expect(element.elements[1].value).to.equal('home@example.com');
+      });
+
+      it('sets the absolute path of the new element', function() {
+        expect(element.elements[1].absolutePath).to.equal('emails.1');
+      });
+
+      it('flags the new element as added', function() {
+        expect(element.elements[1].isAdded()).to.equal(true);
+      });
+    });
   });
 
   describe('#new', function() {
@@ -182,10 +203,6 @@ describe('Element', function() {
       it('resets the edits to the original', function() {
         expect(element.isEdited()).to.equal(false);
       });
-    });
-
-    context('when the element was newly added', function() {
-
     });
   });
 

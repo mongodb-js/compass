@@ -9,6 +9,10 @@ const Element = require('./element');
  */
 class Document {
 
+  add() {
+
+  }
+
   /**
    * Create the new document from the provided object.
    *
