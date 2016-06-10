@@ -3,6 +3,7 @@
 const keys = require('lodash.keys');
 const map = require('lodash.map');
 const Element = require('./element');
+const ObjectGenerator = require('./object-generator');
 
 /**
  * Represents a document.
@@ -23,7 +24,6 @@ class Document {
     return newElement;
   }
 
-
   /**
    * Create the new document from the provided object.
    *
@@ -34,6 +34,20 @@ class Document {
     this.elements = this._generateElements();
   }
 
+  /**
+   * Generate the javascript object for this document.
+   *
+   * @returns {Object} The javascript object.
+   */
+  generateObject() {
+    return ObjectGenerator.generate(this.elements);
+  }
+
+  /**
+   * A document always exists, is never added.
+   *
+   * @returns {false} Always false.
+   */
   isAdded() {
     return false;
   }

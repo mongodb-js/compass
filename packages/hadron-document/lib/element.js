@@ -4,6 +4,7 @@ const keys = require('lodash.keys');
 const map = require('lodash.map');
 const isObject = require('lodash.isobject');
 const removeValues = require('lodash.remove');
+const ObjectGenerator = require('./object-generator');
 
 /**
  * Represents an element in a document.
@@ -70,6 +71,18 @@ class Element {
     } else {
       this.currentValue = value;
     }
+  }
+
+  /**
+   * Generate the javascript object for this element.
+   *
+   * @returns {Object} The javascript object.
+   */
+  generateObject() {
+    if (this.currentValue) {
+      return this.currentValue;
+    }
+    return ObjectGenerator.generate(this.elements);
   }
 
   /**

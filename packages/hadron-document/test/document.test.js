@@ -333,5 +333,18 @@ describe('Document', function() {
       expect(work.value).to.equal('work@example.com');
       expect(work.isAdded()).to.equal(true);
     });
+
+    it('generates an update object', function() {
+      expect(doc.generateObject()).to.deep.equal({
+        address: {
+          postal_code: 72550,
+          state: 'CA'
+        },
+        emails: {
+          home: 'home@example.com',
+          work: 'work@example.com'
+        }
+      });
+    });
   });
 });
