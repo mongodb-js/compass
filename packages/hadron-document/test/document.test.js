@@ -16,6 +16,9 @@ describe('Document', function() {
 
       it('adds the new element', function() {
         expect(doc.elements[0].key).to.equal('name');
+      });
+
+      it('sets the new element value', function() {
         expect(doc.elements[0].value).to.equal('Aphex Twin');
       });
 
@@ -41,7 +44,7 @@ describe('Document', function() {
       context('when adding the embedded document then the first element', function() {
         before(function() {
           this.doc = new Document({});
-          this.doc.add('email', {}).add('home','home@example.com');
+          this.doc.add('email', {}).add('home', 'home@example.com');
         });
 
         SharedExamples.itAddsTheEmbeddedDocumentElementToTheRootDocument();
