@@ -47,6 +47,35 @@ describe('Element', function() {
         expect(element.elements[1].isAdded()).to.equal(true);
       });
     });
+
+    context('when the embedded element is an array of embedded documents', function() {
+      var element = new Element('emails', [], false);
+
+      before(function() {
+        element.add('0', '').edit('0', { home: 'home@example.com' });
+      });
+
+      it('adds the new embedded element', function() {
+        expect(element.elements[0].key).to.equal('0');
+        expect(element.elements[0].elements[0].key).to.equal('home');
+        expect(element.elements[0].elements[0].value).to.equal('home@example.com');
+      });
+
+      it('sets the absolute path of the new element', function() {
+        expect(element.elements[0].absolutePath).to.equal('emails.0');
+        expect(element.elements[0].elements[0].absolutePath).to.equal('emails.0.home');
+      });
+
+      it('flags the new elements as added', function() {
+        expect(element.elements[0].isAdded()).to.equal(true);
+        expect(element.elements[0].elements[0].isAdded()).to.equal(true);
+      });
+
+      it('does not flag the new elements as edited', function() {
+        expect(element.elements[0].isEdited()).to.equal(false);
+        expect(element.elements[0].elements[0].isEdited()).to.equal(false);
+      });
+    });
   });
 
   describe('#new', function() {

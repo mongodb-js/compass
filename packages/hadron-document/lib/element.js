@@ -15,9 +15,13 @@ class Element {
    *
    * @param {String} key - The element key.
    * @param {Object} value - The value.
+   *
+   * @returns {Element} The new element.
    */
   add(key, value) {
-    this.elements.push(new Element(key, value, true, this));
+    var newElement = new Element(key, value, true, this);
+    this.elements.push(newElement);
+    return newElement;
   }
 
   /**
@@ -74,7 +78,7 @@ class Element {
    * @returns {Boolean} If the element is newly added.
    */
   isAdded() {
-    return this.added;
+    return this.added || (this.parentElement && this.parentElement.isAdded());
   }
 
   /**
@@ -84,7 +88,7 @@ class Element {
    * @returns {Boolean} If the element is edited.
    */
   isEdited() {
-    return this.key !== this.currentKey || this.value !== this.currentValue;
+    return (this.key !== this.currentKey || this.value !== this.currentValue) && !this.isAdded();
   }
 
   /**
