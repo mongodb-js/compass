@@ -5,9 +5,7 @@
         h4 Query Performance Summary
         .row
           .col-md-4
-            i.help(data-hook='index-usage')
             span.index-message(data-hook='index-message-container')
-              //- i(data-hook='index-message-icon')
               span(data-hook='index-message-text')                
             .index-definition
               div(data-hook='link-to-indexes-container')
@@ -16,29 +14,42 @@
                 div(data-hook='index-definition-subview')
           .col-md-4
             .stat
-              i.help
+              i.link(data-link='totalKeysExamined')
               span.stat-label Index Keys Examined: 
               span.stat-value(data-hook='total-keys-examined')
             .stat
-              i.help
-              span.stat-label Document Examined: 
+              i.link(data-link='totalDocsExamined')
+              span.stat-label Documents Examined: 
               span.stat-value(data-hook='total-docs-examined')       
             .stat
-              i.help
+              i.link(data-link='nReturned')
               span.stat-label Documents Returned: 
               span.stat-value(data-hook='n-returned')
           .col-md-4
             .stat
-              i.help
+              i.link(data-link='executionTimeMillis')
               span.stat-label Query Execution Time (ms): 
               span.stat-value(data-hook='execution-time-millis')
             .stat
-              i.help
+              i.link
               span.stat-label Sorted in Memory: 
               span.stat-value(data-hook='in-memory-sort')       
 
-      .detail-container
-        h4 Raw Explain Output
+      hr
+      .details-container
+        h4 Explain Plan Details
+        .row
+          .col-md-12
+            .view-switcher
+              span View As
+              .btn-group.btn-group-xs(role="group")
+                button.btn.btn-default(data-hook='json-button') Raw JSON
+                button.btn.btn-default(data-hook='tree-button') Visual Tree
+      
+      .tree-container
+        div(data-hook='tree-subview')
+
+      .json-container
         .panel.panel-default
           .panel-body
             ol.document-list(data-hook='raw-subview')

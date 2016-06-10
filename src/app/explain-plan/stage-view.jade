@@ -1,0 +1,26 @@
+.card(id='#{model.id}')
+  h3(data-hook='name')
+  
+  ul.core
+    li.key-value-pair.nReturned
+      span.key nReturned
+      span.value(data-hook='n-returned')
+    li.key-value-pair.exec-time
+      span.key Execution Time
+      span.value
+        .clock
+          .face
+            span(data-hook='exec-ms')
+            | millis
+            
+  ul.highlighted
+    each valuePair in model.highlightPairs
+      li.key-value-pair
+        span.key= valuePair[0]
+        span.value= valuePair[1]
+  
+  .details(data-hook='details')
+    h4 Details
+    .details-output
+      pre
+        code(data-hook='stage-details')
