@@ -16,6 +16,9 @@ var StageCollection = Collection.extend(lodashMixin, {
   }
 });
 
+/**
+ * This class represents the model for each of the stages.
+ */
 Stage = State.extend({
   idAttribute: 'id',
   props: {

@@ -1,9 +1,7 @@
 var View = require('ampersand-view');
 var State = require('ampersand-state');
 
-// var numeral = require('numeral');
 var _ = require('lodash');
-// var semver = require('semver');
 var app = require('ampersand-app');
 var ExplainPlanModel = require('mongodb-explain-plan-model');
 var DocumentView = require('../documents/document-list-item');
@@ -22,7 +20,7 @@ var DocumentModel = State.extend({
 });
 
 /**
- * View of the entire Indexes Table
+ * View of the entire Explain Plan view
  */
 module.exports = View.extend({
   template: require('./index.jade'),
@@ -156,16 +154,6 @@ module.exports = View.extend({
           'COVERED': 'color: green;'
         }
       }
-      // {
-      //   hook: 'index-message-icon',
-      //   type: function(el, value) {
-      //     if (value === 'COLLSCAN') {
-      //       el.className = 'mms-icon-remove';
-      //     } else {
-      //       el.className = 'mms-icon-check';
-      //     }
-      //   }
-      // }
     ],
     'inMemorySort': {
       hook: 'in-memory-sort'
@@ -176,7 +164,6 @@ module.exports = View.extend({
   },
   children: {
     explainPlan: ExplainPlanModel
-    // rawDocumentModel: DocumentModel
   },
   initialize: function() {
     this.listenTo(this.model, 'sync', this.onModelSynced.bind(this));
