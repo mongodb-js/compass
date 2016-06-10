@@ -34,6 +34,10 @@ class Document {
     this.elements = this._generateElements();
   }
 
+  isAdded() {
+    return false;
+  }
+
   /**
    * The document object is always the root object.
    *

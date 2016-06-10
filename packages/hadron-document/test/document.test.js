@@ -281,4 +281,57 @@ describe('Document', function() {
       });
     });
   });
+
+  /**
+   * Functional test that mirros the mockups for the document edit screen.
+   */
+  context('when editing an existing document', function() {
+    var object = {
+      address: {
+        postal_code: '72550'
+      },
+      email: 'test@example.com'
+    };
+    var doc = new Document(object);
+    var address = doc.elements[0];
+    var postalCode = address.elements[0];
+    var email = doc.elements[1];
+
+    it('sets the postal code edit', function() {
+      postalCode.edit('postal_code', 72550);
+      expect(postalCode.value).to.equal('72550');
+      expect(postalCode.currentValue).to.equal(72550);
+      expect(postalCode.isEdited()).to.equal(true);
+    });
+
+    it('adds the state to the address', function() {
+      var state = address.add('state', 'CA');
+      expect(state.key).to.equal('state');
+      expect(state.value).to.equal('CA');
+      expect(state.isAdded()).to.equal(true);
+    });
+
+    it('changes the email to an embedded document', function() {
+      email.edit('emails', {});
+      expect(email.key).to.equal('email');
+      expect(email.currentKey).to.equal('emails');
+      expect(email.elements.length).to.equal(0);
+    });
+
+    it('adds the home email element', function() {
+      var home = email.add('home', 'home@example.com');
+      expect(email.elements.length).to.equal(1);
+      expect(home.key).to.equal('home');
+      expect(home.value).to.equal('home@example.com');
+      expect(home.isAdded()).to.equal(true);
+    });
+
+    it('adds the work email element', function() {
+      var work = email.add('work', 'work@example.com');
+      expect(email.elements.length).to.equal(2);
+      expect(work.key).to.equal('work');
+      expect(work.value).to.equal('work@example.com');
+      expect(work.isAdded()).to.equal(true);
+    });
+  });
 });
