@@ -18,7 +18,7 @@ class Document {
    * @returns {Element} The new element.
    */
   add(key, value) {
-    var newElement = new Element(key, value, true);
+    var newElement = new Element(key, value, true, this);
     this.elements.push(newElement);
     return newElement;
   }
@@ -35,13 +35,22 @@ class Document {
   }
 
   /**
+   * The document object is always the root object.
+   *
+   * @returns {true} Always true.
+   */
+  isRoot() {
+    return true;
+  }
+
+  /**
    * Generates a sequence of elements.
    *
    * @returns {Array} The elements.
    */
   _generateElements() {
     return map(keys(this.doc), (key) => {
-      return new Element(key, this.doc[key], false);
+      return new Element(key, this.doc[key], false, this);
     });
   }
 }

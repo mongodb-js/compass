@@ -30,7 +30,7 @@ class Element {
    * @returns {String} The absolute path.
    */
   get absolutePath() {
-    return this.parentElement ? `${this.parentElement.absolutePath}.${this.key}` : this.key;
+    return !this.parentElement.isRoot() ? `${this.parentElement.absolutePath}.${this.key}` : this.key;
   }
 
   /**
@@ -101,6 +101,15 @@ class Element {
   }
 
   /**
+   * Elements themselves are not the root.
+   *
+   * @returns {false} Always false.
+   */
+  isRoot() {
+    return false;
+  }
+
+  /**
    * Flag the element for removal.
    */
   remove() {
@@ -112,10 +121,16 @@ class Element {
    * Revert the changes to the element.
    */
   revert() {
-    this.currentKey = this.key;
-    this.currentValue = this.value;
-    this._removeAddedElements();
-    this.removed = false;
+    if (this.isAdded()) {
+      removeValues(this.parentElement.elements, (element) => {
+        return element === this;
+      });
+    } else {
+      this.currentKey = this.key;
+      this.currentValue = this.value;
+      this._removeAddedElements();
+      this.removed = false;
+    }
   }
 
   /**

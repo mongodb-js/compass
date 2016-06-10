@@ -2,12 +2,14 @@
 
 const chai = require('chai');
 const expect = chai.expect;
+const Document = require('../lib/document');
 const Element = require('../lib/element');
 
 describe('Element', function() {
   describe('#add', function() {
     context('when the new embedded element is a document', function() {
-      var element = new Element('email', { work: 'work@example.com' }, false);
+      var doc = new Document({});
+      var element = new Element('email', { work: 'work@example.com' }, false, doc);
 
       before(function() {
         element.add('home', 'home@example.com');
@@ -28,7 +30,8 @@ describe('Element', function() {
     });
 
     context('when the embedded element is an array', function() {
-      var element = new Element('emails', [ 'work@example.com' ], false);
+      var doc = new Document({});
+      var element = new Element('emails', [ 'work@example.com' ], false, doc);
 
       before(function() {
         element.add('1', 'home@example.com');
@@ -49,7 +52,8 @@ describe('Element', function() {
     });
 
     context('when the embedded element is an array of embedded documents', function() {
-      var element = new Element('emails', [], false);
+      var doc = new Document({});
+      var element = new Element('emails', [], false, doc);
 
       before(function() {
         element.add('0', '').edit('0', { home: 'home@example.com' });
@@ -400,6 +404,19 @@ describe('Element', function() {
       it('sets the elements back to the original', function() {
         expect(element.elements.length).to.equal(1);
         expect(element.elements[0].key).to.equal('work');
+      });
+    });
+
+    context('when the element itself has been added', function() {
+      var doc = new Document({});
+      var element = doc.add('name', 'Aphex Twin');
+
+      before(function() {
+        element.revert();
+      });
+
+      it('removes the element from the parent document', function() {
+        expect(doc.elements.length).to.equal(0);
       });
     });
   });
