@@ -3,8 +3,58 @@
 const chai = require('chai');
 const expect = chai.expect;
 const Document = require('../lib/document');
+const SharedExamples = require('./shared-examples');
 
 describe('Document', function() {
+  describe('.add', function() {
+    context('when the new element is a primitive value', function() {
+      var doc = new Document({});
+
+      before(function() {
+        doc.add('name', 'Aphex Twin');
+      });
+
+      it('adds the new element', function() {
+        expect(doc.elements[0].key).to.equal('name');
+        expect(doc.elements[0].value).to.equal('Aphex Twin');
+      });
+
+      it('sets the absolute path of the new element', function() {
+        expect(doc.elements[0].absolutePath).to.equal('name');
+      });
+
+      it('flags the new element as added', function() {
+        expect(doc.elements[0].isAdded()).to.equal(true);
+      });
+    });
+
+    context('when the new embedded element is a document', function() {
+      context('when setting directly', function() {
+        before(function() {
+          this.doc = new Document({});
+          this.doc.add('email', { home: 'home@example.com' });
+        });
+
+        SharedExamples.itAddsTheEmbeddedDocumentElementToTheRootDocument();
+      });
+
+      context('when adding the embedded document then the first element', function() {
+        before(function() {
+          this.doc = new Document({});
+          this.doc.add('email', {}).add('home','home@example.com');
+        });
+
+        SharedExamples.itAddsTheEmbeddedDocumentElementToTheRootDocument();
+      });
+    });
+
+    context('when the embedded element is an array', function() {
+    });
+
+    context('when the embedded element is an array of embedded documents', function() {
+    });
+  });
+
   describe('.new', function() {
     context('when the document is flat', function() {
       var object = { name: 'Aphex Twin' };

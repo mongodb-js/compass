@@ -9,9 +9,20 @@ const Element = require('./element');
  */
 class Document {
 
-  add() {
-
+  /**
+   * Add a new element to this document.
+   *
+   * @param {String} key - The element key.
+   * @param {Object} value - The value.
+   *
+   * @returns {Element} The new element.
+   */
+  add(key, value) {
+    var newElement = new Element(key, value, true);
+    this.elements.push(newElement);
+    return newElement;
   }
+
 
   /**
    * Create the new document from the provided object.
