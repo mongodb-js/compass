@@ -126,16 +126,91 @@ describe('Element', function() {
           });
         });
 
+        context('when the value is changed to an empty embedded document', function() {
+          var element = new Element('email', 'test@example.com', false);
+
+          before(function() {
+            element.edit('email', {});
+          });
+
+          it('changes the document to an embedded document', function() {
+            expect(element.elements.length).to.equal(0);
+          });
+
+          it('removes the current value', function() {
+            expect(element.currentValue).to.equal(null);
+          });
+
+          it('keeps the original value as the primitive', function() {
+            expect(element.value).to.equal('test@example.com');
+          });
+
+          it('flags the element as edited', function() {
+            expect(element.isEdited()).to.equal(true);
+          });
+        });
+
         context('when the value is changed to an embedded document', function() {
           var element = new Element('email', 'test@example.com', false);
 
           before(function() {
-            element.edit('email', { home: 'test@example.com' });
+            element.edit('email', { home: 'home@example.com' });
           });
 
           it('changes the document to an embedded document', function() {
             expect(element.elements.length).to.equal(1);
             expect(element.elements[0].key).to.equal('home');
+            expect(element.elements[0].value).to.equal('home@example.com');
+          });
+
+          it('removes the current value', function() {
+            expect(element.currentValue).to.equal(null);
+          });
+
+          it('keeps the original value as the primitive', function() {
+            expect(element.value).to.equal('test@example.com');
+          });
+
+          it('flags the element as edited', function() {
+            expect(element.isEdited()).to.equal(true);
+          });
+        });
+
+        context('when the value is changed to an empty array', function() {
+          var element = new Element('email', 'test@example.com', false);
+
+          before(function() {
+            element.edit('emails', []);
+          });
+
+          it('changes the document to an embedded document', function() {
+            expect(element.elements.length).to.equal(0);
+          });
+
+          it('removes the current value', function() {
+            expect(element.currentValue).to.equal(null);
+          });
+
+          it('keeps the original value as the primitive', function() {
+            expect(element.value).to.equal('test@example.com');
+          });
+
+          it('flags the element as edited', function() {
+            expect(element.isEdited()).to.equal(true);
+          });
+        });
+
+        context('when the value is changed to an array', function() {
+          var element = new Element('email', 'test@example.com', false);
+
+          before(function() {
+            element.edit('emails', [ 'home@example.com' ]);
+          });
+
+          it('changes the document to an embedded document', function() {
+            expect(element.elements.length).to.equal(1);
+            expect(element.elements[0].key).to.equal('0');
+            expect(element.elements[0].value).to.equal('home@example.com');
           });
 
           it('removes the current value', function() {
