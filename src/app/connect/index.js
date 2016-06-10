@@ -33,6 +33,11 @@ var indexTemplate = require('./index.jade');
  */
 var sslMethods = require('./ssl');
 
+/**
+ * SshTunnelOptionCollection
+ */
+var sshTunnelMethods = require('./ssh-tunnel');
+
 var ConnectView = View.extend({
   template: indexTemplate,
   screenName: 'Connect',
@@ -76,6 +81,14 @@ var ConnectView = View.extend({
       type: 'string',
       default: null
     },
+    sshTunnelMethod: {
+      type: 'string',
+      default: 'NONE'
+    },
+    previousSshTunnelMethod: {
+      type: 'string',
+      default: null
+    },
     clipboardText: {
       type: 'string',
       default: ''
@@ -107,6 +120,7 @@ var ConnectView = View.extend({
   events: {
     'change select[name=authentication]': 'onAuthMethodChanged',
     'change select[name=ssl]': 'onSslMethodChanged',
+    'change select[name=ssh_tunnel]': 'onSshTunnelMethodChanged',
     'click [data-hook=create-favorite-button]': 'onCreateFavoriteClicked',
     'click [data-hook=remove-favorite-button]': 'onRemoveFavoriteClicked',
     'click [data-hook=save-changes-button]': 'onSaveChangesClicked',
@@ -132,6 +146,10 @@ var ConnectView = View.extend({
 
   onSslMethodChanged: function(evt) {
     this.sslMethod = evt.target.value;
+  },
+
+  onSshTunnelMethodChanged: function(evt) {
+    this.sshTunnelMethod = evt.target.value;
   },
 
   onNameInputChanged: function(evt) {
@@ -232,7 +250,8 @@ var ConnectView = View.extend({
   render: function() {
     this.renderWithTemplate({
       authMethods: authMethods.serialize(),
-      sslMethods: sslMethods.serialize()
+      sslMethods: sslMethods.serialize(),
+      sshTunnelMethods: sshTunnelMethods.serialize()
     });
 
     this.form = new ConnectFormView({
@@ -249,6 +268,9 @@ var ConnectView = View.extend({
 
     this.listenToAndRun(this, 'change:sslMethod',
       this.replaceSslMethodFields.bind(this));
+
+    this.listenToAndRun(this, 'change:sshTunnelMethod',
+      this.replaceSshTunnelMethodFields.bind(this));
 
     this.listenToAndRun(app, 'connect-window-focused',
       this.onConnectWindowFocused.bind(this));
@@ -484,16 +506,20 @@ var ConnectView = View.extend({
     // the correct tab.
     this.authMethod = this.connection.authentication;
     this.sslMethod = this.connection.ssl;
+    this.sshTunnelMethod = this.connection.ssh_tunnel;
 
     // Changing `this.authMethod` and `this.sslMethod` dynamically updates
     // the form fields so we need to get a list of what keys are currently
     // available to set.
-    var keys = ['name', 'port', 'hostname', 'authentication', 'ssl'];
+    var keys = ['name', 'port', 'hostname', 'authentication', 'ssl', 'ssh_tunnel'];
     if (this.connection.authentication !== 'NONE') {
       keys.push.apply(keys, _.pluck(authMethods.get(this.authMethod).fields, 'name'));
     }
     if (this.connection.ssl !== 'NONE') {
       keys.push.apply(keys, _.pluck(sslMethods.get(this.sslMethod).fields, 'name'));
+    }
+    if (this.connection.ssh_tunnel !== 'NONE') {
+      keys.push.apply(keys, _.pluck(sshTunnelMethods.get(this.sshTunnelMethod).fields, 'name'));
     }
 
     // make connection active, and (implicitly) all others inactive
@@ -570,6 +596,26 @@ var ConnectView = View.extend({
     }.bind(this));
 
     this.previousSslMethod = this.sslMethod;
+  },
+
+  /**
+   * called when this.sshTunnelMethod changes. Replaces the fields in `this.form`.
+   */
+  replaceSshTunnelMethodFields: function() {
+    // remove and unregister old fields
+    var oldFields = _.get(sshTunnelMethods.get(this.previousSshTunnelMethod), 'fields', []);
+    _.each(oldFields, function(field) {
+      this.form.removeField(field.name);
+    }.bind(this));
+
+    // register new with form, render, append to DOM
+    var newFields = sshTunnelMethods.get(this.sshTunnelMethod).fields;
+    _.each(newFields, function(field) {
+      this.form.addField(field.render());
+      this.query('#ssh_tunnel-' + this.sshTunnelMethod).appendChild(field.el);
+    }.bind(this));
+
+    this.previousSshTunnelMethod = this.sshTunnelMethod;
   }
 
 });

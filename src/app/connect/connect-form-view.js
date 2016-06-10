@@ -3,6 +3,7 @@ var InputView = require('./input-view');
 var SelectView = require('ampersand-select-view');
 var authOptions = require('./authentication');
 var sslOptions = require('./ssl');
+var sshTunnelOptions = require('./ssh-tunnel');
 var FilteredCollection = require('ampersand-filtered-subcollection');
 // var debug = require('debug')('mongodb-compass:connect:connect-form-view');
 
@@ -15,12 +16,18 @@ var enabledAuthOptions = new FilteredCollection(authOptions, {
     enabled: true
   }
 });
+
 var enabledSslOptions = new FilteredCollection(sslOptions, {
   where: {
     enabled: true
   }
 });
 
+var enabledSshTunnelOptions = new FilteredCollection(sshTunnelOptions, {
+  where: {
+    enabled: true
+  }
+});
 
 /**
  * special input view that validates against a list of conflicting values, which can be
@@ -61,6 +68,9 @@ var ConnectFormView = FormView.extend({
     // fill in all default fields
     obj.hostname = obj.hostname.toLowerCase() || 'localhost';
     obj.port = parseInt(obj.port || 27017, 10);
+    if (obj.ssh_tunnel_port) {
+      obj.ssh_tunnel_port = parseInt(obj.ssh_tunnel_port, 10);
+    }
 
     // make a friendly connection name
     // this.makeFriendlyName(obj);
@@ -153,6 +163,19 @@ var ConnectFormView = FormView.extend({
         textAttribute: 'title',
         // here you can specify if it should return the selected model from the
         // collection, or just the id attribute.  defaults `true`
+        yieldModel: false
+      }),
+      // SSH Tunnel select subview.
+      new SelectView({
+        name: 'ssh_tunnel',
+        label: 'SSH Tunnel',
+        el: this.parent.queryByHook('ssh_tunnel-select-subview'),
+        template: selectTemplate(),
+        parent: this,
+        options: enabledSshTunnelOptions,
+        value: enabledSshTunnelOptions.get('NONE'),
+        idAttribute: '_id',
+        textAttribute: 'title',
         yieldModel: false
       }),
       // connection name field

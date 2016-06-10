@@ -396,9 +396,8 @@ app.extend({
         message: 'Connecting to MongoDB...'
       });
 
-      var connection = state.connection.serialize();
       var DataService = require('mongodb-data-service');
-      app.dataService = new DataService(connection)
+      app.dataService = new DataService(state.connection)
         .on(DataService.Events.Readable, state.onClientReady.bind(state))
         .on(DataService.Events.Error, state.onFatalError.bind(state, 'create client'));
 
