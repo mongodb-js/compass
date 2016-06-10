@@ -52,9 +52,43 @@ describe('Document', function() {
     });
 
     context('when the embedded element is an array', function() {
+      context('when setting directly', function() {
+        before(function() {
+          this.doc = new Document({});
+          this.doc.add('emails', [ 'home@example.com' ]);
+        });
+
+        SharedExamples.itAddsTheArrayElementToTheRootDocument();
+      });
+
+      context('when adding the array and then the first element', function() {
+        before(function() {
+          this.doc = new Document({});
+          this.doc.add('emails', []).add('0', 'home@example.com');
+        });
+
+        SharedExamples.itAddsTheArrayElementToTheRootDocument();
+      });
     });
 
     context('when the embedded element is an array of embedded documents', function() {
+      context('when setting directly', function() {
+        before(function() {
+          this.doc = new Document({});
+          this.doc.add('emails', [{ home: 'home@example.com' }]);
+        });
+
+        SharedExamples.itAddsTheEmbeddedArrayElementToTheRootDocument();
+      });
+
+      context('when adding the array and then the first element', function() {
+        before(function() {
+          this.doc = new Document({});
+          this.doc.add('emails', []).add('0', {}).add('home', 'home@example.com');
+        });
+
+        SharedExamples.itAddsTheEmbeddedArrayElementToTheRootDocument();
+      });
     });
   });
 

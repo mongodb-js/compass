@@ -33,6 +33,60 @@ class SharedExamples {
       expect(this.doc.elements[0].elements[0].isAdded()).to.equal(true);
     });
   }
+
+  /**
+   * Example for testing an array getting added to the root document.
+   */
+  itAddsTheArrayElementToTheRootDocument() {
+    it('adds the new element', function() {
+      expect(this.doc.elements[0].key).to.equal('emails');
+    });
+
+    it('adds the new embedded element', function() {
+      expect(this.doc.elements[0].elements[0].key).to.equal('0');
+    });
+
+    it('sets the new embedded element value', function() {
+      expect(this.doc.elements[0].elements[0].value).to.equal('home@example.com');
+    });
+
+    it('sets the absolute path of the new element', function() {
+      expect(this.doc.elements[0].elements[0].absolutePath).to.equal('emails.0');
+    });
+
+    it('flags the new element as added', function() {
+      expect(this.doc.elements[0].elements[0].isAdded()).to.equal(true);
+    });
+  }
+
+  /**
+   * Example for testing an array of embedded documents getting added to the root document.
+   */
+  itAddsTheEmbeddedArrayElementToTheRootDocument() {
+    it('adds the new element', function() {
+      expect(this.doc.elements[0].key).to.equal('emails');
+    });
+
+    it('adds the new embedded element', function() {
+      expect(this.doc.elements[0].elements[0].key).to.equal('0');
+    });
+
+    it('sets the new embedded element document key', function() {
+      expect(this.doc.elements[0].elements[0].elements[0].key).to.equal('home');
+    });
+
+    it('sets the new embedded element document value', function() {
+      expect(this.doc.elements[0].elements[0].elements[0].value).to.equal('home@example.com');
+    });
+
+    it('sets the absolute path of the new element', function() {
+      expect(this.doc.elements[0].elements[0].elements[0].absolutePath).to.equal('emails.0.home');
+    });
+
+    it('flags the new element as added', function() {
+      expect(this.doc.elements[0].elements[0].elements[0].isAdded()).to.equal(true);
+    });
+  }
 }
 
 module.exports = new SharedExamples();
