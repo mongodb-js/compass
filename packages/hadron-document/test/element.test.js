@@ -106,22 +106,49 @@ describe('Element', function() {
   describe('#edit', function() {
     context('when the element is not a document', function() {
       context('when the value is changed', function() {
-        var element = new Element('name', 'Aphex Twin', false);
+        context('when the value is changed to another primitive', function() {
+          var element = new Element('name', 'Aphex Twin', false);
 
-        before(function() {
-          element.edit('name', 'APX');
+          before(function() {
+            element.edit('name', 'APX');
+          });
+
+          it('updates the current value', function() {
+            expect(element.currentValue).to.equal('APX');
+          });
+
+          it('does not modify the original', function() {
+            expect(element.value).to.equal('Aphex Twin');
+          });
+
+          it('flags the element as edited', function() {
+            expect(element.isEdited()).to.equal(true);
+          });
         });
 
-        it('updates the current value', function() {
-          expect(element.currentValue).to.equal('APX');
-        });
+        context('when the value is changed to an embedded document', function() {
+          var element = new Element('email', 'test@example.com', false);
 
-        it('does not modify the original', function() {
-          expect(element.value).to.equal('Aphex Twin');
-        });
+          before(function() {
+            element.edit('email', { home: 'test@example.com' });
+          });
 
-        it('flags the element as edited', function() {
-          expect(element.isEdited()).to.equal(true);
+          it('changes the document to an embedded document', function() {
+            expect(element.elements.length).to.equal(1);
+            expect(element.elements[0].key).to.equal('home');
+          });
+
+          it('removes the current value', function() {
+            expect(element.currentValue).to.equal(null);
+          });
+
+          it('keeps the original value as the primitive', function() {
+            expect(element.value).to.equal('test@example.com');
+          });
+
+          it('flags the element as edited', function() {
+            expect(element.isEdited()).to.equal(true);
+          });
         });
       });
 

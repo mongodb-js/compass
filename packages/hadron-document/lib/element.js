@@ -60,7 +60,12 @@ class Element {
    */
   edit(key, value) {
     this.currentKey = key;
-    this.currentValue = value;
+    if (isObject(value) && !isObject(this.currentValue)) {
+      this.currentValue = null;
+      this.elements = this._generateElements(value);
+    } else {
+      this.currentValue = value;
+    }
   }
 
   /**
