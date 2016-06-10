@@ -35,11 +35,6 @@ Application.prototype.setupAutoUpdate = function() {
      * path.join(__dirname, '..', 'resources', 'mongodb-compass.png')
      */
   );
-
-  this.autoUpdateManager.on('state-change', function(newState) {
-    debug('new state', newState);
-  });
-
   this.autoUpdateManager.on('checking-for-update', function() {
     ipc.broadcast('app:checking-for-update');
   });
@@ -49,10 +44,17 @@ Application.prototype.setupAutoUpdate = function() {
   });
 
   this.autoUpdateManager.on('update-available', function() {
+    debug('broadcasting app:update-available');
     ipc.broadcast('app:update-available');
   });
 
+  this.autoUpdateManager.on('error', function(err) {
+    // handle error silently.
+    debug('auto update error encountered:', err);
+  });
+
   this.autoUpdateManager.on('update-downloaded', function() {
+    debug('broadcasting app:update-downloaded');
     ipc.broadcast('app:update-downloaded', {
       releaseNotes: this.autoUpdateManager.releaseNotes,
       releaseVersion: this.autoUpdateManager.releaseVersion
@@ -61,16 +63,24 @@ Application.prototype.setupAutoUpdate = function() {
 
   var updateManager = this.autoUpdateManager;
   ipc.respondTo({
+    'app:download-update': function() {
+      debug('respond to app:download-update');
+      updateManager.download();
+    },
     'app:install-update': function() {
+      debug('respond to app:install-update');
       updateManager.install();
     },
     'app:enable-auto-update': function() {
+      debug('respond to app:enable-auto-update');
       updateManager.enable();
     },
     'app:disable-auto-update': function() {
+      debug('respond to app:disable-auto-update');
       updateManager.disable();
     },
     'app:check-for-update': function() {
+      debug('respond to app:check-for-update');
       updateManager.check();
     }
   });
@@ -97,13 +107,6 @@ Application.prototype.setupLifecycleListeners = function() {
     debug('All windows closed.  Quitting app.');
     app.quit();
   });
-};
-
-Application.prototype.setupApplicationMenu = function() {
-  // this.applicationMenu = new ApplicationMenu({
-  //   autoUpdateManager: this.autoUpdateManager
-  // });
-  require('./menu').init();
 };
 
 Application.prototype.setupUserDirectory = function() {
