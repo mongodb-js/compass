@@ -1,15 +1,61 @@
 .explain-container {
 
-  .summary-container, .detail-container {
-    margin: 20px 0;
+  .summary-container {
+    background: @pw;
+    padding: 12px;
+
+    h3 {
+      text-transform: capitalize;
+      font-weight: bold;
+      font-size: 16px;
+      margin: 6px 0 12px;
+      color: @gray1;
+    }
+
+    .stat {
+      font-size: 12px;
+      padding: 6px 0;
+      border-top: 1px solid @gray7;
+    }
+
+    .stat .stat-label {
+      color: @gray4;
+    }
+
+    .stat .stat-value {
+      color: @gray0;
+      font-weight: bold;
+      margin-left: 6px;
+    }
+
+    .stat.nReturned .stat-value {
+      color: @pw;
+      background: @chart1;
+      font-weight: bold;
+      padding: 2px 6px;
+      font-size: 12px;
+      line-height: 1;
+      border-radius: 20px;
+    }
+
+    .index-definition {
+      margin-top: 0;
+    }
+
+    .summary-stats {
+      width: 250px;
+      float: left;
+      margin-right: 24px;
+    }
+
   }
 
   i.link {
     .fa-icon;
     margin-right: 5px;
     cursor: pointer;
-    color: @gray5;
-    font-size: 14px;
+    color: @gray6;
+    font-size: 12px;
 
     &:hover {
       color: @alertOrange;
@@ -20,7 +66,10 @@
   }
 
   .view-switcher {
-    margin: 10px 0 20px 0;
+    padding: 6px 0;
+    margin-bottom: 24px;
+    border-top: 1px solid @gray7;
+    border-bottom: 1px solid @gray7;
 
     span {
       margin-right: 7px;
@@ -32,18 +81,6 @@
     button:focus {
       outline-style: none;
     }
-  }
-
-  .stat .stat-label {
-    color: @gray4;
-  }
-
-  .stat .stat-value {
-    font-size: 15px;
-  }
-
-  .index-definition {
-    margin-top: 10px;
   }
 
   .stages-container {
@@ -60,6 +97,7 @@
       border-radius: 3px;
       padding: 18px 12px;
       box-shadow: 0px 2px 0px rgba(0,0,0,0.06);
+      transition: all 250ms ease-out;
 
       &:hover {
         box-shadow: 0px 4px 2px rgba(0,0,0,0.12);
@@ -70,7 +108,7 @@
         font-weight: bold;
         font-size: 14px;
         margin: 0;
-        color: #464C4F;
+        color: @gray1;
       }
 
       ul {
@@ -81,11 +119,11 @@
       }
 
       ul li span.key {
-        color: #999;
+        color: @gray4;
       }
 
       ul li span.value {
-        color: #333333;
+        color: @gray1;
         font-weight: bold;
       }
 
@@ -104,8 +142,8 @@
       }
 
       ul.core li.nReturned .value {
-        color: #fff;
-        background: #43B1E5;
+        color: @pw;
+        background: @chart1;
         font-weight: bold;
         padding: 2px 6px;
         font-size: 12px;
@@ -119,7 +157,7 @@
       }
 
       ul.highlighted li {
-        border-top: 1px solid #dddddd;
+        border-top: 1px solid @gray7;
         padding: 11px 0;
       }
 
@@ -134,7 +172,7 @@
       .face {
         background: #fff url(images/explain-card-clockface.png) -1px -1px no-repeat;
         background-size: 48px 48px;
-        border: 1px solid #dddddd;
+        border: 1px solid @gray6;
         border-radius: 24px;
         font-size: 10px;
         height: 48px;
@@ -147,7 +185,7 @@
       }
 
       .face:hover {
-        /*border-color: #bbb;*/
+
       }
 
       .face span {
@@ -155,8 +193,7 @@
         font-size: 14px;
         font-weight: normal;
         margin-top: 11px;
-        color: #43B1E5;
-        // opacity: 0;
+        color: @chart1;
       }
 
       ul li span.value .clock .face {
@@ -164,12 +201,16 @@
         color: #818487;
       }
 
+      .details {
+        transition: all 250ms ease-out;
+      }
+
       .details h4 {
         pointer-events: all;
         font-size: 12px;
         font-weight: normal;
-        border-top: 1px solid #dddddd;
-        color: #43B1E5;
+        border-top: 1px solid @gray7;
+        color: @chart1;
         padding: 11px 0;
         margin: 0;
         cursor: pointer;
@@ -184,8 +225,8 @@
       }
 
       .details-output {
-        // padding: 12px;
-        // background: #f4f6f7;
+        padding: 6px;
+        background: @gray8;
         border-radius: 3px;
         display: none;
       }
