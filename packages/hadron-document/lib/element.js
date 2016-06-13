@@ -77,11 +77,9 @@ class Element extends EventEmitter {
   /**
    * Edit the element.
    *
-   * @param {String} key - The new key.
    * @param {Object} value - The new value.
    */
-  edit(key, value) {
-    this.currentKey = key;
+  edit(value) {
     this.currentType = TypeChecker.type(value);
     if (this._isExpandable(value) && !this._isExpandable(this.currentValue)) {
       this.currentValue = null;
@@ -89,6 +87,16 @@ class Element extends EventEmitter {
     } else {
       this.currentValue = value;
     }
+    this.emit(Events.Edited);
+  }
+
+  /**
+   * Rename the element.
+   *
+   * @param {String} key - The new key.
+   */
+  rename(key) {
+    this.currentKey = key;
     this.emit(Events.Edited);
   }
 

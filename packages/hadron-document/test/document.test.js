@@ -298,7 +298,7 @@ describe('Document', function() {
     var email = doc.elements[1];
 
     it('sets the postal code edit', function() {
-      postalCode.edit('postal_code', 72550);
+      postalCode.edit(72550);
       expect(postalCode.value).to.equal('72550');
       expect(postalCode.currentValue).to.equal(72550);
       expect(postalCode.isEdited()).to.equal(true);
@@ -312,7 +312,8 @@ describe('Document', function() {
     });
 
     it('changes the email to an embedded document', function() {
-      email.edit('emails', {});
+      email.rename('emails');
+      email.edit({});
       expect(email.key).to.equal('email');
       expect(email.currentKey).to.equal('emails');
       expect(email.elements.length).to.equal(0);

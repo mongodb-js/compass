@@ -56,7 +56,7 @@ describe('Element', function() {
       var element = new Element('emails', [], false, doc);
 
       before(function() {
-        element.add('0', '').edit('0', { home: 'home@example.com' });
+        element.add('0', '').edit({ home: 'home@example.com' });
       });
 
       it('adds the new embedded element', function() {
@@ -167,7 +167,7 @@ describe('Element', function() {
           var element = new Element('name', 'Aphex Twin', false);
 
           before(function() {
-            element.edit('name', 'APX');
+            element.edit('APX');
           });
 
           it('updates the current value', function() {
@@ -187,7 +187,7 @@ describe('Element', function() {
           var element = new Element('email', 'test@example.com', false);
 
           before(function() {
-            element.edit('email', {});
+            element.edit({});
           });
 
           it('changes the document to an embedded document', function() {
@@ -215,7 +215,7 @@ describe('Element', function() {
           var element = new Element('email', 'test@example.com', false);
 
           before(function() {
-            element.edit('email', { home: 'home@example.com' });
+            element.edit({ home: 'home@example.com' });
           });
 
           it('changes the document to an embedded document', function() {
@@ -245,7 +245,7 @@ describe('Element', function() {
           var element = new Element('email', 'test@example.com', false);
 
           before(function() {
-            element.edit('emails', []);
+            element.edit([]);
           });
 
           it('changes the document to an embedded document', function() {
@@ -273,7 +273,7 @@ describe('Element', function() {
           var element = new Element('email', 'test@example.com', false);
 
           before(function() {
-            element.edit('emails', [ 'home@example.com' ]);
+            element.edit([ 'home@example.com' ]);
           });
 
           it('changes the document to an embedded document', function() {
@@ -300,39 +300,11 @@ describe('Element', function() {
         });
       });
 
-      context('when the key is changed', function() {
+      context('when the value is changed', function() {
         var element = new Element('name', 'Aphex Twin', false);
 
         before(function() {
-          element.edit('alias', 'Aphex Twin');
-        });
-
-        it('updates the current key', function() {
-          expect(element.currentKey).to.equal('alias');
-        });
-
-        it('does not modify the original', function() {
-          expect(element.key).to.equal('name');
-        });
-
-        it('flags the element as edited', function() {
-          expect(element.isEdited()).to.equal(true);
-        });
-      });
-
-      context('when the key and value are changed', function() {
-        var element = new Element('name', 'Aphex Twin', false);
-
-        before(function() {
-          element.edit('alias', 'APX');
-        });
-
-        it('updates the current key', function() {
-          expect(element.currentKey).to.equal('alias');
-        });
-
-        it('does not modify the original', function() {
-          expect(element.key).to.equal('name');
+          element.edit('APX');
         });
 
         it('updates the current value', function() {
@@ -347,6 +319,26 @@ describe('Element', function() {
           expect(element.isEdited()).to.equal(true);
         });
       });
+    });
+  });
+
+  describe('#rename', function() {
+    var element = new Element('name', 'Aphex Twin', false);
+
+    before(function() {
+      element.rename('alias');
+    });
+
+    it('updates the current key', function() {
+      expect(element.currentKey).to.equal('alias');
+    });
+
+    it('does not modify the original', function() {
+      expect(element.key).to.equal('name');
+    });
+
+    it('flags the element as edited', function() {
+      expect(element.isEdited()).to.equal(true);
     });
   });
 
