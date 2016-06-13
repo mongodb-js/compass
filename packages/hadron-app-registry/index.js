@@ -21,3 +21,4 @@ module.exports.Form = require('./lib/component/form');
 module.exports.GroupItem = require('./lib/component/group-item');
 module.exports.Group = require('./lib/component/group');
 module.exports.GroupedList = require('./lib/component/grouped-list');
+module.exports.TypeChecker = require('./lib/component/element/type-checker');
