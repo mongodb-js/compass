@@ -3,10 +3,14 @@
 const EventEmitter = require('events');
 const keys = require('lodash.keys');
 const map = require('lodash.map');
-const isObject = require('lodash.isobject');
+const isObject = require('lodash.isplainobject');
+const isArray = require('lodash.isarray');
 const removeValues = require('lodash.remove');
 const ObjectGenerator = require('./object-generator');
 
+/**
+ * The event constant.
+ */
 const Events = {
   'Added': 'Element::Added',
   'Edited': 'Element::Edited',
@@ -59,8 +63,7 @@ class Element extends EventEmitter {
     this.added = added;
     this.removed = false;
 
-    // Need to check only array and object.
-    if (isObject(value)) {
+    if (this._isExpandable(value)) {
       this.elements = this._generateElements(value);
     } else {
       this.value = value;
@@ -76,7 +79,7 @@ class Element extends EventEmitter {
    */
   edit(key, value) {
     this.currentKey = key;
-    if (isObject(value) && !isObject(this.currentValue)) {
+    if (this._isExpandable(value) && !this._isExpandable(this.currentValue)) {
       this.currentValue = null;
       this.elements = this._generateElements(value);
     } else {
@@ -158,6 +161,17 @@ class Element extends EventEmitter {
       this.removed = false;
     }
     this.emit(Events.Reverted);
+  }
+
+  /**
+   * Check if the value is expandable.
+   *
+   * @param {Object} value - The value to check.
+   *
+   * @returns {Boolean} If the value is expandable.
+   */
+  _isExpandable(value) {
+    return isObject(value) || isArray(value);
   }
 
   /**
