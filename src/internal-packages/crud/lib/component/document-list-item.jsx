@@ -47,6 +47,7 @@ class DocumentListItem extends React.Component {
             <button type='button' onClick={this.deleteDocument.bind(this)}>Delete</button>
           </div>
         </ol>
+        {this.footer()}
       </li>
     );
   }
@@ -73,6 +74,10 @@ class DocumentListItem extends React.Component {
     return _.map(this.state.doc.elements, (element) => {
       return this.elementComponent(element);
     });
+  }
+
+  footer() {
+
   }
 
   /**

@@ -84,11 +84,19 @@ class EditableExpandableElement extends React.Component {
           <div className={LABEL_CLASS}>
             {this.element.currentType}
           </div>
+          <ol className={DOCUMENT_CLASS}>
+            {this.elementComponents()}
+          </ol>
         </div>
       </li>
     );
   }
 
+  /**
+   * Get the components for the elements.
+   *
+   * @returns {Array} The components.
+   */
   elementComponents() {
     return _.map(this.element.elements, (element) => {
       return React.createElement(
