@@ -4,8 +4,8 @@ const _ = require('lodash');
 const React = require('react');
 const ReactDOM = require('react-dom');
 const app = require('ampersand-app');
-const ElementFactory = require('hadron-component-registry').ElementFactory;
 const Action = require('hadron-action');
+const DocumentListItem = require('./document-list-item');
 const DocumentListStore = require('../store/document-list-store');
 
 /**
@@ -118,12 +118,6 @@ class DocumentList extends React.Component {
       // from the end of the list, we will fire the event to load more documents.
       this._nextBatch();
     }
-    // Bonus: if we have passed a certain number of docs that are out of view:
-    // this._unloadPreviousBatch();
-    // Bonus: if we are scrolling back up and are running out of previous docs:
-    // this._previousBatch();
-    // Bonus: if we are scrolling up and docs below are out of view:
-    // this._unloadNextBatch();
   }
 
   /**
@@ -150,44 +144,7 @@ class DocumentList extends React.Component {
   }
 }
 
-/**
- * The class for the document itself.
- */
-const DOCUMENT_CLASS = 'document-property-body';
-
-/**
- * The class for the list item wrapper.
- */
-const LIST_ITEM_CLASS = 'document-list-item';
-
-/**
- * Component for a single document in a list of documents.
- */
-class DocumentListItem extends React.Component {
-
-  /**
-   * Render a single document list item.
-   */
-  render() {
-    return (
-      <li className={LIST_ITEM_CLASS}>
-        <ol className={DOCUMENT_CLASS}>
-          {ElementFactory.elements(this.props.doc)}
-        </ol>
-      </li>
-    );
-  }
-}
-
-/**
- * Set the display names for all components.
- */
 DocumentList.displayName = 'DocumentList';
-DocumentListItem.displayName = 'DocumentListItem';
-
-/**
- * Set the child components.
- */
 DocumentList.DocumentListItem = DocumentListItem;
 
 module.exports = DocumentList;
