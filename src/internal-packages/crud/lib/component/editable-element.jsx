@@ -61,12 +61,32 @@ class EditableElement extends React.Component {
         <div className='actions' onClick={this.handleRemove.bind(this)}>x</div>
         <EditableKey element={this.element} />
         :
-        <EditableValue element={this.element} />
+        {this.editableValue()}
         <div className='types'>{this.state.type}</div>
       </li>
     );
   }
 
+  editableValue() {
+    if (this.element.elements) {
+      return React.createElement('ol', {}, this.childElements());
+    }
+    return React.createElement(EditableValue, { element: this.element });
+  }
+
+  childElements() {
+    return _.map(this.element.elements, (element) => {
+      console.log(element);
+      return React.createElement(
+        EditableElement,
+        { key: `${this.element.key}_${element.key}`, element: element }
+      );
+    });
+  }
+
+  /**
+   * Handle an edit to the element.
+   */
   handleEdit() {
     this.setState({});
   }

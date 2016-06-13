@@ -58,10 +58,10 @@ class DocumentListItem extends React.Component {
   }
 
   editableElements() {
-    return _.map(this.state.doc.elements, (element, index) => {
+    return _.map(this.state.doc.elements, (element) => {
       return React.createElement(
         EditableElement,
-        { key: `${this.state.doc._id}_${element.key}`, element: element, lineNumber: index + 1 }
+        { key: `${this.state.doc._id}_${element.key}`, element: element }
       );
     });
   }
