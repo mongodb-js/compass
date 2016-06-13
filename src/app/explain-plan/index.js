@@ -64,10 +64,10 @@ module.exports = View.extend({
       deps: ['indexMessageType'],
       fn: function() {
         if (this.indexMessageType === 'COLLSCAN') {
-          return 'No index available for this query.';
+          return ' No index available for this query.';
         }
         if (this.indexMessageType === 'COVERED') {
-          return 'Query covered by index:';
+          return '<p>test</p> Query covered by index:';
         }
         return 'Query used the following index:';
       }
