@@ -1,7 +1,6 @@
 'use strict';
 
 const React = require('react');
-const TypeChecker = require('hadron-component-registry').TypeChecker;
 const Element = require('hadron-document').Element;
 const EditableKey = require('./editable-key');
 const EditableValue = require('./editable-value');
@@ -44,8 +43,6 @@ class EditableElement extends React.Component {
   constructor(props) {
     super(props);
     this.element = props.element;
-    this.state = { type: TypeChecker.type(this.element.currentValue) };
-
     this.element.on(Element.Events.Edited, this.handleEdit.bind(this));
   }
 
@@ -61,31 +58,14 @@ class EditableElement extends React.Component {
         <div className='actions' onClick={this.handleRemove.bind(this)}>x</div>
         <EditableKey element={this.element} />
         :
-        {this.editableValue()}
-        <div className='types'>{this.state.type}</div>
+        <EditableValue element={this.element} />
+        <div className='types'>{this.element.currentType}</div>
       </li>
     );
   }
 
-  editableValue() {
-    if (this.element.elements) {
-      return React.createElement('ol', {}, this.childElements());
-    }
-    return React.createElement(EditableValue, { element: this.element });
-  }
-
-  childElements() {
-    return _.map(this.element.elements, (element) => {
-      console.log(element);
-      return React.createElement(
-        EditableElement,
-        { key: `${this.element.key}_${element.key}`, element: element }
-      );
-    });
-  }
-
   /**
-   * Handle an edit to the element.
+   * Here to re-render the component when a key or value is edited.
    */
   handleEdit() {
     this.setState({});
@@ -105,7 +85,7 @@ class EditableElement extends React.Component {
    * @returns {String} The element style.
    */
   style() {
-    var style = `${PROPERTY_CLASS} ${this.state.type.toLowerCase()}`;
+    var style = `${PROPERTY_CLASS} ${this.element.currentType.toLowerCase()}`;
     if (this.element.isAdded()) {
       style = style.concat(` ${ADDED}`);
     }
