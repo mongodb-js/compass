@@ -1,0 +1,37 @@
+{
+  "name": "hadron-type-checker",
+  "description": "Hadron Type Checker",
+  "author": "Durran Jordan <durran@gmail.com>",
+  "bugs": "https://github.com/mongodb-js/hadron-type-checker/issues",
+  "homepage": "https://github.com/mongodb-js/hadron-type-checker",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/hadron-type-checker.git"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "mongodb-js"
+  ],
+  "scripts": {
+    "ci": "npm test",
+    "fmt": "mongodb-js-fmt ./*.js ./test/*.js",
+    "test": "mocha --recursive"
+  },
+  "precommit": [
+    "check"
+  ],
+  "dependencies": {
+    "lodash.has": "^4.4.0",
+    "lodash.isarray": "^4.0.0",
+    "lodash.isplainobject": "^4.0.4"
+  },
+  "devDependencies": {
+    "chai": "^3.4.1",
+    "eslint-config-mongodb-js": "^1.0.6",
+    "mocha": "^2.3.4",
+    "mongodb-js-fmt": "^0.0.3",
+    "mongodb-js-precommit": "^0.2.8",
+    "pre-commit": "^1.1.2"
+  }
+}
