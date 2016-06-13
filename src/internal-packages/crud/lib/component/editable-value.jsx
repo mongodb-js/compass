@@ -51,7 +51,7 @@ class EditableValue extends React.Component {
    * @param {Event} evt - The event.
    */
   handleChange(evt) {
-    this.element.edit(this.element.currentKey, evt.target.value);
+    this.element.edit(evt.target.value);
     this.setState({ value: this.element.currentValue });
   }
 
