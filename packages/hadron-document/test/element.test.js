@@ -101,6 +101,14 @@ describe('Element', function() {
       it('sets the current value', function() {
         expect(element.currentValue).to.equal('Aphex Twin');
       });
+
+      it('sets the element type', function() {
+        expect(element.type).to.equal('String');
+      });
+
+      it('sets the element current type', function() {
+        expect(element.currentType).to.equal('String');
+      });
     });
 
     context('when the element is an array', function() {
@@ -117,6 +125,14 @@ describe('Element', function() {
       it('sets the elements', function() {
         expect(element.elements.length).to.equal(1);
       });
+
+      it('sets the element type', function() {
+        expect(element.type).to.equal('Array');
+      });
+
+      it('sets the element current type', function() {
+        expect(element.currentType).to.equal('Array');
+      });
     });
 
     context('when the element is an embedded document', function() {
@@ -132,6 +148,14 @@ describe('Element', function() {
 
       it('sets the elements', function() {
         expect(element.elements.length).to.equal(1);
+      });
+
+      it('sets the element type', function() {
+        expect(element.type).to.equal('Object');
+      });
+
+      it('sets the element current type', function() {
+        expect(element.currentType).to.equal('Object');
       });
     });
   });
@@ -181,6 +205,10 @@ describe('Element', function() {
           it('flags the element as edited', function() {
             expect(element.isEdited()).to.equal(true);
           });
+
+          it('sets the element current type', function() {
+            expect(element.currentType).to.equal('Object');
+          });
         });
 
         context('when the value is changed to an embedded document', function() {
@@ -207,6 +235,10 @@ describe('Element', function() {
           it('flags the element as edited', function() {
             expect(element.isEdited()).to.equal(true);
           });
+
+          it('sets the element current type', function() {
+            expect(element.currentType).to.equal('Object');
+          });
         });
 
         context('when the value is changed to an empty array', function() {
@@ -230,6 +262,10 @@ describe('Element', function() {
 
           it('flags the element as edited', function() {
             expect(element.isEdited()).to.equal(true);
+          });
+
+          it('sets the element current type', function() {
+            expect(element.currentType).to.equal('Array');
           });
         });
 
@@ -256,6 +292,10 @@ describe('Element', function() {
 
           it('flags the element as edited', function() {
             expect(element.isEdited()).to.equal(true);
+          });
+
+          it('sets the element current type', function() {
+            expect(element.currentType).to.equal('Array');
           });
         });
       });

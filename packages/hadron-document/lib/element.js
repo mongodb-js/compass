@@ -7,6 +7,7 @@ const isObject = require('lodash.isplainobject');
 const isArray = require('lodash.isarray');
 const removeValues = require('lodash.remove');
 const ObjectGenerator = require('./object-generator');
+const TypeChecker = require('hadron-type-checker');
 
 /**
  * The event constant.
@@ -62,6 +63,8 @@ class Element extends EventEmitter {
     this.parentElement = parentElement;
     this.added = added;
     this.removed = false;
+    this.type = TypeChecker.type(value);
+    this.currentType = this.type;
 
     if (this._isExpandable(value)) {
       this.elements = this._generateElements(value);
@@ -79,6 +82,7 @@ class Element extends EventEmitter {
    */
   edit(key, value) {
     this.currentKey = key;
+    this.currentType = TypeChecker.type(value);
     if (this._isExpandable(value) && !this._isExpandable(this.currentValue)) {
       this.currentValue = null;
       this.elements = this._generateElements(value);
