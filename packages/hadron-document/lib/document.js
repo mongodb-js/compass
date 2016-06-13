@@ -1,5 +1,6 @@
 'use strict';
 
+const EventEmitter = require('events');
 const keys = require('lodash.keys');
 const map = require('lodash.map');
 const Element = require('./element');
@@ -8,7 +9,7 @@ const ObjectGenerator = require('./object-generator');
 /**
  * Represents a document.
  */
-class Document {
+class Document extends EventEmitter {
 
   /**
    * Add a new element to this document.
@@ -30,6 +31,7 @@ class Document {
    * @param {Object} doc - The document.
    */
   constructor(doc) {
+    super();
     this.doc = doc;
     this.elements = this._generateElements();
   }

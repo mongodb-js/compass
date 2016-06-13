@@ -1,15 +1,23 @@
 'use strict';
 
+const EventEmitter = require('events');
 const keys = require('lodash.keys');
 const map = require('lodash.map');
 const isObject = require('lodash.isobject');
 const removeValues = require('lodash.remove');
 const ObjectGenerator = require('./object-generator');
 
+const Events = {
+  'Added': 'Element::Added',
+  'Edited': 'Element::Edited',
+  'Removed': 'Element::Removed',
+  'Reverted': 'Element::Reverted'
+};
+
 /**
  * Represents an element in a document.
  */
-class Element {
+class Element extends EventEmitter {
 
   /**
    * Add a new element to this element.
@@ -22,6 +30,7 @@ class Element {
   add(key, value) {
     var newElement = new Element(key, value, true, this);
     this.elements.push(newElement);
+    this.emit(Events.Added);
     return newElement;
   }
 
@@ -43,12 +52,14 @@ class Element {
    * @param {Element} parentElement - The parent element.
    */
   constructor(key, value, added, parentElement) {
+    super();
     this.key = key;
     this.currentKey = key;
     this.parentElement = parentElement;
     this.added = added;
     this.removed = false;
 
+    // Need to check only array and object.
     if (isObject(value)) {
       this.elements = this._generateElements(value);
     } else {
@@ -71,6 +82,7 @@ class Element {
     } else {
       this.currentValue = value;
     }
+    this.emit(Events.Edited);
   }
 
   /**
@@ -128,6 +140,7 @@ class Element {
   remove() {
     this.revert();
     this.removed = true;
+    this.emit(Events.Removed);
   }
 
   /**
@@ -144,6 +157,7 @@ class Element {
       this._removeAddedElements();
       this.removed = false;
     }
+    this.emit(Events.Reverted);
   }
 
   /**
@@ -170,3 +184,4 @@ class Element {
 }
 
 module.exports = Element;
+module.exports.Events = Events;
