@@ -29,7 +29,9 @@ class RemoveAction extends React.Component {
    */
   render() {
     return (
-      <div className={ACTIONS} onClick={this.handleClick.bind(this)}>X</div>
+      <div className={ACTIONS} onClick={this.handleClick.bind(this)}>
+        <i className='fa fa-times-circle' aria-hidden={true} />
+      </div>
     );
   }
 
