@@ -107,12 +107,13 @@
       }
 
       &.shard {
-        background: @gray2;
+        background: @gray6;
         color: @pw;
-        border-color: @gray0;
-
+        border-color: @gray6;
+        box-shadow: none;
         h3 {
           color: @pw;
+          text-align: center;
         }
       }
 
@@ -223,10 +224,6 @@
         padding: 11px 0;
         margin: 0;
         cursor: pointer;
-        -webkit-user-select: none;  /* Chrome all / Safari all */
-        -moz-user-select: none;     /* Firefox all */
-        -ms-user-select: none;      /* IE 10+ */
-        user-select: none;          /* Likely future */
       }
 
       .details h4:before {
@@ -254,7 +251,7 @@
         border: none;
         margin: 0;
         font-size: 11px;
-        // line-height: 1.2;
+
       }
 
       .details-output pre code {
@@ -265,7 +262,7 @@
 
     .link {
       fill: none;
-      stroke: #ddd;
+      stroke: @gray6;
       stroke-width: 6px;
     }
   }   // .tree-container
