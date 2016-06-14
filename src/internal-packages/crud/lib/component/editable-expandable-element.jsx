@@ -84,10 +84,10 @@ class EditableExpandableElement extends React.Component {
           <div className={LABEL_CLASS}>
             {this.element.currentType}
           </div>
-          <ol className={DOCUMENT_CLASS}>
-            {this.elementComponents()}
-          </ol>
         </div>
+        <ol className={DOCUMENT_CLASS}>
+          {this.elementComponents()}
+        </ol>
       </li>
     );
   }
