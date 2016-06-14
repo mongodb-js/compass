@@ -1,4 +1,5 @@
 var each = require('lodash.foreach');
+// var debug = require('debug')('mongodb-explain-plan-model:stage-iteration');
 
 var stageIterationMixin = {
   /**
@@ -10,10 +11,16 @@ var stageIterationMixin = {
    * @return {[type]}      [description]
    */
   _getStageIterator: function(root) {
-    root = root || this.rawExplainObject.executionStats.executionStages;
-    var stage;
     var model = this;
-    var stageStack = [root];
+    var stage;
+    var stageStack;
+
+    if (this.initialized) {
+      root = root || this.rawExplainObject.executionStats.executionStages;
+      stageStack = [root];
+    } else {
+      stageStack = [];
+    }
     var iterator = {
       current: function() {
         return stage;
@@ -25,7 +32,7 @@ var stageIterationMixin = {
           if (children) {
             // attach parent to each child and add to queue
             each(children, function(child) {
-              child.parent = stage;
+              child.parentName = stage.stage;
               stageStack.push(child);
             });
           }
@@ -38,8 +45,8 @@ var stageIterationMixin = {
   },
   /**
    * returns child stage or stages of current stage as array. If there are
-   * no more child stages, returns empty array []. Not supported for legacy
-   * mode.
+   * no more child stages, returns empty array []. Also works for sharded
+   * explain plans (where shards are children). Not supported for legacy mode.
    *
    * @param  {Object} stage   - stage to get children of.
    * @return {Array}          - array of child stages.
@@ -50,7 +57,13 @@ var stageIterationMixin = {
       return null;
     }
     stage = stage || this.rawExplainObject.executionStats.executionStages;
-    return stage.inputStage ? [stage.inputStage] : stage.inputStages;
+    if (stage.inputStage) {
+      return [stage.inputStage];
+    }
+    if (stage.executionStages) {
+      return [stage.executionStages];
+    }
+    return stage.shards || stage.inputStages || [];
   },
   /**
    * iterates over all stages and returns a depth-first pre-ordered array
@@ -62,7 +75,7 @@ var stageIterationMixin = {
   _getStageArray: function(root) {
     var result = [];
     var it = this._getStageIterator(root);
-    for (var stage = it.next(); stage !== null; stage = it.next()) {
+    for (var stage = it.next(); stage; stage = it.next()) {
       result.push(stage);
     }
     return result;

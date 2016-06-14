@@ -1,0 +1,238 @@
+{
+	"clusteredType" : "ParallelSort",
+	"shards" : {
+		"Groot.local:27000" : [
+			{
+				"cursor" : "BtreeCursor age_1",
+				"isMultiKey" : false,
+				"n" : 4199,
+				"nscannedObjects" : 7191,
+				"nscanned" : 7191,
+				"nscannedObjectsAllPlans" : 7191,
+				"nscannedAllPlans" : 7191,
+				"scanAndOrder" : false,
+				"indexOnly" : false,
+				"nYields" : 56,
+				"nChunkSkips" : 2992,
+				"millis" : 27,
+				"indexBounds" : {
+					"age" : [
+						[
+							40,
+							40
+						]
+					]
+				},
+				"allPlans" : [
+					{
+						"cursor" : "BtreeCursor age_1",
+						"isMultiKey" : false,
+						"n" : 4199,
+						"nscannedObjects" : 7191,
+						"nscanned" : 7191,
+						"scanAndOrder" : false,
+						"indexOnly" : false,
+						"nChunkSkips" : 2992,
+						"indexBounds" : {
+							"age" : [
+								[
+									40,
+									40
+								]
+							]
+						}
+					}
+				],
+				"server" : "Groot.local:27000",
+				"filterSet" : false,
+				"stats" : {
+					"type" : "KEEP_MUTATIONS",
+					"works" : 7192,
+					"yields" : 56,
+					"unyields" : 56,
+					"invalidates" : 0,
+					"advanced" : 4199,
+					"needTime" : 2992,
+					"needFetch" : 0,
+					"isEOF" : 1,
+					"children" : [
+						{
+							"type" : "SHARDING_FILTER",
+							"works" : 7192,
+							"yields" : 56,
+							"unyields" : 56,
+							"invalidates" : 0,
+							"advanced" : 4199,
+							"needTime" : 0,
+							"needFetch" : 0,
+							"isEOF" : 1,
+							"chunkSkips" : 2992,
+							"children" : [
+								{
+									"type" : "FETCH",
+									"works" : 7192,
+									"yields" : 56,
+									"unyields" : 56,
+									"invalidates" : 0,
+									"advanced" : 7191,
+									"needTime" : 0,
+									"needFetch" : 0,
+									"isEOF" : 1,
+									"alreadyHasObj" : 0,
+									"forcedFetches" : 0,
+									"matchTested" : 0,
+									"children" : [
+										{
+											"type" : "IXSCAN",
+											"works" : 7192,
+											"yields" : 56,
+											"unyields" : 56,
+											"invalidates" : 0,
+											"advanced" : 7191,
+											"needTime" : 0,
+											"needFetch" : 0,
+											"isEOF" : 1,
+											"keyPattern" : "{ age: 1.0 }",
+											"isMultiKey" : 0,
+											"boundsVerbose" : "field #0['age']: [40.0, 40.0]",
+											"yieldMovedCursor" : 0,
+											"dupsTested" : 0,
+											"dupsDropped" : 0,
+											"seenInvalidated" : 0,
+											"matchTested" : 0,
+											"keysExamined" : 7191,
+											"children" : [ ]
+										}
+									]
+								}
+							]
+						}
+					]
+				}
+			}
+		],
+		"Groot.local:27001" : [
+			{
+				"cursor" : "BtreeCursor age_1",
+				"isMultiKey" : false,
+				"n" : 2992,
+				"nscannedObjects" : 2992,
+				"nscanned" : 2992,
+				"nscannedObjectsAllPlans" : 2992,
+				"nscannedAllPlans" : 2992,
+				"scanAndOrder" : false,
+				"indexOnly" : false,
+				"nYields" : 23,
+				"nChunkSkips" : 0,
+				"millis" : 14,
+				"indexBounds" : {
+					"age" : [
+						[
+							40,
+							40
+						]
+					]
+				},
+				"allPlans" : [
+					{
+						"cursor" : "BtreeCursor age_1",
+						"isMultiKey" : false,
+						"n" : 2992,
+						"nscannedObjects" : 2992,
+						"nscanned" : 2992,
+						"scanAndOrder" : false,
+						"indexOnly" : false,
+						"nChunkSkips" : 0,
+						"indexBounds" : {
+							"age" : [
+								[
+									40,
+									40
+								]
+							]
+						}
+					}
+				],
+				"server" : "Groot.local:27001",
+				"filterSet" : false,
+				"stats" : {
+					"type" : "KEEP_MUTATIONS",
+					"works" : 2993,
+					"yields" : 23,
+					"unyields" : 23,
+					"invalidates" : 0,
+					"advanced" : 2992,
+					"needTime" : 0,
+					"needFetch" : 0,
+					"isEOF" : 1,
+					"children" : [
+						{
+							"type" : "SHARDING_FILTER",
+							"works" : 2993,
+							"yields" : 23,
+							"unyields" : 23,
+							"invalidates" : 0,
+							"advanced" : 2992,
+							"needTime" : 0,
+							"needFetch" : 0,
+							"isEOF" : 1,
+							"chunkSkips" : 0,
+							"children" : [
+								{
+									"type" : "FETCH",
+									"works" : 2993,
+									"yields" : 23,
+									"unyields" : 23,
+									"invalidates" : 0,
+									"advanced" : 2992,
+									"needTime" : 0,
+									"needFetch" : 0,
+									"isEOF" : 1,
+									"alreadyHasObj" : 0,
+									"forcedFetches" : 0,
+									"matchTested" : 0,
+									"children" : [
+										{
+											"type" : "IXSCAN",
+											"works" : 2993,
+											"yields" : 23,
+											"unyields" : 23,
+											"invalidates" : 0,
+											"advanced" : 2992,
+											"needTime" : 0,
+											"needFetch" : 0,
+											"isEOF" : 1,
+											"keyPattern" : "{ age: 1.0 }",
+											"isMultiKey" : 0,
+											"boundsVerbose" : "field #0['age']: [40.0, 40.0]",
+											"yieldMovedCursor" : 0,
+											"dupsTested" : 0,
+											"dupsDropped" : 0,
+											"seenInvalidated" : 0,
+											"matchTested" : 0,
+											"keysExamined" : 2992,
+											"children" : [ ]
+										}
+									]
+								}
+							]
+						}
+					]
+				}
+			}
+		]
+	},
+	"cursor" : "BtreeCursor age_1",
+	"n" : 7191,
+	"nChunkSkips" : 2992,
+	"nYields" : 79,
+	"nscanned" : 10183,
+	"nscannedAllPlans" : 10183,
+	"nscannedObjects" : 10183,
+	"nscannedObjectsAllPlans" : 10183,
+	"millisShardTotal" : 41,
+	"millisShardAvg" : 20,
+	"numQueries" : 2,
+	"numShards" : 2,
+	"millis" : 28
+}

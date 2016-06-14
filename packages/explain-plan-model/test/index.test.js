@@ -18,6 +18,15 @@ describe('explain-plan-model', function() {
         model = loadExplainFixture('./fixtures/simple_collscan_3.2.json');
       });
 
+      it('should correctly detect when an explain plan is sharded', function() {
+        model = loadExplainFixture('./fixtures/sharded_geo_query_3.2.json');
+        assert.ok(model.isSharded);
+      });
+
+      it('should correctly detect when an explain plan is not sharded', function() {
+        assert.ok(!model.isSharded);
+      });
+
       it('should parse basic fields correctly for 3.2 collection scan plans', function() {
         assert.equal(model.namespace, 'mongodb.fanclub');
         assert.equal(model.nReturned, 1000000);
@@ -127,6 +136,18 @@ describe('explain-plan-model', function() {
     var explain;
     var model;
 
+    describe('Sharded', function() {
+      it('should correctly detect when an explain plan is sharded', function() {
+        model = loadExplainFixture('./fixtures/sharded_query_2.6.json');
+        assert.ok(model.isSharded);
+      });
+
+      it('should correctly detect when an explain plan is not sharded', function() {
+        model = loadExplainFixture('./fixtures/simple_collscan_2.6.json');
+        assert.ok(!model.isSharded);
+      });
+    });
+
     describe('Simple collection scans', function() {
       beforeEach(function() {
         explain = require('./fixtures/simple_collscan_2.6.json');
@@ -201,18 +222,50 @@ describe('explain-plan-model', function() {
     });
   });
 
-  context('Helpers', function() {
-    var explain;
+  context('Edge Cases', function() {
+    var model;
+
+    describe('IDHACK stage', function() {
+      beforeEach(function() {
+        model = loadExplainFixture('./fixtures/idhack_stage_3.2.json');
+      });
+
+      it('should recognize an IDHACK stage and return the correct index name', function() {
+        assert.equal(model.usedIndex, '_id_');
+        assert.equal(model.isCollectionScan, false);
+      });
+    });
+
+    describe('Multiple Indexes', function() {
+      it('should detect multiple different indexes', function() {
+        model = loadExplainFixture('./fixtures/sharded_mixed_index_3.2.json');
+        assert.deepEqual(model.usedIndex, ['age_1', null]);
+      });
+    });
+  });
+
+  context('Stage Helpers', function() {
     var model;
 
     beforeEach(function() {
-      explain = require('./fixtures/simple_index_3.2.json');
-      model = new ExplainPlanModel(explain, {parse: true});
+      model = loadExplainFixture('./fixtures/simple_index_3.2.json');
     });
 
     it('should find a stage by name from the root stage', function() {
       var ixscan = model.findStageByName('IXSCAN');
       assert.equal(ixscan.indexName, 'age_1');
+    });
+
+    it('should iterate over shards in a sharded explain plan', function() {
+      model = loadExplainFixture('./fixtures/sharded_geo_query_3.2.json');
+      var ixscan = model.findStageByName('IXSCAN');
+      assert.equal(ixscan.indexName, 'last_login_1_last_position_2dsphere');
+    });
+
+    it('should return all matching stages with findAllStagesByName', function() {
+      model = loadExplainFixture('./fixtures/sharded_geo_query_3.2.json');
+      var ixscans = model.findAllStagesByName('IXSCAN');
+      assert.equal(ixscans.length, 3);
     });
 
     it('should find a stage by name from a provided stage', function() {
@@ -235,6 +288,24 @@ describe('explain-plan-model', function() {
       assert.equal(it.next(), model.rawExplainObject.executionStats.executionStages);
       assert.equal(it.next().stage, 'IXSCAN');
       assert.equal(it.next(), null);
+    });
+
+    it('should not return a stage iterator if not initialized', function() {
+      model = new ExplainPlanModel();
+      var it = model._getStageIterator();
+      assert.equal(it.next(), null);
+    });
+  });
+
+  context('Setup', function() {
+    it('should have a default of false for initialized', function() {
+      var model = new ExplainPlanModel();
+      assert.equal(model.initialized, false);
+    });
+
+    it('should set initialized to true when using parse()', function() {
+      var model = loadExplainFixture('./fixtures/simple_index_3.2.json');
+      assert.equal(model.initialized, true);
     });
   });
 });
