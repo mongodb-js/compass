@@ -6,6 +6,7 @@ const EditableKey = require('./editable-key');
 const EditableValue = require('./editable-value');
 const RevertAction = require('./revert-action');
 const RemoveAction = require('./remove-action');
+const NoAction = require('./no-action');
 
 /**
  * The added constant.
@@ -76,6 +77,8 @@ class EditableElement extends React.Component {
   action() {
     if (this.element.isEdited() || this.element.isRemoved()) {
       return React.createElement(RevertAction, { element: this.element });
+    } else if (this.element.key === '_id') {
+      return React.createElement(NoAction, { element: this.element });
     }
     return React.createElement(RemoveAction, { element: this.element });
   }
