@@ -4,6 +4,8 @@ const React = require('react');
 const Element = require('hadron-document').Element;
 const EditableKey = require('./editable-key');
 const EditableElement = require('./editable-element');
+const RevertAction = require('./revert-action');
+const RemoveAction = require('./remove-action');
 
 /**
  * The added constant.
@@ -77,7 +79,7 @@ class EditableExpandableElement extends React.Component {
       <li className={this.style()}>
         <div className={HEADER_CLASS} onClick={this.toggleExpandable.bind(this)}>
           <div className='line-number'></div>
-          <div className='actions' onClick={this.handleRemove.bind(this)}>x</div>
+          {this.action()}
           <div className={CARET}></div>
           <EditableKey element={this.element} />
           :
@@ -90,6 +92,18 @@ class EditableExpandableElement extends React.Component {
         </ol>
       </li>
     );
+  }
+
+  /**
+   * Get the revert or remove action.
+   *
+   * @returns {Component} The component.
+   */
+  action() {
+    if (this.element.isEdited() || this.element.isRemoved()) {
+      return React.createElement(RevertAction, { element: this.element });
+    }
+    return React.createElement(RemoveAction, { element: this.element });
   }
 
   /**

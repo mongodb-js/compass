@@ -29,7 +29,9 @@ class RevertAction extends React.Component {
    */
   render() {
     return (
-      <div className={ACTIONS} onClick={this.handleClick.bind(this)}>R</div>
+      <div className={ACTIONS} onClick={this.handleClick.bind(this)}>
+        <i className='fa fa-rotate-left' aria-hidden={true} />
+      </div>
     );
   }
 
