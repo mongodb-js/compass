@@ -4,6 +4,8 @@ const React = require('react');
 const Element = require('hadron-document').Element;
 const EditableKey = require('./editable-key');
 const EditableValue = require('./editable-value');
+const RevertAction = require('./revert-action');
+const RemoveAction = require('./remove-action');
 
 /**
  * The added constant.
@@ -44,6 +46,8 @@ class EditableElement extends React.Component {
     super(props);
     this.element = props.element;
     this.element.on(Element.Events.Edited, this.handleEdit.bind(this));
+    this.element.on(Element.Events.Removed, this.handleRemove.bind(this));
+    this.element.on(Element.Events.Reverted, this.handleRevert.bind(this));
   }
 
   /**
@@ -55,13 +59,25 @@ class EditableElement extends React.Component {
     return (
       <li className={this.style()}>
         <div className='line-number'></div>
-        <div className='actions' onClick={this.handleRemove.bind(this)}>x</div>
+        {this.action()}
         <EditableKey element={this.element} />
         :
         <EditableValue element={this.element} />
         <div className='types'>{this.element.currentType}</div>
       </li>
     );
+  }
+
+  /**
+   * Get the revert or remove action.
+   *
+   * @returns {Component} The component.
+   */
+  action() {
+    if (this.element.isEdited() || this.element.isRemoved()) {
+      return React.createElement(RevertAction, { element: this.element });
+    }
+    return React.createElement(RemoveAction, { element: this.element });
   }
 
   /**
@@ -75,7 +91,13 @@ class EditableElement extends React.Component {
    * Handle removal of an element.
    */
   handleRemove() {
-    this.element.remove();
+    this.setState({});
+  }
+
+  /**
+   * Here to re-render the component when an edit is reverted.
+   */
+  handleRevert() {
     this.setState({});
   }
 
