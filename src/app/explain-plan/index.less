@@ -224,6 +224,10 @@
         padding: 11px 0;
         margin: 0;
         cursor: pointer;
+        -webkit-user-select: none;  /* Chrome all / Safari all */
+        -moz-user-select: none;     /* Firefox all */
+        -ms-user-select: none;      /* IE 10+ */
+        user-select: none;          /* Likely future */
       }
 
       .details h4:before {
@@ -235,6 +239,7 @@
       }
 
       .details-output {
+        pointer-events: all;
         padding: 6px;
         background: @gray8;
         border-radius: 3px;
