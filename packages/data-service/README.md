@@ -36,7 +36,7 @@ Once the service is ready, it will also emit a `DataService.Events.Readble` even
     console.log('Connected!');
   }
 
-  service.on(DataService.Events.Readable, handleReadble);
+  service.on(DataService.Events.Readable, handleReadable);
 ```
 
 ### API
