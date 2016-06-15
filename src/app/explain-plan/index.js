@@ -81,14 +81,20 @@ module.exports = View.extend({
       deps: ['indexMessageType'],
       fn: function() {
         if (this.indexMessageType === 'COLLSCAN') {
+          //it would be nice to add color: #7F6A4E to this text
+          //with <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> in color: #FBB129
           return 'No index available for this query.';
         }
         if (this.indexMessageType === 'COVERED') {
+          //put an icon <i class="mms-icon-check"></i> in color: #6BA442
           return 'Query covered by index:';
         }
         if (this.indexMessageType === 'MULTIPLE') {
+          //it would be nice to add color: #7F6A4E to this text
+          //with <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> in color: #FBB129
           return 'Shard results differ (see details below)';
         }
+        //just plain dark gray text
         return 'Query used the following index:';
       }
     },
@@ -107,6 +113,9 @@ module.exports = View.extend({
         if (!this.explainPlan) {
           return '';
         }
+        // for case: YES
+        //it would be nice to add color: #A94442 to this text
+        //with <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> in color: #EF4C4C
         return this.explainPlan.inMemorySort ? 'Yes' : 'No';
       }
     },
@@ -184,10 +193,10 @@ module.exports = View.extend({
         hook: 'index-message-container',
         name: 'style',
         cases: {
-          'COLLSCAN': 'color: red;',
-          'MULTIPLE': 'color: red;',
-          'INDEX': 'color: green;',
-          'COVERED': 'color: green;'
+          'COLLSCAN': 'color: #7F6A4E;',
+          'MULTIPLE': 'color: #7F6A4E;',
+          'INDEX': 'color: #313030;',
+          'COVERED': 'color: #507b32;'
         }
       }
     ],

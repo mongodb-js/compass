@@ -1,6 +1,6 @@
 .card(id='#{model.id}')
   h3(data-hook='name')
-  
+
   ul.core
     li.key-value-pair.nReturned
       span.key nReturned
@@ -12,15 +12,15 @@
           .face
             span(data-hook='exec-ms')
             | millis
-            
+
   ul.highlighted
     each valuePair in model.highlightPairs
       li.key-value-pair
         span.key= valuePair[0]
         span.value= valuePair[1]
-  
+
   .details(data-hook='details')
-    h4 Details
+    button.btn.btn-xs.btn-default(data-hook='details-button') Details
     .details-output
       pre
         code(data-hook='stage-details')

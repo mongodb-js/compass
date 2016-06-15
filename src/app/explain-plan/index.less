@@ -99,7 +99,7 @@
       margin: 0 auto;
       position: absolute;
       border-radius: 3px;
-      padding: 18px 12px;
+      padding: 18px 12px 12px;
       box-shadow: 0px 2px 0px rgba(0,0,0,0.06);
 
       &:hover {
@@ -107,12 +107,12 @@
       }
 
       &.shard {
-        background: @gray6;
-        color: @pw;
-        border-color: @gray6;
+        background: @gray8;
+        color: @gray4;
+        border: none;
         box-shadow: none;
         h3 {
-          color: @pw;
+          color: @gray4;
           text-align: center;
         }
       }
@@ -205,7 +205,7 @@
       .face span {
         display: block;
         font-size: 14px;
-        font-weight: normal;
+        font-weight: bold;
         margin-top: 11px;
         color: @chart1;
       }
@@ -215,32 +215,20 @@
         color: #818487;
       }
 
-      .details h4 {
-        pointer-events: all;
-        font-size: 12px;
-        font-weight: normal;
+      .details {
         border-top: 1px solid @gray7;
-        color: @chart1;
-        padding: 11px 0;
+        padding-top: 12px;
+      }
+
+      .details button.btn {
+        pointer-events: all;
         margin: 0;
-        cursor: pointer;
-        -webkit-user-select: none;  /* Chrome all / Safari all */
-        -moz-user-select: none;     /* Firefox all */
-        -ms-user-select: none;      /* IE 10+ */
-        user-select: none;          /* Likely future */
-      }
-
-      .details h4:before {
-        content: "+ "
-      }
-
-      .details.open h4:before {
-        content: "\2013  ";
       }
 
       .details-output {
         pointer-events: all;
         padding: 6px;
+        margin-top: 6px;
         background: @gray8;
         border-radius: 3px;
         display: none;
