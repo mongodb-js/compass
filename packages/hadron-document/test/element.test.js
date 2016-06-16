@@ -109,6 +109,10 @@ describe('Element', function() {
       it('sets the element current type', function() {
         expect(element.currentType).to.equal('String');
       });
+
+      it('creates a uuid', function() {
+        expect(element.uuid).to.not.equal(null);
+      });
     });
 
     context('when the element is an array', function() {

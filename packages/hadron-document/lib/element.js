@@ -8,9 +8,7 @@ const isArray = require('lodash.isarray');
 const removeValues = require('lodash.remove');
 const ObjectGenerator = require('./object-generator');
 const TypeChecker = require('hadron-type-checker');
-const FlakeId = require('flake-idgen');
-const flakeIdGen = new FlakeId();
-const intformat = require('biguint-format');
+const uuid = require('node-uuid');
 
 /**
  * The event constant.
@@ -61,7 +59,7 @@ class Element extends EventEmitter {
    */
   constructor(key, value, added, parentElement) {
     super();
-    this.id = intformat(flakeIdGen.next(), 'hex', { prefix: '0x' });
+    this.uuid = uuid.v4();
     this.key = key;
     this.currentKey = key;
     this.parentElement = parentElement;

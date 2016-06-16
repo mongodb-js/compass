@@ -23,16 +23,15 @@
     "check"
   ],
   "dependencies": {
-    "biguint-format": "^1.0.0",
     "debug": "^2.2.0",
-    "flake-idgen": "^1.1.0",
     "hadron-type-checker": "0.0.1",
     "lodash.foreach": "^4.3.0",
     "lodash.isarray": "^4.0.0",
     "lodash.isplainobject": "^4.0.4",
     "lodash.keys": "^4.0.7",
     "lodash.map": "^4.4.0",
-    "lodash.remove": "^4.5.0"
+    "lodash.remove": "^4.5.0",
+    "node-uuid": "^1.4.7"
   },
   "devDependencies": {
     "chai": "^3.4.1",
