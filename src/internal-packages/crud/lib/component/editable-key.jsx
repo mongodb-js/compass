@@ -28,6 +28,14 @@ class EditableKey extends React.Component {
     this.state = { key: this.element.currentKey, editing: false };
   }
 
+  componentDidMount() {
+    if (this.element.isAdded()) {
+      if (this.isEditable() && this._node) {
+        this._node.focus();
+      }
+    }
+  }
+
   /**
    * Render a single editable key.
    *
@@ -38,6 +46,7 @@ class EditableKey extends React.Component {
       <input
         type='text'
         className={this.style()}
+        ref={(c) => this._node = c}
         size={this.element.currentKey.length}
         onBlur={this.handleBlur.bind(this)}
         onFocus={this.handleFocus.bind(this)}

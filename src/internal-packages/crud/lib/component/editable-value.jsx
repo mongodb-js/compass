@@ -28,6 +28,14 @@ class EditableValue extends React.Component {
     this.state = { value: this.element.currentValue, editing: false };
   }
 
+  componentDidMount() {
+    if (this.element.isAdded()) {
+      if (this.element.parentElement.type === 'Array' && this._node) {
+        this._node.focus();
+      }
+    }
+  }
+
   /**
    * Render a single editable value.
    *
@@ -37,6 +45,7 @@ class EditableValue extends React.Component {
     return (
       <input
         type='text'
+        ref={(c) => this._node = c}
         className={this.style()}
         onBlur={this.handleBlur.bind(this)}
         onFocus={this.handleFocus.bind(this)}
@@ -71,12 +80,13 @@ class EditableValue extends React.Component {
 
   changeElementToObject() {
     this.element.edit({});
-    this.element.add('', '');
+    var newElement = this.element.add('', '');
   }
 
   changeElementToArray() {
     this.element.edit([]);
-    this.element.add('0', '');
+    var newElement = this.element.add('0', '');
+    React.findDOMNode(this.refs.nameInput).focus();
   }
 
   /**
