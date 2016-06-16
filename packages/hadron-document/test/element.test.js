@@ -375,6 +375,19 @@ describe('Element', function() {
         expect(element.isEdited()).to.equal(false);
       });
     });
+
+    context('when the element has been added to a parent', function() {
+      var doc = new Document({});
+      var element = doc.add('name', 'test');
+
+      before(function() {
+        element.remove();
+      });
+
+      it('removes the element from the parent', function() {
+        expect(doc.elements.length).to.equal(0);
+      });
+    });
   });
 
   describe('#revert', function() {

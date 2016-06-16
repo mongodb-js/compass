@@ -168,6 +168,8 @@ class Element extends EventEmitter {
       removeValues(this.parentElement.elements, (element) => {
         return element === this;
       });
+      this.parentElement.emit(Events.Removed);
+      this.parentElement = null;
     } else {
       this.currentKey = this.key;
       this.currentValue = this.value;
