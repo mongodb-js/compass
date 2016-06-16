@@ -24,6 +24,10 @@ const BSON_TYPE = '_bsontype';
  */
 const MATCH = /\[object (\w+)\]/;
 
+const MAPPINGS = {
+
+};
+
 /**
  * Checks the types of objects and returns them as readable strings.
  */
@@ -47,6 +51,10 @@ class TypeChecker {
       return object._bsontype;
     }
     return Object.prototype.toString.call(object).replace(MATCH, '$1');
+  }
+
+  isConvertableTo(object) {
+
   }
 }
 

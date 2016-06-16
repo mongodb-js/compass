@@ -27,6 +27,7 @@
     "lodash.isplainobject": "^4.0.4"
   },
   "devDependencies": {
+    "bson": "^0.4.23",
     "chai": "^3.4.1",
     "eslint-config-mongodb-js": "^1.0.6",
     "mocha": "^2.3.4",
