@@ -28,17 +28,16 @@ var NotificationUpdateAvailable = View.extend({
   initialize: function() {
     ipc.on('app:checking-for-update', function() {
       debug('checking for update');
-      metrics.track('Auto Update', 'checking-for-update');
+      metrics.track('Auto Update', 'checking');
     });
 
     ipc.on('app:update-not-available', function() {
-      metrics.track('Auto Update', 'update-not-available');
+      metrics.track('Auto Update', 'uptodate');
     });
 
     ipc.on('app:update-available', function(_opts) {
       debug('new update available!  wanna update to', _opts, '?');
-      metrics.track('Auto Update', 'update-available', {
-        releaseNotes: _opts.releaseNotes,
+      metrics.track('Auto Update', 'available', {
         releaseVersion: _opts.releaseVersion
       });
       this.visible = true;
@@ -46,7 +45,7 @@ var NotificationUpdateAvailable = View.extend({
 
     ipc.on('app:update-downloaded', function() {
       debug('the update has been downloaded.');
-      metrics.track('Auto Update', 'update-downloaded');
+      metrics.track('Auto Update', 'downloaded');
     });
 
     this.listenToAndRun(app.preferences, 'change:autoUpdates', function() {
