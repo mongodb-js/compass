@@ -41,8 +41,32 @@ class EditableValue extends React.Component {
         onBlur={this.handleBlur.bind(this)}
         onFocus={this.handleFocus.bind(this)}
         onChange={this.handleChange.bind(this)}
+        onKeyUp={this.handleKeyUp.bind(this)}
         value={this.element.currentValue} />
     );
+  }
+
+  handleKeyUp(evt) {
+    if (evt.keyCode === 13) {
+      var value = evt.target.value;
+      if (value === '{') {
+        this.changeElementToObject();
+      } else if (value === '[') {
+        this.changeElementToArray();
+      } else {
+        this.element.parentElement.add('', '');
+      }
+    }
+  }
+
+  changeElementToObject() {
+    this.element.edit({});
+    this.element.add('', '');
+  }
+
+  changeElementToArray() {
+    this.element.edit([]);
+    this.element.add('0', '');
   }
 
   /**

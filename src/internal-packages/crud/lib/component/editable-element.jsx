@@ -29,9 +29,34 @@ const REMOVED = 'removed';
 const EDITING = 'editing';
 
 /**
+ * The caret for expanding elements.
+ */
+const CARET = 'caret';
+
+/**
+ * The class for the document itself.
+ */
+const DOCUMENT_CLASS = 'document-property-body';
+
+/**
+ * The header class for expandable elements.
+ */
+const HEADER_CLASS = 'document-property-header';
+
+/**
  * The property class.
  */
 const PROPERTY_CLASS = 'document-property';
+
+/**
+ * The expandable label class.
+ */
+const LABEL_CLASS = 'document-property-type-label';
+
+/**
+ * The expanded class name.
+ */
+const EXPANDED = 'expanded';
 
 /**
  * General editable element component.
@@ -46,6 +71,8 @@ class EditableElement extends React.Component {
   constructor(props) {
     super(props);
     this.element = props.element;
+    this.state = { expanded: false };
+    this.element.on(Element.Events.Added, this.handleAdd.bind(this));
     this.element.on(Element.Events.Edited, this.handleEdit.bind(this));
     this.element.on(Element.Events.Removed, this.handleRemove.bind(this));
     this.element.on(Element.Events.Reverted, this.handleRevert.bind(this));
@@ -57,6 +84,10 @@ class EditableElement extends React.Component {
    * @returns {React.Component} The element component.
    */
   render() {
+    return this.element.elements ? this.renderExpandable() : this.renderNonExpandable();
+  }
+
+  renderNonExpandable() {
     return (
       <li className={this.style()}>
         <div className='line-number'></div>
@@ -67,6 +98,37 @@ class EditableElement extends React.Component {
         <div className='types'>{this.element.currentType}</div>
       </li>
     );
+  }
+
+  renderExpandable() {
+    return (
+      <li className={this.style()}>
+        <div className={HEADER_CLASS}>
+          <div className='line-number' onClick={this.toggleExpandable.bind(this)}></div>
+          {this.action()}
+          <div className={CARET} onClick={this.toggleExpandable.bind(this)}></div>
+          <EditableKey element={this.element} />
+          :
+          <div className={LABEL_CLASS} onClick={this.toggleExpandable.bind(this)}>
+            {this.element.currentType}
+          </div>
+        </div>
+        <ol className={DOCUMENT_CLASS}>
+          {this.elementComponents()}
+        </ol>
+      </li>
+    );
+  }
+
+  /**
+   * Get the components for the elements.
+   *
+   * @returns {Array} The components.
+   */
+  elementComponents() {
+    return _.map(this.element.elements, (element) => {
+      return React.createElement(EditableElement, { key: element.uuid, element: element });
+    });
   }
 
   /**
@@ -81,6 +143,10 @@ class EditableElement extends React.Component {
       return React.createElement(NoAction, { element: this.element });
     }
     return React.createElement(RemoveAction, { element: this.element });
+  }
+
+  handleAdd() {
+    this.setState({ expanded: true });
   }
 
   /**
@@ -105,6 +171,13 @@ class EditableElement extends React.Component {
   }
 
   /**
+   * Toggles the expandable aspect of the element.
+   */
+  toggleExpandable() {
+    this.setState({ expanded: !this.state.expanded });
+  }
+
+  /**
    * Get the style for the element component.
    *
    * @returns {String} The element style.
@@ -113,12 +186,13 @@ class EditableElement extends React.Component {
     var style = `${PROPERTY_CLASS} ${this.element.currentType.toLowerCase()}`;
     if (this.element.isAdded()) {
       style = style.concat(` ${ADDED}`);
-    }
-    if (this.element.isEdited()) {
+    } else if (this.element.isEdited()) {
       style = style.concat(` ${EDITED}`);
-    }
-    if (this.element.isRemoved()) {
+    } else if (this.element.isRemoved()) {
       style = style.concat(` ${REMOVED}`);
+    }
+    if (this.state.expanded) {
+      style = style.concat(` ${EXPANDED}`);
     }
     return style;
   }

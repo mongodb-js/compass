@@ -4,8 +4,8 @@ const _ = require('lodash');
 const React = require('react');
 const ElementFactory = require('hadron-component-registry').ElementFactory;
 const HadronDocument = require('hadron-document');
+const Element = require('hadron-document').Element;
 const EditableElement = require('./editable-element');
-const EditableExpandableElement = require('./editable-expandable-element');
 
 /**
  * The class for the document itself.
@@ -52,6 +52,10 @@ class DocumentListItem extends React.Component {
     );
   }
 
+  handleAdd() {
+    this.setState({});
+  }
+
   /**
    * Get the elements for the document. If we are editing, we get editable elements,
    * otherwise the readonly elements are returned.
@@ -85,6 +89,7 @@ class DocumentListItem extends React.Component {
    */
   handleEdit() {
     var doc = new HadronDocument(this.props.doc);
+    doc.on(Element.Events.Added, this.handleAdd.bind(this));
     this.setState({ doc: doc, editing: true });
   }
 
@@ -98,11 +103,7 @@ class DocumentListItem extends React.Component {
    * @returns {EditableValue,EditableExpandableElement} The element.
    */
   elementComponent(element) {
-    var key = `${this.props.doc._id}_${element.key}`;
-    if (element.elements) {
-      return React.createElement(EditableExpandableElement, { key: key, element: element });
-    }
-    return React.createElement(EditableElement, { key: key, element: element });
+    return React.createElement(EditableElement, { key: element.uuid, element: element });
   }
 }
 

@@ -15,25 +15,30 @@
   float: left;
   width: 75%;
   counter-reset: line;
+  position: relative;
+
+  .document-property.array {
+    margin-left: 0px !important;
+  }
+
+  .document-property.object {
+    margin-left: 0px !important;
+  }
 
   .line-number {
     display: inline-block;
     color: #999999;
     width: 18px;
+    height: 17px;
     text-align: center;
+    position: absolute;
+    left: -20px;
+    margin-right: 18px;
 
     &::before {
       counter-increment: line;
       content: counter(line);
     }
-  }
-
-  .actions {
-    display: inline-block;
-    width: 18px;
-    text-align: center;
-    cursor: pointer;
-    color: #999999;
   }
 
   .types {
@@ -43,7 +48,35 @@
     color: #999999;
   }
 
+  li.document-property:hover {
+    .actions {
+      visibility: visible;
+    }
+  }
+
   li.document-property {
+
+    .actions {
+      display: inline-block;
+      visibility: hidden;
+      width: 18px;
+      text-align: center;
+      cursor: pointer;
+      color: #999999;
+    }
+
+    &.added {
+      background-color: #98FB98 !important;
+
+      input {
+        background-color: #98FB98 !important;
+      }
+
+      .line-number {
+        background-color: #008000 !important;
+        color: #FFFFFF;
+      }
+    }
 
     &.edited {
       background-color: #FFEFD5;
