@@ -148,6 +148,37 @@ describe('TypeChecker', function() {
 
   describe('#isConvertableTo', function() {
     context('when the object is a string', function() {
+      context('when the string is empty', function() {
+
+      });
+
+      context('when the string is not empty', function() {
+        context('when the string is non-numeric', function() {
+
+        });
+
+        context('when the string is numeric', function() {
+
+        });
+
+        context('when the string is in date format', function() {
+
+        });
+
+        context('when the string is a boolean format', function() {
+          context('when the string is "true"', function() {
+
+          });
+
+          context('when the string is "false"', function() {
+
+          });
+        });
+
+        context('when the string is non-deterministic', function() {
+
+        });
+      });
     });
 
     context('when the object is a double', function() {
