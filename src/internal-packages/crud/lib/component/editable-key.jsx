@@ -77,7 +77,7 @@ class EditableKey extends React.Component {
   }
 
   isEditable() {
-    return this.element.key !== '_id'
+    return this.element.key !== '_id' && this.element.parentElement.type !== 'Array';
   }
 
   /**

@@ -54,8 +54,18 @@ class EditableValue extends React.Component {
       } else if (value === '[') {
         this.changeElementToArray();
       } else {
-        this.element.parentElement.add('', '');
+        this.addElementToParent();
       }
+    }
+  }
+
+  addElementToParent() {
+    var parentElement = this.element.parentElement;
+    if (parentElement.type === 'Array') {
+      var length = parentElement.elements.length;
+      parentElement.add(String(length), '');
+    } else {
+      parentElement.add('', '');
     }
   }
 
@@ -100,7 +110,7 @@ class EditableValue extends React.Component {
   }
 
   isEditable() {
-    return this.element.key !== '_id'
+    return this.element.key !== '_id';
   }
 
   /**
