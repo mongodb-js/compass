@@ -112,6 +112,14 @@ class Element extends EventEmitter {
     if (this.currentValue) {
       return this.currentValue;
     }
+    if (this.currentType === 'Array') {
+      return map(this.elements, (element) => {
+        if (element.elements) {
+          return element.generateObject();
+        }
+        return element.currentValue;
+      });
+    }
     return ObjectGenerator.generate(this.elements);
   }
 

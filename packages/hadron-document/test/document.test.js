@@ -290,7 +290,11 @@ describe('Document', function() {
       address: {
         postal_code: '72550'
       },
-      email: 'test@example.com'
+      email: 'test@example.com',
+      members: [ 'Richard James' ],
+      albums: [
+        { name: 'Syro' }
+      ]
     };
     var doc = new Document(object);
     var address = doc.elements[0];
@@ -344,7 +348,11 @@ describe('Document', function() {
         emails: {
           home: 'home@example.com',
           work: 'work@example.com'
-        }
+        },
+        members: [ 'Richard James' ],
+        albums: [
+          { name: 'Syro' }
+        ]
       });
     });
   });
