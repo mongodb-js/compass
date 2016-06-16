@@ -75,22 +75,32 @@ class EditableValue extends React.Component {
    * @param {Event} evt - The event.
    */
   handleChange(evt) {
-    this.element.edit(evt.target.value);
-    this.setState({ value: this.element.currentValue });
+    if (this.isEditable()) {
+      this.element.edit(evt.target.value);
+      this.setState({ value: this.element.currentValue });
+    }
   }
 
   /**
    * Handle focus on the value.
    */
   handleFocus() {
-    this.setState({ editing: true });
+    if (this.isEditable()) {
+      this.setState({ editing: true });
+    }
   }
 
   /**
    * Handle blur from the value.
    */
   handleBlur() {
-    this.setState({ editing: false });
+    if (this.isEditable()) {
+      this.setState({ editing: false });
+    }
+  }
+
+  isEditable() {
+    return this.element.key !== '_id'
   }
 
   /**

@@ -56,6 +56,10 @@ class DocumentListItem extends React.Component {
     this.setState({});
   }
 
+  handleRemove() {
+    this.setState({});
+  }
+
   /**
    * Get the elements for the document. If we are editing, we get editable elements,
    * otherwise the readonly elements are returned.
@@ -90,6 +94,7 @@ class DocumentListItem extends React.Component {
   handleEdit() {
     var doc = new HadronDocument(this.props.doc);
     doc.on(Element.Events.Added, this.handleAdd.bind(this));
+    doc.on(Element.Events.Removed, this.handleRemove.bind(this));
     this.setState({ doc: doc, editing: true });
   }
 
