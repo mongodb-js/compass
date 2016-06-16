@@ -91,9 +91,6 @@ class Element extends EventEmitter {
       this.currentValue = value;
     }
     this.emit(Events.Edited);
-    if (this.parentElement) {
-      this.parentElement.emit(Events.Edited);
-    }
   }
 
   /**
@@ -104,9 +101,6 @@ class Element extends EventEmitter {
   rename(key) {
     this.currentKey = key;
     this.emit(Events.Edited);
-    if (this.parentElement) {
-      this.parentElement.emit(Events.Edited);
-    }
   }
 
   /**
@@ -187,9 +181,6 @@ class Element extends EventEmitter {
     this.revert();
     this.removed = true;
     this.emit(Events.Removed);
-    if (this.parentElement) {
-      this.parentElement.emit(Events.Removed);
-    }
   }
 
   /**
@@ -200,6 +191,7 @@ class Element extends EventEmitter {
       removeValues(this.parentElement.elements, (element) => {
         return element === this;
       });
+      this.parentElement.emit(Events.Removed);
       this.parentElement = null;
     } else {
       this.currentKey = this.key;
