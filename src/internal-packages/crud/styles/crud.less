@@ -1,13 +1,64 @@
 .document-footer {
-  height: 20px;
+  height: 25px;
+  vertical-align: middle;
+  top: 10px;
+  position: relative;
 
   .edit-message {
     float: left;
+    font-style: italic;
+    padding-left: 10px;
   }
 
-  .document-actions {
+  .document-footer-actions {
     float: right;
     padding-right: 10px;
+    padding-top: 1px;
+
+    .cancel {
+      font-weight: bold;
+      text-transform: uppercase;
+      background-color: #FFFFFF;
+      border: 0px;
+    }
+
+    .update {
+      font-weight: bold;
+      text-transform: uppercase;
+      border: 1px solid #B8860B;
+      border-radius: 4px;
+    }
+  }
+
+  &.modified {
+
+    background-color: #FFA500;
+
+    .edit-message {
+      color: #FFFFFF;
+      font-style: italic;
+    }
+
+    .document-footer-actions {
+
+      .cancel {
+        background-color: #FFA500;
+        color: #B8860B;
+      }
+
+      .update {
+        background-color: #FFEFD5;
+        color: #B8860B;
+      }
+    }
+  }
+}
+
+ol.document-property-body:hover {
+  .document-actions {
+    button {
+      visibility: visible;
+    }
   }
 }
 
@@ -109,6 +160,10 @@
 .document-actions {
   float: right;
   padding-right: 10px;
+
+  button {
+    visibility: hidden;
+  }
 }
 
 input.editable-key {

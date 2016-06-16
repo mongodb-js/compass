@@ -80,13 +80,12 @@ class EditableValue extends React.Component {
 
   changeElementToObject() {
     this.element.edit({});
-    var newElement = this.element.add('', '');
+    this.element.add('', '');
   }
 
   changeElementToArray() {
     this.element.edit([]);
-    var newElement = this.element.add('0', '');
-    React.findDOMNode(this.refs.nameInput).focus();
+    this.element.add('0', '');
   }
 
   /**

@@ -6,6 +6,7 @@ const ElementFactory = require('hadron-component-registry').ElementFactory;
 const HadronDocument = require('hadron-document');
 const Element = require('hadron-document').Element;
 const EditableElement = require('./editable-element');
+const EditFooter = require('./edit-footer');
 
 /**
  * The class for the document itself.
@@ -44,7 +45,7 @@ class DocumentListItem extends React.Component {
           </div>
           <div className='document-actions'>
             <button type='button' onClick={this.handleEdit.bind(this)}>Edit</button>
-            <button type='button' onClick={this.deleteDocument.bind(this)}>Delete</button>
+            <button type='button' onClick={this.handleDelete.bind(this)}>Delete</button>
           </div>
         </ol>
         {this.footer()}
@@ -52,11 +53,25 @@ class DocumentListItem extends React.Component {
     );
   }
 
+  footer() {
+    if (this.state.editing) {
+      return (<EditFooter doc={this.state.doc} />);
+    }
+  }
+
   handleAdd() {
     this.setState({});
   }
 
   handleRemove() {
+    this.setState({});
+  }
+
+  handleRevert() {
+    this.setState({});
+  }
+
+  handleEdit() {
     this.setState({});
   }
 
@@ -84,10 +99,6 @@ class DocumentListItem extends React.Component {
     });
   }
 
-  footer() {
-
-  }
-
   /**
    * Handle the editing of the document.
    */
@@ -98,7 +109,7 @@ class DocumentListItem extends React.Component {
     this.setState({ doc: doc, editing: true });
   }
 
-  deleteDocument() {
+  handleDelete() {
 
   }
 

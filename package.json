@@ -102,7 +102,7 @@
     "get-object-path": "azer/get-object-path#74eb42de0cfd02c14ffdd18552f295aba723d394",
     "hadron-action": "^0.0.4",
     "hadron-auto-update-manager": "^0.0.12",
-    "hadron-document": "^0.6.0",
+    "hadron-document": "^0.8.1",
     "hadron-compile-cache": "^0.1.0",
     "hadron-component-registry": "^0.2.1",
     "hadron-ipc": "^0.0.7",
