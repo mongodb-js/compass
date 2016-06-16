@@ -3,6 +3,7 @@
 const EventEmitter = require('events');
 const keys = require('lodash.keys');
 const map = require('lodash.map');
+const some = require('lodash.some');
 const Element = require('./element');
 const ObjectGenerator = require('./object-generator');
 
@@ -53,6 +54,17 @@ class Document extends EventEmitter {
    */
   isAdded() {
     return false;
+  }
+
+  /**
+   * Determine if the element is modified at all.
+   *
+   * @returns {Boolean} If the element is modified.
+   */
+  isModified() {
+    return some(this.elements, (element) => {
+      return element.isModified();
+    });
   }
 
   /**

@@ -5,6 +5,7 @@ const keys = require('lodash.keys');
 const map = require('lodash.map');
 const isObject = require('lodash.isplainobject');
 const isArray = require('lodash.isarray');
+const some = require('lodash.some');
 const removeValues = require('lodash.remove');
 const ObjectGenerator = require('./object-generator');
 const TypeChecker = require('hadron-type-checker');
@@ -131,6 +132,20 @@ class Element extends EventEmitter {
    */
   isEdited() {
     return (this.key !== this.currentKey || this.value !== this.currentValue) && !this.isAdded();
+  }
+
+  /**
+   * Determine if the element is modified at all.
+   *
+   * @returns {Boolean} If the element is modified.
+   */
+  isModified() {
+    if (this.elements) {
+      return some(this.elements, (element) => {
+        return element.isModified();
+      });
+    }
+    return this.isAdded() || this.isEdited() || this.isRemoved();
   }
 
   /**

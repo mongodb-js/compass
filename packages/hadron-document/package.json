@@ -31,6 +31,7 @@
     "lodash.keys": "^4.0.7",
     "lodash.map": "^4.4.0",
     "lodash.remove": "^4.5.0",
+    "lodash.some": "^4.4.0",
     "node-uuid": "^1.4.7"
   },
   "devDependencies": {

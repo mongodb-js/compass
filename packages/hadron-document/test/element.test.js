@@ -82,6 +82,101 @@ describe('Element', function() {
     });
   });
 
+  describe('#isModified', function() {
+    context('when the element has no children', function() {
+      context('when the element is not modified', function() {
+        var element = new Element('name', 'Aphex Twin', false);
+
+        it('returns false', function() {
+          expect(element.isModified()).to.equal(false);
+        });
+      });
+
+      context('when the element is added', function() {
+        var element = new Element('name', 'Aphex Twin', true);
+
+        it('returns true', function() {
+          expect(element.isModified()).to.equal(true);
+        });
+      });
+
+      context('when the element is edited', function() {
+        var element = new Element('name', 'Aphex Twin', false);
+
+        before(function() {
+          element.edit('APX');
+        });
+
+        it('returns true', function() {
+          expect(element.isModified()).to.equal(true);
+        });
+      });
+
+      context('when the element is removed', function() {
+        var element = new Element('name', 'Aphex Twin', false);
+
+        before(function() {
+          element.remove();
+        });
+
+        it('returns true', function() {
+          expect(element.isModified()).to.equal(true);
+        });
+      });
+
+      context('when the element is reverted', function() {
+        var element = new Element('name', 'Aphex Twin', false);
+
+        before(function() {
+          element.edit('APX');
+          element.revert();
+        });
+
+        it('returns false', function() {
+          expect(element.isModified()).to.equal(false);
+        });
+      });
+    });
+
+    context('when the element has children', function() {
+      context('when a child element is added', function() {
+        var element = new Element('names', [], false);
+
+        before(function() {
+          element.add('0', 'testing');
+        });
+
+        it('returns true', function() {
+          expect(element.isModified()).to.equal(true);
+        });
+      });
+
+      context('when a child element is edited', function() {
+        var element = new Element('names', [ 'testing' ], false);
+
+        before(function() {
+          element.elements[0].edit('test');
+        });
+
+        it('returns true', function() {
+          expect(element.isModified()).to.equal(true);
+        });
+      });
+
+      context('when a child element is removed', function() {
+        var element = new Element('names', [ 'testing' ], false);
+
+        before(function() {
+          element.elements[0].remove();
+        });
+
+        it('returns true', function() {
+          expect(element.isModified()).to.equal(true);
+        });
+      });
+    });
+  });
+
   describe('#new', function() {
     context('when the element is primitive', function() {
       var element = new Element('name', 'Aphex Twin', false);
