@@ -23,7 +23,9 @@
     "check"
   ],
   "dependencies": {
+    "biguint-format": "^1.0.0",
     "debug": "^2.2.0",
+    "flake-idgen": "^1.1.0",
     "hadron-type-checker": "0.0.1",
     "lodash.foreach": "^4.3.0",
     "lodash.isarray": "^4.0.0",

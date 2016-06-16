@@ -22,6 +22,7 @@ class Document extends EventEmitter {
   add(key, value) {
     var newElement = new Element(key, value, true, this);
     this.elements.push(newElement);
+    this.emit(Element.Events.Added);
     return newElement;
   }
 
