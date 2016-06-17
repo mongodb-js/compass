@@ -77,24 +77,24 @@ module.exports = View.extend({
         return 'INDEX';
       }
     },
+    showWarningTriangle: {
+      deps: ['indexMessageType'],
+      fn: function() {
+        return (this.indexMessageType === 'COLLSCAN' || this.indexMessageType === 'MULTIPLE');
+      }
+    },
     indexMessage: {
       deps: ['indexMessageType'],
       fn: function() {
         if (this.indexMessageType === 'COLLSCAN') {
-          //it would be nice to add color: #7F6A4E to this text
-          //with <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> in color: #FBB129
           return 'No index available for this query.';
         }
         if (this.indexMessageType === 'COVERED') {
-          //put an icon <i class="mms-icon-check"></i> in color: #6BA442
           return 'Query covered by index:';
         }
         if (this.indexMessageType === 'MULTIPLE') {
-          //it would be nice to add color: #7F6A4E to this text
-          //with <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> in color: #FBB129
           return 'Shard results differ (see details below)';
         }
-        //just plain dark gray text
         return 'Query used the following index:';
       }
     },
@@ -113,9 +113,6 @@ module.exports = View.extend({
         if (!this.explainPlan) {
           return '';
         }
-        // for case: YES
-        //it would be nice to add color: #A94442 to this text
-        //with <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> in color: #EF4C4C
         return this.explainPlan.inMemorySort ? 'Yes' : 'No';
       }
     },
@@ -171,6 +168,12 @@ module.exports = View.extend({
     'explainPlan.totalDocsExamined': {
       hook: 'total-docs-examined'
     },
+    'explainPlan.indexUsed': {
+      hook: 'index-used'
+    },
+    'explainPlan.sortStage': {
+      hook: 'sort-stage'
+    },
     'showLinkToIndexes': {
       type: 'switch',
       cases: {
@@ -184,13 +187,17 @@ module.exports = View.extend({
     'explainPlan.executionTimeMillis': {
       hook: 'execution-time-millis'
     },
+    showWarningTriangle: {
+      type: 'toggle',
+      hook: 'index-message-icon'
+    },
     indexMessage: {
       hook: 'index-message-text'
     },
     indexMessageType: [
       {
         type: 'switchAttribute',
-        hook: 'index-message-container',
+        hook: 'index-message-text',
         name: 'style',
         cases: {
           'COLLSCAN': 'color: #7F6A4E;',
@@ -304,7 +311,9 @@ module.exports = View.extend({
       totalKeysExamined: baseURL + '.totalKeysExamined',
       totalDocsExamined: baseURL + '.totalDocsExamined',
       nReturned: baseURL + '.nReturned',
-      executionTimeMillis: baseURL + '.executionTimeMillis'
+      executionTimeMillis: baseURL + '.executionTimeMillis',
+      indexUsed: 'https://docs.mongodb.com/manual/reference/explain-results/#collection-scan-vs-index-use',
+      sortStage: 'https://docs.mongodb.com/manual/reference/explain-results/#sort-stage'
     };
     var url = _.get(urlMap, dataLink, null);
     if (url) {

@@ -24,15 +24,17 @@
                 span.stat-label Actual Query Execution Time (ms):
                 span.stat-value(data-hook='execution-time-millis')
               .stat
-                i.link
+                i.link(data-link='sortStage')
                 span.stat-label Sorted in Memory:
                 span.stat-value(data-hook='in-memory-sort')
               .stat
+                i.link(data-link='indexUsed')
                 span.index-message(data-hook='index-message-container')
+                  i.fa.fa-fw.fa-exclamation-triangle(data-hook='index-message-icon')
                   span(data-hook='index-message-text')
                 .index-definition
                   div(data-hook='link-to-indexes-container')
-                    a(href="#", data-hook='indexes-link') View all indexes
+                    a.view-all-indexes(href="#", data-hook='indexes-link') View all indexes
                   div(data-hook='index-definition-container')
                     div(data-hook='index-definition-subview')
 

@@ -38,11 +38,19 @@
       border-radius: 20px;
     }
 
+    .fa-exclamation-triangle {
+      color: @alertOrange;
+      margin-right: 5px;
+    }
+
     .index-definition {
       margin-top: 0;
+      a.view-all-indexes {
+        margin-left: 15px;
+      }
       p.definition {
         position: static;
-        margin: 6px 6px 0 0;
+        margin: 6px 6px 0 5px;
       }
     }
 
@@ -62,7 +70,7 @@
     font-size: 12px;
 
     &:hover {
-      color: @alertOrange;
+      color: @chart1;
     }
     &:before {
       content: @fa-var-info-circle;
