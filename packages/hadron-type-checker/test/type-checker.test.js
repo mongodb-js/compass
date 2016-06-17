@@ -159,7 +159,9 @@ describe('TypeChecker', function() {
           expect(TypeChecker.castableTypes(value)).to.deep.equal([
             'String',
             'MinKey',
-            'MaxKey'
+            'MaxKey',
+            'Object',
+            'Array'
           ]);
         });
       });
@@ -172,7 +174,9 @@ describe('TypeChecker', function() {
             it('returns the list', function() {
               expect(TypeChecker.castableTypes(value)).to.deep.equal([
                 'String',
-                'Number'
+                'Number',
+                'Object',
+                'Array'
               ]);
             });
           });
@@ -183,7 +187,9 @@ describe('TypeChecker', function() {
             it('returns the list', function() {
               expect(TypeChecker.castableTypes(value)).to.deep.equal([
                 'String',
-                'Number'
+                'Number',
+                'Object',
+                'Array'
               ]);
             });
           });
@@ -195,7 +201,9 @@ describe('TypeChecker', function() {
           it('returns the list', function() {
             expect(TypeChecker.castableTypes(value)).to.deep.equal([
               'String',
-              'Undefined'
+              'Undefined',
+              'Object',
+              'Array'
             ]);
           });
         });
@@ -206,7 +214,9 @@ describe('TypeChecker', function() {
           it('returns the list', function() {
             expect(TypeChecker.castableTypes(value)).to.deep.equal([
               'String',
-              'Null'
+              'Null',
+              'Object',
+              'Array'
             ]);
           });
         });
@@ -216,7 +226,9 @@ describe('TypeChecker', function() {
 
           it('returns the list', function() {
             expect(TypeChecker.castableTypes(value)).to.deep.equal([
-              'String'
+              'String',
+              'Object',
+              'Array'
             ]);
           });
         });
@@ -228,7 +240,9 @@ describe('TypeChecker', function() {
             it('returns the list', function() {
               expect(TypeChecker.castableTypes(value)).to.deep.equal([
                 'String',
-                'Boolean'
+                'Boolean',
+                'Object',
+                'Array'
               ]);
             });
           });
@@ -239,7 +253,9 @@ describe('TypeChecker', function() {
             it('returns the list', function() {
               expect(TypeChecker.castableTypes(value)).to.deep.equal([
                 'String',
-                'Boolean'
+                'Boolean',
+                'Object',
+                'Array'
               ]);
             });
           });
@@ -250,7 +266,9 @@ describe('TypeChecker', function() {
 
           it('returns the list', function() {
             expect(TypeChecker.castableTypes(value)).to.deep.equal([
-              'String'
+              'String',
+              'Object',
+              'Array'
             ]);
           });
         });
@@ -263,7 +281,9 @@ describe('TypeChecker', function() {
       it('returns the list', function() {
         expect(TypeChecker.castableTypes(value)).to.deep.equal([
           'Number',
-          'String'
+          'String',
+          'Object',
+          'Array'
         ]);
       });
     });
@@ -274,7 +294,9 @@ describe('TypeChecker', function() {
       it('returns the list', function() {
         expect(TypeChecker.castableTypes(value)).to.deep.equal([
           'Undefined',
-          'String'
+          'String',
+          'Object',
+          'Array'
         ]);
       });
     });
@@ -285,7 +307,9 @@ describe('TypeChecker', function() {
       it('returns the list', function() {
         expect(TypeChecker.castableTypes(value)).to.deep.equal([
           'Boolean',
-          'String'
+          'String',
+          'Object',
+          'Array'
         ]);
       });
     });
@@ -296,7 +320,9 @@ describe('TypeChecker', function() {
       it('returns the list', function() {
         expect(TypeChecker.castableTypes(value)).to.deep.equal([
           'Boolean',
-          'String'
+          'String',
+          'Object',
+          'Array'
         ]);
       });
     });
@@ -307,7 +333,9 @@ describe('TypeChecker', function() {
       it('returns the list', function() {
         expect(TypeChecker.castableTypes(value)).to.deep.equal([
           'Date',
-          'String'
+          'String',
+          'Object',
+          'Array'
         ]);
       });
     });
@@ -318,7 +346,9 @@ describe('TypeChecker', function() {
       it('returns the list', function() {
         expect(TypeChecker.castableTypes(value)).to.deep.equal([
           'Null',
-          'String'
+          'String',
+          'Object',
+          'Array'
         ]);
       });
     });
@@ -329,7 +359,9 @@ describe('TypeChecker', function() {
       it('returns the list', function() {
         expect(TypeChecker.castableTypes(value)).to.deep.equal([
           'BSONRegExp',
-          'String'
+          'String',
+          'Object',
+          'Array'
         ]);
       });
     });
@@ -340,7 +372,9 @@ describe('TypeChecker', function() {
       it('returns the list', function() {
         expect(TypeChecker.castableTypes(value)).to.deep.equal([
           'Code',
-          'String'
+          'String',
+          'Object',
+          'Array'
         ]);
       });
     });
@@ -351,7 +385,9 @@ describe('TypeChecker', function() {
       it('returns the list', function() {
         expect(TypeChecker.castableTypes(value)).to.deep.equal([
           'Number',
-          'String'
+          'String',
+          'Object',
+          'Array'
         ]);
       });
     });
@@ -362,7 +398,9 @@ describe('TypeChecker', function() {
       it('returns the list', function() {
         expect(TypeChecker.castableTypes(value)).to.deep.equal([
           'Timestamp',
-          'String'
+          'String',
+          'Object',
+          'Array'
         ]);
       });
     });
@@ -373,7 +411,9 @@ describe('TypeChecker', function() {
       it('returns the list', function() {
         expect(TypeChecker.castableTypes(value)).to.deep.equal([
           'MinKey',
-          'String'
+          'String',
+          'Object',
+          'Array'
         ]);
       });
     });
@@ -384,7 +424,9 @@ describe('TypeChecker', function() {
       it('returns the list', function() {
         expect(TypeChecker.castableTypes(value)).to.deep.equal([
           'MaxKey',
-          'String'
+          'String',
+          'Object',
+          'Array'
         ]);
       });
     });

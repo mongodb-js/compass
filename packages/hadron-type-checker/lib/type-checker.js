@@ -6,6 +6,7 @@ const isString = require('lodash.isstring');
 const has = require('lodash.has');
 const find = require('lodash.find');
 const toNumber = require('lodash.tonumber');
+const toString = require('lodash.tostring');
 
 /**
  * The object string.
@@ -54,8 +55,18 @@ function toBoolean(object) {
   return false;
 }
 
-function toTimestamp(object) {
-  return new Timestamp(object);
+function toObject(object) {
+  if (isPlainObject(object)) {
+    return object;
+  }
+  return {};
+}
+
+function toArray(object) {
+  if (isArray(object)) {
+    return object;
+  }
+  return [ object ];
 }
 
 /**
@@ -69,7 +80,9 @@ const CASTERS = {
   'Undefined': toUndefined,
   'Null': toNull,
   'Boolean': toBoolean,
-  'Timestamp': toTimestamp,
+  'String': toString,
+  'Object': toObject,
+  'Array': toArray
 }
 
 class Test {
@@ -83,12 +96,12 @@ class Test {
  * The various string tests.
  */
 const STRING_TESTS = [
-  new Test(/^$/, [ 'String', 'MinKey', 'MaxKey'  ]),
-  new Test(/^-?\d+$/, [ 'String', 'Number' ]),
-  new Test(/^-?(\d*\.)?\d+$/, [ 'String', 'Number' ]),
-  new Test(/^(null)$/, [ 'String', 'Null' ]),
-  new Test(/^(undefined)$/, [ 'String', 'Undefined' ]),
-  new Test(/^(true|false)$/, [ 'String', 'Boolean' ])
+  new Test(/^$/, [ 'String', 'MinKey', 'MaxKey', 'Object', 'Array'  ]),
+  new Test(/^-?\d+$/, [ 'String', 'Number', 'Object', 'Array' ]),
+  new Test(/^-?(\d*\.)?\d+$/, [ 'String', 'Number', 'Object', 'Array' ]),
+  new Test(/^(null)$/, [ 'String', 'Null', 'Object', 'Array' ]),
+  new Test(/^(undefined)$/, [ 'String', 'Undefined', 'Object', 'Array' ]),
+  new Test(/^(true|false)$/, [ 'String', 'Boolean', 'Object', 'Array' ])
 ];
 
 /**
@@ -124,11 +137,18 @@ class TypeChecker {
     return Object.prototype.toString.call(object).replace(MATCH, '$1');
   }
 
+  /**
+   * Get a list of types the object can be cast to.
+   *
+   * @param {Object} - The object.
+   *
+   * @returns {Array} The available types.
+   */
   castableTypes(object) {
     if (isString(object)) {
       return this._stringTypes(object);
     } else {
-      return [ this.type(object), 'String' ];
+      return [ this.type(object), 'String', 'Object', 'Array' ];
     }
   }
 
@@ -136,7 +156,7 @@ class TypeChecker {
     var passing = find(STRING_TESTS, (test) => {
       return test.regex.test(string);
     });
-    return passing ? passing.types : [ 'String' ];
+    return passing ? passing.types : [ 'String', 'Object', 'Array' ];
   }
 }
 

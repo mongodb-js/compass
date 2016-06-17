@@ -30,7 +30,8 @@
     "lodash.isstring": "^4.0.1",
     "lodash.toarray": "^4.2.4",
     "lodash.tonumber": "^4.0.2",
-    "lodash.toplainobject": "^4.0.4"
+    "lodash.toplainobject": "^4.0.4",
+    "lodash.tostring": "^4.1.3"
   },
   "devDependencies": {
     "chai": "^3.4.1",
