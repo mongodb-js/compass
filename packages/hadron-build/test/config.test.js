@@ -95,6 +95,29 @@ describe('hadron-build::config', () => {
       });
     });
   });
+  describe('::custom channel', () => {
+    let res;
+    before( () => {
+      res = getConfig({
+        version: '1.2.0-custom.5',
+        name: 'hadron',
+        product_name: 'Hadron',
+        platform: 'win32',
+        author: 'MongoDB Inc'
+      });
+    });
+    it('should append the channel name to the product name', () => {
+      expect(res.productName).to.equal('Hadron Custom');
+      let versionString = res.packagerOptions['version-string'];
+      expect(versionString.ProductName).to.equal('Hadron Custom');
+    });
+    it('should have the correct asset filenames', () => {
+      expect(res.windows_msi_filename).to.equal('Hadron CustomSetup.msi');
+      expect(res.windows_setup_filename).to.equal('Hadron CustomSetup.exe');
+      expect(res.windows_zip_filename).to.equal('Hadron Custom-windows.zip');
+      expect(res.windows_nupkg_full_filename).to.equal('Hadron-1.2.0-custom5-full.nupkg');
+    });
+  });
   describe('::beta channel', () => {
     let res;
     before( () => {

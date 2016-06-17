@@ -100,19 +100,18 @@ exports.get = (cli, callback) => {
    * and various `electron-installer-*` modules.
    */
   let channel = 'stable';
-  if (cli.argv.version.indexOf('-beta') > -1) {
-    channel = 'beta';
-  } else if (cli.argv.version.indexOf('-dev') > -1) {
-    channel = 'dev';
+  // extract channel from version string, e.g. `beta` for `1.3.5-beta.1`
+  const mtch = cli.argv.version.match(/-([a-z]+)(\.\d+)?$/);
+  if (mtch) {
+    channel = mtch[1];
   }
 
   let PRODUCT_NAME = cli.argv.product_name;
   assert(cli.argv.product_name);
 
-  if (channel === 'beta') {
-    PRODUCT_NAME += ' Beta';
-  } else if (channel === 'dev') {
-    PRODUCT_NAME += ' Dev';
+  if (channel !== 'stable') {
+    // add channel suffix to product name, e.g. "MongoDB Compass Beta"
+    PRODUCT_NAME += ' ' + _.capitalize(channel);
   }
 
   /**
@@ -197,8 +196,9 @@ exports.get = (cli, callback) => {
     CONFIG.windows_zip_label = CONFIG.windows_zip_filename = `${CONFIG.productName}-windows.zip`;
 
     let NUGET_VERSION = CONFIG.version;
-    if (CONFIG.channel === 'beta') {
-      NUGET_VERSION = CONFIG.version.replace(/-beta\.(\d+)/, '-beta$1');
+    if (CONFIG.channel !== 'master') {
+      // remove `.` from version tags for NUGET version
+      NUGET_VERSION = CONFIG.version.replace(new RegExp(`-${channel}\\.(\\d+)`), `-${channel}$1`);
     }
     const NUGET_NAME = CONFIG.productNameRealTitleCase;
     CONFIG.windows_nupkg_full_label = CONFIG.windows_nupkg_full_filename = `${NUGET_NAME}-${NUGET_VERSION}-full.nupkg`;
