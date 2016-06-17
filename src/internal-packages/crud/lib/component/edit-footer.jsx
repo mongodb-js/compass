@@ -15,6 +15,11 @@ class EditFooter extends React.Component {
    */
   constructor(props) {
     super(props);
+    this.doc = props.doc;
+    this.doc.on(Element.Events.Added, this.handleModification.bind(this));
+    this.doc.on(Element.Events.Edited, this.handleModification.bind(this));
+    this.doc.on(Element.Events.Removed, this.handleModification.bind(this));
+    this.doc.on(Element.Events.Reverted, this.handleModification.bind(this));
     this.state = { modified: false };
   }
 
@@ -68,7 +73,7 @@ class EditFooter extends React.Component {
    * Handle modification to the document.
    */
   handleModification() {
-    this.setState({ modified: this.props.doc.isModified() });
+    this.setState({ modified: this.doc.isModified() });
   }
 }
 

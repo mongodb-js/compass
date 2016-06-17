@@ -67,14 +67,6 @@ class DocumentListItem extends React.Component {
     this.setState({});
   }
 
-  handleRevert() {
-    this.setState({});
-  }
-
-  handleEdit() {
-    this.setState({});
-  }
-
   /**
    * Get the elements for the document. If we are editing, we get editable elements,
    * otherwise the readonly elements are returned.
