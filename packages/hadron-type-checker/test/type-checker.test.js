@@ -12,6 +12,10 @@ const Timestamp = bson.Timestamp;
 const TypeChecker = require('../lib/type-checker');
 
 describe('TypeChecker', function() {
+  describe('#cast', function() {
+
+  });
+
   describe('#type', function() {
     context('when the object is a string', function() {
       it('returns String', function() {
@@ -146,107 +150,243 @@ describe('TypeChecker', function() {
     });
   });
 
-  describe('#isConvertableTo', function() {
+  describe('#castableTypes', function() {
     context('when the object is a string', function() {
       context('when the string is empty', function() {
+        var value = '';
 
+        it('returns the list', function() {
+          expect(TypeChecker.castableTypes(value)).to.deep.equal([
+            'String',
+            'MinKey',
+            'MaxKey'
+          ]);
+        });
       });
 
       context('when the string is not empty', function() {
-        context('when the string is non-numeric', function() {
+        context('when the string is numeric', function() {
+          context('when the string is an integer', function() {
+            var value = '24';
 
+            it('returns the list', function() {
+              expect(TypeChecker.castableTypes(value)).to.deep.equal([
+                'String',
+                'Number'
+              ]);
+            });
+          });
+
+          context('when the string is a floating point', function() {
+            var value = '24.7';
+
+            it('returns the list', function() {
+              expect(TypeChecker.castableTypes(value)).to.deep.equal([
+                'String',
+                'Number'
+              ]);
+            });
+          });
         });
 
-        context('when the string is numeric', function() {
+        context('when the string is undefined', function() {
+          var value = 'undefined';
 
+          it('returns the list', function() {
+            expect(TypeChecker.castableTypes(value)).to.deep.equal([
+              'String',
+              'Undefined'
+            ]);
+          });
+        });
+
+        context('when the string is null', function() {
+          var value = 'null';
+
+          it('returns the list', function() {
+            expect(TypeChecker.castableTypes(value)).to.deep.equal([
+              'String',
+              'Null'
+            ]);
+          });
         });
 
         context('when the string is in date format', function() {
+          var value = '2016-10-10';
 
+          it('returns the list', function() {
+            expect(TypeChecker.castableTypes(value)).to.deep.equal([
+              'String'
+            ]);
+          });
         });
 
         context('when the string is a boolean format', function() {
-          context('when the string is "true"', function() {
+          context('when true', function() {
+            var value = 'true';
 
+            it('returns the list', function() {
+              expect(TypeChecker.castableTypes(value)).to.deep.equal([
+                'String',
+                'Boolean'
+              ]);
+            });
           });
 
-          context('when the string is "false"', function() {
+          context('when false', function() {
+            var value = 'false';
 
+            it('returns the list', function() {
+              expect(TypeChecker.castableTypes(value)).to.deep.equal([
+                'String',
+                'Boolean'
+              ]);
+            });
           });
         });
 
         context('when the string is non-deterministic', function() {
+          var value = 'testing';
 
+          it('returns the list', function() {
+            expect(TypeChecker.castableTypes(value)).to.deep.equal([
+              'String'
+            ]);
+          });
         });
       });
     });
 
     context('when the object is a double', function() {
+      var value = 23.113;
 
-    });
-
-    context('when the object is a binary', function() {
-
+      it('returns the list', function() {
+        expect(TypeChecker.castableTypes(value)).to.deep.equal([
+          'Number',
+          'String'
+        ]);
+      });
     });
 
     context('when the object is an undefined', function() {
+      var value = undefined;
 
-    });
-
-    context('when the object is an object id', function() {
-
+      it('returns the list', function() {
+        expect(TypeChecker.castableTypes(value)).to.deep.equal([
+          'Undefined',
+          'String'
+        ]);
+      });
     });
 
     context('when the object is a boolean false', function() {
+      var value = false;
 
+      it('returns the list', function() {
+        expect(TypeChecker.castableTypes(value)).to.deep.equal([
+          'Boolean',
+          'String'
+        ]);
+      });
     });
 
     context('when the object is a boolean true', function() {
+      var value = true;
 
+      it('returns the list', function() {
+        expect(TypeChecker.castableTypes(value)).to.deep.equal([
+          'Boolean',
+          'String'
+        ]);
+      });
     });
 
     context('when the object is a utc date time', function() {
+      var value = new Date();
 
+      it('returns the list', function() {
+        expect(TypeChecker.castableTypes(value)).to.deep.equal([
+          'Date',
+          'String'
+        ]);
+      });
     });
 
     context('when the object is a null', function() {
+      var value = null;
 
+      it('returns the list', function() {
+        expect(TypeChecker.castableTypes(value)).to.deep.equal([
+          'Null',
+          'String'
+        ]);
+      });
     });
 
     context('when the object is a regex', function() {
+      var value = new BSONRegExp(/test/, []);
 
-    });
-
-    context('when the object is a db pointer', function() {
-
-    });
-
-    context('when the object is a code', function() {
-
+      it('returns the list', function() {
+        expect(TypeChecker.castableTypes(value)).to.deep.equal([
+          'BSONRegExp',
+          'String'
+        ]);
+      });
     });
 
     context('when the object is a code with scope', function() {
+      var value = new Code('where something');
 
+      it('returns the list', function() {
+        expect(TypeChecker.castableTypes(value)).to.deep.equal([
+          'Code',
+          'String'
+        ]);
+      });
     });
 
-    context('when the object is a 32bit int', function() {
+    context('when the object is a integer', function() {
+      var value = 123;
 
+      it('returns the list', function() {
+        expect(TypeChecker.castableTypes(value)).to.deep.equal([
+          'Number',
+          'String'
+        ]);
+      });
     });
 
     context('when the object is a timestamp', function() {
+      var value = new Timestamp(0, 10);
 
-    });
-
-    context('when the object is a 64 bit int', function() {
-
+      it('returns the list', function() {
+        expect(TypeChecker.castableTypes(value)).to.deep.equal([
+          'Timestamp',
+          'String'
+        ]);
+      });
     });
 
     context('when the object is a min key', function() {
+      var value = new MinKey();
 
+      it('returns the list', function() {
+        expect(TypeChecker.castableTypes(value)).to.deep.equal([
+          'MinKey',
+          'String'
+        ]);
+      });
     });
 
     context('when the object is a max key', function() {
+      var value = new MaxKey();
 
+      it('returns the list', function() {
+        expect(TypeChecker.castableTypes(value)).to.deep.equal([
+          'MaxKey',
+          'String'
+        ]);
+      });
     });
 
     context('when the object is an object', function() {

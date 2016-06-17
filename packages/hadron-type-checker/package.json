@@ -22,12 +22,17 @@
     "check"
   ],
   "dependencies": {
+    "bson": "^0.4.23",
+    "lodash.foreach": "^4.3.0",
     "lodash.has": "^4.4.0",
     "lodash.isarray": "^4.0.0",
-    "lodash.isplainobject": "^4.0.4"
+    "lodash.isplainobject": "^4.0.4",
+    "lodash.isstring": "^4.0.1",
+    "lodash.toarray": "^4.2.4",
+    "lodash.tonumber": "^4.0.2",
+    "lodash.toplainobject": "^4.0.4"
   },
   "devDependencies": {
-    "bson": "^0.4.23",
     "chai": "^3.4.1",
     "eslint-config-mongodb-js": "^1.0.6",
     "mocha": "^2.3.4",
