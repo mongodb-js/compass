@@ -23,6 +23,7 @@
   ],
   "dependencies": {
     "bson": "^0.4.23",
+    "lodash.find": "^4.4.0",
     "lodash.foreach": "^4.3.0",
     "lodash.has": "^4.4.0",
     "lodash.isarray": "^4.0.0",
