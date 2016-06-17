@@ -7,9 +7,14 @@ var localforage;
 
 var debug = require('debug')('storage-mixin:backends:local');
 
-try {
+// from http://stackoverflow.com/questions/17575790/environment-detection-node-js-or-browser
+/* eslint no-new-func: 0 */
+var isBrowser = new Function('try { return this === window; } catch(e) { return false; }');
+
+// only require localforage in browser context
+if (isBrowser()) {
   localforage = require('localforage');
-} catch (e) {
+} else {
   /* eslint no-console: 0 */
   debug('localforage module not available in non-browser context. '
     + '`local` storage engine will fall back to `null` storage engine.');

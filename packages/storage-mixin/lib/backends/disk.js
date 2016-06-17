@@ -1,6 +1,7 @@
 var inherits = require('util').inherits;
 var BaseBackend = require('./base');
 var fs = require('fs');
+var writeFileAtomic = require('write-file-atomic');
 var path = require('path');
 var async = require('async');
 var _ = require('lodash');
@@ -78,7 +79,7 @@ DiskBackend.prototype._getId = function(modelOrFilename) {
  */
 DiskBackend.prototype._write = function(model, options, done) {
   var file = this._getId(model);
-  fs.writeFile(file, JSON.stringify(this.serialize(model)), 'utf8', done);
+  writeFileAtomic(file, JSON.stringify(this.serialize(model)), done);
 };
 
 /**
