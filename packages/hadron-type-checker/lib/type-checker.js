@@ -7,6 +7,9 @@ const has = require('lodash.has');
 const find = require('lodash.find');
 const toNumber = require('lodash.tonumber');
 const toString = require('lodash.tostring');
+const bson = require('bson');
+const MinKey = bson.MinKey;
+const MaxKey = bson.MaxKey;
 
 /**
  * The object string.

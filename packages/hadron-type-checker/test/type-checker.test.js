@@ -13,7 +13,71 @@ const TypeChecker = require('../lib/type-checker');
 
 describe('TypeChecker', function() {
   describe('#cast', function() {
+    context('when the object is a string', function() {
+      context('when the string is empty', function() {
+        context('when casting to min key', function() {
+          var value = '';
 
+          it('returns the min key', function() {
+            expect(TypeChecker.cast(value, 'MinKey')).to.deep.equal(new MinKey());
+          });
+        });
+
+        context('when casting to max key', function() {
+          var value = '';
+
+          it('returns the max key', function() {
+            expect(TypeChecker.cast(value, 'MaxKey')).to.deep.equal(new MaxKey());
+          });
+        });
+      });
+
+      context('when the string is an integer', function() {
+        context('when casting to a number', function() {
+          var value = '23';
+
+          it('returns the number', function() {
+            expect(TypeChecker.cast(value, 'Number')).to.equal(23);
+          });
+        });
+      });
+
+      context('when the string is a double', function() {
+        context('when casting to a number', function() {
+          var value = '23.45';
+
+          it('returns the number', function() {
+            expect(TypeChecker.cast(value, 'Number')).to.equal(23.45);
+          });
+        });
+      });
+
+      context('when the string is a plain string', function() {
+        context('when casting to a string', function() {
+          var value = 'test';
+
+          it('returns the string', function() {
+            expect(TypeChecker.cast(value, 'String')).to.equal(value);
+          });
+        });
+
+        context('when casting to an object', function() {
+          var value = 'test';
+
+          it('returns an empty object', function() {
+            expect(TypeChecker.cast(value, 'Object')).to.deep.equal({});
+          });
+        });
+
+        context('when casting to an array', function() {
+          var value = 'test';
+
+          it('returns the string wrapped in an array', function() {
+            expect(TypeChecker.cast(value, 'Array')).to.deep.equal([ value ]);
+          });
+        });
+      });
+    });
   });
 
   describe('#type', function() {
