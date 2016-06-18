@@ -37,7 +37,7 @@ class Element extends EventEmitter {
   add(key, value) {
     var newElement = new Element(key, value, true, this);
     this.elements.push(newElement);
-    this.emit(Events.Added);
+    this._bubbleUp(Events.Added);
     return newElement;
   }
 
@@ -90,7 +90,7 @@ class Element extends EventEmitter {
     } else {
       this.currentValue = value;
     }
-    this.emit(Events.Edited);
+    this._bubbleUp(Events.Edited);
   }
 
   /**
@@ -100,7 +100,7 @@ class Element extends EventEmitter {
    */
   rename(key) {
     this.currentKey = key;
-    this.emit(Events.Edited);
+    this._bubbleUp(Events.Edited);
   }
 
   /**
@@ -180,7 +180,7 @@ class Element extends EventEmitter {
   remove() {
     this.revert();
     this.removed = true;
-    this.emit(Events.Removed);
+    this._bubbleUp(Events.Removed);
   }
 
   /**
@@ -199,7 +199,7 @@ class Element extends EventEmitter {
       this._removeAddedElements();
       this.removed = false;
     }
-    this.emit(Events.Reverted);
+    this._bubbleUp(Events.Reverted);
   }
 
   /**
@@ -233,6 +233,18 @@ class Element extends EventEmitter {
     removeValues(this.elements, (element) => {
       return element.isAdded();
     });
+  }
+
+  _bubbleUp(evt) {
+    this.emit(evt);
+    var element = this.parentElement;
+    if (element) {
+      if (element.isRoot()) {
+        element.emit(evt);
+      } else {
+        element._bubbleUp(evt);
+      }
+    }
   }
 }
 

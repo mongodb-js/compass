@@ -4,7 +4,7 @@
   "author": "Durran Jordan <durran@gmail.com>",
   "bugs": "https://github.com/mongodb-js/hadron-document/issues",
   "homepage": "https://github.com/mongodb-js/hadron-document",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/hadron-document.git"
@@ -24,7 +24,7 @@
   ],
   "dependencies": {
     "debug": "^2.2.0",
-    "hadron-type-checker": "0.0.1",
+    "hadron-type-checker": "0.1.0",
     "lodash.foreach": "^4.3.0",
     "lodash.isarray": "^4.0.0",
     "lodash.isplainobject": "^4.0.4",
