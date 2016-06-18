@@ -103,3 +103,4 @@ class Document extends EventEmitter {
 }
 
 module.exports = Document;
+module.exports.Events = Events;
