@@ -78,6 +78,154 @@ describe('TypeChecker', function() {
         });
       });
     });
+
+    context('when the object is a double', function() {
+      context('when casting to a string', function() {
+
+        it('returns the number as a string', function() {
+          expect(TypeChecker.cast(2.45, 'String')).to.equal('2.45');
+        })
+      });
+    });
+
+    context('when the object is a binary', function() {
+      context('when casting to a string', function() {
+        var binary = new Binary('test', 0);
+
+        it('returns the binary as a string', function() {
+          expect(TypeChecker.cast(binary, 'String')).to.equal('test');
+        });
+      });
+    });
+
+    context('when the object is an undefined', function() {
+      context('when casting to a string', function() {
+        it('returns an empty string', function() {
+          expect(TypeChecker.cast(undefined, 'String')).to.equal('');
+        })
+      });
+    });
+
+    context('when the object is an object id', function() {
+      context('when casting to a string', function() {
+        var objectId = new ObjectId();
+
+        it('returns the string id', function() {
+          expect(TypeChecker.cast(objectId, 'String').length).to.equal(24);
+        })
+      });
+    });
+
+    context('when the object is a boolean false', function() {
+      context('when casting to a string', function() {
+        it('returns the string false', function() {
+          expect(TypeChecker.cast(false, 'String')).to.equal('false');
+        });
+      });
+    });
+
+    context('when the object is a boolean true', function() {
+      context('when casting to a string', function() {
+        it('returns the string true', function() {
+          expect(TypeChecker.cast(true, 'String')).to.equal('true');
+        });
+      });
+    });
+
+    context('when the object is a utc date time', function() {
+      context('when casting to a string', function() {
+        var date = new Date(2016, 1, 1);
+
+        it('returns the date as a string', function() {
+          expect(TypeChecker.cast(date, 'String')).to.not.equal('');
+        });
+      });
+    });
+
+    context('when the object is a null', function() {
+      context('when casting to a string', function() {
+        it('returns an empty string', function() {
+          expect(TypeChecker.cast(null, 'String')).to.equal('');
+        });
+      });
+    });
+
+    // context('when the object is a regex', function() {
+      // context('when casting to a string', function() {
+        // var regex = new BSONRegExp('+w', ['i']);
+
+        // it('returns the string regex', function() {
+          // expect(TypeChecker.cast(regex, 'String')).to.equal('BSONRegExp');
+        // })
+      // });
+    // });
+
+    // context('when the object is a code', function() {
+      // var code = new Code('where blah');
+
+      // it('returns Code', function() {
+        // expect(TypeChecker.type(code)).to.equal('Code');
+      // });
+    // });
+
+    // context('when the object is a code with scope', function() {
+      // var code = new Code('where blah', {});
+
+      // it('returns Code', function() {
+        // expect(TypeChecker.type(code)).to.equal('Code');
+      // });
+    // });
+
+    // context('when the object is a 32bit int', function() {
+      // it('returns Number', function() {
+        // expect(TypeChecker.type(1234234)).to.equal('Number');
+      // })
+    // });
+
+    // context('when the object is a timestamp', function() {
+      // var timestamp = new Timestamp(0, 100);
+
+      // it('returns Timestamp', function() {
+        // expect(TypeChecker.type(timestamp)).to.equal('Timestamp');
+      // });
+    // });
+
+    context('when the object is a min key', function() {
+      context('when casting to a string', function() {
+        var minKey = new MinKey();
+
+        it('returns an empty string', function() {
+          expect(TypeChecker.cast(minKey, 'String')).to.equal('');
+        });
+      });
+    });
+
+    context('when the object is a max key', function() {
+      context('when casting to a string', function() {
+        var maxKey = new MaxKey();
+
+        it('returns an empty string', function() {
+          expect(TypeChecker.cast(maxKey, 'String')).to.equal('');
+        });
+      });
+    });
+
+    context('when the object is an object', function() {
+      context('when casting to a string', function() {
+        it('returns an empty string', function() {
+          expect(TypeChecker.cast({}, 'String')).to.equal('');
+        });
+      });
+    });
+
+    context('when the object is an Array', function() {
+      context('when casting to a string', function() {
+        var value = [ 'test', 'test2' ];
+        it('returns Array', function() {
+          expect(TypeChecker.cast(value, 'String')).to.deep.equal('test,test2');
+        });
+      });
+    });
   });
 
   describe('#type', function() {

@@ -112,12 +112,21 @@ const STRING_TESTS = [
  */
 class TypeChecker {
 
+  /**
+   * Cast the provided object to the desired type.
+   *
+   * @param {Object} object - The object to cast.
+   * @param {String} type - The type.
+   *
+   * @returns {Object} The cast object.
+   */
   cast(object, type) {
     var caster = CASTERS[type];
+    var result = object;
     if (caster) {
-      return caster(object);
+      result = caster(object);
     }
-    return object;
+    return result === '[object Object]' ? '' : result;
   }
 
   /**
