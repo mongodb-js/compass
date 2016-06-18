@@ -8,6 +8,13 @@ const Element = require('./element');
 const ObjectGenerator = require('./object-generator');
 
 /**
+ * The event constant.
+ */
+const Events = {
+  'Cancel': 'Document::Cancel'
+};
+
+/**
  * Represents a document.
  */
 class Document extends EventEmitter {
@@ -25,6 +32,13 @@ class Document extends EventEmitter {
     this.elements.push(newElement);
     this.emit(Element.Events.Added);
     return newElement;
+  }
+
+  /**
+   * Send cancel event.
+   */
+  cancel() {
+    this.emit(Events.Cancel);
   }
 
   /**
