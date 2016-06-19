@@ -7,6 +7,7 @@ const EditableValue = require('./editable-value');
 const RevertAction = require('./revert-action');
 const RemoveAction = require('./remove-action');
 const NoAction = require('./no-action');
+const TypeChecker = require('hadron-type-checker');
 
 /**
  * The added constant.
@@ -87,6 +88,21 @@ class EditableElement extends React.Component {
     return this.element.elements ? this.renderExpandable() : this.renderNonExpandable();
   }
 
+  castableTypesComponent() {
+    // Handle array and objects.
+    return _.map(TypeChecker.castableTypes(this.currentValue), (type) => {
+      return (
+        <li>
+          <a href='#' onClick={this.handleTypeChange.bind(this)}>{type}</a>
+        </li>
+      );
+    });
+  }
+
+  handleTypeChange(evt) {
+    console.log(evt);
+  }
+
   renderNonExpandable() {
     return (
       <li className={this.style()}>
@@ -95,7 +111,15 @@ class EditableElement extends React.Component {
         <EditableKey element={this.element} />
         :
         <EditableValue element={this.element} />
-        <div className='types'>{this.element.currentType}</div>
+        <div className='dropdown types'>
+          <button className='btn btn-default dropdown-toggle' type='button' id='dropdownMenu2' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>
+            {this.element.currentType}
+            <span className='caret'></span>
+          </button>
+          <ul className='dropdown-menu' aria-labelledby='dropdownMenu2'>
+            {this.castableTypesComponent()}
+          </ul>
+        </div>
       </li>
     );
   }
