@@ -98,7 +98,12 @@ class DocumentListItem extends React.Component {
     var doc = new HadronDocument(this.props.doc);
     doc.on(Element.Events.Added, this.handleAdd.bind(this));
     doc.on(Element.Events.Removed, this.handleRemove.bind(this));
+    doc.on("Document::Cancel", this.handleCancel.bind(this));
     this.setState({ doc: doc, editing: true });
+  }
+
+  handleCancel() {
+    this.setState({ doc: this.props.doc, editing: false });
   }
 
   handleDelete() {

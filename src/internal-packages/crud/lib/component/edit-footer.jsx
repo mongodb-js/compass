@@ -62,6 +62,7 @@ class EditFooter extends React.Component {
   }
 
   handleCancel() {
+    this.doc.cancel();
     this.setState({ modified: false });
   }
 
