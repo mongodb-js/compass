@@ -8,6 +8,7 @@ const isArray = require('lodash.isarray');
 const some = require('lodash.some');
 const removeValues = require('lodash.remove');
 const includes = require('lodash.includes');
+const indexOf = require('lodash.indexof');
 const ObjectGenerator = require('./object-generator');
 const TypeChecker = require('hadron-type-checker');
 const uuid = require('node-uuid');
@@ -38,6 +39,10 @@ const UNEDITABLE_TYPES = [
   'MaxKey',
   'Timestamp'
 ];
+
+const CURLY = '{';
+
+const BRACKET = '[';
 
 /**
  * Represents an element in a document.
@@ -112,6 +117,22 @@ class Element extends EventEmitter {
   }
 
   /**
+   * Go to the next edit.
+   *
+   * Will check if the value is either { or [ and take appropriate action.
+   */
+  next() {
+    if (this.isLast()) {
+      if (this.currentValue === CURLY) {
+        return this._convertToEmptyObject();
+      } else if (this.currentValue === BRACKET) {
+        return this._convertToEmptyArray();
+      }
+      return this._addToParent();
+    }
+  }
+
+  /**
    * Rename the element.
    *
    * @param {String} key - The new key.
@@ -157,7 +178,18 @@ class Element extends EventEmitter {
    * @returns {Boolean} If the element is edited.
    */
   isEdited() {
-    return (this.key !== this.currentKey || this.value !== this.currentValue) && !this.isAdded();
+    return (this.key !== this.currentKey || this.value !== this.currentValue) &&
+      !this.isAdded();
+  }
+
+  /**
+   * Is the element the last in the elements.
+   *
+   * @returns {Boolean} If the element is last.
+   */
+  isLast() {
+    return indexOf(this.parentElement.elements, this) ===
+      (this.parentElement.elements.length - 1);
   }
 
   /**
@@ -271,6 +303,11 @@ class Element extends EventEmitter {
     });
   }
 
+  /**
+   * Fire and bubble up the event.
+   *
+   * @param {Event} evt - The event.
+   */
   _bubbleUp(evt) {
     this.emit(evt);
     var element = this.parentElement;
@@ -280,6 +317,34 @@ class Element extends EventEmitter {
       } else {
         element._bubbleUp(evt);
       }
+    }
+  }
+
+  /**
+   * Convert this element to an empty object.
+   */
+  _convertToEmptyObject() {
+    this.edit({});
+    this.add('', '');
+  }
+
+  /**
+   * Convert to an empty array.
+   */
+  _convertToEmptyArray() {
+    this.edit([]);
+    this.add('0', '');
+  }
+
+  /**
+   * Add a new element to the parent.
+   */
+  _addToParent() {
+    if (this.parentElement.type === 'Array') {
+      var length = this.parentElement.elements.length;
+      this.parentElement.add(String(length), '');
+    } else {
+      this.parentElement.add('', '');
     }
   }
 }

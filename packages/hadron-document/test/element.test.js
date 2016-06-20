@@ -90,6 +90,90 @@ describe('Element', function() {
     });
   });
 
+  describe('#isLast', function() {
+    var doc = new Document({});
+    var first = doc.add('first', 'test');
+    var last = doc.add('last', 'test');
+
+    context('when the element is the last element', function() {
+      it('returns true', function() {
+        expect(last.isLast()).to.equal(true);
+      });
+    });
+
+    context('when the element is not the last element', function() {
+      it('returns false', function() {
+        expect(first.isLast()).to.equal(false);
+      });
+    });
+  });
+
+  describe('#next', function() {
+    context('when the element is the last element in the parent', function() {
+      context('when the value is changed to {', function() {
+        var doc = new Document({});
+        var first = doc.add('first', 'test');
+        var last = doc.add('last', 'test');
+
+        before(function() {
+          last.edit('{');
+          last.next();
+        });
+
+        it('changes the element to an object', function() {
+          expect(last.elements[0].currentKey).to.equal('');
+          expect(last.elements[0].currentValue).to.equal('');
+        });
+      });
+
+      context('when the value is changed to [', function() {
+        var doc = new Document({});
+        var first = doc.add('first', 'test');
+        var last = doc.add('last', 'test');
+
+        before(function() {
+          last.edit('[');
+          last.next();
+        });
+
+        it('changes the element to an array', function() {
+          expect(last.elements[0].currentKey).to.equal('0');
+          expect(last.elements[0].currentValue).to.equal('');
+        });
+      });
+
+      context('when the value is different', function() {
+        var doc = new Document({});
+        var first = doc.add('first', 'test');
+        var last = doc.add('last', 'test');
+
+        before(function() {
+          last.edit('test');
+          last.next();
+        });
+
+        it('adds another element to the parent', function() {
+          expect(doc.elements[2].currentKey).to.equal('');
+          expect(doc.elements[2].currentValue).to.equal('');
+        });
+      });
+    });
+
+    context('when the element is not the last element is in the parent', function() {
+      var doc = new Document({});
+      var first = doc.add('first', 'test');
+      var last = doc.add('last', 'test');
+
+      before(function() {
+        first.next();
+      });
+
+      it('does not make changes', function() {
+        expect(doc.elements.length).to.equal(2);
+      });
+    });
+  });
+
   describe('#isValueEditable', function() {
     context('when the key is _id', function() {
       var element = new Element('_id', 'test', false);
