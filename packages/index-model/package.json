@@ -2,7 +2,7 @@
   "name": "mongodb-index-model",
   "description": "MongoDB index model.",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "bugs": "https://github.com/mongodb-js/index-model/issues",
   "homepage": "https://github.com/mongodb-js/index-model",
   "repository": {
