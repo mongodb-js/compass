@@ -112,7 +112,7 @@ describe('Element', function() {
     context('when the element is the last element in the parent', function() {
       context('when the value is changed to {', function() {
         var doc = new Document({});
-        var first = doc.add('first', 'test');
+        doc.add('first', 'test');
         var last = doc.add('last', 'test');
 
         before(function() {
@@ -128,7 +128,7 @@ describe('Element', function() {
 
       context('when the value is changed to [', function() {
         var doc = new Document({});
-        var first = doc.add('first', 'test');
+        doc.add('first', 'test');
         var last = doc.add('last', 'test');
 
         before(function() {
@@ -144,7 +144,7 @@ describe('Element', function() {
 
       context('when the value is different', function() {
         var doc = new Document({});
-        var first = doc.add('first', 'test');
+        doc.add('first', 'test');
         var last = doc.add('last', 'test');
 
         before(function() {
@@ -162,7 +162,7 @@ describe('Element', function() {
     context('when the element is not the last element is in the parent', function() {
       var doc = new Document({});
       var first = doc.add('first', 'test');
-      var last = doc.add('last', 'test');
+      doc.add('last', 'test');
 
       before(function() {
         first.next();
