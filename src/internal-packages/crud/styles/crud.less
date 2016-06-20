@@ -65,7 +65,6 @@ ol.document-property-body:hover {
 }
 
 .document-elements {
-  float: left;
   width: 75%;
   counter-reset: line;
   position: relative;
@@ -254,8 +253,9 @@ ol.document-property-body:hover {
 }
 
 .document-actions {
-  float: right;
-  padding-right: 10px;
+  position: absolute;
+  top: 0;
+  right: 10px;
 
   button {
     visibility: hidden;

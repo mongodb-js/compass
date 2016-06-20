@@ -1,5 +1,5 @@
 .truncate-text-mixin() {
-  overflow-x: hidden;
+  // overflow-x: hidden; // commenting out to make the dropdowns work
   text-overflow: ellipsis;
   white-space: nowrap;
   max-width: 100%;
@@ -31,6 +31,7 @@ ol.document-list {
   }
 
   li.document-list-item {
+    position: relative;
     font-family: @font-family-monospace;
     font-size: 11px;
     padding-bottom: 10px;
