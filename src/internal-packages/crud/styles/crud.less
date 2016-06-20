@@ -1,56 +1,58 @@
 .document-footer {
-  height: 25px;
+  font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  height: 28px;
   vertical-align: middle;
   top: 10px;
   position: relative;
 
   .edit-message {
-    float: left;
+    font-size: 14px;
     font-style: italic;
     padding-left: 10px;
+    padding-top: 4px;
+    color: @pw;
   }
 
   .document-footer-actions {
-    float: right;
-    padding-right: 10px;
+    position: absolute;
+    right: 10px;
+    top: 2px;
     padding-top: 1px;
 
     .cancel {
       font-weight: bold;
-      text-transform: uppercase;
-      background-color: #FFFFFF;
-      border: 0px;
     }
 
     .update {
       font-weight: bold;
-      text-transform: uppercase;
-      border: 1px solid #B8860B;
-      border-radius: 4px;
+      border-radius: 3px;
     }
   }
 
   &.modified {
-
-    background-color: #FFA500;
-
-    .edit-message {
-      color: #FFFFFF;
-      font-style: italic;
-    }
+    background-color: @alertOrange;
 
     .document-footer-actions {
 
       .cancel {
-        background-color: #FFA500;
-        color: #B8860B;
+        color: @alertOrangeBorder;
       }
 
       .update {
-        background-color: #FFEFD5;
-        color: #B8860B;
+        color: @alertOrangeBorder;
+        border-color: @alertOrangeBorder;
+
+        &:hover {
+          background-color: rgba(255,255,255,0.7);
+        }
       }
     }
+  }
+  &.in-progress {
+    background-color: @chart1;
+  }
+  &.success {
+    background-color: @green2;
   }
 }
 
@@ -78,7 +80,7 @@ ol.document-property-body:hover {
 
   .line-number {
     display: inline-block;
-    color: #999999;
+    color: @gray4;
     width: 18px;
     height: 17px;
     text-align: center;
@@ -100,21 +102,19 @@ ol.document-property-body:hover {
     height: 17px;
 
     .btn {
+      background-color: transparent;
+      color: @gray4;
+      border: none;
       text-transform: none;
       font-size: 11px;
-      border-radius: 4px;
-      padding-top: 1px;
-      padding-bottom: 1px;
-      padding-right: 4px;
-      padding-left: 4px;
-      width: 100px;
-      text-align: right;
-      border-color: #ffffff;
+      border-radius: 8px;
+      padding: 1px 12px;
     }
 
     .caret {
       visibility: hidden;
       margin-right: 0px;
+      margin-left: 4px;
     }
 
     .dropdown-menu {
@@ -138,14 +138,14 @@ ol.document-property-body:hover {
   }
 
   li.document-property.non-expandable:hover {
-    background-color: #ebebed !important;
+    background-color: @gray8;
 
     input {
-      background-color: #ebebed !important;
-    }
+      background-color: @gray8;
 
-    .line-number {
-      background-color: #ebebed !important;
+      &:focus {
+        background-color: @pw;
+      }
     }
 
     .actions {
@@ -154,7 +154,8 @@ ol.document-property-body:hover {
 
     .types {
       .btn {
-        border-color: #8c8c8c;
+        background-color: @gray6;
+        color: @gray0;
       }
       .caret {
         visibility: visible;
@@ -199,41 +200,53 @@ ol.document-property-body:hover {
     }
 
     &.added {
-      background-color: #98FB98 !important;
+      background-color: @greenBg;
 
       input {
-        background-color: #98FB98 !important;
+        background-color: @greenBg;
+
+        &:focus {
+          background-color: @pw;
+        }
       }
 
       .line-number {
-        background-color: #008000 !important;
-        color: #FFFFFF;
+        background-color: @green2;
+        color: @pw;
       }
     }
 
     &.edited {
-      background-color: #FFEFD5;
+      background-color: @alertOrangeBg;
 
       input {
-        background-color: #FFEFD5;
+        background-color: @alertOrangeBg;
+
+        &:focus {
+          background-color: @pw;
+        }
       }
 
       .line-number {
-        background-color: #FFA500;
-        color: #FFFFFF;
+        background-color: @alertOrange;
+        color: @pw;
       }
     }
 
     &.removed {
-      background-color: #FFB6C1;
+      background-color: @alertRedBg;
 
       input {
-        background-color: #FFB6C1;
+        background-color: @alertRedBg;
+
+        &:focus {
+          background-color: @pw;
+        }
       }
 
       .line-number {
-        background-color: #FF0000;
-        color: #FFFFFF;
+        background-color: @alertRed;
+        color: @pw;
       }
     }
   }
