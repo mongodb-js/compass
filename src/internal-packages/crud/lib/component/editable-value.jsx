@@ -28,14 +28,6 @@ class EditableValue extends React.Component {
     this.state = { value: this.element.currentValue, editing: false };
   }
 
-  componentDidMount() {
-    if (this.element.isAdded()) {
-      if (this.element.parentElement.type === 'Array' && this._node) {
-        this._node.focus();
-      }
-    }
-  }
-
   /**
    * Render a single editable value.
    *
@@ -45,47 +37,24 @@ class EditableValue extends React.Component {
     return (
       <input
         type='text'
-        ref={(c) => this._node = c}
         className={this.style()}
         onBlur={this.handleBlur.bind(this)}
         onFocus={this.handleFocus.bind(this)}
         onChange={this.handleChange.bind(this)}
-        onKeyUp={this.handleKeyUp.bind(this)}
+        onKeyDown={this.handleKeyDown.bind(this)}
         value={this.element.currentValue} />
     );
   }
 
-  handleKeyUp(evt) {
-    if (evt.keyCode === 13) {
-      var value = evt.target.value;
-      if (value === '{') {
-        this.changeElementToObject();
-      } else if (value === '[') {
-        this.changeElementToArray();
-      } else {
-        this.addElementToParent();
-      }
+  /**
+   * When hitting a key on the last element some special things may happen.
+   *
+   * @param {Event} evt - The event.
+   */
+  handleKeyDown(evt) {
+    if (evt.keyCode === 9 && !evt.shiftKey) {
+      this.element.next();
     }
-  }
-
-  addElementToParent() {
-    var parentElement = this.element.parentElement;
-    if (parentElement.type === 'Array') {
-      var length = parentElement.elements.length;
-      parentElement.add(String(length), '');
-    } else {
-      parentElement.add('', '');
-    }
-  }
-
-  changeElementToObject() {
-    this.element.edit({});
-    this.element.add('', '');
-  }
-
-  changeElementToArray() {
-    this.element.edit([]);
-    this.element.add('0', '');
   }
 
   /**
@@ -94,7 +63,7 @@ class EditableValue extends React.Component {
    * @param {Event} evt - The event.
    */
   handleChange(evt) {
-    if (this.isEditable()) {
+    if (this.element.isValueEditable()) {
       this.element.edit(evt.target.value);
       this.setState({ value: this.element.currentValue });
     }
@@ -104,7 +73,7 @@ class EditableValue extends React.Component {
    * Handle focus on the value.
    */
   handleFocus() {
-    if (this.isEditable()) {
+    if (this.element.isValueEditable()) {
       this.setState({ editing: true });
     }
   }
@@ -113,13 +82,9 @@ class EditableValue extends React.Component {
    * Handle blur from the value.
    */
   handleBlur() {
-    if (this.isEditable()) {
+    if (this.element.isValueEditable()) {
       this.setState({ editing: false });
     }
-  }
-
-  isEditable() {
-    return this.element.key !== '_id';
   }
 
   /**

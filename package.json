@@ -104,7 +104,7 @@
     "hadron-auto-update-manager": "^0.0.12",
     "hadron-compile-cache": "^0.1.0",
     "hadron-component-registry": "^0.2.1",
-    "hadron-document": "^0.8.3",
+    "hadron-document": "^0.9.0",
     "hadron-ipc": "^0.0.7",
     "hadron-module-cache": "^0.0.3",
     "hadron-package-manager": "0.1.0",

@@ -17,11 +17,6 @@ class Types extends React.Component {
   constructor(props) {
     super(props);
     this.element = props.element;
-    this.element.on(Element.Events.Added, this.handleModification.bind(this));
-    this.element.on(Element.Events.Edited, this.handleModification.bind(this));
-    this.element.on(Element.Events.Removed, this.handleModification.bind(this));
-    this.element.on(Element.Events.Reverted, this.handleModification.bind(this));
-    this.state = { type: this.element.currentType };
   }
 
   /**
@@ -35,6 +30,7 @@ class Types extends React.Component {
         <button
           className='btn btn-default dropdown-toggle'
           type='button'
+          tabIndex='-1'
           id='types-dropdown'
           data-toggle='dropdown'
           aria-haspopup='true'
@@ -71,13 +67,8 @@ class Types extends React.Component {
     return this.element.currentValue;
   }
 
-  handleModification() {
-    this.setState({ type: this.element.currentType });
-  }
-
   handleTypeChange(evt) {
     this.element.edit(TypeChecker.cast(this.castableValue(), evt.target.innerText));
-    this.setState({ type: this.element.currentType });
   }
 }
 
