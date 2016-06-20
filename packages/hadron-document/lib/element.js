@@ -122,14 +122,12 @@ class Element extends EventEmitter {
    * Will check if the value is either { or [ and take appropriate action.
    */
   next() {
-    if (this.isLast()) {
-      if (this.currentValue === CURLY) {
-        return this._convertToEmptyObject();
-      } else if (this.currentValue === BRACKET) {
-        return this._convertToEmptyArray();
-      }
-      return this._addToParent();
+    if (this.currentValue === CURLY) {
+      return this._convertToEmptyObject();
+    } else if (this.currentValue === BRACKET) {
+      return this._convertToEmptyArray();
     }
+    return this._addToParent();
   }
 
   /**
@@ -340,11 +338,13 @@ class Element extends EventEmitter {
    * Add a new element to the parent.
    */
   _addToParent() {
-    if (this.parentElement.type === 'Array') {
-      var length = this.parentElement.elements.length;
-      this.parentElement.add(String(length), '');
-    } else {
-      this.parentElement.add('', '');
+    if (this.isLast()) {
+      if (this.parentElement.type === 'Array') {
+        var length = this.parentElement.elements.length;
+        this.parentElement.add(String(length), '');
+      } else {
+        this.parentElement.add('', '');
+      }
     }
   }
 }
