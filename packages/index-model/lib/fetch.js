@@ -7,6 +7,7 @@
 var _ = require('lodash');
 var async = require('async');
 var mongodbNS = require('mongodb-ns');
+var isNotAuthorizedError = require('mongodb-js-errors').isNotAuthorized;
 
 // var debug = require('debug')('mongodb-index-model:fetch');
 
@@ -54,6 +55,15 @@ function getIndexStats(done, results) {
   var collection = db.db(ns.database).collection(ns.collection);
   collection.aggregate(pipeline, function(err, res) {
     if (err) {
+      if (isNotAuthorizedError(err)) {
+        /**
+         * In the 3.2 server, `readWriteAnyDatabase@admin` does not grant sufficient privileges for $indexStats.
+         * The `clusterMonitor` role is required to run $indexStats.
+         * @see https://jira.mongodb.org/browse/INT-1520
+         */
+        return done(null, {});
+      }
+
       if (err.message.match(/Unrecognized pipeline stage name/)) {
         // $indexStats not yet supported, return empty document
         return done(null, {});

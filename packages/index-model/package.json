@@ -28,6 +28,7 @@
     "ampersand-rest-collection": "^6.0.0",
     "async": "^1.5.2",
     "lodash": "^4.8.2",
+    "mongodb-js-errors": "^0.2.1",
     "mongodb-ns": "^1.0.3",
     "triejs": "github:rueckstiess/triejs"
   },
