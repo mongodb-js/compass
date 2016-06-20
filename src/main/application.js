@@ -112,6 +112,25 @@ Application.prototype.setupUserDirectory = function() {
     var userDataDir = path.resolve(path.join(
       __dirname, '..', '..', '.user-data'));
     app.setPath('userData', userDataDir);
+  } else if (process.env.NODE_ENV === 'development') {
+    var channel = 'stable';
+    // extract channel from version string, e.g. `beta` for `1.3.5-beta.1`
+    // TODO @thomasr this is a copy of the functionality in hadron-build.
+    // Eventually this should live in a hadron-version module.
+    var appName = app.getName();
+    var mtch = app.getVersion().match(/-([a-z]+)(\.\d+)?$/);
+    if (mtch) {
+      channel = mtch[1];
+    }
+    if (channel !== 'stable' && !appName.toLowerCase().endsWith(channel)) {
+      // add channel suffix to product name, e.g. "MongoDB Compass Dev"
+      var newAppName = appName + ' ' + _.capitalize(channel);
+      app.setName(newAppName);
+      // change preference paths (note: this will still create the default
+      // path first, but we are ok with this for development builds)
+      app.setPath('userData', path.join(app.getPath('appData'), newAppName));
+      app.setPath('userCache', path.join(app.getPath('cache'), newAppName));
+    }
   }
 };
 
