@@ -28,9 +28,13 @@ class EditableKey extends React.Component {
     this.state = { key: this.element.currentKey, editing: false };
   }
 
+  /**
+   * Focus on this field on mount, so the tab can do it's job and move
+   * to the value field.
+   */
   componentDidMount() {
     if (this.element.isAdded()) {
-      if (this.isEditable() && this._node) {
+      if (!this.isEditable() && this._node) {
         this._node.focus();
       }
     }
@@ -85,8 +89,13 @@ class EditableKey extends React.Component {
     }
   }
 
+  /**
+   * Is this component editable?
+   *
+   * @returns {Boolean} If the component is editable.
+   */
   isEditable() {
-    return this.element.key !== '_id' && this.element.parentElement.type !== 'Array';
+    return this.element.isKeyEditable() && this.element.parentElement.currentType !== 'Array';
   }
 
   /**
