@@ -7,6 +7,7 @@ const isObject = require('lodash.isplainobject');
 const isArray = require('lodash.isarray');
 const some = require('lodash.some');
 const removeValues = require('lodash.remove');
+const includes = require('lodash.includes');
 const ObjectGenerator = require('./object-generator');
 const TypeChecker = require('hadron-type-checker');
 const uuid = require('node-uuid');
@@ -20,6 +21,23 @@ const Events = {
   'Removed': 'Element::Removed',
   'Reverted': 'Element::Reverted'
 };
+
+/**
+ * Id field constant.
+ */
+const ID = '_id';
+
+/**
+ * Types that are not editable.
+ */
+const UNEDITABLE_TYPES = [
+  'ObjectID',
+  'Binary',
+  'Code',
+  'MinKey',
+  'MaxKey',
+  'Timestamp'
+];
 
 /**
  * Represents an element in a document.
@@ -140,6 +158,24 @@ class Element extends EventEmitter {
    */
   isEdited() {
     return (this.key !== this.currentKey || this.value !== this.currentValue) && !this.isAdded();
+  }
+
+  /**
+   * Determine if the value is editable.
+   *
+   * @returns {Boolean} If the value is editable.
+   */
+  isValueEditable() {
+    return this.isKeyEditable() && !includes(UNEDITABLE_TYPES, this.currentType);
+  }
+
+  /**
+   * Determine if the key is editable.
+   *
+   * @returns {Boolean} If the key is editable.
+   */
+  isKeyEditable() {
+    return this.currentKey !== ID;
   }
 
   /**

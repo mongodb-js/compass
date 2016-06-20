@@ -1,5 +1,13 @@
 'use strict';
 
+const bson = require('bson');
+const ObjectId = bson.ObjectId;
+const Binary = bson.Binary;
+const Code = bson.Code;
+const MaxKey = bson.MaxKey;
+const MinKey = bson.MinKey;
+const Timestamp = bson.Timestamp;
+
 const chai = require('chai');
 const expect = chai.expect;
 const Document = require('../lib/document');
@@ -78,6 +86,74 @@ describe('Element', function() {
       it('does not flag the new elements as edited', function() {
         expect(element.elements[0].isEdited()).to.equal(false);
         expect(element.elements[0].elements[0].isEdited()).to.equal(false);
+      });
+    });
+  });
+
+  describe('#isValueEditable', function() {
+    context('when the key is _id', function() {
+      var element = new Element('_id', 'test', false);
+
+      it('returns false', function() {
+        expect(element.isValueEditable()).to.equal(false);
+      });
+    });
+
+    context('when the key is not _id', function() {
+      context('when the type is ObjectId', function() {
+        var element = new Element('name', new ObjectId(), false);
+
+        it('returns false', function() {
+          expect(element.isValueEditable()).to.equal(false);
+        });
+      });
+
+      context('when the type is binary', function() {
+        var element = new Element('name', new Binary('test'), false);
+
+        it('returns false', function() {
+          expect(element.isValueEditable()).to.equal(false);
+        });
+      });
+
+      context('when the type is code', function() {
+        var element = new Element('name', new Code('test'), false);
+
+        it('returns false', function() {
+          expect(element.isValueEditable()).to.equal(false);
+        });
+      });
+
+      context('when the type is min key', function() {
+        var element = new Element('name', new MinKey(), false);
+
+        it('returns false', function() {
+          expect(element.isValueEditable()).to.equal(false);
+        });
+      });
+
+      context('when the type is max key', function() {
+        var element = new Element('name', new MaxKey(), false);
+
+        it('returns false', function() {
+          expect(element.isValueEditable()).to.equal(false);
+        });
+      });
+
+      context('when the type is a timestamp', function() {
+        var element = new Element('name', new Timestamp(0, 0), false);
+
+        it('returns false', function() {
+          expect(element.isValueEditable()).to.equal(false);
+        });
+      });
+
+      context('when the type is editable', function() {
+        var element = new Element('name', 'test', false);
+
+        it('returns true', function() {
+          expect(element.isValueEditable()).to.equal(true);
+        });
       });
     });
   });
