@@ -130,7 +130,7 @@
     "qs": "^5.2.0",
     "raf": "^3.1.0",
     "semver": "^5.1.0",
-    "storage-mixin": "^0.6.1",
+    "storage-mixin": "^0.6.2",
     "turf-destination": "^1.2.1",
     "turf-distance": "^1.1.0",
     "turf-point": "^2.0.1",
