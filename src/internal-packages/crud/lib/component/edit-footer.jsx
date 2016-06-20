@@ -43,8 +43,8 @@ class EditFooter extends React.Component {
     if (this.state.modified) {
       return (
         <div className='document-footer-actions'>
-          <button className='cancel' type='button' onClick={this.handleCancel.bind(this)}>Cancel</button>
-          <button className='update' type='button' onClick={this.handleUpdate.bind(this)}>Update</button>
+          <button className='btn btn-link btn-xs cancel' type='button' onClick={this.handleCancel.bind(this)}>Cancel</button>
+          <button className='btn btn-default btn-xs update' type='button' onClick={this.handleUpdate.bind(this)}>Update</button>
         </div>
       );
     }
