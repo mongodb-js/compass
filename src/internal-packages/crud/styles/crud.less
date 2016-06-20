@@ -109,16 +109,81 @@ ol.document-property-body:hover {
       padding-left: 4px;
       width: 100px;
       text-align: right;
+      border-color: #ffffff;
+    }
+
+    .caret {
+      visibility: hidden;
+      margin-right: 0px;
     }
 
     .dropdown-menu {
-
+      li {
+        span {
+          display: block;
+          padding: 3px 20px;
+          clear: both;
+          font-weight: normal;
+          font-size: 11px;
+          color: #333333;
+          white-space: nowrap;
+        }
+        span:hover {
+          color: #313030;
+          text-decoration: none;
+          background: #e6e6e6;
+        }
+      }
     }
   }
 
-  li.document-property:hover {
+  li.document-property.non-expandable:hover {
+    background-color: #ebebed !important;
+
+    input {
+      background-color: #ebebed !important;
+    }
+
+    .line-number {
+      background-color: #ebebed !important;
+    }
+
     .actions {
       visibility: visible;
+    }
+
+    .types {
+      .btn {
+        border-color: #8c8c8c;
+      }
+      .caret {
+        visibility: visible;
+      }
+    }
+  }
+
+  div.document-property-header:hover {
+    background-color: #ebebed !important;
+
+    input {
+      background-color: #ebebed !important;
+    }
+
+    .line-number {
+      background-color: #ebebed !important;
+    }
+
+    .actions {
+      visibility: visible;
+    }
+
+    .types {
+      .btn {
+        border-color: #8c8c8c;
+      }
+      .caret {
+        visibility: visible;
+      }
     }
   }
 

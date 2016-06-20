@@ -7,7 +7,7 @@ const EditableValue = require('./editable-value');
 const RevertAction = require('./revert-action');
 const RemoveAction = require('./remove-action');
 const NoAction = require('./no-action');
-const TypeChecker = require('hadron-type-checker');
+const Types = require('./types');
 
 /**
  * The added constant.
@@ -59,6 +59,8 @@ const LABEL_CLASS = 'document-property-type-label';
  */
 const EXPANDED = 'expanded';
 
+const NON_EXPANDABLE = 'non-expandable';
+
 /**
  * General editable element component.
  */
@@ -88,21 +90,6 @@ class EditableElement extends React.Component {
     return this.element.elements ? this.renderExpandable() : this.renderNonExpandable();
   }
 
-  castableTypesComponent() {
-    // Handle array and objects.
-    return _.map(TypeChecker.castableTypes(this.currentValue), (type) => {
-      return (
-        <li>
-          <a href='#' onClick={this.handleTypeChange.bind(this)}>{type}</a>
-        </li>
-      );
-    });
-  }
-
-  handleTypeChange(evt) {
-    console.log(evt);
-  }
-
   renderNonExpandable() {
     return (
       <li className={this.style()}>
@@ -111,15 +98,7 @@ class EditableElement extends React.Component {
         <EditableKey element={this.element} />
         :
         <EditableValue element={this.element} />
-        <div className='dropdown types'>
-          <button className='btn btn-default dropdown-toggle' type='button' id='dropdownMenu2' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>
-            {this.element.currentType}
-            <span className='caret'></span>
-          </button>
-          <ul className='dropdown-menu' aria-labelledby='dropdownMenu2'>
-            {this.castableTypesComponent()}
-          </ul>
-        </div>
+        <Types element={this.element} />
       </li>
     );
   }
@@ -214,6 +193,9 @@ class EditableElement extends React.Component {
       style = style.concat(` ${EDITED}`);
     } else if (this.element.isRemoved()) {
       style = style.concat(` ${REMOVED}`);
+    }
+    if (!this.element.elements) {
+      style = style.concat(` ${NON_EXPANDABLE}`);
     }
     if (this.state.expanded) {
       style = style.concat(` ${EXPANDED}`);
