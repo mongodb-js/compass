@@ -60,7 +60,8 @@ var USER_PASSWORD = {
       template: inputTemplate,
       name: 'ssh_tunnel_password',
       label: 'SSH Password',
-      required: true
+      required: true,
+      type: 'password'
     })
   ]
 };
