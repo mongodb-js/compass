@@ -42,7 +42,7 @@ const DOCUMENT_CLASS = 'document-property-body';
 /**
  * The header class for expandable elements.
  */
-const HEADER_CLASS = 'document-property-header';
+const HEADER_CLASS = 'document-property-header expandable';
 
 /**
  * The property class.
