@@ -91,8 +91,6 @@ class EditFooter extends React.Component {
    */
   handleUpdate() {
     var object = this.props.doc.generateObject();
-    console.log('##################### UPDATING ######################');
-    console.log(object);
     this.setState({ mode: PROGRESS, message: UPDATING });
     Actions.updateDocument(object);
   }
@@ -158,6 +156,9 @@ class EditFooter extends React.Component {
   renderButtons() {
     if (this.state.mode === ERROR || this.state.mode === EDITING) {
       return [ this.renderCancelButton(), this.renderUpdateButton() ];
+    }
+    if (this.state.mode === VIEWING) {
+      return [ this.renderCancelButton() ];
     }
   }
 
