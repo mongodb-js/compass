@@ -150,12 +150,7 @@ class Element extends EventEmitter {
       return this.currentValue;
     }
     if (this.currentType === 'Array') {
-      return map(this.elements, (element) => {
-        if (element.elements) {
-          return element.generateObject();
-        }
-        return element.currentValue;
-      });
+      return ObjectGenerator.generateArray(this.elements);
     }
     return ObjectGenerator.generate(this.elements);
   }

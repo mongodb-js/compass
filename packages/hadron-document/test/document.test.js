@@ -294,12 +294,14 @@ describe('Document', function() {
       members: [ 'Richard James' ],
       albums: [
         { name: 'Syro' }
-      ]
+      ],
+      label: 'Warp'
     };
     var doc = new Document(object);
     var address = doc.elements[0];
     var postalCode = address.elements[0];
     var email = doc.elements[1];
+    var label = doc.elements[4];
 
     it('sets the postal code edit', function() {
       postalCode.edit(72550);
@@ -340,6 +342,7 @@ describe('Document', function() {
     });
 
     it('generates an update object', function() {
+      label.remove();
       expect(doc.generateObject()).to.deep.equal({
         address: {
           postal_code: 72550,
