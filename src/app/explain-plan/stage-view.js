@@ -1,6 +1,7 @@
 var $ = require('jquery');
 var View = require('ampersand-view');
 var d3 = require('d3');
+// var tooltipMixin = require('../tooltip-mixin');
 var _ = require('lodash');
 
 var debug = require('debug')('mongodb-compass:explain:stage-view');
@@ -15,7 +16,7 @@ var zIndexCounter = 100;
  * by the d3.layout.flextree() algorithm, but then placed via CSS. The
  * connecting lines between cards are SVG, see ./tree-view.js
  */
-module.exports = View.extend({
+module.exports = View.extend( /* tooltipMixin, */ {
   template: stageTemplate,
   props: {
     detailsOpen: {
@@ -49,6 +50,12 @@ module.exports = View.extend({
         return this.model.curStageExecTimeMS - this.model.prevStageExecTimeMS;
       }
     }
+    // clockTooltipMessage: {
+    //   deps: ['deltaExecTime'],
+    //   fn: function() {
+    //     return 'This stage took an estimated\n' + this.deltaExecTime + 'ms to execute.';
+    //   }
+    // }
   },
   events: {
     'click [data-hook=details] > button.btn': 'detailsClicked'
@@ -82,6 +89,19 @@ module.exports = View.extend({
       name: 'open',
       hook: 'details'
     }
+    // clockTooltipMessage: {
+    //   selector: '.clock',
+    //   type: function(el) {
+    //     // need to set `title` and `data-original-title` due to bug in bootstrap's tooltip
+    //     // @see https://github.com/twbs/bootstrap/issues/14769
+    //     this.tooltip({
+    //       el: el,
+    //       title: this.clockTooltipMessage,
+    //       placement: 'top',
+    //       container: 'body'
+    //     }).attr('data-original-title', this.clockTooltipMessage);
+    //   }
+    // }
   },
   initialize: function() {
     if (this.model.isShard) {

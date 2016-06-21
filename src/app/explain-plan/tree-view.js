@@ -161,6 +161,8 @@ module.exports = View.extend({
     if (node.isShard) {
       node.curStageExecTimeMS = node.prevStageExecTimeMS;
     }
+    // never return negative values
+    node.curStageExecTimeMS = Math.max(0, node.curStageExecTimeMS);
     return node.curStageExecTimeMS;
   }
 });
