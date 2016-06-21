@@ -3,6 +3,7 @@
 const _ = require('lodash');
 const React = require('react');
 const ElementFactory = require('hadron-component-registry').ElementFactory;
+const DocumentUpdateStore = require('../store/document-update-store');
 const HadronDocument = require('hadron-document');
 const Element = require('hadron-document').Element;
 const EditableElement = require('./editable-element');
@@ -30,7 +31,44 @@ class DocumentListItem extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.state = { doc: props.doc, editing: false };
+    this.doc = props.doc;
+    this.state = { doc: this.doc, editing: false };
+  }
+
+  /**
+   * Subscribe to the update store on mount.
+   */
+  componentDidMount() {
+    this.unsubscribe = DocumentUpdateStore.listen(this.handleStoreTrigger.bind(this));
+  }
+
+  /**
+   * Unsubscribe from the udpate store on unmount.
+   */
+  componentWillUnmount() {
+    this.unsubscribe();
+  }
+
+  /**
+   * Handles a trigger from the store.
+   *
+   * @param {ObjectId) id - The object id of the document.
+   * @param {Boolean} success - If the update succeeded.
+   * @param {Error, Document} object - The error or document.
+   */
+  handleStoreTrigger(id, success, object) {
+    console.log('################## TRIGGER #################');
+    console.log(object);
+    if (id === this.doc._id) {
+      if (success) {
+        this.handleSuccess(object);
+      }
+    }
+  }
+
+  handleSuccess(doc) {
+    this.doc = doc;
+    this.setState({ doc: doc, editing: false });
   }
 
   /**
@@ -95,7 +133,7 @@ class DocumentListItem extends React.Component {
    * Handle the editing of the document.
    */
   handleEdit() {
-    var doc = new HadronDocument(this.props.doc);
+    var doc = new HadronDocument(this.doc);
     doc.on(Element.Events.Added, this.handleAdd.bind(this));
     doc.on(Element.Events.Removed, this.handleRemove.bind(this));
     doc.on("Document::Cancel", this.handleCancel.bind(this));
@@ -103,7 +141,7 @@ class DocumentListItem extends React.Component {
   }
 
   handleCancel() {
-    this.setState({ doc: this.props.doc, editing: false });
+    this.setState({ doc: this.doc, editing: false });
   }
 
   handleDelete() {

@@ -22,11 +22,11 @@ const DocumentUpdateStore = Reflux.createStore({
   _updateDocument: function(object) {
     var ns = NamespaceStore.ns;
     var filter = { _id: object._id };
-    app.dataService.updateOne(ns, filter, object, {}, (error, result) => {
+    app.dataService.findOneAndReplace(ns, filter, object, { returnOriginal: false }, (error, doc) => {
       if (error) {
-        this.trigger(object._id, false, error.message);
+        this.trigger(object._id, false, error);
       } else {
-        this.trigger(object._id, true);
+        this.trigger(object._id, true, doc);
       }
     });
   }

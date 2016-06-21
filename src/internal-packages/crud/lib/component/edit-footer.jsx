@@ -1,9 +1,29 @@
 'use strict';
 
+const _ = require('lodash');
 const React = require('react');
 const Element = require('hadron-document').Element;
 const DocumentUpdateStore = require('../store/document-update-store');
 const Actions = require('../actions');
+
+const PROGRESS = 'Progress';
+const SUCCESS = 'Success';
+const ERROR = 'Error';
+const EDITING = 'Editing';
+const VIEWING = 'Viewing';
+
+const MODES = {
+  'Progress': 'in-progress',
+  'Success': 'success',
+  'Error': 'error',
+  'Editing': 'modified',
+  'Viewing': 'viewing'
+}
+
+const EMPTY = '';
+const MODIFIED = 'Document Modified.';
+const UPDATING = 'Updating Document.';
+const UPDATED = 'Document Updated.';
 
 /**
  * Component for a the edit document footer.
@@ -22,35 +42,83 @@ class EditFooter extends React.Component {
     this.doc.on(Element.Events.Edited, this.handleModification.bind(this));
     this.doc.on(Element.Events.Removed, this.handleModification.bind(this));
     this.doc.on(Element.Events.Reverted, this.handleModification.bind(this));
-    this.state = {
-      modified: false,
-      updating: false,
-      updated: false,
-      errored: false,
-      message: ''
-    };
+    this.state = { mode: VIEWING, message: EMPTY };
   }
 
-  handleDocumentUpdated(id, success, message) {
-    console.log(id);
-    console.log(success);
-    console.log(message);
-    console.log(this.doc.doc._id);
-    if (id === this.doc.doc._id) {
-      if (success) {
-        this.setState({ updating: false, updated: true, message: 'Document Updated' });
-      } else {
-        this.setState({ updating: false, errored: true, message: message });
-      }
-    }
-  }
-
+  /**
+   * Subscribe to the update store on mount.
+   */
   componentDidMount() {
-    this.unsubscribe = DocumentUpdateStore.listen(this.handleDocumentUpdated.bind(this));
+    this.unsubscribe = DocumentUpdateStore.listen(this.handleStoreTrigger.bind(this));
   }
 
+  /**
+   * Unsubscribe from the udpate store on unmount.
+   */
   componentWillUnmount() {
     this.unsubscribe();
+  }
+
+  /**
+   * Handle the user clicking the cancel button.
+   */
+  handleCancel() {
+    this.doc.cancel();
+    this.setState({ mode: VIEWING });
+  }
+
+  /**
+   * Handle an error with the document update.
+   *
+   * @param {Error} error - The error.
+   */
+  handleError(error) {
+    this.setState({ mode: ERROR, message: error.message });
+  }
+
+  /**
+   * Handle modification to the document.
+   */
+  handleModification() {
+    this.setState({
+      mode: this.doc.isModified() ? EDITING : VIEWING,
+      message: MODIFIED
+    });
+  }
+
+  /**
+   * Handle the user clicking the update button.
+   */
+  handleUpdate() {
+    var object = this.props.doc.generateObject();
+    console.log('##################### UPDATING ######################');
+    console.log(object);
+    this.setState({ mode: PROGRESS, message: UPDATING });
+    Actions.updateDocument(object);
+  }
+
+  /**
+   * Handle a successful document update.
+   */
+  handleSuccess() {
+    this.setState({ mode: SUCCESS, message: UPDATED });
+  }
+
+  /**
+   * Handles a trigger from the store.
+   *
+   * @param {ObjectId) id - The object id of the document.
+   * @param {Boolean} success - If the update succeeded.
+   * @param {Error, Document} object - The error or document.
+   */
+  handleStoreTrigger(id, success, object) {
+    if (id === this.doc.doc._id) {
+      if (success) {
+        this.handleSuccess();
+      } else {
+        this.handleError(object);
+      }
+    }
   }
 
   /**
@@ -64,55 +132,76 @@ class EditFooter extends React.Component {
         <div className='edit-message'>
           {this.state.message}
         </div>
-        {this.actions()}
+        {this.renderActions()}
       </div>
     );
   }
 
-  actions() {
-    if (this.state.modified) {
-      return (
-        <div className='document-footer-actions'>
-          <button className='btn btn-link btn-xs cancel' type='button' onClick={this.handleCancel.bind(this)}>Cancel</button>
-          <button className='btn btn-default btn-xs update' type='button' onClick={this.handleUpdate.bind(this)}>Update</button>
-        </div>
-      );
-    }
+  /**
+   * Render the actions for the footer.
+   *
+   * @returns {Component} The react component.
+   */
+  renderActions() {
     return (
-      <div className='document-footer-actions'></div>
+      <div className='document-footer-actions'>
+        {this.renderButtons()}
+      </div>
     );
   }
 
-  style() {
-    var style = 'document-footer';
-    if (this.state.updating) {
-      style = style.concat(' in-progress');
-    } else if (this.state.updated) {
-      style = style.concat(' success');
-    } else if (this.state.errored) {
-      style = style.concat(' error');
-    } else if (this.state.modified) {
-      style = style.concat(' modified');
+  /**
+   * Render the buttons for the footer.
+   *
+   * @returns {Component} The react component.
+   */
+  renderButtons() {
+    if (this.state.mode === ERROR || this.state.mode === EDITING) {
+      return [ this.renderCancelButton(), this.renderUpdateButton() ];
     }
-    return style;
-  }
-
-  handleCancel() {
-    this.doc.cancel();
-    this.setState({ modified: false });
-  }
-
-  handleUpdate() {
-    var object = this.props.doc.generateObject();
-    this.setState({ updating: true, errored: false, message: 'Updating document' });
-    Actions.updateDocument(object);
   }
 
   /**
-   * Handle modification to the document.
+   * Render the cancel button.
+   *
+   * @returns {Component} The react component.
    */
-  handleModification() {
-    this.setState({ modified: this.doc.isModified(), errored: false, message: 'Document Modified' });
+  renderCancelButton() {
+    return (
+      <button
+        key='cancelButton'
+        className='btn btn-link btn-xs cancel'
+        type='button'
+        onClick={this.handleCancel.bind(this)}>
+        Cancel
+      </button>
+    );
+  }
+
+  /**
+   * Render the cancel button.
+   *
+   * @returns {Component} The react component.
+   */
+  renderUpdateButton() {
+    return (
+      <button
+        key='updateButton'
+        className='btn btn-default btn-xs update'
+        type='button'
+        onClick={this.handleUpdate.bind(this)}>
+        Update
+      </button>
+    );
+  }
+
+  /**
+   * Get the style of the footer based on the current mode.
+   *
+   * @returns {String} The style.
+   */
+  style() {
+    return `document-footer ${MODES[this.state.mode]}`;
   }
 }
 
