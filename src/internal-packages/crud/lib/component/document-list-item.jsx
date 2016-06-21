@@ -57,11 +57,11 @@ class DocumentListItem extends React.Component {
    * @param {Error, Document} object - The error or document.
    */
   handleStoreTrigger(id, success, object) {
-    console.log('################## TRIGGER #################');
-    console.log(object);
-    if (id === this.doc._id) {
-      if (success) {
-        this.handleSuccess(object);
+    if (this.state.editing) {
+      if (id === this.doc._id) {
+        if (success) {
+          this.handleSuccess(object);
+        }
       }
     }
   }
@@ -81,19 +81,29 @@ class DocumentListItem extends React.Component {
           <div className='document-elements'>
             {this.elements()}
           </div>
-          <div className='document-actions'>
-            <button type='button' onClick={this.handleEdit.bind(this)}>Edit</button>
-            <button type='button' onClick={this.handleDelete.bind(this)}>Delete</button>
-          </div>
+          {this.renderActions()}
         </ol>
-        {this.footer()}
+        {this.renderFooter()}
       </li>
     );
   }
 
-  footer() {
+  renderActions() {
+    if (!this.state.editing) {
+      return (
+        <div className='document-actions'>
+          <button type='button' onClick={this.handleEdit.bind(this)}>Edit</button>
+          <button type='button' onClick={this.handleDelete.bind(this)}>Delete</button>
+        </div>
+      );
+    }
+  }
+
+  renderFooter() {
     if (this.state.editing) {
-      return (<EditFooter doc={this.state.doc} />);
+      return (
+        <EditFooter doc={this.state.doc} />
+      );
     }
   }
 
