@@ -198,6 +198,24 @@ class NativeClient {
   }
 
   /**
+   * Find one document and replace it with the replacement.
+   *
+   * @param {String} ns - The namespace to search on.
+   * @param {Object} filter - The filter.
+   * @param {Object} replacement - The replacement doc.
+   * @param {Object} options - The query options.
+   * @param {Function} callback - The callback.
+   */
+  findOneAndReplace(ns, filter, replacement, options, callback) {
+    this._collection(ns).findOneAndReplace(filter, replacement, options, (error, result) => {
+      if (error) {
+        return callback(this._translateMessage(error));
+      }
+      callback(null, result.value);
+    });
+  }
+
+  /**
    * Returns explain plan for the provided filter and options on the collection.
    *
    * @param {String} ns - The namespace to search on.

@@ -4,6 +4,7 @@ var assert = helper.assert;
 var expect = helper.expect;
 var eventStream = helper.eventStream;
 var Connection = require('mongodb-connection-model');
+var ObjectId = require('bson').ObjectId;
 
 var NativeClient = require('../lib/native-client');
 
@@ -191,6 +192,57 @@ describe('NativeClient', function() {
             expect(docs.length).to.equal(0);
             done();
           });
+        });
+      });
+    });
+  });
+
+  describe('#findOneAndReplace', function() {
+    after(function(done) {
+      helper.deleteTestDocuments(client, function() {
+        done();
+      });
+    });
+
+    context('when no error occurs', function() {
+      var id = new ObjectId();
+
+      it('returns the updated document', function(done) {
+        client.insertOne('data-service.test', { _id: id, a: 500 }, {}, function(err) {
+          assert.equal(null, err);
+          client.findOneAndReplace(
+            'data-service.test',
+            { _id: id },
+            { b: 5 },
+            { returnOriginal: false },
+            function(error, result) {
+              expect(error).to.equal(null);
+              expect(result._id).to.deep.equal(id);
+              expect(result.b).to.equal(5);
+              expect(result.hasOwnProperty('a')).to.equal(false);
+              done();
+            }
+          );
+        });
+      });
+    });
+
+    context('when an error occurs', function() {
+      var id = new ObjectId();
+
+      it('returns the updated document', function(done) {
+        client.insertOne('data-service.test', { _id: id, a: 500 }, {}, function(err) {
+          assert.equal(null, err);
+          client.findOneAndReplace(
+            'data-service.test',
+            { _id: id },
+            { '$b': 5 },
+            { returnOriginal: false },
+            function(error) {
+              expect(error.message).to.not.equal(null);
+              done();
+            }
+          );
         });
       });
     });
