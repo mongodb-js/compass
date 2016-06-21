@@ -334,7 +334,9 @@ class Element extends EventEmitter {
    */
   _addToParent() {
     if (this.isLast()) {
-      if (this.parentElement.type === 'Array') {
+      console.log('1');
+      if (this.parentElement.currentType === 'Array') {
+        console.log('2');
         var length = this.parentElement.elements.length;
         this.parentElement.add(String(length), '');
       } else {

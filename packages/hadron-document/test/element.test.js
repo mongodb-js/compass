@@ -142,6 +142,26 @@ describe('Element', function() {
         });
       });
 
+      context('when the value is changed to [ and additional elements are added', function() {
+        var doc = new Document({});
+        doc.add('first', 'test');
+        var last = doc.add('last', 'test');
+        var newLast = null;
+
+        before(function() {
+          last.edit('[');
+          last.next();
+          newLast = last.elements[0];
+          newLast.edit('testing');
+          newLast.next();
+        });
+
+        it('adds the additional elements to the array', function() {
+          expect(last.elements[1].currentKey).to.equal('1');
+          expect(last.elements[1].currentValue).to.equal('');
+        });
+      });
+
       context('when the value is different', function() {
         var doc = new Document({});
         doc.add('first', 'test');
