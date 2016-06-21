@@ -1,13 +1,14 @@
-var helper = require('./helper');
+'use strict';
 
-var assert = helper.assert;
-var expect = helper.expect;
+const helper = require('./helper');
+const assert = helper.assert;
+const expect = helper.expect;
 
-var NativeClient = require('../lib/native-client');
-var fixture = require('mongodb-connection-fixture');
-var Connection = require('mongodb-connection-model');
-var SshTunnelConnector = require('../lib/ssh-tunnel-connector');
-var _ = require('lodash');
+const NativeClient = require('../lib/native-client');
+const fixture = require('mongodb-connection-fixture');
+const Connection = require('mongodb-connection-model');
+const SshTunnelConnector = require('../lib/ssh-tunnel-connector');
+const _ = require('lodash');
 
 describe('SshTunnelConnector', function() {
   this.timeout(15000);
@@ -35,4 +36,25 @@ describe('SshTunnelConnector', function() {
       });
     });
   }
+  describe('#regression', function() {
+    /**
+     * @see https://jira.mongodb.org/browse/INT-1510
+     */
+    it('should error when ssh fails', function(done) {
+      var connector = new SshTunnelConnector({
+        dstHost: 'localhost',
+        dstPort: 27107,
+        username: 'foo',
+        password: 'bar',
+        host: 'remotehost',
+        sshPort: 22
+      });
+
+      connector.connect(function(err) {
+        expect(err).not.to.equal(null, 'should have an error');
+        expect(err).not.to.equal(undefined, 'should have an error');
+        done();
+      });
+    });
+  });
 });
