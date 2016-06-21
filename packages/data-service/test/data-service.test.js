@@ -3,6 +3,7 @@ var helper = require('./helper');
 var assert = helper.assert;
 var expect = helper.expect;
 var eventStream = helper.eventStream;
+var ObjectId = require('bson').ObjectId;
 
 var DataService = require('../lib/data-service');
 
@@ -50,6 +51,35 @@ describe('DataService', function() {
         assert.equal(null, error);
         expect(docs.length).to.equal(1);
         done();
+      });
+    });
+  });
+
+  describe('#findOneAndReplace', function() {
+    after(function(done) {
+      helper.deleteTestDocuments(service.client, function() {
+        done();
+      });
+    });
+
+    var id = new ObjectId();
+
+    it('returns the updated document', function(done) {
+      service.insertOne('data-service.test', { _id: id, a: 500 }, {}, function(err) {
+        assert.equal(null, err);
+        service.findOneAndReplace(
+          'data-service.test',
+          { _id: id },
+          { b: 5 },
+          { returnOriginal: false },
+          function(error, result) {
+            expect(error).to.equal(null);
+            expect(result._id).to.deep.equal(id);
+            expect(result.b).to.equal(5);
+            expect(result.hasOwnProperty('a')).to.equal(false);
+            done();
+          }
+        );
       });
     });
   });

@@ -141,6 +141,20 @@ class DataService extends EventEmitter {
   }
 
   /**
+   * Find one document and replace it with the replacement.
+   *
+   * @param {String} ns - The namespace to search on.
+   * @param {Object} filter - The filter.
+   * @param {Object} replacement - The replacement doc.
+   * @param {Object} options - The query options.
+   * @param {Function} callback - The callback.
+   */
+  findOneAndReplace(ns, filter, replacement, options, callback) {
+    debug(`#findOneAndReplace: ${ns}, filter: ${filter}, replacement: ${replacement}, options: ${options}`);
+    this.client.findOneAndReplace(ns, filter, replacement, options, callback);
+  }
+
+  /**
    * Returns explain plan for the provided filter and options on the collection.
    *
    * @param {String} ns - The namespace to search on.
