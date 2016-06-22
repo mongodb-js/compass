@@ -115,8 +115,8 @@ ol.document-list {
             display: inline-block;
             width: 12px;
             height: 1em;
-            margin-left: 2px;
-            margin-right: 10px;
+            margin-left: -8px !important; // remove important hack later
+            margin-right: 4px;
             .caret-right;
           }
 
@@ -131,18 +131,21 @@ ol.document-list {
         }
 
         ol.document-property-body {
-          // margin-left: 21px;
-          padding-left: 36px;
-          // border-left: 1px dotted @gray6;
+          padding-left: 0;
           display: none;
+
+          .document-property-key,
+          .editable-key {
+            margin-left: 16px;
+          }
         }
         &.expanded {
           > .document-property-header {
             > .caret {
               .caret-down;
               vertical-align: bottom;
-              margin-left: 4px;
-              margin-right: 8px;
+              margin-left: -10px !important; // remove important hack later
+              margin-right: 2px;
             }
           }
           > ol.document-property-body {
