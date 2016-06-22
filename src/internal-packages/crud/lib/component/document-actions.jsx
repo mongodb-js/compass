@@ -1,6 +1,8 @@
 'use strict';
 
 const React = require('react');
+const EditDocumentButton = require('./edit-document-button');
+const DeleteDocumentButton = require('./delete-document-button');
 
 /**
  * Component for actions on the document.
@@ -24,8 +26,8 @@ class DocumentActions extends React.Component {
   render() {
     return (
       <div className='document-actions'>
-        <button type='button' onClick={this.props.edit}>Edit</button>
-        <button type='button' onClick={this.props.remove}>Delete</button>
+        <EditDocumentButton handler={this.props.edit} />
+        <DeleteDocumentButton handler={this.props.remove} />
       </div>
     );
   }
