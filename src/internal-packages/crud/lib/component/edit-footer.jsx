@@ -3,8 +3,6 @@
 const _ = require('lodash');
 const React = require('react');
 const Element = require('hadron-document').Element;
-const DocumentUpdateStore = require('../store/document-update-store');
-const Actions = require('../actions');
 
 const PROGRESS = 'Progress';
 const SUCCESS = 'Success';
@@ -38,10 +36,14 @@ class EditFooter extends React.Component {
   constructor(props) {
     super(props);
     this.doc = props.doc;
+    this.updateStore = props.updateStore;
+    this.actions = props.actions;
+
     this.doc.on(Element.Events.Added, this.handleModification.bind(this));
     this.doc.on(Element.Events.Edited, this.handleModification.bind(this));
     this.doc.on(Element.Events.Removed, this.handleModification.bind(this));
     this.doc.on(Element.Events.Reverted, this.handleModification.bind(this));
+
     this.state = { mode: VIEWING, message: EMPTY };
   }
 
@@ -49,14 +51,14 @@ class EditFooter extends React.Component {
    * Subscribe to the update store on mount.
    */
   componentDidMount() {
-    this.unsubscribe = DocumentUpdateStore.listen(this.handleStoreTrigger.bind(this));
+    this.unsubscribeUpdate = this.updateStore.listen(this.handleStoreUpdate.bind(this));
   }
 
   /**
    * Unsubscribe from the udpate store on unmount.
    */
   componentWillUnmount() {
-    this.unsubscribe();
+    this.unsubscribeUpdate();
   }
 
   /**
@@ -92,7 +94,7 @@ class EditFooter extends React.Component {
   handleUpdate() {
     var object = this.props.doc.generateObject();
     this.setState({ mode: PROGRESS, message: UPDATING });
-    Actions.updateDocument(object);
+    this.actions.update(object);
   }
 
   /**
@@ -105,17 +107,14 @@ class EditFooter extends React.Component {
   /**
    * Handles a trigger from the store.
    *
-   * @param {ObjectId) id - The object id of the document.
    * @param {Boolean} success - If the update succeeded.
    * @param {Error, Document} object - The error or document.
    */
-  handleStoreTrigger(id, success, object) {
-    if (id === this.doc.doc._id) {
-      if (success) {
-        this.handleSuccess();
-      } else {
-        this.handleError(object);
-      }
+  handleStoreUpdate(success, object) {
+    if (success) {
+      this.handleSuccess();
+    } else {
+      this.handleError(object);
     }
   }
 

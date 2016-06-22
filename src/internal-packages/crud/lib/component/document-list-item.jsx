@@ -1,9 +1,11 @@
 'use strict';
 
 const _ = require('lodash');
+const app = require('ampersand-app');
 const React = require('react');
+const Reflux = require('reflux');
 const ElementFactory = require('hadron-component-registry').ElementFactory;
-const DocumentUpdateStore = require('../store/document-update-store');
+const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const HadronDocument = require('hadron-document');
 const Element = require('hadron-document').Element;
 const EditableElement = require('./editable-element');
@@ -33,85 +35,131 @@ class DocumentListItem extends React.Component {
     super(props);
     this.doc = props.doc;
     this.state = { doc: this.doc, editing: false };
+
+    // Actions need to be scoped to the single document component and not
+    // global singletons.
+    this.actions = Reflux.createActions([ 'update', 'delete' ]);
+
+    // The update store needs to be scoped to a document and not a global
+    // singleton.
+    this.updateStore = this.createUpdateStore(this.actions);
+  }
+
+  /**
+   * Create the scoped update store.
+   *
+   * @param {Action} actions - The component reflux actions.
+   *
+   * @returns {Store} The scoped store.
+   */
+  createUpdateStore(actions) {
+    return Reflux.createStore({
+
+      /**
+       * Initialize the store.
+       */
+      init: function() {
+        this.ns = NamespaceStore.ns;
+        this.listenTo(actions.update, this.update);
+      },
+
+      /**
+       * Update the document in the database.
+       *
+       * @param {Object} object - The replacement document.
+       */
+      update: function(object) {
+        app.dataService.findOneAndReplace(
+          this.ns,
+          { _id: object._id },
+          object,
+          { returnOriginal: false },
+          this.handleResult
+        );
+      },
+
+      /**
+       * Handle the result from the driver.
+       *
+       * @param {Error} error - The error.
+       * @param {Object} doc - The document.
+       *
+       * @returns {Object} The trigger event.
+       */
+      handleResult: function(error, doc) {
+        return (error) ? this.trigger(false, error) : this.trigger(true, doc);
+      }
+    });
   }
 
   /**
    * Subscribe to the update store on mount.
    */
   componentDidMount() {
-    this.unsubscribe = DocumentUpdateStore.listen(this.handleStoreTrigger.bind(this));
+    this.unsubscribeUpdate = this.updateStore.listen(this.handleStoreUpdate.bind(this));
   }
 
   /**
    * Unsubscribe from the udpate store on unmount.
    */
   componentWillUnmount() {
-    this.unsubscribe();
+    this.unsubscribeUpdate();
   }
 
   /**
    * Handles a trigger from the store.
    *
-   * @param {ObjectId) id - The object id of the document.
    * @param {Boolean} success - If the update succeeded.
    * @param {Error, Document} object - The error or document.
    */
-  handleStoreTrigger(id, success, object) {
+  handleStoreUpdate(success, object) {
     if (this.state.editing) {
-      if (id === this.doc._id) {
-        if (success) {
-          this.handleSuccess(object);
-        }
+      if (success) {
+        this.handleSuccess(object);
       }
     }
   }
 
+  /**
+   * Handle a sucessful update.
+   *
+   * @param {Object} doc - The updated document.
+   */
   handleSuccess(doc) {
     this.doc = doc;
     this.setState({ doc: doc, editing: false });
   }
 
   /**
-   * Render a single document list item.
+   * Handle the editing of the document.
    */
-  render() {
-    return (
-      <li className={LIST_ITEM_CLASS}>
-        <ol className={DOCUMENT_CLASS}>
-          <div className='document-elements'>
-            {this.elements()}
-          </div>
-          {this.renderActions()}
-        </ol>
-        {this.renderFooter()}
-      </li>
-    );
+  handleEdit() {
+    var doc = new HadronDocument(this.doc);
+    doc.on(Element.Events.Added, this.handleModify.bind(this));
+    doc.on(Element.Events.Removed, this.handleModify.bind(this));
+    doc.on(HadronDocument.Events.Cancel, this.handleCancel.bind(this));
+
+    this.setState({ doc: doc, editing: true });
   }
 
-  renderActions() {
-    if (!this.state.editing) {
-      return (
-        <div className='document-actions'>
-          <button type='button' onClick={this.handleEdit.bind(this)}>Edit</button>
-          <button type='button' onClick={this.handleDelete.bind(this)}>Delete</button>
-        </div>
-      );
-    }
+  /**
+   * Handles canceling edits to the document.
+   */
+  handleCancel() {
+    this.setState({ doc: this.doc, editing: false });
   }
 
-  renderFooter() {
-    if (this.state.editing) {
-      return (
-        <EditFooter doc={this.state.doc} />
-      );
-    }
+  /**
+   * Handles document deletion.
+   */
+  handleDelete() {
+
   }
 
-  handleAdd() {
-    this.setState({});
-  }
-
-  handleRemove() {
+  /**
+   * Handles modification to the document.
+   */
+  handleModify() {
     this.setState({});
   }
 
@@ -135,36 +183,56 @@ class DocumentListItem extends React.Component {
    */
   editableElements() {
     return _.map(this.state.doc.elements, (element) => {
-      return this.elementComponent(element);
+      return (
+        <EditableElement key={element.uuid} element={element} />
+      );
     });
   }
 
   /**
-   * Handle the editing of the document.
+   * Render a single document list item.
    */
-  handleEdit() {
-    var doc = new HadronDocument(this.doc);
-    doc.on(Element.Events.Added, this.handleAdd.bind(this));
-    doc.on(Element.Events.Removed, this.handleRemove.bind(this));
-    doc.on("Document::Cancel", this.handleCancel.bind(this));
-    this.setState({ doc: doc, editing: true });
-  }
-
-  handleCancel() {
-    this.setState({ doc: this.doc, editing: false });
-  }
-
-  handleDelete() {
-
+  render() {
+    return (
+      <li className={LIST_ITEM_CLASS}>
+        <ol className={DOCUMENT_CLASS}>
+          <div className='document-elements'>
+            {this.elements()}
+          </div>
+          {this.renderActions()}
+        </ol>
+        {this.renderFooter()}
+      </li>
+    );
   }
 
   /**
-   * Get the component for the element value.
+   * Render the actions.
    *
-   * @returns {EditableValue,EditableExpandableElement} The element.
+   * @returns {Component} The actions component.
    */
-  elementComponent(element) {
-    return React.createElement(EditableElement, { key: element.uuid, element: element });
+  renderActions() {
+    if (!this.state.editing) {
+      return (
+        <div className='document-actions'>
+          <button type='button' onClick={this.handleEdit.bind(this)}>Edit</button>
+          <button type='button' onClick={this.handleDelete.bind(this)}>Delete</button>
+        </div>
+      );
+    }
+  }
+
+  /**
+   * Render the footer component.
+   *
+   * @returns {Component} The footer component.
+   */
+  renderFooter() {
+    if (this.state.editing) {
+      return (
+        <EditFooter doc={this.state.doc} updateStore={this.updateStore} actions={this.actions} />
+      );
+    }
   }
 }
 
