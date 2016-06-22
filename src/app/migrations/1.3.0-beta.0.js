@@ -1,6 +1,7 @@
 var Preferences = require('../models/preferences');
 var pkg = require('../../../package.json');
 var async = require('async');
+var ConnectionCollection = require('../models/connection-collection');
 var _ = require('lodash');
 var debug = require('debug')('mongodb-compass:migrations:1.3.0-beta.0');
 
@@ -42,10 +43,42 @@ function renameMetricsVariables(done) {
   oldPrefs.fetch();
 }
 
+/**
+ * Renames the metrics preference variable to be more meaningful:
+ *
+ * preferences.googleMaps --> preferences.enableMaps
+ *
+ * @param  {Function} done   callback when finished
+ */
+function addTreasureHuntConnection(done) {
+  var connection = {
+    _id: 'mongodb-world-treasure-hunt-connection',
+    hostname: 'data.mongodb.parts',
+    port: 27017,
+    name: 'The Lost Temple',
+    last_used: new Date('1996-12-06T04:00:00-0500'),
+    is_favorite: true
+    // authentication: 'MONGODB',
+    // mongodb_username: 'foo',
+    // mongodb_password: 'bar',
+    // mongodb_database_name: 'admin'
+  };
+  var connections = new ConnectionCollection();
+  connections.create(connection, {
+    success: function() {
+      done();
+    },
+    error: function(err) {
+      done(err);
+    }
+  });
+}
+
 module.exports = function(previousVersion, currentVersion, callback) {
   // do migration tasks here
   async.series([
-    renameMetricsVariables
+    renameMetricsVariables,
+    addTreasureHuntConnection
   ], function(err) {
     if (err) {
       return callback(err);
