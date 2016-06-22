@@ -2,11 +2,7 @@
 
 const React = require('react');
 const Element = require('../element');
-
-/**
- * The elipsis constant.
- */
-const ELIPSIS = '...';
+const Truncator = require('./truncator');
 
 /**
  * Component for string types.
@@ -17,10 +13,8 @@ class StringElement extends React.Component {
    * Render a string element.
    */
   render() {
-    var string = this.props.value.length > 500 ?
-      this.props.value.substring(0, 500) + ELIPSIS : this.props.value;
     return (
-      <Element field={this.props.field} value={string} type={this.props.type} />
+      <Element field={this.props.field} value={Truncator.truncate(this.props.value)} type={this.props.type} />
     );
   }
 }
