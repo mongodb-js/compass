@@ -39,17 +39,19 @@ module.exports = [
     description: 'Click the Index tab to view the definition, attributes, size, and usage of your indexes.',
     image: 'f5.gif',
     version: '1.2.0',
-    initial: false
-  },
-  {
-    title: 'Examine Query Performance with Explain Plans',
-    description: 'Click the Explain Plan tab to view a performance summary of the executed query and get access to the detailed explain plan report.',
-    image: 'f7.gif',
-    version: '1.2.0',
     initial: true
   }
+  // Use for the version that users upgrade to in the treasure hunt
+  // currently scheduled as 1.3.0-beta.1.
   // {
-  //   title: 'Find with Location',
+  //   title: 'Examine Query Performance with Explain Plans',
+  //   description: 'Click the Explain Plan tab to view a performance summary of the executed query and get access to the detailed explain plan report.',
+  //   image: 'f7.gif',
+  //   version: '1.2.0',
+  //   initial: true
+  // }
+  // {
+  //   title: 'Geo Location Queries',
   //   description: 'Collections with location data can be used as a filter. Click and drag across the map for a geographic query. Click "Apply" to resample with the coordinates.',
   //   image: 'f6.gif',
   //   version: '1.2.0',

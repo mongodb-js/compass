@@ -67,7 +67,7 @@ var TourView = View.extend({
     previousVersion: {
       deps: ['app.preferences.showFeatureTour'],
       fn: function() {
-        return app.preferences.showFeatureTour;
+        return app.preferences.showFeatureTour || '0.0.0';
       }
     },
     title: {
@@ -111,6 +111,18 @@ var TourView = View.extend({
     if (_.isArray(model.features)) {
       return model.features;
     }
+
+    // add the diary page if treasure hunt is active
+    if (app.isFeatureEnabled('treasureHunt')) {
+      FEATURES.splice(5, 0, {
+        title: 'Diary Page',
+        description: 'Hmmm... This is the missing half of Capt\'n Eliot Blackbeard\'s Diary Page. What is that doing here?',
+        image: 'diary-page-bottom.png',
+        version: '1.3.0',
+        initial: true
+      });
+    }
+
     model.features = _.filter(FEATURES, function(feature) {
       return (model.force && feature.initial)
         || (model.previousVersion === '0.0.0' && feature.initial)
