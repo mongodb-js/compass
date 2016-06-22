@@ -5,9 +5,11 @@ const React = require('react');
 const ReactDOM = require('react-dom');
 const app = require('ampersand-app');
 const Action = require('hadron-action');
+const ObjectID = require('bson').ObjectID;
 const Document = require('./document');
 const ResetDocumentListStore = require('../store/reset-document-list-store');
 const LoadMoreDocumentsStore = require('../store/load-more-documents-store');
+const RemoveDocumentStore = require('../store/remove-document-store');
 
 /**
  * The full document list container class.
@@ -42,6 +44,7 @@ class DocumentList extends React.Component {
     this.attachScrollEvent();
     this.unsubscribeReset = ResetDocumentListStore.listen(this.handleReset.bind(this));
     this.unsubscribeLoadMore = LoadMoreDocumentsStore.listen(this.handleLoadMore.bind(this));
+    this.unsubscribeRemove = RemoveDocumentStore.listen(this.handleRemove.bind(this));
   }
 
   /**
@@ -50,6 +53,7 @@ class DocumentList extends React.Component {
   componentWillUnmount() {
     this.unsubscribeReset();
     this.unsubscribeLoadMore();
+    this.unsubscribeRemove();
   }
 
   /**
@@ -93,6 +97,21 @@ class DocumentList extends React.Component {
       currentPage: 1,
       count: count,
       loadedCount: documents.length
+    });
+  }
+
+  handleRemove(id) {
+    // Reset the list minus the document with the id.
+    var index = _.findIndex(this.state.docs, (component) => {
+      if (id instanceof ObjectID) {
+        return id.equals(component.props.doc._id);
+      }
+      return component.props.doc._id === id;
+    });
+    this.state.docs.splice(index, 1);
+    this.setState({
+      docs: this.state.docs,
+      loadedCount: (this.state.loadedCount - 1)
     });
   }
 

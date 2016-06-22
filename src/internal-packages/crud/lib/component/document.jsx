@@ -173,10 +173,8 @@ class Document extends React.Component {
    * @param {Error, Document} object - The error or document.
    */
   handleStoreRemove(success) {
-    if (this.state.editing) {
-      if (success) {
-        this.handleRemoveSuccess();
-      }
+    if (success) {
+      this.handleRemoveSuccess();
     }
   }
 
