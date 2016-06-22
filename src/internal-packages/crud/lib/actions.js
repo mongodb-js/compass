@@ -2,10 +2,6 @@
 
 const Reflux = require('reflux');
 
-const Actions = Reflux.createActions([
-  'updateDocument',
-  'documentUpdateSucceeded',
-  'documentUpdateFailed'
-]);
+const Actions = Reflux.createActions([ 'documentRemoved' ]);
 
 module.exports = Actions;

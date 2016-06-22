@@ -14,8 +14,8 @@ const DocumentListStore = Reflux.createStore({
    * Initialize the document list store.
    */
   init: function() {
-    this.listenTo(Action.filterChanged, this._resetDocuments);
-    this.listenTo(Action.fetchNextDocuments, this._fetchNextDocuments);
+    this.listenTo(Action.filterChanged, this.resetDocuments);
+    this.listenTo(Action.fetchNextDocuments, this.nextDocuments);
   },
 
   /**
@@ -23,7 +23,7 @@ const DocumentListStore = Reflux.createStore({
    *
    * @param {Object} filter - The query filter.
    */
-  _resetDocuments: function(filter) {
+  resetDocuments: function(filter) {
     var ns = NamespaceStore.ns;
     if (ns) {
       app.dataService.count(ns, filter, {}, (err, count) => {
@@ -40,7 +40,7 @@ const DocumentListStore = Reflux.createStore({
    *
    * @param {Integer} currentPage - The current page in the view.
    */
-  _fetchNextDocuments: function(currentPage) {
+  nextDocuments: function(currentPage) {
     var ns = NamespaceStore.ns;
     if (ns) {
       var filter = app.queryOptions.query.serialize();

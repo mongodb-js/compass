@@ -4,12 +4,34 @@ const _ = require('lodash');
 const React = require('react');
 const Element = require('hadron-document').Element;
 
+/**
+ * The progress mode.
+ */
 const PROGRESS = 'Progress';
+
+/**
+ * The success mode.
+ */
 const SUCCESS = 'Success';
+
+/**
+ * The error mode.
+ */
 const ERROR = 'Error';
+
+/**
+ * The editing mode.
+ */
 const EDITING = 'Editing';
+
+/**
+ * The viewing mode.
+ */
 const VIEWING = 'Viewing';
 
+/**
+ * Map of modes to styles.
+ */
 const MODES = {
   'Progress': 'in-progress',
   'Success': 'success',
@@ -18,9 +40,24 @@ const MODES = {
   'Viewing': 'viewing'
 }
 
+/**
+ * The empty message.
+ */
 const EMPTY = '';
+
+/**
+ * The modified message.
+ */
 const MODIFIED = 'Document Modified.';
+
+/**
+ * The updating message.
+ */
 const UPDATING = 'Updating Document.';
+
+/**
+ * The updated message.
+ */
 const UPDATED = 'Document Updated.';
 
 /**
