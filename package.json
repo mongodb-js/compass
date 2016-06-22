@@ -95,7 +95,7 @@
     "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz",
     "d3": "^3.5.6",
     "d3-flextree": "klortho/d3-flextree#971f08b9f71921c41910a30f1545f7869cb5c66b",
-    "debug": "mongodb-js/debug#ca4477297589a8c78d8a6d6eb29b2f67dce0e03e",
+    "debug": "mongodb-js/debug#v2.2.2",
     "debug-menu": "^0.3.0",
     "electron-squirrel-startup": "^0.1.4",
     "font-awesome": "https://github.com/FortAwesome/Font-Awesome/archive/v4.4.0.tar.gz",
@@ -149,7 +149,7 @@
   "devDependencies": {
     "eslint-config-mongodb-js": "^1.0.6",
     "eslint-plugin-react": "^4.1.0",
-    "hadron-build": "^0.6.0",
+    "hadron-build": "^0.6.3",
     "hadron-test-utils": "^0.0.8",
     "xvfb-maybe": "^0.1.3"
   },
