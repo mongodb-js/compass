@@ -25,6 +25,7 @@ var DocumentModel = State.extend({
 module.exports = View.extend({
   template: require('./index.jade'),
   props: {
+    explainPlan: 'state',
     ns: {
       type: 'string',
       default: ''
@@ -48,9 +49,25 @@ module.exports = View.extend({
     indexDefinitionSubview: 'object'
   },
   derived: {
-    indexMessageType: {
-      deps: ['explainPlan.isCovered', 'explainPlan.isCollectionScan'],
+    usedMultipleIndexes: {
+      deps: ['explainPlan.usedIndex'],
       fn: function() {
+        if (!this.explainPlan) {
+          return false;
+        }
+        var usedIndex = this.explainPlan.usedIndex;
+        return _.isArray(usedIndex);
+      }
+    },
+    indexMessageType: {
+      deps: ['explainPlan.isCovered', 'explainPlan.isCollectionScan', 'usedMultipleIndexes'],
+      fn: function() {
+        if (this.usedMultipleIndexes) {
+          return 'MULTIPLE';
+        }
+        if (!this.explainPlan) {
+          return 'UNAVAILABLE';
+        }
         if (this.explainPlan.isCollectionScan) {
           return 'COLLSCAN';
         }
@@ -58,6 +75,12 @@ module.exports = View.extend({
           return 'COVERED';
         }
         return 'INDEX';
+      }
+    },
+    showWarningTriangle: {
+      deps: ['indexMessageType'],
+      fn: function() {
+        return (this.indexMessageType === 'COLLSCAN' || this.indexMessageType === 'MULTIPLE');
       }
     },
     indexMessage: {
@@ -69,19 +92,37 @@ module.exports = View.extend({
         if (this.indexMessageType === 'COVERED') {
           return 'Query covered by index:';
         }
+        if (this.indexMessageType === 'MULTIPLE') {
+          return 'Shard results differ (see details below)';
+        }
         return 'Query used the following index:';
       }
     },
     rawOutput: {
       deps: ['explainPlan.rawExplainObject'],
       fn: function() {
+        if (!this.explainPlan) {
+          return '';
+        }
         return JSON.stringify(this.explainPlan.rawExplainObject, null, ' ');
       }
     },
     inMemorySort: {
       deps: ['explainPlan.inMemorySort'],
       fn: function() {
+        if (!this.explainPlan) {
+          return '';
+        }
         return this.explainPlan.inMemorySort ? 'Yes' : 'No';
+      }
+    },
+    showLinkToIndexes: {
+      deps: ['explainPlan.isCollectionScan', 'usedMultipleIndexes'],
+      fn: function() {
+        if (!this.explainPlan) {
+          return false;
+        }
+        return this.explainPlan.isCollectionScan && !this.usedMultipleIndexes;
       }
     }
   },
@@ -127,7 +168,13 @@ module.exports = View.extend({
     'explainPlan.totalDocsExamined': {
       hook: 'total-docs-examined'
     },
-    'explainPlan.isCollectionScan': {
+    'explainPlan.indexUsed': {
+      hook: 'index-used'
+    },
+    'explainPlan.sortStage': {
+      hook: 'sort-stage'
+    },
+    'showLinkToIndexes': {
       type: 'switch',
       cases: {
         true: '[data-hook=link-to-indexes-container]',
@@ -140,18 +187,23 @@ module.exports = View.extend({
     'explainPlan.executionTimeMillis': {
       hook: 'execution-time-millis'
     },
+    showWarningTriangle: {
+      type: 'toggle',
+      hook: 'index-message-icon'
+    },
     indexMessage: {
       hook: 'index-message-text'
     },
     indexMessageType: [
       {
         type: 'switchAttribute',
-        hook: 'index-message-container',
+        hook: 'index-message-text',
         name: 'style',
         cases: {
-          'COLLSCAN': 'color: red;',
-          'INDEX': 'color: green;',
-          'COVERED': 'color: green;'
+          'COLLSCAN': 'color: #7F6A4E;',
+          'MULTIPLE': 'color: #7F6A4E;',
+          'INDEX': 'color: #313030;',
+          'COVERED': 'color: #507b32;'
         }
       }
     ],
@@ -161,9 +213,6 @@ module.exports = View.extend({
     rawOutput: {
       hook: 'raw-output'
     }
-  },
-  children: {
-    explainPlan: ExplainPlanModel
   },
   initialize: function() {
     this.listenTo(this.model, 'sync', this.onModelSynced.bind(this));
@@ -197,7 +246,7 @@ module.exports = View.extend({
       if (err) {
         return debug('error', err);
       }
-      view.explainPlan.set(view.explainPlan.parse(explain));
+      view.explainPlan = new ExplainPlanModel(explain);
 
       // remove old tree view
       if (view.treeSubview) {
@@ -236,7 +285,7 @@ module.exports = View.extend({
       }
 
       // find index definition model and create view
-      if (view.explainPlan.usedIndex) {
+      if (_.isString(view.explainPlan.usedIndex) && !this.usedMultipleIndexes) {
         var indexModel = view.model.indexes.get(view.explainPlan.usedIndex, 'name');
 
         view.indexDefinitionSubview = view.renderSubview(new IndexDefinitionView({
@@ -262,7 +311,9 @@ module.exports = View.extend({
       totalKeysExamined: baseURL + '.totalKeysExamined',
       totalDocsExamined: baseURL + '.totalDocsExamined',
       nReturned: baseURL + '.nReturned',
-      executionTimeMillis: baseURL + '.executionTimeMillis'
+      executionTimeMillis: baseURL + '.executionTimeMillis',
+      indexUsed: 'https://docs.mongodb.com/manual/reference/explain-results/#collection-scan-vs-index-use',
+      sortStage: 'https://docs.mongodb.com/manual/reference/explain-results/#sort-stage'
     };
     var url = _.get(urlMap, dataLink, null);
     if (url) {

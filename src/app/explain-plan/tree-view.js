@@ -13,7 +13,7 @@ require('d3-flextree');
 
 var DEFAULT_CARD_WIDTH = 276;        // width of a card
 var DEFAULT_CARD_HEIGHT = 132;       // height of a card without highlighted fields
-var SHARD_CARD_HEIGHT = 57;          // height of a shard label card
+var SHARD_CARD_HEIGHT = 30;          // height of a shard label card
 var HIGHLIGHT_FIELD_HEIGHT = 41;     // height of a single 'heighlighted' field
 var VERTICAL_PADDING = 50;           // vertical space between two cards
 
@@ -161,6 +161,8 @@ module.exports = View.extend({
     if (node.isShard) {
       node.curStageExecTimeMS = node.prevStageExecTimeMS;
     }
+    // never return negative values
+    node.curStageExecTimeMS = Math.max(0, node.curStageExecTimeMS);
     return node.curStageExecTimeMS;
   }
 });
