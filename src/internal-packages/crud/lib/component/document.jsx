@@ -11,6 +11,7 @@ const Element = require('hadron-document').Element;
 const Actions = require('../actions');
 const EditableElement = require('./editable-element');
 const EditFooter = require('./edit-footer');
+const DocumentActions = require('./document-actions');
 
 /**
  * The class for the document itself.
@@ -275,17 +276,16 @@ class Document extends React.Component {
   }
 
   /**
-   * Render the actions.
+   * Render the actions component.
    *
    * @returns {Component} The actions component.
    */
   renderActions() {
     if (!this.state.editing) {
       return (
-        <div className='document-actions'>
-          <button type='button' onClick={this.handleEdit.bind(this)}>Edit</button>
-          <button type='button' onClick={this.handleDelete.bind(this)}>Delete</button>
-        </div>
+        <DocumentActions
+          edit={this.handleEdit.bind(this)}
+          remove={this.handleDelete.bind(this)} />
       );
     }
   }
