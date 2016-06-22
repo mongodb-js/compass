@@ -115,7 +115,7 @@ describe('hadron-build::config', () => {
       expect(res.windows_msi_filename).to.equal('Hadron CustomSetup.msi');
       expect(res.windows_setup_filename).to.equal('Hadron CustomSetup.exe');
       expect(res.windows_zip_filename).to.equal('Hadron Custom-windows.zip');
-      expect(res.windows_nupkg_full_filename).to.equal('Hadron-1.2.0-custom5-full.nupkg');
+      expect(res.windows_nupkg_full_filename).to.equal('HadronCustom-1.2.0-custom5-full.nupkg');
     });
   });
   describe('::beta channel', () => {
@@ -140,7 +140,7 @@ describe('hadron-build::config', () => {
       expect(res.windows_msi_filename).to.equal('Hadron BetaSetup.msi');
       expect(res.windows_setup_filename).to.equal('Hadron BetaSetup.exe');
       expect(res.windows_zip_filename).to.equal('Hadron Beta-windows.zip');
-      expect(res.windows_nupkg_full_filename).to.equal('Hadron-1.2.0-beta1-full.nupkg');
+      expect(res.windows_nupkg_full_filename).to.equal('HadronBeta-1.2.0-beta1-full.nupkg');
     });
 
     it('should have the platform specific installer options', () => {

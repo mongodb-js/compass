@@ -153,8 +153,6 @@ exports.get = (cli, callback) => {
   CONFIG.channel = channel;
   CONFIG.productName = PRODUCT_NAME;
   CONFIG.productNameTitleCase = CONFIG.productName.replace(/ /g, '');
-  CONFIG.productNameReal = cli.argv.product_name;
-  CONFIG.productNameRealTitleCase = CONFIG.productNameReal.replace(/ /g, '');
   CONFIG.dir = PROJECT_ROOT;
 
   CONFIG.src = function() {
@@ -200,7 +198,7 @@ exports.get = (cli, callback) => {
       // remove `.` from version tags for NUGET version
       NUGET_VERSION = CONFIG.version.replace(new RegExp(`-${channel}\\.(\\d+)`), `-${channel}$1`);
     }
-    const NUGET_NAME = CONFIG.productNameRealTitleCase;
+    const NUGET_NAME = CONFIG.productNameTitleCase;
     CONFIG.windows_nupkg_full_label = CONFIG.windows_nupkg_full_filename = `${NUGET_NAME}-${NUGET_VERSION}-full.nupkg`;
 
     CONFIG.assets = [
