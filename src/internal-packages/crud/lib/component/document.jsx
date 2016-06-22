@@ -261,7 +261,7 @@ class Document extends React.Component {
    */
   render() {
     return (
-      <li className={LIST_ITEM_CLASS}>
+      <li className={this.style()}>
         <ol className={DOCUMENT_CLASS}>
           <div className='document-elements'>
             {this.elements()}
@@ -299,6 +299,14 @@ class Document extends React.Component {
         <DocumentFooter doc={this.state.doc} updateStore={this.updateStore} actions={this.actions} />
       );
     }
+  }
+
+  style() {
+    var style = LIST_ITEM_CLASS;
+    if (this.state.editing) {
+      style = style.concat(' editing');
+    }
+    return style;
   }
 }
 

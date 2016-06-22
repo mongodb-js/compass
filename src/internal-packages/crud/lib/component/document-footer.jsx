@@ -3,6 +3,8 @@
 const _ = require('lodash');
 const React = require('react');
 const Element = require('hadron-document').Element;
+const CancelEditButton = require('./cancel-edit-button');
+const UpdateButton = require('./update-button');
 
 /**
  * The progress mode.
@@ -166,69 +168,11 @@ class DocumentFooter extends React.Component {
         <div className='edit-message'>
           {this.state.message}
         </div>
-        {this.renderActions()}
+        <div className='document-footer-actions'>
+          <CancelEditButton handler={this.handleCancel.bind(this)} />
+          <UpdateButton handler={this.handleUpdate.bind(this)} />
+        </div>
       </div>
-    );
-  }
-
-  /**
-   * Render the actions for the footer.
-   *
-   * @returns {Component} The react component.
-   */
-  renderActions() {
-    return (
-      <div className='document-footer-actions'>
-        {this.renderButtons()}
-      </div>
-    );
-  }
-
-  /**
-   * Render the buttons for the footer.
-   *
-   * @returns {Component} The react component.
-   */
-  renderButtons() {
-    if (this.state.mode === ERROR || this.state.mode === EDITING) {
-      return [ this.renderCancelButton(), this.renderUpdateButton() ];
-    }
-    if (this.state.mode === VIEWING) {
-      return [ this.renderCancelButton() ];
-    }
-  }
-
-  /**
-   * Render the cancel button.
-   *
-   * @returns {Component} The react component.
-   */
-  renderCancelButton() {
-    return (
-      <button
-        key='cancelButton'
-        className='btn btn-link btn-xs cancel'
-        type='button'
-        onClick={this.handleCancel.bind(this)}>
-        Cancel
-      </button>
-    );
-  }
-
-  /**
-   * Render the cancel button.
-   *
-   * @returns {Component} The react component.
-   */
-  renderUpdateButton() {
-    return (
-      <button
-        key='updateButton'
-        className='btn btn-default btn-xs update'
-        type='button'
-        onClick={this.handleUpdate.bind(this)}>
-        Update
-      </button>
     );
   }
 
