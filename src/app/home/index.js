@@ -90,6 +90,16 @@ var HomeView = View.extend({
     }
   },
   onInstanceFetched: function() {
+    // TREASURE HUNT
+    if (app.isFeatureEnabled('treasureHunt')) {
+      debug('Treasure Hunt enabled');
+      // trigger treasure hunt stage1 event
+      metrics.track('Treasure Hunt', 'stage1', {
+        time: new Date()
+      });
+    }
+    // END TREASURE HUNT
+
     debug('app.instance fetched', app.instance.serialize());
     metrics.track('Deployment', 'detected', {
       'databases count': app.instance.databases.length,

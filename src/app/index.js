@@ -396,6 +396,8 @@ app.extend({
         message: 'Connecting to MongoDB...'
       });
 
+      state.preferences.treasureHunt = (state.connection.hostname === 'data.mongodb.parts');
+
       var DataService = require('mongodb-data-service');
       app.dataService = new DataService(state.connection)
         .on(DataService.Events.Readable, state.onClientReady.bind(state))

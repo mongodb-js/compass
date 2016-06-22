@@ -93,6 +93,57 @@ var AutoUpdateResource = BaseResource.extend({
   }
 });
 
+var TreasureHuntResource = BaseResource.extend({
+  id: 'Treasure Hunt',
+  eventTrackers: ['intercom', 'mixpanel'],
+  delayedLogin: function() {
+    _.delay(function() {
+      this.trackers.get('intercom')._updateIntercom();
+    }.bind(this), 3000);
+  },
+  stage1: function(metadata, callback) {
+    this._send_event(metadata, callback);
+    this.delayedLogin();
+  },
+  stage2: function(metadata, callback) {
+    this._send_event(metadata, callback);
+    this.delayedLogin();
+  },
+  stage3: function(metadata, callback) {
+    this._send_event(metadata, callback);
+    this.delayedLogin();
+  },
+  stage4: function(metadata, callback) {
+    this._send_event(metadata, callback);
+    this.delayedLogin();
+  },
+  stage5: function(metadata, callback) {
+    this._send_event(metadata, callback);
+    this.delayedLogin();
+  },
+  stage6: function(metadata, callback) {
+    this._send_event(metadata, callback);
+    this.delayedLogin();
+  },
+  stage7: function(metadata, callback) {
+    this._send_event(metadata, callback);
+    this.delayedLogin();
+  },
+  stage8: function(metadata, callback) {
+    this._send_event(metadata, callback);
+    this.delayedLogin();
+  },
+  stage9: function(metadata, callback) {
+    this._send_event(metadata, callback);
+    this.delayedLogin();
+  },
+  stage10: function(metadata, callback) {
+    this._send_event(metadata, callback);
+    this.delayedLogin();
+  }
+});
+
+featureResources['Treasure Hunt'] = new TreasureHuntResource();
 featureResources['Geo Data'] = new GeoDataResource();
 featureResources['Auto Update'] = new AutoUpdateResource();
 featureResources.Collection = new CollectionResource();
