@@ -26,10 +26,9 @@ var User = Model.extend(storageMixin, {
     createdAt: 'date',
     lastUsed: 'date',
     avatarUrl: 'string',
-    companyName: 'string'
-    // github_username: 'string',
-    // github_score: 'number',
-    // github_last_activity_at: 'date'
+    companyName: 'string',
+    developer: 'boolean',
+    twitter: 'string'
   }
 });
 

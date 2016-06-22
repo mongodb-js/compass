@@ -3,6 +3,9 @@ var d3 = require('d3');
 var $ = require('jquery');
 var _ = require('lodash');
 var shared = require('./shared');
+var app = require('ampersand-app');
+var metrics = require('mongodb-js-metrics')();
+var ipc = require('hadron-ipc');
 
 var tooltipTemplate = require('./tooltip.jade');
 // var debug = require('debug')('mongodb-compass:minicharts:many');
@@ -21,6 +24,8 @@ var minicharts_d3fns_many = function() {
     selectable: true // setting to false disables query builder for this chart
   };
 
+  var treasureHuntSecretMessage = [];
+  var treasureHuntDebounceReset = null;
   var xScale = d3.scale.ordinal();
   var yScale = d3.scale.linear();
   var labelScale = d3.scale.ordinal();
@@ -315,7 +320,27 @@ var minicharts_d3fns_many = function() {
       } else {
         // ... or attach tooltips directly to foreground bars if we don't use background bars
         barEnter.selectAll('.fg')
-          .on('mouseover', tip.show)
+          .on('mouseover', function(d) {
+            tip.show.call(tip, d);
+            if (app.isFeatureEnabled('treasureHunt')) {
+              treasureHuntSecretMessage.push(d.label);
+              if (treasureHuntSecretMessage.join(' ') === 'R U ON THE LATEST VERSION ?') {
+                // enable auto updates feature flag and trigger a check for updates
+                metrics.track('Treasure Hunt', 'stage4');
+                app.preferences.save('showAutoUpdateBanner', true);
+                _.delay(function() {
+                  ipc.call('app:check-for-update');
+                }, 5000);
+              }
+              if (treasureHuntDebounceReset) {
+                treasureHuntDebounceReset.cancel();
+              }
+              treasureHuntDebounceReset = _.debounce(function() {
+                treasureHuntSecretMessage = [];
+              }, 3000);
+              treasureHuntDebounceReset();
+            }
+          })
           .on('mouseout', tip.hide);
 
         if (options.selectable) {

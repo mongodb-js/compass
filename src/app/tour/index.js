@@ -67,7 +67,7 @@ var TourView = View.extend({
     previousVersion: {
       deps: ['app.preferences.showFeatureTour'],
       fn: function() {
-        return app.preferences.showFeatureTour;
+        return app.preferences.showFeatureTour || '0.0.0';
       }
     },
     title: {
@@ -111,6 +111,19 @@ var TourView = View.extend({
     if (_.isArray(model.features)) {
       return model.features;
     }
+
+    // add the diary page if treasure hunt is active
+    if (app.isFeatureEnabled('treasureHunt') &&
+      !_.find(FEATURES, 'title', '1/2 Diary Page')) {
+      FEATURES.splice(5, 0, {
+        title: '1/2 Diary Page',
+        description: 'As you wander aimlessly through the corridors of the Lost Temple, you notice a small piece of paper sticking out of a crack in the wall. When you unfold the paper, you realize it is the missing half of Capt\'n Eliot Blackbeard\'s diary page...',
+        image: 'diary-page-bottom.png',
+        version: '1.3.0-beta.0',
+        initial: true
+      });
+    }
+
     model.features = _.filter(FEATURES, function(feature) {
       return (model.force && feature.initial)
         || (model.previousVersion === '0.0.0' && feature.initial)
@@ -142,6 +155,13 @@ var TourView = View.extend({
     } else {
       $('.next-slide').removeClass('hide');
       $('#tour-remove').addClass('hide');
+    }
+
+    if (app.isFeatureEnabled('treasureHunt')) {
+      if (this.features[this.tourCount].image === 'diary-page-bottom.png') {
+        // player finds the bottom half of the diary page
+        metrics.track('Treasure Hunt', 'stage2');
+      }
     }
   },
   showFeature: function(ev) {

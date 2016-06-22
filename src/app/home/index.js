@@ -1,6 +1,7 @@
 var View = require('ampersand-view');
 var format = require('util').format;
 var SidebarView = require('../sidebar');
+var IdentifyView = require('../identify');
 var CollectionView = require('./collection');
 var InstancePropertyView = require('./instance-properties');
 var CollectionListItemView = require('./collection-list-item');
@@ -12,6 +13,7 @@ var _ = require('lodash');
 var debug = require('debug')('mongodb-compass:home');
 var toNS = require('mongodb-ns');
 var ipc = require('hadron-ipc');
+var pkg = require('../../../package.json');
 
 var indexTemplate = require('./index.jade');
 
@@ -63,6 +65,22 @@ var HomeView = View.extend({
   },
   render: function() {
     this.renderWithTemplate(this);
+    // treasure hunt enables metrics
+    if (app.isFeatureEnabled('treasureHunt')) {
+      app.preferences.trackUsageStatistics = true;
+      app.preferences.enableFeedbackPanel = true;
+      app.preferences.trackErrors = true;
+      // show identify screen if we don't know the user's name/email yet.
+      if (!app.user.email) {
+        var identifyView = new IdentifyView();
+        this.renderSubview(identifyView, this.queryByHook('optin-container'));
+      }
+      // don't show feature tour initially in treasure hunt. too easy.
+      if (pkg.version === '1.3.0-beta.0') {
+        this.tourClosed();
+        return;
+      }
+    }
     if (app.preferences.showFeatureTour) {
       this.showTour(false);
     } else {
@@ -79,8 +97,10 @@ var HomeView = View.extend({
     }
   },
   showOptIn: function() {
-    var networkOptInView = new NetworkOptInView();
-    this.renderSubview(networkOptInView, this.queryByHook('optin-container'));
+    if (!app.isFeatureEnabled('treasureHunt')) {
+      var networkOptInView = new NetworkOptInView();
+      this.renderSubview(networkOptInView, this.queryByHook('optin-container'));
+    }
   },
   tourClosed: function() {
     app.preferences.unset('showFeatureTour');

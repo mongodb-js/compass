@@ -1,0 +1,31 @@
+#identifyOptIn.modal.fade(tabindex='-1' role='dialog', data-hook='main-modal')
+  .modal-dialog
+    .modal-content
+      .modal-header
+        h4.modal-title Welcome, ye ole Swashbuckler!
+      .modal-body
+        img(src='./images/treasure-hunt/treasure-map.png' style='width:75%; margin:0 auto; display: block;')
+        p Before you can enter The Lost Temple and start with the treasure hunt, please tell us a bit about you: 
+        form
+          ul
+            li
+              label
+                div Your Name
+                input(type='text', name='name', data-hook='full-name-input')
+              p.option-description Your name will show up on the leaderboard as you unlock achievements.
+            li
+              label
+                div Email Address
+                input(type='text', name='email', data-hook='email-input')
+              p.option-description Use the email address you signed up with for MongoDB World.
+            li
+              label
+                div Twitter Handle (optional)
+                input(type='text', name='twitter', data-hook='twitter-input')
+              p.option-description We additionally annouce the winners of the treasure hunt via Twitter.
+        
+        p Note that while you're connected to this server ("The Lost Temple"), your actions are tracked by us via third party services including intercom, mapbox and bugsnag. Your regular privacy settings apply when you connect to a different server.
+      
+      .modal-footer
+        button.btn.btn-cancel(type='button', data-dismiss='modal', data-hook='cancel-button') I'm Too Scared
+        button.btn.btn-primary(type='button', data-dismiss='modal', data-hook='start-button') Enter The Lost Temple

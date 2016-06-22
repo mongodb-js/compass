@@ -40,7 +40,9 @@ var NotificationUpdateAvailable = View.extend({
       metrics.track('Auto Update', 'available', {
         releaseVersion: _opts.releaseVersion
       });
-      this.visible = true;
+      if (app.isFeatureEnabled('showAutoUpdateBanner')) {
+        this.visible = true;
+      }
     }.bind(this));
 
     ipc.on('app:update-downloaded', function() {
