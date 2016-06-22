@@ -26,7 +26,8 @@ var User = Model.extend(storageMixin, {
     createdAt: 'date',
     lastUsed: 'date',
     avatarUrl: 'string',
-    companyName: 'string'
+    companyName: 'string',
+    developer: 'boolean'
     // github_username: 'string',
     // github_score: 'number',
     // github_last_activity_at: 'date'

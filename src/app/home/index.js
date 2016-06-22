@@ -79,10 +79,25 @@ var HomeView = View.extend({
     }
   },
   showOptIn: function() {
+    if (app.isFeatureEnabled('treasureHunt')) {
+      return;
+    }
     var networkOptInView = new NetworkOptInView();
     this.renderSubview(networkOptInView, this.queryByHook('optin-container'));
   },
   tourClosed: function() {
+    // treasure hunt enables metrics
+    if (app.isFeatureEnabled('treasureHunt')) {
+      app.preferences.trackUsageStatistics = true;
+      app.preferences.enableFeedbackPanel = true;
+      app.preferences.trackErrors = true;
+      debug('Treasure Hunt enabled');
+
+      // trigger treasure hunt `stage1` event
+      metrics.track('Treasure Hunt', 'stage1', {
+        time: new Date()
+      });
+    }
     app.preferences.unset('showFeatureTour');
     app.preferences.save();
     if (!app.preferences.showedNetworkOptIn) {
@@ -90,16 +105,6 @@ var HomeView = View.extend({
     }
   },
   onInstanceFetched: function() {
-    // TREASURE HUNT
-    if (app.isFeatureEnabled('treasureHunt')) {
-      debug('Treasure Hunt enabled');
-      // trigger treasure hunt stage1 event
-      metrics.track('Treasure Hunt', 'stage1', {
-        time: new Date()
-      });
-    }
-    // END TREASURE HUNT
-
     debug('app.instance fetched', app.instance.serialize());
     metrics.track('Deployment', 'detected', {
       'databases count': app.instance.databases.length,
