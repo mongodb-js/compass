@@ -10,8 +10,8 @@ const HadronDocument = require('hadron-document');
 const Element = require('hadron-document').Element;
 const Actions = require('../actions');
 const EditableElement = require('./editable-element');
-const EditFooter = require('./edit-footer');
 const DocumentActions = require('./document-actions');
+const DocumentFooter = require('./document-footer');
 
 /**
  * The class for the document itself.
@@ -298,7 +298,7 @@ class Document extends React.Component {
   renderFooter() {
     if (this.state.editing) {
       return (
-        <EditFooter doc={this.state.doc} updateStore={this.updateStore} actions={this.actions} />
+        <DocumentFooter doc={this.state.doc} updateStore={this.updateStore} actions={this.actions} />
       );
     }
   }

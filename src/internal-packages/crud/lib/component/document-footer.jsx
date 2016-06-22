@@ -63,7 +63,7 @@ const UPDATED = 'Document Updated.';
 /**
  * Component for a the edit document footer.
  */
-class EditFooter extends React.Component {
+class DocumentFooter extends React.Component {
 
   /**
    * The component constructor.
@@ -242,6 +242,6 @@ class EditFooter extends React.Component {
   }
 }
 
-EditFooter.displayName = 'EditFooter';
+DocumentFooter.displayName = 'DocumentFooter';
 
-module.exports = EditFooter;
+module.exports = DocumentFooter;
