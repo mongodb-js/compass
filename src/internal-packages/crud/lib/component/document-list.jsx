@@ -100,8 +100,12 @@ class DocumentList extends React.Component {
     });
   }
 
+  /**
+   * Handles removal of a document from the document list.
+   *
+   * @param {Object} id - The id of the removed document.
+   */
   handleRemove(id) {
-    // Reset the list minus the document with the id.
     var index = _.findIndex(this.state.docs, (component) => {
       if (id instanceof ObjectID) {
         return id.equals(component.props.doc._id);
@@ -109,10 +113,7 @@ class DocumentList extends React.Component {
       return component.props.doc._id === id;
     });
     this.state.docs.splice(index, 1);
-    this.setState({
-      docs: this.state.docs,
-      loadedCount: (this.state.loadedCount - 1)
-    });
+    this.setState({ docs: this.state.docs, loadedCount: (this.state.loadedCount - 1) });
   }
 
   /**
