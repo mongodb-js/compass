@@ -12,6 +12,7 @@ const Actions = require('../actions');
 const EditableElement = require('./editable-element');
 const DocumentActions = require('./document-actions');
 const DocumentFooter = require('./document-footer');
+const Hotspot = require('./hotspot');
 
 /**
  * The class for the document itself.
@@ -249,11 +250,14 @@ class Document extends React.Component {
    * @returns {Array} The editable elements.
    */
   editableElements() {
-    return _.map(this.state.doc.elements, (element) => {
+    var elements = _.map(this.state.doc.elements, (element) => {
       return (
         <EditableElement key={element.uuid} element={element} />
       );
     });
+    var lastElement = elements[elements.length - 1].props.element;
+    elements.push(<Hotspot key='hotspot' element={lastElement} />);
+    return elements;
   }
 
   /**
