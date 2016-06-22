@@ -5,7 +5,7 @@ const React = require('react');
 const ReactDOM = require('react-dom');
 const app = require('ampersand-app');
 const Action = require('hadron-action');
-const DocumentListItem = require('./document-list-item');
+const Document = require('./document');
 const DocumentListStore = require('../store/document-list-store');
 
 /**
@@ -102,7 +102,9 @@ class DocumentList extends React.Component {
    */
   _documentListItems(docs) {
     return _.map(docs, (doc) => {
-      return React.createElement(DocumentListItem, { doc: doc, key: doc._id });
+      return (
+        <Document doc={doc} key={doc._id} />
+      );
     });
   }
 
@@ -145,6 +147,6 @@ class DocumentList extends React.Component {
 }
 
 DocumentList.displayName = 'DocumentList';
-DocumentList.DocumentListItem = DocumentListItem;
+DocumentList.Document = Document;
 
 module.exports = DocumentList;

@@ -8,6 +8,7 @@ const ElementFactory = require('hadron-component-registry').ElementFactory;
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const HadronDocument = require('hadron-document');
 const Element = require('hadron-document').Element;
+const Actions = require('../actions');
 const EditableElement = require('./editable-element');
 const EditFooter = require('./edit-footer');
 
@@ -24,7 +25,7 @@ const LIST_ITEM_CLASS = 'document-list-item';
 /**
  * Component for a single document in a list of documents.
  */
-class DocumentListItem extends React.Component {
+class Document extends React.Component {
 
   /**
    * The component constructor.
@@ -38,11 +39,12 @@ class DocumentListItem extends React.Component {
 
     // Actions need to be scoped to the single document component and not
     // global singletons.
-    this.actions = Reflux.createActions([ 'update', 'delete' ]);
+    this.actions = Reflux.createActions([ 'update', 'remove' ]);
 
     // The update store needs to be scoped to a document and not a global
     // singleton.
     this.updateStore = this.createUpdateStore(this.actions);
+    this.removeStore = this.createRemoveStore(this.actions);
   }
 
   /**
@@ -93,10 +95,52 @@ class DocumentListItem extends React.Component {
   }
 
   /**
+   * Create the scoped remove store.
+   *
+   * @param {Action} actions - The component reflux actions.
+   *
+   * @returns {Store} The scoped store.
+   */
+  createRemoveStore(actions) {
+    return Reflux.createStore({
+
+      /**
+       * Initialize the store.
+       */
+      init: function() {
+        this.ns = NamespaceStore.ns;
+        this.listenTo(actions.remove, this.remove);
+      },
+
+      /**
+       * Remove the document from the collection.
+       *
+       * @param {Object} object - The object to delete.
+       */
+      remove: function(object) {
+        app.dataService.deleteOne(this.ns, { _id: object._id }, {}, this.handleResult);
+      },
+
+      /**
+       * Handle the result from the driver.
+       *
+       * @param {Error} error - The error.
+       * @param {Object} doc - The document.
+       *
+       * @returns {Object} The trigger event.
+       */
+      handleResult: function(error, result) {
+        return (error) ? this.trigger(false, error) : this.trigger(true, result);
+      }
+    });
+  }
+
+  /**
    * Subscribe to the update store on mount.
    */
   componentDidMount() {
     this.unsubscribeUpdate = this.updateStore.listen(this.handleStoreUpdate.bind(this));
+    this.unsubscribeRemove = this.removeStore.listen(this.handleStoreRemove.bind(this));
   }
 
   /**
@@ -104,6 +148,7 @@ class DocumentListItem extends React.Component {
    */
   componentWillUnmount() {
     this.unsubscribeUpdate();
+    this.unsubscribeRemove();
   }
 
   /**
@@ -115,7 +160,21 @@ class DocumentListItem extends React.Component {
   handleStoreUpdate(success, object) {
     if (this.state.editing) {
       if (success) {
-        this.handleSuccess(object);
+        this.handleUpdateSuccess(object);
+      }
+    }
+  }
+
+  /**
+   * Handles a trigger from the store.
+   *
+   * @param {Boolean} success - If the update succeeded.
+   * @param {Error, Document} object - The error or document.
+   */
+  handleStoreRemove(success) {
+    if (this.state.editing) {
+      if (success) {
+        this.handleRemoveSuccess();
       }
     }
   }
@@ -125,9 +184,18 @@ class DocumentListItem extends React.Component {
    *
    * @param {Object} doc - The updated document.
    */
-  handleSuccess(doc) {
+  handleUpdateSuccess(doc) {
     this.doc = doc;
     this.setState({ doc: doc, editing: false });
+  }
+
+  /**
+   * Handle a sucessful update.
+   *
+   * @param {Object} doc - The updated document.
+   */
+  handleRemoveSuccess() {
+    Actions.documentRemoved(this.doc._id);
   }
 
   /**
@@ -153,7 +221,7 @@ class DocumentListItem extends React.Component {
    * Handles document deletion.
    */
   handleDelete() {
-
+    this.actions.remove(this.doc);
   }
 
   /**
@@ -236,6 +304,6 @@ class DocumentListItem extends React.Component {
   }
 }
 
-DocumentListItem.displayName = 'DocumentListItem';
+Document.displayName = 'Document';
 
-module.exports = DocumentListItem;
+module.exports = Document;
