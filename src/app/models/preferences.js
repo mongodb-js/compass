@@ -79,6 +79,18 @@ var Preferences = Model.extend(storageMixin, {
       default: true
     },
     /**
+     * Switch to enable/disable special treasure hunt features for
+     * MongoDB World 2016. This flag should never get saved as "true" to
+     * the preference file. It should only be set to true temporarily while
+     * connected to our special treasure hunt data server.
+     * @type {Boolean}
+     */
+    treasureHunt: {
+      type: 'boolean',
+      required: true,
+      default: false
+    },
+    /**
      * Switch to enable/disable maps rendering
      * @type {Boolean}
      */
@@ -122,6 +134,18 @@ var Preferences = Model.extend(storageMixin, {
      * @type {Boolean}
      */
     autoUpdates: {
+      type: 'boolean',
+      required: true,
+      default: false
+    },
+    /**
+     * Switch to enable/disable showing the update banner notification, this
+     * is independent of the autoUpdates flag and will not prevent checking for
+     * and downloading the new versions.
+     *
+     * @type {Boolean}
+     */
+    showAutoUpdateBanner: {
       type: 'boolean',
       required: true,
       default: false

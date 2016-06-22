@@ -164,6 +164,12 @@ var MongoDBCollectionView = View.extend({
     this.model.fetch();
   },
   onCollectionFetched: function(model) {
+    if (app.isFeatureEnabled('treasureHunt')) {
+      if (model.getId() === 'news.news') {
+        // player finds the room with the scrolls (news.news collection)
+        metrics.track('Treasure Hunt', 'stage3');
+      }
+    }
     this.switchView(this.activeView);
     // track collection information
     var metadata = _.omit(model.serialize(), ['_id', 'database',

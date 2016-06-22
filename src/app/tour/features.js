@@ -39,20 +39,30 @@ module.exports = [
     description: 'Click the Index tab to view the definition, attributes, size, and usage of your indexes.',
     image: 'f5.gif',
     version: '1.2.0',
-    initial: false
+    initial: true
   },
+  // Use for the version that users upgrade to in the treasure hunt
+  // currently scheduled as 1.3.0-beta.1.
   {
     title: 'Examine Query Performance with Explain Plans',
     description: 'Click the Explain Plan tab to view a performance summary of the executed query and get access to the detailed explain plan report.',
     image: 'f7.gif',
     version: '1.2.0',
+    initial: false
+  },
+  // enable in 1.3.0-beta.1
+  {
+    title: 'Show Explain plans as tree charts',
+    description: 'In the Explain Plan tab, click on "Show as: Visual Tree" to see a tree chart of the explain plan.',
+    image: 'f8.gif',
+    version: '1.3.0-beta.1',
+    initial: false
+  },
+  {
+    title: 'Geo Location Queries',
+    description: 'Collections with location data can be used as a filter. Click and drag across the map for a geographic query. Click "Apply" to resample with the coordinates.',
+    image: 'f6.gif',
+    version: '1.3.0-beta.1',
     initial: true
   }
-  // {
-  //   title: 'Find with Location',
-  //   description: 'Collections with location data can be used as a filter. Click and drag across the map for a geographic query. Click "Apply" to resample with the coordinates.',
-  //   image: 'f6.gif',
-  //   version: '1.2.0',
-  //   initial: true
-  // },
 ];

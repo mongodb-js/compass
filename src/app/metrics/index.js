@@ -11,16 +11,16 @@ var features = require('./features');
 var debug = require('debug')('mongodb-compass:metrics');
 
 var INTERCOM_KEY = 'p57suhg7';
-var GA_KEY = 'UA-71150609-2';
+// var GA_KEY = 'UA-71150609-2';
 var BUGSNAG_KEY = '0d11ab5f4d97452cc83d3365c21b491c';
 var MIXPANEL_KEY = '6255131ccadb383ba609dae3f07631ad';
 
 module.exports = function() {
   metrics.configure({
-    ga: {
-      trackingId: GA_KEY,
-      enabled: app.preferences.trackUsageStatistics
-    },
+    // ga: {
+    //   trackingId: GA_KEY,
+    //   enabled: app.preferences.trackUsageStatistics
+    // },
     mixpanel: {
       apiToken: MIXPANEL_KEY,
       enabled: app.preferences.trackUsageStatistics
@@ -55,7 +55,11 @@ module.exports = function() {
 
   // create a user resource with client id (UUID v4 recommended)
   var userResource = new resources.UserResource({
-    userId: app.user.id
+    userId: app.user.id,
+    name: app.user.name,
+    email: app.user.email,
+    twitter: app.user.twitter,
+    developer: process.env.NODE_ENV === 'development'
   });
 
   // create a user resource with client id (UUID v4 recommended)
