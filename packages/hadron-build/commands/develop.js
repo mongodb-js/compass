@@ -32,6 +32,7 @@ _.assign(exports.builder, verify.builder, ui.builder);
 
 exports.tasks = function(argv) {
   process.env.NODE_ENV = 'development';
+  process.env.DEBUG = 'hadron*,mongo*,electron*';
 
   if (argv.devtools) {
     process.env.DEVTOOLS = '1';
