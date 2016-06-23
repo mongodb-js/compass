@@ -219,7 +219,7 @@ class Document extends React.Component {
 
   handleClone() {
     console.log('Cloning document...');
-    // Actions.openInsertDocumentDialog(this.doc);
+    Actions.openInsertDocumentDialog(this.doc);
   }
 
   /**

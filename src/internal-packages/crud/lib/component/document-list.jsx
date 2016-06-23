@@ -10,6 +10,7 @@ const Document = require('./document');
 const ResetDocumentListStore = require('../store/reset-document-list-store');
 const LoadMoreDocumentsStore = require('../store/load-more-documents-store');
 const RemoveDocumentStore = require('../store/remove-document-store');
+const InsertDocumentDialog = require('./insert-document-dialog');
 
 /**
  * The full document list container class.
@@ -149,6 +150,7 @@ class DocumentList extends React.Component {
     return (
       <ol className={LIST_CLASS}>
         {this.state.docs}
+        <InsertDocumentDialog />
       </ol>
     );
   }
