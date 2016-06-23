@@ -1,7 +1,7 @@
 'use strict';
 
 const React = require('react');
-const Field = require('./field');
+const Field = require('../field');
 
 /**
  * The property class.

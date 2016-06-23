@@ -24,7 +24,7 @@ describe('BinaryElement', function() {
       });
 
       it('returns the raw value', function() {
-        expect(output.props.value).to.equal('Binary(testing)');
+        expect(output.props.value).to.equal('Binary(\'testing\')');
       });
 
       it('has a displayName', function() {
@@ -40,7 +40,7 @@ describe('BinaryElement', function() {
       var output = renderer.getRenderOutput();
 
       it('returns the raw value', function() {
-        expect(output.props.value).to.equal('Binary(testing)');
+        expect(output.props.value).to.equal('Binary(\'testing\')');
       });
     });
 
@@ -52,7 +52,7 @@ describe('BinaryElement', function() {
       var output = renderer.getRenderOutput();
 
       it('returns the base 64 encoded value', function() {
-        expect(output.props.value).to.equal('Binary(dGVzdGluZw==)');
+        expect(output.props.value).to.equal('Binary(\'dGVzdGluZw==\')');
       });
     });
   });

@@ -40,9 +40,9 @@ class BinaryElement extends React.Component {
     var type = this.props.value.sub_type;
     var buffer = this.props.value.buffer;
     if (type === UUID || type === UUID_OLD) {
-      return `Binary(${ truncate(buffer.toString()) })`;
+      return `Binary('${ truncate(buffer.toString()) }')`;
     }
-    return `Binary(${ truncate(buffer.toString(BASE_64)) })`;
+    return `Binary('${ truncate(buffer.toString(BASE_64)) }')`;
   }
 }
 
