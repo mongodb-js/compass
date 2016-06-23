@@ -2,6 +2,7 @@
 
 const _ = require('lodash');
 const React = require('react');
+const Element = require('hadron-document').Element;
 const EditableElement = require('./editable-element');
 const Hotspot = require('./hotspot');
 
@@ -33,6 +34,12 @@ class InsertDocument extends React.Component {
   constructor(props) {
     super(props);
     this.doc = props.doc;
+    this.doc.on(Element.Events.Added, this.handleModify.bind(this));
+    this.doc.on(Element.Events.Removed, this.handleModify.bind(this));
+  }
+
+  handleModify() {
+    this.setState({});
   }
 
   /**
