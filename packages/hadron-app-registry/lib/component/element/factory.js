@@ -14,7 +14,10 @@ const MAPPINGS = {
   'Binary': './binary-element',
   'Date': './date-element',
   'Object': './object-element',
-  'String': './string-element'
+  'String': './string-element',
+  'MinKey': './min-key-element',
+  'MaxKey': './max-key-element',
+  'Code': './code-element'
 };
 
 /**
