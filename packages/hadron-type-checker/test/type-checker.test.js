@@ -150,45 +150,15 @@ describe('TypeChecker', function() {
       });
     });
 
-    // context('when the object is a regex', function() {
-      // context('when casting to a string', function() {
-        // var regex = new BSONRegExp('+w', ['i']);
+    context('when the object is a regex', function() {
+      context('when casting to a string', function() {
+        var regex = new BSONRegExp('+w', ['i']);
 
-        // it('returns the string regex', function() {
-          // expect(TypeChecker.cast(regex, 'String')).to.equal('BSONRegExp');
-        // })
-      // });
-    // });
-
-    // context('when the object is a code', function() {
-      // var code = new Code('where blah');
-
-      // it('returns Code', function() {
-        // expect(TypeChecker.type(code)).to.equal('Code');
-      // });
-    // });
-
-    // context('when the object is a code with scope', function() {
-      // var code = new Code('where blah', {});
-
-      // it('returns Code', function() {
-        // expect(TypeChecker.type(code)).to.equal('Code');
-      // });
-    // });
-
-    // context('when the object is a 32bit int', function() {
-      // it('returns Number', function() {
-        // expect(TypeChecker.type(1234234)).to.equal('Number');
-      // })
-    // });
-
-    // context('when the object is a timestamp', function() {
-      // var timestamp = new Timestamp(0, 100);
-
-      // it('returns Timestamp', function() {
-        // expect(TypeChecker.type(timestamp)).to.equal('Timestamp');
-      // });
-    // });
+        it('returns the string regex', function() {
+          expect(TypeChecker.cast(regex, 'String')).to.equal('');
+        })
+      });
+    });
 
     context('when the object is a min key', function() {
       context('when casting to a string', function() {
@@ -441,6 +411,20 @@ describe('TypeChecker', function() {
           it('returns the list', function() {
             expect(TypeChecker.castableTypes(value)).to.deep.equal([
               'String',
+              'Date',
+              'Object',
+              'Array'
+            ]);
+          });
+        });
+
+        context('when the string is in regex format', function() {
+          var value = '/(testing)/';
+
+          it('returns the list', function() {
+            expect(TypeChecker.castableTypes(value)).to.deep.equal([
+              'String',
+              'BSONRegExp',
               'Object',
               'Array'
             ]);

@@ -32,7 +32,7 @@ const BSON_TYPE = '_bsontype';
 const MATCH = /\[object (\w+)\]/;
 
 function toDate(object) {
-  return new Date(object);
+  return Date.parse(object);
 }
 
 function toMinKey(object) {
@@ -89,11 +89,18 @@ const CASTERS = {
 }
 
 class Test {
-  constructor(regex, types) {
-    this.regex = regex;
+  constructor(tester, types) {
+    this.tester = tester;
     this.types = types;
   }
 };
+
+class DateCheck {
+  test(string) {
+    var date = Date.parse(string)
+    return date ? true : false;
+  }
+}
 
 /**
  * The various string tests.
@@ -104,7 +111,9 @@ const STRING_TESTS = [
   new Test(/^-?(\d*\.)?\d+$/, [ 'String', 'Number', 'Object', 'Array' ]),
   new Test(/^(null)$/, [ 'String', 'Null', 'Object', 'Array' ]),
   new Test(/^(undefined)$/, [ 'String', 'Undefined', 'Object', 'Array' ]),
-  new Test(/^(true|false)$/, [ 'String', 'Boolean', 'Object', 'Array' ])
+  new Test(/^(true|false)$/, [ 'String', 'Boolean', 'Object', 'Array' ]),
+  new Test(/^\/(.*)\/$/, [ 'String', 'BSONRegExp', 'Object', 'Array' ]),
+  new Test(new DateCheck(), [ 'String', 'Date', 'Object', 'Array' ])
 ];
 
 /**
@@ -166,7 +175,7 @@ class TypeChecker {
 
   _stringTypes(string) {
     var passing = find(STRING_TESTS, (test) => {
-      return test.regex.test(string);
+      return test.tester.test(string);
     });
     return passing ? passing.types : [ 'String', 'Object', 'Array' ];
   }
