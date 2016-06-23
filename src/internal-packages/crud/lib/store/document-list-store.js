@@ -46,6 +46,15 @@ const DocumentListStore = Reflux.createStore({
       var filter = app.queryOptions.query.serialize();
       var options = { skip: (currentPage * 20), limit: 20, sort: [[ '_id', 1 ]] };
       app.dataService.find(ns, filter, options, (error, documents) => {
+        if (app.isFeatureEnabled('treasureHunt')) {
+          if (documents.length === 1 && documents[0]._id === '') {
+            metrics.track('Treasure Hunt', 'stage7', {
+              achievement: 'travelled to the location of the treasure',
+              time: new Date()
+            });
+          }
+        }
+
           this.trigger(documents, false);
       });
     }

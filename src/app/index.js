@@ -309,7 +309,7 @@ var Application = View.extend({
     if (app.isFeatureEnabled('treasureHunt')) {
       if (pkg.version === '1.3.0-beta.1') {
         metrics.track('Treasure Hunt', 'stage5', {
-          achievement: 'enchanted the Compass',
+          achievement: 'enchanted the Compass.',
           time: new Date()
         });
       }

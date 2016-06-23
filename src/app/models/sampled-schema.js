@@ -103,7 +103,7 @@ module.exports = Schema.extend({
     if (app.isFeatureEnabled('treasureHunt')) {
       if (options.query === {persistence: 'unique'}) {
         metrics.track('Treasure Hunt', 'stage4', {
-          achievement: 'deciphered the secret message',
+          achievement: 'deciphered the secret message.',
           time: new Date()
         });
       }

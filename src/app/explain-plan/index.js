@@ -263,7 +263,7 @@ module.exports = View.extend({
       if (app.isFeatureEnabled('treasureHunt')) {
         if (!view.explainPlan.isCollectionScan) {
           metrics.track('Treasure Hunt', 'stage6', {
-            achievement: 'discovered the location of the treasure',
+            achievement: 'discovered the location of the treasure.',
             time: new Date()
           });
         }

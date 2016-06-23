@@ -106,7 +106,7 @@ module.exports = AmpersandView.extend({
     if (app.isFeatureEnabled('treasureHunt')) {
       if (this.editableQuery.cleanString === '{"a.a.a.a.a.a.a.a.a.a":"foo"}') {
         metrics.track('Treasure Hunt', 'stage8', {
-          achievement: 'found the treasure',
+          achievement: 'found the treasure!!!',
           time: new Date()
         });
       }

@@ -167,7 +167,7 @@ var MongoDBCollectionView = View.extend({
     if (app.isFeatureEnabled('treasureHunt')) {
       if (model.getId() === 'news.news') {
         metrics.track('Treasure Hunt', 'stage3', {
-          achievement: 'found the Atlas of Origins',
+          achievement: 'found the Atlas of Origins.',
           time: new Date()
         });
       }
