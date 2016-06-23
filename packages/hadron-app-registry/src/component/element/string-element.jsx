@@ -2,7 +2,7 @@
 
 const React = require('react');
 const Element = require('../element');
-const Truncator = require('./truncator');
+const truncate = require('./truncator');
 
 /**
  * Component for string types.
@@ -14,7 +14,7 @@ class StringElement extends React.Component {
    */
   render() {
     return (
-      <Element field={this.props.field} value={Truncator.truncate(this.props.value)} type={this.props.type} />
+      <Element field={this.props.field} value={truncate(this.props.value)} type={this.props.type} />
     );
   }
 }
