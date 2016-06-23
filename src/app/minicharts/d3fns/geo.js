@@ -260,7 +260,7 @@ var minicharts_d3fns_geo = function() {
 
   function disableMapsFeature() {
     // disable in preferences and persist
-    app.preferences.save('googleMaps', false);
+    app.preferences.save('enableMaps', false);
     delete window.google;
     options.view.parent.render();
   }

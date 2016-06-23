@@ -17,7 +17,8 @@ var NetworkOptInView = View.extend({
     trackErrors: ['boolean', true, true],
     enableFeedbackPanel: ['boolean', true, true],
     trackUsageStatistics: ['boolean', true, true],
-    autoUpdates: ['boolean', true, true]
+    autoUpdates: ['boolean', true, true],
+    enableMaps: ['boolean', true, true]
   },
   session: {
     preferences: 'state',
@@ -52,6 +53,11 @@ var NetworkOptInView = View.extend({
       hook: 'usage-stats-checkbox',
       name: 'checked'
     },
+    enableMaps: {
+      type: 'booleanAttribute',
+      hook: 'enable-maps-checkbox',
+      name: 'checked'
+    },
     buttonTitle: {
       hook: 'start-button'
     }
@@ -66,6 +72,7 @@ var NetworkOptInView = View.extend({
       this.enableFeedbackPanel = true;
       this.trackUsageStatistics = true;
       this.autoUpdates = true;
+      this.enableMaps = true;
     } else {
       debug('seen this dialog before, show the real settings');
       this.buttonTitle = 'Close';
@@ -73,6 +80,7 @@ var NetworkOptInView = View.extend({
       this.enableFeedbackPanel = app.preferences.enableFeedbackPanel;
       this.trackUsageStatistics = app.preferences.trackUsageStatistics;
       this.autoUpdates = app.preferences.autoUpdates;
+      this.enableMaps = app.preferences.enableMaps;
     }
   },
   checkboxChanged: function(evt) {
@@ -85,7 +93,8 @@ var NetworkOptInView = View.extend({
       'enableFeedbackPanel',
       'trackUsageStatistics',
       'trackErrors',
-      'autoUpdates'
+      'autoUpdates',
+      'enableMaps'
     ];
 
     this.preferences.set('showedNetworkOptIn', true);
@@ -104,7 +113,8 @@ var NetworkOptInView = View.extend({
       'track usage stats': settings.trackUsageStatistics,
       'product feedback': settings.enableFeedbackPanel,
       'track errors': settings.trackErrors,
-      'auto updates': settings.autoUpdates
+      'auto updates': settings.autoUpdates,
+      'enable maps': settings.enableMaps
     };
     metrics.track('Network Opt-in', 'used', metadata);
   },

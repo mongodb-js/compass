@@ -15,6 +15,12 @@
 
             li
               label
+                input(type='checkbox', name='enableMaps', data-hook='enable-maps-checkbox')
+                span Enable Geographic Visualizations
+              p.option-description Allow Compass to make requests to a 3rd party mapping service.
+
+            li
+              label
                 input(type='checkbox', name='trackErrors', data-hook='track-errors-checkbox')
                 span Enable Crash Reports
               p.option-description Allow Compass to send crash reports containing stack traces and unhandled exceptions.
@@ -24,6 +30,7 @@
                 input(type='checkbox', name='trackUsageStatistics', data-hook='usage-stats-checkbox')
                 span Enable Usage Statistics
               p.option-description Allow Compass to send anonymous usage statistics.
+            
             li
               label 
                 input(type='checkbox', name='autoUpdates', data-hook='auto-updates-checkbox')

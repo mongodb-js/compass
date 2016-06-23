@@ -125,7 +125,7 @@ module.exports = AmpersandView.extend(QueryBuilderMixin, {
       metrics.track('Geo Data', 'detected');
       // check if we can load google maps or if we need to fall back to
       // a simpler coordinate chart
-      if (app.isFeatureEnabled('googleMaps')
+      if (app.isFeatureEnabled('enableMaps')
         && navigator.onLine) {
         this.viewOptions.renderMode = 'html';
         this.viewOptions.height = 300;
