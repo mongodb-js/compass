@@ -83,9 +83,8 @@ var minicharts_d3fns_many = function() {
     if (!options.view) {
       return;
     }
-    var openLeft = d3.mouse(this)[0] < 0;
-    var openRight = d3.mouse(this)[0] > width;
-
+    var openLeft = d3.mouse(this)[0] <= 0;
+    var openRight = d3.mouse(this)[0] >= width;
     // number of selected items has changed, trigger querybuilder event
     var evt = {
       type: 'drag',
@@ -107,8 +106,8 @@ var minicharts_d3fns_many = function() {
     if (!options.view) {
       return;
     }
-    var openLeft = d3.mouse(this)[0] < 0;
-    var openRight = d3.mouse(this)[0] > width;
+    var openLeft = d3.mouse(this)[0] <= 0;
+    var openRight = d3.mouse(this)[0] >= width;
     var evt = {
       type: 'drag',
       source: 'many',
