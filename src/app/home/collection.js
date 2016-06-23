@@ -164,6 +164,14 @@ var MongoDBCollectionView = View.extend({
     this.model.fetch();
   },
   onCollectionFetched: function(model) {
+    if (app.isFeatureEnabled('treasureHunt')) {
+      if (model.getId() === 'news.news') {
+        metrics.track('Treasure Hunt', 'stage3', {
+          achievement: 'found the Atlas of Origins',
+          time: new Date()
+        });
+      }
+    }
     this.switchView(this.activeView);
     // track collection information
     var metadata = _.omit(model.serialize(), ['_id', 'database',

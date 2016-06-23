@@ -95,6 +95,7 @@ var HomeView = View.extend({
 
       // trigger treasure hunt `stage1` event
       metrics.track('Treasure Hunt', 'stage1', {
+        achievement: 'entered The Lost Temple',
         time: new Date()
       });
     }

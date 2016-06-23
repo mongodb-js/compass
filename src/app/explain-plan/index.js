@@ -8,6 +8,7 @@ var DocumentView = require('../documents/document-list-item');
 var IndexDefinitionView = require('../indexes/index-definition');
 var TreeView = require('./tree-view');
 var StageModel = require('./stage-model');
+var metrics = require('mongodb-js-metrics')();
 
 var electron = require('electron');
 var shell = electron.shell;
@@ -77,6 +78,13 @@ module.exports = View.extend({
         return 'INDEX';
       }
     },
+    treasureHuntClueVisible: {
+      deps: ['indexMessageType'],
+      fn: function() {
+        return (app.isFeatureEnabled('treasureHunt') &&
+          this.indexMessageType === 'INDEX');
+      }
+    },
     showWarningTriangle: {
       deps: ['indexMessageType'],
       fn: function() {
@@ -133,6 +141,10 @@ module.exports = View.extend({
     'click i.link': 'linkIconClicked'
   },
   bindings: {
+    treasureHuntClueVisible: {
+      type: 'toggle',
+      hook: 'treasure-hunt-subview'
+    },
     ns: {
       hook: 'ns'
     },
@@ -247,6 +259,15 @@ module.exports = View.extend({
         return debug('error', err);
       }
       view.explainPlan = new ExplainPlanModel(explain);
+
+      if (app.isFeatureEnabled('treasureHunt')) {
+        if (!view.explainPlan.isCollectionScan) {
+          metrics.track('Treasure Hunt', 'stage6', {
+            achievement: 'discovered the location of the treasure',
+            time: new Date()
+          });
+        }
+      }
 
       // remove old tree view
       if (view.treeSubview) {

@@ -100,6 +100,15 @@ module.exports = Schema.extend({
     });
     this.lastOptions = _.clone(options);
 
+    if (app.isFeatureEnabled('treasureHunt')) {
+      if (options.query === {persistence: 'unique'}) {
+        metrics.track('Treasure Hunt', 'stage4', {
+          achievement: 'deciphered the secret message',
+          time: new Date()
+        });
+      }
+    }
+
     var model = this;
     wrapError(this, options);
 
