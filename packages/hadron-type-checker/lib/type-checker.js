@@ -32,7 +32,7 @@ const BSON_TYPE = '_bsontype';
 const MATCH = /\[object (\w+)\]/;
 
 function toDate(object) {
-  return Date.parse(object);
+  return new Date(object);
 }
 
 function toMinKey(object) {

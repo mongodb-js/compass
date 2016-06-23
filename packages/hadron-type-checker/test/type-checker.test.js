@@ -76,6 +76,15 @@ describe('TypeChecker', function() {
             expect(TypeChecker.cast(value, 'Array')).to.deep.equal([ value ]);
           });
         });
+
+        context('when casting to a date', function() {
+          var value = '2016-10-10';
+          var date = new Date(value);
+
+          it('returns the date', function() {
+            expect(TypeChecker.cast(value, 'Date')).to.deep.equal(date);
+          });
+        });
       });
     });
 
