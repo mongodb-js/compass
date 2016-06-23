@@ -130,7 +130,7 @@ class EditableElement extends React.Component {
    */
   elementComponents() {
     return _.map(this.element.elements, (element) => {
-      return React.createElement(EditableElement, { key: element.uuid, element: element });
+      return (<EditableElement key={element.uuid} element={element} />);
     });
   }
 
@@ -141,11 +141,11 @@ class EditableElement extends React.Component {
    */
   action() {
     if (this.element.isEdited() || this.element.isRemoved()) {
-      return React.createElement(RevertAction, { element: this.element });
+      return (<RevertAction element={this.element} />);
     } else if (this.element.key === '_id') {
-      return React.createElement(NoAction, { element: this.element });
+      return (<NoAction element={this.element} />);
     }
-    return React.createElement(RemoveAction, { element: this.element });
+    return (RemoveAction element={this.element});
   }
 
   handleAdd() {

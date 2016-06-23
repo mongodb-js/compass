@@ -98,6 +98,15 @@ ol.document-list {
         }
       }
 
+      .document-property.code > .document-property-value {
+        &::before {
+          content: "Code('";
+        }
+        &::after {
+          content: "')";
+        }
+      }
+
       li.document-property.array, li.document-property.object {
         display: block;
         margin-left: -16px;
