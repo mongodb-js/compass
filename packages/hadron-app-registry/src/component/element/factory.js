@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 const React = require('react');
-const TypeChecker = require('./type-checker');
+const TypeChecker = require('hadron-type-checker');
 
 /**
  * The mappings of object types to element components. This is a mapping to
@@ -35,7 +35,7 @@ class Factory {
   elements(object) {
     return _.map(object, (value, field) => {
       var type = TypeChecker.type(value);
-      var elementProps = { field: field, value: value, type: type, key: `${object._id}_${field}` };
+      var elementProps = { field: field, value: value, type: type, key: field };
       return React.createElement(this._elementComponent(type), elementProps);
     });
   }
