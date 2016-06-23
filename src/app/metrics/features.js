@@ -101,10 +101,12 @@ var TreasureHuntResource = BaseResource.extend({
       this.trackers.get('intercom')._updateIntercom();
     }.bind(this), 3000);
   },
+  // connect to data server
   stage1: function(metadata, callback) {
     this._send_event(metadata, callback);
     this.delayedLogin();
   },
+  // show diary page
   stage2: function(metadata, callback) {
     this._send_event(metadata, callback);
     this.delayedLogin();

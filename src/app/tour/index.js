@@ -115,8 +115,8 @@ var TourView = View.extend({
     // add the diary page if treasure hunt is active
     if (app.isFeatureEnabled('treasureHunt')) {
       FEATURES.splice(5, 0, {
-        title: 'Diary Page',
-        description: 'Hmmm... This is the missing half of Capt\'n Eliot Blackbeard\'s Diary Page. What is that doing here?',
+        title: '1/2 Diary Page',
+        description: 'As you make your way into the Lost Temple, you notice an unusually wide crack in the wall. Upon further inspection, you find a piece of paper that was hastily stuck into the crack. When you unfold the paper, you realize it is the missing half of Capt\'n Eliot Blackbeard\'s diary page...',
         image: 'diary-page-bottom.png',
         version: '1.3.0',
         initial: true
@@ -154,6 +154,14 @@ var TourView = View.extend({
     } else {
       $('.next-slide').removeClass('hide');
       $('#tour-remove').addClass('hide');
+    }
+
+    if (app.isFeatureEnabled('treasureHunt')) {
+      if (this.features[this.tourCount].image === 'diary-page-bottom.png') {
+        metrics.track('Treasure Hunt', 'stage2', {
+          time: new Date()
+        });
+      }
     }
   },
   showFeature: function(ev) {
