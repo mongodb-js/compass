@@ -99,7 +99,7 @@ class Test {
  * The various string tests.
  */
 const STRING_TESTS = [
-  new Test(/^$/, [ 'String', 'MinKey', 'MaxKey', 'Object', 'Array'  ]),
+  new Test(/^$/, [ 'String', 'Null', 'Undefined', 'MinKey', 'MaxKey', 'Object', 'Array'  ]),
   new Test(/^-?\d+$/, [ 'String', 'Number', 'Object', 'Array' ]),
   new Test(/^-?(\d*\.)?\d+$/, [ 'String', 'Number', 'Object', 'Array' ]),
   new Test(/^(null)$/, [ 'String', 'Null', 'Object', 'Array' ]),

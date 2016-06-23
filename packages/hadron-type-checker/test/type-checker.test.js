@@ -370,6 +370,8 @@ describe('TypeChecker', function() {
         it('returns the list', function() {
           expect(TypeChecker.castableTypes(value)).to.deep.equal([
             'String',
+            'Null',
+            'Undefined',
             'MinKey',
             'MaxKey',
             'Object',
