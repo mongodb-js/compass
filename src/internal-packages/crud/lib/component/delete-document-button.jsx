@@ -23,7 +23,7 @@ class DeleteDocumentButton extends React.Component {
    */
   render() {
     return (
-      <button type='button' onClick={this.props.handler}>
+      <button type='button' onClick={this.props.handler} title='Delete Document'>
         <i className="fa fa-trash-o" aria-hidden="true"></i>
       </button>
     );

@@ -55,8 +55,20 @@ class EditableKey extends React.Component {
         onBlur={this.handleBlur.bind(this)}
         onFocus={this.handleFocus.bind(this)}
         onChange={this.handleChange.bind(this)}
+        onKeyDown={this.handleKeyDown.bind(this)}
         value={this.element.currentKey} />
     );
+  }
+
+  /**
+   * When hitting a key on the last element some special things may happen.
+   *
+   * @param {Event} evt - The event.
+   */
+  handleKeyDown(evt) {
+    if (evt.keyCode === 27) {
+      this._node.blur();
+    }
   }
 
   /**

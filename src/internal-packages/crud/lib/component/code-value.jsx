@@ -31,19 +31,9 @@ class CodeValue extends React.Component {
   render() {
     return (
       <div className={VALUE_CLASS}>
-        {this.renderValue()}
+        {truncate(this.value.code)}
       </div>
     );
-  }
-
-  /**
-   * Render the value.
-   *
-   * @returns {Component} The component.
-   */
-  renderValue() {
-    var code = this.value.code;
-    return `Code('${truncate(code)}')`;
   }
 }
 

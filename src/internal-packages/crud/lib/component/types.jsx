@@ -20,11 +20,29 @@ class Types extends React.Component {
   }
 
   /**
+   * Handles a change in the type.
+   *
+   * @param {Event} evt - The event.
+   */
+  handleTypeChange(evt) {
+    this.element.edit(TypeChecker.cast(this.castableValue(), evt.target.innerText));
+  }
+
+  /**
    * Render a type list.
    *
    * @returns {React.Component} The element component.
    */
   render() {
+    return this.element.isValueEditable() ? this.renderDropdown() : this.renderLabel();
+  }
+
+  /**
+   * Render the type list dropdown.
+   *
+   * @returns {Component} The react component.
+   */
+  renderDropdown() {
     return (
       <div className='dropdown types'>
         <button
@@ -39,13 +57,31 @@ class Types extends React.Component {
           <span className='caret'></span>
         </button>
         <ul className='dropdown-menu' aria-labelledby='types-dropdown'>
-          {this.castableTypes()}
+          {this.renderTypes()}
         </ul>
       </div>
     );
   }
 
-  castableTypes() {
+  /**
+   * Render the type list label.
+   *
+   * @returns {Component} The react component.
+   */
+  renderLabel() {
+    return (
+      <div className='types'>
+        <span className='type-label'>{this.element.currentType}</span>
+      </div>
+    );
+  }
+
+  /**
+   * Render the types
+   *
+   * @returns {Component} The react component.
+   */
+  renderTypes() {
     return _.map(TypeChecker.castableTypes(this.castableValue()), (type) => {
       return (
         <li key={type}>
@@ -55,6 +91,11 @@ class Types extends React.Component {
     });
   }
 
+  /**
+   * Get the castable value for this value.
+   *
+   * @returns {Object} The cast value.
+   */
   castableValue() {
     if (this.element.elements) {
       if (this.element.currentType === 'Object') {
@@ -65,10 +106,6 @@ class Types extends React.Component {
       });
     }
     return this.element.currentValue;
-  }
-
-  handleTypeChange(evt) {
-    this.element.edit(TypeChecker.cast(this.castableValue(), evt.target.innerText));
   }
 }
 

@@ -1,7 +1,9 @@
 'use strict';
 
+const _ = require('lodash');
 const React = require('react');
 const ElementFactory = require('hadron-component-registry').ElementFactory;
+const TypeChecker = require('hadron-type-checker');
 
 /**
  * The editing class constant.
@@ -37,6 +39,7 @@ class EditableValue extends React.Component {
   render() {
     return (
       <input
+        ref={(c) => this._node = c}
         type='text'
         className={this.style()}
         onBlur={this.handleBlur.bind(this)}
@@ -55,6 +58,8 @@ class EditableValue extends React.Component {
   handleKeyDown(evt) {
     if (evt.keyCode === 9 && !evt.shiftKey) {
       this.element.next();
+    } else if (evt.keyCode === 27) {
+      this._node.blur();
     }
   }
 
@@ -64,28 +69,28 @@ class EditableValue extends React.Component {
    * @param {Event} evt - The event.
    */
   handleChange(evt) {
-    if (this.element.isValueEditable()) {
-      this.element.edit(evt.target.value);
-      this.setState({ value: this.element.currentValue });
+    var value = evt.target.value;
+    var currentType = this.element.currentType;
+    if (_.includes(TypeChecker.castableTypes(value), currentType)) {
+      this.element.edit(TypeChecker.cast(value, currentType));
+    } else {
+      this.element.edit(value);
     }
+    this.setState({ value: this.element.currentValue });
   }
 
   /**
    * Handle focus on the value.
    */
   handleFocus() {
-    if (this.element.isValueEditable()) {
-      this.setState({ editing: true });
-    }
+    this.setState({ editing: true });
   }
 
   /**
    * Handle blur from the value.
    */
   handleBlur() {
-    if (this.element.isValueEditable()) {
-      this.setState({ editing: false });
-    }
+    this.setState({ editing: false });
   }
 
   /**

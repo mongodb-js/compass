@@ -3,9 +3,9 @@
 const React = require('react');
 
 /**
- * Component for the edit document button.
+ * Component for the clone document button.
  */
-class EditDocumentButton extends React.Component {
+class CloneDocumentButton extends React.Component {
 
   /**
    * The component constructor.
@@ -23,13 +23,13 @@ class EditDocumentButton extends React.Component {
    */
   render() {
     return (
-      <button type='button' onClick={this.props.handler} title='Edit Document'>
-        <i className="fa fa-pencil" aria-hidden="true"></i>
+      <button type='button' onClick={this.props.handler} title='Clone Document'>
+        <i className="fa fa-clone" aria-hidden="true"></i>
       </button>
     );
   }
 }
 
-EditDocumentButton.displayName = 'EditDocumentButton';
+CloneDocumentButton.displayName = 'CloneDocumentButton';
 
-module.exports = EditDocumentButton;
+module.exports = CloneDocumentButton;

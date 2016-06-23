@@ -217,6 +217,11 @@ class Document extends React.Component {
     this.setState({ doc: this.doc, editing: false });
   }
 
+  handleClone() {
+    console.log('Cloning document...');
+    // Actions.openInsertDocumentDialog(this.doc);
+  }
+
   /**
    * Handles document deletion.
    */
@@ -287,7 +292,8 @@ class Document extends React.Component {
       return (
         <DocumentActions
           edit={this.handleEdit.bind(this)}
-          remove={this.handleDelete.bind(this)} />
+          remove={this.handleDelete.bind(this)}
+          clone={this.handleClone.bind(this)} />
       );
     }
   }
