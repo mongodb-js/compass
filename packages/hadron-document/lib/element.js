@@ -283,7 +283,7 @@ class Element extends EventEmitter {
    */
   _generateElements(object) {
     return map(keys(object), (key) => {
-      return new Element(key, object[key], false, this);
+      return new Element(key, object[key], this.added, this);
     });
   }
 

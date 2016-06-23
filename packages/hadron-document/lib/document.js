@@ -46,9 +46,10 @@ class Document extends EventEmitter {
    *
    * @param {Object} doc - The document.
    */
-  constructor(doc) {
+  constructor(doc, cloned) {
     super();
     this.doc = doc;
+    this.cloned = cloned || false;
     this.elements = this._generateElements();
   }
 
@@ -97,7 +98,7 @@ class Document extends EventEmitter {
    */
   _generateElements() {
     return map(keys(this.doc), (key) => {
-      return new Element(key, this.doc[key], false, this);
+      return new Element(key, this.doc[key], this.cloned, this);
     });
   }
 }
