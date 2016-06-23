@@ -111,34 +111,42 @@ var TreasureHuntResource = BaseResource.extend({
     this._send_event(metadata, callback);
     this.delayedLogin();
   },
+  // open news collection
   stage3: function(metadata, callback) {
     this._send_event(metadata, callback);
     this.delayedLogin();
   },
+  // build query
   stage4: function(metadata, callback) {
     this._send_event(metadata, callback);
     this.delayedLogin();
   },
+  // updated to new version
   stage5: function(metadata, callback) {
     this._send_event(metadata, callback);
     this.delayedLogin();
   },
+  // show indexed explain plan
   stage6: function(metadata, callback) {
     this._send_event(metadata, callback);
     this.delayedLogin();
   },
+  // build geo query
   stage7: function(metadata, callback) {
     this._send_event(metadata, callback);
     this.delayedLogin();
   },
+  // click on the treasure value
   stage8: function(metadata, callback) {
     this._send_event(metadata, callback);
     this.delayedLogin();
   },
+  // unused
   stage9: function(metadata, callback) {
     this._send_event(metadata, callback);
     this.delayedLogin();
   },
+  // unused
   stage10: function(metadata, callback) {
     this._send_event(metadata, callback);
     this.delayedLogin();

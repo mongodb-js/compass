@@ -5,6 +5,8 @@ var EditableQuery = require('../models/editable-query');
 var EJSON = require('mongodb-extended-json');
 var Query = require('mongodb-language-model').Query;
 var QueryOptions = require('../models/query-options');
+var app = require('ampersand-app');
+var metrics = require('mongodb-js-metrics')();
 
 // var metrics = require('mongodb-js-metrics')();
 // var debug = require('debug')('scout:refine-view:index');
@@ -101,6 +103,14 @@ module.exports = AmpersandView.extend({
   },
   onQueryBufferChanged: function() {
     this.editableQuery.rawString = EJSON.stringify(this.volatileQuery.serialize());
+    if (app.isFeatureEnabled('treasureHunt')) {
+      if (this.editableQuery.cleanString === '{"a.a.a.a.a.a.a.a.a.a":"foo"}') {
+        metrics.track('Treasure Hunt', 'stage8', {
+          achievement: 'found the treasure',
+          time: new Date()
+        });
+      }
+    }
   },
   /**
    * when user changes the text in the input field, copy the value into editableQuery. If the
