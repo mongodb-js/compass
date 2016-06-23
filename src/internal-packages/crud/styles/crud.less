@@ -345,6 +345,36 @@ input.editable-value {
 .modal-body {
   .document-elements {
     width: 100%;
+
+    li.document-property {
+
+      .actions {
+        display: inline-block;
+        visibility: hidden;
+        width: 18px;
+        margin-right: 8px;
+        text-align: center;
+        cursor: pointer;
+        color: #999999;
+      }
+
+      &.added {
+        background-color: #FFFFFF;
+
+        input {
+          background-color: #FFFFFF;
+
+          &:focus {
+            background-color: @pw;
+          }
+        }
+
+        .line-number {
+          background-color: #FFFFFF;
+          color: #999999;
+        }
+      }
+    }
   }
 }
 

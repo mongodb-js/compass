@@ -22,7 +22,7 @@ const OpenInsertDocumentDialogStore = Reflux.createStore({
    * @param {Object} doc - The document to open the dialog with.
    */
   openInsertDocumentDialog: function(doc) {
-    var hadronDoc = new HadronDocument(doc);
+    var hadronDoc = new HadronDocument(doc, true);
     // We need to remove the _id or we will get an duplicate key error on
     // insert, and we currently do not allow editing of the _id field.
     hadronDoc.elements.shift();

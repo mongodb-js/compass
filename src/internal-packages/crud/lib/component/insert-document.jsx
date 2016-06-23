@@ -38,6 +38,9 @@ class InsertDocument extends React.Component {
     this.doc.on(Element.Events.Removed, this.handleModify.bind(this));
   }
 
+  /**
+   * Handle modifications to the document.
+   */
   handleModify() {
     this.setState({});
   }
