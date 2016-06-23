@@ -10,6 +10,7 @@ const Document = require('./document');
 const ResetDocumentListStore = require('../store/reset-document-list-store');
 const LoadMoreDocumentsStore = require('../store/load-more-documents-store');
 const RemoveDocumentStore = require('../store/remove-document-store');
+const InsertDocumentStore = require('../store/insert-document-store');
 const InsertDocumentDialog = require('./insert-document-dialog');
 
 /**
@@ -46,6 +47,7 @@ class DocumentList extends React.Component {
     this.unsubscribeReset = ResetDocumentListStore.listen(this.handleReset.bind(this));
     this.unsubscribeLoadMore = LoadMoreDocumentsStore.listen(this.handleLoadMore.bind(this));
     this.unsubscribeRemove = RemoveDocumentStore.listen(this.handleRemove.bind(this));
+    this.unsibscribeInsert = InsertDocumentStore.listen(this.handleInsert.bind(this));
   }
 
   /**
@@ -55,6 +57,7 @@ class DocumentList extends React.Component {
     this.unsubscribeReset();
     this.unsubscribeLoadMore();
     this.unsubscribeRemove();
+    this.unsubscribeInsert();
   }
 
   /**
@@ -127,6 +130,20 @@ class DocumentList extends React.Component {
     if (container.scrollTop > (this.documentListNode.offsetHeight - this._scrollDelta())) {
       // If we are scrolling downwards, and have hit the distance to initiate a scroll
       // from the end of the list, we will fire the event to load more documents.
+      this.loadMore();
+    }
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    return (nextState.docs.length !== this.state.docs.length) ||
+      (nextState.currentPage !== this.state.currentPage) ||
+      (nextState.loadedCount !== this.state.loadedCount);
+  }
+
+  handleInsert(success, object) {
+    if (success) {
+      this.setState({ count: this.state.count + 1 });
+      // Figure out skip and limit options from state.
       this.loadMore();
     }
   }

@@ -4,7 +4,8 @@ const Reflux = require('reflux');
 
 const Actions = Reflux.createActions([
   'documentRemoved',
-  'openInsertDocumentDialog'
+  'openInsertDocumentDialog',
+  'insertDocument'
 ]);
 
 module.exports = Actions;

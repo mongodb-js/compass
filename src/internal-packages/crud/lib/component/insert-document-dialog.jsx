@@ -6,6 +6,7 @@ const OpenInsertDocumentDialogStore = require('../store/open-insert-document-dia
 const InsertDocument = require('./insert-document');
 const CancelInsertButton = require('./cancel-insert-button');
 const InsertButton = require('./insert-button');
+const Actions = require('../actions');
 
 /**
  * Component for the insert document dialog.
@@ -31,7 +32,6 @@ class InsertDocumentDialog extends React.Component {
   }
 
   handleStoreOpen(doc) {
-    console.log(doc);
     this.setState({ doc: doc, open: true });
   }
 
@@ -41,6 +41,7 @@ class InsertDocumentDialog extends React.Component {
 
   handleInsert() {
     this.setState({ open: false });
+    Actions.insertDocument(this.state.doc.generateObject());
   }
 
   render() {
