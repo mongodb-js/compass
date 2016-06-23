@@ -79,10 +79,10 @@ var Preferences = Model.extend(storageMixin, {
       default: true
     },
     /**
-     * Switch to enable/disable google maps rendering
+     * Switch to enable/disable maps rendering
      * @type {Boolean}
      */
-    googleMaps: {
+    enableMaps: {
       type: 'boolean',
       required: true,
       default: false
@@ -219,7 +219,7 @@ var Preferences = Model.extend(storageMixin, {
    */
   isFeatureEnabled: function(feature) {
     // master network switch overwrites all network related features
-    if (['googleMaps', 'trackErrors', 'enableFeedbackPanel',
+    if (['enableMaps', 'trackErrors', 'enableFeedbackPanel',
       'trackUsageStatistics', 'autoUpdates'].indexOf(feature) !== -1) {
       return this.networkTraffic && _.get(this, feature);
     }
