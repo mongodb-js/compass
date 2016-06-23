@@ -35,26 +35,15 @@ class EditableValue extends React.Component {
    * @returns {React.Component} The element component.
    */
   render() {
-    return this.renderComponent();
-  }
-
-  renderComponent() {
-    if (this.element.isValueEditable()) {
-      return (
-        <input
-          type='text'
-          className={this.style()}
-          onBlur={this.handleBlur.bind(this)}
-          onFocus={this.handleFocus.bind(this)}
-          onChange={this.handleChange.bind(this)}
-          onKeyDown={this.handleKeyDown.bind(this)}
-          value={this.element.currentValue} />
-      );
-    }
     return (
-      <div className='document-property-value'>
-        {String(this.element.currentValue)}
-      </div>
+      <input
+        type='text'
+        className={this.style()}
+        onBlur={this.handleBlur.bind(this)}
+        onFocus={this.handleFocus.bind(this)}
+        onChange={this.handleChange.bind(this)}
+        onKeyDown={this.handleKeyDown.bind(this)}
+        value={this.element.currentValue} />
     );
   }
 

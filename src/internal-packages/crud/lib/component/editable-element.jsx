@@ -59,7 +59,22 @@ const LABEL_CLASS = 'document-property-type-label';
  */
 const EXPANDED = 'expanded';
 
+/**
+ * The non-expandable class.
+ */
 const NON_EXPANDABLE = 'non-expandable';
+
+/**
+ * Mappings for non editable value components.
+ */
+const VALUE_MAPPINGS = {
+  'Binary': './binary-value',
+  'MinKey': './min-key-value',
+  'MaxKey': './max-key-value',
+  'Code': './code-value',
+  'Timestamp': './timestamp-value',
+  'ObjectID': './objectid-value'
+};
 
 /**
  * General editable element component.
@@ -90,25 +105,48 @@ class EditableElement extends React.Component {
     return this.element.elements ? this.renderExpandable() : this.renderNonExpandable();
   }
 
+  /**
+   * Render a non-expandable element.
+   *
+   * @returns {Component} The component.
+   */
   renderNonExpandable() {
     return (
       <li className={this.style()}>
         <div className='line-number'></div>
-        {this.action()}
+        {this.renderAction()}
         <EditableKey element={this.element} />
         :
-        <EditableValue element={this.element} />
+        {this.renderValue()}
         <Types element={this.element} />
       </li>
     );
   }
 
+  /**
+   * Render the value for the component.
+   *
+   * @returns {Component} The value component.
+   */
+  renderValue() {
+    if (this.element.isValueEditable()) {
+      return (<EditableValue element={this.element} />);
+    }
+    var props = { element: this.element };
+    return React.createElement(this.valueComponent(this.element.currentType), props);
+  }
+
+  /**
+   * Render an expandable element.
+   *
+   * @returns {Component} The component.
+   */
   renderExpandable() {
     return (
       <li className={this.style()}>
         <div className={HEADER_CLASS}>
           <div className='line-number' onClick={this.toggleExpandable.bind(this)}></div>
-          {this.action()}
+          {this.renderAction()}
           <div className={CARET} onClick={this.toggleExpandable.bind(this)}></div>
           <EditableKey element={this.element} />
           :
@@ -139,15 +177,18 @@ class EditableElement extends React.Component {
    *
    * @returns {Component} The component.
    */
-  action() {
+  renderAction() {
     if (this.element.isEdited() || this.element.isRemoved()) {
       return (<RevertAction element={this.element} />);
     } else if (this.element.key === '_id') {
       return (<NoAction element={this.element} />);
     }
-    return (RemoveAction element={this.element});
+    return (<RemoveAction element={this.element} />);
   }
 
+  /**
+   * Handle the addition of an element.
+   */
   handleAdd() {
     this.setState({ expanded: true });
   }
@@ -201,6 +242,15 @@ class EditableElement extends React.Component {
       style = style.concat(` ${EXPANDED}`);
     }
     return style;
+  }
+
+  /**
+   * Get the value component for the type.
+   *
+   * @returns {Component} The value component.
+   */
+  valueComponent(type) {
+    return require(VALUE_MAPPINGS[type]);
   }
 }
 
