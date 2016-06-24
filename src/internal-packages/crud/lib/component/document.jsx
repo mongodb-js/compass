@@ -257,14 +257,15 @@ class Document extends React.Component {
    * @returns {Array} The editable elements.
    */
   editableElements() {
-    var elements = _.map(this.state.doc.elements, (element) => {
+    var components = _.map(this.state.doc.elements, (element) => {
       return (
         <EditableElement key={element.uuid} element={element} />
       );
     });
-    var lastElement = elements[elements.length - 1].props.element;
-    elements.push(<Hotspot key='hotspot' element={lastElement} />);
-    return elements;
+    var lastComponent = components[components.length - 1];
+    var lastElement = lastComponent ? lastComponent.props.element : null;
+    components.push(<Hotspot key='hotspot' doc={this.state.doc} element={lastElement} />);
+    return components;
   }
 
   /**

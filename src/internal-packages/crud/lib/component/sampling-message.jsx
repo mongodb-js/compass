@@ -22,8 +22,8 @@ class SamplingMessage extends React.Component {
    */
   componentDidMount() {
     this.unsubscribeReset = ResetDocumentListStore.listen(this.handleReset.bind(this));
-    this.unsubscribeRemove = RemoveDocumentStore.listen(this.handleRemove.bind(this));
-    this.unsibscribeInsert = InsertDocumentStore.listen(this.handleInsert.bind(this));
+    // this.unsubscribeRemove = RemoveDocumentStore.listen(this.handleRemove.bind(this));
+    // this.unsibscribeInsert = InsertDocumentStore.listen(this.handleInsert.bind(this));
   }
 
   /**
@@ -31,8 +31,8 @@ class SamplingMessage extends React.Component {
    */
   componentWillUnmount() {
     this.unsubscribeReset();
-    this.unsubscribeRemove();
-    this.unsubscribeInsert();
+    // this.unsubscribeRemove();
+    // this.unsubscribeInsert();
   }
 
   /**
@@ -59,7 +59,7 @@ class SamplingMessage extends React.Component {
    * Handles removal of a document from the document list.
    */
   handleRemove() {
-    this.setState({ count: this.state.count - 1 });
+    // this.setState({ count: this.state.count - 1 });
   }
 
   /**
@@ -69,9 +69,9 @@ class SamplingMessage extends React.Component {
    * @param {Object} object - The new document or error.
    */
   handleInsert(success, object) {
-    if (success) {
-      this.setState({ count: this.state.count + 1 });
-    }
+    // if (success) {
+      // this.setState({ count: this.state.count + 1 });
+    // }
   }
 
   /**
@@ -96,6 +96,13 @@ class SamplingMessage extends React.Component {
     if (app.isFeatureEnabled(FEATURE)) {
       return (<OpenInsertDialogButton handler={this.props.insertHandler} />);
     }
+  }
+
+  /**
+   * Only update when the count changes.
+   */
+  shouldComponentUpdate(nextProps, nextState) {
+    return nextState.count !== this.state.count;
   }
 }
 

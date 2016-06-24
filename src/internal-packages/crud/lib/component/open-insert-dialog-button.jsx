@@ -31,6 +31,13 @@ class OpenInsertDialogButton extends React.Component {
       </button>
     );
   }
+
+  /**
+   * Never needs to re-render.
+   */
+  shouldComponentUpdate() {
+    return false;
+  }
 }
 
 OpenInsertDialogButton.displayName = 'OpenInsertDialogButton';

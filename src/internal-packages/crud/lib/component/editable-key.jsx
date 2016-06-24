@@ -95,6 +95,7 @@ class EditableKey extends React.Component {
    */
   handleChange(evt) {
     var value = evt.target.value;
+    this._node.size = value.length;
     if (this.isEditable()) {
       if (this.element.isDuplicateKey(value)) {
         this.setState({ duplicate: true });

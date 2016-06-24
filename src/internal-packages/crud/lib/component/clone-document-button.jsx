@@ -28,6 +28,13 @@ class CloneDocumentButton extends React.Component {
       </button>
     );
   }
+
+  /**
+   * Never needs to re-render.
+   */
+  shouldComponentUpdate() {
+    return false;
+  }
 }
 
 CloneDocumentButton.displayName = 'CloneDocumentButton';
