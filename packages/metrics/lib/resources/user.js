@@ -8,7 +8,10 @@ module.exports = BaseResource.extend({
     userId: {
       type: 'string',
       required: true
-    }
+    },
+    name: 'string',
+    email: 'string',
+    twitter: 'string'
   },
   login: function(callback) {
     var options = {

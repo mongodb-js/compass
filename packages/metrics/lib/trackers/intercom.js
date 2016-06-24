@@ -17,7 +17,10 @@ var IntercomTracker = State.extend({
     appVersion: ['string', false],  // set by the App resource
     appStage: ['string', false],    // set by the App resource
     userId: ['string', true, ''],   // set by the User resource
+    name: ['string', true, ''],     // set by the User resource
     createdAt: ['date', true],      // set by the User resource
+    email: ['string', true],        // set by the User resource
+    twitter: ['string', true],      // set by the User resource
     widget: {
       type: 'object',
       required: true,
@@ -142,6 +145,9 @@ var IntercomTracker = State.extend({
     var obj = {
       user_id: this.userId,
       created_at: this.createdAt,
+      name: this.name,
+      email: this.email,
+      twitter: this.twitter,
       app_name: this.appName,
       app_version: this.appVersion,
       app_stage: this.appStage
