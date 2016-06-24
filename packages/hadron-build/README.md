@@ -83,10 +83,12 @@ var appBundleId = 'com.mongodb.hadron';
 
 - `C:\Users\${username}\AppData\Local\${_.titlecase(productName)}`: App installation path.  Why in a temp dir? Allows installation and auto update without requiring Administrator.
 - `C:\Users\${username}\AppData\Roaming\${productName}`: The `[userData][electron-app-getPath]` directory
-- `C:\Users\${username}\AppData\Local\SquirrelTemp\SquirrelSetup.log`: Installation log
-- `C:\Users\${username}\AppData\Local\${_.titlecase(productName)}\SquirrelSetup.log`: Auto update log
+- `C:\Users\${username}\AppData\Local\SquirrelTemp\SquirrelSetup.log`: Squirrel.Windows installation log. Global for any app installation that's using Squirrel.Windows.
+- `C:\Users\${username}\AppData\Local\${_.titlecase(productName)}\SquirrelSetup.log`: Application level Squirrel.Windows log
 
-#### The Installation Log Explained
+#### The Squirrel.Windows Installation Log Explained
+
+> `C:\Users\${username}\AppData\Local\SquirrelTemp\SquirrelSetup.log`
 
 What you can expect from a successful installation:
 
@@ -166,6 +168,65 @@ And then finally
 2016-06-24 09:46:18> ApplyReleasesImpl: cleanDeadVersions: exclude folder app-${version}
 ```
 
+#### The Windows Application Log Explained
+
+> `C:\Users\${username}\AppData\Local\${_.titlecase(productName)}\SquirrelSetup.log`
+
+##### Windows Startup Log
+
+- User's launch application via a desktop shortcut `${productName}`
+- Installing into `C:\\Program Files\` would require Administrator
+- Desktop shortcut managed for you automatically if you use https://github.com/mongodb-js/electron-squirrel-startup
+- Shortcut Target: `C:\Users\${username}\AppData\Local\${_.titlecase(productName)}\Update.exe --processStart ${_.titlecase(productName)}.exe`
+- Shortcut Start In: `C:\Users\${username}\AppData\Local\${_.titlecase(productName)}\app-${version}`
+
+```
+2016-06-24 12:32:51> Program: Starting Squirrel Updater: --processStart ${_.titlecase(productName)}.exe
+2016-06-24 12:32:51> Program: Want to launch 'C:\Users\${username}\AppData\Local\${_.titlecase(productName)}\app-${version}\${_.titlecase(productName)}.exe'
+2016-06-24 12:32:51> Program: About to launch: 'C:\Users\${username}\AppData\Local\${_.titlecase(productName)}\app-${version}\${_.titlecase(productName)}.exe':
+```
+
+##### Windows Auto Update Log
+
+```javascript
+const server = 'hadron.mongodb.com';
+const dialog = require('electron').dialog;
+const AutoUpdateManager = require('hadron-auto-update-manager');
+
+const autoUpdater = new AutoUpdateManager({
+  endpoint: `https://${server}`
+});
+
+autoUpdater.on('update-available', (event, releaseNotes, releaseVersion) => {
+  dialog.showMessageBox({
+    type: 'question',
+    buttons: ['Not Right Now', 'Restart and Install Update'],
+    title: 'New Version Available',
+    message: `Would you like to install ${productName} v${releaseVersion}?`,
+    detail: releaseNotes,
+    callback: (res) => {
+      if (res === 1) {
+        autoUpdater.install();
+      }
+    }
+  });
+});
+
+autoUpdater.check();
+```
+
+When `hadron-auto-update-manager#check()` called:
+
+```
+2016-06-24 12:33:00> Program: Starting Squirrel Updater: --download https://${server}/update?version=${version}&platform=win32&arch=x64
+2016-06-24 12:33:00> Program: Fetching update information, downloading from https://${server}/update?version=${version}&platform=win32&arch=x64
+2016-06-24 12:33:00> CheckForUpdateImpl: Using existing staging user ID: 4b7f7d53-806c-5724-9079-695fe1657b09
+2016-06-24 12:33:00> CheckForUpdateImpl: Downloading RELEASES file from https://${server}/update?version=${version}&platform=win32&arch=x64
+2016-06-24 12:33:00> FileDownloader: Downloading url: https://${server}/update/RELEASES?version=${version}&platform=win32&arch=amd64&id=${_.titlecase(productName)}&localVersion=${version}
+```
+
+See Squirrel.Windows docs https://github.com/Squirrel/Squirrel.Windows/blob/master/docs/getting-started/5-updating.md
+
 ## Assets
 
 When `hadron-build release` is run, there are several assets which are created in the `./dist` directory.
@@ -188,7 +249,12 @@ Which assets are generated depends on the target platform.
 ## Auto Update
 
 - `hadron-auto-update-manager`: https://github.com/hadron-auto-update-manager
+
+### Windows
+
 - `electron-squirrel-startup`: https://github.com/mongodb-js/electron-squirrel-startup
+- [Update process explained step by step](https://github.com/Squirrel/Squirrel.Windows/blob/master/docs/using/update-process.md#update-process)
+
 
 ## Todo
 
@@ -197,6 +263,7 @@ Which assets are generated depends on the target platform.
 - `check` command ->  `mongodb-js-precommit`
 - `fmt` command ->  `mongodb-js-fmt`
 - Make `test` use `xvfb-maybe` by default
+- Support for [staged rollouts via auto update](https://github.com/Squirrel/Squirrel.Windows/blob/master/docs/using/staged-rollouts.md)
 
 
 ## License
