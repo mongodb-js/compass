@@ -12,6 +12,7 @@ const Actions = require('../actions');
 const EditableElement = require('./editable-element');
 const DocumentActions = require('./document-actions');
 const DocumentFooter = require('./document-footer');
+const RemoveDocumentFooter = require('./remove-document-footer');
 const Hotspot = require('./hotspot');
 
 /**
@@ -41,7 +42,7 @@ class Document extends React.Component {
 
     // Actions need to be scoped to the single document component and not
     // global singletons.
-    this.actions = Reflux.createActions([ 'update', 'remove' ]);
+    this.actions = Reflux.createActions([ 'update', 'remove', 'cancelRemove' ]);
 
     // The update store needs to be scoped to a document and not a global
     // singleton.
@@ -207,7 +208,7 @@ class Document extends React.Component {
     doc.on(Element.Events.Removed, this.handleModify.bind(this));
     doc.on(HadronDocument.Events.Cancel, this.handleCancel.bind(this));
 
-    this.setState({ doc: doc, editing: true });
+    this.setState({ doc: doc, editing: true, deleting: false });
   }
 
   /**
@@ -228,7 +229,11 @@ class Document extends React.Component {
    * Handles document deletion.
    */
   handleDelete() {
-    this.actions.remove(this.doc);
+    this.setState({ deleting: true });
+  }
+
+  handleCancelDelete() {
+    this.setState({ deleting: false });
   }
 
   /**
@@ -291,7 +296,7 @@ class Document extends React.Component {
    * @returns {Component} The actions component.
    */
   renderActions() {
-    if (!this.state.editing) {
+    if (!this.state.editing && !this.state.deleting) {
       return (
         <DocumentActions
           edit={this.handleEdit.bind(this)}
@@ -309,7 +314,19 @@ class Document extends React.Component {
   renderFooter() {
     if (this.state.editing) {
       return (
-        <DocumentFooter doc={this.state.doc} updateStore={this.updateStore} actions={this.actions} />
+        <DocumentFooter
+          doc={this.state.doc}
+          updateStore={this.updateStore}
+          actions={this.actions} />
+      );
+    } else if (this.state.deleting) {
+      console.log(this.state);
+      return (
+        <RemoveDocumentFooter
+          doc={this.state.doc}
+          removeStore={this.removeStore}
+          actions={this.actions}
+          cancelHandler={this.handleCancelDelete.bind(this)} />
       );
     }
   }
@@ -318,6 +335,9 @@ class Document extends React.Component {
     var style = LIST_ITEM_CLASS;
     if (this.state.editing) {
       style = style.concat(' editing');
+    }
+    if (this.state.deleting) {
+      style = style.concat(' deleting');
     }
     return style;
   }
