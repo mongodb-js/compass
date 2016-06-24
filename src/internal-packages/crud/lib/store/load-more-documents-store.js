@@ -20,11 +20,11 @@ const LoadMoreDocumentsStore = Reflux.createStore({
   /**
    * Fetch the next page of documents.
    *
-   * @param {Integer} currentPage - The current page in the view.
+   * @param {Integer} skip - The number of documents to skip.
    */
-  loadMoreDocuments: function(currentPage) {
+  loadMoreDocuments: function(skip) {
     var filter = app.queryOptions.query.serialize();
-    var options = { skip: (currentPage * 20), limit: 20, sort: [[ '_id', 1 ]] };
+    var options = { skip: skip, limit: 20, sort: [[ '_id', 1 ]] };
     app.dataService.find(NamespaceStore.ns, filter, options, (error, documents) => {
       this.trigger(documents);
     });

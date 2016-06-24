@@ -67,7 +67,7 @@ class DocumentList extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.state = { docs: [], currentPage: 0 };
+    this.state = { docs: [], nextSkip: 0 };
   }
 
   /**
@@ -81,7 +81,7 @@ class DocumentList extends React.Component {
     // by the number of new documents.
     this.setState({
       docs: this.state.docs.concat(this.renderDocuments(documents)),
-      currentPage: (this.state.currentPage + 1),
+      nextSkip: (this.state.nextSkip + documents.length),
       loadedCount: (this.state.loadedCount + documents.length)
     });
   }
@@ -98,7 +98,7 @@ class DocumentList extends React.Component {
     // total count are reset here as well.
     this.setState({
       docs: this.renderDocuments(documents),
-      currentPage: 1,
+      nextSkip: documents.length,
       count: count,
       loadedCount: documents.length
     });
@@ -136,14 +136,13 @@ class DocumentList extends React.Component {
 
   shouldComponentUpdate(nextProps, nextState) {
     return (nextState.docs.length !== this.state.docs.length) ||
-      (nextState.currentPage !== this.state.currentPage) ||
+      (nextState.nextSkip !== this.state.nextSkip) ||
       (nextState.loadedCount !== this.state.loadedCount);
   }
 
   handleInsert(success, object) {
     if (success) {
       this.setState({ count: this.state.count + 1 });
-      // Figure out skip and limit options from state.
       this.loadMore();
     }
   }
@@ -154,7 +153,7 @@ class DocumentList extends React.Component {
    */
   loadMore() {
     if (this.state.loadedCount < this.state.count) {
-      Action.fetchNextDocuments(this.state.currentPage);
+      Action.fetchNextDocuments(this.state.nextSkip);
     }
   }
 
