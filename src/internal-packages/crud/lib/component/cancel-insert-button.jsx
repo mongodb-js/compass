@@ -24,7 +24,7 @@ class CancelInsertButton extends React.Component {
   render() {
     return (
       <button
-        className='btn btn-default btn-xs cancel'
+        className='btn btn-default'
         type='button'
         onClick={this.props.handler}>
         Cancel

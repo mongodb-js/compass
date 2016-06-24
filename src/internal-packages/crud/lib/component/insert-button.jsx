@@ -24,7 +24,7 @@ class InsertButton extends React.Component {
   render() {
     return (
       <button
-        className='btn btn-default btn-xs insert'
+        className='btn btn-primary'
         type='button'
         onClick={this.props.handler}>
         Insert

@@ -1,11 +1,11 @@
 li.document-list-item.editing {
-  box-shadow: 2px 5px 8px gainsboro;
+  box-shadow: 2px 5px 8px rgba(0,0,0,0.2);
 }
 
 li.document-list-item.deleting {
-  box-shadow: 2px 5px 8px salmon;
-  border: 1px solid salmon;
-  padding-top: 5px;
+  box-shadow: 2px 5px 8px rgba(0,0,0,0.2);
+  border: 1px solid @alertRed;
+  // padding-top: 5px;
 }
 
 .column.main {
@@ -72,12 +72,22 @@ li.document-list-item.deleting {
     background-color: @green2;
   }
   &.error {
-    background-color: red;
+    background-color: @alertRed;
 
     .document-footer-actions {
 
       .cancel {
         color: @alertRedBg;
+      }
+      .error {
+        color: @pw;
+        background: rgba(255,255,255,0.2);
+        border: 1px solid rgba(255,255,255,0.4);
+
+        &:hover {
+          background: rgba(255,255,255,0.4);
+          border: 1px solid rgba(255,255,255,0.6);
+        }
       }
     }
   }
@@ -396,13 +406,5 @@ input.editable-value {
         }
       }
     }
-  }
-}
-
-.modal-footer {
-  .btn.insert {
-    border-color: green;
-    background-color: @green2;
-    color: #FFFFFF;
   }
 }
