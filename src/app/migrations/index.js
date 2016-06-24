@@ -5,7 +5,8 @@ var electronApp = require('electron').remote.app;
 
 var migrations = {
   '1.1.2': require('./1.1.2'),
-  '1.2.0': require('./1.2.0')
+  '1.2.0': require('./1.2.0'),
+  '1.3.0-beta.0': require('./1.3.0-beta.0')
 };
 
 var migrate = require('app-migrations')(migrations);

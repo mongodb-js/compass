@@ -38,7 +38,7 @@ function compassOverviewItem() {
 
 function networkOptInDialogItem() {
   return {
-    label: 'Help &Improve Compass',
+    label: '&Privacy Settings',
     click: function() {
       BrowserWindow.getFocusedWindow().webContents.send('window:show-network-optin');
     }

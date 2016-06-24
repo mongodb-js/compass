@@ -2,9 +2,9 @@
   .modal-dialog
     .modal-content
       .modal-header
-        h4.modal-title Help us improve Compass
+        h4.modal-title Privacy Settings
       .modal-body
-        p We need your help to improve MongoDB Compass. Please choose from the options below:
+        p To enhance the user experience, Compass can integrate with 3rd party services, which requires external network requests. Please choose from the settings below:
         form
           ul
             li
@@ -12,6 +12,12 @@
                 input(type='checkbox', name='enableFeedbackPanel', data-hook='product-feedback-checkbox')
                 span Enable Product Feedback Tool
               p.option-description Enables a tool for sending feedback or talking to our Product and Development teams directly from Compass.
+
+            li
+              label
+                input(type='checkbox', name='enableMaps', data-hook='enable-maps-checkbox')
+                span Enable Geographic Visualizations
+              p.option-description Allow Compass to make requests to a 3rd party mapping service.
 
             li
               label
@@ -24,6 +30,7 @@
                 input(type='checkbox', name='trackUsageStatistics', data-hook='usage-stats-checkbox')
                 span Enable Usage Statistics
               p.option-description Allow Compass to send anonymous usage statistics.
+            
             li
               label 
                 input(type='checkbox', name='autoUpdates', data-hook='auto-updates-checkbox')
