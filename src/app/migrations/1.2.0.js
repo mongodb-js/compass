@@ -5,6 +5,7 @@ var async = require('async');
 var app = require('ampersand-app');
 
 var PreferenceMigrationModel = Preferences.extend({
+  extraProperties: 'ignore',
   idAttribute: 'id',
   namespace: 'Preferences',
   storage: {
@@ -14,6 +15,7 @@ var PreferenceMigrationModel = Preferences.extend({
 });
 
 var UserMigrationModel = User.extend({
+  extraProperties: 'ignore',
   idAttribute: 'id',
   namespace: 'Users',
   storage: {
