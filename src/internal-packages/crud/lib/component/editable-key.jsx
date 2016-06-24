@@ -8,6 +8,11 @@ const React = require('react');
 const EDITING = 'editing';
 
 /**
+ * The duplicate key value.
+ */
+const DUPLICATE = 'duplicate';
+
+/**
  * The document key class.
  */
 const KEY_CLASS = 'editable-key';
@@ -25,7 +30,7 @@ class EditableKey extends React.Component {
   constructor(props) {
     super(props);
     this.element = props.element;
-    this.state = { editing: false };
+    this.state = { duplcate: false, editing: false };
   }
 
   /**
@@ -56,10 +61,22 @@ class EditableKey extends React.Component {
         onFocus={this.handleFocus.bind(this)}
         onChange={this.handleChange.bind(this)}
         onKeyDown={this.handleKeyDown.bind(this)}
-        value={this.element.currentKey} />
+        value={this.element.currentKey}
+        title={this.renderTitle()} />
     );
   }
 
+  /**
+   * Render the title.
+   *
+   * @returns {String} The title.
+   */
+  renderTitle() {
+    if (this.state.duplicate) {
+      return `Duplicate key: '${this.element.currentKey}'`
+    }
+    return this.element.currentKey;
+  }
   /**
    * When hitting a key on the last element some special things may happen.
    *
@@ -79,6 +96,11 @@ class EditableKey extends React.Component {
   handleChange(evt) {
     var value = evt.target.value;
     if (this.isEditable()) {
+      if (this.element.isDuplicateKey(value)) {
+        this.setState({ duplicate: true });
+      } else if (this.state.duplicate) {
+        this.setState({ duplicate: false });
+      }
       this.element.rename(value);
     }
   }
@@ -116,7 +138,14 @@ class EditableKey extends React.Component {
    * @returns {String} The key style.
    */
   style() {
-    return this.state.editing ? `${KEY_CLASS} ${EDITING}` : KEY_CLASS;
+    var style = KEY_CLASS;
+    if (this.state.editing) {
+      style = style.concat(` ${EDITING}`);
+    }
+    if (this.state.duplicate) {
+      style = style.concat(` ${DUPLICATE}`);
+    }
+    return style;
   }
 }
 
