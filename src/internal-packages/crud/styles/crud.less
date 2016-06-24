@@ -204,23 +204,6 @@ ol.document-property-body:hover {
       color: #999999;
     }
 
-    &.added {
-      background-color: @greenBg;
-
-      input {
-        background-color: @greenBg;
-
-        &:focus {
-          background-color: @pw;
-        }
-      }
-
-      .line-number {
-        background-color: @green2;
-        color: @pw;
-      }
-    }
-
     &.edited {
       background-color: @alertOrangeBg;
 
@@ -234,6 +217,23 @@ ol.document-property-body:hover {
 
       .line-number {
         background-color: @alertOrange;
+        color: @pw;
+      }
+    }
+
+    &.added {
+      background-color: @greenBg;
+
+      input {
+        background-color: @greenBg;
+
+        &:focus {
+          background-color: @pw;
+        }
+      }
+
+      .line-number {
+        background-color: @green2;
         color: @pw;
       }
     }
