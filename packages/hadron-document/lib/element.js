@@ -271,9 +271,14 @@ class Element extends EventEmitter {
       this.parentElement.emit(Events.Removed);
       this.parentElement = null;
     } else {
+      if (this.currentValue === null && this.value !== null) {
+        this.elements = null;
+      } else {
+        this._removeAddedElements();
+      }
       this.currentKey = this.key;
       this.currentValue = this.value;
-      this._removeAddedElements();
+      this.currentType = this.type;
       this.removed = false;
     }
     this._bubbleUp(Events.Reverted);

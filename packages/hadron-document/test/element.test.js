@@ -767,5 +767,67 @@ describe('Element', function() {
         expect(doc.elements.length).to.equal(0);
       });
     });
+
+    context('when the element has been converted to an object', function() {
+      context('when child elements have been added', function() {
+        var element = new Element('email', 'test@example.com', false);
+
+        before(function() {
+          element.edit({});
+          element.add('home', 'test@example.com');
+          element.revert();
+        });
+
+        it('sets the keys back to the original', function() {
+          expect(element.key).to.equal('email');
+          expect(element.currentKey).to.equal('email');
+        });
+
+        it('sets the elements back to the original', function() {
+          expect(element.elements).to.equal(null);
+        });
+
+        it('sets the type back to the original', function() {
+          expect(element.type).to.equal('String');
+          expect(element.currentType).to.equal('String');
+        });
+
+        it('sets the value back to the original', function() {
+          expect(element.value).to.equal('test@example.com');
+          expect(element.currentValue).to.equal('test@example.com');
+        });
+      });
+    });
+
+    context('when the element has been converted to an array', function() {
+      context('when child elements have been added', function() {
+        var element = new Element('email', 'test@example.com', false);
+
+        before(function() {
+          element.edit([]);
+          element.add('0', 'test@example.com');
+          element.revert();
+        });
+
+        it('sets the keys back to the original', function() {
+          expect(element.key).to.equal('email');
+          expect(element.currentKey).to.equal('email');
+        });
+
+        it('sets the elements back to the original', function() {
+          expect(element.elements).to.equal(null);
+        });
+
+        it('sets the type back to the original', function() {
+          expect(element.type).to.equal('String');
+          expect(element.currentType).to.equal('String');
+        });
+
+        it('sets the value back to the original', function() {
+          expect(element.value).to.equal('test@example.com');
+          expect(element.currentValue).to.equal('test@example.com');
+        });
+      });
+    });
   });
 });
