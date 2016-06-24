@@ -165,6 +165,22 @@ class Element extends EventEmitter {
   }
 
   /**
+   * Determine if the key is a duplicate.
+   *
+   * @param {String} value - The value to check.
+   *
+   * @returns {Boolean} If the key is a duplicate.
+   */
+  isDuplicateKey(value) {
+    if (value === this.currentKey) {
+      return false;
+    }
+    return some(this.parentElement.elements, (element) => {
+      return element.currentKey === value;
+    });
+  }
+
+  /**
    * Determine if the element is edited - returns true if
    * the key or value changed.
    *

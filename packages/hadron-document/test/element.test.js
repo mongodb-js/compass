@@ -90,6 +90,30 @@ describe('Element', function() {
     });
   });
 
+  describe('#isDuplicateKey', function() {
+    var doc = new Document({});
+    doc.add('first', 'test');
+    var last = doc.add('last', 'test');
+
+    context('when the key is a duplicate', function() {
+      it('returns true', function() {
+        expect(last.isDuplicateKey('first')).to.equal(true);
+      });
+    });
+
+    context('when the key is not a duplicate', function() {
+      it('returns false', function() {
+        expect(last.isDuplicateKey('test')).to.equal(false);
+      });
+    });
+
+    context('when the key is the same as the element key', function() {
+      it('returns false', function() {
+        expect(last.isDuplicateKey('last')).to.equal(false);
+      });
+    });
+  });
+
   describe('#isLast', function() {
     var doc = new Document({});
     var first = doc.add('first', 'test');
