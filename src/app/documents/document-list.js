@@ -25,7 +25,8 @@ var DocumentListView = View.extend({
     Action.filterChanged(app.queryOptions.query.serialize());
   },
   render: function() {
-    ReactDOM.render(React.createElement(this.documentList), this.el.parentNode);
+    var container = this.el.parentNode.parentNode.parentNode;
+    ReactDOM.render(React.createElement(this.documentList), container);
     return this;
   },
   reset: function() {

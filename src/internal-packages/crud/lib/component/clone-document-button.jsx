@@ -1,0 +1,35 @@
+'use strict';
+
+const React = require('react');
+
+/**
+ * Component for the clone document button.
+ */
+class CloneDocumentButton extends React.Component {
+
+  /**
+   * The component constructor.
+   *
+   * @param {Object} props - The properties.
+   */
+  constructor(props) {
+    super(props);
+  }
+
+  /**
+   * Render the button.
+   *
+   * @returns {Component} The button component.
+   */
+  render() {
+    return (
+      <button type='button' onClick={this.props.handler} title='Clone Document'>
+        <i className="fa fa-clone" aria-hidden="true"></i>
+      </button>
+    );
+  }
+}
+
+CloneDocumentButton.displayName = 'CloneDocumentButton';
+
+module.exports = CloneDocumentButton;

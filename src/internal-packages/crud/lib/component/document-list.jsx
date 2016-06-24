@@ -4,9 +4,16 @@ const _ = require('lodash');
 const React = require('react');
 const ReactDOM = require('react-dom');
 const app = require('ampersand-app');
-const ElementFactory = require('hadron-component-registry').ElementFactory;
 const Action = require('hadron-action');
-const DocumentListStore = require('../store/document-list-store');
+const ObjectID = require('bson').ObjectID;
+const Document = require('./document');
+const ResetDocumentListStore = require('../store/reset-document-list-store');
+const LoadMoreDocumentsStore = require('../store/load-more-documents-store');
+const RemoveDocumentStore = require('../store/remove-document-store');
+const InsertDocumentStore = require('../store/insert-document-store');
+const InsertDocumentDialog = require('./insert-document-dialog');
+const SamplingMessage = require('./sampling-message');
+const Actions = require('../actions');
 
 /**
  * The full document list container class.
@@ -19,44 +26,44 @@ const LIST_CLASS = 'document-list';
 const SCROLL_EVENT = 'scroll';
 
 /**
+ * Base empty doc for insert dialog.
+ */
+const EMPTY_DOC = { '': '' };
+
+/**
  * Component for the entire document list.
  */
 class DocumentList extends React.Component {
 
   /**
+   * Attach the scroll event to the parent container.
+   */
+  attachScrollEvent() {
+    this._node.parentNode.addEventListener(
+      SCROLL_EVENT,
+      this.handleScroll.bind(this)
+    );
+  }
+
+  /**
    * Fetch the state when the component mounts.
    */
   componentDidMount() {
-    this._attachScrollEvent();
-    this.unsubscribe = DocumentListStore.listen((documents, reset, count) => {
-      if (reset) {
-        // If resetting, then we need to go back to page one with
-        // the documents as the filter changed. The loaded count and
-        // total count are reset here as well.
-        this.setState({
-          docs: this._documentListItems(documents),
-          currentPage: 1,
-          count: count,
-          loadedCount: documents.length
-        });
-      } else {
-        // If not resetting we append the documents to the existing
-        // list and increment the page. The loaded count is incremented
-        // by the number of new documents.
-        this.setState({
-          docs: this.state.docs.concat(this._documentListItems(documents)),
-          currentPage: (this.state.currentPage + 1),
-          loadedCount: (this.state.loadedCount + documents.length)
-        });
-      }
-    });
+    this.attachScrollEvent();
+    this.unsubscribeReset = ResetDocumentListStore.listen(this.handleReset.bind(this));
+    this.unsubscribeLoadMore = LoadMoreDocumentsStore.listen(this.handleLoadMore.bind(this));
+    this.unsubscribeRemove = RemoveDocumentStore.listen(this.handleRemove.bind(this));
+    this.unsibscribeInsert = InsertDocumentStore.listen(this.handleInsert.bind(this));
   }
 
   /**
    * Unsibscribe from the document list store when unmounting.
    */
   componentWillUnmount() {
-    this.unsubscribe();
+    this.unsubscribeReset();
+    this.unsubscribeLoadMore();
+    this.unsubscribeRemove();
+    this.unsubscribeInsert();
   }
 
   /**
@@ -66,7 +73,105 @@ class DocumentList extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.state = { docs: [], currentPage: 0 };
+    this.state = { docs: [], nextSkip: 0 };
+  }
+
+  /**
+   * Handle the loading of more documents.
+   *
+   * @param {Array} documents - The next batch of documents.
+   */
+  handleLoadMore(documents) {
+    // If not resetting we append the documents to the existing
+    // list and increment the page. The loaded count is incremented
+    // by the number of new documents.
+    this.setState({
+      docs: this.state.docs.concat(this.renderDocuments(documents)),
+      nextSkip: (this.state.nextSkip + documents.length),
+      loadedCount: (this.state.loadedCount + documents.length)
+    });
+  }
+
+  /**
+   * Handle the reset of the document list.
+   *
+   * @param {Array} documents - The documents.
+   * @param {Integer} count - The count.
+   */
+  handleReset(documents, count) {
+    // If resetting, then we need to go back to page one with
+    // the documents as the filter changed. The loaded count and
+    // total count are reset here as well.
+    this.setState({
+      docs: this.renderDocuments(documents),
+      nextSkip: documents.length,
+      count: count,
+      loadedCount: documents.length
+    });
+  }
+
+  /**
+   * Handles removal of a document from the document list.
+   *
+   * @param {Object} id - The id of the removed document.
+   */
+  handleRemove(id) {
+    var index = _.findIndex(this.state.docs, (component) => {
+      if (id instanceof ObjectID) {
+        return id.equals(component.props.doc._id);
+      }
+      return component.props.doc._id === id;
+    });
+    this.state.docs.splice(index, 1);
+    this.setState({
+      docs: this.state.docs,
+      loadedCount: (this.state.loadedCount - 1),
+      nextSkip: (this.state.nextSkip - 1)
+    });
+  }
+
+  /**
+   * Handle the scroll event of the parent container.
+   *
+   * @param {Event} evt - The scroll event.
+   */
+  handleScroll(evt) {
+    var container = evt.srcElement;
+    if (container.scrollTop > (this._node.offsetHeight - this._scrollDelta())) {
+      // If we are scrolling downwards, and have hit the distance to initiate a scroll
+      // from the end of the list, we will fire the event to load more documents.
+      this.loadMore();
+    }
+  }
+
+  /**
+   * Handle opening of the insert dialog.
+   */
+  handleOpenInsert() {
+    Actions.openInsertDocumentDialog(EMPTY_DOC);
+  }
+
+  /**
+   * Handle insert of a new document.
+   *
+   * @param {Boolean} success - If the insert was successful.
+   * @param {Object} object - The new document or error.
+   */
+  handleInsert(success, object) {
+    if (success) {
+      this.setState({ count: this.state.count + 1 });
+      this.loadMore();
+    }
+  }
+
+  /**
+   * Get the next batch of documents. Will only fire if there are more documents
+   * in the collection to load.
+   */
+  loadMore() {
+    if (this.state.loadedCount < this.state.count) {
+      Action.fetchNextDocuments(this.state.nextSkip);
+    }
   }
 
   /**
@@ -76,20 +181,17 @@ class DocumentList extends React.Component {
    */
   render() {
     return (
-      <ol className={LIST_CLASS}>
-        {this.state.docs}
-      </ol>
-    );
-  }
-
-  /**
-   * Attach the scroll event to the parent container.
-   */
-  _attachScrollEvent() {
-    this.documentListNode = ReactDOM.findDOMNode(this);
-    this.documentListNode.parentNode.addEventListener(
-      SCROLL_EVENT,
-      this._handleScroll.bind(this)
+      <div>
+        <SamplingMessage insertHandler={this.handleOpenInsert.bind(this)} />
+        <div className='column-container with-refinebar-and-message'>
+          <div className='column main'>
+            <ol className={LIST_CLASS} ref={(c) => this._node = c}>
+              {this.state.docs}
+              <InsertDocumentDialog />
+            </ol>
+          </div>
+        </div>
+      </div>
     );
   }
 
@@ -100,40 +202,22 @@ class DocumentList extends React.Component {
    *
    * @return {Array} The document list item components.
    */
-  _documentListItems(docs) {
+  renderDocuments(docs) {
     return _.map(docs, (doc) => {
-      return React.createElement(DocumentListItem, { doc: doc, key: doc._id });
+      return (<Document doc={doc} key={doc._id} />);
     });
   }
 
   /**
-   * Handle the scroll event of the parent container.
+   * Determine if the component should update.
    *
-   * @param {Event} evt - The scroll event.
+   * @param {Object} nextProps - The next properties.
+   * @param {Object} nextState - The next state.
    */
-  _handleScroll(evt) {
-    var container = evt.srcElement;
-    if (container.scrollTop > (this.documentListNode.offsetHeight - this._scrollDelta())) {
-      // If we are scrolling downwards, and have hit the distance to initiate a scroll
-      // from the end of the list, we will fire the event to load more documents.
-      this._nextBatch();
-    }
-    // Bonus: if we have passed a certain number of docs that are out of view:
-    // this._unloadPreviousBatch();
-    // Bonus: if we are scrolling back up and are running out of previous docs:
-    // this._previousBatch();
-    // Bonus: if we are scrolling up and docs below are out of view:
-    // this._unloadNextBatch();
-  }
-
-  /**
-   * Get the next batch of documents. Will only fire if there are more documents
-   * in the collection to load.
-   */
-  _nextBatch() {
-    if (this.state.loadedCount < this.state.count) {
-      Action.fetchNextDocuments(this.state.currentPage);
-    }
+  shouldComponentUpdate(nextProps, nextState) {
+    return (nextState.docs.length !== this.state.docs.length) ||
+      (nextState.nextSkip !== this.state.nextSkip) ||
+      (nextState.loadedCount !== this.state.loadedCount);
   }
 
   /**
@@ -144,50 +228,13 @@ class DocumentList extends React.Component {
    */
   _scrollDelta() {
     if (!this.scrollDelta) {
-      this.scrollDelta = this.documentListNode.offsetHeight;
+      this.scrollDelta = this._node.offsetHeight;
     }
     return this.scrollDelta;
   }
 }
 
-/**
- * The class for the document itself.
- */
-const DOCUMENT_CLASS = 'document-property-body';
-
-/**
- * The class for the list item wrapper.
- */
-const LIST_ITEM_CLASS = 'document-list-item';
-
-/**
- * Component for a single document in a list of documents.
- */
-class DocumentListItem extends React.Component {
-
-  /**
-   * Render a single document list item.
-   */
-  render() {
-    return (
-      <li className={LIST_ITEM_CLASS}>
-        <ol className={DOCUMENT_CLASS}>
-          {ElementFactory.elements(this.props.doc)}
-        </ol>
-      </li>
-    );
-  }
-}
-
-/**
- * Set the display names for all components.
- */
 DocumentList.displayName = 'DocumentList';
-DocumentListItem.displayName = 'DocumentListItem';
-
-/**
- * Set the child components.
- */
-DocumentList.DocumentListItem = DocumentListItem;
+DocumentList.Document = Document;
 
 module.exports = DocumentList;

@@ -1,5 +1,5 @@
 .truncate-text-mixin() {
-  overflow-x: hidden;
+  // overflow-x: hidden; // commenting out to make the dropdowns work
   text-overflow: ellipsis;
   white-space: nowrap;
   max-width: 100%;
@@ -31,6 +31,7 @@ ol.document-list {
   }
 
   li.document-list-item {
+    position: relative;
     font-family: @font-family-monospace;
     font-size: 11px;
     padding-bottom: 10px;
@@ -97,6 +98,15 @@ ol.document-list {
         }
       }
 
+      .document-property.code > .document-property-value {
+        &::before {
+          content: "Code('";
+        }
+        &::after {
+          content: "')";
+        }
+      }
+
       li.document-property.array, li.document-property.object {
         display: block;
         margin-left: -16px;
@@ -114,8 +124,8 @@ ol.document-list {
             display: inline-block;
             width: 12px;
             height: 1em;
-            margin-left: 2px;
-            margin-right: 10px;
+            margin-left: -8px !important; // remove important hack later
+            margin-right: 4px;
             .caret-right;
           }
 
@@ -130,18 +140,21 @@ ol.document-list {
         }
 
         ol.document-property-body {
-          // margin-left: 21px;
-          padding-left: 36px;
-          // border-left: 1px dotted @gray6;
+          padding-left: 0;
           display: none;
+
+          .document-property-key,
+          .editable-key {
+            margin-left: 16px;
+          }
         }
         &.expanded {
           > .document-property-header {
             > .caret {
               .caret-down;
               vertical-align: bottom;
-              margin-left: 4px;
-              margin-right: 8px;
+              margin-left: -10px !important; // remove important hack later
+              margin-right: 2px;
             }
           }
           > ol.document-property-body {
