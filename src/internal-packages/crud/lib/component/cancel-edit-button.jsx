@@ -31,6 +31,13 @@ class CancelEditButton extends React.Component {
       </button>
     );
   }
+
+  /**
+   * Never needs to re-render.
+   */
+  shouldComponentUpdate() {
+    return false;
+  }
 }
 
 CancelEditButton.displayName = 'CancelEditButton';

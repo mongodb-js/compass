@@ -31,6 +31,13 @@ class CancelInsertButton extends React.Component {
       </button>
     );
   }
+
+  /**
+   * Never needs to re-render.
+   */
+  shouldComponentUpdate() {
+    return false;
+  }
 }
 
 CancelInsertButton.displayName = 'CancelInsertButton';

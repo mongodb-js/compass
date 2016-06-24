@@ -41,6 +41,7 @@ class EditableValue extends React.Component {
       <input
         ref={(c) => this._node = c}
         type='text'
+        size={this.element.currentValue.length}
         className={this.style()}
         onBlur={this.handleBlur.bind(this)}
         onFocus={this.handleFocus.bind(this)}
@@ -70,6 +71,7 @@ class EditableValue extends React.Component {
    */
   handleChange(evt) {
     var value = evt.target.value;
+    this._node.size = value.length;
     var currentType = this.element.currentType;
     if (_.includes(TypeChecker.castableTypes(value), currentType)) {
       this.element.edit(TypeChecker.cast(value, currentType));

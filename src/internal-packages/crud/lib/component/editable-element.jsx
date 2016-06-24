@@ -8,6 +8,7 @@ const RevertAction = require('./revert-action');
 const RemoveAction = require('./remove-action');
 const NoAction = require('./no-action');
 const Types = require('./types');
+const Hotspot = require('./hotspot');
 
 /**
  * The added constant.
@@ -167,9 +168,13 @@ class EditableElement extends React.Component {
    * @returns {Array} The components.
    */
   elementComponents() {
-    return _.map(this.element.elements, (element) => {
+    var components = _.map(this.element.elements, (element) => {
       return (<EditableElement key={element.uuid} element={element} />);
     });
+    var lastComponent = components[components.length - 1];
+    var lastElement = lastComponent ? lastComponent.props.element : null;
+    components.push(<Hotspot key='hotspot' doc={this.element} element={lastElement} />);
+    return components;
   }
 
   /**

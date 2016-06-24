@@ -31,6 +31,13 @@ class InsertButton extends React.Component {
       </button>
     );
   }
+
+  /**
+   * Never needs to re-render.
+   */
+  shouldComponentUpdate() {
+    return false;
+  }
 }
 
 InsertButton.displayName = 'InsertButton';

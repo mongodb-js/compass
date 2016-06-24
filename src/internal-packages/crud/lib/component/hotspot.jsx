@@ -39,6 +39,13 @@ class Hotspot extends React.Component {
       <div className='hotspot' onClick={this.handleClick.bind(this)}></div>
     );
   }
+
+  /**
+   * Never needs to re-render.
+   */
+  shouldComponentUpdate() {
+    return false;
+  }
 }
 
 Hotspot.displayName = 'Hotspot';
