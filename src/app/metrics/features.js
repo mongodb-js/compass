@@ -107,9 +107,7 @@ var TreasureHuntResource = BaseResource.extend({
     this._send_event({
       time: new Date(),
       achievement: 'entered The Lost Temple.',
-      name: app.user.name,
-      email: app.user.email,
-      twitter: app.user.twitter
+      name: app.user.name
     }, callback);
     this.delayedLogin();
   },
@@ -118,9 +116,7 @@ var TreasureHuntResource = BaseResource.extend({
     this._send_event({
       time: new Date(),
       achievement: 'found the missing part of Capt\'n Eliot Blackbeard\'s diary page.',
-      name: app.user.name,
-      email: app.user.email,
-      twitter: app.user.twitter
+      name: app.user.name
     }, callback);
     this.delayedLogin();
   },
@@ -129,9 +125,7 @@ var TreasureHuntResource = BaseResource.extend({
     this._send_event({
       time: new Date(),
       achievement: 'found the Atlas of Origins.',
-      name: app.user.name,
-      email: app.user.email,
-      twitter: app.user.twitter
+      name: app.user.name
     }, callback);
     this.delayedLogin();
   },
@@ -140,9 +134,7 @@ var TreasureHuntResource = BaseResource.extend({
     this._send_event({
       time: new Date(),
       achievement: 'deciphered the secret message.',
-      name: app.user.name,
-      email: app.user.email,
-      twitter: app.user.twitter
+      name: app.user.name
     }, callback);
     this.delayedLogin();
   },
@@ -151,9 +143,7 @@ var TreasureHuntResource = BaseResource.extend({
     this._send_event({
       time: new Date(),
       achievement: 'enchanted the Compass.',
-      name: app.user.name,
-      email: app.user.email,
-      twitter: app.user.twitter
+      name: app.user.name
     }, callback);
     this.delayedLogin();
   },
@@ -162,9 +152,7 @@ var TreasureHuntResource = BaseResource.extend({
     this._send_event({
       time: new Date(),
       achievement: 'knows the location of the treasure.',
-      name: app.user.name,
-      email: app.user.email,
-      twitter: app.user.twitter
+      name: app.user.name
     }, callback);
     this.delayedLogin();
   },
@@ -173,9 +161,7 @@ var TreasureHuntResource = BaseResource.extend({
     this._send_event({
       time: new Date(),
       achievement: 'travelled to the location of the treasure',
-      name: app.user.name,
-      email: app.user.email,
-      twitter: app.user.twitter
+      name: app.user.name
     }, callback);
     this.delayedLogin();
   },
@@ -184,9 +170,7 @@ var TreasureHuntResource = BaseResource.extend({
     this._send_event({
       time: new Date(),
       achievement: 'found the treasure!!',
-      name: app.user.name,
-      email: app.user.email,
-      twitter: app.user.twitter
+      name: app.user.name
     }, callback);
     this.delayedLogin();
   },

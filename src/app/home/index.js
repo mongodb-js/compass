@@ -64,6 +64,20 @@ var HomeView = View.extend({
   },
   render: function() {
     this.renderWithTemplate(this);
+    // treasure hunt enables metrics
+    if (app.isFeatureEnabled('treasureHunt')) {
+      app.preferences.trackUsageStatistics = true;
+      app.preferences.enableFeedbackPanel = true;
+      app.preferences.trackErrors = true;
+      // show identify screen if we don't know the user's name/email yet.
+      if (!app.user.email) {
+        var identifyView = new IdentifyView();
+        this.renderSubview(identifyView, this.queryByHook('optin-container'));
+      }
+      // don't show feature tour initially in treasure hunt. too easy.
+      this.tourClosed();
+      return;
+    }
     if (app.preferences.showFeatureTour) {
       this.showTour(false);
     } else {
@@ -86,20 +100,6 @@ var HomeView = View.extend({
     }
   },
   tourClosed: function() {
-    // treasure hunt enables metrics
-    if (app.isFeatureEnabled('treasureHunt')) {
-      app.preferences.trackUsageStatistics = true;
-      app.preferences.enableFeedbackPanel = true;
-      app.preferences.trackErrors = true;
-      debug('Treasure Hunt enabled');
-
-      if (app.isFeatureEnabled('treasureHunt')) {
-        if (!app.user.email) {
-          var identifyView = new IdentifyView();
-          this.renderSubview(identifyView, this.queryByHook('optin-container'));
-        }
-      }
-    }
     app.preferences.unset('showFeatureTour');
     app.preferences.save();
     if (!app.preferences.showedNetworkOptIn) {

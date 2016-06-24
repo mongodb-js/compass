@@ -113,10 +113,11 @@ var TourView = View.extend({
     }
 
     // add the diary page if treasure hunt is active
-    if (app.isFeatureEnabled('treasureHunt')) {
+    if (app.isFeatureEnabled('treasureHunt') &&
+      !_.find(FEATURES, 'title', '1/2 Diary Page')) {
       FEATURES.splice(5, 0, {
         title: '1/2 Diary Page',
-        description: 'As you make your way into the Lost Temple, you notice an unusually wide crack in the wall. Upon further inspection, you find a piece of paper that was hastily stuck into the crack. When you unfold the paper, you realize it is the missing half of Capt\'n Eliot Blackbeard\'s diary page...',
+        description: 'As you wander aimlessly through the corridors of the Lost Temple, you notice a small piece of paper sticking out of a crack in the wall. When you unfold the paper, you realize it is the missing half of Capt\'n Eliot Blackbeard\'s diary page...',
         image: 'diary-page-bottom.png',
         version: '1.3.0',
         initial: true
