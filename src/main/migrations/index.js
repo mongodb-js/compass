@@ -39,9 +39,7 @@ module.exports = function(done) {
     if (err) {
       return done(err);
     }
-    // strip any prerelease parts off
-    previousVersion = previousVersion.split('-')[0];
-    var currentVersion = pkg.version.split('-')[0];
+    var currentVersion = pkg.version;
     debug('main process migrations from %s to %s', previousVersion, currentVersion);
     migrate(previousVersion, currentVersion, done);
   });
