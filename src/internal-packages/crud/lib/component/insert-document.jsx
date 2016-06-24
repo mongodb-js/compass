@@ -68,9 +68,9 @@ class InsertDocument extends React.Component {
    * @returns {Array} The editable elements.
    */
   renderElements() {
-    var elements = _.map(this.doc.elements, (element) => {
+    var elements = _.map(this.doc.elements, (element, index) => {
       return (
-        <EditableElement key={element.uuid} element={element} />
+        <EditableElement key={element.uuid} element={element} insertIndex={index} />
       );
     });
     var lastComponent = elements[elements.length - 1];

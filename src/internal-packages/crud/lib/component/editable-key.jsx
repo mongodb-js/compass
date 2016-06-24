@@ -39,7 +39,12 @@ class EditableKey extends React.Component {
    */
   componentDidMount() {
     if (this.element.isAdded()) {
-      if (!this.isEditable() && this._node) {
+      if (this.props.insertIndex) {
+        // Focus for inserting new documents.
+        if (this.props.insertIndex === 1 && this.element.currentKey === '') {
+          this._node.focus();
+        }
+      } else if (!this.isEditable() && this._node) {
         this._node.focus();
       }
     }

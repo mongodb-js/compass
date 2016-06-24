@@ -26,11 +26,6 @@ const LIST_CLASS = 'document-list';
 const SCROLL_EVENT = 'scroll';
 
 /**
- * Base empty doc for insert dialog.
- */
-const EMPTY_DOC = { '': '' };
-
-/**
  * Component for the entire document list.
  */
 class DocumentList extends React.Component {
@@ -148,7 +143,7 @@ class DocumentList extends React.Component {
    * Handle opening of the insert dialog.
    */
   handleOpenInsert() {
-    Actions.openInsertDocumentDialog(EMPTY_DOC);
+    Actions.openInsertDocumentDialog({ _id: new ObjectID(), '': '' }, false);
   }
 
   /**

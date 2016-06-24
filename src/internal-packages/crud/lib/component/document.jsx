@@ -224,7 +224,7 @@ class Document extends React.Component {
    * Handle cloning of the document.
    */
   handleClone() {
-    Actions.openInsertDocumentDialog(this.doc);
+    Actions.openInsertDocumentDialog(this.doc, true);
   }
 
   /**
@@ -234,6 +234,9 @@ class Document extends React.Component {
     this.setState({ deleting: true });
   }
 
+  /**
+   * Handles canceling a delete.
+   */
   handleCancelDelete() {
     this.setState({ deleting: false });
   }

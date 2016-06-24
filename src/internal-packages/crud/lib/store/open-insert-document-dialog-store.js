@@ -20,13 +20,16 @@ const OpenInsertDocumentDialogStore = Reflux.createStore({
    * Open the insert document dialog.
    *
    * @param {Object} doc - The document to open the dialog with.
+   * @param {Booelan} clone - If the operation is a clone.
    */
-  openInsertDocumentDialog: function(doc) {
+  openInsertDocumentDialog: function(doc, clone) {
     var hadronDoc = new HadronDocument(doc, true);
-    // We need to remove the _id or we will get an duplicate key error on
-    // insert, and we currently do not allow editing of the _id field.
-    if (hadronDoc.elements[0].currentKey === '_id') {
-      hadronDoc.elements.shift();
+    if (clone) {
+      // We need to remove the _id or we will get an duplicate key error on
+      // insert, and we currently do not allow editing of the _id field.
+      if (hadronDoc.elements[0].currentKey === '_id') {
+        hadronDoc.elements.shift();
+      }
     }
     this.trigger(hadronDoc);
   }

@@ -116,7 +116,7 @@ class EditableElement extends React.Component {
       <li className={this.style()}>
         <div className='line-number'></div>
         {this.renderAction()}
-        <EditableKey element={this.element} />
+        <EditableKey element={this.element} insertIndex={this.props.insertIndex} />
         :
         {this.renderValue()}
         <Types element={this.element} />
