@@ -198,6 +198,7 @@ class Document extends React.Component {
    * @param {Object} doc - The updated document.
    */
   handleRemoveSuccess() {
+    this.setState({ deleteFinished: true });
     Actions.documentRemoved(this.doc._id);
   }
 
@@ -341,7 +342,7 @@ class Document extends React.Component {
     if (this.state.editing) {
       style = style.concat(' editing');
     }
-    if (this.state.deleting) {
+    if (this.state.deleting && !this.state.deleteFinished) {
       style = style.concat(' deleting');
     }
     return style;

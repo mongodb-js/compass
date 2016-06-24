@@ -171,9 +171,9 @@ class EditableElement extends React.Component {
     var components = _.map(this.element.elements, (element) => {
       return (<EditableElement key={element.uuid} element={element} />);
     });
-    var lastComponent = components[components.length - 1];
-    var lastElement = lastComponent ? lastComponent.props.element : null;
-    components.push(<Hotspot key='hotspot' doc={this.element} element={lastElement} />);
+    // var lastComponent = components[components.length - 1];
+    // var lastElement = lastComponent ? lastComponent.props.element : null;
+    // components.push(<Hotspot key='hotspot' doc={this.element} element={lastElement} />);
     return components;
   }
 
