@@ -145,6 +145,14 @@ var Preferences = Model.extend(storageMixin, {
       default: false
     },
     /**
+     * Allow single document CRUD.
+     */
+    singleDocumentCrud: {
+      type: 'boolean',
+      required: true,
+      default: false
+    },
+    /**
      * Switches to enable/disable various authentication / ssl types
      *
      * Warning: currently not hooked into the code, see INT-859.

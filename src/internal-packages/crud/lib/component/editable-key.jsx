@@ -77,8 +77,9 @@ class EditableKey extends React.Component {
    * @param {Event} evt - The event.
    */
   handleChange(evt) {
+    var value = evt.target.value;
     if (this.isEditable()) {
-      this.element.rename(evt.target.value);
+      this.element.rename(value);
     }
   }
 
