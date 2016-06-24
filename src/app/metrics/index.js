@@ -55,7 +55,11 @@ module.exports = function() {
 
   // create a user resource with client id (UUID v4 recommended)
   var userResource = new resources.UserResource({
-    userId: app.user.id
+    userId: app.user.id,
+    name: app.user.name,
+    email: app.user.email,
+    twitter: app.user.twitter,
+    developer: process.env.NODE_ENV === 'development'
   });
 
   // create a user resource with client id (UUID v4 recommended)

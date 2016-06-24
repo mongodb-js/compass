@@ -1,6 +1,7 @@
 var View = require('ampersand-view');
 var format = require('util').format;
 var SidebarView = require('../sidebar');
+var IdentifyView = require('../identify');
 var CollectionView = require('./collection');
 var InstancePropertyView = require('./instance-properties');
 var CollectionListItemView = require('./collection-list-item');
@@ -79,11 +80,10 @@ var HomeView = View.extend({
     }
   },
   showOptIn: function() {
-    if (app.isFeatureEnabled('treasureHunt')) {
-      return;
+    if (!app.isFeatureEnabled('treasureHunt')) {
+      var networkOptInView = new NetworkOptInView();
+      this.renderSubview(networkOptInView, this.queryByHook('optin-container'));
     }
-    var networkOptInView = new NetworkOptInView();
-    this.renderSubview(networkOptInView, this.queryByHook('optin-container'));
   },
   tourClosed: function() {
     // treasure hunt enables metrics
@@ -93,11 +93,12 @@ var HomeView = View.extend({
       app.preferences.trackErrors = true;
       debug('Treasure Hunt enabled');
 
-      // trigger treasure hunt `stage1` event
-      metrics.track('Treasure Hunt', 'stage1', {
-        achievement: 'entered The Lost Temple.',
-        time: new Date()
-      });
+      if (app.isFeatureEnabled('treasureHunt')) {
+        if (!app.user.email) {
+          var identifyView = new IdentifyView();
+          this.renderSubview(identifyView, this.queryByHook('optin-container'));
+        }
+      }
     }
     app.preferences.unset('showFeatureTour');
     app.preferences.save();

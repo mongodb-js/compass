@@ -48,10 +48,7 @@ const DocumentListStore = Reflux.createStore({
       app.dataService.find(ns, filter, options, (error, documents) => {
         if (app.isFeatureEnabled('treasureHunt')) {
           if (documents.length === 1 && documents[0]._id === '') {
-            metrics.track('Treasure Hunt', 'stage7', {
-              achievement: 'travelled to the location of the treasure',
-              time: new Date()
-            });
+            metrics.track('Treasure Hunt', 'stage7');
           }
         }
 

@@ -158,10 +158,7 @@ var TourView = View.extend({
 
     if (app.isFeatureEnabled('treasureHunt')) {
       if (this.features[this.tourCount].image === 'diary-page-bottom.png') {
-        metrics.track('Treasure Hunt', 'stage2', {
-          achievement: 'found the missing part of Capt\'n Eliot Blackbeard\'s diary page.',
-          time: new Date()
-        });
+        metrics.track('Treasure Hunt', 'stage2');
       }
     }
   },

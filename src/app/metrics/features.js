@@ -1,5 +1,6 @@
 var BaseResource = require('mongodb-js-metrics').resources.BaseResource;
 var FeatureResource = require('mongodb-js-metrics').resources.FeatureResource;
+var app = require('ampersand-app');
 var debug = require('debug')('mongodb-compass:metrics:features');
 var _ = require('lodash');
 
@@ -103,42 +104,90 @@ var TreasureHuntResource = BaseResource.extend({
   },
   // connect to data server
   stage1: function(metadata, callback) {
-    this._send_event(metadata, callback);
+    this._send_event({
+      time: new Date(),
+      achievement: 'entered The Lost Temple.',
+      name: app.user.name,
+      email: app.user.email,
+      twitter: app.user.twitter
+    }, callback);
     this.delayedLogin();
   },
   // show diary page
   stage2: function(metadata, callback) {
-    this._send_event(metadata, callback);
+    this._send_event({
+      time: new Date(),
+      achievement: 'found the missing part of Capt\'n Eliot Blackbeard\'s diary page.',
+      name: app.user.name,
+      email: app.user.email,
+      twitter: app.user.twitter
+    }, callback);
     this.delayedLogin();
   },
   // open news collection
   stage3: function(metadata, callback) {
-    this._send_event(metadata, callback);
+    this._send_event({
+      time: new Date(),
+      achievement: 'found the Atlas of Origins.',
+      name: app.user.name,
+      email: app.user.email,
+      twitter: app.user.twitter
+    }, callback);
     this.delayedLogin();
   },
   // build query
   stage4: function(metadata, callback) {
-    this._send_event(metadata, callback);
+    this._send_event({
+      time: new Date(),
+      achievement: 'deciphered the secret message.',
+      name: app.user.name,
+      email: app.user.email,
+      twitter: app.user.twitter
+    }, callback);
     this.delayedLogin();
   },
   // updated to new version
   stage5: function(metadata, callback) {
-    this._send_event(metadata, callback);
+    this._send_event({
+      time: new Date(),
+      achievement: 'enchanted the Compass.',
+      name: app.user.name,
+      email: app.user.email,
+      twitter: app.user.twitter
+    }, callback);
     this.delayedLogin();
   },
   // show indexed explain plan
   stage6: function(metadata, callback) {
-    this._send_event(metadata, callback);
+    this._send_event({
+      time: new Date(),
+      achievement: 'knows the location of the treasure.',
+      name: app.user.name,
+      email: app.user.email,
+      twitter: app.user.twitter
+    }, callback);
     this.delayedLogin();
   },
   // build geo query
   stage7: function(metadata, callback) {
-    this._send_event(metadata, callback);
+    this._send_event({
+      time: new Date(),
+      achievement: 'travelled to the location of the treasure',
+      name: app.user.name,
+      email: app.user.email,
+      twitter: app.user.twitter
+    }, callback);
     this.delayedLogin();
   },
   // click on the treasure value
   stage8: function(metadata, callback) {
-    this._send_event(metadata, callback);
+    this._send_event({
+      time: new Date(),
+      achievement: 'found the treasure!!',
+      name: app.user.name,
+      email: app.user.email,
+      twitter: app.user.twitter
+    }, callback);
     this.delayedLogin();
   },
   // unused
