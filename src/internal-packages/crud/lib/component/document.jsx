@@ -187,7 +187,9 @@ class Document extends React.Component {
    */
   handleUpdateSuccess(doc) {
     this.doc = doc;
-    this.setState({ doc: doc, editing: false });
+    setTimeout(() => {
+      this.setState({ doc: doc, editing: false });
+    }, 1000);
   }
 
   /**
