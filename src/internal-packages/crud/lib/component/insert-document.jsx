@@ -73,8 +73,9 @@ class InsertDocument extends React.Component {
         <EditableElement key={element.uuid} element={element} />
       );
     });
-    var lastElement = elements[elements.length - 1].props.element;
-    elements.push(<Hotspot key='hotspot' element={lastElement} />);
+    var lastComponent = elements[elements.length - 1];
+    var lastElement = lastComponent ? lastComponent.props.element : null;
+    elements.push(<Hotspot key='hotspot' doc={this.doc} element={lastElement} />);
     return elements;
   }
 }

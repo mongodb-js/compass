@@ -14,6 +14,7 @@ class Hotspot extends React.Component {
    */
   constructor(props) {
     super(props);
+    this.doc = props.doc;
     this.element = props.element;
   }
 
@@ -21,7 +22,11 @@ class Hotspot extends React.Component {
    * When clicking on a hotspot we append to the parent.
    */
   handleClick() {
-    this.element.next();
+    if (this.element && this.element.parentElement) {
+      this.element.next();
+    } else {
+      this.doc.add('', '');
+    }
   }
 
   /**

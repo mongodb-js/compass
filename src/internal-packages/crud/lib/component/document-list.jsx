@@ -12,6 +12,8 @@ const LoadMoreDocumentsStore = require('../store/load-more-documents-store');
 const RemoveDocumentStore = require('../store/remove-document-store');
 const InsertDocumentStore = require('../store/insert-document-store');
 const InsertDocumentDialog = require('./insert-document-dialog');
+const SamplingMessage = require('./sampling-message');
+const Actions = require('../actions');
 
 /**
  * The full document list container class.
@@ -24,6 +26,11 @@ const LIST_CLASS = 'document-list';
 const SCROLL_EVENT = 'scroll';
 
 /**
+ * Base empty doc for insert dialog.
+ */
+const EMPTY_DOC = { '': '' };
+
+/**
  * Component for the entire document list.
  */
 class DocumentList extends React.Component {
@@ -32,8 +39,7 @@ class DocumentList extends React.Component {
    * Attach the scroll event to the parent container.
    */
   attachScrollEvent() {
-    this.documentListNode = ReactDOM.findDOMNode(this);
-    this.documentListNode.parentNode.addEventListener(
+    this._node.parentNode.addEventListener(
       SCROLL_EVENT,
       this.handleScroll.bind(this)
     );
@@ -131,11 +137,18 @@ class DocumentList extends React.Component {
    */
   handleScroll(evt) {
     var container = evt.srcElement;
-    if (container.scrollTop > (this.documentListNode.offsetHeight - this._scrollDelta())) {
+    if (container.scrollTop > (this._node.offsetHeight - this._scrollDelta())) {
       // If we are scrolling downwards, and have hit the distance to initiate a scroll
       // from the end of the list, we will fire the event to load more documents.
       this.loadMore();
     }
+  }
+
+  /**
+   * Handle opening of the insert dialog.
+   */
+  handleOpenInsert() {
+    Actions.openInsertDocumentDialog(EMPTY_DOC);
   }
 
   /**
@@ -168,10 +181,17 @@ class DocumentList extends React.Component {
    */
   render() {
     return (
-      <ol className={LIST_CLASS}>
-        {this.state.docs}
-        <InsertDocumentDialog />
-      </ol>
+      <div>
+        <SamplingMessage insertHandler={this.handleOpenInsert.bind(this)} />
+        <div className='column-container with-refinebar-and-message'>
+          <div className='column main'>
+            <ol className={LIST_CLASS} ref={(c) => this._node = c}>
+              {this.state.docs}
+              <InsertDocumentDialog />
+            </ol>
+          </div>
+        </div>
+      </div>
     );
   }
 
@@ -208,7 +228,7 @@ class DocumentList extends React.Component {
    */
   _scrollDelta() {
     if (!this.scrollDelta) {
-      this.scrollDelta = this.documentListNode.offsetHeight;
+      this.scrollDelta = this._node.offsetHeight;
     }
     return this.scrollDelta;
   }

@@ -25,7 +25,9 @@ const OpenInsertDocumentDialogStore = Reflux.createStore({
     var hadronDoc = new HadronDocument(doc, true);
     // We need to remove the _id or we will get an duplicate key error on
     // insert, and we currently do not allow editing of the _id field.
-    hadronDoc.elements.shift();
+    if (hadronDoc.elements[0].currentKey === '_id') {
+      hadronDoc.elements.shift();
+    }
     this.trigger(hadronDoc);
   }
 });

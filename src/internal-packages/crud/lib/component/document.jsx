@@ -217,8 +217,10 @@ class Document extends React.Component {
     this.setState({ doc: this.doc, editing: false });
   }
 
+  /**
+   * Handle cloning of the document.
+   */
   handleClone() {
-    console.log('Cloning document...');
     Actions.openInsertDocumentDialog(this.doc);
   }
 
