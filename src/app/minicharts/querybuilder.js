@@ -6,6 +6,7 @@ var app = require('ampersand-app');
 var LeafValue = require('mongodb-language-model').LeafValue;
 var LeafClause = require('mongodb-language-model').LeafClause;
 var ListOperator = require('mongodb-language-model').ListOperator;
+var ValueOperator = require('mongodb-language-model').ValueOperator;
 var GeoOperator = require('mongodb-language-model').GeoOperator;
 var Range = require('mongodb-language-model').helpers.Range;
 var metrics = require('mongodb-js-metrics')();
@@ -287,6 +288,23 @@ module.exports = {
       throw new Error('message.selected should never be longer than 2 elements here!');
     }
 
+    var q;
+    // in case one of the bounds is open
+    if (message.data.openLeft) {
+      message.upperOp = message.dx > 0 ? '$lt' : '$lte';
+      q = {};
+      q[message.upperOp] = message.selected[1];
+      message.value = new ValueOperator(q, {parse: true});
+      return message;
+    }
+
+    // in case one of the bounds is open
+    if (message.data.openRight) {
+      message.lowerOp = '$gte';
+      message.value = new ValueOperator({$gte: message.selected[0]}, {parse: true});
+      return message;
+    }
+
     // at this point we definitely have 2 selected values to build a range
     message.lowerOp = '$gte';
     message.upperOp = message.dx > 0 ? '$lt' : '$lte';
@@ -323,7 +341,6 @@ module.exports = {
     }
     return message;
   },
-
 
   /**
    * update the UI after a distinct query and mark appropriate elements with .select class.

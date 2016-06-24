@@ -66,7 +66,7 @@ var minicharts_d3fns_many = function() {
 
   function brushed() {
     var bars = d3.selectAll(options.view.queryAll('rect.selectable'));
-    var numSelected = options.view.queryAll('rect.selectable.selected').length;
+    // var numSelected = options.view.queryAll('rect.selectable.selected').length;
     var s = brush.extent();
 
     bars.classed('selected', function(d) {
@@ -83,14 +83,16 @@ var minicharts_d3fns_many = function() {
     if (!options.view) {
       return;
     }
-    if (numSelected !== options.view.queryAll('rect.selectable.selected').length) {
-      // number of selected items has changed, trigger querybuilder event
-      var evt = {
-        type: 'drag',
-        source: 'many'
-      };
-      options.view.trigger('querybuilder', evt);
-    }
+    var openLeft = d3.mouse(this)[0] <= 0;
+    var openRight = d3.mouse(this)[0] >= width;
+    // number of selected items has changed, trigger querybuilder event
+    var evt = {
+      type: 'drag',
+      source: 'many',
+      openLeft: openLeft,
+      openRight: openRight
+    };
+    options.view.trigger('querybuilder', evt);
   }
 
   function brushend() {
@@ -104,9 +106,13 @@ var minicharts_d3fns_many = function() {
     if (!options.view) {
       return;
     }
+    var openLeft = d3.mouse(this)[0] <= 0;
+    var openRight = d3.mouse(this)[0] >= width;
     var evt = {
       type: 'drag',
-      source: 'many'
+      source: 'many',
+      openLeft: openLeft,
+      openRight: openRight
     };
     options.view.trigger('querybuilder', evt);
   }
