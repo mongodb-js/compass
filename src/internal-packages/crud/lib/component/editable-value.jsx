@@ -28,7 +28,7 @@ class EditableValue extends React.Component {
   constructor(props) {
     super(props);
     this.element = props.element;
-    this.state = { value: this.element.currentValue, editing: false };
+    this.state = { editing: false };
   }
 
   /**
@@ -76,7 +76,6 @@ class EditableValue extends React.Component {
     } else {
       this.element.edit(value);
     }
-    this.setState({ value: this.element.currentValue });
   }
 
   /**

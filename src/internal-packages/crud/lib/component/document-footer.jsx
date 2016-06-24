@@ -165,7 +165,7 @@ class DocumentFooter extends React.Component {
   render() {
     return (
       <div className={this.style()}>
-        <div className='edit-message'>
+        <div className='edit-message' title={this.state.message}>
           {this.state.message}
         </div>
         <div className='document-footer-actions'>

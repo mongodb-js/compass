@@ -25,7 +25,7 @@ class EditableKey extends React.Component {
   constructor(props) {
     super(props);
     this.element = props.element;
-    this.state = { key: this.element.currentKey, editing: false };
+    this.state = { editing: false };
   }
 
   /**
@@ -79,7 +79,6 @@ class EditableKey extends React.Component {
   handleChange(evt) {
     if (this.isEditable()) {
       this.element.rename(evt.target.value);
-      this.setState({ key: this.element.currentKey });
     }
   }
 

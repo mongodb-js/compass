@@ -117,7 +117,11 @@ class DocumentList extends React.Component {
       return component.props.doc._id === id;
     });
     this.state.docs.splice(index, 1);
-    this.setState({ docs: this.state.docs, loadedCount: (this.state.loadedCount - 1) });
+    this.setState({
+      docs: this.state.docs,
+      loadedCount: (this.state.loadedCount - 1),
+      nextSkip: (this.state.nextSkip - 1)
+    });
   }
 
   /**
@@ -134,12 +138,12 @@ class DocumentList extends React.Component {
     }
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
-    return (nextState.docs.length !== this.state.docs.length) ||
-      (nextState.nextSkip !== this.state.nextSkip) ||
-      (nextState.loadedCount !== this.state.loadedCount);
-  }
-
+  /**
+   * Handle insert of a new document.
+   *
+   * @param {Boolean} success - If the insert was successful.
+   * @param {Object} object - The new document or error.
+   */
   handleInsert(success, object) {
     if (success) {
       this.setState({ count: this.state.count + 1 });
@@ -182,6 +186,18 @@ class DocumentList extends React.Component {
     return _.map(docs, (doc) => {
       return (<Document doc={doc} key={doc._id} />);
     });
+  }
+
+  /**
+   * Determine if the component should update.
+   *
+   * @param {Object} nextProps - The next properties.
+   * @param {Object} nextState - The next state.
+   */
+  shouldComponentUpdate(nextProps, nextState) {
+    return (nextState.docs.length !== this.state.docs.length) ||
+      (nextState.nextSkip !== this.state.nextSkip) ||
+      (nextState.loadedCount !== this.state.loadedCount);
   }
 
   /**
