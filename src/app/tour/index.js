@@ -159,6 +159,7 @@ var TourView = View.extend({
 
     if (app.isFeatureEnabled('treasureHunt')) {
       if (this.features[this.tourCount].image === 'diary-page-bottom.png') {
+        // player finds the bottom half of the diary page
         metrics.track('Treasure Hunt', 'stage2');
       }
     }

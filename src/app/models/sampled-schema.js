@@ -101,7 +101,8 @@ module.exports = Schema.extend({
     this.lastOptions = _.clone(options);
 
     if (app.isFeatureEnabled('treasureHunt')) {
-      if (options.query === {persistence: 'unique'}) {
+      if (this.ns === 'news.news' && options.query === {authenticity: 'unbelievable'}) {
+        // user sorted out the untrue statements and discovers the secret message
         metrics.track('Treasure Hunt', 'stage4');
       }
     }

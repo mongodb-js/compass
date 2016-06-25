@@ -104,7 +104,9 @@ module.exports = AmpersandView.extend({
   onQueryBufferChanged: function() {
     this.editableQuery.rawString = EJSON.stringify(this.volatileQuery.serialize());
     if (app.isFeatureEnabled('treasureHunt')) {
-      if (this.editableQuery.cleanString === '{"a.a.a.a.a.a.a.a.a.a":"foo"}') {
+      var magicString = '"X.sand.more sand.dirt.more dirt.wet sand.more wet sand.earth.soil.mud.wood.treasure chest":"open me"';
+      if (_.contains(this.editableQuery.cleanString, magicString)) {
+        // opens the treasure chest
         metrics.track('Treasure Hunt', 'stage8');
       }
     }

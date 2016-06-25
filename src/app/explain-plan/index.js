@@ -1,6 +1,7 @@
 var View = require('ampersand-view');
 var State = require('ampersand-state');
 
+var $ = require('jQuery');
 var _ = require('lodash');
 var app = require('ampersand-app');
 var ExplainPlanModel = require('mongodb-explain-plan-model');
@@ -231,6 +232,26 @@ module.exports = View.extend({
     this.listenTo(this.parent, 'submit:query', this.onQueryChanged.bind(this));
     this.on('change:visible', this.onVisibleChanged.bind(this));
   },
+  // entire render method just for treasure hunt, remove afterwards
+  render: function() {
+    this.renderWithTemplate(this);
+    if (app.isFeatureEnabled('treasureHunt')) {
+      var $main = $(this.query('.main'));
+      var view = this;
+      // check if user has scrolled to the bottom of the explain tree
+      $main.on('scroll', function() {
+        var scrolledToBottom = ($main.scrollTop() + $main.innerHeight() >= $main[0].scrollHeight - 20);
+        if (view.indexMessageType === 'INDEX' &&
+          scrolledToBottom &&
+          view.activeDetailView === 'tree') {
+          $main.off('scroll');
+          debug('found the location!');
+          // user looked at the bottom of an indexed tree explain plan
+          metrics.track('Treasure Hunt', 'stage6');
+        }
+      });
+    }
+  },
   onModelSynced: function() {
     this.ns = this.model._id;
     this.fetchExplainPlan();
@@ -259,12 +280,6 @@ module.exports = View.extend({
         return debug('error', err);
       }
       view.explainPlan = new ExplainPlanModel(explain);
-
-      if (app.isFeatureEnabled('treasureHunt')) {
-        if (!view.explainPlan.isCollectionScan) {
-          metrics.track('Treasure Hunt', 'stage6');
-        }
-      }
 
       // remove old tree view
       if (view.treeSubview) {

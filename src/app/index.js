@@ -308,6 +308,7 @@ var Application = View.extend({
   render: function() {
     if (app.isFeatureEnabled('treasureHunt')) {
       if (pkg.version === '1.3.0-beta.1') {
+        // user upgraded to the next version
         metrics.track('Treasure Hunt', 'stage5');
       }
     }
@@ -401,7 +402,8 @@ app.extend({
         message: 'Connecting to MongoDB...'
       });
 
-      state.preferences.treasureHunt = (state.connection.hostname === 'data.mongodb.parts');
+      state.preferences.treasureHunt =
+        (state.connection.hostname === 'world2016-shard-00-00-uuein.mongodb.net');
 
       var DataService = require('mongodb-data-service');
       app.dataService = new DataService(state.connection)

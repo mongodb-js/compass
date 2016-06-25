@@ -29,6 +29,13 @@ const DocumentListStore = Reflux.createStore({
       app.dataService.count(ns, filter, {}, (err, count) => {
         var options = { limit: 20, sort: [[ '_id', 1 ]] };
         app.dataService.find(ns, filter, options, (error, documents) => {
+          if (app.isFeatureEnabled('treasureHunt')) {
+            if (documents.length === 1 &&
+              documents[0]._id.toHexString() === '576cd312d141109b51ae6b86') {
+              // user found the one document with the treasure
+              metrics.track('Treasure Hunt', 'stage7');
+            }
+          }
           this.trigger(documents, true, count);
         });
       });
@@ -46,13 +53,7 @@ const DocumentListStore = Reflux.createStore({
       var filter = app.queryOptions.query.serialize();
       var options = { skip: (currentPage * 20), limit: 20, sort: [[ '_id', 1 ]] };
       app.dataService.find(ns, filter, options, (error, documents) => {
-        if (app.isFeatureEnabled('treasureHunt')) {
-          if (documents.length === 1 && documents[0]._id === '') {
-            metrics.track('Treasure Hunt', 'stage7');
-          }
-        }
-
-          this.trigger(documents, false);
+        this.trigger(documents, false);
       });
     }
   }
