@@ -37,6 +37,11 @@ module.exports = View.extend({
       required: true,
       default: false
     },
+    showExplainTree: {
+      type: 'boolean',
+      required: true,
+      default: false
+    },
     // refine bar for explain view
     hasRefineBar: ['boolean', true, true],
     activeDetailView: {
@@ -149,6 +154,10 @@ module.exports = View.extend({
     ns: {
       hook: 'ns'
     },
+    showExplainTree: {
+      type: 'toggle',
+      hook: 'tree-button'
+    },
     visible: {
       type: 'booleanClass',
       no: 'hidden'
@@ -231,6 +240,7 @@ module.exports = View.extend({
     this.listenTo(this.model, 'sync', this.onModelSynced.bind(this));
     this.listenTo(this.parent, 'submit:query', this.onQueryChanged.bind(this));
     this.on('change:visible', this.onVisibleChanged.bind(this));
+    this.showExplainTree = app.isFeatureEnabled('showExplainPlanTab');
   },
   // entire render method just for treasure hunt, remove afterwards
   render: function() {

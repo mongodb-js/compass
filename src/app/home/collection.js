@@ -30,11 +30,6 @@ var MongoDBCollectionView = View.extend({
       default: 'schemaView',
       values: ['documentView', 'schemaView', 'explainView', 'indexView']
     },
-    showExplainPlanTab: {
-      type: 'boolean',
-      required: true,
-      default: false
-    },
     ns: 'string'
   },
   events: {
@@ -47,10 +42,6 @@ var MongoDBCollectionView = View.extend({
     },
     'model._id': {
       hook: 'collection-name'
-    },
-    showExplainPlanTab: {
-      type: 'toggle',
-      hook: 'explain-tab'
     },
     activeView: {
       type: 'switchClass',
@@ -107,7 +98,6 @@ var MongoDBCollectionView = View.extend({
     },
     explainView: {
       hook: 'explain-subview',
-      waitFor: 'showExplainPlanTab',
       prepareView: function(el) {
         return new ExplainView({
           el: el,
@@ -135,7 +125,6 @@ var MongoDBCollectionView = View.extend({
   initialize: function() {
     this.model = new MongoDBCollection();
     this.listenToAndRun(this.parent, 'change:ns', this.onCollectionChanged.bind(this));
-    this.showExplainPlanTab = app.isFeatureEnabled('showExplainPlanTab');
   },
   onTabClicked: function(e) {
     e.preventDefault();
