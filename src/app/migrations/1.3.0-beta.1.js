@@ -1,5 +1,5 @@
 var async = require('async');
-var app = require('ampersand-app');
+var Preferences = require('../models/preferences');
 
 /**
  * Add a special connection to the favorites for the treasure hunt
@@ -7,9 +7,14 @@ var app = require('ampersand-app');
  * @param  {Function} done   callback when finished
  */
 function enableMapsAndExplainPlans(done) {
-  app.preferences.save({enableMaps: true, showExplainPlanTab: true}, {
-    success: done.bind(null, null)
+  var preferences = new Preferences();
+  preferences.once('sync', function() {
+    preferences.save({enableMaps: true, showExplainPlanTab: true}, {
+      success: done.bind(null, null),
+      error: done
+    });
   });
+  preferences.fetch();
 }
 
 module.exports = function(previousVersion, currentVersion, callback) {

@@ -69,6 +69,10 @@ function convertUserBackendToJSON(done) {
 }
 
 module.exports = function(previousVersion, currentVersion, callback) {
+  debugger;
+  if (previousVersion === '0.0.0') {
+    return callback(null, '1.2.0 migration not required.');
+  }
   // do migration tasks here
   async.series([
     convertPreferencesBackendToJSON,

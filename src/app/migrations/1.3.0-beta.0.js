@@ -1,19 +1,11 @@
 var Preferences = require('../models/preferences');
-var pkg = require('../../../package.json');
 var async = require('async');
-var app = require('ampersand-app');
 var ConnectionCollection = require('../models/connection-collection');
 var _ = require('lodash');
 var debug = require('debug')('mongodb-compass:migrations:1.3.0-beta.0');
 
 var PreferenceMigrationModel = Preferences.extend({
   extraProperties: 'ignore',
-  idAttribute: 'id',
-  namespace: 'Preferences',
-  storage: {
-    backend: 'local',
-    appName: pkg.productName
-  },
   props: {
     googleMaps: ['boolean', false]
   }
@@ -45,14 +37,19 @@ function renameMetricsVariables(done) {
 }
 
 /**
- * Add a special connection to the favorites for the treasure hunt
+ * disable maps and explain plans for 1.3.0-beta.0
  *
  * @param  {Function} done   callback when finished
  */
 function disableMapsAndExplainPlans(done) {
-  app.preferences.save({enableMaps: false, showExplainPlanTab: false}, {
-    success: done.bind(null, null)
+  var preferences = new Preferences();
+  preferences.once('sync', function() {
+    preferences.save({enableMaps: false, showExplainPlanTab: false}, {
+      success: done.bind(null, null),
+      error: done
+    });
   });
+  preferences.fetch();
 }
 
 /**
