@@ -488,6 +488,12 @@ Object.defineProperty(app, 'user', {
   }
 });
 
+Object.defineProperty(app, 'state', {
+  get: function() {
+    return state;
+  }
+});
+
 app.init();
 
 // expose app globally for debugging purposes
