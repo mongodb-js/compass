@@ -31,6 +31,7 @@ class IconButton extends React.Component {
       <button
         type={BUTTON}
         title={this.props.title}
+        className='btn btn-default btn-xs'
         onClick={this.props.clickHandler}>
         <i className={this.props.iconClassName} aria-hidden='true'></i>
       </button>
