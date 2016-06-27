@@ -130,7 +130,12 @@ DiskBackend.prototype.findOne = function(model, options, done) {
       if (err) {
         return done(err);
       }
-      done(null, JSON.parse(content));
+      try {
+        var parsed = JSON.parse(content);
+        done(null, parsed);
+      } catch (e) {
+        done(e);
+      }
     });
   });
 };
