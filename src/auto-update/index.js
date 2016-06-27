@@ -23,7 +23,7 @@ var NotificationUpdateAvailable = View.extend({
   template: indexTemplate,
   events: {
     'click a[data-hook=cancel]': 'cancel',
-    'click a[data-hook=install-update]': 'installUpdate'
+    'click a[data-hook=confirm]': 'installUpdate'
   },
   initialize: function() {
     ipc.on('app:checking-for-update', function() {
