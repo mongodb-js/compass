@@ -2,7 +2,7 @@
   "name": "mongodb-compass",
   "productName": "MongoDB Compass",
   "description": "The MongoDB GUI.",
-  "version": "1.2.0-beta.4",
+  "version": "1.2.0",
   "main": "src/main.js",
   "authors": "MongoDB Inc.",
   "license": "UNLICENSED",
