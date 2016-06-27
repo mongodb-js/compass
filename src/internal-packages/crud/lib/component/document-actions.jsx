@@ -2,9 +2,7 @@
 
 const React = require('react');
 const app = require('ampersand-app');
-const EditDocumentButton = require('./edit-document-button');
-const DeleteDocumentButton = require('./delete-document-button');
-const CloneDocumentButton = require('./clone-document-button');
+const IconButton = require('./icon-button');
 
 /**
  * The feature flag.
@@ -34,9 +32,18 @@ class DocumentActions extends React.Component {
     if (app.isFeatureEnabled(FEATURE)) {
       return (
         <div className='document-actions'>
-          <EditDocumentButton handler={this.props.edit} />
-          <DeleteDocumentButton handler={this.props.remove} />
-          <CloneDocumentButton handler={this.props.clone} />
+          <IconButton
+            title='Edit Document'
+            iconClassName='fa fa-pencil'
+            clickHandler={this.props.edit} />
+          <IconButton
+            title='Delete Document'
+            iconClassName='fa fa-trash-o'
+            clickHandler={this.props.remove} />
+          <IconButton
+            title='Clone Document'
+            iconClassName='fa fa-clone'
+            clickHandler={this.props.clone} />
         </div>
       );
     }

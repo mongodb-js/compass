@@ -1,8 +1,7 @@
 'use strict';
 
 const React = require('react');
-const CancelEditButton = require('./cancel-edit-button');
-const RemoveButton = require('./remove-button');
+const TextButton = require('./text-button');
 
 /**
  * The progress mode.
@@ -136,8 +135,14 @@ class RemoveDocumentFooter extends React.Component {
           {this.state.message}
         </div>
         <div className='document-footer-actions'>
-          <CancelEditButton handler={this.props.cancelHandler} />
-          <RemoveButton handler={this.handleRemove.bind(this)} />
+          <TextButton
+            className='btn btn-link btn-xs cancel'
+            text='Cancel'
+            clickHandler={this.props.cancelHandler} />
+          <TextButton
+            className='btn btn-default btn-xs error'
+            text='Delete'
+            clickHandler={this.handleRemove.bind(this)} />
         </div>
       </div>
     );

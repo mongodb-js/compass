@@ -3,9 +3,7 @@
 const React = require('react');
 const app = require('ampersand-app');
 const ResetDocumentListStore = require('../store/reset-document-list-store');
-const RemoveDocumentStore = require('../store/remove-document-store');
-const InsertDocumentStore = require('../store/insert-document-store');
-const OpenInsertDialogButton = require('./open-insert-dialog-button');
+const TextButton = require('./text-button');
 
 /**
  * The feature flag.
@@ -22,8 +20,6 @@ class SamplingMessage extends React.Component {
    */
   componentDidMount() {
     this.unsubscribeReset = ResetDocumentListStore.listen(this.handleReset.bind(this));
-    // this.unsubscribeRemove = RemoveDocumentStore.listen(this.handleRemove.bind(this));
-    // this.unsibscribeInsert = InsertDocumentStore.listen(this.handleInsert.bind(this));
   }
 
   /**
@@ -31,8 +27,6 @@ class SamplingMessage extends React.Component {
    */
   componentWillUnmount() {
     this.unsubscribeReset();
-    // this.unsubscribeRemove();
-    // this.unsubscribeInsert();
   }
 
   /**
@@ -56,25 +50,6 @@ class SamplingMessage extends React.Component {
   }
 
   /**
-   * Handles removal of a document from the document list.
-   */
-  handleRemove() {
-    // this.setState({ count: this.state.count - 1 });
-  }
-
-  /**
-   * Handle insert of a new document.
-   *
-   * @param {Boolean} success - If the insert was successful.
-   * @param {Object} object - The new document or error.
-   */
-  handleInsert(success, object) {
-    // if (success) {
-      // this.setState({ count: this.state.count + 1 });
-    // }
-  }
-
-  /**
    * Render the sampling message.
    *
    * @returns {React.Component} The document list.
@@ -94,7 +69,12 @@ class SamplingMessage extends React.Component {
    */
   renderInsertButton() {
     if (app.isFeatureEnabled(FEATURE)) {
-      return (<OpenInsertDialogButton handler={this.props.insertHandler} />);
+      return (
+        <TextButton
+          clickHandler={this.props.insertHandler}
+          className='btn btn-default btn-xs open-insert'
+          text='+ Insert' />
+      );
     }
   }
 
