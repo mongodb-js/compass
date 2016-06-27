@@ -23,7 +23,7 @@ class CloneDocumentButton extends React.Component {
    */
   render() {
     return (
-      <button type='button' onClick={this.props.handler} title='Clone Document'>
+      <button type='button' className="btn btn-default btn-xs" onClick={this.props.handler} title='Clone Document'>
         <i className="fa fa-clone" aria-hidden="true"></i>
       </button>
     );

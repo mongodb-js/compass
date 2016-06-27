@@ -23,7 +23,7 @@ class EditDocumentButton extends React.Component {
    */
   render() {
     return (
-      <button type='button' onClick={this.props.handler} title='Edit Document'>
+      <button type='button' className="btn btn-default btn-xs" onClick={this.props.handler} title='Edit Document'>
         <i className="fa fa-pencil" aria-hidden="true"></i>
       </button>
     );
