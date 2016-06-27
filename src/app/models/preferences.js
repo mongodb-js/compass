@@ -6,7 +6,7 @@ var electronApp = require('electron').remote.app;
 var debug = require('debug')('mongodb-compass:models:preferences');
 
 var Preferences = Model.extend(storageMixin, {
-  extraProperties: 'reject',  // prevents bugs
+  extraProperties: 'ignore',
   idAttribute: 'id',
   namespace: 'AppPreferences',
   storage: {
