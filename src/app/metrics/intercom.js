@@ -1,3 +1,4 @@
+var _ = require('lodash');
 var ipc = require('hadron-ipc');
 var app = require('ampersand-app');
 var metrics = require('mongodb-js-metrics')();
@@ -31,9 +32,11 @@ module.exports.configure = function() {
    */
   var listenForLinks = getNodeObserver(function(element) {
     if (element.nodeName === 'A') {
-      element.click(app.onLinkClick.bind(app));
-    } else {
-      element.querySelectorAll('a').click(app.onLinkClick.bind(app));
+      element.onclick = app.state.onLinkClick.bind(app.state);
+    } else if (element.querySelectorAll) {
+      _.each(element.querySelectorAll('a'), function(node) {
+        node.onclick = app.state.onLinkClick.bind(app.state);
+      });
     }
   });
 
