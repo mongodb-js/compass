@@ -49,20 +49,20 @@ module.exports = [
     image: 'f7.gif',
     version: '1.2.0',
     initial: false
-  },
-  // enable in 1.3.0-beta.1
-  {
-    title: 'Show Explain plans as tree charts',
-    description: 'In the Explain Plan tab, click on "Show as: Visual Tree" to see a tree chart of the explain plan.',
-    image: 'f8.gif',
-    version: '1.3.0-beta.1',
-    initial: false
-  },
-  {
-    title: 'Geo Location Queries',
-    description: 'Collections with location data can be used as a filter. Click and drag across the map for a geographic query. Click "Apply" to resample with the coordinates.',
-    image: 'f6.gif',
-    version: '1.3.0-beta.1',
-    initial: true
   }
+  // enable in 1.3.0-beta.1
+  // {
+  //   title: 'Show Explain plans as tree charts',
+  //   description: 'In the Explain Plan tab, click on "Show as: Visual Tree" to see a tree chart of the explain plan.',
+  //   image: 'f8.gif',
+  //   version: '1.3.0-beta.1',
+  //   initial: false
+  // },
+  // {
+  //   title: 'Geo Location Queries',
+  //   description: 'Collections with location data can be used as a filter. Click and drag across the map for a geographic query. Click "Apply" to resample with the coordinates.',
+  //   image: 'f6.gif',
+  //   version: '1.3.0-beta.1',
+  //   initial: true
+  // }
 ];
