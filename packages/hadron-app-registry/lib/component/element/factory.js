@@ -33,11 +33,13 @@ class Factory {
    * @returns {Array} An array of element React components.
    */
   elements(object) {
-    return _.map(object, (value, field) => {
+    var elements = [];
+    _.forOwn(object, (value, field) => {
       var type = TypeChecker.type(value);
       var elementProps = { field: field, value: value, type: type, key: field };
-      return React.createElement(this._elementComponent(type), elementProps);
+      elements.push(React.createElement(this._elementComponent(type), elementProps));
     });
+    return elements;
   }
 
   /**
