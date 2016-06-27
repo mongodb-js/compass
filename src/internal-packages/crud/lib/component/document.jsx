@@ -72,6 +72,8 @@ class Document extends React.Component {
        * Update the document in the database.
        *
        * @param {Object} object - The replacement document.
+       *
+       * @todo: Durran: Determine shard key.
        */
       update: function(object) {
         app.dataService.findOneAndReplace(

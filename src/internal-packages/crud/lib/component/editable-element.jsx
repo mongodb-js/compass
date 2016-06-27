@@ -255,7 +255,7 @@ class EditableElement extends React.Component {
    * @returns {Component} The value component.
    */
   valueComponent(type) {
-    return require(VALUE_MAPPINGS[type]);
+    return require(VALUE_MAPPINGS[type] || './non-editable-value');
   }
 }
 
