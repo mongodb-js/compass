@@ -17,17 +17,14 @@ function changeUserDataDirectoryLocation(done) {
   // check if old preferences directory exists
   var oldUserDir = path.join(app.getPath('appData'), oldDir);
   var newUserDir = app.getPath('userData');
-  try {
-    ncp(oldUserDir, newUserDir, function(errCp) {
+
+  ncp(oldUserDir, newUserDir, {clobber: false, stopOnErr: true},
+    function(errCp) {
       if (errCp) {
         return done(errCp);
       }
       done();
     });
-  } catch (e) {
-    // failed migration, handle gracefully
-    done(new Error('Failed migration ChangeUserDataDirectoryLocation: ' + e.message));
-  }
 }
 
 module.exports = function(previousVersion, currentVersion, callback) {
@@ -36,6 +33,6 @@ module.exports = function(previousVersion, currentVersion, callback) {
     if (err) {
       return callback(err);
     }
-    callback(null, 'successful migration to 1.2.0');
+    callback(null, 'successful migration to 1.2.0-beta.1');
   });
 };
