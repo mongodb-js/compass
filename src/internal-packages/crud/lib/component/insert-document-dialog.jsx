@@ -4,8 +4,7 @@ const React = require('react');
 const Modal = require('react-bootstrap').Modal;
 const OpenInsertDocumentDialogStore = require('../store/open-insert-document-dialog-store');
 const InsertDocument = require('./insert-document');
-const CancelInsertButton = require('./cancel-insert-button');
-const InsertButton = require('./insert-button');
+const TextButton = require('./text-button');
 const Actions = require('../actions');
 
 /**
@@ -56,8 +55,14 @@ class InsertDocumentDialog extends React.Component {
         </Modal.Body>
 
         <Modal.Footer>
-          <CancelInsertButton handler={this.handleCancel.bind(this)} />
-          <InsertButton handler={this.handleInsert.bind(this)} />
+          <TextButton
+            className='btn btn-default'
+            text='Cancel'
+            clickHandler={this.handleCancel.bind(this)} />
+          <TextButton
+            className='btn btn-primary'
+            text='Insert'
+            clickHandler={this.handleInsert.bind(this)} />
         </Modal.Footer>
       </Modal>
     );

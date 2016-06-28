@@ -7,6 +7,7 @@ const app = require('ampersand-app');
 const Action = require('hadron-action');
 const ObjectID = require('bson').ObjectID;
 const Document = require('./document');
+const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const ResetDocumentListStore = require('../store/reset-document-list-store');
 const LoadMoreDocumentsStore = require('../store/load-more-documents-store');
 const RemoveDocumentStore = require('../store/remove-document-store');
@@ -68,7 +69,7 @@ class DocumentList extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.state = { docs: [], nextSkip: 0 };
+    this.state = { docs: [], nextSkip: 0, namespace: NamespaceStore.ns };
   }
 
   /**
@@ -101,7 +102,8 @@ class DocumentList extends React.Component {
       docs: this.renderDocuments(documents),
       nextSkip: documents.length,
       count: count,
-      loadedCount: documents.length
+      loadedCount: documents.length,
+      namespace: NamespaceStore.ns
     });
   }
 
@@ -212,7 +214,8 @@ class DocumentList extends React.Component {
   shouldComponentUpdate(nextProps, nextState) {
     return (nextState.docs.length !== this.state.docs.length) ||
       (nextState.nextSkip !== this.state.nextSkip) ||
-      (nextState.loadedCount !== this.state.loadedCount);
+      (nextState.loadedCount !== this.state.loadedCount) ||
+      (nextState.namespace !== this.state.namespace);
   }
 
   /**
