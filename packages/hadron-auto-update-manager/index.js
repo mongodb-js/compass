@@ -190,7 +190,7 @@ AutoUpdateManager.prototype.setState = function(state) {
   }
   this.state = state;
   debug('state is now', state);
-  return this.emit('state-changed', this.state);
+  this.emit('state-changed', this.state);
 };
 
 AutoUpdateManager.prototype.getState = function() {
@@ -206,7 +206,7 @@ AutoUpdateManager.prototype.onUpdateNotAvailable = function() {
     icon: this.iconURL,
     message: 'No update available.',
     title: 'No Update Available',
-    detail: 'You\'re running the latest version of N1 (' + this.version + ').'
+    detail: 'You\'re running the latest version of ' + app.getName() + ' (' + this.version + ').'
   });
 };
 
