@@ -3,8 +3,7 @@
 const _ = require('lodash');
 const React = require('react');
 const Element = require('hadron-document').Element;
-const CancelEditButton = require('./cancel-edit-button');
-const UpdateButton = require('./update-button');
+const TextButton = require('./text-button');
 
 /**
  * The progress mode.
@@ -169,8 +168,14 @@ class DocumentFooter extends React.Component {
           {this.state.message}
         </div>
         <div className='document-footer-actions'>
-          <CancelEditButton handler={this.handleCancel.bind(this)} />
-          <UpdateButton handler={this.handleUpdate.bind(this)} />
+          <TextButton
+            className='btn btn-link btn-xs cancel'
+            text='Cancel'
+            clickHandler={this.handleCancel.bind(this)} />
+          <TextButton
+            className='btn btn-default btn-xs update'
+            text='Update'
+            clickHandler={this.handleUpdate.bind(this)} />
         </div>
       </div>
     );
