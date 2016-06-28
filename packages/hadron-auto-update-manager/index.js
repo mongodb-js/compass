@@ -1,7 +1,5 @@
 'use strict';
 /* eslint eqeqeq: 1, no-console:0 no-else-return: 1, no-cond-assign: 1, consistent-return: 1 */
-const path = require('path');
-const fs = require('fs');
 const electron = require('electron');
 const dialog = electron.dialog;
 const _ = require('lodash');
@@ -17,7 +15,7 @@ const CheckingState = 'checking';
 const DownloadingState = 'downloading';
 const UpdateAvailableState = 'update-available';
 const NoUpdateAvailableState = 'no-update-available';
-const UnsupportedState = 'unsupported';
+// const UnsupportedState = 'unsupported';
 const ErrorState = 'error';
 
 function AutoUpdateManager(endpointURL, iconURL) {
@@ -92,7 +90,7 @@ AutoUpdateManager.prototype.scheduleUpdateCheck = function() {
   this.checkForUpdatesIntervalID = setInterval(checkForUpdates, fourHours);
   checkForUpdates();
   return true;
-},
+};
 /**
 * @api private
 * @return {Boolean} Scheduled check cancelled?
@@ -110,6 +108,11 @@ AutoUpdateManager.prototype.cancelScheduledUpdateCheck = function() {
 AutoUpdateManager.prototype.checkForUpdates = function(opts) {
   debug('checkForUpdates with options', opts);
   opts = opts || {};
+
+  if (opts.hidePopups !== false) {
+    opts.hidePopups = true;
+  }
+
   if (!opts.hidePopups) {
     autoUpdater.once('update-not-available', this.onUpdateNotAvailable);
     autoUpdater.once('error', this.onUpdateError);

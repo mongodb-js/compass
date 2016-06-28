@@ -9,7 +9,7 @@ describe('hadron-auto-update-manager', () => {
     assert(AutoUpdateManager);
   });
   it('should require an arg to the constructor', () => {
-    assert.throws( () => new AutoUpdateManager());
+    assert.throws(() => new AutoUpdateManager());
   });
   it('should setup', () => {
     const endpoint = 'https://hadron-endpoint.herokuapp.com';

@@ -16,7 +16,7 @@ class LinuxAutoUpdater extends EventEmitter {
   }
   checkForUpdates() {
     if (!this.feedURL) {
-      debug('No feedURL set.')
+      debug('No feedURL set.');
       return;
     }
     got(this.feedURL)
