@@ -4,7 +4,7 @@ var storageMixin = require('storage-mixin');
 var electronApp = require('electron').app;
 
 var migrations = {
-  '1.2.0': require('./1.2.0')
+  '1.2.0-beta.1': require('./1.2.0')
 };
 
 var migrate = require('app-migrations')(migrations);
