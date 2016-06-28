@@ -69,6 +69,7 @@ class DocumentList extends React.Component {
    */
   constructor(props) {
     super(props);
+    this.loading = false;
     this.state = { docs: [], nextSkip: 0, namespace: NamespaceStore.ns };
   }
 
@@ -86,6 +87,7 @@ class DocumentList extends React.Component {
       nextSkip: (this.state.nextSkip + documents.length),
       loadedCount: (this.state.loadedCount + documents.length)
     });
+    this.loading = false;
   }
 
   /**
@@ -166,7 +168,8 @@ class DocumentList extends React.Component {
    * in the collection to load.
    */
   loadMore() {
-    if (this.state.loadedCount < this.state.count) {
+    if (!this.loading && (this.state.loadedCount < this.state.count)) {
+      this.loading = true;
       Action.fetchNextDocuments(this.state.nextSkip);
     }
   }
