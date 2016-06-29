@@ -128,8 +128,8 @@ module.exports = View.extend( /* tooltipMixin, */ {
     debug(this.model.name, totalExMillis, curStageExMillis, prevStageExMillis);
 
     // transforms to get the right percentage of arc for each piece of the clock
-    var curArcStart = (prevStageExMillis / totalExMillis) * 2 * Math.PI;
-    var curArcEnd = (curStageExMillis / totalExMillis) * 2 * Math.PI;
+    var curArcStart = ((prevStageExMillis / totalExMillis) * 2 * Math.PI) || 0;
+    var curArcEnd = ((curStageExMillis / totalExMillis) * 2 * Math.PI) || 0;
 
     var prevArcStart = 0;
     var prevArcEnd = curArcStart;
