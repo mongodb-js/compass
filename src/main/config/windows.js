@@ -15,7 +15,7 @@ exports.MIN_WIDTH = 1024;
 * windows like the connection and setup dialogs.
 */
 exports.DEFAULT_WIDTH_DIALOG = 900;
-exports.DEFAULT_HEIGHT_DIALOG = 760;
+exports.DEFAULT_HEIGHT_DIALOG = 800;
 
 exports.MIN_WIDTH_DIALOG = 768;
 /**
