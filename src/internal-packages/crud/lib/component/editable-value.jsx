@@ -6,6 +6,11 @@ const ElementFactory = require('hadron-component-registry').ElementFactory;
 const TypeChecker = require('hadron-type-checker');
 
 /**
+ * Escape key code.
+ */
+const ESC = 27;
+
+/**
  * The editing class constant.
  */
 const EDITING = 'editing';
@@ -73,17 +78,28 @@ class EditableValue extends React.Component {
    */
   handleKeyDown(evt) {
     if (evt.keyCode === 9 && !evt.shiftKey) {
-      if (this.element.isLast()) {
-        // We only stop propogation if the element is last, so the newly added key
-        // component can focus on itself.
-        this.element.next();
+      if (this.element.currentKey.length !== 0) {
+        if (this.element.isLast()) {
+          // We only stop propogation if the element is last, so the newly added key
+          // component can focus on itself.
+          this.element.next();
+          evt.preventDefault();
+          evt.stopPropagation();
+        } else {
+          this.element.next();
+        }
+      } else {
+        // We don't want to create another element when the current one is blank.
         evt.preventDefault();
         evt.stopPropagation();
-      } else {
-        this.element.next();
       }
-    } else if (evt.keyCode === 27) {
-      this._node.blur();
+    } else if (evt.keyCode === ESC) {
+      var value = evt.target.value;
+      if (value.length === 0 && this.element.currentKey.length === 0) {
+        this.element.remove();
+      } else {
+        this._node.blur();
+      }
     }
   }
 

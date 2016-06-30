@@ -93,8 +93,13 @@ class EditableKey extends React.Component {
    * @param {Event} evt - The event.
    */
   handleKeyDown(evt) {
+    var value = evt.target.value;
     if (evt.keyCode === ESC) {
-      this._node.blur();
+      if (value.length === 0) {
+        this.element.remove();
+      } else {
+        this._node.blur();
+      }
     }
   }
 
@@ -119,7 +124,7 @@ class EditableKey extends React.Component {
    */
   handleChange(evt) {
     var value = evt.target.value;
-    this._node.size = value.length;
+    this._node.size = value.length + 1;
     if (this.isEditable()) {
       if (this.element.isDuplicateKey(value)) {
         this.setState({ duplicate: true });
