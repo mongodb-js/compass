@@ -119,6 +119,7 @@ class EditableElement extends React.Component {
         <EditableKey element={this.element} />
         :
         {this.renderValue()}
+        <Hotspot key='hotspot' element={this.element} />
         <Types element={this.element} />
       </li>
     );

@@ -14,19 +14,70 @@ class Hotspot extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.doc = props.doc;
     this.element = props.element;
   }
 
   /**
-   * When clicking on a hotspot we append to the parent.
+   * When clicking on a hotspot we append or remove on the parent.
    */
   handleClick() {
-    if (this.element && this.element.parentElement) {
-      this.element.next();
+    if (this.element.isRoot()) {
+      var lastElement = this.lastElement(this.element);
+      if (lastElement && lastElement.isAdded()) {
+        if (this.isRemovable(lastElement)) {
+          // If the last element has an empty key and value, remove it.
+          lastElement.remove();
+        } else if (this.isActionable(lastElement)) {
+          // If the last element is normal, add a new one.
+          this.element.add('', '');
+        }
+      } else {
+        this.element.add('', '');
+      }
     } else {
-      this.doc.add('', '');
+      var lastElement = this.lastElement(this.element.parentElement);
+      if (this.isRemovable(lastElement)) {
+        lastElement.remove();
+      } else if (this.isActionable(lastElement)) {
+        this.element.next();
+      }
     }
+  }
+
+  /**
+   * Get the last element for the base element.
+   *
+   * @param {Element} baseElement - The base element.
+   *
+   * @returns {Element} The last element.
+   */
+  lastElement(baseElement) {
+    return baseElement.elements[baseElement.elements.length - 1];
+  }
+
+  /**
+   * Is the element removable?
+   *
+   * @param {Element} element - The element.
+   *
+   * @returns {Boolean} if the element must be removed.
+   */
+  isRemovable(element) {
+    if (element.parentElement && element.parentElement.type === 'Array') {
+      return element.currentValue === '';
+    }
+    return element.currentKey === '' && element.currentValue === '';
+  }
+
+  /**
+   * Is the element actionable.
+   *
+   * @param {Element} element - If the element is actionable.
+   *
+   * @returns {Boolean} If the element is actionable.
+   */
+  isActionable(element) {
+    return element.currentKey !== '' || element.currentValue !== '';
   }
 
   /**

@@ -144,10 +144,11 @@ ol.document-property-body:hover {
 
   .types {
     display: inline-block;
-    float: right;
+    position: absolute;
     width: 100px;
     color: #999999;
     height: 17px;
+    right: 0px;
 
     .type-label {
       padding: 1px 12px;
@@ -217,6 +218,13 @@ ol.document-property-body:hover {
 
   li.document-property {
     // position: relative;
+
+    .hotspot {
+      height: 10px;
+      cursor: text;
+      display: inline-block;
+      width: 30px;
+    }
 
     .actions {
       display: inline-block;
