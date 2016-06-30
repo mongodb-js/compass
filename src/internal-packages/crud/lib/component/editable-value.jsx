@@ -2,6 +2,7 @@
 
 const _ = require('lodash');
 const React = require('react');
+const inputSize = require('./utils').inputSize;
 const ElementFactory = require('hadron-component-registry').ElementFactory;
 const TypeChecker = require('hadron-type-checker');
 
@@ -61,7 +62,7 @@ class EditableValue extends React.Component {
       <input
         ref={(c) => this._node = c}
         type='text'
-        size={this.element.currentValue ? (this.element.currentValue.length + 1) : 1}
+        size={inputSize(this.element.currentValue)}
         className={this.style()}
         onBlur={this.handleBlur.bind(this)}
         onFocus={this.handleFocus.bind(this)}
@@ -110,7 +111,7 @@ class EditableValue extends React.Component {
    */
   handleChange(evt) {
     var value = evt.target.value;
-    this._node.size = value.length + 1;
+    this._node.size = inputSize(value);
     var currentType = this.element.currentType;
     if (_.includes(TypeChecker.castableTypes(value), currentType)) {
       this.element.edit(TypeChecker.cast(value, currentType));

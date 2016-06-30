@@ -1,6 +1,7 @@
 'use strict';
 
 const React = require('react');
+const inputSize = require('./utils').inputSize;
 
 /**
  * The editing class constant.
@@ -64,7 +65,7 @@ class EditableKey extends React.Component {
         type='text'
         className={this.style()}
         ref={(c) => this._node = c}
-        size={this.element.currentKey.length + 1}
+        size={inputSize(this.element.currentKey)}
         tabIndex={this.isEditable() ? 0 : -1}
         onBlur={this.handleBlur.bind(this)}
         onFocus={this.handleFocus.bind(this)}
@@ -124,7 +125,7 @@ class EditableKey extends React.Component {
    */
   handleChange(evt) {
     var value = evt.target.value;
-    this._node.size = value.length + 1;
+    this._node.size = inputSize(value);
     if (this.isEditable()) {
       if (this.element.isDuplicateKey(value)) {
         this.setState({ duplicate: true });
