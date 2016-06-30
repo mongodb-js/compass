@@ -32,6 +32,21 @@ class EditableValue extends React.Component {
   }
 
   /**
+   * Focus on this field on mount, so the tab can do it's job and move
+   * to the value field.
+   */
+  componentDidMount() {
+    if (this.isAutoFocusable()) {
+      this._node.focus();
+    }
+  }
+
+  isAutoFocusable() {
+    return !this.element.isKeyEditable() ||
+      this.element.parentElement.currentType === 'Array';
+  }
+
+  /**
    * Render a single editable value.
    *
    * @returns {React.Component} The element component.
@@ -41,7 +56,7 @@ class EditableValue extends React.Component {
       <input
         ref={(c) => this._node = c}
         type='text'
-        size={this.element.currentValue ? (this.element.currentValue.length + 1) : 5}
+        size={this.element.currentValue ? (this.element.currentValue.length + 1) : 1}
         className={this.style()}
         onBlur={this.handleBlur.bind(this)}
         onFocus={this.handleFocus.bind(this)}
@@ -58,7 +73,15 @@ class EditableValue extends React.Component {
    */
   handleKeyDown(evt) {
     if (evt.keyCode === 9 && !evt.shiftKey) {
-      this.element.next();
+      if (this.element.isLast()) {
+        // We only stop propogation if the element is last, so the newly added key
+        // component can focus on itself.
+        this.element.next();
+        evt.preventDefault();
+        evt.stopPropagation();
+      } else {
+        this.element.next();
+      }
     } else if (evt.keyCode === 27) {
       this._node.blur();
     }

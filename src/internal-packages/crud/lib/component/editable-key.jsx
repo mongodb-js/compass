@@ -38,15 +38,8 @@ class EditableKey extends React.Component {
    * to the value field.
    */
   componentDidMount() {
-    if (this.element.isAdded()) {
-      if (this.props.insertIndex) {
-        // Focus for inserting new documents.
-        if (this.props.insertIndex === 1 && this.element.currentKey === '') {
-          this._node.focus();
-        }
-      } else if (!this.isEditable() && this._node) {
-        this._node.focus();
-      }
+    if (this.isAutoFocusable()) {
+      this._node.focus();
     }
   }
 
@@ -61,7 +54,8 @@ class EditableKey extends React.Component {
         type='text'
         className={this.style()}
         ref={(c) => this._node = c}
-        size={this.element.currentKey.length}
+        size={this.element.currentKey.length + 1}
+        tabIndex={this.isEditable() ? 0 : -1}
         onBlur={this.handleBlur.bind(this)}
         onFocus={this.handleFocus.bind(this)}
         onChange={this.handleChange.bind(this)}
@@ -88,7 +82,12 @@ class EditableKey extends React.Component {
    * @param {Event} evt - The event.
    */
   handleKeyDown(evt) {
-    if (evt.keyCode === 27) {
+    if (evt.keyCode === 186) {
+      // tab to next field.
+      // this.props.nextFieldHandler();
+    } else if (evt.keyCode === 186 && !evt.shiftKey) {
+      // insert the : into the field.
+    } else if (evt.keyCode === 27) {
       this._node.blur();
     }
   }
@@ -130,12 +129,30 @@ class EditableKey extends React.Component {
   }
 
   /**
-   * Is this component editable?
+   * Is this component auto focusable?
+   *
+   * This is true if:
+   *   - When a new element has been added and is a normal element.
+   *   - When not being tabbed into.
+   *
+   * Is false if:
+   *   - When a new array value has been added.
+   *   - When the key is _id
    *
    * @returns {Boolean} If the component is editable.
    */
+  isAutoFocusable() {
+    return this.element.isAdded() && this.isEditable();
+  }
+
+  /**
+   * Is the key able to be edited?
+   *
+   * @returns {Boolean} If the key can be edited.
+   */
   isEditable() {
-    return this.element.isKeyEditable() && this.element.parentElement.currentType !== 'Array';
+    return this.element.isKeyEditable() &&
+      this.element.parentElement.currentType !== 'Array';
   }
 
   /**
