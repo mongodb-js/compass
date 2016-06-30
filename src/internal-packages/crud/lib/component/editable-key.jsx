@@ -18,6 +18,16 @@ const DUPLICATE = 'duplicate';
 const KEY_CLASS = 'editable-key';
 
 /**
+ * Escape key code.
+ */
+const ESC = 27;
+
+/**
+ * Colon key code.
+ */
+const COLON = 186;
+
+/**
  * General editable key component.
  */
 class EditableKey extends React.Component {
@@ -60,6 +70,7 @@ class EditableKey extends React.Component {
         onFocus={this.handleFocus.bind(this)}
         onChange={this.handleChange.bind(this)}
         onKeyDown={this.handleKeyDown.bind(this)}
+        onKeyUp={this.handleKeyUp.bind(this)}
         value={this.element.currentKey}
         title={this.renderTitle()} />
     );
@@ -82,13 +93,22 @@ class EditableKey extends React.Component {
    * @param {Event} evt - The event.
    */
   handleKeyDown(evt) {
-    if (evt.keyCode === 186) {
-      // tab to next field.
-      // this.props.nextFieldHandler();
-    } else if (evt.keyCode === 186 && !evt.shiftKey) {
-      // insert the : into the field.
-    } else if (evt.keyCode === 27) {
+    if (evt.keyCode === ESC) {
       this._node.blur();
+    }
+  }
+
+  /**
+   * If they key is a colon, tab to the next input.
+   */
+  handleKeyUp(evt) {
+    if (evt.keyCode === COLON) {
+      var value = evt.target.value;
+      if (value !== ':') {
+        this.element.rename(value.replace(':', ''));
+        evt.target.value = '';
+        this._node.nextSibling.nextSibling.focus();
+      }
     }
   }
 

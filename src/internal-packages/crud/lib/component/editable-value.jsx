@@ -94,7 +94,7 @@ class EditableValue extends React.Component {
    */
   handleChange(evt) {
     var value = evt.target.value;
-    this._node.size = value.length;
+    this._node.size = value.length + 1;
     var currentType = this.element.currentType;
     if (_.includes(TypeChecker.castableTypes(value), currentType)) {
       this.element.edit(TypeChecker.cast(value, currentType));
