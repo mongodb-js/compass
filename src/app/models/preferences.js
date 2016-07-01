@@ -250,6 +250,11 @@ var Preferences = Model.extend(storageMixin, {
    * returns either true or false
    */
   isFeatureEnabled: function(feature) {
+    // INT-1610 force maps off until we have a MapBox commercial license
+    if (feature === 'enableMaps') {
+      return false;
+    }
+
     // master network switch overwrites all network related features
     if (['enableMaps', 'trackErrors', 'enableFeedbackPanel',
       'trackUsageStatistics', 'autoUpdates'].indexOf(feature) !== -1) {

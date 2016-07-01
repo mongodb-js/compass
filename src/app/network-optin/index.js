@@ -17,8 +17,8 @@ var NetworkOptInView = View.extend({
     trackErrors: ['boolean', true, true],
     enableFeedbackPanel: ['boolean', true, true],
     trackUsageStatistics: ['boolean', true, true],
-    autoUpdates: ['boolean', true, true],
-    enableMaps: ['boolean', true, true]
+    autoUpdates: ['boolean', true, true]
+    // enableMaps: ['boolean', true, true]
   },
   session: {
     preferences: 'state',
@@ -53,11 +53,12 @@ var NetworkOptInView = View.extend({
       hook: 'usage-stats-checkbox',
       name: 'checked'
     },
-    enableMaps: {
-      type: 'booleanAttribute',
-      hook: 'enable-maps-checkbox',
-      name: 'checked'
-    },
+    // INT-1610 force maps off until we have a MapBox commercial license
+    // enableMaps: {
+    //   type: 'booleanAttribute',
+    //   hook: 'enable-maps-checkbox',
+    //   name: 'checked'
+    // },
     buttonTitle: {
       hook: 'start-button'
     }
