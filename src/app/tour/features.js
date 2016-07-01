@@ -57,12 +57,13 @@ module.exports = [
     image: 'f8.gif',
     version: '1.3.0-beta.1',
     initial: false
-  },
-  {
-    title: 'Geo Location Queries',
-    description: 'Collections with location data can be used as a filter. Click and drag across the map for a geographic query. Click "Apply" to resample with the coordinates.',
-    image: 'f6.gif',
-    version: '1.3.0-beta.1',
-    initial: true
   }
+  // INT-1610 remove maps until we have a MapBox commercial license
+  // {
+  //   title: 'Geo Location Queries',
+  //   description: 'Collections with location data can be used as a filter. Click and drag across the map for a geographic query. Click "Apply" to resample with the coordinates.',
+  //   image: 'f6.gif',
+  //   version: '1.3.0-beta.1',
+  //   initial: true
+  // }
 ];
