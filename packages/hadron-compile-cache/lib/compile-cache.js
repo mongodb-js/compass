@@ -97,12 +97,14 @@ CompileCache.prototype._digestedPath = function(compiler, filePath) {
  * @returns {String} The javascript from the cache.
  */
 CompileCache.prototype._readCachedJavascript = function(digestedPath) {
-  var cachePath = path.join(this.cacheDirectory, digestedPath);
-  if (fs.isFileSync(cachePath)) {
-    try {
-      return fs.readFileSync(cachePath, UTF8);
-    } catch (error) {
-      return null;
+  if (process.env.COMPILE_CACHE !== 'false') {
+    var cachePath = path.join(this.cacheDirectory, digestedPath);
+    if (fs.isFileSync(cachePath)) {
+      try {
+        return fs.readFileSync(cachePath, UTF8);
+      } catch (error) {
+        return null;
+      }
     }
   }
   return null;
