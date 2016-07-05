@@ -38,11 +38,11 @@ describe('Element', function() {
       var element = new Element('emails', [ 'work@example.com' ], false, doc);
 
       before(function() {
-        element.add('-', 'home@example.com');
+        element.add('', 'home@example.com');
       });
 
       it('adds the new embedded element', function() {
-        expect(element.elements.at(1).key).to.equal('-');
+        expect(element.elements.at(1).key).to.equal('');
         expect(element.elements.at(1).value).to.equal('home@example.com');
       });
 
@@ -56,11 +56,11 @@ describe('Element', function() {
       var element = new Element('emails', [], false, doc);
 
       before(function() {
-        element.add('-', '').edit({ home: 'home@example.com' });
+        element.add('', '').edit({ home: 'home@example.com' });
       });
 
       it('adds the new embedded element', function() {
-        expect(element.elements.at(0).key).to.equal('-');
+        expect(element.elements.at(0).key).to.equal('');
         expect(element.elements.at(0).elements.at(0).key).to.equal('home');
         expect(element.elements.at(0).elements.at(0).value).to.equal('home@example.com');
       });
@@ -148,7 +148,7 @@ describe('Element', function() {
         });
 
         it('changes the element to an array', function() {
-          expect(last.elements.at(0).currentKey).to.equal('-');
+          expect(last.elements.at(0).currentKey).to.equal('');
           expect(last.elements.at(0).currentValue).to.equal('');
         });
       });
@@ -168,7 +168,7 @@ describe('Element', function() {
         });
 
         it('adds the additional elements to the array', function() {
-          expect(last.elements.at(1).currentKey).to.equal('-');
+          expect(last.elements.at(1).currentKey).to.equal('');
           expect(last.elements.at(1).currentValue).to.equal('');
         });
       });
@@ -202,6 +202,21 @@ describe('Element', function() {
         it('inserts a new empty element', function() {
           expect(doc.elements.at(1).currentKey).to.equal('');
           expect(doc.elements.at(1).currentValue).to.equal('');
+        });
+      });
+
+      context('when the current element is added', function() {
+        context('when the current element is empty', function() {
+          var doc = new Document({ first: 'test-first' });
+
+          before(function() {
+            var element = doc.add('', '');
+            element.next();
+          });
+
+          it('removes the empty element', function() {
+            expect(doc.elements.size).to.equal(1);
+          });
         });
       });
 
@@ -366,7 +381,7 @@ describe('Element', function() {
         var element = new Element('names', [], false);
 
         before(function() {
-          element.add('-', 'testing');
+          element.add('', 'testing');
         });
 
         it('returns true', function() {
@@ -600,7 +615,7 @@ describe('Element', function() {
 
           it('changes the document to an embedded document', function() {
             expect(element.elements.size).to.equal(1);
-            expect(element.elements.at(0).key).to.equal('-');
+            expect(element.elements.at(0).key).to.equal('');
             expect(element.elements.at(0).value).to.equal('home@example.com');
           });
 
@@ -824,7 +839,7 @@ describe('Element', function() {
 
         before(function() {
           element.edit([]);
-          element.add('-', 'test@example.com');
+          element.add('', 'test@example.com');
           element.revert();
         });
 

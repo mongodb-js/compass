@@ -60,7 +60,7 @@ describe('Document', function() {
       context('when adding the array and then the first element', function() {
         before(function() {
           this.doc = new Document({});
-          this.doc.add('emails', []).add('-', 'home@example.com');
+          this.doc.add('emails', []).add('', 'home@example.com');
         });
 
         SharedExamples.itAddsTheArrayElementToTheRootDocument();
@@ -80,7 +80,7 @@ describe('Document', function() {
       context('when adding the array and then the first element', function() {
         before(function() {
           this.doc = new Document({});
-          this.doc.add('emails', []).add('-', {}).add('home', 'home@example.com');
+          this.doc.add('emails', []).add('', {}).add('home', 'home@example.com');
         });
 
         SharedExamples.itAddsTheEmbeddedArrayElementToTheRootDocument();
@@ -131,8 +131,8 @@ describe('Document', function() {
       });
 
       it('sets the element indexes', function() {
-        expect(doc.elements.at(0).elements.at(0).key).to.equal('-');
-        expect(doc.elements.at(0).elements.at(1).key).to.equal('-');
+        expect(doc.elements.at(0).elements.at(0).key).to.equal('');
+        expect(doc.elements.at(0).elements.at(1).key).to.equal('');
       });
 
       it('sets the element original values', function() {
@@ -215,7 +215,7 @@ describe('Document', function() {
         });
 
         it('sets the embedded element key', function() {
-          expect(doc.elements.at(0).elements.at(0).key).to.equal('-');
+          expect(doc.elements.at(0).elements.at(0).key).to.equal('');
         });
 
         it('sets the multi embedded element key', function() {
@@ -244,7 +244,7 @@ describe('Document', function() {
         });
 
         it('sets the multi embedded element key', function() {
-          expect(doc.elements.at(0).elements.at(0).elements.at(0).key).to.equal('-');
+          expect(doc.elements.at(0).elements.at(0).elements.at(0).key).to.equal('');
         });
 
         it('sets the lowest level embedded element key', function() {

@@ -319,7 +319,7 @@ class Element extends EventEmitter {
    * Get the key for the element.
    */
   _key(key) {
-    return this.currentType === 'Array' ? '-' : key;
+    return this.currentType === 'Array' ? '' : key;
   }
 
   /**
@@ -365,28 +365,26 @@ class Element extends EventEmitter {
    */
   _convertToEmptyArray() {
     this.edit([]);
-    this.add('-', '');
+    this.add('', '');
   }
 
   /**
    * Add a new element to the parent.
    */
   _next() {
-    if (this._isNextElementEmpty()) {
+    if (this._isElementEmpty(this.nextElement)) {
       this.parent.elements.remove(this.nextElement);
+      this.parent.emit(Events.Removed);
+    } else if (this._isElementEmpty(this)) {
+      this.parent.elements.remove(this);
+      this.parent.emit(Events.Removed);
     } else {
-      this.parent.insertAfter(this, this.parent.currentType === 'Array' ? '-' : '', '');
+      this.parent.insertAfter(this, '', '');
     }
   }
 
-  _isNextElementEmpty() {
-    var next = this.nextElement;
-    return next && next.isAdded() && this._isEmptyKey(next) && next.currentValue === '';
-  }
-
-  _isEmptyKey(element) {
-    return element.currentKey === '' ||
-      (element.parent.currentType === 'Array' && element.currentKey === '');
+  _isElementEmpty(element) {
+    return element && element.isAdded() && element.currentKey === '' && element.currentValue === '';
   }
 }
 

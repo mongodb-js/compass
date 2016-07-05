@@ -39,7 +39,7 @@ class SharedExamples {
     });
 
     it('adds the new embedded element', function() {
-      expect(this.doc.elements.at(0).elements.at(0).key).to.equal('-');
+      expect(this.doc.elements.at(0).elements.at(0).key).to.equal('');
     });
 
     it('sets the new embedded element value', function() {
@@ -60,7 +60,7 @@ class SharedExamples {
     });
 
     it('adds the new embedded element', function() {
-      expect(this.doc.elements.at(0).elements.at(0).key).to.equal('-');
+      expect(this.doc.elements.at(0).elements.at(0).key).to.equal('');
     });
 
     it('sets the new embedded element document key', function() {
