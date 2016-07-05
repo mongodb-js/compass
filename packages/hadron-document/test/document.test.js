@@ -282,6 +282,65 @@ describe('Document', function() {
     });
   });
 
+  describe('#next', function() {
+    context('when the document has no elements', function() {
+      var doc = new Document({});
+
+      before(function() {
+        doc.next();
+      });
+
+      it('adds an empty element to the document', function() {
+        expect(doc.elements[0].currentKey).to.equal('');
+        expect(doc.elements[0].currentValue).to.equal('');
+      });
+    });
+
+    context('when the document has elements', function() {
+      context('when there are no added elements', function() {
+        var doc = new Document({ first: 'value' });
+
+        before(function() {
+          doc.next();
+        });
+
+        it('adds an empty element to the document', function() {
+          expect(doc.elements[1].currentKey).to.equal('');
+          expect(doc.elements[1].currentValue).to.equal('');
+        });
+      });
+
+      context('when there are added elements', function() {
+        context('when the last added element is empty', function() {
+          var doc = new Document({});
+
+          before(function() {
+            doc.next();
+            doc.next();
+          });
+
+          it('removes the empty element from the document', function() {
+            expect(doc.elements.length).to.equal(0);
+          });
+        });
+
+        context('when the last added element is not empty', function() {
+          var doc = new Document({});
+
+          before(function() {
+            doc.next();
+            doc.elements[0].edit('testing');
+            doc.next();
+          });
+
+          it('does not remove the last element', function() {
+            expect(doc.elements.length).to.equal(1);
+          });
+        });
+      });
+    });
+  });
+
   /**
    * Functional test that mirros the mockups for the document edit screen.
    */

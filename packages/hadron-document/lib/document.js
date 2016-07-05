@@ -92,6 +92,20 @@ class Document extends EventEmitter {
   }
 
   /**
+   * Handle the next element in the document.
+   */
+  next() {
+    var lastElement = this.elements[this.elements.length - 1];
+    if (lastElement && lastElement.isAdded()) {
+      if (lastElement.currentKey === '' && lastElement.currentValue === '') {
+        lastElement.remove();
+      }
+    } else {
+      this.add('', '');
+    }
+  }
+
+  /**
    * Generates a sequence of elements.
    *
    * @returns {Array} The elements.

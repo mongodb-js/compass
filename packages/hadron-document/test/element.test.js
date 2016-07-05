@@ -204,16 +204,24 @@ describe('Element', function() {
     });
 
     context('when the element is not the last element is in the parent', function() {
-      var doc = new Document({});
-      var first = doc.add('first', 'test');
-      doc.add('last', 'test');
+      context('when the next element in the parent is not added', function() {
+        it('inserts a new empty element', function() {
 
-      before(function() {
-        first.next();
+        });
       });
 
-      it('does not make changes', function() {
-        expect(doc.elements.length).to.equal(2);
+      context('when the next element in the parent is added', function() {
+        context('when the next element is empty', function() {
+          it('removes the empty element', function() {
+
+          });
+        });
+
+        context('when the next element is not empty', function() {
+          it('inserts a new empty element', function() {
+
+          });
+        });
       });
     });
   });

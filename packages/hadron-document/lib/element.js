@@ -127,7 +127,7 @@ class Element extends EventEmitter {
     } else if (this.currentValue === BRACKET) {
       return this._convertToEmptyArray();
     }
-    return this._addToParent();
+    return this._next();
   }
 
   /**
@@ -353,14 +353,14 @@ class Element extends EventEmitter {
   /**
    * Add a new element to the parent.
    */
-  _addToParent() {
-    if (this.isLast()) {
-      if (this.parentElement.currentType === 'Array') {
-        var length = this.parentElement.elements.length;
-        this.parentElement.add(String(length), '');
-      } else {
-        this.parentElement.add('', '');
-      }
+  _next() {
+    if (this.parentElement.currentType === 'Array') {
+      // Need to insert into the elements and recalculate the indexes.
+      // var length = this.parentElement.elements.length;
+      this.parentElement.add(String(this.parentElement.elements.length), '');
+    } else {
+      // Need to insert into the parent element and recalculate indexes.
+      this.parentElement.add('', '');
     }
   }
 }
