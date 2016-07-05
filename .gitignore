@@ -13,3 +13,4 @@ report.json
 .compiled-sources/
 src/app/compiled-less/
 expansions.yml
+.nvmrc

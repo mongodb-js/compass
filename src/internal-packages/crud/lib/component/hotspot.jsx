@@ -21,27 +21,7 @@ class Hotspot extends React.Component {
    * When clicking on a hotspot we append or remove on the parent.
    */
   handleClick() {
-    if (this.element.isRoot()) {
-      var lastElement = this.lastElement(this.element);
-      if (lastElement && lastElement.isAdded()) {
-        if (this.isRemovable(lastElement)) {
-          // If the last element has an empty key and value, remove it.
-          lastElement.remove();
-        } else if (this.isActionable(lastElement)) {
-          // If the last element is normal, add a new one.
-          this.element.add('', '');
-        }
-      } else {
-        this.element.add('', '');
-      }
-    } else {
-      var lastElement = this.lastElement(this.element.parentElement);
-      if (this.isRemovable(lastElement)) {
-        lastElement.remove();
-      } else if (this.isActionable(lastElement)) {
-        this.element.next();
-      }
-    }
+    this.element.next();
   }
 
   /**

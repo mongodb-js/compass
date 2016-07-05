@@ -49,7 +49,7 @@ class EditableValue extends React.Component {
 
   isAutoFocusable() {
     return !this.element.isKeyEditable() ||
-      this.element.parentElement.currentType === 'Array';
+      this.element.parent.currentType === 'Array';
   }
 
   /**
@@ -79,15 +79,11 @@ class EditableValue extends React.Component {
    */
   handleKeyDown(evt) {
     if (evt.keyCode === 9 && !evt.shiftKey) {
-      if (this.element.currentKey.length !== 0) {
-        if (this.element.isLast()) {
-          // We only stop propogation if the element is last, so the newly added key
-          // component can focus on itself.
+      if (this.isTabable()) {
+        if (!this.element.nextElement) {
           this.element.next();
           evt.preventDefault();
           evt.stopPropagation();
-        } else {
-          this.element.next();
         }
       } else {
         // We don't want to create another element when the current one is blank.
@@ -102,6 +98,13 @@ class EditableValue extends React.Component {
         this._node.blur();
       }
     }
+  }
+
+  isTabable() {
+    if (this.element.parent.currentType === 'Array') {
+      return this.element.currentValue !== '';
+    }
+    return this.element.currentKey.length !== 0;
   }
 
   /**

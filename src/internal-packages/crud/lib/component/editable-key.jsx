@@ -65,16 +65,23 @@ class EditableKey extends React.Component {
         type='text'
         className={this.style()}
         ref={(c) => this._node = c}
-        size={inputSize(this.element.currentKey)}
+        size={inputSize(this.renderValue())}
         tabIndex={this.isEditable() ? 0 : -1}
         onBlur={this.handleBlur.bind(this)}
         onFocus={this.handleFocus.bind(this)}
         onChange={this.handleChange.bind(this)}
         onKeyDown={this.handleKeyDown.bind(this)}
         onKeyUp={this.handleKeyUp.bind(this)}
-        value={this.element.currentKey}
+        value={this.renderValue()}
         title={this.renderTitle()} />
     );
+  }
+
+  /**
+   * Render the value of the key.
+   */
+  renderValue() {
+    return this.element.parent.currentType === 'Array' ? this.props.index : this.element.currentKey;
   }
 
   /**
@@ -178,7 +185,7 @@ class EditableKey extends React.Component {
    */
   isEditable() {
     return this.element.isKeyEditable() &&
-      this.element.parentElement.currentType !== 'Array';
+      this.element.parent.currentType !== 'Array';
   }
 
   /**
