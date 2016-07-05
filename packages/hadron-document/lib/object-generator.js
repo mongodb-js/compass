@@ -1,9 +1,5 @@
 'use strict';
 
-const each = require('lodash.foreach');
-const map = require('lodash.map');
-const compact = require('lodash.compact');
-
 /**
  * Generates javascript objects from elements.
  */
@@ -18,11 +14,11 @@ class ObjectGenerator {
    */
   generate(elements) {
     var object = {};
-    each(elements, (element) => {
+    for (let element of elements) {
       if (!element.isRemoved()) {
         object[element.currentKey] = element.generateObject();
       }
-    });
+    }
     return object;
   }
 
@@ -34,15 +30,17 @@ class ObjectGenerator {
    * @returns {Array} The array.
    */
   generateArray(elements) {
-    return compact(map(elements, (element) => {
-      if (element.isRemoved()) {
-        return null;
+    var array = [];
+    for (let element of elements) {
+      if (!element.isRemoved()) {
+        if (element.elements) {
+          array.push(element.generateObject());
+        } else {
+          array.push(element.currentValue);
+        }
       }
-      if (element.elements) {
-        return element.generateObject();
-      }
-      return element.currentValue;
-    }));
+    }
+    return array;
   }
 }
 

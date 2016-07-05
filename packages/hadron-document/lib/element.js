@@ -2,13 +2,10 @@
 
 const EventEmitter = require('events');
 const keys = require('lodash.keys');
-const map = require('lodash.map');
 const isObject = require('lodash.isplainobject');
 const isArray = require('lodash.isarray');
-const some = require('lodash.some');
-const removeValues = require('lodash.remove');
 const includes = require('lodash.includes');
-const indexOf = require('lodash.indexof');
+const Iterator = require('./iterator');
 const ObjectGenerator = require('./object-generator');
 const TypeChecker = require('hadron-type-checker');
 const uuid = require('node-uuid');
@@ -40,8 +37,14 @@ const UNEDITABLE_TYPES = [
   'Timestamp'
 ];
 
+/**
+ * Curly brace constant.
+ */
 const CURLY = '{';
 
+/**
+ * Bracket constant.
+ */
 const BRACKET = '[';
 
 /**
@@ -58,19 +61,15 @@ class Element extends EventEmitter {
    * @returns {Element} The new element.
    */
   add(key, value) {
-    var newElement = new Element(key, value, true, this);
-    this.elements.push(newElement);
+    var newElement = this.elements.insertEnd(key, value, true, this);
     this._bubbleUp(Events.Added);
     return newElement;
   }
 
-  /**
-   * Get the absolute key, ie (contact.emails.work) for the element.
-   *
-   * @returns {String} The absolute path.
-   */
-  get absolutePath() {
-    return !this.parentElement.isRoot() ? `${this.parentElement.absolutePath}.${this.key}` : this.key;
+  insertAfter(element, key, value) {
+    var newElement = this.elements.insertAfter(element, key, value, true, this);
+    this._bubbleUp(Events.Added);
+    return newElement;
   }
 
   /**
@@ -79,14 +78,18 @@ class Element extends EventEmitter {
    * @param {String} key - The key.
    * @param {Object} value - The value.
    * @param {Boolean} added - Is the element a new 'addition'?
-   * @param {Element} parentElement - The parent element.
+   * @param {Element} parent - The parent element.
+   * @param {Element} previousElement - The previous element in the list.
+   * @param {Element} nextElement - The next element in the list.
    */
-  constructor(key, value, added, parentElement) {
+  constructor(key, value, added, parent, previousElement, nextElement) {
     super();
     this.uuid = uuid.v4();
     this.key = key;
     this.currentKey = key;
-    this.parentElement = parentElement;
+    this.parent = parent;
+    this.previousElement = previousElement;
+    this.nextElement = nextElement;
     this.added = added;
     this.removed = false;
     this.type = TypeChecker.type(value);
@@ -161,7 +164,7 @@ class Element extends EventEmitter {
    * @returns {Boolean} If the element is newly added.
    */
   isAdded() {
-    return this.added || (this.parentElement && this.parentElement.isAdded());
+    return this.added || (this.parent && this.parent.isAdded());
   }
 
   /**
@@ -175,9 +178,12 @@ class Element extends EventEmitter {
     if (value === this.currentKey) {
       return false;
     }
-    return some(this.parentElement.elements, (element) => {
-      return element.currentKey === value;
-    });
+    for (let element of this.parent.elements) {
+      if (element.currentKey === value) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
@@ -197,8 +203,7 @@ class Element extends EventEmitter {
    * @returns {Boolean} If the element is last.
    */
   isLast() {
-    return indexOf(this.parentElement.elements, this) ===
-      (this.parentElement.elements.length - 1);
+    return this.parent.elements.lastElement === this;
   }
 
   /**
@@ -226,9 +231,11 @@ class Element extends EventEmitter {
    */
   isModified() {
     if (this.elements) {
-      return some(this.elements, (element) => {
-        return element.isModified();
-      });
+      for (let element of this.elements) {
+        if (element.isModified()) {
+          return true;
+        }
+      }
     }
     return this.isAdded() || this.isEdited() || this.isRemoved();
   }
@@ -265,11 +272,9 @@ class Element extends EventEmitter {
    */
   revert() {
     if (this.isAdded()) {
-      removeValues(this.parentElement.elements, (element) => {
-        return element === this;
-      });
-      this.parentElement.emit(Events.Removed);
-      this.parentElement = null;
+      this.parent.elements.remove(this);
+      this.parent.emit(Events.Removed);
+      this.parent = null;
     } else {
       if (this.currentValue === null && this.value !== null) {
         this.elements = null;
@@ -303,18 +308,31 @@ class Element extends EventEmitter {
    * @returns {Array} The elements.
    */
   _generateElements(object) {
-    return map(keys(object), (key) => {
-      return new Element(key, object[key], this.added, this);
-    });
+    var elements = new LinkedList(); // eslint-disable-line no-use-before-define
+    for (let key of keys(object)) {
+      elements.insertEnd(this._key(key), object[key], this.added, this);
+    }
+    return elements;
+  }
+
+  /**
+   * Get the key for the element.
+   */
+  _key(key) {
+    return this.currentType === 'Array' ? '-' : key;
   }
 
   /**
    * Removes the added elements from the element.
    */
   _removeAddedElements() {
-    removeValues(this.elements, (element) => {
-      return element.isAdded();
-    });
+    if (this.elements) {
+      for (let element of this.elements) {
+        if (element.isAdded()) {
+          this.elements.remove(element);
+        }
+      }
+    }
   }
 
   /**
@@ -324,7 +342,7 @@ class Element extends EventEmitter {
    */
   _bubbleUp(evt) {
     this.emit(evt);
-    var element = this.parentElement;
+    var element = this.parent;
     if (element) {
       if (element.isRoot()) {
         element.emit(evt);
@@ -347,23 +365,179 @@ class Element extends EventEmitter {
    */
   _convertToEmptyArray() {
     this.edit([]);
-    this.add('0', '');
+    this.add('-', '');
   }
 
   /**
    * Add a new element to the parent.
    */
   _next() {
-    if (this.parentElement.currentType === 'Array') {
-      // Need to insert into the elements and recalculate the indexes.
-      // var length = this.parentElement.elements.length;
-      this.parentElement.add(String(this.parentElement.elements.length), '');
+    if (this._isNextElementEmpty()) {
+      this.parent.elements.remove(this.nextElement);
     } else {
-      // Need to insert into the parent element and recalculate indexes.
-      this.parentElement.add('', '');
+      this.parent.insertAfter(this, this.parent.currentType === 'Array' ? '-' : '', '');
     }
+  }
+
+  _isNextElementEmpty() {
+    var next = this.nextElement;
+    return next && next.isAdded() && this._isEmptyKey(next) && next.currentValue === '';
+  }
+
+  _isEmptyKey(element) {
+    return element.currentKey === '' ||
+      (element.parent.currentType === 'Array' && element.currentKey === '');
+  }
+}
+
+/**
+ * Represents a doubly linked list.
+ */
+class LinkedList {
+
+  /**
+   * Get the element at the provided index.
+   *
+   * @param {Integer} index - The index.
+   *
+   * @returns {Element} The matching element.
+   */
+  at(index) {
+    var element = this.firstElement;
+    for (var i = 0; i < index; i++) {
+      if (!element) {
+        return null;
+      }
+      element = element.nextElement;
+    }
+    return element;
+  }
+
+  /**
+   * Instantiate the new doubly linked list.
+   */
+  constructor() {
+    this.firstElement = null;
+    this.lastElement = null;
+    this.size = 0;
+  }
+
+  /**
+   * Insert data after the provided element.
+   *
+   * @param {Element} element - The element to insert after.
+   * @param {String} key - The element key.
+   * @param {Object} value - The element value.
+   * @param {Boolean} added - If the element is new.
+   * @param {Element,Document} parent - The parent.
+   *
+   * @returns {Element} The inserted element.
+   */
+  insertAfter(element, key, value, added, parent) {
+    var newElement = new Element(key, value, added, parent, element, element.nextElement);
+    if (element.nextElement) {
+      element.nextElement.previousElement = newElement;
+    } else {
+      this.lastElement = newElement;
+    }
+    element.nextElement = newElement;
+    this.size += 1;
+    return newElement;
+  }
+
+  /**
+   * Insert data before the provided element.
+   *
+   * @param {Element} element - The element to insert before.
+   * @param {String} key - The element key.
+   * @param {Object} value - The element value.
+   * @param {Boolean} added - If the element is new.
+   * @param {Element,Document} parent - The parent.
+   *
+   * @returns {Element} The inserted element.
+   */
+  insertBefore(element, key, value, added, parent) {
+    var newElement = new Element(key, value, added, parent, element.previousElement, element);
+    if (element.previousElement) {
+      element.previousElement.nextElement = newElement;
+    } else {
+      this.firstElement = newElement;
+    }
+    element.previousElement = newElement;
+    this.size += 1;
+    return newElement;
+  }
+
+  /**
+   * Insert data at the beginning of the list.
+   *
+   * @param {String} key - The element key.
+   * @param {Object} value - The element value.
+   * @param {Boolean} added - If the element is new.
+   * @param {Element,Document} parent - The parent.
+   *
+   * @returns {Element} The data element.
+   */
+  insertBeginning(key, value, added, parent) {
+    if (!this.firstElement) {
+      var element = new Element(key, value, added, parent, null, null);
+      this.firstElement = this.lastElement = element;
+      this.size += 1;
+      return element;
+    }
+    return this.insertBefore(this.firstElement, key, value, added, parent);
+  }
+
+  /**
+   * Insert data at the end of the list.
+   *
+   * @param {String} key - The element key.
+   * @param {Object} value - The element value.
+   * @param {Boolean} added - If the element is new.
+   * @param {Element,Document} parent - The parent.
+   *
+   * @returns {Element} The data element.
+   */
+  insertEnd(key, value, added, parent) {
+    if (!this.lastElement) {
+      return this.insertBeginning(key, value, added, parent);
+    }
+    return this.insertAfter(this.lastElement, key, value, added, parent);
+  }
+
+  /**
+   * Get an iterator for the list.
+   *
+   * @returns {Iterator} The iterator.
+   */
+  [Symbol.iterator]() {
+    return new Iterator(this.firstElement);
+  }
+
+  /**
+   * Remove the element from the list.
+   *
+   * @param {Element} element - The element to remove.
+   *
+   * @returns {DoublyLinkedList} The list with the element removed.
+   */
+  remove(element) {
+    if (element.previousElement) {
+      element.previousElement.nextElement = element.nextElement;
+    } else {
+      this.firstElement = element.nextElement;
+    }
+    if (element.nextElement) {
+      element.nextElement.previousElement = element.previousElement;
+    } else {
+      this.lastElement = element.previousElement;
+    }
+    element.nextElement = element.previousElement = null;
+    this.size -= 1;
+    return this;
   }
 }
 
 module.exports = Element;
+module.exports.LinkedList = LinkedList;
 module.exports.Events = Events;

@@ -15,19 +15,15 @@ describe('Document', function() {
       });
 
       it('adds the new element', function() {
-        expect(doc.elements[0].key).to.equal('name');
+        expect(doc.elements.at(0).key).to.equal('name');
       });
 
       it('sets the new element value', function() {
-        expect(doc.elements[0].value).to.equal('Aphex Twin');
-      });
-
-      it('sets the absolute path of the new element', function() {
-        expect(doc.elements[0].absolutePath).to.equal('name');
+        expect(doc.elements.at(0).value).to.equal('Aphex Twin');
       });
 
       it('flags the new element as added', function() {
-        expect(doc.elements[0].isAdded()).to.equal(true);
+        expect(doc.elements.at(0).isAdded()).to.equal(true);
       });
     });
 
@@ -64,7 +60,7 @@ describe('Document', function() {
       context('when adding the array and then the first element', function() {
         before(function() {
           this.doc = new Document({});
-          this.doc.add('emails', []).add('0', 'home@example.com');
+          this.doc.add('emails', []).add('-', 'home@example.com');
         });
 
         SharedExamples.itAddsTheArrayElementToTheRootDocument();
@@ -84,7 +80,7 @@ describe('Document', function() {
       context('when adding the array and then the first element', function() {
         before(function() {
           this.doc = new Document({});
-          this.doc.add('emails', []).add('0', {}).add('home', 'home@example.com');
+          this.doc.add('emails', []).add('-', {}).add('home', 'home@example.com');
         });
 
         SharedExamples.itAddsTheEmbeddedArrayElementToTheRootDocument();
@@ -98,23 +94,23 @@ describe('Document', function() {
       var doc = new Document(object);
 
       it('creates the element', function() {
-        expect(doc.elements.length).to.equal(1);
+        expect(doc.elements.size).to.equal(1);
       });
 
       it('sets the element original key', function() {
-        expect(doc.elements[0].key).to.equal('name');
+        expect(doc.elements.at(0).key).to.equal('name');
       });
 
       it('sets the element current key', function() {
-        expect(doc.elements[0].currentKey).to.equal('name');
+        expect(doc.elements.at(0).currentKey).to.equal('name');
       });
 
       it('sets the element original value', function() {
-        expect(doc.elements[0].value).to.equal('Aphex Twin');
+        expect(doc.elements.at(0).value).to.equal('Aphex Twin');
       });
 
       it('sets the element current value', function() {
-        expect(doc.elements[0].currentValue).to.equal('Aphex Twin');
+        expect(doc.elements.at(0).currentValue).to.equal('Aphex Twin');
       });
     });
 
@@ -123,30 +119,30 @@ describe('Document', function() {
       var doc = new Document(object);
 
       it('creates the element', function() {
-        expect(doc.elements.length).to.equal(1);
+        expect(doc.elements.size).to.equal(1);
       });
 
       it('sets the element original key', function() {
-        expect(doc.elements[0].key).to.equal('studios');
+        expect(doc.elements.at(0).key).to.equal('studios');
       });
 
       it('sets the element current key', function() {
-        expect(doc.elements[0].currentKey).to.equal('studios');
+        expect(doc.elements.at(0).currentKey).to.equal('studios');
       });
 
       it('sets the element indexes', function() {
-        expect(doc.elements[0].elements[0].key).to.equal('0');
-        expect(doc.elements[0].elements[1].key).to.equal('1');
+        expect(doc.elements.at(0).elements.at(0).key).to.equal('-');
+        expect(doc.elements.at(0).elements.at(1).key).to.equal('-');
       });
 
       it('sets the element original values', function() {
-        expect(doc.elements[0].elements[0].value).to.equal('London');
-        expect(doc.elements[0].elements[1].value).to.equal('New York');
+        expect(doc.elements.at(0).elements.at(0).value).to.equal('London');
+        expect(doc.elements.at(0).elements.at(1).value).to.equal('New York');
       });
 
       it('sets the element current values', function() {
-        expect(doc.elements[0].elements[0].currentValue).to.equal('London');
-        expect(doc.elements[0].elements[1].currentValue).to.equal('New York');
+        expect(doc.elements.at(0).elements.at(0).currentValue).to.equal('London');
+        expect(doc.elements.at(0).elements.at(1).currentValue).to.equal('New York');
       });
     });
 
@@ -156,32 +152,28 @@ describe('Document', function() {
         var doc = new Document(object);
 
         it('creates the element', function() {
-          expect(doc.elements.length).to.equal(1);
+          expect(doc.elements.size).to.equal(1);
         });
 
         it('sets the element original key', function() {
-          expect(doc.elements[0].key).to.equal('email');
+          expect(doc.elements.at(0).key).to.equal('email');
         });
 
         it('sets the element current key', function() {
-          expect(doc.elements[0].currentKey).to.equal('email');
+          expect(doc.elements.at(0).currentKey).to.equal('email');
         });
 
         it('sets the embedded element key', function() {
-          expect(doc.elements[0].elements[0].key).to.equal('work');
-          expect(doc.elements[0].elements[0].currentKey).to.equal('work');
+          expect(doc.elements.at(0).elements.at(0).key).to.equal('work');
+          expect(doc.elements.at(0).elements.at(0).currentKey).to.equal('work');
         });
 
         it('sets the embedded element original value', function() {
-          expect(doc.elements[0].elements[0].value).to.equal('test@example.com');
+          expect(doc.elements.at(0).elements.at(0).value).to.equal('test@example.com');
         });
 
         it('sets the embedded element current value', function() {
-          expect(doc.elements[0].elements[0].currentValue).to.equal('test@example.com');
-        });
-
-        it('determines the correct path', function() {
-          expect(doc.elements[0].elements[0].absolutePath).to.equal('email.work');
+          expect(doc.elements.at(0).elements.at(0).currentValue).to.equal('test@example.com');
         });
       });
 
@@ -190,27 +182,23 @@ describe('Document', function() {
         var doc = new Document(object);
 
         it('creates the element', function() {
-          expect(doc.elements.length).to.equal(1);
+          expect(doc.elements.size).to.equal(1);
         });
 
         it('sets the element original key', function() {
-          expect(doc.elements[0].key).to.equal('contact');
+          expect(doc.elements.at(0).key).to.equal('contact');
         });
 
         it('sets the embedded element key', function() {
-          expect(doc.elements[0].elements[0].key).to.equal('email');
+          expect(doc.elements.at(0).elements.at(0).key).to.equal('email');
         });
 
         it('sets the multi embedded element key', function() {
-          expect(doc.elements[0].elements[0].elements[0].key).to.equal('work');
+          expect(doc.elements.at(0).elements.at(0).elements.at(0).key).to.equal('work');
         });
 
         it('sets the embedded element original value', function() {
-          expect(doc.elements[0].elements[0].elements[0].value).to.equal('test@example.com');
-        });
-
-        it('determines the correct path', function() {
-          expect(doc.elements[0].elements[0].elements[0].absolutePath).to.equal('contact.email.work');
+          expect(doc.elements.at(0).elements.at(0).elements.at(0).value).to.equal('test@example.com');
         });
       });
 
@@ -219,27 +207,23 @@ describe('Document', function() {
         var doc = new Document(object);
 
         it('creates the element', function() {
-          expect(doc.elements.length).to.equal(1);
+          expect(doc.elements.size).to.equal(1);
         });
 
         it('sets the element original key', function() {
-          expect(doc.elements[0].key).to.equal('emails');
+          expect(doc.elements.at(0).key).to.equal('emails');
         });
 
         it('sets the embedded element key', function() {
-          expect(doc.elements[0].elements[0].key).to.equal('0');
+          expect(doc.elements.at(0).elements.at(0).key).to.equal('-');
         });
 
         it('sets the multi embedded element key', function() {
-          expect(doc.elements[0].elements[0].elements[0].key).to.equal('work');
+          expect(doc.elements.at(0).elements.at(0).elements.at(0).key).to.equal('work');
         });
 
         it('sets the embedded element original value', function() {
-          expect(doc.elements[0].elements[0].elements[0].value).to.equal('test@example.com');
-        });
-
-        it('determines the correct path', function() {
-          expect(doc.elements[0].elements[0].elements[0].absolutePath).to.equal('emails.0.work');
+          expect(doc.elements.at(0).elements.at(0).elements.at(0).value).to.equal('test@example.com');
         });
       });
 
@@ -248,34 +232,28 @@ describe('Document', function() {
         var doc = new Document(object);
 
         it('creates the element', function() {
-          expect(doc.elements.length).to.equal(1);
+          expect(doc.elements.size).to.equal(1);
         });
 
         it('sets the element original key', function() {
-          expect(doc.elements[0].key).to.equal('contact');
+          expect(doc.elements.at(0).key).to.equal('contact');
         });
 
         it('sets the embedded element key', function() {
-          expect(doc.elements[0].elements[0].key).to.equal('emails');
+          expect(doc.elements.at(0).elements.at(0).key).to.equal('emails');
         });
 
         it('sets the multi embedded element key', function() {
-          expect(doc.elements[0].elements[0].elements[0].key).to.equal('0');
+          expect(doc.elements.at(0).elements.at(0).elements.at(0).key).to.equal('-');
         });
 
         it('sets the lowest level embedded element key', function() {
-          expect(doc.elements[0].elements[0].elements[0].elements[0].key).to.equal('work');
+          expect(doc.elements.at(0).elements.at(0).elements.at(0).elements.at(0).key).to.equal('work');
         });
 
         it('sets the embedded element original value', function() {
-          expect(doc.elements[0].elements[0].elements[0].elements[0].value).to.equal(
+          expect(doc.elements.at(0).elements.at(0).elements.at(0).elements.at(0).value).to.equal(
             'test@example.com'
-          );
-        });
-
-        it('determines the correct path', function() {
-          expect(doc.elements[0].elements[0].elements[0].elements[0].absolutePath).to.equal(
-            'contact.emails.0.work'
           );
         });
       });
@@ -291,8 +269,8 @@ describe('Document', function() {
       });
 
       it('adds an empty element to the document', function() {
-        expect(doc.elements[0].currentKey).to.equal('');
-        expect(doc.elements[0].currentValue).to.equal('');
+        expect(doc.elements.at(0).currentKey).to.equal('');
+        expect(doc.elements.at(0).currentValue).to.equal('');
       });
     });
 
@@ -305,8 +283,8 @@ describe('Document', function() {
         });
 
         it('adds an empty element to the document', function() {
-          expect(doc.elements[1].currentKey).to.equal('');
-          expect(doc.elements[1].currentValue).to.equal('');
+          expect(doc.elements.at(1).currentKey).to.equal('');
+          expect(doc.elements.at(1).currentValue).to.equal('');
         });
       });
 
@@ -320,7 +298,7 @@ describe('Document', function() {
           });
 
           it('removes the empty element from the document', function() {
-            expect(doc.elements.length).to.equal(0);
+            expect(doc.elements.size).to.equal(0);
           });
         });
 
@@ -329,12 +307,12 @@ describe('Document', function() {
 
           before(function() {
             doc.next();
-            doc.elements[0].edit('testing');
+            doc.elements.at(0).edit('testing');
             doc.next();
           });
 
           it('does not remove the last element', function() {
-            expect(doc.elements.length).to.equal(1);
+            expect(doc.elements.size).to.equal(1);
           });
         });
       });
@@ -357,10 +335,10 @@ describe('Document', function() {
       label: 'Warp'
     };
     var doc = new Document(object);
-    var address = doc.elements[0];
-    var postalCode = address.elements[0];
-    var email = doc.elements[1];
-    var label = doc.elements[4];
+    var address = doc.elements.at(0);
+    var postalCode = address.elements.at(0);
+    var email = doc.elements.at(1);
+    var label = doc.elements.at(4);
 
     it('sets the postal code edit', function() {
       postalCode.edit(72550);
@@ -381,12 +359,12 @@ describe('Document', function() {
       email.edit({});
       expect(email.key).to.equal('email');
       expect(email.currentKey).to.equal('emails');
-      expect(email.elements.length).to.equal(0);
+      expect(email.elements.size).to.equal(0);
     });
 
     it('adds the home email element', function() {
       var home = email.add('home', 'home@example.com');
-      expect(email.elements.length).to.equal(1);
+      expect(email.elements.size).to.equal(1);
       expect(home.key).to.equal('home');
       expect(home.value).to.equal('home@example.com');
       expect(home.isAdded()).to.equal(true);
@@ -394,7 +372,7 @@ describe('Document', function() {
 
     it('adds the work email element', function() {
       var work = email.add('work', 'work@example.com');
-      expect(email.elements.length).to.equal(2);
+      expect(email.elements.size).to.equal(2);
       expect(work.key).to.equal('work');
       expect(work.value).to.equal('work@example.com');
       expect(work.isAdded()).to.equal(true);

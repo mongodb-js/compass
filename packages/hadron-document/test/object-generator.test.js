@@ -12,7 +12,7 @@ describe('ObjectGenerator', function() {
 
     context('when an element is removed', function() {
       before(function() {
-        doc.elements[0].remove();
+        doc.elements.at(0).remove();
       });
 
       it('does not include the element in the object', function() {
@@ -27,11 +27,11 @@ describe('ObjectGenerator', function() {
 
     context('when an element is removed', function() {
       before(function() {
-        doc.elements[0].elements[1].remove();
+        doc.elements.at(0).elements.at(1).remove();
       });
 
       it('does not include the element in the object', function() {
-        expect(ObjectGenerator.generateArray(doc.elements[0].elements)).to.deep.equal([ 'a', 'c' ]);
+        expect(ObjectGenerator.generateArray(doc.elements.at(0).elements)).to.deep.equal([ 'a', 'c' ]);
       });
     });
   });

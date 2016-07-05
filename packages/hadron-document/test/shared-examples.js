@@ -14,23 +14,19 @@ class SharedExamples {
    */
   itAddsTheEmbeddedDocumentElementToTheRootDocument() {
     it('adds the new element', function() {
-      expect(this.doc.elements[0].key).to.equal('email');
+      expect(this.doc.elements.at(0).key).to.equal('email');
     });
 
     it('adds the new embedded element', function() {
-      expect(this.doc.elements[0].elements[0].key).to.equal('home');
+      expect(this.doc.elements.at(0).elements.at(0).key).to.equal('home');
     });
 
     it('sets the new embedded element value', function() {
-      expect(this.doc.elements[0].elements[0].value).to.equal('home@example.com');
-    });
-
-    it('sets the absolute path of the new element', function() {
-      expect(this.doc.elements[0].elements[0].absolutePath).to.equal('email.home');
+      expect(this.doc.elements.at(0).elements.at(0).value).to.equal('home@example.com');
     });
 
     it('flags the new element as added', function() {
-      expect(this.doc.elements[0].elements[0].isAdded()).to.equal(true);
+      expect(this.doc.elements.at(0).elements.at(0).isAdded()).to.equal(true);
     });
   }
 
@@ -39,23 +35,19 @@ class SharedExamples {
    */
   itAddsTheArrayElementToTheRootDocument() {
     it('adds the new element', function() {
-      expect(this.doc.elements[0].key).to.equal('emails');
+      expect(this.doc.elements.at(0).key).to.equal('emails');
     });
 
     it('adds the new embedded element', function() {
-      expect(this.doc.elements[0].elements[0].key).to.equal('0');
+      expect(this.doc.elements.at(0).elements.at(0).key).to.equal('-');
     });
 
     it('sets the new embedded element value', function() {
-      expect(this.doc.elements[0].elements[0].value).to.equal('home@example.com');
-    });
-
-    it('sets the absolute path of the new element', function() {
-      expect(this.doc.elements[0].elements[0].absolutePath).to.equal('emails.0');
+      expect(this.doc.elements.at(0).elements.at(0).value).to.equal('home@example.com');
     });
 
     it('flags the new element as added', function() {
-      expect(this.doc.elements[0].elements[0].isAdded()).to.equal(true);
+      expect(this.doc.elements.at(0).elements.at(0).isAdded()).to.equal(true);
     });
   }
 
@@ -64,27 +56,23 @@ class SharedExamples {
    */
   itAddsTheEmbeddedArrayElementToTheRootDocument() {
     it('adds the new element', function() {
-      expect(this.doc.elements[0].key).to.equal('emails');
+      expect(this.doc.elements.at(0).key).to.equal('emails');
     });
 
     it('adds the new embedded element', function() {
-      expect(this.doc.elements[0].elements[0].key).to.equal('0');
+      expect(this.doc.elements.at(0).elements.at(0).key).to.equal('-');
     });
 
     it('sets the new embedded element document key', function() {
-      expect(this.doc.elements[0].elements[0].elements[0].key).to.equal('home');
+      expect(this.doc.elements.at(0).elements.at(0).elements.at(0).key).to.equal('home');
     });
 
     it('sets the new embedded element document value', function() {
-      expect(this.doc.elements[0].elements[0].elements[0].value).to.equal('home@example.com');
-    });
-
-    it('sets the absolute path of the new element', function() {
-      expect(this.doc.elements[0].elements[0].elements[0].absolutePath).to.equal('emails.0.home');
+      expect(this.doc.elements.at(0).elements.at(0).elements.at(0).value).to.equal('home@example.com');
     });
 
     it('flags the new element as added', function() {
-      expect(this.doc.elements[0].elements[0].elements[0].isAdded()).to.equal(true);
+      expect(this.doc.elements.at(0).elements.at(0).elements.at(0).isAdded()).to.equal(true);
     });
   }
 }

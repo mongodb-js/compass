@@ -2,9 +2,8 @@
 
 const EventEmitter = require('events');
 const keys = require('lodash.keys');
-const map = require('lodash.map');
-const some = require('lodash.some');
 const Element = require('./element');
+const LinkedList = Element.LinkedList;
 const ObjectGenerator = require('./object-generator');
 
 /**
@@ -28,8 +27,13 @@ class Document extends EventEmitter {
    * @returns {Element} The new element.
    */
   add(key, value) {
-    var newElement = new Element(key, value, true, this);
-    this.elements.push(newElement);
+    var newElement = this.elements.insertEnd(key, value, true, this);
+    this.emit(Element.Events.Added);
+    return newElement;
+  }
+
+  insertAfter(element, key, value) {
+    var newElement = this.elements.insertAfter(element, key, value, true, this);
     this.emit(Element.Events.Added);
     return newElement;
   }
@@ -77,9 +81,12 @@ class Document extends EventEmitter {
    * @returns {Boolean} If the element is modified.
    */
   isModified() {
-    return some(this.elements, (element) => {
-      return element.isModified();
-    });
+    for (let element of this.elements) {
+      if (element.isModified()) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
@@ -95,7 +102,7 @@ class Document extends EventEmitter {
    * Handle the next element in the document.
    */
   next() {
-    var lastElement = this.elements[this.elements.length - 1];
+    var lastElement = this.elements.lastElement;
     if (lastElement && lastElement.isAdded()) {
       if (lastElement.currentKey === '' && lastElement.currentValue === '') {
         lastElement.remove();
@@ -111,9 +118,11 @@ class Document extends EventEmitter {
    * @returns {Array} The elements.
    */
   _generateElements() {
-    return map(keys(this.doc), (key) => {
-      return new Element(key, this.doc[key], this.cloned, this);
-    });
+    var elements = new LinkedList();
+    for (let key of keys(this.doc)) {
+      elements.insertEnd(key, this.doc[key], this.cloned, this);
+    }
+    return elements;
   }
 }
 
