@@ -33,6 +33,22 @@ describe('DataService', function() {
     });
   });
 
+  describe('#deleteMany', function() {
+    it('deletes the document from the collection', function(done) {
+      service.insertOne('data-service.test', { a: 500 }, {}, function(err) {
+        assert.equal(null, err);
+        service.deleteMany('data-service.test', { a: 500 }, {}, function(er) {
+          assert.equal(null, er);
+          service.find('data-service.test', { a: 500 }, {}, function(error, docs) {
+            assert.equal(null, error);
+            expect(docs.length).to.equal(0);
+            done();
+          });
+        });
+      });
+    });
+  });
+
   describe('#find', function() {
     before(function(done) {
       helper.insertTestDocuments(service.client, function() {
@@ -223,6 +239,25 @@ describe('DataService', function() {
     });
   });
 
+  describe('#insertMany', function() {
+    after(function(done) {
+      helper.deleteTestDocuments(service.client, function() {
+        done();
+      });
+    });
+
+    it('inserts the documents into the collection', function(done) {
+      service.insertMany('data-service.test', [{ a: 500 }, { a: 500 }], {}, function(err) {
+        assert.equal(null, err);
+        service.find('data-service.test', { a: 500 }, {}, function(error, docs) {
+          assert.equal(null, error);
+          expect(docs.length).to.equal(2);
+          done();
+        });
+      });
+    });
+  });
+
   describe('#sample', function() {
     before(function(done) {
       helper.insertTestDocuments(service.client, function() {
@@ -267,6 +302,28 @@ describe('DataService', function() {
           service.find('data-service.test', { a: 600 }, {}, function(error, docs) {
             assert.equal(null, error);
             expect(docs.length).to.equal(1);
+            done();
+          });
+        });
+      });
+    });
+  });
+
+  describe('#updateMany', function() {
+    after(function(done) {
+      helper.deleteTestDocuments(service.client, function() {
+        done();
+      });
+    });
+
+    it('updates the documents', function(done) {
+      service.insertMany('data-service.test', [{ a: 500 }, { a: 500 }], {}, function(err) {
+        assert.equal(null, err);
+        service.updateMany('data-service.test', { a: 500 }, { '$set': { a: 600 }}, {}, function(er) {
+          assert.equal(null, er);
+          service.find('data-service.test', { a: 600 }, {}, function(error, docs) {
+            assert.equal(null, error);
+            expect(docs.length).to.equal(2);
             done();
           });
         });

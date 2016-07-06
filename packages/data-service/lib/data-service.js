@@ -121,6 +121,19 @@ class DataService extends EventEmitter {
   }
 
   /**
+   * Deletes multiple documents from a collection.
+   *
+   * @param {String} ns - The namespace.
+   * @param {Object} filter - The filter.
+   * @param {Object} options - The options.
+   * @param {Function} callback - The callback.
+   */
+  deleteMany(ns, filter, options, callback) {
+    debug(`#deleteMany: ${ns}, filter: ${filter}`);
+    this.client.deleteMany(ns, filter, options, callback);
+  }
+
+  /**
    * Disconnect the service.
    */
   disconnect() {
@@ -219,6 +232,19 @@ class DataService extends EventEmitter {
   }
 
   /**
+   * Inserts multiple documents into the collection.
+   *
+   * @param {String} ns - The namespace.
+   * @param {Array} docs - The documents to insert.
+   * @param {Object} options - The options.
+   * @param {Function} callback - The callback.
+   */
+  insertMany(ns, docs, options, callback) {
+    debug(`#insertMany: ${ns}, docs: ${docs}`);
+    this.client.insertMany(ns, docs, options, callback);
+  }
+
+  /**
    * Sample documents from the collection.
    *
    * @param {String} ns - The namespace to sample.
@@ -243,6 +269,20 @@ class DataService extends EventEmitter {
   updateOne(ns, filter, update, options, callback) {
     debug(`#updateOne: ${ns}, filter: ${filter}, update: ${update}`);
     this.client.updateOne(ns, filter, update, options, callback);
+  }
+
+  /**
+   * Updates multiple documents in the collection.
+   *
+   * @param {String} ns - The namespace.
+   * @param {Object} filter - The filter.
+   * @param {Object} update - The update.
+   * @param {Object} options - The options.
+   * @param {Function} callback - The callback.
+   */
+  updateMany(ns, filter, update, options, callback) {
+    debug(`#updateMany: ${ns}, filter: ${filter}, update: ${update}`);
+    this.client.updateMany(ns, filter, update, options, callback);
   }
 
   /**

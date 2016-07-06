@@ -174,6 +174,23 @@ class NativeClient {
   }
 
   /**
+   * Deletes multiple documents from the collection.
+   *
+   * @param {String} ns - The namespace.
+   * @param {Object} filter - The filter.
+   * @param {Object} options - The options.
+   * @param {Function} callback - The callback.
+   */
+  deleteMany(ns, filter, options, callback) {
+    this._collection(ns).deleteMany(filter, options, (error, result) => {
+      if (error) {
+        return callback(this._translateMessage(error));
+      }
+      callback(null, result);
+    });
+  }
+
+  /**
    * Disconnect the client.
    */
   disconnect() {
@@ -268,6 +285,23 @@ class NativeClient {
   }
 
   /**
+   * Inserts multiple documents into the database.
+   *
+   * @param {String} ns - The namespace.
+   * @param {Array} docs - The documents to insert.
+   * @param {Object} options - The options.
+   * @param {Function} callback - The callback.
+   */
+  insertMany(ns, docs, options, callback) {
+    this._collection(ns).insertMany(docs, options, (error, result) => {
+      if (error) {
+        return callback(this._translateMessage(error));
+      }
+      callback(null, result);
+    });
+  }
+
+  /**
    * Get the current instance details.
    *
    * @param {function} callback - The callback function.
@@ -305,6 +339,24 @@ class NativeClient {
    */
   updateOne(ns, filter, update, options, callback) {
     this._collection(ns).updateOne(filter, update, options, (error, result) => {
+      if (error) {
+        return callback(this._translateMessage(error));
+      }
+      callback(null, result);
+    });
+  }
+
+  /**
+   * Updates multiple documents in the database.
+   *
+   * @param {String} ns - The namespace.
+   * @param {Object} filter - The filter.
+   * @param {Object} update - The update.
+   * @param {Object} options - The options.
+   * @param {Function} callback - The callback.
+   */
+  updateMany(ns, filter, update, options, callback) {
+    this._collection(ns).updateMany(filter, update, options, (error, result) => {
       if (error) {
         return callback(this._translateMessage(error));
       }
