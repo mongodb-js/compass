@@ -174,7 +174,6 @@ describe('NativeClient', function() {
         client.explain('data-service.test', { a: 1 }, {}, function(error, explanation) {
           assert.equal(null, error);
           expect(explanation).to.be.an('object');
-          expect(explanation).to.contain.all.keys(['queryPlanner', 'executionStats']);
           done();
         });
       });
