@@ -103,14 +103,6 @@ module.exports = AmpersandView.extend({
   },
   onQueryBufferChanged: function() {
     this.editableQuery.rawString = EJSON.stringify(this.volatileQuery.serialize());
-    if (app.isFeatureEnabled('treasureHunt')) {
-      var magicString = '"X.sand.more sand.dirt.more dirt.wet sand.more wet sand.earth.soil.mud.wood.treasure chest":"open me"';
-      if (_.contains(this.editableQuery.cleanString, magicString)) {
-        // opens the treasure chest
-        app.preferences.save('singleDocumentCrud', true);
-        metrics.track('Treasure Hunt', 'stage8');
-      }
-    }
   },
   /**
    * when user changes the text in the input field, copy the value into editableQuery. If the

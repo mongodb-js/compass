@@ -4,6 +4,8 @@ var pkg = require('../../../package.json');
 var async = require('async');
 var app = require('ampersand-app');
 
+var debug = require('debug')('mongodb-compass:migrations:1.2.0');
+
 var PreferenceMigrationModel = Preferences.extend({
   extraProperties: 'ignore',
   idAttribute: 'id',
@@ -33,6 +35,7 @@ var UserMigrationModel = User.extend({
  * @param  {Function} done   callback when finished
  */
 function convertPreferencesBackendToJSON(done) {
+  debug('migration: convertPreferencesBackendToJSON');
   var oldPrefs = new PreferenceMigrationModel();
   oldPrefs.once('sync', function() {
     app.preferences.save(oldPrefs.serialize(), {
@@ -55,6 +58,8 @@ function convertPreferencesBackendToJSON(done) {
  * @param  {Function} done   callback when finished
  */
 function convertUserBackendToJSON(done) {
+  debug('migration: convertUserBackendToJSON');
+
   var oldUser = new UserMigrationModel();
   oldUser.once('sync', function() {
     app.user.save(oldUser.serialize(), {
