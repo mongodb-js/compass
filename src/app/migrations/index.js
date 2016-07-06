@@ -5,9 +5,10 @@ var electronApp = require('electron').remote.app;
 
 var migrations = {
   '1.1.2': require('./1.1.2'),
-  '1.2.0': require('./1.2.0'),
-  '1.3.0-beta.0': require('./1.3.0-beta.0'),
-  '1.3.0-beta.1': require('./1.3.0-beta.1')
+  '1.2.0': require('./1.2.0')
+  // '1.3.0-beta.0': require('./1.3.0-beta.0'),
+  // '1.3.0-beta.1': require('./1.3.0-beta.1'),
+  // '1.3.0-beta.3': require('./1.3.0-beta.3')
 };
 
 var migrate = require('app-migrations')(migrations);
@@ -61,6 +62,12 @@ module.exports = function(done) {
     }
     var currentVersion = pkg.version;
     debug('renderer process migrations from %s to %s', previousVersion, currentVersion);
-    migrate(previousVersion, currentVersion, done);
+    migrate(previousVersion, currentVersion, function(err2, res) {
+      if (err2) {
+        return debug('error', err2);
+      }
+      debug('result', res);
+      done();
+    });
   });
 };
