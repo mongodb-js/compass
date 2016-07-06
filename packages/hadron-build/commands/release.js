@@ -38,7 +38,7 @@ exports.describe = ':shipit:';
 
 const COMPILE_CACHE = '.compiled-sources';
 const COMPILE_CACHE_MAPPINGS = '_compileCacheMappings';
-const CACHE_PATTERN = '**/*.{jade,jsx}';
+const CACHE_PATTERN = '**/*.{jade,jsx,md}';
 
 /**
  * Clean out the existing development compile cache.
