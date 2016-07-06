@@ -24,8 +24,6 @@ var minicharts_d3fns_many = function() {
     selectable: true // setting to false disables query builder for this chart
   };
 
-  var treasureHuntSecretMessage = [];
-  var treasureHuntDebounceReset = null;
   var xScale = d3.scale.ordinal();
   var yScale = d3.scale.linear();
   var labelScale = d3.scale.ordinal();
@@ -322,24 +320,6 @@ var minicharts_d3fns_many = function() {
         barEnter.selectAll('.fg')
           .on('mouseover', function(d) {
             tip.show.call(tip, d);
-            if (app.isFeatureEnabled('treasureHunt')) {
-              treasureHuntSecretMessage.push(d.label);
-              if (treasureHuntSecretMessage.join(' ') === 'R U ON THE LATEST VERSION ?') {
-                // enable auto updates feature flag and trigger a check for updates
-                metrics.track('Treasure Hunt', 'stage4');
-                app.preferences.save('showAutoUpdateBanner', true);
-                _.delay(function() {
-                  ipc.call('app:check-for-update');
-                }, 5000);
-              }
-              if (treasureHuntDebounceReset) {
-                treasureHuntDebounceReset.cancel();
-              }
-              treasureHuntDebounceReset = _.debounce(function() {
-                treasureHuntSecretMessage = [];
-              }, 3000);
-              treasureHuntDebounceReset();
-            }
           })
           .on('mouseout', tip.hide);
 

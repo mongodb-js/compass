@@ -5,6 +5,8 @@ var async = require('async');
 var format = require('util').format;
 var _ = require('lodash');
 
+var debug = require('debug')('mongodb-compass:migrations:1.1.2');
+
 var PreferenceMigrationModel = Preferences.extend({
   extraProperties: 'ignore',
   idAttribute: 'id',
@@ -30,6 +32,7 @@ var PreferenceMigrationModel = Preferences.extend({
  * @param  {Function} done   callback when finished
  */
 function renameMetricsVariables(done) {
+  debug('migration: renameMetricsVariables');
   var oldPrefs = new PreferenceMigrationModel();
   oldPrefs.once('sync', function() {
     oldPrefs.trackUsageStatistics = _.get(oldPrefs, 'googleAnalytics', oldPrefs.trackUsageStatistics);
@@ -62,6 +65,7 @@ function renameMetricsVariables(done) {
  * @param  {Function} done   callback when finished
  */
 function removeSavedConnectionNames(done) {
+  debug('migration: removeSavedConnectionNames');
   var connections = new ConnectionCollection();
   var favoriteNames = {};
   connections.once('sync', function() {
