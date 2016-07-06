@@ -3,13 +3,15 @@ var fs = require('fs-plus');
 
 var BabelCompiler = require('./compiler/babel-compiler');
 var JadeCompiler = require('./compiler/jade-compiler');
+var MarkdownCompiler = require('./compiler/markdown-compiler');
 
 /**
  * Maps file extensions to compilers.
  */
 var COMPILERS = {
   '.jade': new JadeCompiler(),
-  '.jsx': new BabelCompiler()
+  '.jsx': new BabelCompiler(),
+  '.md': new MarkdownCompiler()
 };
 
 /**

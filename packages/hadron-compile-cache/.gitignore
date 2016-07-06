@@ -7,3 +7,4 @@ coverage
 .idea/
 *.iml
 .compiled-sources/
+.nvmrc

@@ -1,4 +1,4 @@
-var jade = require('jade');
+var crypto = require('crypto');
 var fs = require('fs-plus');
 var path = require('path');
 var chai = require('chai');
@@ -8,12 +8,14 @@ var JadeCompiler = require('../../lib/compiler/jade-compiler');
 describe('JadeCompiler', function() {
   describe('#getCachePath', function() {
     var compiler = new JadeCompiler();
-    var file = fs.readFileSync(path.join(__dirname, 'test.jade'), 'utf8');
-    var source = jade.compileClient(file);
-    var expected = 'jade/af5d879c7a5a8c4448e6a3c000f87238ee3351c8.js';
+    var file = path.join(__dirname, 'test.jade');
+    var expected = path.join(
+      'jade',
+      crypto.createHash('sha1').update(file, 'utf8').digest('hex') + '.js'
+    );
 
     it('returns the digested cache path', function() {
-      expect(compiler.getCachePath(source)).to.equal(expected);
+      expect(compiler.getCachePath(file)).to.equal(expected);
     });
   });
 

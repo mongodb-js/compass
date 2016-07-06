@@ -28,7 +28,9 @@
     "babel-preset-react": "^6.5.0",
     "debug": "^2.2.0",
     "fs-plus": "^2.8.2",
-    "jade": "^1.11.0"
+    "highlight.js": "^8.9.1",
+    "jade": "^1.11.0",
+    "marky-mark": "^1.2.1"
   },
   "devDependencies": {
     "chai": "^3.4.1",
