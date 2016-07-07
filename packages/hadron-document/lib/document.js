@@ -106,6 +106,8 @@ class Document extends EventEmitter {
     if (lastElement && lastElement.isAdded()) {
       if (lastElement.currentKey === '' && lastElement.currentValue === '') {
         lastElement.remove();
+      } else {
+        this.add('', '');
       }
     } else {
       this.add('', '');

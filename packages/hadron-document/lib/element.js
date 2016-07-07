@@ -427,7 +427,7 @@ class LinkedList {
    * @param {String} key - The element key.
    * @param {Object} value - The element value.
    * @param {Boolean} added - If the element is new.
-   * @param {Element,Document} parent - The parent.
+   * @param {Object} parent - The parent.
    *
    * @returns {Element} The inserted element.
    */
@@ -450,7 +450,7 @@ class LinkedList {
    * @param {String} key - The element key.
    * @param {Object} value - The element value.
    * @param {Boolean} added - If the element is new.
-   * @param {Element,Document} parent - The parent.
+   * @param {Object} parent - The parent.
    *
    * @returns {Element} The inserted element.
    */
@@ -472,7 +472,7 @@ class LinkedList {
    * @param {String} key - The element key.
    * @param {Object} value - The element value.
    * @param {Boolean} added - If the element is new.
-   * @param {Element,Document} parent - The parent.
+   * @param {Object} parent - The parent.
    *
    * @returns {Element} The data element.
    */
@@ -492,7 +492,7 @@ class LinkedList {
    * @param {String} key - The element key.
    * @param {Object} value - The element value.
    * @param {Boolean} added - If the element is new.
-   * @param {Element,Document} parent - The parent.
+   * @param {Object} parent - The parent.
    *
    * @returns {Element} The data element.
    */

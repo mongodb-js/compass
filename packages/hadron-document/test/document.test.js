@@ -312,7 +312,7 @@ describe('Document', function() {
           });
 
           it('does not remove the last element', function() {
-            expect(doc.elements.size).to.equal(1);
+            expect(doc.elements.size).to.equal(2);
           });
         });
       });
