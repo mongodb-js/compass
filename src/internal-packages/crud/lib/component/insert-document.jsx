@@ -72,11 +72,7 @@ class InsertDocument extends React.Component {
     for (let element of this.doc.elements) {
       components.push(<EditableElement key={element.uuid} element={element} />)
     }
-    // Add the hotspot to the end. In the case of insert, we need to guard against
-    // No elements being present.
-    var lastComponent = components[components.length - 1];
-    var lastElement = lastComponent ? lastComponent.props.element : this.state.doc;
-    components.push(<Hotspot key='hotspot' element={lastElement} />);
+    components.push(<Hotspot key='hotspot' element={this.doc} />);
     return components;
   }
 }

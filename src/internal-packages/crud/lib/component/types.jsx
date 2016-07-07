@@ -25,7 +25,17 @@ class Types extends React.Component {
    * @param {Event} evt - The event.
    */
   handleTypeChange(evt) {
-    this.element.edit(TypeChecker.cast(this.castableValue(), evt.target.innerText));
+    var newType = evt.target.innerText;
+    if (newType === 'Object') {
+      this.element.edit('{');
+      this.element.next();
+    } else {
+      this.element.edit(TypeChecker.cast(this.castableValue(), newType));
+    }
+  }
+
+  isTypeChangeable() {
+    return this.element.isValueEditable() || this.element.isAdded();
   }
 
   /**
@@ -34,7 +44,7 @@ class Types extends React.Component {
    * @returns {React.Component} The element component.
    */
   render() {
-    return this.element.isValueEditable() ? this.renderDropdown() : this.renderLabel();
+    return this.isTypeChangeable() ? this.renderDropdown() : this.renderLabel();
   }
 
   /**
