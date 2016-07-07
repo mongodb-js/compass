@@ -14,19 +14,50 @@ class Hotspot extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.doc = props.doc;
     this.element = props.element;
   }
 
   /**
-   * When clicking on a hotspot we append to the parent.
+   * When clicking on a hotspot we append or remove on the parent.
    */
   handleClick() {
-    if (this.element && this.element.parentElement) {
-      this.element.next();
-    } else {
-      this.doc.add('', '');
+    this.element.next();
+  }
+
+  /**
+   * Get the last element for the base element.
+   *
+   * @param {Element} baseElement - The base element.
+   *
+   * @returns {Element} The last element.
+   */
+  lastElement(baseElement) {
+    return baseElement.elements[baseElement.elements.length - 1];
+  }
+
+  /**
+   * Is the element removable?
+   *
+   * @param {Element} element - The element.
+   *
+   * @returns {Boolean} if the element must be removed.
+   */
+  isRemovable(element) {
+    if (element.parentElement && element.parentElement.type === 'Array') {
+      return element.currentValue === '';
     }
+    return element.currentKey === '' && element.currentValue === '';
+  }
+
+  /**
+   * Is the element actionable.
+   *
+   * @param {Element} element - If the element is actionable.
+   *
+   * @returns {Boolean} If the element is actionable.
+   */
+  isActionable(element) {
+    return element.currentKey !== '' || element.currentValue !== '';
   }
 
   /**

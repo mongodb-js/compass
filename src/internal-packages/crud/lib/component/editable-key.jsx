@@ -1,6 +1,7 @@
 'use strict';
 
 const React = require('react');
+const inputSize = require('./utils').inputSize;
 
 /**
  * The editing class constant.
@@ -16,6 +17,16 @@ const DUPLICATE = 'duplicate';
  * The document key class.
  */
 const KEY_CLASS = 'editable-key';
+
+/**
+ * Escape key code.
+ */
+const ESC = 27;
+
+/**
+ * Colon key code.
+ */
+const COLON = 186;
 
 /**
  * General editable key component.
@@ -38,15 +49,8 @@ class EditableKey extends React.Component {
    * to the value field.
    */
   componentDidMount() {
-    if (this.element.isAdded()) {
-      if (this.props.insertIndex) {
-        // Focus for inserting new documents.
-        if (this.props.insertIndex === 1 && this.element.currentKey === '') {
-          this._node.focus();
-        }
-      } else if (!this.isEditable() && this._node) {
-        this._node.focus();
-      }
+    if (this.isAutoFocusable()) {
+      this._node.focus();
     }
   }
 
@@ -61,14 +65,23 @@ class EditableKey extends React.Component {
         type='text'
         className={this.style()}
         ref={(c) => this._node = c}
-        size={this.element.currentKey.length}
+        size={inputSize(this.renderValue())}
+        tabIndex={this.isEditable() ? 0 : -1}
         onBlur={this.handleBlur.bind(this)}
         onFocus={this.handleFocus.bind(this)}
         onChange={this.handleChange.bind(this)}
         onKeyDown={this.handleKeyDown.bind(this)}
-        value={this.element.currentKey}
+        onKeyUp={this.handleKeyUp.bind(this)}
+        value={this.renderValue()}
         title={this.renderTitle()} />
     );
+  }
+
+  /**
+   * Render the value of the key.
+   */
+  renderValue() {
+    return this.element.parent.currentType === 'Array' ? this.props.index : this.element.currentKey;
   }
 
   /**
@@ -88,8 +101,27 @@ class EditableKey extends React.Component {
    * @param {Event} evt - The event.
    */
   handleKeyDown(evt) {
-    if (evt.keyCode === 27) {
-      this._node.blur();
+    var value = evt.target.value;
+    if (evt.keyCode === ESC) {
+      if (value.length === 0) {
+        this.element.remove();
+      } else {
+        this._node.blur();
+      }
+    }
+  }
+
+  /**
+   * If they key is a colon, tab to the next input.
+   */
+  handleKeyUp(evt) {
+    if (evt.keyCode === COLON) {
+      var value = evt.target.value;
+      if (value !== ':') {
+        this.element.rename(value.replace(':', ''));
+        evt.target.value = '';
+        this._node.nextSibling.nextSibling.focus();
+      }
     }
   }
 
@@ -100,7 +132,7 @@ class EditableKey extends React.Component {
    */
   handleChange(evt) {
     var value = evt.target.value;
-    this._node.size = value.length;
+    this._node.size = inputSize(value);
     if (this.isEditable()) {
       if (this.element.isDuplicateKey(value)) {
         this.setState({ duplicate: true });
@@ -130,12 +162,30 @@ class EditableKey extends React.Component {
   }
 
   /**
-   * Is this component editable?
+   * Is this component auto focusable?
+   *
+   * This is true if:
+   *   - When a new element has been added and is a normal element.
+   *   - When not being tabbed into.
+   *
+   * Is false if:
+   *   - When a new array value has been added.
+   *   - When the key is _id
    *
    * @returns {Boolean} If the component is editable.
    */
+  isAutoFocusable() {
+    return this.element.isAdded() && this.isEditable();
+  }
+
+  /**
+   * Is the key able to be edited?
+   *
+   * @returns {Boolean} If the key can be edited.
+   */
   isEditable() {
-    return this.element.isKeyEditable() && this.element.parentElement.currentType !== 'Array';
+    return this.element.isKeyEditable() &&
+      this.element.parent.currentType !== 'Array';
   }
 
   /**

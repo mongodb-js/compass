@@ -1,6 +1,5 @@
 'use strict';
 
-const _ = require('lodash');
 const app = require('ampersand-app');
 const React = require('react');
 const Reflux = require('reflux');
@@ -270,14 +269,15 @@ class Document extends React.Component {
    * @returns {Array} The editable elements.
    */
   editableElements() {
-    var components = _.map(this.state.doc.elements, (element) => {
-      return (
-        <EditableElement key={element.uuid} element={element} />
-      );
-    });
+    var components = [];
+    for (let element of this.state.doc.elements) {
+      components.push(<EditableElement key={element.uuid} element={element} />)
+    }
+    // Add the hotspot to the end. In the case of insert, we need to guard against
+    // No elements being present.
     var lastComponent = components[components.length - 1];
-    var lastElement = lastComponent ? lastComponent.props.element : null;
-    components.push(<Hotspot key='hotspot' doc={this.state.doc} element={lastElement} />);
+    var lastElement = lastComponent ? lastComponent.props.element : this.state.doc;
+    components.push(<Hotspot key='hotspot' element={lastElement} />);
     return components;
   }
 

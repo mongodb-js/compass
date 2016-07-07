@@ -1,14 +1,8 @@
 'use strict';
 
 const React = require('react');
-const app = require('ampersand-app');
 const ResetDocumentListStore = require('../store/reset-document-list-store');
 const TextButton = require('./text-button');
-
-/**
- * The feature flag.
- */
-const FEATURE = 'singleDocumentCrud';
 
 /**
  * Component for the sampling message.
@@ -59,23 +53,12 @@ class SamplingMessage extends React.Component {
       <div className='sampling-message'>
         Query returned&nbsp;<b>{this.state.count}</b>&nbsp;documents.
         <i data-hook='schema-sampling-results' className='help'></i>
-        {this.renderInsertButton()}
-      </div>
-    );
-  }
-
-  /**
-   * Render the insert button.
-   */
-  renderInsertButton() {
-    if (app.isFeatureEnabled(FEATURE)) {
-      return (
         <TextButton
           clickHandler={this.props.insertHandler}
           className='btn btn-default btn-xs open-insert'
           text='+ Insert' />
-      );
-    }
+      </div>
+    );
   }
 
   /**
