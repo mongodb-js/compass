@@ -91,7 +91,7 @@ class EditableKey extends React.Component {
    */
   renderTitle() {
     if (this.state.duplicate) {
-      return `Duplicate key: '${this.element.currentKey}'`
+      return `Duplicate key: '${this.element.currentKey}' - this will overwrite previous values.`
     }
     return this.element.currentKey;
   }
@@ -184,8 +184,7 @@ class EditableKey extends React.Component {
    * @returns {Boolean} If the key can be edited.
    */
   isEditable() {
-    return this.element.isKeyEditable() &&
-      this.element.parent.currentType !== 'Array';
+    return this.element.isKeyEditable() && this.element.parent.currentType !== 'Array';
   }
 
   /**
