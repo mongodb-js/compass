@@ -116,9 +116,10 @@ class EditableElement extends React.Component {
       <li className={this.style()}>
         <div className='line-number'></div>
         {this.renderAction()}
-        <EditableKey element={this.element} insertIndex={this.props.insertIndex} />
+        <EditableKey element={this.element} index={this.props.index} />
         :
         {this.renderValue()}
+        <Hotspot key='hotspot' element={this.element} />
         <Types element={this.element} />
       </li>
     );
@@ -149,7 +150,7 @@ class EditableElement extends React.Component {
           <div className='line-number' onClick={this.toggleExpandable.bind(this)}></div>
           {this.renderAction()}
           <div className={CARET} onClick={this.toggleExpandable.bind(this)}></div>
-          <EditableKey element={this.element} />
+          <EditableKey element={this.element} index={this.props.index} />
           :
           <div className={LABEL_CLASS} onClick={this.toggleExpandable.bind(this)}>
             {this.element.currentType}
@@ -168,12 +169,12 @@ class EditableElement extends React.Component {
    * @returns {Array} The components.
    */
   elementComponents() {
-    var components = _.map(this.element.elements, (element) => {
-      return (<EditableElement key={element.uuid} element={element} />);
-    });
-    // var lastComponent = components[components.length - 1];
-    // var lastElement = lastComponent ? lastComponent.props.element : null;
-    // components.push(<Hotspot key='hotspot' doc={this.element} element={lastElement} />);
+    var components = [];
+    var index = 0;
+    for (let element of this.element.elements) {
+      components.push(<EditableElement key={element.uuid} element={element} index={index} />);
+      index++;
+    }
     return components;
   }
 

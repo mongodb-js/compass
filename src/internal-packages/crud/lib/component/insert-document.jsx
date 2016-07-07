@@ -68,15 +68,16 @@ class InsertDocument extends React.Component {
    * @returns {Array} The editable elements.
    */
   renderElements() {
-    var elements = _.map(this.doc.elements, (element, index) => {
-      return (
-        <EditableElement key={element.uuid} element={element} insertIndex={index} />
-      );
-    });
-    var lastComponent = elements[elements.length - 1];
-    var lastElement = lastComponent ? lastComponent.props.element : null;
-    elements.push(<Hotspot key='hotspot' doc={this.doc} element={lastElement} />);
-    return elements;
+    var components = [];
+    for (let element of this.doc.elements) {
+      components.push(<EditableElement key={element.uuid} element={element} />)
+    }
+    // Add the hotspot to the end. In the case of insert, we need to guard against
+    // No elements being present.
+    var lastComponent = components[components.length - 1];
+    var lastElement = lastComponent ? lastComponent.props.element : this.state.doc;
+    components.push(<Hotspot key='hotspot' element={lastElement} />);
+    return components;
   }
 }
 

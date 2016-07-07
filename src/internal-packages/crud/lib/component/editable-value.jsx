@@ -2,8 +2,14 @@
 
 const _ = require('lodash');
 const React = require('react');
+const inputSize = require('./utils').inputSize;
 const ElementFactory = require('hadron-component-registry').ElementFactory;
 const TypeChecker = require('hadron-type-checker');
+
+/**
+ * Escape key code.
+ */
+const ESC = 27;
 
 /**
  * The editing class constant.
@@ -32,6 +38,21 @@ class EditableValue extends React.Component {
   }
 
   /**
+   * Focus on this field on mount, so the tab can do it's job and move
+   * to the value field.
+   */
+  componentDidMount() {
+    if (this.isAutoFocusable()) {
+      this._node.focus();
+    }
+  }
+
+  isAutoFocusable() {
+    return !this.element.isKeyEditable() ||
+      this.element.parent.currentType === 'Array';
+  }
+
+  /**
    * Render a single editable value.
    *
    * @returns {React.Component} The element component.
@@ -41,7 +62,7 @@ class EditableValue extends React.Component {
       <input
         ref={(c) => this._node = c}
         type='text'
-        size={this.element.currentValue ? (this.element.currentValue.length + 1) : 5}
+        size={inputSize(this.element.currentValue)}
         className={this.style()}
         onBlur={this.handleBlur.bind(this)}
         onFocus={this.handleFocus.bind(this)}
@@ -58,10 +79,32 @@ class EditableValue extends React.Component {
    */
   handleKeyDown(evt) {
     if (evt.keyCode === 9 && !evt.shiftKey) {
-      this.element.next();
-    } else if (evt.keyCode === 27) {
-      this._node.blur();
+      if (this.isTabable()) {
+        if (!this.element.nextElement) {
+          this.element.next();
+          evt.preventDefault();
+          evt.stopPropagation();
+        }
+      } else {
+        // We don't want to create another element when the current one is blank.
+        evt.preventDefault();
+        evt.stopPropagation();
+      }
+    } else if (evt.keyCode === ESC) {
+      var value = evt.target.value;
+      if (value.length === 0 && this.element.currentKey.length === 0) {
+        this.element.remove();
+      } else {
+        this._node.blur();
+      }
     }
+  }
+
+  isTabable() {
+    if (this.element.parent.currentType === 'Array') {
+      return this.element.currentValue !== '';
+    }
+    return this.element.currentKey.length !== 0;
   }
 
   /**
@@ -71,7 +114,7 @@ class EditableValue extends React.Component {
    */
   handleChange(evt) {
     var value = evt.target.value;
-    this._node.size = value.length;
+    this._node.size = inputSize(value);
     var currentType = this.element.currentType;
     if (_.includes(TypeChecker.castableTypes(value), currentType)) {
       this.element.edit(TypeChecker.cast(value, currentType));
