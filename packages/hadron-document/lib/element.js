@@ -221,7 +221,7 @@ class Element extends EventEmitter {
    * @returns {Boolean} If the key is editable.
    */
   isKeyEditable() {
-    return this.currentKey !== ID;
+    return this.isAdded() || (this.currentKey !== ID);
   }
 
   /**

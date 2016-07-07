@@ -254,10 +254,20 @@ describe('Element', function() {
 
   describe('#isValueEditable', function() {
     context('when the key is _id', function() {
-      var element = new Element('_id', 'test', false);
+      context('when the element is not added', function() {
+        var element = new Element('_id', 'test', false);
 
-      it('returns false', function() {
-        expect(element.isValueEditable()).to.equal(false);
+        it('returns false', function() {
+          expect(element.isValueEditable()).to.equal(false);
+        });
+      });
+
+      context('when the element is added', function() {
+        var element = new Element('_id', 'test', true);
+
+        it('returns true', function() {
+          expect(element.isValueEditable()).to.equal(true);
+        });
       });
     });
 
