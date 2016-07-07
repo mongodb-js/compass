@@ -184,8 +184,7 @@ class EditableKey extends React.Component {
    * @returns {Boolean} If the key can be edited.
    */
   isEditable() {
-    return this.element.isKeyEditable() &&
-      this.element.parent.currentType !== 'Array';
+    return this.element.isKeyEditable() && this.element.parent.currentType !== 'Array';
   }
 
   /**
