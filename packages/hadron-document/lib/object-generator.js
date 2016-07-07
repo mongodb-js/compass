@@ -15,7 +15,7 @@ class ObjectGenerator {
   generate(elements) {
     var object = {};
     for (let element of elements) {
-      if (!element.isRemoved()) {
+      if (!element.isRemoved() && element.currentKey !== '') {
         object[element.currentKey] = element.generateObject();
       }
     }
