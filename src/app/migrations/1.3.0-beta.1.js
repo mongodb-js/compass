@@ -2,7 +2,7 @@ var async = require('async');
 var Preferences = require('../models/preferences');
 
 /**
- * Add a special connection to the favorites for the treasure hunt
+ * Enable maps and explain plan tree view features.
  *
  * @param  {Function} done   callback when finished
  */

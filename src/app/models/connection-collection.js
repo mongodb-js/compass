@@ -2,15 +2,15 @@ var Collection = require('ampersand-rest-collection');
 var Connection = require('./connection');
 var storageMixin = require('storage-mixin');
 var _ = require('lodash');
-var pkg = require('../../../package.json');
 var selectableMixin = require('./selectable-collection-mixin');
+var electronApp = require('electron').remote.app;
 
 module.exports = Collection.extend(selectableMixin, storageMixin, {
   model: Connection,
   namespace: 'Connections',
   storage: {
     backend: 'splice',
-    appName: pkg.productName
+    appName: electronApp.getName()
   },
   comparator: function(a, b) {
     if (a.is_favorite === b.is_favorite) {

@@ -72,7 +72,5 @@ module.exports = View.extend({
     app.user.save(info);
     metrics.resources.get('User').set(info);
     metrics.trackers.get('intercom')._updateIntercom();
-    // stage one, player provided name/email, enters the "Lost Temple"
-    metrics.track('Treasure Hunt', 'stage1');
   }
 });

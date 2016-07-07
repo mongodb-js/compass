@@ -84,13 +84,6 @@ module.exports = View.extend({
         return 'INDEX';
       }
     },
-    treasureHuntClueVisible: {
-      deps: ['indexMessageType'],
-      fn: function() {
-        return (app.isFeatureEnabled('treasureHunt') &&
-          this.indexMessageType === 'INDEX');
-      }
-    },
     showWarningTriangle: {
       deps: ['indexMessageType'],
       fn: function() {
@@ -147,10 +140,6 @@ module.exports = View.extend({
     'click i.link': 'linkIconClicked'
   },
   bindings: {
-    treasureHuntClueVisible: {
-      type: 'toggle',
-      hook: 'treasure-hunt-subview'
-    },
     ns: {
       hook: 'ns'
     },
@@ -241,26 +230,6 @@ module.exports = View.extend({
     this.listenTo(this.parent, 'submit:query', this.onQueryChanged.bind(this));
     this.on('change:visible', this.onVisibleChanged.bind(this));
     this.showExplainTree = app.isFeatureEnabled('showExplainPlanTab');
-  },
-  // entire render method just for treasure hunt, remove afterwards
-  render: function() {
-    this.renderWithTemplate(this);
-    if (app.isFeatureEnabled('treasureHunt')) {
-      var $main = $(this.query('.main'));
-      var view = this;
-      // check if user has scrolled to the bottom of the explain tree
-      $main.on('scroll', function() {
-        var scrolledToBottom = ($main.scrollTop() + $main.innerHeight() >= $main[0].scrollHeight - 20);
-        if (view.indexMessageType === 'INDEX' &&
-          scrolledToBottom &&
-          view.activeDetailView === 'tree') {
-          $main.off('scroll');
-          debug('found the location!');
-          // user looked at the bottom of an indexed tree explain plan
-          metrics.track('Treasure Hunt', 'stage6');
-        }
-      });
-    }
   },
   onModelSynced: function() {
     this.ns = this.model._id;
