@@ -5,6 +5,7 @@ var debug = require('debug')('mongodb-compass:models:connection');
 var uuid = require('uuid');
 var metrics = require('mongodb-js-metrics')();
 var pkg = require('../../../package.json');
+var electronApp = require('electron').remote.app;
 
 /**
  * Configuration for connecting to a MongoDB Deployment.
@@ -14,7 +15,7 @@ module.exports = Connection.extend(storageMixin, {
   namespace: 'Connections',
   storage: {
     backend: 'splice',
-    appName: pkg.productName,
+    appName: electronApp.getName(),
     secureCondition: function(val, key) {
       return key.match(/(password|passphrase)/i);
     }
