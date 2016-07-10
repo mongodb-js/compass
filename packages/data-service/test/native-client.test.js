@@ -129,6 +129,36 @@ describe('NativeClient', function() {
     });
   });
 
+  describe('#currentOp', function() {
+    it('returns an object with the currentOp', function(done) {
+      client.currentOp(true, function(err, result) {
+        assert.equal(null, err);
+        expect(result.inprog).to.not.equal(undefined); // TODO: are these tests enough?
+        done();
+      });
+    });
+  });
+
+  describe('#serverStats', function() {
+    it('returns an object with the serverStats', function(done) {
+      client.serverStats(function(err, result) {
+        assert.equal(null, err);
+        expect(result.ok).to.equal(1);
+        done();
+      });
+    });
+  });
+
+  describe('#top', function() {
+    it('returns an object with the results from top', function(done) {
+      client.top(function(err, result) {
+        assert.equal(null, err);
+        expect(result.ok).to.equal(1);
+        done();
+      });
+    });
+  });
+
   describe('#databaseDetail', function() {
     it('returns the database details', function(done) {
       client.databaseDetail('data-service', function(err, database) {

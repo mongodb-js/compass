@@ -106,6 +106,55 @@ class NativeClient {
   }
 
   /**
+   * Get the currentOp.
+   *
+   * @param {Boolean} includeAll - if true also list currently idle operations in the result.
+   * @param {Function} callback - The callback.
+   */
+  currentOp(includeAll, callback) {
+    this.database.admin().command({'currentOp': 1, '$all': includeAll}, (error, result) => {
+      if (error) {
+        this._database('admin').collection('$cmd.sys.inprog').findOne({'$all': includeAll}, (error2, result2) => {
+          if (error2) {
+            return callback(this._translateMessage(error2));
+          }
+          callback(null, result2);
+        });
+        return;
+      }
+      callback(null, result);
+    });
+  }
+
+  /**
+   * Call serverStatus on the admin database.
+   *
+   * @param {Function} callback - The callback.
+   */
+  serverStats(callback) {
+    this.database.admin().serverStatus((error, result) => {
+      if (error) {
+        return callback(this._translateMessage(error));
+      }
+      callback(null, result);
+    });
+  }
+
+  /**
+   * Call top on the admin database.
+   *
+   * @param {Function} callback - The callback.
+   */
+  top(callback) {
+    this.database.admin().command({ 'top': 1 }, (error, result) => {
+      if (error) {
+        return callback(this._translateMessage(error));
+      }
+      callback(null, result);
+    });
+  }
+
+  /**
    * Get the stats for a collection.
    *
    * @param {String} databaseName - The database name.

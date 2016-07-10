@@ -286,6 +286,37 @@ class DataService extends EventEmitter {
   }
 
   /**
+   * Returns the results of currentOp.
+   *
+   * @param {Boolean} includeAll - if true also list currently idle operations in the result.
+   * @param {Function} callback - The callback.
+   */
+  currentOp(includeAll, callback) {
+    debug(`#currentOp: ${includeAll}`);
+    this.client.currentOp(includeAll, callback);
+  }
+
+  /**
+   * Returns the result of serverStats.
+   *
+   * @param {function} callback - the callback.
+   */
+  serverstats(callback) {
+    debug(`#serverstats`);
+    this.client.serverStats(callback);
+  }
+
+  /**
+   * Returns the result of top.
+   *
+   * @param {function} callback - the callback.
+   */
+  top(callback) {
+    debug(`#top`);
+    this.client.top(callback);
+  }
+
+  /**
    * When Node supports ES6 default values for arguments, this can go away.
    *
    * @param {Array} args - The route arguments.
