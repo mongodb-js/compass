@@ -8,7 +8,7 @@ module.exports = [
   },
   {
     title: 'Browse the Schema',
-    description: 'Once a collection is loaded Compass will visualize the collection schema. Field are listed as rows in the main view. The left side of the row displays the field name and datatype distribution, the right side displays a visualization of the data.',
+    description: 'Once a collection is loaded, Compass will visualize the collection schema. Field are listed as rows in the main view. The left side of the row displays the field name and datatype distribution, the right side displays a visualization of the data.',
     image: 'f1.gif',
     version: '1.0.0',
     initial: true
@@ -39,20 +39,27 @@ module.exports = [
     description: 'Click the Index tab to view the definition, attributes, size, and usage of your indexes.',
     image: 'f5.gif',
     version: '1.2.0',
-    initial: false
+    initial: true
   },
   {
-    title: 'Examine Query Performance with Explain Plans',
+    title: 'Examine Query Performance with the Explain Plan',
     description: 'Click the Explain Plan tab to view a performance summary of the executed query and get access to the detailed explain plan report.',
+    image: 'f6.gif',
+    version: '1.2.0',
+    initial: true
+  },
+  {
+    title: 'Find using the Location Map',
+    description: 'Maps will display in collections with location data. Click and drag across the map for a geographic query. Click "Apply" to resample with the coordinates.',
     image: 'f7.gif',
     version: '1.2.0',
     initial: true
+  },
+  {
+    title: 'CRUD Support',
+    description: 'From documents tab, make changes to your dataset. Click insert to add a document. Each document has clone or delete actions, along with the ability to edit the fields.',
+    image: 'f8.gif',
+    version: '1.3.0',
+    initial: false
   }
-  // {
-  //   title: 'Find with Location',
-  //   description: 'Collections with location data can be used as a filter. Click and drag across the map for a geographic query. Click "Apply" to resample with the coordinates.',
-  //   image: 'f6.gif',
-  //   version: '1.2.0',
-  //   initial: true
-  // },
 ];
