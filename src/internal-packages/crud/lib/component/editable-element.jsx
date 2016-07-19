@@ -114,8 +114,8 @@ class EditableElement extends React.Component {
   renderNonExpandable() {
     return (
       <li className={this.style()}>
-        <div className='line-number'></div>
         {this.renderAction()}
+        <div className='line-number'></div>
         <EditableKey element={this.element} index={this.props.index} />
         :
         {this.renderValue()}
@@ -147,8 +147,8 @@ class EditableElement extends React.Component {
     return (
       <li className={this.style()}>
         <div className={HEADER_CLASS}>
-          <div className='line-number' onClick={this.toggleExpandable.bind(this)}></div>
           {this.renderAction()}
+          <div className='line-number' onClick={this.toggleExpandable.bind(this)}></div>
           <div className={CARET} onClick={this.toggleExpandable.bind(this)}></div>
           <EditableKey element={this.element} index={this.props.index} />
           :

@@ -5,7 +5,6 @@ li.document-list-item.editing {
 li.document-list-item.deleting {
   box-shadow: 2px 5px 8px rgba(0,0,0,0.2);
   border: 1px solid @alertRed;
-  // padding-top: 5px;
 }
 
 .column.main {
@@ -146,7 +145,7 @@ ol.document-property-body:hover {
     display: inline-block;
     position: absolute;
     width: 100px;
-    color: #999999;
+    color: @gray3;
     height: 17px;
     right: 0px;
 
@@ -166,8 +165,6 @@ ol.document-property-body:hover {
 
     .caret {
       visibility: hidden;
-      // margin-right: 0px;
-      // margin-left: 4px;
     }
 
     .dropdown-menu {
@@ -202,7 +199,7 @@ ol.document-property-body:hover {
     }
 
     .actions {
-      visibility: visible;
+      opacity: 1;
     }
 
     .types {
@@ -217,7 +214,6 @@ ol.document-property-body:hover {
   }
 
   li.document-property {
-    // position: relative;
 
     .hotspot {
       height: 10px;
@@ -227,11 +223,18 @@ ol.document-property-body:hover {
 
     .actions {
       display: inline-block;
-      visibility: hidden;
+      opacity: 0;
       width: 18px;
-      margin-right: 8px;
+      font-size: 13px;
+      line-height: 11px;
+      margin-left: -35px;
+      margin-right: 35px;
       text-align: center;
-      color: #999999;
+      color: @gray3;
+
+      i:hover {
+        cursor: pointer;
+      }
     }
 
     &.edited {
@@ -293,12 +296,8 @@ ol.document-property-body:hover {
       background-color: #ebebed !important;
     }
 
-    .line-number {
-      background-color: #ebebed !important;
-    }
-
     .actions {
-      visibility: visible;
+      opacity: 1;
     }
 
     .types {
@@ -337,7 +336,7 @@ input.editable-key {
   z-index: 1;
 
   &.editing {
-    border: 1px solid #999999;
+    border: 1px solid @gray3;
     box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.2);
     z-index: 10;
     margin-top: -1px;
@@ -360,7 +359,7 @@ input.editable-value {
   z-index: 1;
 
   &.editing {
-    border: 1px solid #999999;
+    border: 1px solid @gray3;
     box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.2);
     z-index: 10;
     margin-top: -1px;
@@ -392,19 +391,22 @@ input.editable-value {
 
       .actions {
         display: inline-block;
-        visibility: hidden;
+        opacity: 0;
         width: 18px;
-        margin-right: 8px;
+        font-size: 13px;
+        line-height: 11px;
+        margin-right: 35px;
+        margin-left: -35px;
         text-align: center;
         cursor: pointer;
-        color: #999999;
+        color: @gray3;
       }
 
       &.added {
-        background-color: #FFFFFF;
+        background-color: @pw;
 
         input {
-          background-color: #FFFFFF;
+          background-color: @pw;
 
           &:focus {
             background-color: @pw;
@@ -412,8 +414,8 @@ input.editable-value {
         }
 
         .line-number {
-          background-color: #FFFFFF;
-          color: #999999;
+          background-color: @pw;
+          color: @gray3;
         }
       }
     }
