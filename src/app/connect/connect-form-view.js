@@ -68,9 +68,7 @@ var ConnectFormView = FormView.extend({
     // fill in all default fields
     obj.hostname = obj.hostname.toLowerCase() || 'localhost';
     obj.port = parseInt(obj.port || 27017, 10);
-    if (obj.ssh_tunnel_port) {
-      obj.ssh_tunnel_port = parseInt(obj.ssh_tunnel_port, 10);
-    }
+    obj.ssh_tunnel_port = parseInt(obj.ssh_tunnel_port || 22, 10);
 
     // make a friendly connection name
     // this.makeFriendlyName(obj);
