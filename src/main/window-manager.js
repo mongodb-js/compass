@@ -241,8 +241,11 @@ app.on('app:show-connect-window', showConnectWindow);
 app.on('app:show-help-window', showHelpWindow);
 
 app.on('before-quit', function() {
-  debug('sending `app:quit` msg');
-  _.first(BrowserWindow.getAllWindows()).webContents.send('app:quit');
+  var win = _.first(BrowserWindow.getAllWindows());
+  if (win) {
+    debug('sending `app:quit` msg');
+    win.webContents.send('app:quit');
+  }
 });
 
 /**
