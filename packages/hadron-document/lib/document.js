@@ -108,6 +108,15 @@ class Document extends EventEmitter {
   }
 
   /**
+   * A document is never removed
+   *
+   * @returns {false} Always false.
+   */
+  isRemoved() {
+    return false;
+  }
+
+  /**
    * The document object is always the root object.
    *
    * @returns {true} Always true.
