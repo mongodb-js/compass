@@ -19,26 +19,6 @@ const Events = {
 class Document extends EventEmitter {
 
   /**
-   * Add a new element to this document.
-   *
-   * @param {String} key - The element key.
-   * @param {Object} value - The value.
-   *
-   * @returns {Element} The new element.
-   */
-  add(key, value) {
-    var newElement = this.elements.insertEnd(key, value, true, this);
-    this.emit(Element.Events.Added);
-    return newElement;
-  }
-
-  insertAfter(element, key, value) {
-    var newElement = this.elements.insertAfter(element, key, value, true, this);
-    this.emit(Element.Events.Added);
-    return newElement;
-  }
-
-  /**
    * Send cancel event.
    */
   cancel() {
@@ -64,6 +44,44 @@ class Document extends EventEmitter {
    */
   generateObject() {
     return ObjectGenerator.generate(this.elements);
+  }
+
+  /**
+   * Insert a placeholder element at the end of the document.
+   *
+   * @returns {Element} The placeholder element.
+   */
+  insertPlaceholder() {
+    return this.insertEnd('', '');
+  }
+
+  /**
+   * Add a new element to this document.
+   *
+   * @param {String} key - The element key.
+   * @param {Object} value - The value.
+   *
+   * @returns {Element} The new element.
+   */
+  insertEnd(key, value) {
+    var newElement = this.elements.insertEnd(key, value, true, this);
+    this.emit(Element.Events.Added);
+    return newElement;
+  }
+
+  /**
+   * Insert an element after the provided element.
+   *
+   * @param {Element} element - The element to insert after.
+   * @param {String} key - The key.
+   * @param {Object} value - The value.
+   *
+   * @returns {Element} The new element.
+   */
+  insertAfter(element, key, value) {
+    var newElement = this.elements.insertAfter(element, key, value, true, this);
+    this.emit(Element.Events.Added);
+    return newElement;
   }
 
   /**
@@ -107,10 +125,10 @@ class Document extends EventEmitter {
       if (lastElement.currentKey === '' && lastElement.currentValue === '') {
         lastElement.remove();
       } else {
-        this.add('', '');
+        this.insertPlaceholder();
       }
     } else {
-      this.add('', '');
+      this.insertPlaceholder();
     }
   }
 

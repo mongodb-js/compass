@@ -60,7 +60,7 @@ class Element extends EventEmitter {
    *
    * @returns {Element} The new element.
    */
-  add(key, value) {
+  insertEnd(key, value) {
     var newElement = this.elements.insertEnd(key, value, true, this);
     this._bubbleUp(Events.Added);
     return newElement;
@@ -357,7 +357,7 @@ class Element extends EventEmitter {
    */
   _convertToEmptyObject() {
     this.edit({});
-    this.add('', '');
+    this.insertEnd('', '');
   }
 
   /**
@@ -365,7 +365,7 @@ class Element extends EventEmitter {
    */
   _convertToEmptyArray() {
     this.edit([]);
-    this.add('', '');
+    this.insertEnd('', '');
   }
 
   /**

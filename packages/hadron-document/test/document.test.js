@@ -6,12 +6,12 @@ const Document = require('../lib/document');
 const SharedExamples = require('./shared-examples');
 
 describe('Document', function() {
-  describe('.add', function() {
+  describe('.insertEnd', function() {
     context('when the new element is a primitive value', function() {
       var doc = new Document({});
 
       before(function() {
-        doc.add('name', 'Aphex Twin');
+        doc.insertEnd('name', 'Aphex Twin');
       });
 
       it('adds the new element', function() {
@@ -31,7 +31,7 @@ describe('Document', function() {
       context('when setting directly', function() {
         before(function() {
           this.doc = new Document({});
-          this.doc.add('email', { home: 'home@example.com' });
+          this.doc.insertEnd('email', { home: 'home@example.com' });
         });
 
         SharedExamples.itAddsTheEmbeddedDocumentElementToTheRootDocument();
@@ -40,7 +40,7 @@ describe('Document', function() {
       context('when adding the embedded document then the first element', function() {
         before(function() {
           this.doc = new Document({});
-          this.doc.add('email', {}).add('home', 'home@example.com');
+          this.doc.insertEnd('email', {}).insertEnd('home', 'home@example.com');
         });
 
         SharedExamples.itAddsTheEmbeddedDocumentElementToTheRootDocument();
@@ -51,7 +51,7 @@ describe('Document', function() {
       context('when setting directly', function() {
         before(function() {
           this.doc = new Document({});
-          this.doc.add('emails', [ 'home@example.com' ]);
+          this.doc.insertEnd('emails', [ 'home@example.com' ]);
         });
 
         SharedExamples.itAddsTheArrayElementToTheRootDocument();
@@ -60,7 +60,7 @@ describe('Document', function() {
       context('when adding the array and then the first element', function() {
         before(function() {
           this.doc = new Document({});
-          this.doc.add('emails', []).add('', 'home@example.com');
+          this.doc.insertEnd('emails', []).insertEnd('', 'home@example.com');
         });
 
         SharedExamples.itAddsTheArrayElementToTheRootDocument();
@@ -71,7 +71,7 @@ describe('Document', function() {
       context('when setting directly', function() {
         before(function() {
           this.doc = new Document({});
-          this.doc.add('emails', [{ home: 'home@example.com' }]);
+          this.doc.insertEnd('emails', [{ home: 'home@example.com' }]);
         });
 
         SharedExamples.itAddsTheEmbeddedArrayElementToTheRootDocument();
@@ -80,7 +80,7 @@ describe('Document', function() {
       context('when adding the array and then the first element', function() {
         before(function() {
           this.doc = new Document({});
-          this.doc.add('emails', []).add('', {}).add('home', 'home@example.com');
+          this.doc.insertEnd('emails', []).insertEnd('', {}).insertEnd('home', 'home@example.com');
         });
 
         SharedExamples.itAddsTheEmbeddedArrayElementToTheRootDocument();
@@ -348,7 +348,7 @@ describe('Document', function() {
     });
 
     it('adds the state to the address', function() {
-      var state = address.add('state', 'CA');
+      var state = address.insertEnd('state', 'CA');
       expect(state.key).to.equal('state');
       expect(state.value).to.equal('CA');
       expect(state.isAdded()).to.equal(true);
@@ -363,7 +363,7 @@ describe('Document', function() {
     });
 
     it('adds the home email element', function() {
-      var home = email.add('home', 'home@example.com');
+      var home = email.insertEnd('home', 'home@example.com');
       expect(email.elements.size).to.equal(1);
       expect(home.key).to.equal('home');
       expect(home.value).to.equal('home@example.com');
@@ -371,7 +371,7 @@ describe('Document', function() {
     });
 
     it('adds the work email element', function() {
-      var work = email.add('work', 'work@example.com');
+      var work = email.insertEnd('work', 'work@example.com');
       expect(email.elements.size).to.equal(2);
       expect(work.key).to.equal('work');
       expect(work.value).to.equal('work@example.com');

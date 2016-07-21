@@ -14,13 +14,13 @@ const Document = require('../lib/document');
 const Element = require('../lib/element');
 
 describe('Element', function() {
-  describe('#add', function() {
+  describe('#insertEnd', function() {
     context('when the new embedded element is a document', function() {
       var doc = new Document({});
       var element = new Element('email', { work: 'work@example.com' }, false, doc);
 
       before(function() {
-        element.add('home', 'home@example.com');
+        element.insertEnd('home', 'home@example.com');
       });
 
       it('adds the new embedded element', function() {
@@ -38,7 +38,7 @@ describe('Element', function() {
       var element = new Element('emails', [ 'work@example.com' ], false, doc);
 
       before(function() {
-        element.add('', 'home@example.com');
+        element.insertEnd('', 'home@example.com');
       });
 
       it('adds the new embedded element', function() {
@@ -56,7 +56,7 @@ describe('Element', function() {
       var element = new Element('emails', [], false, doc);
 
       before(function() {
-        element.add('', '').edit({ home: 'home@example.com' });
+        element.insertEnd('', '').edit({ home: 'home@example.com' });
       });
 
       it('adds the new embedded element', function() {
@@ -79,8 +79,8 @@ describe('Element', function() {
 
   describe('#isDuplicateKey', function() {
     var doc = new Document({});
-    doc.add('first', 'test');
-    var last = doc.add('last', 'test');
+    doc.insertEnd('first', 'test');
+    var last = doc.insertEnd('last', 'test');
 
     context('when the key is a duplicate', function() {
       it('returns true', function() {
@@ -103,8 +103,8 @@ describe('Element', function() {
 
   describe('#isLast', function() {
     var doc = new Document({});
-    var first = doc.add('first', 'test');
-    var last = doc.add('last', 'test');
+    var first = doc.insertEnd('first', 'test');
+    var last = doc.insertEnd('last', 'test');
 
     context('when the element is the last element', function() {
       it('returns true', function() {
@@ -123,8 +123,8 @@ describe('Element', function() {
     context('when the element is the last element in the parent', function() {
       context('when the value is changed to {', function() {
         var doc = new Document({});
-        doc.add('first', 'test');
-        var last = doc.add('last', 'test');
+        doc.insertEnd('first', 'test');
+        var last = doc.insertEnd('last', 'test');
 
         before(function() {
           last.edit('{');
@@ -139,8 +139,8 @@ describe('Element', function() {
 
       context('when the value is changed to [', function() {
         var doc = new Document({});
-        doc.add('first', 'test');
-        var last = doc.add('last', 'test');
+        doc.insertEnd('first', 'test');
+        var last = doc.insertEnd('last', 'test');
 
         before(function() {
           last.edit('[');
@@ -155,8 +155,8 @@ describe('Element', function() {
 
       context('when the value is changed to [ and additional elements are added', function() {
         var doc = new Document({});
-        doc.add('first', 'test');
-        var last = doc.add('last', 'test');
+        doc.insertEnd('first', 'test');
+        var last = doc.insertEnd('last', 'test');
         var newLast = null;
 
         before(function() {
@@ -175,8 +175,8 @@ describe('Element', function() {
 
       context('when the value is different', function() {
         var doc = new Document({});
-        doc.add('first', 'test');
-        var last = doc.add('last', 'test');
+        doc.insertEnd('first', 'test');
+        var last = doc.insertEnd('last', 'test');
 
         before(function() {
           last.edit('test');
@@ -210,7 +210,7 @@ describe('Element', function() {
           var doc = new Document({ first: 'test-first' });
 
           before(function() {
-            var element = doc.add('', '');
+            var element = doc.insertEnd('', '');
             element.next();
           });
 
@@ -226,7 +226,7 @@ describe('Element', function() {
           var element = doc.elements.at(0);
 
           before(function() {
-            doc.add('', '');
+            doc.insertEnd('', '');
             element.next();
           });
 
@@ -240,7 +240,7 @@ describe('Element', function() {
           var element = doc.elements.at(0);
 
           before(function() {
-            doc.add('test', '');
+            doc.insertEnd('test', '');
             element.next();
           });
 
@@ -391,7 +391,7 @@ describe('Element', function() {
         var element = new Element('names', [], false);
 
         before(function() {
-          element.add('', 'testing');
+          element.insertEnd('', 'testing');
         });
 
         it('returns true', function() {
@@ -721,7 +721,7 @@ describe('Element', function() {
 
     context('when the element has been added to a parent', function() {
       var doc = new Document({});
-      var element = doc.add('name', 'test');
+      var element = doc.insertEnd('name', 'test');
 
       before(function() {
         element.remove();
@@ -784,7 +784,7 @@ describe('Element', function() {
       var element = new Element('email', { work: 'work@example.com' }, false);
 
       before(function() {
-        element.add('home', 'home@example.com');
+        element.insertEnd('home', 'home@example.com');
         element.revert();
       });
 
@@ -801,7 +801,7 @@ describe('Element', function() {
 
     context('when the element itself has been added', function() {
       var doc = new Document({});
-      var element = doc.add('name', 'Aphex Twin');
+      var element = doc.insertEnd('name', 'Aphex Twin');
 
       before(function() {
         element.revert();
@@ -818,7 +818,7 @@ describe('Element', function() {
 
         before(function() {
           element.edit({});
-          element.add('home', 'test@example.com');
+          element.insertEnd('home', 'test@example.com');
           element.revert();
         });
 
@@ -849,7 +849,7 @@ describe('Element', function() {
 
         before(function() {
           element.edit([]);
-          element.add('', 'test@example.com');
+          element.insertEnd('', 'test@example.com');
           element.revert();
         });
 
