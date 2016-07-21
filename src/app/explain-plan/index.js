@@ -46,7 +46,7 @@ module.exports = View.extend({
     hasRefineBar: ['boolean', true, true],
     activeDetailView: {
       type: 'string',
-      default: 'json',
+      default: 'tree',
       values: ['json', 'tree']
     }
   },
