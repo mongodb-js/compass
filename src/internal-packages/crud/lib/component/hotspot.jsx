@@ -46,7 +46,7 @@ class Hotspot extends React.Component {
     if (element.parentElement && element.parentElement.type === 'Array') {
       return element.currentValue === '';
     }
-    return element.currentKey === '' && element.currentValue === '';
+    return element.isBlank();
   }
 
   /**
