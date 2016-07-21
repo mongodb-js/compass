@@ -53,26 +53,6 @@ const BRACKET = '[';
 class Element extends EventEmitter {
 
   /**
-   * Add a new element to this element.
-   *
-   * @param {String} key - The element key.
-   * @param {Object} value - The value.
-   *
-   * @returns {Element} The new element.
-   */
-  insertEnd(key, value) {
-    var newElement = this.elements.insertEnd(key, value, true, this);
-    this._bubbleUp(Events.Added);
-    return newElement;
-  }
-
-  insertAfter(element, key, value) {
-    var newElement = this.elements.insertAfter(element, key, value, true, this);
-    this._bubbleUp(Events.Added);
-    return newElement;
-  }
-
-  /**
    * Create the element.
    *
    * @param {String} key - The key.
@@ -159,12 +139,59 @@ class Element extends EventEmitter {
   }
 
   /**
+   * Insert an element after the provided element.
+   *
+   * @param {Element} element - The element to insert after.
+   * @param {String} key - The key.
+   * @param {Object} value - The value.
+   *
+   * @returns {Element} The new element.
+   */
+  insertAfter(element, key, value) {
+    var newElement = this.elements.insertAfter(element, key, value, true, this);
+    this._bubbleUp(Events.Added);
+    return newElement;
+  }
+
+  /**
+   * Add a new element to this element.
+   *
+   * @param {String} key - The element key.
+   * @param {Object} value - The value.
+   *
+   * @returns {Element} The new element.
+   */
+  insertEnd(key, value) {
+    var newElement = this.elements.insertEnd(key, value, true, this);
+    this._bubbleUp(Events.Added);
+    return newElement;
+  }
+
+  /**
+   * Insert a placeholder element at the end of the element.
+   *
+   * @returns {Element} The placeholder element.
+   */
+  insertPlaceholder() {
+    return this.insertEnd('', '');
+  }
+
+  /**
    * Is the element a newly added element?
    *
    * @returns {Boolean} If the element is newly added.
    */
   isAdded() {
     return this.added || (this.parent && this.parent.isAdded());
+  }
+
+  /**
+   * Is the element blank?
+   *
+   * @returns {Boolean} If the element is blank.
+   */
+  isBlank() {
+    return this.currentKey === '' && this.currentValue === '';
   }
 
   /**
@@ -204,6 +231,33 @@ class Element extends EventEmitter {
    */
   isLast() {
     return this.parent.elements.lastElement === this;
+  }
+
+  /**
+   * Can changes to the elemnt be reverted?
+   *
+   * @returns {Boolean} If the element can be reverted.
+   */
+  isRevertable() {
+    return this.isEdited() || this.isRemoved();
+  }
+
+  /**
+   * Can the element be removed?
+   *
+   * @returns {Boolean} If the element can be removed.
+   */
+  isRemovable() {
+    return !this.parent.isRemoved();
+  }
+
+  /**
+   * Can no action be taken on the element?
+   *
+   * @returns {Boolean} If no action can be taken.
+   */
+  isNotActionable() {
+    return (this.key === ID && !this.isAdded()) || !this.isRemovable();
   }
 
   /**
@@ -290,6 +344,50 @@ class Element extends EventEmitter {
   }
 
   /**
+   * Fire and bubble up the event.
+   *
+   * @param {Event} evt - The event.
+   */
+  _bubbleUp(evt) {
+    this.emit(evt);
+    var element = this.parent;
+    if (element) {
+      if (element.isRoot()) {
+        element.emit(evt);
+      } else {
+        element._bubbleUp(evt);
+      }
+    }
+  }
+
+  /**
+   * Convert this element to an empty object.
+   */
+  _convertToEmptyObject() {
+    this.edit({});
+    this.insertPlaceholder();
+  }
+
+  /**
+   * Convert to an empty array.
+   */
+  _convertToEmptyArray() {
+    this.edit([]);
+    this.insertPlaceholder();
+  }
+
+  /**
+   * Is the element empty?
+   *
+   * @param {Element} element - The element to check.
+   *
+   * @returns {Boolean} If the element is empty.
+   */
+  _isElementEmpty(element) {
+    return element && element.isAdded() && element.isBlank();
+  }
+
+  /**
    * Check if the value is expandable.
    *
    * @param {Object} value - The value to check.
@@ -323,52 +421,6 @@ class Element extends EventEmitter {
   }
 
   /**
-   * Removes the added elements from the element.
-   */
-  _removeAddedElements() {
-    if (this.elements) {
-      for (let element of this.elements) {
-        if (element.isAdded()) {
-          this.elements.remove(element);
-        }
-      }
-    }
-  }
-
-  /**
-   * Fire and bubble up the event.
-   *
-   * @param {Event} evt - The event.
-   */
-  _bubbleUp(evt) {
-    this.emit(evt);
-    var element = this.parent;
-    if (element) {
-      if (element.isRoot()) {
-        element.emit(evt);
-      } else {
-        element._bubbleUp(evt);
-      }
-    }
-  }
-
-  /**
-   * Convert this element to an empty object.
-   */
-  _convertToEmptyObject() {
-    this.edit({});
-    this.insertEnd('', '');
-  }
-
-  /**
-   * Convert to an empty array.
-   */
-  _convertToEmptyArray() {
-    this.edit([]);
-    this.insertEnd('', '');
-  }
-
-  /**
    * Add a new element to the parent.
    */
   _next() {
@@ -383,8 +435,17 @@ class Element extends EventEmitter {
     }
   }
 
-  _isElementEmpty(element) {
-    return element && element.isAdded() && element.currentKey === '' && element.currentValue === '';
+  /**
+   * Removes the added elements from the element.
+   */
+  _removeAddedElements() {
+    if (this.elements) {
+      for (let element of this.elements) {
+        if (element.isAdded()) {
+          this.elements.remove(element);
+        }
+      }
+    }
   }
 }
 

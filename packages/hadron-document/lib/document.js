@@ -122,7 +122,7 @@ class Document extends EventEmitter {
   next() {
     var lastElement = this.elements.lastElement;
     if (lastElement && lastElement.isAdded()) {
-      if (lastElement.currentKey === '' && lastElement.currentValue === '') {
+      if (lastElement.isBlank()) {
         lastElement.remove();
       } else {
         this.insertPlaceholder();
