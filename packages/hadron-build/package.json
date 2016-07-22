@@ -1,7 +1,7 @@
 {
   "name": "hadron-build",
   "description": "Tooling for Hadron apps.",
-  "version": "0.6.5",
+  "version": "0.7.0-beta.1",
   "scripts": {
     "fmt": "mongodb-js-fmt",
     "check": "mongodb-js-precommit",
@@ -17,7 +17,7 @@
     "url": "git://github.com/mongodb-js/hadron-build.git"
   },
   "dependencies": {
-    "asar": "^0.10.0",
+    "asar": "^0.12.0",
     "async": "^2.0.0-rc.3",
     "aws-sdk": "^2.3.2",
     "bluebird": "^3.3.4",
@@ -27,13 +27,13 @@
     "del": "^2.0.2",
     "electron-installer-codesign": "^0.1.1",
     "electron-installer-dmg": "^0.1.1",
-    "electron-installer-run": "^0.1.1",
+    "electron-installer-run": "^0.1.2",
     "electron-installer-zip": "^0.1.2",
     "electron-license": "^0.2.0",
-    "electron-mocha": "^0.8.0",
-    "electron-packager": "^5.1.1",
-    "electron-prebuilt": "^0.36.12",
-    "electron-winstaller": "^2.0.5",
+    "electron-mocha": "^2.3.1",
+    "electron-packager": "^7.3.0",
+    "electron-prebuilt": "^1.2.8",
+    "electron-winstaller": "^2.3.3",
     "flatnest": "^1.0.0",
     "fs-extra": "^0.26.5",
     "github": "^0.2.4",
