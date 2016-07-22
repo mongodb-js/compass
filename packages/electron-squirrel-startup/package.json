@@ -28,7 +28,8 @@
   },
   "dependency-check": {
     "ignore": [
-      "app"
+      "app",
+      "electron"
     ]
   },
   "keywords": [
