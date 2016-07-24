@@ -184,9 +184,9 @@ class EditableElement extends React.Component {
    * @returns {Component} The component.
    */
   renderAction() {
-    if (this.element.isEdited() || this.element.isRemoved()) {
+    if (this.element.isRevertable()) {
       return (<RevertAction element={this.element} />);
-    } else if (this.element.key === '_id' && !this.element.isAdded()) {
+    } else if (this.element.isNotActionable()) {
       return (<NoAction element={this.element} />);
     }
     return (<RemoveAction element={this.element} />);
