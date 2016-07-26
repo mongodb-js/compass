@@ -65,13 +65,12 @@ function loadOptions(model, done) {
  */
 function validateURL(model, done) {
   var url = model.driver_url;
-  debug('validating URL with driver...');
   try {
-    var res = parseURL(url);
-    debug('URL parsed ok', res);
-    done(null, url);
+    parseURL(url);
+    process.nextTick(function() {
+      done(null, url);
+    });
   } catch (e) {
-    debug('error parsing URL', e);
     // URL parsing errors are just generic `Error` instances
     // so overwrite name so mongodb-js-server will know
     // the message is safe to display.

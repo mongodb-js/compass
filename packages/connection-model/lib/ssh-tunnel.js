@@ -9,9 +9,6 @@ function SSHTunnel(model) {
   assert(model.port, 'port required');
 
   this.model = model;
-  this.on('status', function(evt) {
-    debug('status', evt);
-  });
 }
 inherits(SSHTunnel, EventEmitter);
 
