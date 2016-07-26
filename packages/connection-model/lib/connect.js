@@ -9,8 +9,12 @@ var EventEmitter = require('events').EventEmitter;
 
 var debug = require('debug')('mongodb-connection-model:connect');
 
+function needToLoadSSLFiles(model) {
+  return !_.includes(['NONE', 'UNVALIDATED'], model.ssl);
+}
+
 function loadOptions(model, done) {
-  if (model.ssl === 'NONE' || model.ssl === 'UNVALIDATED') {
+  if (!needToLoadSSLFiles(model)) {
     process.nextTick(function() {
       done(null, model.driver_options);
     });
@@ -78,12 +82,82 @@ function validateURL(model, done) {
   }
 }
 
+function getStatusStateString(evt) {
+  if (!evt) {
+    return 'UNKNOWN';
+  }
+
+  if (evt.pending) {
+    return 'PENDING';
+  }
+
+  if (evt.skip) {
+    return 'SKIPPED';
+  }
+
+  if (evt.error) {
+    return 'ERROR';
+  }
+
+  if (evt.complete) {
+    return 'COMPLETE';
+  }
+}
+
 function getTasks(model) {
   var options = {};
   var tunnel;
   var db;
   var state = new EventEmitter();
   var tasks = {};
+  var _statuses = {};
+
+  var status = function(message, cb) {
+    if (_statuses[message]) {
+      return _statuses[message];
+    }
+
+    var ctx = function(err) {
+      if (err) {
+        state.emit('status', {
+          message: message,
+          error: err
+        });
+        if (cb) {
+          return cb(err);
+        }
+        return err;
+      }
+
+      state.emit('status', {
+        message: message,
+        complete: true
+      });
+      if (cb) {
+        return cb();
+      }
+    };
+
+    ctx.skip = function(reason) {
+      state.emit('status', {
+        message: message,
+        skip: true,
+        reason: reason
+      });
+      if (cb) {
+        return cb();
+      }
+    };
+
+    if (!ctx._initialized) {
+      state.emit('status', {
+        message: message,
+        pending: true
+      });
+      ctx._initialized = true;
+    }
+    return ctx;
+  };
 
   /**
    * TODO (imlucas) If localhost, check if MongoDB installed -> no: click/prompt to download
@@ -91,39 +165,39 @@ function getTasks(model) {
    */
 
   _.assign(tasks, {
-    'Validate driver URL': function(cb) {
-      validateURL(model, cb);
+    Validate: function(cb) {
+      validateURL(model, status('Validate', cb));
     },
-    'Load driver options': function(cb) {
-      loadOptions(model, function(err, opts) {
-        if (err) {
-          return cb(err);
-        }
-        options = opts;
-        cb();
-      });
+    'Load SSL files': function(cb) {
+      var ctx = status('Load SSL files', cb);
+      if (!needToLoadSSLFiles(model)) {
+        return ctx.skip('The selected SSL mode does not need to load any files.');
+      }
+
+      loadOptions(model, ctx);
     }
   });
 
-  if (model.ssh_tunnel !== 'NONE') {
-    _.assign(tasks, {
-      'Create SSH Tunnel': function(cb) {
-        tunnel = createSSHTunnel(model, cb);
-        tunnel.on('status', function(evt) {
-          state.emit('status', evt);
-        });
-      }
-    });
+  _.assign(tasks, {
+    /**
+     * TODO (imlucas) Test SSH credentials before attemprting to create tunnel.
+     */
 
-    // TODO (imlucas) Figure out how to make this less flakey.
-    // tasks['Test SSH Tunnel'] = function(cb) {
-    //   tunnel.test(cb);
-    // };
-  }
+    'Create SSH Tunnel': function(cb) {
+      var ctx = status('Create SSH Tunnel', cb);
+      if (model.ssh_tunnel === 'NONE') {
+        return ctx.skip('The selected SSH Tunnel mode is NONE.');
+      }
+
+      tunnel = createSSHTunnel(model, ctx);
+    }
+  });
 
   _.assign(tasks, {
-    'Connect': function(cb) {
+    'Connect to MongoDB': function(cb) {
+      var ctx = status('Connect to MongoDB');
       MongoClient.connect(model.driver_url, options, function(err, _db) {
+        ctx(err);
         if (err) {
           return cb(err);
         }
@@ -138,6 +212,12 @@ function getTasks(model) {
    */
 
   Object.defineProperties(tasks, {
+    model: {
+      get: function() {
+        return model;
+      },
+      enumerable: false
+    },
     driver_options: {
       get: function() {
         return options;
@@ -172,11 +252,27 @@ function connect(model, done) {
     model = new Connection(model);
   }
 
+  if (!_.isFunction(done)) {
+    done = function(err) {
+      if (err) {
+        throw err;
+      }
+    };
+  }
+
   var tasks = getTasks(model);
+  var logTaskStatus = require('debug')('mongodb-connection-model:connect:status');
+  tasks.state.on('status', function(evt) {
+    logTaskStatus('%s [%s]', evt.message, getStatusStateString(evt));
+  });
+
+  logTaskStatus('Connecting...');
   async.series(tasks, function(err) {
     if (err) {
+      logTaskStatus('Error connecting:', err);
       return done(err);
     }
+    logTaskStatus('Successfully connected');
     return done(null, tasks.db);
   });
   return tasks.state;
@@ -186,3 +282,4 @@ module.exports = connect;
 module.exports.loadOptions = loadOptions;
 module.exports.validateURL = validateURL;
 module.exports.getTasks = getTasks;
+module.exports.getStatusStateString = getStatusStateString;

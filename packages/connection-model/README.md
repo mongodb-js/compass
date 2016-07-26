@@ -184,7 +184,7 @@ console.log(c.driver_options)
 
 #### S1. NONE
 
-Do not use SSL for anything.
+Do not use SSL for anything. (Default)
 
 #### S2. UNVALIDATED
 
@@ -198,10 +198,121 @@ The driver should validate the server certificate and fail to connect if validat
 
 The driver must present a valid certificate and validate the server certificate.
 
+### Trait: SSH Tunnel
 
-## Matrix
+> New in mongodb-connection-model@5.0.0
 
-> @todo (imlucas) Update this from last week's whiteboard session.
+- `ssh_tunnel` (optional, String) ... The desired SSH tunnel strategy [Default: `NONE`]
+  - `NONE` Do not use SSH tunneling.
+  - `USER_PASSWORD` The tunnel is created with SSH username and password only.
+  - `IDENTITY_FILE` The tunnel is created using an identity file.
+
+Because [authentication](#authentication) is quite difficult for operators to migrate to, the most common method of securing a MongoDB deployment is to use an [SSH tunnel][sf-ssh-tunnel].  This allows operators to leverage their existing SSH security infrastructure to also provide secure access to MongoDB.  For a standard deployment of MongoDB on AWS, this is almost always to strategy.  Because of this, we now support creating SSH tunnels automatically when connecting to MongoDB.
+
+```javascript
+const connect = require('mongodb-connection-model').connect;
+const options = {
+  hostname: 'localhost',
+  port: 27017,
+  ssh_tunnel: 'IDENTITY_FILE',
+  ssh_tunnel_hostname: 'ec2-11-111-111-111.compute-1.amazonaws.com',
+  ssh_tunnel_username: 'ubuntu',
+  ssh_tunnel_identity_file: '~/.ssh/my-key-aws-pair.pem'
+};
+
+connect(options, (err, db) => {
+  if (err) {
+    return console.log(err);
+  }
+  db.collection('mycollection').find((err, docs) => {
+    console.log('Find', err, docs);
+  });
+});
+```
+
+The above provides the same functionality as creating the tunnel using the bash command below and connecting to MongoDB via another terminal:
+
+```bash
+ssh -i ~/.ssh/my-key-aws-pair.pem -L 27017:localhost:27017 ubuntu@ec2-11-111-111-111.compute-1.amazonaws.com
+```
+
+#### ST1. NONE
+
+Do not use SSH tunneling. (Default)
+
+#### ST2. USER_PASSWORD
+
+The tunnel is created with SSH username and password only.
+
+#### ST3. IDENTITY_FILE
+
+The tunnel is created using an identity file.
+
+## Events
+
+### status
+
+> New in mongodb-connection-model@5.0.0
+
+#### Example: SSH Tunnel
+
+```javascript
+const connect = require('mongodb-connection-model').connect;
+const options = {
+  hostname: 'localhost',
+  port: 27017,
+  ssh_tunnel: 'IDENTITY_FILE',
+  ssh_tunnel_hostname: 'ec2-11-111-111-111.compute-1.amazonaws.com',
+  ssh_tunnel_username: 'ubuntu',
+  ssh_tunnel_identity_file: '~/.ssh/my-key-aws-pair.pem'
+};
+
+connect(options).on('status', (evt) => console.log('status:', evt));
+```
+
+This will log the following events to the console:
+
+```javascript
+>>> status: { message: 'Validate', pending: true }
+>>> status: { message: 'Validate', complete: true }
+>>> status: { message: 'Load SSL files', pending: true }
+>>> status: { message: 'Load SSL files', skip: true,
+  reason: 'The selected SSL mode does not need to load any files.' }
+>>> status: { message: 'Create SSH Tunnel', pending: true }
+>>> status: { message: 'Create SSH Tunnel', complete: true}
+>>> status: { message: 'Connect to MongoDB', pending: true }
+>>> status: { message: 'Connect to MongoDB', complete: true }
+```
+
+#### Example: SSL
+
+```javascript
+const connect = require('mongodb-connection-model').connect;
+const options = {
+  hostname: 'localhost',
+  port: 27017,
+  ssl: 'ALL',
+  ssl_ca: '~/.ssl/my-ca.pem',
+  ssl_certificate: '~/.ssl/my-server.pem',
+  ssl_private_key: '~/.ssl/my-server.pem'
+};
+
+connect(options).on('status', (evt) => console.log('status:', evt));
+```
+
+This will log the following events to the console:
+
+```javascript
+>>> status: { message: 'Validate', pending: true }
+>>> status: { message: 'Validate', complete: true }
+>>> status: { message: 'Load SSL files', pending: true }
+>>> status: { message: 'Load SSL files', complete: true}
+>>> status: { message: 'Create SSH Tunnel', pending: true }
+>>> status: { message: 'Create SSH Tunnel', skip: true,
+  reason: 'The selected SSH Tunnel mode is NONE.'}
+>>> status: { message: 'Connect to MongoDB', pending: true }
+>>> status: { message: 'Connect to MongoDB', complete: true }
+```
 
 ## License
 
@@ -221,3 +332,5 @@ Apache 2.0
 [ldap-functional]: https://github.com/mongodb/node-mongodb-native/blob/2.0/test/functional/ldap_tests.js
 [x509-functional]: https://github.com/mongodb/node-mongodb-native/blob/2.0/test/functional/ssl_x509_tests.js
 [ns]: https://github.com/mongodb-js/ns
+[sf-ssh-tunnel]: http://serverfault.com/questions/597765/how-to-connect-to-mongodb-server-via-ssh-tunnel
+[ec2-key-pairs]: http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html

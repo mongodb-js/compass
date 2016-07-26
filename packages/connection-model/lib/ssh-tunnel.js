@@ -1,7 +1,6 @@
 var assert = require('assert');
 var createTunnel = require('tunnel-ssh');
 var EventEmitter = require('events').EventEmitter;
-var net = require('net');
 var inherits = require('util').inherits;
 var debug = require('debug')('mongodb-connection-model:ssh-tunnel');
 
@@ -45,50 +44,6 @@ SSHTunnel.prototype.listen = function(done) {
   }.bind(this));
 
   return this;
-};
-
-SSHTunnel.prototype.test = function(done) {
-  this.emit('status', {
-    message: 'Test SSH Tunnel',
-    pending: true
-  });
-
-  var client = new net.Socket();
-  client.on('error', function(err) {
-    debug('test client got an error', err);
-    client.end();
-    this.emit('status', {
-      message: 'Test SSH Tunnel',
-      error: err
-    });
-
-    done(new Error('SSH Failed.  Please ' + err.message));
-  }.bind(this));
-
-  debug('test client connecting to %s:%s', this.model.hostname, this.model.port);
-
-  client.connect(this.model.hostname, this.model.port, function() {
-    debug('writing test message');
-    try {
-      client.write('mongodb-connection-model:ssh-tunnel: ping');
-    } catch (err) {
-      debug('write to test client failed with error', err);
-      return done(err);
-    }
-
-    client.on('end', function() {
-      debug('disconnecting test socket');
-      this.emit('status', {
-        message: 'Test SSH Tunnel',
-        complete: true
-      });
-      done(null, true);
-    }.bind(this));
-
-    setTimeout(function() {
-      client.end();
-    }, 300);
-  }.bind(this));
 };
 
 SSHTunnel.prototype.close = function() {

@@ -46,7 +46,9 @@ describe('mongodb-connection#connect', function() {
     });
 
     var find = function(_db, done) {
-      _db.db('mongodb').collection('fanclub').find({}, {limit: 10}, function(err, docs) {
+      _db.db('mongodb').collection('fanclub').find({}, {
+        limit: 10
+      }, function(err, docs) {
         if (err) {
           return done(err);
         }
