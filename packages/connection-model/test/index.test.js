@@ -4,10 +4,8 @@ var loadOptions = Connection.connect.loadOptions;
 var parse = require('mongodb-url');
 var driverParse = require('mongodb/lib/url_parser');
 var fixture = require('mongodb-connection-fixture');
-var clone = require('lodash.clone');
+var _ = require('lodash');
 var format = require('util').format;
-var fs = require('fs');
-var path = require('path');
 
 function isNotValidAndHasMessage(model, msg) {
   assert.equal(model.isValid(), false,
@@ -460,7 +458,7 @@ describe('mongodb-connection-model', function() {
           'mongodb://localhost:27017/?slaveOk=true&ssl=true');
       });
       it('should produce the correct driver options', function() {
-        var expected = clone(Connection.DRIVER_OPTIONS_DEFAULT);
+        var expected = _.clone(Connection.DRIVER_OPTIONS_DEFAULT);
         expected.server = {
           sslCA: [fixture.ssl.ca],
           sslValidate: true
@@ -494,7 +492,7 @@ describe('mongodb-connection-model', function() {
         });
 
         it('should produce the correct driver_options', function() {
-          var expected = clone(Connection.DRIVER_OPTIONS_DEFAULT);
+          var expected = _.clone(Connection.DRIVER_OPTIONS_DEFAULT);
           expected.server = {
             sslCA: [fixture.ssl.ca],
             sslCert: fixture.ssl.server,
@@ -523,7 +521,7 @@ describe('mongodb-connection-model', function() {
         });
 
         it('should produce the correct driver_options', function() {
-          var expected = clone(Connection.DRIVER_OPTIONS_DEFAULT);
+          var expected = _.clone(Connection.DRIVER_OPTIONS_DEFAULT);
           expected.server = {
             sslCA: [fixture.ssl.ca],
             sslCert: fixture.ssl.server,
@@ -532,277 +530,6 @@ describe('mongodb-connection-model', function() {
             sslValidate: true
           };
           assert.deepEqual(c.driver_options, expected);
-        });
-      });
-    });
-  });
-
-  describe('ssh tunnel', function() {
-    describe('#driver_url', function() {
-      var c = new Connection({
-        hostname: '127.0.0.1',
-        ssh_tunnel: 'USER_PASSWORD',
-        ssh_tunnel_hostname: '127.0.0.1',
-        ssh_tunnel_port: 5000,
-        ssh_tunnel_username: 'username',
-        ssh_tunnel_password: 'password'
-      });
-      it('replaces the host and port with localhost and the ssh tunnel port', function() {
-        assert.equal(c.driver_url, 'mongodb://localhost:5000/?slaveOk=true');
-      });
-    });
-
-    describe('#ssh_tunnel_options', function() {
-      context('when ssh_tunnel is NONE', function() {
-        var c = new Connection({
-          hostname: '127.0.0.1',
-          ssh_tunnel: 'NONE'
-        });
-
-        it('returns an empty object', function() {
-          assert.equal(c.ssh_tunnel_options.hostname, null);
-        });
-      });
-
-      context('when ssh_tunnel is USER_PASSWORD', function() {
-        var options = new Connection({
-          ssh_tunnel: 'USER_PASSWORD',
-          ssh_tunnel_hostname: 'my.ssh-server.com',
-          ssh_tunnel_username: 'my-user',
-          hostname: 'mongodb.my-internal-host.com',
-          port: 27000,
-          ssh_tunnel_port: 3000,
-          ssh_tunnel_password: 'password'
-        }).ssh_tunnel_options;
-
-        it('maps ssh_tunnel_hostname -> host', function() {
-          assert.equal(options.host, 'my.ssh-server.com');
-        });
-
-        it('maps ssh_tunnel_username -> username', function() {
-          assert.equal(options.username, 'my-user');
-        });
-
-        it('maps hostname -> dstHost', function() {
-          assert.equal(options.dstHost, 'mongodb.my-internal-host.com');
-        });
-
-        it('maps port -> dstPort', function() {
-          assert.equal(options.dstPort, 27000);
-        });
-
-        it('maps ssh_tunnel_port -> sshPort', function() {
-          assert.equal(options.sshPort, 3000);
-        });
-
-        it('maps ssh_tunnel_password -> password', function() {
-          assert.equal(options.password, 'password');
-        });
-      });
-
-      context('when ssh_tunnel is IDENTITY_FILE', function() {
-        context('when a passphrase exists', function() {
-          var fileName = path.join(__dirname, 'fake-identity-file.txt');
-          var options = new Connection({
-            ssh_tunnel: 'IDENTITY_FILE',
-            ssh_tunnel_hostname: 'my.ssh-server.com',
-            ssh_tunnel_username: 'my-user',
-            ssh_tunnel_identity_file: [fileName],
-            hostname: 'mongodb.my-internal-host.com',
-            port: 27000,
-            ssh_tunnel_port: 3000,
-            ssh_tunnel_passphrase: 'password'
-          }).ssh_tunnel_options;
-
-          it('maps ssh_tunnel_hostname -> host', function() {
-            assert.equal(options.host, 'my.ssh-server.com');
-          });
-
-          it('maps ssh_tunnel_username -> username', function() {
-            assert.equal(options.username, 'my-user');
-          });
-
-          it('maps ssh_tunnel_identity_file -> privateKey', function() {
-            assert.equal(options.privateKey.toString(), fs.readFileSync(fileName).toString());
-          });
-
-          it('maps hostname -> dstHost', function() {
-            assert.equal(options.dstHost, 'mongodb.my-internal-host.com');
-          });
-
-          it('maps port -> dstPort', function() {
-            assert.equal(options.dstPort, 27000);
-          });
-
-          it('maps ssh_tunnel_port -> sshPort', function() {
-            assert.equal(options.sshPort, 3000);
-          });
-
-          it('maps ssh_tunnel_passphrase -> password', function() {
-            assert.equal(options.password, 'password');
-          });
-        });
-
-        context('when a passphrase does not exist', function() {
-          var fileName = path.join(__dirname, 'fake-identity-file.txt');
-          var options = new Connection({
-            ssh_tunnel: 'IDENTITY_FILE',
-            ssh_tunnel_hostname: 'my.ssh-server.com',
-            ssh_tunnel_username: 'my-user',
-            ssh_tunnel_identity_file: [fileName],
-            hostname: 'mongodb.my-internal-host.com',
-            port: 27000,
-            ssh_tunnel_port: 3000
-          }).ssh_tunnel_options;
-
-          it('maps ssh_tunnel_hostname -> host', function() {
-            assert.equal(options.host, 'my.ssh-server.com');
-          });
-
-          it('maps ssh_tunnel_username -> username', function() {
-            assert.equal(options.username, 'my-user');
-          });
-
-          it('maps ssh_tunnel_identity_file -> privateKey', function() {
-            assert.equal(options.privateKey.toString(), fs.readFileSync(fileName).toString());
-          });
-
-          it('maps hostname -> dstHost', function() {
-            assert.equal(options.dstHost, 'mongodb.my-internal-host.com');
-          });
-
-          it('maps port -> dstPort', function() {
-            assert.equal(options.dstPort, 27000);
-          });
-
-          it('maps ssh_tunnel_port -> sshPort', function() {
-            assert.equal(options.sshPort, 3000);
-          });
-        });
-      });
-    });
-
-    describe('#validate', function() {
-      context('when ssh_tunnel is NONE', function() {
-        var c = new Connection({
-          ssh_tunnel: 'NONE'
-        });
-
-        it('does not fail validation', function() {
-          assert(c.isValid());
-        });
-      });
-
-      context('when ssh_tunnel is USER_PASSWORD', function() {
-        context('when hostname is missing', function() {
-          var c = new Connection({
-            ssh_tunnel: 'USER_PASSWORD',
-            ssh_tunnel_port: 5000,
-            ssh_tunnel_username: 'username',
-            ssh_tunnel_password: 'password'
-          });
-
-          it('fails validation', function() {
-            assert(!c.isValid());
-          });
-        });
-
-        context('when username is missing', function() {
-          var c = new Connection({
-            ssh_tunnel: 'USER_PASSWORD',
-            ssh_tunnel_hostname: '127.0.0.1',
-            ssh_tunnel_port: 5000,
-            ssh_tunnel_password: 'password'
-          });
-
-          it('fails validation', function() {
-            assert(!c.isValid());
-          });
-        });
-
-        context('when password is missing', function() {
-          var c = new Connection({
-            ssh_tunnel: 'USER_PASSWORD',
-            ssh_tunnel_hostname: '127.0.0.1',
-            ssh_tunnel_port: 5000,
-            ssh_tunnel_username: 'username'
-          });
-
-          it('fails validation', function() {
-            assert(!c.isValid());
-          });
-        });
-
-        context('when the connection is valid', function() {
-          var c = new Connection({
-            ssh_tunnel: 'USER_PASSWORD',
-            ssh_tunnel_hostname: '127.0.0.1',
-            ssh_tunnel_port: 5000,
-            ssh_tunnel_username: 'username',
-            ssh_tunnel_password: 'password'
-          });
-
-          it('does not fail validation', function() {
-            assert(c.isValid());
-          });
-        });
-      });
-
-      context('when ssh_tunnel is IDENTITY_FILE', function() {
-        context('when hostname is missing', function() {
-          var c = new Connection({
-            ssh_tunnel: 'IDENTITY_FILE',
-            ssh_tunnel_identity_file: '/path/to/.ssh/me.pub',
-            ssh_tunnel_port: 5000,
-            ssh_tunnel_username: 'username'
-          });
-
-          it('fails validation', function() {
-            assert(!c.isValid());
-          });
-        });
-
-        context('when username is missing', function() {
-          var c = new Connection({
-            ssh_tunnel: 'IDENTITY_FILE',
-            ssh_tunnel_identity_file: '/path/to/.ssh/me.pub',
-            ssh_tunnel_hostname: '127.0.0.1',
-            ssh_tunnel_port: 5000,
-            ssh_tunnel_passphrase: 'password'
-          });
-
-          it('fails validation', function() {
-            assert(!c.isValid());
-          });
-        });
-
-        context('when identity file is missing', function() {
-          var c = new Connection({
-            ssh_tunnel: 'IDENTITY_FILE',
-            ssh_tunnel_username: 'username',
-            ssh_tunnel_hostname: '127.0.0.1',
-            ssh_tunnel_port: 5000,
-            ssh_tunnel_passphrase: 'password'
-          });
-
-          it('fails validation', function() {
-            assert(!c.isValid());
-          });
-        });
-
-        context('when the connection is valid', function() {
-          var c = new Connection({
-            ssh_tunnel: 'IDENTITY_FILE',
-            ssh_tunnel_identity_file: '/path/to/.ssh/me.pub',
-            ssh_tunnel_hostname: '127.0.0.1',
-            ssh_tunnel_port: 5000,
-            ssh_tunnel_username: 'username',
-            ssh_tunnel_passphrase: 'password'
-          });
-
-          it('does not fail validation', function() {
-            assert(c.isValid());
-          });
         });
       });
     });

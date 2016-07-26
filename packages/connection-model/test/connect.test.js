@@ -44,5 +44,26 @@ describe('mongodb-connection#connect', function() {
         });
       });
     });
+
+    var find = function(_db, done) {
+      _db.db('mongodb').collection('fanclub').find({}, {limit: 10}, function(err, docs) {
+        if (err) {
+          return done(err);
+        }
+        assert.equal(docs.length, 10);
+        done();
+      });
+    };
+
+    data.SSH_TUNNEL_MATRIX.map(function(d) {
+      it('connects via the ssh_tunnel to ' + d.ssh_tunnel_hostname, function(done) {
+        connect(d, function(err, _db) {
+          if (err) {
+            return done(err);
+          }
+          find(_db, done);
+        });
+      });
+    });
   });
 });

@@ -2,14 +2,10 @@ var toURL = require('url').format;
 var format = require('util').format;
 var AmpersandModel = require('ampersand-model');
 var AmpersandCollection = require('ampersand-rest-collection');
-var assign = require('lodash.assign');
-var defaults = require('lodash.defaults');
-var contains = require('lodash.contains');
-var clone = require('lodash.clone');
+var _ = require('lodash');
 var parse = require('mongodb-url');
+var dataTypes = require('./data-types');
 var fs = require('fs');
-
-// var debug = require('debug')('mongodb-connection-model');
 
 var Connection = {};
 var props = {};
@@ -18,7 +14,7 @@ var derived = {};
 /**
  * # Top-Level
  */
-assign(props, {
+_.assign(props, {
   /**
    * User specified name for this connection.
    *
@@ -36,7 +32,7 @@ assign(props, {
     default: 'localhost'
   },
   port: {
-    type: 'number',
+    type: 'port',
     default: 27017
   },
   ns: {
@@ -45,7 +41,7 @@ assign(props, {
   }
 });
 
-assign(derived, {
+_.assign(derived, {
   /**
    * @see http://npm.im/mongodb-instance-model
    */
@@ -92,7 +88,7 @@ var AUTHENTICATION_VALUES = [
  */
 var AUTHENTICATION_DEFAULT = 'NONE';
 
-assign(props, {
+_.assign(props, {
   /**
    * @property {String} authentication - `auth_mechanism` for humans.
    */
@@ -114,7 +110,7 @@ var AUTHENICATION_TO_AUTH_MECHANISM = {
   LDAP: 'PLAIN'
 };
 
-assign(derived, {
+_.assign(derived, {
   /**
    * Converts the value of `authentication` (for humans)
    * into the `auth_mechanism` value for the driver.
@@ -182,7 +178,7 @@ var AUTHENTICATION_TO_FIELD_NAMES = {
  *     db: { readPreference: 'nearest' },
  *     replSet: { connectWithNoPrimary: true } }
  */
-assign(props, {
+_.assign(props, {
   mongodb_username: {
     type: 'string',
     default: undefined
@@ -226,7 +222,7 @@ var MONGODB_DATABASE_NAME_DEFAULT = 'admin';
  * @enterprise
  * @see http://bit.ly/mongodb-node-driver-kerberos
  */
-assign(props, {
+_.assign(props, {
   /**
    * Any program or computer you access over a network. Examples of
    * services include “host” (a host, e.g., when you use telnet and rsh),
@@ -288,7 +284,7 @@ var KERBEROS_SERVICE_NAME_DEFAULT = 'mongodb';
  * @enterprise
  * @see http://bit.ly/mongodb-node-driver-ldap
  */
-assign(props, {
+_.assign(props, {
   /**
    * @see http://bit.ly/mongodb-node-driver-ldap
    * @see http://bit.ly/mongodb-ldap
@@ -329,7 +325,7 @@ assign(props, {
  * @see http://bit.ly/mongodb-node-driver-x509
  * @see http://bit.ly/mongodb-x509
  */
-assign(props, {
+_.assign(props, {
   /**
    * The x.509 certificate derived user name, e.g. "CN=user,OU=OrgUnit,O=myOrg,..."
    */
@@ -371,7 +367,7 @@ var SSL_VALUES = [
  */
 var SSL_DEFAULT = 'NONE';
 
-assign(props, {
+_.assign(props, {
   ssl: {
     type: 'string',
     values: SSL_VALUES,
@@ -435,49 +431,49 @@ var SSH_TUNNEL_VALUES = [
  */
 var SSH_TUNNEL_DEFAULT = 'NONE';
 
-assign(props, {
+_.assign(props, {
   ssh_tunnel: {
     type: 'string',
     values: SSH_TUNNEL_VALUES,
     default: SSH_TUNNEL_DEFAULT
   },
   /**
-   * The hostname to open the ssh tunnel to.
+   * The hostname of the SSH remote host.
    */
   ssh_tunnel_hostname: {
     type: 'string',
     default: undefined
   },
   /**
-   * The local port for the ssh tunnel.
+   * The SSH port of the remote host.
    */
   ssh_tunnel_port: {
-    type: 'number',
+    type: 'port',
     default: 22
   },
   /**
-   * The ssh username.
+   * The optional SSH username for the remote host.
    */
   ssh_tunnel_username: {
     type: 'string',
     default: undefined
   },
   /**
-   * The ssh password.
+   * The optional SSH password for the remote host.
    */
   ssh_tunnel_password: {
     type: 'string',
     default: undefined
   },
   /**
-   * The path to the ssh identity file.
+   * The optional path to the SSH identity file for the remote host.
    */
   ssh_tunnel_identity_file: {
     type: 'any',
     default: undefined
   },
   /**
-   * The passphrase for the identity file.
+   * The optional passphrase for `ssh_tunnel_identity_file`.
    */
   ssh_tunnel_passphrase: {
     type: 'string',
@@ -504,9 +500,9 @@ var DRIVER_OPTIONS_DEFAULT = {
   }
 };
 
-assign(derived, {
+_.assign(derived, {
   /**
-   * Get the URL which can be passed to `MongoClient.connect`.
+   * Get the URL which can be passed to `MongoClient.connect(url)`.
    * @see http://bit.ly/mongoclient-connect
    * @return {String}
    */
@@ -535,11 +531,6 @@ assign(derived, {
         }
       };
 
-      if (this.ssh_tunnel !== 'NONE') {
-        req.hostname = 'localhost';
-        req.port = this.ssh_tunnel_port;
-      }
-
       if (this.ns) {
         req.pathname = format('/%s', this.ns);
       }
@@ -548,7 +539,7 @@ assign(derived, {
         req.auth = format('%s:%s', this.mongodb_username, this.mongodb_password);
         req.query.authSource = this.mongodb_database_name;
       } else if (this.authentication === 'KERBEROS') {
-        defaults(req.query, {
+        _.defaults(req.query, {
           gssapiServiceName: this.kerberos_service_name,
           authMechanism: this.driver_auth_mechanism
         });
@@ -563,19 +554,20 @@ assign(derived, {
         }
       } else if (this.authentication === 'X509') {
         req.auth = encodeURIComponent(this.x509_username);
-        defaults(req.query, {
+        _.defaults(req.query, {
           authMechanism: this.driver_auth_mechanism
         });
       } else if (this.authentication === 'LDAP') {
         req.auth = format('%s:%s',
           encodeURIComponent(this.ldap_username),
           this.ldap_password);
-        defaults(req.query, {
+
+        _.defaults(req.query, {
           authMechanism: this.driver_auth_mechanism
         });
       }
 
-      if (contains(['UNVALIDATED', 'SERVER', 'ALL'], this.ssl)) {
+      if (_.includes(['UNVALIDATED', 'SERVER', 'ALL'], this.ssl)) {
         req.query.ssl = 'true';
       }
 
@@ -597,16 +589,16 @@ assign(derived, {
       'ssl_private_key_password'
     ],
     fn: function() {
-      var opts = clone(DRIVER_OPTIONS_DEFAULT, true);
+      var opts = _.clone(DRIVER_OPTIONS_DEFAULT, true);
       if (this.ssl === 'SERVER') {
-        assign(opts, {
+        _.assign(opts, {
           server: {
             sslValidate: true,
             sslCA: this.ssl_ca
           }
         });
       } else if (this.ssl === 'ALL') {
-        assign(opts, {
+        _.assign(opts, {
           server: {
             sslValidate: true,
             sslCA: this.ssl_ca,
@@ -622,6 +614,9 @@ assign(derived, {
       return opts;
     }
   },
+  /**
+   * @return {Object} The options passed to http://npm.im/tunnel-ssh
+   */
   ssh_tunnel_options: {
     deps: [
       'ssh_tunnel',
@@ -636,21 +631,24 @@ assign(derived, {
       if (this.ssh_tunnel === 'NONE') {
         return {};
       }
+
       var opts = {
-        dstHost: this.hostname,
+        dstHost: this.ssh_tunnel_hostname,
         dstPort: this.port,
-        username: this.ssh_tunnel_username,
+        localPort: this.port,
+        localHost: this.hostname,
         host: this.ssh_tunnel_hostname,
-        sshPort: this.ssh_tunnel_port
+        port: this.ssh_tunnel_port,
+        username: this.ssh_tunnel_username
       };
+
       if (this.ssh_tunnel === 'USER_PASSWORD') {
-        assign(opts, { password: this.ssh_tunnel_password });
+        opts.password = this.ssh_tunnel_password;
       } else if (this.ssh_tunnel === 'IDENTITY_FILE') {
-        assign(opts, {
-          privateKey: fs.readFileSync(this.ssh_tunnel_identity_file[0])
-        });
+        /* eslint no-sync: 0 */
+        opts.privateKey = fs.readFileSync(this.ssh_tunnel_identity_file[0]);
         if (this.ssh_tunnel_passphrase) {
-          assign(opts, { password: this.ssh_tunnel_passphrase });
+          opts.password = this.ssh_tunnel_passphrase;
         }
       }
       return opts;
@@ -662,12 +660,13 @@ assign(derived, {
  * An ampersand.js model to represent a connection to a MongoDB database.
  * It does not actually talk to MongoDB.  It is just a higher-level
  * abstraction that prepares arguments for `MongoClient.connect`.
-**/
+ */
 Connection = AmpersandModel.extend({
   namespace: 'Connection',
   idAttribute: 'instance_id',
   props: props,
   derived: derived,
+  dataTypes: dataTypes,
   initialize: function(attrs) {
     if (attrs) {
       if (typeof attrs === 'string') {
@@ -731,7 +730,7 @@ Connection = AmpersandModel.extend({
    * @param {Object} attrs - Incoming attributes.
    */
   validate_ssl: function(attrs) {
-    if (!attrs.ssl || contains(['NONE', 'UNVALIDATED'], attrs.ssl)) {
+    if (!attrs.ssl || _.includes(['NONE', 'UNVALIDATED'], attrs.ssl)) {
       return;
     }
     if (attrs.ssl === 'SERVER' && !attrs.ssl_ca) {

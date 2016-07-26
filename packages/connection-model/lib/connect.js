@@ -1,11 +1,12 @@
 var fs = require('fs');
-var parallel = require('run-parallel');
-var series = require('run-series');
-var clone = require('lodash.clone');
+var async = require('async');
+var _ = require('lodash');
 var MongoClient = require('mongodb').MongoClient;
-var backoff = require('backoff');
-var Connection = require('./model');
 var parseURL = require('mongodb/lib/url_parser');
+var Connection = require('./model');
+var createSSHTunnel = require('./ssh-tunnel');
+var EventEmitter = require('events').EventEmitter;
+
 var debug = require('debug')('mongodb-connection-model:connect');
 
 function loadOptions(model, done) {
@@ -17,7 +18,7 @@ function loadOptions(model, done) {
   }
 
   var tasks = {};
-  var opts = clone(model.driver_options, true);
+  var opts = _.clone(model.driver_options, true);
   Object.keys(opts.server).map(function(key) {
     if (key.indexOf('ssl') === -1) {
       return;
@@ -25,7 +26,7 @@ function loadOptions(model, done) {
 
     if (Array.isArray(opts.server[key])) {
       tasks[key] = function(cb) {
-        parallel(opts.server[key].map(function(k) {
+        async.parallel(opts.server[key].map(function(k) {
           return fs.readFile.bind(null, k);
         }), cb);
       };
@@ -40,7 +41,7 @@ function loadOptions(model, done) {
 
     tasks[key] = fs.readFile.bind(null, opts.server[key]);
   });
-  parallel(tasks, function(err, res) {
+  async.parallel(tasks, function(err, res) {
     if (err) {
       return done(err);
     }
@@ -77,67 +78,111 @@ function validateURL(model, done) {
   }
 }
 
-function connectWithBackoff(model, done) {
-  if (!(model instanceof Connection)) {
-    model = new Connection(model);
-  }
-  var url = model.driver_url;
-  var opts = model.driver_options;
-  var call;
+function getTasks(model) {
+  var options = {};
+  var tunnel;
+  var db;
+  var state = new EventEmitter();
+  var tasks = {};
 
-  var onConnected = function(err, db) {
-    if (err) {
-      debug('%s connection attempts to %s failed.  giving up.', url, call.getNumRetries());
-      return done(err);
+  /**
+   * TODO (imlucas) If localhost, check if MongoDB installed -> no: click/prompt to download
+   * TODO (imlucas) If localhost, check if MongoDB running -> no: click/prompt to start
+   */
+
+  _.assign(tasks, {
+    'Validate driver URL': function(cb) {
+      validateURL(model, cb);
+    },
+    'Load driver options': function(cb) {
+      loadOptions(model, function(err, opts) {
+        if (err) {
+          return cb(err);
+        }
+        options = opts;
+        cb();
+      });
     }
-    debug('Successfully connected to %s after %s attempts!', url, call.getNumRetries());
-    done(null, db);
-  };
-
-  call = backoff.call(MongoClient.connect, url, opts, onConnected);
-  call.setStrategy(new backoff.ExponentialStrategy({
-    randomisationFactor: 0,
-    initialDelay: 500,
-    maxDelay: 10000
-  }));
-
-  call.on('backoff', function(number, delay) {
-    debug('connect attempt #%s failed.  retrying in %sms...', number, delay);
   });
-  call.failAfter(25);
-  call.start();
+
+  if (model.ssh_tunnel !== 'NONE') {
+    _.assign(tasks, {
+      'Create SSH Tunnel': function(cb) {
+        tunnel = createSSHTunnel(model, cb);
+        tunnel.on('status', function(evt) {
+          state.emit('status', evt);
+        });
+      }
+    });
+
+    // TODO (imlucas) Figure out how to make this less flakey.
+    // tasks['Test SSH Tunnel'] = function(cb) {
+    //   tunnel.test(cb);
+    // };
+  }
+
+  _.assign(tasks, {
+    'Connect': function(cb) {
+      MongoClient.connect(model.driver_url, options, function(err, _db) {
+        if (err) {
+          return cb(err);
+        }
+        db = _db;
+        cb();
+      });
+    }
+  });
+
+  /**
+   * TODO (imlucas) Option to check if can run a specific command/read|write to collection.
+   */
+
+  Object.defineProperties(tasks, {
+    driver_options: {
+      get: function() {
+        return options;
+      },
+      enumerable: false
+    },
+    db: {
+      get: function() {
+        return db;
+      },
+      enumerable: false
+    },
+    tunnel: {
+      get: function() {
+        return tunnel;
+      },
+      enumerable: false
+    },
+    state: {
+      get: function() {
+        return state;
+      },
+      enumerable: false
+    }
+  });
+
+  return tasks;
 }
 
 function connect(model, done) {
   if (!(model instanceof Connection)) {
     model = new Connection(model);
   }
-  debug('preparing model...');
-  series([
-    validateURL.bind(null, model),
-    loadOptions.bind(null, model)
-  ], function(err, args) {
+
+  var tasks = getTasks(model);
+  async.series(tasks, function(err) {
     if (err) {
-      debug('error preparing model', err);
       return done(err);
     }
-    var url = args[0];
-    var options = args[1];
-    debug('model prepared!  calling driver.connect...');
-    MongoClient.connect(url, options, done);
+    return done(null, tasks.db);
   });
+  return tasks.state;
 }
 
-if (process.env.MONGODB_BACKOFF) {
-  exports = connectWithBackoff;
-} else {
-  exports = connect;
-}
-
-exports.loadOptions = loadOptions;
-exports.validateURL = validateURL;
-exports.connectWithBackoff = connectWithBackoff;
-exports.connect = connect;
-
-
-module.exports = exports;
+module.exports = connect;
+module.exports.loadOptions = loadOptions;
+module.exports.validateURL = validateURL;
+module.exports.getTasks = getTasks;

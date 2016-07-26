@@ -17,7 +17,7 @@
   "scripts": {
     "ci": "npm run check && npm test",
     "test": "mocha",
-    "fmt": "mongodb-js-fmt ./*.js ./test/*.js",
+    "fmt": "mongodb-js-fmt ./*.js lib/*.js ./test/*.js",
     "check": "mongodb-js-precommit"
   },
   "precommit": [
@@ -26,11 +26,9 @@
   "dependencies": {
     "ampersand-model": "^8.0.0",
     "ampersand-rest-collection": "^5.0.0",
+    "async": "^2.0.1",
     "debug": "^2.2.0",
-    "lodash.assign": "^4.0.2",
-    "lodash.clone": "^3.0.3",
-    "lodash.contains": "^2.4.3",
-    "lodash.defaults": "^3.1.2",
+    "lodash": "^4.14.0",
     "mongodb-url": "^1.0.2"
   },
   "devDependencies": {
@@ -49,7 +47,6 @@
     "backoff": "^2.4.1",
     "kerberos": "^0.0.20",
     "mongodb": "^2.2.4",
-    "run-parallel": "^1.1.4",
-    "run-series": "^1.1.4"
+    "tunnel-ssh": "^2.1.1"
   }
 }
