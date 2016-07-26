@@ -1,7 +1,7 @@
 {
   "name": "mongodb-js-metrics",
   "description": "Shareable metric recording.",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "scripts": {
     "fmt": "mongodb-js-fmt",
     "check": "mongodb-js-precommit",
@@ -14,7 +14,9 @@
     "url": "git://github.com/mongodb-js/metrics.git"
   },
   "dependency-check": {
-    "ignore": [ "electron" ]
+    "ignore": [
+      "electron"
+    ]
   },
   "dependencies": {
     "ampersand-collection": "^1.5.0",
