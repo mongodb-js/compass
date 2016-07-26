@@ -1,5 +1,6 @@
 var BaseResource = require('./base');
 var async = require('async');
+var os = require('os');
 
 // var debug = require('debug')('mongodb-js-metrics:resources:app');
 
@@ -21,6 +22,13 @@ module.exports = BaseResource.extend({
     appStage: {
       type: 'string',
       required: false
+    },
+    osRelease: {
+      type: 'string',
+      required: false,
+      default: function() {
+        return os.release();
+      }
     },
     startTime: {
       type: 'date',
@@ -88,7 +96,8 @@ module.exports = BaseResource.extend({
     var options = {
       name: this.appName,
       version: this.appVersion,
-      platform: this.appPlatform
+      platform: this.appPlatform,
+      osRelease: this.osRelease
     };
     this._send_event(options, callback);
   },
@@ -108,7 +117,8 @@ module.exports = BaseResource.extend({
       version: this.appVersion,
       platform: this.appPlatform,
       exitCode: exitCode || 0,
-      minutesSinceStart: minutesSinceStart
+      minutesSinceStart: minutesSinceStart,
+      osRelease: this.osRelease
     };
     this._send_event(options, callback);
   },
@@ -126,7 +136,8 @@ module.exports = BaseResource.extend({
       name: this.appName,
       previousVersion: previousVersion,
       version: this.appVersion,
-      platform: this.appPlatform
+      platform: this.appPlatform,
+      osRelease: this.osRelease
     };
     this._send_event(options, callback);
   }
