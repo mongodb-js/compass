@@ -81,16 +81,10 @@ describe('Compass', function() {
           );
         });
 
-        it('displays the schema sample for the collection', function() {
-          return client
-            .waitForStatusBar()
-            .getText('div#document_count').should.eventually.be.equal('4')
-            .getText('div#index_count').should.eventually.be.equal('1');
-        });
-
         context('when applying a filter', function() {
           it('samples the matching documents', function() {
             return client
+              .waitForStatusBar()
               .refineSample('{ "name":"Arca" }')
               .waitForStatusBar()
               .getText('div.sampling-message b').should.eventually.include('1');
