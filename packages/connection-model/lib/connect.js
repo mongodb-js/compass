@@ -7,8 +7,6 @@ var Connection = require('./model');
 var createSSHTunnel = require('./ssh-tunnel');
 var EventEmitter = require('events').EventEmitter;
 
-var debug = require('debug')('mongodb-connection-model:connect');
-
 function needToLoadSSLFiles(model) {
   return !_.includes(['NONE', 'UNVALIDATED'], model.ssl);
 }
