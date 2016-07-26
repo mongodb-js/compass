@@ -10,7 +10,9 @@ var DataService = require('../lib/data-service');
 describe('DataService', function() {
   var service = new DataService(helper.connection);
 
-  before(require('mongodb-runner/mocha/before')({ port: 27018 }));
+  before(require('mongodb-runner/mocha/before')({
+    port: 27018
+  }));
   after(require('mongodb-runner/mocha/after')());
 
   before(function(done) {
@@ -19,11 +21,17 @@ describe('DataService', function() {
 
   describe('#deleteOne', function() {
     it('deletes the document from the collection', function(done) {
-      service.insertOne('data-service.test', { a: 500 }, {}, function(err) {
+      service.insertOne('data-service.test', {
+        a: 500
+      }, {}, function(err) {
         assert.equal(null, err);
-        service.deleteOne('data-service.test', { a: 500 }, {}, function(er) {
+        service.deleteOne('data-service.test', {
+          a: 500
+        }, {}, function(er) {
           assert.equal(null, er);
-          service.find('data-service.test', { a: 500 }, {}, function(error, docs) {
+          service.find('data-service.test', {
+            a: 500
+          }, {}, function(error, docs) {
             assert.equal(null, error);
             expect(docs.length).to.equal(0);
             done();
@@ -35,11 +43,17 @@ describe('DataService', function() {
 
   describe('#deleteMany', function() {
     it('deletes the document from the collection', function(done) {
-      service.insertOne('data-service.test', { a: 500 }, {}, function(err) {
+      service.insertOne('data-service.test', {
+        a: 500
+      }, {}, function(err) {
         assert.equal(null, err);
-        service.deleteMany('data-service.test', { a: 500 }, {}, function(er) {
+        service.deleteMany('data-service.test', {
+          a: 500
+        }, {}, function(er) {
           assert.equal(null, er);
-          service.find('data-service.test', { a: 500 }, {}, function(error, docs) {
+          service.find('data-service.test', {
+            a: 500
+          }, {}, function(error, docs) {
             assert.equal(null, error);
             expect(docs.length).to.equal(0);
             done();
@@ -63,7 +77,9 @@ describe('DataService', function() {
     });
 
     it('returns a cursor for the documents', function(done) {
-      service.find('data-service.test', {}, { skip: 1 }, function(error, docs) {
+      service.find('data-service.test', {}, {
+        skip: 1
+      }, function(error, docs) {
         assert.equal(null, error);
         expect(docs.length).to.equal(1);
         done();
@@ -81,16 +97,24 @@ describe('DataService', function() {
     var id = new ObjectId();
 
     it('returns the updated document', function(done) {
-      service.insertOne('data-service.test', { _id: id, a: 500 }, {}, function(err) {
+      service.insertOne('data-service.test', {
+        _id: id,
+        a: 500
+      }, {}, function(err) {
         assert.equal(null, err);
         service.findOneAndReplace(
           'data-service.test',
-          { _id: id },
-          { b: 5 },
-          { returnOriginal: false },
-          function(error, result) {
+          {
+            _id: id
+          },
+          {
+            b: 5
+          },
+          {
+            returnOriginal: false
+          }, function(error, result) {
             expect(error).to.equal(null);
-            expect(result._id).to.deep.equal(id);
+            expect(result._id.toString()).to.deep.equal(id.toString());
             expect(result.b).to.equal(5);
             expect(result.hasOwnProperty('a')).to.equal(false);
             done();
@@ -114,7 +138,9 @@ describe('DataService', function() {
   describe('#count', function() {
     context('when a filter is provided', function() {
       it('returns a count for the matching documents', function(done) {
-        service.count('data-service.test', { a: 1 }, {}, function(error, count) {
+        service.count('data-service.test', {
+          a: 1
+        }, {}, function(error, count) {
           assert.equal(null, error);
           expect(count).to.equal(0);
           done();
@@ -228,9 +254,13 @@ describe('DataService', function() {
     });
 
     it('inserts the document into the collection', function(done) {
-      service.insertOne('data-service.test', { a: 500 }, {}, function(err) {
+      service.insertOne('data-service.test', {
+        a: 500
+      }, {}, function(err) {
         assert.equal(null, err);
-        service.find('data-service.test', { a: 500 }, {}, function(error, docs) {
+        service.find('data-service.test', {
+          a: 500
+        }, {}, function(error, docs) {
           assert.equal(null, error);
           expect(docs.length).to.equal(1);
           done();
@@ -247,9 +277,15 @@ describe('DataService', function() {
     });
 
     it('inserts the documents into the collection', function(done) {
-      service.insertMany('data-service.test', [{ a: 500 }, { a: 500 }], {}, function(err) {
+      service.insertMany('data-service.test', [{
+        a: 500
+      }, {
+        a: 500
+      }], {}, function(err) {
         assert.equal(null, err);
-        service.find('data-service.test', { a: 500 }, {}, function(error, docs) {
+        service.find('data-service.test', {
+          a: 500
+        }, {}, function(error, docs) {
           assert.equal(null, error);
           expect(docs.length).to.equal(2);
           done();
@@ -295,11 +331,21 @@ describe('DataService', function() {
     });
 
     it('updates the document', function(done) {
-      service.insertOne('data-service.test', { a: 500 }, {}, function(err) {
+      service.insertOne('data-service.test', {
+        a: 500
+      }, {}, function(err) {
         assert.equal(null, err);
-        service.updateOne('data-service.test', { a: 500 }, { '$set': { a: 600 }}, {}, function(er) {
+        service.updateOne('data-service.test', {
+          a: 500
+        }, {
+          $set: {
+            a: 600
+          }
+        }, {}, function(er) {
           assert.equal(null, er);
-          service.find('data-service.test', { a: 600 }, {}, function(error, docs) {
+          service.find('data-service.test', {
+            a: 600
+          }, {}, function(error, docs) {
             assert.equal(null, error);
             expect(docs.length).to.equal(1);
             done();
@@ -317,11 +363,23 @@ describe('DataService', function() {
     });
 
     it('updates the documents', function(done) {
-      service.insertMany('data-service.test', [{ a: 500 }, { a: 500 }], {}, function(err) {
+      service.insertMany('data-service.test', [{
+        a: 500
+      }, {
+        a: 500
+      }], {}, function(err) {
         assert.equal(null, err);
-        service.updateMany('data-service.test', { a: 500 }, { '$set': { a: 600 }}, {}, function(er) {
+        service.updateMany('data-service.test', {
+          a: 500
+        }, {
+          $set: {
+            a: 600
+          }
+        }, {}, function(er) {
           assert.equal(null, er);
-          service.find('data-service.test', { a: 600 }, {}, function(error, docs) {
+          service.find('data-service.test', {
+            a: 600
+          }, {}, function(error, docs) {
             assert.equal(null, error);
             expect(docs.length).to.equal(2);
             done();

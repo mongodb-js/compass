@@ -2,18 +2,8 @@
 
 const debug = require('debug')('mongodb-data-service:data-service');
 const NativeClient = require('./native-client');
-const SshTunnelConnector = require('./ssh-tunnel-connector');
 const Router = require('./router');
 const EventEmitter = require('events');
-
-/**
- * Constants for generated events.
- */
-const Events = {
-  Connecting: 'DataService:Connecting',
-  Readable: 'DataService:Readable',
-  Error: 'DataService:Error'
-};
 
 /**
  * Instantiate a new DataService object.
@@ -31,21 +21,8 @@ class DataService extends EventEmitter {
    */
   constructor(model) {
     super();
-    this.connector = new SshTunnelConnector(model.ssh_tunnel_options);
-    this.client = new NativeClient(model);
+    this.client = new NativeClient(model).on('status', (evt) => this.emit('status', evt));
     this.router = new Router();
-
-    this.connector.on(SshTunnelConnector.Events.Connecting, (message) => {
-      process.nextTick(() => {
-        this.emit(Events.Connecting, message);
-      });
-    });
-
-    this.connector.on(SshTunnelConnector.Events.Error, (message) => {
-      process.nextTick(() => {
-        this.emit(Events.Error, message);
-      });
-    });
   }
 
   /**
@@ -63,21 +40,16 @@ class DataService extends EventEmitter {
   /**
    * Connect to the server.
    *
-   * @param {function} callback - The callback function.
+   * @param {function} done - The callback function.
    */
-  connect(callback) {
-    debug('Connecting to MongoDB.');
-    this.connector.connect((tunnelError) => {
-      if (tunnelError) {
-        return callback(tunnelError, this);
+  connect(done) {
+    debug('Connecting...');
+    this.client.connect((err) => {
+      if (err) {
+        return done(err);
       }
-      this.client.connect((error) => {
-        debug('Data Service is readable.');
-        process.nextTick(() => {
-          this.emit(Events.Readable);
-        });
-        return callback(error, this);
-      });
+      done(null, this);
+      this.emit('readable');
     });
   }
 
@@ -337,4 +309,3 @@ class DataService extends EventEmitter {
 }
 
 module.exports = DataService;
-module.exports.Events = Events;

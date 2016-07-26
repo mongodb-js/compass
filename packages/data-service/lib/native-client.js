@@ -2,17 +2,19 @@
 
 const _ = require('lodash');
 const async = require('async');
-const createConnection = require('mongodb-connection-model').connect;
+const EventEmitter = require('events');
+const connect = require('mongodb-connection-model').connect;
 const getInstance = require('mongodb-instance-model').get;
 const getIndexes = require('mongodb-index-model').fetch;
 const createSampleStream = require('mongodb-collection-sample');
 const parseNamespace = require('mongodb-ns');
 const translate = require('mongodb-js-errors').translate;
+const debug = require('debug')('mongodb-data-service:native-client');
 
 /**
  * The native client class.
  */
-class NativeClient {
+class NativeClient extends EventEmitter {
 
   /**
    * Instantiate a new NativeClient object.
@@ -21,19 +23,28 @@ class NativeClient {
    * @param {Connection} model - The Connection model.
    */
   constructor(model) {
+    super();
     this.model = model;
   }
 
   /**
    * Connect to the server.
    *
-   * @param {function} callback - The callback function.
+   * @param {function} done - The callback function.
+   * @return {NativeClient}
    */
-  connect(callback) {
-    createConnection(this.model, (error, database) => {
+  connect(done) {
+    debug('connecting...');
+    this.client = connect(this.model, (err, database) => {
+      if (err) {
+        return done(this._translateMessage(err));
+      }
+      debug('connected!');
       this.database = database;
-      callback(this._translateMessage(error), this);
+      done(null, this);
     });
+    this.client.on('status', (evt) => this.emit('status', evt));
+    return this;
   }
 
   /**
