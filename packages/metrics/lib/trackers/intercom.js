@@ -7,7 +7,7 @@ var redact = require('mongodb-redact');
 var sentenceCase = require('../shared').sentenceCase;
 
 var os = (typeof window === 'undefined') ?
-  require('os') : window.require('remote').require('os');
+  require('os') : require('electron').remote.require('os');
 
 var IntercomTracker = State.extend({
   id: 'intercom',

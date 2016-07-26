@@ -13,6 +13,9 @@
     "type": "git",
     "url": "git://github.com/mongodb-js/metrics.git"
   },
+  "dependency-check": {
+    "ignore": [ "electron" ]
+  },
   "dependencies": {
     "ampersand-collection": "^1.5.0",
     "ampersand-collection-lodash-mixin": "^2.0.1",

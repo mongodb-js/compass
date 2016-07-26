@@ -1,7 +1,7 @@
 var BaseResource = require('./base');
 var _ = require('lodash');
 var os = (typeof window === 'undefined') ?
-  require('os') : window.require('remote').require('os');
+  require('os') : require('electron').remote.require('os');
 
 // var debug = require('debug')('mongodb-js-metrics:resources:app');
 
