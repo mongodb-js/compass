@@ -276,7 +276,7 @@ This will log the following events to the console:
 >>> status: { message: 'Validate', pending: true }
 >>> status: { message: 'Validate', complete: true }
 >>> status: { message: 'Load SSL files', pending: true }
->>> status: { message: 'Load SSL files', skip: true,
+>>> status: { message: 'Load SSL files', skipped: true,
   reason: 'The selected SSL mode does not need to load any files.' }
 >>> status: { message: 'Create SSH Tunnel', pending: true }
 >>> status: { message: 'Create SSH Tunnel', complete: true}
@@ -308,7 +308,7 @@ This will log the following events to the console:
 >>> status: { message: 'Load SSL files', pending: true }
 >>> status: { message: 'Load SSL files', complete: true}
 >>> status: { message: 'Create SSH Tunnel', pending: true }
->>> status: { message: 'Create SSH Tunnel', skip: true,
+>>> status: { message: 'Create SSH Tunnel', skipped: true,
   reason: 'The selected SSH Tunnel mode is NONE.'}
 >>> status: { message: 'Connect to MongoDB', pending: true }
 >>> status: { message: 'Connect to MongoDB', complete: true }

@@ -88,7 +88,7 @@ function getStatusStateString(evt) {
     return 'PENDING';
   }
 
-  if (evt.skip) {
+  if (evt.skipped) {
     return 'SKIPPED';
   }
 
@@ -138,7 +138,7 @@ function getTasks(model) {
     ctx.skip = function(reason) {
       state.emit('status', {
         message: message,
-        skip: true,
+        skipped: true,
         reason: reason
       });
       if (cb) {
