@@ -36,7 +36,7 @@ It's useful to think of the remaining properties as two primary traits: `authent
 <a name="authentication"></a>
 ### Trait: Authentication
 
-- `authentication` (optional, String) ... The desired authetication strategy [Default: `NONE`]
+- `authentication` (optional, String) ... The desired authentication strategy [Default: `NONE`]
   - `NONE` Use no authentication.
   - `MONGODB` Allow the driver to auto-detect and select SCRAM-SHA-1 or MONGODB-CR depending on server capabilities.
   - `KERBEROS`
@@ -184,19 +184,30 @@ console.log(c.driver_options)
 
 #### S1. NONE
 
-Do not use SSL for anything. (Default)
+Do not use SSL for anything.
 
 #### S2. UNVALIDATED
 
 Use SSL but do not perform any validation of the certificate chain.
 
+See also [node.js driver "No Certificate Validation" docs][driver-ssl-none].
+
 #### S3. SERVER
 
 The driver should validate the server certificate and fail to connect if validation fails.
 
+See also [node.js driver "Validate Server Certificate" docs][driver-ssl-server].
+
 #### S4. ALL
 
 The driver must present a valid certificate and validate the server certificate.
+
+See also [node.js driver "Validate Server Certificate and Present Valid Certificate" docs][driver-ssl-all].
+
+##### See also
+
+- [node.js driver SSL implementation][driver-ssl-impl]
+- [node.js driver SSL tutorial][driver-ssl-tutorial]
 
 ### Trait: SSH Tunnel
 
@@ -334,3 +345,8 @@ Apache 2.0
 [ns]: https://github.com/mongodb-js/ns
 [sf-ssh-tunnel]: http://serverfault.com/questions/597765/how-to-connect-to-mongodb-server-via-ssh-tunnel
 [ec2-key-pairs]: http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html
+[driver-ssl-impl]: https://github.com/christkv/mongodb-core/blob/c3d21cb636d74d7a68134ecd3b9f6af536311279/lib/connection/connection.js#L365-L407
+[driver-ssl-tutorial]: http://mongodb.github.io/node-mongodb-native/2.2/tutorials/connect/ssl/
+[driver-ssl-none]: http://mongodb.github.io/node-mongodb-native/2.2/tutorials/connect/ssl/#no-certificate-validation
+[driver-ssl-server]: http://mongodb.github.io/node-mongodb-native/2.2/tutorials/connect/ssl/#validate-server-certificate
+[driver-ssl-all]: http://mongodb.github.io/node-mongodb-native/2.2/tutorials/connect/ssl/#validate-server-certificate-and-present-valid-certificate
