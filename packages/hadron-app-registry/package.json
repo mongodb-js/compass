@@ -1,13 +1,13 @@
 {
-  "name": "hadron-component-registry",
-  "description": "Hadron Component Registry",
+  "name": "hadron-app-registry",
+  "description": "Hadron App Registry",
   "author": "Durran Jordan <durran@gmail.com>",
-  "bugs": "https://github.com/mongodb-js/hadron-component-registry/issues",
-  "homepage": "https://github.com/mongodb-js/hadron-component-registry",
-  "version": "0.4.0",
+  "bugs": "https://github.com/mongodb-js/hadron-app-registry/issues",
+  "homepage": "https://github.com/mongodb-js/hadron-app-registry",
+  "version": "1.0.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mongodb-js/hadron-component-registry.git"
+    "url": "https://github.com/mongodb-js/hadron-app-registry.git"
   },
   "license": "Apache-2.0",
   "keywords": [
@@ -18,7 +18,8 @@
     "fmt": "mongodb-js-fmt ./*.js ./test/*.js",
     "prepublish": "babel ./src --out-dir ./lib --presets react",
     "pretest": "babel ./src --out-dir ./lib --presets react",
-    "test": "mocha --recursive"
+    "test": "mocha --recursive",
+    "check": "mongodb-js-precommit"
   },
   "precommit": [
     "check"
@@ -27,7 +28,6 @@
     "babel-preset-react": "^6.5.0",
     "babel-register": "^6.5.2",
     "debug": "^2.2.0",
-    "hadron-action": "0.0.1",
     "hadron-type-checker": "^0.1.0",
     "lodash": "^4.6.1",
     "moment": "^2.13.0",

@@ -1,8 +1,9 @@
 'use strict';
 
-const ComponentRegistry = require('./lib/component-registry');
-module.exports = ComponentRegistry;
-module.exports.ComponentRegistry = ComponentRegistry;
+const AppRegistry = require('./lib/app-registry');
+module.exports = AppRegistry;
+module.exports.AppRegistry = AppRegistry;
+module.exports.Actions = require('./lib/actions');
 module.exports.ArrayElement = require('./lib/component/element/array-element');
 module.exports.DateElement = require('./lib/component/element/date-element');
 module.exports.ObjectElement = require('./lib/component/element/object-element');
