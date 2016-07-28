@@ -1,7 +1,7 @@
 'use strict';
 
 const React = require('react');
-const truncate = require('hadron-component-registry').truncate;
+const truncate = require('hadron-app-registry').truncate;
 
 /**
  * The document value class.

@@ -18,7 +18,7 @@ var DocumentListView = View.extend({
     }
   },
   initialize: function() {
-    this.documentList = app.componentRegistry.findByRole('Collection:DocumentList')[0];
+    this.documentList = app.appRegistry.getComponent('Component::CRUD::DocumentList');
     this.listenTo(app.queryOptions, 'change:query', this.onQueryChanged.bind(this));
   },
   onQueryChanged: function() {
