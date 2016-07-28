@@ -1,7 +1,7 @@
 'use strict';
 
 const React = require('react');
-const truncate = require('hadron-app-registry').truncate;
+const truncate = require('hadron-component-registry').truncate;
 
 /**
  * Base 64 constant.

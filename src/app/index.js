@@ -11,7 +11,7 @@ var ModuleCache = require('hadron-module-cache');
 ModuleCache.register(resourcePath);
 ModuleCache.add(resourcePath);
 
-var AppRegistry = require('hadron-app-registry');
+var ComponentRegistry = require('hadron-component-registry');
 var PackageManager = require('hadron-package-manager').PackageManager;
 
 var pkg = require('../../package.json');
@@ -73,7 +73,7 @@ var debug = require('debug')('mongodb-compass:app');
 //   order to ensure that the compile cache has already been loaded and
 //   hooked into require.extensions. Otherwise, packages will not have
 //   use of the compile cache.
-app.appRegistry = new AppRegistry();
+app.componentRegistry = new ComponentRegistry();
 app.packageManager = new PackageManager(path.join(__dirname, '..', 'internal-packages'));
 app.packageManager.activate();
 
