@@ -3,7 +3,7 @@
 const _ = require('lodash');
 const React = require('react');
 const inputSize = require('./utils').inputSize;
-const ElementFactory = require('hadron-component-registry').ElementFactory;
+const ElementFactory = require('hadron-app-registry').ElementFactory;
 const TypeChecker = require('hadron-type-checker');
 
 /**
