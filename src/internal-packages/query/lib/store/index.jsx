@@ -1,8 +1,8 @@
+const app = require('ampersand-app');
 const Reflux = require('reflux');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const StateMixin = require('reflux-state-mixin');
-const QueryActions = require('../action');
-const SchemaActions = require('../../../schema/lib/action');
+const QueryAction = require('../action');
 const EJSON = require('mongodb-extended-json');
 const Query = require('mongodb-language-model').Query;
 const _ = require('lodash');
@@ -17,7 +17,7 @@ const debug = require('debug')('mongodb-compass:stores:query');
  */
 const QueryStore = Reflux.createStore({
   mixins: [StateMixin.store],
-  listenables: QueryActions,
+  listenables: QueryAction,
 
   /**
    * listen to Namespace store and reset if ns changes.
@@ -339,7 +339,8 @@ const QueryStore = Reflux.createStore({
         lastExecutedQuery: _.clone(this.state.query)
       });
       // start queries for all tabs: schema, documents, explain, indexes
-      SchemaActions.startSampling();
+      const SchemaAction = app.appRegistry.getAction('SchemaAction');
+      SchemaAction.startSampling();
     }
   },
 
@@ -350,7 +351,7 @@ const QueryStore = Reflux.createStore({
     if (!_.isEqual(this.state.query, {})) {
       this.setQuery({});
       if (!_.isEqual(this.state.lastExecutedQuery, {})) {
-        QueryActions.apply();
+        QueryAction.apply();
       }
     }
   },

@@ -1,5 +1,5 @@
 const React = require('react');
-const QueryActions = require('../action');
+const QueryAction = require('../action');
 const EJSON = require('mongodb-extended-json');
 
 // const debug = require('debug')('mongodb-compass:query-bar');
@@ -16,7 +16,7 @@ const QueryInputGroup = React.createClass({
   },
 
   onChange(evt) {
-    QueryActions.setQueryString(evt.target.value);
+    QueryAction.setQueryString(evt.target.value);
   },
 
   onApplyButtonClicked(evt) {
@@ -24,12 +24,12 @@ const QueryInputGroup = React.createClass({
     evt.stopPropagation();
 
     if (this.props.valid) {
-      QueryActions.apply();
+      QueryAction.apply();
     }
   },
 
   onResetButtonClicked() {
-    QueryActions.reset();
+    QueryAction.reset();
   },
 
   /**
