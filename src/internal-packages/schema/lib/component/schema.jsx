@@ -1,10 +1,9 @@
 const app = require('ampersand-app');
 const React = require('react');
-const SchemaStore = require('../store/schema-store');
+const SchemaStore = require('../store');
 const StateMixin = require('reflux-state-mixin');
 const Field = require('./field');
 const StatusSubview = require('../component/status-subview');
-const StatusStore = require('../../../status/lib/stores/status-store');
 const _ = require('lodash');
 
 // const debug = require('debug')('mongodb-compass:schema');
@@ -54,6 +53,7 @@ const Schema = React.createClass({
     } else if (progress >= 0 && progress < 100 && progress % 5 === 1) {
       if (this.trickleStop === null) {
         // remember where trickling stopped to calculate remaining progress
+        const StatusStore = app.appRegistry.getStore('StatusStore');
         this.trickleStop = StatusStore.state.progress;
       }
       const newProgress = Math.ceil(this.trickleStop + (100 - this.trickleStop) / 100 * progress);

@@ -4,7 +4,7 @@ const ButtonsWaiting = require('./buttons-waiting');
 const StateMixin = require('reflux-state-mixin');
 const ButtonsError = require('./buttons-error');
 
-const SchemaStore = require('../../store/schema-store');
+const SchemaStore = require('../../store');
 const SchemaSteps = require('./steps');
 
 // const debug = require('debug')('mongodb-compass:schema:status-subview');
