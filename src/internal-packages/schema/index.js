@@ -1,13 +1,17 @@
 'use strict';
 
 const app = require('ampersand-app');
-const Schema = require('./lib/component/schema');
+const SchemaComponent = require('./lib/component/schema');
+const SchemaAction = require('./lib/action');
+const SchemaStore = require('./lib/store/schema-store');
 
 /**
  * Activate all the components in the CRUD package.
  */
 function activate() {
-  app.appRegistry.registerComponent('Collection:Schema', Schema);
+  app.appRegistry.registerComponent('Collection:Schema', SchemaComponent);
+  app.appRegistry.registerAction('SchemaAction', SchemaAction);
+  app.appRegistry.registerStore('SchemaStore', SchemaStore);
 }
 
 /**
@@ -15,6 +19,8 @@ function activate() {
  */
 function deactivate() {
   app.appRegistry.deregisterComponent('Collection:Schema');
+  app.appRegistry.deregisterAction('SchemaAction');
+  app.appRegistry.deregisterStore('SchemaStore');
 }
 
 module.exports.activate = activate;

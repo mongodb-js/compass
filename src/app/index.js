@@ -55,8 +55,6 @@ var migrateApp = require('./migrations');
 var metricsSetup = require('./metrics');
 var metrics = require('mongodb-js-metrics')();
 
-var StatusActions = require('../internal-packages/status/lib/actions');
-
 var React = require('react');
 var ReactDOM = require('react-dom');
 var AutoUpdate = require('../auto-update');
@@ -258,7 +256,8 @@ var Application = View.extend({
       pushState: false,
       root: '/'
     });
-    StatusActions.hide();
+    var StatusAction = app.appRegistry.getAction('StatusAction');
+    StatusAction.hide();
   },
   onFatalError: function(id, err) {
     debug('clearing client stall timeout...');
@@ -266,7 +265,8 @@ var Application = View.extend({
 
     console.error('Fatal Error!: ', id, err);
     metrics.error(err);
-    StatusActions.setMessage(err);
+    var StatusAction = app.appRegistry.getAction('StatusAction');
+    StatusAction.setMessage(err);
   },
   // ms we'll wait for a `mongodb-scope-client` instance
   // to become readable before giving up and showing
@@ -383,8 +383,9 @@ app.extend({
       state.startRouter();
       return;
     }
-
-    StatusActions.configure({
+    var StatusAction = app.appRegistry.getAction('StatusAction');
+    StatusAction.configure({
+      visible: true,
       message: 'Retrieving connection details...',
       progressbar: true,
       progress: 100,
@@ -401,7 +402,7 @@ app.extend({
         state.onFatalError('fetch connection', err);
         return;
       }
-      StatusActions.setMessage('Connecting to MongoDB...');
+      StatusAction.setMessage('Connecting to MongoDB...');
 
       var DataService = require('mongodb-data-service');
       app.dataService = new DataService(state.connection)

@@ -1,11 +1,10 @@
+const app = require('ampersand-app');
 const React = require('react');
 const SchemaStore = require('../store/schema-store');
 const StateMixin = require('reflux-state-mixin');
 const Field = require('./field');
 const StatusSubview = require('../component/status-subview');
 const StatusStore = require('../../../status/lib/stores/status-store');
-const StatusActions = require('../../../status/lib/actions');
-
 const _ = require('lodash');
 
 // const debug = require('debug')('mongodb-compass:schema');
@@ -19,6 +18,10 @@ const Schema = React.createClass({
     StateMixin.connect(SchemaStore)
   ],
 
+  componentWillMount() {
+    this.StatusAction = app.appRegistry.getAction('StatusAction');
+  },
+
   shouldComponentUpdate() {
     // @todo optimize this
     return true;
@@ -31,7 +34,7 @@ const Schema = React.createClass({
    */
   _updateProgressBar() {
     if (this.state.samplingState === 'error') {
-      StatusActions.configure({
+      this.StatusAction.configure({
         progressbar: false,
         animation: false
       });
@@ -40,7 +43,7 @@ const Schema = React.createClass({
     // initial schema phase, cannot measure progress, enable trickling
     if (this.state.samplingProgress === -1) {
       this.trickleStop = null;
-      StatusActions.configure({
+      this.StatusAction.configure({
         visible: true,
         progressbar: true,
         progress: 0,
@@ -54,7 +57,7 @@ const Schema = React.createClass({
         this.trickleStop = StatusStore.state.progress;
       }
       const newProgress = Math.ceil(this.trickleStop + (100 - this.trickleStop) / 100 * progress);
-      StatusActions.configure({
+      this.StatusAction.configure({
         visible: true,
         trickle: false,
         animation: true,
@@ -63,7 +66,7 @@ const Schema = React.createClass({
         progress: newProgress
       });
     } else if (progress === 100) {
-      StatusActions.done();
+      this.StatusAction.done();
     }
   },
 
