@@ -7,6 +7,7 @@ const EJSON = require('mongodb-extended-json');
 const Query = require('mongodb-language-model').Query;
 const _ = require('lodash');
 const hasDistinctValue = require('../util').hasDistinctValue;
+const filterChanged = require('hadron-action').filterChanged;
 const bsonEqual = require('../util').bsonEqual;
 
 const debug = require('debug')('mongodb-compass:stores:query');
@@ -341,6 +342,7 @@ const QueryStore = Reflux.createStore({
       // start queries for all tabs: schema, documents, explain, indexes
       const SchemaAction = app.appRegistry.getAction('SchemaAction');
       SchemaAction.startSampling();
+      filterChanged(this.state.query);
     }
   },
 
