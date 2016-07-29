@@ -3,7 +3,7 @@
 const app = require('ampersand-app');
 const SchemaComponent = require('./lib/component/schema');
 const SchemaAction = require('./lib/action');
-const SchemaStore = require('./lib/store/schema-store');
+const SchemaStore = require('./lib/store');
 
 /**
  * Activate all the components in the CRUD package.
