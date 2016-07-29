@@ -1,5 +1,5 @@
 const Reflux = require('reflux');
-const StatusActions = require('../actions');
+const StatusAction = require('../actions');
 const StateMixin = require('reflux-state-mixin');
 const _ = require('lodash');
 
@@ -21,7 +21,7 @@ const debug = require('debug')('mongodb-compass:stores:status');
 const StatusStore = Reflux.createStore({
   // adds a state to the store, similar to React.Component's state
   mixins: [StateMixin.store],
-  listenables: StatusActions,
+  listenables: StatusAction,
 
   init() {
     this._trickleTimer = null;

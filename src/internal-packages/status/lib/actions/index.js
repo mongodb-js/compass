@@ -1,6 +1,6 @@
 const Reflux = require('reflux');
 
-const StatusActions = Reflux.createActions([
+const StatusAction = Reflux.createActions([
   /**
    * shows the progress bar.
    */
@@ -109,4 +109,4 @@ const StatusActions = Reflux.createActions([
   'done'
 ]);
 
-module.exports = StatusActions;
+module.exports = StatusAction;

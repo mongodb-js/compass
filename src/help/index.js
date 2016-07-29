@@ -6,7 +6,6 @@ var HelpEntryCollection = require('./help-entry-collection');
 var HelpEntry = require('./help-entry');
 var SidebarView = require('../app/sidebar');
 var ViewSwitcher = require('ampersand-view-switcher');
-var StatusActions = require('../../internal-packages/status/lib/actions');
 var app = require('ampersand-app');
 var metrics = require('mongodb-js-metrics')();
 var _ = require('lodash');
@@ -16,6 +15,8 @@ var relatedTemplate = require('./related.jade');
 var tagsTemplate = require('./tags.jade');
 
 var entries = new HelpEntryCollection();
+
+var StatusAction = app.appRegistry.getAction('StatusAction');
 
 var HelpPage = View.extend({
   template: indexTemplate,
@@ -129,11 +130,11 @@ var HelpPage = View.extend({
     if (!entry) {
       debug('Unknown help entry', entryId);
       this.viewSwitcher.clear();
-      StatusActions.setMessage('Help entry not found.');
+      StatusAction.setMessage('Help entry not found.');
       return;
     }
 
-    StatusActions.hide();
+    StatusAction.hide();
 
     if (!entries.select(entry)) {
       debug('already selected');

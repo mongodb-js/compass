@@ -1,7 +1,6 @@
+const app = require('ampersand-app');
 const React = require('react');
 const ms = require('ms');
-const StatusActions = require('../../../../status/lib/actions');
-const SchemaActions = require('../../action');
 
 // const debug = require('debug')('mongodb-compass:schema:status-subview:buttons-error');
 
@@ -15,15 +14,20 @@ const ButtonsError = React.createClass({
     samplingState: React.PropTypes.string.isRequired
   },
 
+  componentWillMount() {
+    this.StatusAction = app.appRegistry.getAction('StatusAction');
+    this.SchemaAction = app.appRegistry.getAction('SchemaAction');
+  },
+
   onTryAgainButtonClick() {
     // increase maxTimeMS and sample again
-    SchemaActions.setMaxTimeMS(RETRY_INC_MAXTIMEMS_VALUE);
-    SchemaActions.startSampling();
+    this.SchemaAction.setMaxTimeMS(RETRY_INC_MAXTIMEMS_VALUE);
+    this.SchemaAction.startSampling();
   },
 
   onNewQueryButtonClick() {
     // dismiss status view
-    StatusActions.hide();
+    this.StatusAction.hide();
   },
 
   /**
