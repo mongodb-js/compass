@@ -1,16 +1,18 @@
 /* eslint no-use-before-define: 0, camelcase:0 */
+const app = require('ampersand-app');
 const d3 = require('d3');
 const _ = require('lodash');
 const $ = require('jquery');
 const moment = require('moment');
 const shared = require('./shared');
 const many = require('./many');
-const QueryBuilderAction = require('../../../query/lib/action');
 const inValueRange = require('../../../query/lib/util').inValueRange;
 
 // const debug = require('debug')('mongodb-compass:minicharts:date');
 
 require('./d3-tip')(d3);
+
+const QueryAction = app.appRegistry.getAction('QueryAction');
 
 function generateDefaults(n) {
   const doc = {};
@@ -91,7 +93,7 @@ const minicharts_d3fns_date = function() {
       // number of selected items has changed, trigger querybuilder event
       if (selected[0].length === 0) {
         // clear value
-        QueryBuilderAction.clearValue({
+        QueryAction.clearValue({
           field: options.fieldName
         });
         return;
@@ -107,14 +109,14 @@ const minicharts_d3fns_date = function() {
 
     if (_.isEqual(minValue.ts, maxValue.ts)) {
       // if values are the same, single equality query
-      QueryBuilderAction.setValue({
+      QueryAction.setValue({
         field: options.fieldName,
         value: minValue.value
       });
       return;
     }
     // binned values, build range query with $gte and $lte
-    QueryBuilderAction.setRangeValues({
+    QueryAction.setRangeValues({
       field: options.fieldName,
       min: minValue.value,
       max: maxValue.value,
@@ -135,7 +137,7 @@ const minicharts_d3fns_date = function() {
     if (d3.event.shiftKey && lastNonShiftRangeValue) {
       const minVal = d.ts < lastNonShiftRangeValue.ts ? d.value : lastNonShiftRangeValue.value;
       const maxVal = d.ts > lastNonShiftRangeValue.ts ? d.value : lastNonShiftRangeValue.value;
-      QueryBuilderAction.setRangeValues({
+      QueryAction.setRangeValues({
         field: options.fieldName,
         min: minVal,
         max: maxVal,
@@ -144,7 +146,7 @@ const minicharts_d3fns_date = function() {
     } else {
       // remember non-shift value so that range can be extended with shift
       lastNonShiftRangeValue = d;
-      QueryBuilderAction.setValue({
+      QueryAction.setValue({
         field: options.fieldName,
         value: d.value,
         unsetIfSet: true

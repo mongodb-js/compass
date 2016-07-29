@@ -1,15 +1,17 @@
 /* eslint no-use-before-define: 0, camelcase: 0 */
+const app = require('ampersand-app');
 const d3 = require('d3');
 const $ = require('jquery');
 const _ = require('lodash');
 const shared = require('./shared');
-const QueryBuilderAction = require('../../../query/lib/action');
 const tooltipTemplate = require('./tooltip.jade');
 const hasDistinctValue = require('../../../query/lib/util').hasDistinctValue;
 
 // const debug = require('debug')('mongodb-compass:minicharts:few');
 
 require('./d3-tip')(d3);
+
+const QueryAction = app.appRegistry.getAction('QueryAction');
 
 const minicharts_d3fns_few = function() {
   // --- beginning chart setup ---
@@ -57,7 +59,7 @@ const minicharts_d3fns_few = function() {
     // if selection has changed, trigger query builder event
     if (numSelected !== selected[0].length) {
       const values = _.map(selected.data(), 'value');
-      QueryBuilderAction.setDistinctValues({
+      QueryAction.setDistinctValues({
         field: options.fieldName,
         value: values
       });
@@ -80,7 +82,7 @@ const minicharts_d3fns_few = function() {
 
 
     const qbAction = d3.event.shiftKey ?
-      QueryBuilderAction.toggleDistinctValue : QueryBuilderAction.setValue;
+      QueryAction.toggleDistinctValue : QueryAction.setValue;
     qbAction({
       field: options.fieldName,
       value: d.value,

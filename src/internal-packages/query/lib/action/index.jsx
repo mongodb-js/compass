@@ -1,6 +1,6 @@
 const Reflux = require('reflux');
 
-const QueryBuilderActions = Reflux.createActions({
+const QueryAction = Reflux.createActions({
   /* Generic actions */
 
   /**
@@ -74,4 +74,4 @@ const QueryBuilderActions = Reflux.createActions({
   'reset': {sync: true}
 });
 
-module.exports = QueryBuilderActions;
+module.exports = QueryAction;
