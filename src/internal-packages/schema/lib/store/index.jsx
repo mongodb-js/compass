@@ -184,6 +184,8 @@ const SchemaStore = Reflux.createStore({
         .on('end', () => {
           if (sampleCount > 0 && this.state.samplingState !== 'error') {
             onSuccess(schema.serialize());
+          } else {
+            return onError();
           }
         });
     });

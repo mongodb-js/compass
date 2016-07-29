@@ -37,6 +37,7 @@ const Schema = React.createClass({
         progressbar: false,
         animation: false
       });
+      return;
     }
     const progress = this.state.samplingProgress;
     // initial schema phase, cannot measure progress, enable trickling
