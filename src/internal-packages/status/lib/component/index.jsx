@@ -1,8 +1,8 @@
 const React = require('react');
-const StatusStore = require('../stores/status-store');
+const StatusStore = require('../store');
 const StateMixin = require('reflux-state-mixin');
 
-const debug = require('debug')('mongodb-compass:status');
+// const debug = require('debug')('mongodb-compass:status');
 
 const STATUS_ID = 'statusbar';
 
