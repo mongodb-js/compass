@@ -1,14 +1,13 @@
+const app = require('ampersand-app');
 const React = require('react');
 const UniqueMinichart = require('./unique');
 const _ = require('lodash');
 // const DocumentMinichart = require('./document');
 // const ArrayMinichart = require('./array');
-const QueryStore = require('../../../query/lib/store');
-
 const D3Component = require('./d3component');
 const vizFns = require('../d3');
 
-const debug = require('debug')('mongodb-compass:schema:minichart');
+// const debug = require('debug')('mongodb-compass:schema:minichart');
 
 const Minichart = React.createClass({
 
@@ -37,6 +36,7 @@ const Minichart = React.createClass({
     });
     window.addEventListener('resize', this.handleResize);
 
+    const QueryStore = app.appRegistry.getStore('QueryStore');
     this.unsubscribeQueryStore = QueryStore.listen((store) => {
       this.setState({
         query: store.query

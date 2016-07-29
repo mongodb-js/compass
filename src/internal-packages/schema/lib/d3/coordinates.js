@@ -3,13 +3,14 @@ const d3 = require('d3');
 const _ = require('lodash');
 const shared = require('./shared');
 const app = require('ampersand-app');
-const QueryBuilderAction = require('../../../query/lib/action');
 const turfDistance = require('turf-distance');
 const turfPoint = require('turf-point');
 const turfDestination = require('turf-destination');
 
 // const metrics = require('mongodb-js-metrics')();
 // const debug = require('debug')('mongodb-compass:minicharts:geo');
+
+const QueryAction = app.appRegistry.getAction('QueryAction');
 
 const SELECTED_COLOR = '#F68A1E';
 const UNSELECTED_COLOR = '#43B1E5';
@@ -60,13 +61,13 @@ const minicharts_d3fns_geo = function() {
           turfPoint([circleOuter.lng, circleOuter.lat]),
           'miles'
         );
-        QueryBuilderAction.setGeoWithinValue({
+        QueryAction.setGeoWithinValue({
           field: options.fieldName,
           center: [circleCenter.lng, circleCenter.lat],
           radius: mileDistance / 3963.2
         });
       } else {
-        QueryBuilderAction.clearValue({
+        QueryAction.clearValue({
           field: options.fieldName
         });
       }

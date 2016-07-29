@@ -1,9 +1,9 @@
 /* eslint no-use-before-define: 0, camelcase: 0 */
+const app = require('ampersand-app');
 const d3 = require('d3');
 const $ = require('jquery');
 const _ = require('lodash');
 const shared = require('./shared');
-const QueryBuilderAction = require('../../../query/lib/action');
 const tooltipTemplate = require('./tooltip.jade');
 const hasDistinctValue = require('../../../query/lib/util').hasDistinctValue;
 const inValueRange = require('../../../query/lib/util').inValueRange;
@@ -11,6 +11,8 @@ const inValueRange = require('../../../query/lib/util').inValueRange;
 // const debug = require('debug')('mongodb-compass:minicharts:many');
 
 require('./d3-tip')(d3);
+
+const QueryAction = app.appRegistry.getAction('QueryAction');
 
 const minicharts_d3fns_many = function() {
   // --- beginning chart setup ---
@@ -66,7 +68,7 @@ const minicharts_d3fns_many = function() {
     if (numSelected !== selected[0].length) {
       if (selected[0].length === 0) {
         // clear value
-        QueryBuilderAction.clearValue({
+        QueryAction.clearValue({
           field: options.fieldName
         });
         return;
@@ -74,7 +76,7 @@ const minicharts_d3fns_many = function() {
       // distinct values (strings)
       if (options.selectionType === 'distinct') {
         const values = _.map(selected.data(), 'value');
-        QueryBuilderAction.setDistinctValues({
+        QueryAction.setDistinctValues({
           field: options.fieldName,
           value: values
         });
@@ -90,7 +92,7 @@ const minicharts_d3fns_many = function() {
 
       if (minValue.value === maxValue.value + maxValue.dx) {
         // if not binned and values are the same, single equality query
-        QueryBuilderAction.setValue({
+        QueryAction.setValue({
           field: options.fieldName,
           value: minValue.value
         });
@@ -98,7 +100,7 @@ const minicharts_d3fns_many = function() {
       }
       // binned values, build range query with $gte and $lt (if binned)
       // or $gte and $lte (if not binned)
-      QueryBuilderAction.setRangeValues({
+      QueryAction.setRangeValues({
         field: options.fieldName,
         min: minValue.value,
         max: maxValue.value + maxValue.dx,
@@ -142,14 +144,14 @@ const minicharts_d3fns_many = function() {
     if (options.selectionType === 'distinct') {
       // distinct values, behavior dependent on shift key
       const qbAction = d3.event.shiftKey ?
-        QueryBuilderAction.toggleDistinctValue : QueryBuilderAction.setValue;
+        QueryAction.toggleDistinctValue : QueryAction.setValue;
       qbAction({
         field: options.fieldName,
         value: d.value,
         unsetIfSet: true
       });
     } else if (d3.event.shiftKey && lastNonShiftRangeValue) {
-      QueryBuilderAction.setRangeValues({
+      QueryAction.setRangeValues({
         field: options.fieldName,
         min: Math.min(d.value, lastNonShiftRangeValue.value),
         max: Math.max(d.value + d.dx, lastNonShiftRangeValue.value + lastNonShiftRangeValue.dx),
@@ -160,7 +162,7 @@ const minicharts_d3fns_many = function() {
       lastNonShiftRangeValue = d;
       if (d.dx > 0) {
         // binned bars, turn single value into range
-        QueryBuilderAction.setRangeValues({
+        QueryAction.setRangeValues({
           field: options.fieldName,
           min: d.value,
           max: d.value + d.dx,
@@ -168,7 +170,7 @@ const minicharts_d3fns_many = function() {
         });
       } else {
         // bars don't represent bins, build single value query
-        QueryBuilderAction.setValue({
+        QueryAction.setValue({
           field: options.fieldName,
           value: d.value,
           unsetIfSet: true

@@ -1,7 +1,7 @@
+const app = require('ampersand-app');
 const React = require('react');
 const _ = require('lodash');
 const NativeListener = require('react-native-listener');
-const QueryBuilderAction = require('../../../query/lib/action');
 const hasDistinctValue = require('../../../query/lib/util').hasDistinctValue;
 
 // const debug = require('debug')('mongodb-compass:minichart:unique');
@@ -13,19 +13,10 @@ const ValueBubble = React.createClass({
     query: React.PropTypes.any
   },
 
-  // getInitialState() {
-  //   return {
-  //     selected: false
-  //   };
-  // },
-
   onBubbleClicked(e) {
-    // const newState = !this.state.selected;
-    // this.setState({
-    //   selected: newState
-    // });
+    const QueryAction = app.appRegistry.getAction('QueryAction');
     const action = e.shiftKey ?
-      QueryBuilderAction.toggleDistinctValue : QueryBuilderAction.setValue;
+      QueryAction.toggleDistinctValue : QueryAction.setValue;
     action({
       field: this.props.fieldName,
       value: this.props.value,

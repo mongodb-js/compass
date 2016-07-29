@@ -1,12 +1,11 @@
-const Reflux = require('reflux');
 const app = require('ampersand-app');
+const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
 const Schema = require('mongodb-schema').Schema;
 const _ = require('lodash');
 
 // stores
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
-const QueryStore = require('../../../query/lib/store');
 
 // actions
 const SchemaAction = require('../action');
@@ -91,6 +90,7 @@ const SchemaStore = Reflux.createStore({
    * This function is called when the collection filter changes.
    */
   startSampling() {
+    const QueryStore = app.appRegistry.getStore('QueryStore');
     const query = QueryStore.state.query;
 
     if (_.includes(['counting', 'sampling', 'analyzing'], this.state.samplingState)) {
