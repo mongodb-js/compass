@@ -1,5 +1,5 @@
 const Reflux = require('reflux');
-const StatusAction = require('../actions');
+const StatusAction = require('../action');
 const StateMixin = require('reflux-state-mixin');
 const _ = require('lodash');
 

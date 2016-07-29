@@ -1,9 +1,9 @@
 'use strict';
 
 const app = require('ampersand-app');
-const StatusComponent = require('./lib/components/status');
-const StatusAction = require('./lib/actions');
-const StatusStore = require('./lib/stores/status-store');
+const StatusComponent = require('./lib/component');
+const StatusAction = require('./lib/action');
+const StatusStore = require('./lib/store');
 /**
  * Activate all the components in the CRUD package.
  */
