@@ -326,7 +326,7 @@ var Application = View.extend({
     // });
     // this.statusbar.render();
 
-    this.statusComponent = app.componentRegistry.findByRole('App:Status')[0];
+    this.statusComponent = app.appRegistry.getComponent('App:Status');
     ReactDOM.render(React.createElement(this.statusComponent), this.queryByHook('statusbar'));
 
     this.autoUpdate = new AutoUpdate({

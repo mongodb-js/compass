@@ -21,7 +21,7 @@ var SchemaView = View.extend({
     }
   },
   initialize: function() {
-    this.schemaView = app.componentRegistry.findByRole('Collection:Schema')[0];
+    this.schemaView = app.appRegistry.getComponent('Collection:Schema');
   },
   render: function() {
     this.renderWithTemplate();
