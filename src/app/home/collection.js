@@ -142,7 +142,7 @@ var MongoDBCollectionView = View.extend({
   render: function() {
     this.renderWithTemplate(this);
     // render query bar here for now
-    var queryBarComponent = app.componentRegistry.findByRole('App:QueryBar')[0];
+    var queryBarComponent = app.appRegistry.getComponent('App:QueryBar');
     ReactDOM.render(React.createElement(queryBarComponent), this.queryByHook('refine-bar-subview'));
   },
   onTabClicked: function(e) {

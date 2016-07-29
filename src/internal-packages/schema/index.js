@@ -7,14 +7,14 @@ const Schema = require('./lib/component/schema');
  * Activate all the components in the CRUD package.
  */
 function activate() {
-  app.componentRegistry.register(Schema, { role: 'Collection:Schema' });
+  app.appRegistry.registerComponent('Collection:Schema', Schema);
 }
 
 /**
  * Deactivate all the components in the CRUD package.
  */
 function deactivate() {
-  app.componentRegistry.deregister(Schema);
+  app.appRegistry.deregisterComponent('Collection:Schema');
 }
 
 module.exports.activate = activate;

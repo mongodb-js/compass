@@ -7,14 +7,14 @@ const Status = require('./lib/components/status');
  * Activate all the components in the CRUD package.
  */
 function activate() {
-  app.componentRegistry.register(Status, { role: 'App:Status' });
+  app.appRegistry.registerComponent('App:Status', Status);
 }
 
 /**
  * Deactivate all the components in the CRUD package.
  */
 function deactivate() {
-  app.componentRegistry.deregister(Status);
+  app.appRegistry.deregisterComponent('App:Status');
 }
 
 module.exports.activate = activate;
