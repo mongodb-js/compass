@@ -1,6 +1,6 @@
 const Reflux = require('reflux');
 
-const SchemaActions = Reflux.createActions({
+const SchemaAction = Reflux.createActions({
   /**
    * starts schema sampling with the current query
    */
@@ -19,4 +19,4 @@ const SchemaActions = Reflux.createActions({
   resetMaxTimeMS: {sync: true}
 });
 
-module.exports = SchemaActions;
+module.exports = SchemaAction;

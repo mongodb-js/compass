@@ -9,7 +9,7 @@ const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const QueryStore = require('../../../query/lib/store');
 
 // actions
-const SchemaActions = require('../action');
+const SchemaAction = require('../action');
 
 const debug = require('debug')('mongodb-compass:stores:schema');
 // const metrics = require('mongodb-js-metrics')();
@@ -23,17 +23,15 @@ const DEFAULT_NUM_DOCUMENTS = 1000;
 const SchemaStore = Reflux.createStore({
 
   mixins: [StateMixin.store],
-  listenables: SchemaActions,
+  listenables: SchemaAction,
 
   /**
    * Initialize the document list store.
    */
   init: function() {
-    // this.listenTo(QueryActions.apply, this._sampleSchema);
-
     NamespaceStore.listen(() => {
       this._reset();
-      SchemaActions.startSampling();
+      SchemaAction.startSampling();
     });
 
     this.samplingStream = null;
@@ -184,8 +182,7 @@ const SchemaStore = Reflux.createStore({
           onError(analysisErr);
         })
         .on('end', () => {
-          debug('on end', schema);
-          if (sampleCount > 0) {
+          if (sampleCount > 0 && this.state.samplingState !== 'error') {
             onSuccess(schema.serialize());
           }
         });

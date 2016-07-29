@@ -1,5 +1,5 @@
 const React = require('react');
-const SchemaActions = require('../../action');
+const SchemaAction = require('../../action');
 
 // const debug = require('debug')('mongodb-compass:schema:status-subview:buttons-waiting');
 
@@ -15,7 +15,7 @@ const ButtonsWaiting = React.createClass({
   },
 
   onStopPartialButton() {
-    SchemaActions.stopSampling();
+    SchemaAction.stopSampling();
   },
 
   render() {
