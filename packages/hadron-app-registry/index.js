@@ -25,4 +25,6 @@ module.exports.Form = require('./lib/component/form');
 module.exports.GroupItem = require('./lib/component/group-item');
 module.exports.Group = require('./lib/component/group');
 module.exports.GroupedList = require('./lib/component/grouped-list');
+module.exports.IconButton = require('./lib/component/icon-button');
+module.exports.TextButton = require('./lib/component/text-button');
 module.exports.truncate = require('./lib/component/element/truncator');
