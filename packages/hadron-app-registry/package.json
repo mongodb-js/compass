@@ -4,7 +4,7 @@
   "author": "Durran Jordan <durran@gmail.com>",
   "bugs": "https://github.com/mongodb-js/hadron-app-registry/issues",
   "homepage": "https://github.com/mongodb-js/hadron-app-registry",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/hadron-app-registry.git"
