@@ -1,7 +1,7 @@
 'use strict';
 
 const React = require('react');
-const TextButton = require('./text-button');
+const TextButton = require('hadron-app-registry').TextButton;
 
 /**
  * The progress mode.

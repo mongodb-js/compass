@@ -1,8 +1,8 @@
 'use strict';
 
 const React = require('react');
-const ResetDocumentListStore = require('../store/reset-document-list-store');
-const TextButton = require('./text-button');
+const app = require('ampersand-app');
+const TextButton = require('hadron-app-registry').TextButton;
 
 /**
  * Component for the sampling message.
@@ -13,7 +13,9 @@ class SamplingMessage extends React.Component {
    * Fetch the state when the component mounts.
    */
   componentDidMount() {
-    this.unsubscribeReset = ResetDocumentListStore.listen(this.handleReset.bind(this));
+    this.unsubscribeReset = this.resetDocumentListStore.listen(this.handleReset.bind(this));
+    this.unsubscribeInsert = this.insertDocumentStore.listen(this.handleInsert.bind(this));
+    this.unsubscribeRemove = this.documentRemovedAction.listen(this.handleRemove.bind(this));
   }
 
   /**
@@ -21,6 +23,8 @@ class SamplingMessage extends React.Component {
    */
   componentWillUnmount() {
     this.unsubscribeReset();
+    this.unsubscribeInsert();
+    this.unsubscribeRemove();
   }
 
   /**
@@ -31,6 +35,23 @@ class SamplingMessage extends React.Component {
   constructor(props) {
     super(props);
     this.state = { count: 0 };
+    this.resetDocumentListStore = app.appRegistry.getStore('Store::CRUD::ResetDocumentListStore');
+    this.insertDocumentStore = app.appRegistry.getStore('Store::CRUD::InsertDocumentStore');
+    this.documentRemovedAction = app.appRegistry.getAction('Action::CRUD::DocumentRemoved');
+  }
+
+  /**
+   * Handle updating the count on document insert.
+   */
+  handleInsert() {
+    this.setState({ count: this.state.count + 1 });
+  }
+
+  /**
+   * Handle updating the count on document removal.
+   */
+  handleRemove() {
+    this.setState({ count: this.state.count - 1 });
   }
 
   /**

@@ -13,7 +13,6 @@ const LoadMoreDocumentsStore = require('../store/load-more-documents-store');
 const RemoveDocumentStore = require('../store/remove-document-store');
 const InsertDocumentStore = require('../store/insert-document-store');
 const InsertDocumentDialog = require('./insert-document-dialog');
-const SamplingMessage = require('./sampling-message');
 const Actions = require('../actions');
 
 /**
@@ -70,6 +69,7 @@ class DocumentList extends React.Component {
   constructor(props) {
     super(props);
     this.loading = false;
+    this.samplingMessage = app.appRegistry.getComponent('Component::Query::SamplingMessage');
     this.state = { docs: [], nextSkip: 0, namespace: NamespaceStore.ns };
   }
 
@@ -182,7 +182,7 @@ class DocumentList extends React.Component {
   render() {
     return (
       <div>
-        <SamplingMessage insertHandler={this.handleOpenInsert.bind(this)} />
+        <this.samplingMessage insertHandler={this.handleOpenInsert.bind(this)} />
         <div className='column-container with-refinebar-and-message'>
           <div className='column main'>
             <ol className={LIST_CLASS} ref={(c) => this._node = c}>
