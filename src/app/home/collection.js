@@ -28,7 +28,7 @@ var MongoDBCollectionView = View.extend({
       type: 'string',
       required: true,
       default: 'schemaView',
-      values: ['documentView', 'schemaView', 'explainView', 'indexView']
+      values: ['documentView', 'schemaView', 'explainView', 'indexView', 'metricsView']
     },
     ns: 'string'
   },
@@ -50,7 +50,8 @@ var MongoDBCollectionView = View.extend({
         'documentView': '[data-hook=document-tab]',
         'schemaView': '[data-hook=schema-tab]',
         'explainView': '[data-hook=explain-tab]',
-        'indexView': '[data-hook=index-tab]'
+        'indexView': '[data-hook=index-tab]',
+        'metricsView': '[data-hook=metrics-tab]'
       }
     }
   },
@@ -135,7 +136,8 @@ var MongoDBCollectionView = View.extend({
       'DOCUMENTS': 'documentView',
       'SCHEMA': 'schemaView',
       'EXPLAIN PLAN': 'explainView',
-      'INDEXES': 'indexView'
+      'INDEXES': 'indexView',
+      'METRICS': 'metricsView'
     };
     this.switchView(tabToViewMap[e.target.innerText]);
   },
