@@ -142,8 +142,17 @@ var StatusbarView = View.extend({
     this.set(options);
   },
   showMessage: function(message) {
+    if (!message) {
+      message = '';
+    } else if (!_.isString(message)) {
+      /**
+       * @see https://jira.mongodb.org/browse/INT-1659
+       */
+      message = _.get(message, 'message', JSON.stringify(message));
+    }
+
     this.visible = true;
-    this.message = message || '';
+    this.message = message;
     this.animation = false;
   },
   showSubview: function(subview) {
