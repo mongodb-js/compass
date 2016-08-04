@@ -7,6 +7,8 @@ var RefineBarView = require('../refine-view');
 var ExplainView = require('../explain-plan');
 var MongoDBCollection = require('../models/mongodb-collection');
 var NamespaceStore = require('hadron-reflux-store').NamespaceStore;
+var ReactDOM = require('react-dom');
+var React = require('react');
 var _ = require('lodash');
 
 var app = require('ampersand-app');
@@ -14,6 +16,32 @@ var metrics = require('mongodb-js-metrics')();
 var debug = require('debug')('mongodb-compass:home:collection');
 
 var collectionTemplate = require('./collection.jade');
+
+// Ampersand view wrapper around the metrics component
+var MetricsView = View.extend({
+  template: '<div></div>',
+  props: {
+    visible: {
+      type: 'boolean',
+      required: true,
+      default: false
+    }
+  },
+  bindings: {
+    visible: {
+      type: 'booleanClass',
+      no: 'hidden'
+    }
+  },
+  render: function() {
+    this.renderWithTemplate();
+    if (app.isFeatureEnabled('showMetricsTab')) {
+      var metricsTabComponent = app.appRegistry.getComponent('Collection:Metrics');
+      ReactDOM.render(React.createElement(metricsTabComponent), this.query());
+    }
+  }
+});
+
 
 var MongoDBCollectionView = View.extend({
   // modelType: 'Collection',
@@ -28,7 +56,7 @@ var MongoDBCollectionView = View.extend({
       type: 'string',
       required: true,
       default: 'schemaView',
-      values: ['documentView', 'schemaView', 'explainView', 'indexView', 'metricsView']
+      values: ['schemaView', 'documentView', 'explainView', 'indexView', 'metricsView']
     },
     ns: 'string'
   },
@@ -104,6 +132,15 @@ var MongoDBCollectionView = View.extend({
           el: el,
           parent: this,
           model: this.model
+        });
+      }
+    },
+    metricsView: {
+      hook: 'metrics-subview',
+      prepareView: function(el) {
+        return new MetricsView({
+          el: el,
+          parent: this
         });
       }
     },

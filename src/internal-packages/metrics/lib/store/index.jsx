@@ -1,6 +1,9 @@
 const Reflux = require('reflux');
-const MetricsActions = require('../action');
+const MetricsAction = require('../action');
 const StateMixin = require('reflux-state-mixin');
+const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
+
+const app = require('ampersand-app');
 
 const debug = require('debug')('mongodb-compass:stores:metrics');
 
@@ -18,7 +21,7 @@ const MetricsStore = Reflux.createStore({
   /**
    * listen to all actions defined in ../actions/index.jsx
    */
-  listenables: MetricsActions,
+  listenables: MetricsAction,
 
   /**
    * Initialize everything that is not part of the store's state.
@@ -31,14 +34,37 @@ const MetricsStore = Reflux.createStore({
    * @return {Object} initial store state.
    */
   getInitialState() {
-    return {};
+    return {
+      status: 'initial',
+      documents: []
+    };
   },
 
   /**
-   * handlers for each action defined in ../actions/index.jsx, for example:
+   * fetch the metrics documents from the collection and update the store status.
    */
-  enableMetrics() {},
-  disableMetrics() {},
+  fetchMetrics() {
+    this.setState({
+      status: 'fetching'
+    });
+
+    const filter = {};
+    const options = {
+      limit: 20
+    };
+    app.dataService.find(NamespaceStore.ns, filter, options, (error, documents) => {
+      if (error) {
+        this.setState({
+          status: 'error'
+        });
+        return;
+      }
+      this.setState({
+        status: 'done',
+        documents: documents
+      });
+    });
+  },
 
   /**
    * log changes to the store as debug messages.

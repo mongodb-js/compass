@@ -1,10 +1,10 @@
 const React = require('react');
 const MetricsStore = require('../store');
+const MetricsAction = require('../action');
 const StateMixin = require('reflux-state-mixin');
-
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 
-const debug = require('debug')('mongodb-compass:metrics');
+// const debug = require('debug')('mongodb-compass:metrics-component');
 
 
 const MetricsComponent = React.createClass({
@@ -16,12 +16,25 @@ const MetricsComponent = React.createClass({
     StateMixin.connect(MetricsStore)
   ],
 
+  getInitialState() {
+    return {
+      ns: NamespaceStore.ns
+    };
+  },
+
+  /**
+   * Fetch metrics on initial render.
+   */
+  componentWillMount() {
+    MetricsAction.fetchMetrics();
+  },
+
   /**
    * Subscribe manually to the namespace store on mount, because that store
    * doesn't support automatic subscription yet.
    */
   componentDidMount() {
-    this.unsubscribeNS = NamespaceStore.listen(this.handleNamespaceChange.bind(this));
+    this.unsubscribeNS = NamespaceStore.listen(this.handleNamespaceChange);
   },
 
   /**
@@ -32,13 +45,15 @@ const MetricsComponent = React.createClass({
   },
 
   /**
-   * handle changes in the namespace, e.g. hide if the collection name
-   * is no longer supported for this view.
+   * handle changes in the namespace and fetch new metrics.
    *
    * @param {String} ns    namespace of the selected collection.
    */
   handleNamespaceChange(ns) {
-    debug('ns changed to', ns);
+    this.setState({
+      ns: ns
+    });
+    MetricsAction.fetchMetrics();
   },
 
   /**
@@ -47,10 +62,20 @@ const MetricsComponent = React.createClass({
    * @returns {React.Component} The Metrics view.
    */
   render() {
+    const namespace = this.state.ns;
+    const status = this.state.status;
+    const documents = JSON.stringify(this.state.documents);
+
     return (
-      <div>
-        <h1>I'm a Metrics component.</h1>
-        <p>Visualize Compass metrics in Compass.</p>
+      <div id="metrics-container">
+        <h1>Hello Brahm and Chris.</h1>
+        <p>Here is some space for you to visualize your metrics.</p>
+        <p>You are currently looking at the {namespace} collection.</p>
+        <p>The current component state is: <code>{status}</code></p>
+        <p>The metrics documents are</p>
+        <pre>
+          {documents}
+        </pre>
       </div>
     );
   }

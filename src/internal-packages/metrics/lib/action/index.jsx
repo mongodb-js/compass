@@ -4,8 +4,7 @@ const MetricsAction = Reflux.createActions([
   /**
    * define your actions as strings below, for example:
    */
-  'enableMetrics',
-  'disableMetrics'
+  'fetchMetrics'
 ]);
 
 module.exports = MetricsAction;
