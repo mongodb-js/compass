@@ -9,7 +9,7 @@ var async = require('async');
 var mongodbNS = require('mongodb-ns');
 var isNotAuthorizedError = require('mongodb-js-errors').isNotAuthorized;
 
-// var debug = require('debug')('mongodb-index-model:fetch');
+var debug = require('debug')('mongodb-index-model:fetch');
 
 /**
  * helper function to attach objects to the async.auto task structure.
@@ -88,8 +88,13 @@ function getIndexSizes(done, results) {
   var ns = mongodbNS(results.namespace);
   db.db(ns.database).collection(ns.collection).stats(function(err, res) {
     if (err) {
-      done(err);
+      if (isNotAuthorizedError(err)) {
+        debug('Not authorized to get collection stats.  Returning default for indexSizes {}.');
+        return done(null, {});
+      }
+      return done(err);
     }
+
     res = _.mapValues(res.indexSizes, function(size) {
       return {size: size};
     });
