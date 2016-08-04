@@ -18,6 +18,7 @@ const Schema = React.createClass({
   ],
 
   componentWillMount() {
+    this.samplingMessage = app.appRegistry.getComponent('Component::Query::SamplingMessage');
     this.StatusAction = app.appRegistry.getAction('StatusAction');
   },
 
@@ -71,7 +72,6 @@ const Schema = React.createClass({
     }
   },
 
-
   /**
    * Render the schema
    *
@@ -84,9 +84,14 @@ const Schema = React.createClass({
       return <Field key={field.name} {...field} />;
     });
     return (
-      <div className="schema-component">
-        <div className="schema-field-list">
-          {fieldList}
+      <div>
+        <this.samplingMessage />
+        <div className='column-container with-refinebar-and-message'>
+          <div className='column main'>
+            <div className="schema-field-list">
+              {fieldList}
+            </div>
+          </div>
         </div>
       </div>
     );

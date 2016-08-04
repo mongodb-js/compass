@@ -74,12 +74,20 @@ class SamplingMessage extends React.Component {
       <div className='sampling-message'>
         Query returned&nbsp;<b>{this.state.count}</b>&nbsp;documents.
         <i data-hook='schema-sampling-results' className='help'></i>
+        {this.renderInsertButton()}
+      </div>
+    );
+  }
+
+  renderInsertButton() {
+    if (this.props.insertHandler) {
+      return (
         <TextButton
           clickHandler={this.props.insertHandler}
           className='btn btn-default btn-xs open-insert'
           text='+ Insert' />
-      </div>
-    );
+      );
+    }
   }
 
   /**
