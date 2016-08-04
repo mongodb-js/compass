@@ -44,21 +44,25 @@ const MetricsStore = Reflux.createStore({
    * fetch the metrics documents from the collection and update the store status.
    */
   fetchMetrics() {
+    // mark the current status as "fetching"
     this.setState({
       status: 'fetching'
     });
 
+    // run a find with limit 20 on the current collection
     const filter = {};
     const options = {
       limit: 20
     };
     app.dataService.find(NamespaceStore.ns, filter, options, (error, documents) => {
       if (error) {
+        // oops, there was an error, set status to "error"
         this.setState({
           status: 'error'
         });
         return;
       }
+      // all well, set status to "done" and set the documents
       this.setState({
         status: 'done',
         documents: documents

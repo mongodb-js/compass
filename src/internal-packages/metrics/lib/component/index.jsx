@@ -10,12 +10,16 @@ const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const MetricsComponent = React.createClass({
 
   /**
-   * automatically subscribe/unsubscribe to changes from these stores.
+   * automatically subscribe/unsubscribe to changes from the metrics store.
    */
   mixins: [
     StateMixin.connect(MetricsStore)
   ],
 
+  /**
+   * define initial state (in addition to what the stores add)
+   * @return {Object}  initial state of the component
+   */
   getInitialState() {
     return {
       ns: NamespaceStore.ns
@@ -57,7 +61,7 @@ const MetricsComponent = React.createClass({
   },
 
   /**
-   * Render Metrics.
+   * Render Metrics Component
    *
    * @returns {React.Component} The Metrics view.
    */

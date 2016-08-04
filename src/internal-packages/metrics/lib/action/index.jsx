@@ -2,7 +2,7 @@ const Reflux = require('reflux');
 
 const MetricsAction = Reflux.createActions([
   /**
-   * define your actions as strings below, for example:
+   * fetches the metrics documents via a simple `find` on the current collection.
    */
   'fetchMetrics'
 ]);
