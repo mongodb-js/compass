@@ -39,14 +39,16 @@ class Document extends React.Component {
     this.doc = props.doc;
     this.state = { doc: this.doc, editing: false };
 
-    // Actions need to be scoped to the single document component and not
-    // global singletons.
-    this.actions = Reflux.createActions([ 'update', 'remove', 'cancelRemove' ]);
+    if (this.isEditable()) {
+      // Actions need to be scoped to the single document component and not
+      // global singletons.
+      this.actions = Reflux.createActions([ 'update', 'remove', 'cancelRemove' ]);
 
-    // The update store needs to be scoped to a document and not a global
-    // singleton.
-    this.updateStore = this.createUpdateStore(this.actions);
-    this.removeStore = this.createRemoveStore(this.actions);
+      // The update store needs to be scoped to a document and not a global
+      // singleton.
+      this.updateStore = this.createUpdateStore(this.actions);
+      this.removeStore = this.createRemoveStore(this.actions);
+    }
   }
 
   /**
@@ -143,16 +145,29 @@ class Document extends React.Component {
    * Subscribe to the update store on mount.
    */
   componentDidMount() {
-    this.unsubscribeUpdate = this.updateStore.listen(this.handleStoreUpdate.bind(this));
-    this.unsubscribeRemove = this.removeStore.listen(this.handleStoreRemove.bind(this));
+    if (this.isEditable()) {
+      this.unsubscribeUpdate = this.updateStore.listen(this.handleStoreUpdate.bind(this));
+      this.unsubscribeRemove = this.removeStore.listen(this.handleStoreRemove.bind(this));
+    }
   }
 
   /**
    * Unsubscribe from the udpate store on unmount.
    */
   componentWillUnmount() {
-    this.unsubscribeUpdate();
-    this.unsubscribeRemove();
+    if (this.isEditable()) {
+      this.unsubscribeUpdate();
+      this.unsubscribeRemove();
+    }
+  }
+
+  /**
+   * Is the document editable?
+   *
+   * @returns {Boolean} If the document is editable.
+   */
+  isEditable() {
+    return this.props.editable !== false;
   }
 
   /**
@@ -300,7 +315,7 @@ class Document extends React.Component {
    * @returns {Component} The actions component.
    */
   renderActions() {
-    if (!this.state.editing && !this.state.deleting) {
+    if (this.isEditable() && !this.state.editing && !this.state.deleting) {
       return (
         <DocumentActions
           edit={this.handleEdit.bind(this)}
@@ -324,7 +339,6 @@ class Document extends React.Component {
           actions={this.actions} />
       );
     } else if (this.state.deleting) {
-      console.log(this.state);
       return (
         <RemoveDocumentFooter
           doc={this.state.doc}

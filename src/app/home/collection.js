@@ -3,6 +3,7 @@ var CollectionStatsView = require('../collection-stats');
 var DocumentView = require('../documents');
 var SchemaView = require('../schema');
 var IndexView = require('../indexes');
+var IndexesNewView = require('../indexes-new');
 var ExplainView = require('../explain-plan');
 var MongoDBCollection = require('../models/mongodb-collection');
 var React = require('react');
@@ -21,7 +22,8 @@ var tabToViewMap = {
   'DOCUMENTS': 'documentView',
   'SCHEMA': 'schemaView',
   'EXPLAIN PLAN': 'explainView',
-  'INDEXES': 'indexView'
+  'INDEXES': 'indexView',
+  'INDEXES NEW': 'indexesNewView'
 };
 
 var MongoDBCollectionView = View.extend({
@@ -37,7 +39,7 @@ var MongoDBCollectionView = View.extend({
       type: 'string',
       required: true,
       default: 'schemaView',
-      values: ['documentView', 'schemaView', 'explainView', 'indexView']
+      values: ['documentView', 'schemaView', 'explainView', 'indexView', 'indexesNewView']
     },
     ns: 'string'
   },
@@ -59,7 +61,8 @@ var MongoDBCollectionView = View.extend({
         'documentView': '[data-hook=document-tab]',
         'schemaView': '[data-hook=schema-tab]',
         'explainView': '[data-hook=explain-tab]',
-        'indexView': '[data-hook=index-tab]'
+        'indexView': '[data-hook=index-tab]',
+        'indexesNewView': '[data-hook=indexes-new-tab]'
       }
     }
   },
@@ -117,6 +120,17 @@ var MongoDBCollectionView = View.extend({
           model: this.model
         });
       }
+    },
+    indexesNewView: {
+      hook: 'indexes-new-subview',
+      waitFor: 'ns',
+      prepareView: function(el) {
+        return new IndexesNewView({
+          el: el,
+          parent: this,
+          model: this.model
+        });
+      }
     }
     // refineBarView: {
     //   hook: 'refine-bar-subview',
@@ -136,7 +150,8 @@ var MongoDBCollectionView = View.extend({
   },
   initialize: function() {
     this.model = new MongoDBCollection();
-    NamespaceStore.listen( this.onCollectionChanged.bind(this) );
+    NamespaceStore.listen(this.onCollectionChanged.bind(this));
+    this.loadIndexesAction = app.appRegistry.getAction('Action::Indexes::LoadIndexes');
     // this.listenToAndRun(this.parent, 'change:ns', this.onCollectionChanged.bind(this));
   },
   render: function() {
@@ -185,6 +200,7 @@ var MongoDBCollectionView = View.extend({
     metadata['collection name length'] = model.getId().length -
       model.database.length - 1;
     metrics.track('Collection', 'fetched', metadata);
+    this.loadIndexesAction();
   }
 });
 
