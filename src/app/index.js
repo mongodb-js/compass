@@ -398,8 +398,8 @@ app.extend({
 
       var DataService = require('mongodb-data-service');
       app.dataService = new DataService(state.connection)
-        .on(DataService.Events.Readable, state.onClientReady.bind(state))
-        .on(DataService.Events.Error, state.onFatalError.bind(state, 'create client'));
+        .on('readable', state.onClientReady.bind(state))
+        .on('error', state.onFatalError.bind(state, 'create client'));
 
       app.dataService.connect(function() {
         ApplicationStore.dataService = app.dataService;
