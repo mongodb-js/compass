@@ -1,9 +1,5 @@
 var Model = require('ampersand-model');
-var assign = require('lodash.assign');
-var set = require('lodash.set');
-var each = require('lodash.foreach');
-
-// var debug = require('debug')('mongodb-explain-plan-model:legacy-model');
+var _ = require('lodash');
 
 var LegacyExplainPlanModel = Model.extend({
   legacyMode: true,
@@ -81,8 +77,8 @@ var LegacyExplainPlanModel = Model.extend({
       indexOnly: 'coveredQuery'
     };
     var result = {};
-    each(legacyMap, function(newVal, oldVal) {
-      set(result, newVal, attrs[oldVal]);
+    _.each(legacyMap, function(newVal, oldVal) {
+      _.set(result, newVal, attrs[oldVal]);
     });
     return result;
   },
@@ -94,7 +90,7 @@ var LegacyExplainPlanModel = Model.extend({
    */
   parse: function(attrs) {
     var result = {};
-    assign(result, this._mapLegacyFields(attrs));
+    _.assign(result, this._mapLegacyFields(attrs));
     // copy the original object into `rawExplainObject`
     result.rawExplainObject = JSON.parse(JSON.stringify(attrs));
     result.initialized = true;

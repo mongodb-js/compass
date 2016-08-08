@@ -1,5 +1,4 @@
-var each = require('lodash.foreach');
-// var debug = require('debug')('mongodb-explain-plan-model:stage-iteration');
+var _ = require('lodash');
 
 var stageIterationMixin = {
   /**
@@ -15,8 +14,11 @@ var stageIterationMixin = {
     var stage;
     var stageStack;
 
-    if (this.initialized) {
-      root = root || this.rawExplainObject.executionStats.executionStages;
+    if (!root) {
+      root = _.get(this.rawExplainObject, 'executionStats.executionStages');
+    }
+
+    if (this.initialized && root) {
       stageStack = [root];
     } else {
       stageStack = [];
@@ -31,7 +33,7 @@ var stageIterationMixin = {
           var children = model._getChildStages(stage);
           if (children) {
             // attach parent to each child and add to queue
-            each(children, function(child) {
+            _.each(children, function(child) {
               child.parentName = stage.stage;
               stageStack.push(child);
             });
@@ -56,7 +58,7 @@ var stageIterationMixin = {
     if (this.legacyMode) {
       return null;
     }
-    stage = stage || this.rawExplainObject.executionStats.executionStages;
+    stage = stage || _.get(this.rawExplainObject, 'executionStats.executionStages', {});
     if (stage.inputStage) {
       return [stage.inputStage];
     }

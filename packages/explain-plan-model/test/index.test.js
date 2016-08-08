@@ -1,8 +1,6 @@
 var ExplainPlanModel = require('../');
 var assert = require('assert');
 
-// var debug = require('debug')('mongodb-explain-plan-model:test');
-
 function loadExplainFixture(name) {
   var explain = require(name);
   var model = new ExplainPlanModel(explain, {parse: true});

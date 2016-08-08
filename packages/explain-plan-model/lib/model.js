@@ -1,13 +1,6 @@
 var Model = require('ampersand-model');
-var assign = require('lodash.assign');
-var filter = require('lodash.filter');
-var uniq = require('lodash.uniq');
-var map = require('lodash.map');
-var some = require('lodash.some');
-
+var _ = require('lodash');
 var stageIterationMixin = require('./stage-iteration');
-
-// var debug = require('debug')('mongodb-explain-plan-model:index');
 
 var ExplainPlanModel = Model.extend(stageIterationMixin, {
   legacyMode: false,
@@ -33,7 +26,7 @@ var ExplainPlanModel = Model.extend(stageIterationMixin, {
       deps: ['rawExplainObject', 'isSharded', 'numShards'],
       fn: function() {
         var stages = this.findAllStagesByName('IXSCAN');
-        var names = uniq(map(stages, 'indexName'));
+        var names = _.uniq(_.map(stages, 'indexName'));
         // if not all shards use an index, add `null` to the array
         if (stages.length < this.numShards) {
           names.push(null);
@@ -67,7 +60,7 @@ var ExplainPlanModel = Model.extend(stageIterationMixin, {
     isMultiKey: {
       deps: ['rawExplainObject'],
       fn: function() {
-        return some(this.findAllStagesByName('IXSCAN'), function(stage) {
+        return _.some(this.findAllStagesByName('IXSCAN'), function(stage) {
           return stage.isMultiKey;
         });
       }
@@ -139,7 +132,7 @@ var ExplainPlanModel = Model.extend(stageIterationMixin, {
       return null;
     }
     var arr = this._getStageArray(root);
-    return filter(arr, function(stage) {
+    return _.filter(arr, function(stage) {
       return stage.stage === name;
     });
   },
@@ -151,8 +144,8 @@ var ExplainPlanModel = Model.extend(stageIterationMixin, {
    */
   parse: function(attrs) {
     var result = {};
-    assign(result, attrs.queryPlanner);
-    assign(result, attrs.executionStats);
+    _.assign(result, attrs.queryPlanner);
+    _.assign(result, attrs.executionStats);
     // copy the original object into `rawExplainObject`
     result.rawExplainObject = JSON.parse(JSON.stringify(attrs));
     result.initialized = true;
