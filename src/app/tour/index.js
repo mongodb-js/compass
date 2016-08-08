@@ -112,10 +112,25 @@ var TourView = View.extend({
       return model.features;
     }
 
+    /**
+     * @see https://jira.mongodb.org/browse/INT-1657
+     */
+    var previous = model.previousVersion || '0.0.0';
+
     model.features = _.filter(FEATURES, function(feature) {
-      return (model.force && feature.initial)
-        || (model.previousVersion === '0.0.0' && feature.initial)
-        || (model.previousVersion !== '0.0.0' && semver.gt(feature.version, model.previousVersion));
+      if (model.force && feature.initial) {
+        return true;
+      }
+
+      if (previous === '0.0.0' && feature.initial) {
+        return true;
+      }
+
+      if (previous !== '0.0.0' && semver.gt(feature.version, previous)) {
+        return true;
+      }
+
+      return false;
     });
     return model.features;
   },
