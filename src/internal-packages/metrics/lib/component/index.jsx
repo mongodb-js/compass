@@ -3,8 +3,10 @@ const MetricsStore = require('../store');
 const MetricsAction = require('../action');
 const StateMixin = require('reflux-state-mixin');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
+const D3Component = require('./d3component');
+const rectangleFn = require('../d3/rectangle');
 
-// const debug = require('debug')('mongodb-compass:metrics-component');
+const debug = require('debug')('mongodb-compass:metrics-component');
 
 
 const MetricsComponent = React.createClass({
@@ -22,7 +24,8 @@ const MetricsComponent = React.createClass({
    */
   getInitialState() {
     return {
-      ns: NamespaceStore.ns
+      ns: NamespaceStore.ns,
+      data: []
     };
   },
 
@@ -31,6 +34,17 @@ const MetricsComponent = React.createClass({
    */
   componentWillMount() {
     MetricsAction.fetchMetrics();
+    this.timer = setInterval(() => {
+      const numEl = Math.floor(Math.random() * 10);
+      const newData = [];
+
+      for (let i = 0; i < numEl; i++) {
+        newData.push(Math.random() * 50);
+      }
+      this.setState({
+        data: newData
+      });
+    }, 1000);
   },
 
   /**
@@ -46,6 +60,11 @@ const MetricsComponent = React.createClass({
    */
   componentWillUnmount() {
     this.unsubscribeNS();
+    clearInterval(this.timer);
+  },
+
+  componentWillUpdate() {
+    debug('state', this.state.data);
   },
 
   /**
@@ -70,16 +89,23 @@ const MetricsComponent = React.createClass({
     const status = this.state.status;
     const documents = JSON.stringify(this.state.documents);
 
+    const width = 400;
+    const height = 300;
+
     return (
       <div id="metrics-container">
         <h1>Hello Brahm and Chris.</h1>
         <p>Here is some space for you to visualize your metrics.</p>
         <p>You are currently looking at the {namespace} collection.</p>
         <p>The current component state is: <code>{status}</code></p>
-        <p>The metrics documents are</p>
-        <pre>
-          {documents}
-        </pre>
+
+        <D3Component
+          data={this.state.data}
+          renderMode="svg"
+          width={width}
+          height={height}
+          d3fn={rectangleFn}
+        />
       </div>
     );
   }
