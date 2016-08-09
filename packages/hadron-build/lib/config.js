@@ -135,7 +135,7 @@ exports.get = (cli, callback) => {
     'app-copyright': `${new Date().getFullYear()} ${CONFIG.author}`,
     'build-version': CONFIG.version,
     'app-version': CONFIG.version,
-    ignore: 'node_modules/|.cache/|dist/|test/|.user-data/|.deps/',
+    ignore: 'node_modules/|.cache/|dist/|test/|.user-data|.deps/',
     platform: CONFIG.platform,
     arch: CONFIG.arch,
     version: CONFIG.electron_version,
