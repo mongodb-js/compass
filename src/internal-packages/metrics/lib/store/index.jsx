@@ -52,7 +52,7 @@ const MetricsStore = Reflux.createStore({
     // run a find with limit 20 on the current collection
     const filter = {};
     const options = {
-      limit: 20
+      limit: 30
     };
     app.dataService.find(NamespaceStore.ns, filter, options, (error, documents) => {
       if (error) {
@@ -62,10 +62,17 @@ const MetricsStore = Reflux.createStore({
         });
         return;
       }
+      const arr = [];
+      documents.forEach(function(element) {
+        arr.push({
+          date: element._id,
+          metrics: element.metrics.versionLaunches
+        });
+      });
       // all well, set status to "done" and set the documents
       this.setState({
         status: 'done',
-        documents: documents
+        documents: arr
       });
     });
   },

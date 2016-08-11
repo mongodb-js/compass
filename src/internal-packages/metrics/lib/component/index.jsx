@@ -3,7 +3,7 @@ const MetricsStore = require('../store');
 const MetricsAction = require('../action');
 const StateMixin = require('reflux-state-mixin');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
-const D3Component = require('./d3component');
+const D3Component = require('./d3component.jsx');
 const rectangleFn = require('../d3/rectangle');
 
 const debug = require('debug')('mongodb-compass:metrics-component');
@@ -34,17 +34,6 @@ const MetricsComponent = React.createClass({
    */
   componentWillMount() {
     MetricsAction.fetchMetrics();
-    this.timer = setInterval(() => {
-      const numEl = Math.floor(Math.random() * 10);
-      const newData = [];
-
-      for (let i = 0; i < numEl; i++) {
-        newData.push(Math.random() * 50);
-      }
-      this.setState({
-        data: newData
-      });
-    }, 1000);
   },
 
   /**
@@ -63,9 +52,9 @@ const MetricsComponent = React.createClass({
     clearInterval(this.timer);
   },
 
-  componentWillUpdate() {
-    debug('state', this.state.data);
-  },
+  // componentWillUpdate() {
+  //   debug('state', this.state.data);
+  // },
 
   /**
    * handle changes in the namespace and fetch new metrics.
@@ -87,8 +76,6 @@ const MetricsComponent = React.createClass({
   render() {
     const namespace = this.state.ns;
     const status = this.state.status;
-    const documents = JSON.stringify(this.state.documents);
-
     const width = 400;
     const height = 300;
 
@@ -100,7 +87,7 @@ const MetricsComponent = React.createClass({
         <p>The current component state is: <code>{status}</code></p>
 
         <D3Component
-          data={this.state.data}
+          data={this.state.documents}
           renderMode="svg"
           width={width}
           height={height}
