@@ -33,7 +33,6 @@ const D3Component = React.createClass({
 
   shouldComponentUpdate(nextProps, nextState) {
     if (nextProps.data.length === 0) {
-      console.log('chicken dinner');
       return false;
     }
     return true;
