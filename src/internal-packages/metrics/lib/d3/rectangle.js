@@ -1,28 +1,36 @@
 const d3 = require('d3');
 const debug = require('debug')('mongodb-compass:metrics:d3:rectangle');
 
+const parseDate = d3.time.format('%m/%d');
+
 function chart() {
   const width = 400;
   const height = 300;
 
   function inner(selection) {
     selection.each(function(data) {
-      debug('hehe', data);
       // data is array of numbers, draw rectangle for each number
       const el = d3.select(this);
       const margin = {top: 20, right: 20, bottom: 30, left: 40};
       const paddedWidth = +width - margin.left - margin.right;
       const paddedHeight = +height - margin.top - margin.bottom;
-      const g = el.append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+      // const g = el.selectAll('g.margin').data([0]).enter()
+      //  .append('g')
+      //  .attr('class', 'margin')
+      //  .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+      // debug('geeee', g);
+      const g = el.append('g')
+        .attr('class', 'margin')
+        .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
       // scales for bar chart scaling
       const x = d3.scale.ordinal()
-        .rangeRoundBands([0, paddedWidth], 0.1);
+        .rangeRoundBands([0, paddedWidth]);
 
       const y = d3.scale.linear()
         .rangeRound([paddedHeight, 0]);
 
-      const dates = data.map(function(d) { return d.date; });
+      const dates = data.map(function(d) { return parseDate(new Date(d.date)); });
 
       x.domain(dates);
       y.domain([0, d3.max(data, function(d) {
@@ -36,13 +44,14 @@ function chart() {
       })]).nice();
 
       const rects = g.selectAll('.rectangle').data(data);
+      debug('hehe', data);
+      debug('reptar', rects);
 
-      const barPadding = 4;
       // enter selection
       rects.enter().append('rect')
         .attr('class', 'rectangle')
         .attr('width', function() {
-          return paddedWidth / data.length - barPadding;
+          return x.rangeBand() - 1;
         })
         .attr('y', function(d) {
           let sum = 0;
@@ -54,7 +63,7 @@ function chart() {
           return y(sum);
         })
         .attr('x', function(d) {
-          return x(d.date);
+          return x(parseDate(new Date(d.date)));
         });
 
       // update selection
@@ -67,9 +76,8 @@ function chart() {
               sum += d.metrics[vers];
             }
           }
-          return height - y(sum);
-        })
-        .attr('transform', 'scale(1, -1)');
+          return paddedHeight - y(sum);
+        });
 
       // axes to append
       const xAxis = d3.svg.axis()
@@ -82,8 +90,10 @@ function chart() {
 
       g.append('g')
         .attr('class', 'axis axis--x')
-        .attr('transform', 'translate(0,' + height + ')')
-        .call(xAxis);
+        .attr('transform', 'translate(0,' + paddedHeight + ')')
+        .call(xAxis)
+      .selectAll('text')
+        .attr('transform', 'rotate(90)');
 
       g.append('g')
         .attr('class', 'axis axis--y')

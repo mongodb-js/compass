@@ -27,8 +27,16 @@ const D3Component = React.createClass({
     });
   },
 
-  componentDidMount: function() {
-    this._redraw();
+  // componentDidMount: function() {
+  //   this._redraw();
+  // },
+
+  shouldComponentUpdate(nextProps, nextState) {
+    if (nextProps.data.length === 0) {
+      console.log('chicken dinner');
+      return false;
+    }
+    return true;
   },
 
   componentDidUpdate() {
