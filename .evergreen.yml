@@ -376,7 +376,7 @@ buildvariants:
   - "osx-1010-compass"
   expansions:
     build_via_local_tunnel: true
-    fetch_npm_tarball: node-v5.5.0-npm-3.3.12-darwin-x64.tgz
+    fetch_npm_tarball: node-v6.3.1-npm-3.10.3-darwin-x64.tgz
     node_path: "$(pwd)/.deps/bin"
     num_cores: $(sysctl -n hw.logicalcpu)
   tasks:
@@ -388,7 +388,7 @@ buildvariants:
   run_on:
   - "windows-64-vs2013-test"
   expansions:
-    fetch_npm_tarball: node-v5.5.0-npm-3.3.12-windows-x64.tgz
+    fetch_npm_tarball: node-v6.3.1-npm-3.10.3-windows-x64.tgz
     node_path: "$(pwd)/.deps"
     num_cores: $(grep -c ^processor /proc/cpuinfo)
     add_env_appdata: Z:\
@@ -401,7 +401,7 @@ buildvariants:
   run_on:
   - "ubuntu1404-test"
   expansions:
-    fetch_npm_tarball: node-v5.5.0-npm-3.3.12-linux-x64.tgz
+    fetch_npm_tarball: node-v6.3.1-npm-3.10.3-linux-x64.tgz
     node_path: "$(pwd)/.deps/bin"
     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
     num_cores: $(grep -c ^processor /proc/cpuinfo)
