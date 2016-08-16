@@ -20,7 +20,7 @@ var DOCUMENTS = [
   { 'name': 'Beacon' }
 ];
 
-describe('Compass', function() {
+describe('Compass #spectron', function() {
   this.slow(30000);
   this.timeout(60000);
   var app = null;
