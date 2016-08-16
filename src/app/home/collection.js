@@ -7,6 +7,8 @@ var RefineBarView = require('../refine-view');
 var ExplainView = require('../explain-plan');
 var MongoDBCollection = require('../models/mongodb-collection');
 var NamespaceStore = require('hadron-reflux-store').NamespaceStore;
+var ReactDOM = require('react-dom');
+var React = require('react');
 var _ = require('lodash');
 
 var app = require('ampersand-app');
@@ -14,6 +16,32 @@ var metrics = require('mongodb-js-metrics')();
 var debug = require('debug')('mongodb-compass:home:collection');
 
 var collectionTemplate = require('./collection.jade');
+
+// Ampersand view wrapper around the metrics component
+var MetricsView = View.extend({
+  template: '<div></div>',
+  props: {
+    visible: {
+      type: 'boolean',
+      required: true,
+      default: false
+    }
+  },
+  bindings: {
+    visible: {
+      type: 'booleanClass',
+      no: 'hidden'
+    }
+  },
+  render: function() {
+    this.renderWithTemplate();
+    if (app.isFeatureEnabled('showMetricsTab')) {
+      var metricsTabComponent = app.appRegistry.getComponent('Collection:Metrics');
+      ReactDOM.render(React.createElement(metricsTabComponent), this.query());
+    }
+  }
+});
+
 
 var MongoDBCollectionView = View.extend({
   // modelType: 'Collection',
@@ -28,7 +56,7 @@ var MongoDBCollectionView = View.extend({
       type: 'string',
       required: true,
       default: 'schemaView',
-      values: ['documentView', 'schemaView', 'explainView', 'indexView']
+      values: ['schemaView', 'documentView', 'explainView', 'indexView', 'metricsView']
     },
     ns: 'string'
   },
@@ -50,7 +78,8 @@ var MongoDBCollectionView = View.extend({
         'documentView': '[data-hook=document-tab]',
         'schemaView': '[data-hook=schema-tab]',
         'explainView': '[data-hook=explain-tab]',
-        'indexView': '[data-hook=index-tab]'
+        'indexView': '[data-hook=index-tab]',
+        'metricsView': '[data-hook=metrics-tab]'
       }
     }
   },
@@ -106,6 +135,15 @@ var MongoDBCollectionView = View.extend({
         });
       }
     },
+    metricsView: {
+      hook: 'metrics-subview',
+      prepareView: function(el) {
+        return new MetricsView({
+          el: el,
+          parent: this
+        });
+      }
+    },
     refineBarView: {
       hook: 'refine-bar-subview',
       prepareView: function(el) {
@@ -135,7 +173,8 @@ var MongoDBCollectionView = View.extend({
       'DOCUMENTS': 'documentView',
       'SCHEMA': 'schemaView',
       'EXPLAIN PLAN': 'explainView',
-      'INDEXES': 'indexView'
+      'INDEXES': 'indexView',
+      'METRICS': 'metricsView'
     };
     this.switchView(tabToViewMap[e.target.innerText]);
   },

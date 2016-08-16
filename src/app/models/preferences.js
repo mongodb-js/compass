@@ -157,6 +157,15 @@ var Preferences = Model.extend(storageMixin, {
       default: false
     },
     /**
+     * Switch to enable/disable the "Metrics" tab on the collection level
+     * @type {Boolean}
+     */
+    showMetricsTab: {
+      type: 'boolean',
+      required: true,
+      default: false
+    },
+    /**
      * Allow single document CRUD.
      */
     singleDocumentCrud: {
