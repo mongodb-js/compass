@@ -18,10 +18,12 @@
       .pager
         button.previous-slide.hide Previous
         button.next-slide Next
-        ul
-          each feature, i in features
-            - var id = 'f' + i
-            - var cls = (i === 0) ? 'selected' : null
-            li(id='#{id}', class='#{cls}', data-n='#{i}', title='#{feature.title}')
       .get-started-button-holder
         button#tour-remove.hide(type="button", class="btn btn-info") Get Started
+    .clearfix
+    .pager
+      ul
+        each feature, i in features
+          - var id = 'f' + i
+          - var cls = (i === 0) ? 'selected' : null
+          li(id='#{id}', class='#{cls}', data-n='#{i}', title='#{feature.title}')

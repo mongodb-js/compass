@@ -79,7 +79,7 @@ var TourView = View.extend({
     }
   },
   events: {
-    'click #features ul': 'showFeature',
+    'click .pager ul': 'showFeature',
     'click .previous-slide': 'showPreviousFeature',
     'click .next-slide': 'showNextFeature',
     'click #tour-remove': 'tourRemove',
@@ -170,7 +170,7 @@ var TourView = View.extend({
     var nFeature = parseInt(nCLick, 10);
 
     // deselect old
-    $('#features li.selected').removeClass('selected');
+    $('.pager li.selected').removeClass('selected');
     $('.feature-content.active').removeClass('active');
 
     // select new
@@ -194,11 +194,11 @@ var TourView = View.extend({
     var that = this;
 
     // deselect old
-    $('#features li.selected').removeClass('selected');
+    $('.pager li.selected').removeClass('selected');
     $('.feature-content.active').removeClass('active');
 
     // select new
-    $('#features li#f' + previousFeature).addClass('selected');
+    $('.pager li#f' + previousFeature).addClass('selected');
 
     $('#animation-gif').one('webkitTransitionEnd', function() {
       that.$animationGIF.src = path.join(that.tourImagesFolder, that.features[previousFeature].image);
@@ -218,11 +218,11 @@ var TourView = View.extend({
     var that = this;
 
     // deselect old
-    $('#features li.selected').removeClass('selected');
+    $('.pager li.selected').removeClass('selected');
     $('.feature-content.active').removeClass('active');
 
     // select new
-    $('#features li#f' + nextFeature).addClass('selected');
+    $('.pager li#f' + nextFeature).addClass('selected');
 
     $('#animation-gif').one('webkitTransitionEnd', function() {
       that.$animationGIF.src = path.join(that.tourImagesFolder, that.features[nextFeature].image);

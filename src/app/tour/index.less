@@ -76,65 +76,6 @@
       color: @gray4;
       height: 120px;
     }
-    .pager {
-      position: relative;
-      -webkit-user-select: none;
-
-      button {
-        position: absolute;
-        display: block;
-        color: @green2;
-        border: none;
-        background: none;
-
-        &:hover {
-          text-decoration: none;
-          cursor: pointer;
-        }
-      }
-      button.previous-slide {
-        float: left;
-        background: url('images/tour/pager-arrow-left.png') left 0 no-repeat;
-        background-size: 10px 22px;
-        padding: 1px 0 0 20px;
-        left: 0;
-      }
-      button.next-slide {
-        float: right;
-        background: url('images/tour/pager-arrow-right.png') right 0 no-repeat;
-        background-size: 10px 22px;
-        padding: 1px 20px 0 0;
-        right: 0;
-      }
-    }
-    ul {
-      // position: absolute;
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
-      padding: 0;
-      // left: 120px;
-      top: 2px;
-    }
-    li {
-      display: inline-block;
-      margin: 0 10px;
-      width: 10px;
-      height: 10px;
-      border-radius: 6px;
-      border: 1px solid @gray5;
-      list-style: none;
-      cursor: pointer;
-      text-indent: -9999px;
-
-      &:hover {
-        border-color: @green2;
-      }
-    }
-    li.selected {
-      background: @green2;
-      border-color: @green2;
-    }
     .get-started-button-holder {
       text-align: center;
       margin-top: 100px;
@@ -142,6 +83,63 @@
       #tour-remove {
         opacity: 0;
         animation: fade-in 750ms ease-out 500ms forwards;
+      }
+    }
+  }
+  .pager {
+    position: relative;
+    -webkit-user-select: none;
+    margin-top: 0;
+
+    button {
+      position: absolute;
+      display: block;
+      color: @green2;
+      border: none;
+      background: none;
+
+      &:hover {
+        text-decoration: none;
+        cursor: pointer;
+      }
+    }
+    button.previous-slide {
+      background: url('images/tour/pager-arrow-left.png') left 0 no-repeat;
+      background-size: 10px 22px;
+      padding: 1px 0 0 20px;
+      left: 0;
+    }
+    button.next-slide {
+      background: url('images/tour/pager-arrow-right.png') right 0 no-repeat;
+      background-size: 10px 22px;
+      padding: 1px 20px 0 0;
+      right: 0;
+    }
+    ul {
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      padding: 0;
+      top: 2px;
+
+      li {
+        display: inline-block;
+        margin: 0 10px;
+        width: 10px;
+        height: 10px;
+        border-radius: 6px;
+        border: 1px solid @gray5;
+        list-style: none;
+        cursor: pointer;
+        text-indent: -9999px;
+
+        &:hover {
+          border-color: @green2;
+        }
+      }
+      li.selected {
+        background: @green2;
+        border-color: @green2;
       }
     }
   }
