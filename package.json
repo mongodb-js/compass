@@ -56,7 +56,7 @@
     "pretest": "mongodb-runner install",
     "test": "xvfb-maybe hadron-build test",
     "check": "mongodb-js-precommit ./src/app/*.js ./src/app/**/**/*.js ./src/{app/**/*.js,main/**/*.js} ./test/*.js",
-    "ci": "npm run test",
+    "ci": "npm run test-unit",
     "clean": "hadron-build clean",
     "compile-ui": "hadron-build ui",
     "fmt": "mongodb-js-fmt ./*.js src/{**/*.js,*.js} test/{**/*.js,*.js}",
