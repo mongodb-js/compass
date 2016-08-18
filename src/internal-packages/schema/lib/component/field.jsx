@@ -161,6 +161,7 @@ const Field = React.createClass({
     });
 
     const activeType = this.state.activeType;
+    const nestedDocType = this.getNestedDocType();
 
     // children fields in case of nested array / document
     return (
@@ -168,7 +169,7 @@ const Field = React.createClass({
         <div className="row">
           <div className="col-sm-4">
             <div className="schema-field-name" onClick={this.titleClicked}>
-              <span className={this.getNestedDocType() ? 'caret' : ''}></span>
+              <span className={nestedDocType ? 'caret' : ''}></span>
               <span>{this.props.name}</span>
             </div>
             <div className="schema-field-type-list">
@@ -179,6 +180,7 @@ const Field = React.createClass({
             <Minichart
               fieldName={this.props.path}
               type={activeType}
+              nestedDocType={nestedDocType}
             />
           </div>
         </div>

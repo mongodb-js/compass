@@ -85,8 +85,8 @@ const Schema = React.createClass({
     return (
       <div>
         <this.samplingMessage sampleSize={this.state.schema ? this.state.schema.count : 0}/>
-        <div className='column-container with-refinebar-and-message'>
-          <div className='column main'>
+        <div className="column-container with-refinebar-and-message">
+          <div className="column main">
             <div className="schema-field-list">
               {fieldList}
             </div>
