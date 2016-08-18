@@ -156,7 +156,7 @@
     "chai": "^3.4.1",
     "chai-as-promised": "^5.1.0",
     "electron-prebuilt": "1.2.8",
-    "eslint-config-mongodb-js": "^1.0.6",
+    "eslint-config-mongodb-js": "^2.0.1",
     "eslint-plugin-react": "^4.1.0",
     "hadron-build": "^0.7.2",
     "mocha": "^2.3.4",
