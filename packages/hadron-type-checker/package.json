@@ -16,7 +16,8 @@
   "scripts": {
     "ci": "npm test",
     "fmt": "mongodb-js-fmt ./*.js ./test/*.js",
-    "test": "mocha --recursive"
+    "test": "mocha --recursive",
+    "check": "mongodb-js-precommit"
   },
   "precommit": [
     "check"
@@ -24,9 +25,9 @@
   "dependencies": {
     "bson": "^0.4.23",
     "lodash.find": "^4.4.0",
-    "lodash.foreach": "^4.3.0",
     "lodash.has": "^4.4.0",
     "lodash.isarray": "^4.0.0",
+    "lodash.isnumber": "^3.0.3",
     "lodash.isplainobject": "^4.0.4",
     "lodash.isstring": "^4.0.1",
     "lodash.toarray": "^4.2.4",
