@@ -70,24 +70,31 @@ class SamplingMessage extends React.Component {
    * @returns {React.Component} The document list.
    */
   render() {
+    if (this.props.insertHandler) {
+      return this.renderQueryMessage();
+    }
+    return this.renderSamplingMessage();
+  }
+
+  renderSamplingMessage() {
     return (
       <div className='sampling-message'>
         Query returned&nbsp;<b>{this.state.count}</b>&nbsp;documents.
         <i data-hook='schema-sampling-results' className='help'></i>
-        {this.renderInsertButton()}
       </div>
     );
   }
 
-  renderInsertButton() {
-    if (this.props.insertHandler) {
-      return (
+  renderQueryMessage() {
+    return (
+      <div className='sampling-message'>
+        Query returned&nbsp;<b>{this.state.count}</b>&nbsp;documents.&nbsp;
         <TextButton
           clickHandler={this.props.insertHandler}
           className='btn btn-default btn-xs open-insert'
           text='+ Insert' />
-      );
-    }
+      </div>
+    );
   }
 
   /**
