@@ -40,7 +40,7 @@ const minicharts_d3fns_geo = function() {
   const margin = shared.margin;
 
   function CircleSelector(container) {
-    const dragging = false; // track whether we are dragging
+    let dragging = false; // track whether we are dragging
 
     // we expose events on our component
     const dispatch = d3.dispatch('update', 'clear');
