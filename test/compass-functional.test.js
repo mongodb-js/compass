@@ -34,8 +34,9 @@ describe('Compass #spectron', function() {
     });
   });
 
-  after(function() {
+  after(function(done) {
     SpectronSupport.stopApplication(app);
+    done();
   });
 
   context('when working with the appication', function() {
