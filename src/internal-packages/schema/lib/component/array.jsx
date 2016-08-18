@@ -15,7 +15,7 @@ const ArrayMinichart = React.createClass({
   render() {
     let arrayOfFieldsMessage = '';
     if (this.props.nestedDocType) {
-      const numFields = this.props.nestedDocType.fields.length;
+      const numFields = _.get(this.props.nestedDocType.fields, 'length', 0);
       const nestedFields = pluralize('nested field', numFields, true);
       arrayOfFieldsMessage = `Array of documents with ${nestedFields}.`;
     }

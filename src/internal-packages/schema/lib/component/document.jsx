@@ -1,5 +1,6 @@
 const React = require('react');
 const pluralize = require('pluralize');
+const _ = require('lodash');
 
 const debug = require('debug')('mongodb-compass:schema:array');
 
@@ -10,11 +11,9 @@ const DocumentMinichart = React.createClass({
   },
 
   render() {
-    debug('props', this.props);
-
     let docFieldsMessage = '';
     if (this.props.nestedDocType) {
-      const numFields = this.props.nestedDocType.fields.length;
+      const numFields = _.get(this.props.nestedDocType.fields, 'length', 0);
       const nestedFields = pluralize('nested field', numFields, true);
       docFieldsMessage = `Document with ${nestedFields}.`;
     }
