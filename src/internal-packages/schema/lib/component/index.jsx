@@ -79,13 +79,12 @@ const Schema = React.createClass({
    */
   render() {
     this._updateProgressBar();
-
     const fieldList = _.get(this.state.schema, 'fields', []).map((field) => {
       return <Field key={field.name} {...field} />;
     });
     return (
       <div>
-        <this.samplingMessage />
+        <this.samplingMessage sampleSize={this.state.schema ? this.state.schema.count : 0}/>
         <div className='column-container with-refinebar-and-message'>
           <div className='column main'>
             <div className="schema-field-list">
