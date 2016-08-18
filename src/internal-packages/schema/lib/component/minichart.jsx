@@ -2,8 +2,8 @@ const app = require('ampersand-app');
 const React = require('react');
 const UniqueMinichart = require('./unique');
 const _ = require('lodash');
-// const DocumentMinichart = require('./document');
-// const ArrayMinichart = require('./array');
+const DocumentMinichart = require('./document');
+const ArrayMinichart = require('./array');
 const D3Component = require('./d3component');
 const vizFns = require('../d3');
 
@@ -13,7 +13,8 @@ const Minichart = React.createClass({
 
   propTypes: {
     fieldName: React.PropTypes.string.isRequired,
-    type: React.PropTypes.object.isRequired
+    type: React.PropTypes.object.isRequired,
+    nestedDocType: React.PropTypes.object
   },
 
   getInitialState() {
@@ -90,16 +91,25 @@ const Minichart = React.createClass({
       );
     }
     if (typeName === 'Document') {
-      return <div>Document Placeholder Minichart</div>;
+      return (
+        <DocumentMinichart
+          nestedDocType={this.props.nestedDocType}
+        />
+      );
     }
     if (typeName === 'Array') {
-      return <div>Array Placeholder Minichart</div>;
+      return (
+        <ArrayMinichart
+          type={this.props.type}
+          nestedDocType={this.props.nestedDocType}
+        />
+      );
     }
     if (typeName === 'Undefined') {
       return <div>Undefined</div>;
     }
     if (!fn) {
-      return <div>Unknown Type</div>;
+      return null;
     }
     return (
       <D3Component
