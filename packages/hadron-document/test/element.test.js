@@ -528,6 +528,82 @@ describe('Element', function() {
           it('flags the element as edited', function() {
             expect(element.isEdited()).to.equal(true);
           });
+
+          it('sets the element current type', function() {
+            expect(element.currentType).to.equal('String');
+          });
+        });
+
+        context('when the value is changed to an int32', function() {
+          var element = new Element('name', 'Aphex Twin', false);
+
+          before(function() {
+            element.edit(42);
+          });
+
+          it('updates the current value', function() {
+            expect(element.currentValue).to.equal(42);
+          });
+
+          it('does not modify the original', function() {
+            expect(element.value).to.equal('Aphex Twin');
+          });
+
+          it('flags the element as edited', function() {
+            expect(element.isEdited()).to.equal(true);
+          });
+
+          it('sets the element current type', function() {
+            expect(element.currentType).to.equal('Int32');
+          });
+        });
+
+        context('when the value is changed to an int64', function() {
+          var element = new Element('name', 'Aphex Twin', false);
+
+          before(function() {
+            element.edit(4200000000000);
+          });
+
+          it('updates the current value', function() {
+            expect(element.currentValue).to.equal(4200000000000);
+          });
+
+          it('does not modify the original', function() {
+            expect(element.value).to.equal('Aphex Twin');
+          });
+
+          it('flags the element as edited', function() {
+            expect(element.isEdited()).to.equal(true);
+          });
+
+          it('sets the element current type', function() {
+            expect(element.currentType).to.equal('Int64');
+          });
+        });
+
+        context('when the value is changed to an double', function() {
+          var element = new Element('name', 'Aphex Twin', false);
+
+          before(function() {
+            element.edit(42.23);
+          });
+
+          it('updates the current value', function() {
+            expect(element.currentValue).to.equal(42.23);
+          });
+
+          it('does not modify the original', function() {
+            expect(element.value).to.equal('Aphex Twin');
+          });
+
+          it('flags the element as edited', function() {
+            expect(element.isEdited()).to.equal(true);
+          });
+
+          it('sets the element current type', function() {
+            expect(element.currentType).to.equal('Double');
+          });
         });
 
         context('when the value is changed to an empty embedded document', function() {
