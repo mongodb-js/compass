@@ -176,14 +176,14 @@ const DATE_CHECK = new DateCheck();
  */
 const STRING_TESTS = [
   new Test(/^$/, [ 'String', 'Null', 'Undefined', 'MinKey', 'MaxKey', 'Object', 'Array' ]),
-  new Test(INT32_CHECK, [ 'String', 'Int32', 'Int64', 'Double', 'Object', 'Array' ]),
-  new Test(INT64_CHECK, [ 'String', 'Int64', 'Double', 'Object', 'Array' ]),
-  new Test(/^-?(\d*\.)?\d+$/, [ 'String', 'Double', 'Object', 'Array' ]),
-  new Test(/^(null)$/, [ 'String', 'Null', 'Object', 'Array' ]),
-  new Test(/^(undefined)$/, [ 'String', 'Undefined', 'Object', 'Array' ]),
-  new Test(/^(true|false)$/, [ 'String', 'Boolean', 'Object', 'Array' ]),
-  new Test(/^\/(.*)\/$/, [ 'String', 'BSONRegExp', 'Object', 'Array' ]),
-  new Test(DATE_CHECK, [ 'String', 'Date', 'Object', 'Array' ])
+  new Test(INT32_CHECK, [ 'Int32', 'Int64', 'Double', 'String', 'Object', 'Array' ]),
+  new Test(INT64_CHECK, [ 'Int64', 'Double', 'String', 'Object', 'Array' ]),
+  new Test(/^-?(\d*\.)?\d+$/, [ 'Double', 'String', 'Object', 'Array' ]),
+  new Test(/^(null)$/, [ 'Null', 'String', 'Object', 'Array' ]),
+  new Test(/^(undefined)$/, [ 'Undefined', 'String', 'Object', 'Array' ]),
+  new Test(/^(true|false)$/, [ 'Boolean', 'String', 'Object', 'Array' ]),
+  new Test(/^\/(.*)\/$/, [ 'BSONRegExp', 'String', 'Object', 'Array' ]),
+  new Test(DATE_CHECK, [ 'Date', 'String', 'Object', 'Array' ])
 ];
 
 /**

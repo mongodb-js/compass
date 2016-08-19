@@ -427,10 +427,10 @@ describe('TypeChecker', function() {
 
             it('returns the list', function() {
               expect(TypeChecker.castableTypes(value)).to.deep.equal([
-                'String',
                 'Int32',
                 'Int64',
                 'Double',
+                'String',
                 'Object',
                 'Array'
               ]);
@@ -442,9 +442,9 @@ describe('TypeChecker', function() {
 
             it('returns the list', function() {
               expect(TypeChecker.castableTypes(value)).to.deep.equal([
-                'String',
                 'Int64',
                 'Double',
+                'String',
                 'Object',
                 'Array'
               ]);
@@ -456,8 +456,8 @@ describe('TypeChecker', function() {
 
             it('returns the list', function() {
               expect(TypeChecker.castableTypes(value)).to.deep.equal([
-                'String',
                 'Double',
+                'String',
                 'Object',
                 'Array'
               ]);
@@ -470,8 +470,8 @@ describe('TypeChecker', function() {
 
           it('returns the list', function() {
             expect(TypeChecker.castableTypes(value)).to.deep.equal([
-              'String',
               'Undefined',
+              'String',
               'Object',
               'Array'
             ]);
@@ -483,8 +483,8 @@ describe('TypeChecker', function() {
 
           it('returns the list', function() {
             expect(TypeChecker.castableTypes(value)).to.deep.equal([
-              'String',
               'Null',
+              'String',
               'Object',
               'Array'
             ]);
@@ -496,8 +496,8 @@ describe('TypeChecker', function() {
 
           it('returns the list', function() {
             expect(TypeChecker.castableTypes(value)).to.deep.equal([
-              'String',
               'Date',
+              'String',
               'Object',
               'Array'
             ]);
@@ -509,8 +509,8 @@ describe('TypeChecker', function() {
 
           it('returns the list', function() {
             expect(TypeChecker.castableTypes(value)).to.deep.equal([
-              'String',
               'BSONRegExp',
+              'String',
               'Object',
               'Array'
             ]);
@@ -523,8 +523,8 @@ describe('TypeChecker', function() {
 
             it('returns the list', function() {
               expect(TypeChecker.castableTypes(value)).to.deep.equal([
-                'String',
                 'Boolean',
+                'String',
                 'Object',
                 'Array'
               ]);
@@ -536,8 +536,8 @@ describe('TypeChecker', function() {
 
             it('returns the list', function() {
               expect(TypeChecker.castableTypes(value)).to.deep.equal([
-                'String',
                 'Boolean',
+                'String',
                 'Object',
                 'Array'
               ]);
