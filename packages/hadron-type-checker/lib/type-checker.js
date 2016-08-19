@@ -96,7 +96,7 @@ function toArray(object) {
 }
 
 function toLong(object) {
-  return new Long(toNumber(object));
+  return Long.fromNumber(toNumber(object));
 }
 
 function toDouble(object) {

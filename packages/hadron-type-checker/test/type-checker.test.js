@@ -47,10 +47,10 @@ describe('TypeChecker', function() {
 
         context('when the integer is 64 bit', function() {
           context('when casting to an int64', function() {
-            var value = '2147483648';
+            var value = '42000000000000';
 
             it('returns the int64', function() {
-              expect(TypeChecker.cast(value, 'Int64')).to.deep.equal(new Long(2147483648));
+              expect(TypeChecker.cast(value, 'Int64')).to.deep.equal(Long.fromNumber(42000000000000));
             });
           });
         });
