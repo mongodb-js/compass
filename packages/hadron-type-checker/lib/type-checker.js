@@ -12,6 +12,7 @@ const bson = require('bson');
 const MinKey = bson.MinKey;
 const MaxKey = bson.MaxKey;
 const Long = bson.Long;
+const Double = bson.Double;
 
 /**
  * The object string.
@@ -94,13 +95,21 @@ function toArray(object) {
   return [ object ];
 }
 
+function toLong(object) {
+  return new Long(toNumber(object));
+}
+
+function toDouble(object) {
+  return new Double(toNumber(object));
+}
+
 /**
  * The functions to cast to a type.
  */
 const CASTERS = {
   'Int32': toNumber,
-  'Int64': toNumber,
-  'Double': toNumber,
+  'Int64': toLong,
+  'Double': toDouble,
   'Date': toDate,
   'MinKey': toMinKey,
   'MaxKey': toMaxKey,
@@ -167,8 +176,8 @@ const DATE_CHECK = new DateCheck();
  */
 const STRING_TESTS = [
   new Test(/^$/, [ 'String', 'Null', 'Undefined', 'MinKey', 'MaxKey', 'Object', 'Array' ]),
-  new Test(INT32_CHECK, [ 'String', 'Int32', 'Object', 'Array' ]),
-  new Test(INT64_CHECK, [ 'String', 'Int64', 'Object', 'Array' ]),
+  new Test(INT32_CHECK, [ 'String', 'Int32', 'Int64', 'Double', 'Object', 'Array' ]),
+  new Test(INT64_CHECK, [ 'String', 'Int64', 'Double', 'Object', 'Array' ]),
   new Test(/^-?(\d*\.)?\d+$/, [ 'String', 'Double', 'Object', 'Array' ]),
   new Test(/^(null)$/, [ 'String', 'Null', 'Object', 'Array' ]),
   new Test(/^(undefined)$/, [ 'String', 'Undefined', 'Object', 'Array' ]),
