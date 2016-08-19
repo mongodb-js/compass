@@ -373,6 +373,18 @@ describe('TypeChecker', function() {
       });
     });
 
+    context('when the object is a bson long', function() {
+      it('returns Int64', function() {
+        expect(TypeChecker.type(new Long(Number.MAX_SAFE_INTEGER))).to.equal('Int64');
+      });
+    });
+
+    context('when the object is a bson double', function() {
+      it('returns Double', function() {
+        expect(TypeChecker.type(new Double(43.13123123))).to.equal('Double');
+      });
+    });
+
     context('when the object is a min key', function() {
       var minKey = new MinKey();
 

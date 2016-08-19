@@ -243,6 +243,9 @@ class TypeChecker {
       return ARRAY;
     }
     if (has(object, BSON_TYPE)) {
+      if (object._bsontype === 'Long') {
+        return 'Int64';
+      }
       return object._bsontype;
     }
     return Object.prototype.toString.call(object).replace(MATCH, '$1');
