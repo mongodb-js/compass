@@ -501,7 +501,7 @@ describe('TypeChecker', function() {
             });
           });
 
-          context('when the string is a floating point with 15 deimcals', function() {
+          context('when the string is a floating point with 15 decimals', function() {
             var value = '24.764736281726352';
 
             it('returns the list', function() {
@@ -514,7 +514,7 @@ describe('TypeChecker', function() {
             });
           });
 
-          context('when the string is a floating point with 16 deimcals', function() {
+          context('when the string is a floating point with 16 decimals', function() {
             var value = '24.7647362817263521';
 
             it('returns the list', function() {
