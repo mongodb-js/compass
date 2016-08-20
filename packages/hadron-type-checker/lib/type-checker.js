@@ -45,14 +45,9 @@ const BSON_INT32_MAX = 0x7FFFFFFF;
 const BSON_INT32_MIN = -0x80000000;
 
 /**
- * The max long value.
+ * The max double value.
  */
-const JS_INT_MAX_LONG = Long.fromNumber(0x20000000000000);
-
-/**
- * The min long value.
- */
-const JS_INT_MIN_LONG = Long.fromNumber(-0x20000000000000);
+const MAX_DBL = Number.MAX_SAFE_INTEGER;
 
 function toDate(object) {
   return new Date(object);
@@ -150,8 +145,33 @@ class Int32Check {
 class Int64Check {
   test(string) {
     if (/^-?\d+$/.test(string)) {
+      return Number.isSafeInteger(toNumber(string));
+    }
+    return false;
+  }
+}
+
+/**
+ * Checks if integer can be cast to double.
+ */
+class IntDblCheck {
+  test(string) {
+    if (/^-?\d+$/.test(string)) {
       var value = toNumber(string);
-      return value >= JS_INT_MIN_LONG && value <= JS_INT_MAX_LONG;
+      return value >= -MAX_DBL && value <= MAX_DBL;
+    }
+    return false;
+  }
+}
+
+/**
+ * Checks if the value can be cast to a double.
+ */
+class DoubleCheck {
+  test(string) {
+    if (/^-?(\d*\.)?\d{0,15}$/.test(string)) {
+      var value = toNumber(string);
+      return value >= -MAX_DBL && value <= MAX_DBL;
     }
     return false;
   }
@@ -169,6 +189,8 @@ class DateCheck {
 
 const INT32_CHECK = new Int32Check();
 const INT64_CHECK = new Int64Check();
+const INT_DBL_CHECK = new IntDblCheck();
+const DOUBLE_CHECK = new DoubleCheck();
 const DATE_CHECK = new DateCheck();
 
 /**
@@ -177,8 +199,9 @@ const DATE_CHECK = new DateCheck();
 const STRING_TESTS = [
   new Test(/^$/, [ 'String', 'Null', 'Undefined', 'MinKey', 'MaxKey', 'Object', 'Array' ]),
   new Test(INT32_CHECK, [ 'Int32', 'Int64', 'Double', 'String', 'Object', 'Array' ]),
-  new Test(INT64_CHECK, [ 'Int64', 'Double', 'String', 'Object', 'Array' ]),
-  new Test(/^-?(\d*\.)?\d+$/, [ 'Double', 'String', 'Object', 'Array' ]),
+  new Test(INT_DBL_CHECK, [ 'Int64', 'Double', 'String', 'Object', 'Array' ]),
+  new Test(INT64_CHECK, [ 'Int64', 'String', 'Object', 'Array' ]),
+  new Test(DOUBLE_CHECK, [ 'Double', 'String', 'Object', 'Array' ]),
   new Test(/^(null)$/, [ 'Null', 'String', 'Object', 'Array' ]),
   new Test(/^(undefined)$/, [ 'Undefined', 'String', 'Object', 'Array' ]),
   new Test(/^(true|false)$/, [ 'Boolean', 'String', 'Object', 'Array' ]),

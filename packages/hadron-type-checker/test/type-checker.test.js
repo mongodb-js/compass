@@ -463,12 +463,62 @@ describe('TypeChecker', function() {
             });
           });
 
+          context('when the string is greater than a 64 bit integer', function() {
+            var value = String(Number.MAX_SAFE_INTEGER + 1);
+
+            it('returns the list', function() {
+              expect(TypeChecker.castableTypes(value)).to.deep.equal([
+                'String',
+                'Object',
+                'Array'
+              ]);
+            });
+          });
+
           context('when the string is a floating point', function() {
             var value = '24.7';
 
             it('returns the list', function() {
               expect(TypeChecker.castableTypes(value)).to.deep.equal([
                 'Double',
+                'String',
+                'Object',
+                'Array'
+              ]);
+            });
+          });
+
+          context('when the string is a floating point with just the decimal', function() {
+            var value = '24.';
+
+            it('returns the list', function() {
+              expect(TypeChecker.castableTypes(value)).to.deep.equal([
+                'Double',
+                'String',
+                'Object',
+                'Array'
+              ]);
+            });
+          });
+
+          context('when the string is a floating point with 15 deimcals', function() {
+            var value = '24.764736281726352';
+
+            it('returns the list', function() {
+              expect(TypeChecker.castableTypes(value)).to.deep.equal([
+                'Double',
+                'String',
+                'Object',
+                'Array'
+              ]);
+            });
+          });
+
+          context('when the string is a floating point with 16 deimcals', function() {
+            var value = '24.7647362817263521';
+
+            it('returns the list', function() {
+              expect(TypeChecker.castableTypes(value)).to.deep.equal([
                 'String',
                 'Object',
                 'Array'
