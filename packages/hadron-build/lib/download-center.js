@@ -148,7 +148,7 @@ exports.release = (id, version) => {
 
   return new Promise((resolve, reject) => {
     if (version.indexOf('-dev') > -1) {
-      debug(`We dont' post dev channel releases to the download center.`);
+      debug('We dont post dev channel releases to the download center.');
       return resolve(false);
     }
     let channel = version.indexOf('-beta') > -1 ? 'beta' : 'stable';
