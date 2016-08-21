@@ -274,7 +274,7 @@ class DataService extends EventEmitter {
    * @param {function} callback - the callback.
    */
   serverstats(callback) {
-    debug(`#serverstats`);
+    debug('#serverstats');
     this.client.serverStats(callback);
   }
 
@@ -284,7 +284,7 @@ class DataService extends EventEmitter {
    * @param {function} callback - the callback.
    */
   top(callback) {
-    debug(`#top`);
+    debug('#top');
     this.client.top(callback);
   }
 
