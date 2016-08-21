@@ -36,12 +36,12 @@
     "tunnel-ssh": "^2.1.1"
   },
   "devDependencies": {
-    "eslint-config-mongodb-js": "^2.0.0",
+    "eslint-config-mongodb-js": "^2.2.0",
     "mocha": "^2.5.2",
     "mongodb-connection-fixture": "^0.0.13",
     "mongodb-instance-model": "^3.0.0",
     "mongodb-js-fmt": "^0.0.3",
-    "mongodb-js-precommit": "^0.2.8",
+    "mongodb-js-precommit": "^0.2.9",
     "mongodb-ns": "^1.0.1",
     "mongodb-runner": "^3.3.2",
     "pre-commit": "^1.1.2"
