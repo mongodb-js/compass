@@ -28,7 +28,7 @@
     "babel-preset-react": "^6.5.0",
     "babel-register": "^6.5.2",
     "debug": "^2.2.0",
-    "hadron-type-checker": "^0.8.0",
+    "hadron-type-checker": "^0.9.0",
     "lodash": "^4.6.1",
     "moment": "^2.13.0",
     "react": "^0.14.8",
