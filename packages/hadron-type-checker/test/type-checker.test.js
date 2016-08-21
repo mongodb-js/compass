@@ -726,11 +726,56 @@ describe('TypeChecker', function() {
     });
 
     context('when the object is a integer', function() {
-      var value = 123;
+      context('when the int is a 32 bit', function() {
+        var value = 24;
+
+        it('returns the list', function() {
+          expect(TypeChecker.castableTypes(value)).to.deep.equal([
+            'Int32',
+            'Int64',
+            'Double',
+            'String',
+            'Object',
+            'Array'
+          ]);
+        });
+      });
+
+      context('when the int is 64 bit', function() {
+        var value = 2147483648;
+
+        it('returns the list', function() {
+          expect(TypeChecker.castableTypes(value)).to.deep.equal([
+            'Int64',
+            'Double',
+            'String',
+            'Object',
+            'Array'
+          ]);
+        });
+      });
+    });
+
+    context('when the object is a long', function() {
+      var value = Long.fromNumber(2147483648);
 
       it('returns the list', function() {
         expect(TypeChecker.castableTypes(value)).to.deep.equal([
-          'Int32',
+          'Int64',
+          'Double',
+          'String',
+          'Object',
+          'Array'
+        ]);
+      });
+    });
+
+    context('when the object is a double', function() {
+      var value = new Double(2147483648);
+
+      it('returns the list', function() {
+        expect(TypeChecker.castableTypes(value)).to.deep.equal([
+          'Double',
           'String',
           'Object',
           'Array'

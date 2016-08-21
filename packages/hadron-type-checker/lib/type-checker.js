@@ -284,6 +284,10 @@ class TypeChecker {
   castableTypes(object) {
     if (isString(object)) {
       return this._stringTypes(object);
+    } else if (isNumber(object)) {
+      return this._stringTypes(String(object));
+    } else if (has(object, BSON_TYPE) && object._bsontype === 'Long') {
+      return this._stringTypes(String(object.toNumber()));
     }
     return [ this.type(object), 'String', 'Object', 'Array' ];
   }
