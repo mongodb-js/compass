@@ -1,6 +1,5 @@
 var BaseResource = require('mongodb-js-metrics').resources.BaseResource;
 var FeatureResource = require('mongodb-js-metrics').resources.FeatureResource;
-var app = require('ampersand-app');
 var debug = require('debug')('mongodb-compass:metrics:features');
 var _ = require('lodash');
 

@@ -1,3 +1,5 @@
+/* eslint no-sync: 0 */
+
 var path = require('path');
 var LessCache = require('less-cache');
 

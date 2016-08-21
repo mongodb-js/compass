@@ -3,9 +3,6 @@ var d3 = require('d3');
 var $ = require('jquery');
 var _ = require('lodash');
 var shared = require('./shared');
-var app = require('ampersand-app');
-var metrics = require('mongodb-js-metrics')();
-var ipc = require('hadron-ipc');
 
 var tooltipTemplate = require('./tooltip.jade');
 // var debug = require('debug')('mongodb-compass:minicharts:many');

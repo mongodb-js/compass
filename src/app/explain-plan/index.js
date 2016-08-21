@@ -1,7 +1,6 @@
 var View = require('ampersand-view');
 var State = require('ampersand-state');
 
-var $ = require('jquery');
 var _ = require('lodash');
 var app = require('ampersand-app');
 var ExplainPlanModel = require('mongodb-explain-plan-model');
@@ -9,7 +8,6 @@ var DocumentView = require('../documents/document-list-item');
 var IndexDefinitionView = require('../indexes/index-definition');
 var TreeView = require('./tree-view');
 var StageModel = require('./stage-model');
-var metrics = require('mongodb-js-metrics')();
 
 var electron = require('electron');
 var shell = electron.shell;

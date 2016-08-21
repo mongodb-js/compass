@@ -185,11 +185,6 @@ var Application = View.extend({
     evt.preventDefault();
     evt.stopPropagation();
     var id = evt.target.dataset.hook;
-    var url = 'compass://help';
-    if (id) {
-      url += '/' + id;
-    }
-
     ipc.call('app:show-help-window', id);
   },
   onClientReady: function() {

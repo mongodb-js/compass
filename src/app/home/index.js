@@ -1,7 +1,7 @@
 var View = require('ampersand-view');
 var format = require('util').format;
 var SidebarView = require('../sidebar');
-var IdentifyView = require('../identify');
+// var IdentifyView = require('../identify');
 var CollectionView = require('./collection');
 var InstancePropertyView = require('./instance-properties');
 var CollectionListItemView = require('./collection-list-item');
@@ -14,7 +14,6 @@ var _ = require('lodash');
 var debug = require('debug')('mongodb-compass:home');
 var toNS = require('mongodb-ns');
 var ipc = require('hadron-ipc');
-var pkg = require('../../../package.json');
 
 var indexTemplate = require('./index.jade');
 
