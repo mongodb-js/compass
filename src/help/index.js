@@ -16,6 +16,8 @@ var tagsTemplate = require('./tags.jade');
 
 var entries = new HelpEntryCollection();
 
+var StatusAction = app.appRegistry.getAction('StatusAction');
+
 var HelpPage = View.extend({
   template: indexTemplate,
   screenName: 'Help',
@@ -128,11 +130,11 @@ var HelpPage = View.extend({
     if (!entry) {
       debug('Unknown help entry', entryId);
       this.viewSwitcher.clear();
-      app.statusbar.showMessage('Help entry not found.');
+      StatusAction.setMessage('Help entry not found.');
       return;
     }
 
-    app.statusbar.hide();
+    StatusAction.hide();
 
     if (!entries.select(entry)) {
       debug('already selected');

@@ -4,7 +4,7 @@ const React = require('react');
 const Modal = require('react-bootstrap').Modal;
 const OpenInsertDocumentDialogStore = require('../store/open-insert-document-dialog-store');
 const InsertDocument = require('./insert-document');
-const TextButton = require('./text-button');
+const TextButton = require('hadron-app-registry').TextButton;
 const Actions = require('../actions');
 
 /**

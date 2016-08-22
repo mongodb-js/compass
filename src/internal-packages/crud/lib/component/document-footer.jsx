@@ -3,7 +3,7 @@
 const _ = require('lodash');
 const React = require('react');
 const Element = require('hadron-document').Element;
-const TextButton = require('./text-button');
+const TextButton = require('hadron-app-registry').TextButton;
 
 /**
  * The progress mode.

@@ -1,7 +1,7 @@
 'use strict';
 
 const React = require('react');
-const IconButton = require('./icon-button');
+const IconButton = require('hadron-app-registry').IconButton;
 
 /**
  * Component for actions on the document.

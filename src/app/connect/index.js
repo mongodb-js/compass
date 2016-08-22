@@ -3,7 +3,6 @@ var ConnectFormView = require('./connect-form-view');
 var Connection = require('../models/connection');
 var ConnectionCollection = require('../models/connection-collection');
 var MongoDBConnection = require('mongodb-connection-model');
-
 var SidebarWrapperView = require('./sidebar');
 var View = require('ampersand-view');
 
@@ -37,6 +36,9 @@ var sslMethods = require('./ssl');
  * SshTunnelOptionCollection
  */
 var sshTunnelMethods = require('./ssh-tunnel');
+
+
+var StatusAction = app.appRegistry.getAction('StatusAction');
 
 var ConnectView = View.extend({
   template: indexTemplate,
@@ -428,7 +430,7 @@ var ConnectView = View.extend({
       this.dispatch('error received');
       return;
     }
-    app.statusbar.show();
+    StatusAction.showIndeterminateProgressBar();
 
     var onSave = function() {
       this.connections.add(this.connection, { merge: true });
@@ -437,8 +439,8 @@ var ConnectView = View.extend({
     };
 
     connection.test(function(err) {
-      app.statusbar.hide();
       if (!err) {
+        StatusAction.hide();
         // now save connection
         this.connection = connection;
         this.connection.save({ last_used: new Date() }, { success: onSave.bind(this) });
@@ -459,7 +461,7 @@ var ConnectView = View.extend({
    */
   useConnection: function(connection) {
     connection = connection || this.connection;
-    app.statusbar.hide();
+    StatusAction.hide();
     metrics.track('Connection', 'used', {
       authentication: connection.authentication,
       ssl: connection.ssl,

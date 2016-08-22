@@ -3,13 +3,14 @@ var _ = require('lodash');
 var AmpersandView = require('ampersand-view');
 var EditableQuery = require('../models/editable-query');
 var EJSON = require('mongodb-extended-json');
+var QueryStore = require('../../internal-packages/schema/lib/store');
 var Query = require('mongodb-language-model').Query;
 var QueryOptions = require('../models/query-options');
 var app = require('ampersand-app');
 var metrics = require('mongodb-js-metrics')();
 
 // var metrics = require('mongodb-js-metrics')();
-// var debug = require('debug')('scout:refine-view:index');
+var debug = require('debug')('scout:refine-view:index');
 
 var indexTemplate = require('./index.jade');
 
@@ -92,17 +93,20 @@ module.exports = AmpersandView.extend({
     'submit form': 'submit'
   },
   initialize: function() {
-    this.volatileQuery = this.volatileQueryOptions.query;
-    this.listenToAndRun(this.volatileQueryOptions, 'change:query', this.updateQueryListener);
+    // this.volatileQuery = this.volatileQueryOptions.query;
+    // this.listenToAndRun(this.volatileQueryOptions, 'change:query', this.updateQueryListener);
+    QueryStore.listen(this.onQueryBufferChanged.bind(this));
   },
   updateQueryListener: function() {
-    this.stopListening(this.volatileQuery, 'change:buffer', this.onQueryBufferChanged);
-    this.volatileQuery = this.volatileQueryOptions.query;
-    this.listenTo(this.volatileQuery, 'change:buffer', this.onQueryBufferChanged);
-    this.editableQuery.rawString = this.volatileQueryOptions.queryString;
+    // this.stopListening(this.volatileQuery, 'change:buffer', this.onQueryBufferChanged);
+    // this.volatileQuery = this.volatileQueryOptions.query;
+    // this.listenTo(this.volatileQuery, 'change:buffer', this.onQueryBufferChanged);
+    // this.editableQuery.rawString = this.volatileQueryOptions.queryString;
   },
-  onQueryBufferChanged: function() {
-    this.editableQuery.rawString = EJSON.stringify(this.volatileQuery.serialize());
+  onQueryBufferChanged: function(store) {
+    debug('store', store);
+    this.editableQuery.rawString = EJSON.stringify(store.query);
+    // this.editableQuery.rawString = EJSON.stringify(this.volatileQuery.serialize());
   },
   /**
    * when user changes the text in the input field, copy the value into editableQuery. If the
