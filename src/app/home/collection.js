@@ -1,4 +1,5 @@
 var View = require('ampersand-view');
+var Action = require('hadron-action');
 var CollectionStatsView = require('../collection-stats');
 var DocumentView = require('../documents');
 var SchemaView = require('../schema');
@@ -174,6 +175,7 @@ var MongoDBCollectionView = View.extend({
     this.model._id = this.ns;
     this.model.once('sync', this.onCollectionFetched.bind(this));
     this.model.fetch();
+    Action.filterChanged(app.queryOptions.query.serialize());
   },
   onCollectionFetched: function(model) {
     this.switchView(this.activeView);
