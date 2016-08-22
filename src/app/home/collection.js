@@ -138,6 +138,7 @@ var MongoDBCollectionView = View.extend({
   initialize: function() {
     this.model = new MongoDBCollection();
     NamespaceStore.listen( this.onCollectionChanged.bind(this) );
+    this.schemaActions = app.appRegistry.getAction('SchemaAction');
     // this.listenToAndRun(this.parent, 'change:ns', this.onCollectionChanged.bind(this));
   },
   render: function() {
@@ -163,6 +164,10 @@ var MongoDBCollectionView = View.extend({
         this[subview].el.classList.add('hidden');
       }
     }.bind(this));
+    // Temporary hack to generate a resize when the schema is clicked.
+    if (viewStr === 'schemaView') {
+      this.schemaActions.resizeMiniCharts();
+    }
   },
   onCollectionChanged: function() {
     this.ns = NamespaceStore.ns;

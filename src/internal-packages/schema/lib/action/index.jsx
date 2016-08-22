@@ -16,7 +16,11 @@ const SchemaAction = Reflux.createActions({
   /**
    * reset maxTimeMS value to default
    */
-  resetMaxTimeMS: {sync: true}
+  resetMaxTimeMS: {sync: true},
+  /**
+   * Resize the minicharts.
+   */
+  resizeMiniCharts: {sync: true}
 });
 
 module.exports = SchemaAction;

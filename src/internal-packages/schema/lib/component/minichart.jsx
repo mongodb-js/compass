@@ -6,6 +6,7 @@ const DocumentMinichart = require('./document');
 const ArrayMinichart = require('./array');
 const D3Component = require('./d3component');
 const vizFns = require('../d3');
+const Actions = require('../action');
 
 // const debug = require('debug')('mongodb-compass:schema:minichart');
 
@@ -43,11 +44,14 @@ const Minichart = React.createClass({
         query: store.query
       });
     });
+
+    this.unsubscribeMiniChartResize = Actions.resizeMiniCharts.listen(this.handleResize);
   },
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.handleResize);
     this.unsubscribeQueryStore();
+    this.unsubscribeMiniChartResize();
   },
 
   handleResize() {
