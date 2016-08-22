@@ -18,6 +18,7 @@ class SamplingMessage extends React.Component {
     this.unsubscribeReset = this.resetDocumentListStore.listen(this.handleReset.bind(this));
     this.unsubscribeInsert = this.insertDocumentStore.listen(this.handleInsert.bind(this));
     this.unsubscribeRemove = this.documentRemovedAction.listen(this.handleRemove.bind(this));
+    this.unsubscribeLoadMore = this.loadMoreDocumentsStore.listen(this.handleLoadMore.bind(this));
   }
 
   /**
@@ -27,6 +28,7 @@ class SamplingMessage extends React.Component {
     this.unsubscribeReset();
     this.unsubscribeInsert();
     this.unsubscribeRemove();
+    this.unsubscribeLoadMore();
   }
 
   /**
@@ -36,10 +38,11 @@ class SamplingMessage extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.state = { count: 0 };
+    this.state = { count: 0, loaded: 20 };
     this.resetDocumentListStore = app.appRegistry.getStore('Store::CRUD::ResetDocumentListStore');
     this.insertDocumentStore = app.appRegistry.getStore('Store::CRUD::InsertDocumentStore');
     this.documentRemovedAction = app.appRegistry.getAction('Action::CRUD::DocumentRemoved');
+    this.loadMoreDocumentsStore = app.appRegistry.getStore('Store::CRUD::LoadMoreDocumentsStore');
   }
 
   /**
@@ -63,7 +66,16 @@ class SamplingMessage extends React.Component {
    * @param {Integer} count - The count.
    */
   handleReset(documents, count) {
-    this.setState({ count: count });
+    this.setState({ count: count, loaded: 20 });
+  }
+
+  /**
+   * Handle scrolling that loads more documents.
+   *
+   * @param {Array} documents - The loaded documents.
+   */
+  handleLoadMore(documents) {
+    this.setState({ loaded: this.state.loaded + documents.length });
   }
 
   /**
@@ -106,6 +118,7 @@ class SamplingMessage extends React.Component {
     return (
       <div className='sampling-message'>
         Query returned&nbsp;<b>{this.state.count}</b>&nbsp;{noun}.&nbsp;
+        {this._loadedMessage()}
         <TextButton
           clickHandler={this.props.insertHandler}
           className='btn btn-default btn-xs open-insert'
@@ -119,7 +132,18 @@ class SamplingMessage extends React.Component {
    */
   shouldComponentUpdate(nextProps, nextState) {
     return (nextState.count !== this.state.count) ||
+      (nextState.loaded != this.state.loaded) ||
       (nextProps.sampleSize !== this.props.sampleSize);
+  }
+
+  _loadedMessage() {
+    if (this.state.count > 20) {
+      return (
+        <span>
+          Displaying documents <b>1-{this.state.loaded}</b>&nbsp;
+        </span>
+      );
+    }
   }
 
   _samplePercentage() {
