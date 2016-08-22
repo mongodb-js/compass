@@ -137,7 +137,7 @@
     "qs": "^5.2.0",
     "raf": "^3.1.0",
     "react": "^15.2.1",
-    "react-bootstrap": "0.29.5",
+    "react-bootstrap": "0.30.2",
     "react-dom": "^15.2.1",
     "react-native-listener": "^1.0.1",
     "react-tooltip": "^2.0.3",
