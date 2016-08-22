@@ -1,14 +1,12 @@
-'use strict';
-
 process.env.NODE_ENV = 'testing';
 
-const SpectronSupport = require('./support/spectron-support');
-const CrudSupport = require('./support/crud-support');
-const Connection = require('mongodb-connection-model');
+var SpectronSupport = require('./support/spectron-support');
+var CrudSupport = require('./support/crud-support');
+var Connection = require('mongodb-connection-model');
 
-const DATABASE = 'compass-test';
-const COLLECTION = 'bands';
-const CONNECTION = new Connection({ hostname: '127.0.0.1', port: 27018, ns: DATABASE });
+var DATABASE = 'compass-test';
+var COLLECTION = 'bands';
+var CONNECTION = new Connection({ hostname: '127.0.0.1', port: 27018, ns: DATABASE });
 
 /**
  * Test documents to sample with a local server.
@@ -103,7 +101,6 @@ describe('Compass #spectron', function() {
       });
 
       context('when working in the documents tab', function() {
-
         context('when viewing documents', function() {
           it('renders the documents in the list', function() {
             return client

@@ -6,8 +6,6 @@ var EJSON = require('mongodb-extended-json');
 var QueryStore = require('../../internal-packages/schema/lib/store');
 var Query = require('mongodb-language-model').Query;
 var QueryOptions = require('../models/query-options');
-var app = require('ampersand-app');
-var metrics = require('mongodb-js-metrics')();
 
 // var metrics = require('mongodb-js-metrics')();
 var debug = require('debug')('scout:refine-view:index');

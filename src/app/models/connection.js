@@ -4,7 +4,6 @@ var DataService = require('mongodb-data-service');
 var debug = require('debug')('mongodb-compass:models:connection');
 var uuid = require('uuid');
 var metrics = require('mongodb-js-metrics')();
-var pkg = require('../../../package.json');
 var electronApp = require('electron').remote.app;
 
 /**
