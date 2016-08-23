@@ -24,7 +24,7 @@
   ],
   "dependencies": {
     "debug": "^2.2.0",
-    "hadron-type-checker": "^0.9.0",
+    "hadron-type-checker": "^0.10.0",
     "lodash.foreach": "^4.3.0",
     "lodash.includes": "^4.1.3",
     "lodash.isarray": "^4.0.0",
@@ -33,7 +33,7 @@
     "node-uuid": "^1.4.7"
   },
   "devDependencies": {
-    "bson": "^0.4.23",
+    "bson": "^0.5.4",
     "chai": "^3.4.1",
     "eslint-config-mongodb-js": "^2.2.0",
     "mocha": "^2.3.4",

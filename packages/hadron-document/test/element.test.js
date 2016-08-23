@@ -7,6 +7,9 @@ const Code = bson.Code;
 const MaxKey = bson.MaxKey;
 const MinKey = bson.MinKey;
 const Timestamp = bson.Timestamp;
+const Int32 = bson.Int32;
+const Long = bson.Long;
+const Double = bson.Double;
 
 const chai = require('chai');
 const expect = chai.expect;
@@ -538,11 +541,11 @@ describe('Element', function() {
           var element = new Element('name', 'Aphex Twin', false);
 
           before(function() {
-            element.edit(42);
+            element.edit(new Int32(42));
           });
 
           it('updates the current value', function() {
-            expect(element.currentValue).to.equal(42);
+            expect(element.currentValue).to.deep.equal(new Int32(42));
           });
 
           it('does not modify the original', function() {
@@ -562,11 +565,11 @@ describe('Element', function() {
           var element = new Element('name', 'Aphex Twin', false);
 
           before(function() {
-            element.edit(4200000000000);
+            element.edit(new Long(4200000000000));
           });
 
           it('updates the current value', function() {
-            expect(element.currentValue).to.equal(4200000000000);
+            expect(element.currentValue).to.deep.equal(new Long(4200000000000));
           });
 
           it('does not modify the original', function() {
@@ -586,11 +589,11 @@ describe('Element', function() {
           var element = new Element('name', 'Aphex Twin', false);
 
           before(function() {
-            element.edit(42.23);
+            element.edit(new Double(42.23));
           });
 
           it('updates the current value', function() {
-            expect(element.currentValue).to.equal(42.23);
+            expect(element.currentValue).to.deep.equal(new Double(42.23));
           });
 
           it('does not modify the original', function() {
