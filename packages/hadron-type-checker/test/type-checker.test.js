@@ -11,6 +11,7 @@ const Code = bson.Code;
 const Timestamp = bson.Timestamp;
 const Long = bson.Long;
 const Double = bson.Double;
+const Int32 = bson.Int32;
 const TypeChecker = require('../lib/type-checker');
 
 describe('TypeChecker', function() {
@@ -40,7 +41,7 @@ describe('TypeChecker', function() {
             var value = '23';
 
             it('returns the number', function() {
-              expect(TypeChecker.cast(value, 'Int32')).to.equal(23);
+              expect(TypeChecker.cast(value, 'Int32')).to.deep.equal(new Int32(23));
             });
           });
         });
@@ -127,7 +128,7 @@ describe('TypeChecker', function() {
 
       context('when casting to an int32', function() {
         it('returns the number as an int32', function() {
-          expect(TypeChecker.cast(new Long(245), 'Int32')).to.equal(245);
+          expect(TypeChecker.cast(new Long(245), 'Int32')).to.deep.equal(new Int32(245));
         });
       });
 
@@ -277,7 +278,7 @@ describe('TypeChecker', function() {
 
     context('when the object is a double', function() {
       it('returns Double', function() {
-        expect(TypeChecker.type(2.45)).to.equal('Double');
+        expect(TypeChecker.type(new Double(2.45))).to.equal('Double');
       });
     });
 
@@ -355,7 +356,7 @@ describe('TypeChecker', function() {
 
     context('when the object is a 32bit int', function() {
       it('returns Int32', function() {
-        expect(TypeChecker.type(1234234)).to.equal('Int32');
+        expect(TypeChecker.type(new Int32(1234234))).to.equal('Int32');
       });
     });
 
@@ -364,12 +365,6 @@ describe('TypeChecker', function() {
 
       it('returns Timestamp', function() {
         expect(TypeChecker.type(timestamp)).to.equal('Timestamp');
-      });
-    });
-
-    context('when the object is a 64 bit int', function() {
-      it('returns Int64', function() {
-        expect(TypeChecker.type(Number.MAX_SAFE_INTEGER)).to.equal('Int64');
       });
     });
 
@@ -775,6 +770,7 @@ describe('TypeChecker', function() {
 
       it('returns the list', function() {
         expect(TypeChecker.castableTypes(value)).to.deep.equal([
+          'Int64',
           'Double',
           'String',
           'Object',

@@ -23,7 +23,7 @@
     "check"
   ],
   "dependencies": {
-    "bson": "^0.4.23",
+    "bson": "^0.5.4",
     "lodash.find": "^4.4.0",
     "lodash.has": "^4.4.0",
     "lodash.isarray": "^4.0.0",

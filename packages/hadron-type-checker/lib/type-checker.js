@@ -13,6 +13,7 @@ const MinKey = bson.MinKey;
 const MaxKey = bson.MaxKey;
 const Long = bson.Long;
 const Double = bson.Double;
+const Int32 = bson.Int32;
 
 /**
  * The object string.
@@ -90,7 +91,11 @@ function toArray(object) {
   return [ object ];
 }
 
-function toLong(object) {
+function toInt32(object) {
+  return new Int32(toNumber(object));
+}
+
+function toInt64(object) {
   return Long.fromNumber(toNumber(object));
 }
 
@@ -102,8 +107,8 @@ function toDouble(object) {
  * The functions to cast to a type.
  */
 const CASTERS = {
-  'Int32': toNumber,
-  'Int64': toLong,
+  'Int32': toInt32,
+  'Int64': toInt64,
   'Double': toDouble,
   'Date': toDate,
   'MinKey': toMinKey,
@@ -210,23 +215,6 @@ const STRING_TESTS = [
 ];
 
 /**
- * Gets the BSON type for a JS number.
- *
- * @param {Number} number - The number.
- *
- * @returns {String} The BSON type.
- */
-function numberToBsonType(number) {
-  var string = toString(number);
-  if (INT32_CHECK.test(string)) {
-    return 'Int32';
-  } else if (INT64_CHECK.test(string)) {
-    return 'Int64';
-  }
-  return 'Double';
-}
-
-/**
  * Checks the types of objects and returns them as readable strings.
  */
 class TypeChecker {
@@ -256,9 +244,6 @@ class TypeChecker {
    * @returns {String} The object type.
    */
   type(object) {
-    if (isNumber(object)) {
-      return numberToBsonType(object);
-    }
     if (isPlainObject(object)) {
       return OBJECT;
     }
@@ -286,10 +271,15 @@ class TypeChecker {
       return this._stringTypes(object);
     } else if (isNumber(object)) {
       return this._stringTypes(String(object));
-    } else if (has(object, BSON_TYPE) && object._bsontype === 'Long') {
-      return this._stringTypes(String(object.toNumber()));
+    } else if (has(object, BSON_TYPE) && this._isNumberType(object._bsontype)) {
+      var rawValue = object._bsontype === 'Double' ? object.valueOf() : object.toNumber();
+      return this._stringTypes(String(rawValue));
     }
     return [ this.type(object), 'String', 'Object', 'Array' ];
+  }
+
+  _isNumberType(bsontype) {
+    return bsontype === 'Long' || bsontype === 'Int32' || bsontype === 'Double';
   }
 
   _stringTypes(string) {
