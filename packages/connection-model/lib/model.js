@@ -197,6 +197,13 @@ _.assign(props, {
   mongodb_database_name: {
     type: 'string',
     default: undefined
+  },
+  /**
+   * Whether BSON values should be promoted to their JS type counterparts.
+   */
+  promote_values: {
+    type: 'boolean',
+    default: true
   }
 });
 
@@ -586,7 +593,8 @@ _.assign(derived, {
       'ssl_ca',
       'ssl_certificate',
       'ssl_private_key',
-      'ssl_private_key_password'
+      'ssl_private_key_password',
+      'prmote_values'
     ],
     fn: function() {
       var opts = _.clone(DRIVER_OPTIONS_DEFAULT, true);
@@ -611,6 +619,7 @@ _.assign(derived, {
           opts.server.sslPass = this.ssl_private_key_password;
         }
       }
+      opts.db.promoteValues = this.promote_values;
       return opts;
     }
   },
