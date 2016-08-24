@@ -17,6 +17,9 @@ const UNSELECTED_COLOR = '#43B1E5';
 const CONTROL_COLOR = '#ed271c';
 const TOKEN = 'pk.eyJ1IjoibW9uZ29kYi1jb21wYXNzIiwiYSI6ImNpbWUxZjNudjAwZTZ0emtrczByanZ4MzIifQ.6Mha4zoflraopcZKOLSpYQ';
 
+const MAPBOX_API_URL = 'https://compass-maps.mongodb.com/api.mapbox.com';
+const MAPBOX_CLIENT_URL = MAPBOX_API_URL + '/mapbox-gl-js/v0.15.0/mapbox-gl.js';
+
 const minicharts_d3fns_geo = function() {
   // --- beginning chart setup ---
   let width = 400;
@@ -280,11 +283,12 @@ const minicharts_d3fns_geo = function() {
   function loadMapBoxScript(done) {
     const script = document.createElement('script');
     script.setAttribute('type', 'text/javascript');
-    script.src = 'https://api.tiles.mapbox.com/mapbox-gl-js/v0.15.0/mapbox-gl.js';
+    script.src = MAPBOX_CLIENT_URL;
     script.onerror = function() {
       done('Error ocurred while loading MapBox script.');
     };
     script.onload = function() {
+      window.mapboxgl.config.API_URL = MAPBOX_API_URL;
       done(null, window.mapboxgl);
     };
     document.getElementsByTagName('head')[0].appendChild(script);
