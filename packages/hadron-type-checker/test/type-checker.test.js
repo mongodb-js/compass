@@ -736,8 +736,37 @@ describe('TypeChecker', function() {
         });
       });
 
+      context('when the int is an Int32', function() {
+        var value = new Int32(24);
+
+        it('returns the list', function() {
+          expect(TypeChecker.castableTypes(value)).to.deep.equal([
+            'Int32',
+            'Int64',
+            'Double',
+            'String',
+            'Object',
+            'Array'
+          ]);
+        });
+      });
+
       context('when the int is 64 bit', function() {
         var value = 2147483648;
+
+        it('returns the list', function() {
+          expect(TypeChecker.castableTypes(value)).to.deep.equal([
+            'Int64',
+            'Double',
+            'String',
+            'Object',
+            'Array'
+          ]);
+        });
+      });
+
+      context('when the int is a long', function() {
+        var value = Long.fromNumber(2147483648);
 
         it('returns the list', function() {
           expect(TypeChecker.castableTypes(value)).to.deep.equal([

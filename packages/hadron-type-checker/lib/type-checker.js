@@ -272,7 +272,7 @@ class TypeChecker {
     } else if (isNumber(object)) {
       return this._stringTypes(String(object));
     } else if (has(object, BSON_TYPE) && this._isNumberType(object._bsontype)) {
-      var rawValue = object._bsontype === 'Double' ? object.valueOf() : object.toNumber();
+      var rawValue = object._bsontype === 'Long' ? object.toNumber() : object.valueOf();
       return this._stringTypes(String(rawValue));
     }
     return [ this.type(object), 'String', 'Object', 'Array' ];
