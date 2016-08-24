@@ -131,12 +131,14 @@ class Test {
   }
 }
 
+const NUMBER_REGEX = /^-?\d+$/;
+
 /**
  * Checks if a string is an int32.
  */
 class Int32Check {
   test(string) {
-    if (/^-?\d+$/.test(string)) {
+    if (NUMBER_REGEX.test(string)) {
       var value = toNumber(string);
       return value >= BSON_INT32_MIN && value <= BSON_INT32_MAX;
     }
@@ -149,7 +151,7 @@ class Int32Check {
  */
 class Int64Check {
   test(string) {
-    if (/^-?\d+$/.test(string)) {
+    if (NUMBER_REGEX.test(string)) {
       return Number.isSafeInteger(toNumber(string));
     }
     return false;
@@ -161,20 +163,22 @@ class Int64Check {
  */
 class IntDblCheck {
   test(string) {
-    if (/^-?\d+$/.test(string)) {
+    if (NUMBER_REGEX.test(string)) {
       var value = toNumber(string);
       return value >= -MAX_DBL && value <= MAX_DBL;
     }
     return false;
   }
 }
+
+const DOUBLE_REGEX = /^-?(\d*\.)?\d{1,15}$/;
 
 /**
  * Checks if the value can be cast to a double.
  */
 class DoubleCheck {
   test(string) {
-    if (/^-?(\d*\.)?\d{0,15}$/.test(string)) {
+    if (DOUBLE_REGEX.test(string)) {
       var value = toNumber(string);
       return value >= -MAX_DBL && value <= MAX_DBL;
     }
@@ -182,13 +186,17 @@ class DoubleCheck {
   }
 }
 
+const DATE_REGEX = /^(\d{4})-(\d|\d{2})-(\d|\d{2})(T\d{2}\:\d{2}\:\d{2}(\.\d+)?)?$/;
+
 /**
  * Checks if a string is a date.
  */
 class DateCheck {
   test(string) {
-    var date = Date.parse(string);
-    return date ? true : false;
+    if (DATE_REGEX.test(string)) {
+      var date = Date.parse(string);
+      return date ? true : false;
+    }
   }
 }
 
@@ -213,6 +221,23 @@ const STRING_TESTS = [
   new Test(/^\/(.*)\/$/, [ 'BSONRegExp', 'String', 'Object', 'Array' ]),
   new Test(DATE_CHECK, [ 'Date', 'String', 'Object', 'Array' ])
 ];
+
+/**
+ * Gets the BSON type for a JS number.
+ *
+ * @param {Number} number - The number.
+ *
+ * @returns {String} The BSON type.
+ */
+function numberToBsonType(number) {
+  var string = toString(number);
+  if (INT32_CHECK.test(string)) {
+    return 'Int32';
+  } else if (INT64_CHECK.test(string)) {
+    return 'Int64';
+  }
+  return 'Double';
+}
 
 /**
  * Checks the types of objects and returns them as readable strings.
@@ -244,6 +269,9 @@ class TypeChecker {
    * @returns {String} The object type.
    */
   type(object) {
+    if (isNumber(object)) {
+      return numberToBsonType(object);
+    }
     if (isPlainObject(object)) {
       return OBJECT;
     }

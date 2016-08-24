@@ -488,7 +488,6 @@ describe('TypeChecker', function() {
 
             it('returns the list', function() {
               expect(TypeChecker.castableTypes(value)).to.deep.equal([
-                'Double',
                 'String',
                 'Object',
                 'Array'
@@ -549,15 +548,55 @@ describe('TypeChecker', function() {
         });
 
         context('when the string is in date format', function() {
-          var value = '2016-10-10';
+          context('when the date is without time', function() {
+            var value = '2016-10-10';
 
-          it('returns the list', function() {
-            expect(TypeChecker.castableTypes(value)).to.deep.equal([
-              'Date',
-              'String',
-              'Object',
-              'Array'
-            ]);
+            it('returns the list', function() {
+              expect(TypeChecker.castableTypes(value)).to.deep.equal([
+                'Date',
+                'String',
+                'Object',
+                'Array'
+              ]);
+            });
+          });
+
+          context('when the date is with time', function() {
+            var value = '2016-10-10T12:12:00';
+
+            it('returns the list', function() {
+              expect(TypeChecker.castableTypes(value)).to.deep.equal([
+                'Date',
+                'String',
+                'Object',
+                'Array'
+              ]);
+            });
+          });
+
+          context('when the date is with time and decimal', function() {
+            var value = '2016-10-10T12:12:00.001';
+
+            it('returns the list', function() {
+              expect(TypeChecker.castableTypes(value)).to.deep.equal([
+                'Date',
+                'String',
+                'Object',
+                'Array'
+              ]);
+            });
+          });
+
+          context('when the date is invalid', function() {
+            var value = '2016-10-10 12:12:00.001';
+
+            it('returns the list', function() {
+              expect(TypeChecker.castableTypes(value)).to.deep.equal([
+                'String',
+                'Object',
+                'Array'
+              ]);
+            });
           });
         });
 
