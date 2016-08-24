@@ -288,6 +288,7 @@ const minicharts_d3fns_geo = function() {
       done('Error ocurred while loading MapBox script.');
     };
     script.onload = function() {
+      window.mapboxgl.config.API_URL = MAPBOX_API_URL;
       done(null, window.mapboxgl);
     };
     document.getElementsByTagName('head')[0].appendChild(script);
