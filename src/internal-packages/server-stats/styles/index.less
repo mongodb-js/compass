@@ -1,0 +1,99 @@
+.server-stats {
+  background-color: #43484D;
+  font-family: Akzidenz-Grotesk Std;
+  font-weight: 500;
+  text-transform: uppercase;
+  color: #9ca4ab;
+  height: 100vh;
+
+  .opcounters {
+    width: 50%;
+    float: left;
+  }
+
+  .network {
+    width: 50%;
+    float: left;
+  }
+
+  .chart-title {
+    text-anchor: middle;
+    font-size: 14px;
+    fill: #9ca4ab;
+  }
+  .axis-x, .axis-y {
+      fill: none;
+  }
+  .background-lines {
+      stroke-width: 1px;
+      stroke: #9ca4ab;
+  }
+  .axis-labels {
+      font-size: 11px;
+  }
+  .y-label {
+      text-anchor: end;
+      fill: #9ca4ab;
+  }
+  .x-label {
+      text-anchor: middle;
+      fill: #9ca4ab;
+  }
+  .operation {
+      opacity: 1;
+      fill: none;
+      stroke-width: 2px;
+  }
+  .legend-box {
+      stroke-width: 2px;
+      fill-opacity: 1;
+  }
+  .legend-opname {
+      font-size: 11px;
+      fill: #9ca4ab;
+  }
+  .legend-opcount {
+      font-size: 15px;
+      fill: white;
+  }
+  .focus {
+      stroke: white;
+      fill: white;
+      font-size: 11px;
+      text-anchor: middle;
+  }
+  .overlay-line {
+      stroke-width: 1px;
+  }
+  .overlay-bubbles {
+      stroke: none;
+  }
+  .insert, .bytesOut, .virtual, .aReads { /* teal */
+      stroke: #45BAAB;
+      fill: #45BAAB;
+  }
+  .query, .bytesIn, .resident, .aWrites { /* blue */
+      stroke: #23B1FF;
+      fill: #23B1FF;
+  }
+  .update, .current, .mapped { /* purple */
+      stroke: #6F72FF;
+      fill: #6F72FF;
+  }
+  .delete, .qReads { /* red */
+      stroke: #A33A35;
+      fill: #A33A35;
+  }
+  .command, .qWrites { /* orange */
+      stroke: #FFA900;
+      fill: #FFA900;
+  }
+  .getmore { /* yellow */
+      stroke: #C7E82F;
+      fill: #C7E82F;
+  }
+}
+
+/*#opCounterContainer, #networkContainer, #memContainer, #globalLockContainer {*/
+    /*background-color:pink;*/
+/*}*/
