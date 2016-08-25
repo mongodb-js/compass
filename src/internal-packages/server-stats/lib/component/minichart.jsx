@@ -1,5 +1,4 @@
 const React = require('react');
-const _ = require('lodash');
 const D3Component = require('./d3component');
 const vizFns = require('../d3');
 
@@ -7,7 +6,7 @@ const Minichart = React.createClass({
 
   propTypes: {
     data: React.PropTypes.any.isRequired,
-    graph_type:React.PropTypes.string.isRequired
+    graph_type: React.PropTypes.string.isRequired
   },
   getInitialState() {
     return {
@@ -28,7 +27,6 @@ const Minichart = React.createClass({
       containerWidth: rect.width
     });
     window.addEventListener('resize', this.handleResize);
-
   },
 
   componentWillUnmount() {
@@ -37,7 +35,7 @@ const Minichart = React.createClass({
   },
 
   handleResize() {
-    const rect = this.refs.minichart.getBoundingClientRect(); //built in func for browser DOM elements
+    const rect = this.refs.minichart.getBoundingClientRect(); // built in func for browser DOM elements
     this.setState({
       containerWidth: rect.width
     });
@@ -45,13 +43,13 @@ const Minichart = React.createClass({
 
   minichartFactory() {
     /* eslint camelcase: 0 */
-    fn = vizFns[this.props.graph_type];
+    const fn = vizFns[this.props.graph_type];
     return (
       <D3Component
         data={this.props.data}
         renderMode="svg"
-        width={650}
-        height={300}
+        width={520}
+        height={160}
         d3fn={fn}
       />
     );

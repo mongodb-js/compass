@@ -1,78 +1,98 @@
-'use strict';
-
 const Reflux = require('reflux');
-const ServerStatsStore = require('./server-stats-store');
-const  _ = require('lodash');
+const ServerStatsStore = require('./server-stats-graphs-store');
+// const debug = require('debug')('mongodb-compass:server-stats:network-store');
+const _ = require('lodash');
 
 const NetworkStore = Reflux.createStore({
 
   init: function() {
     this.listenTo(ServerStatsStore, this.network);
 
-    this.opsPerSec = {'bytesIn': [], 'bytesOut': [], 'current': []};
-    this.rawData = [];
+    this.bytesPerSec = {bytesIn: [], bytesOut: []};
+    this.connectionCount = [];
     this.localTime = [];
-    this.currentMax = 1;
+    this.currentMaxs = [];
+    this.secondCurrentMaxs = [];
     this.starting = true;
-    this.maxOps = 63;
-    this.data = {'operations': [
-      {'op': 'bytesIn', 'count': [], 'active': true},
-      {'op': 'bytesOut', 'count': [], 'active': true},
-      {'op': 'current', 'count': [], 'active': true}],
-      'localTime': [],
-      'yDomain': [0, this.currentMax],
-      'rawData': [],
-      'maxOps': this.maxOps,
-      'labels': {
-        'title': 'network',
-        'keys': ['net in', 'net out', 'connections'],
-        'yAxis': 'KB'
-      }
+    this.xLength = 60;
+    this.endPause = 0;
+    this.isPaused = false;
+    this.data = {dataSets: [
+      {line: 'bytesIn', count: [], active: true, current: 0},
+      {line: 'bytesOut', count: [], active: true, current: 0}],
+      localTime: [],
+      yDomain: [0, 1],
+      xLength: this.xLength,
+      labels: {
+        title: 'network',
+        keys: ['net in', 'net out', 'connections'],
+        yAxis: 'KB'
+      },
+      keyLength: 6,
+      secondScale: {
+        line: 'connections',
+        count: [],
+        active: true,
+        currentMax: 1,
+        units: 'conn'
+      },
+      paused: false
     };
   },
 
-  network: function(error, doc) {
+  network: function(error, doc, isPaused) {
     if (!error && doc) {
-      var key;
-      var val;
-      var count;
-      var source;
-      var raw = {};
-      var div = 1;
-      var precision = 2;
-      for (var q = 0; q < this.data.operations.length; q++) {
-        key = this.data.operations[q].op;
-        source = doc.network;
-        div = 1000;
-        if (q == 2) {
-          source = doc.connections;
-          div = 1;
-          precision = 0;
-        }
-        count = _.round(source[key] / div, precision); // convert to KB
+      let key;
+      let val;
+      let count;
+      let max = this.currentMaxs.length === 0 ? 1 : this.currentMaxs[this.currentMaxs.length - 1];
 
-        raw[key] = count;
+      if (isPaused && !this.isPaused) { // Move into pause state
+        this.isPaused = true;
+        this.endPause = this.localTime.length;
+      } else if (!isPaused && this.isPaused) { // Move out of pause state
+        this.isPaused = false;
+        this.endPause = this.localTime.length + 1;
+      } else if (!isPaused && !this.isPaused && !this.starting) { // Wasn't paused, isn't paused now
+        this.endPause++;
+      }
+      const startPause = Math.max(this.endPause - this.xLength, 0);
+
+      for (let q = 0; q < this.data.dataSets.length; q++) {
+        key = this.data.dataSets[q].line;
+        count = _.round(doc.network[key] / 1000, 2); // convert to KB
+
         if (this.starting) { // don't add data, starting point
-          this.data.operations[q].current = count;
+          this.data.dataSets[q].current = count;
           continue;
         }
-        val = _.round(count - this.data.operations[q].current);
-        this.opsPerSec[key].push(val);
-        this.data.operations[q].count = this.opsPerSec[key].slice(Math.max(this.opsPerSec[key].length - this.maxOps, 0));
-        if (val > this.currentMax) {
-          this.currentMax = val;
-        }
-        this.data.operations[q].current = count;
+        val = Math.max(0, _.round(count - this.data.dataSets[q].current, 2)); // Don't allow negatives.
+        this.bytesPerSec[key].push(val);
+        this.data.dataSets[q].count = this.bytesPerSec[key].slice(startPause, this.endPause);
+        max = Math.max(val, max);
+        this.data.dataSets[q].current = count;
       }
       if (this.starting) {
         this.starting = false;
         return;
       }
-      this.rawData.push(raw);
-      this.data.yDomain = [0, this.currentMax];
+      this.currentMaxs.push(max);
+
+      // Handle separate scaled line
+      const connections = doc.connections.current;
+      max = this.secondCurrentMaxs.length === 0 ? 1 : this.secondCurrentMaxs[this.secondCurrentMaxs.length - 1];
+      max = Math.max(connections, max);
+      this.secondCurrentMaxs.push(max);
+      // Handle connections being on a separate Y axis
+      this.connectionCount.push(connections);
+      this.data.secondScale.count = this.connectionCount.slice(startPause, this.endPause);
+      this.data.secondScale.currentMax = this.secondCurrentMaxs[this.endPause - 1];
+
+      // Add the rest of the data
+      this.data.yDomain = [0, this.currentMaxs[this.endPause - 1]];
       this.localTime.push(doc.localTime);
-      this.data.localTime = this.localTime.slice(Math.max(this.localTime.length - this.maxOps, 0));
-      this.data.rawData = this.rawData.slice(Math.max(this.rawData.length - this.maxOps, 0));
+      this.data.localTime = this.localTime.slice(startPause, this.endPause);
+      this.data.paused = isPaused;
     }
     this.trigger(error, this.data);
   }

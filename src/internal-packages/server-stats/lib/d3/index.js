@@ -1,1 +1,3 @@
-module.exports.sschart = require('./sschart');
+module.exports = {
+  'stats-chart': require('./stats-chart')
+};
