@@ -1,19 +1,16 @@
-'use strict';
-
 const React = require('react');
-const Actions = require('../action');
-const OpCountersComponent = require('./opcounters-component');
-const NetworkComponent = require('./network-component');
-const OpCountersStore = require('../store/opcounters-store');
-const NetworkStore = require('../store/network-store');
+const Performance = require('./performance-component');
+// const Databases = require('./databases-component');
+const NavBarComponent = require('./navbar-component');
+// const debug = require('debug')('mongodb-compass:server-stats-RTSSComponent');
 
 /**
  * Represents the component that renders all the server stats.
  */
-class ServerStatsComponent extends React.Component {
+class RTSSComponent extends React.Component {
 
   /**
-   * The server stats component constructor.
+   * The RTSS view component constructor.
    *
    * @param {Object} props - The component properties.
    */
@@ -22,44 +19,30 @@ class ServerStatsComponent extends React.Component {
   }
 
   /**
-   * When the component mounts, start the polling timer.
-   */
-  componentDidMount() {
-    this.intervalId = setInterval(() => {
-      Actions.pollServerStats();
-    }, this.props.interval);
-  }
-
-  /**
-   * When the component unmounts, we stop the timer.
-   */
-  componentWillUnmount() {
-    clearInterval(this.intervalId);
-  }
-
-  /**
    * Renders the component.
    *
    * @returns {React.Component} The component.
+   <div className="databases">
+   <Databases />
+   </div>
    */
   render() {
     return (
-      <div className='server-stats'>
-        <div className='opcounters'>
-          <OpCountersComponent store={OpCountersStore} />
-        </div>
-        <div className='network'>
-          <NetworkComponent store={NetworkStore} />
-        </div>
-        <div className='read-write'>
-        </div>
-        <div className='memory'>
+      <div className="RTSS">
+        <NavBarComponent/>
+        <div className="performance">
+          <Performance interval={this.props.interval}/>
         </div>
       </div>
     );
   }
 }
 
-ServerStatsComponent.displayName = 'ServerStatsComponent';
+RTSSComponent.propTypes = {
+  interval: React.PropTypes.number.isRequired
+};
 
-module.exports = ServerStatsComponent;
+
+RTSSComponent.displayName = 'RTSSComponent';
+
+module.exports = RTSSComponent;

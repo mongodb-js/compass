@@ -1,13 +1,13 @@
-'use strict';
-
 const React = require('react');
-const Actions = require('../action');
-const Minichart = require('./minichart');
+const D3Component = require('./d3component');
+// const debug = require('debug')('mongodb-compass:server-stats-chart-component');
+
+const chartFn = require('../d3/stats-chart');
 
 /**
- * Represents the component that renders the serverStatus['network'] information.
+ * Represents the component that renders serverStatus charts.
  */
-class NetworkComponent extends React.Component {
+class ChartComponent extends React.Component {
 
   /**
    * The server stats component should be initialized with a 'store'
@@ -36,6 +36,7 @@ class NetworkComponent extends React.Component {
    */
   componentWillUnmount() {
     this.unsubscribeRefresh();
+    clearInterval(this.intervalId);
   }
 
   /**
@@ -47,6 +48,34 @@ class NetworkComponent extends React.Component {
    */
   refresh(error, data) {
     this.setState({ error: error, data: data });
+  }
+
+  /**
+   * Render the error message in the component.
+   *
+   * @returns {String} The error message.
+   */
+  renderError() {
+    return this.state.error.message;
+  }
+
+  /**
+   * Render the graph in the component.
+   *
+   * @returns {React.Component} The graph.
+   */
+  renderGraph() {
+    return (
+      <div className={this.props.chartname}>
+        <D3Component
+          data={this.state.data}
+          renderMode="svg"
+          width={520}
+          height={145}
+          d3fn={chartFn}
+        />
+      </div>
+    );
   }
 
   /**
@@ -62,34 +91,13 @@ class NetworkComponent extends React.Component {
     );
   }
 
-  /**
-   * Render the error message in the component.
-   *
-   * @returns {String} The error message.
-   */
-  renderError() {
-    return this.state.error.message;
-  }
-
-  /**
-   * Render the graph in the component.
-   *
-   * @todo: Implement.
-   */
-  renderGraph() {
-    if (this.state.data && 'localTime' in this.state.data) {
-      return (
-        <div className="networkchart">
-          <Minichart
-            data={this.state.data}
-            graph_type="sschart"
-          />
-        </div>
-      );
-    }
-  }
 }
 
-NetworkComponent.displayName = 'NetworkComponent';
+ChartComponent.propTypes = {
+  store: React.PropTypes.any.isRequired,
+  chartname: React.PropTypes.any.isRequired
+};
 
-module.exports = NetworkComponent;
+ChartComponent.displayName = 'ChartComponent';
+
+module.exports = ChartComponent;
