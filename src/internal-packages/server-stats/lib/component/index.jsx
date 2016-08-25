@@ -5,6 +5,8 @@ const Actions = require('../action');
 const ChartComponent = require('./chart-component');
 const OpCountersStore = require('../store/opcounters-store');
 const NetworkStore = require('../store/network-store');
+const GlobalLockStore = require('../store/globallock-store');
+const MemStore = require('../store/mem-store');
 
 /**
  * Represents the component that renders all the server stats.
@@ -50,9 +52,11 @@ class ServerStatsComponent extends React.Component {
         <div className='network'>
           <ChartComponent chartname='Network' store={NetworkStore} />
         </div>
-        <div className='read-write'>
+        <div className='globallock'>
+          <ChartComponent chartname='GlobalLock' store={GlobalLockStore} />
         </div>
-        <div className='memory'>
+        <div className='mem'>
+          <ChartComponent chartname='Mem' store={MemStore} />
         </div>
       </div>
     );

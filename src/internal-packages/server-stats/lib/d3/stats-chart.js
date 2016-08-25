@@ -55,7 +55,7 @@ const graphfunction = function() {
       var xDomain = d3.extent([minTime].concat(data.localTime));
       var subMargin = {left: (subWidth / 60) * (data.maxOps - 60), top: 10};
       var currSelection;
-      var legendWidth = (subWidth - subMargin.top) / 6;
+      var legendWidth = (subWidth - subMargin.top) / data.numKeys;
 
       x
         .domain(xDomain)
@@ -220,7 +220,7 @@ const graphfunction = function() {
         .attr('class', function(d) { return 'legend-opcount text-' + d;} )
         .attr('transform', 'translate(' + 15 + ',25)');
 
-      // Overlays
+      // Create overlay line + bubbles
       var focus = container.selectAll('g.focus').data([0]).enter()
         .append('g')
         .attr('class', 'focus')
@@ -238,8 +238,6 @@ const graphfunction = function() {
       focus.append('text')
         .attr('class', 'overlay-date')
         .attr('transform', 'translate(' + subWidth + ',0)');
-
-
       focus.selectAll('.focus').data(keys).enter()
         .append('rect')
         .attr('class', function(d, i) { return 'overlay-bubbles chart-color-' + i; })
@@ -249,6 +247,7 @@ const graphfunction = function() {
         .attr('rx', bubbleWidth / 5)
         .attr('ry', bubbleWidth / 5);
 
+      // Transform overlay elements to current selection
       function updateOverlay() {
         var bisectDate = d3.bisector(function(d) {
           return d;
@@ -282,11 +281,13 @@ const graphfunction = function() {
         }
       }
 
+      // Set overlays to visible and update current selection
       function mouseMove() {
         mouseLocation = d3.mouse(this)[0];
         updateOverlay();
       }
 
+      // Bind overlay updating function to mouse movements over the chart
       container.selectAll('rect.overlay').data([0]).enter()
         .append('rect')
         .attr('class', 'overlay')

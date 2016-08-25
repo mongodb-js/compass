@@ -31,7 +31,9 @@ const OpCounterStore = Reflux.createStore({
       labels: {
         title: 'operations',
         keys: ['inserts', 'queries', 'updates', 'deletes', 'commands', 'getmores'],
-        yAxis: 'OPS'}
+        yAxis: 'OPS'
+      },
+      numKeys: 6
     };
   },
 

@@ -5,66 +5,51 @@ const ServerStatsStore = require('./server-stats-store');
 // const debug = require('debug')('server-stats:opcounter-store');
 const _ = require('lodash');
 
-const NetworkStore = Reflux.createStore({
+const MemStore = Reflux.createStore({
 
   init: function() {
-    this.listenTo(ServerStatsStore, this.network);
+    this.listenTo(ServerStatsStore, this.mem);
 
-    this.opsPerSec = {bytesIn: [], bytesOut: [], current: []};
+    this.totalCount = {virtual: [], resident: [], mapped: []};
     this.rawData = [];
     this.localTime = [];
     this.currentMax = 1;
     this.starting = true;
     this.maxOps = 63;
     this.data = {operations: [
-      {op: 'bytesIn', count: [], active: true},
-      {op: 'bytesOut', count: [], active: true},
-      {op: 'current', count: [], active: true}],
+      {op: 'virtual', count: [], 'active': true},
+      {op: 'resident', count: [], 'active': true},
+      {op: 'mapped', count: [], 'active': true}],
       localTime: [],
       yDomain: [0, this.currentMax],
       rawData: [],
       maxOps: this.maxOps,
       labels: {
-        title: 'network',
-        keys: ['net in', 'net out', 'connections'],
-        yAxis: 'KB'
+        title: 'memory',
+        keys: ['vsize', 'resident', 'mapped'],
+        yAxis: 'GB'
       },
       numKeys: 6
     };
   },
 
-  network: function(error, doc) {
+  mem: function(error, doc) {
     if (!error && doc) {
       var key;
       var val;
-      var count;
-      var source;
       var raw = {};
-      var div = 1;
-      var precision = 2;
       for (var q = 0; q < this.data.operations.length; q++) {
         key = this.data.operations[q].op;
-        source = doc.network;
-        div = 1000;
-        if (q === 2) {
-          source = doc.connections;
-          div = 1;
-          precision = 0;
-        }
-        count = _.round(source[key] / div, precision); // convert to KB
-
-        raw[key] = count;
-        if (this.starting) { // don't add data, starting point
-          this.data.operations[q].current = count;
+        val = _.round(doc.mem[key] / 1000, 2); // convert to GB
+        raw[key] = val;
+        if (this.starting) { // TODO: should we skip the first value to be consistent with the other graphs?
           continue;
         }
-        val = _.round(count - this.data.operations[q].current);
-        this.opsPerSec[key].push(val);
-        this.data.operations[q].count = this.opsPerSec[key].slice(Math.max(this.opsPerSec[key].length - this.maxOps, 0));
+        this.totalCount[key].push(val);
+        this.data.operations[q].count = this.totalCount[key].slice(Math.max(this.totalCount[key].length - this.maxOps, 0));
         if (val > this.currentMax) {
           this.currentMax = val;
         }
-        this.data.operations[q].current = count;
       }
       if (this.starting) {
         this.starting = false;
@@ -80,4 +65,4 @@ const NetworkStore = Reflux.createStore({
   }
 });
 
-module.exports = NetworkStore;
+module.exports = MemStore;
