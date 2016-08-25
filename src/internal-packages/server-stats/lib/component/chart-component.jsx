@@ -1,13 +1,14 @@
 'use strict';
 
 const React = require('react');
-const Actions = require('../action');
 const Minichart = require('./minichart');
+const debug = require('debug')('server-stats:chart-component');
+
 
 /**
- * Represents the component that renders the serverStatus['network'] information.
+ * Represents the component that renders serverStatus charts.
  */
-class NetworkComponent extends React.Component {
+class ChartComponent extends React.Component {
 
   /**
    * The server stats component should be initialized with a 'store'
@@ -36,6 +37,7 @@ class NetworkComponent extends React.Component {
    */
   componentWillUnmount() {
     this.unsubscribeRefresh();
+    clearInterval(this.intervalId);
   }
 
   /**
@@ -77,19 +79,19 @@ class NetworkComponent extends React.Component {
    * @todo: Implement.
    */
   renderGraph() {
-    if (this.state.data && 'localTime' in this.state.data) {
-      return (
-        <div className="networkchart">
-          <Minichart
-            data={this.state.data}
-            graph_type="sschart"
-          />
-        </div>
-      );
-    }
-  }
+    return (
+      <div className={this.props.chartname}>
+        <Minichart
+          data={this.state.data}
+          graph_type='sschart'
+        />
+      </div>
+    );
 }
 
-NetworkComponent.displayName = 'NetworkComponent';
 
-module.exports = NetworkComponent;
+}
+
+ChartComponent.displayName = 'ChartComponent';
+
+module.exports = ChartComponent;

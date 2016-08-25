@@ -2,8 +2,7 @@
 
 const React = require('react');
 const Actions = require('../action');
-const OpCountersComponent = require('./opcounters-component');
-const NetworkComponent = require('./network-component');
+const ChartComponent = require('./chart-component');
 const OpCountersStore = require('../store/opcounters-store');
 const NetworkStore = require('../store/network-store');
 
@@ -46,10 +45,10 @@ class ServerStatsComponent extends React.Component {
     return (
       <div className='server-stats'>
         <div className='opcounters'>
-          <OpCountersComponent store={OpCountersStore} />
+          <ChartComponent chartname='OpCounter' store={OpCountersStore} />
         </div>
         <div className='network'>
-          <NetworkComponent store={NetworkStore} />
+          <ChartComponent chartname='Network' store={NetworkStore} />
         </div>
         <div className='read-write'>
         </div>
