@@ -3,7 +3,9 @@
 const React = require('react');
 const Actions = require('../action');
 const OpCountersComponent = require('./opcounters-component');
+const NetworkComponent = require('./network-component');
 const OpCountersStore = require('../store/opcounters-store');
+const NetworkStore = require('../store/network-store');
 
 /**
  * Represents the component that renders all the server stats.
@@ -43,7 +45,16 @@ class ServerStatsComponent extends React.Component {
   render() {
     return (
       <div className='server-stats'>
-        <OpCountersComponent store={OpCountersStore} />
+        <div className='opcounters'>
+          <OpCountersComponent store={OpCountersStore} />
+        </div>
+        <div className='network'>
+          <NetworkComponent store={NetworkStore} />
+        </div>
+        <div className='read-write'>
+        </div>
+        <div className='memory'>
+        </div>
       </div>
     );
   }
