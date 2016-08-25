@@ -83,7 +83,7 @@ class ChartComponent extends React.Component {
       <div className={this.props.chartname}>
         <Minichart
           data={this.state.data}
-          graph_type='sschart'
+          graph_type='stats-chart'
         />
       </div>
     );
