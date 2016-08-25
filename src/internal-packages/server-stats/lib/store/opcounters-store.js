@@ -2,6 +2,7 @@
 
 const Reflux = require('reflux');
 const ServerStatsStore = require('./server-stats-store');
+// const debug = require('debug')('server-stats:opcounter-store');
 
 const OpCounterStore = Reflux.createStore({
 
@@ -9,28 +10,28 @@ const OpCounterStore = Reflux.createStore({
     this.listenTo(ServerStatsStore, this.opCounter);
 
     this.opsPerSec = {
-      'insert': [], 'query': [], 'update': [],
-      'delete': [], 'command': [], 'getmore': []};
+      insert: [], query: [], update: [],
+      delete: [], command: [], getmore: []};
     this.rawData = [];
     this.localTime = [];
     this.currentMax = 1;
     this.starting = true;
     this.maxOps = 63;
-    this.data = {'operations': [
-      {'op': 'insert', 'count': [], 'active': true, 'current': 0},
-      {'op': 'query', 'count': [], 'active': true, 'current': 0},
-      {'op': 'update', 'count': [], 'active': true, 'current': 0},
-      {'op': 'delete', 'count': [], 'active': true, 'current': 0},
-      {'op': 'command', 'count': [], 'active': true, 'current': 0},
-      {'op': 'getmore', 'count': [], 'active': true, 'current': 0}],
-      'localTime': [],
-      'yDomain': [0, this.currentMax],
-      'rawData': [],
-      'maxOps': this.maxOps,
-      'labels': {
-        'title': 'operations',
-        'keys': ['inserts', 'queries', 'updates', 'deletes', 'commands', 'getmores'],
-        'yAxis': 'OPS'}
+    this.data = {operations: [
+      {op: 'insert', count: [], active: true, current: 0},
+      {op: 'query', count: [], active: true, current: 0},
+      {op: 'update', count: [], active: true, current: 0},
+      {op: 'delete', count: [], active: true, current: 0},
+      {op: 'command', count: [], active: true, current: 0},
+      {op: 'getmore', count: [], active: true, current: 0}],
+      localTime: [],
+      yDomain: [0, this.currentMax],
+      rawData: [],
+      maxOps: this.maxOps,
+      labels: {
+        title: 'operations',
+        keys: ['inserts', 'queries', 'updates', 'deletes', 'commands', 'getmores'],
+        yAxis: 'OPS'}
     };
   },
 

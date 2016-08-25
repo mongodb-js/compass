@@ -2,31 +2,32 @@
 
 const Reflux = require('reflux');
 const ServerStatsStore = require('./server-stats-store');
-const  _ = require('lodash');
+// const debug = require('debug')('server-stats:opcounter-store');
+const _ = require('lodash');
 
 const NetworkStore = Reflux.createStore({
 
   init: function() {
     this.listenTo(ServerStatsStore, this.network);
 
-    this.opsPerSec = {'bytesIn': [], 'bytesOut': [], 'current': []};
+    this.opsPerSec = {bytesIn: [], bytesOut: [], current: []};
     this.rawData = [];
     this.localTime = [];
     this.currentMax = 1;
     this.starting = true;
     this.maxOps = 63;
-    this.data = {'operations': [
-      {'op': 'bytesIn', 'count': [], 'active': true},
-      {'op': 'bytesOut', 'count': [], 'active': true},
-      {'op': 'current', 'count': [], 'active': true}],
-      'localTime': [],
-      'yDomain': [0, this.currentMax],
-      'rawData': [],
-      'maxOps': this.maxOps,
-      'labels': {
-        'title': 'network',
-        'keys': ['net in', 'net out', 'connections'],
-        'yAxis': 'KB'
+    this.data = {operations: [
+      {op: 'bytesIn', count: [], active: true},
+      {op: 'bytesOut', count: [], active: true},
+      {op: 'current', count: [], active: true}],
+      localTime: [],
+      yDomain: [0, this.currentMax],
+      rawData: [],
+      maxOps: this.maxOps,
+      labels: {
+        title: 'network',
+        keys: ['net in', 'net out', 'connections'],
+        yAxis: 'KB'
       }
     };
   },
@@ -44,7 +45,7 @@ const NetworkStore = Reflux.createStore({
         key = this.data.operations[q].op;
         source = doc.network;
         div = 1000;
-        if (q == 2) {
+        if (q === 2) {
           source = doc.connections;
           div = 1;
           precision = 0;
