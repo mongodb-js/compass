@@ -64,9 +64,23 @@ ol.document-list {
         }
       }
 
+      .document-property.string {
+        vertical-align: top;
+      }
+
+      .document-property-key {
+        vertical-align: top;
+      }
+
+      .document-property-colon {
+        vertical-align: top;
+      }
+
       // add quotes for strings before and after, and some basic type coloring
       .document-property.string > .document-property-value {
         color: steelblue;
+        white-space: pre-line;
+        word-break: break-all;
         &::before {
           content: "\"";
         }

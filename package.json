@@ -101,7 +101,7 @@
     "font-awesome": "https://github.com/FortAwesome/Font-Awesome/archive/v4.4.0.tar.gz",
     "get-object-path": "azer/get-object-path#74eb42de0cfd02c14ffdd18552f295aba723d394",
     "hadron-action": "^0.1.0",
-    "hadron-app-registry": "^1.10.0",
+    "hadron-app-registry": "^1.10.1",
     "hadron-auto-update-manager": "^0.0.12",
     "hadron-compile-cache": "^0.3.0",
     "hadron-document": "^0.25.0",
