@@ -521,10 +521,9 @@ class NativeClient extends EventEmitter {
    * @returns {Object} The instance detail.
    */
   _buildInstance(data) {
-    var splitHost = data._id.split(':');
     return _.assignIn(data, {
-      hostname: splitHost[0],
-      port: parseInt(splitHost[1], 10)
+      hostname: this.model.hostname,
+      port: this.model.port
     });
   }
 
