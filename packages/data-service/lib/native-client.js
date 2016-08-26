@@ -522,6 +522,7 @@ class NativeClient extends EventEmitter {
    */
   _buildInstance(data) {
     return _.assignIn(data, {
+      _id: `${this.model.hostname}:${this.model.port}`,
       hostname: this.model.hostname,
       port: this.model.port
     });
