@@ -28,7 +28,11 @@ class Element extends React.Component {
       'li',
       { className: `${ PROPERTY_CLASS } ${ this.props.type.toLowerCase() }` },
       React.createElement(Field, { field: this.props.field }),
-      ':',
+      React.createElement(
+        'span',
+        { className: 'document-property-colon' },
+        ':'
+      ),
       React.createElement(
         'div',
         { className: VALUE_CLASS, title: this.props.value },

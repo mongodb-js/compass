@@ -27,7 +27,7 @@ class Element extends React.Component {
     return (
       <li className={`${PROPERTY_CLASS} ${this.props.type.toLowerCase()}`}>
         <Field field={this.props.field} />
-        :
+        <span className='document-property-colon'>:</span>
         <div className={VALUE_CLASS} title={this.props.value}>
           {String(this.props.value)}
         </div>
