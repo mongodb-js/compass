@@ -14,16 +14,16 @@ const GlobalLockStore = Reflux.createStore({
     this.localTime = [];
     this.currentMax = 1;
     this.starting = true;
-    this.maxOps = 63;
-    this.data = {operations: [
-      {op: 'aReads', count: [], active: true},
-      {op: 'aWrites', count: [], active: true},
-      {op: 'qReads', count: [], active: true},
-      {op: 'qWrites', count: [], active: true}],
+    this.xLength = 63;
+    this.data = {dataSets: [
+      {line: 'aReads', count: [], active: true},
+      {line: 'aWrites', count: [], active: true},
+      {line: 'qReads', count: [], active: true},
+      {line: 'qWrites', count: [], active: true}],
       localTime: [],
       yDomain: [0, this.currentMax],
       rawData: [],
-      maxOps: this.maxOps,
+      xLength: this.xLength,
       labels: {
         title: 'read & write',
         keys: ['active reads', 'active writes', 'queued reads', 'queued writes'],
@@ -42,14 +42,14 @@ const GlobalLockStore = Reflux.createStore({
       raw.aWrites = doc.globalLock.activeClients.writers;
       raw.qReads = doc.globalLock.currentQueue.readers;
       raw.qWrites = doc.globalLock.currentQueue.writers;
-      for (var q = 0; q < this.data.operations.length; q++) {
-        key = this.data.operations[q].op;
+      for (var q = 0; q < this.data.dataSets.length; q++) {
+        key = this.data.dataSets[q].line;
         val = raw[key];
         if (this.starting) { // TODO: should we skip the first value to be consistent with the other graphs?
           continue;
         }
         this.totalCount[key].push(val);
-        this.data.operations[q].count = this.totalCount[key].slice(Math.max(this.totalCount[key].length - this.maxOps, 0));
+        this.data.dataSets[q].count = this.totalCount[key].slice(Math.max(this.totalCount[key].length - this.xLength, 0));
         if (val > this.currentMax) {
           this.currentMax = val;
         }
@@ -61,8 +61,8 @@ const GlobalLockStore = Reflux.createStore({
       this.rawData.push(raw);
       this.data.yDomain = [0, this.currentMax];
       this.localTime.push(doc.localTime);
-      this.data.localTime = this.localTime.slice(Math.max(this.localTime.length - this.maxOps, 0));
-      this.data.rawData = this.rawData.slice(Math.max(this.rawData.length - this.maxOps, 0));
+      this.data.localTime = this.localTime.slice(Math.max(this.localTime.length - this.xLength, 0));
+      this.data.rawData = this.rawData.slice(Math.max(this.rawData.length - this.xLength, 0));
     }
     this.trigger(error, this.data);
   }

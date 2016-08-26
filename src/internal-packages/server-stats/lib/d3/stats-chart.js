@@ -49,11 +49,11 @@ const graphfunction = function() {
         .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
       // Setup
-      keys = data.operations.map(function(f) { return f.op; });
+      keys = data.dataSets.map(function(f) { return f.line; });
       var minTime = data.localTime[data.localTime.length - 1];
-      minTime = new Date(minTime.getTime() - (data.maxOps * 1000));
+      minTime = new Date(minTime.getTime() - (data.xLength * 1000));
       var xDomain = d3.extent([minTime].concat(data.localTime));
-      var subMargin = {left: (subWidth / 60) * (data.maxOps - 60), top: 10};
+      var subMargin = {left: (subWidth / 60) * (data.xLength - 60), top: 10};
       var currSelection;
       var legendWidth = (subWidth - subMargin.top) / data.numKeys;
 
@@ -91,7 +91,7 @@ const graphfunction = function() {
         .append('g')
         .attr('class', 'axis-labels');
       [{
-        name: 'y-label text-ops',
+        name: 'y-label text-units',
         x: subMargin.left - 15, y: 15,
         default: data.labels.yAxis
       }, {
@@ -157,13 +157,13 @@ const graphfunction = function() {
         .interpolate('monotone')
         .x(function(d, i) { return x(data.localTime[i]); })
         .y(function(d) { return y(d); });
-      g.selectAll('.operation').data(data.operations)
+      g.selectAll('.line-div').data(data.dataSets)
         .enter().append('g')
-        .attr('class', 'operation')
+        .attr('class', 'line-div')
         .append('path')
         .attr('class', function(d, i) { return 'line chart-color-' + i; })
         .style('fill', 'none')
-        .attr('id', function(d) { return 'tag' + d.op; } );
+        .attr('id', function(d) { return 'tag' + d.line; } );
       container.selectAll('path.line')
         .attr('d', function(d) { return line(d.count); });
 
@@ -177,7 +177,7 @@ const graphfunction = function() {
         .attr('width', subWidth)
         .attr('height', margin.bottom)
         .attr('transform', 'translate(' + mLeft + ',' + mRight + ')');
-      var opDiv = lEnter.selectAll('.legend').data(keys).enter()
+      var lineDiv = lEnter.selectAll('.legend').data(keys).enter()
         .append('g')
         .attr('class', 'subLegend')
         .attr('transform', function(d, i) {
@@ -186,7 +186,7 @@ const graphfunction = function() {
           }
           return 'translate(' + i * legendWidth + ',5)';
         });
-      opDiv
+      lineDiv
         .append('rect')
         .attr('class', function(d, i) { return 'legend-box chart-color-' + i; })
         .attr('id', function(d) { return 'box' + d; })
@@ -196,8 +196,8 @@ const graphfunction = function() {
         .attr('ry', bubbleWidth / 5)
 
         .on('click', function(d, i) {
-          var currOp = data.operations[i];
-          var active = currOp.active ? false : true;
+          var currLine = data.dataSets[i];
+          var active = currLine.active ? false : true;
           var newOpacity = active ? 1 : 0;
           d3.select('#tag' + d)
             .transition().duration(100)
@@ -208,16 +208,16 @@ const graphfunction = function() {
           d3.select('#bubble' + d)
             .transition().duration(100)
             .style('opacity', newOpacity);
-          currOp.active = active;
+          currLine.active = active;
         });
-      opDiv
+      lineDiv
         .append('text')
-        .attr('class', 'legend-opname')
+        .attr('class', 'legend-linename')
         .attr('transform', 'translate(' + 13 + ',9)')
         .text(function(d, i) {return data.labels.keys[i]; });
-      opDiv
+      lineDiv
         .append('text')
-        .attr('class', function(d) { return 'legend-opcount text-' + d;} )
+        .attr('class', function(d) { return 'legend-count text-' + d;} )
         .attr('transform', 'translate(' + 15 + ',25)');
 
       // Create overlay line + bubbles
@@ -269,15 +269,15 @@ const graphfunction = function() {
         var rightOffset;
         var lM;
         var rM;
-        for (var k = 0; k < data.operations.length; k++) {
-          key = data.operations[k];
+        for (var k = 0; k < data.dataSets.length; k++) {
+          key = data.dataSets[k];
           rightOffset = y(key.count[index]);
           lM = leftOffset - (bubbleWidth / 2);
           rM = rightOffset - (bubbleWidth / 2);
           focus.selectAll('rect.chart-color-' + k)
             .attr('transform', 'translate(' + lM + ',' + rM + ')');
-          var currentText = container.selectAll('text.legend-opcount.text-' + key.op);
-          currentText.text(data.rawData[index][key.op]);
+          var currentText = container.selectAll('text.legend-count.text-' + key.line);
+          currentText.text(data.rawData[index][key.line]);
         }
       }
 
@@ -308,7 +308,7 @@ const graphfunction = function() {
       if (onOverlay) {
         updateOverlay();
       } else {
-        container.selectAll('text.legend-opcount')
+        container.selectAll('text.legend-count')
           .text(function(d) {
             return data.rawData[data.rawData.length - 1][d];
           });

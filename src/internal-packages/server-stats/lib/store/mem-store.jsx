@@ -15,15 +15,15 @@ const MemStore = Reflux.createStore({
     this.localTime = [];
     this.currentMax = 1;
     this.starting = true;
-    this.maxOps = 63;
-    this.data = {operations: [
-      {op: 'virtual', count: [], 'active': true},
-      {op: 'resident', count: [], 'active': true},
-      {op: 'mapped', count: [], 'active': true}],
+    this.xLength = 63;
+    this.data = {dataSets: [
+      {line: 'virtual', count: [], 'active': true},
+      {line: 'resident', count: [], 'active': true},
+      {line: 'mapped', count: [], 'active': true}],
       localTime: [],
       yDomain: [0, this.currentMax],
       rawData: [],
-      maxOps: this.maxOps,
+      xLength: this.xLength,
       labels: {
         title: 'memory',
         keys: ['vsize', 'resident', 'mapped'],
@@ -38,15 +38,15 @@ const MemStore = Reflux.createStore({
       var key;
       var val;
       var raw = {};
-      for (var q = 0; q < this.data.operations.length; q++) {
-        key = this.data.operations[q].op;
+      for (var q = 0; q < this.data.dataSets.length; q++) {
+        key = this.data.dataSets[q].line;
         val = _.round(doc.mem[key] / 1000, 2); // convert to GB
         raw[key] = val;
         if (this.starting) { // TODO: should we skip the first value to be consistent with the other graphs?
           continue;
         }
         this.totalCount[key].push(val);
-        this.data.operations[q].count = this.totalCount[key].slice(Math.max(this.totalCount[key].length - this.maxOps, 0));
+        this.data.dataSets[q].count = this.totalCount[key].slice(Math.max(this.totalCount[key].length - this.xLength, 0));
         if (val > this.currentMax) {
           this.currentMax = val;
         }
@@ -58,8 +58,8 @@ const MemStore = Reflux.createStore({
       this.rawData.push(raw);
       this.data.yDomain = [0, this.currentMax];
       this.localTime.push(doc.localTime);
-      this.data.localTime = this.localTime.slice(Math.max(this.localTime.length - this.maxOps, 0));
-      this.data.rawData = this.rawData.slice(Math.max(this.rawData.length - this.maxOps, 0));
+      this.data.localTime = this.localTime.slice(Math.max(this.localTime.length - this.xLength, 0));
+      this.data.rawData = this.rawData.slice(Math.max(this.rawData.length - this.xLength, 0));
     }
     this.trigger(error, this.data);
   }
