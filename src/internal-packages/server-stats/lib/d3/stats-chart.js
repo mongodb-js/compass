@@ -1,5 +1,5 @@
 const d3 = require('d3');
-// const debug = require('debug')('server-stats:stats-chart');
+const debug = require('debug')('server-stats:stats-chart');
 
 const graphfunction = function() {
   'use strict';
@@ -7,10 +7,10 @@ const graphfunction = function() {
   var height = 300;
   var x = d3.time.scale();
   var y = d3.scale.linear();
-  // var connectionY = d3.scale.linear(); // TODO: scale for connection differently
+  var y2 = d3.scale.linear();
   var yAxis = d3.svg.axis().scale(y).orient('left').ticks(0);
   var xAxis = d3.svg.axis().scale(x).orient('bottom').ticks(0);
-  var keys = []; // TODO: make sure this is updating right
+  var keys = [];
   var onOverlay = false;
   var mouseLocation = null;
   var bubbleWidth = 10;
@@ -56,6 +56,10 @@ const graphfunction = function() {
       var subMargin = {left: (subWidth / 60) * (data.xLength - 60), top: 10};
       var currSelection;
       var legendWidth = (subWidth - subMargin.top) / data.numKeys;
+      var scale2 = 'secondScale' in data;
+      if (scale2) {
+        keys.push(data.secondScale.line);
+      }
 
       x
         .domain(xDomain)
@@ -120,6 +124,16 @@ const graphfunction = function() {
       container.selectAll('text.min')
         .text(d3.time.format('%X')(timeZero));
 
+      // Second scale axis label
+      if (scale2) {
+        currSelection
+          .append('text')
+          .attr('class', 'y-label second-label')
+          .attr('transform', 'translate(' + (subWidth + 5) + ',5)');
+        container.selectAll('text.second-label')
+          .text(d3.format('s')(data.secondScale.currentMax)); // in case its really large
+      }
+
       // Border Lines
       currSelection = gEnter
         .append('g')
@@ -167,6 +181,26 @@ const graphfunction = function() {
       container.selectAll('path.line')
         .attr('d', function(d) { return line(d.count); });
 
+      // Add line with different scale
+      if (scale2) {
+        y2
+          .domain([0, data.secondScale.currentMax])
+          .range([subHeight, 0]);
+        var line2 = d3.svg.line()
+          .interpolate('monotone')
+          .x(function(d, i) { return x(data.localTime[i]); })
+          .y(function(d) { return y2(d); });
+        g.selectAll('.second-line-div').data([data.secondScale])
+          .enter().append('g')
+          .attr('class', 'second-line-div')
+          .append('path')
+          .attr('class', 'second-line chart-color-' + (keys.length - 1))
+          .style('fill', 'none')
+          .attr('id', function (d) { return 'tag' + d.line; });
+        container.selectAll('.second-line')
+          .attr('d', function(d) { return line2(d.count); });
+      }
+
       // Legend
       var l = container.selectAll('g.legend').data([0]);
       var mLeft = margin.left + subMargin.left;
@@ -177,16 +211,18 @@ const graphfunction = function() {
         .attr('width', subWidth)
         .attr('height', margin.bottom)
         .attr('transform', 'translate(' + mLeft + ',' + mRight + ')');
-      var lineDiv = lEnter.selectAll('.legend').data(keys).enter()
+
+      var legendDiv = lEnter.selectAll('.legend').data(keys).enter()
         .append('g')
         .attr('class', 'subLegend')
         .attr('transform', function(d, i) {
-          if (d === 'current') {
-            i = 4.5;
+          if (scale2 && i === (keys.length - 1)) { // Set location if on separate axis.
+            return 'translate(' + (subWidth - 120) + ',5)';
+          } else {
+            return 'translate(' + (i * legendWidth) + ',5)';
           }
-          return 'translate(' + i * legendWidth + ',5)';
         });
-      lineDiv
+      legendDiv
         .append('rect')
         .attr('class', function(d, i) { return 'legend-box chart-color-' + i; })
         .attr('id', function(d) { return 'box' + d; })
@@ -196,7 +232,12 @@ const graphfunction = function() {
         .attr('ry', bubbleWidth / 5)
 
         .on('click', function(d, i) {
-          var currLine = data.dataSets[i];
+          var currLine;
+          if (i >= data.dataSets.length && scale2) {
+            currLine = data.secondScale;
+          } else {
+            currLine = data.dataSets[i];
+          }
           var active = currLine.active ? false : true;
           var newOpacity = active ? 1 : 0;
           d3.select('#tag' + d)
@@ -210,12 +251,12 @@ const graphfunction = function() {
             .style('opacity', newOpacity);
           currLine.active = active;
         });
-      lineDiv
+      legendDiv
         .append('text')
         .attr('class', 'legend-linename')
         .attr('transform', 'translate(' + 13 + ',9)')
         .text(function(d, i) {return data.labels.keys[i]; });
-      lineDiv
+      legendDiv
         .append('text')
         .attr('class', function(d) { return 'legend-count text-' + d;} )
         .attr('transform', 'translate(' + 15 + ',25)');
@@ -269,6 +310,7 @@ const graphfunction = function() {
         var rightOffset;
         var lM;
         var rM;
+        var currentText;
         for (var k = 0; k < data.dataSets.length; k++) {
           key = data.dataSets[k];
           rightOffset = y(key.count[index]);
@@ -276,8 +318,18 @@ const graphfunction = function() {
           rM = rightOffset - (bubbleWidth / 2);
           focus.selectAll('rect.chart-color-' + k)
             .attr('transform', 'translate(' + lM + ',' + rM + ')');
-          var currentText = container.selectAll('text.legend-count.text-' + key.line);
+          currentText = container.selectAll('text.legend-count.text-' + key.line);
           currentText.text(data.rawData[index][key.line]);
+        }
+        // Update overlay for line on separate scale
+        if (scale2) {
+          rightOffset = y2(data.secondScale.count[index]);
+          lM = leftOffset - (bubbleWidth / 2);
+          rM = rightOffset - (bubbleWidth / 2);
+          focus.selectAll('rect.chart-color-' + (keys.length - 1))
+            .attr('transform', 'translate(' + lM + ',' + rM + ')');
+          var currentText = container.selectAll('text.legend-count.text-' + data.secondScale.line);
+          currentText.text(data.rawData[index][data.secondScale.line]);
         }
       }
 

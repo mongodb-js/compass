@@ -10,7 +10,8 @@ const NetworkStore = Reflux.createStore({
   init: function() {
     this.listenTo(ServerStatsStore, this.network);
 
-    this.opsPerSec = {bytesIn: [], bytesOut: [], current: []};
+    this.bytesPerSec = {bytesIn: [], bytesOut: []};
+    this.connectionCount = [];
     this.rawData = [];
     this.localTime = [];
     this.currentMax = 1;
@@ -18,8 +19,7 @@ const NetworkStore = Reflux.createStore({
     this.xLength = 63;
     this.data = {dataSets: [
       {line: 'bytesIn', count: [], active: true},
-      {line: 'bytesOut', count: [], active: true},
-      {line: 'current', count: [], active: true}],
+      {line: 'bytesOut', count: [], active: true}],
       localTime: [],
       yDomain: [0, this.currentMax],
       rawData: [],
@@ -29,7 +29,8 @@ const NetworkStore = Reflux.createStore({
         keys: ['net in', 'net out', 'connections'],
         yAxis: 'KB'
       },
-      numKeys: 6
+      numKeys: 6,
+      secondScale: {line: 'connections', count: [], active: true, currentMax: 1}
     };
   },
 
@@ -38,29 +39,19 @@ const NetworkStore = Reflux.createStore({
       var key;
       var val;
       var count;
-      var source;
       var raw = {};
-      var div = 1;
-      var precision = 2;
       for (var q = 0; q < this.data.dataSets.length; q++) {
         key = this.data.dataSets[q].line;
-        source = doc.network;
-        div = 1000;
-        if (q === 2) {
-          source = doc.connections;
-          div = 1;
-          precision = 0;
-        }
-        count = _.round(source[key] / div, precision); // convert to KB
+        count = _.round(doc.network[key] / 1000, 2); // convert to KB
 
         raw[key] = count;
         if (this.starting) { // don't add data, starting point
           this.data.dataSets[q].current = count;
           continue;
         }
-        val = _.round(count - this.data.dataSets[q].current);
-        this.opsPerSec[key].push(val);
-        this.data.dataSets[q].count = this.opsPerSec[key].slice(Math.max(this.opsPerSec[key].length - this.xLength, 0));
+        val = _.round(count - this.data.dataSets[q].current, 2);
+        this.bytesPerSec[key].push(val);
+        this.data.dataSets[q].count = this.bytesPerSec[key].slice(Math.max(this.bytesPerSec[key].length - this.xLength, 0));
         if (val > this.currentMax) {
           this.currentMax = val;
         }
@@ -70,6 +61,16 @@ const NetworkStore = Reflux.createStore({
         this.starting = false;
         return;
       }
+      // Handle connections being on a separate Y axis
+      var connections = doc.connections.current;
+      raw['connections'] = connections;
+      if (connections > this.data.secondScale.currentMax) {
+        this.data.secondScale.currentMax = connections;
+      }
+      this.connectionCount.push(connections);
+      this.data.secondScale.count = this.connectionCount.slice(Math.max(this.connectionCount.length - this.xLength, 0));
+
+      // Add the rest of the data
       this.rawData.push(raw);
       this.data.yDomain = [0, this.currentMax];
       this.localTime.push(doc.localTime);
