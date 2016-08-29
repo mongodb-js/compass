@@ -56,7 +56,9 @@ var HomeView = View.extend({
     'click a.show-connect-window': 'onClickShowConnectWindow'
   },
   initialize: function() {
-    this.serverStatsView = app.appRegistry.getComponent('ServerStats');
+    if (app.isFeatureEnabled('serverStats')) {
+      this.serverStatsView = app.appRegistry.getComponent('ServerStats');
+    }
     this.listenTo(app.instance, 'sync', this.onInstanceFetched);
     this.listenTo(app.connection, 'change:name', this.updateTitle);
     ipc.on('window:show-compass-tour', this.showTour.bind(this, true));
@@ -68,10 +70,12 @@ var HomeView = View.extend({
   },
   render: function() {
     this.renderWithTemplate(this);
-    ReactDOM.render(
-      React.createElement(this.serverStatsView, { interval: 1000 }),
-      this.queryByHook('report-zero-state')
-    );
+    if (app.isFeatureEnabled('serverStats')) {
+      ReactDOM.render(
+        React.createElement(this.serverStatsView, { interval: 1000 }),
+        this.queryByHook('report-zero-state')
+      );
+    }
     if (app.preferences.showFeatureTour) {
       this.showTour(false);
     } else {
