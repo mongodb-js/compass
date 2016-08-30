@@ -135,6 +135,26 @@ describe('DataService', function() {
     });
   });
 
+  describe('#listCollections', function() {
+    it('returns the collections', function(done) {
+      service.listCollections('data-service', {}, function(err, collections) {
+        assert.equal(null, err);
+        expect(collections[0].name).to.equal('test');
+        done();
+      });
+    });
+  });
+
+  describe('#updateCollection', function() {
+    it('returns the update result', function(done) {
+      service.updateCollection('data-service.test', {}, function(err, result) {
+        assert.equal(null, err);
+        expect(result.ok).to.equal(1.0);
+        done();
+      });
+    });
+  });
+
   describe('#count', function() {
     context('when a filter is provided', function() {
       it('returns a count for the matching documents', function(done) {

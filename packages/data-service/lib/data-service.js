@@ -38,6 +38,18 @@ class DataService extends EventEmitter {
   }
 
   /**
+   * List all collections for a database.
+   *
+   * @param {String} databaseName - The database name.
+   * @param {Object} filter - The filter.
+   * @param {Function} callback - The callback.
+   */
+  listCollections(databaseName, filter, callback) {
+    debug(`Listing collections: ${databaseName}, filter: ${filter}`);
+    this.client.listCollections(databaseName, filter, callback);
+  }
+
+  /**
    * Connect to the server.
    *
    * @param {function} done - The callback function.
@@ -227,6 +239,18 @@ class DataService extends EventEmitter {
   sample(ns, options) {
     debug(`#sample: ${ns}, options: ${options}`);
     return this.client.sample(ns, options);
+  }
+
+  /**
+   * Update a collection.
+   *
+   * @param {String} ns - The namespace.
+   * @param {Object} flags - The flags.
+   * @param {Function} callback - The callback.
+   */
+  updateCollection(ns, flags, callback) {
+    debug(`#updateCollection: ${ns}, flags: ${flags}`);
+    this.client.updateCollection(ns, flags, callback);
   }
 
   /**

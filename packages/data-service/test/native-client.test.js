@@ -107,6 +107,16 @@ describe('NativeClient', function() {
     });
   });
 
+  describe('#updateCollection', function() {
+    it('returns the update result', function(done) {
+      client.updateCollection('data-service.test', {}, function(err, result) {
+        assert.equal(null, err);
+        expect(result.ok).to.equal(1.0);
+        done();
+      });
+    });
+  });
+
   describe('#collectionNames', function() {
     it('returns the collection names', function(done) {
       client.collectionNames('data-service', function(err, names) {

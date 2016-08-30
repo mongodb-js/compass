@@ -79,6 +79,23 @@ class NativeClient extends EventEmitter {
   }
 
   /**
+   * List all collections for a database.
+   *
+   * @param {String} databaseName - The database name.
+   * @param {Object} filter - The filter.
+   * @param {Function} callback - The callback.
+   */
+  listCollections(databaseName, filter, callback) {
+    var db = this._database(databaseName);
+    db.listCollections(filter).toArray((error, data) => {
+      if (error) {
+        return callback(this._translateMessage(error));
+      }
+      callback(null, data);
+    });
+  }
+
+  /**
    * Get the stats for all collections in the database.
    *
    * @param {String} databaseName - The database name.
@@ -104,12 +121,11 @@ class NativeClient extends EventEmitter {
    * @param {Function} callback - The callback.
    */
   collectionNames(databaseName, callback) {
-    var db = this._database(databaseName);
-    db.listCollections({}).toArray((error, data) => {
+    this.listCollections(databaseName, {}, (error, collections) => {
       if (error) {
         return callback(this._translateMessage(error));
       }
-      var names = _.map(data, (collection) => {
+      var names = _.map(collections, (collection) => {
         return collection.name;
       });
       callback(null, names);
@@ -386,6 +402,26 @@ class NativeClient extends EventEmitter {
   sample(ns, options) {
     var db = this._database(this._databaseName(ns));
     return createSampleStream(db, this._collectionName(ns), options);
+  }
+
+  /**
+   * Update a collection.
+   *
+   * @param {String} ns - The namespace.
+   * @param {Object} flags - The flags.
+   * @param {Function} callback - The callback.
+   */
+  updateCollection(ns, flags, callback) {
+    var collectionName = this._collectionName(ns);
+    var db = this._database(this._databaseName(ns));
+    var collMod = { 'collMod': collectionName };
+    var command = _.assignIn(collMod, flags);
+    db.command(command, (error, result) => {
+      if (error) {
+        return callback(this._translateMessage(error));
+      }
+      callback(null, result);
+    });
   }
 
   /**
