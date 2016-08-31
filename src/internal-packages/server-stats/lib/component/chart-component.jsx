@@ -1,9 +1,10 @@
 'use strict';
 
 const React = require('react');
-const Minichart = require('./minichart');
+const D3Component = require('./d3component');
 const debug = require('debug')('server-stats:chart-component');
 
+const chartFn = require('../d3/stats-chart');
 
 /**
  * Represents the component that renders serverStatus charts.
@@ -81,9 +82,12 @@ class ChartComponent extends React.Component {
   renderGraph() {
     return (
       <div className={this.props.chartname}>
-        <Minichart
+        <D3Component
           data={this.state.data}
-          graph_type='stats-chart'
+          renderMode='svg'
+          width={650}
+          height={300}
+          d3fn={chartFn}
         />
       </div>
     );
