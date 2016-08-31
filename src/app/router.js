@@ -5,8 +5,6 @@ module.exports = AmpersandRouter.extend({
     schema: 'index',
     connect: 'connect',
     'schema/:ns': 'schema',
-    help: 'help',
-    'help/:entryId': 'help',
     '(*path)': 'catchAll'
   },
   index: function() {
@@ -16,12 +14,6 @@ module.exports = AmpersandRouter.extend({
     var HomePage = require('./home');
     this.trigger('page', new HomePage({
       ns: ns
-    }));
-  },
-  help: function(entryId) {
-    var HelpPage = require('../help');
-    this.trigger('page', new HelpPage({
-      entryId: entryId
     }));
   },
   catchAll: function() {
