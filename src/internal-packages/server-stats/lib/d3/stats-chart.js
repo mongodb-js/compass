@@ -1,45 +1,53 @@
 const d3 = require('d3');
-const debug = require('debug')('server-stats:stats-chart');
+const debug = require('debug')('mongodb-compass:server-stats-chart');
 
 const graphfunction = function() {
-  'use strict';
   var width = 600;
   var height = 300;
   var x = d3.time.scale();
   var y = d3.scale.linear();
   var y2 = d3.scale.linear();
-  var yAxis = d3.svg.axis().scale(y).orient('left').ticks(0);
-  var xAxis = d3.svg.axis().scale(x).orient('bottom').ticks(0);
   var keys = [];
   var onOverlay = false;
   var mouseLocation = null;
   var bubbleWidth = 10;
-  var margin = {top: 60, right: 30, bottom: 50, left: 40};
+  var margin = {top: 80, right: 30, bottom: 80, left: 40};
   var subHeight = height - margin.top - margin.bottom;
   var subWidth = width - margin.left - margin.right;
+  var subMargin = {top: 10, left: (subWidth / 60) * 3};
 
-  function drawError() {
-    var message = 'Error: bad data given to graph.';
-    var container = d3.select(this);
-    var g = container.selectAll('g.chart').data([0]);
-    g.enter()
-      .append('g')
-      .attr('class', 'chart')
-      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
-      .append('text')
-      .attr('class', 'error-message')
-      .attr('x', (subWidth / 2))
-      .attr('y', (subHeight / 2))
-      .text(message);
+  function validate(data) {
+    var topKeys = ['dataSets', 'localTime', 'yDomain', 'xLength',
+      'labels', 'keyLength'];
+    for (var i = 0; i < topKeys.length; i++) {
+      if (!(topKeys[i] in data)) {
+        return false;
+      }
+    }
+    var len = data.dataSets.length;
+    if ('secondScale' in data) {
+      if (!('line' in data.secondScale && 'count' in data.secondScale && 'active' in data.secondScale) ||
+          data.secondScale.count.length !== data.localTime.length) {
+        return false;
+      }
+      len++;
+    }
+    if (data.localTime.length === 0 ||
+        data.yDomain.length !== 2 || data.yDomain[0] >= data.yDomain[1] ||
+        !('keys' in data.labels) || data.labels.keys.length !== len) {
+      return false;
+    }
+    for (var i = 0; i < data.dataSets.length; i++) {
+      if (!('line' in data.dataSets[i] && 'count' in data.dataSets[i] && 'active' in data.dataSets[i]) ||
+          data.dataSets[i].count.length !== data.localTime.length) {
+        return false;
+      }
+    }
+    return true;
   }
 
   function chart(selection) {
     selection.each(function(data) {
-      // Handle bad data
-      if (!('localTime' in data) || data.localTime.length === 0) { // TODO: handle more types of bad data
-        return drawError();
-      }
-
       // Create chart
       var container = d3.select(this);
       var g = container.selectAll('g.chart').data([0]);
@@ -48,115 +56,40 @@ const graphfunction = function() {
         .attr('class', 'chart')
         .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
-      // Setup
-      keys = data.dataSets.map(function(f) { return f.line; });
-      var minTime = data.localTime[data.localTime.length - 1];
-      minTime = new Date(minTime.getTime() - (data.xLength * 1000));
-      var xDomain = d3.extent([minTime].concat(data.localTime));
-      var subMargin = {left: (subWidth / 60) * (data.xLength - 60), top: 10};
-      var currSelection;
-      var legendWidth = (subWidth - subMargin.top) / data.numKeys;
-      var scale2 = 'secondScale' in data;
-      if (scale2) {
-        keys.push(data.secondScale.line);
-      }
-
-      x
-        .domain(xDomain)
-        .range([0, subWidth]);
-      y
-        .domain(data.yDomain)
-        .range([subHeight, 0]);
-      var timeZero = x.invert(subMargin.left);
-
       // Title
       gEnter
         .append('text')
         .attr('class', 'chart-title')
         .attr('x', (subWidth / 2))
-        .attr('y', 0 - (margin.top / 2))
-        .text(data.labels.title);
-
-      // Axes
-      gEnter
-        .append('g')
-        .attr('class', 'axis-x')
-        .attr('transform', 'translate(0,' + subHeight + ')')
-        .call(d3.svg.axis().scale(x).orient('bottom'));
-      d3.selectAll('.axis-x').call(xAxis);
-      gEnter
-        .append('g')
-        .attr('class', 'axis-y')
-        .call(d3.svg.axis().scale(y).orient('left'));
-      d3.selectAll('.axis-y').call(yAxis);
-
-      // Axis labels
-      currSelection = gEnter
-        .append('g')
-        .attr('class', 'axis-labels');
-      [{
-        name: 'y-label text-units',
-        x: subMargin.left - 15, y: 15,
-        default: data.labels.yAxis
-      }, {
-        name: 'y-label text-count',
-        x: subMargin.left - 15, y: 5,
-        default: ''
-      }, {
-        name: 'x-label min',
-        x: (x.range()[0] + subMargin.left), y: (-subMargin.top - 5),
-        default: ''
-      }, {
-        name: 'x-label max',
-        x: x.range()[1], y: (-subMargin.top - 5),
-        default: ''
-      }].map(function(c) {
-        currSelection
-          .append('text')
-          .attr('class', c.name)
-          .attr('transform', 'translate(' + c.x + ',' + c.y + ')')
-          .text(c.default);
-      });
-      container.selectAll('text.text-count')
-        .text(d3.format('s')(data.yDomain[1]));
-      container.selectAll('text.max')
-        .text(d3.time.format('%X')(xDomain[1]));
-      container.selectAll('text.min')
-        .text(d3.time.format('%X')(timeZero));
-
-      // Second scale axis label
-      if (scale2) {
-        currSelection
-          .append('text')
-          .attr('class', 'y-label second-label')
-          .attr('transform', 'translate(' + (subWidth + 5) + ',5)');
-        container.selectAll('text.second-label')
-          .text(d3.format('s')(data.secondScale.currentMax)); // in case its really large
+        .attr('y', 0 - (margin.top / 2));
+      if ('labels' in data && 'title' in data.labels) {
+        g.selectAll('text.chart-title')
+          .text(data.labels.title);
       }
 
       // Border Lines
-      currSelection = gEnter
+      var currSelection = gEnter
         .append('g')
         .attr('class', 'background-lines');
       [{
-        x1: x.range()[0] + subMargin.left, y1: y.range()[0],
-        x2: x.range()[0] + subMargin.left, y2: y.range()[1] - subMargin.top,
+        x1: 0 + subMargin.left, y1: subHeight,
+        x2: 0 + subMargin.left, y2: 0 - subMargin.top,
         class: 'left'
       }, {
-        x1: x.range()[1], y1: y.range()[0],
-        x2: x.range()[1], y2: y.range()[1] - subMargin.top,
+        x1: subWidth, y1: subHeight,
+        x2: subWidth, y2: 0 - subMargin.top,
         class: 'right'
       }, {
-        x1: x.range()[0] + subMargin.left, y1: y.range()[0],
-        x2: x.range()[1], y2: y.range()[0],
+        x1: 0 + subMargin.left, y1: subHeight,
+        x2: subWidth, y2: subHeight,
         class: 'bottom'
       }, {
-        x1: x.range()[0] + subMargin.left - subMargin.top, y1: y.range()[1],
-        x2: x.range()[1], y2: y.range()[1],
+        x1: 0 + subMargin.left - subMargin.top, y1: 0,
+        x2: subWidth, y2: 0,
         class: 'top'
       }, {
-        x1: x.range()[0] + subMargin.left, y1: (y.range()[0] / 2),
-        x2: x.range()[1], y2: (y.range()[0] / 2),
+        x1: 0 + subMargin.left, y1: (subHeight / 2),
+        x2: subWidth, y2: (subHeight / 2),
         class: 'middle'
       }].map(function(c) {
         currSelection
@@ -166,11 +99,82 @@ const graphfunction = function() {
           .attr('x2', c.x2).attr('y2', c.y2);
       });
 
+      // Axis labels
+      currSelection = gEnter
+        .append('g')
+        .attr('class', 'axis-labels');
+      [{
+        name: 'y-label text-units',
+        x: subMargin.left - 15, y: 15
+      }, {
+        name: 'y-label text-count',
+        x: subMargin.left - 15, y: 5
+      }, {
+        name: 'x-label min',
+        x: (0 + subMargin.left), y: (-subMargin.top - 5)
+      }, {
+        name: 'x-label max',
+        x: subWidth, y: (-subMargin.top - 5)
+      }, {
+        name: 'y-label second-label',
+        x: (subWidth + 5),  y: 5
+      }].map(function(c) {
+        currSelection
+          .append('text')
+          .attr('class', c.name)
+          .attr('transform', 'translate(' + c.x + ',' + c.y + ')');
+      });
+
+      // Error message, if needed
+      gEnter
+        .append('text')
+        .attr('class', 'error-message')
+        .attr('x', subWidth / 2)
+        .attr('y', (subHeight / 2) + 5)
+        .text('\u26A0 data unavailable')
+        .style('display', 'none');
+
+      // Handle bad data
+      if (!validate(data)) {
+        // Draw error message
+        container.selectAll('text.error-message').style('display', null);
+        // Hide everything drawn already
+        container.selectAll('.legend, .overlay, .axis-labels, .line-div')
+          .style('display', 'none');
+        return;
+      }
+      // Redraw anything hidden by errors
+      container.selectAll('.legend, .overlay, .axis-labels, .line-div')
+        .style('display', null);
+      // Hide error message
+      container.selectAll('text.error-message').style('display', 'none');
+
+      // Setup range
+      keys = data.dataSets.map(function(f) { return f.line; });
+      var minTime = data.localTime[data.localTime.length - 1];
+      minTime = new Date(minTime.getTime() - (data.xLength * 1000));
+      var xDomain = d3.extent([minTime].concat(data.localTime));
+      var legendWidth = (subWidth - subMargin.top) / data.keyLength;
+      var scale2 = 'secondScale' in data;
+      x
+        .domain(xDomain)
+        .range([0, subWidth]);
+      y
+        .domain(data.yDomain)
+        .range([subHeight, 0]);
+      var timeZero = x.invert(subMargin.left);
+
+      // Update labels
+      container.selectAll('text.text-count')
+        .text(d3.format('s')(data.yDomain[1]));
+      container.selectAll('text.text-units') // Repeat this in case error occurred
+        .text(data.labels.yAxis);
+      container.selectAll('text.max')
+        .text(d3.time.format('%X')(xDomain[1]));
+      container.selectAll('text.min')
+        .text(d3.time.format('%X')(timeZero));
+
       // Chart Lines
-      var line = d3.svg.line()
-        .interpolate('monotone')
-        .x(function(d, i) { return x(data.localTime[i]); })
-        .y(function(d) { return y(d); });
       g.selectAll('.line-div').data(data.dataSets)
         .enter().append('g')
         .attr('class', 'line-div')
@@ -178,11 +182,20 @@ const graphfunction = function() {
         .attr('class', function(d, i) { return 'line chart-color-' + i; })
         .style('fill', 'none')
         .attr('id', function(d) { return 'tag' + d.line; } );
+      var line = d3.svg.line()
+        .interpolate('monotone')
+        .x(function(d, i) { return x(data.localTime[i]); })
+        .y(function(d) { return y(d); });
       container.selectAll('path.line')
         .attr('d', function(d) { return line(d.count); });
 
-      // Add line with different scale
+      // add data from line with separate axis
       if (scale2) {
+        keys.push(data.secondScale.line);
+        // update label
+        container.selectAll('text.second-label')
+          .text(d3.format('s')(data.secondScale.currentMax)); // in case its really large
+        // update line
         y2
           .domain([0, data.secondScale.currentMax])
           .range([subHeight, 0]);
@@ -196,7 +209,7 @@ const graphfunction = function() {
           .append('path')
           .attr('class', 'second-line chart-color-' + (keys.length - 1))
           .style('fill', 'none')
-          .attr('id', function (d) { return 'tag' + d.line; });
+          .attr('id', function(d) { return 'tag' + d.line; });
         container.selectAll('.second-line')
           .attr('d', function(d) { return line2(d.count); });
       }
@@ -205,23 +218,23 @@ const graphfunction = function() {
       var l = container.selectAll('g.legend').data([0]);
       var mLeft = margin.left + subMargin.left;
       var mRight = subHeight + margin.top + subMargin.top;
-      var lEnter = l.enter()
+      l.enter()
         .append('g')
         .attr('class', 'legend')
         .attr('width', subWidth)
         .attr('height', margin.bottom)
         .attr('transform', 'translate(' + mLeft + ',' + mRight + ')');
 
-      var legendDiv = lEnter.selectAll('.legend').data(keys).enter()
+      var legendDiv = l.selectAll('g.subLegend').data(keys).enter()
         .append('g')
         .attr('class', 'subLegend')
         .attr('transform', function(d, i) {
           if (scale2 && i === (keys.length - 1)) { // Set location if on separate axis.
             return 'translate(' + (subWidth - 120) + ',5)';
-          } else {
-            return 'translate(' + (i * legendWidth) + ',5)';
           }
+          return 'translate(' + (i * legendWidth) + ',5)';
         });
+      // Add boxes for legend
       legendDiv
         .append('rect')
         .attr('class', function(d, i) { return 'legend-box chart-color-' + i; })
@@ -251,6 +264,7 @@ const graphfunction = function() {
             .style('opacity', newOpacity);
           currLine.active = active;
         });
+      // Add text for legend
       legendDiv
         .append('text')
         .attr('class', 'legend-linename')
@@ -262,7 +276,8 @@ const graphfunction = function() {
         .attr('transform', 'translate(' + 15 + ',25)');
 
       // Create overlay line + bubbles
-      var focus = container.selectAll('g.focus').data([0]).enter()
+      var focusP = container.selectAll('g.focus').data([0]);
+      var focus = focusP.enter()
         .append('g')
         .attr('class', 'focus')
         .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
@@ -270,8 +285,8 @@ const graphfunction = function() {
       focus.append('line')
         .attr('class', 'overlay-line')
         .attr('transform', 'translate(' + subWidth + ',0)')
-        .attr('x1', x.range()[0]).attr('y1', y.range()[0])
-        .attr('x2', x.range()[0]).attr('y2', y.range()[1]);
+        .attr('x1', 0).attr('y1', subHeight)
+        .attr('x2', 0).attr('y2', 0);
       focus.append('path')
         .attr('class', 'overlay-triangle')
         .attr('transform', 'translate(' + subWidth + ',0)')
@@ -279,7 +294,7 @@ const graphfunction = function() {
       focus.append('text')
         .attr('class', 'overlay-date')
         .attr('transform', 'translate(' + subWidth + ',0)');
-      focus.selectAll('.focus').data(keys).enter()
+      focusP.selectAll('rect.overlay-bubbles').data(keys).enter()
         .append('rect')
         .attr('class', function(d, i) { return 'overlay-bubbles chart-color-' + i; })
         .attr('id', function(d) { return 'bubble' + d; })
@@ -290,46 +305,42 @@ const graphfunction = function() {
 
       // Transform overlay elements to current selection
       function updateOverlay() {
-        var bisectDate = d3.bisector(function(d) {
-          return d;
-        }).left;
+        var bisectDate = d3.bisector(function(d) { return d; }).left;
         var index = bisectDate(data.localTime, x.invert(mouseLocation), 1);
         if (index >= data.localTime.length) {
           return;
         }
-        var leftOffset = x(data.localTime[index]);
+        var xOffset = x(data.localTime[index]);
         focus = container.selectAll('g.focus');
         focus.selectAll('line.overlay-line')
-          .attr('transform', 'translate(' + leftOffset + ',0)');
+          .attr('transform', 'translate(' + xOffset + ',0)');
         focus.selectAll('path.overlay-triangle')
-          .attr('transform', 'translate(' + leftOffset + ',-5)');
+          .attr('transform', 'translate(' + xOffset + ',-5)');
         focus.selectAll('text.overlay-date')
-          .attr('transform', 'translate(' + leftOffset + ',-15)')
+          .attr('transform', 'translate(' + xOffset + ',-15)')
           .text(d3.time.format('%X')(data.localTime[index]));
         var key;
-        var rightOffset;
-        var lM;
-        var rM;
+        var xM = xOffset - (bubbleWidth / 2);
+        var yOffset;
+        var yM;
         var currentText;
         for (var k = 0; k < data.dataSets.length; k++) {
           key = data.dataSets[k];
-          rightOffset = y(key.count[index]);
-          lM = leftOffset - (bubbleWidth / 2);
-          rM = rightOffset - (bubbleWidth / 2);
+          yOffset = y(key.count[index]);
+          yM = yOffset - (bubbleWidth / 2);
           focus.selectAll('rect.chart-color-' + k)
-            .attr('transform', 'translate(' + lM + ',' + rM + ')');
+            .attr('transform', 'translate(' + xM + ',' + yM + ')');
           currentText = container.selectAll('text.legend-count.text-' + key.line);
-          currentText.text(data.rawData[index][key.line]);
+          currentText.text(key.count[index]);
         }
         // Update overlay for line on separate scale
         if (scale2) {
-          rightOffset = y2(data.secondScale.count[index]);
-          lM = leftOffset - (bubbleWidth / 2);
-          rM = rightOffset - (bubbleWidth / 2);
+          yOffset = y2(data.secondScale.count[index]);
+          yM = yOffset - (bubbleWidth / 2);
           focus.selectAll('rect.chart-color-' + (keys.length - 1))
-            .attr('transform', 'translate(' + lM + ',' + rM + ')');
-          var currentText = container.selectAll('text.legend-count.text-' + data.secondScale.line);
-          currentText.text(data.rawData[index][data.secondScale.line]);
+            .attr('transform', 'translate(' + xM + ',' + yM + ')');
+          currentText = container.selectAll('text.legend-count.text-' + data.secondScale.line);
+          currentText.text(data.secondScale.count[index]);
         }
       }
 
@@ -361,8 +372,11 @@ const graphfunction = function() {
         updateOverlay();
       } else {
         container.selectAll('text.legend-count')
-          .text(function(d) {
-            return data.rawData[data.rawData.length - 1][d];
+          .text(function(d, i) {
+            if (scale2 && i == keys.length - 1) {
+              return data.secondScale.count[data.secondScale.count.length - 1];
+            }
+            return data.dataSets[i].count[data.dataSets[i].count.length - 1];
           });
       }
     });

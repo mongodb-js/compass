@@ -12,24 +12,22 @@ const NetworkStore = Reflux.createStore({
 
     this.bytesPerSec = {bytesIn: [], bytesOut: []};
     this.connectionCount = [];
-    this.rawData = [];
     this.localTime = [];
     this.currentMax = 1;
     this.starting = true;
     this.xLength = 63;
     this.data = {dataSets: [
-      {line: 'bytesIn', count: [], active: true},
-      {line: 'bytesOut', count: [], active: true}],
+      {line: 'bytesIn', count: [], active: true, current: 0},
+      {line: 'bytesOut', count: [], active: true, current: 0}],
       localTime: [],
       yDomain: [0, this.currentMax],
-      rawData: [],
       xLength: this.xLength,
       labels: {
         title: 'network',
         keys: ['net in', 'net out', 'connections'],
         yAxis: 'KB'
       },
-      numKeys: 6,
+      keyLength: 6,
       secondScale: {line: 'connections', count: [], active: true, currentMax: 1}
     };
   },
@@ -44,12 +42,11 @@ const NetworkStore = Reflux.createStore({
         key = this.data.dataSets[q].line;
         count = _.round(doc.network[key] / 1000, 2); // convert to KB
 
-        raw[key] = count;
         if (this.starting) { // don't add data, starting point
           this.data.dataSets[q].current = count;
           continue;
         }
-        val = _.round(count - this.data.dataSets[q].current, 2);
+        val = Math.max(0, _.round(count - this.data.dataSets[q].current, 2)); // Don't allow negatives.
         this.bytesPerSec[key].push(val);
         this.data.dataSets[q].count = this.bytesPerSec[key].slice(Math.max(this.bytesPerSec[key].length - this.xLength, 0));
         if (val > this.currentMax) {
@@ -71,11 +68,9 @@ const NetworkStore = Reflux.createStore({
       this.data.secondScale.count = this.connectionCount.slice(Math.max(this.connectionCount.length - this.xLength, 0));
 
       // Add the rest of the data
-      this.rawData.push(raw);
       this.data.yDomain = [0, this.currentMax];
       this.localTime.push(doc.localTime);
       this.data.localTime = this.localTime.slice(Math.max(this.localTime.length - this.xLength, 0));
-      this.data.rawData = this.rawData.slice(Math.max(this.rawData.length - this.xLength, 0));
     }
     this.trigger(error, this.data);
   }

@@ -10,7 +10,6 @@ const GlobalLockStore = Reflux.createStore({
     this.listenTo(ServerStatsStore, this.globalLock);
 
     this.totalCount = {aReads: [], aWrites: [], qReads: [], qWrites: []};
-    this.rawData = [];
     this.localTime = [];
     this.currentMax = 1;
     this.starting = true;
@@ -22,14 +21,13 @@ const GlobalLockStore = Reflux.createStore({
       {line: 'qWrites', count: [], active: true}],
       localTime: [],
       yDomain: [0, this.currentMax],
-      rawData: [],
       xLength: this.xLength,
       labels: {
         title: 'read & write',
         keys: ['active reads', 'active writes', 'queued reads', 'queued writes'],
         yAxis: ''
       },
-      numKeys: 5
+      keyLength: 5
     };
   },
 
@@ -45,7 +43,7 @@ const GlobalLockStore = Reflux.createStore({
       for (var q = 0; q < this.data.dataSets.length; q++) {
         key = this.data.dataSets[q].line;
         val = raw[key];
-        if (this.starting) { // TODO: should we skip the first value to be consistent with the other graphs?
+        if (this.starting) { // Skip 1st value to be consistent with rate graphs.
           continue;
         }
         this.totalCount[key].push(val);
@@ -58,11 +56,9 @@ const GlobalLockStore = Reflux.createStore({
         this.starting = false;
         return;
       }
-      this.rawData.push(raw);
       this.data.yDomain = [0, this.currentMax];
       this.localTime.push(doc.localTime);
       this.data.localTime = this.localTime.slice(Math.max(this.localTime.length - this.xLength, 0));
-      this.data.rawData = this.rawData.slice(Math.max(this.rawData.length - this.xLength, 0));
     }
     this.trigger(error, this.data);
   }
