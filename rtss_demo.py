@@ -63,7 +63,7 @@ try:
     while(True):
         many_ops(client)
         many_connections()
-        move_data(client)
+        #move_data(client) keep out for now
         time.sleep(random.randint(0, 3))
 
 
