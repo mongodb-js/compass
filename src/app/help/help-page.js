@@ -4,7 +4,7 @@ var debug = require('debug')('mongodb-compass:help');
 var HelpSectionCollection = require('./help-section-collection');
 var HelpEntryCollection = require('./help-entry-collection');
 var HelpEntry = require('./help-entry');
-var SidebarView = require('../app/sidebar');
+var SidebarView = require('../sidebar');
 var ViewSwitcher = require('ampersand-view-switcher');
 var app = require('ampersand-app');
 var metrics = require('mongodb-js-metrics')();
@@ -15,8 +15,6 @@ var relatedTemplate = require('./related.jade');
 var tagsTemplate = require('./tags.jade');
 
 var entries = new HelpEntryCollection();
-
-var StatusAction = app.appRegistry.getAction('StatusAction');
 
 var HelpPage = View.extend({
   template: indexTemplate,
@@ -130,11 +128,8 @@ var HelpPage = View.extend({
     if (!entry) {
       debug('Unknown help entry', entryId);
       this.viewSwitcher.clear();
-      StatusAction.setMessage('Help entry not found.');
       return;
     }
-
-    StatusAction.hide();
 
     if (!entries.select(entry)) {
       debug('already selected');

@@ -25,7 +25,7 @@ var RESOURCES = path.resolve(__dirname, '../app/');
  * created by the `build:pages` gulp task.
  */
 var DEFAULT_URL = 'file://' + path.join(RESOURCES, 'index.html#connect');
-var HELP_URL = 'file://' + path.join(RESOURCES, 'index.html#help');
+var HELP_URL = 'file://' + path.join(RESOURCES, 'help.html#help');
 
 /**
  * We want the Connect and Help window to be special
