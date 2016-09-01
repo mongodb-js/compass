@@ -1,5 +1,3 @@
-'use strict';
-
 const Reflux = require('reflux');
 const ServerStatsStore = require('./server-stats-store');
 // const debug = require('debug')('server-stats:globallock-store');
@@ -33,14 +31,14 @@ const GlobalLockStore = Reflux.createStore({
 
   globalLock: function(error, doc) {
     if (!error && doc) {
-      var key;
-      var val;
-      var raw = {};
+      let key;
+      let val;
+      const raw = {};
       raw.aReads = doc.globalLock.activeClients.readers;
       raw.aWrites = doc.globalLock.activeClients.writers;
       raw.qReads = doc.globalLock.currentQueue.readers;
       raw.qWrites = doc.globalLock.currentQueue.writers;
-      for (var q = 0; q < this.data.dataSets.length; q++) {
+      for (let q = 0; q < this.data.dataSets.length; q++) {
         key = this.data.dataSets[q].line;
         val = raw[key];
         if (this.starting) { // Skip 1st value to be consistent with rate graphs.

@@ -1,8 +1,6 @@
-'use strict';
-
 const React = require('react');
 const D3Component = require('./d3component');
-const debug = require('debug')('server-stats:chart-component');
+// const debug = require('debug')('mongodb-compass:server-stats-chart-component');
 
 const chartFn = require('../d3/stats-chart');
 
@@ -53,6 +51,34 @@ class ChartComponent extends React.Component {
   }
 
   /**
+   * Render the error message in the component.
+   *
+   * @returns {String} The error message.
+   */
+  renderError() {
+    return this.state.error.message;
+  }
+
+  /**
+   * Render the graph in the component.
+   *
+   * @returns {React.Component} The graph.
+   */
+  renderGraph() {
+    return (
+      <div className={this.props.chartname}>
+        <D3Component
+          data={this.state.data}
+          renderMode="svg"
+          width={650}
+          height={300}
+          d3fn={chartFn}
+        />
+      </div>
+    );
+  }
+
+  /**
    * Renders the component.
    *
    * @returns {React.Component} The component.
@@ -65,36 +91,12 @@ class ChartComponent extends React.Component {
     );
   }
 
-  /**
-   * Render the error message in the component.
-   *
-   * @returns {String} The error message.
-   */
-  renderError() {
-    return this.state.error.message;
-  }
-
-  /**
-   * Render the graph in the component.
-   *
-   * @todo: Implement.
-   */
-  renderGraph() {
-    return (
-      <div className={this.props.chartname}>
-        <D3Component
-          data={this.state.data}
-          renderMode='svg'
-          width={650}
-          height={300}
-          d3fn={chartFn}
-        />
-      </div>
-    );
 }
 
-
-}
+ChartComponent.propTypes = {
+  store: React.PropTypes.any.isRequired,
+  chartname: React.PropTypes.any.isRequired
+};
 
 ChartComponent.displayName = 'ChartComponent';
 

@@ -1,5 +1,3 @@
-'use strict';
-
 const Reflux = require('reflux');
 const ServerStatsStore = require('./server-stats-store');
 // const debug = require('debug')('server-stats:opcounter-store');
@@ -33,9 +31,9 @@ const MemStore = Reflux.createStore({
 
   mem: function(error, doc) {
     if (!error && doc) {
-      var key;
-      var val;
-      for (var q = 0; q < this.data.dataSets.length; q++) {
+      let key;
+      let val;
+      for (let q = 0; q < this.data.dataSets.length; q++) {
         key = this.data.dataSets[q].line;
         val = _.round(doc.mem[key] / 1000, 2); // convert to GB
         if (this.starting) { // Skip 1st value to be consistent with rate graphs.

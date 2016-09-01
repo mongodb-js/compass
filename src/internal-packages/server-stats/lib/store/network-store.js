@@ -1,5 +1,3 @@
-'use strict';
-
 const Reflux = require('reflux');
 const ServerStatsStore = require('./server-stats-store');
 // const debug = require('debug')('server-stats:opcounter-store');
@@ -34,11 +32,10 @@ const NetworkStore = Reflux.createStore({
 
   network: function(error, doc) {
     if (!error && doc) {
-      var key;
-      var val;
-      var count;
-      var raw = {};
-      for (var q = 0; q < this.data.dataSets.length; q++) {
+      let key;
+      let val;
+      let count;
+      for (let q = 0; q < this.data.dataSets.length; q++) {
         key = this.data.dataSets[q].line;
         count = _.round(doc.network[key] / 1000, 2); // convert to KB
 
@@ -59,8 +56,7 @@ const NetworkStore = Reflux.createStore({
         return;
       }
       // Handle connections being on a separate Y axis
-      var connections = doc.connections.current;
-      raw['connections'] = connections;
+      const connections = doc.connections.current;
       if (connections > this.data.secondScale.currentMax) {
         this.data.secondScale.currentMax = connections;
       }

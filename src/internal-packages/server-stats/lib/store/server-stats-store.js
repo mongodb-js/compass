@@ -1,5 +1,3 @@
-'use strict';
-
 const app = require('ampersand-app');
 const Reflux = require('reflux');
 const Actions = require('../action');

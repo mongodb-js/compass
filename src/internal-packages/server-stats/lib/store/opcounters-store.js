@@ -1,5 +1,3 @@
-'use strict';
-
 const Reflux = require('reflux');
 const ServerStatsStore = require('./server-stats-store');
 // const debug = require('debug')('server-stats:opcounter-store');
@@ -37,10 +35,10 @@ const OpCounterStore = Reflux.createStore({
 
   opCounter: function(error, doc) {
     if (!error && doc) {
-      var key;
-      var val;
-      var count;
-      for (var q = 0; q < this.data.dataSets.length; q++) {
+      let key;
+      let val;
+      let count;
+      for (let q = 0; q < this.data.dataSets.length; q++) {
         key = this.data.dataSets[q].line;
         count = doc.opcounters[key];
         if (this.starting) { // don't add data, starting point

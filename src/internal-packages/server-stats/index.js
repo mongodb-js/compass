@@ -1,5 +1,3 @@
-'use strict';
-
 const app = require('ampersand-app');
 const ServerStatsComponent = require('./lib/component');
 /**

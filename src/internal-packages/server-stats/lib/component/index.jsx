@@ -1,5 +1,3 @@
-'use strict';
-
 const React = require('react');
 const Actions = require('../action');
 const ChartComponent = require('./chart-component');
@@ -45,23 +43,28 @@ class ServerStatsComponent extends React.Component {
    */
   render() {
     return (
-      <div className='server-stats'>
-        <div className='opcounters'>
-          <ChartComponent chartname='OpCounter' store={OpCountersStore} />
+      <div className="server-stats">
+        <div className="opcounters">
+          <ChartComponent chartname="OpCounter" store={OpCountersStore} />
         </div>
-        <div className='network'>
-          <ChartComponent chartname='Network' store={NetworkStore} />
+        <div className="network">
+          <ChartComponent chartname="Network" store={NetworkStore} />
         </div>
-        <div className='globallock'>
-          <ChartComponent chartname='GlobalLock' store={GlobalLockStore} />
+        <div className="globallock">
+          <ChartComponent chartname="GlobalLock" store={GlobalLockStore} />
         </div>
-        <div className='mem'>
-          <ChartComponent chartname='Mem' store={MemStore} />
+        <div className="mem">
+          <ChartComponent chartname="Mem" store={MemStore} />
         </div>
       </div>
     );
   }
 }
+
+ServerStatsComponent.propTypes = {
+  interval: React.PropTypes.number.isRequired
+};
+
 
 ServerStatsComponent.displayName = 'ServerStatsComponent';
 
