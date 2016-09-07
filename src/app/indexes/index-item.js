@@ -220,6 +220,7 @@ module.exports = View.extend(tooltipMixin, {
       GEOSPATIAL: 'https://docs.mongodb.org/manual/applications/geospatial-indexes/#geospatial-indexes',
       TEXT: 'https://docs.mongodb.org/manual/core/index-text/',
       HASHED: 'https://docs.mongodb.org/manual/core/index-hashed/',
+      REGULAR: 'https://docs.mongodb.com/manual/indexes/',
       UNKNOWN: null
     };
     var url = _.get(urlMap, event.target.parentNode.innerText, 'UNKNOWN');
