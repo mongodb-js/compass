@@ -2,6 +2,8 @@
 
 const _ = require('lodash');
 const React = require('react');
+const Action = require('../action/index-actions');
+const IndexHelpStore = require('../store/index-help-store');
 
 /**
  * Component for the type column.
@@ -15,6 +17,27 @@ class TypeColumn extends React.Component {
    */
   constructor(props) {
     super(props);
+  }
+
+  /**
+   * Subscribe on mount.
+   */
+  componentWillMount() {
+    this.unsubscribeHelp = IndexHelpStore.listen(this.handleIndexHelp.bind(this));
+  }
+
+  /**
+   * Unsubscribe on unmount.
+   */
+  componentWillUnmount() {
+    this.unsubscribeHelp();
+  }
+
+  /**
+   * Handle index help.
+   */
+  handleIndexHelp() {
+    debug('Opened help link in a new tab.');
   }
 
   /**
@@ -38,16 +61,26 @@ class TypeColumn extends React.Component {
       return (
         <div className={`property ${this.props.index.type}`} title={this._textTooltip()}>
           {this.props.index.type}
-          <i className='link' />
+          {this._link()}
         </div>
       );
     }
     return (
       <div className={`property ${this.props.index.type}`}>
         {this.props.index.type}
-        <i className='link' />
+        {this._link()}
       </div>
     );
+  }
+
+  _clickHelp(evt) {
+    evt.preventDefault();
+    evt.stopPropagation();
+    Action.indexHelp(evt.target.parentNode.innerText);
+  }
+
+  _link() {
+    return (<i className='link' onClick={this._clickHelp.bind(this)} />);
   }
 
   _textTooltip() {

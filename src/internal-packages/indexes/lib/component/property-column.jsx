@@ -3,6 +3,8 @@
 const _ = require('lodash');
 const format = require('util').format;
 const React = require('react');
+const Action = require('../action/index-actions');
+const IndexHelpStore = require('../store/index-help-store');
 
 /**
  * Component for the property column.
@@ -16,6 +18,27 @@ class PropertyColumn extends React.Component {
    */
   constructor(props) {
     super(props);
+  }
+
+  /**
+   * Subscribe on mount.
+   */
+  componentWillMount() {
+    this.unsubscribeHelp = IndexHelpStore.listen(this.handleIndexHelp.bind(this));
+  }
+
+  /**
+   * Unsubscribe on unmount.
+   */
+  componentWillUnmount() {
+    this.unsubscribeHelp();
+  }
+
+  /**
+   * Handle index help.
+   */
+  handleIndexHelp() {
+    debug('Opened help link in a new tab.');
   }
 
   /**
@@ -47,7 +70,7 @@ class PropertyColumn extends React.Component {
       return (
         <div className='property cardinality'>
           {this.props.index.cardinality}
-          <i className='link' />
+          {this._link()}
         </div>
       );
     }
@@ -65,31 +88,41 @@ class PropertyColumn extends React.Component {
       return (
         <div key={prop} className='property' data-toggle='tooltip' title={this._ttlTooltip()}>
           {prop}
-          <i className='link' />
+          {this._link()}
         </div>
       );
     } else if (prop === 'partial') {
       return (
         <div key={prop} className='property' data-toggle='tooltip' title={this._partialTooltip()}>
           {prop}
-          <i className='link' />
+          {this._link()}
         </div>
       );
     } else {
       return (
         <div key={prop} className='property'>
           {prop}
-          <i className='link' />
+          {this._link()}
         </div>
       );
     }
   }
 
-  partialTooltip() {
+  _clickHelp(evt) {
+    evt.preventDefault();
+    evt.stopPropagation();
+    Action.indexHelp(evt.target.parentNode.innerText);
+  }
+
+  _link() {
+    return (<i className='link' onClick={this._clickHelp.bind(this)} />);
+  }
+
+  _partialTooltip() {
     return format('partialFilterExpression: %j', this.props.index.extra.partialFilterExpression);
   }
 
-  ttlTooltip() {
+  _ttlTooltip() {
     return format('expireAfterSeconds: %d', this.props.index.extra.expireAfterSeconds);
   }
 }
