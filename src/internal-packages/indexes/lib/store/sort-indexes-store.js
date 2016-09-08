@@ -2,6 +2,12 @@
 
 const Reflux = require('reflux');
 const Action = require('../action/index-actions');
+const LoadIndexesStore = require('./load-indexes-store');
+
+const DEFAULT = 'Name and Definition';
+const ASC = 'fa-sort-asc';
+const DESC = 'fa-sort-desc';
+const USAGE = 'Usage';
 
 /**
  * The reflux store for sorting indexes
@@ -12,16 +18,78 @@ const SortIndexesStore = Reflux.createStore({
    * Initialize the sort indexes store.
    */
   init: function() {
+    this.listenTo(LoadIndexesStore, this.loadIndexes);
     this.listenTo(Action.sortIndexes, this.sortIndexes);
+  },
+
+  /**
+   * Load the indexes into the store.
+   *
+   * @param {Array} indexes - The indexes.
+   */
+  loadIndexes(indexes) {
+    this.indexes = indexes;
+    this.sortIndexes(DEFAULT);
   },
 
   /**
    * Sort the indexes
    *
-   * @param {Array} indexes - The indexes to sort.
+   * @param {String} column - The column to sort on.
    */
-  sortIndexes: function(indexes) {
-    this.trigger(indexes);
+  sortIndexes: function(column) {
+    this._setOrder(column);
+    this.indexes.sort(this._comparator(this._field()));
+    this.trigger(this.indexes);
+  },
+
+  /**
+   * Set the sort order.
+   *
+   * @param {String} column - The column.
+   */
+  _setOrder(column) {
+    if (this.sortField === column) {
+      this.sortOrder = (this.sortOrder === ASC) ? DESC : ASC;
+    } else {
+      this.sortField = column;
+      this.sortOrder = (column === DEFAULT) ? ASC : DESC;
+    }
+  },
+
+  /**
+   * Get a comparator function for the sort.
+   *
+   * @param {String} field - The field to sort on.
+   *
+   * @returns {Function} The function.
+   */
+  _comparator(field) {
+    var order = (this.sortOrder === ASC) ? 1 : -1;
+    return function(a, b) {
+      if (a[field] > b[field]) {
+        return order;
+      }
+      if (a[field] < b[field]) {
+        return -order;
+      }
+      return 0;
+    }
+  },
+
+  /**
+   * Get the name of the field to sort on based on the column header.
+   *
+   * @returns {String} The field.
+   */
+  _field() {
+    if (this.sortField === DEFAULT) {
+      return 'name';
+    } else if (this.sortField === USAGE) {
+      return 'usageCount';
+    } else {
+      return this.sortField.toLowerCase();
+    }
   }
 });
 
