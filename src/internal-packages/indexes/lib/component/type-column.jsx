@@ -57,7 +57,7 @@ class TypeColumn extends React.Component {
    * Render the type div.
    */
   renderType() {
-    if (this.props.type === 'text') {
+    if (this.props.index.type === 'text') {
       return (
         <div className={`property ${this.props.index.type}`} title={this._textTooltip()}>
           {this.props.index.type}
