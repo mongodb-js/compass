@@ -43,7 +43,7 @@ class PropertyColumn extends React.Component {
    * @returns {React.Component} The cardianlity info.
    */
   renderCardinality() {
-    if (this.props.index.cardinality === 'compoun') {
+    if (this.props.index.cardinality === 'compound') {
       return (
         <div className='property cardinality'>
           {this.props.index.cardinality}
