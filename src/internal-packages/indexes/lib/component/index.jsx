@@ -34,7 +34,6 @@ class Index extends React.Component {
         <TypeColumn index={this.props.index} />
         <SizeColumn
           size={this.props.index.size}
-          unit='kb'
           relativeSize={this.props.index.relativeSize} />
         <UsageColumn usage={this.props.index.usageCount} since={this.props.index.usageSince} />
         <PropertyColumn index={this.props.index} />
