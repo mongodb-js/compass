@@ -6,17 +6,19 @@
 
 1. Follow the setup instructions for [OSX][setup-osx], [Windows][setup-windows] or [Linux][setup-linux].
 1. [Set up SSH](https://help.github.com/articles/which-remote-url-should-i-use/#cloning-with-ssh-urls)
-1. Run `git clone git@github.com:10gen/compass.git` to get the source code
-1. Switch into the compass repo `cd compass`
-1. Run `npm install` to install dependencies
-1. Run `npm start` to build the app and launch it
-
-Already setup and prefer a simple copy and paste?
+1. Then copy/paste:
 
 ```bash
+# Get the source code by cloning the compass repository
 git clone git@github.com:10gen/compass.git
+
+# Change directory into the newly cloned repo
 cd compass
+
+# Install dependencies
 npm install
+
+# Build and launch the app
 npm start
 ```
 
