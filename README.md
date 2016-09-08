@@ -6,17 +6,18 @@
 
 1. Follow the setup instructions for [OSX][setup-osx], [Windows][setup-windows] or [Linux][setup-linux].
 2. [Set up SSH](https://help.github.com/articles/which-remote-url-should-i-use/#cloning-with-ssh-urls)
-3. Run `git clone git@github.com:10gen/compass.git ~/compass` to get the source code
+3. Run `git clone git@github.com:10gen/compass.git` to get the source code
+4. Switch into the compass repo `cd compass`
 4. Run `npm install` to install dependencies
 5. Run `npm start` to build the app and launch it
 
 Already setup and prefer a simple copy and paste?
 
 ```bash
-git clone git@github.com:10gen/compass.git ~/compass;
-cd ~/compass;
-npm install;
-npm start;
+git clone git@github.com:10gen/compass.git
+cd compass
+npm install
+npm start
 ```
 
 ## Key Modules
@@ -37,8 +38,8 @@ sign it if the signing certificate is available on your machine, and generate a 
 installer for your current platform:
 
 ```bash
-cd ~/compass;
-npm run release;
+cd compass
+npm run release
 ```
 
 ## Running Tests
