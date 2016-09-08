@@ -25,12 +25,15 @@ class Indexes extends React.Component {
    */
   render() {
     return (
-      <div className='column-container'>
-        <div className='column main'>
-          <table>
-            <IndexHeader />
-            <IndexList />
-          </table>
+      <div>
+        <div className='flexbox-fix'></div>
+        <div className='column-container'>
+          <div className='column main'>
+            <table>
+              <IndexHeader />
+              <IndexList />
+            </table>
+          </div>
         </div>
       </div>
     );
