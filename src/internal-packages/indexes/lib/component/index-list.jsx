@@ -2,9 +2,7 @@
 
 const _ = require('lodash');
 const React = require('react');
-const IndexModel = require('mongodb-index-model');
 const Index = require('./index');
-const LoadIndexesStore = require('../store/load-indexes-store');
 const SortIndexesStore = require('../store/sort-indexes-store');
 
 /**
@@ -16,7 +14,6 @@ class IndexList extends React.Component {
    * Subscribe on mount.
    */
   componentWillMount() {
-    this.unsubscribeLoad = LoadIndexesStore.listen(this.handleIndexChange.bind(this));
     this.unsubscribeSort = SortIndexesStore.listen(this.handleIndexChange.bind(this));
   }
 
@@ -24,7 +21,6 @@ class IndexList extends React.Component {
    * Unsubscribe on unmount.
    */
   componentWillUnmount() {
-    this.unsubscribeLoad();
     this.unsubscribeSort();
   }
 
@@ -54,10 +50,7 @@ class IndexList extends React.Component {
    * @returns {React.Component} The index list.
    */
   render() {
-    var maxSize = this._computeMaxSize();
-    var indexes = _.map(this.state.indexes, (index) => {
-      var model = new IndexModel(new IndexModel().parse(index));
-      model.relativeSize = model.size / maxSize * 100;
+    var indexes = _.map(this.state.indexes, (model) => {
       return (<Index key={model.name} index={model} />);
     });
     return (
@@ -65,12 +58,6 @@ class IndexList extends React.Component {
         {indexes}
       </tbody>
     );
-  }
-
-  _computeMaxSize() {
-    return _.max(this.state.indexes, (index) => {
-      return index.size;
-    }).size;
   }
 }
 
