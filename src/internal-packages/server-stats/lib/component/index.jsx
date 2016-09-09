@@ -1,18 +1,16 @@
 const React = require('react');
-const Actions = require('../action');
-const ChartComponent = require('./chart-component');
-const OpCountersStore = require('../store/opcounters-store');
-const NetworkStore = require('../store/network-store');
-const GlobalLockStore = require('../store/globallock-store');
-const MemStore = require('../store/mem-store');
+const Performance = require('./performance-component');
+// const Databases = require('./databases-component');
+const NavBarComponent = require('./navbar-component');
+// const debug = require('debug')('mongodb-compass:server-stats-RTSSComponent');
 
 /**
  * Represents the component that renders all the server stats.
  */
-class ServerStatsComponent extends React.Component {
+class RTSSComponent extends React.Component {
 
   /**
-   * The server stats component constructor.
+   * The RTSS view component constructor.
    *
    * @param {Object} props - The component properties.
    */
@@ -21,51 +19,30 @@ class ServerStatsComponent extends React.Component {
   }
 
   /**
-   * When the component mounts, start the polling timer.
-   */
-  componentDidMount() {
-    this.intervalId = setInterval(() => {
-      Actions.pollServerStats();
-    }, this.props.interval);
-  }
-
-  /**
-   * When the component unmounts, we stop the timer.
-   */
-  componentWillUnmount() {
-    clearInterval(this.intervalId);
-  }
-
-  /**
    * Renders the component.
    *
    * @returns {React.Component} The component.
+   <div className="databases">
+   <Databases />
+   </div>
    */
   render() {
     return (
-      <div className="server-stats">
-        <div className="opcounters">
-          <ChartComponent chartname="OpCounter" store={OpCountersStore} />
-        </div>
-        <div className="network">
-          <ChartComponent chartname="Network" store={NetworkStore} />
-        </div>
-        <div className="globallock">
-          <ChartComponent chartname="GlobalLock" store={GlobalLockStore} />
-        </div>
-        <div className="mem">
-          <ChartComponent chartname="Mem" store={MemStore} />
+      <div className="RTSS">
+        <NavBarComponent/>
+        <div className="performance">
+          <Performance interval={this.props.interval}/>
         </div>
       </div>
     );
   }
 }
 
-ServerStatsComponent.propTypes = {
+RTSSComponent.propTypes = {
   interval: React.PropTypes.number.isRequired
 };
 
 
-ServerStatsComponent.displayName = 'ServerStatsComponent';
+RTSSComponent.displayName = 'RTSSComponent';
 
-module.exports = ServerStatsComponent;
+module.exports = RTSSComponent;

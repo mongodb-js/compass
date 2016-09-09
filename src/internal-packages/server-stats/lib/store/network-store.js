@@ -1,5 +1,5 @@
 const Reflux = require('reflux');
-const ServerStatsStore = require('./server-stats-store');
+const ServerStatsStore = require('./server-stats-graphs-store');
 // const debug = require('debug')('server-stats:opcounter-store');
 const _ = require('lodash');
 
@@ -26,7 +26,7 @@ const NetworkStore = Reflux.createStore({
         yAxis: 'KB'
       },
       keyLength: 6,
-      secondScale: {line: 'connections', count: [], active: true, currentMax: 1}
+      secondScale: {line: 'connections', count: [], active: true, currentMax: 1, units: 'conn'}
     };
   },
 

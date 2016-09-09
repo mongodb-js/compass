@@ -70,8 +70,8 @@ class ChartComponent extends React.Component {
         <D3Component
           data={this.state.data}
           renderMode="svg"
-          width={650}
-          height={300}
+          width={520}
+          height={145}
           d3fn={chartFn}
         />
       </div>

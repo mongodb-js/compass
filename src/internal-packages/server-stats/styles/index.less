@@ -1,47 +1,69 @@
-.server-stats {
-  background-color: #43484D;
+@import '../internal-packages/server-stats/styles/rt-db.css';
+@import '../internal-packages/server-stats/styles/rt-lists.css';
+@import '../internal-packages/server-stats/styles/rt-nav.css';
+
+
+.RTSS {
   font-family: Akzidenz-Grotesk Std;
   font-weight: 500;
-  text-transform: uppercase;
-  color: #9ca4ab;
+  background-color: #3D4247;
   height: 100vh;
+  min-width: 100%;
+  overflow-x: scroll;
+
+  .rt__graphs-out {
+    float: left;
+    width: 520px;
+    padding-top: 31px;
+  }
+  .rt__lists-out {
+    width: auto;
+    overflow: scroll; // TODO: deal with scrolling
+    display: block;
+    padding-top: 10px;
+  }
 
   .opcounters {
-    width: 50%;
+    width: 100%;
     float: left;
+    margin-bottom: 8px;
   }
   .network {
-    width: 50%;
+    width: 100%;
     float: left;
+    margin-bottom: 8px;
   }
   .mem {
-    width: 50%;
+    width: 100%;
     float: left;
+    margin-bottom: 8px;
   }
   .globallock {
-    width: 50%;
+    width: 100%;
     float: left;
+    margin-bottom: 8px;
+  }
+
+  .chart-rect {
+    fill: #484D51;
   }
 
   .error-message {
+    text-transform: uppercase;
     text-anchor: middle;
     font-size: 14px;
     fill: white;
   }
+
   .chart-title {
-    text-anchor: middle;
-    font-size: 14px;
+    text-transform: uppercase;
+    text-anchor: start;
+    font-size: 10px;
     fill: white;
   }
-  .axis-x, .axis-y {
-      fill: none;
-  }
-  .background-lines {
-      stroke-width: 1px;
-      stroke: #9ca4ab;
-  }
+
   .axis-labels {
-      font-size: 11px;
+      font-size: 9px;
   }
   .y-label {
       text-anchor: end;
@@ -49,7 +71,9 @@
   }
   .second-label {
     text-anchor: start;
+    fill: #9ca4ab;
   }
+
   .x-label {
       text-anchor: middle;
       fill: #9ca4ab;
@@ -64,11 +88,12 @@
       fill-opacity: 1;
   }
   .legend-linename {
-      font-size: 11px;
+      text-transform: uppercase;
+      font-size: 10px;
       fill: #9ca4ab;
   }
   .legend-count {
-      font-size: 15px;
+      font-size: 12px;
       fill: white;
   }
   .focus {

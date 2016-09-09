@@ -1,0 +1,51 @@
+.rtDbs {
+  background-color: #3C4045;
+  height: 100%;
+}
+.rtDbs__container {
+  padding-top: 40px;  
+  display: flex;
+  justify-content: center;  
+}
+
+
+/* table */
+.rtDbs__table {
+  width: 1020px;
+  height: 100%;
+}
+.rtDbs__header {
+  display: flex;
+  flex-direction: row;
+}
+.rtDbs__headerItem {
+  height: 22.5px;
+  width: 16.6%;
+  display: flex;
+  justify-content: center;   
+  font-size: 13px;
+  font-weight: 500;
+  text-transform: uppercase;
+  color: #9FA2A4;
+}
+.rtDbs__row {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 3px;
+  background-color: #494F54;
+  cursor: pointer;
+}
+.rtDbs__row:hover {
+  background-color: #596066;
+  transition: all .7s ease-out;
+}
+.rtDbs__row-item {
+  height: 45px;
+  width: 16.6%;
+  color: white;
+  font-weight: normal;
+  display: flex;
+}
+.rtDbs__row-text {
+  margin: auto;
+}

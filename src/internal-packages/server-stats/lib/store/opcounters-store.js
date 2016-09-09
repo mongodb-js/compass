@@ -1,5 +1,5 @@
 const Reflux = require('reflux');
-const ServerStatsStore = require('./server-stats-store');
+const ServerStatsStore = require('./server-stats-graphs-store');
 // const debug = require('debug')('server-stats:opcounter-store');
 
 const OpCounterStore = Reflux.createStore({
@@ -27,7 +27,7 @@ const OpCounterStore = Reflux.createStore({
       labels: {
         title: 'operations',
         keys: ['inserts', 'queries', 'updates', 'deletes', 'commands', 'getmores'],
-        yAxis: 'OPS'
+        yAxis: 'ops'
       },
       keyLength: 6
     };

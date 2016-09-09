@@ -2,19 +2,16 @@ const d3 = require('d3');
 // const debug = require('debug')('mongodb-compass:server-stats-chart');
 
 const graphfunction = function() {
-  let width = 600;
-  let height = 300;
+  let width = 520;
+  let height = 160;
   const x = d3.time.scale();
   const y = d3.scale.linear();
   const y2 = d3.scale.linear();
   let keys = [];
   let onOverlay = false;
   let mouseLocation = null;
-  const bubbleWidth = 10;
-  const margin = {top: 80, right: 30, bottom: 80, left: 40};
-  const subHeight = height - margin.top - margin.bottom;
-  const subWidth = width - margin.left - margin.right;
-  const subMargin = {top: 10, left: (subWidth / 60) * 3};
+  const bubbleWidth = 8;
+  const margin = {top: 25, right: 40, bottom: 45, left: 55};
 
   function validate(data) { // eslint-disable-line complexity
     const topKeys = ['dataSets', 'localTime', 'yDomain', 'xLength',
@@ -48,6 +45,11 @@ const graphfunction = function() {
 
   function chart(selection) {
     selection.each(function(data) {
+      const subHeight = height - margin.top - margin.bottom;
+      const subWidth = width - margin.left - margin.right;
+      const xTick = subWidth / data.xLength;
+      const subMargin = 10;
+
       // Create chart
       const container = d3.select(this);
       const g = container.selectAll('g.chart').data([0]);
@@ -55,69 +57,39 @@ const graphfunction = function() {
         .append('g')
         .attr('class', 'chart')
         .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+      gEnter
+        .append('rect')
+        .attr('class', 'chart-rect')
+        .style('width', subWidth)
+        .style('height', subHeight);
 
       // Title
       gEnter
         .append('text')
         .attr('class', 'chart-title')
-        .attr('x', (subWidth / 2))
-        .attr('y', 0 - (margin.top / 2));
+        .attr('x', 0)
+        .attr('y', -subMargin);
       if ('labels' in data && 'title' in data.labels) {
         g.selectAll('text.chart-title')
           .text(data.labels.title);
       }
 
-      // Border Lines
-      let currSelection = gEnter
-        .append('g')
-        .attr('class', 'background-lines');
-      [{
-        x1: 0 + subMargin.left, y1: subHeight,
-        x2: 0 + subMargin.left, y2: 0 - subMargin.top,
-        class: 'left'
-      }, {
-        x1: subWidth, y1: subHeight,
-        x2: subWidth, y2: 0 - subMargin.top,
-        class: 'right'
-      }, {
-        x1: 0 + subMargin.left, y1: subHeight,
-        x2: subWidth, y2: subHeight,
-        class: 'bottom'
-      }, {
-        x1: 0 + subMargin.left - subMargin.top, y1: 0,
-        x2: subWidth, y2: 0,
-        class: 'top'
-      }, {
-        x1: 0 + subMargin.left, y1: (subHeight / 2),
-        x2: subWidth, y2: (subHeight / 2),
-        class: 'middle'
-      }].map(function(c) {
-        currSelection
-          .append('line')
-          .attr('class', c.class)
-          .attr('x1', c.x1).attr('y1', c.y1)
-          .attr('x2', c.x2).attr('y2', c.y2);
-      });
-
       // Axis labels
-      currSelection = gEnter
+      const currSelection = gEnter
         .append('g')
         .attr('class', 'axis-labels');
       [{
         name: 'y-label text-units',
-        x: subMargin.left - 15, y: 15
+        x: -5, y: subMargin * 2
+      }, {
+        name: 'second-label second-units',
+        x: (subWidth + 5), y: subMargin * 2
       }, {
         name: 'y-label text-count',
-        x: subMargin.left - 15, y: 5
+        x: -5, y: subMargin
       }, {
-        name: 'x-label min',
-        x: (0 + subMargin.left), y: (-subMargin.top - 5)
-      }, {
-        name: 'x-label max',
-        x: subWidth, y: (-subMargin.top - 5)
-      }, {
-        name: 'y-label second-label',
-        x: (subWidth + 5), y: 5
+        name: 'second-label second-count',
+        x: (subWidth + 5), y: subMargin
       }].map(function(c) {
         currSelection
           .append('text')
@@ -154,7 +126,7 @@ const graphfunction = function() {
       let minTime = data.localTime[data.localTime.length - 1];
       minTime = new Date(minTime.getTime() - (data.xLength * 1000));
       const xDomain = d3.extent([minTime].concat(data.localTime));
-      const legendWidth = (subWidth - subMargin.top) / data.keyLength;
+      const legendWidth = subWidth / data.keyLength;
       const scale2 = 'secondScale' in data;
       x
         .domain(xDomain)
@@ -162,7 +134,7 @@ const graphfunction = function() {
       y
         .domain(data.yDomain)
         .range([subHeight, 0]);
-      const timeZero = x.invert(subMargin.left);
+      const timeZero = x.domain()[0];
 
       // Update labels
       container.selectAll('text.text-count')
@@ -180,21 +152,32 @@ const graphfunction = function() {
         .attr('class', 'line-div')
         .append('path')
         .attr('class', function(d, i) { return 'line chart-color-' + i; })
+        .attr('transform', 'translate(' + -xTick + ',0)')
         .style('fill', 'none')
-        .attr('id', function(d) { return 'tag' + d.line; } );
+        .attr('id', function(d) { return 'tag' + d.line; } )
+        .transition()
+        .duration(750)
+        .ease('linear');
+
       const line = d3.svg.line()
         .interpolate('monotone')
         .x(function(d, i) { return x(data.localTime[i]); })
         .y(function(d) { return y(d); });
-      container.selectAll('path.line')
-        .attr('d', function(d) { return line(d.count); });
+      const myline = container.selectAll('path.line')
+        .attr('d', function(d) { return line(d.count); })
+        .attr('transform', null);
+      myline
+        .transition()
+        .attr('transform', 'translate(' + (-subWidth / 60) + '0)');
 
       // add data from line with separate axis
       if (scale2) {
         keys.push(data.secondScale.line);
         // update label
-        container.selectAll('text.second-label')
+        container.selectAll('text.second-count')
           .text(d3.format('s')(data.secondScale.currentMax)); // in case its really large
+        container.selectAll('text.second-units')
+          .text(data.secondScale.units);
         // update line
         y2
           .domain([0, data.secondScale.currentMax])
@@ -209,30 +192,39 @@ const graphfunction = function() {
           .append('path')
           .attr('class', 'second-line chart-color-' + (keys.length - 1))
           .style('fill', 'none')
-          .attr('id', function(d) { return 'tag' + d.line; });
-        container.selectAll('.second-line')
-          .attr('d', function(d) { return line2(d.count); });
+          .attr('id', function(d) { return 'tag' + d.line; })
+          .transition()
+          .duration(750)
+          .ease('linear');
+        const secondLine = container.selectAll('.second-line')
+          .attr('d', function(d) { return line2(d.count); })
+          .attr('transform', null);
+        secondLine
+          .transition()
+          .attr('transform', 'translate(' + (-subWidth / 60) + '0)');
       }
 
       // Legend
       const l = container.selectAll('g.legend').data([0]);
-      const mLeft = margin.left + subMargin.left;
-      const mRight = subHeight + margin.top + subMargin.top;
       l.enter()
         .append('g')
         .attr('class', 'legend')
         .attr('width', subWidth)
         .attr('height', margin.bottom)
-        .attr('transform', 'translate(' + mLeft + ',' + mRight + ')');
+        .attr('transform', 'translate(' + margin.left + ',' + (subHeight + margin.top + subMargin) + ')');
 
       const legendDiv = l.selectAll('g.subLegend').data(keys).enter()
         .append('g')
         .attr('class', 'subLegend')
         .attr('transform', function(d, i) {
-          if (scale2 && i === (keys.length - 1)) { // Set location if on separate axis.
-            return 'translate(' + (subWidth - 120) + ',5)';
+          let minus = i * 5;
+          if (i === keys.length - 1) {
+            if (scale2) { // Set location if on separate axis.
+              return 'translate(' + (subWidth - 120) + ',0)';
+            }
+            minus = minus - 15;
           }
-          return 'translate(' + (i * legendWidth) + ',5)';
+          return 'translate(' + ((i * legendWidth) - minus) + ',0)';
         });
       // Add boxes for legend
       legendDiv
@@ -268,19 +260,19 @@ const graphfunction = function() {
       legendDiv
         .append('text')
         .attr('class', 'legend-linename')
-        .attr('transform', 'translate(' + 13 + ',9)')
+        .attr('transform', 'translate(' + 13 + ',' + 9 + ')')
         .text(function(d, i) {return data.labels.keys[i]; });
       legendDiv
         .append('text')
         .attr('class', function(d) { return 'legend-count text-' + d;} )
-        .attr('transform', 'translate(' + 15 + ',25)');
+        .attr('transform', 'translate(' + 15 + ',22)');
 
       // Create overlay line + bubbles
       const focusP = container.selectAll('g.focus').data([0]);
       let focus = focusP.enter()
         .append('g')
         .attr('class', 'focus')
-        .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+        .attr('transform', 'translate(' + (margin.left - xTick) + ',' + margin.top + ')')
         .style('display', 'none');
       focus.append('line')
         .attr('class', 'overlay-line')
@@ -290,18 +282,10 @@ const graphfunction = function() {
       focus.append('path')
         .attr('class', 'overlay-triangle')
         .attr('transform', 'translate(' + subWidth + ',0)')
-        .attr('d', d3.svg.symbol().type('triangle-down'));
+        .attr('d', d3.svg.symbol().type('triangle-down').size(bubbleWidth * 3));
       focus.append('text')
         .attr('class', 'overlay-date')
         .attr('transform', 'translate(' + subWidth + ',0)');
-      focusP.selectAll('rect.overlay-bubbles').data(keys).enter()
-        .append('rect')
-        .attr('class', function(d, i) { return 'overlay-bubbles chart-color-' + i; })
-        .attr('id', function(d) { return 'bubble' + d; })
-        .attr('width', bubbleWidth)
-        .attr('height', bubbleWidth)
-        .attr('rx', bubbleWidth / 5)
-        .attr('ry', bubbleWidth / 5);
 
       // Transform overlay elements to current selection
       function updateOverlay() {
@@ -315,30 +299,19 @@ const graphfunction = function() {
         focus.selectAll('line.overlay-line')
           .attr('transform', 'translate(' + xOffset + ',0)');
         focus.selectAll('path.overlay-triangle')
-          .attr('transform', 'translate(' + xOffset + ',-5)');
+          .attr('transform', 'translate(' + xOffset + ',-3)');
         focus.selectAll('text.overlay-date')
-          .attr('transform', 'translate(' + xOffset + ',-15)')
+          .attr('transform', 'translate(' + xOffset + ',-10)')
           .text(d3.time.format('%X')(data.localTime[index]));
         let key;
-        const xM = xOffset - (bubbleWidth / 2);
-        let yOffset;
-        let yM;
         let currentText;
         for (let k = 0; k < data.dataSets.length; k++) {
           key = data.dataSets[k];
-          yOffset = y(key.count[index]);
-          yM = yOffset - (bubbleWidth / 2);
-          focus.selectAll('rect.chart-color-' + k)
-            .attr('transform', 'translate(' + xM + ',' + yM + ')');
           currentText = container.selectAll('text.legend-count.text-' + key.line);
           currentText.text(key.count[index]);
         }
         // Update overlay for line on separate scale
         if (scale2) {
-          yOffset = y2(data.secondScale.count[index]);
-          yM = yOffset - (bubbleWidth / 2);
-          focus.selectAll('rect.chart-color-' + (keys.length - 1))
-            .attr('transform', 'translate(' + xM + ',' + yM + ')');
           currentText = container.selectAll('text.legend-count.text-' + data.secondScale.line);
           currentText.text(data.secondScale.count[index]);
         }

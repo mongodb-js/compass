@@ -1,5 +1,5 @@
 const Reflux = require('reflux');
-const ServerStatsStore = require('./server-stats-store');
+const ServerStatsStore = require('./server-stats-graphs-store');
 // const debug = require('debug')('server-stats:globallock-store');
 
 const GlobalLockStore = Reflux.createStore({
@@ -25,7 +25,7 @@ const GlobalLockStore = Reflux.createStore({
         keys: ['active reads', 'active writes', 'queued reads', 'queued writes'],
         yAxis: ''
       },
-      keyLength: 5
+      keyLength: 4
     };
   },
 

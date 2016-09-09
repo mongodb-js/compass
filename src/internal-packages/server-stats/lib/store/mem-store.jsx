@@ -1,5 +1,5 @@
 const Reflux = require('reflux');
-const ServerStatsStore = require('./server-stats-store');
+const ServerStatsStore = require('./server-stats-graphs-store');
 // const debug = require('debug')('server-stats:opcounter-store');
 const _ = require('lodash');
 
