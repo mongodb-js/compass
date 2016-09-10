@@ -146,7 +146,7 @@ var minicharts_d3fns_few = function() {
   function chart(selection) {
     selection.each(function(data) {
       var values = _.map(data, 'count');
-      _.each(data, (d, i) => {
+      _.each(data, function(d, i) {
         data[i].xpos = _.sum(_(data)
           .slice(0, i)
           .map('count')
