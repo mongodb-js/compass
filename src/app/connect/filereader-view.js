@@ -193,7 +193,7 @@ module.exports = InputView.extend({
     this.runTests();
   },
   loadFileButtonClicked: function() {
-    var properties = ['openFile'];
+    var properties = ['openFile', 'showHiddenFiles'];
     if (this.multi) {
       properties.push('multiSelections');
     }
