@@ -66,11 +66,35 @@ const SortIndexesStore = Reflux.createStore({
    */
   _comparator(field) {
     let order = (this.sortOrder === ASC) ? 1 : -1;
+    if (field === 'properties') {
+      return this._propertiesComparator(order);
+    }
     return function(a, b) {
       if (a[field] > b[field]) {
         return order;
       }
       if (a[field] < b[field]) {
+        return -order;
+      }
+      return 0;
+    }
+  },
+
+  /**
+   * Get the comparator for properties.
+   *
+   * @param {Integer} order - The order.
+   *
+   * @returns {Function} The comparator function.
+   */
+  _propertiesComparator(order) {
+    return function(a, b) {
+      let aValue = (a.cardinality === 'compound') ? 'compound' : (a.properties[0] || '');
+      let bValue = (b.cardinality === 'compound') ? 'compound' : (b.properties[0] || '');
+      if (aValue > bValue) {
+        return order;
+      }
+      if (aValue < bValue) {
         return -order;
       }
       return 0;
