@@ -1,4 +1,5 @@
-var $ = require('jquery');
+global.jQuery = require('jquery');
+var $ = global.jQuery;
 var View = require('ampersand-view');
 var app = require('ampersand-app');
 var _ = require('lodash');
