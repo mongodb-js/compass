@@ -23,7 +23,7 @@ class NameColumn extends React.Component {
    * @returns {React.Component} The name column.
    */
   render() {
-    var fields = _.map(this.props.index.fields.serialize(), (field) => {
+    let fields = _.map(this.props.index.fields.serialize(), (field) => {
       return this.renderField(field);
     });
     return (

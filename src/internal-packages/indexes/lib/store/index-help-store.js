@@ -38,7 +38,7 @@ const IndexHelpStore = Reflux.createStore({
    * Open the index help link.
    */
   indexHelp: function(section) {
-    var url = _.get(HELP_URLS, section, 'UNKNOWN');
+    let url = _.get(HELP_URLS, section, 'UNKNOWN');
     if (url) {
       shell.openExternal(url);
       this.trigger();

@@ -47,7 +47,7 @@ class PropertyColumn extends React.Component {
    * @returns {React.Component} The property column.
    */
   render() {
-    var properties = _.map(this.props.index.properties, (prop) => {
+    let properties = _.map(this.props.index.properties, (prop) => {
       return this.renderProperty(prop);
     });
     return (
