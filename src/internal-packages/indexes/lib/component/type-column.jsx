@@ -62,4 +62,8 @@ class TypeColumn extends React.Component {
 
 TypeColumn.displayType = 'TypeColumn';
 
+TypeColumn.propTypes = {
+  index: React.PropTypes.object.isRequired
+};
+
 module.exports = TypeColumn;

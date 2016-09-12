@@ -42,4 +42,8 @@ class UsageColumn extends React.Component {
 
 UsageColumn.displayUsage = 'UsageColumn';
 
+UsageColumn.propTypes = {
+  usage: React.PropTypes.number.isRequired
+};
+
 module.exports = UsageColumn;

@@ -90,4 +90,8 @@ class NameColumn extends React.Component {
 
 NameColumn.displayName = 'NameColumn';
 
+NameColumn.propTypes = {
+  index: React.PropTypes.object.isRequired
+};
+
 module.exports = NameColumn;
