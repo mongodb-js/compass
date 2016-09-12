@@ -4,7 +4,6 @@ var CollectionStatsView = require('../collection-stats');
 var DocumentView = require('../documents');
 var SchemaView = require('../schema');
 var IndexView = require('../indexes');
-var IndexesNewView = require('../indexes-new');
 var ExplainView = require('../explain-plan');
 var MongoDBCollection = require('../models/mongodb-collection');
 var React = require('react');
@@ -23,8 +22,7 @@ var tabToViewMap = {
   'DOCUMENTS': 'documentView',
   'SCHEMA': 'schemaView',
   'EXPLAIN PLAN': 'explainView',
-  'INDEXES': 'indexView',
-  'INDEXES NEW': 'indexesNewView'
+  'INDEXES': 'indexView'
 };
 
 var MongoDBCollectionView = View.extend({
@@ -40,7 +38,7 @@ var MongoDBCollectionView = View.extend({
       type: 'string',
       required: true,
       default: 'schemaView',
-      values: ['documentView', 'schemaView', 'explainView', 'indexView', 'indexesNewView']
+      values: ['documentView', 'schemaView', 'explainView', 'indexView' ]
     },
     ns: 'string'
   },
@@ -62,8 +60,7 @@ var MongoDBCollectionView = View.extend({
         'documentView': '[data-hook=document-tab]',
         'schemaView': '[data-hook=schema-tab]',
         'explainView': '[data-hook=explain-tab]',
-        'indexView': '[data-hook=index-tab]',
-        'indexesNewView': '[data-hook=indexes-new-tab]'
+        'indexView': '[data-hook=index-tab]'
       }
     }
   },
@@ -116,17 +113,6 @@ var MongoDBCollectionView = View.extend({
       hook: 'explain-subview',
       prepareView: function(el) {
         return new ExplainView({
-          el: el,
-          parent: this,
-          model: this.model
-        });
-      }
-    },
-    indexesNewView: {
-      hook: 'indexes-new-subview',
-      waitFor: 'ns',
-      prepareView: function(el) {
-        return new IndexesNewView({
           el: el,
           parent: this,
           model: this.model
