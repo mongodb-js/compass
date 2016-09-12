@@ -48,4 +48,9 @@ class SizeColumn extends React.Component {
 
 SizeColumn.displaySize = 'SizeColumn';
 
+SizeColumn.propTypes = {
+  size: React.PropTypes.number.isRequired,
+  relativeSize: React.PropTypes.number.isRequired
+};
+
 module.exports = SizeColumn;

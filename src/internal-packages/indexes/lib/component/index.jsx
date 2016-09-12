@@ -34,4 +34,8 @@ class Index extends React.Component {
 
 Index.displayName = 'Index';
 
+Index.propTypes = {
+  index: React.PropTypes.object.isRequired
+};
+
 module.exports = Index;

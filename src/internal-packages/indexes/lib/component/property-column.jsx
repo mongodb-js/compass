@@ -98,4 +98,8 @@ class PropertyColumn extends React.Component {
 
 PropertyColumn.displayProperty = 'PropertyColumn';
 
+PropertyColumn.propTypes = {
+  index: React.PropTypes.object.isRequired
+};
+
 module.exports = PropertyColumn;

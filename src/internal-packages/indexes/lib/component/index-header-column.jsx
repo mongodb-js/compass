@@ -77,4 +77,8 @@ class IndexHeaderColumn extends React.Component {
 
 IndexHeaderColumn.displayName = 'IndexHeaderColumn';
 
+IndexHeaderColumn.propTypes = {
+  sortOrder: React.PropTypes.string.isRequired
+};
+
 module.exports = IndexHeaderColumn;
