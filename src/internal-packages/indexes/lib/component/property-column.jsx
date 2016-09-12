@@ -5,6 +5,7 @@ const format = require('util').format;
 const React = require('react');
 const Action = require('../action/index-actions');
 const IndexHelpStore = require('../store/index-help-store');
+const debug = require('debug')('mongodb-compass:indexes:property-column');
 
 /**
  * Component for the property column.
