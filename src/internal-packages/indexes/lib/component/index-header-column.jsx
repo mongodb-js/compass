@@ -2,6 +2,9 @@
 
 const React = require('react');
 const Action = require('../action/index-actions');
+const SortIndexesStore = require('../store/sort-indexes-store');
+
+const DEFAULT = 'Name and Definition';
 
 /**
  * Component for an index header column.
@@ -15,6 +18,31 @@ class IndexHeaderColumn extends React.Component {
    */
   constructor(props) {
     super(props);
+    this.state = { sortOrder: props.sortOrder, sortField: DEFAULT };
+  }
+
+  /**
+   * Subscribe on mount.
+   */
+  componentWillMount() {
+    this.unsubscribeSort = SortIndexesStore.listen(this.handleIndexChange.bind(this));
+  }
+
+  /**
+   * Unsubscribe on unmount.
+   */
+  componentWillUnmount() {
+    this.unsubscribeSort();
+  }
+
+  /**
+   * Handles the sort indexes store triggering with indexes in a new order or the
+   * initial load of indexes.
+   *
+   * @param {Array} indexes - The indexes.
+   */
+  handleIndexChange(indexes, sortOrder, sortField) {
+    this.setState({ sortOrder: sortOrder, sortField: sortField });
   }
 
   /**
@@ -24,9 +52,9 @@ class IndexHeaderColumn extends React.Component {
    */
   render() {
     return (
-      <th data-hook={this.props.hook} className='active' onClick={this.handleIndexSort.bind(this)}>
+      <th data-hook={this.props.hook} className={this._renderClassName()} onClick={this.handleIndexSort.bind(this)}>
         {this.props.name}
-        <i className={`sort fa fa-fw ${this.props.sortOrder}`}></i>
+        <i className={`sort fa fa-fw ${this.state.sortOrder}`}></i>
       </th>
     );
   }
@@ -40,6 +68,10 @@ class IndexHeaderColumn extends React.Component {
     evt.preventDefault();
     evt.stopPropagation();
     Action.sortIndexes(evt.target.innerText);
+  }
+
+  _renderClassName() {
+    return this.state.sortField === this.props.name ? 'active' : '';
   }
 }
 
