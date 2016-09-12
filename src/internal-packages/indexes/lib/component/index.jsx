@@ -13,15 +13,6 @@ const PropertyColumn = require('./property-column');
 class Index extends React.Component {
 
   /**
-   * The component constructor.
-   *
-   * @param {Object} props - The properties.
-   */
-  constructor(props) {
-    super(props);
-  }
-
-  /**
    * Render the index.
    *
    * @returns {React.Component} The index.

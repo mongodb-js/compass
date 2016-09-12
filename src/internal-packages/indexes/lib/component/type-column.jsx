@@ -4,6 +4,7 @@ const _ = require('lodash');
 const React = require('react');
 const Action = require('../action/index-actions');
 const IndexHelpStore = require('../store/index-help-store');
+const debug = require('debug')('mongodb-compass:indexes:type-column');
 
 /**
  * Component for the type column.
