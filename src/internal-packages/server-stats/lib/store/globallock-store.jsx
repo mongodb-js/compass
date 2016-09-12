@@ -1,6 +1,6 @@
 const Reflux = require('reflux');
 const ServerStatsStore = require('./server-stats-graphs-store');
-// const debug = require('debug')('server-stats:globallock-store');
+// const debug = require('debug')('mongodb-compass:server-stats:globallock-store');
 
 const GlobalLockStore = Reflux.createStore({
 

@@ -1,8 +1,8 @@
 const Reflux = require('reflux');
 const app = require('ampersand-app');
 const Actions = require('../action');
-
-const slowData = require('../component/data-slow');
+const toNS = require('mongodb-ns');
+// const debug = require('debug')('mongodb-compass:server-stats:current-op-store');
 
 /**
  * This store listens to the
@@ -20,8 +20,25 @@ const CurrentOpStore = Reflux.createStore({
   },
 
   currentOp: function() {
-    app.dataService.currentOp(true, (error, doc) => {
-      this.trigger(error, slowData);
+    app.dataService.currentOp(false, (error, response) => {
+      const doc = response.inprog;
+      let totals = [];
+      for (let i = 0; i < doc.length; i++) {
+        if (toNS(doc[i].ns).specialish) {
+          continue;
+        }
+        totals.push({
+          operationType: doc[i].op,
+          collectionName: doc[i].ns,
+          time: doc[i].microsecs_running
+        });
+      }
+      totals.sort(function(a, b) {
+        const f = (b.time < a.time) ? 1 : 0;
+        return (a.time < b.time) ? -1 : f;
+      });
+      totals = totals.slice(Math.max(totals.length - 6, 0));
+      this.trigger(error, totals);
     });
   }
 });

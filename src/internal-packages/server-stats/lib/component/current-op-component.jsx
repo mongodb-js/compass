@@ -71,7 +71,7 @@ class CurrentOpComponent extends React.Component {
         <li className="rt-lists__item rt-lists__item--slow" key={`list-item-${i}`}>
           <div className="rt-lists__collection-slow">{row.collectionName}</div>
           <div className="rt-lists__op">{row.operationType}</div>
-          <div className="rt-lists__time">{row.time}</div>
+          <div className="rt-lists__time">{row.time + ' ms'}</div>
         </li>
       );
     });

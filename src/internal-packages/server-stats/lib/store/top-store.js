@@ -1,8 +1,9 @@
 const Reflux = require('reflux');
 const app = require('ampersand-app');
 const Actions = require('../action');
-
-const hotData = require('../component/data-hot-1');
+const toNS = require('mongodb-ns');
+// const debug = require('debug')('mongodb-compass:server-stats:top-store');
+const _ = require('lodash');
 
 /**
  * This store listens to the
@@ -20,8 +21,31 @@ const TopStore = Reflux.createStore({
   },
 
   top: function() {
-    app.dataService.top((error, doc) => {
-      this.trigger(error, hotData);
+    app.dataService.top((error, response) => {
+      const doc = response.totals;
+      let totalTime = 0;
+      let totals = [];
+      for (var collname in doc) {
+        if (!doc.hasOwnProperty(collname) || collname === 'note' || toNS(collname).specialish) {
+          continue;
+        }
+        totals.push({
+          'collectionName': collname,
+          'loadPercentR': (doc[collname].readLock.time / doc[collname].total.time) * 100,
+          'loadPerfectL': (doc[collname].writeLock.time / doc[collname].total.time) * 100,
+          'loadPercent': doc[collname].total.time
+        });
+        totalTime += doc[collname].total.time;
+      }
+      for (let i = 0; i < totals.length; i++) {
+        totals[i].loadPercent = _.round((totals[i].loadPercent / totalTime) * 100, 0);
+      }
+      totals.sort(function(a, b) {
+        const f = (b.loadPercent < a.loadPercent) ? 1 : 0;
+        return (a.loadPercent < b.loadPercent) ? -1 : f;
+      });
+      totals = totals.slice(Math.max(totals.length - 6, 0));
+      this.trigger(error, totals);
     });
   }
 });

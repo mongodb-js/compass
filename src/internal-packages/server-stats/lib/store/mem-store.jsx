@@ -1,6 +1,6 @@
 const Reflux = require('reflux');
 const ServerStatsStore = require('./server-stats-graphs-store');
-// const debug = require('debug')('server-stats:opcounter-store');
+// const debug = require('debug')('mongodb-compass:server-stats:mem-store');
 const _ = require('lodash');
 
 const MemStore = Reflux.createStore({

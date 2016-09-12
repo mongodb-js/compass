@@ -26,13 +26,19 @@ elif len(sys.argv) != 1:
 
 client = MongoClient()
 
+collections = ['coll1', 'coll2', 'coll3']
+dbs = ['db1', 'db2', 'db3']
+
 # Operations Chart + Network In/Out
 def many_ops(m):
-        [m.test.coll.update_one({"x": 1}, {"$inc": {"x": 1}}) for _ in range(
-            random.randint(0,100))]
-        [m.test.coll.find_one({"x": 1}) for _ in range(random.randint(0, 100))]
-        [m.test.coll.insert_one({"x": 1}) for _ in range(random.randint(0, 100))]
-        [m.test.coll.delete_one({"x": 1}) for _ in range(random.randint(0, 100))]
+    coll = m[dbs[random.randint(0, len(dbs) - 1)]][collections[random.randint(0, len(collections) - 1)]]
+    [coll.update_one({"x": 1}, {"$inc": {"x": 1}}) for _ in range(
+        random.randint(0,100))]
+    [coll.find_one({"x": 1}) for _ in range(random.randint(0, 100))]
+    [coll.find_one({"x": 1}) for _ in range(random.randint(0, 100))]
+    [coll.find_one({"x": 1}) for _ in range(random.randint(0, 100))]
+    [coll.insert_one({"x": 1}) for _ in range(random.randint(0, 100))]
+    [coll.delete_one({"x": 1}) for _ in range(random.randint(0, 100))]
 
 # Network Connections
 def many_connections():
