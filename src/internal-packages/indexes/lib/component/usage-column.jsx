@@ -25,7 +25,7 @@ class UsageColumn extends React.Component {
     return (
       <td className='usage-column'>
         <span className='usage'>
-          <div className='quantity'>
+          <div className='quantity' title={`${this.props.usage} index hits since index creation or last\n server restart`}>
             {this.props.usage}
           </div>
           <div className='usage-since'>
