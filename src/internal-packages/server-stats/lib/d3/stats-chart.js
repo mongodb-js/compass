@@ -283,9 +283,6 @@ const graphfunction = function() {
         .attr('class', 'overlay-triangle')
         .attr('transform', 'translate(' + subWidth + ',0)')
         .attr('d', d3.svg.symbol().type('triangle-down').size(bubbleWidth * 3));
-      focus.append('text')
-        .attr('class', 'overlay-date')
-        .attr('transform', 'translate(' + subWidth + ',0)');
 
       // Transform overlay elements to current selection
       function updateOverlay() {
@@ -300,9 +297,9 @@ const graphfunction = function() {
           .attr('transform', 'translate(' + xOffset + ',0)');
         focus.selectAll('path.overlay-triangle')
           .attr('transform', 'translate(' + xOffset + ',-3)');
-        focus.selectAll('text.overlay-date')
-          .attr('transform', 'translate(' + xOffset + ',-10)')
-          .text(d3.time.format('%X')(data.localTime[index]));
+
+        d3.select('text.currentTime').text(d3.time.format('%X')(data.localTime[index]));
+
         let key;
         let currentText;
         for (let k = 0; k < data.dataSets.length; k++) {
@@ -344,6 +341,7 @@ const graphfunction = function() {
       if (onOverlay) {
         updateOverlay();
       } else {
+        d3.select('text.currentTime').text(d3.time.format('%X')(data.localTime[data.localTime.length - 1]));
         container.selectAll('text.legend-count')
           .text(function(d, i) {
             if (scale2 && i === keys.length - 1) {
