@@ -24,10 +24,9 @@ class IndexHeaderColumn extends React.Component {
    */
   render() {
     return (
-      <th className={this.props.active ? 'active' : ''} onClick={this.handleIndexSort.bind(this)}>
+      <th data-hook={this.props.hook} className='active' onClick={this.handleIndexSort.bind(this)}>
         {this.props.name}
-        <i className='sort fa fa-fw fa-sort-asc'></i>
-        <i className='fa fa-fw fa-sort'></i>
+        <i className={`sort fa fa-fw ${this.props.sortOrder}`}></i>
       </th>
     );
   }

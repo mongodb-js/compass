@@ -38,9 +38,9 @@ const LoadIndexesStore = Reflux.createStore({
    * @returns {Array} The index models.
    */
   _convertToModels(indexes) {
-    var maxSize = this._computeMaxSize(indexes);
+    let maxSize = this._computeMaxSize(indexes);
     return _.map(indexes, (index) => {
-      var model = new IndexModel(new IndexModel().parse(index));
+      let model = new IndexModel(new IndexModel().parse(index));
       model.relativeSize = model.size / maxSize * 100;
       return model;
     });

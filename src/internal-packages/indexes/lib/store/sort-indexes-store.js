@@ -40,7 +40,7 @@ const SortIndexesStore = Reflux.createStore({
   sortIndexes: function(column) {
     this._setOrder(column);
     this.indexes.sort(this._comparator(this._field()));
-    this.trigger(this.indexes);
+    this.trigger(this.indexes, this.sortOrder);
   },
 
   /**
@@ -65,7 +65,7 @@ const SortIndexesStore = Reflux.createStore({
    * @returns {Function} The function.
    */
   _comparator(field) {
-    var order = (this.sortOrder === ASC) ? 1 : -1;
+    let order = (this.sortOrder === ASC) ? 1 : -1;
     return function(a, b) {
       if (a[field] > b[field]) {
         return order;

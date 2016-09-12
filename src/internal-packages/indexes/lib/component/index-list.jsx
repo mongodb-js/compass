@@ -40,7 +40,7 @@ class IndexList extends React.Component {
    *
    * @param {Array} indexes - The indexes.
    */
-  handleIndexChange(indexes) {
+  handleIndexChange(indexes, sortOrder) {
     this.setState({ indexes: indexes });
   }
 
@@ -50,7 +50,7 @@ class IndexList extends React.Component {
    * @returns {React.Component} The index list.
    */
   render() {
-    var indexes = _.map(this.state.indexes, (model) => {
+    let indexes = _.map(this.state.indexes, (model) => {
       return (<Index key={model.name} index={model} />);
     });
     return (

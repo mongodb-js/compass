@@ -23,7 +23,7 @@ class SizeColumn extends React.Component {
    * @returns {React.Component} The size column.
    */
   render() {
-    var indexSize = this._format(this.props.size).split(' ');
+    let indexSize = this._format(this.props.size).split(' ');
     return (
       <td className='size-column'>
         <div className='quantity'>
@@ -41,7 +41,7 @@ class SizeColumn extends React.Component {
   }
 
   _format(size) {
-    var precision = size <= 1000 ? '0' : '0.0';
+    let precision = size <= 1000 ? '0' : '0.0';
     return numeral(size).format(precision + ' b');
   }
 }

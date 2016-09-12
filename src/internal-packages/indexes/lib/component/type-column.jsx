@@ -84,7 +84,7 @@ class TypeColumn extends React.Component {
   }
 
   _textTooltip() {
-    var info = _.pick(this.props.index.extra, ['weights', 'default_language', 'language_override']);
+    let info = _.pick(this.props.index.extra, ['weights', 'default_language', 'language_override']);
     return _.map(info, (v, k) => {
       return format('%s: %j', k, v);
     }).join('\n');
