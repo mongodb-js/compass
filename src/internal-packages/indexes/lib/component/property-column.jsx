@@ -3,44 +3,12 @@
 const _ = require('lodash');
 const format = require('util').format;
 const React = require('react');
-const Action = require('../action/index-actions');
-const IndexHelpStore = require('../store/index-help-store');
-const debug = require('debug')('mongodb-compass:indexes:property-column');
+const openIndexHelpLink = require('../index-link-helper');
 
 /**
  * Component for the property column.
  */
 class PropertyColumn extends React.Component {
-
-  /**
-   * The component constructor.
-   *
-   * @param {Object} props - The properties.
-   */
-  constructor(props) {
-    super(props);
-  }
-
-  /**
-   * Subscribe on mount.
-   */
-  componentWillMount() {
-    this.unsubscribeHelp = IndexHelpStore.listen(this.handleIndexHelp.bind(this));
-  }
-
-  /**
-   * Unsubscribe on unmount.
-   */
-  componentWillUnmount() {
-    this.unsubscribeHelp();
-  }
-
-  /**
-   * Handle index help.
-   */
-  handleIndexHelp() {
-    debug('Opened help link in a new tab.');
-  }
 
   /**
    * Render the property column.
@@ -112,7 +80,7 @@ class PropertyColumn extends React.Component {
   _clickHelp(evt) {
     evt.preventDefault();
     evt.stopPropagation();
-    Action.indexHelp(evt.target.parentNode.innerText);
+    openIndexHelpLink(evt.target.parentNode.innerText);
   }
 
   _link() {

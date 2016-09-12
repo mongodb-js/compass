@@ -1,8 +1,6 @@
 'use strict';
 
 const _ = require('lodash');
-const Reflux = require('reflux');
-const Action = require('../action/index-actions');
 const shell = require('electron').shell;
 
 const HELP_URLS = {
@@ -23,27 +21,15 @@ const HELP_URLS = {
 };
 
 /**
- * The reflux store for getting index help.
+ * The function opens index help links.
+ *
+ * @param {String} section - The name of the section to open.
  */
-const IndexHelpStore = Reflux.createStore({
-
-  /**
-   * Initialize the index help store.
-   */
-  init: function() {
-    this.listenTo(Action.indexHelp, this.indexHelp);
-  },
-
-  /**
-   * Open the index help link.
-   */
-  indexHelp: function(section) {
-    let url = _.get(HELP_URLS, section, 'UNKNOWN');
-    if (url) {
-      shell.openExternal(url);
-      this.trigger();
-    }
+function openIndexHelpLink(section) {
+  let url = _.get(HELP_URLS, section, 'UNKNOWN');
+  if (url) {
+    shell.openExternal(url);
   }
-});
+}
 
-module.exports = IndexHelpStore;
+module.exports = openIndexHelpLink;
