@@ -268,8 +268,7 @@ const graphfunction = function() {
         .attr('transform', 'translate(' + 15 + ',22)');
 
       // Create overlay line + bubbles
-      const focusP = container.selectAll('g.focus').data([0]);
-      let focus = focusP.enter()
+      const focus = container.selectAll('g.focus').data([0]).enter()
         .append('g')
         .attr('class', 'focus')
         .attr('transform', 'translate(' + (margin.left - xTick) + ',' + margin.top + ')')
@@ -292,10 +291,10 @@ const graphfunction = function() {
           return;
         }
         const xOffset = x(data.localTime[index]);
-        focus = container.selectAll('g.focus');
-        focus.selectAll('line.overlay-line')
+        const myfocus = container.selectAll('g.focus');
+        myfocus.selectAll('line.overlay-line')
           .attr('transform', 'translate(' + xOffset + ',0)');
-        focus.selectAll('path.overlay-triangle')
+        myfocus.selectAll('path.overlay-triangle')
           .attr('transform', 'translate(' + xOffset + ',-3)');
 
         d3.select('text.currentTime').text(d3.time.format('%X')(data.localTime[index]));
@@ -327,16 +326,18 @@ const graphfunction = function() {
         .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
         .attr('width', subWidth)
         .attr('height', subHeight)
-        .style('opacity', 0)
-        .on('mouseover', function() {
+        .style('opacity', 0);
+
+      d3.selectAll('rect.overlay')
+        .on('mouseover.' + data.labels.title[0], function() {
           onOverlay = true;
-          focus.style('display', null);
+          container.selectAll('g.focus').style('display', null);
         })
-        .on('mouseout', function() {
+        .on('mouseout.' + data.labels.title[0], function() {
           onOverlay = false;
-          focus.style('display', 'none');
+          container.selectAll('g.focus').style('display', 'none');
         })
-        .on('mousemove', mouseMove);
+        .on('mousemove.' + data.labels.title[0], mouseMove);
 
       if (onOverlay) {
         updateOverlay();
