@@ -13,13 +13,16 @@ class ObjectGenerator {
    * @returns {Object} The javascript object.
    */
   generate(elements) {
-    var object = {};
-    for (let element of elements) {
-      if (!element.isRemoved() && element.currentKey !== '') {
-        object[element.currentKey] = element.generateObject();
+    if (elements) {
+      var object = {};
+      for (let element of elements) {
+        if (!element.isRemoved() && element.currentKey !== '') {
+          object[element.currentKey] = element.generateObject();
+        }
       }
+      return object;
     }
-    return object;
+    return elements;
   }
 
   /**
@@ -30,17 +33,20 @@ class ObjectGenerator {
    * @returns {Array} The array.
    */
   generateArray(elements) {
-    var array = [];
-    for (let element of elements) {
-      if (!element.isRemoved()) {
-        if (element.elements) {
-          array.push(element.generateObject());
-        } else {
-          array.push(element.currentValue);
+    if (elements) {
+      var array = [];
+      for (let element of elements) {
+        if (!element.isRemoved()) {
+          if (element.elements) {
+            array.push(element.generateObject());
+          } else {
+            array.push(element.currentValue);
+          }
         }
       }
+      return array;
     }
-    return array;
+    return elements;
   }
 }
 

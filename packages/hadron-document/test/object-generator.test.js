@@ -32,6 +32,18 @@ describe('ObjectGenerator', function() {
         expect(ObjectGenerator.generate(doc.elements)).to.deep.equal({});
       });
     });
+
+    context('when the element is null', function() {
+      it('returns null', function() {
+        expect(ObjectGenerator.generate(null)).to.equal(null);
+      });
+    });
+
+    context('when the element is undefined', function() {
+      it('returns undefined', function() {
+        expect(ObjectGenerator.generate(undefined)).to.equal(undefined);
+      });
+    });
   });
 
   describe('#generateArray', function() {
@@ -45,6 +57,18 @@ describe('ObjectGenerator', function() {
 
       it('does not include the element in the object', function() {
         expect(ObjectGenerator.generateArray(doc.elements.at(0).elements)).to.deep.equal([ 'a', 'c' ]);
+      });
+    });
+
+    context('when the element is null', function() {
+      it('returns null', function() {
+        expect(ObjectGenerator.generateArray(null)).to.equal(null);
+      });
+    });
+
+    context('when the element is undefined', function() {
+      it('returns undefined', function() {
+        expect(ObjectGenerator.generateArray(undefined)).to.equal(undefined);
       });
     });
   });
