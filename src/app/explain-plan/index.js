@@ -8,6 +8,7 @@ var DocumentView = require('../documents/document-list-item');
 var IndexDefinitionView = require('../indexes/index-definition');
 var TreeView = require('./tree-view');
 var StageModel = require('./stage-model');
+var Action = require('hadron-action');
 
 var electron = require('electron');
 var shell = electron.shell;
@@ -225,8 +226,8 @@ module.exports = View.extend({
   },
   initialize: function() {
     this.listenTo(this.model, 'sync', this.onModelSynced.bind(this));
-    this.listenTo(this.parent, 'submit:query', this.onQueryChanged.bind(this));
     this.on('change:visible', this.onVisibleChanged.bind(this));
+    Action.filterChanged.listen(this.fetchExplainPlan.bind(this));
     this.showExplainTree = app.isFeatureEnabled('showExplainPlanTab');
   },
   onModelSynced: function() {
@@ -247,63 +248,64 @@ module.exports = View.extend({
   treeButtonClicked: function() {
     this.activeDetailView = 'tree';
   },
-  fetchExplainPlan: function() {
-    var filter = app.queryOptions.query.serialize();
+  fetchExplainPlan: function(query) {
+    var filter = query || app.queryOptions.query.serialize();
     var options = {};
     var view = this;
+    if (this.ns) {
+      app.dataService.explain(this.ns, filter, options, function(err, explain) {
+        if (err) {
+          return debug('error', err);
+        }
+        view.explainPlan = new ExplainPlanModel(explain);
 
-    app.dataService.explain(this.ns, filter, options, function(err, explain) {
-      if (err) {
-        return debug('error', err);
-      }
-      view.explainPlan = new ExplainPlanModel(explain);
-
-      // remove old tree view
-      if (view.treeSubview) {
-        view.treeSubview.remove();
-      }
-      // render new tree view
-      var stageModel = new StageModel(view.explainPlan.rawExplainObject.executionStats.executionStages, {
-        parse: true
-      });
-      view.treeSubview = view.renderSubview(new TreeView({
-        model: stageModel,
-        parent: view
-      }), '[data-hook=tree-subview]');
-
-      // create new document model from raw explain output
-      var rawDocModel = new DocumentModel(view.explainPlan.rawExplainObject);
-      // remove old view if present
-      if (view.rawSubview) {
-        view.rawSubview.remove();
-      }
-      // render document model with a DocumentView
-      view.rawSubview = view.renderSubview(new DocumentView({
-        model: rawDocModel,
-        parent: view
-      }), '[data-hook=raw-subview]');
-      // expand all top-level fields in the explain output
-      var toplevel = 'li.document-list-item > ol > li.document-property.object,' +
-        'li.document-list-item > ol > li.document-property.array';
-      _.each(view.queryAll(toplevel), function(el) {
-        el.classList.toggle('expanded');
-      });
-
-      // remove old index definition view first
-      if (view.indexDefinitionSubview) {
-        view.indexDefinitionSubview.remove();
-      }
-
-      // find index definition model and create view
-      if (_.isString(view.explainPlan.usedIndex) && !this.usedMultipleIndexes) {
-        var indexModel = view.model.indexes.get(view.explainPlan.usedIndex, 'name');
-
-        view.indexDefinitionSubview = view.renderSubview(new IndexDefinitionView({
-          model: indexModel,
+        // remove old tree view
+        if (view.treeSubview) {
+          view.treeSubview.remove();
+        }
+        // render new tree view
+        var stageModel = new StageModel(view.explainPlan.rawExplainObject.executionStats.executionStages, {
+          parse: true
+        });
+        view.treeSubview = view.renderSubview(new TreeView({
+          model: stageModel,
           parent: view
-        }), '[data-hook=index-definition-subview]');
-      }
-    });
+        }), '[data-hook=tree-subview]');
+
+        // create new document model from raw explain output
+        var rawDocModel = new DocumentModel(view.explainPlan.rawExplainObject);
+        // remove old view if present
+        if (view.rawSubview) {
+          view.rawSubview.remove();
+        }
+        // render document model with a DocumentView
+        view.rawSubview = view.renderSubview(new DocumentView({
+          model: rawDocModel,
+          parent: view
+        }), '[data-hook=raw-subview]');
+        // expand all top-level fields in the explain output
+        var toplevel = 'li.document-list-item > ol > li.document-property.object,' +
+          'li.document-list-item > ol > li.document-property.array';
+        _.each(view.queryAll(toplevel), function(el) {
+          el.classList.toggle('expanded');
+        });
+
+        // remove old index definition view first
+        if (view.indexDefinitionSubview) {
+          view.indexDefinitionSubview.remove();
+        }
+
+        // find index definition model and create view
+        if (_.isString(view.explainPlan.usedIndex) && !this.usedMultipleIndexes) {
+          var indexModel = view.model.indexes.get(view.explainPlan.usedIndex, 'name');
+
+          view.indexDefinitionSubview = view.renderSubview(new IndexDefinitionView({
+            model: indexModel,
+            parent: view
+          }), '[data-hook=index-definition-subview]');
+        }
+      });
+    }
   },
   onVisibleChanged: function() {
     if (this.visible) {
