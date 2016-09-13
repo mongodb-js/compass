@@ -3,7 +3,9 @@
 const React = require('react');
 const Modal = require('react-bootstrap').Modal;
 const OpenInsertDocumentDialogStore = require('../store/open-insert-document-dialog-store');
+const InsertDocumentStore = require('../store/insert-document-store');
 const InsertDocument = require('./insert-document');
+const InsertDocumentFooter = require('./insert-document-footer');
 const TextButton = require('hadron-app-registry').TextButton;
 const Actions = require('../actions');
 
@@ -22,27 +24,62 @@ class InsertDocumentDialog extends React.Component {
     this.state = { open: false };
   }
 
+  /**
+   * Subscribe to the open dialog store.
+   */
   componentWillMount() {
     this.unsubscribeOpen = OpenInsertDocumentDialogStore.listen(this.handleStoreOpen.bind(this));
+    this.unsubscribeInsert = InsertDocumentStore.listen(this.handleDocumentInsert.bind(this));
   }
 
+  /**
+   * Unsubscribe from the store.
+   */
   componentWillUnmount() {
     this.unsubscribeOpen();
+    this.unsubscribeInsert();
   }
 
+  /**
+   * Handle opening the dialog with the new document.
+   *
+   * @param {Object} doc - The document.
+   */
   handleStoreOpen(doc) {
     this.setState({ doc: doc, open: true });
   }
 
+  /**
+   * Handle canceling the insert.
+   */
   handleCancel() {
     this.setState({ open: false });
   }
 
+  /**
+   * Handles completion of the document insert.
+   *
+   * @param {Boolean} success - If the operation succeeded.
+   * @param {Object} doc - The document or error.
+   */
+  handleDocumentInsert(success, doc) {
+    if (success) {
+      this.setState({ open: false });
+    }
+  }
+
+  /**
+   * Handle the insert.
+   */
   handleInsert() {
-    this.setState({ open: false });
     Actions.insertDocument(this.state.doc.generateObject());
   }
 
+  /**
+   * Render the modal dialog.
+   *
+   * @returns {React.Component} The react component.
+   */
   render() {
     return (
       <Modal show={this.state.open} backdrop='static' keyboard={false}>
@@ -52,6 +89,7 @@ class InsertDocumentDialog extends React.Component {
 
         <Modal.Body>
           <InsertDocument doc={this.state.doc} />
+          <InsertDocumentFooter />
         </Modal.Body>
 
         <Modal.Footer>
