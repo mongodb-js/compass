@@ -48,8 +48,10 @@ class SamplingMessage extends React.Component {
   /**
    * Handle updating the count on document insert.
    */
-  handleInsert() {
-    this.setState({ count: this.state.count + 1 });
+  handleInsert(success) {
+    if (success) {
+      this.setState({ count: this.state.count + 1 });
+    }
   }
 
   /**
