@@ -61,6 +61,8 @@ var AutoUpdate = require('../auto-update');
 
 var addInspectElementMenu = require('debug-menu').install;
 
+window.jQuery = require('jquery');
+
 ipc.once('app:launched', function() {
   console.log('in app:launched');
   if (process.env.NODE_ENV !== 'production') {

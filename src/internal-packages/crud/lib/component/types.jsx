@@ -4,6 +4,8 @@ const React = require('react');
 const Element = require('hadron-document').Element;
 const TypeChecker = require('hadron-type-checker');
 
+require('bootstrap/js/dropdown');
+
 /**
  * General types component.
  */
