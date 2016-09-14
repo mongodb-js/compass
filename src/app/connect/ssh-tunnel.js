@@ -103,7 +103,8 @@ var IDENTITY_FILE = {
       template: inputTemplate,
       name: 'ssh_tunnel_passphrase',
       label: 'Passphrase',
-      required: false
+      required: false,
+      type: 'password'
     })
   ]
 };
