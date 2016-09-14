@@ -102,7 +102,12 @@ var BugsnagTracker = State.extend({
     payload.url = redact(payload.url);
     payload.name = redact(payload.name);
 
-    debug('sending report to bugnsnag', payload);
+    // group errors with same message in bugsnag dashboard
+    if (payload.metaData) {
+      payload.metaData.groupingHash = payload.message;
+    }
+
+    debug('sending report to bugsnag', payload);
     return true;
   },
   /**
