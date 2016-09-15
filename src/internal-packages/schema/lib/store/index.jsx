@@ -1,7 +1,7 @@
 const app = require('ampersand-app');
 const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
-const Schema = require('mongodb-schema').Schema;
+const schemaStream = require('mongodb-schema').stream;
 const _ = require('lodash');
 
 // stores
@@ -124,8 +124,8 @@ const SchemaStore = Reflux.createStore({
     }, 1000);
 
     this.samplingStream = app.dataService.sample(ns, options);
-    const schema = new Schema();
-    this.analyzingStream = schema.stream(true);
+    this.analyzingStream = schemaStream();
+    let schema;
 
     const onError = () => {
       this.setState({
@@ -178,12 +178,15 @@ const SchemaStore = Reflux.createStore({
             });
           }
         })
+        .on('data', (data) => {
+          schema = data;
+        })
         .on('error', (analysisErr) => {
           onError(analysisErr);
         })
         .on('end', () => {
           if ((numSamples === 0 || sampleCount > 0) && this.state.samplingState !== 'error') {
-            onSuccess(schema.serialize());
+            onSuccess(schema);
           } else {
             return onError();
           }
