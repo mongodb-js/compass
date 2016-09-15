@@ -23,6 +23,7 @@
 
 /* play-pause button */
 .play {
+  cursor: pointer;
   border-radius: 3px 3px 3px 3px;
   position: absolute;
   background-color: #377C57;
@@ -38,6 +39,7 @@
 }
 
 .pause {
+  cursor: pointer;
   border-radius: 3px 3px 3px 3px;
   position: absolute;
   background-color: #3D4247;

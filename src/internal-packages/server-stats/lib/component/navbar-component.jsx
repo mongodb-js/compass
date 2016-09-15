@@ -1,7 +1,20 @@
 const React = require('react');
+const Actions = require('../action');
 const debug = require('debug')('mongodb-compass:navbar-component');
 
 class NavBarComponent extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+      liked: false
+    };
+    this.handlePause = this.handlePause.bind(this);
+  }
+  handlePause() {
+    this.setState({ paused: !this.state.paused });
+    Actions.pause();
+  }
+
   goToPerformance() {
     debug('CALLING PERF BUTTON');
   }
@@ -20,7 +33,8 @@ class NavBarComponent extends React.Component {
           </li>
         </ul>
         <div className="time"><text className="currentTime">00:00:00</text></div>
-        <div className="play"><text className="playbutton">&#9658; PLAY</text></div>
+        <div onClick={this.handlePause} className="play" style={{display: this.state.paused ? null : 'none'}}><text className="playbutton">&#9658; PLAY</text></div>
+        <div onClick={this.handlePause} className="pause" style={{display: this.state.paused ? 'none' : null}}><text className="pausebutton">| | PAUSE</text></div>
       </header>
     );
   }

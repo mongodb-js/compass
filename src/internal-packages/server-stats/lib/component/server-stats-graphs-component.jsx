@@ -47,11 +47,11 @@ class ServerStatsComponent extends React.Component {
         <div className="opcounters">
           <ChartComponent chartname="OpCounter" store={OpCountersStore} />
         </div>
-        <div className="network">
-          <ChartComponent chartname="Network" store={NetworkStore} />
-        </div>
         <div className="globallock">
           <ChartComponent chartname="GlobalLock" store={GlobalLockStore} />
+        </div>
+        <div className="network">
+          <ChartComponent chartname="Network" store={NetworkStore} />
         </div>
         <div className="mem">
           <ChartComponent chartname="Mem" store={MemStore} />

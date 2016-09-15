@@ -152,23 +152,28 @@ const graphfunction = function() {
         .attr('class', 'line-div')
         .append('path')
         .attr('class', function(d, i) { return 'line chart-color-' + i; })
-        .attr('transform', 'translate(' + -xTick + ',0)')
         .style('fill', 'none')
-        .attr('id', function(d) { return 'tag' + d.line; } )
-        .transition()
-        .duration(750)
-        .ease('linear');
+        .attr('id', function(d) { return 'tag' + d.line; } );
 
       const line = d3.svg.line()
         .interpolate('monotone')
-        .x(function(d, i) { return x(data.localTime[i]); })
+        .x(function(d, i) { return x(data.localTime[i]) - xTick; })
         .y(function(d) { return y(d); });
-      const myline = container.selectAll('path.line')
+      const lines = container.selectAll('path.line')
         .attr('d', function(d) { return line(d.count); })
         .attr('transform', null);
-      myline
-        .transition()
-        .attr('transform', 'translate(' + (-subWidth / 60) + '0)');
+      const move = data.paused ? 0 : -xTick;
+      const time = data.paused ? 0 : 1000;
+      function tick() {
+        lines
+          .attr('transform', null)
+          .transition()
+          .duration(time)
+          .ease('linear')
+          .attr('transform', 'translate(' + move + ',0)')
+          .each('end', tick);
+      }
+      tick();
 
       // add data from line with separate axis
       if (scale2) {
@@ -184,24 +189,37 @@ const graphfunction = function() {
           .range([subHeight, 0]);
         const line2 = d3.svg.line()
           .interpolate('monotone')
-          .x(function(d, i) { return x(data.localTime[i]); })
-          .y(function(d) { return y2(d); });
+          .x(function(d, i) {
+            return x(data.localTime[i]);
+          })
+          .y(function(d) {
+            return y2(d);
+          });
         g.selectAll('.second-line-div').data([data.secondScale])
           .enter().append('g')
           .attr('class', 'second-line-div')
           .append('path')
           .attr('class', 'second-line chart-color-' + (keys.length - 1))
           .style('fill', 'none')
-          .attr('id', function(d) { return 'tag' + d.line; })
-          .transition()
-          .duration(750)
-          .ease('linear');
+          .attr('id', function(d) {
+            return 'tag' + d.line;
+          });
         const secondLine = container.selectAll('.second-line')
-          .attr('d', function(d) { return line2(d.count); })
+          .attr('d', function(d) {
+            return line2(d.count);
+          })
           .attr('transform', null);
-        secondLine
-          .transition()
-          .attr('transform', 'translate(' + (-subWidth / 60) + '0)');
+
+        function tick2() { // eslint-disable-line no-inner-declarations
+          secondLine
+            .attr('transform', null)
+            .transition()
+            .duration(time)
+            .ease('linear')
+            .attr('transform', 'translate(' + move + ',0)')
+            .each('end', tick2);
+        }
+        tick2();
       }
 
       // Legend
