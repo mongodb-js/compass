@@ -14,9 +14,9 @@ section: Connect
 ---
 
 <strong>
-Optionally provide the passphrase use to encrypt your private keys (stored in the specified 
-Identity file).
+Optionally provide the passphrase used to encrypt your private keys (stored in the specified 
+identity file).
 </strong>
 
-A passphrase will encrypt your private keys, providing an extra layer of security for
-an SSH connection.
+A passphrase is used to encrypt your private keys, providing an extra layer of security for
+an SSH connection. This field is not required.

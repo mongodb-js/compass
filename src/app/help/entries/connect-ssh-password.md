@@ -17,4 +17,4 @@ section: Connect
 The password used to secure the SSH connection.
 </strong>
 
-This is required if you are not using an Identity file.
+This is required if you are not using an identity file.

@@ -14,7 +14,8 @@ section: Connect
 ---
 
 <strong>
-The username to log into on the remote system.
+The username of the profile to log into on the remote system.
 </strong>
 
-This is the profile to be accessed at the hostname, i.e. <username>@<hostname>.
+This will be the user for which you want to establish the SSH connection.
+

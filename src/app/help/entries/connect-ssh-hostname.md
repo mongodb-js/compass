@@ -17,4 +17,4 @@ section: Connect
 Provide the hostname of the remote machine you want to connect to.
 </strong>
 
-This is the unique identifier (Fully Qualified Domain Name, or FQDN) for the machine to be connected to.
+This is the unique identifier (Fully Qualified Domain Name, or FQDN) for the machine to be accessed.
