@@ -34,14 +34,14 @@
 }
 
 /* LAYOUT */
-.rt-lists__header {
+.rt-lists__header, .rt-details__header {
   display: flex;
   flex-direction: row;
   width: 100%;
   margin-bottom: 0;
   padding-left: 40px;
 }
-.rt-lists__headerlabel {
+.rt-lists__headerlabel, .rt-details__headerlabel, .rt-details__closebutton {
   color: white;
   text-transform: uppercase;
   font-size: 10px;
@@ -102,6 +102,7 @@
 
 /* SLOW */
 .rt-lists__op {
+  cursor: pointer;
   position: absolute;
   top: 10px;
   left: 32px;
@@ -135,4 +136,99 @@
   top: 15px;
   left: 360px;
   text-align: center;
+}
+
+/* DETAIL VIEW */
+.rt-details {
+  width: 480px;
+  margin-right: 60px;
+}
+.rt-details__header {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  margin-bottom: 0;
+  padding-left: 40px;
+}
+.rt-details__closebutton {
+  color: #9ca4ab;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  text-align: right;
+  cursor: pointer;
+}
+.rt-details__headerlabel {
+  color: white;
+  text-transform: uppercase;
+  font-size: 10px;
+  font-weight: 500;
+  flex-grow: 1;
+  margin-bottom: 7px;
+}
+.rt-details__body {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  width: 440px;
+  background-color: #484D51;
+  margin-left: 40px;
+}
+.rt-details__op {
+  position: absolute;
+  top: 10px;
+  left: 20px;
+  width: 60px;
+  color: white;
+  text-transform: uppercase;
+  font-size: 10px;
+  font-weight: 500;
+  text-align: center;
+  padding: 1px 0 1px 0;
+  background-color: #777B80;
+  border-radius: 2px;
+}
+.rt-details__collection-slow {
+  font-weight: 300;
+  font-size: 12px;
+  color: white;
+  position: absolute;
+  top: 13px;
+  left: 200px;
+  width: 140px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rt-details__time {
+  font-weight: 300;
+  font-size: 12px;
+  color: white;
+  position: absolute;
+  top: 15px;
+  left: 360px;
+  text-align: center;
+}
+.rt-details__opinfo {
+  margin-right: 20px;
+  margin-left: 20px;
+  border-bottom: #9ca4ab 2px solid;
+  height: 40px;
+}
+.rt-details__list {
+  display: flex;
+  flex-direction: column;
+  margin-left: 30px;
+  padding-left: 0;
+}
+.rt-details__item {
+  color: #9ca4ab;
+  font-weight: 300;
+  font-size: 12px;
+  position: relative;
+  width: 100%;
+  height: 40px;
+  display: flex;
+  flex-direction: row;
+  padding-top: 10px;
+  text-transform: uppercase;
 }

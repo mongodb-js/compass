@@ -66,11 +66,12 @@ class CurrentOpComponent extends React.Component {
    * @returns {React.Component} The table.
    */
   renderGraph() {
+    const handler = this.props.clickHandler;
     const rows = this.state.data.map(function(row, i) {
       return (
         <li className="rt-lists__item rt-lists__item--slow" key={`list-item-${i}`}>
           <div className="rt-lists__collection-slow">{row.collectionName}</div>
-          <div className="rt-lists__op">{row.operationType}</div>
+          <div className="rt-lists__op" onClick={handler.bind(null, row)}>{row.operationType}</div>
           <div className="rt-lists__time">{row.time + ' ms'}</div>
         </li>
       );
@@ -103,7 +104,8 @@ class CurrentOpComponent extends React.Component {
 
 CurrentOpComponent.propTypes = {
   store: React.PropTypes.any.isRequired,
-  interval: React.PropTypes.number.isRequired
+  interval: React.PropTypes.number.isRequired,
+  clickHandler: React.PropTypes.any.isRequired
 };
 
 CurrentOpComponent.displayName = 'CurrentOpComponent';

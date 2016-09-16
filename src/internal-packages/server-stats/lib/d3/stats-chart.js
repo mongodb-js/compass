@@ -162,15 +162,15 @@ const graphfunction = function() {
       const lines = container.selectAll('path.line')
         .attr('d', function(d) { return line(d.count); })
         .attr('transform', null);
-      const move = data.paused ? 0 : -xTick;
-      const time = data.paused ? 0 : 1000;
+      const time = data.paused ? 0 : 983;
+      const translate = 'translate(' + (data.paused ? 0 : -xTick) + ',0)';
       function tick() {
         lines
           .attr('transform', null)
           .transition()
           .duration(time)
           .ease('linear')
-          .attr('transform', 'translate(' + move + ',0)')
+          .attr('transform', translate)
           .each('end', tick);
       }
       tick();
@@ -216,7 +216,7 @@ const graphfunction = function() {
             .transition()
             .duration(time)
             .ease('linear')
-            .attr('transform', 'translate(' + move + ',0)')
+            .attr('transform', translate)
             .each('end', tick2);
         }
         tick2();
@@ -331,12 +331,6 @@ const graphfunction = function() {
         }
       }
 
-      // Set overlays to visible and update current selection
-      function mouseMove() {
-        mouseLocation = d3.mouse(this)[0];
-        updateOverlay();
-      }
-
       // Bind overlay updating function to mouse movements over the chart
       container.selectAll('rect.overlay').data([0]).enter()
         .append('rect')
@@ -355,7 +349,11 @@ const graphfunction = function() {
           onOverlay = false;
           container.selectAll('g.focus').style('display', 'none');
         })
-        .on('mousemove.' + data.labels.title[0], mouseMove);
+        .on('mousemove.' + data.labels.title[0], function() {
+          // Set overlays to visible and update current selection
+          mouseLocation = d3.mouse(this)[0];
+          updateOverlay();
+        });
 
       if (onOverlay) {
         updateOverlay();
