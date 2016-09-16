@@ -159,21 +159,38 @@ const graphfunction = function() {
         .interpolate('monotone')
         .x(function(d, i) { return x(data.localTime[i]) - xTick; })
         .y(function(d) { return y(d); });
-      const lines = container.selectAll('path.line')
-        .attr('d', function(d) { return line(d.count); })
-        .attr('transform', null);
+      // container.selectAll('path.line')
       const time = data.paused ? 0 : 983;
       const translate = 'translate(' + (data.paused ? 0 : -xTick) + ',0)';
       function tick() {
-        lines
+        container.selectAll('path.line')
+          .attr('d', function(d) { return line(d.count); })
           .attr('transform', null)
           .transition()
           .duration(time)
           .ease('linear')
-          .attr('transform', translate)
-          .each('end', tick);
+          .attr('transform', translate);
+        if (scale2) {
+          const line2 = d3.svg.line()
+            .interpolate('monotone')
+            .x(function(d, i) {
+              return x(data.localTime[i]);
+            })
+            .y(function(d) {
+              return y2(d);
+            });
+          container.selectAll('.second-line')
+            .attr('d', function(d) { return line2(d.count); })
+            .attr('transform', null)
+            .transition()
+            .duration(time)
+            .ease('linear')
+            .attr('transform', translate);
+        }
+        container.transition()
+          .duration(time)
+          .each('end', function() { tick(); });
       }
-      tick();
 
       // add data from line with separate axis
       if (scale2) {
@@ -187,14 +204,6 @@ const graphfunction = function() {
         y2
           .domain([0, data.secondScale.currentMax])
           .range([subHeight, 0]);
-        const line2 = d3.svg.line()
-          .interpolate('monotone')
-          .x(function(d, i) {
-            return x(data.localTime[i]);
-          })
-          .y(function(d) {
-            return y2(d);
-          });
         g.selectAll('.second-line-div').data([data.secondScale])
           .enter().append('g')
           .attr('class', 'second-line-div')
@@ -204,23 +213,8 @@ const graphfunction = function() {
           .attr('id', function(d) {
             return 'tag' + d.line;
           });
-        const secondLine = container.selectAll('.second-line')
-          .attr('d', function(d) {
-            return line2(d.count);
-          })
-          .attr('transform', null);
-
-        function tick2() { // eslint-disable-line no-inner-declarations
-          secondLine
-            .attr('transform', null)
-            .transition()
-            .duration(time)
-            .ease('linear')
-            .attr('transform', translate)
-            .each('end', tick2);
-        }
-        tick2();
       }
+      tick();
 
       // Legend
       const l = container.selectAll('g.legend').data([0]);
