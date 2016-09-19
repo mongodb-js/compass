@@ -44,7 +44,6 @@ const TopStore = Reflux.createStore({
         const f = (b.loadPercent < a.loadPercent) ? 1 : 0;
         return (a.loadPercent < b.loadPercent) ? -1 : f;
       });
-      totals = totals.slice(Math.max(totals.length - 6, 0));
       this.trigger(error, totals);
     });
   }

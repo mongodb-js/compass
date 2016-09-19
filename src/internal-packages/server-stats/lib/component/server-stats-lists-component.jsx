@@ -23,7 +23,6 @@ class ServerStatsListsComponent extends React.Component {
    * @param {Object} data - The javascript object for the result of the command.
    */
   showOperationDetails(data) {
-    debug("SHOWING DEETS", data);
     this.setState({ mode: DETAILS, data: data});
   }
 
@@ -31,11 +30,10 @@ class ServerStatsListsComponent extends React.Component {
    * When the user clicks on the 'x close' button in the operation details table.
    */
   hideOperationDetails() {
-    debug("HIDING DEETS");
     this.setState({ mode: DEFAULT, data: {} });
   }
 
-  renderChildren() {
+  render() {
     if (this.state.mode === DETAILS) {
       return (
         <div className="listview">
@@ -51,14 +49,6 @@ class ServerStatsListsComponent extends React.Component {
         <CurrentOpComponent interval={this.props.interval}
                             store={CurrentOpStore}
                             clickHandler={this.showOperationDetails.bind(this)}/>
-      </div>
-    );
-  }
-
-  render() {
-    return (
-      <div>
-        {this.renderChildren()}
       </div>
     );
   }

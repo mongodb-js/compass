@@ -70,9 +70,9 @@ class CurrentOpComponent extends React.Component {
     const rows = this.state.data.map(function(row, i) {
       return (
         <li className="rt-lists__item rt-lists__item--slow" key={`list-item-${i}`}>
-          <div className="rt-lists__collection-slow">{row.collectionName}</div>
-          <div className="rt-lists__op" onClick={handler.bind(null, row)}>{row.operationType}</div>
-          <div className="rt-lists__time">{row.time + ' ms'}</div>
+          <div className="rt-lists__collection-slow">{row.ns}</div>
+          <div className="rt-lists__op" onClick={handler.bind(null, row)}>{row.op}</div>
+          <div className="rt-lists__time">{row.microsecs_running + ' ms'}</div>
         </li>
       );
     });
@@ -81,9 +81,11 @@ class CurrentOpComponent extends React.Component {
         <header className="rt-lists__header">
           <h2 className="rt-lists__headerlabel">Slowest Operations</h2>
         </header>
-        <ul className="rt-lists__list">
-          {rows}
-        </ul>
+        <div className="rt-lists__listdiv">
+          <ul className="rt-lists__list">
+            {rows}
+          </ul>
+        </div>
       </div>
     );
   }
@@ -94,11 +96,7 @@ class CurrentOpComponent extends React.Component {
    * @returns {React.Component} The component.
    */
   render() {
-    return (
-      <div>
-        {this.state.error ? this.renderError() : this.renderGraph()}
-      </div>
-    );
+    return this.state.error ? this.renderError() : this.renderGraph();
   }
 }
 

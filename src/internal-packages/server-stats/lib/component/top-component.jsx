@@ -92,9 +92,11 @@ class TopComponent extends React.Component {
         <header className="rt-lists__header">
           <h2 className="rt-lists__headerlabel">Hottest Collections</h2>
         </header>
-        <ul className="rt-lists__list">
-          {rows}
-        </ul>
+        <div className="rt-lists__listdiv">
+          <ul className="rt-lists__list">
+            {rows}
+          </ul>
+        </div>
       </div>
     );
   }
@@ -105,11 +107,7 @@ class TopComponent extends React.Component {
    * @returns {React.Component} The component.
    */
   render() {
-    return (
-      <div>
-        {this.state.error ? this.renderError() : this.renderGraph()}
-      </div>
-    );
+    return this.state.error ? this.renderError() : this.renderGraph();
   }
 }
 
