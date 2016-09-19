@@ -24,7 +24,7 @@ const TopStore = Reflux.createStore({
     app.dataService.top((error, response) => {
       const doc = response.totals;
       let totalTime = 0;
-      let totals = [];
+      const totals = [];
       for (let collname in doc) {
         if (!doc.hasOwnProperty(collname) || collname === 'note' || toNS(collname).specialish) {
           continue;

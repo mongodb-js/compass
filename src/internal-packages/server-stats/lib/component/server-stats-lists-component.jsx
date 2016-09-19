@@ -1,5 +1,5 @@
 const React = require('react');
-const debug = require('debug')('mongodb-compass:server-stats-lists-component');
+// const debug = require('debug')('mongodb-compass:server-stats-lists-component');
 
 const DEFAULT = 'default';
 const DETAILS = 'details';
