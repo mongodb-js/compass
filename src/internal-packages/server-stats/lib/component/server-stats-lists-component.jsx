@@ -1,5 +1,5 @@
 const React = require('react');
-// const debug = require('debug')('mongodb-compass:server-stats-lists-component');
+const debug = require('debug')('mongodb-compass:server-stats-lists-component');
 
 const DEFAULT = 'default';
 const DETAILS = 'details';
@@ -39,7 +39,8 @@ class ServerStatsListsComponent extends React.Component {
         <div className="listview">
           <DetailViewComponent
             closeHandler={this.hideOperationDetails.bind(this)}
-            data={this.state.data}/>
+            data={this.state.data}
+            error={""}/>
         </div>
       );
     }

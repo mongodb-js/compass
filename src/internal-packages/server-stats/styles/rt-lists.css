@@ -46,8 +46,15 @@
 }
 
 /* LAYOUT */
-.rt-lists__header, .rt-details__header {
+.rt-lists__header{
   margin-top: -40px;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  margin-bottom: 0;
+  padding-left: 40px;
+}
+.rt-details__header {
   display: flex;
   flex-direction: row;
   width: 100%;

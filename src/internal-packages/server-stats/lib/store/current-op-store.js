@@ -2,7 +2,7 @@ const Reflux = require('reflux');
 const app = require('ampersand-app');
 const Actions = require('../action');
 const toNS = require('mongodb-ns');
-// const debug = require('debug')('mongodb-compass:server-stats:current-op-store');
+const debug = require('debug')('mongodb-compass:server-stats:current-op-store');
 
 /**
  * This store listens to the
@@ -21,7 +21,7 @@ const CurrentOpStore = Reflux.createStore({
 
   currentOp: function() {
     app.dataService.currentOp(false, (error, response) => {
-      const totals = [];
+      let totals = [];
       if (!error) {
         const doc = response.inprog;
         for (let i = 0; i < doc.length; i++) {

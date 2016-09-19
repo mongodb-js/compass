@@ -55,7 +55,7 @@ class DetailViewComponent extends React.Component {
 
 DetailViewComponent.propTypes = {
   data: React.PropTypes.any.isRequired,
-  error: React.PropTypes.any.isRequired,
+  error: React.PropTypes.any,
   closeHandler: React.PropTypes.any.isRequired
 };
 
