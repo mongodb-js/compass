@@ -64,7 +64,8 @@ var InstancePropertiesView = module.exports = View.extend({
     }
   },
   events: {
-    'click button[data-hook=refresh-button]': 'onRefreshButtonClicked'
+    'click button[data-hook=refresh-button]': 'onRefreshButtonClicked',
+    'click span.hostname': 'onHostnameClicked'
   },
   initialize: function() {
     this.listenTo(app.instance, 'sync', this.onInstanceFetched);
@@ -76,6 +77,9 @@ var InstancePropertiesView = module.exports = View.extend({
     }.bind(this), 500);
     this.numDatabases = app.instance.databases.length;
     this.numCollections = app.instance.collections.length;
+  },
+  onHostnameClicked: function() {
+    app.navigate('/');
   },
   onRefreshButtonClicked: function() {
     app.instance.fetch();

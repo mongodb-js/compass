@@ -14,6 +14,8 @@ var _ = require('lodash');
 var debug = require('debug')('mongodb-compass:home');
 var toNS = require('mongodb-ns');
 var ipc = require('hadron-ipc');
+var React = require('react');
+var ReactDOM = require('react-dom');
 
 var indexTemplate = require('./index.jade');
 
@@ -54,6 +56,9 @@ var HomeView = View.extend({
     'click a.show-connect-window': 'onClickShowConnectWindow'
   },
   initialize: function() {
+    if (app.isFeatureEnabled('serverStats')) {
+      this.serverStatsView = app.appRegistry.getComponent('RTSS');
+    }
     this.listenTo(app.instance, 'sync', this.onInstanceFetched);
     this.listenTo(app.connection, 'change:name', this.updateTitle);
     ipc.on('window:show-compass-tour', this.showTour.bind(this, true));
@@ -65,6 +70,12 @@ var HomeView = View.extend({
   },
   render: function() {
     this.renderWithTemplate(this);
+    if (app.isFeatureEnabled('serverStats')) {
+      ReactDOM.render(
+        React.createElement(this.serverStatsView, { interval: 1000 }),
+        this.queryByHook('report-zero-state')
+      );
+    }
     if (app.preferences.showFeatureTour) {
       this.showTour(false);
     } else {
