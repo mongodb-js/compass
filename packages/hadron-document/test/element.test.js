@@ -17,6 +17,107 @@ const Document = require('../lib/document');
 const Element = require('../lib/element');
 
 describe('Element', function() {
+  describe('#bulkEdit', function() {
+    var doc = new Document({});
+    var element = new Element('email', 'work@example.com', false, doc);
+
+    context('when providing a single value', function() {
+      before(function() {
+        element.bulkEdit('test@example.com');
+      });
+
+      it('changes the value', function() {
+        expect(element.currentValue).to.equal('test@example.com');
+      });
+    });
+
+    context('when providing a string array', function() {
+      context('when the array values are strings', function() {
+        context('when there is no whitespace', function() {
+          before(function() {
+            element.bulkEdit('["value1","value2"]');
+          });
+
+          it('changes the value to an array of strings', function() {
+            expect(element.elements.at(0).currentValue).to.equal('value1');
+            expect(element.elements.at(1).currentValue).to.equal('value2');
+          });
+        });
+
+        context('when there is whitespace', function() {
+          before(function() {
+            element.bulkEdit('[ "value3", "value4" ]');
+          });
+
+          it('changes the value to an array of strings', function() {
+            expect(element.elements.at(0).currentValue).to.equal('value3');
+            expect(element.elements.at(1).currentValue).to.equal('value4');
+          });
+        });
+      });
+
+      context('when the array values are numbers', function() {
+        context('when there is no whitespace', function() {
+          before(function() {
+            element.bulkEdit('[1,2]');
+          });
+
+          it('changes the value to an array of numbers', function() {
+            expect(element.elements.at(0).currentValue).to.equal(1);
+            expect(element.elements.at(0).currentType).to.equal('Int32');
+            expect(element.elements.at(1).currentValue).to.equal(2);
+            expect(element.elements.at(1).currentType).to.equal('Int32');
+          });
+        });
+
+        context('when there is whitespace', function() {
+          before(function() {
+            element.bulkEdit('[ 3, 4 ]');
+          });
+
+          it('changes the value to an array of numbers', function() {
+            expect(element.elements.at(0).currentValue).to.equal(3);
+            expect(element.elements.at(0).currentType).to.equal('Int32');
+            expect(element.elements.at(1).currentValue).to.equal(4);
+            expect(element.elements.at(1).currentType).to.equal('Int32');
+          });
+        });
+      });
+    });
+
+    context('when providing an object', function() {
+      context('when there is no whitespace', function() {
+        before(function() {
+          element.bulkEdit('{"test1":1,"test2":2}');
+        });
+
+        it('changes the value to an object', function() {
+          expect(element.elements.at(0).currentValue).to.equal(1);
+          expect(element.elements.at(0).currentKey).to.equal('test1');
+          expect(element.elements.at(0).currentType).to.equal('Int32');
+          expect(element.elements.at(1).currentValue).to.equal(2);
+          expect(element.elements.at(1).currentKey).to.equal('test2');
+          expect(element.elements.at(1).currentType).to.equal('Int32');
+        });
+      });
+
+      context('when there is whitespace', function() {
+        before(function() {
+          element.bulkEdit('{ \"test3": 3, "test4": 4 }');
+        });
+
+        it('changes the value to an object', function() {
+          expect(element.elements.at(0).currentValue).to.equal(3);
+          expect(element.elements.at(0).currentKey).to.equal('test3');
+          expect(element.elements.at(0).currentType).to.equal('Int32');
+          expect(element.elements.at(1).currentValue).to.equal(4);
+          expect(element.elements.at(1).currentKey).to.equal('test4');
+          expect(element.elements.at(1).currentType).to.equal('Int32');
+        });
+      });
+    });
+  });
+
   describe('#insertEnd', function() {
     context('when the new embedded element is a document', function() {
       var doc = new Document({});

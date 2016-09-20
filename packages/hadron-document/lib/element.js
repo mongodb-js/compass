@@ -48,9 +48,27 @@ const CURLY = '{';
 const BRACKET = '[';
 
 /**
+ * Regex to match an array or object string.
+ */
+const ARRAY_OR_OBJECT = /^(\[|\{)(.+)(\]|\})$/;
+
+/**
  * Represents an element in a document.
  */
 class Element extends EventEmitter {
+
+  /**
+   * Bulk edit the element. Can accept JSON strings.
+   *
+   * @param {String} value - The JSON string value.
+   */
+  bulkEdit(value) {
+    if (value.match(ARRAY_OR_OBJECT)) {
+      this.edit(JSON.parse(value));
+    } else {
+      this.edit(value);
+    }
+  }
 
   /**
    * Create the element.
