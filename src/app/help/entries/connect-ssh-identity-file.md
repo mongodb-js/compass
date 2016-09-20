@@ -14,10 +14,16 @@ section: Connect
 ---
 
 <strong>
-Provide a path to a file containing the private key you wish to use for authentication
-for your ssh host.
+Select the file from which the identity (private key) for SSH public key authentication is read.
 </strong>
 
-Select the file from which the identity (private key) for public key authentication is read.
-The default is ~/.ssh/identity for protocol version 1, and ~/.ssh/id_dsa, ~/.ssh/id_ecdsa,
-~/.ssh/id_ed25519 and ~/.ssh/id_rsa for protocol version 2.
+On OS X using OpenSSH, identity files are found in `~/.ssh`. By default, the filenames of private keys are one of the following.
+
+```
+id_dsa
+id_ecdsa,
+id_ed25519
+id_rsa
+```
+
+On Windows, the location of identify files depends on your choice of SSH client. PuTTY is one commonly used SSH client.
