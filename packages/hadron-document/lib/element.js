@@ -17,7 +17,8 @@ const Events = {
   'Added': 'Element::Added',
   'Edited': 'Element::Edited',
   'Removed': 'Element::Removed',
-  'Reverted': 'Element::Reverted'
+  'Reverted': 'Element::Reverted',
+  'Converted': 'Element::Converted'
 };
 
 /**
@@ -65,6 +66,7 @@ class Element extends EventEmitter {
   bulkEdit(value) {
     if (value.match(ARRAY_OR_OBJECT)) {
       this.edit(JSON.parse(value));
+      this._bubbleUp(Events.Converted);
     } else {
       this.edit(value);
     }
