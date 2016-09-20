@@ -24,8 +24,8 @@ const TopStore = Reflux.createStore({
     app.dataService.top((error, response) => {
       const doc = response.totals;
       let totalTime = 0;
-      let totals = [];
-      for (let collname in doc) {
+      const totals = [];
+      for (let collname in doc) { // eslint-disable-line prefer-const
         if (!doc.hasOwnProperty(collname) || collname === 'note' || toNS(collname).specialish) {
           continue;
         }
