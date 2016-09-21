@@ -204,7 +204,7 @@ class DocumentList extends React.Component {
    */
   renderDocuments(docs) {
     return _.map(docs, (doc) => {
-      return (<Document doc={doc} key={doc._id} editable />);
+      return (<Document doc={doc} key={`${NamespaceStore.ns}_${doc._id}`} editable />);
     });
   }
 
