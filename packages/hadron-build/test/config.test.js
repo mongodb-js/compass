@@ -13,7 +13,35 @@ const getConfig = (argv) => {
   return config.get(cli);
 };
 
+// const windows = ()
+
 describe('hadron-build::config', () => {
+  describe('::package.json', () => {
+    it('should set `name`');
+    it('should set `version`');
+    it('should set `description`');
+    it('should set `productName`');
+    it('should set `channel`');
+    it('should set `author`');
+
+    describe('::win32', () => {
+      it('should detect and set Windows specific configuration');
+      it('should set `icon`');
+      it('should set `favicon_url`');
+      it('should set `loading_gif`');
+    });
+
+    describe('::darwin', () => {
+      it('should detect and set Mac OS X specific configuration');
+      it('should set `icon`');
+      it('should set `dmg_background`');
+      it('should set `codesign_identity`');
+      it('should set `codesign_sha1`');
+      it('should set `app_bundle_id`');
+      it('should set `app_category_type`');
+    });
+  });
+
   describe('::darwin', () => {
     describe('::stable channel', () => {
       let res;

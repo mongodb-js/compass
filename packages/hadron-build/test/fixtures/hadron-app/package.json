@@ -2,8 +2,8 @@
   "name": "hadron-app",
   "description": "Hadron build's test fixture app.",
   "version": "1.2.0-dev",
-  "main": "src/main.js",
-  "product_name": "Hadron App",
+  "main": "main.js",
+  "productName": "Hadron App",
   "authors": "MongoDB Inc.",
   "config": {
     "hadron": {
@@ -14,8 +14,8 @@
           "loading_gif": "src/app/images/win32/hadron-app-installer-loading.gif"
         },
         "darwin": {
-          "icon": "src/app/images/darwin/hadron-app.icns",
-          "dmg_background": "src/app/images/darwin/background.png",
+          "icon": "resources/darwin/hadron-app.icns",
+          "dmg_background": "resources/darwin/background.png",
           "codesign_identity": "Developer ID Application: Hadron Fixture (1234567890A)",
           "codesign_sha1": "1111111111111111111111111111111111111111",
           "app_bundle_id": "com.mongodb.hadron",

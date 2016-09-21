@@ -4,6 +4,8 @@ const Promise = require('bluebird');
 const path = require('path');
 const LessCache = require('less-cache');
 const fs = require('fs-extra');
+const read = Promise.promisify(fs.readFile);
+
 const cli = require('mongodb-js-cli')('hadron-build:ui');
 const abortIfError = cli.abortIfError.bind(cli);
 
@@ -11,17 +13,27 @@ exports.command = 'ui [options]';
 
 exports.describe = 'Compile the app UI.';
 
-let generateLessCache = (opts) => {
+const generateLessCache = (opts) => {
+  /**
+   * TODO (imlucas) Standardize to use CONFIG.
+   */
   const appDir = path.join(process.cwd(), 'src', 'app');
   const src = path.join(appDir, 'index.less');
-
+  if (!opts.less_cache) {
+    cli.warn('`less_cache` config option not set! skipping');
+    return new Promise(function(resolve) {
+      resolve();
+    });
+  }
+  /**
+   * TODO (imlucas) Ensure `opts.less_cache` and `src` exist.
+   */
   const lessCache = new LessCache({
     cacheDir: opts.less_cache,
     resourcePath: appDir
   });
 
-  return Promise.promisify(fs.readFile)(src, 'utf-8')
-    .then((contents) => lessCache.cssForFile(src, contents));
+  return read(src, 'utf-8').then((contents) => lessCache.cssForFile(src, contents));
 };
 
 exports.builder = {
@@ -37,7 +49,5 @@ exports.handler = (argv) => {
 };
 
 exports.tasks = (argv) => {
-  return Promise.all([
-    generateLessCache(argv)
-  ]);
+  return generateLessCache(argv);
 };

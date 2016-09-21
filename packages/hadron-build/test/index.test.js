@@ -1,10 +1,8 @@
 'use strict';
-/* eslint no-unused-vars: 1 */
 
 const hadronBuild = require('../');
 const commands = hadronBuild;
 const chai = require('chai');
-const sinon = require('sinon');
 const expect = chai.expect;
 
 chai.use(require('sinon-chai'));

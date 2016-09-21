@@ -93,7 +93,7 @@ exports.get = (cli, callback) => {
   /**
    * a.k.a What directory is package.json in?
    */
-  const PROJECT_ROOT = process.cwd();
+  const PROJECT_ROOT = _.get(cli, 'argv.cwd', process.cwd());
 
   /**
    * Build the options object to pass to `electron-packager`

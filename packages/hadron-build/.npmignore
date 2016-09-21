@@ -1,4 +1,4 @@
-.jshintrc
+.eslintrc
 .jsfmtrc
 .travis.yml
 test/

@@ -23,5 +23,5 @@ let get = (directory) => {
   return pkg;
 };
 
-module.exports = get(process.cwd());
+module.exports = get(process.env.CWD || process.cwd());
 module.exports.get = get;

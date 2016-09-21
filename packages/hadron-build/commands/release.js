@@ -47,12 +47,12 @@ const CACHE_PATTERN = '**/*.{jade,jsx,md}';
  * @param {Function} done
  * @api public
  */
-function cleanCompileCache(CONFIG, done) {
+const cleanCompileCache = (CONFIG, done) => {
   cli.debug('cleaning out development compile cache');
   fs.remove(path.resolve(CONFIG.dir, COMPILE_CACHE), function() {
     done();
   });
-}
+};
 
 /**
  * Create a precompiled cache of .jade and .jsx sources.
@@ -61,7 +61,7 @@ function cleanCompileCache(CONFIG, done) {
  * @param {Function} done
  * @api public
  */
-function createCompileCache(CONFIG, done) {
+const createCompileCache = (CONFIG, done) => {
   cli.debug('creating compile cache');
   var appDir = path.join(CONFIG.resources, 'app');
   CompileCache.setHomeDirectory(appDir);
@@ -76,7 +76,7 @@ function createCompileCache(CONFIG, done) {
     metadata[COMPILE_CACHE_MAPPINGS] = CompileCache.digestMappings;
     fs.writeFile(metadata._path, JSON.stringify(metadata, null, 2), done);
   });
-}
+};
 
 /**
  * Run `electron-packager`
@@ -86,16 +86,35 @@ function createCompileCache(CONFIG, done) {
  * @param {Function} done
  * @api public
  */
-function createBrandedApplication(CONFIG, done) {
+const createBrandedApplication = (CONFIG, done) => {
   cli.debug('running electron-packager');
   packager(CONFIG.packagerOptions, function(err, res) {
     if (err) {
       return done(err);
     }
     cli.debug('Packager result is: ' + JSON.stringify(res, null, 2));
-    done(null, true);
+    if (CONFIG.platform !== 'darwin') {
+      return done(null, true);
+    }
+
+    /**
+     * @see https://jira.mongodb.org/browse/INT-1836
+     */
+    cli.debug('Ensuring `Contents/MacOS/Electron` is symlinked');
+
+    const cwd = process.cwd();
+
+    process.chdir(path.join(CONFIG.appPath, 'Contents', 'MacOS'));
+
+    fs.ensureSymlink(CONFIG.productName, 'Electron', function(_err) {
+      process.chdir(cwd);
+      if (_err) {
+        return done(_err);
+      }
+      done();
+    });
   });
-}
+};
 
 /**
  * For some platforms, there will be extraneous (to us) folders generated
@@ -106,7 +125,7 @@ function createBrandedApplication(CONFIG, done) {
  * @param {Function} done
  * @api public
  */
-function cleanupBrandedApplicationScaffold(CONFIG, done) {
+const cleanupBrandedApplicationScaffold = (CONFIG, done) => {
   if (CONFIG.platform === 'linux') {
     done(null, true);
     return;
@@ -126,7 +145,7 @@ function cleanupBrandedApplicationScaffold(CONFIG, done) {
     cli.debug(format('%d extraneous files removed', paths.length));
     done(null, true);
   }, done);
-}
+};
 
 /**
  * Replace the LICENSE file `electron-packager` creates w/ a LICENSE
@@ -137,13 +156,18 @@ function cleanupBrandedApplicationScaffold(CONFIG, done) {
  * @returns {Promise}
  * @api public
  */
-let writeLicenseFile = (CONFIG, done) => {
+const writeLicenseFile = (CONFIG, done) => {
   var LICENSE_DEST = path.join(CONFIG.appPath, '..', 'LICENSE');
   var opts = {
     dir: path.join(CONFIG.resources, 'app'),
     production: false,
     excludeOrg: 'mongodb-js,10gen,christkv'
   };
+  /**
+   * TODO (imlucas) If no license file at `opts.dir`, use `CONFIG`
+   * to generate one and write it there before calling `license.build()`
+   * or else this fails miserably.
+   */
   return license.build(opts)
     .then((contents) => {
       fs.writeFileSync(LICENSE_DEST, contents);
@@ -161,7 +185,7 @@ let writeLicenseFile = (CONFIG, done) => {
  * @returns {Promise}
  * @api public
  */
-let writeVersionFile = (CONFIG, done) => {
+const writeVersionFile = (CONFIG, done) => {
   const VERSION_DEST = path.join(CONFIG.appPath, '..', 'version');
   cli.debug(format('Writing version file to `%s`', VERSION_DEST));
   fs.writeFile(VERSION_DEST, CONFIG.version, function(err) {
@@ -182,7 +206,7 @@ let writeVersionFile = (CONFIG, done) => {
  * @param {Function} done
  * @api public
  */
-function transformPackageJson(CONFIG, done) {
+const transformPackageJson = (CONFIG, done) => {
   const PACKAGE_JSON_DEST = path.join(CONFIG.resources, 'app', 'package.json');
   const packageKeysToRemove = [
     'scripts',
@@ -201,7 +225,7 @@ function transformPackageJson(CONFIG, done) {
   });
 
   fs.writeFile(PACKAGE_JSON_DEST, JSON.stringify(contents, null, 2), done);
-}
+};
 
 /**
  * TODO (imlucas) Cache this... http://npm.im/npm-cache ?
@@ -215,7 +239,7 @@ function transformPackageJson(CONFIG, done) {
  * @param {Function} done
  * @api public
  */
-function installDependencies(CONFIG, done) {
+const installDependencies = (CONFIG, done) => {
   var args = [
     'install',
     '--production'
@@ -232,7 +256,7 @@ function installDependencies(CONFIG, done) {
     cli.debug('Dependencies installed');
     done();
   });
-}
+};
 
 /**
  * Before creating installers for distribution to
@@ -247,7 +271,7 @@ function installDependencies(CONFIG, done) {
  * @param {Function} done
  * @api public
  */
-function removeDevelopmentFiles(CONFIG, done) {
+const removeDevelopmentFiles = (CONFIG, done) => {
   if (CONFIG.platform !== 'darwin') {
     done();
     return;
@@ -284,7 +308,7 @@ function removeDevelopmentFiles(CONFIG, done) {
     }
     done(null, true);
   }, done);
-}
+};
 
 /**
  * Package the application as a single `asar` file.
@@ -295,7 +319,7 @@ function removeDevelopmentFiles(CONFIG, done) {
  * @param {Object} CONFIG
  * @param {Function} done
  */
-function createApplicationAsar(CONFIG, done) {
+const createApplicationAsar = (CONFIG, done) => {
   var opts = {
     /**
      * TODO (imlucas) Find a good way to automate generating
@@ -318,7 +342,7 @@ function createApplicationAsar(CONFIG, done) {
       done();
     }, done);
   });
-}
+};
 
 /**
  * Packages the app as a plain zip using `electron-installer-zip`
@@ -332,7 +356,7 @@ function createApplicationAsar(CONFIG, done) {
  * @param {Object} CONFIG
  * @param {Function} done
  */
-function createApplicationZip(CONFIG, done) {
+const createApplicationZip = (CONFIG, done) => {
   if (CONFIG.platform === 'linux') {
     done();
     return;
@@ -352,7 +376,7 @@ function createApplicationZip(CONFIG, done) {
   };
 
   zip(options, done);
-}
+};
 
 /**
  * Create the application installer.
@@ -361,12 +385,12 @@ function createApplicationZip(CONFIG, done) {
  * @param {Function} done
  * @api public
  */
-function createBrandedInstaller(CONFIG, done) {
+const createBrandedInstaller = (CONFIG, done) => {
   cli.debug('Creating installer');
   CONFIG.createInstaller(done);
-}
+};
 
-let createModuleCache = (CONFIG, done) => {
+const createModuleCache = (CONFIG, done) => {
   const appDir = path.join(CONFIG.resources, 'app');
   ModuleCache.create(appDir);
 
@@ -381,40 +405,61 @@ let createModuleCache = (CONFIG, done) => {
 };
 
 exports.builder = {};
-
 _.assign(exports.builder, config.options, ui.builder, verify.builder);
 
-exports.handler = (argv) => {
+exports.run = (argv, done) => {
   cli.argv = argv;
 
-  let CONFIG = config.get(cli);
+  const CONFIG = config.get(cli);
+  const task = (name, fn) => {
+    return function(cb) {
+      cli.debug(`start: ${name}`);
+      fn(CONFIG, function(err) {
+        if (err) {
+          cli.error(err);
+          return cb(err);
+        }
+        cli.debug(`completed: ${name}`);
+        cb();
+      });
+    };
+  };
 
-  var tasks = _.flatten([
+
+  const tasks = _.flatten([
     function(cb) {
       verify.tasks(argv)
         .then(() => ui.tasks(argv))
         .then(() => cb())
         .catch(cb);
     },
-    _.partial(cleanCompileCache, CONFIG),
-    _.partial(createBrandedApplication, CONFIG),
-    _.partial(cleanupBrandedApplicationScaffold, CONFIG),
-    _.partial(writeVersionFile, CONFIG),
-    _.partial(transformPackageJson, CONFIG),
-    _.partial(installDependencies, CONFIG),
-    _.partial(writeLicenseFile, CONFIG),
-    _.partial(createCompileCache, CONFIG),
-    _.partial(createModuleCache, CONFIG),
-    _.partial(removeDevelopmentFiles, CONFIG),
-    _.partial(createApplicationAsar, CONFIG),
-    _.partial(createBrandedInstaller, CONFIG),
-    _.partial(createApplicationZip, CONFIG)
+    task('clean compile cache', cleanCompileCache),
+    task('create branded application', createBrandedApplication),
+    task('cleanup branded application scaffold', cleanupBrandedApplicationScaffold),
+    task('write version file', writeVersionFile),
+    task('transform package.json', transformPackageJson),
+    task('install dependencies', installDependencies),
+    task('write license file', writeLicenseFile),
+    task('create compile cache', createCompileCache),
+    task('create module cache', createModuleCache),
+    task('remove development files', removeDevelopmentFiles),
+    task('create application asar', createApplicationAsar),
+    task('create branded installer', createBrandedInstaller),
+    task('create application zip', createApplicationZip)
   ]);
 
-  async.series(tasks, (_err) => {
+  return async.series(tasks, (_err) => {
+    if (_err) {
+      return done(_err);
+    }
+    done(null, CONFIG);
+  });
+};
+
+exports.handler = (argv) => {
+  exports.run(argv, (_err, CONFIG) => {
     cli.abortIfError(_err);
-    cli.ok(format('%d assets successfully built',
-      CONFIG.assets.length));
+    cli.ok(`${CONFIG.assets.length} assets successfully built`);
     CONFIG.assets.map(function(asset) {
       cli.info(asset.path);
     });
