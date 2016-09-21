@@ -424,6 +424,7 @@ var minicharts_d3fns_geo = function() {
         'stroke-width': 1
       });
 
+      /* eslint no-undef: 0 */
       render();
       _.defer(function() {
         map.resize();
