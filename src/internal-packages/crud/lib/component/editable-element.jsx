@@ -1,5 +1,3 @@
-'use strict';
-
 const React = require('react');
 const Element = require('hadron-document').Element;
 const EditableKey = require('./editable-key');
@@ -24,11 +22,6 @@ const EDITED = 'edited';
  * The removed constant.
  */
 const REMOVED = 'removed';
-
-/**
- * The editing class constant.
- */
-const EDITING = 'editing';
 
 /**
  * The caret for expanding elements.
@@ -99,98 +92,18 @@ class EditableElement extends React.Component {
   }
 
   /**
-   * Render a single editable element.
-   *
-   * @returns {React.Component} The element component.
-   */
-  render() {
-    return this.element.elements ? this.renderExpandable() : this.renderNonExpandable();
-  }
-
-  /**
-   * Render a non-expandable element.
-   *
-   * @returns {Component} The component.
-   */
-  renderNonExpandable() {
-    return (
-      <li className={this.style()}>
-        {this.renderAction()}
-        <div className='line-number'></div>
-        <EditableKey element={this.element} index={this.props.index} />
-        :
-        {this.renderValue()}
-        <Hotspot key='hotspot' element={this.element} />
-        <Types element={this.element} />
-      </li>
-    );
-  }
-
-  /**
-   * Render the value for the component.
-   *
-   * @returns {Component} The value component.
-   */
-  renderValue() {
-    if (this.element.isValueEditable()) {
-      return (<EditableValue element={this.element} />);
-    }
-    var props = { element: this.element };
-    return React.createElement(this.valueComponent(this.element.currentType), props);
-  }
-
-  /**
-   * Render an expandable element.
-   *
-   * @returns {Component} The component.
-   */
-  renderExpandable() {
-    return (
-      <li className={this.style()}>
-        <div className={HEADER_CLASS}>
-          {this.renderAction()}
-          <div className='line-number' onClick={this.toggleExpandable.bind(this)}></div>
-          <div className={CARET} onClick={this.toggleExpandable.bind(this)}></div>
-          <EditableKey element={this.element} index={this.props.index} />
-          :
-          <div className={LABEL_CLASS} onClick={this.toggleExpandable.bind(this)}>
-            {this.element.currentType}
-          </div>
-        </div>
-        <ol className={DOCUMENT_CLASS}>
-          {this.elementComponents()}
-        </ol>
-      </li>
-    );
-  }
-
-  /**
    * Get the components for the elements.
    *
    * @returns {Array} The components.
    */
   elementComponents() {
-    var components = [];
-    var index = 0;
-    for (let element of this.element.elements) {
+    const components = [];
+    let index = 0;
+    for (const element of this.element.elements) {
       components.push(<EditableElement key={element.uuid} element={element} index={index} />);
       index++;
     }
     return components;
-  }
-
-  /**
-   * Get the revert or remove action.
-   *
-   * @returns {Component} The component.
-   */
-  renderAction() {
-    if (this.element.isRevertable()) {
-      return (<RevertAction element={this.element} />);
-    } else if (this.element.isNotActionable()) {
-      return (<NoAction element={this.element} />);
-    }
-    return (<RemoveAction element={this.element} />);
   }
 
   /**
@@ -241,7 +154,7 @@ class EditableElement extends React.Component {
    * @returns {String} The element style.
    */
   style() {
-    var style = `${PROPERTY_CLASS} ${this.element.currentType.toLowerCase()}`;
+    let style = `${PROPERTY_CLASS} ${this.element.currentType.toLowerCase()}`;
     if (this.element.isAdded()) {
       style = style.concat(` ${ADDED}`);
     } else if (this.element.isEdited()) {
@@ -261,13 +174,100 @@ class EditableElement extends React.Component {
   /**
    * Get the value component for the type.
    *
+   * @param {String} type - The type.
+   *
    * @returns {Component} The value component.
    */
   valueComponent(type) {
     return require(VALUE_MAPPINGS[type] || './non-editable-value');
   }
+
+  /**
+   * Get the revert or remove action.
+   *
+   * @returns {Component} The component.
+   */
+  renderAction() {
+    if (this.element.isRevertable()) {
+      return (<RevertAction element={this.element} />);
+    } else if (this.element.isNotActionable()) {
+      return (<NoAction element={this.element} />);
+    }
+    return (<RemoveAction element={this.element} />);
+  }
+
+  /**
+   * Render a non-expandable element.
+   *
+   * @returns {Component} The component.
+   */
+  renderNonExpandable() {
+    return (
+      <li className={this.style()}>
+        {this.renderAction()}
+        <div className="line-number"></div>
+        <EditableKey element={this.element} index={this.props.index} />
+        :
+        {this.renderValue()}
+        <Hotspot key="hotspot" element={this.element} />
+        <Types element={this.element} />
+      </li>
+    );
+  }
+
+  /**
+   * Render the value for the component.
+   *
+   * @returns {Component} The value component.
+   */
+  renderValue() {
+    if (this.element.isValueEditable()) {
+      return (<EditableValue element={this.element} />);
+    }
+    const props = { element: this.element };
+    return React.createElement(this.valueComponent(this.element.currentType), props);
+  }
+
+  /**
+   * Render an expandable element.
+   *
+   * @returns {Component} The component.
+   */
+  renderExpandable() {
+    return (
+      <li className={this.style()}>
+        <div className={HEADER_CLASS}>
+          {this.renderAction()}
+          <div className="line-number" onClick={this.toggleExpandable.bind(this)}></div>
+          <div className={CARET} onClick={this.toggleExpandable.bind(this)}></div>
+          <EditableKey element={this.element} index={this.props.index} />
+          :
+          <div className={LABEL_CLASS} onClick={this.toggleExpandable.bind(this)}>
+            {this.element.currentType}
+          </div>
+        </div>
+        <ol className={DOCUMENT_CLASS}>
+          {this.elementComponents()}
+        </ol>
+      </li>
+    );
+  }
+
+  /**
+   * Render a single editable element.
+   *
+   * @returns {React.Component} The element component.
+   */
+  render() {
+    return this.element.elements ? this.renderExpandable() : this.renderNonExpandable();
+  }
 }
 
 EditableElement.displayName = 'EditableElement';
+
+EditableElement.propTypes = {
+  element: React.PropTypes.object.isRequired,
+  index: React.PropTypes.number
+};
 
 module.exports = EditableElement;

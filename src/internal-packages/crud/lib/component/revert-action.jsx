@@ -1,5 +1,3 @@
-'use strict';
-
 const React = require('react');
 
 /**
@@ -23,6 +21,13 @@ class RevertAction extends React.Component {
   }
 
   /**
+   * Revert the change.
+   */
+  handleClick() {
+    this.element.revert();
+  }
+
+  /**
    * Render a single editable key.
    *
    * @returns {React.Component} The element component.
@@ -30,19 +35,16 @@ class RevertAction extends React.Component {
   render() {
     return (
       <div className={ACTIONS} onClick={this.handleClick.bind(this)}>
-        <i className='fa fa-rotate-left' aria-hidden={true} />
+        <i className="fa fa-rotate-left" aria-hidden />
       </div>
     );
-  }
-
-  /**
-   * Revert the change.
-   */
-  handleClick() {
-    this.element.revert();
   }
 }
 
 RevertAction.displayName = 'RevertAction';
+
+RevertAction.propTypes = {
+  element: React.PropTypes.object.isRequired
+};
 
 module.exports = RevertAction;

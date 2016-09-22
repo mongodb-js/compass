@@ -1,5 +1,3 @@
-'use strict';
-
 const React = require('react');
 
 /**
@@ -11,16 +9,6 @@ const ACTIONS = 'actions';
  * General element action component.
  */
 class NoAction extends React.Component {
-
-  /**
-   * The component constructor.
-   *
-   * @param {Object} props - The properties.
-   */
-  constructor(props) {
-    super(props);
-    this.element = props.element;
-  }
 
   /**
    * Render a single editable key.

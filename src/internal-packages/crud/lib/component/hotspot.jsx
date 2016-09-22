@@ -1,5 +1,3 @@
-'use strict';
-
 const React = require('react');
 
 /**
@@ -15,6 +13,15 @@ class Hotspot extends React.Component {
   constructor(props) {
     super(props);
     this.element = props.element;
+  }
+
+  /**
+   * Never needs to re-render.
+   *
+   * @returns {Boolean} false.
+   */
+  shouldComponentUpdate() {
+    return false;
   }
 
   /**
@@ -67,18 +74,15 @@ class Hotspot extends React.Component {
    */
   render() {
     return (
-      <div className='hotspot' onClick={this.handleClick.bind(this)}></div>
+      <div className="hotspot" onClick={this.handleClick.bind(this)}></div>
     );
-  }
-
-  /**
-   * Never needs to re-render.
-   */
-  shouldComponentUpdate() {
-    return false;
   }
 }
 
 Hotspot.displayName = 'Hotspot';
+
+Hotspot.propTypes = {
+  element: React.PropTypes.object.isRequired
+};
 
 module.exports = Hotspot;

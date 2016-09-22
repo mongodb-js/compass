@@ -1,6 +1,3 @@
-'use strict';
-
-const _ = require('lodash');
 const React = require('react');
 const Element = require('hadron-document').Element;
 const EditableElement = require('./editable-element');
@@ -46,14 +43,30 @@ class InsertDocument extends React.Component {
   }
 
   /**
+   * Get the editable elements.
+   *
+   * @returns {Array} The editable elements.
+   */
+  renderElements() {
+    const components = [];
+    for (const element of this.doc.elements) {
+      components.push(<EditableElement key={element.uuid} element={element} />);
+    }
+    components.push(<Hotspot key="hotspot" element={this.doc} />);
+    return components;
+  }
+
+  /**
    * Render a single document list item.
+   *
+   * @returns {React.Component} The component.
    */
   render() {
     return (
       <ol className={LIST_CLASS}>
         <li className={LIST_ITEM_CLASS}>
           <ol className={DOCUMENT_CLASS}>
-            <div className='document-elements'>
+            <div className="document-elements">
               {this.renderElements(this.doc)}
             </div>
           </ol>
@@ -61,22 +74,12 @@ class InsertDocument extends React.Component {
       </ol>
     );
   }
-
-  /**
-   * Get the editable elements.
-   *
-   * @returns {Array} The editable elements.
-   */
-  renderElements() {
-    var components = [];
-    for (let element of this.doc.elements) {
-      components.push(<EditableElement key={element.uuid} element={element} />)
-    }
-    components.push(<Hotspot key='hotspot' element={this.doc} />);
-    return components;
-  }
 }
 
 InsertDocument.displayName = 'InsertDocument';
+
+InsertDocument.propTypes = {
+  doc: React.PropTypes.object.isRequired
+};
 
 module.exports = InsertDocument;

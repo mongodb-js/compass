@@ -1,5 +1,3 @@
-'use strict';
-
 const React = require('react');
 const numeral = require('numeral');
 
@@ -8,13 +6,9 @@ const numeral = require('numeral');
  */
 class SizeColumn extends React.Component {
 
-  /**
-   * The component constructor.
-   *
-   * @param {Object} props - The properties.
-   */
-  constructor(props) {
-    super(props);
+  _format(size) {
+    const precision = size <= 1000 ? '0' : '0.0';
+    return numeral(size).format(precision + ' b');
   }
 
   /**
@@ -23,26 +17,21 @@ class SizeColumn extends React.Component {
    * @returns {React.Component} The size column.
    */
   render() {
-    let indexSize = this._format(this.props.size).split(' ');
+    const indexSize = this._format(this.props.size).split(' ');
     return (
-      <td className='size-column'>
-        <div className='quantity'>
+      <td className="size-column">
+        <div className="quantity">
           {indexSize[0]}
         </div>
-        <div className='unit'>
+        <div className="unit">
           {indexSize[1]}
         </div>
-        <div className='progress' title={`${this.props.relativeSize}% compared to largest index`}>
-          <div className='progress-bar' style={{ width: `${this.props.relativeSize}%` }}>
+        <div className="progress" title={`${this.props.relativeSize}% compared to largest index`}>
+          <div className="progress-bar" style={{ width: `${this.props.relativeSize}%` }}>
           </div>
         </div>
       </td>
     );
-  }
-
-  _format(size) {
-    let precision = size <= 1000 ? '0' : '0.0';
-    return numeral(size).format(precision + ' b');
   }
 }
 

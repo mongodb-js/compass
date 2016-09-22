@@ -1,5 +1,3 @@
-'use strict';
-
 const React = require('react');
 const Modal = require('react-bootstrap').Modal;
 const OpenInsertDocumentDialogStore = require('../store/open-insert-document-dialog-store');
@@ -60,9 +58,8 @@ class InsertDocumentDialog extends React.Component {
    * Handles completion of the document insert.
    *
    * @param {Boolean} success - If the operation succeeded.
-   * @param {Object} doc - The document or error.
    */
-  handleDocumentInsert(success, doc) {
+  handleDocumentInsert(success) {
     if (success) {
       this.setState({ open: false });
     }
@@ -82,7 +79,7 @@ class InsertDocumentDialog extends React.Component {
    */
   render() {
     return (
-      <Modal show={this.state.open} backdrop='static' keyboard={false}>
+      <Modal show={this.state.open} backdrop="static" keyboard={false}>
         <Modal.Header>
           <Modal.Title>Insert Document</Modal.Title>
         </Modal.Header>
@@ -94,12 +91,12 @@ class InsertDocumentDialog extends React.Component {
 
         <Modal.Footer>
           <TextButton
-            className='btn btn-default'
-            text='Cancel'
+            className="btn btn-default"
+            text="Cancel"
             clickHandler={this.handleCancel.bind(this)} />
           <TextButton
-            className='btn btn-primary'
-            text='Insert'
+            className="btn btn-primary"
+            text="Insert"
             clickHandler={this.handleInsert.bind(this)} />
         </Modal.Footer>
       </Modal>

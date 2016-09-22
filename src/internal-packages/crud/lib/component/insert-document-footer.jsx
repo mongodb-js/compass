@@ -1,5 +1,3 @@
-'use strict';
-
 const React = require('react');
 const InsertDocumentStore = require('../store/insert-document-store');
 const Actions = require('../actions');
@@ -13,7 +11,7 @@ const MODES = {
   'Progress': 'in-progress',
   'Error': 'error',
   'Modifying': 'modifying'
-}
+};
 
 /**
  * Component for the insert document footer.
@@ -82,7 +80,7 @@ class InsertDocumentFooter extends React.Component {
   render() {
     return (
       <div className={this.style()}>
-        <div className='edit-message' title={this.state.message}>
+        <div className="edit-message" title={this.state.message}>
           {this.state.message}
         </div>
       </div>

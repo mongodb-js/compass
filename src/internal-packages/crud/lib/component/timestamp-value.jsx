@@ -1,5 +1,3 @@
-'use strict';
-
 const React = require('react');
 
 /**
@@ -19,7 +17,7 @@ class TimestampValue extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.value = props.element.currentValue;
+    this.element = props.element;
   }
 
   /**
@@ -30,12 +28,16 @@ class TimestampValue extends React.Component {
   render() {
     return (
       <div className={VALUE_CLASS}>
-        {String(this.value)}
+        {String(this.element.currentValue)}
       </div>
     );
   }
 }
 
 TimestampValue.displayName = 'TimestampValue';
+
+TimestampValue.propTypes = {
+  element: React.PropTypes.object.isRequired
+};
 
 module.exports = TimestampValue;

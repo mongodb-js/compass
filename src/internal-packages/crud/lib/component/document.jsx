@@ -1,5 +1,3 @@
-'use strict';
-
 const app = require('ampersand-app');
 const React = require('react');
 const Reflux = require('reflux');
@@ -47,6 +45,22 @@ class Document extends React.Component {
     // singleton.
     this.updateStore = this.createUpdateStore(this.actions);
     this.removeStore = this.createRemoveStore(this.actions);
+  }
+
+  /**
+   * Subscribe to the update store on mount.
+   */
+  componentDidMount() {
+    this.unsubscribeUpdate = this.updateStore.listen(this.handleStoreUpdate.bind(this));
+    this.unsubscribeRemove = this.removeStore.listen(this.handleStoreRemove.bind(this));
+  }
+
+  /**
+   * Unsubscribe from the udpate store on unmount.
+   */
+  componentWillUnmount() {
+    this.unsubscribeUpdate();
+    this.unsubscribeRemove();
   }
 
   /**
@@ -129,7 +143,7 @@ class Document extends React.Component {
        * Handle the result from the driver.
        *
        * @param {Error} error - The error.
-       * @param {Object} doc - The document.
+       * @param {Object} result - The document.
        *
        * @returns {Object} The trigger event.
        */
@@ -140,26 +154,10 @@ class Document extends React.Component {
   }
 
   /**
-   * Subscribe to the update store on mount.
-   */
-  componentDidMount() {
-    this.unsubscribeUpdate = this.updateStore.listen(this.handleStoreUpdate.bind(this));
-    this.unsubscribeRemove = this.removeStore.listen(this.handleStoreRemove.bind(this));
-  }
-
-  /**
-   * Unsubscribe from the udpate store on unmount.
-   */
-  componentWillUnmount() {
-    this.unsubscribeUpdate();
-    this.unsubscribeRemove();
-  }
-
-  /**
    * Handles a trigger from the store.
    *
    * @param {Boolean} success - If the update succeeded.
-   * @param {Error, Document} object - The error or document.
+   * @param {Object} object - The error or document.
    */
   handleStoreUpdate(success, object) {
     if (this.state.editing) {
@@ -173,7 +171,7 @@ class Document extends React.Component {
    * Handles a trigger from the store.
    *
    * @param {Boolean} success - If the update succeeded.
-   * @param {Error, Document} object - The error or document.
+   * @param {Object} object - The error or document.
    */
   handleStoreRemove(success) {
     if (success) {
@@ -207,7 +205,7 @@ class Document extends React.Component {
    * Handle the editing of the document.
    */
   handleEdit() {
-    var doc = new HadronDocument(this.doc);
+    const doc = new HadronDocument(this.doc);
     doc.on(Element.Events.Added, this.handleModify.bind(this));
     doc.on(Element.Events.Removed, this.handleModify.bind(this));
     doc.on(HadronDocument.Events.Cancel, this.handleCancel.bind(this));
@@ -269,29 +267,23 @@ class Document extends React.Component {
    * @returns {Array} The editable elements.
    */
   editableElements() {
-    var components = [];
-    for (let element of this.state.doc.elements) {
-      components.push(<EditableElement key={element.uuid} element={element} />)
+    const components = [];
+    for (const element of this.state.doc.elements) {
+      components.push(<EditableElement key={element.uuid} element={element} />);
     }
-    components.push(<Hotspot key='hotspot' element={this.state.doc} />);
+    components.push(<Hotspot key="hotspot" element={this.state.doc} />);
     return components;
   }
 
-  /**
-   * Render a single document list item.
-   */
-  render() {
-    return (
-      <li className={this.style()}>
-        <ol className={DOCUMENT_CLASS}>
-          <div className='document-elements'>
-            {this.elements()}
-          </div>
-          {this.renderActions()}
-        </ol>
-        {this.renderFooter()}
-      </li>
-    );
+  style() {
+    let style = LIST_ITEM_CLASS;
+    if (this.state.editing) {
+      style = style.concat(' editing');
+    }
+    if (this.state.deleting && !this.state.deleteFinished) {
+      style = style.concat(' deleting');
+    }
+    return style;
   }
 
   /**
@@ -324,7 +316,6 @@ class Document extends React.Component {
           actions={this.actions} />
       );
     } else if (this.state.deleting) {
-      console.log(this.state);
       return (
         <RemoveDocumentFooter
           doc={this.state.doc}
@@ -335,18 +326,31 @@ class Document extends React.Component {
     }
   }
 
-  style() {
-    var style = LIST_ITEM_CLASS;
-    if (this.state.editing) {
-      style = style.concat(' editing');
-    }
-    if (this.state.deleting && !this.state.deleteFinished) {
-      style = style.concat(' deleting');
-    }
-    return style;
+  /**
+   * Render a single document list item.
+   *
+   * @returns {React.Component} The component.
+   */
+  render() {
+    return (
+      <li className={this.style()}>
+        <ol className={DOCUMENT_CLASS}>
+          <div className="document-elements">
+            {this.elements()}
+          </div>
+          {this.renderActions()}
+        </ol>
+        {this.renderFooter()}
+      </li>
+    );
   }
 }
 
 Document.displayName = 'Document';
+
+Document.propTypes = {
+  doc: React.PropTypes.object.isRequired,
+  editable: React.PropTypes.bool
+};
 
 module.exports = Document;

@@ -1,5 +1,3 @@
-'use strict';
-
 const React = require('react');
 
 /**
@@ -23,6 +21,13 @@ class RemoveAction extends React.Component {
   }
 
   /**
+   * Remove the change.
+   */
+  handleClick() {
+    this.element.remove();
+  }
+
+  /**
    * Render a single editable key.
    *
    * @returns {React.Component} The element component.
@@ -30,19 +35,16 @@ class RemoveAction extends React.Component {
   render() {
     return (
       <div className={ACTIONS} onClick={this.handleClick.bind(this)}>
-        <i className='fa fa-times-circle' aria-hidden={true} />
+        <i className="fa fa-times-circle" aria-hidden />
       </div>
     );
-  }
-
-  /**
-   * Remove the change.
-   */
-  handleClick() {
-    this.element.remove();
   }
 }
 
 RemoveAction.displayName = 'RemoveAction';
+
+RemoveAction.propTypes = {
+  element: React.PropTypes.object.isRequired
+};
 
 module.exports = RemoveAction;

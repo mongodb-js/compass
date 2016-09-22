@@ -1,5 +1,3 @@
-'use strict';
-
 const app = require('ampersand-app');
 const Indexes = require('./lib/component/indexes');
 const NameColumn = require('./lib/component/name-column');

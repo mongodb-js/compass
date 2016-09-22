@@ -1,7 +1,5 @@
-'use strict';
-
+const _ = require('lodash');
 const React = require('react');
-const Element = require('hadron-document').Element;
 const TypeChecker = require('hadron-type-checker');
 
 require('bootstrap/js/dropdown');
@@ -27,7 +25,7 @@ class Types extends React.Component {
    * @param {Event} evt - The event.
    */
   handleTypeChange(evt) {
-    var newType = evt.target.innerText;
+    const newType = evt.target.innerText;
     if (newType === 'Object') {
       this.element.edit('{');
       this.element.next();
@@ -41,12 +39,20 @@ class Types extends React.Component {
   }
 
   /**
-   * Render a type list.
+   * Get the castable value for this value.
    *
-   * @returns {React.Component} The element component.
+   * @returns {Object} The cast value.
    */
-  render() {
-    return this.isTypeChangeable() ? this.renderDropdown() : this.renderLabel();
+  castableValue() {
+    if (this.element.elements) {
+      if (this.element.currentType === 'Object') {
+        return {};
+      }
+      return _.map(this.element.elements, (element) => {
+        return element.currentValue;
+      });
+    }
+    return this.element.currentValue;
   }
 
   /**
@@ -56,19 +62,19 @@ class Types extends React.Component {
    */
   renderDropdown() {
     return (
-      <div className='dropdown types'>
+      <div className="dropdown types">
         <button
-          className='btn btn-default dropdown-toggle'
-          type='button'
-          tabIndex='-1'
-          id='types-dropdown'
-          data-toggle='dropdown'
-          aria-haspopup='true'
-          aria-expanded='false'>
+          className="btn btn-default dropdown-toggle"
+          type="button"
+          tabIndex="-1"
+          id="types-dropdown"
+          data-toggle="dropdown"
+          aria-haspopup="true"
+          aria-expanded="false">
           {this.element.currentType}
-          <span className='caret'></span>
+          <span className="caret"></span>
         </button>
-        <ul className='dropdown-menu' aria-labelledby='types-dropdown'>
+        <ul className="dropdown-menu" aria-labelledby="types-dropdown">
           {this.renderTypes()}
         </ul>
       </div>
@@ -82,8 +88,8 @@ class Types extends React.Component {
    */
   renderLabel() {
     return (
-      <div className='types'>
-        <span className='type-label'>{this.element.currentType}</span>
+      <div className="types">
+        <span className="type-label">{this.element.currentType}</span>
       </div>
     );
   }
@@ -104,23 +110,19 @@ class Types extends React.Component {
   }
 
   /**
-   * Get the castable value for this value.
+   * Render a type list.
    *
-   * @returns {Object} The cast value.
+   * @returns {React.Component} The element component.
    */
-  castableValue() {
-    if (this.element.elements) {
-      if (this.element.currentType === 'Object') {
-        return {};
-      }
-      return _.map(this.element.elements, (element) => {
-        return element.currentValue;
-      });
-    }
-    return this.element.currentValue;
+  render() {
+    return this.isTypeChangeable() ? this.renderDropdown() : this.renderLabel();
   }
 }
 
 Types.displayName = 'Types';
+
+Types.propTypes = {
+  element: React.PropTypes.object.isRequired
+};
 
 module.exports = Types;

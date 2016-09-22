@@ -2,8 +2,6 @@ const React = require('react');
 const pluralize = require('pluralize');
 const _ = require('lodash');
 
-const debug = require('debug')('mongodb-compass:schema:array');
-
 const DocumentMinichart = React.createClass({
 
   propTypes: {

@@ -1,5 +1,3 @@
-'use strict';
-
 const React = require('react');
 const IndexHeaderColumn = require('./index-header-column');
 const SortIndexesStore = require('../store/sort-indexes-store');
@@ -40,6 +38,7 @@ class IndexHeader extends React.Component {
    * initial load of indexes.
    *
    * @param {Array} indexes - The indexes.
+   * @param {String} sortOrder - The sort order.
    */
   handleIndexChange(indexes, sortOrder) {
     this.setState({ sortOrder: sortOrder });
@@ -54,11 +53,11 @@ class IndexHeader extends React.Component {
     return (
       <thead>
         <tr>
-          <IndexHeaderColumn hook="th-name" name='Name and Definition' sortOrder={this.state.sortOrder} />
-          <IndexHeaderColumn hook="th-type" name='Type' sortOrder={this.state.sortOrder} />
-          <IndexHeaderColumn hook="th-size" name='Size' sortOrder={this.state.sortOrder} />
-          <IndexHeaderColumn hook="th-usage" name='Usage' sortOrder={this.state.sortOrder} />
-          <IndexHeaderColumn hook="th-properties" name='Properties' sortOrder={this.state.sortOrder} />
+          <IndexHeaderColumn hook="th-name" name="Name and Definition" sortOrder={this.state.sortOrder} />
+          <IndexHeaderColumn hook="th-type" name="Type" sortOrder={this.state.sortOrder} />
+          <IndexHeaderColumn hook="th-size" name="Size" sortOrder={this.state.sortOrder} />
+          <IndexHeaderColumn hook="th-usage" name="Usage" sortOrder={this.state.sortOrder} />
+          <IndexHeaderColumn hook="th-properties" name="Properties" sortOrder={this.state.sortOrder} />
         </tr>
       </thead>
     );
