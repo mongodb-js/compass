@@ -25,8 +25,28 @@ key names will cause the key field to be highlighted in red.
 #### Copying JSON Into Fields
 
 Valid JSON which can be parsed by Javascript's `JSON.parse` can be pasted
-into fields. If the pasted value is an `Array` or `Object`, the vaalue will
-be converted.
+into fields. If the pasted value is an `Array` or `Object`, the value will
+be converted. The formats rules are as follows:
+
+##### Objects
+
+Object keys must be quoted in double quotes, and are permitted to be escaped.
+The first characted of the string must be `{` and the last must be `}`:
+
+<pre>
+{
+  "email": "test@example.com",
+  "phone": "555-555-1212"
+}
+</pre>
+
+##### Arrays
+
+The first character in the string must be a `[` and the last must be a `]`:
+
+<pre>
+[ "first", "second", 3 ]
+</pre>
 
 ### Adding an Element
 
