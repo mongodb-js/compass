@@ -218,6 +218,89 @@ describe('NativeClient', function() {
     });
   });
 
+  describe('#createCollection', function() {
+    after(function(done) {
+      client.database.dropCollection('foo', {}, function(error) {
+        assert.equal(null, error);
+        done();
+      });
+    });
+
+    it('creates a new collection', function(done) {
+      var options = {};
+      client.createCollection('data-service.foo', options, function(error) {
+        assert.equal(null, error);
+        helper.listCollections(client, function(err, items) {
+          assert.equal(null, err);
+          expect(items).to.include({name: 'foo', options: {}});
+          done();
+        });
+      });
+    });
+  });
+
+  describe('#createIndex', function() {
+    after(function(done) {
+      var testCollection = client.database.collection('test');
+      testCollection.dropIndex('a_1', {}, function() {
+        testCollection.dropIndex('b_1', {}, function() {
+          testCollection.dropIndex('a_-1_b_1', {}, function() {
+            done();
+          });
+        });
+      });
+    });
+
+    context('when options are provided', function() {
+      it('creates a new index with the provided options', function(done) {
+        var spec = {a: 1};
+        var options = {unique: true};
+        client.createIndex('data-service.test', spec, options, function(error) {
+          assert.equal(null, error);
+          helper.indexes(client, function(err, indexes) {
+            assert.equal(null, err);
+            expect(indexes).to.include({
+              v: 1, unique: true, key: { a: 1 }, name: 'a_1', ns: 'data-service.test'
+            });
+            done();
+          });
+        });
+      });
+    });
+
+    context('when no options are provided', function() {
+      it('creates a new single index', function(done) {
+        var spec = {b: 1};
+        var options = {};
+        client.createIndex('data-service.test', spec, options, function(error) {
+          assert.equal(null, error);
+          helper.indexes(client, function(err, indexes) {
+            assert.equal(null, err);
+            expect(indexes).to.include({
+              v: 1, key: { b: 1 }, name: 'b_1', ns: 'data-service.test'
+            });
+            done();
+          });
+        });
+      });
+
+      it('creates a new compound index', function(done) {
+        var spec = {a: -1, b: 1};
+        var options = {};
+        client.createIndex('data-service.test', spec, options, function(error) {
+          assert.equal(null, error);
+          helper.indexes(client, function(err, indexes) {
+            assert.equal(null, err);
+            expect(indexes).to.include({
+              v: 1, key: { a: -1, b: 1 }, name: 'a_-1_b_1', ns: 'data-service.test'
+            });
+            done();
+          });
+        });
+      });
+    });
+  });
+
   describe('#explain', function() {
     context('when a filter is provided', function() {
       it('returns an explain object for the provided filter', function(done) {
@@ -249,6 +332,69 @@ describe('NativeClient', function() {
             expect(docs.length).to.equal(0);
             done();
           });
+        });
+      });
+    });
+  });
+
+  describe('#dropCollection', function() {
+    before(function(done) {
+      client.database.createCollection('bar', {}, function(error) {
+        assert.equal(null, error);
+        done();
+      });
+    });
+
+    it('drops a collection', function(done) {
+      client.dropCollection('data-service.bar', function(error) {
+        assert.equal(null, error);
+        helper.listCollections(client, function(err, items) {
+          assert.equal(null, err);
+          expect(items).to.not.include({name: 'bar', options: {}});
+          done();
+        });
+      });
+    });
+  });
+
+  describe('#dropDatabase', function() {
+    before(function(done) {
+      client.database.db('mangoDB').createCollection('testing',
+      {}, function(error) {
+        assert.equal(null, error);
+        done();
+      });
+    });
+
+    it('drops a database', function(done) {
+      client.dropDatabase('mangoDB', function(error) {
+        assert.equal(null, error);
+        helper.listDatabases(client, function(err, dbs) {
+          assert.equal(null, err);
+          expect(dbs).to.not.have.property({name: 'mangoDB'});
+          done();
+        });
+      });
+    });
+  });
+
+  describe('#dropIndex', function() {
+    before(function(done) {
+      client.database.collection('test').createIndex({
+        a: 1
+      }, {}, function(error) {
+        assert.equal(null, error);
+        done();
+      });
+    });
+
+    it('removes an index from a collection', function(done) {
+      client.dropIndex('data-service.test', 'a_1', function(error) {
+        assert.equal(null, error);
+        helper.indexes(client, function(err, indexes) {
+          assert.equal(null, err);
+          expect(indexes).to.not.have.property({name: 'a_1'});
+          done();
         });
       });
     });

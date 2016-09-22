@@ -41,6 +41,69 @@ describe('DataService', function() {
     });
   });
 
+  describe('#dropCollection', function() {
+    before(function(done) {
+      service.client.database.createCollection('bar', {}, function(error) {
+        assert.equal(null, error);
+        done();
+      });
+    });
+
+    it('drops a collection', function(done) {
+      service.dropCollection('data-service.bar', function(error) {
+        assert.equal(null, error);
+        helper.listCollections(service.client, function(err, items) {
+          assert.equal(null, err);
+          expect(items).to.not.include({name: 'bar', options: {}});
+          done();
+        });
+      });
+    });
+  });
+
+  describe('#dropDatabase', function() {
+    before(function(done) {
+      service.client.database.db('mangoDB').createCollection('testing',
+      {}, function(error) {
+        assert.equal(null, error);
+        done();
+      });
+    });
+
+    it('drops a database', function(done) {
+      service.dropDatabase('mangoDB', function(error) {
+        assert.equal(null, error);
+        helper.listDatabases(service.client, function(err, dbs) {
+          assert.equal(null, err);
+          expect(dbs).to.not.have.property({name: 'mangoDB'});
+          done();
+        });
+      });
+    });
+  });
+
+  describe('#dropIndex', function() {
+    before(function(done) {
+      service.client.database.collection('test').createIndex({
+        a: 1
+      }, {}, function(error) {
+        assert.equal(null, error);
+        done();
+      });
+    });
+
+    it('removes an index from a collection', function(done) {
+      service.dropIndex('data-service.test', 'a_1', function(error) {
+        assert.equal(null, error);
+        helper.indexes(service.client, function(err, indexes) {
+          assert.equal(null, err);
+          expect(indexes).to.not.have.property({name: 'a_1'});
+          done();
+        });
+      });
+    });
+  });
+
   describe('#deleteMany', function() {
     it('deletes the document from the collection', function(done) {
       service.insertOne('data-service.test', {
@@ -190,6 +253,89 @@ describe('DataService', function() {
       service.count('data-service.test', {}, {}, function(error) {
         expect(error.message).to.equal('topology was destroyed');
         done();
+      });
+    });
+  });
+
+  describe('#createCollection', function() {
+    after(function(done) {
+      service.client.database.dropCollection('foo', {}, function(error) {
+        assert.equal(null, error);
+        done();
+      });
+    });
+
+    it('creates a new collection', function(done) {
+      var options = {};
+      service.createCollection('data-service.foo', options, function(error) {
+        assert.equal(null, error);
+        helper.listCollections(service.client, function(err, items) {
+          assert.equal(null, err);
+          expect(items).to.include({name: 'foo', options: {}});
+          done();
+        });
+      });
+    });
+  });
+
+  describe('#createIndex', function() {
+    after(function(done) {
+      var testCollection = service.client.database.collection('test');
+      testCollection.dropIndex('a_1', {}, function() {
+        testCollection.dropIndex('b_1', {}, function() {
+          testCollection.dropIndex('a_-1_b_1', {}, function() {
+            done();
+          });
+        });
+      });
+    });
+
+    context('when options are provided', function() {
+      it('creates a new index with the provided options', function(done) {
+        var spec = {a: 1};
+        var options = {unique: true};
+        service.createIndex('data-service.test', spec, options, function(error) {
+          assert.equal(null, error);
+          helper.indexes(service.client, function(err, indexes) {
+            assert.equal(null, err);
+            expect(indexes).to.include({
+              v: 1, unique: true, key: { a: 1 }, name: 'a_1', ns: 'data-service.test'
+            });
+            done();
+          });
+        });
+      });
+    });
+
+    context('when no options are provided', function() {
+      it('creates a new single index', function(done) {
+        var spec = {b: 1};
+        var options = {};
+        service.createIndex('data-service.test', spec, options, function(error) {
+          assert.equal(null, error);
+          helper.indexes(service.client, function(err, indexes) {
+            assert.equal(null, err);
+            expect(indexes).to.include({
+              v: 1, key: { b: 1 }, name: 'b_1', ns: 'data-service.test'
+            });
+            done();
+          });
+        });
+      });
+
+      it('creates a new compound index', function(done) {
+        var spec = {a: -1, b: 1};
+        var options = {};
+        service.createIndex('data-service.test', spec, options, function(error) {
+          assert.equal(null, error);
+          helper.indexes(service.client, function(err, indexes) {
+            assert.equal(null, err);
+            expect(indexes).to.include({
+              v: 1, key: { a: -1, b: 1 }, name: 'a_-1_b_1', ns: 'data-service.test'
+            });
+            done();
+          });
+        });
       });
     });
   });

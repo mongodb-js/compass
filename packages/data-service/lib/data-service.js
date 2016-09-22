@@ -80,6 +80,31 @@ class DataService extends EventEmitter {
   }
 
   /**
+   * Creates a collection
+   *
+   * @param {String} ns - The namespace.
+   * @param {Object} options - The options.
+   * @param {Function} callback - The callback.
+   */
+  createCollection(ns, options, callback) {
+    debug(`#createCollection: ${ns}`);
+    this.client.createCollection(ns, options, callback);
+  }
+
+  /**
+   * Creates an index
+   *
+   * @param {String} ns - The namespace.
+   * @param {Object} spec - The index specification.
+   * @param {Object} options - The options.
+   * @param {Function} callback - The callback.
+   */
+  createIndex(ns, spec, options, callback) {
+    debug(`#createIndex: ${ns}, ${spec}`);
+    this.client.createIndex(ns, spec, options, callback);
+  }
+
+  /**
    * Get the kitchen sink information about a database and all its collections.
    *
    * @param {String} name - The database name.
@@ -122,6 +147,40 @@ class DataService extends EventEmitter {
    */
   disconnect() {
     this.client.disconnect();
+  }
+
+  /**
+   * Drops a collection from a database
+   *
+   * @param {String} ns - The namespace.
+   * @param {Function} callback - The callback.
+   */
+  dropCollection(ns, callback) {
+    debug(`#dropCollection: ${ns}`);
+    this.client.dropCollection(ns, callback);
+  }
+
+  /**
+   * Drops a database
+   *
+   * @param {String} name - The database name.
+   * @param {Function} callback - The callback.
+   */
+  dropDatabase(name, callback) {
+    debug(`#dropDatabase: ${name}`);
+    this.client.dropDatabase(name, callback);
+  }
+
+  /**
+   * Drops an index from a collection
+   *
+   * @param {String} ns - The namespace.
+   * @param {String} name - The index name.
+   * @param {Function} callback - The callback.
+   */
+  dropIndex(ns, name, callback) {
+    debug(`#dropIndex: ${ns}, ${name}`);
+    this.client.dropIndex(ns, name, callback);
   }
 
   /**

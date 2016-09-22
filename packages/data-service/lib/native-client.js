@@ -199,6 +199,41 @@ class NativeClient extends EventEmitter {
   }
 
   /**
+   * Creates a collection
+   *
+   * @param {String} ns - The namespace.
+   * @param {Object} options - The options.
+   * @param {Function} callback - The callback.
+   */
+  createCollection(ns, options, callback) {
+    var collectionName = this._collectionName(ns);
+    var db = this._database(this._databaseName(ns));
+    db.createCollection(collectionName, options, (error, result) => {
+      if (error) {
+        return callback(this._translateMessage(error));
+      }
+      callback(null, result);
+    });
+  }
+
+  /**
+   * Creates an index
+   *
+   * @param {String} ns - The namespace.
+   * @param {Object} spec - The index specification.
+   * @param {Object} options - The options.
+   * @param {Function} callback - The callback.
+   */
+  createIndex(ns, spec, options, callback) {
+    this._collection(ns).createIndex(spec, options, (error, result) => {
+      if (error) {
+        return callback(this._translateMessage(error));
+      }
+      callback(null, result);
+    });
+  }
+
+  /**
    * Get the kitchen sink information about a database and all its collections.
    *
    * @param {String} name - The database name.
@@ -271,6 +306,52 @@ class NativeClient extends EventEmitter {
    */
   disconnect() {
     this.database.close();
+  }
+
+  /**
+   * Drops a collection from a database
+   *
+   * @param {String} ns - The namespace.
+   * @param {Function} callback - The callback.
+   */
+  dropCollection(ns, callback) {
+    this._collection(ns).drop((error, result) => {
+      if (error) {
+        return callback(this._translateMessage(error));
+      }
+      callback(null, result);
+    });
+  }
+
+  /**
+   * Drops a database
+   *
+   * @param {String} name - The database name.
+   * @param {Function} callback - The callback.
+   */
+  dropDatabase(name, callback) {
+    this._database(this._databaseName(name)).dropDatabase((error, result) => {
+      if (error) {
+        return callback(this._translateMessage(error));
+      }
+      callback(null, result);
+    });
+  }
+
+  /**
+   * Drops an index from a collection
+   *
+   * @param {String} ns - The namespace.
+   * @param {String} name - The index name.
+   * @param {Function} callback - The callback.
+   */
+  dropIndex(ns, name, callback) {
+    this._collection(ns).dropIndex(name, (error, result) => {
+      if (error) {
+        return callback(this._translateMessage(error));
+      }
+      callback(null, result);
+    });
   }
 
   /**
