@@ -197,7 +197,14 @@ const graphfunction = function() {
         .y(function(d) { return y(d); });
       const time = data.paused ? 0 : 983;
       const translate = 'translate(' + (data.paused ? 0 : -xTick) + ',0)';
+      let ticked = false;
       function tick() {
+        // Only tick once per call, TODO: fix, feels hacky
+        if (!ticked) {
+          ticked = true;
+        } else {
+          return;
+        }
         container.selectAll('path.line')
           .attr('d', function(d) { return line(d.count); })
           .attr('transform', null)
