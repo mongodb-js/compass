@@ -36,7 +36,6 @@ class ChartComponent extends React.Component {
    */
   componentWillUnmount() {
     this.unsubscribeRefresh();
-    clearInterval(this.intervalId);
   }
 
   /**
@@ -51,24 +50,17 @@ class ChartComponent extends React.Component {
   }
 
   /**
-   * Render the error message in the component.
-   *
-   * @returns {String} The error message.
-   */
-  renderError() {
-    return this.state.error.message;
-  }
-
-  /**
    * Render the graph in the component.
+   *
+   * @param {Object} data - The javascript object for the result of the command.
    *
    * @returns {React.Component} The graph.
    */
-  renderGraph() {
+  renderGraph(data) {
     return (
       <div className={this.props.chartname}>
         <D3Component
-          data={this.state.data}
+          data={data}
           renderMode="svg"
           width={520}
           height={145}
@@ -86,7 +78,7 @@ class ChartComponent extends React.Component {
   render() {
     return (
       <div>
-        {this.state.error ? this.renderError() : this.renderGraph()}
+        {this.state.error ? this.renderGraph({}) : this.renderGraph(this.state.data)}
       </div>
     );
   }

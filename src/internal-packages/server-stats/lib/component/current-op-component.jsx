@@ -62,8 +62,7 @@ class CurrentOpComponent extends React.Component {
         <header className="rt-lists__header">
           <h2 className="rt-lists__headerlabel">Slowest Operations</h2>
         </header>
-        <div className="rt-lists__error"><text>&#9888; data unavailable</text></div>
-        <div className="rt-lists__error-details"><text>{JSON.stringify(this.state.error)}</text></div>
+        <div className="rt-lists__empty-error">&#9888; DATA UNAVAILABLE</div>
       </div>
     );
   }
@@ -79,7 +78,7 @@ class CurrentOpComponent extends React.Component {
         <header className="rt-lists__header">
           <h2 className="rt-lists__headerlabel">Slowest Operations</h2>
         </header>
-        <div className="rt-lists__empty">no current operations</div>
+        <div className="rt-lists__empty-error">&#10004; No Current Operations</div>
       </div>
     );
   }

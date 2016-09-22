@@ -48,6 +48,8 @@ const CurrentOpStore = Reflux.createStore({
         if (this.isPaused) {
           totals = this.allOps[this.pauseIndex];
         }
+      } else if (error) {
+        Actions.dbError({'op': 'currentOp', 'error': error });
       }
       this.trigger(error, totals);
     });

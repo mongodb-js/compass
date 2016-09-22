@@ -62,8 +62,7 @@ class TopComponent extends React.Component {
         <header className="rt-lists__header">
           <h2 className="rt-lists__headerlabel">Hottest Collections</h2>
         </header>
-        <div className="rt-lists__error"><text>&#9888; data unavailable</text></div>
-        <div className="rt-lists__error-details"><text>{JSON.stringify(this.state.error)}</text></div>
+        <div className="rt-lists__empty-error">&#9888; DATA UNAVAILABLE</div>
       </div>
     );
   }
@@ -79,7 +78,7 @@ class TopComponent extends React.Component {
         <header className="rt-lists__header">
           <h2 className="rt-lists__headerlabel">Hottest Collections</h2>
         </header>
-        <div className="rt-lists__empty">no collections</div>
+        <div className="rt-lists__empty-error">&#10004; No Hot Collections</div>
       </div>
     );
   }
