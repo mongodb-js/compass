@@ -1,5 +1,6 @@
 const React = require('react');
 const Actions = require('../action');
+// const debug = require('debug')('mongodb-compass:server-stats-top-component');
 
 /**
  * Represents the component that renders the top information.
@@ -56,7 +57,14 @@ class TopComponent extends React.Component {
    * @returns {String} The error message.
    */
   renderError() {
-    return this.state.error.message;
+    return (
+      <div className="rt-lists">
+        <header className="rt-lists__header">
+          <h2 className="rt-lists__headerlabel">Hottest Collections</h2>
+        </header>
+        <div className="rt-lists__empty-error">&#9888; DATA UNAVAILABLE</div>
+      </div>
+    );
   }
 
   /**
@@ -70,7 +78,7 @@ class TopComponent extends React.Component {
         <header className="rt-lists__header">
           <h2 className="rt-lists__headerlabel">Hottest Collections</h2>
         </header>
-        <div className="rt-lists__empty">no collections</div>
+        <div className="rt-lists__empty-error">&#10004; No Hot Collections</div>
       </div>
     );
   }
@@ -123,10 +131,13 @@ class TopComponent extends React.Component {
    * @returns {React.Component} The component.
    */
   render() {
+    if (this.state.error) {
+      return this.renderError();
+    }
     if (this.state.data.length === 0) {
       return this.renderZero();
     }
-    return this.state.error ? this.renderError() : this.renderGraph();
+    return this.renderGraph();
   }
 }
 

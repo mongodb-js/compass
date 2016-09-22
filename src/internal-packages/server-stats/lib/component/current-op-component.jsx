@@ -57,7 +57,14 @@ class CurrentOpComponent extends React.Component {
    * @returns {String} The error message.
    */
   renderError() {
-    return this.state.error.message;
+    return (
+      <div className="rt-lists">
+        <header className="rt-lists__header">
+          <h2 className="rt-lists__headerlabel">Slowest Operations</h2>
+        </header>
+        <div className="rt-lists__empty-error">&#9888; DATA UNAVAILABLE</div>
+      </div>
+    );
   }
 
   /**
@@ -69,9 +76,9 @@ class CurrentOpComponent extends React.Component {
     return (
       <div className="rt-lists">
         <header className="rt-lists__header">
-          <h2 className="rt-lists__headerlabel">Hottest Collections</h2>
+          <h2 className="rt-lists__headerlabel">Slowest Operations</h2>
         </header>
-        <div className="rt-lists__empty">no current operations</div>
+        <div className="rt-lists__empty-error">&#10004; No Current Operations</div>
       </div>
     );
   }
@@ -112,10 +119,13 @@ class CurrentOpComponent extends React.Component {
    * @returns {React.Component} The component.
    */
   render() {
+    if (this.state.error) {
+      return this.renderError();
+    }
     if (this.state.data.length === 0) {
       return this.renderZero();
     }
-    return this.state.error ? this.renderError() : this.renderGraph();
+    return this.renderGraph();
   }
 }
 

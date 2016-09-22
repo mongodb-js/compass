@@ -1,5 +1,5 @@
 const d3 = require('d3');
-const debug = require('debug')('mongodb-compass:server-stats-chart');
+// const debug = require('debug')('mongodb-compass:server-stats-chart');
 
 const graphfunction = function() {
   let width = 520;
@@ -12,6 +12,8 @@ const graphfunction = function() {
   let mouseLocation = null;
   const bubbleWidth = 8;
   const margin = {top: 25, right: 40, bottom: 45, left: 55};
+  let zeroState = true;
+  let errorState = false;
 
   function validate(data) { // eslint-disable-line complexity
     const topKeys = ['dataSets', 'localTime', 'yDomain', 'xLength',
@@ -97,23 +99,38 @@ const graphfunction = function() {
           .attr('transform', 'translate(' + c.x + ',' + c.y + ')');
       });
 
-      // Error message, if needed
-      gEnter
-        .append('text')
-        .attr('class', 'error-message')
-        .attr('x', subWidth / 2)
-        .attr('y', (subHeight / 2) + 5)
-        .text('\u26A0 data unavailable')
-        .style('display', 'none');
-
+      // Handle 0-state
+      if (zeroState) {
+        zeroState = false;
+        return;
+      }
       // Handle bad data
       if (!validate(data)) {
-        // Draw error message
-        container.selectAll('text.error-message').style('display', null);
-        // Hide everything drawn already
-        container.selectAll('.legend, .overlay, .axis-labels, .line-div')
-          .style('display', 'none');
+        // Error message, if needed
+        if (!errorState) {
+          container.selectAll('g.chart')
+            .append('rect')
+            .attr('class', 'error-overlay')
+            .attr('transform', 'translate(' + ((subWidth - 300) / 2) + ',' + ((subHeight - 40) / 2) + ')')
+            .attr('width', 300)
+            .attr('height', 40)
+            .style('opacity', 0.3);
+          container.selectAll('g.chart')
+            .append('text')
+            .attr('class', 'error-message')
+            .attr('x', subWidth / 2)
+            .attr('y', (subHeight / 2) + 5)
+            .text('\u26A0 data unavailable')
+            .style('opacity', 1);
+        }
+        errorState = true;
         return;
+      } else {
+        if (errorState) {
+          errorState = false;
+          container.selectAll('rect.error-overlay').remove();
+          container.selectAll('text.error-message').remove();
+        }
       }
       // Redraw anything hidden by errors
       container.selectAll('.legend, .overlay, .axis-labels, .line-div')
@@ -191,7 +208,14 @@ const graphfunction = function() {
         .y(function(d) { return y(d); });
       const time = data.paused ? 0 : 983;
       const translate = 'translate(' + (data.paused ? 0 : -xTick) + ',0)';
+      let ticked = false;
       function tick() {
+        // Only tick once per call, TODO: fix, feels hacky
+        if (!ticked) {
+          ticked = true;
+        } else {
+          return;
+        }
         container.selectAll('path.line')
           .attr('d', function(d) { return line(d.count); })
           .attr('transform', null)
