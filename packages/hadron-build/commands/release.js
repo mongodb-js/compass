@@ -94,13 +94,23 @@ const createBrandedApplication = (CONFIG, done) => {
     }
     cli.debug('Packager result is: ' + JSON.stringify(res, null, 2));
     done(null, true);
-    // if (CONFIG.platform !== 'darwin') {
-    //   return done(null, true);
-    // }
-    //
-    // /**
-    //  * @see https://jira.mongodb.org/browse/INT-1836
-    //  */
+    if (CONFIG.platform !== 'darwin') {
+      return done(null, true);
+    }
+
+    /**
+     * @see https://jira.mongodb.org/browse/INT-1836
+     */
+    const atomIcns = path.join(CONFIG.resources, 'atom.icns');
+    const electronIcns = path.join(CONFIG.resources, 'electron.icns');
+    fs.exists(atomIcns, function(exists) {
+      if (!exists) {
+        return done(null, true);
+      }
+      fs.move(atomIcns, electronIcns, done);
+    });
+
+
     // cli.debug('Ensuring `Contents/MacOS/Electron` is symlinked');
     //
     // const cwd = process.cwd();
