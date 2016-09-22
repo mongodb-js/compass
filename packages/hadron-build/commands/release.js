@@ -93,26 +93,27 @@ const createBrandedApplication = (CONFIG, done) => {
       return done(err);
     }
     cli.debug('Packager result is: ' + JSON.stringify(res, null, 2));
-    if (CONFIG.platform !== 'darwin') {
-      return done(null, true);
-    }
-
-    /**
-     * @see https://jira.mongodb.org/browse/INT-1836
-     */
-    cli.debug('Ensuring `Contents/MacOS/Electron` is symlinked');
-
-    const cwd = process.cwd();
-
-    process.chdir(path.join(CONFIG.appPath, 'Contents', 'MacOS'));
-
-    fs.ensureSymlink(CONFIG.productName, 'Electron', function(_err) {
-      process.chdir(cwd);
-      if (_err) {
-        return done(_err);
-      }
-      done();
-    });
+    done(null, true);
+    // if (CONFIG.platform !== 'darwin') {
+    //   return done(null, true);
+    // }
+    //
+    // /**
+    //  * @see https://jira.mongodb.org/browse/INT-1836
+    //  */
+    // cli.debug('Ensuring `Contents/MacOS/Electron` is symlinked');
+    //
+    // const cwd = process.cwd();
+    //
+    // process.chdir(path.join(CONFIG.appPath, 'Contents', 'MacOS'));
+    //
+    // fs.ensureSymlink(CONFIG.productName, 'Electron', function(_err) {
+    //   process.chdir(cwd);
+    //   if (_err) {
+    //     return done(_err);
+    //   }
+    //   done();
+    // });
   });
 };
 

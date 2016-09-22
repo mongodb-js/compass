@@ -46,7 +46,7 @@ describe('hadron-build::release', function() {
     });
   });
 
-  it('should symlink `Electron` to the app binary on OS X', function(done) {
+  it.skip('should symlink `Electron` to the app binary on OS X', function(done) {
     if (CONFIG.platform !== 'darwin') {
       return this.skip();
     }
