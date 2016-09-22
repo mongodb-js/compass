@@ -79,7 +79,7 @@ class InsertDocument extends React.Component {
 InsertDocument.displayName = 'InsertDocument';
 
 InsertDocument.propTypes = {
-  doc: React.PropTypes.object.isRequired
+  doc: React.PropTypes.object
 };
 
 module.exports = InsertDocument;

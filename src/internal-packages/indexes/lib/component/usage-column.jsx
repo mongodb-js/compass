@@ -42,7 +42,7 @@ UsageColumn.displayUsage = 'UsageColumn';
 
 UsageColumn.propTypes = {
   usage: React.PropTypes.number.isRequired,
-  since: React.PropTypes.date.isRequired
+  since: React.PropTypes.any.isRequired
 };
 
 module.exports = UsageColumn;
