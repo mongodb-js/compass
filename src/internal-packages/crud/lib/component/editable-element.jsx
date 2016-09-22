@@ -95,6 +95,7 @@ class EditableElement extends React.Component {
     this.element.on(Element.Events.Edited, this.handleEdit.bind(this));
     this.element.on(Element.Events.Removed, this.handleRemove.bind(this));
     this.element.on(Element.Events.Reverted, this.handleRevert.bind(this));
+    this.element.on(Element.Events.Converted, this.handleConvert.bind(this));
   }
 
   /**
@@ -218,6 +219,13 @@ class EditableElement extends React.Component {
    */
   handleRevert() {
     this.setState({});
+  }
+
+  /**
+   * Here to re-render the component when converted to array or object.
+   */
+  handleConvert() {
+    this.setState({ expanded: true });
   }
 
   /**

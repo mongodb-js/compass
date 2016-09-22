@@ -35,6 +35,7 @@ class EditableValue extends React.Component {
     super(props);
     this.element = props.element;
     this.state = { editing: false };
+    this._pasting = false;
   }
 
   /**
@@ -47,6 +48,11 @@ class EditableValue extends React.Component {
     }
   }
 
+  /**
+   * Is the element auto-focusable?
+   *
+   * @returns {Boolean} If the element can be focused automatically.
+   */
   isAutoFocusable() {
     return !this.element.isKeyEditable() ||
       this.element.parent.currentType === 'Array';
@@ -68,6 +74,7 @@ class EditableValue extends React.Component {
         onFocus={this.handleFocus.bind(this)}
         onChange={this.handleChange.bind(this)}
         onKeyDown={this.handleKeyDown.bind(this)}
+        onPaste={this.handlePaste.bind(this)}
         value={this.element.currentValue} />
     );
   }
@@ -100,6 +107,17 @@ class EditableValue extends React.Component {
     }
   }
 
+  /**
+   * Sets the flag that the user pasted the value. The reason for this is that
+   * the onpaste event that is passed does not have consistent behaviour with
+   * respect to event.target.value - it is sometimes undefined. The onchange
+   * event always gets fired after this to we can set the flag and then check
+   * for it in that event.
+   */
+  handlePaste() {
+    this._pasting = true;
+  }
+
   isTabable() {
     if (this.element.parent.currentType === 'Array') {
       return this.element.currentValue !== '';
@@ -114,13 +132,18 @@ class EditableValue extends React.Component {
    */
   handleChange(evt) {
     var value = evt.target.value;
-    this._node.size = inputSize(value);
-    var currentType = this.element.currentType;
-    var castableTypes = TypeChecker.castableTypes(value);
-    if (_.includes(castableTypes, currentType)) {
-      this.element.edit(TypeChecker.cast(value, currentType));
+    if (this._pasting) {
+      this.element.bulkEdit(value);
+      this._pasting = false;
     } else {
-      this.element.edit(TypeChecker.cast(value, castableTypes[0]));
+      this._node.size = inputSize(value);
+      var currentType = this.element.currentType;
+      var castableTypes = TypeChecker.castableTypes(value);
+      if (_.includes(castableTypes, currentType)) {
+        this.element.edit(TypeChecker.cast(value, currentType));
+      } else {
+        this.element.edit(TypeChecker.cast(value, castableTypes[0]));
+      }
     }
   }
 
