@@ -1,5 +1,7 @@
 const d3 = require('d3');
 
+/* eslint complexity:0 */
+
 const graphfunction = function() {
   let width = 520;
   let height = 160;
@@ -124,12 +126,11 @@ const graphfunction = function() {
         }
         errorState = true;
         return;
-      } else {
-        if (errorState) {
-          errorState = false;
-          container.selectAll('rect.error-overlay').remove();
-          container.selectAll('text.error-message').remove();
-        }
+      }
+      if (errorState) {
+        errorState = false;
+        container.selectAll('rect.error-overlay').remove();
+        container.selectAll('text.error-message').remove();
       }
       // Redraw anything hidden by errors
       container.selectAll('.legend, .overlay, .axis-labels, .line-div')
