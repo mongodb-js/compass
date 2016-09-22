@@ -77,7 +77,7 @@ var ConnectView = View.extend({
     },
     sslMethod: {
       type: 'string',
-      default: 'NONE'
+      default: Connection.SSL_DEFAULT
     },
     previousSslMethod: {
       type: 'string',

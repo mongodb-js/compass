@@ -5,6 +5,7 @@ var authOptions = require('./authentication');
 var sslOptions = require('./ssl');
 var sshTunnelOptions = require('./ssh-tunnel');
 var FilteredCollection = require('ampersand-filtered-subcollection');
+var Connection = require('../models/connection');
 // var debug = require('debug')('mongodb-compass:connect:connect-form-view');
 
 var inputTemplate = require('./input-default.jade');
@@ -153,7 +154,7 @@ var ConnectFormView = FormView.extend({
         options: enabledSslOptions,
         // and pick an item from the collection as the selected one
         // @todo thomasr: pick the "model.selected" one (via .find() ?)
-        value: enabledSslOptions.get('NONE'),
+        value: enabledSslOptions.get(Connection.SSL_DEFAULT),
         // here you specify which attribute on the objects in the collection
         // to use for the value returned.
         idAttribute: '_id',
