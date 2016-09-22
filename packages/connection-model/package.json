@@ -33,7 +33,7 @@
     "lodash": "^4.14.0",
     "mongodb": "^2.2.9",
     "mongodb-url": "^1.0.2",
-    "tunnel-ssh": "^2.1.1"
+    "tunnel-ssh": "^4.1.0"
   },
   "devDependencies": {
     "eslint-config-mongodb-js": "^2.2.0",
