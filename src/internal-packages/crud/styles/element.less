@@ -1,0 +1,66 @@
+.element {
+
+  width: 100%;
+  display: block;
+  font-size: 11px;
+
+  &-field {
+    display: inline-block;
+    font-weight: bold;
+    vertical-align: top;
+  }
+
+  &-separator {
+    padding-right: 2px;
+    vertical-align: top;
+  }
+
+  &-value {
+
+    display: inline-block;
+    vertical-align: top;
+
+    &-is-string {
+      color: steelblue;
+      white-space: pre-line;
+      word-break: break-all;
+      &::before {
+        content: "\"";
+      }
+      &::after {
+        content: "\"";
+      }
+    }
+
+    &-is-int32, &-is-int64, &-is-double {
+      color: green;
+    }
+
+    &-is-date {
+      color: firebrick;
+    }
+
+    &-is-boolean {
+      color: purple;
+    }
+
+    &-is-objectid {
+      color: orangered;
+      &::before {
+        content: "ObjectID('";
+      }
+      &::after {
+        content: "')";
+      }
+    }
+
+    &-is-code {
+      &::before {
+        content: "Code('";
+      }
+      &::after {
+        content: "')";
+      }
+    }
+  }
+}
