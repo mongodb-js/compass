@@ -12,6 +12,7 @@ const graphfunction = function() {
   let mouseLocation = null;
   const bubbleWidth = 8;
   const margin = {top: 25, right: 40, bottom: 45, left: 55};
+  let zeroState = true;
 
   function validate(data) { // eslint-disable-line complexity
     const topKeys = ['dataSets', 'localTime', 'yDomain', 'xLength',
@@ -106,6 +107,11 @@ const graphfunction = function() {
         .text('\u26A0 data unavailable')
         .style('display', 'none');
 
+      // Handle 0-state
+      if (zeroState) {
+        zeroState = false;
+        return;
+      }
       // Handle bad data
       if (!validate(data)) {
         // Draw error message
