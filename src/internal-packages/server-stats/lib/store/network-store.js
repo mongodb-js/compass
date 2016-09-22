@@ -66,7 +66,7 @@ const NetworkStore = Reflux.createStore({
           this.data.dataSets[q].current = count;
           continue;
         }
-        val = Math.max(0, _.round(count - this.data.dataSets[q].current, 2)); // Don't allow negatives.
+        val = _.round(Math.max(0, count - this.data.dataSets[q].current, 2)); // Don't allow negatives.
         this.bytesPerSec[key].push(val);
         this.data.dataSets[q].count = this.bytesPerSec[key].slice(startPause, this.endPause);
         max = Math.max(val, max);
@@ -76,7 +76,7 @@ const NetworkStore = Reflux.createStore({
         this.starting = false;
         return;
       }
-      this.currentMaxs.push(max);
+      this.currentMaxs.push(_.round(max, 2));
 
       // Handle separate scaled line
       const connections = doc.connections.current;
