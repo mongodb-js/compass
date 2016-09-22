@@ -93,7 +93,7 @@ const createBrandedApplication = (CONFIG, done) => {
       return done(err);
     }
     cli.debug('Packager result is: ' + JSON.stringify(res, null, 2));
-    done(null, true);
+    
     if (CONFIG.platform !== 'darwin') {
       return done(null, true);
     }
@@ -107,7 +107,12 @@ const createBrandedApplication = (CONFIG, done) => {
       if (!exists) {
         return done(null, true);
       }
-      fs.move(atomIcns, electronIcns, done);
+      fs.remove(electronIcns, function(_err) {
+        if (_err) {
+          return done(_err);
+        }
+        fs.move(atomIcns, electronIcns, done);
+      });
     });
 
 
