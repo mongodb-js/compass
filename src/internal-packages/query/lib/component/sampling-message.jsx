@@ -141,7 +141,7 @@ class SamplingMessage extends React.Component {
         {this._loadedMessage()}
         <TextButton
           clickHandler={this.props.insertHandler}
-          className="btn btn-default btn-xs open-insert"
+          className="btn btn-primary btn-xs open-insert"
           text="+ Insert" />
       </div>
     );

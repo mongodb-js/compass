@@ -2,10 +2,16 @@
 @import "./expandable-element.less";
 
 /* Set the positioning of the toggle carat. */
-.expandable-element-header-toggle {
-  margin-top: 4px;
-  position: absolute;
-  left: -15px;
+.expandable-element-header {
+  &-toggle {
+    margin-left: -10px;
+    margin-right: 6px;
+  }
+  &-is-expanded {
+    .expandable-element-header-toggle {
+      margin-left: -14px;
+    }
+  }
 }
 
 /* Non-BEM styles begin here. */
