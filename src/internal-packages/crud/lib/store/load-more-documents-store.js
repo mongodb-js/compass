@@ -1,5 +1,3 @@
-'use strict';
-
 const Reflux = require('reflux');
 const app = require('ampersand-app');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
@@ -23,10 +21,12 @@ const LoadMoreDocumentsStore = Reflux.createStore({
    * @param {Integer} skip - The number of documents to skip.
    */
   loadMoreDocuments: function(skip) {
-    var filter = app.queryOptions.query.serialize();
-    var options = { skip: skip, limit: 20, sort: [[ '_id', 1 ]] };
+    const filter = app.queryOptions.query.serialize();
+    const options = { skip: skip, limit: 20, sort: [[ '_id', 1 ]] };
     app.dataService.find(NamespaceStore.ns, filter, options, (error, documents) => {
-      this.trigger(documents);
+      if (!error) {
+        this.trigger(documents);
+      }
     });
   }
 });

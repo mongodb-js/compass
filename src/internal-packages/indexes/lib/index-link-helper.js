@@ -1,5 +1,3 @@
-'use strict';
-
 const _ = require('lodash');
 const shell = require('electron').shell;
 
@@ -26,7 +24,7 @@ const HELP_URLS = {
  * @param {String} section - The name of the section to open.
  */
 function openIndexHelpLink(section) {
-  let url = _.get(HELP_URLS, section, 'UNKNOWN');
+  const url = _.get(HELP_URLS, section, 'UNKNOWN');
   if (url) {
     shell.openExternal(url);
   }

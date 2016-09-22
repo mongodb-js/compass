@@ -1,5 +1,3 @@
-'use strict';
-
 const Reflux = require('reflux');
 const Actions = require('../actions');
 
@@ -22,7 +20,7 @@ const RemoveDocumentStore = Reflux.createStore({
    */
   remove: function(id) {
     this.trigger(id);
-  },
+  }
 });
 
 module.exports = RemoveDocumentStore;
