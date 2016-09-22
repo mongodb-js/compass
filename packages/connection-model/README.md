@@ -176,33 +176,40 @@ console.log(c.driver_options)
 
 > **Note**: Not to be confused with `authentication=X509`.
 
-- `ssl` (optional, String) ... The desired ssl strategy [Default: `NONE`]
-  - `NONE` No SSL.
-  - `UNVALIDATED` No validation of certificate chain.
+- `ssl` (optional, String) ... The desired ssl strategy [Default: `IFAVAILABLE`]
+  - `IFAVAILABLE` Try SSL first and fall back to no SSL if unavailable.
   - `SERVER` Driver should validate Server certificate.
   - `ALL` Driver should validate Server certificate and present valid Certificate.
+  - `NONE` No SSL. (Not recommended)
+  - `UNVALIDATED` No validation of certificate chain. (**Very** not recommended)
 
-#### S1. NONE
+#### IFAVAILABLE
 
-Do not use SSL for anything.
+The driver should try SSL first, fall back to no SSL if unavailable, and use the system's Certificate Authority.
 
-#### S2. UNVALIDATED
-
-Use SSL but do not perform any validation of the certificate chain.
-
-See also [node.js driver "No Certificate Validation" docs][driver-ssl-none].
-
-#### S3. SERVER
+#### SERVER
 
 The driver should validate the server certificate and fail to connect if validation fails.
 
 See also [node.js driver "Validate Server Certificate" docs][driver-ssl-server].
 
-#### S4. ALL
+#### ALL
 
 The driver must present a valid certificate and validate the server certificate.
 
 See also [node.js driver "Validate Server Certificate and Present Valid Certificate" docs][driver-ssl-all].
+
+#### NONE
+
+Do not use SSL for anything.
+
+#### UNVALIDATED
+
+Use SSL but do not perform any validation of the certificate chain.
+
+See also [node.js driver "No Certificate Validation" docs][driver-ssl-none].
+
+**Very** not recommended and likely to be deprecated in future releases because it exposes potential Man-In-The-Middle attack vectors.
 
 ##### See also
 
