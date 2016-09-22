@@ -257,7 +257,7 @@ class Document extends React.Component {
    * @returns {Array} The elements.
    */
   elements() {
-    if (this.state.editing) {
+    if (this.state.editing && this.props.editable) {
       return this.editableElements(this.state.doc);
     }
     return ElementFactory.elements(this.state.doc);
