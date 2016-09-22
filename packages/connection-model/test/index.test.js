@@ -29,7 +29,7 @@ describe('mongodb-connection-model', function() {
       it('should return the correct URL for the driver', function() {
         var c = new Connection();
         assert.equal(c.driver_url,
-          'mongodb://localhost:27017/?slaveOk=true');
+          'mongodb://localhost:27017/?slaveOk=true&ssl=prefer');
 
         assert.doesNotThrow(function() {
           parse(c.driver_url);
@@ -88,7 +88,7 @@ describe('mongodb-connection-model', function() {
 
         it('should urlencode credentials', function() {
           assert.equal(c.driver_url,
-            'mongodb://%40rlo:w%40of@localhost:27017/?slaveOk=true&authSource=admin');
+            'mongodb://%40rlo:w%40of@localhost:27017/?slaveOk=true&authSource=admin&ssl=prefer');
         });
 
         it('should be parse in the browser', function() {
@@ -141,7 +141,7 @@ describe('mongodb-connection-model', function() {
 
           it('should urlencode credentials', function() {
             assert.equal(c.driver_url,
-              'mongodb://arlo:w%40of@localhost:27017/ldap?slaveOk=true&authMechanism=PLAIN');
+              'mongodb://arlo:w%40of@localhost:27017/ldap?slaveOk=true&authMechanism=PLAIN&ssl=prefer');
           });
 
           it('should be parse in the browser', function() {
@@ -188,7 +188,7 @@ describe('mongodb-connection-model', function() {
             assert.equal(c.driver_url,
               'mongodb://CN%253Dclient%252COU%253Darlo%252CO%253DMongoDB%252CL%253DPhiladelphia'
               + '%252CST%253DPennsylvania%252CC%253DUS@localhost:27017/'
-              + '?slaveOk=true&authMechanism=MONGODB-X509');
+              + '?slaveOk=true&authMechanism=MONGODB-X509&ssl=prefer');
           });
 
           it('should be parse in the browser', function() {
@@ -442,8 +442,31 @@ describe('mongodb-connection-model', function() {
           'mongodb://localhost:27017/?slaveOk=true&ssl=true');
       });
       it('should produce the correct driver options', function() {
-        assert.deepEqual(sslUnvalidated.driver_options,
-          Connection.DRIVER_OPTIONS_DEFAULT);
+        var options = _.clone(Connection.DRIVER_OPTIONS_DEFAULT);
+        options.server = {
+          checkServerIdentity: false,
+          sslValidate: false
+        };
+        assert.deepEqual(sslUnvalidated.driver_options, options);
+      });
+    });
+
+    describe('When ssl is IFAVAILABLE', function() {
+      var sslUnvalidated = new Connection({
+        ssl: 'IFAVAILABLE'
+      });
+
+      it('should produce the correct driver URL', function() {
+        assert.equal(sslUnvalidated.driver_url,
+          'mongodb://localhost:27017/?slaveOk=true&ssl=prefer');
+      });
+      it('should produce the correct driver options', function() {
+        var options = _.clone(Connection.DRIVER_OPTIONS_DEFAULT);
+        options.server = {
+          checkServerIdentity: false,
+          sslValidate: true
+        };
+        assert.deepEqual(sslUnvalidated.driver_options, options);
       });
     });
 

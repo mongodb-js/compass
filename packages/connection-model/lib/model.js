@@ -356,6 +356,10 @@ var SSL_VALUES = [
    */
   'NONE',
   /**
+   * Use SSL if available.
+   */
+  'IFAVAILABLE',
+  /**
    * Use SSL but do not perform any validation of the certificate chain.
    */
   'UNVALIDATED',
@@ -372,7 +376,7 @@ var SSL_VALUES = [
 /**
  * @constant {String} - The default value for `ssl`.
  */
-var SSL_DEFAULT = 'NONE';
+var SSL_DEFAULT = 'IFAVAILABLE';
 
 _.assign(props, {
   ssl: {
@@ -576,6 +580,8 @@ _.assign(derived, {
 
       if (_.includes(['UNVALIDATED', 'SERVER', 'ALL'], this.ssl)) {
         req.query.ssl = 'true';
+      } else if (this.ssl === 'IFAVAILABLE') {
+        req.query.ssl = 'prefer';
       }
 
       return toURL(req);
@@ -618,6 +624,20 @@ _.assign(derived, {
         if (this.ssl_private_key_password) {
           opts.server.sslPass = this.ssl_private_key_password;
         }
+      } else if (this.ssl === 'UNVALIDATED') {
+        _.assign(opts, {
+          server: {
+            checkServerIdentity: false,
+            sslValidate: false
+          }
+        });
+      } else if (this.ssl === 'IFAVAILABLE') {
+        _.assign(opts, {
+          server: {
+            checkServerIdentity: false,
+            sslValidate: true
+          }
+        });
       }
       opts.db.promoteValues = this.promote_values;
       return opts;
@@ -739,7 +759,7 @@ Connection = AmpersandModel.extend({
    * @param {Object} attrs - Incoming attributes.
    */
   validate_ssl: function(attrs) {
-    if (!attrs.ssl || _.includes(['NONE', 'UNVALIDATED'], attrs.ssl)) {
+    if (!attrs.ssl || _.includes(['NONE', 'UNVALIDATED', 'IFAVAILABLE'], attrs.ssl)) {
       return;
     }
     if (attrs.ssl === 'SERVER' && !attrs.ssl_ca) {
