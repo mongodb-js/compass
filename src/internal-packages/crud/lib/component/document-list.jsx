@@ -204,8 +204,19 @@ class DocumentList extends React.Component {
    */
   renderDocuments(docs) {
     return _.map(docs, (doc) => {
-      return (<Document doc={doc} key={doc._id} editable />);
+      return (<Document doc={doc} key={this._key(doc)} editable />);
     });
+  }
+
+  /**
+   * Get the key for a doc.
+   *
+   * @param {Document} doc - The document.
+   *
+   * @returns {String} The unique key.
+   */
+  _key(doc) {
+    return `${NamespaceStore.ns}_${JSON.stringify(doc._id)}`
   }
 
   /**
