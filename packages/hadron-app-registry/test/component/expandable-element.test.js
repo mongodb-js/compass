@@ -20,7 +20,7 @@ describe('ExpandableElement', function() {
     });
 
     it('sets the className', function() {
-      expect(output.props.className).to.equal('document-property object');
+      expect(output.props.className).to.equal('expandable-element');
     });
 
     it('has a displayName', function() {

@@ -3,11 +3,6 @@
 const React = require('react');
 
 /**
- * The document field class.
- */
-const FIELD_CLASS = 'document-property-key';
-
-/**
  * The component for the field name.
  */
 class Field extends React.Component {
@@ -20,12 +15,16 @@ class Field extends React.Component {
   render() {
     return React.createElement(
       'div',
-      { className: FIELD_CLASS },
+      { className: 'element-field' },
       this.props.field
     );
   }
 }
 
 Field.displayName = 'Field';
+
+Field.propTypes = {
+  field: React.PropTypes.string.isRequired
+};
 
 module.exports = Field;

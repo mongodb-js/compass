@@ -4,16 +4,6 @@ const React = require('react');
 const Field = require('../field');
 
 /**
- * The property class.
- */
-const PROPERTY_CLASS = 'document-property';
-
-/**
- * The document value class.
- */
-const VALUE_CLASS = 'document-property-value';
-
-/**
  * MaxKey element component.
  */
 class MaxKeyElement extends React.Component {
@@ -26,18 +16,29 @@ class MaxKeyElement extends React.Component {
   render() {
     return React.createElement(
       'li',
-      { className: `${ PROPERTY_CLASS } ${ this.props.type.toLowerCase() }` },
+      { className: 'element' },
       React.createElement(Field, { field: this.props.field }),
-      ':',
+      React.createElement(
+        'span',
+        { className: 'element-separator' },
+        ':'
+      ),
       React.createElement(
         'div',
-        { className: VALUE_CLASS, title: 'MaxKey' },
-        'MaxKey'
+        {
+          className: `element-value element-value-is-${ this.props.type.toLowerCase() }`,
+          title: 'MaxKey' },
+        'MaxKey()'
       )
     );
   }
 }
 
 MaxKeyElement.displayName = 'MaxKeyElement';
+
+MaxKeyElement.propTypes = {
+  field: React.PropTypes.string.isRequired,
+  type: React.PropTypes.string.isRequired
+};
 
 module.exports = MaxKeyElement;

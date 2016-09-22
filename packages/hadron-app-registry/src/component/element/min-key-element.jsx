@@ -4,16 +4,6 @@ const React = require('react');
 const Field = require('../field');
 
 /**
- * The property class.
- */
-const PROPERTY_CLASS = 'document-property';
-
-/**
- * The document value class.
- */
-const VALUE_CLASS = 'document-property-value';
-
-/**
  * MinKey element component.
  */
 class MinKeyElement extends React.Component {
@@ -25,15 +15,24 @@ class MinKeyElement extends React.Component {
    */
   render() {
     return (
-      <li className={`${PROPERTY_CLASS} ${this.props.type.toLowerCase()}`}>
+      <li className="element">
         <Field field={this.props.field} />
-        :
-        <div className={VALUE_CLASS} title='MinKey'>MinKey</div>
+        <span className="element-separator">:</span>
+        <div
+          className={`element-value element-value-is-${this.props.type.toLowerCase()}`}
+          title="MinKey">
+          MinKey()
+        </div>
       </li>
     );
   }
 }
 
 MinKeyElement.displayName = 'MinKeyElement';
+
+MinKeyElement.propTypes = {
+  field: React.PropTypes.string.isRequired,
+  type: React.PropTypes.string.isRequired
+};
 
 module.exports = MinKeyElement;

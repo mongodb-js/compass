@@ -4,16 +4,6 @@ const React = require('react');
 const Field = require('./field');
 
 /**
- * The property class.
- */
-const PROPERTY_CLASS = 'document-property';
-
-/**
- * The document value class.
- */
-const VALUE_CLASS = 'document-property-value';
-
-/**
  * General element component.
  */
 class Element extends React.Component {
@@ -26,16 +16,18 @@ class Element extends React.Component {
   render() {
     return React.createElement(
       'li',
-      { className: `${ PROPERTY_CLASS } ${ this.props.type.toLowerCase() }` },
+      { className: 'element' },
       React.createElement(Field, { field: this.props.field }),
       React.createElement(
         'span',
-        { className: 'document-property-colon' },
+        { className: 'element-separator' },
         ':'
       ),
       React.createElement(
         'div',
-        { className: VALUE_CLASS, title: this.props.value },
+        {
+          className: `element-value element-value-is-${ this.props.type.toLowerCase() }`,
+          title: this.props.value },
         String(this.props.value)
       )
     );
@@ -43,5 +35,11 @@ class Element extends React.Component {
 }
 
 Element.displayName = 'Element';
+
+Element.propTypes = {
+  field: React.PropTypes.string.isRequired,
+  type: React.PropTypes.string.isRequired,
+  value: React.PropTypes.any
+};
 
 module.exports = Element;

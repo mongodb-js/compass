@@ -30,7 +30,7 @@ describe('Element', function() {
       });
 
       it('sets the className', function() {
-        expect(output.props.className).to.equal('document-property integer');
+        expect(output.props.className).to.equal('element');
       });
 
       it('has a displayName', function() {
@@ -49,7 +49,7 @@ describe('Element', function() {
       });
 
       it('sets the className', function() {
-        expect(output.props.className).to.equal('document-property myobject');
+        expect(output.props.className).to.equal('element');
       });
 
       it('has a displayName', function() {

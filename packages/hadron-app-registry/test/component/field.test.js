@@ -20,7 +20,7 @@ describe('Field', function() {
     });
 
     it('sets the className', function() {
-      expect(output.props.className).to.equal('document-property-key');
+      expect(output.props.className).to.equal('element-field');
     });
 
     it('has a displayName', function() {

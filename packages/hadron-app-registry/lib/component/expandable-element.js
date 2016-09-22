@@ -4,36 +4,6 @@ const React = require('react');
 const Field = require('./field');
 
 /**
- * The class for the document itself.
- */
-const DOCUMENT_CLASS = 'document-property-body';
-
-/**
- * The header class for expandable elements.
- */
-const HEADER_CLASS = 'document-property-header';
-
-/**
- * The caret for expanding elements.
- */
-const CARET = 'caret';
-
-/**
- * The expanded class name.
- */
-const EXPANDED = 'expanded';
-
-/**
- * The expandable label class.
- */
-const LABEL_CLASS = 'document-property-type-label';
-
-/**
- * The property class.
- */
-const PROPERTY_CLASS = 'document-property';
-
-/**
  * Component for an element that can be expanded.
  */
 class ExpandableElement extends React.Component {
@@ -46,6 +16,18 @@ class ExpandableElement extends React.Component {
   constructor(props) {
     super(props);
     this.state = { expanded: false };
+  }
+
+  /**
+   * Get the class of the element - varies if the element is expanded or not.
+   *
+   * @returns {String} The element class.
+   */
+  style(base) {
+    if (this.state.expanded) {
+      return `${ base } ${ base }-is-expanded`;
+    }
+    return base;
   }
 
   /**
@@ -63,41 +45,42 @@ class ExpandableElement extends React.Component {
   render() {
     return React.createElement(
       'li',
-      { className: `${ this._elementClass() }` },
+      { className: 'expandable-element' },
       React.createElement(
         'div',
-        { className: HEADER_CLASS, onClick: this.toggleExpandable.bind(this) },
-        React.createElement('div', { className: CARET }),
-        React.createElement(Field, { field: this.props.field }),
-        ':',
+        { className: this.style('expandable-element-header'), onClick: this.toggleExpandable.bind(this) },
+        React.createElement('div', { className: 'expandable-element-header-toggle' }),
         React.createElement(
           'div',
-          { className: LABEL_CLASS },
+          { className: 'expandable-element-header-field' },
+          this.props.field
+        ),
+        React.createElement(
+          'span',
+          { className: 'expandable-element-header-separator' },
+          ':'
+        ),
+        React.createElement(
+          'div',
+          { className: 'expandable-element-header-label' },
           this.props.label
         )
       ),
       React.createElement(
         'ol',
-        { className: DOCUMENT_CLASS },
+        { className: this.style('expandable-element-children') },
         this.props.elements
       )
     );
   }
-
-  /**
-   * Get the class of the element - varies if the element is expanded or not.
-   *
-   * @returns {String} The element class.
-   */
-  _elementClass() {
-    var typeClass = this.props.type.toLowerCase();
-    if (this.state.expanded) {
-      return `${ PROPERTY_CLASS } ${ typeClass } ${ EXPANDED }`;
-    }
-    return `${ PROPERTY_CLASS } ${ typeClass }`;
-  }
 }
 
 ExpandableElement.displayName = 'ExpandableElement';
+
+ExpandableElement.propTypes = {
+  field: React.PropTypes.string.isRequired,
+  label: React.PropTypes.string.isRequired,
+  elements: React.PropTypes.any
+};
 
 module.exports = ExpandableElement;

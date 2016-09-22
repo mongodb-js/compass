@@ -39,8 +39,8 @@ class BinaryElement extends React.Component {
    * @returns {String} The beautified binary value.
    */
   _generateValue() {
-    var type = this.props.value.sub_type;
-    var buffer = this.props.value.buffer;
+    const type = this.props.value.sub_type;
+    const buffer = this.props.value.buffer;
     if (type === UUID || type === UUID_OLD) {
       return `Binary('${truncate(buffer.toString())}')`;
     }
@@ -49,5 +49,11 @@ class BinaryElement extends React.Component {
 }
 
 BinaryElement.displayName = 'BinaryElement';
+
+BinaryElement.propTypes = {
+  field: React.PropTypes.string.isRequired,
+  type: React.PropTypes.string.isRequired,
+  value: React.PropTypes.any.isRequired
+};
 
 module.exports = BinaryElement;
