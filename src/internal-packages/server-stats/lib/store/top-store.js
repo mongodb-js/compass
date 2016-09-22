@@ -18,32 +18,48 @@ const TopStore = Reflux.createStore({
    */
   init: function() {
     this.listenTo(Actions.pollTop, this.top);
+    this.listenTo(Actions.pause, this.pause);
+    this.allOps = [];
+    this.isPaused = false;
+    this.pauseIndex = 0;
+  },
+
+  pause: function() {
+    this.pauseIndex = this.allOps.length - 1;
+    this.isPaused = !this.isPaused;
   },
 
   top: function() {
     app.dataService.top((error, response) => {
-      const doc = response.totals;
-      let totalTime = 0;
-      const totals = [];
-      for (let collname in doc) { // eslint-disable-line prefer-const
-        if (!doc.hasOwnProperty(collname) || collname === 'note' || toNS(collname).specialish) {
-          continue;
+      let totals = [];
+      if (!error && response) {
+        const doc = response.totals;
+        let totalTime = 0;
+        for (let collname in doc) { // eslint-disable-line prefer-const
+          if (!doc.hasOwnProperty(collname) || collname === 'note' || toNS(collname).specialish) {
+            continue;
+          }
+          totals.push({
+            'collectionName': collname,
+            'loadPercentR': (doc[collname].readLock.time / doc[collname].total.time) * 100,
+            'loadPerfectL': (doc[collname].writeLock.time / doc[collname].total.time) * 100,
+            'loadPercent': doc[collname].total.time
+          });
+          totalTime += doc[collname].total.time;
         }
-        totals.push({
-          'collectionName': collname,
-          'loadPercentR': (doc[collname].readLock.time / doc[collname].total.time) * 100,
-          'loadPerfectL': (doc[collname].writeLock.time / doc[collname].total.time) * 100,
-          'loadPercent': doc[collname].total.time
+        for (let i = 0; i < totals.length; i++) {
+          totals[i].loadPercent = _.round((totals[i].loadPercent / totalTime) * 100, 0);
+        }
+        totals.sort(function(a, b) {
+          const f = (b.loadPercent < a.loadPercent) ? 1 : 0;
+          return (a.loadPercent < b.loadPercent) ? -1 : f;
         });
-        totalTime += doc[collname].total.time;
+        // Add current state to all
+        this.allOps.push(totals);
+        if (this.isPaused) {
+          totals = this.allOps[this.pauseIndex];
+        }
       }
-      for (let i = 0; i < totals.length; i++) {
-        totals[i].loadPercent = _.round((totals[i].loadPercent / totalTime) * 100, 0);
-      }
-      totals.sort(function(a, b) {
-        const f = (b.loadPercent < a.loadPercent) ? 1 : 0;
-        return (a.loadPercent < b.loadPercent) ? -1 : f;
-      });
       this.trigger(error, totals);
     });
   }

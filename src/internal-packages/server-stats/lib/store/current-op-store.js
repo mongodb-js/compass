@@ -43,6 +43,11 @@ const CurrentOpStore = Reflux.createStore({
           const f = (b.microsecs_running < a.microsecs_running) ? 1 : 0;
           return (a.microsecs_running < b.microsecs_running) ? -1 : f;
         });
+        // Add current state to all
+        this.allOps.push(totals);
+        if (this.isPaused) {
+          totals = this.allOps[this.pauseIndex];
+        }
       }
       this.trigger(error, totals);
     });
