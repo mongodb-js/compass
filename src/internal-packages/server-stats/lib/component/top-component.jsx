@@ -1,5 +1,6 @@
 const React = require('react');
 const Actions = require('../action');
+// const debug = require('debug')('mongodb-compass:server-stats-top-component');
 
 /**
  * Represents the component that renders the top information.

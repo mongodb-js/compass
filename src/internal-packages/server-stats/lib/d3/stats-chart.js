@@ -1,5 +1,5 @@
 const d3 = require('d3');
-const debug = require('debug')('mongodb-compass:server-stats-chart');
+// const debug = require('debug')('mongodb-compass:server-stats-chart');
 
 const graphfunction = function() {
   let width = 520;

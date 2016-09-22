@@ -17,12 +17,21 @@ const CurrentOpStore = Reflux.createStore({
    */
   init: function() {
     this.listenTo(Actions.pollCurrentOp, this.currentOp);
+    this.listenTo(Actions.pause, this.pause);
+    this.allOps = [];
+    this.isPaused = false;
+    this.pauseIndex = 0;
+  },
+
+  pause: function() {
+    this.pauseIndex = this.allOps.length - 1;
+    this.isPaused = !this.isPaused;
   },
 
   currentOp: function() {
     app.dataService.currentOp(false, (error, response) => {
-      const totals = [];
-      if (!error) {
+      let totals = [];
+      if (!error && response) {
         const doc = response.inprog;
         for (let i = 0; i < doc.length; i++) {
           if (toNS(doc[i].ns).specialish) {

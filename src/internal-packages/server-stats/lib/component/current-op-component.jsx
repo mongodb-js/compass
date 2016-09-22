@@ -69,7 +69,7 @@ class CurrentOpComponent extends React.Component {
     return (
       <div className="rt-lists">
         <header className="rt-lists__header">
-          <h2 className="rt-lists__headerlabel">Hottest Collections</h2>
+          <h2 className="rt-lists__headerlabel">Slowest Operations</h2>
         </header>
         <div className="rt-lists__empty">no current operations</div>
       </div>
