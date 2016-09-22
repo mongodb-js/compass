@@ -1,8 +1,5 @@
-'use strict';
-
 const _ = require('lodash');
 const React = require('react');
-const ReactDOM = require('react-dom');
 const app = require('ampersand-app');
 const Action = require('hadron-action');
 const ObjectID = require('bson').ObjectID;
@@ -14,6 +11,8 @@ const RemoveDocumentStore = require('../store/remove-document-store');
 const InsertDocumentStore = require('../store/insert-document-store');
 const InsertDocumentDialog = require('./insert-document-dialog');
 const Actions = require('../actions');
+
+/* eslint no-return-assign:0 */
 
 /**
  * The full document list container class.
@@ -31,13 +30,15 @@ const SCROLL_EVENT = 'scroll';
 class DocumentList extends React.Component {
 
   /**
-   * Attach the scroll event to the parent container.
+   * The component constructor.
+   *
+   * @param {Object} props - The properties.
    */
-  attachScrollEvent() {
-    this._node.parentNode.addEventListener(
-      SCROLL_EVENT,
-      this.handleScroll.bind(this)
-    );
+  constructor(props) {
+    super(props);
+    this.loading = false;
+    this.samplingMessage = app.appRegistry.getComponent('Component::Query::SamplingMessage');
+    this.state = { docs: [], nextSkip: 0, namespace: NamespaceStore.ns };
   }
 
   /**
@@ -52,6 +53,21 @@ class DocumentList extends React.Component {
   }
 
   /**
+   * Determine if the component should update.
+   *
+   * @param {Object} nextProps - The next properties.
+   * @param {Object} nextState - The next state.
+   *
+   * @returns {Boolean} If the component should update.
+   */
+  shouldComponentUpdate(nextProps, nextState) {
+    return (nextState.docs.length !== this.state.docs.length) ||
+      (nextState.nextSkip !== this.state.nextSkip) ||
+      (nextState.loadedCount !== this.state.loadedCount) ||
+      (nextState.namespace !== this.state.namespace);
+  }
+
+  /**
    * Unsibscribe from the document list store when unmounting.
    */
   componentWillUnmount() {
@@ -62,15 +78,13 @@ class DocumentList extends React.Component {
   }
 
   /**
-   * The component constructor.
-   *
-   * @param {Object} props - The properties.
+   * Attach the scroll event to the parent container.
    */
-  constructor(props) {
-    super(props);
-    this.loading = false;
-    this.samplingMessage = app.appRegistry.getComponent('Component::Query::SamplingMessage');
-    this.state = { docs: [], nextSkip: 0, namespace: NamespaceStore.ns };
+  attachScrollEvent() {
+    this._node.parentNode.addEventListener(
+      SCROLL_EVENT,
+      this.handleScroll.bind(this)
+    );
   }
 
   /**
@@ -115,7 +129,7 @@ class DocumentList extends React.Component {
    * @param {Object} id - The id of the removed document.
    */
   handleRemove(id) {
-    var index = _.findIndex(this.state.docs, (component) => {
+    const index = _.findIndex(this.state.docs, (component) => {
       if (id instanceof ObjectID) {
         return id.equals(component.props.doc._id);
       }
@@ -135,7 +149,7 @@ class DocumentList extends React.Component {
    * @param {Event} evt - The scroll event.
    */
   handleScroll(evt) {
-    var container = evt.srcElement;
+    const container = evt.srcElement;
     if (container.scrollTop > (this._node.offsetHeight - this._scrollDelta())) {
       // If we are scrolling downwards, and have hit the distance to initiate a scroll
       // from the end of the list, we will fire the event to load more documents.
@@ -154,9 +168,8 @@ class DocumentList extends React.Component {
    * Handle insert of a new document.
    *
    * @param {Boolean} success - If the insert was successful.
-   * @param {Object} object - The new document or error.
    */
-  handleInsert(success, object) {
+  handleInsert(success) {
     if (success) {
       this.setState({ count: this.state.count + 1 });
       this.loadMore();
@@ -175,24 +188,27 @@ class DocumentList extends React.Component {
   }
 
   /**
-   * Render the document list.
+   * Get the key for a doc.
    *
-   * @returns {React.Component} The document list.
+   * @param {Document} doc - The document.
+   *
+   * @returns {String} The unique key.
    */
-  render() {
-    return (
-      <div>
-        <this.samplingMessage insertHandler={this.handleOpenInsert.bind(this)} />
-        <div className='column-container with-refinebar-and-message'>
-          <div className='column main'>
-            <ol className={LIST_CLASS} ref={(c) => this._node = c}>
-              {this.state.docs}
-              <InsertDocumentDialog />
-            </ol>
-          </div>
-        </div>
-      </div>
-    );
+  _key(doc) {
+    return `${NamespaceStore.ns}_${JSON.stringify(doc._id)}`;
+  }
+
+  /**
+   * Get the distance in pixels from the end of the document list to the point when
+   * scrolling where we want to load more documents.
+   *
+   * @returns {Integer} The distance.
+   */
+  _scrollDelta() {
+    if (!this.scrollDelta) {
+      this.scrollDelta = this._node.offsetHeight;
+    }
+    return this.scrollDelta;
   }
 
   /**
@@ -209,40 +225,24 @@ class DocumentList extends React.Component {
   }
 
   /**
-   * Get the key for a doc.
+   * Render the document list.
    *
-   * @param {Document} doc - The document.
-   *
-   * @returns {String} The unique key.
+   * @returns {React.Component} The document list.
    */
-  _key(doc) {
-    return `${NamespaceStore.ns}_${JSON.stringify(doc._id)}`
-  }
-
-  /**
-   * Determine if the component should update.
-   *
-   * @param {Object} nextProps - The next properties.
-   * @param {Object} nextState - The next state.
-   */
-  shouldComponentUpdate(nextProps, nextState) {
-    return (nextState.docs.length !== this.state.docs.length) ||
-      (nextState.nextSkip !== this.state.nextSkip) ||
-      (nextState.loadedCount !== this.state.loadedCount) ||
-      (nextState.namespace !== this.state.namespace);
-  }
-
-  /**
-   * Get the distance in pixels from the end of the document list to the point when
-   * scrolling where we want to load more documents.
-   *
-   * @returns {Integer} The distance.
-   */
-  _scrollDelta() {
-    if (!this.scrollDelta) {
-      this.scrollDelta = this._node.offsetHeight;
-    }
-    return this.scrollDelta;
+  render() {
+    return (
+      <div>
+        <this.samplingMessage insertHandler={this.handleOpenInsert.bind(this)} />
+        <div className="column-container with-refinebar-and-message">
+          <div className="column main">
+            <ol className={LIST_CLASS} ref={(c) => this._node = c}>
+              {this.state.docs}
+              <InsertDocumentDialog />
+            </ol>
+          </div>
+        </div>
+      </div>
+    );
   }
 }
 

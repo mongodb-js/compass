@@ -1,5 +1,3 @@
-'use strict';
-
 const React = require('react');
 const TextButton = require('hadron-app-registry').TextButton;
 
@@ -31,12 +29,7 @@ const MODES = {
   'Success': 'success',
   'Error': 'error',
   'Deleting': 'error'
-}
-
-/**
- * The empty message.
- */
-const EMPTY = '';
+};
 
 /**
  * The modified message.
@@ -113,7 +106,7 @@ class RemoveDocumentFooter extends React.Component {
    * Handles a trigger from the store.
    *
    * @param {Boolean} success - If the delete succeeded.
-   * @param {Error, Document} object - The error or document.
+   * @param {Object} object - The error or document.
    */
   handleStoreRemove(success, object) {
     if (success) {
@@ -124,31 +117,6 @@ class RemoveDocumentFooter extends React.Component {
   }
 
   /**
-   * Render the footer.
-   *
-   * @returns {Component} The footer component.
-   */
-  render() {
-    return (
-      <div className={this.style()}>
-        <div className='edit-message' title={this.state.message}>
-          {this.state.message}
-        </div>
-        <div className='document-footer-actions'>
-          <TextButton
-            className='btn btn-link btn-xs cancel'
-            text='Cancel'
-            clickHandler={this.props.cancelHandler} />
-          <TextButton
-            className='btn btn-default btn-xs error'
-            text='Delete'
-            clickHandler={this.handleRemove.bind(this)} />
-        </div>
-      </div>
-    );
-  }
-
-  /**
    * Get the style of the footer based on the current mode.
    *
    * @returns {String} The style.
@@ -156,8 +124,40 @@ class RemoveDocumentFooter extends React.Component {
   style() {
     return `document-footer ${MODES[this.state.mode]}`;
   }
+
+  /**
+   * Render the footer.
+   *
+   * @returns {Component} The footer component.
+   */
+  render() {
+    return (
+      <div className={this.style()}>
+        <div className="edit-message" title={this.state.message}>
+          {this.state.message}
+        </div>
+        <div className="document-footer-actions">
+          <TextButton
+            className="btn btn-link btn-xs cancel"
+            text="Cancel"
+            clickHandler={this.props.cancelHandler} />
+          <TextButton
+            className="btn btn-default btn-xs error"
+            text="Delete"
+            clickHandler={this.handleRemove.bind(this)} />
+        </div>
+      </div>
+    );
+  }
 }
 
 RemoveDocumentFooter.displayName = 'RemoveDocumentFooter';
+
+RemoveDocumentFooter.propTypes = {
+  doc: React.PropTypes.object.isRequired,
+  actions: React.PropTypes.object.isRequired,
+  removeStore: React.PropTypes.object.isRequired,
+  cancelHandler: React.PropTypes.func.isRequired
+};
 
 module.exports = RemoveDocumentFooter;

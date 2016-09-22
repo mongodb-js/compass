@@ -1,5 +1,3 @@
-'use strict';
-
 const Reflux = require('reflux');
 const Action = require('../action/index-actions');
 const LoadIndexesStore = require('./load-indexes-store');
@@ -65,7 +63,7 @@ const SortIndexesStore = Reflux.createStore({
    * @returns {Function} The function.
    */
   _comparator(field) {
-    let order = (this.sortOrder === ASC) ? 1 : -1;
+    const order = (this.sortOrder === ASC) ? 1 : -1;
     if (field === 'properties') {
       return this._propertiesComparator(order);
     }
@@ -77,7 +75,7 @@ const SortIndexesStore = Reflux.createStore({
         return -order;
       }
       return 0;
-    }
+    };
   },
 
   /**
@@ -89,8 +87,8 @@ const SortIndexesStore = Reflux.createStore({
    */
   _propertiesComparator(order) {
     return function(a, b) {
-      let aValue = (a.cardinality === 'compound') ? 'compound' : (a.properties[0] || '');
-      let bValue = (b.cardinality === 'compound') ? 'compound' : (b.properties[0] || '');
+      const aValue = (a.cardinality === 'compound') ? 'compound' : (a.properties[0] || '');
+      const bValue = (b.cardinality === 'compound') ? 'compound' : (b.properties[0] || '');
       if (aValue > bValue) {
         return order;
       }
@@ -98,7 +96,7 @@ const SortIndexesStore = Reflux.createStore({
         return -order;
       }
       return 0;
-    }
+    };
   },
 
   /**
@@ -111,9 +109,8 @@ const SortIndexesStore = Reflux.createStore({
       return 'name';
     } else if (this.sortField === USAGE) {
       return 'usageCount';
-    } else {
-      return this.sortField.toLowerCase();
     }
+    return this.sortField.toLowerCase();
   }
 });
 

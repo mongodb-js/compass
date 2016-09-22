@@ -1,5 +1,3 @@
-'use strict';
-
 const Reflux = require('reflux');
 const Actions = require('../actions');
 const HadronDocument = require('hadron-document');
@@ -23,9 +21,9 @@ const OpenInsertDocumentDialogStore = Reflux.createStore({
    * @param {Booelan} clone - If the operation is a clone.
    */
   openInsertDocumentDialog: function(doc, clone) {
-    var hadronDoc = new HadronDocument(doc, true);
+    const hadronDoc = new HadronDocument(doc, true);
     if (clone) {
-      var firstElement = hadronDoc.elements.firstElement;
+      const firstElement = hadronDoc.elements.firstElement;
       // We need to remove the _id or we will get an duplicate key error on
       // insert, and we currently do not allow editing of the _id field.
       if (firstElement.currentKey === '_id') {

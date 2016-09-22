@@ -1,6 +1,3 @@
-'use strict';
-
-const _ = require('lodash');
 const React = require('react');
 const Element = require('hadron-document').Element;
 const TextButton = require('hadron-app-registry').TextButton;
@@ -39,7 +36,7 @@ const MODES = {
   'Error': 'error',
   'Editing': 'modified',
   'Viewing': 'viewing'
-}
+};
 
 /**
  * The empty message.
@@ -130,7 +127,7 @@ class DocumentFooter extends React.Component {
    * Handle the user clicking the update button.
    */
   handleUpdate() {
-    var object = this.props.doc.generateObject();
+    const object = this.props.doc.generateObject();
     this.setState({ mode: PROGRESS, message: UPDATING });
     this.actions.update(object);
   }
@@ -146,7 +143,7 @@ class DocumentFooter extends React.Component {
    * Handles a trigger from the store.
    *
    * @param {Boolean} success - If the update succeeded.
-   * @param {Error, Document} object - The error or document.
+   * @param {Object} object - The error or document.
    */
   handleStoreUpdate(success, object) {
     if (success) {
@@ -157,31 +154,6 @@ class DocumentFooter extends React.Component {
   }
 
   /**
-   * Render the footer.
-   *
-   * @returns {Component} The footer component.
-   */
-  render() {
-    return (
-      <div className={this.style()}>
-        <div className='edit-message' title={this.state.message}>
-          {this.state.message}
-        </div>
-        <div className='document-footer-actions'>
-          <TextButton
-            className='btn btn-link btn-xs cancel'
-            text='Cancel'
-            clickHandler={this.handleCancel.bind(this)} />
-          <TextButton
-            className='btn btn-default btn-xs update'
-            text='Update'
-            clickHandler={this.handleUpdate.bind(this)} />
-        </div>
-      </div>
-    );
-  }
-
-  /**
    * Get the style of the footer based on the current mode.
    *
    * @returns {String} The style.
@@ -189,8 +161,39 @@ class DocumentFooter extends React.Component {
   style() {
     return `document-footer ${MODES[this.state.mode]}`;
   }
+
+  /**
+   * Render the footer.
+   *
+   * @returns {Component} The footer component.
+   */
+  render() {
+    return (
+      <div className={this.style()}>
+        <div className="edit-message" title={this.state.message}>
+          {this.state.message}
+        </div>
+        <div className="document-footer-actions">
+          <TextButton
+            className="btn btn-link btn-xs cancel"
+            text="Cancel"
+            clickHandler={this.handleCancel.bind(this)} />
+          <TextButton
+            className="btn btn-default btn-xs update"
+            text="Update"
+            clickHandler={this.handleUpdate.bind(this)} />
+        </div>
+      </div>
+    );
+  }
 }
 
 DocumentFooter.displayName = 'DocumentFooter';
+
+DocumentFooter.propTypes = {
+  doc: React.PropTypes.object.isRequired,
+  actions: React.PropTypes.object.isRequired,
+  updateStore: React.PropTypes.object.isRequired
+};
 
 module.exports = DocumentFooter;

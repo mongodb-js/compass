@@ -20,13 +20,13 @@
   //
   // Returns a tip
   return function() {
-    var direction = d3_tip_direction;
-    var offset = d3_tip_offset;
-    var html = d3_tip_html;
-    var node = initNode();
-    var svg = null;
-    var point = null;
-    var target = null;
+    const direction = d3_tip_direction;
+    const offset = d3_tip_offset;
+    const html = d3_tip_html;
+    const node = initNode();
+    let svg = null;
+    let point = null;
+    let target = null;
 
     function tip(vis) {
       svg = getSVGNode(vis);
@@ -41,17 +41,17 @@
     //
     // Returns a tip
     tip.show = function() {
-      var args = Array.prototype.slice.call(arguments);
+      const args = Array.prototype.slice.call(arguments);
       if (args[args.length - 1] instanceof SVGElement) {
         target = args.pop();
       }
 
-      var content = html.apply(this, args),
+      const content = html.apply(this, args),
         poffset = offset.apply(this, args),
         dir = direction.apply(this, args),
         nodel = getNodeEl(),
         i = directions.length,
-        coords,
+        coords = null,
         scrollTop = document.documentElement.scrollTop || document.body.scrollTop,
         scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft;
 
@@ -77,7 +77,7 @@
     //
     // Returns a tip
     tip.hide = function() {
-      var nodel = getNodeEl();
+      const nodel = getNodeEl();
       nodel.style({
         opacity: 0,
         'pointer-events': 'none'
@@ -95,7 +95,7 @@
       if (arguments.length < 2 && typeof n === 'string') {
         return getNodeEl().attr(n);
       } else {
-        var args = Array.prototype.slice.call(arguments);
+        const args = Array.prototype.slice.call(arguments);
         d3.selection.prototype.attr.apply(getNodeEl(), args);
       }
 
@@ -112,7 +112,7 @@
       if (arguments.length < 2 && typeof n === 'string') {
         return getNodeEl().style(n);
       } else {
-        var args = Array.prototype.slice.call(arguments);
+        const args = Array.prototype.slice.call(arguments);
         d3.selection.prototype.style.apply(getNodeEl(), args);
       }
 
@@ -183,7 +183,7 @@
       return ' ';
     }
 
-    var direction_callbacks = d3.map({
+    const direction_callbacks = d3.map({
         n: direction_n,
         s: direction_s,
         e: direction_e,
@@ -197,7 +197,7 @@
       directions = direction_callbacks.keys();
 
     function direction_n() {
-      var bbox = getScreenBBox();
+      const bbox = getScreenBBox();
       return {
         top: bbox.n.y - node.offsetHeight,
         left: bbox.n.x - node.offsetWidth / 2
@@ -205,7 +205,7 @@
     }
 
     function direction_s() {
-      var bbox = getScreenBBox();
+      const bbox = getScreenBBox();
       return {
         top: bbox.s.y,
         left: bbox.s.x - node.offsetWidth / 2
@@ -213,7 +213,7 @@
     }
 
     function direction_e() {
-      var bbox = getScreenBBox();
+      const bbox = getScreenBBox();
       return {
         top: bbox.e.y - node.offsetHeight / 2,
         left: bbox.e.x
@@ -221,7 +221,7 @@
     }
 
     function direction_w() {
-      var bbox = getScreenBBox();
+      const bbox = getScreenBBox();
       return {
         top: bbox.w.y - node.offsetHeight / 2,
         left: bbox.w.x - node.offsetWidth
@@ -229,7 +229,7 @@
     }
 
     function direction_nw() {
-      var bbox = getScreenBBox();
+      const bbox = getScreenBBox();
       return {
         top: bbox.nw.y - node.offsetHeight,
         left: bbox.nw.x - node.offsetWidth
@@ -237,7 +237,7 @@
     }
 
     function direction_ne() {
-      var bbox = getScreenBBox();
+      const bbox = getScreenBBox();
       return {
         top: bbox.ne.y - node.offsetHeight,
         left: bbox.ne.x
@@ -245,7 +245,7 @@
     }
 
     function direction_sw() {
-      var bbox = getScreenBBox();
+      const bbox = getScreenBBox();
       return {
         top: bbox.sw.y,
         left: bbox.sw.x - node.offsetWidth
@@ -253,7 +253,7 @@
     }
 
     function direction_se() {
-      var bbox = getScreenBBox();
+      const bbox = getScreenBBox();
       return {
         top: bbox.se.y,
         left: bbox.e.x
@@ -261,7 +261,7 @@
     }
 
     function initNode() {
-      var node = d3.select(document.createElement('div'));
+      const node = d3.select(document.createElement('div'));
       node.style({
         position: 'absolute',
         top: 0,
@@ -308,13 +308,13 @@
     //
     // Returns an Object {n, s, e, w, nw, sw, ne, se}
     function getScreenBBox() {
-      var targetel = target || d3.event.target;
+      const targetel = target || d3.event.target;
 
       while ('undefined' === typeof targetel.getScreenCTM && 'undefined' === targetel.parentNode) {
         targetel = targetel.parentNode;
       }
 
-      var bbox = {},
+      const bbox = {},
         matrix = targetel.getScreenCTM(),
         tbbox = targetel.getBBox(),
         width = tbbox.width,

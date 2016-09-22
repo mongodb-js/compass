@@ -1,12 +1,12 @@
 /* eslint camelcase: 0 */
-var d3 = require('d3');
+const d3 = require('d3');
 
 // source: http://bit.ly/1Tc9Tp5
 function decimalPlaces(number) {
   return ((+number).toFixed(20)).replace(/^-?\d*\.?|0+$/g, '').length;
 }
 
-var minicharts_d3fns_shared = {
+const minicharts_d3fns_shared = {
 
   margin: {
     top: 10,
@@ -16,11 +16,11 @@ var minicharts_d3fns_shared = {
   },
 
   friendlyPercentFormat: function(vmax) {
-    var prec1Format = d3.format('.1r');
-    var intFormat = d3.format('.0f');
-    var format = vmax > 1 ? intFormat : prec1Format;
-    var maxFormatted = format(vmax);
-    var maxDecimals = decimalPlaces(maxFormatted);
+    const prec1Format = d3.format('.1r');
+    const intFormat = d3.format('.0f');
+    const format = vmax > 1 ? intFormat : prec1Format;
+    const maxFormatted = format(vmax);
+    const maxDecimals = decimalPlaces(maxFormatted);
 
     return function(v, incPrec) {
       if (v === vmax) {

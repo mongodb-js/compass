@@ -1,5 +1,3 @@
-'use strict';
-
 const React = require('react');
 const IndexHeader = require('./index-header');
 const IndexList = require('./index-list');
@@ -10,15 +8,6 @@ const IndexList = require('./index-list');
 class Indexes extends React.Component {
 
   /**
-   * The component constructor.
-   *
-   * @param {Object} props - The properties.
-   */
-  constructor(props) {
-    super(props);
-  }
-
-  /**
    * Render the indexes.
    *
    * @returns {React.Component} The indexes.
@@ -26,9 +15,9 @@ class Indexes extends React.Component {
   render() {
     return (
       <div>
-        <div className='flexbox-fix'></div>
-        <div className='column-container'>
-          <div className='column main'>
+        <div className="flexbox-fix"></div>
+        <div className="column-container">
+          <div className="column main">
             <table>
               <IndexHeader />
               <IndexList />

@@ -1,5 +1,3 @@
-'use strict';
-
 const Reflux = require('reflux');
 const app = require('ampersand-app');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;

@@ -1,5 +1,3 @@
-'use strict';
-
 const React = require('react');
 const truncate = require('hadron-app-registry').truncate;
 
@@ -35,7 +33,21 @@ class BinaryValue extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.value = props.element.currentValue;
+    this.element = props.element;
+  }
+
+  /**
+   * Render the value.
+   *
+   * @returns {Component} The component.
+   */
+  renderValue() {
+    const type = this.element.currentValue.sub_type;
+    const buffer = this.element.currentValue.buffer;
+    if (type === UUID || type === UUID_OLD) {
+      return `Binary('${truncate(buffer.toString())}')`;
+    }
+    return `Binary('${truncate(buffer.toString(BASE_64))}')`;
   }
 
   /**
@@ -50,22 +62,12 @@ class BinaryValue extends React.Component {
       </div>
     );
   }
-
-  /**
-   * Render the value.
-   *
-   * @returns {Component} The component.
-   */
-  renderValue() {
-    var type = this.value.sub_type;
-    var buffer = this.value.buffer;
-    if (type === UUID || type === UUID_OLD) {
-      return `Binary('${truncate(buffer.toString())}')`;
-    }
-    return `Binary('${truncate(buffer.toString(BASE_64))}')`;
-  }
 }
 
 BinaryValue.displayName = 'BinaryValue';
+
+BinaryValue.propTypes = {
+  element: React.PropTypes.object.isRequired
+};
 
 module.exports = BinaryValue;

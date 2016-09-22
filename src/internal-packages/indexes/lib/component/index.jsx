@@ -1,5 +1,3 @@
-'use strict';
-
 const React = require('react');
 const NameColumn = require('./name-column');
 const TypeColumn = require('./type-column');

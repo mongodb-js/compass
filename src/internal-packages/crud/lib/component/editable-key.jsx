@@ -1,7 +1,7 @@
-'use strict';
-
 const React = require('react');
 const inputSize = require('./utils').inputSize;
+
+/* eslint no-return-assign:0 */
 
 /**
  * The editing class constant.
@@ -55,53 +55,12 @@ class EditableKey extends React.Component {
   }
 
   /**
-   * Render a single editable key.
-   *
-   * @returns {React.Component} The element component.
-   */
-  render() {
-    return (
-      <input
-        type='text'
-        className={this.style()}
-        ref={(c) => this._node = c}
-        size={inputSize(this.renderValue())}
-        tabIndex={this.isEditable() ? 0 : -1}
-        onBlur={this.handleBlur.bind(this)}
-        onFocus={this.handleFocus.bind(this)}
-        onChange={this.handleChange.bind(this)}
-        onKeyDown={this.handleKeyDown.bind(this)}
-        onKeyUp={this.handleKeyUp.bind(this)}
-        value={this.renderValue()}
-        title={this.renderTitle()} />
-    );
-  }
-
-  /**
-   * Render the value of the key.
-   */
-  renderValue() {
-    return this.element.parent.currentType === 'Array' ? this.props.index : this.element.currentKey;
-  }
-
-  /**
-   * Render the title.
-   *
-   * @returns {String} The title.
-   */
-  renderTitle() {
-    if (this.state.duplicate) {
-      return `Duplicate key: '${this.element.currentKey}' - this will overwrite previous values.`
-    }
-    return this.element.currentKey;
-  }
-  /**
    * When hitting a key on the last element some special things may happen.
    *
    * @param {Event} evt - The event.
    */
   handleKeyDown(evt) {
-    var value = evt.target.value;
+    const value = evt.target.value;
     if (evt.keyCode === ESC) {
       if (value.length === 0) {
         this.element.remove();
@@ -113,10 +72,12 @@ class EditableKey extends React.Component {
 
   /**
    * If they key is a colon, tab to the next input.
+   *
+   * @param {Object} evt - The event.
    */
   handleKeyUp(evt) {
     if (evt.keyCode === COLON) {
-      var value = evt.target.value;
+      const value = evt.target.value;
       if (value !== ':') {
         this.element.rename(value.replace(':', ''));
         evt.target.value = '';
@@ -131,7 +92,7 @@ class EditableKey extends React.Component {
    * @param {Event} evt - The event.
    */
   handleChange(evt) {
-    var value = evt.target.value;
+    const value = evt.target.value;
     this._node.size = inputSize(value);
     if (this.isEditable()) {
       if (this.element.isDuplicateKey(value)) {
@@ -193,7 +154,7 @@ class EditableKey extends React.Component {
    * @returns {String} The key style.
    */
   style() {
-    var style = KEY_CLASS;
+    let style = KEY_CLASS;
     if (this.state.editing) {
       style = style.concat(` ${EDITING}`);
     }
@@ -202,8 +163,57 @@ class EditableKey extends React.Component {
     }
     return style;
   }
+
+  /**
+   * Render the value of the key.
+   *
+   * @returns {String} The value for the key.
+   */
+  renderValue() {
+    return this.element.parent.currentType === 'Array' ? this.props.index : this.element.currentKey;
+  }
+
+  /**
+   * Render the title.
+   *
+   * @returns {String} The title.
+   */
+  renderTitle() {
+    if (this.state.duplicate) {
+      return `Duplicate key: '${this.element.currentKey}' - this will overwrite previous values.`;
+    }
+    return this.element.currentKey;
+  }
+
+  /**
+   * Render a single editable key.
+   *
+   * @returns {React.Component} The element component.
+   */
+  render() {
+    return (
+      <input
+        type="text"
+        className={this.style()}
+        ref={(c) => this._node = c}
+        size={inputSize(this.renderValue())}
+        tabIndex={this.isEditable() ? 0 : -1}
+        onBlur={this.handleBlur.bind(this)}
+        onFocus={this.handleFocus.bind(this)}
+        onChange={this.handleChange.bind(this)}
+        onKeyDown={this.handleKeyDown.bind(this)}
+        onKeyUp={this.handleKeyUp.bind(this)}
+        value={this.renderValue()}
+        title={this.renderTitle()} />
+    );
+  }
 }
 
 EditableKey.displayName = 'EditableKey';
+
+EditableKey.propTypes = {
+  element: React.PropTypes.object.isRequired,
+  index: React.PropTypes.number
+};
 
 module.exports = EditableKey;

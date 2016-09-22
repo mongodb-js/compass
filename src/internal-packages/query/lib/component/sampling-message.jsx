@@ -1,5 +1,3 @@
-'use strict';
-
 const React = require('react');
 const app = require('ampersand-app');
 const TextButton = require('hadron-app-registry').TextButton;
@@ -10,26 +8,6 @@ const pluralize = require('pluralize');
  * Component for the sampling message.
  */
 class SamplingMessage extends React.Component {
-
-  /**
-   * Fetch the state when the component mounts.
-   */
-  componentDidMount() {
-    this.unsubscribeReset = this.resetDocumentListStore.listen(this.handleReset.bind(this));
-    this.unsubscribeInsert = this.insertDocumentStore.listen(this.handleInsert.bind(this));
-    this.unsubscribeRemove = this.documentRemovedAction.listen(this.handleRemove.bind(this));
-    this.unsubscribeLoadMore = this.loadMoreDocumentsStore.listen(this.handleLoadMore.bind(this));
-  }
-
-  /**
-   * Unsibscribe from the document list store when unmounting.
-   */
-  componentWillUnmount() {
-    this.unsubscribeReset();
-    this.unsubscribeInsert();
-    this.unsubscribeRemove();
-    this.unsubscribeLoadMore();
-  }
 
   /**
    * The component constructor.
@@ -46,7 +24,43 @@ class SamplingMessage extends React.Component {
   }
 
   /**
+   * Fetch the state when the component mounts.
+   */
+  componentDidMount() {
+    this.unsubscribeReset = this.resetDocumentListStore.listen(this.handleReset.bind(this));
+    this.unsubscribeInsert = this.insertDocumentStore.listen(this.handleInsert.bind(this));
+    this.unsubscribeRemove = this.documentRemovedAction.listen(this.handleRemove.bind(this));
+    this.unsubscribeLoadMore = this.loadMoreDocumentsStore.listen(this.handleLoadMore.bind(this));
+  }
+
+  /**
+   * Only update when the count changes.
+   *
+   * @param {Object} nextProps - The next properties.
+   * @param {Object} nextState - The next state.
+   *
+   * @returns {Boolean} If the component should update.
+   */
+  shouldComponentUpdate(nextProps, nextState) {
+    return (nextState.count !== this.state.count) ||
+      (nextState.loaded !== this.state.loaded) ||
+      (nextProps.sampleSize !== this.props.sampleSize);
+  }
+
+  /**
+   * Unsibscribe from the document list store when unmounting.
+   */
+  componentWillUnmount() {
+    this.unsubscribeReset();
+    this.unsubscribeInsert();
+    this.unsubscribeRemove();
+    this.unsubscribeLoadMore();
+  }
+
+  /**
    * Handle updating the count on document insert.
+   *
+   * @param {Boolean} success - If the insert succeeded.
    */
   handleInsert(success) {
     if (success) {
@@ -80,63 +94,6 @@ class SamplingMessage extends React.Component {
     this.setState({ loaded: this.state.loaded + documents.length });
   }
 
-  /**
-   * Render the sampling message.
-   *
-   * @returns {React.Component} The document list.
-   */
-  render() {
-    if (this.props.insertHandler) {
-      return this.renderQueryMessage();
-    }
-    return this.renderSamplingMessage();
-  }
-
-  /**
-   * If we are on the schema tab, the smapling message is rendered.
-   *
-   * @returns {React.Component} The sampling message.
-   */
-  renderSamplingMessage() {
-    var noun = pluralize('document', this.state.count);
-    return (
-      <div className='sampling-message'>
-        Query returned&nbsp;
-        <b>{this.state.count}</b>&nbsp;{noun}.
-        This report is based on a sample of&nbsp;
-        <b>{this.props.sampleSize}</b>&nbsp;{noun} ({this._samplePercentage()}).
-        <i data-hook='schema-sampling-results' className='help'></i>
-      </div>
-    );
-  }
-
-  /**
-   * If we are on the documents tab, just display the count and insert button.
-   *
-   * @returns {React.Component} The count message.
-   */
-  renderQueryMessage() {
-    var noun = pluralize('document', this.state.count);
-    return (
-      <div className='sampling-message'>
-        Query returned&nbsp;<b>{this.state.count}</b>&nbsp;{noun}.&nbsp;
-        {this._loadedMessage()}
-        <TextButton
-          clickHandler={this.props.insertHandler}
-          className='btn btn-default btn-xs open-insert'
-          text='+ Insert' />
-      </div>
-    );
-  }
-
-  /**
-   * Only update when the count changes.
-   */
-  shouldComponentUpdate(nextProps, nextState) {
-    return (nextState.count !== this.state.count) ||
-      (nextState.loaded != this.state.loaded) ||
-      (nextProps.sampleSize !== this.props.sampleSize);
-  }
 
   _loadedMessage() {
     if (this.state.count > 20) {
@@ -149,11 +106,65 @@ class SamplingMessage extends React.Component {
   }
 
   _samplePercentage() {
-    var percent = (this.state.count === 0) ? 0 : this.props.sampleSize / this.state.count;
+    const percent = (this.state.count === 0) ? 0 : this.props.sampleSize / this.state.count;
     return numeral(percent).format('0.00%');
+  }
+
+  /**
+   * If we are on the schema tab, the smapling message is rendered.
+   *
+   * @returns {React.Component} The sampling message.
+   */
+  renderSamplingMessage() {
+    const noun = pluralize('document', this.state.count);
+    return (
+      <div className="sampling-message">
+        Query returned&nbsp;
+        <b>{this.state.count}</b>&nbsp;{noun}.
+        This report is based on a sample of&nbsp;
+        <b>{this.props.sampleSize}</b>&nbsp;{noun} ({this._samplePercentage()}).
+        <i data-hook="schema-sampling-results" className="help"></i>
+      </div>
+    );
+  }
+
+  /**
+   * If we are on the documents tab, just display the count and insert button.
+   *
+   * @returns {React.Component} The count message.
+   */
+  renderQueryMessage() {
+    const noun = pluralize('document', this.state.count);
+    return (
+      <div className="sampling-message">
+        Query returned&nbsp;<b>{this.state.count}</b>&nbsp;{noun}.&nbsp;
+        {this._loadedMessage()}
+        <TextButton
+          clickHandler={this.props.insertHandler}
+          className="btn btn-default btn-xs open-insert"
+          text="+ Insert" />
+      </div>
+    );
+  }
+
+  /**
+   * Render the sampling message.
+   *
+   * @returns {React.Component} The document list.
+   */
+  render() {
+    if (this.props.insertHandler) {
+      return this.renderQueryMessage();
+    }
+    return this.renderSamplingMessage();
   }
 }
 
 SamplingMessage.displayName = 'SamplingMessage';
+
+SamplingMessage.propTypes = {
+  sampleSize: React.PropTypes.number,
+  insertHandler: React.PropTypes.func
+};
 
 module.exports = SamplingMessage;

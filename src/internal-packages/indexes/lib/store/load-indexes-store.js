@@ -1,5 +1,3 @@
-'use strict';
-
 const _ = require('lodash');
 const Reflux = require('reflux');
 const app = require('ampersand-app');
@@ -25,7 +23,9 @@ const LoadIndexesStore = Reflux.createStore({
   loadIndexes: function() {
     if (NamespaceStore.ns) {
       app.dataService.indexes(NamespaceStore.ns, {}, (err, indexes) => {
-        this.trigger(this._convertToModels(indexes));
+        if (!err) {
+          this.trigger(this._convertToModels(indexes));
+        }
       });
     }
   },
@@ -38,9 +38,9 @@ const LoadIndexesStore = Reflux.createStore({
    * @returns {Array} The index models.
    */
   _convertToModels(indexes) {
-    let maxSize = this._computeMaxSize(indexes);
+    const maxSize = this._computeMaxSize(indexes);
     return _.map(indexes, (index) => {
-      let model = new IndexModel(new IndexModel().parse(index));
+      const model = new IndexModel(new IndexModel().parse(index));
       model.relativeSize = model.size / maxSize * 100;
       return model;
     });

@@ -1,5 +1,3 @@
-'use strict';
-
 const React = require('react');
 const truncate = require('hadron-app-registry').truncate;
 
@@ -20,7 +18,7 @@ class CodeValue extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.value = props.element.currentValue;
+    this.element = props.element;
   }
 
   /**
@@ -31,12 +29,16 @@ class CodeValue extends React.Component {
   render() {
     return (
       <div className={VALUE_CLASS}>
-        {truncate(this.value.code)}
+        {truncate(this.element.currentValue.code)}
       </div>
     );
   }
 }
 
 CodeValue.displayName = 'CodeValue';
+
+CodeValue.propTypes = {
+  element: React.PropTypes.object.isRequired
+};
 
 module.exports = CodeValue;

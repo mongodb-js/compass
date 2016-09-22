@@ -1,5 +1,3 @@
-'use strict';
-
 const _ = require('lodash');
 const React = require('react');
 
@@ -7,38 +5,6 @@ const React = require('react');
  * Component for the name column.
  */
 class NameColumn extends React.Component {
-
-  /**
-   * The component constructor.
-   *
-   * @param {Object} props - The properties.
-   */
-  constructor(props) {
-    super(props);
-  }
-
-  /**
-   * Render the name column.
-   *
-   * @returns {React.Component} The name column.
-   */
-  render() {
-    let fields = _.map(this.props.index.fields.serialize(), (field) => {
-      return this.renderField(field);
-    });
-    return (
-      <td className='name-column'>
-        <div className='name'>
-          {this.props.index.name}
-        </div>
-        <div>
-          <p className='definition'>
-            {fields}
-          </p>
-        </div>
-      </td>
-    );
-  }
 
   /**
    * Render the direction of the index field.
@@ -50,23 +16,22 @@ class NameColumn extends React.Component {
   renderDirection(field) {
     if (field.value === 1) {
       return (
-        <span className='sort'>
-          <i className='fa fa-arrow-circle-up fa-lg' />
+        <span className="sort">
+          <i className="fa fa-arrow-circle-up fa-lg" />
         </span>
       );
     } else if (field.value === -1) {
       return (
-        <span className='sort'>
-          <i className='fa fa-arrow-circle-down fa-lg' />
-        </span>
-      );
-    } else {
-      return (
-        <span className='type'>
-          {field.value}
+        <span className="sort">
+          <i className="fa fa-arrow-circle-down fa-lg" />
         </span>
       );
     }
+    return (
+      <span className="type">
+        {field.value}
+      </span>
+    );
   }
 
   /**
@@ -78,12 +43,35 @@ class NameColumn extends React.Component {
    */
   renderField(field) {
     return (
-      <span key={field.field} className='pair'>
-        <span className='field'>
+      <span key={field.field} className="pair">
+        <span className="field">
           {field.field}
           {this.renderDirection(field)}
         </span>
       </span>
+    );
+  }
+
+  /**
+   * Render the name column.
+   *
+   * @returns {React.Component} The name column.
+   */
+  render() {
+    const fields = _.map(this.props.index.fields.serialize(), (field) => {
+      return this.renderField(field);
+    });
+    return (
+      <td className="name-column">
+        <div className="name">
+          {this.props.index.name}
+        </div>
+        <div>
+          <p className="definition">
+            {fields}
+          </p>
+        </div>
+      </td>
     );
   }
 }

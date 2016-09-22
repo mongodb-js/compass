@@ -1,5 +1,3 @@
-'use strict';
-
 const React = require('react');
 
 /**
@@ -11,16 +9,6 @@ const VALUE_CLASS = 'document-property-value';
  * MinKey value component.
  */
 class MinKeyValue extends React.Component {
-
-  /**
-   * The component constructor.
-   *
-   * @param {Object} props - The properties.
-   */
-  constructor(props) {
-    super(props);
-    this.value = props.element.currentValue;
-  }
 
   /**
    * Render a single min key value.

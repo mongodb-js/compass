@@ -1,5 +1,3 @@
-'use strict';
-
 const _ = require('lodash');
 const React = require('react');
 const Index = require('./index');
@@ -9,6 +7,16 @@ const SortIndexesStore = require('../store/sort-indexes-store');
  * Component for the index list.
  */
 class IndexList extends React.Component {
+
+  /**
+   * The component constructor.
+   *
+   * @param {Object} props - The properties.
+   */
+  constructor(props) {
+    super(props);
+    this.state = { indexes: [] };
+  }
 
   /**
    * Subscribe on mount.
@@ -25,22 +33,12 @@ class IndexList extends React.Component {
   }
 
   /**
-   * The component constructor.
-   *
-   * @param {Object} props - The properties.
-   */
-  constructor(props) {
-    super(props);
-    this.state = { indexes: [] };
-  }
-
-  /**
    * Handles the sort indexes store triggering with indexes in a new order or the
    * initial load of indexes.
    *
    * @param {Array} indexes - The indexes.
    */
-  handleIndexChange(indexes, sortOrder) {
+  handleIndexChange(indexes) {
     this.setState({ indexes: indexes });
   }
 
@@ -50,11 +48,11 @@ class IndexList extends React.Component {
    * @returns {React.Component} The index list.
    */
   render() {
-    let indexes = _.map(this.state.indexes, (model) => {
+    const indexes = _.map(this.state.indexes, (model) => {
       return (<Index key={model.name} index={model} />);
     });
     return (
-      <tbody className='table'>
+      <tbody className="table">
         {indexes}
       </tbody>
     );

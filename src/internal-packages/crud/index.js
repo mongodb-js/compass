@@ -1,5 +1,3 @@
-'use strict';
-
 const app = require('ampersand-app');
 const Document = require('./lib/component/document');
 const DocumentList = require('./lib/component/document-list');

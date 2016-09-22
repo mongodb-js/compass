@@ -1,10 +1,9 @@
-'use strict';
-
 const _ = require('lodash');
 const React = require('react');
 const inputSize = require('./utils').inputSize;
-const ElementFactory = require('hadron-app-registry').ElementFactory;
 const TypeChecker = require('hadron-type-checker');
+
+/* eslint no-return-assign:0 */
 
 /**
  * Escape key code.
@@ -59,27 +58,6 @@ class EditableValue extends React.Component {
   }
 
   /**
-   * Render a single editable value.
-   *
-   * @returns {React.Component} The element component.
-   */
-  render() {
-    return (
-      <input
-        ref={(c) => this._node = c}
-        type='text'
-        size={inputSize(this.element.currentValue)}
-        className={this.style()}
-        onBlur={this.handleBlur.bind(this)}
-        onFocus={this.handleFocus.bind(this)}
-        onChange={this.handleChange.bind(this)}
-        onKeyDown={this.handleKeyDown.bind(this)}
-        onPaste={this.handlePaste.bind(this)}
-        value={this.element.currentValue} />
-    );
-  }
-
-  /**
    * When hitting a key on the last element some special things may happen.
    *
    * @param {Event} evt - The event.
@@ -98,7 +76,7 @@ class EditableValue extends React.Component {
         evt.stopPropagation();
       }
     } else if (evt.keyCode === ESC) {
-      var value = evt.target.value;
+      const value = evt.target.value;
       if (value.length === 0 && this.element.currentKey.length === 0) {
         this.element.remove();
       } else {
@@ -131,14 +109,14 @@ class EditableValue extends React.Component {
    * @param {Event} evt - The event.
    */
   handleChange(evt) {
-    var value = evt.target.value;
+    const value = evt.target.value;
     if (this._pasting) {
       this.element.bulkEdit(value);
       this._pasting = false;
     } else {
       this._node.size = inputSize(value);
-      var currentType = this.element.currentType;
-      var castableTypes = TypeChecker.castableTypes(value);
+      const currentType = this.element.currentType;
+      const castableTypes = TypeChecker.castableTypes(value);
       if (_.includes(castableTypes, currentType)) {
         this.element.edit(TypeChecker.cast(value, currentType));
       } else {
@@ -169,8 +147,33 @@ class EditableValue extends React.Component {
   style() {
     return this.state.editing ? `${VALUE_CLASS} ${EDITING}` : VALUE_CLASS;
   }
+
+  /**
+   * Render a single editable value.
+   *
+   * @returns {React.Component} The element component.
+   */
+  render() {
+    return (
+      <input
+        ref={(c) => this._node = c}
+        type="text"
+        size={inputSize(this.element.currentValue)}
+        className={this.style()}
+        onBlur={this.handleBlur.bind(this)}
+        onFocus={this.handleFocus.bind(this)}
+        onChange={this.handleChange.bind(this)}
+        onKeyDown={this.handleKeyDown.bind(this)}
+        onPaste={this.handlePaste.bind(this)}
+        value={this.element.currentValue} />
+    );
+  }
 }
 
 EditableValue.displayName = 'EditableValue';
+
+EditableValue.propTypes = {
+  element: React.PropTypes.object.isRequired
+};
 
 module.exports = EditableValue;

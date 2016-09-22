@@ -1,5 +1,3 @@
-'use strict';
-
 const React = require('react');
 
 /**
@@ -23,12 +21,12 @@ class UsageColumn extends React.Component {
    */
   render() {
     return (
-      <td className='usage-column'>
-        <span className='usage'>
-          <div className='quantity' title={`${this.props.usage} index hits since index creation or last\n server restart`}>
+      <td className="usage-column">
+        <span className="usage">
+          <div className="quantity" title={`${this.props.usage} index hits since index creation or last\n server restart`}>
             {this.props.usage}
           </div>
-          <div className='usage-since'>
+          <div className="usage-since">
             since&nbsp;
             <span>
               {this.props.since.toDateString()}
@@ -43,7 +41,8 @@ class UsageColumn extends React.Component {
 UsageColumn.displayUsage = 'UsageColumn';
 
 UsageColumn.propTypes = {
-  usage: React.PropTypes.number.isRequired
+  usage: React.PropTypes.number.isRequired,
+  since: React.PropTypes.any.isRequired
 };
 
 module.exports = UsageColumn;
