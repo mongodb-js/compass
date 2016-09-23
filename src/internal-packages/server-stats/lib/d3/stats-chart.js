@@ -1,4 +1,7 @@
 const d3 = require('d3');
+const debug = require('debug')('mongodb-compass:server-stats-chart');
+const TopStore = require('../store/top-store');
+const CurrentOpStore = require('../store/current-op-store');
 
 /* eslint complexity:0 */
 
@@ -125,9 +128,10 @@ const graphfunction = function() {
             .style('opacity', 1);
         }
         errorState = true;
+        debug('Error: bad serverStatus response from DB');
         return;
       }
-      if (errorState) {
+      if (errorState) { // TODO: fix when layering elements is working properly
         errorState = false;
         container.selectAll('rect.error-overlay').remove();
         container.selectAll('text.error-message').remove();
@@ -333,6 +337,10 @@ const graphfunction = function() {
         if (index >= data.localTime.length) {
           return;
         }
+        if ('trigger' in data) {
+          TopStore.mouseOver(index);
+          CurrentOpStore.mouseOver(index);
+        }
         const xOffset = x(data.localTime[index]);
         const myfocus = container.selectAll('g.focus');
         myfocus.selectAll('line.overlay-line')
@@ -373,6 +381,10 @@ const graphfunction = function() {
         .on('mouseout.' + data.labels.title[0], function() {
           onOverlay = false;
           container.selectAll('g.focus').style('display', 'none');
+          if ('trigger' in data) {
+            TopStore.mouseOut();
+            CurrentOpStore.mouseOut();
+          }
         })
         .on('mousemove.' + data.labels.title[0], function() {
           // Set overlays to visible and update current selection
