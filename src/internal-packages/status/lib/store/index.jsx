@@ -196,7 +196,7 @@ const StatusStore = Reflux.createStore({
   },
 
   storeDidUpdate(prevState) {
-    debug('status store changed from %j to %j', prevState, this.state);
+    debug('status store changed from', prevState, 'to', this.state);
   }
 });
 

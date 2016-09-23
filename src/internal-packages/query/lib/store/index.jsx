@@ -359,7 +359,7 @@ const QueryStore = Reflux.createStore({
   },
 
   storeDidUpdate(prevState) {
-    debug('query store changed from %j to %j', prevState, this.state);
+    debug('query store changed from', prevState, 'to', this.state);
   }
 
 });
