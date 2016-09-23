@@ -1,5 +1,6 @@
 @import "./element.less";
 @import "./expandable-element.less";
+@import "./document-actions.less";
 
 /* Set the positioning of the toggle carat. */
 .expandable-element-header {
@@ -11,6 +12,17 @@
     .expandable-element-header-toggle {
       margin-left: -14px;
     }
+  }
+}
+
+.document-actions {
+
+  position: absolute;
+  top: 10px;
+  right: 10px;
+
+  &-button {
+    margin-left: 3px
   }
 }
 
@@ -119,10 +131,8 @@ li.document-list-item.deleting {
 }
 
 ol.document-property-body:hover {
-  .document-actions {
-    button {
-      visibility: visible;
-    }
+  .document-actions-button {
+    visibility: visible;
   }
 }
 
