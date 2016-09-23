@@ -5,7 +5,7 @@ const _ = require('lodash');
 const d3 = require('d3');
 const format = require('util').format;
 const constants = require('../constants');
-const debug = require('debug')('mongodb-compass:stores:tree-stages');
+const debug = require('debug')('mongodb-compass:stores:explain-tree-stages');
 
 // this plugin allows for tree layout of variable-sized nodes
 window.d3 = global.d3 = d3;

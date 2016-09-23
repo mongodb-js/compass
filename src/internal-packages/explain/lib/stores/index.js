@@ -3,7 +3,7 @@ const ExplainActions = require('../actions');
 const StateMixin = require('reflux-state-mixin');
 // const ExplainPlanModel = require('mongodb-explain-plan-model');
 
-const debug = require('debug')('mongodb-compass:stores:compass-explain');
+const debug = require('debug')('mongodb-compass:stores:explain');
 
 /**
  * Compass Explain store.
@@ -89,7 +89,7 @@ const CompassExplainStore = Reflux.createStore({
    * @param  {Object} prevState   previous state.
    */
   storeDidUpdate(prevState) {
-    debug('CompassExplain store changed from %j to %j', prevState, this.state);
+    debug('explain store changed from', prevState, 'to', this.state);
   }
 });
 
