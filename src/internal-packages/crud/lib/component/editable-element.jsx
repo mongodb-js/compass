@@ -56,7 +56,7 @@ const EXPANDED = 'expanded';
 /**
  * The non-expandable class.
  */
-const NON_EXPANDABLE = 'non-expandable';
+const NON_EXPANDABLE = 'not-expandable';
 
 /**
  * Mappings for non editable value components.
@@ -154,19 +154,19 @@ class EditableElement extends React.Component {
    * @returns {String} The element style.
    */
   style() {
-    let style = `${PROPERTY_CLASS} ${this.element.currentType.toLowerCase()}`;
+    let style = `editable-element editable-element-is-${this.element.currentType.toLowerCase()}`;
     if (this.element.isAdded()) {
-      style = style.concat(` ${ADDED}`);
+      style = style.concat(` editable-element-is-${ADDED}`);
     } else if (this.element.isEdited()) {
-      style = style.concat(` ${EDITED}`);
+      style = style.concat(` editable-element-is-${EDITED}`);
     } else if (this.element.isRemoved()) {
-      style = style.concat(` ${REMOVED}`);
+      style = style.concat(` editable-element-is-${REMOVED}`);
     }
     if (!this.element.elements) {
-      style = style.concat(` ${NON_EXPANDABLE}`);
+      style = style.concat(` editable-element-is-${NON_EXPANDABLE}`);
     }
     if (this.state.expanded) {
-      style = style.concat(` ${EXPANDED}`);
+      style = style.concat(` editable-element-is-${EXPANDED}`);
     }
     return style;
   }
@@ -205,11 +205,11 @@ class EditableElement extends React.Component {
     return (
       <li className={this.style()}>
         {this.renderAction()}
-        <div className="line-number"></div>
+        <div className="editable-element-line-number"></div>
         <EditableKey element={this.element} index={this.props.index} />
         :
         {this.renderValue()}
-        <Hotspot key="hotspot" element={this.element} />
+        <Hotspot key="editable-element-hotspot" element={this.element} />
         <Types element={this.element} />
       </li>
     );

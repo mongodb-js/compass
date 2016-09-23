@@ -1,0 +1,131 @@
+.editable-element {
+
+  &-line-number {
+    display: inline-block;
+    color: @gray4;
+    width: 18px;
+    height: 17px;
+    text-align: center;
+
+    &::before {
+      counter-increment: document-line-number;
+      content: counter(document-line-number);
+    }
+  }
+
+  &-field {
+    display: inline-block;
+    font-weight: bold;
+    vertical-align: top;
+  }
+
+  &-separator {
+    padding-right: 2px;
+    vertical-align: top;
+  }
+
+  &-value {
+
+  }
+
+  &-is-edited {
+    background-color: @alertOrangeBg;
+
+    .editable-element-editable-field {
+      background-color: @alertOrangeBg;
+
+      &:focus {
+        background-color: @pw;
+      }
+    }
+
+    .editable-element-line-number {
+      background-color: @alertOrange;
+      color: @pw;
+    }
+  }
+
+  &-is-added {
+    background-color: @greenBg;
+
+    .editable-element-editable-field {
+      background-color: @greenBg;
+
+      &:focus {
+        background-color: @pw;
+      }
+    }
+
+    .editable-element-line-number {
+      background-color: @green2;
+      color: @pw;
+    }
+  }
+
+  &-is-removed {
+    background-color: @alertRedBg;
+
+    .editable-element-editable-field {
+      background-color: @alertRedBg;
+
+      &:focus {
+        background-color: @pw;
+      }
+    }
+
+    .editable-element-line-number {
+      background-color: @alertRed;
+      color: @pw;
+    }
+  }
+
+  &-hotspot {
+    height: 10px;
+    width: 50%;
+    cursor: text;
+  }
+
+  &-types {
+    display: inline-block;
+    width: 100px;
+    color: @gray3;
+    height: 17px;
+
+    .type-label {
+      padding: 1px 12px;
+    }
+
+    .btn {
+      background-color: transparent;
+      color: @gray4;
+      border: none;
+      text-transform: none;
+      font-size: 11px;
+      border-radius: 8px;
+      padding: 1px 12px;
+    }
+
+    .caret {
+      visibility: hidden;
+    }
+
+    .dropdown-menu {
+      li {
+        span {
+          display: block;
+          padding: 3px 20px;
+          clear: both;
+          font-weight: normal;
+          font-size: 11px;
+          color: #333333;
+          white-space: nowrap;
+        }
+        span:hover {
+          color: #313030;
+          text-decoration: none;
+          background: #e6e6e6;
+        }
+      }
+    }
+  }
+}

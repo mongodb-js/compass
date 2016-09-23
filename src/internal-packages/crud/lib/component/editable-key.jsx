@@ -6,17 +6,17 @@ const inputSize = require('./utils').inputSize;
 /**
  * The editing class constant.
  */
-const EDITING = 'editing';
+const EDITING = 'editable-field-is-editing';
 
 /**
  * The duplicate key value.
  */
-const DUPLICATE = 'duplicate';
+const DUPLICATE = 'editable-field-is-duplicate';
 
 /**
  * The document key class.
  */
-const KEY_CLASS = 'editable-key';
+const KEY_CLASS = 'editable-field';
 
 /**
  * Escape key code.

@@ -3,12 +3,13 @@
 @import "./document-actions.less";
 @import "./document.less";
 
-/* Set the positioning of the toggle carat. */
 .expandable-element-header {
+
   &-toggle {
     margin-left: -10px;
     margin-right: 6px;
   }
+
   &-is-expanded {
     .expandable-element-header-toggle {
       margin-left: -14px;
@@ -17,7 +18,6 @@
 }
 
 .document-actions {
-
   position: absolute;
   top: 10px;
   right: 10px;
@@ -27,9 +27,16 @@
   }
 }
 
-.document:hover {
-  .document-actions-button {
-    visibility: visible;
+.document {
+
+  &:hover {
+    .document-actions-button {
+      visibility: visible;
+    }
+  }
+
+  &-elements {
+    width: 75%;
   }
 }
 
@@ -134,210 +141,6 @@ li.document-list-item.deleting {
         color: #B8B8B8;
       }
     }
-  }
-}
-
-.document-elements {
-  width: 75%;
-  counter-reset: line;
-  position: relative;
-
-  .document-property.array {
-    margin-left: 0px !important;
-  }
-
-  .document-property.object {
-    margin-left: 0px !important;
-  }
-
-  .line-number {
-    display: inline-block;
-    color: @gray4;
-    width: 18px;
-    height: 17px;
-    text-align: center;
-    position: absolute;
-    left: -18px;
-
-    &::before {
-      counter-increment: line;
-      content: counter(line);
-    }
-  }
-
-  .types {
-    display: inline-block;
-    position: absolute;
-    width: 100px;
-    color: @gray3;
-    height: 17px;
-    right: 0px;
-
-    .type-label {
-      padding: 1px 12px;
-    }
-
-    .btn {
-      background-color: transparent;
-      color: @gray4;
-      border: none;
-      text-transform: none;
-      font-size: 11px;
-      border-radius: 8px;
-      padding: 1px 12px;
-    }
-
-    .caret {
-      visibility: hidden;
-    }
-
-    .dropdown-menu {
-      li {
-        span {
-          display: block;
-          padding: 3px 20px;
-          clear: both;
-          font-weight: normal;
-          font-size: 11px;
-          color: #333333;
-          white-space: nowrap;
-        }
-        span:hover {
-          color: #313030;
-          text-decoration: none;
-          background: #e6e6e6;
-        }
-      }
-    }
-  }
-
-  li.document-property.non-expandable:hover {
-    background-color: @gray8;
-
-    input {
-      background-color: @gray8;
-
-      &:focus {
-        background-color: @pw;
-      }
-    }
-
-    .actions {
-      opacity: 1;
-    }
-
-    .types {
-      .btn {
-        background-color: @gray6;
-        color: @gray0;
-      }
-      .caret {
-        visibility: visible;
-      }
-    }
-  }
-
-  li.document-property {
-
-    .hotspot {
-      height: 10px;
-      display: inline-block;
-      width: 50%;
-    }
-
-    .actions {
-      display: inline-block;
-      opacity: 0;
-      width: 18px;
-      font-size: 13px;
-      line-height: 11px;
-      margin-left: -35px;
-      margin-right: 35px;
-      text-align: center;
-      color: @gray3;
-
-      i:hover {
-        cursor: pointer;
-      }
-    }
-
-    &.edited {
-      background-color: @alertOrangeBg;
-
-      input {
-        background-color: @alertOrangeBg;
-
-        &:focus {
-          background-color: @pw;
-        }
-      }
-
-      .line-number {
-        background-color: @alertOrange;
-        color: @pw;
-      }
-    }
-
-    &.added {
-      background-color: @greenBg;
-
-      input {
-        background-color: @greenBg;
-
-        &:focus {
-          background-color: @pw;
-        }
-      }
-
-      .line-number {
-        background-color: @green2;
-        color: @pw;
-      }
-    }
-
-    &.removed {
-      background-color: @alertRedBg;
-
-      input {
-        background-color: @alertRedBg;
-
-        &:focus {
-          background-color: @pw;
-        }
-      }
-
-      .line-number {
-        background-color: @alertRed;
-        color: @pw;
-      }
-    }
-  }
-
-  div.document-property-header.expandable:hover {
-    background-color: #ebebed !important;
-
-    input {
-      background-color: #ebebed !important;
-    }
-
-    .actions {
-      opacity: 1;
-    }
-
-    .types {
-      .btn {
-        border-color: #8c8c8c;
-      }
-      .caret {
-        visibility: visible;
-      }
-    }
-  }
-
-  .hotspot {
-    height: 10px;
-    width: 50%;
-    cursor: text;
   }
 }
 
