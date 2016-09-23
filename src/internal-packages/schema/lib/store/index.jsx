@@ -195,7 +195,7 @@ const SchemaStore = Reflux.createStore({
   },
 
   storeDidUpdate(prevState) {
-    debug('schema store changed from %j to %j', prevState, this.state);
+    debug('schema store changed from', prevState, 'to', this.state);
   }
 
 });

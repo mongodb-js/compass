@@ -20,10 +20,10 @@
   //
   // Returns a tip
   return function() {
-    const direction = d3_tip_direction;
-    const offset = d3_tip_offset;
-    const html = d3_tip_html;
-    const node = initNode();
+    let direction = d3_tip_direction;
+    let offset = d3_tip_offset;
+    let node = initNode();
+    let html = d3_tip_html;
     let svg = null;
     let point = null;
     let target = null;
@@ -50,10 +50,11 @@
         poffset = offset.apply(this, args),
         dir = direction.apply(this, args),
         nodel = getNodeEl(),
-        i = directions.length,
-        coords = null,
         scrollTop = document.documentElement.scrollTop || document.body.scrollTop,
         scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft;
+
+      let i = directions.length,
+        coords = null;
 
       nodel.html(content)
         .style({
