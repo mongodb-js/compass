@@ -25,6 +25,33 @@ var tabToViewMap = {
   'INDEXES': 'indexView'
 };
 
+/**
+ * Ampersand view wrapper around a React component tab view
+ */
+var TabView = View.extend({
+  template: '<div></div>',
+  props: {
+    componentKey: 'string',
+    visible: {
+      type: 'boolean',
+      required: true,
+      default: false
+    }
+  },
+  bindings: {
+    visible: {
+      type: 'booleanClass',
+      no: 'hidden'
+    }
+  },
+  render: function() {
+    this.renderWithTemplate();
+    var tabComponent = app.appRegistry.getComponent(this.componentKey);
+    ReactDOM.render(React.createElement(tabComponent), this.query());
+  }
+});
+
+
 var MongoDBCollectionView = View.extend({
   // modelType: 'Collection',
   template: collectionTemplate,
@@ -91,10 +118,10 @@ var MongoDBCollectionView = View.extend({
       hook: 'schema-subview',
       waitFor: 'ns',
       prepareView: function(el) {
-        return new SchemaView({
+        return new TabView({
           el: el,
           parent: this,
-          model: this.model
+          componentKey: 'Collection:Schema'
         });
       }
     },
@@ -108,17 +135,18 @@ var MongoDBCollectionView = View.extend({
           model: this.model
         });
       }
-    },
-    explainView: {
-      hook: 'explain-subview',
-      prepareView: function(el) {
-        return new ExplainView({
-          el: el,
-          parent: this,
-          model: this.model
-        });
-      }
     }
+    // explainView: {
+    //   hook: 'explain-subview',
+    //   waitFor: 'ns',
+    //   prepareView: function(el) {
+    //     return new TabView({
+    //       el: el,
+    //       parent: this,
+    //       componentKey: 'Collection:Explain'
+    //     });
+    //   }
+    // }
   },
   initialize: function() {
     this.model = new MongoDBCollection();
