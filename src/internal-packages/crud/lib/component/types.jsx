@@ -62,7 +62,7 @@ class Types extends React.Component {
    */
   renderDropdown() {
     return (
-      <div className="dropdown types">
+      <div className="editable-element-types dropdown">
         <button
           className="btn btn-default dropdown-toggle"
           type="button"
