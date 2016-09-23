@@ -37,11 +37,12 @@ const CurrentOpStore = Reflux.createStore({
           if (toNS(doc[i].ns).specialish) {
             continue;
           }
-          if (!('microsecs_running' in doc)) {
+          if (!('microsecs_running' in doc[i])) {
+            debug('Error: currentOp result from DB did not include \'microsecs_running\'');
             doc.microsecs_running = 0;
           }
-          if (!('ns' in doc) || !('op' in doc)) {
-            debug("Error: currentOp result from DB did not include 'ns' or 'op'");
+          if (!('ns' in doc[i]) || !('op' in doc[i])) {
+            debug('Error: currentOp result from DB did not include \'ns\' or \'op\'', doc[i]);
           }
           totals.push(doc[i]);
         }
