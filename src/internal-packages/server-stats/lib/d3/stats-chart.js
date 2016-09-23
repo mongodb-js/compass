@@ -1,5 +1,7 @@
 const d3 = require('d3');
 const debug = require('debug')('mongodb-compass:server-stats-chart');
+const TopStore = require('../store/top-store');
+const CurrentOpStore = require('../store/current-op-store');
 
 /* eslint complexity:0 */
 
@@ -335,6 +337,10 @@ const graphfunction = function() {
         if (index >= data.localTime.length) {
           return;
         }
+        if ('trigger' in data) {
+          TopStore.mouseOver(index);
+          CurrentOpStore.mouseOver(index);
+        }
         const xOffset = x(data.localTime[index]);
         const myfocus = container.selectAll('g.focus');
         myfocus.selectAll('line.overlay-line')
@@ -375,6 +381,10 @@ const graphfunction = function() {
         .on('mouseout.' + data.labels.title[0], function() {
           onOverlay = false;
           container.selectAll('g.focus').style('display', 'none');
+          if ('trigger' in data) {
+            TopStore.mouseOut();
+            CurrentOpStore.mouseOut();
+          }
         })
         .on('mousemove.' + data.labels.title[0], function() {
           // Set overlays to visible and update current selection

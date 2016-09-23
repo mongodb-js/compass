@@ -32,7 +32,8 @@ const OpCounterStore = Reflux.createStore({
         yAxis: 'ops'
       },
       keyLength: 6,
-      paused: false
+      paused: false,
+      trigger: true
     };
   },
 
@@ -76,6 +77,7 @@ const OpCounterStore = Reflux.createStore({
       this.data.yDomain = [0, this.currentMaxs[this.endPause - 1]];
       this.data.localTime = this.localTime.slice(startPause, this.endPause);
       this.data.paused = isPaused;
+      // debug("startPause", startPause, "endPause", this.endPause, "total", this.localTime.length);
     }
     this.trigger(error, this.data);
   }

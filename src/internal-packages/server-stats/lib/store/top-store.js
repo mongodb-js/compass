@@ -23,18 +23,46 @@ const TopStore = Reflux.createStore({
     this.listenTo(Actions.pause, this.pause);
     this.allOps = [];
     this.isPaused = false;
-    this.pauseIndex = 0;
+    this.endPause = 0;
+    this.overlayIndex = 0;
+    this.inOverlay = false;
+    this.xLength = 60;
+    this.starting = true;
+    this.error = null;
   },
 
   pause: function() {
-    this.pauseIndex = this.allOps.length - 1;
+    this.endPause = this.allOps.length;
     this.isPaused = !this.isPaused;
+  },
+
+  mouseOver: function(index) {
+    const startPause = Math.max(this.endPause - this.xLength, 0);
+    const visOps = this.allOps.slice(startPause, this.endPause);
+    if (index >= visOps.length) {
+      index = visOps.length - 1;
+    }
+    this.overlayIndex = index;
+    this.inOverlay = true;
+    this.trigger(null, visOps[this.overlayIndex]);
+  },
+
+  mouseOut: function() {
+    this.inOverlay = false;
+    const startPause = Math.max(this.endPause - this.xLength, 0);
+    const visOps = this.allOps.slice(startPause, this.endPause);
+    this.trigger(this.error, visOps[visOps.length - 1]);
   },
 
   top: function() {
     app.dataService.top((error, response) => {
       let totals = [];
-      if (!error && response || !('totals' in response)) {
+      this.error = error;
+      if (!error && response !== undefined && ('totals' in response)) {
+        if (this.starting) { // Skip first to match charts
+          this.starting = false;
+          return;
+        }
         const doc = response.totals;
         let totalTime = 0;
         for (let collname in doc) { // eslint-disable-line prefer-const
@@ -43,7 +71,7 @@ const TopStore = Reflux.createStore({
           }
           const subdoc = doc[collname];
           if (!('readLock' in subdoc) || !('writeLock' in subdoc) || !('total' in subdoc)) {
-            debug('Error: top response from DB missing fields');
+            debug('Error: top response from DB missing fields', subdoc);
           }
           totals.push({
             'collectionName': collname,
@@ -57,13 +85,19 @@ const TopStore = Reflux.createStore({
           totals[i].loadPercent = _.round((totals[i].loadPercent / totalTime) * 100, 0);
         }
         totals.sort(function(a, b) {
-          const f = (b.loadPercent < a.loadPercent) ? 1 : 0;
-          return (a.loadPercent < b.loadPercent) ? -1 : f;
+          const f = (b.loadPercent < a.loadPercent) ? -1 : 0;
+          return (a.loadPercent < b.loadPercent) ? 1 : f;
         });
         // Add current state to all
         this.allOps.push(totals);
         if (this.isPaused) {
-          totals = this.allOps[this.pauseIndex];
+          totals = this.allOps[this.endPause];
+        } else {
+          this.endPause = this.allOps.length;
+        }
+        // This handled by mouseover function completely
+        if (this.inOverlay) {
+          return;
         }
       } else if (error) {
         Actions.dbError({ 'op': 'top', 'error': error });
