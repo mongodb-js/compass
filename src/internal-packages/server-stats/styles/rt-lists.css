@@ -80,8 +80,8 @@
 .rt-lists__headerlabel, .rt-details__headerlabel, .rt-details__closebutton {
   color: white;
   text-transform: uppercase;
-  font-size: 10px;
-  font-weight: 500;
+  font-size: 11px;
+  font-weight: bold;
   flex-grow: 1;
   margin-bottom: 7px;
 }
@@ -99,7 +99,7 @@
 .rt-lists__tab {
   width: 9px;
 }
-.rt-lists__load {  
+.rt-lists__load {
   font-weight: 300;
   font-size: 12px;
   color: white;
@@ -110,8 +110,8 @@
 
 /* HOT */
 .rt-lists__collection-hot {
-  font-weight: 300;
-  font-size: 11px; /* collection name */
+  font-weight: 500;
+  font-size: 12px; /* collection name */
   color: white;
   position: absolute;
   top: 5px;
@@ -152,14 +152,14 @@
   color: white;
   text-transform: uppercase;
   font-size: 10px;
-  font-weight: 500;  
+  font-weight: 500;
   text-align: center;
   padding: 1px 0 1px 0;
   background-color: #777B80;
   border-radius: 2px;
 }
 .rt-lists__collection-slow {
-  font-weight: 300;
+  font-weight: 500;
   font-size: 12px;
   color: white;
   position: absolute;
@@ -168,7 +168,7 @@
   width: 140px;
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;    
+  text-overflow: ellipsis;
 }
 .rt-lists__time {
   font-weight: 300;
