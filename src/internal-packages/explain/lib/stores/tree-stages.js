@@ -72,7 +72,7 @@ const CompassExplainStore = Reflux.createStore({
 
     const xDelta = leftMostNode.x;
     const height = leafNode.y + leafNode.y_size;
-    const width = rightMostNode.x + rightMostNode.x_size - leftMostNode.x + 30;
+    const width = rightMostNode.x + rightMostNode.x_size - leftMostNode.x + 30 + 26;
 
     // compute current, previous and total execution times of all stages
     const totalExecTimeMS = this._computeExecTimes(nodes[0]);

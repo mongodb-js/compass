@@ -1,7 +1,9 @@
 const Reflux = require('reflux');
 const ExplainActions = require('../actions');
 const StateMixin = require('reflux-state-mixin');
-// const ExplainPlanModel = require('mongodb-explain-plan-model');
+const app = require('ampersand-app');
+const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
+const ExplainPlanModel = require('mongodb-explain-plan-model');
 
 const debug = require('debug')('mongodb-compass:stores:explain');
 
@@ -81,7 +83,24 @@ const CompassExplainStore = Reflux.createStore({
     }
 
     this._reset();
-    // @todo use data service to fetch explain plan
+
+    this.setState({
+      explainState: 'fetching'
+    });
+
+    const QueryStore = app.appRegistry.getStore('QueryStore');
+    const filter = QueryStore.state.query;
+    const options = {};
+
+    app.dataService.explain(NamespaceStore.ns, filter, options, (err, explain) => {
+      if (err) {
+        return debug('error fetching explain plan:', err);
+      }
+      const explainPlanModel = new ExplainPlanModel(explain);
+      const newState = explainPlanModel.serialize();
+      newState.explainState = 'done';
+      this.setState(newState);
+    });
   },
 
   /**

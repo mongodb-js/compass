@@ -340,8 +340,11 @@ const QueryStore = Reflux.createStore({
         lastExecutedQuery: _.clone(this.state.query)
       });
       // start queries for all tabs: schema, documents, explain, indexes
+      // @todo don't hard-code this
       const SchemaAction = app.appRegistry.getAction('SchemaAction');
       SchemaAction.startSampling();
+      const ExplainActions = app.appRegistry.getAction('ExplainActions');
+      ExplainActions.fetchExplainPlan();
       filterChanged(this.state.query);
     }
   },

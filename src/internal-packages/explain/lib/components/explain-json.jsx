@@ -1,9 +1,14 @@
 const React = require('react');
+const app = require('ampersand-app');
 
 // const debug = require('debug')('mongodb-compass:explain:summary');
 
 
 class ExplainJSON extends React.Component {
+
+  componentWillMount() {
+    this.documentComponent = app.appRegistry.getComponent('Component::CRUD::Document');
+  }
 
   /**
    * Render Summary Component.
@@ -11,14 +16,9 @@ class ExplainJSON extends React.Component {
    * @returns {React.Component} The Summary part of the explain view.
    */
   render() {
-    const propsStr = JSON.stringify(this.props, null, ' ');
     return (
       <div className="explain-json">
-        <pre className="explain-json-pre">
-          <code>
-            {propsStr}
-          </code>
-        </pre>
+        <this.documentComponent doc={this.props.rawExplainObject} editing={false} />
       </div>
     );
   }

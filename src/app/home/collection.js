@@ -135,18 +135,18 @@ var MongoDBCollectionView = View.extend({
           model: this.model
         });
       }
+    },
+    explainView: {
+      hook: 'explain-subview',
+      waitFor: 'ns',
+      prepareView: function(el) {
+        return new TabView({
+          el: el,
+          parent: this,
+          componentKey: 'Collection:Explain'
+        });
+      }
     }
-    // explainView: {
-    //   hook: 'explain-subview',
-    //   waitFor: 'ns',
-    //   prepareView: function(el) {
-    //     return new TabView({
-    //       el: el,
-    //       parent: this,
-    //       componentKey: 'Collection:Explain'
-    //     });
-    //   }
-    // }
   },
   initialize: function() {
     this.model = new MongoDBCollection();
