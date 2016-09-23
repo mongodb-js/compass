@@ -1,4 +1,5 @@
 const d3 = require('d3');
+const debug = require('debug')('mongodb-compass:server-stats-chart');
 
 /* eslint complexity:0 */
 
@@ -125,9 +126,10 @@ const graphfunction = function() {
             .style('opacity', 1);
         }
         errorState = true;
+        debug('Error: bad serverStatus response from DB');
         return;
       }
-      if (errorState) {
+      if (errorState) { // TODO: fix when layering elements is working properly
         errorState = false;
         container.selectAll('rect.error-overlay').remove();
         container.selectAll('text.error-message').remove();

@@ -2,8 +2,10 @@ const Reflux = require('reflux');
 const app = require('ampersand-app');
 const Actions = require('../action');
 const toNS = require('mongodb-ns');
-// const debug = require('debug')('mongodb-compass:server-stats:top-store');
+const debug = require('debug')('mongodb-compass:server-stats:top-store');
 const _ = require('lodash');
+
+/* eslint complexity:0 */
 
 /**
  * This store listens to the
@@ -32,20 +34,24 @@ const TopStore = Reflux.createStore({
   top: function() {
     app.dataService.top((error, response) => {
       let totals = [];
-      if (!error && response) {
+      if (!error && response || !('totals' in response)) {
         const doc = response.totals;
         let totalTime = 0;
         for (let collname in doc) { // eslint-disable-line prefer-const
           if (!doc.hasOwnProperty(collname) || collname === 'note' || toNS(collname).specialish) {
             continue;
           }
+          const subdoc = doc[collname];
+          if (!('readLock' in subdoc) || !('writeLock' in subdoc) || !('total' in subdoc)) {
+            debug('Error: top response from DB missing fields');
+          }
           totals.push({
             'collectionName': collname,
-            'loadPercentR': (doc[collname].readLock.time / doc[collname].total.time) * 100,
-            'loadPerfectL': (doc[collname].writeLock.time / doc[collname].total.time) * 100,
-            'loadPercent': doc[collname].total.time
+            'loadPercentR': (subdoc.readLock.time / subdoc.total.time) * 100,
+            'loadPerfectL': (subdoc.writeLock.time / subdoc.total.time) * 100,
+            'loadPercent': subdoc.total.time
           });
-          totalTime += doc[collname].total.time;
+          totalTime += subdoc.total.time;
         }
         for (let i = 0; i < totals.length; i++) {
           totals[i].loadPercent = _.round((totals[i].loadPercent / totalTime) * 100, 0);

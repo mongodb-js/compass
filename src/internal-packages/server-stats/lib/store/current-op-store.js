@@ -2,7 +2,7 @@ const Reflux = require('reflux');
 const app = require('ampersand-app');
 const Actions = require('../action');
 const toNS = require('mongodb-ns');
-// const debug = require('debug')('mongodb-compass:server-stats:current-op-store');
+const debug = require('debug')('mongodb-compass:server-stats:current-op-store');
 
 /**
  * This store listens to the
@@ -31,11 +31,17 @@ const CurrentOpStore = Reflux.createStore({
   currentOp: function() {
     app.dataService.currentOp(false, (error, response) => {
       let totals = [];
-      if (!error && response) {
+      if (!error && response || !('inprog' in response)) {
         const doc = response.inprog;
         for (let i = 0; i < doc.length; i++) {
           if (toNS(doc[i].ns).specialish) {
             continue;
+          }
+          if (!('microsecs_running' in doc)) {
+            doc.microsecs_running = 0;
+          }
+          if (!('ns' in doc) || !('op' in doc)) {
+            debug("Error: currentOp result from DB did not include 'ns' or 'op'");
           }
           totals.push(doc[i]);
         }
