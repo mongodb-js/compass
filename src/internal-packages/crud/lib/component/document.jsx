@@ -13,16 +13,6 @@ const RemoveDocumentFooter = require('./remove-document-footer');
 const Hotspot = require('./hotspot');
 
 /**
- * The class for the document itself.
- */
-const DOCUMENT_CLASS = 'document-property-body';
-
-/**
- * The class for the list item wrapper.
- */
-const LIST_ITEM_CLASS = 'document-list-item';
-
-/**
  * Component for a single document in a list of documents.
  */
 class Document extends React.Component {
@@ -275,13 +265,18 @@ class Document extends React.Component {
     return components;
   }
 
+  /**
+   * Get the current style of the document div.
+   *
+   * @returns {String} The document class name.
+   */
   style() {
-    let style = LIST_ITEM_CLASS;
+    let style = "document";
     if (this.state.editing) {
-      style = style.concat(' editing');
+      style = style.concat(' document-is-editing');
     }
     if (this.state.deleting && !this.state.deleteFinished) {
-      style = style.concat(' deleting');
+      style = style.concat(' document-is-deleting');
     }
     return style;
   }
@@ -333,15 +328,13 @@ class Document extends React.Component {
    */
   render() {
     return (
-      <li className={this.style()}>
-        <ol className={DOCUMENT_CLASS}>
-          <div className="document-elements">
-            {this.elements()}
-          </div>
-          {this.renderActions()}
+      <div className={this.style()}>
+        <ol className="document-elements">
+          {this.elements()}
         </ol>
+        {this.renderActions()}
         {this.renderFooter()}
-      </li>
+      </div>
     );
   }
 }

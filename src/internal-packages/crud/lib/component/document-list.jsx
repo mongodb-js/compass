@@ -220,7 +220,11 @@ class DocumentList extends React.Component {
    */
   renderDocuments(docs) {
     return _.map(docs, (doc) => {
-      return (<Document doc={doc} key={this._key(doc)} editable />);
+      return (
+        <li className="document-list-item" key={this._key(doc)}>
+          <Document doc={doc} editable />
+        </li>
+      );
     });
   }
 
