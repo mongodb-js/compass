@@ -55,7 +55,7 @@ const minicharts_d3fns_geo = function() {
     // const project = d3.geo.mercator();
     // const unproject = d3.geo.mercator().invert;
 
-    const update = null;
+    let update = null;
 
     function querybuilder() {
       if (circleCenter && circleOuter) {
