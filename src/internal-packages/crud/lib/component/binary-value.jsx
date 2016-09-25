@@ -19,7 +19,7 @@ const UUID_OLD = 3;
 /**
  * The document value class.
  */
-const VALUE_CLASS = 'document-property-value';
+const VALUE_CLASS = 'element-value';
 
 /**
  * Binary value component.
@@ -34,6 +34,10 @@ class BinaryValue extends React.Component {
   constructor(props) {
     super(props);
     this.element = props.element;
+  }
+
+  style() {
+    return `${VALUE_CLASS} ${VALUE_CLASS}-is-${this.element.currentType.toLowerCase()}`;
   }
 
   /**
@@ -57,7 +61,7 @@ class BinaryValue extends React.Component {
    */
   render() {
     return (
-      <div className={VALUE_CLASS}>
+      <div className={this.style()}>
         {this.renderValue()}
       </div>
     );

@@ -3,7 +3,7 @@ const React = require('react');
 /**
  * The document value class.
  */
-const VALUE_CLASS = 'document-property-value';
+const VALUE_CLASS = 'element-value';
 
 /**
  * Timestamp value component.
@@ -20,6 +20,10 @@ class TimestampValue extends React.Component {
     this.element = props.element;
   }
 
+  style() {
+    return `${VALUE_CLASS} ${VALUE_CLASS}-is-${this.element.currentType.toLowerCase()}`;
+  }
+
   /**
    * Render a single timestamp value.
    *
@@ -27,7 +31,7 @@ class TimestampValue extends React.Component {
    */
   render() {
     return (
-      <div className={VALUE_CLASS}>
+      <div className={this.style()}>
         {String(this.element.currentValue)}
       </div>
     );

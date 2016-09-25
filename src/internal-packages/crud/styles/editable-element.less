@@ -1,5 +1,8 @@
 .editable-element {
 
+  width: 100%;
+  display: block;
+
   &-line-number {
     display: inline-block;
     color: @gray4;
@@ -22,10 +25,6 @@
   &-separator {
     padding-right: 2px;
     vertical-align: top;
-  }
-
-  &-value {
-
   }
 
   &-is-edited {
@@ -79,7 +78,50 @@
     }
   }
 
-  &-hotspot {
+  &:hover {
+    background-color: @gray8;
+
+    input {
+      background-color: @gray8;
+
+      &:focus {
+        background-color: @pw;
+      }
+    }
+
+    .editable-element-actions {
+      opacity: 1;
+    }
+
+    .editable-element-types {
+      .btn {
+        background-color: @gray6;
+        color: @gray0;
+      }
+      .caret {
+        visibility: visible;
+      }
+    }
+  }
+
+  &-actions {
+    display: inline-block;
+    opacity: 0;
+    width: 18px;
+    font-size: 13px;
+    line-height: 11px;
+    margin-left: -35px;
+    margin-right: 35px;
+    text-align: center;
+    color: @gray3;
+
+    i:hover {
+      cursor: pointer;
+    }
+  }
+
+  .hotspot {
+    display: inline-block;
     height: 10px;
     width: 50%;
     cursor: text;
@@ -127,5 +169,16 @@
         }
       }
     }
+  }
+
+  &-value {
+    position: relative;
+    vertical-align: top;
+    z-index: 1;
+  }
+
+  &-field {
+    position: relative;
+    z-index: 1;
   }
 }
