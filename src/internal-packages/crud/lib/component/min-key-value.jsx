@@ -3,12 +3,16 @@ const React = require('react');
 /**
  * The document value class.
  */
-const VALUE_CLASS = 'document-property-value';
+const VALUE_CLASS = 'element-value';
 
 /**
  * MinKey value component.
  */
 class MinKeyValue extends React.Component {
+
+  style() {
+    return `${VALUE_CLASS} ${VALUE_CLASS}-is-minkey`;
+  }
 
   /**
    * Render a single min key value.
@@ -17,7 +21,7 @@ class MinKeyValue extends React.Component {
    */
   render() {
     return (
-      <div className={VALUE_CLASS}>
+      <div className={this.style()}>
         MinKey
       </div>
     );

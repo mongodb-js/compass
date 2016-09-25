@@ -54,11 +54,6 @@ const LABEL_CLASS = 'document-property-type-label';
 const EXPANDED = 'expanded';
 
 /**
- * The non-expandable class.
- */
-const NON_EXPANDABLE = 'not-expandable';
-
-/**
  * Mappings for non editable value components.
  */
 const VALUE_MAPPINGS = {
@@ -154,16 +149,13 @@ class EditableElement extends React.Component {
    * @returns {String} The element style.
    */
   style() {
-    let style = `editable-element editable-element-is-${this.element.currentType.toLowerCase()}`;
+    let style = 'editable-element';
     if (this.element.isAdded()) {
       style = style.concat(` editable-element-is-${ADDED}`);
     } else if (this.element.isEdited()) {
       style = style.concat(` editable-element-is-${EDITED}`);
     } else if (this.element.isRemoved()) {
       style = style.concat(` editable-element-is-${REMOVED}`);
-    }
-    if (!this.element.elements) {
-      style = style.concat(` editable-element-is-${NON_EXPANDABLE}`);
     }
     if (this.state.expanded) {
       style = style.concat(` editable-element-is-${EXPANDED}`);

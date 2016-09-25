@@ -1,6 +1,16 @@
 .document {
+  display: block;
+  list-style: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
 
   &-elements {
     position: relative;
+  }
+
+  &-is-deleting {
+    box-shadow: 2px 5px 8px rgba(0,0,0,0.2);
+    border: 1px solid @alertRed;
   }
 }
