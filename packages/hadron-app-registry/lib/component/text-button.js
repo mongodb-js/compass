@@ -13,12 +13,12 @@ const BUTTON = 'button';
 class TextButton extends React.Component {
 
   /**
-   * The component constructor.
+   * By default should not need to to re-render itself.
    *
-   * @param {Object} props - The properties.
+   * @returns {Boolean} Always false.
    */
-  constructor(props) {
-    super(props);
+  shouldComponentUpdate() {
+    return false;
   }
 
   /**
@@ -36,17 +36,14 @@ class TextButton extends React.Component {
       this.props.text
     );
   }
-
-  /**
-   * By default should not need to to re-render itself.
-   *
-   * @returns {Boolean} Always false.
-   */
-  shouldComponentUpdate() {
-    return false;
-  }
 }
 
 TextButton.displayName = 'TextButton';
+
+TextButton.propTypes = {
+  text: React.PropTypes.string.isRequired,
+  clickHandler: React.PropTypes.func.isRequired,
+  className: React.PropTypes.string
+};
 
 module.exports = TextButton;

@@ -13,12 +13,12 @@ const BUTTON = 'button';
 class IconButton extends React.Component {
 
   /**
-   * The component constructor.
+   * By default should not need to to re-render itself.
    *
-   * @param {Object} props - The properties.
+   * @returns {Boolean} Always false.
    */
-  constructor(props) {
-    super(props);
+  shouldComponentUpdate() {
+    return false;
   }
 
   /**
@@ -31,23 +31,21 @@ class IconButton extends React.Component {
       <button
         type={BUTTON}
         title={this.props.title}
-        className='btn btn-default btn-xs'
+        className={this.props.className}
         onClick={this.props.clickHandler}>
-        <i className={this.props.iconClassName} aria-hidden='true'></i>
+        <i className={this.props.iconClassName} aria-hidden />
       </button>
     );
-  }
-
-  /**
-   * By default should not need to to re-render itself.
-   *
-   * @returns {Boolean} Always false.
-   */
-  shouldComponentUpdate() {
-    return false;
   }
 }
 
 IconButton.displayName = 'IconButton';
+
+IconButton.propTypes = {
+  title: React.PropTypes.string,
+  clickHandler: React.PropTypes.func.isRequired,
+  className: React.PropTypes.string,
+  iconClassName: React.PropTypes.string.isRequired
+};
 
 module.exports = IconButton;

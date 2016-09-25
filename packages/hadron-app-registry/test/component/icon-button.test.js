@@ -14,7 +14,7 @@ function func() {
 describe('IconButton', function() {
   describe('#render', function() {
     var renderer = ReactTestUtils.createRenderer();
-    var props = { title: 'Test', clickHandler: func, iconClassName: 'testing' };
+    var props = { title: 'Test', clickHandler: func, iconClassName: 'testing', className: 'test' };
     renderer.render(React.createElement(IconButton, props));
     var output = renderer.getRenderOutput();
 
@@ -23,7 +23,7 @@ describe('IconButton', function() {
     });
 
     it('sets the className', function() {
-      expect(output.props.className).to.equal('btn btn-default btn-xs');
+      expect(output.props.className).to.equal('test');
     });
 
     it('sets type', function() {
