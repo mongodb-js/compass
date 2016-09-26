@@ -31,22 +31,17 @@ const CARET = 'caret';
 /**
  * The class for the document itself.
  */
-const DOCUMENT_CLASS = 'document-property-body';
+const DOCUMENT_CLASS = 'editable-expandable-element-children';
 
 /**
  * The header class for expandable elements.
  */
-const HEADER_CLASS = 'document-property-header expandable';
-
-/**
- * The property class.
- */
-const PROPERTY_CLASS = 'document-property';
+const HEADER_CLASS = 'editable-expandable-element-header';
 
 /**
  * The expandable label class.
  */
-const LABEL_CLASS = 'document-property-type-label';
+const LABEL_CLASS = 'editable-expandable-element-header-label';
 
 /**
  * The expanded class name.
@@ -146,23 +141,26 @@ class EditableElement extends React.Component {
   /**
    * Get the style for the element component.
    *
+   * @param {String} base - The base style.
+   *
    * @returns {String} The element style.
    */
-  style() {
-    let style = 'editable-element';
+  style(base) {
+    let style = base;
     if (this.element.isAdded()) {
-      style = style.concat(` editable-element-is-${ADDED}`);
+      style = style.concat(` ${base}-is-${ADDED}`);
     } else if (this.element.isEdited()) {
-      style = style.concat(` editable-element-is-${EDITED}`);
+      style = style.concat(` ${base}-is-${EDITED}`);
     } else if (this.element.isRemoved()) {
-      style = style.concat(` editable-element-is-${REMOVED}`);
+      style = style.concat(` ${base}-is-${REMOVED}`);
     }
     if (this.state.expanded) {
-      style = style.concat(` editable-element-is-${EXPANDED}`);
+      style = style.concat(` ${base}-is-${EXPANDED}`);
     }
     return style;
   }
 
+  /**
   /**
    * Get the value component for the type.
    *
@@ -195,7 +193,7 @@ class EditableElement extends React.Component {
    */
   renderNonExpandable() {
     return (
-      <li className={this.style()}>
+      <li className={this.style('editable-element')}>
         {this.renderAction()}
         <div className="editable-element-line-number"></div>
         <EditableKey element={this.element} index={this.props.index} />
@@ -227,18 +225,18 @@ class EditableElement extends React.Component {
    */
   renderExpandable() {
     return (
-      <li className={this.style()}>
-        <div className={HEADER_CLASS}>
+      <li className={this.style('editable-expandable-element')}>
+        <div className={this.style('editable-expandable-element-header')}>
           {this.renderAction()}
-          <div className="line-number" onClick={this.toggleExpandable.bind(this)}></div>
-          <div className={CARET} onClick={this.toggleExpandable.bind(this)}></div>
+          <div className="editable-element-line-number" onClick={this.toggleExpandable.bind(this)}></div>
+          <div className="editable-expandable-element-header-toggle" onClick={this.toggleExpandable.bind(this)}></div>
           <EditableKey element={this.element} index={this.props.index} />
           :
           <div className={LABEL_CLASS} onClick={this.toggleExpandable.bind(this)}>
             {this.element.currentType}
           </div>
         </div>
-        <ol className={DOCUMENT_CLASS}>
+        <ol className={this.style('editable-expandable-element-children')}>
           {this.elementComponents()}
         </ol>
       </li>

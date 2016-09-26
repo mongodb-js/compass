@@ -19,6 +19,7 @@
   &-field {
     display: inline-block;
     vertical-align: top;
+    margin-left: 22px;
   }
 
   &-separator {
@@ -41,6 +42,16 @@
       background-color: @alertOrange;
       color: @pw;
     }
+
+    input {
+      background-color: @alertOrangeBg;
+    }
+
+    .editable-element-field {
+      &::before {
+        background-color: @alertOrangeBg;
+      }
+    }
   }
 
   &-is-added {
@@ -58,6 +69,10 @@
       background-color: @green2;
       color: @pw;
     }
+
+    input {
+      background-color: @greenBg;
+    }
   }
 
   &-is-removed {
@@ -74,6 +89,10 @@
     .editable-element-line-number {
       background-color: @alertRed;
       color: @pw;
+    }
+
+    input {
+      background-color: @alertRedBg;
     }
   }
 
@@ -109,10 +128,11 @@
     width: 18px;
     font-size: 13px;
     line-height: 11px;
-    margin-left: -35px;
-    margin-right: 35px;
+    margin-top: 1px;
     text-align: center;
     color: @gray3;
+    position: absolute;
+    left: 3px;
 
     i:hover {
       cursor: pointer;
