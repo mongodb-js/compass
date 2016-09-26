@@ -84,6 +84,11 @@ const TopStore = Reflux.createStore({
         for (let i = 0; i < totals.length; i++) {
           totals[i].loadPercent = _.round((totals[i].loadPercent / totalTime) * 100, 0);
         }
+        for (let i = totals.length - 1; i >= 0; i--) {
+          if (!totals[i].loadPercent) {
+            totals.splice(i, 1);
+          }
+        }
         totals.sort(function(a, b) {
           const f = (b.loadPercent < a.loadPercent) ? -1 : 0;
           return (a.loadPercent < b.loadPercent) ? 1 : f;
