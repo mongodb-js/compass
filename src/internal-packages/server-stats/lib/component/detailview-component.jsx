@@ -42,6 +42,13 @@ class DetailViewComponent extends React.Component {
     Actions.hideOperationDetails();
   }
 
+  removeMs(key, value) {
+    if (key === 'ms_running') {
+      return undefined;
+    }
+    return value;
+  }
+
   renderError() {
     return (
       <div style={{ display: this.state.display }}>
@@ -52,13 +59,6 @@ class DetailViewComponent extends React.Component {
 
   renderZero() {
     return (<div style={{ display: this.state.display }}></div>);
-  }
-
-  remove_ms(key, value) {
-    if (key === 'ms_running') {
-      return undefined;
-    }
-    return value;
   }
 
   renderGraph() {
@@ -92,7 +92,7 @@ class DetailViewComponent extends React.Component {
               <div className="rt-details__datatype-val">{this.state.data.waitingForLock}</div>
             </li>
           </ul>
-          <div className="rt-details__raw"><text>{JSON.stringify(this.state.data, this.remove_ms, 4)}</text></div>
+          <div className="rt-details__raw"><text>{JSON.stringify(this.state.data, this.removeMs, 4)}</text></div>
         </div>
       </div>
     );
