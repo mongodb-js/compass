@@ -54,6 +54,13 @@ class DetailViewComponent extends React.Component {
     return (<div style={{ display: this.state.display }}></div>);
   }
 
+  remove_ms(key, value) {
+    if (key === 'ms_running') {
+      return undefined;
+    }
+    return value;
+  }
+
   renderGraph() {
     return (
       <div className="rt-details" style={{ display: this.state.display }}>
@@ -65,7 +72,7 @@ class DetailViewComponent extends React.Component {
           <div className="rt-details__opinfo">
             <div className="rt-details__collection-slow">{this.state.data.ns}</div>
             <div className="rt-details__op">{this.state.data.op}</div>
-            <div className="rt-details__time">{this.state.data.microsecs_running + ' ms'}</div>
+            <div className="rt-details__time">{this.state.data.ms_running + ' ms'}</div>
           </div>
           <ul className="rt-details__list">
             <li className="rt-details__item">
@@ -85,7 +92,7 @@ class DetailViewComponent extends React.Component {
               <div className="rt-details__datatype-val">false</div>
             </li>
           </ul>
-          <div className="rt-details__raw"><text>{JSON.stringify(this.state.data, null, 4)}</text></div>
+          <div className="rt-details__raw"><text>{JSON.stringify(this.state.data, this.remove_ms, 4)}</text></div>
         </div>
       </div>
     );
