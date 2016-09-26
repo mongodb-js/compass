@@ -85,11 +85,11 @@ class DetailViewComponent extends React.Component {
             </li>
             <li className="rt-details__item">
               <div className="rt-details__datatype">active</div>
-              <div className="rt-details__datatype-val">false</div>
+              <div className="rt-details__datatype-val">{this.state.data.active}</div>
             </li>
             <li className="rt-details__item">
               <div className="rt-details__datatype">wait lock</div>
-              <div className="rt-details__datatype-val">false</div>
+              <div className="rt-details__datatype-val">{this.state.data.waitingForLock}</div>
             </li>
           </ul>
           <div className="rt-details__raw"><text>{JSON.stringify(this.state.data, this.remove_ms, 4)}</text></div>

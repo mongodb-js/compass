@@ -77,6 +77,16 @@ const CurrentOpStore = Reflux.createStore({
           if (!('ns' in doc[i]) || !('op' in doc[i])) {
             debug('Error: currentOp result from DB did not include \'ns\' or \'op\'', doc[i]);
           }
+          if(!('active' in doc[i])) {
+            debug('Error: currentOp result from DB did not include \'active\'', doc[i]);
+          } else {
+            doc[i].active = doc[i].active.toString();
+          }
+          if (!('waitingForLock' in doc[i])) {
+            debug('Error: currentOp result from DB did not include \'waitingForLock\'', doc[i]);
+          } else {
+            doc[i].waitingForLock = doc[i].waitingForLock.toString();
+          }
           totals.push(doc[i]);
         }
         totals.sort(function(a, b) {
