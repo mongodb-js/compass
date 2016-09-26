@@ -314,12 +314,11 @@ const graphfunction = function() {
         .attr('class', function(d) { return 'legend-count text-' + d;} )
         .attr('transform', 'translate(' + 15 + ',22)');
 
-      // Create overlay line + bubbles
+      // Create overlay line
       const focus = container.selectAll('g.focus').data([0]).enter()
         .append('g')
         .attr('class', 'focus')
-        .attr('transform', 'translate(' + (margin.left - xTick) + ',' + margin.top + ')')
-        .style('display', 'none');
+        .attr('transform', 'translate(' + (margin.left - xTick) + ',' + margin.top + ')');
       focus.append('line')
         .attr('class', 'overlay-line')
         .attr('transform', 'translate(' + subWidth + ',0)')
@@ -333,9 +332,9 @@ const graphfunction = function() {
       // Transform overlay elements to current selection
       function updateOverlay() {
         const bisectDate = d3.bisector(function(d) { return d; }).left;
-        const index = bisectDate(data.localTime, x.invert(mouseLocation), 1);
+        let index = bisectDate(data.localTime, x.invert(mouseLocation), 1);
         if (index >= data.localTime.length) {
-          return;
+          index = data.localTime.length - 1;
         }
         if ('trigger' in data) {
           TopStore.mouseOver(index);
@@ -364,6 +363,16 @@ const graphfunction = function() {
         }
       }
 
+      // Transform overlay elements to current time
+      function resetOverlay() {
+        const xOffset = x.range()[1] + xTick;
+        const myfocus = container.selectAll('g.focus');
+        myfocus.selectAll('line.overlay-line')
+          .attr('transform', 'translate(' + xOffset + ',0)');
+        myfocus.selectAll('path.overlay-triangle')
+          .attr('transform', 'translate(' + xOffset + ',-3)');
+      }
+
       // Bind overlay updating function to mouse movements over the chart
       container.selectAll('rect.overlay').data([0]).enter()
         .append('rect')
@@ -380,11 +389,11 @@ const graphfunction = function() {
         })
         .on('mouseout.' + data.labels.title[0], function() {
           onOverlay = false;
-          container.selectAll('g.focus').style('display', 'none');
           if ('trigger' in data) {
             TopStore.mouseOut();
             CurrentOpStore.mouseOut();
           }
+          resetOverlay();
         })
         .on('mousemove.' + data.labels.title[0], function() {
           // Set overlays to visible and update current selection
@@ -403,6 +412,7 @@ const graphfunction = function() {
             }
             return data.dataSets[i].count[data.dataSets[i].count.length - 1];
           });
+        resetOverlay();
       }
     });
   }
