@@ -1,0 +1,13 @@
+.line-number {
+
+  display: inline-block;
+  color: @gray4;
+  width: 18px;
+  height: 17px;
+  text-align: center;
+
+  &::before {
+    counter-increment: document-line-number;
+    content: counter(document-line-number);
+  }
+}
