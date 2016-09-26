@@ -44,11 +44,11 @@ class PackageManager {
    * @returns {PackageManager} this instance.
    */
   activate() {
-    Action.packageRead.listen((pkg) => {
+    this.unsubscribePackageRead = Action.packageRead.listen((pkg) => {
       pkg.activate();
       this._completeActivation();
     });
-    Action.packageScanFailed.listen(() => {
+    this.unsubscribePackageScanFailed = Action.packageScanFailed.listen(() => {
       this._completeActivation();
     });
     this._read();
@@ -62,6 +62,9 @@ class PackageManager {
     if (this._isReadingComplete()) {
       this._resetExpectedPackageCount();
       Action.packageActivationCompleted();
+      // activation complete, unsubscribe from listeners
+      this.unsubscribePackageRead();
+      this.unsubscribePackageScanFailed();
     }
   }
 

@@ -12,6 +12,7 @@ const packageActivated = Reflux.createAction({
    *
    * @param {Package} pkg - The activated package.
    */
+  sync: true,
   preEmit: function(pkg) {
     debug(`Package ${pkg.metadata.name} activated.`);
   }
@@ -24,6 +25,7 @@ const packageActivationCompleted = Reflux.createAction({
   /**
    * Log the action.
    */
+  sync: true,
   preEmit: function() {
     debug('Package activation completed.');
   }
@@ -38,6 +40,7 @@ const packageRead = Reflux.createAction({
    *
    * @param {Package} pkg - The read package.
    */
+  sync: true,
   preEmit: function(pkg) {
     debug(`Package ${pkg.metadata.name} read.`);
   }
@@ -52,6 +55,7 @@ const packageScanFailed = Reflux.createAction({
    *
    * @param {Error} error - The error.
    */
+  sync: true,
   preEmit: function(error) {
     debug(`Package director scan failed: ${error.message}.`);
   }
