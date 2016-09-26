@@ -1,5 +1,6 @@
 const Reflux = require('reflux');
 const ServerStatsStore = require('./server-stats-graphs-store');
+const _ = require('lodash');
 // const debug = require('debug')('mongodb-compass:server-stats:opcounters-store');
 
 const OpCounterStore = Reflux.createStore({
@@ -42,7 +43,6 @@ const OpCounterStore = Reflux.createStore({
       let key;
       let val;
       let count;
-      let max = this.currentMaxs.length === 0 ? 1 : this.currentMaxs[this.currentMaxs.length - 1];
 
       if (isPaused && !this.isPaused) { // Move into pause state
         this.isPaused = true;
@@ -65,19 +65,21 @@ const OpCounterStore = Reflux.createStore({
         val = Math.max(0, count - this.data.dataSets[q].current); // Don't allow negatives.
         this.opsPerSec[key].push(val);
         this.data.dataSets[q].count = this.opsPerSec[key].slice(startPause, this.endPause);
-        max = Math.max(val, max);
         this.data.dataSets[q].current = count;
       }
       if (this.starting) {
         this.starting = false;
         return;
       }
-      this.currentMaxs.push(max);
+      const maxs = [1];
+      for (let q = 0; q < this.data.dataSets.length; q++) {
+        maxs.push(_.max(this.data.dataSets[q].count));
+      }
+      this.currentMaxs.push(_.max(maxs));
       this.localTime.push(doc.localTime);
       this.data.yDomain = [0, this.currentMaxs[this.endPause - 1]];
       this.data.localTime = this.localTime.slice(startPause, this.endPause);
       this.data.paused = isPaused;
-      // debug("startPause", startPause, "endPause", this.endPause, "total", this.localTime.length);
     }
     this.trigger(error, this.data);
   }

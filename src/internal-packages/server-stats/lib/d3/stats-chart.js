@@ -128,7 +128,7 @@ const graphfunction = function() {
             .style('opacity', 1);
         }
         errorState = true;
-        debug('Error: bad serverStatus response from DB');
+        debug('Error: bad serverStatus response from DB:', data);
         return;
       }
       if (errorState) { // TODO: fix when layering elements is working properly

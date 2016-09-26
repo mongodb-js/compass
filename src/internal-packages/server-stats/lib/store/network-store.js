@@ -1,7 +1,7 @@
 const Reflux = require('reflux');
 const ServerStatsStore = require('./server-stats-graphs-store');
-// const debug = require('debug')('mongodb-compass:server-stats:network-store');
 const _ = require('lodash');
+// const debug = require('debug')('mongodb-compass:server-stats:network-store');
 
 const NetworkStore = Reflux.createStore({
 
@@ -45,7 +45,6 @@ const NetworkStore = Reflux.createStore({
       let key;
       let val;
       let count;
-      let max = this.currentMaxs.length === 0 ? 1 : this.currentMaxs[this.currentMaxs.length - 1];
 
       if (isPaused && !this.isPaused) { // Move into pause state
         this.isPaused = true;
@@ -69,23 +68,24 @@ const NetworkStore = Reflux.createStore({
         val = _.round(Math.max(0, count - this.data.dataSets[q].current, 2)); // Don't allow negatives.
         this.bytesPerSec[key].push(val);
         this.data.dataSets[q].count = this.bytesPerSec[key].slice(startPause, this.endPause);
-        max = Math.max(val, max);
         this.data.dataSets[q].current = count;
       }
       if (this.starting) {
         this.starting = false;
         return;
       }
-      this.currentMaxs.push(_.round(max, 2));
+      const maxs = [1];
+      for (let q = 0; q < this.data.dataSets.length; q++) {
+        maxs.push(_.max(this.data.dataSets[q].count));
+      }
+      this.currentMaxs.push(_.round(_.max(maxs), 2));
 
       // Handle separate scaled line
       const connections = doc.connections.current;
-      max = this.secondCurrentMaxs.length === 0 ? 1 : this.secondCurrentMaxs[this.secondCurrentMaxs.length - 1];
-      max = Math.max(connections, max);
-      this.secondCurrentMaxs.push(max);
       // Handle connections being on a separate Y axis
       this.connectionCount.push(connections);
       this.data.secondScale.count = this.connectionCount.slice(startPause, this.endPause);
+      this.secondCurrentMaxs.push(_.max(this.data.secondScale.count));
       this.data.secondScale.currentMax = this.secondCurrentMaxs[this.endPause - 1];
 
       // Add the rest of the data
