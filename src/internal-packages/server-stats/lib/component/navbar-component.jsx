@@ -1,6 +1,7 @@
 const React = require('react');
 const Actions = require('../action');
 const debug = require('debug')('mongodb-compass:navbar-component');
+const jQuery = require('jquery');
 
 class NavBarComponent extends React.Component {
   constructor() {
@@ -13,6 +14,7 @@ class NavBarComponent extends React.Component {
   handlePause() {
     this.setState({ paused: !this.state.paused });
     Actions.pause();
+    jQuery('#div-scroll').scrollTop(0);
   }
 
   goToPerformance() {
