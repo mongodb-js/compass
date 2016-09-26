@@ -46,6 +46,9 @@
   display: flex;
   flex-direction: row;
 }
+.rt-lists__item {
+  cursor: pointer;
+}
 .rt-lists__empty-error {
   margin-left: 40px;
   padding-top: 10px;
@@ -89,10 +92,10 @@
   text-align: right;
 }
 .rt-details__closebutton {
+  cursor: pointer;
   color: #9ca4ab;
   margin-top: 20px;
   text-align: right;
-  cursor: pointer;
 }
 
 /* SHARED */
@@ -144,7 +147,6 @@
 
 /* SLOW */
 .rt-lists__op {
-  cursor: pointer;
   position: absolute;
   top: 12px;
   left: 32px;
