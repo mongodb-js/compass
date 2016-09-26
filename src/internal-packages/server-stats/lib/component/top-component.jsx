@@ -16,7 +16,7 @@ class TopComponent extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.state = { error: null, data: []};
+    this.state = { error: null, data: [], display: 'block' };
   }
 
   /**
@@ -26,6 +26,8 @@ class TopComponent extends React.Component {
    */
   componentDidMount() {
     this.unsubscribeRefresh = this.props.store.listen(this.refresh.bind(this));
+    this.unsubscribeShowOperationDetails = Actions.showOperationDetails.listen(this.hide.bind(this));
+    this.unsubscribeHideOperationDetails = Actions.hideOperationDetails.listen(this.show.bind(this));
     this.intervalId = setInterval(() => {
       Actions.pollTop();
     }, this.props.interval);
@@ -37,7 +39,23 @@ class TopComponent extends React.Component {
    */
   componentWillUnmount() {
     this.unsubscribeRefresh();
+    this.unsubscribeShowOperationDetails();
+    this.unsubscribeHideOperationDetails();
     clearInterval(this.intervalId);
+  }
+
+  /**
+   * Set the component to visible.
+   */
+  show() {
+    this.setState({ display: 'block' });
+  }
+
+  /**
+   * Set the component to hidden.
+   */
+  hide() {
+    this.setState({ display: 'none' });
   }
 
   /**
@@ -58,7 +76,7 @@ class TopComponent extends React.Component {
    */
   renderError() {
     return (
-      <div className="rt-lists">
+      <div className="rt-lists" style={{ display: this.state.display }}>
         <header className="rt-lists__header">
           <h2 className="rt-lists__headerlabel">Hottest Collections</h2>
         </header>
@@ -74,7 +92,7 @@ class TopComponent extends React.Component {
    */
   renderZero() {
     return (
-      <div className="rt-lists">
+      <div className="rt-lists" style={{ display: this.state.display }}>
         <header className="rt-lists__header">
           <h2 className="rt-lists__headerlabel">Hottest Collections</h2>
         </header>
@@ -112,7 +130,7 @@ class TopComponent extends React.Component {
     });
 
     return (
-      <div className="rt-lists">
+      <div className="rt-lists" style={{ display: this.state.display }}>
         <header className="rt-lists__header">
           <h2 className="rt-lists__headerlabel">Hottest Collections</h2>
         </header>

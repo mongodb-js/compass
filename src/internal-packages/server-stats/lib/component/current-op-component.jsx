@@ -16,7 +16,7 @@ class CurrentOpComponent extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.state = { error: null, data: []};
+    this.state = { error: null, data: [], display: 'block' };
   }
 
   /**
@@ -26,6 +26,8 @@ class CurrentOpComponent extends React.Component {
    */
   componentDidMount() {
     this.unsubscribeRefresh = this.props.store.listen(this.refresh.bind(this));
+    this.unsubscribeShowOperationDetails = Actions.showOperationDetails.listen(this.hide.bind(this));
+    this.unsubscribeHideOperationDetails = Actions.hideOperationDetails.listen(this.show.bind(this));
     this.intervalId = setInterval(() => {
       Actions.pollCurrentOp();
     }, this.props.interval);
@@ -37,6 +39,8 @@ class CurrentOpComponent extends React.Component {
    */
   componentWillUnmount() {
     this.unsubscribeRefresh();
+    this.unsubscribeShowOperationDetails();
+    this.unsubscribeHideOperationDetails();
     clearInterval(this.intervalId);
   }
 
@@ -52,13 +56,36 @@ class CurrentOpComponent extends React.Component {
   }
 
   /**
+   * Set the component to visible.
+   */
+  show() {
+    this.setState({ display: 'block' });
+  }
+
+  /**
+   * Set the component to hidden.
+   */
+  hide() {
+    this.setState({ display: 'none' });
+  }
+
+  /**
+   * Fire the show operation detail action with the row data.
+   *
+   * @param {Object} data - The row data.
+   */
+  showOperationDetails(data) {
+    Actions.showOperationDetails(data);
+  }
+
+  /**
    * Render the error message in the component.
    *
    * @returns {String} The error message.
    */
   renderError() {
     return (
-      <div className="rt-lists">
+      <div className="rt-lists" style={{ display: this.state.display }}>
         <header className="rt-lists__header">
           <h2 className="rt-lists__headerlabel">Slowest Operations</h2>
         </header>
@@ -74,7 +101,7 @@ class CurrentOpComponent extends React.Component {
    */
   renderZero() {
     return (
-      <div className="rt-lists">
+      <div className="rt-lists" style={{ display: this.state.display }}>
         <header className="rt-lists__header">
           <h2 className="rt-lists__headerlabel">Slowest Operations</h2>
         </header>
@@ -89,18 +116,18 @@ class CurrentOpComponent extends React.Component {
    * @returns {React.Component} The table.
    */
   renderGraph() {
-    const handler = this.props.clickHandler;
+    const showOperationDetails = this.showOperationDetails;
     const rows = this.state.data.map(function(row, i) {
       return (
         <li className="rt-lists__item rt-lists__item--slow" key={`list-item-${i}`}>
           <div className="rt-lists__collection-slow">{row.ns}</div>
-          <div className="rt-lists__op" onClick={handler.bind(null, row)}>{row.op}</div>
+          <div className="rt-lists__op" onClick={showOperationDetails.bind(null, row)}>{row.op}</div>
           <div className="rt-lists__time">{row.microsecs_running + ' ms'}</div>
         </li>
       );
     });
     return (
-      <div className="rt-lists">
+      <div className="rt-lists" style={{ display: this.state.display }}>
         <header className="rt-lists__header">
           <h2 className="rt-lists__headerlabel">Slowest Operations</h2>
         </header>
@@ -131,8 +158,7 @@ class CurrentOpComponent extends React.Component {
 
 CurrentOpComponent.propTypes = {
   store: React.PropTypes.any.isRequired,
-  interval: React.PropTypes.number.isRequired,
-  clickHandler: React.PropTypes.any.isRequired
+  interval: React.PropTypes.number.isRequired
 };
 
 CurrentOpComponent.displayName = 'CurrentOpComponent';
