@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const React = require('react');
 const IndexDefinition = require('./index-definition');
 
