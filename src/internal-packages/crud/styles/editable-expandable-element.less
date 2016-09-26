@@ -33,6 +33,36 @@
         margin-top: 6px;
       }
     }
+
+    &:hover {
+      background-color: @gray8;
+
+      &::before {
+        background-color: @gray8;
+      }
+
+      input {
+        background-color: @gray8;
+
+        &:focus {
+          background-color: @pw;
+        }
+      }
+
+      .editable-element-actions {
+        opacity: 1;
+      }
+
+      .editable-element-types {
+        .btn {
+          background-color: @gray6;
+          color: @gray0;
+        }
+        .caret {
+          visibility: visible;
+        }
+      }
+    }
   }
 
   &-children {
