@@ -259,7 +259,7 @@ class Document extends React.Component {
   editableElements() {
     const components = [];
     for (const element of this.state.doc.elements) {
-      components.push(<EditableElement key={element.uuid} element={element} />);
+      components.push(<EditableElement key={element.uuid} element={element} padding={0} />);
     }
     components.push(<Hotspot key="hotspot" element={this.state.doc} />);
     return components;

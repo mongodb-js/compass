@@ -90,7 +90,7 @@ class EditableElement extends React.Component {
     const components = [];
     let index = 0;
     for (const element of this.element.elements) {
-      components.push(<EditableElement key={element.uuid} element={element} index={index} />);
+      components.push(<EditableElement key={element.uuid} element={element} index={index} padding={this.props.padding + 16} />);
       index++;
     }
     return components;
@@ -193,7 +193,7 @@ class EditableElement extends React.Component {
    */
   renderNonExpandable() {
     return (
-      <li className={this.style('editable-element')}>
+      <li className={this.style('editable-element')} style={{ paddingLeft: `${this.props.padding}px` }}>
         {this.renderAction()}
         <div className="editable-element-line-number"></div>
         <EditableKey element={this.element} index={this.props.index} />
@@ -226,7 +226,7 @@ class EditableElement extends React.Component {
   renderExpandable() {
     return (
       <li className={this.style('editable-expandable-element')}>
-        <div className={this.style('editable-expandable-element-header')}>
+        <div className={this.style(HEADER_CLASS)} style={{ paddingLeft: `${this.props.padding}px` }}>
           {this.renderAction()}
           <div className="editable-element-line-number" onClick={this.toggleExpandable.bind(this)}></div>
           <div className="editable-expandable-element-header-toggle" onClick={this.toggleExpandable.bind(this)}></div>
@@ -236,7 +236,7 @@ class EditableElement extends React.Component {
             {this.element.currentType}
           </div>
         </div>
-        <ol className={this.style('editable-expandable-element-children')}>
+        <ol className={this.style(DOCUMENT_CLASS)}>
           {this.elementComponents()}
         </ol>
       </li>
