@@ -2,9 +2,7 @@ var View = require('ampersand-view');
 var Action = require('hadron-action');
 var CollectionStatsView = require('../collection-stats');
 var DocumentView = require('../documents');
-var SchemaView = require('../schema');
 var IndexView = require('../indexes');
-var ExplainView = require('../explain-plan');
 var MongoDBCollection = require('../models/mongodb-collection');
 var React = require('react');
 var ReactDOM = require('react-dom');
@@ -152,6 +150,7 @@ var MongoDBCollectionView = View.extend({
     this.model = new MongoDBCollection();
     NamespaceStore.listen(this.onCollectionChanged.bind(this));
     this.loadIndexesAction = app.appRegistry.getAction('Action::Indexes::LoadIndexes');
+    this.fetchExplainPlanAction = app.appRegistry.getAction('ExplainActions').fetchExplainPlan;
     this.schemaActions = app.appRegistry.getAction('SchemaAction');
     // this.listenToAndRun(this.parent, 'change:ns', this.onCollectionChanged.bind(this));
   },
@@ -206,7 +205,9 @@ var MongoDBCollectionView = View.extend({
     metadata['collection name length'] = model.getId().length -
       model.database.length - 1;
     metrics.track('Collection', 'fetched', metadata);
+    // @todo calling these here is temporary until we reactify the collection tabs
     this.loadIndexesAction();
+    this.fetchExplainPlanAction();
   }
 });
 
