@@ -12,6 +12,14 @@ var FileReaderView = require('./filereader-view');
 
 // var debug = require('debug')('mongodb-compass:connect:ssl');
 
+var IFAVAILABLE = {
+  _id: 'IFAVAILABLE',
+  title: 'If Available',
+  description: 'Try SSL first, fall back if not available, ' +
+    'and use the system certificate authority',
+  enabled: true
+};
+
 var NONE = {
   _id: 'NONE',
   title: 'Off',
@@ -87,8 +95,9 @@ var ALL = {
 };
 
 module.exports = new SSLOptionCollection([
-  NONE,
-  UNVALIDATED,
+  IFAVAILABLE,
   SERVER,
-  ALL
+  ALL,
+  NONE,
+  UNVALIDATED
 ]);
