@@ -161,7 +161,8 @@ Store should not have any method that are declared in state, since you can liste
 For any `setState()` the entire store is triggering (regardless of changes), allowing any Component or other Store to listen to the entire Store's state.
 
 ## acknowledgments
-Original source from [jonatanmn/Super-Simple-Reflux](https://github.com/yonatanmn/Super-Simple-Flux)
+Original source from [yonatanmn/Super-Simple-Reflux](https://github.com/yonatanmn/Super-Simple-Flux).
+
 This mixin was inspired by (a.k.a shamelessly stole from) -
 [triggerables-mixin](https://github.com/jesstelford/reflux-triggerable-mixin). Also see [this](https://github.com/spoike/refluxjs/issues/158) for details.
 [reflux-provides-store](https://github.com/brigand/reflux-provides-store)
