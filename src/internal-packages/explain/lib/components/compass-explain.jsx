@@ -1,11 +1,11 @@
 const React = require('react');
-const app = require('ampersand-app');
+// const app = require('ampersand-app');
 const ExplainBody = require('./explain-body');
 const ExplainHeader = require('./explain-header');
 
 const ExplainActions = require('../actions');
 
-const debug = require('debug')('mongodb-compass:explain');
+// const debug = require('debug')('mongodb-compass:explain');
 
 /**
  * Structure of components (Jade notation)
@@ -28,18 +28,6 @@ class CompassExplain extends React.Component {
     ExplainActions.fetchExplainPlan();
   }
 
-  // componentDidMount() {
-  //   const QueryStore = app.appRegistry.getStore('QueryStore');
-  //   this.unsubscribeQueryStore = QueryStore.listen(this.onQueryChanged);
-  // }
-  //
-  // componentWillUnmount() {
-  //   this.unsubscribeQueryStore();
-  // }
-  // onQueryChanged(store) {
-  //   debug('query changed', store);
-  // }
-
   /**
    * Render Explain.
    *
@@ -48,9 +36,11 @@ class CompassExplain extends React.Component {
   render() {
     return (
       <div>
+        <div className="flexbox-fix"></div>
         <div className="column-container with-refinebar">
           <div className="column main">
             <ExplainHeader
+              viewType={this.props.viewType}
               nReturned={this.props.nReturned}
               totalKeysExamined={this.props.totalKeysExamined}
               totalDocsExamined={this.props.totalDocsExamined}
@@ -58,7 +48,6 @@ class CompassExplain extends React.Component {
               inMemorySort={this.props.inMemorySort}
               indexType={this.props.indexType}
               index={this.props.index}
-              viewType={this.props.viewType}
             />
             <ExplainBody
               viewType={this.props.viewType}
@@ -69,7 +58,6 @@ class CompassExplain extends React.Component {
       </div>
     );
   }
-
 }
 
 CompassExplain.propTypes = {
@@ -79,7 +67,8 @@ CompassExplain.propTypes = {
   totalDocsExamined: React.PropTypes.number.isRequired,
   executionTimeMillis: React.PropTypes.number.isRequired,
   inMemorySort: React.PropTypes.bool.isRequired,
-  indexType: React.PropTypes.string.isRequired,
+  indexType: React.PropTypes.oneOf(['MULTIPLE', 'UNAVAILABLE', 'COLLSCAN',
+    'COVERED', 'INDEX']).isRequired,
   index: React.PropTypes.object,
   viewType: React.PropTypes.oneOf(['tree', 'json']),
   rawExplainObject: React.PropTypes.object.isRequired
@@ -92,8 +81,8 @@ CompassExplain.defaultProps = {
   totalDocsExamined: 0,
   executionTimeMillis: 0,
   inMemorySort: false,
-  indexType: '',
-  index: {},
+  indexType: 'UNAVAILABLE',
+  index: null,
   viewType: 'tree',
   rawExplainObject: {}
 };

@@ -49,7 +49,7 @@ class ExplainSummary extends React.Component {
               value={inMemorySort}
             />
             <SummaryIndexStat
-              indexType="COLLSCAN"
+              indexType={this.props.indexType}
               index={this.props.index}
             />
           </div>
@@ -65,7 +65,8 @@ ExplainSummary.propTypes = {
   totalDocsExamined: React.PropTypes.number.isRequired,
   executionTimeMillis: React.PropTypes.number.isRequired,
   inMemorySort: React.PropTypes.bool.isRequired,
-  indexType: React.PropTypes.string.isRequired,
+  indexType: React.PropTypes.oneOf(['MULTIPLE', 'UNAVAILABLE', 'COLLSCAN',
+    'COVERED', 'INDEX']).isRequired,
   index: React.PropTypes.object
 };
 

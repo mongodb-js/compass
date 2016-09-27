@@ -1,13 +1,17 @@
 const React = require('react');
 const FontAwesome = require('react-fontawesome');
-
-// const debug = require('debug')('mongodb-compass:explain:summary-stat');
+const app = require('ampersand-app');
+const debug = require('debug')('mongodb-compass:explain:summary-index-stat');
 
 /**
  * React component that displays information about the index used for the
  * given query, if any.
  */
 class SummaryIndexStat extends React.Component {
+
+  componentWillMount() {
+    this.indexComponent = app.appRegistry.getComponent('Component::Indexes::NameColumn');
+  }
 
   getIndexMessageText() {
     const typeToMessage = {
@@ -45,14 +49,20 @@ class SummaryIndexStat extends React.Component {
     return typeToColor[this.props.indexType];
   }
 
+  renderIndexDefinition() {
+    if (this.props.index) {
+      debug('rendering index', this.props.index);
+      return <this.indexComponent index={this.props.index} />;
+    }
+    return null;
+  }
+
   /**
    * Render summary stat for index usage.
    *
    * @returns {React.Component}   Index usage stat component.
    */
   render() {
-    const indexDefinition = null;
-
     return (
       <div className="summary-stat">
         <i className="summary-stat-info-sprinkle" data-link=""></i>
@@ -63,20 +73,15 @@ class SummaryIndexStat extends React.Component {
             style={{color: this.getIndexMessageColor()}}
           >{this.getIndexMessageText()}</span>
         </span>
-        {indexDefinition}
+        {this.renderIndexDefinition()}
       </div>
     );
   }
 }
 
 SummaryIndexStat.propTypes = {
-  indexType: React.PropTypes.oneOf([
-    'MULTIPLE',
-    'UNAVAILABLE',
-    'COLLSCAN',
-    'COVERED',
-    'INDEX'
-  ]).isRequired,
+  indexType: React.PropTypes.oneOf(['MULTIPLE', 'UNAVAILABLE', 'COLLSCAN',
+    'COVERED', 'INDEX']).isRequired,
   index: React.PropTypes.object
 };
 

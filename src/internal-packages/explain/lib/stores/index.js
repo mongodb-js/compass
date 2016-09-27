@@ -2,8 +2,10 @@ const Reflux = require('reflux');
 const ExplainActions = require('../actions');
 const StateMixin = require('reflux-state-mixin');
 const app = require('ampersand-app');
+const packageActivationCompleted = require('hadron-package-manager/lib/action').packageActivationCompleted;
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const ExplainPlanModel = require('mongodb-explain-plan-model');
+const _ = require('lodash');
 
 const debug = require('debug')('mongodb-compass:stores:explain');
 
@@ -26,7 +28,19 @@ const CompassExplainStore = Reflux.createStore({
   /**
    * Initialize everything that is not part of the store's state.
    */
-  init() {},
+  init() {
+    this.listenTo(packageActivationCompleted, this.packageActivationCompleted.bind(this));
+    this.indexes = [];
+  },
+
+  packageActivationCompleted() {
+    const indexStore = app.appRegistry.getStore('Store::Indexes::IndexStore');
+    this.listenTo(indexStore, this.indexesChanged.bind(this));
+  },
+
+  indexesChanged(indexes) {
+    this.indexes = indexes;
+  },
 
   /**
    * Initialize the Explain store state.
@@ -44,6 +58,8 @@ const CompassExplainStore = Reflux.createStore({
       isCovered: false,
       isMultiKey: false,
       isSharded: false,
+      indexType: 'UNAVAILABLE',
+      index: null,
       nReturned: 0,
       namespace: '',
       numShards: 0,
@@ -77,6 +93,22 @@ const CompassExplainStore = Reflux.createStore({
     });
   },
 
+  _getIndexType(explainPlan) {
+    if (!explainPlan) {
+      return 'UNAVAILABLE';
+    }
+    if (_.isArray(explainPlan.usedIndex)) {
+      return 'MULTIPLE';
+    }
+    if (explainPlan.isCollectionScan) {
+      return 'COLLSCAN';
+    }
+    if (explainPlan.isCovered) {
+      return 'COVERED';
+    }
+    return 'INDEX';
+  },
+
   fetchExplainPlan() {
     if (this.state.explainState === 'fetching') {
       return;
@@ -98,6 +130,13 @@ const CompassExplainStore = Reflux.createStore({
       }
       const explainPlanModel = new ExplainPlanModel(explain);
       const newState = explainPlanModel.serialize();
+
+      // extract index type, index object
+      newState.indexType = this._getIndexType(newState);
+      newState.index = _.isString(newState.usedIndex) ?
+        _.find(this.indexes, (idx) => {
+          return idx.name === newState.usedIndex;
+        }) : null;
       newState.explainState = 'done';
       this.setState(newState);
     });

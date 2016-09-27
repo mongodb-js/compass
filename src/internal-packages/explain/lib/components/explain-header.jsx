@@ -29,7 +29,8 @@ class ExplainHeader extends React.Component {
           totalDocsExamined={this.props.totalDocsExamined}
           executionTimeMillis={this.props.executionTimeMillis}
           inMemorySort={this.props.inMemorySort}
-          indexType="COLLSCAN"
+          indexType={this.props.indexType}
+          index={this.props.index}
         />
         <StatusRow>
           <ViewSwitcher
@@ -51,7 +52,9 @@ ExplainHeader.propTypes = {
   totalDocsExamined: React.PropTypes.number.isRequired,
   executionTimeMillis: React.PropTypes.number.isRequired,
   inMemorySort: React.PropTypes.bool.isRequired,
-  indexType: React.PropTypes.string.isRequired,
+  indexType: React.PropTypes.oneOf(['MULTIPLE', 'UNAVAILABLE', 'COLLSCAN',
+    'COVERED', 'INDEX']).isRequired,
+  index: React.PropTypes.object,
   viewType: React.PropTypes.oneOf(['tree', 'json']).isRequired
 };
 
