@@ -35,7 +35,10 @@
     "url": "https://github.com/mongodb-js/reflux-state-mixin/issues"
   },
   "scripts": {
-    "compile": "babel --presets react,es2015,stage-0 -d lib/ src/"
+    "compile": "babel --presets react,es2015,stage-0 -d lib/ src/",
+    "prepublish": "npm run compile",
+    "pretest": "npm run compile",
+    "prestart": "npm run compile"
   },
   "devDependencies": {
     "babel-cli": "^6.2.0",
