@@ -2,7 +2,6 @@ const Reflux = require('reflux');
 const ExplainActions = require('../actions');
 const StateMixin = require('reflux-state-mixin');
 const app = require('ampersand-app');
-const packageActivationCompleted = require('hadron-package-manager/lib/action').packageActivationCompleted;
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const ExplainPlanModel = require('mongodb-explain-plan-model');
 const _ = require('lodash');
@@ -29,14 +28,14 @@ const CompassExplainStore = Reflux.createStore({
    * Initialize everything that is not part of the store's state.
    */
   init() {
-    this.listenTo(packageActivationCompleted, this.packageActivationCompleted.bind(this));
+    this.listenToExternalStore('Store::Indexes::IndexStore', this.indexesChanged.bind(this));
     this.indexes = [];
   },
 
-  packageActivationCompleted() {
-    const indexStore = app.appRegistry.getStore('Store::Indexes::IndexStore');
-    this.listenTo(indexStore, this.indexesChanged.bind(this));
-  },
+  // packageActivationCompleted() {
+  //   const indexStore = app.appRegistry.getStore('Store::Indexes::IndexStore');
+  //   this.listenTo(indexStore, this.indexesChanged.bind(this));
+  // },
 
   indexesChanged(indexes) {
     this.indexes = indexes;
