@@ -292,7 +292,7 @@ class Document extends React.Component {
    * @returns {Component} The actions component.
    */
   renderActions() {
-    if (!this.state.editing && !this.state.deleting) {
+    if (this.props.editable && !this.state.editing && !this.state.deleting) {
       return (
         <DocumentActions
           edit={this.handleEdit.bind(this)}
