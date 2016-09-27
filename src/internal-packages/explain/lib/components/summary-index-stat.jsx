@@ -10,7 +10,7 @@ const debug = require('debug')('mongodb-compass:explain:summary-index-stat');
 class SummaryIndexStat extends React.Component {
 
   componentWillMount() {
-    this.indexComponent = app.appRegistry.getComponent('Component::Indexes::NameColumn');
+    this.indexComponent = app.appRegistry.getComponent('Component::Indexes::IndexDefinition');
   }
 
   getIndexMessageText() {
@@ -51,7 +51,6 @@ class SummaryIndexStat extends React.Component {
 
   renderIndexDefinition() {
     if (this.props.index) {
-      debug('rendering index', this.props.index);
       return <this.indexComponent index={this.props.index} />;
     }
     return null;

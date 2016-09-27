@@ -35,7 +35,7 @@ class CompassExplain extends React.Component {
    */
   render() {
     return (
-      <div>
+      <div className="compass-explain">
         <div className="flexbox-fix"></div>
         <div className="column-container with-refinebar">
           <div className="column main">
