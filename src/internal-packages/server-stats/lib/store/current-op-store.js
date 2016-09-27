@@ -3,6 +3,7 @@ const app = require('ampersand-app');
 const Actions = require('../action');
 const toNS = require('mongodb-ns');
 const debug = require('debug')('mongodb-compass:server-stats:crp-store');
+const _ = require('lodash');
 
 /* eslint complexity:0 */
 
@@ -69,16 +70,28 @@ const CurrentOpStore = Reflux.createStore({
           }
           if (!('microsecs_running' in doc[i])) {
             debug('Error: currentOp result from DB did not include \'microsecs_running\'', doc[i]);
-            doc[i].microsecs_running = 0;
+            doc[i].ms_running = 0;
+          } else {
+            doc[i].ms_running = _.round(doc[i].microsecs_running / 1000, 2);
           }
           if (!('ns' in doc[i]) || !('op' in doc[i])) {
             debug('Error: currentOp result from DB did not include \'ns\' or \'op\'', doc[i]);
           }
+          if (!('active' in doc[i])) {
+            debug('Error: currentOp result from DB did not include \'active\'', doc[i]);
+          } else {
+            doc[i].active = doc[i].active.toString();
+          }
+          if (!('waitingForLock' in doc[i])) {
+            debug('Error: currentOp result from DB did not include \'waitingForLock\'', doc[i]);
+          } else {
+            doc[i].waitingForLock = doc[i].waitingForLock.toString();
+          }
           totals.push(doc[i]);
         }
         totals.sort(function(a, b) {
-          const f = (b.microsecs_running < a.microsecs_running) ? -1 : 0;
-          return (a.microsecs_running < b.microsecs_running) ? 1 : f;
+          const f = (b.ms_running < a.ms_running) ? -1 : 0;
+          return (a.ms_running < b.ms_running) ? 1 : f;
         });
         // Add current state to all
         this.allOps.push(totals);

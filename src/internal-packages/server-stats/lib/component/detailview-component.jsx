@@ -42,6 +42,13 @@ class DetailViewComponent extends React.Component {
     Actions.hideOperationDetails();
   }
 
+  removeMs(key, value) {
+    if (key === 'ms_running') {
+      return undefined;
+    }
+    return value;
+  }
+
   renderError() {
     return (
       <div style={{ display: this.state.display }}>
@@ -65,7 +72,7 @@ class DetailViewComponent extends React.Component {
           <div className="rt-details__opinfo">
             <div className="rt-details__collection-slow">{this.state.data.ns}</div>
             <div className="rt-details__op">{this.state.data.op}</div>
-            <div className="rt-details__time">{this.state.data.microsecs_running + ' ms'}</div>
+            <div className="rt-details__time">{this.state.data.ms_running + ' ms'}</div>
           </div>
           <ul className="rt-details__list">
             <li className="rt-details__item">
@@ -78,14 +85,14 @@ class DetailViewComponent extends React.Component {
             </li>
             <li className="rt-details__item">
               <div className="rt-details__datatype">active</div>
-              <div className="rt-details__datatype-val">false</div>
+              <div className="rt-details__datatype-val">{this.state.data.active}</div>
             </li>
             <li className="rt-details__item">
               <div className="rt-details__datatype">wait lock</div>
-              <div className="rt-details__datatype-val">false</div>
+              <div className="rt-details__datatype-val">{this.state.data.waitingForLock}</div>
             </li>
           </ul>
-          <div className="rt-details__raw"><text>{JSON.stringify(this.state.data, null, 4)}</text></div>
+          <div className="rt-details__raw"><text>{JSON.stringify(this.state.data, this.removeMs, 4)}</text></div>
         </div>
       </div>
     );

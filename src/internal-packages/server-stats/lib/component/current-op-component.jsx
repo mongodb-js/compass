@@ -119,10 +119,10 @@ class CurrentOpComponent extends React.Component {
     const showOperationDetails = this.showOperationDetails;
     const rows = this.state.data.map(function(row, i) {
       return (
-        <li className="rt-lists__item rt-lists__item--slow" key={`list-item-${i}`}>
+        <li className="rt-lists__item rt-lists__item--slow" onClick={showOperationDetails.bind(null, row)} key={`list-item-${i}`}>
           <div className="rt-lists__collection-slow">{row.ns}</div>
-          <div className="rt-lists__op" onClick={showOperationDetails.bind(null, row)}>{row.op}</div>
-          <div className="rt-lists__time">{row.microsecs_running + ' ms'}</div>
+          <div className="rt-lists__op">{row.op}</div>
+          <div className="rt-lists__time">{row.ms_running + ' ms'}</div>
         </li>
       );
     });
@@ -131,7 +131,7 @@ class CurrentOpComponent extends React.Component {
         <header className="rt-lists__header">
           <h2 className="rt-lists__headerlabel">Slowest Operations</h2>
         </header>
-        <div className="rt-lists__listdiv">
+        <div className="rt-lists__listdiv" id="div-scroll">
           <ul className="rt-lists__list">
             {rows}
           </ul>
