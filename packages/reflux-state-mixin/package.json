@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yonatanmn/reflux-state-mixin.git"
+    "url": "git+https://github.com/mongodb-js/reflux-state-mixin.git"
   },
   "keywords": [
     "reflux",
@@ -27,12 +27,12 @@
   "license": "ISC",
   "dependencies": {},
   "peerDependencies": {
-    "reflux": ">=0.2.5 <0.4.0"
+    "reflux": ">=0.2.5 <=0.4.x"
   },
-  "homepage": "https://github.com/yonatanmn/reflux-state-mixin",
+  "homepage": "https://github.com/mongodb-js/reflux-state-mixin",
   "readmeFilename": "README.md",
   "bugs": {
-    "url": "https://github.com/yonatanmn/reflux-state-mixin/issues"
+    "url": "https://github.com/mongodb-js/reflux-state-mixin/issues"
   },
   "scripts": {
     "compile": "babel --presets react,es2015,stage-0 -d lib/ src/"
