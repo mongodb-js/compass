@@ -8,6 +8,7 @@
 @import "./editable-element-value.less";
 @import "./editable-expandable-element.less";
 @import "./line-number.less";
+@import "./document-footer.less";
 
 .expandable-element-header {
 
@@ -48,99 +49,6 @@
 }
 
 /* Non-BEM styles begin here. */
-
-.document-footer {
-  font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  height: 28px;
-  vertical-align: middle;
-  top: 20px;
-  position: relative;
-
-  .edit-message {
-    position: absolute;
-    right: 150px;
-    left: 10px;
-    font-size: 14px;
-    font-style: italic;
-    padding-left: 10px;
-    padding-top: 4px;
-    color: @pw;
-    overflow: hidden;
-    height: 28px;
-  }
-
-  .document-footer-actions {
-    position: absolute;
-    right: 10px;
-    top: 2px;
-    padding-top: 1px;
-
-    .cancel {
-      font-weight: bold;
-    }
-
-    .update {
-      font-weight: bold;
-      border-radius: 3px;
-    }
-  }
-
-  &.modified {
-    background-color: @alertOrange;
-
-    .document-footer-actions {
-
-      .cancel {
-        color: @alertOrangeBorder;
-      }
-
-      .update {
-        color: @alertOrangeBorder;
-        border-color: @alertOrangeBorder;
-
-        &:hover {
-          background-color: rgba(255,255,255,0.7);
-        }
-      }
-    }
-  }
-  &.in-progress.in-progress {
-    background-color: @chart1;
-  }
-  &.success {
-    background-color: @green2;
-  }
-  &.error {
-    background-color: @alertRed;
-
-    .document-footer-actions {
-
-      .cancel {
-        color: @alertRedBg;
-      }
-      .error {
-        color: @pw;
-        background: rgba(255,255,255,0.2);
-        border: 1px solid rgba(255,255,255,0.4);
-
-        &:hover {
-          background: rgba(255,255,255,0.4);
-          border: 1px solid rgba(255,255,255,0.6);
-        }
-      }
-    }
-  }
-  &.viewing {
-    background-color: #F8F8F8;
-
-    .document-footer-actions {
-
-      .cancel {
-        color: #B8B8B8;
-      }
-    }
-  }
-}
 
 .modal-body {
   .document-elements {
