@@ -19,7 +19,7 @@ class ExplainSummary extends React.Component {
     return (
       <div className="explain-summary">
         <h3>Query Performance Summary</h3>
-        <FlexBox>
+        <FlexBox alignItems="start">
           <div className="summary-stats">
             <SummaryStat
               dataLink="nReturned"
