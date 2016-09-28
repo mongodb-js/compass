@@ -3,6 +3,73 @@
   display: block;
   font-size: 11px;
 
+  &-is-edited {
+    background-color: @alertOrangeBg;
+
+    .line-number {
+      background-color: @alertOrange;
+      color: @pw;
+    }
+
+    input {
+      background-color: @alertOrangeBg;
+    }
+
+    .editable-element-field {
+      background-color: @alertOrangeBg;
+
+      &:focus {
+        background-color: @pw;
+      }
+
+      &::before {
+        background-color: @alertOrangeBg;
+      }
+    }
+  }
+
+  &-is-added {
+    background-color: @greenBg;
+
+    .editable-element-field {
+      background-color: @greenBg;
+
+      &:focus {
+        background-color: @pw;
+      }
+    }
+
+    .line-number {
+      background-color: @green2;
+      color: @pw;
+    }
+
+    input {
+      background-color: @greenBg;
+    }
+  }
+
+  &-is-removed {
+    background-color: @alertRedBg;
+
+    .editable-element-field {
+      background-color: @alertRedBg;
+
+      &:focus {
+        background-color: @pw;
+      }
+    }
+
+    .line-number {
+      background-color: @alertRed;
+      color: @pw;
+    }
+
+    input {
+      background-color: @alertRedBg;
+    }
+  }
+
   &-header {
 
     cursor: pointer;

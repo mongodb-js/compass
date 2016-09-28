@@ -17,14 +17,6 @@
   &-is-edited {
     background-color: @alertOrangeBg;
 
-    .editable-element-editable-field {
-      background-color: @alertOrangeBg;
-
-      &:focus {
-        background-color: @pw;
-      }
-    }
-
     .line-number {
       background-color: @alertOrange;
       color: @pw;
@@ -35,6 +27,12 @@
     }
 
     .editable-element-field {
+      background-color: @alertOrangeBg;
+
+      &:focus {
+        background-color: @pw;
+      }
+
       &::before {
         background-color: @alertOrangeBg;
       }
@@ -44,7 +42,7 @@
   &-is-added {
     background-color: @greenBg;
 
-    .editable-element-editable-field {
+    .editable-element-field {
       background-color: @greenBg;
 
       &:focus {
@@ -65,7 +63,7 @@
   &-is-removed {
     background-color: @alertRedBg;
 
-    .editable-element-editable-field {
+    .editable-element-field {
       background-color: @alertRedBg;
 
       &:focus {

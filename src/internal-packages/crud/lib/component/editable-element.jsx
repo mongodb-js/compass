@@ -156,7 +156,7 @@ class EditableElement extends React.Component {
         <ElementAction element={this.element} />
         <LineNumber />
         <EditableKey element={this.element} index={this.props.index} />
-        :
+        <span className="element-separator">:</span>
         <ElementValue element={this.element} />
         <Hotspot key="editable-element-hotspot" element={this.element} />
         <Types element={this.element} />
@@ -177,7 +177,7 @@ class EditableElement extends React.Component {
           <LineNumber />
           <div className={HEADER_TOGGLE} onClick={this.toggleExpandable.bind(this)}></div>
           <EditableKey element={this.element} index={this.props.index} />
-          :
+          <span className="element-separator">:</span>
           <div className={HEADER_LABEL} onClick={this.toggleExpandable.bind(this)}>
             {this.element.currentType}
           </div>
