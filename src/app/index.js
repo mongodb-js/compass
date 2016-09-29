@@ -22,6 +22,7 @@ CompileCache.digestMappings = pkg._compileCacheMappings || {};
 var StyleManager = require('./style-manager');
 StyleManager.writeStyles();
 
+
 /**
  * The main entrypoint for the application!
  */
@@ -503,5 +504,16 @@ app.init();
 
 // expose app globally for debugging purposes
 window.app = app;
+
+// add Reflux store method to listen to external stores
+const Reflux = require('reflux');
+const packageActivationCompleted = require('hadron-package-manager/lib/action').packageActivationCompleted;
+Reflux.StoreMethods.listenToExternalStore = function(storeKey, callback) {
+  this.listenTo(packageActivationCompleted, () => {
+    const store = app.appRegistry.getStore(storeKey);
+    this.listenTo(store, callback);
+    this.stopListeningTo(packageActivationCompleted);
+  });
+};
 
 console.timeEnd('app/index.js');

@@ -2,9 +2,7 @@ var View = require('ampersand-view');
 var Action = require('hadron-action');
 var CollectionStatsView = require('../collection-stats');
 var DocumentView = require('../documents');
-var SchemaView = require('../schema');
 var IndexView = require('../indexes');
-var ExplainView = require('../explain-plan');
 var MongoDBCollection = require('../models/mongodb-collection');
 var React = require('react');
 var ReactDOM = require('react-dom');
@@ -24,6 +22,33 @@ var tabToViewMap = {
   'EXPLAIN PLAN': 'explainView',
   'INDEXES': 'indexView'
 };
+
+/**
+ * Ampersand view wrapper around a React component tab view
+ */
+var TabView = View.extend({
+  template: '<div></div>',
+  props: {
+    componentKey: 'string',
+    visible: {
+      type: 'boolean',
+      required: true,
+      default: false
+    }
+  },
+  bindings: {
+    visible: {
+      type: 'booleanClass',
+      no: 'hidden'
+    }
+  },
+  render: function() {
+    this.renderWithTemplate();
+    var tabComponent = app.appRegistry.getComponent(this.componentKey);
+    ReactDOM.render(React.createElement(tabComponent), this.query());
+  }
+});
+
 
 var MongoDBCollectionView = View.extend({
   // modelType: 'Collection',
@@ -91,10 +116,10 @@ var MongoDBCollectionView = View.extend({
       hook: 'schema-subview',
       waitFor: 'ns',
       prepareView: function(el) {
-        return new SchemaView({
+        return new TabView({
           el: el,
           parent: this,
-          model: this.model
+          componentKey: 'Collection:Schema'
         });
       }
     },
@@ -111,11 +136,12 @@ var MongoDBCollectionView = View.extend({
     },
     explainView: {
       hook: 'explain-subview',
+      waitFor: 'ns',
       prepareView: function(el) {
-        return new ExplainView({
+        return new TabView({
           el: el,
           parent: this,
-          model: this.model
+          componentKey: 'Collection:Explain'
         });
       }
     }
@@ -124,6 +150,7 @@ var MongoDBCollectionView = View.extend({
     this.model = new MongoDBCollection();
     NamespaceStore.listen(this.onCollectionChanged.bind(this));
     this.loadIndexesAction = app.appRegistry.getAction('Action::Indexes::LoadIndexes');
+    this.fetchExplainPlanAction = app.appRegistry.getAction('ExplainActions').fetchExplainPlan;
     this.schemaActions = app.appRegistry.getAction('SchemaAction');
     // this.listenToAndRun(this.parent, 'change:ns', this.onCollectionChanged.bind(this));
   },
@@ -178,7 +205,9 @@ var MongoDBCollectionView = View.extend({
     metadata['collection name length'] = model.getId().length -
       model.database.length - 1;
     metrics.track('Collection', 'fetched', metadata);
+    // @todo calling these here is temporary until we reactify the collection tabs
     this.loadIndexesAction();
+    this.fetchExplainPlanAction();
   }
 });
 
