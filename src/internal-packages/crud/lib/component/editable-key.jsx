@@ -196,7 +196,7 @@ class EditableKey extends React.Component {
         type="text"
         className={this.style()}
         ref={(c) => this._node = c}
-        style={{ width: `${inputSize(this.renderValue()) * 6.75}px` }}
+        size={inputSize(this.renderValue())}
         tabIndex={this.isEditable() ? 0 : -1}
         onBlur={this.handleBlur.bind(this)}
         onFocus={this.handleFocus.bind(this)}
