@@ -12,13 +12,15 @@
   position: absolute;
   background-color: #393D41;
   text-align: center;
-  font-size: 12px;
+  font-size: 11px;
+  font-weight: bold;
   color: #FFFFFF;
   height: 25px;
   width: 100px;
   left: 780px;
   top: 10px;
-  padding-top: 4px;
+  padding-top: 5px;
+  letter-spacing: 3.5px;
 }
 
 /* play-pause button */
@@ -27,8 +29,9 @@
   border-radius: 3px 3px 3px 3px;
   position: absolute;
   background-color: #377C57;
+  font-size: 11px;
+  font-weight: bold;
   color: #FFFFFF;
-  font-size: 12px;
   height: 25px;
   width: 100px;
   left: 890px;
@@ -37,14 +40,21 @@
   text-align: center;
   padding-top: 4px;
 }
+.play .fa-play {
+  font-size: 10px;
+  margin-right: 7px;
+  color: hsla(0, 0%, 100%, .7);
+}
 
 .pause {
+  padding-top: 6px;
   cursor: pointer;
   border-radius: 3px 3px 3px 3px;
   position: absolute;
   background-color: #3D4247;
+  font-size: 11px;
+  font-weight: bold;
   color: #FFFFFF;
-  font-size: 12px;
   height: 25px;
   width: 100px;
   left: 890px;
@@ -52,6 +62,11 @@
   border: 1px #666666 solid;
   text-align: center;
   padding-top: 4px;
+}
+.pause .fa-pause {
+  font-size: 10px;
+  margin-right: 7px;
+  color: hsla(0, 0%, 100%, .7);
 }
 
 /* tabs */
@@ -62,11 +77,14 @@
   margin-bottom: 0;
   position: absolute;
   top: 16px;
-
+  margin-left: 10px;
+}
+.rt-nav__tabs .rt-nav__tab:nth-child(2) {
+  display: none; /* hide db for now */
 }
 .rt-nav__tab {
   height: 30px;
-  width: 160px;
+  width: 130px;
   font-size: 13px;
   text-transform: uppercase;
   border-radius: 3px 3px 0 0;
@@ -77,9 +95,15 @@
   color: #8B8D8F;
 }
 .rt-nav__link {
-  font-weight: 500;
   margin: auto;
-  color: inherit;
+  text-transform: uppercase;
+  font-size: 11px;
+  font-weight: bold;
+  color: white;
+}
+.rt-nav__link:hover {
+  text-decoration: none;
+  color: white;
 }
 .rt-nav--selected {
   color: #FFFFFF;

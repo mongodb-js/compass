@@ -97,6 +97,10 @@
   margin-top: 20px;
   text-align: right;
 }
+.rt-details__closebutton i {
+  margin-right: 4px;
+}
+
 
 /* SHARED */
 .rt-lists__tab {
@@ -218,8 +222,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: 11px;
-  font-weight: 300;
+  font-size: 14px;
 }
 .rt-details__time {
   color: white;
@@ -230,8 +233,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: 11px;
-  font-weight: 300;
+  font-size: 14px;
 }
 .rt-details__opinfo {
   margin-right: 20px;
@@ -249,33 +251,34 @@
 .rt-details__item {
   position: relative;
   width: 100%;
-  height: 40px;
+  height: 30px;
   display: flex;
   flex-direction: row;
-  padding-top: 15px;
+  padding-top: 10px;
 }
 .rt-details__datatype {
   position: absolute;
   color: #9ca4ab;
   text-transform: uppercase;
   font-size: 11px;
-  font-weight: 500;
+  font-weight: bold;
 }
 .rt-details__datatype-val {
   position: absolute;
   color: white;
-  font-size: 11px;
-  font-weight: 300;
+  font-size: 14px;
   left: 100px;
 }
 .rt-details__raw {
+  margin-top: 10px;
+  font-family: Menlo, monospace;
   position: absolute;
   color: white;
   background-color: #3D4247;
   font-size: 12px;
   font-weight: 300;
   left: 20px;
-  height: 360px;
+  height: 390px;
   width: 400px;
   overflow-y: scroll;
   word-wrap: break-word; /* IE>=5.5 */

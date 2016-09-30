@@ -35,8 +35,8 @@ class NavBarComponent extends React.Component {
           </li>
         </ul>
         <div className="time"><text className="currentTime">00:00:00</text></div>
-        <div onClick={this.handlePause} className="play" style={{display: this.state.paused ? null : 'none'}}><text className="playbutton">&#9658; PLAY</text></div>
-        <div onClick={this.handlePause} className="pause" style={{display: this.state.paused ? 'none' : null}}><text className="pausebutton">| | PAUSE</text></div>
+        <div onClick={this.handlePause} className="play" style={{display: this.state.paused ? null : 'none'}}><text className="playbutton"><i className="fa fa-play"></i>PLAY</text></div>
+        <div onClick={this.handlePause} className="pause" style={{display: this.state.paused ? 'none' : null}}><text className="pausebutton"><i className="fa fa-pause"></i>PAUSE</text></div>
       </header>
     );
   }
