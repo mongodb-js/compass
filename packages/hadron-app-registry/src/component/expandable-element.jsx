@@ -15,7 +15,7 @@ class ExpandableElement extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.state = { expanded: false };
+    this.state = { expanded: this.props.preExpanded };
   }
 
   /**

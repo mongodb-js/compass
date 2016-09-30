@@ -19,7 +19,8 @@ class ObjectElement extends React.Component {
         field={this.props.field}
         value={this.props.value}
         type={this.props.type}
-        label={this.props.type} />
+        label={this.props.type}
+        preExpanded={this.props.preExpanded} />
     );
   }
 }

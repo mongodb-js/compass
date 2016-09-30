@@ -29,14 +29,21 @@ class Factory {
    * Get an array of elements for the provided object.
    *
    * @param {Object} object - The object to get the elements from.
+   * @param {Boolean} preExpanded - If the document is rendered expanded.
    *
    * @returns {Array} An array of element React components.
    */
-  elements(object) {
+  elements(object, preExpanded = false) {
     var elements = [];
     _.forOwn(object, (value, field) => {
       var type = TypeChecker.type(value);
-      var elementProps = { field: field, value: value, type: type, key: field };
+      var elementProps = {
+        field: field,
+        value: value,
+        type: type,
+        key: field,
+        preExpanded: preExpanded
+      };
       elements.push(React.createElement(this._elementComponent(type), elementProps));
     });
     return elements;

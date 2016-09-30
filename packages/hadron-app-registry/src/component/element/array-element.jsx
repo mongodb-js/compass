@@ -19,7 +19,8 @@ class ArrayElement extends React.Component {
         field={this.props.field}
         value={this.props.value}
         type={this.props.type}
-        label={`${this.props.type}[${this.props.value.length}]`} />
+        label={`${this.props.type}[${this.props.value.length}]`}
+        preExpanded={this.props.preExpanded} />
     );
   }
 }
