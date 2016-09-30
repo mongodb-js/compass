@@ -59,7 +59,8 @@ class DetailViewComponent extends React.Component {
       <div className="rt-details" style={{ display: this.state.display }}>
         <header className="rt-details__header">
           <h2 className="rt-details__headerlabel">operation details</h2>
-          <div className="rt-details__closebutton" onClick={this.hideOperationDetails.bind(this)}>X Close</div>
+          <div className="rt-details__closebutton" onClick={this.hideOperationDetails.bind(this)}><i className="fa fa-times"></i>
+  Close</div>
         </header>
         <div className="rt-details__body">
           <div className="rt-details__opinfo">
