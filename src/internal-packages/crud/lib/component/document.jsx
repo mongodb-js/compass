@@ -248,7 +248,7 @@ class Document extends React.Component {
     if (this.state.editing && this.props.editable) {
       return this.editableElements(this.state.doc);
     }
-    return ElementFactory.elements(this.state.doc);
+    return ElementFactory.elements(this.state.doc, this.props.preExpanded || false);
   }
 
   /**
