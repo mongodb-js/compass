@@ -23,7 +23,6 @@ const Schema = React.createClass({
   },
 
   shouldComponentUpdate() {
-    // @todo optimize this
     return true;
   },
 

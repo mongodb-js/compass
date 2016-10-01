@@ -13,6 +13,8 @@ const bsonEqual = require('../util').bsonEqual;
 const debug = require('debug')('mongodb-compass:stores:query');
 // const metrics = require('mongodb-js-metrics')();
 
+const USER_TYPING_DEBOUNCE_MS = 100;
+
 /**
  * The reflux store for the schema.
  */
@@ -40,8 +42,16 @@ const QueryStore = Reflux.createStore({
       query: {},
       queryString: '{}',
       valid: true,
-      lastExecutedQuery: null
+      lastExecutedQuery: null,
+      userTyping: false
     };
+  },
+
+  _stoppedTyping() {
+    this.userTypingTimer = null;
+    this.setState({
+      userTyping: false
+    });
   },
 
   /**
@@ -51,10 +61,15 @@ const QueryStore = Reflux.createStore({
    * @param {Object} queryString   the query string (i.e. manual user input)
    */
   setQueryString(queryString) {
+    if (this.userTypingTimer) {
+      clearTimeout(this.userTypingTimer);
+    }
+    this.userTypingTimer = setTimeout(this._stoppedTyping, USER_TYPING_DEBOUNCE_MS);
     const query = this._validateQueryString(queryString);
     const state = {
       queryString: queryString,
-      valid: Boolean(query)
+      valid: Boolean(query),
+      userTyping: true
     };
     if (query) {
       state.query = query;
