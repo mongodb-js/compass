@@ -14,6 +14,7 @@ const debug = require('debug')('mongodb-compass:stores:query');
 // const metrics = require('mongodb-js-metrics')();
 
 const USER_TYPING_DEBOUNCE_MS = 100;
+const FEATURE_FLAG_REGEX = /^(enable|disable) (\w+)\s*$/;
 
 /**
  * The reflux store for the schema.
@@ -26,6 +27,7 @@ const QueryStore = Reflux.createStore({
    * listen to Namespace store and reset if ns changes.
    */
   init: function() {
+    this.validFeatureFlags = _.keys(_.pick(app.preferences.serialize(), _.isBoolean));
     NamespaceStore.listen(() => {
       // reset the store
       this.setState(this.getInitialState());
@@ -42,6 +44,7 @@ const QueryStore = Reflux.createStore({
       query: {},
       queryString: '{}',
       valid: true,
+      featureFlag: false,
       lastExecutedQuery: null,
       userTyping: false
     };
@@ -66,9 +69,11 @@ const QueryStore = Reflux.createStore({
     }
     this.userTypingTimer = setTimeout(this._stoppedTyping, USER_TYPING_DEBOUNCE_MS);
     const query = this._validateQueryString(queryString);
+    const isFeatureFlag = Boolean(this._validateFeatureFlag(queryString));
     const state = {
       queryString: queryString,
       valid: Boolean(query),
+      featureFlag: isFeatureFlag,
       userTyping: true
     };
     if (query) {
@@ -115,6 +120,24 @@ const QueryStore = Reflux.createStore({
     return parsed;
   },
 
+  _validateFeatureFlag(queryString) {
+    const match = queryString.match(FEATURE_FLAG_REGEX);
+    if (match && _.contains(this.validFeatureFlags, match[2])) {
+      return match;
+    }
+    return false;
+  },
+
+  _checkFeatureFlagDirective() {
+    const match = this._validateFeatureFlag(this.state.queryString);
+    if (match) {
+      app.preferences.save(match[2], match[1] === 'enable');
+      debug('feature flag %s %sd', match[2], match[1]);
+      return true;
+    }
+    return false;
+  },
+
   /**
    * sets the query and the query string, and computes `valid`.
    *
@@ -126,7 +149,8 @@ const QueryStore = Reflux.createStore({
     this.setState({
       query: query,
       queryString: queryString,
-      valid: Boolean(valid)
+      valid: Boolean(valid),
+      featureFlag: false
     });
   },
 
@@ -350,6 +374,11 @@ const QueryStore = Reflux.createStore({
    * apply the current (valid) query, and store it in `lastExecutedQuery`.
    */
   apply() {
+    if (this._checkFeatureFlagDirective()) {
+      this.setQuery(this.state.lastExecutedQuery || {});
+      return;
+    }
+
     if (this.state.valid) {
       this.setState({
         lastExecutedQuery: _.clone(this.state.query)
