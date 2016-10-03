@@ -45,7 +45,7 @@ class InsertDocument extends React.Component {
   renderElements() {
     const components = [];
     for (const element of this.doc.elements) {
-      components.push(<EditableElement key={element.uuid} element={element} indent={0} />);
+      components.push(<EditableElement key={element.uuid} element={element} />);
     }
     components.push(<Hotspot key="hotspot" element={this.doc} />);
     return components;
