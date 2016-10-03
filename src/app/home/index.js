@@ -71,10 +71,14 @@ var HomeView = View.extend({
   render: function() {
     this.renderWithTemplate(this);
     if (app.isFeatureEnabled('serverStats')) {
+      var containerNode = this.queryByHook('report-zero-state');
       ReactDOM.render(
         React.createElement(this.serverStatsView, { interval: 1000 }),
-        this.queryByHook('report-zero-state')
+        containerNode
       );
+      NamespaceStore.listen(() => {
+        ReactDOM.unmountComponentAtNode(containerNode);
+      });
     }
     if (app.preferences.showFeatureTour) {
       this.showTour(false);
