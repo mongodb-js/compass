@@ -22,6 +22,14 @@ npm install
 npm start
 ```
 
+### Getting weird errors after a while
+
+Try:
+
+```
+npm install && COMPILE_CACHE=false npm start
+```
+
 ## Key Modules
 
 <dl>
