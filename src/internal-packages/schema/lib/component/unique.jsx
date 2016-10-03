@@ -14,7 +14,7 @@ const ValueBubble = React.createClass({
   },
 
   onBubbleClicked(e) {
-    const QueryAction = app.appRegistry.getAction('QueryAction');
+    const QueryAction = app.appRegistry.getAction('Query.Actions');
     const action = e.shiftKey ?
       QueryAction.toggleDistinctValue : QueryAction.setValue;
     action({

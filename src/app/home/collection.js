@@ -106,7 +106,7 @@ var MongoDBCollectionView = View.extend({
         return new TabView({
           el: el,
           parent: this,
-          componentKey: 'Component::CRUD::DocumentList'
+          componentKey: 'CRUD.DocumentList'
         });
       }
     },
@@ -117,7 +117,7 @@ var MongoDBCollectionView = View.extend({
         return new TabView({
           el: el,
           parent: this,
-          componentKey: 'Collection:Schema'
+          componentKey: 'Schema.Schema'
         });
       }
     },
@@ -128,7 +128,7 @@ var MongoDBCollectionView = View.extend({
         return new TabView({
           el: el,
           parent: this,
-          componentKey: 'Component::Indexes::Indexes'
+          componentKey: 'Indexes.Indexes'
         });
       }
     },
@@ -139,7 +139,7 @@ var MongoDBCollectionView = View.extend({
         return new TabView({
           el: el,
           parent: this,
-          componentKey: 'Collection:Explain'
+          componentKey: 'Explain.ExplainPlan'
         });
       }
     }
@@ -147,15 +147,15 @@ var MongoDBCollectionView = View.extend({
   initialize: function() {
     this.model = new MongoDBCollection();
     NamespaceStore.listen(this.onCollectionChanged.bind(this));
-    this.loadIndexesAction = app.appRegistry.getAction('Action::Indexes::LoadIndexes');
-    this.fetchExplainPlanAction = app.appRegistry.getAction('ExplainActions').fetchExplainPlan;
-    this.schemaActions = app.appRegistry.getAction('SchemaAction');
+    this.loadIndexesAction = app.appRegistry.getAction('Indexes.LoadIndexes');
+    this.fetchExplainPlanAction = app.appRegistry.getAction('Explain.Actions').fetchExplainPlan;
+    this.schemaActions = app.appRegistry.getAction('Schema.Actions');
     // this.listenToAndRun(this.parent, 'change:ns', this.onCollectionChanged.bind(this));
   },
   render: function() {
     this.renderWithTemplate(this);
     // render query bar here for now
-    var queryBarComponent = app.appRegistry.getComponent('App:QueryBar');
+    var queryBarComponent = app.appRegistry.getComponent('Query.QueryBar');
     ReactDOM.render(React.createElement(queryBarComponent), this.queryByHook('refine-bar-subview'));
   },
   onTabClicked: function(e) {

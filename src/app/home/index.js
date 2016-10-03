@@ -57,7 +57,7 @@ var HomeView = View.extend({
   },
   initialize: function() {
     if (app.isFeatureEnabled('serverStats')) {
-      this.serverStatsView = app.appRegistry.getComponent('RTSS');
+      this.serverStatsView = app.appRegistry.getComponent('RTSS.ServerStats');
     }
     this.listenTo(app.instance, 'sync', this.onInstanceFetched);
     this.listenTo(app.connection, 'change:name', this.updateTitle);

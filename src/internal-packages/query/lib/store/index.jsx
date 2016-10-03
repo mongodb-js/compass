@@ -341,9 +341,9 @@ const QueryStore = Reflux.createStore({
       });
       // start queries for all tabs: schema, documents, explain, indexes
       // @todo don't hard-code this
-      const SchemaAction = app.appRegistry.getAction('SchemaAction');
+      const SchemaAction = app.appRegistry.getAction('Schema.Actions');
       SchemaAction.startSampling();
-      const ExplainActions = app.appRegistry.getAction('ExplainActions');
+      const ExplainActions = app.appRegistry.getAction('Explain.Actions');
       ExplainActions.fetchExplainPlan();
       filterChanged(this.state.query);
     }

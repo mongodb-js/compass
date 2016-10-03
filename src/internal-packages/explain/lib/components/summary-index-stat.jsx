@@ -10,7 +10,7 @@ const app = require('ampersand-app');
 class SummaryIndexStat extends React.Component {
 
   componentWillMount() {
-    this.indexComponent = app.appRegistry.getComponent('Component::Indexes::IndexDefinitionType');
+    this.indexComponent = app.appRegistry.getComponent('Indexes.IndexDefinitionType');
   }
 
   getIndexMessageText() {

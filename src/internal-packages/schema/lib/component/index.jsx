@@ -18,8 +18,8 @@ const Schema = React.createClass({
   ],
 
   componentWillMount() {
-    this.samplingMessage = app.appRegistry.getComponent('Component::Query::SamplingMessage');
-    this.StatusAction = app.appRegistry.getAction('StatusAction');
+    this.samplingMessage = app.appRegistry.getComponent('Query.SamplingMessage');
+    this.StatusAction = app.appRegistry.getAction('Status.Actions');
   },
 
   shouldComponentUpdate() {
@@ -55,7 +55,7 @@ const Schema = React.createClass({
     } else if (progress >= 0 && progress < 100 && progress % 5 === 1) {
       if (this.trickleStop === null) {
         // remember where trickling stopped to calculate remaining progress
-        const StatusStore = app.appRegistry.getStore('StatusStore');
+        const StatusStore = app.appRegistry.getStore('Status.Store');
         this.trickleStop = StatusStore.state.progress;
       }
       const newProgress = Math.ceil(this.trickleStop + (100 - this.trickleStop) / 100 * progress);

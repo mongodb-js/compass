@@ -12,7 +12,7 @@ const inValueRange = require('../../../query/lib/util').inValueRange;
 
 require('./d3-tip')(d3);
 
-const QueryAction = app.appRegistry.getAction('QueryAction');
+const QueryAction = app.appRegistry.getAction('Query.Actions');
 
 function generateDefaults(n) {
   const doc = {};

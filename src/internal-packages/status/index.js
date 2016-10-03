@@ -2,22 +2,23 @@ const app = require('ampersand-app');
 const StatusComponent = require('./lib/component');
 const StatusAction = require('./lib/action');
 const StatusStore = require('./lib/store');
+
 /**
- * Activate all the components in the CRUD package.
+ * Activate all the components in the Status package.
  */
 function activate() {
-  app.appRegistry.registerComponent('App:Status', StatusComponent);
-  app.appRegistry.registerAction('StatusAction', StatusAction);
-  app.appRegistry.registerStore('StatusStore', StatusStore);
+  app.appRegistry.registerComponent('Status.ProgressBar', StatusComponent);
+  app.appRegistry.registerAction('Status.Actions', StatusAction);
+  app.appRegistry.registerStore('Status.Store', StatusStore);
 }
 
 /**
- * Deactivate all the components in the CRUD package.
+ * Deactivate all the components in the Status package.
  */
 function deactivate() {
-  app.appRegistry.deregisterComponent('App:Status');
-  app.appRegistry.deregisterAction('StatusAction');
-  app.appRegistry.deregisterStore('StatusStore');
+  app.appRegistry.deregisterComponent('Status.ProgressBar');
+  app.appRegistry.deregisterAction('Status.Actions');
+  app.appRegistry.deregisterStore('Status.Store');
 }
 
 module.exports.activate = activate;

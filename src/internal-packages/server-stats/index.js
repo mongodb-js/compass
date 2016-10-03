@@ -1,17 +1,17 @@
 const app = require('ampersand-app');
 const RTSSComponent = require('./lib/component');
 /**
- * Activate all the components in the CRUD package.
+ * Activate all the components in the RTSS package.
  */
 function activate() {
-  app.appRegistry.registerComponent('RTSS', RTSSComponent);
+  app.appRegistry.registerComponent('RTSS.ServerStats', RTSSComponent);
 }
 
 /**
- * Deactivate all the components in the CRUD package.
+ * Deactivate all the components in the RTSS package.
  */
 function deactivate() {
-  app.appRegistry.deregisterComponent('RTSS');
+  app.appRegistry.deregisterComponent('RTSS.ServerStats');
 }
 
 module.exports.activate = activate;

@@ -254,7 +254,7 @@ var Application = View.extend({
       pushState: false,
       root: '/'
     });
-    var StatusAction = app.appRegistry.getAction('StatusAction');
+    var StatusAction = app.appRegistry.getAction('Status.Actions');
     StatusAction.hide();
   },
   onFatalError: function(id, err) {
@@ -263,7 +263,7 @@ var Application = View.extend({
 
     console.error('Fatal Error!: ', id, err);
     metrics.error(err);
-    var StatusAction = app.appRegistry.getAction('StatusAction');
+    var StatusAction = app.appRegistry.getAction('Status.Actions');
     StatusAction.setMessage(err);
   },
   // ms we'll wait for a `mongodb-scope-client` instance
@@ -324,7 +324,7 @@ var Application = View.extend({
     // });
     // this.statusbar.render();
 
-    this.statusComponent = app.appRegistry.getComponent('App:Status');
+    this.statusComponent = app.appRegistry.getComponent('Status.ProgressBar');
     ReactDOM.render(React.createElement(this.statusComponent), this.queryByHook('statusbar'));
 
     this.autoUpdate = new AutoUpdate({
@@ -381,7 +381,7 @@ app.extend({
       state.startRouter();
       return;
     }
-    var StatusAction = app.appRegistry.getAction('StatusAction');
+    var StatusAction = app.appRegistry.getAction('Status.Actions');
     StatusAction.configure({
       visible: true,
       message: 'Retrieving connection details...',

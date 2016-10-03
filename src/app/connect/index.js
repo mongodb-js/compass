@@ -38,7 +38,7 @@ var sslMethods = require('./ssl');
 var sshTunnelMethods = require('./ssh-tunnel');
 
 
-var StatusAction = app.appRegistry.getAction('StatusAction');
+var StatusAction = app.appRegistry.getAction('Status.Actions');
 
 var ConnectView = View.extend({
   template: indexTemplate,

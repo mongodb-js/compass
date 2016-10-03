@@ -15,8 +15,8 @@ const ButtonsError = React.createClass({
   },
 
   componentWillMount() {
-    this.StatusAction = app.appRegistry.getAction('StatusAction');
-    this.SchemaAction = app.appRegistry.getAction('SchemaAction');
+    this.StatusAction = app.appRegistry.getAction('Status.Actions');
+    this.SchemaAction = app.appRegistry.getAction('Schema.Actions');
   },
 
   onTryAgainButtonClick() {

@@ -90,7 +90,7 @@ const SchemaStore = Reflux.createStore({
    * This function is called when the collection filter changes.
    */
   startSampling() {
-    const QueryStore = app.appRegistry.getStore('QueryStore');
+    const QueryStore = app.appRegistry.getStore('Query.Store');
     const query = QueryStore.state.query;
 
     if (_.includes(['counting', 'sampling', 'analyzing'], this.state.samplingState)) {
