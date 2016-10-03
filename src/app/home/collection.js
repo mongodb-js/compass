@@ -1,8 +1,6 @@
 var View = require('ampersand-view');
 var Action = require('hadron-action');
 var CollectionStatsView = require('../collection-stats');
-var DocumentView = require('../documents');
-var IndexView = require('../indexes');
 var MongoDBCollection = require('../models/mongodb-collection');
 var React = require('react');
 var ReactDOM = require('react-dom');
@@ -105,10 +103,10 @@ var MongoDBCollectionView = View.extend({
       hook: 'document-subview',
       waitFor: 'ns',
       prepareView: function(el) {
-        return new DocumentView({
+        return new TabView({
           el: el,
           parent: this,
-          model: this.model
+          componentKey: 'Component::CRUD::DocumentList'
         });
       }
     },
@@ -127,10 +125,10 @@ var MongoDBCollectionView = View.extend({
       hook: 'index-subview',
       waitFor: 'ns',
       prepareView: function(el) {
-        return new IndexView({
+        return new TabView({
           el: el,
           parent: this,
-          model: this.model
+          componentKey: 'Component::Indexes::Indexes'
         });
       }
     },
