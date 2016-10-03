@@ -6,6 +6,8 @@ const React = require('react');
  */
 class IndexDefinitionType extends React.Component {
 
+  // comment
+  // 
   /**
    * Render the direction of the index field.
    *
