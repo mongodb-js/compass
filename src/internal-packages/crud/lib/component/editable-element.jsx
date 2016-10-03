@@ -108,6 +108,10 @@ class EditableElement extends React.Component {
     return { paddingLeft: `${this.props.indent}px` };
   }
 
+  inlineToggleStyle() {
+    return { left: `${this.props.indent + 44}px` };
+  }
+
   /**
    * Get the style for the element component.
    *
@@ -139,7 +143,9 @@ class EditableElement extends React.Component {
     const components = [];
     let index = 0;
     for (const element of this.element.elements) {
-      components.push(<EditableElement key={element.uuid} element={element} index={index} indent={this.props.indent + 16}/>);
+      components.push(
+        <EditableElement key={element.uuid} element={element} index={index} indent={this.props.indent + 16}/>
+      );
       index++;
     }
     return components;
@@ -152,7 +158,7 @@ class EditableElement extends React.Component {
    */
   renderNonExpandable() {
     return (
-      <li className={this.style()} style={{ paddingLeft: `${this.props.indent}px` }}>
+      <li className={this.style()} style={this.inlineStyle()}>
         <ElementAction element={this.element} />
         <LineNumber />
         <EditableKey element={this.element} index={this.props.index} />
@@ -175,7 +181,7 @@ class EditableElement extends React.Component {
         <div className={this.style(HEADER)} style={this.inlineStyle()}>
           <ElementAction element={this.element} />
           <LineNumber />
-          <div className={HEADER_TOGGLE} onClick={this.toggleExpandable.bind(this)}></div>
+          <div className={HEADER_TOGGLE} style={this.inlineToggleStyle()} onClick={this.toggleExpandable.bind(this)}></div>
           <EditableKey element={this.element} index={this.props.index} />
           <span className="element-separator">:</span>
           <div className={HEADER_LABEL} onClick={this.toggleExpandable.bind(this)}>
