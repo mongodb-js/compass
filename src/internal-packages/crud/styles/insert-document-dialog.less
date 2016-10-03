@@ -9,7 +9,6 @@
         width: 18px;
         line-height: 11px;
         margin-right: 35px;
-        margin-left: -35px;
         text-align: center;
         cursor: pointer;
         color: @gray3;
@@ -29,6 +28,72 @@
         .line-number {
           background-color: @pw;
           color: @gray3;
+        }
+      }
+
+      .editable-element {
+
+        &:hover {
+          background-color: @gray8;
+
+          &::before {
+            background-color: @gray8;
+          }
+
+          input {
+            background-color: @gray8;
+
+            &:focus {
+              background-color: @pw;
+            }
+          }
+
+          .editable-element-actions {
+            opacity: 1;
+          }
+
+          .editable-element-types {
+            .btn {
+              background-color: @gray6;
+              color: @gray0;
+            }
+            .caret {
+              visibility: visible;
+            }
+          }
+        }
+      }
+
+      .editable-expandable-element-header {
+
+        &:hover {
+          background-color: @gray8;
+
+          &::before {
+            background-color: @gray8;
+          }
+
+          input {
+            background-color: @gray8;
+
+            &:focus {
+              background-color: @pw;
+            }
+          }
+
+          .editable-element-actions {
+            opacity: 1;
+          }
+
+          .editable-element-types {
+            .btn {
+              background-color: @gray6;
+              color: @gray0;
+            }
+            .caret {
+              visibility: visible;
+            }
+          }
         }
       }
     }
