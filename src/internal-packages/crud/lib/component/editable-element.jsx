@@ -1,74 +1,61 @@
 const React = require('react');
 const Element = require('hadron-document').Element;
 const EditableKey = require('./editable-key');
-const EditableValue = require('./editable-value');
-const RevertAction = require('./revert-action');
-const RemoveAction = require('./remove-action');
-const NoAction = require('./no-action');
+const ElementValue = require('./element-value');
+const ElementAction = require('./element-action');
+const LineNumber = require('./line-number');
 const Types = require('./types');
 const Hotspot = require('./hotspot');
 
 /**
+ * The BEM base style name for the element.
+ */
+const BEM_BASE = 'editable-element';
+
+/**
+ * The BEM base style name for the expandable element.
+ */
+const BEM_EXP_BASE = 'editable-expandable-element';
+
+/**
  * The added constant.
  */
-const ADDED = 'added';
+const ADDED = 'is-added';
 
 /**
  * The edited constant.
  */
-const EDITED = 'edited';
+const EDITED = 'is-edited';
 
 /**
  * The removed constant.
  */
-const REMOVED = 'removed';
-
-/**
- * The caret for expanding elements.
- */
-const CARET = 'caret';
-
-/**
- * The class for the document itself.
- */
-const DOCUMENT_CLASS = 'document-property-body';
-
-/**
- * The header class for expandable elements.
- */
-const HEADER_CLASS = 'document-property-header expandable';
-
-/**
- * The property class.
- */
-const PROPERTY_CLASS = 'document-property';
-
-/**
- * The expandable label class.
- */
-const LABEL_CLASS = 'document-property-type-label';
+const REMOVED = 'is-removed';
 
 /**
  * The expanded class name.
  */
-const EXPANDED = 'expanded';
+const EXPANDED = 'is-expanded';
 
 /**
- * The non-expandable class.
+ * The class for the document itself.
  */
-const NON_EXPANDABLE = 'non-expandable';
+const CHILDREN = `${BEM_EXP_BASE}-children`;
 
 /**
- * Mappings for non editable value components.
+ * The header class for expandable elements.
  */
-const VALUE_MAPPINGS = {
-  'Binary': './binary-value',
-  'MinKey': './min-key-value',
-  'MaxKey': './max-key-value',
-  'Code': './code-value',
-  'Timestamp': './timestamp-value',
-  'ObjectID': './objectid-value'
-};
+const HEADER = `${BEM_EXP_BASE}-header`;
+
+/**
+ * The expandable label class.
+ */
+const HEADER_LABEL = `${HEADER}-label`;
+
+/**
+ * The carat for toggling expansion class.
+ */
+const HEADER_TOGGLE = `${HEADER}-toggle`;
 
 /**
  * General editable element component.
@@ -83,62 +70,26 @@ class EditableElement extends React.Component {
   constructor(props) {
     super(props);
     this.element = props.element;
+    this.element.on(Element.Events.Added, this.expand.bind(this));
+    this.element.on(Element.Events.Converted, this.expand.bind(this));
+    this.element.on(Element.Events.Edited, this.handleChange.bind(this));
+    this.element.on(Element.Events.Removed, this.handleChange.bind(this));
+    this.element.on(Element.Events.Reverted, this.handleChange.bind(this));
     this.state = { expanded: false };
-    this.element.on(Element.Events.Added, this.handleAdd.bind(this));
-    this.element.on(Element.Events.Edited, this.handleEdit.bind(this));
-    this.element.on(Element.Events.Removed, this.handleRemove.bind(this));
-    this.element.on(Element.Events.Reverted, this.handleRevert.bind(this));
-    this.element.on(Element.Events.Converted, this.handleConvert.bind(this));
   }
 
   /**
-   * Get the components for the elements.
-   *
-   * @returns {Array} The components.
+   * Expand the element.
    */
-  elementComponents() {
-    const components = [];
-    let index = 0;
-    for (const element of this.element.elements) {
-      components.push(<EditableElement key={element.uuid} element={element} index={index} />);
-      index++;
-    }
-    return components;
-  }
-
-  /**
-   * Handle the addition of an element.
-   */
-  handleAdd() {
+  expand() {
     this.setState({ expanded: true });
   }
 
   /**
-   * Here to re-render the component when a key or value is edited.
+   * Here to re-render the component when a change is made.
    */
-  handleEdit() {
+  handleChange() {
     this.setState({});
-  }
-
-  /**
-   * Handle removal of an element.
-   */
-  handleRemove() {
-    this.setState({});
-  }
-
-  /**
-   * Here to re-render the component when an edit is reverted.
-   */
-  handleRevert() {
-    this.setState({});
-  }
-
-  /**
-   * Here to re-render the component when converted to array or object.
-   */
-  handleConvert() {
-    this.setState({ expanded: true });
   }
 
   /**
@@ -149,51 +100,55 @@ class EditableElement extends React.Component {
   }
 
   /**
+   * Get the inline style for the element.
+   *
+   * @returns {Object} The inline style object.
+   */
+  inlineStyle() {
+    return { paddingLeft: `${this.props.indent}px` };
+  }
+
+  inlineToggleStyle() {
+    return { left: `${this.props.indent + 44}px` };
+  }
+
+  /**
    * Get the style for the element component.
+   *
+   * @param {String} base - The base style.
    *
    * @returns {String} The element style.
    */
-  style() {
-    let style = `${PROPERTY_CLASS} ${this.element.currentType.toLowerCase()}`;
+  style(base = BEM_BASE) {
+    let style = base;
     if (this.element.isAdded()) {
-      style = style.concat(` ${ADDED}`);
+      style = style.concat(` ${base}-${ADDED}`);
     } else if (this.element.isEdited()) {
-      style = style.concat(` ${EDITED}`);
+      style = style.concat(` ${base}-${EDITED}`);
     } else if (this.element.isRemoved()) {
-      style = style.concat(` ${REMOVED}`);
-    }
-    if (!this.element.elements) {
-      style = style.concat(` ${NON_EXPANDABLE}`);
+      style = style.concat(` ${base}-${REMOVED}`);
     }
     if (this.state.expanded) {
-      style = style.concat(` ${EXPANDED}`);
+      style = style.concat(` ${base}-${EXPANDED}`);
     }
     return style;
   }
 
   /**
-   * Get the value component for the type.
+   * Get the components for the elements.
    *
-   * @param {String} type - The type.
-   *
-   * @returns {Component} The value component.
+   * @returns {Array} The components.
    */
-  valueComponent(type) {
-    return require(VALUE_MAPPINGS[type] || './non-editable-value');
-  }
-
-  /**
-   * Get the revert or remove action.
-   *
-   * @returns {Component} The component.
-   */
-  renderAction() {
-    if (this.element.isRevertable()) {
-      return (<RevertAction element={this.element} />);
-    } else if (this.element.isNotActionable()) {
-      return (<NoAction element={this.element} />);
+  renderChildren() {
+    const components = [];
+    let index = 0;
+    for (const element of this.element.elements) {
+      components.push(
+        <EditableElement key={element.uuid} element={element} index={index} indent={this.props.indent + 16}/>
+      );
+      index++;
     }
-    return (<RemoveAction element={this.element} />);
+    return components;
   }
 
   /**
@@ -203,51 +158,38 @@ class EditableElement extends React.Component {
    */
   renderNonExpandable() {
     return (
-      <li className={this.style()}>
-        {this.renderAction()}
-        <div className="line-number"></div>
+      <li className={this.style()} style={this.inlineStyle()}>
+        <ElementAction element={this.element} />
+        <LineNumber />
         <EditableKey element={this.element} index={this.props.index} />
-        :
-        {this.renderValue()}
-        <Hotspot key="hotspot" element={this.element} />
+        <span className="element-separator">:</span>
+        <ElementValue element={this.element} />
+        <Hotspot key="editable-element-hotspot" element={this.element} />
         <Types element={this.element} />
       </li>
     );
   }
 
   /**
-   * Render the value for the component.
-   *
-   * @returns {Component} The value component.
-   */
-  renderValue() {
-    if (this.element.isValueEditable()) {
-      return (<EditableValue element={this.element} />);
-    }
-    const props = { element: this.element };
-    return React.createElement(this.valueComponent(this.element.currentType), props);
-  }
-
-  /**
    * Render an expandable element.
    *
-   * @returns {Component} The component.
+   * @returns {React.Component} The component.
    */
   renderExpandable() {
     return (
-      <li className={this.style()}>
-        <div className={HEADER_CLASS}>
-          {this.renderAction()}
-          <div className="line-number" onClick={this.toggleExpandable.bind(this)}></div>
-          <div className={CARET} onClick={this.toggleExpandable.bind(this)}></div>
+      <li className={this.style(BEM_EXP_BASE)}>
+        <div className={this.style(HEADER)} style={this.inlineStyle()}>
+          <ElementAction element={this.element} />
+          <LineNumber />
+          <div className={HEADER_TOGGLE} style={this.inlineToggleStyle()} onClick={this.toggleExpandable.bind(this)}></div>
           <EditableKey element={this.element} index={this.props.index} />
-          :
-          <div className={LABEL_CLASS} onClick={this.toggleExpandable.bind(this)}>
+          <span className="element-separator">:</span>
+          <div className={HEADER_LABEL} onClick={this.toggleExpandable.bind(this)}>
             {this.element.currentType}
           </div>
         </div>
-        <ol className={DOCUMENT_CLASS}>
-          {this.elementComponents()}
+        <ol className={this.style(CHILDREN)}>
+          {this.renderChildren()}
         </ol>
       </li>
     );
@@ -267,7 +209,8 @@ EditableElement.displayName = 'EditableElement';
 
 EditableElement.propTypes = {
   element: React.PropTypes.object.isRequired,
-  index: React.PropTypes.number
+  index: React.PropTypes.number,
+  indent: React.PropTypes.number
 };
 
 module.exports = EditableElement;

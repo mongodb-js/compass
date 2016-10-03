@@ -3,7 +3,7 @@ const React = require('react');
 /**
  * The actions class.
  */
-const ACTIONS = 'actions';
+const ACTIONS = 'editable-element-actions';
 
 /**
  * General element action component.

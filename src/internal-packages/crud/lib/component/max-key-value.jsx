@@ -3,12 +3,16 @@ const React = require('react');
 /**
  * The document value class.
  */
-const VALUE_CLASS = 'document-property-value';
+const VALUE_CLASS = 'element-value';
 
 /**
  * MaxKey value component.
  */
 class MaxKeyValue extends React.Component {
+
+  style() {
+    return `${VALUE_CLASS} ${VALUE_CLASS}-is-minkey`;
+  }
 
   /**
    * Render a single max key value.
@@ -17,7 +21,7 @@ class MaxKeyValue extends React.Component {
    */
   render() {
     return (
-      <div className={VALUE_CLASS}>
+      <div className={this.style()}>
         MaxKey
       </div>
     );

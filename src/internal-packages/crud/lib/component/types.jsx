@@ -62,7 +62,7 @@ class Types extends React.Component {
    */
   renderDropdown() {
     return (
-      <div className="dropdown types">
+      <div className="editable-element-types dropdown">
         <button
           className="btn btn-default dropdown-toggle"
           type="button"
@@ -88,8 +88,8 @@ class Types extends React.Component {
    */
   renderLabel() {
     return (
-      <div className="types">
-        <span className="type-label">{this.element.currentType}</span>
+      <div className="editable-element-types">
+        <span className="editable-element-types-label">{this.element.currentType}</span>
       </div>
     );
   }

@@ -25,10 +25,10 @@ const DELETING = 'Deleting';
  * Map of modes to styles.
  */
 const MODES = {
-  'Progress': 'in-progress',
-  'Success': 'success',
-  'Error': 'error',
-  'Deleting': 'error'
+  'Progress': 'is-in-progress',
+  'Success': 'is-success',
+  'Error': 'is-error',
+  'Deleting': 'is-error'
 };
 
 /**
@@ -122,7 +122,7 @@ class RemoveDocumentFooter extends React.Component {
    * @returns {String} The style.
    */
   style() {
-    return `document-footer ${MODES[this.state.mode]}`;
+    return `document-footer document-footer-${MODES[this.state.mode]}`;
   }
 
   /**
@@ -133,7 +133,7 @@ class RemoveDocumentFooter extends React.Component {
   render() {
     return (
       <div className={this.style()}>
-        <div className="edit-message" title={this.state.message}>
+        <div className="document-footer-message" title={this.state.message}>
           {this.state.message}
         </div>
         <div className="document-footer-actions">

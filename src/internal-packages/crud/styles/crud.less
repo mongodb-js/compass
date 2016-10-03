@@ -1,12 +1,24 @@
+@import "./document-list.less";
 @import "./element.less";
 @import "./expandable-element.less";
+@import "./document-actions.less";
+@import "./document.less";
+@import "./document-elements.less";
+@import "./editable-expandable-element.less";
+@import "./editable-element.less";
+@import "./editable-element-field.less";
+@import "./editable-element-value.less";
+@import "./line-number.less";
+@import "./document-footer.less";
+@import "./insert-document-dialog.less";
 
-/* Set the positioning of the toggle carat. */
 .expandable-element-header {
+
   &-toggle {
     margin-left: -10px;
     margin-right: 6px;
   }
+
   &-is-expanded {
     .expandable-element-header-toggle {
       margin-left: -14px;
@@ -14,319 +26,16 @@
   }
 }
 
-/* Non-BEM styles begin here. */
+.document {
 
-li.document-list-item.editing {
-  box-shadow: 2px 5px 8px rgba(0,0,0,0.2);
-}
-
-li.document-list-item.deleting {
-  box-shadow: 2px 5px 8px rgba(0,0,0,0.2);
-  border: 1px solid @alertRed;
-}
-
-.document-footer {
-  font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  height: 28px;
-  vertical-align: middle;
-  top: 20px;
-  position: relative;
-
-  .edit-message {
-    position: absolute;
-    right: 150px;
-    left: 10px;
-    font-size: 14px;
-    font-style: italic;
-    padding-left: 10px;
-    padding-top: 4px;
-    color: @pw;
-    overflow: hidden;
-    height: 28px;
-  }
-
-  .document-footer-actions {
-    position: absolute;
-    right: 10px;
-    top: 2px;
-    padding-top: 1px;
-
-    .cancel {
-      font-weight: bold;
-    }
-
-    .update {
-      font-weight: bold;
-      border-radius: 3px;
-    }
-  }
-
-  &.modified {
-    background-color: @alertOrange;
-
-    .document-footer-actions {
-
-      .cancel {
-        color: @alertOrangeBorder;
-      }
-
-      .update {
-        color: @alertOrangeBorder;
-        border-color: @alertOrangeBorder;
-
-        &:hover {
-          background-color: rgba(255,255,255,0.7);
-        }
-      }
-    }
-  }
-  &.in-progress.in-progress {
-    background-color: @chart1;
-  }
-  &.success {
-    background-color: @green2;
-  }
-  &.error {
-    background-color: @alertRed;
-
-    .document-footer-actions {
-
-      .cancel {
-        color: @alertRedBg;
-      }
-      .error {
-        color: @pw;
-        background: rgba(255,255,255,0.2);
-        border: 1px solid rgba(255,255,255,0.4);
-
-        &:hover {
-          background: rgba(255,255,255,0.4);
-          border: 1px solid rgba(255,255,255,0.6);
-        }
-      }
-    }
-  }
-  &.viewing {
-    background-color: #F8F8F8;
-
-    .document-footer-actions {
-
-      .cancel {
-        color: #B8B8B8;
-      }
-    }
-  }
-}
-
-ol.document-property-body:hover {
-  .document-actions {
-    button {
+  &:hover {
+    .document-actions-button {
       visibility: visible;
     }
   }
-}
 
-.document-elements {
-  width: 75%;
-  counter-reset: line;
-  position: relative;
-
-  .document-property.array {
-    margin-left: 0px !important;
-  }
-
-  .document-property.object {
-    margin-left: 0px !important;
-  }
-
-  .line-number {
-    display: inline-block;
-    color: @gray4;
-    width: 18px;
-    height: 17px;
-    text-align: center;
-    position: absolute;
-    left: -18px;
-
-    &::before {
-      counter-increment: line;
-      content: counter(line);
-    }
-  }
-
-  .types {
-    display: inline-block;
-    position: absolute;
-    width: 100px;
-    color: @gray3;
-    height: 17px;
-    right: 0px;
-
-    .type-label {
-      padding: 1px 12px;
-    }
-
-    .btn {
-      background-color: transparent;
-      color: @gray4;
-      border: none;
-      text-transform: none;
-      font-size: 11px;
-      border-radius: 8px;
-      padding: 1px 12px;
-    }
-
-    .caret {
-      visibility: hidden;
-    }
-
-    .dropdown-menu {
-      li {
-        span {
-          display: block;
-          padding: 3px 20px;
-          clear: both;
-          font-weight: normal;
-          font-size: 11px;
-          color: #333333;
-          white-space: nowrap;
-        }
-        span:hover {
-          color: #313030;
-          text-decoration: none;
-          background: #e6e6e6;
-        }
-      }
-    }
-  }
-
-  li.document-property.non-expandable:hover {
-    background-color: @gray8;
-
-    input {
-      background-color: @gray8;
-
-      &:focus {
-        background-color: @pw;
-      }
-    }
-
-    .actions {
-      opacity: 1;
-    }
-
-    .types {
-      .btn {
-        background-color: @gray6;
-        color: @gray0;
-      }
-      .caret {
-        visibility: visible;
-      }
-    }
-  }
-
-  li.document-property {
-
-    .hotspot {
-      height: 10px;
-      display: inline-block;
-      width: 50%;
-    }
-
-    .actions {
-      display: inline-block;
-      opacity: 0;
-      width: 18px;
-      font-size: 13px;
-      line-height: 11px;
-      margin-left: -35px;
-      margin-right: 35px;
-      text-align: center;
-      color: @gray3;
-
-      i:hover {
-        cursor: pointer;
-      }
-    }
-
-    &.edited {
-      background-color: @alertOrangeBg;
-
-      input {
-        background-color: @alertOrangeBg;
-
-        &:focus {
-          background-color: @pw;
-        }
-      }
-
-      .line-number {
-        background-color: @alertOrange;
-        color: @pw;
-      }
-    }
-
-    &.added {
-      background-color: @greenBg;
-
-      input {
-        background-color: @greenBg;
-
-        &:focus {
-          background-color: @pw;
-        }
-      }
-
-      .line-number {
-        background-color: @green2;
-        color: @pw;
-      }
-    }
-
-    &.removed {
-      background-color: @alertRedBg;
-
-      input {
-        background-color: @alertRedBg;
-
-        &:focus {
-          background-color: @pw;
-        }
-      }
-
-      .line-number {
-        background-color: @alertRed;
-        color: @pw;
-      }
-    }
-  }
-
-  div.document-property-header.expandable:hover {
-    background-color: #ebebed !important;
-
-    input {
-      background-color: #ebebed !important;
-    }
-
-    .actions {
-      opacity: 1;
-    }
-
-    .types {
-      .btn {
-        border-color: #8c8c8c;
-      }
-      .caret {
-        visibility: visible;
-      }
-    }
-  }
-
-  .hotspot {
-    height: 10px;
-    width: 50%;
-    cursor: text;
+  &-elements {
+    width: 75%;
   }
 }
 
@@ -335,102 +44,8 @@ ol.document-property-body:hover {
   top: 10px;
   right: 10px;
 
-  button {
+  &-button {
     visibility: hidden;
-    margin-left: 3px
-  }
-}
-
-input.editable-key {
-  position: relative;
-  font-weight: bold;
-  border: none;
-  padding-left: 1px;
-  z-index: 1;
-
-  &.editing {
-    border: 1px solid @gray3;
-    box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.2);
-    z-index: 10;
-    margin-top: -1px;
-    margin-bottom: -1px;
-
-    &.duplicate {
-      border: 1px solid red;
-    }
-  }
-
-  &.duplicate {
-    color: red;
-  }
-}
-
-input.editable-value {
-  position: relative;
-  border: none;
-  padding-left: 1px;
-  z-index: 1;
-
-  &.editing {
-    border: 1px solid @gray3;
-    box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.2);
-    z-index: 10;
-    margin-top: -1px;
-    margin-bottom: -1px;
-  }
-}
-
-.document-property.string > .editable-value {
-  color: steelblue;
-}
-
-.document-property.number > .editable-value {
-  color: green;
-}
-
-.document-property.boolean > .editable-value {
-  color: purple;
-}
-
-.document-property.date > .editable-value {
-  color: firebrick;
-}
-
-.modal-body {
-  .document-elements {
-    width: 100%;
-
-    li.document-property {
-
-      .actions {
-        display: inline-block;
-        opacity: 0;
-        width: 18px;
-        font-size: 13px;
-        line-height: 11px;
-        margin-right: 35px;
-        margin-left: -35px;
-        text-align: center;
-        cursor: pointer;
-        color: @gray3;
-      }
-
-      &.added {
-        background-color: @pw;
-
-        input {
-          background-color: @pw;
-
-          &:focus {
-            background-color: @pw;
-          }
-        }
-
-        .line-number {
-          background-color: @pw;
-          color: @gray3;
-        }
-      }
-    }
+    margin-left: 3px;
   }
 }

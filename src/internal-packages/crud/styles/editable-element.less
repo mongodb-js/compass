@@ -1,0 +1,192 @@
+.editable-element {
+
+  width: 100%;
+  display: block;
+
+  &-field {
+    display: inline-block;
+    vertical-align: top;
+    margin-left: 22px;
+  }
+
+  &-separator {
+    padding-right: 2px;
+    vertical-align: top;
+  }
+
+  &-is-edited {
+    background-color: @alertOrangeBg;
+
+    .line-number {
+      background-color: @alertOrange;
+      color: @pw;
+    }
+
+    input {
+      background-color: @alertOrangeBg;
+    }
+
+    .editable-element-field {
+      background-color: @alertOrangeBg;
+
+      &:focus {
+        background-color: @pw;
+      }
+
+      &::before {
+        background-color: @alertOrangeBg;
+      }
+    }
+  }
+
+  &-is-added {
+    background-color: @greenBg;
+
+    .editable-element-field {
+      background-color: @greenBg;
+
+      &:focus {
+        background-color: @pw;
+      }
+    }
+
+    .line-number {
+      background-color: @green2;
+      color: @pw;
+    }
+
+    input {
+      background-color: @greenBg;
+    }
+  }
+
+  &-is-removed {
+    background-color: @alertRedBg;
+
+    .editable-element-field {
+      background-color: @alertRedBg;
+
+      &:focus {
+        background-color: @pw;
+      }
+    }
+
+    .line-number {
+      background-color: @alertRed;
+      color: @pw;
+    }
+
+    input {
+      background-color: @alertRedBg;
+    }
+  }
+
+  &:hover {
+    background-color: @gray8;
+
+    &::before {
+      background-color: @gray8;
+    }
+
+    input {
+      background-color: @gray8;
+
+      &:focus {
+        background-color: @pw;
+      }
+    }
+
+    .editable-element-actions {
+      opacity: 1;
+    }
+
+    .editable-element-types {
+      .btn {
+        background-color: @gray6;
+        color: @gray0;
+      }
+      .caret {
+        visibility: visible;
+      }
+    }
+  }
+
+  &-actions {
+    display: inline-block;
+    opacity: 0;
+    width: 18px;
+    font-size: 13px;
+    line-height: 11px;
+    margin-top: 1px;
+    text-align: center;
+    color: @gray3;
+    position: absolute;
+    left: 3px;
+
+    i:hover {
+      cursor: pointer;
+    }
+  }
+
+  .hotspot {
+    display: inline-block;
+    height: 10px;
+    width: 50%;
+    cursor: text;
+  }
+
+  &-types {
+    display: inline-block;
+    width: 100px;
+    color: @gray3;
+    height: 17px;
+
+    .type-label {
+      padding: 1px 12px;
+    }
+
+    .btn {
+      background-color: transparent;
+      color: @gray4;
+      border: none;
+      text-transform: none;
+      font-size: 11px;
+      border-radius: 8px;
+      padding: 1px 12px;
+    }
+
+    .caret {
+      visibility: hidden;
+    }
+
+    .dropdown-menu {
+      li {
+        span {
+          display: block;
+          padding: 3px 20px;
+          clear: both;
+          font-weight: normal;
+          font-size: 11px;
+          color: #333333;
+          white-space: nowrap;
+        }
+        span:hover {
+          color: #313030;
+          text-decoration: none;
+          background: #e6e6e6;
+        }
+      }
+    }
+  }
+
+  &-value {
+    position: relative;
+    vertical-align: top;
+    z-index: 1;
+  }
+
+  &-field {
+    position: relative;
+    z-index: 1;
+  }
+}

@@ -13,12 +13,12 @@ const ESC = 27;
 /**
  * The editing class constant.
  */
-const EDITING = 'editing';
+const EDITING = 'is-editing';
 
 /**
  * The document value class.
  */
-const VALUE_CLASS = 'editable-value';
+const VALUE_CLASS = 'editable-element-value';
 
 /**
  * General editable value component.
@@ -145,7 +145,11 @@ class EditableValue extends React.Component {
    * @returns {String} The value style.
    */
   style() {
-    return this.state.editing ? `${VALUE_CLASS} ${EDITING}` : VALUE_CLASS;
+    const typeClass = `${VALUE_CLASS}-is-${this.element.currentType.toLowerCase()}`;
+    if (this.state.editing) {
+      return `${VALUE_CLASS} ${VALUE_CLASS}-${EDITING} ${typeClass}`;
+    }
+    return `${VALUE_CLASS} ${typeClass}`;
   }
 
   /**

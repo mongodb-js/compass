@@ -31,11 +31,11 @@ const VIEWING = 'Viewing';
  * Map of modes to styles.
  */
 const MODES = {
-  'Progress': 'in-progress',
-  'Success': 'success',
-  'Error': 'error',
-  'Editing': 'modified',
-  'Viewing': 'viewing'
+  'Progress': 'is-in-progress',
+  'Success': 'is-success',
+  'Error': 'is-error',
+  'Editing': 'is-modified',
+  'Viewing': 'is-viewing'
 };
 
 /**
@@ -101,7 +101,7 @@ class DocumentFooter extends React.Component {
    */
   handleCancel() {
     this.doc.cancel();
-    this.setState({ mode: VIEWING });
+    this.setState({ mode: VIEWING, message: EMPTY });
   }
 
   /**
@@ -117,9 +117,10 @@ class DocumentFooter extends React.Component {
    * Handle modification to the document.
    */
   handleModification() {
+    const isModified = this.doc.isModified();
     this.setState({
-      mode: this.doc.isModified() ? EDITING : VIEWING,
-      message: MODIFIED
+      mode: isModified ? EDITING : VIEWING,
+      message: isModified ? MODIFIED : EMPTY
     });
   }
 
@@ -159,7 +160,7 @@ class DocumentFooter extends React.Component {
    * @returns {String} The style.
    */
   style() {
-    return `document-footer ${MODES[this.state.mode]}`;
+    return `document-footer document-footer-${MODES[this.state.mode]}`;
   }
 
   /**
@@ -170,7 +171,7 @@ class DocumentFooter extends React.Component {
   render() {
     return (
       <div className={this.style()}>
-        <div className="edit-message" title={this.state.message}>
+        <div className="document-footer-message" title={this.state.message}>
           {this.state.message}
         </div>
         <div className="document-footer-actions">

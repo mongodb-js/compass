@@ -1,0 +1,142 @@
+.editable-expandable-element {
+  width: 100%;
+  display: block;
+  font-size: 11px;
+
+  &-is-edited {
+    background-color: @alertOrangeBg;
+
+    .line-number {
+      background-color: @alertOrange;
+      color: @pw;
+    }
+
+    input {
+      background-color: @alertOrangeBg;
+    }
+
+    .editable-element-field {
+      background-color: @alertOrangeBg;
+
+      &:focus {
+        background-color: @pw;
+      }
+
+      &::before {
+        background-color: @alertOrangeBg;
+      }
+    }
+  }
+
+  &-is-added {
+    background-color: @greenBg;
+
+    .editable-element-field {
+      background-color: @greenBg;
+
+      &:focus {
+        background-color: @pw;
+      }
+    }
+
+    .line-number {
+      background-color: @green2;
+      color: @pw;
+    }
+
+    input {
+      background-color: @greenBg;
+    }
+  }
+
+  &-is-removed {
+    background-color: @alertRedBg;
+
+    .editable-element-field {
+      background-color: @alertRedBg;
+
+      &:focus {
+        background-color: @pw;
+      }
+    }
+
+    .line-number {
+      background-color: @alertRed;
+      color: @pw;
+    }
+
+    input {
+      background-color: @alertRedBg;
+    }
+  }
+
+  &-header {
+
+    cursor: pointer;
+
+    &-label {
+      display: inline-block;
+    }
+
+    &-toggle {
+      display: inline-block;
+      width: 0;
+      height: 0;
+      vertical-align: middle;
+      border-left: @caret-width-base solid;
+      border-right: 0;
+      border-top: @caret-width-base solid transparent;
+      border-bottom: @caret-width-base solid transparent;
+      position: absolute;
+      margin-top: 4px;
+    }
+
+    &-is-expanded {
+      .editable-expandable-element-header-toggle {
+        border-top: @caret-width-base solid;
+        border-right: @caret-width-base solid transparent;
+        border-left: @caret-width-base solid transparent;
+        margin-top: 6px;
+      }
+    }
+
+    &:hover {
+      background-color: @gray8;
+
+      &::before {
+        background-color: @gray8;
+      }
+
+      input {
+        background-color: @gray8;
+
+        &:focus {
+          background-color: @pw;
+        }
+      }
+
+      .editable-element-actions {
+        opacity: 1;
+      }
+
+      .editable-element-types {
+        .btn {
+          background-color: @gray6;
+          color: @gray0;
+        }
+        .caret {
+          visibility: visible;
+        }
+      }
+    }
+  }
+
+  &-children {
+    display: none;
+    padding-left: 0px;
+
+    &-is-expanded {
+      display: block;
+    }
+  }
+}

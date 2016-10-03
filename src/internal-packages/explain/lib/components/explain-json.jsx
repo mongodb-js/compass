@@ -21,7 +21,7 @@ class ExplainJSON extends React.Component {
         <div className="panel panel-default">
           <div className="panel-body">
             <ol className="document-list">
-              <this.documentComponent doc={this.props.rawExplainObject} editable={false} />
+              <this.documentComponent doc={this.props.rawExplainObject} preExpanded />
             </ol>
           </div>
         </div>

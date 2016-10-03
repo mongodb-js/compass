@@ -1,0 +1,58 @@
+.editable-element-value {
+
+  display: inline-block;
+  border: none;
+  padding-left: 1px;
+
+  &-is-string {
+    color: steelblue;
+    white-space: pre-line;
+    word-break: break-all;
+    &::before {
+      content: "\"";
+    }
+    &::after {
+      content: "\"";
+    }
+  }
+
+  &-is-int32, &-is-int64, &-is-double {
+    color: green;
+  }
+
+  &-is-date {
+    color: firebrick;
+  }
+
+  &-is-boolean {
+    color: purple;
+  }
+
+  &-is-objectid {
+    color: orangered;
+    &::before {
+      content: "ObjectID('";
+    }
+    &::after {
+      content: "')";
+    }
+  }
+
+  &-is-code {
+    &::before {
+      content: "Code('";
+    }
+    &::after {
+      content: "')";
+    }
+  }
+
+  &-is-editing {
+    box-shadow: 2px 5px 8px rgba(0,0,0,0.2);
+    border: 1px solid @gray3;
+    box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.2);
+    z-index: 10;
+    margin-top: -1px;
+    margin-bottom: -1px;
+  }
+}

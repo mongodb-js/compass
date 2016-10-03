@@ -1,0 +1,57 @@
+.document-elements {
+
+  counter-reset: document-line-number;
+  display: block;
+  list-style: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+
+  .line-number {
+    position: absolute;
+    left: 21px;
+  }
+
+  .editable-element-types {
+    position: absolute;
+    right: 0px;
+  }
+
+  .editable-element-types-label {
+    position: absolute;
+    right: 0px;
+    display: inline-block;
+    width: 100px;
+    color: @gray3;
+    height: 17px;
+    padding-left: 12px;
+  }
+
+  .hotspot {
+    height: 10px;
+    width: 50%;
+    cursor: text;
+  }
+
+  editable-expandable-element-header:hover {
+    background-color: #ebebed !important;
+
+    input {
+      background-color: #ebebed !important;
+    }
+
+    .editable-element-actions {
+      opacity: 1;
+    }
+
+    .editable-element-types {
+      .btn {
+        border-color: #8c8c8c;
+      }
+      .caret {
+        visibility: visible;
+      }
+    }
+  }
+}
+

@@ -4,7 +4,7 @@ const truncate = require('hadron-app-registry').truncate;
 /**
  * The document value class.
  */
-const VALUE_CLASS = 'document-property-value';
+const VALUE_CLASS = 'element-value';
 
 /**
  * Code value component.
@@ -21,6 +21,10 @@ class CodeValue extends React.Component {
     this.element = props.element;
   }
 
+  style() {
+    return `${VALUE_CLASS} ${VALUE_CLASS}-is-${this.element.currentType.toLowerCase()}`;
+  }
+
   /**
    * Render a single max key value.
    *
@@ -28,7 +32,7 @@ class CodeValue extends React.Component {
    */
   render() {
     return (
-      <div className={VALUE_CLASS}>
+      <div className={this.style()}>
         {truncate(this.element.currentValue.code)}
       </div>
     );
