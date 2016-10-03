@@ -1,0 +1,36 @@
+.modal-body {
+  .document {
+    .document-elements {
+      width: 100%;
+
+      .editable-element-actions {
+        display: inline-block;
+        opacity: 0;
+        width: 18px;
+        line-height: 11px;
+        margin-right: 35px;
+        margin-left: -35px;
+        text-align: center;
+        cursor: pointer;
+        color: @gray3;
+      }
+
+      .editable-element-is-added {
+        background-color: @pw;
+
+        input {
+          background-color: @pw;
+
+          &:focus {
+            background-color: @pw;
+          }
+        }
+
+        .line-number {
+          background-color: @pw;
+          color: @gray3;
+        }
+      }
+    }
+  }
+}

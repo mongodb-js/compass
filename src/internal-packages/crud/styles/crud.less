@@ -9,6 +9,7 @@
 @import "./editable-expandable-element.less";
 @import "./line-number.less";
 @import "./document-footer.less";
+@import "./insert-document-dialog.less";
 
 .expandable-element-header {
 
@@ -45,46 +46,5 @@
   &-button {
     visibility: hidden;
     margin-left: 3px;
-  }
-}
-
-/* Non-BEM styles begin here. */
-
-.modal-body {
-  .document-elements {
-    width: 100%;
-
-    li.document-property {
-
-      .actions {
-        display: inline-block;
-        opacity: 0;
-        width: 18px;
-        font-size: 13px;
-        line-height: 11px;
-        margin-right: 35px;
-        margin-left: -35px;
-        text-align: center;
-        cursor: pointer;
-        color: @gray3;
-      }
-
-      &.added {
-        background-color: @pw;
-
-        input {
-          background-color: @pw;
-
-          &:focus {
-            background-color: @pw;
-          }
-        }
-
-        .line-number {
-          background-color: @pw;
-          color: @gray3;
-        }
-      }
-    }
   }
 }

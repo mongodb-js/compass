@@ -6,17 +6,12 @@ const Hotspot = require('./hotspot');
 /**
  * The class for the document itself.
  */
-const DOCUMENT_CLASS = 'document-property-body';
+const DOCUMENT = 'document';
 
 /**
- * The full document list container class.
+ * The elements wrapper class.
  */
-const LIST_CLASS = 'document-list';
-
-/**
- * The class for the list item wrapper.
- */
-const LIST_ITEM_CLASS = 'document-list-item';
+const DOCUMENT_ELEMENTS = 'document-elements';
 
 /**
  * Component for a single document in a list of documents.
@@ -63,15 +58,11 @@ class InsertDocument extends React.Component {
    */
   render() {
     return (
-      <ol className={LIST_CLASS}>
-        <li className={LIST_ITEM_CLASS}>
-          <ol className={DOCUMENT_CLASS}>
-            <div className="document-elements">
-              {this.renderElements(this.doc)}
-            </div>
-          </ol>
-        </li>
-      </ol>
+      <div className={DOCUMENT}>
+        <ol className={DOCUMENT_ELEMENTS}>
+          {this.renderElements(this.doc)}
+        </ol>
+      </div>
     );
   }
 }
