@@ -271,7 +271,7 @@ class Document extends React.Component {
    * @returns {String} The document class name.
    */
   style() {
-    let style = "document";
+    let style = 'document';
     if (this.state.editing) {
       style = style.concat(' document-is-editing');
     }
@@ -343,7 +343,8 @@ Document.displayName = 'Document';
 
 Document.propTypes = {
   doc: React.PropTypes.object.isRequired,
-  editable: React.PropTypes.bool
+  editable: React.PropTypes.bool,
+  preExpanded: React.PropTypes.bool
 };
 
 module.exports = Document;

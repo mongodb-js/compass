@@ -117,7 +117,7 @@ class DocumentFooter extends React.Component {
    * Handle modification to the document.
    */
   handleModification() {
-    let isModified = this.doc.isModified();
+    const isModified = this.doc.isModified();
     this.setState({
       mode: isModified ? EDITING : VIEWING,
       message: isModified ? MODIFIED : EMPTY
