@@ -22,7 +22,7 @@ npm install
 npm start
 ```
 
-### Getting weird errors after a while
+### Master is broken
 
 Try:
 
