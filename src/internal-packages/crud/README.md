@@ -15,9 +15,9 @@ Provide functionality shown in the "Documents" tab in the collection view.
 
 ### Actions
 
-| Key                    | Description                       |
-|------------------------|-----------------------------------|
-| `CRUD.DocumentRemoved` | Fired when a document is removed. |
+| Key            | Description                   |
+|----------------|-------------------------------|
+| `CRUD.Actions` | All the CRUD related actions. |
 
 ### Stores
 
@@ -55,4 +55,25 @@ class MyComponent extends React.Component {
     return (<Document doc={this.props.document} preExpanded />);
   }
 }
+```
+
+Listen to the various CRUD actions.
+
+```javascript
+const app = require('ampersand-app');
+const CrudActions = app.appRegistry.getAction('CRUD.Actions');
+
+CrudActions.documentRemoved.listen((id) => {
+  console.log(`Document with _id ${id} removed.`);
+});
+
+CrudActions.openInsertDocumentDialog((doc, clone) => {
+  if (clone) {
+    console.log('Opening insert dialog with cloned document');
+  }
+});
+
+CrudActions.insertDocument((doc) => {
+  console.log('Inserting document into db`);
+});
 ```

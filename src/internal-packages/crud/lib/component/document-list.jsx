@@ -130,10 +130,11 @@ class DocumentList extends React.Component {
    */
   handleRemove(id) {
     const index = _.findIndex(this.state.docs, (component) => {
+      const _id = component.props.children.props.doc._id;
       if (id instanceof ObjectID) {
-        return id.equals(component.props.doc._id);
+        return id.equals(_id);
       }
-      return component.props.doc._id === id;
+      return _id === id;
     });
     this.state.docs.splice(index, 1);
     this.setState({

@@ -12,7 +12,7 @@ const LoadMoreDocumentsStore = require('./lib/store/load-more-documents-store');
 function activate() {
   app.appRegistry.registerComponent('CRUD.Document', Document);
   app.appRegistry.registerComponent('CRUD.DocumentList', DocumentList);
-  app.appRegistry.registerAction('CRUD.DocumentRemoved', Actions.documentRemoved);
+  app.appRegistry.registerAction('CRUD.Actions', Actions);
   app.appRegistry.registerStore('CRUD.InsertDocumentStore', InsertDocumentStore);
   app.appRegistry.registerStore('CRUD.ResetDocumentListStore', ResetDocumentListStore);
   app.appRegistry.registerStore('CRUD.LoadMoreDocumentsStore', LoadMoreDocumentsStore);
@@ -24,7 +24,7 @@ function activate() {
 function deactivate() {
   app.appRegistry.deregisterComponent('CRUD.Document');
   app.appRegistry.deregisterComponent('CRUD.DocumentList');
-  app.appRegistry.deregisterAction('CRUD.DocumentRemoved');
+  app.appRegistry.deregisterAction('CRUD.Actions');
   app.appRegistry.deregisterStore('CRUD.InsertDocumentStore');
   app.appRegistry.deregisterStore('CRUD.ResetDocumentListStore');
   app.appRegistry.deregisterStore('CRUD.LoadMoreDocumentsStore');
