@@ -37,7 +37,7 @@ class DocumentList extends React.Component {
   constructor(props) {
     super(props);
     this.loading = false;
-    this.samplingMessage = app.appRegistry.getComponent('Component::Query::SamplingMessage');
+    this.samplingMessage = app.appRegistry.getComponent('Query.SamplingMessage');
     this.state = { docs: [], nextSkip: 0, namespace: NamespaceStore.ns };
   }
 

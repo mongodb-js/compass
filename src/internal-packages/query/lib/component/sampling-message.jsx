@@ -17,10 +17,10 @@ class SamplingMessage extends React.Component {
   constructor(props) {
     super(props);
     this.state = { count: 0, loaded: 20 };
-    this.resetDocumentListStore = app.appRegistry.getStore('Store::CRUD::ResetDocumentListStore');
-    this.insertDocumentStore = app.appRegistry.getStore('Store::CRUD::InsertDocumentStore');
-    this.documentRemovedAction = app.appRegistry.getAction('Action::CRUD::DocumentRemoved');
-    this.loadMoreDocumentsStore = app.appRegistry.getStore('Store::CRUD::LoadMoreDocumentsStore');
+    this.resetDocumentListStore = app.appRegistry.getStore('CRUD.ResetDocumentListStore');
+    this.insertDocumentStore = app.appRegistry.getStore('CRUD.InsertDocumentStore');
+    this.documentRemovedAction = app.appRegistry.getAction('CRUD.DocumentRemoved');
+    this.loadMoreDocumentsStore = app.appRegistry.getStore('CRUD.LoadMoreDocumentsStore');
   }
 
   /**

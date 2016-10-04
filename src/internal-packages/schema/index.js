@@ -4,21 +4,21 @@ const SchemaAction = require('./lib/action');
 const SchemaStore = require('./lib/store');
 
 /**
- * Activate all the components in the CRUD package.
+ * Activate all the components in the Schema package.
  */
 function activate() {
-  app.appRegistry.registerComponent('Collection:Schema', SchemaComponent);
-  app.appRegistry.registerAction('SchemaAction', SchemaAction);
-  app.appRegistry.registerStore('SchemaStore', SchemaStore);
+  app.appRegistry.registerComponent('Schema.Schema', SchemaComponent);
+  app.appRegistry.registerAction('Schema.Actions', SchemaAction);
+  app.appRegistry.registerStore('Schema.Store', SchemaStore);
 }
 
 /**
- * Deactivate all the components in the CRUD package.
+ * Deactivate all the components in the Schema package.
  */
 function deactivate() {
-  app.appRegistry.deregisterComponent('Collection:Schema');
-  app.appRegistry.deregisterAction('SchemaAction');
-  app.appRegistry.deregisterStore('SchemaStore');
+  app.appRegistry.deregisterComponent('Schema.Schema');
+  app.appRegistry.deregisterAction('Schema.Actions');
+  app.appRegistry.deregisterStore('Schema.Store');
 }
 
 module.exports.activate = activate;

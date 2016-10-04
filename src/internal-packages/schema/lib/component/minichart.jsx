@@ -38,7 +38,7 @@ const Minichart = React.createClass({
     });
     window.addEventListener('resize', this.handleResize);
 
-    const QueryStore = app.appRegistry.getStore('QueryStore');
+    const QueryStore = app.appRegistry.getStore('Query.Store');
     this.unsubscribeQueryStore = QueryStore.listen((store) => {
       this.setState({
         query: store.query

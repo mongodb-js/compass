@@ -7,18 +7,18 @@ const ExplainStore = require('./lib/stores');
  * Activate all the components in the  Explain package.
  */
 function activate() {
-  app.appRegistry.registerComponent('Collection:Explain', ExplainComponent);
-  app.appRegistry.registerAction('ExplainActions', ExplainActions);
-  app.appRegistry.registerStore('ExplainStore', ExplainStore);
+  app.appRegistry.registerComponent('Explain.ExplainPlan', ExplainComponent);
+  app.appRegistry.registerAction('Explain.Actions', ExplainActions);
+  app.appRegistry.registerStore('Explain.Store', ExplainStore);
 }
 
 /**
  * Deactivate all the components in the  Explain package.
  */
 function deactivate() {
-  app.appRegistry.deregisterComponent('Collection:Explain');
-  app.appRegistry.deregisterAction('ExplainActions');
-  app.appRegistry.deregisterStore('ExplainStore');
+  app.appRegistry.deregisterComponent('Explain.ExplainPlan');
+  app.appRegistry.deregisterAction('Explain.Actions');
+  app.appRegistry.deregisterStore('Explain.Store');
 }
 
 module.exports = ExplainComponent;

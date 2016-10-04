@@ -11,7 +11,7 @@ const hasDistinctValue = require('../../../query/lib/util').hasDistinctValue;
 
 require('./d3-tip')(d3);
 
-const QueryAction = app.appRegistry.getAction('QueryAction');
+const QueryAction = app.appRegistry.getAction('Query.Actions');
 
 const minicharts_d3fns_few = function() {
   // --- beginning chart setup ---

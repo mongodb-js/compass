@@ -10,7 +10,7 @@ const turfDestination = require('turf-destination');
 // const metrics = require('mongodb-js-metrics')();
 // const debug = require('debug')('mongodb-compass:minicharts:geo');
 
-const QueryAction = app.appRegistry.getAction('QueryAction');
+const QueryAction = app.appRegistry.getAction('Query.Actions');
 
 const SELECTED_COLOR = '#F68A1E';
 const UNSELECTED_COLOR = '#43B1E5';

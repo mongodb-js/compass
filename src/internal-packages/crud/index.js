@@ -10,24 +10,24 @@ const LoadMoreDocumentsStore = require('./lib/store/load-more-documents-store');
  * Activate all the components in the CRUD package.
  */
 function activate() {
-  app.appRegistry.registerComponent('Component::CRUD::Document', Document);
-  app.appRegistry.registerComponent('Component::CRUD::DocumentList', DocumentList);
-  app.appRegistry.registerAction('Action::CRUD::DocumentRemoved', Actions.documentRemoved);
-  app.appRegistry.registerStore('Store::CRUD::InsertDocumentStore', InsertDocumentStore);
-  app.appRegistry.registerStore('Store::CRUD::ResetDocumentListStore', ResetDocumentListStore);
-  app.appRegistry.registerStore('Store::CRUD::LoadMoreDocumentsStore', LoadMoreDocumentsStore);
+  app.appRegistry.registerComponent('CRUD.Document', Document);
+  app.appRegistry.registerComponent('CRUD.DocumentList', DocumentList);
+  app.appRegistry.registerAction('CRUD.DocumentRemoved', Actions.documentRemoved);
+  app.appRegistry.registerStore('CRUD.InsertDocumentStore', InsertDocumentStore);
+  app.appRegistry.registerStore('CRUD.ResetDocumentListStore', ResetDocumentListStore);
+  app.appRegistry.registerStore('CRUD.LoadMoreDocumentsStore', LoadMoreDocumentsStore);
 }
 
 /**
  * Deactivate all the components in the CRUD package.
  */
 function deactivate() {
-  app.appRegistry.deregisterComponent('Component::CRUD::Document');
-  app.appRegistry.deregisterComponent('Component::CRUD::DocumentList');
-  app.appRegistry.deregisterAction('Action::CRUD::DocumentRemoved');
-  app.appRegistry.deregisterStore('Store::CRUD::InsertDocumentStore');
-  app.appRegistry.deregisterStore('Store::CRUD::ResetDocumentListStore');
-  app.appRegistry.deregisterStore('Store::CRUD::LoadMoreDocumentsStore');
+  app.appRegistry.deregisterComponent('CRUD.Document');
+  app.appRegistry.deregisterComponent('CRUD.DocumentList');
+  app.appRegistry.deregisterAction('CRUD.DocumentRemoved');
+  app.appRegistry.deregisterStore('CRUD.InsertDocumentStore');
+  app.appRegistry.deregisterStore('CRUD.ResetDocumentListStore');
+  app.appRegistry.deregisterStore('CRUD.LoadMoreDocumentsStore');
 }
 
 module.exports.activate = activate;

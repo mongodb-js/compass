@@ -3,11 +3,10 @@ const app = require('ampersand-app');
 
 // const debug = require('debug')('mongodb-compass:explain:summary');
 
-
 class ExplainJSON extends React.Component {
 
   componentWillMount() {
-    this.documentComponent = app.appRegistry.getComponent('Component::CRUD::Document');
+    this.documentComponent = app.appRegistry.getComponent('CRUD.Document');
   }
 
   /**

@@ -28,14 +28,9 @@ const CompassExplainStore = Reflux.createStore({
    * Initialize everything that is not part of the store's state.
    */
   init() {
-    this.listenToExternalStore('Store::Indexes::IndexStore', this.indexesChanged.bind(this));
+    this.listenToExternalStore('Indexes.IndexStore', this.indexesChanged.bind(this));
     this.indexes = [];
   },
-
-  // packageActivationCompleted() {
-  //   const indexStore = app.appRegistry.getStore('Store::Indexes::IndexStore');
-  //   this.listenTo(indexStore, this.indexesChanged.bind(this));
-  // },
 
   indexesChanged(indexes) {
     this.indexes = indexes;
@@ -119,7 +114,7 @@ const CompassExplainStore = Reflux.createStore({
       explainState: 'fetching'
     });
 
-    const QueryStore = app.appRegistry.getStore('QueryStore');
+    const QueryStore = app.appRegistry.getStore('Query.Store');
     const filter = QueryStore.state.query;
     const options = {};
 
