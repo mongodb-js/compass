@@ -22,6 +22,14 @@ npm install
 npm start
 ```
 
+### Master is broken
+
+Try:
+
+```
+npm install && COMPILE_CACHE=false npm start
+```
+
 ## Key Modules
 
 <dl>
