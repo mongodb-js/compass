@@ -74,6 +74,6 @@ CrudActions.openInsertDocumentDialog((doc, clone) => {
 });
 
 CrudActions.insertDocument((doc) => {
-  console.log('Inserting document into db`);
+  console.log('Inserting document into db');
 });
 ```
