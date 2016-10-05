@@ -6,9 +6,6 @@ Great to have you here. These are a few ways you can help make this project bett
 - add an example to README.md
 - scratch an itch and implement a new feature using our [workflow](#workflow)
 
-More information to help you work on Compass is available in
-[the dev guide](https://github.com/10gen/scout/blob/dev/docs/dev.md).
-
 ## Workflow
 
 1. Fork the repository on GitHub
