@@ -2,13 +2,9 @@
 
 Great to have you here. These are a few ways you can help make this project better:
 
-- scratch an itch and implement a new feature using our [workflow](#workflow)
+- join slack [#compass](https://mongodb.slack.com/messages/compass/)
 - add an example to README.md
-- avoid sending pull requests related to "style" or whitespace as we have
-  tools in our workflow to do this already
-- [create a new issue](http://github.com/10gen/scout/issues)
-  if there is something you need this project to do that it currently doesn't.
-  We're always more than happy to chat about other projects.
+- scratch an itch and implement a new feature using our [workflow](#workflow)
 
 More information to help you work on Compass is available in
 [the dev guide](https://github.com/10gen/scout/blob/dev/docs/dev.md).
@@ -38,9 +34,9 @@ look at existing bugs and help us understand if:
 * If they weren't included originally, what are the steps to reproduce?
 
 You can report new bugs by
-[creating a new issue](http://github.com/10gen/scout/issues).
+[creating a new issue](https://jira.mongodb.org/browse/COMPASS/).
 Please include as much information as possible about your environment
-("I am using node.js v 0.10.28 on OSX Mavericks").  Actual code is always
+("I am using node.js v6.3.1 on macOS Sierra").  Actual code is always
 more valuable than an explanation, so please include a link to a GitHub
 gist or include a snippet directly in your issue description.
 
