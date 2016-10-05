@@ -19,10 +19,6 @@ var CompileCache = require('hadron-compile-cache');
 CompileCache.setHomeDirectory(resourcePath);
 CompileCache.digestMappings = pkg._compileCacheMappings || {};
 
-var StyleManager = require('./style-manager');
-StyleManager.writeStyles();
-
-
 /**
  * The main entrypoint for the application!
  */
@@ -73,6 +69,12 @@ ipc.once('app:launched', function() {
 });
 
 var debug = require('debug')('mongodb-compass:app');
+
+var StyleManager = require('hadron-style-manager');
+new StyleManager(
+  path.join(__dirname, 'compiled-less'),
+  __dirname
+).use(document, path.join(__dirname, 'index.less'));
 
 // @note: Durran: the registry and package manager are set up here in
 //   order to ensure that the compile cache has already been loaded and
