@@ -105,68 +105,13 @@ describe('Compass #spectron', function() {
           it('renders the documents in the list', function() {
             return client
               .gotoDocumentsTab()
-              .getText('li.document-property.string div.document-property-value')
+              .getText('div.element-value-is-string')
               .should
               .eventually
               .include('Aphex Twin');
           });
         });
-
-        context('when editing a document', function() {
-
-        });
-
-        context('when inserting a document', function() {
-
-        });
-
-        context('when deleting a document', function() {
-
-        });
-
-        context('when cloning a document', function() {
-
-        });
-      });
-
-      context('when viewing indexes', function() {
-        it('renders the index view', function() {
-          return client
-            .gotoIndexesTab()
-            .getText('td.name-column div.name')
-            .should
-            .eventually
-            .equal('_id_');
-        });
-      });
-
-      context('when viewing the explain plan', function() {
-        it('renders the explain plan view', function() {
-          return client
-            .gotoExplainPlanTab()
-            .getText('div.nReturned span.stat-value')
-            .should
-            .eventually
-            .equal('4');
-        });
       });
     });
-  // context('when selecting a topic', function() {
-    // it('displays the help contents', function() {
-      // return app.client
-        // .waitForVisible('i.help', 30000)
-        // .click('i.help')
-        // .waitForHelpDialog(30000)
-        // .getText('div.content h1.help-entry-title').should.eventually.be.equal('Favorite Name');
-    // });
-  // });
-
-  // context('when filtering topics', function() {
-    // it('displays the matching topics', function() {
-      // return app.client
-        // .filterHelpTopics('Sampling Results')
-        // .getText('li.list-group-item span').should.eventually.be.equal('Sampling Results');
-    // });
-  // });
   });
 });
