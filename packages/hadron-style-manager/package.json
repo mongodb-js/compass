@@ -23,6 +23,7 @@
     "check"
   ],
   "dependencies": {
+    "less-cache": "^0.24.0"
   },
   "devDependencies": {
     "chai": "^3.4.1",
