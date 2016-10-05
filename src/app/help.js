@@ -14,8 +14,9 @@ var CompileCache = require('hadron-compile-cache');
 CompileCache.setHomeDirectory(resourcePath);
 CompileCache.digestMappings = pkg._compileCacheMappings || {};
 
-var StyleManager = require('./style-manager');
-StyleManager.writeStyles();
+var StyleManager = require('hadron-style-manager');
+var styleManager = new StyleManager(path.join(__dirname, 'compiled-less'), __dirname);
+styleManager.use(document, path.join(__dirname, 'help.less'));
 
 /**
  * The main entrypoint for the application!
