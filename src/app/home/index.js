@@ -1,11 +1,8 @@
 var View = require('ampersand-view');
 var format = require('util').format;
-var SidebarView = require('../sidebar');
 // var IdentifyView = require('../identify');
 var CollectionView = require('./collection');
-var InstancePropertyView = require('./instance-properties');
-var CollectionListItemView = require('./collection-list-item');
-var NamespaceStore = require('hadron-reflux-store').NamespaceStore;
+var { NamespaceStore } = require('hadron-reflux-store');
 var TourView = require('../tour');
 var NetworkOptInView = require('../network-optin');
 var app = require('ampersand-app');
@@ -80,6 +77,13 @@ var HomeView = View.extend({
         ReactDOM.unmountComponentAtNode(containerNode);
       });
     }
+
+    const SideBarComponent = app.appRegistry.getComponent('App:CompassSidebar');
+    ReactDOM.render(
+      React.createElement(SideBarComponent),
+      this.queryByHook('sidebar')
+    );
+
     if (app.preferences.showFeatureTour) {
       this.showTour(false);
     } else {
@@ -107,6 +111,9 @@ var HomeView = View.extend({
     }
   },
   onInstanceFetched: function() {
+    // TODO: Remove this line
+    // Instead, set the instance inside InstanceStore.refreshInstance
+    app.appRegistry.getAction('App:InstanceActions').setInstance(app.instance);
     debug('app.instance fetched', app.instance.serialize());
     metrics.track('Deployment', 'detected', {
       'databases count': app.instance.databases.length,
@@ -178,30 +185,6 @@ var HomeView = View.extend({
           el: el,
           parent: this
         });
-      }
-    },
-    sidebar: {
-      hook: 'sidebar',
-      prepareView: function(el) {
-        return new SidebarView({
-          el: el,
-          parent: this,
-          filterEnabled: true,
-          displayProp: '_id',
-          icon: 'fa-database',
-          widgets: [{
-            viewClass: InstancePropertyView,
-            options: {
-              instance: app.instance
-            }
-          }],
-          nested: {
-            itemViewClass: CollectionListItemView,
-            collectionName: 'collections',
-            displayProp: 'name'
-          },
-          collection: app.instance.databases
-        }).on('show', this.showCollection.bind(this));
       }
     }
   }

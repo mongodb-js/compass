@@ -1,0 +1,143 @@
+.compass-sidebar-container {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+}
+
+.compass-sidebar {
+  margin: 0;
+
+  width: 250px;
+  height: 100%;
+  box-sizing: border-box;
+  border: 1px solid #3E606F;
+  background: #4c5259;
+  color: #bfbfbe;
+
+  &-content {
+    margin-bottom: 10px;
+    line-height: 24px;
+    height: 100%;
+    overflow: auto;
+  }
+
+  &-title {
+    white-space: nowrap;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+
+    &-is-bold {
+      font-weight: bold;
+    }
+
+    &-is-actionable {
+      cursor: pointer;
+    }
+  }
+
+  /* Databases and collections */
+  &-item {
+    position: relative;
+
+    &-is-top-level {
+      margin-bottom: 5px;
+    }
+  }
+
+  &-item-header {
+    padding-left: 24px;
+
+    &-is-expandable {
+      cursor: pointer;
+    }
+  }
+
+  &-expand-icon {
+    position: absolute;
+    top: 5px;
+    left: 6px;
+    transition: all 0.2s linear;
+  }
+
+  &-item-content {
+    margin-left: 24px;
+  }
+
+  /* Filter */
+  &-filter {
+    position: relative;
+    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
+  }
+
+  &-search-icon {
+    position: absolute;
+    top: 6px;
+    left: 4px;
+  }
+
+  &-search-input {
+    padding: 7px 5px 5px 24px;
+    height: auto;
+    background: #585f67;
+    color: #ffffff;
+    width: 100%;
+    border: none;
+    transition: all 150ms ease;
+    /* Not sure why this is necessary in my code */
+    box-sizing: border-box;;
+    font-size: 14px;
+    font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Instance properties */
+  &-properties {
+    margin: 18px 10px;
+  }
+
+  &-hostname {
+    color: #fff;
+    font-weight: 200;
+    line-height: 17px;
+    font-size: 16px;
+  }
+
+  &-version {
+    color: #bfbfbe;
+    font-weight: normal;
+    line-height: 14px;
+    font-size: 13px;
+  }
+
+  &-stats {
+    color: #bfbfbe;
+    margin-top: 8px;
+    line-height: 13px;
+  }
+
+  &-property-column {
+    display: inline-block;
+    border-right: 1px solid #70757a;
+    padding-right: 10px;
+    margin-right: 10px;
+  }
+
+  &-strong-property {
+    font-weight: bold;
+    color: #ebebed;
+  }
+
+  &-refresh-button {
+    color: #ebebed;
+    background: none;
+    border: none;
+    font-size: 13px;
+    transition: all 150ms ease;
+
+    &:hover {
+      background: #42494f;
+      color: #fff;
+    }
+  }
+}
