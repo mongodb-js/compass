@@ -17,7 +17,7 @@ const QueryInputGroup = React.createClass({
   },
 
   onChange(evt) {
-    QueryAction.setQueryString(evt.target.value);
+    QueryAction.typeQueryString(evt.target.value);
   },
 
   onApplyButtonClicked(evt) {

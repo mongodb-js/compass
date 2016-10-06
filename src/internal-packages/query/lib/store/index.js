@@ -58,23 +58,35 @@ const QueryStore = Reflux.createStore({
   },
 
   /**
-   * Sets `queryString` and `valid`, and if it is a valid query, also set `query`.
-   * If it is not a valid query, set `valid` to `false` and don't set the query.
+   * like `setQueryString()` except that it also sets the userTyping state to
+   * true and starts a debouncing timer to detect when the user stops typing.
    *
-   * @param {Object} queryString   the query string (i.e. manual user input)
+   * This is done for performance reasons so we don't re-render all the charts
+   * constantly while the string is still being typed.
    */
-  setQueryString(queryString) {
+  typeQueryString(queryString) {
     if (this.userTypingTimer) {
       clearTimeout(this.userTypingTimer);
     }
     this.userTypingTimer = setTimeout(this._stoppedTyping, USER_TYPING_DEBOUNCE_MS);
+    this.setQueryString(queryString, true);
+  },
+
+  /**
+   * Sets `queryString` and `valid`, and if it is a valid query, also set `query`.
+   * If it is not a valid query, set `valid` to `false` and don't set the query.
+   *
+   * @param {Object} queryString   the query string (i.e. manual user input)
+   * @param {Boolean} userTyping   (optional) whether the user is still typing
+   */
+  setQueryString(queryString, userTyping) {
     const query = this._validateQueryString(queryString);
     const isFeatureFlag = Boolean(this._validateFeatureFlag(queryString));
     const state = {
       queryString: queryString,
       valid: Boolean(query),
       featureFlag: isFeatureFlag,
-      userTyping: true
+      userTyping: Boolean(userTyping)
     };
     if (query) {
       state.query = query;

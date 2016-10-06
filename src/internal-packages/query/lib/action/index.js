@@ -9,9 +9,13 @@ const QueryAction = Reflux.createActions({
   'setQuery': {sync: true},
   /**
    * Sets the entire query as string, overwriting all fields.
-   * Useful for text input.
    */
   'setQueryString': {sync: true},
+  /**
+   * Sets the entire query as string, overwriting all fields, and detects
+   * if the user is still typing. Useful for text input.
+   */
+  'typeQueryString': {sync: true},
   /**
    * Sets the value for a specific field, overwriting all previous values.
    */
