@@ -13,6 +13,9 @@ const bsonEqual = require('../util').bsonEqual;
 const debug = require('debug')('mongodb-compass:stores:query');
 // const metrics = require('mongodb-js-metrics')();
 
+const USER_TYPING_DEBOUNCE_MS = 100;
+const FEATURE_FLAG_REGEX = /^(enable|disable) (\w+)\s*$/;
+
 /**
  * The reflux store for the schema.
  */
@@ -24,6 +27,7 @@ const QueryStore = Reflux.createStore({
    * listen to Namespace store and reset if ns changes.
    */
   init: function() {
+    this.validFeatureFlags = _.keys(_.pick(app.preferences.serialize(), _.isBoolean));
     NamespaceStore.listen(() => {
       // reset the store
       this.setState(this.getInitialState());
@@ -40,8 +44,32 @@ const QueryStore = Reflux.createStore({
       query: {},
       queryString: '{}',
       valid: true,
-      lastExecutedQuery: null
+      featureFlag: false,
+      lastExecutedQuery: null,
+      userTyping: false
     };
+  },
+
+  _stoppedTyping() {
+    this.userTypingTimer = null;
+    this.setState({
+      userTyping: false
+    });
+  },
+
+  /**
+   * like `setQueryString()` except that it also sets the userTyping state to
+   * true and starts a debouncing timer to detect when the user stops typing.
+   *
+   * This is done for performance reasons so we don't re-render all the charts
+   * constantly while the string is still being typed.
+   */
+  typeQueryString(queryString) {
+    if (this.userTypingTimer) {
+      clearTimeout(this.userTypingTimer);
+    }
+    this.userTypingTimer = setTimeout(this._stoppedTyping, USER_TYPING_DEBOUNCE_MS);
+    this.setQueryString(queryString, true);
   },
 
   /**
@@ -49,12 +77,16 @@ const QueryStore = Reflux.createStore({
    * If it is not a valid query, set `valid` to `false` and don't set the query.
    *
    * @param {Object} queryString   the query string (i.e. manual user input)
+   * @param {Boolean} userTyping   (optional) whether the user is still typing
    */
-  setQueryString(queryString) {
+  setQueryString(queryString, userTyping) {
     const query = this._validateQueryString(queryString);
+    const isFeatureFlag = Boolean(this._validateFeatureFlag(queryString));
     const state = {
       queryString: queryString,
-      valid: Boolean(query)
+      valid: Boolean(query),
+      featureFlag: isFeatureFlag,
+      userTyping: Boolean(userTyping)
     };
     if (query) {
       state.query = query;
@@ -100,6 +132,24 @@ const QueryStore = Reflux.createStore({
     return parsed;
   },
 
+  _validateFeatureFlag(queryString) {
+    const match = queryString.match(FEATURE_FLAG_REGEX);
+    if (match && _.contains(this.validFeatureFlags, match[2])) {
+      return match;
+    }
+    return false;
+  },
+
+  _checkFeatureFlagDirective() {
+    const match = this._validateFeatureFlag(this.state.queryString);
+    if (match) {
+      app.preferences.save(match[2], match[1] === 'enable');
+      debug('feature flag %s %sd', match[2], match[1]);
+      return true;
+    }
+    return false;
+  },
+
   /**
    * sets the query and the query string, and computes `valid`.
    *
@@ -111,7 +161,8 @@ const QueryStore = Reflux.createStore({
     this.setState({
       query: query,
       queryString: queryString,
-      valid: Boolean(valid)
+      valid: Boolean(valid),
+      featureFlag: false
     });
   },
 
@@ -335,6 +386,11 @@ const QueryStore = Reflux.createStore({
    * apply the current (valid) query, and store it in `lastExecutedQuery`.
    */
   apply() {
+    if (this._checkFeatureFlagDirective()) {
+      this.setQuery(this.state.lastExecutedQuery || {});
+      return;
+    }
+
     if (this.state.valid) {
       this.setState({
         lastExecutedQuery: _.clone(this.state.query)

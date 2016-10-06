@@ -21,7 +21,9 @@ const Minichart = React.createClass({
   getInitialState() {
     return {
       containerWidth: null,
-      query: {}
+      query: {},
+      valid: true,
+      userTyping: false
     };
   },
 
@@ -41,11 +43,17 @@ const Minichart = React.createClass({
     const QueryStore = app.appRegistry.getStore('Query.Store');
     this.unsubscribeQueryStore = QueryStore.listen((store) => {
       this.setState({
-        query: store.query
+        query: store.query,
+        valid: store.valid,
+        userTyping: store.userTyping
       });
     });
 
     this.unsubscribeMiniChartResize = Actions.resizeMiniCharts.listen(this.handleResize);
+  },
+
+  shouldComponentUpdate(nextProps, nextState) {
+    return nextState.valid && !nextState.userTyping;
   },
 
   componentWillUnmount() {

@@ -12,18 +12,19 @@ const QueryInputGroup = React.createClass({
     query: React.PropTypes.object.isRequired,
     lastExecutedQuery: React.PropTypes.object,
     valid: React.PropTypes.bool.isRequired,
+    featureFlag: React.PropTypes.bool.isRequired,
     queryString: React.PropTypes.string.isRequired
   },
 
   onChange(evt) {
-    QueryAction.setQueryString(evt.target.value);
+    QueryAction.typeQueryString(evt.target.value);
   },
 
   onApplyButtonClicked(evt) {
     evt.preventDefault();
     evt.stopPropagation();
 
-    if (this.props.valid) {
+    if (this.props.valid || this.props.featureFlag) {
       QueryAction.apply();
     }
   },
@@ -39,8 +40,11 @@ const QueryInputGroup = React.createClass({
    */
   render() {
     const query = this.props.queryString;
-    const inputGroupClass = this.props.valid ?
+    let inputGroupClass = this.props.valid ?
       'input-group' : 'input-group has-error';
+    if (this.props.featureFlag) {
+      inputGroupClass = 'input-group is-feature-flag';
+    }
     const notEmpty = this.props.queryString !== DEFAULT_QUERY_STRING &&
       this.props.queryString !== '';
     const resetButtonStyle = {
@@ -48,7 +52,7 @@ const QueryInputGroup = React.createClass({
     };
 
     const hasChanges = this.props.queryString !== EJSON.stringify(this.props.lastExecutedQuery);
-    const applyDisabled = !(this.props.valid && hasChanges);
+    const applyDisabled = !((this.props.valid && hasChanges) || this.props.featureFlag);
 
     return (
       <form onSubmit={this.onApplyButtonClicked}>
