@@ -19,8 +19,13 @@ const CurrentOpStore = Reflux.createStore({
    * the 'pollCurrentOp' command.
    */
   init: function() {
+    this.restart();
     this.listenTo(Actions.pollCurrentOp, this.currentOp);
     this.listenTo(Actions.pause, this.pause);
+    this.listenTo(Actions.restart, this.restart);
+  },
+
+  restart: function() {
     this.allOps = [];
     this.isPaused = false;
     this.endPause = 0;

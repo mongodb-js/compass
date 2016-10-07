@@ -7,7 +7,7 @@ class NavBarComponent extends React.Component {
   constructor() {
     super();
     this.state = {
-      liked: false
+      paused: false
     };
     this.handlePause = this.handlePause.bind(this);
   }

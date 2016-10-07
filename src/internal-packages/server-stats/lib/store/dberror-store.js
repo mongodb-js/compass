@@ -5,7 +5,12 @@ const Actions = require('../action');
 const DBErrorStore = Reflux.createStore({
 
   init: function() {
+    this.restart();
     this.listenTo(Actions.dbError, this.dbError);
+    this.listenTo(Actions.restart, this.restart);
+  },
+
+  restart: function() {
     this.ops = {'top': null, 'currentOp': null, 'serverStatus': null};
     this.errors = {};
   },
