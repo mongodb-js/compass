@@ -1,8 +1,9 @@
 const Reflux = require('reflux');
 const InstanceActions = require('../actions/instance-actions');
 const StateMixin = require('reflux-state-mixin');
+const _ = require('lodash');
 
-const debug = require('debug', 'mongodb-compass:app:instance-store');
+const debug = require('debug')('mongodb-compass:app:instance-store');
 
 const InstanceStore = Reflux.createStore({
 
@@ -46,14 +47,35 @@ const InstanceStore = Reflux.createStore({
 
   refreshInstance() {
     this.setState({ fetching: true });
+
+    let isWaitingForMinimumTimeout = true;
+    let isFetching = true;
+    // Set fetching back to false once 500ms has passed and the actual fetch comples
+    // There's probably a more elegant way to do this with promises...
+    _.delay(() => {
+      isWaitingForMinimumTimeout = false;
+      if (!isFetching) {
+        debug('delayed fetch');
+        this.setState({ fetching: false});
+      }
+    }, 500);
+
+    function handleFetchCallback() {
+      isFetching = false;
+      if (!isWaitingForMinimumTimeout) {
+        debug('not delayed fetch');
+        this.setState({ fetching: false });
+      }
+    }
+
     this.state.instance.fetch({
       success: () => {
         // TODO: Remove setInstance inside HomeView.onInstanceFetched and set here
-        this.setState({ fetching: false });
+        handleFetchCallback();
       },
       error: (instance, response) => {
         debug('Failed to refetch instance', response);
-        this.setState({ fetching: false});
+        handleFetchCallback();
       }
     });
   }

@@ -21,7 +21,7 @@ const SidebarInstanceProperties = React.createClass({
 
   getRefreshIconClassNames() {
     const fetchingInstance = this.state.fetching;
-    return 'fa fa-repeat' + (fetchingInstance ? ' fa-spin' : '');
+    return 'fa ' + (fetchingInstance ? 'fa-refresh fa-spin' : 'fa-repeat');
   },
 
   handleRefresh() {
