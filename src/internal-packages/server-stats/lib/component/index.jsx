@@ -1,6 +1,6 @@
 const React = require('react');
+const Actions = require('../action');
 const Performance = require('./performance-component');
-// const Databases = require('./databases-component');
 const NavBarComponent = require('./navbar-component');
 // const debug = require('debug')('mongodb-compass:server-stats-RTSSComponent');
 
@@ -16,6 +16,10 @@ class RTSSComponent extends React.Component {
    */
   constructor(props) {
     super(props);
+  }
+
+  componentDidMount() {
+    Actions.restart();
   }
 
   /**

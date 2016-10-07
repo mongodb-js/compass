@@ -10,7 +10,8 @@ const Actions = Reflux.createActions([
   'pause',
   'dbError',
   'showOperationDetails',
-  'hideOperationDetails'
+  'hideOperationDetails',
+  'restart'
 ]);
 
 module.exports = Actions;
