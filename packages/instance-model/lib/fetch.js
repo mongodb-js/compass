@@ -294,12 +294,12 @@ function getDatabases(done, results) {
 
 function getUserInfo(done, results) {
   var db = results.db;
+  var options = {
+    readPreference: ReadPreference.secondaryPreferred
+  };
 
   // get the user privileges
-  db.command({
-    connectionStatus: 1,
-    showPrivileges: true
-  }, function(err, res) {
+  db.command({ connectionStatus: 1, showPrivileges: true }, options, function(err, res) {
     // no auth required, if this fails there was a real problem
     if (err) {
       return done(err);
@@ -310,14 +310,9 @@ function getUserInfo(done, results) {
     }
     var user = res.authInfo.authenticatedUsers[0];
 
-    db.command({
-      usersInfo: user,
-      showPrivileges: true
-    }, function(_err, _res) {
+    db.command({ usersInfo: user, showPrivileges: true }, options, function(_err, _res) {
       if (_err) {
-        // @durran: usersInfo can only be run against a primary - so will always fail here
-        // when connected to a secondary. Since we don't use this information anyways at this
-        // point, will return empty data for the user in the case of the error.
+        // @durran: For the case usersInfo cannot be retrieved.
         debug('Command \"usersInfo\" could not be retrieved: ' + _err.message);
         return done(null, {});
       }
