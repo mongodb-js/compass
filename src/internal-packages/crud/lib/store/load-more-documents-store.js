@@ -2,6 +2,12 @@ const Reflux = require('reflux');
 const app = require('ampersand-app');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const Action = require('hadron-action');
+const ReadPreference = require('mongodb').ReadPreference;
+
+/**
+ * The default read preference.
+ */
+const READ = ReadPreference.PRIMARY_PREFERRED;
 
 /**
  * The reflux store for loading more documents.
@@ -22,7 +28,7 @@ const LoadMoreDocumentsStore = Reflux.createStore({
    */
   loadMoreDocuments: function(skip) {
     const filter = app.queryOptions.query.serialize();
-    const options = { skip: skip, limit: 20, sort: [[ '_id', 1 ]] };
+    const options = { skip: skip, limit: 20, sort: [[ '_id', 1 ]], readPreference: READ };
     app.dataService.find(NamespaceStore.ns, filter, options, (error, documents) => {
       if (!error) {
         this.trigger(documents);
