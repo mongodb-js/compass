@@ -2,6 +2,7 @@ const _ = require('lodash');
 const React = require('react');
 const Index = require('./index');
 const SortIndexesStore = require('../store/sort-indexes-store');
+const UpdateIndexesStore = require('../store/update-indexes-store');
 
 /**
  * Component for the index list.
@@ -23,6 +24,7 @@ class IndexList extends React.Component {
    */
   componentWillMount() {
     this.unsubscribeSort = SortIndexesStore.listen(this.handleIndexChange.bind(this));
+    this.unsubscribeUpdate = UpdateIndexesStore.listen(this.handleIndexChange.bind(this));
   }
 
   /**
@@ -30,6 +32,7 @@ class IndexList extends React.Component {
    */
   componentWillUnmount() {
     this.unsubscribeSort();
+    this.unsubscribeUpdate();
   }
 
   /**
