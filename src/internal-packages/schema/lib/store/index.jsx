@@ -3,6 +3,12 @@ const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
 const schemaStream = require('mongodb-schema').stream;
 const _ = require('lodash');
+const ReadPreference = require('mongodb').ReadPreference;
+
+/**
+ * The default read preference.
+ */
+const READ = ReadPreference.PRIMARY_PREFERRED;
 
 // stores
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
@@ -113,7 +119,8 @@ const SchemaStore = Reflux.createStore({
       maxTimeMS: this.state.maxTimeMS,
       query: query,
       size: DEFAULT_NUM_DOCUMENTS,
-      fields: null
+      fields: null,
+      readPreference: READ
     };
 
     const samplingStart = new Date();
@@ -144,7 +151,8 @@ const SchemaStore = Reflux.createStore({
       this.stopSampling();
     };
 
-    app.dataService.count(ns, query, {maxTimeMS: this.state.maxTimeMS}, (err, count) => {
+    const countOptions = { maxTimeMS: this.state.maxTimeMS, readPreference: READ };
+    app.dataService.count(ns, query, countOptions, (err, count) => {
       if (err) {
         return onError(err);
       }
