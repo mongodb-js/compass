@@ -58,6 +58,9 @@ class IndexHeader extends React.Component {
           <IndexHeaderColumn hook="th-size" name="Size" sortOrder={this.state.sortOrder} />
           <IndexHeaderColumn hook="th-usage" name="Usage" sortOrder={this.state.sortOrder} />
           <IndexHeaderColumn hook="th-properties" name="Properties" sortOrder={this.state.sortOrder} />
+          {app.preferences.isFeatureEnabled('indexDDL') ?
+            <IndexHeaderColumn hook="th-drop" name="" sortOrder={this.state.sortOrder}/>
+            : null}
         </tr>
       </thead>
     );

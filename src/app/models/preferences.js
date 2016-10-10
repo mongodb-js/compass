@@ -127,6 +127,16 @@ var Preferences = Model.extend(storageMixin, {
       default: false
     },
     /**
+     * Switch to enable/disable index creation/dropping
+     *
+     * @type {Boolean}
+     */
+    indexDDL: {
+      type: 'boolean',
+      required: true,
+      default: false
+    },
+    /**
      * Switch to enable/disable showing the update banner notification, this
      * is independent of the autoUpdates flag and will not prevent checking for
      * and downloading the new versions.
