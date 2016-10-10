@@ -37,7 +37,8 @@ const SidebarStore = Reflux.createStore({
     return {
       status: 'disabled',
       instance: {},
-      databases: []
+      databases: [],
+      filterRegex: /.*/
     };
   },
 
@@ -45,35 +46,40 @@ const SidebarStore = Reflux.createStore({
     debug('updateInstance');
 
     this.setState({
-      instance: instance,
-      databases: instance.databases.toJSON()
+      instance,
+      databases: this._filterDatabases(this.state.filterRegex, instance.databases)
     });
   },
 
   filterDatabases(re) {
     debug('filterDatabases');
-    const originalDatabaseList = this.state.instance.databases;
-    if (originalDatabaseList.isEmpty()) {
-      return;
+
+    this.setState({
+      databases: this._filterDatabases(re, this.state.instance.databases),
+      filterRegex: re
+    });
+  },
+
+  _filterDatabases(re, databases) {
+    if (databases.isEmpty()) {
+      return [];
     }
 
-    const databases = [];
-    originalDatabaseList.forEach(db => {
+    return databases.reduce((filteredDbs, db) => {
       if (re.test(db._id)) {
-        databases.push(db.toJSON());
-        return;
+        filteredDbs.push(db.toJSON());
+      } else {
+        const collections = db.collections.models.filter(c => re.test(c._id));
+        if (collections.length) {
+          filteredDbs.push({
+            _id: db._id,
+            collections
+          });
+        }
       }
 
-      const collections = db.collections.models.filter(c => re.test(c._id));
-      if (collections.length) {
-        databases.push({
-          _id: db._id,
-          collections
-        });
-      }
-    });
-
-    this.setState({ databases });
+      return filteredDbs;
+    }, []);
   },
 
   /**
@@ -90,7 +96,7 @@ const SidebarStore = Reflux.createStore({
   * @param  {Object} prevState   previous state.
   */
   storeDidUpdate(prevState) {
-    debug('Sidebar store changed from %j to %j', prevState, this.state);
+    debug('Sidebar store changed from', prevState, 'to', this.state);
   }
 });
 

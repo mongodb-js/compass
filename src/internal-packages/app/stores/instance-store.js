@@ -71,11 +71,11 @@ const InstanceStore = Reflux.createStore({
     this.state.instance.fetch({
       success: () => {
         // TODO: Remove setInstance inside HomeView.onInstanceFetched and set here
-        handleFetchCallback();
+        handleFetchCallback.call(this);
       },
       error: (instance, response) => {
         debug('Failed to refetch instance', response);
-        handleFetchCallback();
+        handleFetchCallback.call(this);
       }
     });
   }
