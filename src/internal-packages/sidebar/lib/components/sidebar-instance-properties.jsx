@@ -1,5 +1,6 @@
 const React = require('react');
 const StateMixin = require('reflux-state-mixin');
+const app = require('ampersand-app');
 
 const InstanceStore = require('../../../app/stores/instance-store');
 const InstanceActions = require('../../../app/actions/instance-actions');
@@ -28,6 +29,10 @@ const SidebarInstanceProperties = React.createClass({
     InstanceActions.refreshInstance();
   },
 
+  handleClickHostname() {
+    app.navigate('/');
+  },
+
   render() {
     const instance = this.state.instance;
     const numDbs = instance.databases.length;
@@ -36,7 +41,7 @@ const SidebarInstanceProperties = React.createClass({
     const versionName = this.getVersionName();
     return (
       <div className="compass-sidebar-properties">
-        <div className="compass-sidebar-hostname">{hostnameAndPort}</div>
+        <div className="compass-sidebar-hostname" onClick={this.handleClickHostname}>{hostnameAndPort}</div>
         <div className="compass-sidebar-version">{versionName}</div>
         <div className="compass-sidebar-stats">
           <div className="compass-sidebar-property-column">
