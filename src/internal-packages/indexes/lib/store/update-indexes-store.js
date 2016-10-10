@@ -15,6 +15,7 @@ const UpdateIndexesStore = Reflux.createStore({
   init: function() {
     this.listenTo(LoadIndexesStore, this.loadIndexes);
     this.listenTo(Action.dropIndex, this.dropIndex);
+    this.listenTo(Action.createIndex, this.createIndex);
   },
 
   /**
@@ -36,6 +37,31 @@ const UpdateIndexesStore = Reflux.createStore({
       if (!err) {
         this.indexes = this.indexes.filter(index => index.name !== indexName);
         this.trigger(this.indexes);
+      }
+    });
+  },
+
+  /**
+   * Create index and add it to the store.
+   *
+   * @param {String} ns - The namespace of the index.
+   * @param {Object} spec - The field specification for the index.
+   * @param {Object} options - The optional index options.
+   */
+  createIndex: function(ns, spec, options) {
+    app.dataService.createIndex(ns, spec, options, (createErr) => {
+      if (!createErr) {
+        // reload indexes
+        app.dataService.indexes(ns, {}, (indexesErr, indexes) => {
+          if (!indexesErr) {
+            this.indexes = LoadIndexesStore._convertToModels(indexes);
+            this.trigger(this.indexes);
+          }
+        });
+      } else {
+        console.error(createErr);
+        alert('Error: ' + createErr.errmsg);
+        // display error message somewhere
       }
     });
   }

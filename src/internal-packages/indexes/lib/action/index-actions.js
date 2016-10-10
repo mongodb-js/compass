@@ -1,9 +1,14 @@
 const Reflux = require('reflux');
 
 const IndexActions = Reflux.createActions([
+  'createIndex',
+  'clearForm',
+  'dropIndex',
   'loadIndexes',
   'sortIndexes',
-  'dropIndex'
+  'triggerIndexCreation',
+  'updateField',
+  'updateOption'
 ]);
 
 module.exports = IndexActions;
