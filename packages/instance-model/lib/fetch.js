@@ -314,9 +314,12 @@ function getUserInfo(done, results) {
       usersInfo: user,
       showPrivileges: true
     }, function(_err, _res) {
-      // should always succeed for the logged-in user
       if (_err) {
-        done(_err);
+        // @durran: usersInfo can only be run against a primary - so will always fail here
+        // when connected to a secondary. Since we don't use this information anyways at this
+        // point, will return empty data for the user in the case of the error.
+        debug('Command \"usersInfo\" could not be retrieved: ' + _err.message);
+        return done(null, {});
       }
       done(null, _res.users[0]);
     });
