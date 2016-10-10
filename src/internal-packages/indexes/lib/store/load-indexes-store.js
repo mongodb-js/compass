@@ -4,12 +4,6 @@ const app = require('ampersand-app');
 const IndexModel = require('mongodb-index-model');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const Action = require('../action/index-actions');
-const ReadPreference = require('mongodb').ReadPreference;
-
-/**
- * The default read preference.
- */
-const READ = ReadPreference.PRIMARY_PREFERRED;
 
 /**
  * The reflux store for sorting indexes
@@ -27,12 +21,8 @@ const LoadIndexesStore = Reflux.createStore({
    * Load the indexes.
    */
   loadIndexes: function() {
-    console.log('----------------------------------------- LOAD ');
     if (NamespaceStore.ns) {
-      app.dataService.indexes(NamespaceStore.ns, { readPreference: READ }, (err, indexes) => {
-        console.log('########################################');
-        console.log(err);
-        console.log(indexes);
+      app.dataService.indexes(NamespaceStore.ns, {}, (err, indexes) => {
         if (!err) {
           this.trigger(this._convertToModels(indexes));
         }

@@ -191,6 +191,10 @@ var MongoDBCollectionView = View.extend({
     this.model._id = this.ns;
     this.model.once('sync', this.onCollectionFetched.bind(this));
     this.model.fetch();
+    Action.filterChanged.listen(() => {
+      this.loadIndexesAction();
+      this.fetchExplainPlanAction();
+    });
     Action.filterChanged(app.queryOptions.query.serialize());
   },
   onCollectionFetched: function(model) {
@@ -203,9 +207,6 @@ var MongoDBCollectionView = View.extend({
     metadata['collection name length'] = model.getId().length -
       model.database.length - 1;
     metrics.track('Collection', 'fetched', metadata);
-    // @todo calling these here is temporary until we reactify the collection tabs
-    this.loadIndexesAction();
-    this.fetchExplainPlanAction();
   }
 });
 
