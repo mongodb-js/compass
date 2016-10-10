@@ -4,7 +4,17 @@ const Reflux = require('reflux');
 const app = require('ampersand-app');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const Action = require('hadron-action');
-const metrics = require('mongodb-js-metrics')();
+const ReadPreference = require('mongodb').ReadPreference;
+
+/**
+ * The default read preference.
+ */
+const READ = ReadPreference.PRIMARY_PREFERRED;
+
+/**
+ * The default options.
+ */
+const OPTIONS = { readPreference: READ };
 
 /**
  * The reflux store for resetting the document list.
@@ -25,11 +35,15 @@ const ResetDocumentListStore = Reflux.createStore({
    */
   reset: function(filter) {
     if (NamespaceStore.ns) {
-      app.dataService.count(NamespaceStore.ns, filter, {}, (err, count) => {
-        var options = { limit: 20, sort: [[ '_id', 1 ]] };
-        app.dataService.find(NamespaceStore.ns, filter, options, (error, documents) => {
-          this.trigger(documents, count);
-        });
+      app.dataService.count(NamespaceStore.ns, filter, OPTIONS, (err, count) => {
+        if (!err) {
+          const options = { limit: 20, sort: [[ '_id', 1 ]], readPreference: READ };
+          app.dataService.find(NamespaceStore.ns, filter, options, (error, documents) => {
+            if (!error) {
+              this.trigger(documents, count);
+            }
+          });
+        }
       });
     }
   },
