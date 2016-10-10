@@ -1,4 +1,5 @@
 const Reflux = require('reflux');
+const Actions = require('../action');
 const ServerStatsStore = require('./server-stats-graphs-store');
 const _ = require('lodash');
 // const debug = require('debug')('mongodb-compass:server-stats:mem-store');
@@ -6,8 +7,12 @@ const _ = require('lodash');
 const MemStore = Reflux.createStore({
 
   init: function() {
+    this.restart();
     this.listenTo(ServerStatsStore, this.mem);
+    this.listenTo(Actions.restart, this.restart);
+  },
 
+  restart: function() {
     this.totalCount = {virtual: [], resident: [], mapped: []};
     this.localTime = [];
     this.currentMaxs = [];

@@ -19,8 +19,13 @@ const TopStore = Reflux.createStore({
    * the 'pollTop' command.
    */
   init: function() {
+    this.restart();
     this.listenTo(Actions.pollTop, this.top);
     this.listenTo(Actions.pause, this.pause);
+    this.listenTo(Actions.restart, this.restart);
+  },
+
+  restart: function() {
     this.allOps = [];
     this.isPaused = false;
     this.endPause = 0;

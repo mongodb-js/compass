@@ -1,4 +1,5 @@
 const Reflux = require('reflux');
+const Actions = require('../action');
 const ServerStatsStore = require('./server-stats-graphs-store');
 const _ = require('lodash');
 // const debug = require('debug')('mongodb-compass:server-stats:globallock-store');
@@ -6,8 +7,12 @@ const _ = require('lodash');
 const GlobalLockStore = Reflux.createStore({
 
   init: function() {
+    this.restart();
     this.listenTo(ServerStatsStore, this.globalLock);
+    this.listenTo(Actions.restart, this.restart);
+  },
 
+  restart: function() {
     this.totalCount = {aReads: [], aWrites: [], qReads: [], qWrites: []};
     this.localTime = [];
     this.currentMaxs = [];

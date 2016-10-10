@@ -6,8 +6,13 @@ const Actions = require('../action');
 const ServerStatsStore = Reflux.createStore({
 
   init: function() {
+    this.restart();
     this.listenTo(Actions.pollServerStats, this.serverStats);
+    this.listenTo(Actions.restart, this.restart);
     this.listenTo(Actions.pause, this.pause);
+  },
+
+  restart: function() {
     this.isPaused = false;
   },
 
