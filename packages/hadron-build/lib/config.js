@@ -8,7 +8,7 @@ const async = require('async');
 const createDMG = require('electron-installer-dmg');
 const codesign = require('electron-installer-codesign');
 const electronWinstaller = require('electron-winstaller');
-const electronPrebuiltVersion = require('electron-prebuilt/package.json').version;
+const electronVersion = require('electron/package.json').version;
 
 exports.options = {
   verbose: {
@@ -28,7 +28,7 @@ exports.options = {
   },
   electron_version: {
     describe: 'What version of electron are we using?',
-    default: electronPrebuiltVersion
+    default: electronVersion
   },
   version: {
     describe: 'What version of the application are we building?',
@@ -94,6 +94,12 @@ exports.get = (cli, callback) => {
    * a.k.a What directory is package.json in?
    */
   const PROJECT_ROOT = _.get(cli, 'argv.cwd', process.cwd());
+
+  /**
+   * Ensure the package.json is read from the configured
+   * project root.
+   */
+  const PKG = require(path.join(PROJECT_ROOT, 'package'));
 
   /**
    * Build the options object to pass to `electron-packager`
@@ -180,7 +186,7 @@ exports.get = (cli, callback) => {
 
     const WINDOWS_RESOURCES = path.join(WINDOWS_OUT_X64, 'resources');
 
-    const WINDOWS_ICON = CONFIG.src(_.get(pkg, 'config.hadron.build.win32.icon'));
+    const WINDOWS_ICON = CONFIG.src(_.get(PKG, 'config.hadron.build.win32.icon'));
 
     const WINDOWS_OUT_SETUP_EXE = CONFIG.dest(`${CONFIG.productName}Setup.exe`);
 
@@ -249,7 +255,7 @@ exports.get = (cli, callback) => {
     });
 
     CONFIG.installerOptions = {
-      loadingGif: CONFIG.src(_.get(pkg, 'config.hadron.build.win32.loading_gif')),
+      loadingGif: CONFIG.src(_.get(PKG, 'config.hadron.build.win32.loading_gif')),
       signWithParams: cli.argv.signtool_params,
       iconUrl: cli.argv.favicon_url,
       appDirectory: CONFIG.appPath,
@@ -292,7 +298,7 @@ exports.get = (cli, callback) => {
     const OSX_DOT_APP = path.join(OSX_OUT_X64, `${OSX_APPNAME}.app`);
     const OSX_RESOURCES = path.join(OSX_DOT_APP, 'Contents', 'Resources');
 
-    const OSX_ICON = CONFIG.src(_.get(pkg, 'config.hadron.build.darwin.icon', `${CONFIG.id}.icns`));
+    const OSX_ICON = CONFIG.src(_.get(PKG, 'config.hadron.build.darwin.icon', `${CONFIG.id}.icns`));
 
     const OSX_OUT_DMG = CONFIG.dest(`${OSX_APPNAME}.dmg`);
 
@@ -301,16 +307,16 @@ exports.get = (cli, callback) => {
     _.assign(CONFIG.packagerOptions, {
       name: OSX_APPNAME,
       icon: OSX_ICON,
-      'app-bundle-id': cli.argv.app_bundle_id || _.get(pkg,
+      'app-bundle-id': cli.argv.app_bundle_id || _.get(PKG,
         'config.hadron.build.darwin.app_bundle_id'),
       /**
        * @see http://bit.ly/LSApplicationCategoryType
        */
-      'app-category-type': _.get(pkg,
+      'app-category-type': _.get(PKG,
         'config.hadron.build.darwin.app_category_type',
         'public.app-category.productivity'
       ),
-      protocols: _.get(pkg, 'config.hadron.protocols', [])
+      protocols: _.get(PKG, 'config.hadron.protocols', [])
     });
 
     if (CONFIG.channel !== 'stable') {
@@ -333,8 +339,9 @@ exports.get = (cli, callback) => {
       }
     ];
 
-    const OSX_IDENTITY = _.get(pkg, 'config.hadron.build.darwin.codesign_identity');
-    const OSX_IDENTITY_SHA1 = _.get(pkg, 'config.hadron.build.darwin.codesign_sha1');
+    const OSX_IDENTITY = _.get(PKG, 'config.hadron.build.darwin.codesign_identity');
+    const OSX_IDENTITY_SHA1 = _.get(PKG, 'config.hadron.build.darwin.codesign_sha1');
+
     CONFIG.installerOptions = {
       dmgPath: OSX_OUT_DMG,
       title: CONFIG.productName,
@@ -348,7 +355,7 @@ exports.get = (cli, callback) => {
        * Background image for `.dmg`.
        * @see http://npm.im/electron-installer-dmg
        */
-      background: CONFIG.src(_.get(pkg, 'config.hadron.build.darwin.dmg_background',
+      background: CONFIG.src(_.get(PKG, 'config.hadron.build.darwin.dmg_background',
         'background.png')),
       /**
        * Layout for `.dmg`.

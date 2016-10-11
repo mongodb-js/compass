@@ -24,7 +24,7 @@ const withDefaults = (argv) => {
 };
 
 describe('hadron-build::release', function() {
-  this.timeout(60000);
+  this.timeout(240000);
   var CONFIG = {};
 
   before( (done) => {
@@ -36,7 +36,7 @@ describe('hadron-build::release', function() {
       if (_err) {
         return done(_err);
       }
-      commands.release.run(withDefaults({}), (err, _config) => {
+      commands.release.run(withDefaults({ product_name: 'Hadron App' }), (err, _config) => {
         if (err) {
           return done(err);
         }
@@ -46,12 +46,12 @@ describe('hadron-build::release', function() {
     });
   });
 
-  it.skip('should symlink `Electron` to the app binary on OS X', function(done) {
+  it('should symlink `Electron` to the app binary on OS X', function(done) {
     if (CONFIG.platform !== 'darwin') {
-      return this.skip();
+      return done();
     }
 
-    const bin = path.join(CONFIG.appPath, 'MacOS', 'Electron');
+    const bin = path.join(CONFIG.appPath, 'Contents', 'MacOS', 'Electron');
     fs.exists(bin, function(exists) {
       assert(exists, `Expected ${bin} to exist`);
       done();

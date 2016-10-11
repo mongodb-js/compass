@@ -93,7 +93,7 @@ const createBrandedApplication = (CONFIG, done) => {
       return done(err);
     }
     cli.debug('Packager result is: ' + JSON.stringify(res, null, 2));
-    
+
     if (CONFIG.platform !== 'darwin') {
       return done(null, true);
     }
@@ -114,23 +114,29 @@ const createBrandedApplication = (CONFIG, done) => {
         fs.move(atomIcns, electronIcns, done);
       });
     });
-
-
-    // cli.debug('Ensuring `Contents/MacOS/Electron` is symlinked');
-    //
-    // const cwd = process.cwd();
-    //
-    // process.chdir(path.join(CONFIG.appPath, 'Contents', 'MacOS'));
-    //
-    // fs.ensureSymlink(CONFIG.productName, 'Electron', function(_err) {
-    //   process.chdir(cwd);
-    //   if (_err) {
-    //     return done(_err);
-    //   }
-    //   done();
-    // });
   });
 };
+
+/**
+ * Symlinks the Electron executable to the product name.
+ */
+const symlinkExecutable = (CONFIG, done) => {
+  if (CONFIG.platform === 'darwin') {
+    cli.debug('Ensuring `Contents/MacOS/Electron` is symlinked');
+    const cwd = process.cwd();
+    process.chdir(path.join(CONFIG.appPath, 'Contents', 'MacOS'));
+
+    fs.ensureSymlink(CONFIG.productName, 'Electron', function(_err) {
+      process.chdir(cwd);
+      if (_err) {
+        return done(_err);
+      }
+      done();
+    });
+  } else {
+    done();
+  }
+}
 
 /**
  * For some platforms, there will be extraneous (to us) folders generated
@@ -451,6 +457,7 @@ exports.run = (argv, done) => {
     },
     task('clean compile cache', cleanCompileCache),
     task('create branded application', createBrandedApplication),
+    task('create executable symlink', symlinkExecutable),
     task('cleanup branded application scaffold', cleanupBrandedApplicationScaffold),
     task('write version file', writeVersionFile),
     task('transform package.json', transformPackageJson),
