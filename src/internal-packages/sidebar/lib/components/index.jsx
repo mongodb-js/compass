@@ -6,8 +6,6 @@ const SidebarStore = require('../stores');
 const SidebarDatabase = require('./sidebar-database');
 const SidebarInstanceProperties = require('./sidebar-instance-properties');
 
-const debug = require('debug')('mongodb-compass:components:sidebar');
-
 const Sidebar = React.createClass({
 
   mixins: [ StateMixin.connect(SidebarStore) ],
