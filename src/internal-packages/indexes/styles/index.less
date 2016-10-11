@@ -43,6 +43,10 @@
       padding-left: 24px;
     }
 
+    &[data-hook="th-drop"] {
+      display: none;
+    }
+
     &.active .sort {
       display: inline-block;
     }
@@ -134,10 +138,9 @@
     }
 
     &.drop-column {
-      padding-right: 18px;
-
-      .drop-icon {
+      .drop-column-icon {
         font-size: 24px;
+        padding-right: 18px;
       }
     }
 

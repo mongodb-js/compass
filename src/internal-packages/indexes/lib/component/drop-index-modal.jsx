@@ -43,10 +43,8 @@ class DropIndexModal extends React.Component {
   handleConfirm(evt) {
     evt.preventDefault();
     evt.stopPropagation();
-    if (this.state.confirmName === this.props.indexName) {
-      Action.dropIndex(this.props.indexName);
-      this.props.close();
-    }
+    Action.dropIndex(this.props.indexName);
+    this.props.close();
   }
 
   /**
@@ -69,7 +67,7 @@ class DropIndexModal extends React.Component {
             <div>
               <p className="drop-confirm-message">
                 <i className="drop-confirm-icon fa fa-exclamation-triangle" aria-hidden="true"></i>
-                Type the name
+                Type the index name
                 <strong> {this.props.indexName} </strong>
                 to drop
               </p>
@@ -91,6 +89,7 @@ class DropIndexModal extends React.Component {
                 </button>
                 <button
                   className="drop-btn btn btn-primary btn-sm"
+                  disabled={this.state.confirmName !== this.props.indexName}
                   type="submit">
                   Drop
                 </button>
