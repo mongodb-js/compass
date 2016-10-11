@@ -9,7 +9,7 @@ const spawn = require('child_process').spawn;
 const ui = require('./ui');
 const verify = require('./verify');
 const cli = require('mongodb-js-cli')('hadron-build:develop');
-const ELECTRON_EXECUTABLE = require('electron');
+const ELECTRON_PREBUILT_EXECUTABLE = require('electron-prebuilt');
 
 exports.command = 'develop [options]';
 
@@ -42,7 +42,7 @@ exports.tasks = function(argv) {
     verify.tasks(argv),
     ui.tasks(argv)
   ])
-  .then( () => exports.startElectron(argv));
+  .then( () => exports.startElectronPrebuilt(argv));
 };
 
 exports.handler = (argv) => {
@@ -50,7 +50,7 @@ exports.handler = (argv) => {
     .catch((err) => cli.abortIfError(err));
 };
 
-exports.startElectron = (argv) => {
+exports.startElectronPrebuilt = (argv) => {
   argv = argv || {};
 
   const cwd = argv.cwd || process.cwd();
@@ -67,7 +67,7 @@ exports.startElectron = (argv) => {
   args.push(cwd);
 
   const p = Promise.defer();
-  spawn(ELECTRON_EXECUTABLE, args, options)
+  spawn(ELECTRON_PREBUILT_EXECUTABLE, args, options)
     .on('error', (err) => p.reject(err))
     .on('exit', () => p.resolve());
   return p.promise;

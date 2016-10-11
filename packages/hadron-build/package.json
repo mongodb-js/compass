@@ -32,7 +32,7 @@
     "electron-license": "^0.2.0",
     "electron-mocha": "^2.3.1",
     "electron-packager": "^8.0.0",
-    "electron": "1.4.2",
+    "electron-prebuilt": "1.2.8",
     "electron-winstaller": "^2.3.3",
     "flatnest": "^1.0.0",
     "fs-extra": "^0.26.5",

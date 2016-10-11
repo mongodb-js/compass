@@ -8,7 +8,7 @@ const async = require('async');
 const createDMG = require('electron-installer-dmg');
 const codesign = require('electron-installer-codesign');
 const electronWinstaller = require('electron-winstaller');
-const electronVersion = require('electron/package.json').version;
+const electronPrebuiltVersion = require('electron-prebuilt/package.json').version;
 
 exports.options = {
   verbose: {
@@ -28,7 +28,7 @@ exports.options = {
   },
   electron_version: {
     describe: 'What version of electron are we using?',
-    default: electronVersion
+    default: electronPrebuiltVersion
   },
   version: {
     describe: 'What version of the application are we building?',
