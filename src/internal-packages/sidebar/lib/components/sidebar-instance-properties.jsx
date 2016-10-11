@@ -11,11 +11,20 @@ const SidebarInstanceProperties = React.createClass({
 
   getHostnameAndPort() {
     const instance = this.state.instance;
+    if (!instance.hostname) {
+      return '';
+    }
+
     return `${instance.hostname}.${instance.port}`;
   },
 
   getVersionName() {
     const instance = this.state.instance;
+
+    if (!instance.build.version) {
+      return '';
+    }
+
     const moduleName = instance.build.enterprise_module ? 'Enterprise' : 'Community';
     return `${moduleName} version ${instance.build.version}`;
   },
