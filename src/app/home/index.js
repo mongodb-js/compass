@@ -58,6 +58,7 @@ var HomeView = View.extend({
     }
     this.listenTo(app.instance, 'sync', this.onInstanceFetched);
     this.listenTo(app.connection, 'change:name', this.updateTitle);
+    NamespaceStore.listen(this.showCollection.bind(this));
     ipc.on('window:show-compass-tour', this.showTour.bind(this, true));
     ipc.on('window:show-network-optin', this.showOptIn.bind(this));
 
@@ -149,11 +150,13 @@ var HomeView = View.extend({
     }
     document.title = title;
   },
-  showCollection: function(model) {
+  showCollection: function() {
     // get the equivalent collection model that's nested in the
     // db/collection hierarchy under app.instance.databases[].collections[]
-    var ns = toNS(model.getId());
-    model = app.instance
+
+    var ns = toNS(NamespaceStore.ns);
+
+    var model = app.instance
       .databases.get(ns.database)
       .collections.get(ns.ns);
 
@@ -163,7 +166,6 @@ var HomeView = View.extend({
     }
 
     this.ns = model.getId();
-    NamespaceStore.ns = ns.ns;
     this.updateTitle(model);
     this.showNoCollectionsZeroState = false;
     this.showDefaultZeroState = false;
