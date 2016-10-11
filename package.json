@@ -95,6 +95,7 @@
     "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz",
     "d3": "^3.5.6",
     "d3-flextree": "^1.0.3",
+    "d3-timer": "^1.0.3",
     "debug": "mongodb-js/debug#v2.2.3",
     "debug-menu": "^0.3.0",
     "detect-coordinates": "^0.1.0",

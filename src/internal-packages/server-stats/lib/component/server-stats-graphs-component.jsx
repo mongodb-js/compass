@@ -1,3 +1,4 @@
+const timer = require('d3-timer');
 const React = require('react');
 const Actions = require('../action');
 const ChartComponent = require('./chart-component');
@@ -25,7 +26,7 @@ class ServerStatsComponent extends React.Component {
    * When the component mounts, start the polling timer.
    */
   componentDidMount() {
-    this.intervalId = setInterval(() => {
+    this.timer = timer.interval(() => {
       Actions.pollServerStats();
     }, this.props.interval);
   }
@@ -34,7 +35,7 @@ class ServerStatsComponent extends React.Component {
    * When the component unmounts, we stop the timer.
    */
   componentWillUnmount() {
-    clearInterval(this.intervalId);
+    this.timer.stop();
   }
 
   /**
