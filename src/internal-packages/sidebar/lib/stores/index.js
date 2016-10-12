@@ -1,8 +1,9 @@
+const app = require('ampersand-app');
 const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
 
 const SidebarActions = require('../actions');
-const InstanceActions = require('../../../app/actions/instance-actions');
+const InstanceActions = app.appRegistry.getAction('App.InstanceActions');
 
 const debug = require('debug')('mongodb-compass:stores:sidebar');
 
@@ -33,7 +34,6 @@ const SidebarStore = Reflux.createStore({
   * @return {Object} initial store state.
   */
   getInitialState() {
-    debug('getInitialState');
     return {
       status: 'disabled',
       instance: {},
@@ -43,8 +43,6 @@ const SidebarStore = Reflux.createStore({
   },
 
   setInstance(instance) {
-    debug('updateInstance');
-
     this.setState({
       instance,
       databases: this._filterDatabases(this.state.filterRegex, instance.databases)
@@ -52,8 +50,6 @@ const SidebarStore = Reflux.createStore({
   },
 
   filterDatabases(re) {
-    debug('filterDatabases');
-
     this.setState({
       databases: this._filterDatabases(re, this.state.instance.databases),
       filterRegex: re
@@ -80,15 +76,6 @@ const SidebarStore = Reflux.createStore({
 
       return filteredDbs;
     }, []);
-  },
-
-  /**
-  * handlers for each action defined in ../actions/index.jsx, for example:
-  */
-  toggleStatus() {
-    this.setState({
-      status: this.state.status === 'enabled' ? 'disabled' : 'enabled'
-    });
   },
 
   /**

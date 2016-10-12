@@ -7,18 +7,18 @@ const CompassSidebarStore = require('./lib/stores');
  * Activate all the components in the Compass Sidebar package.
  */
 function activate() {
-  app.appRegistry.registerComponent('App:CompassSidebar', CompassSidebarComponent);
-  app.appRegistry.registerAction('CompassSidebarActions', CompassSidebarActions);
-  app.appRegistry.registerStore('CompassSidebarStore', CompassSidebarStore);
+  app.appRegistry.registerComponent('Sidebar.Component', CompassSidebarComponent);
+  app.appRegistry.registerAction('Sidebar.Actions', CompassSidebarActions);
+  app.appRegistry.registerStore('Sidebar.Store', CompassSidebarStore);
 }
 
 /**
  * Deactivate all the components in the Compass Sidebar package.
  */
 function deactivate() {
-  app.appRegistry.deregisterComponent('App:CompassSidebar');
-  app.appRegistry.deregisterAction('CompassSidebarActions');
-  app.appRegistry.deregisterStore('CompassSidebarStore');
+  app.appRegistry.deregisterComponent('Sidebar.Component');
+  app.appRegistry.deregisterAction('Sidebar.Actions');
+  app.appRegistry.deregisterStore('Sidebar.Store');
 }
 
 module.exports = CompassSidebarComponent;

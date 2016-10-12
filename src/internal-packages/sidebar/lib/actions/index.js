@@ -4,7 +4,7 @@ const SidebarActions = Reflux.createActions([
   /**
    * define your actions as strings below, for example:
    */
-  'toggleStatus', 'filterDatabases'
+  'filterDatabases'
 ]);
 
 module.exports = SidebarActions;

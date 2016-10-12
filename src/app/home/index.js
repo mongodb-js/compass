@@ -79,7 +79,7 @@ var HomeView = View.extend({
       });
     }
 
-    const SideBarComponent = app.appRegistry.getComponent('App:CompassSidebar');
+    const SideBarComponent = app.appRegistry.getComponent('Sidebar.Component');
     ReactDOM.render(
       React.createElement(SideBarComponent),
       this.queryByHook('sidebar')
@@ -114,7 +114,7 @@ var HomeView = View.extend({
   onInstanceFetched: function() {
     // TODO: Remove this line
     // Instead, set the instance inside InstanceStore.refreshInstance
-    app.appRegistry.getAction('App:InstanceActions').setInstance(app.instance);
+    app.appRegistry.getAction('App.InstanceActions').setInstance(app.instance);
     debug('app.instance fetched', app.instance.serialize());
     metrics.track('Deployment', 'detected', {
       'databases count': app.instance.databases.length,
