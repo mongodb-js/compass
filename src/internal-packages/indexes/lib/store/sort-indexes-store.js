@@ -1,6 +1,7 @@
 const Reflux = require('reflux');
 const Action = require('../action/index-actions');
 const LoadIndexesStore = require('./load-indexes-store');
+const UpdateIndexesStore = require('./update-indexes-store');
 
 const DEFAULT = 'Name and Definition';
 const ASC = 'fa-sort-asc';
@@ -17,6 +18,7 @@ const SortIndexesStore = Reflux.createStore({
    */
   init: function() {
     this.listenTo(LoadIndexesStore, this.loadIndexes);
+    this.listenTo(UpdateIndexesStore, this.loadIndexes);
     this.listenTo(Action.sortIndexes, this.sortIndexes);
   },
 
