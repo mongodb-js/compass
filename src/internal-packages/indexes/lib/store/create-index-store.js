@@ -13,7 +13,7 @@ const CreateIndexStore = Reflux.createStore({
    * Initialize the index fields store.
    */
   init: function() {
-    this.listenTo(SchemaStore, this.parseFields);
+    this.listenTo(SchemaStore, this.loadFields);
     this.listenTo(Action.clearForm, this.clearForm);
     this.listenTo(Action.triggerIndexCreation, this.triggerIndexCreation);
     this.listenTo(Action.updateField, this.updateField);
@@ -80,13 +80,12 @@ const CreateIndexStore = Reflux.createStore({
    *
    * @param {Object} schemaStoreState - The state of the schema store (from schema package).
    */
-  parseFields: function(schemaStoreState) {
+  loadFields: function(schemaStoreState) {
     let schemaFields = [];
     if (schemaStoreState.schema) {
       schemaFields = schemaStoreState.schema.fields;
     }
-    // only need field names
-    schemaFields = schemaFields.map(field => field.name);
+    schemaFields = this._parseSchemaFields(schemaFields, '');
     // don't allow users to make indexes on _id
     this.schemaFields = schemaFields.filter(name => name !== '_id');
     this.sendValues();
