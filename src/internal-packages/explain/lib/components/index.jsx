@@ -1,5 +1,7 @@
 const React = require('react');
-const StoreConnector = require('./store-connector');
+
+const app = require('ampersand-app');
+const StoreConnector = app.appRegistry.getComponent('App.StoreConnetor');
 const CompassExplain = require('./compass-explain');
 const Store = require('../stores');
 

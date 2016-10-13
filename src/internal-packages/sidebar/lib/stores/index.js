@@ -35,7 +35,6 @@ const SidebarStore = Reflux.createStore({
   */
   getInitialState() {
     return {
-      status: 'disabled',
       instance: {},
       databases: [],
       filterRegex: /.*/
