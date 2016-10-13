@@ -1,4 +1,5 @@
 const Reflux = require('reflux');
+const EJSON = require('mongodb-extended-json');
 const Action = require('../action/index-actions');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const SchemaStore = require('../../../schema/lib/store');
@@ -44,17 +45,32 @@ const CreateIndexStore = Reflux.createStore({
     });
 
     const options = {};
-    Object.keys(this.options).forEach(key => {
+    for (const key of Object.keys(this.options)) {
       const option = this.options[key];
       if (option.value) {
         if (option.param) {
-          if (key === 'ttl') options.expireAfterSeconds = Number(option.param);
-          else options[key] = option.param;
-        } else {
+          // check for special parameters
+          if (key === 'ttl') {
+            options.expireAfterSeconds = Number(option.param);
+          } else if (key === 'partialFilterExpression') {
+            try {
+              const parsed = EJSON.parse(option.param);
+              options[key] = parsed;
+            } catch (err) {
+              // validation error
+              console.error(err);
+              alert(err);
+              // skip this key (display message? cancel creation?)
+              throw err;
+            }
+          } else {
+            options[key] = option.param;
+          }
+        } else { // if no param value
           options[key] = option.value;
         }
       }
-    });
+    }
 
     Action.createIndex(NamespaceStore.ns, spec, options);
   },
@@ -74,6 +90,34 @@ const CreateIndexStore = Reflux.createStore({
     // don't allow users to make indexes on _id
     this.schemaFields = schemaFields.filter(name => name !== '_id');
     this.sendValues();
+  },
+
+  /**
+   * Recursivey find all possible index paths in a schema's fields (assumes no duplicate paths).
+   *
+   * @param {Array} fields - The fields of a schema.
+   * @param {string} prefix - The path to the current fields
+   *
+   * @returns {Array} The possible index paths in a schema.
+   */
+  _parseSchemaFields: function(fields, prefix) {
+    let possiblePaths = [];
+
+    // add each field's path to field set
+    let path = '';
+    for (const field of fields) {
+      path = prefix + field.name;
+      possiblePaths.push(path);
+
+      // recursively search sub documents
+      for (const type of field.types) {
+        if (type.name === 'Document') {
+          // append . to current path so nested documents have proper prefix
+          possiblePaths = possiblePaths.concat(this._parseSchemaFields(type.fields, path + '.'));
+        }
+      }
+    }
+    return possiblePaths;
   },
 
   /**

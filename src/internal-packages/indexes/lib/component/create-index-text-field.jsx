@@ -1,5 +1,8 @@
 const React = require('react');
 const Action = require('../action/index-actions');
+const Query = require('mongodb-language-model').Query;
+const EJSON = require('mongodb-extended-json');
+const _ = require('lodash');
 
 /**
  * Component for the create index text field.
@@ -13,9 +16,13 @@ class CreateIndexTextField extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.state = {
+    const state = {
       value: ''
     };
+    if (this.props.option === 'partialFilterExpression') {
+      state.value = '{}';
+    }
+    this.state = state;
   }
 
   /**
@@ -30,8 +37,54 @@ class CreateIndexTextField extends React.Component {
     if (this.props.option === 'name') {
       // max index name length of 128 characters
       value = value.substring(0, 128);
+    } if (this.props.option === 'partialFilterExpression') {
+      value = this._cleanQueryString(value);
     }
     this.setState({ value: value });
+  }
+
+  /**
+   * Format query string for partial filter expression (taken from query module).
+   *
+   * @param {string} queryString - The partial filter object string to be cleaned.
+   * @returns {string} The formatted query string.
+   */
+  _cleanQueryString(queryString) {
+    let output = queryString;
+    // accept whitespace-only input as empty query
+    if (_.trim(output) === '') {
+      output = '{}';
+    }
+    // wrap field names in double quotes. I appologize for the next line of code.
+    // @see http://stackoverflow.com/questions/6462578/alternative-to-regex-match-all-instances-not-inside-quotes
+    // @see https://regex101.com/r/xM7iH6/1
+    output = output.replace(/([{,])\s*([^,{\s\'"]+)\s*:(?=([^"\\]*(\\.|"([^"\\]*\\.)*[^"\\]*"))*[^"]*$)/g, '$1"$2":');
+    // replace multiple whitespace with single whitespace
+    output = output.replace(/\s+/g, ' ');
+    return output;
+  }
+
+  /**
+   * validates whether a string is a valid query (from query module).
+   *
+   * @param  {Object} queryString    a string to validate
+   * @returns {Object|Boolean}        false if invalid, otherwise the query
+   */
+  _validateQueryString(queryString) {
+    let parsed;
+    try {
+      // is it valid eJSON?
+      const cleaned = this._cleanQueryString(queryString);
+      parsed = EJSON.parse(cleaned);
+      // is it a valid parsable Query according to the language?
+      /* eslint no-unused-vars: 0 */
+      const query = new Query(parsed, {
+        parse: true
+      });
+    } catch (e) {
+      return false;
+    }
+    return parsed;
   }
 
   /**
@@ -47,13 +100,19 @@ class CreateIndexTextField extends React.Component {
    * @returns {React.Component} The create index parameter text field field.
    */
   renderParamTextField() {
-    const className = this.props.units ? 'inline-option-field' : '';
+    let groupClassName = 'form-group create-index-param';
+    let inputClassName = 'form-control create-index-param-input';
+    if (this.props.units) inputClassName += ' inline-option-field';
+    if (this.props.option === 'partialFilterExpression') {
+      const valid = Boolean(this._validateQueryString(this.state.value));
+      if (!valid) groupClassName += ' has-error';
+    }
     return (
-      <div className="form-group create-index-param">
+      <div className={groupClassName}>
         <input
           type="text"
           value={this.state.value}
-          className={className + ' form-control create-index-param-input'}
+          className={inputClassName}
           disabled={!this.props.enabled}
           onBlur={this.submitValue.bind(this)}
           onChange={this.handleChange.bind(this)} />
