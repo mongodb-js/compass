@@ -206,13 +206,13 @@ const graphfunction = function() {
 
       // Update lines + Animate smoothly
       const line = d3.svg.line()
-      // .interpolate('monotone') // TODO: fix with defined()
-        .defined(function(d, i) {
-          if (x(data.localTime[i]) < x.range()[0] - xTick || x(data.localTime[i]) > x.range()[1] + xTick) {
+        .defined(function(d, i) { // Don't draw if coming back from sleep, or off the chart.
+          if (data.skip[i]) {
             return false;
           }
-          return true;
+          return (x(data.localTime[i]) >= x.range()[0] && x(data.localTime[i]) <= x.range()[1]);
         })
+        .interpolate('monotone')
         .x(function(d, i) { return x(data.localTime[i]); })
         .y(function(d) { return y(d); });
       const time = data.paused ? 0 : 983;
@@ -234,13 +234,13 @@ const graphfunction = function() {
           .attr('transform', translate);
         if (scale2) {
           const line2 = d3.svg.line()
-            // .interpolate('monotone') // TODO: fix with defined()
-            .defined(function(d, i) {
-              if (x(data.localTime[i]) < x.range()[0] - xTick || x(data.localTime[i]) > x.range()[1] + xTick) {
+            .defined(function(d, i) { // Don't draw if coming back from sleep, or off the chart.
+              if (data.skip[i]) {
                 return false;
               }
-              return true;
+              return (x(data.localTime[i]) >= x.range()[0] && x(data.localTime[i]) <= x.range()[1]);
             })
+            .interpolate('monotone')
             .x(function(d, i) {
               return x(data.localTime[i]);
             })
@@ -346,6 +346,9 @@ const graphfunction = function() {
         let index = bisectDate(data.localTime, x.invert(mouseLocation), 1);
         if (index >= data.localTime.length) {
           index = data.localTime.length - 1;
+        }
+        while (data.skip[index]) {
+          index++;
         }
         if ('trigger' in data) {
           TopStore.mouseOver(index);
