@@ -140,7 +140,7 @@ var HomeView = View.extend({
         this.showDefaultZeroState = true;
       }
     } else {
-      this.showCollection(app.instance.collections.get(this.ns));
+      NamespaceStore.ns = this.ns;
     }
   },
   updateTitle: function(model) {
