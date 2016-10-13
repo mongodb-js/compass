@@ -143,9 +143,8 @@ const graphfunction = function() {
       container.selectAll('text.error-message').style('display', 'none');
 
       // Line setup
-      let minTime = data.localTime[data.localTime.length - 1];
-      minTime = new Date(minTime.getTime() - (data.xLength * 1000));
-      const xDomain = d3.extent([minTime].concat(data.localTime));
+      const maxTime = data.localTime[data.localTime.length - 1];
+      const minTime = new Date(maxTime.getTime() - (data.xLength * 1000));
       const legendWidth = subWidth / data.keyLength;
       const scale2 = 'secondScale' in data;
       keys = data.dataSets.map(function(f) { return f.line; });
@@ -154,7 +153,7 @@ const graphfunction = function() {
       }
       // Update scales
       x
-        .domain(xDomain)
+        .domain([minTime, maxTime])
         .range([0, subWidth]);
       y
         .domain(data.yDomain)
@@ -173,7 +172,7 @@ const graphfunction = function() {
       container.selectAll('text.text-units') // Repeat this in case error occurred
         .text(data.labels.yAxis);
       container.selectAll('text.max')
-        .text(d3.time.format('%X')(xDomain[1]));
+        .text(d3.time.format('%X')(maxTime));
       container.selectAll('text.min')
         .text(d3.time.format('%X')(timeZero));
       // second line label
@@ -207,7 +206,13 @@ const graphfunction = function() {
 
       // Update lines + Animate smoothly
       const line = d3.svg.line()
-        .interpolate('monotone')
+      // .interpolate('monotone') // TODO: fix with defined()
+        .defined(function(d, i) {
+          if (x(data.localTime[i]) < x.range()[0] - xTick || x(data.localTime[i]) > x.range()[1] + xTick) {
+            return false;
+          }
+          return true;
+        })
         .x(function(d, i) { return x(data.localTime[i]); })
         .y(function(d) { return y(d); });
       const time = data.paused ? 0 : 983;
@@ -229,7 +234,13 @@ const graphfunction = function() {
           .attr('transform', translate);
         if (scale2) {
           const line2 = d3.svg.line()
-            .interpolate('monotone')
+            // .interpolate('monotone') // TODO: fix with defined()
+            .defined(function(d, i) {
+              if (x(data.localTime[i]) < x.range()[0] - xTick || x(data.localTime[i]) > x.range()[1] + xTick) {
+                return false;
+              }
+              return true;
+            })
             .x(function(d, i) {
               return x(data.localTime[i]);
             })
