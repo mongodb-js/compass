@@ -54,14 +54,15 @@ const UpdateIndexesStore = Reflux.createStore({
         // reload indexes
         app.dataService.indexes(ns, {}, (indexesErr, indexes) => {
           if (!indexesErr) {
+            Action.updateStatus('complete');
             this.indexes = LoadIndexesStore._convertToModels(indexes);
             this.trigger(this.indexes);
+          } else {
+            Action.updateStatus('error', indexesErr.errmsg);
           }
         });
       } else {
-        console.error(createErr);
-        alert('Error: ' + createErr.errmsg);
-        // display error message somewhere
+        Action.updateStatus('error', createErr.errmsg);
       }
     });
   }

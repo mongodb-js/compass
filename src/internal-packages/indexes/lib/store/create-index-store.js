@@ -56,12 +56,10 @@ const CreateIndexStore = Reflux.createStore({
             try {
               const parsed = EJSON.parse(option.param);
               options[key] = parsed;
-            } catch (err) {
-              // validation error
-              console.error(err);
-              alert(err);
-              // skip this key (display message? cancel creation?)
-              throw err;
+            } catch (err) { // validation error
+              Action.updateStatus('error', String(err));
+              // stop creation
+              return;
             }
           } else {
             options[key] = option.param;
@@ -72,6 +70,7 @@ const CreateIndexStore = Reflux.createStore({
       }
     }
 
+    Action.updateStatus('inProgress');
     Action.createIndex(NamespaceStore.ns, spec, options);
   },
 

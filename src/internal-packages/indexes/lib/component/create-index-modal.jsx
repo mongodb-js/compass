@@ -1,11 +1,13 @@
 const React = require('react');
 const Modal = require('react-bootstrap').Modal;
 const CreateIndexStore = require('../store/create-index-store');
+const DDLStatusStore = require('../store/ddl-status-store');
 const SelectedIndexField = require('./selected-index-field');
 const CreateIndexCheckbox = require('./create-index-checkbox');
 const CreateIndexField = require('./create-index-field');
 const CreateIndexTextField = require('./create-index-text-field');
 const OptionsToggleBar = require('./options-toggle-bar');
+const StatusMessage = require('./status-message');
 const Action = require('../action/index-actions');
 
 /**
@@ -32,6 +34,9 @@ class CreateIndexModal extends React.Component {
     super(props);
     this.state = {
       showOptions: false,
+      error: false,
+      errorMessage: '',
+      inProgress: false,
       schemaFields: [],
       fields: [],
       options: {}
@@ -43,6 +48,7 @@ class CreateIndexModal extends React.Component {
    */
   componentWillMount() {
     this.unsubscribeCreateField = CreateIndexStore.listen(this.handleStoreChange.bind(this));
+    this.unsubscribeDDLStatus = DDLStatusStore.listen(this.handleStatusChange.bind(this));
   }
 
   /**
@@ -50,7 +56,7 @@ class CreateIndexModal extends React.Component {
    */
   componentWillUnmount() {
     this.unsubscribeCreateField();
-    this.unsubscribeFields();
+    this.unsubscribeDDLStatus();
   }
 
   /**
@@ -101,6 +107,7 @@ class CreateIndexModal extends React.Component {
    */
   close() {
     Action.clearForm();
+    this.setState({inProgress: false, error: false, errorMessage: ''});
     this.props.close();
   }
 
@@ -120,7 +127,22 @@ class CreateIndexModal extends React.Component {
     evt.preventDefault();
     evt.stopPropagation();
     Action.triggerIndexCreation();
-    this.close();
+  }
+
+  /**
+   * Handle changes in creation state (success, error, or complete).
+   *
+   * @param {string} status - The status.
+   * @param {string} message - The error message.
+   */
+  handleStatusChange(status, message) {
+    if (status === 'inProgress') {
+      this.setState({inProgress: true, error: false, errorMessage: message});
+    } else if (status === 'error') {
+      this.setState({inProgress: false, error: true, errorMessage: message});
+    } else {
+      this.close();
+    }
   }
 
   /**
@@ -184,6 +206,14 @@ class CreateIndexModal extends React.Component {
                 <div className="create-index-options">
                   {this.getOptionFields()}
                 </div>
+                : null}
+
+              {this.state.error ?
+                <StatusMessage icon="times" message={this.state.errorMessage} type="error" />
+                : null}
+
+              {this.state.inProgress ?
+                <StatusMessage icon="align-center" message={'Add in Progress'} type="in-progress" />
                 : null}
 
               <div className="create-index-confirm-buttons">
