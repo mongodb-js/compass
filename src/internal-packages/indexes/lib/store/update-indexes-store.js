@@ -58,13 +58,30 @@ const UpdateIndexesStore = Reflux.createStore({
             this.indexes = LoadIndexesStore._convertToModels(indexes);
             this.trigger(this.indexes);
           } else {
-            Action.updateStatus('error', indexesErr.errmsg);
+            Action.updateStatus('error', this._parseErrorMsg(indexesErr));
           }
         });
       } else {
-        Action.updateStatus('error', createErr.errmsg);
+        Action.updateStatus('error', this._parseErrorMsg(createErr));
       }
     });
+  },
+
+  /**
+   * Data Service attaches string message property for some errors, but not all
+   * that can happen during index creation/dropping. Check first for data service
+   * custom error, then node driver errmsg, lastly use default error message.
+   *
+   * @param {Object) error - The error to parse a message from
+   */
+  _parseErrorMsg: function(error) {
+    if (typeof error.message === 'string') {
+      return error.message;
+    } else if (typeof error.errmsg === 'string') {
+      return error.errmsg;
+    } else {
+      return 'Unknown error';
+    }
   }
 });
 
