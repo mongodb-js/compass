@@ -58,6 +58,7 @@ class CreateIndexField extends React.Component {
     evt.stopPropagation();
     if (this.state.field !== 'Add a Field') {
       Action.updateField(this.state.field, this.state.type, 'add');
+      this.setState({field: 'Add a Field', type: '1 (asc)'});
     }
   }
 
