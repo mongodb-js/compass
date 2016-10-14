@@ -168,6 +168,30 @@ class CreateIndexModal extends React.Component {
   }
 
   /**
+   * Render the create and cancel buttons.
+   *
+   * @returns {React.Component} The create and cancel buttons.
+   */
+  renderButtons() {
+    return (
+      <div className="create-index-confirm-buttons">
+        <button
+          className="btn btn-default btn-sm create-index-confirm-buttons-cancel"
+          type="button"
+          onClick={this.handleCancel.bind(this)}>
+          Cancel
+        </button>
+        <button
+          className="btn btn-primary btn-sm create-index-confirm-buttons-create"
+          disabled={!this.state.fields.length}
+          type="submit">
+          Create
+        </button>
+      </div>
+    );
+  }
+
+  /**
    * Render the create index modal.
    *
    * @returns {React.Component} The create index modal.
@@ -213,22 +237,8 @@ class CreateIndexModal extends React.Component {
                 : null}
 
               {this.state.inProgress ?
-                <StatusMessage icon="align-center" message={'Add in Progress'} type="in-progress" />
-                : null}
-
-              <div className="create-index-confirm-buttons">
-                <button
-                  className="btn btn-default btn-sm create-index-confirm-buttons-cancel"
-                  type="button"
-                  onClick={this.handleCancel.bind(this)}>
-                  Cancel
-                </button>
-                <button
-                  className="btn btn-primary btn-sm create-index-confirm-buttons-create"
-                  type="submit">
-                  Create
-                </button>
-              </div>
+                <StatusMessage icon="align-center" message={'Create in Progress'} type="in-progress" />
+                : this.renderButtons()}
             </form>
           </Modal.Body>
         </div>

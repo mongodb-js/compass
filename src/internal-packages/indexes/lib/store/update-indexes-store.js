@@ -72,16 +72,17 @@ const UpdateIndexesStore = Reflux.createStore({
    * that can happen during index creation/dropping. Check first for data service
    * custom error, then node driver errmsg, lastly use default error message.
    *
-   * @param {Object) error - The error to parse a message from
+   * @param {Object} error - The error to parse a message from
+   *
+   * @returns {string} - The found error message, or the default message.
    */
   _parseErrorMsg: function(error) {
     if (typeof error.message === 'string') {
       return error.message;
     } else if (typeof error.errmsg === 'string') {
       return error.errmsg;
-    } else {
-      return 'Unknown error';
     }
+    return 'Unknown error';
   }
 });
 
