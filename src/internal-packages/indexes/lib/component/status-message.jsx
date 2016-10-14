@@ -22,7 +22,7 @@ class StatusMessage extends React.Component {
    */
   render() {
     // prefix for class names for css styling
-    const classPrefix = `create-index-${this.props.type}`;
+    const classPrefix = `index-ddl-${this.props.type}`;
     return (
       <Panel className={classPrefix}>
         <div className="row">
