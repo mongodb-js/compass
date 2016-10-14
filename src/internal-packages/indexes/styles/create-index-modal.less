@@ -1,148 +1,165 @@
 .create-index-modal {
-  width: 65%;
-  margin-left: auto;
-  margin-right: auto;
-
-  .btn-circle {
-    width: 30px;
-    height: 30px;
-    text-align: center;
-    padding: 6px 0;
-    border-radius: 50%;
+  .modal-content {
+    width: 75%;
+    margin-left: auto;
+    margin-right: auto;
   }
 
-  .create-index-description {
-    margin-bottom: 4px;
-  }
+  .create-index-modal-content {
+    padding-left: 40px;
+    padding-right: 40px;
 
-  .create-index-fields {
-    margin-bottom: 10px;
-  }
-
-  .create-index-field {
-    .create-index-field-dropdown-name {
-      width: 180px;
-      text-align: left;
-      text-transform: none;
+    .modal-header {
+      padding-bottom: 4px;
     }
 
-    .create-index-field-dropdown-type {
-      width: 102px;
-      text-align: left;
-      text-transform: none;
+    .btn-circle {
+      width: 30px;
+      height: 30px;
+      text-align: center;
+      padding: 6px 0;
+      border-radius: 50%;
     }
-  }
 
-  input {
-    &[type="text"] {
-      background: #fff;
-      border-color: #ddd;
-      border-radius: 2px;
+    .create-index-description {
+      margin-bottom: 4px;
     }
-  }
 
-  .create-index-options {
-    .create-index-checkbox {
-      margin-top: 0px;
+    .create-index-fields {
+      margin-bottom: 10px;
+    }
 
-      .create-index-checkbox-input {
-        font-size: 120%;
+    .create-index-field {
+      .create-index-field-dropdown-name {
+        width: 164px;
+        text-align: left;
+        text-transform: none;
       }
 
-      .create-index-checkbox-description {
-        display: inline-block;
-        font-weight: normal;
-        margin-bottom: 4px;
-        margin-left: 10px;
+      .create-index-field-dropdown-type {
+        width: 102px;
+        text-align: left;
+        text-transform: none;
       }
     }
 
-    .create-index-text-field {
-      .create-index-text-field-input {
+    input {
+      &[type="text"] {
         background: #fff;
         border-color: #ddd;
         border-radius: 2px;
       }
     }
 
-    .create-index-param {
-      margin-bottom: 12px;
+    .create-index-options {
+      .create-index-checkbox {
+        margin-top: 0px;
 
-      .create-index-param-input {
-        background: #fff;
-        border-color: #ddd;
-        border-radius: 2px;
+        .create-index-checkbox-input {
+          font-size: 120%;
+        }
 
-        &[disabled] {
-          border: 1px solid rgba(204, 204, 204, 0.3);
+        .create-index-checkbox-description {
+          display: inline-block;
+          font-weight: normal;
+          margin-bottom: 4px;
+          margin-left: 10px;
         }
       }
 
-      .partial-filter-input {
-        font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+      .create-index-text-field {
+        .create-index-text-field-input {
+          background: #fff;
+          border-color: #ddd;
+          border-radius: 2px;
+        }
       }
 
-      .inline-option-field {
-        display: inline-block;
-        width: 55%;
+      .create-index-param {
+        margin-bottom: 12px;
+
+        .create-index-param-input {
+          background: #fff;
+          border-color: #ddd;
+          border-radius: 2px;
+
+          &[disabled] {
+            border: 1px solid rgba(204, 204, 204, 0.3);
+          }
+        }
+
+        .partial-filter-input {
+          font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+        }
+
+        .inline-option-field {
+          display: inline-block;
+          width: 55%;
+        }
+
+        .create-index-param-description {
+          display: inline-block;
+          margin-left: 10px;
+        }
+      }
+    }
+
+    .options-toggle-bar {
+      .options-toggle-bar-header {
+        margin-top: 10px;
+
+        i {
+          margin-left: -5px;
+        }
+
+        .options-toggle-bar-header-text {
+          display: inline;
+          margin-left: 4px;
+          margin-right: -9px;
+        }
+      }
+    }
+
+    .selected-index {
+      .selected-index-panel {
+        margin-top: 8px;
+        margin-bottom: 0px;
+        margin-right: -11px;
+
+        .panel-body {
+          padding: 8px;
+        }
+
+        .selected-index-panel-field {
+          float: left;
+          margin-left: 4px;
+        }
+
+        .selected-index-panel-type {
+          float: right;
+          margin-right: 25px;
+        }
       }
 
-      .create-index-param-description {
-        display: inline-block;
+      .selected-index-btn {
+        margin-top: 10px;
+      }
+    }
+
+    .index-field-dropdown-btn {
+      text-transform: none;
+    }
+
+    .create-index-confirm-buttons {
+      text-align: right;
+
+      .create-index-confirm-buttons-cancel {
         margin-left: 10px;
       }
-    }
-  }
 
-  .options-toggle-bar {
-    .options-toggle-bar-header {
-      margin-top: 10px;
-
-      .options-toggle-bar-header-text {
-        display: inline;
-        margin-left: 4px;
+      .create-index-confirm-buttons-create {
+        margin-left: 10px;
       }
-    }
-  }
-
-  .selected-index {
-    .selected-index-panel {
-      margin-top: 8px;
-      margin-bottom: 0px;
-
-      .panel-body {
-        padding: 8px;
-      }
-
-      .selected-index-panel-field {
-        float: left;
-        margin-left: 4px;
-      }
-
-      .selected-index-panel-type {
-        float: right;
-        margin-right: 38px;
-      }
-    }
-
-    .selected-index-btn {
-      margin-top: 10px;
-    }
-  }
-
-  .index-field-dropdown-btn {
-    text-transform: none;
-  }
-
-  .create-index-confirm-buttons {
-    text-align: right;
-
-    .create-index-confirm-buttons-cancel {
-      margin-left: 10px;
-    }
-
-    .create-index-confirm-buttons-create {
-      margin-left: 10px;
     }
   }
 }

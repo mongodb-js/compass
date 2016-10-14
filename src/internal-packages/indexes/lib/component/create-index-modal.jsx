@@ -200,10 +200,11 @@ class CreateIndexModal extends React.Component {
     return (
       <Modal show={this.props.open}
         backdrop="static"
+        dialogClassName="create-index-modal"
         keyboard={false}
         onHide={this.close.bind(this)} >
 
-        <div className="create-index-modal">
+        <div className="create-index-modal-content">
           <Modal.Header>
             <Modal.Title>Index Create</Modal.Title>
           </Modal.Header>
