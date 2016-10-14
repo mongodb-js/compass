@@ -192,7 +192,7 @@ class CreateIndexModal extends React.Component {
                 option={'name'} />
 
               <div className="create-index-fields">
-                <p className="create-index-description">Create fields and type</p>
+                <p className="create-index-description">Add fields and types</p>
                 <CreateIndexField
                   fields={this.state.schemaFields} />
                 {this.getSelectedFields()}
