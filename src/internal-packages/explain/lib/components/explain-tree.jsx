@@ -1,8 +1,10 @@
 /* eslint react/no-multi-comp: 0 */
 
 const React = require('react');
+const app = require('ampersand-app');
+
 const TreeStagesStore = require('../stores/tree-stages');
-const StoreConnector = require('./store-connector');
+const StoreConnector = app.appRegistry.getComponent('App.StoreConnector');
 const ExplainStage = require('./explain-stage');
 const _ = require('lodash');
 const d3 = require('d3');

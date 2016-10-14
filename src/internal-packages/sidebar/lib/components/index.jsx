@@ -2,12 +2,12 @@ const React = require('react');
 
 const app = require('ampersand-app');
 const StoreConnector = app.appRegistry.getComponent('App.StoreConnector');
-const CompassExplain = require('./compass-explain');
-const Store = require('../stores');
+const Sidebar = require('./sidebar');
+const SidebarStore = require('../stores');
 
 // const debug = require('debug')('mongodb-compass:compass-explain:index');
 
-class ConnectedCompassExplain extends React.Component {
+class ConnectedSidebar extends React.Component {
   /**
    * Connect CompassExplainComponent to store and render.
    *
@@ -15,13 +15,13 @@ class ConnectedCompassExplain extends React.Component {
    */
   render() {
     return (
-      <StoreConnector store={Store}>
-        <CompassExplain />
+      <StoreConnector store={SidebarStore}>
+        <Sidebar />
       </StoreConnector>
     );
   }
 }
 
-ConnectedCompassExplain.displayName = 'ConnectedCompassExplain';
+ConnectedSidebar.displayName = 'ConnectedSidbar';
 
-module.exports = ConnectedCompassExplain;
+module.exports = ConnectedSidebar;

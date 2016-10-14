@@ -1,11 +1,8 @@
 var View = require('ampersand-view');
 var format = require('util').format;
-var SidebarView = require('../sidebar');
 // var IdentifyView = require('../identify');
 var CollectionView = require('./collection');
-var InstancePropertyView = require('./instance-properties');
-var CollectionListItemView = require('./collection-list-item');
-var NamespaceStore = require('hadron-reflux-store').NamespaceStore;
+var { NamespaceStore } = require('hadron-reflux-store');
 var TourView = require('../tour');
 var NetworkOptInView = require('../network-optin');
 var app = require('ampersand-app');
@@ -61,6 +58,7 @@ var HomeView = View.extend({
     }
     this.listenTo(app.instance, 'sync', this.onInstanceFetched);
     this.listenTo(app.connection, 'change:name', this.updateTitle);
+    NamespaceStore.listen(this.onNamespaceChange.bind(this));
     ipc.on('window:show-compass-tour', this.showTour.bind(this, true));
     ipc.on('window:show-network-optin', this.showOptIn.bind(this));
 
@@ -80,6 +78,13 @@ var HomeView = View.extend({
         ReactDOM.unmountComponentAtNode(containerNode);
       });
     }
+
+    const SideBarComponent = app.appRegistry.getComponent('Sidebar.Component');
+    ReactDOM.render(
+      React.createElement(SideBarComponent),
+      this.queryByHook('sidebar')
+    );
+
     if (app.preferences.showFeatureTour) {
       this.showTour(false);
     } else {
@@ -107,6 +112,9 @@ var HomeView = View.extend({
     }
   },
   onInstanceFetched: function() {
+    // TODO: Remove this line
+    // Instead, set the instance inside InstanceStore.refreshInstance
+    app.appRegistry.getAction('App.InstanceActions').setInstance(app.instance);
     debug('app.instance fetched', app.instance.serialize());
     metrics.track('Deployment', 'detected', {
       'databases count': app.instance.databases.length,
@@ -124,15 +132,20 @@ var HomeView = View.extend({
       'server cpu frequency (mhz)': app.instance.host.cpu_frequency / 1000 / 1000,
       'server memory size (gb)': app.instance.host.memory_bits / 1024 / 1024 / 1024
     });
-    if (!this.ns) {
+
+    const model = this._getCollection();
+    // When the current collection no longer exists
+    if (NamespaceStore.ns && !model) {
+      NamespaceStore.ns = null;
+    }
+
+    if (!NamespaceStore.ns) {
       app.instance.collections.unselectAll();
       if (app.instance.collections.length === 0) {
         this.showNoCollectionsZeroState = true;
       } else {
         this.showDefaultZeroState = true;
       }
-    } else {
-      this.showCollection(app.instance.collections.get(this.ns));
     }
   },
   updateTitle: function(model) {
@@ -142,21 +155,36 @@ var HomeView = View.extend({
     }
     document.title = title;
   },
-  showCollection: function(model) {
+  _getCollection() {
     // get the equivalent collection model that's nested in the
     // db/collection hierarchy under app.instance.databases[].collections[]
-    var ns = toNS(model.getId());
-    model = app.instance
-      .databases.get(ns.database)
-      .collections.get(ns.ns);
+    if (!NamespaceStore.ns) {
+      return null;
+    }
 
-    var collection = app.instance.collections;
+    const ns = toNS(NamespaceStore.ns);
+
+    const database = app.instance.databases.get(ns.database);
+
+    if (!database) {
+      return null;
+    }
+
+    return database.collections.get(ns.ns);
+  },
+  onNamespaceChange: function() {
+    const model = this._getCollection();
+
+    if (!model) {
+      app.navigate('/');
+      return;
+    }
+
+    const collection = app.instance.collections;
     if (!collection.select(model)) {
       return debug('already selected %s', model);
     }
 
-    this.ns = model.getId();
-    NamespaceStore.ns = ns.ns;
     this.updateTitle(model);
     this.showNoCollectionsZeroState = false;
     this.showDefaultZeroState = false;
@@ -178,30 +206,6 @@ var HomeView = View.extend({
           el: el,
           parent: this
         });
-      }
-    },
-    sidebar: {
-      hook: 'sidebar',
-      prepareView: function(el) {
-        return new SidebarView({
-          el: el,
-          parent: this,
-          filterEnabled: true,
-          displayProp: '_id',
-          icon: 'fa-database',
-          widgets: [{
-            viewClass: InstancePropertyView,
-            options: {
-              instance: app.instance
-            }
-          }],
-          nested: {
-            itemViewClass: CollectionListItemView,
-            collectionName: 'collections',
-            displayProp: 'name'
-          },
-          collection: app.instance.databases
-        }).on('show', this.showCollection.bind(this));
       }
     }
   }

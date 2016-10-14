@@ -6,7 +6,8 @@ const React = require('react');
 
 const shallow = require('enzyme').shallow;
 
-const StoreConnector = require('../lib/components/store-connector');
+const app = require('ampersand-app');
+const StoreConnector = app.appRegistry.getComponent('App.StoreConnetor');
 const ConnectedCompassExplain = require('../lib/components');
 
 // use chai-enzyme assertions, see https://github.com/producthunt/chai-enzyme
