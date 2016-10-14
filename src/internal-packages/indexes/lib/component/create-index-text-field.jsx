@@ -37,8 +37,6 @@ class CreateIndexTextField extends React.Component {
     if (this.props.option === 'name') {
       // max index name length of 128 characters
       value = value.substring(0, 128);
-    } if (this.props.option === 'partialFilterExpression') {
-      value = this._cleanQueryString(value);
     }
     this.setState({ value: value });
   }
@@ -91,7 +89,11 @@ class CreateIndexTextField extends React.Component {
    * Submit value by firing update option action.
    */
   submitValue() {
-    Action.updateOption(this.props.option, this.state.value, this.props.isParam);
+    let value = this.state.value;
+    if (this.props.option === 'partialFilterExpression') {
+      value = this._cleanQueryString(value);
+    }
+    Action.updateOption(this.props.option, value, this.props.isParam);
   }
 
   /**
