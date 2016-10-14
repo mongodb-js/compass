@@ -28,6 +28,10 @@ Try:
 
 ```
 npm install && COMPILE_CACHE=false npm start
+
+# If master is really, really, really broken, 
+# like you've been playing with npm link and npm unlink
+npm run clean && npm install && COMPILE_CACHE=false npm start
 ```
 
 ## Key Modules
