@@ -104,6 +104,7 @@ class CreateIndexTextField extends React.Component {
     let inputClassName = 'form-control create-index-param-input';
     if (this.props.units) inputClassName += ' inline-option-field';
     if (this.props.option === 'partialFilterExpression') {
+      inputClassName += ' partial-filter-input';
       const valid = Boolean(this._validateQueryString(this.state.value));
       if (!valid) groupClassName += ' has-error';
     }
