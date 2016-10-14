@@ -36,6 +36,8 @@ npm run clean && npm install && COMPILE_CACHE=false npm start
 
 ## Key Modules
 
+Note this is a polylithic (as opposed to a monolithic) repository - it aims to make Compass a minimal shell and abstract as much as possible into reuseable, highly decoupled components. A few prominent ones include:
+
 <dl>
   <dt><a href="https://magnum.travis-ci.com/10gen/compass"><img src="https://magnum.travis-ci.com/10gen/compass.svg?token=q2zsnxCbboarF6KYRYxM&branch=master" height="10" /></a>&nbsp;<a href="https://github.com/10gen/compass">compass</a> </dt>
   <dt><a href="https://travis-ci.org/mongodb-js/connection-model"><img src="https://secure.travis-ci.org/mongodb-js/connection-model.svg?branch=master" height="10" /></a>&nbsp;<a href="https://github.com/mongodb-js/connection-model">mongodb-connection-model</a></dt>
