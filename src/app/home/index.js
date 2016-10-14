@@ -58,7 +58,7 @@ var HomeView = View.extend({
     }
     this.listenTo(app.instance, 'sync', this.onInstanceFetched);
     this.listenTo(app.connection, 'change:name', this.updateTitle);
-    NamespaceStore.listen(this.showCollection.bind(this));
+    NamespaceStore.listen(this.onNamespaceChange.bind(this));
     ipc.on('window:show-compass-tour', this.showTour.bind(this, true));
     ipc.on('window:show-network-optin', this.showOptIn.bind(this));
 
@@ -132,15 +132,20 @@ var HomeView = View.extend({
       'server cpu frequency (mhz)': app.instance.host.cpu_frequency / 1000 / 1000,
       'server memory size (gb)': app.instance.host.memory_bits / 1024 / 1024 / 1024
     });
-    if (!this.ns) {
+
+    const model = this._getCollection();
+    // When the current collection no longer exists
+    if (NamespaceStore.ns && !model) {
+      NamespaceStore.ns = null;
+    }
+
+    if (!NamespaceStore.ns) {
       app.instance.collections.unselectAll();
       if (app.instance.collections.length === 0) {
         this.showNoCollectionsZeroState = true;
       } else {
         this.showDefaultZeroState = true;
       }
-    } else {
-      NamespaceStore.ns = this.ns;
     }
   },
   updateTitle: function(model) {
@@ -150,22 +155,36 @@ var HomeView = View.extend({
     }
     document.title = title;
   },
-  showCollection: function() {
+  _getCollection() {
     // get the equivalent collection model that's nested in the
     // db/collection hierarchy under app.instance.databases[].collections[]
+    if (!NamespaceStore.ns) {
+      return null;
+    }
 
-    var ns = toNS(NamespaceStore.ns);
+    const ns = toNS(NamespaceStore.ns);
 
-    var model = app.instance
-      .databases.get(ns.database)
-      .collections.get(ns.ns);
+    const database = app.instance.databases.get(ns.database);
 
-    var collection = app.instance.collections;
+    if (!database) {
+      return null;
+    }
+
+    return database.collections.get(ns.ns);
+  },
+  onNamespaceChange: function() {
+    const model = this._getCollection();
+
+    if (!model) {
+      app.navigate('/');
+      return;
+    }
+
+    const collection = app.instance.collections;
     if (!collection.select(model)) {
       return debug('already selected %s', model);
     }
 
-    this.ns = model.getId();
     this.updateTitle(model);
     this.showNoCollectionsZeroState = false;
     this.showDefaultZeroState = false;
