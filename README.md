@@ -48,6 +48,11 @@ Note this is a polylithic (as opposed to a monolithic) repository - it aims to m
 
 ## Building Releases
 
+Note: This is needs to be updated more, e.g. we use [Evergreen](https://evergreen.mongodb.com/) now.
+
+A part of the process is to create the release in GitHub:
+<img src="https://dl.dropboxusercontent.com/u/22710689/So%20when%20building%20a%20release%20where%20we%20accidentally%20tagged%20master%2C%20this%20is%20what%20we%20should%20have%20done%20-%20Screen%20Shot%202016-10-13%20at%205.18.44%20pm_small.png" />
+
 After you've made some local changes, the next thing you'll probably want to do
 is create an artifact to share. There is only one command you need to run to compile the app,
 sign it if the signing certificate is available on your machine, and generate a single file
