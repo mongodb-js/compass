@@ -45,9 +45,13 @@ class DropColumn extends React.Component {
     return (
       <td className="drop-column">
         {this.props.indexName !== '_id_' ?
-          <i className="drop-column-icon fa fa-trash-o"
-            onClick={this.clickDropHandler.bind(this)} />
-          : null}
+          <button
+            className="drop-btn btn btn-default btn-sm"
+            type="button"
+            onClick={this.clickDropHandler.bind(this)}>
+            <i className="drop-column-icon fa fa-trash-o"/>
+         </button>
+        : null}
         <DropIndexModal
           indexName={this.props.indexName}
           open={this.state.showModal}
