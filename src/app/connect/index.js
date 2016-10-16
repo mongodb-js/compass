@@ -274,8 +274,10 @@ var ConnectView = View.extend({
     this.listenToAndRun(this, 'change:sshTunnelMethod',
       this.replaceSshTunnelMethodFields.bind(this));
 
+    // add event listener to focus event and also check on app launch
     ipc.on('app:connect-window-focused',
       this.onConnectWindowFocused.bind(this));
+    this.onConnectWindowFocused();
 
     // always start in NEW_EMPTY state
     this.dispatch('new connection clicked');
