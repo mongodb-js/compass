@@ -161,6 +161,9 @@ function showConnectWindow() {
     debug('connect window closed.');
     connectWindow = null;
   });
+  connectWindow.on('focus', function() {
+    connectWindow.webContents.send('app:connect-window-focused');
+  });
 }
 
 function closeConnectWindow() {
