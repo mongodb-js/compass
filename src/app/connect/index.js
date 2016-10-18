@@ -274,8 +274,10 @@ var ConnectView = View.extend({
     this.listenToAndRun(this, 'change:sshTunnelMethod',
       this.replaceSshTunnelMethodFields.bind(this));
 
-    this.listenToAndRun(app, 'connect-window-focused',
+    // add event listener to focus event and also check on app launch
+    ipc.on('app:connect-window-focused',
       this.onConnectWindowFocused.bind(this));
+    this.onConnectWindowFocused();
 
     // always start in NEW_EMPTY state
     this.dispatch('new connection clicked');
@@ -288,7 +290,9 @@ var ConnectView = View.extend({
    * a MongoDB URI was detected.
    */
   autofillFromClipboard: function() {
-    this.connection = MongoDBConnection.from(this.clipboardText);
+    this.connection = Connection.from(this.clipboardText);
+    // don't use "Local" as favorite name, keep field empty
+    this.connection.name = '';
     this.updateForm();
   },
 
