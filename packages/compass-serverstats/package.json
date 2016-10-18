@@ -1,0 +1,57 @@
+{
+  "name": "compass-serverstats",
+  "productName": "Compass Compass Serverstats package",
+  "version": "0.0.1",
+  "description": "Compass Real Time Server Stats Component.",
+  "main": "index.js",
+  "scripts": {
+    "ci": "npm run check && npm test",
+    "test": "mocha --compilers js:babel-register test/helper.js ./test/**/*.test.js",
+    "fmt": "mongodb-js-fmt ./*.js ./test/*.js",
+    "check": "mongodb-js-precommit ./src ./test",
+    "compile": "npm run jsx && npm run less",
+    "jsx": "babel ./src --out-dir ./lib --presets react",
+    "less": "lessc ./src/styles/index.less ./lib/styles/index.css",
+    "prepublish": "npm run compile",
+    "pretest": "npm run compile",
+    "prestart": "npm run compile",
+    "start": "electron ./electron",
+    "storybook": "start-storybook -p 9001"
+  },
+  "precommit": [
+    "check"
+  ],
+  "license": "Apache-2.0",
+  "dependencies": {
+    "ampersand-app": "^1.0.4",
+    "d3": "^3.5.17",
+    "d3-timer": "^1.0.3",
+    "jquery": "^3.1.1",
+    "mongodb-ns": "^1.0.3",
+    "react": "^15.3.0",
+    "react-dom": "^15.3.0",
+    "reflux": "^0.4.1",
+    "reflux-state-mixin": "^0.7.0"
+  },
+  "devDependencies": {
+    "@kadira/react-storybook-addon-info": "^3.2.1",
+    "@kadira/storybook": "^2.3.0",
+    "babel-cli": "^6.10.1",
+    "babel-preset-react": "^6.11.1",
+    "babel-register": "^6.9.0",
+    "chai": "^3.5.0",
+    "chai-enzyme": "^0.5.0",
+    "debug": "^2.2.0",
+    "electron-prebuilt": "^1.2.6",
+    "enzyme": "^2.4.1",
+    "eslint-config-mongodb-js": "^2.1.0",
+    "jsdom": "^9.4.2",
+    "less": "^2.7.1",
+    "less-loader": "^2.2.3",
+    "mocha": "^2.5.3",
+    "mongodb-js-fmt": "^0.0.3",
+    "mongodb-js-precommit": "^0.2.8",
+    "pre-commit": "^1.1.3",
+    "watch": "^0.19.2"
+  }
+}

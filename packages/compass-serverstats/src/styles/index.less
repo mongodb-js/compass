@@ -1,0 +1,27 @@
+@import './rt-db.css';
+@import './rt-lists.css';
+@import './rt-nav.css';
+@import './rt-graphs.css';
+@import './rt-errors.css';
+
+
+.RTSS {
+  font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 500;
+  background-color: #3D4247;
+  height: 100vh;
+  min-width: 100%;
+  overflow-x: scroll;
+
+  .rt__graphs-out {
+    float: left;
+    width: 520px;
+    padding-top: 31px;
+  }
+  .rt__lists-out {
+    width: auto;
+    overflow: scroll; // TODO: deal with scrolling
+    display: block;
+    padding-top: 15px;
+  }
+}

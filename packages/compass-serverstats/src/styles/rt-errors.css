@@ -1,0 +1,34 @@
+.rt-errors {
+  width: 100%;
+  overflow: hidden;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: left;
+  color: white;
+  padding-top: 2px;
+}
+.rt-errors:last-child {
+  margin-right: 0;
+  margin-bottom: 25px;
+}
+.rt-errors__list {
+  padding-left: 0;
+}
+.rt-errors__item {
+  position: relative;
+  width: 100%;
+  height: 30px;
+  background-color: #E82424;
+  border-bottom: 3px #3D4247 solid;
+  display: flex;
+  flex-direction: row;
+  padding-left: 50px;
+  padding-top: 5px;
+  overflow: hidden;
+}
+.rt-errors__item:last-child {
+  border-bottom: none;
+}
+.rt-errors__bold {
+  font-weight: 900;
+}
