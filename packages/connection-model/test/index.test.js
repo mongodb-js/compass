@@ -29,7 +29,7 @@ describe('mongodb-connection-model', function() {
       it('should return the correct URL for the driver', function() {
         var c = new Connection();
         assert.equal(c.driver_url,
-          'mongodb://localhost:27017/?slaveOk=true&ssl=prefer');
+          'mongodb://localhost:27017/?slaveOk=true');
 
         assert.doesNotThrow(function() {
           parse(c.driver_url);
@@ -88,7 +88,7 @@ describe('mongodb-connection-model', function() {
 
         it('should urlencode credentials', function() {
           assert.equal(c.driver_url,
-            'mongodb://%40rlo:w%40of@localhost:27017/?slaveOk=true&authSource=admin&ssl=prefer');
+            'mongodb://%40rlo:w%40of@localhost:27017/?slaveOk=true&authSource=admin');
         });
 
         it('should be parse in the browser', function() {
@@ -104,6 +104,45 @@ describe('mongodb-connection-model', function() {
         });
       });
     });
+
+    describe('ATLAS - mongodb.net', function() {
+      var atlasConnection = 'mongodb://ADMINUSER:PASSWORD@' +
+          'a-compass-atlas-test-shard-00-00-vll9l.mongodb.net:38128,' +
+          'a-compass-atlas-test-shard-00-01-vll9l.mongodb.net:38128,' +
+          'a-compass-atlas-test-shard-00-02-vll9l.mongodb.net:38128/admin?' +
+          'ssl=true&replicaSet=a-compass-atlas-test-shard-0&authSource=admin';
+      it('defaults SSL to UNVALIDATED', function() {
+        var c = Connection.from(atlasConnection);
+        // In future, we should ship our own CA with Compass
+        // so we can default to 'SERVER'-validated.
+        // This is a step in the right direction so let's take the easy wins.
+        assert.equal(c.ssl, 'UNVALIDATED');
+      });
+      it('clears the default PASSWORD', function() {
+        // UX: We clear the default string 'PASSWORD' from the Atlas GUI
+        // so the user is forced to enter their own password
+        // rather than getting trapped with the error:
+        // "Could not connect to MongoDB on the provided host and port"
+        var c = Connection.from(atlasConnection);
+        assert.equal(c.mongodb_password, '');
+      });
+      it('works with a non-default secure password', function() {
+        var userPass = '6NuZPtHCrjYBAWnI7Iq6jvtsdJx67X0';
+        var c = Connection.from(atlasConnection.replace('PASSWORD', userPass));
+        assert.equal(c.ssl, 'UNVALIDATED');
+        assert.equal(c.mongodb_password, userPass);
+      });
+      it('does not false positive on hi.mongodb.net.my.domain.com', function() {
+        var c = Connection.from(
+            atlasConnection.replace(/mongodb.net/g, 'hi.mongodb.net.my.domain.com'));
+        assert.equal(c.ssl, 'NONE');  // Whatever the Compass default is
+      });
+      it('is case insensitive, see RFC4343', function() {
+        var c = Connection.from(atlasConnection.replace(/mongodb.net/g, 'mOnGOdB.NeT'));
+        assert.equal(c.ssl, 'UNVALIDATED');
+      });
+    });
+
     describe('enterprise', function() {
       describe('LDAP', function() {
         it('should set authentication to LDAP', function() {
@@ -141,7 +180,7 @@ describe('mongodb-connection-model', function() {
 
           it('should urlencode credentials', function() {
             assert.equal(c.driver_url,
-              'mongodb://arlo:w%40of@localhost:27017/ldap?slaveOk=true&authMechanism=PLAIN&ssl=prefer');
+              'mongodb://arlo:w%40of@localhost:27017/ldap?slaveOk=true&authMechanism=PLAIN');
           });
 
           it('should be parse in the browser', function() {
@@ -188,7 +227,7 @@ describe('mongodb-connection-model', function() {
             assert.equal(c.driver_url,
               'mongodb://CN%253Dclient%252COU%253Darlo%252CO%253DMongoDB%252CL%253DPhiladelphia'
               + '%252CST%253DPennsylvania%252CC%253DUS@localhost:27017/'
-              + '?slaveOk=true&authMechanism=MONGODB-X509&ssl=prefer');
+              + '?slaveOk=true&authMechanism=MONGODB-X509');
           });
 
           it('should be parse in the browser', function() {

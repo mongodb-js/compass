@@ -376,7 +376,7 @@ var SSL_VALUES = [
 /**
  * @constant {String} - The default value for `ssl`.
  */
-var SSL_DEFAULT = 'IFAVAILABLE';
+var SSL_DEFAULT = 'NONE';
 
 _.assign(props, {
   ssl: {
@@ -908,13 +908,13 @@ Connection.from = function(url) {
     attrs.ns = parsed.dbName;
   }
 
-  if (parsed.auth) {
+  if (parsed.auth && parsed.auth.user) {
     /**
      * @todo (imlucas): This case is ambiguous... support `mongodb+ldap://user:pass@host`.
      */
-    if (parsed.auth.user && parsed.auth.password) {
+    if (parsed.auth.password) {
       parsed.authMechanism = 'DEFAULT';
-    } else if (parsed.auth.user && !parsed.auth.password) {
+    } else {
       parsed.authMechanism = 'MONGODB-X509';
     }
   }
@@ -942,9 +942,30 @@ Connection.from = function(url) {
       attrs.mongodb_database_name = decodeURIComponent(
         parsed.db_options.authSource || parsed.dbName);
     }
+    _.assign(attrs, Connection._improveAtlasDefaults(url, attrs.mongodb_password));
   }
 
   return new Connection(attrs);
+};
+
+/**
+ * Helper function to improve the Atlas user experience by
+ * providing better default values.
+ *
+ * @param {String} url  The connection string URL.
+ * @param {String} mongodb_password  The
+ * @returns {Object} Connection attributes to override
+ * @private
+ */
+Connection._improveAtlasDefaults = function(url, mongodb_password) {
+  var atlasConnectionAttrs = {};
+  if (Connection.isAtlas(url)) {
+    atlasConnectionAttrs.ssl = 'UNVALIDATED';
+    if (mongodb_password === 'PASSWORD') {
+      atlasConnectionAttrs.mongodb_password = '';
+    }
+  }
+  return atlasConnectionAttrs;
 };
 
 /**
@@ -956,6 +977,10 @@ Connection.from = function(url) {
  */
 Connection.getFieldNames = function(authentication) {
   return AUTHENTICATION_TO_FIELD_NAMES[authentication];
+};
+
+Connection.isAtlas = function(str) {
+  return str.match(/mongodb.net[:/]/i);
 };
 
 Connection.isURI = function(str) {
