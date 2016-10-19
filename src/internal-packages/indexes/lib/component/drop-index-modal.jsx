@@ -56,9 +56,10 @@ class DropIndexModal extends React.Component {
     return (
       <Modal show={this.props.open}
         backdrop="static"
+        dialogClassName="drop-index-modal"
         keyboard={false}
         onHide={this.props.close} >
-        <div className="drop-index-modal">
+        <div className="drop-index-modal-content">
           <Modal.Header>
             <Modal.Title>Index Drop</Modal.Title>
           </Modal.Header>
