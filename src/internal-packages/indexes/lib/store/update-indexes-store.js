@@ -15,6 +15,7 @@ const UpdateIndexesStore = Reflux.createStore({
   init: function() {
     this.listenTo(LoadIndexesStore, this.loadIndexes);
     this.listenTo(Action.dropIndex, this.dropIndex);
+    this.listenTo(Action.createIndex, this.createIndex);
   },
 
   /**
@@ -38,6 +39,50 @@ const UpdateIndexesStore = Reflux.createStore({
         this.trigger(this.indexes);
       }
     });
+  },
+
+  /**
+   * Create index and add it to the store.
+   *
+   * @param {String} ns - The namespace of the index.
+   * @param {Object} spec - The field specification for the index.
+   * @param {Object} options - The optional index options.
+   */
+  createIndex: function(ns, spec, options) {
+    app.dataService.createIndex(ns, spec, options, (createErr) => {
+      if (!createErr) {
+        // reload indexes
+        app.dataService.indexes(ns, {}, (indexesErr, indexes) => {
+          if (!indexesErr) {
+            Action.updateStatus('complete');
+            this.indexes = LoadIndexesStore._convertToModels(indexes);
+            this.trigger(this.indexes);
+          } else {
+            Action.updateStatus('error', this._parseErrorMsg(indexesErr));
+          }
+        });
+      } else {
+        Action.updateStatus('error', this._parseErrorMsg(createErr));
+      }
+    });
+  },
+
+  /**
+   * Data Service attaches string message property for some errors, but not all
+   * that can happen during index creation/dropping. Check first for data service
+   * custom error, then node driver errmsg, lastly use default error message.
+   *
+   * @param {Object} error - The error to parse a message from
+   *
+   * @returns {string} - The found error message, or the default message.
+   */
+  _parseErrorMsg: function(error) {
+    if (typeof error.message === 'string') {
+      return error.message;
+    } else if (typeof error.errmsg === 'string') {
+      return error.errmsg;
+    }
+    return 'Unknown error';
   }
 });
 
