@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Polaris</title>
+  </head>
+  <body>
+    <div id="application"></div>
+    <script src="index.js" charset="UTF-8" async="async"></script>
+  </body>
+</html>

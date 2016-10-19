@@ -23,6 +23,7 @@
     "check"
   ],
   "dependencies": {
+    "cheerio": "^0.22.0",
     "less-cache": "^0.24.0"
   },
   "devDependencies": {
