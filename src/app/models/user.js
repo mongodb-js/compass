@@ -22,7 +22,12 @@ var User = Model.extend(storageMixin, {
       }
     },
     name: 'string',
-    email: 'string',
+    email: {
+      type: 'any',
+      default: undefined,
+      required: false,
+      allowNull: true
+    },
     createdAt: 'date',
     lastUsed: 'date',
     avatarUrl: 'string',
