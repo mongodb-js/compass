@@ -25,7 +25,7 @@ document.body.ondrop = (ev) => {
     } catch (e) {
       debug(`File ${file} is not a single parseable JSON document: ${e.message}`);
     }
-  })
+  });
 };
 
 module.exports = Actions;
