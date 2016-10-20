@@ -218,7 +218,7 @@ var Application = View.extend({
     debug('preferences fetched, now getting user');
     User.getOrCreate(this.preferences.currentUserId, function(err, user) {
       if (err) {
-        done(err);
+        return done(err);
       }
       this.user.set(user.serialize());
       this.user.trigger('sync');
