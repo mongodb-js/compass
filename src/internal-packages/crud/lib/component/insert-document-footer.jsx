@@ -8,9 +8,10 @@ const INSERTING = 'Inserting Document';
  * Map of modes to styles.
  */
 const MODES = {
-  'Progress': 'in-progress',
-  'Error': 'error',
-  'Modifying': 'modifying'
+  'Progress': 'is-in-progress',
+  'Error': 'is-error',
+  'Viewing': 'is-viewing',
+  'Modifying': 'is-modifying'
 };
 
 /**
@@ -69,7 +70,7 @@ class InsertDocumentFooter extends React.Component {
    * @returns {String} The style.
    */
   style() {
-    return `document-footer ${MODES[this.state.mode]}`;
+    return `document-footer document-footer-${MODES[this.state.mode]}`;
   }
 
   /**
@@ -80,7 +81,7 @@ class InsertDocumentFooter extends React.Component {
   render() {
     return (
       <div className={this.style()}>
-        <div className="edit-message" title={this.state.message}>
+        <div className="document-footer-message" title={this.state.message}>
           {this.state.message}
         </div>
       </div>
