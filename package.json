@@ -160,6 +160,8 @@
     "babel-eslint": "^6.0.4",
     "chai": "^3.4.1",
     "chai-as-promised": "^5.1.0",
+    "devtron": "^1.4.0",
+    "electron-devtools-installer": "^2.0.1",
     "electron-prebuilt": "1.2.8",
     "eslint-config-mongodb-js": "^2.2.0",
     "hadron-build": "^1.0.0-beta.2",

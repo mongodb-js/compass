@@ -1,6 +1,14 @@
 /* eslint no-console:0 */
 console.time('app/index.js');
 
+if (process.env.NODE_ENV === 'development') {
+  require('devtron').install();
+  var devtools = require('electron-devtools-installer');
+  devtools.default(devtools.REACT_DEVELOPER_TOOLS)
+    .then((name) => console.log(`Added Extension:  ${name}`))
+    .catch((err) => console.log('An error occurred trying to install devtools: ', err));
+}
+
 var Environment = require('../environment');
 Environment.init();
 
