@@ -54,4 +54,22 @@ describe('User Resource', function() {
     };
     user.login();
   });
+  it('should default twitter to `undefined`', function() {
+    var u = new resources.UserResource({
+      userId: common.userId
+    });
+    assert.equal(u.twitter, undefined);
+  });
+  it('should default email to `undefined`', function() {
+    var u = new resources.UserResource({
+      userId: common.userId
+    });
+    assert.equal(u.email, undefined);
+  });
+  it('should default name to `undefined`', function() {
+    var u = new resources.UserResource({
+      userId: common.userId
+    });
+    assert.equal(u.name, undefined);
+  });
 });

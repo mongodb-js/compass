@@ -12,15 +12,10 @@ var os = (typeof window === 'undefined') ?
 var IntercomTracker = State.extend({
   id: 'intercom',
   props: {
-    appId: ['string', true, ''],    // set through metrics.configure()
-    appName: ['string', false],     // set by the App resource
-    appVersion: ['string', false],  // set by the App resource
-    appStage: ['string', false],    // set by the App resource
-    userId: ['string', true, ''],   // set by the User resource
-    name: ['string', true, ''],     // set by the User resource
-    createdAt: ['date', true],      // set by the User resource
-    email: ['string', true],        // set by the User resource
-    twitter: ['string', true],      // set by the User resource
+    /**
+     * set through metrics.configure()
+     */
+    appId: ['string', true],
     widget: {
       type: 'object',
       required: true,
@@ -29,6 +24,39 @@ var IntercomTracker = State.extend({
           activator: '#IntercomDefaultWidget'
         };
       }
+    },
+    /**
+     * <set by `lib/resources/app.js`>
+     */
+    appName: ['string', false],
+    appVersion: ['string', false],
+    appStage: ['string', false],
+    /**
+     * </set by `lib/resources/app.js`>
+     * <set by `lib/resources/user.js`>
+     */
+    userId: ['string', true],
+    createdAt: ['date', true],
+    name: {
+      type: 'any',
+      default: undefined,
+      required: false,
+      allowNull: true
+    },
+    email: {
+      type: 'any',
+      default: undefined,
+      required: false,
+      allowNull: true
+    },
+    /**
+     * </set by `lib/resources/user.js`>
+     */
+    twitter: {
+      type: 'any',
+      default: undefined,
+      required: false,
+      allowNull: true
     }
   },
   session: {
