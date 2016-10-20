@@ -52,10 +52,10 @@ var QueryOptions = require('./models/query-options');
 var Connection = require('./models/connection');
 var MongoDBInstance = require('./models/mongodb-instance');
 var Preferences = require('./models/preferences');
-var ApplicationStore = require('hadron-reflux-store').ApplicationStore;
 var User = require('./models/user');
+
+var ApplicationStore = require('hadron-reflux-store').ApplicationStore;
 var Router = require('./router');
-// var Statusbar = require('./statusbar');
 var migrateApp = require('./migrations');
 var metricsSetup = require('./metrics');
 var metrics = require('mongodb-js-metrics')();
@@ -162,10 +162,6 @@ var Application = View.extend({
      * @see notifications.js
      */
     notifications: 'state',
-    /**
-     * @see statusbar.js
-     */
-    statusbar: 'state',
     /**
      * Details of the MongoDB Instance we're currently connected to.
      */
@@ -460,11 +456,6 @@ Object.defineProperty(app, 'state', {
   }
 });
 
-app.init();
-
-// expose app globally for debugging purposes
-window.app = app;
-
 // add Reflux store method to listen to external stores
 const Reflux = require('reflux');
 const packageActivationCompleted = require('hadron-package-manager/lib/action').packageActivationCompleted;
@@ -475,5 +466,10 @@ Reflux.StoreMethods.listenToExternalStore = function(storeKey, callback) {
     this.stopListeningTo(packageActivationCompleted);
   });
 };
+
+app.init();
+
+// expose app globally for debugging purposes
+window.app = app;
 
 console.timeEnd('app/index.js');
