@@ -275,12 +275,14 @@ var ConnectView = View.extend({
       this.replaceSshTunnelMethodFields.bind(this));
 
     // add event listener to focus event and also check on app launch
-    ipc.on('app:connect-window-focused',
-      this.onConnectWindowFocused.bind(this));
+    window.addEventListener('focus', this.onConnectWindowFocused.bind(this));
     this.onConnectWindowFocused();
 
     // always start in NEW_EMPTY state
     this.dispatch('new connection clicked');
+  },
+  remove: function() {
+    window.removeEventListener('focus', this.onConnectWindowFocused.bind(this));
   },
 
   // === MongoDB URI clipboard Handling
@@ -474,16 +476,13 @@ var ConnectView = View.extend({
       'default port': connection.port === 27017,
       'outcome': 'success'
     });
-
+    app.setConnectionId(connection.getId());
     /**
      * @see ./src/app.js `params.connection_id`
      */
-    window.open(
-      format('%s?connection_id=%s#schema',
-        window.location.origin,
-        connection.getId())
-    );
-    ipc.call('app:close-connect-window');
+    app.navigate('schema', {
+      connection_id: connection.getId()
+    });
   },
 
   /**

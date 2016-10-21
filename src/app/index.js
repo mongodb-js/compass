@@ -247,6 +247,9 @@ var Application = View.extend({
     app.preferences.fetch();
   },
   startRouter: function() {
+    if (this.router) {
+      return debug('router already started!');
+    }
     this.router = new Router();
     debug('Listening for page changes from the router...');
     this.listenTo(this.router, 'page', this.onPageChange);
@@ -361,11 +364,7 @@ var Application = View.extend({
   }
 });
 
-var params = qs.parse(window.location.search.replace('?', ''));
-var connectionId = params.connection_id;
-var state = new Application({
-  connection_id: connectionId
-});
+var state = new Application();
 
 app.extend({
   client: null,
@@ -377,12 +376,18 @@ app.extend({
   onDomReady: function() {
     state.render();
 
+    var params = qs.parse(window.location.search.replace('?', ''));
+    var connectionId = params.connection_id;
+
     if (!connectionId) {
       // Not serving a part of the app which uses the client,
       // so we can just start everything up now.
       state.startRouter();
       return;
     }
+    this.setConnectionId(connectionId);
+  },
+  setConnectionId: function(connectionId) {
     var StatusAction = app.appRegistry.getAction('Status.Actions');
     StatusAction.configure({
       visible: true,
