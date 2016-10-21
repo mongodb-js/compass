@@ -28,11 +28,10 @@ var DEFAULT_URL = 'file://' + path.join(RESOURCES, 'index.html#connect');
 var HELP_URL = 'file://' + path.join(RESOURCES, 'help.html#help');
 
 /**
- * We want the Connect and Help window to be special
+ * We want the Help window to be special
  * and for there to ever only be one instance of each of them
  * so we'll use scope to essentially make each of them a Singleton.
  */
-var connectWindow;
 var helpWindow;
 
 // track if app was launched, @see `renderer ready` handler below
@@ -139,37 +138,16 @@ module.exports.create = function(opts) {
 
 function createWindow(opts, url) {
   opts = _.extend(opts, {
-    width: config.windows.DEFAULT_WIDTH_DIALOG,
-    height: config.windows.DEFAULT_HEIGHT_DIALOG,
-    minwidth: config.windows.MIN_WIDTH_DIALOG,
+    width: config.windows.DEFAULT_WIDTH,
+    height: config.windows.DEFAULT_HEIGHT,
+    minwidth: config.windows.MIN_WIDTH,
     url: url
   });
   return module.exports.create(opts);
 }
 
 function showConnectWindow() {
-  if (connectWindow) {
-    if (connectWindow.isMinimized()) {
-      connectWindow.restore();
-    }
-    connectWindow.show();
-    return connectWindow;
-  }
-
-  connectWindow = createWindow({}, DEFAULT_URL);
-  connectWindow.on('closed', function() {
-    debug('connect window closed.');
-    connectWindow = null;
-  });
-  connectWindow.on('focus', function() {
-    connectWindow.webContents.send('app:connect-window-focused');
-  });
-}
-
-function closeConnectWindow() {
-  if (connectWindow) {
-    connectWindow.close();
-  }
+  createWindow({}, DEFAULT_URL);
 }
 
 function showAboutDialog() {
@@ -229,7 +207,6 @@ function rendererReady(sender) {
 // respond to events from the renderer process
 ipc.respondTo({
   'app:show-connect-window': showConnectWindow,
-  'app:close-connect-window': closeConnectWindow,
   'app:show-help-window': showHelpWindow,
   'window:show-about-dialog': showAboutDialog,
   'window:show-share-submenu': showShareSubmenu,
