@@ -76,7 +76,7 @@ var ConnectFormView = FormView.extend({
     return obj;
   },
   events: {
-    "blur [name='hostname']": "blurHostname"
+    'blur [name="hostname"]': 'blurHostname'
   },
   blurHostname: function(e) {
     if (e.target.value.match(/mongodb.net$/i)) {
