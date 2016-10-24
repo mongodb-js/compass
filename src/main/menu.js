@@ -85,7 +85,9 @@ function connectItem() {
 }
 
 function connectSubMenu(nonDarwin) {
-  var subMenu = [connectItem()];
+  var subMenu = [
+    connectItem()
+  ];
 
   if (nonDarwin) {
     subMenu.push(separator());
@@ -210,6 +212,13 @@ function viewSubMenu() {
         accelerator: 'CmdOrCtrl+R',
         click: function() {
           BrowserWindow.getFocusedWindow().reload();
+        }
+      },
+      {
+        label: '&Open in New Window',
+        accelerator: 'CmdOrCtrl+Shift+N',
+        click: function() {
+          BrowserWindow.getFocusedWindow().webContents.send('window:open-in-new-window');
         }
       },
       {
