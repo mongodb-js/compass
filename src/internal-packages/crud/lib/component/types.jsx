@@ -1,8 +1,14 @@
 const _ = require('lodash');
+const app = require('ampersand-app');
 const React = require('react');
 const TypeChecker = require('hadron-type-checker');
 
 require('bootstrap/js/dropdown');
+
+/**
+ * The version at which high precision values are available.
+ */
+const HP_VERSION = '3.4.0';
 
 /**
  * General types component.
@@ -17,6 +23,7 @@ class Types extends React.Component {
   constructor(props) {
     super(props);
     this.element = props.element;
+    this._version = app.instance.build.version;
   }
 
   /**
@@ -32,6 +39,15 @@ class Types extends React.Component {
     } else {
       this.element.edit(TypeChecker.cast(this.castableValue(), newType));
     }
+  }
+
+  /**
+   * Are high precision values available?
+   *
+   * @returns {boolean} if high precision values are available.
+   */
+  isHighPrecision() {
+    return this._version >= HP_VERSION;
   }
 
   isTypeChangeable() {
@@ -100,7 +116,7 @@ class Types extends React.Component {
    * @returns {Component} The react component.
    */
   renderTypes() {
-    return _.map(TypeChecker.castableTypes(this.castableValue()), (type) => {
+    return _.map(TypeChecker.castableTypes(this.castableValue(), this.isHighPrecision()), (type) => {
       return (
         <li key={type}>
           <span onClick={this.handleTypeChange.bind(this)}>{type}</span>

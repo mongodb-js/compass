@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const app = require('ampersand-app');
 const React = require('react');
 const inputSize = require('./utils').inputSize;
 const TypeChecker = require('hadron-type-checker');
@@ -21,6 +22,11 @@ const EDITING = 'is-editing';
 const VALUE_CLASS = 'editable-element-value';
 
 /**
+ * The version at which high precision values are available.
+ */
+const HP_VERSION = '3.4.0';
+
+/**
  * General editable value component.
  */
 class EditableValue extends React.Component {
@@ -35,6 +41,7 @@ class EditableValue extends React.Component {
     this.element = props.element;
     this.state = { editing: false };
     this._pasting = false;
+    this._version = app.instance.build.version;
   }
 
   /**
@@ -55,6 +62,15 @@ class EditableValue extends React.Component {
   isAutoFocusable() {
     return !this.element.isKeyEditable() ||
       this.element.parent.currentType === 'Array';
+  }
+
+  /**
+   * Are high precision values available?
+   *
+   * @returns {boolean} if high precision values are available.
+   */
+  isHighPrecision() {
+    return this._version >= HP_VERSION;
   }
 
   /**
@@ -116,7 +132,7 @@ class EditableValue extends React.Component {
     } else {
       this._node.size = inputSize(value);
       const currentType = this.element.currentType;
-      const castableTypes = TypeChecker.castableTypes(value);
+      const castableTypes = TypeChecker.castableTypes(value, this.isHighPrecision());
       if (_.includes(castableTypes, currentType)) {
         this.element.edit(TypeChecker.cast(value, currentType));
       } else {
