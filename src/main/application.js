@@ -83,27 +83,11 @@ Application.prototype.setupApplicationMenu = function() {
   require('./menu').init();
 };
 
-Application.prototype.setupUserDirectory = function() {
-  // For testing set a clean slate for the user data.
-  if (process.env.NODE_ENV === 'testing') {
-    var userDataDir = path.resolve(path.join(
-      __dirname, '..', '..', '.user-data'));
-    app.setPath('userData', userDataDir);
-  }
-};
-
 Application.prototype.setupLifecycleListeners = function() {
   app.on('window-all-closed', function() {
     debug('All windows closed.  Quitting app.');
     app.quit();
   });
-};
-
-Application.prototype.setupApplicationMenu = function() {
-  // this.applicationMenu = new ApplicationMenu({
-  //   autoUpdateManager: this.autoUpdateManager
-  // });
-  require('./menu').init();
 };
 
 Application.prototype.setupUserDirectory = function() {
@@ -132,13 +116,6 @@ Application.prototype.setupUserDirectory = function() {
       app.setPath('userCache', path.join(app.getPath('cache'), newAppName));
     }
   }
-};
-
-Application.prototype.setupLifecycleListeners = function() {
-  app.on('window-all-closed', function() {
-    debug('All windows closed.  Quitting app.');
-    app.quit();
-  });
 };
 
 Application._instance = null;

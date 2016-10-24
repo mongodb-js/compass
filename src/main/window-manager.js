@@ -58,6 +58,7 @@ if (process.platform === 'linux') {
  */
 var DEFAULT_URL = 'file://' + path.join(RESOURCES, 'index.html#connect');
 var HELP_URL = 'file://' + path.join(RESOURCES, 'help.html#help');
+var GLOSSARY_URL = 'file://' + path.join(RESOURCES, 'componentGlossary.html');
 
 /**
  * We want the Help window to be special
@@ -192,6 +193,10 @@ function showHelpWindow(win, id) {
   });
 }
 
+function showComponentGlossaryWindow() {
+  createWindow({}, GLOSSARY_URL);
+}
+
 function showCompassOverview() {
   AppMenu.showCompassOverview();
 }
@@ -224,6 +229,7 @@ function rendererReady(sender) {
 ipc.respondTo({
   'app:show-connect-window': showConnectWindow,
   'app:show-help-window': showHelpWindow,
+  'app:show-component-glossary-window': showComponentGlossaryWindow,
   'window:show-about-dialog': showAboutDialog,
   'window:show-share-submenu': showShareSubmenu,
   'window:hide-share-submenu': hideShareSubmenu,
@@ -234,6 +240,7 @@ ipc.respondTo({
 // respond to events from the main process
 app.on('window:show-about-dialog', showAboutDialog);
 app.on('app:show-connect-window', showConnectWindow);
+app.on('app:show-component-glossary-window', showComponentGlossaryWindow);
 app.on('app:show-help-window', showHelpWindow);
 
 app.on('before-quit', function() {
