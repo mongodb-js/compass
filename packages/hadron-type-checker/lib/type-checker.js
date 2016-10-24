@@ -8,6 +8,7 @@ const has = require('lodash.has');
 const find = require('lodash.find');
 const toNumber = require('lodash.tonumber');
 const toString = require('lodash.tostring');
+const includes = require('lodash.includes');
 const bson = require('bson');
 const MinKey = bson.MinKey;
 const MaxKey = bson.MaxKey;
@@ -50,6 +51,16 @@ const BSON_INT32_MIN = -0x80000000;
  * The max double value.
  */
 const MAX_DBL = Number.MAX_SAFE_INTEGER;
+
+/**
+ * All bson types that are numbers.
+ */
+const NUMBER_TYPES = [
+  'Long',
+  'Int32',
+  'Double',
+  'Decimal128'
+];
 
 function toDate(object) {
   return new Date(object);
@@ -342,7 +353,7 @@ class TypeChecker {
   }
 
   _isNumberType(bsontype) {
-    return bsontype === 'Long' || bsontype === 'Int32' || bsontype === 'Double' || bsontype === 'Decimal128';
+    return includes(NUMBER_TYPES, bsontype);
   }
 
   _stringTypes(string, highPrecisionSupport) {
