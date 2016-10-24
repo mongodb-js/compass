@@ -141,7 +141,7 @@ var Application = View.extend({
       '  <div data-hook="auto-update"></div>',
       '  <div data-hook="statusbar"></div>',
       '  <div data-hook="notifications"></div>',
-      '  <div data-hook="layout-container"></div>',
+      '  <div class="layout-container" data-hook="layout-container"></div>',
       '</div>'
     ].join('\n');
   },

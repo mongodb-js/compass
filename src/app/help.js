@@ -51,7 +51,7 @@ var Application = View.extend({
   template: function() {
     return [
       '<div id="application">',
-      '  <div data-hook="layout-container"></div>',
+      '  <div class="layout-container" data-hook="layout-container"></div>',
       '</div>'
     ].join('\n');
   },
