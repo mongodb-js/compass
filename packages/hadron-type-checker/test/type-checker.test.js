@@ -885,13 +885,27 @@ describe('TypeChecker', function() {
     context('when the object is a double', function() {
       var value = 23.113;
 
-      it('returns the list', function() {
-        expect(TypeChecker.castableTypes(value)).to.deep.equal([
-          'Double',
-          'String',
-          'Object',
-          'Array'
-        ]);
+      context('when high precision values are not supported', function() {
+        it('returns the list', function() {
+          expect(TypeChecker.castableTypes(value)).to.deep.equal([
+            'Double',
+            'String',
+            'Object',
+            'Array'
+          ]);
+        });
+      });
+
+      context('when high precision values are supported', function() {
+        it('returns the list', function() {
+          expect(TypeChecker.castableTypes(value, true)).to.deep.equal([
+            'Double',
+            'Decimal128',
+            'String',
+            'Object',
+            'Array'
+          ]);
+        });
       });
     });
 
@@ -990,50 +1004,128 @@ describe('TypeChecker', function() {
       context('when the int is a 32 bit', function() {
         var value = 24;
 
-        it('returns the list', function() {
-          expect(TypeChecker.castableTypes(value)).to.deep.equal([
-            'Int32',
-            'Int64',
-            'Double',
-            'String',
-            'Object',
-            'Array'
-          ]);
+        context('when high precision is not supported', function() {
+          it('returns the list', function() {
+            expect(TypeChecker.castableTypes(value)).to.deep.equal([
+              'Int32',
+              'Int64',
+              'Double',
+              'String',
+              'Object',
+              'Array'
+            ]);
+          });
+        });
+
+        context('when high precision is supported', function() {
+          it('returns the list', function() {
+            expect(TypeChecker.castableTypes(value, true)).to.deep.equal([
+              'Int32',
+              'Int64',
+              'Double',
+              'Decimal128',
+              'String',
+              'Object',
+              'Array'
+            ]);
+          });
         });
       });
 
       context('when the int is an Int32', function() {
         var value = new Int32(24);
 
-        it('returns the list', function() {
-          expect(TypeChecker.castableTypes(value)).to.deep.equal([
-            'Int32',
-            'Int64',
-            'Double',
-            'String',
-            'Object',
-            'Array'
-          ]);
+        context('when high precision is not supported', function() {
+          it('returns the list', function() {
+            expect(TypeChecker.castableTypes(value)).to.deep.equal([
+              'Int32',
+              'Int64',
+              'Double',
+              'String',
+              'Object',
+              'Array'
+            ]);
+          });
+        });
+
+        context('when high precision is supported', function() {
+          it('returns the list', function() {
+            expect(TypeChecker.castableTypes(value, true)).to.deep.equal([
+              'Int32',
+              'Int64',
+              'Double',
+              'Decimal128',
+              'String',
+              'Object',
+              'Array'
+            ]);
+          });
         });
       });
 
       context('when the int is 64 bit', function() {
         var value = 2147483648;
 
-        it('returns the list', function() {
-          expect(TypeChecker.castableTypes(value)).to.deep.equal([
-            'Int64',
-            'Double',
-            'String',
-            'Object',
-            'Array'
-          ]);
+        context('when high precision is not supported', function() {
+          it('returns the list', function() {
+            expect(TypeChecker.castableTypes(value)).to.deep.equal([
+              'Int64',
+              'Double',
+              'String',
+              'Object',
+              'Array'
+            ]);
+          });
+        });
+
+        context('when high precision is supported', function() {
+          it('returns the list', function() {
+            expect(TypeChecker.castableTypes(value, true)).to.deep.equal([
+              'Int64',
+              'Double',
+              'Decimal128',
+              'String',
+              'Object',
+              'Array'
+            ]);
+          });
         });
       });
 
       context('when the int is a long', function() {
         var value = Long.fromNumber(2147483648);
 
+        context('when high precision is not supported', function() {
+          it('returns the list', function() {
+            expect(TypeChecker.castableTypes(value)).to.deep.equal([
+              'Int64',
+              'Double',
+              'String',
+              'Object',
+              'Array'
+            ]);
+          });
+        });
+
+        context('when high precision is supported', function() {
+          it('returns the list', function() {
+            expect(TypeChecker.castableTypes(value, true)).to.deep.equal([
+              'Int64',
+              'Double',
+              'Decimal128',
+              'String',
+              'Object',
+              'Array'
+            ]);
+          });
+        });
+      });
+    });
+
+    context('when the object is a double', function() {
+      var value = new Double(2147483648);
+
+      context('when high precision is not supported', function() {
         it('returns the list', function() {
           expect(TypeChecker.castableTypes(value)).to.deep.equal([
             'Int64',
@@ -1044,33 +1136,47 @@ describe('TypeChecker', function() {
           ]);
         });
       });
-    });
 
-    context('when the object is a long', function() {
-      var value = Long.fromNumber(2147483648);
-
-      it('returns the list', function() {
-        expect(TypeChecker.castableTypes(value)).to.deep.equal([
-          'Int64',
-          'Double',
-          'String',
-          'Object',
-          'Array'
-        ]);
+      context('when high precision is supported', function() {
+        it('returns the list', function() {
+          expect(TypeChecker.castableTypes(value, true)).to.deep.equal([
+            'Int64',
+            'Double',
+            'Decimal128',
+            'String',
+            'Object',
+            'Array'
+          ]);
+        });
       });
     });
 
-    context('when the object is a double', function() {
-      var value = new Double(2147483648);
+    context('when the object is a decimal 128', function() {
+      var value = Decimal128.fromString('2147483648');
 
-      it('returns the list', function() {
-        expect(TypeChecker.castableTypes(value)).to.deep.equal([
-          'Int64',
-          'Double',
-          'String',
-          'Object',
-          'Array'
-        ]);
+      context('when high precision is not supported', function() {
+        it('returns the list', function() {
+          expect(TypeChecker.castableTypes(value)).to.deep.equal([
+            'Int64',
+            'Double',
+            'String',
+            'Object',
+            'Array'
+          ]);
+        });
+      });
+
+      context('when high precision is supported', function() {
+        it('returns the list', function() {
+          expect(TypeChecker.castableTypes(value, true)).to.deep.equal([
+            'Int64',
+            'Double',
+            'Decimal128',
+            'String',
+            'Object',
+            'Array'
+          ]);
+        });
       });
     });
 

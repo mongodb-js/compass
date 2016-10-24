@@ -336,13 +336,13 @@ class TypeChecker {
       return this._stringTypes(String(object), highPrecisionSupport);
     } else if (has(object, BSON_TYPE) && this._isNumberType(object._bsontype)) {
       var rawValue = object._bsontype === 'Long' ? object.toNumber() : object.valueOf();
-      return this._stringTypes(String(rawValue));
+      return this._stringTypes(String(rawValue), highPrecisionSupport);
     }
     return [ this.type(object), 'String', 'Object', 'Array' ];
   }
 
   _isNumberType(bsontype) {
-    return bsontype === 'Long' || bsontype === 'Int32' || bsontype === 'Double';
+    return bsontype === 'Long' || bsontype === 'Int32' || bsontype === 'Double' || bsontype === 'Decimal128';
   }
 
   _stringTypes(string, highPrecisionSupport) {
