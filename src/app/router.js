@@ -22,7 +22,11 @@ module.exports = AmpersandRouter.extend({
     }
     this.connect();
   },
-  schema: function(ns) {
+  schema: function(ns, queryString) {
+    var params = qs.parse(queryString);
+    if (_.has(params, 'connectionId')) {
+      return app.setConnectionId(params.connectionId, () => this.schema(ns));
+    }
     var HomePage = require('./home');
     this.trigger('page', new HomePage({
       ns: ns
