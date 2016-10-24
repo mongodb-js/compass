@@ -283,6 +283,7 @@ var ConnectView = View.extend({
   },
   remove: function() {
     window.removeEventListener('focus', this.onConnectWindowFocused.bind(this));
+    return View.prototype.remove.call(this);
   },
 
   // === MongoDB URI clipboard Handling
@@ -476,12 +477,17 @@ var ConnectView = View.extend({
       'default port': connection.port === 27017,
       'outcome': 'success'
     });
-    app.setConnectionId(connection.getId());
-    /**
-     * @see ./src/app.js `params.connection_id`
-     */
-    app.navigate('schema', {
-      connection_id: connection.getId()
+
+    var view = this;
+    app.setConnectionId(connection.getId(), function() {
+      app.navigate('schema', {
+        params: {
+          connectionId: connection.getId()
+        },
+        silent: false
+      });
+      view.remove();
+      app.appRegistry.getAction('Status.Actions').hideStaticSidebar();
     });
   },
 
