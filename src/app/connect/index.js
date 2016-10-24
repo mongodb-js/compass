@@ -294,6 +294,11 @@ var ConnectView = View.extend({
     // don't use "Local" as favorite name, keep field empty
     this.connection.name = '';
     this.updateForm();
+    // @note: durran: This fixes not being able to save a new favorite
+    //  from a collection that was auto-filled from the clipboard. Needed
+    //  to be instantiated as new before saving otherwise it would get an
+    //  error saying 'url' needed to be defined.
+    this.connection = null;
   },
 
   /**
