@@ -415,7 +415,9 @@ var ConnectView = View.extend({
     this.connection.name = '';
     if (this.connection.last_used === null) {
       this.connection.destroy();
-      this.connections.deactivateAll();
+      // this.connections.deactivateAll();
+      //   @note: durran: This is raising an error that the method is not found.
+      //   Removing doesn't seem to break anything. What was the intention?
       this.createNewConnection();
     } else {
       this.connection.save(null);

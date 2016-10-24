@@ -75,6 +75,14 @@ var ConnectFormView = FormView.extend({
 
     return obj;
   },
+  events: {
+    "blur [name='hostname']": "blurHostname"
+  },
+  blurHostname: function(e) {
+    if (e.target.value.match(/mongodb.net$/i)) {
+      this.setValue('ssl', 'UNVALIDATED');
+    }
+  },
   /**
    * These are the default form fields that are always present in the connect dialog. Auth and
    * SSL fields are added/removed dynamically, depending on whether the options are expanded or
