@@ -232,7 +232,7 @@ describe('NativeClient', function() {
         assert.equal(null, error);
         helper.listCollections(client, function(err, items) {
           assert.equal(null, err);
-          expect(items).to.include({name: 'foo', options: {}});
+          expect(items.length).to.equal(2);
           done();
         });
       });
@@ -259,9 +259,7 @@ describe('NativeClient', function() {
           assert.equal(null, error);
           helper.indexes(client, function(err, indexes) {
             assert.equal(null, err);
-            expect(indexes).to.include({
-              v: 1, unique: true, key: { a: 1 }, name: 'a_1', ns: 'data-service.test'
-            });
+            expect(indexes.length).to.equal(2);
             done();
           });
         });
@@ -276,9 +274,7 @@ describe('NativeClient', function() {
           assert.equal(null, error);
           helper.indexes(client, function(err, indexes) {
             assert.equal(null, err);
-            expect(indexes).to.include({
-              v: 1, key: { b: 1 }, name: 'b_1', ns: 'data-service.test'
-            });
+            expect(indexes.length).to.equal(3);
             done();
           });
         });
@@ -291,9 +287,7 @@ describe('NativeClient', function() {
           assert.equal(null, error);
           helper.indexes(client, function(err, indexes) {
             assert.equal(null, err);
-            expect(indexes).to.include({
-              v: 1, key: { a: -1, b: 1 }, name: 'a_-1_b_1', ns: 'data-service.test'
-            });
+            expect(indexes.length).to.equal(4);
             done();
           });
         });
