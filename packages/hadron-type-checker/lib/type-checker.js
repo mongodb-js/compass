@@ -14,6 +14,7 @@ const MaxKey = bson.MaxKey;
 const Long = bson.Long;
 const Double = bson.Double;
 const Int32 = bson.Int32;
+const Decimal128 = bson.Decimal128;
 
 /**
  * The object string.
@@ -103,6 +104,10 @@ function toDouble(object) {
   return new Double(toNumber(object));
 }
 
+function toDecimal128(object) {
+  return Decimal128.fromString(String(object));
+}
+
 /**
  * The functions to cast to a type.
  */
@@ -110,6 +115,7 @@ const CASTERS = {
   'Int32': toInt32,
   'Int64': toInt64,
   'Double': toDouble,
+  'Decimal128': toDecimal128,
   'Date': toDate,
   'MinKey': toMinKey,
   'MaxKey': toMaxKey,
@@ -186,6 +192,17 @@ class DoubleCheck {
   }
 }
 
+const DECIMAL_128_REGEX = /^(-?(\d*\.)?\d{1,34})|((\+|-)?(nan))|((\+|-)?(infinity))|((\+|-)?(inf))|(\b-?[1-9](?:\.\d+)?(E|e)(-|\+)?\d+\b)$/i;
+
+/**
+ * Checks if the value can be cast to a decimal 128.
+ */
+class Decimal128Check {
+  test(string) {
+    return DECIMAL_128_REGEX.test(string);
+  }
+}
+
 const DATE_REGEX = /^(\d{4})-(\d|\d{2})-(\d|\d{2})(T\d{2}\:\d{2}\:\d{2}(\.\d+)?)?$/;
 
 /**
@@ -204,6 +221,7 @@ const INT32_CHECK = new Int32Check();
 const INT64_CHECK = new Int64Check();
 const INT_DBL_CHECK = new IntDblCheck();
 const DOUBLE_CHECK = new DoubleCheck();
+const DECIMAL_128_CHECK = new Decimal128Check();
 const DATE_CHECK = new DateCheck();
 
 /**
@@ -215,6 +233,23 @@ const STRING_TESTS = [
   new Test(INT_DBL_CHECK, [ 'Int64', 'Double', 'String', 'Object', 'Array' ]),
   new Test(INT64_CHECK, [ 'Int64', 'String', 'Object', 'Array' ]),
   new Test(DOUBLE_CHECK, [ 'Double', 'String', 'Object', 'Array' ]),
+  new Test(/^(null)$/, [ 'Null', 'String', 'Object', 'Array' ]),
+  new Test(/^(undefined)$/, [ 'Undefined', 'String', 'Object', 'Array' ]),
+  new Test(/^(true|false)$/, [ 'Boolean', 'String', 'Object', 'Array' ]),
+  new Test(/^\/(.*)\/$/, [ 'BSONRegExp', 'String', 'Object', 'Array' ]),
+  new Test(DATE_CHECK, [ 'Date', 'String', 'Object', 'Array' ])
+];
+
+/**
+ * String tests with high precision support.
+ */
+const HP_STRING_TESTS = [
+  new Test(/^$/, [ 'String', 'Null', 'Undefined', 'MinKey', 'MaxKey', 'Object', 'Array' ]),
+  new Test(INT32_CHECK, [ 'Int32', 'Int64', 'Double', 'Decimal128', 'String', 'Object', 'Array' ]),
+  new Test(INT_DBL_CHECK, [ 'Int64', 'Double', 'Decimal128', 'String', 'Object', 'Array' ]),
+  new Test(INT64_CHECK, [ 'Int64', 'Decimal128', 'String', 'Object', 'Array' ]),
+  new Test(DOUBLE_CHECK, [ 'Double', 'Decimal128', 'String', 'Object', 'Array' ]),
+  new Test(DECIMAL_128_CHECK, [ 'Decimal128', 'String', 'Object', 'Array' ]),
   new Test(/^(null)$/, [ 'Null', 'String', 'Object', 'Array' ]),
   new Test(/^(undefined)$/, [ 'Undefined', 'String', 'Object', 'Array' ]),
   new Test(/^(true|false)$/, [ 'Boolean', 'String', 'Object', 'Array' ]),
@@ -294,11 +329,11 @@ class TypeChecker {
    *
    * @returns {Array} The available types.
    */
-  castableTypes(object) {
+  castableTypes(object, highPrecisionSupport = false) {
     if (isString(object)) {
-      return this._stringTypes(object);
+      return this._stringTypes(object, highPrecisionSupport);
     } else if (isNumber(object)) {
-      return this._stringTypes(String(object));
+      return this._stringTypes(String(object), highPrecisionSupport);
     } else if (has(object, BSON_TYPE) && this._isNumberType(object._bsontype)) {
       var rawValue = object._bsontype === 'Long' ? object.toNumber() : object.valueOf();
       return this._stringTypes(String(rawValue));
@@ -310,8 +345,8 @@ class TypeChecker {
     return bsontype === 'Long' || bsontype === 'Int32' || bsontype === 'Double';
   }
 
-  _stringTypes(string) {
-    var passing = find(STRING_TESTS, (test) => {
+  _stringTypes(string, highPrecisionSupport) {
+    var passing = find(highPrecisionSupport ? HP_STRING_TESTS : STRING_TESTS, (test) => {
       return test.tester.test(string);
     });
     return passing ? passing.types : [ 'String', 'Object', 'Array' ];

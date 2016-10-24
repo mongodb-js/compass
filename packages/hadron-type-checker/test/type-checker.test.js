@@ -12,6 +12,7 @@ const Timestamp = bson.Timestamp;
 const Long = bson.Long;
 const Double = bson.Double;
 const Int32 = bson.Int32;
+const Decimal128 = bson.Decimal128;
 const TypeChecker = require('../lib/type-checker');
 
 describe('TypeChecker', function() {
@@ -55,6 +56,13 @@ describe('TypeChecker', function() {
             });
           });
         });
+
+        context('when casting to a decimal 128', function() {
+          var value = '9223372036854775808';
+          it('returns the number', function() {
+            expect(TypeChecker.cast(value, 'Decimal128').toString()).to.equal(value);
+          });
+        });
       });
 
       context('when the string is a double', function() {
@@ -63,6 +71,16 @@ describe('TypeChecker', function() {
 
           it('returns the number', function() {
             expect(TypeChecker.cast(value, 'Double')).to.deep.equal(new Double(23.45));
+          });
+        });
+      });
+
+      context('when the string is a decimal 128', function() {
+        context('when casting to a decimal 128', function() {
+          var value = '23.45';
+
+          it('returns the number', function() {
+            expect(TypeChecker.cast(value, 'Decimal128').toString()).to.equal('23.45');
           });
         });
       });
@@ -282,6 +300,12 @@ describe('TypeChecker', function() {
       });
     });
 
+    context('when the object is a decimal 128', function() {
+      it('returns Decimal128', function() {
+        expect(TypeChecker.type(Decimal128.fromString('2.45'))).to.equal('Decimal128');
+      });
+    });
+
     context('when the object is a binary', function() {
       var binary = new Binary('test', 0);
 
@@ -429,6 +453,209 @@ describe('TypeChecker', function() {
 
       context('when the string is not empty', function() {
         context('when the string is numeric', function() {
+          context('when high precision is supported', function() {
+            context('when the string is a 32 bit integer', function() {
+              var value = '24';
+
+              it('returns the list', function() {
+                expect(TypeChecker.castableTypes(value, true)).to.deep.equal([
+                  'Int32',
+                  'Int64',
+                  'Double',
+                  'Decimal128',
+                  'String',
+                  'Object',
+                  'Array'
+                ]);
+              });
+            });
+
+            context('when the string is a 64 bit integer', function() {
+              var value = '2147483648';
+
+              it('returns the list', function() {
+                expect(TypeChecker.castableTypes(value, true)).to.deep.equal([
+                  'Int64',
+                  'Double',
+                  'Decimal128',
+                  'String',
+                  'Object',
+                  'Array'
+                ]);
+              });
+            });
+
+            context('when the string is a double', function() {
+              var value = '214.12';
+
+              it('returns the list', function() {
+                expect(TypeChecker.castableTypes(value, true)).to.deep.equal([
+                  'Double',
+                  'Decimal128',
+                  'String',
+                  'Object',
+                  'Array'
+                ]);
+              });
+            });
+
+            context('when the string is 128 bit double', function() {
+              var value = '9223372036854775808.123';
+
+              it('returns the list', function() {
+                expect(TypeChecker.castableTypes(value, true)).to.deep.equal([
+                  'Decimal128',
+                  'String',
+                  'Object',
+                  'Array'
+                ]);
+              });
+            });
+
+            context('when the string is NaN', function() {
+              var value = 'NaN';
+
+              it('returns the list', function() {
+                expect(TypeChecker.castableTypes(value, true)).to.deep.equal([
+                  'Decimal128',
+                  'String',
+                  'Object',
+                  'Array'
+                ]);
+              });
+            });
+
+            context('when the string is +NaN', function() {
+              var value = '+NaN';
+
+              it('returns the list', function() {
+                expect(TypeChecker.castableTypes(value, true)).to.deep.equal([
+                  'Decimal128',
+                  'String',
+                  'Object',
+                  'Array'
+                ]);
+              });
+            });
+
+            context('when the string is -NaN', function() {
+              var value = '-NaN';
+
+              it('returns the list', function() {
+                expect(TypeChecker.castableTypes(value, true)).to.deep.equal([
+                  'Decimal128',
+                  'String',
+                  'Object',
+                  'Array'
+                ]);
+              });
+            });
+
+            context('when the string is nan', function() {
+              var value = 'nan';
+
+              it('returns the list', function() {
+                expect(TypeChecker.castableTypes(value, true)).to.deep.equal([
+                  'Decimal128',
+                  'String',
+                  'Object',
+                  'Array'
+                ]);
+              });
+            });
+
+            context('when the string is +nan', function() {
+              var value = '+nan';
+
+              it('returns the list', function() {
+                expect(TypeChecker.castableTypes(value, true)).to.deep.equal([
+                  'Decimal128',
+                  'String',
+                  'Object',
+                  'Array'
+                ]);
+              });
+            });
+
+            context('when the string is -nan', function() {
+              var value = '-nan';
+
+              it('returns the list', function() {
+                expect(TypeChecker.castableTypes(value, true)).to.deep.equal([
+                  'Decimal128',
+                  'String',
+                  'Object',
+                  'Array'
+                ]);
+              });
+            });
+
+            context('when the string is +Infinity', function() {
+              var value = '+Infinity';
+
+              it('returns the list', function() {
+                expect(TypeChecker.castableTypes(value, true)).to.deep.equal([
+                  'Decimal128',
+                  'String',
+                  'Object',
+                  'Array'
+                ]);
+              });
+            });
+
+            context('when the string is -Infinity', function() {
+              var value = '-Infinity';
+
+              it('returns the list', function() {
+                expect(TypeChecker.castableTypes(value, true)).to.deep.equal([
+                  'Decimal128',
+                  'String',
+                  'Object',
+                  'Array'
+                ]);
+              });
+            });
+
+            context('when the string is +inf', function() {
+              var value = '+inf';
+
+              it('returns the list', function() {
+                expect(TypeChecker.castableTypes(value, true)).to.deep.equal([
+                  'Decimal128',
+                  'String',
+                  'Object',
+                  'Array'
+                ]);
+              });
+            });
+
+            context('when the string is -inf', function() {
+              var value = '-inf';
+
+              it('returns the list', function() {
+                expect(TypeChecker.castableTypes(value, true)).to.deep.equal([
+                  'Decimal128',
+                  'String',
+                  'Object',
+                  'Array'
+                ]);
+              });
+            });
+
+            context('when the string is scientific notation', function() {
+              var value = '1e-6176';
+
+              it('returns the list', function() {
+                expect(TypeChecker.castableTypes(value, true)).to.deep.equal([
+                  'Decimal128',
+                  'String',
+                  'Object',
+                  'Array'
+                ]);
+              });
+            });
+          });
+
           context('when the string is a 32 bit integer', function() {
             var value = '24';
 
