@@ -21,7 +21,7 @@ var NONE = {
 
 var UNVALIDATED = {
   _id: 'UNVALIDATED',
-  title: 'Unvalidated',
+  title: 'Unvalidated/Atlas Deployment',
   description: 'Use SSL but do not perform any validation of'
     + ' the certificate chain... which is basically pointless.',
   // @todo (imlucas) Fix `app.isFeatureEnabled` is not a function.
