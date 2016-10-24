@@ -8,8 +8,6 @@ var View = require('ampersand-view');
 
 var _ = require('lodash');
 var app = require('ampersand-app');
-var ipc = require('hadron-ipc');
-var format = require('util').format;
 
 var electron = require('electron');
 var remote = electron.remote;

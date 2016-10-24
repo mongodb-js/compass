@@ -108,16 +108,6 @@ module.exports.create = function(opts) {
 
   _window.loadURL(opts.url);
 
-  _window.webContents.on('new-window', function(event, url) {
-    debug('intercepting new-window (disregard the "error" message '
-      + 'preventDefault is about to cause)');
-    event.preventDefault();
-
-    module.exports.create({
-      url: 'file://' + RESOURCES + '/index.html' + decodeURIComponent(url.replace('file://', ''))
-    });
-  });
-
   /**
    * Open devtools for this window when it's opened.
    *
