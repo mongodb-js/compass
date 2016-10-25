@@ -3,6 +3,7 @@
 const expect = require('chai').expect;
 const ValidationStore = require('../lib/stores');
 const sinon = require('sinon');
+const _ = require('lodash');
 
 function mockFetchFromServer(err, res, delay) {
   if (delay === undefined) {
@@ -208,6 +209,66 @@ describe('ValidationStore', function() {
     const rules = ValidationStore._deconstructValidatorDoc(validatorDoc);
     const result = ValidationStore._constructValidatorDoc(rules);
     expect(result).to.deep.equal(validatorDoc);
+  });
+
+  it('deconstruct a nullable $regex clause into rules', function() {
+    // insert fixture data
+    const innerQuery = {
+      name: {
+        '$regex': '^Tom',
+        '$options': 'ix'
+      }
+    };
+    const validatorDoc = {
+      'validator': {
+        $or: [
+          innerQuery,
+          {name: {$exists: false}},
+          {name: null}
+        ]
+      },
+      'validationLevel': 'strict',
+      'validationAction': 'error'
+    };
+    const rules = {
+      rules: [
+        {
+          id: 'my-rule-id',
+          field: 'name',
+          category: 'regex',
+          parameters: {
+            regex: '^Tom',
+            options: 'ix'
+          },
+          nullable: true
+        }
+      ],
+      level: 'strict',
+      action: 'error'
+    };
+
+    const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
+    expect(_.omit(result.rules[0], 'id')).to.deep.equal(_.omit(rules.rules[0], 'id'));
+  });
+
+  it('recognizes when validator document cannot be expressed by rules', function() {
+    // insert fixture data
+    const validatorDoc = {
+      'validator': {
+        'name': {
+          '$regex': '^Tom'
+        },
+        'city': {
+          '$in': ['New York', 'Sydney', 'Berlin', 'Stockholm', 'Philadelphia']
+        }
+      },
+      'validationLevel': 'strict',
+      'validationAction': 'error'
+    };
+    const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
+    expect(result.rules).to.be.false;
+    expect(result.level).to.be.equal('strict');
+    expect(result.action).to.be.equal('error');
   });
 
   it('constructs a nullable $regex clause from the rules', function() {

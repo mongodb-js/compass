@@ -5,6 +5,7 @@ const _ = require('lodash');
 const uuid = require('uuid');
 const ruleCategories = require('../components/rule-categories');
 const nullableOrQueryWrapper = require('./helpers').nullableOrQueryWrapper;
+const nullableOrValidator = require('./helpers').nullableOrValidator;
 
 const debug = require('debug')('mongodb-compass:stores:validation');
 
@@ -69,11 +70,15 @@ const ValidationStore = Reflux.createStore({
       // error: unknown validator doc format from server, should not happen!
       return false;
     }
+
     const rules = _.map(validatorDoc.validator, (rule, field) => {
       // find a category who can express this rule
       let parameters;
+
+      const result = nullableOrValidator(field, rule);
+
       const category = _.findKey(ruleCategories, (cat) => {
-        parameters = cat.queryToParams(rule);
+        parameters = cat.queryToParams(result.value);
         return parameters;
       });
       // no rule category could be found to express this rule
@@ -82,10 +87,10 @@ const ValidationStore = Reflux.createStore({
       }
       return {
         id: uuid.v4(),
-        field: field,
+        field: result.field,
         category: category,
         parameters: parameters,
-        nullable: false  // @todo
+        nullable: result.nullable
       };
     });
 
@@ -131,7 +136,7 @@ const ValidationStore = Reflux.createStore({
           }
           return [field, value];
         })
-        .zipObject()
+        .fromPairs()
         .value();
     } else {
       validator = this.validatorDoc.validator;

@@ -82,7 +82,7 @@ class BSONTypeSelector extends React.Component {
   render() {
     const selectedTypeName = _.get(this.state.type, 'alias', '');
     // TODO: make recentServer true if server is 3.4 <
-    var recentServer = true;
+    const recentServer = true;
     // remove the decimal version if not recentServer
     const typeOptions = _.fromPairs(_.map(_.filter(BSON_TYPES, (t) => {
       // filter out decimal if server < 3.4
