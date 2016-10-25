@@ -7,7 +7,26 @@ const SidebarActions = require('../actions');
 const SidebarDatabase = require('./sidebar-database');
 const SidebarInstanceProperties = require('./sidebar-instance-properties');
 
+const ipcRenderer = require('electron').ipcRenderer;
+
 class Sidebar extends React.Component {
+
+  componentDidMount() {
+    ipcRenderer.on('window:sidebar-toggle-visibility',
+      this.handleToggleVisibility.bind(this));
+  }
+
+  componentWillUnmount() {
+    ipcRenderer.removeEventListener('window:sidebar-toggle-visibility',
+      this.handleToggleVisibility.bind(this));
+  }
+
+  getClassName() {
+    return [
+      'compass-sidebar',
+      this.props.visible ? 'visible' : 'hidden'
+    ].join(' ');
+  }
 
   handleFilter(event) {
     const searchString = event.target.value;
@@ -22,9 +41,13 @@ class Sidebar extends React.Component {
     SidebarActions.filterDatabases(re);
   }
 
+  handleToggleVisibility() {
+    SidebarActions.toggleVisibility();
+  }
+
   render() {
     return (
-      <div className="compass-sidebar">
+      <div className={this.getClassName()}>
         <StoreConnector store={InstanceStore}>
           <SidebarInstanceProperties />
         </StoreConnector>
@@ -52,7 +75,8 @@ class Sidebar extends React.Component {
 
 Sidebar.propTypes = {
   instance: React.PropTypes.object,
-  databases: React.PropTypes.array
+  databases: React.PropTypes.array,
+  visible: React.PropTypes.bool
 };
 
 module.exports = Sidebar;
