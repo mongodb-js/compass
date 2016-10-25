@@ -53,9 +53,7 @@ var HomeView = View.extend({
     'click a.show-connect-window': 'onClickShowConnectWindow'
   },
   initialize: function() {
-    if (app.isFeatureEnabled('serverStats')) {
-      this.serverStatsView = app.appRegistry.getComponent('RTSS.ServerStats');
-    }
+    this.serverStatsView = app.appRegistry.getComponent('RTSS.ServerStats');
     this.listenTo(app.instance, 'sync', this.onInstanceFetched);
     this.listenTo(app.connection, 'change:name', this.updateTitle);
     NamespaceStore.listen(this.onNamespaceChange.bind(this));
@@ -68,16 +66,14 @@ var HomeView = View.extend({
   },
   render: function() {
     this.renderWithTemplate(this);
-    if (app.isFeatureEnabled('serverStats')) {
-      var containerNode = this.queryByHook('report-zero-state');
-      ReactDOM.render(
-        React.createElement(this.serverStatsView, { interval: 1000 }),
-        containerNode
-      );
-      NamespaceStore.listen(() => {
-        ReactDOM.unmountComponentAtNode(containerNode);
-      });
-    }
+    var containerNode = this.queryByHook('report-zero-state');
+    ReactDOM.render(
+      React.createElement(this.serverStatsView, { interval: 1000 }),
+      containerNode
+    );
+    NamespaceStore.listen(() => {
+      ReactDOM.unmountComponentAtNode(containerNode);
+    });
 
     const SideBarComponent = app.appRegistry.getComponent('Sidebar.Component');
     ReactDOM.render(
