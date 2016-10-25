@@ -123,7 +123,6 @@ class RuleBuilder extends React.Component {
               </Table>
             </Col>
           </Row>
-          <hr/>
         </Grid>
       </Editable>
     );

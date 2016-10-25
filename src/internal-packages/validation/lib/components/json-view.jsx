@@ -59,7 +59,7 @@ class JSONView extends React.Component {
         onCancel={this.onCancel.bind(this)}
         onUpdate={this.onUpdate.bind(this)}
       >
-        <Grid fluid className="rule-builder">
+        <Grid fluid className="json-view">
           <Row className="header">
             <Col lg={12} md={12} sm={12} xs={12}>
               <div className="pull-right">
@@ -85,17 +85,13 @@ class JSONView extends React.Component {
           <hr/>
           <Row>
             <Col lg={12} md={12} sm={12} xs={12}>
-              <textarea
-                cols="100"
-                rows="14"
-                readOnly="readOnly"
-                disabled="disabled"
-                style={{backgroundColor:'rgb(236, 236, 236)', fontFamily: 'monospace'}}
-                value={JSON.stringify(this.props.validatorDoc, null, 2)}
-              />
+              <pre><code
+                className="json-view code"
+                // readOnly="readOnly"
+                // disabled="disabled"
+              >{JSON.stringify(this.props.validatorDoc, null, 2)}</code></pre>
             </Col>
           </Row>
-          <hr/>
         </Grid>
       </Editable>
     );
