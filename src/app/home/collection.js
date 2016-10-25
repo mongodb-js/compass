@@ -18,7 +18,8 @@ var tabToViewMap = {
   'DOCUMENTS': 'documentView',
   'SCHEMA': 'schemaView',
   'EXPLAIN PLAN': 'explainView',
-  'INDEXES': 'indexView'
+  'INDEXES': 'indexView',
+  'VALIDATION': 'validationView'
 };
 
 /**
@@ -61,7 +62,7 @@ var MongoDBCollectionView = View.extend({
       type: 'string',
       required: true,
       default: 'schemaView',
-      values: ['documentView', 'schemaView', 'explainView', 'indexView' ]
+      values: ['documentView', 'schemaView', 'explainView', 'indexView', 'validationView']
     },
     ns: 'string'
   },
@@ -83,7 +84,8 @@ var MongoDBCollectionView = View.extend({
         'documentView': '[data-hook=document-tab]',
         'schemaView': '[data-hook=schema-tab]',
         'explainView': '[data-hook=explain-tab]',
-        'indexView': '[data-hook=index-tab]'
+        'indexView': '[data-hook=index-tab]',
+        'validationView': '[data-hook=validation-tab]'
       }
     }
   },
@@ -142,6 +144,17 @@ var MongoDBCollectionView = View.extend({
           componentKey: 'Explain.ExplainPlan'
         });
       }
+    },
+    validationView: {
+      hook: 'validation-subview',
+      waitFor: 'ns',
+      prepareView: function(el) {
+        return new TabView({
+          el: el,
+          parent: this,
+          componentKey: 'Validation.Validation'
+        });
+      }
     }
   },
   initialize: function() {
@@ -150,6 +163,7 @@ var MongoDBCollectionView = View.extend({
     this.loadIndexesAction = app.appRegistry.getAction('Indexes.LoadIndexes');
     this.fetchExplainPlanAction = app.appRegistry.getAction('Explain.Actions').fetchExplainPlan;
     this.schemaActions = app.appRegistry.getAction('Schema.Actions');
+    this.validationActions = app.appRegistry.getAction('Validation.Actions');
     // this.listenToAndRun(this.parent, 'change:ns', this.onCollectionChanged.bind(this));
   },
   render: function() {
