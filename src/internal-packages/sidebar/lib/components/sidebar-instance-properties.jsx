@@ -34,7 +34,11 @@ class SidebarInstanceProperties extends React.Component {
   }
 
   handleClickHostname() {
-    app.navigate('/');
+    app.navigate('/', {
+      params: {
+        connectionId: app.connection.getId()
+      }
+    });
   }
 
   render() {
