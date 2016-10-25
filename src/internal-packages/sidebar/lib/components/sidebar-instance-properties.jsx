@@ -49,19 +49,23 @@ class SidebarInstanceProperties extends React.Component {
     const versionName = this.getVersionName();
     return (
       <div className="compass-sidebar-properties">
-      <div className="compass-sidebar-hostname" onClick={this.handleClickHostname}>{hostnameAndPort}</div>
-      <div className="compass-sidebar-version">{versionName}</div>
-      <div className="compass-sidebar-stats">
-      <div className="compass-sidebar-property-column">
-      <span className="compass-sidebar-strong-property">{numDbs}</span> DBs
-      </div>
-      <div className="compass-sidebar-property-column">
-      <span className="compass-sidebar-strong-property">{numCollections}</span> Collections
-      </div>
-      <button onClick={this.handleRefresh} className="compass-sidebar-refresh-button">
-      <i className={this.getRefreshIconClassNames()}></i>
-      </button>
-      </div>
+        <div className="compass-sidebar-hostname" onClick={this.handleClickHostname}>
+          <i className="fa fa-home compass-sidebar-home-icon"></i>
+          {hostnameAndPort}
+          <div className="compass-sidebar-version">{versionName}</div>
+        </div>
+        <div className="compass-sidebar-stats">
+          <button onClick={this.handleRefresh} className="compass-sidebar-refresh-button">
+            <i className={this.getRefreshIconClassNames()}></i>
+          </button>
+          <div className="compass-sidebar-property-column">
+            <span className="compass-sidebar-strong-property">{numDbs}</span> DBs
+          </div>
+          <div className="compass-sidebar-property-column">
+            <span className="compass-sidebar-strong-property">{numCollections}</span> Collections
+          </div>
+
+        </div>
       </div>
     );
   }
