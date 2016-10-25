@@ -73,6 +73,7 @@ Validation.propTypes = {
   editState: React.PropTypes.oneOf(['unmodified', 'modified', 'updating', 'error', 'success']).isRequired,
   viewMode: React.PropTypes.oneOf(['Rule Builder', 'JSON']).isRequired,
   validationAction: React.PropTypes.oneOf(['warn', 'error']).isRequired,
+  validatorDoc: React.PropTypes.object.isRequired,
   validationLevel: React.PropTypes.oneOf(['off', 'moderate', 'strict']).isRequired,
   validationRules: React.PropTypes.array.isRequired
 };
@@ -81,6 +82,7 @@ Validation.defaultProps = {
   editState: 'unmodified',
   viewMode: 'Rule Builder',
   validationAction: 'warn',
+  validatorDoc: {},
   validationLevel: 'off',
   validationRules: []
 };

@@ -6,6 +6,11 @@ const uuid = require('uuid');
 const ruleCategories = require('../components/rule-categories');
 const nullableOrQueryWrapper = require('./helpers').nullableOrQueryWrapper;
 const nullableOrValidator = require('./helpers').nullableOrValidator;
+const toNS = require('mongodb-ns');
+const app = require('ampersand-app');
+
+// stores
+const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 
 const debug = require('debug')('mongodb-compass:stores:validation');
 
@@ -29,8 +34,12 @@ const ValidationStore = Reflux.createStore({
    * Initialize everything that is not part of the store's state.
    */
   init() {
-    this.validatorDoc = {};
     this.lastFetchedValidatorDoc = {};
+
+    NamespaceStore.listen(() => {
+      debug('new namespace');
+      ValidationActions.fetchValidationRules();
+    });
   },
 
   /**
@@ -41,6 +50,7 @@ const ValidationStore = Reflux.createStore({
   getInitialState() {
     return {
       viewMode: 'Rule Builder',    // one of `Rule Builder`, `JSON`
+      validatorDoc: {},            // the validator doc fetched from the server
       validationRules: [],         // array of rules as defined below
       validationLevel: 'off',      // one of `off`, `moderate`, `strict`
       validationAction: 'warn',    // one of `warn`, `error`
@@ -67,8 +77,8 @@ const ValidationStore = Reflux.createStore({
    */
   _deconstructValidatorDoc(validatorDoc) {
     if (!_.has(validatorDoc, 'validator')) {
-      // error: unknown validator doc format from server, should not happen!
-      return false;
+      // no validator doc present, create an empty doc
+      validatorDoc.validator = {};
     }
 
     const rules = _.map(validatorDoc.validator, (rule, field) => {
@@ -97,14 +107,14 @@ const ValidationStore = Reflux.createStore({
     if (!_.every(rules)) {
       return {
         rules: false,
-        level: _.get(validatorDoc, 'validationLevel'),
-        action: _.get(validatorDoc, 'validationAction')
+        level: _.get(validatorDoc, 'validationLevel', 'off'),
+        action: _.get(validatorDoc, 'validationAction', 'warn')
       };
     }
     return {
       rules: rules,
-      level: _.get(validatorDoc, 'validationLevel'),
-      action: _.get(validatorDoc, 'validationAction')
+      level: _.get(validatorDoc, 'validationLevel', 'off'),
+      action: _.get(validatorDoc, 'validationAction', 'warn')
     };
   },
 
@@ -139,7 +149,7 @@ const ValidationStore = Reflux.createStore({
         .zipObject()
         .value();
     } else {
-      validator = this.validatorDoc.validator;
+      validator = this.state.validatorDoc.validator;
     }
     return {
       validator: validator,
@@ -152,7 +162,7 @@ const ValidationStore = Reflux.createStore({
    * After any of the rules are modified through one of the actions below,
    * compute the new validatorDoc and compare it to the last fetched one.
    * Store the new rules in the state along with the editState and update
-   * this.validatorDoc.
+   * validatorDoc.
    *
    * This function modifies the state!
    *
@@ -167,14 +177,15 @@ const ValidationStore = Reflux.createStore({
     });
 
     // update current validatorDoc and compare to last fetched one
-    this.validatorDoc = this._constructValidatorDoc(params);
+    const validatorDoc = this._constructValidatorDoc(params);
 
     this.setState({
+      validatorDoc: validatorDoc,
       validationRules: params.rules,
       validationLevel: params.level,
       validationAction: params.action,
       isExpressibleByRules: _.isArray(params.rules),
-      editState: _.isEqual(this.lastFetchedValidatorDoc, this.validatorDoc) ?
+      editState: _.isEqual(this.lastFetchedValidatorDoc, validatorDoc) ?
         'unmodified' : 'modified'
     });
   },
@@ -187,23 +198,13 @@ const ValidationStore = Reflux.createStore({
    * @param {Function} callback   function to call with (err, res) from server.
    */
   _fetchFromServer(callback) {
-    setTimeout(function() {
-      callback(null, {
-        'name': 'test',
-        'options': {
-          'validator': {
-            'number': {
-              '$exists': true
-            }
-            // 'last_name': {
-            //   '$regex': '^foo'
-            // }
-          },
-          'validationLevel': 'strict',
-          'validationAction': 'error'
-        }
-      });
-    }, 1000);
+    const ns = toNS(NamespaceStore.ns);
+    app.dataService.listCollections(ns.database, {name: ns.collection}, function(err, res) {
+      if (err) {
+        return callback(err);
+      }
+      callback(null, res[0]);
+    });
   },
 
   fetchValidationRules() {
@@ -211,6 +212,7 @@ const ValidationStore = Reflux.createStore({
       fetchState: 'fetching'
     });
     this._fetchFromServer((err, res) => {
+      debug('result from server', err, res);
       if (err) {
         // an error occured during fetch, e.g. missing permissions
         this.setState({
@@ -218,12 +220,11 @@ const ValidationStore = Reflux.createStore({
         });
         return;
       }
-
       const result = this._deconstructValidatorDoc(res.options);
 
       // store result from server
       this.lastFetchedValidatorDoc = this._constructValidatorDoc(result);
-      this.validatorDoc = _.clone(this.lastFetchedValidatorDoc);
+      const validatorDoc = _.clone(this.lastFetchedValidatorDoc);
 
       if (!result) {
         // the validatorDoc has an unexpected format.
@@ -247,6 +248,7 @@ const ValidationStore = Reflux.createStore({
         this.setState({
           fetchState: 'success',
           isExpressibleByRules: false,
+          validatorDoc: validatorDoc,
           validationLevel: result.level,
           validationAction: result.action,
           editState: 'unmodified'
@@ -258,6 +260,7 @@ const ValidationStore = Reflux.createStore({
       this.setState({
         fetchState: 'success',
         isExpressibleByRules: true,
+        validatorDoc: validatorDoc,
         validationRules: result.rules,
         validationLevel: result.level,
         validationAction: result.action,
@@ -358,23 +361,27 @@ const ValidationStore = Reflux.createStore({
   },
 
   saveChanges() {
-    debug('Sending new validator doc to server:', this.validatorDoc);
+    debug('Sending new validator doc to server:', this.state.validatorDoc);
     this.setState({
       editState: 'updating'
     });
-    setTimeout(() => {
-      const params = this._deconstructValidatorDoc(this.validatorDoc);
-      this._updateState(params);
+    app.dataService.updateCollection(NamespaceStore.ns, this.state.validatorDoc, (err) => {
+      if (err) {
+        this.setState({
+          editState: 'error'
+        });
+        return;
+      }
       this.setState({
         editState: 'success'
       });
       setTimeout(() => {
-        this.lastFetchedValidatorDoc = _.clone(this.validatorDoc);
+        this.lastFetchedValidatorDoc = _.clone(this.state.validatorDoc);
         this.setState({
           editState: 'unmodified'
         });
       }, 1000);
-    }, 1000);
+    });
   },
 
   /**
