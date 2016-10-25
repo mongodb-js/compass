@@ -27,7 +27,7 @@
     white-space: nowrap;
     overflow-x: hidden;
     text-overflow: ellipsis;
-    font-size: 16px;
+    font-size: 14px;
 
     &-is-bold {
       font-weight: bold;
@@ -49,7 +49,8 @@
   }
 
   &-item-header {
-    padding: 8px 30px 8px 20px;
+    padding: 6px 12px 6px 36px;
+    color: #9DA4AA;
 
     &-is-expandable {
       cursor: pointer;
@@ -59,24 +60,26 @@
   &-expand-icon,
   i[class^="mms-icon-"] {
     position: absolute;
-    top: 9px;
-    right: 14px;
+    top: 8px;
+    left: 9px;
     transition: all 180ms ease-out;
+    color: #9DA4AA;
   }
 
   &-item-content {
     .compass {
       &-sidebar-item {
+        color: #fff;
         &:hover {
-          // background-color: #6D7984;
-          color: #fff;
+          background-color: #42494f;
         }
         &:last-child {
-          margin-bottom: 20px;
+          margin-bottom: 12px;
         }
       }
       &-sidebar-title {
-        padding: 4px 20px 5px 40px;
+        padding: 4px 20px 5px 36px;
+        font-size: 14px;
       }
     }
   }
@@ -84,20 +87,21 @@
   /* Filter */
   &-filter {
     position: relative;
-    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
+    // box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
   }
 
   &-search-icon {
     position: absolute;
     top: 11px;
     left: 11px;
+    color: #9DA4AA;
   }
 
   &-search-input {
     padding: 9px 5px 7px 36px;
     height: auto;
     background: #3F4347;
-    color: #ffffff;
+    color: #9DA4AA;
     width: 100%;
     border: none;
     transition: all 150ms ease;
@@ -106,6 +110,9 @@
     font-size: 14px;
     font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
+    ::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+      color: #9DA4AA;
+    }
   }
 
   /* Instance properties */
@@ -129,12 +136,12 @@
     }
 
     &:hover {
-      background-color: #6D7984; 
+      background-color: #42494f;
     }
   }
 
   &-version {
-    color: #bfbfbe;
+    color: #9DA4AA;
     font-weight: normal;
     line-height: 16px;
     height: 16px;
@@ -143,7 +150,7 @@
   }
 
   &-stats {
-    color: #bfbfbe;
+    color: #9DA4AA;
     margin-top: 0;
     line-height: 11px;
     height: 11px;
@@ -161,7 +168,7 @@
 
   &-strong-property {
     font-weight: bold;
-    color: #ebebed;
+    color: #fff;
   }
 
   &-refresh-button {
