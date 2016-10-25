@@ -3,6 +3,7 @@ const ValidationActions = require('../actions');
 const StatusRow = require('./common/status-row');
 const ViewSwitcher = require('./common/view-switcher');
 const RuleBuilder = require('./rule-builder');
+const JSONView = require('./json-view');
 
 const Grid = require('react-bootstrap').Grid;
 
@@ -45,7 +46,14 @@ class Validation extends React.Component {
           validationLevel={this.props.validationLevel}
           editState={this.props.editState}
         />
-      ) : null; // @todo return the JSON view instead of null
+      ) : (
+        <JSONView
+          validatorDoc={this.props.validatorDoc}
+          validationAction={this.props.validationAction}
+          validationLevel={this.props.validationLevel}
+          editState={this.props.editState}
+        />
+      );
     return (
       <div className="validation">
         <Grid fluid>
@@ -75,7 +83,8 @@ Validation.propTypes = {
   validationAction: React.PropTypes.oneOf(['warn', 'error']).isRequired,
   validatorDoc: React.PropTypes.object.isRequired,
   validationLevel: React.PropTypes.oneOf(['off', 'moderate', 'strict']).isRequired,
-  validationRules: React.PropTypes.array.isRequired
+  validationRules: React.PropTypes.array.isRequired,
+  validatorDoc: React.PropTypes.object.isRequired
 };
 
 Validation.defaultProps = {
@@ -84,7 +93,8 @@ Validation.defaultProps = {
   validationAction: 'warn',
   validatorDoc: {},
   validationLevel: 'off',
-  validationRules: []
+  validationRules: [],
+  validatorDoc: {}
 };
 
 Validation.displayName = 'Validation';
