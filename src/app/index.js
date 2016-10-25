@@ -353,7 +353,7 @@ var Application = View.extend({
       event.preventDefault();
       this.router.history.navigate(pathname);
       return;
-    } else if (event.currentTarget.getAttribute('href') !== '#') {
+    } else if (event.target.getAttribute('href') !== '#') {
       event.preventDefault();
       event.stopPropagation();
       shell.openExternal(event.target.href);

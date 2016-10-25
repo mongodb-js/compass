@@ -17,7 +17,7 @@ class OptionSelector extends React.Component {
     const title = this.props.options[this.props.value] || '';
 
     const menuItems = _.map(this.props.options, (label, key) => {
-      return <MenuItem key={key} eventKey={key}>{label}</MenuItem>;
+      return <MenuItem key={key} eventKey={key} href="#">{label}</MenuItem>;
     });
 
     return (
