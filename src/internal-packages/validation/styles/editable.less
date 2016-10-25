@@ -1,0 +1,73 @@
+.editable {
+  padding: 10px;
+
+  .editable-wrapper {
+    border: 1px solid transparent;
+  }
+
+  &-is-modified, &-is-updating, &-is-success, &-is-error {
+    .editable-wrapper {
+      -webkit-box-shadow: -10px 10px 50px -20px rgba(0,0,0,0.75);
+      -moz-box-shadow: -10px 10px 50px -20px rgba(0,0,0,0.75);
+      box-shadow: -10px 10px 50px -20px rgba(0,0,0,0.75);
+    }
+  }
+
+  &-is-modified {
+    .editable-wrapper {
+      border-color: #fcb200;
+    }
+    .editable-statusbar {
+      background-color: #fcb200;
+    }
+  }
+
+  &-is-updating {
+    .editable-wrapper {
+      border-color: #3bb0e7;
+    }
+    .editable-statusbar {
+      background-color: #3bb0e7;
+    }
+  }
+
+  &-is-success {
+    .editable-wrapper {
+      border-color: #69a53b;
+    }
+    .editable-statusbar {
+      background-color: #69a53b;
+    }
+  }
+
+  &-is-error {
+    .editable-wrapper {
+      border-color: #ef4c4c;
+    }
+    .editable-statusbar {
+      background-color: #ef4c4c;
+    }
+  }
+
+  &-is-unmodified {
+    .editable-wrapper {
+      border-color: #ddd;
+    }
+  }
+}
+
+.editable-content {
+  padding: 0;
+  margin: 0;
+}
+
+.editable-statusbar {
+  padding: 0 5px;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: space-between;
+
+  min-height: 26px;
+  color: white;
+}
