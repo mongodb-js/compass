@@ -83,8 +83,7 @@ Validation.propTypes = {
   validationAction: React.PropTypes.oneOf(['warn', 'error']).isRequired,
   validatorDoc: React.PropTypes.object.isRequired,
   validationLevel: React.PropTypes.oneOf(['off', 'moderate', 'strict']).isRequired,
-  validationRules: React.PropTypes.array.isRequired,
-  validatorDoc: React.PropTypes.object.isRequired
+  validationRules: React.PropTypes.array.isRequired
 };
 
 Validation.defaultProps = {
@@ -93,8 +92,7 @@ Validation.defaultProps = {
   validationAction: 'warn',
   validatorDoc: {},
   validationLevel: 'off',
-  validationRules: [],
-  validatorDoc: {}
+  validationRules: []
 };
 
 Validation.displayName = 'Validation';

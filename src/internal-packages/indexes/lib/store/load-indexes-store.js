@@ -27,12 +27,8 @@ const LoadIndexesStore = Reflux.createStore({
    * Load the indexes.
    */
   loadIndexes: function() {
-    console.log('----------------------------------------- LOAD ');
     if (NamespaceStore.ns) {
       app.dataService.indexes(NamespaceStore.ns, { readPreference: READ }, (err, indexes) => {
-        console.log('########################################');
-        console.log(err);
-        console.log(indexes);
         if (!err) {
           this.trigger(this._convertToModels(indexes));
         }
