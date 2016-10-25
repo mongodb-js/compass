@@ -62,6 +62,7 @@ var HomeView = View.extend({
 
     this.once('change:rendered', this.onRendered);
     debug('fetching instance model...');
+    document.title = 'MongoDB Compass';
     app.instance.fetch();
   },
   render: function() {
