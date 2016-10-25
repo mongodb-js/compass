@@ -61,10 +61,7 @@ class JSONView extends React.Component {
       >
         <Grid fluid className="rule-builder">
           <Row className="header">
-            <Col lg={6} md={6} sm={6} xs={6}>
-              Read-only JSON rule builder view
-            </Col>
-            <Col lg={6} md={6} sm={6} xs={6}>
+            <Col lg={12} md={12} sm={12} xs={12}>
               <div className="pull-right">
                 <OptionSelector
                   id="validation-action-selector"
@@ -89,12 +86,12 @@ class JSONView extends React.Component {
           <Row>
             <Col lg={12} md={12} sm={12} xs={12}>
               <textarea
-                cols="80"
-                rows="10"
+                cols="100"
+                rows="14"
                 readOnly="readOnly"
                 disabled="disabled"
-                style={{backgroundColor:'rgb(236, 236, 236)'}}
-                value={JSON.stringify(this.props.validatorDoc)}
+                style={{backgroundColor:'rgb(236, 236, 236)', fontFamily: 'monospace'}}
+                value={JSON.stringify(this.props.validatorDoc, null, 2)}
               />
             </Col>
           </Row>
