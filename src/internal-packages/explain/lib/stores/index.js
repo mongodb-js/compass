@@ -123,21 +123,16 @@ const CompassExplainStore = Reflux.createStore({
         return debug('error fetching explain plan:', err);
       }
       const explainPlanModel = new ExplainPlanModel(explain);
-      try {
-        const newState = explainPlanModel.serialize();
+      const newState = explainPlanModel.serialize();
 
-        // extract index type, index object
-        newState.indexType = this._getIndexType(newState);
-        newState.index = _.isString(newState.usedIndex) ?
-          _.find(this.indexes, (idx) => {
-            return idx.name === newState.usedIndex;
-          }) : null;
-        newState.explainState = 'done';
-        this.setState(newState);
-      }
-      catch(e) {
-        return debug('Error serializing explain results', e);
-      }
+      // extract index type, index object
+      newState.indexType = this._getIndexType(newState);
+      newState.index = _.isString(newState.usedIndex) ?
+        _.find(this.indexes, (idx) => {
+          return idx.name === newState.usedIndex;
+        }) : null;
+      newState.explainState = 'done';
+      this.setState(newState);
     });
   },
 
