@@ -8,7 +8,9 @@ const D3Component = require('./d3component');
 const vizFns = require('../d3');
 const Actions = require('../action');
 
-// const debug = require('debug')('mongodb-compass:schema:minichart');
+const STRING = 'String';
+const NUMBER = 'Number';
+const DECIMAL_128 = 'Decimal128';
 
 const Minichart = React.createClass({
 
@@ -78,7 +80,7 @@ const Minichart = React.createClass({
     const fn = vizFns[typeName.toLowerCase()];
     const width = this.state.containerWidth;
 
-    if (_.includes(['String', 'Number'], typeName) && !has_duplicates) {
+    if (_.includes([ STRING, NUMBER, DECIMAL_128 ], typeName) && !has_duplicates) {
       return (
         <UniqueMinichart
           fieldName={fieldName}
