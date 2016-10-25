@@ -392,7 +392,7 @@ app.extend({
       // set up metrics
       metricsSetup();
 
-      electron.ipcRenderer.on('window:window:open-in-new-window', () => {
+      electron.ipcRenderer.on('window:open-in-new-window', () => {
         var url = window.location.href;
         if (state.connection) {
           url += `?connectionId=${state.connection.getId()}`;
