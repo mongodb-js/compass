@@ -136,7 +136,7 @@ const ValidationStore = Reflux.createStore({
           }
           return [field, value];
         })
-        .fromPairs()
+        .zipObject()
         .value();
     } else {
       validator = this.validatorDoc.validator;
@@ -282,7 +282,7 @@ const ValidationStore = Reflux.createStore({
 
   deleteValidationRule(id) {
     const rules = _.clone(this.state.validationRules);
-    const ruleIndex = _.findIndex(rules, ['id', id]);
+    const ruleIndex = _.findIndex(rules, 'id', id);
     rules.splice(ruleIndex, 1);
 
     this._updateState({rules: rules});
@@ -290,7 +290,7 @@ const ValidationStore = Reflux.createStore({
 
   setRuleField(id, field) {
     const rules = _.clone(this.state.validationRules);
-    const ruleIndex = _.findIndex(rules, ['id', id]);
+    const ruleIndex = _.findIndex(rules, 'id', id);
     rules[ruleIndex].field = field;
 
     this._updateState({rules: rules});
@@ -298,7 +298,7 @@ const ValidationStore = Reflux.createStore({
 
   setRuleCategory(id, category) {
     const rules = _.clone(this.state.validationRules);
-    const ruleIndex = _.findIndex(rules, ['id', id]);
+    const ruleIndex = _.findIndex(rules, 'id', id);
     if (category !== rules[ruleIndex].category &&
       _.includes(_.keys(ruleCategories), category)) {
       rules[ruleIndex].category = category;
@@ -310,7 +310,7 @@ const ValidationStore = Reflux.createStore({
 
   setRuleParameters(id, params) {
     const rules = _.clone(this.state.validationRules);
-    const ruleIndex = _.findIndex(rules, ['id', id]);
+    const ruleIndex = _.findIndex(rules, 'id', id);
     rules[ruleIndex].parameters = params;
 
     this._updateState({rules: rules});
@@ -321,7 +321,7 @@ const ValidationStore = Reflux.createStore({
       return;
     }
     const rules = _.clone(this.state.validationRules);
-    const ruleIndex = _.findIndex(rules, ['id', id]);
+    const ruleIndex = _.findIndex(rules, 'id', id);
     rules[ruleIndex].nullable = value;
 
     this._updateState({rules: rules});

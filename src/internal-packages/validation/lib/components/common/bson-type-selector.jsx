@@ -63,15 +63,15 @@ class BSONTypeSelector extends React.Component {
   }
 
   static getTypeByName(typeName) {
-    return _.find(BSON_TYPES, ['name', typeName]);
+    return _.find(BSON_TYPES, 'name', typeName);
   }
 
   static getTypeByNumber(typeNumber) {
-    return _.find(BSON_TYPES, ['number', typeNumber]);
+    return _.find(BSON_TYPES, 'number', typeNumber);
   }
 
   static getTypeByAlias(typeAlias) {
-    return _.find(BSON_TYPES, ['alias', typeAlias]);
+    return _.find(BSON_TYPES, 'alias', typeAlias);
   }
 
   /**
@@ -84,7 +84,7 @@ class BSONTypeSelector extends React.Component {
     // TODO: make recentServer true if server is 3.4 <
     const recentServer = true;
     // remove the decimal version if not recentServer
-    const typeOptions = _.fromPairs(_.map(_.filter(BSON_TYPES, (t) => {
+    const typeOptions = _.zipObject(_.map(_.filter(BSON_TYPES, (t) => {
       // filter out decimal if server < 3.4
       return !(t.alias === 'decimal128' && !recentServer);
     }), (type) => {
