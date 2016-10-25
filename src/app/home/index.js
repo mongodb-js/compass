@@ -28,6 +28,9 @@ var HomeView = View.extend({
       allowNull: true,
       default: null
     },
+    /**
+     * TODO (imlucas) Is this deprecated with rtss?
+     */
     showDefaultZeroState: {
       type: 'boolean',
       default: false
@@ -38,11 +41,6 @@ var HomeView = View.extend({
     }
   },
   bindings: {
-    showDefaultZeroState: {
-      hook: 'report-zero-state',
-      type: 'booleanClass',
-      no: 'hidden'
-    },
     showNoCollectionsZeroState: {
       hook: 'no-collections-zero-state',
       type: 'booleanClass',
@@ -53,6 +51,9 @@ var HomeView = View.extend({
     'click a.show-connect-window': 'onClickShowConnectWindow'
   },
   initialize: function() {
+    /**
+     * TODO (imlucas) Handle state when rtss permissions not available.
+     */
     this.serverStatsView = app.appRegistry.getComponent('RTSS.ServerStats');
     this.listenTo(app.instance, 'sync', this.onInstanceFetched);
     this.listenTo(app.connection, 'change:name', this.updateTitle);

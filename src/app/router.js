@@ -13,9 +13,12 @@ module.exports = AmpersandRouter.extend({
   },
   index: function(queryString) {
     var params = qs.parse(queryString);
-
     if (_.has(params, 'connectionId')) {
       return app.setConnectionId(params.connectionId, () => this.schema());
+    }
+
+    if (app.connection) {
+      return this.schema();
     }
     this.connect();
   },

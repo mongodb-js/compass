@@ -113,7 +113,7 @@ function isSingleInstance(_window) {
  * @return {BrowserWindow}
  * [0]: http://git.io/vnwTY
  */
-module.exports.create = function(opts) {
+var createWindow = module.exports.create = function(opts) {
   opts = _.defaults(opts || {}, {
     width: DEFAULT_WIDTH,
     height: DEFAULT_HEIGHT,
@@ -157,19 +157,8 @@ module.exports.create = function(opts) {
   return _window;
 };
 
-
-function createWindow(opts, url) {
-  opts = _.extend(opts, {
-    width: DEFAULT_WIDTH_DIALOG,
-    height: DEFAULT_HEIGHT_DIALOG,
-    minwidth: MIN_WIDTH_DIALOG,
-    url: url
-  });
-  return module.exports.create(opts);
-}
-
 function showConnectWindow() {
-  createWindow({}, DEFAULT_URL);
+  createWindow();
 }
 
 function showAboutDialog() {
@@ -192,7 +181,12 @@ function showHelpWindow(win, id) {
   if (_.isString(id)) {
     url += '/' + id;
   }
-  helpWindow = createWindow({}, url);
+  helpWindow = createWindow({
+    width: DEFAULT_WIDTH_DIALOG,
+    height: DEFAULT_HEIGHT_DIALOG,
+    minwidth: MIN_WIDTH_DIALOG,
+    url: url
+  });
   helpWindow.on('closed', function() {
     helpWindow = null;
   });
