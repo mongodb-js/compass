@@ -8,7 +8,7 @@ var BrowserWindow = electron.BrowserWindow;
 
 var _ = require('lodash');
 var app = electron.app;
-var config = require('./config');
+
 var migrate = require('./migrations');
 var debug = require('debug')('mongodb-compass:electron:window-manager');
 var dialog = electron.dialog;
@@ -19,6 +19,38 @@ var ipc = require('hadron-ipc');
  * When running in electron, we're in `/src/main`.
  */
 var RESOURCES = path.resolve(__dirname, '../app/');
+
+/**
+ * Constants for window sizes on multiple platforms
+ */
+
+/**
+* The outer dimensions to use for new windows.
+*/
+let DEFAULT_WIDTH = 1280;
+let DEFAULT_HEIGHT = 800;
+
+let MIN_WIDTH = 1024;
+
+/**
+* The outer window dimensions to use for new dialog
+* windows like the connection and setup dialogs.
+*/
+let DEFAULT_WIDTH_DIALOG = 900;
+let DEFAULT_HEIGHT_DIALOG = 800;
+
+let MIN_WIDTH_DIALOG = 768;
+/**
+* Adjust the heights to account for platforms
+* that use a single menu bar at the top of the screen.
+*/
+if (process.platform === 'linux') {
+  DEFAULT_HEIGHT_DIALOG -= 30;
+  DEFAULT_HEIGHT -= 30;
+} else if (process.platform === 'darwin') {
+  DEFAULT_HEIGHT_DIALOG -= 60;
+  DEFAULT_HEIGHT -= 60;
+}
 
 /**
  * The app's HTML shell which is the output of `./src/index.html`
@@ -84,9 +116,9 @@ function isSingleInstance(_window) {
  */
 module.exports.create = function(opts) {
   opts = _.defaults(opts || {}, {
-    width: config.windows.DEFAULT_WIDTH,
-    height: config.windows.DEFAULT_HEIGHT,
-    minwidth: config.windows.MIN_WIDTH,
+    width: DEFAULT_WIDTH,
+    height: DEFAULT_HEIGHT,
+    minwidth: MIN_WIDTH,
     url: DEFAULT_URL
   });
 
@@ -139,9 +171,9 @@ module.exports.create = function(opts) {
 
 function createWindow(opts, url) {
   opts = _.extend(opts, {
-    width: config.windows.DEFAULT_WIDTH_DIALOG,
-    height: config.windows.DEFAULT_HEIGHT_DIALOG,
-    minwidth: config.windows.MIN_WIDTH_DIALOG,
+    width: DEFAULT_WIDTH_DIALOG,
+    height: DEFAULT_HEIGHT_DIALOG,
+    minwidth: MIN_WIDTH_DIALOG,
     url: url
   });
   return module.exports.create(opts);
