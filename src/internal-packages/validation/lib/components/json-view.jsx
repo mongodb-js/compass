@@ -1,28 +1,16 @@
 const React = require('react');
 const ValidationActions = require('../actions');
 const OptionSelector = require('./common/option-selector');
-const Rule = require('./rule');
 const Editable = require('./common/editable');
-const _ = require('lodash');
 
 const ReactBootstrap = require('react-bootstrap');
 const Grid = ReactBootstrap.Grid;
 const Row = ReactBootstrap.Row;
 const Col = ReactBootstrap.Col;
-const Button = ReactBootstrap.Button;
-const Table = ReactBootstrap.Table;
 
-// const debug = require('debug')('validation:rule-builder');
+// const debug = require('debug')('validation:json-view');
 
-class RuleBuilder extends React.Component {
-
-
-  /**
-   * Add button clicked to create a new rule.
-   */
-  onAddClick() {
-    ValidationActions.addValidationRule();
-  }
+class JSONView extends React.Component {
 
   /**
    * New value from the validation action dropdown chosen.
@@ -64,10 +52,6 @@ class RuleBuilder extends React.Component {
    * @returns {React.Component} The component.
    */
   render() {
-    const rules = _.map(this.props.validationRules, (rule) => {
-      return <Rule key={rule.id} {...rule} />;
-    });
-
     return (
       <Editable
         editState={this.props.editState}
@@ -75,16 +59,9 @@ class RuleBuilder extends React.Component {
         onCancel={this.onCancel.bind(this)}
         onUpdate={this.onUpdate.bind(this)}
       >
-        <Grid fluid className="rule-builder">
+        <Grid fluid className="json-view">
           <Row className="header">
-            <Col lg={6} md={6} sm={6} xs={6}>
-              <Button
-                bsStyle="success"
-                bsSize="xsmall"
-                onClick={this.onAddClick.bind(this)}>+ Add Rule
-              </Button>
-            </Col>
-            <Col lg={6} md={6} sm={6} xs={6}>
+            <Col lg={12} md={12} sm={12} xs={12}>
               <div className="pull-right">
                 <OptionSelector
                   id="validation-action-selector"
@@ -108,19 +85,11 @@ class RuleBuilder extends React.Component {
           <hr/>
           <Row>
             <Col lg={12} md={12} sm={12} xs={12}>
-              <Table className="rule-builder-table">
-                <thead>
-                  <tr>
-                    <th className="name-column">Field Name</th>
-                    <th className="rule-column">Rule</th>
-                    <th className="null-column">Nullable</th>
-                    <th className="ctrl-column"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rules}
-                </tbody>
-              </Table>
+              <pre><code
+                className="json-view code"
+                // readOnly="readOnly"
+                // disabled="disabled"
+              >{JSON.stringify(this.props.validatorDoc, null, 2)}</code></pre>
             </Col>
           </Row>
         </Grid>
@@ -129,13 +98,13 @@ class RuleBuilder extends React.Component {
   }
 }
 
-RuleBuilder.propTypes = {
+JSONView.propTypes = {
   editState: React.PropTypes.oneOf(['unmodified', 'modified', 'updating', 'error', 'success']).isRequired,
   validationAction: React.PropTypes.oneOf(['warn', 'error']).isRequired,
   validationLevel: React.PropTypes.oneOf(['off', 'moderate', 'strict']).isRequired,
-  validationRules: React.PropTypes.array.isRequired
+  validatorDoc: React.PropTypes.object.isRequired
 };
 
-RuleBuilder.displayName = 'RuleBuilder';
+JSONView.displayName = 'JSONView';
 
-module.exports = RuleBuilder;
+module.exports = JSONView;
