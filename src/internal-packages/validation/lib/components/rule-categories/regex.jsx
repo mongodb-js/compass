@@ -40,6 +40,10 @@ class RuleCategoryRegex extends React.Component {
     }
   }
 
+  onDropdownClosed() {
+    this.submit();
+  }
+
   /**
    * get the initial parameters for this rule category.
    *
@@ -107,8 +111,6 @@ class RuleCategoryRegex extends React.Component {
   }
 
   submit() {
-    console.log(this.state.value);
-    console.log(this.state.options);
     ValidationAction.setRuleParameters(this.props.id, {
       regex: this.state.value,
       options: this.state.options
@@ -135,12 +137,15 @@ class RuleCategoryRegex extends React.Component {
           onChange={this.onChange.bind(this)}
           onBlur={this.submit.bind(this)}
         />
-        <DropdownButton id="regex-options" title="options">
+        <DropdownButton id="regex-options"
+          title="options"
+          onClose={this.onDropdownClosed.bind(this)}
+        >
           <MenuItem header>
             <input
               type="checkbox"
               value="i"
-              checked={this.isOptionSelected("i")}
+              checked={this.isOptionSelected('i')}
               onChange={this.onOptionChange.bind(this)} />
             <b>i</b>
             {CASE_INSENSITIVE}
@@ -149,7 +154,7 @@ class RuleCategoryRegex extends React.Component {
             <input
               type="checkbox"
               value="m"
-              checked={this.isOptionSelected("m")}
+              checked={this.isOptionSelected('m')}
               onChange={this.onOptionChange.bind(this)} />
             <b>m</b>
             {MULTILINE}
@@ -158,7 +163,7 @@ class RuleCategoryRegex extends React.Component {
             <input
               type="checkbox"
               value="x"
-              checked={this.isOptionSelected("x")}
+              checked={this.isOptionSelected('x')}
               onChange={this.onOptionChange.bind(this)} />
             <b>x</b>
             {EXTENDED}
@@ -167,7 +172,7 @@ class RuleCategoryRegex extends React.Component {
             <input
               type="checkbox"
               value="s"
-              checked={this.isOptionSelected("s")}
+              checked={this.isOptionSelected('s')}
               onChange={this.onOptionChange.bind(this)} />
             <b>s</b>
             {NEWLINE}
