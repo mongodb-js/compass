@@ -13,13 +13,12 @@
   width: 250px;
   height: 100%;
   box-sizing: border-box;
-  border: 1px solid #3E606F;
   background: #4c5259;
   color: #bfbfbe;
 
   &-content {
     margin-bottom: 10px;
-    line-height: 24px;
+    line-height: 20px;
     height: 100%;
     overflow: auto;
   }
@@ -28,6 +27,7 @@
     white-space: nowrap;
     overflow-x: hidden;
     text-overflow: ellipsis;
+    font-size: 16px;
 
     &-is-bold {
       font-weight: bold;
@@ -41,29 +41,44 @@
   /* Databases and collections */
   &-item {
     position: relative;
+    transition: all 180ms ease-out;
 
     &-is-top-level {
-      margin-bottom: 5px;
+
     }
   }
 
   &-item-header {
-    padding-left: 30px;
+    padding: 8px 30px 8px 20px;
 
     &-is-expandable {
       cursor: pointer;
     }
   }
 
-  &-expand-icon {
+  &-expand-icon,
+  i[class^="mms-icon-"] {
     position: absolute;
-    top: 5px;
-    left: 14px;
-    transition: all 0.2s linear;
+    top: 9px;
+    right: 14px;
+    transition: all 180ms ease-out;
   }
 
   &-item-content {
-    margin-left: 30px;
+    .compass {
+      &-sidebar-item {
+        &:hover {
+          // background-color: #6D7984;
+          color: #fff;
+        }
+        &:last-child {
+          margin-bottom: 20px;
+        }
+      }
+      &-sidebar-title {
+        padding: 4px 20px 5px 40px;
+      }
+    }
   }
 
   /* Filter */
@@ -81,7 +96,7 @@
   &-search-input {
     padding: 7px 5px 5px 30px;
     height: auto;
-    background: #585f67;
+    background: #3F4347;
     color: #ffffff;
     width: 100%;
     border: none;

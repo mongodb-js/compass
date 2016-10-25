@@ -29,7 +29,7 @@ class SidebarDatabase extends React.Component {
   }
 
   getArrowIconClasses() {
-    return 'fa fa-angle-right compass-sidebar-expand-icon' +
+    return 'mms-icon-right-arrow compass-sidebar-expand-icon' +
       (this.state.expanded ? ' fa-rotate-90' : '');
   }
 
@@ -42,7 +42,7 @@ class SidebarDatabase extends React.Component {
       <div className="compass-sidebar-item compass-sidebar-item-is-top-level">
         <div onClick={this.handleClick} className="compass-sidebar-item-header compass-sidebar-item-header-is-expandable">
           <i className={this.getArrowIconClasses()}></i>
-          <div className="compass-sidebar-title compass-sidebar-title-is-bold" title={this.props._id}>
+          <div className="compass-sidebar-title" title={this.props._id}>
             {this.props._id}
           </div>
         </div>
