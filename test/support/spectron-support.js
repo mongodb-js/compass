@@ -159,10 +159,10 @@ function addCommands(client) {
   });
 
   /**
-   * Wait for the connect window to close and a schema window to open.
+   * Wait for the connect window to redirect after successful connection.
    */
-  client.addCommand('waitForSchemaWindow', function(ms, interval) {
-    return this.waitForWindow(0, ms, interval);
+  client.addCommand('waitForSchemaWindow', function() {
+    return this.waitForVisible('.compass-sidebar-container');
   });
 
   /**

@@ -173,9 +173,7 @@ var Application = View.extend({
     /**
      * @see http://learn.humanjavascript.com/react-ampersand/creating-a-router-and-pages
      */
-    router: 'object',
-    clientStartedAt: 'date',
-    clientStalledTimeout: 'number'
+    router: 'object'
   },
   children: {
     user: User,
@@ -192,19 +190,94 @@ var Application = View.extend({
     var id = evt.target.dataset.hook;
     ipc.call('app:show-help-window', id);
   },
-  onClientReady: function() {
-    debug('Client ready! Took %dms to become readable',
-      new Date() - this.clientStartedAt);
+  startRouter: function() {
+    if (this.router) {
+      return debug('router already started!');
+    }
+    this.router = new Router();
+    debug('Listening for page changes from the router...');
+    this.listenTo(this.router, 'page', this.onPageChange);
 
-    debug('clearing client stall timeout...');
-    clearTimeout(this.clientStalledTimeout);
+    debug('Starting router...');
+    this.router.history.start({
+      pushState: false,
+      root: '/'
+    });
+  },
+  onFatalError: function(id, err) {
+    console.error('Fatal Error!: ', id, err);
+    metrics.error(err);
+    var StatusAction = app.appRegistry.getAction('Status.Actions');
+    StatusAction.setMessage(err);
+  },
+  /**
+   * When you want to go to a different page in the app or just save
+   * state via the URL.
+   * @param {String} fragment - To update the location bar with.
+   * @param {Object} [options] - `silent` and `params`
+   */
+  navigate: function(fragment, options) {
+    options = _.defaults(options || {}, {
+      silent: false,
+      params: null
+    });
+    if (options.params) {
+      fragment += '?' + qs.stringify(options.params);
+    }
 
-    debug('initializing singleton models... ');
-    this.queryOptions = new QueryOptions();
-    this.volatileQueryOptions = new QueryOptions();
-    this.instance = new MongoDBInstance();
+    var hash = fragment.charAt(0) === '/' ? fragment.slice(1) : fragment;
+    this.router.history.navigate(hash, {
+      trigger: !options.silent
+    });
+  },
+  /**
+   * Called a soon as the DOM is ready so we can
+   * start showing status indicators as
+   * quickly as possible.
+   */
+  render: function() {
+    debug('Rendering app container...');
 
-    this.startRouter();
+    this.el = document.querySelector('#application');
+    this.renderWithTemplate(this);
+    this.pageSwitcher = new ViewSwitcher(this.queryByHook('layout-container'), {
+      show: function() {
+        document.scrollTop = 0;
+      }
+    });
+    debug('rendering statusbar...');
+    this.statusComponent = app.appRegistry.getComponent('Status.ProgressBar');
+    ReactDOM.render(React.createElement(this.statusComponent), this.queryByHook('statusbar'));
+
+    this.autoUpdate = new AutoUpdate({
+      el: this.queryByHook('auto-update')
+    });
+    this.autoUpdate.render();
+
+    if (process.env.NODE_ENV !== 'production') {
+      debug('Installing "Inspect Element" context menu');
+      addInspectElementMenu();
+    }
+  },
+  onPageChange: function(view) {
+    metrics.track('App', 'viewed', view.screenName);
+    this.pageSwitcher.set(view);
+  },
+  onLinkClick: function(event) {
+    // ignore help links, they're handled in `onHelpClicked`
+    if (event.target.className === 'help') {
+      return;
+    }
+    var pathname = localLinks.getLocalPathname(event);
+    if (pathname) {
+      event.preventDefault();
+      this.router.history.navigate(pathname);
+      return;
+    } else if (event.currentTarget.getAttribute('href') !== '#') {
+      event.preventDefault();
+      event.stopPropagation();
+      shell.openExternal(event.target.href);
+    }
   },
   fetchUser: function(done) {
     debug('preferences fetched, now getting user');
@@ -245,127 +318,10 @@ var Application = View.extend({
     });
 
     app.preferences.fetch();
-  },
-  startRouter: function() {
-    this.router = new Router();
-    debug('Listening for page changes from the router...');
-    this.listenTo(this.router, 'page', this.onPageChange);
-
-    debug('Starting router...');
-    this.router.history.start({
-      pushState: false,
-      root: '/'
-    });
-    var StatusAction = app.appRegistry.getAction('Status.Actions');
-    StatusAction.hide();
-  },
-  onFatalError: function(id, err) {
-    debug('clearing client stall timeout...');
-    clearTimeout(this.clientStalledTimeout);
-
-    console.error('Fatal Error!: ', id, err);
-    metrics.error(err);
-    var StatusAction = app.appRegistry.getAction('Status.Actions');
-    StatusAction.setMessage(err);
-  },
-  // ms we'll wait for a `mongodb-scope-client` instance
-  // to become readable before giving up and showing
-  // a fatal error message.
-  CLIENT_STALLED_REDLINE: 5 * 1000,
-  startClientStalledTimer: function() {
-    this.clientStartedAt = new Date();
-
-    debug('Starting client stalled timer to bail in %dms...',
-      this.CLIENT_STALLED_REDLINE);
-
-    this.clientStalledTimeout = setTimeout(function() {
-      this.onFatalError('client stalled',
-        new Error('Error connecting to MongoDB.  '
-          + 'Please reload the page.'));
-    }.bind(this), this.CLIENT_STALLED_REDLINE);
-  },
-  /**
-   * When you want to go to a different page in the app or just save
-   * state via the URL.
-   * @param {String} fragment - To update the location bar with.
-   * @param {Object} [options] - `silent` and `params`
-   */
-  navigate: function(fragment, options) {
-    options = _.defaults(options || {}, {
-      silent: false,
-      params: null
-    });
-    if (options.params) {
-      fragment += '?' + qs.stringify(options.params);
-    }
-
-    var hash = fragment.charAt(0) === '/' ? fragment.slice(1) : fragment;
-    this.router.history.navigate(hash, {
-      trigger: !options.silent
-    });
-  },
-  /**
-   * Called a soon as the DOM is ready so we can
-   * start showing status indicators as
-   * quickly as possible.
-   */
-  render: function() {
-    debug('Rendering app container...');
-
-    this.el = document.querySelector('#application');
-    this.renderWithTemplate(this);
-    this.pageSwitcher = new ViewSwitcher(this.queryByHook('layout-container'), {
-      show: function() {
-        document.scrollTop = 0;
-      }
-    });
-    debug('rendering statusbar...');
-
-    // this.statusbar = new Statusbar({
-    //   el: this.queryByHook('statusbar')
-    // });
-    // this.statusbar.render();
-
-    this.statusComponent = app.appRegistry.getComponent('Status.ProgressBar');
-    ReactDOM.render(React.createElement(this.statusComponent), this.queryByHook('statusbar'));
-
-    this.autoUpdate = new AutoUpdate({
-      el: this.queryByHook('auto-update')
-    });
-    this.autoUpdate.render();
-
-    if (process.env.NODE_ENV !== 'production') {
-      debug('Installing "Inspect Element" context menu');
-      addInspectElementMenu();
-    }
-  },
-  onPageChange: function(view) {
-    metrics.track('App', 'viewed', view.screenName);
-    this.pageSwitcher.set(view);
-  },
-  onLinkClick: function(event) {
-    // ignore help links, they're handled in `onHelpClicked`
-    if (event.target.className === 'help') {
-      return;
-    }
-    var pathname = localLinks.getLocalPathname(event);
-    if (pathname) {
-      event.preventDefault();
-      this.router.history.navigate(pathname);
-      return;
-    } else if (event.currentTarget.getAttribute('href') !== '#') {
-      event.preventDefault();
-      event.stopPropagation();
-      shell.openExternal(event.target.href);
-    }
   }
 });
 
-var params = qs.parse(window.location.search.replace('?', ''));
-var connectionId = params.connection_id;
-var state = new Application({
-  connection_id: connectionId
-});
+var state = new Application();
 
 app.extend({
   client: null,
@@ -374,15 +330,7 @@ app.extend({
     // proxy to preferences for now
     return this.preferences.isFeatureEnabled(feature);
   },
-  onDomReady: function() {
-    state.render();
-
-    if (!connectionId) {
-      // Not serving a part of the app which uses the client,
-      // so we can just start everything up now.
-      state.startRouter();
-      return;
-    }
+  setConnectionId: function(connectionId, done) {
     var StatusAction = app.appRegistry.getAction('Status.Actions');
     StatusAction.configure({
       visible: true,
@@ -406,17 +354,24 @@ app.extend({
 
       var DataService = require('mongodb-data-service');
       app.dataService = new DataService(state.connection)
-        .on('readable', state.onClientReady.bind(state))
         .on('error', state.onFatalError.bind(state, 'create client'));
 
       app.dataService.connect(function() {
         ApplicationStore.dataService = app.dataService;
-        state.startClientStalledTimer();
+
+        debug('initializing singleton models... ');
+        state.queryOptions = new QueryOptions();
+        state.volatileQueryOptions = new QueryOptions();
+        state.instance = new MongoDBInstance();
+        state.startRouter();
+        StatusAction.hide();
+        if (done) {
+          done();
+        }
       });
     });
   },
   init: function() {
-    var self = this;
     async.series([
       // check if migrations are required
       migrateApp.bind(state),
@@ -437,16 +392,11 @@ app.extend({
       ipc.call('window:renderer-ready');
 
       // as soon as dom is ready, render and set up the rest
-      self.onDomReady();
+      state.render();
+      state.startRouter();
     });
   }
 });
-
-// Object.defineProperty(app, 'statusbar', {
-//   get: function() {
-//     return state.statusbar;
-//   }
-// });
 
 Object.defineProperty(app, 'autoUpdate', {
   get: function() {

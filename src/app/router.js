@@ -1,4 +1,8 @@
 var AmpersandRouter = require('ampersand-router');
+var qs = require('qs');
+var _ = require('lodash');
+var app = require('ampersand-app');
+
 module.exports = AmpersandRouter.extend({
   routes: {
     '': 'index',
@@ -7,8 +11,13 @@ module.exports = AmpersandRouter.extend({
     'schema/:ns': 'schema',
     '(*path)': 'catchAll'
   },
-  index: function() {
-    this.schema();
+  index: function(queryString) {
+    var params = qs.parse(queryString);
+
+    if (_.has(params, 'connectionId')) {
+      return app.setConnectionId(params.connectionId, () => this.schema());
+    }
+    this.connect();
   },
   schema: function(ns) {
     var HomePage = require('./home');

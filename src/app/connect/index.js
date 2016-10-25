@@ -8,8 +8,6 @@ var View = require('ampersand-view');
 
 var _ = require('lodash');
 var app = require('ampersand-app');
-var ipc = require('hadron-ipc');
-var format = require('util').format;
 
 var electron = require('electron');
 var remote = electron.remote;
@@ -275,12 +273,15 @@ var ConnectView = View.extend({
       this.replaceSshTunnelMethodFields.bind(this));
 
     // add event listener to focus event and also check on app launch
-    ipc.on('app:connect-window-focused',
-      this.onConnectWindowFocused.bind(this));
+    window.addEventListener('focus', this.onConnectWindowFocused.bind(this));
     this.onConnectWindowFocused();
 
     // always start in NEW_EMPTY state
     this.dispatch('new connection clicked');
+  },
+  remove: function() {
+    window.removeEventListener('focus', this.onConnectWindowFocused.bind(this));
+    return View.prototype.remove.call(this);
   },
 
   // === MongoDB URI clipboard Handling
@@ -482,15 +483,17 @@ var ConnectView = View.extend({
       'outcome': 'success'
     });
 
-    /**
-     * @see ./src/app.js `params.connection_id`
-     */
-    window.open(
-      format('%s?connection_id=%s#schema',
-        window.location.origin,
-        connection.getId())
-    );
-    ipc.call('app:close-connect-window');
+    var view = this;
+    app.setConnectionId(connection.getId(), function() {
+      app.navigate('schema', {
+        params: {
+          connectionId: connection.getId()
+        },
+        silent: false
+      });
+      view.remove();
+      app.appRegistry.getAction('Status.Actions').hideStaticSidebar();
+    });
   },
 
   /**
