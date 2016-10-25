@@ -84,7 +84,8 @@ var MongoDBCollectionView = View.extend({
         'documentView': '[data-hook=document-tab]',
         'schemaView': '[data-hook=schema-tab]',
         'explainView': '[data-hook=explain-tab]',
-        'indexView': '[data-hook=index-tab]'
+        'indexView': '[data-hook=index-tab]',
+        'validationView': '[data-hook=validation-tab]'
       }
     }
   },
