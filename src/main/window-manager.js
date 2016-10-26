@@ -194,7 +194,9 @@ function showHelpWindow(win, id) {
 }
 
 function showComponentGlossaryWindow() {
-  createWindow({}, GLOSSARY_URL);
+  createWindow({
+    url: GLOSSARY_URL
+  });
 }
 
 function showCompassOverview() {

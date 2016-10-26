@@ -20,6 +20,8 @@ const StyleManager = require('hadron-style-manager');
 const styleManager = new StyleManager(path.join(__dirname, 'compiled-less'), __dirname);
 styleManager.use(document, path.join(__dirname, 'help.less'));
 
+window.jQuery = require('jquery');
+
 /**
  * The main entrypoint for the application!
  */
