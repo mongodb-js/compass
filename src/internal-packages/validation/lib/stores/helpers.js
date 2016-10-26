@@ -100,7 +100,27 @@ function nullableOrValidator(field, rule) {
   };
 }
 
+/**
+ * [hasMultipleNullables counts the number of rules with nullable === true]
+ * @param  {[type]}  rules [lots of rules] @todo make this better!
+ * @return {Boolean}       [description]
+ */
+function hasMultipleNullables(rules) {
+  console.log('at has multiple nullables');
+  const nullableCount = rules.reduce(function(n, rule) {
+    console.log(rule.nullable);
+    return n + (rule.nullable === true);
+  }, 0);
+
+  console.log('nullableCount: ' + nullableCount);
+  if (nullableCount > 1) {
+    return true;
+  }
+  return false;
+}
+
 module.exports = {
   nullableOrQueryWrapper: nullableOrQueryWrapper,
-  nullableOrValidator: nullableOrValidator
+  nullableOrValidator: nullableOrValidator,
+  hasMultipleNullables: hasMultipleNullables
 };

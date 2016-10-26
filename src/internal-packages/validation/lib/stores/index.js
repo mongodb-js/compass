@@ -6,6 +6,7 @@ const uuid = require('uuid');
 const ruleCategories = require('../components/rule-categories');
 const nullableOrQueryWrapper = require('./helpers').nullableOrQueryWrapper;
 const nullableOrValidator = require('./helpers').nullableOrValidator;
+const hasMultipleNullables = require('./helpers').hasMultipleNullables;
 const toNS = require('mongodb-ns');
 const app = require('ampersand-app');
 
@@ -133,7 +134,9 @@ const ValidationStore = Reflux.createStore({
    */
   _constructValidatorDoc(params) {
     let validator;
+    let hasMultipleNulls;
     if (params.rules) {
+      hasMultipleNulls = hasMultipleNullables(params.rules);
       validator = _(params.rules)
         .map((rule) => {
           let field = rule.field;
@@ -148,6 +151,12 @@ const ValidationStore = Reflux.createStore({
         })
         .zipObject()
         .value();
+
+      if (hasMultipleNulls) {
+        console.log(params.rules);
+        console.log(validator);
+        console.log('change validator to have $and here');
+      }
     } else {
       validator = this.state.validatorDoc.validator;
     }
