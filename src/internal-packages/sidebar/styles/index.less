@@ -7,20 +7,19 @@
 
 .compass-sidebar {
   margin: 0;
-  display: flex;
-  flex-direction: column;
-
+  position: absolute;
+  top: 0;
+  bottom: 0;
   width: 250px;
-  height: 100%;
-  box-sizing: border-box;
   background: #4c5259;
   color: #bfbfbe;
 
   &-content {
-    margin-bottom: 10px;
-    line-height: 20px;
-    height: 100%;
-    overflow: auto;
+    overflow-y: scroll;
+    position: absolute;
+    top: 120px;
+    bottom: 0;
+    width: 250px;
   }
 
   &-title {
@@ -35,13 +34,18 @@
 
     &-is-actionable {
       cursor: pointer;
+      color: #fff;
+      transition: all 180ms ease-out;
+
+      &:hover {
+        background-color: #42494f;
+      }
     }
   }
 
   /* Databases and collections */
   &-item {
     position: relative;
-    transition: all 180ms ease-out;
 
     &-is-top-level {
 
@@ -69,9 +73,8 @@
   &-item-content {
     .compass {
       &-sidebar-item {
-        color: #fff;
         &:hover {
-          background-color: #42494f;
+
         }
         &:last-child {
           margin-bottom: 12px;
@@ -94,14 +97,14 @@
     position: absolute;
     top: 11px;
     left: 11px;
-    color: #9DA4AA;
+    color: #838F9B;
   }
 
   &-search-input {
     padding: 9px 5px 7px 36px;
     height: auto;
     background: #3F4347;
-    color: #9DA4AA;
+    color: #fff;
     width: 100%;
     border: none;
     transition: all 150ms ease;
@@ -110,15 +113,42 @@
     font-size: 14px;
     font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
-    ::-webkit-input-placeholder { /* Chrome/Opera/Safari */
-      color: #9DA4AA;
+    &::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+      color: #838F9B;
+      transition: color 180ms ease-out;
+    }
+    &::-moz-placeholder { /* Firefox 19+ */
+      color: #838F9B;
+      transition: color 180ms ease-out;
+    }
+    &:-ms-input-placeholder { /* IE 10+ */
+      color: #838F9B;
+      transition: color 180ms ease-out;
+    }
+    &:-moz-placeholder { /* Firefox 18- */
+      color: #838F9B;
+      transition: color 180ms ease-out;
+    }
+    &:focus {
+      &::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+        color: #fff;
+      }
+      &::-moz-placeholder { /* Firefox 19+ */
+        color: #fff;
+      }
+      &:-ms-input-placeholder { /* IE 10+ */
+        color: #fff;
+      }
+      &:-moz-placeholder { /* Firefox 18- */
+        color: #fff;
+      }
     }
   }
 
   /* Instance properties */
   &-properties {
     margin: 0;
-    height: 90px;
+    padding-bottom: 6px;
   }
 
   &-hostname {
@@ -153,7 +183,7 @@
     color: #9DA4AA;
     margin-top: 0;
     line-height: 11px;
-    height: 11px;
+    height: 24px;
     font-weight: bold;
     font-size: 11px;
     text-transform: uppercase;
