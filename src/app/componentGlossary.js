@@ -9,20 +9,16 @@ const ModuleCache = require('hadron-module-cache');
 ModuleCache.register(resourcePath);
 ModuleCache.add(resourcePath);
 
-const Preferences = require('./models/preferences');
 const AppRegistry = require('hadron-app-registry');
 const { PackageManager } = require('hadron-package-manager');
 
-const pkg = require('../../package.json');
 const CompileCache = require('hadron-compile-cache');
 CompileCache.setHomeDirectory(resourcePath);
-CompileCache.digestMappings = pkg._compileCacheMappings || {};
+CompileCache.digestMappings = require('../../package.json')._compileCacheMappings || {};
 
 const StyleManager = require('hadron-style-manager');
 const styleManager = new StyleManager(path.join(__dirname, 'compiled-less'), __dirname);
 styleManager.use(document, path.join(__dirname, 'help.less'));
-
-window.jQuery = require('jquery');
 
 /**
  * The main entrypoint for the application!
@@ -32,24 +28,8 @@ app.appRegistry = new AppRegistry();
 app.packageManager = new PackageManager(path.join(__dirname, '..', 'internal-packages'));
 app.packageManager.activate();
 
-const ipc = require('hadron-ipc');
-
-const debug = require('debug')('mongodb-compass:componentGlossary');
-
-ipc.once('app:launched', function() {
-  debug('in app:launched');
-  if (process.env.NODE_ENV !== 'production') {
-    require('debug').enable('mon*,had*');
-    require('debug/browser');
-  }
-});
-
-const preferences = new Preferences();
-Object.defineProperty(app, 'preferences', {
-  get: function() {
-    return preferences;
-  }
-});
+const Preferences = require('./models/preferences');
+app.preferences = new Preferences();
 
 window.app = app;
 
@@ -63,3 +43,11 @@ Reflux.StoreMethods.listenToExternalStore = function(storeKey, callback) {
     this.stopListeningTo(packageActivationCompleted);
   });
 };
+
+/**
+ * Once you actually have a glossary component, comment out the below to render.
+ */
+// const React = require('react');
+// const ReactDOM = require('react-dom');
+// const glossary = app.appRegistry.getComponent('Glossary.Glossary');
+// ReactDOM.render(React.createElement(glossary), document.querySelector('#application'));
