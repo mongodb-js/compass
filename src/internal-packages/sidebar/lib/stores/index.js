@@ -37,7 +37,8 @@ const SidebarStore = Reflux.createStore({
     return {
       instance: {},
       databases: [],
-      filterRegex: /.*/
+      filterRegex: /.*/,
+      visible: true
     };
   },
 
@@ -53,6 +54,14 @@ const SidebarStore = Reflux.createStore({
       databases: this._filterDatabases(re, this.state.instance.databases),
       filterRegex: re
     });
+  },
+
+  toggleVisibility() {
+    if (this.state.visible === true) {
+      this.setState({visible: false});
+    } else {
+      this.setState({visible: true});
+    }
   },
 
   _filterDatabases(re, databases) {

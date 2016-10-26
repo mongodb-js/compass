@@ -44,6 +44,9 @@ function getPreviousVersion(done) {
     if (ret.lastKnownVersion) {
       return done(null, ret.lastKnownVersion);
     }
+    if (ret.lastKnownVersion === '') {
+      return done(null, '0.0.0');
+    }
     // if that is not present, try IndexedDB-backed model (pre-1.2.0)
     var indexedDBPrefs = new IndexedDBPrefModel();
     indexedDBPrefs.once('sync', function(ret2) {

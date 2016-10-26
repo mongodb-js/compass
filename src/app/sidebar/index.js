@@ -161,11 +161,10 @@ var SidebarView = View.extend({
 
     if (app.autoUpdate) {
       this.listenToAndRun(app.autoUpdate, 'change:visible', function() {
-        var el = this.el.querySelector('.sidebar');
         if (app.autoUpdate.visible) {
-          el.classList.add('auto-update-available');
+          this.el.classList.add('auto-update-available');
         } else {
-          el.classList.remove('auto-update-available');
+          this.el.classList.remove('auto-update-available');
         }
       }.bind(this));
     }
