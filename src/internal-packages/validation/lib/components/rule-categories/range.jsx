@@ -2,7 +2,8 @@ const React = require('react');
 const _ = require('lodash');
 const ValidationAction = require('../../actions');
 const RangeInput = require('../common/range-input');
-const Form = require('react-bootstrap').Form;
+const bootstrap = require('react-bootstrap');
+const FormGroup = bootstrap.FormGroup;
 
 // const debug = require('debug')('mongodb-compass:validation');
 
@@ -74,10 +75,10 @@ class RuleCategoryRange extends React.Component {
    */
   render() {
     return (
-      <Form inline>
+      <FormGroup>
         <RangeInput />
         <RangeInput upperBound/>
-      </Form>
+      </FormGroup>
     );
   }
 }
