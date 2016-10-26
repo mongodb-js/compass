@@ -30,7 +30,7 @@ class Sidebar extends React.Component {
         </StoreConnector>
         <div className="compass-sidebar-filter">
           <i className="fa fa-search compass-sidebar-search-icon"></i>
-          <input className="compass-sidebar-search-input" onChange={this.handleFilter}></input>
+          <input className="compass-sidebar-search-input" placeholder="filter" onChange={this.handleFilter}></input>
         </div>
         <div className="compass-sidebar-content">
           {

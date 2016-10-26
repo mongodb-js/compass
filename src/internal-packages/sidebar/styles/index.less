@@ -7,27 +7,26 @@
 
 .compass-sidebar {
   margin: 0;
-  display: flex;
-  flex-direction: column;
-
+  position: absolute;
+  top: 0;
+  bottom: 0;
   width: 250px;
-  height: 100%;
-  box-sizing: border-box;
-  border: 1px solid #3E606F;
   background: #4c5259;
   color: #bfbfbe;
 
   &-content {
-    margin-bottom: 10px;
-    line-height: 24px;
-    height: 100%;
-    overflow: auto;
+    overflow-y: scroll;
+    position: absolute;
+    top: 114px;
+    bottom: 0;
+    width: 250px;
   }
 
   &-title {
     white-space: nowrap;
     overflow-x: hidden;
     text-overflow: ellipsis;
+    font-size: 14px;
 
     &-is-bold {
       font-weight: bold;
@@ -35,111 +34,221 @@
 
     &-is-actionable {
       cursor: pointer;
+      color: #fff;
+      transition: all 180ms ease-out;
+
+      &:hover {
+        background-color: #42494f;
+      }
+    }
+
+    &-is-active,
+    &-is-active:hover {
+      background-color: #6D7984;
     }
   }
 
   /* Databases and collections */
   &-item {
     position: relative;
-
-    &-is-top-level {
-      margin-bottom: 5px;
-    }
   }
 
   &-item-header {
-    padding-left: 30px;
+    padding: 6px 12px 6px 36px;
+    color: #9DA4AA;
 
     &-is-expandable {
       cursor: pointer;
+    }
+
+    &-is-actionable {
+      cursor: pointer;
+      color: #fff;
+      transition: all 180ms ease-out;
+
+      &:hover {
+        background-color: #42494f;
+      }
+    }
+
+    &:hover {
+      .compass-sidebar-expand-icon {
+        color: #fff;
+      }
+    }
+
+    &-is-active,
+    &-is-active:hover {
+      background-color: #6D7984;
+
+      //there's got to be a better way to handle styles on the child when parent -is-active
+      .compass-sidebar-database-icon,
+      .compass-sidebar-expand-icon {
+        color: #fff;
+      }
+    }
+
+    //this does not conform to BEM style, but needed somehow to override global icon definition position:relative in mms-icons.less. Remove if solution is found
+    i[class^="mms-icon-"] {
+      position: absolute;
     }
   }
 
   &-expand-icon {
     position: absolute;
-    top: 5px;
-    left: 14px;
-    transition: all 0.2s linear;
+    top: 8px;
+    right: 9px;
+    transition: all 180ms ease-out;
+    color: #9DA4AA;
+  }
+
+  &-database-icon {
+    position: absolute;
+    top: 6px;
+    left: 10px;
+    transition: all 180ms ease-out;
+    color: #797F84;
+    font-family: "MMS Icons";
+    font-style: normal;
   }
 
   &-item-content {
-    margin-left: 30px;
+    .compass {
+      &-sidebar-item {
+        //there ought to be a better way to do this other than nesting many definitions
+        //however we only want the bottom margin to be there when the DB is expanded
+        &:last-child {
+          margin-bottom: 12px;
+        }
+      }
+      &-sidebar-title {
+        padding: 4px 12px 5px 36px;
+        font-size: 14px;
+      }
+    }
   }
 
   /* Filter */
   &-filter {
     position: relative;
-    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
   }
 
   &-search-icon {
     position: absolute;
     top: 8px;
-    left: 10px;
+    left: 11px;
+    color: #838F9B;
   }
 
   &-search-input {
-    padding: 7px 5px 5px 30px;
+    padding: 7px 5px 5px 36px;
     height: auto;
-    background: #585f67;
-    color: #ffffff;
+    background: #3F4347;
+    color: #fff;
     width: 100%;
     border: none;
     transition: all 150ms ease;
-    /* Not sure why this is necessary in my code */
-    box-sizing: border-box;;
     font-size: 14px;
     font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
+    &::-webkit-input-placeholder {
+      color: #838F9B;
+      transition: color 180ms ease-out;
+    }
+    &:focus {
+      background-color: #303434;
+      &::-webkit-input-placeholder {
+        color: #fff;
+      }
+    }
   }
 
   /* Instance properties */
   &-properties {
-    margin: 18px 10px;
-    height: 57px;
+    margin: 0;
+    padding-bottom: 2px;
   }
 
-  &-hostname {
+  &-instance {
     cursor: pointer;
     color: #fff;
-    font-weight: 200;
-    line-height: 17px;
-    height: 17px;
-    font-size: 16px;
-  }
-
-  &-version {
-    color: #bfbfbe;
     font-weight: normal;
-    line-height: 14px;
-    height: 14px;
-    font-size: 13px;
+    height: 54px;
+    font-size: 16px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+
+    &-icon {
+      width: 26px;
+      margin-left: 10px;
+      vertical-align: top;
+      margin-top: 2px;
+    }
+
+    &:hover {
+      background-color: #42494f;
+    }
+
+    &-hostname {
+      display: inline-block;
+      height: 16px;
+      width: 214px;
+      overflow-x: hidden;
+      text-overflow: ellipsis;
+    }
+
+    &-version {
+      color: #9DA4AA;
+      font-weight: normal;
+      line-height: 16px;
+      height: 16px;
+      font-size: 13px;
+      margin-left: 36px;
+    }
+
+    &-is-active,
+    &-is-active:hover {
+      background-color: #6D7984;
+
+      //there's got to be a better way to handle styles on the child when parent -is-active
+      .compass-sidebar-instance-version {
+        color: #fff;
+      }
+    }
   }
 
   &-stats {
-    color: #bfbfbe;
-    margin-top: 8px;
-    line-height: 13px;
-    height: 13px;
+    color: #9DA4AA;
+    margin-top: 2px;
+    line-height: 11px;
+    height: 24px;
+    font-weight: bold;
+    font-size: 11px;
+    text-transform: uppercase;
   }
 
   &-property-column {
     display: inline-block;
-    border-right: 1px solid #70757a;
     padding-right: 10px;
     margin-right: 10px;
   }
 
   &-strong-property {
     font-weight: bold;
-    color: #ebebed;
+    color: #fff;
   }
 
   &-refresh-button {
     color: #ebebed;
     background: none;
     border: none;
+    border-radius: 12px;
     font-size: 13px;
+    height: 24px;
+    width: 24px;
+    margin-left: 5px;
+    margin-right: 7px;
+    padding: 4px;
     transition: all 150ms ease;
 
     &:hover {
