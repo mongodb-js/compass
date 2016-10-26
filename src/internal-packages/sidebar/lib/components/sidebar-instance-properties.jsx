@@ -49,10 +49,10 @@ class SidebarInstanceProperties extends React.Component {
     const versionName = this.getVersionName();
     return (
       <div className="compass-sidebar-properties">
-        <div className="compass-sidebar-hostname" onClick={this.handleClickHostname}>
-          <i className="fa fa-home compass-sidebar-home-icon"></i>
-          {hostnameAndPort}
-          <div className="compass-sidebar-version">{versionName}</div>
+        <div className="compass-sidebar-instance" onClick={this.handleClickHostname}>
+          <i className="fa fa-home compass-sidebar-instance-icon"></i>
+          <div className="compass-sidebar-instance-hostname" >{hostnameAndPort}</div>
+          <div className="compass-sidebar-instance-version">{versionName}</div>
         </div>
         <div className="compass-sidebar-stats">
           <button onClick={this.handleRefresh} className="compass-sidebar-refresh-button">
