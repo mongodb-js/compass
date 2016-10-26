@@ -61,6 +61,11 @@ npm run release
 ## Running Tests
 
 Just run `npm test`.
+NOTE: `npm test` (i.e. run the `npm test --functional` tests) seems to be hanging on master at this time.
+
+To run just what TravisCI runs locally:
+
+    npm run ci
 
 [setup-mac-os]: https://github.com/mongodb-js/mongodb-js/blob/master/docs/setup.md#mac-os-setup
 [setup-windows]: https://github.com/mongodb-js/mongodb-js/blob/master/docs/setup.md#windows-setup
