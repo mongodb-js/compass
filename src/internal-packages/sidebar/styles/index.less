@@ -87,6 +87,11 @@
         color: #fff;
       }
     }
+
+    //this does not conform to BEM style, but needed somehow to override global icon definition position:relative in mms-icons.less. Remove if solution is found
+    i[class^="mms-icon-"] {
+      position: absolute;
+    }
   }
 
   &-expand-icon {
@@ -251,9 +256,4 @@
       color: #fff;
     }
   }
-}
-
-//this does not conform to BEM style, but needed somehow to override global icon definition position:relative in mms-icons.less. Remove if solution is found
-i[class^="mms-icon-"] {
-  position: absolute;
 }

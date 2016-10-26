@@ -64,7 +64,6 @@ class SidebarInstanceProperties extends React.Component {
           <div className="compass-sidebar-property-column">
             <span className="compass-sidebar-strong-property">{numCollections}</span> Collections
           </div>
-
         </div>
       </div>
     );
