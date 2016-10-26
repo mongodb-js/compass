@@ -17,7 +17,7 @@
   color: #FFFFFF;
   height: 25px;
   width: 100px;
-  left: 780px;
+  left: 1030px;
   top: 10px;
   padding-top: 5px;
   letter-spacing: 3.5px;
@@ -34,7 +34,7 @@
   color: #FFFFFF;
   height: 25px;
   width: 100px;
-  left: 890px;
+  left: 1150px;
   top: 10px;
   border: 1px #50AB78 solid;
   text-align: center;
@@ -57,7 +57,7 @@
   color: #FFFFFF;
   height: 25px;
   width: 100px;
-  left: 890px;
+  left: 1150px;
   top: 10px;
   border: 1px #666666 solid;
   text-align: center;
@@ -79,9 +79,7 @@
   top: 16px;
   margin-left: 10px;
 }
-.rt-nav__tabs .rt-nav__tab:nth-child(2) {
-  display: none; /* hide db for now */
-}
+
 .rt-nav__tab {
   height: 30px;
   width: 130px;
@@ -101,7 +99,7 @@
   font-weight: bold;
   color: white;
 }
-.rt-nav__link:hover {
+.rt-nav__link:hover, .rt-nav__link:active, .rt-nav__link:focus {
   text-decoration: none;
   color: white;
 }

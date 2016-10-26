@@ -1,45 +1,70 @@
 const React = require('react');
-const Actions = require('../action');
-const debug = require('debug')('mongodb-compass:navbar-component');
-const jQuery = require('jquery');
+const _ = require('lodash');
+const debug = require('debug')('mongodb-compass:rtss:navbar');
 
 class NavBarComponent extends React.Component {
-  constructor() {
-    super();
+
+  constructor(props) {
+    super(props);
     this.state = {
-      paused: false
+      paused: false,
+      activeTabIndex: 0
     };
-    this.handlePause = this.handlePause.bind(this);
-  }
-  handlePause() {
-    this.setState({ paused: !this.state.paused });
-    Actions.pause();
-    jQuery('#div-scroll').scrollTop(0);
   }
 
-  goToPerformance() {
-    debug('CALLING PERF BUTTON');
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.activeTabIndex !== undefined) {
+      this.setState({
+        activeTabIndex: nextProps.activeTabIndex
+      });
+    }
   }
-  goToDatabases() {
-    debug('CALLING DB BUTTON');
+
+  onTabClicked(idx, evt) {
+    evt.preventDefault();
+    this.setState({activeTabIndex: idx});
+    if (this.props.onTabClicked) {
+      this.props.onTabClicked(idx, this.props.tabs[idx]);
+    }
   }
+
+  renderTabs() {
+    const listItems = _.map(this.props.tabs, (tab, idx) => (
+      <li key={`tab-${idx}`} className={`rt-nav__tab ${idx === this.state.activeTabIndex ? 'rt-nav--selected' : ''}`}>
+        <a onClick={this.onTabClicked.bind(this, idx)} className="rt-nav__link" href="#">{tab}</a>
+      </li>
+    ));
+    return <ul className="rt-nav__tabs">{listItems}</ul>;
+  }
+
+  renderActiveView() {
+    debug('renderActiveView', this.state);
+    return this.props.views[this.state.activeTabIndex];
+  }
+
   render() {
     return (
-      <header className="rt-nav">
-        <ul className="rt-nav__tabs">
-          <li className="rt-nav__tab rt-nav--selected">
-            <a onClick={this.goToPerformance} className="rt-nav__link">Performance</a>
-          </li>
-          <li className="rt-nav__tab">
-            <a onClick={this.goToDatabases} className="rt-nav__link">Databases</a>
-          </li>
-        </ul>
-        <div className="time"><text className="currentTime">00:00:00</text></div>
-        <div onClick={this.handlePause} className="play" style={{display: this.state.paused ? null : 'none'}}><text className="playbutton"><i className="fa fa-play"></i>PLAY</text></div>
-        <div onClick={this.handlePause} className="pause" style={{display: this.state.paused ? 'none' : null}}><text className="pausebutton"><i className="fa fa-pause"></i>PAUSE</text></div>
-      </header>
+      <div>
+        <header className="rt-nav">
+          {this.renderTabs()}
+        </header>
+        {this.renderActiveView()}
+      </div>
     );
   }
 }
+
+NavBarComponent.propTypes = {
+  activeTabIndex: React.PropTypes.number,
+  tabs: React.PropTypes.arrayOf(React.PropTypes.string).isRequired,
+  views: React.PropTypes.arrayOf(React.PropTypes.element).isRequired,
+  onTabClicked: React.PropTypes.func
+};
+
+NavBarComponent.defaultProps = {
+  activeTabIndex: 0
+};
+
+NavBarComponent.displayName = 'NavBarComponent';
 
 module.exports = NavBarComponent;

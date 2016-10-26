@@ -31,12 +31,14 @@ class RTSSComponent extends React.Component {
    </div>
    */
   render() {
+    const performanceView = <Performance interval={this.props.interval} />;
     return (
       <div className="RTSS">
-        <NavBarComponent/>
-        <div className="performance">
-          <Performance interval={this.props.interval}/>
-        </div>
+        <NavBarComponent
+          tabs={['Databases', 'Performance']}
+          views={[null, performanceView]}
+          activeTabIndex={0}
+        />
       </div>
     );
   }
