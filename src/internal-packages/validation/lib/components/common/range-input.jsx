@@ -113,14 +113,15 @@ class RangeInput extends React.Component {
    * @returns {React.Component} The component.
    */
   render() {
-    const boundString = `${this.props.upperBound ? 'upper' : 'lower'} bound`;
+    const boundString = `${this.props.upperBound ?
+        'upper' : 'lower'} bound`.toUpperCase();
 
     // disabled, only show dropdown
     if (this.state.disabled) {
       return (
         <FormGroup>
           <div>
-            <ControlLabel>{_.toUpper(boundString)}</ControlLabel>
+            <ControlLabel>{boundString}</ControlLabel>
           </div>
           <DropdownButton
             id={`range-input-${this.props.upperBound ? 'upper' : 'lower'}`}
@@ -138,7 +139,7 @@ class RangeInput extends React.Component {
     return (
       <FormGroup validationState={this.state.validationState}>
         <div>
-          <ControlLabel>{_.toUpper(boundString)}</ControlLabel>
+          <ControlLabel>{boundString}</ControlLabel>
         </div>
         <InputGroup style={{width: this.props.width}}>
           <DropdownButton
