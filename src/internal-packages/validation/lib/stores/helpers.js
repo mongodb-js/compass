@@ -106,13 +106,13 @@ function nullableOrValidator(field, rule) {
  * @return {Boolean}       [description]
  */
 function hasMultipleNullables(rules) {
-  console.log('at has multiple nullables');
+  // console.log('at has multiple nullables');
   const nullableCount = rules.reduce(function(n, rule) {
-    console.log(rule.nullable);
+    // console.log(rule.nullable);
     return n + (rule.nullable === true);
   }, 0);
 
-  console.log('nullableCount: ' + nullableCount);
+  // console.log('nullableCount: ' + nullableCount);
   if (nullableCount > 1) {
     return true;
   }

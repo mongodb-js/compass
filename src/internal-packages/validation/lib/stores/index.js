@@ -137,25 +137,43 @@ const ValidationStore = Reflux.createStore({
     let hasMultipleNulls;
     if (params.rules) {
       hasMultipleNulls = hasMultipleNullables(params.rules);
-      validator = _(params.rules)
-        .map((rule) => {
-          let field = rule.field;
-          let value = rule.category ?
-            ruleCategories[rule.category].paramsToQuery(rule.parameters) :
-            {};
-          if (rule.nullable) {
-            value = nullableOrQueryWrapper(value, field);
-            field = '$or';
-          }
-          return [field, value];
-        })
-        .zipObject()
-        .value();
+      if (hasMultipleNulls) {
+        validator = _(params.rules)
+          .map((rule) => {
+            let field = rule.field;
+            let value = rule.category ?
+              ruleCategories[rule.category].paramsToQuery(rule.parameters) :
+              {};
+            if (rule.nullable) {
+              value = nullableOrQueryWrapper(value, field);
+              field = '$or';
+            }
+            const wrapper = {};
+            wrapper[field] = value;
+            return wrapper;
+          })
+          .value();
+      } else {
+        validator = _(params.rules)
+          .map((rule) => {
+            let field = rule.field;
+            let value = rule.category ?
+              ruleCategories[rule.category].paramsToQuery(rule.parameters) :
+              {};
+            if (rule.nullable) {
+              value = nullableOrQueryWrapper(value, field);
+              field = '$or';
+            }
+            return [field, value];
+          })
+          .zipObject()
+          .value();
+      }
 
       if (hasMultipleNulls) {
         console.log(params.rules);
+        validator = {'$and': validator};
         console.log(validator);
-        console.log('change validator to have $and here');
       }
     } else {
       validator = this.state.validatorDoc.validator;
