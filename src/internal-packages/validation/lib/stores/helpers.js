@@ -102,18 +102,16 @@ function nullableOrValidator(field, rule) {
 }
 
 /**
- * [hasMultipleNullables counts the number of rules with nullable === true]
- * @param  {[type]}  rules [lots of rules] @todo make this better!
- * @return {Boolean}       [description]
+ * hasMultipleNullables counts the number of rules with nullable === true, if
+ * there are more than 1, return true, false otherwise
+ * @param  {Array}           rules an array of rules for validating documents
+ * @return {Boolean}         return true if there are multiple nullables
  */
 function hasMultipleNullables(rules) {
-  // console.log('at has multiple nullables');
   const nullableCount = rules.reduce(function(n, rule) {
-    // console.log(rule.nullable);
     return n + (rule.nullable === true);
   }, 0);
 
-  // console.log('nullableCount: ' + nullableCount);
   if (nullableCount > 1) {
     return true;
   }
@@ -121,9 +119,10 @@ function hasMultipleNullables(rules) {
 }
 
 /**
- * [filterAndFromValidator remove $and from validator and flatten the rule]
- * @param  {[type]} validator [description]
- * @return {[type]}           [description]
+ * filterAndFromValidator remove $and from validator and flatten until it has
+ * an array of $or nullable clauses, assuming a $and exists
+ * @param  {Object} validator  validator object
+ * @return {Array}             a list of validation rules without an $and clause
  */
 function filterAndFromValidator(validator) {
   let hasAnd = false;
@@ -134,17 +133,13 @@ function filterAndFromValidator(validator) {
     if (rule[0] === '$and') {
       hasAnd = true;
       rule = _.flatten(_.pull(rule, '$and'));
-      debug('after pull', rule);
-
+      // debug('after pull', rule);
       rule = _.map(rule, function(r) {
-        const blah = _.flatten(_.pairs(r));
-        debug('during mapping of rules', blah);
-        return blah;
+        return _.flatten(_.pairs(r));
       });
-
-      debug('after pairs', rule);
+      // debug('after pairs', rule);
     }
-    debug('after rule change: ', rule);
+    // debug('after rule change: ', rule);
     return rule;
   });
 
