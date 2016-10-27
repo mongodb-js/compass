@@ -124,15 +124,54 @@ class SortableTable extends React.Component {
 }
 
 SortableTable.propTypes = {
+  /**
+   * the style theme, matching our dark or light pages.
+   * @type {String}   one of `light` (default) or `dark`
+   */
   theme: React.PropTypes.oneOf(['light', 'dark']),
+  /**
+   * specify column names (required)
+   * @type {Array}  of column names (strings).
+   */
   columns: React.PropTypes.arrayOf(React.PropTypes.string).isRequired,
+  /**
+   * specify data for table rows. Can be an array of objects (keys must
+   * match column names exactly), or an array of arrays. Columns not found in
+   * the object are left blank. Inner arrays are padded (if too short) or
+   * cropped (if too long).
+   * @type {Array}  of objects or arrays.
+   */
   rows: React.PropTypes.arrayOf(React.PropTypes.oneOfType(
     [React.PropTypes.object, React.PropTypes.array])),
+  /**
+   * make table sortable by clicking on column headers.
+   * @type {Boolean}
+   */
   sortable: React.PropTypes.bool,
+  /**
+   * initial sort column index (default is 0).
+   * @type {Number}
+   */
   sortedColumnIndex: React.PropTypes.number,
+  /**
+   * initial sort order (default is 'asc').
+   * @type {String}  one of `asc`, `desc`
+   */
   sortOrder: React.PropTypes.oneOf(['asc', 'desc']),
+  /**
+   * make table rows removable by providing a thrash can button in each row.
+   * @type {Boolean}
+   */
   removable: React.PropTypes.bool,
+  /**
+   * callback when user clicks on a sortable column header.
+   * @type {Function}
+   */
   onColumnHeaderClicked: React.PropTypes.func,
+  /**
+   * callback when user clicks on a trash can button to delete a row.
+   * @type {Function}
+   */
   onRowDeleteButtonClicked: React.PropTypes.func
 };
 
