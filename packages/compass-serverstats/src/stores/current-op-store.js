@@ -1,6 +1,10 @@
-/* eslint complexity:0 */
 const Reflux = require('reflux');
 const Actions = require('../actions');
+const toNS = require('mongodb-ns');
+const debug = require('debug')('mongodb-compass:server-stats:crp-store');
+const _ = require('lodash');
+
+/* eslint complexity:0 */
 
 /**
  * This store listens to the
@@ -55,60 +59,61 @@ const CurrentOpStore = Reflux.createStore({
   },
 
   currentOp: function() {
-    // app.dataService.currentOp(false, (error, response) => {
-    //   let totals = [];
-    //   this.error = error;
-    //   if (!error && response !== undefined && ('inprog' in response)) {
-    //     if (this.starting) { // Skip first to match charts
-    //       this.starting = false;
-    //       return;
-    //     }
-    //     const doc = response.inprog;
-    //     for (let i = 0; i < doc.length; i++) {
-    //       if (toNS(doc[i].ns).specialish) {
-    //         continue;
-    //       }
-    //       if (!('microsecs_running' in doc[i])) {
-    //         debug('Error: currentOp result from DB did not include \'microsecs_running\'', doc[i]);
-    //         doc[i].ms_running = 0;
-    //       } else {
-    //         doc[i].ms_running = _.round(doc[i].microsecs_running / 1000, 2);
-    //       }
-    //       if (!('ns' in doc[i]) || !('op' in doc[i])) {
-    //         debug('Error: currentOp result from DB did not include \'ns\' or \'op\'', doc[i]);
-    //       }
-    //       if (!('active' in doc[i])) {
-    //         debug('Error: currentOp result from DB did not include \'active\'', doc[i]);
-    //       } else {
-    //         doc[i].active = doc[i].active.toString();
-    //       }
-    //       if (!('waitingForLock' in doc[i])) {
-    //         debug('Error: currentOp result from DB did not include \'waitingForLock\'', doc[i]);
-    //       } else {
-    //         doc[i].waitingForLock = doc[i].waitingForLock.toString();
-    //       }
-    //       totals.push(doc[i]);
-    //     }
-    //     totals.sort(function(a, b) {
-    //       const f = (b.ms_running < a.ms_running) ? -1 : 0;
-    //       return (a.ms_running < b.ms_running) ? 1 : f;
-    //     });
-    //     // Add current state to all
-    //     this.allOps.push(totals);
-    //     if (this.isPaused) {
-    //       totals = this.allOps[this.endPause];
-    //     } else {
-    //       this.endPause = this.allOps.length;
-    //     }
-    //     // This handled by mouseover function completely
-    //     if (this.inOverlay) {
-    //       return;
-    //     }
-    //   } else if (error) {
-    //     Actions.dbError({'op': 'currentOp', 'error': error });
-    //   }
-    //   this.trigger(error, totals);
-    // });
+    global.dataService.currentOp(false, (error, response) => {
+      let totals = [];
+      this.error = error;
+      if (!error && response !== undefined && ('inprog' in response)) {
+        if (this.starting) { // Skip first to match charts
+          this.starting = false;
+          return;
+        }
+        const doc = response.inprog;
+        for (let i = 0; i < doc.length; i++) {
+          if (toNS(doc[i].ns).specialish) {
+            continue;
+          }
+          if (!('microsecs_running' in doc[i])) {
+            debug('Error: currentOp result from DB did not include \'microsecs_running\'', doc[i]);
+            doc[i].ms_running = 0;
+          } else {
+            doc[i].ms_running = _.round(doc[i].microsecs_running / 1000, 2);
+          }
+          if (!('ns' in doc[i]) || !('op' in doc[i])) {
+            debug('Error: currentOp result from DB did not include \'ns\' or \'op\'', doc[i]);
+          }
+          if (!('active' in doc[i])) {
+            debug('Error: currentOp result from DB did not include \'active\'', doc[i]);
+          } else {
+            doc[i].active = doc[i].active.toString();
+          }
+          if (!('waitingForLock' in doc[i])) {
+            debug('Error: currentOp result from DB did not include \'waitingForLock\'', doc[i]);
+          } else {
+            doc[i].waitingForLock = doc[i].waitingForLock.toString();
+          }
+          totals.push(doc[i]);
+        }
+        totals.sort(function(a, b) {
+          const f = (b.ms_running < a.ms_running) ? -1 : 0;
+          return (a.ms_running < b.ms_running) ? 1 : f;
+        });
+        // Add current state to all
+        this.allOps.push(totals);
+        if (this.isPaused) {
+          totals = this.allOps[this.endPause];
+        } else {
+          this.endPause = this.allOps.length;
+        }
+        // This handled by mouseover function completely
+        if (this.inOverlay) {
+          return;
+        }
+      } else if (error) {
+        Actions.dbError({'op': 'currentOp', 'error': error });
+      }
+      console.log(totals);
+      this.trigger(error, totals);
+    });
   }
 });
 

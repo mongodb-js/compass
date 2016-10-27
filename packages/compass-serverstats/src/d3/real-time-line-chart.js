@@ -1,119 +1,11 @@
-/* eslint complexity:0 */
 const d3 = require('d3');
+const debug = require('debug')('mongodb-compass:server-stats-chart');
 const TopStore = require('../stores/top-store');
 const CurrentOpStore = require('../stores/current-op-store');
 
-/**
- * The data sets property.
- */
-const DATA_SETS = 'dataSets';
+/* eslint complexity:0 */
 
-/**
- * The local time property.
- */
-const LOCAL_TIME = 'localTime';
-
-/**
- * The y domain property.
- */
-const Y_DOMAIN = 'yDomain';
-
-/**
- * The x length property.
- */
-const X_LENGTH = 'xLength';
-
-/**
- * The labels property.
- */
-const LABELS = 'labels';
-
-/**
- * The key length property.
- */
-const KEY_LENGTH = 'keyLength';
-
-/**
- * The required properties for the data to have.
- */
-const REQUIRED_PROPERTIES = [
-  DATA_SETS,
-  LOCAL_TIME,
-  Y_DOMAIN,
-  X_LENGTH,
-  LABELS,
-  KEY_LENGTH
-];
-
-/**
- * The second scale property.
- */
-const SECOND_SCALE = 'secondScale';
-
-/**
- * The line property.
- */
-const LINE = 'line';
-
-/**
- * The count property.
- */
-const COUNT = 'count';
-
-/**
- * The active property.
- */
-const ACTIVE = 'active';
-
-/**
- * The keys property.
- */
-const KEYS = 'keys';
-
-/**
- * Validate that the provided data is in the correct format.
- *
- * @param {Object} data - The data to validate.
- *
- * @returns {Boolean} If the data is valid.
- */
-const validate = (data) => {
-  REQUIRED_PROPERTIES.each((property) => {
-    if (!(property in data)) {
-      return false;
-    }
-  });
-
-  let len = data.dataSets.length;
-  if (SECOND_SCALE in data) {
-    if (!(LINE in data.secondScale && COUNT in data.secondScale && ACTIVE in data.secondScale) ||
-        data.secondScale.count.length !== data.localTime.length) {
-      return false;
-    }
-    len++;
-  }
-
-  if (data.localTime.length === 0 ||
-      data.yDomain.length !== 2 || data.yDomain[0] >= data.yDomain[1] ||
-      !(KEYS in data.labels) || data.labels.keys.length !== len) {
-    return false;
-  }
-
-  data.dataSets.each((set) => {
-    if (!(LINE in set && COUNT in set && ACTIVE in set) ||
-        set.count.length !== data.localTime.length) {
-      return false;
-    }
-  });
-  return true;
-};
-
-/**
- * Renders a line chart in realtime.
- *
- * @returns {Function} The d3 function.
- */
-const realTimeLineChart = () => {
+function realTimeLineChart() {
   let width = 520;
   let height = 160;
   const x = d3.time.scale();
@@ -123,17 +15,42 @@ const realTimeLineChart = () => {
   let onOverlay = false;
   let mouseLocation = null;
   const bubbleWidth = 8;
-  const margin = { top: 25, right: 40, bottom: 45, left: 55 };
+  const margin = {top: 25, right: 40, bottom: 45, left: 55};
   let zeroState = true;
   let errorState = false;
 
-  /**
-   * Render the chart.
-   *
-   * @param {Array} selection - The data selections.
-   */
-  const chart = (selection) => {
-    selection.each((data) => {
+  function validate(data) { // eslint-disable-line complexity
+    const topKeys = ['dataSets', 'localTime', 'yDomain', 'xLength',
+      'labels', 'keyLength'];
+    for (let i = 0; i < topKeys.length; i++) {
+      if (!(topKeys[i] in data)) {
+        return false;
+      }
+    }
+    let len = data.dataSets.length;
+    if ('secondScale' in data) {
+      if (!('line' in data.secondScale && 'count' in data.secondScale && 'active' in data.secondScale) ||
+          data.secondScale.count.length !== data.localTime.length) {
+        return false;
+      }
+      len++;
+    }
+    if (data.localTime.length === 0 ||
+        data.yDomain.length !== 2 || data.yDomain[0] >= data.yDomain[1] ||
+        !('keys' in data.labels) || data.labels.keys.length !== len) {
+      return false;
+    }
+    for (let i = 0; i < data.dataSets.length; i++) {
+      if (!('line' in data.dataSets[i] && 'count' in data.dataSets[i] && 'active' in data.dataSets[i]) ||
+          data.dataSets[i].count.length !== data.localTime.length) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function chart(selection) {
+    selection.each(function(data) {
       const subHeight = height - margin.top - margin.bottom;
       const subWidth = width - margin.left - margin.right;
       const xTick = subWidth / data.xLength;
@@ -211,7 +128,7 @@ const realTimeLineChart = () => {
             .style('opacity', 1);
         }
         errorState = true;
-        // debug('Error: bad serverStatus response from DB:', data);
+        debug('Error: bad serverStatus response from DB:', data);
         return;
       }
       if (errorState) { // TODO: fix when layering elements is working properly
@@ -226,9 +143,8 @@ const realTimeLineChart = () => {
       container.selectAll('text.error-message').style('display', 'none');
 
       // Line setup
-      let minTime = data.localTime[data.localTime.length - 1];
-      minTime = new Date(minTime.getTime() - (data.xLength * 1000));
-      const xDomain = d3.extent([minTime].concat(data.localTime));
+      const maxTime = data.localTime[data.localTime.length - 1];
+      const minTime = new Date(maxTime.getTime() - (data.xLength * 1000));
       const legendWidth = subWidth / data.keyLength;
       const scale2 = 'secondScale' in data;
       keys = data.dataSets.map(function(f) { return f.line; });
@@ -237,7 +153,7 @@ const realTimeLineChart = () => {
       }
       // Update scales
       x
-        .domain(xDomain)
+        .domain([minTime, maxTime])
         .range([0, subWidth]);
       y
         .domain(data.yDomain)
@@ -256,7 +172,7 @@ const realTimeLineChart = () => {
       container.selectAll('text.text-units') // Repeat this in case error occurred
         .text(data.labels.yAxis);
       container.selectAll('text.max')
-        .text(d3.time.format('%X')(xDomain[1]));
+        .text(d3.time.format('%X')(maxTime));
       container.selectAll('text.min')
         .text(d3.time.format('%X')(timeZero));
       // second line label
@@ -290,15 +206,18 @@ const realTimeLineChart = () => {
 
       // Update lines + Animate smoothly
       const line = d3.svg.line()
+        .defined(function(d, i) { // Don't draw if coming back from sleep, or off the chart.
+          if (data.skip[i]) {
+            return false;
+          }
+          return (x(data.localTime[i]) >= x.range()[0] && x(data.localTime[i]) <= x.range()[1]);
+        })
         .interpolate('monotone')
         .x(function(d, i) { return x(data.localTime[i]); })
         .y(function(d) { return y(d); });
       const time = data.paused ? 0 : 983;
       const translate = 'translate(' + (data.paused ? 0 : -xTick) + ',0)';
       let ticked = false;
-
-      /**
-       */
       function tick() {
         // Only tick once per call, TODO: fix, feels hacky
         if (!ticked) {
@@ -315,6 +234,12 @@ const realTimeLineChart = () => {
           .attr('transform', translate);
         if (scale2) {
           const line2 = d3.svg.line()
+            .defined(function(d, i) { // Don't draw if coming back from sleep, or off the chart.
+              if (data.skip[i]) {
+                return false;
+              }
+              return (x(data.localTime[i]) >= x.range()[0] && x(data.localTime[i]) <= x.range()[1]);
+            })
             .interpolate('monotone')
             .x(function(d, i) {
               return x(data.localTime[i]);
@@ -422,6 +347,9 @@ const realTimeLineChart = () => {
         if (index >= data.localTime.length) {
           index = data.localTime.length - 1;
         }
+        while (data.skip[index]) {
+          index++;
+        }
         if ('trigger' in data) {
           TopStore.mouseOver(index);
           CurrentOpStore.mouseOver(index);
@@ -501,8 +429,7 @@ const realTimeLineChart = () => {
         resetOverlay();
       }
     });
-  };
-
+  }
   // Configuration Getters & Setters
   chart.width = function(_) {
     if (!arguments.length) return width;
@@ -515,6 +442,6 @@ const realTimeLineChart = () => {
     return this;
   };
   return chart;
-};
+}
 
 module.exports = realTimeLineChart;

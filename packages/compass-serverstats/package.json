@@ -49,8 +49,10 @@
     "less": "^2.7.1",
     "less-loader": "^2.2.3",
     "mocha": "^2.5.3",
+    "mongodb-data-service": "^1.8.0",
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^0.2.8",
+    "mongodb-runner": "^3.4.0",
     "pre-commit": "^1.1.3",
     "watch": "^0.19.2"
   }
