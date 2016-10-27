@@ -7,6 +7,7 @@ const ruleCategories = require('../components/rule-categories');
 const nullableOrQueryWrapper = require('./helpers').nullableOrQueryWrapper;
 const nullableOrValidator = require('./helpers').nullableOrValidator;
 const hasMultipleNullables = require('./helpers').hasMultipleNullables;
+const filterAndFromValidator = require('./helpers').filterAndFromValidator;
 const toNS = require('mongodb-ns');
 const app = require('ampersand-app');
 
@@ -82,10 +83,40 @@ const ValidationStore = Reflux.createStore({
       validatorDoc.validator = {};
     }
 
+    debug('the validator is: ', validatorDoc.validator);
+    const validator = filterAndFromValidator(validatorDoc.validator);
+
+    const rules = _.map(validator, (field) => {
+      const fieldName = field[0];
+      const rule = field[1];
+      debug('structure of field is:', field);
+      debug('rule is:', rule);
+      debug('fieldName is:', fieldName);
+
+      let parameters;
+      const result = nullableOrValidator(fieldName, rule);
+
+      const category = _.findKey(ruleCategories, (cat) => {
+        parameters = cat.queryToParams(result.value);
+        return parameters;
+      });
+      // no rule category could be found to express this rule
+      if (!category) {
+        return false;
+      }
+      return {
+        id: uuid.v4(),
+        field: result.field,
+        category: category,
+        parameters: parameters,
+        nullable: result.nullable
+      };
+    });
+
+    /*
     const rules = _.map(validatorDoc.validator, (rule, field) => {
       // find a category who can express this rule
       let parameters;
-
       const result = nullableOrValidator(field, rule);
 
       const category = _.findKey(ruleCategories, (cat) => {
@@ -104,6 +135,7 @@ const ValidationStore = Reflux.createStore({
         nullable: result.nullable
       };
     });
+    */
 
     if (!_.every(rules)) {
       return {
@@ -171,9 +203,7 @@ const ValidationStore = Reflux.createStore({
       }
 
       if (hasMultipleNulls) {
-        console.log(params.rules);
         validator = {'$and': validator};
-        console.log(validator);
       }
     } else {
       validator = this.state.validatorDoc.validator;
