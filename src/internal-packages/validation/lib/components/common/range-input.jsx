@@ -97,13 +97,13 @@ class RangeInput extends React.Component {
 
   renderMenuItems() {
     if (this.props.upperBound) {
-      return [<MenuItem key="<" eventKey="<">&lt;</MenuItem>,
-              <MenuItem key="<=" eventKey="<=">&lt;=</MenuItem>,
-              <MenuItem key="none" eventKey="none">none</MenuItem>];
+      return [<MenuItem key="<" eventKey="<" href="#">&lt;</MenuItem>,
+              <MenuItem key="<=" eventKey="<=" href="#">&lt;=</MenuItem>,
+              <MenuItem key="none" eventKey="none" href="#">none</MenuItem>];
     }
-    return [<MenuItem key=">" eventKey=">">&gt;</MenuItem>,
-            <MenuItem key=">=" eventKey=">=">&gt;=</MenuItem>,
-            <MenuItem key="none" eventKey="none">none</MenuItem>];
+    return [<MenuItem key=">" eventKey=">" href="#">&gt;</MenuItem>,
+            <MenuItem key=">=" eventKey=">=" href="#">&gt;=</MenuItem>,
+            <MenuItem key="none" eventKey="none" href="#">none</MenuItem>];
   }
 
 
@@ -113,14 +113,15 @@ class RangeInput extends React.Component {
    * @returns {React.Component} The component.
    */
   render() {
-    const boundString = `${this.props.upperBound ? 'upper' : 'lower'} bound`;
+    const boundString = `${this.props.upperBound ?
+        'upper' : 'lower'} bound`.toUpperCase();
 
     // disabled, only show dropdown
     if (this.state.disabled) {
       return (
         <FormGroup>
           <div>
-            <ControlLabel>{_.toUpper(boundString)}</ControlLabel>
+            <ControlLabel>{boundString}</ControlLabel>
           </div>
           <DropdownButton
             id={`range-input-${this.props.upperBound ? 'upper' : 'lower'}`}
@@ -133,12 +134,12 @@ class RangeInput extends React.Component {
       );
     }
     // not disabled, render input group with value input and operator dropdown
-    const placeholder = `enter ${boundString}`;
+    const placeholder = `enter ${boundString}`.toLowerCase();
 
     return (
       <FormGroup validationState={this.state.validationState}>
         <div>
-          <ControlLabel>{_.toUpper(boundString)}</ControlLabel>
+          <ControlLabel>{boundString}</ControlLabel>
         </div>
         <InputGroup style={{width: this.props.width}}>
           <DropdownButton

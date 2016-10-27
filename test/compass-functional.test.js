@@ -37,7 +37,7 @@ describe('Compass #spectron', function() {
     done();
   });
 
-  context('when working with the appication', function() {
+  context('when working with the application', function() {
     before(require('mongodb-runner/mocha/before')({ port: 27018 }));
     after(require('mongodb-runner/mocha/after')());
 
