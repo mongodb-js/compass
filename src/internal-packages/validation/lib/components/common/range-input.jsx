@@ -134,7 +134,7 @@ class RangeInput extends React.Component {
       );
     }
     // not disabled, render input group with value input and operator dropdown
-    const placeholder = `enter ${boundString}`;
+    const placeholder = `enter ${boundString}`.toLowerCase();
 
     return (
       <FormGroup validationState={this.state.validationState}>
