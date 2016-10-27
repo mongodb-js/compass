@@ -163,6 +163,7 @@
     "chai-enzyme": "^0.5.2",
     "devtron": "^1.4.0",
     "electron-devtools-installer": "^2.0.1",
+    "electron-mocha": "^3.1.1",
     "electron-prebuilt": "1.2.8",
     "enzyme": "^2.5.1",
     "eslint-config-mongodb-js": "^2.2.0",
