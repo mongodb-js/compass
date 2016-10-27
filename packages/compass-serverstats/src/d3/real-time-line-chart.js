@@ -83,18 +83,18 @@ const graphfunction = function() {
       // Axis labels
       const currSelection = gEnter
         .append('g')
-        .attr('class', 'axis-labels');
+        .attr('class', 'chart-axis-labels');
       [{
-        name: 'y-label text-units',
+        name: 'chart-y-label text-units',
         x: -5, y: subMargin * 2
       }, {
-        name: 'second-label second-units',
+        name: 'chart-second-label second-units',
         x: (subWidth + 5), y: subMargin * 2
       }, {
-        name: 'y-label text-count',
+        name: 'chart-y-label text-count',
         x: -5, y: subMargin
       }, {
-        name: 'second-label second-count',
+        name: 'chart-second-label second-count',
         x: (subWidth + 5), y: subMargin
       }].map(function(c) {
         currSelection
@@ -114,14 +114,14 @@ const graphfunction = function() {
         if (!errorState) {
           container.selectAll('g.chart')
             .append('rect')
-            .attr('class', 'error-overlay')
+            .attr('class', 'chart-error-overlay')
             .attr('transform', 'translate(' + ((subWidth - 300) / 2) + ',' + ((subHeight - 40) / 2) + ')')
             .attr('width', 300)
             .attr('height', 40)
             .style('opacity', 0.3);
           container.selectAll('g.chart')
             .append('text')
-            .attr('class', 'error-message')
+            .attr('class', 'chart-error-message')
             .attr('x', subWidth / 2)
             .attr('y', (subHeight / 2) + 5)
             .text('\u26A0 data unavailable')
@@ -133,14 +133,14 @@ const graphfunction = function() {
       }
       if (errorState) { // TODO: fix when layering elements is working properly
         errorState = false;
-        container.selectAll('rect.error-overlay').remove();
-        container.selectAll('text.error-message').remove();
+        container.selectAll('rect.chart-error-overlay').remove();
+        container.selectAll('text.chart-error-message').remove();
       }
       // Redraw anything hidden by errors
-      container.selectAll('.legend, .overlay, .axis-labels, .line-div')
+      container.selectAll('.legend, .overlay, .chart-axis-labels, .chart-line-div')
         .style('display', null);
       // Hide error message
-      container.selectAll('text.error-message').style('display', 'none');
+      container.selectAll('text.chart-error-message').style('display', 'none');
 
       // Line setup
       const maxTime = data.localTime[data.localTime.length - 1];
@@ -184,18 +184,18 @@ const graphfunction = function() {
       }
 
       // Add Chart Lines
-      g.selectAll('.line-div').data(data.dataSets)
+      g.selectAll('.chart-line-div').data(data.dataSets)
         .enter().append('g')
-        .attr('class', 'line-div')
+        .attr('class', 'chart-line-div')
         .append('path')
         .attr('class', function(d, i) { return 'line chart-color-' + i; })
         .style('fill', 'none')
         .attr('id', function(d) { return 'tag' + d.line; } );
       // second line divs
       if (scale2) {
-        g.selectAll('.second-line-div').data([data.secondScale])
+        g.selectAll('.chart-second-line-div').data([data.secondScale])
           .enter().append('g')
-          .attr('class', 'second-line-div')
+          .attr('class', 'chart-second-line-div')
           .append('path')
           .attr('class', 'second-line chart-color-' + (keys.length - 1))
           .style('fill', 'none')
@@ -287,7 +287,7 @@ const graphfunction = function() {
       // Add boxes for legend
       legendDiv
         .append('rect')
-        .attr('class', function(d, i) { return 'legend-box chart-color-' + i; })
+        .attr('class', function(d, i) { return 'chart-legend-box chart-color-' + i; })
         .attr('id', function(d) { return 'box' + d; })
         .attr('width', bubbleWidth)
         .attr('height', bubbleWidth)
@@ -317,21 +317,21 @@ const graphfunction = function() {
       // Add text for legend
       legendDiv
         .append('text')
-        .attr('class', 'legend-linename')
+        .attr('class', 'chart-legend-linename')
         .attr('transform', 'translate(' + 13 + ',' + 9 + ')')
         .text(function(d, i) {return data.labels.keys[i]; });
       legendDiv
         .append('text')
-        .attr('class', function(d) { return 'legend-count text-' + d;} )
+        .attr('class', function(d) { return 'chart-legend-count text-' + d;} )
         .attr('transform', 'translate(' + 15 + ',22)');
 
       // Create overlay line
-      const focus = container.selectAll('g.focus').data([0]).enter()
+      const focus = container.selectAll('g.chart-focus').data([0]).enter()
         .append('g')
-        .attr('class', 'focus')
+        .attr('class', 'chart-focus')
         .attr('transform', 'translate(' + (margin.left - xTick) + ',' + margin.top + ')');
       focus.append('line')
-        .attr('class', 'overlay-line')
+        .attr('class', 'chart-overlay-line')
         .attr('transform', 'translate(' + subWidth + ',0)')
         .attr('x1', 0).attr('y1', subHeight)
         .attr('x2', 0).attr('y2', 0);
@@ -355,8 +355,8 @@ const graphfunction = function() {
           CurrentOpStore.mouseOver(index);
         }
         const xOffset = x(data.localTime[index]);
-        const myfocus = container.selectAll('g.focus');
-        myfocus.selectAll('line.overlay-line')
+        const myfocus = container.selectAll('g.chart-focus');
+        myfocus.selectAll('line.chart-overlay-line')
           .attr('transform', 'translate(' + xOffset + ',0)');
         myfocus.selectAll('path.overlay-triangle')
           .attr('transform', 'translate(' + xOffset + ',-3)');
@@ -367,12 +367,12 @@ const graphfunction = function() {
         let currentText;
         for (let k = 0; k < data.dataSets.length; k++) {
           key = data.dataSets[k];
-          currentText = container.selectAll('text.legend-count.text-' + key.line);
+          currentText = container.selectAll('text.chart-legend-count.text-' + key.line);
           currentText.text(key.count[index]);
         }
         // Update overlay for line on separate scale
         if (scale2) {
-          currentText = container.selectAll('text.legend-count.text-' + data.secondScale.line);
+          currentText = container.selectAll('text.chart-legend-count.text-' + data.secondScale.line);
           currentText.text(data.secondScale.count[index]);
         }
       }
@@ -380,8 +380,8 @@ const graphfunction = function() {
       // Transform overlay elements to current time
       function resetOverlay() {
         const xOffset = x.range()[1] + xTick;
-        const myfocus = container.selectAll('g.focus');
-        myfocus.selectAll('line.overlay-line')
+        const myfocus = container.selectAll('g.chart-focus');
+        myfocus.selectAll('line.chart-overlay-line')
           .attr('transform', 'translate(' + xOffset + ',0)');
         myfocus.selectAll('path.overlay-triangle')
           .attr('transform', 'translate(' + xOffset + ',-3)');
@@ -399,7 +399,7 @@ const graphfunction = function() {
       d3.selectAll('rect.overlay')
         .on('mouseover.' + data.labels.title[0], function() {
           onOverlay = true;
-          container.selectAll('g.focus').style('display', null);
+          container.selectAll('g.chart-focus').style('display', null);
         })
         .on('mouseout.' + data.labels.title[0], function() {
           onOverlay = false;
@@ -419,7 +419,7 @@ const graphfunction = function() {
         updateOverlay();
       } else {
         d3.select('text.currentTime').text(d3.time.format('%X')(data.localTime[data.localTime.length - 1]));
-        container.selectAll('text.legend-count')
+        container.selectAll('text.chart-legend-count')
           .text(function(d, i) {
             if (scale2 && i === keys.length - 1) {
               return data.secondScale.count[data.secondScale.count.length - 1];
