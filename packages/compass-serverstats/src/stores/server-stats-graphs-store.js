@@ -1,5 +1,6 @@
 const Reflux = require('reflux');
 const Actions = require('../actions');
+// const debug = require('debug')('mongodb-compass:server-stats:server-stats-graphs-store');
 
 const ServerStatsStore = Reflux.createStore({
 
