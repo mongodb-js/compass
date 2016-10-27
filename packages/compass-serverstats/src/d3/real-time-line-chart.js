@@ -1,9 +1,75 @@
+/* eslint complexity:0 */
 const d3 = require('d3');
 const debug = require('debug')('mongodb-compass:server-stats-chart');
 const TopStore = require('../stores/top-store');
 const CurrentOpStore = require('../stores/current-op-store');
 
-/* eslint complexity:0 */
+/**
+ * The data sets property.
+ */
+const DATA_SETS = 'dataSets';
+
+/**
+ * The local time property.
+ */
+const LOCAL_TIME = 'localTime';
+
+/**
+ * The y domain property.
+ */
+const Y_DOMAIN = 'yDomain';
+
+/**
+ * The x length property.
+ */
+const X_LENGTH = 'xLength';
+
+/**
+ * The labels property.
+ */
+const LABELS = 'labels';
+
+/**
+ * The key length property.
+ */
+const KEY_LENGTH = 'keyLength';
+
+/**
+ * The required properties for the data to have.
+ */
+const REQUIRED_PROPERTIES = [
+  DATA_SETS,
+  LOCAL_TIME,
+  Y_DOMAIN,
+  X_LENGTH,
+  LABELS,
+  KEY_LENGTH
+];
+
+/**
+ * The second scale property.
+ */
+const SECOND_SCALE = 'secondScale';
+
+/**
+ * The line property.
+ */
+const LINE = 'line';
+
+/**
+ * The count property.
+ */
+const COUNT = 'count';
+
+/**
+ * The active property.
+ */
+const ACTIVE = 'active';
+
+/**
+ * The keys property.
+ */
+const KEYS = 'keys';
 
 function realTimeLineChart() {
   let width = 520;
@@ -20,16 +86,14 @@ function realTimeLineChart() {
   let errorState = false;
 
   function validate(data) { // eslint-disable-line complexity
-    const topKeys = ['dataSets', 'localTime', 'yDomain', 'xLength',
-      'labels', 'keyLength'];
-    for (let i = 0; i < topKeys.length; i++) {
-      if (!(topKeys[i] in data)) {
+    for (let i = 0; i < REQUIRED_PROPERTIES.length; i++) {
+      if (!(REQUIRED_PROPERTIES[i] in data)) {
         return false;
       }
     }
     let len = data.dataSets.length;
-    if ('secondScale' in data) {
-      if (!('line' in data.secondScale && 'count' in data.secondScale && 'active' in data.secondScale) ||
+    if (SECOND_SCALE in data) {
+      if (!(LINE in data.secondScale && COUNT in data.secondScale && ACTIVE in data.secondScale) ||
           data.secondScale.count.length !== data.localTime.length) {
         return false;
       }
@@ -37,11 +101,11 @@ function realTimeLineChart() {
     }
     if (data.localTime.length === 0 ||
         data.yDomain.length !== 2 || data.yDomain[0] >= data.yDomain[1] ||
-        !('keys' in data.labels) || data.labels.keys.length !== len) {
+        !(KEYS in data.labels) || data.labels.keys.length !== len) {
       return false;
     }
     for (let i = 0; i < data.dataSets.length; i++) {
-      if (!('line' in data.dataSets[i] && 'count' in data.dataSets[i] && 'active' in data.dataSets[i]) ||
+      if (!(LINE in data.dataSets[i] && COUNT in data.dataSets[i] && ACTIVE in data.dataSets[i]) ||
           data.dataSets[i].count.length !== data.localTime.length) {
         return false;
       }
@@ -207,7 +271,7 @@ function realTimeLineChart() {
       // Update lines + Animate smoothly
       const line = d3.svg.line()
         .defined(function(d, i) { // Don't draw if coming back from sleep, or off the chart.
-          if (data.skip[i]) {
+          if (data.skip && data.skip[i]) {
             return false;
           }
           return (x(data.localTime[i]) >= x.range()[0] && x(data.localTime[i]) <= x.range()[1]);
@@ -235,7 +299,7 @@ function realTimeLineChart() {
         if (scale2) {
           const line2 = d3.svg.line()
             .defined(function(d, i) { // Don't draw if coming back from sleep, or off the chart.
-              if (data.skip[i]) {
+              if (data.skip && data.skip[i]) {
                 return false;
               }
               return (x(data.localTime[i]) >= x.range()[0] && x(data.localTime[i]) <= x.range()[1]);
@@ -347,7 +411,7 @@ function realTimeLineChart() {
         if (index >= data.localTime.length) {
           index = data.localTime.length - 1;
         }
-        while (data.skip[index]) {
+        while (data.skip && data.skip[index]) {
           index++;
         }
         if ('trigger' in data) {

@@ -111,7 +111,6 @@ const CurrentOpStore = Reflux.createStore({
       } else if (error) {
         Actions.dbError({'op': 'currentOp', 'error': error });
       }
-      console.log(totals);
       this.trigger(error, totals);
     });
   }
