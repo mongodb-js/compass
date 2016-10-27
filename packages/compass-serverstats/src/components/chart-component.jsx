@@ -54,11 +54,13 @@ class ChartComponent extends React.Component {
    */
   render() {
     return (
-      <D3Component
-        data={this.state.error ? {} : this.state.data}
-        width={520}
-        height={145}
-        d3fn={chartFn} />
+      <div className={this.props.className}>
+        <D3Component
+          data={this.state.error ? {} : this.state.data}
+          width={520}
+          height={145}
+          d3fn={chartFn} />
+      </div>
     );
   }
 

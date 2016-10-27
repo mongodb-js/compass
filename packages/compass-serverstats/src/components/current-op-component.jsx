@@ -2,7 +2,16 @@ const timer = require('d3-timer');
 const React = require('react');
 const Actions = require('../actions');
 
-// const debug = require('debug')('mongodb-compass:server-stats-currentop-component');
+/**
+ * Block display constant.
+ */
+const BLOCK = 'block';
+
+/**
+ * None display constant.
+ */
+const NONE = 'none';
+
 /**
  * Represents the component that renders the current op information.
  */
@@ -17,7 +26,7 @@ class CurrentOpComponent extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.state = { error: null, data: [], display: 'block' };
+    this.state = { error: null, data: [], display: BLOCK };
   }
 
   /**
@@ -60,14 +69,14 @@ class CurrentOpComponent extends React.Component {
    * Set the component to visible.
    */
   show() {
-    this.setState({ display: 'block' });
+    this.setState({ display: BLOCK });
   }
 
   /**
    * Set the component to hidden.
    */
   hide() {
-    this.setState({ display: 'none' });
+    this.setState({ display: NONE });
   }
 
   /**
