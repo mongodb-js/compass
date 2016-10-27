@@ -1,11 +1,6 @@
-const Reflux = require('reflux');
-const app = require('ampersand-app');
-const Actions = require('../actions');
-const toNS = require('mongodb-ns');
-const debug = require('debug')('mongodb-compass:server-stats:crp-store');
-const _ = require('lodash');
-
 /* eslint complexity:0 */
+const Reflux = require('reflux');
+const Actions = require('../actions');
 
 /**
  * This store listens to the

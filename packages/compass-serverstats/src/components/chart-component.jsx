@@ -1,8 +1,6 @@
 const React = require('react');
 const D3Component = require('./d3component');
-// const debug = require('debug')('mongodb-compass:server-stats-chart-component');
-
-const chartFn = require('../d3/stats-chart');
+const chartFn = require('../d3/').realTimeLineChart;
 
 /**
  * Represents the component that renders serverStatus charts.
@@ -59,13 +57,7 @@ class ChartComponent extends React.Component {
   renderGraph(data) {
     return (
       <div className={this.props.chartname}>
-        <D3Component
-          data={data}
-          renderMode="svg"
-          width={520}
-          height={145}
-          d3fn={chartFn}
-        />
+        <D3Component data={data} width={520} height={145} d3fn={chartFn} />
       </div>
     );
   }

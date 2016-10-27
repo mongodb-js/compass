@@ -1,77 +1,73 @@
 const React = require('react');
 const ReactDOM = require('react-dom');
 const d3 = require('d3');
-const _ = require('lodash');
 
-const D3Component = React.createClass({
+/**
+ * Encapsulates behaviour for a react component that wraps a d3 chart.
+ */
+class D3Component extends React.Component {
 
-  propTypes: {
-    data: React.PropTypes.any.isRequired,
-    renderMode: React.PropTypes.oneOf(['svg', 'div']),
-    width: React.PropTypes.number,
-    height: React.PropTypes.number,
-    d3fn: React.PropTypes.func.isRequired
-  },
+  /**
+   * Instantiate the D3 component.
+   *
+   * @param {Object} props - The properties.
+   */
+  constructor(props) {
+    super(props);
+    this.state = { chart: null };
+  }
 
-  getInitialState() {
-    return {
-      chart: null
-    };
-  },
-
+  /**
+   * Set the chart state of the component to the provided d3 function.
+   */
   componentWillMount() {
-    this.setState({
-      chart: this.props.d3fn()
-    });
-  },
+    this.setState({ chart: this.props.d3fn() });
+  }
 
-  componentDidMount: function() {
-    this._redraw();
-  },
+  /**
+   * Redraw the component after mounting.
+   */
+  componentDidMount() {
+    this.redraw();
+  }
 
+  /**
+   * Redraw the component on update.
+   */
   componentDidUpdate() {
-    this._redraw();
-  },
+    this.redraw();
+  }
 
-  _getContainer() {
-    let options = {
-      ref: 'container'
-    };
-    const sizeOptions = {
-      width: this.props.width,
-      height: this.props.height
-    };
-    if (this.props.renderMode === 'svg') {
-      options = _.assign(options, sizeOptions);
-      return (
-          <svg {...options}></svg>
-      );
-    }
-    options = _.assign(options, {
-      style: sizeOptions
-    });
-    return <div {...options}></div>;
-  },
-
-  _redraw() {
+  /**
+   * Redraw the component.
+   */
+  redraw() {
     const el = ReactDOM.findDOMNode(this.refs.container);
-    this.state.chart
-      .width(this.props.width)
-      .height(this.props.height);
+    this.state.chart.width(this.props.width).height(this.props.height);
+    d3.select(el).datum(this.props.data).call(this.state.chart);
+  }
 
-    d3.select(el)
-      .datum(this.props.data)
-      .call(this.state.chart);
-  },
-
+  /**
+   * Render the component.
+   *
+   * @returns {React.Component} The component.
+   */
   render() {
-    const container = this._getContainer();
     return (
       <div ref="wrapper" className="d3component">
-        {container}
+        <svg ref="container" width={this.props.width} height={this.props.height}></svg>
       </div>
     );
   }
-});
+}
+
+D3Component.displayName = 'D3Component';
+
+D3Component.propTypes = {
+  data: React.PropTypes.any.isRequired,
+  width: React.PropTypes.number,
+  height: React.PropTypes.number,
+  d3fn: React.PropTypes.func.isRequired
+};
 
 module.exports = D3Component;
