@@ -1,5 +1,7 @@
 const React = require('react');
-const StoreConnector = require('./common/store-connector');
+const app = require('ampersand-app');
+const StoreConnector = app.appRegistry.getComponent('App.StoreConnector');
+
 const Validation = require('./validation');
 const Store = require('../stores');
 

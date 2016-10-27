@@ -1,7 +1,7 @@
 const React = require('react');
 const app = require('ampersand-app');
 
-const InstanceActions = require('../../../app/actions/instance-actions');
+const InstanceActions = app.appRegistry.getAction('App.InstanceActions');
 
 class SidebarInstanceProperties extends React.Component {
   getHostnameAndPort() {

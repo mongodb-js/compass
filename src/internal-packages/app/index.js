@@ -1,13 +1,15 @@
 const app = require('ampersand-app');
-const StoreConnector = require('./components/store-connector');
-const InstanceActions = require('./actions/instance-actions');
-const InstanceStore = require('./stores/instance-store');
+const StoreConnector = require('./lib/components/store-connector');
+const SortableTable = require('./lib/components/sortable-table');
+const InstanceActions = require('./lib/actions/instance-actions');
+const InstanceStore = require('./lib/stores/instance-store');
 
 /**
  * Activate all the components in the Compass Sidebar package.
  */
 function activate() {
   app.appRegistry.registerComponent('App.StoreConnector', StoreConnector);
+  app.appRegistry.registerComponent('App.SortableTable', SortableTable);
   app.appRegistry.registerAction('App.InstanceActions', InstanceActions);
   app.appRegistry.registerStore('App.InstanceStore', InstanceStore);
 }
@@ -17,6 +19,7 @@ function activate() {
  */
 function deactivate() {
   app.appRegistry.deregisterComponent('App.StoreConnector');
+  app.appRegistry.deregisterComponent('App.SortableTable');
   app.appRegistry.deregisterAction('App.InstanceActions');
   app.appRegistry.deregisterStore('App.InstanceStore');
 }
