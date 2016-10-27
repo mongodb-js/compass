@@ -61,7 +61,7 @@ class SortableTable extends React.Component {
       );
     });
     if (this.props.removable) {
-      cells.push(<th className="sortable-table-th sortable-table-th-is-last-col"></th>);
+      cells.push(<th key="th-delete" className="sortable-table-th sortable-table-th-is-last-col"></th>);
     }
     return cells;
   }
