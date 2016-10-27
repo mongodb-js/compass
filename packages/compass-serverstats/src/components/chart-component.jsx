@@ -25,7 +25,7 @@ class ChartComponent extends React.Component {
    * can update its state.
    */
   componentDidMount() {
-    this.unsubscribeRefresh = this.props.store.listen(this.refresh.bind(this));
+    this.unsubscribeFromStore = this.props.store.listen(this.refresh.bind(this));
   }
 
   /**
@@ -33,7 +33,7 @@ class ChartComponent extends React.Component {
    * timer.
    */
   componentWillUnmount() {
-    this.unsubscribeRefresh();
+    this.unsubscribeFromStore();
   }
 
   /**
@@ -48,38 +48,24 @@ class ChartComponent extends React.Component {
   }
 
   /**
-   * Render the graph in the component.
-   *
-   * @param {Object} data - The javascript object for the result of the command.
-   *
-   * @returns {React.Component} The graph.
-   */
-  renderGraph(data) {
-    return (
-      <div className={this.props.chartname}>
-        <D3Component data={data} width={520} height={145} d3fn={chartFn} />
-      </div>
-    );
-  }
-
-  /**
    * Renders the component.
    *
    * @returns {React.Component} The component.
    */
   render() {
     return (
-      <div>
-        {this.state.error ? this.renderGraph({}) : this.renderGraph(this.state.data)}
-      </div>
+      <D3Component
+        data={this.state.error ? {} : this.state.data}
+        width={520}
+        height={145}
+        d3fn={chartFn} />
     );
   }
 
 }
 
 ChartComponent.propTypes = {
-  store: React.PropTypes.any.isRequired,
-  chartname: React.PropTypes.any.isRequired
+  store: React.PropTypes.any.isRequired
 };
 
 ChartComponent.displayName = 'ChartComponent';

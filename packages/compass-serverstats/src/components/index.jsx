@@ -17,6 +17,9 @@ class RTSSComponent extends React.Component {
     super(props);
   }
 
+  /**
+   * Restart the actions on mount.
+   */
   componentDidMount() {
     Actions.restart();
   }
@@ -25,15 +28,12 @@ class RTSSComponent extends React.Component {
    * Renders the component.
    *
    * @returns {React.Component} The component.
-   <div className="databases">
-   <Databases />
-   </div>
    */
   render() {
     return (
-      <div className="RTSS">
+      <div className="rtss">
         <NavBarComponent/>
-        <div className="performance">
+        <div className="rtss-performance">
           <Performance interval={this.props.interval}/>
         </div>
       </div>
