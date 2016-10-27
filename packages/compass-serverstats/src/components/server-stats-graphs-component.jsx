@@ -46,10 +46,10 @@ class ServerStatsComponent extends React.Component {
   render() {
     return (
       <div className="rtss rtss-performance rtss-performance-graphs">
-        <ChartComponent className="opcounters-chart" store={OpCountersStore} />
-        <ChartComponent className="globallocks-chart" store={GlobalLockStore} />
-        <ChartComponent className="network-chart" store={NetworkStore} />
-        <ChartComponent className="memory-chart" store={MemStore} />
+        <ChartComponent store={OpCountersStore} />
+        <ChartComponent store={GlobalLockStore} />
+        <ChartComponent store={NetworkStore} />
+        <ChartComponent store={MemStore} />
       </div>
     );
   }
