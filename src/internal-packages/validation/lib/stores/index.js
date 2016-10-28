@@ -241,7 +241,7 @@ const ValidationStore = Reflux.createStore({
     });
     this._fetchFromServer((err, res) => {
       debug('result from server', err, res);
-      if (err) {
+      if (err || !_.has(res, 'options')) {
         // an error occured during fetch, e.g. missing permissions
         this.setState({
           fetchState: 'error'

@@ -133,13 +133,11 @@ function filterAndFromValidator(validator) {
     if (rule[0] === '$and') {
       hasAnd = true;
       rule = _.flatten(_.pull(rule, '$and'));
-      // debug('after pull', rule);
+      // flatten and each object to make it same level as the $and was
       rule = _.map(rule, function(r) {
         return _.flatten(_.pairs(r));
       });
-      // debug('after pairs', rule);
     }
-    // debug('after rule change: ', rule);
     return rule;
   });
 
@@ -148,7 +146,7 @@ function filterAndFromValidator(validator) {
     rulesWithoutAnd = _.flatten(rulesWithoutAnd);
   }
 
-  debug('the rules without the $and', rulesWithoutAnd);
+  debug('after rule change', rulesWithoutAnd);
 
   return rulesWithoutAnd;
 }
