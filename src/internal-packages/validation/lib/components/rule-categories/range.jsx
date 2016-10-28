@@ -44,11 +44,27 @@ class RuleCategoryRange extends React.Component {
   }
 
   static queryToParams(query) {
+    /* eslint complexity: 0 */ // @todo break into smaller functions
     // if not every key in the object is one of the comparison operators,
     // this rule cannot represent the query
     const keys = _.keys(query);
     if (!_.every(keys, (key) => {
-      return _.contains(['$gt', '$gte', '$lt', '$lte'], key);
+      return _.includes(['$gt', '$gte', '$lt', '$lte'], key);
+    })) {
+      return false;
+    }
+
+    // Check that we have only numeric (or null) types.
+    // String types are a possible extension,
+    // but documents, arrays, BinData, undefined and other BSON types
+    // make little sense http://bsonspec.org/spec.html
+    if (_.every([query.$gt, query.$gte, query.$lt, query.$lte], value => {
+      return typeof(value) !== 'number';
+    })) {
+      return false;
+    }
+    if (_.some([query.$gt, query.$gte, query.$lt, query.$lte], value => {
+      return typeof(value) === 'number' && isNaN(value);
     })) {
       return false;
     }
@@ -58,12 +74,18 @@ class RuleCategoryRange extends React.Component {
       lowerBoundValue: query.$gte || query.$gt || null,
       lowerBoundType: _.intersection(keys, ['$gte', '$gt'])
     };
-
-    if (result.upperBoundType.length === 0) {
-      result.upperBoundType = null;
+    if (result.upperBoundType.length > 1 || result.lowerBoundType.length > 1) {
+      return false;
     }
-    if (result.lowerBoundType.length === 0) {
-      result.lowerBoundType = null;
+    result.upperBoundType = result.upperBoundType[0] || null;
+    result.lowerBoundType = result.lowerBoundType[0] || null;
+
+    // No documents could possibly satisfy these cases, e.g. 5 <= value < 5
+    if (typeof(result.upperBoundValue) === 'number' &&
+        typeof(result.lowerBoundValue) === 'number') {
+      if (result.upperBoundValue <= result.lowerBoundValue) {
+        return false;
+      }
     }
     return result;
   }
