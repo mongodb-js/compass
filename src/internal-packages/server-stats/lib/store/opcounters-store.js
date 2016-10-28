@@ -2,8 +2,8 @@ const Reflux = require('reflux');
 const Actions = require('../action');
 const ServerStatsStore = require('./server-stats-graphs-store');
 const _ = require('lodash');
-const fs = require('fs');
-// const debug = require('debug')('mongodb-compass:server-stats:opcounters-store');
+const dataArray = require('./opcounters-output.json');
+const debug = require('debug')('mongodb-compass:server-stats:opcounters-store');
 
 /* eslint complexity:0 */
 
@@ -11,8 +11,13 @@ const OpCounterStore = Reflux.createStore({
 
   init: function() {
     this.restart();
-    this.listenTo(ServerStatsStore, this.opCounter);
-    this.listenTo(Actions.restart, this.restart);
+    this.index = -1;
+    this.len = dataArray.length;
+    this.listenTo(ServerStatsStore, this.opCounter_demo);
+    // this.listenTo(Actions.restart, this.restart);
+    for (let i = 0; i < dataArray.length; i++) {
+      dataArray[i]['localTime'] = dataArray[i].localTime.map(function(obj) { return new Date(obj); });
+    }
   },
 
   restart: function() {
@@ -46,6 +51,22 @@ const OpCounterStore = Reflux.createStore({
       paused: false,
       trigger: true
     };
+  },
+
+  opCounter_demo: function(error, doc, isPaused) {
+    if (this.index === -1) {
+      this.index++;
+      return;
+    }
+    const i = this.index++ % this.len;
+    // Annoying, but has to be done because data binding.
+    for (let j = 0; j < this.data.dataSets.length; j++) {
+      this.data.dataSets[j].count.push(dataArray[i].dataSets[j].count[dataArray[i].dataSets[j].count.length - 1]);
+    }
+    this.data.localTime = dataArray[i].localTime;
+    this.data.skip = dataArray[i].skip;
+    this.data.yDomain = dataArray[i].yDomain;
+    this.trigger(error, this.data);
   },
 
   opCounter: function(error, doc, isPaused) {
