@@ -164,7 +164,6 @@ var MongoDBCollectionView = View.extend({
     this.fetchExplainPlanAction = app.appRegistry.getAction('Explain.Actions').fetchExplainPlan;
     this.schemaActions = app.appRegistry.getAction('Schema.Actions');
     this.validationActions = app.appRegistry.getAction('Validation.Actions');
-    // this.listenToAndRun(this.parent, 'change:ns', this.onCollectionChanged.bind(this));
   },
   render: function() {
     this.renderWithTemplate(this);

@@ -20,6 +20,7 @@ const NamespaceStore = Reflux.createStore({
 
   setNamespace(ns) {
     this.setState({ ns });
+    debugger;
   }
 });
 

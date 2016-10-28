@@ -28,9 +28,6 @@ var HomeView = View.extend({
       allowNull: true,
       default: null
     },
-    /**
-     * TODO (imlucas) Is this deprecated with rtss?
-     */
     showDefaultZeroState: {
       type: 'boolean',
       default: false
@@ -41,6 +38,11 @@ var HomeView = View.extend({
     }
   },
   bindings: {
+    showDefaultZeroState: {
+      hook: 'report-zero-state',
+      type: 'booleanClass',
+      no: 'hidden'
+    },
     showNoCollectionsZeroState: {
       hook: 'no-collections-zero-state',
       type: 'booleanClass',
@@ -57,6 +59,13 @@ var HomeView = View.extend({
     this.serverStatsView = app.appRegistry.getComponent('RTSS.ServerStats');
     this.listenTo(app.instance, 'sync', this.onInstanceFetched);
     this.listenTo(app.connection, 'change:name', this.updateTitle);
+    app.home = this;
+
+    if (this.ns) {
+      NamespaceStore.ns = this.ns;
+      debug('set ns to NamespaceStore.ns');
+    }
+
     NamespaceStore.listen(this.onNamespaceChange.bind(this));
     ipc.on('window:show-compass-tour', this.showTour.bind(this, true));
     ipc.on('window:show-network-optin', this.showOptIn.bind(this));
@@ -67,15 +76,19 @@ var HomeView = View.extend({
     app.instance.fetch();
   },
   render: function() {
+    debug('rendering with ns', NamespaceStore.ns);
     this.renderWithTemplate(this);
-    var containerNode = this.queryByHook('report-zero-state');
-    ReactDOM.render(
-      React.createElement(this.serverStatsView, { interval: 1000 }),
-      containerNode
-    );
-    NamespaceStore.listen(() => {
-      ReactDOM.unmountComponentAtNode(containerNode);
-    });
+
+    if (!NamespaceStore.ns) {
+      var containerNode = this.queryByHook('report-zero-state');
+      ReactDOM.render(
+        React.createElement(this.serverStatsView, { interval: 1000 }),
+        containerNode
+      );
+      NamespaceStore.listen(() => {
+        ReactDOM.unmountComponentAtNode(containerNode);
+      });
+    }
 
     const SideBarComponent = app.appRegistry.getComponent('Sidebar.Component');
     ReactDOM.render(
@@ -136,15 +149,7 @@ var HomeView = View.extend({
     if (NamespaceStore.ns && !model) {
       NamespaceStore.ns = null;
     }
-
-    if (!NamespaceStore.ns) {
-      app.instance.collections.unselectAll();
-      if (app.instance.collections.length === 0) {
-        this.showNoCollectionsZeroState = true;
-      } else {
-        this.showDefaultZeroState = true;
-      }
-    }
+    this.onNamespaceChange();
   },
   updateTitle: function(model) {
     var title = 'MongoDB Compass - ' + app.connection.instance_id;
@@ -157,6 +162,7 @@ var HomeView = View.extend({
     // get the equivalent collection model that's nested in the
     // db/collection hierarchy under app.instance.databases[].collections[]
     if (!NamespaceStore.ns) {
+      debug('No selected namespace');
       return null;
     }
 
@@ -171,29 +177,55 @@ var HomeView = View.extend({
     return database.collections.get(ns.ns);
   },
   onNamespaceChange: function() {
+    debug('onNamespaceChange');
+    if (!NamespaceStore.ns) {
+      debug('no namespace set.  resetting');
+      app.instance.collections.unselectAll();
+      if (app.instance.collections.length === 0) {
+        this.showNoCollectionsZeroState = true;
+      } else {
+        this.showDefaultZeroState = true;
+      }
+    }
+
     const model = this._getCollection();
 
     if (!model) {
-      app.navigate('/');
+      debug('Unknown ns %s. Redirecting to index', NamespaceStore.ns);
+      app.navigate('/', {
+        params: {
+          connectionId: app.connection.getId()
+        }
+      });
       return;
     }
+
+    this.showNoCollectionsZeroState = false;
+    this.showDefaultZeroState = false;
+
+    debug('showNoCollectionsZeroState to false');
+    debug('showDefaultZeroState to false');
 
     const collection = app.instance.collections;
     if (!collection.select(model)) {
       return debug('already selected %s', model);
     }
 
+    debug('updating title');
     this.updateTitle(model);
-    this.showNoCollectionsZeroState = false;
-    this.showDefaultZeroState = false;
+
+    this._subviews[0].onCollectionChanged();
+
+    debug('pushing state into URL so window reload works');
     app.navigate(format('schema/%s', model.getId()), {
-      silent: true
+      silent: true,
+      params: {
+        connectionId: app.connection.getId()
+      }
     });
   },
   onClickShowConnectWindow: function() {
-    // code to close current connection window and open connect dialog
-    ipc.call('app:show-connect-window');
-    window.close();
+    app.navigate('/connect');
   },
   template: indexTemplate,
   subviews: {
