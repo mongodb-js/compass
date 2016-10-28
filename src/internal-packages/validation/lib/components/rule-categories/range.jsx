@@ -43,28 +43,27 @@ class RuleCategoryRange extends React.Component {
     return result;
   }
 
+  static validateKeyAndValue(key, value) {
+    if (!_.includes(['$gt', '$gte', '$lt', '$lte'], key)) {
+      return false;
+    }
+    // Check that we have only numeric (or null) types.
+    // String types are a possible extension,
+    // but documents, arrays, BinData, undefined and other BSON types
+    // make little sense http://bsonspec.org/spec.html
+    if (typeof(value) !== 'number') {
+      return false;
+    }
+    return !isNaN(value);
+  }
+
   static queryToParams(query) {
     /* eslint complexity: 0 */ // @todo break into smaller functions
     // if not every key in the object is one of the comparison operators,
     // this rule cannot represent the query
     const keys = _.keys(query);
     if (!_.every(keys, (key) => {
-      return _.includes(['$gt', '$gte', '$lt', '$lte'], key);
-    })) {
-      return false;
-    }
-
-    // Check that we have only numeric (or null) types.
-    // String types are a possible extension,
-    // but documents, arrays, BinData, undefined and other BSON types
-    // make little sense http://bsonspec.org/spec.html
-    if (_.every([query.$gt, query.$gte, query.$lt, query.$lte], value => {
-      return typeof(value) !== 'number';
-    })) {
-      return false;
-    }
-    if (_.some([query.$gt, query.$gte, query.$lt, query.$lte], value => {
-      return typeof(value) === 'number' && isNaN(value);
+      return RuleCategoryRange.validateKeyAndValue(key, query[key]);
     })) {
       return false;
     }
