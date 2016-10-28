@@ -862,7 +862,7 @@ describe('ValidationStore', function() {
     }, 10);
   });
 
-  context('range: server valid and valid in Rule Builder GUI', function() {
+  context.skip('range: server valid and valid in Rule Builder GUI', function() {
     it('finds {$gte: 21} is ok', function() {
       const validatorDoc = {
         'validator': {
