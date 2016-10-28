@@ -10,15 +10,11 @@ const debug = require('debug')('mongodb-compass:server-stats:globallock-store');
 const GlobalLockStore = Reflux.createStore({
 
   init: function() {
-    debug("LENGTH=", dataArray.length);
     this.restart();
     this.listenTo(Actions.restart, this.restart);
     this.index = 0;
     this.len = dataArray.length;
     this.listenTo(ServerStatsStore, this.globalLock_demo);
-    for (let i = 0; i < dataArray.length; i++) {
-      dataArray[i]['localTime'] = dataArray[i].localTime.map(function(obj) { return new Date(obj); });
-    }
   },
 
   restart: function() {
@@ -51,17 +47,17 @@ const GlobalLockStore = Reflux.createStore({
 
   globalLock_demo: function(error, doc, isPaused) {
     const i = this.index++ % this.len;
-    debug("INDEX", i, "COUNT", this.index);
+    this.data.localTime.push(new Date());
     // Annoying, but has to be done because data binding.
     let start = 0;
     if (this.index > 60) {
       start = 1;
     }
+    this.data.localTime = this.data.localTime.slice(start, 61);
     for (let j = 0; j < this.data.dataSets.length; j++) {
       this.data.dataSets[j].count.push(dataArray[i].dataSets[j].count[dataArray[i].dataSets[j].count.length - 1]);
       this.data.dataSets[j].count = this.data.dataSets[j].count.slice(start, 61);
     }
-    this.data.localTime = dataArray[i].localTime;
     this.data.skip = dataArray[i].skip;
     this.data.yDomain = dataArray[i].yDomain;
     this.trigger(error, this.data);
