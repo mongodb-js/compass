@@ -95,8 +95,13 @@ class RuleCategoryRange extends React.Component {
   render() {
     return (
       <FormGroup>
-        <RangeInput />
-        <RangeInput upperBound/>
+        <RangeInput
+            value={this.props.parameters.lowerBoundValue}
+        />
+        <RangeInput
+            upperBound
+            value={this.props.parameters.upperBoundValue}
+        />
       </FormGroup>
     );
   }
