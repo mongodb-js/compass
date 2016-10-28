@@ -2,6 +2,8 @@
 const Environment = require('../environment');
 Environment.init();
 
+const debug = require('debug')('mongodb-compass:glossary');
+
 const path = require('path');
 const resourcePath = path.join(__dirname, '..', '..');
 
@@ -18,7 +20,7 @@ CompileCache.digestMappings = require('../../package.json')._compileCacheMapping
 
 const StyleManager = require('hadron-style-manager');
 const styleManager = new StyleManager(path.join(__dirname, 'compiled-less'), __dirname);
-styleManager.use(document, path.join(__dirname, 'help.less'));
+styleManager.use(document, path.join(__dirname, 'componentGlossary.less'));
 
 window.jQuery = require('jquery');
 
@@ -46,10 +48,17 @@ Reflux.StoreMethods.listenToExternalStore = function(storeKey, callback) {
   });
 };
 
-/**
- * Once you actually have a glossary component, comment out the below to render.
- */
-// const React = require('react');
-// const ReactDOM = require('react-dom');
-// const glossary = app.appRegistry.getComponent('Glossary.Glossary');
-// ReactDOM.render(React.createElement(glossary), document.querySelector('#application'));
+packageActivationCompleted.listen(() => {
+  const React = require('react');
+  const ReactDOM = require('react-dom');
+  const GlossaryComponent = app.appRegistry.getComponent('Glossary.Component');
+  ReactDOM.render(React.createElement(GlossaryComponent), document.querySelector('#application'));
+
+  require('./glossary/importPackages')(path.join(__dirname, '..', 'internal-packages'));
+});
+
+const addInspectElementMenu = require('debug-menu').install;
+if (process.env.NODE_ENV !== 'production') {
+  debug('Installing "Inspect Element" context menu');
+  addInspectElementMenu();
+}
