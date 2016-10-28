@@ -2,6 +2,7 @@ const Reflux = require('reflux');
 const Actions = require('../action');
 const ServerStatsStore = require('./server-stats-graphs-store');
 const _ = require('lodash');
+const dataArray = require('./globallock-output.json');
 // const debug = require('debug')('mongodb-compass:server-stats:globallock-store');
 
 /* eslint complexity:0 */
@@ -10,8 +11,13 @@ const GlobalLockStore = Reflux.createStore({
 
   init: function() {
     this.restart();
-    this.listenTo(ServerStatsStore, this.globalLock);
     this.listenTo(Actions.restart, this.restart);
+    this.index = -1;
+    this.len = dataArray.length;
+    this.listenTo(ServerStatsStore, this.globalLock_demo);
+    for (let i = 0; i < dataArray.length; i++) {
+      dataArray[i]['localTime'] = dataArray[i].localTime.map(function(obj) { return new Date(obj); });
+    }
   },
 
   restart: function() {
@@ -40,6 +46,22 @@ const GlobalLockStore = Reflux.createStore({
       keyLength: 4,
       paused: false
     };
+  },
+
+  globalLock_demo: function(error, doc, isPaused) {
+    if (this.index === -1) {
+      this.index++;
+      return;
+    }
+    const i = this.index++ % this.len;
+    // Annoying, but has to be done because data binding.
+    for (let j = 0; j < this.data.dataSets.length; j++) {
+      this.data.dataSets[j].count.push(dataArray[i].dataSets[j].count[dataArray[i].dataSets[j].count.length - 1]);
+    }
+    this.data.localTime = dataArray[i].localTime;
+    this.data.skip = dataArray[i].skip;
+    this.data.yDomain = dataArray[i].yDomain;
+    this.trigger(error, this.data);
   },
 
   globalLock: function(error, doc, isPaused) {

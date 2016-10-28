@@ -3,7 +3,7 @@ const Actions = require('../action');
 const ServerStatsStore = require('./server-stats-graphs-store');
 const _ = require('lodash');
 const dataArray = require('./opcounters-output.json');
-const debug = require('debug')('mongodb-compass:server-stats:opcounters-store');
+// const debug = require('debug')('mongodb-compass:server-stats:opcounters-store');
 
 /* eslint complexity:0 */
 
@@ -11,10 +11,10 @@ const OpCounterStore = Reflux.createStore({
 
   init: function() {
     this.restart();
+    this.listenTo(Actions.restart, this.restart);
     this.index = -1;
     this.len = dataArray.length;
     this.listenTo(ServerStatsStore, this.opCounter_demo);
-    // this.listenTo(Actions.restart, this.restart);
     for (let i = 0; i < dataArray.length; i++) {
       dataArray[i]['localTime'] = dataArray[i].localTime.map(function(obj) { return new Date(obj); });
     }
