@@ -42,7 +42,7 @@ const QueryStore = Reflux.createStore({
   getInitialState() {
     return {
       query: {},
-      queryString: '{}',
+      queryString: '',
       valid: true,
       featureFlag: false,
       lastExecutedQuery: null,

@@ -63,6 +63,7 @@ const QueryInputGroup = React.createClass({
             type="text"
             value={query}
             onChange={this.onChange}
+            placeholder="&#123; &#34;filter&#34; : &#34;example&#34; &#125;"
           />
           <span className="input-group-btn">
             <button
