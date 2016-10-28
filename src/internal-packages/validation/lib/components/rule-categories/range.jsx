@@ -54,7 +54,7 @@ class RuleCategoryRange extends React.Component {
     if (typeof(value) !== 'number') {
       return false;
     }
-    return !isNaN(value);
+    return !isNaN(value) && Math.abs(value) !== Infinity;
   }
 
   static queryToParams(query) {

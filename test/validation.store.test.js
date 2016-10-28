@@ -888,11 +888,11 @@ describe('ValidationStore', function() {
       });
     });
 
-    it('finds {$lt: 21} is ok', function() {
+    it('finds {$lt: 21.1234567890} is ok', function() {
       const validatorDoc = {
         'validator': {
           'age': {
-            '$lt': 21
+            '$lt': 21.1234567890
           }
         },
         'validationLevel': 'strict',
@@ -908,7 +908,7 @@ describe('ValidationStore', function() {
           'lowerBoundType': null,
           'lowerBoundValue': null,
           'upperBoundType': '$lt',
-          'upperBoundValue': 21
+          'upperBoundValue': 21.123456789
         }
       });
     });
@@ -939,12 +939,12 @@ describe('ValidationStore', function() {
       });
     });
 
-    it('finds {$gte: -Infinity, $lte: Infinity} is ok', function() {
+    it('finds {$gt: -20, $lte: -0.000001} is ok', function() {
       const validatorDoc = {
         'validator': {
           'age': {
-            '$gte': -Infinity,
-            '$lte': Infinity
+            '$gt': -20,
+            '$lte': -0.000001
           }
         },
         'validationLevel': 'strict',
@@ -957,10 +957,10 @@ describe('ValidationStore', function() {
         field: 'age',
         nullable: false,
         parameters: {
-          'lowerBoundType': '$gte',
-          'lowerBoundValue': -Infinity,
+          'lowerBoundType': '$gt',
+          'lowerBoundValue': -20,
           'upperBoundType': '$lte',
-          'upperBoundValue': Infinity
+          'upperBoundValue': -0.000001
         }
       });
     });
@@ -1024,6 +1024,65 @@ describe('ValidationStore', function() {
           'age': {
             '$gt': 6,
             '$lt': 5
+          }
+        },
+        'validationLevel': 'strict',
+        'validationAction': 'error'
+      };
+      const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
+      expect(result.rules).to.be.false;
+    });
+
+    // Better represented in GUI with the "None" operator drop down value
+    it('finds {$gte: -Infinity} is not useful', function() {
+      const validatorDoc = {
+        'validator': {
+          'age': {
+            '$gte': -Infinity
+          }
+        },
+        'validationLevel': 'strict',
+        'validationAction': 'error'
+      };
+      const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
+      expect(result.rules).to.be.false;
+    });
+
+    it('finds {$lt: Infinity} is not useful', function() {
+      const validatorDoc = {
+        'validator': {
+          'age': {
+            '$lt': Infinity
+          }
+        },
+        'validationLevel': 'strict',
+        'validationAction': 'error'
+      };
+      const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
+      expect(result.rules).to.be.false;
+    });
+
+    // https://github.com/mongodb/js-bson/blob/0.5/lib/bson/decimal128.js#L6
+    it("finds {$gte: 'inf'} is not useful", function() {
+      const validatorDoc = {
+        'validator': {
+          'age': {
+            '$gte': 'inf'
+          }
+        },
+        'validationLevel': 'strict',
+        'validationAction': 'error'
+      };
+      const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
+      expect(result.rules).to.be.false;
+    });
+
+    // Otherwise we'd silently type-convert which does not feel intuitive
+    it("finds a number-string {$gte: '-2.01'} is not useful", function() {
+      const validatorDoc = {
+        'validator': {
+          'age': {
+            '$gte': '-2.01'
           }
         },
         'validationLevel': 'strict',
