@@ -251,6 +251,219 @@ describe('ValidationStore', function() {
     expect(_.omit(result.rules[0], 'id')).to.deep.equal(_.omit(rules.rules[0], 'id'));
   });
 
+  it('constructs multiple rules with nullable wrapped in $and', function() {
+    // insert fixture data
+    const rules = {
+      rules: [
+        {
+          id: 'my-rule-id-1',
+          field: 'name',
+          category: 'regex',
+          parameters: {
+            regex: '^Tom',
+            options: 'ix'
+          },
+          nullable: true
+        },
+        {
+          id: 'my-rule-id-2',
+          field: 'mission',
+          category: 'regex',
+          parameters: {
+            regex: '^XKCD',
+            options: 'mx'
+          },
+          nullable: true
+        }
+      ],
+      level: 'strict',
+      action: 'error'
+    };
+    const innerQueryA = {
+      name: {
+        '$regex': '^Tom',
+        '$options': 'ix'
+      }
+    };
+    const innerQueryB = {
+      mission: {
+        '$regex': '^XKCD',
+        '$options': 'mx'
+      }
+    };
+    const validatorDoc = {
+      'validator': {
+        $and: [
+          {
+            $or: [
+              innerQueryA,
+              {name: {$exists: false}},
+              {name: null}
+            ]
+          },
+          {
+            $or: [
+              innerQueryB,
+              {mission: {$exists: false}},
+              {mission: null}
+            ]
+          }
+        ]
+      },
+      'validationLevel': 'strict',
+      'validationAction': 'error'
+    };
+
+    const result = ValidationStore._constructValidatorDoc(rules);
+    expect(result).to.deep.equal(validatorDoc);
+  });
+
+  it('deconstructs a pair of nullable $regex clause with $and into rules', function() {
+    // insert fixture data
+    const rules = {
+      rules: [
+        {
+          id: 'my-rule-id-1',
+          field: 'name',
+          category: 'regex',
+          parameters: {
+            regex: '^Tom',
+            options: 'ix'
+          },
+          nullable: true
+        },
+        {
+          id: 'my-rule-id-2',
+          field: 'mission',
+          category: 'regex',
+          parameters: {
+            regex: '^XKCD',
+            options: 'mx'
+          },
+          nullable: true
+        }
+      ],
+      level: 'strict',
+      action: 'error'
+    };
+    const innerQueryA = {
+      name: {
+        '$regex': '^Tom',
+        '$options': 'ix'
+      }
+    };
+    const innerQueryB = {
+      mission: {
+        '$regex': '^XKCD',
+        '$options': 'mx'
+      }
+    };
+    const validatorDoc = {
+      'validator': {
+        $and: [
+          {
+            $or: [
+              innerQueryA,
+              {name: {$exists: false}},
+              {name: null}
+            ]
+          },
+          {
+            $or: [
+              innerQueryB,
+              {mission: {$exists: false}},
+              {mission: null}
+            ]
+          }
+        ]
+      },
+      'validationLevel': 'strict',
+      'validationAction': 'error'
+    };
+
+    const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
+    expect(_.omit(result.rules[0], 'id')).to.deep.equal(_.omit(rules.rules[0], 'id'));
+  });
+
+  // extra rule to some $and of nullable rules
+  it('adds an extra rule to some nullalble rules should put it within $and', function() {
+    // insert fixture data
+    const rules = {
+      rules: [
+        {
+          id: 'my-rule-id-1',
+          field: 'name',
+          category: 'regex',
+          parameters: {
+            regex: '^Tom',
+            options: 'ix'
+          },
+          nullable: true
+        },
+        {
+          id: 'my-rule-id-2',
+          field: 'mission',
+          category: 'regex',
+          parameters: {
+            regex: '^XKCD',
+            options: 'mx'
+          },
+          nullable: true
+        },
+        {
+          id: 'my-rule-id-3',
+          field: 'logo',
+          category: 'exists',
+          nullable: false
+        }
+      ],
+      level: 'strict',
+      action: 'error'
+    };
+    const innerQueryA = {
+      name: {
+        '$regex': '^Tom',
+        '$options': 'ix'
+      }
+    };
+    const innerQueryB = {
+      mission: {
+        '$regex': '^XKCD',
+        '$options': 'mx'
+      }
+    };
+    const validatorDoc = {
+      'validator': {
+        $and: [
+          {
+            $or: [
+              innerQueryA,
+              {name: {$exists: false}},
+              {name: null}
+            ]
+          },
+          {
+            $or: [
+              innerQueryB,
+              {mission: {$exists: false}},
+              {mission: null}
+            ]
+          },
+          {
+            'logo': {
+              '$exists': true
+            }
+          }
+        ]
+      },
+      'validationLevel': 'strict',
+      'validationAction': 'error'
+    };
+
+    const result = ValidationStore._constructValidatorDoc(rules);
+    expect(result).to.deep.equal(validatorDoc);
+  });
+
   it('recognizes when validator document cannot be expressed by rules', function() {
     // insert fixture data
     const validatorDoc = {

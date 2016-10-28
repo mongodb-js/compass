@@ -4,8 +4,7 @@ const StateMixin = require('reflux-state-mixin');
 const _ = require('lodash');
 const uuid = require('uuid');
 const ruleCategories = require('../components/rule-categories');
-const nullableOrQueryWrapper = require('./helpers').nullableOrQueryWrapper;
-const nullableOrValidator = require('./helpers').nullableOrValidator;
+const helper = require('./helpers');
 const toNS = require('mongodb-ns');
 const app = require('ampersand-app');
 
@@ -81,11 +80,17 @@ const ValidationStore = Reflux.createStore({
       validatorDoc.validator = {};
     }
 
-    const rules = _.map(validatorDoc.validator, (rule, field) => {
-      // find a category who can express this rule
-      let parameters;
+    const validator = helper.filterAndFromValidator(validatorDoc.validator);
 
-      const result = nullableOrValidator(field, rule);
+    const rules = _.map(validator, (field) => {
+      const fieldName = field[0];
+      const rule = field[1];
+      debug('structure of field is:', field);
+      debug('rule is:', rule);
+      debug('fieldName is:', fieldName);
+
+      let parameters;
+      const result = helper.nullableOrValidator(fieldName, rule);
 
       const category = _.findKey(ruleCategories, (cat) => {
         parameters = cat.queryToParams(result.value);
@@ -103,7 +108,6 @@ const ValidationStore = Reflux.createStore({
         nullable: result.nullable
       };
     });
-
     if (!_.every(rules)) {
       return {
         rules: false,
@@ -133,21 +137,45 @@ const ValidationStore = Reflux.createStore({
    */
   _constructValidatorDoc(params) {
     let validator;
+    let hasMultipleNulls;
     if (params.rules) {
-      validator = _(params.rules)
-        .map((rule) => {
-          let field = rule.field;
-          let value = rule.category ?
-            ruleCategories[rule.category].paramsToQuery(rule.parameters) :
-            {};
-          if (rule.nullable) {
-            value = nullableOrQueryWrapper(value, field);
-            field = '$or';
-          }
-          return [field, value];
-        })
-        .zipObject()
-        .value();
+      hasMultipleNulls = helper.hasMultipleNullables(params.rules);
+      if (hasMultipleNulls) {
+        validator = _(params.rules)
+          .map((rule) => {
+            let field = rule.field;
+            let value = rule.category ?
+              ruleCategories[rule.category].paramsToQuery(rule.parameters) :
+              {};
+            if (rule.nullable) {
+              value = helper.nullableOrQueryWrapper(value, field);
+              field = '$or';
+            }
+            const wrapper = {};
+            wrapper[field] = value;
+            return wrapper;
+          })
+          .value();
+      } else {
+        validator = _(params.rules)
+          .map((rule) => {
+            let field = rule.field;
+            let value = rule.category ?
+              ruleCategories[rule.category].paramsToQuery(rule.parameters) :
+              {};
+            if (rule.nullable) {
+              value = helper.nullableOrQueryWrapper(value, field);
+              field = '$or';
+            }
+            return [field, value];
+          })
+          .zipObject()
+          .value();
+      }
+
+      if (hasMultipleNulls) {
+        validator = {'$and': validator};
+      }
     } else {
       validator = this.state.validatorDoc.validator;
     }
@@ -213,7 +241,7 @@ const ValidationStore = Reflux.createStore({
     });
     this._fetchFromServer((err, res) => {
       debug('result from server', err, res);
-      if (err) {
+      if (err || !_.has(res, 'options')) {
         // an error occured during fetch, e.g. missing permissions
         this.setState({
           fetchState: 'error'

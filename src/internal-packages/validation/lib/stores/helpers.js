@@ -1,4 +1,6 @@
 const _ = require('lodash');
+// const debug = require('debug')('mongodb-compass:stores:validation:helper');
+
 /**
  * Takes a clause and a field name, and constructs an array of 3 clauses
  * which represents the value part of an '$or' query in the context of
@@ -100,7 +102,45 @@ function nullableOrValidator(field, rule) {
   };
 }
 
+/**
+ * Counts the number of rules with nullable === true, if
+ * there are more than 1, return true, false otherwise
+ * @param  {Array}           rules an array of rules for validating documents
+ * @return {Boolean}         return true if there are multiple nullables
+ */
+function hasMultipleNullables(rules) {
+  const nullableCount = _.filter(rules, 'nullable').length;
+  return (nullableCount > 1);
+}
+
+/**
+ * Remove $and from validator and flatten until it has
+ * an array of $or nullable clauses, assuming a $and exists
+ * @param  {Object} validator  validator object
+ * @return {Array}             a list of validation rules without an $and clause
+ */
+function filterAndFromValidator(validator) {
+  let hasAnd = false;
+  validator = _.pairs(validator);
+  const rules = _.map(validator, function(rule) {
+    if (rule[0] === '$and') {
+      hasAnd = true;
+      rule = _.flatten(_.pull(rule, '$and'));
+      // flatten and each object to make it same level as the $and was
+      rule = _.map(rule, function(r) {
+        return _.flatten(_.pairs(r));
+      });
+    }
+    return rule;
+  });
+
+  // return flattened if there was $and present
+  return hasAnd ? _.flatten(rules) : rules;
+}
+
 module.exports = {
   nullableOrQueryWrapper: nullableOrQueryWrapper,
-  nullableOrValidator: nullableOrValidator
+  nullableOrValidator: nullableOrValidator,
+  hasMultipleNullables: hasMultipleNullables,
+  filterAndFromValidator: filterAndFromValidator
 };
