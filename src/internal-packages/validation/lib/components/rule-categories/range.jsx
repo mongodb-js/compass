@@ -58,7 +58,6 @@ class RuleCategoryRange extends React.Component {
   }
 
   static queryToParams(query) {
-    /* eslint complexity: 0 */ // @todo break into smaller functions
     // if not every key in the object is one of the comparison operators,
     // this rule cannot represent the query
     const keys = _.keys(query);
@@ -81,10 +80,9 @@ class RuleCategoryRange extends React.Component {
 
     // No documents could possibly satisfy these cases, e.g. 5 <= value < 5
     if (typeof(result.upperBoundValue) === 'number' &&
-        typeof(result.lowerBoundValue) === 'number') {
-      if (result.upperBoundValue <= result.lowerBoundValue) {
-        return false;
-      }
+        typeof(result.lowerBoundValue) === 'number' &&
+        result.upperBoundValue <= result.lowerBoundValue) {
+      return false;
     }
     return result;
   }
