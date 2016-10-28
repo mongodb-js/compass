@@ -1,5 +1,6 @@
 const _ = require('lodash');
-const debug = require('debug')('mongodb-compass:stores:validation:helper');
+// const debug = require('debug')('mongodb-compass:stores:validation:helper');
+
 /**
  * Takes a clause and a field name, and constructs an array of 3 clauses
  * which represents the value part of an '$or' query in the context of
@@ -102,24 +103,18 @@ function nullableOrValidator(field, rule) {
 }
 
 /**
- * hasMultipleNullables counts the number of rules with nullable === true, if
+ * Counts the number of rules with nullable === true, if
  * there are more than 1, return true, false otherwise
  * @param  {Array}           rules an array of rules for validating documents
  * @return {Boolean}         return true if there are multiple nullables
  */
 function hasMultipleNullables(rules) {
-  const nullableCount = rules.reduce(function(n, rule) {
-    return n + (rule.nullable === true);
-  }, 0);
-
-  if (nullableCount > 1) {
-    return true;
-  }
-  return false;
+  const nullableCount = _.filter(rules, 'nullable').length;
+  return (nullableCount > 1);
 }
 
 /**
- * filterAndFromValidator remove $and from validator and flatten until it has
+ * Remove $and from validator and flatten until it has
  * an array of $or nullable clauses, assuming a $and exists
  * @param  {Object} validator  validator object
  * @return {Array}             a list of validation rules without an $and clause
@@ -127,9 +122,7 @@ function hasMultipleNullables(rules) {
 function filterAndFromValidator(validator) {
   let hasAnd = false;
   validator = _.pairs(validator);
-  debug('validator', validator);
-  let rulesWithoutAnd = _.map(validator, function(rule) {
-    debug('before rule change: ', rule);
+  const rules = _.map(validator, function(rule) {
     if (rule[0] === '$and') {
       hasAnd = true;
       rule = _.flatten(_.pull(rule, '$and'));
@@ -141,14 +134,8 @@ function filterAndFromValidator(validator) {
     return rule;
   });
 
-  // if there was an and need to global flatten
-  if (hasAnd) {
-    rulesWithoutAnd = _.flatten(rulesWithoutAnd);
-  }
-
-  debug('after rule change', rulesWithoutAnd);
-
-  return rulesWithoutAnd;
+  // return flattened if there was $and present
+  return hasAnd ? _.flatten(rules) : rules;
 }
 
 module.exports = {
