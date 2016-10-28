@@ -967,7 +967,7 @@ describe('ValidationStore', function() {
   });
 
   // Note: Server allows these cases, but we'd drop back to JSON view here
-  context('range: server valid, but invalid in Rule Builder GUI', function() {
+  context('range: server valid, but invalid in Rule Builder GUI (use JSON)', function() {
     // Only documents with value = 5 could be inserted,
     // which being a constant probably should be at the application layer
     it('finds equality constant range "5 <= value <= 5" is not useful', function() {
