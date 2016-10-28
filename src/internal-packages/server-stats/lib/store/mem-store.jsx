@@ -2,6 +2,7 @@ const Reflux = require('reflux');
 const Actions = require('../action');
 const ServerStatsStore = require('./server-stats-graphs-store');
 const _ = require('lodash');
+const fs = require('fs');
 // const debug = require('debug')('mongodb-compass:server-stats:mem-store');
 
 /* eslint complexity:0 */
@@ -12,6 +13,8 @@ const MemStore = Reflux.createStore({
     this.restart();
     this.listenTo(ServerStatsStore, this.mem);
     this.listenTo(Actions.restart, this.restart);
+    this.file = fs.createWriteStream('mem-output.txt');
+    this.file.write('[');
   },
 
   restart: function() {
@@ -96,6 +99,7 @@ const MemStore = Reflux.createStore({
       this.data.paused = isPaused;
     }
     this.trigger(error, this.data);
+    this.file.write(JSON.stringify(this.data) + ',');
   }
 });
 

@@ -226,12 +226,12 @@ const graphfunction = function() {
           return;
         }
         container.selectAll('path.line')
-          .attr('d', function(d) { return line(d.count); })
-          .attr('transform', null)
-          .transition()
-          .duration(time)
-          .ease('linear')
-          .attr('transform', translate);
+          .attr('d', function(d) { return line(d.count); });
+          // .attr('transform', null)
+          // .transition()
+          // .duration(time)
+          // .ease('linear')
+          // .attr('transform', translate);
         if (scale2) {
           const line2 = d3.svg.line()
             .defined(function(d, i) { // Don't draw if coming back from sleep, or off the chart.
@@ -248,12 +248,12 @@ const graphfunction = function() {
               return y2(d);
             });
           container.selectAll('.second-line')
-            .attr('d', function(d) { return line2(d.count); })
-            .attr('transform', null)
-            .transition()
-            .duration(time)
-            .ease('linear')
-            .attr('transform', translate);
+            .attr('d', function(d) { return line2(d.count); });
+            // .attr('transform', null)
+            // .transition()
+            // .duration(time)
+            // .ease('linear')
+            // .attr('transform', translate);
         }
         container.transition()
           .duration(time)
