@@ -164,12 +164,15 @@ SortableTable.propTypes = {
    */
   removable: React.PropTypes.bool,
   /**
-   * callback when user clicks on a sortable column header.
+   * callback when user clicks on a sortable column header, function signature
+   * is callback(columnName, sortOrder), e.g. `Size`, `asc`. These two
+   * values can be used directly with lodash's `_.sortByOrder()` function.
    * @type {Function}
    */
   onColumnHeaderClicked: React.PropTypes.func,
   /**
-   * callback when user clicks on a trash can button to delete a row.
+   * callback when user clicks on a trash can button to delete a row, function
+   * signature is `callback(rowIndex)`.
    * @type {Function}
    */
   onRowDeleteButtonClicked: React.PropTypes.func
