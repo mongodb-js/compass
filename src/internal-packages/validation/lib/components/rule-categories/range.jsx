@@ -99,12 +99,16 @@ class RuleCategoryRange extends React.Component {
             boundIncluded={this.props.parameters.lowerBoundType === '$gte'}
             disabled={this.props.parameters.lowerBoundType === null}
             value={this.props.parameters.lowerBoundValue}
+            onChange={this.onBoundOpChanged.bind(this)}
+            validationState={null}
         />
         <RangeInput
             upperBound
             boundIncluded={this.props.parameters.upperBoundType === '$lte'}
             disabled={this.props.parameters.upperBoundType === null}
             value={this.props.parameters.upperBoundValue}
+            onChange={this.onBoundOpChanged.bind(this)}
+            validationState={null}
         />
       </FormGroup>
     );

@@ -9,6 +9,16 @@ const MenuItem = require('react-bootstrap').MenuItem;
 
 // const debug = require('debug')('mongodb-compass:validation:action-selector');
 
+/**
+ * A RangeInput represents a numeric lower or upper bound and the value of the
+ * lower or upper bound, if the bound exists.
+ *
+ * The `validationState` of this RangeInput can be set to 'error' either:
+ *  - by the RangeInput validating the `value` prop is not of type `number`, or
+ *  - by the RangeInput's parent `RuleCategoryRange` component validating the
+ *    combined range expression, such as `5 < x < 5` is rejected as invalid
+ *    even though the RangeInputs of `5 < x` and `5 > x` are individually valid.
+ */
 class RangeInput extends React.Component {
 
   constructor(props) {
@@ -141,7 +151,7 @@ class RangeInput extends React.Component {
     const placeholder = `enter ${boundString}`.toLowerCase();
 
     return (
-      <FormGroup validationState={this.state.validationState}>
+      <FormGroup validationState={this.props.validationState || this.state.validationState}>
         <div>
           <ControlLabel>{boundString}</ControlLabel>
         </div>
