@@ -3,16 +3,17 @@ const Actions = require('../action');
 const ServerStatsStore = require('./server-stats-graphs-store');
 const _ = require('lodash');
 const dataArray = require('./mem-output.json');
-// const debug = require('debug')('mongodb-compass:server-stats:mem-store');
+const debug = require('debug')('mongodb-compass:server-stats:mem-store');
 
 /* eslint complexity:0 */
 
 const MemStore = Reflux.createStore({
 
   init: function() {
+    debug("LENGTH=", dataArray.length);
     this.restart();
     this.listenTo(Actions.restart, this.restart);
-    this.index = -1;
+    this.index = 0;
     this.len = dataArray.length;
     this.listenTo(ServerStatsStore, this.mem_demo);
     for (let i = 0; i < dataArray.length; i++) {
@@ -48,77 +49,22 @@ const MemStore = Reflux.createStore({
   },
 
   mem_demo: function(error, doc, isPaused) {
-    if (this.index === -1) {
-      this.index++;
-      return;
-    }
     const i = this.index++ % this.len;
     // Annoying, but has to be done because data binding.
+    let start = 0;
+    if (this.index > 60) {
+      start = 1;
+    }
     for (let j = 0; j < this.data.dataSets.length; j++) {
       this.data.dataSets[j].count.push(dataArray[i].dataSets[j].count[dataArray[i].dataSets[j].count.length - 1]);
+      this.data.dataSets[j].count = this.data.dataSets[j].count.slice(start, 61);
     }
     this.data.localTime = dataArray[i].localTime;
     this.data.skip = dataArray[i].skip;
     this.data.yDomain = dataArray[i].yDomain;
     this.trigger(error, this.data);
-  },
-
-  mem: function(error, doc, isPaused) {
-    if (!error && doc) {
-      if (this.starting) {
-        this.starting = false;
-        return;
-      }
-      let key;
-      let val;
-
-      if (this.localTime.length > 0 && doc.localTime.getTime() - this.localTime[this.localTime.length - 1].getTime() < 500) { // If we're playing catchup
-        return;
-      }
-      const skipped = this.localTime.length > 0 && doc.localTime - this.localTime[this.localTime.length - 1] > 2000;
-
-      if (isPaused && !this.isPaused) { // Move into pause state
-        this.isPaused = true;
-        this.endPause = this.localTime.length;
-      } else if (!isPaused && this.isPaused) { // Move out of pause state
-        this.isPaused = false;
-        this.endPause = this.localTime.length + 1;
-      } else if (!isPaused && !this.isPaused) { // Wasn't paused, isn't paused now
-        this.endPause++;
-        if (skipped) { // If time has been skipped, then add this point twice so it is visible
-          this.endPause++;
-        }
-      }
-      const startPause = Math.max(this.endPause - this.xLength, 0);
-
-      for (let q = 0; q < this.data.dataSets.length; q++) {
-        key = this.data.dataSets[q].line;
-        val = _.round(doc.mem[key] / 1000, 2); // convert to GB
-        this.totalCount[key].push(val);
-        if (skipped) {
-          this.totalCount[key].push(val);
-        }
-        this.data.dataSets[q].count = this.totalCount[key].slice(startPause, this.endPause);
-      }
-      const maxs = [1];
-      for (let q = 0; q < this.data.dataSets.length; q++) {
-        maxs.push(_.max(this.data.dataSets[q].count));
-      }
-      if (skipped) {
-        this.localTime.push(new Date(doc.localTime.getTime() - 1000));
-        this.currentMaxs.push(_.max(maxs));
-        this.skip.push(skipped);
-      }
-      this.skip.push(false);
-      this.currentMaxs.push(_.max(maxs));
-      this.localTime.push(doc.localTime);
-      this.data.skip = this.skip.slice(startPause, this.endPause);
-      this.data.yDomain = [0, this.currentMaxs[this.endPause - 1]];
-      this.data.localTime = this.localTime.slice(startPause, this.endPause);
-      this.data.paused = isPaused;
-    }
-    this.trigger(error, this.data);
   }
+
 });
 
 module.exports = MemStore;

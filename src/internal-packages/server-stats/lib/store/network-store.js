@@ -10,6 +10,8 @@ const debug = require('debug')('mongodb-compass:server-stats:network-store');
 const NetworkStore = Reflux.createStore({
 
   init: function() {
+    debug("LENGTH=", dataArray.length);
+
     this.restart();
     this.listenTo(Actions.restart, this.restart);
     this.index = 0;
@@ -58,94 +60,25 @@ const NetworkStore = Reflux.createStore({
   network_demo: function(error, doc, isPaused) {
     const i = this.index++ % this.len;
     // Annoying, but has to be done because data binding.
+    let start = 0;
+    if (this.index > 60) {
+      start = 1;
+    }
     for (let j = 0; j < this.data.dataSets.length; j++) {
       this.data.dataSets[j].count.push(dataArray[i].dataSets[j].count[dataArray[i].dataSets[j].count.length - 1]);
+      this.data.dataSets[j].count = this.data.dataSets[j].count.slice(start, 61);
     }
-    debug(dataArray[i]);
     this.data.secondScale.count.push(dataArray[i].secondScale.count[dataArray[i].secondScale.count.length - 1]);
+    this.data.secondScale.count = this.data.secondScale.count.slice(start, 61);
+
+    // Everything else
     this.data.secondScale.currentMax = dataArray[i].secondScale.currentMax;
     this.data.localTime = dataArray[i].localTime;
     this.data.skip = dataArray[i].skip;
     this.data.yDomain = dataArray[i].yDomain;
     this.trigger(error, this.data);
-  },
-
-  network: function(error, doc, isPaused) {
-    if (!error && doc) {
-      let key;
-      let val;
-      let count;
-
-      if (this.localTime.length > 0 && doc.localTime.getTime() - this.localTime[this.localTime.length - 1].getTime() < 500) { // If we're playing catchup
-        return;
-      }
-      const skipped = this.localTime.length > 0 && doc.localTime - this.localTime[this.localTime.length - 1] > 2000;
-
-      if (isPaused && !this.isPaused) { // Move into pause state
-        this.isPaused = true;
-        this.endPause = this.localTime.length;
-      } else if (!isPaused && this.isPaused) { // Move out of pause state
-        this.isPaused = false;
-        this.endPause = this.localTime.length + 1;
-      } else if (!isPaused && !this.isPaused && !this.starting) { // Wasn't paused, isn't paused now
-        this.endPause++;
-        if (skipped) { // If time has been skipped, then add this point twice so it is visible
-          this.endPause++;
-        }
-      }
-      const startPause = Math.max(this.endPause - this.xLength, 0);
-
-      for (let q = 0; q < this.data.dataSets.length; q++) {
-        key = this.data.dataSets[q].line;
-        count = _.round(doc.network[key] / 1000, 2); // convert to KB
-
-        if (this.starting) { // don't add data, starting point
-          this.data.dataSets[q].current = count;
-          continue;
-        }
-        val = _.round(Math.max(0, count - this.data.dataSets[q].current, 2)); // Don't allow negatives.
-        this.bytesPerSec[key].push(val);
-        if (skipped) {
-          this.bytesPerSec[key].push(val);
-        }
-        this.data.dataSets[q].count = this.bytesPerSec[key].slice(startPause, this.endPause);
-        this.data.dataSets[q].current = count;
-      }
-      if (this.starting) {
-        this.starting = false;
-        return;
-      }
-      const maxs = [1];
-      for (let q = 0; q < this.data.dataSets.length; q++) {
-        maxs.push(_.max(this.data.dataSets[q].count));
-      }
-      this.currentMaxs.push(_.round(_.max(maxs), 2));
-
-      // Handle separate scaled line
-      const connections = doc.connections.current;
-      // Handle connections being on a separate Y axis
-      this.connectionCount.push(connections);
-      if (skipped) {
-        this.connectionCount.push(connections);
-        this.localTime.push(new Date(doc.localTime.getTime() - 1000));
-        this.currentMaxs.push(_.max(maxs));
-        this.secondCurrentMaxs.push(_.max(this.data.secondScale.count));
-        this.skip.push(skipped);
-      }
-      this.skip.push(false);
-      this.data.secondScale.count = this.connectionCount.slice(startPause, this.endPause);
-      this.secondCurrentMaxs.push(_.max(this.data.secondScale.count));
-      this.data.secondScale.currentMax = this.secondCurrentMaxs[this.endPause - 1];
-
-      // Add the rest of the data
-      this.data.yDomain = [0, this.currentMaxs[this.endPause - 1]];
-      this.localTime.push(doc.localTime);
-      this.data.localTime = this.localTime.slice(startPause, this.endPause);
-      this.data.skip = this.skip.slice(startPause, this.endPause);
-      this.data.paused = isPaused;
-    }
-    this.trigger(error, this.data);
   }
+
 });
 
 module.exports = NetworkStore;
