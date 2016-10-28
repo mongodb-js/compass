@@ -13,8 +13,6 @@ const NetworkStore = Reflux.createStore({
     this.restart();
     this.listenTo(ServerStatsStore, this.network);
     this.listenTo(Actions.restart, this.restart);
-    this.file = fs.createWriteStream('network-output.txt');
-    this.file.write('[');
   },
 
   restart: function() {
@@ -127,7 +125,6 @@ const NetworkStore = Reflux.createStore({
       this.data.paused = isPaused;
     }
     this.trigger(error, this.data);
-    this.file.write(JSON.stringify(this.data) + ',');
   }
 });
 

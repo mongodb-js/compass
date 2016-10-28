@@ -3,7 +3,6 @@ const Actions = require('../action');
 const ServerStatsStore = require('./server-stats-graphs-store');
 const _ = require('lodash');
 const fs = require('fs');
-this.file = fs.createWriteStream('opcounters-output.txt');
 // const debug = require('debug')('mongodb-compass:server-stats:opcounters-store');
 
 /* eslint complexity:0 */
@@ -14,8 +13,6 @@ const OpCounterStore = Reflux.createStore({
     this.restart();
     this.listenTo(ServerStatsStore, this.opCounter);
     this.listenTo(Actions.restart, this.restart);
-    this.file = fs.createWriteStream('opcounters-output.txt');
-    this.file.write('[');
   },
 
   restart: function() {
@@ -113,7 +110,6 @@ const OpCounterStore = Reflux.createStore({
       this.data.skip = this.skip.slice(startPause, this.endPause);
       this.data.paused = isPaused;
     }
-    this.file.write(JSON.stringify(this.data) + ',');
     this.trigger(error, this.data);
   }
 });
