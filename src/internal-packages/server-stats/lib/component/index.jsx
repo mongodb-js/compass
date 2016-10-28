@@ -1,6 +1,7 @@
 const React = require('react');
 const Actions = require('../action');
 const Performance = require('./performance-component');
+const Databases = require('./databases-table');
 const NavBarComponent = require('./navbar-component');
 // const debug = require('debug')('mongodb-compass:server-stats-RTSSComponent');
 
@@ -32,11 +33,12 @@ class RTSSComponent extends React.Component {
    */
   render() {
     const performanceView = <Performance interval={this.props.interval} />;
+    const databasesView = <Databases />;
     return (
       <div className="RTSS">
         <NavBarComponent
           tabs={['Databases', 'Performance']}
-          views={[null, performanceView]}
+          views={[databasesView, performanceView]}
           activeTabIndex={0}
         />
       </div>

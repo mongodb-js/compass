@@ -173,6 +173,7 @@
     "mongodb-js-precommit": "^0.2.9",
     "mongodb-runner": "^3.2.0",
     "react-addons-test-utils": "^15.2.1",
+    "sinon": "^1.17.6",
     "spectron": "^3.2.6",
     "xvfb-maybe": "^0.1.3"
   },
