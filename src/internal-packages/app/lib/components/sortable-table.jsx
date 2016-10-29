@@ -5,35 +5,11 @@ const _ = require('lodash');
 
 class SortableTable extends React.Component {
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      sortedColumnIndex: 0,
-      sortOrder: 'asc'
-    };
-  }
-
-  componentWillReceiveProps(nextProps) {
-    const state = {};
-    if (nextProps.sortedColumnIndex !== undefined) {
-      state.sortedColumnIndex = nextProps.sortedColumnIndex;
-    }
-    if (nextProps.sortOrder !== undefined) {
-      state.sortOrder = nextProps.sortOrder;
-    }
-    if (!_.isEmpty(state)) {
-      this.setState(state);
-    }
-  }
-
   onColumnHeaderClicked(idx, evt) {
     evt.preventDefault();
-    let sortOrder = this.state.sortOrder;
-    if (this.state.sortedColumnIndex === idx) {
+    let sortOrder = this.props.sortOrder;
+    if (this._sortColumnMatch(idx, this.props.sortColumn)) {
       sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
-      this.setState({sortOrder: sortOrder});
-    } else {
-      this.setState({sortedColumnIndex: idx});
     }
     if (this.props.onColumnHeaderClicked) {
       this.props.onColumnHeaderClicked(this.props.columns[idx], sortOrder);
@@ -47,10 +23,28 @@ class SortableTable extends React.Component {
     }
   }
 
+  /**
+   * compares either a column index (number) or a column name (string) with
+   * another column name and returns whether they are a match. This abstraction
+   * allows the user to enter either an index or column name for the
+   * `sortColumn` prop.
+   *
+   * @param {Number|String} idxOrName    column index or name to compare with
+   * @param {String} column              column name
+   *
+   * @return {Boolean}                   whether or not they are a match
+   */
+  _sortColumnMatch(idxOrName, column) {
+    if (_.isNumber(idxOrName)) {
+      return this.props.columns[idxOrName] === column;
+    }
+    return idxOrName === column;
+  }
+
   renderHeader() {
-    const sortClass = `sort-${this.state.sortOrder.toLowerCase()}`;
+    const sortClass = `sort-${this.props.sortOrder.toLowerCase()}`;
     const cells = _.map(this.props.columns, (col, idx) => {
-      const active = this.state.sortedColumnIndex === idx ? ' sortable-table-th-is-active' : '';
+      const active = this._sortColumnMatch(this.props.sortColumn, col) ? ' sortable-table-th-is-active' : '';
       const sortIcon = this.props.sortable ?
         <FontAwesome className="sortable-table-sort-icon" name={sortClass} fixedWidth /> : null;
       return (
@@ -149,12 +143,13 @@ SortableTable.propTypes = {
    */
   sortable: React.PropTypes.bool,
   /**
-   * initial sort column index (default is 0).
+   * sort column index (default is 0) or column name.
    * @type {Number}
    */
-  sortedColumnIndex: React.PropTypes.number,
+  sortColumn: React.PropTypes.oneOfType([React.PropTypes.number,
+    React.PropTypes.string]),
   /**
-   * initial sort order (default is 'asc').
+   * sort order (default is 'asc').
    * @type {String}  one of `asc`, `desc`
    */
   sortOrder: React.PropTypes.oneOf(['asc', 'desc']),
@@ -182,6 +177,8 @@ SortableTable.defaultProps = {
   theme: 'light',
   rows: [],
   sortable: true,
+  sortColumn: 0,
+  sortOrder: 'asc',
   removable: false
 };
 

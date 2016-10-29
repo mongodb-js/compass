@@ -1,11 +1,10 @@
 const React = require('react');
-
 const SidebarCollection = require('./sidebar-collection');
+const debug = require('debug')('mongodb-compass:sidebar');
 
 class SidebarDatabase extends React.Component {
   constructor() {
     super();
-    this.handleClick = this.handleClick.bind(this);
     this.state = {
       expanded: true
     };
@@ -33,16 +32,20 @@ class SidebarDatabase extends React.Component {
       (this.state.expanded ? ' fa-rotate-90' : '');
   }
 
-  handleClick() {
+  handleDBClick(db) {
+    debug('db clicked', db);
+  }
+
+  handleArrowClick() {
     this.setState({ expanded: !this.state.expanded });
   }
 
   render() {
     return (
       <div className="compass-sidebar-item compass-sidebar-item-is-top-level">
-        <div onClick={this.handleClick} className="compass-sidebar-item-header compass-sidebar-item-header-is-expandable">
+        <div onClick={this.handleDBClick.bind(this, this.props._id)} className="compass-sidebar-item-header compass-sidebar-item-header-is-expandable">
           <i className="compass-sidebar-database-icon mms-icon-database"></i>
-          <i className={this.getArrowIconClasses()}></i>
+          <i onClick={this.handleArrowClick.bind(this)} className={this.getArrowIconClasses()}></i>
           <div className="compass-sidebar-title" title={this.props._id}>
             {this.props._id}
           </div>

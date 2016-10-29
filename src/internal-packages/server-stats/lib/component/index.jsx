@@ -1,7 +1,7 @@
 const React = require('react');
 const Actions = require('../action');
 const Performance = require('./performance-component');
-const Databases = require('./databases-table');
+const Databases = require('./connected-databases');
 const NavBarComponent = require('./navbar-component');
 // const debug = require('debug')('mongodb-compass:server-stats-RTSSComponent');
 
