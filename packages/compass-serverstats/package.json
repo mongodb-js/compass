@@ -48,6 +48,7 @@
     "jsdom": "^9.4.2",
     "less": "^2.7.1",
     "less-loader": "^2.2.3",
+    "lodash": "^4.16.4",
     "mocha": "^2.5.3",
     "mongodb-data-service": "^1.8.0",
     "mongodb-js-fmt": "^0.0.3",

@@ -1,35 +1,110 @@
+/* eslint complexity:0 */
 const d3 = require('d3');
-const debug = require('debug')('mongodb-compass:server-stats-chart');
 const TopStore = require('../stores/top-store');
 const CurrentOpStore = require('../stores/current-op-store');
 
-/* eslint complexity:0 */
+/**
+ * The data sets property.
+ */
+const DATA_SETS = 'dataSets';
 
-const graphfunction = function() {
-  let width = 520;
-  let height = 160;
+/**
+ * The local time property.
+ */
+const LOCAL_TIME = 'localTime';
+
+/**
+ * The y domain property.
+ */
+const Y_DOMAIN = 'yDomain';
+
+/**
+ * The x length property.
+ */
+const X_LENGTH = 'xLength';
+
+/**
+ * The labels property.
+ */
+const LABELS = 'labels';
+
+/**
+ * The key length property.
+ */
+const KEY_LENGTH = 'keyLength';
+
+/**
+ * The required properties for the data to have.
+ */
+const REQUIRED_PROPERTIES = [
+  DATA_SETS,
+  LOCAL_TIME,
+  Y_DOMAIN,
+  X_LENGTH,
+  LABELS,
+  KEY_LENGTH
+];
+
+/**
+ * The second scale property.
+ */
+const SECOND_SCALE = 'secondScale';
+
+/**
+ * The line property.
+ */
+const LINE = 'line';
+
+/**
+ * The count property.
+ */
+const COUNT = 'count';
+
+/**
+ * The active property.
+ */
+const ACTIVE = 'active';
+
+/**
+ * The keys property.
+ */
+const KEYS = 'keys';
+
+/**
+ * Function to generate the real-time line chart.
+ *
+ * @returns {Function} The chart function.
+ */
+const realTimeLineChart = () => {
   const x = d3.time.scale();
   const y = d3.scale.linear();
   const y2 = d3.scale.linear();
+  const bubbleWidth = 8;
+  const margin = { top: 25, right: 40, bottom: 45, left: 55 };
+  let width = 520;
+  let height = 160;
   let keys = [];
   let onOverlay = false;
   let mouseLocation = null;
-  const bubbleWidth = 8;
-  const margin = {top: 25, right: 40, bottom: 45, left: 55};
   let zeroState = true;
   let errorState = false;
 
-  function validate(data) { // eslint-disable-line complexity
-    const topKeys = ['dataSets', 'localTime', 'yDomain', 'xLength',
-      'labels', 'keyLength'];
-    for (let i = 0; i < topKeys.length; i++) {
-      if (!(topKeys[i] in data)) {
+  /**
+   * Validate the provided data is in the correct format.
+   *
+   * @param {Object} data - The data.
+   *
+   * @returns {Boolean} If the data is valid.
+   */
+  const validate = (data) => {
+    REQUIRED_PROPERTIES.forEach((property) => {
+      if (!(property in data)) {
         return false;
       }
-    }
+    });
     let len = data.dataSets.length;
-    if ('secondScale' in data) {
-      if (!('line' in data.secondScale && 'count' in data.secondScale && 'active' in data.secondScale) ||
+    if (SECOND_SCALE in data) {
+      if (!(LINE in data.secondScale && COUNT in data.secondScale && ACTIVE in data.secondScale) ||
           data.secondScale.count.length !== data.localTime.length) {
         return false;
       }
@@ -37,17 +112,17 @@ const graphfunction = function() {
     }
     if (data.localTime.length === 0 ||
         data.yDomain.length !== 2 || data.yDomain[0] >= data.yDomain[1] ||
-        !('keys' in data.labels) || data.labels.keys.length !== len) {
+        !(KEYS in data.labels) || data.labels.keys.length !== len) {
       return false;
     }
-    for (let i = 0; i < data.dataSets.length; i++) {
-      if (!('line' in data.dataSets[i] && 'count' in data.dataSets[i] && 'active' in data.dataSets[i]) ||
-          data.dataSets[i].count.length !== data.localTime.length) {
+    data.dataSets.forEach((dataSet) => {
+      if (!(LINE in dataSet && COUNT in dataSet && ACTIVE in dataSet) ||
+          dataSet.count.length !== data.localTime.length) {
         return false;
       }
-    }
+    });
     return true;
-  }
+  };
 
   function chart(selection) {
     selection.each(function(data) {
@@ -128,7 +203,6 @@ const graphfunction = function() {
             .style('opacity', 1);
         }
         errorState = true;
-        debug('Error: bad serverStatus response from DB:', data);
         return;
       }
       if (errorState) { // TODO: fix when layering elements is working properly
@@ -443,4 +517,5 @@ const graphfunction = function() {
   };
   return chart;
 };
-module.exports = graphfunction;
+
+module.exports = realTimeLineChart;
