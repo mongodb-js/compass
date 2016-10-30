@@ -1,7 +1,5 @@
 /* eslint complexity:0 */
 const d3 = require('d3');
-const TopStore = require('../stores/top-store');
-const CurrentOpStore = require('../stores/current-op-store');
 
 /**
  * The data sets property.
@@ -83,9 +81,15 @@ const TRIGGER = 'trigger';
 /**
  * Function to generate the real-time line chart.
  *
+ * @param {Array} mouseOverFunctions - An array of mouseover functions
+ *  to fire when triggered.
+ *
+ * @param {Array} mouseOutFunctions - An array of mouseoout functions
+ *  to fire when triggered.
+ *
  * @returns {Function} The chart function.
  */
-function realTimeLineChart() {
+function realTimeLineChart(mouseOverFunctions, mouseOutFunctions) {
   const x = d3.time.scale();
   const y = d3.scale.linear();
   const y2 = d3.scale.linear();
@@ -443,8 +447,11 @@ function realTimeLineChart() {
           index++;
         }
         if (TRIGGER in data) {
-          TopStore.mouseOver(index);
-          CurrentOpStore.mouseOver(index);
+          if (mouseOverFunctions) {
+            mouseOverFunctions.forEach(function(func) {
+              func(index);
+            });
+          }
         }
         const xOffset = x(data.localTime[index]);
         const myfocus = container.selectAll('g.chart-focus');
@@ -497,9 +504,12 @@ function realTimeLineChart() {
         })
         .on('mouseout.' + data.labels.title[0], function() {
           onOverlay = false;
-          if ('trigger' in data) {
-            TopStore.mouseOut();
-            CurrentOpStore.mouseOut();
+          if (TRIGGER in data) {
+            if (mouseOutFunctions) {
+              mouseOutFunctions.forEach(function(func) {
+                func();
+              });
+            }
           }
           resetOverlay();
         })

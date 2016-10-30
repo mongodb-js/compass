@@ -1,6 +1,8 @@
 const React = require('react');
 const ReactDOM = require('react-dom');
 const d3 = require('d3');
+const TopStore = require('../stores/top-store');
+const CurrentOpStore = require('../stores/current-op-store');
 
 /**
  * Encapsulates behaviour for a react component that wraps a d3 chart.
@@ -15,13 +17,21 @@ class D3Component extends React.Component {
   constructor(props) {
     super(props);
     this.state = { chart: null };
+    this.mouseOverFunctions = [
+      TopStore.mouseOver,
+      CurrentOpStore.mouseOver
+    ];
+    this.mouseOutFunctions = [
+      TopStore.mouseOut,
+      CurrentOpStore.mouseOut
+    ];
   }
 
   /**
    * Set the chart state of the component to the provided d3 function.
    */
   componentWillMount() {
-    this.setState({ chart: this.props.d3fn() });
+    this.setState({ chart: this.props.d3fn(this.mouseOverFunctions, this.mouseOutFunctions) });
   }
 
   /**

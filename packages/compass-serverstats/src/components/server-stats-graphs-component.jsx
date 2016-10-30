@@ -6,7 +6,6 @@ const OpCountersStore = require('../stores/opcounters-store');
 const NetworkStore = require('../stores/network-store');
 const GlobalLockStore = require('../stores/globallock-store');
 const MemStore = require('../stores/mem-store');
-// const debug = require('debug')('mongodb-compass:server-stats-graphs-component');
 
 /**
  * Represents the component that renders all the server stats.
