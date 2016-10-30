@@ -4,11 +4,81 @@
 
 ## Installation
 
-TODO
+In the `package.json`:
+
+```json
+  "dependencies": {
+    "compass-serverstats": "10gen/compass-serverstats",
+  }
+```
 
 ## Usage
 
-TODO
+```js
+const d3 = require('d3');
+const realTimeLineChart = require('compass-serverstats').d3.realTimeLineChart;
+
+const el = document.getElementById('myChart');
+const data = {
+  "dataSets" : [
+    {
+      "line" : "virtual",
+      "count" : [
+        2.48,
+        2.48,
+        2.49
+      ],
+      "active" : true
+    },
+    {
+      "line" : "resident",
+      "count" : [
+        0.02,
+        0.02,
+        0.02
+      ],
+      "active":true
+    },
+    {
+      "line" : "mapped",
+      "count" : [
+        0,
+        0,
+        0
+      ],
+      "active":true
+    }
+  ],
+  "localTime" : [
+    "2016-10-30T07:12:05.077Z",
+    "2016-10-30T07:12:06.069Z",
+    "2016-10-30T07:12:07.153Z"
+  ],
+  "skip" : [
+    false,
+    false,
+    false
+  ],
+  "yDomain" : [
+    0,
+    2.49
+  ],
+  "xLength" : 60,
+  "labels" : {
+    "title" : "memory",
+    "keys" : [
+      "vsize",
+      "resident",
+      "mapped"
+    ],
+    "yAxis" : "GB"
+  },
+  "keyLength" : 6,
+  "paused" : false
+};
+
+d3.select(el).datum(data).call(realTimeLineChart());
+```
 
 ## License
 
