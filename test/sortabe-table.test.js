@@ -117,23 +117,35 @@ describe('<SortableTable />', () => {
     it('has only one `-is-active` modifier on header columns', () => {
       expect(component.find('.sortable-table-th-is-active')).to.have.lengthOf(1);
     });
-    it('calls the `onColumnHeaderClicked` callback when clicking on a column header', () => {
+    it('keeps the sort order when clicking on another column header', () => {
       const sortSpy = sinon.spy();
       const mountedComponent = mount(
         <SortableTable
           columns={columns}
           rows={rows}
           sortable
+          sortColumn="bar"
+          sortOrder="desc"
           onColumnHeaderClicked={sortSpy}
         />);
       mountedComponent.find('th').first().simulate('click');
       expect(sortSpy.called).to.be.true;
       expect(sortSpy.firstCall.calledWith('foo', 'desc')).to.be.true;
+    });
+    it('switches the sort order when clicking on the same column header', () => {
+      const sortSpy = sinon.spy();
+      const mountedComponent = mount(
+        <SortableTable
+          columns={columns}
+          rows={rows}
+          sortable
+          sortColumn="foo"
+          sortOrder="desc"
+          onColumnHeaderClicked={sortSpy}
+        />);
       mountedComponent.find('th').first().simulate('click');
-      expect(sortSpy.secondCall.calledWith('foo', 'asc')).to.be.true;
-      mountedComponent.find('th').last().simulate('click');
-      expect(sortSpy.thirdCall.calledWith('baz', 'asc')).to.be.true;
-      expect(sortSpy.callCount).to.be.equal(3);
+      expect(sortSpy.called).to.be.true;
+      expect(sortSpy.firstCall.calledWith('foo', 'asc')).to.be.true;
     });
   });
 });
