@@ -862,341 +862,343 @@ describe('ValidationStore', function() {
     }, 10);
   });
 
-  context.skip('range: server valid and valid in Rule Builder GUI', function() {
-    it('finds {$gte: 21} is ok', function() {
-      const validatorDoc = {
-        'validator': {
-          'age': {
-            '$gte': 21
+  describe('Range Rule when passing in values that are valid on the server', function() {
+    context('values accepted by the rule builder UI', function() {
+      it('accepts {$gte: 21}', function() {
+        const validatorDoc = {
+          'validator': {
+            'age': {
+              '$gte': 21
+            }
+          },
+          'validationLevel': 'strict',
+          'validationAction': 'error'
+        };
+        const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
+        const rule = result.rules[0];
+        expect(_.omit(rule, 'id')).to.be.deep.equal({
+          category: 'range',
+          field: 'age',
+          nullable: false,
+          parameters: {
+            'lowerBoundType': '$gte',
+            'lowerBoundValue': 21,
+            'upperBoundType': null,
+            'upperBoundValue': null
           }
-        },
-        'validationLevel': 'strict',
-        'validationAction': 'error'
-      };
-      const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
-      const rule = result.rules[0];
-      expect(_.omit(rule, 'id')).to.be.deep.equal({
-        category: 'range',
-        field: 'age',
-        nullable: false,
-        parameters: {
-          'lowerBoundType': '$gte',
-          'lowerBoundValue': 21,
-          'upperBoundType': null,
-          'upperBoundValue': null
-        }
+        });
+      });
+
+      it('accepts {$lt: 21.1234567890}', function() {
+        const validatorDoc = {
+          'validator': {
+            'age': {
+              '$lt': 21.1234567890
+            }
+          },
+          'validationLevel': 'strict',
+          'validationAction': 'error'
+        };
+        const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
+        const rule = _.omit(result.rules[0], 'id');
+        expect(rule).to.be.deep.equal({
+          category: 'range',
+          field: 'age',
+          nullable: false,
+          parameters: {
+            'lowerBoundType': null,
+            'lowerBoundValue': null,
+            'upperBoundType': '$lt',
+            'upperBoundValue': 21.123456789
+          }
+        });
+      });
+
+      it('accepts {$gt: 20, $lte: 21}', function() {
+        const validatorDoc = {
+          'validator': {
+            'age': {
+              '$gt': 20,
+              '$lte': 21
+            }
+          },
+          'validationLevel': 'strict',
+          'validationAction': 'error'
+        };
+        const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
+        const rule = _.omit(result.rules[0], 'id');
+        expect(rule).to.be.deep.equal({
+          category: 'range',
+          field: 'age',
+          nullable: false,
+          parameters: {
+            'lowerBoundType': '$gt',
+            'lowerBoundValue': 20,
+            'upperBoundType': '$lte',
+            'upperBoundValue': 21
+          }
+        });
+      });
+
+      it('accepts {$gt: -20, $lte: -0.000001}', function() {
+        const validatorDoc = {
+          'validator': {
+            'age': {
+              '$gt': -20,
+              '$lte': -0.000001
+            }
+          },
+          'validationLevel': 'strict',
+          'validationAction': 'error'
+        };
+        const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
+        const rule = _.omit(result.rules[0], 'id');
+        expect(rule).to.be.deep.equal({
+          category: 'range',
+          field: 'age',
+          nullable: false,
+          parameters: {
+            'lowerBoundType': '$gt',
+            'lowerBoundValue': -20,
+            'upperBoundType': '$lte',
+            'upperBoundValue': -0.000001
+          }
+        });
       });
     });
 
-    it('finds {$lt: 21.1234567890} is ok', function() {
-      const validatorDoc = {
-        'validator': {
-          'age': {
-            '$lt': 21.1234567890
-          }
-        },
-        'validationLevel': 'strict',
-        'validationAction': 'error'
-      };
-      const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
-      const rule = _.omit(result.rules[0], 'id');
-      expect(rule).to.be.deep.equal({
-        category: 'range',
-        field: 'age',
-        nullable: false,
-        parameters: {
-          'lowerBoundType': null,
-          'lowerBoundValue': null,
-          'upperBoundType': '$lt',
-          'upperBoundValue': 21.123456789
-        }
+    // Note: Server allows these cases, but we'd drop back to JSON view here
+    context('values rejected by the rule builder UI', function() {
+      // Only documents with value = 5 could be inserted,
+      // which being a constant probably should be at the application layer
+      it('rejects equality constant range "5 <= value <= 5"', function() {
+        const validatorDoc = {
+          'validator': {
+            'age': {
+              '$gte': 5,
+              '$lte': 5
+            }
+          },
+          'validationLevel': 'strict',
+          'validationAction': 'error'
+        };
+        const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
+        expect(result.rules).to.be.false;
       });
-    });
 
-    it('finds {$gt: 20, $lte: 21} is ok', function() {
-      const validatorDoc = {
-        'validator': {
-          'age': {
-            '$gt': 20,
-            '$lte': 21
-          }
-        },
-        'validationLevel': 'strict',
-        'validationAction': 'error'
-      };
-      const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
-      const rule = _.omit(result.rules[0], 'id');
-      expect(rule).to.be.deep.equal({
-        category: 'range',
-        field: 'age',
-        nullable: false,
-        parameters: {
-          'lowerBoundType': '$gt',
-          'lowerBoundValue': 20,
-          'upperBoundType': '$lte',
-          'upperBoundValue': 21
-        }
+      // Bad as users couldn't insert any documents into the collection
+      it('rejects empty range "5 < value <= 5"', function() {
+        const validatorDoc = {
+          'validator': {
+            'age': {
+              '$gt': 5,
+              '$lte': 5
+            }
+          },
+          'validationLevel': 'strict',
+          'validationAction': 'error'
+        };
+        const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
+        expect(result.rules).to.be.false;
       });
-    });
 
-    it('finds {$gt: -20, $lte: -0.000001} is ok', function() {
-      const validatorDoc = {
-        'validator': {
-          'age': {
-            '$gt': -20,
-            '$lte': -0.000001
-          }
-        },
-        'validationLevel': 'strict',
-        'validationAction': 'error'
-      };
-      const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
-      const rule = _.omit(result.rules[0], 'id');
-      expect(rule).to.be.deep.equal({
-        category: 'range',
-        field: 'age',
-        nullable: false,
-        parameters: {
-          'lowerBoundType': '$gt',
-          'lowerBoundValue': -20,
-          'upperBoundType': '$lte',
-          'upperBoundValue': -0.000001
-        }
+      // Bad as users couldn't insert any documents into the collection
+      it('rejects empty range "5 <= value < 5"', function() {
+        const validatorDoc = {
+          'validator': {
+            'age': {
+              '$gte': 5,
+              '$lt': 5
+            }
+          },
+          'validationLevel': 'strict',
+          'validationAction': 'error'
+        };
+        const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
+        expect(result.rules).to.be.false;
       });
-    });
-  });
 
-  // Note: Server allows these cases, but we'd drop back to JSON view here
-  context('range: server valid, but invalid in Rule Builder GUI (use JSON)', function() {
-    // Only documents with value = 5 could be inserted,
-    // which being a constant probably should be at the application layer
-    it('finds equality constant range "5 <= value <= 5" is not useful', function() {
-      const validatorDoc = {
-        'validator': {
-          'age': {
-            '$gte': 5,
-            '$lte': 5
-          }
-        },
-        'validationLevel': 'strict',
-        'validationAction': 'error'
-      };
-      const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
-      expect(result.rules).to.be.false;
-    });
+      // Bad as users couldn't insert any documents into the collection
+      it('rejects empty range "6 < value < 5"', function() {
+        const validatorDoc = {
+          'validator': {
+            'age': {
+              '$gt': 6,
+              '$lt': 5
+            }
+          },
+          'validationLevel': 'strict',
+          'validationAction': 'error'
+        };
+        const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
+        expect(result.rules).to.be.false;
+      });
 
-    // Bad as users couldn't insert any documents into the collection
-    it('finds empty range "5 < value <= 5" is not useful', function() {
-      const validatorDoc = {
-        'validator': {
-          'age': {
-            '$gt': 5,
-            '$lte': 5
-          }
-        },
-        'validationLevel': 'strict',
-        'validationAction': 'error'
-      };
-      const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
-      expect(result.rules).to.be.false;
-    });
+      // Better represented in GUI with the "None" operator drop down value
+      it('rejects {$gte: -Infinity}', function() {
+        const validatorDoc = {
+          'validator': {
+            'age': {
+              '$gte': -Infinity
+            }
+          },
+          'validationLevel': 'strict',
+          'validationAction': 'error'
+        };
+        const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
+        expect(result.rules).to.be.false;
+      });
 
-    // Bad as users couldn't insert any documents into the collection
-    it('finds empty range "5 <= value < 5" is not useful', function() {
-      const validatorDoc = {
-        'validator': {
-          'age': {
-            '$gte': 5,
-            '$lt': 5
-          }
-        },
-        'validationLevel': 'strict',
-        'validationAction': 'error'
-      };
-      const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
-      expect(result.rules).to.be.false;
-    });
+      it('rejects {$lt: Infinity}', function() {
+        const validatorDoc = {
+          'validator': {
+            'age': {
+              '$lt': Infinity
+            }
+          },
+          'validationLevel': 'strict',
+          'validationAction': 'error'
+        };
+        const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
+        expect(result.rules).to.be.false;
+      });
 
-    // Bad as users couldn't insert any documents into the collection
-    it('finds empty range "6 < value < 5" is not useful', function() {
-      const validatorDoc = {
-        'validator': {
-          'age': {
-            '$gt': 6,
-            '$lt': 5
-          }
-        },
-        'validationLevel': 'strict',
-        'validationAction': 'error'
-      };
-      const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
-      expect(result.rules).to.be.false;
-    });
+      // https://github.com/mongodb/js-bson/blob/0.5/lib/bson/decimal128.js#L6
+      it("rejects {$gte: 'inf'}", function() {
+        const validatorDoc = {
+          'validator': {
+            'age': {
+              '$gte': 'inf'
+            }
+          },
+          'validationLevel': 'strict',
+          'validationAction': 'error'
+        };
+        const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
+        expect(result.rules).to.be.false;
+      });
 
-    // Better represented in GUI with the "None" operator drop down value
-    it('finds {$gte: -Infinity} is not useful', function() {
-      const validatorDoc = {
-        'validator': {
-          'age': {
-            '$gte': -Infinity
-          }
-        },
-        'validationLevel': 'strict',
-        'validationAction': 'error'
-      };
-      const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
-      expect(result.rules).to.be.false;
-    });
+      // Otherwise we'd silently type-convert which does not feel intuitive
+      it("rejects a number-string {$gte: '-2.01'}", function() {
+        const validatorDoc = {
+          'validator': {
+            'age': {
+              '$gte': '-2.01'
+            }
+          },
+          'validationLevel': 'strict',
+          'validationAction': 'error'
+        };
+        const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
+        expect(result.rules).to.be.false;
+      });
 
-    it('finds {$lt: Infinity} is not useful', function() {
-      const validatorDoc = {
-        'validator': {
-          'age': {
-            '$lt': Infinity
-          }
-        },
-        'validationLevel': 'strict',
-        'validationAction': 'error'
-      };
-      const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
-      expect(result.rules).to.be.false;
-    });
+      // This actually works in that the server allows the validation rule
+      // {key: {$gte: NaN}}, but it's not very useful in that you
+      // can only insert NaN, so drop back to JSON
+      it('rejects NaN {$gte: NaN}', function() {
+        const validatorDoc = {
+          'validator': {
+            'age': {
+              '$gte': NaN
+            }
+          },
+          'validationLevel': 'strict',
+          'validationAction': 'error'
+        };
+        const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
+        expect(result.rules).to.be.false;
+      });
 
-    // https://github.com/mongodb/js-bson/blob/0.5/lib/bson/decimal128.js#L6
-    it("finds {$gte: 'inf'} is not useful", function() {
-      const validatorDoc = {
-        'validator': {
-          'age': {
-            '$gte': 'inf'
-          }
-        },
-        'validationLevel': 'strict',
-        'validationAction': 'error'
-      };
-      const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
-      expect(result.rules).to.be.false;
-    });
+      it('rejects NaN {$lt: NaN}', function() {
+        const validatorDoc = {
+          'validator': {
+            'age': {
+              '$lt': NaN
+            }
+          },
+          'validationLevel': 'strict',
+          'validationAction': 'error'
+        };
+        const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
+        expect(result.rules).to.be.false;
+      });
 
-    // Otherwise we'd silently type-convert which does not feel intuitive
-    it("finds a number-string {$gte: '-2.01'} is not useful", function() {
-      const validatorDoc = {
-        'validator': {
-          'age': {
-            '$gte': '-2.01'
-          }
-        },
-        'validationLevel': 'strict',
-        'validationAction': 'error'
-      };
-      const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
-      expect(result.rules).to.be.false;
-    });
+      it('rejects similar operators {$gt: 20, $gte: 21} are not useful', function() {
+        const validatorDoc = {
+          'validator': {
+            'age': {
+              '$gt': 20,
+              '$gte': 21
+            }
+          },
+          'validationLevel': 'strict',
+          'validationAction': 'error'
+        };
+        const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
+        expect(result.rules).to.be.false;
+      });
 
-    // This actually works in that the server allows the validation rule
-    // {key: {$gte: NaN}}, but it's not very useful in that you
-    // can only insert NaN, so drop back to JSON
-    it('finds NaN {$gte: NaN} is not useful', function() {
-      const validatorDoc = {
-        'validator': {
-          'age': {
-            '$gte': NaN
-          }
-        },
-        'validationLevel': 'strict',
-        'validationAction': 'error'
-      };
-      const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
-      expect(result.rules).to.be.false;
-    });
+      it('rejects similar operators {$lt: 20, $lte: 21} are not useful', function() {
+        const validatorDoc = {
+          'validator': {
+            'age': {
+              '$lt': 20,
+              '$lte': 21
+            }
+          },
+          'validationLevel': 'strict',
+          'validationAction': 'error'
+        };
+        const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
+        expect(result.rules).to.be.false;
+      });
 
-    it('finds NaN {$lt: NaN} is not useful', function() {
-      const validatorDoc = {
-        'validator': {
-          'age': {
-            '$lt': NaN
-          }
-        },
-        'validationLevel': 'strict',
-        'validationAction': 'error'
-      };
-      const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
-      expect(result.rules).to.be.false;
-    });
+      // These might be useful, but we'd need to figure out things like
+      // the minimum string, maximum string, and
+      // understand l10n, i18n and collation properly
+      it('rejects strings {$gte: "a", $lte: "z"} are not useful', function() {
+        const validatorDoc = {
+          'validator': {
+            'age': {
+              '$lte': 'a',
+              '$gte': 'z'
+            }
+          },
+          'validationLevel': 'strict',
+          'validationAction': 'error'
+        };
+        const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
+        expect(result.rules).to.be.false;
+      });
 
-    it('finds similar operators {$gt: 20, $gte: 21} are not useful', function() {
-      const validatorDoc = {
-        'validator': {
-          'age': {
-            '$gt': 20,
-            '$gte': 21
-          }
-        },
-        'validationLevel': 'strict',
-        'validationAction': 'error'
-      };
-      const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
-      expect(result.rules).to.be.false;
-    });
+      it('rejects a document {$lt: {}}', function() {
+        const validatorDoc = {
+          'validator': {
+            'age': {
+              '$lt': '{}'
+            }
+          },
+          'validationLevel': 'strict',
+          'validationAction': 'error'
+        };
+        const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
+        expect(result.rules).to.be.false;
+      });
 
-    it('finds similar operators {$lt: 20, $lte: 21} are not useful', function() {
-      const validatorDoc = {
-        'validator': {
-          'age': {
-            '$lt': 20,
-            '$lte': 21
-          }
-        },
-        'validationLevel': 'strict',
-        'validationAction': 'error'
-      };
-      const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
-      expect(result.rules).to.be.false;
-    });
-
-    // These might be useful, but we'd need to figure out things like
-    // the minimum string, maximum string, and
-    // understand l10n, i18n and collation properly
-    it('finds strings {$gte: "a", $lte: "z"} are not useful', function() {
-      const validatorDoc = {
-        'validator': {
-          'age': {
-            '$lte': 'a',
-            '$gte': 'z'
-          }
-        },
-        'validationLevel': 'strict',
-        'validationAction': 'error'
-      };
-      const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
-      expect(result.rules).to.be.false;
-    });
-
-    it('finds a document {$lt: {}} is not useful', function() {
-      const validatorDoc = {
-        'validator': {
-          'age': {
-            '$lt': '{}'
-          }
-        },
-        'validationLevel': 'strict',
-        'validationAction': 'error'
-      };
-      const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
-      expect(result.rules).to.be.false;
-    });
-
-    it('finds an array {$lt: []} is not useful', function() {
-      const validatorDoc = {
-        'validator': {
-          'age': {
-            '$lt': '[]'
-          }
-        },
-        'validationLevel': 'strict',
-        'validationAction': 'error'
-      };
-      const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
-      expect(result.rules).to.be.false;
+      it('rejects an array {$lt: []}', function() {
+        const validatorDoc = {
+          'validator': {
+            'age': {
+              '$lt': '[]'
+            }
+          },
+          'validationLevel': 'strict',
+          'validationAction': 'error'
+        };
+        const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
+        expect(result.rules).to.be.false;
+      });
     });
   });
 });
