@@ -863,7 +863,7 @@ describe('ValidationStore', function() {
   });
 
   describe('Range Rule when passing in values that are valid on the server', function() {
-    context('values accepted by the rule builder UI', function() {
+    context.skip('values accepted by the rule builder UI', function() {
       it('accepts {$gte: 21}', function() {
         const validatorDoc = {
           'validator': {
