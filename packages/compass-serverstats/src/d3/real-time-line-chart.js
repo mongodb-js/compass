@@ -71,11 +71,21 @@ const ACTIVE = 'active';
 const KEYS = 'keys';
 
 /**
+ * The title property.
+ */
+const TITLE = 'title';
+
+/**
+ * The trigger constant.
+ */
+const TRIGGER = 'trigger';
+
+/**
  * Function to generate the real-time line chart.
  *
  * @returns {Function} The chart function.
  */
-const realTimeLineChart = () => {
+function realTimeLineChart() {
   const x = d3.time.scale();
   const y = d3.scale.linear();
   const y2 = d3.scale.linear();
@@ -96,7 +106,7 @@ const realTimeLineChart = () => {
    *
    * @returns {Boolean} If the data is valid.
    */
-  const validate = (data) => {
+  function validate(data) {
     REQUIRED_PROPERTIES.forEach((property) => {
       if (!(property in data)) {
         return false;
@@ -122,8 +132,13 @@ const realTimeLineChart = () => {
       }
     });
     return true;
-  };
+  }
 
+  /**
+   * Render the chart for the selection.
+   *
+   * @param {Array} selection - The selected svg nodes.
+   */
   function chart(selection) {
     selection.each(function(data) {
       const subHeight = height - margin.top - margin.bottom;
@@ -150,7 +165,7 @@ const realTimeLineChart = () => {
         .attr('class', 'chart-title')
         .attr('x', 0)
         .attr('y', -subMargin);
-      if ('labels' in data && 'title' in data.labels) {
+      if (LABELS in data && TITLE in data.labels) {
         g.selectAll('text.chart-title')
           .text(data.labels.title);
       }
@@ -220,7 +235,7 @@ const realTimeLineChart = () => {
       const maxTime = data.localTime[data.localTime.length - 1];
       const minTime = new Date(maxTime.getTime() - (data.xLength * 1000));
       const legendWidth = subWidth / data.keyLength;
-      const scale2 = 'secondScale' in data;
+      const scale2 = SECOND_SCALE in data;
       keys = data.dataSets.map(function(f) { return f.line; });
       if (scale2) {
         keys.push(data.secondScale.line);
@@ -292,6 +307,7 @@ const realTimeLineChart = () => {
       const time = data.paused ? 0 : 983;
       const translate = 'translate(' + (data.paused ? 0 : -xTick) + ',0)';
       let ticked = false;
+
       function tick() {
         // Only tick once per call, TODO: fix, feels hacky
         if (!ticked) {
@@ -414,7 +430,9 @@ const realTimeLineChart = () => {
         .attr('transform', 'translate(' + subWidth + ',0)')
         .attr('d', d3.svg.symbol().type('triangle-down').size(bubbleWidth * 3));
 
-      // Transform overlay elements to current selection
+      /**
+       * Transform overlay elements to current selection.
+       */
       function updateOverlay() {
         const bisectDate = d3.bisector(function(d) { return d; }).left;
         let index = bisectDate(data.localTime, x.invert(mouseLocation), 1);
@@ -424,7 +442,7 @@ const realTimeLineChart = () => {
         while (data.skip[index]) {
           index++;
         }
-        if ('trigger' in data) {
+        if (TRIGGER in data) {
           TopStore.mouseOver(index);
           CurrentOpStore.mouseOver(index);
         }
@@ -451,7 +469,9 @@ const realTimeLineChart = () => {
         }
       }
 
-      // Transform overlay elements to current time
+      /**
+       * Transform overlay elements to current time.
+       */
       function resetOverlay() {
         const xOffset = x.range()[1] + xTick;
         const myfocus = container.selectAll('g.chart-focus');
@@ -516,6 +536,6 @@ const realTimeLineChart = () => {
     return this;
   };
   return chart;
-};
+}
 
 module.exports = realTimeLineChart;

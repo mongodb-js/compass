@@ -1,1 +1,1 @@
-module.exports = require('./lib/d3/');
+module.exports.d3 = require('./lib/d3/');
