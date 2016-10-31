@@ -24,6 +24,40 @@ const debug = require('debug')('mongodb-compass:stores:schema');
 const DEFAULT_MAX_TIME_MS = 10000;
 const DEFAULT_NUM_DOCUMENTS = 1000;
 
+const miss = require('mississippi');
+const createMergeStream = require('merge-stream');
+/**
+ * Helper for @anna that will always include some documents in the
+ * sample.
+ * @param {String} ns - ${database}.${collection}
+ * @param {Object} query
+ * @param {Object} [options]
+ * @return {stream.Readable}
+ */
+const withResults = (ns, query, options) => {
+  const opts = _.defaults(options || {}, {
+    readPreference: ReadPreference.PRIMARY_PREFERRED
+  });
+
+  let executed = false;
+  return miss.from.obj((size, next) => {
+    if (executed) {
+      return;
+    }
+    executed = true;
+
+    app.dataService.find(ns, query, opts, (err, docs) => {
+      if (err) {
+        return next(err);
+      }
+
+      docs.forEach( (doc) => next(null, doc));
+      next(null, null);
+    });
+  });
+};
+
+
 /**
  * The reflux store for the schema.
  */
@@ -87,7 +121,9 @@ const SchemaStore = Reflux.createStore({
       this.samplingTimer = null;
     }
     if (this.samplingStream) {
-      this.samplingStream.destroy();
+      if (this.samplingStream.destroy) {
+        this.samplingStream.destroy();
+      }
       this.samplingStream = null;
     }
     if (this.analyzingStream) {
@@ -134,7 +170,10 @@ const SchemaStore = Reflux.createStore({
       });
     }, 1000);
 
-    this.samplingStream = app.dataService.sample(ns, options);
+    this.samplingStream = createMergeStream(
+      app.dataService.sample(ns, options),
+      withResults('local.startup_log', {_id: 'lucas.local-1440518673484'})
+    );
     this.analyzingStream = schemaStream();
     let schema;
 

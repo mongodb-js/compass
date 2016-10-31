@@ -121,6 +121,8 @@
     "local-links": "^1.4.0",
     "lodash": "^3.10.1",
     "marked": "^0.3.5",
+    "merge-stream": "^1.0.0",
+    "mississippi": "^1.2.0",
     "moment": "^2.10.6",
     "mongodb": "^2.2.8",
     "mongodb-collection-model": "^0.3.0",
