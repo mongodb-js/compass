@@ -51,7 +51,6 @@ class Sidebar extends React.Component {
 }
 
 Sidebar.propTypes = {
-  instance: React.PropTypes.object,
   databases: React.PropTypes.array
 };
 

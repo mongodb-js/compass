@@ -20,7 +20,7 @@ CompileCache.digestMappings = require('../../package.json')._compileCacheMapping
 
 const StyleManager = require('hadron-style-manager');
 const styleManager = new StyleManager(path.join(__dirname, 'compiled-less'), __dirname);
-styleManager.use(document, path.join(__dirname, 'componentGlossary.less'));
+styleManager.use(document, path.join(__dirname, 'styles/componentGlossary.less'));
 
 window.jQuery = require('jquery');
 

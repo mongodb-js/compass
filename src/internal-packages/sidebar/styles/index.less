@@ -3,14 +3,18 @@
   left: 0;
   top: 0;
   bottom: 0;
+
+  &-is-fixed-height {
+    position: relative;
+    height: 400px;
+  }
 }
 
 .compass-sidebar {
   margin: 0;
-  position: absolute;
-  top: 0;
-  bottom: 0;
+  position: relative;
   width: 250px;
+  height: 100%;
   background: #4c5259;
   color: #bfbfbe;
 
@@ -183,7 +187,6 @@
       width: 26px;
       margin-left: 10px;
       vertical-align: top;
-      margin-top: 2px;
     }
 
     &:hover {
