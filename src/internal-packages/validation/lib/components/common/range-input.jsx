@@ -23,21 +23,13 @@ class RangeInput extends React.Component {
 
   constructor(props) {
     super(props);
+    const op = this._getOperatorString(props);
     this.state = {
-      disabled: false,
-      operator: '',
-      value: '',
+      disabled: op === 'none',
+      operator: op,
+      value: _.isNumber(this.props.value) ? String(this.props.value) : '',
       validationState: null
     };
-  }
-
-  componentWillMount() {
-    const op = this._getOperatorString();
-    this.setState({
-      value: _.isNumber(this.props.value) ? String(this.props.value) : '',
-      operator: op,
-      disabled: op === 'none'
-    });
   }
 
   componentWillReceiveProps(nextProps) {
