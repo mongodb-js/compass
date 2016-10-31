@@ -7,8 +7,10 @@ const Actions = Reflux.createActions([
   'sortDatabases',
   'createDatabase',
   'dropDatabase',
+  'createCollection',
   'openCreateDatabaseDialog',
-  'openDropDatabaseDialog'
+  'openDropDatabaseDialog',
+  'openCreateCollectionDialog'
 ]);
 
 module.exports = Actions;
