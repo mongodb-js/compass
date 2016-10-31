@@ -4,6 +4,7 @@ const Actions = require('../action');
 const toNS = require('mongodb-ns');
 const debug = require('debug')('mongodb-compass:server-stats:top-store');
 const _ = require('lodash');
+const dataArray = require('./top-output.json');
 
 /* eslint complexity:0 */
 
@@ -20,9 +21,11 @@ const TopStore = Reflux.createStore({
    */
   init: function() {
     this.restart();
-    this.listenTo(Actions.pollTop, this.top_delta);
+    this.listenTo(Actions.pollTop, this.top_demo);
     this.listenTo(Actions.pause, this.pause);
     this.listenTo(Actions.restart, this.restart);
+    this.index = 0;
+    this.len = dataArray.length;
   },
 
   restart: function() {
@@ -59,6 +62,21 @@ const TopStore = Reflux.createStore({
     const visOps = this.allOps.slice(startPause, this.endPause);
     this.trigger(this.error, visOps[visOps.length - 1]);
   },
+
+
+  top_demo: function() {
+    const i = this.index++ % this.len;
+    const totals = dataArray[i];
+    this.endPause = this.allOps.length;
+    // Add current state to all
+    this.allOps.push(totals);
+    // This handled by mouseover function completely
+    if (this.inOverlay) {
+      return;
+    }
+    this.trigger(null, totals);
+  },
+
 
   // Calculate list as current hottest collection (like Cloud and system top)
   top_delta: function() {
