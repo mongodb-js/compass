@@ -62,7 +62,7 @@ class RangeInput extends React.Component {
       });
     }
     // Get the parent to update both RangeInput component states
-    this.props.onRangeInputBlur();
+    _.defer(this.props.onRangeInputBlur);
   }
 
   _getOperatorString(props) {
