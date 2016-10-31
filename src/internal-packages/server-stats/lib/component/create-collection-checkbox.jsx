@@ -25,4 +25,12 @@ class CreateCollectionCheckbox extends React.Component {
 
 CreateCollectionCheckbox.displayName = 'CreateCollectionCheckbox';
 
+CreateCollectionCheckbox.propTypes = {
+  onClickHandler: React.PropTypes.func.isRequired,
+  onHelpClickHandler: React.PropTypes.func.isRequired,
+  checked: React.PropTypes.bool,
+  className: React.PropTypes.string,
+  name: React.PropTypes.string.isRequired
+};
+
 module.exports = CreateCollectionCheckbox;

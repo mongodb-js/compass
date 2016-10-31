@@ -24,4 +24,11 @@ class CreateCollectionSizeInput extends React.Component {
 
 CreateCollectionSizeInput.displayName = 'CreateCollectionSizeInput';
 
+CreateCollectionSizeInput.propTypes = {
+  onChangeHandler: React.PropTypes.func.isRequired,
+  value: React.PropTypes.string,
+  placeholder: React.PropTypes.string,
+  name: React.PropTypes.string.isRequired
+};
+
 module.exports = CreateCollectionSizeInput;

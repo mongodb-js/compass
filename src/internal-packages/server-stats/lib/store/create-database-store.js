@@ -21,14 +21,13 @@ const CreateDatabaseStore = Reflux.createStore({
    * @param {String} dbName - The database name.
    * @param {String} collection - The collection name.
    * @param {Boolean} capped - If the collection is capped.
-   * @param {Number} maxSize - The max size of the capped collection.
+   * @param {Number} size - The max size of the capped collection.
    */
   createDatabase(dbName, collection, capped, size) {
     const options = capped ? { capped: true, size: parseInt(size, 10) } : {};
     try {
       app.dataService.createCollection(`${dbName}.${collection}`, options, this.handleResult.bind(this));
-    }
-    catch (e) {
+    } catch (e) {
       this.handleResult(e, null);
     }
   },
