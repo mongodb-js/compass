@@ -51,6 +51,7 @@ describe('mongodb-index-model', function() {
       assert.equal(index.compound, false);
       assert.equal(index.geo, false);
       assert.equal(index.partial, false);
+      assert.equal(index.collation, false);
     });
 
     it('should recognize geo indexes', function() {

@@ -89,6 +89,12 @@ var IndexModel = Model.extend({
         return !!this.extra.textIndexVersion;
       }
     },
+    collation: {
+      deps: ['extra'],
+      fn: function() {
+        return !!this.extra.collation;
+      }
+    },
     type: {
       deps: ['geo', 'hashed', 'text'],
       fn: function() {
@@ -111,10 +117,10 @@ var IndexModel = Model.extend({
       }
     },
     properties: {
-      deps: ['unique', 'sparse', 'partial', 'ttl'],
+      deps: ['unique', 'sparse', 'partial', 'ttl', 'collation'],
       fn: function() {
         var model = this;
-        var props = ['unique', 'sparse', 'partial', 'ttl'];
+        var props = ['unique', 'sparse', 'partial', 'ttl', 'collation'];
         return _.filter(props, function(prop) {
           return !!model[prop];
         }).sort(function(a, b) {
@@ -122,7 +128,8 @@ var IndexModel = Model.extend({
             'unique': 1,
             'sparse': 2,
             'partial': 3,
-            'ttl': 4
+            'ttl': 4,
+            'collation': 5
           };
           return order[a] - order[b];
         });
