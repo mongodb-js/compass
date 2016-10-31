@@ -19,7 +19,6 @@ const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 // actions
 const SchemaAction = require('../action');
 
-const debug = require('debug')('mongodb-compass:stores:schema');
 // const metrics = require('mongodb-js-metrics')();
 
 const DEFAULT_MAX_TIME_MS = 10000;
@@ -181,6 +180,7 @@ const SchemaStore = Reflux.createStore({
     setTimeout(function() {
       self.samplingStream = createMergeStream(
         app.dataService.sample(ns, options),
+        /* eslint new-cap: 0 */
         withResults('londonbikes.rides_pickup', {'_id': bson.ObjectId('5810ef6602792428c505ad80')})
       );
       self.analyzingStream = schemaStream();
@@ -255,7 +255,7 @@ const SchemaStore = Reflux.createStore({
     }, timeout);
   },
 
-  storeDidUpdate(prevState) {
+  storeDidUpdate() {
     // debug('schema store changed from', prevState, 'to', this.state);
   }
 
