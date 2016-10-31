@@ -162,7 +162,7 @@ RangeInput.defaultProps = {
   disabled: false,
   boundIncluded: false,
   upperBound: false,
-  validationState: '',
+  validationState: null,
   value: null,
   width: 200
 };
