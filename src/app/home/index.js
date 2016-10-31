@@ -1,5 +1,5 @@
 var View = require('ampersand-view');
-var format = require('util').format;
+// var format = require('util').format;
 // var IdentifyView = require('../identify');
 var CollectionView = require('./collection');
 var { NamespaceStore } = require('hadron-reflux-store');
@@ -55,9 +55,10 @@ var HomeView = View.extend({
      * TODO (imlucas) Handle state when rtss permissions not available.
      */
     this.serverStatsView = app.appRegistry.getComponent('RTSS.ServerStats');
+    this.collectionsTable = app.appRegistry.getComponent('Database.CollectionsTable');
     this.listenTo(app.instance, 'sync', this.onInstanceFetched);
     this.listenTo(app.connection, 'change:name', this.updateTitle);
-    NamespaceStore.listen(this.onNamespaceChange.bind(this));
+    NamespaceStore.listen(this.switchMainContent.bind(this));
     ipc.on('window:show-compass-tour', this.showTour.bind(this, true));
     ipc.on('window:show-network-optin', this.showOptIn.bind(this));
 
@@ -68,15 +69,6 @@ var HomeView = View.extend({
   },
   render: function() {
     this.renderWithTemplate(this);
-    var containerNode = this.queryByHook('report-zero-state');
-    ReactDOM.render(
-      React.createElement(this.serverStatsView, { interval: 1000 }),
-      containerNode
-    );
-    NamespaceStore.listen(() => {
-      ReactDOM.unmountComponentAtNode(containerNode);
-    });
-
     const SideBarComponent = app.appRegistry.getComponent('Sidebar.Component');
     ReactDOM.render(
       React.createElement(SideBarComponent),
@@ -88,6 +80,33 @@ var HomeView = View.extend({
     } else {
       this.tourClosed();
     }
+  },
+  switchMainContent: function(namespace) {
+    if (namespace === this.ns) {
+      debug('already selected namespace', namespace);
+      return;
+    }
+    this.ns = namespace;
+    const ns = toNS(namespace);
+    var containerNode = this.queryByHook('report-zero-state');
+
+    if (ns.database === '') {
+      // neither database nor collection are present, top level instance view
+      ReactDOM.render(
+        React.createElement(this.serverStatsView, {interval: 1000}),
+        containerNode
+      );
+    } else if (ns.collection === '') {
+      // a database was clicked, render collections table
+      ReactDOM.render(
+        React.createElement(this.collectionsTable),
+        containerNode
+      );
+    } else {
+      // unmount instance/databases view and switch to collection view
+      ReactDOM.unmountComponentAtNode(containerNode);
+    }
+    this.updateTitle(namespace);
   },
   showTour: function(force) {
     var tourView = new TourView({force: force});
@@ -146,10 +165,10 @@ var HomeView = View.extend({
       }
     }
   },
-  updateTitle: function(model) {
+  updateTitle: function(ns) {
     var title = 'MongoDB Compass - ' + app.connection.instance_id;
-    if (model) {
-      title += '/' + model.getId();
+    if (ns) {
+      title += '/' + ns;
     }
     document.title = title;
   },
@@ -170,26 +189,27 @@ var HomeView = View.extend({
 
     return database.collections.get(ns.ns);
   },
-  onNamespaceChange: function() {
-    const model = this._getCollection();
-
-    if (!model) {
-      app.navigate('/');
-      return;
-    }
-
-    const collection = app.instance.collections;
-    if (!collection.select(model)) {
-      return debug('already selected %s', model);
-    }
-
-    this.updateTitle(model);
-    this.showNoCollectionsZeroState = false;
-    this.showDefaultZeroState = false;
-    app.navigate(format('schema/%s', model.getId()), {
-      silent: true
-    });
-  },
+  // onNamespaceChange: function(ns) {
+  //   const model = this._getCollection();
+  //
+  //   // if (!model) {
+  //   //   app.navigate('/');
+  //   //   return;
+  //   // }
+  //
+  //   const collection = app.instance.collections;
+  //   if (!collection.select(model)) {
+  //     return debug('already selected %s', model);
+  //   }
+  //
+  //   this.updateTitle(model);
+  //   this.showNoCollectionsZeroState = false;
+  //   this.showDefaultZeroState = false;
+  //
+  //   // app.navigate(format('schema/%s', model.getId()), {
+  //   //   silent: true
+  //   // });
+  // },
   onClickShowConnectWindow: function() {
     // code to close current connection window and open connect dialog
     ipc.call('app:show-connect-window');

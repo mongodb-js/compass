@@ -1,0 +1,9 @@
+{
+  "name": "database",
+  "productName": "Compass Database View",
+  "description": "Responsible for the view at the database level.",
+  "version": "0.0.1",
+  "authors": "MongoDB Inc.",
+  "private": true,
+  "main": "./index.js"
+}

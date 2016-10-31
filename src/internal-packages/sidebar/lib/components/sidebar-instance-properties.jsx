@@ -1,5 +1,6 @@
 const React = require('react');
 const app = require('ampersand-app');
+const { NamespaceStore } = require('hadron-reflux-store');
 
 const InstanceActions = app.appRegistry.getAction('App.InstanceActions');
 
@@ -34,11 +35,7 @@ class SidebarInstanceProperties extends React.Component {
   }
 
   handleClickHostname() {
-    app.navigate('/', {
-      params: {
-        connectionId: app.connection.getId()
-      }
-    });
+    NamespaceStore.ns = '';
   }
 
   render() {

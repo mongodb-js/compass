@@ -3,6 +3,7 @@ const ExplainActions = require('../actions');
 const StateMixin = require('reflux-state-mixin');
 const app = require('ampersand-app');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
+const toNS = require('mongodb-ns');
 const ExplainPlanModel = require('mongodb-explain-plan-model');
 const _ = require('lodash');
 
@@ -117,8 +118,11 @@ const CompassExplainStore = Reflux.createStore({
     const QueryStore = app.appRegistry.getStore('Query.Store');
     const filter = QueryStore.state.query;
     const options = {};
-
-    app.dataService.explain(NamespaceStore.ns, filter, options, (err, explain) => {
+    const ns = toNS(NamespaceStore.ns);
+    if (!ns.database || !ns.collection) {
+      return;
+    }
+    app.dataService.explain(ns.ns, filter, options, (err, explain) => {
       if (err) {
         return debug('error fetching explain plan:', err);
       }
