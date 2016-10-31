@@ -16,7 +16,9 @@ class SidebarCollection extends React.Component {
   }
 
   handleClick() {
-    NamespaceStore.ns = this.props._id;
+    if (NamespaceStore.ns !== this.props._id) {
+      NamespaceStore.ns = this.props._id;
+    }
   }
 
   render() {

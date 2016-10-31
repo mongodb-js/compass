@@ -30,11 +30,11 @@ class NavBarComponent extends React.Component {
 
   renderTabs() {
     const listItems = _.map(this.props.tabs, (tab, idx) => (
-      <li key={`tab-${idx}`} className={`rt-nav__tab ${idx === this.state.activeTabIndex ? 'rt-nav--selected' : ''}`}>
-        <a onClick={this.onTabClicked.bind(this, idx)} className="rt-nav__link" href="#">{tab}</a>
+      <li onClick={this.onTabClicked.bind(this, idx)} key={`tab-${idx}`} className={`tab-nav-bar tab-nav-bar-tab ${idx === this.state.activeTabIndex ? 'tab-nav-bar-is-selected' : ''}`}>
+        <span className="tab-nav-bar tab-nav-bar-link" href="#">{tab}</span>
       </li>
     ));
-    return <ul className="rt-nav__tabs">{listItems}</ul>;
+    return <ul className="tab-nav-bar tab-nav-bar-tabs">{listItems}</ul>;
   }
 
   renderActiveView() {
@@ -44,8 +44,8 @@ class NavBarComponent extends React.Component {
 
   render() {
     return (
-      <div>
-        <header className="rt-nav">
+      <div className={`tab-nav-bar tab-nav-bar-is-${this.props.theme}-theme`}>
+        <header className="tab-nav-bar tab-nav-bar-header">
           {this.renderTabs()}
         </header>
         {this.renderActiveView()}
@@ -55,6 +55,7 @@ class NavBarComponent extends React.Component {
 }
 
 NavBarComponent.propTypes = {
+  theme: React.PropTypes.oneOf(['dark', 'light']),
   activeTabIndex: React.PropTypes.number,
   tabs: React.PropTypes.arrayOf(React.PropTypes.string).isRequired,
   views: React.PropTypes.arrayOf(React.PropTypes.element).isRequired,
@@ -62,6 +63,7 @@ NavBarComponent.propTypes = {
 };
 
 NavBarComponent.defaultProps = {
+  theme: 'light',
   activeTabIndex: 0
 };
 

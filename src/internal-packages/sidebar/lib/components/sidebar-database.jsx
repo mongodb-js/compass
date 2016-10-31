@@ -34,7 +34,9 @@ class SidebarDatabase extends React.Component {
   }
 
   handleDBClick(db) {
-    NamespaceStore.ns = db;
+    if (NamespaceStore.ns !== db) {
+      NamespaceStore.ns = db;
+    }
   }
 
   handleArrowClick() {
