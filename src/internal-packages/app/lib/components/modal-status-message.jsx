@@ -4,16 +4,7 @@ const Panel = require('react-bootstrap').Panel;
 /**
  * Component for the status message.
  */
-class StatusMessage extends React.Component {
-
-  /**
-   * The component constructor.
-   *
-   * @param {Object} props - The properties.
-   */
-  constructor(props) {
-    super(props);
-  }
+class ModalStatusMessage extends React.Component {
 
   /**
    * Render the status message.
@@ -22,7 +13,7 @@ class StatusMessage extends React.Component {
    */
   render() {
     // prefix for class names for css styling
-    const classPrefix = `index-ddl-${this.props.type}`;
+    const classPrefix = `modal-status-${this.props.type}`;
     return (
       <Panel className={classPrefix}>
         <div className="row">
@@ -43,12 +34,12 @@ class StatusMessage extends React.Component {
   }
 }
 
-StatusMessage.displayName = 'StatusMessage';
+ModalStatusMessage.displayName = 'ModalStatusMessage';
 
-StatusMessage.propTypes = {
+ModalStatusMessage.propTypes = {
   icon: React.PropTypes.string.isRequired,
   message: React.PropTypes.string.isRequired,
   type: React.PropTypes.string.isRequired
 };
 
-module.exports = StatusMessage;
+module.exports = ModalStatusMessage;

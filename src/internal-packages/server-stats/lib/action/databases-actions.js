@@ -1,12 +1,14 @@
 const Reflux = require('reflux');
 
 /**
- * The actions used by the server stats components.
+ * The actions used by the database components.
  */
 const Actions = Reflux.createActions([
   'sortDatabases',
-  'deleteDatabase',
-  'createDatabaseWithCollection'
+  'createDatabase',
+  'dropDatabase',
+  'openCreateDatabaseDialog',
+  'openDropDatabaseDialog'
 ]);
 
 module.exports = Actions;

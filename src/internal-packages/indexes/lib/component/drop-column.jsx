@@ -61,7 +61,7 @@ class DropColumn extends React.Component {
   }
 }
 
-DropColumn.displayDrop = 'DropColumn';
+DropColumn.displayName = 'DropColumn';
 
 DropColumn.propTypes = {
   indexName: React.PropTypes.string.isRequired

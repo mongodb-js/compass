@@ -1,7 +1,9 @@
 const React = require('react');
 const app = require('ampersand-app');
+const TextButton = require('hadron-app-registry').TextButton;
 const DatabasesActions = require('../action/databases-actions');
-const SortableTable = app.appRegistry.getComponent('App.SortableTable');
+const CreateDatabaseDialog = require('./create-database-dialog');
+const DropDatabaseDialog = require('./drop-database-dialog');
 const numeral = require('numeral');
 
 const _ = require('lodash');
@@ -10,12 +12,21 @@ const _ = require('lodash');
 
 class DatabasesTable extends React.Component {
 
+  constructor(props) {
+    super(props);
+    this.SortableTable = app.appRegistry.getComponent('App.SortableTable');
+  }
+
   onColumnHeaderClicked(column, order) {
     DatabasesActions.sortDatabases(column, order);
   }
 
-  onRowDeleteButtonClicked(dbName) {
-    DatabasesActions.deleteDatabase(dbName);
+  onRowDeleteButtonClicked(index, dbName) {
+    DatabasesActions.openDropDatabaseDialog(dbName);
+  }
+
+  onCreateDatabaseButtonClicked() {
+    DatabasesActions.openCreateDatabaseDialog();
   }
 
   render() {
@@ -29,17 +40,26 @@ class DatabasesTable extends React.Component {
 
     return (
       <div className="rtss-databases">
-        <SortableTable
+        <div className="rtss-databases-create-button">
+          <TextButton
+            text="Create Database"
+            className="btn btn-default btn-sm"
+            clickHandler={this.onCreateDatabaseButtonClicked.bind(this)} />
+        </div>
+        <this.SortableTable
           theme="dark"
           columns={this.props.columns}
           rows={rows}
           sortable
           sortOrder={this.props.sortOrder}
           sortColumn={this.props.sortColumn}
+          valueIndex={0}
           removable
           onColumnHeaderClicked={this.onColumnHeaderClicked.bind(this)}
           onRowDeleteButtonClicked={this.onRowDeleteButtonClicked.bind(this)}
         />
+        <CreateDatabaseDialog />
+        <DropDatabaseDialog />
       </div>
     );
   }

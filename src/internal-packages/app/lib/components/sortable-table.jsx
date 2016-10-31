@@ -16,10 +16,10 @@ class SortableTable extends React.Component {
     }
   }
 
-  onRowDeleteButtonClicked(idx, evt) {
+  onRowDeleteButtonClicked(idx, value, evt) {
     evt.preventDefault();
     if (this.props.onRowDeleteButtonClicked) {
-      this.props.onRowDeleteButtonClicked(idx);
+      this.props.onRowDeleteButtonClicked(idx, value);
     }
   }
 
@@ -89,7 +89,7 @@ class SortableTable extends React.Component {
           <td className="sortable-table-td" key="td-delete">
             <Button
               className="sortable-table-trash-button"
-              onClick={this.onRowDeleteButtonClicked.bind(this, r)} >
+              onClick={this.onRowDeleteButtonClicked.bind(this, r, _.get(row, this.props.valueIndex, 0))} >
               <FontAwesome className="sortable-table-trash-icon" name="trash-o"/>
             </Button>
           </td>
@@ -170,7 +170,12 @@ SortableTable.propTypes = {
    * signature is `callback(rowIndex)`.
    * @type {Function}
    */
-  onRowDeleteButtonClicked: React.PropTypes.func
+  onRowDeleteButtonClicked: React.PropTypes.func,
+  /**
+   * The index in the columns to pass as a second value to the delete function.
+   * @type {Number}
+   */
+  valueIndex: React.PropTypes.number
 };
 
 SortableTable.defaultProps = {
