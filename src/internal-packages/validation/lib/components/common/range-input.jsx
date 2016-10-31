@@ -49,8 +49,6 @@ class RangeInput extends React.Component {
 
   onInputBlur() {
     this.validate();
-    // Get the parent to update both RangeInput component states
-    return this.props.onRangeInputBlur();
   }
 
   onDropdownSelect(evtKey) {
@@ -85,6 +83,8 @@ class RangeInput extends React.Component {
         hasError: error
       });
     }
+    // Get the parent to update both RangeInput component states
+    this.props.onRangeInputBlur();
   }
 
   _getOperatorString(props) {
