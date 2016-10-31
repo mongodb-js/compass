@@ -75,14 +75,6 @@ class RangeInput extends React.Component {
         validationState: null
       });
     }
-    if (this.props.onChange) {
-      this.props.onChange({
-        disabled: this.state.disabled,
-        operator: this.state.operator,
-        value: value,
-        hasError: error
-      });
-    }
     // Get the parent to update both RangeInput component states
     this.props.onRangeInputBlur();
   }
