@@ -1125,7 +1125,7 @@ describe('ValidationStore', function() {
         expect(result.rules).to.be.false;
       });
 
-      it('rejects similar operators {$gt: 20, $gte: 21} are not useful', function() {
+      it('rejects similar operators {$gt: 20, $gte: 21}', function() {
         const validatorDoc = {
           'validator': {
             'age': {
@@ -1140,7 +1140,7 @@ describe('ValidationStore', function() {
         expect(result.rules).to.be.false;
       });
 
-      it('rejects similar operators {$lt: 20, $lte: 21} are not useful', function() {
+      it('rejects similar operators {$lt: 20, $lte: 21}', function() {
         const validatorDoc = {
           'validator': {
             'age': {
@@ -1158,7 +1158,7 @@ describe('ValidationStore', function() {
       // These might be useful, but we'd need to figure out things like
       // the minimum string, maximum string, and
       // understand l10n, i18n and collation properly
-      it('rejects strings {$gte: "a", $lte: "z"} are not useful', function() {
+      it('rejects strings {$gte: "a", $lte: "z"}', function() {
         const validatorDoc = {
           'validator': {
             'age': {
