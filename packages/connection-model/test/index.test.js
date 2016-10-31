@@ -27,7 +27,9 @@ describe('mongodb-connection-model', function() {
   describe('authentication', function() {
     describe('NONE', function() {
       it('should return the correct URL for the driver', function() {
-        var c = new Connection();
+        var c = new Connection({
+          ssl: 'NONE'
+        });
         assert.equal(c.driver_url,
           'mongodb://localhost:27017/?slaveOk=true');
 
@@ -487,6 +489,25 @@ describe('mongodb-connection-model', function() {
           sslValidate: false
         };
         assert.deepEqual(sslUnvalidated.driver_options, options);
+      });
+    });
+
+    describe('When ssl is SYSTEMCA', function() {
+      var sslSystemCA = new Connection({
+        ssl: 'SYSTEMCA'
+      });
+
+      it('should produce the correct driver URL', function() {
+        assert.equal(sslSystemCA.driver_url,
+          'mongodb://localhost:27017/?slaveOk=true&ssl=true');
+      });
+      it('should produce the correct driver options', function() {
+        var options = _.clone(Connection.DRIVER_OPTIONS_DEFAULT);
+        options.server = {
+          checkServerIdentity: true,
+          sslValidate: true
+        };
+        assert.deepEqual(sslSystemCA.driver_options, options);
       });
     });
 

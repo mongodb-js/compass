@@ -176,12 +176,17 @@ console.log(c.driver_options)
 
 > **Note**: Not to be confused with `authentication=X509`.
 
-- `ssl` (optional, String) ... The desired ssl strategy [Default: `IFAVAILABLE`]
-  - `IFAVAILABLE` Try SSL first and fall back to no SSL if unavailable.
+- `ssl` (optional, String) ... The desired ssl strategy [Default: `NONE`]
+  - `SYSTEMCA` SSL required, validate using System CA, no host verification.
+  - `IFAVAILABLE` Try SSL first and fall back to no SSL if unavailable, validate using System CA, no host verification.
   - `SERVER` Driver should validate Server certificate.
   - `ALL` Driver should validate Server certificate and present valid Certificate.
   - `NONE` No SSL. (Not recommended)
   - `UNVALIDATED` No validation of certificate chain. (**Very** not recommended)
+
+#### SYSTEMCA
+
+SSL required, validate using System CA, no host verification.
 
 #### IFAVAILABLE
 

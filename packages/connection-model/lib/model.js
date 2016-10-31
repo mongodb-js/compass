@@ -356,6 +356,10 @@ var SSL_VALUES = [
    */
   'NONE',
   /**
+   * Use system CA.
+   */
+  'SYSTEMCA',
+  /**
    * Use SSL if available.
    */
   'IFAVAILABLE',
@@ -578,7 +582,7 @@ _.assign(derived, {
         });
       }
 
-      if (_.includes(['UNVALIDATED', 'SERVER', 'ALL'], this.ssl)) {
+      if (_.includes(['UNVALIDATED', 'SYSTEMCA', 'SERVER', 'ALL'], this.ssl)) {
         req.query.ssl = 'true';
       } else if (this.ssl === 'IFAVAILABLE') {
         req.query.ssl = 'prefer';
@@ -629,6 +633,13 @@ _.assign(derived, {
           server: {
             checkServerIdentity: false,
             sslValidate: false
+          }
+        });
+      } else if (this.ssl === 'SYSTEMCA') {
+        _.assign(opts, {
+          server: {
+            checkServerIdentity: true,
+            sslValidate: true
           }
         });
       } else if (this.ssl === 'IFAVAILABLE') {
@@ -759,7 +770,7 @@ Connection = AmpersandModel.extend({
    * @param {Object} attrs - Incoming attributes.
    */
   validate_ssl: function(attrs) {
-    if (!attrs.ssl || _.includes(['NONE', 'UNVALIDATED', 'IFAVAILABLE'], attrs.ssl)) {
+    if (!attrs.ssl || _.includes(['NONE', 'UNVALIDATED', 'IFAVAILABLE', 'SYSTEMCA'], attrs.ssl)) {
       return;
     }
     if (attrs.ssl === 'SERVER' && !attrs.ssl_ca) {
