@@ -177,7 +177,7 @@ class RangeInput extends React.Component {
 }
 
 RangeInput.propTypes = {
-  value: React.PropTypes.number.isRequired,
+  value: React.PropTypes.number,  // Can't be required to allow "none" in GUI
   upperBound: React.PropTypes.bool,
   validationState: React.PropTypes.string,
   boundIncluded: React.PropTypes.bool.isRequired,
