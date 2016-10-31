@@ -1,3 +1,4 @@
+const app = require('ampersand-app');
 const React = require('react');
 const Modal = require('react-bootstrap').Modal;
 const CreateIndexStore = require('../store/create-index-store');
@@ -7,7 +8,6 @@ const CreateIndexCheckbox = require('./create-index-checkbox');
 const CreateIndexField = require('./create-index-field');
 const CreateIndexTextField = require('./create-index-text-field');
 const OptionsToggleBar = require('./options-toggle-bar');
-const StatusMessage = require('./status-message');
 const Action = require('../action/index-actions');
 
 /**
@@ -41,6 +41,7 @@ class CreateIndexModal extends React.Component {
       fields: [],
       options: {}
     };
+    this.ModalStatusMessage = app.appRegistry.getComponent('App.ModalStatusMessage');
   }
 
   /**
@@ -234,11 +235,11 @@ class CreateIndexModal extends React.Component {
                 : null}
 
               {this.state.error ?
-                <StatusMessage icon="times" message={this.state.errorMessage} type="error" />
+                <this.ModalStatusMessage icon="times" message={this.state.errorMessage} type="error" />
                 : null}
 
               {this.state.inProgress ?
-                <StatusMessage icon="align-center" message={'Create in Progress'} type="in-progress" />
+                <this.ModalStatusMessage icon="align-center" message={'Create in Progress'} type="in-progress" />
                 : this.renderButtons()}
             </form>
           </Modal.Body>

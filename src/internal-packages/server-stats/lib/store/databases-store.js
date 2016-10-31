@@ -22,15 +22,11 @@ const DatabasesStore = Reflux.createStore({
   mixins: [StateMixin.store],
 
   /**
-  * listen to all database related actions
-  */
-  listenables: DatabasesActions,
-
-  /**
    * Initialize everything that is not part of the store's state.
    */
   init() {
     this.listenToExternalStore('App.InstanceStore', this.onInstanceRefreshed.bind(this));
+    this.listenTo(DatabasesActions.sortDatabases, this.sortDatabases.bind(this));
     this.indexes = [];
   },
 
@@ -74,14 +70,6 @@ const DatabasesStore = Reflux.createStore({
     });
   },
 
-  // deleteDatabase(dbName) {
-  //   // TODO remove database on server
-  // },
-  //
-  // createDatabaseWithCollection(dbName, collection) {
-  //   // TODO create database with empty collection
-  // }
-
   /**
    * log changes to the store as debug messages.
    * @param  {Object} prevState   previous state.
@@ -89,7 +77,6 @@ const DatabasesStore = Reflux.createStore({
   storeDidUpdate(prevState) {
     debug('databases store changed from', prevState, 'to', this.state);
   }
-
 });
 
 module.exports = DatabasesStore;
