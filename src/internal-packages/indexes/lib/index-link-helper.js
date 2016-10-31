@@ -15,7 +15,6 @@ const HELP_URLS = {
   TEXT: 'https://docs.mongodb.org/manual/core/index-text/',
   HASHED: 'https://docs.mongodb.org/manual/core/index-hashed/',
   REGULAR: 'https://docs.mongodb.com/manual/indexes/#single-field',
-  COLLATION: 'https://docs.mongodb.com/master/reference/bson-type-comparison-order/#collation',
   UNKNOWN: null
 };
 
