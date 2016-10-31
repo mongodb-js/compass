@@ -53,6 +53,7 @@ describe('ValidationStore', function() {
 
     unsubscribe = ValidationStore.listen((state) => {
       expect(state.fetchState).to.be.equal('fetching');
+      unsubscribe();
       done();
     });
     ValidationStore.fetchValidationRules();
