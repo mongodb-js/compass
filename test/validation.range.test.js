@@ -62,12 +62,15 @@ describe('<RuleCategoryRange />', function() {
     expect(ranges).to.have.length(2);
   });
 
-  it('accepts empty range 5 < x < 5 but with validationState error', function() {
+  it('accepts empty range 5 < x < 5 with getComboValidationState error', function() {
     const props = _.assign(propsTemplate, {
-      lowerBoundType: '$gt',
-      lowerBoundValue: 5,
-      upperBoundType: '$lt',
-      upperBoundValue: 5
+      parameters: {
+        comboValidationState: 'error',
+        lowerBoundType: '$gt',
+        lowerBoundValue: 5,
+        upperBoundType: '$lt',
+        upperBoundValue: 5
+      }
     });
     component = shallow(<RuleCategoryRange {...props} />);
     const ranges = component.dive().find(RangeInput);

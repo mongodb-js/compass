@@ -843,7 +843,7 @@ describe('ValidationStore', function() {
   });
 
   describe('Range Rule when passing in values that are valid on the server', function() {
-    context('values accepted by the rule builder UI', function() {
+    context('values accepted with no error by the rule builder UI', function() {
       it('accepts {$gte: 21}', function() {
         const validatorDoc = {
           'validator': {
@@ -861,6 +861,7 @@ describe('ValidationStore', function() {
           field: 'age',
           nullable: false,
           parameters: {
+            'comboValidationState': null,
             'lowerBoundType': '$gte',
             'lowerBoundValue': 21,
             'upperBoundType': null,
@@ -886,6 +887,7 @@ describe('ValidationStore', function() {
           field: 'age',
           nullable: false,
           parameters: {
+            'comboValidationState': null,
             'lowerBoundType': null,
             'lowerBoundValue': null,
             'upperBoundType': '$lt',
@@ -912,6 +914,7 @@ describe('ValidationStore', function() {
           field: 'age',
           nullable: false,
           parameters: {
+            'comboValidationState': null,
             'lowerBoundType': '$gt',
             'lowerBoundValue': 20,
             'upperBoundType': '$lte',
@@ -938,6 +941,7 @@ describe('ValidationStore', function() {
           field: 'age',
           nullable: false,
           parameters: {
+            'comboValidationState': null,
             'lowerBoundType': '$gt',
             'lowerBoundValue': -20,
             'upperBoundType': '$lte',
@@ -948,10 +952,10 @@ describe('ValidationStore', function() {
     });
 
     // Note: Server allows these cases, but we'd drop back to JSON view here
-    context('values rejected by the rule builder UI', function() {
+    context('values accepted with error by the rule builder UI', function() {
       // Only documents with value = 5 could be inserted,
       // which being a constant probably should be at the application layer
-      it('rejects equality constant range "5 <= value <= 5"', function() {
+      it('accepts equality constant range "5 <= value <= 5"', function() {
         const validatorDoc = {
           'validator': {
             'age': {
@@ -963,11 +967,23 @@ describe('ValidationStore', function() {
           'validationAction': 'error'
         };
         const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
-        expect(result.rules).to.be.false;
+        const rule = _.omit(result.rules[0], 'id');
+        expect(rule).to.be.deep.equal({
+          category: 'range',
+          field: 'age',
+          nullable: false,
+          parameters: {
+            'comboValidationState': 'error',
+            'lowerBoundType': '$gte',
+            'lowerBoundValue': 5,
+            'upperBoundType': '$lte',
+            'upperBoundValue': 5
+          }
+        });
       });
 
       // Bad as users couldn't insert any documents into the collection
-      it('rejects empty range "5 < value <= 5"', function() {
+      it('accepts empty range "5 < value <= 5"', function() {
         const validatorDoc = {
           'validator': {
             'age': {
@@ -979,11 +995,23 @@ describe('ValidationStore', function() {
           'validationAction': 'error'
         };
         const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
-        expect(result.rules).to.be.false;
+        const rule = _.omit(result.rules[0], 'id');
+        expect(rule).to.be.deep.equal({
+          category: 'range',
+          field: 'age',
+          nullable: false,
+          parameters: {
+            'comboValidationState': 'error',
+            'lowerBoundType': '$gt',
+            'lowerBoundValue': 5,
+            'upperBoundType': '$lte',
+            'upperBoundValue': 5
+          }
+        });
       });
 
       // Bad as users couldn't insert any documents into the collection
-      it('rejects empty range "5 <= value < 5"', function() {
+      it('accepts empty range "5 <= value < 5"', function() {
         const validatorDoc = {
           'validator': {
             'age': {
@@ -995,11 +1023,23 @@ describe('ValidationStore', function() {
           'validationAction': 'error'
         };
         const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
-        expect(result.rules).to.be.false;
+        const rule = _.omit(result.rules[0], 'id');
+        expect(rule).to.be.deep.equal({
+          category: 'range',
+          field: 'age',
+          nullable: false,
+          parameters: {
+            'comboValidationState': 'error',
+            'lowerBoundType': '$gte',
+            'lowerBoundValue': 5,
+            'upperBoundType': '$lt',
+            'upperBoundValue': 5
+          }
+        });
       });
 
       // Bad as users couldn't insert any documents into the collection
-      it('rejects empty range "6 < value < 5"', function() {
+      it('accepts empty range "6 < value < 5"', function() {
         const validatorDoc = {
           'validator': {
             'age': {
@@ -1011,9 +1051,24 @@ describe('ValidationStore', function() {
           'validationAction': 'error'
         };
         const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
-        expect(result.rules).to.be.false;
+        const rule = _.omit(result.rules[0], 'id');
+        expect(rule).to.be.deep.equal({
+          category: 'range',
+          field: 'age',
+          nullable: false,
+          parameters: {
+            'comboValidationState': 'error',
+            'lowerBoundType': '$gt',
+            'lowerBoundValue': 6,
+            'upperBoundType': '$lt',
+            'upperBoundValue': 5
+          }
+        });
       });
+    });
 
+    // Note: Server allows these cases, but we'd drop back to JSON view here
+    context('values rejected by the rule builder UI', function() {
       // Better represented in GUI with the "None" operator drop down value
       it('rejects {$gte: -Infinity}', function() {
         const validatorDoc = {

@@ -33,6 +33,7 @@ class RuleCategoryRange extends React.Component {
     } else {
       params.upperBoundType = null;
     }
+    params.comboValidationState = RuleCategoryRange.getComboValidationState(params);
 
     // Trigger an action that should update the Reflux ValidationStore
     ValidationAction.setRuleParameters(this.props.id, params);
@@ -47,15 +48,14 @@ class RuleCategoryRange extends React.Component {
     };
   }
 
-  static paramsToQuery(params) {
-    const result = {};
-    if (params.upperBoundType) {
-      result[params.upperBoundType] = params.upperBoundValue;
+  static getComboValidationState(params) {
+    // No documents could possibly satisfy these cases, e.g. 5 <= value < 5
+    if (typeof(params.upperBoundValue) === 'number' &&
+        typeof(params.lowerBoundValue) === 'number' &&
+        params.upperBoundValue <= params.lowerBoundValue) {
+      return 'error';
     }
-    if (params.lowerBoundType) {
-      result[params.lowerBoundType] = params.lowerBoundValue;
-    }
-    return result;
+    return null;
   }
 
   static validateKeyAndValue(key, value) {
@@ -72,20 +72,15 @@ class RuleCategoryRange extends React.Component {
     return !isNaN(value) && Math.abs(value) !== Infinity;
   }
 
-  static validateCombinedParams(params) {
-    if (params.upperBoundType.length > 1 || params.lowerBoundType.length > 1) {
-      return false;
+  static paramsToQuery(params) {
+    const result = {};
+    if (params.upperBoundType) {
+      result[params.upperBoundType] = params.upperBoundValue;
     }
-    params.upperBoundType = params.upperBoundType[0] || null;
-    params.lowerBoundType = params.lowerBoundType[0] || null;
-
-    // No documents could possibly satisfy these cases, e.g. 5 <= value < 5
-    if (typeof(params.upperBoundValue) === 'number' &&
-        typeof(params.lowerBoundValue) === 'number' &&
-        params.upperBoundValue <= params.lowerBoundValue) {
-      return false;
+    if (params.lowerBoundType) {
+      result[params.lowerBoundType] = params.lowerBoundValue;
     }
-    return params;
+    return result;
   }
 
   static queryToParams(query) {
@@ -98,12 +93,19 @@ class RuleCategoryRange extends React.Component {
       return false;
     }
     const result = {
+      comboValidationState: null,
       upperBoundValue: query.$lte || query.$lt || null,
       upperBoundType: _.intersection(keys, ['$lte', '$lt']),
       lowerBoundValue: query.$gte || query.$gt || null,
       lowerBoundType: _.intersection(keys, ['$gte', '$gt'])
     };
-    return RuleCategoryRange.validateCombinedParams(result);
+    if (result.upperBoundType.length > 1 || result.lowerBoundType.length > 1) {
+      return false;
+    }
+    result.upperBoundType = result.upperBoundType[0] || null;
+    result.lowerBoundType = result.lowerBoundType[0] || null;
+    result.comboValidationState = RuleCategoryRange.getComboValidationState(result);
+    return result;
   }
 
   /**
@@ -120,7 +122,7 @@ class RuleCategoryRange extends React.Component {
             disabled={this.props.parameters.lowerBoundType === null}
             value={this.props.parameters.lowerBoundValue}
             onRangeInputBlur={this.onRangeInputBlur.bind(this)}
-            validationState={null}
+            validationState={this.props.parameters.comboValidationState}
         />
         <RangeInput
             ref="upperBoundRangeInputChild"
@@ -129,7 +131,7 @@ class RuleCategoryRange extends React.Component {
             disabled={this.props.parameters.upperBoundType === null}
             value={this.props.parameters.upperBoundValue}
             onRangeInputBlur={this.onRangeInputBlur.bind(this)}
-            validationState={null}
+            validationState={this.props.parameters.comboValidationState}
         />
       </FormGroup>
     );
