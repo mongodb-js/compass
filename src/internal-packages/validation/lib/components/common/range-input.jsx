@@ -56,10 +56,7 @@ class RangeInput extends React.Component {
       disabled: evtKey === 'none',
       operator: evtKey
     });
-    // need to defer validation until setState has propagated
-    // _.defer(() => {
-    //   this.validate();
-    // });
+    this.validate();
   }
 
   validate() {
