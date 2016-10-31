@@ -21,9 +21,19 @@ var NONE = {
 
 var UNVALIDATED = {
   _id: 'UNVALIDATED',
-  title: 'Unvalidated/Atlas Deployment',
+  title: 'Unvalidated (insecure)',
   description: 'Use SSL but do not perform any validation of'
     + ' the certificate chain... which is basically pointless.',
+  // @todo (imlucas) Fix `app.isFeatureEnabled` is not a function.
+  // enabled: app.isFeatureEnabled('Connect with SSL UNVALIDATED')
+  enabled: true
+};
+
+var SYSTEMCA = {
+  _id: 'SYSTEMCA',
+  title: 'Use System CA / Atlas Deployment',
+  description: 'Use SSL and use the System CA for Server validation.'
+    + 'This works for Atlas Deployments as well.',
   // @todo (imlucas) Fix `app.isFeatureEnabled` is not a function.
   // enabled: app.isFeatureEnabled('Connect with SSL UNVALIDATED')
   enabled: true
@@ -88,7 +98,8 @@ var ALL = {
 
 module.exports = new SSLOptionCollection([
   NONE,
-  UNVALIDATED,
+  SYSTEMCA,
   SERVER,
-  ALL
+  ALL,
+  UNVALIDATED
 ]);
