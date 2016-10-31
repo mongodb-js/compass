@@ -85,7 +85,7 @@ describe('ValidationStore', function() {
     }, 10);
   });
 
-  it.skip('goes into {fetchState: "error"} when receiving an invalid validator doc', function(done) {
+  it('goes into {fetchState: "error"} when receiving an invalid validator doc', function(done) {
     mockFetchFromServer(null, {nonsense: true, format: 'invalid'});
 
     const spy = sinon.spy();
@@ -99,7 +99,7 @@ describe('ValidationStore', function() {
     }, 10);
   });
 
-  it.skip('goes into {fetchState: "error"} when the result is not an object', function(done) {
+  it('goes into {fetchState: "error"} when the result is not an object', function(done) {
     mockFetchFromServer(null, 'I am not an object, I am a string!');
 
     const spy = sinon.spy();
