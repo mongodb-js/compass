@@ -18,6 +18,7 @@ const OpCounterStore = Reflux.createStore({
   },
 
   restart: function() {
+    this.index = 0;
     this.opsPerSec = {
       insert: [], query: [], update: [],
       delete: [], command: [], getmore: []};

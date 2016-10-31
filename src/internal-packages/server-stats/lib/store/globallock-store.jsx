@@ -18,6 +18,7 @@ const GlobalLockStore = Reflux.createStore({
   },
 
   restart: function() {
+    this.index = 0;
     this.totalCount = {aReads: [], aWrites: [], qReads: [], qWrites: []};
     this.localTime = [];
     this.skip = [];

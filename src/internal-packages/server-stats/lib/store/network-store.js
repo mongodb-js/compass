@@ -18,6 +18,7 @@ const NetworkStore = Reflux.createStore({
   },
 
   restart: function() {
+    this.index = 0;
     this.bytesPerSec = {bytesIn: [], bytesOut: []};
     this.connectionCount = [];
     this.localTime = [];

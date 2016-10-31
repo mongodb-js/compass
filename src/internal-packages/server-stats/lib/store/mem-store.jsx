@@ -18,6 +18,7 @@ const MemStore = Reflux.createStore({
   },
 
   restart: function() {
+    this.index = 0;
     this.totalCount = {virtual: [], resident: [], mapped: []};
     this.localTime = [];
     this.skip = [];

@@ -109,33 +109,33 @@ const graphfunction = function() {
         return;
       }
       // Handle bad data
-      // if (!validate(data)) {
-      //   // Error message, if needed
-      //   if (!errorState) {
-      //     container.selectAll('g.chart')
-      //       .append('rect')
-      //       .attr('class', 'error-overlay')
-      //       .attr('transform', 'translate(' + ((subWidth - 300) / 2) + ',' + ((subHeight - 40) / 2) + ')')
-      //       .attr('width', 300)
-      //       .attr('height', 40)
-      //       .style('opacity', 0.3);
-      //     container.selectAll('g.chart')
-      //       .append('text')
-      //       .attr('class', 'error-message')
-      //       .attr('x', subWidth / 2)
-      //       .attr('y', (subHeight / 2) + 5)
-      //       .text('\u26A0 data unavailable')
-      //       .style('opacity', 1);
-      //   }
-      //   errorState = true;
-      //   debug('Error: bad serverStatus response from DB:', data);
-      //   return;
-      // }
-      // if (errorState) { // TODO: fix when layering elements is working properly
-      //   errorState = false;
-      //   container.selectAll('rect.error-overlay').remove();
-      //   container.selectAll('text.error-message').remove();
-      // }
+      if (!validate(data)) {
+        // Error message, if needed
+        if (!errorState) {
+          container.selectAll('g.chart')
+            .append('rect')
+            .attr('class', 'error-overlay')
+            .attr('transform', 'translate(' + ((subWidth - 300) / 2) + ',' + ((subHeight - 40) / 2) + ')')
+            .attr('width', 300)
+            .attr('height', 40)
+            .style('opacity', 0.3);
+          container.selectAll('g.chart')
+            .append('text')
+            .attr('class', 'error-message')
+            .attr('x', subWidth / 2)
+            .attr('y', (subHeight / 2) + 5)
+            .text('\u26A0 data unavailable')
+            .style('opacity', 1);
+        }
+        errorState = true;
+        debug('Error: bad serverStatus response from DB:', data);
+        return;
+      }
+      if (errorState) { // TODO: fix when layering elements is working properly
+        errorState = false;
+        container.selectAll('rect.error-overlay').remove();
+        container.selectAll('text.error-message').remove();
+      }
       // Redraw anything hidden by errors
       container.selectAll('.legend, .overlay, .axis-labels, .line-div')
         .style('display', null);
