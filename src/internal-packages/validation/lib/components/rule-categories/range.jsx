@@ -14,9 +14,9 @@ class RuleCategoryRange extends React.Component {
       '>=': '$gte',
       '>': '$gt',
       '<=': '$lte',
-      '<': '$lt',
+      '<': '$lt'
     };
-    let params = RuleCategoryRange.getInitialParameters();
+    const params = RuleCategoryRange.getInitialParameters();
     // Use refs to get child state, as children don't have a unique ID
     // http://stackoverflow.com/a/29303324
     const lowerBoundState = this.refs.lowerBoundRangeInputChild.state;

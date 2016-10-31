@@ -52,9 +52,7 @@ class RangeInput extends React.Component {
 
   validate() {
     const value = parseFloat(this.state.value);
-    let error = false;
     if (_.isNaN(value)) {
-      error = true;
       this.setState({
         validationState: 'error'
       });
