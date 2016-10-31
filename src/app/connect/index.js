@@ -294,6 +294,14 @@ var ConnectView = View.extend({
     this.connection = Connection.from(this.clipboardText);
     // don't use "Local" as favorite name, keep field empty
     this.connection.name = '';
+    // if the URI contains ssl=true, switch to SYSTEMCA by default
+    if (this.clipboardText.match(/[?&]ssl=true/i)) {
+      this.connection.ssl = 'SYSTEMCA';
+    }
+    // if we connect to an Atlas instance, use SYSTEMCA as SSL option
+    if (this.connection.hostname.match(/mongodb.net$/i)) {
+      this.connection.ssl = 'SYSTEMCA';
+    }
     this.updateForm();
     // @note: durran: This fixes not being able to save a new favorite
     //  from a collection that was auto-filled from the clipboard. Needed

@@ -80,7 +80,7 @@ var ConnectFormView = FormView.extend({
   },
   blurHostname: function(e) {
     if (e.target.value.match(/mongodb.net$/i)) {
-      this.setValue('ssl', 'UNVALIDATED');
+      this.setValue('ssl', 'SYSTEMCA');
     }
   },
   /**

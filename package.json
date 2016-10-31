@@ -124,7 +124,7 @@
     "moment": "^2.10.6",
     "mongodb": "^2.2.8",
     "mongodb-collection-model": "^0.2.3",
-    "mongodb-connection-model": "^6.1.0",
+    "mongodb-connection-model": "^6.2.0",
     "mongodb-data-service": "^1.8.0",
     "mongodb-database-model": "^0.1.2",
     "mongodb-explain-plan-model": "^0.2.1",
