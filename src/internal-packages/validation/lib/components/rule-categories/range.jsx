@@ -72,6 +72,22 @@ class RuleCategoryRange extends React.Component {
     return !isNaN(value) && Math.abs(value) !== Infinity;
   }
 
+  static validateCombinedParams(params) {
+    if (params.upperBoundType.length > 1 || params.lowerBoundType.length > 1) {
+      return false;
+    }
+    params.upperBoundType = params.upperBoundType[0] || null;
+    params.lowerBoundType = params.lowerBoundType[0] || null;
+
+    // No documents could possibly satisfy these cases, e.g. 5 <= value < 5
+    if (typeof(params.upperBoundValue) === 'number' &&
+        typeof(params.lowerBoundValue) === 'number' &&
+        params.upperBoundValue <= params.lowerBoundValue) {
+      return false;
+    }
+    return params;
+  }
+
   static queryToParams(query) {
     // if not every key in the object is one of the comparison operators,
     // this rule cannot represent the query
@@ -87,19 +103,7 @@ class RuleCategoryRange extends React.Component {
       lowerBoundValue: query.$gte || query.$gt || null,
       lowerBoundType: _.intersection(keys, ['$gte', '$gt'])
     };
-    if (result.upperBoundType.length > 1 || result.lowerBoundType.length > 1) {
-      return false;
-    }
-    result.upperBoundType = result.upperBoundType[0] || null;
-    result.lowerBoundType = result.lowerBoundType[0] || null;
-
-    // No documents could possibly satisfy these cases, e.g. 5 <= value < 5
-    if (typeof(result.upperBoundValue) === 'number' &&
-        typeof(result.lowerBoundValue) === 'number' &&
-        result.upperBoundValue <= result.lowerBoundValue) {
-      return false;
-    }
-    return result;
+    return RuleCategoryRange.validateCombinedParams(result);
   }
 
   /**
