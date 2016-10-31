@@ -63,6 +63,8 @@ const QueryStore = Reflux.createStore({
    *
    * This is done for performance reasons so we don't re-render all the charts
    * constantly while the string is still being typed.
+   *
+   * @param {String} queryString    The query string (i.e. manual user input)
    */
   typeQueryString(queryString) {
     if (this.userTypingTimer) {
@@ -391,6 +393,10 @@ const QueryStore = Reflux.createStore({
       return;
     }
 
+    // empty string is interpreted as {}
+    if (this.state.queryString === '') {
+      this.setQuery({});
+    }
     if (this.state.valid) {
       this.setState({
         lastExecutedQuery: _.clone(this.state.query)
