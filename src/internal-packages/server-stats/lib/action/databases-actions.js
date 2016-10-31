@@ -5,9 +5,10 @@ const Reflux = require('reflux');
  */
 const Actions = Reflux.createActions([
   'sortDatabases',
-  'deleteDatabase',
   'createDatabase',
-  'openCreateDatabaseDialog'
+  'dropDatabase',
+  'openCreateDatabaseDialog',
+  'openDropDatabaseDialog'
 ]);
 
 module.exports = Actions;

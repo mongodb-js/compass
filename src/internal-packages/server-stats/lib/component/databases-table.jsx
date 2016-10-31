@@ -3,6 +3,7 @@ const app = require('ampersand-app');
 const TextButton = require('hadron-app-registry').TextButton;
 const DatabasesActions = require('../action/databases-actions');
 const CreateDatabaseDialog = require('./create-database-dialog');
+const DropDatabaseDialog = require('./drop-database-dialog');
 const numeral = require('numeral');
 
 const _ = require('lodash');
@@ -20,8 +21,8 @@ class DatabasesTable extends React.Component {
     DatabasesActions.sortDatabases(column, order);
   }
 
-  onRowDeleteButtonClicked(dbName) {
-    DatabasesActions.deleteDatabase(dbName);
+  onRowDeleteButtonClicked(index, dbName) {
+    DatabasesActions.openDropDatabaseDialog(dbName);
   }
 
   onCreateDatabaseButtonClicked() {
@@ -52,11 +53,13 @@ class DatabasesTable extends React.Component {
           sortable
           sortOrder={this.props.sortOrder}
           sortColumn={this.props.sortColumn}
+          valueIndex={0}
           removable
           onColumnHeaderClicked={this.onColumnHeaderClicked.bind(this)}
           onRowDeleteButtonClicked={this.onRowDeleteButtonClicked.bind(this)}
         />
         <CreateDatabaseDialog />
+        <DropDatabaseDialog />
       </div>
     );
   }
