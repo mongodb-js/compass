@@ -34,7 +34,7 @@ class RuleCategoryRange extends React.Component {
       params.upperBoundType = null;
     }
 
-    // Trigger an action that should update the Reflux store
+    // Trigger an action that should update the Reflux ValidationStore
     ValidationAction.setRuleParameters(this.props.id, params);
   }
 
