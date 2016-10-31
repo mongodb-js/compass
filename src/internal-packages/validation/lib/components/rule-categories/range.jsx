@@ -9,17 +9,32 @@ const FormGroup = bootstrap.FormGroup;
 
 class RuleCategoryRange extends React.Component {
 
-  onBoundOpChanged(eventKey) {
-    const params = this.props.parameters;
-    switch (eventKey) {
-      case '$lte': // fall through
-      case '$lt': params.upperBoundType = eventKey; break;
-      case '$gte': // fall through
-      case '$gt': params.lowerBoundType = eventKey; break;
-      case 'none-upper': params.upperBoundType = null; break;
-      case 'none-lower': params.lowerBoundType = null; break;
-      default: break;
+  onRangeInputBlur() {
+    const opMap = {
+      '>=': '$gte',
+      '>': '$gt',
+      '<=': '$lte',
+      '<': '$lt',
+    };
+    let params = RuleCategoryRange.getInitialParameters();
+    // Use refs to get child state, as children don't have a unique ID
+    // http://stackoverflow.com/a/29303324
+    const lowerBoundState = this.refs.lowerBoundRangeInputChild.state;
+    const upperBoundState = this.refs.upperBoundRangeInputChild.state;
+    if (Object.keys(opMap).includes(lowerBoundState.operator)) {
+      params.lowerBoundType = opMap[lowerBoundState.operator];
+      params.lowerBoundValue = parseFloat(lowerBoundState.value);
+    } else {
+      params.lowerBoundType = null;
     }
+    if (Object.keys(opMap).includes(upperBoundState.operator)) {
+      params.upperBoundType = opMap[upperBoundState.operator];
+      params.upperBoundValue = parseFloat(upperBoundState.value);
+    } else {
+      params.upperBoundType = null;
+    }
+
+    // Trigger an action that should update the Reflux store
     ValidationAction.setRuleParameters(this.props.id, params);
   }
 
@@ -34,10 +49,10 @@ class RuleCategoryRange extends React.Component {
 
   static paramsToQuery(params) {
     const result = {};
-    if (params.upperBoundType !== null) {
+    if (params.upperBoundType) {
       result[params.upperBoundType] = params.upperBoundValue;
     }
-    if (params.lowerBoundType !== null) {
+    if (params.lowerBoundType) {
       result[params.lowerBoundType] = params.lowerBoundValue;
     }
     return result;
@@ -96,18 +111,20 @@ class RuleCategoryRange extends React.Component {
     return (
       <FormGroup>
         <RangeInput
+            ref="lowerBoundRangeInputChild"
             boundIncluded={this.props.parameters.lowerBoundType === '$gte'}
             disabled={this.props.parameters.lowerBoundType === null}
             value={this.props.parameters.lowerBoundValue}
-            onChange={this.onBoundOpChanged.bind(this)}
+            onRangeInputBlur={this.onRangeInputBlur.bind(this)}
             validationState={null}
         />
         <RangeInput
+            ref="upperBoundRangeInputChild"
             upperBound
             boundIncluded={this.props.parameters.upperBoundType === '$lte'}
             disabled={this.props.parameters.upperBoundType === null}
             value={this.props.parameters.upperBoundValue}
-            onChange={this.onBoundOpChanged.bind(this)}
+            onRangeInputBlur={this.onRangeInputBlur.bind(this)}
             validationState={null}
         />
       </FormGroup>

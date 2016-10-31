@@ -17,7 +17,7 @@ const MenuItem = require('react-bootstrap').MenuItem;
  *  - by the RangeInput validating the `value` prop is not of type `number`, or
  *  - by the RangeInput's parent `RuleCategoryRange` component validating the
  *    combined range expression, such as `5 < x < 5` is rejected as invalid
- *    even though the RangeInputs of `5 < x` and `5 > x` are individually valid.
+ *    even though the RangeInputs `5 < x` and `5 > x` are individually valid.
  */
 class RangeInput extends React.Component {
 
@@ -57,6 +57,8 @@ class RangeInput extends React.Component {
 
   onInputBlur() {
     this.validate();
+    // Get the parent to update both RangeInput component states
+    return this.props.onRangeInputBlur();
   }
 
   onDropdownSelect(evtKey) {
@@ -182,7 +184,7 @@ RangeInput.propTypes = {
   validationState: React.PropTypes.string,
   boundIncluded: React.PropTypes.bool.isRequired,
   disabled: React.PropTypes.bool.isRequired,
-  onChange: React.PropTypes.func,
+  onRangeInputBlur: React.PropTypes.func,
   width: React.PropTypes.number
 };
 
