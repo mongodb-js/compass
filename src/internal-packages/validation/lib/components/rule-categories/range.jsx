@@ -94,11 +94,26 @@ class RuleCategoryRange extends React.Component {
     }
     const result = {
       comboValidationState: null,
-      upperBoundValue: query.$lte || query.$lt || null,
+      upperBoundValue: null,
       upperBoundType: _.intersection(keys, ['$lte', '$lt']),
-      lowerBoundValue: query.$gte || query.$gt || null,
+      lowerBoundValue: null,
       lowerBoundType: _.intersection(keys, ['$gte', '$gt'])
     };
+
+    // Handle the 0 which is false-y case properly
+    if (_.isNumber(query.$lte)) {
+      result.upperBoundValue = query.$lte;
+    }
+    if (_.isNumber(query.$lt)) {
+      result.upperBoundValue = query.$lt;
+    }
+    if (_.isNumber(query.$gte)) {
+      result.lowerBoundValue = query.$gte;
+    }
+    if (_.isNumber(query.$gt)) {
+      result.lowerBoundValue = query.$gt;
+    }
+
     if (result.upperBoundType.length > 1 || result.lowerBoundType.length > 1) {
       return false;
     }

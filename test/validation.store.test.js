@@ -949,6 +949,114 @@ describe('ValidationStore', function() {
           }
         });
       });
+
+      it('accepts {$gt: 0, $lte: 5000}', function() {
+        const validatorDoc = {
+          'validator': {
+            'tree_age': {
+              '$gt': 0,
+              '$lte': 5000
+            }
+          },
+          'validationLevel': 'strict',
+          'validationAction': 'error'
+        };
+        const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
+        const rule = _.omit(result.rules[0], 'id');
+        expect(rule).to.be.deep.equal({
+          category: 'range',
+          field: 'tree_age',
+          nullable: false,
+          parameters: {
+            'comboValidationState': null,
+            'lowerBoundType': '$gt',
+            'lowerBoundValue': 0,
+            'upperBoundType': '$lte',
+            'upperBoundValue': 5000
+          }
+        });
+      });
+
+      it('accepts {$gt: -5000000000, $lt: 0}', function() {
+        const validatorDoc = {
+          'validator': {
+            'age': {
+              '$gt': -5000000000,
+              '$lt': 0
+            }
+          },
+          'validationLevel': 'strict',
+          'validationAction': 'error'
+        };
+        const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
+        const rule = _.omit(result.rules[0], 'id');
+        expect(rule).to.be.deep.equal({
+          category: 'range',
+          field: 'age',
+          nullable: false,
+          parameters: {
+            'comboValidationState': null,
+            'lowerBoundType': '$gt',
+            'lowerBoundValue': -5000000000,
+            'upperBoundType': '$lt',
+            'upperBoundValue': 0
+          }
+        });
+      });
+
+      it('accepts {$gte: 0, $lt: 273.16}', function() {
+        const validatorDoc = {
+          'validator': {
+            'below_zero_celsius_in_kelvin': {
+              '$gte': 0,
+              '$lt': 273.16
+            }
+          },
+          'validationLevel': 'strict',
+          'validationAction': 'error'
+        };
+        const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
+        const rule = _.omit(result.rules[0], 'id');
+        expect(rule).to.be.deep.equal({
+          category: 'range',
+          field: 'below_zero_celsius_in_kelvin',
+          nullable: false,
+          parameters: {
+            'comboValidationState': null,
+            'lowerBoundType': '$gte',
+            'lowerBoundValue': 0,
+            'upperBoundType': '$lt',
+            'upperBoundValue': 273.16
+          }
+        });
+      });
+
+      it('accepts {$gt: -273.16, $lte: 0}', function() {
+        const validatorDoc = {
+          'validator': {
+            'cold_temperature': {
+              '$gt': -273.16,
+              '$lte': 0
+            }
+          },
+          'validationLevel': 'strict',
+          'validationAction': 'error'
+        };
+        const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
+        const rule = _.omit(result.rules[0], 'id');
+        expect(rule).to.be.deep.equal({
+          category: 'range',
+          field: 'cold_temperature',
+          nullable: false,
+          parameters: {
+            'comboValidationState': null,
+            'lowerBoundType': '$gt',
+            'lowerBoundValue': -273.16,
+            'upperBoundType': '$lte',
+            'upperBoundValue': 0
+          }
+        });
+      });
     });
 
     // Note: Server allows these cases, but we'd drop back to JSON view here
