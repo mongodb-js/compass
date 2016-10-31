@@ -16,7 +16,7 @@ const MenuItem = require('react-bootstrap').MenuItem;
  * The `validationState` of this RangeInput can be set to 'error' either:
  *  - by the RangeInput validating the `value` prop is not of type `number`, or
  *  - by the RangeInput's parent `RuleCategoryRange` component validating the
- *    combined range expression, such as `5 < x < 5` is rejected as invalid
+ *    combined range expression, such as `5 < x < 5` is displayed as red/error
  *    even though the RangeInputs `5 < x` and `5 > x` are individually valid.
  */
 class RangeInput extends React.Component {
