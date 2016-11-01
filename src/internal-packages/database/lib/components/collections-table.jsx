@@ -1,7 +1,6 @@
 const React = require('react');
 const app = require('ampersand-app');
 const CollectionsActions = require('../actions/collections-actions');
-const SortableTable = app.appRegistry.getComponent('App.SortableTable');
 const numeral = require('numeral');
 
 const _ = require('lodash');
@@ -9,6 +8,11 @@ const _ = require('lodash');
 // const debug = require('debug')('mongodb-compass:server-stats:databases');
 
 class DatabasesTable extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.SortableTable = app.appRegistry.getComponent('App.SortableTable');
+  }
 
   onColumnHeaderClicked(column, order) {
     CollectionsActions.sortCollections(column, order);
@@ -41,7 +45,7 @@ class DatabasesTable extends React.Component {
 
     return (
       <div className="collections-table">
-        <SortableTable
+        <this.SortableTable
           theme="light"
           columns={this.props.columns}
           rows={rows}
