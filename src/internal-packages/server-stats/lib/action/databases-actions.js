@@ -8,7 +8,7 @@ const Actions = Reflux.createActions([
   'createDatabase',
   'dropDatabase',
   'openCreateDatabaseDialog',
-  'openDropDatabaseDialog',
+  'openDropDatabaseDialog'
 ]);
 
 module.exports = Actions;

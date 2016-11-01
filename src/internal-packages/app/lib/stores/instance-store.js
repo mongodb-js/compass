@@ -1,5 +1,4 @@
 const Reflux = require('reflux');
-const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const InstanceActions = require('../actions/instance-actions');
 const StateMixin = require('reflux-state-mixin');
 const _ = require('lodash');
