@@ -210,7 +210,7 @@ class CreateIndexModal extends React.Component {
 
         <div className="create-index-modal-content">
           <Modal.Header>
-            <Modal.Title>Index Create</Modal.Title>
+            <Modal.Title>Create Index</Modal.Title>
           </Modal.Header>
 
           <Modal.Body>
@@ -221,7 +221,7 @@ class CreateIndexModal extends React.Component {
                 option={'name'} />
 
               <div className="create-index-fields">
-                <p className="create-index-description">Add fields and types</p>
+                <p className="create-index-description">Configure the index definition</p>
                 <CreateIndexField
                   fields={this.state.schemaFields} />
                 {this.getSelectedFields()}
