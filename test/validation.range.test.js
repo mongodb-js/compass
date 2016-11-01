@@ -26,6 +26,25 @@ describe('<RangeInput />', () => {
       const placeholderText = component.find(FormControl).props().placeholder;
       expect(placeholderText).to.be.equal('enter lower bound');
     });
+    it('accepts a scientific decimal -9.001e+2', function() {
+      const value = '-9.0001e+2';
+      const component = shallow(<RangeInput value={value}/>);
+      const props = component.find(FormControl).dive().props();
+      expect(props.value).to.equal(value);
+    });
+    // https://github.com/mongodb/mongo/blob/eb9810a/jstests/decimal/decimal128_test1.js
+    it('accepts tiniest Decimal128 9.999999999999999999999999999999999E-6143', function() {
+      const tiniest = '9.999999999999999999999999999999999E-6143';
+      const component = shallow(<RangeInput value={tiniest}/>);
+      const props = component.find(FormControl).dive().props();
+      expect(props.value).to.equal(tiniest);
+    });
+    it('accepts largest Decimal128 9.999999999999999999999999999999999E+6144', function() {
+      const largest = '9.999999999999999999999999999999999E+6144';
+      const component = shallow(<RangeInput value={largest}/>);
+      const props = component.find(FormControl).dive().props();
+      expect(props.value).to.equal(largest);
+    });
   });
 
   context('when rendering an upperBound control', () => {
