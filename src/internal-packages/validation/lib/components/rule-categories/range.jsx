@@ -56,17 +56,20 @@ class RuleCategoryRange extends React.Component {
   }
 
   static getComboValidationState(params) {
+    // Can't compare two Decimal128's for correctness easily in JS...
+    const highPrecision = false;
+
     // No documents could possibly satisfy these cases, e.g. 5 <= value < 5
     if (params.upperBoundValue !== null &&
         params.lowerBoundValue !== null &&
         TypeChecker.cast(
           params.upperBoundValue,
-          TypeChecker.castableTypes(params.upperBoundValue)[0]
+          TypeChecker.castableTypes(params.upperBoundValue, highPrecision)[0]
         )
         <=
         TypeChecker.cast(
           params.lowerBoundValue,
-          TypeChecker.castableTypes(params.lowerBoundValue)[0]
+          TypeChecker.castableTypes(params.lowerBoundValue, highPrecision)[0]
         )
     ) {
       return 'error';
