@@ -137,8 +137,8 @@ describe('ssh_tunnel', function() {
         assert.equal(options.username, 'my-user');
       });
 
-      it('maps ssh_tunnel_hostname -> dstHost', function() {
-        assert.equal(options.dstHost, 'my.ssh-server.com');
+      it('maps ssh_tunnel_hostname -> host', function() {
+        assert.equal(options.host, 'my.ssh-server.com');
       });
 
       it('maps port -> dstPort', function() {
@@ -199,7 +199,7 @@ describe('ssh_tunnel', function() {
         hostname: 'mongodb.my-internal-host.com',
         port: 27000,
         ssh_tunnel_port: 3000,
-        ssh_tunnel_passphrase: 'password'
+        ssh_tunnel_passphrase: 'passphrase'
       });
 
       it('should be valid', function() {
@@ -218,8 +218,8 @@ describe('ssh_tunnel', function() {
           assert.equal(options.privateKey.toString(), fs.readFileSync(fileName).toString());
         });
 
-        it('maps hostname -> dstHost', function() {
-          assert.equal(options.dstHost, 'my.ssh-server.com');
+        it('maps hostname -> host', function() {
+          assert.equal(options.host, 'my.ssh-server.com');
         });
 
         it('maps port -> dstPort', function() {
@@ -230,8 +230,8 @@ describe('ssh_tunnel', function() {
           assert.equal(options.port, 3000);
         });
 
-        it('maps ssh_tunnel_passphrase -> password', function() {
-          assert.equal(options.password, 'password');
+        it('maps ssh_tunnel_passphrase -> passphrase', function() {
+          assert.equal(options.passphrase, 'passphrase');
         });
       });
     });
@@ -264,8 +264,8 @@ describe('ssh_tunnel', function() {
           assert.equal(options.privateKey.toString(), fs.readFileSync(fileName).toString());
         });
 
-        it('maps ssh_tunnel_hostname -> dstHost', function() {
-          assert.equal(options.dstHost, 'my.ssh-server.com');
+        it('maps ssh_tunnel_hostname -> host', function() {
+          assert.equal(options.host, 'my.ssh-server.com');
         });
 
         it('maps port -> dstPort', function() {
@@ -276,6 +276,47 @@ describe('ssh_tunnel', function() {
           assert.equal(options.port, 3000);
         });
       });
+    });
+  });
+
+  describe('#functional', function() {
+    describe('aws', function() {
+      var identityFilePath = path.join(__dirname, 'aws-identity-file.pem');
+      before(function(done) {
+        if (!process.env.AWS_SSH_TUNNEL_IDENTITY_FILE) {
+          return done();
+        }
+        fs.writeFile(identityFilePath, process.env.AWS_SSH_TUNNEL_IDENTITY_FILE, done);
+      });
+
+      after(function(done) {
+        if (!process.env.AWS_SSH_TUNNEL_IDENTITY_FILE) {
+          return done();
+        }
+        fs.unlink(identityFilePath, done);
+      });
+
+      it('should connect successfully', function(done) {
+        if (!process.env.AWS_SSH_TUNNEL_HOSTNAME) {
+          return this.skip('Set the `AWS_SSH_TUNNEL_HOSTNAME` environment variable');
+        }
+        if (!process.env.AWS_SSH_TUNNEL_IDENTITY_FILE) {
+          return this.skip('Set the `AWS_SSH_TUNNEL_IDENTITY_FILE` environment variable');
+        }
+
+        var c = new Connection({
+          ssh_tunnel: 'IDENTITY_FILE',
+          ssh_tunnel_hostname: process.env.AWS_SSH_TUNNEL_HOSTNAME,
+          ssh_tunnel_username: process.env.AWS_SSH_TUNNEL_USERNAME || 'ec2-user',
+          ssh_tunnel_identity_file: [identityFilePath]
+        });
+        Connection.connect(c, done);
+      });
+    });
+    describe('key formats', function() {
+      it('should support pem');
+      it('should support ppk');
+      it('should error on unsupported formats');
     });
   });
 });

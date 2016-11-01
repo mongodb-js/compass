@@ -673,10 +673,15 @@ _.assign(derived, {
       }
 
       var opts = {
-        dstHost: this.ssh_tunnel_hostname,
+        readyTimeout: 5000,
+        forwardTimeout: 5000,
+        keepaliveInterval: 5000,
+        srcPort: this.port,
+        srcAddr: '127.0.0.1',
         dstPort: this.port,
+        dstAddr: '127.0.0.1',
         localPort: this.port,
-        localHost: this.hostname,
+        localAddr: '127.0.0.1',
         host: this.ssh_tunnel_hostname,
         port: this.ssh_tunnel_port,
         username: this.ssh_tunnel_username
@@ -688,7 +693,7 @@ _.assign(derived, {
         /* eslint no-sync: 0 */
         opts.privateKey = fs.readFileSync(this.ssh_tunnel_identity_file[0]);
         if (this.ssh_tunnel_passphrase) {
-          opts.password = this.ssh_tunnel_passphrase;
+          opts.passphrase = this.ssh_tunnel_passphrase;
         }
       }
       return opts;

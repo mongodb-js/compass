@@ -6,6 +6,7 @@ var parseURL = require('mongodb/lib/url_parser');
 var Connection = require('./model');
 var createSSHTunnel = require('./ssh-tunnel');
 var EventEmitter = require('events').EventEmitter;
+var debug = require('debug')('mongodb-connection-model:connect');
 
 function needToLoadSSLFiles(model) {
   return !_.includes(['NONE', 'UNVALIDATED'], model.ssl);
@@ -159,8 +160,8 @@ function getTasks(model) {
   /**
    * TODO (imlucas) If localhost, check if MongoDB installed -> no: click/prompt to download
    * TODO (imlucas) If localhost, check if MongoDB running -> no: click/prompt to start
+   * TODO (imlucas) dns.lookup() model.hostname and model.ssh_tunnel_hostname to check for typos
    */
-
   _.assign(tasks, {
     Validate: function(cb) {
       validateURL(model, status('Validate', cb));
@@ -176,10 +177,6 @@ function getTasks(model) {
   });
 
   _.assign(tasks, {
-    /**
-     * TODO (imlucas) Test SSH credentials before attemprting to create tunnel.
-     */
-
     'Create SSH Tunnel': function(cb) {
       var ctx = status('Create SSH Tunnel', cb);
       if (model.ssh_tunnel === 'NONE') {
@@ -199,14 +196,27 @@ function getTasks(model) {
           return cb(err);
         }
         db = _db;
+        if (tunnel) {
+          db.on('close', function() {
+            debug('data-service disconnected. shutting down ssh tunnel');
+            tunnel.close();
+          });
+        }
         cb();
       });
     }
   });
 
   /**
-   * TODO (imlucas) Option to check if can run a specific command/read|write to collection.
+   * TODO (imlucas) Could have unintended consequences.
    */
+  // _.assign(tasks, {
+  //   'List Databases': function(cb) {
+  //     var ctx = status('List Databases', cb);
+  //     db.db('admin').command({listDatabases: 1},
+  //       {readPreference: ReadPreference.secondaryPreferred}, ctx);
+  //   }
+  // });
 
   Object.defineProperties(tasks, {
     model: {

@@ -4,3 +4,6 @@
 .zuul.yml
 examples/
 test/
+*.pem
+*_rsa
+secrets.tar

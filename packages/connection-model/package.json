@@ -2,12 +2,12 @@
   "name": "mongodb-connection-model",
   "description": "MongoDB connection model.",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
-  "bugs": "https://github.com/mongodb-js/mongodb-connection-model/issues",
-  "homepage": "https://github.com/mongodb-js/mongodb-connection-model",
+  "bugs": "https://github.com/mongodb-js/connection-model/issues",
+  "homepage": "https://github.com/mongodb-js/connection-model",
   "version": "6.2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mongodb-js/mongodb-connection-model.git"
+    "url": "https://github.com/mongodb-js/connection-model.git"
   },
   "license": "Apache-2.0",
   "keywords": [
@@ -33,7 +33,7 @@
     "lodash": "^4.16.4",
     "mongodb": "^2.2.11",
     "mongodb-url": "^1.0.2",
-    "tunnel-ssh": "^4.1.0"
+    "ssh2": "^0.5.2"
   },
   "devDependencies": {
     "eslint-config-mongodb-js": "^2.2.0",
