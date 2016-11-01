@@ -56,7 +56,7 @@ class RangeInput extends React.Component {
     // as parseFloat will truncate the value `10+5` to just `10`.
     // Also allow exponential forms like -1.7976931348623157e+308, but not ∞
     // http://stackoverflow.com/a/30987109/1101109
-    if (_.isNaN(value) || !/^-?\d+\.?\d*([E|e][+|-]\d*)?$/.test(this.state.value)) {
+    if (_.isNaN(value) || !/^-?\d+\.?\d*([Ee][+-]\d*)?$/.test(this.state.value)) {
       this.setState({
         validationState: 'error'
       });
