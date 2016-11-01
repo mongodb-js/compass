@@ -2,12 +2,11 @@ const React = require('react');
 const app = require('ampersand-app');
 const CollectionsActions = require('../actions/collections-actions');
 const CreateCollectionDialog = require('./create-collection-dialog');
+const DropCollectionDialog = require('./drop-collection-dialog');
 const TextButton = require('hadron-app-registry').TextButton;
 const numeral = require('numeral');
 
 const _ = require('lodash');
-
-// const debug = require('debug')('mongodb-compass:server-stats:databases');
 
 class CollectionsTable extends React.Component {
 
@@ -20,8 +19,8 @@ class CollectionsTable extends React.Component {
     CollectionsActions.sortCollections(column, order);
   }
 
-  onRowDeleteButtonClicked(/* collName */) {
-    // CollectionsActions.deleteCollection(collName);
+  onRowDeleteButtonClicked(index, collection) {
+    CollectionsActions.openDropCollectionDialog(collection);
   }
 
   onCreateCollectionButtonClicked() {
@@ -29,16 +28,6 @@ class CollectionsTable extends React.Component {
   }
 
   render() {
-    // convert some of the values to human-readable units (MB, GB, ...)
-    // we do this here so that sorting is not affected in the store
-    //
-    //   'Collection Name',
-      // 'Num. Documents',
-      // 'Avg. Document Size',
-      // 'Total Document Size',
-      // 'Num. Indexes',
-      // 'Total Index Size'
-
     const rows = _.map(this.props.collections, (coll) => {
       return _.assign({}, coll, {
         'Documents': numeral(coll.Documents).format('0,0'),
@@ -64,11 +53,13 @@ class CollectionsTable extends React.Component {
           sortable
           sortOrder={this.props.sortOrder}
           sortColumn={this.props.sortColumn}
+          valueIndex={0}
           removable
           onColumnHeaderClicked={this.onColumnHeaderClicked.bind(this)}
           onRowDeleteButtonClicked={this.onRowDeleteButtonClicked.bind(this)}
         />
         <CreateCollectionDialog />
+        <DropCollectionDialog />
       </div>
     );
   }
