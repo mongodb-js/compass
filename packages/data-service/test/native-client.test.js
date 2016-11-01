@@ -45,6 +45,7 @@ describe('NativeClient', function() {
   describe('#new', function() {
     it('sets the model on the instance', function() {
       expect(client.model).to.equal(helper.connection);
+      expect(client.isWritable).to.equal(true);
     });
   });
 

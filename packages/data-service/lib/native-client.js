@@ -12,6 +12,11 @@ const translate = require('mongodb-js-errors').translate;
 const debug = require('debug')('mongodb-data-service:native-client');
 
 /**
+ * The constant for a mongos.
+ */
+const SHARDED = 'isdbgrid';
+
+/**
  * The native client class.
  */
 class NativeClient extends EventEmitter {
@@ -41,6 +46,7 @@ class NativeClient extends EventEmitter {
       }
       debug('connected!');
       this.database = database;
+      this.isWritable = this._isWritable(this.database.serverConfig.s.server.ismaster);
       done(null, this);
     });
     this.client.on('status', (evt) => this.emit('status', evt));
@@ -684,6 +690,17 @@ class NativeClient extends EventEmitter {
    */
   _database(name) {
     return this.database.db(name);
+  }
+
+  /**
+   * Determine if the ismaster response is for a writable server.
+   *
+   * @param {Object} ismaster - The ismaster response.
+   *
+   * @returns {Boolean} If the server is writable.
+   */
+  _isWritable(ismaster) {
+    return ismaster.ismaster === true || ismaster.msg === SHARDED;
   }
 
   /**

@@ -38,6 +38,15 @@ class DataService extends EventEmitter {
   }
 
   /**
+   * Is the data service allowed to perform write operations.
+   *
+   * @returns {Boolean} If the data service is writable.
+   */
+  isWritable() {
+    return this.client.isWritable;
+  }
+
+  /**
    * List all collections for a database.
    *
    * @param {String} databaseName - The database name.
