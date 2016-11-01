@@ -40,6 +40,7 @@ class CreateIndexCheckbox extends React.Component {
   render() {
     return (
       <div className="create-index-checkbox">
+        <label>
         <input
           type="checkbox"
           checked={this.state.checked}
@@ -48,6 +49,7 @@ class CreateIndexCheckbox extends React.Component {
         <p className="create-index-checkbox-description">
           {this.props.description}
         </p>
+        </label>
       </div>
     );
   }
