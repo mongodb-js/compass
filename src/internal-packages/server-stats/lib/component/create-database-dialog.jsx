@@ -5,9 +5,6 @@ const Modal = require('react-bootstrap').Modal;
 const TextButton = require('hadron-app-registry').TextButton;
 const Actions = require('../action/databases-actions');
 const CreateDatabaseStore = require('../store/create-database-store');
-const CreateCollectionInput = require('./create-collection-input');
-const CreateCollectionSizeInput = require('./create-collection-size-input');
-const CreateCollectionCheckbox = require('./create-collection-checkbox');
 
 /**
  * The more information url.
@@ -33,6 +30,9 @@ class CreateDatabaseDialog extends React.Component {
     super(props);
     this.state = { open: false };
     this.ModalStatusMessage = app.appRegistry.getComponent('App.ModalStatusMessage');
+    this.CreateCollectionInput = app.appRegistry.getComponent('Database.CreateCollectionInput');
+    this.CreateCollectionSizeInput = app.appRegistry.getComponent('Database.CreateCollectionSizeInput');
+    this.CreateCollectionCheckbox = app.appRegistry.getComponent('Database.CreateCollectionCheckbox');
   }
 
   /**
@@ -164,7 +164,7 @@ class CreateDatabaseDialog extends React.Component {
   renderMaxSize() {
     if (this.state.capped) {
       return (
-        <CreateCollectionSizeInput
+        <this.CreateCollectionSizeInput
           name="bytes max"
           placeholder="Enter max bytes"
           value={this.state.maxSize}
@@ -187,15 +187,15 @@ class CreateDatabaseDialog extends React.Component {
 
         <Modal.Body>
           <form name="create-collection-dialog-form">
-            <CreateCollectionInput
+            <this.CreateCollectionInput
               name="Database Name"
               value={this.state.databaseName}
               onChangeHandler={this.onDatabaseNameChange.bind(this)} />
-            <CreateCollectionInput
+            <this.CreateCollectionInput
               name="Collection Name"
               value={this.state.collectionName}
               onChangeHandler={this.onCollectionNameChange.bind(this)} />
-            <CreateCollectionCheckbox
+            <this.CreateCollectionCheckbox
               name="Capped Collection"
               className="create-collection-dialog-capped"
               checked={this.state.checked}

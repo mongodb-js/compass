@@ -3,8 +3,10 @@ const shell = require('electron').shell;
 const React = require('react');
 const Modal = require('react-bootstrap').Modal;
 const TextButton = require('hadron-app-registry').TextButton;
-const Actions = require('../action/databases-actions');
-const CreateCollectionStore = require('../store/create-collection-store');
+const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
+const toNS = require('mongodb-ns');
+const Actions = require('../actions/collections-actions');
+const CreateCollectionStore = require('../stores/create-collection-store');
 const CreateCollectionInput = require('./create-collection-input');
 const CreateCollectionSizeInput = require('./create-collection-size-input');
 const CreateCollectionCheckbox = require('./create-collection-checkbox');
@@ -53,6 +55,7 @@ class CreateCollectionDialog extends React.Component {
     this.setState({
       open: true,
       collectionName: '',
+      databaseName: toNS(NamespaceStore.ns).database,
       capped: false,
       maxSize: '',
       error: false,
@@ -74,7 +77,7 @@ class CreateCollectionDialog extends React.Component {
   onCreateCollectionButtonClicked() {
     this.setState({ inProgress: true, error: false, errorMessage: '' });
     Actions.createCollection(
-      this.props.databaseName,
+      this.state.databaseName,
       this.state.collectionName,
       this.state.capped,
       this.state.maxSize
@@ -197,9 +200,5 @@ class CreateCollectionDialog extends React.Component {
 }
 
 CreateCollectionDialog.displayName = 'CreateCollectionDialog';
-
-CreateCollectionDialog.propTypes = {
-  databaseName: React.PropTypes.string.isRequired
-};
 
 module.exports = CreateCollectionDialog;

@@ -1,6 +1,8 @@
 const React = require('react');
 const app = require('ampersand-app');
 const CollectionsActions = require('../actions/collections-actions');
+const CreateCollectionDialog = require('./create-collection-dialog');
+const TextButton = require('hadron-app-registry').TextButton;
 const numeral = require('numeral');
 
 const _ = require('lodash');
@@ -20,6 +22,10 @@ class CollectionsTable extends React.Component {
 
   onRowDeleteButtonClicked(/* collName */) {
     // CollectionsActions.deleteCollection(collName);
+  }
+
+  onCreateCollectionButtonClicked() {
+    CollectionsActions.openCreateCollectionDialog();
   }
 
   render() {
@@ -45,6 +51,12 @@ class CollectionsTable extends React.Component {
 
     return (
       <div className="collections-table">
+        <div className="collections-table-create-button">
+          <TextButton
+            text="Create Collection"
+            className="btn btn-default btn-sm"
+            clickHandler={this.onCreateCollectionButtonClicked.bind(this)} />
+        </div>
         <this.SortableTable
           theme="light"
           columns={this.props.columns}
@@ -56,6 +68,7 @@ class CollectionsTable extends React.Component {
           onColumnHeaderClicked={this.onColumnHeaderClicked.bind(this)}
           onRowDeleteButtonClicked={this.onRowDeleteButtonClicked.bind(this)}
         />
+        <CreateCollectionDialog />
       </div>
     );
   }

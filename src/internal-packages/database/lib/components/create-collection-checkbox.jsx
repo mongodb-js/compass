@@ -1,5 +1,8 @@
 const React = require('react');
 
+/**
+ * A checkbox in the create collection dialog.
+ */
 class CreateCollectionCheckbox extends React.Component {
 
   /**

@@ -1,6 +1,6 @@
 const Reflux = require('reflux');
 const app = require('ampersand-app');
-const Actions = require('../action/databases-actions');
+const Actions = require('../actions/collections-actions');
 
 /**
  * The reflux store for creating collections.

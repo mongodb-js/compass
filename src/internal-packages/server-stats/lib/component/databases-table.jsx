@@ -3,7 +3,6 @@ const app = require('ampersand-app');
 const TextButton = require('hadron-app-registry').TextButton;
 const DatabasesActions = require('../action/databases-actions');
 const CreateDatabaseDialog = require('./create-database-dialog');
-const CreateCollectionDialog = require('./create-collection-dialog');
 const DropDatabaseDialog = require('./drop-database-dialog');
 const numeral = require('numeral');
 
@@ -30,10 +29,6 @@ class DatabasesTable extends React.Component {
     DatabasesActions.openCreateDatabaseDialog();
   }
 
-  onCreateCollectionButtonClicked() {
-    DatabasesActions.openCreateCollectionDialog();
-  }
-
   render() {
     // convert storage size to human-readable units (MB, GB, ...)
     // we do this here so that sorting is not affected in the store
@@ -50,10 +45,6 @@ class DatabasesTable extends React.Component {
             text="Create Database"
             className="btn btn-default btn-sm"
             clickHandler={this.onCreateDatabaseButtonClicked.bind(this)} />
-          <TextButton
-            text="Create Collection"
-            className="btn btn-default btn-sm"
-            clickHandler={this.onCreateCollectionButtonClicked.bind(this)} />
         </div>
         <this.SortableTable
           theme="dark"
@@ -68,7 +59,6 @@ class DatabasesTable extends React.Component {
           onRowDeleteButtonClicked={this.onRowDeleteButtonClicked.bind(this)}
         />
         <CreateDatabaseDialog />
-        <CreateCollectionDialog />
         <DropDatabaseDialog />
       </div>
     );

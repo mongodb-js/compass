@@ -1,5 +1,8 @@
 const React = require('react');
 
+/**
+ * A size input field in the create collection checkbox.
+ */
 class CreateCollectionSizeInput extends React.Component {
 
   /**
