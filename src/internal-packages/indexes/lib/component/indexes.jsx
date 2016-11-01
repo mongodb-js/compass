@@ -20,9 +20,7 @@ class Indexes extends React.Component {
         <div className="flexbox-fix"></div>
         <div className="column-container">
           <div className="column main">
-            {app.preferences.isFeatureEnabled('indexDDL') ?
-              <CreateIndexButton />
-              : null}
+            {app.dataService.isWritable() ? <CreateIndexButton /> : null}
             <table>
               <IndexHeader />
               <IndexList />

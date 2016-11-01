@@ -27,7 +27,7 @@ class Index extends React.Component {
           relativeSize={this.props.index.relativeSize} />
         <UsageColumn usage={this.props.index.usageCount} since={this.props.index.usageSince} />
         <PropertyColumn index={this.props.index} />
-        {app.preferences.isFeatureEnabled('indexDDL') ?
+        {app.dataService.isWritable() ?
           <DropColumn indexName={this.props.index.name} />
           : null}
       </tr>
