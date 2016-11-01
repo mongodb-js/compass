@@ -14,7 +14,7 @@ class DatabasesTable extends React.Component {
     CollectionsActions.sortCollections(column, order);
   }
 
-  onRowDeleteButtonClicked(collName) {
+  onRowDeleteButtonClicked(/* collName */) {
     // CollectionsActions.deleteCollection(collName);
   }
 
