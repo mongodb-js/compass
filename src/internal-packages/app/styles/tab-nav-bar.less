@@ -1,0 +1,109 @@
+.tab-nav-bar {
+
+  &-header {
+    height: 45px;
+    background-color: @pw;
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-end;
+    position: relative;
+  }
+
+  &-tabs {
+    display: flex;
+    justify-content: flex-end;
+    align-self: flex-end;
+    margin-bottom: 0;
+    position: absolute;
+    top: 16px;
+    margin-left: 10px;
+  }
+
+  &-tab {
+    height: 30px;
+    width: 130px;
+    margin-right: 5px;
+    font-size: 13px;
+    text-transform: uppercase;
+    border-radius: 3px 3px 0 0;
+    display: flex;
+    justify-content: center;
+    cursor: pointer;
+    margin-bottom: 0;
+    color: #43B1E5;
+  }
+
+  &-tab:hover {
+    background-color: @pw;
+    color: @gray0;
+    border: 1px solid @gray7;
+
+    .tab-nav-bar-link {
+      color: @gray0;
+    }
+  }
+
+  &-link {
+    margin: auto;
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: bold;
+    color: #43B1E5;
+  }
+
+  &-link:hover, &-link:active, &-link:focus {
+    text-decoration: none;
+    color: @gray0;
+  }
+
+  &-is-selected {
+    .tab-nav-bar-link {
+      color: @gray0;
+    }
+
+    &.tab-nav-bar-tab:hover {
+      background-color: @gray8;
+      border-bottom: none;
+    }
+    background-color: @gray8;
+    cursor: default;
+    border: #ebebed 1px solid;
+    border-bottom: none;
+  }
+
+  &-is-dark-theme {
+    .tab-nav-bar-header {
+      background-color: #2B3033;
+    }
+
+    .tab-nav-bar-tab {
+      color: #8B8D8F;
+    }
+
+    .tab-nav-bar-link {
+      color: @pw;
+    }
+
+    .tab-nav-bar-is-selected {
+      color: @pw;
+      background-color: #3D4247;
+      border-color: #545454;
+
+      &.tab-nav-bar-tab:hover {
+        background-color: #3D4247;
+      }
+    }
+
+    .tab-nav-bar-tab:hover {
+      background-color: #2B3033;
+      border-color: #545454;
+      border-bottom: none;
+
+      color: @pw;
+
+      .tab-nav-bar-link {
+        color: @pw;
+      }
+    }
+  }
+}

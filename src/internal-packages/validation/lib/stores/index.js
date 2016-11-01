@@ -35,9 +35,10 @@ const ValidationStore = Reflux.createStore({
   init() {
     this.lastFetchedValidatorDoc = {};
 
-    NamespaceStore.listen(() => {
-      debug('new namespace');
-      ValidationActions.fetchValidationRules();
+    NamespaceStore.listen((ns) => {
+      if (ns && toNS(ns).collection) {
+        ValidationActions.fetchValidationRules();
+      }
     });
   },
 

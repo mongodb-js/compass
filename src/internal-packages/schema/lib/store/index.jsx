@@ -2,6 +2,8 @@ const app = require('ampersand-app');
 const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
 const schemaStream = require('mongodb-schema').stream;
+const toNS = require('mongodb-ns');
+
 const _ = require('lodash');
 const ReadPreference = require('mongodb').ReadPreference;
 
@@ -34,9 +36,11 @@ const SchemaStore = Reflux.createStore({
    * Initialize the document list store.
    */
   init: function() {
-    NamespaceStore.listen(() => {
-      this._reset();
-      SchemaAction.startSampling();
+    NamespaceStore.listen((ns) => {
+      if (ns && toNS(ns).collection) {
+        this._reset();
+        SchemaAction.startSampling();
+      }
     });
 
     this.samplingStream = null;

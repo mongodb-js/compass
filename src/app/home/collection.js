@@ -5,6 +5,7 @@ var MongoDBCollection = require('../models/mongodb-collection');
 var React = require('react');
 var ReactDOM = require('react-dom');
 var NamespaceStore = require('hadron-reflux-store').NamespaceStore;
+var toNS = require('mongodb-ns');
 var _ = require('lodash');
 
 var app = require('ampersand-app');
@@ -194,9 +195,12 @@ var MongoDBCollectionView = View.extend({
       this.schemaActions.resizeMiniCharts();
     }
   },
-  onCollectionChanged: function() {
-    this.ns = NamespaceStore.ns;
-    if (!this.ns) {
+  onCollectionChanged: function(ns) {
+    if (ns === this.ns) {
+      return;
+    }
+    this.ns = ns;
+    if (!ns || !toNS(ns || '').collection) {
       this.visible = false;
       debug('No active collection namespace so no schema has been requested yet.');
       return;

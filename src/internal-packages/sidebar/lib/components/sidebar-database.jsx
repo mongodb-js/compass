@@ -1,6 +1,7 @@
 const React = require('react');
 const SidebarCollection = require('./sidebar-collection');
-const debug = require('debug')('mongodb-compass:sidebar');
+const { NamespaceStore } = require('hadron-reflux-store');
+// const debug = require('debug')('mongodb-compass:sidebar');
 
 class SidebarDatabase extends React.Component {
   constructor() {
@@ -33,7 +34,9 @@ class SidebarDatabase extends React.Component {
   }
 
   handleDBClick(db) {
-    debug('db clicked', db);
+    if (NamespaceStore.ns !== db) {
+      NamespaceStore.ns = db;
+    }
   }
 
   handleArrowClick() {
