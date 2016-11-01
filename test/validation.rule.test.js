@@ -1,11 +1,11 @@
-/* eslint no-unused-expressions: 0 */
+/* eslint no-unused-vars: 0 */
 const chai = require('chai');
 const chaiEnzyme = require('chai-enzyme');
 const expect = chai.expect;
 const React = require('react');
 
 const mount = require('enzyme').mount;
-const Rule = require('../lib/components/rule');
+const Rule = require('../src/internal-packages/validation/lib/components/rule');
 const _ = require('lodash');
 
 // const debug = require('debug')('compass:validation:test');
