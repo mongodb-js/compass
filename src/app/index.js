@@ -335,6 +335,10 @@ app.extend({
     return this.preferences.isFeatureEnabled(feature);
   },
   setConnectionId: function(connectionId, done) {
+    if (state.connection && state.connection.getId() === connectionId) {
+      debug('Already connected to connectionId', connectionId);
+      return done();
+    }
     var StatusAction = app.appRegistry.getAction('Status.Actions');
     StatusAction.configure({
       visible: true,
