@@ -39,9 +39,8 @@ const CollectionsStore = Reflux.createStore({
    * Initialize everything that is not part of the store's state.
    */
   init() {
-    this.InstanceStore = app.appRegistry.getStore('App.InstanceStore');
     NamespaceStore.listen(this.onNamespaceChanged.bind(this));
-    // this.listenToExternalStore('App.InstanceStore', );
+    this.listenToExternalStore('App.InstanceStore', this.onNamespaceChanged.bind(this));
     this.indexes = [];
   },
 
@@ -62,38 +61,40 @@ const CollectionsStore = Reflux.createStore({
   },
 
   onNamespaceChanged() {
-    const ns = toNS(NamespaceStore.ns);
-    if (!ns.database) {
-      this.setState({
-        collections: []
-      });
-      return;
-    }
-
-    app.dataService.database(ns.database, {}, (err, res) => {
-      if (err) {
+    if (NamespaceStore.ns) {
+      const ns = toNS(NamespaceStore.ns);
+      if (!ns.database) {
         this.setState({
-          fetchState: 'error',
-          errorMessage: err
+          collections: []
         });
         return;
       }
-      debug('collections', res.collections);
-      const unsorted = _.map(res.collections, (coll) => {
-        return _.zipObject(COLL_COLUMNS, [
-          coll.name, // Collection Name
-          coll.document_count, // Num. Documents
-          coll.size / coll.document_count, // Avg. Document Size
-          coll.size, // Total Document Size
-          coll.index_count,  // Num Indexes
-          coll.index_size // Total Index Size
-        ]);
-      });
 
-      this.setState({
-        collections: this._sort(unsorted)
+      app.dataService.database(ns.database, {}, (err, res) => {
+        if (err) {
+          this.setState({
+            fetchState: 'error',
+            errorMessage: err
+          });
+          return;
+        }
+        debug('collections', res.collections);
+        const unsorted = _.map(res.collections, (coll) => {
+          return _.zipObject(COLL_COLUMNS, [
+            coll.name, // Collection Name
+            coll.document_count, // Num. Documents
+            coll.size / coll.document_count, // Avg. Document Size
+            coll.size, // Total Document Size
+            coll.index_count,  // Num Indexes
+            coll.index_size // Total Index Size
+          ]);
+        });
+
+        this.setState({
+          collections: this._sort(unsorted)
+        });
       });
-    });
+    }
   },
 
   sortCollections(column, order) {
@@ -104,14 +105,6 @@ const CollectionsStore = Reflux.createStore({
     });
   },
 
-  // deleteCollection(dbName) {
-  //   // TODO remove collection on server
-  // },
-  //
-  // createCollection(collName) {
-  //   // TODO create collection
-  // }
-
   /**
    * log changes to the store as debug messages.
    * @param  {Object} prevState   previous state.
@@ -119,7 +112,6 @@ const CollectionsStore = Reflux.createStore({
   storeDidUpdate(prevState) {
     debug('collections store changed from', prevState, 'to', this.state);
   }
-
 });
 
 module.exports = CollectionsStore;
