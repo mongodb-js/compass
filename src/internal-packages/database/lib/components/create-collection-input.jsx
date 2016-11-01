@@ -1,5 +1,8 @@
 const React = require('react');
 
+/**
+ * An input field in the create collection checkbox.
+ */
 class CreateCollectionInput extends React.Component {
 
   /**

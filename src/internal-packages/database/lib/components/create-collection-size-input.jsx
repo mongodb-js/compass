@@ -1,5 +1,8 @@
 const React = require('react');
 
+/**
+ * A size input field in the create collection checkbox.
+ */
 class CreateCollectionSizeInput extends React.Component {
 
   /**
@@ -12,11 +15,11 @@ class CreateCollectionSizeInput extends React.Component {
       <div className="form-group">
         <input
           type="text"
-          className="form-control create-database-dialog-size-input"
+          className="form-control create-collection-dialog-size-input"
           onChange={this.props.onChangeHandler}
           value={this.props.value}
           placeholder={this.props.placeholder} />
-        <p className="create-database-dialog-size-field">{this.props.name}</p>
+        <p className="create-collection-dialog-size-field">{this.props.name}</p>
       </div>
     );
   }

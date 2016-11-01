@@ -151,12 +151,6 @@ var HomeView = View.extend({
       'server memory size (gb)': app.instance.host.memory_bits / 1024 / 1024 / 1024
     });
 
-    const model = this._getCollection();
-    // When the current collection no longer exists
-    if (NamespaceStore.ns && !model) {
-      NamespaceStore.ns = null;
-    }
-
     if (!NamespaceStore.ns) {
       app.instance.collections.unselectAll();
       if (app.instance.collections.length === 0) {
