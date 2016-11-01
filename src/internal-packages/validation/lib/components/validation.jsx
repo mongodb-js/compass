@@ -40,12 +40,14 @@ class Validation extends React.Component {
   render() {
     const view = this.props.viewMode === 'Rule Builder' ?
       (
-        <RuleBuilder
-          validationRules={this.props.validationRules}
-          validationAction={this.props.validationAction}
-          validationLevel={this.props.validationLevel}
-          editState={this.props.editState}
-        />
+        <div className="validation validation-rule-builder-wrapper">
+          <RuleBuilder
+            validationRules={this.props.validationRules}
+            validationAction={this.props.validationAction}
+            validationLevel={this.props.validationLevel}
+            editState={this.props.editState}
+          />
+        </div>
       ) : (
         <JSONView
           validatorDoc={this.props.validatorDoc}
@@ -61,11 +63,6 @@ class Validation extends React.Component {
     return (
       <div className="validation">
         <Grid fluid>
-          <StatusRow>
-            <span>This is an example status row with a link.</span>
-            {' '}
-            <a href="#">more info</a>
-          </StatusRow>
           <StatusRow>
             <ViewSwitcher
               label="View as:"

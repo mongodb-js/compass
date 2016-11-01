@@ -23,6 +23,17 @@ class Editable extends React.Component {
         </div>
       );
     }
+    if (this.props.editState === 'error') {
+      return (
+        <div className="pull-right">
+          <Button
+            bsStyle="link"
+            bsSize="xsmall"
+            onClick={this.props.onCancel}>Cancel
+          </Button>
+        </div>
+      );
+    }
     return null;
   }
 
@@ -39,7 +50,7 @@ class Editable extends React.Component {
       case 'error':
         if (errorMsg) {
           return name ? `${name} could not be updated: ${errorMsg}` :
-            `Error during update: ${errorMsg}`;
+            `Error: ${errorMsg}`;
         }
         return name ? `${name} could not be updated.` : 'An error occurred during the update.';
       default: return '';
