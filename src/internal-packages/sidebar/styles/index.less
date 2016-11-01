@@ -191,16 +191,20 @@
 
     &-hostname {
       display: inline-block;
-      height: 16px;
-      width: 214px;
+      height: 20px;
+      width: 200px;
+      line-height: 20px;
       overflow-x: hidden;
       text-overflow: ellipsis;
+      &::-webkit-scrollbar {
+        display: none;
+      }
     }
 
     &-version {
       color: #9DA4AA;
       font-weight: normal;
-      line-height: 16px;
+      line-height: 8px;
       height: 16px;
       font-size: 13px;
       margin-left: 36px;
