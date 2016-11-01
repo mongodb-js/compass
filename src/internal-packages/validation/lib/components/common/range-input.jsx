@@ -132,9 +132,6 @@ class RangeInput extends React.Component {
     if (this.state.disabled) {
       return (
         <FormGroup>
-          <div>
-            <ControlLabel>{boundString}</ControlLabel>
-          </div>
           <DropdownButton
             id={`range-input-${this.props.upperBound ? 'upper' : 'lower'}`}
             style={{width: this.props.width}}
@@ -146,13 +143,10 @@ class RangeInput extends React.Component {
       );
     }
     // not disabled, render input group with value input and operator dropdown
-    const placeholder = `enter ${boundString}`.toLowerCase();
+    const placeholder = `${boundString}`.toLowerCase();
 
     return (
       <FormGroup validationState={this.props.validationState || this.state.validationState}>
-        <div>
-          <ControlLabel>{boundString}</ControlLabel>
-        </div>
         <InputGroup style={{width: this.props.width}}>
           <DropdownButton
             id={`range-input-${this.props.upperBound ? 'upper' : 'lower'}`}
@@ -191,7 +185,7 @@ RangeInput.defaultProps = {
   upperBound: false,
   validationState: null,
   value: '',
-  width: 200
+  width: 160
 };
 
 RangeInput.displayName = 'RangeInput';
