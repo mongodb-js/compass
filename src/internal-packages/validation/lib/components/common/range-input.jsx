@@ -97,13 +97,17 @@ class RangeInput extends React.Component {
 
   renderMenuItems() {
     if (this.props.upperBound) {
-      return [<MenuItem key="<" eventKey="<" href="#">&lt;</MenuItem>,
-              <MenuItem key="<=" eventKey="<=" href="#">&lt;=</MenuItem>,
-              <MenuItem key="none" eventKey="none" href="#">none</MenuItem>];
+      return [
+        <MenuItem key="<" eventKey="<" href="#">&lt;</MenuItem>,
+        <MenuItem key="<=" eventKey="<=" href="#">&lt;=</MenuItem>,
+        <MenuItem key="none" eventKey="none" href="#">none</MenuItem>
+      ];
     }
-    return [<MenuItem key=">" eventKey=">" href="#">&gt;</MenuItem>,
-            <MenuItem key=">=" eventKey=">=" href="#">&gt;=</MenuItem>,
-            <MenuItem key="none" eventKey="none" href="#">none</MenuItem>];
+    return [
+      <MenuItem key=">" eventKey=">" href="#">&gt;</MenuItem>,
+      <MenuItem key=">=" eventKey=">=" href="#">&gt;=</MenuItem>,
+      <MenuItem key="none" eventKey="none" href="#">none</MenuItem>
+    ];
   }
 
 
