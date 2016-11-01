@@ -8,7 +8,14 @@ const _ = require('lodash');
 
 const debug = require('debug')('mongodb-compass:stores:collections');
 
-const COLL_COLUMNS = ['Collection Name', 'Num. Documents', 'Avg. Document Size', 'Num. Indexes'];
+const COLL_COLUMNS = [
+  'Collection Name',
+  'Documents',
+  'Avg. Document Size',
+  'Total Document Size',
+  'Num. Indexes',
+  'Total Index Size'
+];
 
 /**
  * Databases store, used to present a table of databases with some basic
@@ -43,7 +50,9 @@ const CollectionsStore = Reflux.createStore({
       columns: COLL_COLUMNS,
       collections: [],
       sortOrder: 'asc',
-      sortColumn: 'Collection Name'
+      sortColumn: 'Collection Name',
+      fetchState: 'initial',
+      errorMessage: ''
     };
   },
 
@@ -61,17 +70,29 @@ const CollectionsStore = Reflux.createStore({
       return;
     }
 
-    const instance = this.InstanceStore.state.instance;
-    const database = instance.databases.get(ns.database);
+    app.dataService.database(ns.database, {}, (err, res) => {
+      if (err) {
+        this.setState({
+          fetchState: 'error',
+          errorMessage: err
+        });
+        return;
+      }
+      debug('collections', res.collections);
+      const unsorted = _.map(res.collections, (coll) => {
+        return _.zipObject(COLL_COLUMNS, [
+          coll.name, // Collection Name
+          coll.document_count, // Num. Documents
+          coll.size / coll.document_count, // Avg. Document Size
+          coll.size, // Total Document Size
+          coll.index_count,  // Num Indexes
+          coll.index_size // Total Index Size
+        ]);
+      });
 
-    const unsorted = database.collections.map((db) => {
-      return _.zipObject(COLL_COLUMNS, [
-        toNS(db._id).collection
-      ]);
-    });
-
-    this.setState({
-      collections: this._sort(unsorted)
+      this.setState({
+        collections: this._sort(unsorted)
+      });
     });
   },
 

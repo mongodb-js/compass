@@ -19,11 +19,23 @@ class DatabasesTable extends React.Component {
   }
 
   render() {
-    // convert storage size to human-readable units (MB, GB, ...)
+    // convert some of the values to human-readable units (MB, GB, ...)
     // we do this here so that sorting is not affected in the store
-    const rows = _.map(this.props.collections, (db) => {
-      return _.assign({}, db, {
-        'Storage Size': numeral(db['Storage Size']).format('0.0b')
+    //
+    //   'Collection Name',
+      // 'Num. Documents',
+      // 'Avg. Document Size',
+      // 'Total Document Size',
+      // 'Num. Indexes',
+      // 'Total Index Size'
+
+    const rows = _.map(this.props.collections, (coll) => {
+      return _.assign({}, coll, {
+        'Documents': numeral(coll.Documents).format('0,0'),
+        'Avg. Document Size': _.isNaN(coll['Avg. Document Size']) ?
+          '-' : numeral(coll['Avg. Document Size']).format('0.0 b'),
+        'Total Document Size': numeral(coll['Total Document Size']).format('0.0 b'),
+        'Total Index Size': numeral(coll['Total Index Size']).format('0.0 b')
       });
     });
 

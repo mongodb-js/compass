@@ -18,13 +18,14 @@ class DatabaseView extends React.Component {
     const collectionsTableView = <CollectionsTableView />;
     return (
       <div className="collections-table">
-        <this.TabNavBar
+        {collectionsTableView}
+        {/* <this.TabNavBar
           theme="light"
           tabs={['Collections']}
           views={[collectionsTableView]}
           activeTabIndex={0}
           className="rt-nav"
-        />
+        /> */}
       </div>
     );
   }
