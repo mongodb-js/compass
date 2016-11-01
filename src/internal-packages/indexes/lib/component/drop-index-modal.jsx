@@ -94,6 +94,30 @@ class DropIndexModal extends React.Component {
   }
 
   /**
+   * Render the create and cancel buttons.
+   *
+   * @returns {React.Component} The create and cancel buttons.
+   */
+  renderButtons() {
+    return (
+      <div className="drop-btn-container">
+        <button
+          className="drop-btn btn btn-default btn-sm"
+          type="button"
+          onClick={this.handleCancel.bind(this)}>
+          Cancel
+        </button>
+        <button
+          className="drop-btn btn btn-primary btn-sm"
+          disabled={this.state.confirmName !== this.props.indexName}
+          type="submit">
+          Drop
+        </button>
+      </div>
+    );
+  }
+
+  /**
    * Render drop confirmation modal.
    *
    * @returns {React.Component} drop confirmation modal.
@@ -127,23 +151,13 @@ class DropIndexModal extends React.Component {
                   value={this.state.confirmName}
                   onChange={this.handleChange.bind(this)} />
               </div>
-              <div className="drop-btn-container">
-                <button
-                  className="drop-btn btn btn-default btn-sm"
-                  type="button"
-                  onClick={this.handleCancel.bind(this)}>
-                  Cancel
-                </button>
-                <button
-                  className="drop-btn btn btn-primary btn-sm"
-                  disabled={this.state.confirmName !== this.props.indexName}
-                  type="submit">
-                  Drop
-                </button>
-              </div>
               {this.state.error ?
                 <this.ModalStatusMessage icon="times" message={this.state.errorMessage} type="error" />
                 : null}
+
+              {this.state.inProgress ?
+                <this.ModalStatusMessage icon="align-center" message={'Drop in Progress'} type="in-progress" />
+                : this.renderButtons()}
             </form>
           </Modal.Body>
         </div>
