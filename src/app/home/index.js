@@ -80,6 +80,7 @@ var HomeView = View.extend({
     } else {
       this.tourClosed();
     }
+    this.switchMainContent('');
   },
   switchMainContent: function(namespace) {
     if (namespace === this.ns) {

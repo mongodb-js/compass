@@ -7,7 +7,7 @@ const _ = require('lodash');
 
 // const debug = require('debug')('mongodb-compass:server-stats:databases');
 
-class DatabasesTable extends React.Component {
+class CollectionsTable extends React.Component {
 
   constructor(props) {
     super(props);
@@ -61,13 +61,13 @@ class DatabasesTable extends React.Component {
   }
 }
 
-DatabasesTable.propTypes = {
+CollectionsTable.propTypes = {
   columns: React.PropTypes.arrayOf(React.PropTypes.string),
   collections: React.PropTypes.arrayOf(React.PropTypes.object),
   sortOrder: React.PropTypes.oneOf(['asc', 'desc']),
   sortColumn: React.PropTypes.string
 };
 
-DatabasesTable.displayName = 'DatabasesTable';
+CollectionsTable.displayName = 'CollectionsTable';
 
-module.exports = DatabasesTable;
+module.exports = CollectionsTable;
