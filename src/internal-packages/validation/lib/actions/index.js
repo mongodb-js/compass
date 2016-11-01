@@ -13,6 +13,7 @@ const ValidationActions = Reflux.createActions([
   'setRuleNullable',
   'setValidationLevel',
   'setValidationAction',
+  'setValidatorDocument',
   'switchView',
   'saveChanges',
   'cancelChanges'

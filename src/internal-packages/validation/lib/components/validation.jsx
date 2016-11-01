@@ -54,6 +54,10 @@ class Validation extends React.Component {
           editState={this.props.editState}
         />
       );
+
+    const activeButton = this.props.isExpressibleByRules ?
+      this.props.viewMode : 'JSON';
+
     return (
       <div className="validation">
         <Grid fluid>
@@ -66,8 +70,9 @@ class Validation extends React.Component {
             <ViewSwitcher
               label="View as:"
               buttonLabels={['Rule Builder', 'JSON']}
-              activeButton={this.props.viewMode}
+              activeButton={activeButton}
               onClick={this.switchView.bind(this)}
+              disabled={!this.props.isExpressibleByRules}
             />
           </StatusRow>
           {view}
@@ -80,6 +85,7 @@ class Validation extends React.Component {
 Validation.propTypes = {
   editState: React.PropTypes.oneOf(['unmodified', 'modified', 'updating', 'error', 'success']).isRequired,
   viewMode: React.PropTypes.oneOf(['Rule Builder', 'JSON']).isRequired,
+  isExpressibleByRules: React.PropTypes.bool.isRequired,
   validationAction: React.PropTypes.oneOf(['warn', 'error']).isRequired,
   validatorDoc: React.PropTypes.object.isRequired,
   validationLevel: React.PropTypes.oneOf(['off', 'moderate', 'strict']).isRequired,
@@ -89,6 +95,7 @@ Validation.propTypes = {
 Validation.defaultProps = {
   editState: 'unmodified',
   viewMode: 'Rule Builder',
+  isExpressibleByRules: true,
   validationAction: 'warn',
   validatorDoc: {},
   validationLevel: 'off',

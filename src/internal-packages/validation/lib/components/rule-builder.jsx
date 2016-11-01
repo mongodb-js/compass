@@ -30,7 +30,7 @@ class RuleBuilder extends React.Component {
    * @param {String} action    the chosen action, one of `warn`, `error`.
    */
   onActionSelect(action) {
-    ValidationActions.setValidationAction(action);
+    ValidationActions.setValidationAction(action, true);
   }
 
   /**
@@ -39,7 +39,7 @@ class RuleBuilder extends React.Component {
    * @param {String} level    the chosen level, one of `off`, `moderate`, `strict`
    */
   onLevelSelect(level) {
-    ValidationActions.setValidationLevel(level);
+    ValidationActions.setValidationLevel(level, true);
   }
 
   /**

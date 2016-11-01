@@ -34,7 +34,6 @@ const ValidationStore = Reflux.createStore({
    */
   init() {
     this.lastFetchedValidatorDoc = {};
-
     NamespaceStore.listen((ns) => {
       if (ns && toNS(ns).collection) {
         ValidationActions.fetchValidationRules();
@@ -86,9 +85,6 @@ const ValidationStore = Reflux.createStore({
     const rules = _.map(validator, (field) => {
       const fieldName = field[0];
       const rule = field[1];
-      debug('structure of field is:', field);
-      debug('rule is:', rule);
-      debug('fieldName is:', fieldName);
 
       let parameters;
       const result = helper.nullableOrValidator(fieldName, rule);
@@ -241,7 +237,6 @@ const ValidationStore = Reflux.createStore({
       fetchState: 'fetching'
     });
     this._fetchFromServer((err, res) => {
-      debug('result from server', err, res);
       if (err || !_.has(res, 'options')) {
         // an error occured during fetch, e.g. missing permissions
         this.setState({
@@ -252,8 +247,8 @@ const ValidationStore = Reflux.createStore({
       const result = this._deconstructValidatorDoc(res.options);
 
       // store result from server
-      this.lastFetchedValidatorDoc = this._constructValidatorDoc(result);
-      const validatorDoc = _.clone(this.lastFetchedValidatorDoc);
+      const validatorDoc = res.options;
+      this.lastFetchedValidatorDoc = _.clone(validatorDoc);
 
       if (!result) {
         // the validatorDoc has an unexpected format.
@@ -277,6 +272,7 @@ const ValidationStore = Reflux.createStore({
         this.setState({
           fetchState: 'success',
           isExpressibleByRules: false,
+          viewMode: 'JSON',
           validatorDoc: validatorDoc,
           validationLevel: result.level,
           validationAction: result.action,
@@ -289,6 +285,7 @@ const ValidationStore = Reflux.createStore({
       this.setState({
         fetchState: 'success',
         isExpressibleByRules: true,
+        viewMode: 'Rule Builder',
         validatorDoc: validatorDoc,
         validationRules: result.rules,
         validationLevel: result.level,
@@ -359,16 +356,54 @@ const ValidationStore = Reflux.createStore({
     this._updateState({rules: rules});
   },
 
-  setValidationAction(validationAction) {
-    if (_.includes(['warn', 'error'], validationAction)) {
-      this._updateState({action: validationAction});
-    }
+  setValidatorDocument(validatorDoc) {
+    const result = this._deconstructValidatorDoc(validatorDoc);
+
+    this.setState({
+      validatorDoc: validatorDoc,
+      validationRules: result.rules || [],
+      validationLevel: result.level,
+      validationAction: result.action,
+      isExpressibleByRules: _.isArray(result.rules),
+      editState: _.isEqual(this.lastFetchedValidatorDoc, validatorDoc) ?
+        'unmodified' : 'modified'
+    });
   },
 
-  setValidationLevel(validationLevel) {
-    if (_.includes(['off', 'moderate', 'strict'], validationLevel)) {
-      this._updateState({level: validationLevel});
+  setValidationAction(validationAction, setByRuleBuilder) {
+    if (!_.includes(['warn', 'error'], validationAction)) {
+      return;
     }
+    if (setByRuleBuilder) {
+      this._updateState({action: validationAction});
+      return;
+    }
+    const validatorDoc = _.clone(this.state.validatorDoc);
+    validatorDoc.validationAction = validationAction;
+    this.setState({
+      validatorDoc: validatorDoc,
+      validationAction: validationAction,
+      editState: _.isEqual(this.lastFetchedValidatorDoc, validatorDoc) ?
+        'unmodified' : 'modified'
+    });
+  },
+
+  setValidationLevel(validationLevel, setByRuleBuilder) {
+    if (!_.includes(['off', 'moderate', 'strict'], validationLevel)) {
+      return;
+    }
+    if (setByRuleBuilder) {
+      this._updateState({level: validationLevel});
+      return;
+    }
+    const validatorDoc = _.clone(this.state.validatorDoc);
+    validatorDoc.validationLevel = validationLevel;
+    this.setState({
+      validatorDoc: validatorDoc,
+      validationLevel: validationLevel,
+      editState: _.isEqual(this.lastFetchedValidatorDoc, validatorDoc) ?
+        'unmodified' : 'modified'
+    });
   },
 
   /**

@@ -2,6 +2,7 @@ const React = require('react');
 const ValidationActions = require('../actions');
 const OptionSelector = require('./common/option-selector');
 const Editable = require('./common/editable');
+const JSONInput = require('./json-input');
 
 const ReactBootstrap = require('react-bootstrap');
 const Grid = ReactBootstrap.Grid;
@@ -18,7 +19,7 @@ class JSONView extends React.Component {
    * @param {String} action    the chosen action, one of `warn`, `error`.
    */
   onActionSelect(action) {
-    ValidationActions.setValidationAction(action);
+    ValidationActions.setValidationAction(action, false);
   }
 
   /**
@@ -27,7 +28,7 @@ class JSONView extends React.Component {
    * @param {String} level    the chosen level, one of `off`, `moderate`, `strict`
    */
   onLevelSelect(level) {
-    ValidationActions.setValidationLevel(level);
+    ValidationActions.setValidationLevel(level, false);
   }
 
   /**
@@ -85,11 +86,7 @@ class JSONView extends React.Component {
           <hr/>
           <Row>
             <Col lg={12} md={12} sm={12} xs={12}>
-              <pre><code
-                className="json-view code"
-                // readOnly="readOnly"
-                // disabled="disabled"
-              >{JSON.stringify(this.props.validatorDoc, null, 2)}</code></pre>
+              <JSONInput validatorDoc={this.props.validatorDoc} />
             </Col>
           </Row>
         </Grid>
