@@ -74,7 +74,7 @@ class CreateCollectionDialog extends React.Component {
   onCreateCollectionButtonClicked() {
     this.setState({ inProgress: true, error: false, errorMessage: '' });
     Actions.createCollection(
-      this.props.collectionName,
+      this.props.databaseName,
       this.state.collectionName,
       this.state.capped,
       this.state.maxSize
@@ -197,5 +197,9 @@ class CreateCollectionDialog extends React.Component {
 }
 
 CreateCollectionDialog.displayName = 'CreateCollectionDialog';
+
+CreateCollectionDialog.propTypes = {
+  databaseName: React.PropTypes.string.isRequired
+};
 
 module.exports = CreateCollectionDialog;
