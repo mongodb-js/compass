@@ -167,11 +167,11 @@ class RangeInput extends React.Component {
 }
 
 RangeInput.propTypes = {
-  value: React.PropTypes.number,
+  value: React.PropTypes.number.isRequired,
   upperBound: React.PropTypes.bool,
   validationState: React.PropTypes.string,
-  boundIncluded: React.PropTypes.bool,
-  disabled: React.PropTypes.bool,
+  boundIncluded: React.PropTypes.bool.isRequired,
+  disabled: React.PropTypes.bool.isRequired,
   onChange: React.PropTypes.func,
   width: React.PropTypes.number
 };
