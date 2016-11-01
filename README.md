@@ -5,9 +5,8 @@
 ## Development
 
 1. Follow the setup instructions for [OSX][setup-osx], [Windows][setup-windows] or [Linux][setup-linux].
-2. Run `git clone git@github.com:10gen/compass.git ~/compass` to get the source code
-3. Run `npm install` to install dependencies
-4. Run `npm start` to build the app and launch it
+2. Run `npm install` to install dependencies
+3. Run `npm start` to build the app and launch it
 
 Already setup and prefer a simple copy and paste?
 
