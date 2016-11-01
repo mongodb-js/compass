@@ -863,7 +863,7 @@ describe('ValidationStore', function() {
           parameters: {
             'comboValidationState': null,
             'lowerBoundType': '$gte',
-            'lowerBoundValue': 21,
+            'lowerBoundValue': '21',
             'upperBoundType': null,
             'upperBoundValue': null
           }
@@ -891,7 +891,7 @@ describe('ValidationStore', function() {
             'lowerBoundType': null,
             'lowerBoundValue': null,
             'upperBoundType': '$lt',
-            'upperBoundValue': 21.123456789
+            'upperBoundValue': '21.123456789'
           }
         });
       });
@@ -916,9 +916,9 @@ describe('ValidationStore', function() {
           parameters: {
             'comboValidationState': null,
             'lowerBoundType': '$gt',
-            'lowerBoundValue': 20,
+            'lowerBoundValue': '20',
             'upperBoundType': '$lte',
-            'upperBoundValue': 21
+            'upperBoundValue': '21'
           }
         });
       });
@@ -943,9 +943,9 @@ describe('ValidationStore', function() {
           parameters: {
             'comboValidationState': null,
             'lowerBoundType': '$gt',
-            'lowerBoundValue': -20,
+            'lowerBoundValue': '-20',
             'upperBoundType': '$lte',
-            'upperBoundValue': -0.000001
+            'upperBoundValue': '-0.000001'
           }
         });
       });
@@ -970,9 +970,9 @@ describe('ValidationStore', function() {
           parameters: {
             'comboValidationState': null,
             'lowerBoundType': '$gt',
-            'lowerBoundValue': 0,
+            'lowerBoundValue': '0',
             'upperBoundType': '$lte',
-            'upperBoundValue': 5000
+            'upperBoundValue': '5000'
           }
         });
       });
@@ -997,9 +997,9 @@ describe('ValidationStore', function() {
           parameters: {
             'comboValidationState': null,
             'lowerBoundType': '$gt',
-            'lowerBoundValue': -5000000000,
+            'lowerBoundValue': '-5000000000',
             'upperBoundType': '$lt',
-            'upperBoundValue': 0
+            'upperBoundValue': '0'
           }
         });
       });
@@ -1024,9 +1024,9 @@ describe('ValidationStore', function() {
           parameters: {
             'comboValidationState': null,
             'lowerBoundType': '$gte',
-            'lowerBoundValue': 0,
+            'lowerBoundValue': '0',
             'upperBoundType': '$lt',
-            'upperBoundValue': 273.16
+            'upperBoundValue': '273.16'
           }
         });
       });
@@ -1051,9 +1051,9 @@ describe('ValidationStore', function() {
           parameters: {
             'comboValidationState': null,
             'lowerBoundType': '$gt',
-            'lowerBoundValue': -273.16,
+            'lowerBoundValue': '-273.16',
             'upperBoundType': '$lte',
-            'upperBoundValue': 0
+            'upperBoundValue': '0'
           }
         });
       });
@@ -1083,9 +1083,9 @@ describe('ValidationStore', function() {
           parameters: {
             'comboValidationState': 'error',
             'lowerBoundType': '$gte',
-            'lowerBoundValue': 5,
+            'lowerBoundValue': '5',
             'upperBoundType': '$lte',
-            'upperBoundValue': 5
+            'upperBoundValue': '5'
           }
         });
       });
@@ -1111,9 +1111,9 @@ describe('ValidationStore', function() {
           parameters: {
             'comboValidationState': 'error',
             'lowerBoundType': '$gt',
-            'lowerBoundValue': 5,
+            'lowerBoundValue': '5',
             'upperBoundType': '$lte',
-            'upperBoundValue': 5
+            'upperBoundValue': '5'
           }
         });
       });
@@ -1139,9 +1139,9 @@ describe('ValidationStore', function() {
           parameters: {
             'comboValidationState': 'error',
             'lowerBoundType': '$gte',
-            'lowerBoundValue': 5,
+            'lowerBoundValue': '5',
             'upperBoundType': '$lt',
-            'upperBoundValue': 5
+            'upperBoundValue': '5'
           }
         });
       });
@@ -1167,9 +1167,9 @@ describe('ValidationStore', function() {
           parameters: {
             'comboValidationState': 'error',
             'lowerBoundType': '$gt',
-            'lowerBoundValue': 6,
+            'lowerBoundValue': '6',
             'upperBoundType': '$lt',
-            'upperBoundValue': 5
+            'upperBoundValue': '5'
           }
         });
       });

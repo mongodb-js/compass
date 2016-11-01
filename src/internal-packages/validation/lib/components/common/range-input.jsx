@@ -1,4 +1,5 @@
 const React = require('react');
+const app = require('ampersand-app');
 const _ = require('lodash');
 const FormGroup = require('react-bootstrap').FormGroup;
 const InputGroup = require('react-bootstrap').InputGroup;
@@ -6,8 +7,14 @@ const FormControl = require('react-bootstrap').FormControl;
 const DropdownButton = require('react-bootstrap').DropdownButton;
 const ControlLabel = require('react-bootstrap').ControlLabel;
 const MenuItem = require('react-bootstrap').MenuItem;
+const TypeChecker = require('hadron-type-checker');
 
 // const debug = require('debug')('mongodb-compass:validation:action-selector');
+
+/**
+  * The version at which high precision values are available.
+  */
+const HP_VERSION = '3.4.0';
 
 /**
  * A RangeInput represents a numeric lower or upper bound and the value of the
@@ -27,9 +34,16 @@ class RangeInput extends React.Component {
     this.state = {
       disabled: op === 'none',
       operator: op,
-      value: _.isNumber(this.props.value) ? String(this.props.value) : '',
+      value: this.props.value,
       validationState: null
     };
+    this._ENABLE_HP = app.instance && (
+      app.instance.build.version >= HP_VERSION);
+  }
+
+  componentWillMount() {
+    // Render any existing schema errors in red
+    this.validate();
   }
 
   onInputChange(evt) {
@@ -51,12 +65,18 @@ class RangeInput extends React.Component {
   }
 
   validate() {
-    const value = parseFloat(this.state.value);
-    // Warn user they cannot enter NaN or expressions like `10+5`,
-    // as parseFloat will truncate the value `10+5` to just `10`.
-    // Also allow exponential forms like -1.7976931348623157e+308, but not ∞
-    // http://stackoverflow.com/a/30987109/1101109
-    if (_.isNaN(value) || !/^-?\d+\.?\d*([Ee][+-]\d*)?$/.test(this.state.value)) {
+    const value = this.state.value;
+    const valueTypes = TypeChecker.castableTypes(value, this._ENABLE_HP);
+
+    // Not sure if hadron-type-checker should make NUMBER_TYPES public
+    const NUMBER_TYPES = [
+      'Long',
+      'Int32',
+      'Double',
+      'Decimal128'
+    ];
+
+    if (!_.intersection(valueTypes, NUMBER_TYPES).length) {
       this.setState({
         validationState: 'error'
       });
@@ -66,7 +86,9 @@ class RangeInput extends React.Component {
       });
     }
     // Get the parent to update both RangeInput component states
-    _.defer(this.props.onRangeInputBlur);
+    if (this.props.onRangeInputBlur) {
+      _.defer(this.props.onRangeInputBlur);
+    }
   }
 
   _getOperatorString(props) {
@@ -153,7 +175,8 @@ class RangeInput extends React.Component {
 }
 
 RangeInput.propTypes = {
-  value: React.PropTypes.number,  // Can't be required to allow "none" in GUI
+  value: React.PropTypes.string,  // Can't be required to allow "none" in GUI,
+                                  // can't be number to work with Decimal128.
   upperBound: React.PropTypes.bool,
   validationState: React.PropTypes.string,
   boundIncluded: React.PropTypes.bool.isRequired,
@@ -167,7 +190,7 @@ RangeInput.defaultProps = {
   boundIncluded: false,
   upperBound: false,
   validationState: null,
-  value: null,
+  value: '',
   width: 200
 };
 

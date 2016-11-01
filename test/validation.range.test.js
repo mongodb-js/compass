@@ -1,3 +1,4 @@
+/* eslint no-unused-expressions: 0 */
 /* eslint no-unused-vars: 0 */
 const chai = require('chai');
 const chaiEnzyme = require('chai-enzyme');
@@ -68,8 +69,8 @@ describe('<RuleCategoryRange />', function() {
     field: 'created_at',
     category: 'range',
     parameters: {
-      lowerBoundValue: -5,
-      upperBoundValue: 5
+      lowerBoundValue: '-5',
+      upperBoundValue: '5'
     },
     nullable: false
   };
@@ -86,9 +87,9 @@ describe('<RuleCategoryRange />', function() {
       parameters: {
         comboValidationState: 'error',
         lowerBoundType: '$gt',
-        lowerBoundValue: 5,
+        lowerBoundValue: '5',
         upperBoundType: '$lt',
-        upperBoundValue: 5
+        upperBoundValue: '5'
       }
     });
     component = shallow(<RuleCategoryRange {...props} />);
@@ -96,6 +97,52 @@ describe('<RuleCategoryRange />', function() {
     expect(ranges).to.have.length(2);
     ranges.forEach(range => {
       expect(range.props().validationState).to.be.equal('error');
+    });
+  });
+
+  context('for some different numeric types', function() {
+    const someInt32 = '32';
+    const someLong = '9007199254740991'; // 2^53-1, higher nums => Decimal128
+    const someDouble = '0.1';
+    const someDecimal128 = '9.999999999999999999999999999999999E+6144';
+
+    context('when server version is 3.2.10', function() {
+      const serverVersion = '3.2.10';
+      it('accepts Int32', function() {
+        const result = RuleCategoryRange.typeCastNumeric(someInt32, serverVersion);
+        expect(result._bsontype).to.be.equal('Int32');
+      });
+      it('accepts Long', function() {
+        const result = RuleCategoryRange.typeCastNumeric(someLong, serverVersion);
+        expect(result._bsontype).to.be.equal('Long');
+      });
+      it('accepts Double', function() {
+        const result = RuleCategoryRange.typeCastNumeric(someDouble, serverVersion);
+        expect(result._bsontype).to.be.equal('Double');
+      });
+      it('rejects Decimal128', function() {
+        const result = RuleCategoryRange.typeCastNumeric(someDecimal128, serverVersion);
+        expect(result._bsontype).to.be.undefined;
+      });
+    });
+    context('when server version is 3.4.0', function() {
+      const serverVersion = '3.4.0';
+      it('accepts Int32', function() {
+        const result = RuleCategoryRange.typeCastNumeric(someInt32, serverVersion);
+        expect(result._bsontype).to.be.equal('Int32');
+      });
+      it('accepts Long', function() {
+        const result = RuleCategoryRange.typeCastNumeric(someLong, serverVersion);
+        expect(result._bsontype).to.be.equal('Long');
+      });
+      it('accepts Double', function() {
+        const result = RuleCategoryRange.typeCastNumeric(someDouble, serverVersion);
+        expect(result._bsontype).to.be.equal('Double');
+      });
+      it('accepts Decimal128', function() {
+        const result = RuleCategoryRange.typeCastNumeric(someDecimal128, serverVersion);
+        expect(result._bsontype).to.be.equal('Decimal128');
+      });
     });
   });
 });

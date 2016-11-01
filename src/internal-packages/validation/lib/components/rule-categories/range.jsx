@@ -2,10 +2,17 @@ const React = require('react');
 const _ = require('lodash');
 const ValidationAction = require('../../actions');
 const RangeInput = require('../common/range-input');
+const TypeChecker = require('hadron-type-checker');
+const app = require('ampersand-app');
 const bootstrap = require('react-bootstrap');
 const FormGroup = bootstrap.FormGroup;
 
 // const debug = require('debug')('mongodb-compass:validation');
+
+/**
+  * The version at which high precision values are available.
+  */
+const HP_VERSION = '3.4.0';
 
 class RuleCategoryRange extends React.Component {
 
@@ -23,13 +30,13 @@ class RuleCategoryRange extends React.Component {
     const upperBoundState = this.refs.upperBoundRangeInputChild.state;
     if (Object.keys(opMap).includes(lowerBoundState.operator)) {
       params.lowerBoundType = opMap[lowerBoundState.operator];
-      params.lowerBoundValue = parseFloat(lowerBoundState.value);
+      params.lowerBoundValue = lowerBoundState.value;
     } else {
       params.lowerBoundType = null;
     }
     if (Object.keys(opMap).includes(upperBoundState.operator)) {
       params.upperBoundType = opMap[upperBoundState.operator];
-      params.upperBoundValue = parseFloat(upperBoundState.value);
+      params.upperBoundValue = upperBoundState.value;
     } else {
       params.upperBoundType = null;
     }
@@ -50,12 +57,30 @@ class RuleCategoryRange extends React.Component {
 
   static getComboValidationState(params) {
     // No documents could possibly satisfy these cases, e.g. 5 <= value < 5
-    if (typeof(params.upperBoundValue) === 'number' &&
-        typeof(params.lowerBoundValue) === 'number' &&
-        params.upperBoundValue <= params.lowerBoundValue) {
+    if (params.upperBoundValue !== null &&
+        params.lowerBoundValue !== null &&
+        TypeChecker.cast(
+          params.upperBoundValue,
+          TypeChecker.castableTypes(params.upperBoundValue)[0]
+        )
+        <=
+        TypeChecker.cast(
+          params.lowerBoundValue,
+          TypeChecker.castableTypes(params.lowerBoundValue)[0]
+        )
+    ) {
       return 'error';
     }
     return null;
+  }
+
+  /**
+    * Are high precision values available?
+    *
+    * @returns {boolean} if high precision values are available.
+    */
+  static isHighPrecision() {
+    return app.instance.build.version >= HP_VERSION;
   }
 
   static validateKeyAndValue(key, value) {
@@ -72,13 +97,25 @@ class RuleCategoryRange extends React.Component {
     return !isNaN(value) && Math.abs(value) !== Infinity;
   }
 
+  static typeCastNumeric(value, serverVersion) {
+    // Override serverVersion for testing, otherwise I'd mock isHighPrecision
+    const highPrecision = (
+        (typeof serverVersion === 'undefined' && RuleCategoryRange.isHighPrecision()) ||
+        (serverVersion >= HP_VERSION)
+    );
+    const castableTypes = TypeChecker.castableTypes(value, highPrecision);
+    // We rely on Double and Decimal128 being first in the list,
+    // which is fragile and hence is unit tested
+    return TypeChecker.cast(value, castableTypes[0]);
+  }
+
   static paramsToQuery(params) {
     const result = {};
     if (params.upperBoundType) {
-      result[params.upperBoundType] = params.upperBoundValue;
+      result[params.upperBoundType] = RuleCategoryRange.typeCastNumeric(params.upperBoundValue);
     }
     if (params.lowerBoundType) {
-      result[params.lowerBoundType] = params.lowerBoundValue;
+      result[params.lowerBoundType] = RuleCategoryRange.typeCastNumeric(params.lowerBoundValue);
     }
     return result;
   }
@@ -100,18 +137,18 @@ class RuleCategoryRange extends React.Component {
       lowerBoundType: _.intersection(keys, ['$gte', '$gt'])
     };
 
-    // Handle the 0 which is false-y case properly
+    // Handle the 0 which is false-y case properly and convert to a String type
     if (_.isNumber(query.$lte)) {
-      result.upperBoundValue = query.$lte;
+      result.upperBoundValue = query.$lte.toString();
     }
     if (_.isNumber(query.$lt)) {
-      result.upperBoundValue = query.$lt;
+      result.upperBoundValue = query.$lt.toString();
     }
     if (_.isNumber(query.$gte)) {
-      result.lowerBoundValue = query.$gte;
+      result.lowerBoundValue = query.$gte.toString();
     }
     if (_.isNumber(query.$gt)) {
-      result.lowerBoundValue = query.$gt;
+      result.lowerBoundValue = query.$gt.toString();
     }
 
     if (result.upperBoundType.length > 1 || result.lowerBoundType.length > 1) {
