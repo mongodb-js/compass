@@ -33,7 +33,7 @@ class CreateIndexModal extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      showOptions: false,
+      showOptions: true,
       error: false,
       errorMessage: '',
       inProgress: false,
