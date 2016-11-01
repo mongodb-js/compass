@@ -1,6 +1,8 @@
 const React = require('react');
 const Panel = require('react-bootstrap').Panel;
 const Action = require('../action/index-actions');
+const ButtonToolbar = require('react-bootstrap').ButtonToolbar;
+const Button = require('react-bootstrap').Button;
 
 /**
  * Component for the selected index field.
@@ -35,15 +37,15 @@ class SelectedIndexField extends React.Component {
   render() {
     return (
       <div className="row selected-index">
-        <div className="col-md-10">
-          <Panel className="selected-index-panel">
-            <div className="selected-index-panel-field">
-              {this.props.field.name}
-            </div>
-            <div className="selected-index-panel-type">
-              {this.props.field.type}
-            </div>
-          </Panel>
+        <div className="col-md-6">
+          <ButtonToolbar>
+            <Button>{this.props.field.name}</Button>
+          </ButtonToolbar>
+        </div>
+        <div className="col-md-4">
+          <ButtonToolbar>
+            <Button>{this.props.field.type}</Button>
+          </ButtonToolbar>
         </div>
         <div className="col-md-2">
           <button

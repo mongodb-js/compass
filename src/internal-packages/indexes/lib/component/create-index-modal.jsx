@@ -222,9 +222,9 @@ class CreateIndexModal extends React.Component {
 
               <div className="create-index-fields">
                 <p className="create-index-description">Configure the index definition</p>
+                {this.getSelectedFields()}
                 <CreateIndexField
                   fields={this.state.schemaFields} />
-                {this.getSelectedFields()}
               </div>
 
               <OptionsToggleBar
