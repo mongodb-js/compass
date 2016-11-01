@@ -5,7 +5,6 @@
 ## Development
 
 1. Follow the setup instructions for [macOS][setup-mac-os], [Windows][setup-windows] or [Linux][setup-linux].
-1. [Set up SSH](https://help.github.com/articles/which-remote-url-should-i-use/#cloning-with-ssh-urls)
 1. Then copy/paste:
 
 ```bash
@@ -29,7 +28,7 @@ Try:
 ```
 npm install && COMPILE_CACHE=false npm start
 
-# If master is really, really, really broken, 
+# If master is really, really, really broken,
 # like you've been playing with npm link and npm unlink
 npm run clean && npm install && COMPILE_CACHE=false npm start
 ```
