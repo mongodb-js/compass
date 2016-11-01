@@ -10,6 +10,8 @@ const CreateIndexTextField = require('./create-index-text-field');
 const OptionsToggleBar = require('./options-toggle-bar');
 const Action = require('../action/index-actions');
 
+// const debug = require('debug')('mongodb-compass:ddl:index');
+
 /**
  * The index options and parameters to display.
  */
@@ -116,6 +118,7 @@ class CreateIndexModal extends React.Component {
    * Close modal when cancel is clicked.
    */
   handleCancel() {
+    Action.updateStatus('cancel');
     this.close();
   }
 

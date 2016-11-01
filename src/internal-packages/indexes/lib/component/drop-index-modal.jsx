@@ -1,6 +1,11 @@
+const app = require('ampersand-app');
 const React = require('react');
 const Modal = require('react-bootstrap').Modal;
 const Action = require('../action/index-actions');
+const DDLStatusStore = require('../store/ddl-status-store');
+
+
+// const debug = require('debug')('mongodb-compass:ddl:index');
 
 /**
  * Component for the drop confirmation modal.
@@ -17,13 +22,54 @@ class DropIndexModal extends React.Component {
     this.state = {
       confirmName: ''
     };
+    this.ModalStatusMessage = app.appRegistry.getComponent('App.ModalStatusMessage');
+  }
+
+  /**
+   * Subscribe on mount.
+   */
+  componentWillMount() {
+    this.unsubscribeDDLStatus = DDLStatusStore.listen(this.handleStatusChange.bind(this));
+  }
+
+  /**
+   * Unsubscribe on unmount.
+   */
+  componentWillUnmount() {
+    this.unsubscribeDDLStatus();
+  }
+
+  /**
+   * Handle changes in creation state (success, error, or complete).
+   *
+   * @param {string} status - The status.
+   * @param {string} message - The error message.
+   */
+  handleStatusChange(status, message) {
+    if (status === 'inProgress') {
+      this.setState({inProgress: true, error: false, errorMessage: message});
+    } else if (status === 'error') {
+      this.setState({inProgress: false, error: true, errorMessage: message});
+    } else {
+      this.handleClose();
+    }
+  }
+
+  /**
+   * Clean up after a close events
+   */
+  handleClose() {
+    // this.props.indexName = '';
+    this.setState({inProgress: false, error: false, errorMessage: ''});
+    this.props.close();
   }
 
   /**
    * Close drop index modal when cancel is clicked.
    */
   handleCancel() {
-    this.props.close();
+    Action.updateStatus('cancel');
+    this.handleClose();
   }
 
   /**
@@ -44,7 +90,7 @@ class DropIndexModal extends React.Component {
     evt.preventDefault();
     evt.stopPropagation();
     Action.dropIndex(this.props.indexName);
-    this.props.close();
+    // this.props.close();
   }
 
   /**
@@ -58,7 +104,7 @@ class DropIndexModal extends React.Component {
         backdrop="static"
         dialogClassName="drop-index-modal"
         keyboard={false}
-        onHide={this.props.close} >
+        onHide={this.handleClose.bind(this)} >
         <div className="drop-index-modal-content">
           <Modal.Header>
             <Modal.Title>Index Drop</Modal.Title>
@@ -95,6 +141,9 @@ class DropIndexModal extends React.Component {
                   Drop
                 </button>
               </div>
+              {this.state.error ?
+                <this.ModalStatusMessage icon="times" message={this.state.errorMessage} type="error" />
+                : null}
             </form>
           </Modal.Body>
         </div>

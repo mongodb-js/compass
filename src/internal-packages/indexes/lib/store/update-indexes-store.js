@@ -4,6 +4,8 @@ const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const LoadIndexesStore = require('./load-indexes-store');
 const Action = require('../action/index-actions');
 
+// const debug = require('debug')('mongodb-compass:stores:ddl');
+
 /**
  * The reflux store for updating indexes.
  */
@@ -37,6 +39,9 @@ const UpdateIndexesStore = Reflux.createStore({
       if (!err) {
         this.indexes = this.indexes.filter(index => index.name !== indexName);
         this.trigger(this.indexes);
+        Action.updateStatus('complete');
+      } else {
+        Action.updateStatus('error', this._parseErrorMsg(err));
       }
     });
   },
