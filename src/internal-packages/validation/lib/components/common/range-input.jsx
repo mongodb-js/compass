@@ -5,7 +5,6 @@ const FormGroup = require('react-bootstrap').FormGroup;
 const InputGroup = require('react-bootstrap').InputGroup;
 const FormControl = require('react-bootstrap').FormControl;
 const DropdownButton = require('react-bootstrap').DropdownButton;
-const ControlLabel = require('react-bootstrap').ControlLabel;
 const MenuItem = require('react-bootstrap').MenuItem;
 const TypeChecker = require('hadron-type-checker');
 
