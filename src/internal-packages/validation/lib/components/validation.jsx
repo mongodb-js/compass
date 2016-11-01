@@ -40,12 +40,14 @@ class Validation extends React.Component {
   render() {
     const view = this.props.viewMode === 'Rule Builder' ?
       (
-        <RuleBuilder
-          validationRules={this.props.validationRules}
-          validationAction={this.props.validationAction}
-          validationLevel={this.props.validationLevel}
-          editState={this.props.editState}
-        />
+        <div className="validation validation-rule-builder-wrapper">
+          <RuleBuilder
+            validationRules={this.props.validationRules}
+            validationAction={this.props.validationAction}
+            validationLevel={this.props.validationLevel}
+            editState={this.props.editState}
+          />
+        </div>
       ) : (
         <JSONView
           validatorDoc={this.props.validatorDoc}
@@ -54,20 +56,20 @@ class Validation extends React.Component {
           editState={this.props.editState}
         />
       );
+
+    const activeButton = this.props.isExpressibleByRules ?
+      this.props.viewMode : 'JSON';
+
     return (
       <div className="validation">
         <Grid fluid>
           <StatusRow>
-            <span>This is an example status row with a link.</span>
-            {' '}
-            <a href="#">more info</a>
-          </StatusRow>
-          <StatusRow>
             <ViewSwitcher
               label="View as:"
               buttonLabels={['Rule Builder', 'JSON']}
-              activeButton={this.props.viewMode}
+              activeButton={activeButton}
               onClick={this.switchView.bind(this)}
+              disabled={!this.props.isExpressibleByRules}
             />
           </StatusRow>
           {view}
@@ -80,6 +82,7 @@ class Validation extends React.Component {
 Validation.propTypes = {
   editState: React.PropTypes.oneOf(['unmodified', 'modified', 'updating', 'error', 'success']).isRequired,
   viewMode: React.PropTypes.oneOf(['Rule Builder', 'JSON']).isRequired,
+  isExpressibleByRules: React.PropTypes.bool.isRequired,
   validationAction: React.PropTypes.oneOf(['warn', 'error']).isRequired,
   validatorDoc: React.PropTypes.object.isRequired,
   validationLevel: React.PropTypes.oneOf(['off', 'moderate', 'strict']).isRequired,
@@ -89,6 +92,7 @@ Validation.propTypes = {
 Validation.defaultProps = {
   editState: 'unmodified',
   viewMode: 'Rule Builder',
+  isExpressibleByRules: true,
   validationAction: 'warn',
   validatorDoc: {},
   validationLevel: 'off',

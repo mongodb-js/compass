@@ -564,27 +564,6 @@ describe('ValidationStore', function() {
     }, 10);
   });
 
-  it('updates editState to `unmodified` when rules are changed back to the original rules', function(done) {
-    mockFetchFromServer(null, mockValidatorDoc);
-
-    const spy = sinon.spy();
-    unsubscribe = ValidationStore.listen(spy);
-
-    ValidationStore.fetchValidationRules();
-
-    setTimeout(() => {
-      const id = ValidationStore.state.validationRules[0].id;
-      ValidationStore.setRuleField(id, 'foobar');
-      ValidationStore.setRuleField(id, 'number');
-
-      expect(spy.callCount).to.be.equal(4);
-
-      const editState = spy.thirdCall.args[0].editState;
-      expect(editState).to.have.equal('unmodified');
-      done();
-    }, 10);
-  });
-
   it('addValidationRule() adds a new empty rule', function(done) {
     mockFetchFromServer(null, mockValidatorDoc);
 

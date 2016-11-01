@@ -3,14 +3,39 @@ const ValidationActions = require('../actions');
 const OptionSelector = require('./common/option-selector');
 const Editable = require('./common/editable');
 
-const ReactBootstrap = require('react-bootstrap');
-const Grid = ReactBootstrap.Grid;
-const Row = ReactBootstrap.Row;
-const Col = ReactBootstrap.Col;
+const {Grid, Row, Col, FormGroup, FormControl} = require('react-bootstrap');
 
 // const debug = require('debug')('validation:json-view');
 
 class JSONView extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      isValidJSON: true,
+      input: props.validatorDoc ?
+        JSON.stringify(props.validatorDoc.validator, null, 2) : '{}'
+    };
+  }
+
+  componentWillReceiveProps(newProps) {
+    this.setState({
+      input: JSON.stringify(newProps.validatorDoc.validator, null, 2)
+    });
+  }
+
+  onInputChanged(evt) {
+    this.setState({
+      input: evt.target.value
+    });
+  }
+
+  onBlur() {
+    const doc = this.validate();
+    if (doc) {
+      ValidationActions.setValidatorDocument(doc);
+    }
+  }
 
   /**
    * New value from the validation action dropdown chosen.
@@ -18,7 +43,7 @@ class JSONView extends React.Component {
    * @param {String} action    the chosen action, one of `warn`, `error`.
    */
   onActionSelect(action) {
-    ValidationActions.setValidationAction(action);
+    ValidationActions.setValidationAction(action, false);
   }
 
   /**
@@ -27,7 +52,7 @@ class JSONView extends React.Component {
    * @param {String} level    the chosen level, one of `off`, `moderate`, `strict`
    */
   onLevelSelect(level) {
-    ValidationActions.setValidationLevel(level);
+    ValidationActions.setValidationLevel(level, false);
   }
 
   /**
@@ -35,6 +60,9 @@ class JSONView extends React.Component {
    * Revert all changes to the server state.
    */
   onCancel() {
+    this.setState({
+      isValidJSON: true
+    });
     ValidationActions.cancelChanges();
   }
 
@@ -46,19 +74,46 @@ class JSONView extends React.Component {
     ValidationActions.saveChanges();
   }
 
+  validate() {
+    try {
+      const doc = {
+        validator: JSON.parse(this.state.input),
+        validationLevel: this.props.validationLevel,
+        validationAction: this.props.validationAction
+      };
+      this.setState({
+        isValidJSON: true
+      });
+      return doc;
+    } catch (e) {
+      this.setState({
+        isValidJSON: false
+      });
+      return false;
+    }
+  }
+
   /**
    * Render status row component.
    *
    * @returns {React.Component} The component.
    */
   render() {
+    const editableProps = {
+      editState: this.props.editState,
+      childName: 'Validation',
+      onCancel: this.onCancel.bind(this),
+      onUpdate: this.onUpdate.bind(this)
+    };
+
+    if (!this.state.isValidJSON) {
+      editableProps.editState = 'error';
+      editableProps.errorMessage = 'Input is not valid JSON.';
+      delete editableProps.childName;
+    }
+
     return (
-      <Editable
-        editState={this.props.editState}
-        childName="Validation"
-        onCancel={this.onCancel.bind(this)}
-        onUpdate={this.onUpdate.bind(this)}
-      >
+      <Editable {...editableProps} >
         <Grid fluid className="json-view">
           <Row className="header">
             <Col lg={12} md={12} sm={12} xs={12}>
@@ -85,11 +140,15 @@ class JSONView extends React.Component {
           <hr/>
           <Row>
             <Col lg={12} md={12} sm={12} xs={12}>
-              <pre><code
-                className="json-view code"
-                // readOnly="readOnly"
-                // disabled="disabled"
-              >{JSON.stringify(this.props.validatorDoc, null, 2)}</code></pre>
+              <FormGroup validationState={this.state.errorState}>
+                <FormControl
+                  componentClass="textarea"
+                  className="json-input json-input-textarea"
+                  value={this.state.input}
+                  onChange={this.onInputChanged.bind(this)}
+                  onBlur={this.onBlur.bind(this)}
+                />
+              </FormGroup>
             </Col>
           </Row>
         </Grid>
