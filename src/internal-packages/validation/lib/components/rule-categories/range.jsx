@@ -27,18 +27,21 @@ class RuleCategoryRange extends React.Component {
     // @see http://stackoverflow.com/questions/30782948/why-calling-react-setstate-method-doesnt-mutate-the-state-immediately
     this.childrenIndividuallyValid = true;
 
+    // Additionally, we maintain the validation states of the two
+    // children so that we can determine if both of them are valid.
+    this.isValid = true;
+    this.childValidationStates = {};
+
     // We are forking the `parameters` passed in as props here, and are
     // updating them whenever a child component changes its values
     // (onRangeInputBlur).
-    // Additionally, we maintain the validation states of the two
-    // children so that we can determine if both of them are valid.
     this.state = {
-      parameters: _.clone(this.props.parameters),
-      childValidationStates: {
-        lower: true,
-        upper: true
-      }
+      parameters: _.clone(this.props.parameters)
     };
+  }
+
+  componentWillMount() {
+    this.props.validate(true);
   }
 
   /**
@@ -89,14 +92,14 @@ class RuleCategoryRange extends React.Component {
 
     // this component is valid if the children are individually valid and
     // their combined values are also valid.
-    const overallValid = this.validateCombinedValues(
+    this.isValid = this.validateCombinedValues(
       params.lowerBoundType && params.lowerBoundValue,
       params.upperBoundType && params.upperBoundValue
     ) && this.childrenIndividuallyValid;
 
     // report up the chain to the parent our overall valid state
-    this.props.validate(overallValid);
-    if (overallValid) {
+    this.props.validate(this.isValid);
+    if (this.isValid) {
       ValidationAction.setRuleParameters(this.props.id, params);
     }
   }
@@ -244,12 +247,15 @@ class RuleCategoryRange extends React.Component {
    * @param {Boolean} valid  The valid state of the child component
    */
   validate(key, valid) {
-    const childValidationStates = _.clone(this.state.childValidationStates);
-    childValidationStates[key] = valid;
-    this.childrenIndividuallyValid = _.all(_.values(childValidationStates));
-    this.setState({
-      childValidationStates: childValidationStates
-    });
+    if (key === undefined) {
+      // downwards validation, call children's validate() method.
+      this.refs.lowerBoundRangeInputChild.validate();
+      this.refs.upperBoundRangeInputChild.validate();
+      return;
+    }
+    this.childValidationStates[key] = valid;
+    this.childrenIndividuallyValid = _.all(_.values(this.childValidationStates));
+
     if (!this.childrenIndividuallyValid) {
       this.props.validate(false);
     }

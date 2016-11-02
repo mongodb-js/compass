@@ -2,6 +2,7 @@ const React = require('react');
 const OptionSelector = require('./common/option-selector');
 const ValidationActions = require('../actions');
 const ruleCategories = require('./rule-categories');
+const { FormGroup } = require('react-bootstrap');
 const _ = require('lodash');
 
 // const debug = require('debug')('mongodb-compass:validation:rule-category');
@@ -12,15 +13,31 @@ const _ = require('lodash');
  */
 class RuleCategorySelector extends React.Component {
 
-  onSelect(category) {
-    if (this.validate(category)) {
-      ValidationActions.setRuleCategory(this.props.id, category);
-    }
+  /**
+   * constructor sets the initial state.
+   *
+   * @param {Object} props   initial props, passed to super class.
+   */
+  constructor(props) {
+    super(props);
+    this.state = {
+      isValid: true
+    };
   }
 
-  validate(category) {
-    const isValid = category !== '';
+  onSelect(category) {
+    this.setState({
+      isValid: true
+    });
+    ValidationActions.setRuleCategory(this.props.id, category);
+  }
+
+  validate() {
+    const isValid = this.props.category !== '';
     this.props.validate(isValid);
+    this.setState({
+      isValid: isValid
+    });
     return isValid;
   }
 
@@ -35,14 +52,18 @@ class RuleCategorySelector extends React.Component {
       _.map(_.keys(ruleCategories), _.startCase)
     );
 
+    const validationState = this.state.isValid ? null : 'error';
+
     return (
-      <OptionSelector
-        options={dropdownOptions}
-        id={this.props.id}
-        label=""
-        value={this.props.category}
-        onSelect={this.onSelect.bind(this)}
-      />
+      <FormGroup validationState={validationState}>
+        <OptionSelector
+          options={dropdownOptions}
+          id={this.props.id}
+          label=""
+          value={this.props.category}
+          onSelect={this.onSelect.bind(this)}
+        />
+      </FormGroup>
     );
   }
 }

@@ -9,7 +9,7 @@ const Form = require('react-bootstrap').Form;
 const ruleCategories = require('./rule-categories');
 const _ = require('lodash');
 
-const debug = require('debug')('compass:validation:rule');
+// const debug = require('debug')('compass:validation:rule');
 
 /**
  * Implements a single rule with RuleFieldSelector, RuleCategorySelector and
@@ -19,19 +19,19 @@ class Rule extends React.Component {
 
   constructor(props) {
     super(props);
+    this.isValid = true;
+    this.childValidationStates = {};
+  }
 
-    this.state = {
-      isValid: true,
-      childValidationStates: {
-        RuleFieldSelector: true,
-        RuleCategorySelector: true
-      }
-    };
+  onDeleteClicked() {
+    this.props.validate(true);
+    ValidationActions.deleteValidationRule(this.props.id);
   }
 
   checkBoxClicked() {
     ValidationActions.setRuleNullable(this.props.id, !this.props.nullable);
   }
+
 
   /**
    * called by child components when they evaluate if they are valid.
@@ -43,25 +43,27 @@ class Rule extends React.Component {
    * @param {Boolean} valid   whether the child was valid or not
    */
   validate(key, valid) {
-    const childValidationStates = _.clone(this.state.childValidationStates);
-    childValidationStates[key] = valid;
-    const isValid = _.all(_.values(childValidationStates));
-    this.setState({
-      childValidationStates: childValidationStates,
-      isValid: isValid
-    });
-    this.props.validate(isValid);
+    if (key === undefined) {
+      // downwards validation, call children's validate() method.
+      _.result(this.refs.Parameters, 'validate');
+      this.refs.RuleFieldSelector.validate();
+      this.refs.RuleCategorySelector.validate();
+      return;
+    }
+    this.childValidationStates[key] = valid;
+    this.isValid = _.all(_.values(this.childValidationStates));
+    this.props.validate(this.isValid);
   }
 
   render() {
-    const Category = _.get(ruleCategories, this.props.category, null);
-    const ruleParameters = Category ?
-      <Category
+    const Parameters = _.get(ruleCategories, this.props.category, null);
+    const ruleParameters = Parameters ?
+      <Parameters
+        ref="Parameters"
         id={this.props.id}
         parameters={this.props.parameters}
-        validate={this.validate.bind(this, 'Category')}
-      /> :
-      null;
+        validate={this.validate.bind(this, 'Parameters')}
+      /> : null;
 
     const nullableDisabled = _.includes(['exists', 'mustNotExist'],
       this.props.category);
@@ -70,6 +72,7 @@ class Rule extends React.Component {
       <tr>
         <td>
           <RuleFieldSelector
+            ref="RuleFieldSelector"
             id={this.props.id}
             field={this.props.field}
             validate={this.validate.bind(this, 'RuleFieldSelector')}
@@ -78,6 +81,7 @@ class Rule extends React.Component {
         <td>
           <Form inline className="rule-category-form">
             <RuleCategorySelector
+              ref="RuleCategorySelector"
               id={this.props.id}
               category={this.props.category}
               validate={this.validate.bind(this, 'RuleCategorySelector')}
@@ -93,7 +97,9 @@ class Rule extends React.Component {
             disabled={nullableDisabled}
             onChange={this.checkBoxClicked.bind(this)}/></td>
         <td>
-          <RuleDeleteButton id={this.props.id} />
+          <RuleDeleteButton
+            id={this.props.id}
+            onClick={this.onDeleteClicked.bind(this)} />
         </td>
       </tr>
     );
@@ -106,7 +112,7 @@ Rule.propTypes = {
   category: React.PropTypes.string.isRequired,
   parameters: React.PropTypes.object.isRequired,
   nullable: React.PropTypes.bool.isRequired,
-  validate: React.PropTypes.func
+  validate: React.PropTypes.func.isRequired
 };
 
 Rule.displayName = 'Rule';

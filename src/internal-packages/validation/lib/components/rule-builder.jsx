@@ -18,10 +18,8 @@ class RuleBuilder extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {
-      isValid: true,
-      childValidationStates: {}
-    };
+    this.isValid = true;
+    this.childValidationStates = {};
   }
 
   /**
@@ -54,6 +52,7 @@ class RuleBuilder extends React.Component {
    * Revert all changes to the server state.
    */
   onCancel() {
+    this.isValid = true;
     ValidationActions.cancelChanges();
   }
 
@@ -62,23 +61,30 @@ class RuleBuilder extends React.Component {
    * Send the new validator doc to the server.
    */
   onUpdate() {
-    ValidationActions.saveChanges();
+    this.validate();
+    if (this.isValid) {
+      ValidationActions.saveChanges();
+    }
   }
 
   validate(key, valid) {
-    const childValidationStates = _.clone(this.state.childValidationStates);
-    childValidationStates[key] = valid;
-    const isValid = _.all(_.values(childValidationStates));
-    this.setState({
-      childValidationStates: childValidationStates,
-      isValid: isValid
-    });
+    if (key === undefined) {
+      // downwards validation, call children's validate() method.
+      _.each(this.props.validationRules, (rule) => {
+        this.refs[rule.id].validate();
+      });
+      return;
+    }
+    this.childValidationStates[key] = valid;
+    this.isValid = _.all(_.values(this.childValidationStates));
+    this.forceUpdate();
   }
 
   renderRules() {
     return _.map(this.props.validationRules, (rule) => {
       return (
         <Rule
+          ref={rule.id}
           key={rule.id}
           validate={this.validate.bind(this, rule.id)}
           {...rule}
@@ -99,7 +105,7 @@ class RuleBuilder extends React.Component {
       onUpdate: this.onUpdate.bind(this)
     };
 
-    if (!this.state.isValid) {
+    if (!this.isValid) {
       editableProps.editState = 'error';
       editableProps.errorMessage = 'Input is not valid.';
       delete editableProps.childName;

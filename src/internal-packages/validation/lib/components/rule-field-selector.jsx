@@ -1,6 +1,6 @@
 const React = require('react');
 const ValidationActions = require('../actions');
-
+const { FormGroup, FormControl } = require('react-bootstrap');
 /**
  * Component to select a field for which the rule applies.
  *
@@ -19,7 +19,8 @@ class RuleFieldSelector extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      value: this.props.field
+      value: this.props.field,
+      isValid: true
     };
   }
 
@@ -49,6 +50,9 @@ class RuleFieldSelector extends React.Component {
   validate() {
     const isValid = this.state.value !== '';
     this.props.validate(isValid);
+    this.setState({
+      isValid: isValid
+    });
     return isValid;
   }
 
@@ -68,17 +72,17 @@ class RuleFieldSelector extends React.Component {
    * @returns {React.Component} The view component.
    */
   render() {
+    const validationState = this.state.isValid ? null : 'error';
     return (
-      <div className="form-group">
-        <input
+      <FormGroup validationState={validationState}>
+        <FormControl
           type="text"
-          className="form-control"
           id={this.props.id}
           value={this.state.value}
           onChange={this.onFieldChanged.bind(this)}
           onBlur={this.submit.bind(this)}
         />
-      </div>
+      </FormGroup>
     );
   }
 }

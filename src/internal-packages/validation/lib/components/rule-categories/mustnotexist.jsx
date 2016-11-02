@@ -8,7 +8,10 @@ class RuleCategoryMustNotExist extends React.Component {
 
   constructor(props) {
     super(props);
-    props.validate(true);
+  }
+
+  componentWillMount() {
+    this.props.validate(true);
   }
 
   /**

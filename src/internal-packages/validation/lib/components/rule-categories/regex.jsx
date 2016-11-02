@@ -22,7 +22,10 @@ class RuleCategoryRegex extends React.Component {
       value: _.get(this.props.parameters, 'regex', ''),
       options: _.get(this.props.parameters, 'options', '')
     };
-    props.validate(true);
+  }
+
+  componentWillMount() {
+    this.props.validate(true);
   }
 
   onChange(evt) {
