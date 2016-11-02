@@ -22,6 +22,7 @@ class RuleCategoryRegex extends React.Component {
       value: _.get(this.props.parameters, 'regex', ''),
       options: _.get(this.props.parameters, 'options', '')
     };
+    props.validate(true);
   }
 
   onChange(evt) {
@@ -185,7 +186,8 @@ class RuleCategoryRegex extends React.Component {
 
 RuleCategoryRegex.propTypes = {
   id: React.PropTypes.string.isRequired,
-  parameters: React.PropTypes.object.isRequired
+  parameters: React.PropTypes.object.isRequired,
+  validate: React.PropTypes.func.isRequired
 };
 
 RuleCategoryRegex.displayName = 'RuleCategoryRegex';

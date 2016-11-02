@@ -16,6 +16,13 @@ const Table = ReactBootstrap.Table;
 
 class RuleBuilder extends React.Component {
 
+  constructor(props) {
+    super(props);
+    this.state = {
+      isValid: true,
+      childValidationStates: {}
+    };
+  }
 
   /**
    * Add button clicked to create a new rule.
@@ -58,23 +65,48 @@ class RuleBuilder extends React.Component {
     ValidationActions.saveChanges();
   }
 
+  validate(key, valid) {
+    const childValidationStates = _.clone(this.state.childValidationStates);
+    childValidationStates[key] = valid;
+    const isValid = _.all(_.values(childValidationStates));
+    this.setState({
+      childValidationStates: childValidationStates,
+      isValid: isValid
+    });
+  }
+
+  renderRules() {
+    return _.map(this.props.validationRules, (rule) => {
+      return (
+        <Rule
+          key={rule.id}
+          validate={this.validate.bind(this, rule.id)}
+          {...rule}
+        />
+      );
+    });
+  }
   /**
    * Render status row component.
    *
    * @returns {React.Component} The component.
    */
   render() {
-    const rules = _.map(this.props.validationRules, (rule) => {
-      return <Rule key={rule.id} {...rule} />;
-    });
+    const editableProps = {
+      editState: this.props.editState,
+      childName: 'Validation',
+      onCancel: this.onCancel.bind(this),
+      onUpdate: this.onUpdate.bind(this)
+    };
+
+    if (!this.state.isValid) {
+      editableProps.editState = 'error';
+      editableProps.errorMessage = 'Input is not valid.';
+      delete editableProps.childName;
+    }
 
     return (
-      <Editable
-        editState={this.props.editState}
-        childName="Validation"
-        onCancel={this.onCancel.bind(this)}
-        onUpdate={this.onUpdate.bind(this)}
-      >
+      <Editable {...editableProps} >
         <Grid fluid className="rule-builder">
           <Row className="header">
             <Col lg={6} md={6} sm={6} xs={6}>
@@ -118,7 +150,7 @@ class RuleBuilder extends React.Component {
                   </tr>
                 </thead>
                 <tbody>
-                  {rules}
+                  {this.renderRules()}
                 </tbody>
               </Table>
             </Col>

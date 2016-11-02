@@ -13,7 +13,15 @@ const _ = require('lodash');
 class RuleCategorySelector extends React.Component {
 
   onSelect(category) {
-    ValidationActions.setRuleCategory(this.props.id, category);
+    if (this.validate(category)) {
+      ValidationActions.setRuleCategory(this.props.id, category);
+    }
+  }
+
+  validate(category) {
+    const isValid = category !== '';
+    this.props.validate(isValid);
+    return isValid;
   }
 
   /**
@@ -41,7 +49,8 @@ class RuleCategorySelector extends React.Component {
 
 RuleCategorySelector.propTypes = {
   id: React.PropTypes.string.isRequired,
-  category: React.PropTypes.string.isRequired
+  category: React.PropTypes.string.isRequired,
+  validate: React.PropTypes.func
 };
 
 RuleCategorySelector.displayName = 'RuleCategorySelector';

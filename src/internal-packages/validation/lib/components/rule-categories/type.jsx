@@ -7,6 +7,11 @@ const _ = require('lodash');
 
 class RuleCategoryType extends React.Component {
 
+  constructor(props) {
+    super(props);
+    props.validate(true);
+  }
+
   onTypeClicked(type, evt) {
     evt.preventDefault();
     ValidationAction.setRuleParameters(this.props.id, {
@@ -87,7 +92,8 @@ class RuleCategoryType extends React.Component {
 
 RuleCategoryType.propTypes = {
   id: React.PropTypes.string.isRequired,
-  parameters: React.PropTypes.object.isRequired
+  parameters: React.PropTypes.object.isRequired,
+  validate: React.PropTypes.func.isRequired
 };
 
 RuleCategoryType.displayName = 'RuleCategoryType';

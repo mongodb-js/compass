@@ -8,6 +8,7 @@ class RuleCategoryMustNotExist extends React.Component {
 
   constructor(props) {
     super(props);
+    props.validate(true);
   }
 
   /**
@@ -61,7 +62,8 @@ class RuleCategoryMustNotExist extends React.Component {
 
 RuleCategoryMustNotExist.propTypes = {
   id: React.PropTypes.string.isRequired,
-  parameters: React.PropTypes.object.isRequired
+  parameters: React.PropTypes.object.isRequired,
+  validate: React.PropTypes.func.isRequired
 };
 
 RuleCategoryMustNotExist.displayName = 'RuleCategoryMustNotExist';

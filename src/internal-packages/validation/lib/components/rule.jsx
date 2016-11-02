@@ -17,15 +17,50 @@ const debug = require('debug')('compass:validation:rule');
  */
 class Rule extends React.Component {
 
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isValid: true,
+      childValidationStates: {
+        RuleFieldSelector: true,
+        RuleCategorySelector: true
+      }
+    };
+  }
+
   checkBoxClicked() {
     ValidationActions.setRuleNullable(this.props.id, !this.props.nullable);
   }
 
+  /**
+   * called by child components when they evaluate if they are valid.
+   * This method saves the valid state for each child, and then determine
+   * if itself is valid. This is only the case when all children are valid.
+   * It then reports its own state up the chain by calling this.props.validate().
+   *
+   * @param {String} key      an identifier string for the child component
+   * @param {Boolean} valid   whether the child was valid or not
+   */
+  validate(key, valid) {
+    const childValidationStates = _.clone(this.state.childValidationStates);
+    childValidationStates[key] = valid;
+    const isValid = _.all(_.values(childValidationStates));
+    this.setState({
+      childValidationStates: childValidationStates,
+      isValid: isValid
+    });
+    this.props.validate(isValid);
+  }
+
   render() {
-    debug('props', this.props);
     const Category = _.get(ruleCategories, this.props.category, null);
     const ruleParameters = Category ?
-      <Category id={this.props.id} parameters={this.props.parameters} /> :
+      <Category
+        id={this.props.id}
+        parameters={this.props.parameters}
+        validate={this.validate.bind(this, 'Category')}
+      /> :
       null;
 
     const nullableDisabled = _.includes(['exists', 'mustNotExist'],
@@ -37,6 +72,7 @@ class Rule extends React.Component {
           <RuleFieldSelector
             id={this.props.id}
             field={this.props.field}
+            validate={this.validate.bind(this, 'RuleFieldSelector')}
           />
         </td>
         <td>
@@ -44,6 +80,7 @@ class Rule extends React.Component {
             <RuleCategorySelector
               id={this.props.id}
               category={this.props.category}
+              validate={this.validate.bind(this, 'RuleCategorySelector')}
             />
             {ruleParameters}
           </Form>
@@ -68,7 +105,8 @@ Rule.propTypes = {
   field: React.PropTypes.string.isRequired,
   category: React.PropTypes.string.isRequired,
   parameters: React.PropTypes.object.isRequired,
-  nullable: React.PropTypes.bool.isRequired
+  nullable: React.PropTypes.bool.isRequired,
+  validate: React.PropTypes.func
 };
 
 Rule.displayName = 'Rule';

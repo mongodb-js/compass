@@ -40,24 +40,54 @@ class RangeInput extends React.Component {
       app.instance.build.version >= HP_VERSION);
   }
 
+  /**
+   * called whenever the input changes (i.e. user is typing). We don't bubble up the
+   * value at this stage yet, but wait until the user blurs the input field.
+   *
+   * @param {Object} evt   The onChange event
+   */
   onInputChange(evt) {
     this.setState({
       value: evt.target.value
     });
   }
 
+  /**
+   * called whenever the field is blurred (loses focus). At this point, we want to
+   * validate the input and if it is valid, report the value change up to the parent.
+   */
   onInputBlur() {
-    this.validate();
+    if (this.validate()) {
+      this.props.onRangeInputBlur({
+        value: this.state.value,
+        operator: this.state.operator
+      });
+    }
   }
 
+  /**
+   * called when the user chooses a value from the operator dropdown. As there are
+   * no invalid values, we can always immediately report up the value/operator change.
+   *
+   * @param {Object} evtKey    the selected value from the dropdown (e.g. "<=", "none", ...)
+   */
   onDropdownSelect(evtKey) {
     this.setState({
       disabled: evtKey === 'none',
       operator: evtKey
     });
-    this.validate();
+    this.props.onRangeInputBlur({
+      value: this.state.value,
+      operator: evtKey
+    });
   }
 
+  /**
+   * determines if the input by itself is valid (e.g. a value that can be cast to a number).
+   * This will also report the result up to the parent via `this.props.validate()`.
+   *
+   * @return {Boolean}    whether the input is valid or not.
+   */
   validate() {
     const value = this.state.value;
     const valueTypes = TypeChecker.castableTypes(value, this._ENABLE_HP);
@@ -70,19 +100,12 @@ class RangeInput extends React.Component {
       'Decimal128'
     ];
 
-    if (!_.intersection(valueTypes, NUMBER_TYPES).length) {
-      this.setState({
-        validationState: 'error'
-      });
-    } else {
-      this.setState({
-        validationState: null
-      });
-    }
-    // Get the parent to update both RangeInput component states
-    if (this.props.onRangeInputBlur) {
-      _.defer(this.props.onRangeInputBlur);
-    }
+    const isValid = (_.intersection(valueTypes, NUMBER_TYPES).length);
+    this.setState({
+      validationState: isValid ? null : 'error'
+    });
+    this.props.validate(isValid);
+    return isValid;
   }
 
   _getOperatorString(props) {
@@ -170,7 +193,8 @@ RangeInput.propTypes = {
   boundIncluded: React.PropTypes.bool.isRequired,
   disabled: React.PropTypes.bool.isRequired,
   onRangeInputBlur: React.PropTypes.func,
-  width: React.PropTypes.number
+  width: React.PropTypes.number,
+  validate: React.PropTypes.func
 };
 
 RangeInput.defaultProps = {

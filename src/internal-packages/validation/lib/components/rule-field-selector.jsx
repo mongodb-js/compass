@@ -46,12 +46,20 @@ class RuleFieldSelector extends React.Component {
     });
   }
 
+  validate() {
+    const isValid = this.state.value !== '';
+    this.props.validate(isValid);
+    return isValid;
+  }
+
   /**
    * The input field has lost focus (onBlur). Trigger an action to inform
    * the store of the change.
    */
   submit() {
-    ValidationActions.setRuleField(this.props.id, this.state.value);
+    if (this.validate()) {
+      ValidationActions.setRuleField(this.props.id, this.state.value);
+    }
   }
 
   /**
@@ -77,7 +85,8 @@ class RuleFieldSelector extends React.Component {
 
 RuleFieldSelector.propTypes = {
   id: React.PropTypes.string.isRequired,
-  field: React.PropTypes.string.isRequired
+  field: React.PropTypes.string.isRequired,
+  validate: React.PropTypes.func
 };
 
 RuleFieldSelector.displayName = 'RuleFieldSelector';
