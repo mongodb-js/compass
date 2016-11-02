@@ -6,6 +6,7 @@ const toNS = require('mongodb-ns');
 
 const _ = require('lodash');
 const ReadPreference = require('mongodb').ReadPreference;
+var bson = require('bson');
 
 /**
  * The default read preference.
@@ -172,7 +173,7 @@ const SchemaStore = Reflux.createStore({
 
     this.samplingStream = createMergeStream(
       app.dataService.sample(ns, options),
-      withResults('local.startup_log', {_id: 'lucas.local-1440518673484'})
+      withResults('londonbikes.rides_pickup', {'_id': bson.ObjectId('5810ef6602792428c505ad80')})
     );
     this.analyzingStream = schemaStream();
     let schema;
