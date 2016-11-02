@@ -17,15 +17,10 @@ chai.use(chaiEnzyme());
 
 describe('<RangeInput />', () => {
   context('when rendering the default control', () => {
-    it('has label `LOWER BOUND`', () => {
-      const component = shallow(<RangeInput />);
-      const labelText = component.find(ControlLabel).dive().text();
-      expect(labelText).to.be.equal('LOWER BOUND');
-    });
-    it('has placeholder text of `enter lower bound`', () => {
+    it('has placeholder text of `lower bound`', () => {
       const component = shallow(<RangeInput />);
       const placeholderText = component.find(FormControl).props().placeholder;
-      expect(placeholderText).to.be.equal('enter lower bound');
+      expect(placeholderText).to.be.equal('lower bound');
     });
     it('accepts a scientific decimal -9.001e+2', function() {
       const value = '-9.0001e+2';
@@ -49,15 +44,10 @@ describe('<RangeInput />', () => {
   });
 
   context('when rendering an upperBound control', () => {
-    it('has label `UPPER BOUND`', () => {
-      const component = shallow(<RangeInput upperBound />);
-      const labelText = component.find(ControlLabel).dive().text();
-      expect(labelText).to.be.equal('UPPER BOUND');
-    });
-    it('has placeholder text of `enter upper bound`', () => {
+    it('has placeholder text of `upper bound`', () => {
       const component = shallow(<RangeInput upperBound />);
       const placeholderText = component.find(FormControl).props().placeholder;
-      expect(placeholderText).to.be.equal('enter upper bound');
+      expect(placeholderText).to.be.equal('upper bound');
     });
   });
 });

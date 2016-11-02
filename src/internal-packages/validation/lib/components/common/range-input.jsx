@@ -40,11 +40,6 @@ class RangeInput extends React.Component {
       app.instance.build.version >= HP_VERSION);
   }
 
-  componentWillMount() {
-    // Render any existing schema errors in red
-    this.validate();
-  }
-
   onInputChange(evt) {
     this.setState({
       value: evt.target.value
