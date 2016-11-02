@@ -1,7 +1,5 @@
 const React = require('react');
-const Panel = require('react-bootstrap').Panel;
 const Action = require('../action/index-actions');
-const ButtonToolbar = require('react-bootstrap').ButtonToolbar;
 const Button = require('react-bootstrap').Button;
 
 /**
@@ -38,21 +36,17 @@ class SelectedIndexField extends React.Component {
     return (
       <div className="row selected-index">
         <div className="col-md-6">
-          <ButtonToolbar>
-            <Button>{this.props.field.name}</Button>
-          </ButtonToolbar>
+          <Button className="selected-index-field-name selected-index-btn">{this.props.field.name}</Button>
         </div>
         <div className="col-md-4">
-          <ButtonToolbar>
-            <Button>{this.props.field.type}</Button>
-          </ButtonToolbar>
+          <Button className="selected-index-field-type selected-index-btn">{this.props.field.type}</Button>
         </div>
         <div className="col-md-2">
-          <button
+          <Button
             className="btn btn-success btn-circle selected-index-btn"
             onClick={this.onClick.bind(this)}>
             <i className="fa fa-minus" aria-hidden="true"></i>
-          </button>
+          </Button>
         </div>
       </div>
     );

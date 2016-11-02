@@ -4,7 +4,7 @@ const DropdownButton = require('react-bootstrap').DropdownButton;
 const MenuItem = require('react-bootstrap').MenuItem;
 const Action = require('../action/index-actions');
 
-const debug = require('debug')('mongodb-compass:component:indexes:create-modal');
+// const debug = require('debug')('mongodb-compass:component:indexes:create-modal');
 
 /**
  * Current allowed types for indexes.
@@ -59,7 +59,6 @@ class CreateIndexField extends React.Component {
     evt.preventDefault();
     evt.stopPropagation();
 
-    debug('handling submit: ', this.state);
     if (this.state.field !== 'Select a field name') {
       Action.updateField(this.state.field, this.state.type, 'add');
       this.setState({field: 'Select a field name', type: 'Select a type'});
@@ -82,42 +81,40 @@ class CreateIndexField extends React.Component {
    */
   render() {
     return (
-      <div>
-        <div className="form-inline row create-index-field">
-          <div className="col-md-6">
-            <ButtonToolbar>
-              <DropdownButton
-                title={this.state.field}
-                id="field-name-select-dropdown"
-                className="create-index-field-dropdown-name"
-                onSelect={this.handleFieldSelect.bind(this)}>
-                {this.getDropdownOptions(this.props.fields)}
-              </DropdownButton>
-            </ButtonToolbar>
-          </div>
-          <div className="col-md-4">
-            <ButtonToolbar>
-              <DropdownButton
-                title={this.state.type}
-                id="field-type-select-dropdown"
-                className="create-index-field-dropdown-type"
-                onSelect={this.handleTypeSelect.bind(this)}>
-                {this.getDropdownOptions(INDEX_TYPES)}
-              </DropdownButton>
-            </ButtonToolbar>
-          </div>
-          <div className="col-md-2">
-            <button disabled="true"
-              className="btn btn-success btn-circle create-index-field-button">
-              <i className="fa fa-minus" aria-hidden="true"></i>
-            </button>
-          </div>
+      <div className="form-inline row create-index-field">
+        <div className="col-md-6">
+          <ButtonToolbar>
+            <DropdownButton
+              title={this.state.field}
+              id="field-name-select-dropdown"
+              className="create-index-field-dropdown-name"
+              onSelect={this.handleFieldSelect.bind(this)}>
+              {this.getDropdownOptions(this.props.fields)}
+            </DropdownButton>
+          </ButtonToolbar>
         </div>
-        <div className="row col-md-12">
+        <div className="col-md-4">
+          <ButtonToolbar>
+            <DropdownButton
+              title={this.state.type}
+              id="field-type-select-dropdown"
+              className="create-index-field-dropdown-type"
+              onSelect={this.handleTypeSelect.bind(this)}>
+              {this.getDropdownOptions(INDEX_TYPES)}
+            </DropdownButton>
+          </ButtonToolbar>
+        </div>
+        <div className="col-md-2">
+          <button disabled="true"
+            className="btn btn-success btn-circle">
+            <i className="fa fa-minus" aria-hidden="true"></i>
+          </button>
+        </div>
+        <div className="col-md-12">
           <button
             onClick={this.handleSubmit.bind(this)}
-            className="btn btn-success create-index-field-button">
-            add field
+            className="create-index-field-add btn btn-block btn-success">
+            add another
           </button>
         </div>
       </div>
