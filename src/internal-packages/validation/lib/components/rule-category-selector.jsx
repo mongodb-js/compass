@@ -26,14 +26,12 @@ class RuleCategorySelector extends React.Component {
   }
 
   onSelect(category) {
-    this.setState({
-      isValid: true
-    });
+    this.validate(category);
     ValidationActions.setRuleCategory(this.props.id, category);
   }
 
-  validate() {
-    const isValid = this.props.category !== '';
+  validate(category) {
+    const isValid = (category || this.props.category) !== '';
     this.props.validate(isValid);
     this.setState({
       isValid: isValid

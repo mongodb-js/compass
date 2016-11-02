@@ -267,15 +267,17 @@ class RuleCategoryRange extends React.Component {
    * @returns {React.Component} The view component.
    */
   render() {
+    const validationState = (!this.isValid && this.childrenIndividuallyValid) ?
+      'error' : null;
     return (
       <FormGroup>
         <RangeInput
             ref="lowerBoundRangeInputChild"
             boundIncluded={this.props.parameters.lowerBoundType === '$gte'}
             disabled={this.props.parameters.lowerBoundType === null}
-            value={this.props.parameters.lowerBoundValue}
+            value={this.props.parameters.lowerBoundValue || ''}
             onRangeInputBlur={this.onRangeInputBlur.bind(this, 'lower')}
-            // validationState={this.props.parameters.comboValidationState}
+            validationState={validationState}
             validate={this.validate.bind(this, 'lower')}
         />
         <RangeInput
@@ -283,9 +285,9 @@ class RuleCategoryRange extends React.Component {
             upperBound
             boundIncluded={this.props.parameters.upperBoundType === '$lte'}
             disabled={this.props.parameters.upperBoundType === null}
-            value={this.props.parameters.upperBoundValue}
+            value={this.props.parameters.upperBoundValue || ''}
             onRangeInputBlur={this.onRangeInputBlur.bind(this, 'upper')}
-            // validationState={this.props.parameters.comboValidationState}
+            validationState={validationState}
             validate={this.validate.bind(this, 'upper')}
         />
       </FormGroup>

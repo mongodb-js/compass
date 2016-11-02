@@ -23,7 +23,8 @@ describe('<Rule />', function() {
     field: 'created_at',
     category: 'type',
     parameters: {type: 9},  // type "date"
-    nullable: false
+    nullable: false,
+    validate: function() {}
   };
 
   it('has an input field with value "created_at"', function() {

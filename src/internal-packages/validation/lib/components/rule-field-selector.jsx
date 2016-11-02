@@ -37,14 +37,12 @@ class RuleFieldSelector extends React.Component {
   }
 
   /**
-   * set internal state when receiving new props
-   *
-   * @param {Object} nextProps   props the component will receive.
+   * The input field has lost focus (onBlur). Trigger an action to inform
+   * the store of the change.
    */
-  willReceiveProps(nextProps) {
-    this.setState({
-      value: nextProps.field
-    });
+  onBlur() {
+    this.validate();
+    ValidationActions.setRuleField(this.props.id, this.state.value);
   }
 
   validate() {
@@ -54,16 +52,6 @@ class RuleFieldSelector extends React.Component {
       isValid: isValid
     });
     return isValid;
-  }
-
-  /**
-   * The input field has lost focus (onBlur). Trigger an action to inform
-   * the store of the change.
-   */
-  submit() {
-    if (this.validate()) {
-      ValidationActions.setRuleField(this.props.id, this.state.value);
-    }
   }
 
   /**
@@ -80,7 +68,7 @@ class RuleFieldSelector extends React.Component {
           id={this.props.id}
           value={this.state.value}
           onChange={this.onFieldChanged.bind(this)}
-          onBlur={this.submit.bind(this)}
+          onBlur={this.onBlur.bind(this)}
         />
       </FormGroup>
     );

@@ -7,11 +7,14 @@ const React = require('react');
 const _ = require('lodash');
 
 const shallow = require('enzyme').shallow;
+const mount = require('enzyme').mount;
 const bootstrap = require('react-bootstrap');
 const ControlLabel = bootstrap.ControlLabel;
 const FormControl = bootstrap.FormControl;
 const RangeInput = require('../src/internal-packages/validation/lib/components/common/range-input');
 const RuleCategoryRange = require('../src/internal-packages/validation/lib/components/rule-categories/range');
+
+const debug = require('debug')('mongodb-compass:test:validation');
 
 chai.use(chaiEnzyme());
 
@@ -62,7 +65,8 @@ describe('<RuleCategoryRange />', function() {
       lowerBoundValue: '-5',
       upperBoundValue: '5'
     },
-    nullable: false
+    nullable: false,
+    validate: function() {}
   };
 
   it('has two child <RangeInput /> components', function() {
@@ -72,10 +76,9 @@ describe('<RuleCategoryRange />', function() {
     expect(ranges).to.have.length(2);
   });
 
-  it('accepts empty range 5 < x < 5 with getComboValidationState error', function() {
+  it('accepts empty range 5 < x < 5 initially', function() {
     const props = _.assign(propsTemplate, {
       parameters: {
-        comboValidationState: 'error',
         lowerBoundType: '$gt',
         lowerBoundValue: '5',
         upperBoundType: '$lt',
@@ -86,8 +89,36 @@ describe('<RuleCategoryRange />', function() {
     const ranges = component.dive().find(RangeInput);
     expect(ranges).to.have.length(2);
     ranges.forEach(range => {
-      expect(range.props().validationState).to.be.equal('error');
+      expect(range.props().validationState).to.be.null;
     });
+  });
+
+  it('rejects empty range 5 < x < 3 after calling validate()', function() {
+    const props = _.assign(propsTemplate, {
+      parameters: {
+        lowerBoundType: '$gt',
+        lowerBoundValue: '5',
+        upperBoundType: '$lt',
+        upperBoundValue: '3'
+      }
+    });
+    component = mount(<RuleCategoryRange {...props} />);
+    component.instance().onRangeInputBlur('fake-key');
+    expect(component.instance().isValid).to.be.false;
+  });
+
+  it('rejects empty both range values being "none" after calling validate()', function() {
+    const props = _.assign(propsTemplate, {
+      parameters: {
+        lowerBoundType: null,
+        lowerBoundValue: '5',
+        upperBoundType: null,
+        upperBoundValue: '3'
+      }
+    });
+    component = mount(<RuleCategoryRange {...props} />);
+    component.instance().onRangeInputBlur('fake-key');
+    expect(component.instance().isValid).to.be.false;
   });
 
   context('for some different numeric types', function() {
