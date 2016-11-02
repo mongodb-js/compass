@@ -113,7 +113,7 @@ class CreateIndexField extends React.Component {
         <div className="col-md-12">
           <button
             onClick={this.handleSubmit.bind(this)}
-            className="create-index-field-add btn btn-block btn-success">
+            className="create-index-field-add btn btn-sm btn-block btn-success">
             add another
           </button>
         </div>

@@ -48,7 +48,7 @@ class CreateIndexButton extends React.Component {
           className="btn btn-default btn-sm"
           type="button"
           onClick={this.clickCreateHandler.bind(this)}>
-          Add Index
+          Create Index
         </button>
         <CreateIndexModal
           open={this.state.showModal}
