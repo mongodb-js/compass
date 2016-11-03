@@ -419,16 +419,10 @@ const ValidationStore = Reflux.createStore({
     }
   },
 
-  cancelChanges(setByRuleBuilder) {
-    if (setByRuleBuilder) {
-      const params = this._deconstructValidatorDoc(this.lastFetchedValidatorDoc);
-      this._updateState(params);
-      return;
-    }
-    this.setState({
-      editState: 'unmodified',
-      validatorDoc: _.clone(this.lastFetchedValidatorDoc)
-    });
+  cancelChanges() {
+    const params = this._deconstructValidatorDoc(this.lastFetchedValidatorDoc);
+    this._updateState(params);
+    return;
   },
 
   saveChanges() {
