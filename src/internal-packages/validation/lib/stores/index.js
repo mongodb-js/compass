@@ -82,7 +82,7 @@ const ValidationStore = Reflux.createStore({
 
     const validator = helper.filterAndFromValidator(validatorDoc.validator);
 
-    const rules = _.map(validator, (field) => {
+    const rules = _.map(validator, (field, idx) => {
       const fieldName = field[0];
       const rule = field[1];
 
@@ -98,7 +98,7 @@ const ValidationStore = Reflux.createStore({
         return false;
       }
       return {
-        id: uuid.v4(),
+        id: `rule-${idx}`,
         field: result.field,
         category: category,
         parameters: parameters,
@@ -297,7 +297,7 @@ const ValidationStore = Reflux.createStore({
 
   addValidationRule() {
     const rules = _.clone(this.state.validationRules);
-    const id = uuid.v4();
+    const id = `rule-${rules.length}`;
     rules.push({
       id: id,
       field: '',
