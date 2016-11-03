@@ -178,7 +178,7 @@ console.log(c.driver_options)
 
 - `ssl` (optional, String) ... The desired ssl strategy [Default: `NONE`]
   - `SYSTEMCA` SSL required, validate using System CA, no host verification.
-  - `IFAVAILABLE` Try SSL first and fall back to no SSL if unavailable, validate using System CA, no host verification.
+  - `IFAVAILABLE` Try SSL first and fall back to no SSL if unavailable, validate using System CA, with host verification.
   - `SERVER` Driver should validate Server certificate.
   - `ALL` Driver should validate Server certificate and present valid Certificate.
   - `NONE` No SSL. (Not recommended)
@@ -186,7 +186,7 @@ console.log(c.driver_options)
 
 #### SYSTEMCA
 
-SSL required, validate using System CA, no host verification.
+SSL required, validate using System CA, with host verification.
 
 #### IFAVAILABLE
 
