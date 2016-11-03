@@ -3,6 +3,7 @@ const EJSON = require('mongodb-extended-json');
 const Action = require('../action/index-actions');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const SchemaStore = require('../../../schema/lib/store');
+const RTSSActions = require('../../../server-stats/lib/action/index');
 
 /**
  * The reflux store for storing the form for creating indexes.
@@ -36,6 +37,7 @@ const CreateIndexStore = Reflux.createStore({
    * Transform the data to fit Data Service specifications and trigger index creation.
    */
   triggerIndexCreation: function() {
+    RTSSActions.startIndexBuild();
     const spec = {};
     this.fields.forEach(field => {
       let type = field.type;

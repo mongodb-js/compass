@@ -23,6 +23,71 @@ const CurrentOpStore = Reflux.createStore({
     this.listenTo(Actions.pollCurrentOp, this.currentOp);
     this.listenTo(Actions.pause, this.pause);
     this.listenTo(Actions.restart, this.restart);
+    this.listenTo(Actions.startIndexBuild, this.startIndexBuild);
+    this.listenTo(Actions.stopIndexBuild, this.stopIndexBuild);
+
+    this.hasIndex = false;
+    this.indexBuild = {
+      'desc': 'conn772',
+      'threadId': '0x700000c46000',
+      'connectionId': 772,
+      'client': '127.0.0.1:51631',
+      'active': true,
+      'opid': 192596,
+      'secs_running': 12,
+      'microsecs_running': 12439646,
+      'op': 'command',
+      'ns': 'londonbikes.$cmd',
+      'query': {
+        'createIndexes': 'rides_pickup',
+        'indexes': [
+          {
+            'key': {
+              'startstation_gps': '2dsphere'
+            },
+            'name': 'startstation_gps_2dsphere'
+          }
+        ]
+      },
+      'msg': 'Index Build Index Build: 2688656/9224522 29%',
+      'progress': {
+        'done': 2688656,
+        'total': 9224522
+      },
+      'numYields': 0,
+      'locks': {
+        'Global': 'w',
+        'Database': 'W',
+        'Collection': 'w'
+      },
+      'waitingForLock': false,
+      'lockStats': {
+        'Global': {
+          'acquireCount': {
+            'r': 1,
+            'w': 1
+          }
+        },
+        'Database': {
+          'acquireCount': {
+            'W': 1
+          }
+        },
+        'Collection': {
+          'acquireCount': {
+            'w': 1
+          }
+        }
+      }
+    };
+  },
+
+  startIndexBuild() {
+    this.hasIndex = true;
+  },
+
+  stopIndexBuild() {
+    this.hasIndex = false;
   },
 
   restart: function() {
@@ -66,60 +131,33 @@ const CurrentOpStore = Reflux.createStore({
   },
 
   currentOp: function() {
-    app.dataService.currentOp(false, (error, response) => {
-      let totals = [];
-      this.error = error;
-      if (!error && response !== undefined && ('inprog' in response)) {
-        if (this.starting) { // Skip first to match charts
-          this.starting = false;
-          return;
-        }
-        const doc = response.inprog;
-        for (let i = 0; i < doc.length; i++) {
-          if (toNS(doc[i].ns).specialish) {
-            continue;
-          }
-          if (!('microsecs_running' in doc[i])) {
-            debug('Error: currentOp result from DB did not include \'microsecs_running\'', doc[i]);
-            doc[i].ms_running = 0;
-          } else {
-            doc[i].ms_running = _.round(doc[i].microsecs_running / 1000, 2);
-          }
-          if (!('ns' in doc[i]) || !('op' in doc[i])) {
-            debug('Error: currentOp result from DB did not include \'ns\' or \'op\'', doc[i]);
-          }
-          if (!('active' in doc[i])) {
-            debug('Error: currentOp result from DB did not include \'active\'', doc[i]);
-          } else {
-            doc[i].active = doc[i].active.toString();
-          }
-          if (!('waitingForLock' in doc[i])) {
-            debug('Error: currentOp result from DB did not include \'waitingForLock\'', doc[i]);
-          } else {
-            doc[i].waitingForLock = doc[i].waitingForLock.toString();
-          }
-          totals.push(doc[i]);
-        }
-        totals.sort(function(a, b) {
-          const f = (b.ms_running < a.ms_running) ? -1 : 0;
-          return (a.ms_running < b.ms_running) ? 1 : f;
-        });
-        // Add current state to all
-        this.allOps.push(totals);
-        if (this.isPaused) {
-          totals = this.allOps[this.endPause];
-        } else {
-          this.endPause = this.allOps.length;
-        }
-        // This handled by mouseover function completely
-        if (this.inOverlay) {
-          return;
-        }
-      } else if (error) {
-        Actions.dbError({'op': 'currentOp', 'error': error });
-      }
-      this.trigger(error, totals);
-    });
+    if (!this.hasIndex) {
+      this.trigger(null, []);
+      return;
+    }
+    const doc = this.indexBuild;
+    let totals = [];
+    this.error = null;
+    if (this.starting) { // Skip first to match charts
+      this.starting = false;
+      return;
+    }
+    doc.ms_running = _.round(doc.microsecs_running / 1000, 2);
+    doc.active = doc.active.toString();
+    doc.waitingForLock = doc.waitingForLock.toString();
+    totals.push(doc);
+    // Add current state to all
+    this.allOps.push(totals);
+    if (this.isPaused) {
+      totals = this.allOps[this.endPause];
+    } else {
+      this.endPause = this.allOps.length;
+    }
+    // This handled by mouseover function completely
+    if (this.inOverlay) {
+      return;
+    }
+    this.trigger(null, totals);
   }
 });
 
