@@ -58,7 +58,8 @@ var NotificationUpdateAvailable = View.extend({
       }
     });
   },
-  cancel: function() {
+  cancel: function(evt) {
+    evt.stopPropagation();
     this.visible = false;
     return false;
   },
