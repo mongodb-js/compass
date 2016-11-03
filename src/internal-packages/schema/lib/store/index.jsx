@@ -6,7 +6,7 @@ const toNS = require('mongodb-ns');
 
 const _ = require('lodash');
 const ReadPreference = require('mongodb').ReadPreference;
-var bson = require('bson');
+const bson = require('bson');
 
 /**
  * The default read preference.
@@ -139,6 +139,11 @@ const SchemaStore = Reflux.createStore({
   startSampling() {
     const QueryStore = app.appRegistry.getStore('Query.Store');
     const query = QueryStore.state.query;
+    let timeout = 0;
+    if (QueryStore.getQueryNum() === 2) {
+      timeout = 20000;
+    }
+    QueryStore.setQueryNum();
 
     if (_.includes(['counting', 'sampling', 'analyzing'], this.state.samplingState)) {
       return;
@@ -171,83 +176,86 @@ const SchemaStore = Reflux.createStore({
       });
     }, 1000);
 
-    this.samplingStream = createMergeStream(
-      app.dataService.sample(ns, options),
-      withResults('londonbikes.rides_pickup', {'_id': bson.ObjectId('5810ef6602792428c505ad80')})
-    );
-    this.analyzingStream = schemaStream();
-    let schema;
+    const self = this;
+    setTimeout(function() {
+      self.samplingStream = createMergeStream(
+        app.dataService.sample(ns, options),
+        withResults('londonbikes.rides_pickup', {'_id': bson.ObjectId('5810ef6602792428c505ad80')})
+      );
+      self.analyzingStream = schemaStream();
+      let schema;
 
-    const onError = () => {
-      this.setState({
-        samplingState: 'error'
-      });
-      this.stopSampling();
-    };
+      const onError = () => {
+        self.setState({
+          samplingState: 'error'
+        });
+        self.stopSampling();
+      };
 
-    const onSuccess = (_schema) => {
-      this.setState({
-        samplingState: 'complete',
-        samplingTimeMS: new Date() - samplingStart,
-        samplingProgress: 100,
-        schema: _schema
-      });
-      this.stopSampling();
-    };
+      const onSuccess = (_schema) => {
+        self.setState({
+          samplingState: 'complete',
+          samplingTimeMS: new Date() - samplingStart,
+          samplingProgress: 100,
+          schema: _schema
+        });
+        self.stopSampling();
+      };
 
-    const countOptions = { maxTimeMS: this.state.maxTimeMS, readPreference: READ };
-    app.dataService.count(ns, query, countOptions, (err, count) => {
-      if (err) {
-        return onError(err);
-      }
+      const countOptions = { maxTimeMS: self.state.maxTimeMS, readPreference: READ };
+      app.dataService.count(ns, query, countOptions, (err, count) => {
+        if (err) {
+          return onError(err);
+        }
 
-      this.setState({
-        samplingState: 'sampling',
-        samplingProgress: 0,
-        samplingTimeMS: new Date() - samplingStart
-      });
-      const numSamples = Math.min(count, DEFAULT_NUM_DOCUMENTS);
-      let sampleCount = 0;
+        self.setState({
+          samplingState: 'sampling',
+          samplingProgress: 0,
+          samplingTimeMS: new Date() - samplingStart
+        });
+        const numSamples = Math.min(count, DEFAULT_NUM_DOCUMENTS);
+        let sampleCount = 0;
 
-      this.samplingStream
-        .on('error', (sampleErr) => {
-          return onError(sampleErr);
-        })
-        .pipe(this.analyzingStream)
-        .once('progress', () => {
-          this.setState({
-            samplingState: 'analyzing',
-            samplingTimeMS: new Date() - samplingStart
-          });
-        })
-        .on('progress', () => {
-          sampleCount ++;
-          const newProgress = Math.ceil(sampleCount / numSamples * 100);
-          if (newProgress > this.state.samplingProgress) {
-            this.setState({
-              samplingProgress: Math.ceil(sampleCount / numSamples * 100),
+        self.samplingStream
+          .on('error', (sampleErr) => {
+            return onError(sampleErr);
+          })
+          .pipe(self.analyzingStream)
+          .once('progress', () => {
+            self.setState({
+              samplingState: 'analyzing',
               samplingTimeMS: new Date() - samplingStart
             });
-          }
-        })
-        .on('data', (data) => {
-          schema = data;
-        })
-        .on('error', (analysisErr) => {
-          onError(analysisErr);
-        })
-        .on('end', () => {
-          if ((numSamples === 0 || sampleCount > 0) && this.state.samplingState !== 'error') {
-            onSuccess(schema);
-          } else {
-            return onError();
-          }
-        });
-    });
+          })
+          .on('progress', () => {
+            sampleCount ++;
+            const newProgress = Math.ceil(sampleCount / numSamples * 100);
+            if (newProgress > self.state.samplingProgress) {
+              self.setState({
+                samplingProgress: Math.ceil(sampleCount / numSamples * 100),
+                samplingTimeMS: new Date() - samplingStart
+              });
+            }
+          })
+          .on('data', (data) => {
+            schema = data;
+          })
+          .on('error', (analysisErr) => {
+            onError(analysisErr);
+          })
+          .on('end', () => {
+            if ((numSamples === 0 || sampleCount > 0) && self.state.samplingState !== 'error') {
+              onSuccess(schema);
+            } else {
+              return onError();
+            }
+          });
+      });
+    }, timeout);
   },
 
   storeDidUpdate(prevState) {
-    debug('schema store changed from', prevState, 'to', this.state);
+    // debug('schema store changed from', prevState, 'to', this.state);
   }
 
 });

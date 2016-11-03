@@ -53,6 +53,9 @@ const TopStore = Reflux.createStore({
     }
     this.overlayIndex = index;
     this.inOverlay = true;
+    if (this.allOps === undefined || this.allOps.length == 0) {
+      return;
+    }
     this.trigger(null, visOps[this.overlayIndex]);
   },
 
@@ -60,6 +63,9 @@ const TopStore = Reflux.createStore({
     this.inOverlay = false;
     const startPause = Math.max(this.endPause - this.xLength, 0);
     const visOps = this.allOps.slice(startPause, this.endPause);
+    if (this.allOps === undefined || this.allOps.length == 0) {
+      return;
+    }
     this.trigger(this.error, visOps[visOps.length - 1]);
   },
 

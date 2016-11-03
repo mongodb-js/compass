@@ -49,11 +49,17 @@ const CurrentOpStore = Reflux.createStore({
     }
     this.overlayIndex = index;
     this.inOverlay = true;
+    if (this.allOps === undefined || this.allOps.length == 0) {
+      return;
+    }
     this.trigger(null, visOps[this.overlayIndex]);
   },
 
   mouseOut: function() {
     this.inOverlay = false;
+    if (this.allOps === undefined || this.allOps.length == 0) {
+      return;
+    }
     const startPause = Math.max(this.endPause - this.xLength, 0);
     const visOps = this.allOps.slice(startPause, this.endPause);
     this.trigger(this.error, visOps[visOps.length - 1]);
