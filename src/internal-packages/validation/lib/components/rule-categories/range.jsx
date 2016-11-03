@@ -136,25 +136,25 @@ class RuleCategoryRange extends React.Component {
     return !isNaN(value) && Math.abs(value) !== Infinity;
   }
 
-  static typeCastNumeric(value, serverVersion) {
-    // Override serverVersion for testing, otherwise I'd mock isHighPrecision
-    const highPrecision = (
-        (typeof serverVersion === 'undefined' && RuleCategoryRange.isHighPrecision()) ||
-        (serverVersion >= HP_VERSION)
-    );
-    const castableTypes = TypeChecker.castableTypes(value, highPrecision);
-    // We rely on Double and Decimal128 being first in the list,
-    // which is fragile and hence is unit tested
-    return TypeChecker.cast(value, castableTypes[0]);
-  }
+  // static typeCastNumeric(value, serverVersion) {
+  //   // Override serverVersion for testing, otherwise I'd mock isHighPrecision
+  //   const highPrecision = (
+  //       (typeof serverVersion === 'undefined' && RuleCategoryRange.isHighPrecision()) ||
+  //       (serverVersion >= HP_VERSION)
+  //   );
+  //   const castableTypes = TypeChecker.castableTypes(value, highPrecision);
+  //   // We rely on Double and Decimal128 being first in the list,
+  //   // which is fragile and hence is unit tested
+  //   return TypeChecker.cast(value, castableTypes[0]);
+  // }
 
   static paramsToQuery(params) {
     const result = {};
     if (params.upperBoundType) {
-      result[params.upperBoundType] = RuleCategoryRange.typeCastNumeric(params.upperBoundValue);
+      result[params.upperBoundType] = parseFloat(params.upperBoundValue, 10);
     }
     if (params.lowerBoundType) {
-      result[params.lowerBoundType] = RuleCategoryRange.typeCastNumeric(params.lowerBoundValue);
+      result[params.lowerBoundType] = parseFloat(params.lowerBoundValue, 10);
     }
     return result;
   }
@@ -211,7 +211,7 @@ class RuleCategoryRange extends React.Component {
    */
   validateCombinedValues(lower, upper) {
     // TODO Can't compare two Decimal128's for correctness easily in JS...
-    const highPrecision = false;
+    // const highPrecision = false;
 
     // first check that not both values are "none"
     if (!upper && !lower) {
@@ -222,18 +222,18 @@ class RuleCategoryRange extends React.Component {
       return true;
     }
 
-    const castedUpper = TypeChecker.cast(
-      upper,
-      TypeChecker.castableTypes(upper, highPrecision)[0]
-    );
-
-    const castedLower = TypeChecker.cast(
-      lower,
-      TypeChecker.castableTypes(lower, highPrecision)[0]
-    );
+    // const castedUpper = TypeChecker.cast(
+    //   upper,
+    //   TypeChecker.castableTypes(upper, highPrecision)[0]
+    // );
+    //
+    // const castedLower = TypeChecker.cast(
+    //   lower,
+    //   TypeChecker.castableTypes(lower, highPrecision)[0]
+    // );
 
     // only return true if the lower value strictly less than the upper value
-    return castedLower < castedUpper;
+    return parseFloat(lower, 10) < parseFloat(upper, 10);
   }
 
   /**
