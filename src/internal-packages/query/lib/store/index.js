@@ -28,19 +28,10 @@ const QueryStore = Reflux.createStore({
    */
   init: function() {
     this.validFeatureFlags = _.keys(_.pick(app.preferences.serialize(), _.isBoolean));
-    this.queryNum = 0;
     NamespaceStore.listen(() => {
       // reset the store
       this.setState(this.getInitialState());
     });
-  },
-
-  getQueryNum() {
-    return this.queryNum;
-  },
-
-  setQueryNum() {
-    this.queryNum++;
   },
 
   /**

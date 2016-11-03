@@ -82,6 +82,7 @@ const SchemaStore = Reflux.createStore({
     this.analyzingStream = null;
     this.samplingTimer = null;
     this.trickleStop = null;
+    this.counter = 0;
   },
 
   /**
@@ -140,10 +141,10 @@ const SchemaStore = Reflux.createStore({
     const QueryStore = app.appRegistry.getStore('Query.Store');
     const query = QueryStore.state.query;
     let timeout = 0;
-    if (QueryStore.getQueryNum() === 2) {
+    if (this.counter === 2) {
       timeout = 20000;
     }
-    QueryStore.setQueryNum();
+    this.counter++;
 
     if (_.includes(['counting', 'sampling', 'analyzing'], this.state.samplingState)) {
       return;
