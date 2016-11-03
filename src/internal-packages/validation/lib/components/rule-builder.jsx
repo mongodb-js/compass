@@ -53,7 +53,8 @@ class RuleBuilder extends React.Component {
    */
   onCancel() {
     this.isValid = true;
-    ValidationActions.cancelChanges(true);
+    this.childValidationStates = {};
+    ValidationActions.cancelChanges();
   }
 
   /**
