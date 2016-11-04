@@ -34,8 +34,8 @@ const CurrentOpStore = Reflux.createStore({
       'client': '127.0.0.1:51631',
       'active': true,
       'opid': 192596,
-      'secs_running': 12,
-      'microsecs_running': 12439646,
+      'secs_running': 1,
+      'ms_running': 1000,
       'op': 'command',
       'ns': 'londonbikes.$cmd',
       'query': {
@@ -142,7 +142,8 @@ const CurrentOpStore = Reflux.createStore({
       this.starting = false;
       return;
     }
-    doc.ms_running = _.round(doc.microsecs_running / 1000, 2);
+    doc.ms_running = doc.ms_running + 1000;
+    doc.secs_running = doc.secs_running + 1;
     doc.active = doc.active.toString();
     doc.waitingForLock = doc.waitingForLock.toString();
     totals.push(doc);
