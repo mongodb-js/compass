@@ -1,8 +1,9 @@
 const React = require('react');
 const _ = require('lodash');
 const OptionSelector = require('./option-selector');
+const app = require('ampersand-app');
 
-// const debug = require('debug')('mongodb-compass:validation');
+const debug = require('debug')('mongodb-compass:validation');
 
 const BSON_TYPES = [
   {name: 'Double', number: 1, alias: 'double'},
@@ -81,8 +82,8 @@ class BSONTypeSelector extends React.Component {
    */
   render() {
     const selectedTypeName = _.get(this.state.type, 'alias', '');
-    // TODO: make recentServer true if server is 3.4 <
-    const recentServer = true;
+    //  string compare server version if it's under 3.4, set falsey
+    const recentServer = !('3.4.0-rc0'.localeCompare(app.instance.build.version) === 1);
     // remove the decimal version if not recentServer
     const typeOptions = _.zipObject(_.map(_.filter(BSON_TYPES, (t) => {
       // filter out decimal if server < 3.4
