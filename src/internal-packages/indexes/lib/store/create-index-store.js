@@ -4,6 +4,8 @@ const Action = require('../action/index-actions');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const SchemaStore = require('../../../schema/lib/store');
 
+const debug = require('debug')('mongodb-compass:ddl:index:store');
+
 /**
  * The reflux store for storing the form for creating indexes.
  */
@@ -18,6 +20,10 @@ const CreateIndexStore = Reflux.createStore({
     this.listenTo(Action.triggerIndexCreation, this.triggerIndexCreation);
     this.listenTo(Action.updateField, this.updateField);
     this.listenTo(Action.updateOption, this.updateOption);
+    this.listenTo(Action.addRowIndex, this.addRowIndex);
+    this.listenTo(Action.updateRowFieldName, this.updateRowFieldName);
+    this.listenTo(Action.updateRowFieldType, this.updateRowFieldType);
+    this.listenTo(Action.removeRowIndex, this.removeRowIndex);
     this.schemaFields = []; // fields in the current schema
     this.fields = []; // fields and types for new index
     this.options = {}; // options for new index
@@ -159,7 +165,24 @@ const CreateIndexStore = Reflux.createStore({
       this.options[option].value = value;
     }
     this.sendValues();
+  },
+
+  addRowIndex: function() {
+    debug('adding a row index');
+  },
+
+  updateRowFieldName: function(idx, name) {
+    debug('updating row at: ', idx, ' with name: ', name);
+  },
+
+  updateRowFieldType: function(idx, type) {
+    debug('updating row at: ', idx, ' with name: ', type);
+  },
+
+  removeRowIndex: function(idx) {
+    debug('removing row at: ', idx);
   }
 });
+
 
 module.exports = CreateIndexStore;
