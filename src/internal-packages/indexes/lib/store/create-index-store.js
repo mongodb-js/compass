@@ -25,7 +25,7 @@ const CreateIndexStore = Reflux.createStore({
     this.listenTo(Action.updateFieldType, this.updateFieldType);
     this.listenTo(Action.removeIndexField, this.removeIndexField);
     this.schemaFields = []; // fields in the current schema
-    this.fields = []; // fields and types for new index
+    this.fields = [{name: '', type: ''}];
     this.options = {}; // options for new index
   },
 
@@ -33,7 +33,7 @@ const CreateIndexStore = Reflux.createStore({
    * Reset fields and options and send both to listeners.
    */
   clearForm: function() {
-    this.fields = [];
+    this.fields = [{name: '', type: ''}];
     this.options = {};
     this.sendValues();
   },
