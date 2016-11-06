@@ -19,12 +19,20 @@ class RuleBuilder extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      isValid: true
+      isValid: true,
+      forceRenderKey: 0
     };
   }
 
-  componentWillReceiveProps() {
+  componentWillReceiveProps(props) {
     this.validate(false);
+    if (props.editState === 'unmodified' && this.props.editState !== 'unmodified') {
+      // force a complete redraw of the component by increasing the key
+      this.setState({
+        forceRenderKey: this.state.forceRenderKey + 1,
+        isValid: true
+      });
+    }
   }
 
   /**
@@ -96,7 +104,8 @@ class RuleBuilder extends React.Component {
       editState: this.props.editState,
       childName: 'Validation',
       onCancel: this.onCancel.bind(this),
-      onUpdate: this.onUpdate.bind(this)
+      onUpdate: this.onUpdate.bind(this),
+      key: this.state.forceRenderKey
     };
 
     if (!this.state.isValid) {

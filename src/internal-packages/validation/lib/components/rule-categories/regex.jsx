@@ -48,7 +48,7 @@ class RuleCategoryRegex extends React.Component {
   }
 
   onDropdownClosed() {
-    this.submit();
+    this.onBlur();
   }
 
   onBlur() {
