@@ -168,7 +168,6 @@ const CreateIndexStore = Reflux.createStore({
     if (idx >= 0 && idx < this.fields.length) {
       // check if field name already exists or no
       if (this.fields.some(field => field.name === name)) {
-        // TODO show error to ui when existing name is being added to field
         Action.updateStatus('error', ERRORS.duplicate);
       } else {
         this.fields[idx].name = name;
