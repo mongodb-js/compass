@@ -175,10 +175,24 @@ const CreateIndexStore = Reflux.createStore({
 
   updateFieldName: function(idx, name) {
     debug('updating row at: ', idx, ' with name: ', name);
+    if (idx >= 0 && idx < this.fields.length) {
+      // check if field name already exists or no
+      if (this.fields.some(field => field.name === name)) {
+        // TODO show error to ui when existing name is being added to field
+        debug('field name: ', name, ' already exists');
+      } else {
+        this.fields[idx].name = name;
+      }
+    }
+    this.sendValues();
   },
 
   updateFieldType: function(idx, type) {
-    debug('updating row at: ', idx, ' with name: ', type);
+    debug('updating row at: ', idx, ' with type: ', type);
+    if (idx >= 0 && idx < this.fields.length) {
+      this.fields[idx].type = type;
+    }
+    this.sendValues();
   },
 
   removeIndexField: function(idx) {

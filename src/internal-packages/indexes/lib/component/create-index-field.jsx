@@ -2,7 +2,7 @@ const React = require('react');
 const ButtonToolbar = require('react-bootstrap').ButtonToolbar;
 const DropdownButton = require('react-bootstrap').DropdownButton;
 const MenuItem = require('react-bootstrap').MenuItem;
-// const Action = require('../action/index-actions');
+const Action = require('../action/index-actions');
 
 // const debug = require('debug')('mongodb-compass:component:indexes:create-modal');
 
@@ -23,6 +23,7 @@ class CreateIndexField extends React.Component {
    */
   constructor(props) {
     super(props);
+    /*
     this.defaultName = 'Select a field name';
     this.defaultType = 'Select a type';
 
@@ -30,7 +31,7 @@ class CreateIndexField extends React.Component {
       // default titles shown in dropdown
       name: this.defaultName,
       type: this.defaultType
-    };
+    };*/
   }
 
   /**
@@ -47,10 +48,11 @@ class CreateIndexField extends React.Component {
   /**
    * Set state to selected field on field change.
    *
-   * @param {string} field - The selected field.
+   * @param {string} name - The selected name.
    */
-  handleFieldSelect(field) {
-    this.setState({field: field});
+  selectName(name) {
+    // this.setState({name: name});
+    Action.updateFieldName(this.props.idx, name);
   }
 
   /**
@@ -58,8 +60,9 @@ class CreateIndexField extends React.Component {
    *
    * @param {string} type - The selected type.
    */
-  handleTypeSelect(type) {
-    this.setState({type: type});
+  selectType(type) {
+    // this.setState({type: type});
+    Action.updateFieldType(this.props.idx, type);
   }
 
   /**
@@ -73,10 +76,10 @@ class CreateIndexField extends React.Component {
         <div className="col-md-6">
           <ButtonToolbar>
             <DropdownButton
-              title={this.state.name}
+              title={this.props.field.name}
               id="field-name-select-dropdown"
               className="create-index-field-dropdown-name"
-              onSelect={this.handleFieldSelect.bind(this)}>
+              onSelect={this.selectName.bind(this)}>
               {this.getDropdownOptions(this.props.fields)}
             </DropdownButton>
           </ButtonToolbar>
@@ -84,10 +87,10 @@ class CreateIndexField extends React.Component {
         <div className="col-md-4">
           <ButtonToolbar>
             <DropdownButton
-              title={this.state.type}
+              title={this.props.field.type}
               id="field-type-select-dropdown"
               className="create-index-field-dropdown-type"
-              onSelect={this.handleTypeSelect.bind(this)}>
+              onSelect={this.selectType.bind(this)}>
               {this.getDropdownOptions(INDEX_TYPES)}
             </DropdownButton>
           </ButtonToolbar>
