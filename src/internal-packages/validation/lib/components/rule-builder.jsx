@@ -18,8 +18,13 @@ class RuleBuilder extends React.Component {
 
   constructor(props) {
     super(props);
-    this.isValid = true;
-    this.childValidationStates = {};
+    this.state = {
+      isValid: true
+    };
+  }
+
+  componentWillReceiveProps() {
+    this.validate(false);
   }
 
   /**
@@ -52,45 +57,33 @@ class RuleBuilder extends React.Component {
    * Revert all changes to the server state.
    */
   onCancel() {
-    this.isValid = true;
-    this.childValidationStates = {};
     ValidationActions.cancelChanges();
   }
 
   /**
    * The "Update" button from the `Editable component has been clicked.
-   * Send the new validator doc to the server.
+   * Check that all rules are valid, then send the new validator doc to
+   * the server.
    */
   onUpdate() {
-    this.validate();
-    if (this.isValid) {
+    if (this.validate(true)) {
       ValidationActions.saveChanges();
     }
   }
 
-  validate(key, valid) {
-    if (key === undefined) {
-      // downwards validation, call children's validate() method.
-      _.each(this.props.validationRules, (rule) => {
-        this.refs[rule.id].validate();
-      });
-      return;
-    }
-    this.childValidationStates[key] = valid;
-    this.isValid = _.all(_.values(this.childValidationStates));
-    this.forceUpdate();
+  validate(force) {
+    const isValid = _.all(this.props.validationRules, (rule) => {
+      return this.refs[rule.id].validate(force);
+    });
+    this.setState({
+      isValid: isValid
+    });
+    return isValid;
   }
 
   renderRules() {
     return _.map(this.props.validationRules, (rule) => {
-      return (
-        <Rule
-          ref={rule.id}
-          key={rule.id}
-          validate={this.validate.bind(this, rule.id)}
-          {...rule}
-        />
-      );
+      return <Rule ref={rule.id} key={rule.id} {...rule} />;
     });
   }
   /**
@@ -106,7 +99,7 @@ class RuleBuilder extends React.Component {
       onUpdate: this.onUpdate.bind(this)
     };
 
-    if (!this.isValid) {
+    if (!this.state.isValid) {
       editableProps.editState = 'error';
       editableProps.errorMessage = 'Input is not valid.';
       delete editableProps.childName;

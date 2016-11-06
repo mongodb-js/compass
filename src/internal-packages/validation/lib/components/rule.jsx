@@ -19,12 +19,12 @@ class Rule extends React.Component {
 
   constructor(props) {
     super(props);
-    this.isValid = true;
-    this.childValidationStates = {};
+    this.state = {
+      isValid: true
+    };
   }
 
   onDeleteClicked() {
-    this.props.validate(true);
     ValidationActions.deleteValidationRule(this.props.id);
   }
 
@@ -32,27 +32,25 @@ class Rule extends React.Component {
     ValidationActions.setRuleNullable(this.props.id, !this.props.nullable);
   }
 
-
   /**
-   * called by child components when they evaluate if they are valid.
-   * This method saves the valid state for each child, and then determine
-   * if itself is valid. This is only the case when all children are valid.
-   * It then reports its own state up the chain by calling this.props.validate().
-   *
-   * @param {String} key      an identifier string for the child component
-   * @param {Boolean} valid   whether the child was valid or not
+   * validates all children components and combines the result for its own
+   * isValid state.
+   * @param  {Boolean} force    force validation (before submit)
+   * @return {Boolean}          whether or not it valid inputs.
    */
-  validate(key, valid) {
-    if (key === undefined) {
-      // downwards validation, call children's validate() method.
-      _.result(this.refs.Parameters, 'validate');
-      this.refs.RuleFieldSelector.validate();
-      this.refs.RuleCategorySelector.validate();
-      return;
+  validate(force) {
+    const fieldValid = this.refs.RuleFieldSelector.validate(force);
+    const categoryValid = this.refs.RuleCategorySelector.validate(force);
+
+    let isValid = fieldValid && categoryValid;
+    if (this.refs.Parameters && this.refs.Parameters.validate) {
+      isValid = isValid && this.refs.Parameters.validate(force);
     }
-    this.childValidationStates[key] = valid;
-    this.isValid = _.all(_.values(this.childValidationStates));
-    this.props.validate(this.isValid);
+
+    this.setState({
+      isValid: isValid
+    });
+    return isValid;
   }
 
   render() {
@@ -62,10 +60,9 @@ class Rule extends React.Component {
         ref="Parameters"
         id={this.props.id}
         parameters={this.props.parameters}
-        validate={this.validate.bind(this, 'Parameters')}
       /> : null;
 
-    const nullableDisabled = _.includes(['exists', 'mustNotExist'],
+    const nullableDisabled = _.includes(['exists', 'mustNotExist', ''],
       this.props.category);
 
     return (
@@ -75,7 +72,6 @@ class Rule extends React.Component {
             ref="RuleFieldSelector"
             id={this.props.id}
             field={this.props.field}
-            validate={this.validate.bind(this, 'RuleFieldSelector')}
           />
         </td>
         <td>
@@ -84,7 +80,6 @@ class Rule extends React.Component {
               ref="RuleCategorySelector"
               id={this.props.id}
               category={this.props.category}
-              validate={this.validate.bind(this, 'RuleCategorySelector')}
             />
             {ruleParameters}
           </Form>
@@ -111,8 +106,7 @@ Rule.propTypes = {
   field: React.PropTypes.string.isRequired,
   category: React.PropTypes.string.isRequired,
   parameters: React.PropTypes.object.isRequired,
-  nullable: React.PropTypes.bool.isRequired,
-  validate: React.PropTypes.func.isRequired
+  nullable: React.PropTypes.bool.isRequired
 };
 
 Rule.displayName = 'Rule';

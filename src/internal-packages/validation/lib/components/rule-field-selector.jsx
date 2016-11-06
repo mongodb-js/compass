@@ -20,7 +20,8 @@ class RuleFieldSelector extends React.Component {
     super(props);
     this.state = {
       value: this.props.field,
-      isValid: true
+      isValid: true,
+      hasStartedValidating: false
     };
   }
 
@@ -41,15 +42,18 @@ class RuleFieldSelector extends React.Component {
    * the store of the change.
    */
   onBlur() {
-    this.validate();
+    this.validate(true);
     ValidationActions.setRuleField(this.props.id, this.state.value);
   }
 
-  validate() {
+  validate(force) {
+    if (!force && !this.state.hasStartedValidating) {
+      return true;
+    }
     const isValid = this.state.value !== '';
-    this.props.validate(isValid);
     this.setState({
-      isValid: isValid
+      isValid: isValid,
+      hasStartedValidating: true
     });
     return isValid;
   }
@@ -77,8 +81,7 @@ class RuleFieldSelector extends React.Component {
 
 RuleFieldSelector.propTypes = {
   id: React.PropTypes.string.isRequired,
-  field: React.PropTypes.string.isRequired,
-  validate: React.PropTypes.func
+  field: React.PropTypes.string.isRequired
 };
 
 RuleFieldSelector.displayName = 'RuleFieldSelector';

@@ -10,10 +10,6 @@ class RuleCategoryMustNotExist extends React.Component {
     super(props);
   }
 
-  componentWillMount() {
-    this.props.validate(true);
-  }
-
   /**
    * get the initial parameters for this rule category.
    *
@@ -65,8 +61,7 @@ class RuleCategoryMustNotExist extends React.Component {
 
 RuleCategoryMustNotExist.propTypes = {
   id: React.PropTypes.string.isRequired,
-  parameters: React.PropTypes.object.isRequired,
-  validate: React.PropTypes.func.isRequired
+  parameters: React.PropTypes.object.isRequired
 };
 
 RuleCategoryMustNotExist.displayName = 'RuleCategoryMustNotExist';

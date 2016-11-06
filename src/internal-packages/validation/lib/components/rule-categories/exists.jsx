@@ -9,10 +9,6 @@ class RuleCategoryExists extends React.Component {
     super(props);
   }
 
-  componentWillMount() {
-    this.props.validate(true);
-  }
-
   /**
    * get the initial parameters for this rule category.
    *
@@ -64,8 +60,7 @@ class RuleCategoryExists extends React.Component {
 
 RuleCategoryExists.propTypes = {
   id: React.PropTypes.string.isRequired,
-  parameters: React.PropTypes.object.isRequired,
-  validate: React.PropTypes.func.isRequired
+  parameters: React.PropTypes.object.isRequired
 };
 
 RuleCategoryExists.displayName = 'RuleCategoryExists';

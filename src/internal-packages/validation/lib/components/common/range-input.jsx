@@ -34,7 +34,8 @@ class RangeInput extends React.Component {
       disabled: op === 'none',
       operator: op,
       value: this.props.value,
-      validationState: null
+      isValid: true,
+      hasStartedValidating: false
     };
     this._ENABLE_HP = app.instance && (
       app.instance.build.version >= HP_VERSION);
@@ -57,12 +58,11 @@ class RangeInput extends React.Component {
    * validate the input and if it is valid, report the value change up to the parent.
    */
   onInputBlur() {
-    if (this.validate()) {
-      this.props.onRangeInputBlur({
-        value: this.state.value,
-        operator: this.state.operator
-      });
-    }
+    this.validate(true);
+    this.props.onRangeInputBlur({
+      value: this.state.value,
+      operator: this.state.operator
+    });
   }
 
   /**
@@ -83,12 +83,18 @@ class RangeInput extends React.Component {
   }
 
   /**
-   * determines if the input by itself is valid (e.g. a value that can be cast to a number).
-   * This will also report the result up to the parent via `this.props.validate()`.
+   * determines if the input by itself is valid (e.g. a value that can be
+   * cast to a number).
    *
    * @return {Boolean}    whether the input is valid or not.
    */
-  validate() {
+  validate(force) {
+    if (!force && !this.state.hasStartedValidating) {
+      return true;
+    }
+    if (this.state.disabled) {
+      return true;
+    }
     const value = this.state.value;
     const valueTypes = TypeChecker.castableTypes(value, this._ENABLE_HP);
 
@@ -100,11 +106,11 @@ class RangeInput extends React.Component {
       'Decimal128'
     ];
 
-    const isValid = (_.intersection(valueTypes, NUMBER_TYPES).length);
+    const isValid = (_.intersection(valueTypes, NUMBER_TYPES).length > 0);
     this.setState({
-      validationState: isValid ? null : 'error'
+      isValid: isValid,
+      hasStartedValidating: true
     });
-    this.props.validate(isValid);
     return isValid;
   }
 
@@ -161,9 +167,9 @@ class RangeInput extends React.Component {
     }
     // not disabled, render input group with value input and operator dropdown
     const placeholder = `${boundString}`.toLowerCase();
-
+    const validationState = this.state.isValid ? null : 'error';
     return (
-      <FormGroup validationState={this.props.validationState || this.state.validationState}>
+      <FormGroup validationState={this.props.validationState || validationState}>
         <InputGroup style={{width: this.props.width}}>
           <DropdownButton
             id={`range-input-${this.props.upperBound ? 'upper' : 'lower'}`}
@@ -193,8 +199,7 @@ RangeInput.propTypes = {
   boundIncluded: React.PropTypes.bool.isRequired,
   disabled: React.PropTypes.bool.isRequired,
   onRangeInputBlur: React.PropTypes.func,
-  width: React.PropTypes.number,
-  validate: React.PropTypes.func
+  width: React.PropTypes.number
 };
 
 RangeInput.defaultProps = {

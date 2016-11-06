@@ -332,7 +332,9 @@ const ValidationStore = Reflux.createStore({
       _.includes(_.keys(ruleCategories), category)) {
       rules[ruleIndex].category = category;
       rules[ruleIndex].parameters = ruleCategories[category].getInitialParameters();
-
+      if (_.contains(['exists', 'mustNotExist'], category)) {
+        rules[ruleIndex].nullable = false;
+      }
       this._updateState({rules: rules});
     }
   },

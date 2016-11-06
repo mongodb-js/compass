@@ -21,19 +21,34 @@ class RuleCategorySelector extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      isValid: true
+      hasStartedValidating: false,
+      isValid: true,
+      category: props.category || ''
     };
   }
 
+  componentWillReceiveProps(props) {
+    this.setState({
+      category: props.category || ''
+    });
+  }
+
   onSelect(category) {
-    this.validate(category);
+    this.setState({
+      category: category,
+      isValid: true,
+      hasStartedValidating: true
+    });
     ValidationActions.setRuleCategory(this.props.id, category);
   }
 
-  validate(category) {
-    const isValid = (category || this.props.category) !== '';
-    this.props.validate(isValid);
+  validate(force) {
+    if (!force && !this.state.hasStartedValidating) {
+      return true;
+    }
+    const isValid = this.state.category !== '';
     this.setState({
+      hasStartedValidating: true,
       isValid: isValid
     });
     return isValid;
@@ -58,7 +73,7 @@ class RuleCategorySelector extends React.Component {
           options={dropdownOptions}
           id={this.props.id}
           label=""
-          value={this.props.category}
+          value={this.state.category}
           onSelect={this.onSelect.bind(this)}
         />
       </FormGroup>
@@ -68,8 +83,7 @@ class RuleCategorySelector extends React.Component {
 
 RuleCategorySelector.propTypes = {
   id: React.PropTypes.string.isRequired,
-  category: React.PropTypes.string.isRequired,
-  validate: React.PropTypes.func
+  category: React.PropTypes.string.isRequired
 };
 
 RuleCategorySelector.displayName = 'RuleCategorySelector';

@@ -2,12 +2,11 @@ const React = require('react');
 const _ = require('lodash');
 const ValidationAction = require('../../actions');
 const RangeInput = require('../common/range-input');
-const TypeChecker = require('hadron-type-checker');
 const app = require('ampersand-app');
 const bootstrap = require('react-bootstrap');
 const FormGroup = bootstrap.FormGroup;
 
-// const debug = require('debug')('mongodb-compass:validation');
+// const debug = require('debug')('mongodb-compass:validation:range');
 
 /**
   * The version at which high precision values are available.
@@ -18,41 +17,17 @@ class RuleCategoryRange extends React.Component {
 
   constructor(props) {
     super(props);
-    // this tracks whether the children individually are valid or not.
-    // it is a bit unusually to make this an instance variable, but since
-    // the component does not have to re-render itself when this changes,
-    // it's ok. We also had issues making this part of state because the
-    // state does not update immediately, which was causing issues.
-    //
-    // @see http://stackoverflow.com/questions/30782948/why-calling-react-setstate-method-doesnt-mutate-the-state-immediately
-    this.childrenIndividuallyValid = true;
-
-    // Additionally, we maintain the validation states of the two
-    // children so that we can determine if both of them are valid.
-    this.isValid = true;
-    this.childValidationStates = {};
-
-    // We are forking the `parameters` passed in as props here, and are
-    // updating them whenever a child component changes its values
-    // (onRangeInputBlur).
     this.state = {
+      isValid: true,
+      combinedValid: true,
       parameters: _.clone(this.props.parameters)
     };
-  }
-
-  componentWillMount() {
-    this.props.validate(true);
   }
 
   /**
    * callback called by the child components (<RangeInput />) whenever
    * they change their value or operator. This method then updates the
-   * internal `state.parameters` accordingly and determines if the two
-   * combined values are still considered a valid state or not.
-   *
-   * Note: individual value validation (i.e. are both children individually
-   * valid) happens in `this.validate()` and is tracked by
-   * this.childrenIndividuallyValid.
+   * internal `state.parameters` accordingly.
    *
    * @param {String} key    the key of the child component, `lower` or `upper`
    * @param {Object} value  the value passed up from the child of the shape
@@ -89,26 +64,14 @@ class RuleCategoryRange extends React.Component {
     this.setState({
       parameters: params
     });
-
-    // this component is valid if the children are individually valid and
-    // their combined values are also valid.
-    this.isValid = this.validateCombinedValues(
-      params.lowerBoundType && params.lowerBoundValue,
-      params.upperBoundType && params.upperBoundValue
-    ) && this.childrenIndividuallyValid;
-
-    // report up the chain to the parent our overall valid state
-    this.props.validate(this.isValid);
-    if (this.isValid) {
-      ValidationAction.setRuleParameters(this.props.id, params);
-    }
+    ValidationAction.setRuleParameters(this.props.id, params);
   }
 
   static getInitialParameters() {
     return {
-      upperBoundValue: null,
+      upperBoundValue: '',
       upperBoundType: '$lte',
-      lowerBoundValue: null,
+      lowerBoundValue: '',
       lowerBoundType: '$gte'
     };
   }
@@ -209,56 +172,54 @@ class RuleCategoryRange extends React.Component {
    *
    * @return {Boolean}          whether the combined values are valid or not
    */
-  validateCombinedValues(lower, upper) {
-    // TODO Can't compare two Decimal128's for correctness easily in JS...
-    // const highPrecision = false;
+  validateCombinedValues() {
+    const {
+      upperBoundType,
+      upperBoundValue,
+      lowerBoundType,
+      lowerBoundValue
+    } = this.state.parameters;
 
     // first check that not both values are "none"
-    if (!upper && !lower) {
+    if (!upperBoundType && !lowerBoundType) {
       return false;
     }
     // if only one value is "none", it's automatically valid
-    if (!upper || !lower) {
+    if (!upperBoundType || !lowerBoundType) {
       return true;
     }
 
-    // const castedUpper = TypeChecker.cast(
-    //   upper,
-    //   TypeChecker.castableTypes(upper, highPrecision)[0]
-    // );
-    //
-    // const castedLower = TypeChecker.cast(
-    //   lower,
-    //   TypeChecker.castableTypes(lower, highPrecision)[0]
-    // );
+    // if one of the fields is still empty, don't invalidate here. The
+    // RangeInput component will take care of this case.
+    if (upperBoundValue === '' || lowerBoundValue === '') {
+      return true;
+    }
+
+    // if either of the children don't validate, return true here as that
+    // case is handled in the children directly, and we're not invalidating
+    // both children if just one is invalid.
+    if (!_.result(this.refs.lower, 'validate', false) ||
+        !_.result(this.refs.upper, 'validate', false)) {
+      return true;
+    }
 
     // only return true if the lower value strictly less than the upper value
-    return parseFloat(lower, 10) < parseFloat(upper, 10);
+    return parseFloat(lowerBoundValue, 10) < parseFloat(upperBoundValue, 10);
   }
 
-  /**
-   * callback for child components (<RangeInput />) to be called when they
-   * validate their own state. In this method, we only compute if all children
-   * are individually valid. If they are not, we can immediately report up the
-   * chain that this component is currently not valid. Otherwise, we have to
-   * check the combined validity, which is done in `this.validateCombinedValues`.
-   *
-   * @param {String} key     The key of the child component: `lower` or `upper`
-   * @param {Boolean} valid  The valid state of the child component
-   */
-  validate(key, valid) {
-    if (key === undefined) {
-      // downwards validation, call children's validate() method.
-      this.refs.lowerBoundRangeInputChild.validate();
-      this.refs.upperBoundRangeInputChild.validate();
-      return;
-    }
-    this.childValidationStates[key] = valid;
-    this.childrenIndividuallyValid = _.all(_.values(this.childValidationStates));
-
-    if (!this.childrenIndividuallyValid) {
-      this.props.validate(false);
-    }
+  validate(force) {
+    // if (!force && !this.state.hasStartedValidating) {
+    //   return true;
+    // }
+    const lowerValid = this.refs.lower.validate(force);
+    const upperValid = this.refs.upper.validate(force);
+    const combinedValid = this.validateCombinedValues();
+    const isValid = lowerValid && upperValid && combinedValid;
+    this.setState({
+      isValid: isValid,
+      combinedValid: combinedValid
+    });
+    return isValid;
   }
 
   /**
@@ -267,28 +228,25 @@ class RuleCategoryRange extends React.Component {
    * @returns {React.Component} The view component.
    */
   render() {
-    const validationState = (!this.isValid && this.childrenIndividuallyValid) ?
-      'error' : null;
+    const validationState = this.state.combinedValid ? null : 'error';
     return (
       <FormGroup>
         <RangeInput
-            ref="lowerBoundRangeInputChild"
+            ref="lower"
             boundIncluded={this.props.parameters.lowerBoundType === '$gte'}
             disabled={this.props.parameters.lowerBoundType === null}
             value={this.props.parameters.lowerBoundValue || ''}
             onRangeInputBlur={this.onRangeInputBlur.bind(this, 'lower')}
             validationState={validationState}
-            validate={this.validate.bind(this, 'lower')}
         />
         <RangeInput
-            ref="upperBoundRangeInputChild"
+            ref="upper"
             upperBound
             boundIncluded={this.props.parameters.upperBoundType === '$lte'}
             disabled={this.props.parameters.upperBoundType === null}
             value={this.props.parameters.upperBoundValue || ''}
             onRangeInputBlur={this.onRangeInputBlur.bind(this, 'upper')}
             validationState={validationState}
-            validate={this.validate.bind(this, 'upper')}
         />
       </FormGroup>
     );
@@ -297,8 +255,7 @@ class RuleCategoryRange extends React.Component {
 
 RuleCategoryRange.propTypes = {
   id: React.PropTypes.string.isRequired,
-  parameters: React.PropTypes.object.isRequired,
-  validate: React.PropTypes.func.isRequired
+  parameters: React.PropTypes.object.isRequired
 };
 
 RuleCategoryRange.displayName = 'RuleCategoryRange';
