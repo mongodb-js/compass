@@ -83,10 +83,9 @@ class BSONTypeSelector extends React.Component {
   render() {
     const selectedTypeName = _.get(this.state.type, 'alias', '');
     //  string compare server version if it's under 3.4, set falsey
-    const recentServer = !('3.4.0-rc0'.localeCompare(app.instance.build.version) === 1);
-    // remove the decimal version if not recentServer
+    const recentServer = !('3.4.0'.localeCompare(app.instance.build.version) > 0);
     const typeOptions = _.zipObject(_.map(_.filter(BSON_TYPES, (t) => {
-      // filter out decimal if server < 3.4
+      // filter out decimal if server < 3.4.0
       return !(t.alias === 'decimal128' && !recentServer);
     }), (type) => {
       return [type.alias, type.name];
