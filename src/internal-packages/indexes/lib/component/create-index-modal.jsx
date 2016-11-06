@@ -109,6 +109,7 @@ class CreateIndexModal extends React.Component {
     if (!this.state.fields.length) {
       return null;
     }
+
     return this.state.fields.map((field, idx) => {
       const fieldUI = {
         name: field.name === '' ? DEFAULT_FIELD.name : field.name,
@@ -118,7 +119,8 @@ class CreateIndexModal extends React.Component {
         fields={this.state.schemaFields}
         key={idx}
         idx={idx}
-        field={fieldUI} />);
+        field={fieldUI}
+        remove={!(this.state.fields.length > 1)} />);
     });
   }
 

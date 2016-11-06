@@ -66,6 +66,17 @@ class CreateIndexField extends React.Component {
   }
 
   /**
+   * Remove this index field
+   *
+   * @param {object} evt The click event.
+   */
+  remove(evt) {
+    evt.preventDefault();
+    evt.stopPropagation();
+    Action.removeIndexField(this.props.idx);
+  }
+
+  /**
    * Render the index field form.
    *
    * @returns {React.Component} The index field form.
@@ -96,8 +107,9 @@ class CreateIndexField extends React.Component {
           </ButtonToolbar>
         </div>
         <div className="col-md-2">
-          <button disabled="true"
-            className="btn btn-success btn-circle">
+          <button disabled={this.props.remove}
+            className="btn btn-success btn-circle"
+            onClick={this.remove.bind(this)}>
             <i className="fa fa-minus" aria-hidden="true"></i>
           </button>
         </div>
@@ -111,7 +123,8 @@ CreateIndexField.displayName = 'CreateIndexField';
 CreateIndexField.propTypes = {
   fields: React.PropTypes.array.isRequired,
   field: React.PropTypes.object.isRequired,
-  idx: React.PropTypes.number.isRequired
+  idx: React.PropTypes.number.isRequired,
+  remove: React.PropTypes.bool.isRequired
 };
 
 module.exports = CreateIndexField;

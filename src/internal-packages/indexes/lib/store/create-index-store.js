@@ -197,6 +197,10 @@ const CreateIndexStore = Reflux.createStore({
 
   removeIndexField: function(idx) {
     debug('removing row at: ', idx);
+    if (idx >= 0 && idx < this.fields.length) {
+      this.fields.splice(idx, 1);
+    }
+    this.sendValues();
   }
 });
 
