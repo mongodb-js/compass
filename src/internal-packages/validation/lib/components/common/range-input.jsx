@@ -86,7 +86,8 @@ class RangeInput extends React.Component {
    * determines if the input by itself is valid (e.g. a value that can be
    * cast to a number).
    *
-   * @return {Boolean}    whether the input is valid or not.
+   * @param {Boolean} force    forces validation from now on.
+   * @return {Boolean}         whether the input is valid or not.
    */
   validate(force) {
     if (!force && !this.state.hasStartedValidating) {

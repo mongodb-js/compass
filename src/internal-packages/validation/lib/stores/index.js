@@ -2,7 +2,6 @@ const Reflux = require('reflux');
 const ValidationActions = require('../actions');
 const StateMixin = require('reflux-state-mixin');
 const _ = require('lodash');
-const uuid = require('uuid');
 const ruleCategories = require('../components/rule-categories');
 const helper = require('./helpers');
 const toNS = require('mongodb-ns');
