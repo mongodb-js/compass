@@ -6,6 +6,10 @@ const SchemaStore = require('../../../schema/lib/store');
 
 const debug = require('debug')('mongodb-compass:ddl:index:store');
 
+const ERRORS = {
+  duplicate: 'Index keys must be unique',
+  blank: 'You must select a field name and type'
+};
 /**
  * The reflux store for storing the form for creating indexes.
  */
@@ -43,6 +47,13 @@ const CreateIndexStore = Reflux.createStore({
    */
   triggerIndexCreation: function() {
     const spec = {};
+
+    // check for errors
+    if (this.fields.some(field => (field.name === '' || field.type === ''))) {
+      Action.updateStatus('error', ERRORS.blank);
+      return;
+    }
+
     this.fields.forEach(field => {
       let type = field.type;
       if (type === '1 (asc)') type = 1;
@@ -180,6 +191,7 @@ const CreateIndexStore = Reflux.createStore({
       if (this.fields.some(field => field.name === name)) {
         // TODO show error to ui when existing name is being added to field
         debug('field name: ', name, ' already exists');
+        Action.updateStatus('error', ERRORS.duplicate);
       } else {
         this.fields[idx].name = name;
       }
