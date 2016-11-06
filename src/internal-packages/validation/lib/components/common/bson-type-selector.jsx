@@ -3,7 +3,7 @@ const _ = require('lodash');
 const OptionSelector = require('./option-selector');
 const app = require('ampersand-app');
 
-const debug = require('debug')('mongodb-compass:validation');
+// const debug = require('debug')('mongodb-compass:validation');
 
 const BSON_TYPES = [
   {name: 'Double', number: 1, alias: 'double'},
