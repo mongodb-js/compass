@@ -5,10 +5,6 @@ const _ = require('lodash');
 
 class RuleCategoryExists extends React.Component {
 
-  constructor(props) {
-    super(props);
-  }
-
   /**
    * get the initial parameters for this rule category.
    *

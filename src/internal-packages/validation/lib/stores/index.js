@@ -424,7 +424,6 @@ const ValidationStore = Reflux.createStore({
   cancelChanges() {
     const params = this._deconstructValidatorDoc(this.lastFetchedValidatorDoc);
     this._updateState(params);
-    return;
   },
 
   saveChanges() {

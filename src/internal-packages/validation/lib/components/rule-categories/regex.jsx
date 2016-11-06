@@ -24,6 +24,13 @@ class RuleCategoryRegex extends React.Component {
     };
   }
 
+  componentWillReceiveProps(nextProps) {
+    this.setState({
+      value: _.get(nextProps.parameters, 'regex', ''),
+      options: _.get(nextProps.parameters, 'options', '')
+    });
+  }
+
   onChange(evt) {
     this.setState({
       value: evt.target.value
@@ -61,13 +68,6 @@ class RuleCategoryRegex extends React.Component {
       regex: '',
       options: ''
     };
-  }
-
-  willReceiveProps(nextProps) {
-    this.setState({
-      value: _.get(nextProps.parameters, 'regex', ''),
-      options: _.get(nextProps.parameters, 'options', '')
-    });
   }
 
   /**

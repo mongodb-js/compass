@@ -1,6 +1,7 @@
 const React = require('react');
 const ValidationActions = require('../actions');
 const { FormGroup, FormControl } = require('react-bootstrap');
+
 /**
  * Component to select a field for which the rule applies.
  *
@@ -23,6 +24,12 @@ class RuleFieldSelector extends React.Component {
       isValid: true,
       hasStartedValidating: false
     };
+  }
+
+  componentWillReceiveProps(props) {
+    this.setState({
+      value: props.field
+    });
   }
 
   /**

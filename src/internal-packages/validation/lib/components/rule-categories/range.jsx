@@ -24,6 +24,12 @@ class RuleCategoryRange extends React.Component {
     };
   }
 
+  componentWillReceiveProps(props) {
+    this.setState({
+      parameters: _.clone(props.parameters)
+    });
+  }
+
   /**
    * callback called by the child components (<RangeInput />) whenever
    * they change their value or operator. This method then updates the
