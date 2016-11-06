@@ -17,24 +17,6 @@ const INDEX_TYPES = ['1 (asc)', '-1 (desc)', '2dsphere'];
 class CreateIndexField extends React.Component {
 
   /**
-   * The component constructor.
-   *
-   * @param {Object} props - The properties.
-   */
-  constructor(props) {
-    super(props);
-    /*
-    this.defaultName = 'Select a field name';
-    this.defaultType = 'Select a type';
-
-    this.state = {
-      // default titles shown in dropdown
-      name: this.defaultName,
-      type: this.defaultType
-    };*/
-  }
-
-  /**
    * Create React dropdown items for each element in the given array.
    *
    * @param {Array} arr - The array of options.

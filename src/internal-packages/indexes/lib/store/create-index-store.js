@@ -4,7 +4,7 @@ const Action = require('../action/index-actions');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const SchemaStore = require('../../../schema/lib/store');
 
-const debug = require('debug')('mongodb-compass:ddl:index:store');
+// const debug = require('debug')('mongodb-compass:ddl:index:store');
 
 const ERRORS = {
   duplicate: 'Index keys must be unique',
@@ -22,7 +22,6 @@ const CreateIndexStore = Reflux.createStore({
     this.listenTo(SchemaStore, this.loadFields);
     this.listenTo(Action.clearForm, this.clearForm);
     this.listenTo(Action.triggerIndexCreation, this.triggerIndexCreation);
-    this.listenTo(Action.updateField, this.updateField);
     this.listenTo(Action.updateOption, this.updateOption);
     this.listenTo(Action.addIndexField, this.addIndexField);
     this.listenTo(Action.updateFieldName, this.updateFieldName);
@@ -143,24 +142,6 @@ const CreateIndexStore = Reflux.createStore({
   },
 
   /**
-   * Add or remove field name and type from store and send updated form to listeners.
-   *
-   * @param {string} name - The index field name.
-   * @param {string} type - The index type.
-   * @param {string} action - The action to take (either add or drop).
-   */
-  updateField: function(name, type, action) {
-    if (action === 'add') { // add field if not already added
-      if (!this.fields.some(field => field.name === name)) {
-        this.fields.push({name: name, type: type});
-      }
-    } else if (action === 'drop') { // remove field
-      this.fields = this.fields.filter(field => field.name !== name || field.type !== type);
-    }
-    this.sendValues();
-  },
-
-  /**
    * Update option or parameter value in the store and send updated form to listeners.
    *
    * @param {string} option - The option name.
@@ -179,18 +160,15 @@ const CreateIndexStore = Reflux.createStore({
   },
 
   addIndexField: function() {
-    debug('adding a row index');
     this.fields.push({name: '', type: ''});
     this.sendValues();
   },
 
   updateFieldName: function(idx, name) {
-    debug('updating row at: ', idx, ' with name: ', name);
     if (idx >= 0 && idx < this.fields.length) {
       // check if field name already exists or no
       if (this.fields.some(field => field.name === name)) {
         // TODO show error to ui when existing name is being added to field
-        debug('field name: ', name, ' already exists');
         Action.updateStatus('error', ERRORS.duplicate);
       } else {
         this.fields[idx].name = name;
@@ -200,7 +178,6 @@ const CreateIndexStore = Reflux.createStore({
   },
 
   updateFieldType: function(idx, type) {
-    debug('updating row at: ', idx, ' with type: ', type);
     if (idx >= 0 && idx < this.fields.length) {
       this.fields[idx].type = type;
     }
@@ -208,7 +185,6 @@ const CreateIndexStore = Reflux.createStore({
   },
 
   removeIndexField: function(idx) {
-    debug('removing row at: ', idx);
     if (idx >= 0 && idx < this.fields.length) {
       this.fields.splice(idx, 1);
     }

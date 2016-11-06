@@ -9,7 +9,7 @@ const CreateIndexTextField = require('./create-index-text-field');
 const OptionsToggleBar = require('./options-toggle-bar');
 const Action = require('../action/index-actions');
 
-const debug = require('debug')('mongodb-compass:ddl:index');
+// const debug = require('debug')('mongodb-compass:ddl:index');
 
 /**
  * The index options and parameters to display.
@@ -198,14 +198,7 @@ class CreateIndexModal extends React.Component {
   handleSubmit(evt) {
     evt.preventDefault();
     evt.stopPropagation();
-
-    debug('handle submit');
     Action.addIndexField();
-    /*
-    if (this.state.field !== 'Select a field name') {
-      Action.updateField(this.state.field, this.state.type, 'add');
-      this.setState({field: 'Select a field name', type: 'Select a type'});
-    }*/
   }
 
   /**
