@@ -2,7 +2,7 @@ const React = require('react');
 const ButtonToolbar = require('react-bootstrap').ButtonToolbar;
 const DropdownButton = require('react-bootstrap').DropdownButton;
 const MenuItem = require('react-bootstrap').MenuItem;
-const Action = require('../action/index-actions');
+// const Action = require('../action/index-actions');
 
 // const debug = require('debug')('mongodb-compass:component:indexes:create-modal');
 
@@ -23,10 +23,13 @@ class CreateIndexField extends React.Component {
    */
   constructor(props) {
     super(props);
+    this.defaultName = 'Select a field name';
+    this.defaultType = 'Select a type';
+
     this.state = {
       // default titles shown in dropdown
-      field: 'Select a field name',
-      type: 'Select a type'
+      name: this.defaultName,
+      type: this.defaultType
     };
   }
 
@@ -51,21 +54,6 @@ class CreateIndexField extends React.Component {
   }
 
   /**
-   * Fire add field action to add field and type to add index form.
-   *
-   * @param {Object} evt - The click event.
-   */
-  handleSubmit(evt) {
-    evt.preventDefault();
-    evt.stopPropagation();
-
-    if (this.state.field !== 'Select a field name') {
-      Action.updateField(this.state.field, this.state.type, 'add');
-      this.setState({field: 'Select a field name', type: 'Select a type'});
-    }
-  }
-
-  /**
    * Set state to selected type on type change.
    *
    * @param {string} type - The selected type.
@@ -85,7 +73,7 @@ class CreateIndexField extends React.Component {
         <div className="col-md-6">
           <ButtonToolbar>
             <DropdownButton
-              title={this.state.field}
+              title={this.state.name}
               id="field-name-select-dropdown"
               className="create-index-field-dropdown-name"
               onSelect={this.handleFieldSelect.bind(this)}>
@@ -110,13 +98,6 @@ class CreateIndexField extends React.Component {
             <i className="fa fa-minus" aria-hidden="true"></i>
           </button>
         </div>
-        <div className="col-md-12">
-          <button
-            onClick={this.handleSubmit.bind(this)}
-            className="create-index-field-add btn btn-sm btn-block btn-success">
-            add another
-          </button>
-        </div>
       </div>
     );
   }
@@ -125,7 +106,9 @@ class CreateIndexField extends React.Component {
 CreateIndexField.displayName = 'CreateIndexField';
 
 CreateIndexField.propTypes = {
-  fields: React.PropTypes.array.isRequired
+  fields: React.PropTypes.array.isRequired,
+  field: React.PropTypes.object.isRequired,
+  idx: React.PropTypes.number.isRequired
 };
 
 module.exports = CreateIndexField;

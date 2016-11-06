@@ -10,10 +10,10 @@ const IndexActions = Reflux.createActions([
   'updateField',
   'updateOption',
   'updateStatus',
-  'addRowIndex',
-  'updateRowFieldName',
-  'updateRowFieldType',
-  'removeRowIndex'
+  'addIndexField',
+  'updateFieldName',
+  'updateFieldType',
+  'removeIndexField'
 ]);
 
 module.exports = IndexActions;

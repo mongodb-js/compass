@@ -20,10 +20,10 @@ const CreateIndexStore = Reflux.createStore({
     this.listenTo(Action.triggerIndexCreation, this.triggerIndexCreation);
     this.listenTo(Action.updateField, this.updateField);
     this.listenTo(Action.updateOption, this.updateOption);
-    this.listenTo(Action.addRowIndex, this.addRowIndex);
-    this.listenTo(Action.updateRowFieldName, this.updateRowFieldName);
-    this.listenTo(Action.updateRowFieldType, this.updateRowFieldType);
-    this.listenTo(Action.removeRowIndex, this.removeRowIndex);
+    this.listenTo(Action.addIndexField, this.addIndexField);
+    this.listenTo(Action.updateFieldName, this.updateFieldName);
+    this.listenTo(Action.updateFieldType, this.updateFieldType);
+    this.listenTo(Action.removeIndexField, this.removeIndexField);
     this.schemaFields = []; // fields in the current schema
     this.fields = []; // fields and types for new index
     this.options = {}; // options for new index
@@ -167,19 +167,21 @@ const CreateIndexStore = Reflux.createStore({
     this.sendValues();
   },
 
-  addRowIndex: function() {
+  addIndexField: function() {
     debug('adding a row index');
+    this.fields.push({name: '', type: ''});
+    this.sendValues();
   },
 
-  updateRowFieldName: function(idx, name) {
+  updateFieldName: function(idx, name) {
     debug('updating row at: ', idx, ' with name: ', name);
   },
 
-  updateRowFieldType: function(idx, type) {
+  updateFieldType: function(idx, type) {
     debug('updating row at: ', idx, ' with name: ', type);
   },
 
-  removeRowIndex: function(idx) {
+  removeIndexField: function(idx) {
     debug('removing row at: ', idx);
   }
 });
