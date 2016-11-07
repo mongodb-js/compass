@@ -149,7 +149,7 @@ class CreateIndexField extends React.Component {
           </ButtonToolbar>
         </div>
         <div className="col-md-2">
-          <button disabled={this.props.remove}
+          <button disabled={this.props.isRemovable}
             className="btn btn-success btn-circle"
             onClick={this.remove.bind(this)}>
             <i className="fa fa-minus" aria-hidden="true"></i>
@@ -167,7 +167,7 @@ CreateIndexField.propTypes = {
   field: React.PropTypes.object.isRequired,
   idx: React.PropTypes.number.isRequired,
   disabledFields: React.PropTypes.array.isRequired,
-  remove: React.PropTypes.bool.isRequired
+  isRemovable: React.PropTypes.bool.isRequired
 };
 
 module.exports = CreateIndexField;

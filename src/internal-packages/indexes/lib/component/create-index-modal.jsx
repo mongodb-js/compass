@@ -110,7 +110,7 @@ class CreateIndexModal extends React.Component {
         idx={idx}
         field={field}
         disabledFields={disabledFields}
-        remove={!(this.state.fields.length > 1)} />);
+        isRemovable={!(this.state.fields.length > 1)} />);
     });
   }
 

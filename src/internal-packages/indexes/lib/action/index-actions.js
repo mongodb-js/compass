@@ -7,7 +7,6 @@ const IndexActions = Reflux.createActions([
   'loadIndexes',
   'sortIndexes',
   'triggerIndexCreation',
-  'updateField',
   'updateOption',
   'updateStatus',
   'addIndexField',
