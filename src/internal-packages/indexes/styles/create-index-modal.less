@@ -29,8 +29,9 @@
       margin-bottom: 10px;
 
       .caret {
+        position: absolute;
         margin-top: 8px;
-        float: right;
+        right: 10px;
       }
 
       .col-md-6 {
@@ -46,15 +47,21 @@
     }
 
     .create-index-field {
+      margin-bottom: 5px;
 
       .dropdown-toggle.has-error {
-        border-color: #a94442;
+        border-color: #ef4c4c;
+        color: #ef4c4c;
       }
 
       .create-index-field-dropdown-name {
         width: 164px;
         text-align: left;
         text-transform: none;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding-right: 25px;
+        white-space: nowrap;
       }
 
       .create-index-field-dropdown-type {
