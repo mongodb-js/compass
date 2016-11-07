@@ -1,7 +1,7 @@
 const React = require('react');
 const _ = require('lodash');
 const OptionSelector = require('./option-selector');
-const app = require('ampersand-app');
+const semver = require('semver');
 
 // const debug = require('debug')('mongodb-compass:validation');
 
@@ -34,6 +34,20 @@ class BSONTypeSelector extends React.Component {
 
   constructor(props) {
     super(props);
+
+    // try catch block in case semver typeerrors while remove decimal128
+    // if server is < 3.4.x
+    let canRemoveDecimal = false;
+    try {
+      canRemoveDecimal = semver.gt('3.4.0-rc0', this.props.serverVersion);
+    } catch (e) {
+      canRemoveDecimal = true;
+    }
+
+    if (canRemoveDecimal) {
+      _.remove(BSON_TYPES, (type) => type.number === 19);
+    }
+
     this.state = {
       type: null
     };
@@ -83,11 +97,7 @@ class BSONTypeSelector extends React.Component {
   render() {
     const selectedTypeName = _.get(this.state.type, 'alias', '');
     //  string compare server version if it's under 3.4, set falsey
-    const recentServer = !('3.4.0'.localeCompare(app.instance.build.version) > 0);
-    const typeOptions = _.zipObject(_.map(_.filter(BSON_TYPES, (t) => {
-      // filter out decimal if server < 3.4.0
-      return !(t.alias === 'decimal128' && !recentServer);
-    }), (type) => {
+    const typeOptions = _.zipObject(_.map(BSON_TYPES, (type) => {
       return [type.alias, type.name];
     }));
 
@@ -107,7 +117,8 @@ BSONTypeSelector.propTypes = {
   typeNumber: React.PropTypes.number,
   typeAlias: React.PropTypes.string,
   typeName: React.PropTypes.string,
-  onTypeClicked: React.PropTypes.func.isRequired
+  onTypeClicked: React.PropTypes.func,
+  serverVersion: React.PropTypes.string
 };
 
 BSONTypeSelector.displayName = 'BSONTypeSelector';

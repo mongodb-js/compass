@@ -91,7 +91,7 @@ class RuleBuilder extends React.Component {
 
   renderRules() {
     return _.map(this.props.validationRules, (rule) => {
-      return <Rule ref={rule.id} key={rule.id} {...rule} />;
+      return <Rule ref={rule.id} key={rule.id} serverVersion={this.props.serverVersion} {...rule} />;
     });
   }
   /**
@@ -174,7 +174,8 @@ RuleBuilder.propTypes = {
   editState: React.PropTypes.oneOf(['unmodified', 'modified', 'updating', 'error', 'success']).isRequired,
   validationAction: React.PropTypes.oneOf(['warn', 'error']).isRequired,
   validationLevel: React.PropTypes.oneOf(['off', 'moderate', 'strict']).isRequired,
-  validationRules: React.PropTypes.array.isRequired
+  validationRules: React.PropTypes.array.isRequired,
+  serverVersion: React.PropTypes.string
 };
 
 RuleBuilder.displayName = 'RuleBuilder';

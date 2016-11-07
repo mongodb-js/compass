@@ -5,15 +5,16 @@ const ValidationStore = require('../src/internal-packages/validation/lib/stores'
 const sinon = require('sinon');
 const _ = require('lodash');
 
-function mockFetchFromServer(err, res, delay) {
+function mockFetchFromServer(err, res, delay, serverVersion) {
   if (delay === undefined) {
     delay = 0;
   }
   ValidationStore._fetchFromServer = function(callback) {
+    this.setState({serverVersion: serverVersion || ''});
     setTimeout(function() {
       return callback(err, res);
     }, delay);
-  };
+  }.bind(ValidationStore);
 }
 
 const mockValidatorDoc = {

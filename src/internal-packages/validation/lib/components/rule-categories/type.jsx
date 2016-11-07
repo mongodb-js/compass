@@ -80,14 +80,15 @@ class RuleCategoryType extends React.Component {
     const typeNumber = this.props.parameters.type;
 
     return (
-      <BSONTypeSelector typeNumber={typeNumber} onTypeClicked={this.onTypeClicked.bind(this)} />
+      <BSONTypeSelector typeNumber={typeNumber} serverVersion={this.props.serverVersion} TypeClicked={this.onTypeClicked.bind(this)} />
     );
   }
 }
 
 RuleCategoryType.propTypes = {
   id: React.PropTypes.string.isRequired,
-  parameters: React.PropTypes.object.isRequired
+  parameters: React.PropTypes.object.isRequired,
+  serverVersion: React.PropTypes.string
 };
 
 RuleCategoryType.displayName = 'RuleCategoryType';
