@@ -48,6 +48,15 @@ describe('ValidationStore', function() {
     unsubscribe = function() {};
   });
 
+  /* // TODO write tests for checking server version
+  it('checks a pre 3.4 server version for decimal128 hidden', function(done) {
+    mockFetchFromServer(null, mockValidatorDoc, 1, '3.1.9');
+
+    unsubscribe = ValidationStore.listen((state) => {
+      expect();
+      done();
+    });
+  });*/
 
   it('goes into {fetchState: "fetching"} when starting to fetch from server', function(done) {
     mockFetchFromServer(null, mockValidatorDoc);
