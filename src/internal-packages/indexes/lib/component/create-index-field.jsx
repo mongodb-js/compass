@@ -2,9 +2,10 @@ const React = require('react');
 const ButtonToolbar = require('react-bootstrap').ButtonToolbar;
 const DropdownButton = require('react-bootstrap').DropdownButton;
 const MenuItem = require('react-bootstrap').MenuItem;
+const StatusStore = require('../store/ddl-status-store');
 const Action = require('../action/index-actions');
 
-// const debug = require('debug')('mongodb-compass:component:indexes:create-modal');
+const debug = require('debug')('mongodb-compass:indexes:create-index-field');
 
 /**
  * Current allowed types for indexes.
@@ -12,9 +13,38 @@ const Action = require('../action/index-actions');
 const INDEX_TYPES = ['1 (asc)', '-1 (desc)', '2dsphere'];
 
 /**
+ * Default values for field name and type as presented in the UI
+ */
+const DEFAULT_FIELD = {
+  name: 'Select a field name',
+  type: 'Select a type'
+};
+
+/**
  * Component for the index field form.
  */
 class CreateIndexField extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      hasStartedValidating: false,
+      isNameValid: true,
+      isTypeValid: true
+    };
+  }
+
+  componentDidMount() {
+    this._unsubscribeStatusStore = StatusStore.listen(this.statusChanged.bind(this));
+  }
+
+  componentWillReceiveProps() {
+    this.validate(false);
+  }
+
+  componentWillUnmount() {
+    this._unsubscribeStatusStore();
+  }
 
   /**
    * Create React dropdown items for each element in the given array.
@@ -33,7 +63,6 @@ class CreateIndexField extends React.Component {
    * @param {string} name - The selected name.
    */
   selectName(name) {
-    // this.setState({name: name});
     Action.updateFieldName(this.props.idx, name);
   }
 
@@ -43,7 +72,6 @@ class CreateIndexField extends React.Component {
    * @param {string} type - The selected type.
    */
   selectType(type) {
-    // this.setState({type: type});
     Action.updateFieldType(this.props.idx, type);
   }
 
@@ -58,20 +86,41 @@ class CreateIndexField extends React.Component {
     Action.removeIndexField(this.props.idx);
   }
 
+  statusChanged() {
+    this.validate(true);
+  }
+
+  validate(force) {
+    if (!force && !this.state.hasStartedValidating) {
+      return;
+    }
+    this.setState({
+      hasStartedValidating: true,
+      isTypeValid: this.props.field.type !== '',
+      isNameValid: this.props.field.name !== ''
+    });
+  }
+
   /**
    * Render the index field form.
    *
    * @returns {React.Component} The index field form.
    */
   render() {
+    const fieldName = this.props.field.name || DEFAULT_FIELD.name;
+    const fieldType = this.props.field.type || DEFAULT_FIELD.type;
+
+    const hasNameError = this.state.isNameValid ? '' : 'has-error';
+    const hasTypeError = this.state.isTypeValid ? '' : 'has-error';
+
     return (
       <div className="form-inline row create-index-field">
         <div className="col-md-6">
           <ButtonToolbar>
             <DropdownButton
-              title={this.props.field.name}
+              title={fieldName}
               id="field-name-select-dropdown"
-              className="create-index-field-dropdown-name"
+              className={`create-index-field-dropdown-name ${hasNameError}`}
               onSelect={this.selectName.bind(this)}>
               {this.getDropdownOptions(this.props.fields)}
             </DropdownButton>
@@ -80,9 +129,9 @@ class CreateIndexField extends React.Component {
         <div className="col-md-4">
           <ButtonToolbar>
             <DropdownButton
-              title={this.props.field.type}
+              title={fieldType}
               id="field-type-select-dropdown"
-              className="create-index-field-dropdown-type"
+              className={`create-index-field-dropdown-type ${hasTypeError}`}
               onSelect={this.selectType.bind(this)}>
               {this.getDropdownOptions(INDEX_TYPES)}
             </DropdownButton>

@@ -22,14 +22,6 @@ const INDEX_OPTIONS = [
 ];
 
 /**
- * Default values for field name and type as presented in the UI
- */
-const DEFAULT_FIELD = {
-  name: 'Select a field name',
-  type: 'Select a type'
-};
-
-/**
  * Component for the create index modal.
  */
 class CreateIndexModal extends React.Component {
@@ -111,15 +103,11 @@ class CreateIndexModal extends React.Component {
     }
 
     return this.state.fields.map((field, idx) => {
-      const fieldUI = {
-        name: field.name === '' ? DEFAULT_FIELD.name : field.name,
-        type: field.type === '' ? DEFAULT_FIELD.type : field.type
-      };
       return (<CreateIndexField
         fields={this.state.schemaFields}
         key={idx}
         idx={idx}
-        field={fieldUI}
+        field={field}
         remove={!(this.state.fields.length > 1)} />);
     });
   }
@@ -254,11 +242,11 @@ class CreateIndexModal extends React.Component {
                 <p className="create-index-description">Configure the index definition</p>
                 {this.getIndexFields()}
 
-                <div className="col-md-12">
+                <div>
                   <button
                     onClick={this.handleSubmit.bind(this)}
                     className="create-index-field-add btn btn-sm btn-block btn-success">
-                    add another
+                    Add another field
                   </button>
                 </div>
               </div>
