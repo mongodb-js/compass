@@ -5,7 +5,7 @@ const MenuItem = require('react-bootstrap').MenuItem;
 const StatusStore = require('../store/ddl-status-store');
 const Action = require('../action/index-actions');
 
-const debug = require('debug')('mongodb-compass:indexes:create-index-field');
+// const debug = require('debug')('mongodb-compass:indexes:create-index-field');
 
 /**
  * Current allowed types for indexes.
@@ -47,14 +47,25 @@ class CreateIndexField extends React.Component {
   }
 
   /**
-   * Create React dropdown items for each element in the given array.
-   *
-   * @param {Array} arr - The array of options.
+   * Create React dropdown items for each element in the fields array.
    *
    * @returns {Array} The React components for each item in the field and type dropdowns.
    */
-  getDropdownOptions(arr) {
-    return arr.map((elem, index) => (<MenuItem key={index} eventKey={elem}>{elem}</MenuItem>));
+  getDropdownFields() {
+    return this.props.fields.map((elem, index) => (
+      <MenuItem key={index}
+        disabled={this.props.disabledFields.some(field => (field === elem))}
+        eventKey={elem}>{elem}
+      </MenuItem>));
+  }
+
+  /**
+   * Create React dropdown items for each element in the INDEX_TYPES array.
+   *
+   * @returns {Array} The React components for each item in the field and type dropdowns.
+   */
+  getDropdownTypes() {
+    return INDEX_TYPES.map((elem, index) => (<MenuItem key={index} eventKey={elem}>{elem}</MenuItem>));
   }
 
   /**
@@ -122,7 +133,7 @@ class CreateIndexField extends React.Component {
               id="field-name-select-dropdown"
               className={`create-index-field-dropdown-name ${hasNameError}`}
               onSelect={this.selectName.bind(this)}>
-              {this.getDropdownOptions(this.props.fields)}
+              {this.getDropdownFields(this.props.fields)}
             </DropdownButton>
           </ButtonToolbar>
         </div>
@@ -133,7 +144,7 @@ class CreateIndexField extends React.Component {
               id="field-type-select-dropdown"
               className={`create-index-field-dropdown-type ${hasTypeError}`}
               onSelect={this.selectType.bind(this)}>
-              {this.getDropdownOptions(INDEX_TYPES)}
+              {this.getDropdownTypes(INDEX_TYPES)}
             </DropdownButton>
           </ButtonToolbar>
         </div>
@@ -155,6 +166,7 @@ CreateIndexField.propTypes = {
   fields: React.PropTypes.array.isRequired,
   field: React.PropTypes.object.isRequired,
   idx: React.PropTypes.number.isRequired,
+  disabledFields: React.PropTypes.array.isRequired,
   remove: React.PropTypes.bool.isRequired
 };
 

@@ -103,4 +103,21 @@ describe('CreateIndexesStore', function() {
 
     CreateIndexStore.updateFieldName(1, 'location');
   });
+
+  it('maintains order of fields after removal', function(done) {
+    CreateIndexStore.updateFieldName(0, 'location');
+    CreateIndexStore.addIndexField();
+    CreateIndexStore.updateFieldName(1, 'address');
+    CreateIndexStore.addIndexField();
+    CreateIndexStore.updateFieldName(2, 'gender');
+
+    unsubscribe = CreateIndexStore.listen((fields) => {
+      expect(fields[0].name).to.equal('location');
+      expect(fields[1].name).to.equal('gender');
+      unsubscribe();
+      done();
+    });
+
+    CreateIndexStore.removeIndexField(1);
+  });
 });
