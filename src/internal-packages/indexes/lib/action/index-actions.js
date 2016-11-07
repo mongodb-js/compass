@@ -7,9 +7,12 @@ const IndexActions = Reflux.createActions([
   'loadIndexes',
   'sortIndexes',
   'triggerIndexCreation',
-  'updateField',
   'updateOption',
-  'updateStatus'
+  'updateStatus',
+  'addIndexField',
+  'updateFieldName',
+  'updateFieldType',
+  'removeIndexField'
 ]);
 
 module.exports = IndexActions;

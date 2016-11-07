@@ -27,19 +27,48 @@
 
     .create-index-fields {
       margin-bottom: 10px;
+
+      .caret {
+        position: absolute;
+        margin-top: 8px;
+        right: 10px;
+      }
+
+      .col-md-6 {
+        .dropdown-menu {
+          max-height: 400px;
+          overflow: scroll;
+        }
+      }
+    }
+
+    .create-index-field-add {
+      margin-top: 10px;
     }
 
     .create-index-field {
+      margin-bottom: 5px;
+
+      .dropdown-toggle.has-error {
+        border-color: #ef4c4c;
+        color: #ef4c4c;
+      }
+
       .create-index-field-dropdown-name {
         width: 164px;
         text-align: left;
         text-transform: none;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding-right: 25px;
+        white-space: nowrap;
       }
 
       .create-index-field-dropdown-type {
-        width: 102px;
+        width: 120px;
         text-align: left;
         text-transform: none;
+        margin-left: -7px;
       }
     }
 
@@ -122,32 +151,6 @@
           margin-left: 4px;
           margin-right: -9px;
         }
-      }
-    }
-
-    .selected-index {
-      .selected-index-panel {
-        margin-top: 8px;
-        margin-bottom: 0px;
-        margin-right: -11px;
-
-        .panel-body {
-          padding: 8px;
-        }
-
-        .selected-index-panel-field {
-          float: left;
-          margin-left: 4px;
-        }
-
-        .selected-index-panel-type {
-          float: right;
-          margin-right: 25px;
-        }
-      }
-
-      .selected-index-btn {
-        margin-top: 10px;
       }
     }
 

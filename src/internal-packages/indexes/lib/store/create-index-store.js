@@ -4,6 +4,12 @@ const Action = require('../action/index-actions');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const SchemaStore = require('../../../schema/lib/store');
 
+// const debug = require('debug')('mongodb-compass:ddl:index:store');
+
+const ERRORS = {
+  duplicate: 'Index keys must be unique',
+  blank: 'You must select a field name and type'
+};
 /**
  * The reflux store for storing the form for creating indexes.
  */
@@ -16,10 +22,13 @@ const CreateIndexStore = Reflux.createStore({
     this.listenTo(SchemaStore, this.loadFields);
     this.listenTo(Action.clearForm, this.clearForm);
     this.listenTo(Action.triggerIndexCreation, this.triggerIndexCreation);
-    this.listenTo(Action.updateField, this.updateField);
     this.listenTo(Action.updateOption, this.updateOption);
+    this.listenTo(Action.addIndexField, this.addIndexField);
+    this.listenTo(Action.updateFieldName, this.updateFieldName);
+    this.listenTo(Action.updateFieldType, this.updateFieldType);
+    this.listenTo(Action.removeIndexField, this.removeIndexField);
     this.schemaFields = []; // fields in the current schema
-    this.fields = []; // fields and types for new index
+    this.fields = [{name: '', type: ''}];
     this.options = {}; // options for new index
   },
 
@@ -27,7 +36,7 @@ const CreateIndexStore = Reflux.createStore({
    * Reset fields and options and send both to listeners.
    */
   clearForm: function() {
-    this.fields = [];
+    this.fields = [{name: '', type: ''}];
     this.options = {};
     this.sendValues();
   },
@@ -37,6 +46,13 @@ const CreateIndexStore = Reflux.createStore({
    */
   triggerIndexCreation: function() {
     const spec = {};
+
+    // check for errors
+    if (this.fields.some(field => (field.name === '' || field.type === ''))) {
+      Action.updateStatus('error', ERRORS.blank);
+      return;
+    }
+
     this.fields.forEach(field => {
       let type = field.type;
       if (type === '1 (asc)') type = 1;
@@ -126,24 +142,6 @@ const CreateIndexStore = Reflux.createStore({
   },
 
   /**
-   * Add or remove field name and type from store and send updated form to listeners.
-   *
-   * @param {string} name - The index field name.
-   * @param {string} type - The index type.
-   * @param {string} action - The action to take (either add or drop).
-   */
-  updateField: function(name, type, action) {
-    if (action === 'add') { // add field if not already added
-      if (!this.fields.some(field => field.name === name)) {
-        this.fields.push({name: name, type: type});
-      }
-    } else if (action === 'drop') { // remove field
-      this.fields = this.fields.filter(field => field.name !== name || field.type !== type);
-    }
-    this.sendValues();
-  },
-
-  /**
    * Update option or parameter value in the store and send updated form to listeners.
    *
    * @param {string} option - The option name.
@@ -159,7 +157,39 @@ const CreateIndexStore = Reflux.createStore({
       this.options[option].value = value;
     }
     this.sendValues();
+  },
+
+  addIndexField: function() {
+    this.fields.push({name: '', type: ''});
+    this.sendValues();
+  },
+
+  updateFieldName: function(idx, name) {
+    if (idx >= 0 && idx < this.fields.length) {
+      // check if field name already exists or no
+      if (this.fields.some(field => field.name === name)) {
+        Action.updateStatus('error', ERRORS.duplicate);
+      } else {
+        this.fields[idx].name = name;
+      }
+    }
+    this.sendValues();
+  },
+
+  updateFieldType: function(idx, type) {
+    if (idx >= 0 && idx < this.fields.length) {
+      this.fields[idx].type = type;
+    }
+    this.sendValues();
+  },
+
+  removeIndexField: function(idx) {
+    if (idx >= 0 && idx < this.fields.length) {
+      this.fields.splice(idx, 1);
+    }
+    this.sendValues();
   }
 });
+
 
 module.exports = CreateIndexStore;

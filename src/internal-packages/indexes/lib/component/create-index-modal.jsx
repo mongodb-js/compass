@@ -3,14 +3,12 @@ const React = require('react');
 const Modal = require('react-bootstrap').Modal;
 const CreateIndexStore = require('../store/create-index-store');
 const DDLStatusStore = require('../store/ddl-status-store');
-const SelectedIndexField = require('./selected-index-field');
 const CreateIndexCheckbox = require('./create-index-checkbox');
 const CreateIndexField = require('./create-index-field');
 const CreateIndexTextField = require('./create-index-text-field');
 const OptionsToggleBar = require('./options-toggle-bar');
 const Action = require('../action/index-actions');
-
-// const debug = require('debug')('mongodb-compass:ddl:index');
+const _ = require('lodash');
 
 /**
  * The index options and parameters to display.
@@ -98,11 +96,22 @@ class CreateIndexModal extends React.Component {
    *
    * @returns {Array} The React components for each field, or null if none are selected.
    */
-  getSelectedFields() {
+  getIndexFields() {
     if (!this.state.fields.length) {
       return null;
     }
-    return this.state.fields.map((field, idx) => <SelectedIndexField key={idx} field={field} />);
+
+    const disabledFields = _.pluck(this.state.fields, 'name');
+
+    return this.state.fields.map((field, idx) => {
+      return (<CreateIndexField
+        fields={this.state.schemaFields}
+        key={idx}
+        idx={idx}
+        field={field}
+        disabledFields={disabledFields}
+        isRemovable={!(this.state.fields.length > 1)} />);
+    });
   }
 
   /**
@@ -172,6 +181,17 @@ class CreateIndexModal extends React.Component {
   }
 
   /**
+   * Fire add field action to add field and type to add index form.
+   *
+   * @param {Object} evt - The click event.
+   */
+  handleSubmit(evt) {
+    evt.preventDefault();
+    evt.stopPropagation();
+    Action.addIndexField();
+  }
+
+  /**
    * Render the create and cancel buttons.
    *
    * @returns {React.Component} The create and cancel buttons.
@@ -210,7 +230,7 @@ class CreateIndexModal extends React.Component {
 
         <div className="create-index-modal-content">
           <Modal.Header>
-            <Modal.Title>Index Create</Modal.Title>
+            <Modal.Title>Create Index</Modal.Title>
           </Modal.Header>
 
           <Modal.Body>
@@ -221,10 +241,16 @@ class CreateIndexModal extends React.Component {
                 option={'name'} />
 
               <div className="create-index-fields">
-                <p className="create-index-description">Add fields and types</p>
-                <CreateIndexField
-                  fields={this.state.schemaFields} />
-                {this.getSelectedFields()}
+                <p className="create-index-description">Configure the index definition</p>
+                {this.getIndexFields()}
+
+                <div>
+                  <button
+                    onClick={this.handleSubmit.bind(this)}
+                    className="create-index-field-add btn btn-sm btn-block btn-success">
+                    Add another field
+                  </button>
+                </div>
               </div>
 
               <OptionsToggleBar
