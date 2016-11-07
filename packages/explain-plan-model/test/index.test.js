@@ -144,6 +144,15 @@ describe('explain-plan-model', function() {
         model = loadExplainFixture('./fixtures/simple_collscan_2.6.json');
         assert.ok(!model.isSharded);
       });
+
+      it('should not assume that there is a cursor field (COMPASS-224)', function() {
+        explain = require('./fixtures/sharded_query_2.6.json');
+        delete explain.cursor;
+        assert.doesNotThrow(function() {
+          model = new ExplainPlanModel(explain, {parse: true});
+          assert.equal(model.usedIndex, null);
+        });
+      });
     });
 
     describe('Simple collection scans', function() {

@@ -1,7 +1,7 @@
 sudo: false
 language: node_js
 node_js:
-  - 'iojs-v2.3.4'
+  - 6
 before_install:
   - npm install -g npm@3
   - npm config set loglevel error
@@ -11,7 +11,4 @@ script: npm run-script ci
 cache:
   directories:
     - node_modules
-# Post build notifications to the Integrations Flowdock
-notifications:
-  flowdock: e3dc17bc8a2c1b3412abe3e5747f8291
 after_script: "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"

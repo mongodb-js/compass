@@ -25,7 +25,8 @@ var LegacyExplainPlanModel = Model.extend({
       deps: ['rawExplainObject'],
       fn: function() {
         // for unsharded explain plan
-        var mtch = this.rawExplainObject.cursor.match(/BTreeCursor (\S+)$/);
+        var cursor = _.get(this.rawExplainObject, 'cursor', null);
+        var mtch = cursor && cursor.match(/BTreeCursor (\S+)$/);
         return mtch ? mtch[1] : null;
       }
     },
