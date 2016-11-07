@@ -90,16 +90,17 @@ describe('CreateIndexesStore', function() {
     CreateIndexStore.updateFieldType(-1, '1 (asc)');
   });
 
-  /*
   it('won\'t change a field name if it already exists', function(done) {
+    CreateIndexStore.updateFieldName(0, 'location');
+    CreateIndexStore.addIndexField();
+
     unsubscribe = CreateIndexStore.listen((fields) => {
       expect(fields[0].name).to.equal('location');
       expect(fields[1].name).to.equal('');
       unsubscribe();
       done();
     });
-    CreateIndexStore.updateFieldName(0, 'location');
-    CreateIndexStore.addIndexField();
+
     CreateIndexStore.updateFieldName(1, 'location');
-  }); */
+  });
 });
