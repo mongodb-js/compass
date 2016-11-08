@@ -127,7 +127,7 @@ SortableTable.propTypes = {
    * specify column names (required)
    * @type {Array}  of column names (strings).
    */
-  columns: React.PropTypes.arrayOf(React.PropTypes.string),
+  columns: React.PropTypes.arrayOf(React.PropTypes.string).isRequired,
   /**
    * specify data for table rows. Can be an array of objects (keys must
    * match column names exactly), or an array of arrays. Columns not found in
