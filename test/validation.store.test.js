@@ -5,7 +5,7 @@ const ValidationStore = require('../src/internal-packages/validation/lib/stores'
 const sinon = require('sinon');
 const _ = require('lodash');
 
-function mockFetchFromServer(err, res, delay) {
+function mockFetchFromServer(err, res, delay, serverVersion) {
   if (delay === undefined) {
     delay = 0;
   }
@@ -14,6 +14,10 @@ function mockFetchFromServer(err, res, delay) {
       return callback(err, res);
     }, delay);
   };
+  // the above fetchFromServer makes a call for app.instance.build.version
+  // which will be undefined at the time of this test so setting serverVersion
+  // manually here, which would otherwise be overwritten
+  ValidationStore.setState({serverVersion: serverVersion});
 }
 
 const mockValidatorDoc = {
@@ -47,6 +51,11 @@ describe('ValidationStore', function() {
     unsubscribe = function() {};
   });
 
+  it('check a pre 3.4 server version', function(done) {
+    mockFetchFromServer(null, mockValidatorDoc, 0, '3.1.9');
+    expect(ValidationStore.state.serverVersion).to.be.equal('3.1.9');
+    done();
+  });
 
   it('goes into {fetchState: "fetching"} when starting to fetch from server', function(done) {
     mockFetchFromServer(null, mockValidatorDoc);

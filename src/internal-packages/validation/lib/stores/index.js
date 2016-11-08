@@ -54,7 +54,8 @@ const ValidationStore = Reflux.createStore({
       validationAction: 'warn',    // one of `warn`, `error`
       fetchState: 'initial',       // one of `initial`, `fetching`, `success`, `error`
       editState: 'unmodified',     // one of `unmodified`, `modified`, `updating`, `success`, `error`
-      isExpressibleByRules: true   // boolean
+      isExpressibleByRules: true,   // boolean
+      serverVersion: ''
     };
   },
 
@@ -223,6 +224,11 @@ const ValidationStore = Reflux.createStore({
    */
   _fetchFromServer(callback) {
     const ns = toNS(NamespaceStore.ns);
+
+    if (this.state.serverVersion === '') {
+      const serverVersion = app.instance.build.version;
+      this.setState({serverVersion: serverVersion});
+    }
     app.dataService.listCollections(ns.database, {name: ns.collection}, function(err, res) {
       if (err) {
         return callback(err);
