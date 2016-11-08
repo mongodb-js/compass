@@ -103,8 +103,8 @@ describe('<RuleCategoryRange />', function() {
       }
     });
     component = mount(<RuleCategoryRange {...props} />);
-    component.instance().onRangeInputBlur('fake-key');
-    expect(component.instance().isValid).to.be.false;
+    const result = component.instance().validate();
+    expect(result).to.be.false;
   });
 
   it('rejects empty both range values being "none" after calling validate()', function() {
@@ -117,7 +117,7 @@ describe('<RuleCategoryRange />', function() {
       }
     });
     component = mount(<RuleCategoryRange {...props} />);
-    component.instance().onRangeInputBlur('fake-key');
-    expect(component.instance().isValid).to.be.false;
+    const result = component.instance().validate();
+    expect(result).to.be.false;
   });
 });
