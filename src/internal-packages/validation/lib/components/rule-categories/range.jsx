@@ -2,16 +2,10 @@ const React = require('react');
 const _ = require('lodash');
 const ValidationAction = require('../../actions');
 const RangeInput = require('../common/range-input');
-const app = require('ampersand-app');
 const bootstrap = require('react-bootstrap');
 const FormGroup = bootstrap.FormGroup;
 
 // const debug = require('debug')('mongodb-compass:validation:range');
-
-/**
-  * The version at which high precision values are available.
-  */
-const HP_VERSION = '3.4.0';
 
 class RuleCategoryRange extends React.Component {
 
@@ -82,15 +76,6 @@ class RuleCategoryRange extends React.Component {
     };
   }
 
-  /**
-    * Are high precision values available?
-    *
-    * @returns {boolean} if high precision values are available.
-    */
-  static isHighPrecision() {
-    return app.instance.build.version >= HP_VERSION;
-  }
-
   static validateKeyAndValue(key, value) {
     if (!_.includes(['$gt', '$gte', '$lt', '$lte'], key)) {
       return false;
@@ -104,18 +89,6 @@ class RuleCategoryRange extends React.Component {
     }
     return !isNaN(value) && Math.abs(value) !== Infinity;
   }
-
-  // static typeCastNumeric(value, serverVersion) {
-  //   // Override serverVersion for testing, otherwise I'd mock isHighPrecision
-  //   const highPrecision = (
-  //       (typeof serverVersion === 'undefined' && RuleCategoryRange.isHighPrecision()) ||
-  //       (serverVersion >= HP_VERSION)
-  //   );
-  //   const castableTypes = TypeChecker.castableTypes(value, highPrecision);
-  //   // We rely on Double and Decimal128 being first in the list,
-  //   // which is fragile and hence is unit tested
-  //   return TypeChecker.cast(value, castableTypes[0]);
-  // }
 
   static paramsToQuery(params) {
     const result = {};
