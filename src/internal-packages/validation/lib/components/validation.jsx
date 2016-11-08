@@ -46,6 +46,7 @@ class Validation extends React.Component {
             validationAction={this.props.validationAction}
             validationLevel={this.props.validationLevel}
             editState={this.props.editState}
+            serverVersion={this.props.serverVersion}
           />
         </div>
       ) : (
@@ -86,7 +87,8 @@ Validation.propTypes = {
   validationAction: React.PropTypes.oneOf(['warn', 'error']).isRequired,
   validatorDoc: React.PropTypes.object.isRequired,
   validationLevel: React.PropTypes.oneOf(['off', 'moderate', 'strict']).isRequired,
-  validationRules: React.PropTypes.array.isRequired
+  validationRules: React.PropTypes.array.isRequired,
+  serverVersion: React.PropTypes.string
 };
 
 Validation.defaultProps = {

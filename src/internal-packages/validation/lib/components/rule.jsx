@@ -59,6 +59,7 @@ class Rule extends React.Component {
       <Parameters
         ref="Parameters"
         id={this.props.id}
+        serverVersion={this.props.serverVersion}
         parameters={this.props.parameters}
       /> : null;
 
@@ -106,7 +107,8 @@ Rule.propTypes = {
   field: React.PropTypes.string.isRequired,
   category: React.PropTypes.string.isRequired,
   parameters: React.PropTypes.object.isRequired,
-  nullable: React.PropTypes.bool.isRequired
+  nullable: React.PropTypes.bool.isRequired,
+  serverVersion: React.PropTypes.string
 };
 
 Rule.displayName = 'Rule';
