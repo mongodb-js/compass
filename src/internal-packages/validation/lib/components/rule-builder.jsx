@@ -16,6 +16,24 @@ const Table = ReactBootstrap.Table;
 
 class RuleBuilder extends React.Component {
 
+  constructor(props) {
+    super(props);
+    this.state = {
+      isValid: true,
+      forceRenderKey: 0
+    };
+  }
+
+  componentWillReceiveProps(props) {
+    this.validate(false);
+    if (props.editState === 'unmodified' && this.props.editState !== 'unmodified') {
+      // force a complete redraw of the component by increasing the key
+      this.setState({
+        forceRenderKey: this.state.forceRenderKey + 1,
+        isValid: true
+      });
+    }
+  }
 
   /**
    * Add button clicked to create a new rule.
@@ -52,29 +70,52 @@ class RuleBuilder extends React.Component {
 
   /**
    * The "Update" button from the `Editable component has been clicked.
-   * Send the new validator doc to the server.
+   * Check that all rules are valid, then send the new validator doc to
+   * the server.
    */
   onUpdate() {
-    ValidationActions.saveChanges();
+    if (this.validate(true)) {
+      ValidationActions.saveChanges();
+    }
   }
 
+  validate(force) {
+    const isValid = _.all(this.props.validationRules, (rule) => {
+      return this.refs[rule.id].validate(force);
+    });
+    this.setState({
+      isValid: isValid
+    });
+    return isValid;
+  }
+
+  renderRules() {
+    return _.map(this.props.validationRules, (rule) => {
+      return <Rule ref={rule.id} key={rule.id} {...rule} />;
+    });
+  }
   /**
    * Render status row component.
    *
    * @returns {React.Component} The component.
    */
   render() {
-    const rules = _.map(this.props.validationRules, (rule) => {
-      return <Rule key={rule.id} {...rule} />;
-    });
+    const editableProps = {
+      editState: this.props.editState,
+      childName: 'Validation',
+      onCancel: this.onCancel.bind(this),
+      onUpdate: this.onUpdate.bind(this),
+      key: this.state.forceRenderKey
+    };
+
+    if (!this.state.isValid) {
+      editableProps.editState = 'error';
+      editableProps.errorMessage = 'Input is not valid.';
+      delete editableProps.childName;
+    }
 
     return (
-      <Editable
-        editState={this.props.editState}
-        childName="Validation"
-        onCancel={this.onCancel.bind(this)}
-        onUpdate={this.onUpdate.bind(this)}
-      >
+      <Editable {...editableProps} >
         <Grid fluid className="rule-builder">
           <Row className="header">
             <Col lg={6} md={6} sm={6} xs={6}>
@@ -118,7 +159,7 @@ class RuleBuilder extends React.Component {
                   </tr>
                 </thead>
                 <tbody>
-                  {rules}
+                  {this.renderRules()}
                 </tbody>
               </Table>
             </Col>

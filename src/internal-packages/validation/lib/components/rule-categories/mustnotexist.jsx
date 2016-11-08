@@ -6,10 +6,6 @@ const _ = require('lodash');
 
 class RuleCategoryMustNotExist extends React.Component {
 
-  constructor(props) {
-    super(props);
-  }
-
   /**
    * get the initial parameters for this rule category.
    *

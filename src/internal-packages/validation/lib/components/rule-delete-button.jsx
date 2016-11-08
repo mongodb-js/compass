@@ -1,5 +1,4 @@
 const React = require('react');
-const ValidationActions = require('../actions');
 const Button = require('react-bootstrap').Button;
 const FontAwesome = require('react-fontawesome');
 
@@ -8,10 +7,6 @@ const FontAwesome = require('react-fontawesome');
  */
 class RuleDeleteButton extends React.Component {
 
-  onDeleteClicked() {
-    ValidationActions.deleteValidationRule(this.props.id);
-  }
-
   /**
    * Render RuleDeleteButton
    *
@@ -19,7 +14,7 @@ class RuleDeleteButton extends React.Component {
    */
   render() {
     return (
-      <Button className="delete-button pull-right" onClick={this.onDeleteClicked.bind(this)}>
+      <Button className="delete-button pull-right" onClick={this.props.onClick}>
         <FontAwesome name="trash-o" />
       </Button>
     );
@@ -27,7 +22,8 @@ class RuleDeleteButton extends React.Component {
 }
 
 RuleDeleteButton.propTypes = {
-  id: React.PropTypes.string.isRequired
+  id: React.PropTypes.string.isRequired,
+  onClick: React.PropTypes.func.isRequired
 };
 
 RuleDeleteButton.displayName = 'RuleDeleteButton';

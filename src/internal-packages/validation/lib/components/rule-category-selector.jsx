@@ -2,6 +2,7 @@ const React = require('react');
 const OptionSelector = require('./common/option-selector');
 const ValidationActions = require('../actions');
 const ruleCategories = require('./rule-categories');
+const { FormGroup } = require('react-bootstrap');
 const _ = require('lodash');
 
 // const debug = require('debug')('mongodb-compass:validation:rule-category');
@@ -12,8 +13,45 @@ const _ = require('lodash');
  */
 class RuleCategorySelector extends React.Component {
 
+  /**
+   * constructor sets the initial state.
+   *
+   * @param {Object} props   initial props, passed to super class.
+   */
+  constructor(props) {
+    super(props);
+    this.state = {
+      hasStartedValidating: false,
+      isValid: true,
+      category: props.category || ''
+    };
+  }
+
+  componentWillReceiveProps(props) {
+    this.setState({
+      category: props.category || ''
+    });
+  }
+
   onSelect(category) {
+    this.setState({
+      category: category,
+      isValid: true,
+      hasStartedValidating: true
+    });
     ValidationActions.setRuleCategory(this.props.id, category);
+  }
+
+  validate(force) {
+    if (!force && !this.state.hasStartedValidating) {
+      return true;
+    }
+    const isValid = this.state.category !== '';
+    this.setState({
+      hasStartedValidating: true,
+      isValid: isValid
+    });
+    return isValid;
   }
 
   /**
@@ -27,14 +65,18 @@ class RuleCategorySelector extends React.Component {
       _.map(_.keys(ruleCategories), _.startCase)
     );
 
+    const validationState = this.state.isValid ? null : 'error';
+
     return (
-      <OptionSelector
-        options={dropdownOptions}
-        id={this.props.id}
-        label=""
-        value={this.props.category}
-        onSelect={this.onSelect.bind(this)}
-      />
+      <FormGroup validationState={validationState}>
+        <OptionSelector
+          options={dropdownOptions}
+          id={this.props.id}
+          label=""
+          value={this.state.category}
+          onSelect={this.onSelect.bind(this)}
+        />
+      </FormGroup>
     );
   }
 }

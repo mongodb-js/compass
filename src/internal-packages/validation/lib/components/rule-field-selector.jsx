@@ -1,5 +1,6 @@
 const React = require('react');
 const ValidationActions = require('../actions');
+const { FormGroup, FormControl } = require('react-bootstrap');
 
 /**
  * Component to select a field for which the rule applies.
@@ -19,8 +20,16 @@ class RuleFieldSelector extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      value: this.props.field
+      value: this.props.field,
+      isValid: true,
+      hasStartedValidating: false
     };
+  }
+
+  componentWillReceiveProps(props) {
+    this.setState({
+      value: props.field
+    });
   }
 
   /**
@@ -36,22 +45,24 @@ class RuleFieldSelector extends React.Component {
   }
 
   /**
-   * set internal state when receiving new props
-   *
-   * @param {Object} nextProps   props the component will receive.
-   */
-  willReceiveProps(nextProps) {
-    this.setState({
-      value: nextProps.field
-    });
-  }
-
-  /**
    * The input field has lost focus (onBlur). Trigger an action to inform
    * the store of the change.
    */
-  submit() {
+  onBlur() {
+    this.validate(true);
     ValidationActions.setRuleField(this.props.id, this.state.value);
+  }
+
+  validate(force) {
+    if (!force && !this.state.hasStartedValidating) {
+      return true;
+    }
+    const isValid = this.state.value !== '';
+    this.setState({
+      isValid: isValid,
+      hasStartedValidating: true
+    });
+    return isValid;
   }
 
   /**
@@ -60,17 +71,17 @@ class RuleFieldSelector extends React.Component {
    * @returns {React.Component} The view component.
    */
   render() {
+    const validationState = this.state.isValid ? null : 'error';
     return (
-      <div className="form-group">
-        <input
+      <FormGroup validationState={validationState}>
+        <FormControl
           type="text"
-          className="form-control"
           id={this.props.id}
           value={this.state.value}
           onChange={this.onFieldChanged.bind(this)}
-          onBlur={this.submit.bind(this)}
+          onBlur={this.onBlur.bind(this)}
         />
-      </div>
+      </FormGroup>
     );
   }
 }
