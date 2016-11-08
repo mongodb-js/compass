@@ -226,8 +226,10 @@ const ValidationStore = Reflux.createStore({
   _fetchFromServer(callback) {
     const ns = toNS(NamespaceStore.ns);
 
-    const serverVersion = app.instance.build.version; // app.instance === null ? OLD_SERVER_VERSION : app.instance.build.version;
-    this.setState({serverVersion: serverVersion});
+    if (this.state.serverVersion === '') {
+      const serverVersion = app.instance.build.version; // app.instance === null ? OLD_SERVER_VERSION : app.instance.build.version;
+      this.setState({serverVersion: serverVersion});
+    }
     app.dataService.listCollections(ns.database, {name: ns.collection}, function(err, res) {
       if (err) {
         return callback(err);

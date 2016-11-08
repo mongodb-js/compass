@@ -10,11 +10,14 @@ function mockFetchFromServer(err, res, delay, serverVersion) {
     delay = 0;
   }
   ValidationStore._fetchFromServer = function(callback) {
-    this.setState({serverVersion: serverVersion || ''});
     setTimeout(function() {
       return callback(err, res);
     }, delay);
-  }.bind(ValidationStore);
+  };
+  // the above fetchFromServer makes a call for app.instance.build.version
+  // which will be undefined at the time of this test so setting serverVersion
+  // manually here, which would otherwise be overwritten
+  ValidationStore.setState({serverVersion: serverVersion});
 }
 
 const mockValidatorDoc = {
@@ -48,15 +51,11 @@ describe('ValidationStore', function() {
     unsubscribe = function() {};
   });
 
-  /* // TODO write tests for checking server version
-  it('checks a pre 3.4 server version for decimal128 hidden', function(done) {
-    mockFetchFromServer(null, mockValidatorDoc, 1, '3.1.9');
-
-    unsubscribe = ValidationStore.listen((state) => {
-      expect();
-      done();
-    });
-  });*/
+  it('check a pre 3.4 server version', function(done) {
+    mockFetchFromServer(null, mockValidatorDoc, 0, '3.1.9');
+    expect(ValidationStore.state.serverVersion).to.be.equal('3.1.9');
+    done();
+  });
 
   it('goes into {fetchState: "fetching"} when starting to fetch from server', function(done) {
     mockFetchFromServer(null, mockValidatorDoc);

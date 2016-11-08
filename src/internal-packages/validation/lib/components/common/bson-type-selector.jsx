@@ -3,7 +3,7 @@ const _ = require('lodash');
 const OptionSelector = require('./option-selector');
 const semver = require('semver');
 
-// const debug = require('debug')('mongodb-compass:validation');
+// const debug = require('debug')('mongodb-compass:bson-type-selector');
 
 const BSON_TYPES = [
   {name: 'Double', number: 1, alias: 'double'},
@@ -29,12 +29,10 @@ const BSON_TYPES = [
   {name: 'Max key', number: 127, alias: 'maxKey'}
 ];
 
-
 class BSONTypeSelector extends React.Component {
 
   constructor(props) {
     super(props);
-
     // try catch block in case semver typeerrors while remove decimal128
     // if server is < 3.4.x
     let canRemoveDecimal = false;
@@ -96,7 +94,6 @@ class BSONTypeSelector extends React.Component {
    */
   render() {
     const selectedTypeName = _.get(this.state.type, 'alias', '');
-    //  string compare server version if it's under 3.4, set falsey
     const typeOptions = _.zipObject(_.map(BSON_TYPES, (type) => {
       return [type.alias, type.name];
     }));
