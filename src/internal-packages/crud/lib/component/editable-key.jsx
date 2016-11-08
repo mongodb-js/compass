@@ -81,7 +81,12 @@ class EditableKey extends React.Component {
       if (value !== ':') {
         this.element.rename(value.replace(':', ''));
         evt.target.value = '';
-        this._node.nextSibling.nextSibling.focus();
+        // focus is not always available, this is now guarded
+        try {
+          this._node.nextSibling.nextSibling.focus();
+        } catch (e) {
+          return;
+        }
       }
     }
   }
