@@ -142,7 +142,7 @@ const SchemaStore = Reflux.createStore({
     const query = QueryStore.state.query;
     let timeout = 0;
     if (this.counter === 2) {
-      timeout = 20000;
+      timeout = 5000;
     }
     this.counter++;
 
