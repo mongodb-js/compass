@@ -4,6 +4,7 @@ var Connection = require('../models/connection');
 var ConnectionCollection = require('../models/connection-collection');
 var MongoDBConnection = require('mongodb-connection-model');
 var SidebarWrapperView = require('./sidebar');
+var shellToURL = require('mongodb-shell-to-url');
 var View = require('ampersand-view');
 
 var _ = require('lodash');
@@ -315,12 +316,16 @@ var ConnectView = View.extend({
    */
   onConnectWindowFocused: function() {
     var clipboardText = Clipboard.readText();
+    // first try to parse with shell-to-url package
+    const url = shellToURL(clipboardText);
+    if (url) {
+      clipboardText = url;
+    }
     if (clipboardText === this.clipboardText) {
       // we have seen this value already, don't ask user again
       return;
     }
     this.clipboardText = clipboardText;
-
     if (MongoDBConnection.isURI(clipboardText)) {
       debug('MongoDB URI detected.', clipboardText);
       // ask user if Compass should use it to fill out form
