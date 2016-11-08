@@ -1,9 +1,11 @@
 var assert = require('assert');
 var Connection = require('../');
+var getTasks = Connection.connect.getTasks;
 var loadOptions = Connection.connect.loadOptions;
 var parse = require('mongodb-url');
 var driverParse = require('mongodb/lib/url_parser');
 var fixture = require('mongodb-connection-fixture');
+var fs = require('fs');
 var _ = require('lodash');
 var format = require('util').format;
 
@@ -583,6 +585,24 @@ describe('mongodb-connection-model', function() {
             sslValidate: true
           };
           assert.deepEqual(c.driver_options, expected);
+        });
+
+        it("has relevant driver_options after 'Load SSL files'", function(done) {
+          /* eslint-disable no-sync */
+          var expectAfterLoad = {
+            sslCA: [fs.readFileSync(fixture.ssl.ca)],
+            sslCert: fs.readFileSync(fixture.ssl.server),
+            sslKey: fs.readFileSync(fixture.ssl.server),
+            sslValidate: true
+          };
+          /* eslint-enable no-sync */
+          const tasks = getTasks(c);
+          // Trigger relevant side-effect, loading the SSL files into memory
+          tasks['Load SSL files'](function() {  // eslint-disable-line new-cap
+            // Read files into memory as the connect function does
+            assert.deepEqual(tasks.driver_options.server, expectAfterLoad);
+            done();
+          });
         });
       });
       describe('password protected private keys', function() {
