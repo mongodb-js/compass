@@ -5,7 +5,10 @@ const expect = chai.expect;
 const React = require('react');
 
 const mount = require('enzyme').mount;
+const shallow = require('enzyme').shallow;
 const Rule = require('../src/internal-packages/validation/lib/components/rule');
+const RuleCategoryRange = require('../src/internal-packages/validation/lib/components/rule-categories/range');
+const RuleCategorySelector = require('../src/internal-packages/validation/lib/components/rule-category-selector');
 const _ = require('lodash');
 
 // const debug = require('debug')('compass:validation:test');
@@ -20,7 +23,8 @@ describe('<Rule />', function() {
     field: 'created_at',
     category: 'type',
     parameters: {type: 9},  // type "date"
-    nullable: false
+    nullable: false,
+    validate: function() {}
   };
 
   it('has an input field with value "created_at"', function() {
@@ -82,6 +86,30 @@ describe('<Rule />', function() {
     // nullable checkbox should be off
     it('has the "Nullable" checkbox checked', function() {
       expect(component.find('input.nullable')).to.be.checked();
+    });
+  });
+
+  context('when category "range" is supplied', function() {
+    const rangeRuleTemplate = {
+      id: 'my-new-rule',
+      field: 'created_at',
+      category: 'range',
+      parameters: {type: 9},  // type "date"
+      nullable: false
+    };
+
+    it('has a category of "range"', function() {
+      const rule = _.assign(rangeRuleTemplate, {});
+      component = shallow(<table><tbody><Rule {...rule} /></tbody></table>);
+      const ruleCategory = component.find(Rule).dive().find(RuleCategorySelector);
+      expect(ruleCategory.props().category).to.be.equal('range');
+    });
+
+    it('has a <RuleCategoryRange /> component with id my-new-rule', function() {
+      const rule = _.assign(rangeRuleTemplate, {});
+      component = shallow(<table><tbody><Rule {...rule} /></tbody></table>);
+      const ruleCategory = component.find(Rule).dive().find(RuleCategoryRange);
+      expect(ruleCategory.props().id).to.be.equal('my-new-rule');
     });
   });
 });

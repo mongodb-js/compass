@@ -24,6 +24,13 @@ class RuleCategoryRegex extends React.Component {
     };
   }
 
+  componentWillReceiveProps(nextProps) {
+    this.setState({
+      value: _.get(nextProps.parameters, 'regex', ''),
+      options: _.get(nextProps.parameters, 'options', '')
+    });
+  }
+
   onChange(evt) {
     this.setState({
       value: evt.target.value
@@ -41,7 +48,14 @@ class RuleCategoryRegex extends React.Component {
   }
 
   onDropdownClosed() {
-    this.submit();
+    this.onBlur();
+  }
+
+  onBlur() {
+    ValidationAction.setRuleParameters(this.props.id, {
+      regex: this.state.value,
+      options: this.state.options
+    });
   }
 
   /**
@@ -54,13 +68,6 @@ class RuleCategoryRegex extends React.Component {
       regex: '',
       options: ''
     };
-  }
-
-  willReceiveProps(nextProps) {
-    this.setState({
-      value: _.get(nextProps.parameters, 'regex', ''),
-      options: _.get(nextProps.parameters, 'options', '')
-    });
   }
 
   /**
@@ -110,13 +117,6 @@ class RuleCategoryRegex extends React.Component {
     return false;
   }
 
-  submit() {
-    ValidationAction.setRuleParameters(this.props.id, {
-      regex: this.state.value,
-      options: this.state.options
-    });
-  }
-
   isOptionSelected(option) {
     return this.state.options.indexOf(option) > -1;
   }
@@ -135,7 +135,7 @@ class RuleCategoryRegex extends React.Component {
           value={this.state.value}
           placeholder="Enter regular expression"
           onChange={this.onChange.bind(this)}
-          onBlur={this.submit.bind(this)}
+          onBlur={this.onBlur.bind(this)}
         />
         <DropdownButton id="regex-options"
           title="options"

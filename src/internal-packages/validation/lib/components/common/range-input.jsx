@@ -1,86 +1,118 @@
 const React = require('react');
+const app = require('ampersand-app');
 const _ = require('lodash');
 const FormGroup = require('react-bootstrap').FormGroup;
 const InputGroup = require('react-bootstrap').InputGroup;
 const FormControl = require('react-bootstrap').FormControl;
 const DropdownButton = require('react-bootstrap').DropdownButton;
-const ControlLabel = require('react-bootstrap').ControlLabel;
 const MenuItem = require('react-bootstrap').MenuItem;
+const TypeChecker = require('hadron-type-checker');
 
 // const debug = require('debug')('mongodb-compass:validation:action-selector');
 
+/**
+  * The version at which high precision values are available.
+  */
+const HP_VERSION = '3.4.0';
+
+/**
+ * A RangeInput represents a numeric lower or upper bound and the value of the
+ * lower or upper bound, if the bound exists.
+ *
+ * The `validationState` of this RangeInput can be set to 'error' either:
+ *  - by the RangeInput validating the `value` prop is not of type `number`, or
+ *  - by the RangeInput's parent `RuleCategoryRange` component validating the
+ *    combined range expression, such as `5 < x < 5` is displayed as red/error
+ *    even though the RangeInputs `5 < x` and `5 > x` are individually valid.
+ */
 class RangeInput extends React.Component {
 
   constructor(props) {
     super(props);
+    const op = this._getOperatorString(props);
     this.state = {
-      disabled: false,
-      operator: '',
-      value: '',
-      validationState: null
+      disabled: op === 'none',
+      operator: op,
+      value: this.props.value,
+      isValid: true,
+      hasStartedValidating: false
     };
+    this._ENABLE_HP = app.instance && (
+      app.instance.build.version >= HP_VERSION);
   }
 
-  componentWillMount() {
-    const op = this._getOperatorString();
-    this.setState({
-      value: _.isNumber(this.props.value) ? String(this.props.value) : '',
-      operator: op,
-      disabled: op === 'none'
-    });
-  }
-
-  componentWillReceiveProps(nextProps) {
-    const op = this._getOperatorString(nextProps);
-    this.setState({
-      value: _.isNumber(this.props.value) ? String(this.props.value) : '',
-      operator: op,
-      disabled: op === 'none'
-    });
-  }
-
+  /**
+   * called whenever the input changes (i.e. user is typing). We don't bubble up the
+   * value at this stage yet, but wait until the user blurs the input field.
+   *
+   * @param {Object} evt   The onChange event
+   */
   onInputChange(evt) {
     this.setState({
       value: evt.target.value
     });
   }
 
+  /**
+   * called whenever the field is blurred (loses focus). At this point, we want to
+   * validate the input and if it is valid, report the value change up to the parent.
+   */
   onInputBlur() {
-    this.validate();
+    this.validate(true);
+    this.props.onRangeInputBlur({
+      value: this.state.value,
+      operator: this.state.operator
+    });
   }
 
+  /**
+   * called when the user chooses a value from the operator dropdown. As there are
+   * no invalid values, we can always immediately report up the value/operator change.
+   *
+   * @param {Object} evtKey    the selected value from the dropdown (e.g. "<=", "none", ...)
+   */
   onDropdownSelect(evtKey) {
     this.setState({
       disabled: evtKey === 'none',
       operator: evtKey
     });
-    // need to defer validation until setState has propagated
-    // _.defer(() => {
-    //   this.validate();
-    // });
+    this.props.onRangeInputBlur({
+      value: this.state.value,
+      operator: evtKey
+    });
   }
 
-  validate() {
-    const value = parseFloat(this.state.value, 10);
-    let error = false;
-    if (_.isNaN(value)) {
-      error = true;
-      this.setState({
-        validationState: 'error'
-      });
-    } else {
-      this.setState({
-        validationState: null
-      });
+  /**
+   * determines if the input by itself is valid (e.g. a value that can be
+   * cast to a number).
+   *
+   * @param {Boolean} force    forces validation from now on.
+   * @return {Boolean}         whether the input is valid or not.
+   */
+  validate(force) {
+    if (!force && !this.state.hasStartedValidating) {
+      return true;
     }
-    if (this.props.onChange) {
-      this.props.onChange({
-        disabled: this.state.disabled,
-        operator: this.state.operator,
-        value: value,
-        hasError: error
-      });
+    if (this.state.disabled) {
+      return true;
     }
+    const value = this.state.value;
+    const valueTypes = TypeChecker.castableTypes(value, this._ENABLE_HP);
+
+    // Not sure if hadron-type-checker should make NUMBER_TYPES public
+    const NUMBER_TYPES = [
+      'Long',
+      'Int32',
+      'Double',
+      'Decimal128'
+    ];
+
+    const isValid = (_.intersection(valueTypes, NUMBER_TYPES).length > 0);
+    this.setState({
+      isValid: isValid,
+      hasStartedValidating: true
+    });
+    return isValid;
   }
 
   _getOperatorString(props) {
@@ -124,9 +156,6 @@ class RangeInput extends React.Component {
     if (this.state.disabled) {
       return (
         <FormGroup>
-          <div>
-            <ControlLabel>{boundString}</ControlLabel>
-          </div>
           <DropdownButton
             id={`range-input-${this.props.upperBound ? 'upper' : 'lower'}`}
             style={{width: this.props.width}}
@@ -138,13 +167,10 @@ class RangeInput extends React.Component {
       );
     }
     // not disabled, render input group with value input and operator dropdown
-    const placeholder = `enter ${boundString}`.toLowerCase();
-
+    const placeholder = `${boundString}`.toLowerCase();
+    const validationState = this.state.isValid ? null : 'error';
     return (
-      <FormGroup validationState={this.state.validationState}>
-        <div>
-          <ControlLabel>{boundString}</ControlLabel>
-        </div>
+      <FormGroup validationState={this.props.validationState || validationState}>
         <InputGroup style={{width: this.props.width}}>
           <DropdownButton
             id={`range-input-${this.props.upperBound ? 'upper' : 'lower'}`}
@@ -167,12 +193,13 @@ class RangeInput extends React.Component {
 }
 
 RangeInput.propTypes = {
-  value: React.PropTypes.number.isRequired,
+  value: React.PropTypes.string,  // Can't be required to allow "none" in GUI,
+                                  // can't be number to work with Decimal128.
   upperBound: React.PropTypes.bool,
   validationState: React.PropTypes.string,
   boundIncluded: React.PropTypes.bool.isRequired,
   disabled: React.PropTypes.bool.isRequired,
-  onChange: React.PropTypes.func,
+  onRangeInputBlur: React.PropTypes.func,
   width: React.PropTypes.number
 };
 
@@ -180,9 +207,9 @@ RangeInput.defaultProps = {
   disabled: false,
   boundIncluded: false,
   upperBound: false,
-  validationState: '',
-  value: null,
-  width: 200
+  validationState: null,
+  value: '',
+  width: 160
 };
 
 RangeInput.displayName = 'RangeInput';

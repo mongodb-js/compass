@@ -2,7 +2,6 @@ const Reflux = require('reflux');
 const ValidationActions = require('../actions');
 const StateMixin = require('reflux-state-mixin');
 const _ = require('lodash');
-const uuid = require('uuid');
 const ruleCategories = require('../components/rule-categories');
 const helper = require('./helpers');
 const toNS = require('mongodb-ns');
@@ -82,7 +81,7 @@ const ValidationStore = Reflux.createStore({
 
     const validator = helper.filterAndFromValidator(validatorDoc.validator);
 
-    const rules = _.map(validator, (field) => {
+    const rules = _.map(validator, (field, idx) => {
       const fieldName = field[0];
       const rule = field[1];
 
@@ -98,7 +97,7 @@ const ValidationStore = Reflux.createStore({
         return false;
       }
       return {
-        id: uuid.v4(),
+        id: `rule-${idx}`,
         field: result.field,
         category: category,
         parameters: parameters,
@@ -297,7 +296,7 @@ const ValidationStore = Reflux.createStore({
 
   addValidationRule() {
     const rules = _.clone(this.state.validationRules);
-    const id = uuid.v4();
+    const id = `rule-${rules.length}`;
     rules.push({
       id: id,
       field: '',
@@ -332,7 +331,9 @@ const ValidationStore = Reflux.createStore({
       _.includes(_.keys(ruleCategories), category)) {
       rules[ruleIndex].category = category;
       rules[ruleIndex].parameters = ruleCategories[category].getInitialParameters();
-
+      if (_.contains(['exists', 'mustNotExist'], category)) {
+        rules[ruleIndex].nullable = false;
+      }
       this._updateState({rules: rules});
     }
   },
@@ -419,16 +420,9 @@ const ValidationStore = Reflux.createStore({
     }
   },
 
-  cancelChanges(setByRuleBuilder) {
-    if (setByRuleBuilder) {
-      const params = this._deconstructValidatorDoc(this.lastFetchedValidatorDoc);
-      this._updateState(params);
-      return;
-    }
-    this.setState({
-      editState: 'unmodified',
-      validatorDoc: _.clone(this.lastFetchedValidatorDoc)
-    });
+  cancelChanges() {
+    const params = this._deconstructValidatorDoc(this.lastFetchedValidatorDoc);
+    this._updateState(params);
   },
 
   saveChanges() {

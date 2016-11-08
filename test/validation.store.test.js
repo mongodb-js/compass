@@ -843,7 +843,7 @@ describe('ValidationStore', function() {
   });
 
   describe('Range Rule when passing in values that are valid on the server', function() {
-    context.skip('values accepted by the rule builder UI', function() {
+    context('values accepted with no error by the rule builder UI', function() {
       it('accepts {$gte: 21}', function() {
         const validatorDoc = {
           'validator': {
@@ -862,7 +862,7 @@ describe('ValidationStore', function() {
           nullable: false,
           parameters: {
             'lowerBoundType': '$gte',
-            'lowerBoundValue': 21,
+            'lowerBoundValue': '21',
             'upperBoundType': null,
             'upperBoundValue': null
           }
@@ -889,7 +889,7 @@ describe('ValidationStore', function() {
             'lowerBoundType': null,
             'lowerBoundValue': null,
             'upperBoundType': '$lt',
-            'upperBoundValue': 21.123456789
+            'upperBoundValue': '21.123456789'
           }
         });
       });
@@ -913,9 +913,9 @@ describe('ValidationStore', function() {
           nullable: false,
           parameters: {
             'lowerBoundType': '$gt',
-            'lowerBoundValue': 20,
+            'lowerBoundValue': '20',
             'upperBoundType': '$lte',
-            'upperBoundValue': 21
+            'upperBoundValue': '21'
           }
         });
       });
@@ -939,19 +939,122 @@ describe('ValidationStore', function() {
           nullable: false,
           parameters: {
             'lowerBoundType': '$gt',
-            'lowerBoundValue': -20,
+            'lowerBoundValue': '-20',
             'upperBoundType': '$lte',
-            'upperBoundValue': -0.000001
+            'upperBoundValue': '-0.000001'
+          }
+        });
+      });
+
+      it('accepts {$gt: 0, $lte: 5000}', function() {
+        const validatorDoc = {
+          'validator': {
+            'tree_age': {
+              '$gt': 0,
+              '$lte': 5000
+            }
+          },
+          'validationLevel': 'strict',
+          'validationAction': 'error'
+        };
+        const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
+        const rule = _.omit(result.rules[0], 'id');
+        expect(rule).to.be.deep.equal({
+          category: 'range',
+          field: 'tree_age',
+          nullable: false,
+          parameters: {
+            'lowerBoundType': '$gt',
+            'lowerBoundValue': '0',
+            'upperBoundType': '$lte',
+            'upperBoundValue': '5000'
+          }
+        });
+      });
+
+      it('accepts {$gt: -5000000000, $lt: 0}', function() {
+        const validatorDoc = {
+          'validator': {
+            'age': {
+              '$gt': -5000000000,
+              '$lt': 0
+            }
+          },
+          'validationLevel': 'strict',
+          'validationAction': 'error'
+        };
+        const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
+        const rule = _.omit(result.rules[0], 'id');
+        expect(rule).to.be.deep.equal({
+          category: 'range',
+          field: 'age',
+          nullable: false,
+          parameters: {
+            'lowerBoundType': '$gt',
+            'lowerBoundValue': '-5000000000',
+            'upperBoundType': '$lt',
+            'upperBoundValue': '0'
+          }
+        });
+      });
+
+      it('accepts {$gte: 0, $lt: 273.16}', function() {
+        const validatorDoc = {
+          'validator': {
+            'below_zero_celsius_in_kelvin': {
+              '$gte': 0,
+              '$lt': 273.16
+            }
+          },
+          'validationLevel': 'strict',
+          'validationAction': 'error'
+        };
+        const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
+        const rule = _.omit(result.rules[0], 'id');
+        expect(rule).to.be.deep.equal({
+          category: 'range',
+          field: 'below_zero_celsius_in_kelvin',
+          nullable: false,
+          parameters: {
+            'lowerBoundType': '$gte',
+            'lowerBoundValue': '0',
+            'upperBoundType': '$lt',
+            'upperBoundValue': '273.16'
+          }
+        });
+      });
+
+      it('accepts {$gt: -273.16, $lte: 0}', function() {
+        const validatorDoc = {
+          'validator': {
+            'cold_temperature': {
+              '$gt': -273.16,
+              '$lte': 0
+            }
+          },
+          'validationLevel': 'strict',
+          'validationAction': 'error'
+        };
+        const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
+        const rule = _.omit(result.rules[0], 'id');
+        expect(rule).to.be.deep.equal({
+          category: 'range',
+          field: 'cold_temperature',
+          nullable: false,
+          parameters: {
+            'lowerBoundType': '$gt',
+            'lowerBoundValue': '-273.16',
+            'upperBoundType': '$lte',
+            'upperBoundValue': '0'
           }
         });
       });
     });
 
-    // Note: Server allows these cases, but we'd drop back to JSON view here
-    context('values rejected by the rule builder UI', function() {
+    context('values accepted but will error later in the rule builder UI', function() {
       // Only documents with value = 5 could be inserted,
       // which being a constant probably should be at the application layer
-      it('rejects equality constant range "5 <= value <= 5"', function() {
+      it('accepts equality constant range "5 <= value <= 5"', function() {
         const validatorDoc = {
           'validator': {
             'age': {
@@ -963,11 +1066,22 @@ describe('ValidationStore', function() {
           'validationAction': 'error'
         };
         const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
-        expect(result.rules).to.be.false;
+        const rule = _.omit(result.rules[0], 'id');
+        expect(rule).to.be.deep.equal({
+          category: 'range',
+          field: 'age',
+          nullable: false,
+          parameters: {
+            'lowerBoundType': '$gte',
+            'lowerBoundValue': '5',
+            'upperBoundType': '$lte',
+            'upperBoundValue': '5'
+          }
+        });
       });
 
       // Bad as users couldn't insert any documents into the collection
-      it('rejects empty range "5 < value <= 5"', function() {
+      it('accepts empty range "5 < value <= 5"', function() {
         const validatorDoc = {
           'validator': {
             'age': {
@@ -979,11 +1093,22 @@ describe('ValidationStore', function() {
           'validationAction': 'error'
         };
         const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
-        expect(result.rules).to.be.false;
+        const rule = _.omit(result.rules[0], 'id');
+        expect(rule).to.be.deep.equal({
+          category: 'range',
+          field: 'age',
+          nullable: false,
+          parameters: {
+            'lowerBoundType': '$gt',
+            'lowerBoundValue': '5',
+            'upperBoundType': '$lte',
+            'upperBoundValue': '5'
+          }
+        });
       });
 
       // Bad as users couldn't insert any documents into the collection
-      it('rejects empty range "5 <= value < 5"', function() {
+      it('accepts empty range "5 <= value < 5"', function() {
         const validatorDoc = {
           'validator': {
             'age': {
@@ -995,11 +1120,22 @@ describe('ValidationStore', function() {
           'validationAction': 'error'
         };
         const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
-        expect(result.rules).to.be.false;
+        const rule = _.omit(result.rules[0], 'id');
+        expect(rule).to.be.deep.equal({
+          category: 'range',
+          field: 'age',
+          nullable: false,
+          parameters: {
+            'lowerBoundType': '$gte',
+            'lowerBoundValue': '5',
+            'upperBoundType': '$lt',
+            'upperBoundValue': '5'
+          }
+        });
       });
 
       // Bad as users couldn't insert any documents into the collection
-      it('rejects empty range "6 < value < 5"', function() {
+      it('accepts empty range "6 < value < 5"', function() {
         const validatorDoc = {
           'validator': {
             'age': {
@@ -1011,9 +1147,23 @@ describe('ValidationStore', function() {
           'validationAction': 'error'
         };
         const result = ValidationStore._deconstructValidatorDoc(validatorDoc);
-        expect(result.rules).to.be.false;
+        const rule = _.omit(result.rules[0], 'id');
+        expect(rule).to.be.deep.equal({
+          category: 'range',
+          field: 'age',
+          nullable: false,
+          parameters: {
+            'lowerBoundType': '$gt',
+            'lowerBoundValue': '6',
+            'upperBoundType': '$lt',
+            'upperBoundValue': '5'
+          }
+        });
       });
+    });
 
+    // Note: Server allows these cases, but we'd drop back to JSON view here
+    context('values rejected by the rule builder UI', function() {
       // Better represented in GUI with the "None" operator drop down value
       it('rejects {$gte: -Infinity}', function() {
         const validatorDoc = {
