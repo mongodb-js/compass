@@ -16,7 +16,7 @@ chai.use(chaiEnzyme());
 
 describe('<SortableTable />', () => {
   context('when rendering without props', () => {
-    const component = shallow(<SortableTable />);
+    const component = shallow(<SortableTable columns={[]}/>);
     it('has a `table` element with className of `sortable-table-table`', () => {
       expect(component.find('table')).to.have.className('sortable-table-table');
     });
