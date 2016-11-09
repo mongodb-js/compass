@@ -140,7 +140,7 @@ const CompassExplainStore = Reflux.createStore({
     });
   },
 
-  initiateExplainPlan() {
+  resetExplainPlan() {
     this._reset();
   },
 

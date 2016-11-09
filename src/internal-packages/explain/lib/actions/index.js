@@ -6,7 +6,7 @@ const ExplainActions = Reflux.createActions([
    */
   'switchToTreeView',
   'switchToJSONView',
-  'initiateExplainPlan',
+  'resetExplainPlan',
   'fetchExplainPlan'
 ]);
 

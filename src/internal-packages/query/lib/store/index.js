@@ -415,12 +415,12 @@ const QueryStore = Reflux.createStore({
    * dismiss current changes to the query and restore `{}` as the query.
    */
   reset() {
-    if (!_.isEqual(this.state.query, {})) {
-      this.setQuery({});
-      if (!_.isEqual(this.state.lastExecutedQuery, {})) {
-        QueryAction.apply();
-      }
-    }
+    this.setState(this.getInitialState());
+    const SchemaAction = app.appRegistry.getAction('Schema.Actions');
+    SchemaAction.startSampling();
+    const ExplainActions = app.appRegistry.getAction('Explain.Actions');
+    ExplainActions.resetExplainPlan();
+    filterChanged(this.state.query);
   },
 
   storeDidUpdate(prevState) {
