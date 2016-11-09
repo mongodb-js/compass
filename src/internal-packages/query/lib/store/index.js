@@ -393,10 +393,6 @@ const QueryStore = Reflux.createStore({
       return;
     }
 
-    // empty string is interpreted as {}
-    if (this.state.queryString === '') {
-      this.setQuery({});
-    }
     if (this.state.valid) {
       this.setState({
         lastExecutedQuery: _.clone(this.state.query)
@@ -412,7 +408,7 @@ const QueryStore = Reflux.createStore({
   },
 
   /**
-   * dismiss current changes to the query and restore `{}` as the query.
+   * dismiss current changes to the query
    */
   reset() {
     this.setState(this.getInitialState());
