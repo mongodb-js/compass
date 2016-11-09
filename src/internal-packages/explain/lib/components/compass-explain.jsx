@@ -24,9 +24,10 @@ const ExplainActions = require('../actions');
 
 class CompassExplain extends React.Component {
 
+  /** this is no longer necessary
   componentWillMount() {
-    ExplainActions.fetchExplainPlan();
-  }
+    // ExplainActions.fetchExplainPlan();
+  }*/
 
   /**
    * Render Explain.

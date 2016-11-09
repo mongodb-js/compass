@@ -162,7 +162,7 @@ var MongoDBCollectionView = View.extend({
     this.model = new MongoDBCollection();
     NamespaceStore.listen(this.onCollectionChanged.bind(this));
     this.loadIndexesAction = app.appRegistry.getAction('Indexes.LoadIndexes');
-    this.fetchExplainPlanAction = app.appRegistry.getAction('Explain.Actions').fetchExplainPlan;
+    this.initiateExplainPlanAction = app.appRegistry.getAction('Explain.Actions').initiateExplainPlan;
     this.schemaActions = app.appRegistry.getAction('Schema.Actions');
     this.validationActions = app.appRegistry.getAction('Validation.Actions');
     // this.listenToAndRun(this.parent, 'change:ns', this.onCollectionChanged.bind(this));
@@ -211,7 +211,7 @@ var MongoDBCollectionView = View.extend({
     this.model.fetch();
     Action.filterChanged.listen(() => {
       this.loadIndexesAction();
-      this.fetchExplainPlanAction();
+      this.initiateExplainPlanAction(); // remove this line to reload explain plan
     });
     Action.filterChanged(app.queryOptions.query.serialize());
   },
