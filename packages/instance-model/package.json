@@ -37,7 +37,7 @@
   },
   "devDependencies": {
     "eslint-config-mongodb-js": "^2.2.0",
-    "mocha": "^2.3.4",
+    "mocha": "^3.1.2",
     "mongodb": "^2.1.16",
     "mongodb-connection-fixture": "^0.0.13",
     "mongodb-connection-model": "^6.3.1",
