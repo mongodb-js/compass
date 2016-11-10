@@ -1,5 +1,5 @@
 const React = require('react');
-// const app = require('ampersand-app');
+const app = require('ampersand-app');
 const ExplainBody = require('./explain-body');
 const ExplainHeader = require('./explain-header');
 

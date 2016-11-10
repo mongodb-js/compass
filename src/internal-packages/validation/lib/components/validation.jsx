@@ -1,3 +1,4 @@
+const app = require('ampersand-app');
 const React = require('react');
 const ValidationActions = require('../actions');
 const StatusRow = require('./common/status-row');
@@ -15,6 +16,11 @@ const Grid = require('react-bootstrap').Grid;
  * and the actual view.
  */
 class Validation extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
+  }
 
   /**
    * fetch validation rules on mount
@@ -37,7 +43,7 @@ class Validation extends React.Component {
    *
    * @returns {React.Component} The rendered component.
    */
-  render() {
+  renderComponent() {
     const view = this.props.viewMode === 'Rule Builder' ?
       (
         <div className="validation validation-rule-builder-wrapper">
@@ -62,19 +68,33 @@ class Validation extends React.Component {
       this.props.viewMode : 'JSON';
 
     return (
+      <Grid fluid>
+        <StatusRow>
+          <ViewSwitcher
+            label="View as:"
+            buttonLabels={['Rule Builder', 'JSON']}
+            activeButton={activeButton}
+            onClick={this.switchView.bind(this)}
+            disabled={!this.props.isExpressibleByRules}
+          />
+        </StatusRow>
+        {view}
+      </Grid>
+    );
+  }
+
+  renderReadonly() {
+    return (
+      <div className="validation-notice">
+        Document validation rules may not be added to readonly views.
+      </div>
+    );
+  }
+
+  render() {
+    return (
       <div className="validation header-margin">
-        <Grid fluid>
-          <StatusRow>
-            <ViewSwitcher
-              label="View as:"
-              buttonLabels={['Rule Builder', 'JSON']}
-              activeButton={activeButton}
-              onClick={this.switchView.bind(this)}
-              disabled={!this.props.isExpressibleByRules}
-            />
-          </StatusRow>
-          {view}
-        </Grid>
+        {this.CollectionStore.readonly ? this.renderReadonly() : this.renderComponent()}
       </div>
     );
   }
