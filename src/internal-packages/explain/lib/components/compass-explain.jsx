@@ -24,8 +24,44 @@ const ExplainActions = require('../actions');
 
 class CompassExplain extends React.Component {
 
+  constructor(props) {
+    super(props);
+    this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
+  }
+
   componentWillMount() {
     ExplainActions.fetchExplainPlan();
+  }
+
+  renderComponent() {
+    return (
+      <div className="column-container with-refinebar">
+        <div className="column main">
+          <ExplainHeader
+            viewType={this.props.viewType}
+            nReturned={this.props.nReturned}
+            totalKeysExamined={this.props.totalKeysExamined}
+            totalDocsExamined={this.props.totalDocsExamined}
+            executionTimeMillis={this.props.executionTimeMillis}
+            inMemorySort={this.props.inMemorySort}
+            indexType={this.props.indexType}
+            index={this.props.index}
+          />
+          <ExplainBody
+            viewType={this.props.viewType}
+            rawExplainObject={this.props.rawExplainObject}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  renderReadonly() {
+    return (
+      <div className="compass-explain-notice">
+        Explain plans on readonly views are not supported.
+      </div>
+    );
   }
 
   /**
@@ -37,24 +73,7 @@ class CompassExplain extends React.Component {
     return (
       <div className="compass-explain header-margin">
         <div className="flexbox-fix"></div>
-        <div className="column-container with-refinebar">
-          <div className="column main">
-            <ExplainHeader
-              viewType={this.props.viewType}
-              nReturned={this.props.nReturned}
-              totalKeysExamined={this.props.totalKeysExamined}
-              totalDocsExamined={this.props.totalDocsExamined}
-              executionTimeMillis={this.props.executionTimeMillis}
-              inMemorySort={this.props.inMemorySort}
-              indexType={this.props.indexType}
-              index={this.props.index}
-            />
-            <ExplainBody
-              viewType={this.props.viewType}
-              rawExplainObject={this.props.rawExplainObject}
-            />
-          </div>
-        </div>
+        {this.CollectionStore.readonly ? this.renderReadonly() : this.renderComponent()}
       </div>
     );
   }
