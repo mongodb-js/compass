@@ -236,7 +236,7 @@ class DocumentList extends React.Component {
    */
   render() {
     return (
-      <div>
+      <div className="header-margin">
         <this.samplingMessage insertHandler={this.handleOpenInsert.bind(this)} />
         <div className="column-container with-refinebar-and-message">
           <div className="column main">

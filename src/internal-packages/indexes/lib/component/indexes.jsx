@@ -16,7 +16,7 @@ class Indexes extends React.Component {
    */
   render() {
     return (
-      <div className="index-container">
+      <div className="index-container header-margin">
         <div className="flexbox-fix"></div>
         <div className="column-container">
           <div className="column main">

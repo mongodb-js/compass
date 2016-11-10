@@ -62,8 +62,8 @@
 .collection-view {
   header {
     padding: 12px 0 0;
-    position: relative;
-    z-index: 1;
+    position: fixed;
+    z-index: 4;
     background: @pw;
     .row {
       margin-left: 0;
@@ -92,6 +92,10 @@
     &::-webkit-scrollbar {
       display: none;
     }
+  }
+
+  .header-margin {
+    margin-top: 154px; // size of header
   }
 
   .column {

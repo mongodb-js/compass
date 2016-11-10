@@ -62,7 +62,7 @@ class Validation extends React.Component {
       this.props.viewMode : 'JSON';
 
     return (
-      <div className="validation">
+      <div className="validation header-margin">
         <Grid fluid>
           <StatusRow>
             <ViewSwitcher
