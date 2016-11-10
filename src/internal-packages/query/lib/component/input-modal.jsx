@@ -9,7 +9,7 @@ const InputModal = React.createClass({
     apply: React.PropTypes.func.isRequired
   },
 
-  onApply() {
+  onContinue() {
     this.props.apply();
     this.props.close();
   },
@@ -26,17 +26,17 @@ const InputModal = React.createClass({
           </Modal.Header>
 
           <Modal.Body>
-          <div>
+          <div className="input-modal-content">
             <button
-              className="btn btn-default"
+              className="btn btn-default input-modal-close"
               type="button"
               onClick={this.props.close}>
               Cancel
             </button>
             <button
-              className="btn btn-warning"
+              className="btn btn-warning input-modal-continue"
               type="submit"
-              onClick={this.onApply}>
+              onClick={this.onContinue}>
               Continue
             </button>
           </div>
