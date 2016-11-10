@@ -17,6 +17,7 @@ class SamplingMessage extends React.Component {
   constructor(props) {
     super(props);
     this.state = { count: 0, loaded: 20 };
+    this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
     this.resetDocumentListStore = app.appRegistry.getStore('CRUD.ResetDocumentListStore');
     this.insertDocumentStore = app.appRegistry.getStore('CRUD.InsertDocumentStore');
     this.documentRemovedAction = app.appRegistry.getAction('CRUD.Actions').documentRemoved;
@@ -139,10 +140,11 @@ class SamplingMessage extends React.Component {
       <div className="sampling-message">
         Query returned&nbsp;<b>{this.state.count}</b>&nbsp;{noun}.&nbsp;
         {this._loadedMessage()}
-        <TextButton
-          clickHandler={this.props.insertHandler}
-          className="btn btn-primary btn-xs open-insert"
-          text="+ Insert" />
+        {!this.CollectionStore.readonly ?
+          <TextButton
+            clickHandler={this.props.insertHandler}
+            className="btn btn-primary btn-xs open-insert"
+            text="+ Insert" /> : null }
       </div>
     );
   }
