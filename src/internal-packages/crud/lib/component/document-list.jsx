@@ -39,6 +39,7 @@ class DocumentList extends React.Component {
     super(props);
     this.loading = false;
     this.samplingMessage = app.appRegistry.getComponent('Query.SamplingMessage');
+    this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
     this.state = { docs: [], nextSkip: 0, namespace: NamespaceStore.ns };
   }
 
@@ -219,10 +220,11 @@ class DocumentList extends React.Component {
    * @return {Array} The document list item components.
    */
   renderDocuments(docs) {
+    const editable = app.dataService.isWritable() && !this.CollectionStore.readonly;
     return _.map(docs, (doc) => {
       return (
         <li className="document-list-item" key={this._key()}>
-          <Document doc={doc} key={this._key(doc)} editable />
+          <Document doc={doc} key={this._key(doc)} editable={editable} />
         </li>
       );
     });
