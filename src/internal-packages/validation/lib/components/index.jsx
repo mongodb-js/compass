@@ -14,6 +14,8 @@ class ConnectedValidation extends React.Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
+    console.log('#######################################');
+    console.log('RENDERING VALIDATION');
     return (
       <StoreConnector store={Store}>
         <Validation />
