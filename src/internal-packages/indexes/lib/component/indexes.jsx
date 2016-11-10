@@ -77,8 +77,6 @@ class Indexes extends React.Component {
    * @returns {React.Component} The indexes.
    */
   render() {
-    console.log('#######################################');
-    console.log('RENDERING INDEXES');
     return (
       <div className="index-container header-margin">
         <div className="flexbox-fix"></div>
