@@ -63,9 +63,19 @@ npm run release
 Just run `npm test`.
 NOTE: `npm test` (i.e. run the `npm test --functional` tests) seems to be hanging on master at this time.
 
-To run just what TravisCI runs locally:
+To run just what TravisCI runs [locally](https://engineering.canva.com/2015/03/25/hermeticity/):
 
     npm run ci
+
+## Code Quality Tools
+
+The following are employed by the Compass team:
+
+* Evergreen, how we build Compass:
+ - Your JIRA login should grant access to https://evergreen.mongodb.com/waterfall/10gen-compass-master
+ - You can also [use the command line tool](https://github.com/evergreen-ci/evergreen/wiki/Using-the-command-line-tool)
+* [TravisCI](https://travis-ci.com/10gen/compass) - runs continuous integration tests, PRs should only be merged if they keep it green
+* [Greenkeeper](https://greenkeeper.io/) - Creates pull requests to update submodules (i.e. @ [greenkeeperio-bot](https://github.com/greenkeeperio-bot) creates PRs to remind you and the Compass team to propagate submodule updates upwards through the Compass dependency tree)
 
 [setup-mac-os]: https://github.com/mongodb-js/mongodb-js/blob/master/docs/setup.md#mac-os-setup
 [setup-windows]: https://github.com/mongodb-js/mongodb-js/blob/master/docs/setup.md#windows-setup
