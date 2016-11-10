@@ -46,8 +46,11 @@ class NativeClient extends EventEmitter {
       }
       debug('connected!');
       this.database = database;
-      this.isWritable = this._isWritable(this.database.serverConfig.s.server.ismaster);
-      done(null, this);
+      this.database.admin().command({ ismaster: 1 }, (error, result) => {
+        const ismaster = error ? {} : result;
+        this.isWritable = this._isWritable(ismaster);
+        done(null, this);
+      });
     });
     this.client.on('status', (evt) => this.emit('status', evt));
     return this;
