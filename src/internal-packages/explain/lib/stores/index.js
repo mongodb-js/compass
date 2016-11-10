@@ -30,6 +30,7 @@ const CompassExplainStore = Reflux.createStore({
    */
   init() {
     this.listenToExternalStore('Indexes.IndexStore', this.indexesChanged.bind(this));
+    this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
     this.indexes = [];
   },
 
@@ -122,22 +123,26 @@ const CompassExplainStore = Reflux.createStore({
     if (!ns.database || !ns.collection) {
       return;
     }
-    app.dataService.explain(ns.ns, filter, options, (err, explain) => {
-      if (err) {
-        return debug('error fetching explain plan:', err);
-      }
-      const explainPlanModel = new ExplainPlanModel(explain);
-      const newState = explainPlanModel.serialize();
+    if (this.CollectionStore.readonly) {
+      this.setState(this.getInitialState());
+    } else {
+      app.dataService.explain(ns.ns, filter, options, (err, explain) => {
+        if (err) {
+          return debug('error fetching explain plan:', err);
+        }
+        const explainPlanModel = new ExplainPlanModel(explain);
+        const newState = explainPlanModel.serialize();
 
-      // extract index type, index object
-      newState.indexType = this._getIndexType(newState);
-      newState.index = _.isString(newState.usedIndex) ?
-        _.find(this.indexes, (idx) => {
-          return idx.name === newState.usedIndex;
-        }) : null;
-      newState.explainState = 'done';
-      this.setState(newState);
-    });
+        // extract index type, index object
+        newState.indexType = this._getIndexType(newState);
+        newState.index = _.isString(newState.usedIndex) ?
+          _.find(this.indexes, (idx) => {
+            return idx.name === newState.usedIndex;
+          }) : null;
+        newState.explainState = 'done';
+        this.setState(newState);
+      });
+    }
   },
 
   /**

@@ -1,3 +1,4 @@
+const app = require('ampersand-app');
 const React = require('react');
 
 const { NamespaceStore } = require('hadron-reflux-store');
@@ -6,6 +7,7 @@ class SidebarCollection extends React.Component {
   constructor() {
     super();
     this.handleClick = this.handleClick.bind(this);
+    this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
   }
 
   getCollectionName() {
@@ -17,7 +19,15 @@ class SidebarCollection extends React.Component {
 
   handleClick() {
     if (NamespaceStore.ns !== this.props._id) {
-      NamespaceStore.ns = this.props._id;
+      this.CollectionStore.setCollection(this.props);
+    }
+  }
+
+  renderReadonly() {
+    if (this.props.readonly) {
+      return (
+        <i className="fa fa-eye" aria-hidden="true" />
+      );
     }
   }
 
@@ -28,7 +38,8 @@ class SidebarCollection extends React.Component {
         <div onClick={this.handleClick}
             className="compass-sidebar-title compass-sidebar-title-is-actionable"
             title={collectionName}>
-          {collectionName}
+          {collectionName}&nbsp;
+          {this.renderReadonly()}
         </div>
       </div>
     );
@@ -37,7 +48,10 @@ class SidebarCollection extends React.Component {
 
 SidebarCollection.propTypes = {
   _id: React.PropTypes.string,
-  database: React.PropTypes.string
+  database: React.PropTypes.string,
+  capped: React.PropTypes.bool,
+  power_of_two: React.PropTypes.bool,
+  readonly: React.PropTypes.bool
 };
 
 module.exports = SidebarCollection;

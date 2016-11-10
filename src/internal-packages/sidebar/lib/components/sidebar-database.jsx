@@ -1,3 +1,4 @@
+const app = require('ampersand-app');
 const React = require('react');
 const SidebarCollection = require('./sidebar-collection');
 const { NamespaceStore } = require('hadron-reflux-store');
@@ -6,9 +7,8 @@ const { NamespaceStore } = require('hadron-reflux-store');
 class SidebarDatabase extends React.Component {
   constructor() {
     super();
-    this.state = {
-      expanded: true
-    };
+    this.state = { expanded: true };
+    this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
   }
 
   getCollectionComponents() {
@@ -18,7 +18,8 @@ class SidebarDatabase extends React.Component {
           _id: c._id,
           database: c.database,
           capped: c.capped,
-          power_of_two: c.power_of_two
+          power_of_two: c.power_of_two,
+          readonly: c.readonly
         };
 
         return (
@@ -35,6 +36,7 @@ class SidebarDatabase extends React.Component {
 
   handleDBClick(db) {
     if (NamespaceStore.ns !== db) {
+      this.CollectionStore.setCollection({});
       NamespaceStore.ns = db;
     }
   }
