@@ -1,6 +1,6 @@
 # compass [![][travis_img]][travis_url]
 
-> Explore your MongoDB.
+Explore your MongoDB.
 
 ## Development
 
