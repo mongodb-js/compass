@@ -82,7 +82,7 @@ const Schema = React.createClass({
       return <Field key={field.name} {...field} />;
     });
     return (
-      <div>
+      <div className="header-margin">
         <this.samplingMessage sampleSize={this.state.schema ? this.state.schema.count : 0}/>
         <div className="column-container with-refinebar-and-message">
           <div className="column main">
