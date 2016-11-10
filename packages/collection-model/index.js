@@ -21,6 +21,10 @@ var Collection = AmpersandModel.extend({
     padding_factor: 'number',
     extent_count: 'number',
     extent_last_size: 'number',
+    readonly: {
+      type: 'boolean',
+      default: false
+    },
     /**
      * http://docs.mongodb.org/manual/reference/command/collStats/#collStats.userFlags
      */
