@@ -20,6 +20,7 @@ const LoadIndexesStore = Reflux.createStore({
    * Initialize the load indexes store.
    */
   init: function() {
+    this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
     this.listenTo(Action.loadIndexes, this.loadIndexes);
   },
 
@@ -28,11 +29,15 @@ const LoadIndexesStore = Reflux.createStore({
    */
   loadIndexes: function() {
     if (NamespaceStore.ns) {
-      app.dataService.indexes(NamespaceStore.ns, { readPreference: READ }, (err, indexes) => {
-        if (!err) {
-          this.trigger(this._convertToModels(indexes));
-        }
-      });
+      if (this.CollectionStore.readonly) {
+        this.trigger([]);
+      } else {
+        app.dataService.indexes(NamespaceStore.ns, { readPreference: READ }, (err, indexes) => {
+          if (!err) {
+            this.trigger(this._convertToModels(indexes));
+          }
+        });
+      }
     }
   },
 
