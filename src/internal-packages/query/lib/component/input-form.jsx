@@ -1,8 +1,9 @@
 const React = require('react');
 const QueryAction = require('../action');
 const EJSON = require('mongodb-extended-json');
+const InputModal = require('./input-modal');
 
-// const debug = require('debug')('mongodb-compass:query-bar');
+const debug = require('debug')('mongodb-compass:query-bar');
 
 // the default statement is an empty statement
 const DEFAULT_QUERY_STRING = '';
@@ -17,6 +18,12 @@ const QueryInputGroup = React.createClass({
     queryString: React.PropTypes.string.isRequired
   },
 
+  getInitialState() {
+    return {
+      showModal: false
+    };
+  },
+
   onChange(evt) {
     QueryAction.typeQueryString(evt.target.value);
   },
@@ -25,13 +32,31 @@ const QueryInputGroup = React.createClass({
     evt.preventDefault();
     evt.stopPropagation();
 
+    if (this.props.queryString === '{}') {
+      debug('this is a stupid idea');
+      this.setState({showModal: true});
+      return;
+    }
+
+    // if the query is other than '{}'
+    this.onApply();
+  },
+
+  onResetButtonClicked() {
+    QueryAction.reset();
+  },
+
+  apply() {
     if (this.props.valid || this.props.featureFlag) {
       QueryAction.apply();
     }
   },
 
-  onResetButtonClicked() {
-    QueryAction.reset();
+  /**
+   * Close the modal.
+   */
+  close() {
+    this.setState({ showModal: false });
   },
 
   /**
@@ -79,6 +104,11 @@ const QueryInputGroup = React.createClass({
               onClick={this.onResetButtonClicked}
               style={resetButtonStyle}>Reset</button>
           </span>
+          <InputModal
+            open={this.state.showModal}
+            close={this.close}
+            apply={this.apply}
+          />
         </div>
       </form>
     );
