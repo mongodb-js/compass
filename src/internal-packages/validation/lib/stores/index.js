@@ -33,6 +33,7 @@ const ValidationStore = Reflux.createStore({
    */
   init() {
     this.lastFetchedValidatorDoc = {};
+    this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
     NamespaceStore.listen((ns) => {
       if (ns && toNS(ns).collection) {
         ValidationActions.fetchValidationRules();
@@ -238,66 +239,70 @@ const ValidationStore = Reflux.createStore({
   },
 
   fetchValidationRules() {
-    this.setState({
-      fetchState: 'fetching'
-    });
-    this._fetchFromServer((err, res) => {
-      if (err || !_.has(res, 'options')) {
-        // an error occured during fetch, e.g. missing permissions
-        this.setState({
-          fetchState: 'error'
-        });
-        return;
-      }
-      const result = this._deconstructValidatorDoc(res.options);
+    if (this.CollectionStore.readonly) {
+      this.setState(this.getInitialState());
+    } else {
+      this.setState({
+        fetchState: 'fetching'
+      });
+      this._fetchFromServer((err, res) => {
+        if (err || !_.has(res, 'options')) {
+          // an error occured during fetch, e.g. missing permissions
+          this.setState({
+            fetchState: 'error'
+          });
+          return;
+        }
+        const result = this._deconstructValidatorDoc(res.options);
 
-      // store result from server
-      const validatorDoc = res.options;
-      this.lastFetchedValidatorDoc = _.clone(validatorDoc);
+        // store result from server
+        const validatorDoc = res.options;
+        this.lastFetchedValidatorDoc = _.clone(validatorDoc);
 
-      if (!result) {
-        // the validatorDoc has an unexpected format.
-        this.setState({
-          fetchState: 'error'
-        });
-        return;
-      }
+        if (!result) {
+          // the validatorDoc has an unexpected format.
+          this.setState({
+            fetchState: 'error'
+          });
+          return;
+        }
 
-      if (!_.isPlainObject(result)) {
-        // the return value is not falsey but also not an object. This should
-        // never happen!
-        this.setState({
-          fetchState: 'error'
-        });
-        return;
-      }
+        if (!_.isPlainObject(result)) {
+          // the return value is not falsey but also not an object. This should
+          // never happen!
+          this.setState({
+            fetchState: 'error'
+          });
+          return;
+        }
 
-      if (!result.rules) {
-        // the validatorDoc cannot be expressed as simple rules.
+        if (!result.rules) {
+          // the validatorDoc cannot be expressed as simple rules.
+          this.setState({
+            fetchState: 'success',
+            isExpressibleByRules: false,
+            viewMode: 'JSON',
+            validatorDoc: validatorDoc,
+            validationLevel: result.level,
+            validationAction: result.action,
+            editState: 'unmodified'
+          });
+          return;
+        }
+
+        // the validator Doc _can_ be expressed as simple rules.
         this.setState({
           fetchState: 'success',
-          isExpressibleByRules: false,
-          viewMode: 'JSON',
+          isExpressibleByRules: true,
+          viewMode: 'Rule Builder',
           validatorDoc: validatorDoc,
+          validationRules: result.rules,
           validationLevel: result.level,
           validationAction: result.action,
           editState: 'unmodified'
         });
-        return;
-      }
-
-      // the validator Doc _can_ be expressed as simple rules.
-      this.setState({
-        fetchState: 'success',
-        isExpressibleByRules: true,
-        viewMode: 'Rule Builder',
-        validatorDoc: validatorDoc,
-        validationRules: result.rules,
-        validationLevel: result.level,
-        validationAction: result.action,
-        editState: 'unmodified'
       });
-    });
+    }
   },
 
   addValidationRule() {
