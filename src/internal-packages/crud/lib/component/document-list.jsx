@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const React = require('react');
+const uuid = require('node-uuid');
 const app = require('ampersand-app');
 const Action = require('hadron-action');
 const ObjectID = require('bson').ObjectID;
@@ -192,12 +193,10 @@ class DocumentList extends React.Component {
   /**
    * Get the key for a doc.
    *
-   * @param {Document} doc - The document.
-   *
    * @returns {String} The unique key.
    */
-  _key(doc) {
-    return `${NamespaceStore.ns}_${JSON.stringify(doc._id)}`;
+  _key() {
+    return uuid.v4();
   }
 
   /**
@@ -223,7 +222,7 @@ class DocumentList extends React.Component {
   renderDocuments(docs) {
     return _.map(docs, (doc) => {
       return (
-        <li className="document-list-item" key={this._key(doc)}>
+        <li className="document-list-item" key={this._key()}>
           <Document doc={doc} key={this._key(doc)} editable={this.CollectionStore.isWritable()} />
         </li>
       );
