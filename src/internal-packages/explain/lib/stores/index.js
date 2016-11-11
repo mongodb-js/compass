@@ -140,6 +140,10 @@ const CompassExplainStore = Reflux.createStore({
     });
   },
 
+  resetExplainPlan() {
+    this._reset();
+  },
+
   /**
    * log changes to the store as debug messages.
    * @param  {Object} prevState   previous state.
