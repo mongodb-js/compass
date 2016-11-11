@@ -38,13 +38,16 @@ class CollectionsTable extends React.Component {
       });
     });
 
+    const writable = app.dataService.isWritable();
+
     return (
       <div className="collections-table">
         <div className="collections-table-create-button">
-          <TextButton
-            text="Create Collection"
-            className="btn btn-default btn-sm"
-            clickHandler={this.onCreateCollectionButtonClicked.bind(this)} />
+          {writable ?
+            <TextButton
+              text="Create Collection"
+              className="btn btn-default btn-sm"
+              clickHandler={this.onCreateCollectionButtonClicked.bind(this)} /> : null}
         </div>
         <this.SortableTable
           theme="light"
@@ -54,7 +57,7 @@ class CollectionsTable extends React.Component {
           sortOrder={this.props.sortOrder}
           sortColumn={this.props.sortColumn}
           valueIndex={0}
-          removable
+          removable={writable}
           onColumnHeaderClicked={this.onColumnHeaderClicked.bind(this)}
           onRowDeleteButtonClicked={this.onRowDeleteButtonClicked.bind(this)}
         />

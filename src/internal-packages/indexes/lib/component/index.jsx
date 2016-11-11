@@ -12,6 +12,11 @@ const app = require('ampersand-app');
  */
 class Index extends React.Component {
 
+  constructor(props) {
+    super(props);
+    this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
+  }
+
   /**
    * Render the index.
    *
@@ -27,7 +32,7 @@ class Index extends React.Component {
           relativeSize={this.props.index.relativeSize} />
         <UsageColumn usage={this.props.index.usageCount} since={this.props.index.usageSince} />
         <PropertyColumn index={this.props.index} />
-        {app.dataService.isWritable() ?
+        {this.CollectionStore.isWritable() ?
           <DropColumn indexName={this.props.index.name} />
           : null}
       </tr>
