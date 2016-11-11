@@ -2,7 +2,7 @@
 
 > Complete tooling for large-scale [Electron](http://electron.atom.io/) apps.
 
-[![travis][travis_img]][travis_url] [![npm][npm_img]][npm_url]
+[![travis][travis_img]][travis_url] [![npm][npm_img]][npm_url] [![appveyor][appveyor_img]][appveyor_url]
 
 
 ## Configuration
@@ -278,3 +278,5 @@ Apache 2.0
 [spectron]: https://github.com/kevinsawicki/spectron
 [electron-mocha]: https://github.com/jprichardson/electron-mocha
 [electron-app-getPath]: https://github.com/electron/electron/blob/78193a0608b5fa55161e95b7b3845b6bd85af377/docs/api/app.md#appgetpathname
+[appveyor_img]: https://ci.appveyor.com/api/projects/status/n9yqrfsf17s4g1ss?svg=true
+[appveyor_url]: https://ci.appveyor.com/project/imlucas/hadron-build
