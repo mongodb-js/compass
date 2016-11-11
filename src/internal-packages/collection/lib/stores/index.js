@@ -1,18 +1,32 @@
 const Reflux = require('reflux');
 const CollectionActions = require('../actions');
+const StateMixin = require('reflux-state-mixin');
 const app = require('ampersand-app');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 
 
 const debug = require('debug')('mongodb-compass:stores:collection');
 
-const CollectionStatsStore = Reflux.createStore({
+const CollectionStore = Reflux.createStore({
 
   listenables: CollectionActions,
 
+  mixins: [StateMixin.store],
+
   init: function() {
     // this.state = {stats: {}};
-    this.stats = {};
+  },
+
+  getInitialState() {
+    return {
+      // stats: {},
+      document_count: 0,
+      document_size: 0,
+      // document_size_average: 0,
+      index_count: 0,
+      index_size: 0
+      // index_size_average: 0
+    };
   },
 
   /*
@@ -31,9 +45,14 @@ const CollectionStatsStore = Reflux.createStore({
           return debug('error fetching collection with namespace', NamespaceStore.ns);
         }
         debug('stats is:', stats);
-        this.stats = stats;
-        debug('this.stats is:', this.stats);
-        this.trigger(this.stats);
+        this.setState({
+          // stats: stats,
+          document_count: stats.document_count,
+          document_size: stats.document_size,
+          index_count: stats.index_count,
+          index_size: stats.index_size
+        });
+        debug('state is:', this.state);
       });
     }
   }
@@ -50,4 +69,4 @@ const CollectionStatsStore = Reflux.createStore({
     });*/
 });
 
-module.exports = CollectionStatsStore;
+module.exports = CollectionStore;

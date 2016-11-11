@@ -49,6 +49,18 @@ var TabView = View.extend({
   }
 });
 
+var StatsView = View.extend({
+  template: '<div></div>',
+  props: {
+    componentKey: 'string'
+  },
+  render: function() {
+    this.renderWithTemplate();
+    var statsComponent = app.appRegistry.getComponent(this.componentKey);
+    ReactDOM.render(React.createElement(statsComponent), this.query());
+  }
+});
+
 
 var MongoDBCollectionView = View.extend({
   // modelType: 'Collection',
@@ -95,7 +107,7 @@ var MongoDBCollectionView = View.extend({
       hook: 'newStats-subview',
       waitFor: 'ns',
       prepareView: function(el) {
-        return new CollectionStatsView({
+        return new StatsView({
           el: el,
           parent: this,
           componentKey: 'Collection.Collection'
@@ -227,7 +239,7 @@ var MongoDBCollectionView = View.extend({
     });
     Action.filterChanged(app.queryOptions.query.serialize());
     this.CollectionActions.sync();
-    this.CollectionActions.test();
+    // this.CollectionActions.test();
   },
   onCollectionFetched: function(model) {
     this.switchView(this.activeView);

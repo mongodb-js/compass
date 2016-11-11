@@ -7,9 +7,9 @@ const Store = require('../stores');
 
 // const debug = require('debug')('mongodb-compass:validation:index');
 
-class ConnectedValidation extends React.Component {
+class Collection extends React.Component {
   /**
-   * Connect <Validation /> component to store and render.
+   * Connect <ValidatioCollection /> component to store and render.
    *
    * @returns {React.Component} The rendered component.
    */
@@ -22,6 +22,6 @@ class ConnectedValidation extends React.Component {
   }
 }
 
-ConnectedValidation.displayName = 'ConnectedValidation';
+Collection.displayName = 'Collection';
 
-module.exports = ConnectedValidation;
+module.exports = Collection;
