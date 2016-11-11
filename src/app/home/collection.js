@@ -1,6 +1,5 @@
 var View = require('ampersand-view');
 var Action = require('hadron-action');
-var CollectionStatsView = require('./collection-stats');
 var MongoDBCollection = require('../models/mongodb-collection');
 var React = require('react');
 var ReactDOM = require('react-dom');
@@ -95,10 +94,11 @@ var MongoDBCollectionView = View.extend({
       hook: 'stats-subview',
       waitFor: 'ns',
       prepareView: function(el) {
-        return new CollectionStatsView({
+        return new TabView({
           el: el,
           parent: this,
-          model: this.model
+          visible: true,
+          componentKey: 'CollectionStats.CollectionStats'
         });
       }
     },
@@ -207,17 +207,19 @@ var MongoDBCollectionView = View.extend({
     }
     this.visible = true;
     this.model._id = this.ns;
-    this.model.once('sync', this.onCollectionFetched.bind(this));
-    this.model.fetch();
+    // this.model.once('sync', this.onCollectionFetched.bind(this));
+    // this.model.fetch();
     Action.filterChanged.listen(() => {
       this.loadIndexesAction();
       this.fetchExplainPlanAction();
     });
     Action.filterChanged(app.queryOptions.query.serialize());
+    this.switchView(this.activeView);
   },
   onCollectionFetched: function(model) {
-    this.switchView(this.activeView);
     // track collection information
+    // @todo: Durran: We need to move these metrics into the namespace store
+    //   or the collection store as this is no longer called.
     var metadata = _.omit(model.serialize(), ['_id', 'database',
       'index_details', 'wired_tiger']);
     metadata.specialish = model.specialish;
