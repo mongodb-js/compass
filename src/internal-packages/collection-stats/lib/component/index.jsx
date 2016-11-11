@@ -41,12 +41,12 @@ const AVG_SIZE = 'avg. size';
  * The default stats state.
  */
 const DEFAULT_STATS = {
-  documentCount: 'N/A',
-  totalDocumentSize: 'N/A',
-  avgDocumentSize: 'N/A',
-  indexCount: 'N/A',
-  totalIndexSize: 'N/A',
-  avgIndexSize: 'N/A'
+  documentCount: INVALID,
+  totalDocumentSize: INVALID,
+  avgDocumentSize: INVALID,
+  indexCount: INVALID,
+  totalIndexSize: INVALID,
+  avgIndexSize: INVALID
 };
 
 /**
@@ -56,6 +56,8 @@ class CollectionStats extends React.Component {
 
   /**
    * Instantiate the component.
+   *
+   * @param {Object} props - The properties.
    */
   constructor(props) {
     super(props);
@@ -78,6 +80,8 @@ class CollectionStats extends React.Component {
 
   /**
    * Handle the loading of the collection stats.
+   *
+   * @param {Object} stats - The stats.
    */
   handleStatsLoad(stats) {
     this.setState(stats || DEFAULT_STATS);
