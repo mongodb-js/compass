@@ -30,7 +30,7 @@
     "mongodb-collection-sample": "^1.2.2",
     "mongodb-connection-model": "^6.3.1",
     "mongodb-index-model": "^0.6.0",
-    "mongodb-instance-model": "^3.1.7",
+    "mongodb-instance-model": "^3.3.0",
     "mongodb-js-errors": "^0.2.1",
     "mongodb-ns": "^1.0.3",
     "mongodb-url": "^1.0.2"
