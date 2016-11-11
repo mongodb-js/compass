@@ -16,9 +16,7 @@ class SidebarDatabase extends React.Component {
       return this.props.collections.map(c => {
         const props = {
           _id: c._id,
-          database: c.database,
-          capped: c.capped,
-          power_of_two: c.power_of_two
+          database: c.database
         };
 
         return (

@@ -218,6 +218,12 @@ function viewSubMenu() {
         click: function() {
           BrowserWindow.getFocusedWindow().toggleDevTools();
         }
+      },
+      {
+        label: '&Component Glossary',
+        click: function() {
+          app.emit('app:show-component-glossary-window');
+        }
       }
     ]
   };

@@ -1,0 +1,9 @@
+{
+  "name": "compass-component-glossary",
+  "productName": "Compass Component Glossary",
+  "version": "0.1.0",
+  "authors": "MongoDB Inc.",
+  "description": "Component to show React components used for Compass",
+  "private": true,
+  "main": "index.js"
+}
