@@ -42,7 +42,6 @@
     "mongodb-instance-model": "^3.1.7",
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^0.2.9",
-    "mongodb-ns": "^1.0.1",
     "mongodb-runner": "^3.3.3",
     "pre-commit": "^1.1.2"
   }
