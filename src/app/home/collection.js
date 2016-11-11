@@ -1,6 +1,5 @@
 var View = require('ampersand-view');
 var Action = require('hadron-action');
-var CollectionStatsView = require('./collection-stats');
 var MongoDBCollection = require('../models/mongodb-collection');
 var React = require('react');
 var ReactDOM = require('react-dom');
@@ -49,6 +48,18 @@ var TabView = View.extend({
   }
 });
 
+var StatsView = View.extend({
+  template: '<div></div>',
+  props: {
+    componentKey: 'string'
+  },
+  render: function() {
+    this.renderWithTemplate();
+    var statsComponent = app.appRegistry.getComponent(this.componentKey);
+    ReactDOM.render(React.createElement(statsComponent), this.query());
+  }
+});
+
 
 var MongoDBCollectionView = View.extend({
   // modelType: 'Collection',
@@ -91,14 +102,14 @@ var MongoDBCollectionView = View.extend({
     }
   },
   subviews: {
-    statsView: {
+    newStatsView: {
       hook: 'stats-subview',
       waitFor: 'ns',
       prepareView: function(el) {
-        return new CollectionStatsView({
+        return new StatsView({
           el: el,
           parent: this,
-          model: this.model
+          componentKey: 'Collection.Collection'
         });
       }
     },
@@ -165,7 +176,7 @@ var MongoDBCollectionView = View.extend({
     this.fetchExplainPlanAction = app.appRegistry.getAction('Explain.Actions').fetchExplainPlan;
     this.schemaActions = app.appRegistry.getAction('Schema.Actions');
     this.validationActions = app.appRegistry.getAction('Validation.Actions');
-    // this.listenToAndRun(this.parent, 'change:ns', this.onCollectionChanged.bind(this));
+    this.CollectionActions = app.appRegistry.getAction('Collection.Actions');
   },
   render: function() {
     this.renderWithTemplate(this);
@@ -214,6 +225,7 @@ var MongoDBCollectionView = View.extend({
       this.fetchExplainPlanAction();
     });
     Action.filterChanged(app.queryOptions.query.serialize());
+    this.CollectionActions.sync();
   },
   onCollectionFetched: function(model) {
     this.switchView(this.activeView);
