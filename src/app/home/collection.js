@@ -1,6 +1,5 @@
 var View = require('ampersand-view');
 var Action = require('hadron-action');
-var CollectionStatsView = require('./collection-stats');
 var MongoDBCollection = require('../models/mongodb-collection');
 var React = require('react');
 var ReactDOM = require('react-dom');
