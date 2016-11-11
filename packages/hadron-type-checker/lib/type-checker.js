@@ -219,7 +219,7 @@ class Decimal128Check {
     const regex = stringMatch || infMatch || nanMatch;
     const exp = stringMatch && stringMatch[4] && stringMatch[2] === undefined;
 
-    return string.length != 0 && regex && !exp;
+    return string.length !== 0 && regex && !exp;
   }
 }
 

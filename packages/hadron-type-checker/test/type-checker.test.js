@@ -1254,15 +1254,15 @@ describe('TypeChecker', function() {
       ];
       for (var i = 0; i < values.length; i++) {
         const value = values[i];
-        context(value + ' cast', function () {
-          it('cast throws an error', function () {
-            expect(function () {
+        context(value + ' cast', function() {
+          it('cast throws an error', function() {
+            expect(function() {
               TypeChecker.cast(value, 'Decimal128');
             }).to.throw(value + ' not a valid Decimal128 string');
           });
         });
         context(value + ' castableTypes', function() {
-          it('castableTypes does not include Decimal 128', function () {
+          it('castableTypes does not include Decimal 128', function() {
             expect(TypeChecker.castableTypes(value, true)).to.deep.equal(
               ['String',
                 'Object',
