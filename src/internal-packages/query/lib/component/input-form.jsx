@@ -4,7 +4,8 @@ const EJSON = require('mongodb-extended-json');
 
 // const debug = require('debug')('mongodb-compass:query-bar');
 
-const DEFAULT_QUERY_STRING = '{}';
+// the default statement is an empty statement
+const DEFAULT_QUERY_STRING = '';
 
 const QueryInputGroup = React.createClass({
 
@@ -45,8 +46,7 @@ const QueryInputGroup = React.createClass({
     if (this.props.featureFlag) {
       inputGroupClass = 'input-group is-feature-flag';
     }
-    const notEmpty = this.props.queryString !== DEFAULT_QUERY_STRING &&
-      this.props.queryString !== '';
+    const notEmpty = this.props.queryString !== DEFAULT_QUERY_STRING;
     const resetButtonStyle = {
       display: notEmpty ? 'inline-block' : 'none'
     };

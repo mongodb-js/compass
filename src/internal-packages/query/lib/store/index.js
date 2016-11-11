@@ -393,10 +393,6 @@ const QueryStore = Reflux.createStore({
       return;
     }
 
-    // empty string is interpreted as {}
-    if (this.state.queryString === '') {
-      this.setQuery({});
-    }
     if (this.state.valid) {
       this.setState({
         lastExecutedQuery: _.clone(this.state.query)
@@ -412,15 +408,15 @@ const QueryStore = Reflux.createStore({
   },
 
   /**
-   * dismiss current changes to the query and restore `{}` as the query.
+   * dismiss current changes to the query
    */
   reset() {
-    if (!_.isEqual(this.state.query, {})) {
-      this.setQuery({});
-      if (!_.isEqual(this.state.lastExecutedQuery, {})) {
-        QueryAction.apply();
-      }
-    }
+    this.setState(this.getInitialState());
+    const SchemaAction = app.appRegistry.getAction('Schema.Actions');
+    SchemaAction.startSampling();
+    const ExplainActions = app.appRegistry.getAction('Explain.Actions');
+    ExplainActions.resetExplainPlan();
+    filterChanged(this.state.query);
   },
 
   storeDidUpdate(prevState) {
