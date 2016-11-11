@@ -11,7 +11,7 @@ class SidebarInstanceProperties extends React.Component {
       return '';
     }
 
-    return `${instance.hostname}.${instance.port}`;
+    return `${instance.hostname}:${instance.port}`;
   }
 
   getVersionName() {
