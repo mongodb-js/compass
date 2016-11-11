@@ -25,6 +25,8 @@ const CollectionStatsStore = Reflux.createStore({
 
   /**
    * Load the collection stats.
+   *
+   * @param {String} ns - The namespace.
    */
   loadCollectionStats: function(ns) {
     if (toNS(ns || '').collection) {
@@ -41,14 +43,13 @@ const CollectionStatsStore = Reflux.createStore({
   },
 
   _parseCollectionDetails(result) {
-    console.log(result);
     return {
       documentCount: this._format(result.document_count),
       totalDocumentSize: this._format(result.document_size, 'b'),
       avgDocumentSize: this._format(this._avg(result.document_size, result.document_count), 'b'),
       indexCount: this._format(result.index_count),
       totalIndexSize: this._format(result.index_size, 'b'),
-      avgIndexSize: this._format(this._avg(result.index_size, result.index_count), 'b'),
+      avgIndexSize: this._format(this._avg(result.index_size, result.index_count), 'b')
     };
   },
 
