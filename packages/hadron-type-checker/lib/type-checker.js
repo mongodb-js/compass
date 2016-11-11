@@ -203,14 +203,23 @@ class DoubleCheck {
   }
 }
 
-const DECIMAL_128_REGEX = /^(-?(\d*\.)?\d{1,34})|((\+|-)?(nan))|((\+|-)?(infinity))|((\+|-)?(inf))|(\b-?[1-9](?:\.\d+)?(E|e)(-|\+)?\d+\b)$/i;
+var PARSE_STRING_REGEXP = /^(?=\d)(\+|\-)?(\d+|(\d*\.\d*))?(E|e)?([\-\+])?(\d+)?$/;
+var PARSE_INF_REGEXP = /^(\+|\-)?(Infinity|inf)$/i;
+var PARSE_NAN_REGEXP = /^(\+|\-)?NaN$/i;
 
 /**
  * Checks if the value can be cast to a decimal 128.
  */
 class Decimal128Check {
   test(string) {
-    return DECIMAL_128_REGEX.test(string);
+    const stringMatch = string.match(PARSE_STRING_REGEXP);
+    const infMatch = string.match(PARSE_INF_REGEXP);
+    const nanMatch = string.match(PARSE_NAN_REGEXP);
+
+    const regex = stringMatch || infMatch || nanMatch;
+    const exp = stringMatch && stringMatch[4] && stringMatch[2] === undefined;
+
+    return string.length != 0 && regex && !exp;
   }
 }
 

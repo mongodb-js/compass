@@ -1231,4 +1231,66 @@ describe('TypeChecker', function() {
       });
     });
   });
+
+  describe('invalid Decimal-128 values', function() {
+    context('invalid strings', function() {
+      var values = [
+        'E02',
+        'E+02',
+        'e+02',
+        '.',
+        '.e',
+        'invalid',
+        'in',
+        'i',
+        '..1',
+        '1abcede',
+        '1.24abc',
+        '1.24abcE+02',
+        '1.24E+02abc2d',
+        'potato',
+        '12324.123.1233',
+        '123E 123'
+      ];
+      for (var i = 0; i < values.length; i++) {
+        const value = values[i];
+        context(value + ' cast', function () {
+          it('cast throws an error', function () {
+            expect(function () {
+              TypeChecker.cast(value, 'Decimal128');
+            }).to.throw(value + ' not a valid Decimal128 string');
+          });
+        });
+        context(value + ' castableTypes', function() {
+          it('castableTypes does not include Decimal 128', function () {
+            expect(TypeChecker.castableTypes(value, true)).to.deep.equal(
+              ['String',
+                'Object',
+                'Array']
+            );
+          });
+        });
+      }
+    });
+
+    context('empty string', function() {
+      const empty = '';
+      it('cast throws an error', function() {
+        expect(function() {
+          TypeChecker.cast(empty, 'Decimal128');
+        }).to.throw(' not a valid Decimal128 string');
+      });
+      it('castableTypes does not include Decimal 128', function() {
+        expect(TypeChecker.castableTypes(empty, true)).to.deep.equal(
+          ['String',
+            'Null',
+            'Undefined',
+            'MinKey',
+            'MaxKey',
+            'Object',
+            'Array']
+        );
+      });
+    });
+  });
 });
