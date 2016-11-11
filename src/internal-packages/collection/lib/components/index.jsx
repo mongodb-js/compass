@@ -8,11 +8,7 @@ const Store = require('../stores');
 // const debug = require('debug')('mongodb-compass:validation:index');
 
 class Collection extends React.Component {
-  /**
-   * Connect <ValidatioCollection /> component to store and render.
-   *
-   * @returns {React.Component} The rendered component.
-   */
+
   render() {
     return (
       <StoreConnector store={Store}>

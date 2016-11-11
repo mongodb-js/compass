@@ -104,24 +104,13 @@ var MongoDBCollectionView = View.extend({
   },
   subviews: {
     newStatsView: {
-      hook: 'newStats-subview',
+      hook: 'stats-subview',
       waitFor: 'ns',
       prepareView: function(el) {
         return new StatsView({
           el: el,
           parent: this,
           componentKey: 'Collection.Collection'
-        });
-      }
-    },
-    statsView: {
-      hook: 'stats-subview',
-      waitFor: 'ns',
-      prepareView: function(el) {
-        return new CollectionStatsView({
-          el: el,
-          parent: this,
-          model: this.model
         });
       }
     },
@@ -189,7 +178,6 @@ var MongoDBCollectionView = View.extend({
     this.schemaActions = app.appRegistry.getAction('Schema.Actions');
     this.validationActions = app.appRegistry.getAction('Validation.Actions');
     this.CollectionActions = app.appRegistry.getAction('Collection.Actions');
-    // this.listenToAndRun(this.parent, 'change:ns', this.onCollectionChanged.bind(this));
   },
   render: function() {
     this.renderWithTemplate(this);
@@ -239,7 +227,6 @@ var MongoDBCollectionView = View.extend({
     });
     Action.filterChanged(app.queryOptions.query.serialize());
     this.CollectionActions.sync();
-    // this.CollectionActions.test();
   },
   onCollectionFetched: function(model) {
     this.switchView(this.activeView);
