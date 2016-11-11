@@ -140,7 +140,7 @@ class SamplingMessage extends React.Component {
       <div className="sampling-message">
         Query returned&nbsp;<b>{this.state.count}</b>&nbsp;{noun}.&nbsp;
         {this._loadedMessage()}
-        {!this.CollectionStore.readonly ?
+        {this.CollectionStore.isWritable() ?
           <TextButton
             clickHandler={this.props.insertHandler}
             className="btn btn-primary btn-xs open-insert"

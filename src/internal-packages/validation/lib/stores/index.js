@@ -239,7 +239,7 @@ const ValidationStore = Reflux.createStore({
   },
 
   fetchValidationRules() {
-    if (this.CollectionStore.readonly) {
+    if (this.CollectionStore.isReadonly()) {
       this.setState(this.getInitialState());
     } else {
       this.setState({

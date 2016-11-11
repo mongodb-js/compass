@@ -38,13 +38,16 @@ class DatabasesTable extends React.Component {
       });
     });
 
+    const writable = app.dataService.isWritable();
+
     return (
       <div className="rtss-databases">
         <div className="rtss-databases-create-button">
-          <TextButton
-            text="Create Database"
-            className="btn btn-default btn-sm"
-            clickHandler={this.onCreateDatabaseButtonClicked.bind(this)} />
+          {writable ?
+            <TextButton
+              text="Create Database"
+              className="btn btn-default btn-sm"
+              clickHandler={this.onCreateDatabaseButtonClicked.bind(this)} /> : null}
         </div>
         <this.SortableTable
           theme="dark"
@@ -54,7 +57,7 @@ class DatabasesTable extends React.Component {
           sortOrder={this.props.sortOrder}
           sortColumn={this.props.sortColumn}
           valueIndex={0}
-          removable
+          removable={writable}
           onColumnHeaderClicked={this.onColumnHeaderClicked.bind(this)}
           onRowDeleteButtonClicked={this.onRowDeleteButtonClicked.bind(this)}
         />

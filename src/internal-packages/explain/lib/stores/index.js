@@ -123,7 +123,7 @@ const CompassExplainStore = Reflux.createStore({
     if (!ns.database || !ns.collection) {
       return;
     }
-    if (this.CollectionStore.readonly) {
+    if (this.CollectionStore.isReadonly()) {
       this.setState(this.getInitialState());
     } else {
       app.dataService.explain(ns.ns, filter, options, (err, explain) => {
