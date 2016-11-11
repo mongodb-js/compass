@@ -94,7 +94,7 @@ class Validation extends React.Component {
   render() {
     return (
       <div className="validation header-margin">
-        {this.CollectionStore.readonly ? this.renderReadonly() : this.renderComponent()}
+        {this.CollectionStore.isReadonly() ? this.renderReadonly() : this.renderComponent()}
       </div>
     );
   }

@@ -36,8 +36,10 @@ class Indexes extends React.Component {
   }
 
   determineState() {
-    const writable = app.dataService.isWritable() && !this.CollectionStore.readonly;
-    return { writable: writable, readonly: this.CollectionStore.readonly };
+    return {
+      writable: this.CollectionStore.isWritable(),
+      readonly: this.CollectionStore.isReadonly()
+    };
   }
 
   handleLoad() {

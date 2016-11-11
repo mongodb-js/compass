@@ -1,3 +1,4 @@
+const app = require('ampersand-app');
 const Reflux = require('reflux');
 const { NamespaceStore } = require('hadron-reflux-store');
 
@@ -10,8 +11,7 @@ const CollectionStore = Reflux.createStore({
    * Initialize the store.
    */
   init() {
-    this.ns = null;
-    this.readonly = null;
+    this.collection = {};
   },
 
   /**
@@ -20,11 +20,37 @@ const CollectionStore = Reflux.createStore({
    * @param {Object} collection - The collection info.
    */
   setCollection(collection) {
-    this.ns = collection._id;
-    this.readonly = collection.readonly;
+    this.collection = collection;
     if (collection._id) {
-      NamespaceStore.ns = this.ns;
+      NamespaceStore.ns = collection._id;
     }
+  },
+
+  /**
+   * Get the collection ns.
+   *
+   * @returns {String} The collection ns.
+   */
+  ns() {
+    return this.collection._id;
+  },
+
+  /**
+   * Is the collection readonly?
+   *
+   * @returns {Boolean} If the collection is readonly.
+   */
+  isReadonly() {
+    return this.collection.readonly;
+  },
+
+  /**
+   * Is the collection writable?
+   *
+   * @returns {Boolean} If the collection is writable.
+   */
+  isWritable() {
+    return !this.isReadonly() && app.dataService.isWritable();
   }
 });
 
