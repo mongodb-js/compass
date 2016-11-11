@@ -165,6 +165,7 @@ var MongoDBCollectionView = View.extend({
     this.fetchExplainPlanAction = app.appRegistry.getAction('Explain.Actions').fetchExplainPlan;
     this.schemaActions = app.appRegistry.getAction('Schema.Actions');
     this.validationActions = app.appRegistry.getAction('Validation.Actions');
+    this.CollectionStatsActions = app.appRegistry.getAction('CollectionStats.Actions');
     // this.listenToAndRun(this.parent, 'change:ns', this.onCollectionChanged.bind(this));
   },
   render: function() {
@@ -214,6 +215,7 @@ var MongoDBCollectionView = View.extend({
       this.fetchExplainPlanAction();
     });
     Action.filterChanged(app.queryOptions.query.serialize());
+    this.CollectionStatsActions.sync();
   },
   onCollectionFetched: function(model) {
     this.switchView(this.activeView);
