@@ -190,7 +190,8 @@ describe('fetch-mocked', function() {
           {
             '_id': 'tenants.mongodb',
             'database': 'tenants',
-            'name': 'mongodb'
+            'name': 'mongodb',
+            'readonly': false
           }
         ];
         assert.deepEqual(res, expected);
@@ -257,7 +258,10 @@ describe('fetch-mocked', function() {
     it('should lists all collections for each listable db', function(done) {
       results.userInfo = fixtures.USER_INFO_JOHN;
       results.db = makeMockDB(null, [{
-        'name': 'testCol'
+        'name': 'testCol',
+        'info': {
+          'readOnly': true
+        }
       }]);
 
       fetch.listCollections(function(err, res) {
@@ -267,22 +271,26 @@ describe('fetch-mocked', function() {
           {
             '_id': 'accounts.testCol',
             'database': 'accounts',
-            'name': 'testCol'
+            'name': 'testCol',
+            'readonly': true
           },
           {
             '_id': 'products.testCol',
             'database': 'products',
-            'name': 'testCol'
+            'name': 'testCol',
+            'readonly': true
           },
           {
             '_id': 'reporting.testCol',
             'database': 'reporting',
-            'name': 'testCol'
+            'name': 'testCol',
+            'readonly': true
           },
           {
             '_id': 'sales.testCol',
             'database': 'sales',
-            'name': 'testCol'
+            'name': 'testCol',
+            'readonly': true
           }
         ];
         expected.sort();

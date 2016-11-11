@@ -338,7 +338,8 @@ function parseCollection(resp) {
   return {
     _id: ns.toString(),
     name: ns.collection,
-    database: ns.database
+    database: ns.database,
+    readonly: _.get(resp, 'info.readOnly', false)
   };
 }
 
