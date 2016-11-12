@@ -2,6 +2,8 @@ var detect = require('../');
 var assert = require('assert');
 var legacyPairs = require('./fixtures/legacy_pairs.json');
 var geoJSONTemplate = require('./fixtures/geo_json.json');
+var unpromotedDoublesTemplate = require('./fixtures/unpromoted_doubles.json');
+
 var _ = require('lodash');
 
 describe('detect-coordinates', function() {
@@ -235,6 +237,17 @@ describe('detect-coordinates', function() {
         ]
       };
       assert.equal(detect(input), false);
+    });
+  });
+
+  describe('GeoJSON with unpromoted Double values', function() {
+    var geoJSON;
+    beforeEach(function() {
+      geoJSON = _.cloneDeep(unpromotedDoublesTemplate);
+    });
+
+    it('should detect the GeoJSON coordinates', function() {
+      assert.ok(detect(geoJSON));
     });
   });
 });

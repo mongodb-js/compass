@@ -54,7 +54,8 @@ function _detectLegacyPairs(type) {
   if (type.types.length !== 1) {
     return false;
   }
-  if (type.types[0].name !== 'Number') {
+  // support both promoted Number type and unpromoted Double, Decimal128 or Int32
+  if (!_.includes(['Number', 'Double', 'Int32', 'Decimal128'], type.types[0].name)) {
     return false;
   }
   return _zipCoordinates(type.types[0].values);
