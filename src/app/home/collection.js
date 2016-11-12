@@ -213,7 +213,7 @@ var MongoDBCollectionView = View.extend({
       this.loadIndexesAction();
       this.fetchExplainPlanAction();
     });
-    Action.filterChanged(app.queryOptions.query.serialize());
+    Action.filterChanged(app.queryOptions.query);
     this.switchView(this.activeView);
   },
   onCollectionFetched: function(model) {

@@ -1,6 +1,6 @@
 const React = require('react');
 const Action = require('../action/index-actions');
-const Query = require('mongodb-language-model').Query;
+const accepts = require('mongodb-language-model').accepts;
 const EJSON = require('mongodb-extended-json');
 const _ = require('lodash');
 
@@ -69,20 +69,17 @@ class CreateIndexTextField extends React.Component {
    * @returns {Object|Boolean}        false if invalid, otherwise the query
    */
   _validateQueryString(queryString) {
-    let parsed;
     try {
-      // is it valid eJSON?
       const cleaned = this._cleanQueryString(queryString);
-      parsed = EJSON.parse(cleaned);
-      // is it a valid parsable Query according to the language?
-      /* eslint no-unused-vars: 0 */
-      const query = new Query(parsed, {
-        parse: true
-      });
+      // is it valid eJSON?
+      const parsed = EJSON.parse(cleaned);
+      // can it be serialized to JSON?
+      const stringified = JSON.stringify(parsed);
+      // is it a valid MongoDB query according to the language?
+      return accepts(stringified);
     } catch (e) {
       return false;
     }
-    return parsed;
   }
 
   /**

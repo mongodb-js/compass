@@ -1,7 +1,6 @@
 var ms = require('ms');
 var Model = require('ampersand-model');
 var EJSON = require('mongodb-extended-json');
-var Query = require('mongodb-language-model').Query;
 // var debug = require('debug')('mongodb-compass:models:query-options');
 
 var DEFAULT_QUERY = {};
@@ -12,12 +11,6 @@ var DEFAULT_SIZE = 1000;
 var DEFAULT_SKIP = 0;
 var DEFAULT_MAX_TIME_MS = ms('10 seconds');
 
-var getDefaultQuery = function() {
-  return new Query(DEFAULT_QUERY, {
-    parse: true
-  });
-};
-
 /**
  * Options for reading a collection of documents from MongoDB.
  */
@@ -26,7 +19,7 @@ module.exports = Model.extend({
     query: {
       type: 'state',
       default: function() {
-        return getDefaultQuery();
+        return DEFAULT_QUERY;
       }
     },
     sort: {
@@ -53,18 +46,18 @@ module.exports = Model.extend({
       deps: ['query'],
       cache: false,
       fn: function() {
-        return EJSON.stringify(this.query.serialize());
+        return EJSON.stringify(this.query);
       }
     }
   },
   serialize: function() {
     var res = Model.prototype.serialize.call(this);
-    res.query = this.query.serialize();
+    res.query = this.query;
     return res;
   },
   reset: function() {
     this.set({
-      query: getDefaultQuery(),
+      query: DEFAULT_QUERY,
       sort: DEFAULT_SORT,
       size: DEFAULT_SIZE,
       skip: DEFAULT_SKIP,

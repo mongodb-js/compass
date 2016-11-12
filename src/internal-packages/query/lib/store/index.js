@@ -4,7 +4,7 @@ const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const StateMixin = require('reflux-state-mixin');
 const QueryAction = require('../action');
 const EJSON = require('mongodb-extended-json');
-const Query = require('mongodb-language-model').Query;
+const accepts = require('mongodb-language-model').accepts;
 const _ = require('lodash');
 const hasDistinctValue = require('../util').hasDistinctValue;
 const filterChanged = require('hadron-action').filterChanged;
@@ -115,23 +115,24 @@ const QueryStore = Reflux.createStore({
    * validates whether a string is a valid query.
    *
    * @param  {Object} queryString    a string to validate
-   * @return {Object|Boolean}        false if invalid, otherwise the query
+   * @returns {Object|Boolean}        false if invalid, otherwise the query
    */
   _validateQueryString(queryString) {
-    let parsed;
     try {
-      // is it valid eJSON?
       const cleaned = this._cleanQueryString(queryString);
-      parsed = EJSON.parse(cleaned);
-      // is it a valid parsable Query according to the language?
-      /* eslint no-unused-vars: 0 */
-      const query = new Query(parsed, {
-        parse: true
-      });
+      debug('cleaned', cleaned);
+      // is it valid eJSON?
+      const parsed = EJSON.parse(cleaned);
+      debug('parsed', parsed);
+      debug('accepted', accepts(cleaned));
+      // can it be serialized to JSON?
+      // const stringified = JSON.stringify(parsed);
+      // debug('stringified', stringified, accepts(stringified));
+      // is it a valid MongoDB query according to the language?
+      return accepts(cleaned);
     } catch (e) {
       return false;
     }
-    return parsed;
   },
 
   _validateFeatureFlag(queryString) {
