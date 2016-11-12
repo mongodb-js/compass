@@ -1,1 +1,1 @@
-module.exports = require('./models');
+module.exports = require('./lib');

@@ -1,6 +1,6 @@
 {
   "name": "mongodb-language-model",
-  "description": "Parses MongoDB query language and creates hierarchical Ampersand.js models",
+  "description": "Parses MongoDB query language and returns an abstract syntax tree",
   "author": "Thomas Rueckstiess <thomas@mongodb.com>",
   "version": "0.5.0",
   "bugs": "https://github.com/mongodb-js/mongodb-language-model/issues",
@@ -23,30 +23,32 @@
     "mongodb",
     "query",
     "language",
-    "model",
-    "ampersand"
+    "model"
   ],
   "scripts": {
     "ci": "npm run check && npm test",
-    "test": "mocha",
+    "test": "mocha --compilers js:babel-register",
     "fmt": "mongodb-js-fmt ./*.js ./test/*.js",
-    "check": "mongodb-js-precommit ./*.js models/{**/*.js,*.js} test/{**/*.js,*.js}",
-    "lint": "jshint .",
-    "validate": "npm ls"
+    "compile": "npm run babel & npm run pegjs",
+    "babel": "babel ./src --out-dir ./lib --presets es2015",
+    "pegjs": "pegjs -o ./lib/parser.js < ./src/grammar.pegjs",
+    "check": "mongodb-js-precommit ./src ./test",
+    "prepublish": "npm run compile",
+    "pretest": "npm run compile"
   },
   "precommit": [
     "check"
   ],
   "main": "index.js",
   "dependencies": {
-    "ampersand-collection": "^1.3.17",
-    "ampersand-collection-lodash-mixin": "^2.0.1",
-    "ampersand-state": "^4.8.0",
     "bson": "^0.5.4",
     "debug": "^2.2.0",
-    "lodash": "^3.0.1"
+    "lodash": "^3.0.1",
+    "pegjs": "^0.10.0"
   },
   "devDependencies": {
+    "babel-cli": "^6.10.1",
+    "babel-preset-es2015": "^6.14.0",
     "eslint-config-mongodb-js": "^2.2.0",
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^0.2.9",

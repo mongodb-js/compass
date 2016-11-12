@@ -2,7 +2,62 @@
 
 [![build status](https://secure.travis-ci.org/mongodb-js/mongodb-language-model.png)](http://travis-ci.org/mongodb-js/mongodb-language-model)
 
-Parses a MongoDB query and creates hierarchical [Ampersand.js](http://ampersandjs.com/) models for each of the language components, which can then be interacted with programmatically. 
+Parses a MongoDB query and creates an abstract syntax tree (AST) with part of speech
+tagging. Currently, only [strict extended json][docs-extended-json] syntax is
+supported (which means keys have to be surrounded by double quotes and values
+have to match the strict syntax of the extended-json format.);
+
+## Usage
+
+The main module exposes two functions: `accepts(queryStr)` and `parse(queryStr)`.
+
+#### `accepts(queryStr)`
+
+The `accepts(queryStr)` function takes a query string and returns `true` if the
+string is a valid MongoDB query, `false` otherwise.
+
+Example:
+
+```javascript
+var accepts = require('mongodb-language-model').accepts;
+var assert = require('assert');
+
+assert.ok(accepts('{"foo": 1}'));
+assert.ok(accepts('{"age": {"$gt": 35}}'));
+assert.ok(accepts('{"$or": [{"email": {"$exists": true}}, {"phone": {"$exists": true}}]}'));
+
+assert.equal(accepts('{"$invalid": "key"}'), false);
+```
+
+#### `parse(queryStr)`
+
+The `parse(queryStr)` function takes a query string and returns an abstract
+syntax tree (AST) as a javascript object, if the query is valid. If the
+query is not valid, the function throws a `pegjs.SyntaxError` with a message
+explaining the failure.
+
+Example:
+
+```javascript
+var parse = require('mongodb-language-model').parse;
+var assert = require('assert');
+var pegjs = require('pegjs');
+
+var ast = parse('{"foo": "bar"}');
+assert.deepEqual(ast, {
+  'pos': 'expression',
+  'clauses': [
+    {
+      'pos': 'leaf-clause',
+      'key': 'foo',
+      'value': {
+        'pos': 'leaf-value',
+        'value': 'bar'
+      }
+    }
+  ]
+});
+```
 
 ## UML diagram
 
@@ -10,51 +65,11 @@ This is the hierarchical model that is created when a query is parsed:
 
 ![](./docs/query_language_uml.png)
 
-## Example
 
-```javascript
-var Query = require('mongodb-language-model').Query;
-var assert = require('assert');
-
-// you need to specify `{parse: true}` if a raw javascript object is provided
-var query = new Query(
-    {"foo": 12345, "$and": [ {bar: false}, {baz: "hello"} ] }, 
-    {parse: true}
-);
-
-// two top-level clauses
-assert.equal(query.clauses.length, 2);
-
-// access leaf clause
-var leafClause = query.clauses.get('foo');
-assert.equal(leafClause.className, 'LeafClause');
-
-// LeafClause provides access to key and value objects. To access the their 
-// native values, they need to be serialized.
-assert.equal(leafClause.key.serialize(), 'foo');
-assert.equal(leafClause.value.serialize(), 12345);
-
-// access the $and expression tree
-var exprTree = query.clauses.get('$and');
-assert.equal(exprTree.className, 'ExpressionTree');
-
-// get the list of clause keys
-var keys = exprTree.expressions.map(function (expr) {
-    return expr.clauses.at(0).key.serialize();
-});
-assert.deepEqual(keys, ['bar', 'baz']);
-
-// get the list of clause values
-var values = exprTree.expressions.map(function (expr) {
-    return expr.clauses.at(0).value.serialize();
-})
-assert.deepEqual(values, [false, 'hello']);
-```
 
 ## Installation
 
 ```
-// @todo
 npm install --save mongodb-language-model
 ```
 
@@ -67,3 +82,5 @@ npm test
 ## License
 
 Apache 2.0
+
+[docs-extended-json]: https://docs.mongodb.com/manual/reference/mongodb-extended-json/
