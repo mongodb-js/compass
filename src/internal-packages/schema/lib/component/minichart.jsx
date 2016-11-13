@@ -8,9 +8,7 @@ const D3Component = require('./d3component');
 const vizFns = require('../d3');
 const Actions = require('../action');
 
-const STRING = 'String';
-const NUMBER = 'Number';
-const DECIMAL_128 = 'Decimal128';
+const { STRING, DECIMAL_128, DOUBLE, LONG, INT_32 } = require('../helpers');
 
 const Minichart = React.createClass({
 
@@ -72,15 +70,17 @@ const Minichart = React.createClass({
   },
 
   minichartFactory() {
-    /* eslint camelcase: 0 */
-    const typeName = this.props.type.name;
+    // cast all numeric types to Number minichart
+    const typeName = _.includes([ DECIMAL_128, DOUBLE, INT_32 ],
+      this.props.type.name) ? 'Number' : this.props.type.name;
+
     const fieldName = this.props.fieldName;
     const queryClause = this.state.query[fieldName];
-    const has_duplicates = this.props.type.has_duplicates;
+    const hasDuplicates = this.props.type.has_duplicates;
     const fn = vizFns[typeName.toLowerCase()];
     const width = this.state.containerWidth;
 
-    if (_.includes([ STRING, NUMBER, DECIMAL_128 ], typeName) && !has_duplicates) {
+    if (_.includes([ STRING, LONG ], typeName) && !hasDuplicates) {
       return (
         <UniqueMinichart
           fieldName={fieldName}

@@ -125,11 +125,8 @@ const QueryStore = Reflux.createStore({
       const parsed = EJSON.parse(cleaned);
       debug('parsed', parsed);
       debug('accepted', accepts(cleaned));
-      // can it be serialized to JSON?
-      // const stringified = JSON.stringify(parsed);
-      // debug('stringified', stringified, accepts(stringified));
       // is it a valid MongoDB query according to the language?
-      return accepts(cleaned);
+      return accepts(cleaned) ? parsed : false;
     } catch (e) {
       return false;
     }

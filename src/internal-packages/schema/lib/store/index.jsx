@@ -23,6 +23,7 @@ const debug = require('debug')('mongodb-compass:stores:schema');
 
 const DEFAULT_MAX_TIME_MS = 10000;
 const DEFAULT_NUM_DOCUMENTS = 1000;
+const PROMOTE_VALUES = false;
 
 /**
  * The reflux store for the schema.
@@ -124,6 +125,7 @@ const SchemaStore = Reflux.createStore({
       query: query,
       size: DEFAULT_NUM_DOCUMENTS,
       fields: null,
+      promoteValues: PROMOTE_VALUES,
       readPreference: READ
     };
 

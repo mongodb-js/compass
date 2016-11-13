@@ -4,6 +4,8 @@ const _ = require('lodash');
 const NativeListener = require('react-native-listener');
 const hasDistinctValue = require('../../../query/lib/util').hasDistinctValue;
 
+const { DECIMAL_128, DOUBLE, LONG, INT_32 } = require('../helpers');
+
 // const debug = require('debug')('mongodb-compass:minichart:unique');
 
 const ValueBubble = React.createClass({
@@ -24,14 +26,36 @@ const ValueBubble = React.createClass({
     });
   },
 
+  /**
+   * converts the passed in value into a string, supports the 4 numeric
+   * BSON types as well.
+   *
+   * @param {Any} value     value to be converted to a string
+   * @return {String}       converted value
+   */
+  _extractStringValue(value) {
+    if (_.has(value, '_bsontype')) {
+      if (_.includes([ DECIMAL_128, LONG ], value._bsontype)) {
+        return value.toString();
+      }
+      if (_.includes([ DOUBLE, INT_32 ], value._bsontype)) {
+        return String(value.value);
+      }
+    }
+    if (_.isString(value)) {
+      return value;
+    }
+    return String(value);
+  },
+
   render() {
-    const value = this.props.value;
-    const selectedClass = hasDistinctValue(this.props.query, value) ?
+    const value = this._extractStringValue(this.props.value);
+    const selectedClass = hasDistinctValue(this.props.query, this.props.value) ?
       'selected' : 'unselected';
     return (
       <li className="bubble">
         <code className={`selectable ${selectedClass}`} onClick={this.onBubbleClicked}>
-          {value.toString()}
+          {value}
         </code>
       </li>
     );
@@ -73,10 +97,10 @@ const UniqueMinichart = React.createClass({
     const sample = this.state.sample || [];
     const fieldName = this.props.fieldName.toLowerCase();
     const typeName = this.props.type.name.toLowerCase();
-    const randomValueList = sample.map((value) => {
+    const randomValueList = sample.map((value, i) => {
       return (
         <ValueBubble
-          key={`${fieldName}-${typeName}-${value.toString()}`}
+          key={`${fieldName}-${typeName}-${i}`}
           value={value}
           query={this.props.query}
           fieldName={this.props.fieldName}
