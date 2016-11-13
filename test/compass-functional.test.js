@@ -39,6 +39,11 @@ describe('Compass #spectron', function() {
 
   context('when working with the application', function() {
     before(require('mongodb-runner/mocha/before')({ port: 27018 }));
+
+    before(function(done) {
+      CrudSupport.insertMany(CONNECTION, COLLECTION, DOCUMENTS, done);
+    });
+
     after(require('mongodb-runner/mocha/after')());
 
     context('when opening the application', function() {
@@ -56,20 +61,12 @@ describe('Compass #spectron', function() {
             .fillOutForm({ hostname: 'localhost', port: 27018 })
             .clickConnect()
             .waitForSchemaWindow()
-            .getTitle().should.eventually.be.equal('MongoDB Compass');
+            .getTitle().should.eventually.be.equal('MongoDB Compass - localhost:27018');
         });
       });
     });
 
     context('when working with collections', function() {
-      before(function(done) {
-        CrudSupport.insertMany(CONNECTION, COLLECTION, DOCUMENTS, done);
-      });
-
-      after(function(done) {
-        CrudSupport.removeAll(CONNECTION, COLLECTION, done);
-      });
-
       context('when selecting a collection', function() {
         it('renders the sample collection in the title', function() {
           return client
@@ -80,6 +77,17 @@ describe('Compass #spectron', function() {
           );
         });
 
+        it('renders the schema tab', function() {
+          return client
+            .waitForStatusBar()
+            .gotoSchemaTab()
+            .getText('li.bubble code.selectable')
+            .should
+            .eventually
+            .include
+            .members([ 'Arca', 'Bonobo', 'Aphex Twin', 'Beacon' ]);
+        });
+
         context('when applying a filter', function() {
           it('samples the matching documents', function() {
             return client
@@ -87,6 +95,32 @@ describe('Compass #spectron', function() {
               .refineSample('{ "name":"Arca" }')
               .waitForStatusBar()
               .getText('div.sampling-message b').should.eventually.include('1');
+          });
+
+          it('updates the schema view', function() {
+            return client
+              .getText('li.bubble code.selectable')
+              .should
+              .eventually
+              .equal('Arca');
+          });
+
+          it('filters out non-matches from the document list', function() {
+            return client
+              .gotoDocumentsTab()
+              .getText('div.element-value-is-string')
+              .should
+              .not
+              .eventually
+              .include('Aphex Twin');
+          });
+
+          it('includes documents that match the filter', function() {
+            return client
+              .getText('div.element-value-is-string')
+              .should
+              .eventually
+              .include('Arca');
           });
         });
 
@@ -109,6 +143,32 @@ describe('Compass #spectron', function() {
               .should
               .eventually
               .include('Aphex Twin');
+          });
+        });
+      });
+
+      context('when working in the explain tab', function() {
+        context('when viewing the explain tab', function() {
+          it('renders the stages', function() {
+            return client
+              .gotoExplainPlanTab()
+              .getText('h3.stage-header')
+              .should
+              .eventually
+              .include('COLLSCAN');
+          });
+        });
+      });
+
+      context('when working in the indexes tab', function() {
+        context('when viewing the indexes tab', function() {
+          it('renders the indexes', function() {
+            return client
+              .gotoIndexesTab()
+              .getText('div.index-definition div.name')
+              .should
+              .eventually
+              .include('_id_');
           });
         });
       });

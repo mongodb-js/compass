@@ -203,8 +203,8 @@ function addCommands(client) {
    */
   client.addCommand('selectCollection', function(name) {
     return this.waitForStatusBar()
-      .waitForVisible('a span[title="' + name + '"]', 60000)
-      .click('a span[title="' + name + '"]')
+      .waitForVisible('.compass-sidebar-item div[title="' + name + '"]', 60000)
+      .click('.compass-sidebar-item div[title="' + name + '"]')
       .waitForVisible('div.schema-field-list', 60000);
   });
 
