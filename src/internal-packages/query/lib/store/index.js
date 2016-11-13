@@ -120,11 +120,8 @@ const QueryStore = Reflux.createStore({
   _validateQueryString(queryString) {
     try {
       const cleaned = this._cleanQueryString(queryString);
-      debug('cleaned', cleaned);
       // is it valid eJSON?
       const parsed = EJSON.parse(cleaned);
-      debug('parsed', parsed);
-      debug('accepted', accepts(cleaned));
       // is it a valid MongoDB query according to the language?
       return accepts(cleaned) ? parsed : false;
     } catch (e) {
