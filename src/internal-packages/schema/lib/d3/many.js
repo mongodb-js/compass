@@ -94,7 +94,7 @@ const minicharts_d3fns_many = function() {
         // if not binned and values are the same, single equality query
         QueryAction.setValue({
           field: options.fieldName,
-          value: minValue.value
+          value: minValue.bson
         });
         return;
       }
@@ -172,7 +172,7 @@ const minicharts_d3fns_many = function() {
         // bars don't represent bins, build single value query
         QueryAction.setValue({
           field: options.fieldName,
-          value: d.value,
+          value: d.bson,
           unsetIfSet: true
         });
       }

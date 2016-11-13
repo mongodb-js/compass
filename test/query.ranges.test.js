@@ -218,6 +218,32 @@ describe('inValueRange', function() {
       assert.equal(inValueRange(query, {value: new bson.ObjectId('578cfb3ad5021e616087f540')}), 'yes');
       assert.equal(inValueRange(query, {value: new bson.ObjectId('578cfb6fd5021e616087f542')}), 'no');
     });
+    it('should work for $numberDecimal', function() {
+      var query = {
+        $gte: bson.Decimal128.fromString('1.5'),
+        $lte: bson.Decimal128.fromString('2.5')
+      };
+      assert.equal(inValueRange(query, {value: bson.Decimal128.fromString('1.8')}), 'yes');
+      assert.equal(inValueRange(query, {value: bson.Decimal128.fromString('4.4')}), 'no');
+    });
+    it('should work for $numberDecimal with a dx of 0', function() {
+      var query = {
+        $gte: bson.Decimal128.fromString('1.5'),
+        $lte: bson.Decimal128.fromString('2.5')
+      };
+      assert.equal(inValueRange(query, {value: bson.Decimal128.fromString('1.8'), dx: 0}), 'yes');
+      assert.equal(inValueRange(query, {value: bson.Decimal128.fromString('4.4'), dx: 0}), 'no');
+    });
+    it('should work for $numberDecimal with a single equality query', function() {
+      var query = bson.Decimal128.fromString('1.5');
+      assert.equal(inValueRange(query, {value: bson.Decimal128.fromString('1.5')} ), 'yes');
+      assert.equal(inValueRange(query, {value: bson.Decimal128.fromString('1.6')} ), 'no');
+    });
+    it('should work for $numberDecimal with a single equality query and dx of 0', function() {
+      var query = bson.Decimal128.fromString('1.5');
+      assert.equal(inValueRange(query, {value: bson.Decimal128.fromString('1.5'), dx: 0} ), 'yes');
+      assert.equal(inValueRange(query, {value: bson.Decimal128.fromString('1.6'), dx: 0} ), 'no');
+    });
   });
 
   describe('special edge cases', function() {

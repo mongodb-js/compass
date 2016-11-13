@@ -119,8 +119,10 @@ function inValueRange(field, d) {
   }
   const dx = _.get(d, 'dx', null);
 
-  // extract bound(s)
-  const bounds = dx === null ? [d.value] : _.uniq([d.value, d.value + dx]);
+  // extract bound(s): if a dx value is set, create a 2-element array of
+  // upper and lower bound. otherwise create a single value array of the
+  // original bson type (if available) or the extracted value.
+  const bounds = dx ? _.uniq([d.value, d.value + dx]) : [d.bson || d.value];
 
   /*
    * Logic to determine if the query covers the value (or value range)
