@@ -186,7 +186,7 @@ leaf_value_list
 // no "." no null character and does not start with "$"
 // assuming at least 1 character
 key
-  = quotation_mark key:([^$] [^.\x00"]*) quotation_mark { return key[0] + key[1].join(''); }
+  = quotation_mark key:([^$] [^\x00"]*) quotation_mark { return key[0] + key[1].join(''); }
 
 
 /*

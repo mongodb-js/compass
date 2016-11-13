@@ -21,6 +21,9 @@ describe('accepts', function() {
     it('should accept an empty query', function() {
       accepts('{}');
     });
+    it('should accept a dotted field name', function() {
+      accepts('{"foo.bar": true}');
+    });
   });
 
   describe('Simple Leaf Values', function() {
