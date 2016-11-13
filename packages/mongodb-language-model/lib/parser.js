@@ -2873,11 +2873,23 @@ function peg$parse(input, options) {
               s6 = peg$parsequotation_mark();
               if (s6 !== peg$FAILED) {
                 s7 = [];
-                s8 = peg$parseDIGIT();
+                s8 = peg$parseplus();
+                if (s8 === peg$FAILED) {
+                  s8 = peg$parseminus();
+                  if (s8 === peg$FAILED) {
+                    s8 = peg$parseDIGIT();
+                  }
+                }
                 if (s8 !== peg$FAILED) {
                   while (s8 !== peg$FAILED) {
                     s7.push(s8);
-                    s8 = peg$parseDIGIT();
+                    s8 = peg$parseplus();
+                    if (s8 === peg$FAILED) {
+                      s8 = peg$parseminus();
+                      if (s8 === peg$FAILED) {
+                        s8 = peg$parseDIGIT();
+                      }
+                    }
                   }
                 } else {
                   s7 = peg$FAILED;

@@ -85,8 +85,16 @@ describe('accepts', function() {
       rejects('{"epoch": {"$numberLong": 1234567890}}');
     });
 
+    it('should accept negative NumberLong values', function() {
+      accepts('{"epoch": {"$numberLong": "-23434"}}');
+    });
+
     it('should accept NumberDecimal values', function() {
       accepts('{"epoch": {"$numberDecimal": "1.234"}}');
+    });
+
+    it('should accept negative NumberDecimal values', function() {
+      accepts('{"epoch": {"$numberDecimal": "-1.234"}}');
     });
 
     it('should reject empty NumberDecimal values', function() {

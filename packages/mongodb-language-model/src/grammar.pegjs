@@ -281,7 +281,7 @@ ejson_maxkey
 ejson_long
   = begin_object
     quotation_mark "$numberLong" quotation_mark
-    name_separator quotation_mark digits:(DIGIT+) quotation_mark
+    name_separator quotation_mark digits:((plus / minus / DIGIT)+) quotation_mark
     end_object
     { return {"$numberLong": digits.join('') }; }
 
