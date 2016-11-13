@@ -37,7 +37,7 @@ class SidebarCollection extends React.Component {
       <div className="compass-sidebar-item">
         <div onClick={this.handleClick}
             className="compass-sidebar-title compass-sidebar-title-is-actionable"
-            title={collectionName}>
+            title={this.props._id}>
           {collectionName}&nbsp;
           {this.renderReadonly()}
         </div>
