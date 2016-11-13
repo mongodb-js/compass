@@ -1,10 +1,16 @@
 const _ = require('lodash');
-// const debug = require('debug')('mongodb-compass:schema:test');
+// const debug = require('debug')('mongodb-compass:query:utils');
 
 function bsonEqual(value, other) {
   const bsontype = _.get(value, '_bsontype', undefined);
   if (bsontype === 'ObjectID') {
     return value.equals(other);
+  }
+  if (_.includes(['Decimal128', 'Long'], bsontype)) {
+    return value.toString() === other.toString();
+  }
+  if (_.includes(['Int32', 'Double'], bsontype)) {
+    return value.value === other.value;
   }
   // for all others, use native comparisons
   return undefined;
@@ -27,7 +33,9 @@ function hasDistinctValue(field, value) {
     if (_.has(field, '$in')) {
       // check if $in array contains the value
       const inArray = field.$in;
-      return (_.contains(inArray, value));
+      return (_.some(inArray, (other) => {
+        return _.isEqual(value, other, bsonEqual);
+      }));
     }
   }
   // it is not a $in operator, check value directly
@@ -129,10 +137,10 @@ function inValueRange(field, d) {
    */
   const results = _.map(bounds, function(bound, i) {
     // adjust the upper bound slightly as it represents an exclusive bound
-    // getting this right would require a lot more code to check for all 4
-    // edge cases.
+    // getting this perfectly right would require a lot more code to check for
+    // all 4 edge cases.
     if (i > 0) {
-      bound *= 0.999999;
+      bound -= (0.00001 * Math.abs(bound)) + 0.00001;
     }
     return _.every(_.map(conditions, function(cond) {
       return cond(bound);
