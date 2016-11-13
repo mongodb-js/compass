@@ -83,6 +83,7 @@ const Minichart = React.createClass({
     if (_.includes([ STRING, LONG ], typeName) && !hasDuplicates) {
       return (
         <UniqueMinichart
+          key={typeName}
           fieldName={fieldName}
           query={queryClause}
           type={this.props.type}
