@@ -20,7 +20,6 @@ const CollectionStatsStore = Reflux.createStore({
    */
   init: function() {
     this.listenTo(NamespaceStore, this.loadCollectionStats);
-    this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
   },
 
   /**
@@ -30,7 +29,7 @@ const CollectionStatsStore = Reflux.createStore({
    */
   loadCollectionStats: function(ns) {
     if (toNS(ns || '').collection) {
-      if (this.CollectionStore.isReadonly()) {
+      if (this._isCollectionReadonly()) {
         this.trigger();
       } else {
         app.dataService.collection(ns, { readPreference: READ }, (err, result) => {
@@ -40,6 +39,29 @@ const CollectionStatsStore = Reflux.createStore({
         });
       }
     }
+  },
+
+  /**
+   * Determine if the collection is readonly.
+   *
+   * @note Durran: The wacky logic here is because the ampersand app is not
+   *  loaded in the unit test environment and the validation tests fail since
+   *  not app registry is found. Once we get rid of the ampersand app we can
+   *  put the store set back into the init once we've sorted out the proper
+   *  test strategy.
+   *
+   * @returns {Boolean} If the collection is readonly.
+   */
+  _isCollectionReadonly() {
+    if (this.CollectionStore) {
+      return this.CollectionStore.isReadonly();
+    }
+    const registry = app.appRegistry;
+    if (registry) {
+      this.CollectionStore = registry.getStore('App.CollectionStore');
+      return this.CollectionStore.isReadonly();
+    }
+    return false;
   },
 
   _parseCollectionDetails(result) {
