@@ -17,7 +17,7 @@ const UNSELECTED_COLOR = '#43B1E5';
 const CONTROL_COLOR = '#ed271c';
 const TOKEN = 'pk.eyJ1IjoibW9uZ29kYi1jb21wYXNzIiwiYSI6ImNpbWUxZjNudjAwZTZ0emtrczByanZ4MzIifQ.6Mha4zoflraopcZKOLSpYQ';
 
-const MAPBOX_API_URL = 'https://compass-maps.mongodb.com/api.mapbox.com';
+const MAPBOX_API_URL = _.get(process.env, 'MAPBOX_API_URL', 'https://compass-maps.mongodb.com/api.mapbox.com');
 const MAPBOX_CLIENT_URL = MAPBOX_API_URL + '/mapbox-gl-js/v0.15.0/mapbox-gl.js';
 
 const minicharts_d3fns_geo = function() {
