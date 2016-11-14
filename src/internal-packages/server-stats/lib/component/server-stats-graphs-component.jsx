@@ -14,15 +14,6 @@ const MemStore = require('../store/mem-store');
 class ServerStatsComponent extends React.Component {
 
   /**
-   * The server stats component constructor.
-   *
-   * @param {Object} props - The component properties.
-   */
-  constructor(props) {
-    super(props);
-  }
-
-  /**
    * When the component mounts, start the polling timer.
    */
   componentDidMount() {
