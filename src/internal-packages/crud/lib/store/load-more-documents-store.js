@@ -27,7 +27,7 @@ const LoadMoreDocumentsStore = Reflux.createStore({
    * @param {Integer} skip - The number of documents to skip.
    */
   loadMoreDocuments: function(skip) {
-    const filter = app.queryOptions.query.serialize();
+    const filter = app.queryOptions.query;
     const options = { skip: skip, limit: 20, sort: [[ '_id', 1 ]], readPreference: READ };
     app.dataService.find(NamespaceStore.ns, filter, options, (error, documents) => {
       if (!error) {
