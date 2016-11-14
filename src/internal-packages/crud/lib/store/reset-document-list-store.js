@@ -1,8 +1,9 @@
 const Reflux = require('reflux');
 const app = require('ampersand-app');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
-const Action = require('hadron-action');
+// const Action = require('hadron-action');
 const ReadPreference = require('mongodb').ReadPreference;
+const toNS = require('mongodb-ns');
 
 /**
  * The default read preference.
@@ -23,7 +24,18 @@ const ResetDocumentListStore = Reflux.createStore({
    * Initialize the reset document list store.
    */
   init: function() {
-    this.listenTo(Action.filterChanged, this.reset);
+    // this.listenTo(Action.filterChanged, this.reset);
+    NamespaceStore.listen((ns) => {
+      if (ns && toNS(ns).collection) {
+        this.reset();
+      }
+    });
+
+    this.listenToExternalStore('Query.ChangedStore', this.onQueryChanged.bind(this));
+  },
+
+  onQueryChanged: function(state) {
+    this.reset(state.query);
   },
 
   /**

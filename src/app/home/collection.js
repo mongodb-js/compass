@@ -1,5 +1,5 @@
 var View = require('ampersand-view');
-var Action = require('hadron-action');
+// var Action = require('hadron-action');
 var MongoDBCollection = require('../models/mongodb-collection');
 var React = require('react');
 var ReactDOM = require('react-dom');
@@ -209,11 +209,11 @@ var MongoDBCollectionView = View.extend({
     this.model._id = this.ns;
     // this.model.once('sync', this.onCollectionFetched.bind(this));
     // this.model.fetch();
-    Action.filterChanged.listen(() => {
-      this.loadIndexesAction();
-      this.fetchExplainPlanAction();
-    });
-    Action.filterChanged(app.queryOptions.query);
+    // Action.filterChanged.listen(() => {
+    //   this.loadIndexesAction();
+    //   this.fetchExplainPlanAction();
+    // });
+    // Action.filterChanged(app.queryOptions.query.serialize());
     this.switchView(this.activeView);
   },
   onCollectionFetched: function(model) {
