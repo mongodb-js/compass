@@ -41,6 +41,7 @@ class DocumentList extends React.Component {
     this.samplingMessage = app.appRegistry.getComponent('Query.SamplingMessage');
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
     this.state = { docs: [], nextSkip: 0, namespace: NamespaceStore.ns };
+    this.queryBar = app.appRegistry.getComponent('Query.QueryBar');
   }
 
   /**
@@ -237,6 +238,7 @@ class DocumentList extends React.Component {
   render() {
     return (
       <div className="header-margin">
+        <this.queryBar />
         <this.samplingMessage insertHandler={this.handleOpenInsert.bind(this)} />
         <div className="column-container with-refinebar-and-message">
           <div className="column main">
