@@ -22,6 +22,20 @@ describe('QueryChangedStore', () => {
     QueryStore.apply();
   });
 
+  it('contains all the other query options', (done) => {
+    unsubscribe = QueryChangedStore.listen((state) => {
+      expect(state.query).to.be.deep.equal({foo: 1});
+      expect(state.sort).to.be.deep.equal({_id: -1});
+      expect(state.skip).to.be.equal(0);
+      expect(state.limit).to.be.equal(1000);
+      expect(state.project).to.be.deep.equal({});
+      expect(state.maxTimeMS).to.be.equal(10000);
+      done();
+    });
+    QueryStore.setQuery({foo: 1});
+    QueryStore.apply();
+  });
+
   it('does not trigger when the QueryStore lastExecutedQuery variable remains the same', (done) => {
     const spy = sinon.spy();
     unsubscribe = QueryChangedStore.listen(spy);

@@ -29,7 +29,12 @@ const QueryChangedStore = Reflux.createStore({
    */
   getInitialState() {
     return {
-      query: null
+      query: null,
+      sort: {},
+      limit: 0,
+      skip: 0,
+      project: {},
+      maxTimeMS: 0
     };
   },
 
@@ -41,7 +46,12 @@ const QueryChangedStore = Reflux.createStore({
   onQueryStoreChanged(state) {
     if (!_.isEqual(this.state.query, state.lastExecutedQuery)) {
       this.setState({
-        query: state.lastExecutedQuery
+        query: state.lastExecutedQuery,
+        sort: state.sort,
+        limit: state.limit,
+        skip: state.skip,
+        project: state.project,
+        maxTimeMS: state.maxTimeMS
       });
     }
   },
