@@ -29,9 +29,18 @@ const CompassExplainStore = Reflux.createStore({
    * Initialize everything that is not part of the store's state.
    */
   init() {
+    // listen for namespace changes
+    NamespaceStore.listen((ns) => {
+      if (ns && toNS(ns).collection) {
+        this._reset();
+        this.fetchExplainPlan();
+      }
+    });
+
     this.listenToExternalStore('Indexes.IndexStore', this.indexesChanged.bind(this));
+
     // listen for query changes
-    this.listenToExternalStore('Query.ChangedStore', this.fetchExplainPlan.bind(this));
+    this.listenToExternalStore('Query.ChangedStore', this.onQueryChanged.bind(this));
 
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
     this.indexes = [];
@@ -39,6 +48,11 @@ const CompassExplainStore = Reflux.createStore({
 
   indexesChanged(indexes) {
     this.indexes = indexes;
+  },
+
+  onQueryChanged() {
+    this._reset();
+    this.fetchExplainPlan();
   },
 
   /**
