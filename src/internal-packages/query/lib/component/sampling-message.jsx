@@ -35,20 +35,6 @@ class SamplingMessage extends React.Component {
   }
 
   /**
-   * Only update when the count changes.
-   *
-   * @param {Object} nextProps - The next properties.
-   * @param {Object} nextState - The next state.
-   *
-   * @returns {Boolean} If the component should update.
-   */
-  shouldComponentUpdate(nextProps, nextState) {
-    return (nextState.count !== this.state.count) ||
-      (nextState.loaded !== this.state.loaded) ||
-      (nextProps.sampleSize !== this.props.sampleSize);
-  }
-
-  /**
    * Unsibscribe from the document list store when unmounting.
    */
   componentWillUnmount() {
