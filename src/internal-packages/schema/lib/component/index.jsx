@@ -20,7 +20,6 @@ const Schema = React.createClass({
   componentWillMount() {
     this.samplingMessage = app.appRegistry.getComponent('Query.SamplingMessage');
     this.StatusAction = app.appRegistry.getAction('Status.Actions');
-    this.queryBar = app.appRegistry.getComponent('Query.QueryBar');
   },
 
   shouldComponentUpdate() {
@@ -84,7 +83,6 @@ const Schema = React.createClass({
     });
     return (
       <div className="header-margin">
-        <this.queryBar />
         <this.samplingMessage sampleSize={this.state.schema ? this.state.schema.count : 0}/>
         <div className="column-container with-refinebar-and-message">
           <div className="column main">
