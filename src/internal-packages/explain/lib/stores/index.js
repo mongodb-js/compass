@@ -30,6 +30,9 @@ const CompassExplainStore = Reflux.createStore({
    */
   init() {
     this.listenToExternalStore('Indexes.IndexStore', this.indexesChanged.bind(this));
+    // listen for query changes
+    this.listenToExternalStore('Query.ChangedStore', this.fetchExplainPlan.bind(this));
+
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
     this.indexes = [];
   },

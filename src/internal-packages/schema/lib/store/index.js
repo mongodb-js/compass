@@ -37,12 +37,16 @@ const SchemaStore = Reflux.createStore({
    * Initialize the document list store.
    */
   init: function() {
+    // listen for namespace changes
     NamespaceStore.listen((ns) => {
       if (ns && toNS(ns).collection) {
         this._reset();
         SchemaAction.startSampling();
       }
     });
+
+    // listen for query changes
+    this.listenToExternalStore('Query.ChangedStore', this.onQueryChanged.bind(this));
 
     this.samplingStream = null;
     this.analyzingStream = null;
@@ -68,6 +72,11 @@ const SchemaStore = Reflux.createStore({
 
   _reset: function() {
     this.setState(this.getInitialState());
+  },
+
+  onQueryChanged: function() {
+    this._reset();
+    SchemaAction.startSampling();
   },
 
   setMaxTimeMS(maxTimeMS) {

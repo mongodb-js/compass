@@ -24,13 +24,14 @@ const ResetDocumentListStore = Reflux.createStore({
    * Initialize the reset document list store.
    */
   init: function() {
-    // this.listenTo(Action.filterChanged, this.reset);
+    // listen for namespace changes
     NamespaceStore.listen((ns) => {
       if (ns && toNS(ns).collection) {
         this.reset();
       }
     });
 
+    // listen for query changes
     this.listenToExternalStore('Query.ChangedStore', this.onQueryChanged.bind(this));
   },
 
