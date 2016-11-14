@@ -11,15 +11,6 @@ const NO_USAGE_STATS = 'Server versions prior to 3.2 do not support $indexStats'
 class UsageColumn extends React.Component {
 
   /**
-   * The component constructor.
-   *
-   * @param {Object} props - The properties.
-   */
-  constructor(props) {
-    super(props);
-  }
-
-  /**
    * Render the usage tooltip text.
    *
    * @returns {String} The tooltip.

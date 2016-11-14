@@ -6,15 +6,6 @@ const React = require('react');
 class OptionsToggleBar extends React.Component {
 
   /**
-   * The component constructor.
-   *
-   * @param {Object} props - The properties.
-   */
-  constructor(props) {
-    super(props);
-  }
-
-  /**
    * Render the option field toggle bar.
    *
    * @returns {React.Component} The option field toggle bar.
