@@ -53,9 +53,6 @@ class ConnectedCollection extends React.Component {
               className="collection-nav"
             />
           </div>
-          <div className="row query-bar">
-            <this.QueryBar />
-          </div>
         </header>
       </div>
     );

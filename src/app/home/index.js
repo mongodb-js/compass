@@ -16,6 +16,32 @@ var ReactDOM = require('react-dom');
 
 var indexTemplate = require('./index.jade');
 
+/**
+ * Ampersand view wrapper around a React component tab view
+ */
+var WrapperView = View.extend({
+  template: '<div></div>',
+  props: {
+    componentKey: 'string',
+    visible: {
+      type: 'boolean',
+      required: true,
+      default: false
+    }
+  },
+  bindings: {
+    visible: {
+      type: 'booleanClass',
+      no: 'hidden'
+    }
+  },
+  render: function() {
+    this.renderWithTemplate();
+    var component = app.appRegistry.getComponent(this.componentKey);
+    ReactDOM.render(React.createElement(component), this.query());
+  }
+});
+
 var HomeView = View.extend({
   screenName: 'Schema',
   props: {
@@ -218,6 +244,17 @@ var HomeView = View.extend({
         return new CollectionView({
           el: el,
           parent: this
+        });
+      }
+    },
+    collectionView: {
+      hook: 'collection-new-view',
+      prepareView: function(el) {
+        return new WrapperView({
+          el: el,
+          parent: this,
+          visible: true,
+          componentKey: 'Collection.Collection'
         });
       }
     }
