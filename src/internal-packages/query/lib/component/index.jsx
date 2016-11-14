@@ -1,5 +1,5 @@
 const React = require('react');
-const QueryStore = require('../store');
+const QueryStore = require('../store/query-store');
 const QueryInputForm = require('./input-form');
 const StateMixin = require('reflux-state-mixin');
 
