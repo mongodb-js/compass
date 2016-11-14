@@ -8,7 +8,7 @@ const debug = require('debug')('mongodb-compass:stores:query-changed');
 
 /**
  * This is a convenience store that only triggers when the actual query
- * object (stored as `QuertyStore.lastExecutedQuery`) has changed, e.g.
+ * object (stored as `QueryStore.lastExecutedQuery`) has changed, e.g.
  * the user hits apply / reset. The collection tabs can listen to this
  * store instead.
  */
