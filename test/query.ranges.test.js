@@ -1,5 +1,5 @@
 /* eslint no-var: 0 */
-var inValueRange = require('../lib/util').inValueRange;
+var inValueRange = require('../src/internal-packages/query/lib/util').inValueRange;
 var assert = require('assert');
 var bson = require('bson');
 
@@ -50,6 +50,38 @@ describe('inValueRange', function() {
       assert.equal(inValueRange(query, {value: 0, dx: 100}), 'partial');
     });
   });
+
+  describe('closed ranges for negative values with $gte and $lt', function() {
+    var query;
+    beforeEach(function() {
+      query = {$gte: -30, $lt: -15};
+    });
+    it('should detect a match', function() {
+      assert.equal(inValueRange(query, {value: -20, dx: 5}), 'yes');
+    });
+    it('should detect a match at the lower bound', function() {
+      assert.equal(inValueRange(query, {value: -30, dx: 5}), 'yes');
+    });
+    it('should detect a partial match across the upper bound', function() {
+      assert.equal(inValueRange(query, {value: -20, dx: 20}), 'partial');
+    });
+    it('should detect a partial match across the lower bound', function() {
+      assert.equal(inValueRange(query, {value: -35, dx: 10}), 'partial');
+    });
+    it('should detect a miss exactly at the lower bound', function() {
+      assert.equal(inValueRange(query, {value: -35, dx: 5}), 'no');
+    });
+    it('should detect a miss exactly at the upper bound', function() {
+      assert.equal(inValueRange(query, {value: -15, dx: 5}), 'no');
+    });
+    it('should detect a miss just below the lower bound', function() {
+      assert.equal(inValueRange(query, {value: -35, dx: 4.99}), 'no');
+    });
+    it('should detect edge case where range wraps around both bounds', function() {
+      assert.equal(inValueRange(query, {value: -100, dx: 100}), 'partial');
+    });
+  });
+
 
   describe('open ranges with $gte', function() {
     var query;
@@ -185,6 +217,32 @@ describe('inValueRange', function() {
       };
       assert.equal(inValueRange(query, {value: new bson.ObjectId('578cfb3ad5021e616087f540')}), 'yes');
       assert.equal(inValueRange(query, {value: new bson.ObjectId('578cfb6fd5021e616087f542')}), 'no');
+    });
+    it('should work for $numberDecimal', function() {
+      var query = {
+        $gte: bson.Decimal128.fromString('1.5'),
+        $lte: bson.Decimal128.fromString('2.5')
+      };
+      assert.equal(inValueRange(query, {value: bson.Decimal128.fromString('1.8')}), 'yes');
+      assert.equal(inValueRange(query, {value: bson.Decimal128.fromString('4.4')}), 'no');
+    });
+    it('should work for $numberDecimal with a dx of 0', function() {
+      var query = {
+        $gte: bson.Decimal128.fromString('1.5'),
+        $lte: bson.Decimal128.fromString('2.5')
+      };
+      assert.equal(inValueRange(query, {value: bson.Decimal128.fromString('1.8'), dx: 0}), 'yes');
+      assert.equal(inValueRange(query, {value: bson.Decimal128.fromString('4.4'), dx: 0}), 'no');
+    });
+    it('should work for $numberDecimal with a single equality query', function() {
+      var query = bson.Decimal128.fromString('1.5');
+      assert.equal(inValueRange(query, {value: bson.Decimal128.fromString('1.5')} ), 'yes');
+      assert.equal(inValueRange(query, {value: bson.Decimal128.fromString('1.6')} ), 'no');
+    });
+    it('should work for $numberDecimal with a single equality query and dx of 0', function() {
+      var query = bson.Decimal128.fromString('1.5');
+      assert.equal(inValueRange(query, {value: bson.Decimal128.fromString('1.5'), dx: 0} ), 'yes');
+      assert.equal(inValueRange(query, {value: bson.Decimal128.fromString('1.6'), dx: 0} ), 'no');
     });
   });
 

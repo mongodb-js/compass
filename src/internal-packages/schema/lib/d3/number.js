@@ -5,6 +5,25 @@ const many = require('./many');
 const shared = require('./shared');
 // const debug = require('debug')('mongodb-compass:minicharts:number');
 
+/**
+* extracts a Javascript number from a BSON type.
+*
+* @param {Any} value     value to be converted to a number
+* @return {Number}       converted value
+*/
+function extractNumericValueFromBSON(value) {
+  if (_.has(value, '_bsontype')) {
+    if (_.includes([ 'Decimal128', 'Long' ], value._bsontype)) {
+      return parseFloat(value.toString(), 10);
+    }
+    if (_.includes([ 'Double', 'Int32' ], value._bsontype)) {
+      return value.value;
+    }
+  }
+  // unknown value, leave as is.
+  return value;
+}
+
 const minicharts_d3fns_number = function() {
   let width = 400;
   let height = 100;
@@ -26,7 +45,7 @@ const minicharts_d3fns_number = function() {
       if (options.unique < 20) {
         grouped = _(data)
           .groupBy(function(d) {
-            return d;
+            return extractNumericValueFromBSON(d);
           })
           .map(function(v, k) {
             v.label = k;
@@ -34,6 +53,7 @@ const minicharts_d3fns_number = function() {
             v.value = v.x;
             v.dx = 0;
             v.count = v.length;
+            v.bson = v[0];  // original BSON type
             return v;
           })
           .sortBy(function(v) {
@@ -49,7 +69,8 @@ const minicharts_d3fns_number = function() {
         // Generate a histogram using approx. twenty uniformly-spaced bins
         const ticks = xBinning.ticks(20);
         const hist = d3.layout.histogram()
-          .bins(ticks);
+          .bins(ticks)
+          .value(extractNumericValueFromBSON);
 
         grouped = hist(data);
 
