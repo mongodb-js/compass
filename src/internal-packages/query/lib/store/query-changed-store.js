@@ -16,14 +16,14 @@ const QueryChangedStore = Reflux.createStore({
   mixins: [StateMixin.store],
 
   /**
-   * listen to Namespace store and reset if ns changes.
+   * listen to QueryStore for any changes.
    */
   init: function() {
     QueryStore.listen(this.onQueryStoreChanged.bind(this));
   },
 
   /**
-   * Initialize the document list store.
+   * Initialize the store state.
    *
    * @return {Object} the initial store state.
    */
@@ -33,6 +33,11 @@ const QueryChangedStore = Reflux.createStore({
     };
   },
 
+  /**
+   * only trigger if lastExecutedQuery has changed
+   *
+   * @param {Object} state    the new state of QueryStore
+   */
   onQueryStoreChanged(state) {
     if (!_.isEqual(this.state.query, state.lastExecutedQuery)) {
       this.setState({
