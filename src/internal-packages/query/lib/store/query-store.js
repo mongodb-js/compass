@@ -17,7 +17,7 @@ const debug = require('debug')('mongodb-compass:stores:query');
 const USER_TYPING_DEBOUNCE_MS = 100;
 const FEATURE_FLAG_REGEX = /^(enable|disable) (\w+)\s*$/;
 
-const DEFAULT_FILTER = {};
+const DEFAULT_QUERY = {};
 const DEFAULT_SORT = { _id: -1 };
 const DEFAULT_LIMIT = 1000;
 const DEFAULT_SKIP = 0;
@@ -53,9 +53,9 @@ const QueryStore = Reflux.createStore({
    */
   getInitialState() {
     return {
-      query: DEFAULT_FILTER,
+      query: DEFAULT_QUERY,
       sort: DEFAULT_SORT,
-      size: DEFAULT_LIMIT,
+      limit: DEFAULT_LIMIT,
       skip: DEFAULT_SKIP,
       project: DEFAULT_PROJECT,
       maxTimeMS: DEFAULT_MAX_TIME_MS,
