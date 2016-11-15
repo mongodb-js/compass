@@ -7,7 +7,6 @@ const EJSON = require('mongodb-extended-json');
 const accepts = require('mongodb-language-model').accepts;
 const _ = require('lodash');
 const hasDistinctValue = require('../util').hasDistinctValue;
-const filterChanged = require('hadron-action').filterChanged;
 const bsonEqual = require('../util').bsonEqual;
 const ms = require('ms');
 

@@ -52,7 +52,7 @@ class DocumentList extends React.Component {
     this.unsubscribeReset = ResetDocumentListStore.listen(this.handleReset.bind(this));
     this.unsubscribeLoadMore = LoadMoreDocumentsStore.listen(this.handleLoadMore.bind(this));
     this.unsubscribeRemove = RemoveDocumentStore.listen(this.handleRemove.bind(this));
-    this.unsibscribeInsert = InsertDocumentStore.listen(this.handleInsert.bind(this));
+    this.unsubscribeInsert = InsertDocumentStore.listen(this.handleInsert.bind(this));
   }
 
   /**

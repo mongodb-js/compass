@@ -3,8 +3,6 @@ const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
 const schemaStream = require('mongodb-schema').stream;
 const toNS = require('mongodb-ns');
-
-const _ = require('lodash');
 const ReadPreference = require('mongodb').ReadPreference;
 
 /**
@@ -37,6 +35,9 @@ const SchemaStore = Reflux.createStore({
    * Initialize the document list store.
    */
   init: function() {
+    // if namespace and query both trigger, only listen to namespace change
+    this.isNamespaceChanged = false;
+    this.query = {};
     // listen for namespace changes
     NamespaceStore.listen((ns) => {
       if (ns && toNS(ns).collection) {
@@ -74,7 +75,8 @@ const SchemaStore = Reflux.createStore({
     this.setState(this.getInitialState());
   },
 
-  onQueryChanged: function() {
+  onQueryChanged: function(state) {
+    this.query = state.query;
     this._reset();
     SchemaAction.startSampling();
   },
@@ -92,6 +94,11 @@ const SchemaStore = Reflux.createStore({
   },
 
   stopSampling() {
+    if (!this.isNamespaceChanged) {
+      return;
+    }
+
+    this.isNamespaceChanged = false;
     if (this.samplingTimer) {
       clearInterval(this.samplingTimer);
       this.samplingTimer = null;
@@ -110,12 +117,12 @@ const SchemaStore = Reflux.createStore({
    * This function is called when the collection filter changes.
    */
   startSampling() {
-    const QueryStore = app.appRegistry.getStore('Query.Store');
-    const query = QueryStore.state.query;
-
-    if (_.includes(['counting', 'sampling', 'analyzing'], this.state.samplingState)) {
+    // we are not using state to guard against running this simultaneously
+    if (this.isNamespaceChanged) {
       return;
     }
+
+    this.isNamespaceChanged = true;
 
     const ns = NamespaceStore.ns;
     if (!ns) {
@@ -131,7 +138,7 @@ const SchemaStore = Reflux.createStore({
 
     const options = {
       maxTimeMS: this.state.maxTimeMS,
-      query: query,
+      query: this.query,
       size: DEFAULT_NUM_DOCUMENTS,
       fields: null,
       promoteValues: PROMOTE_VALUES,
@@ -144,6 +151,7 @@ const SchemaStore = Reflux.createStore({
         samplingTimeMS: new Date() - samplingStart
       });
     }, 1000);
+
 
     this.samplingStream = app.dataService.sample(ns, options);
     this.analyzingStream = schemaStream();
@@ -167,7 +175,7 @@ const SchemaStore = Reflux.createStore({
     };
 
     const countOptions = { maxTimeMS: this.state.maxTimeMS, readPreference: READ };
-    app.dataService.count(ns, query, countOptions, (err, count) => {
+    app.dataService.count(ns, this.query, countOptions, (err, count) => {
       if (err) {
         return onError(err);
       }

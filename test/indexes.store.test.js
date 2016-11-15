@@ -1,4 +1,19 @@
 const expect = require('chai').expect;
+
+const Reflux = require('reflux');
+
+const root = '../src/internal-packages/';
+const storeKeyMap = {
+  'Schema.Store': root + 'schema/lib/store',
+  'Query.ChangedStore': root + 'query/lib/store/query-changed-store'
+};
+
+Reflux.StoreMethods.listenToExternalStore = function(storeKey, callback) {
+  console.log('storeKey:', storeKey);
+  const store = require(storeKeyMap[storeKey]);
+  this.listenTo(store, callback);
+};
+
 const CreateIndexStore = require('../src/internal-packages/indexes/lib/store/create-index-store');
 
 describe('CreateIndexesStore', function() {
