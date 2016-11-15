@@ -11,6 +11,19 @@ var Connection = {};
 var props = {};
 var derived = {};
 
+function localPortGenerator() {
+  // Choose a random ephemeral port to serve our (perhaps many) SSH Tunnels.
+  // IANA says 29170-29998 is unassigned,
+  // but Nintendo used 29900+ according to Wikipedia.
+  // https://en.wikipedia.org/wiki/Ephemeral_port
+  // https://en.wikipedia.org/wiki/List_of_TCP_and_UDP_port_numbers
+  // http://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml?&page=127
+  const startPort = 29170;
+  const endPort = 29899;
+  return parseInt(
+    (Math.random() * (endPort - startPort + 1) + startPort).toString(), 10);
+}
+
 /**
  * # Top-Level
  */
@@ -671,19 +684,16 @@ _.assign(derived, {
       if (this.ssh_tunnel === 'NONE') {
         return {};
       }
-
       var opts = {
         readyTimeout: 5000,
         forwardTimeout: 5000,
         keepaliveInterval: 5000,
-        srcPort: this.port,
-        srcAddr: '127.0.0.1',
-        dstPort: this.port,
-        dstAddr: '127.0.0.1',
-        localPort: this.port,
+        srcAddr: '127.0.0.1',  // OS should figure out an ephemeral srcPort
+        dstPort: this.ssh_tunnel_port,
+        dstAddr: this.ssh_tunnel_hostname,
+        localPort: localPortGenerator(),
         localAddr: '127.0.0.1',
         host: this.ssh_tunnel_hostname,
-        port: this.ssh_tunnel_port,
         username: this.ssh_tunnel_username
       };
 
@@ -728,6 +738,9 @@ Connection = AmpersandModel.extend({
       }
       this.parse(attrs);
     }
+  },
+  generateNewPort() {
+    this.ssh_tunnel_options.localPort = localPortGenerator();
   },
   parse: function(attrs) {
     if (!attrs) {

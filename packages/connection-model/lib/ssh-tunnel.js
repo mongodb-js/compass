@@ -109,6 +109,12 @@ SSHTunnel.prototype.createServer = function(done) {
     });
   })
   .on('error', (err) => {
+    if (err.message.indexOf('listen EADDRINUSE') === 0) {
+      err.message = `Local port ${this.options.localPort} ` +
+      '(chosen randomly) is already in use. ' +
+      'You can click connect to try again with a different port.';
+      this.model.generateNewPort();
+    }
     debug('createServer error', err);
     done(err);
     this.tunnel.end();
@@ -136,9 +142,6 @@ SSHTunnel.prototype.listen = function(done) {
     this.createServer.bind(this)
   ], (err) => {
     if (err) {
-      if (err.message.indexOf('listen EADDRINUSE') === 0) {
-        err.message = `Port ${this.options.localPort} is already in use.  Please try a different port.`;
-      }
       err.message = 'Error creating SSH Tunnel: ' + err.message;
       return done(err);
     }

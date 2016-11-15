@@ -141,12 +141,21 @@ describe('ssh_tunnel', function() {
         assert.equal(options.host, 'my.ssh-server.com');
       });
 
-      it('maps port -> dstPort', function() {
-        assert.equal(options.dstPort, 27000);
+      it('maps ssh_tunnel_hostname -> dstAddr', function() {
+        assert.equal(options.dstAddr, 'my.ssh-server.com');
       });
 
-      it('maps ssh_tunnel_port -> port', function() {
-        assert.equal(options.port, 3000);
+      it('maps port -> dstPort', function() {
+        assert.equal(options.dstPort, 3000);
+      });
+
+      it('makes port undefined to be explicit which port', function() {
+        assert.equal(options.port, undefined);
+      });
+
+      it('chooses a random localPort between 29170-29899', function() {
+        assert.ok(options.localPort >= 29170, options.localPort);
+        assert.ok(options.localPort <= 29899, options.localPort);
       });
 
       it('maps ssh_tunnel_password -> password', function() {
@@ -222,12 +231,21 @@ describe('ssh_tunnel', function() {
           assert.equal(options.host, 'my.ssh-server.com');
         });
 
-        it('maps port -> dstPort', function() {
-          assert.equal(options.dstPort, 27000);
+        it('maps ssh_tunnel_hostname -> dstAddr', function() {
+          assert.equal(options.dstAddr, 'my.ssh-server.com');
         });
 
-        it('maps ssh_tunnel_port -> port', function() {
-          assert.equal(options.port, 3000);
+        it('maps port -> dstPort', function() {
+          assert.equal(options.dstPort, 3000);
+        });
+
+        it('makes port undefined to be explicit which port', function() {
+          assert.equal(options.port, undefined);
+        });
+
+        it('chooses a random localPort between 29170-29899', function() {
+          assert.ok(options.localPort >= 29170, options.localPort);
+          assert.ok(options.localPort <= 29899, options.localPort);
         });
 
         it('maps ssh_tunnel_passphrase -> passphrase', function() {
@@ -268,12 +286,21 @@ describe('ssh_tunnel', function() {
           assert.equal(options.host, 'my.ssh-server.com');
         });
 
-        it('maps port -> dstPort', function() {
-          assert.equal(options.dstPort, 27000);
+        it('maps ssh_tunnel_hostname -> dstAddr', function() {
+          assert.equal(options.dstAddr, 'my.ssh-server.com');
         });
 
-        it('maps ssh_tunnel_port -> sshPort', function() {
-          assert.equal(options.port, 3000);
+        it('maps port -> dstPort', function() {
+          assert.equal(options.dstPort, 3000);
+        });
+
+        it('makes port undefined to be explicit which port', function() {
+          assert.equal(options.port, undefined);
+        });
+
+        it('chooses a random localPort between 29170-29899', function() {
+          assert.ok(options.localPort >= 29170, options.localPort);
+          assert.ok(options.localPort <= 29899, options.localPort);
         });
       });
     });
