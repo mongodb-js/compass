@@ -2,7 +2,6 @@ const React = require('react');
 const QueryAction = require('../action');
 const EJSON = require('mongodb-extended-json');
 const shell = require('electron').shell;
-const ReactTooltip = require('react-tooltip');
 
 // const debug = require('debug')('mongodb-compass:query-bar');
 
@@ -31,7 +30,7 @@ const QueryInputGroup = React.createClass({
     }
   },
 
-  onSyntaxHelpClicked(evt) {
+  onSyntaxHelpClicked() {
     shell.openExternal('https://docs.mongodb.com/manual/reference/mongodb-extended-json/');
   },
 
