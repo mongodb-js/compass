@@ -75,7 +75,8 @@ html, body {
 }
 
 // make all help buttons consistent
-i.help {
+i.help,
+i.syntax-help {
   .fa-icon;
   margin: 0 5px;
   cursor: pointer;
@@ -87,4 +88,7 @@ i.help {
   &:before {
     content: @fa-var-info-circle;
   }
+}
+i.syntax-help:before {
+    content: @fa-var-question-circle;
 }

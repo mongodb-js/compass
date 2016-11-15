@@ -1,6 +1,8 @@
 const React = require('react');
 const QueryAction = require('../action');
 const EJSON = require('mongodb-extended-json');
+const shell = require('electron').shell;
+const ReactTooltip = require('react-tooltip');
 
 // const debug = require('debug')('mongodb-compass:query-bar');
 
@@ -27,6 +29,10 @@ const QueryInputGroup = React.createClass({
     if (this.props.valid || this.props.featureFlag) {
       QueryAction.apply();
     }
+  },
+
+  onSyntaxHelpClicked(evt) {
+    shell.openExternal('https://docs.mongodb.com/manual/reference/mongodb-extended-json/');
   },
 
   onResetButtonClicked() {
@@ -79,6 +85,12 @@ const QueryInputGroup = React.createClass({
               onClick={this.onResetButtonClicked}
               style={resetButtonStyle}>Reset</button>
           </span>
+          <i
+            className="syntax-help"
+            onClick={this.onSyntaxHelpClicked}
+            data-tip="Enter queries in Extended JSON (strict mode)"
+            data-effect="solid"
+            data-offset="{'top': -10}" ></i>
         </div>
       </form>
     );
