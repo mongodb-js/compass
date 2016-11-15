@@ -11,20 +11,27 @@
       border: 1px solid @chart1;
     }
 
-    input[type='text'] {
+    .syntax-help {
+      position: absolute;
+      top: 7px;
+      left: 5px;
+      z-index: 2;
+    }
+
+    input[type='text'].form-control {
       font-family: @font-family-monospace;
       background: @pw;
       height: 28px;
       border-radius: 14px;
+      padding-left: 24px;
       & + .input-group-btn {
         padding-left: 10px;
 
         .btn {
           border-radius: 3px;
-        }
-
-        &:last-child > .btn {
-          margin-left: 2px;
+          &:last-child {
+            margin-left: 3px;
+          }
         }
       }
     }
