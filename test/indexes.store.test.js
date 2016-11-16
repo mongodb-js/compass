@@ -9,7 +9,6 @@ const storeKeyMap = {
 };
 
 Reflux.StoreMethods.listenToExternalStore = function(storeKey, callback) {
-  console.log('storeKey:', storeKey);
   const store = require(storeKeyMap[storeKey]);
   this.listenTo(store, callback);
 };
