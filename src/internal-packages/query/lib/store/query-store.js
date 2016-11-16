@@ -22,6 +22,7 @@ const DEFAULT_LIMIT = 1000;
 const DEFAULT_SKIP = 0;
 const DEFAULT_PROJECT = {};
 const DEFAULT_MAX_TIME_MS = ms('10 seconds');
+// const DEFAULT_QUERY_STRING = '{}';
 
 /**
  * The reflux store for the schema.
