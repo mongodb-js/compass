@@ -1,6 +1,6 @@
 const React = require('react');
 const _ = require('lodash');
-const debug = require('debug')('mongodb-compass:rtss:navbar');
+// const debug = require('debug')('mongodb-compass:app:nav-bar');
 
 class NavBarComponent extends React.Component {
 
@@ -37,9 +37,38 @@ class NavBarComponent extends React.Component {
     return <ul className="tab-nav-bar tab-nav-bar-tabs">{listItems}</ul>;
   }
 
+  /**
+   * Only render the active view, mounting it and unmounting all non-active views.
+   *
+   * @return {React.Element}    active view
+   */
   renderActiveView() {
-    debug('renderActiveView', this.state);
     return this.props.views[this.state.activeTabIndex];
+  }
+
+  /**
+   * Render all views, but only make the active view visible. This is done
+   * by wrapping all views in their own div, and setting the `hidden` class
+   * on all but the active div.
+   *
+   * @return {React.Element}    div of all views
+   */
+  renderViews() {
+    const tabbedViews = _.map(this.props.views, (view, idx) => {
+      return (
+        <div
+          key={`tab-content-${idx}`}
+          className={idx === this.state.activeTabIndex ? 'tab' : 'tab hidden'}>
+          {view}
+        </div>
+      );
+    });
+
+    return (
+      <div className="tab-views">
+        {tabbedViews}
+      </div>
+    );
   }
 
   render() {
@@ -48,7 +77,7 @@ class NavBarComponent extends React.Component {
         <header className="tab-nav-bar tab-nav-bar-header">
           {this.renderTabs()}
         </header>
-        {this.renderActiveView()}
+        {this.props.mountAllViews ? this.renderViews() : this.renderActiveView()}
       </div>
     );
   }
@@ -57,6 +86,7 @@ class NavBarComponent extends React.Component {
 NavBarComponent.propTypes = {
   theme: React.PropTypes.oneOf(['dark', 'light']),
   activeTabIndex: React.PropTypes.number,
+  mountAllViews: React.PropTypes.bool,
   tabs: React.PropTypes.arrayOf(React.PropTypes.string).isRequired,
   views: React.PropTypes.arrayOf(React.PropTypes.element).isRequired,
   onTabClicked: React.PropTypes.func
@@ -64,7 +94,8 @@ NavBarComponent.propTypes = {
 
 NavBarComponent.defaultProps = {
   theme: 'light',
-  activeTabIndex: 0
+  activeTabIndex: 0,
+  mountAllViews: true
 };
 
 NavBarComponent.displayName = 'NavBarComponent';
