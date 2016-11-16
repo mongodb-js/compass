@@ -7,7 +7,6 @@ class Collection extends React.Component {
   constructor(props) {
     super(props);
 
-
     this.state = {
       name: '',
       showView: false,
@@ -73,7 +72,7 @@ class Collection extends React.Component {
           views={views}
           activeTabIndex={this.state.activeTab}
           onTabClicked={this.onTabClicked.bind(this)}
-          className="rt-nav" // TODO @KeyboardTsundoku this should be something elese
+          className="rt-nav" // TODO @KeyboardTsundoku this could be something else?
         />
       </div>
     );
