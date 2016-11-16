@@ -4,12 +4,12 @@ const toNS = require('mongodb-ns');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 // const debug = require('debug')('component:collection');
 
-class ConnectedCollection extends React.Component {
+class Collection extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      ns: '',
+      name: '',
       showView: false
     };
     this.Stats = app.appRegistry.getComponent('CollectionStats.CollectionStats');
@@ -22,16 +22,13 @@ class ConnectedCollection extends React.Component {
     this.Explain = app.appRegistry.getComponent('Explain.ExplainPlan');
     this.Validation = app.appRegistry.getComponent('Validation.Validation');
 
-    this.store = app.appRegistry.getStore('App.CollectionStore');
-    this.name = this.store.ns();
     NamespaceStore.listen((ns) => {
       if (ns && toNS(ns).collection) {
-        this.setState({ns: ns, showView: true});
+        this.setState({name: toNS(ns).collection, showView: true});
       } else {
-        this.setState({ns: '', showView: false});
+        this.setState({name: '', showView: false});
       }
     });
-    // this.state = {ns: this.store.ns()};
   }
 
   showCollection() {
@@ -51,26 +48,24 @@ class ConnectedCollection extends React.Component {
     ];
 
     return (
-      <div>
+      <div className="collection-view clearfix">
         <header>
           <div className="row">
             <div className="col-md-6">
-              <h1>{this.name}</h1>
+              <h1>{this.state.name}</h1>
             </div>
             <div className="col-md-6">
               <this.Stats />
             </div>
           </div>
         </header>
-        <div>
         <this.TabNavBar
           theme="light"
           tabs={tabs}
           views={views}
           activeTabIndex={0}
-          className="rt-nav"
+          className=""
         />
-        </div>
       </div>
     );
   }
@@ -80,6 +75,6 @@ class ConnectedCollection extends React.Component {
   }
 }
 
-ConnectedCollection.displayName = 'ConnectedCollection';
+Collection.displayName = 'Collection';
 
-module.exports = ConnectedCollection;
+module.exports = Collection;

@@ -1,7 +1,7 @@
 var View = require('ampersand-view');
 // var format = require('util').format;
 // var IdentifyView = require('../identify');
-// var CollectionView = require('./collection');
+var CollectionView = require('./collection');
 var { NamespaceStore } = require('hadron-reflux-store');
 var TourView = require('../tour');
 var NetworkOptInView = require('../network-optin');
@@ -238,7 +238,7 @@ var HomeView = View.extend({
   },
   template: indexTemplate,
   subviews: {
-  /*  _collection: {
+    _collection: {
       hook: 'collection-subview',
       prepareView: function(el) {
         return new CollectionView({
@@ -246,7 +246,7 @@ var HomeView = View.extend({
           parent: this
         });
       }
-    }, */
+    },
     collectionView: {
       hook: 'collection-new-view',
       prepareView: function(el) {
