@@ -2,15 +2,16 @@ const React = require('react');
 const app = require('ampersand-app');
 const toNS = require('mongodb-ns');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
-// const debug = require('debug')('component:collection');
 
 class Collection extends React.Component {
   constructor(props) {
     super(props);
 
+
     this.state = {
       name: '',
-      showView: false
+      showView: false,
+      activeTab: 0
     };
     this.Stats = app.appRegistry.getComponent('CollectionStats.CollectionStats');
 
@@ -22,13 +23,20 @@ class Collection extends React.Component {
     this.Explain = app.appRegistry.getComponent('Explain.ExplainPlan');
     this.Validation = app.appRegistry.getComponent('Validation.Validation');
 
+    this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
+
     NamespaceStore.listen((ns) => {
       if (ns && toNS(ns).collection) {
-        this.setState({name: toNS(ns).collection, showView: true});
+        this.setState({name: toNS(ns).collection, showView: true, activeTab: this.CollectionStore.getActiveTab()});
       } else {
-        this.setState({name: '', showView: false});
+        this.setState({name: '', showView: false, activeTab: 0});
       }
     });
+  }
+
+  onTabClicked(idx) {
+    this.setState({activeTab: idx});
+    this.CollectionStore.setActiveTab(idx);
   }
 
   showCollection() {
@@ -63,8 +71,9 @@ class Collection extends React.Component {
           theme="light"
           tabs={tabs}
           views={views}
-          activeTabIndex={0}
-          className=""
+          activeTabIndex={this.state.activeTab}
+          onTabClicked={this.onTabClicked.bind(this)}
+          className="rt-nav" // TODO @KeyboardTsundoku this should be something elese
         />
       </div>
     );

@@ -4,7 +4,7 @@ const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const ReadPreference = require('mongodb').ReadPreference;
 const toNS = require('mongodb-ns');
 
-const debug = require('debug')('mongodb-compass:stores:crud');
+const debug = require('debug')('mongodb-compass:crud');
 /**
  * The default read preference.
  */
@@ -56,6 +56,7 @@ const ResetDocumentListStore = Reflux.createStore({
           const options = { limit: 20, sort: [[ '_id', 1 ]], readPreference: READ };
           app.dataService.find(NamespaceStore.ns, filter, options, (error, documents) => {
             if (!error) {
+              debug('reset is called.... 2');
               this.trigger(documents, count);
             }
           });

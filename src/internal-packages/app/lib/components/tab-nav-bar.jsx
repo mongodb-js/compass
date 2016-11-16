@@ -8,7 +8,7 @@ class NavBarComponent extends React.Component {
     super(props);
     this.state = {
       paused: false,
-      activeTabIndex: 0
+      activeTabIndex: props.activeTabIndex || 0
     };
   }
 
