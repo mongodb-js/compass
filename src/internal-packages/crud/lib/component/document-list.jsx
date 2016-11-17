@@ -13,7 +13,7 @@ const InsertDocumentStore = require('../store/insert-document-store');
 const InsertDocumentDialog = require('./insert-document-dialog');
 const Actions = require('../actions');
 
-// const debug = require('debug')('mongodb-compass:crud');
+// const debug = require('debug')('mongodb-compass:crud:component');
 
 /* eslint no-return-assign:0 */
 
@@ -69,7 +69,8 @@ class DocumentList extends React.Component {
     return (nextState.docs.length !== this.state.docs.length) ||
       (nextState.nextSkip !== this.state.nextSkip) ||
       (nextState.loadedCount !== this.state.loadedCount) ||
-      (nextState.namespace !== this.state.namespace);
+      (nextState.namespace !== this.state.namespace) ||
+      (nextState.count !== this.state.count);
   }
 
   /**
