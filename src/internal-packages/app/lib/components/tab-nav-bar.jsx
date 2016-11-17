@@ -74,9 +74,9 @@ class NavBarComponent extends React.Component {
   render() {
     return (
       <div className={`tab-nav-bar tab-nav-bar-is-${this.props.theme}-theme`}>
-        <header className="tab-nav-bar tab-nav-bar-header">
+        <div className="tab-nav-bar tab-nav-bar-header">
           {this.renderTabs()}
-        </header>
+        </div>
         {this.props.mountAllViews ? this.renderViews() : this.renderActiveView()}
       </div>
     );
