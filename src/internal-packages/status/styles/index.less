@@ -1,5 +1,4 @@
 #statusbar {
-  background: 0 0;
   position: fixed;
   top: 0;
   left: 0;
@@ -33,7 +32,7 @@
     }
 
     .spinner > div {
-      background-color: rgba(0, 0, 0, 0.2);;
+      background-color: #6ba442;
       margin: 0 3px 0 0;
       height: 100%;
       width: 10px;
@@ -85,6 +84,12 @@
   .btn.btn-info {
     margin-right: 5px;
   }
+
+  .btn.btn-info:hover {
+    background-color: #67b144;
+    border-color: #67b144;
+    color: white;
+  }
   div.buttons {
     font-size: 14px;
   }
@@ -97,7 +102,7 @@
     margin: 0 auto 30px;
     text-align: left;
     font-size: 24px;
-    color: @gray3;
+    color: white; 
     font-weight: 200;
 
     li {
