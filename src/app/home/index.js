@@ -1,7 +1,6 @@
 var View = require('ampersand-view');
 // var format = require('util').format;
 // var IdentifyView = require('../identify');
-var CollectionView = require('./collection');
 var { NamespaceStore } = require('hadron-reflux-store');
 var TourView = require('../tour');
 var NetworkOptInView = require('../network-optin');
@@ -210,27 +209,6 @@ var HomeView = View.extend({
 
     return database.collections.get(ns.ns);
   },
-  // onNamespaceChange: function(ns) {
-  //   const model = this._getCollection();
-  //
-  //   // if (!model) {
-  //   //   app.navigate('/');
-  //   //   return;
-  //   // }
-  //
-  //   const collection = app.instance.collections;
-  //   if (!collection.select(model)) {
-  //     return debug('already selected %s', model);
-  //   }
-  //
-  //   this.updateTitle(model);
-  //   this.showNoCollectionsZeroState = false;
-  //   this.showDefaultZeroState = false;
-  //
-  //   // app.navigate(format('schema/%s', model.getId()), {
-  //   //   silent: true
-  //   // });
-  // },
   onClickShowConnectWindow: function() {
     // code to close current connection window and open connect dialog
     ipc.call('app:show-connect-window');
@@ -238,17 +216,8 @@ var HomeView = View.extend({
   },
   template: indexTemplate,
   subviews: {
-    _collection: {
-      hook: 'collection-subview',
-      prepareView: function(el) {
-        return new CollectionView({
-          el: el,
-          parent: this
-        });
-      }
-    },
     collectionView: {
-      hook: 'collection-new-view',
+      hook: 'collection-view',
       prepareView: function(el) {
         return new WrapperView({
           el: el,
