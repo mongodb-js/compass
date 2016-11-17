@@ -7,7 +7,7 @@ const ArrayMinichart = require('./array');
 const D3Component = require('./d3component');
 const vizFns = require('../d3');
 const Actions = require('../action');
-// const debug = require('debug')('mongodb-compass:schema:minichart');
+const debug = require('debug')('mongodb-compass:schema:minichart');
 
 const { STRING, DECIMAL_128, DOUBLE, LONG, INT_32 } = require('../helpers');
 
