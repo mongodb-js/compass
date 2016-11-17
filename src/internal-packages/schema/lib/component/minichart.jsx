@@ -7,6 +7,7 @@ const ArrayMinichart = require('./array');
 const D3Component = require('./d3component');
 const vizFns = require('../d3');
 const Actions = require('../action');
+const debug = require('debug')('mongodb-compass:schema:minichart');
 
 const { STRING, DECIMAL_128, DOUBLE, LONG, INT_32 } = require('../helpers');
 
@@ -28,16 +29,10 @@ const Minichart = React.createClass({
   },
 
   componentDidMount() {
-    const rect = this.refs.minichart.getBoundingClientRect();
-
-    /* eslint react/no-did-mount-set-state: 0 */
-
     // yes, this is not ideal, we are rendering the empty container first to
     // measure the size, then render the component with content a second time,
     // but it is not noticable to the user.
-    this.setState({
-      containerWidth: rect.width
-    });
+    this.handleResize();
     window.addEventListener('resize', this.handleResize);
 
     const QueryStore = app.appRegistry.getStore('Query.Store');
@@ -62,11 +57,17 @@ const Minichart = React.createClass({
     this.unsubscribeMiniChartResize();
   },
 
+  /**
+   * Called when the window size changes or via the resizeMiniCharts action,
+   * triggered by index.jsx. Only redraw if the size is > 0.
+   */
   handleResize() {
     const rect = this.refs.minichart.getBoundingClientRect();
-    this.setState({
-      containerWidth: rect.width
-    });
+    if (rect.width > 0) {
+      this.setState({
+        containerWidth: rect.width
+      });
+    }
   },
 
   minichartFactory() {

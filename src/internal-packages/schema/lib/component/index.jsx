@@ -1,6 +1,7 @@
 const app = require('ampersand-app');
 const React = require('react');
 const SchemaStore = require('../store');
+const SchemaActions = require('../action');
 const StateMixin = require('reflux-state-mixin');
 const Field = require('./field');
 const StatusSubview = require('../component/status-subview');
@@ -25,6 +26,15 @@ const Schema = React.createClass({
 
   shouldComponentUpdate() {
     return true;
+  },
+
+  componentDidUpdate() {
+    // when the namespace changes and the schema tab is not active, the
+    // tab is "display:none" and its width 0. That also means the the minichart
+    // auto-sizes to 0. Therefore, when the user switches back to the tab,
+    // making it "display:block" again and giving it a proper non-zero size,
+    // the minicharts have to be re-rendered.
+    SchemaActions.resizeMiniCharts();
   },
 
   /**
