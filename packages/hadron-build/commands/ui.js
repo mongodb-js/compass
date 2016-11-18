@@ -45,7 +45,7 @@ exports.builder = {
 
 exports.handler = (argv) => {
   cli.argv = argv;
-  exports.task(argv).catch(abortIfError);
+  exports.tasks(argv).catch(abortIfError);
 };
 
 exports.tasks = (argv) => {

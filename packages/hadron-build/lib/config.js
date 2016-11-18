@@ -367,8 +367,8 @@ exports.get = (cli, callback) => {
          * Show a shortcut on the right to `Applications` folder.
          */
         {
-          x: 450,
-          y: 344,
+          x: 322,
+          y: 243,
           type: 'link',
           path: '/Applications'
         },
@@ -376,8 +376,8 @@ exports.get = (cli, callback) => {
          * Show a shortcut on the left for the application icon.
          */
         {
-          x: 192,
-          y: 344,
+          x: 93,
+          y: 243,
           type: 'file',
           path: OSX_DOT_APP
         }
