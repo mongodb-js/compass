@@ -10,10 +10,44 @@ const SidebarInstanceProperties = require('../src/internal-packages/sidebar/lib/
 chai.use(chaiEnzyme());
 
 describe('<SidebarInstanceProperties />', () => {
+  context('when rendering with no SSH Tunnel', () => {
+    let connection = {
+      hostname: 'ip-1-2-3-4-mongod.com',
+      port: 27000,
+      ssh_tunnel: 'NONE'
+    };
+    let instance = {
+      build: {
+        enterprise_module: true,
+        version: '3.4.0-rc3'
+      },
+      collections: [],
+      databases: []
+    };
+    const component = shallow(
+      <SidebarInstanceProperties
+        connection={connection}
+        instance={instance}
+      />);
+
+    it('renders the endpoint host name and port as text', () => {
+      const element = component.find('.compass-sidebar-instance-hostname');
+      expect(element.text()).to.be.equal('ip-1-2-3-4-mongod.com:27000');
+    });
+    it('renders the SSH tunnel host name and port text', () => {
+      const element = component.find('.compass-sidebar-instance-ssh-tunnel');
+      expect(element).to.not.exist;
+    });
+    it('renders instance build version', () => {
+      const element = component.find('.compass-sidebar-instance-version');
+      expect(element.text()).to.be.equal('Enterprise version 3.4.0-rc3');
+    });
+  });
   context('when rendering with an SSH Tunnel', () => {
     let connection = {
       hostname: 'ip-1-2-3-4-secret-mongod.com',
       port: 27017,
+      ssh_tunnel: 'IDENTITY_FILE',
       ssh_tunnel_options: {
         host: 'my-jump-box.com',
         port: '2222'
@@ -28,7 +62,7 @@ describe('<SidebarInstanceProperties />', () => {
       <SidebarInstanceProperties
         connection={connection}
         instance={instance}
-    />);
+      />);
 
     it('renders the endpoint host name and port as text', () => {
       const element = component.find('.compass-sidebar-instance-hostname');
