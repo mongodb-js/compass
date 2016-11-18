@@ -539,6 +539,7 @@ _.assign(derived, {
       'hostname',
       'port',
       'ssl',
+      'ssh_tunnel',
       'kerberos_principal',
       'kerberos_password',
       'kerberos_service_name',
@@ -600,8 +601,13 @@ _.assign(derived, {
       } else if (this.ssl === 'IFAVAILABLE') {
         req.query.ssl = 'prefer';
       }
-
-      return toURL(req);
+      var reqClone = _.clone(req);
+      if (this.ssh_tunnel !== 'NONE') {
+        // Populate the SSH Tunnel options correctly
+        reqClone.hostname = this.ssh_tunnel_options.localAddr;
+        reqClone.port = this.ssh_tunnel_options.localPort;
+      }
+      return toURL(reqClone);
     }
   },
   /**
@@ -668,7 +674,8 @@ _.assign(derived, {
     }
   },
   /**
-   * @return {Object} The options passed to http://npm.im/tunnel-ssh
+   * @return {Object} The options passed to our SSHTunnel and also
+   * downwards to http://npm.im/ssh2
    */
   ssh_tunnel_options: {
     deps: [
@@ -689,11 +696,12 @@ _.assign(derived, {
         forwardTimeout: 5000,
         keepaliveInterval: 5000,
         srcAddr: '127.0.0.1',  // OS should figure out an ephemeral srcPort
-        dstPort: this.ssh_tunnel_port,
-        dstAddr: this.ssh_tunnel_hostname,
+        dstPort: this.port,
+        dstAddr: this.hostname,
         localPort: localPortGenerator(),
         localAddr: '127.0.0.1',
         host: this.ssh_tunnel_hostname,
+        port: this.ssh_tunnel_port,
         username: this.ssh_tunnel_username
       };
 
@@ -738,9 +746,6 @@ Connection = AmpersandModel.extend({
       }
       this.parse(attrs);
     }
-  },
-  generateNewPort() {
-    this.ssh_tunnel_options.localPort = localPortGenerator();
   },
   parse: function(attrs) {
     if (!attrs) {

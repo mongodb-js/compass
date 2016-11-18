@@ -113,7 +113,6 @@ SSHTunnel.prototype.createServer = function(done) {
       err.message = `Local port ${this.options.localPort} ` +
       '(chosen randomly) is already in use. ' +
       'You can click connect to try again with a different port.';
-      this.model.generateNewPort();
     }
     debug('createServer error', err);
     done(err);

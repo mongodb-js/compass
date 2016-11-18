@@ -240,23 +240,28 @@ const options = {
   ssh_tunnel: 'IDENTITY_FILE',
   ssh_tunnel_hostname: 'ec2-11-111-111-111.compute-1.amazonaws.com',
   ssh_tunnel_username: 'ubuntu',
-  ssh_tunnel_identity_file: '~/.ssh/my-key-aws-pair.pem'
+  ssh_tunnel_identity_file: ['/Users/albert/.ssh/my-key-aws-pair.pem']
 };
 
 connect(options, (err, db) => {
   if (err) {
     return console.log(err);
   }
-  db.collection('mycollection').find((err, docs) => {
-    console.log('Find', err, docs);
+  db.db('mongodb').collection('fanclub').count((err2, count) => {
+    console.log('counted:', err2, count);
+    db.close();
   });
 });
 ```
 
-The above provides the same functionality as creating the tunnel using the bash command below and connecting to MongoDB via another terminal:
+The above provides the same functionality as creating the tunnel using the bash
+command below and connecting to MongoDB via another terminal. Notice that
+connection-model uses a random local port each time it creates a tunnel.
+Using the command line, you'd have to replace `<random port>` with an actual
+port number.
 
 ```bash
-ssh -i ~/.ssh/my-key-aws-pair.pem -L 27017:localhost:27017 ubuntu@ec2-11-111-111-111.compute-1.amazonaws.com
+ssh -i ~/.ssh/my-key-aws-pair.pem -L <random port>:localhost:27017 ubuntu@ec2-11-111-111-111.compute-1.amazonaws.com
 ```
 
 #### ST1. NONE
@@ -287,7 +292,7 @@ const options = {
   ssh_tunnel: 'IDENTITY_FILE',
   ssh_tunnel_hostname: 'ec2-11-111-111-111.compute-1.amazonaws.com',
   ssh_tunnel_username: 'ubuntu',
-  ssh_tunnel_identity_file: '~/.ssh/my-key-aws-pair.pem'
+  ssh_tunnel_identity_file: ['/Users/albert/.ssh/my-key-aws-pair.pem']
 };
 
 connect(options).on('status', (evt) => console.log('status:', evt));

@@ -137,20 +137,20 @@ describe('ssh_tunnel', function() {
         assert.equal(options.username, 'my-user');
       });
 
-      it('maps ssh_tunnel_hostname -> host', function() {
+      it('maps ssh_tunnel_hostname -> host (jumpbox visible from localhost)', function() {
         assert.equal(options.host, 'my.ssh-server.com');
       });
 
-      it('maps ssh_tunnel_hostname -> dstAddr', function() {
-        assert.equal(options.dstAddr, 'my.ssh-server.com');
+      it('maps hostname -> dstAddr (mongod server address from jumpbox)', function() {
+        assert.equal(options.dstAddr, 'mongodb.my-internal-host.com');
       });
 
-      it('maps port -> dstPort', function() {
-        assert.equal(options.dstPort, 3000);
+      it('maps port -> dstPort (mongod server port)', function() {
+        assert.equal(options.dstPort, 27000);
       });
 
-      it('makes port undefined to be explicit which port', function() {
-        assert.equal(options.port, undefined);
+      it('maps ssh_tunnel_port (remote sshd port) -> port', function() {
+        assert.equal(options.port, 3000);
       });
 
       it('chooses a random localPort between 29170-29899', function() {
@@ -231,16 +231,20 @@ describe('ssh_tunnel', function() {
           assert.equal(options.host, 'my.ssh-server.com');
         });
 
-        it('maps ssh_tunnel_hostname -> dstAddr', function() {
-          assert.equal(options.dstAddr, 'my.ssh-server.com');
+        it('maps ssh_tunnel_hostname -> host (jumpbox visible from localhost)', function() {
+          assert.equal(options.host, 'my.ssh-server.com');
         });
 
-        it('maps port -> dstPort', function() {
-          assert.equal(options.dstPort, 3000);
+        it('maps hostname -> dstAddr (mongod server address from jumpbox)', function() {
+          assert.equal(options.dstAddr, 'mongodb.my-internal-host.com');
         });
 
-        it('makes port undefined to be explicit which port', function() {
-          assert.equal(options.port, undefined);
+        it('maps port -> dstPort (mongod server port)', function() {
+          assert.equal(options.dstPort, 27000);
+        });
+
+        it('maps ssh_tunnel_port (remote sshd port) -> port', function() {
+          assert.equal(options.port, 3000);
         });
 
         it('chooses a random localPort between 29170-29899', function() {
@@ -282,20 +286,20 @@ describe('ssh_tunnel', function() {
           assert.equal(options.privateKey.toString(), fs.readFileSync(fileName).toString());
         });
 
-        it('maps ssh_tunnel_hostname -> host', function() {
+        it('maps ssh_tunnel_hostname -> host (jumpbox visible from localhost)', function() {
           assert.equal(options.host, 'my.ssh-server.com');
         });
 
-        it('maps ssh_tunnel_hostname -> dstAddr', function() {
-          assert.equal(options.dstAddr, 'my.ssh-server.com');
+        it('maps hostname -> dstAddr (mongod server address from jumpbox)', function() {
+          assert.equal(options.dstAddr, 'mongodb.my-internal-host.com');
         });
 
-        it('maps port -> dstPort', function() {
-          assert.equal(options.dstPort, 3000);
+        it('maps port -> dstPort (mongod server port)', function() {
+          assert.equal(options.dstPort, 27000);
         });
 
-        it('makes port undefined to be explicit which port', function() {
-          assert.equal(options.port, undefined);
+        it('maps ssh_tunnel_port (remote sshd port) -> port', function() {
+          assert.equal(options.port, 3000);
         });
 
         it('chooses a random localPort between 29170-29899', function() {
