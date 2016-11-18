@@ -34,7 +34,7 @@ describe('<SidebarInstanceProperties />', () => {
       const element = component.find('.compass-sidebar-instance-hostname');
       expect(element.text()).to.be.equal('ip-1-2-3-4-mongod.com:27000');
     });
-    it('renders the SSH tunnel host name and port text', () => {
+    it('does not render any ssh-tunnel section', () => {
       const element = component.find('.compass-sidebar-instance-ssh-tunnel');
       expect(element).to.not.exist;
     });
