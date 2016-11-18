@@ -13,7 +13,7 @@ const InsertDocumentStore = require('../store/insert-document-store');
 const InsertDocumentDialog = require('./insert-document-dialog');
 const Actions = require('../actions');
 
-const debug = require('debug')('mongodb-compass:crud');
+// const debug = require('debug')('mongodb-compass:crud');
 
 /* eslint no-return-assign:0 */
 
@@ -50,7 +50,6 @@ class DocumentList extends React.Component {
    * Fetch the state when the component mounts.
    */
   componentDidMount() {
-    debug('is doc list being mounted');
     this.attachScrollEvent();
     this.unsubscribeReset = ResetDocumentListStore.listen(this.handleReset.bind(this));
     this.unsubscribeLoadMore = LoadMoreDocumentsStore.listen(this.handleLoadMore.bind(this));
@@ -117,7 +116,6 @@ class DocumentList extends React.Component {
    * @param {Integer} count - The count.
    */
   handleReset(documents, count) {
-    debug('documents are:', documents);
     // If resetting, then we need to go back to page one with
     // the documents as the filter changed. The loaded count and
     // total count are reset here as well.
