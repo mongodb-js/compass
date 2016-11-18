@@ -1,7 +1,7 @@
 {
   "name": "hadron-build",
   "description": "Tooling for Hadron apps.",
-  "version": "1.0.0-beta.2",
+  "version": "2.0.0",
   "scripts": {
     "fmt": "mongodb-js-fmt",
     "check": "mongodb-js-precommit",
@@ -53,7 +53,7 @@
     "semver": "^5.1.0",
     "templatizer": "^2.0.3",
     "which": "^1.2.0",
-    "yargs": "^6.3.0"
+    "yargs": "^4.4.0"
   },
   "devDependencies": {
     "chai": "^3.5.0",
