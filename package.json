@@ -167,7 +167,7 @@
     "electron-prebuilt": "1.2.8",
     "enzyme": "^2.5.1",
     "eslint-config-mongodb-js": "^2.2.0",
-    "hadron-build": "^1.0.0-beta.2",
+    "hadron-build": "^2.0.1",
     "jsdom": "^9.8.3",
     "mocha": "^2.3.4",
     "mongodb-js-precommit": "^0.2.9",
