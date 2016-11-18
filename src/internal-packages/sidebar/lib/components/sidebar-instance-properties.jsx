@@ -14,9 +14,13 @@ class SidebarInstanceProperties extends React.Component {
 
   getSshTunnelViaPort() {
     const connection = this.props.connection;
-    if (connection.ssh_tunnel_options) {
-      return `Via SSH to ${connection.ssh_tunnel_options.host}:` +
-        `${connection.ssh_tunnel_options.port}`;
+    if (connection.ssh_tunnel !== 'NONE') {
+      const options = connection.ssh_tunnel_options;
+      return (
+        <div className="compass-sidebar-instance-ssh-tunnel" >
+          Via SSH to {options.host}:{options.port}
+        </div>
+      );
     }
     return '';
   }
@@ -58,7 +62,7 @@ class SidebarInstanceProperties extends React.Component {
         <div className="compass-sidebar-instance" onClick={this.handleClickHostname}>
           <i className="fa fa-home compass-sidebar-instance-icon"></i>
           <div className="compass-sidebar-instance-hostname" >{hostnameAndPort}</div>
-          <div className="compass-sidebar-instance-ssh-tunnel" >{sshTunnelViaPort}</div>
+          {sshTunnelViaPort}
           <div className="compass-sidebar-instance-version">{versionName}</div>
         </div>
         <div className="compass-sidebar-stats">
