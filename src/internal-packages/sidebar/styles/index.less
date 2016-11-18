@@ -16,7 +16,6 @@
 
   &-content {
     overflow-y: scroll;
-    position: absolute;
     top: 114px;
     bottom: 0;
     width: 250px;
@@ -173,10 +172,8 @@
     cursor: pointer;
     color: #fff;
     font-weight: normal;
-    height: 54px;
     font-size: 16px;
     padding-top: 10px;
-    padding-bottom: 10px;
 
     &-icon {
       width: 26px;
@@ -199,6 +196,17 @@
       &::-webkit-scrollbar {
         display: none;
       }
+    }
+
+    &-ssh-tunnel {
+      color: #9DA4AA;
+      font-weight: normal;
+      line-height: 9px;
+      font-size: 10px;
+      margin-left: 36px;
+      padding-bottom: 4px;
+      position: relative;
+      top: -6px;
     }
 
     &-version {
