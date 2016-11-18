@@ -2,8 +2,6 @@ const React = require('react');
 const app = require('ampersand-app');
 const { NamespaceStore } = require('hadron-reflux-store');
 
-const InstanceActions = app.appRegistry.getAction('App.InstanceActions');
-
 class SidebarInstanceProperties extends React.Component {
   getHostnameAndPort() {
     const instance = this.props.instance;
@@ -31,6 +29,7 @@ class SidebarInstanceProperties extends React.Component {
   }
 
   handleRefresh() {
+    const InstanceActions = app.appRegistry.getAction('App.InstanceActions');
     InstanceActions.refreshInstance();
   }
 
