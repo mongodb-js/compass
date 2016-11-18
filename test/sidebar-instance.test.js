@@ -70,7 +70,7 @@ describe('<SidebarInstanceProperties />', () => {
     });
     it('renders the SSH tunnel host name and port text', () => {
       const element = component.find('.compass-sidebar-instance-ssh-tunnel');
-      expect(element.text()).to.be.equal('Via SSH to my-jump-box.com:2222');
+      expect(element.text()).to.be.equal('Via SSH on my-jump-box.com:2222');
     });
     it('renders instance build version', () => {
       const element = component.find('.compass-sidebar-instance-version');
