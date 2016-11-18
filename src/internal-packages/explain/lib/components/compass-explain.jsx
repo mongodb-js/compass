@@ -73,7 +73,6 @@ class CompassExplain extends React.Component {
   render() {
     return (
       <div className="compass-explain header-margin">
-        <div className="flexbox-fix"></div>
         <this.queryBar />
         {this.CollectionStore.isReadonly() ? this.renderReadonly() : this.renderComponent()}
       </div>
