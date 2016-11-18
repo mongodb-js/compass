@@ -4,12 +4,21 @@ const { NamespaceStore } = require('hadron-reflux-store');
 
 class SidebarInstanceProperties extends React.Component {
   getHostnameAndPort() {
-    const instance = this.props.instance;
-    if (!instance.hostname) {
+    const connection = this.props.connection;
+    if (!connection.hostname) {
       return '';
     }
 
-    return `${instance.hostname}:${instance.port}`;
+    return `${connection.hostname}:${connection.port}`;
+  }
+
+  getSshTunnelViaPort() {
+    const connection = this.props.connection;
+    if (connection.ssh_tunnel_options) {
+      return `Via SSH to ${connection.ssh_tunnel_options.host}:` +
+        `${connection.ssh_tunnel_options.port}`;
+    }
+    return '';
   }
 
   getVersionName() {
@@ -42,12 +51,14 @@ class SidebarInstanceProperties extends React.Component {
     const numDbs = instance.databases.length;
     const numCollections = instance.collections.length;
     const hostnameAndPort = this.getHostnameAndPort();
+    const sshTunnelViaPort = this.getSshTunnelViaPort();
     const versionName = this.getVersionName();
     return (
       <div className="compass-sidebar-properties">
         <div className="compass-sidebar-instance" onClick={this.handleClickHostname}>
           <i className="fa fa-home compass-sidebar-instance-icon"></i>
           <div className="compass-sidebar-instance-hostname" >{hostnameAndPort}</div>
+          <div className="compass-sidebar-instance-ssh-tunnel" >{sshTunnelViaPort}</div>
           <div className="compass-sidebar-instance-version">{versionName}</div>
         </div>
         <div className="compass-sidebar-stats">
@@ -67,6 +78,7 @@ class SidebarInstanceProperties extends React.Component {
 }
 
 SidebarInstanceProperties.propTypes = {
+  connection: React.PropTypes.object,
   instance: React.PropTypes.object,
   fetching: React.PropTypes.bool
 };

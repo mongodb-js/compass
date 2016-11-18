@@ -26,7 +26,7 @@ class Sidebar extends React.Component {
     return (
       <div className="compass-sidebar">
         <StoreConnector store={InstanceStore}>
-          <SidebarInstanceProperties />
+          <SidebarInstanceProperties connection={app.connection}/>
         </StoreConnector>
         <div className="compass-sidebar-filter">
           <i className="fa fa-search compass-sidebar-search-icon"></i>
