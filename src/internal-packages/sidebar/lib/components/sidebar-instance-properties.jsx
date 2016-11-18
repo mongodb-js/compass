@@ -16,7 +16,7 @@ class SidebarInstanceProperties extends React.Component {
     const connection = this.props.connection;
     if (connection.ssh_tunnel !== 'NONE') {
       const options = connection.ssh_tunnel_options;
-      const sshHostAndPort = `Via SSH on ${options.host}:${options.port}`;
+      const sshHostAndPort = `via SSH tunnel ${options.host}:${options.port}`;
       return (
         <div className="compass-sidebar-instance-ssh-tunnel">
           {sshHostAndPort}
