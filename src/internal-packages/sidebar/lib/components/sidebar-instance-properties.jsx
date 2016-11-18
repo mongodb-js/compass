@@ -2,16 +2,28 @@ const React = require('react');
 const app = require('ampersand-app');
 const { NamespaceStore } = require('hadron-reflux-store');
 
-const InstanceActions = app.appRegistry.getAction('App.InstanceActions');
-
 class SidebarInstanceProperties extends React.Component {
   getHostnameAndPort() {
-    const instance = this.props.instance;
-    if (!instance.hostname) {
+    const connection = this.props.connection;
+    if (!connection.hostname) {
       return '';
     }
 
-    return `${instance.hostname}:${instance.port}`;
+    return `${connection.hostname}:${connection.port}`;
+  }
+
+  getSshTunnelViaPort() {
+    const connection = this.props.connection;
+    if (connection.ssh_tunnel !== 'NONE') {
+      const options = connection.ssh_tunnel_options;
+      const sshHostAndPort = `via SSH tunnel ${options.host}:${options.port}`;
+      return (
+        <div className="compass-sidebar-instance-ssh-tunnel">
+          {sshHostAndPort}
+        </div>
+      );
+    }
+    return '';
   }
 
   getVersionName() {
@@ -31,6 +43,7 @@ class SidebarInstanceProperties extends React.Component {
   }
 
   handleRefresh() {
+    const InstanceActions = app.appRegistry.getAction('App.InstanceActions');
     InstanceActions.refreshInstance();
   }
 
@@ -43,12 +56,14 @@ class SidebarInstanceProperties extends React.Component {
     const numDbs = instance.databases.length;
     const numCollections = instance.collections.length;
     const hostnameAndPort = this.getHostnameAndPort();
+    const sshTunnelViaPort = this.getSshTunnelViaPort();
     const versionName = this.getVersionName();
     return (
       <div className="compass-sidebar-properties">
         <div className="compass-sidebar-instance" onClick={this.handleClickHostname}>
           <i className="fa fa-home compass-sidebar-instance-icon"></i>
           <div className="compass-sidebar-instance-hostname" >{hostnameAndPort}</div>
+          {sshTunnelViaPort}
           <div className="compass-sidebar-instance-version">{versionName}</div>
         </div>
         <div className="compass-sidebar-stats">
@@ -68,6 +83,7 @@ class SidebarInstanceProperties extends React.Component {
 }
 
 SidebarInstanceProperties.propTypes = {
+  connection: React.PropTypes.object,
   instance: React.PropTypes.object,
   fetching: React.PropTypes.bool
 };

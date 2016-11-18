@@ -8,8 +8,6 @@ const sinon = require('sinon');
 const shallow = require('enzyme').shallow;
 const mount = require('enzyme').mount;
 const bootstrap = require('react-bootstrap');
-const ControlLabel = bootstrap.ControlLabel;
-const FormControl = bootstrap.FormControl;
 const SortableTable = require('../src/internal-packages/app/lib/components/sortable-table');
 
 chai.use(chaiEnzyme());
