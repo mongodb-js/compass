@@ -34,8 +34,8 @@ class Collection extends React.Component {
   }
 
   onTabClicked(idx) {
-    this.setState({activeTab: idx});
     this.CollectionStore.setActiveTab(idx);
+    this.setState({activeTab: this.CollectionStore.getActiveTab()});
   }
 
   showCollection() {
