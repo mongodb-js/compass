@@ -149,13 +149,13 @@ class Element extends EventEmitter {
    * @returns {Object} The javascript object.
    */
   generateObject() {
-    if (this.currentValue) {
-      return this.currentValue;
-    }
     if (this.currentType === 'Array') {
       return ObjectGenerator.generateArray(this.elements);
     }
-    return ObjectGenerator.generate(this.elements);
+    if (this.elements) {
+      return ObjectGenerator.generate(this.elements);
+    }
+    return this.currentValue;
   }
 
   /**

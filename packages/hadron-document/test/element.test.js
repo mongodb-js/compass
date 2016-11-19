@@ -118,6 +118,86 @@ describe('Element', function() {
     });
   });
 
+  describe('#generateObject', function() {
+    var doc = new Document({});
+
+    context('when the element has child elements', function() {
+      context('when the type is array', function() {
+        var element = new Element('test', [ 1, 2 ], false, doc);
+
+        it('returns the array', function() {
+          expect(element.generateObject()).to.deep.equal([ 1, 2 ]);
+        });
+      });
+
+      context('when the type is object', function() {
+        var element = new Element('test', { 'test': 'value' }, false, doc);
+
+        it('returns the array', function() {
+          expect(element.generateObject()).to.deep.equal({ 'test': 'value' });
+        });
+      });
+    });
+
+    context('when the element has no child elements', function() {
+      context('when the current value is 0', function() {
+        var element = new Element('test', 0, false, doc);
+
+        it('returns 0', function() {
+          expect(element.generateObject()).to.equal(0);
+        });
+      });
+
+      context('when the current value is 1', function() {
+        var element = new Element('test', 1, false, doc);
+
+        it('returns 1', function() {
+          expect(element.generateObject()).to.equal(1);
+        });
+      });
+
+      context('when the current value is ""', function() {
+        var element = new Element('test', '', false, doc);
+
+        it('returns ""', function() {
+          expect(element.generateObject()).to.equal('');
+        });
+      });
+
+      context('when the current value is null', function() {
+        var element = new Element('test', null, false, doc);
+
+        it('returns null', function() {
+          expect(element.generateObject()).to.equal(null);
+        });
+      });
+
+      context('when the current value is undefined', function() {
+        var element = new Element('test', undefined, false, doc);
+
+        it('returns undefined', function() {
+          expect(element.generateObject()).to.equal(undefined);
+        });
+      });
+
+      context('when the current value is false', function() {
+        var element = new Element('test', false, false, doc);
+
+        it('returns false', function() {
+          expect(element.generateObject()).to.equal(false);
+        });
+      });
+
+      context('when the current value is truthy', function() {
+        var element = new Element('test', 'test', false, doc);
+
+        it('returns the value', function() {
+          expect(element.generateObject()).to.equal('test');
+        });
+      });
+    });
+  });
+
   describe('#insertEnd', function() {
     context('when the new embedded element is a document', function() {
       var doc = new Document({});
