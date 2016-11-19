@@ -10,7 +10,7 @@ const BSON_TYPES = [
   {name: 'Decimal128', number: 19, alias: 'decimal128'},
   {name: 'String', number: 2, alias: 'string'},
   {name: 'Object', number: 3, alias: 'object'},
-  {name: 'Array', number: 4, alias: 'array'},
+  // {name: 'Array', number: 4, alias: 'array'},  // COMPASS-275 server does not support this
   {name: 'Binary data', number: 5, alias: 'binData'},
   {name: 'Undefined', number: 6, alias: 'undefined'},
   {name: 'ObjectId', number: 7, alias: 'objectid'},
