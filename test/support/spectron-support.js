@@ -218,11 +218,16 @@ function addCommands(client) {
    * Refines the sample by entering the provided filter in the field and clicking apply.
    */
   client.addCommand('refineSample', function(query) {
-    return this.waitForStatusBar()
-      .setValue('input#refine_input', query)
-      .click('button#apply_button');
+    this.addValue('input#refine_input', query);
+    return this.waitForValue('input#refine_input', 15000);
   });
 
+  /**
+   * Apply the sample by clicking the apply button
+   */
+  client.addCommand('applySample', function() {
+    return this.waitForStatusBar().click('button#apply_button');
+  });
   /**
    * Resets the sample by clicking on the reset button.
    */
