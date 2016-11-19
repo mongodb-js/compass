@@ -130,7 +130,7 @@
     "mongodb-explain-plan-model": "^0.2.2",
     "mongodb-extended-json": "^1.8.0",
     "mongodb-instance-model": "^3.3.0",
-    "mongodb-js-metrics": "^1.5.2",
+    "mongodb-js-metrics": "^1.5.3",
     "mongodb-language-model": "^1.0.2",
     "mongodb-ns": "^1.0.3",
     "mongodb-schema": "^6.0.2",
