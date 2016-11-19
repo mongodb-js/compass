@@ -9,6 +9,7 @@ module.exports = BaseResource.extend({
       type: 'string',
       required: true
     },
+    createdAt: ['date', true],
     name: 'string',
     email: {type: 'any', default: undefined, required: false, allowNull: true},
     twitter: 'string'

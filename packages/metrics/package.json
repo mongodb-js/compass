@@ -25,7 +25,7 @@
     "async": "^1.5.1",
     "bugsnag-js": "^2.4.9",
     "caller-id": "^0.1.0",
-    "debug": "^2.2.0",
+    "debug": "mongodb-js/debug#v2.2.3",
     "lodash": "^4.13.1",
     "mixpanel-browser": "^2.7.2",
     "mongodb-redact": "0.1.0",

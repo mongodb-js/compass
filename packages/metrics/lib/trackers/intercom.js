@@ -172,7 +172,7 @@ var IntercomTracker = State.extend({
   _updateIntercom: function() {
     var obj = {
       user_id: this.userId,
-      created_at: this.createdAt,
+      created_at: Math.floor(this.createdAt.getTime() / 1000),
       name: this.name,
       email: this.email,
       twitter: this.twitter,

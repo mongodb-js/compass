@@ -32,6 +32,10 @@ describe('User Resource', function() {
     assert.equal(user.id, 'User');
   });
 
+  it('should have a `createdAt` field', function() {
+    assert.ok(user.createdAt);
+  });
+
   it('should have a userId after adding the user resource', function() {
     metrics.addResource(user);
     assert.equal(metrics.trackers.get('ga').userId, '121d91ad-15a4-47eb-977d-f279492932f0');
