@@ -89,14 +89,20 @@ describe('Compass #spectron', function() {
             return client
               .waitForStatusBar()
               .refineSample(query)
-              .getValue('input#refine_input').should.eventually.include(query);
+              .getValue('input#refine_input')
+              .should
+              .eventually
+              .include(query);
           });
 
           it('samples the matching documents', function() {
             return client
               .waitForStatusBar()
               .applySample()
-              .getText('div.sampling-message b').should.eventually.include('1');
+              .getText('div.sampling-message b')
+              .should
+              .eventually
+              .include('1');
           });
 
           it('updates the schema view', function() {
@@ -129,51 +135,54 @@ describe('Compass #spectron', function() {
         // context('when resetting the filter', function() {
         //   it('resets the sample to the original', function() {
         //     return client
-        //       .waitForStatusBar()
         //       .resetSample()
-        //       .getText('div.sampling-message b').should.eventually.include('4');
+        //       .waitForStatusBar()
+        //       .getText('div.sampling-message b')
+        //       .should
+        //       .eventually
+        //       .include('4');
         //   });
         // });
       });
 
-      // context('when working in the documents tab', function() {
-      //   context('when viewing documents', function() {
-      //     it('renders the documents in the list', function() {
-      //       return client
-      //         .gotoDocumentsTab()
-      //         .getText('div.element-value-is-string')
-      //         .should
-      //         .eventually
-      //         .include('Aphex Twin');
-      //     });
-      //   });
-      // });
+      context('when working in the documents tab', function() {
+        context('when viewing documents', function() {
+          it('renders the documents in the list', function() {
+            return client
+              .gotoTab('DOCUMENTS')
+              .getText('div.element-value-is-string')
+              .should
+              .eventually
+              .include('Arca'); // .include('Aphex Twin');
+          });
+        });
+      });
 
-      // context('when working in the explain tab', function() {
-      //   context('when viewing the explain tab', function() {
-      //     it('renders the stages', function() {
-      //       return client
-      //         .gotoExplainPlanTab()
-      //         .getText('h3.stage-header')
-      //         .should
-      //         .eventually
-      //         .include('COLLSCAN');
-      //     });
-      //   });
-      // });
+      context('when working in the explain tab', function() {
+        context('when viewing the explain tab', function() {
+          it('renders the stages', function() {
+            return client
+              .gotoTab('EXPLAIN_PLAN')
+              .getText('h3.stage-header')
+              .should
+              .eventually
+              .include('COLLSCAN');
+          });
+        });
+      });
 
-      // context('when working in the indexes tab', function() {
-      //   context('when viewing the indexes tab', function() {
-      //     it('renders the indexes', function() {
-      //       return client
-      //         .gotoIndexesTab()
-      //         .getText('div.index-definition div.name')
-      //         .should
-      //         .eventually
-      //         .include('_id_');
-      //     });
-      //   });
-      // });
+      context('when working in the indexes tab', function() {
+        context('when viewing the indexes tab', function() {
+          it('renders the indexes', function() {
+            return client
+              .gotoTab('INDEXES')
+              .getText('div.index-definition div.name')
+              .should
+              .eventually
+              .include('_id_');
+          });
+        });
+      });
     });
   });
 });

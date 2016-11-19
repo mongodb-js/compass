@@ -30,7 +30,11 @@ class NavBarComponent extends React.Component {
 
   renderTabs() {
     const listItems = _.map(this.props.tabs, (tab, idx) => (
-      <li onClick={this.onTabClicked.bind(this, idx)} id={tab} key={`tab-${idx}`} className={`tab-nav-bar tab-nav-bar-tab ${idx === this.state.activeTabIndex ? 'tab-nav-bar-is-selected' : ''}`}>
+      <li onClick={this.onTabClicked.bind(this, idx)}
+          id={tab.replace(/ /g, '_')}
+          key={`tab-${idx}`}
+          className={`tab-nav-bar tab-nav-bar-tab ${idx === this.state.activeTabIndex ?
+            'tab-nav-bar-is-selected' : ''}`}>
         <span className="tab-nav-bar tab-nav-bar-link" href="#">{tab}</span>
       </li>
     ));
