@@ -226,30 +226,35 @@ function addCommands(client) {
    * Apply the sample by clicking the apply button
    */
   client.addCommand('applySample', function() {
-    return this.waitForStatusBar().click('button#apply_button');
+    this.click('button#apply_button');
+    return this.waitForVisible('div.sampling-message', 15000);
   });
   /**
    * Resets the sample by clicking on the reset button.
    */
   client.addCommand('resetSample', function() {
-    return this.waitForStatusBar().click('button#reset_button');
+    this.click('button#reset_button');
+    return this.waitForVisible('div.sampling-message', 15000);
   });
 
-  client.addCommand('gotoSchemaTab', function() {
-    return this.waitForStatusBar().click('li#SCHEMA');
+  client.addCommand('gotoTab', function(tab) {
+    return this.waitForStatusBar().click('li#' + tab);
   });
-
-  client.addCommand('gotoDocumentsTab', function() {
-    return this.waitForStatusBar().click('li#document-tab a');
-  });
-
-  client.addCommand('gotoExplainPlanTab', function() {
-    return this.waitForStatusBar().click('li#explain-tab a');
-  });
-
-  client.addCommand('gotoIndexesTab', function() {
-    return this.waitForStatusBar().click('li#index-tab a');
-  });
+  // client.addCommand('gotoSchemaTab', function() {
+  //   return this.waitForStatusBar().click('li#SCHEMA');
+  // });
+  //
+  // client.addCommand('gotoDocumentsTab', function() {
+  //   return this.waitForStatusBar().click('li#DOCUMENTS a');
+  // });
+  //
+  // client.addCommand('gotoExplainPlanTab', function() {
+  //   return this.waitForStatusBar().click('li#explain-tab a');
+  // });
+  //
+  // client.addCommand('gotoIndexesTab', function() {
+  //   return this.waitForStatusBar().click('li#index-tab a');
+  // });
 
   /**
    * wait for a collection item in the sidebar, then click it to start

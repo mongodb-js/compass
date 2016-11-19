@@ -75,7 +75,7 @@ describe('Compass #spectron', function() {
         it('renders the schema tab', function() {
           return client
             .waitForStatusBar()
-            .gotoSchemaTab()
+            .gotoTab('SCHEMA')
             .getText('li.bubble code.selectable')
             .should
             .eventually
@@ -92,44 +92,45 @@ describe('Compass #spectron', function() {
               .getValue('input#refine_input').should.eventually.include(query);
           });
 
-          // it('samples the matching documents', function() {
-          //   return client
-          //     .waitForStatusBar()
-          //     .getText('div.sampling-message b').should.eventually.include('1');
-          // });
+          it('samples the matching documents', function() {
+            return client
+              .waitForStatusBar()
+              .applySample()
+              .getText('div.sampling-message b').should.eventually.include('1');
+          });
 
-          // it('updates the schema view', function() {
-          //   return client
-          //     .getText('li.bubble code.selectable')
-          //     .should
-          //     .eventually
-          //     .equal('Arca');
-          // });
-          //
-          // it('filters out non-matches from the document list', function() {
-          //   return client
-          //     .gotoDocumentsTab()
-          //     .getText('div.element-value-is-string')
-          //     .should
-          //     .not
-          //     .eventually
-          //     .include('Aphex Twin');
-          // });
-          //
-          // it('includes documents that match the filter', function() {
-          //   return client
-          //     .getText('div.element-value-is-string')
-          //     .should
-          //     .eventually
-          //     .include('Arca');
-          // });
+          it('updates the schema view', function() {
+            return client
+              .getText('li.bubble code.selectable')
+              .should
+              .eventually
+              .equal('Arca');
+          });
+
+          it('filters out non-matches from the document list', function() {
+            return client
+              .gotoTab('DOCUMENTS')
+              .getText('div.element-value-is-string')
+              .should
+              .not
+              .eventually
+              .include('Aphex Twin');
+          });
+
+          it('includes documents that match the filter', function() {
+            return client
+              .getText('div.element-value-is-string')
+              .should
+              .eventually
+              .include('Arca');
+          });
         });
 
         // context('when resetting the filter', function() {
         //   it('resets the sample to the original', function() {
         //     return client
-        //       .resetSample()
         //       .waitForStatusBar()
+        //       .resetSample()
         //       .getText('div.sampling-message b').should.eventually.include('4');
         //   });
         // });
