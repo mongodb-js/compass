@@ -231,7 +231,7 @@ function addCommands(client) {
   });
 
   client.addCommand('gotoSchemaTab', function() {
-    return this.waitForStatusBar().click('li#schema-tab a');
+    return this.waitForStatusBar().click('li#SCHEMA');
   });
 
   client.addCommand('gotoDocumentsTab', function() {
