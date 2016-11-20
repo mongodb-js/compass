@@ -8,7 +8,6 @@ const format = require('util').format;
 const path = require('path');
 const electronPrebuilt = require('electron-prebuilt');
 const Application = require('spectron').Application;
-const debug = require('debug')('mongodb-test-utils:spectron-support');
 
 chai.use(chaiAsPromised);
 
@@ -64,10 +63,10 @@ function startApplication(distDir) {
  * afterEach(helpers.startApplication);
  */
 function stopApplication(app) {
-  if (app && app.isRunning()) {
-    debug('Stopping Spectron Application');
-    return app.stop();
-  } else return;
+  if (!app || !app.isRunning()) return;
+  return app.stop().then(function() {
+    assert.equal(app.isRunning(), false);
+  })
 };
 
 /**
@@ -162,7 +161,7 @@ function addCommands(client) {
    * Wait for the connect window to redirect after successful connection.
    */
   client.addCommand('waitForSchemaWindow', function() {
-    return this.waitForVisible('.compass-sidebar-container');
+    return this.waitForVisible('.compass-sidebar-container', 30000);
   });
 
   /**
