@@ -29,6 +29,7 @@ class OptionSelector extends React.Component {
           id={this.props.id}
           onSelect={this.props.onSelect}
           title={title}
+          disabled={this.props.disabled}
         >{menuItems}
         </DropdownButton>
       </div>
@@ -42,13 +43,15 @@ OptionSelector.propTypes = {
   options: React.PropTypes.object.isRequired,
   label: React.PropTypes.string,
   value: React.PropTypes.string,
-  onSelect: React.PropTypes.func
+  onSelect: React.PropTypes.func,
+  disabled: React.PropTypes.bool
 };
 
 OptionSelector.defaultProps = {
   label: '',
   value: '',
-  onSelect: () => {}
+  onSelect: () => {},
+  disabled: false
 };
 
 OptionSelector.displayName = 'OptionSelector';

@@ -7,7 +7,7 @@ const RuleBuilder = require('./rule-builder');
 const JSONView = require('./json-view');
 const StatusRow = app.appRegistry.getComponent('App.StatusRow');
 
-// const debug = require('debug')('mongodb-compass:validation');
+const debug = require('debug')('mongodb-compass:validation');
 
 /**
  * Top-level Validation component which includes status rows at the top,
@@ -19,6 +19,7 @@ class Validation extends React.Component {
   constructor(props) {
     super(props);
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
+    debug('write status is: ', this.CollectionStore.isWritable());
   }
 
   /**
@@ -52,6 +53,7 @@ class Validation extends React.Component {
             validationLevel={this.props.validationLevel}
             editState={this.props.editState}
             serverVersion={this.props.serverVersion}
+            isWritable={this.CollectionStore.isWritable()}
           />
         </div>
       ) : (
@@ -60,6 +62,7 @@ class Validation extends React.Component {
           validationAction={this.props.validationAction}
           validationLevel={this.props.validationLevel}
           editState={this.props.editState}
+          isWritable={this.CollectionStore.isWritable()}
         />
       );
 

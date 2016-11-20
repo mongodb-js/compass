@@ -90,7 +90,7 @@ class Rule extends React.Component {
             className="nullable"
             type="checkbox"
             checked={this.props.nullable}
-            disabled={nullableDisabled}
+            disabled={nullableDisabled || !this.props.isWritable}
             onChange={this.checkBoxClicked.bind(this)}/></td>
         <td>
           <RuleDeleteButton
@@ -108,7 +108,8 @@ Rule.propTypes = {
   category: React.PropTypes.string.isRequired,
   parameters: React.PropTypes.object.isRequired,
   nullable: React.PropTypes.bool.isRequired,
-  serverVersion: React.PropTypes.string
+  serverVersion: React.PropTypes.string,
+  isWritable: React.PropTypes.bool
 };
 
 Rule.displayName = 'Rule';
