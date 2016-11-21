@@ -8,7 +8,7 @@ class NavBarComponent extends React.Component {
     super(props);
     this.state = {
       paused: false,
-      activeTabIndex: 0
+      activeTabIndex: props.activeTabIndex || 0
     };
   }
 
@@ -30,7 +30,11 @@ class NavBarComponent extends React.Component {
 
   renderTabs() {
     const listItems = _.map(this.props.tabs, (tab, idx) => (
-      <li onClick={this.onTabClicked.bind(this, idx)} key={`tab-${idx}`} className={`tab-nav-bar tab-nav-bar-tab ${idx === this.state.activeTabIndex ? 'tab-nav-bar-is-selected' : ''}`}>
+      <li onClick={this.onTabClicked.bind(this, idx)}
+          id={tab.replace(/ /g, '_')}
+          key={`tab-${idx}`}
+          className={`tab-nav-bar tab-nav-bar-tab ${idx === this.state.activeTabIndex ?
+            'tab-nav-bar-is-selected' : ''}`}>
         <span className="tab-nav-bar tab-nav-bar-link" href="#">{tab}</span>
       </li>
     ));
@@ -74,9 +78,9 @@ class NavBarComponent extends React.Component {
   render() {
     return (
       <div className={`tab-nav-bar tab-nav-bar-is-${this.props.theme}-theme`}>
-        <header className="tab-nav-bar tab-nav-bar-header">
+        <div className="tab-nav-bar tab-nav-bar-header">
           {this.renderTabs()}
-        </header>
+        </div>
         {this.props.mountAllViews ? this.renderViews() : this.renderActiveView()}
       </div>
     );
