@@ -7,7 +7,7 @@ const toNS = require('mongodb-ns');
 const ExplainPlanModel = require('mongodb-explain-plan-model');
 const _ = require('lodash');
 
-// const debug = require('debug')('mongodb-compass:stores:explain');
+const debug = require('debug')('mongodb-compass:stores:explain');
 
 /**
  * Compass Explain store.
@@ -36,7 +36,6 @@ const CompassExplainStore = Reflux.createStore({
       if (ns && toNS(ns).collection) {
         this.query = {};
         this._reset();
-        // this.fetchExplainPlan();
       }
     });
 
