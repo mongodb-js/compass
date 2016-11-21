@@ -13,6 +13,8 @@ const InsertDocumentStore = require('../store/insert-document-store');
 const InsertDocumentDialog = require('./insert-document-dialog');
 const Actions = require('../actions');
 
+// const debug = require('debug')('mongodb-compass:crud');
+
 /* eslint no-return-assign:0 */
 
 /**
@@ -41,6 +43,7 @@ class DocumentList extends React.Component {
     this.samplingMessage = app.appRegistry.getComponent('Query.SamplingMessage');
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
     this.state = { docs: [], nextSkip: 0, namespace: NamespaceStore.ns };
+    this.queryBar = app.appRegistry.getComponent('Query.QueryBar');
   }
 
   /**
@@ -51,7 +54,7 @@ class DocumentList extends React.Component {
     this.unsubscribeReset = ResetDocumentListStore.listen(this.handleReset.bind(this));
     this.unsubscribeLoadMore = LoadMoreDocumentsStore.listen(this.handleLoadMore.bind(this));
     this.unsubscribeRemove = RemoveDocumentStore.listen(this.handleRemove.bind(this));
-    this.unsibscribeInsert = InsertDocumentStore.listen(this.handleInsert.bind(this));
+    this.unsubscribeInsert = InsertDocumentStore.listen(this.handleInsert.bind(this));
   }
 
   /**
@@ -237,6 +240,7 @@ class DocumentList extends React.Component {
   render() {
     return (
       <div className="header-margin">
+        <this.queryBar />
         <this.samplingMessage insertHandler={this.handleOpenInsert.bind(this)} />
         <div className="column-container with-refinebar-and-message">
           <div className="column main">

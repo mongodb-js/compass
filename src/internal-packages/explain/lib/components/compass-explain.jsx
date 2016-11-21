@@ -31,6 +31,7 @@ class CompassExplain extends React.Component {
 
   componentWillMount() {
     ExplainActions.fetchExplainPlan();
+    this.queryBar = app.appRegistry.getComponent('Query.QueryBar');
   }
 
   renderComponent() {
@@ -72,7 +73,7 @@ class CompassExplain extends React.Component {
   render() {
     return (
       <div className="compass-explain header-margin">
-        <div className="flexbox-fix"></div>
+        <this.queryBar />
         {this.CollectionStore.isReadonly() ? this.renderReadonly() : this.renderComponent()}
       </div>
     );
