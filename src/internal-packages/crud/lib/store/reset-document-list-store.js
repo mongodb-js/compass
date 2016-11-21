@@ -4,6 +4,8 @@ const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const Action = require('hadron-action');
 const ReadPreference = require('mongodb').ReadPreference;
 
+// const debug = require('debug')('mongodb-compass:crud:store');
+
 /**
  * The default read preference.
  */
