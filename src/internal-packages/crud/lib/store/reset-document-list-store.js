@@ -6,6 +6,8 @@ const toNS = require('mongodb-ns');
 
 // const debug = require('debug')('mongodb-compass:crud');
 
+// const debug = require('debug')('mongodb-compass:crud:store');
+
 /**
  * The default read preference.
  */
