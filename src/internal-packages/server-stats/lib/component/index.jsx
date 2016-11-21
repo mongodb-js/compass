@@ -35,7 +35,7 @@ class RTSSComponent extends React.Component {
     return (
       <div className="RTSS">
         <this.TabNavBar
-          theme="dark"
+          theme="light"
           tabs={['Databases', 'Performance']}
           views={[databasesView, performanceView]}
           activeTabIndex={0}
