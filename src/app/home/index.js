@@ -1,7 +1,6 @@
 var View = require('ampersand-view');
 // var format = require('util').format;
 // var IdentifyView = require('../identify');
-var CollectionView = require('./collection');
 var { NamespaceStore } = require('hadron-reflux-store');
 var TourView = require('../tour');
 var NetworkOptInView = require('../network-optin');
@@ -15,6 +14,32 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 
 var indexTemplate = require('./index.jade');
+
+/**
+ * Ampersand view wrapper around a React component tab view
+ */
+var WrapperView = View.extend({
+  template: '<div></div>',
+  props: {
+    componentKey: 'string',
+    visible: {
+      type: 'boolean',
+      required: true,
+      default: false
+    }
+  },
+  bindings: {
+    visible: {
+      type: 'booleanClass',
+      no: 'hidden'
+    }
+  },
+  render: function() {
+    this.renderWithTemplate();
+    var component = app.appRegistry.getComponent(this.componentKey);
+    ReactDOM.render(React.createElement(component), this.query());
+  }
+});
 
 var HomeView = View.extend({
   screenName: 'Schema',
@@ -184,27 +209,6 @@ var HomeView = View.extend({
 
     return database.collections.get(ns.ns);
   },
-  // onNamespaceChange: function(ns) {
-  //   const model = this._getCollection();
-  //
-  //   // if (!model) {
-  //   //   app.navigate('/');
-  //   //   return;
-  //   // }
-  //
-  //   const collection = app.instance.collections;
-  //   if (!collection.select(model)) {
-  //     return debug('already selected %s', model);
-  //   }
-  //
-  //   this.updateTitle(model);
-  //   this.showNoCollectionsZeroState = false;
-  //   this.showDefaultZeroState = false;
-  //
-  //   // app.navigate(format('schema/%s', model.getId()), {
-  //   //   silent: true
-  //   // });
-  // },
   onClickShowConnectWindow: function() {
     // code to close current connection window and open connect dialog
     ipc.call('app:show-connect-window');
@@ -212,12 +216,14 @@ var HomeView = View.extend({
   },
   template: indexTemplate,
   subviews: {
-    _collection: {
-      hook: 'collection-subview',
+    collectionView: {
+      hook: 'collection-view',
       prepareView: function(el) {
-        return new CollectionView({
+        return new WrapperView({
           el: el,
-          parent: this
+          parent: this,
+          visible: true,
+          componentKey: 'Collection.Collection'
         });
       }
     }
