@@ -68,7 +68,13 @@ class Indexes extends React.Component {
   renderReadonly() {
     return (
       <div className="index-container-notice">
-        Readonly views may not contain indexes.
+        <div className="index-container-pill">
+        <i className="fa fa-lock" aria-hidden="true" />
+          Read-Only
+        </div>
+        <p className="index-container-message">
+          Read-only views may not contain indexes.
+        </p> 
       </div>
     );
   }

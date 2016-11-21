@@ -26,7 +26,7 @@ class SidebarCollection extends React.Component {
   renderReadonly() {
     if (this.props.readonly) {
       return (
-        <i className="fa fa-eye" aria-hidden="true" />
+        <i className="fa fa-lock" aria-hidden="true" />
       );
     }
   }
