@@ -132,17 +132,18 @@ describe('Compass #spectron', function() {
           });
         });
 
-        // context('when resetting the filter', function() {
-        //   it('resets the sample to the original', function() {
-        //     return client
-        //       .resetSample()
-        //       .waitForStatusBar()
-        //       .getText('div.sampling-message b')
-        //       .should
-        //       .eventually
-        //       .include('4');
-        //   });
-        // });
+        context('when resetting the filter', function() {
+          // TODO: fix this test, it's currently not clicking the reset button
+          it.skip('resets the sample to the original', function() {
+            return client
+              .resetSample()
+              .waitForStatusBar()
+              .getText('div.sampling-message b')
+              .should
+              .eventually
+              .include('4');
+          });
+        });
       });
 
       context('when working in the documents tab', function() {
