@@ -24,29 +24,24 @@ describe('Compass #spectron', function() {
   var app = null;
   var client = null;
 
-  before(function(done) {
-    SpectronSupport.startApplication().then(function(application) {
-      app = application;
-      client = application.client;
-      done();
-    });
-  });
-
-  after(function(done) {
-    SpectronSupport.stopApplication(app);
-    done();
-  });
-
   context('when working with the application', function() {
-    before(require('mongodb-runner/mocha/before')({ port: 27018 }));
-
     before(function(done) {
-      CrudSupport.insertMany(CONNECTION, COLLECTION, DOCUMENTS, done);
+      SpectronSupport.startApplication().then(function(application) {
+        app = application;
+        client = application.client;
+        done();
+      });
     });
 
-    after(require('mongodb-runner/mocha/after')());
+    after(function() {
+      SpectronSupport.stopApplication(app);
+    });
 
     context('when opening the application', function() {
+      before(function(done) {
+        CrudSupport.insertMany(CONNECTION, COLLECTION, DOCUMENTS, done);
+      });
+
       it('renders the connect window', function() {
         return client.
           waitForVisible('select[name=authentication]', 60000).

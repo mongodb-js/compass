@@ -14,7 +14,13 @@ addons:
     - g++-4.8
     - libkrb5-dev
     - libgnome-keyring-dev
-script: npm run ci
+before_script:
+  - export DISPLAY=:99.0
+  - sh -e /etc/init.d/xvfb start
+  - npm run check
+script: npm run test
+after_script:
+  - ps -ax
 cache:
   directories:
   - node_modules
