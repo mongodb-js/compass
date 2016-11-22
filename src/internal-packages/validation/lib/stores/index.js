@@ -1,6 +1,7 @@
 const Reflux = require('reflux');
 const ValidationActions = require('../actions');
 const StateMixin = require('reflux-state-mixin');
+const ReadPreference = require('mongodb').ReadPreference;
 const _ = require('lodash');
 const ruleCategories = require('../components/rule-categories');
 const helper = require('./helpers');
@@ -9,6 +10,11 @@ const app = require('ampersand-app');
 
 // stores
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
+
+/**
+ * The default read preference.
+ */
+const READ = ReadPreference.PRIMARY_PREFERRED;
 
 const debug = require('debug')('mongodb-compass:stores:validation');
 
@@ -38,6 +44,7 @@ const ValidationStore = Reflux.createStore({
         ValidationActions.fetchValidationRules();
       }
     });
+    this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
   },
 
   /**
@@ -54,8 +61,9 @@ const ValidationStore = Reflux.createStore({
       validationAction: 'warn',    // one of `warn`, `error`
       fetchState: 'initial',       // one of `initial`, `fetching`, `success`, `error`
       editState: 'unmodified',     // one of `unmodified`, `modified`, `updating`, `success`, `error`
-      isExpressibleByRules: true,   // boolean
-      serverVersion: ''
+      isExpressibleByRules: true,  // boolean
+      serverVersion: '',
+      isWritable: true
     };
   },
 
@@ -229,7 +237,7 @@ const ValidationStore = Reflux.createStore({
       const serverVersion = app.instance.build.version;
       this.setState({serverVersion: serverVersion});
     }
-    app.dataService.listCollections(ns.database, {name: ns.collection}, function(err, res) {
+    app.dataService.listCollections(ns.database, {name: ns.collection}, {readPreference: READ}, function(err, res) {
       if (err) {
         return callback(err);
       }
@@ -277,6 +285,8 @@ const ValidationStore = Reflux.createStore({
         }
         const result = this._deconstructValidatorDoc(res.options);
 
+        // retrieve writeable status
+        const isWritable = this.CollectionStore.isWritable();
         // store result from server
         const validatorDoc = res.options;
         this.lastFetchedValidatorDoc = _.clone(validatorDoc);
@@ -307,10 +317,14 @@ const ValidationStore = Reflux.createStore({
             validatorDoc: validatorDoc,
             validationLevel: result.level,
             validationAction: result.action,
-            editState: 'unmodified'
+            editState: 'unmodified',
+            isWritable: isWritable
           });
           return;
         }
+
+
+        debug('the rules are: ', result.rules);
 
         // the validator Doc _can_ be expressed as simple rules.
         this.setState({
@@ -321,7 +335,8 @@ const ValidationStore = Reflux.createStore({
           validationRules: result.rules,
           validationLevel: result.level,
           validationAction: result.action,
-          editState: 'unmodified'
+          editState: 'unmodified',
+          isWritable: isWritable
         });
       });
     }

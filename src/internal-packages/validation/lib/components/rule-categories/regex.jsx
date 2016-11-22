@@ -136,10 +136,12 @@ class RuleCategoryRegex extends React.Component {
           placeholder="Enter regular expression"
           onChange={this.onChange.bind(this)}
           onBlur={this.onBlur.bind(this)}
+          disabled={!this.props.isWritable}
         />
         <DropdownButton id="regex-options"
           title="options"
           onClose={this.onDropdownClosed.bind(this)}
+          disabled={!this.props.isWritable}
         >
           <MenuItem header>
             <input
@@ -185,7 +187,8 @@ class RuleCategoryRegex extends React.Component {
 
 RuleCategoryRegex.propTypes = {
   id: React.PropTypes.string.isRequired,
-  parameters: React.PropTypes.object.isRequired
+  parameters: React.PropTypes.object.isRequired,
+  isWritable: React.PropTypes.bool
 };
 
 RuleCategoryRegex.displayName = 'RuleCategoryRegex';

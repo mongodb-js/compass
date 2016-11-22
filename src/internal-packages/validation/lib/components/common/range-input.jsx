@@ -160,7 +160,8 @@ class RangeInput extends React.Component {
             id={`range-input-${this.props.upperBound ? 'upper' : 'lower'}`}
             style={{width: this.props.width}}
             title={this.state.operator}
-            onSelect={this.onDropdownSelect.bind(this)}>
+            onSelect={this.onDropdownSelect.bind(this)}
+            disabled={this.props.isDisabled}>
             {this.renderMenuItems()}
           </DropdownButton>
         </FormGroup>
@@ -176,7 +177,8 @@ class RangeInput extends React.Component {
             id={`range-input-${this.props.upperBound ? 'upper' : 'lower'}`}
             componentClass={InputGroup.Button}
             title={this.state.operator}
-            onSelect={this.onDropdownSelect.bind(this)}>
+            onSelect={this.onDropdownSelect.bind(this)}
+            disabled={this.props.isDisabled}>
             {this.renderMenuItems()}
           </DropdownButton>
           <FormControl
@@ -185,7 +187,8 @@ class RangeInput extends React.Component {
             placeholder={placeholder}
             value={this.state.value}
             onChange={this.onInputChange.bind(this)}
-            onBlur={this.onInputBlur.bind(this)}/>
+            onBlur={this.onInputBlur.bind(this)}
+            disabled={this.props.isDisabled}/>
         </InputGroup>
       </FormGroup>
     );
@@ -200,7 +203,8 @@ RangeInput.propTypes = {
   boundIncluded: React.PropTypes.bool.isRequired,
   disabled: React.PropTypes.bool.isRequired,
   onRangeInputBlur: React.PropTypes.func,
-  width: React.PropTypes.number
+  width: React.PropTypes.number,
+  isDisabled: React.PropTypes.bool
 };
 
 RangeInput.defaultProps = {
@@ -209,7 +213,8 @@ RangeInput.defaultProps = {
   upperBound: false,
   validationState: null,
   value: '',
-  width: 160
+  width: 160,
+  isDisabled: false
 };
 
 RangeInput.displayName = 'RangeInput';

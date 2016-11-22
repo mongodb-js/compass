@@ -61,6 +61,7 @@ class Rule extends React.Component {
         id={this.props.id}
         serverVersion={this.props.serverVersion}
         parameters={this.props.parameters}
+        isWritable={this.props.isWritable}
       />) : null;
 
     const nullableDisabled = _.includes(['exists', 'mustNotExist', ''],
@@ -73,6 +74,7 @@ class Rule extends React.Component {
             ref="RuleFieldSelector"
             id={this.props.id}
             field={this.props.field}
+            isWritable={this.props.isWritable}
           />
         </td>
         <td>
@@ -81,6 +83,7 @@ class Rule extends React.Component {
               ref="RuleCategorySelector"
               id={this.props.id}
               category={this.props.category}
+              isWritable={this.props.isWritable}
             />
             {ruleParameters}
           </Form>
@@ -93,9 +96,9 @@ class Rule extends React.Component {
             disabled={nullableDisabled || !this.props.isWritable}
             onChange={this.checkBoxClicked.bind(this)}/></td>
         <td>
-          <RuleDeleteButton
+          {this.props.isWritable ? (<RuleDeleteButton
             id={this.props.id}
-            onClick={this.onDeleteClicked.bind(this)} />
+            onClick={this.onDeleteClicked.bind(this)} />) : null}
         </td>
       </tr>
     );

@@ -105,6 +105,7 @@ class BSONTypeSelector extends React.Component {
         label="BSON Type"
         value={selectedTypeName}
         onSelect={this.onTypeClicked.bind(this)}
+        disabled={this.props.isDisabled}
       />
     );
   }
@@ -115,7 +116,8 @@ BSONTypeSelector.propTypes = {
   typeAlias: React.PropTypes.string,
   typeName: React.PropTypes.string,
   onTypeClicked: React.PropTypes.func,
-  serverVersion: React.PropTypes.string
+  serverVersion: React.PropTypes.string,
+  isDisabled: React.PropTypes.bool
 };
 
 BSONTypeSelector.displayName = 'BSONTypeSelector';

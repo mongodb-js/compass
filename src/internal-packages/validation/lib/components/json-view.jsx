@@ -125,6 +125,7 @@ class JSONView extends React.Component {
                   value={this.props.validationAction}
                   label="validation action:"
                   onSelect={this.onActionSelect.bind(this)}
+                  disabled={!this.props.isWritable}
                 />
                 <OptionSelector
                   id="validation-level-selector"
@@ -133,6 +134,7 @@ class JSONView extends React.Component {
                   value={this.props.validationLevel}
                   label="validation level:"
                   onSelect={this.onLevelSelect.bind(this)}
+                  disabled={!this.props.isWritable}
                 />
               </div>
             </Col>
@@ -147,6 +149,7 @@ class JSONView extends React.Component {
                   value={this.state.input}
                   onChange={this.onInputChanged.bind(this)}
                   onBlur={this.onBlur.bind(this)}
+                  disabled={!this.props.isWritable}
                 />
               </FormGroup>
             </Col>
@@ -161,7 +164,8 @@ JSONView.propTypes = {
   editState: React.PropTypes.oneOf(['unmodified', 'modified', 'updating', 'error', 'success']).isRequired,
   validationAction: React.PropTypes.oneOf(['warn', 'error']).isRequired,
   validationLevel: React.PropTypes.oneOf(['off', 'moderate', 'strict']).isRequired,
-  validatorDoc: React.PropTypes.object.isRequired
+  validatorDoc: React.PropTypes.object.isRequired,
+  isWritable: React.PropTypes.bool
 };
 
 JSONView.displayName = 'JSONView';
