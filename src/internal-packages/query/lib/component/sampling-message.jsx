@@ -123,14 +123,18 @@ class SamplingMessage extends React.Component {
   renderQueryMessage() {
     const noun = pluralize('document', this.state.count);
     return (
-      <div className="sampling-message">
-        Query returned&nbsp;<b>{this.state.count}</b>&nbsp;{noun}.&nbsp;
-        {this._loadedMessage()}
-        {this.CollectionStore.isWritable() ?
-          <TextButton
-            clickHandler={this.props.insertHandler}
-            className="btn btn-primary btn-xs open-insert"
-            text="+ Insert" /> : null }
+      <div>
+        <div className="sampling-message">
+          Query returned&nbsp;<b>{this.state.count}</b>&nbsp;{noun}.&nbsp;
+          {this._loadedMessage()}
+        </div>
+        <div className="action-bar">
+          {this.CollectionStore.isWritable() ?
+            <TextButton
+              clickHandler={this.props.insertHandler}
+              className="btn btn-primary btn-xs open-insert"
+              text="Insert Document" /> : null }
+        </div>
       </div>
     );
   }

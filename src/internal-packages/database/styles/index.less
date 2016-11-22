@@ -1,16 +1,23 @@
 @import './drop-collection-dialog.less';
 
+.collections {
+
+  .tab-nav-bar-header {
+    top: 0;
+  }
+}
+
 .collections-table {
-  font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-weight: 500;
   background-color: @gray8;
-  height: 100vh;
-  min-width: 100%;
-  overflow-x: scroll;
-  margin-top: -60px; //  hack to compensate for light view having +60 margin top
+  overflow-y: scroll;
+  padding: 0 20px 100px 20px;
+  position: absolute;
+  top: 78px;
+  right: 0;
+  bottom: 0;
+  left: 250px;
 
   &-create-button {
-    margin-left: 23px;
-    margin-top: 130px; // this is a bit of a hack
+
   }
 }

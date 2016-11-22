@@ -43,9 +43,9 @@ class CreateIndexButton extends React.Component {
    */
   render() {
     return (
-      <div className="create-index-btn">
+      <div className="create-index-btn action-bar">
         <button
-          className="btn btn-default btn-sm"
+          className="btn btn-primary btn-xs"
           type="button"
           onClick={this.clickCreateHandler.bind(this)}>
           Create Index

@@ -10,16 +10,14 @@ const DBErrorStore = require('../store/dberror-store');
 class PerformanceComponent extends React.Component {
   render() {
     return (
-      <section>
+      <section className="rt-perf">
         <TimeAndPauseButton paused={false} />
-        <section className="rt-perf">
-          <DBErrorComponent store={DBErrorStore} />
-          <section className="rt__graphs-out">
-            <GraphsComponent interval={this.props.interval} />
-          </section>
-          <section className="rt__lists-out">
-            <ListsComponent interval={this.props.interval} />
-          </section>
+        <DBErrorComponent store={DBErrorStore} />
+        <section className="rt__graphs-out">
+          <GraphsComponent interval={this.props.interval} />
+        </section>
+        <section className="rt__lists-out">
+          <ListsComponent interval={this.props.interval} />
         </section>
       </section>
     );

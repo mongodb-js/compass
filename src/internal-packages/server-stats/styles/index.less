@@ -9,13 +9,17 @@
 .RTSS {
   font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 500;
-  background-color: #3D4247;
   height: 100vh;
   min-width: 100%;
   overflow-x: scroll;
+  background-color: @gray8;
 
   ::-webkit-scrollbar {
     display: none;
+  }
+
+  .tab-nav-bar-header {
+    top: 0;
   }
 
   .rt__graphs-out {

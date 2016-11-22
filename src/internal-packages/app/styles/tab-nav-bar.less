@@ -16,30 +16,30 @@
     margin-bottom: 0;
     position: absolute;
     top: 16px;
-    margin-left: 10px;
+    margin-left: 0px;
+    padding-left: 20px;
   }
 
   &-tab {
-    height: 30px;
+    height: 29px;
     width: 130px;
     margin-right: 5px;
     font-size: 13px;
     text-transform: uppercase;
-    border-radius: 3px 3px 0 0;
     display: flex;
     justify-content: center;
     cursor: pointer;
     margin-bottom: 0;
-    color: #43B1E5;
+    color: #838F9B;
+    border-bottom: 3px solid @pw;
   }
 
   &-tab:hover {
     background-color: @pw;
-    color: @gray0;
-    border: 1px solid @gray7;
+    color: @chart1;
 
     .tab-nav-bar-link {
-      color: @gray0;
+      color: @chart1;
     }
   }
 
@@ -48,7 +48,6 @@
     text-transform: uppercase;
     font-size: 11px;
     font-weight: bold;
-    color: #43B1E5;
   }
 
   &-link:hover, &-link:active, &-link:focus {
@@ -58,22 +57,19 @@
 
   &-is-selected {
     .tab-nav-bar-link {
-      color: @gray0;
+      color: @chart1;
     }
 
     &.tab-nav-bar-tab:hover {
-      background-color: @gray8;
-      border-bottom: none;
+      border-color: @chart1;
     }
-    background-color: @gray8;
     cursor: default;
-    border: #ebebed 1px solid;
-    border-bottom: none;
+    border-color: @chart1;
   }
-
+  //shouldn't positioning of the component happen when it's rendered by its parent?
   &-is-light-theme {
     .tab-nav-bar-header {
-      top: 60px;
+      top: 50px;
       height: 46px;
       z-index: 2;
       border-bottom: 1px solid #ebebed;
