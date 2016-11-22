@@ -2,7 +2,7 @@ const React = require('react');
 const app = require('ampersand-app');
 const ExplainBody = require('./explain-body');
 const ExplainHeader = require('./explain-header');
-
+const StatusRow = app.appRegistry.getComponent('App.StatusRow');
 // const debug = require('debug')('mongodb-compass:explain');
 
 /**
@@ -20,6 +20,11 @@ const ExplainHeader = require('./explain-header');
  *     .explain-json     (mutually exclusive with .explain-tree)
  */
 
+const READ_ONLY_WARNING = 'Explain plans on readonly views are not supported.';
+
+const COLLECTION_SCAN_WARNING = 'To prevent unintended collection scans, please'
+  + ' enter your query first before applying and viewing your explain plan.';
+
 class CompassExplain extends React.Component {
 
   constructor(props) {
@@ -31,7 +36,15 @@ class CompassExplain extends React.Component {
     this.queryBar = app.appRegistry.getComponent('Query.QueryBar');
   }
 
-  renderComponent() {
+  renderWarning(warning) {
+    return (
+      <StatusRow style="warning">
+        {warning}
+      </StatusRow>
+    );
+  }
+
+  renderContent() {
     return (
       <div className="column-container with-refinebar">
         <div className="column main">
@@ -54,24 +67,26 @@ class CompassExplain extends React.Component {
     );
   }
 
-  renderReadonly() {
-    return (
-      <div className="compass-explain-notice">
-        Explain plans on readonly views are not supported.
-      </div>
-    );
-  }
-
   /**
    * Render Explain.
    *
    * @returns {React.Component} The Explain view.
    */
   render() {
+    let content;
+
+    if (this.CollectionStore.isReadonly()) {
+      content = this.renderWarning(READ_ONLY_WARNING);
+    } else if (this.props.explainState === 'initial') {
+      content = this.renderWarning(COLLECTION_SCAN_WARNING);
+    } else {
+      content = this.renderContent();
+    }
+
     return (
       <div className="compass-explain header-margin">
         <this.queryBar />
-        {this.CollectionStore.isReadonly() ? this.renderReadonly() : this.renderComponent()}
+        {content}
       </div>
     );
   }

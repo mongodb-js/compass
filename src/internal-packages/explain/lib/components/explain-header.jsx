@@ -1,8 +1,9 @@
 const React = require('react');
 const ExplainSummary = require('./explain-summary');
+const app = require('ampersand-app');
 
 const ViewSwitcher = require('./shared/view-switcher');
-const StatusRow = require('./shared/status-row');
+const StatusRow = app.appRegistry.getComponent('App.StatusRow');
 
 const ExplainActions = require('../actions');
 
