@@ -1,4 +1,4 @@
-/* eslint no-unused-vars: 0 */
+/* eslint no-unused-vars: 0, no-unused-expressions: 0 */
 const app = require('ampersand-app');
 const chai = require('chai');
 const chaiEnzyme = require('chai-enzyme');
@@ -16,10 +16,9 @@ const TabNavBar = require('../src/internal-packages/app/lib/components/tab-nav-b
 chai.use(chaiEnzyme());
 
 describe('<Collection />', function() {
-
   let appRegistry = app.appRegistry;
   let appInstance = app.instance;
-  beforeEach(function () {
+  beforeEach(function() {
     // Mock the AppRegistry with a new one so tests don't complain about
     // appRegistry.getComponent (i.e. appRegistry being undefined)
     app.appRegistry = new AppRegistry();
@@ -37,7 +36,7 @@ describe('<Collection />', function() {
     // or a ReactClass (for composite components).
     app.appRegistry.registerComponent('CollectionStats.CollectionStats', sinon.spy());
   });
-  afterEach(function () {
+  afterEach(function() {
     // Restore properties on the global app object,
     // so they don't affect other tests
     app.appRegistry = appRegistry;

@@ -88,6 +88,10 @@ class Collection extends React.Component {
   }
 }
 
+Collection.propTypes = {
+  showView: React.PropTypes.bool
+};
+
 Collection.displayName = 'Collection';
 
 module.exports = Collection;
