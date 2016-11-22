@@ -30,6 +30,12 @@ describe('<Collection />', function() {
     app.appRegistry.registerComponent('Indexes.Indexes', sinon.spy());
     app.appRegistry.registerComponent('Explain.ExplainPlan', sinon.spy());
     app.appRegistry.registerComponent('Validation.Validation', sinon.spy());
+
+    // Fixes Warning: React.createElement:
+    // type should not be null, undefined, boolean, or number.
+    // It should be a string (for DOM elements)
+    // or a ReactClass (for composite components).
+    app.appRegistry.registerComponent('CollectionStats.CollectionStats', sinon.spy());
   });
   afterEach(function () {
     // Restore properties on the global app object,
