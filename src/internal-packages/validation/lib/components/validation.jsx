@@ -7,8 +7,6 @@ const RuleBuilder = require('./rule-builder');
 const JSONView = require('./json-view');
 const StatusRow = app.appRegistry.getComponent('App.StatusRow');
 
-const Grid = require('react-bootstrap').Grid;
-
 // const debug = require('debug')('mongodb-compass:validation');
 
 /**
@@ -69,7 +67,7 @@ class Validation extends React.Component {
       this.props.viewMode : 'JSON';
 
     return (
-      <Grid fluid>
+      <div>
         <ValidationStatusRow>
           <ViewSwitcher
             label="View as:"
@@ -79,8 +77,10 @@ class Validation extends React.Component {
             disabled={!this.props.isExpressibleByRules}
           />
         </ValidationStatusRow>
-        {view}
-      </Grid>
+        <div className="column main">
+          {view}
+        </div>
+      </div>
     );
   }
 
@@ -95,7 +95,9 @@ class Validation extends React.Component {
   render() {
     return (
       <div className="validation header-margin">
-        {this.CollectionStore.isReadonly() ? this.renderReadonly() : this.renderComponent()}
+        <div className="column-container with-message">
+          {this.CollectionStore.isReadonly() ? this.renderReadonly() : this.renderComponent()}
+        </div>
       </div>
     );
   }
