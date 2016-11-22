@@ -55,7 +55,11 @@ const CompassExplainStore = Reflux.createStore({
   onQueryChanged(state) {
     if (state.query) {
       this.query = state.query;
-      this.fetchExplainPlan();
+      if (state.queryState === 'reset') {
+        this._reset();
+      } else {
+        this.fetchExplainPlan();
+      }
     }
   },
 

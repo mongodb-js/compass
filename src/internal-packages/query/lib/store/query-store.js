@@ -15,6 +15,8 @@ const debug = require('debug')('mongodb-compass:stores:query');
 
 const USER_TYPING_DEBOUNCE_MS = 100;
 const FEATURE_FLAG_REGEX = /^(enable|disable) (\w+)\s*$/;
+const RESET_STATE = 'reset';
+const APPLY_STATE = 'apply';
 
 const DEFAULT_QUERY = {};
 const DEFAULT_SORT = { _id: -1 };
@@ -22,6 +24,7 @@ const DEFAULT_LIMIT = 1000;
 const DEFAULT_SKIP = 0;
 const DEFAULT_PROJECT = {};
 const DEFAULT_MAX_TIME_MS = ms('10 seconds');
+const DEFAULT_STATE = RESET_STATE;
 // const DEFAULT_QUERY_STRING = '{}';
 
 /**
@@ -60,6 +63,7 @@ const QueryStore = Reflux.createStore({
       project: DEFAULT_PROJECT,
       maxTimeMS: DEFAULT_MAX_TIME_MS,
       queryString: '',
+      queryState: DEFAULT_STATE, // either apply or reset
       valid: true,
       featureFlag: false,
       lastExecutedQuery: null,
@@ -405,6 +409,8 @@ const QueryStore = Reflux.createStore({
       return;
     }
 
+    this.setState({queryState: APPLY_STATE});
+
     // empty string is interpreted as {}
     if (this.state.queryString === '') {
       this.setQuery({});
@@ -420,10 +426,15 @@ const QueryStore = Reflux.createStore({
    * dismiss current changes to the query and restore `{}` as the query.
    */
   reset() {
+    this.setState({queryState: RESET_STATE});
     if (!_.isEqual(this.state.query, {})) {
       this.setQuery({});
       if (!_.isEqual(this.state.lastExecutedQuery, {})) {
-        this.apply();
+        if (this.state.valid) {
+          this.setState({
+            lastExecutedQuery: _.clone(this.state.query)
+          });
+        }
       }
     }
   },
