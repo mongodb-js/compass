@@ -237,7 +237,7 @@ const ValidationStore = Reflux.createStore({
       const serverVersion = app.instance.build.version;
       this.setState({serverVersion: serverVersion});
     }
-    app.dataService.listCollections(ns.database, {name: ns.collection}, {readPreference: READ}, function(err, res) {
+    app.dataService.listCollections(ns.database, {name: ns.collection}, function(err, res) {
       if (err) {
         return callback(err);
       }
@@ -287,6 +287,9 @@ const ValidationStore = Reflux.createStore({
 
         // retrieve writeable status
         const isWritable = this.CollectionStore.isWritable();
+
+        debug('write status is: ', isWritable);
+
         // store result from server
         const validatorDoc = res.options;
         this.lastFetchedValidatorDoc = _.clone(validatorDoc);
@@ -317,8 +320,7 @@ const ValidationStore = Reflux.createStore({
             validatorDoc: validatorDoc,
             validationLevel: result.level,
             validationAction: result.action,
-            editState: 'unmodified',
-            isWritable: isWritable
+            editState: 'unmodified'
           });
           return;
         }
