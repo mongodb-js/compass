@@ -86,7 +86,13 @@ class Validation extends React.Component {
   renderReadonly() {
     return (
       <div className="validation-notice">
-        Document validation rules may not be added to readonly views.
+        <div className="validation-pill">
+        <i className="fa fa-lock" aria-hidden="true" />
+          Read-Only
+        </div>
+        <p className="validation-message">
+          Document validation rules may not be added to read-only views.
+        </p> 
       </div>
     );
   }

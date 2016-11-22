@@ -57,7 +57,13 @@ class CompassExplain extends React.Component {
   renderReadonly() {
     return (
       <div className="compass-explain-notice">
-        Explain plans on readonly views are not supported.
+        <div className="compass-explain-pill">
+        <i className="fa fa-lock" aria-hidden="true" />
+          Read-Only
+        </div>
+        <p className="compass-explain-message">
+          Explain plans on read-only views are not supported.
+        </p> 
       </div>
     );
   }
