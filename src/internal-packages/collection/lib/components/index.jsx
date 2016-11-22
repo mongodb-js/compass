@@ -1,5 +1,6 @@
 const React = require('react');
 const app = require('ampersand-app');
+const semver = require('semver');
 const toNS = require('mongodb-ns');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 
@@ -39,20 +40,24 @@ class Collection extends React.Component {
   }
 
   showCollection() {
+    const serverVersion = app.instance.build.version;
+    const DV_ENABLED = semver.gt(serverVersion, '3.2.0-rc0');
     const tabs = [
       'SCHEMA',
       'DOCUMENTS',
       'EXPLAIN PLAN',
-      'INDEXES',
-      'VALIDATION'
+      'INDEXES'
     ];
     const views = [
       <this.Schema />,
       <this.Document />,
       <this.Explain />,
-      <this.Indexes />,
-      <this.Validation />
+      <this.Indexes />
     ];
+    if (DV_ENABLED) {
+      tabs.push('VALIDATION');
+      views.push(<this.Validation />);
+    }
 
     return (
       <div className="collection-view clearfix">
