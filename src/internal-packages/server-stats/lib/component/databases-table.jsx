@@ -42,15 +42,15 @@ class DatabasesTable extends React.Component {
 
     return (
       <div className="rtss-databases">
-        <div className="rtss-databases-create-button">
+        <div className="rtss-databases-create-button action-bar">
           {writable ?
             <TextButton
               text="Create Database"
-              className="btn btn-default btn-sm"
+              className="btn btn-primary btn-xs"
               clickHandler={this.onCreateDatabaseButtonClicked.bind(this)} /> : null}
         </div>
         <this.SortableTable
-          theme="dark"
+          theme="light"
           columns={this.props.columns}
           rows={rows}
           sortable

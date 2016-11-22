@@ -1,5 +1,4 @@
 const React = require('react');
-const { Row, Col } = require('react-bootstrap');
 
 class StatusRow extends React.Component {
 
@@ -10,11 +9,9 @@ class StatusRow extends React.Component {
    */
   render() {
     return (
-      <Row className="validation-status-row">
-        <Col lg={12} md={12} sm={12} xs={12}>
+      <div>
           {this.props.children}
-        </Col>
-      </Row>
+      </div>
     );
   }
 }

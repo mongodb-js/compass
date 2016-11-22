@@ -73,7 +73,7 @@ const QueryInputGroup = React.createClass({
           <span className="input-group-btn">
             <button
               id="apply_button"
-              className="btn btn-default btn-sm"
+              className="btn btn-primary btn-sm"
               type="button"
               onClick={this.onApplyButtonClicked}
               disabled={applyDisabled}>Apply</button>
