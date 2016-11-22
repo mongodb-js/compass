@@ -2,7 +2,7 @@ const React = require('react');
 const _ = require('lodash');
 // const debug = require('debug')('mongodb-compass:app:nav-bar');
 
-class NavBarComponent extends React.Component {
+class TabNavBar extends React.Component {
 
   constructor(props) {
     super(props);
@@ -87,7 +87,7 @@ class NavBarComponent extends React.Component {
   }
 }
 
-NavBarComponent.propTypes = {
+TabNavBar.propTypes = {
   theme: React.PropTypes.oneOf(['dark', 'light']),
   activeTabIndex: React.PropTypes.number,
   mountAllViews: React.PropTypes.bool,
@@ -96,12 +96,12 @@ NavBarComponent.propTypes = {
   onTabClicked: React.PropTypes.func
 };
 
-NavBarComponent.defaultProps = {
+TabNavBar.defaultProps = {
   theme: 'light',
   activeTabIndex: 0,
   mountAllViews: true
 };
 
-NavBarComponent.displayName = 'NavBarComponent';
+TabNavBar.displayName = 'TabNavBar';
 
-module.exports = NavBarComponent;
+module.exports = TabNavBar;
