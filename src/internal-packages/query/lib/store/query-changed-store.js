@@ -30,6 +30,7 @@ const QueryChangedStore = Reflux.createStore({
   getInitialState() {
     return {
       query: null,
+      queryState: 'reset',
       sort: {},
       limit: 0,
       skip: 0,
@@ -47,6 +48,7 @@ const QueryChangedStore = Reflux.createStore({
     if (!_.isEqual(this.state.query, state.lastExecutedQuery)) {
       this.setState({
         query: state.lastExecutedQuery,
+        queryState: state.queryState,
         sort: state.sort,
         limit: state.limit,
         skip: state.skip,
