@@ -33,7 +33,7 @@ let createGitHubRelease = (CONFIG) => {
 
   cli.debug('Creating release', opts);
 
-  github.releases.createRelease(opts, function(err, res) {
+  github.repos.createRelease(opts, function(err, res) {
     if (err) p.reject(err);
 
     cli.debug('Created release', res);
@@ -48,7 +48,7 @@ let getOrCreateGitHubRelease = (CONFIG) => {
     owner: CONFIG.github_owner,
     repo: CONFIG.github_repo
   };
-  github.releases.listReleases(opts, (err, releases) => {
+  github.repos.getReleases(opts, (err, releases) => {
     if (err) {
       return p.reject(err);
     }
@@ -85,7 +85,7 @@ let removeGitHubReleaseAssetIfExists = (CONFIG, release, asset) => {
   };
 
   const p = Promise.defer();
-  github.releases.deleteAsset(opts, (err, res) => {
+  github.repos.deleteAsset(opts, (err, res) => {
     if (err) {
       return p.reject(err);
     }
@@ -107,7 +107,7 @@ let doGitHubReleaseAssetUpload = (CONFIG, release, asset) => {
   cli.spinner(`Uploading ${asset.name}`);
 
   const p = Promise.defer();
-  github.releases.uploadAsset(opts, function(err, res) {
+  github.repos.uploadAsset(opts, function(err, res) {
     if (err) {
       err.stack = err.stack || '<no stacktrace>';
       cli.error(`Failed to upload ${asset.name}`);
