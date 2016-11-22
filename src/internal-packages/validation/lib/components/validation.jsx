@@ -1,10 +1,11 @@
 const app = require('ampersand-app');
 const React = require('react');
 const ValidationActions = require('../actions');
-const StatusRow = require('./common/status-row');
+const ValidationStatusRow = require('./common/status-row');
 const ViewSwitcher = require('./common/view-switcher');
 const RuleBuilder = require('./rule-builder');
 const JSONView = require('./json-view');
+const StatusRow = app.appRegistry.getComponent('App.StatusRow');
 
 const Grid = require('react-bootstrap').Grid;
 
@@ -69,7 +70,7 @@ class Validation extends React.Component {
 
     return (
       <Grid fluid>
-        <StatusRow>
+        <ValidationStatusRow>
           <ViewSwitcher
             label="View as:"
             buttonLabels={['Rule Builder', 'JSON']}
@@ -77,7 +78,7 @@ class Validation extends React.Component {
             onClick={this.switchView.bind(this)}
             disabled={!this.props.isExpressibleByRules}
           />
-        </StatusRow>
+        </ValidationStatusRow>
         {view}
       </Grid>
     );
@@ -85,9 +86,9 @@ class Validation extends React.Component {
 
   renderReadonly() {
     return (
-      <div className="validation-notice">
+      <StatusRow style="warning">
         Document validation rules may not be added to readonly views.
-      </div>
+      </StatusRow>
     );
   }
 

@@ -10,7 +10,7 @@ class StatusRow extends React.Component {
    */
   render() {
     return (
-      <Row className="status-row">
+      <Row className="validation-status-row">
         <Col lg={12} md={12} sm={12} xs={12}>
           {this.props.children}
         </Col>
