@@ -249,7 +249,7 @@ class DocumentList extends React.Component {
       <div className="header-margin">
         <this.queryBar />
         <this.samplingMessage insertHandler={this.handleOpenInsert.bind(this)} />
-        <div className="column-container with-refinebar-and-message">
+        <div className="column-container with-refinebar-and-2xmessage">
           <div className="column main">
             <ol className={LIST_CLASS} ref={(c) => this._node = c}>
               {this.state.docs}
