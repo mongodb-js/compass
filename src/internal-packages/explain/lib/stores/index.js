@@ -36,7 +36,6 @@ const CompassExplainStore = Reflux.createStore({
       if (ns && toNS(ns).collection) {
         this.query = {};
         this._reset();
-        this.fetchExplainPlan();
       }
     });
 
@@ -54,9 +53,14 @@ const CompassExplainStore = Reflux.createStore({
   },
 
   onQueryChanged(state) {
-    this.query = state.query;
-    this._reset();
-    this.fetchExplainPlan();
+    if (state.query) {
+      this.query = state.query;
+      if (state.queryState === 'reset') {
+        this._reset();
+      } else {
+        this.fetchExplainPlan();
+      }
+    }
   },
 
   /**
