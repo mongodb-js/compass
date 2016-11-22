@@ -1,27 +1,54 @@
 /* eslint no-unused-vars: 0 */
+const app = require('ampersand-app');
 const chai = require('chai');
 const chaiEnzyme = require('chai-enzyme');
 const expect = chai.expect;
 const React = require('react');
-
-const mount = require('enzyme').mount;
+const sinon = require('sinon');
 const shallow = require('enzyme').shallow;
+const AppRegistry = require('hadron-app-registry');
 const Collection = require('../src/internal-packages/collection/lib/components/index');
-const _ = require('lodash');
+const TabNavBar = require('../src/internal-packages/app/lib/components/tab-nav-bar');
 
-const debug = require('debug')('compass:collection:test');
+// const debug = require('debug')('compass:collection:test');
 
 // use chai-enzyme assertions, see https://github.com/producthunt/chai-enzyme
 chai.use(chaiEnzyme());
 
 describe('<Collection />', function() {
-  it.skip('has 4 tabs by default', function() {
-    const component = shallow(<Collection />);
-    // debug('component', component.debug());
-    expect(component).to.have.length(4);
+
+  let appRegistry = app.appRegistry;
+  let appInstance = app.instance;
+  beforeEach(function () {
+    // Mock the AppRegistry with a new one so tests don't complain about
+    // appRegistry.getComponent (i.e. appRegistry being undefined)
+    app.appRegistry = new AppRegistry();
+    app.appRegistry.registerComponent('App.TabNavBar', TabNavBar);
+
+    app.appRegistry.registerComponent('Schema.Schema', sinon.spy());
+    app.appRegistry.registerComponent('CRUD.DocumentList', sinon.spy());
+    app.appRegistry.registerComponent('Indexes.Indexes', sinon.spy());
+    app.appRegistry.registerComponent('Explain.ExplainPlan', sinon.spy());
+    app.appRegistry.registerComponent('Validation.Validation', sinon.spy());
   });
-  it.skip('has a validation tab when serverVersion >= 3.2', function() {
-    const component = shallow(<Collection serverVersion={'3.2.0'} />);
-    expect(component).to.have.length(5);
+  afterEach(function () {
+    // Restore properties on the global app object,
+    // so they don't affect other tests
+    app.appRegistry = appRegistry;
+    app.instance = appInstance;
+  });
+
+  it('has 4 tabs with server version 3.0.6', function() {
+    app.instance = {build: {version: '3.0.6'}};
+    const component = shallow(<Collection showView={true} />);
+    const tabs = component.find(TabNavBar).dive().find('.tab-nav-bar-tab');
+    expect(tabs).to.have.length(4);
+  });
+  it('has 5 tabs inc a validation tab when serverVersion >= 3.2.0', function() {
+    app.instance = {build: {version: '3.2.0'}};
+    const component = shallow(<Collection showView={true} />);
+    const tabs = component.find(TabNavBar).dive().find('.tab-nav-bar-tab');
+    expect(tabs.find('#VALIDATION')).to.exist;
+    expect(tabs).to.have.length(5);
   });
 });

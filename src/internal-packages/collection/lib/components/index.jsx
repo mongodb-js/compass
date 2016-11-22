@@ -10,7 +10,7 @@ class Collection extends React.Component {
 
     this.state = {
       name: '',
-      showView: false,
+      showView: this.props.showView || false,
       activeTab: 0
     };
     this.Stats = app.appRegistry.getComponent('CollectionStats.CollectionStats');
