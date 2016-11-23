@@ -1,103 +1,37 @@
-.chart {
+.serverstats {
 
-  &-rect {
+  &-chart-background {
     fill: #484D51;
   }
 
-  &-title {
+  &-chart-title {
     text-transform: uppercase;
-    text-anchor: start;
     font-size: 11px;
     font-weight: bold;
-    fill: white;
+    color: white;
+    margin: 15px 0 0 55px;
   }
 
-  &-color-0 { /* teal */
-    stroke: #45BAAB;
-    fill: #45BAAB;
-  }
-
-  &-color-1 { /* blue */
-    stroke: #23B1FF;
-    fill: #23B1FF;
-  }
-
-  &-color-2 { /* purple */
-    stroke: #6F72FF;
-    fill: #6F72FF;
-  }
-
-  &-color-3 { /* red */
-    stroke: #A33A35;
-    fill: #A33A35;
-  }
-
-  &-color-4 { /* orange */
-    stroke: #FFA900;
-    fill: #FFA900;
-  }
-
-  &-color-5 { /* yellow */
-    stroke: #C7E82F;
-    fill: #C7E82F;
-  }
-
-  &-axis-labels {
+  &-y-axis-label, &-y2-axis-label {
     font-size: 9px;
+    color: #9ca4ab;
+    margin: 5px 0;
   }
 
-  &-error-message {
-    text-transform: uppercase;
-    text-anchor: middle;
-    font-size: 14px;
-    fill: white;
-  }
-
-  &-y-label {
-    text-anchor: end;
-    fill: #9ca4ab;
-  }
-
-  &-second-label {
-    text-anchor: start;
-    fill: #9ca4ab;
-  }
-
-  &-x-label {
-    text-anchor: middle;
-    fill: #9ca4ab;
-  }
-
-  &-line-div, &-second-line-div {
-    opacity: 1;
-    fill: none;
-    stroke-width: 2px;
-  }
-
-  &-legend-box {
-    stroke-width: 2px;
-    fill-opacity: 1;
+  &-legend-item {
+    margin-top: 5px;
   }
 
   &-legend-linename {
     text-transform: uppercase;
     font-size: 10px;
-    fill: #9ca4ab;
+    color: #9ca4ab;
+    margin: 0 0 0 5px;
   }
 
   &-legend-count {
     font-size: 12px;
-    fill: white;
-  }
-
-  &-focus {
-    stroke: white;
-    fill: white;
-    font-size: 11px;
-    text-anchor: middle;
-  }
-
-  &-overlay-line {
-    stroke-width: 1px;
+    color: white;
+    margin: 5px 0 0 5px;
   }
 }
