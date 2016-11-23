@@ -3,19 +3,16 @@ const debug = require('debug')('mongodb-compass:migrations');
 const ConnectionCollection = require('../models/connection-collection');
 
 /**
- * From 1.4.0 and higher connections would have their passwords stored as plaintext.
- * This migration resaves the connections with the COMPASS-426 fixes so the
- * attributes get saved in the correct place.
- *
- * @see COMPASS-426
+ * This migration removes and then re-saves all connections in order to trigger
+ * the secureCondition of the "splice" storage backend again, which wasn't correctly
+ * working in 1.4.1, see COMPASS-426.
  */
 function removePlaintextPasswords(done) {
   debug('migration: removePlaintextPasswords');
   const connections = new ConnectionCollection();
   connections.once('sync', function() {
     connections.each(function(connection) {
-      // We destroy the connection and resave it so the passwords move to the
-      // correct storage.
+      // We destroy the connection and resave it to persist to the correct engine.
       if (connection) {
         connection.destroy();
         connection.save();
