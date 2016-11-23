@@ -1,5 +1,6 @@
 const React = require('react');
 const Element = require('hadron-document').Element;
+const Field = require('hadron-app-registry').Field;
 const EditableKey = require('./editable-key');
 const ElementValue = require('./element-value');
 const ElementAction = require('./element-action');
@@ -56,6 +57,11 @@ const HEADER_LABEL = `${HEADER}-label`;
  * The carat for toggling expansion class.
  */
 const HEADER_TOGGLE = `${HEADER}-toggle`;
+
+/**
+ * The separator style.
+ */
+const SEPARATOR = 'element-separator';
 
 /**
  * General editable element component.
@@ -126,12 +132,14 @@ class EditableElement extends React.Component {
    */
   style(base = BEM_BASE) {
     let style = base;
-    if (this.element.isAdded()) {
-      style = style.concat(` ${base}-${ADDED}`);
-    } else if (this.element.isEdited()) {
-      style = style.concat(` ${base}-${EDITED}`);
-    } else if (this.element.isRemoved()) {
-      style = style.concat(` ${base}-${REMOVED}`);
+    if (this.props.editing) {
+      if (this.element.isAdded()) {
+        style = style.concat(` ${base}-${ADDED}`);
+      } else if (this.element.isEdited()) {
+        style = style.concat(` ${base}-${EDITED}`);
+      } else if (this.element.isRemoved()) {
+        style = style.concat(` ${base}-${REMOVED}`);
+      }
     }
     if (this.state.expanded) {
       style = style.concat(` ${base}-${EXPANDED}`);
@@ -161,28 +169,72 @@ class EditableElement extends React.Component {
     return components;
   }
 
+  /**
+   * Render the action column.
+   *
+   * @returns {React.Component} The component.
+   */
   renderAction() {
     if (this.props.editing) {
       return (<ElementAction element={this.element} />);
     }
   }
 
+  /**
+   * Render the line number column.
+   *
+   * @returns {React.Component} The component.
+   */
   renderLineNumber() {
     if (this.props.editing) {
       return (<LineNumber />);
     }
   }
 
+  /**
+   * Render the hotspot column.
+   *
+   * @returns {React.Component} The component.
+   */
   renderHotspot() {
     if (this.props.editing) {
       return (<Hotspot key="editable-element-hotspot" element={this.element} />);
     }
   }
 
+  /**
+   * Render the separator column.
+   *
+   * @returns {React.Component} The component.
+   */
+  renderSeparator() {
+    return (<span className={SEPARATOR}>:</span>);
+  }
+
+  /**
+   * Render the types column.
+   *
+   * @returns {React.Component} The component.
+   */
   renderTypes() {
     if (this.props.editing) {
       return (<Types element={this.element} />);
     }
+  }
+
+  renderKey() {
+    if (this.props.editing) {
+      return (<EditableKey element={this.element} index={this.props.index} />);
+    }
+    return (
+      <div className="editable-element-field">
+        {this.element.currentKey}
+      </div>
+    );
+  }
+
+  renderValue() {
+
   }
 
   /**
@@ -195,8 +247,8 @@ class EditableElement extends React.Component {
       <li className={this.style()} style={this.inlineStyle()}>
         {this.renderAction()}
         {this.renderLineNumber()}
-        <EditableKey element={this.element} index={this.props.index} />
-        <span className="element-separator">:</span>
+        {this.renderKey()}
+        {this.renderSeparator()}
         <ElementValue element={this.element} />
         {this.renderHotspot()}
         {this.renderTypes()}
@@ -215,9 +267,13 @@ class EditableElement extends React.Component {
         <div className={this.style(HEADER)} style={this.inlineStyle()}>
           {this.renderAction()}
           {this.renderLineNumber()}
-          <div className={HEADER_TOGGLE} style={this.inlineToggleStyle()} onClick={this.toggleExpandable.bind(this)}></div>
-          <EditableKey element={this.element} index={this.props.index} />
-          <span className="element-separator">:</span>
+          <div
+            className={HEADER_TOGGLE}
+            style={this.inlineToggleStyle()}
+            onClick={this.toggleExpandable.bind(this)}>
+          </div>
+          {this.renderKey()}
+          {this.renderSeparator()}
           <div className={HEADER_LABEL} onClick={this.toggleExpandable.bind(this)}>
             {this.element.currentType}
           </div>
