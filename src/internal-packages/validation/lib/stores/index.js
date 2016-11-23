@@ -237,7 +237,7 @@ const ValidationStore = Reflux.createStore({
       const serverVersion = app.instance.build.version;
       this.setState({serverVersion: serverVersion});
     }
-    app.dataService.listCollections(ns.database, {name: ns.collection}, function(err, res) {
+    app.dataService.listCollections(ns.database, {name: ns.collection}, {readPreference: READ}, function(err, res) {
       if (err) {
         return callback(err);
       }
