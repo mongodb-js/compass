@@ -108,6 +108,11 @@ class EditableElement extends React.Component {
     return { paddingLeft: `${this.props.indent}px` };
   }
 
+  /**
+   * Get the inline style for the toggle.
+   *
+   * @returns {Object} The inline style for the toggle.
+   */
   inlineToggleStyle() {
     return { left: `${this.props.indent + 44}px` };
   }
@@ -143,12 +148,41 @@ class EditableElement extends React.Component {
     const components = [];
     let index = 0;
     for (const element of this.element.elements) {
-      components.push(
-        <EditableElement key={element.uuid} element={element} index={index} indent={this.props.indent + 16}/>
-      );
+      components.push((
+        <EditableElement
+          key={element.uuid}
+          element={element}
+          index={index}
+          indent={this.props.indent + 16}
+          editing={this.props.editing} />
+      ));
       index++;
     }
     return components;
+  }
+
+  renderAction() {
+    if (this.props.editing) {
+      return (<ElementAction element={this.element} />);
+    }
+  }
+
+  renderLineNumber() {
+    if (this.props.editing) {
+      return (<LineNumber />);
+    }
+  }
+
+  renderHotspot() {
+    if (this.props.editing) {
+      return (<Hotspot key="editable-element-hotspot" element={this.element} />);
+    }
+  }
+
+  renderTypes() {
+    if (this.props.editing) {
+      return (<Types element={this.element} />);
+    }
   }
 
   /**
@@ -159,13 +193,13 @@ class EditableElement extends React.Component {
   renderNonExpandable() {
     return (
       <li className={this.style()} style={this.inlineStyle()}>
-        <ElementAction element={this.element} />
-        <LineNumber />
+        {this.renderAction()}
+        {this.renderLineNumber()}
         <EditableKey element={this.element} index={this.props.index} />
         <span className="element-separator">:</span>
         <ElementValue element={this.element} />
-        <Hotspot key="editable-element-hotspot" element={this.element} />
-        <Types element={this.element} />
+        {this.renderHotspot()}
+        {this.renderTypes()}
       </li>
     );
   }
@@ -179,8 +213,8 @@ class EditableElement extends React.Component {
     return (
       <li className={this.style(BEM_EXP_BASE)}>
         <div className={this.style(HEADER)} style={this.inlineStyle()}>
-          <ElementAction element={this.element} />
-          <LineNumber />
+          {this.renderAction()}
+          {this.renderLineNumber()}
           <div className={HEADER_TOGGLE} style={this.inlineToggleStyle()} onClick={this.toggleExpandable.bind(this)}></div>
           <EditableKey element={this.element} index={this.props.index} />
           <span className="element-separator">:</span>
