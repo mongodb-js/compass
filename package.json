@@ -146,7 +146,7 @@
     "reflux": "0.4.1",
     "reflux-state-mixin": "^0.7.0",
     "semver": "^5.1.0",
-    "storage-mixin": "^0.8.0",
+    "storage-mixin": "^0.8.1",
     "tunnel-ssh": "^3.2.1-beta",
     "turf-destination": "^1.2.1",
     "turf-distance": "^1.1.0",
