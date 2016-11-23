@@ -35,7 +35,7 @@ class ViewSwitcher extends React.Component {
   render() {
     const buttons = this.buttonFactory();
     return (
-      <div className="view-switcher">
+      <div className="view-switcher action-bar">
         <span className="view-switcher-label">{this.props.label}</span>
         <ButtonGroup bsSize="xsmall">
           {buttons}

@@ -56,12 +56,12 @@ class Rule extends React.Component {
   render() {
     const Parameters = _.get(ruleCategories, this.props.category, null);
     const ruleParameters = Parameters ?
-      <Parameters
+      (<Parameters
         ref="Parameters"
         id={this.props.id}
         serverVersion={this.props.serverVersion}
         parameters={this.props.parameters}
-      /> : null;
+      />) : null;
 
     const nullableDisabled = _.includes(['exists', 'mustNotExist', ''],
       this.props.category);

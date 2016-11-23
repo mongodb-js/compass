@@ -1,14 +1,12 @@
-'use strict';
-
 const _ = require('lodash');
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
-const fs = require('fs');
+const assert = require('assert');
+// const fs = require('fs');
 const format = require('util').format;
 const path = require('path');
 const electronPrebuilt = require('electron-prebuilt');
 const Application = require('spectron').Application;
-const debug = require('debug')('mongodb-test-utils:spectron-support');
 
 chai.use(chaiAsPromised);
 
@@ -21,7 +19,7 @@ chai.use(chaiAsPromised);
  */
 function responseValue(response) {
   return response.value;
-};
+}
 
 /**
  * Get the spectron application.
@@ -31,44 +29,7 @@ function responseValue(response) {
 function createApplication() {
   var dir = path.join(__dirname, '..', '..');
   return new Application({ path: electronPrebuilt, args: [ dir ], env: process.env, cwd: dir });
-};
-
-/**
- * Call startApplication in beforeEach for all UI tests:
- *
- * @param {String} distDir - The dist directory.
- *
- * @returns {Promise} Promise that resolves when app starts.
- *
- * @example
- * beforeEach(helpers.startApplication);
- */
-function startApplication(distDir) {
-  var app = createApplication(distDir);
-  return app.start().then(() => {
-    addCommands(app.client);
-    chaiAsPromised.transferPromiseness = app.transferPromiseness;
-    chai.should().exist(app.client);
-    return app.client.waitUntilWindowLoaded(20000);
-  }).then(() => {
-    return app;
-  });
-};
-
-/**
- * Call stopApplication in afterEach for all UI tests:
-
- * @returns {Promise} Promise that resolves when app stops.
- *
- * @example
- * afterEach(helpers.startApplication);
- */
-function stopApplication(app) {
-  if (app && app.isRunning()) {
-    debug('Stopping Spectron Application');
-    return app.stop();
-  } else return;
-};
+}
 
 /**
  * Add helper commands to the webdriverIO client in a describe block:
@@ -82,7 +43,6 @@ function stopApplication(app) {
  *
  */
 function addCommands(client) {
-
   /**
    * Fills out the connect form.
    */
@@ -105,7 +65,7 @@ function addCommands(client) {
       sequence = sequence.then(function() {
         return that.selectByValue('select[name=authentication]', model.authentication);
       });
-      var authFields = Connection.getFieldNames(model.authentication);
+      var authFields = client.getFieldNames(model.authentication);
       _.each(authFields, function(field) {
         if (model[field]) {
           sequence = sequence.then(function() {
@@ -162,7 +122,7 @@ function addCommands(client) {
    * Wait for the connect window to redirect after successful connection.
    */
   client.addCommand('waitForSchemaWindow', function() {
-    return this.waitForVisible('.compass-sidebar-container');
+    return this.waitForVisible('.compass-sidebar-container', 30000);
   });
 
   /**
@@ -219,32 +179,31 @@ function addCommands(client) {
    * Refines the sample by entering the provided filter in the field and clicking apply.
    */
   client.addCommand('refineSample', function(query) {
-    return this.waitForStatusBar()
-      .setValue('input#refine_input', query)
-      .click('button#apply_button');
+    this.addValue('input#refine_input', query);
+    return this.waitForValue('input#refine_input', 15000);
+  });
+
+  /**
+   * Apply the sample by clicking the apply button
+   */
+  client.addCommand('applySample', function() {
+    this.click('button#apply_button');
+    return this.waitForVisible('div.sampling-message', 15000);
   });
 
   /**
    * Resets the sample by clicking on the reset button.
    */
   client.addCommand('resetSample', function() {
-    return this.waitForStatusBar().click('button#reset_button');
+    this.click('button#reset_button');
+    return this.waitForVisible('div.sampling-message', 15000);
   });
 
-  client.addCommand('gotoSchemaTab', function() {
-    return this.waitForStatusBar().click('li#schema-tab a');
-  });
-
-  client.addCommand('gotoDocumentsTab', function() {
-    return this.waitForStatusBar().click('li#document-tab a');
-  });
-
-  client.addCommand('gotoExplainPlanTab', function() {
-    return this.waitForStatusBar().click('li#explain-tab a');
-  });
-
-  client.addCommand('gotoIndexesTab', function() {
-    return this.waitForStatusBar().click('li#index-tab a');
+  /**
+   * Go to the tab provided
+   */
+  client.addCommand('gotoTab', function(tab) {
+    return this.waitForStatusBar().click('li#' + tab);
   });
 
   /**
@@ -266,7 +225,44 @@ function addCommands(client) {
       .waitForVisible('#statusbar', ms)
       .waitForVisible('#statusbar', ms, true);
   });
-};
+}
+
+/**
+ * Call startApplication in beforeEach for all UI tests:
+ *
+ * @param {String} distDir - The dist directory.
+ *
+ * @returns {Promise} Promise that resolves when app starts.
+ *
+ * @example
+ * beforeEach(helpers.startApplication);
+ */
+function startApplication(distDir) {
+  var app = createApplication(distDir);
+  return app.start().then(() => {
+    addCommands(app.client);
+    chaiAsPromised.transferPromiseness = app.transferPromiseness;
+    chai.should().exist(app.client);
+    return app.client.waitUntilWindowLoaded(20000);
+  }).then(() => {
+    return app;
+  });
+}
+
+/**
+ * Call stopApplication in afterEach for all UI tests:
+ * @param {Object} app   the running application
+ * @returns {Promise}    Promise that resolves when app stops.
+ *
+ * @example
+ * afterEach(helpers.startApplication);
+ */
+function stopApplication(app) {
+  if (!app || !app.isRunning()) return;
+  return app.stop().then(function() {
+    assert.equal(app.isRunning(), false);
+  });
+}
 
 module.exports.startApplication = startApplication;
 module.exports.stopApplication = stopApplication;

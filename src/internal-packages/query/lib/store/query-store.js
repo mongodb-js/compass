@@ -7,14 +7,25 @@ const EJSON = require('mongodb-extended-json');
 const accepts = require('mongodb-language-model').accepts;
 const _ = require('lodash');
 const hasDistinctValue = require('../util').hasDistinctValue;
-const filterChanged = require('hadron-action').filterChanged;
 const bsonEqual = require('../util').bsonEqual;
+const ms = require('ms');
 
 const debug = require('debug')('mongodb-compass:stores:query');
 // const metrics = require('mongodb-js-metrics')();
 
 const USER_TYPING_DEBOUNCE_MS = 100;
 const FEATURE_FLAG_REGEX = /^(enable|disable) (\w+)\s*$/;
+const RESET_STATE = 'reset';
+const APPLY_STATE = 'apply';
+
+const DEFAULT_QUERY = {};
+const DEFAULT_SORT = { _id: -1 };
+const DEFAULT_LIMIT = 1000;
+const DEFAULT_SKIP = 0;
+const DEFAULT_PROJECT = {};
+const DEFAULT_MAX_TIME_MS = ms('10 seconds');
+const DEFAULT_STATE = RESET_STATE;
+// const DEFAULT_QUERY_STRING = '{}';
 
 /**
  * The reflux store for the schema.
@@ -27,7 +38,11 @@ const QueryStore = Reflux.createStore({
    * listen to Namespace store and reset if ns changes.
    */
   init: function() {
-    this.validFeatureFlags = _.keys(_.pick(app.preferences.serialize(), _.isBoolean));
+    if (_.get(app.preferences, 'serialize')) {
+      this.validFeatureFlags = _.keys(_.pick(app.preferences.serialize(), _.isBoolean));
+    } else {
+      this.validFeatureFlags = [];
+    }
     NamespaceStore.listen(() => {
       // reset the store
       this.setState(this.getInitialState());
@@ -41,8 +56,14 @@ const QueryStore = Reflux.createStore({
    */
   getInitialState() {
     return {
-      query: {},
+      query: DEFAULT_QUERY,
+      sort: DEFAULT_SORT,
+      limit: DEFAULT_LIMIT,
+      skip: DEFAULT_SKIP,
+      project: DEFAULT_PROJECT,
+      maxTimeMS: DEFAULT_MAX_TIME_MS,
       queryString: '',
+      queryState: DEFAULT_STATE, // either apply or reset
       valid: true,
       featureFlag: false,
       lastExecutedQuery: null,
@@ -394,15 +415,9 @@ const QueryStore = Reflux.createStore({
     }
     if (this.state.valid) {
       this.setState({
+        queryState: APPLY_STATE,
         lastExecutedQuery: _.clone(this.state.query)
       });
-      // start queries for all tabs: schema, documents, explain, indexes
-      // @todo don't hard-code this
-      const SchemaAction = app.appRegistry.getAction('Schema.Actions');
-      SchemaAction.startSampling();
-      const ExplainActions = app.appRegistry.getAction('Explain.Actions');
-      ExplainActions.fetchExplainPlan();
-      filterChanged(this.state.query);
     }
   },
 
@@ -413,7 +428,12 @@ const QueryStore = Reflux.createStore({
     if (!_.isEqual(this.state.query, {})) {
       this.setQuery({});
       if (!_.isEqual(this.state.lastExecutedQuery, {})) {
-        QueryAction.apply();
+        if (this.state.valid) {
+          this.setState({
+            queryState: RESET_STATE,
+            lastExecutedQuery: _.clone(this.state.query)
+          });
+        }
       }
     }
   },

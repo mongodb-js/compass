@@ -29,13 +29,38 @@ const CompassExplainStore = Reflux.createStore({
    * Initialize everything that is not part of the store's state.
    */
   init() {
+    this.query = {};
+
+    // reset on namespace change
+    NamespaceStore.listen((ns) => {
+      if (ns && toNS(ns).collection) {
+        this.query = {};
+        this._reset();
+      }
+    });
+
     this.listenToExternalStore('Indexes.IndexStore', this.indexesChanged.bind(this));
+
+    // listen for query changes
+    this.listenToExternalStore('Query.ChangedStore', this.onQueryChanged.bind(this));
+
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
     this.indexes = [];
   },
 
   indexesChanged(indexes) {
     this.indexes = indexes;
+  },
+
+  onQueryChanged(state) {
+    if (state.query) {
+      this.query = state.query;
+      if (state.queryState === 'reset') {
+        this._reset();
+      } else {
+        this.fetchExplainPlan();
+      }
+    }
   },
 
   /**
@@ -116,8 +141,8 @@ const CompassExplainStore = Reflux.createStore({
       explainState: 'fetching'
     });
 
-    const QueryStore = app.appRegistry.getStore('Query.Store');
-    const filter = QueryStore.state.query;
+    // const QueryStore = app.appRegistry.getStore('Query.Store');
+    // const filter = QueryStore.state.query;
     const options = {};
     const ns = toNS(NamespaceStore.ns);
     if (!ns.database || !ns.collection) {
@@ -126,7 +151,7 @@ const CompassExplainStore = Reflux.createStore({
     if (this.CollectionStore.isReadonly()) {
       this.setState(this.getInitialState());
     } else {
-      app.dataService.explain(ns.ns, filter, options, (err, explain) => {
+      app.dataService.explain(ns.ns, this.query, options, (err, explain) => {
         if (err) {
           return debug('error fetching explain plan:', err);
         }

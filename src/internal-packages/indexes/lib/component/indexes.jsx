@@ -4,6 +4,7 @@ const IndexList = require('./index-list');
 const CreateIndexButton = require('./create-index-button');
 const LoadIndexesStore = require('../store/load-indexes-store');
 const app = require('ampersand-app');
+const StatusRow = app.appRegistry.getComponent('App.StatusRow');
 
 /**
  * Component for the indexes.
@@ -54,8 +55,8 @@ class Indexes extends React.Component {
   renderComponent() {
     return (
       <div className="column-container">
+        {this.state.writable ? <CreateIndexButton /> : null}
         <div className="column main">
-          {this.state.writable ? <CreateIndexButton /> : null}
           <table>
             <IndexHeader />
             <IndexList />
@@ -67,9 +68,9 @@ class Indexes extends React.Component {
 
   renderReadonly() {
     return (
-      <div className="index-container-notice">
+      <StatusRow style="warning">
         Readonly views may not contain indexes.
-      </div>
+      </StatusRow>
     );
   }
 
@@ -81,7 +82,6 @@ class Indexes extends React.Component {
   render() {
     return (
       <div className="index-container header-margin">
-        <div className="flexbox-fix"></div>
         {this.state.readonly ? this.renderReadonly() : this.renderComponent()}
       </div>
     );

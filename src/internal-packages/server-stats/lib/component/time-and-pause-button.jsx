@@ -19,10 +19,10 @@ class TimeAndPauseButton extends React.Component {
 
   render() {
     return (
-      <div className="time-and-pause">
+      <div className="time-and-pause action-bar">
+        <button onClick={this.handlePause.bind(this)} className="play btn btn-xs btn-primary" style={{display: this.state.paused ? null : 'none'}}><text className="playbutton"><i className="fa fa-play"></i>PLAY</text></button>
+        <button onClick={this.handlePause.bind(this)} className="pause btn btn-default btn-xs" style={{display: this.state.paused ? 'none' : null}}><text className="pausebutton"><i className="fa fa-pause"></i>PAUSE</text></button>
         <div className="time"><text className="currentTime">00:00:00</text></div>
-        <div onClick={this.handlePause.bind(this)} className="play" style={{display: this.state.paused ? null : 'none'}}><text className="playbutton"><i className="fa fa-play"></i>PLAY</text></div>
-        <div onClick={this.handlePause.bind(this)} className="pause" style={{display: this.state.paused ? 'none' : null}}><text className="pausebutton"><i className="fa fa-pause"></i>PAUSE</text></div>
       </div>
     );
   }

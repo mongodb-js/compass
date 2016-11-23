@@ -42,11 +42,11 @@ class CollectionsTable extends React.Component {
 
     return (
       <div className="collections-table">
-        <div className="collections-table-create-button">
+        <div className="collections-table-create-button action-bar">
           {writable ?
             <TextButton
               text="Create Collection"
-              className="btn btn-default btn-sm"
+              className="btn btn-primary btn-xs"
               clickHandler={this.onCreateCollectionButtonClicked.bind(this)} /> : null}
         </div>
         <this.SortableTable

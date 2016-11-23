@@ -58,6 +58,7 @@ module.exports = function() {
   // create a user resource with client id (UUID v4 recommended)
   var userResource = new resources.UserResource({
     userId: app.user.id,
+    createdAt: app.user.createdAt,
     name: app.user.name,
     email: app.user.email,
     twitter: app.user.twitter,

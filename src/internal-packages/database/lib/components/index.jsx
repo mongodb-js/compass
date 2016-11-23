@@ -17,7 +17,7 @@ class DatabaseView extends React.Component {
   render() {
     const collectionsTableView = <CollectionsTableView />;
     return (
-      <div className="collections-table">
+      <div className="collections">
         <this.TabNavBar
           theme="light"
           tabs={['Collections']}
