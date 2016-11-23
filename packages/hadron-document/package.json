@@ -30,7 +30,7 @@
     "lodash.isarray": "^4.0.0",
     "lodash.isplainobject": "^4.0.4",
     "lodash.keys": "^4.0.7",
-    "node-uuid": "^1.4.7"
+    "uuid": "^3.0.0"
   },
   "devDependencies": {
     "bson": "^0.5.4",

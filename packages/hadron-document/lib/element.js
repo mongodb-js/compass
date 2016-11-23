@@ -8,7 +8,7 @@ const includes = require('lodash.includes');
 const Iterator = require('./iterator');
 const ObjectGenerator = require('./object-generator');
 const TypeChecker = require('hadron-type-checker');
-const uuid = require('node-uuid');
+const uuid = require('uuid');
 
 /**
  * The event constant.
