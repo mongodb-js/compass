@@ -79,7 +79,7 @@ class Document extends React.Component {
           this.ns,
           { _id: object._id },
           object,
-          { returnOriginal: false },
+          { returnOriginal: false, promoteValues: false },
           this.handleResult
         );
       },

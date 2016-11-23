@@ -30,7 +30,13 @@ const LoadMoreDocumentsStore = Reflux.createStore({
    */
   loadMoreDocuments: function(skip) {
     const filter = app.queryOptions.query.serialize();
-    const options = { skip: skip, limit: 20, sort: [[ '_id', 1 ]], readPreference: READ };
+    const options = {
+      skip: skip,
+      limit: 20,
+      sort: [[ '_id', 1 ]],
+      readPreference: READ,
+      promoteValues: false
+    };
     app.dataService.find(NamespaceStore.ns, filter, options, (error, documents) => {
       this.trigger(documents);
     });

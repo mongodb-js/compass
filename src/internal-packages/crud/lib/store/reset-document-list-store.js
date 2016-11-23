@@ -37,7 +37,12 @@ const ResetDocumentListStore = Reflux.createStore({
     if (NamespaceStore.ns) {
       app.dataService.count(NamespaceStore.ns, filter, OPTIONS, (err, count) => {
         if (!err) {
-          const options = { limit: 20, sort: [[ '_id', 1 ]], readPreference: READ };
+          const options = {
+            limit: 20,
+            sort: [[ '_id', 1 ]],
+            readPreference: READ,
+            promoteValues: false
+          };
           app.dataService.find(NamespaceStore.ns, filter, options, (error, documents) => {
             if (!error) {
               this.trigger(documents, count);
