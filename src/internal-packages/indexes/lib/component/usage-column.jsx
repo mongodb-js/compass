@@ -32,7 +32,7 @@ class UsageColumn extends React.Component {
       <td className="usage-column">
         <span className="usage">
           <div className="quantity" title={this.tooltip()}>
-            {this.props.usage || 'N/A'}
+            {this.props.usage || '0'}
           </div>
           <div className="usage-since">
             since&nbsp;
