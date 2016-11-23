@@ -1,4 +1,5 @@
-const electronApp = require('electron').remote.app;
+const async = require('async');
+const debug = require('debug')('mongodb-compass:migrations');
 const ConnectionCollection = require('../models/connection-collection');
 
 /**
