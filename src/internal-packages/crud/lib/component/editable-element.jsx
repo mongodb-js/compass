@@ -64,6 +64,11 @@ const HEADER_TOGGLE = `${HEADER}-toggle`;
 const SEPARATOR = 'element-separator';
 
 /**
+ * The field class.
+ */
+const FIELD_CLASS = 'editable-element-field';
+
+/**
  * General editable element component.
  */
 class EditableElement extends React.Component {
@@ -76,8 +81,8 @@ class EditableElement extends React.Component {
   constructor(props) {
     super(props);
     this.element = props.element;
-    this.element.on(Element.Events.Added, this.expand.bind(this));
-    this.element.on(Element.Events.Converted, this.expand.bind(this));
+    this.element.on(Element.Events.Added, this.handleExpand.bind(this));
+    this.element.on(Element.Events.Converted, this.handleExpand.bind(this));
     this.element.on(Element.Events.Edited, this.handleChange.bind(this));
     this.element.on(Element.Events.Removed, this.handleChange.bind(this));
     this.element.on(Element.Events.Reverted, this.handleChange.bind(this));
@@ -87,7 +92,7 @@ class EditableElement extends React.Component {
   /**
    * Expand the element.
    */
-  expand() {
+  handleExpand() {
     this.setState({ expanded: true });
   }
 
@@ -222,19 +227,59 @@ class EditableElement extends React.Component {
     }
   }
 
+  /**
+   * Render the key column.
+   *
+   * @returns {React.Component} The component.
+   */
   renderKey() {
     if (this.props.editing) {
       return (<EditableKey element={this.element} index={this.props.index} />);
     }
     return (
-      <div className="editable-element-field">
+      <div className={FIELD_CLASS}>
         {this.element.currentKey}
       </div>
     );
   }
 
-  renderValue() {
+  /**
+   * Render the toggle column.
+   *
+   * @returns {Component} The component.
+   */
+  renderToggle() {
+    return (
+      <div
+        className={HEADER_TOGGLE}
+        style={this.inlineToggleStyle()}
+        onClick={this.toggleExpandable.bind(this)}>
+      </div>
+    );
+  }
 
+  /**
+   * Render the expanable label column.
+   *
+   * @returns {Component} The component.
+   */
+  renderLabel() {
+    return (
+      <div className={HEADER_LABEL} onClick={this.toggleExpandable.bind(this)}>
+        {this.element.currentType}
+      </div>
+    );
+  }
+
+  /**
+   * Render the value column.
+   *
+   * @todo: Durran: Editing or not?
+   *
+   * @returns {Component} The component.
+   */
+  renderValue() {
+    return (<ElementValue element={this.element} />);
   }
 
   /**
@@ -249,7 +294,7 @@ class EditableElement extends React.Component {
         {this.renderLineNumber()}
         {this.renderKey()}
         {this.renderSeparator()}
-        <ElementValue element={this.element} />
+        {this.renderValue()}
         {this.renderHotspot()}
         {this.renderTypes()}
       </li>
@@ -267,16 +312,10 @@ class EditableElement extends React.Component {
         <div className={this.style(HEADER)} style={this.inlineStyle()}>
           {this.renderAction()}
           {this.renderLineNumber()}
-          <div
-            className={HEADER_TOGGLE}
-            style={this.inlineToggleStyle()}
-            onClick={this.toggleExpandable.bind(this)}>
-          </div>
+          {this.renderToggle()}
           {this.renderKey()}
           {this.renderSeparator()}
-          <div className={HEADER_LABEL} onClick={this.toggleExpandable.bind(this)}>
-            {this.element.currentType}
-          </div>
+          {this.renderLabel()}
         </div>
         <ol className={this.style(CHILDREN)}>
           {this.renderChildren()}

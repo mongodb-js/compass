@@ -1,7 +1,6 @@
 const app = require('ampersand-app');
 const React = require('react');
 const Reflux = require('reflux');
-const ElementFactory = require('hadron-app-registry').ElementFactory;
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const HadronDocument = require('hadron-document');
 const Element = require('hadron-document').Element;
