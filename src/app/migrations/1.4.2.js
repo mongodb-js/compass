@@ -7,8 +7,8 @@ const ConnectionCollection = require('../models/connection-collection');
  * the secureCondition of the "splice" storage backend again, which wasn't correctly
  * working in 1.4.1, see COMPASS-426.
  */
-function removePlaintextPasswords(done) {
-  debug('migration: removePlaintextPasswords');
+function rewriteStoredConnections(done) {
+  debug('migration: rewriteStoredConnections');
   const connections = new ConnectionCollection();
   connections.once('sync', function() {
     connections.each(function(connection) {
@@ -25,7 +25,7 @@ function removePlaintextPasswords(done) {
 
 module.exports = function(previousVersion, currentVersion, callback) {
   async.series([
-    removePlaintextPasswords
+    rewriteStoredConnections
   ], function(err) {
     if (err) {
       return callback(err);
