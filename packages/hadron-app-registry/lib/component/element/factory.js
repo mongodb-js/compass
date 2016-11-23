@@ -13,6 +13,9 @@ const MAPPINGS = {
   'Array': './array-element',
   'Binary': './binary-element',
   'Date': './date-element',
+  'Decimal128': './decimal128-element',
+  'Double': './double-element',
+  'Int32': './int32-element',
   'Object': './object-element',
   'String': './string-element',
   'MinKey': './min-key-element',
@@ -34,10 +37,10 @@ class Factory {
    * @returns {Array} An array of element React components.
    */
   elements(object, preExpanded = false) {
-    var elements = [];
+    const elements = [];
     _.forOwn(object, (value, field) => {
-      var type = TypeChecker.type(value);
-      var elementProps = {
+      const type = TypeChecker.type(value);
+      const elementProps = {
         field: field,
         value: value,
         type: type,
