@@ -29,6 +29,9 @@ var clearNamespaces = function(backendName, namespaces, done) {
  * Monkey-patch the secure clear method for testing because keytar doesn't
  * suport clearing the entire namespace automatically. Deletes all keys
  * that are used in the tests.
+ *
+ * @param {String}   namespace    namespace to clear
+ * @param {Function} done         callback
  */
 if (keytar) {
   backends.secure.clear = function(namespace, done) {

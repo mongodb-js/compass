@@ -45,7 +45,7 @@
     "ampersand-rest-collection": "^5.0.0",
     "ampersand-sync": "^4.0.3",
     "async": "^1.5.0",
-    "debug": "^2.2.0",
+    "debug": "mongodb-js/debug#v2.2.3",
     "localforage": "^1.3.0",
     "lodash": "^4.13.1",
     "rimraf": "^2.4.4",
@@ -54,7 +54,7 @@
   "devDependencies": {
     "electron-mocha": "^2.3.1",
     "electron-prebuilt": "^1.2.8",
-    "eslint-config-mongodb-js": "^1.0.5",
+    "eslint-config-mongodb-js": "^2.2.0",
     "mocha": "^2.3.3",
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^0.2.5",

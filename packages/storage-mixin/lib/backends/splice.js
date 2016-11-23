@@ -28,13 +28,13 @@ function SpliceBackend(options) {
   // patch the serialize methods in both backends
   var condition = options.secureCondition;
   LocalBackend.prototype.serialize = function(model) {
-    var res = _.omit(model.serialize(), condition);
+    var res = _.omitBy(model.serialize(), condition);
     return res;
   };
   this.localBackend = new LocalBackend(options);
 
   SecureBackend.prototype.serialize = function(model) {
-    var res = _.pick(model.serialize(), condition);
+    var res = _.pickBy(model.serialize(), condition);
     return res;
   };
   this.secureBackend = new SecureBackend(options);
