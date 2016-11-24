@@ -1,6 +1,11 @@
 # hadron-react [![][travis_img]][travis_url]
 > Hadron React Components
 
+## Packages
+
+- [hadron-react-bson][hadron-react-bson-link] Hadron React BSON Components
+- [hadron-react-utils][hadron-react-utils-link] Hadron React Utils
+
 ## Development
 
 See [Lerna](https://github.com/lerna/lerna#readme) for information on the module
@@ -48,3 +53,5 @@ Apache 2.0
 
 [travis_img]: https://img.shields.io/travis/mongodb-js/hadron-react.svg?style=flat-square
 [travis_url]: https://travis-ci.org/mongodb-js/hadron-react
+[hadron-react-bson-link]: https://github.com/mongodb-js/hadron-react/tree/master/packages/hadron-react-bson
+[hadron-react-utils-link]: https://github.com/mongodb-js/hadron-react/tree/master/packages/hadron-react-utils

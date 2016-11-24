@@ -4,6 +4,14 @@
 
 ### Usage
 
+Utility function for truncating strings with ellipsis.
+
+```javascript
+const { truncate } = require('hadron-react-utils');
+
+tuncate('testing', 3);
+```
+
 ## License
 
 Apache 2.0
