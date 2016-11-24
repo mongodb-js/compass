@@ -14,9 +14,7 @@
     "mongodb-js"
   ],
   "scripts": {
-    "preci": "lerna run check",
-    "ci": "lerna run ci",
-    "precheck": "lerna bootstrap",
+    "ci": "lerna bootstrap && lerna run check && lerna run ci",
     "check": "lerna run check"
   },
   "precommit": [
