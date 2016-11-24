@@ -11,7 +11,7 @@ const ELIPSIS = '...';
  *
  * @returns {String} The truncated string.
  */
-const truncate = (string, limit = 500) => {
+const truncate = (string, limit) => {
   return string.length > limit ? string.substring(0, limit) + ELIPSIS : string;
 };
 

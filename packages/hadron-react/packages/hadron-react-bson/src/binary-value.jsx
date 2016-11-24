@@ -1,5 +1,5 @@
 const React = require('react');
-const truncate = require('./util/truncate');
+const { truncate } = require('hadron-react-utils');
 
 /**
  * Base 64 constant.
@@ -35,9 +35,9 @@ class Binary extends React.Component {
     const type = this.props.value.sub_type;
     const buffer = this.props.value.buffer;
     if (type === UUID || type === UUID_OLD) {
-      return `Binary('${truncate(buffer.toString())}')`;
+      return `Binary('${truncate(buffer.toString(), 100)}')`;
     }
-    return `Binary('${truncate(buffer.toString(BASE_64))}')`;
+    return `Binary('${truncate(buffer.toString(BASE_64), 100)}')`;
   }
 
   /**

@@ -14,7 +14,6 @@
     "mongodb-js"
   ],
   "scripts": {
-    "ci": "npm run check && npm test",
     "prepublish": "babel ./src --out-dir ./lib --presets react",
     "pretest": "babel ./src --out-dir ./lib --presets react",
     "test": "mocha test/setup.js test/**/*.test.jsx",
@@ -23,6 +22,7 @@
   "dependencies": {
     "babel-preset-react": "^6.5.0",
     "babel-register": "^6.5.2",
+    "hadron-react-utils": "^0.0.0",
     "moment": "^2.13.0",
     "react": "^15.3.0",
     "react-dom": "^15.3.0"

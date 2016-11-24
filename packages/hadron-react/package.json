@@ -14,7 +14,7 @@
     "mongodb-js"
   ],
   "scripts": {
-    "ci": "npm install && lerna bootstrap && lerna run check && lerna run ci",
+    "ci": "npm install && lerna bootstrap && lerna run check && lerna run test",
     "check": "lerna run check"
   },
   "precommit": [
