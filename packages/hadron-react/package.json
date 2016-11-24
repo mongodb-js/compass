@@ -16,6 +16,7 @@
   "scripts": {
     "preci": "lerna run check",
     "ci": "lerna run ci",
+    "precheck": "lerna bootstrap",
     "check": "lerna run check"
   },
   "precommit": [
