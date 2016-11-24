@@ -29,7 +29,7 @@ Value.displayName = 'ElementValue';
 
 Value.propTypes = {
   type: React.PropTypes.string.isRequired,
-  value: React.PropTypes.any.isRequired
+  value: React.PropTypes.any
 };
 
 module.exports = Value;
