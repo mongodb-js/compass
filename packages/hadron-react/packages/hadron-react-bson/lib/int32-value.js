@@ -25,7 +25,7 @@ class Int32 extends React.Component {
   }
 }
 
-Int32.displayName = 'ElementInt32Value';
+Int32.displayName = 'Int32Value';
 
 Int32.propTypes = {
   type: React.PropTypes.string.isRequired,

@@ -25,7 +25,7 @@ class Regex extends React.Component {
   }
 }
 
-Regex.displayName = 'ElementRegex';
+Regex.displayName = 'RegexValue';
 
 Regex.propTypes = {
   type: React.PropTypes.string.isRequired,

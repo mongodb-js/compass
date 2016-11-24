@@ -14,7 +14,7 @@ const FORMAT = 'YYYY-MM-DD HH:mm:ss.SSS';
 /**
  * BSON Date component.
  */
-class ElementDate extends React.Component {
+class DateValue extends React.Component {
 
   /**
    * Render a BSON date.
@@ -31,11 +31,11 @@ class ElementDate extends React.Component {
   }
 }
 
-ElementDate.displayName = 'ElementDate';
+DateValue.displayName = 'DateValue';
 
-ElementDate.propTypes = {
+DateValue.propTypes = {
   type: React.PropTypes.string.isRequired,
   value: React.PropTypes.any.isRequired
 };
 
-module.exports = ElementDate;
+module.exports = DateValue;

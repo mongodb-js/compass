@@ -25,7 +25,7 @@ class Value extends React.Component {
   }
 }
 
-Value.displayName = 'ElementValue';
+Value.displayName = 'Value';
 
 Value.propTypes = {
   type: React.PropTypes.string.isRequired,

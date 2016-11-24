@@ -25,7 +25,7 @@ class Code extends React.Component {
   }
 }
 
-Code.displayName = 'ElementCode';
+Code.displayName = 'CodeValue';
 
 Code.propTypes = {
   type: React.PropTypes.string.isRequired,

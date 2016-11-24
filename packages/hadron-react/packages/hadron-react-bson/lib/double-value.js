@@ -25,7 +25,7 @@ class Double extends React.Component {
   }
 }
 
-Double.displayName = 'ElementDoubleValue';
+Double.displayName = 'DoubleValue';
 
 Double.propTypes = {
   type: React.PropTypes.string.isRequired,

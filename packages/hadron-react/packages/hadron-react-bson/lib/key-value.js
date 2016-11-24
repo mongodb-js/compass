@@ -25,7 +25,7 @@ class Key extends React.Component {
   }
 }
 
-Key.displayName = 'ElementKey';
+Key.displayName = 'KeyValue';
 
 Key.propTypes = {
   type: React.PropTypes.string.isRequired,
