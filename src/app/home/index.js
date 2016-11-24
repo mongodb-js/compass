@@ -2,8 +2,6 @@ var View = require('ampersand-view');
 // var format = require('util').format;
 // var IdentifyView = require('../identify');
 var { NamespaceStore } = require('hadron-reflux-store');
-var TourView = require('../tour');
-var NetworkOptInView = require('../network-optin');
 var app = require('ampersand-app');
 var metrics = require('mongodb-js-metrics')();
 var _ = require('lodash');
@@ -84,8 +82,6 @@ var HomeView = View.extend({
     this.listenTo(app.instance, 'sync', this.onInstanceFetched);
     this.listenTo(app.connection, 'change:name', this.updateTitle);
     NamespaceStore.listen(this.switchMainContent.bind(this));
-    ipc.on('window:show-compass-tour', this.showTour.bind(this, true));
-    ipc.on('window:show-network-optin', this.showOptIn.bind(this));
 
     this.once('change:rendered', this.onRendered);
     debug('fetching instance model...');
@@ -99,12 +95,6 @@ var HomeView = View.extend({
       React.createElement(SideBarComponent),
       this.queryByHook('sidebar')
     );
-
-    if (app.preferences.showFeatureTour) {
-      this.showTour(false);
-    } else {
-      this.tourClosed();
-    }
     this.switchMainContent('');
   },
   switchMainContent: function(namespace) {
@@ -133,26 +123,6 @@ var HomeView = View.extend({
       ReactDOM.unmountComponentAtNode(containerNode);
     }
     this.updateTitle(namespace);
-  },
-  showTour: function(force) {
-    var tourView = new TourView({force: force});
-    if (tourView.features.length > 0) {
-      tourView.on('close', this.tourClosed.bind(this));
-      this.renderSubview(tourView, this.queryByHook('tour-container'));
-    } else {
-      this.tourClosed();
-    }
-  },
-  showOptIn: function() {
-    var networkOptInView = new NetworkOptInView();
-    this.renderSubview(networkOptInView, this.queryByHook('optin-container'));
-  },
-  tourClosed: function() {
-    app.preferences.unset('showFeatureTour');
-    app.preferences.save();
-    if (!app.preferences.showedNetworkOptIn) {
-      this.showOptIn();
-    }
   },
   onInstanceFetched: function() {
     // TODO: Remove this line

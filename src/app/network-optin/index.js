@@ -4,12 +4,9 @@ var app = require('ampersand-app');
 var _ = require('lodash');
 var metrics = require('mongodb-js-metrics')();
 
-var debug = require('debug')('mongodb-compass:feature-optin:index');
+var debug = require('debug')('mongodb-compass:network-optin:index');
 
 var indexTemplate = require('./index.jade');
-
-require('bootstrap/js/modal');
-require('bootstrap/js/transition');
 
 var NetworkOptInView = View.extend({
   template: indexTemplate,

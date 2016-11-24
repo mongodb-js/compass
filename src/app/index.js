@@ -9,6 +9,8 @@ if (process.env.NODE_ENV === 'development') {
     .catch((err) => console.log('An error occurred trying to install devtools: ', err));
 }
 
+window.jQuery = require('jquery');
+
 var Environment = require('../environment');
 Environment.init();
 
@@ -45,6 +47,9 @@ var localLinks = require('local-links');
 var async = require('async');
 var ipc = require('hadron-ipc');
 
+var TourView = require('./tour');
+var NetworkOptInView = require('./network-optin');
+
 var format = require('util').format;
 var semver = require('semver');
 
@@ -66,7 +71,8 @@ var AutoUpdate = require('../auto-update');
 
 var addInspectElementMenu = require('debug-menu').install;
 
-window.jQuery = require('jquery');
+require('bootstrap/js/modal');
+require('bootstrap/js/transition');
 
 ipc.once('app:launched', function() {
   console.log('in app:launched');
@@ -134,6 +140,7 @@ function getConnection(model, done) {
  *
  * @see http://learn.humanjavascript.com/react-ampersand/application-pattern
  */
+
 var Application = View.extend({
   template: function() {
     return [
@@ -142,6 +149,8 @@ var Application = View.extend({
       '  <div data-hook="statusbar"></div>',
       '  <div data-hook="notifications"></div>',
       '  <div data-hook="layout-container"></div>',
+      '  <div data-hook="tour-container"></div>',
+      '  <div data-hook="optin-container"></div>',
       '</div>'
     ].join('\n');
   },
@@ -187,6 +196,10 @@ var Application = View.extend({
     'click a': 'onLinkClick',
     'click i.help': 'onHelpClicked',
     'click a.help': 'onHelpClicked'
+  },
+  initialize: function() {
+    ipc.on('window:show-compass-tour', this.showTour.bind(this, true));
+    ipc.on('window:show-network-optin', this.showOptIn.bind(this));
   },
   onHelpClicked: function(evt) {
     evt.preventDefault();
@@ -258,9 +271,35 @@ var Application = View.extend({
     });
     this.autoUpdate.render();
 
+    if (app.preferences.showFeatureTour) {
+      this.showTour(false);
+    } else {
+      this.tourClosed();
+    }
+
     if (process.env.NODE_ENV !== 'production') {
       debug('Installing "Inspect Element" context menu');
       addInspectElementMenu();
+    }
+  },
+  showTour: function(force) {
+    var tourView = new TourView({force: force});
+    if (tourView.features.length > 0) {
+      tourView.on('close', this.tourClosed.bind(this));
+      this.renderSubview(tourView, this.queryByHook('tour-container'));
+    } else {
+      this.tourClosed();
+    }
+  },
+  showOptIn: function() {
+    var networkOptInView = new NetworkOptInView();
+    this.renderSubview(networkOptInView, this.queryByHook('optin-container'));
+  },
+  tourClosed: function() {
+    app.preferences.unset('showFeatureTour');
+    app.preferences.save();
+    if (!app.preferences.showedNetworkOptIn) {
+      this.showOptIn();
     }
   },
   onPageChange: function(view) {
