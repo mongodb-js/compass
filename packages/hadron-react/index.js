@@ -1,10 +1,10 @@
 'use strict';
 
 module.exports.getElementComponent = require('./lib/element');
-module.exports.ElementValue = require('./lib/element/').ElementValue;
-module.exports.ElementBinaryValue = require('./lib/element/').ElementBinaryValue;
-module.exports.ElementCodeValue = require('./lib/element/').ElementCodeValue;
-module.exports.ElementDateValue = require('./lib/element/').ElementDateValue;
-module.exports.ElementDoubleValue = require('./lib/element/').ElementDoubleValue;
-module.exports.ElementInt32Value = require('./lib/element/').ElementInt32Value;
-module.exports.ElementKeyValue = require('./lib/element/').ElementKeyValue;
+module.exports.ElementValue = require('./lib/element/').Value;
+module.exports.ElementBinaryValue = require('./lib/element/').BinaryValue;
+module.exports.ElementCodeValue = require('./lib/element/').CodeValue;
+module.exports.ElementDateValue = require('./lib/element/').DateValue;
+module.exports.ElementDoubleValue = require('./lib/element/').DoubleValue;
+module.exports.ElementInt32Value = require('./lib/element/').Int32Value;
+module.exports.ElementKeyValue = require('./lib/element/').KeyValue;
