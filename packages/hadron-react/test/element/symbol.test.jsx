@@ -4,7 +4,7 @@ const { shallow } = require('enzyme');
 const { Symbol } = require('bson');
 const { ElementValue } = require('../../');
 
-describe('<ElementValue /> (rendering string)', () => {
+describe('<ElementValue /> (rendering symbol)', () => {
   const value = new Symbol('testing');
   const component = shallow(<ElementValue type="Symbol" value={value} />);
 

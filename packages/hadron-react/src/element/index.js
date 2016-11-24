@@ -24,7 +24,8 @@ const MAPPINGS = {
   'String': Value,
   'ObjectId': Value,
   'BSONRegExp': RegexValue,
-  'Symbol': Value
+  'Symbol': Value,
+  'Timestamp': Value
 };
 
 /**

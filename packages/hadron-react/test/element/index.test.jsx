@@ -90,4 +90,10 @@ describe('#getElementComponent', () => {
       expect(getElementComponent('Symbol')).to.deep.equal(ElementValue);
     });
   });
+
+  context('when the type is Timestamp', () => {
+    it('returns an element value component', () => {
+      expect(getElementComponent('Timestamp')).to.deep.equal(ElementValue);
+    });
+  });
 });
