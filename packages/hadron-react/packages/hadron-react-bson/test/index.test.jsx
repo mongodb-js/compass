@@ -96,4 +96,22 @@ describe('#getComponent', () => {
       expect(getComponent('Timestamp')).to.deep.equal(Value);
     });
   });
+
+  context('when the type is Undefined', () => {
+    it('returns an element value component', () => {
+      expect(getComponent('Undefined')).to.deep.equal(Value);
+    });
+  });
+
+  context('when the type is Null', () => {
+    it('returns an element value component', () => {
+      expect(getComponent('Null')).to.deep.equal(Value);
+    });
+  });
+
+  context('when the type is Boolean', () => {
+    it('returns an element value component', () => {
+      expect(getComponent('Boolean')).to.deep.equal(Value);
+    });
+  });
 });
