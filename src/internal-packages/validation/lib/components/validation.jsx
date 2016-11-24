@@ -45,7 +45,7 @@ class Validation extends React.Component {
             validationLevel={this.props.validationLevel}
             editState={this.props.editState}
             serverVersion={this.props.serverVersion}
-            isWritable={this.props.isWritable}
+            isWritable={this.CollectionStore.isWritable()}
           />
         </div>
       ) : (
@@ -54,7 +54,7 @@ class Validation extends React.Component {
           validationAction={this.props.validationAction}
           validationLevel={this.props.validationLevel}
           editState={this.props.editState}
-          isWritable={this.props.isWritable}
+          isWritable={this.CollectionStore.isWritable()}
         />
       );
 
