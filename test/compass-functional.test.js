@@ -43,9 +43,10 @@ describe('Compass #spectron', function() {
       });
 
       it('renders the connect window', function() {
-        return client.
-          waitForVisible('select[name=authentication]', 60000).
-          getTitle().should.eventually.be.equal('MongoDB Compass - Connect');
+        return client
+          .startUsingCompass()
+          .waitForVisible('select[name=authentication]', 60000)
+          .getTitle().should.eventually.be.equal('MongoDB Compass - Connect');
       });
     });
 
@@ -65,7 +66,6 @@ describe('Compass #spectron', function() {
       context('when selecting a collection', function() {
         it('renders the sample collection in the title', function() {
           return client
-            .startUsingCompass()
             .selectCollection('compass-test.bands')
             .getTitle().should.eventually.be.equal(
             'MongoDB Compass - localhost:27018/compass-test.bands'
