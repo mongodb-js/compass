@@ -1,259 +1,0 @@
-lerna(info)    Lerna v2.0.0-beta.30
-lerna(debug)   Attempting running RunCommand.initialize
-lerna(debug)   Successfully ran RunCommand.initialize
-lerna(debug)   Attempting running RunCommand.execute
-lerna(info)    
-> hadron-react-bson@0.0.0 pretest /Users/modetojoy/work/mongodb-js/hadron-react/packages/hadron-react-bson
-> babel ./src --out-dir ./lib --presets react
-
-src/binary-value.jsx -> lib/binary-value.js
-src/code-value.jsx -> lib/code-value.js
-src/date-value.jsx -> lib/date-value.js
-src/double-value.jsx -> lib/double-value.js
-src/index.js -> lib/index.js
-src/int32-value.jsx -> lib/int32-value.js
-src/key-value.jsx -> lib/key-value.js
-src/regex-value.jsx -> lib/regex-value.js
-src/util/truncate.js -> lib/util/truncate.js
-src/value.jsx -> lib/value.js
-
-> hadron-react-bson@0.0.0 test /Users/modetojoy/work/mongodb-js/hadron-react/packages/hadron-react-bson
-> mocha test/setup.js test/**/*.test.jsx
-
-
-
-  <BinaryValue />
-    when the type is an old uuid
-      ✓ sets the base class
-      ✓ sets the type class
-      ✓ sets the title
-      ✓ sets the value
-    when the type is a new uuid
-      ✓ sets the base class
-      ✓ sets the type class
-      ✓ sets the title
-      ✓ sets the value
-    when the type is not a uuid
-      ✓ sets the base class
-      ✓ sets the type class
-      ✓ sets the title
-      ✓ sets the value
-
-  <CodeValue />
-    ✓ sets the base class
-    ✓ sets the type class
-    ✓ sets the title
-    ✓ sets the value
-
-  <DateValue />
-    ✓ sets the base class
-    ✓ sets the type class
-    ✓ sets the title
-    ✓ sets the value
-
-  <Value /> (rendering Decimal128)
-    when the decimal is a number
-      ✓ sets the base class
-      ✓ sets the type class
-      ✓ sets the title
-      ✓ sets the value
-    when the decimal is a valid string
-      ✓ sets the base class
-      ✓ sets the type class
-      ✓ sets the title
-      ✓ sets the value
-
-  <DoubleValue />
-    ✓ sets the base class
-    ✓ sets the type class
-    ✓ sets the title
-    ✓ sets the value
-
-  #getComponent
-    when the type is Binary
-      1) returns a binary value component
-    when the type is Code
-      2) returns a code value component
-    when the type is Date
-      3) returns a date value component
-    when the type is Decimal128
-      4) returns an element value component
-    when the type is Double
-      5) returns a double value component
-    when the type is Int32
-      6) returns an int32 value component
-    when the type is Int64
-      7) returns an element value component
-    when the type is MaxKey
-      8) returns an element key value component
-    when the type is MinKey
-      9) returns an element key value component
-    when the type is ObjectId
-      10) returns an element value component
-    when the type is String
-      11) returns an element value component
-    when the type is a BSONRegExp
-      12) returns an element regex component
-    when the type is Symbol
-      13) returns an element value component
-    when the type is Timestamp
-      14) returns an element value component
-
-  <Int32Value />
-    ✓ sets the base class
-    ✓ sets the type class
-    ✓ sets the title
-    ✓ sets the value
-
-  <Int32Value />
-    ✓ sets the base class
-    ✓ sets the type class
-    ✓ sets the title
-    ✓ sets the value
-
-  <KeyValue />
-    when the value is a MaxKey
-      ✓ sets the base class
-      ✓ sets the type class
-      ✓ sets the title
-      ✓ sets the value
-    when the value is a MinKey
-      ✓ sets the base class
-      ✓ sets the type class
-      ✓ sets the title
-      ✓ sets the value
-
-  <Value /> (rendering ObjectId)
-    ✓ sets the base class
-    ✓ sets the type class
-    ✓ sets the title
-    ✓ sets the value
-
-  <RegexValue />
-    ✓ sets the base class
-    ✓ sets the type class
-    ✓ sets the title
-    ✓ sets the value
-
-  <Value /> (rendering string)
-    ✓ sets the base class
-    ✓ sets the type class
-    ✓ sets the title
-    ✓ sets the value
-
-  <Value /> (rendering symbol)
-    ✓ sets the base class
-    ✓ sets the type class
-    ✓ sets the title
-    ✓ sets the value
-
-  <Value /> (rendering timestamp)
-    ✓ sets the base class
-    ✓ sets the type class
-    ✓ sets the title
-    ✓ sets the value
-
-  <Value />
-    ✓ sets the base class
-    ✓ sets the type class
-    ✓ sets the title
-    ✓ sets the value
-
-
-  72 passing (119ms)
-  14 failing
-
-  1) #getComponent when the type is Binary returns a binary value component:
-     TypeError: getComponent is not a function
-      at Context.it (test/index.test.jsx:18:14)
-
-  2) #getComponent when the type is Code returns a code value component:
-     TypeError: getComponent is not a function
-      at Context.it (test/index.test.jsx:24:14)
-
-  3) #getComponent when the type is Date returns a date value component:
-     TypeError: getComponent is not a function
-      at Context.it (test/index.test.jsx:30:14)
-
-  4) #getComponent when the type is Decimal128 returns an element value component:
-     TypeError: getComponent is not a function
-      at Context.it (test/index.test.jsx:36:14)
-
-  5) #getComponent when the type is Double returns a double value component:
-     TypeError: getComponent is not a function
-      at Context.it (test/index.test.jsx:42:14)
-
-  6) #getComponent when the type is Int32 returns an int32 value component:
-     TypeError: getComponent is not a function
-      at Context.it (test/index.test.jsx:48:14)
-
-  7) #getComponent when the type is Int64 returns an element value component:
-     TypeError: getComponent is not a function
-      at Context.it (test/index.test.jsx:54:14)
-
-  8) #getComponent when the type is MaxKey returns an element key value component:
-     TypeError: getComponent is not a function
-      at Context.it (test/index.test.jsx:60:14)
-
-  9) #getComponent when the type is MinKey returns an element key value component:
-     TypeError: getComponent is not a function
-      at Context.it (test/index.test.jsx:66:14)
-
-  10) #getComponent when the type is ObjectId returns an element value component:
-     TypeError: getComponent is not a function
-      at Context.it (test/index.test.jsx:72:14)
-
-  11) #getComponent when the type is String returns an element value component:
-     TypeError: getComponent is not a function
-      at Context.it (test/index.test.jsx:78:14)
-
-  12) #getComponent when the type is a BSONRegExp returns an element regex component:
-     TypeError: getComponent is not a function
-      at Context.it (test/index.test.jsx:84:14)
-
-  13) #getComponent when the type is Symbol returns an element value component:
-     TypeError: getComponent is not a function
-      at Context.it (test/index.test.jsx:90:14)
-
-  14) #getComponent when the type is Timestamp returns an element value component:
-     TypeError: getComponent is not a function
-      at Context.it (test/index.test.jsx:96:14)
-
-
-
-
-lerna(error)   Errored while running npm script 'test' in 'hadron-react-bson'
-    Error: Command failed: npm run test 
-    
-    npm ERR! Darwin 15.5.0
-    npm ERR! argv "/Users/modetojoy/.nvm/versions/node/v6.7.0/bin/node" "/Users/modetojoy/.nvm/versions/node/v6.7.0/bin/npm" "run" "test"
-    npm ERR! node v6.7.0
-    npm ERR! npm  v3.10.3
-    npm ERR! code ELIFECYCLE
-    npm ERR! hadron-react-bson@0.0.0 test: `mocha test/setup.js test/**/*.test.jsx`
-    npm ERR! Exit status 14
-    npm ERR! 
-    npm ERR! Failed at the hadron-react-bson@0.0.0 test script 'mocha test/setup.js test/**/*.test.jsx'.
-    npm ERR! Make sure you have the latest version of node.js and npm installed.
-    npm ERR! If you do, this is most likely a problem with the hadron-react-bson package,
-    npm ERR! not with npm itself.
-    npm ERR! Tell the author that this fails on your system:
-    npm ERR!     mocha test/setup.js test/**/*.test.jsx
-    npm ERR! You can get information on how to open an issue for this project with:
-    npm ERR!     npm bugs hadron-react-bson
-    npm ERR! Or if that isn't available, you can get their info via:
-    npm ERR!     npm owner ls hadron-react-bson
-    npm ERR! There is likely additional logging output above.
-    
-    npm ERR! Please include the following file with any support request:
-    npm ERR!     /Users/modetojoy/work/mongodb-js/hadron-react/packages/hadron-react-bson/npm-debug.log
-    
-        at ChildProcess.exithandler (child_process.js:206:12)
-        at emitTwo (events.js:106:13)
-        at ChildProcess.emit (events.js:191:7)
-        at maybeClose (internal/child_process.js:877:16)
-        at Socket.<anonymous> (internal/child_process.js:334:11)
-        at emitOne (events.js:96:13)
-        at Socket.emit (events.js:188:7)
-        at Pipe._handle.close [as _onclose] (net.js:493:12)
-lerna(error)   Errored while running RunCommand.execute

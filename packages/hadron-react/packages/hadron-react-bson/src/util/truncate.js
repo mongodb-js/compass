@@ -13,6 +13,6 @@ const ELIPSIS = '...';
  */
 const truncate = (string, limit = 500) => {
   return string.length > limit ? string.substring(0, limit) + ELIPSIS : string;
-}
+};
 
 module.exports = truncate;
