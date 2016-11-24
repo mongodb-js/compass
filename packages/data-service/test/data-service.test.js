@@ -202,7 +202,7 @@ describe('DataService', function() {
     it('returns the collections', function(done) {
       service.listCollections('data-service', {}, function(err, collections) {
         assert.equal(null, err);
-        expect(collections[0].name).to.equal('test');
+        expect(collections).to.be.deep.equal([{ name: 'test', options: {} }]);
         done();
       });
     });
@@ -271,7 +271,10 @@ describe('DataService', function() {
         assert.equal(null, error);
         helper.listCollections(service.client, function(err, items) {
           assert.equal(null, err);
-          expect(items.length).to.equal(2);
+          expect(items).to.deep.equal([
+            {name: 'foo', options: {}},
+            {name: 'test', options: {}}
+          ]);
           done();
         });
       });

@@ -233,7 +233,10 @@ describe('NativeClient', function() {
         assert.equal(null, error);
         helper.listCollections(client, function(err, items) {
           assert.equal(null, err);
-          expect(items.length).to.equal(2);
+          expect(items).to.deep.equal([
+            {name: 'foo', options: {}},
+            {name: 'test', options: {}}
+          ]);
           done();
         });
       });
