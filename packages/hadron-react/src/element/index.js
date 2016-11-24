@@ -23,7 +23,8 @@ const MAPPINGS = {
   'MinKey': KeyValue,
   'String': Value,
   'ObjectId': Value,
-  'BSONRegExp': RegexValue
+  'BSONRegExp': RegexValue,
+  'Symbol': Value
 };
 
 /**

@@ -84,4 +84,10 @@ describe('#getElementComponent', () => {
       expect(getElementComponent('BSONRegExp')).to.deep.equal(ElementRegexValue);
     });
   });
+
+  context('when the type is Symbol', () => {
+    it('returns an element value component', () => {
+      expect(getElementComponent('Symbol')).to.deep.equal(ElementValue);
+    });
+  });
 });
