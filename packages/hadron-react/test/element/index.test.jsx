@@ -8,7 +8,8 @@ const {
   ElementValue,
   ElementDoubleValue,
   ElementInt32Value,
-  ElementKeyValue
+  ElementKeyValue,
+  ElementRegexValue
 } = require('../../');
 
 describe('#getElementComponent', () => {
@@ -75,6 +76,12 @@ describe('#getElementComponent', () => {
   context('when the type is String', () => {
     it('returns an element value component', () => {
       expect(getElementComponent('String')).to.deep.equal(ElementValue);
+    });
+  });
+
+  context('when the type is a BSONRegExp', () => {
+    it('returns an element regex component', () => {
+      expect(getElementComponent('BSONRegExp')).to.deep.equal(ElementRegexValue);
     });
   });
 });

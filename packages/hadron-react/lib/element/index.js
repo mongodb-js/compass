@@ -5,6 +5,7 @@ const DateValue = require('./date');
 const DoubleValue = require('./double');
 const Int32Value = require('./int32');
 const KeyValue = require('./key');
+const RegexValue = require('./regex');
 
 /**
  * The mappings from the BSON type to the value component
@@ -21,7 +22,8 @@ const MAPPINGS = {
   'MaxKey': KeyValue,
   'MinKey': KeyValue,
   'String': Value,
-  'ObjectId': Value
+  'ObjectId': Value,
+  'BSONRegExp': RegexValue
 };
 
 /**
@@ -41,3 +43,4 @@ module.exports.DateValue = DateValue;
 module.exports.DoubleValue = DoubleValue;
 module.exports.Int32Value = Int32Value;
 module.exports.KeyValue = KeyValue;
+module.exports.RegexValue = RegexValue;
