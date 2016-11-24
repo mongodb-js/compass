@@ -7,7 +7,8 @@ const {
   ElementDateValue,
   ElementValue,
   ElementDoubleValue,
-  ElementInt32Value
+  ElementInt32Value,
+  ElementKeyValue
 } = require('../../');
 
 describe('#getElementComponent', () => {
@@ -50,6 +51,18 @@ describe('#getElementComponent', () => {
   context('when the type is Int64', () => {
     it('returns an element value component', () => {
       expect(getElementComponent('Int64')).to.deep.equal(ElementValue);
+    });
+  });
+
+  context('when the type is MaxKey', () => {
+    it('returns an element key value component', () => {
+      expect(getElementComponent('MaxKey')).to.deep.equal(ElementKeyValue);
+    });
+  });
+
+  context('when the type is MinKey', () => {
+    it('returns an element key value component', () => {
+      expect(getElementComponent('MinKey')).to.deep.equal(ElementKeyValue);
     });
   });
 });

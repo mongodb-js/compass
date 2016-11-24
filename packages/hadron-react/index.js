@@ -7,3 +7,4 @@ module.exports.ElementCodeValue = require('./lib/element/').ElementCodeValue;
 module.exports.ElementDateValue = require('./lib/element/').ElementDateValue;
 module.exports.ElementDoubleValue = require('./lib/element/').ElementDoubleValue;
 module.exports.ElementInt32Value = require('./lib/element/').ElementInt32Value;
+module.exports.ElementKeyValue = require('./lib/element/').ElementKeyValue;

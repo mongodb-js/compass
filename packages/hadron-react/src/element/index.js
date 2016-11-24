@@ -4,6 +4,7 @@ const ElementCodeValue = require('./code');
 const ElementDateValue = require('./date');
 const ElementDoubleValue = require('./double');
 const ElementInt32Value = require('./int32');
+const ElementKeyValue = require('./key');
 
 /**
  * The mappings from the BSON type to the value component
@@ -16,7 +17,9 @@ const MAPPINGS = {
   'Decimal128': ElementValue,
   'Double': ElementDoubleValue,
   'Int32': ElementInt32Value,
-  'Int64': ElementValue
+  'Int64': ElementValue,
+  'MaxKey': ElementKeyValue,
+  'MinKey': ElementKeyValue
 };
 
 /**
@@ -35,3 +38,4 @@ module.exports.ElementCodeValue = ElementCodeValue;
 module.exports.ElementDateValue = ElementDateValue;
 module.exports.ElementDoubleValue = ElementDoubleValue;
 module.exports.ElementInt32Value = ElementInt32Value;
+module.exports.ElementKeyValue = ElementKeyValue;
