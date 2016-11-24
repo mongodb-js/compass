@@ -38,7 +38,6 @@ const ValidationStore = Reflux.createStore({
         ValidationActions.fetchValidationRules();
       }
     });
-    // this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
   },
 
   /**
@@ -57,7 +56,6 @@ const ValidationStore = Reflux.createStore({
       editState: 'unmodified',     // one of `unmodified`, `modified`, `updating`, `success`, `error`
       isExpressibleByRules: true,  // boolean
       serverVersion: ''
-      // isWritable: true
     };
   },
 
@@ -279,11 +277,6 @@ const ValidationStore = Reflux.createStore({
         }
         const result = this._deconstructValidatorDoc(res.options);
 
-        // retrieve writeable status
-        const isWritable = this.CollectionStore.isWritable();
-
-        debug('write status is: ', isWritable);
-
         // store result from server
         const validatorDoc = res.options;
         this.lastFetchedValidatorDoc = _.clone(validatorDoc);
@@ -332,7 +325,6 @@ const ValidationStore = Reflux.createStore({
           validationLevel: result.level,
           validationAction: result.action,
           editState: 'unmodified'
-          // isWritable: isWritable
         });
       });
     }
