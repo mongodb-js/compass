@@ -55,7 +55,7 @@ class Binary extends React.Component {
   }
 }
 
-Binary.displayName = 'Binary';
+Binary.displayName = 'BsonBinary';
 
 Binary.propTypes = {
   type: React.PropTypes.string,

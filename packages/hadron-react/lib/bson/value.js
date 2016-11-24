@@ -21,7 +21,7 @@ class Value extends React.Component {
   }
 }
 
-Value.displayName = 'Value';
+Value.displayName = 'BsonValue';
 
 Value.propTypes = {
   type: React.PropTypes.string.isRequired,
