@@ -2,6 +2,40 @@
 
 > Hadron React Components
 
+## Development
+
+### Installation
+
+Lerna must be installed as a global module to run everything locally:
+
+```shell
+npm install --global lerna@prerelease
+```
+
+### Bootstrapping
+
+Bootstrap all the packages and install their dependencies, this replaces `npm install`.
+
+```shell
+lerna bootstrap
+```
+
+### Testing
+
+Run all the tests in all the packages.
+
+```shell
+lerna run test
+```
+
+### Eslint
+
+Run checks on all packages in the repo - this also runs as a precommit hook.
+
+```shell
+lerna run check
+```
+
 ### Usage
 
 ## License
