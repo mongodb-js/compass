@@ -10,3 +10,4 @@ module.exports.DoubleValue = require('./lib/double-value');
 module.exports.Int32Value = require('./lib/int32-value');
 module.exports.KeyValue = require('./lib/key-value');
 module.exports.RegexValue = require('./lib/regex-value');
+module.exports.DBRefValue = require('./lib/dbref-value');

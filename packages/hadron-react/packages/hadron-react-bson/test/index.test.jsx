@@ -9,7 +9,8 @@ const {
   DoubleValue,
   Int32Value,
   KeyValue,
-  RegexValue
+  RegexValue,
+  DBRefValue
 } = require('../');
 
 describe('#getComponent', () => {
@@ -112,6 +113,12 @@ describe('#getComponent', () => {
   context('when the type is Boolean', () => {
     it('returns an element value component', () => {
       expect(getComponent('Boolean')).to.deep.equal(Value);
+    });
+  });
+
+  context('when the type is DBRef', () => {
+    it('returns an element dbref value component', () => {
+      expect(getComponent('DBRef')).to.deep.equal(DBRefValue);
     });
   });
 });

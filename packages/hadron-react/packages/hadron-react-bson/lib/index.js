@@ -6,6 +6,7 @@ const DoubleValue = require('./double-value');
 const Int32Value = require('./int32-value');
 const KeyValue = require('./key-value');
 const RegexValue = require('./regex-value');
+const DBRefValue = require('./dbref-value');
 
 /**
  * The mappings from the BSON type to the value component
@@ -28,7 +29,8 @@ const MAPPINGS = {
   'Timestamp': Value,
   'Undefined': Value,
   'Null': Value,
-  'Boolean': Value
+  'Boolean': Value,
+  'DBRef': DBRefValue
 };
 
 /**
