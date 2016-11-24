@@ -16,16 +16,16 @@ class Code extends React.Component {
    * @returns {React.Component} The element component.
    */
   render() {
-    const value = `Code('${this.props.value.code}', ${JSON.stringify(this.props.value.scope)})`;
-    return (
-      <div className={CLASS} title={value}>
-        {value}
-      </div>
+    const value = `Code('${ this.props.value.code }', ${ JSON.stringify(this.props.value.scope) })`;
+    return React.createElement(
+      'div',
+      { className: CLASS, title: value },
+      value
     );
   }
 }
 
-Code.displayName = 'BsonCode';
+Code.displayName = 'ElementCode';
 
 Code.propTypes = {
   type: React.PropTypes.string.isRequired,

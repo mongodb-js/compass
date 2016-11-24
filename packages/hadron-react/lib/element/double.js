@@ -17,15 +17,15 @@ class Double extends React.Component {
    */
   render() {
     const value = String(this.props.value.value);
-    return (
-      <div className={`${CLASS} ${CLASS}-is-${this.props.type.toLowerCase()}`} title={value}>
-        {value}
-      </div>
+    return React.createElement(
+      'div',
+      { className: `${ CLASS } ${ CLASS }-is-${ this.props.type.toLowerCase() }`, title: value },
+      value
     );
   }
 }
 
-Double.displayName = 'BsonDoubleValue';
+Double.displayName = 'ElementDoubleValue';
 
 Double.propTypes = {
   type: React.PropTypes.string.isRequired,

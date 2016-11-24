@@ -1,11 +1,11 @@
 const React = require('react');
 const { expect } = require('chai');
 const { shallow } = require('enzyme');
-const { BsonDateValue } = require('../../');
+const { ElementDateValue } = require('../../');
 
-describe('<BsonDate />', () => {
+describe('<ElementDateValue />', () => {
   const date = new Date('2016-01-01');
-  const component = shallow(<BsonDateValue type="Date" value={date} />);
+  const component = shallow(<ElementDateValue type="Date" value={date} />);
 
   it('sets the base class', () => {
     expect(component.hasClass('element-value')).to.equal(true);

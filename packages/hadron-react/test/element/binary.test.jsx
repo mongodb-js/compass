@@ -2,12 +2,12 @@ const React = require('react');
 const { expect } = require('chai');
 const { shallow } = require('enzyme');
 const { Binary } = require('bson');
-const { BsonBinaryValue } = require('../../');
+const { ElementBinaryValue } = require('../../');
 
-describe('<BsonBinaryValue />', () => {
+describe('<ElementBinaryValue />', () => {
   context('when the type is an old uuid', () => {
     const binary = new Binary('testing', 3);
-    const component = shallow(<BsonBinaryValue type="Binary" value={binary} />);
+    const component = shallow(<ElementBinaryValue type="Binary" value={binary} />);
 
     it('sets the base class', () => {
       expect(component.hasClass('element-value')).to.equal(true);
@@ -28,7 +28,7 @@ describe('<BsonBinaryValue />', () => {
 
   context('when the type is a new uuid', () => {
     const binary = new Binary('testing', 4);
-    const component = shallow(<BsonBinaryValue type="Binary" value={binary} />);
+    const component = shallow(<ElementBinaryValue type="Binary" value={binary} />);
 
     it('sets the base class', () => {
       expect(component.hasClass('element-value')).to.equal(true);
@@ -49,7 +49,7 @@ describe('<BsonBinaryValue />', () => {
 
   context('when the type is not a uuid', () => {
     const binary = new Binary('testing', 2);
-    const component = shallow(<BsonBinaryValue type="Binary" value={binary} />);
+    const component = shallow(<ElementBinaryValue type="Binary" value={binary} />);
 
     it('sets the base class', () => {
       expect(component.hasClass('element-value')).to.equal(true);

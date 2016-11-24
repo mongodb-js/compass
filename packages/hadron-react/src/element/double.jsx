@@ -6,9 +6,9 @@ const React = require('react');
 const CLASS = 'element-value';
 
 /**
- * General BSON value component.
+ * General BSON double value component.
  */
-class Value extends React.Component {
+class Double extends React.Component {
 
   /**
    * Render a single generic BSON value.
@@ -16,7 +16,7 @@ class Value extends React.Component {
    * @returns {React.Component} The element component.
    */
   render() {
-    const value = String(this.props.value);
+    const value = String(this.props.value.value);
     return (
       <div className={`${CLASS} ${CLASS}-is-${this.props.type.toLowerCase()}`} title={value}>
         {value}
@@ -25,11 +25,11 @@ class Value extends React.Component {
   }
 }
 
-Value.displayName = 'BsonValue';
+Double.displayName = 'ElementDoubleValue';
 
-Value.propTypes = {
+Double.propTypes = {
   type: React.PropTypes.string.isRequired,
   value: React.PropTypes.any.isRequired
 };
 
-module.exports = Value;
+module.exports = Double;

@@ -1,10 +1,10 @@
 const React = require('react');
 const { expect } = require('chai');
 const { shallow } = require('enzyme');
-const { BsonValue } = require('../../');
+const { ElementValue } = require('../../');
 
-describe('<BsonValue />', () => {
-  const component = shallow(<BsonValue type="String" value="testing" />);
+describe('<ElementValue />', () => {
+  const component = shallow(<ElementValue type="String" value="testing" />);
 
   it('sets the base class', () => {
     expect(component.hasClass('element-value')).to.equal(true);

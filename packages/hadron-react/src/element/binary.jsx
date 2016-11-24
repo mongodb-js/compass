@@ -35,9 +35,9 @@ class Binary extends React.Component {
     const type = this.props.value.sub_type;
     const buffer = this.props.value.buffer;
     if (type === UUID || type === UUID_OLD) {
-      return `Binary('${ truncate(buffer.toString()) }')`;
+      return `Binary('${truncate(buffer.toString())}')`;
     }
-    return `Binary('${ truncate(buffer.toString(BASE_64)) }')`;
+    return `Binary('${truncate(buffer.toString(BASE_64))}')`;
   }
 
   /**
@@ -47,15 +47,15 @@ class Binary extends React.Component {
    */
   render() {
     const value = this.renderValue();
-    return React.createElement(
-      'div',
-      { className: CLASS, title: value },
-      value
+    return (
+      <div className={CLASS} title={value}>
+        {value}
+      </div>
     );
   }
 }
 
-Binary.displayName = 'BsonBinary';
+Binary.displayName = 'ElementBinary';
 
 Binary.propTypes = {
   type: React.PropTypes.string,

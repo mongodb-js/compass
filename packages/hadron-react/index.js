@@ -1,8 +1,9 @@
 'use strict';
 
-module.exports.Bson = require('./lib/bson');
-module.exports.BsonValue = require('./lib/bson/').BsonValue;
-module.exports.BsonBinaryValue = require('./lib/bson/').BsonBinaryValue;
-module.exports.BsonCodeValue = require('./lib/bson/').BsonCodeValue;
-module.exports.BsonDateValue = require('./lib/bson/').BsonDateValue;
-module.exports.BsonDoubleValue = require('./lib/bson/').BsonDoubleValue;
+module.exports.Element = require('./lib/element');
+module.exports.ElementValue = require('./lib/element/').ElementValue;
+module.exports.ElementBinaryValue = require('./lib/element/').ElementBinaryValue;
+module.exports.ElementCodeValue = require('./lib/element/').ElementCodeValue;
+module.exports.ElementDateValue = require('./lib/element/').ElementDateValue;
+module.exports.ElementDoubleValue = require('./lib/element/').ElementDoubleValue;
+module.exports.ElementInt32Value = require('./lib/element/').ElementInt32Value;
