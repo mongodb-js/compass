@@ -15,7 +15,8 @@ const MAPPINGS = {
   'Date': ElementDateValue,
   'Decimal128': ElementValue,
   'Double': ElementDoubleValue,
-  'Int32': ElementInt32Value
+  'Int32': ElementInt32Value,
+  'Int64': ElementValue
 };
 
 /**
