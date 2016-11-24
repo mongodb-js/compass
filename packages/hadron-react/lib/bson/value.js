@@ -1,6 +1,11 @@
 const React = require('react');
 
 /**
+ * The base css class.
+ */
+const CLASS = 'element-value';
+
+/**
  * General BSON value component.
  */
 class Value extends React.Component {
@@ -11,12 +16,11 @@ class Value extends React.Component {
    * @returns {React.Component} The element component.
    */
   render() {
+    const value = String(this.props.value);
     return React.createElement(
       'div',
-      {
-        className: `element-value element-value-is-${ this.props.type.toLowerCase() }`,
-        title: this.props.value },
-      String(this.props.value)
+      { className: `${ CLASS } ${ CLASS }-is-${ this.props.type.toLowerCase() }`, title: value },
+      value
     );
   }
 }

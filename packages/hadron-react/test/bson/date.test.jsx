@@ -16,10 +16,10 @@ describe('<BsonDate />', () => {
   });
 
   it('sets the title', () => {
-    expect(component.props().title).to.contain('January 1, 2016');
+    expect(component.props().title).to.contain('2016-01-01');
   });
 
   it('sets the value', () => {
-    expect(component.text()).to.contain('January 1, 2016');
+    expect(component.text()).to.contain('2016-01-01');
   });
 });

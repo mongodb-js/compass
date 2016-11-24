@@ -7,6 +7,11 @@ const React = require('react');
 const CLASS = 'element-value element-value-is-date';
 
 /**
+ * The date format.
+ */
+const FORMAT = 'YYYY-MM-DD HH:mm:ss.SSS';
+
+/**
  * BSON Date component.
  */
 class BsonDate extends React.Component {
@@ -17,7 +22,7 @@ class BsonDate extends React.Component {
    * @returns {React.Component} The element component.
    */
   render() {
-    const value = moment(this.props.value).format('LLL');
+    const value = moment(this.props.value).format(FORMAT);
     return React.createElement(
       'div',
       { className: CLASS, title: value },
