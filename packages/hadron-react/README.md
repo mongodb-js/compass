@@ -16,9 +16,13 @@ npm install --global lerna@prerelease
 
 ### Bootstrapping
 
-Bootstrap all the packages and install their dependencies, this replaces `npm install`.
+Bootstrap all the packages and install their dependencies. The first step is to
+install the root development dependencies, so that the Lerna root package can
+share the common dependencies with the child packages. Then bootstrap from the
+root project to install all the child external dependencies.
 
 ```shell
+npm install
 lerna bootstrap
 ```
 
@@ -37,8 +41,6 @@ Run checks on all packages in the repo - this also runs as a precommit hook.
 ```shell
 lerna run check
 ```
-
-### Usage
 
 ## License
 
