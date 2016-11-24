@@ -3,7 +3,7 @@
   "description": "Hadron React BSON Components",
   "author": "Durran Jordan <durran@gmail.com>",
   "bugs": "https://github.com/mongodb-js/hadron-react/issues",
-  "homepage": "https://github.com/mongodb-js/hadron-react",
+  "homepage": "https://github.com/mongodb-js/hadron-react/packages/hadron-react-bson",
   "version": "0.0.0",
   "repository": {
     "type": "git",
