@@ -28,7 +28,8 @@ const {
   DoubleValue,
   Int32Value,
   KeyValue,
-  RegexValue
+  RegexValue,
+  DBRefValue
 } = require('hadron-react-bson');
 ```
 
