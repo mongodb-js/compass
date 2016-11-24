@@ -66,8 +66,14 @@ describe('#getElementComponent', () => {
     });
   });
 
+  context('when the type is ObjectId', () => {
+    it('returns an element value component', () => {
+      expect(getElementComponent('ObjectId')).to.deep.equal(ElementValue);
+    });
+  });
+
   context('when the type is String', () => {
-    it('returns an element string value component', () => {
+    it('returns an element value component', () => {
       expect(getElementComponent('String')).to.deep.equal(ElementValue);
     });
   });

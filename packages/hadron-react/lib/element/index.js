@@ -20,7 +20,8 @@ const MAPPINGS = {
   'Int64': Value,
   'MaxKey': KeyValue,
   'MinKey': KeyValue,
-  'String': Value
+  'String': Value,
+  'ObjectId': Value
 };
 
 /**
