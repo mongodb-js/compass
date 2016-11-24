@@ -10,6 +10,7 @@ const createSampleStream = require('mongodb-collection-sample');
 const parseNamespace = require('mongodb-ns');
 const translate = require('mongodb-js-errors').translate;
 const debug = require('debug')('mongodb-data-service:native-client');
+const ReadPreference = require('mongodb').ReadPreference;
 
 /**
  * The constant for a mongos.
@@ -96,7 +97,7 @@ class NativeClient extends EventEmitter {
    */
   listCollections(databaseName, filter, callback) {
     var db = this._database(databaseName);
-    db.listCollections(filter).toArray((error, data) => {
+    db.listCollections(filter, {readPreference: {mode: ReadPreference.PRIMARY_PREFERRED}}).toArray((error, data) => {
       if (error) {
         return callback(this._translateMessage(error));
       }
