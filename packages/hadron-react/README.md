@@ -3,6 +3,9 @@
 
 ## Development
 
+See [Lerna](https://github.com/lerna/lerna#readme) for information on the module
+organisation and publishing.
+
 ### Installation
 
 Lerna must be installed as a global module to run everything locally:
