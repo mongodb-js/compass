@@ -340,14 +340,7 @@ app.extend({
       return done();
     }
     var StatusAction = app.appRegistry.getAction('Status.Actions');
-    StatusAction.configure({
-      visible: true,
-      message: 'Retrieving connection details...',
-      progressbar: true,
-      progress: 100,
-      sidebar: true
-    });
-
+    StatusAction.showIndeterminateProgressBar();
     state.connection = new Connection({
       _id: connectionId
     });
@@ -358,7 +351,7 @@ app.extend({
         state.onFatalError('fetch connection', err);
         return;
       }
-      StatusAction.setMessage('Connecting to MongoDB...');
+      StatusAction.showIndeterminateProgressBar();
 
       var DataService = require('mongodb-data-service');
       app.dataService = new DataService(state.connection)
