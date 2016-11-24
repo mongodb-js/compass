@@ -225,6 +225,19 @@ function addCommands(client) {
       .waitForVisible('#statusbar', ms)
       .waitForVisible('#statusbar', ms, true);
   });
+
+  client.addCommand('selectCreateIndex', function() {
+    return this.click('.create-index-btn button').waitForVisible('h4.modal-title', 15000);
+  });
+
+  client.addCommand('submitCreateIndexForm', function() {
+    this.click('#field-name-select-dropdown');
+    return this.submitForm('.modal-body form');
+  });
+
+  client.addCommand('cancelCreateIndexForm', function() {
+    return this.click('.create-index-confirm-buttons-cancel');
+  });
 }
 
 /**
