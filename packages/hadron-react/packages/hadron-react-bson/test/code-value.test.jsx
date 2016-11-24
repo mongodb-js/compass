@@ -2,11 +2,11 @@ const React = require('react');
 const { expect } = require('chai');
 const { shallow } = require('enzyme');
 const { Code } = require('bson');
-const { ElementCodeValue } = require('../../');
+const { CodeValue } = require('../');
 
-describe('<ElementCodeValue />', () => {
+describe('<CodeValue />', () => {
   const code = new Code('this.a > i', { i: 1 });
-  const component = shallow(<ElementCodeValue type="Code" value={code} />);
+  const component = shallow(<CodeValue type="Code" value={code} />);
   const value = 'Code(\'this.a > i\', {"i":1})'
 
   it('sets the base class', () => {

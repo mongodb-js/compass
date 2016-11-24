@@ -2,11 +2,11 @@ const React = require('react');
 const { Long } = require('bson');
 const { expect } = require('chai');
 const { shallow } = require('enzyme');
-const { ElementValue } = require('../../');
+const { Value } = require('../');
 
-describe('<ElementInt32Value />', () => {
+describe('<Int32Value />', () => {
   const value = Long.fromNumber(123456789);
-  const component = shallow(<ElementValue type="Int64" value={value} />);
+  const component = shallow(<Value type="Int64" value={value} />);
 
   it('sets the base class', () => {
     expect(component.hasClass('element-value')).to.equal(true);

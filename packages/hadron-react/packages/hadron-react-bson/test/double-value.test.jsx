@@ -2,11 +2,11 @@ const React = require('react');
 const { Double } = require('bson');
 const { expect } = require('chai');
 const { shallow } = require('enzyme');
-const { ElementDoubleValue } = require('../../');
+const { DoubleValue } = require('../');
 
-describe('<ElementDoubleValue />', () => {
+describe('<DoubleValue />', () => {
   const value = new Double(123.45);
-  const component = shallow(<ElementDoubleValue type="Double" value={value} />);
+  const component = shallow(<DoubleValue type="Double" value={value} />);
 
   it('sets the base class', () => {
     expect(component.hasClass('element-value')).to.equal(true);

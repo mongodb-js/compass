@@ -2,11 +2,11 @@ const React = require('react');
 const { expect } = require('chai');
 const { shallow } = require('enzyme');
 const { BSONRegExp } = require('bson');
-const { ElementRegexValue } = require('../../');
+const { RegexValue } = require('../');
 
-describe('<ElementRegexValue />', () => {
+describe('<RegexValue />', () => {
   const value = new BSONRegExp('test', 'i');
-  const component = shallow(<ElementRegexValue type="BSONRegExp" value={value} />);
+  const component = shallow(<RegexValue type="BSONRegExp" value={value} />);
 
   it('sets the base class', () => {
     expect(component.hasClass('element-value')).to.equal(true);

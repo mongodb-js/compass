@@ -2,11 +2,11 @@ const React = require('react');
 const { expect } = require('chai');
 const { shallow } = require('enzyme');
 const { ObjectId } = require('bson');
-const { ElementValue } = require('../../');
+const { Value } = require('../');
 
-describe('<ElementValue /> (rendering ObjectId)', () => {
+describe('<Value /> (rendering ObjectId)', () => {
   const value = ObjectId.createFromHexString('583711146b59b28fcfa66587');
-  const component = shallow(<ElementValue type="ObjectId" value={value} />);
+  const component = shallow(<Value type="ObjectId" value={value} />);
 
   it('sets the base class', () => {
     expect(component.hasClass('element-value')).to.equal(true);

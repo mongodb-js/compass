@@ -2,12 +2,12 @@ const React = require('react');
 const { Decimal128 } = require('bson');
 const { expect } = require('chai');
 const { shallow } = require('enzyme');
-const { ElementValue } = require('../../');
+const { Value } = require('../');
 
-describe('<ElementValue /> (rendering Decimal128)', () => {
+describe('<Value /> (rendering Decimal128)', () => {
   context('when the decimal is a number', () => {
     const value = Decimal128.fromString('19992.12321');
-    const component = shallow(<ElementValue type="Decimal128" value={value} />);
+    const component = shallow(<Value type="Decimal128" value={value} />);
 
     it('sets the base class', () => {
       expect(component.hasClass('element-value')).to.equal(true);
@@ -28,7 +28,7 @@ describe('<ElementValue /> (rendering Decimal128)', () => {
 
   context('when the decimal is a valid string', () => {
     const value = Decimal128.fromString('Infinity');
-    const component = shallow(<ElementValue type="Decimal128" value={value} />);
+    const component = shallow(<Value type="Decimal128" value={value} />);
 
     it('sets the base class', () => {
       expect(component.hasClass('element-value')).to.equal(true);

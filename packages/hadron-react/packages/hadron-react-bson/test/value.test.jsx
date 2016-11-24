@@ -1,19 +1,17 @@
 const React = require('react');
 const { expect } = require('chai');
 const { shallow } = require('enzyme');
-const { Symbol } = require('bson');
-const { ElementValue } = require('../../');
+const { Value } = require('../');
 
-describe('<ElementValue /> (rendering symbol)', () => {
-  const value = new Symbol('testing');
-  const component = shallow(<ElementValue type="Symbol" value={value} />);
+describe('<Value />', () => {
+  const component = shallow(<Value type="String" value="testing" />);
 
   it('sets the base class', () => {
     expect(component.hasClass('element-value')).to.equal(true);
   });
 
   it('sets the type class', () => {
-    expect(component.hasClass('element-value-is-symbol')).to.equal(true);
+    expect(component.hasClass('element-value-is-string')).to.equal(true);
   });
 
   it('sets the title', () => {

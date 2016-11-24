@@ -1,11 +1,11 @@
 const Value = require('./value');
-const BinaryValue = require('./binary');
-const CodeValue = require('./code');
-const DateValue = require('./date');
-const DoubleValue = require('./double');
-const Int32Value = require('./int32');
-const KeyValue = require('./key');
-const RegexValue = require('./regex');
+const BinaryValue = require('./binary-value');
+const CodeValue = require('./code-value');
+const DateValue = require('./date-value');
+const DoubleValue = require('./double-value');
+const Int32Value = require('./int32-value');
+const KeyValue = require('./key-value');
+const RegexValue = require('./regex-value');
 
 /**
  * The mappings from the BSON type to the value component
@@ -38,11 +38,3 @@ const getComponent = (type) => {
 };
 
 module.exports = getComponent;
-module.exports.Value = Value;
-module.exports.BinaryValue = BinaryValue;
-module.exports.CodeValue = CodeValue;
-module.exports.DateValue = DateValue;
-module.exports.DoubleValue = DoubleValue;
-module.exports.Int32Value = Int32Value;
-module.exports.KeyValue = KeyValue;
-module.exports.RegexValue = RegexValue;

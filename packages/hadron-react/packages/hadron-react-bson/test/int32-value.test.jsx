@@ -2,11 +2,11 @@ const React = require('react');
 const { Int32 } = require('bson');
 const { expect } = require('chai');
 const { shallow } = require('enzyme');
-const { ElementInt32Value } = require('../../');
+const { Int32Value } = require('../');
 
-describe('<ElementInt32Value />', () => {
+describe('<Int32Value />', () => {
   const value = new Int32(123);
-  const component = shallow(<ElementInt32Value type="Int32" value={value} />);
+  const component = shallow(<Int32Value type="Int32" value={value} />);
 
   it('sets the base class', () => {
     expect(component.hasClass('element-value')).to.equal(true);

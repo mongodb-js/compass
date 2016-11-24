@@ -2,12 +2,12 @@ const React = require('react');
 const { expect } = require('chai');
 const { shallow } = require('enzyme');
 const { MaxKey, MinKey } = require('bson');
-const { ElementKeyValue } = require('../../');
+const { KeyValue } = require('../');
 
-describe('<ElementKeyValue />', () => {
+describe('<KeyValue />', () => {
   context('when the value is a MaxKey', () => {
     const value = new MaxKey();
-    const component = shallow(<ElementKeyValue type="MaxKey" value={value} />);
+    const component = shallow(<KeyValue type="MaxKey" value={value} />);
 
     it('sets the base class', () => {
       expect(component.hasClass('element-value')).to.equal(true);
@@ -28,7 +28,7 @@ describe('<ElementKeyValue />', () => {
 
   context('when the value is a MinKey', () => {
     const value = new MinKey();
-    const component = shallow(<ElementKeyValue type="MinKey" value={value} />);
+    const component = shallow(<KeyValue type="MinKey" value={value} />);
 
     it('sets the base class', () => {
       expect(component.hasClass('element-value')).to.equal(true);

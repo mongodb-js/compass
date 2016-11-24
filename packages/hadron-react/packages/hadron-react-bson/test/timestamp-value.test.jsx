@@ -2,11 +2,11 @@ const React = require('react');
 const { expect } = require('chai');
 const { shallow } = require('enzyme');
 const { Timestamp } = require('bson');
-const { ElementValue } = require('../../');
+const { Value } = require('../');
 
-describe('<ElementValue /> (rendering timestamp)', () => {
+describe('<Value /> (rendering timestamp)', () => {
   const value = Timestamp.ZERO
-  const component = shallow(<ElementValue type="Timestamp" value={value} />);
+  const component = shallow(<Value type="Timestamp" value={value} />);
 
   it('sets the base class', () => {
     expect(component.hasClass('element-value')).to.equal(true);
