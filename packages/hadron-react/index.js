@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports.getElementComponent = require('./lib/element');
+module.exports.getElementValueComponent = require('./lib/element');
 module.exports.ElementValue = require('./lib/element/').Value;
 module.exports.ElementBinaryValue = require('./lib/element/').BinaryValue;
 module.exports.ElementCodeValue = require('./lib/element/').CodeValue;
