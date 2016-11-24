@@ -1,0 +1,48 @@
+lerna(info)    Lerna v2.0.0-beta.30
+lerna(debug)   Attempting running RunCommand.initialize
+lerna(debug)   Successfully ran RunCommand.initialize
+lerna(debug)   Attempting running RunCommand.execute
+lerna(info)    
+> hadron-react-bson@0.0.0 check /Users/modetojoy/work/mongodb-js/hadron-react/packages/hadron-react-bson
+> mongodb-js-precommit
+
+
+lerna(error)   Errored while running npm script 'check' in 'hadron-react-bson'
+    Error: Command failed: npm run check 
+    sh: mongodb-js-precommit: command not found
+    
+    npm ERR! Darwin 15.5.0
+    npm ERR! argv "/Users/modetojoy/.nvm/versions/node/v6.7.0/bin/node" "/Users/modetojoy/.nvm/versions/node/v6.7.0/bin/npm" "run" "check"
+    npm ERR! node v6.7.0
+    npm ERR! npm  v3.10.3
+    npm ERR! file sh
+    npm ERR! code ELIFECYCLE
+    npm ERR! errno ENOENT
+    npm ERR! syscall spawn
+    npm ERR! hadron-react-bson@0.0.0 check: `mongodb-js-precommit`
+    npm ERR! spawn ENOENT
+    npm ERR! 
+    npm ERR! Failed at the hadron-react-bson@0.0.0 check script 'mongodb-js-precommit'.
+    npm ERR! Make sure you have the latest version of node.js and npm installed.
+    npm ERR! If you do, this is most likely a problem with the hadron-react-bson package,
+    npm ERR! not with npm itself.
+    npm ERR! Tell the author that this fails on your system:
+    npm ERR!     mongodb-js-precommit
+    npm ERR! You can get information on how to open an issue for this project with:
+    npm ERR!     npm bugs hadron-react-bson
+    npm ERR! Or if that isn't available, you can get their info via:
+    npm ERR!     npm owner ls hadron-react-bson
+    npm ERR! There is likely additional logging output above.
+    
+    npm ERR! Please include the following file with any support request:
+    npm ERR!     /Users/modetojoy/work/mongodb-js/hadron-react/packages/hadron-react-bson/npm-debug.log
+    
+        at ChildProcess.exithandler (child_process.js:206:12)
+        at emitTwo (events.js:106:13)
+        at ChildProcess.emit (events.js:191:7)
+        at maybeClose (internal/child_process.js:877:16)
+        at Socket.<anonymous> (internal/child_process.js:334:11)
+        at emitOne (events.js:96:13)
+        at Socket.emit (events.js:188:7)
+        at Pipe._handle.close [as _onclose] (net.js:493:12)
+lerna(error)   Errored while running RunCommand.execute

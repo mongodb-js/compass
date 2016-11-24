@@ -21,6 +21,7 @@
     "check"
   ],
   "devDependencies": {
+    "eslint-config-mongodb-js": "^2.2.0",
     "lerna": "2.0.0-beta.30",
     "mongodb-js-precommit": "^0.2.9",
     "pre-commit": "^1.1.2"
