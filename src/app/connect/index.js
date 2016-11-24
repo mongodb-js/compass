@@ -465,12 +465,12 @@ var ConnectView = View.extend({
 
     connection.test(function(err) {
       // Always hide the status bar while we're moving to React components
-      StatusAction.hide();
       if (!err) {
         // now save connection
         this.connection = connection;
         this.connection.save({ last_used: new Date() }, { success: onSave.bind(this) });
       } else {
+        StatusAction.hide();
         this.onError(err, connection);
         this.dispatch('error received');
         return;
