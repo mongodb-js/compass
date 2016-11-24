@@ -19,7 +19,8 @@ const MAPPINGS = {
   'Int32': Int32Value,
   'Int64': Value,
   'MaxKey': KeyValue,
-  'MinKey': KeyValue
+  'MinKey': KeyValue,
+  'String': Value
 };
 
 /**
@@ -28,7 +29,7 @@ const MAPPINGS = {
  * @returns {React.Component} The react component.
  */
 const getComponent = (type) => {
-  return MAPPINGS[type] || ElementValue;
+  return MAPPINGS[type] || Value;
 };
 
 module.exports = getComponent;

@@ -65,4 +65,10 @@ describe('#getElementComponent', () => {
       expect(getElementComponent('MinKey')).to.deep.equal(ElementKeyValue);
     });
   });
+
+  context('when the type is String', () => {
+    it('returns an element string value component', () => {
+      expect(getElementComponent('String')).to.deep.equal(ElementValue);
+    });
+  });
 });
