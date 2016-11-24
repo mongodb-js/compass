@@ -1,6 +1,8 @@
 language: node_js
+sudo: required
 node_js:
-  - 5
+  - 6.3.1
+  - lts/boron
 script: npm run-script ci
 cache:
   directories:
