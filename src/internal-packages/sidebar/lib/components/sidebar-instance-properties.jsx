@@ -49,6 +49,7 @@ class SidebarInstanceProperties extends React.Component {
 
   handleClickHostname() {
     NamespaceStore.ns = '';
+    this.props.onClick('');
   }
 
   render() {
@@ -60,7 +61,7 @@ class SidebarInstanceProperties extends React.Component {
     const versionName = this.getVersionName();
     return (
       <div className="compass-sidebar-properties">
-        <div className="compass-sidebar-instance" onClick={this.handleClickHostname}>
+        <div onClick={this.handleClickHostname.bind(this)} className={ ('' !== this.props.active) ? "compass-sidebar-instance" : "compass-sidebar-instance compass-sidebar-instance-is-active" }>
           <i className="fa fa-home compass-sidebar-instance-icon"></i>
           <div className="compass-sidebar-instance-hostname" >{hostnameAndPort}</div>
           {sshTunnelViaPort}
@@ -85,7 +86,9 @@ class SidebarInstanceProperties extends React.Component {
 SidebarInstanceProperties.propTypes = {
   connection: React.PropTypes.object,
   instance: React.PropTypes.object,
-  fetching: React.PropTypes.bool
+  fetching: React.PropTypes.bool,
+  active: React.PropTypes.string,
+  onClick: React.PropTypes.func
 };
 
 module.exports = SidebarInstanceProperties;

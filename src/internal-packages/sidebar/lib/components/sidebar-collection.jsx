@@ -21,11 +21,6 @@ class SidebarCollection extends React.Component {
     if (NamespaceStore.ns !== this.props._id) {
       this.CollectionStore.setCollection(this.props);
     }
-    console.log('--------------------------->>>>>>>');
-    console.log('--------------------------->>>>>>>');
-    console.log(col);
-    console.log('--------------------------->>>>>>>');
-    console.log('--------------------------->>>>>>>');
     this.props.onClick(col);
   }
 

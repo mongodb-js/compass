@@ -32,14 +32,20 @@ class Sidebar extends React.Component {
     this.setState({
       active: element
     });
+    
+    console.log('--------------------------->>>>>>>');
+    console.log('--------------------------->>>>>>>');
     console.log(this.state.active);
+    console.log('--------------------------->>>>>>>');
+    console.log('--------------------------->>>>>>>');
+
   }
 
   render() {
     return (
       <div className="compass-sidebar">
         <StoreConnector store={InstanceStore}>
-          <SidebarInstanceProperties connection={app.connection}/>
+          <SidebarInstanceProperties active={this.state.active} onClick={this.handleActive.bind(this)} connection={app.connection}/>
         </StoreConnector>
         <div className="compass-sidebar-filter">
           <i className="fa fa-search compass-sidebar-search-icon"></i>
