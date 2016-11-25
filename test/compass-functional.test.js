@@ -19,6 +19,16 @@ var DOCUMENTS = [
 ];
 
 describe('Compass #spectron', function() {
+  before(require('mongodb-runner/mocha/before')({
+    port: 27018,
+    topology: 'standalone'
+  }));
+
+  after(require('mongodb-runner/mocha/after')({
+    port: 27018,
+    topology: 'standalone'
+  }));
+
   this.slow(30000);
   this.timeout(60000);
   var app = null;

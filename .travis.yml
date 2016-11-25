@@ -1,6 +1,8 @@
+sudo: required
 language: node_js
 node_js:
-- 6.3.1
+  - 6.3.1
+  - lts/boron
 env:
   matrix:
   - CXX=g++-4.8 CI=1
