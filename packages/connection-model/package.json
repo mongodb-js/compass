@@ -16,6 +16,7 @@
   "browser": "browser.js",
   "scripts": {
     "ci": "npm run check && npm test",
+    "pretest": "mongodb-runner install",
     "test": "mocha",
     "fmt": "mongodb-js-fmt ./*.js lib/*.js ./test/*.js",
     "check": "mongodb-js-precommit"
