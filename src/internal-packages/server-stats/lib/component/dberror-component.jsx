@@ -23,11 +23,11 @@ class DBErrorComponent extends React.Component {
     this.setState({ data: data });
   }
 
-  renderErrors() {
+  renderErrors() { // TODO: display srcName
     const rows = this.state.data.map(function(row, i) {
       return (
         <li className="rt-errors__item" key={`list-item-${i}`}>
-          <div className="rt-errors__operror"><text>&#9888; Command {row.ops} returned error: </text><text className="rt-errors__bold">{row.errorMsg}</text></div>
+          <div className="rt-errors__operror"><text>&#9888; Command &#34;{row.ops}&#34; returned error </text><text className="rt-errors__bold">&#34;{row.errorMsg}&#34;</text></div>
         </li>
       );
     });
