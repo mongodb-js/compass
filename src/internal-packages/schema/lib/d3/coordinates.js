@@ -25,6 +25,7 @@ const minicharts_d3fns_geo = function() {
   let width = 400;
   let height = 100;
   let map = null;
+  let mousedown = false;
   let circleControl;
   let mapboxgl;
 
@@ -214,6 +215,7 @@ const minicharts_d3fns_geo = function() {
       }
 
       map.dragPan.disable();
+      mousedown = true;
       const p = d3.mouse(this);
       const ll = unproject([p[0], p[1]]);
 
@@ -236,6 +238,7 @@ const minicharts_d3fns_geo = function() {
     });
 
     container.on('mouseup.circle', function() {
+      mousedown = false;
       if (dragging && circleSelected) return;
 
       map.dragPan.enable();
@@ -296,15 +299,23 @@ const minicharts_d3fns_geo = function() {
 
 
   function selectFromQuery() {
+    // don't update from query while dragging the circle
+    if (mousedown) {
+      return;
+    }
     if (options.query === undefined) {
       circleControl.clear(true);
-    } else {
-      const center = options.query.$geoWithin.$centerSphere[0];
-      const radius = options.query.$geoWithin.$centerSphere[1] * 3963.2;
-      // only redraw if the center/radius is different to the existing circle
-      if (radius !== mileDistance || !_.isEqual(center, [circleCenter.lng, circleCenter.lat])) {
-        circleControl.setCircle(center, radius);
-      }
+      return;
+    }
+    const center = _.get(options.query, '$geoWithin.$centerSphere[0]');
+    const radius = _.get(options.query, '$geoWithin.$centerSphere[1]', 0) * 3963.2;
+    if (!center || !radius) {
+      circleControl.clear(true);
+      return;
+    }
+    // only redraw if the center/radius is different to the existing circle
+    if (radius !== mileDistance || !_.isEqual(center, [circleCenter.lng, circleCenter.lat])) {
+      circleControl.setCircle(center, radius);
     }
   }
   // --- end chart setup ---
