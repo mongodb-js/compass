@@ -70,8 +70,7 @@ describe('<Rule />', function() {
     });
 
     context('when category is "regex"', function() {
-      // this test is setting disabled as blank rather than false
-      it.skip('the checkbox "Nullable" is enabled.', function() {
+      it('the checkbox "Nullable" is enabled.', function() {
         const rule = _.assign(ruleTemplate, {category: 'regex'});
         component = mount(<table><tbody><Rule {...rule} /></tbody></table>);
         expect(component.find('input.nullable')).to.not.be.disabled();

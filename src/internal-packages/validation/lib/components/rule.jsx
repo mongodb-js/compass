@@ -115,6 +115,17 @@ Rule.propTypes = {
   isWritable: React.PropTypes.bool
 };
 
+// @KeyboardTsundoku: this could be danger, setting defaults for test purposes
+Rule.defaultProps = {
+  id: '',
+  field: '',
+  category: '',
+  parameters: {},
+  nullable: false,
+  serverVersion: '',
+  isWritable: true
+};
+
 Rule.displayName = 'Rule';
 
 module.exports = Rule;
