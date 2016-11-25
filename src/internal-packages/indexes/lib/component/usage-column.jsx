@@ -1,4 +1,7 @@
 const React = require('react');
+const _ = require('lodash');
+
+// const debug = require('debug')('mongodb-compass:indexes:usage-column');
 
 /**
  * No usage stats constant.
@@ -16,10 +19,24 @@ class UsageColumn extends React.Component {
    * @returns {String} The tooltip.
    */
   tooltip() {
-    if (this.props.usage) {
-      return `${this.props.usage} index hits since index creation or last\n server restart`;
+    if (_.isUndefined(this.props.usage)) {
+      return NO_USAGE_STATS;
     }
-    return NO_USAGE_STATS;
+    return `${this.props.usage} index hits since index creation or last\n server restart`;
+  }
+
+  renderSince() {
+    if (_.isUndefined(this.props.since)) {
+      return null;
+    }
+    return (
+      <div className="usage-since">
+        since&nbsp;
+        <span>
+          {this.props.since ? this.props.since.toDateString() : 'N/A'}
+        </span>
+      </div>
+    );
   }
 
   /**
@@ -28,18 +45,14 @@ class UsageColumn extends React.Component {
    * @returns {React.Component} The usage column.
    */
   render() {
+    const usage = _.isUndefined(this.props.usage) ? 'N/A' : this.props.usage;
     return (
       <td className="usage-column">
         <span className="usage">
           <div className="quantity" title={this.tooltip()}>
-            {this.props.usage || 'N/A'}
+            {usage}
           </div>
-          <div className="usage-since">
-            since&nbsp;
-            <span>
-              {this.props.since ? this.props.since.toDateString() : 'N/A'}
-            </span>
-          </div>
+          {this.renderSince()}
         </span>
       </td>
     );
