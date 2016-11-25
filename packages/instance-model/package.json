@@ -14,6 +14,7 @@
   "scripts": {
     "fmt": "mongodb-js-fmt ./*.js ./test/*.js",
     "ci": "npm run check && npm test",
+    "pretest": "mongodb-runner install",
     "test": "mocha",
     "check": "mongodb-js-precommit"
   },
