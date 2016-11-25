@@ -16,6 +16,13 @@ add the following to the top of your `main.js` and you're good to go:
 ```js
 if(require('electron-squirrel-startup')) return;
 ```
+For Babel/ES6:
+
+```js
+const { app } = require('electron');
+// ....
+if(require('electron-squirrel-startup')) app.quit();
+```
 
 ## Read More
 
