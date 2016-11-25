@@ -182,6 +182,32 @@ describe('Compass #spectron', function() {
               .eventually
               .include('_id_');
           });
+          it('shows a number in the usage column', function() {
+            return client
+              .getText('span.usage div.quantity')
+              .should
+              .eventually
+              .match(/\d+/);
+          });
+          it('open create index', function() {
+            return client.selectCreateIndex()
+              .getText('h4.modal-title')
+              .should
+              .eventually
+              .include('Create Index');
+          });
+          it('try empty create index', function() {
+            return client.submitCreateIndexForm()
+              .getText('.modal-status-error-message')
+              .should
+              .eventually
+              .include('You must select a field name and type');
+          });
+          // @KeyboardTsundoku it would be great to have test that creates an
+          // index here
+          it('close create index', function() {
+            return client.cancelCreateIndexForm(); // test required here
+          });
         });
       });
     });
