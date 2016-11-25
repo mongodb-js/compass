@@ -182,6 +182,13 @@ describe('Compass #spectron', function() {
               .eventually
               .include('_id_');
           });
+          it('shows a number in the usage column', function() {
+            return client
+              .getText('span.usage div.quantity')
+              .should
+              .eventually
+              .match(/\d+/);
+          });
           it('open create index', function() {
             return client.selectCreateIndex()
               .getText('h4.modal-title')
