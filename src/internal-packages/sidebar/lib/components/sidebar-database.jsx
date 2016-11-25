@@ -7,7 +7,9 @@ const { NamespaceStore } = require('hadron-reflux-store');
 class SidebarDatabase extends React.Component {
   constructor() {
     super();
-    this.state = { expanded: true };
+    this.state = {
+      expanded: false
+    };
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
   }
 
@@ -23,7 +25,7 @@ class SidebarDatabase extends React.Component {
         };
 
         return (
-          <SidebarCollection key={c._id} {...props} />
+          <SidebarCollection active={this.props.active} onClick={this.handleActive.bind(this)} key={c._id} {...props} />
         );
       });
     }
@@ -34,11 +36,19 @@ class SidebarDatabase extends React.Component {
       (this.state.expanded ? ' fa-rotate-90' : '');
   }
 
+  handleActive(col) {
+    this.props.onClick(col);
+  }
+
   handleDBClick(db) {
     if (NamespaceStore.ns !== db) {
       this.CollectionStore.setCollection({});
       NamespaceStore.ns = db;
     }
+    this.setState({
+      expanded: true
+    });
+    this.props.onClick(db);
   }
 
   handleArrowClick() {
@@ -48,7 +58,7 @@ class SidebarDatabase extends React.Component {
   render() {
     return (
       <div className="compass-sidebar-item compass-sidebar-item-is-top-level">
-        <div className="compass-sidebar-item-header compass-sidebar-item-header-is-expandable">
+        <div className={ (this.props._id !== this.props.active) ? "compass-sidebar-item-header compass-sidebar-item-header-is-expandable compass-sidebar-item-header-is-actionable" : "compass-sidebar-item-header compass-sidebar-item-header-is-expandable compass-sidebar-item-header-is-actionable compass-sidebar-item-header-is-active" }>
           <i onClick={this.handleDBClick.bind(this, this.props._id)} className="compass-sidebar-database-icon mms-icon-database"></i>
           <i onClick={this.handleArrowClick.bind(this)} className={this.getArrowIconClasses()}></i>
           <div onClick={this.handleDBClick.bind(this, this.props._id)} className="compass-sidebar-title" title={this.props._id}>
@@ -65,7 +75,9 @@ class SidebarDatabase extends React.Component {
 
 SidebarDatabase.propTypes = {
   _id: React.PropTypes.string,
-  collections: React.PropTypes.array
+  collections: React.PropTypes.array,
+  active: React.PropTypes.string,
+  onClick: React.PropTypes.func
 };
 
 module.exports = SidebarDatabase;

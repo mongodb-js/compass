@@ -8,6 +8,12 @@ const SidebarDatabase = require('./sidebar-database');
 const SidebarInstanceProperties = require('./sidebar-instance-properties');
 
 class Sidebar extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+      active: ''
+    };
+  }
 
   handleFilter(event) {
     const searchString = event.target.value;
@@ -20,6 +26,13 @@ class Sidebar extends React.Component {
     }
 
     SidebarActions.filterDatabases(re);
+  }
+
+  handleActive(element) {
+    this.setState({
+      active: element
+    });
+    console.log(this.state.active);
   }
 
   render() {
@@ -40,7 +53,7 @@ class Sidebar extends React.Component {
                 collections: db.collections
               };
               return (
-                <SidebarDatabase key={db._id} {...props} />
+                <SidebarDatabase active={this.state.active} onClick={this.handleActive.bind(this)} key={db._id} {...props} />
               );
             })
           }
