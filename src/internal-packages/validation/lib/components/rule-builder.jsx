@@ -98,6 +98,17 @@ class RuleBuilder extends React.Component {
         {...rule} />);
     });
   }
+
+  renderAddButton() {
+    return (
+      <Button
+        bsStyle="success"
+        bsSize="xsmall"
+        disabled={!this.props.isWritable}
+        onClick={this.onAddClick.bind(this)}>+ Add Rule
+      </Button>);
+  }
+
   /**
    * Render status row component.
    *
@@ -123,12 +134,7 @@ class RuleBuilder extends React.Component {
         <Grid fluid className="rule-builder">
           <Row className="header">
             <Col lg={6} md={6} sm={6} xs={6}>
-              {this.props.isWritable ? (<Button
-                bsStyle="success"
-                bsSize="xsmall"
-                disabled={!this.props.isWritable}
-                onClick={this.onAddClick.bind(this)}>+ Add Rule
-              </Button>) : null}
+              {this.props.isWritable ? this.renderAddButton() : null}
             </Col>
             <Col lg={6} md={6} sm={6} xs={6}>
               <div className="pull-right">

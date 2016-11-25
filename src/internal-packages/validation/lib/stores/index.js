@@ -312,9 +312,6 @@ const ValidationStore = Reflux.createStore({
           return;
         }
 
-
-        debug('the rules are: ', result.rules);
-
         // the validator Doc _can_ be expressed as simple rules.
         this.setState({
           fetchState: 'success',
@@ -462,7 +459,6 @@ const ValidationStore = Reflux.createStore({
   },
 
   saveChanges() {
-    debug('Sending new validator doc to server:', this.state.validatorDoc);
     this.setState({
       editState: 'updating'
     });

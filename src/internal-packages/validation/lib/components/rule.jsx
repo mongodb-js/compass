@@ -117,11 +117,6 @@ Rule.propTypes = {
 
 // @KeyboardTsundoku: this could be danger, setting defaults for test purposes
 Rule.defaultProps = {
-  id: '',
-  field: '',
-  category: '',
-  parameters: {},
-  nullable: false,
   serverVersion: '',
   isWritable: true
 };
