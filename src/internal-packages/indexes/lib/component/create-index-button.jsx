@@ -47,6 +47,7 @@ class CreateIndexButton extends React.Component {
         <button
           className="btn btn-primary btn-xs"
           type="button"
+          data-test-id="open-create-index-modal-button"
           onClick={this.clickCreateHandler.bind(this)}>
           Create Index
         </button>

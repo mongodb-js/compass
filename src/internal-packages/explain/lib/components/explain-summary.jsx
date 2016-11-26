@@ -23,16 +23,19 @@ class ExplainSummary extends React.Component {
           <div className="summary-stats">
             <SummaryStat
               dataLink="nReturned"
+              dataTestId="explain-returned-count"
               label="Documents Returned:"
               value={this.props.nReturned}
             />
             <SummaryStat
               dataLink="totalKeysExamined"
+              dataTestId="explain-examined-keys-count"
               label="Index Keys Examined:"
               value={this.props.totalKeysExamined}
             />
             <SummaryStat
               dataLink="totalDocsExamined"
+              dataTestId="explain-examined-count"
               label="Documents Examined:"
               value={this.props.totalDocsExamined}
             />

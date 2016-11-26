@@ -27,7 +27,7 @@ class Sidebar extends React.Component {
 
   render() {
     return (
-      <div className="compass-sidebar">
+      <div className="compass-sidebar" data-test-id="instance-sidebar">
         <StoreConnector store={InstanceStore}>
           <SidebarInstanceProperties
             connection={app.connection}

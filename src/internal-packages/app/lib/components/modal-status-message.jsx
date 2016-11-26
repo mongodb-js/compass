@@ -24,7 +24,7 @@ class ModalStatusMessage extends React.Component {
           </div>
           <div className="col-md-11">
             <p
-              className={`${classPrefix}-message`}>
+              className={`${classPrefix}-message`} data-test-id="modal-message">
               {this.props.message}
             </p>
           </div>

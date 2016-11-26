@@ -67,7 +67,10 @@ class IndexHeaderColumn extends React.Component {
    */
   render() {
     return (
-      <th data-hook={this.props.hook} className={this._renderClassName()} onClick={this.handleIndexSort.bind(this)}>
+      <th
+        data-test-id={this.props.hook}
+        className={this._renderClassName()}
+        onClick={this.handleIndexSort.bind(this)}>
         {this.props.name}
         <i className={`sort fa fa-fw ${this.state.sortOrder}`}></i>
       </th>

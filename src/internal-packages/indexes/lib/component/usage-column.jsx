@@ -48,7 +48,7 @@ class UsageColumn extends React.Component {
    * @returns {React.Component} The usage column.
    */
   render() {
-    const usage = _.isUndefined(this.props.usage) ? 'N/A' : this.props.usage;
+    const usage = _.isUndefined(this.props.usage) ? '0' : this.props.usage;
     const tooltipText = `${this.tooltip()}`;
     const tooltipOptions = {
       'data-tip': tooltipText,

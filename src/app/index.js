@@ -146,7 +146,7 @@ var Application = View.extend({
     return [
       '<div id="application">',
       '  <div data-hook="auto-update"></div>',
-      '  <div data-hook="statusbar"></div>',
+      '  <div data-hook="statusbar" data-test-id="status-bar"></div>',
       '  <div data-hook="notifications"></div>',
       '  <div data-hook="layout-container"></div>',
       '  <div data-hook="tour-container"></div>',

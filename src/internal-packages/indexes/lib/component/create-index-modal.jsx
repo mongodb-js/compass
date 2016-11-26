@@ -74,6 +74,7 @@ class CreateIndexModal extends React.Component {
           key={idx++}
           description={option.desc}
           isParam={false}
+          dataTestId={`create-index-modal-${option.name}-checkbox`}
           option={option.name} />
       );
       if (option.param) {
@@ -84,6 +85,7 @@ class CreateIndexModal extends React.Component {
             enabled={propOption ? propOption.value : false}
             isParam
             option={option.name}
+            dataTestId={`create-index-modal-${option.name}-field`}
             units={option.paramUnit} />
         );
       }
@@ -206,6 +208,7 @@ class CreateIndexModal extends React.Component {
           Cancel
         </button>
         <button
+          data-test-id="create-index-button"
           className="btn btn-primary btn-sm create-index-confirm-buttons-create"
           disabled={!this.state.fields.length}
           type="submit">
@@ -228,7 +231,7 @@ class CreateIndexModal extends React.Component {
         keyboard={false}
         onHide={this.close.bind(this)} >
 
-        <div className="create-index-modal-content">
+        <div className="create-index-modal-content" data-test-id="create-index-modal">
           <Modal.Header>
             <Modal.Title>Create Index</Modal.Title>
           </Modal.Header>
@@ -238,7 +241,8 @@ class CreateIndexModal extends React.Component {
               <p className="create-index-description">Choose an index name</p>
               <CreateIndexTextField
                 isParam={false}
-                option={'name'} />
+                option={'name'}
+                dataTestId="create-index-modal-name" />
 
               <div className="create-index-fields">
                 <p className="create-index-description">Configure the index definition</p>

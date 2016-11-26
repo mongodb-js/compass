@@ -96,6 +96,7 @@ class InsertDocumentDialog extends React.Component {
             clickHandler={this.handleCancel.bind(this)} />
           <TextButton
             className="btn btn-primary"
+            dataTestId="insert-document-button"
             text="Insert"
             clickHandler={this.handleInsert.bind(this)} />
         </Modal.Footer>

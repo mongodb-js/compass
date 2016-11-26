@@ -132,6 +132,7 @@ class SamplingMessage extends React.Component {
           {this.CollectionStore.isWritable() ?
             <TextButton
               clickHandler={this.props.insertHandler}
+              dataTestId="open-insert-document-modal-button"
               className="btn btn-primary btn-xs open-insert"
               text="Insert Document" /> : null }
         </div>

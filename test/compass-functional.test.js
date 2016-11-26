@@ -1,217 +1,487 @@
 process.env.NODE_ENV = 'testing';
 
-var SpectronSupport = require('./support/spectron-support');
-var CrudSupport = require('./support/crud-support');
-var Connection = require('mongodb-connection-model');
+const { launchCompass, quitCompass } = require('./support/spectron-support');
 
-var DATABASE = 'compass-test';
-var COLLECTION = 'bands';
-var CONNECTION = new Connection({ hostname: '127.0.0.1', port: 27018, ns: DATABASE });
-
-/**
- * Test documents to sample with a local server.
- */
-var DOCUMENTS = [
-  { 'name': 'Aphex Twin' },
-  { 'name': 'Bonobo' },
-  { 'name': 'Arca' },
-  { 'name': 'Beacon' }
-];
-
-describe('Compass #spectron', function() {
+describe('Compass Functional Test Suite #spectron', function() {
   this.slow(30000);
   this.timeout(60000);
-  var app = null;
-  var client = null;
+  let app = null;
+  let client = null;
 
-  context('when working with the application', function() {
+  context('when a MongoDB instance is running', function() {
     before(function(done) {
-      SpectronSupport.startApplication().then(function(application) {
+      launchCompass().then(function(application) {
         app = application;
         client = application.client;
         done();
       });
     });
 
-    after(function() {
-      SpectronSupport.stopApplication(app);
+    after(function(done) {
+      quitCompass(app, done);
     });
 
-    context('when opening the application', function() {
-      before(function(done) {
-        CrudSupport.insertMany(CONNECTION, COLLECTION, DOCUMENTS, done);
+    context('when launching the application', function() {
+      it('displays the feature tour modal', function() {
+        return client
+          .waitForFeatureTourModal()
+          .getText('h2[data-hook=title]')
+          .should.eventually.equal('Welcome to MongoDB Compass');
       });
 
-      it('renders the connect window', function() {
-        return client
-          .startUsingCompass()
-          .waitForVisible('select[name=authentication]', 60000)
-          .getTitle().should.eventually.be.equal('MongoDB Compass - Connect');
+      context('when closing the feature tour modal', function() {
+        it('displays the privacy settings', function() {
+          return client
+            .clickCloseFeatureTourButton()
+            .waitForPrivacySettingsModal()
+            .getModalTitle()
+            .should.eventually.equal('Privacy Settings');
+        });
+
+        context('when closing the privacy settings modal', function() {
+          it('renders the connect screen', function() {
+            return client
+              .clickClosePrivacySettingsButton()
+              .waitForConnectView()
+              .getTitle().should.eventually.be.equal('MongoDB Compass - Connect');
+          });
+
+          it('allows favorites to be saved', function() {
+
+          });
+
+          it('allows favorites to be edited', function() {
+
+          });
+        });
       });
     });
 
     context('when connecting to a server', function() {
       context('when the server exists', function() {
-        it('opens the instance window', function() {
+        it('renders the home screen', function() {
           return client
-            .fillOutForm({ hostname: 'localhost', port: 27018 })
-            .clickConnect()
-            .waitForSchemaWindow()
-            .getTitle().should.eventually.be.equal('MongoDB Compass - localhost:27018');
+            .inputConnectionDetails({ hostname: 'localhost', port: 27018 })
+            .clickConnectButton()
+            .waitForHomeView()
+            .getTitle().should.eventually.equal('MongoDB Compass - localhost:27018');
+        });
+
+        it('displays the instance details', function() {
+          return client
+            .getSidebarInstanceDetails()
+            .should.eventually.equal('localhost:27018');
+        });
+
+        it('displays the server version', function() {
+          return client
+            .getSidebarInstanceVersion()
+            .should.eventually.include('Community version');
         });
       });
     });
 
-    context('when working with collections', function() {
-      context('when selecting a collection', function() {
-        it('renders the sample collection in the title', function() {
+    context('when entering a filter in the sidebar', function() {
+      context('when entering a plain string', function() {
+        it('filters the list', function() {
+
+        });
+      });
+
+      context('when entering a regex', function() {
+        it('filters the list', function() {
+
+        });
+      });
+    });
+
+    context('when creating a database', function() {
+      let dbCount;
+
+      before(function(done) {
+        client.getSidebarDatabaseCount().then(function(value) {
+          dbCount = parseInt(value, 10);
+          done();
+        });
+      });
+
+      context('when the database name is invalid', function() {
+        it('displays the error message', function() {
           return client
-            .selectCollection('compass-test.bands')
-            .getTitle().should.eventually.be.equal(
-            'MongoDB Compass - localhost:27018/compass-test.bands'
-          );
+            .clickCreateDatabaseButton()
+            .waitForCreateDatabaseModal()
+            .inputCreateDatabaseDetails({ name: '$test', collectionName: 'test' })
+            .clickCreateDatabaseModalButton()
+            .waitForModalError()
+            .getModalErrorMessage()
+            .should.eventually.equal("database names cannot contain the character '$'");
         });
+      });
 
-        it('renders the schema tab', function() {
+      context('when the database name is valid', function() {
+        it('creates the database', function() {
           return client
-            .waitForStatusBar()
-            .gotoTab('SCHEMA')
-            .getText('li.bubble code.selectable')
-            .should
-            .eventually
-            .include
-            .members([ 'Arca', 'Bonobo', 'Aphex Twin', 'Beacon' ]);
+            .inputCreateDatabaseDetails({ name: 'music', collectionName: 'artists' })
+            .clickCreateDatabaseModalButton()
+            .waitForDatabaseCreation('music')
+            .getHomeViewDatabaseNames()
+            .should.eventually.include('music');
         });
 
-        context('when applying a filter', function() {
-          it('the text in refine bar matches query', function() {
-            const query = '{ "name":"Arca" }';
-            return client
-              .waitForStatusBar()
-              .refineSample(query)
-              .getValue('input#refine_input')
-              .should
-              .eventually
-              .include(query);
-          });
-
-          it('samples the matching documents', function() {
-            return client
-              .waitForStatusBar()
-              .applySample()
-              .getText('div.sampling-message b')
-              .should
-              .eventually
-              .include('1');
-          });
-
-          it('updates the schema view', function() {
-            return client
-              .getText('li.bubble code.selectable')
-              .should
-              .eventually
-              .equal('Arca');
-          });
-
-          it('filters out non-matches from the document list', function() {
-            return client
-              .gotoTab('DOCUMENTS')
-              .getText('div.element-value-is-string')
-              .should
-              .not
-              .eventually
-              .include('Aphex Twin');
-          });
-
-          it('includes documents that match the filter', function() {
-            return client
-              .getText('div.element-value-is-string')
-              .should
-              .eventually
-              .include('Arca');
-          });
+        it('adds the database to the sidebar', function() {
+          return client
+            .getSidebarDatabaseNames()
+            .should.eventually.include('music');
         });
 
-        context('when resetting the filter', function() {
-          // TODO: fix this test, it's currently not clicking the reset button
-          it.skip('resets the sample to the original', function() {
-            return client
-              .resetSample()
-              .waitForStatusBar()
-              .getText('div.sampling-message b')
-              .should
-              .eventually
-              .include('4');
-          });
+        it('updates the database count', function() {
+          return client
+            .getSidebarDatabaseCount()
+            .should.eventually.equal(String(dbCount + 1));
+        });
+      });
+    });
+
+    context('when deleting a database', function() {
+      let dbCount;
+
+      before(function(done) {
+        client.getSidebarDatabaseCount().then(function(value) {
+          dbCount = parseInt(value, 10);
+          done();
         });
       });
 
-      context('when working in the documents tab', function() {
-        context('when viewing documents', function() {
-          it('renders the documents in the list', function() {
-            return client
-              .gotoTab('DOCUMENTS')
-              .getText('div.element-value-is-string')
-              .should
-              .eventually
-              .include('Arca'); // .include('Aphex Twin');
-          });
-        });
+      it('requires database name confirmation', function() {
+        return client
+          .clickCreateDatabaseButton()
+          .waitForCreateDatabaseModal()
+          .inputCreateDatabaseDetails({ name: 'temp', collectionName: 'temp' })
+          .clickCreateDatabaseModalButton()
+          .waitForDatabaseCreation('temp')
+          .clickDeleteDatabaseButton('temp')
+          .waitForDropDatabaseModal()
+          .inputDropDatabaseName('temp')
+          .clickDropDatabaseModalButton()
+          .waitForDatabaseDeletion('temp')
+          .getHomeViewDatabaseNames()
+          .should.not.eventually.include('temp');
       });
 
-      context('when working in the explain tab', function() {
-        context('when viewing the explain tab', function() {
-          it('renders the stages', function() {
-            return client
-              .gotoTab('EXPLAIN_PLAN')
-              .getText('h3.stage-header')
-              .should
-              .eventually
-              .include('COLLSCAN');
-          });
-        });
+      it('removes the database from the sidebar', function() {
+        return client
+          .getSidebarDatabaseNames()
+          .should.not.eventually.include('temp');
       });
 
-      context('when working in the indexes tab', function() {
-        context('when viewing the indexes tab', function() {
-          it('renders the indexes', function() {
-            return client
-              .gotoTab('INDEXES')
-              .getText('div.index-definition div.name')
-              .should
-              .eventually
-              .include('_id_');
+      it('reduces the database count', function() {
+        return client
+          .getSidebarDatabaseCount()
+          .should.eventually.equal(String(dbCount));
+      });
+    });
+
+    context('when viewing the database', function() {
+      it('lists the collections in the database', function() {
+        return client
+          .clickDatabaseInSidebar('music')
+          .waitForDatabaseView()
+          .getDatabaseViewCollectionNames()
+          .should.eventually.include('artists');
+      });
+
+      context('when creating a collection', function() {
+        let collCount;
+
+        before(function(done) {
+          client.getSidebarCollectionCount().then(function(value) {
+            collCount = parseInt(value, 10);
+            done();
           });
-          it('shows a number in the usage column', function() {
+        });
+
+        context('when the collection name is invalid', function() {
+          it('displays the error message', function() {
             return client
-              .getText('span.usage div.quantity')
-              .should
-              .eventually
-              .match(/\d+/);
-          });
-          it('open create index', function() {
-            return client
-              .selectCreateIndex()
-              .getText('h4.modal-title')
-              .should
-              .eventually
-              .include('Create Index');
-          });
-          it('try empty create index', function() {
-            return client
-              .submitCreateIndexForm()
+              .clickCreateCollectionButton()
+              .waitForCreateCollectionModal()
+              .inputCreateCollectionDetails({ name: '$test' })
+              .clickCreateCollectionModalButton()
+              .waitForModalError()
               .getModalErrorMessage()
-              .should
-              .eventually
-              .include('You must select a field name and type');
-          });
-          it.skip('creates an index', function() {
-            // @KeyboardTsundoku write create index test here ...
-          });
-          it('close create index', function() {
-            return client.cancelCreateIndexForm(); // test required here
+              .should.eventually.equal('invalid collection name');
           });
         });
+
+        context('when the collection name is valid', function() {
+          it('creates the collection', function() {
+            return client
+              .inputCreateCollectionDetails({ name: 'labels' })
+              .clickCreateCollectionModalButton()
+              .waitForCollectionCreation('labels')
+              .getDatabaseViewCollectionNames()
+              .should.eventually.include('labels');
+          });
+
+          it('adds the collection to the sidebar', function() {
+            return client
+              .getSidebarCollectionNames()
+              .should.eventually.include('music.labels');
+          });
+
+          it('updates the collection count', function() {
+            return client
+              .getSidebarCollectionCount()
+              .should.eventually.equal(String(collCount + 1));
+          });
+        });
+
+        context('when deleting a collection', function() {
+          it('requires confirmation of the collection name', function() {
+            return client
+              .clickDeleteCollectionButton('labels')
+              .waitForDropCollectionModal()
+              .inputDropCollectionName('labels')
+              .clickDropCollectionModalButton()
+              .waitForCollectionDeletion('labels')
+              .getDatabaseViewCollectionNames()
+              .should.not.eventually.include('labels');
+          });
+
+          it('removes the collection from the sidebar', function() {
+            return client
+              .getSidebarCollectionNames()
+              .should.not.eventually.include('music.labels');
+          });
+
+          it('updates the collection count', function() {
+            return client
+              .getSidebarCollectionCount()
+              .should.eventually.equal(String(collCount));
+          });
+        });
+      });
+    });
+
+    context('when viewing a collection', function() {
+      it('displays the collection view', function() {
+        return client
+          .clickCollectionInSidebar('music.artists')
+          .waitForStatusBar()
+          .getTitle().should.eventually.equal(
+            'MongoDB Compass - localhost:27018/music.artists'
+          );
+      });
+
+      context('when inserting a document', function() {
+        context('when the document is valid', function() {
+          it('creates the document', function() {
+            return client
+              .clickDocumentsTab()
+              .clickInsertDocumentButton()
+              .waitForInsertDocumentModal()
+              .inputNewDocumentDetails({
+                'name': 'Aphex Twin',
+                'genre': 'Electronic',
+                'location': 'London'
+              })
+              .clickInsertDocumentModalButton()
+              .waitForDocumentInsert(1)
+              .getDocumentValues(1)
+              .should.eventually.include('Aphex Twin');
+          });
+        });
+      });
+
+      context('when editing a document', function() {
+        it('saves the changes to the document', function() {
+          return client
+            .clickEditDocumentButton(1)
+            .inputDocumentValueChange(1, 'Aphex Twin', 'Aphex Twin (edited)')
+            .clickUpdateDocumentButton(1)
+            .waitForDocumentUpdate(1)
+            .getDocumentValues(1)
+            .should.eventually.include('Aphex Twin (edited)');
+        });
+      });
+
+      context('when cloning a document', function() {
+        it('creates the cloned document', function() {
+          return client
+            .clickCloneDocumentButton(1)
+            .waitForInsertDocumentModal()
+            .inputClonedDocumentValueChange(1, 'London', 'Essex')
+            .clickInsertDocumentModalButton()
+            .waitForDocumentInsert(2)
+            .getDocumentValues(2)
+            .should.eventually.include('Essex');
+        });
+      });
+
+      context('when deleting a document', function() {
+        it('deletes upon confirmation', function() {
+          return client
+            .clickDeleteDocumentButton(2)
+            .clickConfirmDeleteDocumentButton(2)
+            .waitForDocumentDeletionToComplete(2)
+            .getSamplingMessageFromDocumentsTab()
+            .should.eventually.equal('Query returned 1 document.');
+        });
+      });
+
+      context('when applying a filter', function() {
+        const filter = '{"name":"Bonobo"}';
+        it('updates the document list', function() {
+          return client
+            .inputFilterFromDocumentsTab(filter)
+            .clickApplyFilterButtonFromDocumentsTab()
+            .getSamplingMessageFromDocumentsTab()
+            .should.eventually.equal('Query returned 0 documents.');
+        });
+
+        it('updates the schema view', function() {
+          const expected = 'This report is based on a sample of 0 documents (0.00%).';
+          return client
+            .clickSchemaTab()
+            .getSamplingMessageFromSchemaTab()
+            .should.eventually.include(expected);
+        });
+
+        context('when viewing the explain plan view', function() {
+          it('updates the documents returned', function() {
+            return client
+              .clickExplainPlanTab()
+              .waitForStatusBar()
+              .getExplainDocumentsReturned()
+              .should.eventually.equal('0');
+          });
+
+          it('updates the documents examined', function() {
+            return client
+              .getExplainDocumentsExamined()
+              .should.eventually.equal('2');
+          });
+        });
+      });
+
+      context('when resetting a filter', function() {
+        it('updates the explain plan', function() {
+          return client
+            .clickResetFilterButtonFromExplainPlanTab()
+            .waitForStatusBar()
+            .getExplainPlanStatusMessage()
+            .should.eventually.include('To prevent unintended collection scans');
+        });
+
+        it('updates the document list', function() {
+          return client
+            .clickDocumentsTab()
+            .getSamplingMessageFromDocumentsTab()
+            .should.eventually.equal('Query returned 2 documents.');
+        });
+
+        it('updates the schema view', function() {
+          const expected = 'This report is based on a sample of 2 documents (100.00%).';
+          return client
+            .clickSchemaTab()
+            .getSamplingMessageFromSchemaTab()
+            .should.eventually.include(expected);
+        });
+      });
+
+      context('when navigating to the indexes tab', function() {
+        it('renders the indexes table', function() {
+          return client
+            .clickIndexesTab()
+            .getIndexNames()
+            .should.eventually.equal('_id_');
+        });
+
+        it('renders the index types', function() {
+          return client
+            .getIndexTypes()
+            .should.eventually.equal('REGULAR');
+        });
+
+        it('renders the index usages', function() {
+          return client
+            .getIndexUsages()
+            .should.eventually.equal('0');
+        });
+
+        it('renders the index properties', function() {
+          return client
+            .getIndexProperties()
+            .should.eventually.equal('UNIQUE');
+        });
+
+        context('when creating an index', function() {
+          context('when the type is missing', function() {
+            it('displays an error message', function() {
+              return client
+                .clickCreateIndexButton()
+                .waitForCreateIndexModal()
+                .clickCreateIndexModalButton()
+                .waitForModalError()
+                .getModalErrorMessage()
+                .should.eventually.equal('You must select a field name and type');
+            });
+          });
+
+          context('when the field name is missing', function() {
+            it('displays an error message', function() {
+              return client
+                .inputCreateIndexDetails({ type: '1 (asc)' })
+                .clickCreateIndexModalButton()
+                .waitForModalError()
+                .getModalErrorMessage()
+                .should.eventually.equal('You must select a field name and type');
+            });
+          });
+
+          context('when the index is valid', function() {
+            it('adds the index to the list', function() {
+              return client
+                .inputCreateIndexDetails({ name: 'name_1', field: 'name' })
+                .clickCreateIndexModalButton()
+                .waitForIndexCreation('name_1')
+                .getIndexNames()
+                .should.eventually.deep.equal([ 'name_1', '_id_' ]);
+            });
+          });
+        });
+
+        context('when sorting the index list', function() {
+          context('when clicking on the name header', function() {
+            it('sorts the indexes by name', function() {
+              return client
+                .clickIndexTableNameHeader()
+                .getIndexNames()
+                .should.eventually.deep.equal([ '_id_', 'name_1' ]);
+            });
+          });
+        });
+
+        context('when dropping an index', function() {
+          it('requires confirmation of the index name', function() {
+            // return client
+              // .clickDeleteIndexButton()
+              // .waitForDropIndexModal()
+              // .inputDropIndexName('name_1')
+              // .clickDropIndexModalButton()
+              // .waitForIndexDrop('name_1')
+              // .getIndexNames()
+              // .should.not.eventually.include('name_1');
+          });
+        });
+      });
+
+      context('when creating a validation rule', function() {
+
+      });
+
+      context('when deleting a validation rule', function() {
+
       });
     });
   });

@@ -58,7 +58,10 @@ class SidebarDatabase extends React.Component {
         <div className={className}>
           <i onClick={this.handleDBClick.bind(this, this.props._id)} className="compass-sidebar-database-icon mms-icon-database"></i>
           <i onClick={this.handleArrowClick.bind(this)} className={this.getArrowIconClasses()}></i>
-          <div onClick={this.handleDBClick.bind(this, this.props._id)} className="compass-sidebar-title" title={this.props._id}>
+          <div
+            onClick={this.handleDBClick.bind(this, this.props._id)}
+            className="compass-sidebar-title" title={this.props._id}
+            data-test-id="sidebar-database">
             {this.props._id}
           </div>
         </div>

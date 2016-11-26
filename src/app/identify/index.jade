@@ -4,7 +4,7 @@
       .modal-header
         h4.modal-title Welcome to MongoDB Compass
       .modal-body
-        p Please tell us a bit about you: 
+        p Please tell us a bit about you:
         form
           ul
             li
@@ -19,7 +19,7 @@
               label
                 div Twitter Handle (optional)
                 input(type='text', name='twitter', data-hook='twitter-input')
-              
+
       .modal-footer
         button.btn.btn-cancel(type='button', data-dismiss='modal', data-hook='cancel-button') Exit
-        button.btn.btn-primary(type='button', data-dismiss='modal', data-hook='start-button') Start using Compass
+        button.btn.btn-primary(type='button', data-dismiss='modal', data-hook='start-button' data-test-id='close-privacy-settings-button') Start using Compass

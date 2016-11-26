@@ -3,6 +3,11 @@ const FontAwesome = require('react-fontawesome');
 const Button = require('react-bootstrap').Button;
 const _ = require('lodash');
 
+/**
+ * The base for the classes.
+ */
+const BASE = 'sortable-table';
+
 class SortableTable extends React.Component {
 
   onColumnHeaderClicked(idx, evt) {
@@ -44,9 +49,9 @@ class SortableTable extends React.Component {
   renderHeader() {
     const sortClass = `sort-${this.props.sortOrder.toLowerCase()}`;
     const cells = _.map(this.props.columns, (col, idx) => {
-      const active = this._sortColumnMatch(this.props.sortColumn, col) ? ' sortable-table-th-is-active' : '';
+      const active = this._sortColumnMatch(this.props.sortColumn, col) ? ` ${BASE}-th-is-active` : '';
       const sortIcon = this.props.sortable ?
-        <FontAwesome className="sortable-table-sort-icon" name={sortClass} fixedWidth /> : null;
+        <FontAwesome className={`${BASE}-sort-icon`} name={sortClass} fixedWidth /> : null;
       return (
         <th className={`sortable-table-th${active}`} key={`th-${idx}`} onClick={this.onColumnHeaderClicked.bind(this, idx)}>
           {col}
@@ -55,7 +60,7 @@ class SortableTable extends React.Component {
       );
     });
     if (this.props.removable) {
-      cells.push(<th key="th-delete" className="sortable-table-th sortable-table-th-is-last-col"></th>);
+      cells.push(<th key="th-delete" className={`${BASE}-th ${BASE}-th-is-last-col`}></th>);
     }
     return cells;
   }
@@ -81,30 +86,43 @@ class SortableTable extends React.Component {
         row = row.slice(0, this.props.columns.length);
       }
       const cells = _.map(row, (cell, c) => {
-        return <td className="sortable-table-td" key={`td-${c}`}>{cell}</td>;
+        return (
+          <td
+            className={`${BASE}-td`}
+            data-test-id={`${BASE}-column-${c}`}
+            title={cell}
+            key={`td-${c}`}>
+            {cell}
+          </td>
+        );
       });
       if (this.props.removable) {
         // add a column with a delete button if the `removable` prop was set
+        const name = _.get(row, this.props.valueIndex, 0);
         cells.push(
-          <td className="sortable-table-td" key="td-delete">
+          <td
+            className={`${BASE}-td`}
+            key="td-delete"
+            data-test-id={`${BASE}-delete`}
+            title={`Delete ${name}`}>
             <Button
-              className="sortable-table-trash-button"
-              onClick={this.onRowDeleteButtonClicked.bind(this, r, _.get(row, this.props.valueIndex, 0))} >
-              <FontAwesome className="sortable-table-trash-icon" name="trash-o"/>
+              className={`${BASE}-trash-button`}
+              onClick={this.onRowDeleteButtonClicked.bind(this, r, name)} >
+              <FontAwesome className={`${BASE}-trash-icon`} name="trash-o" />
             </Button>
           </td>
         );
       }
-      return <tr className="sortable-table-tbody-tr" key={`tr-${r}`}>{cells}</tr>;
+      return <tr className={`${BASE}-tbody-tr`} key={`tr-${r}`}>{cells}</tr>;
     });
   }
 
   render() {
     return (
-      <div className={`sortable-table sortable-table-is-${this.props.theme}-theme`}>
-        <table className="sortable-table-table">
+      <div className={`${BASE} ${BASE}-is-${this.props.theme}-theme`}>
+        <table className={`${BASE}-table`}>
           <thead>
-            <tr className="sortable-table-thead-tr">
+            <tr className={`${BASE}-thead-tr`}>
               {this.renderHeader()}
             </tr>
           </thead>

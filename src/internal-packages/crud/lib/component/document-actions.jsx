@@ -18,16 +18,19 @@ class DocumentActions extends React.Component {
           title="Edit Document"
           className="document-actions-button btn btn-default btn-xs"
           iconClassName="document-actions-button-icon fa fa-pencil"
+          dataTestId="edit-document-button"
           clickHandler={this.props.edit} />
         <IconButton
           title="Delete Document"
           className="document-actions-button btn btn-default btn-xs"
           iconClassName="document-actions-button-icon fa fa-trash-o"
+          dataTestId="delete-document-button"
           clickHandler={this.props.remove} />
         <IconButton
           title="Clone Document"
           className="document-actions-button btn btn-default btn-xs"
           iconClassName="document-actions-button-icon fa fa-clone"
+          dataTestId="clone-document-button"
           clickHandler={this.props.clone} />
       </div>
     );

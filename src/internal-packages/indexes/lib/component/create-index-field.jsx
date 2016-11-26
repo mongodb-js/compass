@@ -126,7 +126,7 @@ class CreateIndexField extends React.Component {
 
     return (
       <div className="form-inline row create-index-field">
-        <div className="col-md-6">
+        <div className="col-md-6" data-test-id="create-index-modal-field-select">
           <ButtonToolbar>
             <DropdownButton
               title={fieldName}
@@ -137,7 +137,7 @@ class CreateIndexField extends React.Component {
             </DropdownButton>
           </ButtonToolbar>
         </div>
-        <div className="col-md-4">
+        <div className="col-md-4" data-test-id="create-index-modal-type-select">
           <ButtonToolbar>
             <DropdownButton
               title={fieldType}

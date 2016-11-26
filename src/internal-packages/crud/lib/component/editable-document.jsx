@@ -12,6 +12,21 @@ const RemoveDocumentFooter = require('./remove-document-footer');
 const Hotspot = require('./hotspot');
 
 /**
+ * The base class.
+ */
+const BASE = 'document';
+
+/**
+ * The elements class.
+ */
+const ELEMENTS = `${BASE}-elements`;
+
+/**
+ * The test id.
+ */
+const TEST_ID = 'editable-document';
+
+/**
  * Component for a single editable document in a list of documents.
  */
 class EditableDocument extends React.Component {
@@ -251,7 +266,7 @@ class EditableDocument extends React.Component {
    * @returns {String} The document class name.
    */
   style() {
-    let style = 'document';
+    let style = BASE;
     if (this.state.editing) {
       style = style.concat(' document-is-editing');
     }
@@ -329,8 +344,8 @@ class EditableDocument extends React.Component {
    */
   render() {
     return (
-      <div className={this.style()}>
-        <ol className="document-elements">
+      <div className={this.style()} data-test-id={TEST_ID}>
+        <ol className={ELEMENTS}>
           {this.renderElements()}
         </ol>
         {this.renderActions()}
