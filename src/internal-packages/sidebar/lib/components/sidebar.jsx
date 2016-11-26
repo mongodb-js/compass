@@ -32,13 +32,6 @@ class Sidebar extends React.Component {
     this.setState({
       active: element
     });
-    
-    console.log('--------------------------->>>>>>>');
-    console.log('--------------------------->>>>>>>');
-    console.log(this.state.active);
-    console.log('--------------------------->>>>>>>');
-    console.log('--------------------------->>>>>>>');
-
   }
 
   render() {
