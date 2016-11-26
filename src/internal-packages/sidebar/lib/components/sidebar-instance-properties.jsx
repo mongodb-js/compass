@@ -61,7 +61,7 @@ class SidebarInstanceProperties extends React.Component {
     const versionName = this.getVersionName();
     return (
       <div className="compass-sidebar-properties">
-        <div onClick={this.handleClickHostname.bind(this)} className={ ('' !== this.props.active) ? "compass-sidebar-instance" : "compass-sidebar-instance compass-sidebar-instance-is-active" }>
+        <div onClick={this.handleClickHostname.bind(this)} className={ (this.props.active !== '' ) ? 'compass-sidebar-instance' : 'compass-sidebar-instance compass-sidebar-instance-is-active' }>
           <i className="fa fa-home compass-sidebar-instance-icon"></i>
           <div className="compass-sidebar-instance-hostname" >{hostnameAndPort}</div>
           {sshTunnelViaPort}

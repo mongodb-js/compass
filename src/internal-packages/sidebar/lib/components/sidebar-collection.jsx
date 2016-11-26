@@ -37,7 +37,7 @@ class SidebarCollection extends React.Component {
     return (
       <div className="compass-sidebar-item">
         <div onClick={this.handleClick.bind(this, this.props._id)}
-            className={ (this.props._id !== this.props.active) ? "compass-sidebar-title compass-sidebar-title-is-actionable" : "compass-sidebar-title compass-sidebar-title-is-actionable compass-sidebar-title-is-active"}
+            className={ (this.props._id !== this.props.active) ? 'compass-sidebar-title compass-sidebar-title-is-actionable' : 'compass-sidebar-title compass-sidebar-title-is-actionable compass-sidebar-title-is-active'}
             title={this.props._id}>
           {collectionName}&nbsp;
           {this.renderReadonly()}

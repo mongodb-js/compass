@@ -58,7 +58,7 @@ class SidebarDatabase extends React.Component {
   render() {
     return (
       <div className="compass-sidebar-item compass-sidebar-item-is-top-level">
-        <div className={ (this.props._id !== this.props.active) ? "compass-sidebar-item-header compass-sidebar-item-header-is-expandable compass-sidebar-item-header-is-actionable" : "compass-sidebar-item-header compass-sidebar-item-header-is-expandable compass-sidebar-item-header-is-actionable compass-sidebar-item-header-is-active" }>
+        <div className={ (this.props._id !== this.props.active) ? 'compass-sidebar-item-header compass-sidebar-item-header-is-expandable compass-sidebar-item-header-is-actionable' : 'compass-sidebar-item-header compass-sidebar-item-header-is-expandable compass-sidebar-item-header-is-actionable compass-sidebar-item-header-is-active' }>
           <i onClick={this.handleDBClick.bind(this, this.props._id)} className="compass-sidebar-database-icon mms-icon-database"></i>
           <i onClick={this.handleArrowClick.bind(this)} className={this.getArrowIconClasses()}></i>
           <div onClick={this.handleDBClick.bind(this, this.props._id)} className="compass-sidebar-title" title={this.props._id}>
