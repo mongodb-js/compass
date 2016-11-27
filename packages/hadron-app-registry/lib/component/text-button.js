@@ -31,6 +31,7 @@ class TextButton extends React.Component {
       'button',
       {
         className: this.props.className,
+        'data-test-id': this.props.dataTestId,
         type: BUTTON,
         onClick: this.props.clickHandler },
       this.props.text
@@ -43,7 +44,8 @@ TextButton.displayName = 'TextButton';
 TextButton.propTypes = {
   text: React.PropTypes.string.isRequired,
   clickHandler: React.PropTypes.func.isRequired,
-  className: React.PropTypes.string
+  className: React.PropTypes.string,
+  dataTestId: React.PropTypes.string
 };
 
 module.exports = TextButton;
