@@ -25,9 +25,9 @@
     "lodash": "^4.11.1"
   },
   "devDependencies": {
-    "electron-mocha": "^1.2.0",
-    "electron-prebuilt": "^0.37.5",
-    "eslint-config-mongodb-js": "^1.0.6",
+    "electron-mocha": "^3.1.1",
+    "electron-prebuilt": "^1.4.6",
+    "eslint-config-mongodb-js": "^2.2.0",
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^0.2.8",
     "xvfb-maybe": "^0.1.3"
