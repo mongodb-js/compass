@@ -21,7 +21,7 @@
   ],
   "dependencies": {
     "ampersand-model": "^8.0.0",
-    "ampersand-rest-collection": "^5.0.0"
+    "ampersand-rest-collection": "^6.0.0"
   },
   "devDependencies": {
     "eslint-config-mongodb-js": "^2.0.0",
