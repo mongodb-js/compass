@@ -190,15 +190,17 @@ describe('Compass #spectron', function() {
               .match(/\d+/);
           });
           it('open create index', function() {
-            return client.selectCreateIndex()
+            return client
+              .selectCreateIndex()
               .getText('h4.modal-title')
               .should
               .eventually
               .include('Create Index');
           });
           it('try empty create index', function() {
-            return client.submitCreateIndexForm()
-              .getText('.modal-status-error-message')
+            return client
+              .submitCreateIndexForm()
+              .getModalErrorMessage()
               .should
               .eventually
               .include('You must select a field name and type');
