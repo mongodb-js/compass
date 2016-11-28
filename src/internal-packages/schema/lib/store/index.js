@@ -1,5 +1,9 @@
 const app = require('ampersand-app');
 const ipc = require('hadron-ipc');
+const { remote } = require('electron');
+const dialog = remote.dialog;
+const BrowserWindow = remote.BrowserWindow;
+const clipboard = remote.clipboard;
 const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
 const schemaStream = require('mongodb-schema').stream;
@@ -54,6 +58,22 @@ const SchemaStore = Reflux.createStore({
     this.analyzingStream = null;
     this.samplingTimer = null;
     this.trickleStop = null;
+
+    ipc.on('window:menu-share-schema-json', this.handleSchemaShare.bind(this));
+  },
+
+  handleSchemaShare() {
+    clipboard.writeText(JSON.stringify(this.state.schema, null, '  '));
+
+    const detail = `The schema definition of ${NamespaceStore.ns} has been copied to your `
+      + 'clipboard in JSON format.';
+
+    dialog.showMessageBox(BrowserWindow.getFocusedWindow(), {
+      type: 'info',
+      message: 'Share Schema',
+      detail: detail,
+      buttons: ['OK']
+    });
   },
 
   /**
@@ -70,7 +90,6 @@ const SchemaStore = Reflux.createStore({
       schema: null
     };
   },
-
 
   _reset: function() {
     this.setState(this.getInitialState());
