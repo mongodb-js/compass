@@ -3,6 +3,7 @@ const FontAwesome = require('react-fontawesome');
 const Button = require('react-bootstrap').Button;
 const _ = require('lodash');
 
+// this is a sortable table
 class SortableTable extends React.Component {
 
   onColumnHeaderClicked(idx, evt) {
