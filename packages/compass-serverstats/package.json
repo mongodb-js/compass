@@ -24,14 +24,14 @@
   ],
   "license": "Apache-2.0",
   "dependencies": {
-    "d3": "^3.5.17"
+    "d3": "^3.5.17",
+    "babel-cli": "^6.10.1",
+    "babel-preset-react": "^6.11.1"
   },
   "devDependencies": {
     "@kadira/react-storybook-addon-info": "^3.2.1",
     "@kadira/storybook": "^2.3.0",
     "ampersand-app": "^1.0.4",
-    "babel-cli": "^6.10.1",
-    "babel-preset-react": "^6.11.1",
     "babel-register": "^6.9.0",
     "chai": "^3.5.0",
     "chai-enzyme": "^0.5.0",
