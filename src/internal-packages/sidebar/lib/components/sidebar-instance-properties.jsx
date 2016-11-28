@@ -58,9 +58,14 @@ class SidebarInstanceProperties extends React.Component {
     const hostnameAndPort = this.getHostnameAndPort();
     const sshTunnelViaPort = this.getSshTunnelViaPort();
     const versionName = this.getVersionName();
+    let className = 'compass-sidebar-instance';
+    // empty string for active namespace means instance level
+    if (this.props.activeNamespace === '') {
+      className += ' compass-sidebar-instance-is-active';
+    }
     return (
       <div className="compass-sidebar-properties">
-        <div className="compass-sidebar-instance" onClick={this.handleClickHostname}>
+        <div className={className} onClick={this.handleClickHostname}>
           <i className="fa fa-home compass-sidebar-instance-icon"></i>
           <div className="compass-sidebar-instance-hostname" >{hostnameAndPort}</div>
           {sshTunnelViaPort}
@@ -85,7 +90,8 @@ class SidebarInstanceProperties extends React.Component {
 SidebarInstanceProperties.propTypes = {
   connection: React.PropTypes.object,
   instance: React.PropTypes.object,
-  fetching: React.PropTypes.bool
+  fetching: React.PropTypes.bool,
+  activeNamespace: React.PropTypes.string.isRequired
 };
 
 module.exports = SidebarInstanceProperties;
