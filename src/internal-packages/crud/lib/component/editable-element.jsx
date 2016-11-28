@@ -1,8 +1,9 @@
 const React = require('react');
+const getComponent = require('hadron-react-bson');
 const Element = require('hadron-document').Element;
 const Field = require('hadron-app-registry').Field;
 const EditableKey = require('./editable-key');
-const ElementValue = require('./element-value');
+const EditableValue = require('./editable-value');
 const ElementAction = require('./element-action');
 const LineNumber = require('./line-number');
 const Types = require('./types');
@@ -27,6 +28,11 @@ const ADDED = 'is-added';
  * The edited constant.
  */
 const EDITED = 'is-edited';
+
+/**
+ * The editing constant.
+ */
+const EDITING = 'is-editing';
 
 /**
  * The removed constant.
@@ -138,6 +144,7 @@ class EditableElement extends React.Component {
   style(base = BEM_BASE) {
     let style = base;
     if (this.props.editing) {
+      style = style.concat(` ${base}-${EDITING}`);
       if (this.element.isAdded()) {
         style = style.concat(` ${base}-${ADDED}`);
       } else if (this.element.isEdited()) {
@@ -279,7 +286,14 @@ class EditableElement extends React.Component {
    * @returns {Component} The component.
    */
   renderValue() {
-    return (<ElementValue element={this.element} />);
+    if (this.props.editing && this.element.isValueEditable()) {
+      return (<EditableValue element={this.element} />);
+    }
+    const component = getComponent(this.element.currentType);
+    return React.createElement(
+      component,
+      { type: this.element.currentType, value: this.element.currentValue }
+    );
   }
 
   /**
