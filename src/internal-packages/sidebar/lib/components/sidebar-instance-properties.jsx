@@ -1,4 +1,5 @@
 const React = require('react');
+const ipc = require('hadron-ipc');
 const app = require('ampersand-app');
 const { NamespaceStore } = require('hadron-reflux-store');
 
@@ -48,6 +49,7 @@ class SidebarInstanceProperties extends React.Component {
   }
 
   handleClickHostname() {
+    ipc.call('window:hide-share-submenu');
     NamespaceStore.ns = '';
   }
 

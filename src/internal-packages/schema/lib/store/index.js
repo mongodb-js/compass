@@ -1,4 +1,5 @@
 const app = require('ampersand-app');
+const ipc = require('hadron-ipc');
 const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
 const schemaStream = require('mongodb-schema').stream;
@@ -117,6 +118,8 @@ const SchemaStore = Reflux.createStore({
    * This function is called when the collection filter changes.
    */
   startSampling() {
+    ipc.call('window:hide-share-submenu');
+
     // we are not using state to guard against running this simultaneously
     if (this.isNamespaceChanged) {
       return;
@@ -171,6 +174,7 @@ const SchemaStore = Reflux.createStore({
         samplingProgress: 100,
         schema: _schema
       });
+      ipc.call('window:show-share-submenu');
       this.stopSampling();
     };
 
