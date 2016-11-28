@@ -80,6 +80,7 @@ class RuleFieldSelector extends React.Component {
           value={this.state.value}
           onChange={this.onFieldChanged.bind(this)}
           onBlur={this.onBlur.bind(this)}
+          disabled={!this.props.isWritable}
         />
       </FormGroup>
     );
@@ -88,7 +89,8 @@ class RuleFieldSelector extends React.Component {
 
 RuleFieldSelector.propTypes = {
   id: React.PropTypes.string.isRequired,
-  field: React.PropTypes.string.isRequired
+  field: React.PropTypes.string.isRequired,
+  isWritable: React.PropTypes.bool
 };
 
 RuleFieldSelector.displayName = 'RuleFieldSelector';

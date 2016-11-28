@@ -91,9 +91,24 @@ class RuleBuilder extends React.Component {
 
   renderRules() {
     return _.map(this.props.validationRules, (rule) => {
-      return <Rule ref={rule.id} key={rule.id} serverVersion={this.props.serverVersion} {...rule} />;
+      return (<Rule ref={rule.id}
+        key={rule.id}
+        isWritable={this.props.isWritable}
+        serverVersion={this.props.serverVersion}
+        {...rule} />);
     });
   }
+
+  renderAddButton() {
+    return (
+      <Button
+        bsStyle="success"
+        bsSize="xsmall"
+        disabled={!this.props.isWritable}
+        onClick={this.onAddClick.bind(this)}>+ Add Rule
+      </Button>);
+  }
+
   /**
    * Render status row component.
    *
@@ -119,11 +134,7 @@ class RuleBuilder extends React.Component {
         <Grid fluid className="rule-builder">
           <Row className="header">
             <Col lg={6} md={6} sm={6} xs={6}>
-              <Button
-                bsStyle="success"
-                bsSize="xsmall"
-                onClick={this.onAddClick.bind(this)}>+ Add Rule
-              </Button>
+              {this.props.isWritable ? this.renderAddButton() : null}
             </Col>
             <Col lg={6} md={6} sm={6} xs={6}>
               <div className="pull-right">
@@ -133,6 +144,7 @@ class RuleBuilder extends React.Component {
                   options={{warn: 'Warning', error: 'Error'}}
                   value={this.props.validationAction}
                   label="validation action:"
+                  disabled={!this.props.isWritable}
                   onSelect={this.onActionSelect.bind(this)}
                 />
                 <OptionSelector
@@ -141,6 +153,7 @@ class RuleBuilder extends React.Component {
                   options={{off: 'Off', moderate: 'Moderate', strict: 'Strict'}}
                   value={this.props.validationLevel}
                   label="validation level:"
+                  disabled={!this.props.isWritable}
                   onSelect={this.onLevelSelect.bind(this)}
                 />
               </div>
@@ -175,7 +188,8 @@ RuleBuilder.propTypes = {
   validationAction: React.PropTypes.oneOf(['warn', 'error']).isRequired,
   validationLevel: React.PropTypes.oneOf(['off', 'moderate', 'strict']).isRequired,
   validationRules: React.PropTypes.array.isRequired,
-  serverVersion: React.PropTypes.string
+  serverVersion: React.PropTypes.string.isRequired,
+  isWritable: React.PropTypes.bool.isRequired
 };
 
 RuleBuilder.displayName = 'RuleBuilder';

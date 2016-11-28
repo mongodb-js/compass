@@ -136,6 +136,7 @@ class RuleCategoryRegex extends React.Component {
           placeholder="Enter regular expression"
           onChange={this.onChange.bind(this)}
           onBlur={this.onBlur.bind(this)}
+          disabled={!this.props.isWritable}
         />
         <DropdownButton id="regex-options"
           title="options"
@@ -146,6 +147,7 @@ class RuleCategoryRegex extends React.Component {
               type="checkbox"
               value="i"
               checked={this.isOptionSelected('i')}
+              disabled={!this.props.isWritable}
               onChange={this.onOptionChange.bind(this)} />
             <b>i</b>
             {CASE_INSENSITIVE}
@@ -155,6 +157,7 @@ class RuleCategoryRegex extends React.Component {
               type="checkbox"
               value="m"
               checked={this.isOptionSelected('m')}
+              disabled={!this.props.isWritable}
               onChange={this.onOptionChange.bind(this)} />
             <b>m</b>
             {MULTILINE}
@@ -164,6 +167,7 @@ class RuleCategoryRegex extends React.Component {
               type="checkbox"
               value="x"
               checked={this.isOptionSelected('x')}
+              disabled={!this.props.isWritable}
               onChange={this.onOptionChange.bind(this)} />
             <b>x</b>
             {EXTENDED}
@@ -173,6 +177,7 @@ class RuleCategoryRegex extends React.Component {
               type="checkbox"
               value="s"
               checked={this.isOptionSelected('s')}
+              disabled={!this.props.isWritable}
               onChange={this.onOptionChange.bind(this)} />
             <b>s</b>
             {NEWLINE}
@@ -185,7 +190,8 @@ class RuleCategoryRegex extends React.Component {
 
 RuleCategoryRegex.propTypes = {
   id: React.PropTypes.string.isRequired,
-  parameters: React.PropTypes.object.isRequired
+  parameters: React.PropTypes.object.isRequired,
+  isWritable: React.PropTypes.bool.isRequired
 };
 
 RuleCategoryRegex.displayName = 'RuleCategoryRegex';

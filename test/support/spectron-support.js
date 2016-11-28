@@ -235,6 +235,11 @@ function addCommands(client) {
     return this.submitForm('.modal-body form');
   });
 
+  client.addCommand('getModalErrorMessage', function() {
+    this.waitForVisible('.modal-status-error-message');
+    return this.getText('.modal-status-error-message');
+  });
+
   client.addCommand('cancelCreateIndexForm', function() {
     return this.click('.create-index-confirm-buttons-cancel');
   });
