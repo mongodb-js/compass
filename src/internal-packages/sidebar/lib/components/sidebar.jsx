@@ -7,6 +7,9 @@ const SidebarActions = require('../actions');
 const SidebarDatabase = require('./sidebar-database');
 const SidebarInstanceProperties = require('./sidebar-instance-properties');
 
+// const debug = require('debug')('mongodb-compass:sidebar:sidebar');
+
+
 class Sidebar extends React.Component {
 
   handleFilter(event) {
@@ -26,7 +29,10 @@ class Sidebar extends React.Component {
     return (
       <div className="compass-sidebar">
         <StoreConnector store={InstanceStore}>
-          <SidebarInstanceProperties connection={app.connection}/>
+          <SidebarInstanceProperties
+            connection={app.connection}
+            activeNamespace={this.props.activeNamespace}
+          />
         </StoreConnector>
         <div className="compass-sidebar-filter">
           <i className="fa fa-search compass-sidebar-search-icon"></i>
@@ -37,7 +43,8 @@ class Sidebar extends React.Component {
             this.props.databases.map(db => {
               const props = {
                 _id: db._id,
-                collections: db.collections
+                collections: db.collections,
+                activeNamespace: this.props.activeNamespace
               };
               return (
                 <SidebarDatabase key={db._id} {...props} />
@@ -52,7 +59,8 @@ class Sidebar extends React.Component {
 
 Sidebar.propTypes = {
   instance: React.PropTypes.object,
-  databases: React.PropTypes.array
+  databases: React.PropTypes.array,
+  activeNamespace: React.PropTypes.string
 };
 
 module.exports = Sidebar;
