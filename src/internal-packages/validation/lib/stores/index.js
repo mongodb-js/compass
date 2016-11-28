@@ -54,7 +54,7 @@ const ValidationStore = Reflux.createStore({
       validationAction: 'warn',    // one of `warn`, `error`
       fetchState: 'initial',       // one of `initial`, `fetching`, `success`, `error`
       editState: 'unmodified',     // one of `unmodified`, `modified`, `updating`, `success`, `error`
-      isExpressibleByRules: true,   // boolean
+      isExpressibleByRules: true,  // boolean
       serverVersion: ''
     };
   },
@@ -459,7 +459,6 @@ const ValidationStore = Reflux.createStore({
   },
 
   saveChanges() {
-    debug('Sending new validator doc to server:', this.state.validatorDoc);
     this.setState({
       editState: 'updating'
     });

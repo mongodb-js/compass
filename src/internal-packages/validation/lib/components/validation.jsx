@@ -22,13 +22,6 @@ class Validation extends React.Component {
   }
 
   /**
-   * fetch validation rules on mount
-   */
-  componentWillMount() {
-    ValidationActions.fetchValidationRules();
-  }
-
-  /**
    * The view switcher was clicked, switch to the correct view.
    *
    * @param {String} viewName   Name of the clicked view: `Rule Builder` or `JSON`
@@ -52,6 +45,7 @@ class Validation extends React.Component {
             validationLevel={this.props.validationLevel}
             editState={this.props.editState}
             serverVersion={this.props.serverVersion}
+            isWritable={this.CollectionStore.isWritable()}
           />
         </div>
       ) : (
@@ -60,6 +54,7 @@ class Validation extends React.Component {
           validationAction={this.props.validationAction}
           validationLevel={this.props.validationLevel}
           editState={this.props.editState}
+          isWritable={this.CollectionStore.isWritable()}
         />
       );
 

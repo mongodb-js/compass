@@ -31,7 +31,7 @@ class RangeInput extends React.Component {
     super(props);
     const op = this._getOperatorString(props);
     this.state = {
-      disabled: op === 'none',
+      hidden: op === 'none',
       operator: op,
       value: this.props.value,
       isValid: true,
@@ -73,7 +73,7 @@ class RangeInput extends React.Component {
    */
   onDropdownSelect(evtKey) {
     this.setState({
-      disabled: evtKey === 'none',
+      hidden: evtKey === 'none',
       operator: evtKey
     });
     this.props.onRangeInputBlur({
@@ -93,7 +93,7 @@ class RangeInput extends React.Component {
     if (!force && !this.state.hasStartedValidating) {
       return true;
     }
-    if (this.state.disabled) {
+    if (this.state.hidden) {
       return true;
     }
     const value = this.state.value;
@@ -118,7 +118,7 @@ class RangeInput extends React.Component {
   _getOperatorString(props) {
     props = props || this.props;
 
-    if (props.disabled) {
+    if (props.hidden) {
       return 'none';
     }
     if (props.upperBound) {
@@ -152,21 +152,22 @@ class RangeInput extends React.Component {
     const boundString = `${this.props.upperBound ?
         'upper' : 'lower'} bound`.toUpperCase();
 
-    // disabled, only show dropdown
-    if (this.state.disabled) {
+    // hidden, only show dropdown
+    if (this.state.hidden) {
       return (
         <FormGroup>
           <DropdownButton
             id={`range-input-${this.props.upperBound ? 'upper' : 'lower'}`}
             style={{width: this.props.width}}
             title={this.state.operator}
-            onSelect={this.onDropdownSelect.bind(this)}>
+            onSelect={this.onDropdownSelect.bind(this)}
+            disabled={this.props.disabled}>
             {this.renderMenuItems()}
           </DropdownButton>
         </FormGroup>
       );
     }
-    // not disabled, render input group with value input and operator dropdown
+    // not hidden, render input group with value input and operator dropdown
     const placeholder = `${boundString}`.toLowerCase();
     const validationState = this.state.isValid ? null : 'error';
     return (
@@ -176,7 +177,8 @@ class RangeInput extends React.Component {
             id={`range-input-${this.props.upperBound ? 'upper' : 'lower'}`}
             componentClass={InputGroup.Button}
             title={this.state.operator}
-            onSelect={this.onDropdownSelect.bind(this)}>
+            onSelect={this.onDropdownSelect.bind(this)}
+            disabled={this.props.disabled}>
             {this.renderMenuItems()}
           </DropdownButton>
           <FormControl
@@ -185,7 +187,8 @@ class RangeInput extends React.Component {
             placeholder={placeholder}
             value={this.state.value}
             onChange={this.onInputChange.bind(this)}
-            onBlur={this.onInputBlur.bind(this)}/>
+            onBlur={this.onInputBlur.bind(this)}
+            disabled={this.props.disabled}/>
         </InputGroup>
       </FormGroup>
     );
@@ -198,18 +201,20 @@ RangeInput.propTypes = {
   upperBound: React.PropTypes.bool,
   validationState: React.PropTypes.string,
   boundIncluded: React.PropTypes.bool.isRequired,
-  disabled: React.PropTypes.bool.isRequired,
+  hidden: React.PropTypes.bool.isRequired,
   onRangeInputBlur: React.PropTypes.func,
-  width: React.PropTypes.number
+  width: React.PropTypes.number,
+  disabled: React.PropTypes.bool
 };
 
 RangeInput.defaultProps = {
-  disabled: false,
+  hidden: false,
   boundIncluded: false,
   upperBound: false,
   validationState: null,
   value: '',
-  width: 160
+  width: 160,
+  disabled: false
 };
 
 RangeInput.displayName = 'RangeInput';

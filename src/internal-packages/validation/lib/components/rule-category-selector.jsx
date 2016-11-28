@@ -75,6 +75,7 @@ class RuleCategorySelector extends React.Component {
           label=""
           value={this.state.category}
           onSelect={this.onSelect.bind(this)}
+          disabled={!this.props.isWritable}
         />
       </FormGroup>
     );
@@ -83,7 +84,8 @@ class RuleCategorySelector extends React.Component {
 
 RuleCategorySelector.propTypes = {
   id: React.PropTypes.string.isRequired,
-  category: React.PropTypes.string.isRequired
+  category: React.PropTypes.string.isRequired,
+  isWritable: React.PropTypes.bool
 };
 
 RuleCategorySelector.displayName = 'RuleCategorySelector';

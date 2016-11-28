@@ -24,6 +24,7 @@ describe('<Rule />', function() {
     category: 'type',
     parameters: {type: 9},  // type "date"
     nullable: false,
+    isWritable: true,
     validate: function() {}
   };
 
