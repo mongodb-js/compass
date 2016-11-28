@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const moment = require('moment');
 const app = require('ampersand-app');
 const React = require('react');
 const inputSize = require('./utils').inputSize;
@@ -25,6 +26,11 @@ const VALUE_CLASS = 'editable-element-value';
  * The version at which high precision values are available.
  */
 const HP_VERSION = '3.4.0';
+
+/**
+ * The date format.
+ */
+const FORMAT = 'YYYY-MM-DD HH:mm:ss.SSS';
 
 /**
  * General editable value component.
@@ -112,6 +118,11 @@ class EditableValue extends React.Component {
     this._pasting = true;
   }
 
+  /**
+   * Is the element tabbable.
+   *
+   * @returns {Boolean} If the element is tabbable.
+   */
   isTabable() {
     if (this.element.parent.currentType === 'Array') {
       return this.element.currentValue !== '';
@@ -155,6 +166,14 @@ class EditableValue extends React.Component {
     this.setState({ editing: false });
   }
 
+  getValue() {
+    const value = this.element.currentValue;
+    if (this.element.currentType === 'Date') {
+      return moment(value).format(FORMAT);
+    }
+    return value;
+  }
+
   /**
    * Get the style for the value of the element.
    *
@@ -185,7 +204,7 @@ class EditableValue extends React.Component {
         onChange={this.handleChange.bind(this)}
         onKeyDown={this.handleKeyDown.bind(this)}
         onPaste={this.handlePaste.bind(this)}
-        value={this.element.currentValue} />
+        value={this.getValue()} />
     );
   }
 }
