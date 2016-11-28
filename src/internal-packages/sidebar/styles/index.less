@@ -59,8 +59,8 @@
   }
 
   &-item-header {
-    padding: 6px 12px 6px 36px;
-    color: #9DA4AA;
+    padding: 6px 12px 6px 32px;
+    color: #AEB7BF;
 
     &-is-expandable {
       cursor: pointer;
@@ -68,7 +68,7 @@
 
     &-is-actionable {
       cursor: pointer;
-      color: #fff;
+      color: #AEB7BF;
       transition: all 180ms ease-out;
 
       &:hover {
@@ -85,6 +85,7 @@
     &-is-active,
     &-is-active:hover {
       background-color: #6D7984;
+      color: #fff;
 
       //there's got to be a better way to handle styles on the child when parent -is-active
       .compass-sidebar-database-icon,
@@ -116,7 +117,7 @@
     top: 6px;
     left: 10px;
     transition: all 180ms ease-out;
-    color: #797F84;
+    color: #717B83;
     font-family: "MMS Icons";
     font-style: normal;
   }
@@ -127,11 +128,11 @@
         //there ought to be a better way to do this other than nesting many definitions
         //however we only want the bottom margin to be there when the DB is expanded
         &:last-child {
-          margin-bottom: 12px;
+          margin-bottom: 18px;
         }
       }
       &-sidebar-title {
-        padding: 4px 12px 5px 36px;
+        padding: 2px 12px 3px 44px;
         font-size: 14px;
       }
     }
@@ -150,7 +151,7 @@
   }
 
   &-search-input {
-    padding: 7px 5px 5px 36px;
+    padding: 7px 5px 5px 32px;
     height: auto;
     background: #3F4347;
     color: #fff;
@@ -186,7 +187,7 @@
     padding-top: 10px;
 
     &-icon {
-      width: 26px;
+      width: 22px;
       margin-left: 10px;
       vertical-align: top;
       margin-top: 2px;
@@ -209,23 +210,23 @@
     }
 
     &-ssh-tunnel {
-      color: #9DA4AA;
+      color: #AEB7BF;
       font-weight: normal;
       line-height: 9px;
       font-size: 10px;
-      margin-left: 36px;
+      margin-left: 32px;
       padding-bottom: 4px;
       position: relative;
       top: -6px;
     }
 
     &-version {
-      color: #9DA4AA;
+      color: #AEB7BF;
       font-weight: normal;
       line-height: 8px;
       height: 16px;
       font-size: 13px;
-      margin-left: 36px;
+      margin-left: 32px;
     }
 
     &-is-active,
@@ -240,7 +241,7 @@
   }
 
   &-stats {
-    color: #9DA4AA;
+    color: #AEB7BF;
     margin-top: 2px;
     line-height: 11px;
     height: 24px;
@@ -269,7 +270,7 @@
     height: 24px;
     width: 24px;
     margin-left: 5px;
-    margin-right: 7px;
+    margin-right: 3px;
     padding: 4px;
     transition: all 150ms ease;
 
