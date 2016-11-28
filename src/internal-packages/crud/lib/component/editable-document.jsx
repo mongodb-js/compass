@@ -38,21 +38,6 @@ class EditableDocument extends React.Component {
   }
 
   /**
-   * Load the hadron document for the provided document.
-   *
-   * @param {Object} doc - The document to load.
-   *
-   * @returns {HadronDocument} The hadron document.
-   */
-  loadDocument(doc) {
-    const hadronDoc = new HadronDocument(doc);
-    hadronDoc.on(Element.Events.Added, this.handleModify.bind(this));
-    hadronDoc.on(Element.Events.Removed, this.handleModify.bind(this));
-    hadronDoc.on(HadronDocument.Events.Cancel, this.handleCancel.bind(this));
-    return hadronDoc;
-  }
-
-  /**
    * Subscribe to the update store on mount.
    */
   componentDidMount() {
@@ -66,6 +51,21 @@ class EditableDocument extends React.Component {
   componentWillUnmount() {
     this.unsubscribeUpdate();
     this.unsubscribeRemove();
+  }
+
+  /**
+   * Load the hadron document for the provided document.
+   *
+   * @param {Object} doc - The document to load.
+   *
+   * @returns {HadronDocument} The hadron document.
+   */
+  loadDocument(doc) {
+    const hadronDoc = new HadronDocument(doc);
+    hadronDoc.on(Element.Events.Added, this.handleModify.bind(this));
+    hadronDoc.on(Element.Events.Removed, this.handleModify.bind(this));
+    hadronDoc.on(HadronDocument.Events.Cancel, this.handleCancel.bind(this));
+    return hadronDoc;
   }
 
   /**
