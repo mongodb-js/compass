@@ -17,10 +17,11 @@ class SidebarCollection extends React.Component {
     return _id.slice(database.length + 1);
   }
 
-  handleClick() {
+  handleClick(col) {
     if (NamespaceStore.ns !== this.props._id) {
       this.CollectionStore.setCollection(this.props);
     }
+    this.props.onClick(col);
   }
 
   renderReadonly() {
@@ -35,8 +36,8 @@ class SidebarCollection extends React.Component {
     const collectionName = this.getCollectionName();
     return (
       <div className="compass-sidebar-item">
-        <div onClick={this.handleClick}
-            className="compass-sidebar-title compass-sidebar-title-is-actionable"
+        <div onClick={this.handleClick.bind(this, this.props._id)}
+            className={ (this.props._id !== this.props.active) ? 'compass-sidebar-title compass-sidebar-title-is-actionable' : 'compass-sidebar-title compass-sidebar-title-is-actionable compass-sidebar-title-is-active'}
             title={this.props._id}>
           {collectionName}&nbsp;
           {this.renderReadonly()}
@@ -51,7 +52,9 @@ SidebarCollection.propTypes = {
   database: React.PropTypes.string,
   capped: React.PropTypes.bool,
   power_of_two: React.PropTypes.bool,
-  readonly: React.PropTypes.bool
+  readonly: React.PropTypes.bool,
+  active: React.PropTypes.string,
+  onClick: React.PropTypes.func
 };
 
 module.exports = SidebarCollection;

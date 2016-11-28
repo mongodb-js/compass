@@ -8,6 +8,12 @@ const SidebarDatabase = require('./sidebar-database');
 const SidebarInstanceProperties = require('./sidebar-instance-properties');
 
 class Sidebar extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+      active: ''
+    };
+  }
 
   handleFilter(event) {
     const searchString = event.target.value;
@@ -22,11 +28,17 @@ class Sidebar extends React.Component {
     SidebarActions.filterDatabases(re);
   }
 
+  handleActive(element) {
+    this.setState({
+      active: element
+    });
+  }
+
   render() {
     return (
       <div className="compass-sidebar">
         <StoreConnector store={InstanceStore}>
-          <SidebarInstanceProperties connection={app.connection}/>
+          <SidebarInstanceProperties active={this.state.active} onClick={this.handleActive.bind(this)} connection={app.connection}/>
         </StoreConnector>
         <div className="compass-sidebar-filter">
           <i className="fa fa-search compass-sidebar-search-icon"></i>
@@ -40,7 +52,7 @@ class Sidebar extends React.Component {
                 collections: db.collections
               };
               return (
-                <SidebarDatabase key={db._id} {...props} />
+                <SidebarDatabase active={this.state.active} onClick={this.handleActive.bind(this)} key={db._id} {...props} />
               );
             })
           }
