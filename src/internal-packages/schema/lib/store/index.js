@@ -1,9 +1,6 @@
 const app = require('ampersand-app');
 const ipc = require('hadron-ipc');
 const { remote } = require('electron');
-const dialog = remote.dialog;
-const BrowserWindow = remote.BrowserWindow;
-const clipboard = remote.clipboard;
 const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
 const schemaStream = require('mongodb-schema').stream;
@@ -63,6 +60,10 @@ const SchemaStore = Reflux.createStore({
   },
 
   handleSchemaShare() {
+    const dialog = remote.dialog;
+    const BrowserWindow = remote.BrowserWindow;
+    const clipboard = remote.clipboard;
+
     clipboard.writeText(JSON.stringify(this.state.schema, null, '  '));
 
     const detail = `The schema definition of ${NamespaceStore.ns} has been copied to your `
@@ -137,7 +138,9 @@ const SchemaStore = Reflux.createStore({
    * This function is called when the collection filter changes.
    */
   startSampling() {
-    ipc.call('window:hide-share-submenu');
+    if (ipc.call) {
+      ipc.call('window:hide-share-submenu');
+    }
 
     // we are not using state to guard against running this simultaneously
     if (this.isNamespaceChanged) {
@@ -193,7 +196,9 @@ const SchemaStore = Reflux.createStore({
         samplingProgress: 100,
         schema: _schema
       });
-      ipc.call('window:show-share-submenu');
+      if (ipc.call) {
+        ipc.call('window:show-share-submenu');
+      }
       this.stopSampling();
     };
 
