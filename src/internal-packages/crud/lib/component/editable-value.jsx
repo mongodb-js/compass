@@ -61,6 +61,19 @@ class EditableValue extends React.Component {
   }
 
   /**
+   * Get the value for the element.
+   *
+   * @returns {String} The value.
+   */
+  getValue() {
+    const value = this.element.currentValue;
+    if (this.element.currentType === 'Date') {
+      return moment(value).format(FORMAT);
+    }
+    return value;
+  }
+
+  /**
    * Is the element auto-focusable?
    *
    * @returns {Boolean} If the element can be focused automatically.
@@ -164,14 +177,6 @@ class EditableValue extends React.Component {
    */
   handleBlur() {
     this.setState({ editing: false });
-  }
-
-  getValue() {
-    const value = this.element.currentValue;
-    if (this.element.currentType === 'Date') {
-      return moment(value).format(FORMAT);
-    }
-    return value;
   }
 
   /**
