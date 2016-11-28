@@ -21,6 +21,13 @@ module.exports = [
     initial: true
   },
   {
+    title: 'Build Geo Queries.',
+    description: 'Visualize, understand, and work with your geospatial data. Point and click to construct sophisticated queries, execute them with the push of a button and Compass will display your results both graphically and as sets of JSON documents.',
+    image: 'geo.png',
+    version: '1.5.0',
+    initial: true
+  },
+  {
     title: 'Interactive Document Editor.',
     description: 'Modify existing documents with greater confidence using the intuitive visual editor, or insert new documents and clone or delete existing ones in just a few clicks.',
     image: 'crud.png',
