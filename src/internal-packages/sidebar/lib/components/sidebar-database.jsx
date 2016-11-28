@@ -19,7 +19,8 @@ class SidebarDatabase extends React.Component {
           database: c.database,
           capped: c.capped,
           power_of_two: c.power_of_two,
-          readonly: c.readonly
+          readonly: c.readonly,
+          activeNamespace: this.props.activeNamespace
         };
 
         return (
@@ -46,9 +47,13 @@ class SidebarDatabase extends React.Component {
   }
 
   render() {
+    let className = 'compass-sidebar-item-header compass-sidebar-item-header-is-expandable compass-sidebar-item-header-is-actionable';
+    if (this.props.activeNamespace === this.props._id) {
+      className += ' compass-sidebar-item-header-is-active';
+    }
     return (
       <div className="compass-sidebar-item compass-sidebar-item-is-top-level">
-        <div className="compass-sidebar-item-header compass-sidebar-item-header-is-expandable">
+        <div className={className}>
           <i onClick={this.handleDBClick.bind(this, this.props._id)} className="compass-sidebar-database-icon mms-icon-database"></i>
           <i onClick={this.handleArrowClick.bind(this)} className={this.getArrowIconClasses()}></i>
           <div onClick={this.handleDBClick.bind(this, this.props._id)} className="compass-sidebar-title" title={this.props._id}>
@@ -65,6 +70,7 @@ class SidebarDatabase extends React.Component {
 
 SidebarDatabase.propTypes = {
   _id: React.PropTypes.string,
+  activeNamespace: React.PropTypes.string.isRequired,
   collections: React.PropTypes.array
 };
 

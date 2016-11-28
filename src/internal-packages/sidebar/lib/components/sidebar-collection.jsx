@@ -1,11 +1,15 @@
 const app = require('ampersand-app');
 const React = require('react');
+// const debug = require('debug')('mongodb-compass:sidebar:sidebar-collection');
 
 const { NamespaceStore } = require('hadron-reflux-store');
 
 class SidebarCollection extends React.Component {
   constructor() {
     super();
+    this.state = {
+      active: false
+    };
     this.handleClick = this.handleClick.bind(this);
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
   }
@@ -33,10 +37,14 @@ class SidebarCollection extends React.Component {
 
   render() {
     const collectionName = this.getCollectionName();
+    let className = 'compass-sidebar-title compass-sidebar-title-is-actionable';
+    if (this.props.activeNamespace === this.props._id) {
+      className += ' compass-sidebar-title-is-active';
+    }
     return (
       <div className="compass-sidebar-item">
         <div onClick={this.handleClick}
-            className="compass-sidebar-title compass-sidebar-title-is-actionable"
+            className={className}
             title={this.props._id}>
           {collectionName}&nbsp;
           {this.renderReadonly()}
@@ -51,7 +59,8 @@ SidebarCollection.propTypes = {
   database: React.PropTypes.string,
   capped: React.PropTypes.bool,
   power_of_two: React.PropTypes.bool,
-  readonly: React.PropTypes.bool
+  readonly: React.PropTypes.bool,
+  activeNamespace: React.PropTypes.string.isRequired
 };
 
 module.exports = SidebarCollection;
