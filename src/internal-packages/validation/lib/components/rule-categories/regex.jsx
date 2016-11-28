@@ -188,7 +188,7 @@ class RuleCategoryRegex extends React.Component {
 RuleCategoryRegex.propTypes = {
   id: React.PropTypes.string.isRequired,
   parameters: React.PropTypes.object.isRequired,
-  isWritable: React.PropTypes.bool
+  isWritable: React.PropTypes.bool.isRequired
 };
 
 RuleCategoryRegex.displayName = 'RuleCategoryRegex';

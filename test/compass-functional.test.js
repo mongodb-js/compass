@@ -205,8 +205,9 @@ describe('Compass #spectron', function() {
               .eventually
               .include('You must select a field name and type');
           });
-          // @KeyboardTsundoku it would be great to have test that creates an
-          // index here
+          it.skip('creates an index', function() {
+            // @KeyboardTsundoku write create index test here ...
+          });
           it('close create index', function() {
             return client.cancelCreateIndexForm(); // test required here
           });

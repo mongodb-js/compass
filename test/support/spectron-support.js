@@ -235,7 +235,6 @@ function addCommands(client) {
     return this.submitForm('.modal-body form');
   });
 
-  // @KeyboardTsundoku wait for the error message to display
   client.addCommand('getModalErrorMessage', function() {
     this.waitForVisible('.modal-status-error-message');
     return this.getText('.modal-status-error-message');

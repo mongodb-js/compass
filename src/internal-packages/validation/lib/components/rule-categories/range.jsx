@@ -213,8 +213,8 @@ class RuleCategoryRange extends React.Component {
         <RangeInput
             ref="lower"
             boundIncluded={this.props.parameters.lowerBoundType === '$gte'}
-            disabled={this.props.parameters.lowerBoundType === null}
-            isDisabled={!this.props.isWritable}
+            hidden={this.props.parameters.lowerBoundType === null}
+            disabled={!this.props.isWritable}
             value={this.props.parameters.lowerBoundValue || ''}
             onRangeInputBlur={this.onRangeInputBlur.bind(this, 'lower')}
             validationState={validationState}
@@ -223,8 +223,8 @@ class RuleCategoryRange extends React.Component {
             ref="upper"
             upperBound
             boundIncluded={this.props.parameters.upperBoundType === '$lte'}
-            disabled={this.props.parameters.upperBoundType === null}
-            isDisabled={!this.props.isWritable}
+            hidden={this.props.parameters.upperBoundType === null}
+            disabled={!this.props.isWritable}
             value={this.props.parameters.upperBoundValue || ''}
             onRangeInputBlur={this.onRangeInputBlur.bind(this, 'upper')}
             validationState={validationState}
@@ -237,7 +237,7 @@ class RuleCategoryRange extends React.Component {
 RuleCategoryRange.propTypes = {
   id: React.PropTypes.string.isRequired,
   parameters: React.PropTypes.object.isRequired,
-  isWritable: React.PropTypes.bool
+  isWritable: React.PropTypes.bool.isRequired
 };
 
 RuleCategoryRange.displayName = 'RuleCategoryRange';

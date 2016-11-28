@@ -106,8 +106,7 @@ Validation.propTypes = {
   validatorDoc: React.PropTypes.object.isRequired,
   validationLevel: React.PropTypes.oneOf(['off', 'moderate', 'strict']).isRequired,
   validationRules: React.PropTypes.array.isRequired,
-  serverVersion: React.PropTypes.string,
-  isWritable: React.PropTypes.bool
+  serverVersion: React.PropTypes.string
 };
 
 Validation.defaultProps = {

@@ -168,6 +168,10 @@ JSONView.propTypes = {
   isWritable: React.PropTypes.bool
 };
 
+JSONView.defaultProps = {
+  isWritable: false
+};
+
 JSONView.displayName = 'JSONView';
 
 module.exports = JSONView;

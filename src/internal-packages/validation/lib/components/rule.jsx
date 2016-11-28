@@ -111,14 +111,8 @@ Rule.propTypes = {
   category: React.PropTypes.string.isRequired,
   parameters: React.PropTypes.object.isRequired,
   nullable: React.PropTypes.bool.isRequired,
-  serverVersion: React.PropTypes.string,
-  isWritable: React.PropTypes.bool
-};
-
-// @KeyboardTsundoku: this could be danger, setting defaults for test purposes
-Rule.defaultProps = {
-  serverVersion: '',
-  isWritable: true
+  serverVersion: React.PropTypes.string.isRequired,
+  isWritable: React.PropTypes.bool.isRequired
 };
 
 Rule.displayName = 'Rule';

@@ -188,8 +188,8 @@ RuleBuilder.propTypes = {
   validationAction: React.PropTypes.oneOf(['warn', 'error']).isRequired,
   validationLevel: React.PropTypes.oneOf(['off', 'moderate', 'strict']).isRequired,
   validationRules: React.PropTypes.array.isRequired,
-  serverVersion: React.PropTypes.string,
-  isWritable: React.PropTypes.bool
+  serverVersion: React.PropTypes.string.isRequired,
+  isWritable: React.PropTypes.bool.isRequired
 };
 
 RuleBuilder.displayName = 'RuleBuilder';

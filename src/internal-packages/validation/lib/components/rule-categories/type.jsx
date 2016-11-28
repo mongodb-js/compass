@@ -92,8 +92,8 @@ class RuleCategoryType extends React.Component {
 RuleCategoryType.propTypes = {
   id: React.PropTypes.string.isRequired,
   parameters: React.PropTypes.object.isRequired,
-  serverVersion: React.PropTypes.string,
-  isWritable: React.PropTypes.bool
+  serverVersion: React.PropTypes.string.isRequired,
+  isWritable: React.PropTypes.bool.isRequired
 };
 
 RuleCategoryType.displayName = 'RuleCategoryType';
