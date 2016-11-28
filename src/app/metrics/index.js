@@ -102,7 +102,7 @@ module.exports = function() {
     // enable/disable event tracking
     metrics.trackers.get('ga').enabled = enabled;
     metrics.trackers.get('intercom').enabled = enabled;
-    metrics.trackers.get('mixpanel').enabled = enabled;
+    // metrics.trackers.get('mixpanel').enabled = enabled;
   });
   app.preferences.on('change:enableFeedbackPanel', function(prefs, enabled) {
     // enable/disable product feedback
