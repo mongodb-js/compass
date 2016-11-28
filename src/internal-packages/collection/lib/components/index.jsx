@@ -45,14 +45,14 @@ class Collection extends React.Component {
     const tabs = [
       'SCHEMA',
       'DOCUMENTS',
-      'EXPLAIN PLAN',
-      'INDEXES'
+      'INDEXES',
+      'EXPLAIN PLAN'
     ];
     const views = [
       <this.Schema />,
       <this.Document />,
-      <this.Explain />,
-      <this.Indexes />
+      <this.Indexes />,
+      <this.Explain />
     ];
     if (DV_ENABLED) {
       tabs.push('VALIDATION');
