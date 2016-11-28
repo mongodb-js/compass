@@ -73,6 +73,21 @@ class Element extends EventEmitter {
   }
 
   /**
+   * Cancel any modifications to the element.
+   */
+  cancel() {
+    if (this.elements) {
+      for (let element of this.elements) {
+        element.cancel();
+      }
+    } else {
+      if (this.isModified()) {
+        this.revert();
+      }
+    }
+  }
+
+  /**
    * Create the element.
    *
    * @param {String} key - The key.

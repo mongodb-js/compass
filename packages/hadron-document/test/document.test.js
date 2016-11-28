@@ -260,6 +260,37 @@ describe('Document', function() {
     });
   });
 
+  context('#cancel', function() {
+    const object = {
+      'root': 'value',
+      'childArray': [ 1, 2, 3 ],
+      'childObject': { 'test': 'value' }
+    };
+    const doc = new Document(object);
+    const root = doc.elements.at(0);
+    const childArray = doc.elements.at(1);
+    const childObject = doc.elements.at(2);
+
+    before(function() {
+      root.edit('value edit');
+      childArray.elements.at(2).remove();
+      childObject.insertEnd('new', 'value', true, doc);
+      doc.cancel();
+    });
+
+    it('resets edited elements', function() {
+      expect(root.currentValue).to.equal('value');
+    });
+
+    it('resets deleted elements', function() {
+      expect(childArray.elements.size).to.equal(3);
+    });
+
+    it('removes added elements', function() {
+      expect(childObject.elements.size).to.equal(1);
+    });
+  });
+
   describe('#next', function() {
     context('when the document has no elements', function() {
       var doc = new Document({});

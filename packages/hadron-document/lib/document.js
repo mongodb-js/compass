@@ -22,6 +22,9 @@ class Document extends EventEmitter {
    * Send cancel event.
    */
   cancel() {
+    for (let element of this.elements) {
+      element.cancel();
+    }
     this.emit(Events.Cancel);
   }
 
@@ -129,7 +132,7 @@ class Document extends EventEmitter {
    * Handle the next element in the document.
    */
   next() {
-    var lastElement = this.elements.lastElement;
+    const lastElement = this.elements.lastElement;
     if (lastElement && lastElement.isAdded()) {
       if (lastElement.isBlank()) {
         lastElement.remove();
@@ -147,7 +150,7 @@ class Document extends EventEmitter {
    * @returns {Array} The elements.
    */
   _generateElements() {
-    var elements = new LinkedList();
+    const elements = new LinkedList();
     for (let key of keys(this.doc)) {
       elements.insertEnd(key, this.doc[key], this.cloned, this);
     }
