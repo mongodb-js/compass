@@ -100,32 +100,35 @@
       }
     }
 
-    &:hover {
-      background-color: @gray8;
+    &-is-editing {
 
-      &::before {
-        background-color: @gray8;
-      }
-
-      input {
+      &:hover {
         background-color: @gray8;
 
-        &:focus {
-          background-color: @pw;
+        &::before {
+          background-color: @gray8;
         }
-      }
 
-      .editable-element-actions {
-        opacity: 1;
-      }
+        input {
+          background-color: @gray8;
 
-      .editable-element-types {
-        .btn {
-          background-color: @gray6;
-          color: @gray0;
+          &:focus {
+            background-color: @pw;
+          }
         }
-        .caret {
-          visibility: visible;
+
+        .editable-element-actions {
+          opacity: 1;
+        }
+
+        .editable-element-types {
+          .btn {
+            background-color: @gray6;
+            color: @gray0;
+          }
+          .caret {
+            visibility: visible;
+          }
         }
       }
     }
