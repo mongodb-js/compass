@@ -36,6 +36,33 @@ const generateLessCache = (opts) => {
   return read(src, 'utf-8').then((contents) => lessCache.cssForFile(src, contents));
 };
 
+/**
+ * @note Durran - quick hack fix to get help cache building. Can be
+ * removed when we remove the help window.
+ */
+const generateLessHelpCache = (opts) => {
+  /**
+   * TODO (imlucas) Standardize to use CONFIG.
+   */
+  const appDir = path.join(process.cwd(), 'src', 'app');
+  const src = path.join(appDir, 'help.less');
+  if (!opts.less_cache) {
+    cli.warn('`less_cache` config option not set! skipping');
+    return new Promise(function(resolve) {
+      resolve();
+    });
+  }
+  /**
+   * TODO (imlucas) Ensure `opts.less_cache` and `src` exist.
+   */
+  const lessCache = new LessCache({
+    cacheDir: opts.less_cache,
+    resourcePath: appDir
+  });
+
+  return read(src, 'utf-8').then((contents) => lessCache.cssForFile(src, contents));
+};
+
 exports.builder = {
   less_cache: {
     description: 'Path for less cache',
@@ -49,5 +76,5 @@ exports.handler = (argv) => {
 };
 
 exports.tasks = (argv) => {
-  return generateLessCache(argv);
+  return generateLessCache(argv).then(() => generateLessHelpCache(argv));
 };
