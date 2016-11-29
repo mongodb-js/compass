@@ -32,7 +32,7 @@
     "mongodb-connection-model": "^6.3.3",
     "mongodb-index-model": "^0.6.3",
     "mongodb-instance-model": "^3.3.0",
-    "mongodb-js-errors": "^0.2.1",
+    "mongodb-js-errors": "^0.3.0",
     "mongodb-ns": "^1.0.3",
     "mongodb-url": "^1.0.2"
   },
