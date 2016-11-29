@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const React = require('react');
-const uuid = require('node-uuid');
+const uuid = require('uuid');
 const app = require('ampersand-app');
 const Action = require('hadron-action');
 const ObjectID = require('bson').ObjectID;
