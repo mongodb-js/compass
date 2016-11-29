@@ -2,6 +2,7 @@
 // use js2.coffee to convert it to JS
 
 var electron = require('electron');
+var ipc = require('hadron-ipc');
 var BrowserWindow = electron.BrowserWindow;
 var Menu = electron.Menu;
 var app = electron.app;
@@ -194,7 +195,7 @@ function shareSubMenu() {
         label: '&Share Schema as JSON',
         accelerator: 'Alt+CmdOrCtrl+S',
         click: function() {
-          BrowserWindow.getFocusedWindow().webContents.send('window:menu-share-schema-json');
+          ipc.broadcast('window:menu-share-schema-json');
         }
       }
     ]
