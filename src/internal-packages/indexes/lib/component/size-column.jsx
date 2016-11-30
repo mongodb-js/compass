@@ -20,7 +20,7 @@ class SizeColumn extends React.Component {
   render() {
     const indexSize = this._format(this.props.size).split(' ');
 
-    const tooltipText = `${this.props.relativeSize}% compared to largest index`;
+    const tooltipText = `${this.props.relativeSize.toFixed(2)}% compared to largest index`;
     const tooltipOptions = {
       'data-tip': tooltipText,
       'data-effect': 'solid',
