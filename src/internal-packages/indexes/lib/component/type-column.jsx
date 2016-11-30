@@ -25,7 +25,7 @@ class TypeColumn extends React.Component {
     const info = _.pick(this.props.index.extra, ['weights', 'default_language', 'language_override']);
     return _.map(info, (v, k) => {
       return format('%s: %j', k, v);
-    }).join('\n');
+    }).join('<br />');
   }
 
   /**
@@ -40,11 +40,11 @@ class TypeColumn extends React.Component {
         'data-tip': tooltipText,
         'data-for': TOOLTIP_ID,
         'data-effect': 'solid',
+        'data-multiline': true,
         'data-border': true
       };
       return (
         <div {...tooltipOptions} className={`property ${this.props.index.type}`}>
-          <ReactTooltip id={TOOLTIP_ID} />
           {this.props.index.type}
           {this._link()}
         </div>
@@ -67,6 +67,7 @@ class TypeColumn extends React.Component {
     return (
       <td className="type-column">
         {this.renderType()}
+        <ReactTooltip id={TOOLTIP_ID} />
       </td>
     );
   }
