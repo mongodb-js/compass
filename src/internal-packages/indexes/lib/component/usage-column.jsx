@@ -1,7 +1,10 @@
 const React = require('react');
 const _ = require('lodash');
+const ReactTooltip = require('react-tooltip');
 
 // const debug = require('debug')('mongodb-compass:indexes:usage-column');
+
+const TOOLTIP_ID = 'index-usage';
 
 /**
  * No usage stats constant.
@@ -46,10 +49,20 @@ class UsageColumn extends React.Component {
    */
   render() {
     const usage = _.isUndefined(this.props.usage) ? 'N/A' : this.props.usage;
+    const tooltipText = `${this.tooltip()}%`;
+    const tooltipOptions = {
+      'data-tip': tooltipText,
+      'data-for': TOOLTIP_ID,
+      'data-effect': 'solid',
+      'data-border': true
+    };
     return (
       <td className="usage-column">
         <span className="usage">
-          <div className="quantity" title={this.tooltip()}>
+          <div {...tooltipOptions}
+           className="quantity"
+          >
+            <ReactTooltip id={TOOLTIP_ID}/>
             {usage}
           </div>
           {this.renderSince()}

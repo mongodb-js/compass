@@ -2,6 +2,8 @@ const React = require('react');
 const numeral = require('numeral');
 const ReactTooltip = require('react-tooltip');
 
+const TOOLTIP_ID = 'index-size';
+
 /**
  * Component for the size column.
  */
@@ -19,10 +21,10 @@ class SizeColumn extends React.Component {
    */
   render() {
     const indexSize = this._format(this.props.size).split(' ');
-
     const tooltipText = `${this.props.relativeSize.toFixed(2)}% compared to largest index`;
     const tooltipOptions = {
       'data-tip': tooltipText,
+      'data-for': TOOLTIP_ID,
       'data-effect': 'solid',
       'data-border': true
     };
@@ -38,7 +40,7 @@ class SizeColumn extends React.Component {
           {...tooltipOptions}
           className="progress"
         >
-          <ReactTooltip />
+          <ReactTooltip id={TOOLTIP_ID}/>
           <div className="progress-bar" style={{ width: `${this.props.relativeSize}%` }}>
           </div>
         </div>

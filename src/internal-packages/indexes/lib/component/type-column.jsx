@@ -2,6 +2,9 @@ const _ = require('lodash');
 const format = require('util').format;
 const React = require('react');
 const openIndexHelpLink = require('../index-link-helper');
+const ReactTooltip = require('react-tooltip');
+
+const TOOLTIP_ID = 'index-type';
 
 /**
  * Component for the type column.
@@ -32,8 +35,16 @@ class TypeColumn extends React.Component {
    */
   renderType() {
     if (this.props.index.type === 'text') {
+      const tooltipText = `${this._textTooltip()}`;
+      const tooltipOptions = {
+        'data-tip': tooltipText,
+        'data-for': TOOLTIP_ID,
+        'data-effect': 'solid',
+        'data-border': true
+      };
       return (
-        <div className={`property ${this.props.index.type}`} title={this._textTooltip()}>
+        <div {...tooltipOptions} className={`property ${this.props.index.type}`}>
+          <ReactTooltip id={TOOLTIP_ID} />
           {this.props.index.type}
           {this._link()}
         </div>
