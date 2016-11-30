@@ -18,10 +18,12 @@ const ServerStatsStore = Reflux.createStore({
 
   serverStats: function() {
     app.dataService.serverstats((error, doc) => {
-      this.trigger(error, doc, this.isPaused);
-      if (error) {
-        Actions.dbError({ 'op': 'serverStatus', 'error': error });
+      if (error === null && this.error !== null) { // Trigger error removal
+        Actions.dbError({'op': 'serverStatus', 'error': null });
+      } else if (error !== null) {
+        Actions.dbError({'op': 'serverStatus', 'error': error });
       }
+      this.trigger(error, doc, this.isPaused);
     });
   },
 

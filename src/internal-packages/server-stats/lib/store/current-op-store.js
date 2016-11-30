@@ -33,7 +33,7 @@ const CurrentOpStore = Reflux.createStore({
     this.inOverlay = false;
     this.xLength = 60;
     this.starting = true;
-    this.error = null;
+    this.errored = [];
   },
 
   pause: function() {
@@ -44,31 +44,50 @@ const CurrentOpStore = Reflux.createStore({
   mouseOver: function(index) {
     const startPause = Math.max(this.endPause - this.xLength, 0);
     const visOps = this.allOps.slice(startPause, this.endPause);
+    const visErrors = this.errored.slice(startPause, this.endPause);
     if (index >= visOps.length) {
       index = visOps.length - 1;
     }
     this.overlayIndex = index;
     this.inOverlay = true;
-    this.trigger(null, visOps[this.overlayIndex]);
+    this.trigger(visErrors[this.overlayIndex], visOps[this.overlayIndex]);
   },
 
   mouseOut: function() {
     this.inOverlay = false;
     const startPause = Math.max(this.endPause - this.xLength, 0);
     const visOps = this.allOps.slice(startPause, this.endPause);
-    this.trigger(this.error, visOps[visOps.length - 1]);
+    const visErrors = this.errored.slice(startPause, this.endPause);
+    this.trigger(visErrors[this.overlayIndex], visOps[visOps.length - 1]);
   },
 
   currentOp: function() {
     app.dataService.currentOp(false, (error, response) => {
+      // Trigger error banner changes
+      if (error === null && this.errored.length > 0 && this.errored[this.errored.length - 1] !== null) { // Trigger error removal
+        Actions.dbError({'op': 'currentOp', 'error': null });
+      } else if (error !== null) {
+        Actions.dbError({'op': 'currentOp', 'error': error });
+      }
+      this.errored.push(error);
+
+      // Update op list if error
+      if (error !== null || this.starting) {
+        this.allOps.push([]);
+      }
+
+      // Update op list if no error
       let totals = [];
-      this.error = error;
-      if (!error && response !== undefined && ('inprog' in response)) {
+      if (error === null) {
+        // If response is empty, send empty list
+        let doc = [];
+        if (response !== undefined && ('inprog' in response)) {
+          doc = response.inprog;
+        }
         if (this.starting) { // Skip first to match charts
-          this.starting = false;
+          this.starting = false; // TODO: skip first error as well?
           return;
         }
-        const doc = response.inprog;
         for (let i = 0; i < doc.length; i++) {
           if (toNS(doc[i].ns).specialish) {
             continue;
@@ -100,17 +119,16 @@ const CurrentOpStore = Reflux.createStore({
         });
         // Add current state to all
         this.allOps.push(totals);
-        if (this.isPaused) {
-          totals = this.allOps[this.endPause];
-        } else {
-          this.endPause = this.allOps.length;
-        }
-        // This handled by mouseover function completely
-        if (this.inOverlay) {
-          return;
-        }
-      } else if (error) {
-        Actions.dbError({'op': 'currentOp', 'error': error });
+      }
+      if (this.isPaused) {
+        totals = this.allOps[this.endPause];
+        error = this.errored[this.endPause];
+      } else {
+        this.endPause = this.allOps.length;
+      }
+      // This handled by mouseover function completely
+      if (this.inOverlay) {
+        return;
       }
       this.trigger(error, totals);
     });
