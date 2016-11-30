@@ -1,5 +1,6 @@
 const React = require('react');
 const numeral = require('numeral');
+const ReactTooltip = require('react-tooltip');
 
 /**
  * Component for the size column.
@@ -18,6 +19,13 @@ class SizeColumn extends React.Component {
    */
   render() {
     const indexSize = this._format(this.props.size).split(' ');
+
+    const tooltipText = `${this.props.relativeSize}% compared to largest index`;
+    const tooltipOptions = {
+      'data-tip': tooltipText,
+      'data-effect': 'solid',
+      'data-border': true
+    };
     return (
       <td className="size-column">
         <div className="quantity">
@@ -26,7 +34,11 @@ class SizeColumn extends React.Component {
         <div className="unit">
           {indexSize[1]}
         </div>
-        <div className="progress" title={`${this.props.relativeSize}% compared to largest index`}>
+        <div
+          {...tooltipOptions}
+          className="progress"
+        >
+          <ReactTooltip />
           <div className="progress-bar" style={{ width: `${this.props.relativeSize}%` }}>
           </div>
         </div>
