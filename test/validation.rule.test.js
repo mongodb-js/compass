@@ -97,7 +97,9 @@ describe('<Rule />', function() {
       field: 'created_at',
       category: 'range',
       parameters: {type: 9},  // type "date"
-      nullable: false
+      nullable: false,
+      serverVersion: '3.2.11',
+      isWritable: true
     };
 
     it('has a category of "range"', function() {
