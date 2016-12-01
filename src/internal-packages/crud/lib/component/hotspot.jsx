@@ -3,7 +3,7 @@ const React = require('react');
 /**
  * The class name.
  */
-const CLASS = 'hotspot'
+const CLASS = 'hotspot';
 
 /**
  * The icon class name.
