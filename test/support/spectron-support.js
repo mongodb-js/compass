@@ -421,7 +421,7 @@ function addClickCommands(client) {
    */
   client.addCommand('clickCreateDatabaseModalButton', function() {
     const base = selector('create-database-button');
-    return this.click(base).waitForVisible(base, true);
+    return this.click(base);
   });
 
   /**
@@ -429,7 +429,7 @@ function addClickCommands(client) {
    */
   client.addCommand('clickDropDatabaseModalButton', function() {
     const base = selector('drop-database-button');
-    return this.click(base).waitForVisible(base, TIMEOUT, true);
+    return this.click(base);
   });
 
   /**
@@ -437,7 +437,7 @@ function addClickCommands(client) {
    */
   client.addCommand('clickDropCollectionModalButton', function() {
     const base = selector('drop-collection-button');
-    return this.click(base).waitForVisible(base, TIMEOUT, true);
+    return this.click(base);
   });
 
   /**
@@ -452,7 +452,7 @@ function addClickCommands(client) {
    */
   client.addCommand('clickCreateCollectionModalButton', function() {
     const base = selector('create-collection-button');
-    return this.click(base).waitForVisible(base, true);
+    return this.click(base);
   });
 
   /**
