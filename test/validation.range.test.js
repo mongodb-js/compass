@@ -9,7 +9,6 @@ const _ = require('lodash');
 const shallow = require('enzyme').shallow;
 const mount = require('enzyme').mount;
 const bootstrap = require('react-bootstrap');
-const ControlLabel = bootstrap.ControlLabel;
 const FormControl = bootstrap.FormControl;
 const RangeInput = require('../src/internal-packages/validation/lib/components/common/range-input');
 const RuleCategoryRange = require('../src/internal-packages/validation/lib/components/rule-categories/range');
