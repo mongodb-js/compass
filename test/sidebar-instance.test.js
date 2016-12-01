@@ -28,6 +28,7 @@ describe('<SidebarInstanceProperties />', () => {
       <SidebarInstanceProperties
         connection={connection}
         instance={instance}
+        activeNamespace={''}
       />);
 
     it('renders the endpoint host name and port as text', () => {
@@ -62,6 +63,7 @@ describe('<SidebarInstanceProperties />', () => {
       <SidebarInstanceProperties
         connection={connection}
         instance={instance}
+        activeNamespace={''}
       />);
 
     it('renders the endpoint host name and port as text', () => {
