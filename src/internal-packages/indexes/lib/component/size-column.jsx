@@ -36,12 +36,9 @@ class SizeColumn extends React.Component {
         <div className="unit">
           {indexSize[1]}
         </div>
-        <div
-          {...tooltipOptions}
-          className="progress"
-        >
+        <div {...tooltipOptions} className="progress">
           <ReactTooltip id={TOOLTIP_ID}/>
-          <div className="progress-bar" style={{ width: `${this.props.relativeSize}%` }}>
+          <div className="progress-bar" style={{ width: `${this.props.relativeSize}%`}}>
           </div>
         </div>
       </td>

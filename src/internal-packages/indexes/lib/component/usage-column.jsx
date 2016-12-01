@@ -49,7 +49,7 @@ class UsageColumn extends React.Component {
    */
   render() {
     const usage = _.isUndefined(this.props.usage) ? 'N/A' : this.props.usage;
-    const tooltipText = `${this.tooltip()}%`;
+    const tooltipText = `${this.tooltip()}`;
     const tooltipOptions = {
       'data-tip': tooltipText,
       'data-for': TOOLTIP_ID,
@@ -59,9 +59,7 @@ class UsageColumn extends React.Component {
     return (
       <td className="usage-column">
         <span className="usage">
-          <div {...tooltipOptions}
-           className="quantity"
-          >
+          <div {...tooltipOptions} className="quantity">
             <ReactTooltip id={TOOLTIP_ID}/>
             {usage}
           </div>
