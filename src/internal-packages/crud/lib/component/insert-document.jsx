@@ -58,7 +58,7 @@ class InsertDocument extends React.Component {
    */
   render() {
     return (
-      <div className={DOCUMENT}>
+      <div className={DOCUMENT} data-test-id="insert-document-modal">
         <ol className={DOCUMENT_ELEMENTS}>
           {this.renderElements(this.doc)}
         </ol>

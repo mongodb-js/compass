@@ -43,9 +43,11 @@ class SidebarCollection extends React.Component {
     }
     return (
       <div className="compass-sidebar-item">
-        <div onClick={this.handleClick}
-            className={className}
-            title={this.props._id}>
+        <div
+          onClick={this.handleClick}
+          className={className}
+          data-test-id="sidebar-collection"
+          title={this.props._id}>
           {collectionName}&nbsp;
           {this.renderReadonly()}
         </div>

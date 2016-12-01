@@ -41,11 +41,12 @@ class DatabasesTable extends React.Component {
     const writable = app.dataService.isWritable();
 
     return (
-      <div className="rtss-databases">
+      <div className="rtss-databases" data-test-id="databases-table">
         <div className="rtss-databases-create-button action-bar">
           {writable ?
             <TextButton
               text="Create Database"
+              dataTestId="open-create-database-modal-button"
               className="btn btn-primary btn-xs"
               clickHandler={this.onCreateDatabaseButtonClicked.bind(this)} /> : null}
         </div>

@@ -104,11 +104,12 @@ class DropDatabaseDialog extends React.Component {
               to drop
             </p>
           </div>
-          <form>
+          <form data-test-id="drop-database-modal">
             <div className="form-group">
               <input
                 type="text"
                 className="drop-confirm-input form-control"
+                data-test-id="confirm-drop-database-name"
                 value={this.state.confirmName}
                 onChange={this.onConfirmNameChanged.bind(this)} />
             </div>
@@ -128,6 +129,7 @@ class DropDatabaseDialog extends React.Component {
             clickHandler={this.onCancelButtonClicked.bind(this)} />
           <button
             className="btn btn-primary"
+            data-test-id="drop-database-button"
             disabled={this.state.confirmName !== this.state.name}
             onClick={this.onDropDatabaseButtonClicked.bind(this)}>
             Drop Database

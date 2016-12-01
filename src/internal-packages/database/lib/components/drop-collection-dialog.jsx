@@ -111,11 +111,12 @@ class DropCollectionDialog extends React.Component {
               to drop
             </p>
           </div>
-          <form>
+          <form data-test-id="drop-collection-modal">
             <div className="form-group">
               <input
                 type="text"
                 className="drop-confirm-input form-control"
+                data-test-id="confirm-drop-collection-name"
                 value={this.state.confirmName}
                 onChange={this.onConfirmNameChanged.bind(this)} />
             </div>
@@ -135,6 +136,7 @@ class DropCollectionDialog extends React.Component {
             clickHandler={this.onCancelButtonClicked.bind(this)} />
           <button
             className="btn btn-primary"
+            data-test-id="drop-collection-button"
             disabled={this.state.confirmName !== this.state.name}
             onClick={this.onDropCollectionButtonClicked.bind(this)}>
             Drop Collection

@@ -28,6 +28,11 @@ const LIST_CLASS = 'document-list';
 const SCROLL_EVENT = 'scroll';
 
 /**
+ * The list item test id.
+ */
+const LIST_ITEM_TEST_ID = 'document-list-item';
+
+/**
  * Component for the entire document list.
  */
 class DocumentList extends React.Component {
@@ -232,7 +237,7 @@ class DocumentList extends React.Component {
   renderDocuments(docs) {
     return _.map(docs, (doc) => {
       return (
-        <li className="document-list-item" key={this._key()}>
+        <li className="document-list-item" data-test-id={LIST_ITEM_TEST_ID} key={this._key()}>
           <Document doc={doc} key={this._key(doc)} editable={this.CollectionStore.isWritable()} />
         </li>
       );

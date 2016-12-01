@@ -112,6 +112,7 @@ class CreateIndexTextField extends React.Component {
         <input
           type="text"
           value={this.state.value}
+          data-test-id={this.props.dataTestId}
           className={inputClassName}
           disabled={!this.props.enabled}
           onBlur={this.submitValue.bind(this)}
@@ -134,6 +135,7 @@ class CreateIndexTextField extends React.Component {
         <input
           type="text"
           className="form-control create-index-text-field-input"
+          data-test-id={this.props.dataTestId}
           value={this.state.value}
           onBlur={this.submitValue.bind(this)}
           onChange={this.handleChange.bind(this)} />
@@ -160,7 +162,8 @@ CreateIndexTextField.propTypes = {
   enabled: React.PropTypes.bool,
   isParam: React.PropTypes.bool.isRequired,
   option: React.PropTypes.string.isRequired,
-  units: React.PropTypes.string
+  units: React.PropTypes.string,
+  dataTestId: React.PropTypes.string
 };
 
 module.exports = CreateIndexTextField;

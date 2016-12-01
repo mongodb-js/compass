@@ -33,6 +33,7 @@ class TabNavBar extends React.Component {
       <li onClick={this.onTabClicked.bind(this, idx)}
           id={tab.replace(/ /g, '_')}
           key={`tab-${idx}`}
+          data-test-id={`${tab.toLowerCase().replace(/ /g, '-')}-tab`}
           className={`tab-nav-bar tab-nav-bar-tab ${idx === this.state.activeTabIndex ?
             'tab-nav-bar-is-selected' : ''}`}>
         <span className="tab-nav-bar tab-nav-bar-link" href="#">{tab}</span>
@@ -62,6 +63,7 @@ class TabNavBar extends React.Component {
       return (
         <div
           key={`tab-content-${idx}`}
+          data-test-id={`${this.props.tabs[idx].toLowerCase().replace(/ /g, '-')}-content`}
           className={idx === this.state.activeTabIndex ? 'tab' : 'tab hidden'}>
           {view}
         </div>

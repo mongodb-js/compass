@@ -1,9 +1,9 @@
-#tour-out
+#tour-out(data-test-id='feature-tour-modal')
   #tour-bg
   #tour
     .modal-header
       h2(data-hook='title')
-      button.tour-close-button &times;
+      button.tour-close-button(data-test-id='close-tour-button') &times;
     #animation
       - var first = features[0].image
       img#animation-gif(src="./images/tour/#{first}")

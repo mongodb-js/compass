@@ -180,18 +180,25 @@ class CreateDatabaseDialog extends React.Component {
    */
   render() {
     return (
-      <Modal show={this.state.open} backdrop="static" keyboard={false} dialogClassName="create-collection-dialog">
+      <Modal
+        show={this.state.open}
+        backdrop="static"
+        keyboard={false}
+        dialogClassName="create-collection-dialog">
+
         <Modal.Header>
           <Modal.Title>Create Database</Modal.Title>
         </Modal.Header>
 
         <Modal.Body>
-          <form name="create-collection-dialog-form">
+          <form name="create-collection-dialog-form" data-test-id="create-database-modal">
             <this.CreateCollectionInput
+              id="create-database-name"
               name="Database Name"
               value={this.state.databaseName}
               onChangeHandler={this.onDatabaseNameChange.bind(this)} />
             <this.CreateCollectionInput
+              id="create-database-collection-name"
               name="Collection Name"
               value={this.state.collectionName}
               onChangeHandler={this.onCollectionNameChange.bind(this)} />
@@ -223,6 +230,7 @@ class CreateDatabaseDialog extends React.Component {
             clickHandler={this.onCancelButtonClicked.bind(this)} />
           <TextButton
             className="btn btn-primary"
+            dataTestId="create-database-button"
             text="Create Database"
             clickHandler={this.onCreateDatabaseButtonClicked.bind(this)} />
         </Modal.Footer>

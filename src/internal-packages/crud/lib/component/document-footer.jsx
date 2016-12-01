@@ -171,7 +171,10 @@ class DocumentFooter extends React.Component {
   render() {
     return (
       <div className={this.style()}>
-        <div className="document-footer-message" title={this.state.message}>
+        <div
+          data-test-id="document-message"
+          className="document-footer-message"
+          title={this.state.message}>
           {this.state.message}
         </div>
         <div className="document-footer-actions">
@@ -182,6 +185,7 @@ class DocumentFooter extends React.Component {
           <TextButton
             className="btn btn-default btn-xs update"
             text="Update"
+            dataTestId="update-document-button"
             clickHandler={this.handleUpdate.bind(this)} />
         </div>
       </div>

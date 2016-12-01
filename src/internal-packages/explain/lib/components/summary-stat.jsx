@@ -31,7 +31,7 @@ class SummaryStat extends React.Component {
       <div className={`summary-stat ${modifier}`}>
         {infoSprinkle}
         <span className="summary-stat-label">{label}</span>
-        <span className="summary-stat-value">{value}</span>
+        <span className="summary-stat-value" data-test-id={this.props.dataTestId}>{value}</span>
       </div>
     );
   }
@@ -40,7 +40,8 @@ class SummaryStat extends React.Component {
 SummaryStat.propTypes = {
   dataLink: React.PropTypes.string,          // info sprinkle (optional)
   label: React.PropTypes.string.isRequired,  // label of the stat
-  value: React.PropTypes.any.isRequired      // value of the stat
+  value: React.PropTypes.any.isRequired,     // value of the stat
+  dataTestId: React.PropTypes.string
 };
 
 SummaryStat.displayName = 'SummaryStat';

@@ -64,7 +64,7 @@ const QueryInputGroup = React.createClass({
         <div className={inputGroupClass}>
           <input
             id="refine_input"
-            className="form-control input-sm"
+            className="form-control input-sm input-filter"
             type="text"
             value={query}
             onChange={this.onChange}
@@ -73,13 +73,13 @@ const QueryInputGroup = React.createClass({
           <span className="input-group-btn">
             <button
               id="apply_button"
-              className="btn btn-primary btn-sm"
+              className="btn btn-primary btn-sm apply-filter-button"
               type="button"
               onClick={this.onApplyButtonClicked}
               disabled={applyDisabled}>Apply</button>
             <button
               id="reset_button"
-              className="btn btn-default btn-sm"
+              className="btn btn-default btn-sm reset-filter-button"
               type="button"
               onClick={this.onResetButtonClicked}
               style={resetButtonStyle}>Reset</button>

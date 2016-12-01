@@ -157,14 +157,20 @@ class CreateCollectionDialog extends React.Component {
    */
   render() {
     return (
-      <Modal show={this.state.open} backdrop="static" keyboard={false} dialogClassName="create-collection-dialog">
+      <Modal
+        show={this.state.open}
+        backdrop="static"
+        keyboard={false}
+        dialogClassName="create-collection-dialog">
+
         <Modal.Header>
           <Modal.Title>Create Collection</Modal.Title>
         </Modal.Header>
 
         <Modal.Body>
-          <form name="create-collection-dialog-form">
+          <form name="create-collection-dialog-form" data-test-id="create-collection-modal">
             <CreateCollectionInput
+              id="create-collection-name"
               name="Collection Name"
               value={this.state.collectionName}
               onChangeHandler={this.onCollectionNameChange.bind(this)} />
@@ -191,6 +197,7 @@ class CreateCollectionDialog extends React.Component {
             clickHandler={this.onCancelButtonClicked.bind(this)} />
           <TextButton
             className="btn btn-primary"
+            dataTestId="create-collection-button"
             text="Create Collection"
             clickHandler={this.onCreateCollectionButtonClicked.bind(this)} />
         </Modal.Footer>

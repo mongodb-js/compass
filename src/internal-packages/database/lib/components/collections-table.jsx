@@ -41,11 +41,12 @@ class CollectionsTable extends React.Component {
     const writable = app.dataService.isWritable();
 
     return (
-      <div className="collections-table">
+      <div className="collections-table" data-test-id="collections-table">
         <div className="collections-table-create-button action-bar">
           {writable ?
             <TextButton
               text="Create Collection"
+              dataTestId="open-create-collection-modal-button"
               className="btn btn-primary btn-xs"
               clickHandler={this.onCreateCollectionButtonClicked.bind(this)} /> : null}
         </div>

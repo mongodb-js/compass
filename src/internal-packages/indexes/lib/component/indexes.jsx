@@ -57,7 +57,7 @@ class Indexes extends React.Component {
       <div className="column-container">
         {this.state.writable ? <CreateIndexButton /> : null}
         <div className="column main">
-          <table>
+          <table data-test-id="indexes-table">
             <IndexHeader />
             <IndexList />
           </table>

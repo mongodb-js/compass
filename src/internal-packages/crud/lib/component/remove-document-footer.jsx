@@ -7,11 +7,6 @@ const TextButton = require('hadron-app-registry').TextButton;
 const PROGRESS = 'Progress';
 
 /**
- * The success mode.
- */
-const SUCCESS = 'Success';
-
-/**
  * The error mode.
  */
 const ERROR = 'Error';
@@ -99,7 +94,7 @@ class RemoveDocumentFooter extends React.Component {
    * Handle a successful document update.
    */
   handleSuccess() {
-    this.setState({ mode: SUCCESS, message: UPDATED });
+    this.setState({ mode: DELETING, message: UPDATED });
   }
 
   /**
@@ -133,7 +128,10 @@ class RemoveDocumentFooter extends React.Component {
   render() {
     return (
       <div className={this.style()}>
-        <div className="document-footer-message" title={this.state.message}>
+        <div
+          className="document-footer-message"
+          data-test-id="document-message"
+          title={this.state.message}>
           {this.state.message}
         </div>
         <div className="document-footer-actions">
@@ -144,6 +142,7 @@ class RemoveDocumentFooter extends React.Component {
           <TextButton
             className="btn btn-default btn-xs error"
             text="Delete"
+            dataTestId="confirm-delete-document-button"
             clickHandler={this.handleRemove.bind(this)} />
         </div>
       </div>

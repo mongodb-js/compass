@@ -19,7 +19,7 @@ class SidebarInstanceProperties extends React.Component {
       const options = connection.ssh_tunnel_options;
       const sshHostAndPort = `via SSH tunnel ${options.host}:${options.port}`;
       return (
-        <div className="compass-sidebar-instance-ssh-tunnel">
+        <div data-test-id="sidebar-ssh-tunnel-details" className="compass-sidebar-instance-ssh-tunnel">
           {sshHostAndPort}
         </div>
       );
@@ -69,19 +69,38 @@ class SidebarInstanceProperties extends React.Component {
       <div className="compass-sidebar-properties">
         <div className={className} onClick={this.handleClickHostname}>
           <i className="fa fa-home compass-sidebar-instance-icon"></i>
-          <div className="compass-sidebar-instance-hostname" >{hostnameAndPort}</div>
+          <div
+            data-test-id="sidebar-instance-details"
+            className="compass-sidebar-instance-hostname">
+            {hostnameAndPort}
+          </div>
           {sshTunnelViaPort}
-          <div className="compass-sidebar-instance-version">{versionName}</div>
+          <div
+            data-test-id="sidebar-instance-version"
+            className="compass-sidebar-instance-version">
+            {versionName}
+          </div>
         </div>
         <div className="compass-sidebar-stats">
-          <button onClick={this.handleRefresh} className="compass-sidebar-refresh-button">
+          <button
+            onClick={this.handleRefresh}
+            className="compass-sidebar-refresh-button"
+            data-test-id="instance-refresh-button">
             <i className={this.getRefreshIconClassNames()}></i>
           </button>
           <div className="compass-sidebar-property-column">
-            <span className="compass-sidebar-strong-property">{numDbs}</span> DBs
+            <span
+              data-test-id="sidebar-db-count"
+              className="compass-sidebar-strong-property">
+              {numDbs}
+            </span> DBs
           </div>
           <div className="compass-sidebar-property-column">
-            <span className="compass-sidebar-strong-property">{numCollections}</span> Collections
+            <span
+              data-test-id="sidebar-collection-count"
+              className="compass-sidebar-strong-property">
+              {numCollections}
+            </span> Collections
           </div>
         </div>
       </div>

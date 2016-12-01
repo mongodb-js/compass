@@ -15,6 +15,7 @@ class CreateCollectionInput extends React.Component {
       <div className="form-group">
         <p>{this.props.name}</p>
         <input
+          id={this.props.id}
           type="text"
           className="form-control"
           onChange={this.props.onChangeHandler}
@@ -29,7 +30,8 @@ CreateCollectionInput.displayName = 'CreateCollectionInput';
 CreateCollectionInput.propTypes = {
   onChangeHandler: React.PropTypes.func.isRequired,
   value: React.PropTypes.string,
-  name: React.PropTypes.string.isRequired
+  name: React.PropTypes.string.isRequired,
+  id: React.PropTypes.string.isRequired
 };
 
 module.exports = CreateCollectionInput;

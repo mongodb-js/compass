@@ -2,6 +2,21 @@ const React = require('react');
 const ElementFactory = require('hadron-app-registry').ElementFactory;
 
 /**
+ * The base class.
+ */
+const BASE = 'document';
+
+/**
+ * The elements class.
+ */
+const ELEMENTS = `${BASE}-elements`;
+
+/**
+ * The test id.
+ */
+const TEST_ID = 'readonly-document';
+
+/**
  * Component for a single readonly document in a list of documents.
  */
 class ReadonlyDocument extends React.Component {
@@ -22,8 +37,8 @@ class ReadonlyDocument extends React.Component {
    */
   render() {
     return (
-      <div className="document">
-        <ol className="document-elements">
+      <div className={BASE} data-test-id={TEST_ID}>
+        <ol className={ELEMENTS}>
           {this.renderElements()}
         </ol>
       </div>
