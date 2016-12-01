@@ -24,6 +24,7 @@ describe('<Rule />', function() {
     category: 'type',
     parameters: {type: 9},  // type "date"
     nullable: false,
+    serverVersion: '3.4.0',
     isWritable: true,
     validate: function() {}
   };
