@@ -202,7 +202,7 @@ class EditableValue extends React.Component {
       <input
         ref={(c) => this._node = c}
         type="text"
-        size={inputSize(this.element.currentValue)}
+        size={inputSize(this.element.currentValue, this.element.currentType)}
         className={this.style()}
         onBlur={this.handleBlur.bind(this)}
         onFocus={this.handleFocus.bind(this)}
