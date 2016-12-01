@@ -1,6 +1,16 @@
 const React = require('react');
 
 /**
+ * The class name.
+ */
+const CLASS = 'hotspot'
+
+/**
+ * The icon class name.
+ */
+const ICON = 'fa fa-plus-circle';
+
+/**
  * Component for add element hotspot.
  */
 class Hotspot extends React.Component {
@@ -74,7 +84,9 @@ class Hotspot extends React.Component {
    */
   render() {
     return (
-      <div className="hotspot" onClick={this.handleClick.bind(this)}></div>
+      <div className={CLASS} onClick={this.handleClick.bind(this)}>
+        <i className={ICON} aria-hidden />
+      </div>
     );
   }
 }

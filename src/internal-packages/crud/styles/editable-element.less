@@ -135,7 +135,22 @@
     display: inline-block;
     height: 10px;
     width: 50%;
-    cursor: text;
+    cursor: pointer;
+    vertical-align: middle;
+
+    i {
+      color: @gray3;
+      position: absolute;
+      display: none;
+      right: 110px;
+      z-index: 100;
+    }
+
+    &:hover {
+      i {
+        display: inline-block;
+      }
+    }
   }
 
   &-types {
