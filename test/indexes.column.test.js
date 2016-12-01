@@ -43,22 +43,38 @@ describe('<Indexes />', () => {
   context('When indexes are loaded', function() {
     it('has a size column', function() {
       const size = Object.assign({}, sizeTemplate);
-      component = mount(<SizeColumn {...size} />);
+      component = mount(
+        <table><tbody><tr>
+          <SizeColumn {...size} />
+        </tr></tbody></table>
+      );
       expect(component.find('.quantity')).to.have.text('5.1');
     });
     it('has a usage column', function() {
       const usage = Object.assign({}, usageTemplate);
-      component = mount(<UsageColumn {...usage} />);
+      component = mount(
+        <table><tbody><tr>
+          <UsageColumn {...usage} />
+        </tr></tbody></table>
+      );
       expect(component.find('.quantity')).to.have.text('12');
     });
     it('has a size tooltip', function() {
       const size = Object.assign({}, sizeTemplate);
-      component = mount(<SizeColumn {...size} />);
+      component = mount(
+        <table><tbody><tr>
+          <SizeColumn {...size} />
+        </tr></tbody></table>
+      );
       expect(component.find('.progress')).to.have.data('tip', '23.00% compared to largest index');
     });
     it('has a usage tooltip', function() {
       const usage = Object.assign({}, usageTemplate);
-      component = mount(<UsageColumn {...usage} />);
+      component = mount(
+        <table><tbody><tr>
+          <UsageColumn {...usage} />
+        </tr></tbody></table>
+      );
       expect(component.find('.quantity')).to.have.data('tip',
       '12 index hits since index creation or last\n server restart');
     });
