@@ -73,15 +73,12 @@ describe('Compass Functional Test Suite #spectron', function() {
 });
 ```
 
-The listed methods below are all available on a Spectron `client` instance.
+### Commands
 
-### Wait Actions
-
-### Click Actions
-
-### Get Actions
-
-### Input Actions
+- [Wait Commands](https://github.com/10gen/compass/blob/master/test/support/spectron-support.js#L44)
+- [Click Commands](https://github.com/10gen/compass/blob/master/test/support/spectron-support.js#L232)
+- [Get Commands](https://github.com/10gen/compass/blob/master/test/support/spectron-support.js#L545)
+- [Input Commands](https://github.com/10gen/compass/blob/master/test/support/spectron-support.js#L757)
 
 ## Tips
 
@@ -104,3 +101,14 @@ items in the application, such as databases, collections, documents, etc.
 If the tests hang immediately on startup, check that you have no duplicate command
 names being added via `client#addCommand`. This will cause Spectron to hang after
 loading the application without any erros anywhere.
+
+### Timeouts
+
+Most commands in the suite use a default timeout of 10 seconds, set as the
+`TIMEOUT` constant. Operations that take longer use the `LONG_TIMEOUT` constant
+which is 30 seconds. Be careful to note, however, to not use a timeout if at
+all possible. Excessive timeouts within the test can cause the entire block
+to fail if they take too long, resulting in not knowing exactly which command
+in the test failed. As rule rule it's better to fail fast and adjust accordingly,
+or to change the "wait" part of the test to find something appropriate to wait
+on faster.

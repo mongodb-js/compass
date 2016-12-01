@@ -151,7 +151,7 @@ function addWaitCommands(client) {
    */
   client.addCommand('waitForDocumentInsert', function(index) {
     const base = selector('document-list-item');
-    return this.waitForVisible(`${base}:nth-child(${index})`, TIMEOUT);
+    return this.waitForExist(`${base}:nth-child(${index})`, TIMEOUT);
   });
 
   /**
