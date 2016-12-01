@@ -8,10 +8,7 @@ const expect = chai.expect;
 const React = require('react');
 const mount = require('enzyme').mount;
 const SizeColumn = require('../src/internal-packages/indexes/lib/component/size-column');
-const UsageColumn = require('../src/internal-packages/indexes/lib/component/size-column');
-const _ = require('lodash');
-
-// const debug = require('debug')('mongodb-compass:test:indexes');
+const UsageColumn = require('../src/internal-packages/indexes/lib/component/usage-column');
 
 chai.use(chaiEnzyme());
 
@@ -19,13 +16,13 @@ describe('<Indexes />', () => {
   let component;
 
   const sizeTemplate = {
-    size: 5600,
-    relativeSize: 56
+    size: 5200,
+    relativeSize: 23
   };
 
   const usageTemplate = {
-    usageCount: 0,
-    usageSince: 'since Tuesday Nov 29 2016'
+    usage: 12,
+    usageSince: 'Tuesday Nov 29 2016'
   };
 
   let appRegistry = app.appRegistry;
@@ -34,6 +31,7 @@ describe('<Indexes />', () => {
     // Mock the AppRegistry with a new one so tests don't complain about
     // appRegistry.getComponent (i.e. appRegistry being undefined)
     app.appRegistry = new AppRegistry();
+    app.instance = {build: {version: '3.2.0'}};
   });
   afterEach(function() {
     // Restore properties on the global app object,
@@ -43,17 +41,26 @@ describe('<Indexes />', () => {
   });
 
   context('When indexes are loaded', function() {
-    // @KeyboardTsundoku skipping because toFixed from size-column.jsx
-    // is not a function apparently -_-
-    it.skip('has size tooltip', function() {
-      // const size = _.assign(sizeTemplate);
-      // component = mount(<SizeColumn {...size} />);
-      // expect(component.find('.quantity').to.have.text('5.6'));
+    it('has a size column', function() {
+      const size = Object.assign({}, sizeTemplate);
+      component = mount(<SizeColumn {...size} />);
+      expect(component.find('.quantity')).to.have.text('5.1');
     });
-    it.skip('has usage tooltip', function() {
-      // const usage = _.assign(usageTemplate);
-      // component = mount(<UsageColumn {...usage} />);
-      // expect(component.find('.usage .quantity').to.have.text('0'));
+    it('has a usage column', function() {
+      const usage = Object.assign({}, usageTemplate);
+      component = mount(<UsageColumn {...usage} />);
+      expect(component.find('.quantity')).to.have.text('12');
+    });
+    it('has a size tooltip', function() {
+      const size = Object.assign({}, sizeTemplate);
+      component = mount(<SizeColumn {...size} />);
+      expect(component.find('.progress')).to.have.data('tip', '23.00% compared to largest index');
+    });
+    it('has a usage tooltip', function() {
+      const usage = Object.assign({}, usageTemplate);
+      component = mount(<UsageColumn {...usage} />);
+      expect(component.find('.quantity')).to.have.data('tip',
+      '12 index hits since index creation or last\n server restart');
     });
   });
 });

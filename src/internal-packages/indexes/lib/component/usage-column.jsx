@@ -54,7 +54,8 @@ class UsageColumn extends React.Component {
       'data-tip': tooltipText,
       'data-for': TOOLTIP_ID,
       'data-effect': 'solid',
-      'data-border': true
+      'data-border': true,
+      'data-multiline': true
     };
     return (
       <td className="usage-column">
