@@ -66,6 +66,7 @@ describe('<RuleCategoryRange />', function() {
       upperBoundValue: '5'
     },
     nullable: false,
+    serverVersion: '3.4.0',
     validate: function() {}
   };
 
