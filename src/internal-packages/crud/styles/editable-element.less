@@ -133,9 +133,23 @@
 
   .hotspot {
     display: inline-block;
-    height: 10px;
-    width: 50%;
-    cursor: text;
+    height: 15px;
+    width: 100%;
+    cursor: pointer;
+    vertical-align: middle;
+
+    i {
+      color: #196F3D;
+      display: none;
+      z-index: 100;
+      padding-left: 5px;
+    }
+
+    &:hover {
+      i {
+        display: inline-block;
+      }
+    }
   }
 
   &-types {
