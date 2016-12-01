@@ -67,6 +67,7 @@ describe('<RuleCategoryRange />', function() {
     },
     nullable: false,
     serverVersion: '3.4.0',
+    isWritable: true,
     validate: function() {}
   };
 
