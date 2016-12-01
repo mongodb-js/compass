@@ -2,6 +2,9 @@ const _ = require('lodash');
 const format = require('util').format;
 const React = require('react');
 const openIndexHelpLink = require('../index-link-helper');
+const ReactTooltip = require('react-tooltip');
+
+const TOOLTIP_ID = 'index-property';
 
 /**
  * Component for the property column.
@@ -50,16 +53,24 @@ class PropertyColumn extends React.Component {
    * @returns {React.Component} The property component.
    */
   renderProperty(prop) {
+    const tooltipOptions = {
+      'data-for': TOOLTIP_ID,
+      'data-effect': 'solid',
+      'data-border': true
+    };
+
     if (prop === 'ttl') {
+      tooltipOptions['data-tip'] = this._ttlTooltip();
       return (
-        <div key={prop} className="property" data-toggle="tooltip" title={this._ttlTooltip()}>
+        <div {...tooltipOptions} key={prop} className="property">
           {prop}
           {this._link()}
         </div>
       );
     } else if (prop === 'partial') {
+      tooltipOptions['data-tip'] = this._partialTooltip();
       return (
-        <div key={prop} className="property" data-toggle="tooltip" title={this._partialTooltip()}>
+        <div {...tooltipOptions} key={prop} className="property">
           {prop}
           {this._link()}
         </div>
@@ -86,6 +97,7 @@ class PropertyColumn extends React.Component {
       <td className="property-column">
         <div className="properties">
           {properties}
+          <ReactTooltip id={TOOLTIP_ID} />
           {this.renderCardinality()}
         </div>
       </td>
