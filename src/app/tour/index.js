@@ -73,7 +73,7 @@ var TourView = View.extend({
     title: {
       deps: ['previousVersion'],
       fn: function() {
-        return this.previousVersion === '0.0.0' ?
+        return (this.previousVersion === '0.0.0' || process.env.NODE_ENV === 'testing') ?
           'Welcome to MongoDB Compass' : 'What\'s New in MongoDB Compass';
       }
     }
