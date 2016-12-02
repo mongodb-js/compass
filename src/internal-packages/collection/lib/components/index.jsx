@@ -33,8 +33,6 @@ class Collection extends React.Component {
     this.Validation = app.appRegistry.getComponent('Validation.Validation');
 
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
-    this.ValidationActions = app.appRegistry.getAction('Validation.Actions');
-    this.loadIndexes = app.appRegistry.getAction('Indexes.LoadIndexes');
 
     NamespaceStore.listen((ns) => {
       if (ns && toNS(ns).collection) {
@@ -46,19 +44,13 @@ class Collection extends React.Component {
   }
 
   onTabClicked(idx) {
-    // proceed if active tab hasn't changed
+    // Only proceed if the active tab has changed; prevent multiple clicks
     if (this.state.activeTab === idx) {
       return;
     }
 
     this.CollectionStore.setActiveTab(idx);
     this.setState({activeTab: this.CollectionStore.getActiveTab()});
-
-    if (idx === TAB_VIEW_MAP.validation) {
-      this.ValidationActions.fetchValidationRules();
-    } else if (idx === TAB_VIEW_MAP.indexes) {
-      this.loadIndexes();
-    }
   }
 
   showCollection() {

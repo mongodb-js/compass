@@ -1,3 +1,4 @@
+const app = require('ampersand-app');
 const Reflux = require('reflux');
 const QueryStore = require('./query-store');
 const StateMixin = require('reflux-state-mixin');
@@ -20,6 +21,7 @@ const QueryChangedStore = Reflux.createStore({
    */
   init: function() {
     QueryStore.listen(this.onQueryStoreChanged.bind(this));
+    this.loadIndexes = app.appRegistry.getAction('Indexes.LoadIndexes');
   },
 
   /**
@@ -55,6 +57,9 @@ const QueryChangedStore = Reflux.createStore({
         project: state.project,
         maxTimeMS: state.maxTimeMS
       });
+
+      // reload indexes if this convenience store has changed
+      this.loadIndexes();
     }
   },
 
