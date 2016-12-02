@@ -2,6 +2,9 @@ const Reflux = require('reflux');
 const QueryStore = require('./query-store');
 const StateMixin = require('reflux-state-mixin');
 
+// By-passing ampersand-app because of poor handling with store tests
+const IndexesActions = require('../../../indexes/lib/action/index-actions');
+
 const _ = require('lodash');
 
 const debug = require('debug')('mongodb-compass:stores:query-changed');
@@ -55,6 +58,9 @@ const QueryChangedStore = Reflux.createStore({
         project: state.project,
         maxTimeMS: state.maxTimeMS
       });
+
+      // reload indexes if this convenience store has changed
+      IndexesActions.loadIndexes();
     }
   },
 

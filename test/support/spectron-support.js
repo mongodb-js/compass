@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const semver = require('semver');
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 const assert = require('assert');
@@ -1005,7 +1006,19 @@ function quitCompass(app, done) {
   });
 }
 
+/**
+ * Determine if index usage is enabled in the server version.
+ *
+ * @param {String} version - The server version.
+ *
+ * @returns {Boolean} If index usage is available.
+ */
+function isIndexUsageEnabled(version) {
+  return semver.gte(version, '3.2.0');
+}
+
 module.exports.launchCompass = launchCompass;
 module.exports.quitCompass = quitCompass;
+module.exports.isIndexUsageEnabled = isIndexUsageEnabled;
 module.exports.TIMEOUT = TIMEOUT;
 module.exports.LONG_TIMEOUT = LONG_TIMEOUT;

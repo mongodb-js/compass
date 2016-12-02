@@ -5,6 +5,7 @@ const IndexModel = require('mongodb-index-model');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const ReadPreference = require('mongodb').ReadPreference;
 const toNS = require('mongodb-ns');
+const Actions = require('../action/index-actions');
 
 /**
  * The default read preference.
@@ -21,6 +22,7 @@ const LoadIndexesStore = Reflux.createStore({
    */
   init: function() {
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
+    this.listenTo(Actions.loadIndexes, this.loadIndexes);
     NamespaceStore.listen((ns) => {
       if (ns && toNS(ns).collection) {
         this.loadIndexes();

@@ -1,6 +1,6 @@
 process.env.NODE_ENV = 'testing';
 
-const { launchCompass, quitCompass } = require('./support/spectron-support');
+const { launchCompass, quitCompass, isIndexUsageEnabled } = require('./support/spectron-support');
 
 describe('Compass Functional Test Suite #spectron', function() {
   this.slow(30000);
@@ -264,6 +264,15 @@ describe('Compass Functional Test Suite #spectron', function() {
     });
 
     context('when viewing a collection', function() {
+      let serverVersion;
+
+      before(function(done) {
+        client.getSidebarInstanceVersion().then(function(value) {
+          serverVersion = value.replace('Community version ', '');
+          done();
+        });
+      });
+
       it('displays the collection view', function() {
         return client
           .clickCollectionInSidebar('music.artists')
@@ -406,7 +415,9 @@ describe('Compass Functional Test Suite #spectron', function() {
         it('renders the index usages', function() {
           return client
             .getIndexUsages()
-            .should.eventually.equal('0');
+            .should
+            .eventually
+            .equal(isIndexUsageEnabled(serverVersion) ? '6' : '0');
         });
 
         it('renders the index properties', function() {

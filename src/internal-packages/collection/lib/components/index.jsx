@@ -35,6 +35,11 @@ class Collection extends React.Component {
   }
 
   onTabClicked(idx) {
+    // Only proceed if the active tab has changed; prevent multiple clicks
+    if (this.state.activeTab === idx) {
+      return;
+    }
+
     this.CollectionStore.setActiveTab(idx);
     this.setState({activeTab: this.CollectionStore.getActiveTab()});
   }
