@@ -32,16 +32,22 @@
     width: 100%;
     cursor: pointer;
     vertical-align: middle;
+    display: inline-block;
+    margin-top: 5px;
 
-    i {
-      color: #196F3D;
+    .btn {
       display: none;
-      z-index: 100;
-      padding-left: 22px;
+      font-size: 9px;
+      padding: 0.5px 5px 0.5px 5px;
+
+      i {
+        z-index: 100;
+        padding-left: 5px;
+      }
     }
 
     &:hover {
-      i {
+      .btn {
         display: inline-block;
       }
     }

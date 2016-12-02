@@ -132,22 +132,13 @@
   }
 
   .hotspot {
-    display: inline-block;
-    height: 15px;
-    width: 100%;
-    cursor: pointer;
-    vertical-align: middle;
+    margin: 0;
+  }
 
-    i {
-      color: #196F3D;
-      display: none;
-      z-index: 100;
-      padding-left: 5px;
-    }
-
-    &:hover {
-      i {
-        display: inline-block;
+  &:first-child { 
+    .hotspot { 
+      .btn { 
+        margin-left: 5px;
       }
     }
   }

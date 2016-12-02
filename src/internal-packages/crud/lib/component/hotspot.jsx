@@ -1,14 +1,19 @@
 const React = require('react');
 
 /**
- * The class name.
+ * The hotspot class name.
  */
 const CLASS = 'hotspot';
 
 /**
+ * The button class name.
+ */
+const BUTTONCLASS = 'btn btn-default btn-xs';
+
+/**
  * The icon class name.
  */
-const ICON = 'fa fa-plus-circle';
+const ICON = 'fa fa-plus';
 
 /**
  * Component for add element hotspot.
@@ -85,7 +90,10 @@ class Hotspot extends React.Component {
   render() {
     return (
       <div className={CLASS} onClick={this.handleClick.bind(this)}>
-        <i className={ICON} aria-hidden />
+        <span className={BUTTONCLASS}>
+          ADD
+          <i className={ICON} />
+        </span>
       </div>
     );
   }
