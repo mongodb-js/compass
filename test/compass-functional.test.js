@@ -406,7 +406,7 @@ describe('Compass Functional Test Suite #spectron', function() {
         it('renders the index usages', function() {
           return client
             .getIndexUsages()
-            .should.eventually.equal('0');
+            .should.eventually.equal('6');
         });
 
         it('renders the index properties', function() {

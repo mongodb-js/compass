@@ -4,15 +4,6 @@ const semver = require('semver');
 const toNS = require('mongodb-ns');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 
-// tab to view mapping
-const TAB_VIEW_MAP = {
-  schema: 0,
-  documents: 1,
-  indexes: 2,
-  explain: 3,
-  validation: 4
-};
-
 class Collection extends React.Component {
   constructor(props) {
     super(props);

@@ -1,7 +1,9 @@
-const app = require('ampersand-app');
 const Reflux = require('reflux');
 const QueryStore = require('./query-store');
 const StateMixin = require('reflux-state-mixin');
+
+// By-passing ampersand-app because of poor handling with store tests
+const IndexesActions = require('../../../indexes/lib/action/index-actions');
 
 const _ = require('lodash');
 
@@ -21,7 +23,6 @@ const QueryChangedStore = Reflux.createStore({
    */
   init: function() {
     QueryStore.listen(this.onQueryStoreChanged.bind(this));
-    this.loadIndexes = app.appRegistry.getAction('Indexes.LoadIndexes');
   },
 
   /**
@@ -59,7 +60,7 @@ const QueryChangedStore = Reflux.createStore({
       });
 
       // reload indexes if this convenience store has changed
-      this.loadIndexes();
+      IndexesActions.loadIndexes();
     }
   },
 
