@@ -1,4 +1,5 @@
 const React = require('react');
+const Element = require('hadron-document').Element;
 
 /**
  * The hotspot class name.
@@ -8,12 +9,17 @@ const CLASS = 'hotspot';
 /**
  * The button class name.
  */
-const BUTTONCLASS = 'btn btn-default btn-xs';
+const BUTTON_CLASS = 'btn btn-default btn-xs';
 
 /**
  * The icon class name.
  */
 const ICON = 'fa fa-plus';
+
+/**
+ * The add text.
+ */
+const ADD = 'ADD';
 
 /**
  * Component for add element hotspot.
@@ -27,59 +33,58 @@ class Hotspot extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.element = props.element;
-  }
-
-  /**
-   * Never needs to re-render.
-   *
-   * @returns {Boolean} false.
-   */
-  shouldComponentUpdate() {
-    return false;
+    this.state = { actionable: this.isActionable() };
+    this.props.element.on(Element.Events.Edited, this.handleEdit.bind(this));
+    this.props.element.on(Element.Events.Added, this.handleEdit.bind(this));
+    this.props.element.on(Element.Events.Removed, this.handleEdit.bind(this));
   }
 
   /**
    * When clicking on a hotspot we append or remove on the parent.
    */
   handleClick() {
-    this.element.next();
+    this.props.element.next();
   }
 
   /**
-   * Get the last element for the base element.
-   *
-   * @param {Element} baseElement - The base element.
-   *
-   * @returns {Element} The last element.
+   * Determines if the state needs to change to display the add button or not.
    */
-  lastElement(baseElement) {
-    return baseElement.elements[baseElement.elements.length - 1];
-  }
-
-  /**
-   * Is the element removable?
-   *
-   * @param {Element} element - The element.
-   *
-   * @returns {Boolean} if the element must be removed.
-   */
-  isRemovable(element) {
-    if (element.parentElement && element.parentElement.type === 'Array') {
-      return element.currentValue === '';
+  handleEdit() {
+    if (this.state.actionable && !this.isActionable()) {
+      this.setState({ actionable: false });
+    } else if (!this.state.actionable && this.isActionable()) {
+      this.setState({ actionable: true });
     }
-    return element.isBlank();
   }
 
   /**
-   * Is the element actionable.
+   * Determine if the hotspot is actionable.
    *
-   * @param {Element} element - If the element is actionable.
-   *
-   * @returns {Boolean} If the element is actionable.
+   * @returns {Boolean} If the hotspot is actionable.
    */
-  isActionable(element) {
-    return element.currentKey !== '' || element.currentValue !== '';
+  isActionable() {
+    const element = this.props.element;
+    if (element.isRoot()) {
+      const lastElement = element.elements.lastElement;
+      return !(lastElement && lastElement.isBlank());
+    }
+    return !element.isBlank();
+  }
+
+  /**
+   * Render the add button.
+   *
+   * @returns {React.Component} The add button.
+   */
+  renderButton() {
+    if (this.state.actionable) {
+      return (
+        <span className={BUTTON_CLASS}>
+          {ADD}
+          <i className={ICON} />
+        </span>
+      );
+    }
   }
 
   /**
@@ -90,10 +95,7 @@ class Hotspot extends React.Component {
   render() {
     return (
       <div className={CLASS} onClick={this.handleClick.bind(this)}>
-        <span className={BUTTONCLASS}>
-          ADD
-          <i className={ICON} />
-        </span>
+        {this.renderButton()}
       </div>
     );
   }
