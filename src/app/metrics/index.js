@@ -102,13 +102,20 @@ module.exports = function() {
     // enable/disable event tracking
     metrics.trackers.get('ga').enabled = enabled;
     metrics.trackers.get('intercom').enabled = enabled;
+    if (enabled && !app.preferences.enableFeedbackPanel) {
+      document.querySelector('#intercom-container').classList.add('hidden');
+    }
     // metrics.trackers.get('mixpanel').enabled = enabled;
   });
   app.preferences.on('change:enableFeedbackPanel', function(prefs, enabled) {
     // enable/disable product feedback
     metrics.trackers.get('intercom').panelEnabled = enabled;
-    if (!enabled && window.Intercom) {
-      window.Intercom('hide');
+    if (Window && document.querySelector('#intercom-container')) {
+      if (enabled) {
+        document.querySelector('#intercom-container').classList.remove('hidden');
+      } else {
+        document.querySelector('#intercom-container').classList.add('hidden');
+      }
     }
   });
   app.preferences.on('change:trackErrors', function(prefs, enabled) {
