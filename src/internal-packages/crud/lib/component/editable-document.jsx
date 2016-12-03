@@ -309,7 +309,9 @@ class EditableDocument extends React.Component {
           editing={this.state.editing} />
       ));
     }
-    components.push(<Hotspot key="hotspot" element={this.doc} />);
+    if (this.state.editing) {
+      components.push(<Hotspot key="document-hotspot" element={this.doc} />);
+    }
     return components;
   }
 

@@ -277,7 +277,7 @@ function addClickCommands(client) {
     const base = selector('close-privacy-settings-button');
     return this
       .click(base)
-      .waitForVisible(base, true)
+      .waitForVisible(base, TIMEOUT, true)
       .waitUntil(function() {
         return this.getText('div[data-hook=optin-container]').then(function(text) {
           return text.length === 0;

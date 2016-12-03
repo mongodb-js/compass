@@ -5,15 +5,9 @@
   padding-left: 1px;
 
   &-is-string {
-    color: steelblue;
     white-space: pre-line;
     word-break: break-all;
-    &::before {
-      content: "\"";
-    }
-    &::after {
-      content: "\"";
-    }
+    padding-right: 0px;
   }
 
   &-is-int32 {
@@ -50,15 +44,6 @@
     }
   }
 
-  &-is-code {
-    &::before {
-      content: "Code('";
-    }
-    &::after {
-      content: "')";
-    }
-  }
-
   &-is-editing {
     box-shadow: 2px 5px 8px rgba(0,0,0,0.2);
     border: 1px solid @gray3;
@@ -66,5 +51,17 @@
     z-index: 10;
     margin-top: -1px;
     margin-bottom: -1px;
+  }
+
+  &-wrapper {
+    &-is-string {
+      color: steelblue;
+      &::before {
+        content: "\"";
+      }
+      &::after {
+        content: "\"";
+      }
+    }
   }
 }
