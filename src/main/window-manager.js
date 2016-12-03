@@ -196,12 +196,12 @@ function showCompassOverview() {
   AppMenu.showCompassOverview();
 }
 
-function showShareSubmenu() {
-  AppMenu.showShare();
+function showCollectionSubmenu() {
+  AppMenu.showCollection();
 }
 
-function hideShareSubmenu() {
-  AppMenu.hideShare();
+function hideCollectionSubmenu() {
+  AppMenu.hideCollection();
 }
 
 /**
@@ -225,8 +225,8 @@ ipc.respondTo({
   'app:show-connect-window': showConnectWindow,
   'app:show-help-window': showHelpWindow,
   'window:show-about-dialog': showAboutDialog,
-  'window:show-share-submenu': showShareSubmenu,
-  'window:hide-share-submenu': hideShareSubmenu,
+  'window:show-collection-submenu': showCollectionSubmenu,
+  'window:hide-collection-submenu': hideCollectionSubmenu,
   'window:show-compass-overview-submenu': showCompassOverview,
   'window:renderer-ready': rendererReady
 });

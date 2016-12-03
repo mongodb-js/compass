@@ -22,7 +22,7 @@ class TabNavBar extends React.Component {
 
   onTabClicked(idx, evt) {
     evt.preventDefault();
-    this.setState({activeTabIndex: idx});
+    this.setState({ activeTabIndex: idx });
     if (this.props.onTabClicked) {
       this.props.onTabClicked(idx, this.props.tabs[idx]);
     }

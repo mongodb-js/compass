@@ -3,7 +3,6 @@ const ipc = require('hadron-ipc');
 const React = require('react');
 const SidebarCollection = require('./sidebar-collection');
 const { NamespaceStore } = require('hadron-reflux-store');
-// const debug = require('debug')('mongodb-compass:sidebar');
 
 class SidebarDatabase extends React.Component {
   constructor() {
@@ -38,9 +37,9 @@ class SidebarDatabase extends React.Component {
 
   handleDBClick(db) {
     if (NamespaceStore.ns !== db) {
-      ipc.call('window:hide-share-submenu');
       this.CollectionStore.setCollection({});
       NamespaceStore.ns = db;
+      ipc.call('window:hide-collection-submenu');
     }
   }
 
