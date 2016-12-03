@@ -138,10 +138,6 @@ const SchemaStore = Reflux.createStore({
    * This function is called when the collection filter changes.
    */
   startSampling() {
-    if (ipc.call) {
-      ipc.call('window:hide-share-submenu');
-    }
-
     // we are not using state to guard against running this simultaneously
     if (this.isNamespaceChanged) {
       return;
@@ -196,9 +192,6 @@ const SchemaStore = Reflux.createStore({
         samplingProgress: 100,
         schema: _schema
       });
-      if (ipc.call) {
-        ipc.call('window:show-share-submenu');
-      }
       this.stopSampling();
     };
 

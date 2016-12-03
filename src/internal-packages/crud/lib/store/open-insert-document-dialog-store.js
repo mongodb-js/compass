@@ -1,4 +1,6 @@
+const ipc = require('hadron-ipc');
 const Reflux = require('reflux');
+const ObjectId = require('bson').ObjectId;
 const Actions = require('../actions');
 const HadronDocument = require('hadron-document');
 
@@ -11,7 +13,10 @@ const OpenInsertDocumentDialogStore = Reflux.createStore({
    * Initialize the reset document list store.
    */
   init: function() {
-    this.listenTo(Actions.openInsertDocumentDialog, this.openInsertDocumentDialog);
+    this.listenTo(Actions.openInsertDocumentDialog, this.openInsertDocumentDialog.bind(this));
+    ipc.on('window:menu-open-insert-document-dialog', () => {
+      this.openInsertDocumentDialog({ _id: new ObjectId(), '': '' }, false);
+    });
   },
 
   /**
