@@ -1,7 +1,7 @@
 const app = require('ampersand-app');
 const React = require('react');
 const Modal = require('react-bootstrap').Modal;
-const TextButton = require('hadron-app-registry').TextButton;
+const { TextButton } = require('hadron-react-buttons');
 const Actions = require('../action/databases-actions');
 const DropDatabaseStore = require('../store/drop-database-store');
 

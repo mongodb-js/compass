@@ -194,6 +194,8 @@ class EditableValue extends React.Component {
 
   /**
    * Get the style for the input wrapper.
+   *
+   * @returns {String} The class name.
    */
   wrapperStyle() {
     return `${VALUE_CLASS}-wrapper-is-${this.element.currentType.toLowerCase()}`;

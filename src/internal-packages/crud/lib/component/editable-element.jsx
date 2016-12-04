@@ -91,7 +91,7 @@ class EditableElement extends React.Component {
     this.element.on(Element.Events.Edited, this.handleChange.bind(this));
     this.element.on(Element.Events.Removed, this.handleChange.bind(this));
     this.element.on(Element.Events.Reverted, this.handleChange.bind(this));
-    this.state = { expanded: false };
+    this.state = { expanded: this.props.expandAll };
   }
 
   /**
@@ -353,7 +353,8 @@ EditableElement.propTypes = {
   editing: React.PropTypes.bool,
   element: React.PropTypes.object.isRequired,
   index: React.PropTypes.number,
-  indent: React.PropTypes.number
+  indent: React.PropTypes.number,
+  expandAll: React.PropTypes.bool
 };
 
 module.exports = EditableElement;

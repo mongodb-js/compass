@@ -6,6 +6,8 @@ const ConnectionCollection = require('../models/connection-collection');
  * This migration removes and then re-saves all connections in order to trigger
  * the secureCondition of the "splice" storage backend again, which wasn't correctly
  * working in 1.4.1, see COMPASS-426.
+ *
+ * @param {Function} done - The done callback.
  */
 function rewriteStoredConnections(done) {
   debug('migration: rewriteStoredConnections');

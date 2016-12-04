@@ -3,7 +3,7 @@ const app = require('ampersand-app');
 const CollectionsActions = require('../actions/collections-actions');
 const CreateCollectionDialog = require('./create-collection-dialog');
 const DropCollectionDialog = require('./drop-collection-dialog');
-const TextButton = require('hadron-app-registry').TextButton;
+const { TextButton } = require('hadron-react-buttons');
 const numeral = require('numeral');
 
 const _ = require('lodash');

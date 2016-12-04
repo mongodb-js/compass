@@ -1,5 +1,5 @@
 const React = require('react');
-const IconButton = require('hadron-app-registry').IconButton;
+const { IconButton } = require('hadron-react-buttons');
 
 /**
  * Component for actions on the document.

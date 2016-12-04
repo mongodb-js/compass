@@ -52,7 +52,7 @@ const Document = app.appRegistry.getComponent('CRUD.Document');
 
 class MyComponent extends React.Component {
   render() {
-    return (<Document doc={this.props.document} preExpanded />);
+    return (<Document doc={this.props.document} expandAll />);
   }
 }
 ```

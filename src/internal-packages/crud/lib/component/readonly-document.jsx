@@ -1,5 +1,6 @@
 const React = require('react');
-const ElementFactory = require('hadron-app-registry').ElementFactory;
+const HadronDocument = require('hadron-document');
+const Element = require('./element');
 
 /**
  * The base class.
@@ -22,12 +23,28 @@ const TEST_ID = 'readonly-document';
 class ReadonlyDocument extends React.Component {
 
   /**
+   * Initialize the readonly document.
+   *
+   * @param {Object} props - The properties.
+   */
+  constructor(props) {
+    super(props);
+    this.doc = new HadronDocument(props.doc);
+  }
+
+  /**
    * Get the elements for the document.
    *
    * @returns {Array} The elements.
    */
   renderElements() {
-    return ElementFactory.elements(this.props.doc, this.props.preExpanded || false);
+    const components = [];
+    for (const element of this.doc.elements) {
+      components.push((
+        <Element key={element.uuid} element={element} expandAll={this.props.expandAll} />
+      ));
+    }
+    return components;
   }
 
   /**
@@ -50,7 +67,7 @@ ReadonlyDocument.displayName = 'ReadonlyDocument';
 
 ReadonlyDocument.propTypes = {
   doc: React.PropTypes.object.isRequired,
-  preExpanded: React.PropTypes.bool
+  expandAll: React.PropTypes.bool
 };
 
 module.exports = ReadonlyDocument;
