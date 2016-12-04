@@ -4,6 +4,7 @@ const Reflux = require('reflux');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const HadronDocument = require('hadron-document');
 const Element = require('hadron-document').Element;
+const { IconButton } = require('hadron-react-buttons');
 const Actions = require('../actions');
 const EditableElement = require('./editable-element');
 const DocumentActions = require('./document-actions');
@@ -27,6 +28,11 @@ const ELEMENTS = `${BASE}-elements`;
 const TEST_ID = 'editable-document';
 
 /**
+ * Hotspot class.
+ */
+const HOTSPOT = `${BASE}-hostspot`;
+
+/**
  * Component for a single editable document in a list of documents.
  */
 class EditableDocument extends React.Component {
@@ -40,7 +46,7 @@ class EditableDocument extends React.Component {
     super(props);
     this.doc = this.loadDocument(props.doc);
 
-    this.state = { editing: false, deleting: false, deleteFinished: false };
+    this.state = { editing: false, deleting: false, deleteFinished: false, expandAll: false };
 
     // Actions need to be scoped to the single document component and not
     // global singletons.
@@ -249,6 +255,9 @@ class EditableDocument extends React.Component {
     this.setState({ deleting: false });
   }
 
+  /**
+   * Handle the edit click.
+   */
   handleEdit() {
     this.setState({ editing: true });
   }
@@ -258,6 +267,14 @@ class EditableDocument extends React.Component {
    */
   handleModify() {
     this.setState({});
+  }
+
+  handleExpandAll() {
+    this.setState({ expandAll: true });
+  }
+
+  handleCollapseAll() {
+    this.setState({ expandAll: false });
   }
 
   /**
@@ -287,7 +304,9 @@ class EditableDocument extends React.Component {
         <DocumentActions
           edit={this.handleEdit.bind(this)}
           remove={this.handleDelete.bind(this)}
-          clone={this.handleClone.bind(this)} />
+          clone={this.handleClone.bind(this)}
+          expandAll={this.handleExpandAll.bind(this)}
+          collapseAll={this.handleCollapseAll.bind(this)} />
       );
     }
   }
@@ -306,11 +325,12 @@ class EditableDocument extends React.Component {
           key={element.uuid}
           element={element}
           indent={0}
-          editing={this.state.editing} />
+          editing={this.state.editing}
+          expandAll={this.state.expandAll} />
       ));
     }
     if (this.state.editing) {
-      components.push(<Hotspot key="document-hotspot" element={this.doc} />);
+      components.push(<Hotspot key={HOTSPOT} element={this.doc} />);
     }
     return components;
   }

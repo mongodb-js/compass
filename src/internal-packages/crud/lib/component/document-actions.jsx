@@ -15,6 +15,18 @@ class DocumentActions extends React.Component {
     return (
       <div className="document-actions">
         <IconButton
+          title="Expand All"
+          clickHandler={this.props.expandAll}
+          className="document-actions-button btn btn-default btn-xs"
+          iconClassName="document-actions-button-icon fa fa-angle-double-down"
+          dataTestId="expand-all-button" />
+        <IconButton
+          title="Collapse All"
+          clickHandler={this.props.collapseAll}
+          className="document-actions-button btn btn-default btn-xs"
+          iconClassName="document-actions-button-icon fa fa-angle-double-up"
+          dataTestId="collapse-all-button" />
+        <IconButton
           title="Edit Document"
           className="document-actions-button btn btn-default btn-xs"
           iconClassName="document-actions-button-icon fa fa-pencil"
@@ -42,7 +54,9 @@ DocumentActions.displayName = 'DocumentActions';
 DocumentActions.propTypes = {
   edit: React.PropTypes.func.isRequired,
   remove: React.PropTypes.func.isRequired,
-  clone: React.PropTypes.func.isRequired
+  clone: React.PropTypes.func.isRequired,
+  expandAll: React.PropTypes.func.isRequired,
+  collapseAll: React.PropTypes.func.isRequired
 };
 
 module.exports = DocumentActions;
