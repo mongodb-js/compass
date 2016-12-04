@@ -171,7 +171,8 @@ class Element extends React.Component {
 Element.displayName = 'Element';
 
 Element.propTypes = {
-  element: React.PropTypes.any.isRequired
+  element: React.PropTypes.any.isRequired,
+  expandAll: React.PropTypes.bool
 };
 
 module.exports = Element;

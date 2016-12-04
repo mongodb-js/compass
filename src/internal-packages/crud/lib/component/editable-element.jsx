@@ -353,7 +353,8 @@ EditableElement.propTypes = {
   editing: React.PropTypes.bool,
   element: React.PropTypes.object.isRequired,
   index: React.PropTypes.number,
-  indent: React.PropTypes.number
+  indent: React.PropTypes.number,
+  expandAll: React.PropTypes.bool
 };
 
 module.exports = EditableElement;

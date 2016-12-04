@@ -8,6 +8,8 @@ const FORMAT = 'YYYY-MM-DD HH:mm:ss.SSS';
 /**
  * Get the size for the string value.
  *
+ * @param {Object} value - The value.
+ *
  * @return {Number} The size.
  */
 function size(value) {
@@ -19,6 +21,7 @@ function size(value) {
  * Get the size value for an input field when editing.
  *
  * @param {Object} value - The value.
+ * @param {String} type - The type.
  *
  * @returns {Integer} The size.
  */
