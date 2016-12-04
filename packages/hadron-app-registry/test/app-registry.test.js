@@ -1,7 +1,5 @@
 'use strict';
 
-require('./helper');
-
 const expect = require('chai').expect;
 const Action = require('../lib/actions');
 const AppRegistry = require('../lib/app-registry');

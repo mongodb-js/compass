@@ -16,8 +16,6 @@
   "scripts": {
     "ci": "npm test",
     "fmt": "mongodb-js-fmt ./*.js ./test/*.js",
-    "prepublish": "babel ./src --out-dir ./lib --presets react",
-    "pretest": "babel ./src --out-dir ./lib --presets react",
     "test": "mocha --recursive",
     "check": "mongodb-js-precommit"
   },
@@ -25,25 +23,15 @@
     "check"
   ],
   "dependencies": {
-    "babel-preset-react": "^6.5.0",
-    "babel-register": "^6.5.2",
     "debug": "^2.2.0",
-    "hadron-type-checker": "^0.15.0",
-    "lodash": "^4.6.1",
-    "moment": "^2.13.0",
-    "react": "^15.3.0",
-    "react-dom": "^15.3.0",
     "reflux": "^0.4.0"
   },
   "devDependencies": {
-    "babel-cli": "^6.9.0",
-    "bson": "^0.5.4",
     "chai": "^3.4.1",
     "eslint-config-mongodb-js": "^2.2.0",
-    "mocha": "^2.3.4",
+    "mocha": "^3.2.0",
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^0.2.9",
-    "pre-commit": "^1.1.2",
-    "react-addons-test-utils": "^15.3.0"
+    "pre-commit": "^1.1.2"
   }
 }
