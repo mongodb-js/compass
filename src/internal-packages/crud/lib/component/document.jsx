@@ -19,7 +19,7 @@ class Document extends React.Component {
     return (
       <ReadonlyDocument
         doc={this.props.doc}
-        preExpanded={this.props.preExpanded} />
+        expandAll={this.props.expandAll} />
     );
   }
 }
@@ -29,7 +29,7 @@ Document.displayName = 'Document';
 Document.propTypes = {
   doc: React.PropTypes.object.isRequired,
   editable: React.PropTypes.bool,
-  preExpanded: React.PropTypes.bool
+  expandAll: React.PropTypes.bool
 };
 
 module.exports = Document;

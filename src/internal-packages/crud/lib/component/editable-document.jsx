@@ -362,7 +362,7 @@ EditableDocument.displayName = 'EditableDocument';
 EditableDocument.propTypes = {
   doc: React.PropTypes.object.isRequired,
   editable: React.PropTypes.bool,
-  preExpanded: React.PropTypes.bool
+  expandAll: React.PropTypes.bool
 };
 
 module.exports = EditableDocument;

@@ -1,8 +1,6 @@
 const React = require('react');
 const app = require('ampersand-app');
 
-// const debug = require('debug')('mongodb-compass:explain:summary');
-
 class ExplainJSON extends React.Component {
 
   componentWillMount() {
@@ -20,7 +18,7 @@ class ExplainJSON extends React.Component {
         <div className="panel panel-default">
           <div className="panel-body">
             <ol className="document-list">
-              <this.documentComponent doc={this.props.rawExplainObject} preExpanded />
+              <this.documentComponent doc={this.props.rawExplainObject} expandAll />
             </ol>
           </div>
         </div>
