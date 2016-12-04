@@ -4,7 +4,6 @@ const Reflux = require('reflux');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const HadronDocument = require('hadron-document');
 const Element = require('hadron-document').Element;
-const { IconButton } = require('hadron-react-buttons');
 const Actions = require('../actions');
 const EditableElement = require('./editable-element');
 const DocumentActions = require('./document-actions');
