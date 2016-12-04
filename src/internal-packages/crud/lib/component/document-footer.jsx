@@ -1,6 +1,6 @@
 const React = require('react');
 const Element = require('hadron-document').Element;
-const TextButton = require('hadron-app-registry').TextButton;
+const { TextButton } = require('hadron-react-buttons');
 
 /**
  * The progress mode.

@@ -3,7 +3,7 @@ const React = require('react');
 const Modal = require('react-bootstrap').Modal;
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const toNS = require('mongodb-ns');
-const TextButton = require('hadron-app-registry').TextButton;
+const { TextButton } = require('hadron-react-buttons');
 const Actions = require('../actions/collections-actions');
 const DropCollectionStore = require('../stores/drop-collection-store');
 
