@@ -18,13 +18,13 @@ class DocumentActions extends React.Component {
           title="Expand All"
           clickHandler={this.props.expandAll}
           className="document-actions-button btn btn-default btn-xs"
-          iconClassName="document-actions-button-icon fa fa-angle-double-down"
+          iconClassName="document-actions-button-icon fa fa-caret-down"
           dataTestId="expand-all-button" />
         <IconButton
           title="Collapse All"
           clickHandler={this.props.collapseAll}
           className="document-actions-button btn btn-default btn-xs"
-          iconClassName="document-actions-button-icon fa fa-angle-double-up"
+          iconClassName="document-actions-button-icon fa fa-caret-up"
           dataTestId="collapse-all-button" />
         <IconButton
           title="Edit Document"
