@@ -19,8 +19,8 @@ module.exports.configure = function() {
   // open intercom panel when user chooses it from menu
   ipc.on('window:show-intercom-panel', function() {
     /* eslint new-cap: 0 */
-    if (window.Intercom && app.preferences.enableFeedbackPanel) {
-      window.Intercom('show');
+    if (window.Intercom && app.preferences.enableFeedbackPanel && app.preferences.trackUsageStatistics) {
+      document.querySelector('#intercom-container').classList.remove('hidden');
       metrics.track('Intercom Panel', 'used');
     }
   });
