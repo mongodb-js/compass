@@ -193,23 +193,34 @@ class EditableValue extends React.Component {
   }
 
   /**
+   * Get the style for the input wrapper.
+   *
+   * @returns {String} The class name.
+   */
+  wrapperStyle() {
+    return `${VALUE_CLASS}-wrapper-is-${this.element.currentType.toLowerCase()}`;
+  }
+
+  /**
    * Render a single editable value.
    *
    * @returns {React.Component} The element component.
    */
   render() {
     return (
-      <input
-        ref={(c) => this._node = c}
-        type="text"
-        size={inputSize(this.element.currentValue, this.element.currentType)}
-        className={this.style()}
-        onBlur={this.handleBlur.bind(this)}
-        onFocus={this.handleFocus.bind(this)}
-        onChange={this.handleChange.bind(this)}
-        onKeyDown={this.handleKeyDown.bind(this)}
-        onPaste={this.handlePaste.bind(this)}
-        value={this.getValue()} />
+      <span className={this.wrapperStyle()}>
+        <input
+          ref={(c) => this._node = c}
+          type="text"
+          size={inputSize(this.element.currentValue, this.element.currentType)}
+          className={this.style()}
+          onBlur={this.handleBlur.bind(this)}
+          onFocus={this.handleFocus.bind(this)}
+          onChange={this.handleChange.bind(this)}
+          onKeyDown={this.handleKeyDown.bind(this)}
+          onPaste={this.handlePaste.bind(this)}
+          value={this.getValue()} />
+      </span>
     );
   }
 }

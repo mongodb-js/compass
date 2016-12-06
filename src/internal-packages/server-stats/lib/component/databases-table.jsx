@@ -1,6 +1,6 @@
 const React = require('react');
 const app = require('ampersand-app');
-const TextButton = require('hadron-app-registry').TextButton;
+const { TextButton } = require('hadron-react-buttons');
 const DatabasesActions = require('../action/databases-actions');
 const CreateDatabaseDialog = require('./create-database-dialog');
 const DropDatabaseDialog = require('./drop-database-dialog');

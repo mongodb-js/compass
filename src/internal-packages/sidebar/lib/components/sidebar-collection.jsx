@@ -1,6 +1,6 @@
 const app = require('ampersand-app');
 const React = require('react');
-// const debug = require('debug')('mongodb-compass:sidebar:sidebar-collection');
+const ipc = require('hadron-ipc');
 
 const { NamespaceStore } = require('hadron-reflux-store');
 
@@ -24,6 +24,7 @@ class SidebarCollection extends React.Component {
   handleClick() {
     if (NamespaceStore.ns !== this.props._id) {
       this.CollectionStore.setCollection(this.props);
+      ipc.call('window:show-collection-submenu');
     }
   }
 

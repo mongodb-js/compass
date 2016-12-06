@@ -187,10 +187,17 @@ function helpSubMenu() {
   };
 }
 
-function shareSubMenu() {
+function collectionSubMenu() {
   return {
-    label: '&Share',
+    label: '&Collection',
     submenu: [
+      {
+        label: '&Insert Document',
+        accelerator: 'CmdOrCtrl+D',
+        click: function() {
+          ipc.broadcast('window:menu-open-insert-document-dialog');
+        }
+      },
       {
         label: '&Share Schema as JSON',
         accelerator: 'Alt+CmdOrCtrl+S',
@@ -257,8 +264,8 @@ function darwinMenu(menuState) {
   menu.push(editSubMenu());
   menu.push(viewSubMenu());
 
-  if (menuState.showShare) {
-    menu.push(shareSubMenu());
+  if (menuState.showCollection) {
+    menu.push(collectionSubMenu());
   }
 
   menu.push(windowSubMenu());
@@ -273,8 +280,8 @@ function nonDarwinMenu(menuState) {
     viewSubMenu()
   ];
 
-  if (menuState.showShare) {
-    menu.push(shareSubMenu());
+  if (menuState.showCollection) {
+    menu.push(collectionSubMenu());
   }
 
   menu.push(helpSubMenu(menuState.showCompassOverview));
@@ -288,7 +295,7 @@ var MenuState = State.extend({
       type: 'boolean',
       default: false
     },
-    showShare: {
+    showCollection: {
       type: 'boolean',
       default: false
     }
@@ -371,16 +378,16 @@ var AppMenu = (function() {
       Menu.setApplicationMenu(menu);
     },
 
-    hideShare: function() {
-      this.updateMenu('showShare', false);
+    hideCollection: function() {
+      this.updateMenu('showCollection', false);
     },
 
     showCompassOverview: function() {
       this.updateMenu('showCompassOverview', true);
     },
 
-    showShare: function() {
-      this.updateMenu('showShare', true);
+    showCollection: function() {
+      this.updateMenu('showCollection', true);
     },
 
     updateMenu: function(property, val, _window) {

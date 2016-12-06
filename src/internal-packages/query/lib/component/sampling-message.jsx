@@ -1,6 +1,6 @@
 const React = require('react');
 const app = require('ampersand-app');
-const TextButton = require('hadron-app-registry').TextButton;
+const { TextButton } = require('hadron-react-buttons');
 const numeral = require('numeral');
 const pluralize = require('pluralize');
 

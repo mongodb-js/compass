@@ -4,7 +4,7 @@ const OpenInsertDocumentDialogStore = require('../store/open-insert-document-dia
 const InsertDocumentStore = require('../store/insert-document-store');
 const InsertDocument = require('./insert-document');
 const InsertDocumentFooter = require('./insert-document-footer');
-const TextButton = require('hadron-app-registry').TextButton;
+const { TextButton } = require('hadron-react-buttons');
 const Actions = require('../actions');
 
 /**
