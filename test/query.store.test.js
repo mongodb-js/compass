@@ -1,6 +1,8 @@
 /* eslint no-unused-expressions: 0 */
 
+const app = require('ampersand-app');
 const expect = require('chai').expect;
+const IndexesActions = require('../src/internal-packages/indexes/lib/action/index-actions');
 const QueryStore = require('../src/internal-packages/query/lib/store/query-store');
 const QueryChangedStore = require('../src/internal-packages/query/lib/store/query-changed-store');
 const sinon = require('sinon');
@@ -8,9 +10,14 @@ const sinon = require('sinon');
 describe('QueryChangedStore', () => {
   let unsubscribe;
 
+  beforeEach(() => {
+    // Disable IndexesActions.loadIndexes side-effect
+    this.indexesActionsStub = sinon.stub(IndexesActions, 'loadIndexes');
+  });
   afterEach(() => {
     unsubscribe();
     QueryStore.setState(QueryStore.getInitialState());
+    this.indexesActionsStub.restore();
   });
 
   it('triggers when the QueryStore lastExecutedQuery variable changes', (done) => {
