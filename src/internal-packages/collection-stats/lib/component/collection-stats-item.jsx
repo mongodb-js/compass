@@ -38,12 +38,12 @@ class CollectionStatsItem extends React.Component {
   render() {
     return (
       <li className={BASE_CLASS}>
-        <div className={this.props.primary ? PRIMARY_LABEL : LABEL}>
+        <span className={this.props.primary ? PRIMARY_LABEL : LABEL}>
           {this.props.label}
-        </div>
-        <div className={this.props.primary ? PRIMARY_VALUE : VALUE}>
+        </span>
+        <span className={this.props.primary ? PRIMARY_VALUE : VALUE}>
           {this.props.value}
-        </div>
+        </span>
       </li>
     );
   }

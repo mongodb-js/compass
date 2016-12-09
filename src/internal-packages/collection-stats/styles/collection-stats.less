@@ -5,33 +5,22 @@
 }
 
 .collection-stats {
-  position: absolute;
-  right: 20px;
+  display: inline-block;
   text-align: right;
   min-width: 520px;
+  padding-top: 7px;
+  height: 36px;
 
   &-list {
     display: inline-block;
     position: relative;
-    font-weight: 200;
     list-style: none;
     padding: 0 20px 0 0;
-    margin: 0 20px 0 0;
-
-    &::after {
-      content: '';
-      display: block;
-      position: absolute;
-      right: 0;
-      top: 2px;
-      width: 1px;
-      height: 24px;
-      background: @gray7;
-    }
+    margin: 0 0 0 24px;
 
     &:last-child {
       padding: 0;
-      margin: 11px 0 0 0;
+      margin: 0;
 
       &::after {
         display: none;

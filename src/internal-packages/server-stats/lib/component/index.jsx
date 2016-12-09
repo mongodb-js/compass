@@ -34,6 +34,16 @@ class RTSSComponent extends React.Component {
     const databasesView = <Databases />;
     return (
       <div className="RTSS">
+        <header>
+          <h1>
+            <span className="breadcrumb">
+              CHOOSE A DATABASE
+            </span>
+            <span className="breadcrumb">
+              CHOOSE A COLLECTION
+            </span>
+          </h1>
+        </header>
         <this.TabNavBar
           theme="light"
           tabs={['Databases', 'Performance']}

@@ -74,14 +74,14 @@ class SidebarInstanceProperties extends React.Component {
             className="compass-sidebar-instance-hostname">
             {hostnameAndPort}
           </div>
+        </div>
+        <div className="compass-sidebar-stats">
           {sshTunnelViaPort}
           <div
             data-test-id="sidebar-instance-version"
             className="compass-sidebar-instance-version">
             {versionName}
           </div>
-        </div>
-        <div className="compass-sidebar-stats">
           <button
             onClick={this.handleRefresh}
             className="compass-sidebar-refresh-button"

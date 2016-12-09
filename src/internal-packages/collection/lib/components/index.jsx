@@ -10,6 +10,8 @@ class Collection extends React.Component {
 
     this.state = {
       name: '',
+      db: '',
+      col: '',
       showView: this.props.showView || false,
       activeTab: 0
     };
@@ -27,7 +29,7 @@ class Collection extends React.Component {
 
     NamespaceStore.listen((ns) => {
       if (ns && toNS(ns).collection) {
-        this.setState({name: ns, showView: true, activeTab: this.CollectionStore.getActiveTab()});
+        this.setState({name: ns, db: toNS(ns).database, col: toNS(ns).collection, showView: true, activeTab: this.CollectionStore.getActiveTab()});
       } else {
         this.setState({name: '', showView: false, activeTab: 0});
       }
@@ -67,14 +69,15 @@ class Collection extends React.Component {
     return (
       <div className="collection-view clearfix">
         <header>
-          <div className="row">
-            <div className="col-md-6">
-              <h1>{this.state.name}</h1>
-            </div>
-            <div className="col-md-6">
-              <this.Stats />
-            </div>
-          </div>
+          <h1>
+            <span className="breadcrumb">
+              DATABASE <span>{this.state.db}</span>
+            </span>
+            <span className="breadcrumb">
+              COLLECTION <span>{this.state.col}</span>
+            </span>
+          </h1>
+          <this.Stats />
         </header>
         <this.TabNavBar
           theme="light"

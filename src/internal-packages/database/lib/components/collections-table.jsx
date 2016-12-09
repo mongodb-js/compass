@@ -41,29 +41,31 @@ class CollectionsTable extends React.Component {
     const writable = app.dataService.isWritable();
 
     return (
-      <div className="collections-table" data-test-id="collections-table">
-        <div className="collections-table-create-button action-bar">
-          {writable ?
-            <TextButton
-              text="Create Collection"
-              dataTestId="open-create-collection-modal-button"
-              className="btn btn-primary btn-xs"
-              clickHandler={this.onCreateCollectionButtonClicked.bind(this)} /> : null}
+      <div className="collections-table header-margin" data-test-id="collections-table">
+        <div>
+          <div className="collections-table-create-button action-bar">
+            {writable ?
+              <TextButton
+                text="Create Collection"
+                dataTestId="open-create-collection-modal-button"
+                className="btn btn-primary btn-xs"
+                clickHandler={this.onCreateCollectionButtonClicked.bind(this)} /> : null}
+          </div>
+          <this.SortableTable
+            theme="light"
+            columns={this.props.columns}
+            rows={rows}
+            sortable
+            sortOrder={this.props.sortOrder}
+            sortColumn={this.props.sortColumn}
+            valueIndex={0}
+            removable={writable}
+            onColumnHeaderClicked={this.onColumnHeaderClicked.bind(this)}
+            onRowDeleteButtonClicked={this.onRowDeleteButtonClicked.bind(this)}
+          />
+          <CreateCollectionDialog />
+          <DropCollectionDialog />
         </div>
-        <this.SortableTable
-          theme="light"
-          columns={this.props.columns}
-          rows={rows}
-          sortable
-          sortOrder={this.props.sortOrder}
-          sortColumn={this.props.sortColumn}
-          valueIndex={0}
-          removable={writable}
-          onColumnHeaderClicked={this.onColumnHeaderClicked.bind(this)}
-          onRowDeleteButtonClicked={this.onRowDeleteButtonClicked.bind(this)}
-        />
-        <CreateCollectionDialog />
-        <DropCollectionDialog />
       </div>
     );
   }
