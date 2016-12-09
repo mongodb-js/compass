@@ -356,6 +356,24 @@ describe('Compass Functional Test Suite #spectron', function() {
             .should.eventually.include(expected);
         });
 
+        it('checks the collections table', function() {
+          return client
+            .clickDatabaseInSidebar('music')
+            .waitForDatabaseView()
+            .getDatabaseViewCollectionNames()
+            .should.eventually.include('artists');
+        });
+
+        it('applies the filter again while on schema tab', function() {
+          return client
+          .clickCollectionInSidebar('music.artists')
+          .inputFilterFromSchemaTab(filter)
+          .clickApplyFilterButtonFromSchemaTab()
+          .getSamplingMessageFromSchemaTab()
+          .should.eventually
+            .equal('Query returned 0 documents. This report is based on a sample of 0 documents (0.00%).');
+        });
+
         context('when viewing the explain plan view', function() {
           it('updates the documents returned', function() {
             return client
@@ -417,7 +435,7 @@ describe('Compass Functional Test Suite #spectron', function() {
             .getIndexUsages()
             .should
             .eventually
-            .equal(isIndexUsageEnabled(serverVersion) ? '6' : '0');
+            .equal(isIndexUsageEnabled(serverVersion) ? '8' : '0');
         });
 
         it('renders the index properties', function() {
