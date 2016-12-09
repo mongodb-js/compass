@@ -165,11 +165,27 @@ describe('ssh_tunnel', function() {
   });
 
   describe('IDENTITY_FILE', function() {
+    it('triggers EISDIR error when calculating a derived property', function() {
+      const connnectOptions = {
+        ssh_tunnel: 'IDENTITY_FILE',
+        // If we have an invalid identity directory
+        ssh_tunnel_identity_file: '/path/to/.ssh/me.pub',
+        ssh_tunnel_port: 5000,
+        // And don't specify a derived property beforehand
+        // ssh_tunnel_bind_to_local_port: 29555,
+        ssh_tunnel_username: 'username'
+      };
+      assert.throws(() => { new Connection(connnectOptions); },
+        /Error: EISDIR: illegal operation on a directory, read/
+      );
+    });
+
     it('should require `ssh_tunnel_hostname`', function() {
       var c = new Connection({
         ssh_tunnel: 'IDENTITY_FILE',
         ssh_tunnel_identity_file: '/path/to/.ssh/me.pub',
         ssh_tunnel_port: 5000,
+        ssh_tunnel_bind_to_local_port: 29555,
         ssh_tunnel_username: 'username'
       });
 
@@ -182,6 +198,7 @@ describe('ssh_tunnel', function() {
         ssh_tunnel_identity_file: '/path/to/.ssh/me.pub',
         ssh_tunnel_hostname: '127.0.0.1',
         ssh_tunnel_port: 5000,
+        ssh_tunnel_bind_to_local_port: 29555,
         ssh_tunnel_passphrase: 'password'
       });
       assert(!c.isValid());
@@ -193,6 +210,7 @@ describe('ssh_tunnel', function() {
         ssh_tunnel_username: 'username',
         ssh_tunnel_hostname: '127.0.0.1',
         ssh_tunnel_port: 5000,
+        ssh_tunnel_bind_to_local_port: 29555,
         ssh_tunnel_passphrase: 'password'
       });
       assert(!c.isValid());
@@ -200,7 +218,7 @@ describe('ssh_tunnel', function() {
 
     describe('When `ssh_tunnel_passphrase` is provided', function() {
       var fileName = path.join(__dirname, 'fake-identity-file.txt');
-      var c = new Connection({
+      var connectionOptions = {
         ssh_tunnel: 'IDENTITY_FILE',
         ssh_tunnel_hostname: 'my.ssh-server.com',
         ssh_tunnel_username: 'my-user',
@@ -209,7 +227,8 @@ describe('ssh_tunnel', function() {
         port: 27000,
         ssh_tunnel_port: 3000,
         ssh_tunnel_passphrase: 'passphrase'
-      });
+      };
+      var c = new Connection(connectionOptions);
 
       it('should be valid', function() {
         assert(c.isValid());
@@ -254,6 +273,14 @@ describe('ssh_tunnel', function() {
 
         it('maps ssh_tunnel_passphrase -> passphrase', function() {
           assert.equal(options.passphrase, 'passphrase');
+        });
+
+        it('driver_url does not change after setting multiple options', function() {
+          const driverUrl = c.driver_url;
+          // I think we have to invalidate two levels of Ampersand cache here
+          c.ssh_tunnel_passphrase = 'fooPASS';
+          c.mongodb_username = 'admin';
+          assert.equal(driverUrl, c.driver_url);
         });
       });
     });

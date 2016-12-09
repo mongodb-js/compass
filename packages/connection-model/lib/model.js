@@ -480,6 +480,13 @@ _.assign(props, {
     default: 22
   },
   /**
+   * Bind the localhost endpoint of the SSH Tunnel to this port.
+   */
+  ssh_tunnel_bind_to_local_port: {
+    type: 'port',
+    default: undefined
+  },
+  /**
    * The optional SSH username for the remote host.
    */
   ssh_tunnel_username: {
@@ -682,6 +689,7 @@ _.assign(derived, {
       'ssh_tunnel',
       'ssh_tunnel_hostname',
       'ssh_tunnel_port',
+      'ssh_tunnel_bind_to_local_port',
       'ssh_tunnel_username',
       'ssh_tunnel_password',
       'ssh_tunnel_identity_file',
@@ -698,7 +706,7 @@ _.assign(derived, {
         srcAddr: '127.0.0.1',  // OS should figure out an ephemeral srcPort
         dstPort: this.port,
         dstAddr: this.hostname,
-        localPort: localPortGenerator(),
+        localPort: this.ssh_tunnel_bind_to_local_port,
         localAddr: '127.0.0.1',
         host: this.ssh_tunnel_hostname,
         port: this.ssh_tunnel_port,
@@ -743,6 +751,12 @@ Connection = AmpersandModel.extend({
 
       if (attrs.ssl_ca && !Array.isArray(attrs.ssl_ca)) {
         this.ssl_ca = attrs.ssl_ca = [attrs.ssl_ca];
+      }
+      if (attrs.ssh_tunnel && attrs.ssh_tunnel !== 'NONE' &&
+          !attrs.ssh_tunnel_bind_to_local_port) {
+        const port = localPortGenerator();
+        attrs.ssh_tunnel_bind_to_local_port = port;
+        this.ssh_tunnel_bind_to_local_port = port;
       }
       this.parse(attrs);
     }
