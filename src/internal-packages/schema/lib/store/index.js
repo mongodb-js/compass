@@ -24,6 +24,7 @@ const debug = require('debug')('mongodb-compass:stores:schema');
 const DEFAULT_MAX_TIME_MS = 10000;
 const DEFAULT_NUM_DOCUMENTS = 1000;
 const PROMOTE_VALUES = false;
+const DEFAULT_QUERY = {};
 
 /**
  * The reflux store for the schema.
@@ -39,7 +40,7 @@ const SchemaStore = Reflux.createStore({
   init: function() {
     // if namespace and query both trigger, only listen to namespace change
     this.isNamespaceChanged = false;
-    this.query = {};
+    this.query = DEFAULT_QUERY;
     // listen for namespace changes
     NamespaceStore.listen((ns) => {
       if (ns && toNS(ns).collection) {
@@ -97,9 +98,12 @@ const SchemaStore = Reflux.createStore({
   },
 
   onQueryChanged: function(state) {
-    this.query = state.query;
     this._reset();
-    SchemaAction.startSampling();
+    this.query = DEFAULT_QUERY;
+    if (state.query) {
+      this.query = state.query;
+      SchemaAction.startSampling();
+    }
   },
 
   setMaxTimeMS(maxTimeMS) {
