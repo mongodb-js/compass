@@ -1,3 +1,4 @@
+/* eslint no-unused-expressions: 0 */
 const expect = require('chai').expect;
 
 const app = require('ampersand-app');
@@ -157,13 +158,13 @@ describe('LoadIndexesStore', () => {
     app.appRegistry = new AppRegistry();
 
     // Stub out the LoadIndexesStore.CollectionStore
-    const CollectionStore = require(storeKeyMap['CollectionStore']);
+    const CollectionStore = require(storeKeyMap.CollectionStore);
     this.isReadOnlyStub = sinon.stub(CollectionStore, 'isReadonly', () => {
       return true;
     });
 
     // Hacks because circular imports!
-    this.LoadIndexesStore = require(storeKeyMap['LoadIndexesStore']);
+    this.LoadIndexesStore = require(storeKeyMap.LoadIndexesStore);
     this.LoadIndexesStore.CollectionStore = CollectionStore;
 
     // Make dataService side-effects into no-ops so tests pass

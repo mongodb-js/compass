@@ -1,6 +1,5 @@
 /* eslint no-unused-expressions: 0 */
 
-const app = require('ampersand-app');
 const expect = require('chai').expect;
 const IndexesActions = require('../src/internal-packages/indexes/lib/action/index-actions');
 const QueryStore = require('../src/internal-packages/query/lib/store/query-store');
