@@ -14,7 +14,7 @@ const BUTTON_CLASS = 'btn btn-default btn-xs';
 /**
  * The icon class name.
  */
-const ICON = 'fa fa-plus';
+const ICON = 'fa fa-level-down fa-rotate-90';
 
 /**
  * The add text.
