@@ -87,7 +87,7 @@ describe('hadron-build', () => {
     describe('::handler', () => {
       it('should set `NODE_ENV` to testing');
       it('should set the TEST_WITH_PREBUILT environment variable if --release specified');
-      it('should remove the user-date directory');
+      it('should remove the user-data directory');
       it('should spawn electron-mocha');
     });
   });

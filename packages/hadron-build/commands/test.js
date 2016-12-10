@@ -94,6 +94,8 @@ exports.handler = (argv) => {
 
   /* eslint no-sync: 0 */
   fs.removeSync(path.resolve(process.cwd(), '.user-data'));
+  /* eslint no-sync: 0 */
+  fs.removeSync(path.resolve(process.cwd(), '.compiled-sources'));
 
   const ELECTRON_MOCHA = which.sync('electron-mocha');
   const proc = spawn(ELECTRON_MOCHA, exports.getMochaArgs(argv), {
