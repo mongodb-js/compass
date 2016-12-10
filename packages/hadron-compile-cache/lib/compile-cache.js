@@ -107,14 +107,12 @@ class CompileCache {
    * @returns {String} The javascript from the cache.
    */
   _readCachedJavascript(digestedPath) {
-    if (process.env.COMPILE_CACHE !== 'false') { // remove after watcher
-      const cachePath = path.join(this.cacheDirectory, digestedPath);
-      if (fs.isFileSync(cachePath)) {
-        try {
-          return fs.readFileSync(cachePath, UTF8);
-        } catch (error) {
-          return null;
-        }
+    const cachePath = path.join(this.cacheDirectory, digestedPath);
+    if (fs.isFileSync(cachePath)) {
+      try {
+        return fs.readFileSync(cachePath, UTF8);
+      } catch (error) {
+        return null;
       }
     }
     return null;
