@@ -2,6 +2,8 @@ var AmpersandRouter = require('ampersand-router');
 var qs = require('qs');
 var _ = require('lodash');
 var app = require('ampersand-app');
+var React = require('react');
+var ReactDOM = require('react-dom');
 
 module.exports = AmpersandRouter.extend({
   routes: {
@@ -23,10 +25,12 @@ module.exports = AmpersandRouter.extend({
     this.connect();
   },
   schema: function(ns) {
-    var HomePage = require('./home');
-    this.trigger('page', new HomePage({
-      ns: ns
-    }));
+    this.homeView = app.appRegistry.getComponent('Home.Home');
+    // this.trigger('page', new HomePage({ns: ns}));
+    this.trigger('page', ReactDOM.render(
+      React.createElement(this.homeView, {ns: ns}),
+      app.state.queryByHook('layout-container')
+    ));
   },
   catchAll: function() {
     this.redirectTo('');
