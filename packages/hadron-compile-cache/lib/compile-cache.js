@@ -1,5 +1,6 @@
 const path = require('path');
 const fs = require('fs-plus');
+const debug = require('debug')('hadron-compile-cache:compile-cache');
 
 const BabelCompiler = require('./compiler/babel-compiler');
 const JadeCompiler = require('./compiler/jade-compiler');
@@ -43,6 +44,7 @@ class CompileCache {
     this.homeDirectory = null;
     this.cacheDirectory = null;
     this.digestMappings = {};
+    this.isWatching = (process.env.NODE_ENV === 'development');
   }
 
   /**
@@ -57,7 +59,7 @@ class CompileCache {
     }
     this.homeDirectory = home;
     this.cacheDirectory = cacheDir;
-    // set the watcher on the home directory.
+    this._watchHomeDirectory();
   }
 
   /**
@@ -119,6 +121,25 @@ class CompileCache {
   }
 
   /**
+   * Remove the cached javascript for the provided file path.
+   *
+   * @param {String} filePath - The file path.
+   *
+   * @returns {null} null.
+   */
+  _removeCachedJavascript(filePath) {
+    const compiler = COMPILERS[path.extname(filePath)];
+    const digestedPath = this._digestedPath(compiler, filePath);
+    const cachePath = path.join(this.cacheDirectory, digestedPath);
+    try {
+      debug(`Removing cache digest for: ${filePath}`);
+      return fs.unlinkSync(cachePath);
+    } catch (error) {
+      return null;
+    }
+  }
+
+  /**
    * Get the shortened file path with the home directory stripped off the front.
    *
    * @param {String} filePath - The absolute file path.
@@ -128,6 +149,25 @@ class CompileCache {
   _shorten(filePath) {
     const stripped = filePath.replace(this.homeDirectory + path.sep, '');
     return stripped.replace(/(\\|\/)/g, '-');
+  }
+
+  /**
+   * Watch the home directory if configured to do so.
+   */
+  _watchHomeDirectory() {
+    if (this.isWatching) {
+      const glob = `${this.homeDirectory}/src/**/*.{jsx,jade,md}`;
+      const chokidar = require('chokidar');
+      if (this.watcher) {
+        this.watcher.close();
+      }
+      this.watcher = chokidar.watch(glob);
+      debug(`Compile cache watching path: ${glob}`);
+      this.watcher.on('change', (filePath) => {
+        debug(`File changed detected at: ${filePath}`);
+        this._removeCachedJavascript(filePath);
+      });
+    }
   }
 
   /**

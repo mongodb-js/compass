@@ -70,6 +70,31 @@ describe('CompileCache', function() {
     });
   });
 
+  describe('_removeCachedJavascript', function() {
+    var compiler = new JadeCompiler();
+    var filePath = path.join(__dirname, 'compiler', 'test.jade');
+    var home = path.join(__dirname);
+    var filename = path.join('jade', 'fb840da9fcb09bc55a074a444f124067a973ce1a.js');
+    var cachePath = path.join(home, '.compiled-sources');
+    var cachedFilePath = path.join(cachePath, filename);
+
+    beforeEach(function() {
+      CompileCache.setHomeDirectory(home);
+      CompileCache.compileFileAtPath(compiler, filePath);
+      CompileCache._removeCachedJavascript(filePath);
+    });
+
+    afterEach(function() {
+      CompileCache.cacheDirectory = null;
+      CompileCache.homeDirectory = null;
+    });
+
+    it('removes the cached javascript from the digested path', function() {
+      var fn = function() { fs.readFileSync(cachedFilePath, 'utf8'); };
+      expect(fn).to.throw(/no such file or directory/);
+    });
+  });
+
   describe('._shorten', function() {
     context('when the path is absolute', function() {
       var home = path.join(__dirname);

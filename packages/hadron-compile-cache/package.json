@@ -26,6 +26,7 @@
     "@lukekarrys/jade-runtime": "^1.11.1",
     "babel-core": "^6.7.6",
     "babel-preset-react": "^6.5.0",
+    "chokidar": "^1.6.1",
     "debug": "^2.2.0",
     "fs-plus": "^2.8.2",
     "highlight.js": "^9.8.0",
