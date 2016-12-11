@@ -92,6 +92,9 @@ exports.handler = (argv) => {
     process.env.TEST_WITH_PREBUILT = '1';
   }
 
+  /* Force the NODE_ENV to be testing */
+  process.env.NODE_ENV = 'testing';
+
   /* eslint no-sync: 0 */
   fs.removeSync(path.resolve(process.cwd(), '.user-data'));
   /* eslint no-sync: 0 */
