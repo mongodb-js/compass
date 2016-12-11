@@ -1,5 +1,3 @@
-process.env.NODE_ENV = 'testing';
-
 const { launchCompass, quitCompass, isIndexUsageEnabled } = require('./support/spectron-support');
 
 describe('Compass Functional Test Suite #spectron', function() {
@@ -7,6 +5,11 @@ describe('Compass Functional Test Suite #spectron', function() {
   this.timeout(60000);
   let app = null;
   let client = null;
+
+  before(function() {
+    /* Force the node env to testing */
+    process.env.NODE_ENV = 'testing';
+  });
 
   context('when a MongoDB instance is running', function() {
     before(function(done) {
@@ -46,13 +49,8 @@ describe('Compass Functional Test Suite #spectron', function() {
               .getTitle().should.eventually.be.equal('MongoDB Compass - Connect');
           });
 
-          it('allows favorites to be saved', function() {
-
-          });
-
-          it('allows favorites to be edited', function() {
-
-          });
+          it('allows favorites to be saved');
+          it('allows favorites to be edited');
         });
       });
     });
@@ -83,15 +81,11 @@ describe('Compass Functional Test Suite #spectron', function() {
 
     context('when entering a filter in the sidebar', function() {
       context('when entering a plain string', function() {
-        it('filters the list', function() {
-
-        });
+        it('filters the list');
       });
 
       context('when entering a regex', function() {
-        it('filters the list', function() {
-
-        });
+        it('filters the list');
       });
     });
 
@@ -492,16 +486,7 @@ describe('Compass Functional Test Suite #spectron', function() {
         });
 
         context('when dropping an index', function() {
-          it('requires confirmation of the index name', function() {
-            // return client
-              // .clickDeleteIndexButton()
-              // .waitForDropIndexModal()
-              // .inputDropIndexName('name_1')
-              // .clickDropIndexModalButton()
-              // .waitForIndexDrop('name_1')
-              // .getIndexNames()
-              // .should.not.eventually.include('name_1');
-          });
+          it('requires confirmation of the index name');
         });
       });
 

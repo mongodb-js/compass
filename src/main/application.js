@@ -83,15 +83,6 @@ Application.prototype.setupApplicationMenu = function() {
   require('./menu').init();
 };
 
-Application.prototype.setupUserDirectory = function() {
-  // For testing set a clean slate for the user data.
-  if (process.env.NODE_ENV === 'testing') {
-    var userDataDir = path.resolve(path.join(
-      __dirname, '..', '..', '.user-data'));
-    app.setPath('userData', userDataDir);
-  }
-};
-
 Application.prototype.setupLifecycleListeners = function() {
   app.on('window-all-closed', function() {
     debug('All windows closed.  Quitting app.');
