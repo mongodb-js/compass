@@ -361,6 +361,7 @@ describe('Compass Functional Test Suite #spectron', function() {
         it('applies the filter again while on schema tab', function() {
           return client
           .clickCollectionInSidebar('music.artists')
+          .waitForStatusBar()
           .inputFilterFromSchemaTab(filter)
           .clickApplyFilterButtonFromSchemaTab()
           .getSamplingMessageFromSchemaTab()
