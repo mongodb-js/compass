@@ -268,12 +268,11 @@ class EditableDocument extends React.Component {
     this.setState({});
   }
 
+  /**
+   * Handle clicking the expand all button.
+   */
   handleExpandAll() {
-    this.setState({ expandAll: true });
-  }
-
-  handleCollapseAll() {
-    this.setState({ expandAll: false });
+    this.setState({ expandAll: !this.state.expandAll });
   }
 
   /**
@@ -301,11 +300,11 @@ class EditableDocument extends React.Component {
     if (!this.state.editing && !this.state.deleting) {
       return (
         <DocumentActions
+          allExpanded={this.state.expandAll}
           edit={this.handleEdit.bind(this)}
           remove={this.handleDelete.bind(this)}
           clone={this.handleClone.bind(this)}
-          expandAll={this.handleExpandAll.bind(this)}
-          collapseAll={this.handleCollapseAll.bind(this)} />
+          expandAll={this.handleExpandAll.bind(this)} />
       );
     }
   }
