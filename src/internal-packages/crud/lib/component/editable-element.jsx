@@ -95,6 +95,17 @@ class EditableElement extends React.Component {
   }
 
   /**
+   * Set the state if the expand all prop changes.
+   *
+   * @param {Object} nextProps - The next properties.
+   */
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.expandAll !== this.state.expandAll) {
+      this.setState({ expanded: nextProps.expandAll });
+    }
+  }
+
+  /**
    * Expand the element.
    */
   handleExpand() {
@@ -173,7 +184,8 @@ class EditableElement extends React.Component {
           element={element}
           index={index}
           indent={this.props.indent + 16}
-          editing={this.props.editing} />
+          editing={this.props.editing}
+          expandAll={this.props.expandAll} />
       ));
       index++;
     }

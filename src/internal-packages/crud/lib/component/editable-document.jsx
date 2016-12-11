@@ -27,6 +27,11 @@ const ELEMENTS = `${BASE}-elements`;
 const TEST_ID = 'editable-document';
 
 /**
+ * Hotspot class.
+ */
+const HOTSPOT = `${BASE}-hostspot`;
+
+/**
  * Component for a single editable document in a list of documents.
  */
 class EditableDocument extends React.Component {
@@ -40,7 +45,7 @@ class EditableDocument extends React.Component {
     super(props);
     this.doc = this.loadDocument(props.doc);
 
-    this.state = { editing: false, deleting: false, deleteFinished: false };
+    this.state = { editing: false, deleting: false, deleteFinished: false, expandAll: false };
 
     // Actions need to be scoped to the single document component and not
     // global singletons.
@@ -249,6 +254,9 @@ class EditableDocument extends React.Component {
     this.setState({ deleting: false });
   }
 
+  /**
+   * Handle the edit click.
+   */
   handleEdit() {
     this.setState({ editing: true });
   }
@@ -258,6 +266,13 @@ class EditableDocument extends React.Component {
    */
   handleModify() {
     this.setState({});
+  }
+
+  /**
+   * Handle clicking the expand all button.
+   */
+  handleExpandAll() {
+    this.setState({ expandAll: !this.state.expandAll });
   }
 
   /**
@@ -285,9 +300,11 @@ class EditableDocument extends React.Component {
     if (!this.state.editing && !this.state.deleting) {
       return (
         <DocumentActions
+          allExpanded={this.state.expandAll}
           edit={this.handleEdit.bind(this)}
           remove={this.handleDelete.bind(this)}
-          clone={this.handleClone.bind(this)} />
+          clone={this.handleClone.bind(this)}
+          expandAll={this.handleExpandAll.bind(this)} />
       );
     }
   }
@@ -306,11 +323,12 @@ class EditableDocument extends React.Component {
           key={element.uuid}
           element={element}
           indent={0}
-          editing={this.state.editing} />
+          editing={this.state.editing}
+          expandAll={this.state.expandAll} />
       ));
     }
     if (this.state.editing) {
-      components.push(<Hotspot key="document-hotspot" element={this.doc} />);
+      components.push(<Hotspot key={HOTSPOT} element={this.doc} />);
     }
     return components;
   }
