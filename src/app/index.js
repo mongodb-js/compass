@@ -303,8 +303,13 @@ var Application = View.extend({
     }
   },
   onPageChange: function(view) {
-    metrics.track('App', 'viewed', view.screenName);
-    this.pageSwitcher.set(view);
+    // connect dialog
+    if (view.screenName) {
+      metrics.track('App', 'viewed', view.screenName);
+      this.pageSwitcher.set(view);
+    } else {
+      metrics.track('App', 'viewed', view.displayName);
+    }
   },
   onLinkClick: function(event) {
     // ignore help links, they're handled in `onHelpClicked`
