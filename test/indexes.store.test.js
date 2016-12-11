@@ -1,9 +1,16 @@
+/* eslint no-unused-expressions: 0 */
 const expect = require('chai').expect;
 
+const app = require('ampersand-app');
+const AppRegistry = require('hadron-app-registry');
+const { NamespaceStore } = require('hadron-reflux-store');
 const Reflux = require('reflux');
+const sinon = require('sinon');
 
 const root = '../src/internal-packages/';
 const storeKeyMap = {
+  'CollectionStore': root + 'app/lib/stores/collection-store',
+  'LoadIndexesStore': root + 'indexes/lib/store/load-indexes-store',
   'Schema.Store': root + 'schema/lib/store',
   'Query.ChangedStore': root + 'query/lib/store/query-changed-store'
 };
@@ -14,6 +21,7 @@ Reflux.StoreMethods.listenToExternalStore = function(storeKey, callback) {
 };
 
 const CreateIndexStore = require('../src/internal-packages/indexes/lib/store/create-index-store');
+const Collection = require('../src/internal-packages/collection/lib/components/index');
 
 describe('CreateIndexesStore', function() {
   let unsubscribe;
@@ -133,5 +141,57 @@ describe('CreateIndexesStore', function() {
     });
 
     CreateIndexStore.removeIndexField(1);
+  });
+});
+
+describe('LoadIndexesStore', () => {
+  const appInstance = app.instance;
+  const appRegistry = app.appRegistry;
+  const collectionStore = Collection.CollectionStore;
+  const dataService = app.dataService;
+  beforeEach(() => {
+    // Mock the app.instance.build.version
+    app.instance = {build: {version: '3.4.0'}};
+
+    // Mock the AppRegistry with a new one so tests don't complain about
+    // appRegistry.getComponent (i.e. appRegistry being undefined)
+    app.appRegistry = new AppRegistry();
+
+    // Stub out the LoadIndexesStore.CollectionStore
+    const CollectionStore = require(storeKeyMap.CollectionStore);
+    this.isReadOnlyStub = sinon.stub(CollectionStore, 'isReadonly', () => {
+      return true;
+    });
+
+    // Hacks because circular imports!
+    this.LoadIndexesStore = require(storeKeyMap.LoadIndexesStore);
+    this.LoadIndexesStore.CollectionStore = CollectionStore;
+
+    // Make dataService side-effects into no-ops so tests pass
+    app.dataService = sinon.spy();
+    app.dataService.sample = () => {};
+    app.dataService.count = () => {};
+  });
+  afterEach(() => {
+    // Restore properties on the global app object,
+    // so they don't affect other tests
+    app.instance = appInstance;
+    app.appRegistry = appRegistry;
+    Collection.CollectionStore = collectionStore;
+    this.isReadOnlyStub.restore();
+    app.dataService = dataService;
+  });
+
+  it('does not load indexes for a database-level namespace', () => {
+    NamespaceStore.ns = 'hello';
+    // To make the event coupling clearer, rerun loadIndexes explicitly
+    this.LoadIndexesStore.loadIndexes();
+    expect(this.isReadOnlyStub.called).to.be.false;
+  });
+  it('loads indexes for a collection-level namespace', () => {
+    NamespaceStore.ns = 'hello.world';
+    // To make the event coupling clearer, rerun loadIndexes explicitly
+    this.LoadIndexesStore.loadIndexes();
+    expect(this.isReadOnlyStub.called).to.be.true;
   });
 });
