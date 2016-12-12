@@ -1,53 +1,27 @@
-const ipc = require('hadron-ipc');
 const React = require('react');
 const app = require('ampersand-app');
+const StoreConnector = app.appRegistry.getComponent('App.StoreConnector');
 
-class Home extends React.Component {
-  constructor(props) {
-    super(props);
-    this.sideBarComponent = app.appRegistry.getComponent('Sidebar.Component');
-  }
+const Home = require('./home');
+const Store = require('../store');
 
-  showConnectWindow() {
-    ipc.call('app:show-connect-window');
-    window.close();
-  }
+// const debug = require('debug')('mongodb-compass:validation:index');
 
-  renderNoCollections() {
-    return (
-      <div className="no-collections-zero-state">
-        <span>
-          The MongoDB instance you are connected to does not contain
-          any collections.&nbsp;
-          <a className="show-connect-window"
-              onClick={this.showConnectWindow.bind(this)}>
-            Connect to another instance.
-          </a>
-        </span>
-      </div>
-    );
-  }
-
-  renderContent() {
-    return;
-  }
-
+class ConnectedHome extends React.Component {
+  /**
+   * Connect <Validation /> component to store and render.
+   *
+   * @returns {React.Component} The rendered component.
+   */
   render() {
-    const hasContent = false;
     return (
-      <div className="page">
-        <div className="content with-sidebar">
-          {hasContent ? this.renderContent() : this.renderNoCollections()}
-        </div>
-        {this.sideBarComponent}
-      </div>
+      <StoreConnector store={Store}>
+        <Home />
+      </StoreConnector>
     );
   }
 }
 
-Home.propTypes = {
-};
+ConnectedHome.displayName = 'ConnectedHome';
 
-Home.displayName = 'Home';
-
-module.exports = Home;
+module.exports = ConnectedHome;

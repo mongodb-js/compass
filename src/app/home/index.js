@@ -62,11 +62,12 @@ var HomeView = View.extend({
     /**
      * TODO (imlucas) Handle state when rtss permissions not available.
      */
-    this.serverStatsView = app.appRegistry.getComponent('RTSS.ServerStats');
-    this.collectionsTable = app.appRegistry.getComponent('Database.CollectionsTable');
+    // this.serverStatsView = app.appRegistry.getComponent('RTSS.ServerStats');
+    // this.collectionsTable = app.appRegistry.getComponent('Database.CollectionsTable');
     this.listenTo(app.instance, 'sync', this.onInstanceFetched);
     this.listenTo(app.connection, 'change:name', this.updateTitle);
-    NamespaceStore.listen(this.switchMainContent.bind(this));
+    this.homeView = app.appRegistry.getComponent('Home.Home');
+    // NamespaceStore.listen(this.switchMainContent.bind(this));
 
     this.once('change:rendered', this.onRendered);
     debug('fetching instance model...');
@@ -75,12 +76,15 @@ var HomeView = View.extend({
   },
   render: function() {
     this.renderWithTemplate(this);
-    const SideBarComponent = app.appRegistry.getComponent('Sidebar.Component');
     ReactDOM.render(
-      React.createElement(SideBarComponent),
-      this.queryByHook('sidebar')
-    );
-    this.switchMainContent('');
+        React.createElement(this.homeView),
+        this.queryByHook('home-content'));
+    // const SideBarComponent = app.appRegistry.getComponent('Sidebar.Component');
+    // ReactDOM.render(
+    //   React.createElement(SideBarComponent),
+    //   this.queryByHook('sidebar')
+    // );
+    // this.switchMainContent('');
   },
   switchMainContent: function(namespace) {
     if (namespace === this.ns) {

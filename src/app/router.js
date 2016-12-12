@@ -4,6 +4,7 @@ var _ = require('lodash');
 var app = require('ampersand-app');
 var React = require('react');
 var ReactDOM = require('react-dom');
+var HomePage = require('./home');
 
 module.exports = AmpersandRouter.extend({
   routes: {
@@ -26,11 +27,11 @@ module.exports = AmpersandRouter.extend({
   },
   schema: function(ns) {
     this.homeView = app.appRegistry.getComponent('Home.Home');
-    // this.trigger('page', new HomePage({ns: ns}));
-    this.trigger('page', ReactDOM.render(
-      React.createElement(this.homeView, {ns: ns}),
-      app.state.queryByHook('layout-container')
-    ));
+    this.trigger('page', new HomePage({ns: ns}));
+    // this.trigger('page', ReactDOM.render(
+    //   React.createElement(this.homeView, {ns: ns}),
+    //   app.state.queryByHook('layout-container')
+    // ));
   },
   catchAll: function() {
     this.redirectTo('');
