@@ -76,6 +76,7 @@ var HomeView = View.extend({
   },
   render: function() {
     this.renderWithTemplate(this);
+    // @KeyboardPirate running react Home through here because fetching instance is hard to work with
     ReactDOM.render(
         React.createElement(this.homeView),
         this.queryByHook('home-content'));

@@ -2,8 +2,6 @@ var AmpersandRouter = require('ampersand-router');
 var qs = require('qs');
 var _ = require('lodash');
 var app = require('ampersand-app');
-var React = require('react');
-var ReactDOM = require('react-dom');
 var HomePage = require('./home');
 
 module.exports = AmpersandRouter.extend({

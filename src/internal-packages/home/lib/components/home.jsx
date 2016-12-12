@@ -5,10 +5,25 @@ class Home extends React.Component {
   constructor(props) {
     super(props);
     this.sideBar = app.appRegistry.getComponent('Sidebar.Component');
+    this.serverStatsView = app.appRegistry.getComponent('RTSS.ServerStats');
+    this.collectionsTable = app.appRegistry.getComponent('Database.CollectionsTable');
+    this.collectionView = app.appRegistry.getComponent('Collection.Collection');
   }
 
   renderContent() {
-    return;
+    let view;
+    switch (this.props.mode) {
+      case 'database':
+        view = (<this.collectionsTable />);
+        break;
+      case 'collection':
+        view = (<this.collectionView />);
+        break;
+      default:
+        view = (<this.serverStatsView interval={1000}/>);
+    }
+
+    return view;  // ; // (<div>Hello world</div>);
   }
 
   render() {
@@ -26,7 +41,8 @@ class Home extends React.Component {
 }
 
 Home.propTypes = {
-  hasContent: React.PropTypes.bool
+  hasContent: React.PropTypes.bool,
+  mode: React.PropTypes.oneOf(['instance', 'database', 'collection'])
 };
 
 Home.displayName = 'Home';

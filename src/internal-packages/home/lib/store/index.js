@@ -4,6 +4,8 @@ const Reflux = require('reflux');
 const HomeActions = require('../actions');
 const StateMixin = require('reflux-state-mixin');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
+const toNS = require('mongodb-ns');
+const InstanceActions = app.appRegistry.getAction('App.InstanceActions');
 
 const debug = require('debug')('mongodb-compass:stores:home');
 
@@ -15,26 +17,47 @@ const HomeStore = Reflux.createStore({
   /**
    * listen to all actions defined in ../actions/index.jsx
    */
-  listenables: [HomeActions],
+  listenables: [InstanceActions, HomeActions],
 
   /**
    * Initialize home store
    */
   init() {
-    NamespaceStore.listen(HomeActions.switchContent);
+    NamespaceStore.listen(this.switchContent.bind(this)); // (HomeActions.switchContent);
   },
 
   getInitialState() {
     return {
+      // mode can be one of instance, database, collection
+      mode: 'instance',
       hasContent: false
     };
   },
 
   /**
    * change content based on namespace
-   * @param  {object} ns namespace
+   * @param  {object} namespace current namespace context
    */
-  switchContent() {
+  switchContent(namespace) {
+    const ns = toNS(namespace);
+    if (ns.database === '') {
+      this.setState({mode: 'instance'});
+    } else if (ns.collection === '') {
+      // a database was clicked, render collections table
+      this.setState({mode: 'database'});
+    } else {
+      // show collection view
+      this.setState({mode: 'collection'});
+    }
+    this.updateTitle(ns);
+  },
+
+  updateTitle: function(ns) {
+    let title = 'MongoDB Compass - ' + app.connection.instance_id;
+    if (ns) {
+      title += '/' + ns;
+    }
+    document.title = title;
   },
 
   /**
