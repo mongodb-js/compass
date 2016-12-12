@@ -29,7 +29,13 @@ class Collection extends React.Component {
 
     NamespaceStore.listen((ns) => {
       if (ns && toNS(ns).collection) {
-        this.setState({name: ns, db: toNS(ns).database, col: toNS(ns).collection, showView: true, activeTab: this.CollectionStore.getActiveTab()});
+        this.setState({
+          name: ns,
+          db: toNS(ns).database,
+          col: toNS(ns).collection,
+          showView: true,
+          activeTab: this.CollectionStore && this.CollectionStore.getActiveTab()
+        });
       } else {
         this.setState({name: '', showView: false, activeTab: 0});
       }
