@@ -18,7 +18,7 @@ const TEST_ID = 'data-test-id';
 /**
  * The default timeout for selectors.
  */
-const TIMEOUT = 10000;
+const TIMEOUT = 15000;
 
 /**
  * A long running operation timeout.

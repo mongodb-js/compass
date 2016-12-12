@@ -4,6 +4,12 @@ The Compass functional test suite uses Spectron to test the electron
 application. This document describes the common patterns in the suite and
 the current API that developers can leverage.
 
+## Running Only the Functional Tests
+
+```shell
+npm test -- --functional
+```
+
 ## Patterns for Client Actions
 
 The actions in the test suite are divided into 4 main categories of
@@ -79,6 +85,9 @@ describe('Compass Functional Test Suite #spectron', function() {
 - [Click Commands](https://github.com/10gen/compass/blob/master/test/support/spectron-support.js#L232)
 - [Get Commands](https://github.com/10gen/compass/blob/master/test/support/spectron-support.js#L545)
 - [Input Commands](https://github.com/10gen/compass/blob/master/test/support/spectron-support.js#L757)
+
+When adding functionality, consult the [Webdriver API](http://webdriver.io/api.html) for available
+commands.
 
 ## Tips
 
