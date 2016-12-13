@@ -37,6 +37,10 @@ describe('Compass Functional Test Suite #spectron', function() {
           return client
             .clickCloseFeatureTourButton()
             .waitForPrivacySettingsModal()
+            .clickEnableProductFeedbackCheckbox()
+            .clickEnableCrashReportsCheckbox()
+            .clickEnableUsageStatsCheckbox()
+            .clickEnableAutoUpdatesCheckbox()
             .getModalTitle()
             .should.eventually.equal('Privacy Settings');
         });
@@ -151,12 +155,55 @@ describe('Compass Functional Test Suite #spectron', function() {
           .should.eventually.equal('0');
       });
 
-      it('renders the network graph');
-      it('renders the memory graph');
-      it('renders the hottest collections');
-      it('renders the slow operations');
+      it('renders the network bytes in', function() {
+        return client
+          .getNetworkBytesIn()
+          .should.eventually.not.equal(null);
+      });
+
+      it('renders the network bytes out', function() {
+        return client
+          .getNetworkBytesOut()
+          .should.eventually.not.equal(null);
+      });
+
+      it('renders the network connections', function() {
+        return client
+          .getNetworkConnections()
+          .should.eventually.equal('5');
+      });
+
+      it('renders the memory vsize', function() {
+        return client
+          .getMemoryVSize()
+          .should.eventually.not.equal(null);
+      });
+
+      it('renders the memory resident size', function() {
+        return client
+          .getMemoryResident()
+          .should.eventually.not.equal(null);
+      });
+
+      it('renders the memory mapped size', function() {
+        return client
+          .getMemoryMapped()
+          .should.eventually.not.equal(null);
+      });
+
+      it('renders the slow operations', function() {
+        return client
+          .getSlowestOperations()
+          .should.eventually.include('No Slow Operations');
+      });
 
       context('when pausing the performance tab', function() {
+        it('pauses the performance tab', function() {
+          return client
+            .clickPerformancePauseButton()
+            .getSlowestOperations()
+            .should.eventually.include('No Slow Operations');
+        });
       });
     });
 

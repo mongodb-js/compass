@@ -106,7 +106,11 @@ class CurrentOpComponent extends React.Component {
         <header className="rt-lists__header">
           <h2 className="rt-lists__headerlabel">Slowest Operations</h2>
         </header>
-        <div className="rt-lists__empty-error">&#10004; No Slow Operations</div>
+        <div
+          data-test-id="no-slow-operations"
+          className="rt-lists__empty-error">
+          &#10004; No Slow Operations
+        </div>
       </div>
     );
   }
