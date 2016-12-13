@@ -2,7 +2,7 @@ const React = require('react');
 const app = require('ampersand-app');
 const semver = require('semver');
 const toNS = require('mongodb-ns');
-const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
+// const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 
 class Collection extends React.Component {
   constructor(props) {
@@ -24,18 +24,19 @@ class Collection extends React.Component {
     this.Validation = app.appRegistry.getComponent('Validation.Validation');
 
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
+  }
 
-    NamespaceStore.listen((ns) => {
-      if (ns && toNS(ns).collection) {
-        this.setState({
-          name: ns,
-          showView: true,
-          activeTab: this.CollectionStore && this.CollectionStore.getActiveTab()
-        });
-      } else {
-        this.setState({name: '', showView: false, activeTab: 0});
-      }
-    });
+  componentWillMount() {
+    const ns = this.props.namespace;
+    if (ns && toNS(ns).collection) {
+      this.setState({
+        name: ns,
+        showView: true,
+        activeTab: this.CollectionStore && this.CollectionStore.getActiveTab()
+      });
+    } else {
+      this.setState({name: '', showView: false, activeTab: 0});
+    }
   }
 
   onTabClicked(idx) {
@@ -98,7 +99,8 @@ class Collection extends React.Component {
 }
 
 Collection.propTypes = {
-  showView: React.PropTypes.bool
+  showView: React.PropTypes.bool,
+  namespace: React.PropTypes.string
 };
 
 Collection.displayName = 'Collection';

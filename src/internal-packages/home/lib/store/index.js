@@ -30,7 +30,8 @@ const HomeStore = Reflux.createStore({
     return {
       // mode can be one of instance, database, collection
       mode: 'instance',
-      hasContent: false
+      hasContent: false,
+      namespace: ''
     };
   },
 
@@ -46,13 +47,13 @@ const HomeStore = Reflux.createStore({
     const ns = toNS(namespace);
     if (ns.database === '') {
       // top of the side bar was clicked, render server stats
-      this.setState({mode: 'instance'});
+      this.setState({mode: 'instance', namespace: namespace});
     } else if (ns.collection === '') {
       // a database was clicked, render collections table
-      this.setState({mode: 'database'});
+      this.setState({mode: 'database', namespace: namespace});
     } else {
       // show collection view
-      this.setState({mode: 'collection'});
+      this.setState({mode: 'collection', namespace: namespace});
     }
     this.updateTitle(ns);
   },
