@@ -87,7 +87,7 @@ class Collection extends React.Component {
           views={views}
           activeTabIndex={this.state.activeTab}
           onTabClicked={this.onTabClicked.bind(this)}
-          className="rt-nav" // TODO @KeyboardTsundoku this could be something else?
+          className="collection-nav"
         />
       </div>
     );

@@ -15,7 +15,6 @@ class Home extends React.Component {
 
   renderContent() {
     let view;
-    console.log('collectionview', this.props.namespace);
     switch (this.props.mode) {
       case 'database':
         view = (<this.collectionsTable />);
