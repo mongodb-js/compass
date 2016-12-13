@@ -57,17 +57,6 @@ var HomeView = View.extend({
     showDefaultZeroState: {
       type: 'boolean',
       default: false
-    },
-    showNoCollectionsZeroState: {
-      type: 'boolean',
-      default: false
-    }
-  },
-  bindings: {
-    showNoCollectionsZeroState: {
-      hook: 'no-collections-zero-state',
-      type: 'booleanClass',
-      no: 'hidden'
     }
   },
   events: {
@@ -149,7 +138,8 @@ var HomeView = View.extend({
     if (!NamespaceStore.ns) {
       app.instance.collections.unselectAll();
       if (app.instance.collections.length === 0) {
-        this.showNoCollectionsZeroState = true;
+        // NOTE: Now handled by the Databases tab
+        // this.showNoCollectionsZeroState = true;
       } else {
         this.showDefaultZeroState = true;
       }

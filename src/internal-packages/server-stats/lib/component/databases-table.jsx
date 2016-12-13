@@ -40,6 +40,12 @@ class DatabasesTable extends React.Component {
 
     const writable = app.dataService.isWritable();
 
+    let zeroStateMessage = '';
+    if (this.props.databases.length === 0) {
+      zeroStateMessage = 'The MongoDB instance you are connected to ' +
+        'does not contain any collections.';
+    }
+
     return (
       <div className="rtss-databases" data-test-id="databases-table">
         <div className="rtss-databases-create-button action-bar">
@@ -62,6 +68,12 @@ class DatabasesTable extends React.Component {
           onColumnHeaderClicked={this.onColumnHeaderClicked.bind(this)}
           onRowDeleteButtonClicked={this.onRowDeleteButtonClicked.bind(this)}
         />
+        <div className="no-collections-zero-state">
+          {zeroStateMessage}
+          {!writable ?
+            <a className="show-connect-window"><br/>Connect to another instance</a>
+            : null}
+        </div>
         <CreateDatabaseDialog />
         <DropDatabaseDialog />
       </div>
