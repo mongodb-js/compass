@@ -5,9 +5,12 @@ class Home extends React.Component {
   constructor(props) {
     super(props);
     this.sideBar = app.appRegistry.getComponent('Sidebar.Component');
-    this.serverStatsView = app.appRegistry.getComponent('RTSS.ServerStats');
-    this.collectionsTable = app.appRegistry.getComponent('Database.CollectionsTable');
     this.collectionView = app.appRegistry.getComponent('Collection.Collection');
+    this.collectionsTable = app.appRegistry.getComponent('Database.CollectionsTable');
+    /**
+     * TODO (imlucas) Handle state when rtss permissions not available.
+     */
+    this.serverStatsView = app.appRegistry.getComponent('RTSS.ServerStats');
   }
 
   renderContent() {

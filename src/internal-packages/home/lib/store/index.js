@@ -34,6 +34,10 @@ const HomeStore = Reflux.createStore({
     };
   },
 
+  setInstance() {
+    this.updateTitle();
+  },
+
   /**
    * change content based on namespace
    * @param  {object} namespace current namespace context
@@ -41,6 +45,7 @@ const HomeStore = Reflux.createStore({
   switchContent(namespace) {
     const ns = toNS(namespace);
     if (ns.database === '') {
+      // top of the side bar was clicked, render server stats
       this.setState({mode: 'instance'});
     } else if (ns.collection === '') {
       // a database was clicked, render collections table
