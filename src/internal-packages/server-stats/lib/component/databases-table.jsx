@@ -1,5 +1,6 @@
 const React = require('react');
 const app = require('ampersand-app');
+const { shell } = require('electron');
 const { TextButton } = require('hadron-react-buttons');
 const DatabasesActions = require('../action/databases-actions');
 const CreateDatabaseDialog = require('./create-database-dialog');
@@ -9,6 +10,11 @@ const numeral = require('numeral');
 const _ = require('lodash');
 
 // const debug = require('debug')('mongodb-compass:server-stats:databases');
+
+/**
+ * The help url linking to role-based authorization.
+ */
+const AUTH_HELP_URL = 'https://docs.mongodb.com/master/core/authorization/';
 
 class DatabasesTable extends React.Component {
 
@@ -29,6 +35,12 @@ class DatabasesTable extends React.Component {
     DatabasesActions.openCreateDatabaseDialog();
   }
 
+  onAuthHelpClicked(evt) {
+    evt.preventDefault();
+    evt.stopPropagation();
+    shell.openExternal(AUTH_HELP_URL);
+  }
+
   render() {
     // convert storage size to human-readable units (MB, GB, ...)
     // we do this here so that sorting is not affected in the store
@@ -39,12 +51,6 @@ class DatabasesTable extends React.Component {
     });
 
     const writable = app.dataService.isWritable();
-
-    let zeroStateMessage = '';
-    if (this.props.databases.length === 0) {
-      zeroStateMessage = 'The MongoDB instance you are connected to ' +
-        'does not contain any collections.';
-    }
 
     return (
       <div className="rtss-databases" data-test-id="databases-table">
@@ -69,9 +75,13 @@ class DatabasesTable extends React.Component {
           onRowDeleteButtonClicked={this.onRowDeleteButtonClicked.bind(this)}
         />
         <div className="no-collections-zero-state">
-          {zeroStateMessage}
+          {this.props.databases.length === 0 ?
+            'The MongoDB instance you are connected to ' +
+            'does not contain any collections, or you are ' : null}
+          <a onClick={this.onAuthHelpClicked.bind(this)}>not authorized</a>
+          {this.props.databases.length === 0 ? ' to view them. ' : null}
           {!writable ?
-            <a className="show-connect-window"><br/>Connect to another instance</a>
+            <a className="show-connect-window">Connect to another instance</a>
             : null}
         </div>
         <CreateDatabaseDialog />
