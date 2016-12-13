@@ -78,7 +78,9 @@ class DatabasesTable extends React.Component {
           {this.props.databases.length === 0 ?
             'The MongoDB instance you are connected to ' +
             'does not contain any collections, or you are ' : null}
-          <a onClick={this.onAuthHelpClicked.bind(this)}>not authorized</a>
+          {this.props.databases.length === 0 ?
+            <a onClick={this.onAuthHelpClicked.bind(this)}>not authorized</a>
+            : null}
           {this.props.databases.length === 0 ? ' to view them. ' : null}
           {!writable ?
             <a className="show-connect-window">Connect to another instance</a>
