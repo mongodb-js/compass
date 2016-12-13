@@ -6,7 +6,7 @@
     "fmt": "mongodb-js-fmt",
     "check": "mongodb-js-precommit",
     "test": "mocha",
-    "ci": "npm run check && DEBUG=electron-installer-*,hadron* npm test"
+    "ci": "npm run check && npm test"
   },
   "bin": {
     "hadron-build": "./cli.js"
