@@ -9,31 +9,31 @@
           ul
             li
               label
-                input(type='checkbox', name='enableFeedbackPanel', data-hook='product-feedback-checkbox')
+                input(type='checkbox', name='enableFeedbackPanel', data-hook='product-feedback-checkbox', data-test-id='product-feedback-checkbox')
                 span Enable Product Feedback Tool
               p.option-description Enables a tool for sending feedback or talking to our Product and Development teams directly from Compass.
 
             li
               label
-                input(type='checkbox', name='enableMaps', data-hook='enable-maps-checkbox')
+                input(type='checkbox', name='enableMaps', data-hook='enable-maps-checkbox', data-test-id='enable-maps-checkbox')
                 span Enable Geographic Visualizations
               p.option-description Allow Compass to make requests to a 3rd party mapping service.
 
             li
               label
-                input(type='checkbox', name='trackErrors', data-hook='track-errors-checkbox')
+                input(type='checkbox', name='trackErrors', data-hook='track-errors-checkbox' data-test-id='track-errors-checkbox')
                 span Enable Crash Reports
               p.option-description Allow Compass to send crash reports containing stack traces and unhandled exceptions.
 
             li
               label
-                input(type='checkbox', name='trackUsageStatistics', data-hook='usage-stats-checkbox')
+                input(type='checkbox', name='trackUsageStatistics', data-hook='usage-stats-checkbox', data-test-id='usage-stats-checkbox')
                 span Enable Usage Statistics
               p.option-description Allow Compass to send anonymous usage statistics.
 
             li
               label
-                input(type='checkbox', name='autoUpdates', data-hook='auto-updates-checkbox')
+                input(type='checkbox', name='autoUpdates', data-hook='auto-updates-checkbox', data-test-id='auto-updates-checkbox')
                 span Enable Automatic Updates
               p.option-description Allow Compass to periodically check for new updates.
 

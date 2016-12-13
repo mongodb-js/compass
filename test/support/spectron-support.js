@@ -233,6 +233,54 @@ function addWaitCommands(client) {
 function addClickCommands(client) {
 
   /**
+   * Click the enable product feedback checkbox.
+   */
+  client.addCommand('clickEnableProductFeedbackCheckbox', function() {
+    const checkbox = selector('product-feedback-checkbox');
+    return this.waitForVisible(checkbox, TIMEOUT).click(checkbox);
+  });
+
+  /**
+   * Click the enable geo viz checkbox.
+   */
+  client.addCommand('clickEnableGeoCheckbox', function() {
+    const checkbox = selector('enable-maps-checkbox');
+    return this.waitForVisible(checkbox, TIMEOUT).click(checkbox);
+  });
+
+  /**
+   * Click the enable crash reports checkbox.
+   */
+  client.addCommand('clickEnableCrashReportsCheckbox', function() {
+    const checkbox = selector('track-errors-checkbox');
+    return this.waitForVisible(checkbox, TIMEOUT).click(checkbox);
+  });
+
+  /**
+   * Click the enable usage stats checkbox.
+   */
+  client.addCommand('clickEnableUsageStatsCheckbox', function() {
+    const checkbox = selector('usage-stats-checkbox');
+    return this.waitForVisible(checkbox, TIMEOUT).click(checkbox);
+  });
+
+  /**
+   * Click the enable auto updates checkbox.
+   */
+  client.addCommand('clickEnableAutoUpdatesCheckbox', function() {
+    const checkbox = selector('auto-updates-checkbox');
+    return this.waitForVisible(checkbox, TIMEOUT).click(checkbox);
+  });
+
+  /**
+   * click the pause button the performance tab.
+   */
+  client.addCommand('clickPerformancePauseButton', function() {
+    const button = selector('performance-pause');
+    return this.waitForVisible(button, TIMEOUT).click(button);
+  });
+
+  /**
    * Click the LAST delete database trash icon in the list.
    *
    * @param {String} name - The name of the database to delete.
@@ -282,7 +330,7 @@ function addClickCommands(client) {
         return this.getText('div[data-hook=optin-container]').then(function(text) {
           return text.length === 0;
         });
-      });
+      }, TIMEOUT);
   });
 
   /**
@@ -558,6 +606,62 @@ function addClickCommands(client) {
  * @param {Client} client - The client.
  */
 function addGetCommands(client) {
+
+  /**
+   * Get the slow operations list.
+   */
+  client.addCommand('getSlowestOperations', function() {
+    const base = selector('no-slow-operations');
+    return this.waitForVisible(base, TIMEOUT).getText(base);
+  });
+
+  /**
+   * Get the memory vsize from the memory graph.
+   */
+  client.addCommand('getMemoryVSize', function() {
+    const base = selector('performance-virtual');
+    return this.waitForVisible(base, TIMEOUT).getText(base);
+  });
+
+  /**
+   * Get the memory resident out from the memory graph.
+   */
+  client.addCommand('getMemoryResident', function() {
+    const base = selector('performance-resident');
+    return this.waitForVisible(base, TIMEOUT).getText(base);
+  });
+
+  /**
+   * Get the memory mapped from the memory graph.
+   */
+  client.addCommand('getMemoryMapped', function() {
+    const base = selector('performance-mapped');
+    return this.waitForVisible(base, TIMEOUT).getText(base);
+  });
+
+  /**
+   * Get the network bytes in from the network graph.
+   */
+  client.addCommand('getNetworkBytesIn', function() {
+    const base = selector('performance-bytesIn');
+    return this.waitForVisible(base, TIMEOUT).getText(base);
+  });
+
+  /**
+   * Get the network bytes out from the network graph.
+   */
+  client.addCommand('getNetworkBytesOut', function() {
+    const base = selector('performance-bytesOut');
+    return this.waitForVisible(base, TIMEOUT).getText(base);
+  });
+
+  /**
+   * Get the network connections from the network graph.
+   */
+  client.addCommand('getNetworkConnections', function() {
+    const base = selector('performance-connections');
+    return this.waitForVisible(base, TIMEOUT).getText(base);
+  });
 
   /**
    * Get active reads count from the read & write graph.
