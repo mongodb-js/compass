@@ -127,7 +127,30 @@ describe('Compass Functional Test Suite #spectron', function() {
           .should.eventually.equal('0');
       });
 
-      it('renders the read/write graph');
+      it('renders the read/write active reads', function() {
+        return client
+          .getReadWriteActiveReads()
+          .should.eventually.equal('0');
+      });
+
+      it('renders the read/write active writes', function() {
+        return client
+          .getReadWriteActiveWrites()
+          .should.eventually.equal('0');
+      });
+
+      it('renders the read/write queued reads', function() {
+        return client
+          .getReadWriteQueuedReads()
+          .should.eventually.equal('0');
+      });
+
+      it('renders the read/write queued writes', function() {
+        return client
+          .getReadWriteQueuedWrites()
+          .should.eventually.equal('0');
+      });
+
       it('renders the network graph');
       it('renders the memory graph');
       it('renders the hottest collections');

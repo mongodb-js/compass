@@ -560,6 +560,38 @@ function addClickCommands(client) {
 function addGetCommands(client) {
 
   /**
+   * Get active reads count from the read & write graph.
+   */
+  client.addCommand('getReadWriteActiveReads', function() {
+    const base = selector('performance-aReads');
+    return this.waitForVisible(base, TIMEOUT).getText(base);
+  });
+
+  /**
+   * Get active writes count from the read & write graph.
+   */
+  client.addCommand('getReadWriteActiveWrites', function() {
+    const base = selector('performance-aWrites');
+    return this.waitForVisible(base, TIMEOUT).getText(base);
+  });
+
+  /**
+   * Get queued reads count from the read & write graph.
+   */
+  client.addCommand('getReadWriteQueuedReads', function() {
+    const base = selector('performance-qReads');
+    return this.waitForVisible(base, TIMEOUT).getText(base);
+  });
+
+  /**
+   * Get queued writes count from the read & write graph.
+   */
+  client.addCommand('getReadWriteQueuedWrites', function() {
+    const base = selector('performance-qWrites');
+    return this.waitForVisible(base, TIMEOUT).getText(base);
+  });
+
+  /**
    * Get insert count from the operations graph.
    */
   client.addCommand('getOperationsInserts', function() {
