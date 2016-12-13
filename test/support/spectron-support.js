@@ -330,7 +330,7 @@ function addClickCommands(client) {
         return this.getText('div[data-hook=optin-container]').then(function(text) {
           return text.length === 0;
         });
-      });
+      }, TIMEOUT);
   });
 
   /**
