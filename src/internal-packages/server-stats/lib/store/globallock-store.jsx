@@ -43,6 +43,9 @@ const GlobalLockStore = Reflux.createStore({
   },
 
   globalLock: function(error, doc, isPaused) {
+    if (!doc.globalLock) {
+      error = new Error('no global lock information returned from the serverstatus command');
+    }
     if (!error && doc) {
       if (this.starting) {
         this.starting = false;
