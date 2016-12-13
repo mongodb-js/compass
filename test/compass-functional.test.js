@@ -37,6 +37,10 @@ describe('Compass Functional Test Suite #spectron', function() {
           return client
             .clickCloseFeatureTourButton()
             .waitForPrivacySettingsModal()
+            .clickEnableProductFeedbackCheckbox()
+            .clickEnableCrashReportsCheckbox()
+            .clickEnableUsageStatsCheckbox()
+            .clickEnableAutoUpdatesCheckbox()
             .getModalTitle()
             .should.eventually.equal('Privacy Settings');
         });

@@ -233,6 +233,46 @@ function addWaitCommands(client) {
 function addClickCommands(client) {
 
   /**
+   * Click the enable product feedback checkbox.
+   */
+  client.addCommand('clickEnableProductFeedbackCheckbox', function() {
+    const checkbox = selector('product-feedback-checkbox');
+    return this.waitForVisible(checkbox, TIMEOUT).click(checkbox);
+  });
+
+  /**
+   * Click the enable geo viz checkbox.
+   */
+  client.addCommand('clickEnableGeoCheckbox', function() {
+    const checkbox = selector('enable-maps-checkbox');
+    return this.waitForVisible(checkbox, TIMEOUT).click(checkbox);
+  });
+
+  /**
+   * Click the enable crash reports checkbox.
+   */
+  client.addCommand('clickEnableCrashReportsCheckbox', function() {
+    const checkbox = selector('track-errors-checkbox');
+    return this.waitForVisible(checkbox, TIMEOUT).click(checkbox);
+  });
+
+  /**
+   * Click the enable usage stats checkbox.
+   */
+  client.addCommand('clickEnableUsageStatsCheckbox', function() {
+    const checkbox = selector('usage-stats-checkbox');
+    return this.waitForVisible(checkbox, TIMEOUT).click(checkbox);
+  });
+
+  /**
+   * Click the enable auto updates checkbox.
+   */
+  client.addCommand('clickEnableAutoUpdatesCheckbox', function() {
+    const checkbox = selector('auto-updates-checkbox');
+    return this.waitForVisible(checkbox, TIMEOUT).click(checkbox);
+  });
+
+  /**
    * click the pause button the performance tab.
    */
   client.addCommand('clickPerformancePauseButton', function() {
