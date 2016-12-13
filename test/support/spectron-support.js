@@ -18,7 +18,7 @@ const TEST_ID = 'data-test-id';
 /**
  * The default timeout for selectors.
  */
-const TIMEOUT = 10000;
+const TIMEOUT = 15000;
 
 /**
  * A long running operation timeout.
@@ -177,7 +177,7 @@ function addWaitCommands(client) {
         return this.getIndexNames().then(function(names) {
           return names.includes(name);
         });
-      });
+      }, TIMEOUT);
   });
 
   /**
@@ -702,7 +702,7 @@ function addGetCommands(client) {
   client.addCommand('getIndexNames', function() {
     const base = selector('indexes-table');
     const names = `${base} td.name-column .index-definition .name`;
-    return this.waitForVisible(base).getText(names, TIMEOUT);
+    return this.waitForVisible(base, TIMEOUT).getText(names);
   });
 
   /**
@@ -713,7 +713,7 @@ function addGetCommands(client) {
   client.addCommand('getIndexTypes', function() {
     const base = selector('indexes-table');
     const types = `${base} td.type-column .property`;
-    return this.waitForVisible(base).getText(types, TIMEOUT);
+    return this.waitForVisible(base, TIMEOUT).getText(types);
   });
 
   /**
@@ -724,7 +724,7 @@ function addGetCommands(client) {
   client.addCommand('getIndexSizes', function() {
     const base = selector('indexes-table');
     const sizes = `${base} td.size-column .quantity`;
-    return this.waitForVisible(base).getText(sizes, TIMEOUT);
+    return this.waitForVisible(base, TIMEOUT).getText(sizes);
   });
 
   /**
@@ -735,7 +735,7 @@ function addGetCommands(client) {
   client.addCommand('getIndexUsages', function() {
     const base = selector('indexes-table');
     const usages = `${base} td.usage-column .usage .quantity`;
-    return this.waitForVisible(base).getText(usages, TIMEOUT);
+    return this.waitForVisible(base, TIMEOUT).getText(usages);
   });
 
   /**
@@ -746,7 +746,7 @@ function addGetCommands(client) {
   client.addCommand('getIndexProperties', function() {
     const base = selector('indexes-table');
     const props = `${base} td.property-column .properties .property`;
-    return this.waitForVisible(base).getText(props, TIMEOUT);
+    return this.waitForVisible(base, TIMEOUT).getText(props);
   });
 }
 
