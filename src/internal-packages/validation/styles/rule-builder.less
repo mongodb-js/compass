@@ -1,9 +1,5 @@
 .rule-builder {
   padding-top: 20px;
-
-  .delete-button {
-    color: red;
-  }
 }
 
 .rule-builder-table {
@@ -20,6 +16,47 @@
     width: 10%;
   }
 
+  .form-group { 
+    margin-bottom: 0;
+  }
+
+  .form-control, .dropdown-toggle { 
+    height: 28px;
+  }
+
+  .form-control:focus { 
+    border-color: @green3; 
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075),0 0 8px rgb(134, 188, 99, 0.3);
+  }
+
+  .regex-dropdown {
+    border-left: none;
+    border-radius: 0 3px 3px 0;
+
+    &:focus {
+      border-left: solid 1px #8c8c8c;
+    }
+  }
+
+  .range-dropdown {
+    border-right: none;
+  }
+
+  .input-group {
+    margin-right: 5px;
+  }
+
+  .dropdown-header {
+    font-size: inherit;
+    color: inherit;
+  }
+
+  .dropdown-toggle {
+    text-transform: none;
+    padding-top: 5px;
+    line-height: 15px;
+  }
+
   .dropdown-header {
     input {
       margin-right: 5px;
@@ -29,4 +66,8 @@
       margin-right: 5px;
     }
   }
+}
+
+.table > tbody > tr > td { 
+  vertical-align: middle;
 }

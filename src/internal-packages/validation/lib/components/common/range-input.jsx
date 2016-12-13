@@ -150,7 +150,7 @@ class RangeInput extends React.Component {
    */
   render() {
     const boundString = `${this.props.upperBound ?
-        'upper' : 'lower'} bound`.toUpperCase();
+        'Upper' : 'Lower'} bound`;
 
     // hidden, only show dropdown
     if (this.state.hidden) {
@@ -168,12 +168,13 @@ class RangeInput extends React.Component {
       );
     }
     // not hidden, render input group with value input and operator dropdown
-    const placeholder = `${boundString}`.toLowerCase();
+    const placeholder = `${boundString}`;
     const validationState = this.state.isValid ? null : 'error';
     return (
       <FormGroup validationState={this.props.validationState || validationState}>
         <InputGroup style={{width: this.props.width}}>
           <DropdownButton
+            className="range-dropdown"
             id={`range-input-${this.props.upperBound ? 'upper' : 'lower'}`}
             componentClass={InputGroup.Button}
             title={this.state.operator}

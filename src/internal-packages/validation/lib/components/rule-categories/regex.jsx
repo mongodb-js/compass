@@ -139,7 +139,8 @@ class RuleCategoryRegex extends React.Component {
           disabled={!this.props.isWritable}
         />
         <DropdownButton id="regex-options"
-          title="options"
+          title="Options"
+          className="regex-dropdown"
           onClose={this.onDropdownClosed.bind(this)}
         >
           <MenuItem header>
