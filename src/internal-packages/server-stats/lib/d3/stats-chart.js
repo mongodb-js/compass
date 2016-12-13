@@ -319,9 +319,10 @@ const graphfunction = function() {
         .append('text')
         .attr('class', 'legend-linename')
         .attr('transform', 'translate(' + 13 + ',' + 9 + ')')
-        .text(function(d, i) {return data.labels.keys[i]; });
+        .text(function(d, i) { return data.labels.keys[i]; });
       legendDiv
         .append('text')
+        .attr('data-test-id', function(d) { return `performance-${d}`; })
         .attr('class', function(d) { return 'legend-count text-' + d;} )
         .attr('transform', 'translate(' + 15 + ',22)');
 
