@@ -9,7 +9,7 @@
     "hadron": {
       "build": {
         "win32": {
-          "icon": "src/images/win32/hadron-app.ico",
+          "icon": "resources/win32/hadron-app.ico",
           "favicon_url": "https://raw.githubusercontent.com/mongodb-js/favicon/master/favicon.ico",
           "loading_gif": "src/app/images/win32/hadron-app-installer-loading.gif"
         },
@@ -20,6 +20,9 @@
           "codesign_sha1": "1111111111111111111111111111111111111111",
           "app_bundle_id": "com.mongodb.hadron",
           "app_category_type": "public.app-category.productivity"
+        },
+        "linux": {
+          "icon": "resources/linux/Icon.png"
         }
       },
       "endpoint": "https://hadron-app.herokuapp.com",

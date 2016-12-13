@@ -2,3 +2,4 @@
 .jsfmtrc
 .travis.yml
 test/
+yarn.lock

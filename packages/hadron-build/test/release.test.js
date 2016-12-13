@@ -24,11 +24,11 @@ const withDefaults = (argv) => {
 };
 
 describe('hadron-build::release', function() {
-  this.timeout(240000);
+  this.timeout(300000);
   var CONFIG = {};
 
   before( (done) => {
-    if (process.platform !== 'darwin') {
+    if (process.platform === 'windows') {
       return done();
     }
 
@@ -64,4 +64,15 @@ describe('hadron-build::release', function() {
    * Should have matching md5 of contents.
    */
   it('should have the correct application icon');
+
+  it('should have all assets specified in the manifest', () => {
+    CONFIG.assets.map(function(asset) {
+      it(`should have created \`${asset.name}\``, (done) => {
+        fs.exists(asset.path, function(exists) {
+          assert(exists, `Asset file should exist at ${asset.path}`);
+          done();
+        });
+      });
+    });
+  });
 });

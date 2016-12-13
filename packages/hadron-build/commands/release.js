@@ -119,6 +119,10 @@ const createBrandedApplication = (CONFIG, done) => {
 
 /**
  * Symlinks the Electron executable to the product name.
+ *
+ * @param {Object} CONFIG
+ * @param {Function} done
+ * @api public
  */
 const symlinkExecutable = (CONFIG, done) => {
   if (CONFIG.platform === 'darwin') {
@@ -136,7 +140,7 @@ const symlinkExecutable = (CONFIG, done) => {
   } else {
     done();
   }
-}
+};
 
 /**
  * For some platforms, there will be extraneous (to us) folders generated
@@ -148,11 +152,6 @@ const symlinkExecutable = (CONFIG, done) => {
  * @api public
  */
 const cleanupBrandedApplicationScaffold = (CONFIG, done) => {
-  if (CONFIG.platform === 'linux') {
-    done(null, true);
-    return;
-  }
-
   var globsToDelete = [];
   if (CONFIG.platform === 'win32') {
     globsToDelete.push(path.join(CONFIG.resources, '*.pak'));
@@ -175,6 +174,7 @@ const cleanupBrandedApplicationScaffold = (CONFIG, done) => {
  *
  * @see [Atom's generate-license-task.coffee](https://git.io/vaZI7)
  * @param {Object} CONFIG
+ * @param {Function} [done] Optional callback
  * @returns {Promise}
  * @api public
  */
@@ -194,7 +194,9 @@ const writeLicenseFile = (CONFIG, done) => {
     .then((contents) => {
       fs.writeFileSync(LICENSE_DEST, contents);
       cli.debug(format('LICENSE written to `%s`', LICENSE_DEST));
-      done(null, true);
+      if (done) {
+        done(null, true);
+      }
     });
 };
 
@@ -204,12 +206,12 @@ const writeLicenseFile = (CONFIG, done) => {
  *
  * @see [Atom's set-version-task.coffee](https://git.io/vaZkN)
  * @param {Object} CONFIG
- * @returns {Promise}
+ * @param {Function} done
  * @api public
  */
 const writeVersionFile = (CONFIG, done) => {
   const VERSION_DEST = path.join(CONFIG.appPath, '..', 'version');
-  cli.debug(format('Writing version file to `%s`', VERSION_DEST));
+  cli.debug(`Writing version file to ${VERSION_DEST}`);
   fs.writeFile(VERSION_DEST, CONFIG.version, function(err) {
     if (err) {
       return done(err);
@@ -250,7 +252,8 @@ const transformPackageJson = (CONFIG, done) => {
 };
 
 /**
- * TODO (imlucas) Cache this... http://npm.im/npm-cache ?
+ * TODO (imlucas) Switch to using http://npm.im/yarn instead of npm.
+ *
  * @see [Atom's fingerprint-task.js](https://git.io/vaZLq)
  * @see [Atom's fingerprint.js](https://git.io/vaZLZ)
  * @see [Atom's generate-module-cache-task.coffee](https://git.io/vaY0O)
@@ -379,25 +382,18 @@ const createApplicationAsar = (CONFIG, done) => {
  * @param {Function} done
  */
 const createApplicationZip = (CONFIG, done) => {
-  if (CONFIG.platform === 'linux') {
-    done();
-    return;
-  }
+  const DIR = CONFIG.appPath;
 
-  var DIR = CONFIG.appPath;
-
-  var OUT = CONFIG.assets.filter(function(asset) {
+  const OUT = CONFIG.assets.filter(function(asset) {
     return path.extname(asset.path) === '.zip';
   })[0].path;
-  cli.debug('Zipping `%s` to `%s`', DIR, OUT);
 
-  var options = {
+  cli.debug('Zipping `%s` to `%s`', DIR, OUT);
+  zip({
     dir: DIR,
     out: OUT,
     platform: CONFIG.platform
-  };
-
-  zip(options, done);
+  }, done);
 };
 
 /**
@@ -446,7 +442,6 @@ exports.run = (argv, done) => {
       });
     };
   };
-
 
   const tasks = _.flatten([
     function(cb) {

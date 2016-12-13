@@ -6,7 +6,7 @@
     "fmt": "mongodb-js-fmt",
     "check": "mongodb-js-precommit",
     "test": "mocha",
-    "ci": "npm run check && npm test"
+    "ci": "npm run check && DEBUG=electron-installer-*,hadron* npm test"
   },
   "bin": {
     "hadron-build": "./cli.js"
@@ -26,14 +26,16 @@
     "debug": "^2.2.0",
     "del": "^2.0.2",
     "electron-installer-codesign": "^0.3.0",
+    "electron-installer-debian": "^0.4.0",
     "electron-installer-dmg": "^0.1.1",
+    "electron-installer-redhat": "^0.3.0",
     "electron-installer-run": "^0.1.2",
     "electron-installer-zip": "^0.1.2",
     "electron-license": "^0.2.0",
     "electron-mocha": "^3.1.1",
     "electron-osx-sign": "^0.4.1",
     "electron-packager": "^8.0.0",
-    "electron-prebuilt": "^1.2.8",
+    "electron-prebuilt": "^1.4.12",
     "electron-winstaller": "^2.3.3",
     "flatnest": "^1.0.0",
     "fs-extra": "^1.0.0",
@@ -51,6 +53,7 @@
     "normalize-package-data": "^2.3.5",
     "parse-github-repo-url": "^1.0.0",
     "semver": "^5.1.0",
+    "tar-pack": "^3.3.0",
     "templatizer": "^2.0.3",
     "which": "^1.2.0",
     "yargs": "^4.4.0"

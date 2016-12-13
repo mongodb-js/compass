@@ -19,6 +19,12 @@ const generateLessCache = (opts) => {
    */
   const appDir = path.join(process.cwd(), 'src', 'app');
   const src = path.join(appDir, 'index.less');
+  if (!fs.existsSync(src)) {
+    return new Promise(function(resolve) {
+      resolve();
+    });
+  }
+
   if (!opts.less_cache) {
     cli.warn('`less_cache` config option not set! skipping');
     return new Promise(function(resolve) {
@@ -46,6 +52,12 @@ const generateLessHelpCache = (opts) => {
    */
   const appDir = path.join(process.cwd(), 'src', 'app');
   const src = path.join(appDir, 'help.less');
+  if (!fs.existsSync(src)) {
+    return new Promise(function(resolve) {
+      resolve();
+    });
+  }
+  
   if (!opts.less_cache) {
     cli.warn('`less_cache` config option not set! skipping');
     return new Promise(function(resolve) {

@@ -1,10 +1,7 @@
 'use strict';
 
 /**
- * Wouldn't it be great if you or a CI system were notified properly
- * that you aren't using the right version of node.js, npm or Python?
- *
- * @see https://github.com/atom/atom/blob/master/script/utils/verify-requirements.js
+ * Upload release assets to GitHub and S3.
  */
 const Promise = require('bluebird');
 const _ = require('lodash');

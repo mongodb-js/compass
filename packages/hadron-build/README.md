@@ -24,6 +24,9 @@
           "codesign_sha1": "<your-certs-sha1>",
           "app_bundle_id": "com.<your-company>.<your-project-id>",
           "app_category_type": "public.app-category.productivity"
+        },
+        "linux": {
+          "icon": "resources/linux/<your-project-id>.png"
         }
       },
       "endpoint": "<hadron-endpoint-server-url>"
@@ -45,6 +48,33 @@
   }
 }
 ```
+
+
+### build.win32
+
+#### build.win32.icon
+
+#### build.win32.favicon_url
+
+#### build.win32.loading_gif
+
+### build.darwin
+
+#### build.darwin.icon
+
+#### build.darwin.dmg_background
+
+#### build.darwin.codesign_identity
+
+#### build.darwin.codesign_sha1
+
+#### build.darwin.app_bundle_id
+
+#### build.darwin.app_category_type
+
+### build.linux
+
+#### build.linux.icon
 
 ## CLI Usage
 
@@ -246,25 +276,37 @@ Which assets are generated depends on the target platform.
 - `.msi`: Global Windows installer (requires Administrator)
 - `-win32-${arch}.zip`: Convenience for techops team's that can't use `.msi` or use a package manager such as Chocolatey.
 
+### Linux
+
+- `.rpm`: Installer for Redhat
+- `.deb`: Installer for Ubuntu and Debian
+- `.tar.gz`: Convenience for easy automation on unix
+- `-linux-${arch}.zip`: Convenience for easy automation on win32-x64
+
 ## Auto Update
 
 - `hadron-auto-update-manager`: https://github.com/hadron-auto-update-manager
+
+### macOS
+
+- Works out of the box
 
 ### Windows
 
 - `electron-squirrel-startup`: https://github.com/mongodb-js/electron-squirrel-startup
 - [Update process explained step by step](https://github.com/Squirrel/Squirrel.Windows/blob/master/docs/using/update-process.md#update-process)
 
+### Linux
+
+- Not currently supported. Waiting for upstream to do it. [hadron-auto-update-manager](https://github.com/hadron-auto-update-manager) contains a noop polyfill for linux though.
+
 
 ## Todo
 
-- Functional tests for `release` command
-- `railcars` command
-- `check` command ->  `mongodb-js-precommit`
-- `fmt` command ->  `mongodb-js-fmt`
+- `publish` command for setting `draft=true` on GitHub Release and pushing S3 manifest
+- `promote` command based on `lib/railcars`
 - Make `test` use `xvfb-maybe` by default
-- Support for [staged rollouts via auto update](https://github.com/Squirrel/Squirrel.Windows/blob/master/docs/using/staged-rollouts.md)
-
+- `snap` and `appimage` installers for Linux
 
 ## License
 
