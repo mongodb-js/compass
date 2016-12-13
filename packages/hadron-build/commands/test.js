@@ -42,12 +42,14 @@ exports.getMochaArgs = (argv) => {
      */
   ];
 
+  if (!argv.recursive) {
+    args.push.apply(args, ['--recursive']);
+  }
+
   if (argv.unit) {
     args.push.apply(args, ['--invert', '--grep', 'spectron']);
   } else if (argv.functional) {
     args.push.apply(args, ['--grep', 'spectron']);
-  } else if (argv.packages) {
-    args.push.apply(args, ['--recursive']);
   }
 
   if (process.env.EVERGREEN) {
