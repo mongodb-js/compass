@@ -89,6 +89,54 @@ describe('Compass Functional Test Suite #spectron', function() {
       });
     });
 
+    context('when viewing the performance view', function() {
+      it('renders the operations graph inserts', function() {
+        return client
+          .clickPerformanceTab()
+          .getOperationsInserts()
+          .should.eventually.equal('0');
+      });
+
+      it('renders the operations graph queries', function() {
+        return client
+          .getOperationsQueries()
+          .should.eventually.equal('0');
+      });
+
+      it('renders the operations graph updates', function() {
+        return client
+          .getOperationsUpdates()
+          .should.eventually.equal('0');
+      });
+
+      it('renders the operations graph deletes', function() {
+        return client
+          .getOperationsDeletes()
+          .should.eventually.equal('0');
+      });
+
+      it('renders the operations graph deletes', function() {
+        return client
+          .getOperationsCommands()
+          .should.eventually.not.equal(null);
+      });
+
+      it('renders the operations graph getmores', function() {
+        return client
+          .getOperationsGetMores()
+          .should.eventually.equal('0');
+      });
+
+      it('renders the read/write graph');
+      it('renders the network graph');
+      it('renders the memory graph');
+      it('renders the hottest collections');
+      it('renders the slow operations');
+
+      context('when pausing the performance tab', function() {
+      });
+    });
+
     context('when creating a database', function() {
       let dbCount;
 
@@ -102,6 +150,7 @@ describe('Compass Functional Test Suite #spectron', function() {
       context('when the database name is invalid', function() {
         it('displays the error message', function() {
           return client
+            .clickDatabasesTab()
             .clickCreateDatabaseButton()
             .waitForCreateDatabaseModal()
             .inputCreateDatabaseDetails({ name: '$test', collectionName: 'test' })

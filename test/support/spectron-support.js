@@ -360,6 +360,20 @@ function addClickCommands(client) {
   });
 
   /**
+   * Click on the databases tab.
+   */
+  client.addCommand('clickDatabasesTab', function() {
+    return this.waitForStatusBar().click(selector('databases-tab'));
+  });
+
+  /**
+   * Click on the performance tab.
+   */
+  client.addCommand('clickPerformanceTab', function() {
+    return this.waitForStatusBar().click(selector('performance-tab'));
+  });
+
+  /**
    * Click on the schema tab.
    */
   client.addCommand('clickSchemaTab', function() {
@@ -544,6 +558,54 @@ function addClickCommands(client) {
  * @param {Client} client - The client.
  */
 function addGetCommands(client) {
+
+  /**
+   * Get insert count from the operations graph.
+   */
+  client.addCommand('getOperationsInserts', function() {
+    const base = selector('performance-insert');
+    return this.waitForVisible(base, TIMEOUT).getText(base);
+  });
+
+  /**
+   * Get query count from the operations graph.
+   */
+  client.addCommand('getOperationsQueries', function() {
+    const base = selector('performance-query');
+    return this.waitForVisible(base, TIMEOUT).getText(base);
+  });
+
+  /**
+   * Get update count from the operations graph.
+   */
+  client.addCommand('getOperationsUpdates', function() {
+    const base = selector('performance-update');
+    return this.waitForVisible(base, TIMEOUT).getText(base);
+  });
+
+  /**
+   * Get delete count from the operations graph.
+   */
+  client.addCommand('getOperationsDeletes', function() {
+    const base = selector('performance-delete');
+    return this.waitForVisible(base, TIMEOUT).getText(base);
+  });
+
+  /**
+   * Get command count from the operations graph.
+   */
+  client.addCommand('getOperationsCommands', function() {
+    const base = selector('performance-command');
+    return this.waitForVisible(base, TIMEOUT).getText(base);
+  });
+
+  /**
+   * Get getmore count from the operations graph.
+   */
+  client.addCommand('getOperationsGetMores', function() {
+    const base = selector('performance-getmore');
+    return this.waitForVisible(base, TIMEOUT).getText(base);
+  });
 
   /**
    * Get the status row message from the explain plan.
