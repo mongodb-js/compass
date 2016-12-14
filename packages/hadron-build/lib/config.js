@@ -6,11 +6,6 @@ const _ = require('lodash');
 const async = require('async');
 const which = require('which');
 const tarPack = require('tar-pack').pack;
-const createDMG = require('electron-installer-dmg');
-const codesign = require('electron-installer-codesign');
-const electronWinstaller = require('electron-winstaller');
-const createDeb = require('electron-installer-debian');
-const createRpm = require('electron-installer-redhat');
 const Target = require('./target');
 
 exports.get = (cli, callback) => {
@@ -209,6 +204,7 @@ exports.get = (cli, callback) => {
     };
 
     CONFIG.createInstaller = (done) => {
+      const electronWinstaller = require('electron-winstaller');
       electronWinstaller.createWindowsInstaller(CONFIG.installerOptions)
         .then(function(res) {
           cli.debug('Successfully created installers', res);
@@ -219,6 +215,9 @@ exports.get = (cli, callback) => {
     /**
      * ## OS X Configuration
      */
+    const createDMG = require('electron-installer-dmg');
+    const codesign = require('electron-installer-codesign');
+
     const OSX_APPNAME = CONFIG.productName;
     const OSX_OUT_X64 = CONFIG.dest(`${OSX_APPNAME}-darwin-x64`);
     const OSX_DOT_APP = path.join(OSX_OUT_X64, `${OSX_APPNAME}.app`);
@@ -408,8 +407,10 @@ exports.get = (cli, callback) => {
               icon: LINUX_ICON,
               name: CONFIG.slug,
               version: [target.semver.major, target.semver.minor, target.semver.patch].join('.'),
-              revision: target.semver.prerelease.join('.')
+              revision: target.semver.prerelease.join('.') || '1'
             };
+            cli.debug('calling electron-installer-redhat with options', rpmOptions);
+            const createRpm = require('electron-installer-redhat');
             createRpm(rpmOptions, cb);
           });
         },
@@ -433,6 +434,7 @@ exports.get = (cli, callback) => {
               version: CONFIG.version.replace(/\./g, '~')
             };
             cli.debug('calling electron-installer-debian with options', debOptions);
+            const createDeb = require('electron-installer-debian');
             createDeb(debOptions, cb);
           });
         },

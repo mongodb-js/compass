@@ -100,15 +100,15 @@ describe('hadron-build::config', () => {
     const c = getConfig(linux);
     const assetNames = _.map(c.assets, 'name');
     it('should produce a tarball asset', () => {
-      expect(assetNames).to.contain('hadron-app-1.2.0-linux-x64.tar.gz');
+      expect(assetNames).to.contain(`hadron-app-1.2.0-linux-${c.arch}.tar.gz`);
     });
 
     it('should produce a debian package asset', () => {
-      expect(assetNames).to.contain('hadron-app-1.2.0-linux-x64.deb');
+      expect(assetNames).to.contain(`hadron-app-1.2.0-linux-${c.arch}.deb`);
     });
 
     it('should produce a redhat package manager asset', () => {
-      expect(assetNames).to.include('hadron-app.1.2.0.linux.x64.rpm');
+      expect(assetNames).to.include(`hadron-app.1.2.0.linux.${c.arch}.rpm`);
     });
   });
 

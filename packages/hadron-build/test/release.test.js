@@ -23,56 +23,60 @@ const withDefaults = (argv) => {
   return CONFIG;
 };
 
-describe('hadron-build::release', function() {
-  this.timeout(300000);
-  var CONFIG = {};
+if (process.platform === 'win32') {
+  // Functional tests on appveyor too slow. Skipping.
+} else {
+  describe('hadron-build::release', function() {
+    this.timeout(300000);
+    var CONFIG = null;
 
-  before( (done) => {
-    if (process.platform === 'windows') {
-      return done();
-    }
-
-    fs.remove(path.join(__dirname, 'fixtures', 'hadron-app', 'dist'), (_err) => {
-      if (_err) {
-        return done(_err);
-      }
-      commands.release.run(withDefaults({ product_name: 'Hadron App' }), (err, _config) => {
-        if (err) {
-          return done(err);
+    before(function(done) {
+      fs.remove(path.join(__dirname, 'fixtures', 'hadron-app', 'dist'), (_err) => {
+        if (_err) {
+          return done(_err);
         }
-        CONFIG = _config;
-        done();
-      });
-    });
-  });
-
-  it('should symlink `Electron` to the app binary on OS X', function(done) {
-    if (CONFIG.platform !== 'darwin') {
-      return done();
-    }
-
-    const bin = path.join(CONFIG.appPath, 'Contents', 'MacOS', 'Electron');
-    fs.exists(bin, function(exists) {
-      assert(exists, `Expected ${bin} to exist`);
-      done();
-    });
-  });
-
-  /**
-   * TODO (imlucas) Compare from `CONFIG.icon` to
-   * `path.join(CONFIG.resource, 'electron.icns')` (platform specific).
-   * Should have matching md5 of contents.
-   */
-  it('should have the correct application icon');
-
-  it('should have all assets specified in the manifest', () => {
-    CONFIG.assets.map(function(asset) {
-      it(`should have created \`${asset.name}\``, (done) => {
-        fs.exists(asset.path, function(exists) {
-          assert(exists, `Asset file should exist at ${asset.path}`);
+        commands.release.run(withDefaults({
+          name: 'hadron-app',
+          version: '1.2.0',
+          product_name: 'Hadron App'
+        }), (err, _config) => {
+          if (err) {
+            return done(err);
+          }
+          CONFIG = _config;
           done();
         });
       });
     });
+
+    it('should symlink `Electron` to the app binary on OS X', function(done) {
+      if (CONFIG.platform !== 'darwin') {
+        return this.skip();
+      }
+
+      const bin = path.join(CONFIG.appPath, 'Contents', 'MacOS', 'Electron');
+      fs.exists(bin, function(exists) {
+        assert(exists, `Expected ${bin} to exist`);
+        done();
+      });
+    });
+
+    /**
+     * TODO (imlucas) Compare from `CONFIG.icon` to
+     * `path.join(CONFIG.resource, 'electron.icns')` (platform specific).
+     * Should have matching md5 of contents.
+     */
+    it('should have the correct application icon');
+
+    it('should have all assets specified in the manifest', () => {
+      CONFIG.assets.map(function(asset) {
+        it(`should have created \`${asset.name}\``, (done) => {
+          fs.exists(asset.path, function(exists) {
+            assert(exists, `Asset file should exist at ${asset.path}`);
+            done();
+          });
+        });
+      });
+    });
   });
-});
+}
