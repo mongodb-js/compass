@@ -45,13 +45,13 @@ describe('<Collection />', function() {
 
   it('has 4 tabs with server version 3.0.6', function() {
     app.instance = {build: {version: '3.0.6'}};
-    const component = shallow(<Collection showView={true} namespace={'foo.bar'} />);
+    const component = shallow(<Collection namespace={'foo.bar'} />);
     const tabs = component.find(TabNavBar).dive().find('.tab-nav-bar-tab');
     expect(tabs).to.have.length(4);
   });
   it('has 5 tabs inc a validation tab when serverVersion >= 3.2.0', function() {
     app.instance = {build: {version: '3.2.0'}};
-    const component = shallow(<Collection showView={true} namespace={'foo.bar'} />);
+    const component = shallow(<Collection namespace={'foo.bar'} />);
     const tabs = component.find(TabNavBar).dive().find('.tab-nav-bar-tab');
     expect(tabs.find('#VALIDATION')).to.exist;
     expect(tabs).to.have.length(5);
