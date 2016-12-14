@@ -1,6 +1,5 @@
 sudo: required
 language: node_js
-sudo: required
 node_js:
   - 6
 env:
@@ -26,4 +25,5 @@ before_script:
 script: npm run test
 cache:
   directories:
+    - $HOME/.electron
     - node_modules
