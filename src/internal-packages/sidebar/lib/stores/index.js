@@ -29,8 +29,7 @@ const SidebarStore = Reflux.createStore({
   */
   init() {
     NamespaceStore.listen(this.onNamespaceChanged.bind(this));
-    this.listenToExternalStore('App.InstanceStore',
-      this.onInstanceRefreshed.bind(this));
+    this.listenToExternalStore('App.InstanceStore', this.onInstanceChange.bind(this));
   },
 
   /**
@@ -53,14 +52,14 @@ const SidebarStore = Reflux.createStore({
     });
   },
 
-  setInstance(instance) {
-    this.setState({
-      instance,
-      databases: this._filterDatabases(this.state.filterRegex, instance.databases)
-    });
-  },
+  // setInstance(instance) {
+  //   this.setState({
+  //     instance,
+  //     databases: this._filterDatabases(this.state.filterRegex, instance.databases)
+  //   });
+  // },
 
-  onInstanceRefreshed(state) {
+  onInstanceChange(state) {
     this.setState({
       instance: state.instance,
       databases: this._filterDatabases(this.state.filterRegex, state.instance.databases)

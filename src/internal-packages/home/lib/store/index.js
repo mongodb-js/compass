@@ -1,6 +1,5 @@
 const app = require('ampersand-app');
 const Reflux = require('reflux');
-// const toNS = require('mongodb-ns');
 const HomeActions = require('../actions');
 const StateMixin = require('reflux-state-mixin');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
@@ -23,7 +22,7 @@ const HomeStore = Reflux.createStore({
    * Initialize home store
    */
   init() {
-    NamespaceStore.listen(this.switchContent.bind(this)); // (HomeActions.switchContent);
+    NamespaceStore.listen(HomeActions.switchContent);
   },
 
   getInitialState() {

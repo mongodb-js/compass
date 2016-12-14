@@ -1,7 +1,7 @@
 const Reflux = require('reflux');
 
 const HomeActions = Reflux.createActions([
-  'switchMainContent'
+  'switchContent'
 ]);
 
 module.exports = HomeActions;

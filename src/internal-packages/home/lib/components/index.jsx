@@ -3,19 +3,19 @@ const app = require('ampersand-app');
 const StoreConnector = app.appRegistry.getComponent('App.StoreConnector');
 
 const Home = require('./home');
-const Store = require('../store');
+const HomeStore = require('../store');
 
 // const debug = require('debug')('mongodb-compass:validation:index');
 
 class ConnectedHome extends React.Component {
   /**
-   * Connect <Validation /> component to store and render.
+   * Connect <Home /> component to home store and render.
    *
    * @returns {React.Component} The rendered component.
    */
   render() {
     return (
-      <StoreConnector store={Store}>
+      <StoreConnector store={HomeStore}>
         <Home />
       </StoreConnector>
     );
