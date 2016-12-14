@@ -5,6 +5,7 @@ const semver = require('semver');
 
 class Target {
   constructor(opts) {
+    this.id = opts.name;
     this.name = opts.name;
     this.slug = this.name;
     this.productName = opts.productName || opts.name;
