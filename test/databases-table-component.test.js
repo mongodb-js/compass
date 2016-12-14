@@ -100,7 +100,7 @@ describe('<DatabasesTable />', () => {
 
     it('has only the not authorized message', () => {
       const expected = 'The MongoDB instance you are connected to does not ' +
-          'contain any collections, or you are not authorized to view them. ';
+          'contain any collections, or you are not authorized to view them.';
       const component = shallow(<this.DatabasesTable
           columns={[]}
           databases={[]}
@@ -128,7 +128,7 @@ describe('<DatabasesTable />', () => {
 
     it('does not render any message', () => {
       const state = this.component.find('.no-collections-zero-state');
-      expect(state.text()).to.be.equal('');
+      expect(state.length).to.be.equal(0);
     });
 
     it('renders the databases', () => {

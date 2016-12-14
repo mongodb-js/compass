@@ -45,11 +45,11 @@ class DatabasesTable extends React.Component {
     return (
       <div className="no-collections-zero-state">
         The MongoDB instance you are connected to
-        does not contain any collections, or you are &nbsp;
-        <a onClick={this.onAuthHelpClicked.bind(this)}>not authorized</a>
-        &nbsp;to view them.
+        does not contain any collections, or you are
+        <a onClick={this.onAuthHelpClicked.bind(this)}> not authorized </a>
+        to view them.
         {!writable ?
-          <a className="show-connect-window">Connect to another instance</a>
+          <a className="show-connect-window"> Connect to another instance</a>
           : null}
       </div>
     );
@@ -89,7 +89,7 @@ class DatabasesTable extends React.Component {
           onRowDeleteButtonClicked={this.onRowDeleteButtonClicked.bind(this)}
         />
         {this.props.databases.length === 0 ?
-            this.renderNoCollections(this, writable) : null}
+            this.renderNoCollections(writable) : null}
         <CreateDatabaseDialog />
         <DropDatabaseDialog />
       </div>
