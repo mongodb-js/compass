@@ -177,7 +177,7 @@ function addWaitCommands(client) {
         return this.getIndexNames().then(function(names) {
           return names.includes(name);
         });
-      }, TIMEOUT);
+      }, LONG_TIMEOUT);
   });
 
   /**
@@ -330,7 +330,7 @@ function addClickCommands(client) {
         return this.getText('div[data-hook=optin-container]').then(function(text) {
           return text.length === 0;
         });
-      }, TIMEOUT);
+      }, LONG_TIMEOUT);
   });
 
   /**
@@ -358,8 +358,8 @@ function addClickCommands(client) {
    */
   client.addCommand('clickApplyFilterButtonFromDocumentsTab', function() {
     const base = selector('documents-content');
-    const button = `${base} .apply-filter-button`;
-    return this.waitForVisible(button).click(button);
+    const button = `${base} ${selector('apply-filter-button')}`;
+    return this.waitForVisible(button, TIMEOUT).click(button);
   });
 
   /**
@@ -367,8 +367,8 @@ function addClickCommands(client) {
    */
   client.addCommand('clickResetFilterButtonFromDocumentsTab', function() {
     const base = selector('documents-content');
-    const button = `${base} .reset-filter-button`;
-    return this.waitForVisible(button).click(button);
+    const button = `${base} ${selector('reset-filter-button')}`;
+    return this.waitForVisible(button, TIMEOUT).click(button);
   });
 
   /**
@@ -376,8 +376,8 @@ function addClickCommands(client) {
    */
   client.addCommand('clickApplyFilterButtonFromSchemaTab', function() {
     const base = selector('schema-content');
-    const button = `${base} .apply-filter-button`;
-    return this.waitForVisible(button).click(button);
+    const button = `${base} ${selector('apply-filter-button')}`;
+    return this.waitForVisible(button, TIMEOUT).click(button);
   });
 
   /**
@@ -385,8 +385,8 @@ function addClickCommands(client) {
    */
   client.addCommand('clickResetFilterButtonFromSchemaTab', function() {
     const base = selector('schema-content');
-    const button = `${base} .reset-filter-button`;
-    return this.waitForVisible(button).click(button);
+    const button = `${base} ${selector('reset-filter-button')}`;
+    return this.waitForVisible(button, TIMEOUT).click(button);
   });
 
   /**
@@ -394,8 +394,8 @@ function addClickCommands(client) {
    */
   client.addCommand('clickApplyFilterButtonFromExplainPlanTab', function() {
     const base = selector('explain-plan-content');
-    const button = `${base} .apply-filter-button`;
-    return this.waitForVisible(button).click(button);
+    const button = `${base} ${selector('apply-filter-button')}`;
+    return this.waitForVisible(button, TIMEOUT).click(button);
   });
 
   /**
@@ -403,8 +403,8 @@ function addClickCommands(client) {
    */
   client.addCommand('clickResetFilterButtonFromExplainPlanTab', function() {
     const base = selector('explain-plan-content');
-    const button = `${base} .reset-filter-button`;
-    return this.waitForVisible(button).click(button);
+    const button = `${base} ${selector('reset-filter-button')}`;
+    return this.waitForVisible(button, TIMEOUT).click(button);
   });
 
   /**
@@ -898,9 +898,8 @@ function addGetCommands(client) {
    * @note Will return 1 element if only 1 in the list or an array if many.
    */
   client.addCommand('getIndexNames', function() {
-    const base = selector('indexes-table');
-    const names = `${base} td.name-column .index-definition .name`;
-    return this.waitForVisible(base, TIMEOUT).getText(names);
+    const names = selector('index-table-name');
+    return this.waitForVisible(names, TIMEOUT).getText(names);
   });
 
   /**
@@ -909,9 +908,8 @@ function addGetCommands(client) {
    * @note Will return 1 element if only 1 in the list or an array if many.
    */
   client.addCommand('getIndexTypes', function() {
-    const base = selector('indexes-table');
-    const types = `${base} td.type-column .property`;
-    return this.waitForVisible(base, TIMEOUT).getText(types);
+    const types = selector('index-table-type');
+    return this.waitForVisible(types, TIMEOUT).getText(types);
   });
 
   /**
@@ -920,9 +918,8 @@ function addGetCommands(client) {
    * @note Will return 1 element if only 1 in the list or an array if many.
    */
   client.addCommand('getIndexSizes', function() {
-    const base = selector('indexes-table');
-    const sizes = `${base} td.size-column .quantity`;
-    return this.waitForVisible(base, TIMEOUT).getText(sizes);
+    const sizes = selector('index-table-size');
+    return this.waitForVisible(sizes, TIMEOUT).getText(sizes);
   });
 
   /**
@@ -931,9 +928,8 @@ function addGetCommands(client) {
    * @note Will return 1 element if only 1 in the list or an array if many.
    */
   client.addCommand('getIndexUsages', function() {
-    const base = selector('indexes-table');
-    const usages = `${base} td.usage-column .usage .quantity`;
-    return this.waitForVisible(base, TIMEOUT).getText(usages);
+    const usages = selector('index-table-usage');
+    return this.waitForVisible(usages, TIMEOUT).getText(usages);
   });
 
   /**

@@ -74,12 +74,14 @@ const QueryInputGroup = React.createClass({
             <button
               id="apply_button"
               className="btn btn-primary btn-sm apply-filter-button"
+              data-test-id="apply-filter-button"
               type="button"
               onClick={this.onApplyButtonClicked}
               disabled={applyDisabled}>Apply</button>
             <button
               id="reset_button"
               className="btn btn-default btn-sm reset-filter-button"
+              data-test-id="reset-filter-button"
               type="button"
               onClick={this.onResetButtonClicked}
               style={resetButtonStyle}>Reset</button>

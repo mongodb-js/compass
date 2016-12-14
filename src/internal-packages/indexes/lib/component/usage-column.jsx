@@ -60,7 +60,7 @@ class UsageColumn extends React.Component {
     return (
       <td className="usage-column">
         <span className="usage">
-          <div {...tooltipOptions} className="quantity">
+          <div {...tooltipOptions} className="quantity" data-test-id="index-table-usage">
             <ReactTooltip id={TOOLTIP_ID}/>
             {usage}
           </div>
