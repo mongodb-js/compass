@@ -1,6 +1,7 @@
 const React = require('react');
 const app = require('ampersand-app');
 const { shell } = require('electron');
+const ipc = require('hadron-ipc');
 const { TextButton } = require('hadron-react-buttons');
 const DatabasesActions = require('../action/databases-actions');
 const CreateDatabaseDialog = require('./create-database-dialog');
@@ -41,15 +42,23 @@ class DatabasesTable extends React.Component {
     shell.openExternal(AUTH_HELP_URL);
   }
 
+  onClickShowConnectWindow() {
+    // code to close current connection window and open connect dialog
+    ipc.call('app:show-connect-window');
+    window.close();
+  }
+
   renderNoCollections(writable) {
     return (
       <div className="no-collections-zero-state">
         The MongoDB instance you are connected to
-        does not contain any collections, or you are &nbsp;
+        does not contain any collections, or you are
         <a onClick={this.onAuthHelpClicked.bind(this)}>not authorized</a>
-        &nbsp;to view them.
+        to view them.
         {!writable ?
-          <a className="show-connect-window">Connect to another instance</a>
+          <a className="show-connect-window"
+             onClick={this.onClickShowConnectWindow.bind(this)}
+          >Connect to another instance</a>
           : null}
       </div>
     );
@@ -89,7 +98,7 @@ class DatabasesTable extends React.Component {
           onRowDeleteButtonClicked={this.onRowDeleteButtonClicked.bind(this)}
         />
         {this.props.databases.length === 0 ?
-            this.renderNoCollections(this, writable) : null}
+            this.renderNoCollections(writable) : null}
         <CreateDatabaseDialog />
         <DropDatabaseDialog />
       </div>
