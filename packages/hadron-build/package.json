@@ -1,7 +1,7 @@
 {
   "name": "hadron-build",
   "description": "Tooling for Hadron apps.",
-  "version": "3.0.4",
+  "version": "3.0.5",
   "scripts": {
     "fmt": "mongodb-js-fmt",
     "check": "mongodb-js-precommit",
@@ -61,7 +61,7 @@
     "sinon": "^1.17.3",
     "sinon-chai": "^2.8.0"
   },
-  "optionalDependencies" : {
+  "optionalDependencies": {
     "electron-installer-codesign": "^0.3.0",
     "electron-installer-debian": "^0.4.0",
     "electron-installer-dmg": "^0.1.1",
