@@ -1,6 +1,5 @@
 var View = require('ampersand-view');
 var app = require('ampersand-app');
-var debug = require('debug')('mongodb-compass:home');
 var React = require('react');
 var ReactDOM = require('react-dom');
 
@@ -12,8 +11,6 @@ var HomeView = View.extend({
     this.homeView = app.appRegistry.getComponent('Home.Home');
 
     this.once('change:rendered', this.onRendered);
-    debug('fetching instance model...');
-    app.instance.fetch();
   },
   render: function() {
     this.renderWithTemplate(this);

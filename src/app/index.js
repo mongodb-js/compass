@@ -431,6 +431,8 @@ app.extend({
         state.volatileQueryOptions = new QueryOptions();
         state.instance = new MongoDBInstance();
         state.listenTo(app.instance, 'sync', state.onInstanceFetched);
+        debug('fetching instance model...');
+        app.instance.fetch();
         state.startRouter();
         StatusAction.hide();
         if (done) {
