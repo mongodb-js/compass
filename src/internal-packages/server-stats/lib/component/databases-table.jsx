@@ -41,20 +41,6 @@ class DatabasesTable extends React.Component {
     shell.openExternal(AUTH_HELP_URL);
   }
 
-  renderNoCollections(writable) {
-    return (
-      <div className="no-collections-zero-state">
-        The MongoDB instance you are connected to
-        does not contain any collections, or you are &nbsp;
-        <a onClick={this.onAuthHelpClicked.bind(this)}>not authorized</a>
-        &nbsp;to view them.
-        {!writable ?
-          <a className="show-connect-window">Connect to another instance</a>
-          : null}
-      </div>
-    );
-  }
-
   render() {
     // convert storage size to human-readable units (MB, GB, ...)
     // we do this here so that sorting is not affected in the store
@@ -88,8 +74,18 @@ class DatabasesTable extends React.Component {
           onColumnHeaderClicked={this.onColumnHeaderClicked.bind(this)}
           onRowDeleteButtonClicked={this.onRowDeleteButtonClicked.bind(this)}
         />
-        {this.props.databases.length === 0 ?
-            this.renderNoCollections(this, writable) : null}
+        <div className="no-collections-zero-state">
+          {this.props.databases.length === 0 ?
+            'The MongoDB instance you are connected to ' +
+            'does not contain any collections, or you are ' : null}
+          {this.props.databases.length === 0 ?
+            <a onClick={this.onAuthHelpClicked.bind(this)}>not authorized</a>
+            : null}
+          {this.props.databases.length === 0 ? ' to view them. ' : null}
+          {!writable ?
+            <a className="show-connect-window">Connect to another instance</a>
+            : null}
+        </div>
         <CreateDatabaseDialog />
         <DropDatabaseDialog />
       </div>
