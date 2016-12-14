@@ -14,7 +14,7 @@ class IndexDefinition extends React.Component {
   render() {
     return (
       <div className="index-definition">
-        <div className="name">
+        <div className="name" data-test-id="index-table-name">
           {this.props.index.name}
         </div>
         <IndexDefinitionType index={this.props.index} />

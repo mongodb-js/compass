@@ -30,7 +30,7 @@ class SizeColumn extends React.Component {
     };
     return (
       <td className="size-column">
-        <div className="quantity">
+        <div className="quantity" data-test-id="index-table-size">
           {indexSize[0]}
         </div>
         <div className="unit">

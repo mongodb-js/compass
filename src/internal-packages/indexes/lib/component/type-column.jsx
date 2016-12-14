@@ -44,14 +44,14 @@ class TypeColumn extends React.Component {
         'data-border': true
       };
       return (
-        <div {...tooltipOptions} className={`property ${this.props.index.type}`}>
+        <div {...tooltipOptions} className={`property ${this.props.index.type}`} data-test-id="index-table-type">
           {this.props.index.type}
           {this._link()}
         </div>
       );
     }
     return (
-      <div className={`property ${this.props.index.type}`}>
+      <div className={`property ${this.props.index.type}`} data-test-id="index-table-type">
         {this.props.index.type}
         {this._link()}
       </div>
