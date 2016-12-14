@@ -7,7 +7,6 @@ var metrics = require('mongodb-js-metrics')();
 var _ = require('lodash');
 var debug = require('debug')('mongodb-compass:home');
 var toNS = require('mongodb-ns');
-var ipc = require('hadron-ipc');
 var React = require('react');
 var ReactDOM = require('react-dom');
 
@@ -58,9 +57,6 @@ var HomeView = View.extend({
       type: 'boolean',
       default: false
     }
-  },
-  events: {
-    'click a.show-connect-window': 'onClickShowConnectWindow'
   },
   initialize: function() {
     /**
@@ -168,11 +164,6 @@ var HomeView = View.extend({
     }
 
     return database.collections.get(ns.ns);
-  },
-  onClickShowConnectWindow: function() {
-    // code to close current connection window and open connect dialog
-    ipc.call('app:show-connect-window');
-    window.close();
   },
   template: indexTemplate,
   subviews: {

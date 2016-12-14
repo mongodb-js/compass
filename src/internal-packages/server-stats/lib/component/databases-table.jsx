@@ -1,6 +1,7 @@
 const React = require('react');
 const app = require('ampersand-app');
 const { shell } = require('electron');
+const ipc = require('hadron-ipc');
 const { TextButton } = require('hadron-react-buttons');
 const DatabasesActions = require('../action/databases-actions');
 const CreateDatabaseDialog = require('./create-database-dialog');
@@ -41,6 +42,12 @@ class DatabasesTable extends React.Component {
     shell.openExternal(AUTH_HELP_URL);
   }
 
+  onClickShowConnectWindow() {
+    // code to close current connection window and open connect dialog
+    ipc.call('app:show-connect-window');
+    window.close();
+  }
+
   renderNoCollections(writable) {
     return (
       <div className="no-collections-zero-state">
@@ -49,7 +56,9 @@ class DatabasesTable extends React.Component {
         <a onClick={this.onAuthHelpClicked.bind(this)}> not authorized </a>
         to view them.
         {!writable ?
-          <a className="show-connect-window"> Connect to another instance</a>
+          <a className="show-connect-window"
+             onClick={this.onClickShowConnectWindow.bind(this)}
+          > Connect to another instance</a>
           : null}
       </div>
     );
