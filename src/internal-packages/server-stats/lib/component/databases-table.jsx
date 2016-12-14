@@ -94,8 +94,8 @@ class DatabasesTable extends React.Component {
 }
 
 DatabasesTable.propTypes = {
-  columns: React.PropTypes.arrayOf(React.PropTypes.string),
-  databases: React.PropTypes.arrayOf(React.PropTypes.object),
+  columns: React.PropTypes.arrayOf(React.PropTypes.string).isRequired,
+  databases: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
   sortOrder: React.PropTypes.oneOf(['asc', 'desc']),
   sortColumn: React.PropTypes.string
 };

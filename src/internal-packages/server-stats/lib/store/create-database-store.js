@@ -3,7 +3,7 @@ const app = require('ampersand-app');
 const Actions = require('../action/databases-actions');
 
 /**
- * The reflux store for creating datbases.
+ * The reflux store for creating databases.
  */
 const CreateDatabaseStore = Reflux.createStore({
 
