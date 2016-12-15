@@ -1,32 +1,54 @@
 /* eslint no-unused-vars: 0, no-unused-expressions: 0 */
+const app = require('ampersand-app');
 const chai = require('chai');
 const chaiEnzyme = require('chai-enzyme');
 const expect = chai.expect;
 const React = require('react');
+const AppRegistry = require('hadron-app-registry');
+const bson = require('bson');
 
-const shallow = require('enzyme').shallow;
-const Minichart = require('../src/internal-packages/schema/lib/component/minichart');
+const mount = require('enzyme').mount;
 
 chai.use(chaiEnzyme());
 
 describe('<Minichart />', () => {
-  context('when passing in unique long values', () => {
+  let appRegistry = app.appRegistry;
+  before(function() {
+    // Mock the AppRegistry with a new one so tests don't complain about
+    // appRegistry.getComponent (i.e. appRegistry being undefined)
+    app.appRegistry = new AppRegistry();
+    require('../src/internal-packages/query').activate();
+  });
+  after(function() {
+    // Restore properties on the global app object,
+    // so they don't affect other tests
+    require('../src/internal-packages/query').deactivate();
+    app.appRegistry = appRegistry;
+  });
+  context('when using unique data of type `Long`', () => {
     const schemaType = {
       count: 4,
       has_duplicates: false,
-      name: 'Int64',
+      name: 'Long',
       path: 'test_unique_longs',
       probability: 1,
-      unique: 4
+      unique: 4,
+      values: [
+        bson.Long.fromString('1'),
+        bson.Long.fromString('2'),
+        bson.Long.fromString('3')
+      ]
     };
-    const minichart = shallow(
-      <SidebarInstanceProperties
-        fieldName="test_unique_longs"
-        type={schemaType}
-      />);
 
     it('renders a unique minichart with bubbles for each datum', () => {
-      expect(minichart).to.contain(<UniqueMinichart />);
+      const Minichart = require('../src/internal-packages/schema/lib/component/minichart');
+
+      const minichart = mount(
+        <Minichart
+          fieldName="test_unique_longs"
+          type={schemaType}
+        />);
+      expect(minichart.setState({containerWidth: 600})).to.have.descendants('.minichart.unique');
     });
   });
 });
