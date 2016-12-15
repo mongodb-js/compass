@@ -5,7 +5,7 @@ const StoreConnector = app.appRegistry.getComponent('App.StoreConnector');
 const Home = require('./home');
 const HomeStore = require('../store');
 
-// const debug = require('debug')('mongodb-compass:validation:index');
+// const debug = require('debug')('mongodb-compass:home:index');
 
 class ConnectedHome extends React.Component {
   /**

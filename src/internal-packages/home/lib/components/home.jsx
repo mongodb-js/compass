@@ -44,7 +44,6 @@ class Home extends React.Component {
 }
 
 Home.propTypes = {
-  hasContent: React.PropTypes.bool,
   mode: React.PropTypes.oneOf(['instance', 'database', 'collection']),
   namespace: React.PropTypes.string
 };

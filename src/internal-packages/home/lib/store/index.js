@@ -8,7 +8,6 @@ const InstanceActions = app.appRegistry.getAction('App.InstanceActions');
 
 const debug = require('debug')('mongodb-compass:stores:home');
 
-
 const HomeStore = Reflux.createStore({
 
   mixins: [StateMixin.store],
@@ -29,7 +28,6 @@ const HomeStore = Reflux.createStore({
     return {
       // mode can be one of instance, database, collection
       mode: 'instance',
-      hasContent: false,
       namespace: ''
     };
   },
