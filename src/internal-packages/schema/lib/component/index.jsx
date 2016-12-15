@@ -90,16 +90,6 @@ const Schema = React.createClass({
   render() {
     this._updateProgressBar();
     const fieldList = _.get(this.state.schema, 'fields', []).map((field) => {
-      // sort the types in descending order and push undefined to the end
-      const types = _.sortBy(field.types, (type) => {
-        if (type.name === 'Undefined') {
-          return -Infinity;
-        }
-        return type.probability;
-      }).reverse();
-
-      field.types = types;
-      console.log('field props', field);
       return <Field key={field.name} {...field} />;
     });
     return (

@@ -36,8 +36,17 @@ const Field = React.createClass({
   },
 
   componentWillMount() {
+    // sort the types in descending order and push undefined to the end
+    const types = _.sortBy(this.props.types, (type) => {
+      if (type.name === 'Undefined') {
+        return -Infinity;
+      }
+      return type.probability;
+    }).reverse();
+
     // sets the active type to the first type in the props.types array
     this.setState({
+      types: types,
       activeType: this.props.types.length > 0 ? this.props.types[0] : null
     });
   },
@@ -139,7 +148,7 @@ const Field = React.createClass({
     const cls = FIELD_CLASS + ' ' + (this.state.collapsed ? 'collapsed' : 'expanded');
 
     // types represented as horizontal bars with labels
-    const typeList = this.props.types.map((type) => {
+    const typeList = this.state.types.map((type) => {
       // allow for semantic types and convert the type, e.g. geo coordinates
       type = this.getSemanticType(type);
       return (
