@@ -122,6 +122,14 @@ const minicharts_d3fns_few = function() {
     });
   }
 
+  function tooltip(label, count) {
+    return `
+      <div class="tooltip-wrapper">
+        <div class="tooltip-label">${label}</div>
+      <div class=".tooltip-value">${count}</div>
+      </div>`;
+  }
+
   function chart(selection) {
     selection.each(function(data) {
       _.each(data, (d, i) => {

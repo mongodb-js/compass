@@ -99,6 +99,7 @@ const Schema = React.createClass({
       }).reverse();
 
       field.types = types;
+      console.log('field props', field);
       return <Field key={field.name} {...field} />;
     });
     return (
