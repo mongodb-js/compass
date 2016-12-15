@@ -23,7 +23,7 @@ const OpenInsertDocumentDialogStore = Reflux.createStore({
    * Open the insert document dialog.
    *
    * @param {Object} doc - The document to open the dialog with.
-   * @param {Booelan} clone - If the operation is a clone.
+   * @param {Boolean} clone - If the operation is a clone.
    */
   openInsertDocumentDialog: function(doc, clone) {
     const hadronDoc = new HadronDocument(doc, true);
