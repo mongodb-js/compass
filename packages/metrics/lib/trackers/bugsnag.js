@@ -5,6 +5,10 @@ var redact = require('mongodb-redact');
 
 var debug = require('debug')('mongodb-js-metrics:trackers:bugsnag');
 
+/**
+ * Error name constant to ignore.
+ */
+var MONGO_ERROR = 'MongoError';
 
 var BugsnagTracker = State.extend({
   id: 'bugsnag',
@@ -90,8 +94,13 @@ var BugsnagTracker = State.extend({
    * @return {Boolean}           false to abort, true to send to bugsnag
    */
   beforeNotify: function(payload) {
-    // never send if this tracker is disabled
-    if (!this.enabled) {
+    // never send if this tracker is disabled or it is a mongo error.
+    //
+    // @note: durran: MongoErrors for our purposes are errors that are
+    //  already shown to the user and require them to adjust their input
+    //  to resolve them. They should not clutter up Bugsnag as there is
+    //  no action from our perspective to take on them.
+    if (!this.enabled || payload.name === MONGO_ERROR) {
       return false;
     }
 

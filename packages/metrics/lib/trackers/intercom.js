@@ -6,6 +6,11 @@ var debug = require('debug')('mongodb-js-metrics:trackers:intercom');
 var redact = require('mongodb-redact');
 var sentenceCase = require('../shared').sentenceCase;
 
+/**
+ * Error name constant to ignore.
+ */
+var MONGO_ERROR = 'MongoError';
+
 var os = (typeof window === 'undefined') ?
   require('os') : require('electron').remote.require('os');
 
@@ -230,9 +235,16 @@ var IntercomTracker = State.extend({
    * @param  {Object} metadata     Metadata information with up to 5 keys
    */
   send: function(eventName, metadata) {
-    if (!this.enabled) {
+    // never send if this tracker is disabled or it is a mongo error.
+    //
+    // @note: durran: MongoErrors for our purposes are errors that are
+    //  already shown to the user and require them to adjust their input
+    //  to resolve them. They should not clutter up Intercom as there is
+    //  no action from our perspective to take on them.
+    if (!this.enabled || metadata.name === MONGO_ERROR) {
       return;
     }
+
     // redact metadata
     metadata = sentenceCase(redact(metadata));
 
