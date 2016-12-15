@@ -2,8 +2,6 @@ const React = require('react');
 const app = require('ampersand-app');
 const ExplainBody = require('./explain-body');
 const ExplainHeader = require('./explain-header');
-const StatusRow = app.appRegistry.getComponent('App.StatusRow');
-// const debug = require('debug')('mongodb-compass:explain');
 
 /**
  * Structure of components (Jade notation)
@@ -29,6 +27,7 @@ class CompassExplain extends React.Component {
 
   constructor(props) {
     super(props);
+    this.statusRow = app.appRegistry.getComponent('App.StatusRow');
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
   }
 
@@ -38,9 +37,9 @@ class CompassExplain extends React.Component {
 
   renderWarning(warning) {
     return (
-      <StatusRow style="warning">
+      <this.statusRow style="warning">
         {warning}
-      </StatusRow>
+      </this.statusRow>
     );
   }
 

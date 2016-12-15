@@ -16,7 +16,7 @@ class SamplingMessage extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.state = { count: 0, loaded: 20 };
+    this.state = { count: 0, loaded: 0 };
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
     this.resetDocumentListStore = app.appRegistry.getStore('CRUD.ResetDocumentListStore');
     this.insertDocumentStore = app.appRegistry.getStore('CRUD.InsertDocumentStore');
@@ -59,7 +59,7 @@ class SamplingMessage extends React.Component {
    * Handle updating the count on document removal.
    */
   handleRemove() {
-    this.setState({ count: this.state.count - 1 });
+    this.setState({ count: this.state.count - 1, loaded: this.state.loaded - 1 });
   }
 
   /**
@@ -68,8 +68,10 @@ class SamplingMessage extends React.Component {
    * @param {Array} documents - The documents.
    * @param {Integer} count - The count.
    */
-  handleReset(documents, count) {
-    this.setState({ count: count, loaded: 20 });
+  handleReset(error, documents, count) {
+    if (!error) {
+      this.setState({ count: count, loaded: (count < 20) ? count : 20 });
+    }
   }
 
   /**
@@ -77,8 +79,10 @@ class SamplingMessage extends React.Component {
    *
    * @param {Array} documents - The loaded documents.
    */
-  handleLoadMore(documents) {
-    this.setState({ loaded: this.state.loaded + documents.length });
+  handleLoadMore(error, documents) {
+    if (!error) {
+      this.setState({ loaded: this.state.loaded + documents.length });
+    }
   }
 
 

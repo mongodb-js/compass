@@ -15,9 +15,15 @@
   span, div, p {
     display: inline-block;
   }
-}
 
-.status-row-has-warning {
-  background-color: #FEE9C3;
-  color: #7F6A4E;
+  &-has-warning {
+    background-color: #FEE9C3;
+    color: #7F6A4E;
+  }
+
+  &-has-error {
+    background-color: @alertRed;
+    color: @pw;
+    border: 1px solid rgba(255,255,255,0.4);
+  }
 }

@@ -38,6 +38,11 @@ const ResetDocumentListStore = Reflux.createStore({
     this.listenToExternalStore('Query.ChangedStore', this.onQueryChanged.bind(this));
   },
 
+  /**
+   * Fires when the query is changed.
+   *
+   * @param {Object} state - The query state.
+   */
   onQueryChanged: function(state) {
     if (state.query) {
       this.reset(state.query);
@@ -60,10 +65,12 @@ const ResetDocumentListStore = Reflux.createStore({
             promoteValues: false
           };
           app.dataService.find(NamespaceStore.ns, filter, options, (error, documents) => {
-            if (!error) {
-              this.trigger(documents, count);
-            }
+            this.trigger(error, documents, count);
           });
+        } else {
+          // If the count gets an error we need to display this to the user since
+          // they have the wrong privs.
+          this.trigger(err);
         }
       });
     }
