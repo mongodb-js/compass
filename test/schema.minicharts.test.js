@@ -10,6 +10,8 @@ const bson = require('bson');
 const shallow = require('enzyme').shallow;
 const mount = require('enzyme').mount;
 
+// const debug = require('debug')('mongodb-compass:test:minicharts');
+
 chai.use(chaiEnzyme());
 
 describe('<Minichart />', () => {
@@ -28,14 +30,41 @@ describe('<Minichart />', () => {
     // so they don't affect other tests
     app.appRegistry = appRegistry;
   });
+  context('when using non-unique data of type `Long`', () => {
+    const schemaType = {
+      count: 3,
+      has_duplicates: true,
+      name: 'Long',
+      path: 'test_duplicate_longs',
+      probability: 1,
+      unique: 2,
+      values: [
+        bson.Long.fromString('1'),
+        bson.Long.fromString('2'),
+        bson.Long.fromString('1')
+      ]
+    };
+
+    it('renders a D3Component minichart', () => {
+      const Minichart = require('../src/internal-packages/schema/lib/component/minichart');
+      const D3Component = require('../src/internal-packages/schema/lib/component/d3component');
+
+      const wrapper = shallow(
+        <Minichart
+          fieldName="test_duplicate_longs"
+          type={schemaType}
+        />).setState({containerWidth: 600});
+      expect(wrapper.find(D3Component)).to.have.length(1);
+    });
+  });
   context('when using unique data of type `Long`', () => {
     const schemaType = {
-      count: 4,
+      count: 3,
       has_duplicates: false,
       name: 'Long',
       path: 'test_unique_longs',
       probability: 1,
-      unique: 4,
+      unique: 3,
       values: [
         bson.Long.fromString('1'),
         bson.Long.fromString('2'),
