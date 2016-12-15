@@ -7,9 +7,10 @@ const ArrayMinichart = require('./array');
 const D3Component = require('./d3component');
 const vizFns = require('../d3');
 const Actions = require('../action');
+
 // const debug = require('debug')('mongodb-compass:schema:minichart');
 
-const { STRING, DECIMAL_128, DOUBLE, LONG, INT_32 } = require('../helpers');
+const { STRING, DECIMAL_128, DOUBLE, LONG, INT_32, NUMBER } = require('../helpers');
 
 const Minichart = React.createClass({
 
@@ -71,9 +72,9 @@ const Minichart = React.createClass({
   },
 
   minichartFactory() {
-    // cast all numeric types to Number minichart
-    const typeName = _.includes([ DECIMAL_128, DOUBLE, INT_32 ],
-      this.props.type.name) ? 'Number' : this.props.type.name;
+    // cast all numeric types to Number pseudo-type
+    const typeName = _.includes([ DECIMAL_128, DOUBLE, INT_32, LONG ],
+      this.props.type.name) ? NUMBER : this.props.type.name;
 
     const fieldName = this.props.fieldName;
     const queryClause = this.state.query[fieldName];
@@ -81,7 +82,7 @@ const Minichart = React.createClass({
     const fn = vizFns[typeName.toLowerCase()];
     const width = this.state.containerWidth;
 
-    if (_.includes([ STRING, LONG ], typeName) && !hasDuplicates) {
+    if (_.includes([ STRING, NUMBER ], typeName) && !hasDuplicates) {
       return (
         <UniqueMinichart
           key={typeName}
