@@ -17,12 +17,14 @@ describe('<Minichart />', () => {
     // Mock the AppRegistry with a new one so tests don't complain about
     // appRegistry.getComponent (i.e. appRegistry being undefined)
     app.appRegistry = new AppRegistry();
+    // register QueryStore
     require('../src/internal-packages/query').activate();
   });
   after(function() {
+    // unregister QueryStore
+    require('../src/internal-packages/query').deactivate();
     // Restore properties on the global app object,
     // so they don't affect other tests
-    require('../src/internal-packages/query').deactivate();
     app.appRegistry = appRegistry;
   });
   context('when using unique data of type `Long`', () => {
@@ -49,6 +51,7 @@ describe('<Minichart />', () => {
           type={schemaType}
         />);
       expect(minichart.setState({containerWidth: 600})).to.have.descendants('.minichart.unique');
+      expect(minichart.setState({containerWidth: 600})).to.have.exactly(3).descendants('li.bubble');
     });
   });
 });
