@@ -37,10 +37,21 @@ const ResetDocumentListStore = Reflux.createStore({
       }
     });
 
+    // listen for documents newly inserted
+    this.listenToExternalStore('CRUD.InsertDocumentStore', this.onDocumentInserted.bind(this));
+
     // listen for query changes
     this.listenToExternalStore('Query.ChangedStore', this.onQueryChanged.bind(this));
 
     Actions.refreshDocuments.listen(this.reset.bind(this));
+  },
+
+  /**
+   * Fires when a document is inserted,
+   * so the newly inserted document is displayed to the user.
+   */
+  onDocumentInserted: function() {
+    this.reset();
   },
 
   /**
@@ -57,8 +68,6 @@ const ResetDocumentListStore = Reflux.createStore({
 
   /**
    * This function is called when the collection filter changes.
-   *
-   * @param {Object} filter - The query filter.
    */
   reset: function() {
     if (NamespaceStore.ns) {
