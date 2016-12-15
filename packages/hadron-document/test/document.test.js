@@ -88,6 +88,24 @@ describe('Document', function() {
     });
   });
 
+  describe('#getId', function() {
+    context('when the document has an _id element', function() {
+      var doc = new Document({ name: 'test', _id: 'testing' });
+
+      it('returns the _id', function() {
+        expect(doc.getId()).to.equal('testing');
+      });
+    });
+
+    context('when the document has no _id element', function() {
+      var doc = new Document({ name: 'test' });
+
+      it('returns null', function() {
+        expect(doc.getId()).to.equal(null);
+      });
+    });
+  });
+
   describe('.new', function() {
     context('when the document is flat', function() {
       var object = { name: 'Aphex Twin' };

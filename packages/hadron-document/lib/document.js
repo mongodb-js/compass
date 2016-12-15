@@ -14,6 +14,11 @@ const Events = {
 };
 
 /**
+ * The id field.
+ */
+const ID = '_id';
+
+/**
  * Represents a document.
  */
 class Document extends EventEmitter {
@@ -47,6 +52,20 @@ class Document extends EventEmitter {
    */
   generateObject() {
     return ObjectGenerator.generate(this.elements);
+  }
+
+  /**
+   * Get the _id value for the document.
+   *
+   * @returns {Object} The id.
+   */
+  getId() {
+    for (let element of this.elements) {
+      if (element.currentKey === ID) {
+        return element.currentValue;
+      }
+    }
+    return null;
   }
 
   /**
