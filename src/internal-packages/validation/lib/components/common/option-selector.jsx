@@ -14,7 +14,7 @@ class OptionSelector extends React.Component {
    * @returns {React.Component} The component.
    */
   render() {
-    const title = this.props.options[this.props.value] || '';
+    const title = this.props.options[this.props.value] || 'Select rule category';
 
     const menuItems = _.map(this.props.options, (label, key) => {
       return <MenuItem key={key} eventKey={key} href="#">{label}</MenuItem>;

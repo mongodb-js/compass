@@ -8,9 +8,7 @@
 
   &-is-modified, &-is-updating, &-is-success, &-is-error {
     .editable-wrapper {
-      -webkit-box-shadow: -10px 10px 50px -20px rgba(0,0,0,0.75);
-      -moz-box-shadow: -10px 10px 50px -20px rgba(0,0,0,0.75);
-      box-shadow: -10px 10px 50px -20px rgba(0,0,0,0.75);
+      box-shadow: 2px 5px 8px rgba(0, 0, 0, 0.2);
     }
   }
 
@@ -47,6 +45,9 @@
     }
     .editable-statusbar {
       background-color: #ef4c4c;
+      .btn-link {
+        color: white;
+       }
     }
   }
 
@@ -63,7 +64,7 @@
 }
 
 .editable-statusbar {
-  padding: 0 5px;
+  padding: 0 15px;
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
@@ -71,4 +72,20 @@
 
   min-height: 26px;
   color: white;
+
+  span {
+    height: 16px;
+    font-style: italic;
+  }
+
+  .btn-link {
+    color: #a06c29;
+    font-weight: bold;
+    height: 20px;
+  }
+
+  .btn-default {
+    color: #a06c29;
+    border-color: #a06c29;
+  }
 }

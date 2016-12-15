@@ -76,6 +76,7 @@ class RuleFieldSelector extends React.Component {
       <FormGroup validationState={validationState}>
         <FormControl
           type="text"
+          placeholder="Enter field name"
           id={this.props.id}
           value={this.state.value}
           onChange={this.onFieldChanged.bind(this)}

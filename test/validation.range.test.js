@@ -22,7 +22,7 @@ describe('<RangeInput />', () => {
     it('has placeholder text of `lower bound`', () => {
       const component = shallow(<RangeInput />);
       const placeholderText = component.find(FormControl).props().placeholder;
-      expect(placeholderText).to.be.equal('lower bound');
+      expect(placeholderText.toLowerCase()).to.be.equal('lower bound');
     });
     it('accepts a scientific decimal -9.001e+2', function() {
       const value = '-9.0001e+2';
@@ -49,7 +49,7 @@ describe('<RangeInput />', () => {
     it('has placeholder text of `upper bound`', () => {
       const component = shallow(<RangeInput upperBound />);
       const placeholderText = component.find(FormControl).props().placeholder;
-      expect(placeholderText).to.be.equal('upper bound');
+      expect(placeholderText.toLowerCase()).to.be.equal('upper bound');
     });
   });
 });
