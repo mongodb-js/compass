@@ -12,6 +12,7 @@ const mount = require('enzyme').mount;
 
 // const debug = require('debug')('mongodb-compass:test:minicharts');
 
+
 chai.use(chaiEnzyme());
 
 describe('<Minichart />', () => {
