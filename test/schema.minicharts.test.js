@@ -7,6 +7,7 @@ const React = require('react');
 const AppRegistry = require('hadron-app-registry');
 const bson = require('bson');
 
+const shallow = require('enzyme').shallow;
 const mount = require('enzyme').mount;
 
 chai.use(chaiEnzyme());
@@ -42,16 +43,28 @@ describe('<Minichart />', () => {
       ]
     };
 
-    it('renders a unique minichart with bubbles for each datum', () => {
+    it('renders a unique minichart', () => {
       const Minichart = require('../src/internal-packages/schema/lib/component/minichart');
+      const UniqueMinichart = require('../src/internal-packages/schema/lib/component/unique');
 
-      const minichart = mount(
+      const wrapper = shallow(
         <Minichart
           fieldName="test_unique_longs"
           type={schemaType}
-        />);
-      expect(minichart.setState({containerWidth: 600})).to.have.descendants('.minichart.unique');
-      expect(minichart.setState({containerWidth: 600})).to.have.exactly(3).descendants('li.bubble');
+        />).setState({containerWidth: 600});
+      expect(wrapper.find(UniqueMinichart)).to.have.length(1);
+    });
+
+    it('has a unique bubble for each datum', () => {
+      const Minichart = require('../src/internal-packages/schema/lib/component/minichart');
+      const wrapper = mount(
+        <Minichart
+          fieldName="test_unique_longs"
+          type={schemaType}
+        />).setState({containerWidth: 600});
+
+      expect(wrapper).to.have.descendants('.minichart.unique');
+      expect(wrapper).to.have.exactly(3).descendants('li.bubble');
     });
   });
 });
