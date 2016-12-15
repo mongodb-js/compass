@@ -20,30 +20,62 @@ describe('<Schema />', () => {
     has_duplicates: true,
     name: 'foo',
     path: 'foo',
-    probability: 0.4,
-    type: ['Undefined', 'String'],
-    types: [
-      {
-        count: 2,
-        has_duplicates: true,
-        name: 'String',
-        path: 'foo',
-        probability: 0.4,
-        total_count: 0,
-        unique: 1,
-        values: ['bar', 'bar']
-      },
-      {
-        count: 3,
-        has_duplicates: true,
-        name: 'Undefined',
-        path: 'foo',
-        probability: 0.6,
-        total_count: 0,
-        type: 'Undefined'
-      }
-    ]
+    probability: 0.4
   };
+
+  const typesWithUndefined = [
+    {
+      count: 2,
+      has_duplicates: true,
+      name: 'String',
+      path: 'foo',
+      probability: 0.4,
+      total_count: 0,
+      unique: 1,
+      values: ['bar', 'bar']
+    },
+    {
+      count: 3,
+      has_duplicates: true,
+      name: 'Undefined',
+      path: 'foo',
+      probability: 0.6,
+      total_count: 0,
+      type: 'Undefined'
+    }
+  ];
+
+  const typesWithMultiple = [
+    {
+      count: 2,
+      has_duplicates: true,
+      name: 'Long',
+      path: 'foo',
+      probability: 0.2,
+      total_count: 0,
+      unique: 1,
+      values: [4, 2]
+    },
+    {
+      count: 3,
+      has_duplicates: true,
+      name: 'String',
+      path: 'foo',
+      probability: 0.3,
+      total_count: 0,
+      unique: 1,
+      values: ['bar', 'bar', 'foo']
+    },
+    {
+      count: 5,
+      has_duplicates: true,
+      name: 'Undefined',
+      path: 'foo',
+      probability: 0.5,
+      total_count: 0,
+      type: 'Undefined'
+    }
+  ];
 
   let appRegistry = app.appRegistry;
   before(function() {
@@ -62,20 +94,44 @@ describe('<Schema />', () => {
   });
 
   context('when adding fields to the schema view', () => {
-    it('renders type on the left', () => {
-      const Type = require('../src/internal-packages/schema/lib/component/type');
-
-      component = shallow(<Type {...fieldProp.types[0]} />);
-      expect(component.find('.schema-field-type-string')).to.have.data('tip', 'String (40%)');
-    });
-
-    it('renders fields on the left', () => {
+    it('renders field types', () => {
       const Field = require('../src/internal-packages/schema/lib/component/field');
       const Type = require('../src/internal-packages/schema/lib/component/type');
 
-      const type = shallow(<Type {...fieldProp.types[0]} />);
+      fieldProp.types = typesWithUndefined;
       component = mount(<Field {...fieldProp} />);
       expect(component.find(Type)).to.have.length(2);
+    });
+
+    it('renders the first type as string', () => {
+      const Field = require('../src/internal-packages/schema/lib/component/field');
+      const Type = require('../src/internal-packages/schema/lib/component/type');
+
+      fieldProp.types = typesWithUndefined;
+      component = shallow(<Field {...fieldProp} />);
+      expect(component.find(Type).at(0)).to.have.data('tip', 'String (40%)');
+    });
+
+    it('renders the second type as undefined', () => {
+      const Field = require('../src/internal-packages/schema/lib/component/field');
+      const Type = require('../src/internal-packages/schema/lib/component/type');
+
+      fieldProp.types = typesWithUndefined;
+      component = shallow(<Field {...fieldProp} />);
+      expect(component.find(Type).at(1)).to.have.data('tip', 'Undefined (60%)');
+    });
+
+    context('when rendering multiple fields', () => {
+      it('renders type with highest probability first', () => {
+        const Field = require('../src/internal-packages/schema/lib/component/field');
+        const Type = require('../src/internal-packages/schema/lib/component/type');
+
+        fieldProp.types = typesWithMultiple;
+        component = mount(<Field {...fieldProp} />);
+        expect(component.find(Type).at(0)).to.have.data('tip', 'String (30%)');
+        expect(component.find(Type).at(1)).to.have.data('tip', 'Long (20%)');
+        expect(component.find(Type).at(2)).to.have.data('tip', 'Undefined (50%)');
+      });
     });
   });
 });
