@@ -52,7 +52,6 @@ class SamplingMessage extends React.Component {
   handleInsert(success) {
     if (success) {
       this.setState({ count: this.state.count + 1 });
-      console.log(this.state);
     }
   }
 
@@ -70,7 +69,9 @@ class SamplingMessage extends React.Component {
    * @param {Integer} count - The count.
    */
   handleReset(error, documents, count) {
-    this.setState({ count: count, loaded: (count < 20) ? count : 20 });
+    if (!error) {
+      this.setState({ count: count, loaded: (count < 20) ? count : 20 });
+    }
   }
 
   /**
@@ -79,7 +80,9 @@ class SamplingMessage extends React.Component {
    * @param {Array} documents - The loaded documents.
    */
   handleLoadMore(error, documents) {
-    this.setState({ loaded: this.state.loaded + documents.length });
+    if (!error) {
+      this.setState({ loaded: this.state.loaded + documents.length });
+    }
   }
 
 

@@ -49,6 +49,7 @@ class DocumentList extends React.Component {
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
     this.state = { docs: [], nextSkip: 0, namespace: NamespaceStore.ns };
     this.queryBar = app.appRegistry.getComponent('Query.QueryBar');
+    this.statusRow = app.appRegistry.getComponent('App.StatusRow');
   }
 
   /**
@@ -116,7 +117,8 @@ class DocumentList extends React.Component {
     this.setState({
       docs: this.state.docs.concat(this.renderDocuments(documents)),
       nextSkip: (this.state.nextSkip + documents.length),
-      loadedCount: (this.state.loadedCount + documents.length)
+      loadedCount: (this.state.loadedCount + documents.length),
+      error: error
     });
     this.loading = false;
   }
@@ -136,7 +138,8 @@ class DocumentList extends React.Component {
       nextSkip: documents.length,
       count: count,
       loadedCount: documents.length,
-      namespace: NamespaceStore.ns
+      namespace: NamespaceStore.ns,
+      error: error
     });
   }
 
@@ -245,23 +248,41 @@ class DocumentList extends React.Component {
   }
 
   /**
+   * Render the list of documents.
+   *
+   * @returns {React.Component} The list.
+   */
+  renderContent() {
+    if (this.state.error) {
+      return (
+        <this.statusRow style="error">
+          {this.state.error.message}
+        </this.statusRow>
+      );
+    }
+    return (
+      <div className="column-container with-refinebar-and-2xmessage">
+        <div className="column main">
+          <ol className={LIST_CLASS} ref={(c) => this._node = c}>
+            {this.state.docs}
+            <InsertDocumentDialog />
+          </ol>
+        </div>
+      </div>
+    );
+  }
+
+  /**
    * Render the document list.
    *
    * @returns {React.Component} The document list.
    */
   render() {
     return (
-      <div className="header-margin">
+      <div className="compass-documents header-margin">
         <this.queryBar />
         <this.samplingMessage insertHandler={this.handleOpenInsert.bind(this)} />
-        <div className="column-container with-refinebar-and-2xmessage">
-          <div className="column main">
-            <ol className={LIST_CLASS} ref={(c) => this._node = c}>
-              {this.state.docs}
-              <InsertDocumentDialog />
-            </ol>
-          </div>
-        </div>
+        {this.renderContent()}
       </div>
     );
   }
