@@ -64,28 +64,6 @@ class DocumentList extends React.Component {
   }
 
   /**
-   * Determine if the component should update.
-   *
-   * @param {Object} nextProps - The next properties.
-   * @param {Object} nextState - The next state.
-   *
-   * @returns {Boolean} If the component should update.
-   */
-  shouldComponentUpdate(nextProps, nextState) {
-    // compare the states if they're different update component
-    if ((nextState.docs.length !== this.state.docs.length)
-        || (nextState.nextSkip !== this.state.nextSkip)
-        || (nextState.loadedCount !== this.state.loadedCount)
-        || (nextState.namespace !== this.state.namespace)
-        || (nextState.count !== this.state.count)) {
-      return true;
-    }
-
-    // at this point compare the documents themselves and update if not different
-    return !_.isEqual(nextState.docs, this.state.docs);
-  }
-
-  /**
    * Unsibscribe from the document list store when unmounting.
    */
   componentWillUnmount() {
