@@ -40,6 +40,14 @@ const minicharts_d3fns_shared = {
       text = text.substring(0, maxLength - 1) + '&hellip;';
     }
     return text;
+  },
+
+  tooltip: function(label, count) {
+    return `
+      <div class="tooltip-wrapper">
+        <div class="tooltip-label">${label}</div>
+      <div class=".tooltip-value">${count}</div>
+      </div>`;
   }
 
 };

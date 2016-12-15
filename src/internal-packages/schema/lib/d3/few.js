@@ -4,7 +4,6 @@ const d3 = require('d3');
 const $ = require('jquery');
 const _ = require('lodash');
 const shared = require('./shared');
-const tooltipTemplate = require('./tooltip.jade');
 const hasDistinctValue = require('../../../query/lib/util').hasDistinctValue;
 
 // const debug = require('debug')('mongodb-compass:minicharts:few');
@@ -147,10 +146,7 @@ const minicharts_d3fns_few = function() {
         if (typeof d.tooltip === 'function') {
           return d.tooltip(d, i);
         }
-        return d.tooltip || tooltipTemplate({
-          label: shared.truncateTooltip(d.label),
-          count: percentFormat(d.count / sumValues * 100, false)
-        });
+        return d.tooltip || shared.tooltip(shared.truncateTooltip(d.label), percentFormat(d.count / sumValues * 100));
       });
       el.call(tip);
 
