@@ -234,14 +234,6 @@ const minicharts_d3fns_many = function() {
     }
   }
 
-  function tooltip(label, count) {
-    return `
-      <div class="tooltip-wrapper">
-        <div class="tooltip-label">${label}</div>
-      <div class=".tooltip-value">${count}</div>
-      </div>`;
-  }
-
   function chart(selection) {
     /* eslint complexity: 0 */
     selection.each(function(data) {
