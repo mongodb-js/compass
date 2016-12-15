@@ -1,9 +1,7 @@
-const app = require('ampersand-app');
 const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
 
 const SidebarActions = require('../actions');
-const InstanceActions = app.appRegistry.getAction('App.InstanceActions');
 const { NamespaceStore } = require('hadron-reflux-store');
 
 const debug = require('debug')('mongodb-compass:stores:sidebar');
@@ -22,7 +20,7 @@ const SidebarStore = Reflux.createStore({
   /**
   * listen to all actions defined in ../actions/index.jsx
   */
-  listenables: [InstanceActions, SidebarActions],
+  listenables: [SidebarActions],
 
   /**
   * Initialize everything that is not part of the store's state.
@@ -51,13 +49,6 @@ const SidebarStore = Reflux.createStore({
       activeNamespace: NamespaceStore.ns || ''
     });
   },
-
-  // setInstance(instance) {
-  //   this.setState({
-  //     instance,
-  //     databases: this._filterDatabases(this.state.filterRegex, instance.databases)
-  //   });
-  // },
 
   onInstanceChange(state) {
     this.setState({
