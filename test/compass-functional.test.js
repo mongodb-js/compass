@@ -500,7 +500,7 @@ describe('Compass Functional Test Suite #spectron', function() {
           it('updates the documents examined', function() {
             return client
               .getExplainDocumentsExamined()
-              .should.eventually.equal('2');
+              .should.eventually.equal('1');
           });
         });
       });
@@ -518,11 +518,11 @@ describe('Compass Functional Test Suite #spectron', function() {
           return client
             .clickDocumentsTab()
             .getSamplingMessageFromDocumentsTab()
-            .should.eventually.equal('Query returned 2 documents.');
+            .should.eventually.equal('Query returned 1 document.');
         });
 
         it('updates the schema view', function() {
-          const expected = 'This report is based on a sample of 2 documents (100.00%).';
+          const expected = 'This report is based on a sample of 1 document (100.00%).';
           return client
             .clickSchemaTab()
             .getSamplingMessageFromSchemaTab()

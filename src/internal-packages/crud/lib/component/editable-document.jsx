@@ -32,6 +32,11 @@ const TEST_ID = 'editable-document';
 const HOTSPOT = `${BASE}-hostspot`;
 
 /**
+ * The delete error message.
+ */
+const DELETE_ERROR = new Error('Cannot delete documents that do not have an _id field.');
+
+/**
  * Component for a single editable document in a list of documents.
  */
 class EditableDocument extends React.Component {
@@ -161,7 +166,12 @@ class EditableDocument extends React.Component {
        * @param {Object} object - The object to delete.
        */
       remove: function(object) {
-        app.dataService.deleteOne(this.ns, { _id: object._id }, {}, this.handleResult);
+        const id = object.getId();
+        if (id) {
+          app.dataService.deleteOne(this.ns, { _id: id }, {}, this.handleResult);
+        } else {
+          this.handleResult(DELETE_ERROR);
+        }
       },
 
       /**
