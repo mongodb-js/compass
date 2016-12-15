@@ -91,7 +91,7 @@ class EditableElement extends React.Component {
     this.element.on(Element.Events.Edited, this.handleChange.bind(this));
     this.element.on(Element.Events.Removed, this.handleChange.bind(this));
     this.element.on(Element.Events.Reverted, this.handleChange.bind(this));
-    this.state = { expanded: this.props.expandAll };
+    this.state = { expanded: this.props.expandAll, expandAll: this.props.expandAll };
   }
 
   /**
@@ -101,7 +101,7 @@ class EditableElement extends React.Component {
    */
   componentWillReceiveProps(nextProps) {
     if (nextProps.expandAll !== this.state.expandAll) {
-      this.setState({ expanded: nextProps.expandAll });
+      this.setState({ expanded: nextProps.expandAll, expandAll: nextProps.expandAll });
     }
   }
 
