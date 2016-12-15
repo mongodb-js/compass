@@ -18,7 +18,20 @@ const LoadMoreDocumentsStore = Reflux.createStore({
    * Initialize the reset document list store.
    */
   init: function() {
+    this.filter = {};
+    this.listenToExternalStore('Query.ChangedStore', this.onQueryChanged.bind(this));
     this.listenTo(Action.fetchNextDocuments, this.loadMoreDocuments);
+  },
+
+  /**
+   * Fires when the query is changed.
+   *
+   * @param {Object} state - The query state.
+   */
+  onQueryChanged: function(state) {
+    if (state.query) {
+      this.filter = state.query;
+    }
   },
 
   /**
@@ -27,7 +40,7 @@ const LoadMoreDocumentsStore = Reflux.createStore({
    * @param {Integer} skip - The number of documents to skip.
    */
   loadMoreDocuments: function(skip) {
-    const filter = app.queryOptions.query;
+    const filter = this.filter;
     const options = {
       skip: skip,
       limit: 20,
@@ -36,9 +49,7 @@ const LoadMoreDocumentsStore = Reflux.createStore({
       promoteValues: false
     };
     app.dataService.find(NamespaceStore.ns, filter, options, (error, documents) => {
-      if (!error) {
-        this.trigger(documents);
-      }
+      this.trigger(error, documents);
     });
   }
 });

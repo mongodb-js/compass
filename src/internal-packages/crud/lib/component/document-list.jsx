@@ -109,7 +109,7 @@ class DocumentList extends React.Component {
    *
    * @param {Array} documents - The next batch of documents.
    */
-  handleLoadMore(documents) {
+  handleLoadMore(error, documents) {
     // If not resetting we append the documents to the existing
     // list and increment the page. The loaded count is incremented
     // by the number of new documents.
@@ -127,7 +127,7 @@ class DocumentList extends React.Component {
    * @param {Array} documents - The documents.
    * @param {Integer} count - The count.
    */
-  handleReset(documents, count) {
+  handleReset(error, documents, count) {
     // If resetting, then we need to go back to page one with
     // the documents as the filter changed. The loaded count and
     // total count are reset here as well.
