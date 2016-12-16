@@ -29,7 +29,9 @@ const SortIndexesStore = Reflux.createStore({
    */
   loadIndexes(indexes) {
     this.indexes = indexes;
-    this.sortIndexes(DEFAULT);
+    this.sortField = DEFAULT;
+    this.sortOrder = ASC;
+    this.trigger(this.indexes, this.sortOrder, this.sortField);
   },
 
   /**
