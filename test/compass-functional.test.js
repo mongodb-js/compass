@@ -469,6 +469,46 @@ describe('Compass Functional Test Suite #spectron', function() {
             .should.eventually.include('Query returned 0 documents.');
         });
 
+        it("doesn't show newly inserted documents not matching the filter", () => {
+          return client
+            .clickDocumentsTab()
+            .clickInsertDocumentButton()
+            .waitForInsertDocumentModal()
+            .inputNewDocumentDetails({
+              'name': 'Armin van Buuren',
+              'genre': 'Trance',
+              'location': 'Leiden'
+            })
+            .clickInsertDocumentModalButton()
+            .getSamplingMessageFromDocumentsTab()
+            .should.eventually.include('Query returned 0 documents.');
+        });
+
+        it('shows newly inserted documents matching the filter', () => {
+          return client
+            .clickDocumentsTab()
+            .clickInsertDocumentButton()
+            .waitForInsertDocumentModal()
+            .inputNewDocumentDetails({
+              'name': 'Bonobo',
+              'genre': 'Electronic',
+              'location': 'London'
+            })
+            .clickInsertDocumentModalButton()
+            .waitForDocumentInsert(1)
+            .getDocumentValues(1)
+            .should.eventually.include('Bonobo');
+        });
+
+        it('deletes a document matching the filter', () => {
+          return client
+            .clickDeleteDocumentButton(1)
+            .clickConfirmDeleteDocumentButton(1)
+            .waitForDocumentDeletionToComplete(1)
+            .getSamplingMessageFromDocumentsTab()
+            .should.eventually.include('Query returned 0 documents.');
+        });
+
         it('updates the schema view', function() {
           const expected = 'This report is based on a sample of 0 documents (0.00%).';
           return client
