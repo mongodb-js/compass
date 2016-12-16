@@ -596,8 +596,11 @@ describe('Compass Functional Test Suite #spectron', function() {
                 .inputCreateIndexDetails({ name: 'name_1', field: 'name' })
                 .clickCreateIndexModalButton()
                 .waitForIndexCreation('name_1')
+                // Sort the indexes as well to handle any stray side-effects
+                .clickIndexTableNameHeader('th-usage')
+                .clickIndexTableNameHeader('th-name')
                 .getIndexNames()
-                .should.eventually.deep.equal([ 'name_1', '_id_' ]);
+                .should.eventually.deep.equal([ '_id_', 'name_1' ]);
             });
           });
         });
@@ -606,7 +609,8 @@ describe('Compass Functional Test Suite #spectron', function() {
           context('when clicking on the name header', function() {
             it('sorts the indexes by name', function() {
               return client
-                .clickIndexTableNameHeader()
+                .clickIndexTableNameHeader('th-usage')
+                .clickIndexTableNameHeader('th-name')
                 .getIndexNames()
                 .should.eventually.deep.equal([ '_id_', 'name_1' ]);
             });
