@@ -48,7 +48,7 @@ const OpCounterStore = Reflux.createStore({
   },
 
   opCounter: function(error, doc, isPaused) {
-    if (!error && doc) {
+    if (!error && doc && 'localTime' in doc && 'opcounters' in doc) {
       let key;
       let val;
       let count;

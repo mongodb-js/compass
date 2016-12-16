@@ -42,7 +42,7 @@ const MemStore = Reflux.createStore({
   },
 
   mem: function(error, doc, isPaused) {
-    if (!error && doc) {
+    if (!error && doc && 'localTime' in doc && 'mem' in doc) {
       if (this.starting) {
         this.starting = false;
         return;

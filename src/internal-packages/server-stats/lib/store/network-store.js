@@ -50,7 +50,7 @@ const NetworkStore = Reflux.createStore({
   },
 
   network: function(error, doc, isPaused) {
-    if (!error && doc) {
+    if (!error && doc && 'localTime' in doc && 'network' in doc) {
       let key;
       let val;
       let count;
