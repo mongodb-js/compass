@@ -562,7 +562,6 @@ function addClickCommands(client) {
    * Click the create index button in the modal.
    */
   client.addCommand('clickCreateIndexModalButton', function() {
-    const base = selector('create-index-button');
     const form = selector('create-index-modal');
     return this.submitForm(`${form} form`);
   });

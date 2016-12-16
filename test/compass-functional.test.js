@@ -602,6 +602,17 @@ describe('Compass Functional Test Suite #spectron', function() {
                 .getIndexNames()
                 .should.eventually.deep.equal([ '_id_', 'name_1' ]);
             });
+            it('allows another index to be added', function() {
+              return client
+                .clickCreateIndexButton()
+                .waitForCreateIndexModal()
+                .inputCreateIndexDetails({ type: '-1 (desc)' })
+                .inputCreateIndexDetails({ name: 'name_-1', field: 'name'})
+                .clickCreateIndexModalButton()
+                .waitForIndexCreation('name_-1')
+                .getIndexNames()
+                .should.eventually.deep.equal([ '_id_', 'name_1', 'name_-1' ]);
+            });
           });
         });
 
@@ -612,7 +623,7 @@ describe('Compass Functional Test Suite #spectron', function() {
                 .clickIndexTableNameHeader('th-usage')
                 .clickIndexTableNameHeader('th-name')
                 .getIndexNames()
-                .should.eventually.deep.equal([ '_id_', 'name_1' ]);
+                .should.eventually.deep.equal([ '_id_', 'name_-1', 'name_1' ]);
             });
           });
         });
