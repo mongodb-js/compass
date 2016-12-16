@@ -2,21 +2,15 @@ const React = require('react');
 const app = require('ampersand-app');
 const semver = require('semver');
 const toNS = require('mongodb-ns');
-const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 
 class Collection extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      name: '',
-      showView: this.props.showView || false,
-      activeTab: 0
-    };
+    this.state = {activeTab: 0};
+
     this.Stats = app.appRegistry.getComponent('CollectionStats.CollectionStats');
-
     this.TabNavBar = app.appRegistry.getComponent('App.TabNavBar');
-
     this.Schema = app.appRegistry.getComponent('Schema.Schema');
     this.Document = app.appRegistry.getComponent('CRUD.DocumentList');
     this.Indexes = app.appRegistry.getComponent('Indexes.Indexes');
@@ -24,18 +18,17 @@ class Collection extends React.Component {
     this.Validation = app.appRegistry.getComponent('Validation.Validation');
 
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
+  }
 
-    NamespaceStore.listen((ns) => {
-      if (ns && toNS(ns).collection) {
-        this.setState({
-          name: ns,
-          showView: true,
-          activeTab: this.CollectionStore && this.CollectionStore.getActiveTab()
-        });
-      } else {
-        this.setState({name: '', showView: false, activeTab: 0});
-      }
-    });
+  componentWillMount() {
+    const ns = this.props.namespace;
+    if (ns && toNS(ns).collection) {
+      this.setState({
+        activeTab: this.CollectionStore && this.CollectionStore.getActiveTab()
+      });
+    } else {
+      this.setState({activeTab: 0});
+    }
   }
 
   onTabClicked(idx) {
@@ -48,7 +41,7 @@ class Collection extends React.Component {
     this.setState({activeTab: this.CollectionStore.getActiveTab()});
   }
 
-  showCollection() {
+  render() {
     const serverVersion = app.instance.build.version;
     const DV_ENABLED = semver.gt(serverVersion, '3.2.0-rc0');
     const tabs = [
@@ -73,7 +66,7 @@ class Collection extends React.Component {
         <header>
           <div className="row">
             <div className="col-md-6">
-              <h1>{this.state.name}</h1>
+              <h1>{this.props.namespace}</h1>
             </div>
             <div className="col-md-6">
               <this.Stats />
@@ -86,19 +79,15 @@ class Collection extends React.Component {
           views={views}
           activeTabIndex={this.state.activeTab}
           onTabClicked={this.onTabClicked.bind(this)}
-          className="rt-nav" // TODO @KeyboardTsundoku this could be something else?
+          className="collection-nav"
         />
       </div>
     );
   }
-
-  render() {
-    return (this.state.showView ? this.showCollection() : null);
-  }
 }
 
 Collection.propTypes = {
-  showView: React.PropTypes.bool
+  namespace: React.PropTypes.string
 };
 
 Collection.displayName = 'Collection';

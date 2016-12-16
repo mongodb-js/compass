@@ -498,7 +498,7 @@ var ConnectView = View.extend({
 
     var view = this;
     app.setConnectionId(connection.getId(), function() {
-      app.navigate('schema', {
+      app.navigate('home', {
         params: {
           connectionId: connection.getId()
         },

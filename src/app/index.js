@@ -227,6 +227,28 @@ var Application = View.extend({
     var StatusAction = app.appRegistry.getAction('Status.Actions');
     StatusAction.setMessage(err);
   },
+  onInstanceFetched: function() {
+    // TODO: Remove this line
+    // Instead, set the instance inside InstanceStore.refreshInstance
+    app.appRegistry.getAction('App.InstanceActions').setInstance(app.instance);
+    debug('app.instance fetched', app.instance.serialize());
+    metrics.track('Deployment', 'detected', {
+      'databases count': app.instance.databases.length,
+      'namespaces count': app.instance.collections.length,
+      'mongodb version': app.instance.build.version,
+      'enterprise module': app.instance.build.enterprise_module,
+      'longest database name length': _.max(app.instance.databases.map(function(db) {
+        return db._id.length;
+      })),
+      'longest collection name length': _.max(app.instance.collections.map(function(col) {
+        return col._id.split('.')[1].length;
+      })),
+      'server architecture': app.instance.host.arch,
+      'server cpu cores': app.instance.host.cpu_cores,
+      'server cpu frequency (mhz)': app.instance.host.cpu_frequency / 1000 / 1000,
+      'server memory size (gb)': app.instance.host.memory_bits / 1024 / 1024 / 1024
+    });
+  },
   /**
    * When you want to go to a different page in the app or just save
    * state via the URL.
@@ -303,8 +325,13 @@ var Application = View.extend({
     }
   },
   onPageChange: function(view) {
-    metrics.track('App', 'viewed', view.screenName);
-    this.pageSwitcher.set(view);
+    // connect dialog
+    if (view.screenName) {
+      metrics.track('App', 'viewed', view.screenName);
+      this.pageSwitcher.set(view);
+    } else {
+      metrics.track('App', 'viewed', view.displayName);
+    }
   },
   onLinkClick: function(event) {
     // ignore help links, they're handled in `onHelpClicked`
@@ -403,6 +430,8 @@ app.extend({
         state.queryOptions = new QueryOptions();
         state.volatileQueryOptions = new QueryOptions();
         state.instance = new MongoDBInstance();
+        debug('fetching instance model...');
+        app.instance.fetch({success: state.onInstanceFetched});
         state.startRouter();
         StatusAction.hide();
         if (done) {
