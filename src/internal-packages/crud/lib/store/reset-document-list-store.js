@@ -5,8 +5,6 @@ const ReadPreference = require('mongodb').ReadPreference;
 const toNS = require('mongodb-ns');
 const Actions = require('../actions');
 
-// const debug = require('debug')('mongodb-compass:crud');
-
 // const debug = require('debug')('mongodb-compass:crud:store');
 
 /**
