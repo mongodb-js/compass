@@ -442,8 +442,8 @@ describe('Compass Functional Test Suite #spectron', function() {
             .waitForInsertDocumentModal()
             .inputClonedDocumentValueChange(1, 'London', 'Essex')
             .clickInsertDocumentModalButton()
-            .waitForDocumentInsert(2)
-            .getDocumentValues(2)
+            .waitForDocumentInsert(1)
+            .getDocumentValues(1)
             .should.eventually.include('Essex');
         });
       });
