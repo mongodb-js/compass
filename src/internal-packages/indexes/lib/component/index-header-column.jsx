@@ -68,7 +68,7 @@ class IndexHeaderColumn extends React.Component {
   render() {
     return (
       <th
-        data-test-id={this.props.hook}
+        data-test-id={this.props.dataTestId}
         className={this._renderClassName()}
         onClick={this.handleIndexSort.bind(this)}>
         {this.props.name}
@@ -82,7 +82,7 @@ IndexHeaderColumn.displayName = 'IndexHeaderColumn';
 
 IndexHeaderColumn.propTypes = {
   sortOrder: React.PropTypes.string.isRequired,
-  hook: React.PropTypes.string.isRequired,
+  dataTestId: React.PropTypes.string.isRequired,
   name: React.PropTypes.string.isRequired
 };
 

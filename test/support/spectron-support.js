@@ -665,9 +665,9 @@ function addClickCommands(client) {
   });
 
   /**
-   * Click on the name header in the index table.
+   * Click on the header in the index table.
    */
-  client.addCommand('clickIndexTableNameHeader', function(columnName) {
+  client.addCommand('clickIndexTableHeader', function(columnName) {
     const base = selector('indexes-table');
     const column = selector(columnName);
     return this.click(`${base} ${column}`);
