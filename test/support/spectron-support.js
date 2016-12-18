@@ -7,6 +7,7 @@ const format = require('util').format;
 const path = require('path');
 const electronPrebuilt = require('electron-prebuilt');
 const Application = require('spectron').Application;
+const debug = require('debug')('mongodb-compass:spectron-support');
 
 chai.use(chaiAsPromised);
 
@@ -37,6 +38,76 @@ function selector(id) {
 }
 
 /**
+ * The wait for timeout error.
+ */
+const WAIT_FOR_TIMEOUT = 'WaitForTimeoutError';
+
+/**
+ * The wait until timeout error.
+ */
+const WAIT_UNTIL_TIMEOUT = 'WaitUntilTimeoutError';
+
+/**
+ * The progressive timeouts when searching for elements.
+ */
+const TIMEOUTS = [
+  1000,
+  2000,
+  3000,
+  5000,
+  8000,
+  13000,
+  21000
+];
+
+/**
+ * Determine if the error is a timeout error.
+ *
+ * @param {Error} e - The error.
+ *
+ * @returns {Boolean} If the error is a timeout error.
+ */
+function isTimeoutError(e) {
+  return e.type === WAIT_FOR_TIMEOUT || e.type === WAIT_UNTIL_TIMEOUT;
+}
+
+/**
+ * Waits for an element on the page in progressive increments, using
+ * fibonacci.
+ *
+ * @param {Function} fn - The function to use for waiting.
+ * @param {String} selector - The selector for the element.
+ * @param {Boolean} reverse - Whether to revers the conditions.
+ * @param {Number} index - The timeout index to use from TIMEOUTS.
+ */
+function progressiveWait(fn, selector, reverse, index) {
+  const timeout = TIMEOUTS[index];
+  debug(`Looking for element ${selector} with timeout ${timeout}ms`);
+  return fn(selector, timeout, reverse)
+    .catch(function(e) {
+      if (isTimeoutError(e) && timeout !== 21000) {
+        return progressiveWait(fn, selector, reverse || false, index + 1);
+      } else {
+        throw e;
+      }
+    });
+}
+
+/**
+ * Add the extended wait commands for Compass.
+ */
+function addExtendedWaitCommands(client) {
+
+  client.addCommand('waitForExistInCompass', function(selector, reverse) {
+    return progressiveWait(this.waitForExist.bind(this), selector, reverse, 0);
+  });
+
+  client.addCommand('waitForVisibleInCompass', function(selector, reverse) {
+    return progressiveWait(this.waitForVisible.bind(this), selector, reverse, 0);
+  });
+}
+
+/**
  * Add commands to the client that wait for common items in the
  * application to be visible.
  *
@@ -51,107 +122,98 @@ function addWaitCommands(client) {
    */
   client.addCommand('waitForDocumentDeletionToComplete', function(index) {
     const base = `${selector('document-list-item')}:nth-child(${index})`;
-    return this.waitForExist(base, TIMEOUT, true);
+    return this.waitForExistInCompass(base, true);
   });
 
   /**
    * Wait for the connect screen to finish loading.
    */
   client.addCommand('waitForConnectView', function() {
-    return this.waitForVisible(selector('connect-form'), TIMEOUT);
+    return this.waitForVisibleInCompass(selector('connect-form'));
   });
 
   /**
    * Wait for the home screen to finish loading.
    */
   client.addCommand('waitForHomeView', function() {
-    return this.waitForVisible(selector('instance-sidebar'), TIMEOUT);
+    return this.waitForVisibleInCompass(selector('instance-sidebar'));
   });
 
   /**
    * Wait for the feature tour modal to open.
    */
   client.addCommand('waitForFeatureTourModal', function() {
-    return this.waitForVisible(selector('feature-tour-modal'), TIMEOUT);
+    return this.waitForVisibleInCompass(selector('feature-tour-modal'));
   });
 
   /**
    * Wait for the privacy settings modal to open.
    */
   client.addCommand('waitForPrivacySettingsModal', function() {
-    return this.waitForVisible(selector('privacy-settings-modal'), TIMEOUT);
+    return this.waitForVisibleInCompass(selector('privacy-settings-modal'));
   });
 
   /**
    * Waits for the status bar to finish its progress and unlock the page.
    */
   client.addCommand('waitForStatusBar', function() {
-    return this.waitForVisible(selector('status-bar'), TIMEOUT, true);
+    return this.waitForVisibleInCompass(selector('status-bar'), true);
   });
 
   /**
    * Waits for the create index modal to open.
    */
   client.addCommand('waitForCreateIndexModal', function() {
-    return this.waitForVisible(selector('create-index-modal'), TIMEOUT);
+    return this.waitForVisibleInCompass(selector('create-index-modal'));
   });
 
   /**
    * Waits for the create database modal to open.
    */
   client.addCommand('waitForCreateDatabaseModal', function() {
-    return this.waitForVisible(selector('create-database-modal'), TIMEOUT);
+    return this.waitForVisibleInCompass(selector('create-database-modal'));
   });
 
   /**
    * Waits for the create collection modal to open.
    */
   client.addCommand('waitForCreateCollectionModal', function() {
-    return this.waitForVisible(selector('create-collection-modal'), TIMEOUT);
+    return this.waitForVisibleInCompass(selector('create-collection-modal'));
   });
 
   /**
    * Waits for the drop database modal to open.
    */
   client.addCommand('waitForDropDatabaseModal', function() {
-    return this.waitForVisible(selector('drop-database-modal'), TIMEOUT);
+    return this.waitForVisibleInCompass(selector('drop-database-modal'));
   });
 
   /**
    * Waits for the drop collection modal to open.
    */
   client.addCommand('waitForDropCollectionModal', function() {
-    return this.waitForVisible(selector('drop-collection-modal'), TIMEOUT);
+    return this.waitForVisibleInCompass(selector('drop-collection-modal'));
   });
 
   /**
    * Wait for a modal error message to appear.
    */
   client.addCommand('waitForModalError', function() {
-    return this.waitForVisible(selector('modal-message'), TIMEOUT);
+    return this.waitForVisibleInCompass(selector('modal-message'));
   });
 
   /**
    * Wait for the database screen to load.
    */
   client.addCommand('waitForDatabaseView', function() {
-    return this.waitForVisible(selector('collections-table'), TIMEOUT);
-  });
-
-  /**
-   * Wait for the instance refresh to finish.
-   */
-  client.addCommand('waitForInstanceRefresh', function() {
-    const button = selector('instance-refresh-button');
-    const icon = `${button} i.fa-spin`;
-    return this.waitForVisible(icon, TIMEOUT, true);
+    return this.waitForVisibleInCompass(selector('collections-table'));
   });
 
   /**
    * Wait for the insert document modal to open.
    */
   client.addCommand('waitForInsertDocumentModal', function() {
-    return this.waitForVisible(selector('insert-document-modal'), TIMEOUT);
+    return this.waitForVisibleInCompass(selector('insert-document-modal'));
   });
 
   /**
@@ -161,7 +223,7 @@ function addWaitCommands(client) {
    */
   client.addCommand('waitForDocumentInsert', function(index) {
     const base = selector('document-list-item');
-    return this.waitForExist(`${base}:nth-child(${index})`, TIMEOUT);
+    return this.waitForExistInCompass(`${base}:nth-child(${index})`);
   });
 
   /**
@@ -172,7 +234,7 @@ function addWaitCommands(client) {
   client.addCommand('waitForDocumentUpdate', function(index) {
     const base = selector('document-list-item');
     const message = `${base}:nth-child(${index}) ${selector('document-message')}`;
-    return this.waitForExist(message, TIMEOUT, true);
+    return this.waitForExistInCompass(message, true);
   });
 
   /**
@@ -189,6 +251,15 @@ function addWaitCommands(client) {
       }, LONG_TIMEOUT);
   });
 
+  /*
+   * Wait for the instance refresh to finish.
+   */
+  client.addCommand('waitForInstanceRefresh', function() {
+    const button = selector('instance-refresh-button');
+    const icon = `${button} i.fa-spin`;
+    return this.waitForVisibleInCompass(icon, true);
+  });
+
   /**
    * Wait for the database with the provided name to be created.
    *
@@ -197,7 +268,7 @@ function addWaitCommands(client) {
   client.addCommand('waitForDatabaseCreation', function(name) {
     const base = selector('databases-table');
     const row = `${base} ${selector('sortable-table-column-0')}[title=${name}]`;
-    return this.waitForExist(row, TIMEOUT);
+    return this.waitForExistInCompass(row);
   });
 
   /**
@@ -208,7 +279,7 @@ function addWaitCommands(client) {
   client.addCommand('waitForCollectionCreation', function(name) {
     const base = selector('collections-table');
     const row = `${base} ${selector('sortable-table-column-0')}[title=${name}]`;
-    return this.waitForExist(row, TIMEOUT);
+    return this.waitForExistInCompass(row);
   });
 
   /**
@@ -219,7 +290,7 @@ function addWaitCommands(client) {
   client.addCommand('waitForDatabaseDeletion', function(name) {
     const base = selector('databases-table');
     const row = `${base} ${selector('sortable-table-column-0')}[title=${name}]`;
-    return this.waitForExist(row, TIMEOUT, true);
+    return this.waitForExistInCompass(row, true);
   });
 
   /**
@@ -230,7 +301,7 @@ function addWaitCommands(client) {
   client.addCommand('waitForCollectionDeletion', function(name) {
     const base = selector('collections-table');
     const row = `${base} ${selector('sortable-table-column-0')}[title=${name}]`;
-    return this.waitForExist(row, TIMEOUT, true);
+    return this.waitForExistInCompass(row, true);
   });
 }
 
@@ -246,7 +317,7 @@ function addClickCommands(client) {
    */
   client.addCommand('clickRefreshDocumentsButton', function() {
     const button = selector('refresh-documents-button');
-    return this.waitForVisible(button, TIMEOUT).click(button);
+    return this.waitForVisibleInCompass(button).click(button);
   });
 
   /**
@@ -254,7 +325,7 @@ function addClickCommands(client) {
    */
   client.addCommand('clickEnableProductFeedbackCheckbox', function() {
     const checkbox = selector('product-feedback-checkbox');
-    return this.waitForVisible(checkbox, TIMEOUT).click(checkbox);
+    return this.waitForVisibleInCompass(checkbox).click(checkbox);
   });
 
   /**
@@ -262,7 +333,7 @@ function addClickCommands(client) {
    */
   client.addCommand('clickEnableGeoCheckbox', function() {
     const checkbox = selector('enable-maps-checkbox');
-    return this.waitForVisible(checkbox, TIMEOUT).click(checkbox);
+    return this.waitForVisibleInCompass(checkbox).click(checkbox);
   });
 
   /**
@@ -270,7 +341,7 @@ function addClickCommands(client) {
    */
   client.addCommand('clickEnableCrashReportsCheckbox', function() {
     const checkbox = selector('track-errors-checkbox');
-    return this.waitForVisible(checkbox, TIMEOUT).click(checkbox);
+    return this.waitForVisibleInCompass(checkbox).click(checkbox);
   });
 
   /**
@@ -278,7 +349,7 @@ function addClickCommands(client) {
    */
   client.addCommand('clickEnableUsageStatsCheckbox', function() {
     const checkbox = selector('usage-stats-checkbox');
-    return this.waitForVisible(checkbox, TIMEOUT).click(checkbox);
+    return this.waitForVisibleInCompass(checkbox).click(checkbox);
   });
 
   /**
@@ -286,7 +357,7 @@ function addClickCommands(client) {
    */
   client.addCommand('clickEnableAutoUpdatesCheckbox', function() {
     const checkbox = selector('auto-updates-checkbox');
-    return this.waitForVisible(checkbox, TIMEOUT).click(checkbox);
+    return this.waitForVisibleInCompass(checkbox).click(checkbox);
   });
 
   /**
@@ -294,7 +365,7 @@ function addClickCommands(client) {
    */
   client.addCommand('clickPerformancePauseButton', function() {
     const button = selector('performance-pause');
-    return this.waitForVisible(button, TIMEOUT).click(button);
+    return this.waitForVisibleInCompass(button).click(button);
   });
 
   /**
@@ -306,7 +377,7 @@ function addClickCommands(client) {
     const base = selector('databases-table');
     const wrapper = selector('sortable-table-delete');
     const button = `${base} ${wrapper}[title='Delete ${name}']`;
-    return this.waitForVisible(base, TIMEOUT).click(button);
+    return this.waitForVisibleInCompass(base).click(button);
   });
 
   /**
@@ -318,7 +389,7 @@ function addClickCommands(client) {
     const base = selector('collections-table');
     const wrapper = selector('sortable-table-delete');
     const button = `${base} ${wrapper}[title='Delete ${name}']`;
-    return this.waitForVisible(base, TIMEOUT).click(button);
+    return this.waitForVisibleInCompass(base).click(button);
   });
 
   /**
@@ -342,7 +413,7 @@ function addClickCommands(client) {
     const base = selector('close-privacy-settings-button');
     return this
       .click(base)
-      .waitForVisible(base, TIMEOUT, true)
+      .waitForVisibleInCompass(base, true)
       .waitUntil(function() {
         return this.getText('div[data-hook=optin-container]').then(function(text) {
           return text.length === 0;
@@ -357,7 +428,7 @@ function addClickCommands(client) {
    */
   client.addCommand('clickCollectionInSidebar', function(name) {
     const base = `${selector('sidebar-collection')}[title='${name}']`;
-    return this.waitForVisible(base, TIMEOUT).click(base);
+    return this.waitForVisibleInCompass(base).click(base);
   });
 
   /**
@@ -367,7 +438,7 @@ function addClickCommands(client) {
    */
   client.addCommand('clickDatabaseInSidebar', function(name) {
     const base = `${selector('sidebar-database')}[title='${name}']`;
-    return this.waitForVisible(base, TIMEOUT).click(base);
+    return this.waitForVisibleInCompass(base).click(base);
   });
 
   /**
@@ -376,7 +447,7 @@ function addClickCommands(client) {
   client.addCommand('clickApplyFilterButtonFromDocumentsTab', function() {
     const base = selector('documents-content');
     const button = `${base} ${selector('apply-filter-button')}`;
-    return this.waitForVisible(button, TIMEOUT).click(button);
+    return this.waitForVisibleInCompass(button).click(button);
   });
 
   /**
@@ -385,7 +456,7 @@ function addClickCommands(client) {
   client.addCommand('clickResetFilterButtonFromDocumentsTab', function() {
     const base = selector('documents-content');
     const button = `${base} ${selector('reset-filter-button')}`;
-    return this.waitForVisible(button, TIMEOUT).click(button);
+    return this.waitForVisibleInCompass(button).click(button);
   });
 
   /**
@@ -394,7 +465,7 @@ function addClickCommands(client) {
   client.addCommand('clickApplyFilterButtonFromSchemaTab', function() {
     const base = selector('schema-content');
     const button = `${base} ${selector('apply-filter-button')}`;
-    return this.waitForVisible(button, TIMEOUT).click(button);
+    return this.waitForVisibleInCompass(button).click(button);
   });
 
   /**
@@ -403,7 +474,7 @@ function addClickCommands(client) {
   client.addCommand('clickResetFilterButtonFromSchemaTab', function() {
     const base = selector('schema-content');
     const button = `${base} ${selector('reset-filter-button')}`;
-    return this.waitForVisible(button, TIMEOUT).click(button);
+    return this.waitForVisibleInCompass(button).click(button);
   });
 
   /**
@@ -412,7 +483,7 @@ function addClickCommands(client) {
   client.addCommand('clickApplyFilterButtonFromExplainPlanTab', function() {
     const base = selector('explain-plan-content');
     const button = `${base} ${selector('apply-filter-button')}`;
-    return this.waitForVisible(button, TIMEOUT).click(button);
+    return this.waitForVisibleInCompass(button).click(button);
   });
 
   /**
@@ -421,7 +492,7 @@ function addClickCommands(client) {
   client.addCommand('clickResetFilterButtonFromExplainPlanTab', function() {
     const base = selector('explain-plan-content');
     const button = `${base} ${selector('reset-filter-button')}`;
-    return this.waitForVisible(button, TIMEOUT).click(button);
+    return this.waitForVisibleInCompass(button).click(button);
   });
 
   /**
@@ -547,7 +618,7 @@ function addClickCommands(client) {
    */
   client.addCommand('clickInsertDocumentModalButton', function() {
     const base = selector('insert-document-button');
-    return this.click(base).waitForVisible(base, TIMEOUT, true);
+    return this.click(base).waitForVisibleInCompass(base, true);
   });
 
   /**
@@ -558,7 +629,7 @@ function addClickCommands(client) {
   client.addCommand('clickEditDocumentButton', function(index) {
     const base = `${selector('document-list-item')}:nth-child(${index})`;
     const button = `${base} ${selector('edit-document-button')}`;
-    return this.moveToObject(base).waitForVisible(button, TIMEOUT).click(button);
+    return this.moveToObject(base).waitForVisibleInCompass(button).click(button);
   });
 
   /**
@@ -569,7 +640,7 @@ function addClickCommands(client) {
   client.addCommand('clickCloneDocumentButton', function(index) {
     const base = `${selector('document-list-item')}:nth-child(${index})`;
     const button = `${base} ${selector('clone-document-button')}`;
-    return this.moveToObject(base).waitForVisible(button, TIMEOUT).click(button);
+    return this.moveToObject(base).waitForVisibleInCompass(button).click(button);
   });
 
   /**
@@ -580,7 +651,7 @@ function addClickCommands(client) {
   client.addCommand('clickDeleteDocumentButton', function(index) {
     const base = `${selector('document-list-item')}:nth-child(${index})`;
     const button = `${base} ${selector('delete-document-button')}`;
-    return this.moveToObject(base).waitForVisible(button, TIMEOUT).click(button);
+    return this.moveToObject(base).waitForVisibleInCompass(button).click(button);
   });
 
   /**
@@ -629,7 +700,7 @@ function addGetCommands(client) {
    */
   client.addCommand('getSlowestOperations', function() {
     const base = selector('no-slow-operations');
-    return this.waitForVisible(base, TIMEOUT).getText(base);
+    return this.waitForVisibleInCompass(base).getText(base);
   });
 
   /**
@@ -637,7 +708,7 @@ function addGetCommands(client) {
    */
   client.addCommand('getMemoryVSize', function() {
     const base = selector('performance-virtual');
-    return this.waitForVisible(base, TIMEOUT).getText(base);
+    return this.waitForVisibleInCompass(base).getText(base);
   });
 
   /**
@@ -645,7 +716,7 @@ function addGetCommands(client) {
    */
   client.addCommand('getMemoryResident', function() {
     const base = selector('performance-resident');
-    return this.waitForVisible(base, TIMEOUT).getText(base);
+    return this.waitForVisibleInCompass(base).getText(base);
   });
 
   /**
@@ -653,7 +724,7 @@ function addGetCommands(client) {
    */
   client.addCommand('getMemoryMapped', function() {
     const base = selector('performance-mapped');
-    return this.waitForVisible(base, TIMEOUT).getText(base);
+    return this.waitForVisibleInCompass(base).getText(base);
   });
 
   /**
@@ -661,7 +732,7 @@ function addGetCommands(client) {
    */
   client.addCommand('getNetworkBytesIn', function() {
     const base = selector('performance-bytesIn');
-    return this.waitForVisible(base, TIMEOUT).getText(base);
+    return this.waitForVisibleInCompass(base).getText(base);
   });
 
   /**
@@ -669,7 +740,7 @@ function addGetCommands(client) {
    */
   client.addCommand('getNetworkBytesOut', function() {
     const base = selector('performance-bytesOut');
-    return this.waitForVisible(base, TIMEOUT).getText(base);
+    return this.waitForVisibleInCompass(base).getText(base);
   });
 
   /**
@@ -677,7 +748,7 @@ function addGetCommands(client) {
    */
   client.addCommand('getNetworkConnections', function() {
     const base = selector('performance-connections');
-    return this.waitForVisible(base, TIMEOUT).getText(base);
+    return this.waitForVisibleInCompass(base).getText(base);
   });
 
   /**
@@ -685,7 +756,7 @@ function addGetCommands(client) {
    */
   client.addCommand('getReadWriteActiveReads', function() {
     const base = selector('performance-aReads');
-    return this.waitForVisible(base, TIMEOUT).getText(base);
+    return this.waitForVisibleInCompass(base).getText(base);
   });
 
   /**
@@ -693,7 +764,7 @@ function addGetCommands(client) {
    */
   client.addCommand('getReadWriteActiveWrites', function() {
     const base = selector('performance-aWrites');
-    return this.waitForVisible(base, TIMEOUT).getText(base);
+    return this.waitForVisibleInCompass(base).getText(base);
   });
 
   /**
@@ -701,7 +772,7 @@ function addGetCommands(client) {
    */
   client.addCommand('getReadWriteQueuedReads', function() {
     const base = selector('performance-qReads');
-    return this.waitForVisible(base, TIMEOUT).getText(base);
+    return this.waitForVisibleInCompass(base).getText(base);
   });
 
   /**
@@ -709,7 +780,7 @@ function addGetCommands(client) {
    */
   client.addCommand('getReadWriteQueuedWrites', function() {
     const base = selector('performance-qWrites');
-    return this.waitForVisible(base, TIMEOUT).getText(base);
+    return this.waitForVisibleInCompass(base).getText(base);
   });
 
   /**
@@ -717,7 +788,7 @@ function addGetCommands(client) {
    */
   client.addCommand('getOperationsInserts', function() {
     const base = selector('performance-insert');
-    return this.waitForVisible(base, TIMEOUT).getText(base);
+    return this.waitForVisibleInCompass(base).getText(base);
   });
 
   /**
@@ -725,7 +796,7 @@ function addGetCommands(client) {
    */
   client.addCommand('getOperationsQueries', function() {
     const base = selector('performance-query');
-    return this.waitForVisible(base, TIMEOUT).getText(base);
+    return this.waitForVisibleInCompass(base).getText(base);
   });
 
   /**
@@ -733,7 +804,7 @@ function addGetCommands(client) {
    */
   client.addCommand('getOperationsUpdates', function() {
     const base = selector('performance-update');
-    return this.waitForVisible(base, TIMEOUT).getText(base);
+    return this.waitForVisibleInCompass(base).getText(base);
   });
 
   /**
@@ -741,7 +812,7 @@ function addGetCommands(client) {
    */
   client.addCommand('getOperationsDeletes', function() {
     const base = selector('performance-delete');
-    return this.waitForVisible(base, TIMEOUT).getText(base);
+    return this.waitForVisibleInCompass(base).getText(base);
   });
 
   /**
@@ -749,7 +820,7 @@ function addGetCommands(client) {
    */
   client.addCommand('getOperationsCommands', function() {
     const base = selector('performance-command');
-    return this.waitForVisible(base, TIMEOUT).getText(base);
+    return this.waitForVisibleInCompass(base).getText(base);
   });
 
   /**
@@ -757,7 +828,7 @@ function addGetCommands(client) {
    */
   client.addCommand('getOperationsGetMores', function() {
     const base = selector('performance-getmore');
-    return this.waitForVisible(base, TIMEOUT).getText(base);
+    return this.waitForVisibleInCompass(base).getText(base);
   });
 
   /**
@@ -766,7 +837,7 @@ function addGetCommands(client) {
   client.addCommand('getExplainPlanStatusMessage', function() {
     const base = selector('explain-plan-content');
     const row = `${base} .status-row-has-warning`;
-    return this.waitForVisible(row).getText(row, TIMEOUT);
+    return this.waitForVisibleInCompass(row).getText(row);
   });
 
   /**
@@ -774,7 +845,7 @@ function addGetCommands(client) {
    */
   client.addCommand('getExplainDocumentsReturned', function() {
     const base = selector('explain-returned-count');
-    return this.waitForVisible(base).getText(base, TIMEOUT);
+    return this.waitForVisibleInCompass(base).getText(base);
   });
 
   /**
@@ -782,7 +853,7 @@ function addGetCommands(client) {
    */
   client.addCommand('getExplainKeysExamined', function() {
     const base = selector('explain-examined-keys-count');
-    return this.waitForVisible(base).getText(base, TIMEOUT);
+    return this.waitForVisibleInCompass(base).getText(base);
   });
 
   /**
@@ -790,7 +861,7 @@ function addGetCommands(client) {
    */
   client.addCommand('getExplainDocumentsExamined', function() {
     const base = selector('explain-examined-count');
-    return this.waitForVisible(base).getText(base, TIMEOUT);
+    return this.waitForVisibleInCompass(base).getText(base);
   });
 
   /**
@@ -799,7 +870,7 @@ function addGetCommands(client) {
   client.addCommand('getSamplingMessageFromDocumentsTab', function() {
     const base = selector('documents-content');
     const div = `${base} .sampling-message`;
-    return this.waitForVisible(div).getText(div, TIMEOUT);
+    return this.waitForVisibleInCompass(div).getText(div);
   });
 
   /**
@@ -808,56 +879,56 @@ function addGetCommands(client) {
   client.addCommand('getSamplingMessageFromSchemaTab', function() {
     const base = selector('schema-content');
     const div = `${base} .sampling-message`;
-    return this.waitForVisible(div).getText(div, TIMEOUT);
+    return this.waitForVisibleInCompass(div).getText(div);
   });
 
   /**
    * Get the document updated message.
    */
   client.addCommand('getDocumentMessage', function() {
-    return this.getText(selector('document-message'), TIMEOUT);
+    return this.getText(selector('document-message'));
   });
 
   /**
    * Get the title of the standard Compass modal dialog.
    */
   client.addCommand('getModalTitle', function() {
-    return this.getText(selector('modal-title'), TIMEOUT);
+    return this.getText(selector('modal-title'));
   });
 
   /**
    * Get the instance address from the sidebar.
    */
   client.addCommand('getSidebarInstanceDetails', function() {
-    return this.getText(selector('sidebar-instance-details'), TIMEOUT);
+    return this.getText(selector('sidebar-instance-details'));
   });
 
   /**
    * Get the ssh tunnel details.
    */
   client.addCommand('getSidebarSshTunnelDetails', function() {
-    return this.getText(selector('sidebar-ssh-tunnel-details'), TIMEOUT);
+    return this.getText(selector('sidebar-ssh-tunnel-details'));
   });
 
   /**
    * Get the sidebar instance version.
    */
   client.addCommand('getSidebarInstanceVersion', function() {
-    return this.getText(selector('sidebar-instance-version'), TIMEOUT);
+    return this.getText(selector('sidebar-instance-version'));
   });
 
   /**
    * Get the sidebar database count
    */
   client.addCommand('getSidebarDatabaseCount', function() {
-    return this.getText(selector('sidebar-db-count'), TIMEOUT);
+    return this.getText(selector('sidebar-db-count'));
   });
 
   /**
    * Get the sidebar collection count
    */
   client.addCommand('getSidebarCollectionCount', function() {
-    return this.getText(selector('sidebar-collection-count'), TIMEOUT);
+    return this.getText(selector('sidebar-collection-count'));
   });
 
   /**
@@ -879,7 +950,7 @@ function addGetCommands(client) {
    */
   client.addCommand('getHomeViewDatabaseNames', function() {
     return this
-      .waitForVisible(selector('databases-table'))
+      .waitForVisibleInCompass(selector('databases-table'))
       .getText(selector('sortable-table-column-0'));
   });
 
@@ -888,7 +959,7 @@ function addGetCommands(client) {
    */
   client.addCommand('getDatabaseViewCollectionNames', function() {
     return this
-      .waitForVisible(selector('collections-table'))
+      .waitForVisibleInCompass(selector('collections-table'))
       .getText(selector('sortable-table-column-0'));
   });
 
@@ -916,7 +987,7 @@ function addGetCommands(client) {
    */
   client.addCommand('getIndexNames', function() {
     const names = selector('index-table-name');
-    return this.waitForVisible(names, TIMEOUT).getText(names);
+    return this.waitForVisibleInCompass(names).getText(names);
   });
 
   /**
@@ -926,7 +997,7 @@ function addGetCommands(client) {
    */
   client.addCommand('getIndexTypes', function() {
     const types = selector('index-table-type');
-    return this.waitForVisible(types, TIMEOUT).getText(types);
+    return this.waitForVisibleInCompass(types).getText(types);
   });
 
   /**
@@ -936,7 +1007,7 @@ function addGetCommands(client) {
    */
   client.addCommand('getIndexSizes', function() {
     const sizes = selector('index-table-size');
-    return this.waitForVisible(sizes, TIMEOUT).getText(sizes);
+    return this.waitForVisibleInCompass(sizes).getText(sizes);
   });
 
   /**
@@ -946,7 +1017,7 @@ function addGetCommands(client) {
    */
   client.addCommand('getIndexUsages', function() {
     const usages = selector('index-table-usage');
-    return this.waitForVisible(usages, TIMEOUT).getText(usages);
+    return this.waitForVisibleInCompass(usages).getText(usages);
   });
 
   /**
@@ -957,7 +1028,7 @@ function addGetCommands(client) {
   client.addCommand('getIndexProperties', function() {
     const base = selector('indexes-table');
     const props = `${base} td.property-column .properties .property`;
-    return this.waitForVisible(base, TIMEOUT).getText(props);
+    return this.waitForVisibleInCompass(base).getText(props);
   });
 }
 
@@ -1191,6 +1262,7 @@ function launchCompass() {
   const app = createApplication();
   return app.start().then(() => {
     const client = app.client;
+    addExtendedWaitCommands(client);
     addWaitCommands(client);
     addClickCommands(client);
     addGetCommands(client);
