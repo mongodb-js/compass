@@ -139,6 +139,15 @@ function addWaitCommands(client) {
   });
 
   /**
+   * Wait for the instance refresh to finish.
+   */
+  client.addCommand('waitForInstanceRefresh', function() {
+    const button = selector('instance-refresh-button');
+    const icon = `${button} i.fa-spin`;
+    return this.waitForVisible(icon, TIMEOUT, true);
+  });
+
+  /**
    * Wait for the insert document modal to open.
    */
   client.addCommand('waitForInsertDocumentModal', function() {
@@ -231,6 +240,14 @@ function addWaitCommands(client) {
  * @param {Client} client - The client.
  */
 function addClickCommands(client) {
+
+  /**
+   * Click the refresh documents button.
+   */
+  client.addCommand('clickRefreshDocumentsButton', function() {
+    const button = selector('refresh-documents-button');
+    return this.waitForVisible(button, TIMEOUT).click(button);
+  });
 
   /**
    * Click the enable product feedback checkbox.
