@@ -562,7 +562,6 @@ function addClickCommands(client) {
    * Click the create index button in the modal.
    */
   client.addCommand('clickCreateIndexModalButton', function() {
-    const base = selector('create-index-button');
     const form = selector('create-index-modal');
     return this.submitForm(`${form} form`);
   });
@@ -666,11 +665,11 @@ function addClickCommands(client) {
   });
 
   /**
-   * Click on the name header in the index table.
+   * Click on the header in the index table.
    */
-  client.addCommand('clickIndexTableNameHeader', function() {
+  client.addCommand('clickIndexTableHeader', function(columnName) {
     const base = selector('indexes-table');
-    const column = selector('th-name');
+    const column = selector(columnName);
     return this.click(`${base} ${column}`);
   });
 

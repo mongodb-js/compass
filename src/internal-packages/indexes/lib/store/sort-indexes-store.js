@@ -17,6 +17,8 @@ const SortIndexesStore = Reflux.createStore({
    * Initialize the sort indexes store.
    */
   init: function() {
+    this.sortField = DEFAULT;
+    this.sortOrder = ASC;
     this.listenTo(LoadIndexesStore, this.loadIndexes);
     this.listenTo(UpdateIndexesStore, this.loadIndexes);
     this.listenTo(Action.sortIndexes, this.sortIndexes);
@@ -29,16 +31,19 @@ const SortIndexesStore = Reflux.createStore({
    */
   loadIndexes(indexes) {
     this.indexes = indexes;
-    this.sortIndexes(DEFAULT);
+    this.sortIndexes(this.sortField, false);
   },
 
   /**
    * Sort the indexes
    *
    * @param {String} column - The column to sort on.
+   * @param {Boolean} reverse - If we should reverse the order.
    */
-  sortIndexes: function(column) {
-    this._setOrder(column);
+  sortIndexes: function(column, reverse = true) {
+    if (reverse) {
+      this._setOrder(column);
+    }
     this.indexes.sort(this._comparator(this._field()));
     this.trigger(this.indexes, this.sortOrder, this.sortField);
   },

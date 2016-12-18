@@ -55,13 +55,19 @@ class IndexHeader extends React.Component {
     return (
       <thead>
         <tr>
-          <IndexHeaderColumn hook="th-name" name="Name and Definition" sortOrder={this.state.sortOrder} />
-          <IndexHeaderColumn hook="th-type" name="Type" sortOrder={this.state.sortOrder} />
-          <IndexHeaderColumn hook="th-size" name="Size" sortOrder={this.state.sortOrder} />
-          <IndexHeaderColumn hook="th-usage" name="Usage" sortOrder={this.state.sortOrder} />
-          <IndexHeaderColumn hook="th-properties" name="Properties" sortOrder={this.state.sortOrder} />
+          <IndexHeaderColumn
+            dataTestId="index-header-name" name="Name and Definition" sortOrder={this.state.sortOrder} />
+          <IndexHeaderColumn
+            dataTestId="index-header-type" name="Type" sortOrder={this.state.sortOrder} />
+          <IndexHeaderColumn
+            dataTestId="index-header-size" name="Size" sortOrder={this.state.sortOrder} />
+          <IndexHeaderColumn
+            dataTestId="index-header-usage" name="Usage" sortOrder={this.state.sortOrder} />
+          <IndexHeaderColumn
+            dataTestId="index-header-properties" name="Properties" sortOrder={this.state.sortOrder} />
           {this.CollectionStore.isWritable() ?
-            <IndexHeaderColumn hook="th-drop" name="Drop" sortOrder={this.state.sortOrder}/>
+            <IndexHeaderColumn
+              dataTestId="index-header-drop" name="Drop" sortOrder={this.state.sortOrder}/>
             : null}
         </tr>
       </thead>

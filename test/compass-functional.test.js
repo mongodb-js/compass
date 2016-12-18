@@ -591,13 +591,42 @@ describe('Compass Functional Test Suite #spectron', function() {
           });
 
           context('when the index is valid', function() {
-            it('adds the index to the list', function() {
-              return client
-                .inputCreateIndexDetails({ name: 'name_1', field: 'name' })
-                .clickCreateIndexModalButton()
-                .waitForIndexCreation('name_1')
-                .getIndexNames()
-                .should.eventually.deep.equal([ 'name_1', '_id_' ]);
+            context('when the indexes are sorted', function() {
+              it('adds the index to the list', function() {
+                return client
+                  .inputCreateIndexDetails({ name: 'name_1', field: 'name' })
+                  .clickCreateIndexModalButton()
+                  .waitForIndexCreation('name_1')
+                  .clickIndexTableHeader('index-header-name')
+                  .getIndexNames()
+                  .should.eventually.include('name_1');
+              });
+
+              it('retains the previous sorting of the list', function() {
+                return client
+                  .getIndexNames()
+                  .should.eventually.deep.equal([ 'name_1', '_id_' ]);
+              });
+            });
+
+            context('when adding another index', function() {
+              it('allows another index to be added', function() {
+                return client
+                  .clickCreateIndexButton()
+                  .waitForCreateIndexModal()
+                  .inputCreateIndexDetails({ type: '-1 (desc)' })
+                  .inputCreateIndexDetails({ name: 'name_-1', field: 'name'})
+                  .clickCreateIndexModalButton()
+                  .waitForIndexCreation('name_-1')
+                  .getIndexNames()
+                  .should.eventually.include('name_-1');
+              });
+
+              it('retains the current index table sort order', function() {
+                return client
+                  .getIndexNames()
+                  .should.eventually.deep.equal([ 'name_1', 'name_-1', '_id_' ]);
+              });
             });
           });
         });
@@ -606,9 +635,9 @@ describe('Compass Functional Test Suite #spectron', function() {
           context('when clicking on the name header', function() {
             it('sorts the indexes by name', function() {
               return client
-                .clickIndexTableNameHeader()
+                .clickIndexTableHeader('index-header-name')
                 .getIndexNames()
-                .should.eventually.deep.equal([ '_id_', 'name_1' ]);
+                .should.eventually.deep.equal([ '_id_', 'name_-1', 'name_1' ]);
             });
           });
         });
