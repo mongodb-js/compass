@@ -3,6 +3,7 @@ const app = require('ampersand-app');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const ReadPreference = require('mongodb').ReadPreference;
 const toNS = require('mongodb-ns');
+const Actions = require('../actions');
 
 // const debug = require('debug')('mongodb-compass:crud');
 
@@ -27,6 +28,8 @@ const ResetDocumentListStore = Reflux.createStore({
    * Initialize the reset document list store.
    */
   init: function() {
+    this.filter = {};
+
     // listen for namespace changes
     NamespaceStore.listen((ns) => {
       if (ns && toNS(ns).collection) {
@@ -36,6 +39,8 @@ const ResetDocumentListStore = Reflux.createStore({
 
     // listen for query changes
     this.listenToExternalStore('Query.ChangedStore', this.onQueryChanged.bind(this));
+
+    Actions.refreshDocuments.listen(this.reset.bind(this));
   },
 
   /**
@@ -45,7 +50,8 @@ const ResetDocumentListStore = Reflux.createStore({
    */
   onQueryChanged: function(state) {
     if (state.query) {
-      this.reset(state.query);
+      this.filter = state.query;
+      this.reset();
     }
   },
 
@@ -54,9 +60,9 @@ const ResetDocumentListStore = Reflux.createStore({
    *
    * @param {Object} filter - The query filter.
    */
-  reset: function(filter) {
+  reset: function() {
     if (NamespaceStore.ns) {
-      app.dataService.count(NamespaceStore.ns, filter, OPTIONS, (err, count) => {
+      app.dataService.count(NamespaceStore.ns, this.filter, OPTIONS, (err, count) => {
         if (!err) {
           const options = {
             limit: 20,
@@ -64,7 +70,7 @@ const ResetDocumentListStore = Reflux.createStore({
             readPreference: READ,
             promoteValues: false
           };
-          app.dataService.find(NamespaceStore.ns, filter, options, (error, documents) => {
+          app.dataService.find(NamespaceStore.ns, this.filter, options, (error, documents) => {
             this.trigger(error, documents, count);
           });
         } else {

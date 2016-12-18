@@ -6,7 +6,8 @@ const Actions = Reflux.createActions([
   'documentRemoved',
   'openInsertDocumentDialog',
   'insertDocument',
-  'fileDropped'
+  'fileDropped',
+  'refreshDocuments'
 ]);
 
 document.ondragover = document.ondrop = (ev) => {

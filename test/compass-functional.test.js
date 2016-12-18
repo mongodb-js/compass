@@ -1,4 +1,11 @@
+const Connection = require('mongodb-connection-model');
+const DataService = require('mongodb-data-service');
 const { launchCompass, quitCompass, isIndexUsageEnabled } = require('./support/spectron-support');
+
+/**
+ * Global connection model for this test.
+ */
+const CONNECTION = new Connection({ hostname: '127.0.0.1', port: 27018, ns: 'music' });
 
 describe('Compass Functional Test Suite #spectron', function() {
   this.slow(30000);
@@ -338,6 +345,7 @@ describe('Compass Functional Test Suite #spectron', function() {
 
           it('adds the collection to the sidebar', function() {
             return client
+              .waitForInstanceRefresh()
               .getSidebarCollectionNames()
               .should.eventually.include('music.labels');
           });
@@ -447,7 +455,7 @@ describe('Compass Functional Test Suite #spectron', function() {
             .clickConfirmDeleteDocumentButton(2)
             .waitForDocumentDeletionToComplete(2)
             .getSamplingMessageFromDocumentsTab()
-            .should.eventually.equal('Query returned 1 document.');
+            .should.eventually.include('Query returned 1 document.');
         });
       });
 
@@ -458,7 +466,7 @@ describe('Compass Functional Test Suite #spectron', function() {
             .inputFilterFromDocumentsTab(filter)
             .clickApplyFilterButtonFromDocumentsTab()
             .getSamplingMessageFromDocumentsTab()
-            .should.eventually.equal('Query returned 0 documents.');
+            .should.eventually.include('Query returned 0 documents.');
         });
 
         it('updates the schema view', function() {
@@ -518,7 +526,7 @@ describe('Compass Functional Test Suite #spectron', function() {
           return client
             .clickDocumentsTab()
             .getSamplingMessageFromDocumentsTab()
-            .should.eventually.equal('Query returned 1 document.');
+            .should.eventually.include('Query returned 1 document.');
         });
 
         it('updates the schema view', function() {
@@ -616,6 +624,30 @@ describe('Compass Functional Test Suite #spectron', function() {
 
       context('when deleting a validation rule', function() {
 
+      });
+
+      context('when refreshing the documents list', function() {
+        const dataService = new DataService(CONNECTION);
+
+        before(function(done) {
+          dataService.connect(function() {
+            dataService.insertOne('music.artists', { name: 'Bauhaus' }, {}, function() {
+              done();
+            });
+          });
+        });
+
+        after(function() {
+          dataService.disconnect();
+        });
+
+        it('resets the documents in the list', function() {
+          return client
+            .clickDocumentsTab()
+            .clickRefreshDocumentsButton()
+            .getSamplingMessageFromDocumentsTab()
+            .should.eventually.include('Query returned 2 documents.');
+        });
       });
     });
   });

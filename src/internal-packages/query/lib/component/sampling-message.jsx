@@ -1,6 +1,6 @@
 const React = require('react');
 const app = require('ampersand-app');
-const { TextButton } = require('hadron-react-buttons');
+const { TextButton, AnimatedIconTextButton } = require('hadron-react-buttons');
 const numeral = require('numeral');
 const pluralize = require('pluralize');
 
@@ -16,11 +16,13 @@ class SamplingMessage extends React.Component {
    */
   constructor(props) {
     super(props);
+    const crudActions = app.appRegistry.getAction('CRUD.Actions');
     this.state = { count: 0, loaded: 0 };
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
     this.resetDocumentListStore = app.appRegistry.getStore('CRUD.ResetDocumentListStore');
     this.insertDocumentStore = app.appRegistry.getStore('CRUD.InsertDocumentStore');
-    this.documentRemovedAction = app.appRegistry.getAction('CRUD.Actions').documentRemoved;
+    this.documentRemovedAction = crudActions.documentRemoved;
+    this.refreshDocumentsAction = crudActions.refreshDocuments;
     this.loadMoreDocumentsStore = app.appRegistry.getStore('CRUD.LoadMoreDocumentsStore');
   }
 
@@ -85,6 +87,12 @@ class SamplingMessage extends React.Component {
     }
   }
 
+  /**
+   * Handle refreshing the document list.
+   */
+  handleRefreshDocuments() {
+    this.refreshDocumentsAction();
+  }
 
   _loadedMessage() {
     if (this.state.count > 20) {
@@ -131,6 +139,14 @@ class SamplingMessage extends React.Component {
         <div className="sampling-message">
           Query returned&nbsp;<b>{this.state.count}</b>&nbsp;{noun}.&nbsp;
           {this._loadedMessage()}
+          <AnimatedIconTextButton
+            clickHandler={this.handleRefreshDocuments.bind(this)}
+            stopAnimationListenable={this.resetDocumentListStore}
+            dataTestId="refresh-documents-button"
+            className="btn btn-default btn-xs refresh-documents"
+            iconClassName="fa fa-repeat"
+            animatingIconClassName="fa fa-refresh fa-spin"
+            text="&nbsp;Refresh" />
         </div>
         <div className="action-bar">
           {this.CollectionStore.isWritable() ?
