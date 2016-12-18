@@ -56,8 +56,7 @@ const TIMEOUTS = [
   3000,
   5000,
   8000,
-  13000,
-  21000
+  13000
 ];
 
 /**
@@ -98,10 +97,22 @@ function progressiveWait(fn, selector, reverse, index) {
  */
 function addExtendedWaitCommands(client) {
 
+  /**
+   * Wait for an element to exist in the Compass test suite.
+   *
+   * @param {String} selector - The CSS selector for the element.
+   * @param {Boolean} reverse - Whether to reverse the wait.
+   */
   client.addCommand('waitForExistInCompass', function(selector, reverse) {
     return progressiveWait(this.waitForExist.bind(this), selector, reverse, 0);
   });
 
+  /**
+   * Wait for an element to be visible in the Compass test suite.
+   *
+   * @param {String} selector - The CSS selector for the element.
+   * @param {Boolean} reverse - Whether to reverse the wait.
+   */
   client.addCommand('waitForVisibleInCompass', function(selector, reverse) {
     return progressiveWait(this.waitForVisible.bind(this), selector, reverse, 0);
   });
