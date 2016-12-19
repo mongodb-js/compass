@@ -13,10 +13,10 @@ exec_timeout_secs: 1800
 
 variables:
 # function "save release variants" is conditional on the following
-# -> all except ubuntu
 - &save_release_variants
   - osx-1010
   - windows-64
+  - ubuntu
 
 
 #######################################
@@ -153,18 +153,6 @@ functions:
           ssh -p 2222 localhost "echo SSH_LOCALHOST_TEST_OK"
         fi
 
-  "save npm_install.json":
-    command: s3.put
-    params:
-      aws_key: ${aws_key}
-      aws_secret: ${aws_secret}
-      local_file: "src/npm_install.json"
-      remote_file: "${project}/${build_variant}/${revision}/npm_install.json"
-      bucket: mciuploads
-      permissions: public-read
-      content_type: application/json
-      display_name: "npm_install.json"
-
   "save windows artifacts":
     # setup
     - command: s3.put
@@ -258,17 +246,30 @@ functions:
         content_type: application/zip
         display_name: "${name}-${version}-${platform}-${arch}.zip"
 
-  "save LICENSE":
-    command: s3.put
-    params:
-      aws_key: ${aws_key}
-      aws_secret: ${aws_secret}
-      local_file: "src/dist/LICENSE"
-      remote_file: "${project}/${build_variant}/${revision}/LICENSE"
-      bucket: mciuploads
-      permissions: public-read
-      content_type: text/plain
-      display_name: LICENSE
+
+  "save linux artifacts":
+    # .deb
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: "src/dist/${slug}-${version}-${arch}.deb"
+        remote_file: "${project}/${build_variant}/${revision}/${slug}-${version}-${platform}-${arch}.deb"
+        bucket: mciuploads
+        permissions: public-read
+        content_type: "application/vnd.debian.binary-package"
+        display_name: "${slug}-${version}-${platform}-${arch}.deb"
+    # .rpm
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: "src/dist/${slug}.${version}.${arch}.rpm"
+        remote_file: "${project}/${build_variant}/${revision}/${slug}.${version}.${arch}.rpm"
+        bucket: mciuploads
+        permissions: public-read
+        content_type: application/x-redhat-package-manager
+        display_name: "${slug}.${version}.${arch}.rpm"
 
   "upload release":
     command: shell.exec
@@ -321,19 +322,15 @@ tasks:
     variants:
       - windows-64
   - func: "build"
-  - func: "save npm_install.json"
   - func: "save windows artifacts"
     variants:
       - windows-64
   - func: "save osx artifacts"
     variants:
       - osx-1010
-  - func: "save LICENSE"
+  - func: "save linux artifacts"
     variants:
-      - windows-64
-  - func: "save version"
-    variants:
-      - windows-64
+      - ubuntu
   - func: "upload release"
 
 # Define shortcut for use below
