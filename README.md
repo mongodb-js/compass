@@ -61,7 +61,6 @@ npm run release
 ## Running Tests
 
 Just run `npm test`.
-NOTE: `npm test` (i.e. run the `npm test --functional` tests) seems to be hanging on master at this time.
 
 To run just what TravisCI runs [locally](https://engineering.canva.com/2015/03/25/hermeticity/):
 
