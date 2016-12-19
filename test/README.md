@@ -107,3 +107,57 @@ loading the application without any erros anywhere.
 Please use the custom methods `waitForVisibleInCompass`, `waitForExistsInCompass`
 and `waitUntilInCompass` to leverage the incremental timeout functionality to
 provide faster and more stable tests.
+
+How does this help? Previously the core wait commands would try to resolve the
+condition once, then wait until the provided timout until trying again. This
+meant when using large timeouts to account for slow machines (for example 30
+seconds) would cause fast machines to have to wait the full timeout when a much
+smaller one (like 5 seconds) would suffice. These new methods now poll the core
+wait commands with a fibonacci sequence of timeouts up until a max last timeout
+of 13 seconds. (1, 2, 3, 5, 8, 13)
+
+
+### Element Is Not Clickable At...
+
+The usual reasoning for this error is that the status bar has not gotten to 100%
+and the transparent overlay is still present. Adding a `waitForStatusBar` command
+before the click command should resolve most of these.
+
+## Roadmap
+
+### Scoped data-test-id
+
+Using `data-test-id` was the first step in creating a way to find elements without
+being affected by CSS changes and major layout changes. The next step is to make
+the selectors faster. We will be scoping the selectors based on section next, with
+each corresponding section being identified with an `id` attribute in the HTML tag.
+
+These will be placed in areas that will not have excessive change:
+
+- Sidebar
+- Databases Tab
+- Performance Tab
+- Collections Tab
+- Schema Tab
+- Documents Tab
+- Explain Plan Tab
+- Validation Tab
+- Indexes Tab
+
+This is so we can select based on the `id` of the section first, which does not require
+a full scan of the DOM and then subsequently select on `data-test-id` from the subset.
+
+### More Debug
+
+We will be adding more debugging output across all commmands, not just the wait commands,
+so that test failures with debug on will be easy to resolve.
+
+### Modularisation
+
+We will be looking to split the tests up into modules based on functional area, so a subset
+of the tests can be run without having to run the entire suite. CI will always run everything.
+
+### Read/Write Split
+
+A second split of the tests will happen into tests for writable servers vs. readonly servers
+and the CI test suite expanded to test shards and replica sets.
