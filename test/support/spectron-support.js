@@ -84,8 +84,28 @@ function progressiveWait(fn, selector, reverse, index) {
   debug(`Looking for element ${selector} with timeout ${timeout}ms`);
   return fn(selector, timeout, reverse)
     .catch(function(e) {
-      if (isTimeoutError(e) && timeout !== 21000) {
+      if (isTimeoutError(e) && timeout !== 13000) {
         return progressiveWait(fn, selector, reverse || false, index + 1);
+      } else {
+        throw e;
+      }
+    });
+}
+
+/**
+ * Waits until the provided funciton returns true.
+ *
+ * @param {Function} waitUntil - The waitUntil function.
+ * @param {Function} fn - The function to execute.
+ * @param {Number} index - The timeout index.
+ */
+function progressiveWaitUntil(waitUntil, fn, index) {
+  const timeout = TIMEOUTS[index];
+  debug(`Waiting until function returns with timeout ${timeout}ms`);
+  return waitUntil(fn, timeout)
+    .catch(function(e) {
+      if (isTimeoutError(e) && timeout !== 13000) {
+        return progressiveWaitUntil(waitUntil, fn, index + 1);
       } else {
         throw e;
       }
@@ -115,6 +135,15 @@ function addExtendedWaitCommands(client) {
    */
   client.addCommand('waitForVisibleInCompass', function(selector, reverse) {
     return progressiveWait(this.waitForVisible.bind(this), selector, reverse, 0);
+  });
+
+  /**
+   * Wait for a condition to return true.
+   *
+   * @param {Function} fn - The function to execute.
+   */
+  client.addCommand('waitUntilInCompass', function(fn) {
+    return progressiveWaitUntil(this.waitUntil.bind(this), fn, 0);
   });
 }
 
@@ -255,11 +284,11 @@ function addWaitCommands(client) {
    */
   client.addCommand('waitForIndexCreation', function(name) {
     return this
-      .waitUntil(function() {
+      .waitUntilInCompass(function() {
         return this.getIndexNames().then(function(names) {
           return names.includes(name);
         });
-      }, LONG_TIMEOUT);
+      });
   });
 
   /*
@@ -425,11 +454,11 @@ function addClickCommands(client) {
     return this
       .click(base)
       .waitForVisibleInCompass(base, true)
-      .waitUntil(function() {
+      .waitUntilInCompass(function() {
         return this.getText('div[data-hook=optin-container]').then(function(text) {
           return text.length === 0;
         });
-      }, LONG_TIMEOUT);
+      });
   });
 
   /**
@@ -559,7 +588,10 @@ function addClickCommands(client) {
    * Click the create index button.
    */
   client.addCommand('clickCreateIndexButton', function() {
-    return this.waitForStatusBar().click(selector('open-create-index-modal-button'));
+    const button = selector('open-create-index-modal-button');
+    return this.waitForStatusBar()
+      .waitForVisibleInCompass(button)
+      .click(button);
   });
 
   /**
@@ -1102,19 +1134,32 @@ function addInputCommands(client) {
     let sequence = Promise.resolve();
     if (model.name) {
       sequence = sequence.then(function() {
-        return that.setValue(selector('create-index-modal-name'), model.name)
+        const field = selector('create-index-modal-name');
+        return that
+          .waitForVisibleInCompass(field)
+          .setValue(field, model.name)
       });
     }
     if (model.field) {
       sequence = sequence.then(function() {
         const base = selector('create-index-modal-field-select');
-        return that.click(base).click(`li=${model.field}`);
+        const field = `li=${model.field}`;
+        return that
+          .waitForVisibleInCompass(base)
+          .click(base)
+          .waitForVisibleInCompass(field)
+          .click(field);
       });
     }
     if (model.type) {
       sequence = sequence.then(function() {
         const base = selector('create-index-modal-type-select');
-        return that.click(base).click(`li=${model.type}`);
+        const field = `li=${model.type}`;
+        return that
+          .waitForVisibleInCompass(base)
+          .click(base)
+          .waitForVisibleInCompass(field)
+          .click(field);
       });
     }
     return sequence;
