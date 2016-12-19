@@ -371,6 +371,7 @@ describe('Compass Functional Test Suite #spectron', function() {
 
           it('removes the collection from the sidebar', function() {
             return client
+              .waitForInstanceRefresh()
               .getSidebarCollectionNames()
               .should.not.eventually.include('music.labels');
           });
