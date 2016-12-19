@@ -492,6 +492,7 @@ describe('Compass Functional Test Suite #spectron', function() {
             .clickCollectionInSidebar('music.artists')
             .waitForStatusBar()
             .inputFilterFromSchemaTab(filter)
+            .waitForStatusBar()
             .clickApplyFilterButtonFromSchemaTab()
             .getSamplingMessageFromSchemaTab()
             .should
