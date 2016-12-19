@@ -74,7 +74,7 @@
     "test-unit": "npm test -- --unit",
     "test-release": "npm test -- --release",
     "upload": "hadron-build upload",
-    "evergreen-expansions": "hadron-build config --format=yaml --output=expansions.yml --flatten"
+    "evergreen-expansions": "hadron-build info --format=yaml --output=expansions.yml --flatten"
   },
   "repository": {
     "type": "git",
