@@ -28,6 +28,13 @@ class SortableTable extends React.Component {
     }
   }
 
+  onNameClicked(idx, name, evt) {
+    evt.preventDefault();
+    if (this.props.onNameClicked) {
+      this.props.onNameClicked(idx, name);
+    }
+  }
+
   /**
    * compares either a column index (number) or a column name (string) with
    * another column name and returns whether they are a match. This abstraction
@@ -92,7 +99,9 @@ class SortableTable extends React.Component {
             data-test-id={`${BASE}-column-${c}`}
             title={cell}
             key={`td-${c}`}>
-            {cell}
+            {c === 0 ?
+              <a onClick={this.onNameClicked.bind(this, r, cell)}>{cell}</a> : cell
+            }
           </td>
         );
       });
@@ -189,6 +198,11 @@ SortableTable.propTypes = {
    * @type {Function}
    */
   onRowDeleteButtonClicked: React.PropTypes.func,
+  /**
+   * callback when user clicks on the name (first row element)
+   * @type {Function}
+   */
+  onNameClicked: React.PropTypes.func,
   /**
    * The index in the columns to pass as a second value to the delete function.
    * @type {Number}

@@ -42,6 +42,10 @@ class DatabasesTable extends React.Component {
     shell.openExternal(AUTH_HELP_URL);
   }
 
+  onNameClicked(index, name) {
+    console.log('onNameClicked: ', name, index);
+  }
+
   onClickShowConnectWindow() {
     // code to close current connection window and open connect dialog
     ipc.call('app:show-connect-window');
@@ -95,6 +99,7 @@ class DatabasesTable extends React.Component {
           valueIndex={0}
           removable={writable}
           onColumnHeaderClicked={this.onColumnHeaderClicked.bind(this)}
+          onNameClicked={this.onNameClicked.bind(this)}
           onRowDeleteButtonClicked={this.onRowDeleteButtonClicked.bind(this)}
         />
         {this.props.databases.length === 0 ?

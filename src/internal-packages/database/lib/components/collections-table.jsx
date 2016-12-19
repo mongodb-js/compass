@@ -27,6 +27,10 @@ class CollectionsTable extends React.Component {
     CollectionsActions.openCreateCollectionDialog();
   }
 
+  onNameClicked(index, name) {
+    console.log('onNameClicked: ', name, index);
+  }
+
   render() {
     const rows = _.map(this.props.collections, (coll) => {
       return _.assign({}, coll, {
@@ -60,6 +64,7 @@ class CollectionsTable extends React.Component {
           valueIndex={0}
           removable={writable}
           onColumnHeaderClicked={this.onColumnHeaderClicked.bind(this)}
+          onNameClicked={this.onNameClicked.bind(this)}
           onRowDeleteButtonClicked={this.onRowDeleteButtonClicked.bind(this)}
         />
         <CreateCollectionDialog />
