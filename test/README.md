@@ -75,10 +75,10 @@ describe('Compass Functional Test Suite #spectron', function() {
 
 ### Commands
 
-- [Wait Commands](https://github.com/10gen/compass/blob/master/test/support/spectron-support.js#L44)
-- [Click Commands](https://github.com/10gen/compass/blob/master/test/support/spectron-support.js#L232)
-- [Get Commands](https://github.com/10gen/compass/blob/master/test/support/spectron-support.js#L545)
-- [Input Commands](https://github.com/10gen/compass/blob/master/test/support/spectron-support.js#L757)
+- [Wait Commands](https://github.com/10gen/compass/blob/master/test/support/spectron-support.js#L156)
+- [Click Commands](https://github.com/10gen/compass/blob/master/test/support/spectron-support.js#L353)
+- [Get Commands](https://github.com/10gen/compass/blob/master/test/support/spectron-support.js#L735)
+- [Input Commands](https://github.com/10gen/compass/blob/master/test/support/spectron-support.js#L1079)
 
 ## Tips
 
@@ -104,11 +104,6 @@ loading the application without any erros anywhere.
 
 ### Timeouts
 
-Most commands in the suite use a default timeout of 10 seconds, set as the
-`TIMEOUT` constant. Operations that take longer use the `LONG_TIMEOUT` constant
-which is 30 seconds. Be careful to note, however, to not use a timeout if at
-all possible. Excessive timeouts within the test can cause the entire block
-to fail if they take too long, resulting in not knowing exactly which command
-in the test failed. As rule rule it's better to fail fast and adjust accordingly,
-or to change the "wait" part of the test to find something appropriate to wait
-on faster.
+Please use the custom methods `waitForVisibleInCompass`, `waitForExistsInCompass`
+and `waitUntilInCompass` to leverage the incremental timeout functionality to
+provide faster and more stable tests.
