@@ -9,8 +9,8 @@ const GitHub = require('github');
 const github = new GitHub({version: '3.0.0', 'User-Agent': 'hadron-build'});
 const cli = require('mongodb-js-cli')('hadron-build:upload');
 const abortIfError = cli.abortIfError.bind(cli);
+const Target = require('../lib/target');
 
-const config = require('../lib/config');
 const downloadCenter = require('../lib/download-center');
 
 
@@ -162,13 +162,17 @@ exports.command = 'upload [options]';
 
 exports.describe = 'Upload assets from `release`.';
 
-exports.builder = {};
-_.assign(exports.builder, config.options);
+exports.builder = {
+  dir: {
+    description: 'Project root directory',
+    default: process.cwd()
+  }
+};
 
 exports.handler = function(argv) {
   cli.argv = argv;
-  var CONFIG = config.get(cli);
-  maybePublishGitHubRelease(CONFIG)
-    .then( () => downloadCenter.maybeUpload(CONFIG))
+  var target = new Target(argv.dir);
+  maybePublishGitHubRelease(target)
+    .then( () => downloadCenter.maybeUpload(target))
     .catch(abortIfError);
 };

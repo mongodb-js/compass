@@ -10,7 +10,7 @@
  * and include in assets.
  * @see [Atom's dump-symbols-task.coffee](https://git.io/va3fG)
  */
-const config = require('../lib/config');
+const Target = require('../lib/target');
 const cli = require('mongodb-js-cli')('hadron-build:release');
 const util = require('util');
 const format = util.format;
@@ -28,7 +28,6 @@ const license = require('electron-license');
 const ModuleCache = require('hadron-module-cache');
 const CompileCache = require('hadron-compile-cache');
 
-const pkg = require('../lib/package');
 const ui = require('./ui');
 const verify = require('./verify');
 
@@ -72,7 +71,7 @@ const createCompileCache = (CONFIG, done) => {
       CompileCache.compileFileAtPath(compiler, file);
     });
     // Write the compile cache mappings to the package.json.
-    var metadata = pkg.get(appDir);
+    var metadata = CONFIG.pkg;
     metadata[COMPILE_CACHE_MAPPINGS] = CompileCache.digestMappings;
     fs.writeFile(metadata._path, JSON.stringify(metadata, null, 2), done);
   });
@@ -128,7 +127,8 @@ const symlinkExecutable = (CONFIG, done) => {
   if (CONFIG.platform === 'darwin') {
     cli.debug('Ensuring `Contents/MacOS/Electron` is symlinked');
     const cwd = process.cwd();
-    process.chdir(path.join(CONFIG.appPath, 'Contents', 'MacOS'));
+    cli.debug('chdir', CONFIG.dest(`${CONFIG.productName}-darwin-x64`, 'Contents', 'MacOS'));
+    process.chdir(CONFIG.dest(`${CONFIG.productName}-darwin-x64`, `${CONFIG.productName}.app`, 'Contents', 'MacOS'));
 
     fs.ensureSymlink(CONFIG.productName, 'Electron', function(_err) {
       process.chdir(cwd);
@@ -179,7 +179,7 @@ const cleanupBrandedApplicationScaffold = (CONFIG, done) => {
  * @api public
  */
 const writeLicenseFile = (CONFIG, done) => {
-  var LICENSE_DEST = path.join(CONFIG.appPath, '..', 'LICENSE');
+  var LICENSE_DEST = path.join(CONFIG.resources, '..', '..', 'LICENSE');
   var opts = {
     dir: path.join(CONFIG.resources, 'app'),
     production: false,
@@ -210,7 +210,7 @@ const writeLicenseFile = (CONFIG, done) => {
  * @api public
  */
 const writeVersionFile = (CONFIG, done) => {
-  const VERSION_DEST = path.join(CONFIG.appPath, '..', 'version');
+  const VERSION_DEST = path.join(CONFIG.resources, '..', '..', 'version');
   cli.debug(`Writing version file to ${VERSION_DEST}`);
   fs.writeFile(VERSION_DEST, CONFIG.version, function(err) {
     if (err) {
@@ -241,7 +241,7 @@ const transformPackageJson = (CONFIG, done) => {
     'config.hadron.build'
   ];
 
-  let contents = _.omit(pkg, packageKeysToRemove);
+  let contents = _.omit(CONFIG.pkg, packageKeysToRemove);
 
   _.assign(contents, {
     productName: CONFIG.productName,
@@ -382,7 +382,7 @@ const createApplicationAsar = (CONFIG, done) => {
  * @param {Function} done
  */
 const createApplicationZip = (CONFIG, done) => {
-  const DIR = CONFIG.appPath;
+  const DIR = path.join(CONFIG.resources, '..');
 
   const OUT = CONFIG.assets.filter(function(asset) {
     return path.extname(asset.path) === '.zip';
@@ -405,14 +405,14 @@ const createApplicationZip = (CONFIG, done) => {
  */
 const createBrandedInstaller = (CONFIG, done) => {
   cli.debug('Creating installer');
-  CONFIG.createInstaller(done);
+  CONFIG.createInstaller().then(done).catch(done);
 };
 
 const createModuleCache = (CONFIG, done) => {
   const appDir = path.join(CONFIG.resources, 'app');
   ModuleCache.create(appDir);
 
-  let metadata = pkg.get(appDir);
+  let metadata = CONFIG.pkg;
 
   for (let folder in _.get(metadata, '_compassModuleCache.folders')) {
     if (_.includes(folder.paths, '')) {
@@ -422,17 +422,23 @@ const createModuleCache = (CONFIG, done) => {
   fs.writeFile(metadata._path, JSON.stringify(metadata, null, 2), done);
 };
 
-exports.builder = {};
-_.assign(exports.builder, config.options, ui.builder, verify.builder);
+exports.builder = {
+  dir: {
+    description: 'Project root directory',
+    default: process.cwd()
+  }
+};
+
+_.assign(exports.builder, ui.builder, verify.builder);
 
 exports.run = (argv, done) => {
   cli.argv = argv;
 
-  const CONFIG = config.get(cli);
+  const target = new Target(argv.dir);
   const task = (name, fn) => {
     return function(cb) {
       cli.debug(`start: ${name}`);
-      fn(CONFIG, function(err) {
+      fn(target, function(err) {
         if (err) {
           cli.error(err);
           return cb(err);
@@ -470,7 +476,7 @@ exports.run = (argv, done) => {
     if (_err) {
       return done(_err);
     }
-    done(null, CONFIG);
+    done(null, target);
   });
 };
 

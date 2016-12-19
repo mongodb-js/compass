@@ -7,11 +7,9 @@
  * @see https://github.com/atom/atom/blob/master/script/utils/verify-requirements.js
  */
 const Promise = require('bluebird');
-const _ = require('lodash');
 const semver = require('semver');
 const run = Promise.promisify(require('electron-installer-run'));
 const cli = require('mongodb-js-cli')('hadron-build:verify');
-const pkg = require('../lib/package');
 const checkPython = Promise.promisify(require('check-python'));
 
 exports.command = 'verify [options]';
@@ -20,11 +18,11 @@ exports.describe = 'Verify the current environment meets the app\'s requirements
 exports.builder = {
   nodejs_version: {
     describe: 'What version of node.js is required for this app?',
-    default: _.get(pkg, 'engines.node') || '^5.0.0'
+    default: '^6.3.0'
   },
   npm_version: {
     describe: 'What version of npm is required for this app?',
-    default: _.get(pkg, 'engines.npm') || '^3.0.0'
+    default: '^3.0.0'
   }
 };
 
@@ -52,7 +50,7 @@ exports.checkNpmAndNodejsVersions = (opts) => {
        */
       if (!semver.satisfies(versions.node, expectNodeVersion)) {
         return new Error(`Your current node.js (v${versions.node}) ` +
-          `does not satisfy the version required by this project (v%s).`);
+          `does not satisfy the version required by this project (v${expectNodeVersion}).`);
       } else if (!semver.satisfies(versions.npm, expectNpmVersion)) {
         return new Error(`Your current npm (v${versions.npm}) ` +
           `does not meet the requirement ${expectNpmVersion}.`);

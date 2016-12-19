@@ -1,39 +1,21 @@
 'use strict';
 /* eslint no-unused-vars: 1 */
 const _ = require('lodash');
-const config = require('../lib/config');
 const chai = require('chai');
+const getConfig = require('./helpers').getConfig;
 const expect = chai.expect;
-
-const defaults = {
-  platform: process.platform,
-  arch: process.arch
-};
-
-const getConfig = (argv) => {
-  const cli = require('mongodb-js-cli')('hadron-build:config');
-  _.defaults(argv, defaults);
-  cli.argv = argv;
-  return config.get(cli);
-};
 
 describe('hadron-build::config', () => {
   describe('Release channel support', () => {
     const channels = {
       stable: getConfig({
-        name: 'hadron-app',
-        version: '1.2.0',
-        product_name: 'Hadron'
+        version: '1.2.0'
       }),
       beta: getConfig({
-        name: 'hadron-app',
-        version: '1.2.0-beta.1',
-        product_name: 'Hadron'
+        version: '1.2.0-beta.1'
       }),
       custom: getConfig({
-        name: 'hadron-app',
-        version: '1.2.0-custom.5',
-        product_name: 'Hadron'
+        version: '1.2.0-custom.5'
       })
     };
 
