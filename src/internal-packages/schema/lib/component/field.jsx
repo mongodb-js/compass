@@ -47,7 +47,7 @@ const Field = React.createClass({
     // sets the active type to the first type in the props.types array
     this.setState({
       types: types,
-      activeType: this.props.types.length > 0 ? this.props.types[0] : null
+      activeType: types.length > 0 ? types[0] : null
     });
   },
 

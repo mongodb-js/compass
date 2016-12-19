@@ -7,7 +7,6 @@ const expect = chai.expect;
 const React = require('react');
 const AppRegistry = require('hadron-app-registry');
 
-const shallow = require('enzyme').shallow;
 const mount = require('enzyme').mount;
 
 chai.use(chaiEnzyme());
@@ -108,8 +107,9 @@ describe('<Schema />', () => {
       const Type = require('../src/internal-packages/schema/lib/component/type');
 
       fieldProp.types = typesWithUndefined;
-      component = shallow(<Field {...fieldProp} />);
+      component = mount(<Field {...fieldProp} />);
       expect(component.find(Type).at(0)).to.have.data('tip', 'String (40%)');
+      expect(component.find('.schema-field-type-string')).to.have.className('active');
     });
 
     it('renders the second type as undefined', () => {
@@ -117,8 +117,9 @@ describe('<Schema />', () => {
       const Type = require('../src/internal-packages/schema/lib/component/type');
 
       fieldProp.types = typesWithUndefined;
-      component = shallow(<Field {...fieldProp} />);
+      component = mount(<Field {...fieldProp} />);
       expect(component.find(Type).at(1)).to.have.data('tip', 'Undefined (60%)');
+      expect(component.find('.schema-field-type-undefined')).to.not.have.className('active');
     });
 
     context('when rendering multiple fields', () => {
@@ -129,8 +130,11 @@ describe('<Schema />', () => {
         fieldProp.types = typesWithMultiple;
         component = mount(<Field {...fieldProp} />);
         expect(component.find(Type).at(0)).to.have.data('tip', 'String (30%)');
+        expect(component.find('.schema-field-type-string')).to.have.className('active');
         expect(component.find(Type).at(1)).to.have.data('tip', 'Long (20%)');
+        expect(component.find('.schema-field-type-long')).to.not.have.className('active');
         expect(component.find(Type).at(2)).to.have.data('tip', 'Undefined (50%)');
+        expect(component.find('.schema-field-type-undefined')).to.not.have.className('active');
       });
     });
   });
