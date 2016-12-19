@@ -588,7 +588,10 @@ function addClickCommands(client) {
    * Click the create index button.
    */
   client.addCommand('clickCreateIndexButton', function() {
-    return this.waitForStatusBar().click(selector('open-create-index-modal-button'));
+    const button = selector('open-create-index-modal-button');
+    return this.waitForStatusBar()
+      .waitForVisibleInCompass(button)
+      .click(button);
   });
 
   /**
