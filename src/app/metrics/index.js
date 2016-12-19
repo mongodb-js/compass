@@ -7,6 +7,8 @@ var format = require('util').format;
 var ipc = require('hadron-ipc');
 var intercom = require('./intercom');
 var features = require('./features');
+var Notifier = require('node-notifier');
+var process = require('process');
 
 var debug = require('debug')('mongodb-compass:metrics');
 
@@ -94,6 +96,19 @@ module.exports = function() {
 
   window.addEventListener('error', function(err) {
     debug('error encountered, notify trackers', err);
+    // Notify user that error occurred
+    if (!_.includes(err.message, 'MongoError')) {
+      var icon = pkg.config.hadron.build.win32.icon;
+      if (process.platform === 'darwin') {
+        icon = pkg.config.hadron.build.darwin.icon;
+      }
+      Notifier.notify({
+        'icon': icon,
+        'message': 'Unexpected error occurred: ' + err.message,
+        'title': 'MongoDB Compass Exception',
+        'wait': true
+      });
+    }
     metrics.error(err);
   });
 
