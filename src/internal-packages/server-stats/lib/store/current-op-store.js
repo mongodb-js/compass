@@ -50,7 +50,8 @@ const CurrentOpStore = Reflux.createStore({
     }
     this.overlayIndex = index;
     this.inOverlay = true;
-    this.trigger(visErrors[this.overlayIndex], visOps[this.overlayIndex]);
+    const data = visOps.length === 0 ? [] : visOps[this.overlayIndex];
+    this.trigger(visErrors[this.overlayIndex], data);
   },
 
   mouseOut: function() {
@@ -58,7 +59,8 @@ const CurrentOpStore = Reflux.createStore({
     const startPause = Math.max(this.endPause - this.xLength, 0);
     const visOps = this.allOps.slice(startPause, this.endPause);
     const visErrors = this.errored.slice(startPause, this.endPause);
-    this.trigger(visErrors[this.overlayIndex], visOps[visOps.length - 1]);
+    const data = visOps.length === 0 ? [] : visOps[visOps.length - 1];
+    this.trigger(visErrors[this.overlayIndex], data);
   },
 
   currentOp: function() {
