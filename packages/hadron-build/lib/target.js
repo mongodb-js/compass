@@ -201,7 +201,7 @@ class Target {
 
     this.installerOptions = {
       loadingGif: this.src(platformSettings.loading_gif),
-      iconUrl: platformSettings.favicon_url,
+      iconUrl: this.src(platformSettings.favicon_url),
       appDirectory: this.appPath,
       outputDirectory: this.packagerOptions.out,
       authors: this.author,
@@ -224,7 +224,7 @@ class Target {
      * The ICO file to use as the icon for the generated Setup.exe.
      */
     const setupIconUrl = platformSettings.setup_icon_url || platformSettings.favicon_url;
-    this.installerOptions.setupIcon = setupIconUrl;
+    this.installerOptions.setupIcon = this.src(setupIconUrl);
 
     this.createInstaller = () => {
       const electronWinstaller = require('electron-winstaller');
