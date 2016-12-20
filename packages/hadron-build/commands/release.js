@@ -179,7 +179,6 @@ const cleanupBrandedApplicationScaffold = (CONFIG, done) => {
  * @api public
  */
 const writeLicenseFile = (CONFIG, done) => {
-  var LICENSE_DEST = path.join(CONFIG.appPath, '..', 'LICENSE');
   var opts = {
     dir: path.join(CONFIG.resources, 'app'),
     production: false,
@@ -191,12 +190,18 @@ const writeLicenseFile = (CONFIG, done) => {
    * or else this fails miserably.
    */
   return license.build(opts)
-    .then((contents) => {
-      fs.writeFileSync(LICENSE_DEST, contents);
-      cli.debug(format('LICENSE written to `%s`', LICENSE_DEST));
+    .then(contents => CONFIG.write('LICENSE', contents))
+    .then(dest => {
+      cli.debug(format('LICENSE written to `%s`', dest));
       if (done) {
         done(null, true);
       }
+    })
+    .catch(err => {
+      if (done) {
+        return done(err);
+      }
+      throw err;
     });
 };
 
@@ -206,19 +211,24 @@ const writeLicenseFile = (CONFIG, done) => {
  *
  * @see [Atom's set-version-task.coffee](https://git.io/vaZkN)
  * @param {Object} CONFIG
- * @param {Function} done
+ * @param {Function} [done] Optional callback
+ * @return {Promise}
  * @api public
  */
 const writeVersionFile = (CONFIG, done) => {
-  const VERSION_DEST = path.join(CONFIG.appPath, '..', 'version');
-  cli.debug(`Writing version file to ${VERSION_DEST}`);
-  fs.writeFile(VERSION_DEST, CONFIG.version, function(err) {
-    if (err) {
-      return done(err);
-    }
-    cli.debug(format('version file written to `%s`', VERSION_DEST));
-    done(null, CONFIG.version);
-  });
+  return CONFIG.write('version', CONFIG.version)
+    .then(dest => {
+      cli.debug(format('version written to `%s`', dest));
+      if (done) {
+        done(null, true);
+      }
+    })
+    .catch(err => {
+      if (done) {
+        return done(err);
+      }
+      throw err;
+    });
 };
 
 /**

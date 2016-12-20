@@ -1,10 +1,12 @@
 'use strict';
 
+const fs = require('fs');
 const _ = require('lodash');
 const semver = require('semver');
 const path = require('path');
 const normalizePkg = require('normalize-package-data');
 const parseGitHubRepoURL = require('parse-github-repo-url');
+const debug = require('debug')('hadron-build:target');
 
 class Target {
   constructor(dir, opts = {}) {
@@ -105,6 +107,24 @@ class Target {
     if (_.first(args) === undefined) return undefined;
     args.unshift(this.out);
     return path.join.apply(path, args);
+  }
+
+  write(filename, contents) {
+    return new Promise((resolve, reject) => {
+      let dest = '';
+      if (this.platform === 'darwin') {
+        dest = path.join(this.appPath, '..', filename);
+      } else {
+        dest = path.join(this.appPath, filename);
+      }
+      debug(`Writing ${contents.length} bytes to ${dest}`);
+      fs.writeFile(dest, contents, err => {
+        if (err) {
+          return reject(err);
+        }
+        resolve(dest);
+      });
+    });
   }
 
   /**
@@ -443,7 +463,6 @@ class Target {
 
     const createTarball = cb => {
       const tarPack = require('tar-pack').pack;
-      const fs = require('fs');
       tarPack(this.appPath)
        .pipe(fs.createWriteStream(LINUX_OUT_TAR))
        .on('error', function(err) {
