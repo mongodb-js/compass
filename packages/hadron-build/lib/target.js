@@ -224,8 +224,9 @@ class Target {
     /**
      * The ICO file to use as the icon for the generated Setup.exe.
      */
-    // const setupIconUrl = platformSettings.setup_icon_url || platformSettings.favicon_url;
-    // this.installerOptions.setupIcon = setupIconUrl;
+    if (platformSettings.setup_icon) {
+      this.installerOptions.setupIcon = this.src(platformSettings.setup_icon);
+    }
 
     this.createInstaller = () => {
       const electronWinstaller = require('electron-winstaller');
