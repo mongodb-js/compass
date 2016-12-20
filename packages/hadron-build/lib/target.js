@@ -274,7 +274,7 @@ class Target {
     ];
 
     this.installerOptions = {
-      dmgPath: `${this.productName}.dmg`,
+      dmgPath: this.dest(`${this.productName}.dmg`),
       title: this.productName,
       overwrite: true,
       out: this.out,
