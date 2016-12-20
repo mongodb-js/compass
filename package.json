@@ -192,6 +192,7 @@
     "npm": "^3.0.0"
   },
   "bugs": {
+    "email": "compass@mongodb.com",
     "url": "https://docs.mongodb.com/compass/current/#contact"
   }
 }
