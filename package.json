@@ -6,7 +6,8 @@
   "version": "1.6.0-dev",
   "main": "src/main.js",
   "author": {
-    "name": "MongoDB Inc."
+    "name": "MongoDB Inc.",
+    "email": "compass@mongodb.com"
   },
   "license": "UNLICENSED",
   "private": true,
