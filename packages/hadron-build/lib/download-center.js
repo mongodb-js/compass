@@ -133,6 +133,11 @@ let setup = () => {
 exports.maybeUpload = (CONFIG) => {
   setup();
 
+  if (CONFIG.channel === 'dev') {
+    debug('Skipping publish to S3 for dev channel.');
+    return Promise.resolve();
+  }
+
   CONFIG.download_center_id = _.tail(CONFIG.id.split('-'));
   CONFIG.download_center_key_prefix = CONFIG.download_center_id;
   if (CONFIG.channel !== 'stable') {
