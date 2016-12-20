@@ -355,18 +355,18 @@ class Target {
     this.resources = path.join(this.appPath, 'resources');
 
 
-    const LINUX_OUT_DEB = this.dest(`${this.slug}-${this.version}-${this.arch}.deb`);
-    const LINUX_OUT_RPM = this.dest(`${this.slug}.${this.version}.${this.arch}.rpm`);
-    const LINUX_OUT_TAR = this.dest(`${this.slug}-${this.version}-${this.platform}-${this.arch}.tar.gz`);
-    const LINUX_OUT_ZIP = this.dest(`${this.slug}.zip`);
-
     const debianVersion = this.version.replace(/\-/g, '~');
     const rhelVersion = [this.semver.major, this.semver.minor, this.semver.patch].join('.');
     const rhelRevision = this.semver.prerelease.join('.') || '1';
-    
-    // this.linux_deb_filename = `${this.slug}_${debianVersion}_${this.arch}.deb`;
-    // this.linux_rpm_filename = `${this.slug}-${rhelVersion}-${this.arch}.rpm`;
-    // this.linux_tar_filename = `${this.slug}-${this.version}-${this.arch}.deb`;
+
+    const LINUX_OUT_DEB = this.dest(`${this.slug}-${debianVersion}-${this.arch}.deb`);
+    const LINUX_OUT_RPM = this.dest(`${this.slug}.${rhelVersion}.${this.arch}.rpm`);
+    const LINUX_OUT_TAR = this.dest(`${this.slug}-${this.version}-${this.platform}-${this.arch}.tar.gz`);
+    const LINUX_OUT_ZIP = this.dest(`${this.slug}.zip`);
+
+    this.linux_deb_filename = `${this.slug}_${debianVersion}_${this.arch}.deb`;
+    this.linux_rpm_filename = `${this.slug}.${rhelVersion}.${this.arch}.rpm`;
+    this.linux_tar_filename = `${this.slug}-${this.version}-${this.platform}-${this.arch}.tar.gz`;
 
     Object.assign(this.packagerOptions, {
       name: this.productName
@@ -378,11 +378,11 @@ class Target {
         path: LINUX_OUT_TAR
       },
       {
-        name: `${this.slug}-${this.version}-${this.platform}-${this.arch}.deb`,
+        name: `${this.slug}-${debianVersion}-${this.platform}-${this.arch}.deb`,
         path: LINUX_OUT_DEB
       },
       {
-        name: `${this.slug}.${this.version}.${this.platform}.${this.arch}.rpm`,
+        name: `${this.slug}.${rhelVersion}.${this.platform}.${this.arch}.rpm`,
         path: LINUX_OUT_RPM
       },
       {
