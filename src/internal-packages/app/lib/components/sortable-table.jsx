@@ -100,7 +100,7 @@ class SortableTable extends React.Component {
             title={cell}
             key={`td-${c}`}>
             {c === 0 ?
-              <a onClick={this.onNameClicked.bind(this, r, cell)}>{cell}</a> : cell
+              <a className={`${BASE}-row-name`} onClick={this.onNameClicked.bind(this, r, cell)}>{cell}</a> : cell
             }
           </td>
         );

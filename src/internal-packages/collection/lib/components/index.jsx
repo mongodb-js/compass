@@ -79,8 +79,8 @@ class Collection extends React.Component {
           <div className="row">
             <div className="col-md-6">
               <h1>
-                <span onClick={this.onDBClick.bind(this)}>{database}</span>.
-                <span className="collection">{collection}</span>
+                <a onClick={this.onDBClick.bind(this)}>{database}</a>.
+                <span>{collection}</span>
               </h1>
             </div>
             <div className="col-md-6">
