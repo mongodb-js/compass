@@ -14,7 +14,7 @@ class Target {
     this.out = path.join(this.dir, 'dist');
 
     const _path = path.join(dir, 'package.json');
-    let pkg = require(_path);
+    let pkg = _.cloneDeep(require(_path));
     pkg._path = _path;
     normalizePkg(pkg);
 
