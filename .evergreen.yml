@@ -391,15 +391,3 @@ buildvariants:
     num_cores: $(grep -c ^processor /proc/cpuinfo)
   tasks:
     *all_tasks
-- name: rhel62
-  display_name: Enterprise RHEL 6.2
-  modules: ~
-  run_on:
-  - "rhel62-test"
-  expansions:
-    fetch_npm_tarball: node-v6.3.1-npm-3.10.3-linux-x64.tgz
-    node_path: "$(pwd)/.deps/bin"
-    compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
-    num_cores: $(grep -c ^processor /proc/cpuinfo)
-  tasks:
-    *all_tasks
