@@ -53,7 +53,6 @@ var NetworkOptInView = require('./network-optin');
 var format = require('util').format;
 var semver = require('semver');
 
-var QueryOptions = require('./models/query-options');
 var Connection = require('./models/connection');
 var MongoDBInstance = require('./models/mongodb-instance');
 var Preferences = require('./models/preferences');
@@ -128,8 +127,6 @@ function getConnection(model, done) {
  * @example
  *   // Drive Compass from the chrome devtools console using the `app` window global:
  *   console.log(app);
- *   // What are the current query options?
- *   console.log('Query options are', app.queryOptions);
  *   // Make API calls to `mongodb-scope-server` via `mongodb-scope-client`:
  *   app.dataService.instance(function(err, data){
  *     if(err) return console.error(err);
@@ -175,14 +172,6 @@ var Application = View.extend({
      * Details of the MongoDB Instance we're currently connected to.
      */
     instance: 'state',
-    /**
-     * query options in sync with the data, @see models/query-options.js
-     */
-    queryOptions: 'state',
-    /**
-     * temporary query options during query building, @see models/query-options.js
-     */
-    volatileQueryOptions: 'state',
     /**
      * @see http://learn.humanjavascript.com/react-ampersand/creating-a-router-and-pages
      */
@@ -427,8 +416,6 @@ app.extend({
         ApplicationStore.dataService = app.dataService;
 
         debug('initializing singleton models... ');
-        state.queryOptions = new QueryOptions();
-        state.volatileQueryOptions = new QueryOptions();
         state.instance = new MongoDBInstance();
         debug('fetching instance model...');
         app.instance.fetch({success: state.onInstanceFetched});
@@ -479,21 +466,9 @@ Object.defineProperty(app, 'instance', {
   }
 });
 
-Object.defineProperty(app, 'queryOptions', {
-  get: function() {
-    return state.queryOptions;
-  }
-});
-
 Object.defineProperty(app, 'preferences', {
   get: function() {
     return state.preferences;
-  }
-});
-
-Object.defineProperty(app, 'volatileQueryOptions', {
-  get: function() {
-    return state.volatileQueryOptions;
   }
 });
 
