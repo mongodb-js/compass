@@ -179,7 +179,7 @@ const cleanupBrandedApplicationScaffold = (CONFIG, done) => {
  * @api public
  */
 const writeLicenseFile = (CONFIG, done) => {
-  var LICENSE_DEST = path.join(CONFIG.resources, '..', '..', 'LICENSE');
+  var LICENSE_DEST = path.join(CONFIG.appPath, '..', 'LICENSE');
   var opts = {
     dir: path.join(CONFIG.resources, 'app'),
     production: false,
@@ -210,7 +210,7 @@ const writeLicenseFile = (CONFIG, done) => {
  * @api public
  */
 const writeVersionFile = (CONFIG, done) => {
-  const VERSION_DEST = path.join(CONFIG.resources, '..', '..', 'version');
+  const VERSION_DEST = path.join(CONFIG.appPath, '..', 'version');
   cli.debug(`Writing version file to ${VERSION_DEST}`);
   fs.writeFile(VERSION_DEST, CONFIG.version, function(err) {
     if (err) {
