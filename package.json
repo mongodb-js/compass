@@ -2,6 +2,7 @@
   "name": "mongodb-compass",
   "productName": "MongoDB Compass",
   "description": "The MongoDB GUI.",
+  "homepage": "https://compass.mongodb.com",
   "version": "1.6.0-dev",
   "main": "src/main.js",
   "authors": "MongoDB Inc.",
