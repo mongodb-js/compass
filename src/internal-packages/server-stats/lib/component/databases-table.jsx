@@ -6,6 +6,7 @@ const { TextButton } = require('hadron-react-buttons');
 const DatabasesActions = require('../action/databases-actions');
 const CreateDatabaseDialog = require('./create-database-dialog');
 const DropDatabaseDialog = require('./drop-database-dialog');
+const { NamespaceStore } = require('hadron-reflux-store');
 const numeral = require('numeral');
 
 const _ = require('lodash');
@@ -22,6 +23,7 @@ class DatabasesTable extends React.Component {
   constructor(props) {
     super(props);
     this.SortableTable = app.appRegistry.getComponent('App.SortableTable');
+    this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
   }
 
   onColumnHeaderClicked(column, order) {
@@ -43,7 +45,11 @@ class DatabasesTable extends React.Component {
   }
 
   onNameClicked(index, name) {
-    console.log('onNameClicked: ', name, index);
+    if (NamespaceStore.ns !== name) {
+      this.CollectionStore.setCollection({});
+      NamespaceStore.ns = name;
+      ipc.call('window:hide-collection-submenu');
+    }
   }
 
   onClickShowConnectWindow() {
