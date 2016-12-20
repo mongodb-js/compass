@@ -92,6 +92,7 @@ class Target {
    * @return {String}
    */
   src(...args) {
+    if (_.first(args) === undefined) return undefined;
     args.unshift(this.dir);
     return path.join.apply(path, args);
   }
@@ -101,6 +102,7 @@ class Target {
    * @return {String}
    */
   dest(...args) {
+    if (_.first(args) === undefined) return undefined;
     args.unshift(this.out);
     return path.join.apply(path, args);
   }
