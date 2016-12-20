@@ -47,6 +47,7 @@ class Target {
     this.version = opts.version;
     this.platform = opts.platform;
     this.arch = opts.arch;
+    this.description = opts.description;
 
     this.slug = this.name;
 
