@@ -122,6 +122,8 @@ functions:
         export SIGNTOOL_PARAMS="yes"
         test -n '${add_env_appdata|}' && export APPDATA='${add_env_appdata|}'
 
+        export DEBUG=hadron*,electron*
+
         # Run static analysis on code and project configuration
         ${npm|npm} run check
 
@@ -129,6 +131,13 @@ functions:
         ${npm|npm} run release;
         ls -alh dist/
 
+        # Upload release assets to S3 and GitHub
+        export GITHUB_TOKEN=${leafybot_github_token}
+        export DOWNLOAD_CENTER_AWS_ACCESS_KEY_ID=${aws_key_evergreen_integrations}
+        export DOWNLOAD_CENTER_AWS_SECRET_ACCESS_KEY=${aws_secret_evergreen_integrations}
+        ${npm|npm} run upload;
+
+        pkill mongod || true
         # end of embedded script
         EOF_BUILD_SH
 
@@ -229,23 +238,22 @@ functions:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
         local_file: "src/dist/${osx_dmg_filename}"
-        remote_file: "${project}/${build_variant}/${revision}/${name}-${version}-${platform}-${arch}.dmg"
+        remote_file: "${project}/${build_variant}/${revision}/${osx_dmg_filename}"
         bucket: mciuploads
         permissions: public-read
         content_type: "application/x-apple-diskimage"
-        display_name: "${name}-${version}-${platform}-${arch}.dmg"
+        display_name: "${osx_dmg_filename}"
     # .zip
     - command: s3.put
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
         local_file: "src/dist/${osx_zip_filename}"
-        remote_file: "${project}/${build_variant}/${revision}/${name}-${version}-${platform}-${arch}.zip"
+        remote_file: "${project}/${build_variant}/${revision}/${osx_zip_filename}"
         bucket: mciuploads
         permissions: public-read
         content_type: application/zip
-        display_name: "${name}-${version}-${platform}-${arch}.zip"
-
+        display_name: "${osx_zip_filename}"
 
   "save linux artifacts":
     # .deb
@@ -253,31 +261,34 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: "src/dist/${slug}-${version}-${arch}.deb"
-        remote_file: "${project}/${build_variant}/${revision}/${slug}-${version}-${platform}-${arch}.deb"
+        local_file: "src/dist/${linux_deb_filename}"
+        remote_file: "${project}/${build_variant}/${revision}/${linux_deb_filename}"
         bucket: mciuploads
         permissions: public-read
         content_type: "application/vnd.debian.binary-package"
-        display_name: "${slug}-${version}-${platform}-${arch}.deb"
-    # .rpm
+        display_name: "${linux_deb_filename}"
+    # # .rpm
+    # - command: s3.put
+    #   params:
+    #     aws_key: ${aws_key}
+    #     aws_secret: ${aws_secret}
+    #     local_file: "src/dist/${linux_rpm_filename}"
+    #     remote_file: "${project}/${build_variant}/${revision}/${linux_rpm_filename}"
+    #     bucket: mciuploads
+    #     permissions: public-read
+    #     content_type: application/x-redhat-package-manager
+    #     display_name: "${linux_rpm_filename}"
+    # .tar.gz
     - command: s3.put
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: "src/dist/${slug}.${version}.${arch}.rpm"
-        remote_file: "${project}/${build_variant}/${revision}/${slug}.${version}.${arch}.rpm"
+        local_file: "src/dist/${linux_tar_filename}"
+        remote_file: "${project}/${build_variant}/${revision}/${linux_tar_filename}"
         bucket: mciuploads
         permissions: public-read
-        content_type: application/x-redhat-package-manager
-        display_name: "${slug}.${version}.${arch}.rpm"
-
-  "upload release":
-    command: shell.exec
-    params:
-      working_dir: src
-      script: |
-        set -ev
-        ${npm|npm} run upload;
+        content_type: application/x-gzip
+        display_name: "${linux_tar_filename}"
 
 
 #######################################
@@ -331,7 +342,6 @@ tasks:
   - func: "save linux artifacts"
     variants:
       - ubuntu
-  - func: "upload release"
 
 # Define shortcut for use below
 variables:
