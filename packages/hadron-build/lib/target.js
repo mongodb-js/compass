@@ -432,7 +432,7 @@ class Target {
           arch: this.arch,
           icon: this.src(platformSettings.icon),
           name: this.slug,
-          version: this.version.replace(/\./g, '~')
+          version: this.version.replace(/\-/g, '~')
         }, cb);
       });
     };
