@@ -71,6 +71,8 @@ const CollectionsStore = Reflux.createStore({
     app.dataService.database(state.activeNamespace, {}, (err, res) => {
       if (err) {
         this.setState({
+          collections: [],
+          renderedCollections: [],
           fetchState: 'error',
           errorMessage: err
         });
