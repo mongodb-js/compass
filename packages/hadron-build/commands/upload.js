@@ -171,7 +171,18 @@ exports.builder = {
 
 exports.handler = function(argv) {
   cli.argv = argv;
+
+  var fs = require('fs');
   var target = new Target(argv.dir);
+
+  target.assets = target.assets.filter(function(asset) {
+    var exists = fs.existsSync(asset.path);
+    if (!exists) {
+      cli.warn(`Excluding ${asset.path} from upload because it does not exist.`);
+    }
+    return exists;
+  });
+
   maybePublishGitHubRelease(target)
     .then( () => downloadCenter.maybeUpload(target))
     .catch(abortIfError);
