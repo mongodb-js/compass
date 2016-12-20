@@ -30,6 +30,7 @@
     "electron-license": "^0.2.0",
     "electron-mocha": "^3.1.1",
     "electron-packager": "^8.0.0",
+    "electron-packager-plugin-non-proprietary-codecs-ffmpeg": "^1.0.1",
     "electron-prebuilt": "^1.2.8",
     "flatnest": "^1.0.0",
     "fs-extra": "^1.0.0",

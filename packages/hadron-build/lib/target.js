@@ -6,6 +6,7 @@ const semver = require('semver');
 const path = require('path');
 const normalizePkg = require('normalize-package-data');
 const parseGitHubRepoURL = require('parse-github-repo-url');
+const ffmpegAfterExtract = require('electron-packager-plugin-non-proprietary-codecs-ffmpeg').default;
 const debug = require('debug')('hadron-build:target');
 
 class Target {
@@ -79,7 +80,10 @@ class Target {
       platform: this.platform,
       arch: this.arch,
       version: this.electronVersion,
-      sign: null
+      sign: null,
+      afterExtract: [
+        ffmpegAfterExtract
+      ]
     };
 
     if (this.platform === 'win32') {
