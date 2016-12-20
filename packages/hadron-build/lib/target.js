@@ -112,11 +112,6 @@ class Target {
    */
   configureForWin32() {
     const platformSettings = _.get(this.pkg, 'config.hadron.build.win32', {});
-    /**
-     * TODO (imlucas) rename appPath -> basename.
-     */
-    // this.appPath = WINDOWS_OUT_X64;
-    // CONFIG.resources = WINDOWS_RESOURCES;
 
     /**
      * TODO (imlucas) Delta support for Windows auto-update.
@@ -138,12 +133,12 @@ class Target {
       }
     });
 
-    const nugget = {
-      /**
-       * Remove `.` from version tags for NUGET version
-       */
-      version: this.version.replace(new RegExp(`-${this.channel}\\.(\\d+)`), `-${this.channel}$1`)
-    };
+    this.appPath = this.dest(`${this.packagerOptions.name}-${this.platform}-${this.arch}`);
+    this.resources = this.dest(`${this.packagerOptions.name}-${this.platform}-${this.arch}`, 'resources');
+    /**
+     * Remove `.` from version tags for NUGET version
+     */
+    const nuggetVersion = this.version.replace(new RegExp(`-${this.channel}\\.(\\d+)`), `-${this.channel}$1`);
 
     /**
      * TODO (imlucas) Remove these after evergreen.yml updated to use inline templating.
@@ -151,7 +146,7 @@ class Target {
     this.windows_msi_label = this.windows_msi_filename = `${this.productName}Setup.msi`;
     this.windows_setup_label = this.windows_setup_filename = `${this.productName}Setup.exe`;
     this.windows_zip_label = this.windows_zip_filename = `${this.productName}-windows.zip`;
-    this.windows_nupkg_full_label = this.windows_nupkg_full_filename = `${this.packagerOptions.name}-${nugget.version}-full.nupkg`;
+    this.windows_nupkg_full_label = this.windows_nupkg_full_filename = `${this.packagerOptions.name}-${nuggetVersion}-full.nupkg`;
 
     this.assets = [
       {
@@ -179,16 +174,15 @@ class Target {
         path: this.dest('version')
       },
       {
-        name: `${this.packagerOptions.name}-${nugget.version}-full.nupkg`,
-        path: this.dest(`${this.packagerOptions.name}-${nugget.version}-full.nupkg`)
+        name: `${this.packagerOptions.name}-${nuggetVersion}-full.nupkg`,
+        path: this.dest(`${this.packagerOptions.name}-${nuggetVersion}-full.nupkg`)
       }
     ];
-    this.resources = this.dest(`${this.packagerOptions.name}-${this.platform}-${this.arch}`, 'resources');
 
     this.installerOptions = {
       loadingGif: this.src(platformSettings.loading_gif),
       iconUrl: platformSettings.favicon_url,
-      appDirectory: this.dest(`${this.packagerOptions.name}-${this.platform}-${this.arch}`),
+      appDirectory: this.appPath,
       outputDirectory: this.packagerOptions.out,
       authors: this.author,
       version: this.version,
@@ -197,7 +191,7 @@ class Target {
       title: this.productName,
       productName: this.productName,
       description: this.description,
-      name: nugget.name
+      name: this.packagerOptions.name
     };
 
     /**
@@ -246,7 +240,6 @@ class Target {
 
     this.osx_dmg_label = this.osx_dmg_filename = `${this.productName}.dmg`;
     this.osx_zip_label = this.osx_zip_filename = `${this.productName}.zip`;
-
 
     this.assets = [
       {
@@ -357,14 +350,22 @@ class Target {
   configureForLinux() {
     const platformSettings = _.get(this.pkg, 'config.hadron.build.linux', {});
 
-    const LINUX_OUT_X64 = this.dest(`${this.productName}-linux-x64`);
-    this.resources = path.join(LINUX_OUT_X64, 'resources');
+    this.appPath = this.dest(`${this.productName}-${this.platform}-${this.arch}`);
+    this.resources = path.join(this.appPath, 'resources');
 
 
     const LINUX_OUT_DEB = this.dest(`${this.slug}-${this.version}-${this.arch}.deb`);
     const LINUX_OUT_RPM = this.dest(`${this.slug}.${this.version}.${this.arch}.rpm`);
     const LINUX_OUT_TAR = this.dest(`${this.slug}-${this.version}-${this.platform}-${this.arch}.tar.gz`);
     const LINUX_OUT_ZIP = this.dest(`${this.slug}.zip`);
+
+    const debianVersion = this.version.replace(/\-/g, '~');
+    const rhelVersion = [this.semver.major, this.semver.minor, this.semver.patch].join('.');
+    const rhelRevision = this.semver.prerelease.join('.') || '1';
+    
+    // this.linux_deb_filename = `${this.slug}_${debianVersion}_${this.arch}.deb`;
+    // this.linux_rpm_filename = `${this.slug}-${rhelVersion}-${this.arch}.rpm`;
+    // this.linux_tar_filename = `${this.slug}-${this.version}-${this.arch}.deb`;
 
     Object.assign(this.packagerOptions, {
       name: this.productName
@@ -393,6 +394,7 @@ class Target {
     const createRpmInstaller = cb => {
       which('rpmbuild', err => {
         if (err) {
+          /* eslint no-console: 0 */
           console.warn('Your environment is not configured correctly to build ' +
           'rpm packages. Please see https://git.io/v1iz7');
           return cb();
@@ -403,13 +405,13 @@ class Target {
          */
         const createRpm = require('electron-installer-redhat');
         createRpm({
-          src: LINUX_OUT_X64,
+          src: this.appPath,
           dest: this.out,
           arch: this.arch,
           icon: this.src(platformSettings.icon),
           name: this.slug,
-          version: [this.semver.major, this.semver.minor, this.semver.patch].join('.'),
-          revision: this.semver.prerelease.join('.') || '1'
+          version: rhelVersion,
+          revision: rhelRevision
         }, cb);
       });
     };
@@ -417,6 +419,7 @@ class Target {
     const createDebInstaller = cb => {
       which('fakeroot', err => {
         if (err) {
+          /* eslint no-console: 0 */
           console.warn('Your environment is not configured correctly to build ' +
           'debian packages. Please see https://git.io/v1iRV');
           return cb();
@@ -427,12 +430,12 @@ class Target {
          */
         const createDeb = require('electron-installer-debian');
         createDeb({
-          src: LINUX_OUT_X64,
+          src: this.appPath,
           dest: this.out,
           arch: this.arch,
           icon: this.src(platformSettings.icon),
           name: this.slug,
-          version: this.version.replace(/\-/g, '~')
+          version: debianVersion
         }, cb);
       });
     };
@@ -440,7 +443,7 @@ class Target {
     const createTarball = cb => {
       const tarPack = require('tar-pack').pack;
       const fs = require('fs');
-      tarPack(LINUX_OUT_X64)
+      tarPack(this.appPath)
        .pipe(fs.createWriteStream(LINUX_OUT_TAR))
        .on('error', function(err) {
          cb(err);
