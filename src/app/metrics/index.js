@@ -8,7 +8,6 @@ var ipc = require('hadron-ipc');
 var intercom = require('./intercom');
 var features = require('./features');
 var Notifier = require('node-notifier');
-var process = require('process');
 
 var debug = require('debug')('mongodb-compass:metrics');
 
@@ -98,10 +97,8 @@ module.exports = function() {
     debug('error encountered, notify trackers', err);
     // Notify user that error occurred
     if (!_.includes(err.message, 'MongoError')) {
-      var icon = pkg.config.hadron.build.win32.icon;
-      if (process.platform === 'darwin') {
-        icon = pkg.config.hadron.build.darwin.icon;
-      }
+      const icon = (process.platform === 'darwin') ?
+        pkg.config.hadron.build.darwin.icon : pkg.config.hadron.build.win32.icon;
       Notifier.notify({
         'icon': icon,
         'message': 'Unexpected error occurred: ' + err.message,
