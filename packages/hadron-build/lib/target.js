@@ -333,7 +333,7 @@ class Target {
           if (available) {
             tasks.push(_.partial(codesign, {
               identity: opts.identity,
-              appPath: opts.appPath
+              appPath: this.dest(`${this.productName}-darwin-x64`, `${this.productName}.app`)
             }));
           } else {
             codesign.printWarning();
