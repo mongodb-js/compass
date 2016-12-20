@@ -221,9 +221,10 @@ class Target {
       icon: `${this.id}.icns`
     });
 
-    // this.appPath = OSX_DOT_APP;
+
     // this.resources = OSX_RESOURCES;
-    // const OSX_DOT_APP = this.dest(`${this.productName}-darwin-x64`, `${this.productName}.app`);
+    const OSX_DOT_APP = this.dest(`${this.productName}-darwin-x64`, `${this.productName}.app`);
+    this.appPath = OSX_DOT_APP;
     this.resources = this.dest(`${this.productName}-darwin-x64`, `${this.productName}.app`, 'Contents', 'Resources');
 
     Object.assign(this.packagerOptions, {
