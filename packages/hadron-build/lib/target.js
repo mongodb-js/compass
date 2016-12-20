@@ -379,7 +379,7 @@ class Target {
     const rhelVersion = [this.semver.major, this.semver.minor, this.semver.patch].join('.');
     const rhelRevision = this.semver.prerelease.join('.') || '1';
 
-    const LINUX_OUT_DEB = this.dest(`${this.slug}-${debianVersion}-${this.arch}.deb`);
+    const LINUX_OUT_DEB = this.dest(`${this.slug}_${debianVersion}_${this.arch}.deb`);
     const LINUX_OUT_RPM = this.dest(`${this.slug}.${rhelVersion}.${this.arch}.rpm`);
     const LINUX_OUT_TAR = this.dest(`${this.slug}-${this.version}-${this.platform}-${this.arch}.tar.gz`);
     const LINUX_OUT_ZIP = this.dest(`${this.slug}.zip`);
