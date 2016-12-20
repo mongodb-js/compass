@@ -2,6 +2,9 @@ sudo: required
 language: node_js
 node_js:
   - 6
+os:
+  - linux
+  - osx
 env:
   matrix:
     - CXX=g++-4.8 CI=1 MONGODB_VERSION=2.6.x MONGODB_TOPOLOGY=standalone
