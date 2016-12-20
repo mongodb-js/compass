@@ -375,39 +375,40 @@ class Target {
     this.appPath = this.dest(`${this.productName}-${this.platform}-${this.arch}`);
     this.resources = path.join(this.appPath, 'resources');
 
-
-    const debianVersion = this.version.replace(/\-/g, '~');
-    const rhelVersion = [this.semver.major, this.semver.minor, this.semver.patch].join('.');
-    const rhelRevision = this.semver.prerelease.join('.') || '1';
-
-    const LINUX_OUT_DEB = this.dest(`${this.slug}_${debianVersion}_${this.arch}.deb`);
-    const LINUX_OUT_RPM = this.dest(`${this.slug}.${rhelVersion}.${this.arch}.rpm`);
-    const LINUX_OUT_TAR = this.dest(`${this.slug}-${this.version}-${this.platform}-${this.arch}.tar.gz`);
-    const LINUX_OUT_ZIP = this.dest(`${this.slug}.zip`);
-
-    this.linux_deb_filename = `${this.slug}_${debianVersion}_${this.arch}.deb`;
-    this.linux_rpm_filename = `${this.slug}.${rhelVersion}.${this.arch}.rpm`;
-    this.linux_tar_filename = `${this.slug}-${this.version}-${this.platform}-${this.arch}.tar.gz`;
-
     Object.assign(this.packagerOptions, {
       name: this.productName
     });
 
+    const debianVersion = this.version.replace(/\-/g, '~');
+    const debianArch = this.arch === 'x64' ? 'amd64' : 'i386';
+    this.linux_deb_filename = `${this.slug}_${debianVersion}_${debianArch}.deb`;
+
+    const rhelVersion = [this.semver.major, this.semver.minor, this.semver.patch].join('.');
+    const rhelRevision = this.semver.prerelease.join('.') || '1';
+    const rhelArch = this.arch === 'x64' ? 'x86_64' : 'i386';
+    this.linux_rpm_filename = `${this.slug}.${rhelVersion}.${rhelArch}.rpm`;
+
+    const LINUX_OUT_TAR = this.dest(`${this.slug}-${this.version}-${this.platform}-${this.arch}.tar.gz`);
+    const LINUX_OUT_ZIP = this.dest(`${this.slug}.zip`);
+
+    this.linux_tar_filename = `${this.slug}-${this.version}-${this.platform}-${this.arch}.tar.gz`;
+    this.linux_zip_filename = `${this.slug}-${this.version}-${this.platform}-${this.arch}.zip`;
+
     this.assets = [
       {
-        name: `${this.slug}-${this.version}-${this.platform}-${this.arch}.tar.gz`,
+        name: this.linux_deb_filename,
+        path: this.dest(this.linux_deb_filename)
+      },
+      {
+        name: this.linux_rpm_filename,
+        path: this.dest(this.linux_rpm_filename)
+      },
+      {
+        name: this.linux_tar_filename,
         path: LINUX_OUT_TAR
       },
       {
-        name: `${this.slug}-${debianVersion}-${this.platform}-${this.arch}.deb`,
-        path: LINUX_OUT_DEB
-      },
-      {
-        name: `${this.slug}.${rhelVersion}.${this.platform}.${this.arch}.rpm`,
-        path: LINUX_OUT_RPM
-      },
-      {
-        name: `${this.slug}-${this.version}-${this.platform}-${this.arch}.zip`,
+        name: this.linux_zip_filename,
         path: LINUX_OUT_ZIP
       }
     ];
@@ -429,7 +430,7 @@ class Target {
         createRpm({
           src: this.appPath,
           dest: this.out,
-          arch: this.arch,
+          arch: rhelArch,
           icon: this.src(platformSettings.icon),
           name: this.slug,
           version: rhelVersion,
@@ -454,7 +455,7 @@ class Target {
         createDeb({
           src: this.appPath,
           dest: this.out,
-          arch: this.arch,
+          arch: debianArch,
           icon: this.src(platformSettings.icon),
           name: this.slug,
           version: debianVersion
