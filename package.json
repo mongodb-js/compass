@@ -37,6 +37,9 @@
           "codesign_sha1": "90E39AA7832E95369F0FC6DAF823A04DFBD9CF7A",
           "app_bundle_id": "com.mongodb.compass",
           "app_category_type": "public.app-category.productivity"
+        },
+        "linux": {
+          "icon": "src/app/images/linux/mongodb-compass.png"
         }
       }
     }
