@@ -1,9 +1,7 @@
 const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
 const CollectionsActions = require('../actions/collections-actions');
-const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const app = require('ampersand-app');
-const toNS = require('mongodb-ns');
 const _ = require('lodash');
 
 const debug = require('debug')('mongodb-compass:stores:collections');
@@ -39,8 +37,7 @@ const CollectionsStore = Reflux.createStore({
    * Initialize everything that is not part of the store's state.
    */
   init() {
-    NamespaceStore.listen(this.onNamespaceChanged.bind(this));
-    this.listenToExternalStore('App.InstanceStore', this.onNamespaceChanged.bind(this));
+    this.listenToExternalStore('Sidebar.Store', this.onSidebarChange.bind(this));
     this.indexes = [];
   },
 
@@ -48,6 +45,8 @@ const CollectionsStore = Reflux.createStore({
     return {
       columns: COLL_COLUMNS,
       collections: [],
+      database: '',
+      renderedCollections: [],
       sortOrder: 'asc',
       sortColumn: 'Collection Name',
       fetchState: 'initial',
@@ -60,46 +59,47 @@ const CollectionsStore = Reflux.createStore({
       column || this.state.sortColumn, order || this.state.sortOrder);
   },
 
-  onNamespaceChanged() {
-    if (NamespaceStore.ns) {
-      const ns = toNS(NamespaceStore.ns);
-      if (!ns.database) {
+  onSidebarChange(state) {
+    // continue only when a database is the activeNamespace
+    if (!state.activeNamespace || state.activeNamespace.includes('.')) {
+      return;
+    }
+
+    // retrieve the collections from sidebar object
+    const database = _.first(_.filter(state.databases, '_id', state.activeNamespace));
+
+    app.dataService.database(state.activeNamespace, {}, (err, res) => {
+      if (err) {
         this.setState({
-          collections: []
+          collections: [],
+          renderedCollections: [],
+          fetchState: 'error',
+          errorMessage: err
         });
         return;
       }
-
-      app.dataService.database(ns.database, {}, (err, res) => {
-        if (err) {
-          this.setState({
-            fetchState: 'error',
-            errorMessage: err
-          });
-          return;
-        }
-        debug('collections', res.collections);
-        const unsorted = _.map(res.collections, (coll) => {
-          return _.zipObject(COLL_COLUMNS, [
-            coll.name, // Collection Name
-            coll.document_count, // Num. Documents
-            coll.size / coll.document_count, // Avg. Document Size
-            coll.size, // Total Document Size
-            coll.index_count,  // Num Indexes
-            coll.index_size // Total Index Size
-          ]);
-        });
-
-        this.setState({
-          collections: this._sort(unsorted)
-        });
+      const unsorted = _.map(res.collections, (coll) => {
+        return _.zipObject(COLL_COLUMNS, [
+          coll.name, // Collection Name
+          coll.document_count, // Num. Documents
+          coll.size / coll.document_count, // Avg. Document Size
+          coll.size, // Total Document Size
+          coll.index_count,  // Num Indexes
+          coll.index_size // Total Index Size
+        ]);
       });
-    }
+
+      this.setState({
+        collections: database.collections,
+        renderedCollections: this._sort(unsorted),
+        database: state.activeNamespace
+      });
+    });
   },
 
   sortCollections(column, order) {
     this.setState({
-      collections: this._sort(this.state.collections, column, order),
+      renderedCollections: this._sort(this.state.renderedCollections, column, order),
       sortColumn: column,
       sortOrder: order
     });

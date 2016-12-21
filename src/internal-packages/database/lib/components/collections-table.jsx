@@ -5,6 +5,7 @@ const CreateCollectionDialog = require('./create-collection-dialog');
 const DropCollectionDialog = require('./drop-collection-dialog');
 const { TextButton } = require('hadron-react-buttons');
 const numeral = require('numeral');
+const ipc = require('hadron-ipc');
 
 const _ = require('lodash');
 
@@ -13,6 +14,7 @@ class CollectionsTable extends React.Component {
   constructor(props) {
     super(props);
     this.SortableTable = app.appRegistry.getComponent('App.SortableTable');
+    this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
   }
 
   onColumnHeaderClicked(column, order) {
@@ -27,8 +29,15 @@ class CollectionsTable extends React.Component {
     CollectionsActions.openCreateCollectionDialog();
   }
 
+  onNameClicked(index, name) {
+    // retrieve collection based on name
+    const collection = _.first(_.filter(this.props.collections, '_id', `${this.props.database}.${name}`));
+    this.CollectionStore.setCollection(collection);
+    ipc.call('window:show-collection-submenu');
+  }
+
   render() {
-    const rows = _.map(this.props.collections, (coll) => {
+    const rows = _.map(this.props.renderedCollections, (coll) => {
       return _.assign({}, coll, {
         'Documents': numeral(coll.Documents).format('0,0'),
         'Avg. Document Size': _.isNaN(coll['Avg. Document Size']) ?
@@ -60,6 +69,7 @@ class CollectionsTable extends React.Component {
           valueIndex={0}
           removable={writable}
           onColumnHeaderClicked={this.onColumnHeaderClicked.bind(this)}
+          onNameClicked={this.onNameClicked.bind(this)}
           onRowDeleteButtonClicked={this.onRowDeleteButtonClicked.bind(this)}
         />
         <CreateCollectionDialog />
@@ -72,6 +82,8 @@ class CollectionsTable extends React.Component {
 CollectionsTable.propTypes = {
   columns: React.PropTypes.arrayOf(React.PropTypes.string),
   collections: React.PropTypes.arrayOf(React.PropTypes.object),
+  renderedCollections: React.PropTypes.arrayOf(React.PropTypes.object),
+  database: React.PropTypes.string,
   sortOrder: React.PropTypes.oneOf(['asc', 'desc']),
   sortColumn: React.PropTypes.string
 };

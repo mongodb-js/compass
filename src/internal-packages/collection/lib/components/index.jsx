@@ -1,7 +1,9 @@
 const React = require('react');
 const app = require('ampersand-app');
 const semver = require('semver');
+const { NamespaceStore } = require('hadron-reflux-store');
 const toNS = require('mongodb-ns');
+const ipc = require('hadron-ipc');
 
 class Collection extends React.Component {
   constructor(props) {
@@ -41,6 +43,13 @@ class Collection extends React.Component {
     this.setState({activeTab: this.CollectionStore.getActiveTab()});
   }
 
+  onDBClick() {
+    const db = toNS(this.props.namespace).database;
+    this.CollectionStore.setCollection({});
+    NamespaceStore.ns = db;
+    ipc.call('window:hide-collection-submenu');
+  }
+
   render() {
     const serverVersion = app.instance.build.version;
     const DV_ENABLED = semver.gt(serverVersion, '3.2.0-rc0');
@@ -61,12 +70,18 @@ class Collection extends React.Component {
       views.push(<this.Validation />);
     }
 
+    const database = toNS(this.props.namespace).database;
+    const collection = toNS(this.props.namespace).collection;
+
     return (
       <div className="collection-view clearfix">
         <header>
           <div className="row">
             <div className="col-md-6">
-              <h1>{this.props.namespace}</h1>
+              <h1>
+                <a onClick={this.onDBClick.bind(this)}>{database}</a>.
+                <span>{collection}</span>
+              </h1>
             </div>
             <div className="col-md-6">
               <this.Stats />
