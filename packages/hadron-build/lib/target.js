@@ -439,7 +439,8 @@ class Target {
           icon: this.src(platformSettings.icon),
           name: this.slug,
           version: rhelVersion,
-          revision: rhelRevision
+          revision: rhelRevision,
+          bin: this.productName
         }, cb);
       });
     };
@@ -463,7 +464,8 @@ class Target {
           arch: debianArch,
           icon: this.src(platformSettings.icon),
           name: this.slug,
-          version: debianVersion
+          version: debianVersion,
+          bin: this.productName
         }, cb);
       });
     };
