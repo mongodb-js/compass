@@ -2,9 +2,13 @@
   "name": "mongodb-compass",
   "productName": "MongoDB Compass",
   "description": "The MongoDB GUI.",
+  "homepage": "https://compass.mongodb.com",
   "version": "1.6.0-dev",
   "main": "src/main.js",
-  "authors": "MongoDB Inc.",
+  "author": {
+    "name": "MongoDB Inc.",
+    "email": "compass@mongodb.com"
+  },
   "license": "UNLICENSED",
   "private": true,
   "config": {
@@ -192,6 +196,7 @@
     "npm": "^3.0.0"
   },
   "bugs": {
-    "url": "https://github.com/10gen/compass/issues"
+    "url": "https://docs.mongodb.com/compass/current/#contact",
+    "email": "compass@mongodb.com"
   }
 }
