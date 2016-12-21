@@ -318,12 +318,6 @@ pre:
       rm -rf src /data/db/*
       mkdir -p src
 
-post:
-- command: attach.results
-  params:
-    file_location: src/report.json
-
-
 tasks:
 - name: compile
   depends_on: []
