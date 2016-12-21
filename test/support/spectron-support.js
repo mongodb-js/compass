@@ -284,6 +284,7 @@ function addWaitCommands(client) {
    */
   client.addCommand('waitForIndexCreation', function(name) {
     return this
+      .waitForStatusBar()
       .waitUntilInCompass(function() {
         return this.getIndexNames().then(function(names) {
           return names.includes(name);
