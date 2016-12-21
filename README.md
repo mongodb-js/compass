@@ -22,29 +22,11 @@ npm install
 npm start
 ```
 
-### Master is broken
-
-Try:
-
-```
-npm install && COMPILE_CACHE=false npm start
-
-# If master is really, really, really broken, 
-# like you've been playing with npm link and npm unlink
-npm run clean && npm install && COMPILE_CACHE=false npm start
-```
-
 ## Key Modules
 
-Note this is a polylithic (as opposed to a monolithic) repository - it aims to make Compass a minimal shell and abstract as much as possible into reusable, highly decoupled components. A few prominent ones include:
-
-<dl>
-  <dt><a href="https://magnum.travis-ci.com/10gen/compass"><img src="https://magnum.travis-ci.com/10gen/compass.svg?token=q2zsnxCbboarF6KYRYxM&branch=master" height="10" /></a>&nbsp;<a href="https://github.com/10gen/compass">compass</a> </dt>
-  <dt><a href="https://travis-ci.org/mongodb-js/connection-model"><img src="https://secure.travis-ci.org/mongodb-js/connection-model.svg?branch=master" height="10" /></a>&nbsp;<a href="https://github.com/mongodb-js/connection-model">mongodb-connection-model</a></dt>
-  <dt><a href="https://travis-ci.org/mongodb-js/collection-sample"><img src="https://secure.travis-ci.org/mongodb-js/collection-sample.svg?branch=master" height="10" /></a>&nbsp;<a href="https://github.com/mongodb-js/collection-sample">mongodb-collection-sample</a></dt>
-  <dt><a href="https://travis-ci.org/mongodb-js/mongodb-schema"><img src="https://secure.travis-ci.org/mongodb-js/mongodb-schema.svg?branch=master" height="10" /></a>&nbsp;<a href="https://github.com/mongodb-js/mongodb-schema">mongodb-schema</a></dt>
-</dl>
-
+Note this is a polylithic (as opposed to a monolithic) repository - it aims to make Compass
+a minimal shell and abstract as much as possible into reusable, highly decoupled components.
+Please see the mongodb-js org for all the repos: https://github.com/mongodb-js
 
 ## Building Releases
 
@@ -58,13 +40,71 @@ cd compass
 npm run release
 ```
 
+## The Release Process
+
+First ensure that the branch to be released is in a releasable state by running the tests
+on the branch and the building the release and manually testing it.
+
+```bash
+npm run release
+```
+
+Once this is verified, tag the release and push the branch. This will cause a new Evergreen
+build to kick off on the branch that is getting released. For our purposes, we will use
+1.4-releases as the branch and 1.4.1 as the release we are performing.
+
+```bash
+git checkout 1.4-releases;
+git pull --rebase;
+npm version patch --no-git-tag-version;
+git add package.json;
+git commit -m "v1.4.1";
+git push origin 1.4-releases;
+open https://evergreen.mongodb.com/waterfall/10gen-compass-stable;
+```
+
+When the Evergreen builds have finished running and are successful, they will upload all
+release artifacts to Github and create a draft release at https://github.com/10gen/compass/releases
+
+Edit the draft release with comments on what went in, then publish the release.
+
+Next, you will need to update the links to the new release in the MongoDB Download center.
+First download the config from s3 to your local machine:
+
+```bash
+aws s3 cp s3://info-mongodb-com/com-download-center/compass.json compass.json
+```
+
+Then edit the config by updating the versions array in the json to use the latest release number
+for the `_id`, `version`, and `download_link` fields.
+
+Next, test that the new links are publically accessible and can be downloaded from:
+
+```bash
+open https://downloads.mongodb.com/compass/mongodb-compass-1.4.1-darwin-x64.dmg
+open https://downloads.mongodb.com/compass/mongodb-compass-1.4.1-win32-x64.exe
+```
+
+Next, copy the config back to s3:
+
+```bash
+aws s3 cp compass.json s3://info-mongodb-com/com-download-center/compass.json
+```
+
+The release is now in the download center!
+
 ## Running Tests
 
-Just run `npm test`.
+```bash
+# Run the entire test suite
+npm test
 
-To run just what TravisCI runs [locally](https://engineering.canva.com/2015/03/25/hermeticity/):
+# Run only the unit tests
+npm test -- --unit
 
-    npm run ci
+# Run only the functional tests
+npm test -- --functional
+```
 
 ## Code Quality Tools
 
