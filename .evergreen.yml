@@ -129,15 +129,12 @@ functions:
         test -n '${add_env_appdata|}' && export APPDATA='${add_env_appdata|}'
 
         # Run static analysis on code and project configuration
-        # ${npm|npm} run check
+        ${npm|npm} run check
 
         # Create a release build
         ${npm|npm} run release;
         ls -alh dist/
 
-        # Test the release build
-        ${npm|npm} run test-unit
-        pkill mongod || true
         # end of embedded script
         EOF_BUILD_SH
 
@@ -320,12 +317,6 @@ pre:
       set -ev
       rm -rf src /data/db/*
       mkdir -p src
-
-post:
-- command: attach.results
-  params:
-    file_location: src/report.json
-
 
 tasks:
 - name: compile
