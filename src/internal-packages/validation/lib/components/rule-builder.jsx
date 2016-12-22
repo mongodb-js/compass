@@ -134,7 +134,7 @@ class RuleBuilder extends React.Component {
         <Grid fluid className="rule-builder">
           <Row className="header">
             <Col lg={6} md={6} sm={6} xs={6}>
-              {this.props.isWritable ? this.renderAddButton() : null}
+              {this.renderAddButton()}
             </Col>
             <Col lg={6} md={6} sm={6} xs={6}>
               <div className="pull-right">

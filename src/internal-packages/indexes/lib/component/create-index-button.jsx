@@ -48,6 +48,7 @@ class CreateIndexButton extends React.Component {
           className="btn btn-primary btn-xs"
           type="button"
           data-test-id="open-create-index-modal-button"
+          disabled={!this.props.isWritable}
           onClick={this.clickCreateHandler.bind(this)}>
           Create Index
         </button>
@@ -60,5 +61,9 @@ class CreateIndexButton extends React.Component {
 }
 
 CreateIndexButton.displayName = 'CreateIndexButton';
+
+CreateIndexButton.propTypes = {
+  isWritable: React.PropTypes.bool.isRequired
+};
 
 module.exports = CreateIndexButton;
