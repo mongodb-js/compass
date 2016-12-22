@@ -156,7 +156,7 @@ class SamplingMessage extends React.Component {
             <button
                 className="btn btn-primary btn-xs open-insert"
                 type="button"
-                dataTestId="open-insert-document-modal-button"
+                data-test-id="open-insert-document-modal-button"
                 disabled={!isWritable}
                 onClick={this.props.insertHandler}>
               Insert Document

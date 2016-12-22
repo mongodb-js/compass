@@ -92,7 +92,7 @@ class DatabasesTable extends React.Component {
           <button
               className="btn btn-primary btn-xs"
               type="button"
-              dataTestId="open-create-database-modal-button"
+              data-test-id="open-create-database-modal-button"
               disabled={!isWritable}
               onClick={this.onCreateDatabaseButtonClicked.bind(this)}>
             Create Database
