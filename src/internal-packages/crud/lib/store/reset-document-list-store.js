@@ -5,8 +5,6 @@ const ReadPreference = require('mongodb').ReadPreference;
 const toNS = require('mongodb-ns');
 const Actions = require('../actions');
 
-// const debug = require('debug')('mongodb-compass:crud');
-
 // const debug = require('debug')('mongodb-compass:crud:store');
 
 /**
@@ -37,10 +35,21 @@ const ResetDocumentListStore = Reflux.createStore({
       }
     });
 
+    // listen for documents newly inserted
+    this.listenToExternalStore('CRUD.InsertDocumentStore', this.onDocumentInserted.bind(this));
+
     // listen for query changes
     this.listenToExternalStore('Query.ChangedStore', this.onQueryChanged.bind(this));
 
     Actions.refreshDocuments.listen(this.reset.bind(this));
+  },
+
+  /**
+   * Fires when a document is inserted,
+   * so the newly inserted document is displayed to the user.
+   */
+  onDocumentInserted: function() {
+    this.reset();
   },
 
   /**
@@ -57,8 +66,6 @@ const ResetDocumentListStore = Reflux.createStore({
 
   /**
    * This function is called when the collection filter changes.
-   *
-   * @param {Object} filter - The query filter.
    */
   reset: function() {
     if (NamespaceStore.ns) {
@@ -66,7 +73,9 @@ const ResetDocumentListStore = Reflux.createStore({
         if (!err) {
           const options = {
             limit: 20,
-            sort: [[ '_id', 1 ]],
+            // Default to reverse chronological order so newly inserted
+            // documents are shown at the top near the insert button
+            sort: [[ '_id', -1 ]],
             readPreference: READ,
             promoteValues: false
           };

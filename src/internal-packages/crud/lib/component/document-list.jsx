@@ -9,7 +9,6 @@ const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const ResetDocumentListStore = require('../store/reset-document-list-store');
 const LoadMoreDocumentsStore = require('../store/load-more-documents-store');
 const RemoveDocumentStore = require('../store/remove-document-store');
-const InsertDocumentStore = require('../store/insert-document-store');
 const InsertDocumentDialog = require('./insert-document-dialog');
 const Actions = require('../actions');
 
@@ -60,7 +59,6 @@ class DocumentList extends React.Component {
     this.unsubscribeReset = ResetDocumentListStore.listen(this.handleReset.bind(this));
     this.unsubscribeLoadMore = LoadMoreDocumentsStore.listen(this.handleLoadMore.bind(this));
     this.unsubscribeRemove = RemoveDocumentStore.listen(this.handleRemove.bind(this));
-    this.unsubscribeInsert = InsertDocumentStore.listen(this.handleInsert.bind(this));
   }
 
   /**
@@ -70,7 +68,6 @@ class DocumentList extends React.Component {
     this.unsubscribeReset();
     this.unsubscribeLoadMore();
     this.unsubscribeRemove();
-    this.unsubscribeInsert();
   }
 
   /**
@@ -161,18 +158,6 @@ class DocumentList extends React.Component {
    */
   handleOpenInsert() {
     Actions.openInsertDocumentDialog({ _id: new ObjectID(), '': '' }, false);
-  }
-
-  /**
-   * Handle insert of a new document.
-   *
-   * @param {Boolean} success - If the insert was successful.
-   */
-  handleInsert(success) {
-    if (success) {
-      this.setState({ count: this.state.count + 1 });
-      this.loadMore();
-    }
   }
 
   /**

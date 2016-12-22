@@ -443,8 +443,8 @@ describe('Compass Functional Test Suite #spectron', function() {
             .waitForInsertDocumentModal()
             .inputClonedDocumentValueChange(1, 'London', 'Essex')
             .clickInsertDocumentModalButton()
-            .waitForDocumentInsert(2)
-            .getDocumentValues(2)
+            .waitForDocumentInsert(1)
+            .getDocumentValues(1)
             .should.eventually.include('Essex');
         });
       });
@@ -466,6 +466,46 @@ describe('Compass Functional Test Suite #spectron', function() {
           return client
             .inputFilterFromDocumentsTab(filter)
             .clickApplyFilterButtonFromDocumentsTab()
+            .getSamplingMessageFromDocumentsTab()
+            .should.eventually.include('Query returned 0 documents.');
+        });
+
+        it("doesn't show newly inserted documents not matching the filter", () => {
+          return client
+            .clickDocumentsTab()
+            .clickInsertDocumentButton()
+            .waitForInsertDocumentModal()
+            .inputNewDocumentDetails({
+              'name': 'Armin van Buuren',
+              'genre': 'Trance',
+              'location': 'Leiden'
+            })
+            .clickInsertDocumentModalButton()
+            .getSamplingMessageFromDocumentsTab()
+            .should.eventually.include('Query returned 0 documents.');
+        });
+
+        it('shows newly inserted documents matching the filter', () => {
+          return client
+            .clickDocumentsTab()
+            .clickInsertDocumentButton()
+            .waitForInsertDocumentModal()
+            .inputNewDocumentDetails({
+              'name': 'Bonobo',
+              'genre': 'Electronic',
+              'location': 'London'
+            })
+            .clickInsertDocumentModalButton()
+            .waitForDocumentInsert(1)
+            .getDocumentValues(1)
+            .should.eventually.include('Bonobo');
+        });
+
+        it('deletes a document matching the filter', () => {
+          return client
+            .clickDeleteDocumentButton(1)
+            .clickConfirmDeleteDocumentButton(1)
+            .waitForDocumentDeletionToComplete(1)
             .getSamplingMessageFromDocumentsTab()
             .should.eventually.include('Query returned 0 documents.');
         });
@@ -512,7 +552,7 @@ describe('Compass Functional Test Suite #spectron', function() {
           it('updates the documents examined', function() {
             return client
               .getExplainDocumentsExamined()
-              .should.eventually.equal('1');
+              .should.eventually.equal('2');
           });
         });
       });
@@ -530,11 +570,11 @@ describe('Compass Functional Test Suite #spectron', function() {
           return client
             .clickDocumentsTab()
             .getSamplingMessageFromDocumentsTab()
-            .should.eventually.include('Query returned 1 document.');
+            .should.eventually.include('Query returned 2 documents.');
         });
 
         it('updates the schema view', function() {
-          const expected = 'This report is based on a sample of 1 document (100.00%).';
+          const expected = 'This report is based on a sample of 2 documents (100.00%).';
           return client
             .clickSchemaTab()
             .getSamplingMessageFromSchemaTab()
@@ -561,7 +601,7 @@ describe('Compass Functional Test Suite #spectron', function() {
             .getIndexUsages()
             .should
             .eventually
-            .equal(isIndexUsageEnabled(serverVersion) ? '8' : '0');
+            .equal(isIndexUsageEnabled(serverVersion) ? '11' : '0');
         });
 
         it('renders the index properties', function() {
@@ -679,7 +719,7 @@ describe('Compass Functional Test Suite #spectron', function() {
             .clickDocumentsTab()
             .clickRefreshDocumentsButton()
             .getSamplingMessageFromDocumentsTab()
-            .should.eventually.include('Query returned 2 documents.');
+            .should.eventually.include('Query returned 3 documents.');
         });
       });
     });

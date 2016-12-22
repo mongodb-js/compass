@@ -44,7 +44,9 @@ const LoadMoreDocumentsStore = Reflux.createStore({
     const options = {
       skip: skip,
       limit: 20,
-      sort: [[ '_id', 1 ]],
+      // Default to reverse chronological order so newly inserted
+      // documents are shown at the top near the insert button
+      sort: [[ '_id', -1 ]],
       readPreference: READ,
       promoteValues: false
     };
