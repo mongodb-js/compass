@@ -1,6 +1,6 @@
 const React = require('react');
 const app = require('ampersand-app');
-const { TextButton, AnimatedIconTextButton } = require('hadron-react-buttons');
+const { AnimatedIconTextButton } = require('hadron-react-buttons');
 const numeral = require('numeral');
 const pluralize = require('pluralize');
 
@@ -67,6 +67,7 @@ class SamplingMessage extends React.Component {
   /**
    * Handle the reset of the document list.
    *
+   * @param {Object} error - The error
    * @param {Array} documents - The documents.
    * @param {Integer} count - The count.
    */
@@ -79,6 +80,7 @@ class SamplingMessage extends React.Component {
   /**
    * Handle scrolling that loads more documents.
    *
+   * @param {Object} error - The error
    * @param {Array} documents - The loaded documents.
    */
   handleLoadMore(error, documents) {
@@ -134,6 +136,8 @@ class SamplingMessage extends React.Component {
    */
   renderQueryMessage() {
     const noun = pluralize('document', this.state.count);
+    const isWritable = this.CollectionStore.isWritable();
+
     return (
       <div>
         <div className="sampling-message">
@@ -149,12 +153,14 @@ class SamplingMessage extends React.Component {
             text="&nbsp;Refresh" />
         </div>
         <div className="action-bar">
-          {this.CollectionStore.isWritable() ?
-            <TextButton
-              clickHandler={this.props.insertHandler}
-              dataTestId="open-insert-document-modal-button"
-              className="btn btn-primary btn-xs open-insert"
-              text="Insert Document" /> : null }
+            <button
+                className="btn btn-primary btn-xs open-insert"
+                type="button"
+                dataTestId="open-insert-document-modal-button"
+                disabled={!isWritable}
+                onClick={this.props.insertHandler}>
+              Insert Document
+            </button>
         </div>
       </div>
     );
