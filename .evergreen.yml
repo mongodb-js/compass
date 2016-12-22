@@ -13,10 +13,10 @@ exec_timeout_secs: 1800
 
 variables:
 # function "save release variants" is conditional on the following
-# -> all except ubuntu
 - &save_release_variants
   - osx-1010
   - windows-64
+  - ubuntu
 
 
 #######################################
@@ -76,18 +76,12 @@ functions:
         export CI=1
         export EVERGREEN=1
         export PATH="${node_path}:$PATH"
-        ls -alh ${node_path}
         test -n '${add_env_appdata|}' && export APPDATA='${add_env_appdata|}'
-        ${npm|npm} version --json
-        # less chatty installs: "--depth 0" reduces detail of "npm ls" tree output
-        export NPM_CONFIG_DEPTH=0
-        export NPM_CONFIG_LOGLEVEL=error
         ${npm|npm} install node-gyp
         ${npm|npm} install
-        # INT-1081 Attach parseable log of installed packages.
-        # Don't allow it to fail build.
-        ${npm|npm} ls --depth=Infinity --json=true > npm_install.json || true
 
+  # TODO (imlucas) Move this to `hadron-build`. Way too much bash
+  # in this process no one else knows exists already.
   # For Windows: retrieve a fake "signtool.exe" which proxies to notary-service,
   # and remove the real one from our path. Must run after "npm install"
   "fetch signtool" : &fetch_signtool
@@ -128,6 +122,8 @@ functions:
         export SIGNTOOL_PARAMS="yes"
         test -n '${add_env_appdata|}' && export APPDATA='${add_env_appdata|}'
 
+        export DEBUG=hadron*,electron*
+
         # Run static analysis on code and project configuration
         ${npm|npm} run check
 
@@ -135,6 +131,13 @@ functions:
         ${npm|npm} run release;
         ls -alh dist/
 
+        # Upload release assets to S3 and GitHub
+        export GITHUB_TOKEN=${leafybot_github_token}
+        export DOWNLOAD_CENTER_AWS_ACCESS_KEY_ID=${aws_key_evergreen_integrations}
+        export DOWNLOAD_CENTER_AWS_SECRET_ACCESS_KEY=${aws_secret_evergreen_integrations}
+        ${npm|npm} run upload;
+
+        pkill mongod || true
         # end of embedded script
         EOF_BUILD_SH
 
@@ -158,18 +161,6 @@ functions:
         then
           ssh -p 2222 localhost "echo SSH_LOCALHOST_TEST_OK"
         fi
-
-  "save npm_install.json":
-    command: s3.put
-    params:
-      aws_key: ${aws_key}
-      aws_secret: ${aws_secret}
-      local_file: "src/npm_install.json"
-      remote_file: "${project}/${build_variant}/${revision}/npm_install.json"
-      bucket: mciuploads
-      permissions: public-read
-      content_type: application/json
-      display_name: "npm_install.json"
 
   "save windows artifacts":
     # setup
@@ -247,63 +238,57 @@ functions:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
         local_file: "src/dist/${osx_dmg_filename}"
-        remote_file: "${project}/${build_variant}/${revision}/${name}-${version}-${platform}-${arch}.dmg"
+        remote_file: "${project}/${build_variant}/${revision}/${osx_dmg_filename}"
         bucket: mciuploads
         permissions: public-read
         content_type: "application/x-apple-diskimage"
-        display_name: "${name}-${version}-${platform}-${arch}.dmg"
+        display_name: "${osx_dmg_filename}"
     # .zip
     - command: s3.put
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
         local_file: "src/dist/${osx_zip_filename}"
-        remote_file: "${project}/${build_variant}/${revision}/${name}-${version}-${platform}-${arch}.zip"
+        remote_file: "${project}/${build_variant}/${revision}/${osx_zip_filename}"
         bucket: mciuploads
         permissions: public-read
         content_type: application/zip
-        display_name: "${name}-${version}-${platform}-${arch}.zip"
+        display_name: "${osx_zip_filename}"
 
-  "save LICENSE":
-    command: s3.put
-    params:
-      aws_key: ${aws_key}
-      aws_secret: ${aws_secret}
-      local_file: "src/dist/LICENSE"
-      remote_file: "${project}/${build_variant}/${revision}/LICENSE"
-      bucket: mciuploads
-      permissions: public-read
-      content_type: text/plain
-      display_name: LICENSE
-
-  "save version":
-    command: s3.put
-    params:
-      aws_key: ${aws_key}
-      aws_secret: ${aws_secret}
-      local_file: "src/dist/version"
-      remote_file: "${project}/${build_variant}/${revision}/version"
-      bucket: mciuploads
-      permissions: public-read
-      content_type: text/plain
-      display_name: version
-
-  "upload release":
-    command: shell.exec
-    params:
-      working_dir: src
-      script: |
-        set -ev
-        export DEBUG=*;
-        export PATH="${node_path}:$PATH"
-        export CI=1
-        export EVERGREEN=1
-        export GITHUB_TOKEN=${leafybot_github_token}
-        export DOWNLOAD_CENTER_AWS_ACCESS_KEY_ID=${aws_key_evergreen_integrations}
-        export DOWNLOAD_CENTER_AWS_SECRET_ACCESS_KEY=${aws_secret_evergreen_integrations}
-        test -n '${add_env_appdata|}' && export APPDATA='${add_env_appdata|}'
-        ${npm|npm} run upload;
-
+  "save linux artifacts":
+    # .deb
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: "src/dist/${linux_deb_filename}"
+        remote_file: "${project}/${build_variant}/${revision}/${linux_deb_filename}"
+        bucket: mciuploads
+        permissions: public-read
+        content_type: "application/vnd.debian.binary-package"
+        display_name: "${linux_deb_filename}"
+    # # .rpm
+    # - command: s3.put
+    #   params:
+    #     aws_key: ${aws_key}
+    #     aws_secret: ${aws_secret}
+    #     local_file: "src/dist/${linux_rpm_filename}"
+    #     remote_file: "${project}/${build_variant}/${revision}/${linux_rpm_filename}"
+    #     bucket: mciuploads
+    #     permissions: public-read
+    #     content_type: application/x-redhat-package-manager
+    #     display_name: "${linux_rpm_filename}"
+    # .tar.gz
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: "src/dist/${linux_tar_filename}"
+        remote_file: "${project}/${build_variant}/${revision}/${linux_tar_filename}"
+        bucket: mciuploads
+        permissions: public-read
+        content_type: application/x-gzip
+        display_name: "${linux_tar_filename}"
 
 #######################################
 #               Tasks                 #
@@ -347,20 +332,15 @@ tasks:
     variants:
       - windows-64
   - func: "build"
-  - func: "save npm_install.json"
   - func: "save windows artifacts"
     variants:
       - windows-64
   - func: "save osx artifacts"
     variants:
       - osx-1010
-  - func: "save LICENSE"
+  - func: "save linux artifacts"
     variants:
-      - windows-64
-  - func: "save version"
-    variants:
-      - windows-64
-  - func: "upload release"
+      - ubuntu
 
 # Define shortcut for use below
 variables:
