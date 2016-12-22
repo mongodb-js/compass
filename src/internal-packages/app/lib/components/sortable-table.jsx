@@ -99,9 +99,9 @@ class SortableTable extends React.Component {
             data-test-id={`${BASE}-column-${c}`}
             title={cell}
             key={`td-${c}`}>
-            {c === 0 ?
-              <a className={`${BASE}-row-name`} onClick={this.onNameClicked.bind(this, r, cell)}>{cell}</a> : cell
-            }
+            {c === 0 && this.props.clickable ?
+              <a className={`${BASE}-row-name`} onClick={this.onNameClicked.bind(this, row, cell)}>{cell}</a>
+              : cell}
           </td>
         );
       });
@@ -204,6 +204,11 @@ SortableTable.propTypes = {
    */
   onNameClicked: React.PropTypes.func,
   /**
+   * Check whether a row can have a clickable element
+   * @type {boolean}
+   */
+  clickable: React.PropTypes.bool,
+  /**
    * The index in the columns to pass as a second value to the delete function.
    * @type {Number}
    */
@@ -216,7 +221,8 @@ SortableTable.defaultProps = {
   sortable: true,
   sortColumn: 0,
   sortOrder: 'asc',
-  removable: false
+  removable: false,
+  clickable: true
 };
 
 SortableTable.displayName = 'SortableTable';

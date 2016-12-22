@@ -6,6 +6,8 @@ const DropCollectionDialog = require('./drop-collection-dialog');
 const { TextButton } = require('hadron-react-buttons');
 const numeral = require('numeral');
 const ipc = require('hadron-ipc');
+const { NamespaceStore } = require('hadron-reflux-store');
+const toNS = require('mongodb-ns');
 
 const _ = require('lodash');
 
@@ -70,6 +72,7 @@ class CollectionsTable extends React.Component {
           removable={writable}
           onColumnHeaderClicked={this.onColumnHeaderClicked.bind(this)}
           onNameClicked={this.onNameClicked.bind(this)}
+          clickable={!toNS(NamespaceStore.ns).specialish}
           onRowDeleteButtonClicked={this.onRowDeleteButtonClicked.bind(this)}
         />
         <CreateCollectionDialog />
