@@ -3,6 +3,7 @@ const FontAwesome = require('react-fontawesome');
 const Button = require('react-bootstrap').Button;
 const _ = require('lodash');
 
+// const debug = require('debug')('mongodb-compass:app:sortable-table');
 /**
  * The base for the classes.
  */
@@ -25,13 +26,6 @@ class SortableTable extends React.Component {
     evt.preventDefault();
     if (this.props.onRowDeleteButtonClicked) {
       this.props.onRowDeleteButtonClicked(idx, value);
-    }
-  }
-
-  onNameClicked(idx, name, evt) {
-    evt.preventDefault();
-    if (this.props.onNameClicked) {
-      this.props.onNameClicked(idx, name);
     }
   }
 
@@ -93,30 +87,30 @@ class SortableTable extends React.Component {
         row = row.slice(0, this.props.columns.length);
       }
       const cells = _.map(row, (cell, c) => {
+        const title = _.isString(cell) ? cell : _.get(cell, 'props.children', '');
         return (
           <td
             className={`${BASE}-td`}
             data-test-id={`${BASE}-column-${c}`}
-            title={cell}
+            title={title}
             key={`td-${c}`}>
-            {c === 0 && this.props.clickable ?
-              <a className={`${BASE}-row-name`} onClick={this.onNameClicked.bind(this, row, cell)}>{cell}</a>
-              : cell}
+            {cell}
           </td>
         );
       });
       if (this.props.removable) {
         // add a column with a delete button if the `removable` prop was set
-        const name = _.get(row, this.props.valueIndex, 0);
+        const valueCell = row[this.props.valueIndex];
+        const valueStr = _.isString(valueCell) ? valueCell : _.get(valueCell, 'props.children', '');
         cells.push(
           <td
             className={`${BASE}-td`}
             key="td-delete"
             data-test-id={`${BASE}-delete`}
-            title={`Delete ${name}`}>
+            title={`Delete ${valueStr}`}>
             <Button
               className={`${BASE}-trash-button`}
-              onClick={this.onRowDeleteButtonClicked.bind(this, r, name)} >
+              onClick={this.onRowDeleteButtonClicked.bind(this, r, valueStr)} >
               <FontAwesome className={`${BASE}-trash-icon`} name="trash-o" />
             </Button>
           </td>
@@ -199,16 +193,6 @@ SortableTable.propTypes = {
    */
   onRowDeleteButtonClicked: React.PropTypes.func,
   /**
-   * callback when user clicks on the name (first row element)
-   * @type {Function}
-   */
-  onNameClicked: React.PropTypes.func,
-  /**
-   * Check whether a row can have a clickable element
-   * @type {boolean}
-   */
-  clickable: React.PropTypes.bool,
-  /**
    * The index in the columns to pass as a second value to the delete function.
    * @type {Number}
    */
@@ -222,7 +206,7 @@ SortableTable.defaultProps = {
   sortColumn: 0,
   sortOrder: 'asc',
   removable: false,
-  clickable: true
+  valueIndex: 0
 };
 
 SortableTable.displayName = 'SortableTable';

@@ -6,8 +6,9 @@ const DropCollectionDialog = require('./drop-collection-dialog');
 const { TextButton } = require('hadron-react-buttons');
 const numeral = require('numeral');
 const ipc = require('hadron-ipc');
-const { NamespaceStore } = require('hadron-reflux-store');
 const toNS = require('mongodb-ns');
+
+// const debug = require('debug')('mongodb-compass:database:collections-table');
 
 const _ = require('lodash');
 
@@ -31,16 +32,28 @@ class CollectionsTable extends React.Component {
     CollectionsActions.openCreateCollectionDialog();
   }
 
-  onNameClicked(index, name) {
+  onNameClicked(name) {
     // retrieve collection based on name
     const collection = _.first(_.filter(this.props.collections, '_id', `${this.props.database}.${name}`));
     this.CollectionStore.setCollection(collection);
     ipc.call('window:show-collection-submenu');
   }
 
+  renderLinkOrCollName(coll) {
+    const collName = coll['Collection Name'];
+    const ns = toNS(`${this.props.database}.${collName}`);
+    if (ns.system) {
+      return collName;
+    }
+    return (
+      <a className="collections-table-link" href="#" onClick={this.onNameClicked.bind(this, collName)}>{collName}</a>
+    );
+  }
+
   render() {
     const rows = _.map(this.props.renderedCollections, (coll) => {
       return _.assign({}, coll, {
+        'Collection Name': this.renderLinkOrCollName(coll),
         'Documents': numeral(coll.Documents).format('0,0'),
         'Avg. Document Size': _.isNaN(coll['Avg. Document Size']) ?
           '-' : numeral(coll['Avg. Document Size']).format('0.0 b'),
@@ -71,8 +84,7 @@ class CollectionsTable extends React.Component {
           valueIndex={0}
           removable={writable}
           onColumnHeaderClicked={this.onColumnHeaderClicked.bind(this)}
-          onNameClicked={this.onNameClicked.bind(this)}
-          clickable={!toNS(NamespaceStore.ns).specialish}
+          clickable={false}
           onRowDeleteButtonClicked={this.onRowDeleteButtonClicked.bind(this)}
         />
         <CreateCollectionDialog />

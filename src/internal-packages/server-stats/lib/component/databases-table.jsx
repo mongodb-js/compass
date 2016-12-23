@@ -44,7 +44,7 @@ class DatabasesTable extends React.Component {
     shell.openExternal(AUTH_HELP_URL);
   }
 
-  onNameClicked(index, name) {
+  onNameClicked(name) {
     if (NamespaceStore.ns !== name) {
       this.CollectionStore.setCollection({});
       NamespaceStore.ns = name;
@@ -78,7 +78,9 @@ class DatabasesTable extends React.Component {
     // convert storage size to human-readable units (MB, GB, ...)
     // we do this here so that sorting is not affected in the store
     const rows = _.map(this.props.databases, (db) => {
+      const dbName = db['Database Name'];
       return _.assign({}, db, {
+        'Database Name': <a className="rtss-databases-link" href="#" onClick={this.onNameClicked.bind(this, dbName)}>{dbName}</a>,
         'Storage Size': numeral(db['Storage Size']).format('0.0b')
       });
     });
@@ -105,7 +107,6 @@ class DatabasesTable extends React.Component {
           valueIndex={0}
           removable={writable}
           onColumnHeaderClicked={this.onColumnHeaderClicked.bind(this)}
-          onNameClicked={this.onNameClicked.bind(this)}
           onRowDeleteButtonClicked={this.onRowDeleteButtonClicked.bind(this)}
         />
         {this.props.databases.length === 0 ?
