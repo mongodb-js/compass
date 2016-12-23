@@ -6,11 +6,26 @@ const chai = require('chai');
 const chaiEnzyme = require('chai-enzyme');
 const expect = chai.expect;
 const React = require('react');
-const mount = require('enzyme').mount;
+const Reflux = require('reflux');
+const {mount, shallow} = require('enzyme');
+
 const SizeColumn = require('../src/internal-packages/indexes/lib/component/size-column');
 const UsageColumn = require('../src/internal-packages/indexes/lib/component/usage-column');
 
 chai.use(chaiEnzyme());
+
+const root = '../src/internal-packages/';
+const storeKeyMap = {
+  'CollectionStore': root + 'app/lib/stores/collection-store',
+  'LoadIndexesStore': root + 'indexes/lib/store/load-indexes-store',
+  'Schema.Store': root + 'schema/lib/store',
+  'Query.ChangedStore': root + 'query/lib/store/query-changed-store'
+};
+
+Reflux.StoreMethods.listenToExternalStore = function(storeKey, callback) {
+  const store = require(storeKeyMap[storeKey]);
+  this.listenTo(store, callback);
+};
 
 describe('<Indexes />', () => {
   let component;
@@ -32,12 +47,28 @@ describe('<Indexes />', () => {
     // appRegistry.getComponent (i.e. appRegistry being undefined)
     app.appRegistry = new AppRegistry();
     app.instance = {build: {version: '3.2.0'}};
+
+    this.CreateIndexButton = require('../src/internal-packages/indexes/lib/component/create-index-button');
   });
   afterEach(function() {
     // Restore properties on the global app object,
     // so they don't affect other tests
     app.appRegistry = appRegistry;
     app.instance = appInstance;
+  });
+
+  context('When collection is not writable', function() {
+    it('disables the CREATE INDEX button', function() {
+      component = shallow(<this.CreateIndexButton isWritable={false} />);
+      expect(component.find('.btn.btn-primary.btn-xs')).to.be.disabled();
+    });
+  });
+
+  context('When collection is writable', function() {
+    it('enables the CREATE INDEX button', function() {
+      component = shallow(<this.CreateIndexButton isWritable={true} />);
+      expect(component.find('.btn.btn-primary.btn-xs')).to.not.be.disabled();
+    });
   });
 
   context('When indexes are loaded', function() {
