@@ -14,6 +14,15 @@ describe('<RuleBuilder />', () => {
   const appRegistry = app.appRegistry;
   const appInstance = app.instance;
 
+  const template = {
+    editState: 'unmodified',
+    validationAction: 'warn',
+    validationLevel: 'moderate',
+    validationRules: [],
+    serverVersion: '3.4.0',
+    validate: function() {}
+  };
+
   beforeEach(() => {
     // Mock the AppRegistry with a new one so tests don't complain about
     // appRegistry.getComponent (i.e. appRegistry being undefined)
@@ -30,7 +39,8 @@ describe('<RuleBuilder />', () => {
 
   context('when collection is not writable', () => {
     beforeEach(() => {
-      this.component = mount(<this.RuleBuilder isWritable={false} />);
+      const props = Object.assign({isWritable: false}, template);
+      this.component = mount(<this.RuleBuilder {... props} />);
     });
 
     it('disables the ADD RULE button', () => {
@@ -41,7 +51,8 @@ describe('<RuleBuilder />', () => {
 
   context('when collection is not writable', () => {
     beforeEach(() => {
-      this.component = mount(<this.RuleBuilder isWritable={true} />);
+      const props = Object.assign({isWritable: true}, template);
+      this.component = mount(<this.RuleBuilder {... props} />);
     });
 
     it('disables the ADD RULE button', () => {

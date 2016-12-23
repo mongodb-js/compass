@@ -10,7 +10,7 @@ const AppRegistry = require('hadron-app-registry');
 
 chai.use(chaiEnzyme());
 
-describe('<DocumentList />', () => {
+describe('<SamplingMessage />', () => {
   const appRegistry = app.appRegistry;
   const appInstance = app.instance;
 
@@ -19,6 +19,7 @@ describe('<DocumentList />', () => {
     // appRegistry.getComponent (i.e. appRegistry being undefined)
     app.appRegistry = new AppRegistry();
     app.appRegistry.registerAction('CRUD.Actions', sinon.spy());
+    app.appRegistry.registerStore('CRUD.ResetDocumentListStore', sinon.spy());
 
     this.SamplingMessage = require('../src/internal-packages/query/lib/component/sampling-message');
   });
@@ -40,7 +41,7 @@ describe('<DocumentList />', () => {
     });
   });
 
-  context('when collection is not writable', () => {
+  context('when collection is writable', () => {
     beforeEach(() => {
       this.component = shallow(<this.SamplingMessage isWritable={true} insertHandler={() => {}} />);
     });

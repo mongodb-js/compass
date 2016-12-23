@@ -52,7 +52,7 @@ describe('<CollectionsTable />', () => {
           return false;
         }
       };
-      this.component = mount(<this.CollectionsTable />);
+      this.component = mount(<this.CollectionsTable columns={['Namespace']} />);
     });
 
     it('disables the CREATE COLLECTION button', () => {
@@ -68,7 +68,7 @@ describe('<CollectionsTable />', () => {
           return true;
         }
       };
-      this.component = mount(<this.CollectionsTable />);
+      this.component = mount(<this.CollectionsTable columns={['Namespace']} />);
     });
 
     it('enables the CREATE COLLECTION button', () => {
