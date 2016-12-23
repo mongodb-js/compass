@@ -49,7 +49,6 @@
           },
           "redhat_config": {
             "categories": [
-              "Development"
             ],
             "requires": [
               "libXScrnSaver(x86-64)"
