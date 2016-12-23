@@ -46,6 +46,11 @@
           "icon": "src/app/images/linux/mongodb-compass.png",
           "debian_config": {
             "section": "Databases"
+          },
+          "redhat_config": {
+            "requires": [
+              "libXScrnSaver(x86-64)"
+            ]
           }
         }
       }
