@@ -67,7 +67,7 @@ describe('<DatabasesTable />', () => {
     app.instance = appInstance;
   });
 
-  context('when no databases and dataService is not writable it', () => {
+  context('when no databases and dataService is not writable', () => {
     beforeEach(() => {
       app.dataService = {
         isWritable: () => {
@@ -90,7 +90,7 @@ describe('<DatabasesTable />', () => {
     });
   });
 
-  context('when no databases and dataService is writable it', () => {
+  context('when no databases and dataService is writable', () => {
     beforeEach(() => {
       app.dataService = {
         isWritable: () => {
@@ -112,7 +112,29 @@ describe('<DatabasesTable />', () => {
     });
   });
 
-  context('when databases and dataService is writable it', () => {
+  context('when databases exist and dataService is not writable', () => {
+    beforeEach(() => {
+      app.dataService = {
+        isWritable: () => {
+          return false;
+        }
+      };
+      this.component = mount(<this.DatabasesTable
+        columns={['Namespace']}
+        databases={[
+          {Namespace: 'Foo'},
+          {Namespace: 'Bar'},
+          {Namespace: 'Baz'}
+        ]} />);
+    });
+
+    it('disables the CREATE DATABASE button', () => {
+      const state = this.component.find('.btn.btn-primary.btn-xs');
+      expect(state).to.be.disabled();
+    });
+  });
+
+  context('when databases exist and dataService is writable', () => {
     beforeEach(() => {
       app.dataService = {
         isWritable: () => {
@@ -136,6 +158,11 @@ describe('<DatabasesTable />', () => {
     it('renders the databases', () => {
       const state = this.component.find(SortableTable);
       expect(state.text()).to.be.equal('NamespaceFooBarBaz');
+    });
+
+    it('enables the CREATE DATABASE button', () => {
+      const state = this.component.find('.btn.btn-primary.btn-xs');
+      expect(state).to.not.be.disabled();
     });
   });
 });
