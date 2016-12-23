@@ -259,7 +259,8 @@ class DocumentList extends React.Component {
     return (
       <div className="compass-documents header-margin">
         <this.queryBar />
-        <this.samplingMessage insertHandler={this.handleOpenInsert.bind(this)} />
+        <this.samplingMessage isWritable={this.CollectionStore.isWritable()}
+          insertHandler={this.handleOpenInsert.bind(this)} />
         {this.renderContent()}
       </div>
     );

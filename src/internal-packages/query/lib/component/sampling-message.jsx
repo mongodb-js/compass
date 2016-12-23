@@ -18,7 +18,6 @@ class SamplingMessage extends React.Component {
     super(props);
     const crudActions = app.appRegistry.getAction('CRUD.Actions');
     this.state = { count: 0, loaded: 0 };
-    this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
     this.resetDocumentListStore = app.appRegistry.getStore('CRUD.ResetDocumentListStore');
     this.insertDocumentStore = app.appRegistry.getStore('CRUD.InsertDocumentStore');
     this.documentRemovedAction = crudActions.documentRemoved;
@@ -136,7 +135,6 @@ class SamplingMessage extends React.Component {
    */
   renderQueryMessage() {
     const noun = pluralize('document', this.state.count);
-    const isWritable = this.CollectionStore.isWritable();
 
     return (
       <div>
@@ -157,7 +155,7 @@ class SamplingMessage extends React.Component {
                 className="btn btn-primary btn-xs open-insert"
                 type="button"
                 data-test-id="open-insert-document-modal-button"
-                disabled={!isWritable}
+                disabled={!this.props.isWritable}
                 onClick={this.props.insertHandler}>
               Insert Document
             </button>
@@ -183,7 +181,8 @@ SamplingMessage.displayName = 'SamplingMessage';
 
 SamplingMessage.propTypes = {
   sampleSize: React.PropTypes.number,
-  insertHandler: React.PropTypes.func
+  insertHandler: React.PropTypes.func,
+  isWritable: React.PropTypes.bool
 };
 
 module.exports = SamplingMessage;
