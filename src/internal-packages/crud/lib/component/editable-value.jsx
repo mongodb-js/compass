@@ -127,17 +127,40 @@ class EditableValue extends React.Component {
   handleChange(evt) {
     const value = evt.target.value;
     if (this._pasting) {
-      this.element.bulkEdit(value);
-      this._pasting = false;
+      this._pasteEdit(value);
     } else {
-      this._node.size = inputSize(value);
-      const currentType = this.element.currentType;
-      const castableTypes = TypeChecker.castableTypes(value, this.isHighPrecision());
-      if (_.includes(castableTypes, currentType)) {
-        this.element.edit(TypeChecker.cast(value, currentType));
-      } else {
-        this.element.edit(TypeChecker.cast(value, castableTypes[0]));
-      }
+      this._typeEdit(value);
+    }
+  }
+
+  /**
+   * Edit as if typing.
+   *
+   * @param {String} value - The value.
+   */
+  _typeEdit(value) {
+    this._node.size = inputSize(value);
+    const currentType = this.element.currentType;
+    const castableTypes = TypeChecker.castableTypes(value, this.isHighPrecision());
+    if (_.includes(castableTypes, currentType)) {
+      this.element.edit(TypeChecker.cast(value, currentType));
+    } else {
+      this.element.edit(TypeChecker.cast(value, castableTypes[0]));
+    }
+  }
+
+  /**
+   * Edit the field value when using copy/paste.
+   *
+   * @param {String} value - The value to paste in.
+   */
+  _pasteEdit(value) {
+    try {
+      this.element.bulkEdit(value);
+    } catch (e) {
+      this._typeEdit(value);
+    } finally {
+      this._pasting = false;
     }
   }
 
