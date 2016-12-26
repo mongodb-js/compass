@@ -5,6 +5,7 @@ const debug = require('debug')('mongodb-compass:crud:actions');
 const Actions = Reflux.createActions([
   'documentRemoved',
   'openInsertDocumentDialog',
+  'closeInsertDocumentDialog',
   'insertDocument',
   'fileDropped'
 ]);
