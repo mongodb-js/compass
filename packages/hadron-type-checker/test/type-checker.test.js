@@ -45,6 +45,32 @@ describe('TypeChecker', function() {
               expect(TypeChecker.cast(value, 'Int32')).to.deep.equal(new Int32(23));
             });
           });
+
+          context('when casting to a boolean', function() {
+            context('when the int is 0', function() {
+              it('returns false', function() {
+                expect(TypeChecker.cast(0, 'Boolean')).to.equal(false);
+              });
+            });
+
+            context('when the int is 1', function() {
+              it('returns true', function() {
+                expect(TypeChecker.cast(1, 'Boolean')).to.equal(true);
+              });
+            });
+
+            context('when the int is > 1', function() {
+              it('returns true', function() {
+                expect(TypeChecker.cast(2, 'Boolean')).to.equal(true);
+              });
+            });
+
+            context('when the int is < 0', function() {
+              it('returns true', function() {
+                expect(TypeChecker.cast(-2, 'Boolean')).to.equal(true);
+              });
+            });
+          });
         });
 
         context('when the integer is 64 bit', function() {

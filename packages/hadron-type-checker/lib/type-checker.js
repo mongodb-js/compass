@@ -83,7 +83,13 @@ function toNull() {
 }
 
 function toBoolean(object) {
-  if (object.toLowerCase() === 'true') {
+  if (isString(object)) {
+    if (object.toLowerCase() === 'true') {
+      return true;
+    }
+    return false;
+  }
+  if (object) {
     return true;
   }
   return false;
