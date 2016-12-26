@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const Reflux = require('reflux');
 const app = require('ampersand-app');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
@@ -25,14 +26,18 @@ const InsertDocumentStore = Reflux.createStore({
   insertDocument: function(doc) {
     app.dataService.insertOne(NamespaceStore.ns, doc, {}, (error) => {
       if (error) {
-        this.trigger(false, error)
+        this.trigger(false, error);
       }
       const filter = _.assign(this.filter, { _id: doc._id });
-      app.dataService.count(NamespaceStore.ns, filter, {}, (error, count) => {
-        if (count > 0) {
-          this.trigger(true, doc);
+      app.dataService.count(NamespaceStore.ns, filter, {}, (err, count) => {
+        if (err) {
+          this.trigger(false, err);
         } else {
-          Actions.closeInsertDocumentDialog();
+          if (count > 0) {
+            this.trigger(true, doc);
+          } else {
+            Actions.closeInsertDocumentDialog();
+          }
         }
       });
     });
@@ -47,7 +52,7 @@ const InsertDocumentStore = Reflux.createStore({
     if (state.query) {
       this.filter = state.query;
     }
-  },
+  }
 });
 
 module.exports = InsertDocumentStore;
