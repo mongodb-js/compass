@@ -43,7 +43,11 @@ class Hotspot extends React.Component {
    * When clicking on a hotspot we append or remove on the parent.
    */
   handleClick() {
-    this.props.element.next();
+    if (this.props.expandable) {
+      this.props.element.insertPlaceholder();
+    } else {
+      this.props.element.next();
+    }
   }
 
   /**
@@ -104,7 +108,8 @@ class Hotspot extends React.Component {
 Hotspot.displayName = 'Hotspot';
 
 Hotspot.propTypes = {
-  element: React.PropTypes.object.isRequired
+  element: React.PropTypes.object.isRequired,
+  expandable: React.PropTypes.bool
 };
 
 module.exports = Hotspot;

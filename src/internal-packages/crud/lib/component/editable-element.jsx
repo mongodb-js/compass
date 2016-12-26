@@ -219,9 +219,9 @@ class EditableElement extends React.Component {
    *
    * @returns {React.Component} The component.
    */
-  renderHotspot() {
+  renderHotspot(expandable = false) {
     if (this.props.editing) {
-      return (<Hotspot key="editable-element-hotspot" element={this.element} />);
+      return (<Hotspot key="editable-element-hotspot" element={this.element} expandable={expandable} />);
     }
   }
 
@@ -341,6 +341,7 @@ class EditableElement extends React.Component {
           {this.renderKey()}
           {this.renderSeparator()}
           {this.renderLabel()}
+          {this.renderHotspot(true)}
         </div>
         <ol className={this.style(CHILDREN)}>
           {this.renderChildren()}
