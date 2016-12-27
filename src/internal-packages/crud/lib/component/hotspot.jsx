@@ -87,7 +87,7 @@ class Hotspot extends React.Component {
     if (this.state.actionable && this.props.expandable) {
       return (
         <span className={BUTTON_CLASS} onClick={this.handleAppendChildClick.bind(this)}>
-          APPEND CHILD
+          ADD CHILD
           <i className={APPEND_CHILD_ICON} />
         </span>
       );
@@ -103,7 +103,7 @@ class Hotspot extends React.Component {
     if (this.state.actionable) {
       return (
         <span className={BUTTON_CLASS} onClick={this.handleInsertAfterClick.bind(this)}>
-          INSERT AFTER
+          ADD FIELD
           <i className={INSERT_AFTER_ICON} />
         </span>
       );

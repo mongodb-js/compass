@@ -256,7 +256,7 @@ class EditableElement extends React.Component {
     }
     return (
       <div className={FIELD_CLASS}>
-        {this.element.currentKey}
+        {this.element.parent.currentType === 'Array' ? this.props.index : this.element.currentKey}
       </div>
     );
   }

@@ -1229,16 +1229,17 @@ function addInputCommands(client) {
    * @param {Object} model - The document to insert.
    */
   client.addCommand('inputNewDocumentDetails', function(model) {
+    const base = selector('insert-document-modal');
     const that = this;
-    const hotspot = '.modal-dialog div.hotspot:last-child';
+    const hotspot = `${base} div.hotspot:last-child`;
     const button = `${hotspot} .btn`;
     let sequence = Promise.resolve();
 
     _.each(model, function(value, key) {
       sequence = sequence.then(function() {
         return that
-          .setValue(".modal-dialog input.editable-element-field[value='']", key)
-          .setValue(".modal-dialog input.editable-element-value[value='']", value)
+          .setValue(`${base} input.editable-element-field[value='']`, key)
+          .setValue(`${base} input.editable-element-value[value='']`, value)
           .moveToObject(hotspot)
           .click(button)
       });
