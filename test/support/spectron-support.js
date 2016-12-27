@@ -1230,13 +1230,17 @@ function addInputCommands(client) {
    */
   client.addCommand('inputNewDocumentDetails', function(model) {
     const that = this;
+    const hotspot = '.modal-dialog div.hotspot:last-child';
+    const button = `${hotspot} .btn`;
     let sequence = Promise.resolve();
+
     _.each(model, function(value, key) {
       sequence = sequence.then(function() {
         return that
           .setValue(".modal-dialog input.editable-element-field[value='']", key)
           .setValue(".modal-dialog input.editable-element-value[value='']", value)
-          .click('.modal-dialog div.hotspot:last-child')
+          .moveToObject(hotspot)
+          .click(button)
       });
     });
     return sequence;
