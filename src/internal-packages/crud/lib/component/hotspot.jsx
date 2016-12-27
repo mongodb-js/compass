@@ -22,11 +22,6 @@ const INSERT_AFTER_ICON = 'fa fa-level-down fa-rotate-90';
 const APPEND_CHILD_ICON = 'fa fa-plus-square-o';
 
 /**
- * The add text.
- */
-const ADD = 'ADD';
-
-/**
  * Component for add element hotspot.
  */
 class Hotspot extends React.Component {
