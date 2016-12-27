@@ -41,7 +41,7 @@
   ],
   "main": "index.js",
   "dependencies": {
-    "bson": "^0.5.4",
+    "bson": "^1.0.1",
     "debug": "^2.2.0",
     "lodash": "^3.0.1",
     "pegjs": "^0.10.0"
