@@ -14,7 +14,12 @@ const BUTTON_CLASS = 'btn btn-default btn-xs';
 /**
  * The icon class name.
  */
-const ICON = 'fa fa-level-down fa-rotate-90';
+const INSERT_AFTER_ICON = 'fa fa-level-down fa-rotate-90';
+
+/**
+ * Append child icon.
+ */
+const APPEND_CHILD_ICON = 'fa fa-plus-square-o';
 
 /**
  * The add text.
@@ -42,12 +47,15 @@ class Hotspot extends React.Component {
   /**
    * When clicking on a hotspot we append or remove on the parent.
    */
-  handleClick() {
-    if (this.props.expandable) {
-      this.props.element.insertPlaceholder();
-    } else {
-      this.props.element.next();
-    }
+  handleInsertAfterClick() {
+    this.props.element.next();
+  }
+
+  /**
+   * When clicking on an expandable element to append a child.
+   */
+  handleAppendChildClick() {
+    this.props.element.insertPlaceholder();
   }
 
   /**
@@ -76,16 +84,32 @@ class Hotspot extends React.Component {
   }
 
   /**
-   * Render the add button.
+   * Render the append child button.
    *
-   * @returns {React.Component} The add button.
+   * @returns {React.Component} The button.
    */
-  renderButton() {
+  renderAppendChildButton() {
+    if (this.state.actionable && this.props.expandable) {
+      return (
+        <span className={BUTTON_CLASS} onClick={this.handleAppendChildClick.bind(this)}>
+          APPEND CHILD
+          <i className={APPEND_CHILD_ICON} />
+        </span>
+      );
+    }
+  }
+
+  /**
+   * Render the insert after button.
+   *
+   * @returns {React.Component} The button.
+   */
+  renderInsertAfterButton() {
     if (this.state.actionable) {
       return (
-        <span className={BUTTON_CLASS}>
-          {ADD}
-          <i className={ICON} />
+        <span className={BUTTON_CLASS} onClick={this.handleInsertAfterClick.bind(this)}>
+          INSERT AFTER
+          <i className={INSERT_AFTER_ICON} />
         </span>
       );
     }
@@ -98,8 +122,9 @@ class Hotspot extends React.Component {
    */
   render() {
     return (
-      <div className={CLASS} onClick={this.handleClick.bind(this)}>
-        {this.renderButton()}
+      <div className={CLASS}>
+        {this.renderAppendChildButton()}
+        {this.renderInsertAfterButton()}
       </div>
     );
   }
