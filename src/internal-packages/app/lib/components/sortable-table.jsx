@@ -68,6 +68,10 @@ class SortableTable extends React.Component {
 
   renderRows() {
     return _.map(this.props.rows, (row, r) => {
+      // if row is null skip below
+      if (!row) {
+        return;
+      }
       // allow both objects and arrays as rows. if object, convert to array
       // in sort order of column names (column names must match exactly).
       if (_.isPlainObject(row)) {

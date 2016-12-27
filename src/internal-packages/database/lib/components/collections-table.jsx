@@ -42,9 +42,11 @@ class CollectionsTable extends React.Component {
   renderLinkOrCollName(coll) {
     const collName = coll['Collection Name'];
     const ns = toNS(`${this.props.database}.${collName}`);
+
     if (ns.system) {
-      return collName;
+      return;
     }
+
     return (
       <a className="collections-table-link" href="#" onClick={this.onNameClicked.bind(this, collName)}>{collName}</a>
     );
@@ -52,14 +54,17 @@ class CollectionsTable extends React.Component {
 
   render() {
     const rows = _.map(this.props.renderedCollections, (coll) => {
-      return _.assign({}, coll, {
-        'Collection Name': this.renderLinkOrCollName(coll),
+      const name = this.renderLinkOrCollName(coll);
+
+      // return formatted table row if name is available otherwise null
+      return name ? _.assign({}, coll, {
+        'Collection Name': name,
         'Documents': numeral(coll.Documents).format('0,0'),
         'Avg. Document Size': _.isNaN(coll['Avg. Document Size']) ?
           '-' : numeral(coll['Avg. Document Size']).format('0.0 b'),
         'Total Document Size': numeral(coll['Total Document Size']).format('0.0 b'),
         'Total Index Size': numeral(coll['Total Index Size']).format('0.0 b')
-      });
+      }) : null;
     });
 
     const writable = app.dataService.isWritable();
