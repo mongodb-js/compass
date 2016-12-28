@@ -6,7 +6,6 @@ const DropCollectionDialog = require('./drop-collection-dialog');
 const { TextButton } = require('hadron-react-buttons');
 const numeral = require('numeral');
 const ipc = require('hadron-ipc');
-const toNS = require('mongodb-ns');
 
 // const debug = require('debug')('mongodb-compass:database:collections-table');
 
@@ -39,14 +38,8 @@ class CollectionsTable extends React.Component {
     ipc.call('window:show-collection-submenu');
   }
 
-  renderLinkOrCollName(coll) {
+  renderLink(coll) {
     const collName = coll['Collection Name'];
-    const ns = toNS(`${this.props.database}.${collName}`);
-
-    if (ns.system) {
-      return;
-    }
-
     return (
       <a className="collections-table-link" href="#" onClick={this.onNameClicked.bind(this, collName)}>{collName}</a>
     );
@@ -54,7 +47,7 @@ class CollectionsTable extends React.Component {
 
   render() {
     const rows = _.map(this.props.renderedCollections, (coll) => {
-      const name = this.renderLinkOrCollName(coll);
+      const name = this.renderLink(coll);
 
       // return formatted table row if name is available otherwise null
       return name ? _.assign({}, coll, {
