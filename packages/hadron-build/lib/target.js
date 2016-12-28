@@ -83,7 +83,8 @@ class Target {
       sign: null,
       afterExtract: [
         ffmpegAfterExtract
-      ]
+      ],
+      tmpdir: false
     };
 
     if (this.platform === 'win32') {
