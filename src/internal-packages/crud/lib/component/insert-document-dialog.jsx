@@ -28,6 +28,7 @@ class InsertDocumentDialog extends React.Component {
   componentWillMount() {
     this.unsubscribeOpen = OpenInsertDocumentDialogStore.listen(this.handleStoreOpen.bind(this));
     this.unsubscribeInsert = InsertDocumentStore.listen(this.handleDocumentInsert.bind(this));
+    this.unsubscribeClose = Actions.closeInsertDocumentDialog.listen(this.closeDialog.bind(this));
   }
 
   /**
@@ -36,6 +37,14 @@ class InsertDocumentDialog extends React.Component {
   componentWillUnmount() {
     this.unsubscribeOpen();
     this.unsubscribeInsert();
+    this.unsubscribeClose();
+  }
+
+  /**
+   * Close the dialog.
+   */
+  closeDialog() {
+    this.setState({ open: false });
   }
 
   /**
@@ -61,7 +70,7 @@ class InsertDocumentDialog extends React.Component {
    */
   handleDocumentInsert(success) {
     if (success) {
-      this.setState({ open: false });
+      this.closeDialog();
     }
   }
 
