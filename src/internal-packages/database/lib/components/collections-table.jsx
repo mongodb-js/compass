@@ -7,6 +7,8 @@ const { TextButton } = require('hadron-react-buttons');
 const numeral = require('numeral');
 const ipc = require('hadron-ipc');
 
+// const debug = require('debug')('mongodb-compass:database:collections-table');
+
 const _ = require('lodash');
 
 class CollectionsTable extends React.Component {
@@ -29,16 +31,27 @@ class CollectionsTable extends React.Component {
     CollectionsActions.openCreateCollectionDialog();
   }
 
-  onNameClicked(index, name) {
+  onNameClicked(name) {
     // retrieve collection based on name
     const collection = _.first(_.filter(this.props.collections, '_id', `${this.props.database}.${name}`));
     this.CollectionStore.setCollection(collection);
     ipc.call('window:show-collection-submenu');
   }
 
+  renderLink(coll) {
+    const collName = coll['Collection Name'];
+    return (
+      <a className="collections-table-link" href="#" onClick={this.onNameClicked.bind(this, collName)}>{collName}</a>
+    );
+  }
+
   render() {
     const rows = _.map(this.props.renderedCollections, (coll) => {
+      const linkName = this.renderLink(coll);
+
+      // return formatted table row
       return _.assign({}, coll, {
+        'Collection Name': linkName,
         'Documents': numeral(coll.Documents).format('0,0'),
         'Avg. Document Size': _.isNaN(coll['Avg. Document Size']) ?
           '-' : numeral(coll['Avg. Document Size']).format('0.0 b'),
@@ -69,7 +82,6 @@ class CollectionsTable extends React.Component {
           valueIndex={0}
           removable={writable}
           onColumnHeaderClicked={this.onColumnHeaderClicked.bind(this)}
-          onNameClicked={this.onNameClicked.bind(this)}
           onRowDeleteButtonClicked={this.onRowDeleteButtonClicked.bind(this)}
         />
         <CreateCollectionDialog />
