@@ -1,6 +1,7 @@
 const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
 const CollectionsActions = require('../actions/collections-actions');
+const toNS = require('mongodb-ns');
 const app = require('ampersand-app');
 const _ = require('lodash');
 
@@ -78,17 +79,24 @@ const CollectionsStore = Reflux.createStore({
         });
         return;
       }
-      const unsorted = _.map(res.collections, (coll) => {
-        return _.zipObject(COLL_COLUMNS, [
-          coll.name, // Collection Name
-          coll.document_count, // Num. Documents
-          coll.size / coll.document_count, // Avg. Document Size
-          coll.size, // Total Document Size
-          coll.index_count,  // Num Indexes
-          coll.index_size // Total Index Size
-        ]);
-      });
-
+      const unsorted = _(res.collections)
+        .filter((coll) => {
+          // skip system collections
+          const ns = toNS(coll.ns);
+          return !ns.system;
+        })
+        .map((coll) => {
+          // re-format for table view
+          return _.zipObject(COLL_COLUMNS, [
+            coll.name, // Collection Name
+            coll.document_count, // Num. Documents
+            coll.size / coll.document_count, // Avg. Document Size
+            coll.size, // Total Document Size
+            coll.index_count,  // Num Indexes
+            coll.index_size // Total Index Size
+          ]);
+        })
+        .value();
       this.setState({
         collections: database.collections,
         renderedCollections: this._sort(unsorted),
