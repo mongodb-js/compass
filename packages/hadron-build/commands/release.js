@@ -355,6 +355,9 @@ const removeDevelopmentFiles = (CONFIG, done) => {
  * @param {Function} done
  */
 const createApplicationAsar = (CONFIG, done) => {
+  if (CONFIG.platform === 'linux') {
+    return done();
+  }
   var opts = {
     /**
      * TODO (imlucas) Find a good way to automate generating
