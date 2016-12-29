@@ -9,7 +9,6 @@ const EditableElement = require('./editable-element');
 const DocumentActions = require('./document-actions');
 const DocumentFooter = require('./document-footer');
 const RemoveDocumentFooter = require('./remove-document-footer');
-const Hotspot = require('./hotspot');
 
 /**
  * The base class.
@@ -25,11 +24,6 @@ const ELEMENTS = `${BASE}-elements`;
  * The test id.
  */
 const TEST_ID = 'editable-document';
-
-/**
- * Hotspot class.
- */
-const HOTSPOT = `${BASE}-hostspot`;
 
 /**
  * The delete error message.
@@ -336,9 +330,6 @@ class EditableDocument extends React.Component {
           editing={this.state.editing}
           expandAll={this.state.expandAll} />
       ));
-    }
-    if (this.state.editing) {
-      components.push(<Hotspot key={HOTSPOT} element={this.doc} />);
     }
     return components;
   }

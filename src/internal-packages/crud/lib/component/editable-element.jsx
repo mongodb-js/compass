@@ -6,7 +6,6 @@ const EditableValue = require('./editable-value');
 const ElementAction = require('./element-action');
 const LineNumber = require('./line-number');
 const Types = require('./types');
-const Hotspot = require('./hotspot');
 
 /**
  * The BEM base style name for the element.
@@ -208,20 +207,9 @@ class EditableElement extends React.Component {
    *
    * @returns {React.Component} The component.
    */
-  renderLineNumber() {
+  renderLineNumber(expandable = false) {
     if (this.props.editing) {
-      return (<LineNumber />);
-    }
-  }
-
-  /**
-   * Render the hotspot column.
-   *
-   * @returns {React.Component} The component.
-   */
-  renderHotspot(expandable = false) {
-    if (this.props.editing) {
-      return (<Hotspot key="editable-element-hotspot" element={this.element} expandable={expandable} />);
+      return (<LineNumber element={this.element} expandable={expandable} />);
     }
   }
 
@@ -320,7 +308,6 @@ class EditableElement extends React.Component {
         {this.renderKey()}
         {this.renderSeparator()}
         {this.renderValue()}
-        {this.renderHotspot()}
         {this.renderTypes()}
       </li>
     );
@@ -336,12 +323,11 @@ class EditableElement extends React.Component {
       <li className={this.style(BEM_EXP_BASE)}>
         <div className={this.style(HEADER)} style={this.inlineStyle()}>
           {this.renderAction()}
-          {this.renderLineNumber()}
+          {this.renderLineNumber(true)}
           {this.renderToggle()}
           {this.renderKey()}
           {this.renderSeparator()}
           {this.renderLabel()}
-          {this.renderHotspot(true)}
         </div>
         <ol className={this.style(CHILDREN)}>
           {this.renderChildren()}

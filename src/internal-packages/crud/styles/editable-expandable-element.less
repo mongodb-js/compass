@@ -74,14 +74,6 @@
 
     cursor: pointer;
 
-    .hotspot {
-      margin-top: 0px;
-
-      .btn {
-        margin-left: 5px;
-      }
-    }
-
     &-label {
       display: inline-block;
     }
@@ -115,6 +107,23 @@
 
         &::before {
           background-color: @gray8;
+        }
+
+        .line-number {
+          color: #494747;
+          font-weight: bold;
+          border: 1px solid #494747;
+          border-radius: 2px;
+
+          &:before {
+            content: '+';
+          }
+
+          &-is-selected {
+            &:before {
+              content: '-';
+            }
+          }
         }
 
         input {

@@ -98,6 +98,23 @@
         }
       }
 
+      .line-number {
+        color: #494747;
+        font-weight: bold;
+        border: 1px solid #494747;
+        border-radius: 2px;
+
+        &:before {
+          content: '+';
+        }
+
+        &-is-selected {
+          &:before {
+            content: '-';
+          }
+        }
+      }
+
       .editable-element-actions {
         opacity: 1;
       }
@@ -128,18 +145,6 @@
 
     i:hover {
       cursor: pointer;
-    }
-  }
-
-  .hotspot {
-    margin: 0;
-  }
-
-  &:first-child { 
-    .hotspot { 
-      .btn { 
-        margin-left: 5px;
-      }
     }
   }
 
