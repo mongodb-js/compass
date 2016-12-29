@@ -1,4 +1,5 @@
 const React = require('react');
+const Actions = require('../actions');
 
 /**
  * The BEM base style name for the element.
@@ -56,6 +57,20 @@ class LineNumber extends React.Component {
   }
 
   /**
+   * Subscribe to the close menu action.
+   */
+  componentDidMount() {
+    this.unsubscribeClose = Actions.closeAllMenus.listen(this.handleCloseAllMenus.bind(this));
+  }
+
+  /**
+   * Unsubscribe from the close menu action.
+   */
+  componentWillUnmount() {
+    this.unsubscribeClose();
+  }
+
+  /**
    * Class name for line number div.
    *
    * @returns {String} The class name.
@@ -68,6 +83,7 @@ class LineNumber extends React.Component {
    * Handle click on the line number.
    */
   handleClick() {
+    Actions.closeAllMenus(this);
     this.setState({ menu: !this.state.menu });
   }
 
@@ -85,6 +101,17 @@ class LineNumber extends React.Component {
   handleAddChildClick() {
     this.props.element.insertPlaceholder();
     this.setState({ menu: false });
+  }
+
+  /**
+   * Handle the close all menus action.
+   *
+   * @param {React.Component} component - The component that called the action.
+   */
+  handleCloseAllMenus(component) {
+    if (component !== this) {
+      this.setState({ menu: false });
+    }
   }
 
   /**

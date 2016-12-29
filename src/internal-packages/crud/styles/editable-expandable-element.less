@@ -9,6 +9,11 @@
     .line-number {
       background-color: @alertOrange;
       color: @pw;
+
+      &-is-selected {
+        border: 1px solid @pw;
+        border-radius: 2px;
+      }
     }
 
     input {
@@ -42,6 +47,11 @@
     .line-number {
       background-color: @green2;
       color: @pw;
+
+      &-is-selected {
+        border: 1px solid @pw;
+        border-radius: 2px;
+      }
     }
 
     input {
@@ -63,6 +73,11 @@
     .line-number {
       background-color: @alertRed;
       color: @pw;
+
+      &-is-selected {
+        border: 1px solid @pw;
+        border-radius: 2px;
+      }
     }
 
     input {
@@ -145,6 +160,48 @@
           }
           .caret {
             visibility: visible;
+          }
+        }
+      }
+    }
+
+    &-is-edited {
+
+      &:hover {
+        .line-number {
+          color: @pw;
+          border: 1px solid @pw;
+
+          &-is-selected {
+            border: 1px solid @pw;
+          }
+        }
+      }
+    }
+
+    &-is-added {
+
+      &:hover {
+        .line-number {
+          color: @pw;
+          border: 1px solid @pw;
+
+          &-is-selected {
+            border: 1px solid @pw;
+          }
+        }
+      }
+    }
+
+    &-is-removed {
+
+      &:hover {
+        .line-number {
+          color: @pw;
+          border: 1px solid @pw;
+
+          &-is-selected {
+            border: 1px solid @pw;
           }
         }
       }
