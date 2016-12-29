@@ -1,4 +1,5 @@
 const React = require('react');
+const outsideClickable = require('react-click-outside');
 const Actions = require('../actions');
 
 /**
@@ -85,6 +86,13 @@ class LineNumber extends React.Component {
   handleClick() {
     Actions.closeAllMenus(this);
     this.setState({ menu: !this.state.menu });
+  }
+
+  /**
+   * Handle clicking outside the element.
+   */
+  handleClickOutside() {
+    this.setState({ menu: false });
   }
 
   /**
@@ -252,4 +260,4 @@ LineNumber.propTypes = {
   element: React.PropTypes.object.isRequired
 };
 
-module.exports = LineNumber;
+module.exports = outsideClickable(LineNumber);
