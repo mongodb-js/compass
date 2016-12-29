@@ -207,9 +207,9 @@ class EditableElement extends React.Component {
    *
    * @returns {React.Component} The component.
    */
-  renderLineNumber(expandable = false) {
+  renderLineNumber() {
     if (this.props.editing) {
-      return (<LineNumber element={this.element} expandable={expandable} />);
+      return (<LineNumber element={this.element} />);
     }
   }
 
@@ -323,7 +323,7 @@ class EditableElement extends React.Component {
       <li className={this.style(BEM_EXP_BASE)}>
         <div className={this.style(HEADER)} style={this.inlineStyle()}>
           {this.renderAction()}
-          {this.renderLineNumber(true)}
+          {this.renderLineNumber()}
           {this.renderToggle()}
           {this.renderKey()}
           {this.renderSeparator()}

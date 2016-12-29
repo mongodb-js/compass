@@ -221,4 +221,8 @@ class LineNumber extends React.Component {
 
 LineNumber.displayName = 'LineNumber';
 
+LineNumber.propTypes = {
+  element: React.PropTypes.object.isRequired
+};
+
 module.exports = LineNumber;
