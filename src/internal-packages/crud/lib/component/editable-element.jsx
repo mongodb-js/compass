@@ -6,7 +6,6 @@ const EditableValue = require('./editable-value');
 const ElementAction = require('./element-action');
 const LineNumber = require('./line-number');
 const Types = require('./types');
-const Hotspot = require('./hotspot');
 
 /**
  * The BEM base style name for the element.
@@ -210,18 +209,7 @@ class EditableElement extends React.Component {
    */
   renderLineNumber() {
     if (this.props.editing) {
-      return (<LineNumber />);
-    }
-  }
-
-  /**
-   * Render the hotspot column.
-   *
-   * @returns {React.Component} The component.
-   */
-  renderHotspot() {
-    if (this.props.editing) {
-      return (<Hotspot key="editable-element-hotspot" element={this.element} />);
+      return (<LineNumber element={this.element} />);
     }
   }
 
@@ -256,7 +244,7 @@ class EditableElement extends React.Component {
     }
     return (
       <div className={FIELD_CLASS}>
-        {this.element.currentKey}
+        {this.element.parent.currentType === 'Array' ? this.props.index : this.element.currentKey}
       </div>
     );
   }
@@ -320,7 +308,6 @@ class EditableElement extends React.Component {
         {this.renderKey()}
         {this.renderSeparator()}
         {this.renderValue()}
-        {this.renderHotspot()}
         {this.renderTypes()}
       </li>
     );

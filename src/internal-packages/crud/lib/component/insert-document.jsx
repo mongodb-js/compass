@@ -1,7 +1,6 @@
 const React = require('react');
 const Element = require('hadron-document').Element;
 const EditableElement = require('./editable-element');
-const Hotspot = require('./hotspot');
 
 /**
  * The class for the document itself.
@@ -47,7 +46,6 @@ class InsertDocument extends React.Component {
     for (const element of this.doc.elements) {
       components.push(<EditableElement key={element.uuid} element={element} indent={0} editing />);
     }
-    components.push(<Hotspot key="hotspot" element={this.doc} />);
     return components;
   }
 

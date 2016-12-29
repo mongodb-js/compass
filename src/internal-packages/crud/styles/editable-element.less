@@ -14,12 +14,78 @@
     vertical-align: top;
   }
 
+  &-is-editing {
+
+    &:hover {
+      background-color: @gray8;
+
+      &::before {
+        background-color: @gray8;
+      }
+
+      input {
+        background-color: @gray8;
+
+        &:focus {
+          background-color: @pw;
+        }
+      }
+
+      .line-number {
+        color: #494747;
+        font-weight: bold;
+        border: 1px solid #494747;
+        border-radius: 2px;
+
+        &:before {
+          content: '+';
+        }
+
+        &-is-selected {
+          &:before {
+            content: '-';
+          }
+        }
+      }
+
+      .editable-element-actions {
+        opacity: 1;
+      }
+
+      .editable-element-types {
+        .btn {
+          background-color: @gray6;
+          color: @gray0;
+        }
+        .caret {
+          visibility: visible;
+        }
+      }
+    }
+  }
+
   &-is-edited {
     background-color: @alertOrangeBg;
+
+    &:hover {
+      .line-number {
+        color: @pw;
+        border: 1px solid @pw;
+
+        &-is-selected {
+          border: 1px solid @pw;
+        }
+      }
+    }
 
     .line-number {
       background-color: @alertOrange;
       color: @pw;
+      border: 1px solid @pw;
+
+      &-is-selected {
+        border: 1px solid @pw;
+      }
     }
 
     input {
@@ -50,9 +116,25 @@
       }
     }
 
+    &:hover {
+      .line-number {
+        color: @pw;
+        border: 1px solid @pw;
+
+        &-is-selected {
+          border: 1px solid @pw;
+        }
+      }
+    }
+
     .line-number {
       background-color: @green2;
       color: @pw;
+      border: 1px solid @pw;
+
+      &-is-selected {
+        border: 1px solid @pw;
+      }
     }
 
     input {
@@ -71,46 +153,29 @@
       }
     }
 
+    &:hover {
+      .line-number {
+        color: @pw;
+        border: 1px solid @pw;
+
+        &-is-selected {
+          border: 1px solid @pw;
+        }
+      }
+    }
+
     .line-number {
       background-color: @alertRed;
       color: @pw;
+      border: 1px solid @pw;
+
+      &-is-selected {
+        border: 1px solid @pw;
+      }
     }
 
     input {
       background-color: @alertRedBg;
-    }
-  }
-
-  &-is-editing {
-
-    &:hover {
-      background-color: @gray8;
-
-      &::before {
-        background-color: @gray8;
-      }
-
-      input {
-        background-color: @gray8;
-
-        &:focus {
-          background-color: @pw;
-        }
-      }
-
-      .editable-element-actions {
-        opacity: 1;
-      }
-
-      .editable-element-types {
-        .btn {
-          background-color: @gray6;
-          color: @gray0;
-        }
-        .caret {
-          visibility: visible;
-        }
-      }
     }
   }
 
@@ -128,18 +193,6 @@
 
     i:hover {
       cursor: pointer;
-    }
-  }
-
-  .hotspot {
-    margin: 0;
-  }
-
-  &:first-child { 
-    .hotspot { 
-      .btn { 
-        margin-left: 5px;
-      }
     }
   }
 

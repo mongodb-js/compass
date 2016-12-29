@@ -1229,14 +1229,21 @@ function addInputCommands(client) {
    * @param {Object} model - The document to insert.
    */
   client.addCommand('inputNewDocumentDetails', function(model) {
+    const base = selector('insert-document-modal');
     const that = this;
+    const lineNumber = `${base} .document-elements .editable-element:last-child div.line-number`;
+    const addField = `${lineNumber} ${selector('add-field-after')}`;
     let sequence = Promise.resolve();
+
     _.each(model, function(value, key) {
       sequence = sequence.then(function() {
         return that
-          .setValue(".modal-dialog input.editable-element-field[value='']", key)
-          .setValue(".modal-dialog input.editable-element-value[value='']", value)
-          .click('.modal-dialog div.hotspot:last-child')
+          .setValue(`${base} input.editable-element-field[value='']`, key)
+          .setValue(`${base} input.editable-element-value[value='']`, value)
+          .moveToObject(lineNumber)
+          .click(lineNumber)
+          .waitForVisibleInCompass(addField)
+          .click(addField);
       });
     });
     return sequence;
