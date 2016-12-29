@@ -33,6 +33,11 @@ const OBJECT_TEXT = 'Add Field To Object ';
 const ARRAY_TEXT = 'Add Element To Array ';
 
 /**
+ * Array element text.
+ */
+const ARRAY_ELEMENT_TEXT = 'Add Element After ';
+
+/**
  * Add child icon.
  */
 const ADD_CHILD_ICON = 'fa fa-level-down fa-rotate-90';
@@ -141,6 +146,16 @@ class LineNumber extends React.Component {
   }
 
   /**
+   * Is the parent of this element an array?
+   *
+   * @returns {Boolean} If the parent element is an array.
+   */
+  isParentArray() {
+    return !this.props.element.parent.isRoot() &&
+        this.props.element.parent.currentType === 'Array';
+  }
+
+  /**
    * Class name for the menu.
    *
    * @returns {String} The class name.
@@ -172,9 +187,10 @@ class LineNumber extends React.Component {
    * @returns {React.Component} The component.
    */
   renderDefaultItem() {
+    const text = this.isParentArray() ? ARRAY_ELEMENT_TEXT : DEFAULT_TEXT;
     return this.renderMenuItem(
       ADD_FIELD_ICON,
-      DEFAULT_TEXT,
+      text,
       this.handleAddFieldClick.bind(this),
       'add-field-after'
     );
