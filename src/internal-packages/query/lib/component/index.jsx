@@ -1,35 +1,27 @@
 const React = require('react');
+
+const app = require('ampersand-app');
+const StoreConnector = app.appRegistry.getComponent('App.StoreConnector');
+const QueryBar = require('./query-bar');
 const QueryStore = require('../store/query-store');
-const QueryInputForm = require('./input-form');
-const StateMixin = require('reflux-state-mixin');
 
-// const debug = require('debug')('mongodb-compass:query-bar');
+// const debug = require('debug')('mongodb-compass:compass-explain:index');
 
-const QueryBar = React.createClass({
-
+class ConnectedQueryBar extends React.Component {
   /**
-   * automatically subscribe/unsubscribe to changes from the store.
-   */
-  mixins: [ StateMixin.connect(QueryStore) ],
-
-  /**
-   * Render Query Bar.
+   * Connect CompassExplainComponent to store and render.
    *
-   * @returns {React.Component} The Query Bar view.
+   * @returns {React.Component} The rendered component.
    */
   render() {
     return (
-      <div className="refine-view-container">
-        <div className="query-input-container">
-          <div className="row">
-            <div className="col-md-12">
-              <QueryInputForm {...this.state} />
-            </div>
-          </div>
-        </div>
-      </div>
+      <StoreConnector store={QueryStore}>
+        <QueryBar {...this.props} />
+      </StoreConnector>
     );
   }
-});
+}
 
-module.exports = QueryBar;
+ConnectedQueryBar.displayName = 'ConnectedQueryBar';
+
+module.exports = ConnectedQueryBar;
