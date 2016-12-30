@@ -3,6 +3,7 @@ const Actions = require('../action');
 const Performance = require('./performance-component');
 const Databases = require('./connected-databases');
 const app = require('ampersand-app');
+const qs = require('qs');
 // const debug = require('debug')('mongodb-compass:server-stats-RTSSComponent');
 
 /**
@@ -17,11 +18,19 @@ class RTSSComponent extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.TabNavBar = app.appRegistry.getComponent('App.TabNavBar');
+    this.TabNav = app.appRegistry.getComponent('App.TabNavRoute');
   }
 
   componentDidMount() {
     Actions.restart();
+  }
+
+  onRouteClicked(tab) {
+    const hash = app.router.history.location.hash;
+    const fragments = hash.split('?');
+    const root = fragments[0];
+    const params = qs.parse(fragments[1]);
+    app.navigate(root + '/' + tab, {silent: false, params: params});
   }
 
   /**
@@ -34,11 +43,13 @@ class RTSSComponent extends React.Component {
     const databasesView = <Databases />;
     return (
       <div className="RTSS">
-        <this.TabNavBar
+        <this.TabNav
           theme="light"
-          tabs={['Databases', 'Performance']}
+          tabNames={['Databases', 'Performance']}
+          tabRoutes={['databases', 'performance']}
+          onTabClicked={this.onRouteClicked.bind(this)}
           views={[databasesView, performanceView]}
-          activeTabIndex={0}
+          activeTab={this.props.tab}
           className="rt-nav"
         />
       </div>
@@ -47,7 +58,12 @@ class RTSSComponent extends React.Component {
 }
 
 RTSSComponent.propTypes = {
-  interval: React.PropTypes.number.isRequired
+  interval: React.PropTypes.number.isRequired,
+  tab: React.PropTypes.string
+};
+
+RTSSComponent.defaultProps = {
+  tab: ''
 };
 
 

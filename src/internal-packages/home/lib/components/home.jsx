@@ -23,7 +23,7 @@ class Home extends React.Component {
         view = (<this.collectionView namespace={this.props.namespace} />);
         break;
       default:
-        view = (<this.serverStatsView interval={1000}/>);
+        view = (<this.serverStatsView tab={this.props.tab} interval={1000}/>);
     }
 
     return view;
@@ -45,7 +45,8 @@ class Home extends React.Component {
 
 Home.propTypes = {
   mode: React.PropTypes.oneOf(['instance', 'database', 'collection']),
-  namespace: React.PropTypes.string
+  namespace: React.PropTypes.string,
+  tab: React.PropTypes.string
 };
 
 Home.displayName = 'Home';

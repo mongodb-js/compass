@@ -28,7 +28,8 @@ const HomeStore = Reflux.createStore({
     return {
       // mode can be one of instance, database, collection
       mode: 'instance',
-      namespace: ''
+      namespace: '',
+      tab: ''
     };
   },
 
@@ -38,7 +39,7 @@ const HomeStore = Reflux.createStore({
 
   /**
    * change content based on namespace
-   * @param  {object} namespace current namespace context
+   * @param  {string} namespace current namespace context
    */
   switchContent(namespace) {
     const ns = toNS(namespace);
@@ -53,6 +54,20 @@ const HomeStore = Reflux.createStore({
       this.setState({mode: 'collection', namespace: namespace});
     }
     this.updateTitle(ns);
+  },
+
+  /**
+   * render the home view based on route fragments passed
+   * @param {string} namespace current namespace context
+   * @param {string} tab render the tab param of route
+   */
+  renderRoute(tab, namespace) {
+    console.log('router: homeStore', namespace, tab);
+    // TODO @(KeyboardTsundoku) setstate is being called twice here...
+    if (namespace) {
+      this.switchContent(namespace);
+    }
+    this.setState({tab: tab});
   },
 
   updateTitle: function(ns) {

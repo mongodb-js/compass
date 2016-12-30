@@ -7,6 +7,7 @@ const InstanceActions = require('./lib/actions/instance-actions');
 const InstanceStore = require('./lib/stores/instance-store');
 const CollectionStore = require('./lib/stores/collection-store');
 const ModalStatusMessage = require('./lib/components/modal-status-message');
+const TabNavRoute = require('./lib/components/tab-nav-route');
 
 /**
  * Activate all the components in the Compass Sidebar package.
@@ -17,6 +18,7 @@ function activate() {
   app.appRegistry.registerComponent('App.ModalStatusMessage', ModalStatusMessage);
   app.appRegistry.registerComponent('App.TabNavBar', TabNavBar);
   app.appRegistry.registerComponent('App.StatusRow', StatusRow);
+  app.appRegistry.registerComponent('App.TabNavRoute', TabNavRoute);
   app.appRegistry.registerAction('App.InstanceActions', InstanceActions);
   app.appRegistry.registerStore('App.InstanceStore', InstanceStore);
   app.appRegistry.registerStore('App.CollectionStore', CollectionStore);
@@ -31,6 +33,7 @@ function deactivate() {
   app.appRegistry.deregisterComponent('App.ModalStatusMessage');
   app.appRegistry.deregisterComponent('App.TabNavBar');
   app.appRegistry.deregisterComponent('App.StatusRow');
+  app.appRegistry.deregisterComponent('App.TabNavRoute');
   app.appRegistry.deregisterAction('App.InstanceActions');
   app.appRegistry.deregisterStore('App.InstanceStore');
   app.appRegistry.deregisterStore('App.CollectionStore');
