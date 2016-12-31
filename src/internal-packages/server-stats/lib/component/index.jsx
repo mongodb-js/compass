@@ -3,7 +3,7 @@ const Actions = require('../action');
 const Performance = require('./performance-component');
 const Databases = require('./connected-databases');
 const app = require('ampersand-app');
-const qs = require('qs');
+
 // const debug = require('debug')('mongodb-compass:server-stats-RTSSComponent');
 
 /**
@@ -26,11 +26,8 @@ class RTSSComponent extends React.Component {
   }
 
   onRouteClicked(tab) {
-    const hash = app.router.history.location.hash;
-    const fragments = hash.split('?');
-    const root = fragments[0];
-    const params = qs.parse(fragments[1]);
-    app.navigate(root + '/' + tab, {silent: false, params: params});
+    const HomeActions = app.appRegistry.getAction('Home.Actions');
+    HomeActions.navigateRoute(tab);
   }
 
   /**

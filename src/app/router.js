@@ -11,15 +11,14 @@ module.exports = AmpersandRouter.extend({
     '': 'index',
     home: 'index',
     connect: 'connect',
-    'home/:tab': 'home',
-    // 'home/:tab/:query': 'home',
+    'home/:ns': 'home',
+    'instance/:tab': 'instance',
     '(*path)': 'catchAll'
   },
   index: function(queryString) {
     var params = qs.parse(queryString);
     // set home view to null if blank route
     this.homeView = null;
-    this.homeActions = app.appRegistry.getAction('Home.Actions');
     if (_.has(params, 'connectionId')) {
       return app.setConnectionId(params.connectionId, () => this.home());
     }
@@ -29,22 +28,27 @@ module.exports = AmpersandRouter.extend({
     }
     this.connect();
   },
-  home: function(tab, query) {
-    if (this.homeView === null) {
-      debug('initialising home view render');
-      this.homeView = app.appRegistry.getComponent('Home.Home');
-      this.trigger('page', ReactDOM.render(
-        React.createElement(this.homeView),
-        app.state.queryByHook('layout-container')));
-    }
-
+  // connection dialog route
+  connect: function() {
+    var ConnectPage = require('./connect');
+    this.trigger('page', new ConnectPage({}));
+  },
+  // home window route
+  home: function(ns) {
+    this.homeView = app.appRegistry.getComponent('Home.Home');
+    this.trigger('page',
+      ReactDOM.render(
+        React.createElement(this.homeView, {ns: ns}),
+        app.state.queryByHook('layout-container')
+    ));
+  },
+  // instance level route
+  instance: function(tab) {
+    debug('route: instance', tab);
+    this.homeActions = app.appRegistry.getAction('Home.Actions');
     this.homeActions.renderRoute(tab);
   },
   catchAll: function() {
     this.redirectTo('');
-  },
-  connect: function() {
-    var ConnectPage = require('./connect');
-    this.trigger('page', new ConnectPage({}));
   }
 });

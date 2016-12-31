@@ -5,6 +5,7 @@ const StateMixin = require('reflux-state-mixin');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const toNS = require('mongodb-ns');
 const InstanceActions = app.appRegistry.getAction('App.InstanceActions');
+const qs = require('qs');
 
 const debug = require('debug')('mongodb-compass:stores:home');
 
@@ -57,16 +58,24 @@ const HomeStore = Reflux.createStore({
   },
 
   /**
-   * render the home view based on route fragments passed
-   * @param {string} namespace current namespace context
+   * based on the tab provided navigate to the correct route
    * @param {string} tab render the tab param of route
    */
-  renderRoute(tab, namespace) {
-    console.log('router: homeStore', namespace, tab);
-    // TODO @(KeyboardTsundoku) setstate is being called twice here...
-    if (namespace) {
-      this.switchContent(namespace);
-    }
+  navigateRoute(tab) {
+    // mode determines root of the route
+    const root = this.state.mode;
+    const hash = app.router.history.location.hash;
+    const fragments = hash.split('?');
+    // keep the connectionID param
+    const params = qs.parse(fragments[1]);
+    app.navigate(root + '/' + tab, {silent: false, params: params});
+  },
+
+  /**
+   * render the home view based on route fragments passed
+   * @param {string} tab render the tab param of route
+   */
+  renderRoute(tab) {
     this.setState({tab: tab});
   },
 

@@ -29,13 +29,15 @@ class TabNav extends React.Component {
 
   /**
    * find index on tabs based activeTab
+   * @param {array} tabs list of tabs
+   * @param {string} activeTab current active tab
+   * @return {number} index of the active or 0
    */
   _findIndex(tabs, activeTab) {
     let idx = _.indexOf(tabs, activeTab);
     idx = idx !== -1 ? idx : 0;
     return idx;
   }
-
 
   renderTabs() {
     const listItems = _.map(this.props.tabNames, (tab, idx) => (
