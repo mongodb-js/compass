@@ -17,8 +17,6 @@ module.exports = AmpersandRouter.extend({
   },
   index: function(queryString) {
     var params = qs.parse(queryString);
-    // set home view to null if blank route
-    this.homeView = null;
     if (_.has(params, 'connectionId')) {
       return app.setConnectionId(params.connectionId, () => this.home());
     }
@@ -42,11 +40,32 @@ module.exports = AmpersandRouter.extend({
         app.state.queryByHook('layout-container')
     ));
   },
+  indexRedirect: function(tab, queryString) {
+    const params = qs.parse(queryString);
+    const homeActions = app.appRegistry.getAction('Home.Actions');
+    if (_.has(params, 'connectionId')) {
+      return app.setConnectionId(params.connectionId, () => {
+        this.home();
+        return homeActions.renderRoute(tab);
+      });
+    }
+
+    if (app.connection) {
+      this.home();
+      return homeActions.renderRoute(tab);
+    }
+
+    this.connect();
+  },
   // instance level route
-  instance: function(tab) {
+  instance: function(tab, queryString) {
     debug('route: instance', tab);
-    this.homeActions = app.appRegistry.getAction('Home.Actions');
-    this.homeActions.renderRoute(tab);
+    if (this.homeView === undefined) {
+      return this.indexRedirect(tab, queryString);
+    }
+
+    const homeActions = app.appRegistry.getAction('Home.Actions');
+    homeActions.renderRoute(tab);
   },
   catchAll: function() {
     this.redirectTo('');

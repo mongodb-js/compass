@@ -92,7 +92,7 @@ const HomeStore = Reflux.createStore({
   * @param  {Object} prevState   previous state.
   */
   storeDidUpdate(prevState) {
-    debug('Sidebar store changed from', prevState, 'to', this.state);
+    debug('Home store changed from', prevState, 'to', this.state);
   }
 });
 
