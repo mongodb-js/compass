@@ -42,9 +42,9 @@ class TabNav extends React.Component {
   renderTabs() {
     const listItems = _.map(this.props.tabNames, (tab, idx) => (
       <li onClick={this.onTabClicked.bind(this, idx)}
-          id={tab.replace(/ /g, '_')}
+          id={tab}
           key={`tab-${idx}`}
-          data-test-id={`${this.props.tabRoutes[idx]}`}
+          data-test-id={`${this.props.tabRoutes[idx]}-tab`}
           className={`tab-nav-bar tab-nav-bar-tab ${idx === this.state.activeTabIndex ?
             'tab-nav-bar-is-selected' : ''}`}>
         <span className="tab-nav-bar tab-nav-bar-link" href="#">{tab}</span>
@@ -94,7 +94,9 @@ class TabNav extends React.Component {
 TabNav.propTypes = {
   theme: React.PropTypes.oneOf(['dark', 'light']),
   activeTab: React.PropTypes.string,
+  // tab names should be what is to be displayed in the UI
   tabNames: React.PropTypes.arrayOf(React.PropTypes.string).isRequired,
+  // the internal route for the tab
   tabRoutes: React.PropTypes.arrayOf(React.PropTypes.string).isRequired,
   views: React.PropTypes.arrayOf(React.PropTypes.element).isRequired,
   onTabClicked: React.PropTypes.func
