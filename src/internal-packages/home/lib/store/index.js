@@ -6,6 +6,7 @@ const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const ipc = require('hadron-ipc');
 const toNS = require('mongodb-ns');
 const InstanceActions = app.appRegistry.getAction('App.InstanceActions');
+
 const qs = require('qs');
 
 const debug = require('debug')('mongodb-compass:stores:home');
@@ -28,6 +29,7 @@ const HomeStore = Reflux.createStore({
    */
   init() {
     NamespaceStore.listen(HomeActions.switchContent);
+    this.listenToExternalStore('App.InstanceStore', this.onInstanceChange.bind(this));
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
   },
 
@@ -35,11 +37,19 @@ const HomeStore = Reflux.createStore({
     return {
       // mode can be one of instance, database, collection
       mode: 'instance',
+      instance: {},
       namespace: '',
       tab: ''
     };
   },
 
+  onInstanceChange(state) {
+    this.setState({
+      instance: state.instance
+    });
+  },
+
+  // TODO @KeyboardTsundoku move update title up to on instance change and remove lisenting to instanceactions
   setInstance() {
     this.updateTitle();
   },
@@ -76,12 +86,27 @@ const HomeStore = Reflux.createStore({
     // set route based on namespace
     const ns = toNS(namespace);
     if (ns.database === '') {
-      app.navigate(`instance/${tab}`, options);
+      app.navigate(`${INSTANCE}/${tab}`, options);
     } else if (ns.collection === '') {
-      app.navigate(`database/${namespace}`, options);
+      app.navigate(`${DATABASE}/${namespace}`, options);
     } else {
-      app.navigate(`collection/${namespace}/${tab}`, options);
+      // TODO @keyboard this might be something that should be pushed down to collection rendering
+      // if tab is blank set to schema by default
+      const selectedTab = tab === '' ? 'schema' : tab;
+      app.navigate(`${COLLECTION}/${namespace}/${selectedTab}`, options);
     }
+  },
+
+  _setCollection(namespace) {
+    const dbName = toNS(namespace).database;
+    const databases = this.state.instance.databases;
+    const database = databases.models.filter((db) => {
+      return db._id === dbName;
+    });
+    const coll = database[0].collections.models.filter((col) => {
+      return col._id === namespace;
+    });
+    this.CollectionStore.setCollection(coll[0]);
   },
 
   /**
@@ -91,10 +116,13 @@ const HomeStore = Reflux.createStore({
    * @param {string} tab render the tab param of route
    */
   renderRoute(mode, namespace, tab) {
-    if (mode === 'database') {
+    if (mode === DATABASE) {
       this.CollectionStore.setCollection({});
       NamespaceStore.ns = namespace;
       ipc.call('window:hide-collection-submenu');
+    } else if (mode === COLLECTION) {
+      this._setCollection(namespace);
+      ipc.call('window:show-collection-submenu');
     }
     this.setState({mode: mode, namespace: namespace, tab: tab});
     this.updateTitle(toNS(namespace));

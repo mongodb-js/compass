@@ -18,6 +18,7 @@ module.exports = AmpersandRouter.extend({
     'home/:ns': 'home',
     'instance/:tab': 'instance',
     'database/:ns': 'database',
+    'collection/:ns/:tab': 'collection',
     '(*path)': 'catchAll'
   },
   index: function(queryString) {
@@ -64,7 +65,7 @@ module.exports = AmpersandRouter.extend({
   },
   // instance level route
   instance: function(tab, queryString) {
-    debug('route: instance', tab);
+    debug('route: instance', tab, queryString);
     if (this.homeView === undefined) {
       return this.indexRedirect(INSTANCE, '', tab, queryString);
     }
@@ -74,13 +75,23 @@ module.exports = AmpersandRouter.extend({
   },
   // database level route
   database: function(ns, queryString) {
-    debug('route: database', ns);
+    debug('route: database', ns, queryString);
     if (this.homeView === undefined) {
       return this.indexRedirect(DATABASE, ns, '', queryString);
     }
 
     const homeActions = app.appRegistry.getAction('Home.Actions');
     homeActions.renderRoute(DATABASE, ns);
+  },
+  // collection level route
+  collection: function(ns, tab, queryString) {
+    debug('route: collection', ns, tab, queryString);
+    if (this.homeView === undefined) {
+      return this.indexRedirect(COLLECTION, ns, tab, queryString);
+    }
+
+    const homeActions = app.appRegistry.getAction('Home.Actions');
+    homeActions.renderRoute(COLLECTION, ns, tab);
   },
   catchAll: function() {
     this.redirectTo('');
