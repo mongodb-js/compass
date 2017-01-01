@@ -6,7 +6,6 @@ const { TextButton } = require('hadron-react-buttons');
 const DatabasesActions = require('../action/databases-actions');
 const CreateDatabaseDialog = require('./create-database-dialog');
 const DropDatabaseDialog = require('./drop-database-dialog');
-const { NamespaceStore } = require('hadron-reflux-store');
 const numeral = require('numeral');
 
 const _ = require('lodash');
@@ -23,7 +22,6 @@ class DatabasesTable extends React.Component {
   constructor(props) {
     super(props);
     this.SortableTable = app.appRegistry.getComponent('App.SortableTable');
-    this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
   }
 
   onColumnHeaderClicked(column, order) {
@@ -45,11 +43,10 @@ class DatabasesTable extends React.Component {
   }
 
   onNameClicked(name) {
-    if (NamespaceStore.ns !== name) {
-      this.CollectionStore.setCollection({});
-      NamespaceStore.ns = name;
-      ipc.call('window:hide-collection-submenu');
-    }
+    const HomeActions = app.appRegistry.getAction('Home.Actions');
+    // pass the current route location hash as it is otherwise affected by database links
+    // as indicated a few lines below while making links in <a>
+    HomeActions.navigateRoute(app.router.history.location.hash, name, '');
   }
 
   onClickShowConnectWindow() {
@@ -80,6 +77,7 @@ class DatabasesTable extends React.Component {
     const rows = _.map(this.props.databases, (db) => {
       const dbName = db['Database Name'];
       return _.assign({}, db, {
+        // the href here affects the route hash (app.router.history.location.hash)
         'Database Name': <a className="rtss-databases-link" href="#" onClick={this.onNameClicked.bind(this, dbName)}>{dbName}</a>,
         'Storage Size': numeral(db['Storage Size']).format('0.0b')
       });

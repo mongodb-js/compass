@@ -3,11 +3,16 @@ const Reflux = require('reflux');
 const HomeActions = require('../actions');
 const StateMixin = require('reflux-state-mixin');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
+const ipc = require('hadron-ipc');
 const toNS = require('mongodb-ns');
 const InstanceActions = app.appRegistry.getAction('App.InstanceActions');
 const qs = require('qs');
 
 const debug = require('debug')('mongodb-compass:stores:home');
+
+const INSTANCE = 'instance';
+const DATABASE = 'database';
+const COLLECTION = 'collection';
 
 const HomeStore = Reflux.createStore({
 
@@ -23,6 +28,7 @@ const HomeStore = Reflux.createStore({
    */
   init() {
     NamespaceStore.listen(HomeActions.switchContent);
+    this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
   },
 
   getInitialState() {
@@ -46,37 +52,52 @@ const HomeStore = Reflux.createStore({
     const ns = toNS(namespace);
     if (ns.database === '') {
       // top of the side bar was clicked, render server stats
-      this.setState({mode: 'instance', namespace: namespace});
+      this.setState({mode: INSTANCE, namespace: namespace});
     } else if (ns.collection === '') {
       // a database was clicked, render collections table
-      this.setState({mode: 'database', namespace: namespace});
+      this.setState({mode: DATABASE, namespace: namespace});
     } else {
       // show collection view
-      this.setState({mode: 'collection', namespace: namespace});
+      this.setState({mode: COLLECTION, namespace: namespace});
     }
     this.updateTitle(ns);
   },
 
   /**
    * based on the tab provided navigate to the correct route
+   * @param {string} route the current route before it is changed ()
+   * @param {string} namespace provided namespace for route
    * @param {string} tab render the tab param of route
    */
-  navigateRoute(tab) {
-    // mode determines root of the route
-    const root = this.state.mode;
-    const hash = app.router.history.location.hash;
-    const fragments = hash.split('?');
-    // keep the connectionID param
-    const params = qs.parse(fragments[1]);
-    app.navigate(root + '/' + tab, {silent: false, params: params});
+  navigateRoute(route, namespace, tab) {
+    // extract any parameters from router hash
+    const fragments = route.split('?');
+    const options = {silent: false, params: qs.parse(fragments[1])};
+    // set route based on namespace
+    const ns = toNS(namespace);
+    if (ns.database === '') {
+      app.navigate(`instance/${tab}`, options);
+    } else if (ns.collection === '') {
+      app.navigate(`database/${namespace}`, options);
+    } else {
+      app.navigate(`collection/${namespace}/${tab}`, options);
+    }
   },
 
   /**
    * render the home view based on route fragments passed
+   * @param {string} mode can be one of INSTANCE, DATABASE, COLLECTION
+   * @param {string} namespace field for route
    * @param {string} tab render the tab param of route
    */
-  renderRoute(tab) {
-    this.setState({tab: tab});
+  renderRoute(mode, namespace, tab) {
+    if (mode === 'database') {
+      this.CollectionStore.setCollection({});
+      NamespaceStore.ns = namespace;
+      ipc.call('window:hide-collection-submenu');
+    }
+    this.setState({mode: mode, namespace: namespace, tab: tab});
+    this.updateTitle(toNS(namespace));
   },
 
   updateTitle: function(ns) {

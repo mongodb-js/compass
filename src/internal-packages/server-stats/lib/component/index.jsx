@@ -27,7 +27,8 @@ class RTSSComponent extends React.Component {
 
   onRouteClicked(tab) {
     const HomeActions = app.appRegistry.getAction('Home.Actions');
-    HomeActions.navigateRoute(tab);
+    // empty namespace at instance level
+    HomeActions.navigateRoute(app.router.history.location.hash, '', tab);
   }
 
   /**

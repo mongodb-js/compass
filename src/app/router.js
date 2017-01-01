@@ -6,6 +6,10 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var debug = require('debug')('mongodb-compass:app:router');
 
+const INSTANCE = 'instance';
+const DATABASE = 'database';
+const COLLECTION = 'collection';
+
 module.exports = AmpersandRouter.extend({
   routes: {
     '': 'index',
@@ -13,6 +17,7 @@ module.exports = AmpersandRouter.extend({
     connect: 'connect',
     'home/:ns': 'home',
     'instance/:tab': 'instance',
+    'database/:ns': 'database',
     '(*path)': 'catchAll'
   },
   index: function(queryString) {
@@ -40,19 +45,19 @@ module.exports = AmpersandRouter.extend({
         app.state.queryByHook('layout-container')
     ));
   },
-  indexRedirect: function(tab, queryString) {
+  indexRedirect: function(root, ns, tab, queryString) {
     const params = qs.parse(queryString);
     const homeActions = app.appRegistry.getAction('Home.Actions');
     if (_.has(params, 'connectionId')) {
       return app.setConnectionId(params.connectionId, () => {
         this.home();
-        return homeActions.renderRoute(tab);
+        return homeActions.renderRoute(root, ns, tab, queryString);
       });
     }
 
     if (app.connection) {
       this.home();
-      return homeActions.renderRoute(tab);
+      return homeActions.renderRoute(root, ns, tab, queryString);
     }
 
     this.connect();
@@ -61,11 +66,21 @@ module.exports = AmpersandRouter.extend({
   instance: function(tab, queryString) {
     debug('route: instance', tab);
     if (this.homeView === undefined) {
-      return this.indexRedirect(tab, queryString);
+      return this.indexRedirect(INSTANCE, '', tab, queryString);
     }
 
     const homeActions = app.appRegistry.getAction('Home.Actions');
-    homeActions.renderRoute(tab);
+    homeActions.renderRoute(INSTANCE, '', tab);
+  },
+  // database level route
+  database: function(ns, queryString) {
+    debug('route: database', ns);
+    if (this.homeView === undefined) {
+      return this.indexRedirect(DATABASE, ns, '', queryString);
+    }
+
+    const homeActions = app.appRegistry.getAction('Home.Actions');
+    homeActions.renderRoute(DATABASE, ns);
   },
   catchAll: function() {
     this.redirectTo('');
