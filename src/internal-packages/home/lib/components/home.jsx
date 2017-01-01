@@ -20,7 +20,7 @@ class Home extends React.Component {
         view = (<this.collectionsTable />);
         break;
       case 'collection':
-        view = (<this.collectionView namespace={this.props.namespace} />);
+        view = (<this.collectionView namespace={this.props.namespace} tab={this.props.tab} />);
         break;
       default:
         view = (<this.serverStatsView tab={this.props.tab} interval={1000}/>);

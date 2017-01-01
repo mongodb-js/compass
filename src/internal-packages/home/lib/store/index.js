@@ -85,16 +85,18 @@ const HomeStore = Reflux.createStore({
     const options = {silent: false, params: qs.parse(fragments[1])};
     // set route based on namespace
     const ns = toNS(namespace);
+    let url;
     if (ns.database === '') {
-      app.navigate(`${INSTANCE}/${tab}`, options);
+      url = `${INSTANCE}/${tab}`;
     } else if (ns.collection === '') {
-      app.navigate(`${DATABASE}/${namespace}`, options);
+      url = `${DATABASE}/${namespace}`;
     } else {
-      // TODO @keyboard this might be something that should be pushed down to collection rendering
+      // TODO @KeyboardTsundoku this might be something that should be pushed down to collection rendering
       // if tab is blank set to schema by default
       const selectedTab = tab === '' ? 'schema' : tab;
-      app.navigate(`${COLLECTION}/${namespace}/${selectedTab}`, options);
+      url = `${COLLECTION}/${namespace}/${selectedTab}`;
     }
+    app.navigate(url, options);
   },
 
   _setCollection(namespace) {

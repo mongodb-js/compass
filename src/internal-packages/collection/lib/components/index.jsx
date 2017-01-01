@@ -7,54 +7,43 @@ class Collection extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {activeTab: 0};
+    this.state = {activeTab: this.props.tab || 'schema'};
 
     this.Stats = app.appRegistry.getComponent('CollectionStats.CollectionStats');
-    this.TabNavBar = app.appRegistry.getComponent('App.TabNavBar');
+    this.TabNav = app.appRegistry.getComponent('App.TabNavRoute');
     this.Schema = app.appRegistry.getComponent('Schema.Schema');
     this.Document = app.appRegistry.getComponent('CRUD.DocumentList');
     this.Indexes = app.appRegistry.getComponent('Indexes.Indexes');
     this.Explain = app.appRegistry.getComponent('Explain.ExplainPlan');
     this.Validation = app.appRegistry.getComponent('Validation.Validation');
 
+    this.HomeActions = app.appRegistry.getAction('Home.Actions');
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
   }
 
-  componentWillMount() {
-    const ns = this.props.namespace;
-    if (ns && toNS(ns).collection) {
-      this.setState({
-        activeTab: this.CollectionStore && this.CollectionStore.getActiveTab()
-      });
-    } else {
-      this.setState({activeTab: 0});
-    }
-  }
-
-  onTabClicked(idx) {
-    // Only proceed if the active tab has changed; prevent multiple clicks
-    if (this.state.activeTab === idx) {
-      return;
-    }
-
-    this.CollectionStore.setActiveTab(idx);
-    this.setState({activeTab: this.CollectionStore.getActiveTab()});
+  onRouteClicked(tab) {
+    this.HomeActions.navigateRoute(app.router.history.location.hash, this.props.namespace, tab);
   }
 
   onDBClick() {
     const dbName = toNS(this.props.namespace).database;
-    const HomeActions = app.appRegistry.getAction('Home.Actions');
-    HomeActions.navigateRoute(app.router.history.location.hash, dbName, '');
+    this.HomeActions.navigateRoute(app.router.history.location.hash, dbName, '');
   }
 
   render() {
     const serverVersion = app.instance.build.version;
     const DV_ENABLED = semver.gt(serverVersion, '3.2.0-rc0');
-    const tabs = [
+    const tabNames = [
       'SCHEMA',
       'DOCUMENTS',
       'INDEXES',
       'EXPLAIN PLAN'
+    ];
+    const tabRoutes = [
+      'schema',
+      'documents',
+      'indexes',
+      'explain-plan'
     ];
     const views = [
       <this.Schema />,
@@ -63,7 +52,8 @@ class Collection extends React.Component {
       <this.Explain />
     ];
     if (DV_ENABLED) {
-      tabs.push('VALIDATION');
+      tabNames.push('VALIDATION');
+      tabRoutes.push('validation');
       views.push(<this.Validation />);
     }
 
@@ -85,12 +75,13 @@ class Collection extends React.Component {
             </div>
           </div>
         </header>
-        <this.TabNavBar
+        <this.TabNav
           theme="light"
-          tabs={tabs}
+          tabNames={tabNames}
+          tabRoutes={tabRoutes}
+          onTabClicked={this.onRouteClicked.bind(this)}
           views={views}
-          activeTabIndex={this.state.activeTab}
-          onTabClicked={this.onTabClicked.bind(this)}
+          activeTab={this.state.activeTab}
           className="collection-nav"
         />
       </div>
@@ -99,7 +90,8 @@ class Collection extends React.Component {
 }
 
 Collection.propTypes = {
-  namespace: React.PropTypes.string
+  namespace: React.PropTypes.string,
+  tab: React.PropTypes.string
 };
 
 Collection.displayName = 'Collection';

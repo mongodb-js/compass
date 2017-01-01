@@ -12,18 +12,14 @@ class TabNav extends React.Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    const idx = this._findIndex(nextProps.tabRoutes, nextProps.activeTab);
-    this.state = {
-      activeTabIndex: idx
-    };
-  }
-
   onTabClicked(idx, evt) {
     evt.preventDefault();
-    this.setState({ activeTabIndex: idx });
-    if (this.props.onTabClicked) {
-      this.props.onTabClicked(this.props.tabRoutes[idx]);
+    // only make changes if the tab clicked is different than current active
+    if (this.state.activeTabIndex !== idx) {
+      this.setState({ activeTabIndex: idx });
+      if (this.props.onTabClicked) {
+        this.props.onTabClicked(this.props.tabRoutes[idx]);
+      }
     }
   }
 

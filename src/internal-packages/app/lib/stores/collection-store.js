@@ -28,22 +28,6 @@ const CollectionStore = Reflux.createStore({
   },
 
   /**
-   * Set the active tab idx for the current collection
-   * @param {number} idx current tab idx
-   */
-  setActiveTab(idx) {
-    this.activeTabIndex = idx;
-  },
-
-  /**
-   * Get the active tab idx for the current collection
-   * @returns {number} the current idx
-   */
-  getActiveTab() {
-    return this.activeTabIndex;
-  },
-
-  /**
    * Get the collection ns.
    *
    * @returns {String} The collection ns.
