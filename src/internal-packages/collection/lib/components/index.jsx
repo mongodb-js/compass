@@ -1,9 +1,7 @@
 const React = require('react');
 const app = require('ampersand-app');
 const semver = require('semver');
-const { NamespaceStore } = require('hadron-reflux-store');
 const toNS = require('mongodb-ns');
-const ipc = require('hadron-ipc');
 
 class Collection extends React.Component {
   constructor(props) {
@@ -44,10 +42,9 @@ class Collection extends React.Component {
   }
 
   onDBClick() {
-    const db = toNS(this.props.namespace).database;
-    this.CollectionStore.setCollection({});
-    NamespaceStore.ns = db;
-    ipc.call('window:hide-collection-submenu');
+    const dbName = toNS(this.props.namespace).database;
+    const HomeActions = app.appRegistry.getAction('Home.Actions');
+    HomeActions.navigateRoute(app.router.history.location.hash, dbName, '');
   }
 
   render() {
@@ -79,7 +76,7 @@ class Collection extends React.Component {
           <div className="row">
             <div className="col-md-6">
               <h1>
-                <a onClick={this.onDBClick.bind(this)}>{database}</a>.
+                <a href="#" onClick={this.onDBClick.bind(this)}>{database}</a>.
                 <span>{collection}</span>
               </h1>
             </div>
