@@ -12,6 +12,14 @@ class TabNav extends React.Component {
     };
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.activeTab !== undefined) {
+      const idx = this._findIndex(nextProps.tabRoutes, nextProps.activeTab);
+      this.setState({
+        activeTabIndex: idx
+      });
+    }
+  }
   onTabClicked(idx, evt) {
     evt.preventDefault();
     // only make changes if the tab clicked is different than current active
@@ -30,9 +38,8 @@ class TabNav extends React.Component {
    * @return {number} index of the active or 0
    */
   _findIndex(tabs, activeTab) {
-    let idx = _.indexOf(tabs, activeTab);
-    idx = idx !== -1 ? idx : 0;
-    return idx;
+    // TODO @KeyboardTsundoku this could return -1 if activeTab doesn't exist...
+    return _.indexOf(tabs, activeTab);
   }
 
   renderTabs() {
