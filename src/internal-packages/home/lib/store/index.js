@@ -28,7 +28,6 @@ const HomeStore = Reflux.createStore({
    * Initialize home store
    */
   init() {
-    NamespaceStore.listen(HomeActions.switchContent);
     this.listenToExternalStore('App.InstanceStore', this.onInstanceChange.bind(this));
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
   },
@@ -52,25 +51,6 @@ const HomeStore = Reflux.createStore({
   // TODO @KeyboardTsundoku move update title up to on instance change and remove lisenting to instanceactions
   setInstance() {
     this.updateTitle();
-  },
-
-  /**
-   * change content based on namespace
-   * @param  {string} namespace current namespace context
-   */
-  switchContent(namespace) {
-    const ns = toNS(namespace);
-    if (ns.database === '') {
-      // top of the side bar was clicked, render server stats
-      this.setState({mode: INSTANCE, namespace: namespace});
-    } else if (ns.collection === '') {
-      // a database was clicked, render collections table
-      this.setState({mode: DATABASE, namespace: namespace});
-    } else {
-      // show collection view
-      this.setState({mode: COLLECTION, namespace: namespace});
-    }
-    this.updateTitle(ns);
   },
 
   /**
@@ -118,7 +98,7 @@ const HomeStore = Reflux.createStore({
    * @param {string} tab render the tab param of route
    */
   renderRoute(mode, namespace, tab) {
-    if (mode === DATABASE) {
+    if (mode === DATABASE || mode === INSTANCE) {
       this.CollectionStore.setCollection({});
       NamespaceStore.ns = namespace;
       ipc.call('window:hide-collection-submenu');

@@ -1,5 +1,4 @@
 const app = require('ampersand-app');
-const ipc = require('hadron-ipc');
 const React = require('react');
 const SidebarCollection = require('./sidebar-collection');
 const { NamespaceStore } = require('hadron-reflux-store');
@@ -8,7 +7,6 @@ class SidebarDatabase extends React.Component {
   constructor() {
     super();
     this.state = { expanded: true };
-    this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
   }
 
   getCollectionComponents() {
@@ -37,9 +35,8 @@ class SidebarDatabase extends React.Component {
 
   handleDBClick(db) {
     if (NamespaceStore.ns !== db) {
-      this.CollectionStore.setCollection({});
-      NamespaceStore.ns = db;
-      ipc.call('window:hide-collection-submenu');
+      const HomeActions = app.appRegistry.getAction('Home.Actions');
+      HomeActions.navigateRoute(app.router.history.location.hash, db, '');
     }
   }
 
