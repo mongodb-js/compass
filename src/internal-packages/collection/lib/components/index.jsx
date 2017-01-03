@@ -54,14 +54,14 @@ class Collection extends React.Component {
     const serverVersion = app.instance.build.version;
     const DV_ENABLED = semver.gt(serverVersion, '3.2.0-rc0');
     const tabs = [
-      'SCHEMA',
       'DOCUMENTS',
+      'SCHEMA',
       'INDEXES',
       'EXPLAIN PLAN'
     ];
     const views = [
-      <this.Schema />,
       <this.Document />,
+      <this.Schema />,
       <this.Indexes />,
       <this.Explain />
     ];
