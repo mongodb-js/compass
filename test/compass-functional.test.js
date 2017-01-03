@@ -460,20 +460,32 @@ describe('Compass Functional Test Suite #spectron', function() {
         });
       });
 
+      context('when using the default {} filter', function() {
+        it('does not sample the schema automatically', function() {
+          return client
+            .clickSchemaTab()
+            .getSchemaStatusMessage()
+            .should.eventually.include('Please click "Sample" to start schema analysis for the current query.');
+        });
+      });
+
       context('when applying a filter', function() {
         const filter = '{"name":"Bonobo"}';
         it('updates the document list', function() {
           return client
+            .clickDocumentsTab()
             .inputFilterFromDocumentsTab(filter)
             .clickApplyFilterButtonFromDocumentsTab()
             .getSamplingMessageFromDocumentsTab()
             .should.eventually.include('Query returned 0 documents.');
         });
 
-        it('updates the schema view', function() {
+        it('updates the schema view when clicking `Sample`', function() {
           const expected = 'This report is based on a sample of 0 documents (0.00%).';
           return client
             .clickSchemaTab()
+            .clickApplyFilterButtonFromSchemaTab()
+            .waitForStatusBar()
             .getSamplingMessageFromSchemaTab()
             .should.eventually.include(expected);
         });
@@ -500,11 +512,39 @@ describe('Compass Functional Test Suite #spectron', function() {
             .equal('Query returned 0 documents. This report is based on a sample of 0 documents (0.00%).');
         });
 
+        it('shows the outdated message on the schema view when filter changes elsewhere', function() {
+          const newFilter = '{"name": "Die Toten Hosen"}';
+          return client
+            .clickDocumentsTab()
+            .inputFilterFromDocumentsTab(newFilter)
+            .clickApplyFilterButtonFromDocumentsTab()
+            .clickSchemaTab()
+            .getSchemaStatusMessage()
+            .should.eventually.include('The schema content is outdated and no longer in sync with the query.');
+        });
+
+        it('samples on the empty filter when clicking reset on the schema view', function() {
+          const expected = 'Query returned 1 document. This report is based on a sample of 1 document (100.00%).';
+          return client
+            .clickResetFilterButtonFromSchemaTab()
+            .waitForStatusBar()
+            .getSamplingMessageFromSchemaTab()
+            .should.eventually.include(expected);
+        });
+
         context('when viewing the explain plan view', function() {
+          it('returns a collection scan warning', function() {
+            return client
+              .clickExplainPlanTab()
+              .getExplainPlanStatusMessage()
+              .should.eventually.include('To prevent unintended collection scans');
+          });
+
           it('updates the documents returned', function() {
             return client
               .clickExplainPlanTab()
-              .waitForStatusBar()
+              .inputFilterFromExplainPlanTab(filter)
+              .clickApplyFilterButtonFromExplainPlanTab()
               .getExplainDocumentsReturned()
               .should.eventually.equal('0');
           });
@@ -532,14 +572,6 @@ describe('Compass Functional Test Suite #spectron', function() {
             .getSamplingMessageFromDocumentsTab()
             .should.eventually.include('Query returned 1 document.');
         });
-
-        it('updates the schema view', function() {
-          const expected = 'This report is based on a sample of 1 document (100.00%).';
-          return client
-            .clickSchemaTab()
-            .getSamplingMessageFromSchemaTab()
-            .should.eventually.include(expected);
-        });
       });
 
       context('when navigating to the indexes tab', function() {
@@ -561,7 +593,7 @@ describe('Compass Functional Test Suite #spectron', function() {
             .getIndexUsages()
             .should
             .eventually
-            .equal(isIndexUsageEnabled(serverVersion) ? '10' : '0');
+            .equal(isIndexUsageEnabled(serverVersion) ? '13' : '0');
         });
 
         it('renders the index properties', function() {
@@ -706,6 +738,8 @@ describe('Compass Functional Test Suite #spectron', function() {
             const expected = 'This report is based on a sample of 1 document (100.00%).';
             return client
               .clickSchemaTab()
+              .clickApplyFilterButtonFromSchemaTab()
+              .waitForStatusBar()
               .getSamplingMessageFromSchemaTab()
               .should.eventually.include(expected);
           });
