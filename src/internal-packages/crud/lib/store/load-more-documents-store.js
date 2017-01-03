@@ -29,9 +29,7 @@ const LoadMoreDocumentsStore = Reflux.createStore({
    * @param {Object} state - The query state.
    */
   onQueryChanged: function(state) {
-    if (state.query) {
-      this.filter = state.query;
-    }
+    this.filter = state.query || {};
   },
 
   /**
