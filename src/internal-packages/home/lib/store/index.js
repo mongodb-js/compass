@@ -71,11 +71,9 @@ const HomeStore = Reflux.createStore({
     } else if (ns.collection === '') {
       url = `${DATABASE}/${namespace}`;
     } else {
-      if (tab === undefined) {
-        url = `${COLLECTION}/${namespace}/default`;
-      } else {
-        url = `${COLLECTION}/${namespace}/${tab}`;
-      }
+      url = tab === undefined ?
+        `${COLLECTION}/${namespace}/default`
+        : `${COLLECTION}/${namespace}/${tab}`;
     }
     app.navigate(url, options);
   },
