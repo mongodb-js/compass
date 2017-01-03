@@ -11,7 +11,7 @@ const _ = require('lodash');
 const INITIAL_WARNING = 'Please click "Sample" to start schema analysis for the current query.';
 
 const OUTDATED_WARNING = 'The schema content is outdated and no longer in sync'
-  + ' with the entered query. Press "Sample" again to see the schema for the'
+  + ' with the query. Press "Sample" again to see the schema for the'
   + ' current query.';
 
 /**
