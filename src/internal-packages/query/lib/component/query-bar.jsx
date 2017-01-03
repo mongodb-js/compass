@@ -1,6 +1,5 @@
 const React = require('react');
 const QueryAction = require('../action');
-const EJSON = require('mongodb-extended-json');
 const shell = require('electron').shell;
 
 // const debug = require('debug')('mongodb-compass:query-bar');
@@ -54,8 +53,7 @@ class QueryBar extends React.Component {
       display: notEmpty ? 'inline-block' : 'none'
     };
 
-    const hasChanges = this.props.queryString !== EJSON.stringify(this.props.lastExecutedQuery);
-    const applyDisabled = !((this.props.valid && hasChanges) || this.props.featureFlag);
+    const applyDisabled = !(this.props.valid || this.props.featureFlag);
 
     return (
       <div className="refine-view-container">
