@@ -22,6 +22,14 @@ npm install
 npm start
 ```
 
+### Master is broken
+
+Try:
+
+```
+npm run clean && npm install && npm start
+```
+
 ## Key Modules
 
 Note this is a polylithic (as opposed to a monolithic) repository - it aims to make Compass
