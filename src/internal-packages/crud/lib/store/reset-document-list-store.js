@@ -5,8 +5,6 @@ const ReadPreference = require('mongodb').ReadPreference;
 const toNS = require('mongodb-ns');
 const Actions = require('../actions');
 
-// const debug = require('debug')('mongodb-compass:crud');
-
 // const debug = require('debug')('mongodb-compass:crud:store');
 
 /**
@@ -33,6 +31,7 @@ const ResetDocumentListStore = Reflux.createStore({
     // listen for namespace changes
     NamespaceStore.listen((ns) => {
       if (ns && toNS(ns).collection) {
+        this.filter = {};
         this.reset();
       }
     });
@@ -49,10 +48,8 @@ const ResetDocumentListStore = Reflux.createStore({
    * @param {Object} state - The query state.
    */
   onQueryChanged: function(state) {
-    if (state.query) {
-      this.filter = state.query;
-      this.reset();
-    }
+    this.filter = state.query || {};
+    this.reset();
   },
 
   /**
