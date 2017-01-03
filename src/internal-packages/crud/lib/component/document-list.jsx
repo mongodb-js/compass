@@ -258,7 +258,7 @@ class DocumentList extends React.Component {
   render() {
     return (
       <div className="compass-documents header-margin">
-        <this.queryBar />
+        <this.queryBar buttonLabel="Find" />
         <this.samplingMessage insertHandler={this.handleOpenInsert.bind(this)} />
         {this.renderContent()}
       </div>

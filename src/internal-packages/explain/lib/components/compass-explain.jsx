@@ -1,6 +1,7 @@
 const React = require('react');
 const app = require('ampersand-app');
 const ExplainBody = require('./explain-body');
+const QueryActions = require('../actions');
 const ExplainHeader = require('./explain-header');
 
 /**
@@ -23,6 +24,10 @@ const READ_ONLY_WARNING = 'Explain plans on readonly views are not supported.';
 const COLLECTION_SCAN_WARNING = 'To prevent unintended collection scans, please'
   + ' enter your query first before applying and viewing your explain plan.';
 
+const OUTDATED_WARNING = 'The explain content is outdated and no longer in sync'
+  + ' with the entered query. Press "Explain" again to see the results of the'
+  + ' current query.';
+
 class CompassExplain extends React.Component {
 
   constructor(props) {
@@ -33,6 +38,14 @@ class CompassExplain extends React.Component {
 
   componentWillMount() {
     this.queryBar = app.appRegistry.getComponent('Query.QueryBar');
+  }
+
+  onApplyClicked() {
+    QueryActions.fetchExplainPlan();
+  }
+
+  onResetClicked() {
+    QueryActions.reset();
   }
 
   renderWarning(warning) {
@@ -78,13 +91,19 @@ class CompassExplain extends React.Component {
       content = this.renderWarning(READ_ONLY_WARNING);
     } else if (this.props.explainState === 'initial') {
       content = this.renderWarning(COLLECTION_SCAN_WARNING);
+    } else if (this.props.explainState === 'outdated') {
+      content = this.renderWarning(OUTDATED_WARNING);
     } else {
       content = this.renderContent();
     }
 
     return (
       <div className="compass-explain header-margin">
-        <this.queryBar />
+        <this.queryBar
+          buttonLabel="Explain"
+          onApply={this.onApplyClicked.bind(this)}
+          onReset={this.onResetClicked.bind(this)}
+        />
         {content}
       </div>
     );
@@ -92,7 +111,7 @@ class CompassExplain extends React.Component {
 }
 
 CompassExplain.propTypes = {
-  explainState: React.PropTypes.oneOf(['initial', 'fetching', 'done']),
+  explainState: React.PropTypes.oneOf(['initial', 'fetching', 'done', 'outdated']),
   nReturned: React.PropTypes.number.isRequired,
   totalKeysExamined: React.PropTypes.number.isRequired,
   totalDocsExamined: React.PropTypes.number.isRequired,
