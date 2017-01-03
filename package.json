@@ -45,7 +45,9 @@
         "linux": {
           "icon": "src/app/images/linux/mongodb-compass.png",
           "debian_config": {
-            "section": "Databases"
+            "section": "Databases",
+            "depends": [],
+            "suggests": ["libgnome-keyring0"]
           },
           "redhat_config": {
             "categories": [
