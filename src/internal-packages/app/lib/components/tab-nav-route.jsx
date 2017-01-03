@@ -38,7 +38,10 @@ class TabNav extends React.Component {
    * @return {number} index of the active or 0
    */
   _findIndex(tabs, activeTab) {
-    // TODO @KeyboardTsundoku this could return -1 if activeTab doesn't exist...
+    if (!activeTab) {
+      return 0;
+    }
+    // this can return -1 if activeTab is not part of tabs
     return _.indexOf(tabs, activeTab);
   }
 

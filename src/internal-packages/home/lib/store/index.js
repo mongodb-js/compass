@@ -71,10 +71,11 @@ const HomeStore = Reflux.createStore({
     } else if (ns.collection === '') {
       url = `${DATABASE}/${namespace}`;
     } else {
-      // TODO @KeyboardTsundoku this might be something that should be pushed down to collection rendering
-      // if tab is blank set to schema by default
-      const selectedTab = tab === '' ? 'schema' : tab;
-      url = `${COLLECTION}/${namespace}/${selectedTab}`;
+      if (tab === undefined) {
+        url = `${COLLECTION}/${namespace}/default`;
+      } else {
+        url = `${COLLECTION}/${namespace}/${tab}`;
+      }
     }
     app.navigate(url, options);
   },
@@ -102,11 +103,20 @@ const HomeStore = Reflux.createStore({
       this.CollectionStore.setCollection({});
       NamespaceStore.ns = namespace;
       ipc.call('window:hide-collection-submenu');
+      this.setState({mode: mode, namespace: namespace, tab: tab});
     } else if (mode === COLLECTION) {
       this._setCollection(namespace);
       ipc.call('window:show-collection-submenu');
+      // if mode hasn't changed for collections, then only change namespace
+      if (mode === this.state.mode) {
+        this.setState({namespace: namespace});
+      } else {
+        // TODO @KeyboardTsundoku this is a hack to set schema tab as default, should be more dynamic.....
+        this.setState({mode: mode,
+          namespace: namespace,
+          tab: tab === 'default' ? 'schema' : tab});
+      }
     }
-    this.setState({mode: mode, namespace: namespace, tab: tab});
     this.updateTitle(toNS(namespace));
   },
 

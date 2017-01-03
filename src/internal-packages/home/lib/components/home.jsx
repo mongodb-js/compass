@@ -44,9 +44,15 @@ class Home extends React.Component {
 }
 
 Home.propTypes = {
-  mode: React.PropTypes.oneOf(['instance', 'database', 'collection']),
-  namespace: React.PropTypes.string,
-  tab: React.PropTypes.string
+  mode: React.PropTypes.oneOf(['instance', 'database', 'collection']).isRequired,
+  namespace: React.PropTypes.string.isRequired,
+  tab: React.PropTypes.string.isRequired
+};
+
+Home.defaultProps = {
+  mode: 'instance',
+  namespace: '',
+  tab: 'default'
 };
 
 Home.displayName = 'Home';

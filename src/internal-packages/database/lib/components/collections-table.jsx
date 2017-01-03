@@ -31,7 +31,7 @@ class CollectionsTable extends React.Component {
 
   onNameClicked(name) {
     const HomeActions = app.appRegistry.getAction('Home.Actions');
-    HomeActions.navigateRoute(app.router.history.location.hash, `${this.props.database}.${name}`, '');
+    HomeActions.navigateRoute(app.router.history.location.hash, `${this.props.database}.${name}`);
   }
 
   renderLink(coll) {

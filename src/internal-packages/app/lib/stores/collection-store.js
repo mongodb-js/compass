@@ -12,7 +12,6 @@ const CollectionStore = Reflux.createStore({
    */
   init() {
     this.collection = {};
-    this.activeTabIndex = 0;
   },
 
   /**

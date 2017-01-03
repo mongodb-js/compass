@@ -38,11 +38,11 @@ module.exports = AmpersandRouter.extend({
     this.trigger('page', new ConnectPage({}));
   },
   // home window route
-  home: function(ns) {
+  home: function() {
     this.homeView = app.appRegistry.getComponent('Home.Home');
     this.trigger('page',
       ReactDOM.render(
-        React.createElement(this.homeView, {ns: ns}),
+        React.createElement(this.homeView),
         app.state.queryByHook('layout-container')
     ));
   },

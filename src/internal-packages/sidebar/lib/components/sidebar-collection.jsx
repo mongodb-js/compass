@@ -21,7 +21,7 @@ class SidebarCollection extends React.Component {
   handleClick() {
     if (NamespaceStore.ns !== this.props._id) {
       const HomeActions = app.appRegistry.getAction('Home.Actions');
-      HomeActions.navigateRoute(app.router.history.location.hash, `${this.props._id}`, '');
+      HomeActions.navigateRoute(app.router.history.location.hash, `${this.props._id}`);
     }
   }
 
