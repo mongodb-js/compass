@@ -38,7 +38,7 @@ class Home extends React.Component {
         effect="solid"
         class="is-not-writable-tooltip"
         place="right"
-        disable={app.dataService.isWritable()}
+        delayShow={200}
       />
     );
 
