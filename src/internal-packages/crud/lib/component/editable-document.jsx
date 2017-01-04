@@ -226,7 +226,7 @@ class EditableDocument extends React.Component {
    * @param {Object} doc - The updated document.
    */
   handleRemoveSuccess() {
-    this.setState({ deleteFinished: true });
+    this.setState({ deleting: false, deleteFinished: true });
     Actions.documentRemoved(this.doc._id);
   }
 
