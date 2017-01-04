@@ -3,9 +3,6 @@ const app = require('ampersand-app');
 const { AnimatedIconTextButton } = require('hadron-react-buttons');
 const numeral = require('numeral');
 const pluralize = require('pluralize');
-const ReactTooltip = require('react-tooltip');
-
-const TOOLTIP_ID = 'create-collection';
 
 /**
  * Component for the sampling message.
@@ -138,16 +135,7 @@ class SamplingMessage extends React.Component {
    */
   renderQueryMessage() {
     const noun = pluralize('document', this.state.count);
-
     const tooltipText = 'This action is not available on a secondary node.';
-    const tooltipOptions = {
-      'data-tip': tooltipText,
-      'data-for': TOOLTIP_ID,
-      'data-effect': 'solid',
-      'data-class': 'sampling-message-tooltip',
-      'data-place': 'right',
-      'data-offset': '{"left": 900}'
-    };
 
     return (
       <div>
@@ -163,7 +151,8 @@ class SamplingMessage extends React.Component {
             animatingIconClassName="fa fa-refresh fa-spin"
             text="&nbsp;Refresh" />
         </div>
-        <div className="action-bar" {...tooltipOptions}>
+        <div className="action-bar">
+          <div className="tooltip-button-wrapper" data-tip={tooltipText} data-for="is-not-writable">
             <button
                 className="btn btn-primary btn-xs open-insert"
                 type="button"
@@ -172,7 +161,7 @@ class SamplingMessage extends React.Component {
                 onClick={this.props.insertHandler}>
               Insert Document
             </button>
-            {this.props.isWritable ? null : <ReactTooltip id={TOOLTIP_ID}/>}
+          </div>
         </div>
       </div>
     );

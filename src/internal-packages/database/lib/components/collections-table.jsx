@@ -5,12 +5,9 @@ const CreateCollectionDialog = require('./create-collection-dialog');
 const DropCollectionDialog = require('./drop-collection-dialog');
 const numeral = require('numeral');
 const ipc = require('hadron-ipc');
-const ReactTooltip = require('react-tooltip');
 const _ = require('lodash');
 
 // const debug = require('debug')('mongodb-compass:database:collections-table');
-
-const TOOLTIP_ID = 'create-collection';
 
 class CollectionsTable extends React.Component {
 
@@ -63,27 +60,20 @@ class CollectionsTable extends React.Component {
 
     const isWritable = app.dataService.isWritable();
     const tooltipText = 'This action is not available on a secondary node.';
-    const tooltipOptions = {
-      'data-tip': tooltipText,
-      'data-for': TOOLTIP_ID,
-      'data-effect': 'solid',
-      'data-class': 'secondary-tooltip',
-      'data-place': 'right',
-      'data-offset': '{"left": 900}'
-    };
 
     return (
       <div className="collections-table" data-test-id="collections-table">
-        <div className="collections-table-create-button action-bar" {...tooltipOptions}>
-          <button
-              className="btn btn-primary btn-xs"
-              type="button"
-              data-test-id="open-create-collection-modal-button"
-              disabled={!isWritable}
-              onClick={this.onCreateCollectionButtonClicked.bind(this)}>
-            Create Collection
-          </button>
-          {isWritable ? null : <ReactTooltip id={TOOLTIP_ID}/>}
+        <div className="collections-table-create-button action-bar">
+          <div className="tooltip-button-wrapper" data-tip={tooltipText} data-for="is-not-writable">
+            <button
+                className="btn btn-primary btn-xs"
+                type="button"
+                data-test-id="open-create-collection-modal-button"
+                disabled={!isWritable}
+                onClick={this.onCreateCollectionButtonClicked.bind(this)}>
+              Create Collection
+            </button>
+          </div>
         </div>
         <this.SortableTable
           theme="light"

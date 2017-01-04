@@ -87,28 +87,21 @@ class DatabasesTable extends React.Component {
     });
 
     const isWritable = app.dataService.isWritable();
-    const tooltipText = 'This action is not available on a secondary node.';
-    const tooltipOptions = {
-      'data-tip': tooltipText,
-      'data-for': TOOLTIP_ID,
-      'data-effect': 'solid',
-      'data-class': 'secondary-tooltip',
-      'data-place': 'right',
-      'data-offset': '{"left": 900}'
-    };
+    const tooltipText = 'This action is not available on a secondary node';
 
     return (
       <div className="rtss-databases" data-test-id="databases-table">
-        <div className="rtss-databases-create-button action-bar" {...tooltipOptions}>
-          <button
-              className="btn btn-primary btn-xs"
-              type="button"
-              data-test-id="open-create-database-modal-button"
-              disabled={!isWritable}
-              onClick={this.onCreateDatabaseButtonClicked.bind(this)}>
-              Create Database
-          </button>
-          {isWritable ? null : <ReactTooltip id={TOOLTIP_ID}/>}
+        <div className="rtss-databases-create-button action-bar">
+          <div className="tooltip-button-wrapper" data-tip={tooltipText} data-for="is-not-writable">
+            <button
+                className="btn btn-primary btn-xs"
+                type="button"
+                data-test-id="open-create-database-modal-button"
+                disabled={!isWritable}
+                onClick={this.onCreateDatabaseButtonClicked.bind(this)}>
+                Create Database
+            </button>
+          </div>
         </div>
         <this.SortableTable
           theme="light"
