@@ -520,7 +520,7 @@ describe('Compass Functional Test Suite #spectron', function() {
             .clickApplyFilterButtonFromDocumentsTab()
             .clickSchemaTab()
             .getSchemaStatusMessage()
-            .should.eventually.include('The schema content is outdated and no longer in sync with the query.');
+            .should.eventually.include('schema content is outdated and no longer in sync');
         });
 
         it('samples on the empty filter when clicking reset on the schema view', function() {
