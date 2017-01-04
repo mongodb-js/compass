@@ -32,6 +32,19 @@ class Types extends React.Component {
   }
 
   /**
+   * Get the class name for the dropdown.
+   *
+   * @returns {String} The class name.
+   */
+  getClassName() {
+    let className = 'editable-element-types dropdown';
+    if (this.element.currentType !== this.element.type) {
+      className = `${className} editable-element-types-is-edited`;
+    }
+    return className;
+  }
+
+  /**
    * Get the castable value for this value.
    *
    * @returns {Object} The cast value.
@@ -46,19 +59,6 @@ class Types extends React.Component {
       });
     }
     return this.element.currentValue;
-  }
-
-  /**
-   * Get the class name for the dropdown.
-   *
-   * @returns {String} The class name.
-   */
-  getClassName() {
-    let className = 'editable-element-types dropdown';
-    if (this.element.currentType !== this.element.type) {
-      className = `${className} editable-element-types-is-edited`;
-    }
-    return className;
   }
 
   /**
