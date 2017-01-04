@@ -25,8 +25,8 @@ const COLLECTION_SCAN_WARNING = 'To prevent unintended collection scans, please'
   + ' enter your query first, then press "Explain" to view the explain plan.';
 
 const OUTDATED_WARNING = 'The explain content is outdated and no longer in sync'
-  + ' with the query. Press "Explain" again to see the explain plan of the'
-  + ' current query.';
+  + ' with the documents view. Press "Explain" again to see the explain plan for'
+  + ' the current query.';
 
 class CompassExplain extends React.Component {
 
