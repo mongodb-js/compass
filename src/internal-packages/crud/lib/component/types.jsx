@@ -6,6 +6,11 @@ const TypeChecker = require('hadron-type-checker');
 require('bootstrap/js/dropdown');
 
 /**
+ * Object constant.
+ */
+const OBJECT = 'Object';
+
+/**
  * The version at which high precision values are available.
  */
 const HP_VERSION = '3.4.0';
@@ -27,13 +32,43 @@ class Types extends React.Component {
   }
 
   /**
+   * Get the castable value for this value.
+   *
+   * @returns {Object} The cast value.
+   */
+  castableValue() {
+    if (this.element.elements) {
+      if (this.element.currentType === OBJECT) {
+        return {};
+      }
+      return _.map(this.element.elements, (element) => {
+        return element.currentValue;
+      });
+    }
+    return this.element.currentValue;
+  }
+
+  /**
+   * Get the class name for the dropdown.
+   *
+   * @returns {String} The class name.
+   */
+  getClassName() {
+    let className = 'editable-element-types dropdown';
+    if (this.element.currentType !== this.element.type) {
+      className = `${className} editable-element-types-is-edited`;
+    }
+    return className;
+  }
+
+  /**
    * Handles a change in the type.
    *
    * @param {Event} evt - The event.
    */
   handleTypeChange(evt) {
     const newType = evt.target.innerText;
-    if (newType === 'Object') {
+    if (newType === OBJECT) {
       this.element.edit('{');
       this.element.next();
     } else {
@@ -50,25 +85,13 @@ class Types extends React.Component {
     return this._version >= HP_VERSION;
   }
 
+  /**
+   * Is the type changeable?
+   *
+   * @returns {Boolean} If the type is changeable.
+   */
   isTypeChangeable() {
     return this.element.isValueEditable() || this.element.isAdded();
-  }
-
-  /**
-   * Get the castable value for this value.
-   *
-   * @returns {Object} The cast value.
-   */
-  castableValue() {
-    if (this.element.elements) {
-      if (this.element.currentType === 'Object') {
-        return {};
-      }
-      return _.map(this.element.elements, (element) => {
-        return element.currentValue;
-      });
-    }
-    return this.element.currentValue;
   }
 
   /**
@@ -78,7 +101,7 @@ class Types extends React.Component {
    */
   renderDropdown() {
     return (
-      <div className="editable-element-types dropdown">
+      <div className={this.getClassName()}>
         <button
           className="btn btn-default dropdown-toggle"
           type="button"
