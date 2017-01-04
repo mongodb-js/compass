@@ -926,6 +926,15 @@ function addGetCommands(client) {
   });
 
   /**
+   * Get the status row message from the schema view.
+   */
+  client.addCommand('getSchemaStatusMessage', function() {
+    const base = selector('schema-content');
+    const row = `${base} .status-row-has-warning`;
+    return this.waitForVisibleInCompass(row).getText(row);
+  });
+
+  /**
    * Get the document updated message.
    */
   client.addCommand('getDocumentMessage', function() {

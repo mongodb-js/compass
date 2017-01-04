@@ -44,8 +44,7 @@ const SchemaStore = Reflux.createStore({
     // listen for namespace changes
     NamespaceStore.listen((ns) => {
       if (ns && toNS(ns).collection) {
-        this._reset();
-        SchemaAction.startSampling();
+        this.reset();
       }
     });
 
@@ -93,18 +92,21 @@ const SchemaStore = Reflux.createStore({
     };
   },
 
-  _reset: function() {
+  reset: function() {
     this.setState(this.getInitialState());
   },
 
-  onQueryChanged: function(state) {
-    this._reset();
-    this.query = DEFAULT_QUERY;
+  onQueryChanged(state) {
     if (state.query) {
       this.query = state.query;
-      SchemaAction.startSampling();
+      if (this.state.samplingState === 'complete') {
+        this.setState({
+          samplingState: 'outdated'
+        });
+      }
     }
   },
+
 
   setMaxTimeMS(maxTimeMS) {
     this.setState({

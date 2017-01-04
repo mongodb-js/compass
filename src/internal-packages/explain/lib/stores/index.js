@@ -35,7 +35,7 @@ const CompassExplainStore = Reflux.createStore({
     NamespaceStore.listen((ns) => {
       if (ns && toNS(ns).collection) {
         this.query = {};
-        this._reset();
+        this.reset();
       }
     });
 
@@ -55,10 +55,10 @@ const CompassExplainStore = Reflux.createStore({
   onQueryChanged(state) {
     if (state.query) {
       this.query = state.query;
-      if (state.queryState === 'reset') {
-        this._reset();
-      } else {
-        this.fetchExplainPlan();
+      if (this.state.explainState === 'done') {
+        this.setState({
+          explainState: 'outdated'
+        });
       }
     }
   },
@@ -92,7 +92,7 @@ const CompassExplainStore = Reflux.createStore({
     };
   },
 
-  _reset() {
+  reset() {
     this.setState(this.getInitialState());
   },
 
@@ -135,7 +135,7 @@ const CompassExplainStore = Reflux.createStore({
       return;
     }
 
-    this._reset();
+    this.reset();
 
     this.setState({
       explainState: 'fetching'
