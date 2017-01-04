@@ -7,11 +7,9 @@ const CreateDatabaseDialog = require('./create-database-dialog');
 const DropDatabaseDialog = require('./drop-database-dialog');
 const { NamespaceStore } = require('hadron-reflux-store');
 const numeral = require('numeral');
-const ReactTooltip = require('react-tooltip');
 const _ = require('lodash');
 
 // const debug = require('debug')('mongodb-compass:server-stats:databases');
-const TOOLTIP_ID = 'create-database';
 
 /**
  * The help url linking to role-based authorization.
