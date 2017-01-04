@@ -20,10 +20,10 @@ class Home extends React.Component {
         view = (<this.collectionsTable />);
         break;
       case 'collection':
-        view = (<this.collectionView namespace={this.props.namespace} />);
+        view = (<this.collectionView namespace={this.props.namespace} tab={this.props.tab} />);
         break;
       default:
-        view = (<this.serverStatsView interval={1000}/>);
+        view = (<this.serverStatsView tab={this.props.tab} interval={1000}/>);
     }
 
     return view;
@@ -44,8 +44,15 @@ class Home extends React.Component {
 }
 
 Home.propTypes = {
-  mode: React.PropTypes.oneOf(['instance', 'database', 'collection']),
-  namespace: React.PropTypes.string
+  mode: React.PropTypes.oneOf(['instance', 'database', 'collection']).isRequired,
+  namespace: React.PropTypes.string.isRequired,
+  tab: React.PropTypes.string.isRequired
+};
+
+Home.defaultProps = {
+  mode: 'instance',
+  namespace: '',
+  tab: 'default'
 };
 
 Home.displayName = 'Home';

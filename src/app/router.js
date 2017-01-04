@@ -4,6 +4,11 @@ var _ = require('lodash');
 var app = require('ampersand-app');
 var React = require('react');
 var ReactDOM = require('react-dom');
+var debug = require('debug')('mongodb-compass:app:router');
+
+const INSTANCE = 'instance';
+const DATABASE = 'database';
+const COLLECTION = 'collection';
 
 module.exports = AmpersandRouter.extend({
   routes: {
@@ -11,6 +16,9 @@ module.exports = AmpersandRouter.extend({
     home: 'index',
     connect: 'connect',
     'home/:ns': 'home',
+    'instance/:tab': 'instance',
+    'database/:ns': 'database',
+    'collection/:ns/:tab': 'collection',
     '(*path)': 'catchAll'
   },
   index: function(queryString) {
@@ -24,19 +32,68 @@ module.exports = AmpersandRouter.extend({
     }
     this.connect();
   },
-  home: function(ns) {
-    this.homeView = app.appRegistry.getComponent('Home.Home');
-    this.trigger('page',
-      ReactDOM.render(
-        React.createElement(this.homeView, {ns: ns}),
-        app.state.queryByHook('layout-container')
-    ));
-  },
-  catchAll: function() {
-    this.redirectTo('');
-  },
+  // connection dialog route
   connect: function() {
     var ConnectPage = require('./connect');
     this.trigger('page', new ConnectPage({}));
+  },
+  // home window route
+  home: function() {
+    this.homeView = app.appRegistry.getComponent('Home.Home');
+    this.trigger('page',
+      ReactDOM.render(
+        React.createElement(this.homeView),
+        app.state.queryByHook('layout-container')
+    ));
+  },
+  indexRedirect: function(root, ns, tab, queryString) {
+    const params = qs.parse(queryString);
+    const homeActions = app.appRegistry.getAction('Home.Actions');
+    if (_.has(params, 'connectionId')) {
+      return app.setConnectionId(params.connectionId, () => {
+        this.home();
+        return homeActions.renderRoute(root, ns, tab, queryString);
+      });
+    }
+
+    if (app.connection) {
+      this.home();
+      return homeActions.renderRoute(root, ns, tab, queryString);
+    }
+
+    this.connect();
+  },
+  // instance level route
+  instance: function(tab, queryString) {
+    debug('route: instance', tab, queryString);
+    if (this.homeView === undefined) {
+      return this.indexRedirect(INSTANCE, '', tab, queryString);
+    }
+
+    const homeActions = app.appRegistry.getAction('Home.Actions');
+    homeActions.renderRoute(INSTANCE, '', tab);
+  },
+  // database level route
+  database: function(ns, queryString) {
+    debug('route: database', ns, queryString);
+    if (this.homeView === undefined) {
+      return this.indexRedirect(DATABASE, ns, '', queryString);
+    }
+
+    const homeActions = app.appRegistry.getAction('Home.Actions');
+    homeActions.renderRoute(DATABASE, ns);
+  },
+  // collection level route
+  collection: function(ns, tab, queryString) {
+    debug('route: collection', ns, tab, queryString);
+    if (this.homeView === undefined) {
+      return this.indexRedirect(COLLECTION, ns, tab, queryString);
+    }
+
+    const homeActions = app.appRegistry.getAction('Home.Actions');
+    homeActions.renderRoute(COLLECTION, ns, tab);
+  },
+  catchAll: function() {
+    this.redirectTo('');
   }
 });

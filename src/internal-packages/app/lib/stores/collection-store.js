@@ -12,7 +12,6 @@ const CollectionStore = Reflux.createStore({
    */
   init() {
     this.collection = {};
-    this.activeTabIndex = 0;
   },
 
   /**
@@ -25,22 +24,6 @@ const CollectionStore = Reflux.createStore({
     if (collection._id) {
       NamespaceStore.ns = collection._id;
     }
-  },
-
-  /**
-   * Set the active tab idx for the current collection
-   * @param {number} idx current tab idx
-   */
-  setActiveTab(idx) {
-    this.activeTabIndex = idx;
-  },
-
-  /**
-   * Get the active tab idx for the current collection
-   * @returns {number} the current idx
-   */
-  getActiveTab() {
-    return this.activeTabIndex;
   },
 
   /**

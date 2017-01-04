@@ -1,6 +1,5 @@
 const app = require('ampersand-app');
 const React = require('react');
-const ipc = require('hadron-ipc');
 
 const { NamespaceStore } = require('hadron-reflux-store');
 
@@ -10,8 +9,6 @@ class SidebarCollection extends React.Component {
     this.state = {
       active: false
     };
-    this.handleClick = this.handleClick.bind(this);
-    this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
   }
 
   getCollectionName() {
@@ -23,8 +20,8 @@ class SidebarCollection extends React.Component {
 
   handleClick() {
     if (NamespaceStore.ns !== this.props._id) {
-      this.CollectionStore.setCollection(this.props);
-      ipc.call('window:show-collection-submenu');
+      const HomeActions = app.appRegistry.getAction('Home.Actions');
+      HomeActions.navigateRoute(app.router.history.location.hash, `${this.props._id}`);
     }
   }
 
@@ -45,7 +42,7 @@ class SidebarCollection extends React.Component {
     return (
       <div className="compass-sidebar-item">
         <div
-          onClick={this.handleClick}
+          onClick={this.handleClick.bind(this)}
           className={className}
           data-test-id="sidebar-collection"
           title={this.props._id}>

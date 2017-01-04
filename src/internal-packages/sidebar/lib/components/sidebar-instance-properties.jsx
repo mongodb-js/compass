@@ -1,7 +1,5 @@
 const React = require('react');
 const app = require('ampersand-app');
-const ipc = require('hadron-ipc');
-const { NamespaceStore } = require('hadron-reflux-store');
 
 class SidebarInstanceProperties extends React.Component {
   getHostnameAndPort() {
@@ -49,8 +47,9 @@ class SidebarInstanceProperties extends React.Component {
   }
 
   handleClickHostname() {
-    NamespaceStore.ns = '';
-    ipc.call('window:hide-collection-submenu');
+    const HomeActions = app.appRegistry.getAction('Home.Actions');
+    // TODO @KeyboardTsundoku minor hack below specifying the tab 'databases'
+    HomeActions.navigateRoute(app.router.history.location.hash, '', 'databases');
   }
 
   render() {
