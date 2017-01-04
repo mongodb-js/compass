@@ -193,7 +193,7 @@
     "electron-prebuilt": "1.2.8",
     "enzyme": "^2.5.1",
     "eslint-config-mongodb-js": "^2.2.0",
-    "hadron-build": "﻿git://github.com/mongodb-js/hadron-build#3f8a315b2db73397fa0e1fac657442b92a1b8b7f",
+    "hadron-build": "^4.1.1",
     "jsdom": "^9.8.3",
     "mocha": "^3.1.2",
     "mock-require": "^2.0.1",
