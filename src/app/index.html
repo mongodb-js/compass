@@ -4,6 +4,11 @@
     <title>MongoDB Compass</title>
     <meta name="viewport" content="initial-scale=1">
     <style>
+      @-webkit-keyframes HOVER {
+        0%   { background-color: #4c5259; }
+        50%  { background-color: #0000FF; }
+        100% { background-color: #4c5259; }
+      }
       div#static-sidebar {
         position: fixed;
         top: 0;
@@ -11,6 +16,10 @@
         width: 250px;
         height: 100%;
         background-color: #4c5259; /* @slate1 */
+        -webkit-animation: HOVER 2s infinite ease;
+        -moz-animation:    HOVER 2s infinite ease;
+        -o-animation:      HOVER 2s infinite ease;
+        animation:         HOVER 2s infinite ease;
       }
     </style>
   </head>
