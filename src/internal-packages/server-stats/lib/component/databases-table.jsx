@@ -7,10 +7,11 @@ const CreateDatabaseDialog = require('./create-database-dialog');
 const DropDatabaseDialog = require('./drop-database-dialog');
 const { NamespaceStore } = require('hadron-reflux-store');
 const numeral = require('numeral');
-
+const ReactTooltip = require('react-tooltip');
 const _ = require('lodash');
 
 // const debug = require('debug')('mongodb-compass:server-stats:databases');
+const TOOLTIP_ID = 'create-database';
 
 /**
  * The help url linking to role-based authorization.
@@ -23,6 +24,7 @@ class DatabasesTable extends React.Component {
     super(props);
     this.SortableTable = app.appRegistry.getComponent('App.SortableTable');
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
+    this.Tooltip = app.appRegistry.getComponent('App.Tooltip');
   }
 
   onColumnHeaderClicked(column, order) {
@@ -85,18 +87,28 @@ class DatabasesTable extends React.Component {
     });
 
     const isWritable = app.dataService.isWritable();
+    const tooltipText = 'This action is not available on a secondary node.';
+    const tooltipOptions = {
+      'data-tip': tooltipText,
+      'data-for': TOOLTIP_ID,
+      'data-effect': 'solid',
+      'data-class': 'secondary-tooltip',
+      'data-place': 'right',
+      'data-offset': '{"left": 900}'
+    };
 
     return (
       <div className="rtss-databases" data-test-id="databases-table">
-        <div className="rtss-databases-create-button action-bar">
+        <div className="rtss-databases-create-button action-bar" {...tooltipOptions}>
           <button
               className="btn btn-primary btn-xs"
               type="button"
               data-test-id="open-create-database-modal-button"
               disabled={!isWritable}
               onClick={this.onCreateDatabaseButtonClicked.bind(this)}>
-            Create Database
+              Create Database
           </button>
+          {isWritable ? null : <ReactTooltip id={TOOLTIP_ID}/>}
         </div>
         <this.SortableTable
           theme="light"

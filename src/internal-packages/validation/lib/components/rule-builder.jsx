@@ -4,6 +4,7 @@ const OptionSelector = require('./common/option-selector');
 const Rule = require('./rule');
 const Editable = require('./common/editable');
 const _ = require('lodash');
+const ReactTooltip = require('react-tooltip');
 
 const ReactBootstrap = require('react-bootstrap');
 const Grid = ReactBootstrap.Grid;
@@ -11,6 +12,8 @@ const Row = ReactBootstrap.Row;
 const Col = ReactBootstrap.Col;
 const Button = ReactBootstrap.Button;
 const Table = ReactBootstrap.Table;
+
+const TOOLTIP_ID = 'create-database';
 
 // const debug = require('debug')('validation:rule-builder');
 
@@ -129,12 +132,23 @@ class RuleBuilder extends React.Component {
       delete editableProps.childName;
     }
 
+    const tooltipText = 'This action is not available on a secondary node.';
+    const tooltipOptions = {
+      'data-tip': tooltipText,
+      'data-for': TOOLTIP_ID,
+      'data-effect': 'solid',
+      'data-class': 'secondary-tooltip',
+      'data-place': 'right',
+      'data-offset': '{"left": 900}'
+    };
+
     return (
       <Editable {...editableProps} >
         <Grid fluid className="rule-builder">
           <Row className="header">
-            <Col lg={6} md={6} sm={6} xs={6}>
+            <Col lg={6} md={6} sm={6} xs={6} {...tooltipOptions}>
               {this.renderAddButton()}
+              {this.props.isWritable ? null : <ReactTooltip id={TOOLTIP_ID}/>}
             </Col>
             <Col lg={6} md={6} sm={6} xs={6}>
               <div className="pull-right">

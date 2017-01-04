@@ -1,5 +1,8 @@
 const React = require('react');
 const CreateIndexModal = require('./create-index-modal');
+const ReactTooltip = require('react-tooltip');
+
+const TOOLTIP_ID = 'create-index';
 
 /**
  * Component for the create index button.
@@ -42,8 +45,18 @@ class CreateIndexButton extends React.Component {
    * @returns {React.Component} The create index button.
    */
   render() {
+    const tooltipText = 'This action is not available on a secondary node.';
+    const tooltipOptions = {
+      'data-tip': tooltipText,
+      'data-for': TOOLTIP_ID,
+      'data-effect': 'solid',
+      'data-class': 'secondary-tooltip',
+      'data-place': 'right',
+      'data-offset': '{"left": 900}'
+    };
+
     return (
-      <div className="create-index-btn action-bar">
+      <div className="create-index-btn action-bar" {...tooltipOptions}>
         <button
           className="btn btn-primary btn-xs"
           type="button"
@@ -52,6 +65,7 @@ class CreateIndexButton extends React.Component {
           onClick={this.clickCreateHandler.bind(this)}>
           Create Index
         </button>
+        {this.props.isWritable ? null : <ReactTooltip id={TOOLTIP_ID}/>}
         <CreateIndexModal
           open={this.state.showModal}
           close={this.close.bind(this)} />
