@@ -165,7 +165,7 @@ function showAboutDialog() {
   dialog.showMessageBox({
     type: 'info',
     message: 'MongoDB Compass Version: ' + app.getVersion(),
-    buttons: []
+    buttons: ['OK']
   });
 }
 
