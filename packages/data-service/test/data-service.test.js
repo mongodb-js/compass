@@ -202,7 +202,11 @@ describe('DataService', function() {
     it('returns the collections', function(done) {
       service.listCollections('data-service', {}, function(err, collections) {
         assert.equal(null, err);
-        expect(collections).to.be.deep.equal([{ name: 'test', options: {} }]);
+        // For <3.2 system.indexes is returned with listCollections
+        expect(collections.length).to.equal(1);
+        expect(collections[0]).to.include.keys(['name', 'options']);
+        expect(collections[0].name).to.equal('test');
+        expect(collections[0].options).to.deep.equal({});
         done();
       });
     });
@@ -271,10 +275,19 @@ describe('DataService', function() {
         assert.equal(null, error);
         helper.listCollections(service.client, function(err, items) {
           assert.equal(null, err);
-          expect(items).to.deep.equal([
-            {name: 'foo', options: {}},
-            {name: 'test', options: {}}
-          ]);
+          // For <3.2 system.indexes is returned with listCollections
+          expect(items.length).to.equal(2);
+          expect(items[0]).to.include.keys(['name', 'options']);
+          expect(items[1]).to.include.keys(['name', 'options']);
+          expect(items[0].options).to.deep.equal({});
+          expect(items[1].options).to.deep.equal({});
+          if (items[0].name === 'foo') {
+            expect(items[1].name).to.equal('test');
+          } else if (items[0].name === 'test') {
+            expect(items[1].name).to.equal('foo');
+          } else {
+            assert(false, 'Collection returned from listCollections has incorrect name');
+          }
           done();
         });
       });
