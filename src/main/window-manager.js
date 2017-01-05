@@ -164,6 +164,7 @@ function showConnectWindow() {
 function showAboutDialog() {
   dialog.showMessageBox({
     type: 'info',
+    title: 'About MongoDB Compass',
     icon: 'src/app/images/compass-dialog-icon.png',
     message: 'MongoDB Compass',
     detail: 'Version ' + app.getVersion(),
