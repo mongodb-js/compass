@@ -164,7 +164,9 @@ function showConnectWindow() {
 function showAboutDialog() {
   dialog.showMessageBox({
     type: 'info',
-    message: 'MongoDB Compass Version: ' + app.getVersion(),
+    icon: 'src/app/images/compass-dialog-icon.png',
+    message: 'MongoDB Compass',
+    detail: 'Version ' + app.getVersion(),
     buttons: ['OK']
   });
 }
