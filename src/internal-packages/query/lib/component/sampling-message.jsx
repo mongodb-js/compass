@@ -1,6 +1,6 @@
 const React = require('react');
 const app = require('ampersand-app');
-const { TextButton, AnimatedIconTextButton } = require('hadron-react-buttons');
+const { AnimatedIconTextButton } = require('hadron-react-buttons');
 const numeral = require('numeral');
 const pluralize = require('pluralize');
 
@@ -18,7 +18,6 @@ class SamplingMessage extends React.Component {
     super(props);
     const crudActions = app.appRegistry.getAction('CRUD.Actions');
     this.state = { count: 0, loaded: 0 };
-    this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
     this.resetDocumentListStore = app.appRegistry.getStore('CRUD.ResetDocumentListStore');
     this.insertDocumentStore = app.appRegistry.getStore('CRUD.InsertDocumentStore');
     this.documentRemovedAction = crudActions.documentRemoved;
@@ -67,6 +66,7 @@ class SamplingMessage extends React.Component {
   /**
    * Handle the reset of the document list.
    *
+   * @param {Object} error - The error
    * @param {Array} documents - The documents.
    * @param {Integer} count - The count.
    */
@@ -79,6 +79,7 @@ class SamplingMessage extends React.Component {
   /**
    * Handle scrolling that loads more documents.
    *
+   * @param {Object} error - The error
    * @param {Array} documents - The loaded documents.
    */
   handleLoadMore(error, documents) {
@@ -134,6 +135,8 @@ class SamplingMessage extends React.Component {
    */
   renderQueryMessage() {
     const noun = pluralize('document', this.state.count);
+    const tooltipText = 'This action is not available on a secondary node.';
+
     return (
       <div>
         <div className="sampling-message">
@@ -149,12 +152,16 @@ class SamplingMessage extends React.Component {
             text="&nbsp;Refresh" />
         </div>
         <div className="action-bar">
-          {this.CollectionStore.isWritable() ?
-            <TextButton
-              clickHandler={this.props.insertHandler}
-              dataTestId="open-insert-document-modal-button"
-              className="btn btn-primary btn-xs open-insert"
-              text="Insert Document" /> : null }
+          <div className="tooltip-button-wrapper" data-tip={tooltipText} data-for="is-not-writable">
+            <button
+                className="btn btn-primary btn-xs open-insert"
+                type="button"
+                data-test-id="open-insert-document-modal-button"
+                disabled={!this.props.isWritable}
+                onClick={this.props.insertHandler}>
+              Insert Document
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -177,7 +184,8 @@ SamplingMessage.displayName = 'SamplingMessage';
 
 SamplingMessage.propTypes = {
   sampleSize: React.PropTypes.number,
-  insertHandler: React.PropTypes.func
+  insertHandler: React.PropTypes.func,
+  isWritable: React.PropTypes.bool
 };
 
 module.exports = SamplingMessage;

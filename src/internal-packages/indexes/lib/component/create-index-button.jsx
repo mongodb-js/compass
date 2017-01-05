@@ -42,15 +42,20 @@ class CreateIndexButton extends React.Component {
    * @returns {React.Component} The create index button.
    */
   render() {
+    const tooltipText = 'This action is not available on a secondary node.';
+
     return (
       <div className="create-index-btn action-bar">
-        <button
-          className="btn btn-primary btn-xs"
-          type="button"
-          data-test-id="open-create-index-modal-button"
-          onClick={this.clickCreateHandler.bind(this)}>
-          Create Index
-        </button>
+        <div className="tooltip-button-wrapper" data-tip={tooltipText} data-for="is-not-writable">
+          <button
+            className="btn btn-primary btn-xs"
+            type="button"
+            data-test-id="open-create-index-modal-button"
+            disabled={!this.props.isWritable}
+            onClick={this.clickCreateHandler.bind(this)}>
+            Create Index
+          </button>
+        </div>
         <CreateIndexModal
           open={this.state.showModal}
           close={this.close.bind(this)} />
@@ -60,5 +65,9 @@ class CreateIndexButton extends React.Component {
 }
 
 CreateIndexButton.displayName = 'CreateIndexButton';
+
+CreateIndexButton.propTypes = {
+  isWritable: React.PropTypes.bool.isRequired
+};
 
 module.exports = CreateIndexButton;

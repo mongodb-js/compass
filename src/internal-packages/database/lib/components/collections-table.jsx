@@ -3,13 +3,11 @@ const app = require('ampersand-app');
 const CollectionsActions = require('../actions/collections-actions');
 const CreateCollectionDialog = require('./create-collection-dialog');
 const DropCollectionDialog = require('./drop-collection-dialog');
-const { TextButton } = require('hadron-react-buttons');
 const numeral = require('numeral');
 const ipc = require('hadron-ipc');
+const _ = require('lodash');
 
 // const debug = require('debug')('mongodb-compass:database:collections-table');
-
-const _ = require('lodash');
 
 class CollectionsTable extends React.Component {
 
@@ -60,17 +58,22 @@ class CollectionsTable extends React.Component {
       });
     });
 
-    const writable = app.dataService.isWritable();
+    const isWritable = app.dataService.isWritable();
+    const tooltipText = 'This action is not available on a secondary node.';
 
     return (
       <div className="collections-table" data-test-id="collections-table">
         <div className="collections-table-create-button action-bar">
-          {writable ?
-            <TextButton
-              text="Create Collection"
-              dataTestId="open-create-collection-modal-button"
-              className="btn btn-primary btn-xs"
-              clickHandler={this.onCreateCollectionButtonClicked.bind(this)} /> : null}
+          <div className="tooltip-button-wrapper" data-tip={tooltipText} data-for="is-not-writable">
+            <button
+                className="btn btn-primary btn-xs"
+                type="button"
+                data-test-id="open-create-collection-modal-button"
+                disabled={!isWritable}
+                onClick={this.onCreateCollectionButtonClicked.bind(this)}>
+              Create Collection
+            </button>
+          </div>
         </div>
         <this.SortableTable
           theme="light"
@@ -80,7 +83,7 @@ class CollectionsTable extends React.Component {
           sortOrder={this.props.sortOrder}
           sortColumn={this.props.sortColumn}
           valueIndex={0}
-          removable={writable}
+          removable={isWritable}
           onColumnHeaderClicked={this.onColumnHeaderClicked.bind(this)}
           onRowDeleteButtonClicked={this.onRowDeleteButtonClicked.bind(this)}
         />

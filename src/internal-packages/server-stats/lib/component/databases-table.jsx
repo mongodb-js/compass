@@ -2,13 +2,11 @@ const React = require('react');
 const app = require('ampersand-app');
 const { shell } = require('electron');
 const ipc = require('hadron-ipc');
-const { TextButton } = require('hadron-react-buttons');
 const DatabasesActions = require('../action/databases-actions');
 const CreateDatabaseDialog = require('./create-database-dialog');
 const DropDatabaseDialog = require('./drop-database-dialog');
 const { NamespaceStore } = require('hadron-reflux-store');
 const numeral = require('numeral');
-
 const _ = require('lodash');
 
 // const debug = require('debug')('mongodb-compass:server-stats:databases');
@@ -24,6 +22,7 @@ class DatabasesTable extends React.Component {
     super(props);
     this.SortableTable = app.appRegistry.getComponent('App.SortableTable');
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
+    this.Tooltip = app.appRegistry.getComponent('App.Tooltip');
   }
 
   onColumnHeaderClicked(column, order) {
@@ -58,14 +57,14 @@ class DatabasesTable extends React.Component {
     window.close();
   }
 
-  renderNoCollections(writable) {
+  renderNoCollections(isWritable) {
     return (
       <div className="no-collections-zero-state">
         The MongoDB instance you are connected to
         does not contain any collections, or you are
         <a onClick={this.onAuthHelpClicked.bind(this)}>not authorized</a>
         to view them.
-        {!writable ?
+        {!isWritable ?
           <a className="show-connect-window"
              onClick={this.onClickShowConnectWindow.bind(this)}
           >Connect to another instance</a>
@@ -85,17 +84,22 @@ class DatabasesTable extends React.Component {
       });
     });
 
-    const writable = app.dataService.isWritable();
+    const isWritable = app.dataService.isWritable();
+    const tooltipText = 'This action is not available on a secondary node';
 
     return (
       <div className="rtss-databases" data-test-id="databases-table">
         <div className="rtss-databases-create-button action-bar">
-          {writable ?
-            <TextButton
-              text="Create Database"
-              dataTestId="open-create-database-modal-button"
-              className="btn btn-primary btn-xs"
-              clickHandler={this.onCreateDatabaseButtonClicked.bind(this)} /> : null}
+          <div className="tooltip-button-wrapper" data-tip={tooltipText} data-for="is-not-writable">
+            <button
+                className="btn btn-primary btn-xs"
+                type="button"
+                data-test-id="open-create-database-modal-button"
+                disabled={!isWritable}
+                onClick={this.onCreateDatabaseButtonClicked.bind(this)}>
+                Create Database
+            </button>
+          </div>
         </div>
         <this.SortableTable
           theme="light"
@@ -105,12 +109,12 @@ class DatabasesTable extends React.Component {
           sortOrder={this.props.sortOrder}
           sortColumn={this.props.sortColumn}
           valueIndex={0}
-          removable={writable}
+          removable={isWritable}
           onColumnHeaderClicked={this.onColumnHeaderClicked.bind(this)}
           onRowDeleteButtonClicked={this.onRowDeleteButtonClicked.bind(this)}
         />
         {this.props.databases.length === 0 ?
-            this.renderNoCollections(writable) : null}
+            this.renderNoCollections(isWritable) : null}
         <CreateDatabaseDialog />
         <DropDatabaseDialog />
       </div>

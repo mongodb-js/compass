@@ -129,12 +129,16 @@ class RuleBuilder extends React.Component {
       delete editableProps.childName;
     }
 
+    const tooltipText = 'This action is not available on a secondary node.';
+
     return (
       <Editable {...editableProps} >
         <Grid fluid className="rule-builder">
           <Row className="header">
             <Col lg={6} md={6} sm={6} xs={6}>
-              {this.props.isWritable ? this.renderAddButton() : null}
+              <div className="tooltip-button-wrapper" data-tip={tooltipText} data-for="is-not-writable">
+                {this.renderAddButton()}
+              </div>
             </Col>
             <Col lg={6} md={6} sm={6} xs={6}>
               <div className="pull-right">
