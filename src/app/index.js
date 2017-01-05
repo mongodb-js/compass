@@ -270,7 +270,7 @@ defer(() => {
     render: function() {
       debug('Rendering app container...');
 
-      this.el = document.querySelector('#application');
+      this.el = document.querySelector('#loader');
       this.renderWithTemplate(this);
       this.pageSwitcher = new ViewSwitcher(this.queryByHook('layout-container'), {
         show: function() {
