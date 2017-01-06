@@ -23,6 +23,11 @@ const SHARDED = 'isdbgrid';
 const VIEW_ERROR = 'is a view, not a collection';
 
 /**
+ * The system collection name.
+ */
+const SYSTEM = 'system';
+
+/**
  * The native client class.
  */
 class NativeClient extends EventEmitter {
@@ -121,7 +126,11 @@ class NativeClient extends EventEmitter {
       if (error) {
         return callback(this._translateMessage(error));
       }
-      async.parallel(_.map(names, (name) => {
+      // Filter out system. collections.
+      const filteredNames = _.filter(names, (name) => {
+        return !name.startsWith(SYSTEM);
+      });
+      async.parallel(_.map(filteredNames, (name) => {
         return (done) => {
           this.collectionStats(databaseName, name, done);
         };
