@@ -55,7 +55,7 @@ class CollectionsTable extends React.Component {
           '-' : numeral(coll['Avg. Document Size']).format('0.0 b'),
         'Total Document Size': isNaN(coll['Total Document Size']) ?
           '-' : numeral(coll['Total Document Size']).format('0.0 b'),
-        'Num. Indexes': isNaN(coll['Num. Indexes']) ?  '-' : coll['Num. Indexes'],
+        'Num. Indexes': isNaN(coll['Num. Indexes']) ? '-' : coll['Num. Indexes'],
         'Total Index Size': isNaN(coll['Total Index Size']) ?
           '-' : numeral(coll['Total Index Size']).format('0.0 b')
       });
