@@ -51,7 +51,7 @@ class Collection extends React.Component {
   }
 
   renderReadonly() {
-    if (this.CollectionStore.isReadonly()) {
+    if (this.CollectionStore && this.CollectionStore.isReadonly()) {
       return (
         <span className="collection-view-readonly">
           <i className="fa fa-lock" aria-hidden="true" />
