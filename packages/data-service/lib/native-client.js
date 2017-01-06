@@ -18,6 +18,11 @@ const ReadPreference = require('mongodb').ReadPreference;
 const SHARDED = 'isdbgrid';
 
 /**
+ * Error message sustring for view operations.
+ */
+const VIEW_ERROR = 'is a view, not a collection';
+
+/**
  * The native client class.
  */
 class NativeClient extends EventEmitter {
@@ -201,10 +206,10 @@ class NativeClient extends EventEmitter {
   collectionStats(databaseName, collectionName, callback) {
     var db = this._database(databaseName);
     db.command({ collStats: collectionName, verbose: 1 }, (error, data) => {
-      if (error) {
+      if (error && !error.message.includes(VIEW_ERROR)) {
         return callback(this._translateMessage(error));
       }
-      callback(null, this._buildCollectionStats(databaseName, collectionName, data));
+      callback(null, this._buildCollectionStats(databaseName, collectionName, data || { readonly: true }));
     });
   }
 
@@ -599,7 +604,8 @@ class NativeClient extends EventEmitter {
       max_document_size: data.maxSize,
       size: data.size,
       index_details: data.indexDetails || {},
-      wired_tiger: data.wiredTiger || {}
+      wired_tiger: data.wiredTiger || {},
+      readonly: data.readonly || false
     };
   }
 

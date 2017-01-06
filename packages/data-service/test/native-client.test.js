@@ -129,21 +129,52 @@ describe('NativeClient', function() {
   });
 
   describe('#collections', function() {
-    it('returns the collections', function(done) {
-      client.collections('data-service', function(err, collections) {
-        assert.equal(null, err);
-        expect(collections[0].name).to.not.equal(undefined);
-        done();
+    context('when no readonly views exist', function() {
+      it('returns the collections', function(done) {
+        client.collections('data-service', function(err, collections) {
+          assert.equal(null, err);
+          expect(collections[0].name).to.not.equal(undefined);
+          done();
+        });
+      });
+    });
+
+    context('when readonly views exist', function() {
+      after(function(done) {
+        client.dropCollection('data-service.readonlyfoo', function() {
+          client.dropCollection('data-service.system.views', function() {
+            done();
+          });
+        });
+      });
+
+      it('returns empty stats for the readonly views', function(done) {
+        const pipeline = [{ '$match': { name: 'test' }}];
+        const options = { viewOn: 'test', pipeline: pipeline };
+        client.createCollection('data-service.readonlyfoo', options, function(error) {
+          if (error) {
+            assert.notEqual(null, error.message);
+            done();
+          } else {
+            client.collections('data-service', function(err, collections) {
+              assert.equal(null, err);
+              expect(collections[0].name).to.not.equal(undefined);
+              done();
+            });
+          }
+        });
       });
     });
   });
 
   describe('#collectionStats', function() {
-    it('returns an object with the collection stats', function(done) {
-      client.collectionStats('data-service', 'test', function(err, stats) {
-        assert.equal(null, err);
-        expect(stats.name).to.equal('test');
-        done();
+    context('when the collection is not a system collection', function() {
+      it('returns an object with the collection stats', function(done) {
+        client.collectionStats('data-service', 'test', function(err, stats) {
+          assert.equal(null, err);
+          expect(stats.name).to.equal('test');
+          done();
+        });
       });
     });
   });
