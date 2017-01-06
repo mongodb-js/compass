@@ -204,15 +204,25 @@ const ValidationStore = Reflux.createStore({
     // update current validatorDoc and compare to last fetched one
     const validatorDoc = this._constructValidatorDoc(params);
 
-    this.setState({
+    const state = {
       validatorDoc: validatorDoc,
       validationRules: params.rules,
       validationLevel: params.level,
       validationAction: params.action,
-      isExpressibleByRules: _.isArray(params.rules),
-      editState: _.isEqual(this.lastFetchedValidatorDoc, validatorDoc) ?
-        'unmodified' : 'modified'
-    });
+      isExpressibleByRules: _.isArray(params.rules)
+    };
+
+    // check if lastFetchedValidatorDoc is completely blank and set editState appropriately
+    if (!_.has(this.lastFetchedValidatorDoc, 'validationAction')
+        && !_.has(this.lastFetchedValidatorDoc, 'validationLevel')
+        && _.isEmpty(this.lastFetchedValidatorDoc.validator)) {
+      state.editState = _.isEmpty(validatorDoc.validator) ? 'unmodified' : 'modified';
+    } else {
+      state.editState = _.isEqual(this.lastFetchedValidatorDoc,
+          validatorDoc) ? 'unmodified' : 'modified';
+    }
+
+    this.setState(state);
   },
 
   /**
