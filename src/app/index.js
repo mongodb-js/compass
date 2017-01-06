@@ -1,15 +1,15 @@
-/* eslint no-console:0 */
-// load styles and animations first
-var path = require('path');
-var StyleManager = require('hadron-style-manager');
-new StyleManager(
-  path.join(__dirname, 'compiled-less'),
-  __dirname
-).use(document, path.join(__dirname, 'index.less'));
 
-var defer = require('lodash.defer');
 // defer everything else so browser renders the styles as fast as possible
-defer(() => {
+window.onload = function() {
+  /* eslint no-console:0 */
+  // load styles and animations first
+  var path = require('path');
+  var StyleManager = require('hadron-style-manager');
+  new StyleManager(
+    path.join(__dirname, 'compiled-less'),
+    __dirname
+  ).use(document, path.join(__dirname, 'index.less'));
+
   console.time('app/index.js');
 
   if (process.env.NODE_ENV === 'development') {
@@ -517,4 +517,4 @@ defer(() => {
   window.app = app;
 
   console.timeEnd('app/index.js');
-});
+};
