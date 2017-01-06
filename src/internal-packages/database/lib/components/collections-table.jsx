@@ -50,11 +50,14 @@ class CollectionsTable extends React.Component {
       // return formatted table row
       return _.assign({}, coll, {
         'Collection Name': linkName,
-        'Documents': numeral(coll.Documents).format('0,0'),
+        'Documents': isNaN(coll.Documents) ? '-' : numeral(coll.Documents).format('0,0'),
         'Avg. Document Size': _.isNaN(coll['Avg. Document Size']) ?
           '-' : numeral(coll['Avg. Document Size']).format('0.0 b'),
-        'Total Document Size': numeral(coll['Total Document Size']).format('0.0 b'),
-        'Total Index Size': numeral(coll['Total Index Size']).format('0.0 b')
+        'Total Document Size': isNaN(coll['Total Document Size']) ?
+          '-' : numeral(coll['Total Document Size']).format('0.0 b'),
+        'Num. Indexes': isNaN(coll['Num. Indexes']) ?  '-' : coll['Num. Indexes'],
+        'Total Index Size': isNaN(coll['Total Index Size']) ?
+          '-' : numeral(coll['Total Index Size']).format('0.0 b')
       });
     });
 
