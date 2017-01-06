@@ -50,6 +50,16 @@ class Collection extends React.Component {
     ipc.call('window:hide-collection-submenu');
   }
 
+  renderReadonly() {
+    if (this.CollectionStore.isReadonly()) {
+      return (
+        <span className="collection-view-readonly">
+          <i className="fa fa-lock" aria-hidden="true" />
+        </span>
+      );
+    }
+  }
+
   render() {
     const serverVersion = app.instance.build.version;
     const DV_ENABLED = semver.gt(serverVersion, '3.2.0-rc0');
@@ -81,6 +91,7 @@ class Collection extends React.Component {
               <h1>
                 <a onClick={this.onDBClick.bind(this)}>{database}</a>.
                 <span>{collection}</span>
+                {this.renderReadonly()}
               </h1>
             </div>
             <div className="col-md-6">
