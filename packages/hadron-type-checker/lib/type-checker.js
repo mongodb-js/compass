@@ -254,7 +254,7 @@ const DATE_CHECK = new DateCheck();
  * The various string tests.
  */
 const STRING_TESTS = [
-  new Test(/^$/, [ 'String', 'Null', 'Undefined', 'MinKey', 'MaxKey', 'Object', 'Array' ]),
+  new Test(/^$/, [ 'String', 'Null', 'MinKey', 'MaxKey', 'Object', 'Array' ]),
   new Test(INT32_CHECK, [ 'Int32', 'Int64', 'Double', 'String', 'Object', 'Array' ]),
   new Test(INT_DBL_CHECK, [ 'Int64', 'Double', 'String', 'Object', 'Array' ]),
   new Test(INT64_CHECK, [ 'Int64', 'String', 'Object', 'Array' ]),
@@ -270,7 +270,7 @@ const STRING_TESTS = [
  * String tests with high precision support.
  */
 const HP_STRING_TESTS = [
-  new Test(/^$/, [ 'String', 'Null', 'Undefined', 'MinKey', 'MaxKey', 'Object', 'Array' ]),
+  new Test(/^$/, [ 'String', 'Null', 'MinKey', 'MaxKey', 'Object', 'Array' ]),
   new Test(INT32_CHECK, [ 'Int32', 'Int64', 'Double', 'Decimal128', 'String', 'Object', 'Array' ]),
   new Test(INT_DBL_CHECK, [ 'Int64', 'Double', 'Decimal128', 'String', 'Object', 'Array' ]),
   new Test(INT64_CHECK, [ 'Int64', 'Decimal128', 'String', 'Object', 'Array' ]),
