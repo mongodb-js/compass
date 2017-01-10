@@ -44,7 +44,15 @@
         },
         "linux": {
           "icon": "src/app/images/linux/mongodb-compass.png",
-          "category": "Databases"
+          "deb_section": "Databases",
+          "rpm_categories": [
+            "Office",
+            "Building",
+            "Debugger",
+            "IDE",
+            "GUIDesigner",
+            "Profiling"
+          ]
         }
       }
     }
