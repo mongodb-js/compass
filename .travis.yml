@@ -17,7 +17,7 @@ addons:
     packages:
       - g++-4.8
       - libkrb5-dev
-      - libsecret-dev
+      - libsecret-1-dev
 before_script:
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start
