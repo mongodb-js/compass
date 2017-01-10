@@ -44,18 +44,7 @@
         },
         "linux": {
           "icon": "src/app/images/linux/mongodb-compass.png",
-          "debian_config": {
-            "section": "Databases",
-            "depends": [],
-            "suggests": ["libgnome-keyring0"]
-          },
-          "redhat_config": {
-            "categories": [
-            ],
-            "requires": [
-              "libXScrnSaver(x86-64)"
-            ]
-          }
+          "category": "Databases"
         }
       }
     }
