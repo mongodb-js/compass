@@ -132,6 +132,8 @@ functions:
         export NOTARY_SIGNING_COMMENT="Evergreen project mongodb/compass ${revision} - ${build_variant} - ${branch_name}"
         ${npm|npm} run release;
 
+        ls -alh dist || true;
+
         # Upload release assets to S3 and GitHub
         export GITHUB_TOKEN=${leafybot_github_token}
         export DOWNLOAD_CENTER_AWS_ACCESS_KEY_ID=${aws_key_evergreen_integrations}
