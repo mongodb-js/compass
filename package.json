@@ -47,6 +47,7 @@
           "deb_section": "Databases",
           "rpm_categories": [
             "Office",
+            "Database",
             "Building",
             "Debugger",
             "IDE",
