@@ -70,7 +70,7 @@ class CreateDatabaseDialog extends React.Component {
   /**
    * When the cancel button is clicked.
    */
-  onCancelButtonClicked() {
+  onHideModal() {
     this.setState({ open: false });
   }
 
@@ -183,7 +183,7 @@ class CreateDatabaseDialog extends React.Component {
       <Modal
         show={this.state.open}
         backdrop="static"
-        keyboard={false}
+        onHide={this.onHideModal.bind(this)}
         dialogClassName="create-collection-dialog">
 
         <Modal.Header>
@@ -227,7 +227,7 @@ class CreateDatabaseDialog extends React.Component {
           <TextButton
             className="btn btn-default"
             text="Cancel"
-            clickHandler={this.onCancelButtonClicked.bind(this)} />
+            clickHandler={this.onHideModal.bind(this)} />
           <TextButton
             className="btn btn-primary"
             dataTestId="create-database-button"

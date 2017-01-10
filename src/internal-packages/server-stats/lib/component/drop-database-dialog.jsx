@@ -49,7 +49,7 @@ class DropDatabaseDialog extends React.Component {
   /**
    * When the cancel button is clicked.
    */
-  onCancelButtonClicked() {
+  onHideModal() {
     this.setState({ open: false });
   }
 
@@ -90,7 +90,8 @@ class DropDatabaseDialog extends React.Component {
    */
   render() {
     return (
-      <Modal show={this.state.open} backdrop="static" keyboard={false} dialogClassName="drop-database-dialog">
+      <Modal show={this.state.open} backdrop="static" onHide={this.onHideModal.bind(this)}
+          dialogClassName="drop-database-dialog">
         <Modal.Header>
           <Modal.Title>Drop Database</Modal.Title>
         </Modal.Header>
@@ -126,7 +127,7 @@ class DropDatabaseDialog extends React.Component {
           <TextButton
             className="btn btn-default"
             text="Cancel"
-            clickHandler={this.onCancelButtonClicked.bind(this)} />
+            clickHandler={this.onHideModal.bind(this)} />
           <button
             className="btn btn-primary"
             data-test-id="drop-database-button"
