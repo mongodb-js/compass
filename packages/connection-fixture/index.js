@@ -51,46 +51,54 @@ exports.X509 = {
  */
 exports.SSH_TUNNEL_IDENTITY_FILE = {
   name: 'SSH tunnel connection using an identity file',
-  hostname: 'standalone.compass-test-1.mongodb.parts',
+  hostname: '10.0.0.131',
   port: 27000,
-  ns: 'fanclub',
   mongodb_username: 'integrations',
   mongodb_password: process.env.MONGODB_PASSWORD_INTEGRATIONS,
-  ssh_tunnel_hostname: process.env.MONGODB_SSH_TUNNEL_IDENTITY_FILE_HOST,
-  ssh_tunnel_user: process.env.MONGODB_SSH_TUNNEL_IDENTITY_FILE_USER,
-  ssh_tunnel_identity_file: [ process.env.MONGODB_SSH_TUNNEL_IDENTITY_FILE ]
+  mongodb_database_name: 'admin',
+  ssh_tunnel: 'IDENTITY_FILE',
+  ssh_tunnel_hostname: 'jumpbox.compass-test-ssh.mongodb.parts',
+  ssh_tunnel_port: 22,
+  ssh_tunnel_bind_to_local_port: 29799,
+  ssh_tunnel_username: 'ec2-user',
+  ssh_tunnel_identity_file: [ process.env.MONGODB_SSH_TUNNEL_IDENTITY_FILE ],
+  ssh_tunnel_passphrase: ''
 };
 
 /**
  * For SSH tunnel connections with an identity file and passphrase.
+ *
+ * @todo (thomasr) currently not used.
  */
-exports.SSH_TUNNEL_IDENTITY_FILE_WITH_PASSPHRASE = {
-  name: 'SSH tunnel connection using an identity file with passphrase',
-  hostname: 'standalone.compass-test-1.mongodb.parts',
-  port: 27000,
-  ns: 'fanclub',
-  mongodb_username: 'integrations',
-  mongodb_password: process.env.MONGODB_PASSWORD_INTEGRATIONS,
-  ssh_tunnel_hostname: process.env.MONGODB_SSH_TUNNEL_IDENTITY_FILE_WITH_PASSPHRASE_HOST,
-  ssh_tunnel_user: process.env.MONGODB_SSH_TUNNEL_IDENTITY_FILE_WITH_PASSPHRASE_USER,
-  ssh_tunnel_identity_file: [ process.env.MONGODB_SSH_TUNNEL_IDENTITY_FILE_WITH_PASSPHRASE ],
-  ssh_tunnel_passphrase: process.env.MONGODB_SSH_TUNNEL_IDENTITY_FILE_PASSPHRASE
-};
+// exports.SSH_TUNNEL_IDENTITY_FILE_WITH_PASSPHRASE = {
+//   name: 'SSH tunnel connection using an identity file with passphrase',
+//   hostname: 'standalone.compass-test-1.mongodb.parts',
+//   port: 27000,
+//   ns: 'fanclub',
+//   mongodb_username: 'integrations',
+//   mongodb_password: process.env.MONGODB_PASSWORD_INTEGRATIONS,
+//   ssh_tunnel_hostname: process.env.MONGODB_SSH_TUNNEL_IDENTITY_FILE_WITH_PASSPHRASE_HOST,
+//   ssh_tunnel_user: process.env.MONGODB_SSH_TUNNEL_IDENTITY_FILE_WITH_PASSPHRASE_USER,
+//   ssh_tunnel_identity_file: [ process.env.MONGODB_SSH_TUNNEL_IDENTITY_FILE_WITH_PASSPHRASE ],
+//   ssh_tunnel_passphrase: process.env.MONGODB_SSH_TUNNEL_IDENTITY_FILE_PASSPHRASE
+// };
 
 /**
  * For SSH tunnel connections with username/password.
+ *
+ * @todo (thomasr) currently not used.
  */
-exports.SSH_TUNNEL_USER_PASSWORD = {
-  name: 'SSH tunnel connection using a username and password',
-  hostname: 'standalone.compass-test-1.mongodb.parts',
-  port: 27000,
-  ns: 'fanclub',
-  mongodb_username: 'integrations',
-  mongodb_password: process.env.MONGODB_PASSWORD_INTEGRATIONS,
-  ssh_tunnel_hostname: process.env.MONGODB_SSH_TUNNEL_USER_PASSWORD_HOST,
-  ssh_tunnel_user: process.env.MONGODB_SSH_TUNNEL_USER_PASSWORD_USER,
-  ssh_tunnel_password: process.env.MONGODB_SSH_TUNNEL_PASSWORD
-};
+// exports.SSH_TUNNEL_USER_PASSWORD = {
+//   name: 'SSH tunnel connection using a username and password',
+//   hostname: 'standalone.compass-test-1.mongodb.parts',
+//   port: 27000,
+//   ns: 'fanclub',
+//   mongodb_username: 'integrations',
+//   mongodb_password: process.env.MONGODB_PASSWORD_INTEGRATIONS,
+//   ssh_tunnel_hostname: process.env.MONGODB_SSH_TUNNEL_USER_PASSWORD_HOST,
+//   ssh_tunnel_user: process.env.MONGODB_SSH_TUNNEL_USER_PASSWORD_USER,
+//   ssh_tunnel_password: process.env.MONGODB_SSH_TUNNEL_PASSWORD
+// };
 
 /**
  * For `authentication=MONGODB`
@@ -151,106 +159,46 @@ exports.INSTANCES = [
   {
     name: '3.0 Standalone: Store 1',
     hostname: 'standalone.compass-test-1.mongodb.parts',
-    port: 27000
+    port: 27030
   },
   {
-    name: '2.6 Standalone: Store 1',
+    name: '3.2 Standalone: Store 1',
     hostname: 'standalone.compass-test-1.mongodb.parts',
-    port: 26000
+    port: 27032
   },
   {
-    name: '3.0 Replicaset: Store 1',
+    name: '3.4-ent Replicaset: Store 1',
     hostname: 'replset-0.compass-test-1.mongodb.parts',
     port: 27000
   },
   {
-    name: '3.0 Replicaset: Store 2',
+    name: '3.4-ent Replicaset: Store 2',
     hostname: 'replset-1.compass-test-1.mongodb.parts',
     port: 27000
   },
   {
-    name: '3.0 Replicaset: Store 3',
+    name: '3.4-ent Replicaset: Store 3',
     hostname: 'replset-2.compass-test-1.mongodb.parts',
     port: 27000
   },
   {
-    name: '3.0 Cluster: Router 1',
-    hostname: 'replset-0.compass-test-1.mongodb.parts',
-    port: 28017
-  },
-  {
-    name: '3.0 Cluster: Router 2',
-    hostname: 'replset-1.compass-test-1.mongodb.parts',
-    port: 28017
-  },
-  {
-    name: '3.0 Cluster: Router 3',
-    hostname: 'replset-2.compass-test-1.mongodb.parts',
-    port: 28017
-  },
-  {
-    name: '3.0 Cluster: Config 1',
-    hostname: 'replset-0.compass-test-1.mongodb.parts',
-    port: 28200
-  },
-  {
-    name: '3.0 Cluster: Config 2',
-    hostname: 'replset-0.compass-test-1.mongodb.parts',
-    port: 28200
-  },
-  {
-    name: '3.0 Cluster: Config 3',
-    hostname: 'replset-0.compass-test-1.mongodb.parts',
-    port: 28200
-  },
-  {
-    name: '3.0 Cluster: Store 1',
-    hostname: 'replset-0.compass-test-1.mongodb.parts',
-    port: 28100
-  },
-  {
-    name: '3.0 Cluster: Store 2',
-    hostname: 'replset-0.compass-test-1.mongodb.parts',
-    port: 28100
-  },
-  {
-    name: '3.0 Cluster: Store 3',
-    hostname: 'replset-0.compass-test-1.mongodb.parts',
-    port: 28100
-  },
-  {
-    name: '2.6 Cluster: Router 1',
-    hostname: 'replset-0.compass-test-1.mongodb.parts',
+    name: '3.4-ent Cluster: Router 1',
+    hostname: 'mongos.compass-test-1.mongodb.parts',
     port: 26017
   },
   {
-    name: '2.6 Cluster: Store 1',
-    hostname: 'replset-0.compass-test-1.mongodb.parts',
-    port: 26100
-  },
-  {
-    name: '2.6 Cluster: Store 2',
-    hostname: 'replset-1.compass-test-1.mongodb.parts',
-    port: 26100
-  },
-  {
-    name: '2.6 Cluster: Store 3',
-    hostname: 'replset-2.compass-test-1.mongodb.parts',
-    port: 26100
-  },
-  {
-    name: '2.6 Cluster: Config 1',
+    name: '3.4-ent Cluster: Config 1',
     hostname: 'replset-0.compass-test-1.mongodb.parts',
     port: 26200
   },
   {
-    name: '2.6 Cluster: Config 2',
-    hostname: 'replset-1.compass-test-1.mongodb.parts',
+    name: '3.4-ent Cluster: Config 2',
+    hostname: 'replset-0.compass-test-1.mongodb.parts',
     port: 26200
   },
   {
-    name: '2.6 Cluster: Config 3',
-    hostname: 'replset-2.compass-test-1.mongodb.parts',
+    name: '3.4-ent Cluster: Config 3',
+    hostname: 'replset-0.compass-test-1.mongodb.parts',
     port: 26200
   }
 ];
@@ -273,30 +221,28 @@ exports.MATRIX = _.chain(exports.MONGODB)
 function hasSshTunnelIdentityFileEnv() {
   return (
     process.env.MONGODB_PASSWORD_INTEGRATIONS &&
-    process.env.MONGODB_SSH_TUNNEL_IDENTITY_FILE_HOST &&
-    process.env.MONGODB_SSH_TUNNEL_IDENTITY_FILE_USER &&
     process.env.MONGODB_SSH_TUNNEL_IDENTITY_FILE
   );
 }
 
-function hasSshTunnelIdentityFileWithPassphraseEnv() {
-  return (
-    process.env.MONGODB_PASSWORD_INTEGRATIONS &&
-    process.env.MONGODB_SSH_TUNNEL_IDENTITY_FILE_WITH_PASSPHRASE_HOST &&
-    process.env.MONGODB_SSH_TUNNEL_IDENTITY_FILE_WITH_PASSPHRASE_USER &&
-    process.env.MONGODB_SSH_TUNNEL_IDENTITY_FILE_WITH_PASSPHRASE &&
-    process.env.MONGODB_SSH_TUNNEL_IDENTITY_FILE_PASSPHRASE
-  );
-}
-
-function hasSshTunnelUserPasswordEnv() {
-  return (
-    process.env.MONGODB_PASSWORD_INTEGRATIONS &&
-    process.env.MONGODB_SSH_TUNNEL_USER_PASSWORD_HOST &&
-    process.env.MONGODB_SSH_TUNNEL_USER_PASSWORD_USER &&
-    process.env.MONGODB_SSH_TUNNEL_PASSWORD
-  );
-}
+// function hasSshTunnelIdentityFileWithPassphraseEnv() {
+//   return (
+//     process.env.MONGODB_PASSWORD_INTEGRATIONS &&
+//     process.env.MONGODB_SSH_TUNNEL_IDENTITY_FILE_WITH_PASSPHRASE_HOST &&
+//     process.env.MONGODB_SSH_TUNNEL_IDENTITY_FILE_WITH_PASSPHRASE_USER &&
+//     process.env.MONGODB_SSH_TUNNEL_IDENTITY_FILE_WITH_PASSPHRASE &&
+//     process.env.MONGODB_SSH_TUNNEL_IDENTITY_FILE_PASSPHRASE
+//   );
+// }
+//
+// function hasSshTunnelUserPasswordEnv() {
+//   return (
+//     process.env.MONGODB_PASSWORD_INTEGRATIONS &&
+//     process.env.MONGODB_SSH_TUNNEL_USER_PASSWORD_HOST &&
+//     process.env.MONGODB_SSH_TUNNEL_USER_PASSWORD_USER &&
+//     process.env.MONGODB_SSH_TUNNEL_PASSWORD
+//   );
+// }
 
 /**
  * Separate matrix for SSH tunnel connections.
@@ -307,13 +253,13 @@ if (hasSshTunnelIdentityFileEnv()) {
   exports.SSH_TUNNEL_MATRIX.push(exports.SSH_TUNNEL_IDENTITY_FILE);
 }
 
-if (hasSshTunnelIdentityFileWithPassphraseEnv()) {
-  exports.SSH_TUNNEL_MATRIX.push(exports.SSH_TUNNEL_IDENTITY_FILE_WITH_PASSPHRASE);
-}
-
-if (hasSshTunnelUserPasswordEnv()) {
-  exports.SSH_TUNNEL_MATRIX.push(exports.SSH_TUNNEL_USER_PASSWORD);
-}
+// if (hasSshTunnelIdentityFileWithPassphraseEnv()) {
+//   exports.SSH_TUNNEL_MATRIX.push(exports.SSH_TUNNEL_IDENTITY_FILE_WITH_PASSPHRASE);
+// }
+//
+// if (hasSshTunnelUserPasswordEnv()) {
+//   exports.SSH_TUNNEL_MATRIX.push(exports.SSH_TUNNEL_USER_PASSWORD);
+// }
 
 /**
  * Resources only accessible via evergreen boxes.
