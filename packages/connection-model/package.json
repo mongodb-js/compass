@@ -39,11 +39,13 @@
   "devDependencies": {
     "eslint-config-mongodb-js": "^2.2.0",
     "mocha": "^3.1.2",
-    "mongodb-connection-fixture": "^0.0.13",
+    "mock-require": "^2.0.1",
+    "mongodb-connection-fixture": "^0.0.14",
     "mongodb-instance-model": "^3.1.7",
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^0.2.9",
     "mongodb-runner": "^3.3.3",
-    "pre-commit": "^1.1.2"
+    "pre-commit": "^1.1.2",
+    "sinon": "^1.17.7"
   }
 }

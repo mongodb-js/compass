@@ -1,8 +1,10 @@
 /* eslint no-console:0 */
 var assert = require('assert');
+var Instance = require('mongodb-instance-model');
 var Connection = require('../');
 var connect = Connection.connect;
-var Instance = require('mongodb-instance-model');
+var mock = require('mock-require');
+var sinon = require('sinon');
 
 var shouldGetInstanceDetails = function(db, done) {
   assert(db);
@@ -27,21 +29,47 @@ describe('mongodb-connection#connect', function() {
         shouldGetInstanceDetails(_db, done);
       });
     });
+
+    describe('ssh tunnel failures', function() {
+      var spy = sinon.spy();
+      mock('../lib/ssh-tunnel', function(model, cb) {
+        // simulate successful tunnel creation
+        cb();
+        // then return a mocked tunnel object with a spy close() function
+        return {close: spy};
+      });
+
+      var MockConnection = mock.reRequire('../lib/model');
+      var mockConnect = mock.reRequire('../lib/connect');
+
+      it('should close ssh tunnel if the connection fails', function(done) {
+        var model = new MockConnection({
+          hostname: 'localhost',
+          port: '27017',
+          ssh_tunnel: 'USER_PASSWORD',
+          ssh_tunnel_hostname: 'my.ssh-server.com',
+          ssh_tunnel_password: 'password',
+          ssh_tunnel_username: 'my-user'
+        });
+        assert(model.isValid());
+        mockConnect(model, function(err) {
+          // must throw error here, because the connection details are invalid
+          assert.ok(err);
+          assert.ok(/failed to connect to server/.test(err.message));
+          // assert that tunnel.close() was called once
+          assert.ok(spy.calledOnce);
+          done();
+        });
+      });
+    });
   });
 
   describe('cloud #slow', function() {
-    const regex = /🔒  integrations@2.6 Cluster: /; // eslint-disable-line no-regex-spaces
+    this.slow(5000);
+    this.timeout(10000);
+
     data.MATRIX.map(function(d) {
       it(format('should connect to `%s`', d.name), function(done) {
-        if (regex.test(d.name)) {
-          console.log('Skipping test pending COMPASS-460');
-          console.log(regex);
-          this.skip();
-          return;
-        }
-        this.slow(5000);
-        this.timeout(10000);
-
         connect(d, function(err, _db) {
           if (err) {
             return done(err);
@@ -52,25 +80,14 @@ describe('mongodb-connection#connect', function() {
       });
     });
 
-    var find = function(_db, done) {
-      _db.db('mongodb').collection('fanclub').find({}, {
-        limit: 10
-      }, function(err, docs) {
-        if (err) {
-          return done(err);
-        }
-        assert.equal(docs.length, 10);
-        done();
-      });
-    };
-
     data.SSH_TUNNEL_MATRIX.map(function(d) {
       it('connects via the ssh_tunnel to ' + d.ssh_tunnel_hostname, function(done) {
         connect(d, function(err, _db) {
           if (err) {
             return done(err);
           }
-          find(_db, done);
+          _db.close();
+          done();
         });
       });
     });

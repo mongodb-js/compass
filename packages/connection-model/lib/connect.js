@@ -194,6 +194,10 @@ function getTasks(model) {
       MongoClient.connect(model.driver_url, options, function(err, _db) {
         ctx(err);
         if (err) {
+          if (tunnel) {
+            debug('data-service connection error, shutting down ssh tunnel');
+            tunnel.close();
+          }
           return cb(err);
         }
         db = _db;
