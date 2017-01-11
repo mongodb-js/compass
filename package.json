@@ -137,6 +137,7 @@
     "hadron-type-checker": "^0.17.1",
     "highlight.js": "^8.9.1",
     "jquery": "^2.1.4",
+    "keytar": "mongodb-js/node-keytar#master",
     "less": "^2.6.1",
     "less-cache": "^0.23.0",
     "local-links": "^1.4.0",
@@ -178,9 +179,6 @@
     "turf-distance": "^1.1.0",
     "turf-point": "^2.0.1",
     "uuid": "^3.0.0"
-  },
-  "optionalDependencies": {
-    "keytar": "mongodb-js/node-keytar#419dcd423233b106ebaa0231601fc69b01bcfb2b"
   },
   "devDependencies": {
     "babel-eslint": "^6.0.4",
