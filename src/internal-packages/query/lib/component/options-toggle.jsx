@@ -12,10 +12,14 @@ class OptionsToggle extends React.Component {
     const symbol = this.props.expanded ? 'caret-down' : 'caret-right';
 
     return (
+<<<<<<< HEAD
       <div
         className="querybar-options-toggle"
         onClick={this.onClick.bind(this)}
         data-test-id="querybar-options-toggle">
+=======
+      <div className="querybar-options-toggle" onClick={this.onClick.bind(this)}>
+>>>>>>> COMPASS-630 COMPASS-631 implement advanced query bar
         <FontAwesome fixedWidth name={symbol} />
         <span>Options</span>
       </div>

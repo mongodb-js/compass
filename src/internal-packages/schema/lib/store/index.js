@@ -6,7 +6,6 @@ const StateMixin = require('reflux-state-mixin');
 const schemaStream = require('mongodb-schema').stream;
 const toNS = require('mongodb-ns');
 const ReadPreference = require('mongodb').ReadPreference;
-// const _ = require('lodash');
 
 const COMPASS_ICON = require('../../../../icon');
 
