@@ -29,7 +29,7 @@
     "ampersand-rest-collection": "^6.0.0",
     "async": "^2.0.1",
     "backoff": "^2.4.1",
-    "debug": "^2.3.3",
+    "debug": "^2.6.0",
     "kerberos": "^0.0.22",
     "lodash": "^4.16.4",
     "mongodb": "^2.2.11",
