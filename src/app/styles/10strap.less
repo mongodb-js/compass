@@ -417,7 +417,6 @@ fieldset[disabled] .btn-info.active {
 }
 
 .btn-borderless {
-  font-weight: normal;
   color: @linkText;
   background: none;
 }
@@ -449,6 +448,31 @@ fieldset[disabled] .btn-borderless:hover,
 .btn-borderless[disabled]:focus,
 fieldset[disabled] .btn-borderless:focus {
   color: @mutedText;
+}
+
+.btn-link {
+  color: @linkText;
+  background: rgba(255,255,255,0.5);
+  border-color: @gray6;
+}
+
+.btn-link:hover,
+.btn-link:focus,
+.btn-link:active,
+.btn-link.active {
+  box-shadow: none;
+  background: @gray8;
+  border-color: @gray5;
+  text-decoration: none;
+}
+
+.btn-case-sensitive {
+  text-transform: none;
+  &.btn-xs {
+    font-size: 12px;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
 }
 
 /* Button Badges */

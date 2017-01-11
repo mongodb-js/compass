@@ -79,7 +79,7 @@ class DatabasesTable extends React.Component {
     const rows = _.map(this.props.databases, (db) => {
       const dbName = db['Database Name'];
       return _.assign({}, db, {
-        'Database Name': <a className="rtss-databases-link" href="#" onClick={this.onNameClicked.bind(this, dbName)}>{dbName}</a>,
+        'Database Name': <a className="rtss-databases-link btn btn-link btn-xs btn-case-sensitive" href="#" onClick={this.onNameClicked.bind(this, dbName)}>{dbName}</a>,
         'Storage Size': numeral(db['Storage Size']).format('0.0b')
       });
     });
