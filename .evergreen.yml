@@ -316,6 +316,18 @@ tasks:
   - func: "chmod npm"
     variants:
       - windows
+  - command: shell.exec
+    params:
+      working_dir: src
+      script: |
+        set -ev
+        export CI=1
+        export EVERGREEN=1
+        export PATH="${node_path}:$PATH"
+        wget https://github.com/mongodb-js/node-keytar/releases/download/v3.0.0/libsecret-1.so.0
+        cp ./libsecret-1.so.0 /usr/lib64/libsecret-1.so.0
+    variants:
+      - rhel
   - func: "npm install"
   - command: shell.exec
     params:
