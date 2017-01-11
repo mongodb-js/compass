@@ -416,36 +416,38 @@ fieldset[disabled] .btn-info.active {
   border-color: lighten(@green2, 10%);
 }
 
-.btn-link {
+.btn-borderless {
   font-weight: normal;
   color: @linkText;
+  background: none;
 }
 
-.btn-link,
-.btn-link:active,
-.btn-link[disabled],
-fieldset[disabled] .btn-link {
+.btn-borderless,
+.btn-borderless:active,
+.btn-borderless[disabled],
+fieldset[disabled] .btn-borderless {
   -webkit-box-shadow: none;
           box-shadow: none;
 }
 
-.btn-link,
-.btn-link:hover,
-.btn-link:focus,
-.btn-link:active {
+.btn-borderless,
+.btn-borderless:hover,
+.btn-borderless:focus,
+.btn-borderless:active {
   -webkit-box-shadow: none;
   box-shadow: none;
 }
 
-.btn-link:hover,
-.btn-link:focus {
+.btn-borderless:hover,
+.btn-borderless:focus {
   color: @linkText;
+  text-decoration: underline;
 }
 
-.btn-link[disabled]:hover,
-fieldset[disabled] .btn-link:hover,
-.btn-link[disabled]:focus,
-fieldset[disabled] .btn-link:focus {
+.btn-borderless[disabled]:hover,
+fieldset[disabled] .btn-borderless:hover,
+.btn-borderless[disabled]:focus,
+fieldset[disabled] .btn-borderless:focus {
   color: @mutedText;
 }
 
@@ -505,8 +507,8 @@ fieldset[disabled] .btn-link:focus {
     color: @gray7;
   }
 
-  .btn-link,
-  .btn-link:hover {
+  .btn-borderless,
+  .btn-borderless:hover {
     color: @linkOnDark;
   }
 

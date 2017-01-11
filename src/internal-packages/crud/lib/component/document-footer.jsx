@@ -179,7 +179,7 @@ class DocumentFooter extends React.Component {
         </div>
         <div className="document-footer-actions">
           <TextButton
-            className="btn btn-link btn-xs cancel"
+            className="btn btn-borderless btn-xs cancel"
             text="Cancel"
             clickHandler={this.handleCancel.bind(this)} />
           <TextButton
