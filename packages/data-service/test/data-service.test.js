@@ -126,6 +126,42 @@ describe('DataService', function() {
     });
   });
 
+  describe('#aggregate', function() {
+    before(function(done) {
+      helper.insertTestDocuments(service.client, function() {
+        done();
+      });
+    });
+
+    after(function(done) {
+      helper.deleteTestDocuments(service.client, function() {
+        done();
+      });
+    });
+
+    it('returns a cursor for the documents', function(done) {
+      var count = 0;
+      service.aggregate('data-service.test',
+        [{$match: {}}, {$group: {_id: '$a', total: {$sum: '$a'} } }],
+        {'cursor': { batchSize: 10000 }}
+      ).forEach(function() { count++; }, function(err) {
+        assert.equal(null, err);
+        expect(count).to.equal(2);
+        done();
+      });
+    });
+    it('returns null, calls callback', function(done) {
+      service.aggregate('data-service.test',
+        [{$match: {}}, {$group: {_id: '$a', total: {$sum: '$a'} } }],
+        {},
+        function(error, result) {
+          assert.equal(null, error);
+          expect(result.length).to.equal(2);
+          done();
+        });
+    });
+  });
+
   describe('#find', function() {
     before(function(done) {
       helper.insertTestDocuments(service.client, function() {

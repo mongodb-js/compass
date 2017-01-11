@@ -193,6 +193,22 @@ class DataService extends EventEmitter {
   }
 
   /**
+   * Execute an aggregation framework pipeline with the provided options on the
+   * collection.
+   *
+   *
+   * @param {String} ns - The namespace to search on.
+   * @param {Object} pipeline - The aggregation pipeline.
+   * @param {Object} options - The aggregation options.
+   * @param {Function} callback - The callback function.
+   * @return {(null|AggregationCursor)}
+   */
+  aggregate(ns, pipeline, options, callback) {
+    debug(`#aggregate: ${ns}, pipeline: ${pipeline}, options: ${options}`);
+    return this.client.aggregate(ns, pipeline, options, callback);
+  }
+
+  /**
    * Find documents for the provided filter and options on the collection.
    *
    * @param {String} ns - The namespace to search on.

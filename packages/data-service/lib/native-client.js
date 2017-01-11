@@ -379,6 +379,26 @@ class NativeClient extends EventEmitter {
   }
 
   /**
+   * Execute an aggregation framework pipeline with the provided options on the
+   * collection. For more details, see
+   * http://mongodb.github.io/node-mongodb-native/2.2/api/Collection.html#aggregate
+   *
+   * @param {String} ns - The namespace to search on.
+   * @param {Object} pipeline - The aggregation pipeline.
+   * @param {Object} options - The aggregation options.
+   * @param {Function} callback - The callback.
+   * @return {(null|AggregationCursor)}
+   */
+  aggregate(ns, pipeline, options, callback) {
+    return this._collection(ns).aggregate(pipeline, options, (error, result) => {
+      if (error) {
+        return callback(this._translateMessage(error));
+      }
+      callback(null, result);
+    });
+  }
+
+  /**
    * Find documents for the provided filter and options on the collection.
    *
    * @param {String} ns - The namespace to search on.

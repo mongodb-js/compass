@@ -49,6 +49,121 @@ describe('NativeClient', function() {
     });
   });
 
+  describe('#aggregate', function() {
+    before(function(done) {
+      var collection = client.database.collection('test');
+      collection.insertMany(
+        [{title: 'this is my title', author: 'bob', posted: new Date(),
+          pageViews: 5, tags: [ 'fun', 'good', 'fun' ], other: { foo: 5 },
+          comments: [
+            { author: 'joe', text: 'this is cool' }, { author: 'sam', text: 'this is bad' }
+          ]},
+          {x: 1, y: 2},
+          {x: 3, y: 4}], done);
+    });
+
+    after(function(done) {
+      helper.deleteTestDocuments(client, function() {
+        done();
+      });
+    });
+
+    context('with callback', function() {
+      it('pipeline with $match', function(done) {
+        client.aggregate('data-service.test',
+          [{$match: {}}, {$group: {_id: '$x', total: {$sum: '$x'} } }],
+          function(error, result) {
+            assert.equal(null, error);
+            expect(result.length).to.equal(3);
+            done();
+          });
+      });
+      it('pipeline with $unwind, $group, $project', function(done) {
+        client.aggregate('data-service.test',
+          [{ $project: {
+            author: 1,
+            tags: 1
+          }},
+          { $unwind: '$tags' },
+          { $group: {
+            _id: {tags: '$tags'},
+            authors: { $addToSet: '$author' }
+          }}],
+          {},
+          function(error, result) {
+            assert.equal(null, error);
+            expect(result).to.deep.equal(
+              [ { _id: { tags: 'good' }, authors: [ 'bob' ] },
+                { _id: { tags: 'fun' }, authors: [ 'bob' ] } ]);
+            done();
+          });
+      });
+      it('errors when given a bad option', function() {
+        client.aggregate('data-service.test',
+          [{ $project: {
+            author: 1,
+            tags: 1
+          }},
+          { $unwind: '$tags' },
+          { $group: {
+            _id: {tags: '$tags'},
+            authors: { $addToSet: '$author' }
+          }}
+          ],
+          {'explain': 'cat'},
+          function(error, result) {
+            expect(result).to.equal(undefined);
+            expect(error.name).to.equal('MongoError');
+            expect(error.message).to.have.string('explain');
+          });
+      });
+    });
+    context('with cursor', function() {
+      it('pipeline with $match', function(done) {
+        var count = 0;
+        client.aggregate('data-service.test',
+          [{$match: {}}, {$group: {_id: '$x', total: {$sum: '$x'} } }],
+          {'cursor': { batchSize: 10000 }}
+        ).forEach(function() { count++; }, function(err) {
+          assert.equal(null, err);
+          expect(count).to.equal(3);
+          done();
+        });
+      });
+      it('pipeline with $unwind, $group, $project', function(done) {
+        client.aggregate('data-service.test',
+          [{$project: {
+            author: 1,
+            tags: 1
+          }},
+            { $unwind: '$tags' }, {$group: { _id: {tags: '$tags'}, authors: {$addToSet: '$author' }}}],
+          {cursor: {batchSize: 100}}).toArray(function(error, docs) {
+            assert.equal(null, error);
+            expect(docs).to.deep.equal(
+              [{_id: {tags: 'good'}, authors: ['bob']},
+                {_id: {tags: 'fun'}, authors: ['bob']}]);
+            done();
+          });
+      });
+      it('errors when given a bad option', function(done) {
+        try {
+          client.aggregate('data-service.test',
+            [{$project: {
+              author: 1,
+              tags: 1
+            }},
+            { $unwind: '$tags'},
+            { $group: {_id: {tags: '$tags'}, authors: {$addToSet: '$author'}}}
+            ],
+            { cursor: 1});
+        } catch (err) {
+          expect(err.message).to.equal('cursor options must be an object');
+          done();
+        }
+      });
+    });
+  });
+
   describe('#find', function() {
     before(function(done) {
       helper.insertTestDocuments(client, function() {
