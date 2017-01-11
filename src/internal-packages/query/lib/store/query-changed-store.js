@@ -6,9 +6,10 @@ const StateMixin = require('reflux-state-mixin');
 const IndexesActions = require('../../../indexes/lib/action/index-actions');
 
 const _ = require('lodash');
-
 const debug = require('debug')('mongodb-compass:stores:query-changed');
 
+const QUERY_PROPERTIES = QueryStore.QUERY_PROPERTIES;
+const EXTENDED_QUERY_PROPERTIES = QUERY_PROPERTIES.concat(['maxTimeMS', 'queryState']);
 /**
  * This is a convenience store that only triggers when the actual query
  * object (stored as `QueryStore.lastExecutedQuery`) has changed, e.g.
@@ -23,6 +24,7 @@ const QueryChangedStore = Reflux.createStore({
    */
   init: function() {
     QueryStore.listen(this.onQueryStoreChanged.bind(this));
+    this.lastExecutedQuery = QueryStore.state.lastExecutedQuery;
   },
 
   /**
@@ -31,15 +33,15 @@ const QueryChangedStore = Reflux.createStore({
    * @return {Object} the initial store state.
    */
   getInitialState() {
-    return {
-      query: null,
-      queryState: 'reset',
-      sort: {},
-      limit: 0,
-      skip: 0,
-      project: {},
-      maxTimeMS: 0
-    };
+    return _.pick(QueryStore.getInitialState(), EXTENDED_QUERY_PROPERTIES);
+  },
+
+  _detectChange(state) {
+    const hasChanged = !_.isEqual(this.lastExecutedQuery, state.lastExecutedQuery);
+    if (hasChanged) {
+      this.lastExecutedQuery = _.clone(state.lastExecutedQuery);
+    }
+    return hasChanged;
   },
 
   /**
@@ -48,24 +50,18 @@ const QueryChangedStore = Reflux.createStore({
    * @param {Object} state    the new state of QueryStore
    */
   onQueryStoreChanged(state) {
-    if (!_.isEqual(this.state.query, state.lastExecutedQuery)) {
-      this.setState({
-        query: state.lastExecutedQuery,
-        queryState: state.queryState,
-        sort: state.sort,
-        limit: state.limit,
-        skip: state.skip,
-        project: state.project,
-        maxTimeMS: state.maxTimeMS
-      });
-
+    if (this._detectChange(state)) {
+      const newState = state.lastExecutedQuery || this.getInitialState();
+      newState.queryState = state.queryState;
+      newState.maxTimeMS = state.maxTimeMS;
+      this.setState(newState);
       // reload indexes if this convenience store has changed
       IndexesActions.loadIndexes();
     }
   },
 
   storeDidUpdate(prevState) {
-    debug('query store changed from', prevState, 'to', this.state);
+    debug('QueryChangedStore changed from', prevState, 'to', this.state);
   }
 
 });

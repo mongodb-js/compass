@@ -2,9 +2,9 @@ const _ = require('lodash');
 const React = require('react');
 const uuid = require('uuid');
 const app = require('ampersand-app');
-const Action = require('hadron-action');
 const ObjectID = require('bson').ObjectID;
 const Document = require('./document');
+const Action = require('../actions');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const ResetDocumentListStore = require('../store/reset-document-list-store');
 const LoadMoreDocumentsStore = require('../store/load-more-documents-store');
@@ -85,7 +85,8 @@ class DocumentList extends React.Component {
 
   /**
    * Handle the loading of more documents.
-   * @param {Object} error
+   *
+   * @param {Object} error - Error when trying to load more documents.
    * @param {Array} documents - The next batch of documents.
    */
   handleLoadMore(error, documents) {
@@ -103,7 +104,8 @@ class DocumentList extends React.Component {
 
   /**
    * Handle the reset of the document list.
-   * @param {Object} error
+   *
+   * @param {Object} error - Error when trying to reset the document list.
    * @param {Array} documents - The documents.
    * @param {Integer} count - The count.
    */

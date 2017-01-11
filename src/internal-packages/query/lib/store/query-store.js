@@ -1,31 +1,34 @@
-const app = require('ampersand-app');
 const Reflux = require('reflux');
-const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const StateMixin = require('reflux-state-mixin');
+const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const QueryAction = require('../action');
 const EJSON = require('mongodb-extended-json');
 const accepts = require('mongodb-language-model').accepts;
+const app = require('ampersand-app');
+const assert = require('assert');
 const _ = require('lodash');
-const hasDistinctValue = require('../util').hasDistinctValue;
-const bsonEqual = require('../util').bsonEqual;
 const ms = require('ms');
+const bsonEqual = require('../util').bsonEqual;
+const hasDistinctValue = require('../util').hasDistinctValue;
 
-const debug = require('debug')('mongodb-compass:stores:query');
-// const metrics = require('mongodb-js-metrics')();
+const debug = require('debug')('mongodb-compass:stores:query-new');
 
+// constants
 const USER_TYPING_DEBOUNCE_MS = 100;
 const FEATURE_FLAG_REGEX = /^(enable|disable) (\w+)\s*$/;
 const RESET_STATE = 'reset';
 const APPLY_STATE = 'apply';
 
-const DEFAULT_QUERY = {};
-const DEFAULT_SORT = { _id: -1 };
-const DEFAULT_LIMIT = 1000;
+const DEFAULT_FILTER = {};
+const DEFAULT_SORT = { _id: 1 };
+const DEFAULT_LIMIT = 0;
 const DEFAULT_SKIP = 0;
-const DEFAULT_PROJECT = {};
+const DEFAULT_PROJECT = null;
 const DEFAULT_MAX_TIME_MS = ms('10 seconds');
 const DEFAULT_STATE = RESET_STATE;
-// const DEFAULT_QUERY_STRING = '{}';
+
+// these state properties make up a "query"
+const QUERY_PROPERTIES = ['filter', 'project', 'sort', 'skip', 'limit'];
 
 /**
  * The reflux store for the schema.
@@ -38,43 +41,83 @@ const QueryStore = Reflux.createStore({
    * listen to Namespace store and reset if ns changes.
    */
   init: function() {
+    // store valid feature flags to recognise in the filter box
     if (_.get(app.preferences, 'serialize')) {
       this.validFeatureFlags = _.keys(_.pick(app.preferences.serialize(), _.isBoolean));
     } else {
       this.validFeatureFlags = [];
     }
+    // on namespace changes, reset the store
     NamespaceStore.listen(() => {
-      // reset the store
       this.setState(this.getInitialState());
     });
   },
 
   /**
-   * Initialize the document list store.
+   * Initialize the query store.
    *
    * @return {Object} the initial store state.
    */
   getInitialState() {
     return {
-      query: DEFAULT_QUERY,
-      sort: DEFAULT_SORT,
-      limit: DEFAULT_LIMIT,
-      skip: DEFAULT_SKIP,
+      // user-facing query properties
+      filter: DEFAULT_FILTER,
       project: DEFAULT_PROJECT,
+      sort: DEFAULT_SORT,
+      skip: DEFAULT_SKIP,
+      limit: DEFAULT_LIMIT,
+
+      // internal query properties
       maxTimeMS: DEFAULT_MAX_TIME_MS,
-      queryString: '',
+
+      // string values for the query bar input fields
+      filterString: '',
+      projectString: '',
+      sortString: '',
+      skipString: '',
+      limitString: '',
+
+      // whether Apply or Reset was clicked last
       queryState: DEFAULT_STATE, // either apply or reset
+
+      // validation flags
       valid: true,
-      featureFlag: false,
+      filterValid: true,
+      projectValid: true,
+      sortValid: true,
+      skipValid: true,
+      limitValid: true,
+
+      // last full query (contains user-facing and internal variables above)
       lastExecutedQuery: null,
-      userTyping: false
+
+      // is the user currently typing (debounced by USER_TYPING_DEBOUNCE_MS)
+      userTyping: false,
+
+      // was a feature flag recognised in the input
+      featureFlag: false,
+
+      // is the query bar component expanded or collapsed?
+      expanded: false
     };
   },
 
+  /**
+   * internal method to indicate user stopped typing.
+   */
   _stoppedTyping() {
     this.userTypingTimer = null;
     this.setState({
       userTyping: false
+    });
+  },
+
+  /**
+   * toggles between expanded and collapsed query options state.
+   */
+  toggleQueryOptions() {
+    this.setState({
+      expanded: !this.state.expanded
     });
   },
 
@@ -85,40 +128,132 @@ const QueryStore = Reflux.createStore({
    * This is done for performance reasons so we don't re-render all the charts
    * constantly while the string is still being typed.
    *
-   * @param {String} queryString    The query string (i.e. manual user input)
+   * @param {String} label    Which part of the query, e.g. `filter`, `sort`
+   * @param {String} input    The query string (i.e. manual user input)
    */
-  typeQueryString(queryString) {
+  typeQueryString(label, input) {
     if (this.userTypingTimer) {
       clearTimeout(this.userTypingTimer);
     }
     this.userTypingTimer = setTimeout(this._stoppedTyping, USER_TYPING_DEBOUNCE_MS);
-    this.setQueryString(queryString, true);
+    this.setQueryString(label, input, true);
   },
 
   /**
-   * Sets `queryString` and `valid`, and if it is a valid query, also set `query`.
-   * If it is not a valid query, set `valid` to `false` and don't set the query.
+   * Sets `queryString` and `valid`, and if it is a valid input, also set `filter`,
+   * `sort`, `project`, `skip`, `limit`.
+   * If it is not a valid query, only set `valid` to `false`.
    *
-   * @param {Object} queryString   the query string (i.e. manual user input)
+   * @param {String} label         Which part of the query, e.g. `filter`, `sort`
+   * @param {Object} input   the query string (i.e. manual user input)
    * @param {Boolean} userTyping   (optional) whether the user is still typing
    */
-  setQueryString(queryString, userTyping) {
-    const query = this._validateQueryString(queryString);
-    const isFeatureFlag = Boolean(this._validateFeatureFlag(queryString));
+  setQueryString(label, input, userTyping) {
+    assert(_.includes(QUERY_PROPERTIES, label));
+    const validatedInput = this._validateInput(label, input);
+    const isFeatureFlag = Boolean(this._validateFeatureFlag(input));
+
     const state = {
-      queryString: queryString,
-      valid: Boolean(query),
       featureFlag: isFeatureFlag,
       userTyping: Boolean(userTyping)
     };
-    if (query) {
-      state.query = query;
+    state[`${label}String`] = input;
+    state[`${label}Valid`] = validatedInput !== false;
+
+    // if the input was validated, also set the corresponding state variable
+    if (validatedInput !== false) {
+      state[label] = validatedInput;
+      const valid = {
+        filter: this.state.filterValid,
+        project: this.state.projectValid,
+        sort: this.state.sortValid,
+        skip: this.state.skipValid,
+        limit: this.state.limitValid
+      };
+      valid[label] = validatedInput !== false;
+      state.valid = _.every(_.values(valid));
+    } else {
+      state.valid = false;
     }
     this.setState(state);
   },
 
-  _cleanQueryString(queryString) {
-    let output = queryString;
+  /**
+   * set many/all properties of a query at once. The values are converted to
+   * strings, and xxxString is set. The values are validated, and xxxValid is
+   * set. the properties themselves are only set for valid values.
+   *
+   * If `query` is null or undefined, set the default options.
+   *
+   * @param {Object} query   a query object with some or all query properties set.
+   */
+  setQuery(query) {
+    if (_.isUndefined(query) || _.isNull(query)) {
+      query = this._getDefaultQuery();
+    }
+
+    // convert all query inputs into their string values and validate them
+    let inputStrings = _.mapValues(query, EJSON.stringify);
+    let inputValids = _.mapValues(inputStrings, (val, label) => {
+      return this._validateInput(label, val) !== false;
+    });
+
+    // store all keys for which the values are true
+    const validKeys = _.keys(_.pick(inputValids, _.identity));
+
+    // determine if query is valid overall with these new values
+    const valid = _.every(_.values(_.assign({
+      filter: this.state.filterValid,
+      project: this.state.projectValid,
+      sort: this.state.sortValid,
+      skip: this.state.skipValid,
+      limit: this.state.limitValid
+    }, inputValids)));
+
+    // now rename the keys appropriately to xxxxString and xxxxValid
+    inputStrings = _.mapKeys(inputStrings, (val, label) => {
+      return `${label}String`;
+    });
+    inputValids = _.mapKeys(inputValids, (val, label) => {
+      return `${label}Valid`;
+    });
+
+    // merge query, query strings, valid flags into state object
+    const state = _.assign({}, _.pick(query, validKeys), inputStrings, inputValids);
+    state.featureFlag = false;
+    state.valid = valid;
+    this.setState(state);
+  },
+
+  /**
+   * returns a clone of the current query.
+   *
+   * @return {Object}  clone of the query properties.
+   */
+  _cloneQuery() {
+    return _.mapValues(_.pick(this.state, QUERY_PROPERTIES), _.clone);
+  },
+
+  /**
+   * returns the default query with all the query properties.
+   *
+   * @return {Object}  new object consisting of all default values.
+   */
+  _getDefaultQuery() {
+    return _.pick(this.getInitialState(), QUERY_PROPERTIES);
+  },
+
+  /**
+   * helper function to clean up a filter string. It adds quotes around field names
+   * and replaces multiple whitespace with a single whitespace. It also replaces
+   * an empty input with the empty filter {}.
+   *
+   * @param {String} input   The input to clean up.
+   *
+   * @return {String}   cleaned up filter string.
+   */
+  _cleanObjectString(input) {
+    let output = input;
     // accept whitespace-only input as empty query
     if (_.trim(output) === '') {
       output = '{}';
@@ -127,20 +262,43 @@ const QueryStore = Reflux.createStore({
     // @see http://stackoverflow.com/questions/6462578/alternative-to-regex-match-all-instances-not-inside-quotes
     // @see https://regex101.com/r/xM7iH6/1
     output = output.replace(/([{,])\s*([^,{\s\'"]+)\s*:(?=([^"\\]*(\\.|"([^"\\]*\\.)*[^"\\]*"))*[^"]*$)/g, '$1"$2":');
+
     // replace multiple whitespace with single whitespace
     output = output.replace(/\s+/g, ' ');
     return output;
   },
 
   /**
-   * validates whether a string is a valid query.
+   * routes to the correct validation function.
    *
-   * @param  {Object} queryString    a string to validate
-   * @returns {Object|Boolean}        false if invalid, otherwise the query
+   * @param {String} label   one of `filter`, `project`, `sort`, `skip`, `limit`
+   * @param {String} input   the input to validated
+   *
+   * @return {Boolean|String}   false if not valid, otherwise the potentially
+   *                            cleaned-up string input.
    */
-  _validateQueryString(queryString) {
+  _validateInput(label, input) {
+    if (!_.includes(QUERY_PROPERTIES, label)) {
+      return false;
+    }
+    const upperCaseLabel = _.capitalize(label);
+    return this[`_validate${upperCaseLabel}`](input);
+  },
+
+  /**
+   * validation function for a query `filter`. Must be a valid MongoDB query
+   * according to the query language.
+   *
+   * @param {String} input   the input to validate.
+   *
+   * @return {Boolean|Object}   false if not valid, otherwise the cleaned-up filter.
+   */
+  _validateFilter(input) {
+    if (input === '') {
+      input = '{}';
+    }
     try {
-      const cleaned = this._cleanQueryString(queryString);
+      const cleaned = this._cleanObjectString(input);
       // is it valid eJSON?
       const parsed = EJSON.parse(cleaned);
       // is it a valid MongoDB query according to the language?
@@ -150,16 +308,121 @@ const QueryStore = Reflux.createStore({
     }
   },
 
-  _validateFeatureFlag(queryString) {
-    const match = queryString.match(FEATURE_FLAG_REGEX);
+  /**
+   * validation function for a query `project`. Must only have 0 or 1 as values.
+   *
+   * @param {String} input   the input to validate.
+   *
+   * @return {Boolean|Object}   false if not valid, otherwise the cleaned-up project.
+   */
+  _validateProject(input) {
+    if (input === '') {
+      input = '{}';
+    }
+    try {
+      const cleaned = this._cleanObjectString(input);
+      // is it valid eJSON?
+      const parsed = EJSON.parse(cleaned);
+      // does the object only have 0 or 1 as its values?
+      return _.every(parsed, (val) => {
+        return _.isNumber(val) && (val === 0 || val === 1);
+      }) ? parsed : false;
+    } catch (e) {
+      return false;
+    }
+  },
+
+  /**
+   * validation function for a query `sort`. Must only have -1 or 1 as values.
+   *
+   * @param {String} input   the input to validate.
+   *
+   * @return {Boolean|Object}   false if not valid, otherwise the cleaned-up sort.
+   */
+  _validateSort(input) {
+    if (input === '') {
+      input = '{}';
+    }
+    try {
+      const cleaned = this._cleanObjectString(input);
+      // is it valid eJSON?
+      const parsed = EJSON.parse(cleaned);
+      // does the object only have -1 or 1 as its values?
+      return _.every(parsed, (val) => {
+        return _.isNumber(val) && (val === -1 || val === 1);
+      }) ? parsed : false;
+    } catch (e) {
+      return false;
+    }
+  },
+
+  /**
+   * validation function for a query `skip`. Must be digits only.
+   *
+   * @param {String} input   the input to validate.
+   *
+   * @return {Boolean|Number}   false if not valid, otherwise the cleaned-up skip.
+   */
+  _validateSkip(input) {
+    return this._validateNumber(input);
+  },
+
+  /**
+   * validation function for a query `limit`. Must be digits only.
+   *
+   * @param {String} input   the input to validate.
+   *
+   * @return {Boolean|Number}   false if not valid, otherwise the cleaned-up limit.
+   */
+  _validateLimit(input) {
+    return this._validateNumber(input);
+  },
+
+  _validateNumber(input) {
+    if (input === '') {
+      input = '0';
+    }
+    return /^\d+$/.test(input) ? parseInt(input, 10) : false;
+  },
+
+  /**
+   * returns true if all components of the query are not false.
+   * (note: they can return a value 0, which should not be interpreted as
+   * false here.)
+   *
+   * @return {Boolean}  if the full query is valid.
+   */
+  _validateQuery() {
+    return this._validateFilter(this.state.filterString) !== false
+      && this._validateProject(this.state.projectString) !== false
+      && this._validateSort(this.state.sortString) !== false
+      && this._validateSkip(this.state.skipString) !== false
+      && this._validateLimit(this.state.limitString) !== false;
+  },
+
+  /**
+   * validates if the input is a feature flag directive.
+   *
+   * @param {String} input   The input to validate.
+   *
+   * @return {Boolean|MatchGroup}  the regex match or false if invalid.
+   */
+  _validateFeatureFlag(input) {
+    const match = input.match(FEATURE_FLAG_REGEX);
     if (match && _.contains(this.validFeatureFlags, match[2])) {
       return match;
     }
     return false;
   },
 
+  /**
+   * check if the filter input is really a feature flag directive, for example
+   * `enable serverStats`. If so, set the feature flag accordingly.
+   *
+   * @return {Boolean}   if it was a feature flag or not.
+   */
   _checkFeatureFlagDirective() {
-    const match = this._validateFeatureFlag(this.state.queryString);
+    const match = this._validateFeatureFlag(this.state.filterString);
     if (match) {
       app.preferences.save(match[2], match[1] === 'enable');
       debug('feature flag %s %sd', match[2], match[1]);
@@ -169,23 +432,7 @@ const QueryStore = Reflux.createStore({
   },
 
   /**
-   * sets the query and the query string, and computes `valid`.
-   *
-   * @param {Object} query   a valid query.
-   */
-  setQuery(query) {
-    const queryString = EJSON.stringify(query);
-    const valid = this._validateQueryString(queryString);
-    this.setState({
-      query: query,
-      queryString: queryString,
-      valid: Boolean(valid),
-      featureFlag: false
-    });
-  },
-
-  /**
-   * Sets the value for the given field.
+   * Sets the value for the given field on the filter.
    *
    * @param {Object} args   arguments must include `field` and `value`, and
    *                        can optionally include `unsetIfSet`:
@@ -196,18 +443,18 @@ const QueryStore = Reflux.createStore({
    *                        behavior we use on minichart bars.
    */
   setValue(args) {
-    const query = _.clone(this.state.query);
-    if (args.unsetIfSet && _.isEqual(query[args.field], args.value, bsonEqual)) {
-      delete query[args.field];
+    const filter = _.clone(this.state.filter);
+    if (args.unsetIfSet && _.isEqual(filter[args.field], args.value, bsonEqual)) {
+      delete filter[args.field];
     } else {
-      query[args.field] = args.value;
+      filter[args.field] = args.value;
     }
-    this.setQuery(query);
+    this.setQuery({filter: filter});
   },
 
   /**
-   * takes either a single value or an array of values, and sets the value
-   * correctly as equality or $in depending on the number of values.
+   * takes either a single value or an array of values, and sets the value on
+   * the filter correctly as equality or $in depending on the number of values.
    *
    * @param {Object} args   arguments must include `field` and `value`:
    *          field         the field of the query to set the value on.
@@ -215,68 +462,80 @@ const QueryStore = Reflux.createStore({
    *                        array of values, in which case `$in` is used.
    */
   setDistinctValues(args) {
-    const query = _.clone(this.state.query);
+    const filter = _.clone(this.state.filter);
     if (_.isArray(args.value)) {
       if (args.value.length > 1) {
-        query[args.field] = {$in: args.value};
+        filter[args.field] = {$in: args.value};
       } else if (args.value.length === 1) {
-        query[args.field] = args.value[0];
+        filter[args.field] = args.value[0];
       } else {
         this.clearValue(args);
       }
-      this.setQuery(query);
+      this.setQuery({filter: filter});
       return;
     }
-    query[args.field] = args.value;
-    this.setQuery(query);
-  },
-
-  clearValue(args) {
-    const query = _.clone(this.state.query);
-    delete query[args.field];
-    this.setQuery(query);
+    filter[args.field] = args.value;
+    this.setQuery({filter: filter});
   },
 
   /**
-   * adds a discrete value to a field, converting primitive values to $in lists
-   * as required.
+   * clears a field from the filter
+   *
+   * @param {Object} args  arguments must include `field`:
+   *          field        the field of the query to set the value on.
+   */
+  clearValue(args) {
+    const filter = _.clone(this.state.filter);
+    delete filter[args.field];
+    this.setQuery({filter: filter});
+  },
+
+  /**
+   * adds a discrete value to a field on the filter, converting primitive
+   * values to $in lists as required.
    *
    * @param {Object} args    object with a `field` and `value` key.
    */
   addDistinctValue(args) {
-    const query = _.clone(this.state.query);
-    const field = _.get(query, args.field, undefined);
+    const filter = _.clone(this.state.filter);
+    const field = _.get(filter, args.field, undefined);
 
-    // field not present in query yet, add primitive value
+    // field not present in filter yet, add primitive value
     if (field === undefined) {
-      query[args.field] = args.value;
-      this.setQuery(query);
+      filter[args.field] = args.value;
+      this.setQuery({filter: filter});
       return;
     }
     // field is object, could be a $in clause or a primitive value
     if (_.isPlainObject(field)) {
       if (_.has(field, '$in')) {
         // add value to $in array if it is not present yet
-        const inArray = query[args.field].$in;
+        const inArray = filter[args.field].$in;
         if (!_.contains(inArray, args.value)) {
-          query[args.field].$in.push(args.value);
-          this.setQuery(query);
+          filter[args.field].$in.push(args.value);
+          this.setQuery({filter: filter});
         }
         return;
       }
       // it is not a $in operator, replace the value
-      query[args.field] = args.value;
-      this.setQuery(query);
+      filter[args.field] = args.value;
+      this.setQuery({filter: filter});
       return;
     }
     // in all other cases, we want to turn a primitive value into a $in list
-    query[args.field] = {$in: [field, args.value]};
-    this.setQuery(query);
+    filter[args.field] = {$in: [field, args.value]};
+    this.setQuery({filter: filter});
   },
 
+  /**
+   * removes a distinct value from a field on the filter, converting primitive
+   * values to $in lists as required.
+   *
+   * @param {Object} args    object with a `field` and `value` key.
+   */
   removeDistinctValue(args) {
-    const query = _.clone(this.state.query);
-    const field = _.get(query, args.field, undefined);
+    const filter = _.clone(this.state.filter);
+    const field = _.get(filter, args.field, undefined);
 
     if (field === undefined) {
       return;
@@ -285,24 +544,24 @@ const QueryStore = Reflux.createStore({
     if (_.isPlainObject(field)) {
       if (_.has(field, '$in')) {
         // add value to $in array if it is not present yet
-        const inArray = query[args.field].$in;
+        const inArray = filter[args.field].$in;
         const newArray = _.pull(inArray, args.value);
         // if $in array was reduced to single value, replace with primitive
         if (newArray.length > 1) {
-          query[args.field].$in = newArray;
+          filter[args.field].$in = newArray;
         } else if (newArray.length === 1) {
-          query[args.field] = newArray[0];
+          filter[args.field] = newArray[0];
         } else {
-          delete query[args.field];
+          delete filter[args.field];
         }
-        this.setQuery(query);
+        this.setQuery({filter: filter});
         return;
       }
     }
     // if value to remove is the same as the primitive value, unset field
     if (_.isEqual(field, args.value, bsonEqual)) {
-      delete query[args.field];
-      this.setQuery(query);
+      delete filter[args.field];
+      this.setQuery({filter: filter});
       return;
     }
     // else do nothing
@@ -310,13 +569,13 @@ const QueryStore = Reflux.createStore({
   },
 
   /**
-   * adds distinct value (equality or $in) if not yet present, otherwise
-   * removes it.
+   * adds distinct value (equality or $in) from filter if not yet present,
+   * otherwise removes it.
    *
    * @param {Object} args    object with a `field` and `value` key.
    */
   toggleDistinctValue(args) {
-    const field = _.get(this.state.query, args.field, undefined);
+    const field = _.get(this.state.filter, args.field, undefined);
     const actionFn = hasDistinctValue(field, args.value) ?
       this.removeDistinctValue : this.addDistinctValue;
     actionFn(args);
@@ -324,7 +583,8 @@ const QueryStore = Reflux.createStore({
 
   /**
    * Sets a range with minimum and/or maximum, and determines inclusive/exclusive
-   * upper and lower bounds. If neither `min` nor `max` are set, clears the field.
+   * upper and lower bounds. If neither `min` nor `max` are set, clears the field
+   * on the filter.
    *
    * @param {Object} args   arguments must include `field`, and can optionally
    *                        include `min`, `max`, `minInclusive`, `maxInclusive`
@@ -341,7 +601,7 @@ const QueryStore = Reflux.createStore({
    *                        behavior we use on minichart bars.
    */
   setRangeValues(args) {
-    const query = _.clone(this.state.query);
+    const filter = _.clone(this.state.filter);
     const value = {};
     let op;
     // without min and max, clear the field
@@ -363,17 +623,17 @@ const QueryStore = Reflux.createStore({
     }
 
     // if `args.unsetIfSet` is true, then unset the value if it's already set
-    if (args.unsetIfSet && _.isEqual(query[args.field], value, bsonEqual)) {
-      delete query[args.field];
+    if (args.unsetIfSet && _.isEqual(filter[args.field], value, bsonEqual)) {
+      delete filter[args.field];
     } else {
-      query[args.field] = value;
+      filter[args.field] = value;
     }
-    this.setQuery(query);
+    this.setQuery({filter: filter});
   },
 
   /**
    * takes a center coordinate [lng, lat] and a radius in miles and constructs
-   * a circular geoWithin query.
+   * a circular geoWithin query for the filter.
    *
    * @param {Object} args   arguments must include `field` and `value`:
    *          field         the field of the query to set the value on.
@@ -383,7 +643,7 @@ const QueryStore = Reflux.createStore({
    * @see https://docs.mongodb.com/manual/tutorial/calculate-distances-using-spherical-geometry-with-2d-geospatial-indexes/
    */
   setGeoWithinValue(args) {
-    const query = _.clone(this.state.query);
+    const filter = _.clone(this.state.filter);
     const value = {};
     const radius = _.get(args, 'radius', 0);
     const center = _.get(args, 'center', null);
@@ -392,31 +652,32 @@ const QueryStore = Reflux.createStore({
       value.$geoWithin = {
         $centerSphere: [[center[0], center[1]], radius]
       };
-      query[args.field] = value;
-      this.setQuery(query);
+      filter[args.field] = value;
+      this.setQuery({filter: filter});
       return;
     }
     // else if center or radius are not set, or radius is 0, clear field
     this.clearValue({field: args.field});
   },
 
+
   /**
    * apply the current (valid) query, and store it in `lastExecutedQuery`.
    */
   apply() {
+    // if it's a feature flag directive, then we can just reset the query
+    // to whatever was last executed.
     if (this._checkFeatureFlagDirective()) {
-      this.setQuery(this.state.lastExecutedQuery || {});
+      this.setQuery(this.state.lastExecutedQuery);
       return;
     }
-
-    // empty string is interpreted as {}
-    if (this.state.queryString === '') {
-      this.setQuery({});
-    }
-    if (this.state.valid) {
+    // otherwise, if the query validates ok, modify lastExecutedQuery (which
+    // triggers the QueryChangedStore) and set the "apply" state.
+    if (this._validateQuery()) {
       this.setState({
+        valid: true,
         queryState: APPLY_STATE,
-        lastExecutedQuery: _.clone(this.state.query)
+        lastExecutedQuery: this._cloneQuery()
       });
     }
   },
@@ -425,23 +686,29 @@ const QueryStore = Reflux.createStore({
    * dismiss current changes to the query and restore `{}` as the query.
    */
   reset() {
-    if (!_.isEqual(this.state.query, {})) {
-      this.setQuery({});
-      if (!_.isEqual(this.state.lastExecutedQuery, {})) {
-        if (this.state.valid) {
-          this.setState({
-            queryState: RESET_STATE,
-            lastExecutedQuery: _.clone(this.state.query)
-          });
-        }
-      }
+    // if the current query is the same as the default, nothing happens
+    if (_.isEqual(this._cloneQuery(), this._getDefaultQuery())) {
+      return;
+    }
+
+    // if the last executed query is the default query, we don't need to
+    // change lastExecuteQuery and trigger a change in the QueryChangedStore.
+    if (_.isEqual(this.state.lastExecutedQuery, this._getDefaultQuery())) {
+      this.setQuery();
+      return;
+    }
+
+    // otherwise we do need to trigger the QueryChangedStore and let all other
+    // components in the app know about the change so they can re-render.
+    if (this.state.valid) {
+      this.setState(_.omit(this.getInitialState(), 'expanded'));
     }
   },
 
   storeDidUpdate(prevState) {
     debug('query store changed from', prevState, 'to', this.state);
   }
-
 });
 
 module.exports = QueryStore;
+module.exports.QUERY_PROPERTIES = QUERY_PROPERTIES;

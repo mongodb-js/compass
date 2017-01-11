@@ -33,12 +33,10 @@ const InsertDocumentStore = Reflux.createStore({
         if (err) {
           return this.trigger(false, err);
         }
-
         if (count > 0) {
-          this.trigger(true, doc);
-        } else {
-          Actions.closeInsertDocumentDialog();
+          return this.trigger(true, doc);
         }
+        Actions.closeInsertDocumentDialog();
       });
     });
   },
@@ -49,8 +47,8 @@ const InsertDocumentStore = Reflux.createStore({
    * @param {Object} state - The query state.
    */
   onQueryChanged: function(state) {
-    if (state.query) {
-      this.filter = state.query;
+    if (state.filter) {
+      this.filter = state.filter;
     }
   }
 });

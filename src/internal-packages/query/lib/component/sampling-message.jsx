@@ -146,7 +146,7 @@ class SamplingMessage extends React.Component {
             clickHandler={this.handleRefreshDocuments.bind(this)}
             stopAnimationListenable={this.resetDocumentListStore}
             dataTestId="refresh-documents-button"
-            className="btn btn-default btn-xs refresh-documents"
+            className="btn btn-default btn-xs sampling-message-refresh-documents"
             iconClassName="fa fa-repeat"
             animatingIconClassName="fa fa-refresh fa-spin"
             text="&nbsp;Refresh" />

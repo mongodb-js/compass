@@ -29,12 +29,11 @@ const CompassExplainStore = Reflux.createStore({
    * Initialize everything that is not part of the store's state.
    */
   init() {
-    this.query = {};
+    this._resetQuery();
 
     // reset on namespace change
     NamespaceStore.listen((ns) => {
       if (ns && toNS(ns).collection) {
-        this.query = {};
         this._reset();
       }
     });
@@ -48,18 +47,30 @@ const CompassExplainStore = Reflux.createStore({
     this.indexes = [];
   },
 
+  _resetQuery() {
+    this.filter = {};
+    this.sort = null;
+    this.project = null;
+    this.skip = 0;
+    this.limit = 0;
+  },
+
   indexesChanged(indexes) {
     this.indexes = indexes;
   },
 
   onQueryChanged(state) {
-    if (state.query) {
-      this.query = state.query;
-      if (state.queryState === 'reset') {
-        this._reset();
-      } else {
-        this.fetchExplainPlan();
-      }
+    this.filter = state.filter;
+    this.project = state.project;
+    this.sort = state.sort;
+    this.skip = state.skip;
+    this.limit = state.limit;
+
+    if (state.queryState === 'reset') {
+      this._resetQuery();
+      this._reset();
+    } else {
+      this.fetchExplainPlan();
     }
   },
 
@@ -143,7 +154,13 @@ const CompassExplainStore = Reflux.createStore({
 
     // const QueryStore = app.appRegistry.getStore('Query.Store');
     // const filter = QueryStore.state.query;
-    const options = {};
+    const options = {
+      sort: this.sort,
+      project: this.project,
+      skip: this.skip,
+      limit: this.limit
+    };
+    debug('options', options);
     const ns = toNS(NamespaceStore.ns);
     if (!ns.database || !ns.collection) {
       return;
@@ -151,7 +168,7 @@ const CompassExplainStore = Reflux.createStore({
     if (this.CollectionStore.isReadonly()) {
       this.setState(this.getInitialState());
     } else {
-      app.dataService.explain(ns.ns, this.query, options, (err, explain) => {
+      app.dataService.explain(ns.ns, this.filter, options, (err, explain) => {
         if (err) {
           return debug('error fetching explain plan:', err);
         }

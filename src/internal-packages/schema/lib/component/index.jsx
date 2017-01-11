@@ -9,6 +9,9 @@ const _ = require('lodash');
 
 // const debug = require('debug')('mongodb-compass:schema');
 
+// TODO (thomasr) collection sample does not support projection yet.
+const QUERYBAR_LAYOUT = [['filter', 'limit']];
+
 /**
  * Component for the entire schema view component.
  */
@@ -95,7 +98,7 @@ const Schema = React.createClass({
     return (
       <div className="content-container content-container-schema schema-container">
         <div className="controls-container">
-          <this.queryBar />
+          <this.queryBar layout={QUERYBAR_LAYOUT} />
           <this.samplingMessage sampleSize={this.state.schema ? this.state.schema.count : 0}/>
         </div>
         <div className="column-container">
