@@ -146,9 +146,9 @@ functions:
         #
         if [ -n "${build_via_local_tunnel|}" ]
         then
-          ssh -v -p 2222 localhost ". compass_build.sh"
+          ssh -v -p 2222 localhost ". compass_build.sh > build.log 2>&1"
         else
-          . ~/compass_build.sh > build.log
+          . ~/compass_build.sh > build.log 2>&1
         fi
 
   "test_ssh_localhost" :
