@@ -18,7 +18,7 @@ class Sidebar extends React.Component {
 
   getSidebarClasses() {
     return 'compass-sidebar' +
-      (this.state.collapsed ? ' compass-sidebar-collapsed' : '');
+      (this.state.collapsed ? ' compass-sidebar-collapsed' : ' compass-sidebar-expanded');
   }
 
   handleCollapse() {
