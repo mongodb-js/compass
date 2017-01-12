@@ -7,19 +7,25 @@ const ZOOM_MAX = 5;
 const ZOOM_MIN = -3;
 
 const zoomReset = () => {
-  electron.webFrame.setZoomLevel(ZOOM_DEFAULT);
+  return electron.webFrame.setZoomLevel(ZOOM_DEFAULT);
 };
 const zoomIn = () => {
   const currentZoomLevel = electron.webFrame.getZoomLevel();
   const newZoomLevel = Math.min(currentZoomLevel + ZOOM_INCREMENT, ZOOM_MAX);
-  electron.webFrame.setZoomLevel(newZoomLevel);
+  return electron.webFrame.setZoomLevel(newZoomLevel);
 };
 const zoomOut = () => {
   const currentZoomLevel = electron.webFrame.getZoomLevel();
   const newZoomLevel = Math.max(currentZoomLevel - ZOOM_INCREMENT, ZOOM_MIN);
-  electron.webFrame.setZoomLevel(newZoomLevel);
+  return electron.webFrame.setZoomLevel(newZoomLevel);
 };
 
 ipc.on('window:zoom-reset', zoomReset);
 ipc.on('window:zoom-in', zoomIn);
 ipc.on('window:zoom-out', zoomOut);
+
+module.exports = {
+  zoomReset,
+  zoomIn,
+  zoomOut
+};
