@@ -1,12 +1,19 @@
 .compass-sidebar {
   margin: 0;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 250px;
+
   background: #4c5259;
   color: #bfbfbe;
   transition: all 180ms ease-out;
+  flex-grow: 0;
+  flex-shrink: 0;
+
+  &-expanded {
+    flex-basis: 286px;
+  }
+
+  &-collapsed {
+    flex-basis: 36px;
+  }
 
   &-content {
     overflow-y: scroll;
@@ -287,9 +294,7 @@
 }
 
 .compass-sidebar-collapsed {
-  width: 36px;
   overflow: hidden;
-
   .compass-sidebar {
     &-content,
     &-property-column,
