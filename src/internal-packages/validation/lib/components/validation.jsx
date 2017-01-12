@@ -89,7 +89,7 @@ class Validation extends React.Component {
 
   render() {
     return (
-      <div className="validation header-margin">
+      <div className="validation">
         <div className="column-container with-message">
           {this.CollectionStore.isReadonly() ? this.renderReadonly() : this.renderComponent()}
         </div>
