@@ -6,6 +6,8 @@ const { NamespaceStore } = require('hadron-reflux-store');
 
 const debug = require('debug')('mongodb-compass:stores:sidebar');
 
+const BLANK = '(?:)';
+
 /**
 * Compass Sidebar store.
 */
@@ -37,9 +39,10 @@ const SidebarStore = Reflux.createStore({
   */
   getInitialState() {
     return {
+      expanded: false,
       instance: {},
       databases: [],
-      filterRegex: /.*/,
+      filterRegex: /(?:)/,
       activeNamespace: ''
     };
   },
@@ -53,12 +56,14 @@ const SidebarStore = Reflux.createStore({
   onInstanceChange(state) {
     this.setState({
       instance: state.instance,
+      expanded: this.state.filterRegex.source !== BLANK,
       databases: this._filterDatabases(this.state.filterRegex, state.instance.databases)
     });
   },
 
   filterDatabases(re) {
     this.setState({
+      expanded: re.source !== BLANK,
       databases: this._filterDatabases(re, this.state.instance.databases),
       filterRegex: re
     });

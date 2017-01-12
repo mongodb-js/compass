@@ -19,7 +19,7 @@ class Sidebar extends React.Component {
     try {
       re = new RegExp(searchString, 'i');
     } catch (e) {
-      re = /.*/;
+      re = /(?:)/;
     }
 
     SidebarActions.filterDatabases(re);
@@ -44,6 +44,7 @@ class Sidebar extends React.Component {
               const props = {
                 _id: db._id,
                 collections: db.collections,
+                expanded: this.props.expanded,
                 activeNamespace: this.props.activeNamespace
               };
               return (
@@ -60,7 +61,8 @@ class Sidebar extends React.Component {
 Sidebar.propTypes = {
   instance: React.PropTypes.object,
   databases: React.PropTypes.array,
-  activeNamespace: React.PropTypes.string
+  activeNamespace: React.PropTypes.string,
+  expanded: React.PropTypes.bool
 };
 
 module.exports = Sidebar;

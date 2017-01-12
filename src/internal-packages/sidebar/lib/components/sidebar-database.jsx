@@ -3,12 +3,19 @@ const ipc = require('hadron-ipc');
 const React = require('react');
 const SidebarCollection = require('./sidebar-collection');
 const { NamespaceStore } = require('hadron-reflux-store');
+const toNS = require('mongodb-ns');
 
 class SidebarDatabase extends React.Component {
-  constructor() {
-    super();
-    this.state = { expanded: true };
+  constructor(props) {
+    super(props);
+    this.state = { expanded: props.expanded };
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.setState({
+      expanded: nextProps.expanded || toNS(nextProps.activeNamespace).database === this.props._id}
+    );
   }
 
   getCollectionComponents() {
@@ -75,7 +82,8 @@ class SidebarDatabase extends React.Component {
 SidebarDatabase.propTypes = {
   _id: React.PropTypes.string,
   activeNamespace: React.PropTypes.string.isRequired,
-  collections: React.PropTypes.array
+  collections: React.PropTypes.array,
+  expanded: React.PropTypes.bool
 };
 
 module.exports = SidebarDatabase;
