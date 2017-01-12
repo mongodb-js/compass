@@ -49,6 +49,30 @@ describe('hadron-build::config', () => {
         expect(channels.custom.slug).to.equal('hadron-app-custom');
       });
     });
+
+    describe.skip('Alpha', () => {
+      process.env.CI = 1;
+      const moment = require('moment');
+
+      const dev = getConfig({
+        version: '1.2.0-dev'
+      });
+
+      const version = `1.2.0-alpha.${moment().format('YYYYMMDDHHmm')}`;
+
+      it('should update version', () => {
+        expect(dev.version).to.equal(version);
+        expect(dev.pkg.version).to.equal(version);
+      });
+
+      it('should update slug', () => {
+        expect(dev.slug).to.equal('hadron-app-alpha');
+      });
+
+      it('should update channel', () => {
+        expect(dev.channel).to.equal('alpha');
+      });
+    });
   });
   describe('Only on macOS', () => {
     const macOS = {

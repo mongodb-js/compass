@@ -255,7 +255,8 @@ const transformPackageJson = (CONFIG, done) => {
 
   _.assign(contents, {
     productName: CONFIG.productName,
-    channel: CONFIG.channel
+    channel: CONFIG.channel,
+    version: CONFIG.version
   });
 
   fs.writeFile(PACKAGE_JSON_DEST, JSON.stringify(contents, null, 2), done);
@@ -355,7 +356,7 @@ const removeDevelopmentFiles = (CONFIG, done) => {
  * @param {Function} done
  */
 const createApplicationAsar = (CONFIG, done) => {
-  if (CONFIG.platform === 'linux') {
+  if (process.env.NO_ASAR) {
     return done();
   }
   var opts = {
@@ -395,6 +396,9 @@ const createApplicationAsar = (CONFIG, done) => {
  * @param {Function} done
  */
 const createApplicationZip = (CONFIG, done) => {
+  if (CONFIG.platform === 'linux') {
+    return done();
+  }
   const DIR = path.join(CONFIG.resources, '..');
 
   const OUT = CONFIG.assets.filter(function(asset) {

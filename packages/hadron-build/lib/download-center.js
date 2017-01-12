@@ -133,8 +133,8 @@ let setup = () => {
 exports.maybeUpload = (CONFIG) => {
   setup();
 
-  if (CONFIG.channel === 'dev') {
-    debug('Skipping publish to S3 for dev channel.');
+  if (CONFIG.channel === 'dev' || CONFIG.channel === 'alpha') {
+    debug('Skipping publish to S3 for %s channel.', CONFIG.channel);
     return Promise.resolve();
   }
 

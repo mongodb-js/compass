@@ -6,6 +6,8 @@ const semver = require('semver');
 const path = require('path');
 const normalizePkg = require('normalize-package-data');
 const parseGitHubRepoURL = require('parse-github-repo-url');
+// const moment = require('moment');
+const notary = require('./notary-service');
 const ffmpegAfterExtract = require('electron-packager-plugin-non-proprietary-codecs-ffmpeg').default;
 const debug = require('debug')('hadron-build:target');
 
@@ -15,7 +17,7 @@ class Target {
     this.out = path.join(this.dir, 'dist');
 
     const _path = path.join(dir, 'package.json');
-    let pkg = _.cloneDeep(require(_path));
+    const pkg = JSON.parse(fs.readFileSync(_path));
     pkg._path = _path;
     normalizePkg(pkg);
 
@@ -44,6 +46,7 @@ class Target {
 
     this.id = opts.name;
     this.name = opts.name;
+
     this.productName = opts.productName;
     this.version = opts.version;
     this.platform = opts.platform;
@@ -61,6 +64,24 @@ class Target {
       this.channel = mtch[1].toLowerCase();
       this.slug += `-${this.channel}`;
     }
+
+    // if (this.channel === 'dev' && process.env.CI) {
+    //   this.version = [
+    //     this.semver.major,
+    //     this.semver.minor,
+    //     this.semver.patch
+    //   ].join('.');
+    //   this.version += `-alpha.${moment().format('YYYYMMDDHHmm')}`;
+    //
+    //   pkg.version = this.version;
+    //   this.semver = new semver.SemVer(this.version);
+    //   this.channel = 'alpha';
+    //
+    //   this.slug = [
+    //     this.name,
+    //     this.channel
+    //   ].join('-');
+    // }
 
     /**
      * Add `channel` suffix to product name, e.g. "Atom Beta".
@@ -193,11 +214,11 @@ class Target {
       },
       {
         name: 'LICENSE',
-        path: this.dest('LICENSE')
+        path: this.dest(this.appPath, 'LICENSE')
       },
       {
         name: 'version',
-        path: this.dest('version')
+        path: this.dest(this.appPath, 'version')
       },
       {
         name: `${this.packagerOptions.name}-${nuggetVersion}-full.nupkg`,
@@ -387,18 +408,19 @@ class Target {
 
     const debianVersion = this.version.replace(/\-/g, '~');
     const debianArch = this.arch === 'x64' ? 'amd64' : 'i386';
+    const debianSection = _.get(platformSettings, 'deb_section');
     this.linux_deb_filename = `${this.slug}_${debianVersion}_${debianArch}.deb`;
 
     const rhelVersion = [this.semver.major, this.semver.minor, this.semver.patch].join('.');
     const rhelRevision = this.semver.prerelease.join('.') || '1';
     const rhelArch = this.arch === 'x64' ? 'x86_64' : 'i386';
+    const rhelCategories = _.get(platformSettings, 'rpm_categories');
     this.linux_rpm_filename = `${this.slug}-${rhelVersion}.${rhelArch}.rpm`;
 
     const LINUX_OUT_TAR = this.dest(`${this.slug}-${this.version}-${this.platform}-${this.arch}.tar.gz`);
-    const LINUX_OUT_ZIP = this.dest(`${this.slug}.zip`);
 
+    // var isRhel = process.env.EVERGREEN_BUILD_VARIANT === 'rhel';
     this.linux_tar_filename = `${this.slug}-${this.version}-${this.platform}-${this.arch}.tar.gz`;
-    this.linux_zip_filename = `${this.slug}-${this.version}-${this.platform}-${this.arch}.zip`;
 
     this.assets = [
       {
@@ -412,12 +434,13 @@ class Target {
       {
         name: this.linux_tar_filename,
         path: LINUX_OUT_TAR
-      },
-      {
-        name: this.linux_zip_filename,
-        path: LINUX_OUT_ZIP
       }
     ];
+
+    var license = this.pkg.license;
+    if (license === 'UNLICENSED') {
+      license = `Copyright © ${new Date().getFullYear()} ${this.author}. All Rights Reserved`;
+    }
 
     const which = require('which');
     const createRpmInstaller = cb => {
@@ -441,8 +464,29 @@ class Target {
           name: this.slug,
           version: rhelVersion,
           revision: rhelRevision,
-          bin: this.productName
-        }, cb);
+          bin: this.productName,
+          requires: [
+            'lsb-core-noarch',
+            'libXScrnSaver',
+            'libsecret'
+          ],
+          categories: rhelCategories,
+          license: license
+        }, (_err) => {
+          if (_err) {
+            return cb(_err);
+          }
+
+          const dest = this.dest(this.linux_rpm_filename);
+          notary(dest, (nerr) => {
+            if (nerr) {
+              debug('Notary failed!', nerr);
+            } else {
+              debug(':dancers: successfully signed %s', dest);
+            }
+            cb(null, dest);
+          });
+        });
       });
     };
 
@@ -459,6 +503,7 @@ class Target {
          * @see https://github.com/unindented/electron-installer-debian#options
          */
         const createDeb = require('electron-installer-debian');
+        const dest = this.dest(this.linux_deb_filename);
         createDeb({
           src: this.appPath,
           dest: this.out,
@@ -466,8 +511,25 @@ class Target {
           icon: this.src(platformSettings.icon),
           name: this.slug,
           version: debianVersion,
-          bin: this.productName
-        }, cb);
+          bin: this.productName,
+          section: debianSection,
+          suggests: [
+            'libsecret'
+          ]
+        }, (_err) => {
+          if (_err) {
+            return cb(_err);
+          }
+
+          notary.deb(dest).then(() => {
+            debug(':dancers: successfully signed %s', dest);
+            cb(null, dest);
+          })
+          .catch((nerr) => {
+            debug('Notary failed!', nerr);
+            cb(null, dest);
+          });
+        });
       });
     };
 
@@ -479,7 +541,14 @@ class Target {
          cb(err);
        })
        .on('close', function() {
-         cb();
+         notary(LINUX_OUT_TAR, (nerr) => {
+           if (nerr) {
+             debug('Notary failed!', nerr);
+           } else {
+             debug(':dancers: successfully signed %s', LINUX_OUT_TAR);
+           }
+           cb(null, LINUX_OUT_TAR);
+         });
        });
     };
 

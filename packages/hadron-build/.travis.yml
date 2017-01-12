@@ -15,5 +15,6 @@ addons:
   apt:
     packages:
       - rpm
-      # TODO (imlucas) @see https://github.com/mongodb-js/hadron-build/pull/45
-      # - lintian
+      - lintian
+after_success:
+  - lintian test/fixtures/hadron-app/dist/*.deb
