@@ -300,6 +300,17 @@ functions:
         permissions: public-read
         content_type: application/x-redhat-package-manager
         display_name: "${linux_rpm_filename}"
+    # .tar.gz
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: "src/dist/${linux_tar_filename}"
+        remote_file: "${project}/${revision}/${slug}-${version}-rhel7-${arch}.tar.gz"
+        bucket: mciuploads
+        permissions: public-read
+        content_type: application/x-gzip
+        display_name: "${slug}-${version}-rhel7-${arch}.tar.gz"
     - command: s3.put
       params:
         aws_key: ${aws_key}
