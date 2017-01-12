@@ -90,7 +90,7 @@ class Validation extends React.Component {
   render() {
     return (
       <div className="validation">
-        <div className="column-container with-message">
+        <div className="column-container">
           {this.CollectionStore.isReadonly() ? this.renderReadonly() : this.renderComponent()}
         </div>
       </div>
