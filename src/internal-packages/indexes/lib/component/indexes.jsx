@@ -81,7 +81,7 @@ class Indexes extends React.Component {
    */
   render() {
     return (
-      <div className="index-container header-margin">
+      <div className="index-container">
         {this.state.readonly ? this.renderReadonly() : this.renderComponent()}
       </div>
     );

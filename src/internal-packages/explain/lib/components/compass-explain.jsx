@@ -83,7 +83,7 @@ class CompassExplain extends React.Component {
     }
 
     return (
-      <div className="compass-explain header-margin">
+      <div className="compass-explain">
         <this.queryBar />
         {content}
       </div>

@@ -17,10 +17,6 @@
     }
   }
 
-  .header-margin {
-    margin-top: 50px; // size of header
-  }
-
   .column {
     overflow: auto;
     height: auto;
@@ -33,36 +29,7 @@
 
   .main {
     padding: 0 26px 100px 26px;
-    overflow-x: hidden;
     background-color: @gray8;
-    position: absolute;
-    left: 250px;
-    right: 0;
-    bottom: 0;
-    top: 95px;
-  }
-
-  .column-container {
-    &.with-message {
-      .main {
-        top: 128px;
-      }
-    }
-    &.with-refinebar {
-      .main {
-        top: 149px;
-      }
-    }
-    &.with-refinebar-and-message {
-      .main {
-        top: 181px;
-      }
-    }
-    &.with-refinebar-and-2xmessage {
-      .main {
-        top: 214px;
-      }
-    }
   }
 
   .side {

@@ -66,49 +66,4 @@
     cursor: default;
     border-color: @chart1;
   }
-  //shouldn't positioning of the component happen when it's rendered by its parent?
-  &-is-light-theme {
-    .tab-nav-bar-header {
-      top: 50px;
-      height: 46px;
-      z-index: 2;
-      border-bottom: 1px solid #ebebed;
-    }
-  }
-
-  &-is-dark-theme {
-    .tab-nav-bar-header {
-      background-color: #2B3033;
-    }
-
-    .tab-nav-bar-tab {
-      color: #8B8D8F;
-    }
-
-    .tab-nav-bar-link {
-      color: @pw;
-    }
-
-    .tab-nav-bar-is-selected {
-      color: @pw;
-      background-color: #3D4247;
-      border-color: #545454;
-
-      &.tab-nav-bar-tab:hover {
-        background-color: #3D4247;
-      }
-    }
-
-    .tab-nav-bar-tab:hover {
-      background-color: #2B3033;
-      border-color: #545454;
-      border-bottom: none;
-
-      color: @pw;
-
-      .tab-nav-bar-link {
-        color: @pw;
-      }
-    }
-  }
 }
