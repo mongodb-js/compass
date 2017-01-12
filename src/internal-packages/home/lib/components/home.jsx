@@ -16,10 +16,6 @@ class Home extends React.Component {
   }
 
   collapseSidebar() {
-    // console.log("COLLAPSE!!!!!");
-    // console.log("COLLAPSE!!!!!");
-    // console.log("COLLAPSE!!!!!");
-    console.log(this.state.collapsed);
     this.setState({ collapsed: !this.state.collapsed });
   }
 
@@ -61,9 +57,7 @@ class Home extends React.Component {
         <div className={this.getContentClasses()}>
           {this.renderContent()}
         </div>
-        <div className="compass-sidebar-container">
-          <this.sideBar onCollapse={this.collapseSidebar.bind(this)}/>
-        </div>
+        <this.sideBar onCollapse={this.collapseSidebar.bind(this)}/>
         {isNotWritableTooltip}
       </div>
     );
