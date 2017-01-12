@@ -45,7 +45,7 @@ class CompassExplain extends React.Component {
 
   renderContent() {
     return (
-      <div className="column-container with-refinebar">
+      <div className="column-container">
         <div className="column main">
           <ExplainHeader
             viewType={this.props.viewType}

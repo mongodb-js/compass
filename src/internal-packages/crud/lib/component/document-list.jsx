@@ -239,7 +239,7 @@ class DocumentList extends React.Component {
       );
     }
     return (
-      <div className="column-container with-refinebar-and-2xmessage">
+      <div className="column-container">
         <div className="column main">
           <ol className={LIST_CLASS} ref={(c) => this._node = c}>
             {this.state.docs}
