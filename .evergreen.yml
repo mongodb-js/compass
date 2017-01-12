@@ -91,12 +91,12 @@ functions:
         set -ev
         rm -f ~/compass_build.log
         cat <<EOF_BUILD_SH > ~/compass_build.sh
-        set -ev
         cd $(pwd)
         export PATH="${node_path}:$PATH"
         test -n '${add_env_appdata|}' && export APPDATA='${add_env_appdata|}'
         export CI=1
         export EVERGREEN=1
+        lsb_release -a --short || true
 
         # Export expansions as environment variables so we can use them
         # in hadron-build.
@@ -148,7 +148,7 @@ functions:
         then
           ssh -v -p 2222 localhost ". compass_build.sh"
         else
-          . ~/compass_build.sh
+          . ~/compass_build.sh > build.log
         fi
 
   "test_ssh_localhost" :
@@ -277,6 +277,16 @@ functions:
         permissions: public-read
         content_type: application/x-gzip
         display_name: "${linux_tar_filename}"
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: "src/build.log"
+        remote_file: "${project}/${revision}/ubuntu-build.log"
+        bucket: mciuploads
+        permissions: public-read
+        content_type: text/plain
+        display_name: ubuntu-build.log
 
   "save rhel artifacts":
     # .rpm
@@ -290,6 +300,16 @@ functions:
         permissions: public-read
         content_type: application/x-redhat-package-manager
         display_name: "${linux_rpm_filename}"
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: "src/build.log"
+        remote_file: "${project}/${revision}/rhel-build.log"
+        bucket: mciuploads
+        permissions: public-read
+        content_type: text/plain
+        display_name: rhel-build.log
 
 #######################################
 #               Tasks                 #
