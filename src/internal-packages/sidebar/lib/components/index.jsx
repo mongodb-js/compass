@@ -16,11 +16,15 @@ class ConnectedSidebar extends React.Component {
   render() {
     return (
       <StoreConnector store={SidebarStore}>
-        <Sidebar />
+        <Sidebar onCollapse={this.props.onCollapse.bind(this)}/>
       </StoreConnector>
     );
   }
 }
+
+ConnectedSidebar.propTypes = {
+  onCollapse: React.PropTypes.func
+};
 
 ConnectedSidebar.displayName = 'ConnectedSidbar';
 
