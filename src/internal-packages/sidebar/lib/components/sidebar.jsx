@@ -11,6 +11,21 @@ const SidebarInstanceProperties = require('./sidebar-instance-properties');
 
 
 class Sidebar extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { collapsed: false };
+  }
+
+  getSidebarClasses() {
+    return 'compass-sidebar' +
+      (this.state.collapsed ? ' compass-sidebar-collapsed' : '');
+  }
+
+  handleCollapse() {
+    // console.log(this.state.collapsed);
+    this.props.onCollapse();
+    this.setState({ collapsed: !this.state.collapsed });
+  }
 
   handleFilter(event) {
     const searchString = event.target.value;
@@ -27,7 +42,11 @@ class Sidebar extends React.Component {
 
   render() {
     return (
-      <div className="compass-sidebar" data-test-id="instance-sidebar">
+      <div className={this.getSidebarClasses()} data-test-id="instance-sidebar">
+        <div
+          className="compass-sidebar-toggle" onClick={this.handleCollapse.bind(this)}>
+          <i className="fa fa-backward"></i>
+        </div>
         <StoreConnector store={InstanceStore}>
           <SidebarInstanceProperties
             connection={app.connection}
@@ -62,7 +81,8 @@ Sidebar.propTypes = {
   instance: React.PropTypes.object,
   databases: React.PropTypes.array,
   activeNamespace: React.PropTypes.string,
-  expanded: React.PropTypes.bool
+  expanded: React.PropTypes.bool,
+  onCollapse: React.PropTypes.func
 };
 
 module.exports = Sidebar;
