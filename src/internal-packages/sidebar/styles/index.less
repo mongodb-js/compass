@@ -3,6 +3,7 @@
   left: 0;
   top: 0;
   bottom: 0;
+  z-index: 4;
 }
 
 .compass-sidebar {
@@ -13,6 +14,7 @@
   width: 250px;
   background: #4c5259;
   color: #bfbfbe;
+  transition: all 180ms ease-out;
 
   &-content {
     overflow-y: scroll;
@@ -20,6 +22,18 @@
     bottom: 0;
     width: 250px;
     height: ~"calc(100% - 112px)";
+  }
+
+  &-toggle {
+    background: #343B43;
+    height: 12px;
+    line-height: 11px;
+    padding-right: 3px;
+    text-align: right;
+    i {
+      line-height: 11px;
+      font-size: 10px;
+    }
   }
 
   &-title {
@@ -276,6 +290,20 @@
     &:hover {
       background: #42494f;
       color: #fff;
+    }
+  }
+}
+
+.compass-sidebar-collapsed {
+  width: 36px;
+  overflow: hidden;
+
+  .compass-sidebar {
+    &-content,
+    &-property-column,
+    &-instance-hostname,
+    &-instance-version {
+      display: none;
     }
   }
 }
