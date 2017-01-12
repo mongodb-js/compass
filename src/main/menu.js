@@ -220,6 +220,29 @@ function viewSubMenu() {
           BrowserWindow.getFocusedWindow().reload();
         }
       },
+      separator(),
+      {
+        label: 'Actual Size',
+        accelerator: 'CmdOrCtrl+0',
+        click: function() {
+          ipc.broadcast('window:zoom-reset');
+        }
+      },
+      {
+        label: 'Zoom In',
+        accelerator: 'CmdOrCtrl+Plus',
+        click: function() {
+          ipc.broadcast('window:zoom-in');
+        }
+      },
+      {
+        label: 'Zoom Out',
+        accelerator: 'CmdOrCtrl+-',
+        click: function() {
+          ipc.broadcast('window:zoom-out');
+        }
+      },
+      separator(),
       {
         label: '&Toggle DevTools',
         accelerator: 'Alt+CmdOrCtrl+I',
