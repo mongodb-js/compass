@@ -11,6 +11,8 @@ const notary = require('./');
 function logs() {
   cli.spinner('fetch logs');
   return notary.logs(res => {
+    cli.stopSpinner();
+
     cli.ok(`## ${res.length} logs`);
     var t = new Table({
       head: [

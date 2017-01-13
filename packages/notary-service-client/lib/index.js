@@ -145,10 +145,10 @@ function configure(opts = {}) {
   _.defaults(opts, {
     endpoint: process.env.NOTARY_URL,
     key: process.env.NOTARY_SIGNING_KEY,
-    authToken: process.env.NOTARY_AUTH_TOKEN
+    token: process.env.NOTARY_AUTH_TOKEN
   });
 
-  opts.configured = ['endpoint', 'key', 'authToken'].every((k) => {
+  opts.configured = ['endpoint', 'key', 'token'].every((k) => {
     if (!opts[k]) {
       debug(`Missing ${k}. Skipping.`);
       opts.message = `No value for ${k}`;
@@ -167,7 +167,7 @@ module.exports = function(src) {
     return Promise.resolve(false);
   }
 
-  const params = getSigningParams(opts.endpoint, opts.key, opts.authtoken);
+  const params = getSigningParams(opts.endpoint, opts.key, opts.token);
 
   const ext = path.extname(src);
   if (ext !== '.deb') {
@@ -186,12 +186,13 @@ module.exports.logs = function() {
   return new Promise(function(resolve, reject) {
     const url = `${opts.endpoint}/api/log`;
     debug('Fetching logs from', url);
+
     request.get(url)
       .type('json')
       .end(function(err, res) {
         if (err) return reject(err);
         debug('response', res.body);
-        resolve(_.get(res.body, 'entries', []));
+        resolve(res.body.entries);
       });
   });
 };
