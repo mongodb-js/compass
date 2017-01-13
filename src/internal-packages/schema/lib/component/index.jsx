@@ -93,9 +93,11 @@ const Schema = React.createClass({
       return <Field key={field.name} {...field} />;
     });
     return (
-      <div>
-        <this.queryBar />
-        <this.samplingMessage sampleSize={this.state.schema ? this.state.schema.count : 0}/>
+      <div className="schema-container">
+        <div className="controls-container">
+          <this.queryBar />
+          <this.samplingMessage sampleSize={this.state.schema ? this.state.schema.count : 0}/>
+        </div>
         <div className="column-container">
           <div className="column main">
             <div className="schema-field-list">
