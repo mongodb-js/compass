@@ -85,7 +85,7 @@ function getSigningParams(endpoint, key, token, comment) {
 function sign(src, params) {
   debug('attempting to sign %s via notary-service', src, params);
   return new Promise(function(resolve, reject) {
-    request.post(params.url)
+    return request.post(params.url)
       .field('key', params.key)
       .field('comment', params.comment)
       .field('auth_token', params.authToken)

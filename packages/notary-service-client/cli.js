@@ -10,26 +10,27 @@ const notary = require('./');
 
 function logs() {
   cli.spinner('fetch logs');
-  return notary.logs(res => {
-    cli.stopSpinner();
+  return notary.logs()
+    .then(res => {
+      cli.stopSpinner();
 
-    cli.ok(`## ${res.length} logs`);
-    var t = new Table({
-      head: [
-        '_id',
-        'action',
-        'file',
-        'key',
-        'time',
-        'comment'
-      ]
+      cli.ok(`## ${res.length} logs`);
+      var t = new Table({
+        head: [
+          '_id',
+          'action',
+          'file',
+          'key',
+          'time',
+          'comment'
+        ]
+      });
+      res.map(t.push.bind(t));
+      console.log(t.toString());
+    })
+    .catch(err => {
+      cli.error('failed to fetch logs', err);
     });
-    res.map(t.push.bind(t));
-    console.log(t.toString());
-  })
-  .catch(err => {
-    cli.error('failed to fetch logs', err);
-  });
 }
 
 program
