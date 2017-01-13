@@ -48,12 +48,13 @@ program
   .action((files, opts) => {
     if (opts.debug) require('debug').enable('*');
 
+    cli.spinner(`signing ${files.length} files`);
     Promise.all(files.map((src) => {
       return notary(src).then((yay) => {
         if (yay) {
-          cli.ok(` ${src} is now signed`);
+          cli.ok(`${src} is now signed`);
         } else {
-          cli.warn(` ${src} wasn't signed for some reason.  Try:\n  notary --debug sign ${src}`);
+          cli.warn(`${src} wasn't signed for some reason.  Try:\n  notary --debug sign ${src}`);
         }
       });
     }));
