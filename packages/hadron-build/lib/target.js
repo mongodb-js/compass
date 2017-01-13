@@ -52,6 +52,7 @@ class Target {
     this.platform = opts.platform;
     this.arch = opts.arch;
     this.description = opts.description;
+    this.author = _.get(opts, 'author.name', opts.author);
 
     this.slug = this.name;
 
