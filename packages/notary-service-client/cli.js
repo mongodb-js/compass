@@ -5,6 +5,7 @@ const pkg = require(path.join(__dirname, 'package.json'));
 const program = require('commander');
 const cli = require('mongodb-js-cli')(pkg.name);
 const Table = require('cli-table');
+const _ = require('lodash');
 
 const notary = require('./');
 
@@ -25,7 +26,11 @@ function logs() {
           'comment'
         ]
       });
-      res.map(t.push.bind(t));
+
+      res.forEach((row) => {
+        t.push(_.values(row));
+      });
+
       console.log(t.toString());
     })
     .catch(err => {
