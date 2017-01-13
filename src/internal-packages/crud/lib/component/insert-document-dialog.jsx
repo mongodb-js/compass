@@ -19,7 +19,7 @@ class InsertDocumentDialog extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.state = { open: false };
+    this.state = { open: false, canHide: false };
   }
 
   /**
@@ -64,6 +64,24 @@ class InsertDocumentDialog extends React.Component {
   }
 
   /**
+   * handle losing focus from element
+   */
+  handleBlur() {
+    this.setState({canHide: false});
+  }
+
+  /**
+   * handle hide event rather than cancel
+   */
+  handleHide() {
+    if (this.state.canHide) {
+      this.setState({ open: false });
+    } else {
+      this.setState({ canHide: true });
+    }
+  }
+
+  /**
    * Handles completion of the document insert.
    *
    * @param {Boolean} success - If the operation succeeded.
@@ -88,12 +106,13 @@ class InsertDocumentDialog extends React.Component {
    */
   render() {
     return (
-      <Modal show={this.state.open} backdrop="static" keyboard={false}>
+      <Modal show={this.state.open} backdrop="static"
+          onHide={this.handleHide.bind(this)}>
         <Modal.Header>
           <Modal.Title>Insert Document</Modal.Title>
         </Modal.Header>
 
-        <Modal.Body>
+        <Modal.Body onFocus={this.handleBlur.bind(this)} >
           <InsertDocument doc={this.state.doc} />
           <InsertDocumentFooter />
         </Modal.Body>
