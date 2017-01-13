@@ -48,7 +48,7 @@
     "mocha-evergreen-reporter": "^0.0.7",
     "moment": "^2.17.1",
     "mongodb-js-cli": "^0.0.3",
-    "mongodb-notary-service-client": "^0.2.0",
+    "mongodb-notary-service-client": "^0.4.3",
     "normalize-package-data": "^2.3.5",
     "parse-github-repo-url": "^1.0.0",
     "pify": "^2.3.0",
