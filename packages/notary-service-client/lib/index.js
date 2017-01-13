@@ -15,7 +15,7 @@ const crypto = require('crypto');
 const pbkdf2 = require('pbkdf2');
 const _ = require('lodash');
 const request = require('superagent');
-const execa = require('execa');
+// const execa = require('execa');
 const pkg = require('../package.json');
 const dotenv = require('dotenv');
 
@@ -106,38 +106,38 @@ function sign(src, params) {
   });
 }
 
-function signDeb(src) {
-  debug(`take an existing ${src} and unpack it`);
-  return execa('ar', ['x', src]).then(() => {
-    debug('concatenate its contents (the order is important), and output to a temp file');
-    debug('cat debian-binary control.tar.gz data.tar.xz > combined-contents.gpg');
-    var tmp = fs.createWriteStream('combined-contents.gpg');
-    return new Promise( (resolve, reject) => {
-      execa('cat', [
-        'debian-binary',
-        'control.tar.gz',
-        'data.tar.xz'
-      ]).stdout.pipe(tmp)
-      .on('error', reject)
-      .on('close', () => resolve());
-    });
-  })
-  .then(() => execa('ls', ['-alh']))
-  .then((res) => debug('generated pgp file', res.stdout))
-  // Create a GPG signature of the concatenated file, calling it _gpgorigin:
-  // # gpg -abs -o _gpgorigin dist/combined-contents
-  .then(() => sign('combined-contents.gpg'))
-  .then(() => {
-    return execa('mv', ['combined-contents.gpg', '_gpgorigin']);
-  })
-  .then(() => {
-    debug('finally, bundle the .deb up again, including the signature file');
-    debug(`ar rc ${src} _gpgorigin debian-binary control.tar.gz data.tar.xz`);
-    return execa('ar', ['rc', src, '_gpgorigin', 'debian-binary', 'control.tar.gz', 'data.tar.xz']);
-  })
-  .then(() => execa('ls', ['-alh']))
-  ;
-}
+// function signDeb(src) {
+//   debug(`take an existing ${src} and unpack it`);
+//   return execa('ar', ['x', src]).then(() => {
+//     debug('concatenate its contents (the order is important), and output to a temp file');
+//     debug('cat debian-binary control.tar.gz data.tar.xz > combined-contents.gpg');
+//     var tmp = fs.createWriteStream('combined-contents.gpg');
+//     return new Promise( (resolve, reject) => {
+//       execa('cat', [
+//         'debian-binary',
+//         'control.tar.gz',
+//         'data.tar.xz'
+//       ]).stdout.pipe(tmp)
+//       .on('error', reject)
+//       .on('close', () => resolve());
+//     });
+//   })
+//   .then(() => execa('ls', ['-alh']))
+//   .then((res) => debug('generated pgp file', res.stdout))
+//   // Create a GPG signature of the concatenated file, calling it _gpgorigin:
+//   // # gpg -abs -o _gpgorigin dist/combined-contents
+//   .then(() => sign('combined-contents.gpg'))
+//   .then(() => {
+//     return execa('mv', ['combined-contents.gpg', '_gpgorigin']);
+//   })
+//   .then(() => {
+//     debug('finally, bundle the .deb up again, including the signature file');
+//     debug(`ar rc ${src} _gpgorigin debian-binary control.tar.gz data.tar.xz`);
+//     return execa('ar', ['rc', src, '_gpgorigin', 'debian-binary', 'control.tar.gz', 'data.tar.xz']);
+//   })
+//   .then(() => execa('ls', ['-alh']))
+//   ;
+// }
 
 function configure(opts = {}) {
   dotenv.load();
@@ -175,7 +175,8 @@ module.exports = function(src) {
       return download(`${opts.endpoint}/${res.permalink}`, src);
     });
   }
-  return signDeb(src);
+  debug('no idea how to do .deb files at this point...');
+  return Promise.resolve(false);
 };
 
 module.exports.logs = function() {
