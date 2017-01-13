@@ -1,7 +1,7 @@
 {
   "name": "mongodb-notary-service-client",
   "description": "A client for our notary-service: an API for codesigning.",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "scripts": {
     "fmt": "mongodb-js-fmt",
     "check": "mongodb-js-precommit",
