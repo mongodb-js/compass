@@ -17,6 +17,7 @@ const _ = require('lodash');
 const request = require('superagent');
 const execa = require('execa');
 const pkg = require('../package.json');
+const dotenv = require('dotenv');
 
 const debug = require('debug')('mongodb-notary-service-client');
 
@@ -105,16 +106,6 @@ function sign(src, params) {
   });
 }
 
-function environmentVariablesSet() {
-  return ['NOTARY_SIGNING_KEY', 'NOTARY_AUTH_TOKEN', 'NOTARY_URL'].every(function(k) {
-    if (!process.env[k]) {
-      debug(`${k} environment variable not set. Skipping.`);
-      return false;
-    }
-    return true;
-  });
-}
-
 function signDeb(src) {
   debug(`take an existing ${src} and unpack it`);
   return execa('ar', ['x', src]).then(() => {
@@ -148,24 +139,65 @@ function signDeb(src) {
   ;
 }
 
+function configure(opts = {}) {
+  dotenv.load();
+
+  _.defaults(opts, {
+    endpoint: process.env.NOTARY_URL,
+    key: process.env.NOTARY_SIGNING_KEY,
+    authToken: process.env.NOTARY_AUTH_TOKEN
+  });
+
+  opts.configured = ['endpoint', 'key', 'authToken'].every((k) => {
+    if (!opts[k]) {
+      debug(`Missing ${k}. Skipping.`);
+      opts.message = `No value for ${k}`;
+      return false;
+    }
+    return true;
+  });
+
+  debug('config', opts);
+  return opts;
+}
+
 module.exports = function(src) {
-  if (!environmentVariablesSet()) {
+  const opts = configure();
+  if (!opts.configured) {
     return Promise.resolve(false);
   }
 
-  const params = getSigningParams(process.env.NOTARY_URL,
-    process.env.NOTARY_SIGNING_KEY, process.env.NOTARY_AUTH_TOKEN);
+  const params = getSigningParams(opts.endpoint, opts.key, opts.authtoken);
 
   const ext = path.extname(src);
   if (ext !== '.deb') {
     return sign(src, params).then((res) => {
-      return download(`${params.endpoint}/${res.permalink}`, src);
+      return download(`${opts.endpoint}/${res.permalink}`, src);
     });
   }
   return signDeb(src);
+};
+
+module.exports.logs = function() {
+  const opts = configure();
+  if (!opts.configured) {
+    return Promise.resolve(false);
+  }
+  return new Promise(function(resolve, reject) {
+    const url = `${opts.endpoint}/api/log`;
+    debug('Fetching logs from', url);
+    request.get(url)
+      .type('json')
+      .end(function(err, res) {
+        if (err) return reject(err);
+        debug('response', res.body);
+        resolve(_.get(res.body, 'entries', []));
+      });
+  });
 };
 
 module.exports.getSalt = getSalt;
 module.exports.generateAuthToken = generateAuthToken;
 module.exports.download = download;
 module.exports.sign = sign;
+module.exports.configure = configure;

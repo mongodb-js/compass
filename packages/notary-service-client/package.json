@@ -8,6 +8,9 @@
     "test": "mocha",
     "ci": "npm run check && npm test"
   },
+  "bin": {
+    "notary": "cli.js"
+  },
   "homepage": "http://github.com/mongodb-js/notary-service-client",
   "repository": {
     "type": "git",
@@ -17,10 +20,13 @@
     "url": "git://github.com/mongodb-js/notary-service-client.git/issues"
   },
   "dependencies": {
+    "cli-table": "^0.3.1",
     "commander": "^2.9.0",
     "debug": "^2.2.0",
+    "dotenv": "^4.0.0",
     "execa": "^0.6.0",
     "lodash": "^4.8.2",
+    "mongodb-js-cli": "0.0.3",
     "pbkdf2": "^3.0.9",
     "superagent": "^3.3.1"
   },

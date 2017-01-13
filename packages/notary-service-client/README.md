@@ -4,6 +4,55 @@
 
 ## Example
 
+## CLI
+
+First, create a `.env` file:
+
+```bash
+NOTARY_URL=${url}
+NOTARY_AUTH_TOKEN=${token}
+NOTARY_SIGNING_KEY=${key_name}
+```
+
+Install the client:
+
+```bash
+npm install -g mongodb-notary-service-client;
+```
+
+Sign a file in-place:
+
+```bash
+notary my-app.rpm;
+```
+
+Sign multiple files in-place:
+
+```bash
+notary my-app.rpm my-app.deb my-app.tar.gz;
+```
+
+View more details:
+
+```bash
+☉ notary --help
+
+  Commands:
+
+    sign [files...]  sign one or more files
+    check            check configuration
+    logs             get log from notary-service
+
+  Options:
+
+    -h, --help     output usage information
+    -V, --version  output the version number
+    --debug        show debug output
+```
+
+### API
+
+
 ```javascript
 process.env.NOTARY_URL="${url}";
 process.env.NOTARY_AUTH_TOKEN="${token}";
