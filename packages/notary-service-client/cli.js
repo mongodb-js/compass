@@ -49,7 +49,13 @@ program
     if (opts.debug) require('debug').enable('*');
 
     Promise.all(files.map((src) => {
-      return notary(src);
+      return notary(src).then((yay) => {
+        if (yay) {
+          cli.ok(` ${src} is now signed`);
+        } else {
+          cli.warn(` ${src} wasn't signed for some reason.  Try:\n  notary --debug sign ${src}`);
+        }
+      });
     }));
   });
 
