@@ -122,14 +122,12 @@ functions:
         ${npm|npm} run check;
 
         # Create a release build
-        export DEBUG="hadron*,electron*";
+        export DEBUG="hadron*,electron*,mongodb-notary-service*";
         export NOTARY_URL="http://notary-service.build.10gen.cc:5000"
         export NOTARY_AUTH_TOKEN="${signing_auth_token}"
         export NOTARY_SIGNING_KEY="${signing_key_name}"
-
-        # TODO (imlucas) Do this in hadron-build instead:
-        # process.env.NOTARY_SIGNING_COMMENT = process.env.EVERGREEN_PROJECT process.env.EVERGREEN_TASK_URL
         export NOTARY_SIGNING_COMMENT="Evergreen project mongodb/compass ${revision} - ${build_variant} - ${branch_name}"
+
         ${npm|npm} run release;
 
         ls -alh dist || true;
