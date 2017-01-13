@@ -146,9 +146,9 @@ functions:
         #
         if [ -n "${build_via_local_tunnel|}" ]
         then
-          ssh -v -p 2222 localhost ". compass_build.sh > build.log 2>&1"
+          ssh -v -p 2222 localhost ". compass_build.sh"
         else
-          . ~/compass_build.sh > build.log 2>&1
+          . ~/compass_build.sh
         fi
 
   "test_ssh_localhost" :
@@ -277,16 +277,6 @@ functions:
         permissions: public-read
         content_type: application/x-gzip
         display_name: "${linux_tar_filename}"
-    - command: s3.put
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: "src/build.log"
-        remote_file: "${project}/${revision}/ubuntu-build.log"
-        bucket: mciuploads
-        permissions: public-read
-        content_type: text/plain
-        display_name: ubuntu-build.log
 
   "save rhel artifacts":
     # .rpm
@@ -311,16 +301,6 @@ functions:
         permissions: public-read
         content_type: application/x-gzip
         display_name: "${slug}-${version}-rhel7-${arch}.tar.gz"
-    - command: s3.put
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: "src/build.log"
-        remote_file: "${project}/${revision}/rhel-build.log"
-        bucket: mciuploads
-        permissions: public-read
-        content_type: text/plain
-        display_name: rhel-build.log
 
 #######################################
 #               Tasks                 #
