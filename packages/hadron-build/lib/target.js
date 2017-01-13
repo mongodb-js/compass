@@ -7,31 +7,103 @@ const path = require('path');
 const normalizePkg = require('normalize-package-data');
 const parseGitHubRepoURL = require('parse-github-repo-url');
 // const moment = require('moment');
-const notary = require('./notary-service');
 const ffmpegAfterExtract = require('electron-packager-plugin-non-proprietary-codecs-ffmpeg').default;
 const debug = require('debug')('hadron-build:target');
+
+const notary = require('mongodb-notary-service-client');
+
+function sign(src) {
+  notary(src).then((res) => res && debug(':dancers: successfully signed %s', src))
+  .catch((nerr) => debug('Notary failed!', nerr));
+}
+
+
+const tarPack = require('tar-pack').pack;
+
+function tar(srcDirectory, dest) {
+  return new Promise(function(resolve, reject) {
+    tarPack(srcDirectory)
+     .pipe(fs.createWriteStream(dest))
+     .on('error', function(err) {
+       reject(err);
+     })
+     .on('close', function() {
+       resolve(dest);
+     });
+  });
+}
+
+const pify = require('pify');
+const which = pify(require('which'));
+
+function _canBuildInstaller(ext) {
+  var bin = null;
+  var help = null;
+
+  if (ext === 'rpm') {
+    bin = 'rpmbuild';
+    help = 'https://git.io/v1iz7';
+  } else if (ext === 'deb') {
+    bin = 'fakeroot';
+    help = 'https://git.io/v1iRV';
+  } else {
+    return Promise.resolve(true);
+  }
+
+  return which(bin).then(() => true).catch((err) => {
+    debug(`which ${bin} error`, err);
+    /* eslint no-console: 0 */
+    console.warn(`Skipping ${ext} build. Please see ${help} for required setup.`);
+    return Promise.resolve(false);
+  });
+}
+
+function ifEnvironmentCanBuild(ext, fn) {
+  return _canBuildInstaller(function(can) {
+    if (!can) return false;
+    return fn();
+  });
+}
+
+
+function getPkg(directory) {
+  const _path = path.join(directory, 'package.json');
+  /* eslint no-sync: 0 */
+  const pkg = JSON.parse(fs.readFileSync(_path));
+  pkg._path = _path;
+  normalizePkg(pkg);
+
+  if (pkg.repository) {
+    const g = parseGitHubRepoURL(pkg.repository.url);
+    pkg.github_owner = g[0];
+    pkg.github_repo = g[1];
+  }
+
+  // TODO (imlucas) As of electron@1.4.11, `electron-prebuilt` deprecated.
+  // Need to switch everything over to `electron` package name.
+  //
+  // var electronVersion;
+  // try {
+  //   electronVersion = require('electron-prebuilt/package.json').version;
+  // } catch (e) {
+  //   electronVersion = require('electron/package.json').version;
+  // }
+  _.defaults(pkg, {
+    productName: pkg.name,
+    author: pkg.authors,
+    electronVersion: require('electron-prebuilt/package.json').version
+  });
+
+  return pkg;
+}
+
 
 class Target {
   constructor(dir, opts = {}) {
     this.dir = dir || process.cwd();
     this.out = path.join(this.dir, 'dist');
 
-    const _path = path.join(dir, 'package.json');
-    const pkg = JSON.parse(fs.readFileSync(_path));
-    pkg._path = _path;
-    normalizePkg(pkg);
-
-    if (pkg.repository) {
-      const g = parseGitHubRepoURL(pkg.repository.url);
-      pkg.github_owner = g[0];
-      pkg.github_repo = g[1];
-    }
-
-    _.defaults(pkg, {
-      productName: pkg.name,
-      author: pkg.authors,
-      electronVersion: require('electron-prebuilt/package.json').version
-    });
+    const pkg = getPkg(dir);
     this.pkg = pkg;
 
     _.defaults(opts, pkg, {
@@ -55,10 +127,9 @@ class Target {
     this.author = _.get(opts, 'author.name', opts.author);
 
     this.slug = this.name;
-
     this.semver = new semver.SemVer(this.version);
-
     this.channel = 'stable';
+
     // extract channel from version string, e.g. `beta` for `1.3.5-beta.1`
     const mtch = this.version.match(/-([a-z]+)(\.\d+)?$/);
     if (mtch) {
@@ -418,8 +489,6 @@ class Target {
     const rhelCategories = _.get(platformSettings, 'rpm_categories');
     this.linux_rpm_filename = `${this.slug}-${rhelVersion}.${rhelArch}.rpm`;
 
-    const LINUX_OUT_TAR = this.dest(`${this.slug}-${this.version}-${this.platform}-${this.arch}.tar.gz`);
-
     // var isRhel = process.env.EVERGREEN_BUILD_VARIANT === 'rhel';
     this.linux_tar_filename = `${this.slug}-${this.version}-${this.platform}-${this.arch}.tar.gz`;
 
@@ -434,135 +503,80 @@ class Target {
       },
       {
         name: this.linux_tar_filename,
-        path: LINUX_OUT_TAR
+        path: this.dest(this.linux_tar_filename)
       }
     ];
 
     var license = this.pkg.license;
     if (license === 'UNLICENSED') {
-      license = `Copyright © ${new Date().getFullYear()} ${this.author}. All Rights Reserved`;
+      license = `Copyright © ${new Date().getFullYear()} ${this.author}. All Rights Reserved.`;
     }
 
-    const which = require('which');
-    const createRpmInstaller = cb => {
-      which('rpmbuild', err => {
-        if (err) {
-          /* eslint no-console: 0 */
-          console.warn('Your environment is not configured correctly to build ' +
-          'rpm packages. Please see https://git.io/v1iz7');
-          return cb();
-        }
-        /**
-         * TODO (imlucas) Use pretty Redhat metadata and options.
-         * @see https://github.com/unindented/electron-installer-redhat#options
-         */
-        const createRpm = require('electron-installer-redhat');
-        createRpm({
-          src: this.appPath,
-          dest: this.out,
-          arch: rhelArch,
-          icon: this.src(platformSettings.icon),
-          name: this.slug,
-          version: rhelVersion,
-          revision: rhelRevision,
-          bin: this.productName,
-          requires: [
-            'lsb-core-noarch',
-            'libXScrnSaver',
-            'libsecret'
-          ],
-          categories: rhelCategories,
-          license: license
-        }, (_err) => {
-          if (_err) {
-            return cb(_err);
-          }
+    this.installerOptions = {
+      deb: {
+        src: this.appPath,
+        dest: this.out,
+        arch: debianArch,
+        icon: this.src(platformSettings.icon),
+        name: this.slug,
+        version: debianVersion,
+        bin: this.productName,
+        section: debianSection,
+        suggests: [
+          'libsecret'
+        ]
+      },
+      rpm: {
+        src: this.appPath,
+        dest: this.out,
+        arch: rhelArch,
+        icon: this.src(platformSettings.icon),
+        name: this.slug,
+        version: rhelVersion,
+        revision: rhelRevision,
+        bin: this.productName,
+        requires: [
+          'lsb-core-noarch',
+          'libXScrnSaver',
+          'libsecret'
+        ],
+        categories: rhelCategories,
+        license: license
+      }
+    };
 
-          const dest = this.dest(this.linux_rpm_filename);
-          notary(dest, (nerr) => {
-            if (nerr) {
-              debug('Notary failed!', nerr);
-            } else {
-              debug(':dancers: successfully signed %s', dest);
-            }
-            cb(null, dest);
-          });
+    const createRpmInstaller = () => {
+      return ifEnvironmentCanBuild(() => {
+        const createRpm = pify(require('electron-installer-redhat'));
+        debug('creating rpm...', this.installerOptions.rpm);
+        return createRpm(this.installerOptions.rpm).then(() => {
+          return sign(this.dest(this.linux_rpm_filename));
         });
       });
     };
 
-    const createDebInstaller = cb => {
-      which('fakeroot', err => {
-        if (err) {
-          /* eslint no-console: 0 */
-          console.warn('Your environment is not configured correctly to build ' +
-          'debian packages. Please see https://git.io/v1iRV');
-          return cb();
-        }
-        /**
-         * TODO (imlucas) Use pretty debian metadata and options.
-         * @see https://github.com/unindented/electron-installer-debian#options
-         */
-        const createDeb = require('electron-installer-debian');
-        const dest = this.dest(this.linux_deb_filename);
-        createDeb({
-          src: this.appPath,
-          dest: this.out,
-          arch: debianArch,
-          icon: this.src(platformSettings.icon),
-          name: this.slug,
-          version: debianVersion,
-          bin: this.productName,
-          section: debianSection,
-          suggests: [
-            'libsecret'
-          ]
-        }, (_err) => {
-          if (_err) {
-            return cb(_err);
-          }
-
-          notary.deb(dest).then(() => {
-            debug(':dancers: successfully signed %s', dest);
-            cb(null, dest);
-          })
-          .catch((nerr) => {
-            debug('Notary failed!', nerr);
-            cb(null, dest);
-          });
+    const createDebInstaller = () => {
+      return ifEnvironmentCanBuild(() => {
+        const createDeb = pify(require('electron-installer-debian'));
+        debug('creating deb...', this.installerOptions.deb);
+        return createDeb(this.installerOptions.deb).then(() => {
+          return sign(this.dest(this.linux_deb_filename));
         });
       });
     };
 
-    const createTarball = cb => {
-      const tarPack = require('tar-pack').pack;
-      tarPack(this.appPath)
-       .pipe(fs.createWriteStream(LINUX_OUT_TAR))
-       .on('error', function(err) {
-         cb(err);
-       })
-       .on('close', function() {
-         notary(LINUX_OUT_TAR, (nerr) => {
-           if (nerr) {
-             debug('Notary failed!', nerr);
-           } else {
-             debug(':dancers: successfully signed %s', LINUX_OUT_TAR);
-           }
-           cb(null, LINUX_OUT_TAR);
-         });
-       });
+    const createTarball = () => {
+      return tar(this.appPath, this.dest(this.linux_tar_filename)).then(() => {
+        return sign(this.dest(this.linux_tar_filename));
+      });
     };
 
     this.createInstaller = () => {
-      const async = require('async');
-      return new Promise((resolve, reject) => {
-        async.parallel([createRpmInstaller, createDebInstaller, createTarball], err => {
-          if (err) {
-            return reject(err);
-          }
-          resolve();
-        });
-      });
+      return Promise.all([
+        createRpmInstaller(),
+        createDebInstaller(),
+        createTarball()
+      ]);
     };
   }
 }

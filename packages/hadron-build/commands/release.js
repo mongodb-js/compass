@@ -422,7 +422,7 @@ const createApplicationZip = (CONFIG, done) => {
  */
 const createBrandedInstaller = (CONFIG, done) => {
   cli.debug('Creating installer');
-  CONFIG.createInstaller().then(done).catch(done);
+  CONFIG.createInstaller().then(() => done()).catch(done);
 };
 
 const createModuleCache = (CONFIG, done) => {
