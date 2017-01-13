@@ -62,7 +62,6 @@ class SidebarDatabase extends React.Component {
     return (
       <div className="compass-sidebar-item compass-sidebar-item-is-top-level">
         <div className={className}>
-          <i onClick={this.handleDBClick.bind(this, this.props._id)} className="compass-sidebar-database-icon mms-icon-database"></i>
           <i onClick={this.handleArrowClick.bind(this)} className={this.getArrowIconClasses()}></i>
           <div
             onClick={this.handleDBClick.bind(this, this.props._id)}
