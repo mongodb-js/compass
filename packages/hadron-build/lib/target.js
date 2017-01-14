@@ -552,7 +552,7 @@ class Target {
     };
 
     const createRpmInstaller = () => {
-      return ifEnvironmentCanBuild(() => {
+      return ifEnvironmentCanBuild('rpm', () => {
         const createRpm = pify(require('electron-installer-redhat'));
         debug('creating rpm...', this.installerOptions.rpm);
         return createRpm(this.installerOptions.rpm).then(() => {
@@ -562,7 +562,7 @@ class Target {
     };
 
     const createDebInstaller = () => {
-      return ifEnvironmentCanBuild(() => {
+      return ifEnvironmentCanBuild('deb', () => {
         const createDeb = pify(require('electron-installer-debian'));
         debug('creating deb...', this.installerOptions.deb);
         return createDeb(this.installerOptions.deb).then(() => {
