@@ -53,6 +53,10 @@ class SidebarInstanceProperties extends React.Component {
     ipc.call('window:hide-collection-submenu');
   }
 
+  handleCreateDatabaseClick() {
+    console.log('Do create database');
+  }
+
   render() {
     const instance = this.props.instance;
     const numDbs = instance.databases.length;
@@ -68,7 +72,11 @@ class SidebarInstanceProperties extends React.Component {
     return (
       <div className="compass-sidebar-properties">
         <div className={className} onClick={this.handleClickHostname}>
-          <i className="fa fa-home compass-sidebar-instance-icon"></i>
+          <i className="fa fa-home compass-sidebar-instance-icon" />
+          <i
+            className="compass-sidebar-icon compass-sidebar-icon-create-database fa fa-plus-circle"
+            onClick={this.handleCreateDatabaseClick.bind(this)}
+          />
           <div
             data-test-id="sidebar-instance-details"
             className="compass-sidebar-instance-hostname">

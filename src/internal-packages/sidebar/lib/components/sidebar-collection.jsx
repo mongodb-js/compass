@@ -28,6 +28,10 @@ class SidebarCollection extends React.Component {
     }
   }
 
+  handleDropCollectionClick() {
+    console.log('Do drop collection');
+  }
+
   renderReadonly() {
     if (this.props.readonly) {
       return (
@@ -44,6 +48,10 @@ class SidebarCollection extends React.Component {
     }
     return (
       <div className="compass-sidebar-item">
+        <i
+          className="compass-sidebar-icon compass-sidebar-icon-drop-collection fa fa-trash-o"
+          onClick={this.handleDropCollectionClick.bind(this)}
+        />
         <div
           onClick={this.handleClick}
           className={className}

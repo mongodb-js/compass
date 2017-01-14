@@ -54,6 +54,14 @@ class SidebarDatabase extends React.Component {
     this.setState({ expanded: !this.state.expanded });
   }
 
+  handleCreateCollectionClick() {
+    console.log('Do create collection');
+  }
+
+  handleDropDBClick() {
+    console.log('Do drop database');
+  }
+
   render() {
     let className = 'compass-sidebar-item-header compass-sidebar-item-header-is-expandable compass-sidebar-item-header-is-actionable';
     if (this.props.activeNamespace === this.props._id) {
@@ -62,7 +70,15 @@ class SidebarDatabase extends React.Component {
     return (
       <div className="compass-sidebar-item compass-sidebar-item-is-top-level">
         <div className={className}>
-          <i onClick={this.handleArrowClick.bind(this)} className={this.getArrowIconClasses()}></i>
+          <i onClick={this.handleArrowClick.bind(this)} className={this.getArrowIconClasses()} />
+          <i
+            className="compass-sidebar-icon compass-sidebar-icon-create-collection fa fa-plus-circle"
+            onClick={this.handleCreateCollectionClick.bind(this)}
+          />
+          <i
+            className="compass-sidebar-icon compass-sidebar-icon-drop-database fa fa-trash-o"
+            onClick={this.handleDropDBClick.bind(this)}
+          />
           <div
             onClick={this.handleDBClick.bind(this, this.props._id)}
             className="compass-sidebar-title" title={this.props._id}
