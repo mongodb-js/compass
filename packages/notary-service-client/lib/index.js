@@ -139,7 +139,8 @@ function sign(src, params) {
 //   ;
 // }
 
-function configure(opts = {}) {
+function configure(opts) {
+  opts = opts || {};
   dotenv.load();
 
   _.defaults(opts, {
