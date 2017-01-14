@@ -37,6 +37,9 @@ const pify = require('pify');
 const which = pify(require('which'));
 
 function _canBuildInstaller(ext) {
+  if (process.env.EVERGREEN || process.env.CI) {
+    return Promise.resolve(true);
+  }
   var bin = null;
   var help = null;
 
@@ -59,7 +62,9 @@ function _canBuildInstaller(ext) {
 }
 
 function ifEnvironmentCanBuild(ext, fn) {
-  return _canBuildInstaller(function(can) {
+  debug('checking if environment can build installer for %s', ext);
+  return _canBuildInstaller(ext).then(function(can) {
+    debug('can build installer for %s?', ext, true);
     if (!can) return false;
     return fn();
   });
@@ -187,6 +192,7 @@ class Target {
     } else {
       this.configureForLinux();
     }
+    debug('target ready', this);
   }
   /**
    * Get an absolute path to a source file.
