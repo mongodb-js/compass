@@ -34,12 +34,9 @@ function tar(srcDirectory, dest) {
 }
 
 const pify = require('pify');
-const which = pify(require('which'));
+const which = require('which');
 
 function _canBuildInstaller(ext) {
-  if (process.env.EVERGREEN || process.env.CI) {
-    return Promise.resolve(true);
-  }
   var bin = null;
   var help = null;
 
@@ -53,11 +50,17 @@ function _canBuildInstaller(ext) {
     return Promise.resolve(true);
   }
 
-  return which(bin).then(() => true).catch((err) => {
-    debug(`which ${bin} error`, err);
-    /* eslint no-console: 0 */
-    console.warn(`Skipping ${ext} build. Please see ${help} for required setup.`);
-    return Promise.resolve(false);
+  return new Promise((resolve) => {
+    which(bin, (err, res) => {
+      if (err) {
+        debug(`which ${bin} error`, err);
+        /* eslint no-console: 0 */
+        console.warn(`Skipping ${ext} build. Please see ${help} for required setup.`);
+        return resolve(false);
+      }
+      debug(`which ${bin}? ${res}`);
+      resolve(true);
+    });
   });
 }
 
