@@ -6,7 +6,6 @@ const semver = require('semver');
 const path = require('path');
 const normalizePkg = require('normalize-package-data');
 const parseGitHubRepoURL = require('parse-github-repo-url');
-// const moment = require('moment');
 const ffmpegAfterExtract = require('electron-packager-plugin-non-proprietary-codecs-ffmpeg').default;
 const debug = require('debug')('hadron-build:target');
 
@@ -145,23 +144,25 @@ class Target {
       this.slug += `-${this.channel}`;
     }
 
-    // if (this.channel === 'dev' && process.env.CI) {
-    //   this.version = [
-    //     this.semver.major,
-    //     this.semver.minor,
-    //     this.semver.patch
-    //   ].join('.');
-    //   this.version += `-alpha.${moment().format('YYYYMMDDHHmm')}`;
-    //
-    //   pkg.version = this.version;
-    //   this.semver = new semver.SemVer(this.version);
-    //   this.channel = 'alpha';
-    //
-    //   this.slug = [
-    //     this.name,
-    //     this.channel
-    //   ].join('-');
-    // }
+    if (this.channel === 'dev' && process.env.ALPHA) {
+      this.version = [
+        this.semver.major,
+        this.semver.minor,
+        this.semver.patch
+      ].join('.');
+
+      const moment = require('moment');
+      this.version += `-alpha.${moment().format('YYYYMMDDHHmm')}`;
+
+      pkg.version = this.version;
+      this.semver = new semver.SemVer(this.version);
+      this.channel = 'alpha';
+
+      this.slug = [
+        this.name,
+        this.channel
+      ].join('-');
+    }
 
     /**
      * Add `channel` suffix to product name, e.g. "Atom Beta".
