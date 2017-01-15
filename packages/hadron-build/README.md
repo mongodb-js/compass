@@ -327,6 +327,13 @@ Which assets are generated depends on the target platform.
 
 ## Todo
 
+- upload (github/s3) refactoring
+- `upload` writes to Atlas 
+- yargs -> commander
+- Docs
+- Changelog generator
+- nightly auto update channel
+- `upload` called and result is all assets needed to release ready? Write manifest to nightly auto update channel
 - `publish` command for setting `draft=true` on GitHub Release and pushing S3 manifest
 - `promote` command based on `lib/railcars`
 - Make `test` use `xvfb-maybe` by default
