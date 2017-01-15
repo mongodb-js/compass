@@ -56,7 +56,7 @@
     "tar-pack": "^3.3.0",
     "templatizer": "^2.0.3",
     "which": "^1.2.0",
-    "yargs": "^4.4.0"
+    "yargs": "^4.8.1"
   },
   "devDependencies": {
     "chai": "^3.5.0",

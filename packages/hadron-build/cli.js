@@ -22,3 +22,5 @@ const yargs = require('yargs')
     cli.error(`${msg}\n\n`);
     yargs.showHelp();
   });
+
+yargs.argv;
