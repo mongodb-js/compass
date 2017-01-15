@@ -296,11 +296,11 @@ class Target {
       },
       {
         name: 'LICENSE',
-        path: this.dest(this.appPath, 'LICENSE')
+        path: this.dest('LICENSE')
       },
       {
         name: 'version',
-        path: this.dest(this.appPath, 'version')
+        path: this.dest('version')
       },
       {
         name: `${this.packagerOptions.name}-${nuggetVersion}-full.nupkg`,
