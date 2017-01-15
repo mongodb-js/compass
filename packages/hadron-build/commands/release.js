@@ -178,9 +178,9 @@ const cleanupBrandedApplicationScaffold = (CONFIG, done) => {
  * @returns {Promise}
  * @api public
  */
-const writeLicenseFile = (CONFIG, done) => {
+const writeLicenseFile = (target, done) => {
   var opts = {
-    dir: path.join(CONFIG.resources, 'app'),
+    dir: path.join(target.resources, 'app'),
     production: false,
     excludeOrg: 'mongodb-js,10gen,christkv'
   };
@@ -189,20 +189,25 @@ const writeLicenseFile = (CONFIG, done) => {
    * to generate one and write it there before calling `license.build()`
    * or else this fails miserably.
    */
-  return license.build(opts)
-    .then(contents => CONFIG.write('LICENSE', contents))
-    .then(dest => {
-      cli.debug(format('LICENSE written to `%s`', dest));
-      if (done) {
-        done(null, true);
-      }
-    })
-    .catch(err => {
-      if (done) {
-        return done(err);
-      }
-      throw err;
-    });
+  return license.list(opts).then((deps) => {
+    return license.render(deps, opts.dir)
+      .then(contents => target.write('LICENSE', contents))
+      /**
+       * TODO (imlucas) Write `deps` to an Atlas instance so we can analyze it.
+       */
+      // .then(() => target.write('LICENSE.json', JSON.stringify(licenseData, null, 2)))
+      .then(dest => {
+        cli.debug(format('LICENSE written to `%s`', dest));
+        if (done) {
+          done(null, true);
+        }
+      });
+  }).catch(err => {
+    if (done) {
+      return done(err);
+    }
+    throw err;
+  });
 };
 
 /**
