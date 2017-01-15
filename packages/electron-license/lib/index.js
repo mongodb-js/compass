@@ -1,11 +1,12 @@
 'use strict';
 
-const Promise = require('bluebird');
-const readInstalled = Promise.promisify(require('read-installed'));
+const pify = require('pify');
+const readInstalled = pify(require('read-installed'));
 const path = require('path');
 const _ = require('lodash');
 const parseGitHubRepoURL = require('parse-github-repo-url');
-const fs = Promise.promisifyAll(require('fs'));
+const fs = require('fs');
+const read = pify(fs.readFile);
 const debug = require('debug')('electron-license');
 
 const PERMISSIVE_LICENSES = [
@@ -386,10 +387,9 @@ function list(opts) {
       if (omitPermissive) {
         omitPermissiveLicenses(licenseSummary);
       }
-      debug('licenseSummary', licenseSummary);
+
       return _.chain(licenseSummary)
         .map( (d, id) => {
-          debug('checking', id);
           const p = id.split('@');
           _.extend(d, {
             id: id,
@@ -463,6 +463,23 @@ module.exports.list = function(opts, done) {
   return list(opts, done);
 };
 
+function render(deps, dir) {
+  const tpl = path.join(__dirname, '..', 'LICENSE.tpl.md');
+
+  return new Promise(function(resolve, reject) {
+    read(path.join(dir, 'LICENSE'), 'utf-8').then((appLicense) => {
+      read(tpl, 'utf-8').then((licenseTpl) => {
+        const ctx = {
+          app_license: appLicense,
+          deps: deps
+        };
+        resolve(_.template(licenseTpl)(ctx));
+      });
+    })
+    .catch(reject);
+  });
+}
+
 /**
  * Build the contents of `LICENSE.md` to include
  *
@@ -474,13 +491,10 @@ module.exports.build = function(opts) {
     dir: process.cwd(),
     overrides: {}
   });
-  const appLicense = fs.readFileSync(path.join(opts.dir, 'LICENSE'), 'utf-8');
-  const licenseTpl = fs.readFileSync(path.join(__dirname, '..', 'LICENSE.tpl.md'), 'utf-8');
 
-  return list(opts).then( (deps) => {
-    return _.template(licenseTpl)({
-      app_license: appLicense,
-      deps: deps
-    });
+  return list(opts).then((deps) => {
+    return render(deps, opts.dir);
   });
 };
+
+module.exports.render = render;
