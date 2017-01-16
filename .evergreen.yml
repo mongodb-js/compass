@@ -96,7 +96,6 @@ functions:
         test -n '${add_env_appdata|}' && export APPDATA='${add_env_appdata|}'
         export CI=1
         export EVERGREEN=1
-        lsb_release -a --short || true
 
         # Export expansions as environment variables so we can use them
         # in hadron-build.
@@ -109,7 +108,7 @@ functions:
         export EVERGREEN_BUILD_ID="${build_id}";
         export EVERGREEN_BUILD_VARIANT="${build_variant}";
         export EVERGREEN_EXECUTION="${execution}";
-        export EVERGREEN_IS_PATCH="${is_patch}";
+        export EVERGREEN_IS_PATCH=${is_patch};
         export EVERGREEN_PROJECT="${project}";
         export EVERGREEN_REVISION="${revision}";
         export EVERGREEN_TASK_ID="${task_id}";
@@ -166,67 +165,60 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: "src/dist/${windows_setup_filename}"
-        remote_file: "${project}/${revision}/${windows_setup_filename}"
+        local_files_include_filter:
+          - src/dist/*.exe
+        remote_file: ${project}/${revision}/${windows_setup_filename}
         bucket: mciuploads
         permissions: public-read
         content_type: application/octet-stream
-        display_name: "${windows_setup_filename}"
+        display_name: windows-installer
     # MSI
     - command: s3.put
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: "src/dist/${windows_msi_filename}"
-        remote_file: "${project}/${revision}/${windows_msi_filename}"
+        local_files_include_filter:
+          - src/dist/*.msi
+        remote_file: ${project}/${revision}/${windows_msi_filename}
         bucket: mciuploads
         permissions: public-read
         content_type: application/octet-stream
-        display_name: "${windows_msi_filename}"
+        display_name: windows-msi-installer
     # ZIP
     - command: s3.put
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: "src/dist/${windows_zip_filename}"
-        remote_file: "${project}/${revision}/${windows_zip_filename}"
+        local_files_include_filter:
+          - src/dist/*.zip
+        remote_file: ${project}/${revision}/${windows_zip_filename}
         bucket: mciuploads
         permissions: public-read
         content_type: application/zip
-        display_name: "${windows_zip_filename}"
+        display_name: windows-zip
     # RELEASES file
     - command: s3.put
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: "src/dist/RELEASES"
-        remote_file: "${project}/${revision}/RELEASES"
+        local_file: src/dist/RELEASES
+        remote_file: ${project}/${revision}/RELEASES
         bucket: mciuploads
         permissions: public-read
         content_type: application/octet-stream
-        display_name: "RELEASES"
+        display_name: windows-auto-update-manifest
     # nupkg full
     - command: s3.put
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: "src/dist/${windows_nupkg_full_filename}"
-        remote_file: "${project}/${revision}/${windows_nupkg_full_filename}"
+        local_files_include_filter:
+          - src/dist/*-full.nupkg
+        remote_file: ${project}/${revision}/${windows_nupkg_full_filename}
         bucket: mciuploads
         permissions: public-read
         content_type: application/octet-stream
-        display_name: "${windows_nupkg_full_label}"
-    # Squirrel.Windows Packaging Log
-    - command: s3.put
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: "src/node_modules/electron-winstaller/vendor/SquirrelSetup.log"
-        remote_file: "${project}/${revision}/SquirrelSetup.log"
-        bucket: mciuploads
-        permissions: public-read
-        content_type: text/plain
-        display_name: "SquirrelSetup.log"
+        display_name: windows-auto-update-payload
 
   "save osx artifacts":
     # .dmg
@@ -234,23 +226,25 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: "src/dist/${osx_dmg_filename}"
-        remote_file: "${project}/${revision}/${osx_dmg_filename}"
+        local_files_include_filter:
+          - src/dist/*.dmg
+        remote_file: ${project}/${revision}/${osx_dmg_filename}
         bucket: mciuploads
         permissions: public-read
         content_type: "application/x-apple-diskimage"
-        display_name: "${osx_dmg_filename}"
+        display_name: macos-installer
     # .zip
     - command: s3.put
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: "src/dist/${osx_zip_filename}"
-        remote_file: "${project}/${revision}/${osx_zip_filename}"
+        local_files_include_filter:
+          - src/dist/*.zip
+        remote_file: ${project}/${revision}/${osx_zip_filename}
         bucket: mciuploads
         permissions: public-read
         content_type: application/zip
-        display_name: "${osx_zip_filename}"
+        display_name: macos-auto-update-payload
 
   "save linux artifacts":
     # .deb
@@ -258,23 +252,25 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: "src/dist/${linux_deb_filename}"
-        remote_file: "${project}/${revision}/${linux_deb_filename}"
+        local_files_include_filter:
+          - src/dist/*.deb
+        remote_file: ${project}/${revision}/${linux_deb_filename}
         bucket: mciuploads
         permissions: public-read
         content_type: "application/vnd.debian.binary-package"
-        display_name: "${linux_deb_filename}"
+        display_name: linux-deb-installer
     # .tar.gz
     - command: s3.put
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: "src/dist/${linux_tar_filename}"
-        remote_file: "${project}/${revision}/${linux_tar_filename}"
+        local_files_include_filter:
+          - src/dist/*.tar.gz
+        remote_file: ${project}/${revision}/${linux_tar_filename}
         bucket: mciuploads
         permissions: public-read
         content_type: application/x-gzip
-        display_name: "${linux_tar_filename}"
+        display_name: linux-tarball
 
   "save rhel artifacts":
     # .rpm
@@ -282,23 +278,25 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: "src/dist/${linux_rpm_filename}"
-        remote_file: "${project}/${revision}/${linux_rpm_filename}"
+        local_files_include_filter:
+          - src/dist/*.rpm
+        remote_file: ${project}/${revision}/${linux_rpm_filename}
         bucket: mciuploads
         permissions: public-read
         content_type: application/x-redhat-package-manager
-        display_name: "${linux_rpm_filename}"
+        display_name: linux-rpm-installer
     # .tar.gz
     - command: s3.put
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: "src/dist/${linux_tar_filename}"
-        remote_file: "${project}/${revision}/${slug}-${version}-rhel7-${arch}.tar.gz"
+        local_files_include_filter:
+          - src/dist/*.tar.gz
+        remote_file: ${project}/${revision}/${linux_tar_filename}
         bucket: mciuploads
         permissions: public-read
         content_type: application/x-gzip
-        display_name: "${slug}-${version}-rhel7-${arch}.tar.gz"
+        display_name: linux-rhel-tarball
 
 #######################################
 #               Tasks                 #
