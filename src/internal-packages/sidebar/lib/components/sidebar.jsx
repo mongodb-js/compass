@@ -27,7 +27,6 @@ class Sidebar extends React.Component {
   }
 
   handleCollapse() {
-    // console.log(this.state.collapsed);
     this.props.onCollapse();
     this.setState({ collapsed: !this.state.collapsed });
   }
