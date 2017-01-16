@@ -11,14 +11,20 @@ class PerformanceComponent extends React.Component {
   render() {
     return (
       <section className="rt-perf">
-        <TimeAndPauseButton paused={false} />
-        <DBErrorComponent store={DBErrorStore} />
-        <section className="rt__graphs-out">
-          <GraphsComponent interval={this.props.interval} />
-        </section>
-        <section className="rt__lists-out">
-          <ListsComponent interval={this.props.interval} />
-        </section>
+        <div className="controls-container">
+          <TimeAndPauseButton paused={false} />
+          <DBErrorComponent store={DBErrorStore} />
+        </div>
+        <div className="column-container">
+          <div className="column main">
+            <section className="rt__graphs-out">
+              <GraphsComponent interval={this.props.interval} />
+            </section>
+            <section className="rt__lists-out">
+              <ListsComponent interval={this.props.interval} />
+            </section>
+          </div>
+        </div>
       </section>
     );
   }
