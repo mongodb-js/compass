@@ -8,19 +8,21 @@
  *  - `NOTARY_AUTH_TOKEN` The password for using the selected signing key
  *  - `NOTARY_URL` The URL of the notary service
  */
-
-const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
 const pbkdf2 = require('pbkdf2');
 const _ = require('lodash');
 const request = require('superagent');
-// const execa = require('execa');
 const pkg = require('../package.json');
 const dotenv = require('dotenv');
 
 const debug = require('debug')('mongodb-notary-service-client');
 
+/**
+ * @param {String} secret
+ * @return {String}
+ * @api private
+ */
 function getSalt(secret) {
   const salt = _.chain(secret)
     .split('')
@@ -30,6 +32,10 @@ function getSalt(secret) {
   return salt;
 }
 
+/**
+ * @return {String}
+ * @api private
+ */
 function generateComment() {
   const project = process.env.EVERGREEN_PROJECT;
   const variant = process.env.EVERGREEN_BUILD_VARIANT;
@@ -38,12 +44,19 @@ function generateComment() {
 
   var comment = '';
   if (process.env.EVERGREEN) {
-    comment += `Evergreen project ${project} ${revision} - ${variant} - ${branch} |`;
+    comment += `Evergreen project ${project} ${revision} - ${variant} - ${branch} | `;
   }
-  comment += `Via ${pkg.name}@${pkg.version}:${pkg.homepage}`;
+  comment += `via ${pkg.name}@${pkg.version}:${pkg.homepage}`;
   return comment;
 }
 
+
+/**
+ * @param {String} secret
+ * @param {String} [dateStr]
+ * @return {Promise}
+ * @api private
+ */
 function generateAuthToken(secret, dateStr) {
   const salt = getSalt(secret);
   if (!dateStr) {
@@ -57,22 +70,16 @@ function generateAuthToken(secret, dateStr) {
   return `${signedData.digest('hex')}${dateStr}`;
 }
 
-function download(url, dest) {
-  debug('downloading %s to %s...', url, dest);
-  return new Promise(function(resolve, reject) {
-    request.get(url).pipe(fs.createWriteStream(dest))
-      .on('error', function(err) {
-        debug('download error:', err);
-        reject(err);
-      })
-      .on('close', function() {
-        debug('download completed successfully!');
-        resolve(dest);
-      });
-  });
-}
-
-
+/**
+ * Generate API params for `sign`.
+ *
+ * @param {String} endpoint
+ * @param {String} key
+ * @param {String} token
+ * @param {String} [comment]
+ * @return {Object}
+ * @api private
+ */
 function getSigningParams(endpoint, key, token, comment) {
   return {
     url: `${endpoint}/api/sign`,
@@ -82,6 +89,14 @@ function getSigningParams(endpoint, key, token, comment) {
   };
 }
 
+/**
+ * Sign `src` using the notary-service.
+ *
+ * @param {String} src
+ * @param {Object} params
+ * @return {Promise}
+ * @api private
+ */
 function sign(src, params) {
   debug('attempting to sign %s via notary-service', src, params);
   return new Promise(function(resolve, reject) {
@@ -106,39 +121,34 @@ function sign(src, params) {
   });
 }
 
-// function signDeb(src) {
-//   debug(`take an existing ${src} and unpack it`);
-//   return execa('ar', ['x', src]).then(() => {
-//     debug('concatenate its contents (the order is important), and output to a temp file');
-//     debug('cat debian-binary control.tar.gz data.tar.xz > combined-contents.gpg');
-//     var tmp = fs.createWriteStream('combined-contents.gpg');
-//     return new Promise( (resolve, reject) => {
-//       execa('cat', [
-//         'debian-binary',
-//         'control.tar.gz',
-//         'data.tar.xz'
-//       ]).stdout.pipe(tmp)
-//       .on('error', reject)
-//       .on('close', () => resolve());
-//     });
-//   })
-//   .then(() => execa('ls', ['-alh']))
-//   .then((res) => debug('generated pgp file', res.stdout))
-//   // Create a GPG signature of the concatenated file, calling it _gpgorigin:
-//   // # gpg -abs -o _gpgorigin dist/combined-contents
-//   .then(() => sign('combined-contents.gpg'))
-//   .then(() => {
-//     return execa('mv', ['combined-contents.gpg', '_gpgorigin']);
-//   })
-//   .then(() => {
-//     debug('finally, bundle the .deb up again, including the signature file');
-//     debug(`ar rc ${src} _gpgorigin debian-binary control.tar.gz data.tar.xz`);
-//     return execa('ar', ['rc', src, '_gpgorigin', 'debian-binary', 'control.tar.gz', 'data.tar.xz']);
-//   })
-//   .then(() => execa('ls', ['-alh']))
-//   ;
-// }
+/**
+ * Download a file from `url` to `dest`.
+ *
+ * @param {String} url
+ * @param {String} dest
+ * @return {Promise}
+ * @api private
+ */
+function download(url, dest) {
+  debug('downloading %s to %s...', url, dest);
+  return new Promise(function(resolve, reject) {
+    request.get(url).pipe(fs.createWriteStream(dest))
+      .on('error', function(err) {
+        debug('download error:', err);
+        reject(err);
+      })
+      .on('close', function() {
+        debug('download completed successfully!');
+        resolve(dest);
+      });
+  });
+}
 
+/**
+ * @param {Object} [opts]
+ * @return {Object}
+ * @api private
+ */
 function configure(opts) {
   opts = opts || {};
   dotenv.load();
@@ -162,6 +172,13 @@ function configure(opts) {
   return opts;
 }
 
+/**
+ * Sign and download `src` in-place.
+ *
+ * @param {String} src
+ * @return {Promise}
+ * @api public
+ */
 module.exports = function(src) {
   const opts = configure();
   if (!opts.configured) {
@@ -169,17 +186,17 @@ module.exports = function(src) {
   }
 
   const params = getSigningParams(opts.endpoint, opts.key, opts.token);
-
-  const ext = path.extname(src);
-  if (ext !== '.deb') {
-    return sign(src, params).then((res) => {
-      return download(`${opts.endpoint}/${res.permalink}`, src);
-    });
-  }
-  debug('no idea how to do .deb files at this point...');
-  return Promise.resolve(false);
+  return sign(src, params).then((res) => {
+    return download(`${opts.endpoint}/${res.permalink}`, src);
+  });
 };
 
+/**
+ * Fetch most recent logs for debugging.
+ *
+ * @return {Promise}
+ * @api public
+ */
 module.exports.logs = function() {
   const opts = configure();
   if (!opts.configured) {
