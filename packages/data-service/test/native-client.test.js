@@ -5,6 +5,7 @@ var expect = helper.expect;
 var eventStream = helper.eventStream;
 var Connection = require('mongodb-connection-model');
 var ObjectId = require('bson').ObjectId;
+var mock = require('mock-require');
 
 var NativeClient = require('../lib/native-client');
 
@@ -24,6 +25,86 @@ describe('NativeClient', function() {
   });
 
   describe('#connect', function() {
+    context('when mocking connection-model', function() {
+      /*
+       * pretends to be a connection-model providing every function call
+       * required in NativeClient#connect, but returns the ismaster of our
+       * choice.
+       */
+      var mockedConnectionModel = function(ismaster) {
+        return {
+          connect: function(model, cb) {
+            var db = {
+              admin: function() {
+                return {
+                  command: function(cmd, innerCb) {
+                    innerCb(null, ismaster);
+                  }
+                };
+              }
+            };
+            cb(null, db);
+            return {on: function() {}};
+          }
+        };
+      };
+
+      after(function() {
+        mock.stop('mongodb-connection-model');
+      });
+
+      it('sets .isMongos to true when ismaster is from a mongos', function() {
+        mock('mongodb-connection-model', mockedConnectionModel({msg: 'isdbgrid'}));
+        var MockedNativeClient = mock.reRequire('../lib/native-client');
+        var mockedClient = new MockedNativeClient(helper.connection);
+        mockedClient.connect(function() {
+          /* eslint no-unused-expressions: 0 */
+          expect(mockedClient.isMongos).to.be.true;
+        });
+      });
+
+      it('sets .isMongos to false when ismaster is not from a mongos', function() {
+        mock('mongodb-connection-model', mockedConnectionModel({ismaster: true}));
+        var MockedNativeClient = mock.reRequire('../lib/native-client');
+        var mockedClient = new MockedNativeClient(helper.connection);
+        mockedClient.connect(function() {
+          /* eslint no-unused-expressions: 0 */
+          expect(mockedClient.isMongos).to.be.false;
+        });
+        mock.stop('mongodb-connection-model');
+      });
+
+      it('sets .isWritable to true when the node is a primary replset member', function() {
+        mock('mongodb-connection-model', mockedConnectionModel({ismaster: true}));
+        var MockedNativeClient = mock.reRequire('../lib/native-client');
+        var mockedClient = new MockedNativeClient(helper.connection);
+        mockedClient.connect(function() {
+          /* eslint no-unused-expressions: 0 */
+          expect(mockedClient.isWritable).to.be.true;
+        });
+      });
+
+      it('sets .isWritable to false when the node is a secondary replset member', function() {
+        mock('mongodb-connection-model', mockedConnectionModel({ismaster: false}));
+        var MockedNativeClient = mock.reRequire('../lib/native-client');
+        var mockedClient = new MockedNativeClient(helper.connection);
+        mockedClient.connect(function() {
+          /* eslint no-unused-expressions: 0 */
+          expect(mockedClient.isWritable).to.be.false;
+        });
+      });
+
+      it('sets .isWritable to true when the node is a mongos', function() {
+        mock('mongodb-connection-model', mockedConnectionModel({msg: 'isdbgrid'}));
+        var MockedNativeClient = mock.reRequire('../lib/native-client');
+        var mockedClient = new MockedNativeClient(helper.connection);
+        mockedClient.connect(function() {
+          /* eslint no-unused-expressions: 0 */
+          expect(mockedClient.isWritable).to.be.true;
+        });
+      });
+    });
+
     context('when an invalid connection was provided', function() {
       var badConnection = new Connection({
         hostname: '127.0.0.1',

@@ -60,6 +60,7 @@ class NativeClient extends EventEmitter {
       this.database.admin().command({ ismaster: 1 }, (error, result) => {
         const ismaster = error ? {} : result;
         this.isWritable = this._isWritable(ismaster);
+        this.isMongos = this._isMongos(ismaster);
         done(null, this);
       });
     });
@@ -739,7 +740,18 @@ class NativeClient extends EventEmitter {
    * @returns {Boolean} If the server is writable.
    */
   _isWritable(ismaster) {
-    return ismaster.ismaster === true || ismaster.msg === SHARDED;
+    return ismaster.ismaster === true || this._isMongos(ismaster);
+  }
+
+  /**
+   * Determine if we are connected to a mongos
+   *
+   * @param {Object} ismaster - The ismaster response.
+   *
+   * @returns {Boolean} If the server is a mongos.
+   */
+  _isMongos(ismaster) {
+    return ismaster.msg === SHARDED;
   }
 
   /**

@@ -47,6 +47,15 @@ class DataService extends EventEmitter {
   }
 
   /**
+   * Is the data service connected to a mongos.
+   *
+   * @returns {Boolean} If the data service is connected to a mongos.
+   */
+  isMongos() {
+    return this.client.isMongos;
+  }
+
+  /**
    * List all collections for a database.
    *
    * @param {String} databaseName - The database name.
