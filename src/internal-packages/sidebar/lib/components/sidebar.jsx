@@ -21,6 +21,11 @@ class Sidebar extends React.Component {
       (this.state.collapsed ? ' compass-sidebar-collapsed' : ' compass-sidebar-expanded');
   }
 
+  getToggleClasses() {
+    return 'fa' +
+      (this.state.collapsed ? ' fa-forward' : ' fa-backward');
+  }
+
   handleCollapse() {
     this.props.onCollapse();
     this.setState({ collapsed: !this.state.collapsed });
@@ -44,7 +49,7 @@ class Sidebar extends React.Component {
       <div className={this.getSidebarClasses()} data-test-id="instance-sidebar">
         <div
           className="compass-sidebar-toggle" onClick={this.handleCollapse.bind(this)}>
-          <i className="fa fa-backward"></i>
+          <i className={this.getToggleClasses()}></i>
         </div>
         <StoreConnector store={InstanceStore}>
           <SidebarInstanceProperties
