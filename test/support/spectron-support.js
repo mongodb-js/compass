@@ -347,6 +347,18 @@ function addWaitCommands(client) {
     const row = `${base} ${selector('sortable-table-column-0')}[title=${name}]`;
     return this.waitForExistInCompass(row, true);
   });
+
+  client.addCommand('waitForCreateDatabasesModalHidden', function() {
+    return this.waitForVisibleInCompass(selector('create-database-modal'), true);
+  });
+
+  client.addCommand('waitForDropDatabasesModalHidden', function() {
+    return this.waitForVisibleInCompass(selector('drop-database-modal'), true);
+  });
+
+  client.addCommand('waitForInsertDocumentModalHidden', function() {
+    return this.waitForVisibleInCompass(selector('insert-document-modal'), true);
+  });
 }
 
 /**
@@ -732,6 +744,15 @@ function addClickCommands(client) {
   });
   // clickNewFavoriteButton
   // clickSaveFavoriteButton
+}
+
+function addKeyPressCommands(client) {
+  /**
+   * Press escape
+   */
+  client.addCommand('pressEscape', function() {
+    return this.keys(['Escape']);
+  });
 }
 
 /**
@@ -1335,6 +1356,7 @@ function launchCompass() {
     addExtendedWaitCommands(client);
     addWaitCommands(client);
     addClickCommands(client);
+    addKeyPressCommands(client);
     addGetCommands(client);
     addInputCommands(client);
     chaiAsPromised.transferPromiseness = app.transferPromiseness;

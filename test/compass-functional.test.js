@@ -215,6 +215,18 @@ describe('Compass Functional Test Suite #spectron', function() {
         });
       });
 
+      context('when the escape key is pressed', function() {
+        it('closes the create databases modal', function() {
+          return client
+            .clickDatabasesTab()
+            .clickCreateDatabaseButton()
+            .waitForCreateDatabaseModal()
+            .pressEscape()
+            .waitForCreateDatabasesModalHidden()
+            .should.eventually.be.true;
+        });
+      });
+
       context('when the database name is invalid', function() {
         it('displays the error message', function() {
           return client
@@ -298,6 +310,17 @@ describe('Compass Functional Test Suite #spectron', function() {
         client.getSidebarDatabaseCount().then(function(value) {
           dbCount = parseInt(value, 10);
           done();
+        });
+      });
+
+      context('when the escape key is pressed', function() {
+        it('closes the drop databases modal', function() {
+          return client
+            .clickDeleteDatabaseButton('music')
+            .waitForDropDatabaseModal()
+            .pressEscape()
+            .waitForDropDatabasesModalHidden()
+            .should.eventually.be.true;
         });
       });
 
@@ -449,6 +472,23 @@ describe('Compass Functional Test Suite #spectron', function() {
               .waitForDocumentInsert(1)
               .getDocumentValues(1)
               .should.eventually.include('Aphex Twin');
+          });
+        });
+
+        context('when pressing escape key twice', function() {
+          it('does not close the insert documents modal on first press', function() {
+            return client
+              .clickInsertDocumentButton()
+              .waitForInsertDocumentModal()
+              .pressEscape()
+              .waitForInsertDocumentModal()
+              .should.eventually.be.true;
+          });
+          it('closes the insert documents modal on second press', function() {
+            return client
+              .pressEscape()
+              .waitForInsertDocumentModalHidden()
+              .should.eventually.be.true;
           });
         });
       });

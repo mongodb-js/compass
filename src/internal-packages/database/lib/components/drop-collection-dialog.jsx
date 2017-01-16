@@ -56,7 +56,7 @@ class DropCollectionDialog extends React.Component {
   /**
    * When the cancel button is clicked.
    */
-  onCancelButtonClicked() {
+  onHideModal() {
     this.setState({ open: false });
   }
 
@@ -97,7 +97,8 @@ class DropCollectionDialog extends React.Component {
    */
   render() {
     return (
-      <Modal show={this.state.open} backdrop="static" keyboard={false} dialogClassName="drop-collection-dialog">
+      <Modal show={this.state.open} backdrop="static" onHide={this.onHideModal.bind(this)}
+          dialogClassName="drop-collection-dialog">
         <Modal.Header>
           <Modal.Title>Drop Collection</Modal.Title>
         </Modal.Header>
@@ -133,7 +134,7 @@ class DropCollectionDialog extends React.Component {
           <TextButton
             className="btn btn-default"
             text="Cancel"
-            clickHandler={this.onCancelButtonClicked.bind(this)} />
+            clickHandler={this.onHideModal.bind(this)} />
           <button
             className="btn btn-primary"
             data-test-id="drop-collection-button"
