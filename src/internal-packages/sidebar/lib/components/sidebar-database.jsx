@@ -1,9 +1,12 @@
 const app = require('ampersand-app');
 const ipc = require('hadron-ipc');
 const React = require('react');
-const SidebarCollection = require('./sidebar-collection');
+const ReactTooltip = require('react-tooltip');
 const { NamespaceStore } = require('hadron-reflux-store');
 const toNS = require('mongodb-ns');
+
+const { TOOLTIP_IDS } = require('./constants');
+const SidebarCollection = require('./sidebar-collection');
 
 class SidebarDatabase extends React.Component {
   constructor(props) {
@@ -63,6 +66,20 @@ class SidebarDatabase extends React.Component {
   }
 
   render() {
+    const createTooltipText = 'Create collection';
+    const createTooltipOptions = {
+      'data-for': TOOLTIP_IDS.CREATE_COLLECTION,
+      'data-effect': 'solid',
+      'data-offset': "{'bottom': 18, 'left': 3}",
+      'data-tip': createTooltipText
+    };
+    const dropTooltipText = `Drop ${this.props._id} database`;
+    const dropTooltipOptions = {
+      'data-for': TOOLTIP_IDS.DROP_DATABASE,
+      'data-effect': 'solid',
+      'data-offset': "{'bottom': 18, 'left': 3}",
+      'data-tip': dropTooltipText
+    };
     let className = 'compass-sidebar-item-header compass-sidebar-item-header-is-expandable compass-sidebar-item-header-is-actionable';
     if (this.props.activeNamespace === this.props._id) {
       className += ' compass-sidebar-item-header-is-active';
@@ -74,11 +91,15 @@ class SidebarDatabase extends React.Component {
           <i
             className="compass-sidebar-icon compass-sidebar-icon-create-collection fa fa-plus-circle"
             onClick={this.handleCreateCollectionClick.bind(this)}
+            {...createTooltipOptions}
           />
+          <ReactTooltip id={TOOLTIP_IDS.CREATE_COLLECTION} />
           <i
             className="compass-sidebar-icon compass-sidebar-icon-drop-database fa fa-trash-o"
             onClick={this.handleDropDBClick.bind(this)}
+            {...dropTooltipOptions}
           />
+          <ReactTooltip id={TOOLTIP_IDS.DROP_DATABASE} />
           <div
             onClick={this.handleDBClick.bind(this, this.props._id)}
             className="compass-sidebar-title" title={this.props._id}

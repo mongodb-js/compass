@@ -1,7 +1,9 @@
 const React = require('react');
+const ReactTooltip = require('react-tooltip');
 const app = require('ampersand-app');
 const ipc = require('hadron-ipc');
 const { NamespaceStore } = require('hadron-reflux-store');
+const { TOOLTIP_IDS } = require('./constants');
 
 class SidebarInstanceProperties extends React.Component {
   getHostnameAndPort() {
@@ -64,6 +66,15 @@ class SidebarInstanceProperties extends React.Component {
     const hostnameAndPort = this.getHostnameAndPort();
     const sshTunnelViaPort = this.getSshTunnelViaPort();
     const versionName = this.getVersionName();
+    const tooltipText = 'Create database';
+    const tooltipOptions = {
+      'data-for': TOOLTIP_IDS.CREATE_DATABASE,
+      'data-class': 'compass-sidebar-tooltip-should-be-visible',
+      'data-effect': 'solid',
+      'data-place': 'right',
+      'data-offset': "{'top': 1, 'left': 18}",
+      'data-tip': tooltipText
+    };
     let className = 'compass-sidebar-instance';
     // empty string for active namespace means instance level
     if (this.props.activeNamespace === '') {
@@ -76,7 +87,9 @@ class SidebarInstanceProperties extends React.Component {
           <i
             className="compass-sidebar-icon compass-sidebar-icon-create-database fa fa-plus-circle"
             onClick={this.handleCreateDatabaseClick.bind(this)}
+            {...tooltipOptions}
           />
+          <ReactTooltip id={TOOLTIP_IDS.CREATE_DATABASE} />
           <div
             data-test-id="sidebar-instance-details"
             className="compass-sidebar-instance-hostname">

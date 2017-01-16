@@ -1,8 +1,11 @@
 const app = require('ampersand-app');
 const React = require('react');
+const ReactTooltip = require('react-tooltip');
 const ipc = require('hadron-ipc');
 
 const { NamespaceStore } = require('hadron-reflux-store');
+
+const { TOOLTIP_IDS } = require('./constants');
 
 class SidebarCollection extends React.Component {
   constructor() {
@@ -42,6 +45,13 @@ class SidebarCollection extends React.Component {
 
   render() {
     const collectionName = this.getCollectionName();
+    const tooltipText = `Drop ${this.props.database}.${collectionName} collection`;
+    const tooltipOptions = {
+      'data-for': TOOLTIP_IDS.DROP_COLLECTION,
+      'data-effect': 'solid',
+      'data-offset': "{'bottom': 18, 'left': 3}",
+      'data-tip': tooltipText
+    };
     let className = 'compass-sidebar-title compass-sidebar-title-is-actionable';
     if (this.props.activeNamespace === this.props._id) {
       className += ' compass-sidebar-title-is-active';
@@ -51,7 +61,9 @@ class SidebarCollection extends React.Component {
         <i
           className="compass-sidebar-icon compass-sidebar-icon-drop-collection fa fa-trash-o"
           onClick={this.handleDropCollectionClick.bind(this)}
+          {...tooltipOptions}
         />
+        <ReactTooltip id={TOOLTIP_IDS.DROP_COLLECTION} />
         <div
           onClick={this.handleClick}
           className={className}
