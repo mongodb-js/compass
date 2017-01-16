@@ -77,7 +77,7 @@ class DocumentList extends React.Component {
    * Attach the scroll event to the parent container.
    */
   attachScrollEvent() {
-    this._node.parentNode.addEventListener(
+    this._node.parentNode.parentNode.addEventListener(
       SCROLL_EVENT,
       this.handleScroll.bind(this)
     );
