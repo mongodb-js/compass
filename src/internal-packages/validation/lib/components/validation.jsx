@@ -58,20 +58,8 @@ class Validation extends React.Component {
         />
       );
 
-    const activeButton = this.props.isExpressibleByRules ?
-      this.props.viewMode : 'JSON';
-
     return (
-      <div>
-        <ValidationStatusRow>
-          <ViewSwitcher
-            label="View as:"
-            buttonLabels={['Rule Builder', 'JSON']}
-            activeButton={activeButton}
-            onClick={this.switchView.bind(this)}
-            disabled={!this.props.isExpressibleByRules}
-          />
-        </ValidationStatusRow>
+      <div className="column-container">
         <div className="column main">
           {view}
         </div>
@@ -88,11 +76,22 @@ class Validation extends React.Component {
   }
 
   render() {
+    const activeButton = this.props.isExpressibleByRules ?
+      this.props.viewMode : 'JSON';
     return (
-      <div className="validation">
-        <div className="column-container">
-          {this.CollectionStore.isReadonly() ? this.renderReadonly() : this.renderComponent()}
+      <div className="validation-container">
+        <div className="controls-container">
+          <ValidationStatusRow>
+            <ViewSwitcher
+              label="View as:"
+              buttonLabels={['Rule Builder', 'JSON']}
+              activeButton={activeButton}
+              onClick={this.switchView.bind(this)}
+              disabled={!this.props.isExpressibleByRules}
+            />
+          </ValidationStatusRow>
         </div>
+        {this.CollectionStore.isReadonly() ? this.renderReadonly() : this.renderComponent()}
       </div>
     );
   }
