@@ -90,15 +90,6 @@ describe('Compass Functional Test Suite #spectron', function() {
       });
     });
 
-    context('when entering a filter in the sidebar', function() {
-      context('when entering a plain string', function() {
-        it('filters the list');
-      });
-
-      context('when entering a regex', function() {
-        it('filters the list');
-      });
-    });
 
     context('when viewing the performance view', function() {
       it('renders the operations graph inserts', function() {
@@ -258,6 +249,44 @@ describe('Compass Functional Test Suite #spectron', function() {
           return client
             .getSidebarDatabaseCount()
             .should.eventually.equal(String(dbCount + 1));
+        });
+      });
+    });
+
+    context('when entering a filter in the sidebar', function() {
+      let dbCount;
+
+      before(function(done) {
+        client.getSidebarDatabaseNames().then(function(names) {
+          dbCount = names.length;
+          done();
+        });
+      });
+
+      context('when entering a plain string', function() {
+        it('filters the list', function() {
+          return client
+            .inputSidebarFilter('mus')
+            .getSidebarDatabaseNames()
+            .should.eventually.include('music');
+        });
+      });
+
+      context('when entering a regex', function() {
+        it('filters the list', function() {
+          return client
+            .inputSidebarFilter('ad|al')
+            .getSidebarDatabaseNames()
+            .should.eventually.include('local');
+        });
+      });
+
+      context('when entering default blank regex', function() {
+        it('restores the sidebar', function() {
+          return client
+            .inputSidebarFilter('(?:)')
+            .getSidebarDatabaseNames()
+            .should.eventually.have.length(dbCount);
         });
       });
     });

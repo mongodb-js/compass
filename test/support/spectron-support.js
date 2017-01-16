@@ -207,6 +207,9 @@ function addWaitCommands(client) {
     return this.waitForVisibleInCompass(selector('create-index-modal'));
   });
 
+  client.addCommand('waitForSidebar', function(type) {
+    return this.waitForVisibleInCompass(selector('sidebar-' + type));
+  });
   /**
    * Waits for the create database modal to open.
    */
@@ -985,9 +988,13 @@ function addGetCommands(client) {
    * Get a list of database names from the sidebar.
    */
   client.addCommand('getSidebarDatabaseNames', function() {
-    return this.getText(selector('sidebar-database'));
+    return this.waitForSidebar('database').getText(selector('sidebar-database'));
   });
 
+  client.addCommand('inputSidebarFilter', function(filter) {
+    const base = selector('sidebar-filter-input');
+    return this.setValue(base, filter);
+  });
   /**
    * Get a list of database names from the home view.
    */

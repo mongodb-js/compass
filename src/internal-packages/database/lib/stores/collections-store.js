@@ -1,6 +1,7 @@
 const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
 const CollectionsActions = require('../actions/collections-actions');
+const { NamespaceStore } = require('hadron-reflux-store');
 const toNS = require('mongodb-ns');
 const app = require('ampersand-app');
 const _ = require('lodash');
@@ -38,7 +39,8 @@ const CollectionsStore = Reflux.createStore({
    * Initialize everything that is not part of the store's state.
    */
   init() {
-    this.listenToExternalStore('Sidebar.Store', this.onSidebarChange.bind(this));
+    this.listenToExternalStore('App.InstanceStore', this.onInstanceChange.bind(this));
+    NamespaceStore.listen(this.onNamespaceChanged.bind(this));
     this.indexes = [];
   },
 
@@ -60,16 +62,20 @@ const CollectionsStore = Reflux.createStore({
       column || this.state.sortColumn, order || this.state.sortOrder);
   },
 
-  onSidebarChange(state) {
-    // continue only when a database is the activeNamespace
-    if (!state.activeNamespace || state.activeNamespace.includes('.')) {
-      return;
-    }
+  setDatabaseCollections(databases, namespace) {
+    const database = _.first(_.filter(databases.models, '_id', namespace));
 
-    // retrieve the collections from sidebar object
-    const database = _.first(_.filter(state.databases, '_id', state.activeNamespace));
+    const collections = database.collections.models.map(c => {
+      return {
+        _id: c._id,
+        database: c.database,
+        capped: c.capped,
+        power_of_two: c.power_of_two,
+        readonly: c.readonly
+      };
+    });
 
-    app.dataService.database(state.activeNamespace, {}, (err, res) => {
+    app.dataService.database(namespace, {}, (err, res) => {
       if (err) {
         this.setState({
           collections: [],
@@ -80,29 +86,47 @@ const CollectionsStore = Reflux.createStore({
         return;
       }
       const unsorted = _(res.collections)
-        .filter((coll) => {
-          // skip system collections
-          const ns = toNS(coll.ns);
-          return !ns.system;
-        })
-        .map((coll) => {
-          // re-format for table view
-          return _.zipObject(COLL_COLUMNS, [
-            coll.name, // Collection Name
-            coll.document_count, // Num. Documents
-            coll.size / coll.document_count, // Avg. Document Size
-            coll.size, // Total Document Size
-            coll.index_count,  // Num Indexes
-            coll.index_size // Total Index Size
-          ]);
-        })
-        .value();
+      .filter((coll) => {
+        // skip system collections
+        const ns = toNS(coll.ns);
+        return !ns.system;
+      })
+      .map((coll) => {
+        // re-format for table view
+        return _.zipObject(COLL_COLUMNS, [
+          coll.name, // Collection Name
+          coll.document_count, // Num. Documents
+          coll.size / coll.document_count, // Avg. Document Size
+          coll.size, // Total Document Size
+          coll.index_count,  // Num Indexes
+          coll.index_size // Total Index Size
+        ]);
+      })
+      .value();
       this.setState({
-        collections: database.collections,
+        collections: collections,
         renderedCollections: this._sort(unsorted),
-        database: state.activeNamespace
+        database: namespace
       });
     });
+  },
+
+  onNamespaceChanged(namespace) {
+    if (!namespace || namespace.includes('.') || namespace === this.state.database) {
+      return;
+    }
+
+    this.setDatabaseCollections(app.instance.databases, namespace);
+  },
+
+  onInstanceChange(state) {
+    // continue only when a database is the activeNamespace
+    const namespace = NamespaceStore.ns;
+    if (!namespace || namespace.includes('.')) {
+      return;
+    }
+
+    this.setDatabaseCollections(state.instance.databases, namespace);
   },
 
   sortCollections(column, order) {

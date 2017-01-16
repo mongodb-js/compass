@@ -19,7 +19,7 @@ class Sidebar extends React.Component {
     try {
       re = new RegExp(searchString, 'i');
     } catch (e) {
-      re = /.*/;
+      re = /(?:)/;
     }
 
     SidebarActions.filterDatabases(re);
@@ -36,7 +36,7 @@ class Sidebar extends React.Component {
         </StoreConnector>
         <div className="compass-sidebar-filter">
           <i className="fa fa-search compass-sidebar-search-icon"></i>
-          <input className="compass-sidebar-search-input" placeholder="filter" onChange={this.handleFilter}></input>
+          <input data-test-id="sidebar-filter-input" className="compass-sidebar-search-input" placeholder="filter" onChange={this.handleFilter}></input>
         </div>
         <div className="compass-sidebar-content">
           {
@@ -44,6 +44,7 @@ class Sidebar extends React.Component {
               const props = {
                 _id: db._id,
                 collections: db.collections,
+                expanded: this.props.expanded,
                 activeNamespace: this.props.activeNamespace
               };
               return (
@@ -60,7 +61,8 @@ class Sidebar extends React.Component {
 Sidebar.propTypes = {
   instance: React.PropTypes.object,
   databases: React.PropTypes.array,
-  activeNamespace: React.PropTypes.string
+  activeNamespace: React.PropTypes.string,
+  expanded: React.PropTypes.bool
 };
 
 module.exports = Sidebar;
