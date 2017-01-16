@@ -184,6 +184,7 @@
     "hadron-build": "^4.1.1",
     "jsdom": "^9.8.3",
     "mocha": "^3.1.2",
+    "mock-require": "^2.0.1",
     "mongodb-js-precommit": "^0.2.9",
     "mongodb-runner": "^3.4.0",
     "react-addons-test-utils": "^15.2.1",
