@@ -85,7 +85,8 @@ Sidebar.propTypes = {
   instance: React.PropTypes.object,
   databases: React.PropTypes.array,
   onCollapse: React.PropTypes.func,
-  activeNamespace: React.PropTypes.string
+  activeNamespace: React.PropTypes.string,
+  expanded: React.PropTypes.bool
 };
 
 module.exports = Sidebar;
