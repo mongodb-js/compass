@@ -6,6 +6,11 @@ const { NamespaceStore } = require('hadron-reflux-store');
 const { TOOLTIP_IDS } = require('./constants');
 
 class SidebarInstanceProperties extends React.Component {
+  constructor(props) {
+    super(props);
+    this.DatabaseDDLActions = app.appRegistry.getAction('DatabaseDDL.Actions');
+  }
+
   getHostnameAndPort() {
     const connection = this.props.connection;
     if (!connection.hostname) {
@@ -56,7 +61,7 @@ class SidebarInstanceProperties extends React.Component {
   }
 
   handleCreateDatabaseClick() {
-    console.log('Do create database');
+    this.DatabaseDDLActions.openCreateDatabaseDialog();
   }
 
   render() {
