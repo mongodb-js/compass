@@ -15,13 +15,13 @@ class Home extends React.Component {
     this.serverStatsView = app.appRegistry.getComponent('RTSS.ServerStats');
   }
 
-  collapseSidebar() {
-    this.setState({ collapsed: !this.state.collapsed });
-  }
-
   getContentClasses() {
     return 'content' +
       (this.state.collapsed ? ' content-sidebar-collapsed' : ' content-sidebar-expanded');
+  }
+
+  collapseSidebar() {
+    this.setState({ collapsed: !this.state.collapsed });
   }
 
   renderContent() {
