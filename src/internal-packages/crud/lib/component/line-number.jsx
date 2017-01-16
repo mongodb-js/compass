@@ -1,5 +1,6 @@
 const React = require('react');
 const outsideClickable = require('react-click-outside');
+const getComponent = require('hadron-react-bson');
 const Actions = require('../actions');
 
 /**
@@ -197,12 +198,25 @@ class LineNumber extends React.Component {
   }
 
   /**
+   * Render the value of the element.
+   *
+   * @returns {React.Component} The value component.
+   */
+  renderValue() {
+    const component = getComponent(this.props.element.currentType);
+    return React.createElement(
+      component,
+      { type: this.props.element.currentType, value: this.props.element.currentValue }
+    );
+  }
+
+  /**
    * Render the field name in the menu.
    *
    * @returns {String} The field name or value if an array element.
    */
   renderFieldName() {
-    return this.props.element.currentKey || this.props.element.currentValue;
+    return this.props.element.currentKey || this.renderValue();
   }
 
   /**
@@ -212,6 +226,8 @@ class LineNumber extends React.Component {
    * @param {String} text - The text.
    * @param {Function} handler - The click handler.
    * @param {String} testId - The test id.
+   *
+   * @returns {Component} the menu item component
    */
   renderMenuItem(iconClassName, text, handler, testId) {
     return (
