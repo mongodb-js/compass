@@ -13,6 +13,7 @@ class SidebarDatabase extends React.Component {
     super(props);
     this.state = { expanded: props.expanded };
     this.CollectionsActions = app.appRegistry.getAction('Database.CollectionsActions');
+    this.DatabaseDDLActions = app.appRegistry.getAction('DatabaseDDL.Actions');
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
   }
 
@@ -64,7 +65,8 @@ class SidebarDatabase extends React.Component {
   }
 
   handleDropDBClick() {
-    console.log('Do drop database');
+    const databaseName = this.props._id;
+    this.DatabaseDDLActions.openDropDatabaseDialog(databaseName);
   }
 
   render() {
