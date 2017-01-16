@@ -14,6 +14,7 @@ class SidebarCollection extends React.Component {
       active: false
     };
     this.handleClick = this.handleClick.bind(this);
+    this.CollectionsActions = app.appRegistry.getAction('Database.CollectionsActions');
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
   }
 
@@ -32,7 +33,9 @@ class SidebarCollection extends React.Component {
   }
 
   handleDropCollectionClick() {
-    console.log('Do drop collection');
+    const databaseName = this.props.database;
+    const collectionName = this.getCollectionName();
+    this.CollectionsActions.openDropCollectionDialog(databaseName, collectionName);
   }
 
   renderReadonly() {
