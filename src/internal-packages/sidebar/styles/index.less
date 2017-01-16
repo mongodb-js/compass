@@ -1,9 +1,7 @@
 .compass-sidebar {
   margin: 0;
-
   background: #4c5259;
   color: #bfbfbe;
-  transition: all 180ms ease-out;
   flex-grow: 0;
   flex-shrink: 0;
 
@@ -29,6 +27,7 @@
     line-height: 11px;
     padding-right: 3px;
     text-align: right;
+    cursor: pointer;
     i {
       line-height: 11px;
       font-size: 10px;
@@ -169,7 +168,6 @@
     color: #fff;
     width: 100%;
     border: none;
-    transition: all 150ms ease;
     font-size: 14px;
     font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -295,12 +293,30 @@
 
 .compass-sidebar-collapsed {
   overflow: hidden;
-  .compass-sidebar {
-    &-content,
-    &-property-column,
-    &-instance-hostname,
-    &-instance-version {
-      display: none;
-    }
+  .compass-sidebar-content,
+  .compass-sidebar-property-column,
+  .compass-sidebar-instance-hostname,
+  .compass-sidebar-instance-version {
+    display: none;
+  }
+  .compass-sidebar-instance {
+    padding-top: 8px;
+    padding-bottom: 6px;
+  }
+  .compass-sidebar-properties {
+    padding-bottom: 0;
+  }
+  .compass-sidebar-stats {
+    padding-top: 6px;
+    padding-bottom: 0;
+    height: 36px;
+    margin: 0;
+  }
+  .compass-sidebar-search-input {
+    width: 30px;
+    padding: 11px 6px 5px 30px;
+  }
+  .compass-sidebar-search-icon {
+    top: 10px;
   }
 }
