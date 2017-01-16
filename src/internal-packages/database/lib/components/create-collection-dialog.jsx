@@ -3,8 +3,6 @@ const shell = require('electron').shell;
 const React = require('react');
 const Modal = require('react-bootstrap').Modal;
 const { TextButton } = require('hadron-react-buttons');
-const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
-const toNS = require('mongodb-ns');
 const Actions = require('../actions/collections-actions');
 const CreateCollectionStore = require('../stores/create-collection-store');
 const CreateCollectionInput = require('./create-collection-input');
@@ -50,12 +48,14 @@ class CreateCollectionDialog extends React.Component {
 
   /**
    * When the open dialog action is fired.
+   *
+   * @param {String} databaseName - The database to create the collection on.
    */
-  onOpenDialog() {
+  onOpenDialog(databaseName) {
     this.setState({
       open: true,
       collectionName: '',
-      databaseName: toNS(NamespaceStore.ns).database,
+      databaseName: databaseName,
       capped: false,
       maxSize: '',
       error: false,

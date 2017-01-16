@@ -26,7 +26,8 @@ class CollectionsTable extends React.Component {
   }
 
   onCreateCollectionButtonClicked() {
-    CollectionsActions.openCreateCollectionDialog();
+    const databaseName = this.props.database;
+    CollectionsActions.openCreateCollectionDialog(databaseName);
   }
 
   onNameClicked(name) {
