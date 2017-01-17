@@ -40,8 +40,8 @@ let createGitHubRelease = (CONFIG) => {
 let getOrCreateGitHubRelease = (CONFIG) => {
   const p = Promise.defer();
   const opts = {
-    owner: CONFIG.github_owner,
-    repo: CONFIG.github_repo
+    owner: '10gen',
+    repo: 'compass'
   };
   github.repos.getReleases(opts, (err, releases) => {
     if (err) {
@@ -74,8 +74,8 @@ let removeGitHubReleaseAssetIfExists = (CONFIG, release, asset) => {
 
   cli.debug(`Removing existing asset ${asset.name}`);
   const opts = {
-    owner: CONFIG.github_owner,
-    repo: CONFIG.github_repo,
+    owner: '10gen',
+    repo: 'compass',
     id: existing.id
   };
 
@@ -92,8 +92,8 @@ let removeGitHubReleaseAssetIfExists = (CONFIG, release, asset) => {
 
 let doGitHubReleaseAssetUpload = (CONFIG, release, asset) => {
   const opts = {
-    owner: CONFIG.github_owner,
-    repo: CONFIG.github_repo,
+    owner: '10gen',
+    repo: 'compass',
     id: release.id,
     name: asset.name,
     filePath: asset.path
