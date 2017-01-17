@@ -1,6 +1,8 @@
 const React = require('react');
 const outsideClickable = require('react-click-outside');
+const getComponent = require('hadron-react-bson');
 const Actions = require('../actions');
+// const debug = require('debug')('mongodb-compass:crud:line-number');
 
 /**
  * The BEM base style name for the element.
@@ -25,17 +27,17 @@ const DEFAULT_TEXT = 'Add Field After ';
 /**
  * Object text.
  */
-const OBJECT_TEXT = 'Add Field To Object ';
+const OBJECT_TEXT = 'Add Field To ';
 
 /**
  * Array text.
  */
-const ARRAY_TEXT = 'Add Element To Array ';
+const ARRAY_TEXT = 'Add Array Element To ';
 
 /**
  * Array element text.
  */
-const ARRAY_ELEMENT_TEXT = 'Add Element After ';
+const ARRAY_ELEMENT_TEXT = 'Add Array Element After ';
 
 /**
  * Add child icon.
@@ -197,12 +199,31 @@ class LineNumber extends React.Component {
   }
 
   /**
-   * Render the field name in the menu.
+   * Render the value of the element.
+   *
+   * @returns {React.Component} The value component.
+   */
+  renderValue() {
+    const component = getComponent(this.props.element.currentType);
+    return React.createElement(
+      component,
+      { type: this.props.element.currentType, value: this.props.element.currentValue }
+    );
+  }
+
+  /**
+   * Render the identifier in the menu. For objects and arrays in an array,
+   * this is the type, because the type is already part of the message. For other
+   * values inside arrays, it's the actual value. Otherwise it's the key.
    *
    * @returns {String} The field name or value if an array element.
    */
-  renderFieldName() {
-    return this.props.element.currentKey || this.props.element.currentValue;
+  renderIdentifier() {
+    // this case is already handled in renderDefaultItem()
+    if (this.isParentArray() && (this.isElementObject() || this.isElementArray())) {
+      return this.props.element.currentType;
+    }
+    return this.props.element.currentKey || this.renderValue();
   }
 
   /**
@@ -212,6 +233,8 @@ class LineNumber extends React.Component {
    * @param {String} text - The text.
    * @param {Function} handler - The click handler.
    * @param {String} testId - The test id.
+   *
+   * @returns {Component} the menu item component
    */
   renderMenuItem(iconClassName, text, handler, testId) {
     return (
@@ -219,7 +242,7 @@ class LineNumber extends React.Component {
         <span>
           <i className={iconClassName} />
           {text}
-          <span className={FIELD_NAME_CLASS}>{this.renderFieldName()}</span>
+          <span className={FIELD_NAME_CLASS}>{this.renderIdentifier()}</span>
         </span>
       </li>
     );
