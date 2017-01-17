@@ -6,7 +6,7 @@
   "version": "1.6.0-dev",
   "main": "src/main.js",
   "author": {
-    "name": "MongoDB Inc.",
+    "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
   },
   "license": "UNLICENSED",
@@ -43,7 +43,17 @@
           "app_category_type": "public.app-category.productivity"
         },
         "linux": {
-          "icon": "src/app/images/linux/mongodb-compass.png"
+          "icon": "src/app/images/linux/mongodb-compass.png",
+          "deb_section": "Databases",
+          "rpm_categories": [
+            "Office",
+            "Database",
+            "Building",
+            "Debugger",
+            "IDE",
+            "GUIDesigner",
+            "Profiling"
+          ]
         }
       }
     }
@@ -127,7 +137,7 @@
     "hadron-type-checker": "^0.17.1",
     "highlight.js": "^8.9.1",
     "jquery": "^2.1.4",
-    "keytar": "3.0.2",
+    "keytar": "mongodb-js/node-keytar#fdef09013f576b7a257ad768939e827882bccef5",
     "less": "^2.6.1",
     "less-cache": "^0.23.0",
     "local-links": "^1.4.0",
@@ -181,7 +191,7 @@
     "electron-prebuilt": "1.2.8",
     "enzyme": "^2.5.1",
     "eslint-config-mongodb-js": "^2.2.0",
-    "hadron-build": "^4.1.1",
+    "hadron-build": "^5.1.9",
     "jsdom": "^9.8.3",
     "mocha": "^3.1.2",
     "mock-require": "^2.0.1",
