@@ -142,13 +142,13 @@ let maybePublishGitHubRelease = (CONFIG) => {
     return Promise.resolve();
   }
 
-  if (!CONFIG.github_token) {
-    cli.warn('Skipping publish release because github_token not set.');
+  if (!CONFIG.githubToken) {
+    cli.warn('Skipping publish release because githubToken not set.');
     return Promise.resolve();
   }
 
   github.authenticate({
-    token: CONFIG.github_token,
+    token: CONFIG.githubToken,
     type: 'oauth'
   });
 
