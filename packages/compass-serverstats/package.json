@@ -1,7 +1,7 @@
 {
   "name": "compass-serverstats",
-  "productName": "Compass Compass Serverstats package",
-  "version": "0.0.1",
+  "productName": "Compass Serverstats package",
+  "version": "1.0.0",
   "description": "Compass Real Time Server Stats Component.",
   "main": "index.js",
   "scripts": {

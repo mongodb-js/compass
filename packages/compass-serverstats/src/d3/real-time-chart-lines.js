@@ -30,9 +30,11 @@ function realTimeChartLines() {
         .append('defs')
           .append('clipPath')
             .attr('id', 'clip')
-            .append('rect')
-              .attr('width', Math.abs(xScale.range()[0] - xScale.range()[1]))
-              .attr('height', Math.abs(yScale.range()[0] - yScale.range()[1]) + strokeWidth);
+            .append('rect');
+
+      lineGroup.selectAll('clipPath#clip rect')
+        .attr('width', Math.abs(xScale.range()[0] - xScale.range()[1]))
+        .attr('height', Math.abs(yScale.range()[0] - yScale.range()[1]) + strokeWidth);
 
       lineGroup
           .attr('clip-path', 'url(#clip)');

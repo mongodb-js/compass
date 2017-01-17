@@ -115,7 +115,7 @@ function realTimeLineChart() {
         .yData(y2Data)
         .justifyContent('flex-end')
         .color((i) => color(i + yValues(data).length))
-        .prefix(legendClass)
+        .prefix(`${legendClass}-2`)
         .format(y2Format)
         .onToggle((d, i, active) => {
           const newOpacity = active ? 1 : 0;
@@ -158,11 +158,16 @@ function realTimeLineChart() {
        */
 
       const container = d3.select(this);
+      container
+        .style('height', `${height}px`)
+        .style('width', `${width}px`);
+
       // Add Title
       const chartTitleClass = `${prefix}-chart-title`;
       container.selectAll(`p.${chartTitleClass}`).data([0]).enter()
         .append('p')
         .attr('class', chartTitleClass)
+        .style('margin-left', `${margin.left}px`)
         .text(title);
 
       // Create row for drawn elements and labels
@@ -170,7 +175,6 @@ function realTimeLineChart() {
         .append('div')
           .attr('class', `${prefix}-chart-row`)
           .style('display', 'flex')
-          .style('justify-content', 'center')
           .style('align-items', 'flex-start');
 
       // Create first axis label
@@ -189,15 +193,19 @@ function realTimeLineChart() {
       chartRowEnter
         .append('svg')
         .attr('class', `${prefix}-chart`)
-        .attr('height', subHeight + (bubbleWidth / 2))
-        .attr('width', subWidth + bubbleWidth)
       // chart group
         .append('g')
         .attr('class', `${prefix}-chart-group`)
         .attr('transform', `translate(${bubbleWidth / 2}, ${bubbleWidth / 2})`)
       // Chart background
         .append('rect')
-        .attr('class', `${prefix}-chart-background`)
+        .attr('class', `${prefix}-chart-background`);
+
+      container.selectAll(`svg.${prefix}-chart`)
+        .attr('height', subHeight + (bubbleWidth / 2))
+        .attr('width', subWidth + bubbleWidth);
+
+      container.selectAll(`rect.${prefix}-chart-background`)
         .attr('width', subWidth)
         .attr('height', subHeight);
 
@@ -245,7 +253,6 @@ function realTimeLineChart() {
       l.enter()
         .append('div')
         .style('display', 'flex')
-        .style('flex-grow', '1')
         .attr('class', legendClass);
       l.call(legend);
 
@@ -259,7 +266,6 @@ function realTimeLineChart() {
       l2.enter()
         .append('div')
         .style('display', 'flex')
-        .style('flex-grow', '1')
         .attr('class', `${legendClass}-2`);
       l2.call(legend2);
 

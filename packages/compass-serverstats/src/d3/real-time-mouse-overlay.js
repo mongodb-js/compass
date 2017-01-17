@@ -16,17 +16,19 @@ function realTimeMouseOverlay() {
 
       // Create overlay marker
       const overlayGroupClass = `${prefix}-group`;
-      const overlayGroup = svg.selectAll(`g.${overlayGroupClass}`).data([data]);
+      const overlayGroup = svg.selectAll(`g.${overlayGroupClass}`).data([data])
+        .attr('transform', `translate(${basePosition})`);
       overlayGroup.enter()
         .append('g')
-        .attr('class', overlayGroupClass)
-        .attr('transform', `translate(${basePosition})`);
+        .attr('class', overlayGroupClass);
       overlayGroup.selectAll('line').data([data]).enter()
         .append('line')
           .attr('stroke', 'white')
-          .attr('class', `${prefix}-line`)
+          .attr('class', `${prefix}-line`);
+      overlayGroup.selectAll('line')
           .attr('x1', 0).attr('y1', height)
           .attr('x2', 0).attr('y2', 0);
+
       overlayGroup.selectAll('path').data([data]).enter()
         .append('path')
           .attr('stroke', 'white')
@@ -46,11 +48,12 @@ function realTimeMouseOverlay() {
         updateMousePosition = setInterval(sendMouseEvents.bind(this, xPosition), 20);
       }
 
-      const mouseTarget = svg.selectAll(`rect.${prefix}-mouse-target`).data([data]);
+      const mouseTarget = svg.selectAll(`rect.${prefix}-mouse-target`).data([data])
+        .attr('height', height - (bubbleWidth / 2))
+        .attr('width', width - bubbleWidth);
+
       const mouseTargetEnter = mouseTarget.enter()
         .append('rect')
-        .attr('height', height - (bubbleWidth / 2))
-        .attr('width', width - bubbleWidth)
         .attr('class', `${prefix}-mouse-target`)
         .attr('fill', 'none')
         .attr('stroke', 'none')

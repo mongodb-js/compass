@@ -16,9 +16,6 @@ function realTimeLegend() {
       const legendGroup = d3.select(this);
       const legendDiv = legendGroup.selectAll(`div.${prefix}-item`).data(data).enter()
         .append('div')
-        .style('display', 'flex')
-        .style('flex-grow', '1')
-        .style('justify-content', justifyContent)
         .attr('class', `${prefix}-item`);
 
 
