@@ -1,5 +1,7 @@
 #!/usr/bin/env node
-/* eslint no-unused-expressions: 0 */
+/**
+ * TODO (imlucas) Switch from yargs to http://npm.im/commander
+ */
 
 const cli = require('mongodb-js-cli')('hadron-build');
 const yargs = require('yargs')
@@ -23,4 +25,4 @@ const yargs = require('yargs')
     yargs.showHelp();
   });
 
-yargs.argv;
+cli.debug('parsed argv', yargs.argv);
