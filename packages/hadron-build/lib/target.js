@@ -576,9 +576,11 @@ class Target {
     };
 
     const createTarball = () => {
-      return tar(this.appPath, this.dest(this.linux_tar_filename)).then(() => {
-        return sign(this.dest(this.linux_tar_filename));
-      });
+      debug('creating tarball %s -> %s', tar(this.appPath, this.dest(this.linux_tar_filename)));
+      return tar(this.appPath, this.dest(this.linux_tar_filename));
+      // .then(() => {
+      //   return sign(this.dest(this.linux_tar_filename));
+      // });
     };
 
     this.createInstaller = () => {
