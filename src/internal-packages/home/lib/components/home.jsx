@@ -5,6 +5,7 @@ const ReactTooltip = require('react-tooltip');
 class Home extends React.Component {
   constructor(props) {
     super(props);
+    this.state = { collapsed: false };
     this.sideBar = app.appRegistry.getComponent('Sidebar.Component');
     this.collectionView = app.appRegistry.getComponent('Collection.Collection');
     this.collectionsTable = app.appRegistry.getComponent('Database.CollectionsTable');
@@ -12,6 +13,15 @@ class Home extends React.Component {
      * TODO (imlucas) Handle state when rtss permissions not available.
      */
     this.serverStatsView = app.appRegistry.getComponent('RTSS.ServerStats');
+  }
+
+  getContentClasses() {
+    return 'content' +
+      (this.state.collapsed ? ' content-sidebar-collapsed' : ' content-sidebar-expanded');
+  }
+
+  collapseSidebar() {
+    this.setState({ collapsed: !this.state.collapsed });
   }
 
   renderContent() {
@@ -44,12 +54,10 @@ class Home extends React.Component {
 
     return (
       <div className="page">
-        <div className="content with-sidebar">
+        <div className={this.getContentClasses()}>
           {this.renderContent()}
         </div>
-        <div className="compass-sidebar-container">
-          <this.sideBar />
-        </div>
+        <this.sideBar onCollapse={this.collapseSidebar.bind(this)}/>
         {isNotWritableTooltip}
       </div>
     );

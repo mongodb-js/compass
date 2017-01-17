@@ -1,8 +1,8 @@
 .page {
-  max-height: 100%;
-  min-height: 100%;
-  overflow-y: auto;
-  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  height: 100vh;
 }
 
 .badge {
@@ -24,9 +24,10 @@
 }
 
 .content {
-  max-height: 100%;
-  min-height: 100%;
-  overflow-y: auto;
+  flex-grow: 1;
+  flex-shrink: 0;
+  flex-basis: 914px;
+  order: 2;
 }
 
 .panel-title {
@@ -44,13 +45,76 @@
   flex-direction: row;
 }
 
+/*
+GLOBAL FLEXBOX LAYOUT STYLES
+*/
+.tab-views {
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: auto;
+  display: flex;
+}
+
+  .tab {
+    display: flex;
+    width: 100%;
+  }
+
+  .rtss-databases,
+  .rt-perf, //rtss charts
+  .collections-table,
+  //collection views
+  .schema-container,
+  .compass-documents,
+  .index-container,
+  .compass-explain,
+  .validation-container {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+
+    .controls-container {
+      flex-grow: 0;
+      flex-shrink: 0;
+      flex-basis: auto;
+      box-shadow: 0 2px 2px rgba(0,0,0,.2);
+      z-index: 4;
+      border-top: 1px solid @gray7;
+    }
+
+    .column-container {
+      flex-grow: 1;
+      flex-shrink: 1;
+      flex-basis: auto;
+      flex-direction: column;
+      display: flex;
+      overflow: auto;
+      background: @gray8;
+    }
+
+      .column.main {
+        flex: 1;
+        margin-bottom: 100px;
+        padding: 0 24px;
+      }
+
+.RTSS, //databases table
+.collections, // collections table
 .collection-view {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  height: 100%;
   header {
     padding: 12px 0 0;
-    position: fixed;
-    z-index: 4;
-    background: @pw;
-    width: ~"calc(100% - 250px)";
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-basis: 67px;
+    /*
+    END GLOBAL FLEXBOX LAYOUT STYLES
+    */
     .row {
       margin-left: 0;
       margin-right: 0;
@@ -71,59 +135,6 @@
       margin-left: 2px;
     }
   }
-  .column-container {
-    &::-webkit-scrollbar {
-      display: none;
-    }
-  }
-
-  .header-margin {
-    margin-top: 50px; // size of header
-  }
-
-  .column {
-    overflow: auto;
-    height: auto;
-    padding: .5rem;
-    -webkit-overflow-scrolling: touch;
-    -ms-overflow-style: none;
-    position: relative;
-    transition: width 250ms ease;
-  }
-
-  .main {
-    padding: 0 26px 100px 26px;
-    overflow-x: hidden;
-    background-color: @gray8;
-    position: absolute;
-    left: 250px;
-    right: 0;
-    bottom: 0;
-    top: 95px;
-  }
-
-    .column-container {
-      &.with-message {
-        .main {
-          top: 128px;
-        }
-      }
-      &.with-refinebar {
-        .main {
-          top: 149px;
-        }
-      }
-      &.with-refinebar-and-message {
-        .main {
-          top: 181px;
-        }
-      }
-      &.with-refinebar-and-2xmessage {
-        .main {
-          top: 214px;
-        }
-      }
-    }
 
   .side {
     width: 0;
@@ -132,45 +143,6 @@
     border-left: 2px solid @gray7;
     right: -12px;
     top: 30px;
-  }
-
-  .splitter {
-    width: 20px;
-    height: 20px;
-    position: relative;
-    right: 10px;
-    transition: right 250ms ease;
-  }
-  .splitter-button {
-    outline: none;
-    color: @gray1;
-    text-decoration: none;
-
-    &:hover {
-      text-decoration: none;
-    }
-    &:active {
-      outline: none;
-      color: @green2;
-    }
-  }
-  .splitter-button-close {
-    display: none;
-  }
-  .column-container.sidebar-open {
-    .side {
-      width: 33%;
-      right: 0;
-    }
-    .splitter {
-      right: -2px;
-    }
-    .splitter-button-open {
-      display: none;
-    }
-    .splitter-button-close {
-      display: inline-block;
-    }
   }
 }
 
