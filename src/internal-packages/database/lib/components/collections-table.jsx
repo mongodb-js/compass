@@ -39,7 +39,7 @@ class CollectionsTable extends React.Component {
   renderLink(coll) {
     const collName = coll['Collection Name'];
     return (
-      <a className="collections-table-link btn btn-link btn-xs btn-case-sensitive" href="#" onClick={this.onNameClicked.bind(this, collName)}>{collName}</a>
+      <a className="collections-table-link" href="#" onClick={this.onNameClicked.bind(this, collName)}>{collName}</a>
     );
   }
 
