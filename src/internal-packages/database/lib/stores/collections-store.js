@@ -65,7 +65,7 @@ const CollectionsStore = Reflux.createStore({
   _setDatabaseCollections(databases, namespace) {
     const database = _.first(_.filter(databases.models, '_id', namespace));
 
-    const collections = database.collections.models.map(c => {
+    const collections = database ? database.collections.models.map(c => {
       return {
         _id: c._id,
         database: c.database,
@@ -73,7 +73,7 @@ const CollectionsStore = Reflux.createStore({
         power_of_two: c.power_of_two,
         readonly: c.readonly
       };
-    });
+    }) : [];
 
     app.dataService.database(namespace, {}, (err, res) => {
       if (err) {
