@@ -17,15 +17,13 @@ const downloadCenter = require('../lib/download-center');
 let createGitHubRelease = (CONFIG) => {
   const p = Promise.defer();
   var opts = {
-    owner: CONFIG.github_owner,
-    repo: CONFIG.github_repo,
+    owner: '10gen',
+    repo: 'compass',
     draft: true,
     tag_name: `v${CONFIG.version}`,
     name: CONFIG.version,
-    target_commitish: CONFIG.target_commitish,
-    body: `### Notable Changes
-    * Something new
-    `
+    target_commitish: process.env.EVERGREEN_REVISION,
+    body: '> TODO (imlucas) Auto generate this.'
   };
 
   cli.debug('Creating release', opts);
