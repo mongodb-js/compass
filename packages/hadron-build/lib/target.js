@@ -116,11 +116,7 @@ class Target {
     _.defaults(opts, pkg, {
       platform: process.platform,
       arch: process.arch,
-      sign: true,
-      evergreenRevision: process.env.EVERGREEN_REVISION,
-      evergreenBuildVariant: process.env.EVERGREEN_BUILD_VARIANT,
-      evergreenBranchName: process.env.EVERGREEN_BRANCH_NAME,
-      githubToken: process.env.GITHUB_TOKEN
+      sign: true
     });
 
     this.id = opts.name;
