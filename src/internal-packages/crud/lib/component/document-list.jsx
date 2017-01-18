@@ -85,7 +85,7 @@ class DocumentList extends React.Component {
 
   /**
    * Handle the loading of more documents.
-   *
+   * @param {Object} error
    * @param {Array} documents - The next batch of documents.
    */
   handleLoadMore(error, documents) {
@@ -103,7 +103,7 @@ class DocumentList extends React.Component {
 
   /**
    * Handle the reset of the document list.
-   *
+   * @param {Object} error
    * @param {Array} documents - The documents.
    * @param {Integer} count - The count.
    */

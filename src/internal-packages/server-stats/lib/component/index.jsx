@@ -21,15 +21,16 @@ class RTSSComponent extends React.Component {
     this.TabNavBar = app.appRegistry.getComponent('App.TabNavBar');
   }
 
+
+  componentDidMount() {
+    Actions.restart();
+  }
+
   onTabClicked(idx) {
     if (this.state.activeTab === idx) {
       return;
     }
     this.setState({activeTab: idx});
-  }
-
-  componentDidMount() {
-    Actions.restart();
   }
 
   /**

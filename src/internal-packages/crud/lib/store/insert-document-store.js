@@ -31,13 +31,13 @@ const InsertDocumentStore = Reflux.createStore({
       const filter = _.assign(this.filter, { _id: doc._id });
       app.dataService.count(NamespaceStore.ns, filter, {}, (err, count) => {
         if (err) {
-          this.trigger(false, err);
+          return this.trigger(false, err);
+        }
+
+        if (count > 0) {
+          this.trigger(true, doc);
         } else {
-          if (count > 0) {
-            this.trigger(true, doc);
-          } else {
-            Actions.closeInsertDocumentDialog();
-          }
+          Actions.closeInsertDocumentDialog();
         }
       });
     });
