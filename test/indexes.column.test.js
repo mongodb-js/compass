@@ -6,7 +6,6 @@ const chai = require('chai');
 const chaiEnzyme = require('chai-enzyme');
 const expect = chai.expect;
 const React = require('react');
-const Reflux = require('reflux');
 const {mount, shallow} = require('enzyme');
 
 const SizeColumn = require('../src/internal-packages/indexes/lib/component/size-column');
@@ -14,18 +13,7 @@ const UsageColumn = require('../src/internal-packages/indexes/lib/component/usag
 
 chai.use(chaiEnzyme());
 
-const root = '../src/internal-packages/';
-const storeKeyMap = {
-  'CollectionStore': root + 'app/lib/stores/collection-store',
-  'LoadIndexesStore': root + 'indexes/lib/store/load-indexes-store',
-  'Schema.Store': root + 'schema/lib/store',
-  'Query.ChangedStore': root + 'query/lib/store/query-changed-store'
-};
-
-Reflux.StoreMethods.listenToExternalStore = function(storeKey, callback) {
-  const store = require(storeKeyMap[storeKey]);
-  this.listenTo(store, callback);
-};
+require('../src/app/reflux-listen-to-external-store.js');
 
 describe('<Indexes />', () => {
   let component;

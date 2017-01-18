@@ -4,7 +4,6 @@ const expect = require('chai').expect;
 const app = require('ampersand-app');
 const AppRegistry = require('hadron-app-registry');
 const { NamespaceStore } = require('hadron-reflux-store');
-const Reflux = require('reflux');
 const sinon = require('sinon');
 
 const root = '../src/internal-packages/';
@@ -14,11 +13,7 @@ const storeKeyMap = {
   'Schema.Store': root + 'schema/lib/store',
   'Query.ChangedStore': root + 'query/lib/store/query-changed-store'
 };
-
-Reflux.StoreMethods.listenToExternalStore = function(storeKey, callback) {
-  const store = require(storeKeyMap[storeKey]);
-  this.listenTo(store, callback);
-};
+require('../src/app/reflux-listen-to-external-store.js');
 
 const CreateIndexStore = require('../src/internal-packages/indexes/lib/store/create-index-store');
 const Collection = require('../src/internal-packages/collection/lib/components/index');
