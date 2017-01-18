@@ -62,7 +62,7 @@ const CollectionsStore = Reflux.createStore({
       column || this.state.sortColumn, order || this.state.sortOrder);
   },
 
-  setDatabaseCollections(databases, namespace) {
+  _setDatabaseCollections(databases, namespace) {
     const database = _.first(_.filter(databases.models, '_id', namespace));
 
     const collections = database.collections.models.map(c => {
@@ -116,7 +116,7 @@ const CollectionsStore = Reflux.createStore({
       return;
     }
 
-    this.setDatabaseCollections(app.instance.databases, namespace);
+    this._setDatabaseCollections(app.instance.databases, namespace);
   },
 
   onInstanceChange(state) {
@@ -126,7 +126,7 @@ const CollectionsStore = Reflux.createStore({
       return;
     }
 
-    this.setDatabaseCollections(state.instance.databases, namespace);
+    this._setDatabaseCollections(state.instance.databases, namespace);
   },
 
   sortCollections(column, order) {
