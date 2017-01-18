@@ -146,7 +146,10 @@ describe('LoadIndexesStore', () => {
   const dataService = app.dataService;
   beforeEach(() => {
     // Mock the app.instance.build.version
-    app.instance = {build: {version: '3.4.0'}};
+    app.instance = {
+      build: {version: '3.4.0'},
+      databases: {models: []}
+    };
 
     // Mock the AppRegistry with a new one so tests don't complain about
     // appRegistry.getComponent (i.e. appRegistry being undefined)
@@ -164,6 +167,9 @@ describe('LoadIndexesStore', () => {
 
     // Make dataService side-effects into no-ops so tests pass
     app.dataService = sinon.spy();
+    app.dataService.database = (namespace, {}, callback) => {
+      callback(null, {collections: []});
+    };
     app.dataService.sample = () => {};
     app.dataService.count = () => {};
   });
