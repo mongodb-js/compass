@@ -1,8 +1,6 @@
 .collection-view {
   header {
     padding: 12px 0 0;
-    position: fixed;
-    z-index: 4;
     background: @pw;
     .row {
       margin-left: 0;
@@ -13,60 +11,6 @@
     margin-top: 12px;
     font-size: 24px;
   }
-  .column-container {
-    &::-webkit-scrollbar {
-      display: none;
-    }
-  }
-
-  .header-margin {
-    margin-top: 50px; // size of header
-  }
-
-  .column {
-    overflow: auto;
-    height: auto;
-    padding: .5rem;
-    -webkit-overflow-scrolling: touch;
-    -ms-overflow-style: none;
-    position: relative;
-    transition: width 250ms ease;
-  }
-
-  .main {
-    padding: 0 26px 100px 26px;
-    overflow-x: hidden;
-    background-color: @gray8;
-    position: absolute;
-    left: 250px;
-    right: 0;
-    bottom: 0;
-    top: 95px;
-  }
-
-  .column-container {
-    &.with-message {
-      .main {
-        top: 128px;
-      }
-    }
-    &.with-refinebar {
-      .main {
-        top: 149px;
-      }
-    }
-    &.with-refinebar-and-message {
-      .main {
-        top: 181px;
-      }
-    }
-    &.with-refinebar-and-2xmessage {
-      .main {
-        top: 214px;
-      }
-    }
-  }
-
   .side {
     width: 0;
     font-family: @font-family-monospace;
@@ -76,42 +20,4 @@
     top: 30px;
   }
 
-  .splitter {
-    width: 20px;
-    height: 20px;
-    position: relative;
-    right: 10px;
-    transition: right 250ms ease;
-  }
-  .splitter-button {
-    outline: none;
-    color: @gray1;
-    text-decoration: none;
-
-    &:hover {
-      text-decoration: none;
-    }
-    &:active {
-      outline: none;
-      color: @green2;
-    }
-  }
-  .splitter-button-close {
-    display: none;
-  }
-  .column-container.sidebar-open {
-    .side {
-      width: 33%;
-      right: 0;
-    }
-    .splitter {
-      right: -2px;
-    }
-    .splitter-button-open {
-      display: none;
-    }
-    .splitter-button-close {
-      display: inline-block;
-    }
-  }
 }
