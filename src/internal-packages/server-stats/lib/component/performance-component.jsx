@@ -13,9 +13,9 @@ class PerformanceComponent extends React.Component {
 
   renderTopMessage() {
     return (
-        <StatusRow style="warning">
-          Top command is not available for mongos, some charts may not show any data.
-        </StatusRow>
+      <StatusRow style="warning">
+        Top command is not available for mongos, some charts may not show any data.
+      </StatusRow>
     );
   }
 
