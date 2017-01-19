@@ -4,6 +4,9 @@ language: node_js
 node_js:
   - 6
 script: npm run-script ci
+before_install:
+  npm install -g yarn;
+  yarn install --ignore-optional
 cache:
   yarn: true
   directories:
