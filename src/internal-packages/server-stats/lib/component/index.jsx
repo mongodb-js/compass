@@ -17,7 +17,15 @@ class RTSSComponent extends React.Component {
    */
   constructor(props) {
     super(props);
+    this.state = {activeTab: 0};
     this.TabNavBar = app.appRegistry.getComponent('App.TabNavBar');
+  }
+
+  onTabClicked(idx) {
+    if (this.state.activeTab === idx) {
+      return;
+    }
+    this.setState({activeTab: idx});
   }
 
   componentDidMount() {
@@ -38,7 +46,8 @@ class RTSSComponent extends React.Component {
           theme="light"
           tabs={['Databases', 'Performance']}
           views={[databasesView, performanceView]}
-          activeTabIndex={0}
+          activeTabIndex={this.state.activeTab}
+          onTabClicked={this.onTabClicked.bind(this)}
           className="rt-nav"
         />
       </div>

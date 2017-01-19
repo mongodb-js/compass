@@ -89,7 +89,7 @@ class DatabasesTable extends React.Component {
 
     return (
       <div className="rtss-databases" data-test-id="databases-table">
-        <div className="rtss-databases-create-button action-bar">
+        <div className="rtss-databases-create-button action-bar controls-container">
           <div className="tooltip-button-wrapper" data-tip={tooltipText} data-for="is-not-writable">
             <button
                 className="btn btn-primary btn-xs"
@@ -101,18 +101,22 @@ class DatabasesTable extends React.Component {
             </button>
           </div>
         </div>
-        <this.SortableTable
-          theme="light"
-          columns={this.props.columns}
-          rows={rows}
-          sortable
-          sortOrder={this.props.sortOrder}
-          sortColumn={this.props.sortColumn}
-          valueIndex={0}
-          removable={isWritable}
-          onColumnHeaderClicked={this.onColumnHeaderClicked.bind(this)}
-          onRowDeleteButtonClicked={this.onRowDeleteButtonClicked.bind(this)}
-        />
+        <div className="column-container">
+          <div className="column main">
+            <this.SortableTable
+              theme="light"
+              columns={this.props.columns}
+              rows={rows}
+              sortable
+              sortOrder={this.props.sortOrder}
+              sortColumn={this.props.sortColumn}
+              valueIndex={0}
+              removable={isWritable}
+              onColumnHeaderClicked={this.onColumnHeaderClicked.bind(this)}
+              onRowDeleteButtonClicked={this.onRowDeleteButtonClicked.bind(this)}
+            />
+          </div>
+        </div>
         {this.props.databases.length === 0 ?
             this.renderNoCollections(isWritable) : null}
         <CreateDatabaseDialog />
