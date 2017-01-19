@@ -497,16 +497,7 @@ Object.defineProperty(app, 'state', {
   }
 });
 
-// add Reflux store method to listen to external stores
-const Reflux = require('reflux');
-const packageActivationCompleted = require('hadron-package-manager/lib/action').packageActivationCompleted;
-Reflux.StoreMethods.listenToExternalStore = function(storeKey, callback) {
-  this.listenTo(packageActivationCompleted, () => {
-    const store = app.appRegistry.getStore(storeKey);
-    this.listenTo(store, callback);
-    this.stopListeningTo(packageActivationCompleted);
-  });
-};
+require('./reflux-listen-to-external-store');
 
 app.init();
 
