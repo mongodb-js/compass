@@ -5,9 +5,7 @@ node_js:
   - 6
 script: npm run-script ci
 cache:
-  # TODO (imlucas) We can't use yarn just yet on travis until an upstream
-  # fix is landed for https://github.com/yarnpkg/yarn/pull/2164
-  # yarn: true
+  yarn: true
   directories:
     - node_modules
     - $HOME/.electron
