@@ -14,12 +14,35 @@
   background: #4c5259;
   color: #bfbfbe;
 
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
   &-content {
-    overflow-y: scroll;
+    overflow-y: hidden;
     top: 114px;
     bottom: 0;
     width: 250px;
     height: ~"calc(100% - 112px)";
+
+    &:hover {
+      overflow-y: scroll;
+    }
+
+    &::-webkit-scrollbar {
+      width: 6px;
+      height: 5px;
+
+      &-thumb {
+        background: #838a91;
+        border-radius: 50px;
+      }
+
+      &-track {
+        background: #42494f;
+        border-radius: 50px;
+      }
+    }
   }
 
   &-title {
@@ -203,9 +226,6 @@
       line-height: 20px;
       overflow-x: hidden;
       text-overflow: ellipsis;
-      &::-webkit-scrollbar {
-        display: none;
-      }
     }
 
     &-ssh-tunnel {
