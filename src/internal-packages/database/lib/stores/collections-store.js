@@ -62,10 +62,10 @@ const CollectionsStore = Reflux.createStore({
       column || this.state.sortColumn, order || this.state.sortOrder);
   },
 
-  setDatabaseCollections(databases, namespace) {
+  _setDatabaseCollections(databases, namespace) {
     const database = _.first(_.filter(databases.models, '_id', namespace));
 
-    const collections = database.collections.models.map(c => {
+    const collections = database ? database.collections.models.map(c => {
       return {
         _id: c._id,
         database: c.database,
@@ -73,7 +73,7 @@ const CollectionsStore = Reflux.createStore({
         power_of_two: c.power_of_two,
         readonly: c.readonly
       };
-    });
+    }) : [];
 
     app.dataService.database(namespace, {}, (err, res) => {
       if (err) {
@@ -116,7 +116,7 @@ const CollectionsStore = Reflux.createStore({
       return;
     }
 
-    this.setDatabaseCollections(app.instance.databases, namespace);
+    this._setDatabaseCollections(app.instance.databases, namespace);
   },
 
   onInstanceChange(state) {
@@ -126,7 +126,7 @@ const CollectionsStore = Reflux.createStore({
       return;
     }
 
-    this.setDatabaseCollections(state.instance.databases, namespace);
+    this._setDatabaseCollections(state.instance.databases, namespace);
   },
 
   sortCollections(column, order) {
