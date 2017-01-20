@@ -2,12 +2,11 @@ const React = require('react');
 const app = require('ampersand-app');
 const { shell } = require('electron');
 const ipc = require('hadron-ipc');
-const DatabasesActions = require('../action/databases-actions');
-const CreateDatabaseDialog = require('./create-database-dialog');
-const DropDatabaseDialog = require('./drop-database-dialog');
 const { NamespaceStore } = require('hadron-reflux-store');
 const numeral = require('numeral');
 const _ = require('lodash');
+const CreateDatabaseDialog = require('./create-database-dialog');
+const DropDatabaseDialog = require('./drop-database-dialog');
 
 // const debug = require('debug')('mongodb-compass:server-stats:databases');
 
@@ -20,21 +19,22 @@ class DatabasesTable extends React.Component {
 
   constructor(props) {
     super(props);
+    this.DDLAction = app.appRegistry.getAction('DDL.Actions');
     this.SortableTable = app.appRegistry.getComponent('App.SortableTable');
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
     this.Tooltip = app.appRegistry.getComponent('App.Tooltip');
   }
 
   onColumnHeaderClicked(column, order) {
-    DatabasesActions.sortDatabases(column, order);
+    this.DDLAction.sortDatabases(column, order);
   }
 
   onRowDeleteButtonClicked(index, dbName) {
-    DatabasesActions.openDropDatabaseDialog(dbName);
+    this.DDLAction.openDropDatabaseDialog(dbName);
   }
 
   onCreateDatabaseButtonClicked() {
-    DatabasesActions.openCreateDatabaseDialog();
+    this.DDLAction.openCreateDatabaseDialog();
   }
 
   onAuthHelpClicked(evt) {

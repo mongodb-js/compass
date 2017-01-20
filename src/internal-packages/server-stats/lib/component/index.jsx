@@ -1,7 +1,6 @@
 const React = require('react');
 const Actions = require('../action');
 const Performance = require('./performance-component');
-const Databases = require('./connected-databases');
 const app = require('ampersand-app');
 // const debug = require('debug')('mongodb-compass:server-stats-RTSSComponent');
 
@@ -18,6 +17,7 @@ class RTSSComponent extends React.Component {
   constructor(props) {
     super(props);
     this.state = {activeTab: 0};
+    this.DatabasesView = app.appRegistry.getComponent('DDL.DatabasesView');
     this.TabNavBar = app.appRegistry.getComponent('App.TabNavBar');
   }
 
@@ -40,7 +40,7 @@ class RTSSComponent extends React.Component {
    */
   render() {
     const performanceView = <Performance interval={this.props.interval} />;
-    const databasesView = <Databases />;
+    const databasesView = <this.DatabasesView />;
     return (
       <div className="RTSS">
         <this.TabNavBar
