@@ -71,11 +71,6 @@
       margin-left: 2px;
     }
   }
-  .column-container {
-    &::-webkit-scrollbar {
-      display: none;
-    }
-  }
 
   .header-margin {
     margin-top: 50px; // size of header
@@ -243,5 +238,17 @@
 }
 
 ::-webkit-scrollbar {
-  display: none;
+  width: 8px;
+
+  &-thumb {
+    background: #838a91;
+    border-radius: 50px;
+  }
+
+  &-track {
+    margin: 10px 0px 10px 0px;
+    background: #D9D9DE;
+    border-radius: 50px;
+  }
 }
+
