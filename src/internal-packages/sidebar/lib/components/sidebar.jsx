@@ -47,8 +47,10 @@ class Sidebar extends React.Component {
   render() {
     return (
       <div className={this.getSidebarClasses()} data-test-id="instance-sidebar">
-        <div
-          className="compass-sidebar-toggle" onClick={this.handleCollapse.bind(this)}>
+        <div className="compass-sidebar-toggle"
+          onClick={this.handleCollapse.bind(this)}
+          data-test-id="toggle-sidebar"
+        >
           <i className={this.getToggleClasses()}></i>
         </div>
         <StoreConnector store={InstanceStore}>

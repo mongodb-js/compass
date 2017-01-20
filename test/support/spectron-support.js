@@ -478,6 +478,14 @@ function addClickCommands(client) {
   });
 
   /**
+   * toggle the sidebar
+   */
+  client.addCommand('clickToggleInSidebar', function() {
+    const base = selector('toggle-sidebar');
+    return this.waitForVisibleInCompass(base).click(base);
+  });
+
+  /**
    * Click on a collection in the sidebar.
    *
    * @param {String} name - The full collection name.
