@@ -13,6 +13,8 @@ class Home extends React.Component {
      * TODO (imlucas) Handle state when rtss permissions not available.
      */
     this.serverStatsView = app.appRegistry.getComponent('RTSS.ServerStats');
+    this.CreateDatabaseDialog = app.appRegistry.getComponent('DDL.CreateDatabaseDialog');
+    this.DropDatabaseDialog = app.appRegistry.getComponent('DDL.DropDatabaseDialog');
   }
 
   getContentClasses() {
@@ -59,6 +61,8 @@ class Home extends React.Component {
         </div>
         <this.sideBar onCollapse={this.collapseSidebar.bind(this)}/>
         {isNotWritableTooltip}
+        <this.CreateDatabaseDialog />
+        <this.DropDatabaseDialog />
       </div>
     );
   }

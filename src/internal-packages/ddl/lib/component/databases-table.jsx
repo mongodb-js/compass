@@ -5,8 +5,6 @@ const ipc = require('hadron-ipc');
 const { NamespaceStore } = require('hadron-reflux-store');
 const numeral = require('numeral');
 const _ = require('lodash');
-const CreateDatabaseDialog = require('./create-database-dialog');
-const DropDatabaseDialog = require('./drop-database-dialog');
 
 // const debug = require('debug')('mongodb-compass:server-stats:databases');
 
@@ -119,8 +117,6 @@ class DatabasesTable extends React.Component {
         </div>
         {this.props.databases.length === 0 ?
             this.renderNoCollections(isWritable) : null}
-        <CreateDatabaseDialog />
-        <DropDatabaseDialog />
       </div>
     );
   }
