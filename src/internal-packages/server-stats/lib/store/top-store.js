@@ -66,6 +66,11 @@ const TopStore = Reflux.createStore({
 
   // Calculate list as current hottest collection (like Cloud and system top)
   top_delta: function() {
+    // top command is not available in sharded cluster
+    if (app.dataService.isMongos()) {
+      return;
+    }
+
     app.dataService.top((error, response) => {
       // Trigger error banner changes
       if (error === null && this.errored.length > 0 && this.errored[this.errored.length - 1] !== null) { // Trigger error removal
