@@ -20,7 +20,7 @@ class CollectionsTable extends React.Component {
   }
 
   onRowDeleteButtonClicked(index, collection) {
-    CollectionsActions.openDropCollectionDialog(collection);
+    CollectionsActions.openDropCollectionDialog(this.props.database, collection);
   }
 
   onCreateCollectionButtonClicked() {
