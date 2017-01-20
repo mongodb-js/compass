@@ -1,8 +1,6 @@
 const React = require('react');
 const app = require('ampersand-app');
 const CollectionsActions = require('../actions/collections-actions');
-const CreateCollectionDialog = require('./create-collection-dialog');
-const DropCollectionDialog = require('./drop-collection-dialog');
 const numeral = require('numeral');
 const ipc = require('hadron-ipc');
 const _ = require('lodash');
@@ -95,8 +93,6 @@ class CollectionsTable extends React.Component {
             />
           </div>
         </div>
-        <CreateCollectionDialog />
-        <DropCollectionDialog />
       </div>
     );
   }

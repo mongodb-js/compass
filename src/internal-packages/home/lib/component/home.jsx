@@ -15,6 +15,8 @@ class Home extends React.Component {
     this.serverStatsView = app.appRegistry.getComponent('RTSS.ServerStats');
     this.CreateDatabaseDialog = app.appRegistry.getComponent('DDL.CreateDatabaseDialog');
     this.DropDatabaseDialog = app.appRegistry.getComponent('DDL.DropDatabaseDialog');
+    this.CreateCollectionDialog = app.appRegistry.getComponent('Database.CreateCollectionDialog');
+    this.DropCollectionDialog = app.appRegistry.getComponent('Database.DropCollectionDialog');
   }
 
   getContentClasses() {
@@ -63,6 +65,8 @@ class Home extends React.Component {
         {isNotWritableTooltip}
         <this.CreateDatabaseDialog />
         <this.DropDatabaseDialog />
+        <this.CreateCollectionDialog />
+        <this.DropCollectionDialog />
       </div>
     );
   }

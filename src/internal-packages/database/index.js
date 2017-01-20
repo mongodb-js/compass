@@ -3,6 +3,8 @@ const CollectionsTable = require('./lib/components');
 const CreateCollectionCheckbox = require('./lib/components/create-collection-checkbox');
 const CreateCollectionInput = require('./lib/components/create-collection-input');
 const CreateCollectionSizeInput = require('./lib/components/create-collection-size-input');
+const CreateCollectionDialog = require('./lib/components/create-collection-dialog');
+const DropCollectionDialog = require('./lib/components/drop-collection-dialog');
 
 /**
  * Activate all the components in the Schema package.
@@ -12,6 +14,8 @@ function activate() {
   app.appRegistry.registerComponent('Database.CreateCollectionCheckbox', CreateCollectionCheckbox);
   app.appRegistry.registerComponent('Database.CreateCollectionInput', CreateCollectionInput);
   app.appRegistry.registerComponent('Database.CreateCollectionSizeInput', CreateCollectionSizeInput);
+  app.appRegistry.registerComponent('Database.CreateCollectionDialog', CreateCollectionDialog);
+  app.appRegistry.registerComponent('Database.DropCollectionDialog', DropCollectionDialog);
 }
 
 /**
@@ -22,6 +26,8 @@ function deactivate() {
   app.appRegistry.deregisterComponent('Database.CreateCollectionCheckbox');
   app.appRegistry.deregisterComponent('Database.CreateCollectionInput');
   app.appRegistry.deregisterComponent('Database.CreateCollectionSizeInput');
+  app.appRegistry.deregisterComponent('Database.CreateCollectionDialog');
+  app.appRegistry.deregisterComponent('Database.DropCollectionDialog');
 }
 
 module.exports.activate = activate;
