@@ -18,21 +18,7 @@ html, body {
 }
 
 #application {
-  height: 100%;
-  max-height: 100%;
-  overflow-y: auto;
-  position: absolute;
-  width: 100%;
 
-  .content {
-    height: 100%;
-    max-height: 100%;
-    overflow-y: auto;
-
-    &.with-sidebar {
-      margin-left: @sidebar-width;
-    }
-  }
   #statusbar {
     background-color: rgba(255, 255, 255, .5);
     position: fixed;
@@ -98,33 +84,9 @@ i.syntax-help {
 
 //action-bar, just a drop-shadow for now but should think about where to put these styles eventually
 .action-bar {
-  box-shadow: 0px 1px 2px rgba(0,0,0,.2);
   height: 32px;
   background: @gray8;
   border-bottom: 1px solid @gray7;
   padding-top: 4px;
   padding-left: 20px;
-  position: fixed;
-  left: 250px;
-  right: 0;
-  z-index: 4;
 }
-
-  .rtss-databases,
-  .collections {
-    .action-bar {
-      top: 46px;
-    }
-  }
-
-  .validation {
-    .action-bar {
-      top: 96px;
-    }
-  }
-
-  .column.main {
-      .action-bar {
-        position: static;
-      }
-  }

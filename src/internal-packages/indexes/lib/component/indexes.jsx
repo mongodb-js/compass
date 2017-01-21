@@ -55,7 +55,6 @@ class Indexes extends React.Component {
   renderComponent() {
     return (
       <div className="column-container">
-        <CreateIndexButton isWritable={this.state.writable} />
         <div className="column main">
           <table data-test-id="indexes-table">
             <IndexHeader />
@@ -81,7 +80,11 @@ class Indexes extends React.Component {
    */
   render() {
     return (
-      <div className="index-container header-margin">
+      <div className="index-container">
+        {/* NOT SURE if we need to wrap the controls-container in a readonly conditional as well. */}
+        <div className="controls-container">
+          <CreateIndexButton isWritable={this.state.writable} />
+        </div>
         {this.state.readonly ? this.renderReadonly() : this.renderComponent()}
       </div>
     );

@@ -1,18 +1,17 @@
-.compass-sidebar-container {
-  position: fixed;
-  left: 0;
-  top: 0;
-  bottom: 0;
-}
-
 .compass-sidebar {
   margin: 0;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 250px;
   background: #4c5259;
   color: #bfbfbe;
+  flex-grow: 0;
+  flex-shrink: 0;
+
+  &-expanded {
+    flex-basis: 250px;
+  }
+
+  &-collapsed {
+    flex-basis: 36px;
+  }
 
   &-content {
     overflow-y: scroll;
@@ -20,6 +19,19 @@
     bottom: 0;
     width: 250px;
     height: ~"calc(100% - 112px)";
+  }
+
+  &-toggle {
+    background: #343B43;
+    height: 12px;
+    line-height: 11px;
+    padding-right: 3px;
+    text-align: right;
+    cursor: pointer;
+    i {
+      line-height: 11px;
+      font-size: 10px;
+    }
   }
 
   &-title {
@@ -156,7 +168,6 @@
     color: #fff;
     width: 100%;
     border: none;
-    transition: all 150ms ease;
     font-size: 14px;
     font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -277,5 +288,35 @@
       background: #42494f;
       color: #fff;
     }
+  }
+}
+
+.compass-sidebar-collapsed {
+  overflow: hidden;
+  .compass-sidebar-content,
+  .compass-sidebar-property-column,
+  .compass-sidebar-instance-hostname,
+  .compass-sidebar-instance-version {
+    display: none;
+  }
+  .compass-sidebar-instance {
+    padding-top: 8px;
+    padding-bottom: 6px;
+  }
+  .compass-sidebar-properties {
+    padding-bottom: 0;
+  }
+  .compass-sidebar-stats {
+    padding-top: 6px;
+    padding-bottom: 0;
+    height: 36px;
+    margin: 0;
+  }
+  .compass-sidebar-search-input {
+    width: 30px;
+    padding: 11px 6px 5px 30px;
+  }
+  .compass-sidebar-search-icon {
+    top: 10px;
   }
 }

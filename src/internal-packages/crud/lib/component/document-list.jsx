@@ -77,7 +77,7 @@ class DocumentList extends React.Component {
    * Attach the scroll event to the parent container.
    */
   attachScrollEvent() {
-    this._node.parentNode.addEventListener(
+    this._node.parentNode.parentNode.addEventListener(
       SCROLL_EVENT,
       this.handleScroll.bind(this)
     );
@@ -85,7 +85,7 @@ class DocumentList extends React.Component {
 
   /**
    * Handle the loading of more documents.
-   *
+   * @param {Object} error
    * @param {Array} documents - The next batch of documents.
    */
   handleLoadMore(error, documents) {
@@ -103,7 +103,7 @@ class DocumentList extends React.Component {
 
   /**
    * Handle the reset of the document list.
-   *
+   * @param {Object} error
    * @param {Array} documents - The documents.
    * @param {Integer} count - The count.
    */
@@ -239,7 +239,7 @@ class DocumentList extends React.Component {
       );
     }
     return (
-      <div className="column-container with-refinebar-and-2xmessage">
+      <div className="column-container">
         <div className="column main">
           <ol className={LIST_CLASS} ref={(c) => this._node = c}>
             {this.state.docs}
@@ -257,10 +257,12 @@ class DocumentList extends React.Component {
    */
   render() {
     return (
-      <div className="compass-documents header-margin">
-        <this.queryBar />
-        <this.samplingMessage isWritable={this.CollectionStore.isWritable()}
-          insertHandler={this.handleOpenInsert.bind(this)} />
+      <div className="content-container content-container-documents compass-documents">
+        <div className="controls-container">
+          <this.queryBar />
+          <this.samplingMessage isWritable={this.CollectionStore.isWritable()}
+            insertHandler={this.handleOpenInsert.bind(this)} />
+        </div>
         {this.renderContent()}
       </div>
     );
