@@ -340,6 +340,32 @@ describe('Compass Functional Test Suite #spectron', function() {
           .should.not.eventually.include('temp');
       });
 
+      context('when enter key is pressed on drop database dialog', function() {
+        it('does nothing when incorrect database name is entered', function() {
+          return client
+          .clickCreateDatabaseButton()
+          .waitForCreateDatabaseModal()
+          .inputCreateDatabaseDetails({ name: 'temp', collectionName: 'temp' })
+          .clickCreateDatabaseModalButton()
+          .waitForDatabaseCreation('temp')
+          .clickDeleteDatabaseButton('temp')
+          .waitForDropDatabaseModal()
+          .inputDropDatabaseName('xkcd')
+          .pressEnter()
+          .waitForDropDatabaseModal()
+          .should.eventually.be.true;
+        });
+
+        it('removes the database on press', function() {
+          return client
+          .inputDropDatabaseName('temp')
+          .pressEnter()
+          .waitForDatabaseDeletion('temp')
+          .getHomeViewDatabaseNames()
+          .should.not.eventually.include('temp');
+        });
+      });
+
       it('removes the database from the sidebar', function() {
         return client
           .getSidebarDatabaseNames()
@@ -383,6 +409,24 @@ describe('Compass Functional Test Suite #spectron', function() {
               .getModalErrorMessage()
               .should.eventually.equal('invalid collection name');
           });
+
+          it('closes create collection dialog on escape press', function() {
+            return client
+              .pressEscape()
+              .waitForCreateCollectionModalHidden()
+              .should.eventually.be.true;
+          });
+
+          it('displays error on enter press', function() {
+            return client
+              .clickCreateCollectionButton()
+              .waitForCreateCollectionModal()
+              .inputCreateCollectionDetails({ name: '$test' })
+              .pressEnter()
+              .waitForModalError()
+              .getModalErrorMessage()
+              .should.eventually.equal('invalid collection name');
+          });
         });
 
         context('when the collection name is valid', function() {
@@ -407,6 +451,17 @@ describe('Compass Functional Test Suite #spectron', function() {
               .getSidebarCollectionCount()
               .should.eventually.equal(String(collCount + 1));
           });
+
+          it('creates a collection with enter press', function() {
+            return client
+              .clickCreateCollectionButton()
+              .waitForCreateCollectionModal()
+              .inputCreateCollectionDetails({name: 'bands' })
+              .pressEnter()
+              .waitForCollectionCreation('bands')
+              .getDatabaseViewCollectionNames()
+              .should.eventually.include('bands');
+          });
         });
 
         context('when deleting a collection', function() {
@@ -419,6 +474,26 @@ describe('Compass Functional Test Suite #spectron', function() {
               .waitForCollectionDeletion('labels')
               .getDatabaseViewCollectionNames()
               .should.not.eventually.include('labels');
+          });
+
+          it('pressing enter on incorrect collection name does nothing', function() {
+            return client
+            .clickDeleteCollectionButton('bands')
+            .waitForDropCollectionModal()
+            .inputDropCollectionName('robot-hugs')
+            .pressEnter()
+            .waitForDropCollectionModal()
+            .should.eventually.be.true;
+          });
+
+          it('pressing enter on correct collection name removes collection', function() {
+            return client
+            .inputDropCollectionName('bands')
+            .pressEnter()
+            .waitForDropCollectionModal()
+            .waitForCollectionDeletion('bands')
+            .getDatabaseViewCollectionNames()
+            .should.not.eventually.include('bands');
           });
 
           it('removes the collection from the sidebar', function() {
