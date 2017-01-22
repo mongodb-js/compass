@@ -90,12 +90,12 @@ describe('hadron-build', () => {
           functional: true
         }, DEFAULT_ARGS);
         expect(commands.test.getSpawnJobs(argv)).to.deep.equal({
-          unit: ['./test/unit'],
-          enzyme: ['./test/enzyme'],
-          packages: ['--recursive', './src/internal-packages'],
-          main: ['./test/main'],
-          renderer: ['--renderer', './test/renderer'],
-          functional: ['./test/functional']
+          unit: ['--sort', './test/unit'],
+          enzyme: ['--sort', './test/enzyme'],
+          packages: ['--sort', '--recursive', './src/internal-packages'],
+          main: ['--sort', './test/main'],
+          renderer: ['--sort', '--renderer', './test/renderer'],
+          functional: ['--sort', './test/functional']
         });
       });
     });
@@ -107,7 +107,7 @@ describe('hadron-build', () => {
           }, DEFAULT_ARGS);
 
           expect(commands.test.getMochaArgs(argv)).to.deep.equal([
-            '--grep', '#spectron'
+            '--sort', '--grep', '#spectron'
           ]);
         });
       });

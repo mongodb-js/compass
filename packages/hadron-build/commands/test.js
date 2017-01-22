@@ -58,7 +58,7 @@ const extraSuiteArgs = {
 };
 
 exports.getMochaArgs = (argv) => {
-  const args = [];
+  const args = ['--sort'];
 
   // for evergreen tests, switch to evergreen reporter
   if (process.env.EVERGREEN) {
