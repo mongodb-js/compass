@@ -82,11 +82,11 @@ describe('<Schema />', () => {
     // appRegistry.getComponent (i.e. appRegistry being undefined)
     app.appRegistry = new AppRegistry();
     // register QueryStore
-    require('../src/internal-packages/query').activate();
+    require('../../src/internal-packages/query').activate();
   });
   after(function() {
     // unregister QueryStore
-    require('../src/internal-packages/query').deactivate();
+    require('../../src/internal-packages/query').deactivate();
     // Restore properties on the global app object,
     // so they don't affect other tests
     app.appRegistry = appRegistry;
@@ -94,8 +94,8 @@ describe('<Schema />', () => {
 
   context('when adding fields to the schema view', () => {
     it('renders field types', () => {
-      const Field = require('../src/internal-packages/schema/lib/component/field');
-      const Type = require('../src/internal-packages/schema/lib/component/type');
+      const Field = require('../../src/internal-packages/schema/lib/component/field');
+      const Type = require('../../src/internal-packages/schema/lib/component/type');
 
       fieldProp.types = typesWithUndefined;
       component = mount(<Field {...fieldProp} />);
@@ -103,8 +103,8 @@ describe('<Schema />', () => {
     });
 
     it('renders the first type as string', () => {
-      const Field = require('../src/internal-packages/schema/lib/component/field');
-      const Type = require('../src/internal-packages/schema/lib/component/type');
+      const Field = require('../../src/internal-packages/schema/lib/component/field');
+      const Type = require('../../src/internal-packages/schema/lib/component/type');
 
       fieldProp.types = typesWithUndefined;
       component = mount(<Field {...fieldProp} />);
@@ -113,8 +113,8 @@ describe('<Schema />', () => {
     });
 
     it('renders the second type as undefined', () => {
-      const Field = require('../src/internal-packages/schema/lib/component/field');
-      const Type = require('../src/internal-packages/schema/lib/component/type');
+      const Field = require('../../src/internal-packages/schema/lib/component/field');
+      const Type = require('../../src/internal-packages/schema/lib/component/type');
 
       fieldProp.types = typesWithUndefined;
       component = mount(<Field {...fieldProp} />);
@@ -124,8 +124,8 @@ describe('<Schema />', () => {
 
     context('when rendering multiple fields', () => {
       it('renders type with highest probability first', () => {
-        const Field = require('../src/internal-packages/schema/lib/component/field');
-        const Type = require('../src/internal-packages/schema/lib/component/type');
+        const Field = require('../../src/internal-packages/schema/lib/component/field');
+        const Type = require('../../src/internal-packages/schema/lib/component/type');
 
         fieldProp.types = typesWithMultiple;
         component = mount(<Field {...fieldProp} />);

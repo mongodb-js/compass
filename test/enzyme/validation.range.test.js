@@ -10,8 +10,8 @@ const shallow = require('enzyme').shallow;
 const mount = require('enzyme').mount;
 const bootstrap = require('react-bootstrap');
 const FormControl = bootstrap.FormControl;
-const RangeInput = require('../src/internal-packages/validation/lib/components/common/range-input');
-const RuleCategoryRange = require('../src/internal-packages/validation/lib/components/rule-categories/range');
+const RangeInput = require('../../src/internal-packages/validation/lib/components/common/range-input');
+const RuleCategoryRange = require('../../src/internal-packages/validation/lib/components/rule-categories/range');
 
 const debug = require('debug')('mongodb-compass:test:validation');
 

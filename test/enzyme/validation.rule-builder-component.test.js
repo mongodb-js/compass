@@ -5,23 +5,30 @@ const chaiEnzyme = require('chai-enzyme');
 const expect = chai.expect;
 const React = require('react');
 const sinon = require('sinon');
-const {shallow} = require('enzyme');
+const {mount, shallow} = require('enzyme');
 const AppRegistry = require('hadron-app-registry');
 
 chai.use(chaiEnzyme());
 
-describe('<SamplingMessage />', () => {
+describe('<RuleBuilder />', () => {
   const appRegistry = app.appRegistry;
   const appInstance = app.instance;
+
+  const template = {
+    editState: 'unmodified',
+    validationAction: 'warn',
+    validationLevel: 'moderate',
+    validationRules: [],
+    serverVersion: '3.4.0',
+    validate: function() {}
+  };
 
   beforeEach(() => {
     // Mock the AppRegistry with a new one so tests don't complain about
     // appRegistry.getComponent (i.e. appRegistry being undefined)
     app.appRegistry = new AppRegistry();
-    app.appRegistry.registerAction('CRUD.Actions', sinon.spy());
-    app.appRegistry.registerStore('CRUD.ResetDocumentListStore', sinon.spy());
 
-    this.SamplingMessage = require('../src/internal-packages/query/lib/component/sampling-message');
+    this.RuleBuilder = require('../../src/internal-packages/validation/lib/components/rule-builder');
   });
   afterEach(() => {
     // Restore properties on the global app object,
@@ -32,22 +39,24 @@ describe('<SamplingMessage />', () => {
 
   context('when collection is not writable', () => {
     beforeEach(() => {
-      this.component = shallow(<this.SamplingMessage isWritable={false} insertHandler={() => {}} />);
+      const props = Object.assign({isWritable: false}, template);
+      this.component = mount(<this.RuleBuilder {... props} />);
     });
 
-    it('disables the INSERT DOCUMENT button', () => {
-      const state = this.component.find('.btn.btn-primary.btn-xs.open-insert');
+    it('disables the ADD RULE button', () => {
+      const state = this.component.find('.btn.btn-xs.btn-success');
       expect(state).to.be.disabled();
     });
   });
 
-  context('when collection is writable', () => {
+  context('when collection is not writable', () => {
     beforeEach(() => {
-      this.component = shallow(<this.SamplingMessage isWritable={true} insertHandler={() => {}} />);
+      const props = Object.assign({isWritable: true}, template);
+      this.component = mount(<this.RuleBuilder {... props} />);
     });
 
-    it('disables the INSERT DOCUMENT button', () => {
-      const state = this.component.find('.btn.btn-primary.btn-xs.open-insert');
+    it('disables the ADD RULE button', () => {
+      const state = this.component.find('.btn.btn-xs.btn-success');
       expect(state).to.not.be.disabled();
     });
   });
