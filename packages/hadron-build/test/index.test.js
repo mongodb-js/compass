@@ -4,6 +4,9 @@ const hadronBuild = require('../');
 const commands = hadronBuild;
 const chai = require('chai');
 const expect = chai.expect;
+const _ = require('lodash');
+
+const debug = require('debug')('hadron-build:test:test');
 
 chai.use(require('sinon-chai'));
 
@@ -52,33 +55,59 @@ describe('hadron-build', () => {
   });
 
   describe('::test', () => {
+    const DEFAULT_ARGS = {
+      _: [],
+      $0: 'hadron-build',
+      help: false,
+      unit: false,
+      enzyme: false,
+      packages: false,
+      main: false,
+      renderer: false,
+      functional: false,
+      release: false
+    };
+
+    const cwd = process.cwd();
+
+    before(() => {
+      debug('before');
+      process.chdir('./test/fixtures/hadron-app');
+    });
+
+    after(() => {
+      process.chdir(cwd);
+    });
+
+    describe('::getSpawnJobs', () => {
+      it('should return arguments for requested suite jobs', () => {
+        const argv = _.defaults({
+          unit: true,
+          enzyme: true,
+          main: true,
+          renderer: true,
+          packages: true,
+          functional: true
+        }, DEFAULT_ARGS);
+        expect(commands.test.getSpawnJobs(argv)).to.deep.equal({
+          unit: ['./test/unit'],
+          enzyme: ['./test/enzyme'],
+          packages: ['--recursive', './src/internal-packages'],
+          main: ['./test/main'],
+          renderer: ['--renderer', './test/renderer'],
+          functional: ['./test/functional']
+        });
+      });
+    });
     describe('::getMochaArgs', () => {
       context('when the arguments are default', () => {
         it('should allow pass through of mocha cli options', () => {
-          var argv = {
-            _: [],
-            $0: 'hadron-build',
-            help: false,
-            recursive: true,
+          var argv = _.defaults({
             grep: '#spectron'
-          };
+          }, DEFAULT_ARGS);
 
           expect(commands.test.getMochaArgs(argv)).to.deep.equal([
-            '--recursive', '--grep', '#spectron'
-          ]);
-        });
-      });
-
-      context('when executing package tests', () => {
-        it('adds the recursive options and defaults to test internal-packages', () => {
-          var argv = {
-            _: [],
-            $0: 'hadron-build',
-            packages: true
-          };
-
-          expect(commands.test.getMochaArgs(argv)).to.deep.equal([
-            '--recursive', './src/internal-packages'
+            '--grep', '#spectron'
           ]);
         });
       });

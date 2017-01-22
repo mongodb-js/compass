@@ -18,6 +18,25 @@ npm install --save-dev hadron-build;
 
 ### `hadron-build test`
 
+Tests are organized in test suites. Currently supported test suites are
+
+- `unit`: Fast unit tests of individual functions / methods
+- `enzyme`: React component tests using the [Enzyme](https://github.com/airbnb/enzyme) framework
+- `packages`: Tests specified in the `./src/internal-packages` folders (mostly unit and enzyme tests)
+- `main`: Electron-specific tests run in the main process
+- `renderer`: Electron-specific tests run in the renderer process
+- `functional`: Slow functional test using [Spectron](https://github.com/electron/spectron) (launches the application)
+
+With no additional arguments, all test suites (except `packages`) are run in this order.
+
+A subset of test suites can be executed via command line flags. If you only want
+to run the unit and enzyme tests:
+```
+hadron-build test --unit --enzyme
+```
+
+Each test suite is executed in its own process.
+
 ### `hadron-build develop`
 
 ### `hadron-build clean`
@@ -328,7 +347,7 @@ Which assets are generated depends on the target platform.
 ## Todo
 
 - upload (github/s3) refactoring
-- `upload` writes to Atlas 
+- `upload` writes to Atlas
 - yargs -> commander
 - Docs
 - Changelog generator
