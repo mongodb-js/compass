@@ -7,11 +7,11 @@ const React = require('react');
 const sinon = require('sinon');
 const {mount, shallow} = require('enzyme');
 const AppRegistry = require('hadron-app-registry');
-const CreateCollectionCheckbox = require('../src/internal-packages/database/lib/components/create-collection-checkbox');
-const CreateCollectionInput = require('../src/internal-packages/database/lib/components/create-collection-input');
-const CreateCollectionSizeInput = require('../src/internal-packages/database/lib/components/create-collection-size-input');
-const SortableTable = require('../src/internal-packages/app/lib/components/sortable-table');
-const TabNavBar = require('../src/internal-packages/app/lib/components/tab-nav-bar');
+const CreateCollectionCheckbox = require('../../src/internal-packages/database/lib/components/create-collection-checkbox');
+const CreateCollectionInput = require('../../src/internal-packages/database/lib/components/create-collection-input');
+const CreateCollectionSizeInput = require('../../src/internal-packages/database/lib/components/create-collection-size-input');
+const SortableTable = require('../../src/internal-packages/app/lib/components/sortable-table');
+const TabNavBar = require('../../src/internal-packages/app/lib/components/tab-nav-bar');
 
 // use chai-enzyme assertions, see https://github.com/producthunt/chai-enzyme
 chai.use(chaiEnzyme());
@@ -57,7 +57,7 @@ describe('<DatabasesTable />', () => {
     app.appRegistry.registerComponent('Database.CreateCollectionInput', CreateCollectionInput);
     app.appRegistry.registerComponent('Database.CreateCollectionSizeInput', CreateCollectionSizeInput);
 
-    this.DatabasesTable = require('../src/internal-packages/server-stats/lib/component/databases-table');
+    this.DatabasesTable = require('../../src/internal-packages/server-stats/lib/component/databases-table');
   });
   afterEach(() => {
     // Restore properties on the global app object,

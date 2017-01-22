@@ -21,11 +21,11 @@ describe('<Minichart />', () => {
     // appRegistry.getComponent (i.e. appRegistry being undefined)
     app.appRegistry = new AppRegistry();
     // register QueryStore
-    require('../src/internal-packages/query').activate();
+    require('../../src/internal-packages/query').activate();
   });
   after(function() {
     // unregister QueryStore
-    require('../src/internal-packages/query').deactivate();
+    require('../../src/internal-packages/query').deactivate();
     // Restore properties on the global app object,
     // so they don't affect other tests
     app.appRegistry = appRegistry;
@@ -46,8 +46,8 @@ describe('<Minichart />', () => {
     };
 
     it('renders a D3Component minichart', () => {
-      const Minichart = require('../src/internal-packages/schema/lib/component/minichart');
-      const D3Component = require('../src/internal-packages/schema/lib/component/d3component');
+      const Minichart = require('../../src/internal-packages/schema/lib/component/minichart');
+      const D3Component = require('../../src/internal-packages/schema/lib/component/d3component');
 
       const wrapper = shallow(
         <Minichart
@@ -73,8 +73,8 @@ describe('<Minichart />', () => {
     };
 
     it('renders a unique minichart', () => {
-      const Minichart = require('../src/internal-packages/schema/lib/component/minichart');
-      const UniqueMinichart = require('../src/internal-packages/schema/lib/component/unique');
+      const Minichart = require('../../src/internal-packages/schema/lib/component/minichart');
+      const UniqueMinichart = require('../../src/internal-packages/schema/lib/component/unique');
 
       const wrapper = shallow(
         <Minichart
@@ -85,7 +85,7 @@ describe('<Minichart />', () => {
     });
 
     it('has a unique bubble for each datum', () => {
-      const Minichart = require('../src/internal-packages/schema/lib/component/minichart');
+      const Minichart = require('../../src/internal-packages/schema/lib/component/minichart');
       const wrapper = mount(
         <Minichart
           fieldName="test_unique_longs"

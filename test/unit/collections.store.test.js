@@ -2,10 +2,10 @@
 const { expect } = require('chai');
 const app = require('ampersand-app');
 
-require('../src/app/reflux-listen-to-external-store.js');
+require('../../src/app/reflux-listen-to-external-store.js');
 
-const CollectionsStore = require('../src/internal-packages/database/lib/stores/collections-store');
-const InstanceStore = require('../src/internal-packages/app/lib/stores/instance-store');
+const CollectionsStore = require('../../src/internal-packages/database/lib/stores/collections-store');
+const InstanceStore = require('../../src/internal-packages/app/lib/stores/instance-store');
 const { NamespaceStore } = require('hadron-reflux-store');
 
 describe('CollectionsStore', () => {
