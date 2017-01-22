@@ -192,7 +192,7 @@
     "electron-prebuilt": "1.2.8",
     "enzyme": "^2.5.1",
     "eslint-config-mongodb-js": "^2.2.0",
-    "hadron-build": "mongodb-js/hadron-build#add-sort-flag",
+    "hadron-build": "^6.0.1",
     "jsdom": "^9.8.3",
     "mocha": "^3.1.2",
     "mock-require": "^2.0.1",
