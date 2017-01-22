@@ -6,9 +6,9 @@ const React = require('react');
 
 const mount = require('enzyme').mount;
 const shallow = require('enzyme').shallow;
-const Rule = require('../src/internal-packages/validation/lib/components/rule');
-const RuleCategoryRange = require('../src/internal-packages/validation/lib/components/rule-categories/range');
-const RuleCategorySelector = require('../src/internal-packages/validation/lib/components/rule-category-selector');
+const Rule = require('../../src/internal-packages/validation/lib/components/rule');
+const RuleCategoryRange = require('../../src/internal-packages/validation/lib/components/rule-categories/range');
+const RuleCategorySelector = require('../../src/internal-packages/validation/lib/components/rule-category-selector');
 const _ = require('lodash');
 
 // const debug = require('debug')('compass:validation:test');

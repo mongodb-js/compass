@@ -22,11 +22,11 @@ const crudActions = {
   closeAllMenus: closeAllMenusSpy
 };
 
-mock('../src/internal-packages/crud/lib/actions', crudActions);
+mock('../../src/internal-packages/crud/lib/actions', crudActions);
 
 const React = require('react');
 const Element = require('hadron-document').Element;
-const LineNumber = require('../src/internal-packages/crud/lib/component/line-number');
+const LineNumber = require('../../src/internal-packages/crud/lib/component/line-number');
 
 // use chai-enzyme assertions, see https://github.com/producthunt/chai-enzyme
 chai.use(chaiEnzyme());

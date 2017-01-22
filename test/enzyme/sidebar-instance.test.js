@@ -5,7 +5,7 @@ const expect = chai.expect;
 const React = require('react');
 
 const shallow = require('enzyme').shallow;
-const SidebarInstanceProperties = require('../src/internal-packages/sidebar/lib/components/sidebar-instance-properties');
+const SidebarInstanceProperties = require('../../src/internal-packages/sidebar/lib/components/sidebar-instance-properties');
 
 chai.use(chaiEnzyme());
 
