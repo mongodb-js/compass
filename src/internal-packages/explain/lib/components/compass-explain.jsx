@@ -72,8 +72,8 @@ class CompassExplain extends React.Component {
    * @returns {React.Component} The Explain view.
    */
   render() {
-    let content;
-    let warning;
+    let content = null;
+    let warning = null;
 
     if (this.CollectionStore.isReadonly()) {
       warning = this.renderWarning(READ_ONLY_WARNING);
