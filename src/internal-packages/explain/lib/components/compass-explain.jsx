@@ -78,7 +78,7 @@ class CompassExplain extends React.Component {
     if (this.CollectionStore.isReadonly()) {
       warning = this.renderWarning(READ_ONLY_WARNING);
     } else if (this.props.explainState === 'initial') {
-      warning = this.renderWarning(COLLECTION_SCAN_WARNING);;
+      warning = this.renderWarning(COLLECTION_SCAN_WARNING);
     } else {
       content = this.renderContent();
     }
