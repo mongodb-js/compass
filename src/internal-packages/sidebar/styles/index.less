@@ -1,9 +1,10 @@
 @compass-sidebar-base-background-color: #4c5259;
 @compass-sidebar-active-background-color: #6D7984;
+@compass-sidebar-active-hover-background-color: #7D8994;
 
 .compass-sidebar {
   margin: 0;
-  background: #4c5259;
+  background: @compass-sidebar-base-background-color;
   color: #bfbfbe;
   flex-grow: 0;
   flex-shrink: 0;
@@ -123,6 +124,28 @@
 
   &.fa-rotate-90 {
     color: #fff;
+  }
+
+  &-button {
+    &-create-database {
+      background-color: @compass-sidebar-active-background-color;
+      border-radius: 12px;
+      border: grey;
+      color: #fff;
+      font-size: 11px;
+      font-weight: bold;
+      margin: 4px 10px 16px 10px;
+      padding: 5px;
+      text-transform: uppercase;
+      width: 230px;
+
+      .fa-plus {
+        width: 20px;
+      }
+    }
+    &-create-database:hover {
+      background-color: @compass-sidebar-active-hover-background-color;
+    }
   }
 
   &-icon {
@@ -278,7 +301,7 @@
 
     &-is-active,
     &-is-active:hover {
-      background-color: #6D7984;
+      background-color: @compass-sidebar-active-background-color;
 
       //there's got to be a better way to handle styles on the child when parent -is-active
       .compass-sidebar-instance-version {
@@ -342,7 +365,8 @@
   .compass-sidebar-property-column,
   .compass-sidebar-instance-hostname,
   .compass-sidebar-instance-version,
-  .compass-sidebar-icon-create-database {
+  .compass-sidebar-icon-create-database,
+  .compass-sidebar-button-create-database {
     display: none;
   }
   .compass-sidebar-instance {

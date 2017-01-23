@@ -13,6 +13,7 @@ const SidebarInstanceProperties = require('./sidebar-instance-properties');
 class Sidebar extends React.Component {
   constructor(props) {
     super(props);
+    this.DatabaseDDLActions = app.appRegistry.getAction('DatabaseDDL.Actions');
     this.state = { collapsed: false };
   }
 
@@ -42,6 +43,10 @@ class Sidebar extends React.Component {
     }
 
     SidebarActions.filterDatabases(re);
+  }
+
+  handleCreateDatabaseClick() {
+    this.DatabaseDDLActions.openCreateDatabaseDialog();
   }
 
   render() {
@@ -77,6 +82,15 @@ class Sidebar extends React.Component {
               );
             })
           }
+          <button
+            className="compass-sidebar-button-create-database"
+            onClick={this.handleCreateDatabaseClick.bind(this)}
+          >
+            <text className="plus-button">
+              <i className="fa fa-plus" />
+              Create Database
+            </text>
+          </button>
         </div>
       </div>
     );
