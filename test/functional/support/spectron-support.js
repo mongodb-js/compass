@@ -356,6 +356,10 @@ function addWaitCommands(client) {
     return this.waitForVisibleInCompass(selector('drop-database-modal'), true);
   });
 
+  client.addCommand('waitForCreateCollectionModalHidden', function() {
+    return this.waitForVisibleInCompass(selector('create-collection-modal'), true);
+  });
+
   client.addCommand('waitForInsertDocumentModalHidden', function() {
     return this.waitForVisibleInCompass(selector('insert-document-modal'), true);
   });
@@ -760,6 +764,13 @@ function addKeyPressCommands(client) {
    */
   client.addCommand('pressEscape', function() {
     return this.keys(['Escape']);
+  });
+
+  /**
+   * Press enter
+   */
+  client.addCommand('pressEnter', function() {
+    return this.keys(['Enter']);
   });
 }
 

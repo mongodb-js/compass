@@ -62,8 +62,17 @@ class DropCollectionDialog extends React.Component {
 
   /**
    * Initiate the attempt to drop a database.
+   * @param {Object} evt - The event object
    */
-  onDropCollectionButtonClicked() {
+  onDropCollectionButtonClicked(evt) {
+    evt.preventDefault();
+    evt.stopPropagation();
+
+    // prevent drop of collection if names don't match
+    if (this.state.confirmName !== this.state.name) {
+      return;
+    }
+
     this.setState({ inProgress: true, error: false, errorMessage: '' });
     Actions.dropCollection(this.state.databaseName, this.state.name);
   }
@@ -112,7 +121,8 @@ class DropCollectionDialog extends React.Component {
               to drop
             </p>
           </div>
-          <form data-test-id="drop-collection-modal">
+          <form data-test-id="drop-collection-modal"
+              onSubmit={this.onDropCollectionButtonClicked.bind(this)}>
             <div className="form-group">
               <input
                 type="text"
