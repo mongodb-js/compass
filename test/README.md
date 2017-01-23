@@ -1,3 +1,14 @@
+# Test directory structure
+
+Tests are now split into these test suites:
+
+- `unit`: Fast unit tests of individual functions / methods
+- `enzyme`: React component tests using the Enzyme framework
+- `packages`: Tests specified in the ./src/internal-packages folders (mostly unit and enzyme tests)
+- `main`: Electron-specific tests run in the main process
+- `renderer`: Electron-specific tests run in the renderer process
+- `functional`: Slow functional test using Spectron (launches the application)
+
 # Compass Functional Test Suite
 
 The Compass functional test suite uses Spectron to test the electron

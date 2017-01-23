@@ -114,6 +114,8 @@ npm test -- --unit
 npm test -- --functional
 ```
 
+See also our [test README](test/README.md).
+
 ## Code Quality Tools
 
 The following are employed by the Compass team:
