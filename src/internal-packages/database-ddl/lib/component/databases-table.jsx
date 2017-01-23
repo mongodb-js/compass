@@ -17,22 +17,22 @@ class DatabasesTable extends React.Component {
 
   constructor(props) {
     super(props);
-    this.DDLAction = app.appRegistry.getAction('DDL.Actions');
+    this.DatabaseDDLAction = app.appRegistry.getAction('DatabaseDDL.Actions');
     this.SortableTable = app.appRegistry.getComponent('App.SortableTable');
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
     this.Tooltip = app.appRegistry.getComponent('App.Tooltip');
   }
 
   onColumnHeaderClicked(column, order) {
-    this.DDLAction.sortDatabases(column, order);
+    this.DatabaseDDLAction.sortDatabases(column, order);
   }
 
   onRowDeleteButtonClicked(index, dbName) {
-    this.DDLAction.openDropDatabaseDialog(dbName);
+    this.DatabaseDDLAction.openDropDatabaseDialog(dbName);
   }
 
   onCreateDatabaseButtonClicked() {
-    this.DDLAction.openCreateDatabaseDialog();
+    this.DatabaseDDLAction.openCreateDatabaseDialog();
   }
 
   onAuthHelpClicked(evt) {

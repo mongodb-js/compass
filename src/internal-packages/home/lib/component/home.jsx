@@ -13,8 +13,8 @@ class Home extends React.Component {
      * TODO (imlucas) Handle state when rtss permissions not available.
      */
     this.serverStatsView = app.appRegistry.getComponent('RTSS.ServerStats');
-    this.CreateDatabaseDialog = app.appRegistry.getComponent('DDL.CreateDatabaseDialog');
-    this.DropDatabaseDialog = app.appRegistry.getComponent('DDL.DropDatabaseDialog');
+    this.CreateDatabaseDialog = app.appRegistry.getComponent('DatabaseDDL.CreateDatabaseDialog');
+    this.DropDatabaseDialog = app.appRegistry.getComponent('DatabaseDDL.DropDatabaseDialog');
     this.CreateCollectionDialog = app.appRegistry.getComponent('Database.CreateCollectionDialog');
     this.DropCollectionDialog = app.appRegistry.getComponent('Database.DropCollectionDialog');
   }

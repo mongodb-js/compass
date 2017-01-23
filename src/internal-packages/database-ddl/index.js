@@ -8,29 +8,29 @@ const DatabasesStore = require('./lib/store/databases-store');
 const DropDatabaseStore = require('./lib/store/drop-database-store');
 
 /**
- * Activate all the components in the DDL package.
+ * Activate all the components in the Database DDL package.
  */
 function activate() {
-  app.appRegistry.registerAction('DDL.Actions', Actions);
-  app.appRegistry.registerComponent('DDL.CreateDatabaseDialog', CreateDatabaseDialog);
-  app.appRegistry.registerComponent('DDL.DatabasesView', DatabasesView);
-  app.appRegistry.registerComponent('DDL.DropDatabaseDialog', DropDatabaseDialog);
-  app.appRegistry.registerStore('DDL.CreateDatabaseStore', CreateDatabaseStore);
-  app.appRegistry.registerStore('DDL.DatabasesStore', DatabasesStore);
-  app.appRegistry.registerStore('DDL.DropDatabaseStore', DropDatabaseStore);
+  app.appRegistry.registerAction('DatabaseDDL.Actions', Actions);
+  app.appRegistry.registerComponent('DatabaseDDL.CreateDatabaseDialog', CreateDatabaseDialog);
+  app.appRegistry.registerComponent('DatabaseDDL.DatabasesView', DatabasesView);
+  app.appRegistry.registerComponent('DatabaseDDL.DropDatabaseDialog', DropDatabaseDialog);
+  app.appRegistry.registerStore('DatabaseDDL.CreateDatabaseStore', CreateDatabaseStore);
+  app.appRegistry.registerStore('DatabaseDDL.DatabasesStore', DatabasesStore);
+  app.appRegistry.registerStore('DatabaseDDL.DropDatabaseStore', DropDatabaseStore);
 }
 
 /**
- * Deactivate all the components in the DDL package.
+ * Deactivate all the components in the Database DDL package.
  */
 function deactivate() {
-  app.appRegistry.deregisterAction('DDL.Actions');
-  app.appRegistry.deregisterComponent('DDL.CreateDatabaseDialog');
-  app.appRegistry.deregisterComponent('DDL.DatabasesView');
-  app.appRegistry.deregisterComponent('DDL.DropDatabaseDialog');
-  app.appRegistry.deregisterStore('DDL.CreateDatabaseStore');
-  app.appRegistry.deregisterStore('DDL.DatabasesStore');
-  app.appRegistry.deregisterStore('DDL.DropDatabaseStore');
+  app.appRegistry.deregisterAction('DatabaseDDL.Actions');
+  app.appRegistry.deregisterComponent('DatabaseDDL.CreateDatabaseDialog');
+  app.appRegistry.deregisterComponent('DatabaseDDL.DatabasesView');
+  app.appRegistry.deregisterComponent('DatabaseDDL.DropDatabaseDialog');
+  app.appRegistry.deregisterStore('DatabaseDDL.CreateDatabaseStore');
+  app.appRegistry.deregisterStore('DatabaseDDL.DatabasesStore');
+  app.appRegistry.deregisterStore('DatabaseDDL.DropDatabaseStore');
 }
 
 module.exports.activate = activate;

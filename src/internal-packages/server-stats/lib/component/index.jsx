@@ -17,7 +17,7 @@ class RTSSComponent extends React.Component {
   constructor(props) {
     super(props);
     this.state = {activeTab: 0};
-    this.DatabasesView = app.appRegistry.getComponent('DDL.DatabasesView');
+    this.DatabasesView = app.appRegistry.getComponent('DatabaseDDL.DatabasesView');
     this.TabNavBar = app.appRegistry.getComponent('App.TabNavBar');
   }
 
