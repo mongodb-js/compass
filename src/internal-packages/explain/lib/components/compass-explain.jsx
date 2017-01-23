@@ -72,20 +72,25 @@ class CompassExplain extends React.Component {
    * @returns {React.Component} The Explain view.
    */
   render() {
-    let content;
+    let content,
+        warning;
 
     if (this.CollectionStore.isReadonly()) {
-      content = this.renderWarning(READ_ONLY_WARNING);
+      content = null;
+      warning = this.renderWarning(READ_ONLY_WARNING);
     } else if (this.props.explainState === 'initial') {
-      content = this.renderWarning(COLLECTION_SCAN_WARNING);
+      content = null;
+      warning = this.renderWarning(COLLECTION_SCAN_WARNING);;
     } else {
       content = this.renderContent();
+      warning = null;
     }
 
     return (
       <div className="compass-explain">
         <div className="controls-container">
           <this.queryBar />
+          {warning}
         </div>
         {content}
       </div>
