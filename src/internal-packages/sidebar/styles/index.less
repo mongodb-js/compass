@@ -133,7 +133,10 @@
     transition: all 180ms ease-out;
 
     &-create-database {
-      right: 0;
+      // Quick hack so the icon doesn't end up on the right of the entire page
+      // with the new collapsible sidebar. Designers feel welcome to improve :)
+      left: 222px;
+      top: 12px;
     }
 
     &-create-collection {
@@ -338,7 +341,8 @@
   .compass-sidebar-content,
   .compass-sidebar-property-column,
   .compass-sidebar-instance-hostname,
-  .compass-sidebar-instance-version {
+  .compass-sidebar-instance-version,
+  .compass-sidebar-icon-create-database {
     display: none;
   }
   .compass-sidebar-instance {
