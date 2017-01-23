@@ -11,6 +11,7 @@ const Actions = Reflux.createActions([
   'dbError',
   'showOperationDetails',
   'hideOperationDetails',
+  'suppressTop',
   'restart'
 ]);
 
