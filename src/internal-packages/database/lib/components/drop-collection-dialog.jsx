@@ -68,7 +68,7 @@ class DropCollectionDialog extends React.Component {
     evt.stopPropagation();
 
     // prevent drop of collection if names don't match
-    if (this.state.confirmName !== this.state.name) {
+    if (this.state.confirmName !== this.state.collectionName) {
       return;
     }
 
