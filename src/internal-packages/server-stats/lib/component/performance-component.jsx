@@ -23,8 +23,8 @@ class PerformanceComponent extends React.Component {
     return (
       <section className="rt-perf">
         <div className="controls-container">
-          {app.dataService.isMongos() ? this.renderTopMessage() : null}
           <TimeAndPauseButton paused={false} />
+          {app.dataService.isMongos() ? this.renderTopMessage() : null}
           <DBErrorComponent store={DBErrorStore} />
         </div>
         <div className="column-container">
