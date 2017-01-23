@@ -9,6 +9,14 @@ Tests are now split into these test suites:
 - `renderer`: Electron-specific tests run in the renderer process
 - `functional`: Slow functional test using Spectron (launches the application)
 
+You can run any subset of tests with command line flags, for example:
+
+```
+npm test -- --unit
+npm test -- --functional
+npm test -- --unit --enzyme --renderer
+```
+
 # Compass Functional Test Suite
 
 The Compass functional test suite uses Spectron to test the electron
