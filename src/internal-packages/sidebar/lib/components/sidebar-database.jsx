@@ -59,25 +59,34 @@ class SidebarDatabase extends React.Component {
     this.setState({ expanded: !this.state.expanded });
   }
 
-  handleCreateCollectionClick() {
-    const databaseName = this.props._id;
-    this.CollectionsActions.openCreateCollectionDialog(databaseName);
+  handleCreateCollectionClick(isWritable) {
+    if (isWritable) {
+      const databaseName = this.props._id;
+      this.CollectionsActions.openCreateCollectionDialog(databaseName);
+    }
   }
 
-  handleDropDBClick() {
-    const databaseName = this.props._id;
-    this.DatabaseDDLActions.openDropDatabaseDialog(databaseName);
+  handleDropDBClick(isWritable) {
+    if (isWritable) {
+      const databaseName = this.props._id;
+      this.DatabaseDDLActions.openDropDatabaseDialog(databaseName);
+    }
   }
 
   render() {
-    const createTooltipText = 'Create collection';
+    const isWritable = app.dataService.isWritable();
+    const createTooltipText = isWritable ?
+      'Create collection' :
+      'Create collection is not available on a secondary node';  // TODO: Arbiter/recovering/etc
     const createTooltipOptions = {
       'data-for': TOOLTIP_IDS.CREATE_COLLECTION,
       'data-effect': 'solid',
       'data-offset': "{'bottom': 18, 'left': 3}",
       'data-tip': createTooltipText
     };
-    const dropTooltipText = `Drop ${this.props._id} database`;
+    const dropTooltipText = isWritable ?
+      `Drop ${this.props._id} database` :
+      'Drop database is not available on a secondary node';  // TODO: Arbiter/recovering/etc
     const dropTooltipOptions = {
       'data-for': TOOLTIP_IDS.DROP_DATABASE,
       'data-effect': 'solid',
@@ -94,13 +103,13 @@ class SidebarDatabase extends React.Component {
           <i onClick={this.handleArrowClick.bind(this)} className={this.getArrowIconClasses()} />
           <i
             className="compass-sidebar-icon compass-sidebar-icon-create-collection fa fa-plus-circle"
-            onClick={this.handleCreateCollectionClick.bind(this)}
+            onClick={this.handleCreateCollectionClick.bind(this, isWritable)}
             {...createTooltipOptions}
           />
           <ReactTooltip id={TOOLTIP_IDS.CREATE_COLLECTION} />
           <i
             className="compass-sidebar-icon compass-sidebar-icon-drop-database fa fa-trash-o"
-            onClick={this.handleDropDBClick.bind(this)}
+            onClick={this.handleDropDBClick.bind(this, isWritable)}
             {...dropTooltipOptions}
           />
           <ReactTooltip id={TOOLTIP_IDS.DROP_DATABASE} />
