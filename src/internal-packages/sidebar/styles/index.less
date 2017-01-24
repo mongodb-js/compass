@@ -17,12 +17,23 @@
     flex-basis: 36px;
   }
 
+  display: flex;
+  flex-direction: column;
+
+  &-toggle,
+  &-properties,
+  &-filter,
   &-content {
-    overflow-y: scroll;
-    top: 114px;
-    bottom: 0;
-    width: 250px;
-    height: ~"calc(100% - 112px)";
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-basis: auto;
+  }
+
+
+  &-content {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 32px;
     &::-webkit-scrollbar-track {
       background-color: rgba(0,0,0,.16);
     }
@@ -33,9 +44,10 @@
   }
 
   &-toggle {
-    background: #343B43;
-    height: 12px;
-    line-height: 11px;
+    background-color: #565E65;
+    border-bottom: 1px solid rgba(0,0,0,.24);
+    height: 16px;
+    line-height: 13px;
     padding-right: 3px;
     text-align: right;
     cursor: pointer;
@@ -227,7 +239,7 @@
     position: absolute;
     top: 8px;
     left: 11px;
-    color: #838F9B;
+    color: #797F84;
   }
 
   &-search-input {
@@ -241,7 +253,7 @@
     font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     &::-webkit-input-placeholder {
-      color: #838F9B;
+      color: #9DA4AA;
       transition: color 180ms ease-out;
     }
     &:focus {
@@ -255,7 +267,6 @@
   /* Instance properties */
   &-properties {
     margin: 0;
-    padding-bottom: 2px;
   }
 
   &-instance {
@@ -263,7 +274,8 @@
     color: #fff;
     font-weight: normal;
     font-size: 16px;
-    padding-top: 10px;
+    padding-top: 8px;
+    padding-bottom: 8px;
 
     &-icon {
       width: 26px;
@@ -289,22 +301,18 @@
     }
 
     &-ssh-tunnel {
-      color: #9DA4AA;
+      color: #fff;
       font-weight: normal;
-      line-height: 9px;
-      font-size: 10px;
+      line-height: 12px;
+      font-size: 12px;
       margin-left: 36px;
-      padding-bottom: 4px;
-      position: relative;
-      top: -6px;
     }
 
     &-version {
       color: #9DA4AA;
       font-weight: normal;
-      line-height: 8px;
-      height: 16px;
-      font-size: 13px;
+      line-height: 12px;
+      font-size: 12px;
       margin-left: 36px;
     }
 
@@ -329,11 +337,10 @@
 
   &-stats {
     color: #9DA4AA;
-    margin-top: 2px;
-    line-height: 11px;
-    height: 24px;
     font-weight: bold;
     font-size: 11px;
+    line-height: 12px;
+    padding: 4px 0 6px;
     text-transform: uppercase;
   }
 
@@ -375,7 +382,8 @@
   .compass-sidebar-instance-hostname,
   .compass-sidebar-instance-version,
   .compass-sidebar-icon-create-database,
-  .compass-sidebar-button-create-database {
+  .compass-sidebar-button-create-database,
+  .compass-sidebar-instance-ssh-tunnel {
     display: none;
   }
   .compass-sidebar-instance {
