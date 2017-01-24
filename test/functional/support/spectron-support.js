@@ -304,6 +304,15 @@ function addWaitCommands(client) {
     return this.waitForVisibleInCompass(icon, true);
   });
 
+  /*
+   *Clic
+   */
+  client.addCommand('clickInstanceRefreshIcon', function() {
+    const button = selector('instance-refresh-button');
+    return this
+      .waitForVisibleInCompass(button).click(button);
+  });
+
   /**
    * Wait for the database with the provided name to be created.
    *
@@ -1243,6 +1252,50 @@ function addInputCommands(client) {
   client.addCommand('inputFilterFromExplainPlanTab', function(filter) {
     const base = selector('explain-plan-content');
     const input = `${base} .input-filter`;
+    return this.setValue(input, filter);
+  });
+
+  /**
+   * Inputs a projection into the query bar from the documents tab.
+   *
+   * @param {String} filter - The filter.
+   */
+  client.addCommand('inputProjectFromDocumentsTab', function(filter) {
+    const base = selector('documents-content');
+    const input = `${base} .input-project`;
+    return this.setValue(input, filter);
+  });
+
+  /**
+   * Inputs a sort into the query bar from the documents tab.
+   *
+   * @param {String} filter - The filter.
+   */
+  client.addCommand('inputSortFromDocumentsTab', function(filter) {
+    const base = selector('documents-content');
+    const input = `${base} .input-sort`;
+    return this.setValue(input, filter);
+  });
+
+  /**
+   * Inputs a skip into the query bar from the documents tab.
+   *
+   * @param {String} filter - The filter.
+   */
+  client.addCommand('inputSkipFromDocumentsTab', function(filter) {
+    const base = selector('documents-content');
+    const input = `${base} .input-skip`;
+    return this.setValue(input, filter);
+  });
+
+  /**
+   * Inputs a limit into the query bar from the documents tab.
+   *
+   * @param {String} filter - The filter.
+   */
+  client.addCommand('inputLimitFromDocumentsTab', function(filter) {
+    const base = selector('documents-content');
+    const input = `${base} .input-limit`;
     return this.setValue(input, filter);
   });
 

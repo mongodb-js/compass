@@ -193,6 +193,7 @@
     "eslint-config-mongodb-js": "^2.2.0",
     "hadron-build": "^6.0.1",
     "jsdom": "^9.8.3",
+    "mgeneratejs": "^0.2.0",
     "mocha": "^3.1.2",
     "mock-require": "^2.0.1",
     "mongodb-js-precommit": "^0.2.9",
