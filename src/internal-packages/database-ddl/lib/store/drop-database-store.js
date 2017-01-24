@@ -1,9 +1,9 @@
 const Reflux = require('reflux');
 const app = require('ampersand-app');
-const Actions = require('../action/databases-actions');
+const Actions = require('../action');
 
 /**
- * The reflux store for dropping datbases.
+ * The reflux store for dropping databases.
  */
 const DropDatabaseStore = Reflux.createStore({
 

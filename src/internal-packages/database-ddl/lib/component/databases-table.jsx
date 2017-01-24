@@ -2,9 +2,6 @@ const React = require('react');
 const app = require('ampersand-app');
 const { shell } = require('electron');
 const ipc = require('hadron-ipc');
-const DatabasesActions = require('../action/databases-actions');
-const CreateDatabaseDialog = require('./create-database-dialog');
-const DropDatabaseDialog = require('./drop-database-dialog');
 const { NamespaceStore } = require('hadron-reflux-store');
 const numeral = require('numeral');
 const _ = require('lodash');
@@ -20,21 +17,22 @@ class DatabasesTable extends React.Component {
 
   constructor(props) {
     super(props);
+    this.DatabaseDDLAction = app.appRegistry.getAction('DatabaseDDL.Actions');
     this.SortableTable = app.appRegistry.getComponent('App.SortableTable');
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
     this.Tooltip = app.appRegistry.getComponent('App.Tooltip');
   }
 
   onColumnHeaderClicked(column, order) {
-    DatabasesActions.sortDatabases(column, order);
+    this.DatabaseDDLAction.sortDatabases(column, order);
   }
 
   onRowDeleteButtonClicked(index, dbName) {
-    DatabasesActions.openDropDatabaseDialog(dbName);
+    this.DatabaseDDLAction.openDropDatabaseDialog(dbName);
   }
 
   onCreateDatabaseButtonClicked() {
-    DatabasesActions.openCreateDatabaseDialog();
+    this.DatabaseDDLAction.openCreateDatabaseDialog();
   }
 
   onAuthHelpClicked(evt) {
@@ -119,8 +117,6 @@ class DatabasesTable extends React.Component {
         </div>
         {this.props.databases.length === 0 ?
             this.renderNoCollections(isWritable) : null}
-        <CreateDatabaseDialog />
-        <DropDatabaseDialog />
       </div>
     );
   }

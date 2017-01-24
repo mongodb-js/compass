@@ -1,6 +1,6 @@
 const app = require('ampersand-app');
-const HomeComponent = require('./lib/components');
-const HomeActions = require('./lib/actions');
+const HomeComponent = require('./lib/component');
+const HomeActions = require('./lib/action');
 
 /**
  * Activate all the components in the Collection package.

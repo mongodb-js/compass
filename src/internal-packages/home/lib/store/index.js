@@ -1,6 +1,6 @@
 const app = require('ampersand-app');
 const Reflux = require('reflux');
-const HomeActions = require('../actions');
+const HomeActions = require('../action');
 const StateMixin = require('reflux-state-mixin');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const toNS = require('mongodb-ns');

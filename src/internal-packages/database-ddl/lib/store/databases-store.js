@@ -1,6 +1,6 @@
 const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
-const DatabasesActions = require('../action/databases-actions');
+const DatabasesActions = require('../action');
 
 const _ = require('lodash');
 

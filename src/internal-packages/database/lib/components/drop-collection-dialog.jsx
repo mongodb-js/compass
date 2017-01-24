@@ -1,8 +1,6 @@
 const app = require('ampersand-app');
 const React = require('react');
 const Modal = require('react-bootstrap').Modal;
-const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
-const toNS = require('mongodb-ns');
 const { TextButton } = require('hadron-react-buttons');
 const Actions = require('../actions/collections-actions');
 const DropCollectionStore = require('../stores/drop-collection-store');
@@ -19,7 +17,7 @@ class DropCollectionDialog extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.state = { name: '', confirmName: '' };
+    this.state = { collectionName: '', confirmName: '' };
     this.ModalStatusMessage = app.appRegistry.getComponent('App.ModalStatusMessage');
   }
 
@@ -42,14 +40,15 @@ class DropCollectionDialog extends React.Component {
   /**
    * When the open dialog action is fired.
    *
-   * @param {String} name - The name of the database to drop.
+   * @param {String} databaseName - The name of the database to drop the collection from.
+   * @param {String} collectionName - The name of the collection to drop.
    */
-  onOpenDialog(name) {
+  onOpenDialog(databaseName, collectionName) {
     this.setState({
       open: true,
-      name: name,
+      collectionName: collectionName,
       confirmName: '',
-      databaseName: toNS(NamespaceStore.ns).database
+      databaseName: databaseName
     });
   }
 
@@ -69,12 +68,12 @@ class DropCollectionDialog extends React.Component {
     evt.stopPropagation();
 
     // prevent drop of collection if names don't match
-    if (this.state.confirmName !== this.state.name) {
+    if (this.state.confirmName !== this.state.collectionName) {
       return;
     }
 
     this.setState({ inProgress: true, error: false, errorMessage: '' });
-    Actions.dropCollection(this.state.databaseName, this.state.name);
+    Actions.dropCollection(this.state.databaseName, this.state.collectionName);
   }
 
   /**
@@ -116,9 +115,10 @@ class DropCollectionDialog extends React.Component {
           <div>
             <p className="drop-confirm-message">
               <i className="drop-confirm-icon fa fa-exclamation-triangle" aria-hidden="true"></i>
-              Type the collection name
-              <strong> {this.state.name} </strong>
-              to drop
+              To drop
+              <span className="drop-confirm-namespace">{this.state.databaseName}.{this.state.collectionName}</span>
+              type the collection name
+              <span className="drop-confirm-collection">{this.state.collectionName}</span>
             </p>
           </div>
           <form data-test-id="drop-collection-modal"
@@ -148,7 +148,7 @@ class DropCollectionDialog extends React.Component {
           <button
             className="btn btn-primary"
             data-test-id="drop-collection-button"
-            disabled={this.state.confirmName !== this.state.name}
+            disabled={this.state.confirmName !== this.state.collectionName}
             onClick={this.onDropCollectionButtonClicked.bind(this)}>
             Drop Collection
           </button>

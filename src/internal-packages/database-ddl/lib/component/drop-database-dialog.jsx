@@ -2,7 +2,7 @@ const app = require('ampersand-app');
 const React = require('react');
 const Modal = require('react-bootstrap').Modal;
 const { TextButton } = require('hadron-react-buttons');
-const Actions = require('../action/databases-actions');
+const Actions = require('../action');
 const DropDatabaseStore = require('../store/drop-database-store');
 
 /**
@@ -108,9 +108,10 @@ class DropDatabaseDialog extends React.Component {
           <div>
             <p className="drop-confirm-message">
               <i className="drop-confirm-icon fa fa-exclamation-triangle" aria-hidden="true"></i>
-              Type the database name
-              <strong> {this.state.name} </strong>
-              to drop
+              To drop
+              <span className="drop-confirm-namespace">{this.state.name}</span>
+              type the database name
+              <span className="drop-confirm-database">{this.state.name}</span>
             </p>
           </div>
           <form
