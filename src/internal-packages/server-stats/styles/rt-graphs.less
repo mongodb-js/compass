@@ -1,22 +1,19 @@
-.opcounters {
-  width: 100%;
-  float: left;
-  margin-bottom: 8px;
+.server-stats {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  flex-shrink: 0;
+  flex-basis: 620px;
+  justify-content: space-around;
 }
-.network {
-  width: 100%;
-  float: left;
-  margin-bottom: 8px;
-}
-.mem {
-  width: 100%;
-  float: left;
-  margin-bottom: 36px;
-}
+
+.opcounters,
+.network,
+.mem,
 .globallock {
-  width: 100%;
-  float: left;
-  margin-bottom: 8px;
+  flex: 1;
+  display: flex;
+  justify-content: space-around;
 }
 
 .chart-rect {
