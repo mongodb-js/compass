@@ -1,11 +1,10 @@
 const React = require('react');
-
+const ReactTooltip = require('react-tooltip');
 const app = require('ampersand-app');
-const StoreConnector = app.appRegistry.getComponent('App.StoreConnector');
-const InstanceStore = app.appRegistry.getStore('App.InstanceStore');
 const SidebarActions = require('../actions');
 const SidebarDatabase = require('./sidebar-database');
 const SidebarInstanceProperties = require('./sidebar-instance-properties');
+const { TOOLTIP_IDS } = require('./constants');
 
 // const debug = require('debug')('mongodb-compass:sidebar:sidebar');
 
@@ -14,6 +13,8 @@ class Sidebar extends React.Component {
   constructor(props) {
     super(props);
     this.DatabaseDDLActions = app.appRegistry.getAction('DatabaseDDL.Actions');
+    this.InstanceStore = app.appRegistry.getStore('App.InstanceStore');
+    this.StoreConnector = app.appRegistry.getComponent('App.StoreConnector');
     this.state = { collapsed: false };
   }
 
@@ -45,8 +46,37 @@ class Sidebar extends React.Component {
     SidebarActions.filterDatabases(re);
   }
 
-  handleCreateDatabaseClick() {
-    this.DatabaseDDLActions.openCreateDatabaseDialog();
+  handleCreateDatabaseClick(isWritable) {
+    if (isWritable) {
+      this.DatabaseDDLActions.openCreateDatabaseDialog();
+    }
+  }
+
+  renderCreateDatabaseButton() {
+    const isWritable = app.dataService.isWritable();
+    const tooltipText = isWritable ?
+      'Create database' :
+      'Not available on a secondary node';  // TODO: Arbiter/recovering/etc
+    const tooltipOptions = {
+      'data-for': TOOLTIP_IDS.CREATE_DATABASE_BUTTON,
+      'data-class': 'compass-sidebar-tooltip-should-be-visible',
+      'data-effect': 'solid',
+      'data-place': 'top',
+      'data-tip': tooltipText
+    };
+    return (
+      <button
+        className="compass-sidebar-button-create-database"
+        onClick={this.handleCreateDatabaseClick.bind(this, isWritable)}
+        {...tooltipOptions}
+      >
+        <text className="plus-button">
+          <i className="fa fa-plus" />
+          Create Database
+        </text>
+        <ReactTooltip id={TOOLTIP_IDS.CREATE_DATABASE_BUTTON} />
+      </button>
+    );
   }
 
   render() {
@@ -58,12 +88,12 @@ class Sidebar extends React.Component {
         >
           <i className={this.getToggleClasses()}></i>
         </div>
-        <StoreConnector store={InstanceStore}>
+        <this.StoreConnector store={this.InstanceStore}>
           <SidebarInstanceProperties
             connection={app.connection}
             activeNamespace={this.props.activeNamespace}
           />
-        </StoreConnector>
+        </this.StoreConnector>
         <div className="compass-sidebar-filter">
           <i className="fa fa-search compass-sidebar-search-icon"></i>
           <input data-test-id="sidebar-filter-input" className="compass-sidebar-search-input" placeholder="filter" onChange={this.handleFilter}></input>
@@ -82,15 +112,7 @@ class Sidebar extends React.Component {
               );
             })
           }
-          <button
-            className="compass-sidebar-button-create-database"
-            onClick={this.handleCreateDatabaseClick.bind(this)}
-          >
-            <text className="plus-button">
-              <i className="fa fa-plus" />
-              Create Database
-            </text>
-          </button>
+          {this.renderCreateDatabaseButton()}
         </div>
       </div>
     );
