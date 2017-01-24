@@ -28,30 +28,24 @@ class Sidebar extends React.Component {
       (this.state.collapsed ? ' fa-forward' : ' fa-backward');
   }
 
-  //handleCollapse function used when clicking on the little
-  //toggle button only when the sidebar is in an expanded state
   handleCollapse() {
-    if(!this.state.collapsed) {
+    if (!this.state.collapsed) {
       this.props.onCollapse();
       this.setState({ collapsed: !this.state.collapsed });
     } else {
-      return null
+      return null;
     }
   }
 
-  //handleExpand function used when clicking anywhere in the
-  //sidebar only when the sidebar is in a collapsed state
   handleExpand() {
-    if(this.state.collapsed) {
+    if (this.state.collapsed) {
       this.props.onCollapse();
       this.setState({ collapsed: !this.state.collapsed });
     } else {
-      return null
+      return null;
     }
   }
 
-  //focus on filter input  when search icon is click in
-  //collapsed sidebar
   handleSearchFocus() {
     this.refs.filter.focus();
   }
