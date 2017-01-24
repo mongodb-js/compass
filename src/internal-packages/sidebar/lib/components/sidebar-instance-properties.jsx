@@ -60,20 +60,25 @@ class SidebarInstanceProperties extends React.Component {
     ipc.call('window:hide-collection-submenu');
   }
 
-  handleCreateDatabaseClick() {
-    this.DatabaseDDLActions.openCreateDatabaseDialog();
+  handleCreateDatabaseClick(isWritable) {
+    if (isWritable) {
+      this.DatabaseDDLActions.openCreateDatabaseDialog();
+    }
   }
 
   render() {
     const instance = this.props.instance;
+    const isWritable = app.dataService.isWritable();
     const numDbs = instance.databases.length;
     const numCollections = instance.collections.length;
     const hostnameAndPort = this.getHostnameAndPort();
     const sshTunnelViaPort = this.getSshTunnelViaPort();
     const versionName = this.getVersionName();
-    const tooltipText = 'Create database';
+    const tooltipText = isWritable ?
+      'Create database' :
+      'Create database is not available on a secondary node';  // TODO: Arbiter/recovering/etc
     const tooltipOptions = {
-      'data-for': TOOLTIP_IDS.CREATE_DATABASE,
+      'data-for': TOOLTIP_IDS.CREATE_DATABASE_ICON,
       'data-class': 'compass-sidebar-tooltip-should-be-visible',
       'data-effect': 'solid',
       'data-place': 'right',
@@ -91,10 +96,10 @@ class SidebarInstanceProperties extends React.Component {
           <i className="fa fa-home compass-sidebar-instance-icon" />
           <i
             className="compass-sidebar-icon compass-sidebar-icon-create-database fa fa-plus-circle"
-            onClick={this.handleCreateDatabaseClick.bind(this)}
+            onClick={this.handleCreateDatabaseClick.bind(this, isWritable)}
             {...tooltipOptions}
           />
-          <ReactTooltip id={TOOLTIP_IDS.CREATE_DATABASE} />
+          <ReactTooltip id={TOOLTIP_IDS.CREATE_DATABASE_ICON} />
           <div
             data-test-id="sidebar-instance-details"
             className="compass-sidebar-instance-hostname">
