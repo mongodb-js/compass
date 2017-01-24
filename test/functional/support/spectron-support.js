@@ -1070,6 +1070,19 @@ function addGetCommands(client) {
   });
 
   /**
+   * Get the document at the provided index in the list
+   *
+   * @param {Number} index - The index in the list, starting at 1.
+   */
+  client.addCommand('getDocumentValueForKey', function(index, key) {
+    const base = selector('document-list-item');
+    const keys = this.getText(`${base}:nth-child(${index}) .element-key`);
+    const values = this.getText(`${base}:nth-child(${index}) .element-value`);
+    debug('getDocumentValueForKey', keys, values);
+    return '';
+  });
+
+  /**
    * Get the values of a document at the provided index in the list.
    *
    * @param {Number} index - The index in the list, starting at 1.

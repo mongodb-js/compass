@@ -546,7 +546,7 @@ describe('Compass Functional Test Suite #spectron', function() {
           });
         });
 
-        context('when using a larger collection', function() {
+        context('when using the fanclub collection with 100 docs', function() {
           it('finds all 100 documents in the collection', function() {
             return client
               .waitForStatusBar()
@@ -559,6 +559,16 @@ describe('Compass Functional Test Suite #spectron', function() {
               .getSamplingMessageFromDocumentsTab()
               .should.eventually.include('Query returned 100 documents. Displaying documents 1-20');
           });
+
+          context('when applying a sort', function() {
+            it('returns the documents in the specified sort order', function() {
+              return client
+                .inputSortFromDocumentsTab('{employee_id: -1}')
+                .clickApplyFilterButtonFromDocumentsTab()
+                .getDocumentValueForKey(1, 'employee_id');
+            });
+          });
+
         });
 
         // context('when applying a sort', function() {
@@ -580,119 +590,125 @@ describe('Compass Functional Test Suite #spectron', function() {
         // });
       });
 
-      // context('when inserting a document', function() {
-      //   context('when the document is valid', function() {
-      //     it('creates the document', function() {
-      //       return client
-      //         .clickDocumentsTab()
-      //         .clickInsertDocumentButton()
-      //         .waitForInsertDocumentModal()
-      //         .inputNewDocumentDetails({
-      //           'name': 'Aphex Twin',
-      //           'genre': 'Electronic',
-      //           'location': 'London'
-      //         })
-      //         .clickInsertDocumentModalButton()
-      //         .waitForDocumentInsert(1)
-      //         .getDocumentValues(1)
-      //         .should.eventually.include('Aphex Twin');
-      //     });
-      //   });
-      //
-      //   context('when pressing escape key twice', function() {
-      //     it('does not close the insert documents modal on first press', function() {
-      //       return client
-      //         .clickInsertDocumentButton()
-      //         .waitForInsertDocumentModal()
-      //         .pressEscape()
-      //         .waitForInsertDocumentModal()
-      //         .should.eventually.be.true;
-      //     });
-      //     it('closes the insert documents modal on second press', function() {
-      //       return client
-      //         .pressEscape()
-      //         .waitForInsertDocumentModalHidden()
-      //         .should.eventually.be.true;
-      //     });
-      //   });
-      // });
-      //
-      // context('when editing a document', function() {
-      //   it('saves the changes to the document', function() {
-      //     return client
-      //       .clickEditDocumentButton(1)
-      //       .inputDocumentValueChange(1, 'Aphex Twin', 'Aphex Twin (edited)')
-      //       .clickUpdateDocumentButton(1)
-      //       .waitForDocumentUpdate(1)
-      //       .getDocumentValues(1)
-      //       .should.eventually.include('Aphex Twin (edited)');
-      //   });
-      // });
-      //
-      // context('when cloning a document', function() {
-      //   it('creates the cloned document', function() {
-      //     return client
-      //       .clickCloneDocumentButton(1)
-      //       .waitForInsertDocumentModal()
-      //       .inputClonedDocumentValueChange(1, 'London', 'Essex')
-      //       .clickInsertDocumentModalButton()
-      //       .waitForDocumentInsert(2)
-      //       .getDocumentValues(2)
-      //       .should.eventually.include('Essex');
-      //   });
-      // });
-      //
-      // context('when deleting a document', function() {
-      //   it('deletes upon confirmation', function() {
-      //     return client
-      //       .clickDeleteDocumentButton(2)
-      //       .clickConfirmDeleteDocumentButton(2)
-      //       .waitForDocumentDeletionToComplete(2)
-      //       .getSamplingMessageFromDocumentsTab()
-      //       .should.eventually.include('Query returned 1 document.');
-      //   });
-      // });
-      //
-      // context('when applying a filter', function() {
-      //   const filter = '{"name":"Bonobo"}';
-      //   it('updates the document list', function() {
-      //     return client
-      //       .inputFilterFromDocumentsTab(filter)
-      //       .clickApplyFilterButtonFromDocumentsTab()
-      //       .getSamplingMessageFromDocumentsTab()
-      //       .should.eventually.include('Query returned 0 documents.');
-      //   });
-      //
-      //   it('updates the schema view', function() {
-      //     const expected = 'This report is based on a sample of 0 documents (0.00%).';
-      //     return client
-      //       .clickSchemaTab()
-      //       .getSamplingMessageFromSchemaTab()
-      //       .should.eventually.include(expected);
-      //   });
-      //
-      //   it('checks the collections table', function() {
-      //     return client
-      //       .clickDatabaseInSidebar('music')
-      //       .waitForDatabaseView()
-      //       .getDatabaseViewCollectionNames()
-      //       .should.eventually.include('artists');
-      //   });
-      //
-      //   it('applies the filter again while on schema tab', function() {
-      //     return client
-      //       .waitForStatusBar()
-      //       .clickCollectionInSidebar('music.artists')
-      //       .waitForStatusBar()
-      //       .inputFilterFromSchemaTab(filter)
-      //       .waitForStatusBar()
-      //       .clickApplyFilterButtonFromSchemaTab()
-      //       .getSamplingMessageFromSchemaTab()
-      //       .should
-      //       .eventually
-      //       .equal('Query returned 0 documents. This report is based on a sample of 0 documents (0.00%).');
-      //   });
-      // });
+      context('when inserting a document', function() {
+        before(() => {
+          return client
+            .clickDatabaseInSidebar('music')
+            .clickCollectionInSidebar('music.artists')
+            .waitForStatusBar();
+        });
+        context('when the document is valid', function() {
+          it('creates the document', function() {
+            return client
+              .clickDocumentsTab()
+              .clickInsertDocumentButton()
+              .waitForInsertDocumentModal()
+              .inputNewDocumentDetails({
+                'name': 'Aphex Twin',
+                'genre': 'Electronic',
+                'location': 'London'
+              })
+              .clickInsertDocumentModalButton()
+              .waitForDocumentInsert(1)
+              .getDocumentValues(1)
+              .should.eventually.include('Aphex Twin');
+          });
+        });
+
+        context('when pressing escape key twice', function() {
+          it('does not close the insert documents modal on first press', function() {
+            return client
+              .clickInsertDocumentButton()
+              .waitForInsertDocumentModal()
+              .pressEscape()
+              .waitForInsertDocumentModal()
+              .should.eventually.be.true;
+          });
+          it('closes the insert documents modal on second press', function() {
+            return client
+              .pressEscape()
+              .waitForInsertDocumentModalHidden()
+              .should.eventually.be.true;
+          });
+        });
+      });
+
+      context('when editing a document', function() {
+        it('saves the changes to the document', function() {
+          return client
+            .clickEditDocumentButton(1)
+            .inputDocumentValueChange(1, 'Aphex Twin', 'Aphex Twin (edited)')
+            .clickUpdateDocumentButton(1)
+            .waitForDocumentUpdate(1)
+            .getDocumentValues(1)
+            .should.eventually.include('Aphex Twin (edited)');
+        });
+      });
+
+      context('when cloning a document', function() {
+        it('creates the cloned document', function() {
+          return client
+            .clickCloneDocumentButton(1)
+            .waitForInsertDocumentModal()
+            .inputClonedDocumentValueChange(1, 'London', 'Essex')
+            .clickInsertDocumentModalButton()
+            .waitForDocumentInsert(2)
+            .getDocumentValues(2)
+            .should.eventually.include('Essex');
+        });
+      });
+
+      context('when deleting a document', function() {
+        it('deletes upon confirmation', function() {
+          return client
+            .clickDeleteDocumentButton(2)
+            .clickConfirmDeleteDocumentButton(2)
+            .waitForDocumentDeletionToComplete(2)
+            .getSamplingMessageFromDocumentsTab()
+            .should.eventually.include('Query returned 1 document.');
+        });
+      });
+
+      context('when applying a filter', function() {
+        const filter = '{"name":"Bonobo"}';
+        it('updates the document list', function() {
+          return client
+            .inputFilterFromDocumentsTab(filter)
+            .clickApplyFilterButtonFromDocumentsTab()
+            .getSamplingMessageFromDocumentsTab()
+            .should.eventually.include('Query returned 0 documents.');
+        });
+
+        it('updates the schema view', function() {
+          const expected = 'This report is based on a sample of 0 documents (0.00%).';
+          return client
+            .clickSchemaTab()
+            .getSamplingMessageFromSchemaTab()
+            .should.eventually.include(expected);
+        });
+
+        it('checks the collections table', function() {
+          return client
+            .clickDatabaseInSidebar('music')
+            .waitForDatabaseView()
+            .getDatabaseViewCollectionNames()
+            .should.eventually.include('artists');
+        });
+
+        it('applies the filter again while on schema tab', function() {
+          return client
+            .waitForStatusBar()
+            .clickCollectionInSidebar('music.artists')
+            .waitForStatusBar()
+            .inputFilterFromSchemaTab(filter)
+            .waitForStatusBar()
+            .clickApplyFilterButtonFromSchemaTab()
+            .getSamplingMessageFromSchemaTab()
+            .should
+            .eventually
+            .equal('Query returned 0 documents. This report is based on a sample of 0 documents (0.00%).');
+        });
+      });
 
       // context('when viewing the explain plan view', function() {
       //   it('updates the documents returned', function() {
