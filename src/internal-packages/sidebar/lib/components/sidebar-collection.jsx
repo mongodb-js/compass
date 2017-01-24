@@ -32,10 +32,12 @@ class SidebarCollection extends React.Component {
     }
   }
 
-  handleDropCollectionClick() {
-    const databaseName = this.props.database;
-    const collectionName = this.getCollectionName();
-    this.CollectionsActions.openDropCollectionDialog(databaseName, collectionName);
+  handleDropCollectionClick(isWritable) {
+    if (isWritable) {
+      const databaseName = this.props.database;
+      const collectionName = this.getCollectionName();
+      this.CollectionsActions.openDropCollectionDialog(databaseName, collectionName);
+    }
   }
 
   renderReadonly() {
@@ -48,7 +50,10 @@ class SidebarCollection extends React.Component {
 
   render() {
     const collectionName = this.getCollectionName();
-    const tooltipText = `Drop ${this.props.database}.${collectionName} collection`;
+    const isWritable = app.dataService.isWritable();
+    const tooltipText = isWritable ?
+      `Drop ${this.props.database}.${collectionName} collection` :
+      'Drop collection is not available on a secondary node';  // TODO: Arbiter/recovering/etc
     const tooltipOptions = {
       'data-for': TOOLTIP_IDS.DROP_COLLECTION,
       'data-effect': 'solid',
@@ -63,7 +68,7 @@ class SidebarCollection extends React.Component {
       <div className="compass-sidebar-item">
         <i
           className="compass-sidebar-icon compass-sidebar-icon-drop-collection fa fa-trash-o"
-          onClick={this.handleDropCollectionClick.bind(this)}
+          onClick={this.handleDropCollectionClick.bind(this, isWritable)}
           {...tooltipOptions}
         />
         <ReactTooltip id={TOOLTIP_IDS.DROP_COLLECTION} />
