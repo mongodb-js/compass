@@ -1,8 +1,5 @@
 const Connection = require('mongodb-connection-model');
 const DataService = require('mongodb-data-service');
-const mgenerate = require('mgeneratejs');
-const fanclubTemplate = require('./support/fanclub-template.json');
-const _ = require('lodash');
 const { launchCompass, quitCompass, isIndexUsageEnabled } = require('./support/spectron-support');
 
 /**
@@ -10,7 +7,7 @@ const { launchCompass, quitCompass, isIndexUsageEnabled } = require('./support/s
  */
 const CONNECTION = new Connection({ hostname: '127.0.0.1', port: 27018, ns: 'music' });
 
-describe('Compass Functional Test Suite #spectron', function() {
+describe('Compass Main Functional Test Suite #spectron', function() {
   this.slow(30000);
   this.timeout(60000);
   let app = null;
@@ -296,7 +293,7 @@ describe('Compass Functional Test Suite #spectron', function() {
         });
       });
 
-      context('when entering default blank regex', function() {
+      context('when entering a blank regex', function() {
         it('restores the sidebar', function() {
           return client
             .inputSidebarFilter('(?:)')
@@ -534,69 +531,7 @@ describe('Compass Functional Test Suite #spectron', function() {
           );
       });
 
-      context('when using advanced query options', function() {
-        const dataService = new DataService(CONNECTION);
-
-        before(function(done) {
-          dataService.connect(function() {
-            const docs = _.map(_.range(100), mgenerate.bind(null, fanclubTemplate));
-            dataService.insertMany('mongodb.fanclub', docs, {}, function() {
-              done();
-            });
-          });
-        });
-
-        context('when using the fanclub collection with 100 docs', function() {
-          it('finds all 100 documents in the collection', function() {
-            return client
-              .waitForStatusBar()
-              .clickInstanceRefreshIcon()
-              .waitForInstanceRefresh()
-              .clickDatabaseInSidebar('mongodb')
-              .clickCollectionInSidebar('mongodb.fanclub')
-              .waitForStatusBar()
-              .clickDocumentsTab()
-              .getSamplingMessageFromDocumentsTab()
-              .should.eventually.include('Query returned 100 documents. Displaying documents 1-20');
-          });
-
-          context('when applying a sort', function() {
-            it('returns the documents in the specified sort order', function() {
-              return client
-                .inputSortFromDocumentsTab('{employee_id: -1}')
-                .clickApplyFilterButtonFromDocumentsTab()
-                .getDocumentValueForKey(1, 'employee_id');
-            });
-          });
-
-        });
-
-        // context('when applying a sort', function() {
-        //   it('returns the documents in the specified sort order', function() {
-        //
-        //   });
-        // });
-        //
-        // context('when applying a skip', function() {
-        //   it('skips the correct amount of documents', function() {
-        //
-        //   });
-        // });
-        //
-        // context('when applying a limit', function() {
-        //   it('only returns the number of documents specified by limit', function() {
-        //
-        //   });
-        // });
-      });
-
       context('when inserting a document', function() {
-        before(() => {
-          return client
-            .clickDatabaseInSidebar('music')
-            .clickCollectionInSidebar('music.artists')
-            .waitForStatusBar();
-        });
         context('when the document is valid', function() {
           it('creates the document', function() {
             return client
@@ -708,230 +643,227 @@ describe('Compass Functional Test Suite #spectron', function() {
             .eventually
             .equal('Query returned 0 documents. This report is based on a sample of 0 documents (0.00%).');
         });
+
+        context('when viewing the explain plan view', function() {
+          it('updates the documents returned', function() {
+            return client
+              .clickExplainPlanTab()
+              .waitForStatusBar()
+              .getExplainDocumentsReturned()
+              .should.eventually.equal('0');
+          });
+
+          it('updates the documents examined', function() {
+            return client
+              .getExplainDocumentsExamined()
+              .should.eventually.equal('1');
+          });
+        });
       });
 
-      // context('when viewing the explain plan view', function() {
-      //   it('updates the documents returned', function() {
-      //     return client
-      //       .clickExplainPlanTab()
-      //       .waitForStatusBar()
-      //       .getExplainDocumentsReturned()
-      //       .should.eventually.equal('0');
-      //   });
-      //
-      //   it('updates the documents examined', function() {
-      //     return client
-      //       .getExplainDocumentsExamined()
-      //       .should.eventually.equal('1');
-      //   });
-      // });
-      //
-      // context('when resetting a filter', function() {
-      //   it('updates the explain plan', function() {
-      //     return client
-      //       .clickCollectionInSidebar('music.artists')
-      //       .waitForStatusBar()
-      //       .clickResetFilterButtonFromExplainPlanTab()
-      //       .waitForStatusBar()
-      //       .getExplainPlanStatusMessage()
-      //       .should.eventually.include('To prevent unintended collection scans');
-      //   });
-      //
-      //   it('updates the document list', function() {
-      //     return client
-      //       .clickDocumentsTab()
-      //       .getSamplingMessageFromDocumentsTab()
-      //       .should.eventually.include('Query returned 1 document.');
-      //   });
-      //
-      //   it('updates the schema view', function() {
-      //     const expected = 'This report is based on a sample of 1 document (100.00%).';
-      //     return client
-      //       .clickSchemaTab()
-      //       .getSamplingMessageFromSchemaTab()
-      //       .should.eventually.include(expected);
-      //   });
-      // });
-      //
-      // context('when navigating to the indexes tab', function() {
-      //   it('renders the indexes table', function() {
-      //     return client
-      //       .clickIndexesTab()
-      //       .clickIndexTableHeader('index-header-name')
-      //       .getIndexNames()
-      //       .should.eventually.equal('_id_');
-      //   });
-      //
-      //   it('renders the index types', function() {
-      //     return client
-      //       .getIndexTypes()
-      //       .should.eventually.equal('REGULAR');
-      //   });
-      //
-      //   it('renders the index usages', function() {
-      //     return client
-      //       .getIndexUsages()
-      //       .should
-      //       .eventually
-      //       .equal(isIndexUsageEnabled(serverVersion) ? '10' : '0');
-      //   });
-      //
-      //   it('renders the index properties', function() {
-      //     return client
-      //       .getIndexProperties()
-      //       .should.eventually.equal('UNIQUE');
-      //   });
-      //
-      //   context('when creating an index', function() {
-      //     context('when the type is missing', function() {
-      //       it('displays an error message', function() {
-      //         return client
-      //           .clickCreateIndexButton()
-      //           .waitForCreateIndexModal()
-      //           .clickCreateIndexModalButton()
-      //           .waitForModalError()
-      //           .getModalErrorMessage()
-      //           .should.eventually.equal('You must select a field name and type');
-      //       });
-      //     });
-      //
-      //     context('when the field name is missing', function() {
-      //       it('displays an error message', function() {
-      //         return client
-      //           .inputCreateIndexDetails({ type: '1 (asc)' })
-      //           .clickCreateIndexModalButton()
-      //           .waitForModalError()
-      //           .getModalErrorMessage()
-      //           .should.eventually.equal('You must select a field name and type');
-      //       });
-      //     });
-      //
-      //     context('when the index is valid', function() {
-      //       context('when the indexes are sorted', function() {
-      //         it('adds the index to the list', function() {
-      //           return client
-      //             .inputCreateIndexDetails({ name: 'name_1', field: 'name' })
-      //             .clickCreateIndexModalButton()
-      //             .waitForIndexCreation('name_1')
-      //             .waitForVisibleInCompass('create-index-modal', true)
-      //             .getIndexNames()
-      //             .should.eventually.include('name_1');
-      //         });
-      //
-      //         it('retains the previous sorting of the list', function() {
-      //           return client
-      //             .getIndexNames()
-      //             .should.eventually.deep.equal([ 'name_1', '_id_' ]);
-      //         });
-      //       });
-      //
-      //       context('when adding another index', function() {
-      //         it('allows another index to be added', function() {
-      //           return client
-      //             .clickCreateIndexButton()
-      //             .waitForCreateIndexModal()
-      //             .inputCreateIndexDetails({ type: '-1 (desc)' })
-      //             .inputCreateIndexDetails({ name: 'name_-1', field: 'name'})
-      //             .clickCreateIndexModalButton()
-      //             .waitForIndexCreation('name_-1')
-      //             .getIndexNames()
-      //             .should.eventually.include('name_-1');
-      //         });
-      //
-      //         it('retains the current index table sort order', function() {
-      //           return client
-      //             .getIndexNames()
-      //             .should.eventually.deep.equal([ 'name_1', 'name_-1', '_id_' ]);
-      //         });
-      //       });
-      //     });
-      //   });
-      //
-      //   context('when sorting the index list', function() {
-      //     context('when clicking on the name header', function() {
-      //       it('sorts the indexes by name', function() {
-      //         return client
-      //           .clickIndexTableHeader('index-header-name')
-      //           .getIndexNames()
-      //           .should.eventually.deep.equal([ '_id_', 'name_-1', 'name_1' ]);
-      //       });
-      //     });
-      //   });
-      //
-      //   context('when dropping an index', function() {
-      //     it('requires confirmation of the index name');
-      //   });
-      // });
-      //
-      // context('when creating a validation rule', function() {
-      //
-      // });
-      //
-      // context('when deleting a validation rule', function() {
-      //
-      // });
-      //
-      // context('when refreshing the documents list', function() {
-      //   const dataService = new DataService(CONNECTION);
-      //
-      //   before(function(done) {
-      //     dataService.connect(function() {
-      //       dataService.insertOne('music.artists', { name: 'Bauhaus' }, {}, function() {
-      //         done();
-      //       });
-      //     });
-      //   });
-      //
-      //   after(function() {
-      //     dataService.disconnect();
-      //   });
-      //
-      //   it('resets the documents in the list', function() {
-      //     return client
-      //       .clickDocumentsTab()
-      //       .clickRefreshDocumentsButton()
-      //       .getSamplingMessageFromDocumentsTab()
-      //       .should.eventually.include('Query returned 2 documents.');
-      //   });
-      // });
-      //
-      // context('when inserting a document when a filter is applied', function() {
-      //   const filter = '{"name":"Bauhaus"}';
-      //
-      //   context('when the new document does not match the filter', function() {
-      //     it('does not render the document in the list', function() {
-      //       return client
-      //         .inputFilterFromDocumentsTab(filter)
-      //         .clickApplyFilterButtonFromDocumentsTab()
-      //         .waitForStatusBar()
-      //         .clickInsertDocumentButton()
-      //         .waitForInsertDocumentModal()
-      //         .inputNewDocumentDetails({
-      //           'name': 'George Michael'
-      //         })
-      //         .clickInsertDocumentModalButton()
-      //         .getSamplingMessageFromDocumentsTab()
-      //         .should.eventually.include('Query returned 1 document.');
-      //     });
-      //
-      //     it('does not update the schema count', function() {
-      //       const expected = 'This report is based on a sample of 1 document (100.00%).';
-      //       return client
-      //         .clickSchemaTab()
-      //         .getSamplingMessageFromSchemaTab()
-      //         .should.eventually.include(expected);
-      //     });
-      //
-      //     it('inserts the document', function() {
-      //       return client
-      //         .clickDocumentsTab()
-      //         .clickResetFilterButtonFromDocumentsTab()
-      //         .waitForStatusBar()
-      //         .getDocumentValues(3)
-      //         .should.eventually.include('George Michael');
-      //     });
-      //   });
-      // });
+      context('when resetting a filter', function() {
+        it('updates the explain plan', function() {
+          return client
+            .clickResetFilterButtonFromExplainPlanTab()
+            .waitForStatusBar()
+            .getExplainPlanStatusMessage()
+            .should.eventually.include('To prevent unintended collection scans');
+        });
+
+        it('updates the document list', function() {
+          return client
+            .clickDocumentsTab()
+            .getSamplingMessageFromDocumentsTab()
+            .should.eventually.include('Query returned 1 document.');
+        });
+
+        it('updates the schema view', function() {
+          const expected = 'This report is based on a sample of 1 document (100.00%).';
+          return client
+            .clickSchemaTab()
+            .getSamplingMessageFromSchemaTab()
+            .should.eventually.include(expected);
+        });
+      });
+
+      context('when navigating to the indexes tab', function() {
+        it('renders the indexes table', function() {
+          return client
+            .clickIndexesTab()
+            .getIndexNames()
+            .should.eventually.equal('_id_');
+        });
+
+        it('renders the index types', function() {
+          return client
+            .getIndexTypes()
+            .should.eventually.equal('REGULAR');
+        });
+
+        it('renders the index usages', function() {
+          return client
+            .getIndexUsages()
+            .should
+            .eventually
+            .equal(isIndexUsageEnabled(serverVersion) ? '10' : '0');
+        });
+
+        it('renders the index properties', function() {
+          return client
+            .getIndexProperties()
+            .should.eventually.equal('UNIQUE');
+        });
+
+        context('when creating an index', function() {
+          context('when the type is missing', function() {
+            it('displays an error message', function() {
+              return client
+                .clickCreateIndexButton()
+                .waitForCreateIndexModal()
+                .clickCreateIndexModalButton()
+                .waitForModalError()
+                .getModalErrorMessage()
+                .should.eventually.equal('You must select a field name and type');
+            });
+          });
+
+          context('when the field name is missing', function() {
+            it('displays an error message', function() {
+              return client
+                .inputCreateIndexDetails({ type: '1 (asc)' })
+                .clickCreateIndexModalButton()
+                .waitForModalError()
+                .getModalErrorMessage()
+                .should.eventually.equal('You must select a field name and type');
+            });
+          });
+
+          context('when the index is valid', function() {
+            context('when the indexes are sorted', function() {
+              it('adds the index to the list', function() {
+                return client
+                  .inputCreateIndexDetails({ name: 'name_1', field: 'name' })
+                  .clickCreateIndexModalButton()
+                  .waitForIndexCreation('name_1')
+                  .clickIndexTableHeader('index-header-name')
+                  .getIndexNames()
+                  .should.eventually.include('name_1');
+              });
+
+              it('retains the previous sorting of the list', function() {
+                return client
+                  .getIndexNames()
+                  .should.eventually.deep.equal([ 'name_1', '_id_' ]);
+              });
+            });
+
+            context('when adding another index', function() {
+              it('allows another index to be added', function() {
+                return client
+                  .clickCreateIndexButton()
+                  .waitForCreateIndexModal()
+                  .inputCreateIndexDetails({ type: '-1 (desc)' })
+                  .inputCreateIndexDetails({ name: 'name_-1', field: 'name'})
+                  .clickCreateIndexModalButton()
+                  .waitForIndexCreation('name_-1')
+                  .getIndexNames()
+                  .should.eventually.include('name_-1');
+              });
+
+              it('retains the current index table sort order', function() {
+                return client
+                  .getIndexNames()
+                  .should.eventually.deep.equal([ 'name_1', 'name_-1', '_id_' ]);
+              });
+            });
+          });
+        });
+
+        context('when sorting the index list', function() {
+          context('when clicking on the name header', function() {
+            it('sorts the indexes by name', function() {
+              return client
+                .clickIndexTableHeader('index-header-name')
+                .getIndexNames()
+                .should.eventually.deep.equal([ '_id_', 'name_-1', 'name_1' ]);
+            });
+          });
+        });
+
+        context('when dropping an index', function() {
+          it('requires confirmation of the index name');
+        });
+      });
+
+      context('when creating a validation rule', function() {
+
+      });
+
+      context('when deleting a validation rule', function() {
+
+      });
+
+      context('when refreshing the documents list', function() {
+        const dataService = new DataService(CONNECTION);
+
+        before(function(done) {
+          dataService.connect(function() {
+            dataService.insertOne('music.artists', { name: 'Bauhaus' }, {}, function() {
+              done();
+            });
+          });
+        });
+
+        after(function() {
+          dataService.disconnect();
+        });
+
+        it('resets the documents in the list', function() {
+          return client
+            .clickDocumentsTab()
+            .clickRefreshDocumentsButton()
+            .getSamplingMessageFromDocumentsTab()
+            .should.eventually.include('Query returned 2 documents.');
+        });
+      });
+
+      context('when inserting a document when a filter is applied', function() {
+        const filter = '{"name":"Bauhaus"}';
+
+        context('when the new document does not match the filter', function() {
+          it('does not render the document in the list', function() {
+            return client
+              .inputFilterFromDocumentsTab(filter)
+              .clickApplyFilterButtonFromDocumentsTab()
+              .waitForStatusBar()
+              .clickInsertDocumentButton()
+              .waitForInsertDocumentModal()
+              .inputNewDocumentDetails({
+                'name': 'George Michael'
+              })
+              .clickInsertDocumentModalButton()
+              .getSamplingMessageFromDocumentsTab()
+              .should.eventually.include('Query returned 1 document.');
+          });
+
+          it('does not update the schema count', function() {
+            const expected = 'This report is based on a sample of 1 document (100.00%).';
+            return client
+              .clickSchemaTab()
+              .getSamplingMessageFromSchemaTab()
+              .should.eventually.include(expected);
+          });
+
+          it('inserts the document', function() {
+            return client
+              .clickDocumentsTab()
+              .clickResetFilterButtonFromDocumentsTab()
+              .waitForStatusBar()
+              .getDocumentValues(3)
+              .should.eventually.include('George Michael');
+          });
+        });
+      });
     });
   });
 });
