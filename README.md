@@ -106,13 +106,9 @@ The release is now in the download center!
 ```bash
 # Run the entire test suite
 npm test
-
-# Run only the unit tests
-npm test -- --unit
-
-# Run only the functional tests
-npm test -- --functional
 ```
+
+For more details, see our [test README](test/README.md).
 
 ## Code Quality Tools
 
