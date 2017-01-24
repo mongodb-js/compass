@@ -11,35 +11,21 @@ var Notifier = require('node-notifier');
 
 var debug = require('debug')('mongodb-compass:metrics');
 
-// mixpanel and google analytics are currently disabled.
 
-// var GA_KEY = 'UA-71150609-2';
-// var MIXPANEL_KEY = '6255131ccadb383ba609dae3f07631ad';
 var INTERCOM_KEY = 'p57suhg7';
 var BUGSNAG_KEY = '0d11ab5f4d97452cc83d3365c21b491c';
 
 module.exports = function() {
   metrics.configure({
-    // ga: {
-    //   trackingId: GA_KEY,
-    //   enabled: app.preferences.trackUsageStatistics
-    // },
-    // mixpanel: {
-    //   apiToken: MIXPANEL_KEY,
-    //   enabled: app.preferences.trackUsageStatistics
-    // },
     intercom: {
       appId: INTERCOM_KEY,
       enabled: app.preferences.trackUsageStatistics,
       panelEnabled: app.preferences.enableFeedbackPanel
     },
     bugsnag: {
-      // autoNotify: false,
       apiKey: BUGSNAG_KEY,
       metaData: {
         user: {
-          'User Profile in Mixpanel': format('https://mixpanel.com/report/'
-            + '843929/explore/#user?distinct_id=%s', app.user.id),
           'User Profile in Intercom': format('https://app.intercom.io/apps'
             + '/%s/users/show?user_id=%s', INTERCOM_KEY, app.user.id)
         }
