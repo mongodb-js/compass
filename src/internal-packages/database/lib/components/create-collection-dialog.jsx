@@ -2,6 +2,7 @@ const app = require('ampersand-app');
 const shell = require('electron').shell;
 const React = require('react');
 const Modal = require('react-bootstrap').Modal;
+const { NamespaceStore } = require('hadron-reflux-store');
 const { TextButton } = require('hadron-react-buttons');
 const Actions = require('../actions/collections-actions');
 const CreateCollectionStore = require('../stores/create-collection-store');
@@ -80,12 +81,14 @@ class CreateCollectionDialog extends React.Component {
     evt.stopPropagation();
 
     this.setState({ inProgress: true, error: false, errorMessage: '' });
+    const databaseName = this.state.databaseName;
     Actions.createCollection(
-      this.state.databaseName,
+      databaseName,
       this.state.collectionName,
       this.state.capped,
       this.state.maxSize
     );
+    NamespaceStore.ns = databaseName;
   }
 
   /**
