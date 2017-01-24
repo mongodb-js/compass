@@ -304,15 +304,6 @@ function addWaitCommands(client) {
     return this.waitForVisibleInCompass(icon, true);
   });
 
-  /*
-   *Clic
-   */
-  client.addCommand('clickInstanceRefreshIcon', function() {
-    const button = selector('instance-refresh-button');
-    return this
-      .waitForVisibleInCompass(button).click(button);
-  });
-
   /**
    * Wait for the database with the provided name to be created.
    *
@@ -380,6 +371,14 @@ function addWaitCommands(client) {
  * @param {Client} client - The client.
  */
 function addClickCommands(client) {
+  /*
+   * Click the instance refresh button in the top right corner of the sidebar.
+   */
+  client.addCommand('clickInstanceRefreshIcon', function() {
+    const button = selector('instance-refresh-button');
+    return this
+      .waitForVisibleInCompass(button).click(button);
+  });
 
   /**
    * Click the refresh documents button.
@@ -1074,12 +1073,13 @@ function addGetCommands(client) {
    *
    * @param {Number} index - The index in the list, starting at 1.
    */
-  client.addCommand('getDocumentValueForKey', function(index, key) {
+  client.addCommand('getDocumentAtIndex', function(index) {
     const base = selector('document-list-item');
-    const keys = this.getText(`${base}:nth-child(${index}) .element-key`);
-    const values = this.getText(`${base}:nth-child(${index}) .element-value`);
-    debug('getDocumentValueForKey', keys, values);
-    return '';
+    return this.getText(`${base}:nth-child(${index}) .editable-element-field`).then((keys) => {
+      return this.getText(`${base}:nth-child(${index}) .element-value`).then((values) => {
+        return _.zipObject(keys, values);
+      });
+    });
   });
 
   /**
@@ -1235,6 +1235,13 @@ function addInputCommands(client) {
     return sequence;
   });
 
+  /**
+   * Clicks the Options button to expand the Query bar.
+   */
+  client.addCommand('clickQueryBarOptionsToggle', function() {
+    const base = selector('querybar-options-toggle');
+    return this.waitForVisibleInCompass(base).click(base);
+  });
   /**
    * Inputs a filter into the collection level query bar from the schema tab.
    *
