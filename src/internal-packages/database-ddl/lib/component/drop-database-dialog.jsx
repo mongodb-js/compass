@@ -1,6 +1,7 @@
 const app = require('ampersand-app');
 const React = require('react');
 const Modal = require('react-bootstrap').Modal;
+const { NamespaceStore } = require('hadron-reflux-store');
 const { TextButton } = require('hadron-react-buttons');
 const Actions = require('../action');
 const DropDatabaseStore = require('../store/drop-database-store');
@@ -62,11 +63,13 @@ class DropDatabaseDialog extends React.Component {
     evt.stopPropagation();
 
     // prevent drop database if names don't match
-    if (this.state.confirmName !== this.state.name) {
+    const databaseName = this.state.name;
+    if (this.state.confirmName !== databaseName) {
       return;
     }
     this.setState({ inProgress: true, error: false, errorMessage: '' });
-    Actions.dropDatabase(this.state.name);
+    Actions.dropDatabase(databaseName);
+    NamespaceStore.ns = '';
   }
 
   /**
