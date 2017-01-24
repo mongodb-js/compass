@@ -9,6 +9,9 @@ Tests are now split into these test suites:
 - `renderer`: Electron-specific tests run in the renderer process
 - `functional`: Slow functional test using Spectron (launches the application)
 
+NOTE: The packages suite is not run by default (when you do npm test),
+we plan to fix them in COMPASS-704.
+
 You can run any subset of tests with command line flags, for example:
 
 ```
