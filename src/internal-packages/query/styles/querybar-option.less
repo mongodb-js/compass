@@ -5,6 +5,12 @@
   margin: 0 10px;
   border-top: 1px solid @gray7;
 
+  &-has-error {
+    .querybar-option-label {
+      background: @alertRed;
+    }
+  }
+
   &-has-toggle {
     padding-right: 80px;
   }
@@ -24,14 +30,19 @@
   &-label {
     background: @gray5;
     color: @pw;
+    white-space: nowrap;
     border-radius: 14px;
-    padding: 0 10px;
+    padding: 0 5px;
     margin-right: 5px;
     text-transform: uppercase;
     font-weight: bold;
     font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 11px;
     flex-grow: 0;
+  }
+
+  &-label-info {
+    padding-right: 3px;
   }
 
   &-input {

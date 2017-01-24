@@ -93,6 +93,7 @@ class QueryBar extends React.Component {
       <QueryOption
         label={option}
         hasToggle={hasToggle}
+        hasError={!this.props[`${option}Valid`]}
         key={`query-option-${id}`}
         value={this.props[`${option}String`]}
         placeholder={OPTION_DEFINITION[option].placeholder}
