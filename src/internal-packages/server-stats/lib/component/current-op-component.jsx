@@ -17,7 +17,7 @@ class CurrentOpComponent extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.state = { error: null, data: [], display: 'block' };
+    this.state = { error: null, data: [], display: 'flex' };
   }
 
   /**
@@ -60,7 +60,7 @@ class CurrentOpComponent extends React.Component {
    * Set the component to visible.
    */
   show() {
-    this.setState({ display: 'block' });
+    this.setState({ display: 'flex' });
   }
 
   /**

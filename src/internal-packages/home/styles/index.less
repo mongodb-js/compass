@@ -100,6 +100,8 @@ GLOBAL FLEXBOX LAYOUT STYLES
         padding: 0 24px;
       }
 
+// pull these definitions out from below because RTSS header has an internal conflict
+//TO DO refactor cleanly
 .RTSS, //databases table
 .collections, // collections table
 .collection-view {
@@ -107,6 +109,10 @@ GLOBAL FLEXBOX LAYOUT STYLES
   flex-direction: column;
   align-items: stretch;
   height: 100%;
+}
+
+.collections, // collections table
+.collection-view {
   header {
     padding: 12px 0 0;
     flex-grow: 0;
@@ -215,5 +221,18 @@ GLOBAL FLEXBOX LAYOUT STYLES
 }
 
 ::-webkit-scrollbar {
-  display: none;
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: rgba(0,0,0,.10);
+  -webkit-border-radius: 0px;
+  border-radius: 0px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(255,255,255,1);
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  border: 1px solid rgba(0,0,0,.16);
 }

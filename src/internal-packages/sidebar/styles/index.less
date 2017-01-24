@@ -23,6 +23,13 @@
     bottom: 0;
     width: 250px;
     height: ~"calc(100% - 112px)";
+    &::-webkit-scrollbar-track {
+      background-color: rgba(0,0,0,.16);
+    }
+    &::-webkit-scrollbar-thumb {
+      background-color: #565E65;
+      border: 1px solid rgba(0,0,0,.24);
+    }
   }
 
   &-toggle {
