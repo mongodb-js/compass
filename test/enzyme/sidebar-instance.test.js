@@ -1,15 +1,27 @@
 /* eslint no-unused-vars: 0, no-unused-expressions: 0 */
+const app = require('ampersand-app');
 const chai = require('chai');
 const chaiEnzyme = require('chai-enzyme');
 const expect = chai.expect;
 const React = require('react');
-
-const shallow = require('enzyme').shallow;
+const sinon = require('sinon');
+const AppRegistry = require('hadron-app-registry');
+const { shallow } = require('enzyme');
 const SidebarInstanceProperties = require('../../src/internal-packages/sidebar/lib/components/sidebar-instance-properties');
 
 chai.use(chaiEnzyme());
 
+const appRegistry = app.appRegistry;
+
 describe('<SidebarInstanceProperties />', () => {
+  beforeEach(() => {
+    app.appRegistry = new AppRegistry();
+    app.appRegistry.registerAction('DatabaseDDL.Actions', sinon.spy());
+  });
+  afterEach(() => {
+    app.appRegistry = appRegistry;
+  });
+
   context('when rendering with no SSH Tunnel', () => {
     beforeEach(function() {
       const connection = {
