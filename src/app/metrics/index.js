@@ -9,6 +9,9 @@ var intercom = require('./intercom');
 var features = require('./features');
 var Notifier = require('node-notifier');
 
+var path = require('path');
+var ICON_PATH = path.join(__dirname, '..', 'images', 'compass-dialog-icon.png');
+
 var debug = require('debug')('mongodb-compass:metrics');
 
 
@@ -83,10 +86,8 @@ module.exports = function() {
     debug('error encountered, notify trackers', err);
     // Notify user that error occurred
     if (!_.includes(err.message, 'MongoError')) {
-      const icon = (process.platform === 'darwin') ?
-        pkg.config.hadron.build.darwin.icon : pkg.config.hadron.build.win32.icon;
       Notifier.notify({
-        'icon': icon,
+        'icon': ICON_PATH,
         'message': 'Unexpected error occurred: ' + err.message,
         'title': 'MongoDB Compass Exception',
         'wait': true
