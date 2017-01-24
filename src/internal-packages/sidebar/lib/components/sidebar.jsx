@@ -28,9 +28,32 @@ class Sidebar extends React.Component {
       (this.state.collapsed ? ' fa-forward' : ' fa-backward');
   }
 
+  //handleCollapse function used when clicking on the little
+  //toggle button only when the sidebar is in an expanded state
   handleCollapse() {
-    this.props.onCollapse();
-    this.setState({ collapsed: !this.state.collapsed });
+    if(!this.state.collapsed) {
+      this.props.onCollapse();
+      this.setState({ collapsed: !this.state.collapsed });
+    } else {
+      return null
+    }
+  }
+
+  //handleExpand function used when clicking anywhere in the
+  //sidebar only when the sidebar is in a collapsed state
+  handleExpand() {
+    if(this.state.collapsed) {
+      this.props.onCollapse();
+      this.setState({ collapsed: !this.state.collapsed });
+    } else {
+      return null
+    }
+  }
+
+  //focus on filter input  when search icon is click in
+  //collapsed sidebar
+  handleSearchFocus() {
+    this.refs.filter.focus();
   }
 
   handleFilter(event) {
@@ -83,7 +106,10 @@ class Sidebar extends React.Component {
 
   render() {
     return (
-      <div className={this.getSidebarClasses()} data-test-id="instance-sidebar">
+      <div
+        className={this.getSidebarClasses()}
+        data-test-id="instance-sidebar"
+        onClick={this.handleExpand.bind(this)}>
         <div className="compass-sidebar-toggle"
           onClick={this.handleCollapse.bind(this)}
           data-test-id="toggle-sidebar"
@@ -96,9 +122,9 @@ class Sidebar extends React.Component {
             activeNamespace={this.props.activeNamespace}
           />
         </this.StoreConnector>
-        <div className="compass-sidebar-filter">
+        <div className="compass-sidebar-filter" onClick={this.handleSearchFocus.bind(this)}>
           <i className="fa fa-search compass-sidebar-search-icon"></i>
-          <input data-test-id="sidebar-filter-input" className="compass-sidebar-search-input" placeholder="filter" onChange={this.handleFilter}></input>
+          <input data-test-id="sidebar-filter-input" ref="filter" className="compass-sidebar-search-input" placeholder="filter" onChange={this.handleFilter}></input>
         </div>
         <div className="compass-sidebar-content">
           {
