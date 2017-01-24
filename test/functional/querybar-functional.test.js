@@ -31,24 +31,16 @@ describe('Compass Functional Tests for QueryBar #spectron', function() {
       launchCompass().then(function(application) {
         app = application;
         client = application.client;
-        done();
+        client
+          .inputConnectionDetails({ hostname: 'localhost', port: 27018 })
+          .clickConnectButton()
+          .waitForHomeView()
+          .then(done.bind(null, null));
       });
     });
 
     after(function(done) {
       quitCompass(app, done);
-    });
-
-    context('when connecting to a server', function() {
-      context('when the server exists', function() {
-        it('renders the home screen', function() {
-          return client
-            .inputConnectionDetails({ hostname: 'localhost', port: 27018 })
-            .clickConnectButton()
-            .waitForHomeView()
-            .getTitle().should.eventually.equal('MongoDB Compass - localhost:27018');
-        });
-      });
     });
 
     context('when using advanced query options', function() {
