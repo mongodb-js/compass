@@ -33,6 +33,7 @@ class CreateDatabaseDialog extends React.Component {
     this.CreateCollectionInput = app.appRegistry.getComponent('Database.CreateCollectionInput');
     this.CreateCollectionSizeInput = app.appRegistry.getComponent('Database.CreateCollectionSizeInput');
     this.CreateCollectionCheckbox = app.appRegistry.getComponent('Database.CreateCollectionCheckbox');
+    this.HomeActions = app.appRegistry.getAction('Home.Actions');
   }
 
   /**
@@ -88,6 +89,7 @@ class CreateDatabaseDialog extends React.Component {
       this.state.capped,
       this.state.maxSize
     );
+    this.HomeActions.switchContent('');
   }
 
   /**
