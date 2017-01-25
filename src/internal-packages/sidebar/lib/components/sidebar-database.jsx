@@ -93,22 +93,30 @@ class SidebarDatabase extends React.Component {
       'data-offset': "{'bottom': 18, 'left': 3}",
       'data-tip': dropTooltipText
     };
-    let className = 'compass-sidebar-item-header compass-sidebar-item-header-is-expandable compass-sidebar-item-header-is-actionable';
+    let headerClassName = 'compass-sidebar-item-header compass-sidebar-item-header-is-expandable compass-sidebar-item-header-is-actionable';
     if (this.props.activeNamespace === this.props._id) {
-      className += ' compass-sidebar-item-header-is-active';
+      headerClassName += ' compass-sidebar-item-header-is-active';
+    }
+    let createClassName = 'compass-sidebar-icon compass-sidebar-icon-create-collection fa fa-plus-circle';
+    if (!isWritable) {
+      createClassName += ' compass-sidebar-icon-is-disabled';
+    }
+    let dropClassName = 'compass-sidebar-icon compass-sidebar-icon-drop-database fa fa-trash-o';
+    if (!isWritable) {
+      dropClassName += ' compass-sidebar-icon-is-disabled';
     }
     return (
       <div className="compass-sidebar-item compass-sidebar-item-is-top-level">
-        <div className={className}>
+        <div className={headerClassName}>
           <i onClick={this.handleArrowClick.bind(this)} className={this.getArrowIconClasses()} />
           <i
-            className="compass-sidebar-icon compass-sidebar-icon-create-collection fa fa-plus-circle"
+            className={createClassName}
             onClick={this.handleCreateCollectionClick.bind(this, isWritable)}
             {...createTooltipOptions}
           />
           <ReactTooltip id={TOOLTIP_IDS.CREATE_COLLECTION} />
           <i
-            className="compass-sidebar-icon compass-sidebar-icon-drop-database fa fa-trash-o"
+            className={dropClassName}
             onClick={this.handleDropDBClick.bind(this, isWritable)}
             {...dropTooltipOptions}
           />

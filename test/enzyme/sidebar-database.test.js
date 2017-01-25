@@ -51,6 +51,10 @@ describe('<SidebarDatabase />', () => {
           activeNamespace={''}
         />);
     });
+    it('create collection contains a disabled BEM modifer class', function() {
+      const element = this.component.find('.compass-sidebar-icon-create-collection');
+      expect(element.hasClass('compass-sidebar-icon-is-disabled')).to.be.true;
+    });
     it('warns the create collection icon does not work on secondaries', function() {
       const expected = 'Create collection is not available on a secondary node';
       const element = this.component.find('.compass-sidebar-icon-create-collection');
@@ -62,6 +66,10 @@ describe('<SidebarDatabase />', () => {
       expect(this.DatabaseDDLActionSpyCreate.called).to.be.false;
     });
 
+    it('drop database contains a disabled BEM modifer class', function() {
+      const element = this.component.find('.compass-sidebar-icon-drop-database');
+      expect(element.hasClass('compass-sidebar-icon-is-disabled')).to.be.true;
+    });
     it('warns the drop database icon does not work on secondaries', function() {
       const expected = 'Drop database is not available on a secondary node';
       const element = this.component.find('.compass-sidebar-icon-drop-database');

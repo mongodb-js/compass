@@ -85,17 +85,21 @@ class SidebarInstanceProperties extends React.Component {
       'data-offset': "{'top': 1, 'left': 18}",
       'data-tip': tooltipText
     };
-    let className = 'compass-sidebar-instance';
+    let instanceClassName = 'compass-sidebar-instance';
     // empty string for active namespace means instance level
     if (this.props.activeNamespace === '') {
-      className += ' compass-sidebar-instance-is-active';
+      instanceClassName += ' compass-sidebar-instance-is-active';
+    }
+    let createClassName = 'compass-sidebar-icon compass-sidebar-icon-create-database fa fa-plus-circle';
+    if (!isWritable) {
+      createClassName += ' compass-sidebar-icon-is-disabled';
     }
     return (
       <div className="compass-sidebar-properties">
-        <div className={className} onClick={this.handleClickHostname}>
+        <div className={instanceClassName} onClick={this.handleClickHostname}>
           <i className="fa fa-home compass-sidebar-instance-icon" />
           <i
-            className="compass-sidebar-icon compass-sidebar-icon-create-database fa fa-plus-circle"
+            className={createClassName}
             onClick={this.handleCreateDatabaseClick.bind(this, isWritable)}
             {...tooltipOptions}
           />

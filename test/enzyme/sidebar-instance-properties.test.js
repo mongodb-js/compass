@@ -60,6 +60,10 @@ describe('<SidebarInstanceProperties />', () => {
           activeNamespace={''}
         />);
     });
+    it('create database icon contains a disabled BEM modifer class', function() {
+      const element = this.component.find('.compass-sidebar-icon-create-database');
+      expect(element.hasClass('compass-sidebar-icon-is-disabled')).to.be.true;
+    });
     it('warns the create database icon does not work on secondaries', function() {
       const expected = 'Create database is not available on a secondary node';
       const element = this.component.find('.compass-sidebar-icon-create-database');

@@ -47,6 +47,10 @@ describe('<SidebarCollection />', () => {
           activeNamespace={''}
         />);
     });
+    it('drop collection contains a disabled BEM modifer class', function() {
+      const element = this.component.find('.compass-sidebar-icon-drop-collection');
+      expect(element.hasClass('compass-sidebar-icon-is-disabled')).to.be.true;
+    });
     it('warns the drop collection icon does not work on secondaries', function() {
       const expected = 'Drop collection is not available on a secondary node';
       const element = this.component.find('.compass-sidebar-icon-drop-collection');
