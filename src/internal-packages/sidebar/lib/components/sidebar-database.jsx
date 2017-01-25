@@ -85,7 +85,7 @@ class SidebarDatabase extends React.Component {
       'data-tip': createTooltipText
     };
     const dropTooltipText = isWritable ?
-      `Drop ${this.props._id} database` :
+      `Drop database` :
       'Drop database is not available on a secondary node';  // TODO: Arbiter/recovering/etc
     const dropTooltipOptions = {
       'data-for': TOOLTIP_IDS.DROP_DATABASE,

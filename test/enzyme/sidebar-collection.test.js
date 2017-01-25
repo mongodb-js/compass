@@ -69,7 +69,7 @@ describe('<SidebarCollection />', () => {
       />);
     });
     it('renders a drop collection icon with tooltip', function() {
-      const expected = 'Drop foo.bar collection';
+      const expected = 'Drop collection';
       const element = this.component.find('.compass-sidebar-icon-drop-collection');
       expect(element.prop('data-tip')).to.be.equal(expected);
     });

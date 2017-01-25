@@ -94,7 +94,7 @@ describe('<SidebarDatabase />', () => {
     });
 
     it('renders a drop database icon with tooltip', function() {
-      const expected = 'Drop foo database';
+      const expected = 'Drop database';
       const element = this.component.find('.compass-sidebar-icon-drop-database');
       expect(element.prop('data-tip')).to.be.equal(expected);
     });
