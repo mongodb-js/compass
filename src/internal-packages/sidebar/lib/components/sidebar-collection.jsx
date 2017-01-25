@@ -52,7 +52,7 @@ class SidebarCollection extends React.Component {
     const collectionName = this.getCollectionName();
     const isWritable = app.dataService.isWritable();
     const tooltipText = isWritable ?
-      `Drop collection` :
+      'Drop collection' :
       'Drop collection is not available on a secondary node';  // TODO: Arbiter/recovering/etc
     const tooltipOptions = {
       'data-for': TOOLTIP_IDS.DROP_COLLECTION,
