@@ -16,6 +16,7 @@ var dialog = remote.dialog;
 var Clipboard = remote.clipboard;
 var BrowserWindow = remote.BrowserWindow;
 var metrics = require('mongodb-js-metrics')();
+var COMPASS_ICON = require('../../icon');
 
 var debug = require('debug')('mongodb-compass:connect:index');
 
@@ -331,6 +332,7 @@ var ConnectView = View.extend({
       // ask user if Compass should use it to fill out form
       dialog.showMessageBox(BrowserWindow.getFocusedWindow(), {
         type: 'info',
+        icon: COMPASS_ICON,
         message: 'MongoDB connection string detected',
         detail: 'Compass detected a MongoDB connection string in your '
           + 'clipboard. Do you want to use the connection string to '
