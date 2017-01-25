@@ -58,7 +58,6 @@ class Sidebar extends React.Component {
     // Only show this tooltip on a secondary
     const tooltipOptions = isWritable ? {} : {
       'data-for': TOOLTIP_IDS.CREATE_DATABASE_BUTTON,
-      'data-class': 'compass-sidebar-tooltip-should-be-visible',
       'data-effect': 'solid',
       'data-place': 'top',
       'data-tip': tooltipText

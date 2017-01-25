@@ -79,7 +79,6 @@ class SidebarInstanceProperties extends React.Component {
       'Create database is not available on a secondary node';  // TODO: Arbiter/recovering/etc
     const tooltipOptions = {
       'data-for': TOOLTIP_IDS.CREATE_DATABASE_ICON,
-      'data-class': 'compass-sidebar-tooltip-should-be-visible',
       'data-effect': 'solid',
       'data-place': 'right',
       'data-offset': "{'top': 1, 'left': 18}",
