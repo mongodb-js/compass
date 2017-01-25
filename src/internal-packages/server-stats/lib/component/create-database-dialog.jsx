@@ -189,9 +189,10 @@ class CreateDatabaseDialog extends React.Component {
         </Modal.Header>
 
         <Modal.Body>
-          <form name="create-collection-dialog-form"
-              onSubmit={this.onCreateDatabaseButtonClicked.bind(this)}
-              data-test-id="create-database-modal">
+          <form
+            name="create-collection-dialog-form"
+            onSubmit={this.onCreateDatabaseButtonClicked.bind(this)}
+          >
             <this.CreateCollectionInput
               name="Database Name"
               value={this.state.databaseName}

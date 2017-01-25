@@ -120,8 +120,9 @@ class DropCollectionDialog extends React.Component {
               to drop
             </p>
           </div>
-          <form data-test-id="drop-collection-modal"
-              onSubmit={this.onDropCollectionButtonClicked.bind(this)}>
+          <form
+            onSubmit={this.onDropCollectionButtonClicked.bind(this)}
+          >
             <div className="form-group">
               <input
                 type="text"

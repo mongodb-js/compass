@@ -169,7 +169,6 @@ class CreateCollectionDialog extends React.Component {
         <Modal.Body>
           <form name="create-collection-dialog-form"
             onSubmit={this.onCreateCollectionButtonClicked.bind(this)}
-            data-test-id="create-collection-modal"
           >
             <CreateCollectionInput
               name="Collection Name"

@@ -113,8 +113,8 @@ class DropDatabaseDialog extends React.Component {
             </p>
           </div>
           <form
-              onSubmit={this.onDropDatabaseButtonClicked.bind(this)}
-              data-test-id="drop-database-modal">
+            onSubmit={this.onDropDatabaseButtonClicked.bind(this)}
+          >
             <div className="form-group">
               <input
                 type="text"
