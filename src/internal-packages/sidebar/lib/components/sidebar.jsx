@@ -54,10 +54,9 @@ class Sidebar extends React.Component {
 
   renderCreateDatabaseButton() {
     const isWritable = app.dataService.isWritable();
-    const tooltipText = isWritable ?
-      'Create database' :
-      'Not available on a secondary node';  // TODO: Arbiter/recovering/etc
-    const tooltipOptions = {
+    const tooltipText = 'Not available on a secondary node';  // TODO: Arbiter/recovering/etc
+    // Only show this tooltip on a secondary
+    const tooltipOptions = isWritable ? {} : {
       'data-for': TOOLTIP_IDS.CREATE_DATABASE_BUTTON,
       'data-class': 'compass-sidebar-tooltip-should-be-visible',
       'data-effect': 'solid',

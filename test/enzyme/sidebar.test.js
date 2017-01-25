@@ -70,10 +70,9 @@ describe('<Sidebar />', () => {
         activeNamespace={''}
       />);
     });
-    it('renders a create database button with tooltip', function() {
-      const expected = 'Create database';
+    it('renders a create database button with no tooltip', function() {
       const element = this.component.find('.compass-sidebar-button-create-database');
-      expect(element.prop('data-tip')).to.be.equal(expected);
+      expect(element.prop('data-tip')).to.be.undefined;
     });
     it('clicking the create database button triggers an action', function() {
       const element = this.component.find('.compass-sidebar-button-create-database');
