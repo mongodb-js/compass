@@ -55,8 +55,16 @@ class DropDatabaseDialog extends React.Component {
 
   /**
    * Initiate the attempt to drop a database.
+   * @param {Object} evt - The event object
    */
-  onDropDatabaseButtonClicked() {
+  onDropDatabaseButtonClicked(evt) {
+    evt.preventDefault();
+    evt.stopPropagation();
+
+    // prevent drop database if names don't match
+    if (this.state.confirmName !== this.state.name) {
+      return;
+    }
     this.setState({ inProgress: true, error: false, errorMessage: '' });
     Actions.dropDatabase(this.state.name);
   }
@@ -104,7 +112,9 @@ class DropDatabaseDialog extends React.Component {
               to drop
             </p>
           </div>
-          <form>
+          <form
+            onSubmit={this.onDropDatabaseButtonClicked.bind(this)}
+          >
             <div className="form-group">
               <input
                 type="text"

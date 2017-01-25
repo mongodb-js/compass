@@ -76,8 +76,11 @@ class CreateDatabaseDialog extends React.Component {
 
   /**
    * Initiate the attempt to create a database.
+   * @param {Object} evt - The event object
    */
-  onCreateDatabaseButtonClicked() {
+  onCreateDatabaseButtonClicked(evt) {
+    evt.preventDefault();
+    evt.stopPropagation();
     this.setState({ inProgress: true, error: false, errorMessage: '' });
     Actions.createDatabase(
       this.state.databaseName,
@@ -186,7 +189,10 @@ class CreateDatabaseDialog extends React.Component {
         </Modal.Header>
 
         <Modal.Body>
-          <form name="create-collection-dialog-form">
+          <form
+            name="create-collection-dialog-form"
+            onSubmit={this.onCreateDatabaseButtonClicked.bind(this)}
+          >
             <this.CreateCollectionInput
               name="Database Name"
               value={this.state.databaseName}

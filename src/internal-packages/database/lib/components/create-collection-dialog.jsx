@@ -73,8 +73,12 @@ class CreateCollectionDialog extends React.Component {
 
   /**
    * Initiate the attempt to create a collection.
+   * @param {Object} evt - The event object
    */
-  onCreateCollectionButtonClicked() {
+  onCreateCollectionButtonClicked(evt) {
+    evt.preventDefault();
+    evt.stopPropagation();
+
     this.setState({ inProgress: true, error: false, errorMessage: '' });
     Actions.createCollection(
       this.state.databaseName,
@@ -163,7 +167,9 @@ class CreateCollectionDialog extends React.Component {
         </Modal.Header>
 
         <Modal.Body>
-          <form name="create-collection-dialog-form">
+          <form name="create-collection-dialog-form"
+            onSubmit={this.onCreateCollectionButtonClicked.bind(this)}
+          >
             <CreateCollectionInput
               name="Collection Name"
               value={this.state.collectionName}
