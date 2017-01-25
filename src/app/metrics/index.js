@@ -9,37 +9,26 @@ var intercom = require('./intercom');
 var features = require('./features');
 var Notifier = require('node-notifier');
 
+var path = require('path');
+var ICON_PATH = path.join(__dirname, '..', 'images', 'compass-dialog-icon.png');
+
 var debug = require('debug')('mongodb-compass:metrics');
 
-// mixpanel and google analytics are currently disabled.
 
-// var GA_KEY = 'UA-71150609-2';
-// var MIXPANEL_KEY = '6255131ccadb383ba609dae3f07631ad';
 var INTERCOM_KEY = 'p57suhg7';
 var BUGSNAG_KEY = '0d11ab5f4d97452cc83d3365c21b491c';
 
 module.exports = function() {
   metrics.configure({
-    // ga: {
-    //   trackingId: GA_KEY,
-    //   enabled: app.preferences.trackUsageStatistics
-    // },
-    // mixpanel: {
-    //   apiToken: MIXPANEL_KEY,
-    //   enabled: app.preferences.trackUsageStatistics
-    // },
     intercom: {
       appId: INTERCOM_KEY,
       enabled: app.preferences.trackUsageStatistics,
       panelEnabled: app.preferences.enableFeedbackPanel
     },
     bugsnag: {
-      // autoNotify: false,
       apiKey: BUGSNAG_KEY,
       metaData: {
         user: {
-          'User Profile in Mixpanel': format('https://mixpanel.com/report/'
-            + '843929/explore/#user?distinct_id=%s', app.user.id),
           'User Profile in Intercom': format('https://app.intercom.io/apps'
             + '/%s/users/show?user_id=%s', INTERCOM_KEY, app.user.id)
         }
@@ -97,10 +86,8 @@ module.exports = function() {
     debug('error encountered, notify trackers', err);
     // Notify user that error occurred
     if (!_.includes(err.message, 'MongoError')) {
-      const icon = (process.platform === 'darwin') ?
-        pkg.config.hadron.build.darwin.icon : pkg.config.hadron.build.win32.icon;
       Notifier.notify({
-        'icon': icon,
+        'icon': ICON_PATH,
         'message': 'Unexpected error occurred: ' + err.message,
         'title': 'MongoDB Compass Exception',
         'wait': true
