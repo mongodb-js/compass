@@ -50,6 +50,10 @@ describe('<Sidebar />', () => {
           activeNamespace={''}
         />);
     });
+    it('create database button contains a disabled BEM modifer class', function() {
+      const element = this.component.find('.compass-sidebar-button-create-database');
+      expect(element.hasClass('compass-sidebar-button-is-disabled')).to.be.true;
+    });
     it('warns the create database button is not available on secondaries', function() {
       const expected = 'Not available on a secondary node';
       const element = this.component.find('.compass-sidebar-button-create-database');

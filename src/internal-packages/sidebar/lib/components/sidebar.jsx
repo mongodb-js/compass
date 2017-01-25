@@ -63,9 +63,13 @@ class Sidebar extends React.Component {
       'data-place': 'top',
       'data-tip': tooltipText
     };
+    let className = 'compass-sidebar-button-create-database';
+    if (!isWritable) {
+      className += ' compass-sidebar-button-is-disabled';
+    }
     return (
       <button
-        className="compass-sidebar-button-create-database"
+        className={className}
         onClick={this.handleCreateDatabaseClick.bind(this, isWritable)}
         {...tooltipOptions}
       >
