@@ -5,6 +5,7 @@ const Modal = require('react-bootstrap').Modal;
 const { TextButton } = require('hadron-react-buttons');
 const Actions = require('../action');
 const CreateDatabaseStore = require('../store/create-database-store');
+const { NamespaceStore } = require('hadron-reflux-store');
 
 /**
  * The more information url.
@@ -88,6 +89,7 @@ class CreateDatabaseDialog extends React.Component {
       this.state.capped,
       this.state.maxSize
     );
+    NamespaceStore.ns = '';
   }
 
   /**

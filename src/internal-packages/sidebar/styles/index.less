@@ -1,6 +1,10 @@
+@compass-sidebar-base-background-color: #4c5259;
+@compass-sidebar-active-background-color: #6D7984;
+@compass-sidebar-active-hover-background-color: #7D8994;
+
 .compass-sidebar {
   margin: 0;
-  background: #4c5259;
+  background: @compass-sidebar-base-background-color;
   color: #bfbfbe;
   flex-grow: 0;
   flex-shrink: 0;
@@ -61,7 +65,7 @@
 
     &-is-active,
     &-is-active:hover {
-      background-color: #6D7984;
+      background-color: @compass-sidebar-active-background-color;
     }
   }
 
@@ -99,7 +103,6 @@
       background-color: #6D7984;
 
       //there's got to be a better way to handle styles on the child when parent -is-active
-      .compass-sidebar-database-icon,
       .compass-sidebar-expand-icon {
         color: #fff;
       }
@@ -114,7 +117,7 @@
   &-expand-icon {
     position: absolute;
     top: 8px;
-    right: 9px;
+    left: 9px;
     transition: all 180ms ease-out;
     color: #9DA4AA;
   }
@@ -123,14 +126,73 @@
     color: #fff;
   }
 
-  &-database-icon {
+  &-button {
+    &-create-database {
+      background-color: @compass-sidebar-active-background-color;
+      border-radius: 12px;
+      border: grey;
+      color: #fff;
+      margin: 4px 10px 16px 10px;
+      padding: 5px;
+      width: 230px;
+
+      .fa-plus {
+        width: 20px;
+      }
+      .plus-button {
+        font-size: 11px;
+        font-weight: bold;
+        text-transform: uppercase;
+      }
+    }
+    &-create-database:hover {
+      background-color: @compass-sidebar-active-hover-background-color;
+    }
+  }
+
+  &-icon {
+    color: @compass-sidebar-base-background-color;
+    font-size: 17px;
     position: absolute;
-    top: 6px;
-    left: 10px;
+    top: 0;
     transition: all 180ms ease-out;
-    color: #797F84;
-    font-family: "MMS Icons";
-    font-style: normal;
+
+    &-create-database {
+      // Quick hack so the icon doesn't end up on the right of the entire page
+      // with the new collapsible sidebar. Designers feel welcome to improve :)
+      left: 222px;
+      top: 12px;
+    }
+
+    &-create-collection {
+      right: 22px;
+    }
+
+    &-create-database,
+    &-create-collection {
+      padding: 7px 9px 8px 3px;
+    }
+
+    // database and collection sidebar rows have slightly different heights
+    &-drop-database {
+      padding: 7px 9px 8px 3px;
+    }
+    &-drop-collection {
+      padding: 6px 9px 6px 3px;
+    }
+
+    &-drop-database,
+    &-drop-collection {
+      right: 0;
+    }
+
+    &-is-active:hover {
+      background: @compass-sidebar-active-background-color;
+    }
+
+    &:hover {
+      color: #fff;
+    }
   }
 
   &-item-content {
@@ -241,11 +303,19 @@
 
     &-is-active,
     &-is-active:hover {
-      background-color: #6D7984;
+      background-color: @compass-sidebar-active-background-color;
 
       //there's got to be a better way to handle styles on the child when parent -is-active
       .compass-sidebar-instance-version {
         color: #fff;
+      }
+
+      .compass-sidebar-icon-create-database {
+        color: @compass-sidebar-active-background-color;
+
+        &:hover {
+          color: #fff;
+        }
       }
     }
   }
@@ -296,7 +366,9 @@
   .compass-sidebar-content,
   .compass-sidebar-property-column,
   .compass-sidebar-instance-hostname,
-  .compass-sidebar-instance-version {
+  .compass-sidebar-instance-version,
+  .compass-sidebar-icon-create-database,
+  .compass-sidebar-button-create-database {
     display: none;
   }
   .compass-sidebar-instance {

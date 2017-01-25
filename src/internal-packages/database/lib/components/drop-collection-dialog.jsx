@@ -1,6 +1,7 @@
 const app = require('ampersand-app');
 const React = require('react');
 const Modal = require('react-bootstrap').Modal;
+const { NamespaceStore } = require('hadron-reflux-store');
 const { TextButton } = require('hadron-react-buttons');
 const Actions = require('../actions/collections-actions');
 const DropCollectionStore = require('../stores/drop-collection-store');
@@ -74,6 +75,7 @@ class DropCollectionDialog extends React.Component {
 
     this.setState({ inProgress: true, error: false, errorMessage: '' });
     Actions.dropCollection(this.state.databaseName, this.state.collectionName);
+    NamespaceStore.ns = this.state.databaseName;
   }
 
   /**

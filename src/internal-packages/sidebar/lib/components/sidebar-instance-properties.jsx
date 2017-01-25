@@ -1,9 +1,16 @@
 const React = require('react');
+const ReactTooltip = require('react-tooltip');
 const app = require('ampersand-app');
 const ipc = require('hadron-ipc');
 const { NamespaceStore } = require('hadron-reflux-store');
+const { TOOLTIP_IDS } = require('./constants');
 
 class SidebarInstanceProperties extends React.Component {
+  constructor(props) {
+    super(props);
+    this.DatabaseDDLActions = app.appRegistry.getAction('DatabaseDDL.Actions');
+  }
+
   getHostnameAndPort() {
     const connection = this.props.connection;
     if (!connection.hostname) {
@@ -53,22 +60,49 @@ class SidebarInstanceProperties extends React.Component {
     ipc.call('window:hide-collection-submenu');
   }
 
+  handleCreateDatabaseClick(isWritable) {
+    if (isWritable) {
+      this.DatabaseDDLActions.openCreateDatabaseDialog();
+    }
+  }
+
   render() {
     const instance = this.props.instance;
+    const isWritable = app.dataService.isWritable();
     const numDbs = instance.databases.length;
     const numCollections = instance.collections.length;
     const hostnameAndPort = this.getHostnameAndPort();
     const sshTunnelViaPort = this.getSshTunnelViaPort();
     const versionName = this.getVersionName();
-    let className = 'compass-sidebar-instance';
+    const tooltipText = isWritable ?
+      'Create database' :
+      'Create database is not available on a secondary node';  // TODO: Arbiter/recovering/etc
+    const tooltipOptions = {
+      'data-for': TOOLTIP_IDS.CREATE_DATABASE_ICON,
+      'data-effect': 'solid',
+      'data-place': 'right',
+      'data-offset': "{'top': 1, 'left': 18}",
+      'data-tip': tooltipText
+    };
+    let instanceClassName = 'compass-sidebar-instance';
     // empty string for active namespace means instance level
     if (this.props.activeNamespace === '') {
-      className += ' compass-sidebar-instance-is-active';
+      instanceClassName += ' compass-sidebar-instance-is-active';
+    }
+    let createClassName = 'compass-sidebar-icon compass-sidebar-icon-create-database fa fa-plus-circle';
+    if (!isWritable) {
+      createClassName += ' compass-sidebar-icon-is-disabled';
     }
     return (
       <div className="compass-sidebar-properties">
-        <div className={className} onClick={this.handleClickHostname}>
-          <i className="fa fa-home compass-sidebar-instance-icon"></i>
+        <div className={instanceClassName} onClick={this.handleClickHostname}>
+          <i className="fa fa-home compass-sidebar-instance-icon" />
+          <i
+            className={createClassName}
+            onClick={this.handleCreateDatabaseClick.bind(this, isWritable)}
+            {...tooltipOptions}
+          />
+          <ReactTooltip id={TOOLTIP_IDS.CREATE_DATABASE_ICON} />
           <div
             data-test-id="sidebar-instance-details"
             className="compass-sidebar-instance-hostname">
