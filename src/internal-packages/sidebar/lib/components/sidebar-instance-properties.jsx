@@ -60,12 +60,6 @@ class SidebarInstanceProperties extends React.Component {
     ipc.call('window:hide-collection-submenu');
   }
 
-  handleCreateDatabaseClick(isWritable) {
-    if (isWritable) {
-      this.DatabaseDDLActions.openCreateDatabaseDialog();
-    }
-  }
-
   render() {
     const instance = this.props.instance;
     const isWritable = app.dataService.isWritable();
@@ -74,35 +68,15 @@ class SidebarInstanceProperties extends React.Component {
     const hostnameAndPort = this.getHostnameAndPort();
     const sshTunnelViaPort = this.getSshTunnelViaPort();
     const versionName = this.getVersionName();
-    const tooltipText = isWritable ?
-      'Create database' :
-      'Create database is not available on a secondary node';  // TODO: Arbiter/recovering/etc
-    const tooltipOptions = {
-      'data-for': TOOLTIP_IDS.CREATE_DATABASE_ICON,
-      'data-effect': 'solid',
-      'data-place': 'right',
-      'data-offset': "{'top': 1, 'left': 18}",
-      'data-tip': tooltipText
-    };
     let instanceClassName = 'compass-sidebar-instance';
     // empty string for active namespace means instance level
     if (this.props.activeNamespace === '') {
       instanceClassName += ' compass-sidebar-instance-is-active';
     }
-    let createClassName = 'compass-sidebar-icon compass-sidebar-icon-create-database fa fa-plus-circle';
-    if (!isWritable) {
-      createClassName += ' compass-sidebar-icon-is-disabled';
-    }
     return (
       <div className="compass-sidebar-properties">
         <div className={instanceClassName} onClick={this.handleClickHostname}>
           <i className="fa fa-home compass-sidebar-instance-icon" />
-          <i
-            className={createClassName}
-            onClick={this.handleCreateDatabaseClick.bind(this, isWritable)}
-            {...tooltipOptions}
-          />
-          <ReactTooltip id={TOOLTIP_IDS.CREATE_DATABASE_ICON} />
           <div
             data-test-id="sidebar-instance-details"
             className="compass-sidebar-instance-hostname">
