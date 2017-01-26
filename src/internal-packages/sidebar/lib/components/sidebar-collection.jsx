@@ -69,12 +69,12 @@ class SidebarCollection extends React.Component {
       dropClassName += ' compass-sidebar-icon-is-disabled';
     }
     return (
-      <div
-        onClick={this.handleClick}
-        className={itemClassName}
-        data-test-id="sidebar-collection"
-        title={this.props._id}>
-        <div className="compass-sidebar-item-title">
+      <div className={itemClassName}>
+        <div
+          onClick={this.handleClick}
+          className="compass-sidebar-item-title"
+          data-test-id="sidebar-collection"
+          title={this.props._id} >
           {collectionName}&nbsp;
           {this.renderReadonly()}
         </div>
