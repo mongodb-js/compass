@@ -20,11 +20,11 @@ describe('rtss top-store', function() {
   const appDataService = app.dataService;
   const appInstance = app.instance;
 
-  beforeEach(() => {
+  before(() => {
     app.appRegistry = new AppRegistry();
   });
 
-  afterEach(() => {
+  after(() => {
     app.appRegistry = appRegistry;
     app.dataService = appDataService;
     app.instance = appInstance;
@@ -33,7 +33,7 @@ describe('rtss top-store', function() {
   context('when top command returns document larger than 16mb', () => {
     this.spy = sinon.spy();
 
-    beforeEach(() => {
+    before(() => {
       app.dataService = {
         top: this.spy,
         isMongos: () => {

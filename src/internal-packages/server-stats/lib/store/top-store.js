@@ -37,7 +37,7 @@ const TopStore = Reflux.createStore({
     this.xLength = 60;
     this.starting = true;
     this.t1s = {};
-    this.stop = false;
+    this.disableTop = false;
   },
 
   pause: function() {
@@ -68,13 +68,13 @@ const TopStore = Reflux.createStore({
   },
 
   suppressTop: function(flag) {
-    this.stop = flag;
+    this.disableTop = flag;
   },
 
   // Calculate list as current hottest collection (like Cloud and system top)
   top_delta: function() {
     // stop top command especially if in sharded cluster
-    if (app.dataService.isMongos() || this.stop) {
+    if (app.dataService.isMongos() || this.disableTop) {
       return;
     }
 
