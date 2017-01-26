@@ -42,25 +42,22 @@ describe('rtss top-store', function() {
       };
     });
 
-    it('calling pollTop once calls the top command', () => {
+    it('calls pollTop and simulates error, the top command runs', () => {
       serverStatsActions.pollTop();
-      expect(this.spy.callCount).to.equal(1);
-    });
-    it('simulates error once', () => {
       serverStatsActions.dbError({'op': 'top', 'error': DOC_TOO_BIG_ERROR});
       expect(this.spy.callCount).to.equal(1);
     });
-    it('calls pollTop again calls the top command', () => {
+    it('calls pollTop again and simulates error, the top command runs again', () => {
       serverStatsActions.pollTop();
-      expect(this.spy.callCount).to.equal(2);
-    });
-    it('simulates error again', () => {
       serverStatsActions.dbError({'op': 'top', 'error': DOC_TOO_BIG_ERROR});
       expect(this.spy.callCount).to.equal(2);
     });
-    it('calling pollTop again does not call top command', () => {
-      serverStatsActions.pollTop();
-      expect(this.spy.callCount).to.equal(2);
+    it('calls pollTop again but top command is disabled because of errors', (done) => {
+      setTimeout(() => {
+        serverStatsActions.pollTop();
+        expect(this.spy.callCount).to.equal(2);
+        done();
+      }, 0);
     });
   });
 });
