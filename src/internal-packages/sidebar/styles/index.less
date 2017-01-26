@@ -6,7 +6,7 @@
 @compass-sidebar-base-background-color: #4c5259;
 @compass-sidebar-active-background-color: #6D7984;
 @compass-sidebar-hover-background-color: #42494f;
-// @compass-sidebar-active-hover-background-color: #7D8994;
+@transistion-time: 400ms;
 
 .compass-sidebar {
   background: @compass-sidebar-base-background-color;
@@ -17,6 +17,7 @@
   flex-shrink: 0;
   margin: 0;
   overflow: hidden;
+  transition: flex-basis @transistion-time ease;
 
   &-toggle {
     background-color: #565E65;
@@ -36,16 +37,12 @@
     flex-basis: 250px;
   }
 
-  &-collapsed {
-    flex-basis: 36px;
-  }
-
   &-toggle,
   &-properties,
   &-filter,
   &-content {
     flex-grow: 0;
-    flex-shrink: 0;
+    flex-shrink: 1;
     flex-basis: auto;
   }
 
@@ -108,7 +105,7 @@
 
   &-button-create-database-container {
     flex-grow: 0;
-    flex-shrink: 0;
+    flex-shrink: 1;
     flex-basis: auto;
     background: @compass-sidebar-base-background-color;
     padding: 10px;
@@ -165,6 +162,8 @@
 .compass-sidebar-collapsed {
   overflow: hidden;
   cursor: pointer;
+  flex-basis: 36px;
+
   .compass-sidebar-item,
   .compass-sidebar-property-column,
   .compass-sidebar-instance-hostname,
@@ -174,8 +173,8 @@
   }
 
   .compass-sidebar-instance {
-    padding-top: 8px;
-    padding-bottom: 6px;
+    padding-top: 6px;
+    padding-bottom: 10px;
   }
 
   .compass-sidebar-properties {

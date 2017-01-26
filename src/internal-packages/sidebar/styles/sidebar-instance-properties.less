@@ -1,4 +1,5 @@
 /* Styles for the isidebar nstance properties */
+@transistion-time: 400ms;
 
 .compass-sidebar {
   &-properties {
@@ -13,12 +14,24 @@
     padding-top: 8px;
     padding-bottom: 8px;
     border-top: 1px solid #42494f;
+    display: flex;
+    flex-wrap: nowrap;
+    transition: height @transistion-time ease;
 
     &-icon {
-      width: 26px;
-      margin-left: 10px;
       vertical-align: top;
-      margin-top: 2px;
+      flex-grow: 0;
+      flex-shrink: 1;
+      flex-basis: 26px;
+      padding-left: 10px;
+      padding-top: 3px;
+    }
+
+    &-icon + div {
+      flex: 1;
+      flex-basis: auto;
+      overflow: hidden;
+      padding-right: 8px;
     }
 
     &:hover {
@@ -26,12 +39,10 @@
     }
 
     &-hostname {
-      display: inline-block;
-      height: 20px;
-      width: 200px;
-      line-height: 20px;
       overflow-x: hidden;
       text-overflow: ellipsis;
+      padding-left: 10px;
+      white-space: nowrap;
     }
 
     &-hostname::-webkit-scrollbar {
@@ -43,7 +54,10 @@
       font-weight: normal;
       line-height: 12px;
       font-size: 12px;
-      margin-left: 36px;
+      padding-left: 10px;
+      white-space: nowrap;
+      overflow-x: hidden;
+      text-overflow: ellipsis;
     }
 
     &-version {
@@ -51,7 +65,10 @@
       font-weight: normal;
       line-height: 12px;
       font-size: 12px;
-      margin-left: 36px;
+      padding-left: 10px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     &-is-active,
@@ -81,17 +98,34 @@
     line-height: 12px;
     padding: 4px 0 6px;
     text-transform: uppercase;
+    display: flex;
+    overflow: hidden;
+    flex-wrap: nowrap;
+    white-space: nowrap;
   }
 
   &-property-column {
     display: inline-block;
-    padding-right: 10px;
-    margin-right: 10px;
+    flex: 1;
+    flex-basis: auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 8px;
+    padding-top: 6px;
+    white-space: nowrap;
   }
 
   &-strong-property {
     font-weight: bold;
     color: #fff;
+  }
+
+  &-refresh-button-container {
+    flex-grow: 0;
+    flex-shrink: 1;
+    flex-basis: auto;
+    padding-left: 5px;
+    padding-right: 7px;
   }
 
   &-refresh-button {
@@ -102,8 +136,6 @@
     font-size: 13px;
     height: 24px;
     width: 24px;
-    margin-left: 5px;
-    margin-right: 7px;
     padding: 4px;
     transition: all 150ms ease;
 

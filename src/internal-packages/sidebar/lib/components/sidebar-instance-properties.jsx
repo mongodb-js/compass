@@ -77,25 +77,29 @@ class SidebarInstanceProperties extends React.Component {
       <div className="compass-sidebar-properties">
         <div className={instanceClassName} onClick={this.handleClickHostname}>
           <i className="fa fa-home compass-sidebar-instance-icon" />
-          <div
-            data-test-id="sidebar-instance-details"
-            className="compass-sidebar-instance-hostname">
-            {hostnameAndPort}
-          </div>
-          {sshTunnelViaPort}
-          <div
-            data-test-id="sidebar-instance-version"
-            className="compass-sidebar-instance-version">
-            {versionName}
+          <div>
+            <div
+              data-test-id="sidebar-instance-details"
+              className="compass-sidebar-instance-hostname">
+              {hostnameAndPort}
+            </div>
+            {sshTunnelViaPort}
+            <div
+              data-test-id="sidebar-instance-version"
+              className="compass-sidebar-instance-version">
+              {versionName}
+            </div>
           </div>
         </div>
         <div className="compass-sidebar-stats">
-          <button
-            onClick={this.handleRefresh}
-            className="compass-sidebar-refresh-button"
-            data-test-id="instance-refresh-button">
-            <i className={this.getRefreshIconClassNames()}></i>
-          </button>
+          <div className="compass-sidebar-refresh-button-container">
+            <button
+              onClick={this.handleRefresh}
+              className="compass-sidebar-refresh-button"
+              data-test-id="instance-refresh-button">
+              <i className={this.getRefreshIconClassNames()}></i>
+            </button>
+          </div>
           <div className="compass-sidebar-property-column">
             <span
               data-test-id="sidebar-db-count"
