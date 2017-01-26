@@ -84,17 +84,20 @@ class Sidebar extends React.Component {
       className += ' compass-sidebar-button-is-disabled';
     }
     return (
-      <button
-        className={className}
-        onClick={this.handleCreateDatabaseClick.bind(this, isWritable)}
-        {...tooltipOptions}
-      >
-        <text className="plus-button">
-          <i className="fa fa-plus" />
-          Create Database
-        </text>
-        <ReactTooltip id={TOOLTIP_IDS.CREATE_DATABASE_BUTTON} />
-      </button>
+      <div className="compass-sidebar-button-create-database-container">
+        <button
+          className={className}
+          title="Create Database"
+          onClick={this.handleCreateDatabaseClick.bind(this, isWritable)}
+          {...tooltipOptions}
+        >
+          <i className="mms-icon-add" />
+          <text className="plus-button">
+            Create Database
+          </text>
+          <ReactTooltip id={TOOLTIP_IDS.CREATE_DATABASE_BUTTON} />
+        </button>
+      </div>
     );
   }
 
@@ -134,8 +137,8 @@ class Sidebar extends React.Component {
               );
             })
           }
-          {this.renderCreateDatabaseButton()}
         </div>
+        {this.renderCreateDatabaseButton()}
       </div>
     );
   }
