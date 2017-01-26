@@ -1,6 +1,8 @@
 const Reflux = require('reflux');
 const Actions = require('../action');
 const translate = require('mongodb-js-errors').translate;
+const _ = require('lodash');
+
 // const debug = require('debug')('mongodb-compass:server-stats:dberror-store');
 
 const DBErrorStore = Reflux.createStore({
@@ -44,13 +46,19 @@ const DBErrorStore = Reflux.createStore({
   },
 
   dbError: function(data) {
+    if (data.error !== null && this.ops[data.op] !== null && data.op === 'top'
+        && _.isEqual(this.ops[data.op], data.error)) {
+      Actions.suppressTop(true);
+      return;
+    }
+
     // Remove previous error
     if (this.ops[data.op] !== null && data.error === null) {
       this.ops[data.op] = data.error;
       this.publish();
     }
     // New error
-    if (data.error !== null && this.ops[data.op] !== data.error) {
+    if (data.error !== null && !_.isEqual(this.ops[data.op], data.error)) {
       this.ops[data.op] = data.error;
       this.publish();
     }

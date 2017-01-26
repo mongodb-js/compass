@@ -2,8 +2,9 @@ const Reflux = require('reflux');
 const app = require('ampersand-app');
 const Actions = require('../action');
 const toNS = require('mongodb-ns');
-const debug = require('debug')('mongodb-compass:server-stats:top-store');
 const _ = require('lodash');
+
+const debug = require('debug')('mongodb-compass:server-stats:top-store');
 
 /* eslint complexity:0 */
 
@@ -23,6 +24,7 @@ const TopStore = Reflux.createStore({
     this.listenTo(Actions.pollTop, this.top_delta);
     this.listenTo(Actions.pause, this.pause);
     this.listenTo(Actions.restart, this.restart);
+    this.listenTo(Actions.suppressTop, this.suppressTop);
   },
 
   restart: function() {
@@ -35,6 +37,7 @@ const TopStore = Reflux.createStore({
     this.xLength = 60;
     this.starting = true;
     this.t1s = {};
+    this.disableTop = false;
   },
 
   pause: function() {
@@ -64,10 +67,14 @@ const TopStore = Reflux.createStore({
     this.trigger(visErrors[this.overlayIndex], data);
   },
 
+  suppressTop: function(flag) {
+    this.disableTop = flag;
+  },
+
   // Calculate list as current hottest collection (like Cloud and system top)
   top_delta: function() {
-    // top command is not available in sharded cluster
-    if (app.dataService.isMongos()) {
+    // stop top command especially if in sharded cluster
+    if (app.dataService.isMongos() || this.disableTop) {
       return;
     }
 
