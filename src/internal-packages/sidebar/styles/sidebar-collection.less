@@ -36,9 +36,10 @@
     &-title {
       flex: 1;
       flex-basis: auto;
-      padding-left: 36px;
+      padding-left: 37px;
       overflow: hidden;
       text-overflow: ellipsis;
+      color: @pw;
     }
 
     &:last-child {
@@ -78,6 +79,17 @@
       color: @pw;
       display: inline;
     }
-
+    /* disabled styles */
+    &-actions-ddl .compass-sidebar-icon-is-disabled,
+    &-actions-ddl .compass-sidebar-icon-is-disabled:hover {
+      cursor: not-allowed;
+      opacity: .4;
+      color: @compass-sidebar-default-text-color;
+    }
+    &-is-active .compass-sidebar-item-actions-ddl .compass-sidebar-icon-is-disabled,
+    &-is-active:hover .compass-sidebar-item-actions-ddl .compass-sidebar-icon-is-disabled {
+      cursor: default;
+      opacity: .4;
+    }
   }
 }

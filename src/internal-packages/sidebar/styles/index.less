@@ -93,6 +93,8 @@
 
   &-content::-webkit-scrollbar-track {
     background-color: rgba(0,0,0,.12);
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
     &:hover {
       background-color: rgba(0,0,0,.24);
     }
@@ -111,6 +113,7 @@
     background: @compass-sidebar-base-background-color;
     padding: 10px;
     z-index: 2;
+    position: relative;
   }
 
   &-button-create-database {
@@ -148,6 +151,12 @@
 
   &-button-create-database:hover text {
     opacity: 1;
+  }
+
+  &-button-create-database.compass-sidebar-button-is-disabled {
+    background-color: fade(@compass-sidebar-active-background-color, 40%);
+    color: fade(@pw, 40%);
+    cursor: not-allowed;
   }
 }
 
@@ -204,10 +213,6 @@
   .compass-sidebar-button-create-database-container {
     padding: 0 0 10px 0;
     background: transparent;
-  }
-
-  .compass-sidebar-button-create-database {
-
   }
 
   .compass-sidebar-button-create-database:hover {

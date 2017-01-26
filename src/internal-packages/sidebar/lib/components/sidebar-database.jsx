@@ -118,18 +118,18 @@ class SidebarDatabase extends React.Component {
             {this.props._id}
           </div>
           <div className="compass-sidebar-item-header-actions compass-sidebar-item-header-actions-ddl">
+            <ReactTooltip id={TOOLTIP_IDS.CREATE_COLLECTION} />
             <i
               className={createClassName}
               onClick={this.handleCreateCollectionClick.bind(this, isWritable)}
               {...createTooltipOptions}
             />
-            <ReactTooltip id={TOOLTIP_IDS.CREATE_COLLECTION} />
+            <ReactTooltip id={TOOLTIP_IDS.DROP_DATABASE} />
             <i
               className={dropClassName}
               onClick={this.handleDropDBClick.bind(this, isWritable)}
               {...dropTooltipOptions}
             />
-            <ReactTooltip id={TOOLTIP_IDS.DROP_DATABASE} />
           </div>
         </div>
         <div className="compass-sidebar-item-content">

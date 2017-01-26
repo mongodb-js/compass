@@ -43,6 +43,7 @@
     padding-left: 3px;
     overflow: hidden;
     text-overflow: ellipsis;
+    color: @pw;
   }
 
   /* :hover styles */
@@ -77,5 +78,18 @@
   &-is-active:hover .compass-sidebar-item-header-actions-ddl .compass-sidebar-icon {
     color: @pw;
     display: inline;
+  }
+
+  /* disabled styles */
+  &-actions-ddl .compass-sidebar-icon-is-disabled,
+  &-actions-ddl .compass-sidebar-icon-is-disabled:hover {
+    cursor: not-allowed;
+    opacity: .4;
+    color: @compass-sidebar-default-text-color;
+  }
+  &-is-active .compass-sidebar-item-header-actions-ddl .compass-sidebar-icon-is-disabled,
+  &-is-active:hover .compass-sidebar-item-header-actions-ddl .compass-sidebar-icon-is-disabled {
+    cursor: default;
+    opacity: .4;
   }
 }
