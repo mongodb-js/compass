@@ -76,7 +76,8 @@ class Sidebar extends React.Component {
     const tooltipOptions = isWritable ? {} : {
       'data-for': TOOLTIP_IDS.CREATE_DATABASE_BUTTON,
       'data-effect': 'solid',
-      'data-place': 'top',
+      'data-place': 'right',
+      'data-offset': "{'right': -10}",
       'data-tip': tooltipText
     };
     let className = 'compass-sidebar-button-create-database';
@@ -84,17 +85,20 @@ class Sidebar extends React.Component {
       className += ' compass-sidebar-button-is-disabled';
     }
     return (
-      <button
-        className={className}
-        onClick={this.handleCreateDatabaseClick.bind(this, isWritable)}
-        {...tooltipOptions}
-      >
-        <text className="plus-button">
-          <i className="fa fa-plus" />
-          Create Database
-        </text>
-        <ReactTooltip id={TOOLTIP_IDS.CREATE_DATABASE_BUTTON} />
-      </button>
+      <div className="compass-sidebar-button-create-database-container" {...tooltipOptions}>
+        <button
+          className={className}
+          title="Create Database"
+          onClick={this.handleCreateDatabaseClick.bind(this, isWritable)}
+
+        >
+          <i className="mms-icon-add" />
+          <text className="plus-button">
+            Create Database
+          </text>
+          <ReactTooltip id={TOOLTIP_IDS.CREATE_DATABASE_BUTTON} />
+        </button>
+      </div>
     );
   }
 
@@ -134,8 +138,8 @@ class Sidebar extends React.Component {
               );
             })
           }
-          {this.renderCreateDatabaseButton()}
         </div>
+        {this.renderCreateDatabaseButton()}
       </div>
     );
   }

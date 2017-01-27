@@ -57,32 +57,34 @@ class SidebarCollection extends React.Component {
     const tooltipOptions = {
       'data-for': TOOLTIP_IDS.DROP_COLLECTION,
       'data-effect': 'solid',
-      'data-offset': "{'bottom': 18, 'left': 3}",
+      'data-offset': "{'bottom': 10, 'left': -5}",
       'data-tip': tooltipText
     };
-    let titleClassName = 'compass-sidebar-title compass-sidebar-title-is-actionable';
+    let itemClassName = 'compass-sidebar-item compass-sidebar-item-is-actionable';
     if (this.props.activeNamespace === this.props._id) {
-      titleClassName += ' compass-sidebar-title-is-active';
+      itemClassName += ' compass-sidebar-item-is-active';
     }
     let dropClassName = 'compass-sidebar-icon compass-sidebar-icon-drop-collection fa fa-trash-o';
     if (!isWritable) {
       dropClassName += ' compass-sidebar-icon-is-disabled';
     }
     return (
-      <div className="compass-sidebar-item">
-        <i
-          className={dropClassName}
-          onClick={this.handleDropCollectionClick.bind(this, isWritable)}
-          {...tooltipOptions}
-        />
-        <ReactTooltip id={TOOLTIP_IDS.DROP_COLLECTION} />
+      <div className={itemClassName}>
         <div
           onClick={this.handleClick}
-          className={titleClassName}
+          className="compass-sidebar-item-title"
           data-test-id="sidebar-collection"
-          title={this.props._id}>
+          title={this.props._id} >
           {collectionName}&nbsp;
           {this.renderReadonly()}
+        </div>
+        <div className="compass-sidebar-item-actions compass-sidebar-item-actions-ddl">
+          <i
+            className={dropClassName}
+            onClick={this.handleDropCollectionClick.bind(this, isWritable)}
+            {...tooltipOptions}
+          />
+          <ReactTooltip id={TOOLTIP_IDS.DROP_COLLECTION} />
         </div>
       </div>
     );

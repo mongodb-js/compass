@@ -1,50 +1,23 @@
+@import './sidebar-collection.less';
+@import './sidebar-database.less';
+@import './sidebar-instance-properties.less';
+
+@compass-sidebar-default-text-color: #9DA4AA;
 @compass-sidebar-base-background-color: #4c5259;
 @compass-sidebar-active-background-color: #6D7984;
-@compass-sidebar-active-hover-background-color: #7D8994;
+@compass-sidebar-hover-background-color: #42494f;
+@transistion-time: 400ms;
 
 .compass-sidebar {
-  margin: 0;
   background: @compass-sidebar-base-background-color;
   color: #bfbfbe;
-  flex-grow: 0;
-  flex-shrink: 0;
-
-  &-expanded {
-    flex-basis: 250px;
-  }
-
-  &-collapsed {
-    flex-basis: 36px;
-  }
-
   display: flex;
   flex-direction: column;
-
-  &-toggle,
-  &-properties,
-  &-filter,
-  &-content {
-    flex-grow: 0;
-    flex-shrink: 0;
-    flex-basis: auto;
-  }
-
-
-  &-content {
-    flex: 1;
-    overflow-y: auto;
-    padding-bottom: 32px;
-    &::-webkit-scrollbar-track {
-      background-color: rgba(0,0,0,.12);
-      &:hover {
-        background-color: rgba(0,0,0,.24);
-      }
-    }
-    &::-webkit-scrollbar-thumb {
-      background-color: #565E65;
-      border: 1px solid rgba(0,0,0,.24);
-    }
-  }
+  flex-grow: 0;
+  flex-shrink: 0;
+  margin: 0;
+  overflow: hidden;
+  transition: flex-basis @transistion-time ease;
 
   &-toggle {
     background-color: #565E65;
@@ -53,186 +26,28 @@
     padding-right: 3px;
     text-align: right;
     cursor: pointer;
-    i {
-      line-height: 11px;
-      font-size: 10px;
-    }
   }
 
-  &-title {
-    white-space: nowrap;
-    overflow-x: hidden;
-    text-overflow: ellipsis;
-    font-size: 14px;
-
-    &-is-bold {
-      font-weight: bold;
-    }
-
-    &-is-actionable {
-      cursor: pointer;
-      color: #fff;
-      transition: all 180ms ease-out;
-
-      &:hover {
-        background-color: #42494f;
-      }
-
-      .fa {
-        font-size: 12px;
-        margin-left: 5px;
-      }
-    }
-
-    &-is-active,
-    &-is-active:hover {
-      background-color: @compass-sidebar-active-background-color;
-    }
+  &-toggle i {
+    line-height: 11px;
+    font-size: 10px;
   }
 
-  /* Databases and collections */
-  &-item {
-    position: relative;
+  &-expanded {
+    flex-basis: 250px;
   }
 
-  &-item-header {
-    padding: 6px 12px 6px 36px;
-    color: #9DA4AA;
-
-    &-is-expandable {
-      cursor: pointer;
-    }
-
-    &-is-actionable {
-      cursor: pointer;
-      color: #fff;
-      transition: all 180ms ease-out;
-
-      &:hover {
-        background-color: #42494f;
-      }
-    }
-
-    &:hover {
-      .compass-sidebar-expand-icon {
-        color: #fff;
-      }
-    }
-
-    &-is-active,
-    &-is-active:hover {
-      background-color: #6D7984;
-
-      //there's got to be a better way to handle styles on the child when parent -is-active
-      .compass-sidebar-expand-icon {
-        color: #fff;
-      }
-    }
-
-    //this does not conform to BEM style, but needed somehow to override global icon definition position:relative in mms-icons.less. Remove if solution is found
-    i[class^="mms-icon-"] {
-      position: absolute;
-    }
+  &-toggle,
+  &-properties,
+  &-filter,
+  &-content {
+    flex-grow: 0;
+    flex-shrink: 1;
+    flex-basis: auto;
   }
 
-  &-expand-icon {
-    position: absolute;
-    top: 8px;
-    left: 9px;
-    transition: all 180ms ease-out;
-    color: #9DA4AA;
-  }
+  /* Style for the sidebar filter */
 
-  &.fa-rotate-90 {
-    color: #fff;
-  }
-
-  &-button {
-    &-create-database {
-      background-color: @compass-sidebar-active-background-color;
-      border-radius: 12px;
-      border: grey;
-      color: #fff;
-      margin: 4px 10px 16px 10px;
-      padding: 5px;
-      width: 230px;
-
-      .fa-plus {
-        width: 20px;
-      }
-      .plus-button {
-        font-size: 11px;
-        font-weight: bold;
-        text-transform: uppercase;
-      }
-    }
-    &-create-database:hover {
-      background-color: @compass-sidebar-active-hover-background-color;
-    }
-  }
-
-  &-icon {
-    color: @compass-sidebar-base-background-color;
-    font-size: 17px;
-    position: absolute;
-    top: 0;
-    transition: all 180ms ease-out;
-
-    &-create-database {
-      // Quick hack so the icon doesn't end up on the right of the entire page
-      // with the new collapsible sidebar. Designers feel welcome to improve :)
-      left: 222px;
-      top: 12px;
-    }
-
-    &-create-collection {
-      right: 22px;
-    }
-
-    &-create-database,
-    &-create-collection {
-      padding: 7px 9px 8px 3px;
-    }
-
-    // database and collection sidebar rows have slightly different heights
-    &-drop-database {
-      padding: 7px 9px 8px 3px;
-    }
-    &-drop-collection {
-      padding: 6px 9px 6px 3px;
-    }
-
-    &-drop-database,
-    &-drop-collection {
-      right: 0;
-    }
-
-    &-is-active:hover {
-      background: @compass-sidebar-active-background-color;
-    }
-
-    &:hover {
-      color: #fff;
-    }
-  }
-
-  &-item-content {
-    .compass {
-      &-sidebar-item {
-        //there ought to be a better way to do this other than nesting many definitions
-        //however we only want the bottom margin to be there when the DB is expanded
-        &:last-child {
-          margin-bottom: 12px;
-        }
-      }
-      &-sidebar-title {
-        padding: 4px 12px 5px 36px;
-        font-size: 14px;
-      }
-    }
-  }
-
-  /* Filter */
   &-filter {
     position: relative;
     box-shadow: 0 2px 2px rgba(0,0,0,.3);
@@ -244,160 +59,123 @@
     top: 8px;
     left: 11px;
     color: #fff;
+    cursor: pointer;
   }
 
   &-search-input {
     padding: 7px 5px 5px 36px;
     height: auto;
-    background: #42494f;
+    background: @compass-sidebar-hover-background-color;
     color: #fff;
     width: 100%;
     border: none;
     font-size: 14px;
     font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
-    &::-webkit-input-placeholder {
-      color: #9DA4AA;
-      transition: color 180ms ease-out;
-    }
-    &:focus {
-      &::-webkit-input-placeholder {
-        color: #fff;
-      }
-    }
   }
 
-  /* Instance properties */
-  &-properties {
-    margin: 0;
+  &-search-input::-webkit-input-placeholder {
+    color: @compass-sidebar-default-text-color;
+    transition: color 180ms ease-out;
   }
-
-  &-instance {
-    cursor: pointer;
-    color: #fff;
-    font-weight: normal;
-    font-size: 16px;
-    padding-top: 8px;
-    padding-bottom: 8px;
-    border-top: 1px solid #42494f;
-
-    &-icon {
-      width: 26px;
-      margin-left: 10px;
-      vertical-align: top;
-      margin-top: 2px;
-    }
-
-    &:hover {
-      background-color: #42494f;
-    }
-
-    &-hostname {
-      display: inline-block;
-      height: 20px;
-      width: 200px;
-      line-height: 20px;
-      overflow-x: hidden;
-      text-overflow: ellipsis;
-      &::-webkit-scrollbar {
-        display: none;
-      }
-    }
-
-    &-ssh-tunnel {
+  &-search-input:focus::-webkit-input-placeholder {
       color: #fff;
-      font-weight: normal;
-      line-height: 12px;
-      font-size: 12px;
-      margin-left: 36px;
-    }
+  }
 
-    &-version {
-      color: #9DA4AA;
-      font-weight: normal;
-      line-height: 12px;
-      font-size: 12px;
-      margin-left: 36px;
-    }
+  &-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-bottom: 32px;
+  }
 
-    &-is-active,
-    &-is-active:hover {
-      background-color: @compass-sidebar-active-background-color;
-      border-top-color: @compass-sidebar-active-background-color;
-      //there's got to be a better way to handle styles on the child when parent -is-active
-      .compass-sidebar-instance-version {
-        color: #fff;
-      }
-
-      .compass-sidebar-icon-create-database {
-        color: @compass-sidebar-active-background-color;
-
-        &:hover {
-          color: #fff;
-        }
-      }
+  &-content::-webkit-scrollbar-track {
+    background-color: rgba(0,0,0,.12);
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    &:hover {
+      background-color: rgba(0,0,0,.24);
     }
   }
-
-  &-stats {
-    color: #9DA4AA;
-    font-weight: bold;
-    font-size: 11px;
-    line-height: 12px;
-    padding: 4px 0 6px;
-    text-transform: uppercase;
+  &-content::-webkit-scrollbar-thumb {
+    background-color: #565E65;
+    border: 1px solid rgba(0,0,0,.24);
   }
 
-  &-property-column {
-    display: inline-block;
-    padding-right: 10px;
-    margin-right: 10px;
+  /* Styles for the big create database button at the bottom */
+
+  &-button-create-database-container {
+    flex-grow: 0;
+    flex-shrink: 1;
+    flex-basis: auto;
+    background: @compass-sidebar-base-background-color;
+    padding: 10px;
+    z-index: 2;
+    position: relative;
   }
 
-  &-strong-property {
-    font-weight: bold;
-    color: #fff;
-  }
-
-  &-refresh-button {
-    color: #ebebed;
-    background: none;
+  &-button-create-database {
+    background-color: @compass-sidebar-active-background-color;
+    border-radius: 14px;
     border: none;
-    border-radius: 12px;
-    font-size: 13px;
-    height: 24px;
-    width: 24px;
-    margin-left: 5px;
-    margin-right: 7px;
-    padding: 4px;
-    transition: all 150ms ease;
+    color: @pw;
+    display: block;
+    font-weight: bold;
+    font-size: 12px;
+    line-height: 12px;
+    height: 28px;
+    width: 28px;
+    margin: 0 auto;
+    overflow: hidden;
+    text-transform: uppercase;
+    transition: all 180ms ease;
+    white-space: nowrap;
+    text-align: center;
+  }
 
-    &:hover {
-      background: #42494f;
-      color: #fff;
-    }
+  &-button-create-database i.mms-icon-add {
+    font-size: 16px;
+    margin-left: .5px;
+  }
+
+  &-button-create-database text {
+    opacity: 0;
+    transition: all 180ms ease;
+  }
+
+  &-button-create-database:hover {
+    width: 100%;
+  }
+
+  &-button-create-database:hover text {
+    opacity: 1;
+  }
+
+  &-button-create-database.compass-sidebar-button-is-disabled {
+    background-color: fade(@compass-sidebar-active-background-color, 40%);
+    color: fade(@pw, 40%);
+    cursor: not-allowed;
   }
 }
 
-/*
-Styles for collapsed sidebar state
-*/
+/* Styles for collapsed sidebar state */
+
 .compass-sidebar-collapsed {
   overflow: hidden;
   cursor: pointer;
-  .compass-sidebar-content,
+  flex-basis: 36px;
+
+  .compass-sidebar-item,
   .compass-sidebar-property-column,
   .compass-sidebar-instance-hostname,
   .compass-sidebar-instance-version,
-  .compass-sidebar-icon-create-database,
-  .compass-sidebar-button-create-database,
   .compass-sidebar-instance-ssh-tunnel {
     display: none;
   }
 
   .compass-sidebar-instance {
-    padding-top: 8px;
-    padding-bottom: 6px;
+    padding-top: 6px;
+    padding-bottom: 10px;
   }
 
   .compass-sidebar-properties {
@@ -432,7 +210,20 @@ Styles for collapsed sidebar state
     color: #fff;
   }
 
+  .compass-sidebar-button-create-database-container {
+    padding: 0 0 10px 0;
+    background: transparent;
+  }
+
+  .compass-sidebar-button-create-database:hover {
+    width: 28px;
+  }
+
+  .compass-sidebar-button-create-database:hover text {
+    opacity: 0;
+  }
+
   &:hover {
-    background-color: #42494f;
+    background-color: @compass-sidebar-hover-background-color;
   }
 }

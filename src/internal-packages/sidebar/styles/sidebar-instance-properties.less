@@ -1,0 +1,147 @@
+/* Styles for the isidebar nstance properties */
+@transistion-time: 400ms;
+
+.compass-sidebar {
+  &-properties {
+    margin: 0;
+  }
+
+  &-instance {
+    cursor: pointer;
+    color: #fff;
+    font-weight: normal;
+    font-size: 16px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    border-top: 1px solid #42494f;
+    display: flex;
+    flex-wrap: nowrap;
+    transition: height @transistion-time ease;
+
+    &-icon {
+      vertical-align: top;
+      flex-grow: 0;
+      flex-shrink: 1;
+      flex-basis: 26px;
+      padding-left: 10px;
+      padding-top: 3px;
+    }
+
+    &-icon + div {
+      flex: 1;
+      flex-basis: auto;
+      overflow: hidden;
+      padding-right: 8px;
+    }
+
+    &:hover {
+      background-color: #42494f;
+    }
+
+    &-hostname {
+      overflow-x: hidden;
+      text-overflow: ellipsis;
+      padding-left: 10px;
+      white-space: nowrap;
+    }
+
+    &-hostname::-webkit-scrollbar {
+      display: none;
+    }
+
+    &-ssh-tunnel {
+      color: #fff;
+      font-weight: normal;
+      line-height: 12px;
+      font-size: 12px;
+      padding-left: 10px;
+      white-space: nowrap;
+      overflow-x: hidden;
+      text-overflow: ellipsis;
+    }
+
+    &-version {
+      color: @compass-sidebar-default-text-color;
+      font-weight: normal;
+      line-height: 12px;
+      font-size: 12px;
+      padding-left: 10px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    &-is-active,
+    &-is-active:hover {
+      background-color: @compass-sidebar-active-background-color;
+      border-top-color: @compass-sidebar-active-background-color;
+    }
+
+    &-is-active .compass-sidebar-instance-version,
+    &-is-active:hover .compass-sidebar-instance-version {
+      color: #fff;
+    }
+
+    &-is-active .compass-sidebar-icon-create-database,
+    &-is-active:hover .compass-sidebar-icon-create-database {
+      color: @compass-sidebar-active-background-color;
+      &:hover {
+        color: #fff;
+      }
+    }
+  }
+
+  &-stats {
+    color: @compass-sidebar-default-text-color;
+    font-weight: bold;
+    font-size: 11px;
+    line-height: 12px;
+    padding: 4px 0 6px;
+    text-transform: uppercase;
+    display: flex;
+    overflow: hidden;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+  }
+
+  &-property-column {
+    display: inline-block;
+    flex: 1;
+    flex-basis: auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 8px;
+    padding-top: 6px;
+    white-space: nowrap;
+  }
+
+  &-strong-property {
+    font-weight: bold;
+    color: #fff;
+  }
+
+  &-refresh-button-container {
+    flex-grow: 0;
+    flex-shrink: 1;
+    flex-basis: auto;
+    padding-left: 5px;
+    padding-right: 7px;
+  }
+
+  &-refresh-button {
+    color: #ebebed;
+    background: none;
+    border: none;
+    border-radius: 12px;
+    font-size: 13px;
+    height: 24px;
+    width: 24px;
+    padding: 4px;
+    transition: all 150ms ease;
+
+    &:hover {
+      background: #42494f;
+      color: #fff;
+    }
+  }
+}
