@@ -1,9 +1,7 @@
 const React = require('react');
-const ReactTooltip = require('react-tooltip');
 const app = require('ampersand-app');
 const ipc = require('hadron-ipc');
 const { NamespaceStore } = require('hadron-reflux-store');
-const { TOOLTIP_IDS } = require('./constants');
 
 class SidebarInstanceProperties extends React.Component {
   constructor(props) {
@@ -62,7 +60,6 @@ class SidebarInstanceProperties extends React.Component {
 
   render() {
     const instance = this.props.instance;
-    const isWritable = app.dataService.isWritable();
     const numDbs = instance.databases.length;
     const numCollections = instance.collections.length;
     const hostnameAndPort = this.getHostnameAndPort();

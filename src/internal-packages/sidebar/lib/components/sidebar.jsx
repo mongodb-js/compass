@@ -77,7 +77,7 @@ class Sidebar extends React.Component {
       'data-for': TOOLTIP_IDS.CREATE_DATABASE_BUTTON,
       'data-effect': 'solid',
       'data-place': 'right',
-      'data-offset': "{'right': -10}",      
+      'data-offset': "{'right': -10}",
       'data-tip': tooltipText
     };
     let className = 'compass-sidebar-button-create-database';
