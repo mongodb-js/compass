@@ -1,4 +1,4 @@
-// /* eslint no-unused-vars: 0, no-unused-expressions: 0 */
+/* eslint no-unused-vars: 0, no-unused-expressions: 0 */
 const app = require('ampersand-app');
 const chai = require('chai');
 const chaiEnzyme = require('chai-enzyme');
@@ -50,14 +50,14 @@ describe('<Sidebar />', () => {
           activeNamespace={''}
         />);
     });
+    it('warns the create database button is not available on secondaries', function() {
+      const expected = 'Not available on a secondary node';
+      const element = this.component.find('.compass-sidebar-button-create-database-container');
+      expect(element.prop('data-tip')).to.be.equal(expected);
+    });
     it('create database button contains a disabled BEM modifer class', function() {
       const element = this.component.find('.compass-sidebar-button-create-database');
       expect(element.hasClass('compass-sidebar-button-is-disabled')).to.be.true;
-    });
-    it('warns the create database button is not available on secondaries', function() {
-      const expected = 'Not available on a secondary node';
-      const element = this.component.find('.compass-sidebar-button-create-database');
-      expect(element.prop('data-tip')).to.be.equal(expected);
     });
     it('the create database button triggers no action', function() {
       const element = this.component.find('.compass-sidebar-button-create-database');

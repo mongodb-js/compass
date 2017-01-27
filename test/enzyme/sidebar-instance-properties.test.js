@@ -60,20 +60,6 @@ describe('<SidebarInstanceProperties />', () => {
           activeNamespace={''}
         />);
     });
-    it('create database icon contains a disabled BEM modifer class', function() {
-      const element = this.component.find('.compass-sidebar-icon-create-database');
-      expect(element.hasClass('compass-sidebar-icon-is-disabled')).to.be.true;
-    });
-    it('warns the create database icon does not work on secondaries', function() {
-      const expected = 'Create database is not available on a secondary node';
-      const element = this.component.find('.compass-sidebar-icon-create-database');
-      expect(element.prop('data-tip')).to.be.equal(expected);
-    });
-    it('the create database icon triggers no action', function() {
-      const element = this.component.find('.compass-sidebar-icon-create-database');
-      element.simulate('click');
-      expect(this.DatabaseDDLActionSpy.called).to.be.false;
-    });
   });
 
   context('when rendering with no SSH Tunnel', () => {
@@ -97,18 +83,6 @@ describe('<SidebarInstanceProperties />', () => {
         instance={instance}
         activeNamespace={''}
       />);
-    });
-    context('when dataService is writable', function() {
-      it('renders a create database icon with tooltip', function() {
-        const expected = 'Create database';
-        const element = this.component.find('.compass-sidebar-icon-create-database');
-        expect(element.prop('data-tip')).to.be.equal(expected);
-      });
-      it('clicking the create database icon triggers an action', function() {
-        const element = this.component.find('.compass-sidebar-icon-create-database');
-        element.simulate('click');
-        expect(this.DatabaseDDLActionSpy.calledOnce).to.be.true;
-      });
     });
 
     it('renders the endpoint host name and port as text', function() {
