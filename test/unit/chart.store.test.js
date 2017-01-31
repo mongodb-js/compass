@@ -172,4 +172,25 @@ describe('ChartStore', function() {
       });
     });
   });
+
+  context('when calling multiple actions', function() {
+    it('encodes every action in channels state', function(done) {
+      // Expect 3 keys set
+      const expected = {
+        'x': {field: COUNTRY_SCHEMA_FIELD.path},
+        'y': {measurement: 'quantitative'},
+        'size': {aggregate: 'count'}
+      };
+
+      // As we currently run 3 actions
+      ChartActions.selectField(MARK_PROPERTY_ENUM.x, COUNTRY_SCHEMA_FIELD.path);
+      ChartActions.selectMeasurement(MARK_PROPERTY_ENUM.y, MEASUREMENT_ENUM.quantitative);
+      ChartActions.selectAggregate(MARK_PROPERTY_ENUM.size, AGGREGATE_FUNCTION_ENUM.count);
+
+      setTimeout(() => {
+        expect(this.store.state.channels).to.be.deep.equal(expected);
+        done();
+      });
+    });
+  });
 });
