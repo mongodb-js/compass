@@ -38,7 +38,7 @@ describe('ChartStore', function() {
     this.store.resetChart();
   });
 
-  context('when calling selectField', function() {
+  context('when calling the selectField action', function() {
     it('stores the encoding channel relationship', function(done) {
       const expected = {
         'x': {field: COUNTRY_SCHEMA_FIELD.path}
@@ -49,7 +49,7 @@ describe('ChartStore', function() {
         done();
       });
     });
-    it('throws error when configuring an unknown encoding property', function() {
+    it('throws error on receiving an unknown encoding property', function() {
       const throwFn = () => {
         // ChartStore might not work on Reflux 5+, if so change it to ChartActions
         ChartStore.selectField('FOO_BAR', COUNTRY_SCHEMA_FIELD.path);
@@ -58,7 +58,7 @@ describe('ChartStore', function() {
     });
   });
 
-  context('when calling selectMeasurement', function() {
+  context('when calling the selectMeasurement action', function() {
     it('stores the encoding channel relationship', function(done) {
       const expected = {
         'y': {measurement: 'quantitative'}
@@ -69,14 +69,14 @@ describe('ChartStore', function() {
         done();
       });
     });
-    it('throws error when configuring an unknown encoding property', function() {
+    it('throws error on receiving an unknown encoding property', function() {
       const throwFn = () => {
         // ChartStore might not work on Reflux 5+, if so change it to ChartActions
         ChartStore.selectMeasurement('FOO_BAR', MEASUREMENT_ENUM.quantitative);
       };
       expect(throwFn).to.throw(/Unknown encoding property: FOO_BAR/);
     });
-    it('throws error when configuring an unknown encoding aggregate', function() {
+    it('throws error on receiving an unknown encoding measurement', function() {
       const throwFn = () => {
         // ChartStore might not work on Reflux 5+, if so change it to ChartActions
         ChartStore.selectMeasurement(MARK_PROPERTY_ENUM.y, 'NOT_quantitative');
@@ -85,7 +85,7 @@ describe('ChartStore', function() {
     });
   });
 
-  context('when calling selectAggregate', function() {
+  context('when calling the selectAggregate action', function() {
     it('stores the encoding channel relationship', function(done) {
       const expected = {
         'size': {aggregate: 'count'}
@@ -96,14 +96,14 @@ describe('ChartStore', function() {
         done();
       });
     });
-    it('throws error when configuring an unknown encoding property', function() {
+    it('throws error on receiving an unknown encoding property', function() {
       const throwFn = () => {
         // ChartStore might not work on Reflux 5+, if so change it to ChartActions
         ChartStore.selectAggregate('FOO_BAR', AGGREGATE_FUNCTION_ENUM.count);
       };
       expect(throwFn).to.throw(/Unknown encoding property: FOO_BAR/);
     });
-    it('throws error when configuring an unknown encoding aggregate', function() {
+    it('throws error on receiving an unknown encoding aggregate', function() {
       const throwFn = () => {
         // ChartStore might not work on Reflux 5+, if so change it to ChartActions
         ChartStore.selectAggregate(MARK_PROPERTY_ENUM.size, 'NOT_quantitative');
@@ -112,8 +112,8 @@ describe('ChartStore', function() {
     });
   });
 
-  context('when calling selectChartType', function() {
-    it('sets the chart type if defined', function(done) {
+  context('when calling the selectChartType action', function() {
+    it('stores the chart type', function(done) {
       const chartType = CHART_TYPE_ENUM.AREA;
       ChartActions.selectChartType(chartType);
       setTimeout(() => {
@@ -121,7 +121,7 @@ describe('ChartStore', function() {
         done();
       });
     });
-    it('throws error when configuring an unknown chart type', function() {
+    it('throws error on receiving an unknown chart type', function() {
       const throwFn = () => {
         // ChartStore might not work on Reflux 5+, if so change it to ChartActions
         ChartStore.selectChartType('foo-bar-baz-chart');
@@ -129,7 +129,7 @@ describe('ChartStore', function() {
       expect(throwFn).to.throw(/Unknown chart type: foo-bar-baz-chart/);
     });
 
-    context('when calling clearChart', function() {
+    context('when calling the clearChart action after populating the namespaceCache', function() {
       let chartKeys, initialChartState;
       beforeEach(function() {
         initialChartState = this.store.getInitialChartState();
@@ -153,7 +153,7 @@ describe('ChartStore', function() {
         NamespaceStore.ns = '';
       });
 
-      it('sets to the initial chart state after selecting a chart', function(done) {
+      it('updates to the initial chart state', function(done) {
         setTimeout(() => {
           const newChartState = _.pick(this.store.state, chartKeys);
           expect(newChartState).to.be.deep.equal(initialChartState);
@@ -161,7 +161,7 @@ describe('ChartStore', function() {
         })
       });
 
-      it('the cache state is not flushed if it has been populated', function(done) {
+      it('the namespaceCache state is not flushed', function(done) {
         const POPULATED_CACHE = {namespaceCache: 'mongodb.fanclub'};
         const expected = Object.assign({}, this.store.getInitialCacheState(), POPULATED_CACHE);
         setTimeout(() => {
