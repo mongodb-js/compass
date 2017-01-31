@@ -24,7 +24,7 @@ const ResetDocumentListStore = Reflux.createStore({
   init: function() {
     this.filter = {};
     this.sort = [[ '_id', 1 ]];
-    // this.limit = 0;
+    this.limit = 0;
     this.skip = 0;
     this.project = null;
 
@@ -71,17 +71,23 @@ const ResetDocumentListStore = Reflux.createStore({
     if (NamespaceStore.ns) {
       const countOptions = {
         skip: this.skip,
-        limit: this.limit,
         readPreference: READ
       };
+
       const findOptions = {
         sort: this.sort,
-        skip: this.skip,
         fields: this.project,
-        limit: this.limit === 0 ? 20 : Math.min(20, this.limit),
+        skip: this.skip,
+        limit: 20,
         readPreference: READ,
         promoteValues: false
       };
+
+      // only set limit if it's > 0, read-only views cannot handle 0 limit.
+      if (this.limit > 0) {
+        countOptions.limit = this.limit;
+        findOptions.limit = Math.min(20, this.limit);
+      }
 
       app.dataService.count(NamespaceStore.ns, this.filter, countOptions, (err, count) => {
         if (!err) {
