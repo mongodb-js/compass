@@ -3,8 +3,8 @@
 const expect = require('chai').expect;
 const sinon = require('sinon');
 const mock = require('mock-require');
+
 // const debug = require('debug')('mongodb-compass:test:query-changed-store');
-// const _ = require('lodash');
 
 let QueryStore = require('../src/internal-packages/query/lib/store/query-store');
 let QueryChangedStore = require('../src/internal-packages/query/lib/store/query-changed-store');
