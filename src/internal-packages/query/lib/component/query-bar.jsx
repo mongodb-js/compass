@@ -93,10 +93,7 @@ class QueryBar extends React.Component {
       <QueryOption
         label={option}
         hasToggle={hasToggle}
-<<<<<<< HEAD
         hasError={!this.props[`${option}Valid`]}
-=======
->>>>>>> COMPASS-630 COMPASS-631 implement advanced query bar
         key={`query-option-${id}`}
         value={this.props[`${option}String`]}
         placeholder={OPTION_DEFINITION[option].placeholder}
