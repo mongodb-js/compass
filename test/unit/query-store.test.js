@@ -13,15 +13,15 @@ describe('QueryStore', () => {
   let unsubscribe;
 
   before(() => {
-    mock('../src/internal-packages/indexes/lib/action/index-actions', {
+    mock('../../src/internal-packages/indexes/lib/action/index-actions', {
       loadIndexes: sinon.spy()
     });
-    QueryStore = mock.reRequire('../src/internal-packages/query/lib/store/query-store');
+    QueryStore = mock.reRequire('../../src/internal-packages/query/lib/store/query-store');
   });
 
   after(() => {
     mock.stopAll();
-    mock.reRequire('../src/internal-packages/indexes/lib/action/index-actions');
+    mock.reRequire('../../src/internal-packages/indexes/lib/action/index-actions');
   });
 
   // reset query store to initial state
