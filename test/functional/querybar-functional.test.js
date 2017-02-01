@@ -103,6 +103,12 @@ describe('Compass Functional Tests for QueryBar #spectron', function() {
             })
             .should.eventually.deep.equal(['_id', 'member_id', 'name']);
         });
+
+        it('disables editing mode for documents', function() {
+          return client
+            .waitForVisibleInCompass('[data-test-id="document-list-item"]:nth-child(1) .element-field')
+            .getText().is.eventually.a('string');
+        });
       });
 
       context('when applying a limit', function() {

@@ -295,7 +295,7 @@ const QueryStore = Reflux.createStore({
    */
   _validateFilter(input) {
     if (input === '') {
-      input = '{}';
+      return DEFAULT_FILTER;
     }
     try {
       const cleaned = this._cleanObjectString(input);
@@ -317,7 +317,7 @@ const QueryStore = Reflux.createStore({
    */
   _validateProject(input) {
     if (input === '') {
-      input = '{}';
+      return DEFAULT_PROJECT;
     }
     try {
       const cleaned = this._cleanObjectString(input);
@@ -341,7 +341,7 @@ const QueryStore = Reflux.createStore({
    */
   _validateSort(input) {
     if (input === '') {
-      input = '{}';
+      return DEFAULT_SORT;
     }
     try {
       const cleaned = this._cleanObjectString(input);
@@ -364,6 +364,9 @@ const QueryStore = Reflux.createStore({
    * @return {Boolean|Number}   false if not valid, otherwise the cleaned-up skip.
    */
   _validateSkip(input) {
+    if (input === '') {
+      return DEFAULT_SKIP;
+    }
     return this._validateNumber(input);
   },
 
@@ -375,6 +378,9 @@ const QueryStore = Reflux.createStore({
    * @return {Boolean|Number}   false if not valid, otherwise the cleaned-up limit.
    */
   _validateLimit(input) {
+    if (input === '') {
+      return DEFAULT_LIMIT;
+    }
     return this._validateNumber(input);
   },
 

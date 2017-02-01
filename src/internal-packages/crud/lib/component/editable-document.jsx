@@ -116,6 +116,7 @@ class EditableDocument extends React.Component {
        * @todo: Durran: Determine shard key.
        */
       update: function(object) {
+        // TODO (@thomasr) this does not work for projections
         app.dataService.findOneAndReplace(
           this.ns,
           { _id: object._id },

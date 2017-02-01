@@ -1075,7 +1075,7 @@ function addGetCommands(client) {
    */
   client.addCommand('getDocumentAtIndex', function(index) {
     const base = selector('document-list-item');
-    return this.getText(`${base}:nth-child(${index}) .editable-element-field`).then((keys) => {
+    return this.getText(`${base}:nth-child(${index}) .editable-element-field, ${base}:nth-child(${index}) .element-field`).then((keys) => {
       return this.getText(`${base}:nth-child(${index}) .element-value`).then((values) => {
         return _.zipObject(keys, values);
       });
