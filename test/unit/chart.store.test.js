@@ -49,12 +49,12 @@ describe('ChartStore', function() {
         done();
       });
     });
-    it('throws error on receiving an unknown encoding property', function() {
+    it('throws error on receiving an unknown encoding channel', function() {
       const throwFn = () => {
         // ChartStore might not work on Reflux 5+, if so change it to ChartActions
         ChartStore.selectField('FOO_BAR', COUNTRY_SCHEMA_FIELD.path);
       };
-      expect(throwFn).to.throw(/Unknown encoding property: FOO_BAR/);
+      expect(throwFn).to.throw(/Unknown encoding channel: FOO_BAR/);
     });
   });
 
@@ -69,12 +69,12 @@ describe('ChartStore', function() {
         done();
       });
     });
-    it('throws error on receiving an unknown encoding property', function() {
+    it('throws error on receiving an unknown encoding channel', function() {
       const throwFn = () => {
         // ChartStore might not work on Reflux 5+, if so change it to ChartActions
         ChartStore.selectMeasurement('FOO_BAR', MEASUREMENT_ENUM.quantitative);
       };
-      expect(throwFn).to.throw(/Unknown encoding property: FOO_BAR/);
+      expect(throwFn).to.throw(/Unknown encoding channel: FOO_BAR/);
     });
     it('throws error on receiving an unknown encoding measurement', function() {
       const throwFn = () => {
@@ -96,12 +96,12 @@ describe('ChartStore', function() {
         done();
       });
     });
-    it('throws error on receiving an unknown encoding property', function() {
+    it('throws error on receiving an unknown encoding channel', function() {
       const throwFn = () => {
         // ChartStore might not work on Reflux 5+, if so change it to ChartActions
         ChartStore.selectAggregate('FOO_BAR', AGGREGATE_FUNCTION_ENUM.count);
       };
-      expect(throwFn).to.throw(/Unknown encoding property: FOO_BAR/);
+      expect(throwFn).to.throw(/Unknown encoding channel: FOO_BAR/);
     });
     it('throws error on receiving an unknown encoding aggregate', function() {
       const throwFn = () => {

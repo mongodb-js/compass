@@ -119,67 +119,67 @@ const ChartStore = Reflux.createStore({
   },
 
   /**
-   * Maps a Vega-lite encoding property, such as x, y, color, size, etc [1]
+   * Maps a Vega-lite encoding channel, such as x, y, color, size, etc [1]
    * to a MongoDB Schema field [2] and stores it in the Vega-lite `field` key.
    *
    * @see [1] https://vega.github.io/vega-lite/docs/encoding.html#props-channels
    * @see [2] https://github.com/mongodb-js/mongodb-schema
    *
-   * @param {String} property - The Vega-lite encoding property [1].
+   * @param {String} channel - The Vega-lite encoding channel [1].
    * @param {String} field - The MongoDB Schema field [2].
    */
-  selectField(property, field) {
-    if (!(property in MARK_PROPERTY_ENUM)) {
-      throw new Error('Unknown encoding property: ' + property);
+  selectField(channel, field) {
+    if (!(channel in MARK_PROPERTY_ENUM)) {
+      throw new Error('Unknown encoding channel: ' + channel);
     }
     const channels = this.state.channels;
-    const prop = channels[property] || {};
+    const prop = channels[channel] || {};
     prop.field = field;
-    channels[property] = prop;
+    channels[channel] = prop;
     this.setState({channels: channels});
   },
 
   /**
-   * Encodes the measurement (or data-type) for a property.
+   * Encodes the measurement (or data-type) for a channel.
    *
    * @see https://vega.github.io/vega-lite/docs/encoding.html#data-type
    *
-   * @param {String} property - The Vega-lite encoding property
+   * @param {String} channel - The Vega-lite encoding channel
    * @param {String} measurement - The Vega-Lite data type measurement
    */
-  selectMeasurement(property, measurement) {
-    if (!(property in MARK_PROPERTY_ENUM)) {
-      throw new Error('Unknown encoding property: ' + property);
+  selectMeasurement(channel, measurement) {
+    if (!(channel in MARK_PROPERTY_ENUM)) {
+      throw new Error('Unknown encoding channel: ' + channel);
     }
     if (!(measurement in MEASUREMENT_ENUM)) {
       throw new Error('Unknown encoding measurement: ' + measurement);
     }
     const channels = this.state.channels;
-    const prop = channels[property] || {};
+    const prop = channels[channel] || {};
     prop.measurement = measurement;
-    channels[property] = prop;
+    channels[channel] = prop;
     this.setState({channels: channels});
   },
 
   /**
-   * Encodes the aggregate function for a property.
+   * Encodes the aggregate function for a channel.
    *
    * @see https://vega.github.io/vega-lite/docs/aggregate.html
    *
-   * @param {String} property - The Vega-lite encoding property
+   * @param {String} channel - The Vega-lite encoding channel
    * @param {String} aggregate - The aggregate function to apply
    */
-  selectAggregate(property, aggregate) {
-    if (!(property in MARK_PROPERTY_ENUM)) {
-      throw new Error('Unknown encoding property: ' + property);
+  selectAggregate(channel, aggregate) {
+    if (!(channel in MARK_PROPERTY_ENUM)) {
+      throw new Error('Unknown encoding channel: ' + channel);
     }
     if (!(aggregate in AGGREGATE_FUNCTION_ENUM)) {
       throw new Error('Unknown encoding aggregate: ' + aggregate);
     }
     const channels = this.state.channels;
-    const prop = channels[property] || {};
+    const prop = channels[channel] || {};
     prop.aggregate = aggregate;
-    channels[property] = prop;
+    channels[channel] = prop;
     this.setState({channels: channels});
   },
 
