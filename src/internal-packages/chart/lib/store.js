@@ -128,7 +128,7 @@ const ChartStore = Reflux.createStore({
    * @param {String} channel - The Vega-lite encoding channel [1].
    * @param {String} field - The MongoDB Schema field [2].
    */
-  selectField(channel, field) {
+  mapFieldToChannel(channel, field) {
     if (!(channel in MARK_PROPERTY_ENUM)) {
       throw new Error('Unknown encoding channel: ' + channel);
     }

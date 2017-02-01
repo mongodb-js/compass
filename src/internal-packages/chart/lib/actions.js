@@ -4,7 +4,7 @@ const Reflux = require('reflux');
  * The actions used by the Chart components.
  */
 const Actions = Reflux.createActions([
-  'selectField',
+  'mapFieldToChannel',
   'selectMeasurement',
   'selectAggregate',
   'selectChartType',
