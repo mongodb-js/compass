@@ -9,6 +9,7 @@ const {
 } = require('./constants');
 const Actions = require('./actions');
 const StateMixin = require('reflux-state-mixin');
+const _ = require('lodash');
 
 /**
  * The reflux store for the currently displayed Chart singleton.
@@ -188,7 +189,7 @@ const ChartStore = Reflux.createStore({
    * @param {String} chartType - The kind of chart, e.g. 'bar' or 'line'.
    */
   selectChartType(chartType) {
-    if (!(chartType in CHART_TYPE_ENUM)) {
+    if (!(_.includes(_.values(CHART_TYPE_ENUM), chartType))) {
       throw new Error('Unknown chart type: ' + chartType);
     }
     this.setState({chartType: chartType});

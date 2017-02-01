@@ -27,12 +27,12 @@ const AGGREGATE_FUNCTION_ENUM = Object.freeze({
  * @see https://vega.github.io/vega-lite/docs/mark.html
  */
 const CHART_TYPE_ENUM = Object.freeze({
-  TEXT: 'TEXT',
-  LINE: 'LINE',
-  BAR: 'BAR',
-  AREA: 'AREA',
-  DOT: 'DOT',
-  DONUT: 'DONUT'
+  TEXT: 'text',
+  LINE: 'line',
+  BAR: 'bar',
+  AREA: 'area',
+  DOT: 'dot',
+  DONUT: 'donut'
 });
 
 /**
