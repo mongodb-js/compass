@@ -35,7 +35,7 @@ describe('ChartStore', function() {
     this.store = ChartStore;
   });
   afterEach(function() {
-    this.store.resetChart();
+    this.store._resetChart();
   });
 
   context('when calling the selectField action', function() {

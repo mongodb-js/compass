@@ -24,7 +24,7 @@ const ChartStore = Reflux.createStore({
 
   init() {
     this.listenables = Actions;
-    this.resetChart();
+    this._resetChart();
 
     this.listenTo(NamespaceStore, this.onNamespaceChanged);
     this.listenToExternalStore('Query.ChangedStore', this.onQueryChanged.bind(this));
@@ -78,7 +78,7 @@ const ChartStore = Reflux.createStore({
   /**
    * Completely resets the entire chart to its initial state.
    */
-  resetChart() {
+  _resetChart() {
     this.setState(this.getInitialState());
   },
 
