@@ -61,7 +61,7 @@ describe('ChartStore', function() {
   context('when calling the selectMeasurement action', function() {
     it('stores the encoding channel relationship', function(done) {
       const expected = {
-        'y': {measurement: 'quantitative'}
+        'y': {type: 'quantitative'}
       };
       ChartActions.selectMeasurement(MARK_PROPERTY_ENUM.y, MEASUREMENT_ENUM.quantitative);
       setTimeout(() => {
@@ -178,7 +178,7 @@ describe('ChartStore', function() {
       // Expect 3 keys set
       const expected = {
         'x': {field: COUNTRY_SCHEMA_FIELD.path},
-        'y': {measurement: 'quantitative'},
+        'y': {type: 'quantitative'},
         'size': {aggregate: 'count'}
       };
 

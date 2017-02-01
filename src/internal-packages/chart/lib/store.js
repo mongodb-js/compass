@@ -156,7 +156,7 @@ const ChartStore = Reflux.createStore({
     }
     const channels = this.state.channels;
     const prop = channels[channel] || {};
-    prop.measurement = measurement;
+    prop.type = measurement;
     channels[channel] = prop;
     this.setState({channels: channels});
   },
