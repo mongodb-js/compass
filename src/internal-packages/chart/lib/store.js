@@ -39,7 +39,7 @@ const ChartStore = Reflux.createStore({
    */
   getInitialCacheState() {
     return {
-      dataCache: [],       // TODO: Populate with a $sample if ns or query change?
+      dataCache: [],       // TODO: COMPASS-726 Populate with a $sample if ns or query change?
       fieldsCache: [],
       namespaceCache: '',
       // TODO: Possible COMPASS-631 conflicts? Check name of "filter/query" remains appropriate.
@@ -114,8 +114,8 @@ const ChartStore = Reflux.createStore({
    * TODO
    */
   onSchemaChanged() {
-    // TODO How should we subscribe to schema updates?
-    // this.setState({fieldsCache: []});     // From SchemaStore
+    // TODO COMPASS-727 How should we subscribe to schema updates?
+    // this.setState({fieldsCache: []});     // From SchemaStore or FieldStore
   },
 
   /**
@@ -203,7 +203,8 @@ const ChartStore = Reflux.createStore({
    */
   getVegaLiteSpec() {
     const channels = this.state.channels;
-    // TODO: Infer default encoding channel measurement using schema/fields
+    // TODO: COMPASS-728: Infer default encoding channel measurement using schema/fields
+    // Might also be able to be done elsewhere in this store...
     return {
       data: {values: this.state.dataCache},
       mark: this.state.chartType,
