@@ -52,6 +52,15 @@ const MARK_PROPERTY_CHANNEL_ENUM = Object.freeze({
 });
 
 /**
+ * An enumeration for the Detail Channel.
+ *
+ * @see https://vega.github.io/vega-lite/docs/encoding.html#additional-level-of-detail-channel
+ */
+const DETAIL_CHANNEL_ENUM = Object.freeze({
+  DETAIL: 'detail'
+});
+
+/**
  * An enumeration of the valid Data Type, or Measurement values.
  *
  * @see https://vega.github.io/vega-lite/docs/encoding.html#data-type
