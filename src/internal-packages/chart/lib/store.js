@@ -193,6 +193,22 @@ const ChartStore = Reflux.createStore({
       throw new Error('Unknown chart type: ' + chartType);
     }
     this.setState({chartType: chartType});
+  },
+
+  /**
+   * Returns the current Vega-Lite spec document the store holds.
+   *
+   * @return {Object} A Vega-Lite spec
+   * @see https://vega.github.io/vega-lite/docs/spec.html
+   */
+  getVegaLiteSpec() {
+    const channels = this.state.channels;
+    // TODO: Infer default encoding channel measurement using schema/fields
+    return {
+      data: {values: this.state.dataCache},
+      mark: this.state.chartType,
+      encoding: channels
+    };
   }
 });
 

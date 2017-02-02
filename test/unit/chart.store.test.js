@@ -226,4 +226,28 @@ describe('ChartStore', function() {
       }
     });
   });
+
+  context('when calling getVegaLiteSpec', () => {
+    beforeEach(() => {
+      ChartStore.setState({dataCache: [
+        {revenue: 1, year: 1},
+        {revenue: 2, year: 2},
+        {revenue: 4, year: 3},
+        {revenue: 3, year: 4},
+        {revenue: 5, year: 5},
+      ]});
+      ChartStore.mapFieldToChannel(CHART_CHANNEL_ENUM.X, 'year');
+      ChartStore.mapFieldToChannel(CHART_CHANNEL_ENUM.Y, 'revenue');
+      ChartStore.selectMeasurement(CHART_CHANNEL_ENUM.X, MEASUREMENT_ENUM.QUANTITATIVE);
+      ChartStore.selectMeasurement(CHART_CHANNEL_ENUM.Y, MEASUREMENT_ENUM.QUANTITATIVE);
+    });
+    it('the spec contains the top level keys data, mark and encoding', () => {
+      const spec = ChartStore.getVegaLiteSpec();
+      expect(spec).to.have.all.keys('data', 'mark', 'encoding');
+      // Can also copy/paste the JSON.stringify() of this into
+      //    https://vega.github.io/vega-editor/?mode=vega-lite
+      // For example:
+      //    console.log(JSON.stringify(spec));
+    });
+  });
 });
