@@ -7,8 +7,8 @@ require('../../src/app/reflux-listen-to-external-store.js');
 const { NamespaceStore } = require('hadron-reflux-store');
 const {
   AGGREGATE_FUNCTION_ENUM,
+  CHART_CHANNEL_ENUM,
   CHART_TYPE_ENUM,
-  MARK_PROPERTY_CHANNEL_ENUM,
   MEASUREMENT_ENUM
 } = require('../../src/internal-packages/chart/lib/constants');
 const ChartActions = require('../../src/internal-packages/chart/lib/actions');
@@ -39,11 +39,21 @@ describe('ChartStore', function() {
   });
 
   context('when calling the mapFieldToChannel action', function() {
-    it('stores the encoding channel relationship', function(done) {
+    it('stores a mark property encoding channel relationship', function(done) {
       const expected = {
         'x': {field: COUNTRY_SCHEMA_FIELD.path}
       };
-      ChartActions.mapFieldToChannel(MARK_PROPERTY_CHANNEL_ENUM.X, COUNTRY_SCHEMA_FIELD.path);
+      ChartActions.mapFieldToChannel(CHART_CHANNEL_ENUM.X, COUNTRY_SCHEMA_FIELD.path);
+      setTimeout(() => {
+        expect(this.store.state.channels).to.be.deep.equal(expected);
+        done();
+      });
+    });
+    it('stores a detail encoding channel relationship', function(done) {
+      const expected = {
+        'detail': {field: COUNTRY_SCHEMA_FIELD.path}
+      };
+      ChartActions.mapFieldToChannel(CHART_CHANNEL_ENUM.DETAIL, COUNTRY_SCHEMA_FIELD.path);
       setTimeout(() => {
         expect(this.store.state.channels).to.be.deep.equal(expected);
         done();
@@ -63,7 +73,7 @@ describe('ChartStore', function() {
       const expected = {
         'y': {type: 'quantitative'}
       };
-      ChartActions.selectMeasurement(MARK_PROPERTY_CHANNEL_ENUM.Y, MEASUREMENT_ENUM.QUANTITATIVE);
+      ChartActions.selectMeasurement(CHART_CHANNEL_ENUM.Y, MEASUREMENT_ENUM.QUANTITATIVE);
       setTimeout(() => {
         expect(this.store.state.channels).to.be.deep.equal(expected);
         done();
@@ -79,7 +89,7 @@ describe('ChartStore', function() {
     it('throws error on receiving an unknown encoding measurement', function() {
       const throwFn = () => {
         // ChartStore might not work on Reflux 5+, if so change it to ChartActions
-        ChartStore.selectMeasurement(MARK_PROPERTY_CHANNEL_ENUM.Y, 'NOT_quantitative');
+        ChartStore.selectMeasurement(CHART_CHANNEL_ENUM.Y, 'NOT_quantitative');
       };
       expect(throwFn).to.throw(/Unknown encoding measurement: NOT_quantitative/);
     });
@@ -90,7 +100,7 @@ describe('ChartStore', function() {
       const expected = {
         'size': {aggregate: 'count'}
       };
-      ChartActions.selectAggregate(MARK_PROPERTY_CHANNEL_ENUM.SIZE, AGGREGATE_FUNCTION_ENUM.COUNT);
+      ChartActions.selectAggregate(CHART_CHANNEL_ENUM.SIZE, AGGREGATE_FUNCTION_ENUM.COUNT);
       setTimeout(() => {
         expect(this.store.state.channels).to.be.deep.equal(expected);
         done();
@@ -106,7 +116,7 @@ describe('ChartStore', function() {
     it('throws error on receiving an unknown encoding aggregate', function() {
       const throwFn = () => {
         // ChartStore might not work on Reflux 5+, if so change it to ChartActions
-        ChartStore.selectAggregate(MARK_PROPERTY_CHANNEL_ENUM.SIZE, 'NOT_quantitative');
+        ChartStore.selectAggregate(CHART_CHANNEL_ENUM.SIZE, 'NOT_quantitative');
       };
       expect(throwFn).to.throw(/Unknown encoding aggregate: NOT_quantitative/);
     });
@@ -183,9 +193,9 @@ describe('ChartStore', function() {
       };
 
       // As we currently run 3 actions
-      ChartActions.mapFieldToChannel(MARK_PROPERTY_CHANNEL_ENUM.X, COUNTRY_SCHEMA_FIELD.path);
-      ChartActions.selectMeasurement(MARK_PROPERTY_CHANNEL_ENUM.Y, MEASUREMENT_ENUM.QUANTITATIVE);
-      ChartActions.selectAggregate(MARK_PROPERTY_CHANNEL_ENUM.SIZE, AGGREGATE_FUNCTION_ENUM.COUNT);
+      ChartActions.mapFieldToChannel(CHART_CHANNEL_ENUM.X, COUNTRY_SCHEMA_FIELD.path);
+      ChartActions.selectMeasurement(CHART_CHANNEL_ENUM.Y, MEASUREMENT_ENUM.QUANTITATIVE);
+      ChartActions.selectAggregate(CHART_CHANNEL_ENUM.SIZE, AGGREGATE_FUNCTION_ENUM.COUNT);
 
       setTimeout(() => {
         expect(this.store.state.channels).to.be.deep.equal(expected);

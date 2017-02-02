@@ -60,6 +60,22 @@ const DETAIL_CHANNEL_ENUM = Object.freeze({
   DETAIL: 'detail'
 });
 
+// Omit for V1 unless we find a compelling use case :)
+// https://vega.github.io/vega-lite/docs/encoding.html#mark-order-channels
+// const ORDER_CHANNEL_ENUM = ...
+// https://vega.github.io/vega-lite/docs/encoding.html#facet
+// const FACET_CHANNEL_ENUM = ...
+
+/**
+ * Bundle of all valid Vega-Lite channel types we plan to support in Compass.
+ *
+ * @see https://vega.github.io/vega-lite/docs/encoding.html#channels
+ */
+const CHART_CHANNEL_ENUM = Object.assign({},
+    MARK_PROPERTY_CHANNEL_ENUM,
+    DETAIL_CHANNEL_ENUM
+);
+
 /**
  * An enumeration of the valid Data Type, or Measurement values.
  *
@@ -89,9 +105,9 @@ const DEFAULTS = Object.freeze({
 
 module.exports = {
   AGGREGATE_FUNCTION_ENUM,
+  CHART_CHANNEL_ENUM,
   CHART_TYPE_ENUM,
   DEFAULTS,
   MEASUREMENT_ENUM,
-  MARK_PROPERTY_CHANNEL_ENUM,
   SPEC_TYPE_ENUM
 };
