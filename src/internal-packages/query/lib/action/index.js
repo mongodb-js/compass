@@ -3,6 +3,7 @@ const Reflux = require('reflux');
 const QueryAction = Reflux.createActions({
   /* Generic actions */
 
+  'toggleQueryOptions': {sync: true},
   /**
    * Sets the entire query, overwriting all fields.
    */
@@ -46,7 +47,6 @@ const QueryAction = Reflux.createActions({
    * and the value is already set, remove the value.
    */
   'setDistinctValues': {sync: true},
-
 
   /* Range actions:
    * support single values (equality clause) and ranges ($gt(e) / $lt(e) clauses).

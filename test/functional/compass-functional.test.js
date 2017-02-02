@@ -7,7 +7,7 @@ const { launchCompass, quitCompass, isIndexUsageEnabled } = require('./support/s
  */
 const CONNECTION = new Connection({ hostname: '127.0.0.1', port: 27018, ns: 'music' });
 
-describe('Compass Functional Test Suite #spectron', function() {
+describe('Compass Main Functional Test Suite #spectron', function() {
   this.slow(30000);
   this.timeout(60000);
   let app = null;
@@ -72,6 +72,7 @@ describe('Compass Functional Test Suite #spectron', function() {
           return client
             .inputConnectionDetails({ hostname: 'localhost', port: 27018 })
             .clickConnectButton()
+            .waitForStatusBar()
             .waitForHomeView()
             .getTitle().should.eventually.equal('MongoDB Compass - localhost:27018');
         });
@@ -293,7 +294,7 @@ describe('Compass Functional Test Suite #spectron', function() {
         });
       });
 
-      context('when entering default blank regex', function() {
+      context('when entering a blank regex', function() {
         it('restores the sidebar', function() {
           return client
             .inputSidebarFilter('(?:)')
@@ -690,6 +691,7 @@ describe('Compass Functional Test Suite #spectron', function() {
         it('renders the indexes table', function() {
           return client
             .clickIndexesTab()
+            .clickIndexTableHeader('index-header-name')
             .getIndexNames()
             .should.eventually.equal('_id_');
         });
@@ -745,7 +747,7 @@ describe('Compass Functional Test Suite #spectron', function() {
                   .inputCreateIndexDetails({ name: 'name_1', field: 'name' })
                   .clickCreateIndexModalButton()
                   .waitForIndexCreation('name_1')
-                  .clickIndexTableHeader('index-header-name')
+                  .waitForVisibleInCompass('create-index-modal', true)
                   .getIndexNames()
                   .should.eventually.include('name_1');
               });

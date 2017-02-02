@@ -18,6 +18,9 @@ const ExplainHeader = require('./explain-header');
  *     .explain-json     (mutually exclusive with .explain-tree)
  */
 
+// TODO (thomasr) data-service explain does not pass through options to find yet.
+const QUERYBAR_LAYOUT = ['filter'];
+
 const READ_ONLY_WARNING = 'Explain plans on readonly views are not supported.';
 
 const COLLECTION_SCAN_WARNING = 'To prevent unintended collection scans, please'
@@ -86,7 +89,7 @@ class CompassExplain extends React.Component {
     return (
       <div className="compass-explain">
         <div className="controls-container">
-          <this.queryBar />
+          <this.queryBar layout={QUERYBAR_LAYOUT} />
           {warning}
         </div>
         {content}

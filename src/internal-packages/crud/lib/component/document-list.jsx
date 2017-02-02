@@ -2,9 +2,9 @@ const _ = require('lodash');
 const React = require('react');
 const uuid = require('uuid');
 const app = require('ampersand-app');
-const Action = require('hadron-action');
 const ObjectID = require('bson').ObjectID;
 const Document = require('./document');
+const Action = require('../actions');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const ResetDocumentListStore = require('../store/reset-document-list-store');
 const LoadMoreDocumentsStore = require('../store/load-more-documents-store');
@@ -13,7 +13,7 @@ const InsertDocumentStore = require('../store/insert-document-store');
 const InsertDocumentDialog = require('./insert-document-dialog');
 const Actions = require('../actions');
 
-// const debug = require('debug')('mongodb-compass:crud:component');
+const debug = require('debug')('mongodb-compass:crud:component');
 
 /* eslint no-return-assign:0 */
 
@@ -48,8 +48,10 @@ class DocumentList extends React.Component {
     this.samplingMessage = app.appRegistry.getComponent('Query.SamplingMessage');
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
     this.state = { docs: [], nextSkip: 0, namespace: NamespaceStore.ns };
+    this.projection = false;
     this.queryBar = app.appRegistry.getComponent('Query.QueryBar');
     this.statusRow = app.appRegistry.getComponent('App.StatusRow');
+    this.QueryChangedStore = app.appRegistry.getStore('Query.ChangedStore');
   }
 
   /**
@@ -61,6 +63,7 @@ class DocumentList extends React.Component {
     this.unsubscribeLoadMore = LoadMoreDocumentsStore.listen(this.handleLoadMore.bind(this));
     this.unsubscribeRemove = RemoveDocumentStore.listen(this.handleRemove.bind(this));
     this.unsubscribeInsert = InsertDocumentStore.listen(this.handleInsert.bind(this));
+    this.unsubscribeQueryStore = this.QueryChangedStore.listen(this.handleQueryChanged.bind(this));
   }
 
   /**
@@ -85,7 +88,8 @@ class DocumentList extends React.Component {
 
   /**
    * Handle the loading of more documents.
-   * @param {Object} error
+   *
+   * @param {Object} error - Error when trying to load more documents.
    * @param {Array} documents - The next batch of documents.
    */
   handleLoadMore(error, documents) {
@@ -103,7 +107,8 @@ class DocumentList extends React.Component {
 
   /**
    * Handle the reset of the document list.
-   * @param {Object} error
+   *
+   * @param {Object} error - Error when trying to reset the document list.
    * @param {Array} documents - The documents.
    * @param {Integer} count - The count.
    */
@@ -175,6 +180,11 @@ class DocumentList extends React.Component {
     }
   }
 
+  handleQueryChanged(state) {
+    debug('state', state);
+    this.projection = state.project !== null;
+  }
+
   /**
    * Get the next batch of documents. Will only fire if there are more documents
    * in the collection to load.
@@ -217,9 +227,10 @@ class DocumentList extends React.Component {
    */
   renderDocuments(docs) {
     return _.map(docs, (doc) => {
+      const editable = this.CollectionStore.isWritable() && !this.projection;
       return (
         <li className="document-list-item" data-test-id={LIST_ITEM_TEST_ID} key={this._key()}>
-          <Document doc={doc} key={this._key()} editable={this.CollectionStore.isWritable()} />
+          <Document doc={doc} key={this._key()} editable={editable} />
         </li>
       );
     });

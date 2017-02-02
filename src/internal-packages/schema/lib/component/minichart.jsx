@@ -23,7 +23,7 @@ const Minichart = React.createClass({
   getInitialState() {
     return {
       containerWidth: null,
-      query: {},
+      filter: {},
       valid: true,
       userTyping: false
     };
@@ -39,7 +39,7 @@ const Minichart = React.createClass({
     const QueryStore = app.appRegistry.getStore('Query.Store');
     this.unsubscribeQueryStore = QueryStore.listen((store) => {
       this.setState({
-        query: store.query,
+        filter: store.filter,
         valid: store.valid,
         userTyping: store.userTyping
       });
@@ -77,7 +77,7 @@ const Minichart = React.createClass({
       this.props.type.name) ? NUMBER : this.props.type.name;
 
     const fieldName = this.props.fieldName;
-    const queryClause = this.state.query[fieldName];
+    const queryClause = this.state.filter[fieldName];
     const hasDuplicates = this.props.type.has_duplicates;
     const fn = vizFns[typeName.toLowerCase()];
     const width = this.state.containerWidth;

@@ -4,18 +4,14 @@ const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const ReadPreference = require('mongodb').ReadPreference;
 const toNS = require('mongodb-ns');
 const Actions = require('../actions');
+const _ = require('lodash');
 
-// const debug = require('debug')('mongodb-compass:crud:store');
+// const debug = require('debug')('mongodb-compass:crud:reset-store');
 
 /**
  * The default read preference.
  */
 const READ = ReadPreference.PRIMARY_PREFERRED;
-
-/**
- * The default options.
- */
-const OPTIONS = { readPreference: READ };
 
 /**
  * The reflux store for resetting the document list.
@@ -27,11 +23,20 @@ const ResetDocumentListStore = Reflux.createStore({
    */
   init: function() {
     this.filter = {};
+    this.sort = [[ '_id', 1 ]];
+    this.limit = 0;
+    this.skip = 0;
+    this.project = null;
 
     // listen for namespace changes
     NamespaceStore.listen((ns) => {
       if (ns && toNS(ns).collection) {
         this.filter = {};
+        this.sort = [[ '_id', 1 ]];
+        this.limit = 0;
+        this.skip = 0;
+        this.project = null;
+
         this.reset();
       }
     });
@@ -48,7 +53,12 @@ const ResetDocumentListStore = Reflux.createStore({
    * @param {Object} state - The query state.
    */
   onQueryChanged: function(state) {
-    this.filter = state.query || {};
+    this.filter = state.filter || {};
+    this.sort = _.pairs(state.sort);
+    this.limit = state.limit;
+    this.skip = state.skip;
+    this.project = state.project;
+
     this.reset();
   },
 
@@ -59,15 +69,29 @@ const ResetDocumentListStore = Reflux.createStore({
    */
   reset: function() {
     if (NamespaceStore.ns) {
-      app.dataService.count(NamespaceStore.ns, this.filter, OPTIONS, (err, count) => {
+      const countOptions = {
+        skip: this.skip,
+        readPreference: READ
+      };
+
+      const findOptions = {
+        sort: this.sort,
+        fields: this.project,
+        skip: this.skip,
+        limit: 20,
+        readPreference: READ,
+        promoteValues: false
+      };
+
+      // only set limit if it's > 0, read-only views cannot handle 0 limit.
+      if (this.limit > 0) {
+        countOptions.limit = this.limit;
+        findOptions.limit = Math.min(20, this.limit);
+      }
+
+      app.dataService.count(NamespaceStore.ns, this.filter, countOptions, (err, count) => {
         if (!err) {
-          const options = {
-            limit: 20,
-            sort: [[ '_id', 1 ]],
-            readPreference: READ,
-            promoteValues: false
-          };
-          app.dataService.find(NamespaceStore.ns, this.filter, options, (error, documents) => {
+          app.dataService.find(NamespaceStore.ns, this.filter, findOptions, (error, documents) => {
             this.trigger(error, documents, count);
           });
         } else {

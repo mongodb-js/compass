@@ -1,0 +1,84 @@
+{
+  "member_id": "$inc",
+  "age": {
+    "$choose": {
+      "from": ["$age", "$missing"],
+      "weights": [7, 3]
+    }
+  },
+  "address": {
+    "city": "$city",
+    "country": {
+      "$choose": {
+        "from": ["USA", "UK", "Germany", "France", "Australia"],
+        "weights": [73, 9, 9, 2, 1]
+      }
+    },
+    "street": "$address",
+    "postal_code": {
+      "$choose": {
+        "from": [
+          {
+            "$number": {"min": 10000, "max": 99999}
+          },
+          {
+            "$join": {
+              "array": [
+                {"$number": {"min": 10000, "max": 99999}},
+                {"$number": {"min": 1000, "max": 9999}}
+              ],
+              "sep": "-"
+            }
+          }
+        ],
+        "weights": [6, 1]
+      }
+    }
+  },
+  "favorite_features": {
+    "$array": {
+      "of": {
+        "$choose": {
+          "from": ["Document Validation", "Partial Indexes", "Sharding", "Aggregation", "WiredTiger", "Replication", "Auth", "Text Search"],
+          "weights": [31, 19, 15, 13, 7, 6, 4, 2]
+        }
+      },
+      "number": {
+        "$number": {"min": 0, "max": 5}
+      }
+    }
+  },
+  "gender": {
+    "$choose": {
+      "from": ["male", "female", "$missing"],
+      "weights": [4, 5, 1]
+    }
+  },
+  "last_login": {
+    "$date": {"min": "2015-01-01", "max": "2017-01-23"}
+  },
+  "email": "$email",
+  "last_position": "$point",
+  "membership_status": {
+    "$choose": {
+      "from": ["ACTIVE", "INACTIVE", "PENDING"],
+      "weights": [65, 8, 27]
+    }
+  },
+  "name": {
+    "$choose": {
+      "from": [
+        {"$name": {"middle_initial": true}},
+        {"$name": {"middle_initial": false}}
+      ]
+    }
+  },
+  "phone_no": {
+    "$choose": {
+      "from": [
+        {"$phone": {"formatted": false}},
+        {"$phone": {"formatted": true}}
+      ]
+    }
+  }
+}

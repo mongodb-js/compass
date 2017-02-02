@@ -24,9 +24,13 @@ const debug = require('debug')('mongodb-compass:stores:schema');
 // const metrics = require('mongodb-js-metrics')();
 
 const DEFAULT_MAX_TIME_MS = 10000;
-const DEFAULT_NUM_DOCUMENTS = 1000;
+const MAX_NUM_DOCUMENTS = 1000;
 const PROMOTE_VALUES = false;
-const DEFAULT_QUERY = {};
+const DEFAULT_QUERY = {
+  filter: {},
+  // project: null,
+  limit: 1000
+};
 
 /**
  * The reflux store for the schema.
@@ -102,11 +106,9 @@ const SchemaStore = Reflux.createStore({
 
   onQueryChanged: function(state) {
     this._reset();
-    this.query = DEFAULT_QUERY;
-    if (state.query) {
-      this.query = state.query;
-      SchemaAction.startSampling();
-    }
+    this.query.filter = state.filter;
+    this.query.limit = state.limit;
+    SchemaAction.startSampling();
   },
 
   setMaxTimeMS(maxTimeMS) {
@@ -164,14 +166,15 @@ const SchemaStore = Reflux.createStore({
       schema: null
     });
 
-    const options = {
+    const sampleOptions = {
       maxTimeMS: this.state.maxTimeMS,
-      query: this.query,
-      size: DEFAULT_NUM_DOCUMENTS,
-      fields: null,
+      query: this.query.filter,
+      size: this.query.limit === 0 ? 1000 : Math.min(MAX_NUM_DOCUMENTS, this.query.limit),
+      // project: this.query.project,
       promoteValues: PROMOTE_VALUES,
       readPreference: READ
     };
+    debug('sampleOptions', sampleOptions);
 
     const samplingStart = new Date();
     this.samplingTimer = setInterval(() => {
@@ -181,11 +184,12 @@ const SchemaStore = Reflux.createStore({
     }, 1000);
 
 
-    this.samplingStream = app.dataService.sample(ns, options);
+    this.samplingStream = app.dataService.sample(ns, sampleOptions);
     this.analyzingStream = schemaStream();
     let schema;
 
-    const onError = () => {
+    const onError = (err) => {
+      debug('onError', err);
       this.setState({
         samplingState: 'error'
       });
@@ -202,8 +206,12 @@ const SchemaStore = Reflux.createStore({
       this.stopSampling();
     };
 
-    const countOptions = { maxTimeMS: this.state.maxTimeMS, readPreference: READ };
-    app.dataService.count(ns, this.query, countOptions, (err, count) => {
+    const countOptions = {
+      maxTimeMS: this.state.maxTimeMS,
+      readPreference: READ
+    };
+
+    app.dataService.count(ns, this.query.filter, countOptions, (err, count) => {
       if (err) {
         return onError(err);
       }
@@ -213,7 +221,7 @@ const SchemaStore = Reflux.createStore({
         samplingProgress: 0,
         samplingTimeMS: new Date() - samplingStart
       });
-      const numSamples = Math.min(count, DEFAULT_NUM_DOCUMENTS);
+      const numSamples = Math.min(count, sampleOptions.size);
       let sampleCount = 0;
 
       this.samplingStream

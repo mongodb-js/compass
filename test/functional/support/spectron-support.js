@@ -371,6 +371,14 @@ function addWaitCommands(client) {
  * @param {Client} client - The client.
  */
 function addClickCommands(client) {
+  /*
+   * Click the instance refresh button in the top right corner of the sidebar.
+   */
+  client.addCommand('clickInstanceRefreshIcon', function() {
+    const button = selector('instance-refresh-button');
+    return this
+      .waitForVisibleInCompass(button).click(button);
+  });
 
   /**
    * Click the refresh documents button.
@@ -1061,6 +1069,29 @@ function addGetCommands(client) {
   });
 
   /**
+   * Get the document at the provided index in the list
+   *
+   * @param {Number} index - The index in the list, starting at 1.
+   */
+  client.addCommand('getDocumentAtIndex', function(index) {
+    const base = selector('document-list-item');
+    return this.getText(`${base}:nth-child(${index}) .editable-element-field, ${base}:nth-child(${index}) .element-field`).then((keys) => {
+      return this.getText(`${base}:nth-child(${index}) .element-value`).then((values) => {
+        return _.zipObject(keys, values);
+      });
+    });
+  });
+
+  /**
+   * Get the read onnly status of the document at the provided index in the list
+   * @type {Number} index - the index in the list, starting at 1.
+   */
+  client.addCommand('getDocumentReadonlyStatus', function(index) {
+    const base = `${selector('document-list-item')} ${selector('readonly-document')}`;
+    return this.isExisting(`${base}:nth-child(${index})`);
+  });
+
+  /**
    * Get the values of a document at the provided index in the list.
    *
    * @param {Number} index - The index in the list, starting at 1.
@@ -1214,6 +1245,13 @@ function addInputCommands(client) {
   });
 
   /**
+   * Clicks the Options button to expand the Query bar.
+   */
+  client.addCommand('clickQueryBarOptionsToggle', function() {
+    const base = selector('querybar-options-toggle');
+    return this.waitForVisibleInCompass(base).click(base);
+  });
+  /**
    * Inputs a filter into the collection level query bar from the schema tab.
    *
    * @param {String} filter - The filter.
@@ -1243,6 +1281,50 @@ function addInputCommands(client) {
   client.addCommand('inputFilterFromExplainPlanTab', function(filter) {
     const base = selector('explain-plan-content');
     const input = `${base} .input-filter`;
+    return this.setValue(input, filter);
+  });
+
+  /**
+   * Inputs a projection into the query bar from the documents tab.
+   *
+   * @param {String} filter - The filter.
+   */
+  client.addCommand('inputProjectFromDocumentsTab', function(filter) {
+    const base = selector('documents-content');
+    const input = `${base} .input-project`;
+    return this.setValue(input, filter);
+  });
+
+  /**
+   * Inputs a sort into the query bar from the documents tab.
+   *
+   * @param {String} filter - The filter.
+   */
+  client.addCommand('inputSortFromDocumentsTab', function(filter) {
+    const base = selector('documents-content');
+    const input = `${base} .input-sort`;
+    return this.setValue(input, filter);
+  });
+
+  /**
+   * Inputs a skip into the query bar from the documents tab.
+   *
+   * @param {String} filter - The filter.
+   */
+  client.addCommand('inputSkipFromDocumentsTab', function(filter) {
+    const base = selector('documents-content');
+    const input = `${base} .input-skip`;
+    return this.setValue(input, filter);
+  });
+
+  /**
+   * Inputs a limit into the query bar from the documents tab.
+   *
+   * @param {String} filter - The filter.
+   */
+  client.addCommand('inputLimitFromDocumentsTab', function(filter) {
+    const base = selector('documents-content');
+    const input = `${base} .input-limit`;
     return this.setValue(input, filter);
   });
 
