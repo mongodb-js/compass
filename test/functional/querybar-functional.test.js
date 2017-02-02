@@ -34,8 +34,11 @@ describe('Compass Functional Tests for QueryBar #spectron', function() {
         client
           .inputConnectionDetails({ hostname: 'localhost', port: 27018 })
           .clickConnectButton()
+          .waitForStatusBar()
           .waitForHomeView()
-          .then(done.bind(null, null));
+          .then(() => {
+            done();
+          });
       });
     });
 
@@ -53,6 +56,10 @@ describe('Compass Functional Tests for QueryBar #spectron', function() {
             done();
           });
         });
+      });
+
+      after(function() {
+        dataService.disconnect();
       });
 
       context('when using the fanclub collection with 100 docs', function() {

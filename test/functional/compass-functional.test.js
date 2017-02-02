@@ -72,6 +72,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
           return client
             .inputConnectionDetails({ hostname: 'localhost', port: 27018 })
             .clickConnectButton()
+            .waitForStatusBar()
             .waitForHomeView()
             .getTitle().should.eventually.equal('MongoDB Compass - localhost:27018');
         });
