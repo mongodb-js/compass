@@ -43,7 +43,7 @@ describe('ChartStore', function() {
       const expected = {
         'x': {field: COUNTRY_SCHEMA_FIELD.path}
       };
-      ChartActions.mapFieldToChannel(MARK_PROPERTY_ENUM.x, COUNTRY_SCHEMA_FIELD.path);
+      ChartActions.mapFieldToChannel(MARK_PROPERTY_ENUM.X, COUNTRY_SCHEMA_FIELD.path);
       setTimeout(() => {
         expect(this.store.state.channels).to.be.deep.equal(expected);
         done();
@@ -63,7 +63,7 @@ describe('ChartStore', function() {
       const expected = {
         'y': {type: 'quantitative'}
       };
-      ChartActions.selectMeasurement(MARK_PROPERTY_ENUM.y, MEASUREMENT_ENUM.quantitative);
+      ChartActions.selectMeasurement(MARK_PROPERTY_ENUM.Y, MEASUREMENT_ENUM.quantitative);
       setTimeout(() => {
         expect(this.store.state.channels).to.be.deep.equal(expected);
         done();
@@ -79,7 +79,7 @@ describe('ChartStore', function() {
     it('throws error on receiving an unknown encoding measurement', function() {
       const throwFn = () => {
         // ChartStore might not work on Reflux 5+, if so change it to ChartActions
-        ChartStore.selectMeasurement(MARK_PROPERTY_ENUM.y, 'NOT_quantitative');
+        ChartStore.selectMeasurement(MARK_PROPERTY_ENUM.Y, 'NOT_quantitative');
       };
       expect(throwFn).to.throw(/Unknown encoding measurement: NOT_quantitative/);
     });
@@ -90,7 +90,7 @@ describe('ChartStore', function() {
       const expected = {
         'size': {aggregate: 'count'}
       };
-      ChartActions.selectAggregate(MARK_PROPERTY_ENUM.size, AGGREGATE_FUNCTION_ENUM.COUNT);
+      ChartActions.selectAggregate(MARK_PROPERTY_ENUM.SIZE, AGGREGATE_FUNCTION_ENUM.COUNT);
       setTimeout(() => {
         expect(this.store.state.channels).to.be.deep.equal(expected);
         done();
@@ -106,7 +106,7 @@ describe('ChartStore', function() {
     it('throws error on receiving an unknown encoding aggregate', function() {
       const throwFn = () => {
         // ChartStore might not work on Reflux 5+, if so change it to ChartActions
-        ChartStore.selectAggregate(MARK_PROPERTY_ENUM.size, 'NOT_quantitative');
+        ChartStore.selectAggregate(MARK_PROPERTY_ENUM.SIZE, 'NOT_quantitative');
       };
       expect(throwFn).to.throw(/Unknown encoding aggregate: NOT_quantitative/);
     });
@@ -183,9 +183,9 @@ describe('ChartStore', function() {
       };
 
       // As we currently run 3 actions
-      ChartActions.mapFieldToChannel(MARK_PROPERTY_ENUM.x, COUNTRY_SCHEMA_FIELD.path);
-      ChartActions.selectMeasurement(MARK_PROPERTY_ENUM.y, MEASUREMENT_ENUM.quantitative);
-      ChartActions.selectAggregate(MARK_PROPERTY_ENUM.size, AGGREGATE_FUNCTION_ENUM.COUNT);
+      ChartActions.mapFieldToChannel(MARK_PROPERTY_ENUM.X, COUNTRY_SCHEMA_FIELD.path);
+      ChartActions.selectMeasurement(MARK_PROPERTY_ENUM.Y, MEASUREMENT_ENUM.quantitative);
+      ChartActions.selectAggregate(MARK_PROPERTY_ENUM.SIZE, AGGREGATE_FUNCTION_ENUM.COUNT);
 
       setTimeout(() => {
         expect(this.store.state.channels).to.be.deep.equal(expected);

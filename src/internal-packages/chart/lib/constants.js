@@ -41,13 +41,13 @@ const CHART_TYPE_ENUM = Object.freeze({
  * @see https://vega.github.io/vega-lite/docs/encoding.html#props-channels
  */
 const MARK_PROPERTY_ENUM = Object.freeze({
-  x: 'x',
-  y: 'y',
-  color: 'color',
-  opacity: 'opacity',
-  shape: 'shape',
-  size: 'size',
-  text: 'text'
+  X: 'x',
+  Y: 'y',
+  COLOR: 'color',
+  OPACITY: 'opacity',
+  SHAPE: 'shape',
+  SIZE: 'size',
+  TEXT: 'text'
   // Not doing row/column faceting yet
 });
 

@@ -129,7 +129,7 @@ const ChartStore = Reflux.createStore({
    * @param {String} field - The MongoDB Schema field [2].
    */
   mapFieldToChannel(channel, field) {
-    if (!(channel in MARK_PROPERTY_ENUM)) {
+    if (!(_.includes(_.values(MARK_PROPERTY_ENUM), channel))) {
       throw new Error('Unknown encoding channel: ' + channel);
     }
     const channels = this.state.channels;
@@ -148,7 +148,7 @@ const ChartStore = Reflux.createStore({
    * @param {String} measurement - The Vega-Lite data type measurement
    */
   selectMeasurement(channel, measurement) {
-    if (!(channel in MARK_PROPERTY_ENUM)) {
+    if (!(_.includes(_.values(MARK_PROPERTY_ENUM), channel))) {
       throw new Error('Unknown encoding channel: ' + channel);
     }
     if (!(measurement in MEASUREMENT_ENUM)) {
@@ -170,7 +170,7 @@ const ChartStore = Reflux.createStore({
    * @param {String} aggregate - The aggregate function to apply
    */
   selectAggregate(channel, aggregate) {
-    if (!(channel in MARK_PROPERTY_ENUM)) {
+    if (!(_.includes(_.values(MARK_PROPERTY_ENUM), channel))) {
       throw new Error('Unknown encoding channel: ' + channel);
     }
     if (!(_.includes(_.values(AGGREGATE_FUNCTION_ENUM), aggregate))) {
