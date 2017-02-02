@@ -8,6 +8,7 @@ const { NamespaceStore } = require('hadron-reflux-store');
 const {
   AGGREGATE_FUNCTION_ENUM,
   CHART_CHANNEL_ENUM,
+  CHART_TYPE_CHANNELS,
   CHART_TYPE_ENUM,
   MEASUREMENT_ENUM
 } = require('../../src/internal-packages/chart/lib/constants');
@@ -201,6 +202,28 @@ describe('ChartStore', function() {
         expect(this.store.state.channels).to.be.deep.equal(expected);
         done();
       });
+    });
+  });
+
+  context('with the CHART_TYPE_CHANNELS', () => {
+    it('defines all top-level keys from CHART_TYPE_ENUM', () => {
+      Object.keys(CHART_TYPE_CHANNELS).forEach((value) => {
+        expect(value).to.be.oneOf(_.values(CHART_TYPE_ENUM));
+      });
+    });
+    it('defines all second-level keys from CHART_CHANNEL_ENUM', () => {
+      for (const channelValue of _.values(CHART_TYPE_CHANNELS)) {
+        Object.keys(channelValue).forEach((value) => {
+          expect(value).to.be.oneOf(_.values(CHART_CHANNEL_ENUM));
+        });
+      }
+    });
+    it('defines all second-level values as required or optional', () => {
+      for (const channelValue of _.values(CHART_TYPE_CHANNELS)) {
+        for (const requiredValue of _.values(channelValue)) {
+          expect(requiredValue).to.be.oneOf(['required', 'optional']);
+        }
+      }
     });
   });
 });

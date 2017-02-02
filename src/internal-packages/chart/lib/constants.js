@@ -77,6 +77,50 @@ const CHART_CHANNEL_ENUM = Object.freeze(Object.assign({},
 ));
 
 /**
+ * A map that configures which chart channel fields are
+ * displayed to the Chart Analyst for each chart type, and
+ * whether they are required before the chart is rendered.
+ *
+ * @see https://mongodb.invisionapp.com/share/6S9X3XDQ5#/screens/213693224
+ */
+const CHART_TYPE_CHANNELS = Object.freeze({
+  // Not doing row/column faceting yet
+  // https://vega.github.io/vega-lite/docs/encoding.html#facet
+  // [CHART_TYPE_ENUM.TEXT]: {
+  // },
+  [CHART_TYPE_ENUM.LINE]: {
+    [CHART_CHANNEL_ENUM.X]: 'required',
+    [CHART_CHANNEL_ENUM.Y]: 'required',
+    [CHART_CHANNEL_ENUM.COLOR]: 'optional',
+    [CHART_CHANNEL_ENUM.TEXT]: 'optional'
+  },
+  [CHART_TYPE_ENUM.BAR]: {
+    [CHART_CHANNEL_ENUM.X]: 'required',
+    [CHART_CHANNEL_ENUM.Y]: 'required',
+    [CHART_CHANNEL_ENUM.COLOR]: 'optional',
+    [CHART_CHANNEL_ENUM.TEXT]: 'optional'
+  },
+  [CHART_TYPE_ENUM.AREA]: {
+    [CHART_CHANNEL_ENUM.X]: 'required',
+    [CHART_CHANNEL_ENUM.Y]: 'required',
+    [CHART_CHANNEL_ENUM.COLOR]: 'optional',
+    [CHART_CHANNEL_ENUM.TEXT]: 'optional'
+  },
+  [CHART_TYPE_ENUM.DOT]: {
+    [CHART_CHANNEL_ENUM.X]: 'required',
+    [CHART_CHANNEL_ENUM.Y]: 'required',
+    [CHART_CHANNEL_ENUM.SIZE]: 'optional',
+    [CHART_CHANNEL_ENUM.COLOR]: 'optional',
+    [CHART_CHANNEL_ENUM.SHAPE]: 'optional',
+    [CHART_CHANNEL_ENUM.TEXT]: 'optional'
+  }
+  // May need Vega? http://johnmyleswhite.github.io/Vega.jl/piechart.html
+  // [CHART_TYPE_ENUM.DONUT]: {
+  //
+  // }
+});
+
+/**
  * An enumeration of the valid Data Type, or Measurement values.
  *
  * @see https://vega.github.io/vega-lite/docs/encoding.html#data-type
@@ -106,6 +150,7 @@ const DEFAULTS = Object.freeze({
 module.exports = {
   AGGREGATE_FUNCTION_ENUM,
   CHART_CHANNEL_ENUM,
+  CHART_TYPE_CHANNELS,
   CHART_TYPE_ENUM,
   DEFAULTS,
   MEASUREMENT_ENUM,
