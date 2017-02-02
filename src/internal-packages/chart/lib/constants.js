@@ -40,7 +40,7 @@ const CHART_TYPE_ENUM = Object.freeze({
  *
  * @see https://vega.github.io/vega-lite/docs/encoding.html#props-channels
  */
-const MARK_PROPERTY_ENUM = Object.freeze({
+const MARK_PROPERTY_CHANNEL_ENUM = Object.freeze({
   X: 'x',
   Y: 'y',
   COLOR: 'color',
@@ -83,6 +83,6 @@ module.exports = {
   CHART_TYPE_ENUM,
   DEFAULTS,
   MEASUREMENT_ENUM,
-  MARK_PROPERTY_ENUM,
+  MARK_PROPERTY_CHANNEL_ENUM,
   SPEC_TYPE_ENUM
 };
