@@ -151,7 +151,7 @@ const ChartStore = Reflux.createStore({
     if (!(_.includes(_.values(MARK_PROPERTY_CHANNEL_ENUM), channel))) {
       throw new Error('Unknown encoding channel: ' + channel);
     }
-    if (!(measurement in MEASUREMENT_ENUM)) {
+    if (!(_.includes(_.values(MEASUREMENT_ENUM), measurement))) {
       throw new Error('Unknown encoding measurement: ' + measurement);
     }
     const channels = this.state.channels;

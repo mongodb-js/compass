@@ -57,10 +57,10 @@ const MARK_PROPERTY_CHANNEL_ENUM = Object.freeze({
  * @see https://vega.github.io/vega-lite/docs/encoding.html#data-type
  */
 const MEASUREMENT_ENUM = Object.freeze({
-  quantitative: 'quantitative',
-  temporal: 'temporal',
-  ordinal: 'ordinal',
-  nominal: 'nominal'
+  QUANTITATIVE: 'quantitative',
+  TEMPORAL: 'temporal',
+  ORDINAL: 'ordinal',
+  NOMINAL: 'nominal'
 });
 
 /**
