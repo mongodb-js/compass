@@ -71,10 +71,10 @@ const DETAIL_CHANNEL_ENUM = Object.freeze({
  *
  * @see https://vega.github.io/vega-lite/docs/encoding.html#channels
  */
-const CHART_CHANNEL_ENUM = Object.assign({},
+const CHART_CHANNEL_ENUM = Object.freeze(Object.assign({},
     MARK_PROPERTY_CHANNEL_ENUM,
     DETAIL_CHANNEL_ENUM
-);
+));
 
 /**
  * An enumeration of the valid Data Type, or Measurement values.
