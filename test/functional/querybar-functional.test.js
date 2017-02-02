@@ -127,6 +127,7 @@ describe('Compass Functional Tests for QueryBar #spectron', function() {
       context('when applying a limit', function() {
         it('only returns the number of documents specified by limit', function() {
           return client
+            .waitForStatusBar()
             .inputLimitFromDocumentsTab(5)
             .clickApplyFilterButtonFromDocumentsTab()
             .waitForStatusBar()
