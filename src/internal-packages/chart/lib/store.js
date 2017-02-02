@@ -42,7 +42,6 @@ const ChartStore = Reflux.createStore({
       dataCache: [],       // TODO: COMPASS-726 Populate with a $sample if ns or query change?
       fieldsCache: [],
       namespaceCache: '',
-      // TODO: Possible COMPASS-631 conflicts? Check name of "filter/query" remains appropriate.
       queryCache: {}
     };
   },
@@ -105,8 +104,12 @@ const ChartStore = Reflux.createStore({
    * @param {Object} state - The query state.
    */
   onQueryChanged(state) {
-    if (state.query) {
-      this.setState({queryCache: state.query});
+    this.setState({queryCache: state});
+    if (state.queryState === 'reset') {
+      this._resetChart();
+    } else {
+      // TODO: COMPASS-726 - Refresh the dataCache
+      // this.refreshDataCache();
     }
   },
 
