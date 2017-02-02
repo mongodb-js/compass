@@ -5,19 +5,19 @@
  * @see https://vega.github.io/vega-lite/docs/aggregate.html
  */
 const AGGREGATE_FUNCTION_ENUM = Object.freeze({
-  count: 'count',
-  distinct: 'distinct',
-  sum: 'sum',
-  mean: 'mean',
-  variance: 'variance',
-  variancep: 'variancep',
-  stdev: 'stdev',
-  stdevp: 'stdevp',
-  median: 'median',
-  q1: 'q1',
-  q3: 'q3',
-  min: 'min',
-  max: 'max'
+  COUNT: 'count',
+  DISTINCT: 'distinct',
+  SUM: 'sum',
+  MEAN: 'mean',
+  VARIANCE: 'variance',
+  VARIANCEP: 'variancep',
+  STDEV: 'stdev',
+  STDEVP: 'stdevp',
+  MEDIAN: 'median',
+  Q1: 'q1',
+  Q3: 'q3',
+  MIN: 'min',
+  MAX: 'max'
 });
 
 /**

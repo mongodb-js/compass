@@ -90,7 +90,7 @@ describe('ChartStore', function() {
       const expected = {
         'size': {aggregate: 'count'}
       };
-      ChartActions.selectAggregate(MARK_PROPERTY_ENUM.size, AGGREGATE_FUNCTION_ENUM.count);
+      ChartActions.selectAggregate(MARK_PROPERTY_ENUM.size, AGGREGATE_FUNCTION_ENUM.COUNT);
       setTimeout(() => {
         expect(this.store.state.channels).to.be.deep.equal(expected);
         done();
@@ -99,7 +99,7 @@ describe('ChartStore', function() {
     it('throws error on receiving an unknown encoding channel', function() {
       const throwFn = () => {
         // ChartStore might not work on Reflux 5+, if so change it to ChartActions
-        ChartStore.selectAggregate('FOO_BAR', AGGREGATE_FUNCTION_ENUM.count);
+        ChartStore.selectAggregate('FOO_BAR', AGGREGATE_FUNCTION_ENUM.COUNT);
       };
       expect(throwFn).to.throw(/Unknown encoding channel: FOO_BAR/);
     });
@@ -185,7 +185,7 @@ describe('ChartStore', function() {
       // As we currently run 3 actions
       ChartActions.mapFieldToChannel(MARK_PROPERTY_ENUM.x, COUNTRY_SCHEMA_FIELD.path);
       ChartActions.selectMeasurement(MARK_PROPERTY_ENUM.y, MEASUREMENT_ENUM.quantitative);
-      ChartActions.selectAggregate(MARK_PROPERTY_ENUM.size, AGGREGATE_FUNCTION_ENUM.count);
+      ChartActions.selectAggregate(MARK_PROPERTY_ENUM.size, AGGREGATE_FUNCTION_ENUM.COUNT);
 
       setTimeout(() => {
         expect(this.store.state.channels).to.be.deep.equal(expected);

@@ -173,7 +173,7 @@ const ChartStore = Reflux.createStore({
     if (!(channel in MARK_PROPERTY_ENUM)) {
       throw new Error('Unknown encoding channel: ' + channel);
     }
-    if (!(aggregate in AGGREGATE_FUNCTION_ENUM)) {
+    if (!(_.includes(_.values(AGGREGATE_FUNCTION_ENUM), aggregate))) {
       throw new Error('Unknown encoding aggregate: ' + aggregate);
     }
     const channels = this.state.channels;
