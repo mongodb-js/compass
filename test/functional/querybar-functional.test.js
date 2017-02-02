@@ -56,6 +56,12 @@ describe('Compass Functional Tests for QueryBar #spectron', function() {
       });
 
       context('when using the fanclub collection with 100 docs', function() {
+        it('edit mode is enabled by default', function() {
+          return client
+            .getDocumentReadonlyStatus(1)
+            .should.eventually.be.false;
+        });
+
         it('finds all 100 documents in the collection', function() {
           return client
             .waitForStatusBar()
@@ -106,8 +112,8 @@ describe('Compass Functional Tests for QueryBar #spectron', function() {
 
         it('disables editing mode for documents', function() {
           return client
-            .waitForVisibleInCompass('[data-test-id="document-list-item"]:nth-child(1) .element-field')
-            .getText().is.eventually.a('string');
+            .getDocumentReadonlyStatus(1)
+            .should.eventually.be.true;
         });
       });
 

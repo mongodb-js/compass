@@ -1083,6 +1083,15 @@ function addGetCommands(client) {
   });
 
   /**
+   * Get the read onnly status of the document at the provided index in the list
+   * @type {Number} index - the index in the list, starting at 1.
+   */
+  client.addCommand('getDocumentReadonlyStatus', function(index) {
+    const base = `${selector('document-list-item')} ${selector('readonly-document')}`;
+    return this.isExisting(`${base}:nth-child(${index})`);
+  });
+
+  /**
    * Get the values of a document at the provided index in the list.
    *
    * @param {Number} index - The index in the list, starting at 1.
