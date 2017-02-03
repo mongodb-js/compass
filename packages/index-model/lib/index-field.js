@@ -8,8 +8,7 @@ var IndexField = Model.extend({
   props: {
     field: 'string',
     value: {
-      type: 'any',
-      values: [1, -1, '2dsphere', '2d', 'geoHaystack', 'text', 'hashed']
+      type: 'any'
     }
   },
   derived: {

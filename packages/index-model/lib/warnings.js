@@ -6,10 +6,21 @@ var format = require('util').format;
 
 var WARNINGS = {
   'IXWARN_PREFIX': 1,
-  'IXWARN_UNUSED': 2
+  'IXWARN_UNUSED': 2,
+  'IXWARN_KEY_PATTERN': 3
 };
 
 // var debug = require('debug')('mongodb-index-model:warnings-mixin');
+
+/**
+ * List of valid values for an index.
+ *
+ * See https://docs.mongodb.com/manual/reference/method/db.collection.createIndex/#db.collection.createIndex
+ * See https://docs.mongodb.com/manual/release-notes/3.4-compatibility/#stricter-validation-of-index-specifications
+ *
+ * @type {string[]}
+ */
+var VALID_INDEX_TYPE_VALUES = [1, -1, '2dsphere', '2d', 'geoHaystack', 'text', 'hashed'];
 
 var WarningModel = Model.extend({
   idAttribute: 'code',
@@ -67,6 +78,15 @@ var WarningsMixin = {
           details: 'This index has never been used and might therefore not be required.'
         }));
         break;
+      case WARNINGS.IXWARN_KEY_PATTERN:
+        idx.warnings.add(new WarningModel({
+          code: warningCode,
+          message: 'Index Key Pattern is not valid',
+          details: 'This index has a key pattern that may not be valid in MongoDB 3.4 and later.' +
+          'See https://docs.mongodb.com/manual/release-notes/3.4-compatibility/' +
+          '#stricter-validation-of-index-specifications for more information.'
+        }));
+        break;
       default:
         throw new Error('Index warning code %i unknown.');
     }
@@ -98,6 +118,14 @@ var WarningsMixin = {
       } else {
         idx.warnings.remove(WARNINGS.IXWARN_UNUSED);
       }
+
+      // Check for potentially invalid values, e.g. Boolean true, 0, NaN, or
+      // arbitrary strings that are not special like '2d' or 'geoHaystack'
+      _.values(idx.key).forEach(function(value) {
+        if (!_.includes(VALID_INDEX_TYPE_VALUES, value)) {
+          collection.addWarningToIndex(WARNINGS.IXWARN_KEY_PATTERN, idx, {});
+        }
+      });
     });
   }
 };

@@ -1,18 +1,19 @@
 var assert = require('assert');
 var WarningsMixin = require('../lib/warnings').mixin;
 var IndexCollection = require('../').Collection;
-// var _ = require('lodash');
-//
 // var debug = require('debug')('mongodb-index-model:test:warnings');
 
 var INDEX_FIXTURE = require('./fixture');
+var INDEX_BUGSNAG_FIXTURE = require('./fixture-bugsnag');
 
 var IndexWithWarningsCollection = IndexCollection.extend(WarningsMixin);
 
 describe('Index Warnings', function() {
   var indexes;
+  var bugsnagIndexes;
   beforeEach(function() {
     indexes = new IndexWithWarningsCollection(INDEX_FIXTURE, {parse: true});
+    bugsnagIndexes = new IndexWithWarningsCollection(INDEX_BUGSNAG_FIXTURE, {parse: true});
   });
 
   context('IXWARN_PREFIX', function() {
@@ -123,6 +124,22 @@ describe('Index Warnings', function() {
       idx.usageCount = 1;
       indexes.updateIndexWarnings();
       assert.ok(idx.warnings.length === 0);
+    });
+  });
+
+  context('IXWARN_KEY_PATTERN', function() {
+    it('warns boolean true is not valid in 3.4+', function() {
+      bugsnagIndexes.updateIndexWarnings();
+      var index = bugsnagIndexes.get('b_true', 'name');
+      assert.ok(index.warnings.length === 1);
+      assert.ok(index.warnings.at(0).message.match(/Index Key Pattern is not valid/));
+    });
+
+    it('warns 0 is not valid in 3.4+', function() {
+      bugsnagIndexes.updateIndexWarnings();
+      var index = bugsnagIndexes.get('b_0', 'name');
+      assert.ok(index.warnings.length === 1);
+      assert.ok(index.warnings.at(0).message.match(/Index Key Pattern is not valid/));
     });
   });
 });
