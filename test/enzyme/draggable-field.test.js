@@ -20,7 +20,7 @@ describe('<DraggableField />', () => {
   describe('when menus are not enabled', () => {
     const name = 'address';
     beforeEach(function() {
-      component = shallow(<DraggableField measurement="TEMPORAL" fieldName={name}/>);
+      component = shallow(<DraggableField type="TEMPORAL" fieldName={name}/>);
     });
 
     it('should have 3 buttons', () => {
@@ -35,7 +35,7 @@ describe('<DraggableField />', () => {
   describe('when menus are enabled', () => {
     const name = 'coordinates';
     beforeEach(() => {
-      component = shallow(<DraggableField measurement="TEMPORAL" fieldName={name} enableMenus/>);
+      component = shallow(<DraggableField type="TEMPORAL" fieldName={name} enableMenus/>);
     });
 
     it('should have 1 button', () => {

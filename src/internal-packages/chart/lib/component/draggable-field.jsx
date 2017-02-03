@@ -14,14 +14,14 @@ class DraggableField extends React.Component {
     super(props);
 
     this.state = {
-      measurement: props.measurement,
+      measurement: props.type,
       aggregate: props.aggregate
     };
   }
 
   componentWillReceiveProps(props) {
     this.setState({
-      measurement: props.measurement,
+      measurement: props.type,
       aggregate: props.aggregate
     });
   }
@@ -54,7 +54,7 @@ class DraggableField extends React.Component {
   }
 
   /**
-   * @returns {React.Component} icon based on props.measurementType
+   * @returns {React.Component} icon based on props.typeType
    */
   renderMeasurementIcon() {
     const iconClass = `fa ${MEASUREMENT_ICON_ENUM[this.state.measurement]}`;
@@ -113,7 +113,7 @@ class DraggableField extends React.Component {
 
 DraggableField.propTypes = {
   fieldName: React.PropTypes.string,
-  measurement: React.PropTypes.oneOf(Object.keys(MEASUREMENT_ENUM)),
+  type: React.PropTypes.oneOf(Object.keys(MEASUREMENT_ENUM)),
   aggregate: React.PropTypes.oneOf(Object.keys(AGGREGATE_FUNCTION_ENUM)),
   enableMenus: React.PropTypes.bool
 };
