@@ -4,6 +4,7 @@ const Button = require('react-bootstrap').Button;
 const Dropdown = require('react-bootstrap').Dropdown;
 const MenuItem = require('react-bootstrap').MenuItem;
 const Radio = require('react-bootstrap').Radio;
+const FontAwesome = require('react-fontawesome');
 const {AGGREGATE_FUNCTION_ENUM, MEASUREMENT_ENUM, MEASUREMENT_ICON_ENUM} = require('../constants');
 
 // const debug = require('debug')('mongodb-compass:chart:draggable-field');
@@ -58,7 +59,7 @@ class DraggableField extends React.Component {
    */
   renderMeasurementIcon() {
     const iconClass = `fa ${MEASUREMENT_ICON_ENUM[this.state.measurement]}`;
-    return <i className={iconClass} />;
+    return <FontAwesome name={iconClass} />;
   }
 
   renderMeasurementMenu() {
@@ -82,7 +83,7 @@ class DraggableField extends React.Component {
       <Dropdown id={this.props.fieldName + 'aggregation'}
           onSelect={this.selectAggregate.bind(this)}>
         <Dropdown.Toggle noCaret>
-          <i className="fa fa-plus" />
+          <FontAwesome name="plus" />
         </Dropdown.Toggle>
           {menu}
       </Dropdown>
@@ -104,7 +105,7 @@ class DraggableField extends React.Component {
             {this.props.fieldName}
           </Button>
           {this.props.enableMenus ? this.renderAggregationMenu()
-            : <Button><i className="fa fa-plus" /></Button>}
+            : <Button><FontAwesome name="plus" /></Button>}
         </ButtonGroup>
       </div>
     );
