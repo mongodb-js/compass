@@ -6,7 +6,7 @@ const MenuItem = require('react-bootstrap').MenuItem;
 const Radio = require('react-bootstrap').Radio;
 const {AGGREGATE_FUNCTION_ENUM, MEASUREMENT_ENUM, MEASUREMENT_ICON_ENUM} = require('../constants');
 
-const debug = require('debug')('mongodb-compass:chart:draggable-field');
+// const debug = require('debug')('mongodb-compass:chart:draggable-field');
 
 class DraggableField extends React.Component {
 
@@ -27,9 +27,8 @@ class DraggableField extends React.Component {
   }
 
   mapToMenu(array, type) {
-    // note the empty funciton on onChange to avoid warnings
+    // note the empty function on onChange to avoid warnings
     const menus = array.map((label, i) => {
-      debug('label is: ', label);
       return (
         <MenuItem key={i} eventKey={label}>
           <Radio checked={label === type} onChange={() => {}}>
@@ -47,12 +46,10 @@ class DraggableField extends React.Component {
   }
 
   selectMeasurement(measurement) {
-    debug('select for measurement is: ', measurement);
     this.setState({measurement: measurement});
   }
 
   selectAggregate(aggregate) {
-    debug('select for aggregate is: ', aggregate);
     this.setState({aggregate: aggregate});
   }
 
