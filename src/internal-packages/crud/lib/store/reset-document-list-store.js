@@ -5,6 +5,7 @@ const ReadPreference = require('mongodb').ReadPreference;
 const toNS = require('mongodb-ns');
 const Actions = require('../actions');
 const _ = require('lodash');
+const QUERY_DEFAULTS = require('../../../app/constants').QUERY_DEFAULTS;
 
 // const debug = require('debug')('mongodb-compass:crud:reset-store');
 
@@ -58,8 +59,13 @@ const ResetDocumentListStore = Reflux.createStore({
     this.limit = state.limit;
     this.skip = state.skip;
     this.project = state.project;
-
-    this.reset();
+    if (state.filter !== QUERY_DEFAULTS.DEFAULT_FILTER
+        || state.sort !== QUERY_DEFAULTS.DEFAULT_SORT
+        || state.limit !== QUERY_DEFAULTS.DEFAULT_LIMIT
+        || state.skip !== QUERY_DEFAULTS.DEFAULT_SKIP
+        || state.project !== QUERY_DEFAULTS.DEFAULT_PROJECT) {
+      this.reset();
+    }
   },
 
   /**
