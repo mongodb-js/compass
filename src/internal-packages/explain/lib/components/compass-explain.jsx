@@ -1,7 +1,9 @@
 const React = require('react');
 const app = require('hadron-app');
 const ExplainBody = require('./explain-body');
-const ExplainHeader = require('./explain-header');
+const ViewSwitcher = require('./shared/view-switcher');
+const ExplainActions = require('../actions');
+const StatusRow = app.appRegistry.getComponent('App.StatusRow');
 
 /**
  * Structure of components (Jade notation)
@@ -46,20 +48,18 @@ class CompassExplain extends React.Component {
     );
   }
 
+  onViewSwitch(label) {
+    if (label === 'Visual Tree') {
+      ExplainActions.switchToTreeView();
+    } else if (label === 'Raw JSON') {
+      ExplainActions.switchToJSONView();
+    }
+  }
+
   renderContent() {
     return (
       <div className="column-container">
         <div className="column main">
-          <ExplainHeader
-            viewType={this.props.viewType}
-            nReturned={this.props.nReturned}
-            totalKeysExamined={this.props.totalKeysExamined}
-            totalDocsExamined={this.props.totalDocsExamined}
-            executionTimeMillis={this.props.executionTimeMillis}
-            inMemorySort={this.props.inMemorySort}
-            indexType={this.props.indexType}
-            index={this.props.index}
-          />
           <ExplainBody
             viewType={this.props.viewType}
             rawExplainObject={this.props.rawExplainObject}
@@ -86,11 +86,22 @@ class CompassExplain extends React.Component {
       content = this.renderContent();
     }
 
+    const activeViewTypeButton = this.props.viewType === 'tree' ?
+      'Visual Tree' : 'Raw JSON';
+
     return (
       <div className="compass-explain">
         <div className="controls-container">
           <this.queryBar layout={QUERYBAR_LAYOUT} />
           {warning}
+          <div className="action-bar">
+            <ViewSwitcher
+              label="View Details As"
+              buttonLabels={['Visual Tree', 'Raw JSON']}
+              activeButton={activeViewTypeButton}
+              onClick={this.onViewSwitch}
+            />
+          </div>
         </div>
         {content}
       </div>
@@ -108,7 +119,7 @@ CompassExplain.propTypes = {
   indexType: React.PropTypes.oneOf(['MULTIPLE', 'UNAVAILABLE', 'COLLSCAN',
     'COVERED', 'INDEX']).isRequired,
   index: React.PropTypes.object,
-  viewType: React.PropTypes.oneOf(['tree', 'json']),
+  viewType: React.PropTypes.oneOf(['tree', 'json']).isRequired,
   rawExplainObject: React.PropTypes.object.isRequired
 };
 
