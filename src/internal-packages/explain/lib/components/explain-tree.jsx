@@ -1,8 +1,6 @@
 /* eslint react/no-multi-comp: 0 */
-
 const React = require('react');
 const app = require('hadron-app');
-
 const TreeStagesStore = require('../stores/tree-stages');
 const ExplainStage = require('./explain-stage');
 const _ = require('lodash');
