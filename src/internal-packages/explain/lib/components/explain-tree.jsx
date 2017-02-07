@@ -8,7 +8,6 @@ const ExplainStage = require('./explain-stage');
 const _ = require('lodash');
 const d3 = require('d3');
 const constants = require('../constants');
-// const ExplainHeader = require('./explain-header');
 const ExplainSummary = require('./explain-summary');
 
 // const debug = require('debug')('mongodb-compass:compass-explain:details-tree');

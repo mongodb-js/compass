@@ -3,7 +3,6 @@ const app = require('hadron-app');
 const ExplainBody = require('./explain-body');
 const ViewSwitcher = require('./shared/view-switcher');
 const ExplainActions = require('../actions');
-const StatusRow = app.appRegistry.getComponent('App.StatusRow');
 
 /**
  * Structure of components (Jade notation)
@@ -40,20 +39,20 @@ class CompassExplain extends React.Component {
     this.queryBar = app.appRegistry.getComponent('Query.QueryBar');
   }
 
-  renderWarning(warning) {
-    return (
-      <this.statusRow style="warning">
-        {warning}
-      </this.statusRow>
-    );
-  }
-
   onViewSwitch(label) {
     if (label === 'Visual Tree') {
       ExplainActions.switchToTreeView();
     } else if (label === 'Raw JSON') {
       ExplainActions.switchToJSONView();
     }
+  }
+
+  renderWarning(warning) {
+    return (
+      <this.statusRow style="warning">
+        {warning}
+      </this.statusRow>
+    );
   }
 
   renderContent() {
