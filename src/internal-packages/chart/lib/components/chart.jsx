@@ -76,7 +76,7 @@ Chart.defaultProps = {
   data: [],
   width: 300,
   height: 300,
-  renderer: 'canvas',
+  renderer: 'svg',
   className: 'chart',
   specType: 'vega-lite'
 };
