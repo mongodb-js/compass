@@ -29,7 +29,6 @@ class ExplainBody extends React.Component {
 
   render() {
     let summary = null;
-
     if (this.props.viewType === 'json') {
       summary = null;
     } else {
