@@ -16,8 +16,8 @@ class Editable extends React.Component {
             onClick={this.props.onCancel}>Cancel
           </Button>
           <Button
-            bsStyle="default"
             bsSize="xsmall"
+            bsStyle="btn-edit"
             onClick={this.props.onUpdate}>Update
           </Button>
         </div>
@@ -27,7 +27,7 @@ class Editable extends React.Component {
       return (
         <div className="pull-right">
           <Button
-            bsStyle="link"
+            bsStyle="borderless"
             bsSize="xsmall"
             onClick={this.props.onCancel}>Cancel
           </Button>

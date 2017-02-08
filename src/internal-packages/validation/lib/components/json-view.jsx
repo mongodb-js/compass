@@ -123,7 +123,7 @@ class JSONView extends React.Component {
                   bsSize="xs"
                   options={{warn: 'Warning', error: 'Error'}}
                   value={this.props.validationAction}
-                  label="validation action:"
+                  label="Validation Action:"
                   onSelect={this.onActionSelect.bind(this)}
                   disabled={!this.props.isWritable}
                 />
@@ -132,7 +132,7 @@ class JSONView extends React.Component {
                   bsSize="xs"
                   options={{off: 'Off', moderate: 'Moderate', strict: 'Strict'}}
                   value={this.props.validationLevel}
-                  label="validation level:"
+                  label="Validation Level:"
                   onSelect={this.onLevelSelect.bind(this)}
                   disabled={!this.props.isWritable}
                 />

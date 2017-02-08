@@ -183,7 +183,7 @@ class DocumentFooter extends React.Component {
             text="Cancel"
             clickHandler={this.handleCancel.bind(this)} />
           <TextButton
-            className="btn btn-default btn-xs update"
+            className="btn btn-default btn-xs"
             text="Update"
             dataTestId="update-document-button"
             clickHandler={this.handleUpdate.bind(this)} />

@@ -14,7 +14,7 @@ class RuleDeleteButton extends React.Component {
    */
   render() {
     return (
-      <Button className="delete-button pull-right" onClick={this.props.onClick}>
+      <Button className="pull-right" bsSize="xsmall" onClick={this.props.onClick}>
         <FontAwesome name="trash-o" />
       </Button>
     );

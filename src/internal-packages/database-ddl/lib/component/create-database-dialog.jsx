@@ -232,11 +232,11 @@ class CreateDatabaseDialog extends React.Component {
 
         <Modal.Footer>
           <TextButton
-            className="btn btn-default"
+            className="btn btn-default btn-sm"
             text="Cancel"
             clickHandler={this.onHideModal.bind(this)} />
           <TextButton
-            className="btn btn-primary"
+            className="btn btn-primary btn-sm"
             dataTestId="create-database-button"
             text="Create Database"
             clickHandler={this.onCreateDatabaseButtonClicked.bind(this)} />

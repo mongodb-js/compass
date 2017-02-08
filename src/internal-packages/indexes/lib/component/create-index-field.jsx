@@ -150,7 +150,7 @@ class CreateIndexField extends React.Component {
         </div>
         <div className="col-md-2">
           <button disabled={this.props.isRemovable}
-            className="btn btn-success btn-circle"
+            className="btn btn-primary btn-circle"
             onClick={this.remove.bind(this)}>
             <i className="fa fa-minus" aria-hidden="true"></i>
           </button>

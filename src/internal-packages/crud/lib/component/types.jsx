@@ -103,7 +103,7 @@ class Types extends React.Component {
     return (
       <div className={this.getClassName()}>
         <button
-          className="btn btn-default dropdown-toggle"
+          className="btn-crud"
           type="button"
           tabIndex="-1"
           id="types-dropdown"
