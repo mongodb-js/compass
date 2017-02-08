@@ -6,7 +6,6 @@ const ExplainStage = require('./explain-stage');
 const _ = require('lodash');
 const d3 = require('d3');
 const constants = require('../constants');
-const ExplainSummary = require('./explain-summary');
 
 // const debug = require('debug')('mongodb-compass:compass-explain:details-tree');
 
@@ -68,15 +67,6 @@ class ExplainTree extends React.Component {
   render() {
     return (
       <div>
-        <ExplainSummary
-          nReturned={this.props.nReturned}
-          totalKeysExamined={this.props.totalKeysExamined}
-          totalDocsExamined={this.props.totalDocsExamined}
-          executionTimeMillis={this.props.executionTimeMillis}
-          inMemorySort={this.props.inMemorySort}
-          indexType={this.props.indexType}
-          index={this.props.index}
-        />
         <div className="explain-tree" style={{height: this.props.height, width: this.props.width}} ref="stages">
           {this.getStages()}
         </div>
@@ -89,29 +79,14 @@ ExplainTree.propTypes = {
   nodes: React.PropTypes.array,
   links: React.PropTypes.array,
   width: React.PropTypes.number,
-  height: React.PropTypes.number,
-  nReturned: React.PropTypes.number.isRequired,
-  totalKeysExamined: React.PropTypes.number.isRequired,
-  totalDocsExamined: React.PropTypes.number.isRequired,
-  executionTimeMillis: React.PropTypes.number.isRequired,
-  inMemorySort: React.PropTypes.bool.isRequired,
-  indexType: React.PropTypes.oneOf(['MULTIPLE', 'UNAVAILABLE', 'COLLSCAN',
-    'COVERED', 'INDEX']).isRequired,
-  index: React.PropTypes.object
+  height: React.PropTypes.number
 };
 
 ExplainTree.defaultProps = {
   nodes: [],
   links: [],
   width: 0,
-  height: 0,
-  nReturned: 0,
-  totalKeysExamined: 0,
-  totalDocsExamined: 0,
-  executionTimeMillis: 0,
-  inMemorySort: false,
-  indexType: 'UNAVAILABLE',
-  index: null
+  height: 0
 };
 
 ExplainTree.displayName = 'ExplainTree';

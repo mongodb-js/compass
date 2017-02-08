@@ -62,6 +62,14 @@ class CompassExplain extends React.Component {
           <ExplainBody
             viewType={this.props.viewType}
             rawExplainObject={this.props.rawExplainObject}
+
+            nReturned={this.props.nReturned}
+            totalKeysExamined={this.props.totalKeysExamined}
+            totalDocsExamined={this.props.totalDocsExamined}
+            executionTimeMillis={this.props.executionTimeMillis}
+            inMemorySort={this.props.inMemorySort}
+            indexType={this.props.indexType}
+            index={this.props.index}
           />
         </div>
       </div>
