@@ -74,6 +74,7 @@ require('bootstrap/js/transition');
 
 var $ = window.jQuery;
 $.getScript('../clippy/clippy.min.js');
+var clippyAgent = null;
 
 ipc.once('app:launched', function() {
   console.log('in app:launched');
@@ -297,6 +298,7 @@ var Application = View.extend({
     window.clippy.load('Merlin', function(agent) {
       // do anything with the loaded agent
       agent.show();
+      clippyAgent = agent;
     });
   },
   showTour: function(force) {
@@ -499,6 +501,12 @@ Object.defineProperty(app, 'user', {
 Object.defineProperty(app, 'state', {
   get: function() {
     return state;
+  }
+});
+
+Object.defineProperty(app, 'clippy', {
+  get: function() {
+    return clippyAgent;
   }
 });
 

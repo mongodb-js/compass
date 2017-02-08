@@ -147,6 +147,8 @@ const SchemaStore = Reflux.createStore({
    * This function is called when the collection filter changes.
    */
   startSampling() {
+    app.clippy.speak('why are you so bad at sampling?');
+    app.clippy.play('Blink');
     // we are not using state to guard against running this simultaneously
     if (this.isNamespaceChanged) {
       return;
