@@ -13,23 +13,35 @@ class ExplainBody extends React.Component {
    *
    * @returns {React.Component} The Summary part of the explain view.
    */
+  renderSummary() {
+    return (
+      <ExplainSummary
+        nReturned={this.props.nReturned}
+        totalKeysExamined={this.props.totalKeysExamined}
+        totalDocsExamined={this.props.totalDocsExamined}
+        executionTimeMillis={this.props.executionTimeMillis}
+        inMemorySort={this.props.inMemorySort}
+        indexType={this.props.indexType}
+        index={this.props.index}
+      />
+    );
+  }
+
   render() {
-    const summaryView = this.props.viewType === 'json' ? '' : <ExplainSummary
-      nReturned={this.props.nReturned}
-      totalKeysExamined={this.props.totalKeysExamined}
-      totalDocsExamined={this.props.totalDocsExamined}
-      executionTimeMillis={this.props.executionTimeMillis}
-      inMemorySort={this.props.inMemorySort}
-      indexType={this.props.indexType}
-      index={this.props.index}
-    />;
+    let summary = null;
+
+    if (this.props.viewType === 'json') {
+      summary = null;
+    } else {
+      summary = this.renderSummary();
+    }
+
     const DetailsViewClass = this.props.viewType === 'json' ? ExplainJSON : ExplainTree;
     const detailsView = <DetailsViewClass rawExplainObject={this.props.rawExplainObject} />;
 
-
     return (
       <div className="explain-body">
-        {summaryView}
+        {summary}
         {detailsView}
       </div>
     );

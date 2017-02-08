@@ -4,21 +4,6 @@ const ExplainBody = require('./explain-body');
 const ViewSwitcher = require('./shared/view-switcher');
 const ExplainActions = require('../actions');
 
-/**
- * Structure of components (Jade notation)
- *
- * .compass-explain
- *   .explain-header
- *     .explain-summary
- *       .summary-stats (5x in FlexBox)
- *       .summary-index-stats (1x in FlexBox)
- *     .view-switcher
- *   .explain-body
- *     .explain-tree     (mutually exclusive with .explain-json)
- *       .explain-stage  (multiple)
- *     .explain-json     (mutually exclusive with .explain-tree)
- */
-
 // TODO (thomasr) data-service explain does not pass through options to find yet.
 const QUERYBAR_LAYOUT = ['filter'];
 
