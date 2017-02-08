@@ -73,7 +73,7 @@ require('bootstrap/js/modal');
 require('bootstrap/js/transition');
 
 var $ = window.jQuery;
-$.getScript('../clippy/clippy.min.js');
+$.getScript('../clippy-assets/clippy.min.js');
 var clippyAgent = null;
 
 ipc.once('app:launched', function() {
@@ -295,7 +295,7 @@ var Application = View.extend({
     }
 
     // clippy
-    window.clippy.BASE_PATH = '../../src/clippy/agents/';
+    window.clippy.BASE_PATH = '../clippy-assets/agents/';
     const items = [
       'Clippy',
       'Peedy',
