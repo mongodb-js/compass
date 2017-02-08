@@ -72,6 +72,9 @@ var addInspectElementMenu = require('debug-menu').install;
 require('bootstrap/js/modal');
 require('bootstrap/js/transition');
 
+var $ = window.jQuery;
+$.getScript('../clippy/clippy.min.js');
+
 ipc.once('app:launched', function() {
   console.log('in app:launched');
   if (process.env.NODE_ENV !== 'production') {
@@ -289,6 +292,12 @@ var Application = View.extend({
       debug('Installing "Inspect Element" context menu');
       addInspectElementMenu();
     }
+
+    window.clippy.BASE_PATH = (window.location.protocol === 'file:' ? 'https:' : window.location.protocol) + '//s3.amazonaws.com/clippy.js/Agents/';
+    window.clippy.load('Merlin', function(agent) {
+      // do anything with the loaded agent
+      agent.show();
+    });
   },
   showTour: function(force) {
     var tourView = new TourView({force: force});
