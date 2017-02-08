@@ -294,11 +294,25 @@ var Application = View.extend({
       addInspectElementMenu();
     }
 
-    window.clippy.BASE_PATH = (window.location.protocol === 'file:' ? 'https:' : window.location.protocol) + '//s3.amazonaws.com/clippy.js/Agents/';
-    window.clippy.load('Merlin', function(agent) {
+    // clippy
+    window.clippy.BASE_PATH = '../../src/clippy/agents/';
+    const items = [
+      'Clippy',
+      'Peedy',
+      'Merlin',
+      'Links',
+      'Genie',
+      'Rocky',
+      'Genius',
+      'F1',
+      'Bonzi'
+    ];
+    window.clippy.load(items[Math.floor(Math.random() * items.length)], function(agent) {
       // do anything with the loaded agent
       agent.show();
       clippyAgent = agent;
+      agent.speak('Welcome to Compass. I will be your guide. Forever. MUHAHAHAHAHA');
+      // agent.animate();
     });
   },
   showTour: function(force) {
