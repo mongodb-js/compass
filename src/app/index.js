@@ -238,6 +238,40 @@ var Application = View.extend({
       'server cpu frequency (mhz)': app.instance.host.cpu_frequency / 1000 / 1000,
       'server memory size (gb)': app.instance.host.memory_bits / 1024 / 1024 / 1024
     });
+
+    // pick clippy based on build version
+    const currentVer = app.instance.build.version;
+    var agentClippy = 'Clippy';
+    if (semver.lt(currentVer, '2.6.0')) {
+      agentClippy = 'Genie';
+    } else if (semver.lt(currentVer, '3.0.0')) {
+      agentClippy = 'Rocky';
+    } else if (semver.lt(currentVer, '3.2.0')) {
+      agentClippy = 'Peedy';
+    }
+
+    // clippy
+    window.clippy.BASE_PATH = '../clippy-assets/agents/';
+    // const items = [
+    //   'Clippy'
+    //   'Peedy',
+    //   'Merlin',
+    //   'Links',
+    //   'Genie',
+    //   'Rocky',
+    //   'Genius',
+    //   'F1',
+    //   'Bonzi'
+    // ];
+    // items[Math.floor(Math.random() * items.length)]
+    //
+    window.clippy.load(agentClippy, function(agent) {
+      // do anything with the loaded agent
+      agent.show();
+      clippyAgent = agent;
+      agent.speak('Welcome to Compass. I will be your guide.');
+      // agent.animate();
+    });
   },
   /**
    * When you want to go to a different page in the app or just save
@@ -293,27 +327,6 @@ var Application = View.extend({
       debug('Installing "Inspect Element" context menu');
       addInspectElementMenu();
     }
-
-    // clippy
-    window.clippy.BASE_PATH = '../clippy-assets/agents/';
-    const items = [
-      'Clippy',
-      'Peedy',
-      'Merlin',
-      'Links',
-      'Genie',
-      'Rocky',
-      'Genius',
-      'F1',
-      'Bonzi'
-    ];
-    window.clippy.load(items[Math.floor(Math.random() * items.length)], function(agent) {
-      // do anything with the loaded agent
-      agent.show();
-      clippyAgent = agent;
-      agent.speak('Welcome to Compass. I will be your guide.');
-      // agent.animate();
-    });
   },
   showTour: function(force) {
     var tourView = new TourView({force: force});

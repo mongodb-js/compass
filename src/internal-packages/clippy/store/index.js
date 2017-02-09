@@ -61,6 +61,9 @@ const ClippyStore = Reflux.createStore({
   },
 
   clipStartup: function() {
+    if (app.clippy === null) {
+      return;
+    }
     if (app.connection.authentication === 'NONE') {
       const messages = clippings.Startup.bad.auth;
       app.clippy.speak(this.randomSpeak(messages));
