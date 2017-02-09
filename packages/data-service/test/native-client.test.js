@@ -304,6 +304,17 @@ describe('NativeClient', function() {
     });
   });
 
+  describe('#shardedCollectionDetail', function() {
+    it('returns the collection details', function(done) {
+      client.shardedCollectionDetail('data-service.test', function(err, coll) {
+        assert.equal(null, err);
+        expect(coll.ns).to.equal('data-service.test');
+        expect(coll.index_count).to.equal(1);
+        done();
+      });
+    });
+  });
+
   describe('#updateCollection', function() {
     it('returns the update result', function(done) {
       client.updateCollection('data-service.test', {}, function(err, result) {

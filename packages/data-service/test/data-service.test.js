@@ -272,6 +272,17 @@ describe('DataService', function() {
     });
   });
 
+  describe('#shardedCollectionDetail', function() {
+    it('returns the collection details', function(done) {
+      service.shardedCollectionDetail('data-service.test', function(err, detail) {
+        assert.equal(null, err);
+        expect(detail.ns).to.equal('data-service.test');
+        expect(detail.index_count).to.equal(1);
+        done();
+      });
+    });
+  });
+
   describe('#database', function() {
     it('returns the database details', function(done) {
       service.database('data-service', {}, function(err, database) {

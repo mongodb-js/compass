@@ -531,6 +531,31 @@ class NativeClient extends EventEmitter {
   }
 
   /**
+   * Get the collection details for sharded collections.
+   *
+   * @param {String} ns - The full collection namespace.
+   */
+  shardedCollectionDetail(ns, callback) {
+    this.collectionDetail(ns, (error, data) => {
+      if (error) {
+        return callback(this._translateMessage(error));
+      }
+      if (!data.sharded) {
+        callback(null, data);
+      } else {
+        async.parallel(_.map(data.shards, (shardStats, shardName) => {
+          return this._shardDistribution.bind(this, ns, shardName, data, shardStats);
+        }), (err) => {
+          if (err) {
+            return callback(this._translateMessage(err));
+          }
+          callback(null, data);
+        });
+      }
+    });
+  }
+
+  /**
    * Update a collection.
    *
    * @param {String} ns - The namespace.
@@ -587,6 +612,31 @@ class NativeClient extends EventEmitter {
   }
 
   /**
+   * Merges the shard distribution information into the collection detail.
+   *
+   * @param {String} ns - The namespace.
+   * @param {String} shardName - The shard name.
+   * @param {Object} detail - The collection detail.
+   * @param {Object} shardStats - The shard stats to merge into.
+   * @param {Function} callback - The callback.
+   */
+  _shardDistribution(ns, shardName, detail, shardStats, callback) {
+    var configDb = this._database('config');
+    configDb.collection('shards').findOne({ _id: shardName }, (error, shardDoc) => {
+      if (error) {
+        return callback(this._translateMessage(error));
+      }
+      configDb.collection('chunks').count({ ns: ns, shard: shardName }, (err, chunkCount) => {
+        if (err) {
+          return callback(this._translateMessage(err));
+        }
+        _.assign(shardStats, this._buildShardDistribution(detail, shardStats, shardDoc, chunkCount));
+        callback(null);
+      });
+    });
+  }
+
+  /**
    * Builds the collection detail.
    *
    * @param {String} ns - The namespace.
@@ -601,6 +651,26 @@ class NativeClient extends EventEmitter {
       database: this._databaseName(ns),
       indexes: data.indexes
     });
+  }
+
+  /**
+   * Build the shard distribution.
+   *
+   * @param {Object} detail - The collection details.
+   * @param {Object} shardStats - The shard stats.
+   * @param {Object} shardDoc - The shard doc.
+   * @param {Integer} chunkCount - The chunk counts.
+   */
+  _buildShardDistribution(detail, shardStats, shardDoc, chunkCount) {
+    return {
+      host: shardDoc.host,
+      shardData: shardStats.size,
+      shardDocs: shardStats.count,
+      estimatedDataPerChunk: shardStats.size / chunkCount,
+      estimatedDocsPerChunk: Math.floor(shardStats.count / chunkCount),
+      estimatedDataPercent: Math.floor(((shardStats.size / detail.size) || 0) * 10000) / 100,
+      estimatedDocPercent: Math.floor(((shardStats.count / detail.count) || 0) * 10000) / 100
+    };
   }
 
   /**
@@ -632,6 +702,8 @@ class NativeClient extends EventEmitter {
       flags_user: data.userFlags,
       flags_system: data.systemFlags,
       max_document_size: data.maxSize,
+      sharded: data.sharded || false,
+      shards: data.shards || {},
       size: data.size,
       index_details: data.indexDetails || {},
       wired_tiger: data.wiredTiger || {},
