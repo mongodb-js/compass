@@ -266,11 +266,33 @@ var Application = View.extend({
     // items[Math.floor(Math.random() * items.length)]
     //
     window.clippy.load(agentClippy, function(agent) {
-      // do anything with the loaded agent
+      // start up the specified agent
       agent.show();
       clippyAgent = agent;
       agent.speak('Welcome to Compass. I will be your guide.');
-      // agent.animate();
+
+      // check environment after startup
+      const clippings = require('../internal-packages/clippy/constants');
+      const randomSpeak = messages => messages[_.random(0, messages.length - 1)];
+      const oldVersion = app.instance.build.version.startsWith('2.');
+      const noAuth = app.connection.authentication === 'NONE';
+      const hax0red = _.isEqual(app.instance.databases.models.map(x => x._id), ['WARNING', 'admin', 'local']);
+      if (hax0red) {
+        // hax0red
+        const messages = clippings.Startup.bad.hax0red;
+        agent.speak(randomSpeak(messages));
+      }
+      if (noAuth && !hax0red) {
+        // no auth
+        const messages = clippings.Startup.bad.auth;
+        agent.speak(randomSpeak(messages));
+      }
+      if (oldVersion) {
+        // old version
+        console.info('oldverson');
+        const messages = clippings.Startup.bad.outdated;
+        agent.speak(randomSpeak(messages));
+      }
     });
   },
   /**

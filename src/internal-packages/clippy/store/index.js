@@ -11,7 +11,6 @@ const ClippyStore = Reflux.createStore({
     this.listenToExternalStore('Query.Store', this.clipQuery.bind(this));
     this.listenTo(IndexActions.toggleModal, this.clipIndexButton);
     this.listenToExternalStore('Explain.Store', this.clipExplain.bind(this));
-    this.listenToExternalStore('App.InstanceStore', this.clipStartup.bind(this));
     this.listenToExternalStore('Indexes.IndexStore', this.clipIndexButton.bind(this));
   },
 
@@ -56,23 +55,6 @@ const ClippyStore = Reflux.createStore({
     } else if (state.executionTimeMillis > 100 && state.indexType !== 'COLLSCAN') {
       const messages = clippings.Explain.bad.slow;
       app.clippy.stop();
-      app.clippy.speak(this.randomSpeak(messages));
-    }
-  },
-
-  clipStartup: function() {
-    if (app.clippy === null) {
-      return;
-    }
-    if (app.connection.authentication === 'NONE') {
-      const messages = clippings.Startup.bad.auth;
-      app.clippy.speak(this.randomSpeak(messages));
-      // app.clippy.play('GetAttention');
-      // app.clippy.speak('Seriously dude');
-      app.clippy.animate();
-    }
-    if (app.instance.build.version.startsWith('2.')) {
-      const messages = clippings.Startup.bad.outdated;
       app.clippy.speak(this.randomSpeak(messages));
     }
   },

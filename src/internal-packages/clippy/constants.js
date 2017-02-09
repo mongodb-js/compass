@@ -45,6 +45,9 @@ const clippings = Object.freeze({
         'This version is horribly outdated. Do you have no internet?',
         'Welcome to the world of outdated MongoDB. I will be your guide.'
       ],
+      'hax0red': [
+        'It looks like you have an offsite backup set up. Please send 1 BTC to restore. Don\'t forget to turn on auth afterward.'
+      ],
       'animation': []
     }
   }
