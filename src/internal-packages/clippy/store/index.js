@@ -1,11 +1,14 @@
 const Reflux = require('reflux');
 const app = require('ampersand-app');
 const clippings = require('../constants');
+const IndexActions = require('../../indexes/lib/action/index-actions');
+
 const _ = require('lodash');
 
 const ClippyStore = Reflux.createStore({
   init: function() {
     this.listenToExternalStore('Query.Store', this.clipQuery.bind(this));
+    this.listenTo(IndexActions.toggleModal, this.clipIndexButton);
   },
 
   /**
@@ -19,6 +22,10 @@ const ClippyStore = Reflux.createStore({
     app.clippy.stopCurrent();
     app.clippy.animate(animations[_.random(0, animations.length - 1)]);
     app.clippy.speak(messages[_.random(0, messages.length - 1)]);
+  },
+
+  clipIndexButton: function(state) {
+    console.info('index state', state);
   }
 });
 
