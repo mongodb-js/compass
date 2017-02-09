@@ -15,7 +15,12 @@ const clippings = Object.freeze({
         'Save',
         'GetTechy',
         'GestureUp'
-      ]
+      ],
+      'move': {
+        'location': [250, 150],
+        'message': 'try changing the query',
+        'animation': 'GestureUp'
+      }
     }
   },
 
@@ -31,6 +36,11 @@ const clippings = Object.freeze({
       'notPrefix': [
         'Although the query is defined in an index, it is not a prefix of any index. Would you like to know more? Please send 1 bitcoin.'
       ],
+      'move': {
+        'location': [550, 100],
+        'message': 'Try adding an index here',
+        'animation': 'GestureUp'
+      },
       'animation': []
     }
   },

@@ -28,8 +28,12 @@ const ClippyStore = Reflux.createStore({
       const messages = clippings.Query.bad.message;
       const animations = clippings.Query.bad.animation;
       app.clippy.stop();
-      app.clippy.animate(animations[_.random(0, animations.length - 1)]);
+      app.clippy.play(animations[_.random(0, animations.length - 1)]);
       app.clippy.speak(messages[_.random(0, messages.length - 1)]);
+      const moveTo = clippings.Query.bad.move.location;
+      app.clippy.moveTo(moveTo[0], moveTo[1]);
+      app.clippy.speak(clippings.Query.bad.move.message);
+      app.clippy.play(clippings.Query.bad.move.animation);
     }
   },
 
@@ -52,6 +56,10 @@ const ClippyStore = Reflux.createStore({
         app.clippy.stop();
         app.clippy.speak(this.randomSpeak(messages));
       }
+      const moveTo = clippings.Explain.bad.move.location;
+      app.clippy.moveTo(moveTo[0], moveTo[1]);
+      app.clippy.speak(clippings.Explain.bad.move.message);
+      app.clippy.play(clippings.Explain.bad.move.animation);
     } else if (state.executionTimeMillis > 100 && state.indexType !== 'COLLSCAN') {
       const messages = clippings.Explain.bad.slow;
       app.clippy.stop();
