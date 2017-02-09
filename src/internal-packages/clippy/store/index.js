@@ -12,7 +12,7 @@ const ClippyStore = Reflux.createStore({
     this.listenTo(IndexActions.toggleModal, this.clipIndexButton);
     this.listenToExternalStore('Explain.Store', this.clipExplain.bind(this));
     this.listenToExternalStore('App.InstanceStore', this.clipStartup.bind(this));
-    this.listenToExternalStore('Indexes.IndexStore', this.clipIndex.bind(this));
+    this.listenToExternalStore('Indexes.IndexStore', this.clipIndexButton.bind(this));
   },
 
   randomSpeak: function(messages) {
@@ -35,7 +35,7 @@ const ClippyStore = Reflux.createStore({
   },
 
   clipExplain: function(state) {
-    console.info('explain', state)
+    console.info('explain', state);
     if (state.indexType === 'COLLSCAN') {
       const messages = clippings.Explain.bad.message;
       app.clippy.stop();
