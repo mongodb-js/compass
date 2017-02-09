@@ -297,15 +297,15 @@ var Application = View.extend({
     // clippy
     window.clippy.BASE_PATH = '../clippy-assets/agents/';
     const items = [
-      'Clippy'
-      // 'Peedy',
-      // 'Merlin',
-      // 'Links',
-      // 'Genie',
-      // 'Rocky',
-      // 'Genius',
-      // 'F1',
-      // 'Bonzi'
+      'Clippy',
+      'Peedy',
+      'Merlin',
+      'Links',
+      'Genie',
+      'Rocky',
+      'Genius',
+      'F1',
+      'Bonzi'
     ];
     window.clippy.load(items[Math.floor(Math.random() * items.length)], function(agent) {
       // do anything with the loaded agent

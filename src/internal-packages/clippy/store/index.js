@@ -37,12 +37,25 @@ const ClippyStore = Reflux.createStore({
   clipExplain: function(state) {
     console.info('explain', state);
     if (state.indexType === 'COLLSCAN') {
-      const messages = clippings.Explain.bad.message;
-      app.clippy.stop();
-      app.clippy.speak(this.randomSpeak(messages));
-    }
-    if (state.executionTimeMillis > 100) {
+      const indexStore = app.appRegistry.getStore('Indexes.IndexStore');
+      const indexKeys = indexStore.indexes.map(x => Object.keys(x.key));
+      const indexKeysFlat = _.flatten(indexKeys);
+      const indexKeysPrefixes = indexKeys.map(x => x[0]);
+      const prefix = _.includes(indexKeysFlat, Object.keys(state.parsedQuery)[0]) && !_.includes(indexKeysPrefixes, Object.keys(state.parsedQuery)[0]);
+      if (prefix) {
+        // indexed but not prefix
+        const messages = clippings.Explain.bad.notPrefix;
+        app.clippy.stop();
+        app.clippy.speak(this.randomSpeak(messages));
+      } else {
+        // collscan no index
+        const messages = clippings.Explain.bad.message;
+        app.clippy.stop();
+        app.clippy.speak(this.randomSpeak(messages));
+      }
+    } else if (state.executionTimeMillis > 100 && state.indexType !== 'COLLSCAN') {
       const messages = clippings.Explain.bad.slow;
+      app.clippy.stop();
       app.clippy.speak(this.randomSpeak(messages));
     }
   },
@@ -51,8 +64,8 @@ const ClippyStore = Reflux.createStore({
     if (app.connection.authentication === 'NONE') {
       const messages = clippings.Startup.bad.auth;
       app.clippy.speak(this.randomSpeak(messages));
-      app.clippy.play('GetAttention');
-      app.clippy.speak('Seriously dude');
+      // app.clippy.play('GetAttention');
+      // app.clippy.speak('Seriously dude');
       app.clippy.animate();
     }
     if (app.instance.build.version.startsWith('2.')) {

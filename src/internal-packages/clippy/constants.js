@@ -23,10 +23,13 @@ const clippings = Object.freeze({
     'bad': {
       'message': [
         'No index. Bad DBA.',
-        'Collection scan is bad bro'
+        'Your query is not indexed so you should feel bad.'
       ],
       'slow': [
         'This query is so slow. Perhaps an index is needed?'
+      ],
+      'notPrefix': [
+        'Although the query is defined in an index, it is not a prefix of any index. Would you like to know more? Please send 1 bitcoin.'
       ],
       'animation': []
     }
