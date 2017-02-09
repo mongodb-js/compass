@@ -17,6 +17,33 @@ const clippings = Object.freeze({
         'GestureUp'
       ]
     }
+  },
+
+  'Explain': {
+    'bad': {
+      'message': [
+        'No index. Bad DBA.',
+        'Collection scan is bad bro'
+      ],
+      'slow': [
+        'This query is so slow. Perhaps an index is needed?'
+      ],
+      'animation': []
+    }
+  },
+
+  'Startup': {
+    'bad': {
+      'auth': [
+        'I see that you have no auth. Do you want to get hacked? Because this is how you get hacked.',
+        'Without auth, this will be an ex-database soon'
+      ],
+      'outdated': [
+        'This version is horribly outdated. Do you have no internet?',
+        'Welcome to the world of outdated MongoDB. I will be your guide.'
+      ],
+      'animation': []
+    }
   }
 });
 

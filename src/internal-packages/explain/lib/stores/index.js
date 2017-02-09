@@ -183,16 +183,6 @@ const CompassExplainStore = Reflux.createStore({
           }) : null;
         newState.explainState = 'done';
         this.setState(newState);
-
-        // clippy
-        if (newState.isCollectionScan) {
-          const items = [
-            'Collection scan is bad bro',
-            'You should create an index for this query'
-          ];
-          app.clippy.stop();
-          app.clippy.speak(items[_.random(0, items.length - 1)]);
-        }
       });
     }
   },

@@ -1,7 +1,6 @@
 const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
 const DatabasesActions = require('../action');
-const app = require('ampersand-app');
 
 const _ = require('lodash');
 
@@ -46,18 +45,6 @@ const DatabasesStore = Reflux.createStore({
   },
 
   onInstanceRefreshed(state) {
-    // clippy
-    if (app.connection.authentication === 'NONE') {
-      const items = [
-        'I see that you have no auth. Do you want to get hacked? Because this is how you get hacked.',
-        'Your database has no auth. Wow.'
-      ];
-      app.clippy.speak(items[_.random(0, items.length - 1)]);
-      app.clippy.play('GetAttention');
-      app.clippy.speak('Seriously dude');
-      app.clippy.animate();
-    }
-
     if (!_.has(state, 'instance') || _.isEmpty(state.instance)) {
       this.setState({
         databases: []
