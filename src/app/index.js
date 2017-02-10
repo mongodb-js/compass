@@ -296,16 +296,33 @@ var Application = View.extend({
 
       app.dataService.getCmdLineOpts(function(err, response) {
         if (err) {
-          console.error(err);
+          return;
         }
         console.info('getCmdLineOpts:', response);
+        let messages = ['I see your command line options and I discovered silly things'];
+        if (_.includes(response.argv, '--rest')) {
+          messages.push('REST interface is active. If this is a prod server, you\'re connecting to the wrong server');
+        }
+        if (_.includes(response.argv, '--master') || _.includes(response.argv, '--slave')) {
+          messages.push('Master slave is so 90\'s, damn you are old');
+        }
+        if (messages.length > 1) {
+          agent.speak(messages.join('. ') + clippings.space);
+        }
       });
 
       app.dataService.replSetGetStatus(function(err, response) {
         if (err) {
-          console.error(err);
+          return;
         }
         console.info('replSetGetStatus:', response);
+        let messages = ['I see your replica set and I discovered silly things'];
+        if (response.members.length % 2 === 0) {
+          messages.push('You have an even number of nodes in your replica set. I foresee sad things in the future. Your future.');
+        }
+        if (messages.length > 1) {
+          agent.speak(messages.join('. ') + clippings.space);
+        }
       });
     });
   },
