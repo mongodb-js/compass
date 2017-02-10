@@ -26,9 +26,11 @@ const CreateIndexStore = Reflux.createStore({
     this.listenTo(Action.updateFieldName, this.updateFieldName);
     this.listenTo(Action.updateFieldType, this.updateFieldType);
     this.listenTo(Action.removeIndexField, this.removeIndexField);
+    this.listenTo(Action.toggleModal, this.toggleModal);
     this.schemaFields = []; // fields in the current schema
     this.fields = [{name: '', type: ''}];
     this.options = {}; // options for new index
+    this.showModal = false;
   },
 
   /*
@@ -137,7 +139,7 @@ const CreateIndexStore = Reflux.createStore({
    * Send fields, options, and schema fields to listeners.
    */
   sendValues: function() {
-    this.trigger(this.fields, this.options, this.schemaFields);
+    this.trigger(this.fields, this.options, this.schemaFields, this.showModal);
   },
 
   /**
@@ -187,6 +189,10 @@ const CreateIndexStore = Reflux.createStore({
       this.fields.splice(idx, 1);
     }
     this.sendValues();
+  },
+
+  toggleModal: function() {
+    this.showModal = !this.showModal;
   }
 });
 

@@ -12,7 +12,8 @@ const IndexActions = Reflux.createActions([
   'addIndexField',
   'updateFieldName',
   'updateFieldType',
-  'removeIndexField'
+  'removeIndexField',
+  'toggleModal'
 ]);
 
 module.exports = IndexActions;

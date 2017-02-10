@@ -1,5 +1,6 @@
 const React = require('react');
 const CreateIndexModal = require('./create-index-modal');
+const Action = require('../action/index-actions');
 
 /**
  * Component for the create index button.
@@ -27,6 +28,7 @@ class CreateIndexButton extends React.Component {
     evt.preventDefault();
     evt.stopPropagation();
     this.setState({ showModal: true });
+    Action.toggleModal();
   }
 
   /**
@@ -34,6 +36,7 @@ class CreateIndexButton extends React.Component {
    */
   close() {
     this.setState({ showModal: false });
+    Action.toggleModal();
   }
 
   /**

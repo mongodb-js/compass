@@ -4,6 +4,7 @@ const SortableTable = require('./lib/components/sortable-table');
 const TabNavBar = require('./lib/components/tab-nav-bar');
 const StatusRow = require('./lib/components/status-row');
 const InstanceActions = require('./lib/actions/instance-actions');
+const TabNavBarActions = require('./lib/actions/tab-nav-bar-actions');
 const InstanceStore = require('./lib/stores/instance-store');
 const CollectionStore = require('./lib/stores/collection-store');
 const ModalStatusMessage = require('./lib/components/modal-status-message');
@@ -18,6 +19,7 @@ function activate() {
   app.appRegistry.registerComponent('App.TabNavBar', TabNavBar);
   app.appRegistry.registerComponent('App.StatusRow', StatusRow);
   app.appRegistry.registerAction('App.InstanceActions', InstanceActions);
+  app.appRegistry.registerAction('App.TabNavBarActions', TabNavBarActions);
   app.appRegistry.registerStore('App.InstanceStore', InstanceStore);
   app.appRegistry.registerStore('App.CollectionStore', CollectionStore);
 }
@@ -32,6 +34,7 @@ function deactivate() {
   app.appRegistry.deregisterComponent('App.TabNavBar');
   app.appRegistry.deregisterComponent('App.StatusRow');
   app.appRegistry.deregisterAction('App.InstanceActions');
+  app.appRegistry.deregisterAction('App.TabNavBarActions');
   app.appRegistry.deregisterStore('App.InstanceStore');
   app.appRegistry.deregisterStore('App.CollectionStore');
 }

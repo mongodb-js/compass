@@ -124,6 +124,9 @@ const SchemaStore = Reflux.createStore({
   },
 
   stopSampling() {
+    // clippy
+    app.clippy.stopCurrent();
+
     if (!this.isNamespaceChanged) {
       return;
     }
@@ -147,6 +150,9 @@ const SchemaStore = Reflux.createStore({
    * This function is called when the collection filter changes.
    */
   startSampling() {
+    // clippy
+    app.clippy.play('Processing');
+
     // we are not using state to guard against running this simultaneously
     if (this.isNamespaceChanged) {
       return;

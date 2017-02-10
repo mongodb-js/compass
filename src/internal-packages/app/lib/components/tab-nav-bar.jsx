@@ -1,5 +1,7 @@
 const React = require('react');
 const _ = require('lodash');
+const actions = require('../actions/tab-nav-bar-actions');
+
 // const debug = require('debug')('mongodb-compass:app:nav-bar');
 
 class TabNavBar extends React.Component {
@@ -23,6 +25,7 @@ class TabNavBar extends React.Component {
   onTabClicked(idx, evt) {
     evt.preventDefault();
     this.setState({ activeTabIndex: idx });
+    actions.changeTabs();
     if (this.props.onTabClicked) {
       this.props.onTabClicked(idx, this.props.tabs[idx]);
     }

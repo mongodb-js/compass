@@ -72,6 +72,10 @@ var addInspectElementMenu = require('debug-menu').install;
 require('bootstrap/js/modal');
 require('bootstrap/js/transition');
 
+var $ = window.jQuery;
+$.getScript('../clippy-assets/clippy.min.js');
+var clippyAgent = null;
+
 ipc.once('app:launched', function() {
   console.log('in app:launched');
   if (process.env.NODE_ENV !== 'production') {
@@ -233,6 +237,93 @@ var Application = View.extend({
       'server cpu cores': app.instance.host.cpu_cores,
       'server cpu frequency (mhz)': app.instance.host.cpu_frequency / 1000 / 1000,
       'server memory size (gb)': app.instance.host.memory_bits / 1024 / 1024 / 1024
+    });
+
+    // pick clippy based on build version
+    const currentVer = app.instance.build.version;
+    var agentClippy = 'Clippy';
+    if (semver.lt(currentVer, '2.6.0')) {
+      agentClippy = 'Genie';
+    } else if (semver.lt(currentVer, '3.0.0')) {
+      agentClippy = 'Rocky';
+    } else if (semver.lt(currentVer, '3.2.0')) {
+      agentClippy = 'Peedy';
+    }
+
+    // clippy
+    window.clippy.BASE_PATH = '../clippy-assets/agents/';
+    // const items = [
+    //   'Clippy'
+    //   'Peedy',
+    //   'Merlin',
+    //   'Links',
+    //   'Genie',
+    //   'Rocky',
+    //   'Genius',
+    //   'F1',
+    //   'Bonzi'
+    // ];
+    // items[Math.floor(Math.random() * items.length)]
+    //
+    window.clippy.load(agentClippy, function(agent) {
+      const clippings = require('../internal-packages/clippy/constants');
+      // start up the specified agent
+      agent.show();
+      clippyAgent = agent;
+      agent.speak('Welcome to Compass. I will be your guide.' + clippings.space);
+
+      // check environment after startup
+      const randomSpeak = messages => messages[_.random(0, messages.length - 1)];
+      const oldVersion = app.instance.build.version.startsWith('2.');
+      const noAuth = app.connection.authentication === 'NONE';
+      const hax0red = _.isEqual(app.instance.databases.models.map(x => x._id), ['WARNING', 'admin', 'local']);
+      if (hax0red) {
+        // hax0red
+        const messages = clippings.Startup.bad.hax0red;
+        agent.speak(randomSpeak(messages));
+      }
+      if (noAuth && !hax0red) {
+        // no auth
+        const messages = clippings.Startup.bad.auth;
+        agent.speak(randomSpeak(messages));
+      }
+      if (oldVersion) {
+        // old version
+        console.info('oldverson');
+        const messages = clippings.Startup.bad.outdated;
+        agent.speak(randomSpeak(messages));
+      }
+
+      app.dataService.getCmdLineOpts(function(err, response) {
+        if (err) {
+          return;
+        }
+        console.info('getCmdLineOpts:', response);
+        let messages = ['I see your command line options and I discovered silly things'];
+        if (_.includes(response.argv, '--rest')) {
+          messages.push('REST interface is active. If this is a prod server, you\'re connecting to the wrong server');
+        }
+        if (_.includes(response.argv, '--master') || _.includes(response.argv, '--slave')) {
+          messages.push('Master slave is so 90\'s, damn you are old');
+        }
+        if (messages.length > 1) {
+          agent.speak(messages.join('. ') + clippings.space);
+        }
+      });
+
+      app.dataService.replSetGetStatus(function(err, response) {
+        if (err) {
+          return;
+        }
+        console.info('replSetGetStatus:', response);
+        let messages = ['I see your replica set and I discovered silly things'];
+        if (response.members.length % 2 === 0) {
+          messages.push('You have an even number of nodes in your replica set. I foresee sad things in the future. Your future.');
+        }
+        if (messages.length > 1) {
+          agent.speak(messages.join('. ') + clippings.space);
+        }
+      });
     });
   },
   /**
@@ -490,6 +581,12 @@ Object.defineProperty(app, 'user', {
 Object.defineProperty(app, 'state', {
   get: function() {
     return state;
+  }
+});
+
+Object.defineProperty(app, 'clippy', {
+  get: function() {
+    return clippyAgent;
   }
 });
 
