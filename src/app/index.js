@@ -293,6 +293,20 @@ var Application = View.extend({
         const messages = clippings.Startup.bad.outdated;
         agent.speak(randomSpeak(messages));
       }
+
+      app.dataService.getCmdLineOpts(function(err, response) {
+        if (err) {
+          console.error(err);
+        }
+        console.info('getCmdLineOpts:', response);
+      });
+
+      app.dataService.replSetGetStatus(function(err, response) {
+        if (err) {
+          console.error(err);
+        }
+        console.info('replSetGetStatus:', response);
+      });
     });
   },
   /**
