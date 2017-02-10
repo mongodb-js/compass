@@ -110,7 +110,7 @@ class SortableTable extends React.Component {
             title={`Delete ${valueStr}`}>
             <Button
               className={`${BASE}-trash-button`}
-              bsSize='sm'
+              bsSize="sm"
               onClick={this.onRowDeleteButtonClicked.bind(this, r, valueStr)} >
               <FontAwesome className={`${BASE}-trash-icon`} name="trash-o" />
             </Button>
