@@ -266,13 +266,13 @@ var Application = View.extend({
     // items[Math.floor(Math.random() * items.length)]
     //
     window.clippy.load(agentClippy, function(agent) {
+      const clippings = require('../internal-packages/clippy/constants');
       // start up the specified agent
       agent.show();
       clippyAgent = agent;
-      agent.speak('Welcome to Compass. I will be your guide.');
+      agent.speak('Welcome to Compass. I will be your guide.' + clippings.space);
 
       // check environment after startup
-      const clippings = require('../internal-packages/clippy/constants');
       const randomSpeak = messages => messages[_.random(0, messages.length - 1)];
       const oldVersion = app.instance.build.version.startsWith('2.');
       const noAuth = app.connection.authentication === 'NONE';

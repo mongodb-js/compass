@@ -1,7 +1,12 @@
+const s = '\u2006\u200B';
+const space = s + s + s + s + s + s + s + s + s + s + s;
+
 const clippings = Object.freeze({
   /**
    * Query messages
    */
+  'space': space,
+
   'Query': {
     'bad': {
       'message': [
@@ -27,14 +32,14 @@ const clippings = Object.freeze({
   'Explain': {
     'bad': {
       'message': [
-        'No index. Bad DBA.',
-        'Your query is not indexed so you should feel bad.'
+        'No index. Bad DBA.' + space,
+        'Your query is not indexed so you should feel bad.' + space
       ],
       'slow': [
-        'This query is so slow. Perhaps an index is needed?'
+        'This query is so slow. Perhaps an index is needed?' + space
       ],
       'notPrefix': [
-        'Although the query is defined in an index, it is not a prefix of any index. Would you like to know more? Please send 1 bitcoin.'
+        'Although the query is defined in an index, it is not a prefix of any index. Would you like to know more? Please send 1 bitcoin.' + space
       ],
       'move': {
         'location': [550, 100],
@@ -48,15 +53,15 @@ const clippings = Object.freeze({
   'Startup': {
     'bad': {
       'auth': [
-        'I see that you have no auth. Do you want to get hacked? Because this is how you get hacked.',
-        'Without auth, this will be an ex-database soon'
+        'I see that you have no auth. Do you want to get hacked? Because this is how you get hacked.' + space,
+        'Without auth, this will be an ex-database soon' + space
       ],
       'outdated': [
-        'This version is horribly outdated. Do you have no internet?',
-        'Welcome to the world of outdated MongoDB. I will be your guide.'
+        'This version is horribly outdated. Do you have no internet?' + space,
+        'Welcome to the world of outdated MongoDB. I will be your guide.' + space
       ],
       'hax0red': [
-        'It looks like you have an offsite backup set up. Please send 1 BTC to restore. Don\'t forget to turn on auth afterward.'
+        'It looks like you have an offsite backup set up. Please send 1 BTC to restore. Don\'t forget to turn on auth afterward.' + space
       ],
       'animation': []
     }
