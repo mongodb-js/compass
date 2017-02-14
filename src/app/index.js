@@ -409,7 +409,6 @@ app.extend({
 
       DataServiceStore.listen((error, ds) => {
         app.dataService = ds.on('error', state.onFatalError.bind(state, 'create client'));;
-        ApplicationStore.dataService = app.dataService;
         debug('initializing singleton models... ');
         state.instance = new MongoDBInstance();
         debug('fetching instance model...');
