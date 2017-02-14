@@ -21,7 +21,6 @@ var ModuleCache = require('hadron-module-cache');
 ModuleCache.register(resourcePath);
 ModuleCache.add(resourcePath);
 
-
 var pkg = require('../../package.json');
 var CompileCache = require('hadron-compile-cache');
 CompileCache.setHomeDirectory(resourcePath);
@@ -411,7 +410,7 @@ app.extend({
         debug('initializing singleton models... ');
         state.instance = new MongoDBInstance();
         debug('fetching instance model...');
-        app.instance.fetch({success: state.onInstanceFetched});
+        app.instance.fetch({ success: state.onInstanceFetched });
         state.startRouter();
         StatusAction.hide();
         if (done) {

@@ -6,7 +6,7 @@ const OpCountersStore = require('../store/opcounters-store');
 const NetworkStore = require('../store/network-store');
 const GlobalLockStore = require('../store/globallock-store');
 const MemStore = require('../store/mem-store');
-// const debug = require('debug')('mongodb-compass:server-stats-graphs-component');
+const { DataServiceActions } = require('mongodb-data-service');
 
 /**
  * Represents the component that renders all the server stats.
@@ -18,7 +18,7 @@ class ServerStatsComponent extends React.Component {
    */
   componentDidMount() {
     this.timer = timer.interval(() => {
-      Actions.pollServerStats();
+      DataServiceActions.serverStats();
     }, this.props.interval);
   }
 
