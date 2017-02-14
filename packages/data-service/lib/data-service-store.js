@@ -64,8 +64,8 @@ const DataServiceStore = Reflux.createStore({
    */
   connect: function(model) {
     this.dataService = new DataService(model);
-    this.dataService.connect(() => {
-      this.trigger(this.dataService);
+    this.dataService.connect((error) => {
+      this.trigger(error, this.dataService);
       Actions.connectComplete(this.dataService);
     });
   },
@@ -432,6 +432,15 @@ const DataServiceStore = Reflux.createStore({
     this.dataService.updateOne(ns, filter, update, options, function(error, result) {
       Actions.updateOneComplete(error, result);
     });
+  },
+
+  /**
+   * Handle errors emitted from the data service.
+   *
+   * @param {Error} error - The error.
+   */
+  _handleError(error) {
+    this.trigger(error, this.dataService);
   },
 
   /**

@@ -3,7 +3,7 @@ var helper = require('./helper');
 var expect = helper.expect;
 
 var Actions = require('../lib/actions');
-require('../lib/data-service-store');
+var Store = require('../lib/data-service-store');
 
 describe('DataServiceStore', function() {
   before(require('mongodb-runner/mocha/before')({
@@ -12,7 +12,9 @@ describe('DataServiceStore', function() {
   after(require('mongodb-runner/mocha/after')());
 
   before(function(done) {
-    var unsubscribe = Actions.connectComplete.listen(function() {
+    var unsubscribe = Store.listen(function(error, dataService) {
+      expect(error).to.equal(null);
+      expect(dataService).to.not.equal(null);
       unsubscribe();
       done();
     });
