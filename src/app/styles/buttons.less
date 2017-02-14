@@ -148,6 +148,10 @@
     padding: 0 10px 0 10px;
   }
 
+  &-group {
+    display: inline-block;
+  }
+
   &-crud {
     background-color: transparent;
     color: #a09f9e;
@@ -183,6 +187,28 @@
       box-shadow: none;
       background: none;
       outline: 0;
+    }
+  }
+}
+
+// VIEW SWITCHER
+
+.view-switcher {
+
+  .active {
+    background: linear-gradient(180deg, #EDEDED 0%, #FFFFFF 99.31%);
+    box-shadow: inset 0 2px 2px 0 #CACACA;
+    border: 1px solid #CACACA;
+  }
+
+  .btn {
+
+    &:first-child {
+       border-radius: 3px 0 0 3px;  
+    }
+
+    &:last-child {
+      border-radius: 0 3px 3px 0;
     }
   }
 }
