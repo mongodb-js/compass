@@ -215,7 +215,24 @@
 
 // DROPDOWN TOGGLE
 
-.dropdown-toggle {
-  padding: 0 10px 1px 10px;
-  font-size: 13px;
+.dropdown {
+
+  &-toggle {
+    padding: 0 10px 1px 10px;
+    font-size: 13px;
+  }
+
+  &-menu {
+    padding: 2px;
+
+    li > a { 
+      padding: 3px 8px;
+      
+      &:focus, &:hover, &:active { 
+        color: white;
+        background: linear-gradient(180deg, #2469BE 0%, #11509E 100%);
+        border-radius: 2px
+      }
+    }
+  }
 }
