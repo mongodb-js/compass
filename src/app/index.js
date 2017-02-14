@@ -82,6 +82,8 @@ ipc.once('app:launched', function() {
 
 var debug = require('debug')('mongodb-compass:app');
 
+const { DataServiceStore, DataServiceActions } = require('mongodb-data-service');
+
 var StyleManager = require('hadron-style-manager');
 new StyleManager(
   path.join(__dirname, 'compiled-less'),
@@ -405,13 +407,9 @@ app.extend({
       }
       StatusAction.showIndeterminateProgressBar();
 
-      var DataService = require('mongodb-data-service');
-      app.dataService = new DataService(state.connection)
-        .on('error', state.onFatalError.bind(state, 'create client'));
-
-      app.dataService.connect(function() {
+      DataServiceStore.listen((error, ds) => {
+        app.dataService = ds.on('error', state.onFatalError.bind(state, 'create client'));;
         ApplicationStore.dataService = app.dataService;
-
         debug('initializing singleton models... ');
         state.instance = new MongoDBInstance();
         debug('fetching instance model...');
@@ -422,6 +420,7 @@ app.extend({
           done();
         }
       });
+      DataServiceActions.connect(state.connection);
     });
   },
   init: function() {
