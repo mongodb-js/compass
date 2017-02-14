@@ -76,6 +76,35 @@ const componentRegistered = Reflux.createAction({
 });
 
 /**
+ * The action for a container being deregistered.
+ */
+const containerDeregistered = Reflux.createAction({
+
+  /**
+   * Log the action.
+   *
+   * @param {String} name - The container name.
+   */
+  preEmit: function(name) {
+    debug(`Container ${name} deregistered.`);
+  }
+});
+
+/**
+ * The action for a container being registered.
+ */
+const containerRegistered = Reflux.createAction({
+  /**
+   * Log the action.
+   *
+   * @param {String} name - The container name.
+   */
+  preEmit: function(name) {
+    debug(`Container ${name} registered.`);
+  }
+});
+
+/**
  * The action for a component being overridden.
  */
 const componentOverridden = Reflux.createAction({
@@ -86,6 +115,35 @@ const componentOverridden = Reflux.createAction({
    */
   preEmit: function(name) {
     debug(`Component ${name} overwrote existing component in the registry.`);
+  }
+});
+
+/**
+ * The action for a role being deregistered.
+ */
+const roleDeregistered = Reflux.createAction({
+
+  /**
+   * Log the action.
+   *
+   * @param {String} name - The role name.
+   */
+  preEmit: function(name) {
+    debug(`Role ${name} deregistered.`);
+  }
+});
+
+/**
+ * The action for a role being registered.
+ */
+const roleRegistered = Reflux.createAction({
+  /**
+   * Log the action.
+   *
+   * @param {String} name - The role name.
+   */
+  preEmit: function(name) {
+    debug(`Role ${name} registered.`);
   }
 });
 
@@ -138,6 +196,10 @@ module.exports.actionOverridden = actionOverridden;
 module.exports.componentDeregistered = componentDeregistered;
 module.exports.componentRegistered = componentRegistered;
 module.exports.componentOverridden = componentOverridden;
+module.exports.containerDeregistered = containerDeregistered;
+module.exports.containerRegistered = containerRegistered;
+module.exports.roleDeregistered = roleDeregistered;
+module.exports.roleRegistered = roleRegistered;
 module.exports.storeDeregistered = storeDeregistered;
 module.exports.storeRegistered = storeRegistered;
 module.exports.storeOverridden = storeOverridden;

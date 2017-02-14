@@ -43,6 +43,50 @@ describe('AppRegistry', function() {
     });
   });
 
+  describe('#registerContainer', function() {
+    var registry = null;
+
+    beforeEach(function() {
+      registry = new AppRegistry().registerContainer('Collection.Tab', 'test');
+    });
+
+    it('registers the component', function() {
+      expect(registry.containers['Collection.Tab']).to.deep.equal([ 'test' ]);
+    });
+
+    it('allows access via the getter', function() {
+      expect(registry.getContainer('Collection.Tab')).to.deep.equal([ 'test' ]);
+    });
+
+    it('publishes a container registered action', function(done) {
+      var unsubscribe = Action.containerRegistered.listen(function(name) {
+        expect(name).to.equal('Collection.Tab');
+        unsubscribe();
+        done();
+      });
+    });
+
+    context('when the component already exists', function() {
+      beforeEach(function() {
+        registry.registerContainer('Collection.Tab', 'test');
+      });
+
+      it('does not register the duplicate', function() {
+        expect(registry.containers['Collection.Tab']).to.deep.equal([ 'test' ]);
+      });
+    });
+
+    context('when the component does not already exists', function() {
+      beforeEach(function() {
+        registry.registerContainer('Collection.Tab', 'testing');
+      });
+
+      it('registers the additional component', function() {
+        expect(registry.containers['Collection.Tab']).to.deep.equal([ 'test', 'testing' ]);
+      });
+    });
+  });
+
   describe('#registerComponent', function() {
     var registry = null;
 
@@ -77,6 +121,50 @@ describe('AppRegistry', function() {
           unsubscribe();
           done();
         });
+      });
+    });
+  });
+
+  describe('#registerRole', function() {
+    var registry = null;
+
+    beforeEach(function() {
+      registry = new AppRegistry().registerRole('Collection.Action', 'test');
+    });
+
+    it('registers the component', function() {
+      expect(registry.roles['Collection.Action']).to.deep.equal([ 'test' ]);
+    });
+
+    it('allows access via the getter', function() {
+      expect(registry.getRole('Collection.Action')).to.deep.equal([ 'test' ]);
+    });
+
+    it('publishes a role registered action', function(done) {
+      var unsubscribe = Action.roleRegistered.listen(function(name) {
+        expect(name).to.equal('Collection.Action');
+        unsubscribe();
+        done();
+      });
+    });
+
+    context('when the component already exists', function() {
+      beforeEach(function() {
+        registry.registerRole('Collection.Action', 'test');
+      });
+
+      it('does not register the duplicate', function() {
+        expect(registry.roles['Collection.Action']).to.deep.equal([ 'test' ]);
+      });
+    });
+
+    context('when the component does not already exists', function() {
+      beforeEach(function() {
+        registry.registerRole('Collection.Action', 'testing');
+      });
+
+      it('registers the additional component', function() {
+        expect(registry.roles['Collection.Action']).to.deep.equal([ 'test', 'testing' ]);
       });
     });
   });
@@ -160,6 +248,56 @@ describe('AppRegistry', function() {
       it('publishes a component deregisted action', function(done) {
         var unsubscribe = Action.componentDeregistered.listen(function(name) {
           expect(name).to.equal('TestComponent');
+          unsubscribe();
+          done();
+        });
+      });
+    });
+  });
+
+  describe('#deregisterContainer', function() {
+    context('when the container exists', function() {
+      var registry = null;
+
+      beforeEach(function() {
+        registry = new AppRegistry()
+          .registerContainer('TestContainer', 'testing')
+          .registerContainer('TestContainer', 'test')
+          .deregisterContainer('TestContainer', 'testing');
+      });
+
+      it('deregisters the container', function() {
+        expect(registry.containers.TestContainer).to.deep.equal([ 'test' ]);
+      });
+
+      it('publishes a container deregisted action', function(done) {
+        var unsubscribe = Action.containerDeregistered.listen(function(name) {
+          expect(name).to.equal('TestContainer');
+          unsubscribe();
+          done();
+        });
+      });
+    });
+  });
+
+  describe('#deregisterRole', function() {
+    context('when the role exists', function() {
+      var registry = null;
+
+      beforeEach(function() {
+        registry = new AppRegistry()
+          .registerRole('TestRole', 'testing')
+          .registerRole('TestRole', 'test')
+          .deregisterRole('TestRole', 'testing');
+      });
+
+      it('deregisters the role', function() {
+        expect(registry.roles.TestRole).to.deep.equal([ 'test' ]);
+      });
+
+      it('publishes a role deregisted action', function(done) {
+        var unsubscribe = Action.roleDeregistered.listen(function(name) {
+          expect(name).to.equal('TestRole');
           unsubscribe();
           done();
         });
