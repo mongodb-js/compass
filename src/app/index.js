@@ -56,7 +56,6 @@ var MongoDBInstance = require('./models/mongodb-instance');
 var Preferences = require('./models/preferences');
 var User = require('./models/user');
 
-var ApplicationStore = require('hadron-reflux-store').ApplicationStore;
 require('./menu-renderer');
 var Router = require('./router');
 var migrateApp = require('./migrations');
