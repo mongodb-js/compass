@@ -115,8 +115,8 @@ function getTasks(model) {
       return _statuses[message];
     }
 
-    var ctx = function(err, opts) {
-      options = opts;
+    var ctx = function(err) {
+      // options = opts; @note: Durran: Not sure why this is here.
       if (err) {
         state.emit('status', {
           message: message,
