@@ -31,7 +31,8 @@
         color: @alertOrangeBorder;
         border-color: @alertOrangeBorder;
         background: none;
-        box-shadow: inset 0 -1px 0 0 #a06c29;
+        box-shadow: inset 0 -1px 0 0 @alertOrangeBorder;
+        transition: none;
       }
     }
   }
@@ -42,6 +43,22 @@
 
   &-is-success {
     background-color: @green2;
+
+    .document-footer-actions {
+
+      .cancel {
+        color: white;
+      }
+
+      .btn-default {
+        color: white;
+        border-color: white;
+        background: none;
+        box-shadow: inset 0 -1px 0 0 white;
+        transition: none;
+      }
+    }
+
   }
 
   &-is-error {

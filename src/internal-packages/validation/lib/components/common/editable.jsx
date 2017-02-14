@@ -17,7 +17,7 @@ class Editable extends React.Component {
           </Button>
           <Button
             bsSize="xsmall"
-            bsStyle="btn-edit"
+            bsStyle="edit"
             onClick={this.props.onUpdate}>Update
           </Button>
         </div>
