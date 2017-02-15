@@ -108,7 +108,7 @@ class DropIndexModal extends React.Component {
           Cancel
         </button>
         <button
-          className="drop-btn btn btn-primary btn-sm"
+          className="drop-btn btn btn-alert btn-sm"
           disabled={this.state.confirmName !== this.props.indexName}
           type="submit">
           Drop
