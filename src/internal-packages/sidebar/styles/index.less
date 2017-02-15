@@ -4,6 +4,7 @@
 
 @compass-sidebar-default-text-color: #9DA4AA;
 @compass-sidebar-base-background-color: #4c5259;
+@compass-sidebar-lite-background-color: #565E65;
 @compass-sidebar-active-background-color: #6D7984;
 @compass-sidebar-hover-background-color: #42494f;
 @transistion-time: 400ms;
@@ -20,7 +21,7 @@
   transition: flex-basis @transistion-time ease;
 
   &-toggle {
-    background-color: #565E65;
+    background-color: @compass-sidebar-lite-background-color;
     height: 16px;
     line-height: 13px;
     padding-right: 3px;
@@ -99,7 +100,7 @@
     }
   }
   &-content::-webkit-scrollbar-thumb {
-    background-color: #565E65;
+    background-color: @compass-sidebar-lite-background-color;
     border: 1px solid rgba(0,0,0,.24);
   }
 

@@ -17,6 +17,7 @@ class Home extends React.Component {
     this.DropDatabaseDialog = app.appRegistry.getComponent('DatabaseDDL.DropDatabaseDialog');
     this.CreateCollectionDialog = app.appRegistry.getComponent('Database.CreateCollectionDialog');
     this.DropCollectionDialog = app.appRegistry.getComponent('Database.DropCollectionDialog');
+    this.InstanceHeader = app.appRegistry.getComponent('InstanceHeader.Component');
   }
 
   getContentClasses() {
@@ -57,16 +58,19 @@ class Home extends React.Component {
     );
 
     return (
-      <div className="page">
-        <div className={this.getContentClasses()}>
-          {this.renderContent()}
+      <div className="page-container">
+        <this.InstanceHeader />
+        <div className="page">
+          <div className={this.getContentClasses()}>
+            {this.renderContent()}
+          </div>
+          <this.sideBar onCollapse={this.collapseSidebar.bind(this)}/>
+          {isNotWritableTooltip}
+          <this.CreateDatabaseDialog />
+          <this.DropDatabaseDialog />
+          <this.CreateCollectionDialog />
+          <this.DropCollectionDialog />
         </div>
-        <this.sideBar onCollapse={this.collapseSidebar.bind(this)}/>
-        {isNotWritableTooltip}
-        <this.CreateDatabaseDialog />
-        <this.DropDatabaseDialog />
-        <this.CreateCollectionDialog />
-        <this.DropCollectionDialog />
       </div>
     );
   }
