@@ -1,14 +1,20 @@
 const Reflux = require('reflux');
 const Actions = require('../action');
-const { DataServiceActions } = require('mongodb-data-service');
+const { DataServiceActions, DataServiceStore } = require('mongodb-data-service');
 
 const ServerStatsStore = Reflux.createStore({
 
   init: function() {
     this.restart();
+    this.listenTo(DataServiceStore, this.dataServiceConnected);
     this.listenTo(DataServiceActions.serverStatsComplete, this.serverStats);
     this.listenTo(Actions.restart, this.restart);
     this.listenTo(Actions.pause, this.pause);
+  },
+
+  dataServiceConnected: function(error, dataService) {
+    this.isMongos = dataService.isMongos();
+    this.isWritable = dataService.isWritable();
   },
 
   restart: function() {

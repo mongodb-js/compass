@@ -31,7 +31,7 @@ class CurrentOpComponent extends React.Component {
     this.unsubscribeShowOperationDetails = Actions.showOperationDetails.listen(this.hide.bind(this));
     this.unsubscribeHideOperationDetails = Actions.hideOperationDetails.listen(this.show.bind(this));
     this.timer = timer.interval(() => {
-      DataServiceActions.currentOp();
+      DataServiceActions.currentOp(false);
     }, this.props.interval);
   }
 
