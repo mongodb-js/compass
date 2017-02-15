@@ -1,0 +1,85 @@
+.instance-header {
+  background-color: @compass-sidebar-lite-background-color;
+  color: @pw;
+  display: flex;
+  flex-grow: 0;
+  flex-shrink: 0;
+  flex-basis: 36px;
+  flex-wrap: nowrap;
+  overflow: hidden;
+
+  &-icon {
+    &-home { font-size: 16px; }
+    &-lock { font-size: 12px; }
+  }
+
+  &-connection-string {
+    background-color: @compass-sidebar-hover-background-color;
+    flex-basis: 250px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    overflow: hidden;
+    padding-top: 8px;
+    display: flex;
+    &:hover {
+      flex-basis: auto;
+      .instance-header-hostname-suffix {
+          // display: none;
+      }
+    }
+  }
+  &-icon-home {
+    flex-basis: 36px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    font-size: 16px;
+    text-align: center;
+  }
+  &-hostname-prefix {
+    flex-basis: auto;
+    flex-grow: 0;
+    flex-shrink: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  &-hostname-suffix {
+    flex-basis: auto;
+    flex-grow: 0;
+    flex-shrink: 0;
+  }
+  &-port {
+    flex-basis: auto;
+    flex-grow: 1;
+    flex-shrink: 1;
+    padding-right: 10px;
+  }
+
+  &-status-ssh {
+    background-image: url('./images/instance-header/hostname-bg.png');
+    background-size: 16px 36px;
+    background-repeat: no-repeat;
+    flex-basis: auto;
+    flex-grow: 1;
+    flex-shrink: 1;
+    display: flex;
+  }
+
+  &-process-status {
+    flex-basis: auto;
+    flex-grow: 0;
+    flex-shrink: 0;
+  }
+
+  &-ssh {
+    flex-basis: auto;
+    flex-grow: 1;
+    flex-shrink: 0;
+  }
+
+  &-version-string {
+    flex-basis: auto;
+    flex-grow: 0;
+    flex-shrink: 0;
+  }
+}
