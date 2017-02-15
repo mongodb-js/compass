@@ -169,7 +169,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
       it('renders the network connections', function() {
         return client
           .getNetworkConnections()
-          .should.eventually.equal('5');
+          .should.eventually.equal('3');
       });
 
       it('renders the memory vsize', function() {
