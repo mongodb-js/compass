@@ -2,7 +2,7 @@
 
 /**
  * Wouldn't it be great if you or a CI system were notified properly
- * that you aren't using the right version of node.js, npm or Python?
+ * that you aren't using the right version of node.js or npm?
  *
  * @see https://github.com/atom/atom/blob/master/script/utils/verify-requirements.js
  */
@@ -10,7 +10,6 @@ const Promise = require('bluebird');
 const semver = require('semver');
 const run = Promise.promisify(require('electron-installer-run'));
 const cli = require('mongodb-js-cli')('hadron-build:verify');
-const checkPython = Promise.promisify(require('check-python'));
 
 exports.command = 'verify [options]';
 exports.describe = 'Verify the current environment meets the app\'s requirements.';
@@ -27,15 +26,12 @@ exports.builder = {
 };
 
 exports.tasks = (argv) => {
-  return exports.checkPythonVersion()
-    .then(() => exports.checkNpmAndNodejsVersions(argv));
+  return exports.checkNpmAndNodejsVersions(argv);
 };
 
 exports.handler = (argv) => {
   exports.tasks(argv).catch((err) => cli.abortIfError(err));
 };
-
-exports.checkPythonVersion = () => checkPython();
 
 exports.checkNpmAndNodejsVersions = (opts) => {
   const expectNodeVersion = opts.nodejs_version;

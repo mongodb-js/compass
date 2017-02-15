@@ -21,7 +21,6 @@
     "async": "^2.1.4",
     "aws-sdk": "^2.3.2",
     "bluebird": "^3.3.4",
-    "check-python": "^1.0.0",
     "cli-table": "^0.3.1",
     "debug": "^2.2.0",
     "del": "^2.0.2",
