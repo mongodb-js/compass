@@ -1,0 +1,40 @@
+{
+  "name": "hadron-app",
+  "description": "Hadron Application Singleton",
+  "author": "Durran Jordan <durran@gmail.com>",
+  "bugs": "https://github.com/mongodb-js/hadron-app/issues",
+  "homepage": "https://github.com/mongodb-js/hadron-app",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/hadron-app.git"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "mongodb-js"
+  ],
+  "scripts": {
+    "ci": "npm run check && npm test",
+    "test": "mocha",
+    "fmt": "mongodb-js-fmt ./*.js ./test/*.js",
+    "check": "mongodb-js-precommit"
+  },
+  "precommit": [
+    "check"
+  ],
+  "dependencies": {
+    "hadron-app-registry": "^4.0.0",
+    "hadron-auto-update-manager": "^0.0.12",
+    "hadron-compile-cache": "^1.0.1",
+    "hadron-ipc": "^0.0.7",
+    "hadron-module-cache": "^0.0.3",
+    "hadron-package-manager": "0.2.0",
+    "hadron-style-manager": "0.0.1"
+  },
+  "devDependencies": {
+    "eslint-config-mongodb-js": "^2.2.0",
+    "mongodb-js-fmt": "^0.0.3",
+    "mongodb-js-precommit": "^0.2.9",
+    "pre-commit": "^1.1.2"
+  }
+}
