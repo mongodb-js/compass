@@ -250,7 +250,7 @@ class CreateIndexModal extends React.Component {
                 <div>
                   <button
                     onClick={this.handleSubmit.bind(this)}
-                    className="create-index-field-add btn btn-sm btn-block btn-success">
+                    className="create-index-field-add btn btn-primary btn-sm btn-full-width">
                     Add another field
                   </button>
                 </div>

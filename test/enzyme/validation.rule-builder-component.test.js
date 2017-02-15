@@ -44,7 +44,7 @@ describe('<RuleBuilder />', () => {
     });
 
     it('disables the ADD RULE button', () => {
-      const state = this.component.find('.btn.btn-xs.btn-success');
+      const state = this.component.find('.btn.btn-xs.btn-primary');
       expect(state).to.be.disabled();
     });
   });
@@ -56,7 +56,7 @@ describe('<RuleBuilder />', () => {
     });
 
     it('disables the ADD RULE button', () => {
-      const state = this.component.find('.btn.btn-xs.btn-success');
+      const state = this.component.find('.btn.btn-xs.btn-primary');
       expect(state).to.not.be.disabled();
     });
   });

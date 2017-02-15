@@ -15,7 +15,7 @@ class ViewSwitcher extends React.Component {
     return _.map(this.props.buttonLabels, (label) => {
       const active = this.props.activeButton === label;
       return (
-        <Button key={label} active={active} onClick={this.props.onClick.bind(this, label)}>
+        <Button key={label} active={active} onClick={this.props.onClick.bind(this, label)} bsSize="xsmall">
           {label}
         </Button>
       );
@@ -32,7 +32,7 @@ class ViewSwitcher extends React.Component {
     return (
       <div className="view-switcher">
         <span className="view-switcher-label">{this.props.label}</span>
-        <ButtonGroup bsSize="xsmall">
+        <ButtonGroup>
           {buttons}
         </ButtonGroup>
       </div>

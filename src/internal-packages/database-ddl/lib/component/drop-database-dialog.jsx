@@ -139,11 +139,11 @@ class DropDatabaseDialog extends React.Component {
 
         <Modal.Footer>
           <TextButton
-            className="btn btn-default"
+            className="btn btn-default btn-sm"
             text="Cancel"
             clickHandler={this.onHideModal.bind(this)} />
           <button
-            className="btn btn-primary"
+            className="btn btn-alert btn-sm"
             data-test-id="drop-database-button"
             disabled={this.state.confirmName !== this.state.name}
             onClick={this.onDropDatabaseButtonClicked.bind(this)}>

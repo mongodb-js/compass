@@ -27,13 +27,12 @@
         color: @alertOrangeBorder;
       }
 
-      .update {
+      .btn-default {
         color: @alertOrangeBorder;
         border-color: @alertOrangeBorder;
-
-        &:hover {
-          background-color: rgba(255,255,255,0.7);
-        }
+        background: none;
+        box-shadow: inset 0 -1px 0 0 @alertOrangeBorder;
+        transition: none;
       }
     }
   }
@@ -44,6 +43,22 @@
 
   &-is-success {
     background-color: @green2;
+
+    .document-footer-actions {
+
+      .cancel {
+        color: white;
+      }
+
+      .btn-default {
+        color: white;
+        border-color: white;
+        background: none;
+        box-shadow: inset 0 -1px 0 0 white;
+        transition: none;
+      }
+    }
+
   }
 
   &-is-error {
@@ -87,11 +102,6 @@
 
     .cancel {
       font-weight: bold;
-    }
-
-    .update {
-      font-weight: bold;
-      border-radius: 3px;
     }
   }
 }
