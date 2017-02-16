@@ -1,5 +1,5 @@
 const expect = require('chai').expect;
-const app = require('ampersand-app');
+const app = require('hadron-app');
 const AppRegistry = require('hadron-app-registry');
 const mock = require('mock-require');
 const sinon = require('sinon');
