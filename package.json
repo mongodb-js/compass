@@ -189,6 +189,7 @@
   },
   "devDependencies": {
     "babel-eslint": "^6.0.4",
+    "babel-register": "^6.23.0",
     "chai": "^3.4.1",
     "chai-as-promised": "^5.1.0",
     "chai-enzyme": "^0.5.2",
