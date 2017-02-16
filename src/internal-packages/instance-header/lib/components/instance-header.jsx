@@ -1,6 +1,8 @@
 const React = require('react');
 const InstanceHeaderActions = require('../actions');
 const FontAwesome = require('react-fontawesome');
+const { NamespaceStore } = require('hadron-reflux-store');
+const ipc = require('hadron-ipc');
 
 // const debug = require('debug')('mongodb-compass:instance-header');
 
@@ -39,6 +41,17 @@ class InstanceHeaderComponent extends React.Component {
       ) : 'Retrieving version'
   }
 
+  handleClickHostname() {
+    NamespaceStore.ns = '';
+    ipc.call('window:hide-collection-submenu');
+  }
+
+  getHostnameClasses() {
+    return NamespaceStore.ns !== ''
+      ? 'instance-header-connection-string'
+      : 'instance-header-connection-string instance-header-connection-string-is-active'
+  }
+
   renderAuthDetails() {
     if (app.connection.ssh_tunnel !== 'NONE') {
       const options = connection.ssh_tunnel_options;
@@ -63,7 +76,7 @@ class InstanceHeaderComponent extends React.Component {
   render() {
     return (
       <div className="instance-header">
-        <div className="instance-header-connection-string">
+        <div className={this.getHostnameClasses()} onClick={this.handleClickHostname}>
           <div className="instance-header-icon-container">
             <FontAwesome name="home" className="instance-header-icon instance-header-icon-home"/>
           </div>

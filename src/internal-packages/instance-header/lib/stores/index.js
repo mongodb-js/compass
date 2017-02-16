@@ -3,6 +3,7 @@ const InstanceHeaderActions = require('../actions');
 const StateMixin = require('reflux-state-mixin');
 const debug = require('debug')('mongodb-compass:stores:instance-header');
 const app = require('ampersand-app');
+const { NamespaceStore } = require('hadron-reflux-store');
 
 /**
  * Instance Header store.
@@ -24,6 +25,7 @@ const InstanceHeaderStore = Reflux.createStore({
    * Initialize everything that is not part of the store's state.
    */
   init() {
+    NamespaceStore.listen(this.onNamespaceChanged.bind(this));
     this.listenToExternalStore('App.InstanceStore', this.fetchInstanceDetails.bind(this));
   },
 
@@ -38,7 +40,8 @@ const InstanceHeaderStore = Reflux.createStore({
       port: null,
       processStatus: '',
       versionDistro: null,
-      versionNumber: ''
+      versionNumber: '',
+      activeNamespace: ''
     };
   },
 
@@ -48,7 +51,8 @@ const InstanceHeaderStore = Reflux.createStore({
       port: state.instance.port,
       processStatus: 'TODO: Get Replica Set Status',
       versionDistro: state.instance.build.enterprise_module ? 'Enterprise' : 'Community',
-      versionNumber: state.instance.build.version
+      versionNumber: state.instance.build.version,
+      activeNamespace: NamespaceStore.ns
     });
   },
 

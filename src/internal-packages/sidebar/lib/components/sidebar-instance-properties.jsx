@@ -9,39 +9,39 @@ class SidebarInstanceProperties extends React.Component {
     this.DatabaseDDLActions = app.appRegistry.getAction('DatabaseDDL.Actions');
   }
 
-  getHostnameAndPort() {
-    const connection = this.props.connection;
-    if (!connection.hostname) {
-      return '';
-    }
+  // getHostnameAndPort() {
+  //   const connection = this.props.connection;
+  //   if (!connection.hostname) {
+  //     return '';
+  //   }
+  //
+  //   return `${connection.hostname}:${connection.port}`;
+  // }
 
-    return `${connection.hostname}:${connection.port}`;
-  }
+  // getSshTunnelViaPort() {
+  //   const connection = this.props.connection;
+  //   if (connection.ssh_tunnel !== 'NONE') {
+  //     const options = connection.ssh_tunnel_options;
+  //     const sshHostAndPort = `via SSH tunnel ${options.host}:${options.port}`;
+  //     return (
+  //       <div data-test-id="sidebar-ssh-tunnel-details" className="compass-sidebar-instance-ssh-tunnel">
+  //         {sshHostAndPort}
+  //       </div>
+  //     );
+  //   }
+  //   return '';
+  // }
 
-  getSshTunnelViaPort() {
-    const connection = this.props.connection;
-    if (connection.ssh_tunnel !== 'NONE') {
-      const options = connection.ssh_tunnel_options;
-      const sshHostAndPort = `via SSH tunnel ${options.host}:${options.port}`;
-      return (
-        <div data-test-id="sidebar-ssh-tunnel-details" className="compass-sidebar-instance-ssh-tunnel">
-          {sshHostAndPort}
-        </div>
-      );
-    }
-    return '';
-  }
-
-  getVersionName() {
-    const instance = this.props.instance;
-
-    if (!instance.build.version) {
-      return '';
-    }
-
-    const moduleName = instance.build.enterprise_module ? 'Enterprise' : 'Community';
-    return `${moduleName} version ${instance.build.version}`;
-  }
+  // getVersionName() {
+  //   const instance = this.props.instance;
+  //
+  //   if (!instance.build.version) {
+  //     return '';
+  //   }
+  //
+  //   const moduleName = instance.build.enterprise_module ? 'Enterprise' : 'Community';
+  //   return `${moduleName} version ${instance.build.version}`;
+  // }
 
   getRefreshIconClassNames() {
     const fetchingInstance = this.props.fetching;
@@ -53,41 +53,25 @@ class SidebarInstanceProperties extends React.Component {
     InstanceActions.refreshInstance();
   }
 
-  handleClickHostname() {
-    NamespaceStore.ns = '';
-    ipc.call('window:hide-collection-submenu');
-  }
+  // handleClickHostname() {
+  //   NamespaceStore.ns = '';
+  //   ipc.call('window:hide-collection-submenu');
+  // }
 
   render() {
     const instance = this.props.instance;
     const numDbs = instance.databases.length;
     const numCollections = instance.collections.length;
-    const hostnameAndPort = this.getHostnameAndPort();
-    const sshTunnelViaPort = this.getSshTunnelViaPort();
-    const versionName = this.getVersionName();
-    let instanceClassName = 'compass-sidebar-instance';
+    // const hostnameAndPort = this.getHostnameAndPort();
+    // const sshTunnelViaPort = this.getSshTunnelViaPort();
+    // const versionName = this.getVersionName();
+    // let instanceClassName = 'compass-sidebar-instance';
     // empty string for active namespace means instance level
-    if (this.props.activeNamespace === '') {
-      instanceClassName += ' compass-sidebar-instance-is-active';
-    }
+    // if (this.props.activeNamespace === '') {
+    //   instanceClassName += ' compass-sidebar-instance-is-active';
+    // }
     return (
       <div className="compass-sidebar-properties">
-        <div className={instanceClassName} onClick={this.handleClickHostname}>
-          <i className="fa fa-home compass-sidebar-instance-icon" />
-          <div>
-            <div
-              data-test-id="sidebar-instance-details"
-              className="compass-sidebar-instance-hostname">
-              {hostnameAndPort}
-            </div>
-            {sshTunnelViaPort}
-            <div
-              data-test-id="sidebar-instance-version"
-              className="compass-sidebar-instance-version">
-              {versionName}
-            </div>
-          </div>
-        </div>
         <div className="compass-sidebar-stats">
           <div className="compass-sidebar-refresh-button-container">
             <button
