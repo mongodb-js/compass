@@ -117,7 +117,6 @@
     "ampersand-view-switcher": "^2.0.0",
     "app-migrations": "mongodb-js/app-migrations#v0.1.2",
     "async": "^1.5.2",
-    "babel-register": "^6.7.2",
     "backoff": "^2.4.1",
     "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz",
     "d3": "^3.5.6",
