@@ -34,19 +34,19 @@ const InstanceHeaderStore = Reflux.createStore({
    */
   getInitialState() {
     return {
-      hostname: '',
-      port: 27017,
+      hostname: 'Retrieving host information',
+      port: null,
       processStatus: '',
-      versionDistro: null,
+      versionDistro: 'Retrieving ',
       versionNumber: ''
     };
   },
 
   fetchInstanceDetails(state) {
     this.setState({
-      hostname: state.instance.hostname,
+      hostname: state.instance.hostname + ':',
       port: state.instance.port,
-      processStatus: 'secondary',
+      processStatus: 'TODO: Get Replica Set Status',
       versionDistro: state.instance.build.enterprise_module ? 'Enterprise' : 'Community',
       versionNumber: state.instance.build.version
     });

@@ -9,12 +9,32 @@ class InstanceHeaderComponent extends React.Component {
   onClick() {
     InstanceHeaderActions.toggleStatus();
   }
-
+  /*TODO return this markup when we've enabled support for RS status*/
   renderProcessStatus() {
     return this.props.processStatus !== ''
       ? (
-        <div className="instance-header-process-status">{this.props.processStatus}</div>
+        <div className="instance-header-process-status-container">
+          <div className="instance-header-process-status">
+            <span>{this.props.processStatus}</span>
+          </div>
+        </div>
       ) : '' ;
+  }
+
+  returnHostnamePrefix(hostname) {
+    let prefix = hostname.slice(0, -9);
+    return prefix;
+  }
+
+  returnHostnameSuffix(hostname) {
+    let suffix = hostname.slice(-9);
+    return suffix;
+  }
+
+  returnVersionDistro() {
+    let distro = this.props.versionDistro;
+    distro = distro + ' version '
+    return distro;
   }
 
   renderAuthDetails() {
@@ -22,32 +42,15 @@ class InstanceHeaderComponent extends React.Component {
       const options = connection.ssh_tunnel_options;
       return (
         <div data-test-id="instance-header-ssh" className="instance-header-ssh">
-          <FontAwesome name="lock"/>
-          <span>{options.host}</span>:
-          <span>{options.port}</span>
+          <FontAwesome name="lock" className="instance-header-icon instance-header-icon-lock"/>
+          <span className="instance-header-ssh-label">&nbsp;SSH&nbsp;</span>
+          <span className="instance-header-ssh-hostname-prefix">{this.returnHostnamePrefix(options.host)}</span>
+          <span className="instance-header-ssh-hostname-suffix">{this.returnHostnameSuffix(options.host)}</span>
+          <span className="instance-header-ssh-port">:{options.port}</span>
         </div>
       );
     }
-    // return '';
-    //TODO remove the return statement below after styling!!!!!!
-    return (
-      <div data-test-id="instance-header-ssh" className="instance-header-ssh">
-        <FontAwesome name="lock" className="instance-header-icon instance-header-icon-lock"/>
-        <span>localhostsshconnection</span>:
-        <span>27017</span>
-      </div>
-    );
-  }
-
-  isEllipsisActive(e) {
-    console.info(e.offsetWidth < e.scrollWidth);
-    // return (e.offsetWidth < e.scrollWidth);
-  }
-
-  renderHostnameSuffix() {
-    let suffix = this.props.hostname.slice(-9);
-    // return this.props.hostname ==! 'localhost' ? suffix : '';
-    return suffix;
+    return '';
   }
 
   /**
@@ -59,19 +62,30 @@ class InstanceHeaderComponent extends React.Component {
     return (
       <div className="instance-header">
         <div className="instance-header-connection-string">
-          <FontAwesome name="home" className="instance-header-icon instance-header-icon-home"/>
-          <div className="instance-header-hostname-prefix">{this.props.hostname}</div>
-          <div className="instance-header-hostname-suffix">{this.renderHostnameSuffix()}</div>
-          <div className="instance-header-port">:{this.props.port}</div>
+          <div className="instance-header-icon-container">
+            <FontAwesome name="home" className="instance-header-icon instance-header-icon-home"/>
+          </div>
+          <div className="instance-header-hostname-prefix">
+            {this.returnHostnamePrefix(this.props.hostname)}
+          </div>
+          <div className="instance-header-hostname-suffix">
+            {this.returnHostnameSuffix(this.props.hostname)}
+          </div>
+          <div className="instance-header-port">
+            <span>{this.props.port}</span>
+          </div>
         </div>
-        <div className="instance-header-status-ssh">
-          {this.renderProcessStatus()}
-          {this.renderAuthDetails()}
+        <div className="instance-header-status-ssh-container">
+          <div className="instance-header-status-ssh">
+            {/*this.renderProcessStatus()*/}
+            {this.renderAuthDetails()}
+          </div>
         </div>
-        <div className="instance-header-version-string">
-          <span className="instance-header-version-distro">{this.props.versionDistro}</span>
-          &nbsp;version&nbsp;
-          <span className="instance-header-version-number">{this.props.versionNumber}</span>
+        <div className="instance-header-version-string-container">
+          <div className="instance-header-version-string">
+            <span className="instance-header-version-distro">{this.returnVersionDistro()}</span>
+            <span className="instance-header-version-number">{this.props.versionNumber}</span>
+          </div>
         </div>
       </div>
     );
@@ -82,7 +96,7 @@ InstanceHeaderComponent.propTypes = {
   hostname: React.PropTypes.string,
   port: React.PropTypes.number,
   processStatus: React.PropTypes.string,
-  versionDistro: React.PropTypes.oneOf(['Enterprise', 'Community']),
+  versionDistro: React.PropTypes.oneOf(['Enterprise', 'Community', 'Retrieving ']),
   versionNumber: React.PropTypes.string
 };
 

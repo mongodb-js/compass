@@ -21,19 +21,20 @@
     overflow: hidden;
     padding-top: 8px;
     display: flex;
+    transition: flex-basis 200ms ease;
     &:hover {
       flex-basis: auto;
-      .instance-header-hostname-suffix {
-          // display: none;
-      }
+      min-width: 250px;
     }
   }
-  &-icon-home {
-    flex-basis: 36px;
+  &-icon-container {
+    flex-basis: auto;
     flex-grow: 0;
     flex-shrink: 0;
-    font-size: 16px;
     text-align: center;
+  }
+  &-icon-home {
+    padding: 0 10px;
   }
   &-hostname-prefix {
     flex-basis: auto;
@@ -52,34 +53,104 @@
     flex-basis: auto;
     flex-grow: 1;
     flex-shrink: 1;
-    padding-right: 10px;
   }
-
-  &-status-ssh {
+  &-port span {
+    padding-right: 6px;
+  }
+  
+  &-status-ssh-container {
     background-image: url('./images/instance-header/hostname-bg.png');
     background-size: 16px 36px;
     background-repeat: no-repeat;
     flex-basis: auto;
     flex-grow: 1;
     flex-shrink: 1;
+    min-width: 250px;
+    padding-top: 7px;
+  }
+  &-status-ssh {
+    padding: 0 24px;
     display: flex;
   }
 
-  &-process-status {
+  &-process-status-container {
     flex-basis: auto;
     flex-grow: 0;
     flex-shrink: 0;
+  }
+  &-process-status {
+    padding-right: 12px;
+    span {
+      background-color: @compass-sidebar-hover-background-color;
+      border-radius: 11px;
+      font-size: 10px;
+      font-weight: bold;
+      line-height: 1;
+      padding: 4px 8px 5px;
+      text-transform: uppercase;
+    }
   }
 
   &-ssh {
-    flex-basis: auto;
-    flex-grow: 1;
-    flex-shrink: 0;
+    flex-basis: 200px;
+    flex-grow: 0;
+    flex-shrink: 1;
+    display: flex;
+    padding-top: 1px;
+    min-width: 140px;
+    &:hover {
+      flex-basis: auto;
+    }
   }
 
-  &-version-string {
+  &-icon-lock {
+    color: @green4;
     flex-basis: auto;
     flex-grow: 0;
     flex-shrink: 0;
+    text-align: right;
+    padding-top: 5px;
+  }
+
+  &-ssh-label {
+    color: @green5;
+    flex-basis: auto;
+    flex-grow: 0;
+    flex-shrink: 0;
+    font-size: 10px;
+    font-weight: bold;
+    line-height: 1;
+    padding-top: 5px;
+    text-transform: uppercase;
+  }
+
+  &-ssh-hostname-prefix {
+    flex-basis: auto;
+    flex-grow: 0;
+    flex-shrink: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &-ssh-hostname-suffix {
+    flex-basis: auto;
+    flex-grow: 0;
+    flex-shrink: 0;
+  }
+
+  &-ssh-port {
+    flex-basis: auto;
+    flex-grow: 0;
+    flex-shrink: 0;
+  }
+
+  &-version-string-container {
+    flex-basis: auto;
+    flex-grow: 0;
+    flex-shrink: 0;
+    padding-top: 8px;
+  }
+  &-version-string {
+    padding-right: 18px;
   }
 }
