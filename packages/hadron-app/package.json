@@ -23,23 +23,7 @@
     "check"
   ],
   "dependencies": {
-    "babel-register": "^6.7.2",
-    "debug": "mongodb-js/debug#v2.2.3",
-    "hadron-app-registry": "^4.0.0",
-    "hadron-auto-update-manager": "^0.0.12",
-    "hadron-compile-cache": "^1.0.1",
-    "hadron-ipc": "^0.0.7",
-    "hadron-module-cache": "^0.0.3",
-    "hadron-package-manager": "0.2.0",
-    "hadron-style-manager": "0.0.1",
-    "less": "^2.6.1",
-    "less-cache": "^0.23.0",
-    "lodash": "^3.10.1",
-    "mongodb-data-service": "^2.11.0",
-    "react": "^15.2.1",
-    "react-dom": "^15.2.1",
-    "reflux": "0.4.1",
-    "reflux-state-mixin": "mongodb-js/reflux-state-mixin"
+    "lodash": "^3.10.1"
   },
   "devDependencies": {
     "eslint-config-mongodb-js": "^2.2.0",
