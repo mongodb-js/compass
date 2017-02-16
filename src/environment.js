@@ -9,18 +9,6 @@ const pkg = require('../package.json');
 class Environment {
 
   /**
-   * Adds the modules in the provided directory to the global modules.
-   *
-   * @param {String} dir - The directory to add.
-   */
-  addGlobalModules(dir) {
-    var mod = require('module').Module;
-    mod.globalPaths.push(dir);
-    process.env.NODE_PATH = mod.globalPaths.join(path.delimiter);
-    mod._initPaths();
-  }
-
-  /**
    * Initialize the environment.
    */
   init() {
