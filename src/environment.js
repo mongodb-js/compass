@@ -16,15 +16,6 @@ class Environment {
   }
 
   /**
-   * Returns the package.json for Compass.
-   *
-   * @returns {Object} The package.json, loaded.
-   */
-  packageJSON() {
-    return pkg;
-  }
-
-  /**
    * Register babel to transform .jsx files.
    */
   _registerBabel() {
