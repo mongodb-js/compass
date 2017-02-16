@@ -1,4 +1,4 @@
-const app = require('ampersand-app');
+const app = require('hadron-app');
 const Indexes = require('./lib/component/indexes');
 const IndexDefinition = require('./lib/component/index-definition');
 const IndexDefinitionType = require('./lib/component/index-definition-type');

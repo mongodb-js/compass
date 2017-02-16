@@ -1,5 +1,5 @@
 var View = require('ampersand-view');
-var app = require('ampersand-app');
+var app = require('hadron-app');
 var ipc = require('hadron-ipc');
 var metrics = require('mongodb-js-metrics')();
 var debug = require('debug')('mongodb-compass:notification-update-available');

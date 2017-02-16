@@ -1,4 +1,4 @@
-const app = require('ampersand-app');
+const app = require('hadron-app');
 const React = require('react');
 const _ = require('lodash');
 const NativeListener = require('react-native-listener');

@@ -1,4 +1,4 @@
-const app = require('ampersand-app');
+const app = require('hadron-app');
 const path = require('path');
 const AppRegistry = require('hadron-app-registry');
 const { PackageManager } = require('hadron-package-manager');

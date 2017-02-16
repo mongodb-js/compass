@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const app = require('ampersand-app');
+const app = require('hadron-app');
 const React = require('react');
 const TypeChecker = require('hadron-type-checker');
 

@@ -1,5 +1,5 @@
 const React = require('react');
-const app = require('ampersand-app');
+const app = require('hadron-app');
 const { shell } = require('electron');
 const ipc = require('hadron-ipc');
 const { NamespaceStore } = require('hadron-reflux-store');

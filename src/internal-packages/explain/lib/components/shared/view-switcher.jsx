@@ -11,11 +11,10 @@ class ViewSwitcher extends React.Component {
    * @return {React.Fragment}  array of buttons
    */
   buttonFactory() {
-    // const onClick = _.get(this.props, 'onClick', () => {});
     return _.map(this.props.buttonLabels, (label) => {
       const active = this.props.activeButton === label;
       return (
-        <Button key={label} active={active} onClick={this.props.onClick.bind(this, label)} bsSize="xsmall">
+        <Button key={label} active={active} disabled={this.props.disabled} onClick={this.props.onClick.bind(this, label)} bsSize="xsmall">
           {label}
         </Button>
       );
@@ -44,12 +43,7 @@ ViewSwitcher.propTypes = {
   label: React.PropTypes.string,
   buttonLabels: React.PropTypes.arrayOf(React.PropTypes.string).isRequired,
   activeButton: React.PropTypes.string,
-  onClick: React.PropTypes.func
-};
-
-ViewSwitcher.defaultProps = {
-  label: '',
-  activeButton: '',
+  disabled: React.PropTypes.bool,
   onClick: () => {}
 };
 

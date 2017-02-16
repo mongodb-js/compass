@@ -1,4 +1,5 @@
 const React = require('react');
+const shell = require('electron').shell;
 
 // const debug = require('debug')('mongodb-compass:explain:summary-stat');
 
@@ -8,6 +9,10 @@ const React = require('react');
  * if provided adds an info sprinkle button linking to the documentation.
  */
 class SummaryStat extends React.Component {
+
+  onHelpClicked(explainURL) {
+    shell.openExternal(explainURL);
+  }
 
   /**
    * Render single summary stat (key value pair).
@@ -21,7 +26,7 @@ class SummaryStat extends React.Component {
 
     // only render info sprinkle if data link was provided
     const infoSprinkle = dataLink ?
-      <i className="summary-stat-info-sprinkle" data-link={dataLink}></i> : null;
+      <i className="summary-stat-info-sprinkle" onClick={this.onHelpClicked.bind(this, dataLink)} data-link={dataLink}></i> : null;
 
     // nReturned is represented as bubble value, other stats as simple string
     const modifier = (this.props.dataLink === 'nReturned') ?
