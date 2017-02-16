@@ -13,11 +13,6 @@ const constants = require('../constants');
 
 class ExplainTree extends React.Component {
 
-  constructor(props) {
-    super(props);
-    this.StoreConnector = app.appRegistry.getComponent('App.StoreConnector');
-  }
-
   componentDidMount() {
     this.drawLinks();
   }
@@ -101,6 +96,12 @@ ExplainTree.displayName = 'ExplainTree';
  * ExplainTree connected to the TreeStages store.
  */
 class ConnectedExplainTree extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.StoreConnector = app.appRegistry.getComponent('App.StoreConnector');
+  }
+
   /**
    * Connect CompassExplainComponent to store and render.
    *
