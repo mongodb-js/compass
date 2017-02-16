@@ -68,7 +68,7 @@ class CompassExplain extends React.Component {
   render() {
     let content = null;
     let warning = null;
-    let disabledBool = true;
+    let isDisabled = true;
 
     if (this.CollectionStore.isReadonly()) {
       warning = this.renderWarning(READ_ONLY_WARNING);
@@ -76,7 +76,7 @@ class CompassExplain extends React.Component {
       warning = this.renderWarning(COLLECTION_SCAN_WARNING);
     } else {
       content = this.renderContent();
-      disabledBool = false;
+      isDisabled = false;
     }
 
     const activeViewTypeButton = this.props.viewType === 'tree' ?
@@ -91,7 +91,7 @@ class CompassExplain extends React.Component {
               label="View Details As"
               buttonLabels={['Visual Tree', 'Raw JSON']}
               activeButton={activeViewTypeButton}
-              disabledBool={disabledBool}
+              disabled={isDisabled}
               onClick={this.onViewSwitch}
             />
           </div>
