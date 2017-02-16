@@ -122,6 +122,7 @@ class DropDatabaseDialog extends React.Component {
               data-test-id="drop-database-modal">
             <div className="form-group">
               <input
+                autoFocus
                 type="text"
                 className="drop-confirm-input form-control"
                 data-test-id="confirm-drop-database-name"
