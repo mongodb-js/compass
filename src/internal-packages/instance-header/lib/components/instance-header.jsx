@@ -33,8 +33,10 @@ class InstanceHeaderComponent extends React.Component {
 
   returnVersionDistro() {
     let distro = this.props.versionDistro;
-    distro = distro + ' version '
-    return distro;
+    return distro !== null
+      ? (
+        distro = distro + ' version '
+      ) : 'Retrieving version'
   }
 
   renderAuthDetails() {
@@ -96,7 +98,7 @@ InstanceHeaderComponent.propTypes = {
   hostname: React.PropTypes.string,
   port: React.PropTypes.number,
   processStatus: React.PropTypes.string,
-  versionDistro: React.PropTypes.oneOf(['Enterprise', 'Community', 'Retrieving ']),
+  versionDistro: React.PropTypes.oneOf(['Enterprise', 'Community']),
   versionNumber: React.PropTypes.string
 };
 
