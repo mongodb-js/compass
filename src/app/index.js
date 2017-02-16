@@ -406,7 +406,10 @@ app.extend({
       StatusAction.showIndeterminateProgressBar();
 
       DataServiceStore.listen((error, ds) => {
-        app.dataService = ds.on('error', state.onFatalError.bind(state, 'create client'));;
+        if (error) {
+          state.onFatalError('create client');
+        }
+        app.dataService = ds.on('error', state.onFatalError.bind(state, 'create client'));
         debug('initializing singleton models... ');
         state.instance = new MongoDBInstance();
         debug('fetching instance model...');

@@ -1,6 +1,5 @@
 const timer = require('d3-timer');
 const React = require('react');
-const Actions = require('../action');
 const ChartComponent = require('./chart-component');
 const OpCountersStore = require('../store/opcounters-store');
 const NetworkStore = require('../store/network-store');
