@@ -1,7 +1,7 @@
 const timer = require('d3-timer');
 const React = require('react');
-const Actions = require('../action');
 const { DataServiceActions } = require('mongodb-data-service');
+const Actions = require('../actions');
 
 /**
  * Represents the component that renders the top information.

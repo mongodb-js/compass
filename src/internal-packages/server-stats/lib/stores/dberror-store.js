@@ -1,5 +1,5 @@
 const Reflux = require('reflux');
-const Actions = require('../action');
+const Actions = require('../actions');
 const translate = require('mongodb-js-errors').translate;
 const _ = require('lodash');
 

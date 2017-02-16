@@ -1,8 +1,6 @@
 const React = require('react');
 const D3Component = require('./d3component');
-// const debug = require('debug')('mongodb-compass:server-stats-chart-component');
-
-const chartFn = require('../d3/stats-chart');
+const chartFn = require('../d3/').realTimeLineChart;
 
 /**
  * Represents the component that renders serverStatus charts.
@@ -12,13 +10,14 @@ class ChartComponent extends React.Component {
   /**
    * The server stats component should be initialized with a 'store'
    * property, that triggers with the result of a { serverStatus: 1 }
-   * command.
+   * command. Should also have a 'dispatcher' property.
    *
    * @param {Object} props - The component properties.
    */
   constructor(props) {
     super(props);
     this.state = { error: null, data: {}};
+    this.dispatcher = this.props.dispatcher;
   }
 
   /**
@@ -58,14 +57,14 @@ class ChartComponent extends React.Component {
    */
   renderGraph(data) {
     return (
-      <div className={this.props.chartname}>
+      <div className="chart">
         <D3Component
           data={data}
           renderMode="svg"
           width={520}
           height={145}
           d3fn={chartFn}
-        />
+          dispatcher={this.dispatcher}/>
       </div>
     );
   }
@@ -87,7 +86,7 @@ class ChartComponent extends React.Component {
 
 ChartComponent.propTypes = {
   store: React.PropTypes.any.isRequired,
-  chartname: React.PropTypes.any.isRequired
+  dispatcher: React.PropTypes.any.isRequired
 };
 
 ChartComponent.displayName = 'ChartComponent';

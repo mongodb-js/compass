@@ -1,16 +1,27 @@
 const timer = require('d3-timer');
 const React = require('react');
 const ChartComponent = require('./chart-component');
-const OpCountersStore = require('../store/opcounters-store');
-const NetworkStore = require('../store/network-store');
-const GlobalLockStore = require('../store/globallock-store');
-const MemStore = require('../store/mem-store');
+const OpCountersStore = require('../stores/opcounters-store');
+const NetworkStore = require('../stores/network-store');
+const GlobalLockStore = require('../stores/globallock-store');
+const MemStore = require('../stores/mem-store');
 const { DataServiceActions } = require('mongodb-data-service');
+const EventDispatcher = require('../d3/real-time-event-dispatch');
 
 /**
  * Represents the component that renders all the server stats.
  */
 class ServerStatsComponent extends React.Component {
+
+  /**
+   * The server stats component constructor.
+   *
+   * @param {Object} props - The component properties.
+   */
+  constructor(props) {
+    super(props);
+    this.eventDispatcher = new EventDispatcher();
+  }
 
   /**
    * When the component mounts, start the polling timer.
@@ -34,20 +45,13 @@ class ServerStatsComponent extends React.Component {
    * @returns {React.Component} The component.
    */
   render() {
+    //<div className="rtss rtss-performance rtss-performance-graphs">
     return (
-      <div className="server-stats">
-        <div className="opcounters">
-          <ChartComponent chartname="OpCounter" store={OpCountersStore} />
-        </div>
-        <div className="globallock">
-          <ChartComponent chartname="GlobalLock" store={GlobalLockStore} />
-        </div>
-        <div className="network">
-          <ChartComponent chartname="Network" store={NetworkStore} />
-        </div>
-        <div className="mem">
-          <ChartComponent chartname="Mem" store={MemStore} />
-        </div>
+      <div className="rtss">
+        <ChartComponent store={OpCountersStore} dispatcher={this.eventDispatcher} />
+        <ChartComponent store={GlobalLockStore} dispatcher={this.eventDispatcher} />
+        <ChartComponent store={NetworkStore} dispatcher={this.eventDispatcher} />
+        <ChartComponent store={MemStore} dispatcher={this.eventDispatcher} />
       </div>
     );
   }

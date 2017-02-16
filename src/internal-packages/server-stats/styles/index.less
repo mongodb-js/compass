@@ -1,15 +1,25 @@
-@import './rt-db.less';
-@import './rt-lists.less';
-@import './rt-nav.less';
-@import './rt-graphs.less';
-@import './rt-errors.less';
+@import './rtss-db.less';
+@import './rtss-lists.less';
+@import './rtss-nav.less';
+@import './chart.less';
+@import './rtss-errors.less';
 @import './rtss-databases.less';
 
-.RTSS {
+.rtss {
   font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 500;
   min-width: 100%;
-  background-color: @gray8;
+  /*background-color: @gray8;*/
+  background-color: #3D4247;
+  //height: 100vh;
+  //overflow-x: scroll;
+
+
+  .chart {
+    width: 100%;
+    float: left;
+    margin-bottom: 8px;
+  }
 
   .tab-nav-bar-header {
     top: 0;

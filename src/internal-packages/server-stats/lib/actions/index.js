@@ -9,7 +9,9 @@ const Actions = Reflux.createActions([
   'showOperationDetails',
   'hideOperationDetails',
   'suppressTop',
-  'restart'
+  'restart',
+  'mouseOut',
+  'mouseOver'
 ]);
 
 module.exports = Actions;

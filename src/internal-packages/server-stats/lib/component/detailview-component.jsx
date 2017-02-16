@@ -1,5 +1,5 @@
 const React = require('react');
-const Actions = require('../action');
+const Actions = require('../actions');
 // const debug = require('debug')('mongodb-compass:server-stats:detailview-component');
 
 class DetailViewComponent extends React.Component {

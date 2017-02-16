@@ -1,6 +1,6 @@
 const React = require('react');
-const Actions = require('../action');
-const ServerStatsStore = require('../store/server-stats-graphs-store');
+const Actions = require('../actions');
+const ServerStatsStore = require('../stores/server-stats-graphs-store');
 
 class TimeAndPauseButton extends React.Component {
   constructor(props) {

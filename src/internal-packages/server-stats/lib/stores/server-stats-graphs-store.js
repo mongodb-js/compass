@@ -1,5 +1,5 @@
 const Reflux = require('reflux');
-const Actions = require('../action');
+const Actions = require('../actions');
 const { DataServiceActions, DataServiceStore } = require('mongodb-data-service');
 
 const ServerStatsStore = Reflux.createStore({

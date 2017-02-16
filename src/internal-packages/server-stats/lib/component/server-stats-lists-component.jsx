@@ -4,8 +4,8 @@ const React = require('react');
 const DetailViewComponent = require('./detailview-component');
 const CurrentOpComponent = require('./current-op-component');
 const TopComponent = require('./top-component');
-const CurrentOpStore = require('../store/current-op-store');
-const TopStore = require('../store/top-store');
+const CurrentOpStore = require('../stores/current-op-store');
+const TopStore = require('../stores/top-store');
 
 
 class ServerStatsListsComponent extends React.Component {
