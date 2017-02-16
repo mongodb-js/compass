@@ -1,14 +1,13 @@
-const toArray = require('lodash/toArray');
-const extend = require('lodash/assign');
+const _ = require('lodash');
 
 /**
  * The global app singleton.
  */
 const app = {
   extend: function() {
-    const args = toArray(arguments);
+    const args = _.toArray(arguments);
     args.unshift(this);
-    return extend.apply(null, args);
+    return _.assign.apply(null, args);
   }
 };
 
