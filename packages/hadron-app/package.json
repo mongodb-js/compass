@@ -30,5 +30,21 @@
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^0.2.9",
     "pre-commit": "^1.1.2"
+  },
+  "peerDependencies": {
+    "babel-register": "^6.7.2",
+    "electron-squirrel-startup": "^1.0.0",
+    "hadron-app-registry": "^4.0.0",
+    "hadron-auto-update-manager": "^0.0.12",
+    "hadron-compile-cache": "^1.0.1",
+    "hadron-module-cache": "^0.0.3",
+    "hadron-package-manager": "^1.0.0",
+    "hadron-style-manager": "0.0.1",
+    "less": "^2.6.1",
+    "less-cache": "^0.23.0",
+    "mongodb-data-service": "^2.11.0",
+    "react": "^15.2.1",
+    "react-dom": "^15.2.1",
+    "reflux": "0.4.1"
   }
 }
