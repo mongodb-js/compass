@@ -1,6 +1,6 @@
 /* eslint no-unused-expressions: 0 */
 const { expect } = require('chai');
-const app = require('ampersand-app');
+const app = require('hadron-app');
 
 require('../../src/app/reflux-listen-to-external-store.js');
 
