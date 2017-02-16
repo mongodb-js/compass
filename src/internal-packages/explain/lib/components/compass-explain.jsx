@@ -1,22 +1,8 @@
 const React = require('react');
 const app = require('hadron-app');
 const ExplainBody = require('./explain-body');
-const ExplainHeader = require('./explain-header');
-
-/**
- * Structure of components (Jade notation)
- *
- * .compass-explain
- *   .explain-header
- *     .explain-summary
- *       .summary-stats (5x in FlexBox)
- *       .summary-index-stats (1x in FlexBox)
- *     .view-switcher
- *   .explain-body
- *     .explain-tree     (mutually exclusive with .explain-json)
- *       .explain-stage  (multiple)
- *     .explain-json     (mutually exclusive with .explain-tree)
- */
+const ViewSwitcher = require('./shared/view-switcher');
+const ExplainActions = require('../actions');
 
 // TODO (thomasr) data-service explain does not pass through options to find yet.
 const QUERYBAR_LAYOUT = ['filter'];
@@ -38,6 +24,14 @@ class CompassExplain extends React.Component {
     this.queryBar = app.appRegistry.getComponent('Query.QueryBar');
   }
 
+  onViewSwitch(label) {
+    if (label === 'Visual Tree') {
+      ExplainActions.switchToTreeView();
+    } else if (label === 'Raw JSON') {
+      ExplainActions.switchToJSONView();
+    }
+  }
+
   renderWarning(warning) {
     return (
       <this.statusRow style="warning">
@@ -50,8 +44,9 @@ class CompassExplain extends React.Component {
     return (
       <div className="column-container">
         <div className="column main">
-          <ExplainHeader
+          <ExplainBody
             viewType={this.props.viewType}
+            rawExplainObject={this.props.rawExplainObject}
             nReturned={this.props.nReturned}
             totalKeysExamined={this.props.totalKeysExamined}
             totalDocsExamined={this.props.totalDocsExamined}
@@ -59,10 +54,6 @@ class CompassExplain extends React.Component {
             inMemorySort={this.props.inMemorySort}
             indexType={this.props.indexType}
             index={this.props.index}
-          />
-          <ExplainBody
-            viewType={this.props.viewType}
-            rawExplainObject={this.props.rawExplainObject}
           />
         </div>
       </div>
@@ -77,6 +68,7 @@ class CompassExplain extends React.Component {
   render() {
     let content = null;
     let warning = null;
+    let isDisabled = true;
 
     if (this.CollectionStore.isReadonly()) {
       warning = this.renderWarning(READ_ONLY_WARNING);
@@ -84,12 +76,25 @@ class CompassExplain extends React.Component {
       warning = this.renderWarning(COLLECTION_SCAN_WARNING);
     } else {
       content = this.renderContent();
+      isDisabled = false;
     }
+
+    const activeViewTypeButton = this.props.viewType === 'tree' ?
+      'Visual Tree' : 'Raw JSON';
 
     return (
       <div className="compass-explain">
         <div className="controls-container">
           <this.queryBar layout={QUERYBAR_LAYOUT} />
+          <div className="action-bar">
+            <ViewSwitcher
+              label="View Details As"
+              buttonLabels={['Visual Tree', 'Raw JSON']}
+              activeButton={activeViewTypeButton}
+              disabled={isDisabled}
+              onClick={this.onViewSwitch}
+            />
+          </div>
           {warning}
         </div>
         {content}
@@ -108,7 +113,7 @@ CompassExplain.propTypes = {
   indexType: React.PropTypes.oneOf(['MULTIPLE', 'UNAVAILABLE', 'COLLSCAN',
     'COVERED', 'INDEX']).isRequired,
   index: React.PropTypes.object,
-  viewType: React.PropTypes.oneOf(['tree', 'json']),
+  viewType: React.PropTypes.oneOf(['tree', 'json']).isRequired,
   rawExplainObject: React.PropTypes.object.isRequired
 };
 

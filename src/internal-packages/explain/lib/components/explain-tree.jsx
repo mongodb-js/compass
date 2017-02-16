@@ -1,8 +1,6 @@
 /* eslint react/no-multi-comp: 0 */
-
 const React = require('react');
 const app = require('hadron-app');
-
 const TreeStagesStore = require('../stores/tree-stages');
 const ExplainStage = require('./explain-stage');
 const _ = require('lodash');
@@ -68,8 +66,10 @@ class ExplainTree extends React.Component {
    */
   render() {
     return (
-      <div className="explain-tree" style={{height: this.props.height, width: this.props.width}} ref="stages">
-        {this.getStages()}
+      <div>
+        <div className="explain-tree" style={{height: this.props.height, width: this.props.width}} ref="stages">
+          {this.getStages()}
+        </div>
       </div>
     );
   }

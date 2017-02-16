@@ -1,6 +1,7 @@
 const React = require('react');
 const FontAwesome = require('react-fontawesome');
 const app = require('hadron-app');
+const shell = require('electron').shell;
 // const debug = require('debug')('mongodb-compass:explain:summary-index-stat');
 
 /**
@@ -11,6 +12,10 @@ class SummaryIndexStat extends React.Component {
 
   componentWillMount() {
     this.indexComponent = app.appRegistry.getComponent('Indexes.IndexDefinitionType');
+  }
+
+  onHelpClicked(explainURL) {
+    shell.openExternal(explainURL);
   }
 
   getIndexMessageText() {
@@ -62,9 +67,10 @@ class SummaryIndexStat extends React.Component {
    * @returns {React.Component}   Index usage stat component.
    */
   render() {
+    const dataLink = this.props.dataLink;
     return (
       <div className="summary-stat summary-stat-is-index">
-        <i className="summary-stat-info-sprinkle" data-link=""></i>
+        <i className="summary-stat-info-sprinkle" onClick={this.onHelpClicked.bind(this, dataLink)} data-link={dataLink}></i>
         <span>
           <span className="summary-stat-index-icon">{this.getIndexMessageIcon()}</span>
           <span
@@ -79,6 +85,7 @@ class SummaryIndexStat extends React.Component {
 }
 
 SummaryIndexStat.propTypes = {
+  dataLink: React.PropTypes.string,          // info sprinkle (optional)
   indexType: React.PropTypes.oneOf(['MULTIPLE', 'UNAVAILABLE', 'COLLSCAN',
     'COVERED', 'INDEX']).isRequired,
   index: React.PropTypes.object
