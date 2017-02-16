@@ -2,7 +2,7 @@
  * Creates a headless browser environment with jsdom for server-side testing.
  */
 
-require('babel-register')();
+require('../../src/app/setup-hadron-caches');
 
 const jsdom = require('jsdom').jsdom;
 const exposedProperties = ['window', 'navigator', 'document'];

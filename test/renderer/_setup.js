@@ -1,4 +1,4 @@
-require('babel-register')();
+require('../../src/app/setup-hadron-caches');
 
 require('../../src/app/reflux-listen-to-external-store');
 
