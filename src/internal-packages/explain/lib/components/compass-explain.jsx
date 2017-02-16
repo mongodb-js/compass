@@ -86,7 +86,6 @@ class CompassExplain extends React.Component {
       <div className="compass-explain">
         <div className="controls-container">
           <this.queryBar layout={QUERYBAR_LAYOUT} />
-          {warning}
           <div className="action-bar">
             <ViewSwitcher
               label="View Details As"
@@ -96,6 +95,7 @@ class CompassExplain extends React.Component {
               onClick={this.onViewSwitch}
             />
           </div>
+          {warning}
         </div>
         {content}
       </div>
