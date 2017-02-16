@@ -3,20 +3,9 @@
 const _ = require('lodash');
 const fs = require('fs');
 const path = require('path');
-const os = require('os');
 const debug = require('debug')('hadron-package-manager:package-manager');
 const Package = require('./package');
 const Action = require('./action');
-
-/**
- * The name of the directory to hold public packages.
- */
-const CPM_PATH_NAME = '.cpm';
-
-/**
- * The fully qualified name to the cpm packages.
- */
-const CPM_PACKAGES_PATH = path.join(os.homedir(), CPM_PATH_NAME);
 
 /**
  * Manages packages in the application.
@@ -28,10 +17,11 @@ class PackageManager {
    *
    * @param {String} packagesPath - The extra paackages paths.
    */
-  constructor(packagesPath) {
-    this.packagePaths = [ packagesPath, CPM_PACKAGES_PATH ];
+  constructor(packagesPath, baseDir, externalPackages) {
+    this.packagesPath = packagesPath;
+    this.baseDir = baseDir;
+    this.externalPackages = externalPackages;
     this.expectedPackageCount = 0;
-    this.directoriesScannedCount = 0;
     this.packages = [];
   }
 
@@ -69,31 +59,12 @@ class PackageManager {
   }
 
   /**
-   * Increment the number of directories scanned for packages.
-   */
-  _incrementDirectoriesScannedCount() {
-    this.directoriesScannedCount += 1;
-  }
-
-  /**
-   * Increments the expected package count by the value, usually
-   * the number of files in the currently scanned directory.
-   *
-   * @param {Integer} value - The number to increment by.
-   */
-  _incrementExpectedPackageCount(value) {
-    this._incrementDirectoriesScannedCount();
-    this.expectedPackageCount += value;
-  }
-
-  /**
    * Checks if the reading of packages is complete.
    *
    * @returns {Boolean} If the reading is complete.
    */
   _isReadingComplete() {
-    return (this.expectedPackageCount === this.packages.length) &&
-      (this.directoriesScannedCount === this.packagePaths.length);
+    return this.expectedPackageCount === this.packages.length;
   }
 
   /**
@@ -104,8 +75,9 @@ class PackageManager {
    */
   _read() {
     if (this.packages.length === 0) {
-      _.each(this.packagePaths, (packagesPath) => {
-        this._scanPackagePaths(packagesPath);
+      this._scanPackagePaths(this.packagesPath);
+      _.each(this.externalPackages, (externalPackage) => {
+        this._scanPackagePath(this.baseDir, externalPackage);
       });
     }
   }
@@ -134,7 +106,7 @@ class PackageManager {
    * Resets the expected package count to 0 since the read is done.
    */
   _resetExpectedPackageCount() {
-    this.expectedPackages = 0;
+    this.expectedPackageCount = 0;
   }
 
   /**
@@ -147,6 +119,7 @@ class PackageManager {
    */
   _scanPackagePath(packagesPath, file) {
     var packagePath = path.join(packagesPath, file);
+    this.expectedPackageCount += 1;
     fs.stat(packagePath, (error, f) => {
       if (error) {
         debug(error);
@@ -167,10 +140,8 @@ class PackageManager {
   _scanPackagePaths(packagesPath) {
     fs.readdir(packagesPath, (error, files) => {
       if (error) {
-        this._incrementDirectoriesScannedCount();
         Action.packageScanFailed(error);
       } else {
-        this._incrementExpectedPackageCount(files.length);
         _.each(files, (file) => {
           this._scanPackagePath(packagesPath, file);
         });

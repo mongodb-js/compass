@@ -11,12 +11,12 @@ describe('PackageManager', function() {
     var packagesPath = path.join(__dirname, 'packages');
     var manager;
     beforeEach(function() {
-      manager = new PackageManager(packagesPath);
+      manager = new PackageManager(packagesPath, __dirname, ['external-packages/example3']);
     });
 
     it('activates all the packages', function(done) {
       var unsubscribe = Action.packageActivationCompleted.listen(function() {
-        expect(manager.packages).to.have.length(2);
+        expect(manager.packages).to.have.length(3);
         unsubscribe();
         done();
       });
