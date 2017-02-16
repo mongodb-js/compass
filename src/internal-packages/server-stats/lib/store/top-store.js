@@ -1,5 +1,5 @@
 const Reflux = require('reflux');
-const app = require('ampersand-app');
+const app = require('hadron-app');
 const Actions = require('../action');
 const toNS = require('mongodb-ns');
 const { DataServiceActions } = require('mongodb-data-service');

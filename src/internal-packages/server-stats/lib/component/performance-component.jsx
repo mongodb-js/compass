@@ -7,7 +7,7 @@ const DBErrorComponent = require('./dberror-component');
 const TimeAndPauseButton = require('./time-and-pause-button');
 const DBErrorStore = require('../store/dberror-store');
 const ServerStatsStore = require('../store/server-stats-graphs-store');
-const app = require('ampersand-app');
+const app = require('hadron-app');
 
 class PerformanceComponent extends React.Component {
 

@@ -32,7 +32,7 @@ CompileCache.digestMappings = pkg._compileCacheMappings || {};
 var electron = require('electron');
 var shell = electron.shell;
 var dialog = electron.dialog;
-var app = require('ampersand-app');
+var app = require('hadron-app');
 var backoff = require('backoff');
 var APP_VERSION = electron.remote.app.getVersion();
 
@@ -93,6 +93,10 @@ new StyleManager(
 //   hooked into require.extensions. Otherwise, packages will not have
 //   use of the compile cache.
 require('./setup-package-manager');
+
+console.log('##########################################');
+console.log(app);
+console.log(app.appRegistry);
 
 function getConnection(model, done) {
   function _fetch(fn) {

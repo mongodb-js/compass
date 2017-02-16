@@ -1,4 +1,4 @@
-const app = require('ampersand-app');
+const app = require('hadron-app');
 const ValidationComponent = require('./lib/components');
 const ValidationActions = require('./lib/actions');
 const ValidationStore = require('./lib/stores');

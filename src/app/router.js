@@ -1,7 +1,7 @@
 var AmpersandRouter = require('ampersand-router');
 var qs = require('qs');
 var _ = require('lodash');
-var app = require('ampersand-app');
+var app = require('hadron-app');
 var React = require('react');
 var ReactDOM = require('react-dom');
 

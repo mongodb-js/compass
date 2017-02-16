@@ -1,7 +1,7 @@
 const React = require('react');
 const IndexHeaderColumn = require('./index-header-column');
 const SortIndexesStore = require('../store/sort-indexes-store');
-const app = require('ampersand-app');
+const app = require('hadron-app');
 
 const ASC = 'fa-sort-asc';
 

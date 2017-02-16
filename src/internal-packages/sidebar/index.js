@@ -1,4 +1,4 @@
-const app = require('ampersand-app');
+const app = require('hadron-app');
 const CompassSidebarComponent = require('./lib/components');
 const CompassSidebarActions = require('./lib/actions');
 const CompassSidebarStore = require('./lib/stores');

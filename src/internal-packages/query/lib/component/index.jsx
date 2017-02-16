@@ -1,7 +1,6 @@
 const React = require('react');
 
-const app = require('ampersand-app');
-const StoreConnector = app.appRegistry.getComponent('App.StoreConnector');
+const app = require('hadron-app');
 const QueryBar = require('./query-bar');
 const QueryActions = require('../action');
 const QueryStore = require('../store/query-store');
@@ -9,6 +8,12 @@ const QueryStore = require('../store/query-store');
 // const debug = require('debug')('mongodb-compass:compass-explain:index');
 
 class ConnectedQueryBar extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.StoreConnector = app.appRegistry.getComponent('App.StoreConnector');
+  }
+
   /**
    * Connect CompassExplainComponent to store and render.
    *
@@ -16,9 +21,9 @@ class ConnectedQueryBar extends React.Component {
    */
   render() {
     return (
-      <StoreConnector store={QueryStore}>
+      <this.StoreConnector store={QueryStore}>
         <QueryBar actions={QueryActions} {...this.props} />
-      </StoreConnector>
+      </this.StoreConnector>
     );
   }
 }

@@ -1,4 +1,4 @@
-const app = require('ampersand-app');
+const app = require('hadron-app');
 const CollectionsAction = require('./lib/actions/collections-actions');
 const CollectionsTable = require('./lib/components');
 const CreateCollectionCheckbox = require('./lib/components/create-collection-checkbox');

@@ -3,8 +3,7 @@ const IndexHeader = require('./index-header');
 const IndexList = require('./index-list');
 const CreateIndexButton = require('./create-index-button');
 const LoadIndexesStore = require('../store/load-indexes-store');
-const app = require('ampersand-app');
-const StatusRow = app.appRegistry.getComponent('App.StatusRow');
+const app = require('hadron-app');
 
 /**
  * Component for the indexes.
@@ -19,6 +18,7 @@ class Indexes extends React.Component {
   constructor(props) {
     super(props);
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
+    this.StatusRow = app.appRegistry.getComponent('App.StatusRow');
     this.state = this.determineState();
   }
 
@@ -67,9 +67,9 @@ class Indexes extends React.Component {
 
   renderReadonly() {
     return (
-      <StatusRow style="warning">
+      <this.StatusRow style="warning">
         Readonly views may not contain indexes.
-      </StatusRow>
+      </this.StatusRow>
     );
   }
 

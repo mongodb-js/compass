@@ -1,6 +1,6 @@
 var _ = require('lodash');
 var ipc = require('hadron-ipc');
-var app = require('ampersand-app');
+var app = require('hadron-app');
 var metrics = require('mongodb-js-metrics')();
 
 function getNodeObserver(fn) {

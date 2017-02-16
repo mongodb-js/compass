@@ -1,4 +1,4 @@
-const app = require('ampersand-app');
+const app = require('hadron-app');
 const StatusComponent = require('./lib/component');
 const StatusAction = require('./lib/action');
 const StatusStore = require('./lib/store');

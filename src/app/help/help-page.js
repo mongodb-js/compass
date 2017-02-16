@@ -6,7 +6,7 @@ var HelpEntryCollection = require('./help-entry-collection');
 var HelpEntry = require('./help-entry');
 var SidebarView = require('../sidebar');
 var ViewSwitcher = require('ampersand-view-switcher');
-var app = require('ampersand-app');
+var app = require('hadron-app');
 var metrics = require('mongodb-js-metrics')();
 var _ = require('lodash');
 

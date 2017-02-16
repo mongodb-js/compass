@@ -1,6 +1,6 @@
 const React = require('react');
 const FontAwesome = require('react-fontawesome');
-const app = require('ampersand-app');
+const app = require('hadron-app');
 // const debug = require('debug')('mongodb-compass:explain:summary-index-stat');
 
 /**

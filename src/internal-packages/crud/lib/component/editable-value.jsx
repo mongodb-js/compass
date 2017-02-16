@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const moment = require('moment');
-const app = require('ampersand-app');
+const app = require('hadron-app');
 const React = require('react');
 const inputSize = require('./utils').inputSize;
 const TypeChecker = require('hadron-type-checker');

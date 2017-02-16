@@ -1,4 +1,4 @@
-const app = require('ampersand-app');
+const app = require('hadron-app');
 const StoreConnector = require('./lib/components/store-connector');
 const SortableTable = require('./lib/components/sortable-table');
 const TabNavBar = require('./lib/components/tab-nav-bar');

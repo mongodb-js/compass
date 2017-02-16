@@ -3,7 +3,7 @@ const StateMixin = require('reflux-state-mixin');
 const CollectionsActions = require('../actions/collections-actions');
 const { NamespaceStore } = require('hadron-reflux-store');
 const toNS = require('mongodb-ns');
-const app = require('ampersand-app');
+const app = require('hadron-app');
 const _ = require('lodash');
 
 const debug = require('debug')('mongodb-compass:stores:collections');

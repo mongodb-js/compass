@@ -1,5 +1,5 @@
 const React = require('react');
-const app = require('ampersand-app');
+const app = require('hadron-app');
 const semver = require('semver');
 const { NamespaceStore } = require('hadron-reflux-store');
 const toNS = require('mongodb-ns');

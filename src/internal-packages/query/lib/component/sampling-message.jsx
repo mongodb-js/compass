@@ -1,5 +1,5 @@
 const React = require('react');
-const app = require('ampersand-app');
+const app = require('hadron-app');
 const { AnimatedIconTextButton } = require('hadron-react-buttons');
 const numeral = require('numeral');
 const pluralize = require('pluralize');
