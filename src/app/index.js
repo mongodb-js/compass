@@ -11,9 +11,6 @@ if (process.env.NODE_ENV === 'development') {
 
 window.jQuery = require('jquery');
 
-var Environment = require('../environment');
-Environment.init();
-
 var path = require('path');
 var resourcePath = path.join(__dirname, '..', '..');
 

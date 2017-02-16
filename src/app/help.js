@@ -1,7 +1,4 @@
 /* eslint no-console:0 */
-var Environment = require('../environment');
-Environment.init();
-
 var path = require('path');
 var resourcePath = path.join(__dirname, '..', '..');
 
