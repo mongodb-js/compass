@@ -94,10 +94,6 @@ new StyleManager(
 //   use of the compile cache.
 require('./setup-package-manager');
 
-console.log('##########################################');
-console.log(app);
-console.log(app.appRegistry);
-
 function getConnection(model, done) {
   function _fetch(fn) {
     model.fetch({
