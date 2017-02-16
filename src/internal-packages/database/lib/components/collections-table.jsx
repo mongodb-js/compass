@@ -1,5 +1,5 @@
 const React = require('react');
-const app = require('ampersand-app');
+const app = require('hadron-app');
 const CollectionsActions = require('../actions/collections-actions');
 const numeral = require('numeral');
 const ipc = require('hadron-ipc');

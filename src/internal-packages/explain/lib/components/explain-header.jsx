@@ -1,14 +1,18 @@
 const React = require('react');
 const ExplainSummary = require('./explain-summary');
-const app = require('ampersand-app');
+const app = require('hadron-app');
 
 const ViewSwitcher = require('./shared/view-switcher');
-const StatusRow = app.appRegistry.getComponent('App.StatusRow');
 
 const ExplainActions = require('../actions');
 
 
 class ExplainHeader extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.StatusRow = app.appRegistry.getComponent('App.StatusRow');
+  }
 
   onViewSwitch(label) {
     if (label === 'Visual Tree') {
@@ -33,14 +37,14 @@ class ExplainHeader extends React.Component {
           indexType={this.props.indexType}
           index={this.props.index}
         />
-        <StatusRow>
+        <this.StatusRow>
           <ViewSwitcher
             label="View Details As"
             buttonLabels={['Visual Tree', 'Raw JSON']}
             activeButton={activeViewTypeButton}
             onClick={this.onViewSwitch}
           />
-        </StatusRow>
+        </this.StatusRow>
       </div>
     );
   }

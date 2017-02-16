@@ -6,7 +6,7 @@ const React = require('react');
 
 const shallow = require('enzyme').shallow;
 
-const app = require('ampersand-app');
+const app = require('hadron-app');
 const StoreConnector = app.appRegistry.getComponent('App.StoreConnetor');
 const ConnectedCompassExplain = require('../lib/components');
 

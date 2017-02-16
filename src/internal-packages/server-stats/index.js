@@ -1,4 +1,4 @@
-const app = require('ampersand-app');
+const app = require('hadron-app');
 const RTSSComponent = require('./lib/component');
 /**
  * Activate all the components in the RTSS package.

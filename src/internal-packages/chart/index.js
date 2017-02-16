@@ -1,4 +1,4 @@
-const app = require('ampersand-app');
+const app = require('hadron-app');
 const ChartActions = require('./lib/actions');
 const ChartStore = require('./lib/store');
 const Chart = require('./lib/components/chart');

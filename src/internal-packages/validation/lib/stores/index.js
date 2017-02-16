@@ -5,7 +5,7 @@ const _ = require('lodash');
 const ruleCategories = require('../components/rule-categories');
 const helper = require('./helpers');
 const toNS = require('mongodb-ns');
-const app = require('ampersand-app');
+const app = require('hadron-app');
 
 // stores
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;

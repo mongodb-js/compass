@@ -1,4 +1,4 @@
-const app = require('ampersand-app');
+const app = require('hadron-app');
 const Actions = require('./lib/action');
 const CreateDatabaseDialog = require('./lib/component/create-database-dialog');
 const DatabasesView = require('./lib/component/connected-databases');

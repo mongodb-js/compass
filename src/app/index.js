@@ -21,7 +21,6 @@ var ModuleCache = require('hadron-module-cache');
 ModuleCache.register(resourcePath);
 ModuleCache.add(resourcePath);
 
-
 var pkg = require('../../package.json');
 var CompileCache = require('hadron-compile-cache');
 CompileCache.setHomeDirectory(resourcePath);
@@ -33,7 +32,7 @@ CompileCache.digestMappings = pkg._compileCacheMappings || {};
 var electron = require('electron');
 var shell = electron.shell;
 var dialog = electron.dialog;
-var app = require('ampersand-app');
+var app = require('hadron-app');
 var backoff = require('backoff');
 var APP_VERSION = electron.remote.app.getVersion();
 
@@ -56,7 +55,6 @@ var MongoDBInstance = require('./models/mongodb-instance');
 var Preferences = require('./models/preferences');
 var User = require('./models/user');
 
-var ApplicationStore = require('hadron-reflux-store').ApplicationStore;
 require('./menu-renderer');
 var Router = require('./router');
 var migrateApp = require('./migrations');
@@ -81,6 +79,8 @@ ipc.once('app:launched', function() {
 });
 
 var debug = require('debug')('mongodb-compass:app');
+
+const { DataServiceStore, DataServiceActions } = require('mongodb-data-service');
 
 var StyleManager = require('hadron-style-manager');
 new StyleManager(
@@ -405,23 +405,22 @@ app.extend({
       }
       StatusAction.showIndeterminateProgressBar();
 
-      var DataService = require('mongodb-data-service');
-      app.dataService = new DataService(state.connection)
-        .on('error', state.onFatalError.bind(state, 'create client'));
-
-      app.dataService.connect(function() {
-        ApplicationStore.dataService = app.dataService;
-
+      DataServiceStore.listen((error, ds) => {
+        if (error) {
+          state.onFatalError('create client');
+        }
+        app.dataService = ds.on('error', state.onFatalError.bind(state, 'create client'));
         debug('initializing singleton models... ');
         state.instance = new MongoDBInstance();
         debug('fetching instance model...');
-        app.instance.fetch({success: state.onInstanceFetched});
+        app.instance.fetch({ success: state.onInstanceFetched });
         state.startRouter();
         StatusAction.hide();
         if (done) {
           done();
         }
       });
+      DataServiceActions.connect(state.connection);
     });
   },
   init: function() {

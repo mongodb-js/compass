@@ -32,7 +32,7 @@ Provide functionality shown in the "Documents" tab in the collection view.
 Render an editable document in a React component.
 
 ```jsx
-const app = require('ampersand-app');
+const app = require('hadron-app');
 const React = require('react');
 const Document = app.appRegistry.getComponent('CRUD.Document');
 
@@ -46,7 +46,7 @@ class MyComponent extends React.Component {
 Render a non-editable pre-expanded document in a React component.
 
 ```jsx
-const app = require('ampersand-app');
+const app = require('hadron-app');
 const React = require('react');
 const Document = app.appRegistry.getComponent('CRUD.Document');
 
@@ -60,7 +60,7 @@ class MyComponent extends React.Component {
 Listen to the various CRUD actions.
 
 ```javascript
-const app = require('ampersand-app');
+const app = require('hadron-app');
 const CrudActions = app.appRegistry.getAction('CRUD.Actions');
 
 CrudActions.documentRemoved.listen((id) => {

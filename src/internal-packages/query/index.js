@@ -1,4 +1,4 @@
-const app = require('ampersand-app');
+const app = require('hadron-app');
 const QueryBarComponent = require('./lib/component');
 const SamplingMessage = require('./lib/component/sampling-message');
 const QueryAction = require('./lib/action');

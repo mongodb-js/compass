@@ -1,10 +1,9 @@
 /* eslint react/no-multi-comp: 0 */
 
 const React = require('react');
-const app = require('ampersand-app');
+const app = require('hadron-app');
 
 const TreeStagesStore = require('../stores/tree-stages');
-const StoreConnector = app.appRegistry.getComponent('App.StoreConnector');
 const ExplainStage = require('./explain-stage');
 const _ = require('lodash');
 const d3 = require('d3');
@@ -97,6 +96,12 @@ ExplainTree.displayName = 'ExplainTree';
  * ExplainTree connected to the TreeStages store.
  */
 class ConnectedExplainTree extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.StoreConnector = app.appRegistry.getComponent('App.StoreConnector');
+  }
+
   /**
    * Connect CompassExplainComponent to store and render.
    *
@@ -104,9 +109,9 @@ class ConnectedExplainTree extends React.Component {
    */
   render() {
     return (
-      <StoreConnector store={TreeStagesStore}>
+      <this.StoreConnector store={TreeStagesStore}>
         <ExplainTree />
-      </StoreConnector>
+      </this.StoreConnector>
     );
   }
 }

@@ -8,7 +8,7 @@ var shellToURL = require('mongodb-shell-to-url');
 var View = require('ampersand-view');
 
 var _ = require('lodash');
-var app = require('ampersand-app');
+var app = require('hadron-app');
 
 var electron = require('electron');
 var remote = electron.remote;
