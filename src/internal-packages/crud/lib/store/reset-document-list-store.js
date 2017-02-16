@@ -53,6 +53,10 @@ const ResetDocumentListStore = Reflux.createStore({
    * @param {Object} state - The query state.
    */
   onQueryChanged: function(state) {
+    if (!toNS(NamespaceStore.ns).collection) {
+      return;
+    }
+
     this.filter = state.filter || {};
     this.sort = _.pairs(state.sort);
     this.limit = state.limit;
