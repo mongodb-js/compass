@@ -180,6 +180,7 @@ class CreateCollectionDialog extends React.Component {
             data-test-id="create-collection-modal"
           >
             <CreateCollectionInput
+              autoFocus
               id="create-collection-name"
               name="Collection Name"
               value={this.state.collectionName}

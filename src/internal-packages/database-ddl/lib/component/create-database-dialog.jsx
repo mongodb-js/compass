@@ -200,6 +200,7 @@ class CreateDatabaseDialog extends React.Component {
               onSubmit={this.onCreateDatabaseButtonClicked.bind(this)}
               data-test-id="create-database-modal">
             <this.CreateCollectionInput
+              autoFocus
               id="create-database-name"
               name="Database Name"
               value={this.state.databaseName}

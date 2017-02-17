@@ -145,6 +145,7 @@ class DropIndexModal extends React.Component {
             <form onSubmit={this.handleConfirm.bind(this)}>
               <div className="form-group">
                 <input
+                  autoFocus
                   type="text"
                   className="drop-confirm-input form-control"
                   value={this.state.confirmName}

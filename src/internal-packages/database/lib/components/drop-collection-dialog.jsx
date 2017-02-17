@@ -127,6 +127,7 @@ class DropCollectionDialog extends React.Component {
               onSubmit={this.onDropCollectionButtonClicked.bind(this)}>
             <div className="form-group">
               <input
+                autoFocus
                 type="text"
                 className="drop-confirm-input form-control"
                 data-test-id="confirm-drop-collection-name"

@@ -15,6 +15,7 @@ class CreateCollectionInput extends React.Component {
       <div className="form-group">
         <p>{this.props.name}</p>
         <input
+          autoFocus={this.props.autoFocus}
           id={this.props.id}
           type="text"
           className="form-control"
@@ -28,10 +29,15 @@ class CreateCollectionInput extends React.Component {
 CreateCollectionInput.displayName = 'CreateCollectionInput';
 
 CreateCollectionInput.propTypes = {
+  autoFocus: React.PropTypes.bool,
   onChangeHandler: React.PropTypes.func.isRequired,
   value: React.PropTypes.string,
   name: React.PropTypes.string.isRequired,
   id: React.PropTypes.string.isRequired
+};
+
+CreateCollectionInput.defaultProps = {
+  autoFocus: false
 };
 
 module.exports = CreateCollectionInput;

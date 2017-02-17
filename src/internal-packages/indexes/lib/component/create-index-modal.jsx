@@ -239,6 +239,7 @@ class CreateIndexModal extends React.Component {
             <form onSubmit={this.handleCreate.bind(this)}>
               <p className="create-index-description">Choose an index name</p>
               <CreateIndexTextField
+                autoFocus
                 isParam={false}
                 option={'name'}
                 dataTestId="create-index-modal-name" />
