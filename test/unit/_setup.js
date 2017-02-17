@@ -1,1 +1,1 @@
-require('babel-register')();
+require('../../src/app/setup-hadron-caches');
