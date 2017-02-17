@@ -1,5 +1,5 @@
 /* eslint no-use-before-define: 0, camelcase:0 */
-const app = require('ampersand-app');
+const app = require('hadron-app');
 const d3 = require('d3');
 const _ = require('lodash');
 const $ = require('jquery');

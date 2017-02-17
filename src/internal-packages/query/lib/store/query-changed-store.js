@@ -2,7 +2,7 @@ const Reflux = require('reflux');
 const QueryStore = require('./query-store');
 const StateMixin = require('reflux-state-mixin');
 
-// By-passing ampersand-app because of poor handling with store tests
+// By-passing hadron-app because of poor handling with store tests
 const IndexesActions = require('../../../indexes/lib/action/index-actions');
 
 const _ = require('lodash');

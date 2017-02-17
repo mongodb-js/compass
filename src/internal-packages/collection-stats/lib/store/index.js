@@ -1,5 +1,5 @@
 const Reflux = require('reflux');
-const app = require('ampersand-app');
+const app = require('hadron-app');
 const toNS = require('mongodb-ns');
 const numeral = require('numeral');
 const { NamespaceStore } = require('hadron-reflux-store');

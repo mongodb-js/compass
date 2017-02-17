@@ -18,7 +18,7 @@ There `server-stats-graphs-component` contains four instances of `chart-componen
 # Stores
 
 ## Charts
-The `server-stats-graphs-store` listens to the `pollServerStats`, `pause`, and `restart` actions. When `pollServerStats` is triggered, about once a second, [the serverStatus command](https://docs.mongodb.com/manual/reference/command/serverStatus/#dbcmd.serverStatus) is called on the DataService client. The results of the command is then passed to each of the four graph stores, which are named after the field of the result that they display. Each of the chart stores listen to the `ServerStatsStore` and the `restart` action.
+The `server-stats-graphs-store` listens to the `serverStatsComplete`, `pause`, and `restart` actions. When `pollServerStats` is triggered, about once a second, [the serverStatus command](https://docs.mongodb.com/manual/reference/command/serverStatus/#dbcmd.serverStatus) is called on the DataService client. The results of the command is then passed to each of the four graph stores, which are named after the field of the result that they display. Each of the chart stores listen to the `ServerStatsStore` and the `restart` action.
 
 The `restart` action clears the stored data in each of the chart stores and the `pause` action stops new data from being displayed but continues to collect data.
 
@@ -40,7 +40,7 @@ The `opcounters-store` gets data from [the "opcounters" field](https://docs.mong
 The `globallock-store` gets data from [the "globallock" field](https://docs.mongodb.com/manual/reference/command/serverStatus/#server-status-global-lock). The Y values are the current number of operations from `serverStatus.globalLock.activeClients.readers`(active reads) `serverStatus.globalLock.activeClients.writers` (active writes), `serverStatus.globalLock.currentQueue.readers` (queued reads) and `serverStatus.globalLock.currentQueue.writers` (queued writes).
 
 ## Hot Collections
-The `top-store` listens to `pollTop`, `pause`, and `restart` actions. When `pollTop` is triggered, it calls [the top command](https://docs.mongodb.com/master/reference/command/top) on the DataService and passes the list of hottest (i.e. most used, or **greatest system load**) to the `top-component`. The order of the list is calculated to be consistent with how the Cloud team and `mongotop` rank their hot collections.
+The `top-store` listens to `topComplete`, `pause`, and `restart` actions. When `pollTop` is triggered, it calls [the top command](https://docs.mongodb.com/master/reference/command/top) on the DataService and passes the list of hottest (i.e. most used, or **greatest system load**) to the `top-component`. The order of the list is calculated to be consistent with how the Cloud team and `mongotop` rank their hot collections.
 
 The `restart` action clears the stored data in each of the chart stores and the `pause` action stops new data from being displayed but continues to collect data.
 
@@ -69,7 +69,7 @@ _SYSTEM LOAD_ = (_T<sub>delta</sub>_ * 100) / (_P_* _N_)
 
 ## Slow Operations
 
-The `current-op-store` listens to the `pollCurrentOp`, `pause`, and `restart` actions. When `pollCurrentOp` is triggered, it calls [the currentOp command](https://docs.mongodb.com/manual/reference/method/db.currentOp) on the DataService and passes the list of active slowest operations to the `current-op-component`.
+The `current-op-store` listens to the `currentOpComplete`, `pause`, and `restart` actions. When `pollCurrentOp` is triggered, it calls [the currentOp command](https://docs.mongodb.com/manual/reference/method/db.currentOp) on the DataService and passes the list of active slowest operations to the `current-op-component`.
 
 The `restart` action clears the stored data in each of the chart stores and the `pause` action stops new data from being displayed but continues to collect data.
 

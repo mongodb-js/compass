@@ -1,4 +1,4 @@
-const app = require('ampersand-app');
+const app = require('hadron-app');
 const ipc = require('hadron-ipc');
 const { remote } = require('electron');
 const Reflux = require('reflux');

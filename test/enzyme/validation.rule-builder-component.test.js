@@ -1,5 +1,5 @@
 /* eslint no-unused-vars: 0, no-unused-expressions: 0 */
-const app = require('ampersand-app');
+const app = require('hadron-app');
 const chai = require('chai');
 const chaiEnzyme = require('chai-enzyme');
 const expect = chai.expect;
@@ -44,7 +44,7 @@ describe('<RuleBuilder />', () => {
     });
 
     it('disables the ADD RULE button', () => {
-      const state = this.component.find('.btn.btn-xs.btn-success');
+      const state = this.component.find('.btn.btn-xs.btn-primary');
       expect(state).to.be.disabled();
     });
   });
@@ -56,7 +56,7 @@ describe('<RuleBuilder />', () => {
     });
 
     it('disables the ADD RULE button', () => {
-      const state = this.component.find('.btn.btn-xs.btn-success');
+      const state = this.component.find('.btn.btn-xs.btn-primary');
       expect(state).to.not.be.disabled();
     });
   });

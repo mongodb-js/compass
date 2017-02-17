@@ -1,13 +1,17 @@
 const React = require('react');
 
-const app = require('ampersand-app');
-const StoreConnector = app.appRegistry.getComponent('App.StoreConnector');
+const app = require('hadron-app');
 const DatabasesStore = require('../store/databases-store');
 const DatabasesTable = require('./databases-table');
 
 // const debug = require('debug')('mongodb-compass:compass-explain:index');
 
 class ConnectedDatabasesTable extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.StoreConnector = app.appRegistry.getComponent('App.StoreConnector');
+  }
 
   /**
    * Connect CompassExplainComponent to store and render.
@@ -16,9 +20,9 @@ class ConnectedDatabasesTable extends React.Component {
    */
   render() {
     return (
-      <StoreConnector store={DatabasesStore}>
+      <this.StoreConnector store={DatabasesStore}>
         <DatabasesTable />
-      </StoreConnector>
+      </this.StoreConnector>
     );
   }
 }

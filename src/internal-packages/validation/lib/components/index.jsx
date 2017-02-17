@@ -1,6 +1,5 @@
 const React = require('react');
-const app = require('ampersand-app');
-const StoreConnector = app.appRegistry.getComponent('App.StoreConnector');
+const app = require('hadron-app');
 
 const Validation = require('./validation');
 const Store = require('../stores');
@@ -8,6 +7,12 @@ const Store = require('../stores');
 // const debug = require('debug')('mongodb-compass:validation:index');
 
 class ConnectedValidation extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.StoreConnector = app.appRegistry.getComponent('App.StoreConnector');
+  }
+
   /**
    * Connect <Validation /> component to store and render.
    *
@@ -15,9 +20,9 @@ class ConnectedValidation extends React.Component {
    */
   render() {
     return (
-      <StoreConnector store={Store}>
+      <this.StoreConnector store={Store}>
         <Validation />
-      </StoreConnector>
+      </this.StoreConnector>
     );
   }
 }

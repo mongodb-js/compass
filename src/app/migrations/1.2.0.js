@@ -2,7 +2,7 @@ var Preferences = require('../models/preferences');
 var User = require('../models/user');
 var pkg = require('../../../package.json');
 var async = require('async');
-var app = require('ampersand-app');
+var app = require('hadron-app');
 
 var debug = require('debug')('mongodb-compass:migrations:1.2.0');
 

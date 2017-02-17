@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const Reflux = require('reflux');
-const app = require('ampersand-app');
+const app = require('hadron-app');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const Actions = require('../actions');
 

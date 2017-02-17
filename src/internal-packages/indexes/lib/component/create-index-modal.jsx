@@ -1,4 +1,4 @@
-const app = require('ampersand-app');
+const app = require('hadron-app');
 const React = require('react');
 const Modal = require('react-bootstrap').Modal;
 const CreateIndexStore = require('../store/create-index-store');
@@ -239,6 +239,7 @@ class CreateIndexModal extends React.Component {
             <form onSubmit={this.handleCreate.bind(this)}>
               <p className="create-index-description">Choose an index name</p>
               <CreateIndexTextField
+                autoFocus
                 isParam={false}
                 option={'name'}
                 dataTestId="create-index-modal-name" />
@@ -250,7 +251,7 @@ class CreateIndexModal extends React.Component {
                 <div>
                   <button
                     onClick={this.handleSubmit.bind(this)}
-                    className="create-index-field-add btn btn-sm btn-block btn-success">
+                    className="create-index-field-add btn btn-primary btn-sm btn-full-width">
                     Add another field
                   </button>
                 </div>

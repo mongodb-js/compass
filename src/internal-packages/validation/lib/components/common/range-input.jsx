@@ -1,5 +1,5 @@
 const React = require('react');
-const app = require('ampersand-app');
+const app = require('hadron-app');
 const _ = require('lodash');
 const FormGroup = require('react-bootstrap').FormGroup;
 const InputGroup = require('react-bootstrap').InputGroup;

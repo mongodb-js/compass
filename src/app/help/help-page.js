@@ -6,13 +6,14 @@ var HelpEntryCollection = require('./help-entry-collection');
 var HelpEntry = require('./help-entry');
 var SidebarView = require('../sidebar');
 var ViewSwitcher = require('ampersand-view-switcher');
-var app = require('ampersand-app');
+var app = require('hadron-app');
 var metrics = require('mongodb-js-metrics')();
 var _ = require('lodash');
 
 var indexTemplate = require('./index.jade');
 var relatedTemplate = require('./related.jade');
 var tagsTemplate = require('./tags.jade');
+var ipc = require('hadron-ipc');
 
 var entries = new HelpEntryCollection();
 
@@ -87,7 +88,7 @@ var HelpPage = View.extend({
       this.show(this.entryId);
     });
 
-    this.listenTo(app, 'show-help-entry', this.show.bind(this));
+    ipc.on('app:show-help-entry', this.show.bind(this));
   },
   onLinkClicked: function(evt) {
     var entryId = evt.delegateTarget.hash.slice(1);

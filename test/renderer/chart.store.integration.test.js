@@ -1,5 +1,5 @@
 /* eslint no-unused-expressions: 0 */
-const app = require('ampersand-app');
+const app = require('hadron-app');
 const { expect } = require('chai');
 
 // HACK: Work around

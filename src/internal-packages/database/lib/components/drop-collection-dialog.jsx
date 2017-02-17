@@ -1,4 +1,4 @@
-const app = require('ampersand-app');
+const app = require('hadron-app');
 const React = require('react');
 const Modal = require('react-bootstrap').Modal;
 const { NamespaceStore } = require('hadron-reflux-store');
@@ -127,6 +127,7 @@ class DropCollectionDialog extends React.Component {
               onSubmit={this.onDropCollectionButtonClicked.bind(this)}>
             <div className="form-group">
               <input
+                autoFocus
                 type="text"
                 className="drop-confirm-input form-control"
                 data-test-id="confirm-drop-collection-name"
@@ -144,11 +145,11 @@ class DropCollectionDialog extends React.Component {
 
         <Modal.Footer>
           <TextButton
-            className="btn btn-default"
+            className="btn btn-default btn-sm"
             text="Cancel"
             clickHandler={this.onHideModal.bind(this)} />
           <button
-            className="btn btn-primary"
+            className="btn btn-alert btn-sm"
             data-test-id="drop-collection-button"
             disabled={this.state.confirmName !== this.state.collectionName}
             onClick={this.onDropCollectionButtonClicked.bind(this)}>

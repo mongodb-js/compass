@@ -18,6 +18,7 @@ class ViewSwitcher extends React.Component {
         <Button
           key={label}
           active={active}
+          bsSize="xsmall"
           onClick={this.props.onClick.bind(this, label)}
           disabled={this.props.disabled}
         >
@@ -37,7 +38,7 @@ class ViewSwitcher extends React.Component {
     return (
       <div className="view-switcher action-bar">
         <span className="view-switcher-label">{this.props.label}</span>
-        <ButtonGroup bsSize="xsmall">
+        <ButtonGroup>
           {buttons}
         </ButtonGroup>
       </div>

@@ -6,16 +6,21 @@ const ListsComponent = require('./server-stats-lists-component');
 const DBErrorComponent = require('./dberror-component');
 const TimeAndPauseButton = require('./time-and-pause-button');
 const DBErrorStore = require('../store/dberror-store');
-const app = require('ampersand-app');
-const StatusRow = app.appRegistry.getComponent('App.StatusRow');
+const ServerStatsStore = require('../store/server-stats-graphs-store');
+const app = require('hadron-app');
 
 class PerformanceComponent extends React.Component {
 
+  constructor(props) {
+    super(props);
+    this.StatusRow = app.appRegistry.getComponent('App.StatusRow');
+  }
+
   renderTopMessage() {
     return (
-      <StatusRow style="warning">
+      <this.StatusRow style="warning">
         Top command is not available for mongos, some charts may not show any data.
-      </StatusRow>
+      </this.StatusRow>
     );
   }
 
@@ -24,7 +29,7 @@ class PerformanceComponent extends React.Component {
       <section className="rt-perf">
         <div className="controls-container">
           <TimeAndPauseButton paused={false} />
-          {app.dataService.isMongos() ? this.renderTopMessage() : null}
+          {ServerStatsStore.isMongos ? this.renderTopMessage() : null}
           <DBErrorComponent store={DBErrorStore} />
         </div>
         <div className="column-container">

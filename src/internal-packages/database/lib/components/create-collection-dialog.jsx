@@ -1,4 +1,4 @@
-const app = require('ampersand-app');
+const app = require('hadron-app');
 const shell = require('electron').shell;
 const React = require('react');
 const Modal = require('react-bootstrap').Modal;
@@ -180,6 +180,7 @@ class CreateCollectionDialog extends React.Component {
             data-test-id="create-collection-modal"
           >
             <CreateCollectionInput
+              autoFocus
               id="create-collection-name"
               name="Collection Name"
               value={this.state.collectionName}
@@ -202,11 +203,11 @@ class CreateCollectionDialog extends React.Component {
 
         <Modal.Footer>
           <TextButton
-            className="btn btn-default"
+            className="btn btn-default btn-sm"
             text="Cancel"
             clickHandler={this.onHideModal.bind(this)} />
           <TextButton
-            className="btn btn-primary"
+            className="btn btn-primary btn-sm"
             dataTestId="create-collection-button"
             text="Create Collection"
             clickHandler={this.onCreateCollectionButtonClicked.bind(this)} />

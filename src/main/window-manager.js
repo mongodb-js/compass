@@ -185,7 +185,7 @@ function showHelpWindow(win, id) {
   if (helpWindow) {
     helpWindow.focus();
     if (_.isString(id)) {
-      helpWindow.webContents.send('app:show-help-entry', id);
+      ipc.broadcast('app:show-help-entry', id);
     }
     return;
   }

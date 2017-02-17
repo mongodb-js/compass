@@ -102,7 +102,7 @@ class RuleBuilder extends React.Component {
   renderAddButton() {
     return (
       <Button
-        bsStyle="success"
+        bsStyle="primary"
         bsSize="xsmall"
         disabled={!this.props.isWritable}
         onClick={this.onAddClick.bind(this)}>+ Add Rule
@@ -147,7 +147,7 @@ class RuleBuilder extends React.Component {
                   bsSize="xs"
                   options={{warn: 'Warning', error: 'Error'}}
                   value={this.props.validationAction}
-                  label="validation action:"
+                  label="Validation Action:"
                   disabled={!this.props.isWritable}
                   onSelect={this.onActionSelect.bind(this)}
                 />
@@ -156,7 +156,7 @@ class RuleBuilder extends React.Component {
                   bsSize="xs"
                   options={{off: 'Off', moderate: 'Moderate', strict: 'Strict'}}
                   value={this.props.validationLevel}
-                  label="validation level:"
+                  label="Validation Level:"
                   disabled={!this.props.isWritable}
                   onSelect={this.onLevelSelect.bind(this)}
                 />

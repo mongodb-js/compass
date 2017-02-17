@@ -1,4 +1,4 @@
-const app = require('ampersand-app');
+const app = require('hadron-app');
 const React = require('react');
 const Modal = require('react-bootstrap').Modal;
 const Action = require('../action/index-actions');
@@ -108,7 +108,7 @@ class DropIndexModal extends React.Component {
           Cancel
         </button>
         <button
-          className="drop-btn btn btn-primary btn-sm"
+          className="drop-btn btn btn-alert btn-sm"
           disabled={this.state.confirmName !== this.props.indexName}
           type="submit">
           Drop
@@ -145,6 +145,7 @@ class DropIndexModal extends React.Component {
             <form onSubmit={this.handleConfirm.bind(this)}>
               <div className="form-group">
                 <input
+                  autoFocus
                   type="text"
                   className="drop-confirm-input form-control"
                   value={this.state.confirmName}

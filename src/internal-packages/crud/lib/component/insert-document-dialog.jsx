@@ -119,11 +119,11 @@ class InsertDocumentDialog extends React.Component {
 
         <Modal.Footer>
           <TextButton
-            className="btn btn-default"
+            className="btn btn-default btn-sm"
             text="Cancel"
             clickHandler={this.handleCancel.bind(this)} />
           <TextButton
-            className="btn btn-primary"
+            className="btn btn-primary btn-sm"
             dataTestId="insert-document-button"
             text="Insert"
             clickHandler={this.handleInsert.bind(this)} />
