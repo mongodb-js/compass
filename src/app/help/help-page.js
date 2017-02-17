@@ -17,8 +17,6 @@ var ipc = require('hadron-ipc');
 
 var entries = new HelpEntryCollection();
 
-const { webContents } = require('electron');
-
 var HelpPage = View.extend({
   template: indexTemplate,
   screenName: 'Help',
