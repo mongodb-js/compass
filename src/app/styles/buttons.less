@@ -12,7 +12,9 @@
 
   &.disabled,
   &[disabled],
+  &[disabled]:hover,
   fieldset[disabled] & {
+    border: 0; 
     cursor: @cursor-disabled;
     .opacity(.65);
     .box-shadow(none); 
