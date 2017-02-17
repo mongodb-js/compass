@@ -11,20 +11,7 @@ if (process.env.NODE_ENV === 'development') {
 
 window.jQuery = require('jquery');
 
-var Environment = require('../environment');
-Environment.init();
-
-var path = require('path');
-var resourcePath = path.join(__dirname, '..', '..');
-
-var ModuleCache = require('hadron-module-cache');
-ModuleCache.register(resourcePath);
-ModuleCache.add(resourcePath);
-
-var pkg = require('../../package.json');
-var CompileCache = require('hadron-compile-cache');
-CompileCache.setHomeDirectory(resourcePath);
-CompileCache.digestMappings = pkg._compileCacheMappings || {};
+require('./setup-hadron-caches');
 
 /**
  * The main entrypoint for the application!
@@ -82,6 +69,7 @@ var debug = require('debug')('mongodb-compass:app');
 
 const { DataServiceStore, DataServiceActions } = require('mongodb-data-service');
 
+var path = require('path');
 var StyleManager = require('hadron-style-manager');
 new StyleManager(
   path.join(__dirname, 'compiled-less'),
