@@ -5,7 +5,7 @@ const SizeColumn = require('./size-column');
 const UsageColumn = require('./usage-column');
 const PropertyColumn = require('./property-column');
 const DropColumn = require('./drop-column');
-const app = require('ampersand-app');
+const app = require('hadron-app');
 
 /**
  * Component for the index.

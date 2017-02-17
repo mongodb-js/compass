@@ -1,4 +1,4 @@
-const app = require('ampersand-app');
+const app = require('hadron-app');
 const shell = require('electron').shell;
 const React = require('react');
 const Modal = require('react-bootstrap').Modal;
@@ -200,6 +200,7 @@ class CreateDatabaseDialog extends React.Component {
               onSubmit={this.onCreateDatabaseButtonClicked.bind(this)}
               data-test-id="create-database-modal">
             <this.CreateCollectionInput
+              autoFocus
               id="create-database-name"
               name="Database Name"
               value={this.state.databaseName}

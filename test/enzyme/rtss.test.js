@@ -1,5 +1,5 @@
 /* eslint no-unused-vars: 0, no-unused-expressions: 0 */
-const app = require('ampersand-app');
+const app = require('hadron-app');
 const chai = require('chai');
 const chaiEnzyme = require('chai-enzyme');
 const expect = chai.expect;
@@ -7,6 +7,7 @@ const React = require('react');
 const {shallow} = require('enzyme');
 const AppRegistry = require('hadron-app-registry');
 const StatusRow = require('../../src/internal-packages/app/lib/components/status-row');
+const ServerStatsStore = require('../../src/internal-packages/server-stats/lib/store/server-stats-graphs-store');
 
 chai.use(chaiEnzyme());
 
@@ -32,12 +33,11 @@ describe('rtss', () => {
 
   context('when connected to a mongos', () => {
     beforeEach(() => {
-      app.dataService = {
-        isMongos: () => {
-          return true;
-        }
-      };
+      ServerStatsStore.isMongos = true;
       this.component = shallow(<this.performance interval={1000} />);
+    });
+    afterEach(() => {
+      ServerStatsStore.isMongos = false;
     });
     it('displays the top not available in mongos message', () => {
       const state = this.component.find(StatusRow);

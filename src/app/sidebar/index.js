@@ -1,4 +1,4 @@
-var app = require('ampersand-app');
+var app = require('hadron-app');
 var View = require('ampersand-view');
 var ListView = require('./list');
 var FilterView = require('./filter');

@@ -1,6 +1,6 @@
 var $ = window.jQuery;
 var View = require('ampersand-view');
-var app = require('ampersand-app');
+var app = require('hadron-app');
 var _ = require('lodash');
 var metrics = require('mongodb-js-metrics')();
 

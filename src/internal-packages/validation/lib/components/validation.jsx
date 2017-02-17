@@ -1,11 +1,10 @@
-const app = require('ampersand-app');
+const app = require('hadron-app');
 const React = require('react');
 const ValidationActions = require('../actions');
 const ValidationStatusRow = require('./common/status-row');
 const ViewSwitcher = require('./common/view-switcher');
 const RuleBuilder = require('./rule-builder');
 const JSONView = require('./json-view');
-const StatusRow = app.appRegistry.getComponent('App.StatusRow');
 
 // const debug = require('debug')('mongodb-compass:validation');
 
@@ -19,6 +18,7 @@ class Validation extends React.Component {
   constructor(props) {
     super(props);
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
+    this.StatusRow = app.appRegistry.getComponent('App.StatusRow');
   }
 
   /**
@@ -69,9 +69,9 @@ class Validation extends React.Component {
 
   renderReadonly() {
     return (
-      <StatusRow style="warning">
+      <this.StatusRow style="warning">
         Document validation rules may not be added to readonly views.
-      </StatusRow>
+      </this.StatusRow>
     );
   }
 

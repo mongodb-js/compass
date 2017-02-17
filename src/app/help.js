@@ -23,7 +23,7 @@ styleManager.use(document, path.join(__dirname, 'help.less'));
  */
 var electron = require('electron');
 var shell = electron.shell;
-var app = require('ampersand-app');
+var app = require('hadron-app');
 var APP_VERSION = electron.remote.app.getVersion();
 
 var _ = require('lodash');

@@ -1,6 +1,6 @@
 const React = require('react');
 const ReactTooltip = require('react-tooltip');
-const app = require('ampersand-app');
+const app = require('hadron-app');
 const SidebarActions = require('../actions');
 const SidebarDatabase = require('./sidebar-database');
 const SidebarInstanceProperties = require('./sidebar-instance-properties');

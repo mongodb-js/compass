@@ -23,7 +23,7 @@
   ],
   "license": "Apache-2.0",
   "dependencies": {
-    "ampersand-app": "^1.0.4",
+    "hadron-app": "^0.0.1",
     "font-awesome": "^4.6.3",
     "lodash": "^4.15.0",
     "react": "^15.3.0",

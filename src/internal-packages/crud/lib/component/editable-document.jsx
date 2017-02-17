@@ -1,4 +1,4 @@
-const app = require('ampersand-app');
+const app = require('hadron-app');
 const React = require('react');
 const Reflux = require('reflux');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;

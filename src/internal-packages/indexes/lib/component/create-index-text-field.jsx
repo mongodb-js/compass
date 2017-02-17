@@ -133,6 +133,7 @@ class CreateIndexTextField extends React.Component {
     return (
       <div className="form-group create-index-text-field" >
         <input
+          autoFocus={this.props.autoFocus}
           type="text"
           className="form-control create-index-text-field-input"
           data-test-id={this.props.dataTestId}
@@ -159,11 +160,16 @@ class CreateIndexTextField extends React.Component {
 CreateIndexTextField.displayName = 'CreateIndexTextField';
 
 CreateIndexTextField.propTypes = {
+  autoFocus: React.PropTypes.bool,
   enabled: React.PropTypes.bool,
   isParam: React.PropTypes.bool.isRequired,
   option: React.PropTypes.string.isRequired,
   units: React.PropTypes.string,
   dataTestId: React.PropTypes.string
+};
+
+CreateIndexTextField.defaultProps = {
+  autoFocus: false
 };
 
 module.exports = CreateIndexTextField;

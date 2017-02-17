@@ -1,7 +1,7 @@
 var $ = require('jquery');
 var View = require('ampersand-view');
 var metrics = require('mongodb-js-metrics')();
-var app = require('ampersand-app');
+var app = require('hadron-app');
 var ipc = require('hadron-ipc');
 
 // var debug = require('debug')('mongodb-compass:identify:index');
