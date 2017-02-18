@@ -2,7 +2,6 @@ const Reflux = require('reflux');
 const InstanceHeaderActions = require('../actions');
 const StateMixin = require('reflux-state-mixin');
 const debug = require('debug')('mongodb-compass:stores:instance-header');
-const app = require('hadron-app');
 const { NamespaceStore } = require('hadron-reflux-store');
 
 /**
@@ -19,7 +18,7 @@ const InstanceHeaderStore = Reflux.createStore({
   /**
    * listen to all actions defined in ../actions/index.jsx
    */
-  listenables: InstanceHeaderActions,
+  listenables: [InstanceHeaderActions],
 
   /**
    * Initialize everything that is not part of the store's state.

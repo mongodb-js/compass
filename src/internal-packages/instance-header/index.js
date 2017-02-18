@@ -7,7 +7,7 @@ const InstanceHeaderActions = require('./lib/actions');
  */
 function activate() {
   app.appRegistry.registerComponent('InstanceHeader.Component', InstanceHeaderComponent);
-  app.appRegistry.registerAction('InstanceHeader.Actions', InstanceHeaderComponent);
+  app.appRegistry.registerAction('InstanceHeader.Actions', InstanceHeaderActions);
 }
 
 /**

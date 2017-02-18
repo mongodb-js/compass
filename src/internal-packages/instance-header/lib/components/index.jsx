@@ -1,4 +1,5 @@
 const React = require('react');
+const app = require('hadron-app');
 const StoreConnector = app.appRegistry.getComponent('App.StoreConnector');
 const InstanceHeaderComponent = require('./instance-header');
 const Store = require('../stores');

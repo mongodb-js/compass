@@ -1,47 +1,11 @@
 const React = require('react');
 const app = require('hadron-app');
-const ipc = require('hadron-ipc');
-const { NamespaceStore } = require('hadron-reflux-store');
 
 class SidebarInstanceProperties extends React.Component {
   constructor(props) {
     super(props);
     this.DatabaseDDLActions = app.appRegistry.getAction('DatabaseDDL.Actions');
   }
-
-  // getHostnameAndPort() {
-  //   const connection = this.props.connection;
-  //   if (!connection.hostname) {
-  //     return '';
-  //   }
-  //
-  //   return `${connection.hostname}:${connection.port}`;
-  // }
-
-  // getSshTunnelViaPort() {
-  //   const connection = this.props.connection;
-  //   if (connection.ssh_tunnel !== 'NONE') {
-  //     const options = connection.ssh_tunnel_options;
-  //     const sshHostAndPort = `via SSH tunnel ${options.host}:${options.port}`;
-  //     return (
-  //       <div data-test-id="sidebar-ssh-tunnel-details" className="compass-sidebar-instance-ssh-tunnel">
-  //         {sshHostAndPort}
-  //       </div>
-  //     );
-  //   }
-  //   return '';
-  // }
-
-  // getVersionName() {
-  //   const instance = this.props.instance;
-  //
-  //   if (!instance.build.version) {
-  //     return '';
-  //   }
-  //
-  //   const moduleName = instance.build.enterprise_module ? 'Enterprise' : 'Community';
-  //   return `${moduleName} version ${instance.build.version}`;
-  // }
 
   getRefreshIconClassNames() {
     const fetchingInstance = this.props.fetching;
@@ -53,23 +17,11 @@ class SidebarInstanceProperties extends React.Component {
     InstanceActions.refreshInstance();
   }
 
-  // handleClickHostname() {
-  //   NamespaceStore.ns = '';
-  //   ipc.call('window:hide-collection-submenu');
-  // }
-
   render() {
     const instance = this.props.instance;
     const numDbs = instance.databases.length;
     const numCollections = instance.collections.length;
-    // const hostnameAndPort = this.getHostnameAndPort();
-    // const sshTunnelViaPort = this.getSshTunnelViaPort();
-    // const versionName = this.getVersionName();
-    // let instanceClassName = 'compass-sidebar-instance';
-    // empty string for active namespace means instance level
-    // if (this.props.activeNamespace === '') {
-    //   instanceClassName += ' compass-sidebar-instance-is-active';
-    // }
+
     return (
       <div className="compass-sidebar-properties">
         <div className="compass-sidebar-stats">

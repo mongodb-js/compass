@@ -12,25 +12,14 @@ class InstanceHeaderComponent extends React.Component {
   onClick() {
     InstanceHeaderActions.toggleStatus();
   }
-  /*TODO return this markup when we've enabled support for RS status*/
-  renderProcessStatus() {
-    return this.props.processStatus !== ''
-      ? (
-        <div className="instance-header-process-status-container">
-          <div className="instance-header-process-status">
-            <span>{this.props.processStatus}</span>
-          </div>
-        </div>
-      ) : '' ;
-  }
 
   returnHostnamePrefix(hostname) {
-    let prefix = hostname.slice(0, -9);
+    const prefix = hostname.slice(0, -9);
     return prefix;
   }
 
   returnHostnameSuffix(hostname) {
-    let suffix = hostname.slice(-9);
+    const suffix = hostname.slice(-9);
     return suffix;
   }
 
@@ -39,7 +28,7 @@ class InstanceHeaderComponent extends React.Component {
     return distro !== null
       ? (
         distro = distro + ' version '
-      ) : 'Retrieving version'
+      ) : 'Retrieving version';
   }
 
   handleClickHostname() {
@@ -47,15 +36,26 @@ class InstanceHeaderComponent extends React.Component {
     ipc.call('window:hide-collection-submenu');
   }
 
-  renderAuthDetails(ssh_tunnel, ssh_host, ssh_port) {
-    if (ssh_tunnel !== 'NONE') {
+  renderProcessStatus() {
+    return this.props.processStatus !== ''
+      ? (
+        <div className="instance-header-process-status-container">
+          <div className="instance-header-process-status">
+            <span>{this.props.processStatus}</span>
+          </div>
+        </div>
+      ) : '';
+  }
+
+  renderAuthDetails(sshTunnel, sshHost, sshPort) {
+    if (sshTunnel !== 'NONE') {
       return (
         <div data-test-id="instance-header-ssh" className="instance-header-ssh">
           <FontAwesome name="lock" className="instance-header-icon instance-header-icon-lock"/>
           <span className="instance-header-ssh-label">&nbsp;SSH Connection via&nbsp;&nbsp;</span>
-          <span className="instance-header-ssh-hostname-prefix">{this.returnHostnamePrefix(ssh_host)}</span>
-          <span className="instance-header-ssh-hostname-suffix">{this.returnHostnameSuffix(ssh_host)}</span>
-          <span className="instance-header-ssh-port">:{ssh_port}</span>
+          <span className="instance-header-ssh-hostname-prefix">{this.returnHostnamePrefix(sshHost)}</span>
+          <span className="instance-header-ssh-hostname-suffix">{this.returnHostnameSuffix(sshHost)}</span>
+          <span className="instance-header-ssh-port">:{sshPort}</span>
         </div>
       );
     }
@@ -74,9 +74,9 @@ class InstanceHeaderComponent extends React.Component {
       instanceClassName += ' instance-header-connection-string-is-active';
     }
 
-    const ssh_tunnel = app.connection.ssh_tunnel;
-    const ssh_host = app.connection.ssh_tunnel_hostname;
-    const ssh_port = app.connection.ssh_tunnel_options.dstPort;
+    const sshTunnel = app.connection.ssh_tunnel;
+    const sshHost = app.connection.ssh_tunnel_hostname;
+    const sshPort = app.connection.ssh_tunnel_options.dstPort;
 
     return (
       <div className="instance-header">
@@ -96,8 +96,11 @@ class InstanceHeaderComponent extends React.Component {
         </div>
         <div className="instance-header-status-ssh-container">
           <div className="instance-header-status-ssh">
-            {/*this.renderProcessStatus()*/}
-            {this.renderAuthDetails(ssh_tunnel, ssh_host, ssh_port)}
+            {/*
+              TODO enable this when we support replica set status
+              this.renderProcessStatus()
+            */}
+            {this.renderAuthDetails(sshTunnel, sshHost, sshPort)}
           </div>
         </div>
         <div className="instance-header-version-string-container">
