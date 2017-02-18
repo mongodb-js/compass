@@ -1,4 +1,4 @@
-const app = require('ampersand-app');
+const app = require('hadron-app');
 const InstanceHeaderComponent = require('./lib/components');
 const InstanceHeaderActions = require('./lib/actions');
 

@@ -15,27 +15,38 @@
 
   &-connection-string {
     background-color: @compass-sidebar-hover-background-color;
+    cursor: pointer;
     flex-basis: 250px;
     flex-grow: 0;
     flex-shrink: 0;
     overflow: hidden;
     padding-top: 8px;
     display: flex;
-    transition: flex-basis 200ms ease;
+    transition: all 200ms ease;
+
     &:hover {
+      background-color: darken(@compass-sidebar-hover-background-color, 3%);
       flex-basis: auto;
       min-width: 250px;
     }
+
+    &-is-active,
+    &-is-active:hover {
+      background-color: @compass-sidebar-active-background-color;
+    }
   }
+
   &-icon-container {
     flex-basis: auto;
     flex-grow: 0;
     flex-shrink: 0;
     text-align: center;
   }
+
   &-icon-home {
     padding: 0 10px;
   }
+
   &-hostname-prefix {
     flex-basis: auto;
     flex-grow: 0;
@@ -44,20 +55,23 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+
   &-hostname-suffix {
     flex-basis: auto;
     flex-grow: 0;
     flex-shrink: 0;
   }
+
   &-port {
     flex-basis: auto;
     flex-grow: 1;
     flex-shrink: 1;
   }
+
   &-port span {
     padding-right: 6px;
   }
-  
+
   &-status-ssh-container {
     background-image: url('./images/instance-header/hostname-bg.png');
     background-size: 16px 36px;
@@ -68,6 +82,16 @@
     min-width: 250px;
     padding-top: 7px;
   }
+
+  &-connection-string:hover + .instance-header-status-ssh-container {
+    background-image: url('./images/instance-header/hostname-bg-hover.png');
+  }
+
+  &-connection-string-is-active       + .instance-header-status-ssh-container,
+  &-connection-string-is-active:hover + .instance-header-status-ssh-container {
+    background-image: url('./images/instance-header/hostname-bg-active.png');
+  }
+
   &-status-ssh {
     padding: 0 24px;
     display: flex;
@@ -78,8 +102,10 @@
     flex-grow: 0;
     flex-shrink: 0;
   }
+
   &-process-status {
     padding-right: 12px;
+
     span {
       background-color: @compass-sidebar-hover-background-color;
       border-radius: 11px;
@@ -92,12 +118,13 @@
   }
 
   &-ssh {
-    flex-basis: 200px;
+    flex-basis: 290px;
     flex-grow: 0;
     flex-shrink: 1;
     display: flex;
     padding-top: 1px;
     min-width: 140px;
+
     &:hover {
       flex-basis: auto;
     }
@@ -130,6 +157,7 @@
     flex-shrink: 1;
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   &-ssh-hostname-suffix {
@@ -150,6 +178,7 @@
     flex-shrink: 0;
     padding-top: 8px;
   }
+
   &-version-string {
     padding-right: 18px;
   }
