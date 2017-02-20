@@ -4,7 +4,7 @@
   border-radius: 3px;
   font-family: "Akzidenz";
   font-weight: normal;
-  line-height: 18px;
+  line-height: 30px;
   font-size: 15px;
   text-align: center;
   color: #464C4F;
@@ -12,10 +12,12 @@
 
   &.disabled,
   &[disabled],
+  &[disabled]:hover,
   fieldset[disabled] & {
+    border: 0; 
     cursor: @cursor-disabled;
     .opacity(.65);
-    .box-shadow(none);
+    .box-shadow(none); 
   }
 
   & {
@@ -25,6 +27,9 @@
     }
   }
   
+
+  // COLOR STATES
+
   &-default {
     background: linear-gradient(180deg, #FFFFFF 0%, #F6F6F6 100%);
     box-shadow: inset 0 -1px 0 0 #DDDDDD;
@@ -34,7 +39,6 @@
       background: linear-gradient(180deg, #FFFFFF 0%, #EDEDED 100%);
       box-shadow: inset 0 -1px 0 0 #CACACA, 0 2px 4px 0 rgba(0,0,0,0.1);
       border: 1px solid #CACACA;
-      outline: 0;
     }
 
     &:active {
@@ -42,8 +46,6 @@
       box-shadow: inset 0 2px 2px 0 #CACACA;
     }
   }
-
-  // STATES
 
   &-primary { 
     background: linear-gradient(180deg, #6BA442 0%, #5A9330 100%);
@@ -55,7 +57,6 @@
       background: linear-gradient(180deg, #6BA442 0%, #4A7E25 100%);
       box-shadow: inset 0 -1px 0 0 #3B6A1B, 0 2px 4px 0 rgba(0,0,0,0.1);
       border: 1px solid #3B6A1B;
-      outline: 0;
     }
     
     &:active {
@@ -77,7 +78,6 @@
       box-shadow: inset 0 -1px 0 0 #4D7A2D, 0 2px 4px 0 rgba(0,0,0,0.1);
       border: 1px solid #4D7A2D;
       color: white;
-      outline: 0;
     }
     
     &:active {
@@ -96,7 +96,7 @@
       background: linear-gradient(180deg, #CA3535 0%, #901717 100%);
       box-shadow: inset 0 -1px 0 0 #6F1212;
       border: 1px solid #6F1313;
-      outline: 0;
+      color: white;
     }
     
     &:active {
@@ -105,12 +105,12 @@
     }
   }
   
-  // SIZES
+  // SIZE STATES
   
   &-lg { 
     height: 45px;
     font-size: 18px;
-    line-height: 21px;
+    line-height: 43px;
   } 
   
   &-sm { 
@@ -118,14 +118,16 @@
     height: 28px;
     font-weight: bold;
     font-size: 13px;
+    line-height: 26px;
     text-transform: uppercase;
   } 
   
   &-xs { 
-    padding: 0 10px 1px 10px;
+    padding: 0 10px 0px 10px;
     height: 22px;
     font-weight: bold;
     font-size: 11px;
+    line-height: 20px;
     text-transform: uppercase;
   } 
   
@@ -160,10 +162,6 @@
     font-size: 11px;
     border-radius: 8px;
     padding: 1px 12px;
-
-    &:hover, &:focus {
-      outline: 0;
-    }
   }
 
   &-borderless {
@@ -171,10 +169,6 @@
     font-weight: bold;
     background-color: transparent;
     border: 0;
-
-    &:hover, &:focus {
-      outline: 0;
-    }
   }
 
   &-edit {
@@ -186,9 +180,14 @@
     &:hover, &:focus {
       box-shadow: none;
       background: none;
-      outline: 0;
     }
   }
+}
+
+// REMOVE BLUE SELECTOR
+
+.btn, button {
+  outline: none;
 }
 
 // VIEW SWITCHER
@@ -231,7 +230,8 @@
       &:focus, &:hover, &:active { 
         color: white;
         background: linear-gradient(180deg, #2469BE 0%, #11509E 100%);
-        border-radius: 2px
+        border-radius: 2px;
+        outline: none;
       }
     }
   }
