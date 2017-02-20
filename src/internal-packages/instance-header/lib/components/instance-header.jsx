@@ -80,7 +80,7 @@ class InstanceHeaderComponent extends React.Component {
 
     return (
       <div className="instance-header">
-        <div className={instanceClassName} onClick={this.handleClickHostname}>
+        <div data-test-id="instance-header-details" className={instanceClassName} onClick={this.handleClickHostname}>
           <div className="instance-header-icon-container">
             <FontAwesome name="home" className="instance-header-icon instance-header-icon-home"/>
           </div>
@@ -104,7 +104,7 @@ class InstanceHeaderComponent extends React.Component {
           </div>
         </div>
         <div className="instance-header-version-string-container">
-          <div className="instance-header-version-string">
+          <div data-test-id="instance-header-version" className="instance-header-version-string">
             <span className="instance-header-version-distro">{this.returnVersionDistro()}</span>
             <span className="instance-header-version-number">{this.props.versionNumber}</span>
           </div>

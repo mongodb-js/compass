@@ -79,14 +79,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
 
         it('displays the instance details', function() {
           return client
-            .getSidebarInstanceDetails()
-            .should.eventually.equal('localhost:27018');
-        });
-
-        it('displays the server version', function() {
-          return client
-            .getSidebarInstanceVersion()
-            .should.eventually.include('Community version');
+            .getInstanceHeaderDetails().should.eventually.equal('l\nocalhost:\n27018');
         });
       });
     });
@@ -517,7 +510,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
       let serverVersion;
 
       before(function(done) {
-        client.getSidebarInstanceVersion().then(function(value) {
+        client.getInstanceHeaderVersion().then(function(value) {
           serverVersion = value.replace('Community version ', '');
           done();
         });
