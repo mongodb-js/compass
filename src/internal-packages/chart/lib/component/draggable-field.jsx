@@ -11,22 +11,6 @@ const {AGGREGATE_FUNCTION_ENUM, MEASUREMENT_ENUM, MEASUREMENT_ICON_ENUM} = requi
 
 class DraggableField extends React.Component {
 
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      measurement: props.type,
-      aggregate: props.aggregate
-    };
-  }
-
-  componentWillReceiveProps(props) {
-    this.setState({
-      measurement: props.type,
-      aggregate: props.aggregate
-    });
-  }
-
   mapToMenu(array, type) {
     // note the empty function on onChange to avoid warnings
     const menus = array.map((label, i) => {
@@ -47,23 +31,27 @@ class DraggableField extends React.Component {
   }
 
   selectMeasurement(measurement) {
-    this.setState({measurement: measurement});
+    if (this.props.selectMeasurement) {
+      this.props.selectMeasurement(measurement);
+    }
   }
 
   selectAggregate(aggregate) {
-    this.setState({aggregate: aggregate});
+    if (this.props.selectAggregate) {
+      this.props.selectAggregate(aggregate);
+    }
   }
 
   /**
    * @returns {React.Component} icon based on props.typeType
    */
   renderMeasurementIcon() {
-    const iconClass = `fa ${MEASUREMENT_ICON_ENUM[this.state.measurement]}`;
+    const iconClass = `fa ${MEASUREMENT_ICON_ENUM[this.props.type]}`;
     return <FontAwesome name={iconClass} />;
   }
 
   renderMeasurementMenu() {
-    const menu = this.mapToMenu(Object.keys(MEASUREMENT_ENUM), this.state.measurement);
+    const menu = this.mapToMenu(Object.keys(MEASUREMENT_ENUM), this.props.type);
 
     return (
       <Dropdown id={this.props.fieldName + 'measurements'}
@@ -77,7 +65,7 @@ class DraggableField extends React.Component {
   }
 
   renderAggregationMenu() {
-    const menu = this.mapToMenu(Object.keys(AGGREGATE_FUNCTION_ENUM), this.state.aggregate);
+    const menu = this.mapToMenu(Object.keys(AGGREGATE_FUNCTION_ENUM), this.props.aggregate);
 
     return (
       <Dropdown id={this.props.fieldName + 'aggregation'}
@@ -116,7 +104,9 @@ DraggableField.propTypes = {
   fieldName: React.PropTypes.string,
   type: React.PropTypes.oneOf(Object.keys(MEASUREMENT_ENUM)),
   aggregate: React.PropTypes.oneOf(Object.keys(AGGREGATE_FUNCTION_ENUM)),
-  enableMenus: React.PropTypes.bool
+  enableMenus: React.PropTypes.bool,
+  selectAggregate: React.PropTypes.func,
+  selectMeasurement: React.PropTypes.func
 };
 
 DraggableField.displayName = 'DraggableField';
