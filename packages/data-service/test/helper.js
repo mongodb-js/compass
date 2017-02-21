@@ -29,14 +29,6 @@ module.exports.deleteTestDocuments = function(client, callback) {
   collection.deleteMany(callback);
 };
 
-module.exports.indexes = function(client, callback) {
-  client.database.collection('test').indexes(callback);
-};
-
-module.exports.listCollections = function(client, callback) {
-  client.database.listCollections().toArray(callback);
-};
-
 module.exports.listDatabases = function(client, callback) {
   var adminDb = client.database.admin();
   adminDb.listDatabases(callback);
