@@ -57,6 +57,11 @@ class NativeClient extends EventEmitter {
       }
       debug('connected!');
       this.database = database;
+      this.readPreferenceOption = {
+        // https://docs.mongodb.com/manual/core/read-preference/#maxstalenessseconds
+        // maxStalenessMS: 25000,
+        readPreference: ReadPreference.PRIMARY_PREFERRED
+      };
       this.database.admin().command({ ismaster: 1 }, (error, result) => {
         const ismaster = error ? {} : result;
         this.isWritable = this._isWritable(ismaster);
@@ -108,7 +113,7 @@ class NativeClient extends EventEmitter {
    */
   listCollections(databaseName, filter, callback) {
     var db = this._database(databaseName);
-    db.listCollections(filter, {readPreference: {mode: ReadPreference.PRIMARY_PREFERRED}}).toArray((error, data) => {
+    db.listCollections(filter, this.readPreferenceOption).toArray((error, data) => {
       if (error) {
         return callback(this._translateMessage(error));
       }
