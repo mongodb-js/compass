@@ -79,11 +79,10 @@ describe('Compass Main Functional Test Suite #spectron', function() {
 
         it('displays the instance details', function() {
           return client
-            .getInstanceHeaderDetails().should.eventually.equal('l\nocalhost:\n27018');
+            .getInstanceHeaderDetails().should.eventually.equal('localhost:27018');
         });
       });
     });
-
 
     context('when viewing the performance view', function() {
       it('renders the operations graph inserts', function() {

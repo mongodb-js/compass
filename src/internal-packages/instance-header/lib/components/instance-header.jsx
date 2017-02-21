@@ -80,18 +80,20 @@ class InstanceHeaderComponent extends React.Component {
 
     return (
       <div className="instance-header">
-        <div data-test-id="instance-header-details" className={instanceClassName} onClick={this.handleClickHostname}>
+        <div className={instanceClassName} onClick={this.handleClickHostname}>
           <div className="instance-header-icon-container">
             <FontAwesome name="home" className="instance-header-icon instance-header-icon-home"/>
           </div>
-          <div className="instance-header-hostname-prefix">
-            {this.returnHostnamePrefix(this.props.hostname)}
-          </div>
-          <div className="instance-header-hostname-suffix">
-            {this.returnHostnameSuffix(this.props.hostname)}
-          </div>
-          <div className="instance-header-port">
-            <span>{this.props.port}</span>
+          <div data-test-id="instance-header-details">
+            <span className="instance-header-hostname-prefix">
+              {this.returnHostnamePrefix(this.props.hostname)}
+            </span>
+            <span className="instance-header-hostname-suffix">
+              {this.returnHostnameSuffix(this.props.hostname)}
+            </span>
+            <span className="instance-header-port">
+              {this.props.port}
+            </span>
           </div>
         </div>
         <div className="instance-header-status-ssh-container">
