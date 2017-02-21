@@ -8,6 +8,7 @@ const app = require('hadron-app');
 const assert = require('assert');
 const _ = require('lodash');
 const ms = require('ms');
+const toNS = require('mongodb-ns');
 const bsonEqual = require('../util').bsonEqual;
 const hasDistinctValue = require('../util').hasDistinctValue;
 
@@ -48,8 +49,10 @@ const QueryStore = Reflux.createStore({
       this.validFeatureFlags = [];
     }
     // on namespace changes, reset the store
-    NamespaceStore.listen(() => {
-      this.setState(this.getInitialState());
+    NamespaceStore.listen((ns) => {
+      if (ns && toNS(ns).collection) {
+        this.setState(this.getInitialState(ns));
+      }
     });
   },
 
@@ -58,7 +61,7 @@ const QueryStore = Reflux.createStore({
    *
    * @return {Object} the initial store state.
    */
-  getInitialState() {
+  getInitialState(namespace) {
     return {
       // user-facing query properties
       filter: DEFAULT_FILTER,
@@ -98,7 +101,10 @@ const QueryStore = Reflux.createStore({
       featureFlag: false,
 
       // is the query bar component expanded or collapsed?
-      expanded: false
+      expanded: false,
+
+      // set the namespace
+      ns: namespace || ''
     };
   },
 
