@@ -35,9 +35,16 @@ class InstanceHeaderComponent extends React.Component {
 
   showHostNameFull(full) {
     const flag = full || this.props.hostname.length < HOST_STRING_LENGTH;
-    this.hostNamePortStr = flag ? this.props.hostname + this.props.port
+    this.hostNamePortStr = flag ? this.props.hostname + ':' + this.props.port
       : this.returnHostnamePrefix(this.props.hostname) + '...'
-        + this.returnHostnameSuffix(this.props.hostname) + this.props.port;
+        + this.returnHostnameSuffix(this.props.hostname) + ':' + this.props.port;
+  }
+
+  showSHHostNameFull(full, host, port) {
+    const flag = full || host.length < HOST_STRING_LENGTH;
+    this.sshHostNamePortStr = flag ? host + port
+      : this.returnHostnamePrefix(host) + '...'
+        + this.returnHostnameSuffix(host) + port;
   }
 
   handleClickHostname() {
@@ -48,12 +55,13 @@ class InstanceHeaderComponent extends React.Component {
   renderAuthDetails(sshTunnel, sshHost, sshPort) {
     if (sshTunnel !== 'NONE') {
       return (
-        <div data-test-id="instance-header-ssh" className="instance-header-ssh">
+        <div data-test-id="instance-header-ssh" className="instance-header-ssh"
+            onMouseOver={this.showHostNameFull.bind(this, true, sshHost, sshPort)}
+            onMouseOut={this.showHostNameFull.bind(this, false, sshHost, sshPort)}>
           <FontAwesome name="lock" className="instance-header-icon instance-header-icon-lock"/>
-          <span className="instance-header-ssh-label">&nbsp;SSH Connection via&nbsp;&nbsp;</span>
-          <span className="instance-header-ssh-hostname-prefix">{this.returnHostnamePrefix(sshHost)}</span>
-          <span className="instance-header-ssh-hostname-suffix">{this.returnHostnameSuffix(sshHost)}</span>
-          <span className="instance-header-ssh-port">:{sshPort}</span>
+          <span className="instance-header-ssh-label">
+            &nbsp;SSH Connection via&nbsp;&nbsp;{this.showSHHostNamePortStr}
+          </span>
         </div>
       );
     }

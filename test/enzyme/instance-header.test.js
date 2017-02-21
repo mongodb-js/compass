@@ -54,8 +54,8 @@ describe('<InstanceHeader />', () => {
     });
 
     it('renders the endpoint host name and port as text', function() {
-      const element = this.component.find('.instance-header-hostname-suffix');
-      expect(element.text()).to.be.equal('localhost');
+      const element = this.component.find('.instance-header-details');
+      expect(element.text()).to.be.equal('localhost:27017');
     });
     it('renders instance build version', function() {
       const distro = this.component.find('.instance-header-version-distro');
@@ -88,11 +88,9 @@ describe('<InstanceHeader />', () => {
       );
     });
 
-    it('renders the endpoint host name and port as prefix and suffix', function() {
-      const prefix = this.component.find('.instance-header-hostname-prefix');
-      const suffix = this.component.find('.instance-header-hostname-suffix');
-      expect(prefix.text()).to.be.equal('ip-1-2-3-4-secret-m');
-      expect(suffix.text()).to.be.equal('ongod.com');
+    it('renders the endpoint host name and port as text', function() {
+      const prefix = this.component.find('.instance-header-details');
+      expect(prefix.text()).to.be.equal('ip-1-2-3-4-secret-m...ongod.com:27017');
     });
     it('renders instance build version', function() {
       const distro = this.component.find('.instance-header-version-distro');
