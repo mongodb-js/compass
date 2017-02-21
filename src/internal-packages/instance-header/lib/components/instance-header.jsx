@@ -84,7 +84,7 @@ class InstanceHeaderComponent extends React.Component {
           <div className="instance-header-icon-container">
             <FontAwesome name="home" className="instance-header-icon instance-header-icon-home"/>
           </div>
-          <div data-test-id="instance-header-details">
+          <div className="instance-header-details" data-test-id="instance-header-details">
             <span className="instance-header-hostname-prefix">
               {this.returnHostnamePrefix(this.props.hostname)}
             </span>
