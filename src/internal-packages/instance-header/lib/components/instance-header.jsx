@@ -7,6 +7,8 @@ const app = require('hadron-app');
 
 // const debug = require('debug')('mongodb-compass:instance-header');
 
+const HOST_STRING_LENGTH = 25;
+
 class InstanceHeaderComponent extends React.Component {
 
   onClick() {
@@ -31,20 +33,16 @@ class InstanceHeaderComponent extends React.Component {
       ) : 'Retrieving version';
   }
 
+  showHostNameFull(full) {
+    const flag = full || this.props.hostname.length < HOST_STRING_LENGTH;
+    this.hostNamePortStr = flag ? this.props.hostname + this.props.port
+      : this.returnHostnamePrefix(this.props.hostname) + '...'
+        + this.returnHostnameSuffix(this.props.hostname) + this.props.port;
+  }
+
   handleClickHostname() {
     NamespaceStore.ns = '';
     ipc.call('window:hide-collection-submenu');
-  }
-
-  renderProcessStatus() {
-    return this.props.processStatus !== ''
-      ? (
-        <div className="instance-header-process-status-container">
-          <div className="instance-header-process-status">
-            <span>{this.props.processStatus}</span>
-          </div>
-        </div>
-      ) : '';
   }
 
   renderAuthDetails(sshTunnel, sshHost, sshPort) {
@@ -60,6 +58,27 @@ class InstanceHeaderComponent extends React.Component {
       );
     }
     return '';
+  }
+
+  renderProcessStatus() {
+    return this.props.processStatus !== ''
+      ? (
+        <div className="instance-header-process-status-container">
+          <div className="instance-header-process-status">
+            <span>{this.props.processStatus}</span>
+          </div>
+        </div>
+      ) : '';
+  }
+
+  renderHostNamePort() {
+    return (
+      <div onMouseOver={this.showHostNameFull.bind(this, true)}
+          onMouseOut={this.showHostNameFull.bind(this, false)}
+          className="instance-header-details" data-test-id="instance-header-details">
+        {this.hostNamePortStr}
+      </div>
+    );
   }
 
   /**
@@ -78,23 +97,16 @@ class InstanceHeaderComponent extends React.Component {
     const sshHost = app.connection.ssh_tunnel_hostname;
     const sshPort = app.connection.ssh_tunnel_options.dstPort;
 
+    // initialise host name port string
+    this.showHostNameFull(false);
+
     return (
       <div className="instance-header">
         <div className={instanceClassName} onClick={this.handleClickHostname}>
           <div className="instance-header-icon-container">
             <FontAwesome name="home" className="instance-header-icon instance-header-icon-home"/>
           </div>
-          <div className="instance-header-details" data-test-id="instance-header-details">
-            <span className="instance-header-hostname-prefix">
-              {this.returnHostnamePrefix(this.props.hostname)}
-            </span>
-            <span className="instance-header-hostname-suffix">
-              {this.returnHostnameSuffix(this.props.hostname)}
-            </span>
-            <span className="instance-header-port">
-              {this.props.port}
-            </span>
-          </div>
+          {this.renderHostNamePort()}
         </div>
         <div className="instance-header-status-ssh-container">
           <div className="instance-header-status-ssh">
