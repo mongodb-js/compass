@@ -47,6 +47,7 @@ const DataServiceStore = Reflux.createStore({
    * @param {String} ns - The namespace.
    * @param {Array} pipeline - The pipeline.
    * @param {Object} options - The options.
+   * @return {undefined|Error}
    */
   aggregate: function(ns, pipeline, options) {
     if (!this.dataService) {
@@ -76,6 +77,7 @@ const DataServiceStore = Reflux.createStore({
    * @param {String} ns - The namespace.
    * @param {Object} filter - The filter.
    * @param {Object} options - The options.
+   * @return {undefined|Error}
    */
   count: function(ns, filter, options) {
     if (!this.dataService) {
@@ -91,6 +93,7 @@ const DataServiceStore = Reflux.createStore({
    *
    * @param {String} ns - The namespace.
    * @param {Object} options - The options.
+   * @return {undefined|Error}
    */
   createCollection: function(ns, options) {
     if (!this.dataService) {
@@ -107,6 +110,7 @@ const DataServiceStore = Reflux.createStore({
    * @param {String} ns - The namespace.
    * @param {Object} spec - The index spec.
    * @param {Object} options - The options.
+   * @return {undefined|Error}
    */
   createIndex: function(ns, spec, options) {
     if (!this.dataService) {
@@ -121,6 +125,7 @@ const DataServiceStore = Reflux.createStore({
    * Execute a current op.
    *
    * @param {Boolean} includeAll - Whether to include all data.
+   * @return {undefined|Error}
    */
   currentOp: function(includeAll) {
     if (!this.dataService) {
@@ -137,6 +142,7 @@ const DataServiceStore = Reflux.createStore({
    * @param {String} ns - The namespace.
    * @param {Object} filter - The filter.
    * @param {Object} options - The options.
+   * @return {undefined|Error}
    */
   deleteMany: function(ns, filter, options) {
     if (!this.dataService) {
@@ -153,6 +159,7 @@ const DataServiceStore = Reflux.createStore({
    * @param {String} ns - The namespace.
    * @param {Object} filter - The filter.
    * @param {Object} options - The options.
+   * @return {undefined|Error}
    */
   deleteOne: function(ns, filter, options) {
     if (!this.dataService) {
@@ -167,6 +174,7 @@ const DataServiceStore = Reflux.createStore({
    * Drop a collection.
    *
    * @param {String} ns - The namespace.
+   * @return {undefined|Error}
    */
   dropCollection: function(ns) {
     if (!this.dataService) {
@@ -181,6 +189,7 @@ const DataServiceStore = Reflux.createStore({
    * Drop the database.
    *
    * @param {String} name - The database name.
+   * @return {undefined|Error}
    */
   dropDatabase: function(name) {
     if (!this.dataService) {
@@ -196,6 +205,7 @@ const DataServiceStore = Reflux.createStore({
    *
    * @param {String} ns - The namespace.
    * @param {String} name - The index name.
+   * @return {undefined|Error}
    */
   dropIndex: function(ns, name) {
     if (!this.dataService) {
@@ -212,6 +222,7 @@ const DataServiceStore = Reflux.createStore({
    * @param {String} ns - The namespace.
    * @param {Object} filter - The filter.
    * @param {Object} options - The options.
+   * @return {undefined|Error}
    */
   explain: function(ns, filter, options) {
     if (!this.dataService) {
@@ -228,6 +239,7 @@ const DataServiceStore = Reflux.createStore({
    * @param {String} ns - The namespace.
    * @param {Object} filter - The filter.
    * @param {Object} options - The options.
+   * @return {undefined|Error}
    */
   find: function(ns, filter, options) {
     if (!this.dataService) {
@@ -245,6 +257,7 @@ const DataServiceStore = Reflux.createStore({
    * @param {Object} filter - The filter.
    * @param {Object} replacement - The replacement document.
    * @param {Object} options - The options.
+   * @return {undefined|Error}
    */
   findOneAndReplace: function(ns, filter, replacement, options) {
     if (!this.dataService) {
@@ -260,6 +273,7 @@ const DataServiceStore = Reflux.createStore({
    *
    * @param {String} ns - The namespace.
    * @param {Object} options - The options.
+   * @return {undefined|Error}
    */
   getCollection: function(ns, options) {
     if (!this.dataService) {
@@ -275,6 +289,7 @@ const DataServiceStore = Reflux.createStore({
    *
    * @param {String} name - The db name.
    * @param {Object} options - The options.
+   * @return {undefined|Error}
    */
   getDatabase: function(name, options) {
     if (!this.dataService) {
@@ -289,6 +304,7 @@ const DataServiceStore = Reflux.createStore({
    * Get the instance detail.
    *
    * @param {Object} options - The options.
+   * @return {undefined|Error}
    */
   getInstance: function(options) {
     if (!this.dataService) {
@@ -305,6 +321,7 @@ const DataServiceStore = Reflux.createStore({
    * @param {String} ns - The namespace.
    * @param {Array} docs - The docs to insert.
    * @param {Object} options - The options.
+   * @return {undefined|Error}
    */
   insertMany: function(ns, docs, options) {
     if (!this.dataService) {
@@ -321,6 +338,7 @@ const DataServiceStore = Reflux.createStore({
    * @param {String} ns - The namespace.
    * @param {Object} doc - The document.
    * @param {Object} options - The options.
+   * @return {undefined|Error}
    */
   insertOne: function(ns, doc, options) {
     if (!this.dataService) {
@@ -336,6 +354,7 @@ const DataServiceStore = Reflux.createStore({
    *
    * @param {String} databaseName - The database name.
    * @param {Object} filter - The filter.
+   * @return {undefined|Error}
    */
   listCollections: function(databaseName, filter) {
     if (!this.dataService) {
@@ -351,6 +370,7 @@ const DataServiceStore = Reflux.createStore({
    *
    * @param {String} ns - The namespace.
    * @param {Object} options - The options.
+   * @return {undefined|Error}
    */
   listIndexes: function(ns, options) {
     if (!this.dataService) {
@@ -363,6 +383,8 @@ const DataServiceStore = Reflux.createStore({
 
   /**
    * Execute the server stats command.
+   *
+   * @return {undefined|Error}
    */
   serverStats: function() {
     if (!this.dataService) {
@@ -375,6 +397,8 @@ const DataServiceStore = Reflux.createStore({
 
   /**
    * Execute the top command.
+   *
+   * @return {undefined|Error}
    */
   top: function() {
     if (!this.dataService) {
@@ -390,6 +414,7 @@ const DataServiceStore = Reflux.createStore({
    *
    * @param {String} ns - The namespace.
    * @param {Object} flags - The flags.
+   * @return {undefined|Error}
    */
   updateCollection: function(ns, flags) {
     if (!this.dataService) {
@@ -407,6 +432,7 @@ const DataServiceStore = Reflux.createStore({
    * @param {Object} filter - The filter.
    * @param {Object} update - The update document.
    * @param {Object} options - The options.
+   * @return {undefined|Error}
    */
   updateMany: function(ns, filter, update, options) {
     if (!this.dataService) {
@@ -424,6 +450,7 @@ const DataServiceStore = Reflux.createStore({
    * @param {Object} filter - The filter.
    * @param {Object} update - The update document.
    * @param {Object} options - The options.
+   * @return {undefined|Error}
    */
   updateOne: function(ns, filter, update, options) {
     if (!this.dataService) {
