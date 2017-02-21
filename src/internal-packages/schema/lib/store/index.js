@@ -4,7 +4,6 @@ const { remote } = require('electron');
 const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
 const schemaStream = require('mongodb-schema').stream;
-const toNS = require('mongodb-ns');
 const ReadPreference = require('mongodb').ReadPreference;
 
 const COMPASS_ICON_PATH = require('../../../../icon').path;
@@ -13,9 +12,6 @@ const COMPASS_ICON_PATH = require('../../../../icon').path;
  * The default read preference.
  */
 const READ = ReadPreference.PRIMARY_PREFERRED;
-
-// stores
-const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 
 // actions
 const SchemaAction = require('../action');
@@ -44,24 +40,16 @@ const SchemaStore = Reflux.createStore({
    * Initialize the document list store.
    */
   init: function() {
-    // if namespace and query both trigger, only listen to namespace change
-    this.isNamespaceChanged = false;
     this.query = DEFAULT_QUERY;
-    // listen for namespace changes
-    NamespaceStore.listen((ns) => {
-      if (ns && toNS(ns).collection) {
-        this._reset();
-        SchemaAction.startSampling();
-      }
-    });
-
-    // listen for query changes
-    this.listenToExternalStore('Query.ChangedStore', this.onQueryChanged.bind(this));
+    this.ns = '';
 
     this.samplingStream = null;
     this.analyzingStream = null;
     this.samplingTimer = null;
     this.trickleStop = null;
+
+    // listen for query changes
+    this.listenToExternalStore('Query.ChangedStore', this.onQueryChanged.bind(this));
 
     ipc.on('window:menu-share-schema-json', this.handleSchemaShare.bind(this));
   },
@@ -73,7 +61,7 @@ const SchemaStore = Reflux.createStore({
 
     clipboard.writeText(JSON.stringify(this.state.schema, null, '  '));
 
-    const detail = `The schema definition of ${NamespaceStore.ns} has been copied to your `
+    const detail = `The schema definition of ${this.ns} has been copied to your `
       + 'clipboard in JSON format.';
 
     dialog.showMessageBox(BrowserWindow.getFocusedWindow(), {
@@ -108,6 +96,7 @@ const SchemaStore = Reflux.createStore({
     this._reset();
     this.query.filter = state.filter;
     this.query.limit = state.limit;
+    this.ns = state.ns;
     SchemaAction.startSampling();
   },
 
@@ -124,11 +113,6 @@ const SchemaStore = Reflux.createStore({
   },
 
   stopSampling() {
-    if (!this.isNamespaceChanged) {
-      return;
-    }
-
-    this.isNamespaceChanged = false;
     if (this.samplingTimer) {
       clearInterval(this.samplingTimer);
       this.samplingTimer = null;
@@ -147,18 +131,6 @@ const SchemaStore = Reflux.createStore({
    * This function is called when the collection filter changes.
    */
   startSampling() {
-    // we are not using state to guard against running this simultaneously
-    if (this.isNamespaceChanged) {
-      return;
-    }
-
-    this.isNamespaceChanged = true;
-
-    const ns = NamespaceStore.ns;
-    if (!ns) {
-      return;
-    }
-
     this.setState({
       samplingState: 'counting',
       samplingProgress: -1,
@@ -184,7 +156,7 @@ const SchemaStore = Reflux.createStore({
     }, 1000);
 
 
-    this.samplingStream = app.dataService.sample(ns, sampleOptions);
+    this.samplingStream = app.dataService.sample(this.ns, sampleOptions);
     this.analyzingStream = schemaStream();
     let schema;
 
@@ -211,7 +183,7 @@ const SchemaStore = Reflux.createStore({
       readPreference: READ
     };
 
-    app.dataService.count(ns, this.query.filter, countOptions, (err, count) => {
+    app.dataService.count(this.ns, this.query.filter, countOptions, (err, count) => {
       if (err) {
         return onError(err);
       }
