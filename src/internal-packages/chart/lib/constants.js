@@ -133,6 +133,17 @@ const MEASUREMENT_ENUM = Object.freeze({
 });
 
 /**
+ * Icons to measurement mapping
+ * @type {Class} font-awesome icons
+ */
+const MEASUREMENT_ICON_ENUM = Object.freeze({
+  QUANTITATIVE: 'fa-bar-chart',
+  TEMPORAL: 'fa-calendar',
+  ORDINAL: 'fa-line-chart',
+  NOMINAL: 'fa-pie-chart'
+});
+
+/**
  * A list of chart specifications we might end up using...
  * if we end up not using them or not finding much similarity then nuke this.
  */
@@ -154,5 +165,6 @@ module.exports = {
   CHART_TYPE_ENUM,
   DEFAULTS,
   MEASUREMENT_ENUM,
+  MEASUREMENT_ICON_ENUM,
   SPEC_TYPE_ENUM
 };
