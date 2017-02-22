@@ -713,7 +713,7 @@ const QueryStore = Reflux.createStore({
     // otherwise we do need to trigger the QueryChangedStore and let all other
     // components in the app know about the change so they can re-render.
     if (this.state.valid) {
-      this.setState(_.omit(this.getInitialState(), 'expanded'));
+      this.setState(_.omit(this.getInitialState(NamespaceStore.ns), 'expanded'));
     }
   },
 
