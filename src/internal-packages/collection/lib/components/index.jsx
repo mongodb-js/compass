@@ -18,6 +18,7 @@ class Collection extends React.Component {
     this.Indexes = app.appRegistry.getComponent('Indexes.Indexes');
     this.Explain = app.appRegistry.getComponent('Explain.ExplainPlan');
     this.Validation = app.appRegistry.getComponent('Validation.Validation');
+    this.Charts = app.appRegistry.getComponent('Chart.ChartBuilder');
 
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
   }
@@ -78,6 +79,11 @@ class Collection extends React.Component {
     if (DV_ENABLED) {
       tabs.push('VALIDATION');
       views.push(<this.Validation />);
+    }
+
+    if (app.isFeatureEnabled('chartView')) {
+      tabs.push('CHARTS');
+      views.push(<this.Charts />);
     }
 
     const database = toNS(this.props.namespace).database;

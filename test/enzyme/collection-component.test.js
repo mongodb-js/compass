@@ -29,12 +29,15 @@ describe('<Collection />', function() {
     app.appRegistry.registerComponent('Indexes.Indexes', sinon.spy());
     app.appRegistry.registerComponent('Explain.ExplainPlan', sinon.spy());
     app.appRegistry.registerComponent('Validation.Validation', sinon.spy());
+    app.appRegistry.registerComponent('Chart.ChartBuilder', sinon.spy());
 
     // Fixes Warning: React.createElement:
     // type should not be null, undefined, boolean, or number.
     // It should be a string (for DOM elements)
     // or a ReactClass (for composite components).
     app.appRegistry.registerComponent('CollectionStats.CollectionStats', sinon.spy());
+
+    app.isFeatureEnabled = function() { return true; };
   });
   afterEach(function() {
     // Restore properties on the global app object,
@@ -43,17 +46,16 @@ describe('<Collection />', function() {
     app.instance = appInstance;
   });
 
-  it('has 4 tabs with server version 3.0.6', function() {
+  it('does not have validation tab with server version 3.0.6', function() {
     app.instance = {build: {version: '3.0.6'}};
     const component = shallow(<Collection namespace={'foo.bar'} />);
     const tabs = component.find(TabNavBar).dive().find('.tab-nav-bar-tab');
-    expect(tabs).to.have.length(4);
+    expect(tabs.find('#VALIDATION')).to.not.exist;
   });
-  it('has 5 tabs inc a validation tab when serverVersion >= 3.2.0', function() {
+  it('has validation tab when serverVersion >= 3.2.0', function() {
     app.instance = {build: {version: '3.2.0'}};
     const component = shallow(<Collection namespace={'foo.bar'} />);
     const tabs = component.find(TabNavBar).dive().find('.tab-nav-bar-tab');
     expect(tabs.find('#VALIDATION')).to.exist;
-    expect(tabs).to.have.length(5);
   });
 });
