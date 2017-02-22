@@ -7,7 +7,7 @@ const schemaStream = require('mongodb-schema').stream;
 const toNS = require('mongodb-ns');
 const ReadPreference = require('mongodb').ReadPreference;
 
-const COMPASS_ICON = require('../../../../icon');
+const COMPASS_ICON_PATH = require('../../../../icon').path;
 
 /**
  * The default read preference.
@@ -78,7 +78,7 @@ const SchemaStore = Reflux.createStore({
 
     dialog.showMessageBox(BrowserWindow.getFocusedWindow(), {
       type: 'info',
-      icon: COMPASS_ICON,
+      icon: COMPASS_ICON_PATH,
       message: 'Share Schema',
       detail: detail,
       buttons: ['OK']
