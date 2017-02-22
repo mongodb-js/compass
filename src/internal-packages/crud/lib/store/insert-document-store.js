@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const Reflux = require('reflux');
 const app = require('hadron-app');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
@@ -14,7 +13,9 @@ const InsertDocumentStore = Reflux.createStore({
    */
   init: function() {
     this.filter = {};
+    this.docCount = 0;
     this.listenToExternalStore('Query.ChangedStore', this.onQueryChanged.bind(this));
+    this.listenToExternalStore('CRUD.ResetDocumentListStore', this.onDocRefresh.bind(this));
     this.listenTo(Actions.insertDocument, this.insertDocument);
   },
 
@@ -28,12 +29,11 @@ const InsertDocumentStore = Reflux.createStore({
       if (error) {
         this.trigger(false, error);
       }
-      const filter = _.assign(this.filter, { _id: doc._id });
-      app.dataService.count(NamespaceStore.ns, filter, {}, (err, count) => {
+      app.dataService.count(NamespaceStore.ns, this.filter, {}, (err, count) => {
         if (err) {
           return this.trigger(false, err);
         }
-        if (count > 0) {
+        if (count > this.docCount) {
           return this.trigger(true, doc);
         }
         Actions.closeInsertDocumentDialog();
@@ -50,6 +50,19 @@ const InsertDocumentStore = Reflux.createStore({
     if (state.filter) {
       this.filter = state.filter;
     }
+  },
+
+  /**
+   * Fires when the doc list has been refreshed
+   * @param  {error} err   error object
+   * @param  {collection} docs  returned docs
+   * @param  {number} count number of docs returned
+   */
+  onDocRefresh: function(err, docs, count) {
+    if (err) {
+      return;
+    }
+    this.docCount = count;
   }
 });
 
