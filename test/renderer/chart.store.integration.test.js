@@ -9,16 +9,33 @@ NamespaceStore.ns = '';
 // End HACK, drop it if you can keep the renderer tests passing :)
 
 describe('ChartStoreIntegration', function() {
+  const appDataService = app.dataService;
   beforeEach(function() {
     this.ChartStore = app.appRegistry.getStore('Chart.Store');
     this.QueryStore = app.appRegistry.getStore('Query.Store');
   });
+
   afterEach(function() {
     this.ChartStore._resetChart();
     this.QueryStore.reset();
+    app.dataService = appDataService;
   });
 
   context('queryCache', function() {
+    beforeEach(() => {
+      app.dataService = {
+        count: () => {
+          return 0;
+        },
+        explain: () => {
+          return {};
+        },
+        sample: () => {
+          return {};
+        }
+      };
+    });
+
     it('initial state is an empty object', function(done) {
       setTimeout(() => {
         const queryCache = this.ChartStore.state.queryCache;
@@ -34,6 +51,7 @@ describe('ChartStoreIntegration', function() {
         sort: {_id: 1},
         skip: 0,
         limit: 0,
+        ns: '',
         maxTimeMS: 10000,
         queryState: 'apply'
       }, QUERY);

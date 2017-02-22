@@ -34,7 +34,7 @@ describe('QueryChangedStore', () => {
   it('returns the extended query properties for its initial state', () => {
     const keys = QueryChangedStore.getInitialState();
     expect(keys).to.have.all.keys(['filter', 'project', 'sort', 'skip',
-      'limit', 'maxTimeMS', 'queryState']);
+      'limit', 'maxTimeMS', 'queryState', 'ns']);
   });
 
   it('detects if there was a change in lastExecutedQuery', () => {
