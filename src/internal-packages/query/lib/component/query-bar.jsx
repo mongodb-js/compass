@@ -89,11 +89,16 @@ class QueryBar extends React.Component {
    * @return {Component}          the option component
    */
   renderOption(option, id, hasToggle) {
+    // for filter only, also validate feature flag directives
+    const hasError = option === 'filter' ?
+      !(this.props.filterValid || this.props.featureFlag) :
+      !(this.props[`${option}Valid`]);
+
     return (
       <QueryOption
         label={option}
         hasToggle={hasToggle}
-        hasError={!this.props[`${option}Valid`]}
+        hasError={hasError}
         key={`query-option-${id}`}
         value={this.props[`${option}String`]}
         placeholder={OPTION_DEFINITION[option].placeholder}
