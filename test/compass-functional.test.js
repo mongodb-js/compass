@@ -168,7 +168,7 @@ describe('Compass Functional Test Suite #spectron', function() {
       it('renders the network connections', function() {
         return client
           .getNetworkConnections()
-          .should.eventually.equal('3');
+          .should.eventually.equal('5');
       });
 
       it('renders the memory vsize', function() {
