@@ -42,6 +42,7 @@ describe('SchemaStore', function() {
       expect(this.messageBoxSpy).to.have.been.calledWith(null, {
         buttons: ['OK'],
         detail: 'The schema definition of ' +
+        'undefined' +
         ' has been copied to your clipboard in JSON format.',
         icon: COMPASS_ICON_PATH,
         message: 'Share Schema',
