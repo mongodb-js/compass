@@ -1,5 +1,5 @@
 /* eslint no-console:0 */
-console.time('app/index.js');
+console.log(`Start renderer - begin loading index.js: ${window.performance.now()} ms`);
 
 if (process.env.NODE_ENV === 'development') {
   require('devtron').install();
@@ -75,6 +75,8 @@ new StyleManager(
   path.join(__dirname, 'compiled-less'),
   __dirname
 ).use(document, path.join(__dirname, 'index.less'));
+
+console.log(`Start renderer - internal-package styles loaded: ${window.performance.now()} ms`);
 
 // @note: Durran: the registry and package manager are set up here in
 //   order to ensure that the compile cache has already been loaded and
@@ -432,7 +434,9 @@ app.extend({
       ipc.call('window:renderer-ready');
 
       // as soon as dom is ready, render and set up the rest
+      console.log(`Start renderer - render begin: ${window.performance.now()} ms`);
       state.render();
+      console.log(`Start renderer - render done: ${window.performance.now()} ms`);
       state.startRouter();
     });
   }
@@ -486,5 +490,3 @@ app.init();
 
 // expose app globally for debugging purposes
 window.app = app;
-
-console.timeEnd('app/index.js');
