@@ -21,8 +21,6 @@ var ModuleCache = require('hadron-module-cache');
 ModuleCache.register(resourcePath);
 ModuleCache.add(resourcePath);
 
-var AppRegistry = require('hadron-app-registry');
-var PackageManager = require('hadron-package-manager').PackageManager;
 
 var pkg = require('../../package.json');
 var CompileCache = require('hadron-compile-cache');
@@ -94,9 +92,7 @@ new StyleManager(
 //   order to ensure that the compile cache has already been loaded and
 //   hooked into require.extensions. Otherwise, packages will not have
 //   use of the compile cache.
-app.appRegistry = new AppRegistry();
-app.packageManager = new PackageManager(path.join(__dirname, '..', 'internal-packages'));
-app.packageManager.activate();
+require('./setup-package-manager');
 
 function getConnection(model, done) {
   function _fetch(fn) {

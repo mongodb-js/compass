@@ -14,6 +14,7 @@ var debug = require('debug')('mongodb-compass:electron:window-manager');
 var dialog = electron.dialog;
 var path = require('path');
 var ipc = require('hadron-ipc');
+var COMPASS_ICON = require('../icon');
 
 /**
  * When running in electron, we're in `/src/main`.
@@ -118,13 +119,21 @@ var createWindow = module.exports.create = function(opts) {
     width: DEFAULT_WIDTH,
     height: DEFAULT_HEIGHT,
     minwidth: MIN_WIDTH,
-    url: DEFAULT_URL
+    url: DEFAULT_URL,
+    /**
+     * On Windows and macOS, this will be set automatically to the optimal
+     * app icon.  Only on Linux do we need to set this explictly.
+     *
+     * @see https://jira.mongodb.org/browse/COMPASS-586
+     */
+    icon: process.platform === 'linux' ? COMPASS_ICON : undefined
   });
 
   debug('creating new window: ' + opts.url);
   var _window = new BrowserWindow({
     width: opts.width,
     height: opts.height,
+    icon: opts.icon,
     'min-width': opts.minwidth,
     'web-preferences': {
       'subpixel-font-scaling': true,
@@ -164,9 +173,9 @@ function showConnectWindow() {
 function showAboutDialog() {
   dialog.showMessageBox({
     type: 'info',
-    title: 'About MongoDB Compass',
-    icon: path.join(RESOURCES, 'images', 'compass-dialog-icon.png'),
-    message: 'MongoDB Compass',
+    title: 'About ' + app.getName(),
+    icon: COMPASS_ICON,
+    message: app.getName(),
     detail: 'Version ' + app.getVersion(),
     buttons: ['OK']
   });
