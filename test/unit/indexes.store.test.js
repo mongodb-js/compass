@@ -6,17 +6,17 @@ const AppRegistry = require('hadron-app-registry');
 const { NamespaceStore } = require('hadron-reflux-store');
 const sinon = require('sinon');
 
-const root = '../src/internal-packages/';
+const root = '../../src/internal-packages/';
 const storeKeyMap = {
   'CollectionStore': root + 'app/lib/stores/collection-store',
   'LoadIndexesStore': root + 'indexes/lib/store/load-indexes-store',
   'Schema.Store': root + 'schema/lib/store',
   'Query.ChangedStore': root + 'query/lib/store/query-changed-store'
 };
-require('../src/app/reflux-listen-to-external-store.js');
+require('../../src/app/reflux-listen-to-external-store.js');
 
-const CreateIndexStore = require('../src/internal-packages/indexes/lib/store/create-index-store');
-const Collection = require('../src/internal-packages/collection/lib/components/index');
+const CreateIndexStore = require('../../src/internal-packages/indexes/lib/store/create-index-store');
+const Collection = require('../../src/internal-packages/collection/lib/components/index');
 
 describe('CreateIndexesStore', function() {
   let unsubscribe;

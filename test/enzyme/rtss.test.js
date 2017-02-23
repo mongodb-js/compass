@@ -6,7 +6,7 @@ const expect = chai.expect;
 const React = require('react');
 const {shallow} = require('enzyme');
 const AppRegistry = require('hadron-app-registry');
-const StatusRow = require('../src/internal-packages/app/lib/components/status-row');
+const StatusRow = require('../../src/internal-packages/app/lib/components/status-row');
 
 chai.use(chaiEnzyme());
 
@@ -20,7 +20,7 @@ describe('rtss', () => {
     // appRegistry.getComponent (i.e. appRegistry being undefined)
     app.appRegistry = new AppRegistry();
     app.appRegistry.registerComponent('App.StatusRow', StatusRow);
-    this.performance = require('../src/internal-packages/server-stats/lib/component/performance-component');
+    this.performance = require('../../src/internal-packages/server-stats/lib/component/performance-component');
   });
   afterEach(() => {
     // Restore properties on the global app object,

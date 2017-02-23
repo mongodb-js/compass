@@ -7,8 +7,8 @@ const React = require('react');
 const sinon = require('sinon');
 const {mount} = require('enzyme');
 const AppRegistry = require('hadron-app-registry');
-const SortableTable = require('../src/internal-packages/app/lib/components/sortable-table');
-const TabNavBar = require('../src/internal-packages/app/lib/components/tab-nav-bar');
+const SortableTable = require('../../src/internal-packages/app/lib/components/sortable-table');
+const TabNavBar = require('../../src/internal-packages/app/lib/components/tab-nav-bar');
 
 chai.use(chaiEnzyme());
 
@@ -35,7 +35,7 @@ describe('<CollectionsTable />', () => {
     // but got: undefined. Check the render method of `DatabasesTable`.
     app.appRegistry.registerComponent('App.SortableTable', SortableTable);
 
-    this.CollectionsTable = require('../src/internal-packages/database/lib/components/collections-table');
+    this.CollectionsTable = require('../../src/internal-packages/database/lib/components/collections-table');
   });
   afterEach(() => {
     // Restore properties on the global app object,

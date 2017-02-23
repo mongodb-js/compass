@@ -1,7 +1,7 @@
 /* eslint no-unused-expressions: 0 */
 
 const expect = require('chai').expect;
-const ValidationStore = require('../src/internal-packages/validation/lib/stores');
+const ValidationStore = require('../../src/internal-packages/validation/lib/stores');
 const sinon = require('sinon');
 const _ = require('lodash');
 

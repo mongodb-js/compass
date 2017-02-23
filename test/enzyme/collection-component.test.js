@@ -7,8 +7,8 @@ const React = require('react');
 const sinon = require('sinon');
 const shallow = require('enzyme').shallow;
 const AppRegistry = require('hadron-app-registry');
-const Collection = require('../src/internal-packages/collection/lib/components/index');
-const TabNavBar = require('../src/internal-packages/app/lib/components/tab-nav-bar');
+const Collection = require('../../src/internal-packages/collection/lib/components/index');
+const TabNavBar = require('../../src/internal-packages/app/lib/components/tab-nav-bar');
 
 // const debug = require('debug')('compass:collection:test');
 

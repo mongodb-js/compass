@@ -1,9 +1,9 @@
 /* eslint no-unused-expressions: 0 */
 
 const expect = require('chai').expect;
-const IndexesActions = require('../src/internal-packages/indexes/lib/action/index-actions');
-const QueryStore = require('../src/internal-packages/query/lib/store/query-store');
-const QueryChangedStore = require('../src/internal-packages/query/lib/store/query-changed-store');
+const IndexesActions = require('../../src/internal-packages/indexes/lib/action/index-actions');
+const QueryStore = require('../../src/internal-packages/query/lib/store/query-store');
+const QueryChangedStore = require('../../src/internal-packages/query/lib/store/query-changed-store');
 const sinon = require('sinon');
 
 describe('QueryChangedStore', () => {

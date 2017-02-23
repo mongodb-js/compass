@@ -1344,7 +1344,7 @@ function addInputCommands(client) {
  * @returns {Application} The spectron application.
  */
 function createApplication() {
-  const dir = path.join(__dirname, '..', '..');
+  const dir = path.join(__dirname, '..', '..', '..');
   /* Force the node env to testing */
   process.env.NODE_ENV = 'testing';
   return new Application({
