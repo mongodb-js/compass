@@ -1,5 +1,5 @@
 /* eslint no-unused-expressions: 0 */
-const app = require('hadron-app');
+const app = require('ampersand-app');
 const sinon = require('sinon');
 const { remote } = require('electron');
 const chai = require('chai');
