@@ -36,7 +36,7 @@ const InstanceHeaderStore = Reflux.createStore({
   getInitialState() {
     return {
       hostname: 'Retrieving host information',
-      port: null,
+      port: 27017,
       processStatus: '',
       versionDistro: null,
       versionNumber: '',

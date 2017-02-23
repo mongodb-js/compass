@@ -11,12 +11,34 @@ const HOST_STRING_LENGTH = 25;
 
 class InstanceHeaderComponent extends React.Component {
 
+  constructor(props) {
+    super(props);
+
+    const state = {hostStr: this.hostNamePortStr(props.hostname, props.port)};
+    if (app.connection.ssh_tunnel !== 'NONE') {
+      state.sshHostStr = this.hostNamePortStr(app.connection.ssh_tunnel_hostname,
+        app.connection.ssh_tunnel_options.dstPort);
+    }
+
+    this.state = state;
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const state = {hostStr: this.hostNamePortStr(nextProps.hostname, nextProps.port)};
+
+    if (app.connection.ssh_tunnel !== 'NONE') {
+      state.sshHostStr = this.hostNamePortStr(app.connection.ssh_tunnel_hostname,
+        app.connection.ssh_tunnel_options.dstPort);
+    }
+    this.setState(state);
+  }
+
   onClick() {
     InstanceHeaderActions.toggleStatus();
   }
 
   returnHostnamePrefix(hostname) {
-    const prefix = hostname.slice(0, -9);
+    const prefix = hostname.slice(0, 9);
     return prefix;
   }
 
@@ -33,18 +55,20 @@ class InstanceHeaderComponent extends React.Component {
       ) : 'Retrieving version';
   }
 
-  showHostNameFull(full) {
-    const flag = full || this.props.hostname.length < HOST_STRING_LENGTH;
-    this.hostNamePortStr = flag ? this.props.hostname + ':' + this.props.port
-      : this.returnHostnamePrefix(this.props.hostname) + '...'
-        + this.returnHostnameSuffix(this.props.hostname) + ':' + this.props.port;
+  hostNamePortStr(hostname, port, showFull) {
+    const str = (hostname.length < HOST_STRING_LENGTH) || showFull ?
+      hostname + ':' + port
+      : this.returnHostnamePrefix(hostname) + '...' + this.returnHostnameSuffix(hostname) + ':' + port;
+    return str;
   }
 
-  showSHHostNameFull(full, host, port) {
-    const flag = full || host.length < HOST_STRING_LENGTH;
-    this.sshHostNamePortStr = flag ? host + port
-      : this.returnHostnamePrefix(host) + '...'
-        + this.returnHostnameSuffix(host) + port;
+  showHostNamePort(showFullString) {
+    this.setState({hostStr: this.hostNamePortStr(this.props.hostname, this.props.port, showFullString)});
+  }
+
+  showSshHostNamePort(showFullString) {
+    this.setState({sshHostStr: this.hostNamePortStr(app.connection.ssh_tunnel_hostname,
+        app.connection.ssh_tunnel_options.dstPort, showFullString)});
   }
 
   handleClickHostname() {
@@ -52,20 +76,19 @@ class InstanceHeaderComponent extends React.Component {
     ipc.call('window:hide-collection-submenu');
   }
 
-  renderAuthDetails(sshTunnel, sshHost, sshPort) {
-    if (sshTunnel !== 'NONE') {
-      return (
-        <div data-test-id="instance-header-ssh" className="instance-header-ssh"
-            onMouseOver={this.showHostNameFull.bind(this, true, sshHost, sshPort)}
-            onMouseOut={this.showHostNameFull.bind(this, false, sshHost, sshPort)}>
-          <FontAwesome name="lock" className="instance-header-icon instance-header-icon-lock"/>
-          <span className="instance-header-ssh-label">
-            &nbsp;SSH Connection via&nbsp;&nbsp;{this.showSHHostNamePortStr}
-          </span>
-        </div>
-      );
-    }
-    return '';
+  renderAuthDetails() {
+    const view = (
+      <div data-test-id="instance-header-ssh" className="instance-header-ssh"
+          onMouseOver={this.showSshHostNamePort.bind(this, true)}
+          onMouseOut={this.showSshHostNamePort.bind(this, false)}>
+        <FontAwesome name="lock" className="instance-header-icon instance-header-icon-lock"/>
+        <span className="instance-header-ssh-label">
+          &nbsp;SSH Connection via&nbsp;&nbsp;{this.state.sshHostStr}
+        </span>
+      </div>
+    );
+
+    return app.connection.ssh_tunnel !== 'NONE' ? view : null;
   }
 
   renderProcessStatus() {
@@ -81,10 +104,10 @@ class InstanceHeaderComponent extends React.Component {
 
   renderHostNamePort() {
     return (
-      <div onMouseOver={this.showHostNameFull.bind(this, true)}
-          onMouseOut={this.showHostNameFull.bind(this, false)}
+      <div onMouseOver={this.showHostNamePort.bind(this, true)}
+          onMouseOut={this.showHostNamePort.bind(this, false)}
           className="instance-header-details" data-test-id="instance-header-details">
-        {this.hostNamePortStr}
+        {this.state.hostStr}
       </div>
     );
   }
@@ -101,13 +124,6 @@ class InstanceHeaderComponent extends React.Component {
       instanceClassName += ' instance-header-connection-string-is-active';
     }
 
-    const sshTunnel = app.connection.ssh_tunnel;
-    const sshHost = app.connection.ssh_tunnel_hostname;
-    const sshPort = app.connection.ssh_tunnel_options.dstPort;
-
-    // initialise host name port string
-    this.showHostNameFull(false);
-
     return (
       <div className="instance-header">
         <div className={instanceClassName} onClick={this.handleClickHostname}>
@@ -122,7 +138,7 @@ class InstanceHeaderComponent extends React.Component {
               TODO enable this when we support replica set status
               this.renderProcessStatus()
             */}
-            {this.renderAuthDetails(sshTunnel, sshHost, sshPort)}
+            {this.renderAuthDetails()}
           </div>
         </div>
         <div className="instance-header-version-string-container">
