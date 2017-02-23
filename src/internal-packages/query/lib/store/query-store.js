@@ -10,6 +10,7 @@ const _ = require('lodash');
 const ms = require('ms');
 const bsonEqual = require('../util').bsonEqual;
 const hasDistinctValue = require('../util').hasDistinctValue;
+const QUERY_DEFAULTS = require('../../../app/constants').QUERY_DEFAULTS;
 
 const debug = require('debug')('mongodb-compass:stores:query-new');
 
@@ -19,11 +20,11 @@ const FEATURE_FLAG_REGEX = /^(enable|disable) (\w+)\s*$/;
 const RESET_STATE = 'reset';
 const APPLY_STATE = 'apply';
 
-const DEFAULT_FILTER = {};
-const DEFAULT_SORT = { _id: 1 };
-const DEFAULT_LIMIT = 0;
-const DEFAULT_SKIP = 0;
-const DEFAULT_PROJECT = null;
+const DEFAULT_FILTER = QUERY_DEFAULTS.DEFAULT_FILTER;
+const DEFAULT_SORT = QUERY_DEFAULTS.DEFAULT_SORT;
+const DEFAULT_LIMIT = QUERY_DEFAULTS.DEFAULT_LIMIT;
+const DEFAULT_SKIP = QUERY_DEFAULTS.DEFAULT_SKIP;
+const DEFAULT_PROJECT = QUERY_DEFAULTS.DEFAULT_PROJECT;
 const DEFAULT_MAX_TIME_MS = ms('10 seconds');
 const DEFAULT_STATE = RESET_STATE;
 
