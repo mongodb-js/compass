@@ -14,7 +14,6 @@ const InsertDocumentStore = Reflux.createStore({
    */
   init: function() {
     this.filter = {};
-    this.docCount = 0;
     this.listenToExternalStore('Query.ChangedStore', this.onQueryChanged.bind(this));
     this.listenTo(Actions.insertDocument, this.insertDocument);
   },
