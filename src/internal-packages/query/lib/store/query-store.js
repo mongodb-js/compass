@@ -51,7 +51,9 @@ const QueryStore = Reflux.createStore({
     // on namespace changes, reset the store
     NamespaceStore.listen((ns) => {
       if (ns && toNS(ns).collection) {
-        this.setState(this.getInitialState(ns));
+        const newState = this.getInitialState();
+        newState.ns = ns;
+        this.setState(newState);
       }
     });
   },
@@ -61,7 +63,7 @@ const QueryStore = Reflux.createStore({
    *
    * @return {Object} the initial store state.
    */
-  getInitialState(namespace) {
+  getInitialState() {
     return {
       // user-facing query properties
       filter: DEFAULT_FILTER,
@@ -104,7 +106,7 @@ const QueryStore = Reflux.createStore({
       expanded: false,
 
       // set the namespace
-      ns: namespace || ''
+      ns: ''
     };
   },
 
@@ -713,7 +715,9 @@ const QueryStore = Reflux.createStore({
     // otherwise we do need to trigger the QueryChangedStore and let all other
     // components in the app know about the change so they can re-render.
     if (this.state.valid) {
-      this.setState(_.omit(this.getInitialState(NamespaceStore.ns), 'expanded'));
+      const newState = this.getInitialState();
+      newState.ns = NamespaceStore.ns;
+      this.setState(_.omit(newState, 'expanded'));
     }
   },
 
