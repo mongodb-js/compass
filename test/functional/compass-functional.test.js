@@ -510,7 +510,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
 
       before(function(done) {
         client.getInstanceHeaderVersion().then(function(value) {
-          serverVersion = value.replace('Community version ', '');
+          serverVersion = value.replace(/MongoDB ([0-9.]+) Community/, '$1');
           done();
         });
       });
