@@ -48,11 +48,11 @@ class InstanceHeaderComponent extends React.Component {
   }
 
   returnVersionDistro() {
-    let distro = this.props.versionDistro;
-    return distro !== null
-      ? (
-        distro = distro + ' version '
-      ) : 'Retrieving version';
+    const distro = this.props.versionDistro;
+    if (distro === null) {
+      return 'retrieving version';
+    }
+    return distro;
   }
 
   hostNamePortStr(hostname, port, showFull) {
@@ -83,7 +83,10 @@ class InstanceHeaderComponent extends React.Component {
           onMouseOut={this.showSshHostNamePort.bind(this, false)}>
         <FontAwesome name="lock" className="instance-header-icon instance-header-icon-lock"/>
         <span className="instance-header-ssh-label">
-          &nbsp;SSH Connection via&nbsp;&nbsp;{this.state.sshHostStr}
+          <span className="instance-header-ssh-label-is-static">
+            &nbsp;SSH connection via&nbsp;&nbsp;
+          </span>
+          {this.state.sshHostStr}
         </span>
       </div>
     );
@@ -143,8 +146,8 @@ class InstanceHeaderComponent extends React.Component {
         </div>
         <div className="instance-header-version-string-container">
           <div data-test-id="instance-header-version" className="instance-header-version-string">
-            <span className="instance-header-version-distro">{this.returnVersionDistro()}</span>
-            <span className="instance-header-version-number">{this.props.versionNumber}</span>
+            <span className="instance-header-version-number">MongoDB {this.props.versionNumber}</span>
+              <span className="instance-header-version-distro">&nbsp;{this.returnVersionDistro()}</span>
           </div>
         </div>
       </div>

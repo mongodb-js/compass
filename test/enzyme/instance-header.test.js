@@ -60,8 +60,8 @@ describe('<InstanceHeader />', () => {
     it('renders instance build version', function() {
       const distro = this.component.find('.instance-header-version-distro');
       const number = this.component.find('.instance-header-version-number');
-      expect(distro.text()).to.be.equal('Enterprise version ');
-      expect(number.text()).to.be.equal(this.instance.build.version);
+      expect(distro.text()).to.be.equal(' Enterprise');
+      expect(number.text()).to.be.equal(`MongoDB ${this.instance.build.version}`);
     });
   });
 
@@ -95,12 +95,12 @@ describe('<InstanceHeader />', () => {
     it('renders instance build version', function() {
       const distro = this.component.find('.instance-header-version-distro');
       const number = this.component.find('.instance-header-version-number');
-      expect(distro.text()).to.be.equal('Community version ');
-      expect(number.text()).to.be.equal(this.instance.build.version);
+      expect(distro.text()).to.be.equal(' Community');
+      expect(number.text()).to.be.equal(`MongoDB ${this.instance.build.version}`);
     });
     it('renders the ssh host name and port as text', function() {
       const element = this.component.find('.instance-header-ssh-label');
-      expect(element.text()).to.be.equal(' SSH Connection via  my-jump-box.com:2222');
+      expect(element.text()).to.be.equal(' SSH connection via  my-jump-box.com:2222');
     });
   });
 });
