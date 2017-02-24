@@ -48,6 +48,8 @@ const SchemaStore = Reflux.createStore({
     this.samplingTimer = null;
     this.trickleStop = null;
 
+    this.samplingLock = false;
+
     // listen for query changes
     this.listenToExternalStore('Query.ChangedStore', this.onQueryChanged.bind(this));
 
@@ -125,12 +127,21 @@ const SchemaStore = Reflux.createStore({
       this.analyzingStream.destroy();
       this.analyzingStream = null;
     }
+    if (this.samplingLock) {
+      this.samplingLock = false;
+    }
   },
 
   /**
    * This function is called when the collection filter changes.
    */
   startSampling() {
+    if (this.samplingLock) {
+      return;
+    }
+
+    this.samplingLock = true;
+
     this.setState({
       samplingState: 'counting',
       samplingProgress: -1,
