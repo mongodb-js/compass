@@ -33,8 +33,8 @@ const QueryChangedStore = Reflux.createStore({
    *
    * @return {Object} the initial store state.
    */
-  getInitialState(namespace) {
-    return _.pick(QueryStore.getInitialState(namespace), EXTENDED_QUERY_PROPERTIES);
+  getInitialState() {
+    return _.pick(QueryStore.getInitialState(), EXTENDED_QUERY_PROPERTIES);
   },
 
   _detectChange(state) {
@@ -54,7 +54,7 @@ const QueryChangedStore = Reflux.createStore({
    */
   onQueryStoreChanged(state) {
     if (this._detectChange(state)) {
-      const newState = state.lastExecutedQuery || this.getInitialState(state.ns);
+      const newState = state.lastExecutedQuery || this.getInitialState();
       newState.queryState = state.queryState;
       newState.maxTimeMS = state.maxTimeMS;
       newState.ns = state.ns;
