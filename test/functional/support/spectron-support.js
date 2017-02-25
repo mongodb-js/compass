@@ -991,10 +991,17 @@ function addGetCommands(client) {
   });
 
   /**
-   * Get the instance address from the sidebar.
+   * Get the instance address from the header.
    */
-  client.addCommand('getSidebarInstanceDetails', function() {
-    return this.getText(selector('sidebar-instance-details'));
+  client.addCommand('getInstanceHeaderDetails', function() {
+    return this.getText(selector('instance-header-details'));
+  });
+
+  /**
+  * Get the instance version from header.
+  */
+  client.addCommand('getInstanceHeaderVersion', function() {
+    return this.getText(selector('instance-header-version'));
   });
 
   /**
@@ -1004,12 +1011,6 @@ function addGetCommands(client) {
     return this.getText(selector('sidebar-ssh-tunnel-details'));
   });
 
-  /**
-   * Get the sidebar instance version.
-   */
-  client.addCommand('getSidebarInstanceVersion', function() {
-    return this.getText(selector('sidebar-instance-version'));
-  });
 
   /**
    * Get the sidebar database count

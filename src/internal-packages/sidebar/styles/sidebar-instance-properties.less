@@ -6,97 +6,12 @@
     margin: 0;
   }
 
-  &-instance {
-    cursor: pointer;
-    color: #fff;
-    font-weight: normal;
-    font-size: 16px;
-    padding-top: 8px;
-    padding-bottom: 8px;
-    border-top: 1px solid #42494f;
-    display: flex;
-    flex-wrap: nowrap;
-    transition: height @transistion-time ease;
-
-    &-icon {
-      vertical-align: top;
-      flex-grow: 0;
-      flex-shrink: 1;
-      flex-basis: 26px;
-      padding-left: 10px;
-      padding-top: 3px;
-    }
-
-    &-icon + div {
-      flex: 1;
-      flex-basis: auto;
-      overflow: hidden;
-      padding-right: 8px;
-    }
-
-    &:hover {
-      background-color: #42494f;
-    }
-
-    &-hostname {
-      overflow-x: hidden;
-      text-overflow: ellipsis;
-      padding-left: 10px;
-      white-space: nowrap;
-    }
-
-    &-hostname::-webkit-scrollbar {
-      display: none;
-    }
-
-    &-ssh-tunnel {
-      color: #fff;
-      font-weight: normal;
-      line-height: 12px;
-      font-size: 12px;
-      padding-left: 10px;
-      white-space: nowrap;
-      overflow-x: hidden;
-      text-overflow: ellipsis;
-    }
-
-    &-version {
-      color: @compass-sidebar-default-text-color;
-      font-weight: normal;
-      line-height: 12px;
-      font-size: 12px;
-      padding-left: 10px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    &-is-active,
-    &-is-active:hover {
-      background-color: @compass-sidebar-active-background-color;
-      border-top-color: @compass-sidebar-active-background-color;
-    }
-
-    &-is-active .compass-sidebar-instance-version,
-    &-is-active:hover .compass-sidebar-instance-version {
-      color: #fff;
-    }
-
-    &-is-active .compass-sidebar-icon-create-database,
-    &-is-active:hover .compass-sidebar-icon-create-database {
-      color: @compass-sidebar-active-background-color;
-      &:hover {
-        color: #fff;
-      }
-    }
-  }
-
   &-stats {
     color: @compass-sidebar-default-text-color;
     font-weight: bold;
     font-size: 11px;
     line-height: 12px;
-    padding: 4px 0 6px;
+    padding: 6px 0 8px;
     text-transform: uppercase;
     display: flex;
     overflow: hidden;

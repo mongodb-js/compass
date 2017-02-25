@@ -1,0 +1,202 @@
+.instance-header {
+  background-color: @compass-sidebar-lite-background-color;
+  color: @pw;
+  display: flex;
+  flex-grow: 0;
+  flex-shrink: 0;
+  flex-basis: 36px;
+  flex-wrap: nowrap;
+  overflow: hidden;
+
+  &-icon {
+    &-home { font-size: 16px; }
+    &-lock { font-size: 12px; }
+  }
+
+  &-connection-string {
+    background-color: @compass-sidebar-hover-background-color;
+    cursor: pointer;
+    flex-basis: 250px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    overflow: hidden;
+    padding-top: 8px;
+    display: flex;
+    transition: all 200ms ease;
+
+    &:hover {
+      background-color: darken(@compass-sidebar-hover-background-color, 3%);
+      flex-basis: auto;
+      min-width: 250px;
+    }
+
+    &-is-active,
+    &-is-active:hover {
+      background-color: @compass-sidebar-active-background-color;
+    }
+  }
+
+  &-icon-container {
+    flex-basis: auto;
+    flex-grow: 0;
+    flex-shrink: 0;
+    text-align: center;
+  }
+
+  &-icon-home {
+    width: 36px;
+  }
+
+  &-details {
+    display: flex;
+    flex: 1;
+    flex-basis: auto;
+    overflow: hidden;
+  }
+
+  &-hostname-prefix {
+    flex-basis: auto;
+    flex-grow: 0;
+    flex-shrink: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &-hostname-suffix {
+    flex-basis: auto;
+    flex-grow: 0;
+    flex-shrink: 0;
+  }
+
+  &-port {
+    flex-basis: auto;
+    flex-grow: 1;
+    flex-shrink: 1;
+  }
+
+  &-port span {
+    padding-right: 6px;
+  }
+
+  &-status-ssh-container {
+    background-image: url('./images/instance-header/hostname-bg.png');
+    background-size: 16px 36px;
+    background-repeat: no-repeat;
+    flex-basis: auto;
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-width: 250px;
+    padding-top: 7px;
+    transition: all 200ms ease;
+  }
+
+  &-connection-string:hover + .instance-header-status-ssh-container {
+    background-image: url('./images/instance-header/hostname-bg-hover.png');
+  }
+
+  &-connection-string-is-active       + .instance-header-status-ssh-container,
+  &-connection-string-is-active:hover + .instance-header-status-ssh-container {
+    background-image: url('./images/instance-header/hostname-bg-active.png');
+  }
+
+  &-status-ssh {
+    padding: 0 24px;
+    display: flex;
+  }
+
+  &-process-status-container {
+    flex-basis: auto;
+    flex-grow: 0;
+    flex-shrink: 0;
+  }
+
+  &-process-status {
+    padding-right: 12px;
+
+    span {
+      background-color: @compass-sidebar-hover-background-color;
+      border-radius: 11px;
+      font-size: 10px;
+      font-weight: bold;
+      line-height: 1;
+      padding: 4px 8px 5px;
+      text-transform: uppercase;
+    }
+  }
+
+  &-ssh {
+    flex-basis: 290px;
+    flex-grow: 0;
+    flex-shrink: 1;
+    display: flex;
+    padding-top: 1px;
+    min-width: 140px;
+
+    &:hover {
+      flex-basis: auto;
+    }
+  }
+
+  &-icon-lock {
+    color: @green4;
+    flex-basis: auto;
+    flex-grow: 0;
+    flex-shrink: 0;
+    text-align: right;
+    padding-top: 5px;
+  }
+
+  &-ssh-label {
+    color: @pw;
+    flex-basis: auto;
+    flex-grow: 0;
+    flex-shrink: 0;
+    font-size: 13px;
+    font-weight: bold;
+    line-height: 1;
+    padding-top: 3px;
+    padding-bottom: 8px;
+    padding-right: 20px;
+
+    &-is-static {
+      font-size: 11px;
+      color: @green5;
+      user-select: none;
+      -webkit-user-select: none;
+      text-transform: uppercase;
+    }
+  }
+
+  &-ssh-hostname-prefix {
+    flex-basis: auto;
+    flex-grow: 0;
+    flex-shrink: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &-ssh-hostname-suffix {
+    flex-basis: auto;
+    flex-grow: 0;
+    flex-shrink: 0;
+  }
+
+  &-ssh-port {
+    flex-basis: auto;
+    flex-grow: 0;
+    flex-shrink: 0;
+  }
+
+  &-version-string-container {
+    flex-basis: auto;
+    flex-grow: 0;
+    flex-shrink: 0;
+    padding-top: 8px;
+  }
+
+  &-version-string {
+    padding-right: 18px;
+  }
+}

@@ -79,18 +79,10 @@ describe('Compass Main Functional Test Suite #spectron', function() {
 
         it('displays the instance details', function() {
           return client
-            .getSidebarInstanceDetails()
-            .should.eventually.equal('localhost:27018');
-        });
-
-        it('displays the server version', function() {
-          return client
-            .getSidebarInstanceVersion()
-            .should.eventually.include('Community version');
+            .getInstanceHeaderDetails().should.eventually.equal('localhost:27018');
         });
       });
     });
-
 
     context('when viewing the performance view', function() {
       it('renders the operations graph inserts', function() {
@@ -517,8 +509,8 @@ describe('Compass Main Functional Test Suite #spectron', function() {
       let serverVersion;
 
       before(function(done) {
-        client.getSidebarInstanceVersion().then(function(value) {
-          serverVersion = value.replace('Community version ', '');
+        client.getInstanceHeaderVersion().then(function(value) {
+          serverVersion = value.replace(/MongoDB ([0-9.]+) Community/, '$1');
           done();
         });
       });

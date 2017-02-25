@@ -1,0 +1,9 @@
+{
+  "name": "compass-instance-header",
+  "productName": "Compass Instance Header package",
+  "version": "0.1.0",
+  "authors": "MongoDB Inc.",
+  "description": "Instance header component",
+  "private": true,
+  "main": "index.js"
+}
