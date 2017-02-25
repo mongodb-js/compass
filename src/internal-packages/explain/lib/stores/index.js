@@ -2,8 +2,6 @@ const Reflux = require('reflux');
 const ExplainActions = require('../actions');
 const StateMixin = require('reflux-state-mixin');
 const app = require('hadron-app');
-const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
-const toNS = require('mongodb-ns');
 const ExplainPlanModel = require('mongodb-explain-plan-model');
 const _ = require('lodash');
 
@@ -30,21 +28,14 @@ const CompassExplainStore = Reflux.createStore({
    */
   init() {
     this._resetQuery();
+    this.indexes = [];
+    this.ns = '';
 
-    // reset on namespace change
-    NamespaceStore.listen((ns) => {
-      if (ns && toNS(ns).collection) {
-        this._reset();
-      }
-    });
-
+    // listen for query and index changes
+    this.listenToExternalStore('Query.ChangedStore', this.onQueryChanged.bind(this));
     this.listenToExternalStore('Indexes.IndexStore', this.indexesChanged.bind(this));
 
-    // listen for query changes
-    this.listenToExternalStore('Query.ChangedStore', this.onQueryChanged.bind(this));
-
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
-    this.indexes = [];
   },
 
   _resetQuery() {
@@ -65,6 +56,7 @@ const CompassExplainStore = Reflux.createStore({
     this.sort = state.sort;
     this.skip = state.skip;
     this.limit = state.limit;
+    this.ns = state.ns;
 
     if (state.queryState === 'reset') {
       this._resetQuery();
@@ -160,15 +152,11 @@ const CompassExplainStore = Reflux.createStore({
       skip: this.skip,
       limit: this.limit
     };
-    debug('options', options);
-    const ns = toNS(NamespaceStore.ns);
-    if (!ns.database || !ns.collection) {
-      return;
-    }
+
     if (this.CollectionStore.isReadonly()) {
       this.setState(this.getInitialState());
     } else {
-      app.dataService.explain(ns.ns, this.filter, options, (err, explain) => {
+      app.dataService.explain(this.ns, this.filter, options, (err, explain) => {
         if (err) {
           return debug('error fetching explain plan:', err);
         }

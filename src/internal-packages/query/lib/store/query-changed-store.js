@@ -9,7 +9,7 @@ const _ = require('lodash');
 const debug = require('debug')('mongodb-compass:stores:query-changed');
 
 const QUERY_PROPERTIES = QueryStore.QUERY_PROPERTIES;
-const EXTENDED_QUERY_PROPERTIES = QUERY_PROPERTIES.concat(['maxTimeMS', 'queryState']);
+const EXTENDED_QUERY_PROPERTIES = QUERY_PROPERTIES.concat(['maxTimeMS', 'queryState', 'ns']);
 /**
  * This is a convenience store that only triggers when the actual query
  * object (stored as `QueryStore.lastExecutedQuery`) has changed, e.g.
@@ -25,6 +25,7 @@ const QueryChangedStore = Reflux.createStore({
   init: function() {
     QueryStore.listen(this.onQueryStoreChanged.bind(this));
     this.lastExecutedQuery = QueryStore.state.lastExecutedQuery;
+    this.namespace = QueryStore.state.ns;
   },
 
   /**
@@ -37,9 +38,11 @@ const QueryChangedStore = Reflux.createStore({
   },
 
   _detectChange(state) {
-    const hasChanged = !_.isEqual(this.lastExecutedQuery, state.lastExecutedQuery);
+    const hasChanged = !_.isEqual(this.lastExecutedQuery, state.lastExecutedQuery)
+      || !_.isEqual(this.namespace, state.ns);
     if (hasChanged) {
       this.lastExecutedQuery = _.clone(state.lastExecutedQuery);
+      this.namespace = state.ns;
     }
     return hasChanged;
   },
@@ -54,6 +57,7 @@ const QueryChangedStore = Reflux.createStore({
       const newState = state.lastExecutedQuery || this.getInitialState();
       newState.queryState = state.queryState;
       newState.maxTimeMS = state.maxTimeMS;
+      newState.ns = state.ns;
       this.setState(newState);
       // reload indexes if this convenience store has changed
       IndexesActions.loadIndexes();

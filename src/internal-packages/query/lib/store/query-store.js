@@ -8,6 +8,7 @@ const app = require('hadron-app');
 const assert = require('assert');
 const _ = require('lodash');
 const ms = require('ms');
+const toNS = require('mongodb-ns');
 const bsonEqual = require('../util').bsonEqual;
 const hasDistinctValue = require('../util').hasDistinctValue;
 
@@ -48,8 +49,12 @@ const QueryStore = Reflux.createStore({
       this.validFeatureFlags = [];
     }
     // on namespace changes, reset the store
-    NamespaceStore.listen(() => {
-      this.setState(this.getInitialState());
+    NamespaceStore.listen((ns) => {
+      if (ns && toNS(ns).collection) {
+        const newState = this.getInitialState();
+        newState.ns = ns;
+        this.setState(newState);
+      }
     });
   },
 
@@ -98,7 +103,10 @@ const QueryStore = Reflux.createStore({
       featureFlag: false,
 
       // is the query bar component expanded or collapsed?
-      expanded: false
+      expanded: false,
+
+      // set the namespace
+      ns: ''
     };
   },
 
@@ -707,7 +715,9 @@ const QueryStore = Reflux.createStore({
     // otherwise we do need to trigger the QueryChangedStore and let all other
     // components in the app know about the change so they can re-render.
     if (this.state.valid) {
-      this.setState(_.omit(this.getInitialState(), 'expanded'));
+      const newState = this.getInitialState();
+      newState.ns = NamespaceStore.ns;
+      this.setState(_.omit(newState, 'expanded'));
     }
   },
 

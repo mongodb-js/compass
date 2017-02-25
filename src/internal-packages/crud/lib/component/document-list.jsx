@@ -173,10 +173,14 @@ class DocumentList extends React.Component {
    *
    * @param {Boolean} success - If the insert was successful.
    */
-  handleInsert(success) {
+  handleInsert(success, doc) {
     if (success) {
-      this.setState({ count: this.state.count + 1 });
-      this.loadMore();
+      this.setState({
+        docs: this.state.docs.concat(this.renderDocuments([doc])),
+        nextSkip: (this.state.nextSkip + 1),
+        loadedCount: (this.state.loadedCount + 1),
+        count: this.state.count + 1
+      });
     }
   }
 
