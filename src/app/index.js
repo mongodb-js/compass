@@ -10,6 +10,8 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 window.jQuery = require('jquery');
+require('bootstrap/js/modal');
+require('bootstrap/js/transition');
 
 require('./setup-hadron-caches');
 
@@ -53,9 +55,6 @@ var ReactDOM = require('react-dom');
 var AutoUpdate = require('../auto-update');
 
 var addInspectElementMenu = require('debug-menu').install;
-
-require('bootstrap/js/modal');
-require('bootstrap/js/transition');
 
 ipc.once('app:launched', function() {
   console.log('in app:launched');
