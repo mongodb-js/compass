@@ -19,7 +19,6 @@ require('./setup-hadron-caches');
  * The main entrypoint for the application!
  */
 var electron = require('electron');
-var shell = electron.shell;
 var app = require('hadron-app');
 var backoff = require('backoff');
 var APP_VERSION = electron.remote.app.getVersion();
@@ -318,7 +317,7 @@ var Application = View.extend({
     } else if (event.target.getAttribute('href') !== '#') {
       event.preventDefault();
       event.stopPropagation();
-      shell.openExternal(event.target.href);
+      electron.shell.openExternal(event.target.href);
     }
   },
   fetchUser: function(done) {
