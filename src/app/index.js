@@ -32,8 +32,6 @@ var localLinks = require('local-links');
 var async = require('async');
 var ipc = require('hadron-ipc');
 
-var NetworkOptInView = require('./network-optin');
-
 var semver = require('semver');
 
 var Connection = require('./models/connection');
@@ -287,7 +285,8 @@ var Application = View.extend({
     }
   },
   showOptIn: function() {
-    var networkOptInView = new NetworkOptInView();
+    const NetworkOptInView = require('./network-optin');
+    const networkOptInView = new NetworkOptInView();
     this.renderSubview(networkOptInView, this.queryByHook('optin-container'));
   },
   tourClosed: function() {
