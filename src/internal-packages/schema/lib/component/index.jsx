@@ -55,7 +55,6 @@ const Schema = React.createClass({
       this.StatusAction.configure({
         visible: true,
         progressbar: true,
-        progress: 0,
         animation: true,
         trickle: true,
         subview: StatusSubview

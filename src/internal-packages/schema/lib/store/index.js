@@ -168,6 +168,12 @@ const SchemaStore = Reflux.createStore({
       });
     }, 1000);
 
+    // reset the progress bar to 0
+    const StatusAction = app.appRegistry.getAction('Status.Actions');
+    StatusAction.configure({
+      progress: 0
+    });
+
     this.samplingStream = app.dataService.sample(this.ns, sampleOptions);
     this.analyzingStream = schemaStream();
     let schema;
