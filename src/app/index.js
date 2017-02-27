@@ -37,7 +37,6 @@ require('./menu-renderer');
 var Router = require('./router');
 var migrateApp = require('./migrations');
 var metricsSetup = require('./metrics');
-var metrics = require('mongodb-js-metrics')();
 
 var React = require('react');
 var ReactDOM = require('react-dom');
@@ -185,6 +184,7 @@ var Application = View.extend({
   },
   onFatalError: function(id, err) {
     console.error('Fatal Error!: ', id, err);
+    const metrics = require('mongodb-js-metrics')();
     metrics.error(err);
     var StatusAction = app.appRegistry.getAction('Status.Actions');
     StatusAction.setMessage(err);
@@ -194,6 +194,7 @@ var Application = View.extend({
     // Instead, set the instance inside InstanceStore.refreshInstance
     app.appRegistry.getAction('App.InstanceActions').setInstance(app.instance);
     debug('app.instance fetched', app.instance.serialize());
+    const metrics = require('mongodb-js-metrics')();
     metrics.track('Deployment', 'detected', {
       'databases count': app.instance.databases.length,
       'namespaces count': app.instance.collections.length,
@@ -304,6 +305,7 @@ var Application = View.extend({
     }
   },
   onPageChange: function(view) {
+    const metrics = require('mongodb-js-metrics')();
     // connect dialog
     if (view.screenName) {
       metrics.track('App', 'viewed', view.screenName);
