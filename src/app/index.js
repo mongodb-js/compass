@@ -23,7 +23,6 @@ var app = require('hadron-app');
 var APP_VERSION = electron.remote.app.getVersion();
 
 var _ = require('lodash');
-var qs = require('qs');
 var ViewSwitcher = require('ampersand-view-switcher');
 var View = require('ampersand-view');
 var localLinks = require('local-links');
@@ -230,6 +229,7 @@ var Application = View.extend({
       params: null
     });
     if (options.params) {
+      const qs = require('qs');
       fragment += '?' + qs.stringify(options.params);
     }
 
