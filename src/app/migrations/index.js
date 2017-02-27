@@ -57,7 +57,6 @@ function getPreviousVersion(done) {
 }
 
 module.exports = function(done) {
-  return done(new Error('foo'), null);
   getPreviousVersion(function(err, previousVersion) {
     if (err) {
       done(err);

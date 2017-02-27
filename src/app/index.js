@@ -325,6 +325,7 @@ var Application = View.extend({
     }
   },
   fetchUser: function(done) {
+    foo();
     debug('preferences fetched, now getting user');
     User.getOrCreate(this.preferences.currentUserId, function(err, user) {
       if (err) {
