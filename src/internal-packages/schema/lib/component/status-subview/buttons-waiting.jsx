@@ -19,8 +19,8 @@ const ButtonsWaiting = React.createClass({
   },
 
   render() {
-    // if in error state, don't show this component
-    if (this.props.samplingState === 'error') {
+    // if in timeout state, don't show this component
+    if (this.props.samplingState === 'timeout') {
       return null;
     }
 

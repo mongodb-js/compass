@@ -94,6 +94,9 @@ module.exports = function() {
       });
     }
     metrics.error(err);
+    // hide progress bar when an unknown error occurs.
+    const StatusAction = app.appRegistry.getAction('Status.Actions');
+    StatusAction.hide();
   });
 
   // listen to preference changes

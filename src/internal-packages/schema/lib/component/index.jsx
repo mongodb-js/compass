@@ -23,6 +23,7 @@ const Schema = React.createClass({
   componentWillMount() {
     this.samplingMessage = app.appRegistry.getComponent('Query.SamplingMessage');
     this.StatusAction = app.appRegistry.getAction('Status.Actions');
+    this.StatusRow = app.appRegistry.getComponent('App.StatusRow');
     this.queryBar = app.appRegistry.getComponent('Query.QueryBar');
   },
 
@@ -36,12 +37,16 @@ const Schema = React.createClass({
    * increased in 5% steps.
    */
   _updateProgressBar() {
-    if (this.state.samplingState === 'error') {
+    if (this.state.samplingState === 'timeout') {
       this.StatusAction.configure({
         progressbar: false,
-        animation: false
+        animation: false,
+        trickle: false
       });
       return;
+    }
+    if (this.state.samplingState === 'error') {
+      this.StatusAction.hide();
     }
     const progress = this.state.samplingProgress;
     // initial schema phase, cannot measure progress, enable trickling
@@ -75,6 +80,17 @@ const Schema = React.createClass({
     }
   },
 
+  renderErrorMessage() {
+    if (this.state.samplingState === 'error') {
+      return (
+        <this.StatusRow style="error">
+          An error occured during schema analysis: {this.state.errorMessage}
+        </this.StatusRow>
+      );
+    }
+    return null;
+  },
+
   /**
    * Render the schema
    *
@@ -90,6 +106,7 @@ const Schema = React.createClass({
         <div className="controls-container">
           <this.queryBar layout={QUERYBAR_LAYOUT} />
           <this.samplingMessage sampleSize={this.state.schema ? this.state.schema.count : 0}/>
+          {this.renderErrorMessage()}
         </div>
         <div className="column-container">
           <div className="column main">

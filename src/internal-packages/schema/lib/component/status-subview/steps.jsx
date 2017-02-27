@@ -27,7 +27,7 @@ const SchemaSteps = React.createClass({
    * @param  {Object} nextProps   next props of this component
    */
   componentWillReceiveProps(nextProps) {
-    if (this.props.samplingState !== 'error' && nextProps.samplingState === 'error') {
+    if (this.props.samplingState !== 'timeout' && nextProps.samplingState === 'timeout') {
       this.setState({
         errorState: this.props.samplingState
       });
@@ -39,10 +39,10 @@ const SchemaSteps = React.createClass({
       return 'fa fa-fw fa-spin fa-circle-o-notch';
     }
     if (this.props.samplingState === 'analyzing' ||
-      (this.props.samplingState === 'error' && this.state.errorState === 'analyzing')) {
+      (this.props.samplingState === 'timeout' && this.state.errorState === 'analyzing')) {
       return 'mms-icon-check';
     }
-    if (this.props.samplingState === 'error' && this.state.errorState === 'sampling') {
+    if (this.props.samplingState === 'timeout' && this.state.errorState === 'sampling') {
       return 'fa fa-fw fa-warning';
     }
     return 'fa fa-fw';
@@ -55,7 +55,7 @@ const SchemaSteps = React.createClass({
     if (this.props.samplingState === 'complete') {
       return 'mms-icon-check';
     }
-    if (this.props.samplingState === 'error' && this.state.errorState === 'analyzing') {
+    if (this.props.samplingState === 'timeout' && this.state.errorState === 'analyzing') {
       return 'fa fa-fw fa-warning';
     }
     return 'fa fa-fw';
