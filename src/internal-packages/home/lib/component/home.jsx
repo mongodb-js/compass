@@ -59,7 +59,7 @@ class Home extends React.Component {
 
     return (
       <div className="page-container">
-        <this.InstanceHeader />
+        <this.InstanceHeader sidebarCollapsed={this.state.collapsed}/>
         <div className="page">
           <div className={this.getContentClasses()}>
             {this.renderContent()}

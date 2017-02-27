@@ -1,5 +1,5 @@
 .instance-header {
-  background-color: @compass-sidebar-lite-background-color;
+  background-color: @gray8;
   color: @pw;
   display: flex;
   flex-grow: 0;
@@ -14,25 +14,33 @@
   }
 
   &-connection-string {
-    background-color: @compass-sidebar-hover-background-color;
+    background-color: @compass-sidebar-base-background-color;
     cursor: pointer;
     flex-basis: 250px;
     flex-grow: 0;
     flex-shrink: 0;
     overflow: hidden;
-    padding-top: 8px;
+    padding-right: 9px;
     display: flex;
-    transition: all 200ms ease;
+    transition: all @transistion-time ease;
 
     &:hover {
-      background-color: darken(@compass-sidebar-hover-background-color, 3%);
+      background-color: @compass-sidebar-hover-background-color;
       flex-basis: auto;
       min-width: 250px;
+
+      .instance-header-icon-home {
+        background-color: @compass-sidebar-hover-background-color;
+      }
     }
 
     &-is-active,
     &-is-active:hover {
       background-color: @compass-sidebar-active-background-color;
+
+      .instance-header-icon-home {
+        background-color: @compass-sidebar-active-background-color;
+      }
     }
   }
 
@@ -44,7 +52,12 @@
   }
 
   &-icon-home {
+    background-color: @compass-sidebar-base-background-color;
     width: 36px;
+    height: 36px;
+    margin-right: 0px;
+    padding-top: 8px;
+    transition: margin-right @transistion-time ease, background-color @transistion-time ease;
   }
 
   &-details {
@@ -52,6 +65,7 @@
     flex: 1;
     flex-basis: auto;
     overflow: hidden;
+    padding-top: 8px;
   }
 
   &-hostname-prefix {
@@ -88,7 +102,7 @@
     flex-shrink: 1;
     min-width: 250px;
     padding-top: 7px;
-    transition: all 200ms ease;
+    transition: all @transistion-time ease;
   }
 
   &-connection-string:hover + .instance-header-status-ssh-container {
@@ -139,7 +153,7 @@
   }
 
   &-icon-lock {
-    color: @green4;
+    color: @green2;
     flex-basis: auto;
     flex-grow: 0;
     flex-shrink: 0;
@@ -148,12 +162,11 @@
   }
 
   &-ssh-label {
-    color: @pw;
+    color: @gray0;
     flex-basis: auto;
     flex-grow: 0;
     flex-shrink: 0;
-    font-size: 13px;
-    font-weight: bold;
+    font-size: 14px;
     line-height: 1;
     padding-top: 3px;
     padding-bottom: 8px;
@@ -161,7 +174,8 @@
 
     &-is-static {
       font-size: 11px;
-      color: @green5;
+      font-weight: bold;
+      color: @green2;
       user-select: none;
       -webkit-user-select: none;
       text-transform: uppercase;
@@ -198,5 +212,26 @@
 
   &-version-string {
     padding-right: 18px;
+    color: @gray3;
+  }
+
+  /*SIDEBAR COLLAPSED STATE*/
+  &-sidebar-collapsed {
+
+    .instance-header-connection-string {
+      background-color: @gray7;
+    }
+    .instance-header-icon-home {
+      color: @pw;
+      margin-right: 15px;
+    }
+    .instance-header-details {
+      color: @gray0;
+    }
+    .instance-header-status-ssh-container,
+    .instance-header-connection-string:hover + .instance-header-status-ssh-container {
+      background-image: url('./images/instance-header/hostname-bg-expanded.png');
+    }
+
   }
 }
