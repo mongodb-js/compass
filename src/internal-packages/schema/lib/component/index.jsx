@@ -1,7 +1,6 @@
 const app = require('hadron-app');
 const React = require('react');
 const SchemaStore = require('../store');
-const SchemaActions = require('../action');
 const StateMixin = require('reflux-state-mixin');
 const Field = require('./field');
 const StatusSubview = require('../component/status-subview');
