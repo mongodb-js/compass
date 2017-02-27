@@ -20,7 +20,6 @@ require('./setup-hadron-caches');
  */
 var electron = require('electron');
 var app = require('hadron-app');
-var backoff = require('backoff');
 var APP_VERSION = electron.remote.app.getVersion();
 
 var _ = require('lodash');
@@ -91,7 +90,8 @@ function getConnection(model, done) {
     });
   }
 
-  var call = backoff.call(_fetch, done);
+  const backoff = require('backoff');
+  const call = backoff.call(_fetch, done);
   call.setStrategy(new backoff.ExponentialStrategy({
     randomisationFactor: 0,
     initialDelay: 10,
