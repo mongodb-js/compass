@@ -20,7 +20,6 @@ require('./setup-hadron-caches');
  */
 var electron = require('electron');
 var shell = electron.shell;
-var dialog = electron.dialog;
 var app = require('hadron-app');
 var backoff = require('backoff');
 var APP_VERSION = electron.remote.app.getVersion();
@@ -36,7 +35,6 @@ var ipc = require('hadron-ipc');
 var TourView = require('./tour');
 var NetworkOptInView = require('./network-optin');
 
-var format = require('util').format;
 var semver = require('semver');
 
 var Connection = require('./models/connection');
@@ -325,7 +323,6 @@ var Application = View.extend({
     }
   },
   fetchUser: function(done) {
-    foo();
     debug('preferences fetched, now getting user');
     User.getOrCreate(this.preferences.currentUserId, function(err, user) {
       if (err) {
@@ -423,8 +420,6 @@ app.extend({
       state.fetchUser.bind(state)
     ], function(err) {
       if (err) {
-        dialog.showErrorBox('Error', format('There was an error during startup '
-          + 'of MongoDB Compass. \n\n%s', err.message));
         throw err;
       }
       // set up metrics
