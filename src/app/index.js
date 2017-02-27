@@ -30,7 +30,6 @@ var ipc = require('hadron-ipc');
 
 var semver = require('semver');
 
-var Connection = require('./models/connection');
 var Preferences = require('./models/preferences');
 var User = require('./models/user');
 
@@ -389,6 +388,8 @@ app.extend({
     }
     var StatusAction = app.appRegistry.getAction('Status.Actions');
     StatusAction.showIndeterminateProgressBar();
+
+    const Connection = require('./models/connection');
     state.connection = new Connection({
       _id: connectionId
     });
