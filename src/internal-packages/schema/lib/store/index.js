@@ -237,11 +237,9 @@ const SchemaStore = Reflux.createStore({
           schema = data;
         })
         .on('error', (analysisErr) => {
-          debug('schema on error');
           onError(analysisErr);
         })
         .on('end', () => {
-          debug('schema on end');
           if ((numSamples === 0 || sampleCount > 0) && this.state.samplingState !== 'error') {
             onSuccess(schema);
           }
