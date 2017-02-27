@@ -25,7 +25,6 @@ var APP_VERSION = electron.remote.app.getVersion();
 var _ = require('lodash');
 var ViewSwitcher = require('ampersand-view-switcher');
 var View = require('ampersand-view');
-var localLinks = require('local-links');
 var async = require('async');
 var ipc = require('hadron-ipc');
 
@@ -309,7 +308,8 @@ var Application = View.extend({
     if (event.target.className === 'help') {
       return;
     }
-    var pathname = localLinks.getLocalPathname(event);
+    const localLinks = require('local-links');
+    const pathname = localLinks.getLocalPathname(event);
     if (pathname) {
       event.preventDefault();
       this.router.history.navigate(pathname);
