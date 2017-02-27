@@ -210,10 +210,10 @@ var Application = View.extend({
       'namespaces count': app.instance.collections.length,
       'mongodb version': app.instance.build.version,
       'enterprise module': app.instance.build.enterprise_module,
-      'longest database name length': _.max(app.instance.databases.map(function(db) {
+      'longest database name length': Math.max(...app.instance.databases.map(function(db) {
         return db._id.length;
       })),
-      'longest collection name length': _.max(app.instance.collections.map(function(col) {
+      'longest collection name length': Math.max(...app.instance.collections.map(function(col) {
         return col._id.split('.')[1].length;
       })),
       'server architecture': app.instance.host.arch,
