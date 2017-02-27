@@ -31,7 +31,6 @@ var ipc = require('hadron-ipc');
 var semver = require('semver');
 
 var Connection = require('./models/connection');
-var MongoDBInstance = require('./models/mongodb-instance');
 var Preferences = require('./models/preferences');
 var User = require('./models/user');
 
@@ -396,6 +395,7 @@ app.extend({
         }
         app.dataService = ds.on('error', state.onFatalError.bind(state, 'create client'));
         debug('initializing singleton models... ');
+        const MongoDBInstance = require('./models/mongodb-instance');
         state.instance = new MongoDBInstance();
         debug('fetching instance model...');
         app.instance.fetch({ success: state.onInstanceFetched });
