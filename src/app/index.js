@@ -54,8 +54,6 @@ ipc.once('app:launched', function() {
 
 var debug = require('debug')('mongodb-compass:app');
 
-const { DataServiceStore, DataServiceActions } = require('mongodb-data-service');
-
 var path = require('path');
 var StyleManager = require('hadron-style-manager');
 new StyleManager(
@@ -244,6 +242,7 @@ var Application = View.extend({
     require('backoff');
     require('local-links');
     require('./models/mongodb-instance');
+    require('mongodb-data-service');
     console.log(`Start renderer - caching complete: ${window.performance.now()} ms`);
   },
   /**
@@ -402,6 +401,7 @@ app.extend({
       }
       StatusAction.showIndeterminateProgressBar();
 
+      const { DataServiceStore, DataServiceActions } = require('mongodb-data-service');
       DataServiceStore.listen((error, ds) => {
         if (error) {
           state.onFatalError('create client');
