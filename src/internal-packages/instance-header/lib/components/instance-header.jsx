@@ -121,10 +121,10 @@ class InstanceHeaderComponent extends React.Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
-    let headerClasses = 'instance-header' +
+    const headerClasses = 'instance-header' +
       (this.props.sidebarCollapsed ? ' instance-header-sidebar-collapsed' : ' instance-header-sidebar-expanded');
 
-    let hostnameClasses = 'instance-header-connection-string' +
+    const hostnameClasses = 'instance-header-connection-string' +
       (this.props.activeNamespace === '' ? ' instance-header-connection-string-is-active' : '');
 
     return (
