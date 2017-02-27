@@ -32,7 +32,6 @@ var localLinks = require('local-links');
 var async = require('async');
 var ipc = require('hadron-ipc');
 
-var TourView = require('./tour');
 var NetworkOptInView = require('./network-optin');
 
 var semver = require('semver');
@@ -278,7 +277,8 @@ var Application = View.extend({
     }
   },
   showTour: function(force) {
-    var tourView = new TourView({force: force});
+    const TourView = require('./tour');
+    const tourView = new TourView({force: force});
     if (tourView.features.length > 0) {
       tourView.on('close', this.tourClosed.bind(this));
       this.renderSubview(tourView, this.queryByHook('tour-container'));
