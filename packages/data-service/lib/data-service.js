@@ -56,6 +56,48 @@ class DataService extends EventEmitter {
   }
 
   /**
+   * Executes a buildInfo command on the currently connected instance.
+   *
+   * @param {Function} callback - The callback.
+   */
+  buildInfo(callback) {
+    debug('Running buildInfo command');
+    this.client.buildInfo(callback);
+  }
+
+  /**
+   * Executes a hostInfo command on the currently connected instance.
+   *
+   * @param {Function} callback - The callback.
+   */
+  hostInfo(callback) {
+    debug('Running hostInfo command');
+    this.client.hostInfo(callback);
+  }
+
+  /**
+   * Executes a connectionStatus command on the currently connected instance.
+   *
+   * @param {Function} callback - The callback.
+   */
+  connectionStatus(callback) {
+    debug('Running connectionStatus command');
+    this.client.connectionStatus(callback);
+  }
+
+  /**
+   * Executes a usersInfo command on the provided authenticationDatabase.
+   *
+   * @param {String} authenticationDatabase - The database name.
+   * @param {object} options - Options passed to NativeClient.usersInfo method.
+   * @param {Function} callback - The callback.
+   */
+  usersInfo(authenticationDatabase, options, callback) {
+    debug(`Running usersInfo command with options: ${authenticationDatabase} ${options}`);
+    this.client.usersInfo(authenticationDatabase, options, callback);
+  }
+
+  /**
    * List all collections for a database.
    *
    * @param {String} databaseName - The database name.
@@ -65,6 +107,16 @@ class DataService extends EventEmitter {
   listCollections(databaseName, filter, callback) {
     debug(`Listing collections: ${databaseName}, filter: ${filter}`);
     this.client.listCollections(databaseName, filter, callback);
+  }
+
+  /**
+   * List all databases on the currently connected instance.
+   *
+   * @param {Function} callback - The callback.
+   */
+  listDatabases(callback) {
+    debug('Listing databases');
+    this.client.listDatabases(callback);
   }
 
   /**

@@ -74,6 +74,94 @@ class NativeClient extends EventEmitter {
   }
 
   /**
+   * Execute a buildInfo command on the currently connected instance.
+   *
+   * @param {Function} callback - The callback.
+   */
+  buildInfo(callback) {
+    this.database.admin().command({'buildInfo': 1}, this.readPreferenceOption, (error, result) => {
+      if (error) {
+        return callback(this._translateMessage(error));
+      }
+      callback(null, result);
+    });
+  }
+
+  /**
+   * Execute a hostInfo command on the currently connected instance.
+   *
+   * @param {Function} callback - The callback.
+   */
+  hostInfo(callback) {
+    this.database.admin().command({'hostInfo': 1}, this.readPreferenceOption, (error, result) => {
+      if (error) {
+        return callback(this._translateMessage(error));
+      }
+      callback(null, result);
+    });
+  }
+
+  /**
+   * Execute a connectionStatus command on the currently connected instance.
+   *
+   * @param {Function} callback - The callback.
+   */
+  connectionStatus(callback) {
+    // TODO: Don't require admin db...?
+    this.database.admin().command({'connectionStatus': 1}, this.readPreferenceOption, (error, result) => {
+      if (error) {
+        return callback(this._translateMessage(error));
+      }
+      callback(null, result);
+    });
+  }
+
+  /**
+   * Execute a usersInfo command on the currently connected instance.
+   *
+   * @see https://docs.mongodb.com/manual/reference/command/usersInfo/
+   *
+   * @param {String} authenticationDatabase - The database name.
+   * @param {Object} options - The usersInfo options document, with keys:
+   *  1.  usersInfo - One of:
+   *      - a user name, e.g. 'dba-user', or
+   *      - a list of users and databases, e.g. [
+   *        {user: 'dba-user1', db: 'candy'},
+   *        {user: 'dba-user2', db: 'bar'}
+   *      ], or
+   *      - the special integer 1, meaning list all users
+   *      (can be with showCredentials but not with showPrivileges).
+   *  2.  showCredentials (boolean)
+   *  3.  showPrivileges (boolean)
+   * @param {Function} callback - The callback.
+   * @return {null}
+   */
+  usersInfo(authenticationDatabase, options, callback) {
+    if (typeof(options) === 'string') {
+      options = {usersInfo: options};
+    }
+    const usersInfo = {
+      usersInfo: options.usersInfo,
+      showCredentials: options.showCredentials || false,
+      showPrivileges: options.showPrivileges || false
+    };
+    delete options.usersInfo;
+    delete options.showCredentials;
+    delete options.showPrivileges;
+    const redundantKeys = Object.keys(options);
+    if (redundantKeys.length > 0) {
+      return callback(new Error('Unexpected keys found in usersInfo options: ' + redundantKeys), null);
+    }
+    const authDb = this._database(authenticationDatabase);
+    authDb.command(usersInfo, this.readPreferenceOption, (error, result) => {
+      if (error) {
+        return callback(this._translateMessage(error));
+      }
+      callback(null, result);
+    });
+  }
+
+  /**
    * Count the number of documents in the collection for the provided filter
    * and options.
    *
@@ -118,6 +206,20 @@ class NativeClient extends EventEmitter {
         return callback(this._translateMessage(error));
       }
       callback(null, data);
+    });
+  }
+
+  /**
+   * List all databases on the currently connected instance.
+   *
+   * @param {Function} callback - The callback.
+   */
+  listDatabases(callback) {
+    this.database.admin().command({'listDatabases': 1}, this.readPreferenceOption, (error, result) => {
+      if (error) {
+        return callback(this._translateMessage(error));
+      }
+      callback(null, result.databases);
     });
   }
 

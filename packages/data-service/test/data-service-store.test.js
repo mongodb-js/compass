@@ -1,9 +1,9 @@
-var helper = require('./helper');
+const helper = require('./helper');
 
-var expect = helper.expect;
+const expect = helper.expect;
 
-var Actions = require('../lib/actions');
-var Store = require('../lib/data-service-store');
+const Actions = require('../lib/actions');
+const Store = require('../lib/data-service-store');
 
 describe('DataServiceStore', function() {
   before(require('mongodb-runner/mocha/before')({
@@ -30,6 +30,68 @@ describe('DataServiceStore', function() {
         done();
       });
       Actions.aggregate('data-service.test', [], {});
+    });
+  });
+
+  describe('#buildInfo', function() {
+    it('fires a buildInfo complete action', function(done) {
+      var unsubscribe = Actions.buildInfoComplete.listen(function(error, result) {
+        expect(error).to.equal(null);
+        expect(Object.keys(result)).to.contain('version');  // e.g. 3.4.2
+        unsubscribe();
+        done();
+      });
+      Actions.buildInfo();
+    });
+  });
+
+  describe('#hostInfo', function() {
+    it('fires a hostInfo complete action', function(done) {
+      var unsubscribe = Actions.hostInfoComplete.listen(function(error, result) {
+        expect(error).to.equal(null);
+        expect(result.system).to.have.all.keys([
+          'currentTime', // 2017-02-22T07:01:35.999Z
+          'hostname',    // 'rocket.local:27018'
+          'cpuAddrSize', // 64
+          'memSizeMB',   // 16384
+          'numCores',    // 4
+          'cpuArch',     // 'x86_64'
+          'numaEnabled'  // false
+        ]);
+        unsubscribe();
+        done();
+      });
+      Actions.hostInfo();
+    });
+  });
+
+  describe('#connectionStatus', function() {
+    it('fires a connectionStatus complete action', function(done) {
+      var unsubscribe = Actions.connectionStatusComplete.listen(function(error, result) {
+        expect(error).to.equal(null);
+        expect(result).to.be.deep.equal({
+          ok: 1,
+          authInfo: {
+            authenticatedUserRoles: [],
+            authenticatedUsers: []
+          }
+        });
+        unsubscribe();
+        done();
+      });
+      Actions.connectionStatus();
+    });
+  });
+
+  describe('#usersInfo', function() {
+    it('fires a usersInfo complete action', function(done) {
+      var unsubscribe = Actions.usersInfoComplete.listen(function(error, result) {
+        expect(error).to.equal(null);
+        expect(result).to.be.deep.equal({ users: [], ok: 1 });
+        unsubscribe();
+        done();
+      });
+      Actions.usersInfo('admin', 'dba-user');
     });
   });
 
@@ -248,6 +310,20 @@ describe('DataServiceStore', function() {
         done();
       });
       Actions.listCollections('data-service', {});
+    });
+  });
+
+  describe('#listDatabases', function() {
+    it('fires a list databases complete action', function(done) {
+      var unsubscribe = Actions.listDatabasesComplete.listen(function(error, result) {
+        expect(error).to.equal(null);
+        const databaseNames = result.map(db => db.name);
+        expect(databaseNames).to.contain('data-service');
+        expect(databaseNames).to.contain('local');
+        unsubscribe();
+        done();
+      });
+      Actions.listDatabases();
     });
   });
 

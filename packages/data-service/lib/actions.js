@@ -8,8 +8,12 @@ const Reflux = require('reflux');
 const Actions = Reflux.createActions([
   'aggregate',
   'aggregateComplete',
+  'buildInfo',
+  'buildInfoComplete',
   'connect',
   'connectComplete',
+  'connectionStatus',
+  'connectionStatusComplete',
   'count',
   'countComplete',
   'createCollection',
@@ -40,12 +44,16 @@ const Actions = Reflux.createActions([
   'getDatabaseComplete',
   'getInstance',
   'getInstanceComplete',
+  'hostInfo',
+  'hostInfoComplete',
   'insertMany',
   'insertManyComplete',
   'insertOne',
   'insertOneComplete',
   'listCollections',
   'listCollectionsComplete',
+  'listDatabases',
+  'listDatabasesComplete',
   'listIndexes',
   'listIndexesComplete',
   'serverStats',
@@ -57,7 +65,9 @@ const Actions = Reflux.createActions([
   'updateMany',
   'updateManyComplete',
   'updateOne',
-  'updateOneComplete'
+  'updateOneComplete',
+  'usersInfo',
+  'usersInfoComplete'
 ]);
 
 module.exports = Actions;

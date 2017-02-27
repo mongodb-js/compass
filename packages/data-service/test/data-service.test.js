@@ -74,7 +74,7 @@ describe('DataService', function() {
     it('drops a database', function(done) {
       service.dropDatabase('mangoDB', function(error) {
         assert.equal(null, error);
-        helper.listDatabases(service.client, function(err, dbs) {
+        service.listDatabases(function(err, dbs) {
           assert.equal(null, err);
           expect(dbs).to.not.have.property({name: 'mangoDB'});
           done();
@@ -291,6 +291,19 @@ describe('DataService', function() {
         assert.equal(null, err);
         expect(database._id).to.equal('data-service');
         expect(database.stats.document_count).to.not.equal(undefined);
+        done();
+      });
+    });
+  });
+
+  describe('#listDatabases', function() {
+    it('returns the databases', function(done) {
+      service.listDatabases(function(err, databases) {
+        assert.equal(null, err);
+        const databaseNames = databases.map(db => db.name);
+        expect(databaseNames).to.contain('data-service');
+        expect(databaseNames).to.contain('local');
+        expect(databases[0]).to.include.keys(['name', 'sizeOnDisk', 'empty']);
         done();
       });
     });

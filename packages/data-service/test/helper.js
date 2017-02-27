@@ -28,8 +28,3 @@ module.exports.deleteTestDocuments = function(client, callback) {
   var collection = client.database.collection('test');
   collection.deleteMany(callback);
 };
-
-module.exports.listDatabases = function(client, callback) {
-  var adminDb = client.database.admin();
-  adminDb.listDatabases(callback);
-};

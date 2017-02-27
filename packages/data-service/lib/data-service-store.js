@@ -14,7 +14,9 @@ const DataServiceStore = Reflux.createStore({
    */
   init: function() {
     this.listenTo(Actions.aggregate, this.aggregate.bind(this));
+    this.listenTo(Actions.buildInfo, this.buildInfo.bind(this));
     this.listenTo(Actions.connect, this.connect.bind(this));
+    this.listenTo(Actions.connectionStatus, this.connectionStatus.bind(this));
     this.listenTo(Actions.count, this.count.bind(this));
     this.listenTo(Actions.createCollection, this.createCollection.bind(this));
     this.listenTo(Actions.createIndex, this.createIndex.bind(this));
@@ -30,15 +32,18 @@ const DataServiceStore = Reflux.createStore({
     this.listenTo(Actions.getCollection, this.getCollection.bind(this));
     this.listenTo(Actions.getDatabase, this.getDatabase.bind(this));
     this.listenTo(Actions.getInstance, this.getInstance.bind(this));
+    this.listenTo(Actions.hostInfo, this.hostInfo.bind(this));
     this.listenTo(Actions.insertMany, this.insertMany.bind(this));
     this.listenTo(Actions.insertOne, this.insertOne.bind(this));
     this.listenTo(Actions.listCollections, this.listCollections.bind(this));
+    this.listenTo(Actions.listDatabases, this.listDatabases.bind(this));
     this.listenTo(Actions.listIndexes, this.listIndexes.bind(this));
     this.listenTo(Actions.serverStats, this.serverStats.bind(this));
     this.listenTo(Actions.top, this.top.bind(this));
     this.listenTo(Actions.updateCollection, this.updateCollection.bind(this));
     this.listenTo(Actions.updateMany, this.updateMany.bind(this));
     this.listenTo(Actions.updateOne, this.updateOne.bind(this));
+    this.listenTo(Actions.usersInfo, this.usersInfo.bind(this));
   },
 
   /**
@@ -59,6 +64,21 @@ const DataServiceStore = Reflux.createStore({
   },
 
   /**
+   * Execute a buildInfo command on the current connection and
+   * fires the buildInfoComplete action when results are available.
+   *
+   * @return {undefined|Error}
+   */
+  buildInfo: function() {
+    if (!this.dataService) {
+      return Actions.buildInfoComplete(this._notInitialised());
+    }
+    this.dataService.buildInfo(function(error, result) {
+      Actions.buildInfoComplete(error, result);
+    });
+  },
+
+  /**
    * Connect the data service store.
    *
    * @param {ConnectionModel} model - The connection model.
@@ -68,6 +88,21 @@ const DataServiceStore = Reflux.createStore({
     this.dataService.connect((error) => {
       this.trigger(error, this.dataService);
       Actions.connectComplete(this.dataService);
+    });
+  },
+
+  /**
+   * Execute a connectionStatus command on the current connection and
+   * fires the connectionStatusComplete action when results are available.
+   *
+   * @return {undefined|Error}
+   */
+  connectionStatus: function() {
+    if (!this.dataService) {
+      return Actions.connectionStatusComplete(this._notInitialised());
+    }
+    this.dataService.connectionStatus(function(error, result) {
+      Actions.connectionStatusComplete(error, result);
     });
   },
 
@@ -316,6 +351,21 @@ const DataServiceStore = Reflux.createStore({
   },
 
   /**
+   * Execute a hostInfo command on the current connection and
+   * fires the hostInfoComplete action when results are available.
+   *
+   * @return {undefined|Error}
+   */
+  hostInfo: function() {
+    if (!this.dataService) {
+      return Actions.hostInfoComplete(this._notInitialised());
+    }
+    this.dataService.hostInfo(function(error, result) {
+      Actions.hostInfoComplete(error, result);
+    });
+  },
+
+  /**
    * Insert many docs.
    *
    * @param {String} ns - The namespace.
@@ -362,6 +412,21 @@ const DataServiceStore = Reflux.createStore({
     }
     this.dataService.listCollections(databaseName, filter, function(error, result) {
       Actions.listCollectionsComplete(error, result);
+    });
+  },
+
+  /**
+   * List databases on the current connection and
+   * fires the listDatabasesComplete action when results are available.
+   *
+   * @return {undefined|Error}
+   */
+  listDatabases: function() {
+    if (!this.dataService) {
+      return Actions.listDatabasesComplete(this._notInitialised());
+    }
+    this.dataService.listDatabases(function(error, result) {
+      Actions.listDatabasesComplete(error, result);
     });
   },
 
@@ -458,6 +523,23 @@ const DataServiceStore = Reflux.createStore({
     }
     this.dataService.updateOne(ns, filter, update, options, function(error, result) {
       Actions.updateOneComplete(error, result);
+    });
+  },
+
+  /**
+   * Execute a usersInfo command on the authenticationDatabase and
+   * fires the usersInfoComplete action when results are available.
+   *
+   * @param {String} authenticationDatabase - The database name.
+   * @param {object} options - Options passed to NativeClient.usersInfo method.
+   * @return {undefined|Error}
+   */
+  usersInfo: function(authenticationDatabase, options) {
+    if (!this.dataService) {
+      return Actions.usersInfoComplete(this._notInitialised());
+    }
+    this.dataService.usersInfo(authenticationDatabase, options, function(error, result) {
+      Actions.usersInfoComplete(error, result);
     });
   },
 
