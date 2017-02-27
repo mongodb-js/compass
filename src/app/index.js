@@ -43,7 +43,6 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var AutoUpdate = require('../auto-update');
 
-var addInspectElementMenu = require('debug-menu').install;
 
 ipc.once('app:launched', function() {
   console.log('in app:launched');
@@ -279,6 +278,7 @@ var Application = View.extend({
 
     if (process.env.NODE_ENV !== 'production') {
       debug('Installing "Inspect Element" context menu');
+      const addInspectElementMenu = require('debug-menu').install;
       addInspectElementMenu();
     }
   },
