@@ -10,13 +10,14 @@ const hasDistinctValue = require('../../../query/lib/util').hasDistinctValue;
 
 require('./d3-tip')(d3);
 
-const QueryAction = app.appRegistry.getAction('Query.Actions');
 
 const minicharts_d3fns_few = function() {
   // --- beginning chart setup ---
   let width = 400; // default width
   let height = 100; // default height
   let el;
+
+  const QueryAction = app.appRegistry.getAction('Query.Actions');
 
   const barHeight = 25;
   const brushHeight = 80;
