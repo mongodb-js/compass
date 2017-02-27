@@ -5,6 +5,7 @@ const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
 const schemaStream = require('mongodb-schema').stream;
 const ReadPreference = require('mongodb').ReadPreference;
+const _ = require('lodash');
 
 const COMPASS_ICON_PATH = require('../../../../icon').path;
 
@@ -173,9 +174,11 @@ const SchemaStore = Reflux.createStore({
 
     const onError = (err) => {
       debug('onError', err);
-      this.setState({
-        samplingState: 'error'
-      });
+      if (_.has(err, 'message') && err.message.match(/operation exceeded time limit/)) {
+        this.setState({
+          samplingState: 'error'
+        });
+      }
       this.stopSampling();
     };
 
@@ -232,20 +235,21 @@ const SchemaStore = Reflux.createStore({
           schema = data;
         })
         .on('error', (analysisErr) => {
+          debug('schema on error');
           onError(analysisErr);
         })
         .on('end', () => {
+          debug('schema on end');
           if ((numSamples === 0 || sampleCount > 0) && this.state.samplingState !== 'error') {
             onSuccess(schema);
-          } else {
-            return onError();
           }
+          this.stopSampling();
         });
     });
   },
 
   storeDidUpdate(prevState) {
-    debug('schema store changed from', prevState, 'to', this.state);
+    // debug('schema store changed from', prevState, 'to', this.state);
   }
 
 });
