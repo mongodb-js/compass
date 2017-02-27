@@ -237,6 +237,18 @@ var Application = View.extend({
     });
   },
   /**
+   * Pre-load into the require cache a bunch of expensive modules while the
+   * user is choosing which connection, so when the user clicks on Connect,
+   * Compass can connect to the MongoDB instance faster.
+   */
+  postRender: function() {
+    console.log(`Start renderer - caching started: ${window.performance.now()} ms`);
+    require('backoff');
+    require('local-links');
+    require('./models/mongodb-instance');
+    console.log(`Start renderer - caching complete: ${window.performance.now()} ms`);
+  },
+  /**
    * Called a soon as the DOM is ready so we can
    * start showing status indicators as
    * quickly as possible.
@@ -431,6 +443,7 @@ app.extend({
       state.render();
       console.log(`Start renderer - render done: ${window.performance.now()} ms`);
       state.startRouter();
+      state.postRender();
     });
   }
 });
