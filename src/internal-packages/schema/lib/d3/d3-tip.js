@@ -59,7 +59,8 @@
       nodel.html(content)
         .style({
           opacity: 1,
-          'pointer-events': 'all'
+          'pointer-events': 'all',
+          'display': 'block'
         });
 
       while (i--) {
@@ -81,7 +82,8 @@
       const nodel = getNodeEl();
       nodel.style({
         opacity: 0,
-        'pointer-events': 'none'
+        'pointer-events': 'none',
+        'display': 'none'
       });
       return tip;
     };
@@ -268,7 +270,8 @@
         top: 0,
         opacity: 0,
         'pointer-events': 'none',
-        'box-sizing': 'border-box'
+        'box-sizing': 'border-box',
+        'display': 'none'
       });
 
       return node.node();
