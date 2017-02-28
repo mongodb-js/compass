@@ -25,7 +25,7 @@ const MAX_NUM_DOCUMENTS = 1000;
 const PROMOTE_VALUES = false;
 const DEFAULT_QUERY = {
   filter: {},
-  // project: null,
+  project: null,
   limit: 1000
 };
 
@@ -100,6 +100,7 @@ const SchemaStore = Reflux.createStore({
     this._reset();
     this.query.filter = state.filter;
     this.query.limit = state.limit;
+    this.query.project = state.project;
     this.ns = state.ns;
     SchemaAction.startSampling();
   },
@@ -155,7 +156,7 @@ const SchemaStore = Reflux.createStore({
       maxTimeMS: this.state.maxTimeMS,
       query: this.query.filter,
       size: this.query.limit === 0 ? 1000 : Math.min(MAX_NUM_DOCUMENTS, this.query.limit),
-      // project: this.query.project,
+      fields: this.query.project,
       promoteValues: PROMOTE_VALUES,
       readPreference: READ
     };

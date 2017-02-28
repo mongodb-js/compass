@@ -977,6 +977,15 @@ function addGetCommands(client) {
   });
 
   /**
+   * Get the field names in the schema field list
+   */
+  client.addCommand('getSchemaFieldNames', function() {
+    const base = selector('schema-content');
+    const div = `${base} .schema-field-name`;
+    return this.waitForVisibleInCompass(div).getText(div);
+  });
+
+  /**
    * Get the document updated message.
    */
   client.addCommand('getDocumentMessage', function() {
@@ -1282,6 +1291,28 @@ function addInputCommands(client) {
   client.addCommand('inputFilterFromExplainPlanTab', function(filter) {
     const base = selector('explain-plan-content');
     const input = `${base} .input-filter`;
+    return this.setValue(input, filter);
+  });
+
+  /**
+   * Input a projection into the query from the schema tab.
+   *
+   * @type {String} filter - the filter.
+   */
+  client.addCommand('inputProjectFromSchemaTab', function(filter) {
+    const base = selector('schema-content');
+    const input = `${base} .input-project`;
+    return this.setValue(input, filter);
+  });
+
+  /**
+   * Input a limit into the query from the schema tab.
+   *
+   * @type {String} filter - the filter.
+   */
+  client.addCommand('inputLimitFromSchemaTab', function(filter) {
+    const base = selector('schema-content');
+    const input = `${base} .input-limit`;
     return this.setValue(input, filter);
   });
 
