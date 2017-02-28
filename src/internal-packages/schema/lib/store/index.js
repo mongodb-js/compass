@@ -5,6 +5,7 @@ const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
 const schemaStream = require('mongodb-schema').stream;
 const ReadPreference = require('mongodb').ReadPreference;
+const toNS = require('mongodb-ns');
 const _ = require('lodash');
 
 const COMPASS_ICON_PATH = require('../../../../icon').path;
@@ -97,12 +98,14 @@ const SchemaStore = Reflux.createStore({
   },
 
   onQueryChanged: function(state) {
-    this._reset();
-    this.query.filter = state.filter;
-    this.query.limit = state.limit;
-    this.query.project = state.project;
-    this.ns = state.ns;
-    SchemaAction.startSampling();
+    if (state.ns && toNS(state.ns).collection) {
+      this._reset();
+      this.query.filter = state.filter;
+      this.query.limit = state.limit;
+      this.query.project = state.project;
+      this.ns = state.ns;
+      SchemaAction.startSampling();
+    }
   },
 
   setMaxTimeMS(maxTimeMS) {
