@@ -1,5 +1,5 @@
 /* eslint no-console:0 */
-console.time('app/index.js');
+console.log(`Start renderer - begin loading index.js: ${window.performance.now()} ms`);
 
 if (process.env.NODE_ENV === 'development') {
   require('devtron').install();
@@ -10,6 +10,8 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 window.jQuery = require('jquery');
+require('bootstrap/js/modal');
+require('bootstrap/js/transition');
 
 require('./setup-hadron-caches');
 
@@ -17,28 +19,17 @@ require('./setup-hadron-caches');
  * The main entrypoint for the application!
  */
 var electron = require('electron');
-var shell = electron.shell;
-var dialog = electron.dialog;
 var app = require('hadron-app');
-var backoff = require('backoff');
 var APP_VERSION = electron.remote.app.getVersion();
 
 var _ = require('lodash');
-var qs = require('qs');
 var ViewSwitcher = require('ampersand-view-switcher');
 var View = require('ampersand-view');
-var localLinks = require('local-links');
 var async = require('async');
 var ipc = require('hadron-ipc');
 
-var TourView = require('./tour');
-var NetworkOptInView = require('./network-optin');
-
-var format = require('util').format;
 var semver = require('semver');
 
-var Connection = require('./models/connection');
-var MongoDBInstance = require('./models/mongodb-instance');
 var Preferences = require('./models/preferences');
 var User = require('./models/user');
 
@@ -46,16 +37,11 @@ require('./menu-renderer');
 var Router = require('./router');
 var migrateApp = require('./migrations');
 var metricsSetup = require('./metrics');
-var metrics = require('mongodb-js-metrics')();
 
 var React = require('react');
 var ReactDOM = require('react-dom');
 var AutoUpdate = require('../auto-update');
 
-var addInspectElementMenu = require('debug-menu').install;
-
-require('bootstrap/js/modal');
-require('bootstrap/js/transition');
 
 ipc.once('app:launched', function() {
   console.log('in app:launched');
@@ -67,14 +53,14 @@ ipc.once('app:launched', function() {
 
 var debug = require('debug')('mongodb-compass:app');
 
-const { DataServiceStore, DataServiceActions } = require('mongodb-data-service');
-
 var path = require('path');
 var StyleManager = require('hadron-style-manager');
 new StyleManager(
   path.join(__dirname, 'compiled-less'),
   __dirname
 ).use(document, path.join(__dirname, 'index.less'));
+
+console.log(`Start renderer - internal-package styles loaded: ${window.performance.now()} ms`);
 
 // @note: Durran: the registry and package manager are set up here in
 //   order to ensure that the compile cache has already been loaded and
@@ -96,7 +82,8 @@ function getConnection(model, done) {
     });
   }
 
-  var call = backoff.call(_fetch, done);
+  const backoff = require('backoff');
+  const call = backoff.call(_fetch, done);
   call.setStrategy(new backoff.ExponentialStrategy({
     randomisationFactor: 0,
     initialDelay: 10,
@@ -197,6 +184,7 @@ var Application = View.extend({
   },
   onFatalError: function(id, err) {
     console.error('Fatal Error!: ', id, err);
+    const metrics = require('mongodb-js-metrics')();
     metrics.error(err);
     var StatusAction = app.appRegistry.getAction('Status.Actions');
     StatusAction.setMessage(err);
@@ -206,15 +194,16 @@ var Application = View.extend({
     // Instead, set the instance inside InstanceStore.refreshInstance
     app.appRegistry.getAction('App.InstanceActions').setInstance(app.instance);
     debug('app.instance fetched', app.instance.serialize());
+    const metrics = require('mongodb-js-metrics')();
     metrics.track('Deployment', 'detected', {
       'databases count': app.instance.databases.length,
       'namespaces count': app.instance.collections.length,
       'mongodb version': app.instance.build.version,
       'enterprise module': app.instance.build.enterprise_module,
-      'longest database name length': _.max(app.instance.databases.map(function(db) {
+      'longest database name length': Math.max(...app.instance.databases.map(function(db) {
         return db._id.length;
       })),
-      'longest collection name length': _.max(app.instance.collections.map(function(col) {
+      'longest collection name length': Math.max(...app.instance.collections.map(function(col) {
         return col._id.split('.')[1].length;
       })),
       'server architecture': app.instance.host.arch,
@@ -235,6 +224,7 @@ var Application = View.extend({
       params: null
     });
     if (options.params) {
+      const qs = require('qs');
       fragment += '?' + qs.stringify(options.params);
     }
 
@@ -242,6 +232,19 @@ var Application = View.extend({
     this.router.history.navigate(hash, {
       trigger: !options.silent
     });
+  },
+  /**
+   * Pre-load into the require cache a bunch of expensive modules while the
+   * user is choosing which connection, so when the user clicks on Connect,
+   * Compass can connect to the MongoDB instance faster.
+   */
+  postRender: function() {
+    console.log(`Start renderer - caching started: ${window.performance.now()} ms`);
+    require('backoff');
+    require('local-links');
+    require('./models/mongodb-instance');
+    require('mongodb-data-service');
+    console.log(`Start renderer - caching complete: ${window.performance.now()} ms`);
   },
   /**
    * Called a soon as the DOM is ready so we can
@@ -275,11 +278,13 @@ var Application = View.extend({
 
     if (process.env.NODE_ENV !== 'production') {
       debug('Installing "Inspect Element" context menu');
+      const addInspectElementMenu = require('debug-menu').install;
       addInspectElementMenu();
     }
   },
   showTour: function(force) {
-    var tourView = new TourView({force: force});
+    const TourView = require('./tour');
+    const tourView = new TourView({force: force});
     if (tourView.features.length > 0) {
       tourView.on('close', this.tourClosed.bind(this));
       this.renderSubview(tourView, this.queryByHook('tour-container'));
@@ -288,7 +293,8 @@ var Application = View.extend({
     }
   },
   showOptIn: function() {
-    var networkOptInView = new NetworkOptInView();
+    const NetworkOptInView = require('./network-optin');
+    const networkOptInView = new NetworkOptInView();
     this.renderSubview(networkOptInView, this.queryByHook('optin-container'));
   },
   tourClosed: function() {
@@ -299,6 +305,7 @@ var Application = View.extend({
     }
   },
   onPageChange: function(view) {
+    const metrics = require('mongodb-js-metrics')();
     // connect dialog
     if (view.screenName) {
       metrics.track('App', 'viewed', view.screenName);
@@ -312,7 +319,8 @@ var Application = View.extend({
     if (event.target.className === 'help') {
       return;
     }
-    var pathname = localLinks.getLocalPathname(event);
+    const localLinks = require('local-links');
+    const pathname = localLinks.getLocalPathname(event);
     if (pathname) {
       event.preventDefault();
       this.router.history.navigate(pathname);
@@ -320,7 +328,7 @@ var Application = View.extend({
     } else if (event.target.getAttribute('href') !== '#') {
       event.preventDefault();
       event.stopPropagation();
-      shell.openExternal(event.target.href);
+      electron.shell.openExternal(event.target.href);
     }
   },
   fetchUser: function(done) {
@@ -381,6 +389,8 @@ app.extend({
     }
     var StatusAction = app.appRegistry.getAction('Status.Actions');
     StatusAction.showIndeterminateProgressBar();
+
+    const Connection = require('./models/connection');
     state.connection = new Connection({
       _id: connectionId
     });
@@ -393,12 +403,14 @@ app.extend({
       }
       StatusAction.showIndeterminateProgressBar();
 
+      const { DataServiceStore, DataServiceActions } = require('mongodb-data-service');
       DataServiceStore.listen((error, ds) => {
         if (error) {
           state.onFatalError('create client');
         }
         app.dataService = ds.on('error', state.onFatalError.bind(state, 'create client'));
         debug('initializing singleton models... ');
+        const MongoDBInstance = require('./models/mongodb-instance');
         state.instance = new MongoDBInstance();
         debug('fetching instance model...');
         app.instance.fetch({ success: state.onInstanceFetched });
@@ -421,8 +433,6 @@ app.extend({
       state.fetchUser.bind(state)
     ], function(err) {
       if (err) {
-        dialog.showErrorBox('Error', format('There was an error during startup '
-          + 'of MongoDB Compass. \n\n%s', err.message));
         throw err;
       }
       // set up metrics
@@ -432,8 +442,11 @@ app.extend({
       ipc.call('window:renderer-ready');
 
       // as soon as dom is ready, render and set up the rest
+      console.log(`Start renderer - render begin: ${window.performance.now()} ms`);
       state.render();
+      console.log(`Start renderer - render done: ${window.performance.now()} ms`);
       state.startRouter();
+      state.postRender();
     });
   }
 });
@@ -486,5 +499,3 @@ app.init();
 
 // expose app globally for debugging purposes
 window.app = app;
-
-console.timeEnd('app/index.js');
