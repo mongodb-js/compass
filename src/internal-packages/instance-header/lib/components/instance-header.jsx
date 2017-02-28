@@ -121,15 +121,15 @@ class InstanceHeaderComponent extends React.Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
-    let instanceClassName = 'instance-header-connection-string';
-    // empty string for active namespace means instance level
-    if (this.props.activeNamespace === '') {
-      instanceClassName += ' instance-header-connection-string-is-active';
-    }
+    const headerClasses = 'instance-header' +
+      (this.props.sidebarCollapsed ? ' instance-header-sidebar-collapsed' : ' instance-header-sidebar-expanded');
+
+    const hostnameClasses = 'instance-header-connection-string' +
+      (this.props.activeNamespace === '' ? ' instance-header-connection-string-is-active' : '');
 
     return (
-      <div className="instance-header">
-        <div className={instanceClassName} onClick={this.handleClickHostname}>
+      <div className={headerClasses}>
+        <div className={hostnameClasses} onClick={this.handleClickHostname}>
           <div className="instance-header-icon-container">
             <FontAwesome name="home" className="instance-header-icon instance-header-icon-home"/>
           </div>
@@ -161,7 +161,8 @@ InstanceHeaderComponent.propTypes = {
   processStatus: React.PropTypes.string,
   versionDistro: React.PropTypes.oneOf(['Enterprise', 'Community']),
   versionNumber: React.PropTypes.string,
-  activeNamespace: React.PropTypes.string
+  activeNamespace: React.PropTypes.string,
+  sidebarCollapsed: React.PropTypes.bool
 };
 
 InstanceHeaderComponent.defaultProps = {
