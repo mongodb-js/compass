@@ -97,6 +97,10 @@ const SchemaStore = Reflux.createStore({
   },
 
   onQueryChanged: function(state) {
+    if (!toNS(NamespaceStore.ns).collection) {
+      return;
+    }
+
     this._reset();
     this.query.filter = state.filter;
     this.query.limit = state.limit;
