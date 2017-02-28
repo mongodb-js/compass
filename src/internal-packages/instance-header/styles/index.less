@@ -66,6 +66,7 @@
     flex-basis: auto;
     overflow: hidden;
     padding-top: 8px;
+    transition: color @transistion-time ease;
   }
 
   &-hostname-prefix {
@@ -117,6 +118,9 @@
   &-status-ssh {
     padding: 0 24px;
     display: flex;
+    opacity: 1;
+    pointer-events: all;
+    transition: opacity @transistion-time ease;
   }
 
   &-process-status-container {
@@ -219,18 +223,22 @@
   &-sidebar-collapsed {
 
     .instance-header-connection-string {
-      background-color: @gray7;
+      background-color: @gray8;
     }
     .instance-header-icon-home {
       color: @pw;
       margin-right: 15px;
     }
     .instance-header-details {
-      color: @gray0;
+      color: @gray3;
+    }
+    .instance-header-status-ssh {
+      opacity: 0;
+      pointer-events: none;
     }
     .instance-header-status-ssh-container,
     .instance-header-connection-string:hover + .instance-header-status-ssh-container {
-      background-image: url('./images/instance-header/hostname-bg-expanded.png');
+      background-position: -16px 0;
     }
 
   }
