@@ -8,8 +8,7 @@ const _ = require('lodash');
 
 // const debug = require('debug')('mongodb-compass:schema');
 
-// TODO (thomasr) collection sample does not support projection yet.
-const QUERYBAR_LAYOUT = [['filter', 'limit']];
+const QUERYBAR_LAYOUT = ['filter', ['project', 'limit']];
 
 /**
  * Component for the entire schema view component.

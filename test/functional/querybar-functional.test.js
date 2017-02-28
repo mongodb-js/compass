@@ -77,6 +77,55 @@ describe('Compass Functional Tests for QueryBar #spectron', function() {
             .clickDatabaseInSidebar('mongodb')
             .clickCollectionInSidebar('mongodb.fanclub')
             .waitForStatusBar()
+            .getTitle().should.eventually.equal(
+              'MongoDB Compass - localhost:27018/mongodb.fanclub'
+            );
+        });
+      });
+
+      context('when applying queries from the schema tab', function() {
+        it('shows the sampling message', function() {
+          return client
+            .getSamplingMessageFromSchemaTab()
+            .should.eventually.include('Query returned 100 documents.');
+        });
+        it('toggles the query bar', function() {
+          return client
+          .waitForStatusBar()
+          .clickQueryBarOptionsToggle();
+        });
+        context('when applying a projection', function() {
+          it('returns some of the fields', function() {
+            return client
+              .inputProjectFromSchemaTab('{age: 1, address: 1}')
+              .clickApplyFilterButtonFromSchemaTab()
+              .waitForStatusBar()
+              .getSchemaFieldNames()
+              .should.eventually.deep.equal(['_id', 'address', 'age']);
+          });
+          it('shows the sampling message', function() {
+            return client
+              .waitForStatusBar()
+              .getSamplingMessageFromSchemaTab()
+              .should.eventually.include('Query returned 100 documents.');
+          });
+        });
+        context('when applying a limit', function() {
+          it('runs schema analysis on some of the documents', function() {
+            return client
+              .inputLimitFromSchemaTab('5')
+              .clickApplyFilterButtonFromSchemaTab()
+              .waitForStatusBar()
+              .getSamplingMessageFromSchemaTab()
+              .should.eventually.include('Query returned 5 documents.');
+          });
+        });
+      });
+
+      context('when applying queries from the documents tab', function() {
+        it('goes to the documents tab', function() {
+          return client
+            .clickResetFilterButtonFromSchemaTab()
             .clickDocumentsTab()
             .getSamplingMessageFromDocumentsTab()
             .should.eventually.include('Query returned 100 documents. Displaying documents 1-20');
@@ -85,7 +134,6 @@ describe('Compass Functional Tests for QueryBar #spectron', function() {
         context('when applying a sort', function() {
           it('returns the documents in the specified sort order', function() {
             return client
-              .clickQueryBarOptionsToggle()
               .inputSortFromDocumentsTab('{member_id: -1}')
               .clickApplyFilterButtonFromDocumentsTab()
               .waitForStatusBar()
@@ -102,37 +150,37 @@ describe('Compass Functional Tests for QueryBar #spectron', function() {
               .should.eventually.have.property('member_id', '89');
           });
         });
-      });
 
-      context('when applying a projection', function() {
-        it('returns only the fields included in the project plus _id', function() {
-          return client
-            .inputProjectFromDocumentsTab('{member_id: 1, name: 1}')
-            .clickApplyFilterButtonFromDocumentsTab()
-            .waitForStatusBar()
-            .getDocumentAtIndex(1)
-            .then(function(obj) {
-              return _.keys(obj);
-            })
-            .should.eventually.deep.equal(['_id', 'member_id', 'name']);
+        context('when applying a projection', function() {
+          it('returns only the fields included in the project plus _id', function() {
+            return client
+              .inputProjectFromDocumentsTab('{member_id: 1, name: 1}')
+              .clickApplyFilterButtonFromDocumentsTab()
+              .waitForStatusBar()
+              .getDocumentAtIndex(1)
+              .then(function(obj) {
+                return _.keys(obj);
+              })
+              .should.eventually.deep.equal(['_id', 'member_id', 'name']);
+          });
+
+          it('disables editing mode for documents', function() {
+            return client
+              .getDocumentReadonlyStatus(1)
+              .should.eventually.be.true;
+          });
         });
 
-        it('disables editing mode for documents', function() {
-          return client
-            .getDocumentReadonlyStatus(1)
-            .should.eventually.be.true;
-        });
-      });
-
-      context('when applying a limit', function() {
-        it('only returns the number of documents specified by limit', function() {
-          return client
-            .waitForStatusBar()
-            .inputLimitFromDocumentsTab(5)
-            .clickApplyFilterButtonFromDocumentsTab()
-            .waitForStatusBar()
-            .getSamplingMessageFromDocumentsTab()
-            .should.eventually.include('Query returned 5 documents');
+        context('when applying a limit', function() {
+          it('only returns the number of documents specified by limit', function() {
+            return client
+              .waitForStatusBar()
+              .inputLimitFromDocumentsTab(5)
+              .clickApplyFilterButtonFromDocumentsTab()
+              .waitForStatusBar()
+              .getSamplingMessageFromDocumentsTab()
+              .should.eventually.include('Query returned 5 documents');
+          });
         });
       });
     });
