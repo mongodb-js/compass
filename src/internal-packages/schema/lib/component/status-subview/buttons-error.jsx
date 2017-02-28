@@ -49,7 +49,7 @@ const ButtonsError = React.createClass({
 
   render() {
     // if sampling state is not `error`, don't show this component
-    if (this.props.samplingState !== 'error') {
+    if (this.props.samplingState !== 'timeout') {
       return null;
     }
 

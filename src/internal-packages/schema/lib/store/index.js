@@ -5,6 +5,7 @@ const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
 const schemaStream = require('mongodb-schema').stream;
 const ReadPreference = require('mongodb').ReadPreference;
+const _ = require('lodash');
 
 const COMPASS_ICON_PATH = require('../../../../icon').path;
 
@@ -85,6 +86,7 @@ const SchemaStore = Reflux.createStore({
       samplingState: 'initial',
       samplingProgress: 0,
       samplingTimeMS: 0,
+      errorMessage: '',
       maxTimeMS: DEFAULT_MAX_TIME_MS,
       schema: null
     };
@@ -166,6 +168,11 @@ const SchemaStore = Reflux.createStore({
       });
     }, 1000);
 
+    // reset the progress bar to 0
+    const StatusAction = app.appRegistry.getAction('Status.Actions');
+    StatusAction.configure({
+      progress: 0
+    });
 
     this.samplingStream = app.dataService.sample(this.ns, sampleOptions);
     this.analyzingStream = schemaStream();
@@ -173,8 +180,11 @@ const SchemaStore = Reflux.createStore({
 
     const onError = (err) => {
       debug('onError', err);
+      const errorState = (_.has(err, 'message') &&
+        err.message.match(/operation exceeded time limit/)) ? 'timeout' : 'error';
       this.setState({
-        samplingState: 'error'
+        samplingState: errorState,
+        errorMessage: _.get(err, 'message') || 'unknown error'
       });
       this.stopSampling();
     };
@@ -184,7 +194,8 @@ const SchemaStore = Reflux.createStore({
         samplingState: 'complete',
         samplingTimeMS: new Date() - samplingStart,
         samplingProgress: 100,
-        schema: _schema
+        schema: _schema,
+        errorMessage: ''
       });
       this.stopSampling();
     };
@@ -237,9 +248,8 @@ const SchemaStore = Reflux.createStore({
         .on('end', () => {
           if ((numSamples === 0 || sampleCount > 0) && this.state.samplingState !== 'error') {
             onSuccess(schema);
-          } else {
-            return onError();
           }
+          this.stopSampling();
         });
     });
   },

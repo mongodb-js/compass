@@ -54,6 +54,7 @@ const StatusStore = Reflux.createStore({
   },
 
   showIndeterminateProgressBar() {
+    this.disableProgressTrickle();
     this.setState({
       visible: true,
       progressbar: true,
@@ -63,6 +64,7 @@ const StatusStore = Reflux.createStore({
   },
 
   hideProgressBar() {
+    this.disableProgressTrickle();
     this.setState({
       progressbar: false
     });
@@ -94,6 +96,9 @@ const StatusStore = Reflux.createStore({
   },
 
   enableProgressTrickle() {
+    if (this._trickleTimer) {
+      return;
+    }
     this._trickleTimer = setInterval(() => {
       const newValue = Math.min(98, this.state.progress + 1);
       this.setState.call(this, {
@@ -179,6 +184,7 @@ const StatusStore = Reflux.createStore({
   },
 
   hide() {
+    this.disableProgressTrickle();
     this.setState(this.getInitialState());
   },
 
