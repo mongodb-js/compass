@@ -103,6 +103,12 @@ describe('Compass Functional Tests for QueryBar #spectron', function() {
               .getSchemaFieldNames()
               .should.eventually.deep.equal(['_id', 'address', 'age']);
           });
+          it('shows the sampling message', function() {
+            return client
+              .waitForStatusBar()
+              .getSamplingMessageFromSchemaTab()
+              .should.eventually.include('Query returned 100 documents.');
+          });
         });
         context('when applying a limit', function() {
           it('runs schema analysis on some of the documents', function() {
