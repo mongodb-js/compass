@@ -27,7 +27,7 @@ npm start
 Try:
 
 ```
-npm run clean && npm install && npm start
+npm run clean && npm install && npm test && npm start
 ```
 
 ## Key Modules
