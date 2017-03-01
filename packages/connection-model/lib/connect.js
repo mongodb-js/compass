@@ -115,8 +115,8 @@ function getTasks(model) {
       return _statuses[message];
     }
 
-    var ctx = function(err) {
-      // options = opts; @note: Durran: Not sure why this is here.
+    var ctx = function(err, opts) {
+      options = opts;
       if (err) {
         state.emit('status', {
           message: message,
@@ -191,6 +191,12 @@ function getTasks(model) {
   _.assign(tasks, {
     'Connect to MongoDB': function(cb) {
       var ctx = status('Connect to MongoDB');
+      // @note: Durran:
+      // This check here is to prevent the options getting set to a string when a URI
+      // is passed through. This is a temporary solution until we refactor all of this.
+      if (_.isString(options) || !options) {
+        options = {};
+      }
       MongoClient.connect(model.driver_url, options, function(err, _db) {
         ctx(err);
         if (err) {
