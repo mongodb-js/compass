@@ -110,19 +110,24 @@ describe('mongodb-connection-model', function() {
     });
 
     describe('ATLAS - mongodb.net', function() {
-      var atlasConnection = 'mongodb://ADMINUSER:PASSWORD@' +
+      var atlasConnection = 'mongodb://ADMINUSER:<PASSWORD>@' +
           'a-compass-atlas-test-shard-00-00-vll9l.mongodb.net:38128,' +
           'a-compass-atlas-test-shard-00-01-vll9l.mongodb.net:38128,' +
-          'a-compass-atlas-test-shard-00-02-vll9l.mongodb.net:38128/admin?' +
+          'a-compass-atlas-test-shard-00-02-vll9l.mongodb.net:38128/<DATABASE>?' +
           'ssl=true&replicaSet=a-compass-atlas-test-shard-0&authSource=admin';
-      it('defaults SSL to UNVALIDATED', function() {
+      var okAtlasPassword = 'A_MUCH_LONGER_PASSWORD_should_be_more secure...';
+      var okAtlasPasswordConnection = atlasConnection.replace(
+        '<PASSWORD>',
+        okAtlasPassword
+      );
+      it('defaults SSL to SYSTEMCA', function() {
         var c = Connection.from(atlasConnection);
         // In future, we should ship our own CA with Compass
         // so we can default to 'SERVER'-validated.
         // This is a step in the right direction so let's take the easy wins.
-        assert.equal(c.ssl, 'UNVALIDATED');
+        assert.equal(c.ssl, 'SYSTEMCA');
       });
-      it('clears the default PASSWORD', function() {
+      it('clears the default <PASSWORD>', function() {
         // UX: We clear the default string 'PASSWORD' from the Atlas GUI
         // so the user is forced to enter their own password
         // rather than getting trapped with the error:
@@ -130,11 +135,20 @@ describe('mongodb-connection-model', function() {
         var c = Connection.from(atlasConnection);
         assert.equal(c.mongodb_password, '');
       });
+      it('does not clear sufficiently long passwords that happen to contain PASSWORD', function() {
+        var c = Connection.from(okAtlasPasswordConnection);
+        assert.equal(c.mongodb_password, okAtlasPassword);
+      });
       it('works with a non-default secure password', function() {
         var userPass = '6NuZPtHCrjYBAWnI7Iq6jvtsdJx67X0';
-        var c = Connection.from(atlasConnection.replace('PASSWORD', userPass));
-        assert.equal(c.ssl, 'UNVALIDATED');
+        var c = Connection.from(atlasConnection.replace('<PASSWORD>', userPass));
+        assert.equal(c.ssl, 'SYSTEMCA');
         assert.equal(c.mongodb_password, userPass);
+      });
+      it('changes the <DATABASE> namespace to test', function() {
+        assert.ok(atlasConnection.indexOf('<DATABASE>') > -1);
+        var c = Connection.from(atlasConnection);
+        assert.equal(c.ns, 'test');
       });
       it('does not false positive on hi.mongodb.net.my.domain.com', function() {
         var c = Connection.from(
@@ -143,7 +157,7 @@ describe('mongodb-connection-model', function() {
       });
       it('is case insensitive, see RFC4343', function() {
         var c = Connection.from(atlasConnection.replace(/mongodb.net/g, 'mOnGOdB.NeT'));
-        assert.equal(c.ssl, 'UNVALIDATED');
+        assert.equal(c.ssl, 'SYSTEMCA');
       });
     });
 

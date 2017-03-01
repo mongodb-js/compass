@@ -221,6 +221,7 @@ _.assign(props, {
 });
 
 var MONGODB_DATABASE_NAME_DEFAULT = 'admin';
+var MONGODB_NAMESPACE_DEFAULT = 'test';
 
 /**
  * ### `authentication = KERBEROS`
@@ -990,7 +991,7 @@ Connection.from = function(url) {
       attrs.mongodb_database_name = decodeURIComponent(
         parsed.db_options.authSource || parsed.dbName);
     }
-    _.assign(attrs, Connection._improveAtlasDefaults(url, attrs.mongodb_password));
+    Object.assign(attrs, Connection._improveAtlasDefaults(url, attrs.mongodb_password, attrs.ns));
   }
 
   return new Connection(attrs);
@@ -1000,17 +1001,22 @@ Connection.from = function(url) {
  * Helper function to improve the Atlas user experience by
  * providing better default values.
  *
- * @param {String} url  The connection string URL.
- * @param {String} mongodb_password  The
+ * @param {String} url - The connection string URL.
+ * @param {String} mongodb_password - The mongodb_password
+ *   which the user may need to change.
+ * @param {String} namespace - The namespace (ns) to connect to.
  * @returns {Object} Connection attributes to override
  * @private
  */
-Connection._improveAtlasDefaults = function(url, mongodb_password) {
+Connection._improveAtlasDefaults = function(url, mongodb_password, namespace) {
   var atlasConnectionAttrs = {};
   if (Connection.isAtlas(url)) {
-    atlasConnectionAttrs.ssl = 'UNVALIDATED';
-    if (mongodb_password === 'PASSWORD') {
+    atlasConnectionAttrs.ssl = 'SYSTEMCA';
+    if (mongodb_password.match(/^.?PASSWORD.?$/i)) {
       atlasConnectionAttrs.mongodb_password = '';
+    }
+    if (namespace.match(/^.?DATABASE.?$/i)) {
+      atlasConnectionAttrs.ns = Connection.MONGODB_NAMESPACE_DEFAULT;
     }
   }
   return atlasConnectionAttrs;
@@ -1041,6 +1047,7 @@ Connection.SSL_VALUES = SSL_VALUES;
 Connection.SSL_DEFAULT = SSL_DEFAULT;
 Connection.SSH_TUNNEL_VALUES = SSH_TUNNEL_VALUES;
 Connection.SSH_TUNNEL_DEFAULT = SSH_TUNNEL_DEFAULT;
+Connection.MONGODB_NAMESPACE_DEFAULT = MONGODB_NAMESPACE_DEFAULT;
 Connection.MONGODB_DATABASE_NAME_DEFAULT = MONGODB_DATABASE_NAME_DEFAULT;
 Connection.KERBEROS_SERVICE_NAME_DEFAULT = KERBEROS_SERVICE_NAME_DEFAULT;
 Connection.DRIVER_OPTIONS_DEFAULT = DRIVER_OPTIONS_DEFAULT;
