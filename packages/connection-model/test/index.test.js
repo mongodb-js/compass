@@ -26,6 +26,23 @@ function isNotValidAndHasMessage(model, msg) {
  * that a user may need.
  */
 describe('mongodb-connection-model', function() {
+  describe('client meta data', function() {
+    it('should return the correct URL with appname included', function() {
+      var c = new Connection({
+        app_name: 'My App'
+      });
+      assert.equal(c.driver_url,
+        'mongodb://localhost:27017/?slaveOk=true&appname=My%20App');
+
+      assert.doesNotThrow(function() {
+        parse(c.driver_url);
+      });
+
+      assert.doesNotThrow(function() {
+        driverParse(c.driver_url);
+      });
+    });
+  });
   describe('authentication', function() {
     describe('NONE', function() {
       it('should return the correct URL for the driver', function() {

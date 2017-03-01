@@ -51,6 +51,10 @@ _.assign(props, {
   ns: {
     type: 'string',
     default: undefined
+  },
+  app_name: {
+    type: 'string',
+    default: undefined
   }
 });
 
@@ -548,6 +552,7 @@ _.assign(derived, {
       'port',
       'ssl',
       'ssh_tunnel',
+      'app_name',
       'kerberos_principal',
       'kerberos_password',
       'kerberos_service_name',
@@ -567,6 +572,10 @@ _.assign(derived, {
           slaveOk: 'true'
         }
       };
+
+      if (this.app_name) {
+        req.query.appname = this.app_name;
+      }
 
       if (this.ns) {
         req.pathname = format('/%s', this.ns);

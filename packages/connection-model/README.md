@@ -21,6 +21,7 @@ var Connection = require('mongodb-connection-model');
 - `port` (optional, Number) ... TCP port of a MongoDB Instance [Default: `27017`].
 - `name` (optional, String) ... User specified name [Default: `My MongoDB`].
 - `ns` (optional, String) ... A valid [ns][ns] the user can read from [Default: `undefined`].
+- `app_name` (optional, String) ... An application name passed to server as client metadata [Default: `undefined`].
 
 ## Derived Properties
 
