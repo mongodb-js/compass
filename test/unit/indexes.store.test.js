@@ -18,6 +18,8 @@ require('../../src/app/reflux-listen-to-external-store.js');
 const CreateIndexStore = require('../../src/internal-packages/indexes/lib/store/create-index-store');
 const Collection = require('../../src/internal-packages/collection/lib/components/index');
 
+const arrayOfDocsSchema = require('../fixtures/array_of_docs.fixture.json');
+
 describe('CreateIndexesStore', function() {
   let unsubscribe;
 
@@ -136,6 +138,17 @@ describe('CreateIndexesStore', function() {
     });
 
     CreateIndexStore.removeIndexField(1);
+  });
+
+  it('extracts top-level and nested field names from the schema', function(done) {
+    unsubscribe = CreateIndexStore.listen((fields, options, schemaFields) => {
+      expect(schemaFields).to.have.members(['reviews', 'reviews._id',
+        'reviews.rating', 'reviews.text', 'review', 'review._id',
+        'review.rating', 'review.text']);
+      unsubscribe();
+      done();
+    });
+    CreateIndexStore.loadFields({schema: arrayOfDocsSchema});
   });
 });
 
