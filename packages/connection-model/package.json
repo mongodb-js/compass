@@ -27,7 +27,7 @@
   "dependencies": {
     "ampersand-model": "^8.0.0",
     "ampersand-rest-collection": "^6.0.0",
-    "async": "^2.0.1",
+    "async": "^2.1.5",
     "backoff": "^2.4.1",
     "debug": "^2.6.0",
     "kerberos": "^0.0.22",
