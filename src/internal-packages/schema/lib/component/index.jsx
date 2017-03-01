@@ -1,5 +1,6 @@
 const app = require('hadron-app');
 const React = require('react');
+const SchemaActions = require('../action');
 const SchemaStore = require('../store');
 const StateMixin = require('reflux-state-mixin');
 const Field = require('./field');
@@ -24,10 +25,22 @@ const Schema = React.createClass({
     this.StatusAction = app.appRegistry.getAction('Status.Actions');
     this.StatusRow = app.appRegistry.getComponent('App.StatusRow');
     this.queryBar = app.appRegistry.getComponent('Query.QueryBar');
+    this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
   },
 
   shouldComponentUpdate() {
     return true;
+  },
+
+  componentDidUpdate() {
+    // when the namespace changes and the schema tab is not active, the
+    // tab is "display:none" and its width 0. That also means the the minichart
+    // auto-sizes to 0. Therefore, when the user switches back to the tab,
+    // making it "display:block" again and giving it a proper non-zero size,
+    // the minicharts have to be re-rendered.
+    if (this.CollectionStore.getActiveTab() === 0) {
+      SchemaActions.resizeMiniCharts();
+    }
   },
 
   /**
