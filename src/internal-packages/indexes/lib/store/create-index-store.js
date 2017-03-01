@@ -2,6 +2,7 @@ const Reflux = require('reflux');
 const EJSON = require('mongodb-extended-json');
 const Action = require('../action/index-actions');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
+const _ = require('lodash');
 
 // const debug = require('debug')('mongodb-compass:ddl:index:store');
 
@@ -125,8 +126,15 @@ const CreateIndexStore = Reflux.createStore({
       // recursively search sub documents
       for (const type of field.types) {
         if (type.name === 'Document') {
-          // append . to current path so nested documents have proper prefix
+          // add nested sub-fields to list of index fields
           possiblePaths = possiblePaths.concat(this._parseSchemaFields(type.fields, path + '.'));
+        }
+        if (type.name === 'Array') {
+          // add nested sub-fields of document type to list of index fields
+          const docType = _.find(type.types, 'name', 'Document');
+          if (docType) {
+            possiblePaths = possiblePaths.concat(this._parseSchemaFields(docType.fields, path + '.'));
+          }
         }
       }
     }
