@@ -201,7 +201,7 @@ const QueryStore = Reflux.createStore({
     }
 
     // convert all query inputs into their string values and validate them
-    let inputStrings = _.mapValues(query, EJSON.stringify);
+    let inputStrings = _.mapValues(_.pick(query, QUERY_PROPERTIES), EJSON.stringify);
     let inputValids = _.mapValues(inputStrings, (val, label) => {
       return this._validateInput(label, val) !== false;
     });
