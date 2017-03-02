@@ -1,6 +1,7 @@
 const Reflux = require('reflux');
 const app = require('hadron-app');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
+const toNS = require('mongodb-ns');
 const Actions = require('../actions');
 const _ = require('lodash');
 
@@ -50,7 +51,7 @@ const InsertDocumentStore = Reflux.createStore({
    * @param {Object} state - The query state.
    */
   onQueryChanged: function(state) {
-    if (state.filter) {
+    if (state.ns && toNS(state.ns).collection && state.filter) {
       this.filter = state.filter;
     }
   }

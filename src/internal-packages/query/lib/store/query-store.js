@@ -8,7 +8,6 @@ const app = require('hadron-app');
 const assert = require('assert');
 const _ = require('lodash');
 const ms = require('ms');
-const toNS = require('mongodb-ns');
 const bsonEqual = require('../util').bsonEqual;
 const hasDistinctValue = require('../util').hasDistinctValue;
 
@@ -50,11 +49,9 @@ const QueryStore = Reflux.createStore({
     }
     // on namespace changes, reset the store
     NamespaceStore.listen((ns) => {
-      if (ns && toNS(ns).collection) {
-        const newState = this.getInitialState();
-        newState.ns = ns;
-        this.setState(newState);
-      }
+      const newState = this.getInitialState();
+      newState.ns = ns;
+      this.setState(newState);
     });
   },
 

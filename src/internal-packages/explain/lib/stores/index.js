@@ -2,6 +2,7 @@ const Reflux = require('reflux');
 const ExplainActions = require('../actions');
 const StateMixin = require('reflux-state-mixin');
 const app = require('hadron-app');
+const toNS = require('mongodb-ns');
 const ExplainPlanModel = require('mongodb-explain-plan-model');
 const _ = require('lodash');
 
@@ -51,18 +52,20 @@ const CompassExplainStore = Reflux.createStore({
   },
 
   onQueryChanged(state) {
-    this.filter = state.filter;
-    this.project = state.project;
-    this.sort = state.sort;
-    this.skip = state.skip;
-    this.limit = state.limit;
-    this.ns = state.ns;
+    if (state.ns && toNS(state.ns).collection) {
+      this.filter = state.filter;
+      this.project = state.project;
+      this.sort = state.sort;
+      this.skip = state.skip;
+      this.limit = state.limit;
+      this.ns = state.ns;
 
-    if (state.queryState === 'reset') {
-      this._resetQuery();
-      this._reset();
-    } else {
-      this.fetchExplainPlan();
+      if (state.queryState === 'reset') {
+        this._resetQuery();
+        this._reset();
+      } else {
+        this.fetchExplainPlan();
+      }
     }
   },
 

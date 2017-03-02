@@ -1,6 +1,7 @@
 const Reflux = require('reflux');
 const app = require('hadron-app');
 const ReadPreference = require('mongodb').ReadPreference;
+const toNS = require('mongodb-ns');
 const Actions = require('../actions');
 const _ = require('lodash');
 
@@ -39,13 +40,15 @@ const ResetDocumentListStore = Reflux.createStore({
    * @param {Object} state - The query state.
    */
   onQueryChanged: function(state) {
-    this.filter = state.filter || {};
-    this.sort = _.pairs(state.sort);
-    this.limit = state.limit;
-    this.skip = state.skip;
-    this.project = state.project;
-    this.ns = state.ns;
-    this.reset();
+    if (state.ns && toNS(state.ns).collection) {
+      this.filter = state.filter || {};
+      this.sort = _.pairs(state.sort);
+      this.limit = state.limit;
+      this.skip = state.skip;
+      this.project = state.project;
+      this.ns = state.ns;
+      this.reset();
+    }
   },
 
   /**
