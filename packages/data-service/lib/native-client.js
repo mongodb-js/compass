@@ -553,7 +553,7 @@ class NativeClient extends EventEmitter {
   explain(ns, filter, options, callback) {
     // @todo thomasr: driver explain() does not yet support verbosity,
     // once it does, should be passed along from the options object.
-    this._collection(ns).find(filter).explain((error, explanation) => {
+    this._collection(ns).find(filter, options).explain((error, explanation) => {
       if (error) {
         return callback(this._translateMessage(error));
       }
