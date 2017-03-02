@@ -7,6 +7,7 @@ const Int32Value = require('./int32-value');
 const KeyValue = require('./key-value');
 const RegexValue = require('./regex-value');
 const DBRefValue = require('./dbref-value');
+const StringValue = require('./string-value');
 
 /**
  * The mappings from the BSON type to the value component
@@ -22,7 +23,7 @@ const MAPPINGS = {
   'Int64': Value,
   'MaxKey': KeyValue,
   'MinKey': KeyValue,
-  'String': Value,
+  'String': StringValue,
   'ObjectId': Value,
   'BSONRegExp': RegexValue,
   'Symbol': Value,

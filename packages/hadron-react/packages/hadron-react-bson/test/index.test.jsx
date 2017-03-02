@@ -10,7 +10,8 @@ const {
   Int32Value,
   KeyValue,
   RegexValue,
-  DBRefValue
+  DBRefValue,
+  StringValue
 } = require('../');
 
 describe('#getComponent', () => {
@@ -76,7 +77,7 @@ describe('#getComponent', () => {
 
   context('when the type is String', () => {
     it('returns an element value component', () => {
-      expect(getComponent('String')).to.deep.equal(Value);
+      expect(getComponent('String')).to.deep.equal(StringValue);
     });
   });
 
