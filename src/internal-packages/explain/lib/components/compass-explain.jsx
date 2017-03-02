@@ -89,6 +89,7 @@ class CompassExplain extends React.Component {
               buttonLabels={['Visual Tree', 'Raw JSON']}
               activeButton={activeViewTypeButton}
               disabled={isDisabled}
+              dataTestId="explain-view"
               onClick={this.onViewSwitch}
             />
           </div>

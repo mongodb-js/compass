@@ -126,6 +126,7 @@ describe('Compass Functional Tests for QueryBar #spectron', function() {
         it('goes to the documents tab', function() {
           return client
             .clickResetFilterButtonFromSchemaTab()
+            .waitForStatusBar()
             .clickDocumentsTab()
             .getSamplingMessageFromDocumentsTab()
             .should.eventually.include('Query returned 100 documents. Displaying documents 1-20');
@@ -182,10 +183,12 @@ describe('Compass Functional Tests for QueryBar #spectron', function() {
           });
         });
       });
+
       context('when applying queries to the explain tab', function() {
         it('goes to the index tab and creates an index', function() {
           return client
             .clickResetFilterButtonFromDocumentsTab()
+            .waitForStatusBar()
             .clickIndexesTab()
             .clickCreateIndexButton()
             .waitForCreateIndexModal()
@@ -205,50 +208,48 @@ describe('Compass Functional Tests for QueryBar #spectron', function() {
         });
 
         context('when applying a sort', function() {
-          it('returns the documents in the specified sort order', function() {
+          it('uses the appropriate index', function() {
             return client
               .inputSortFromExplainPlanTab('{age: 1}')
               .clickApplyFilterButtonFromExplainPlanTab()
               .waitForStatusBar()
               .getExplainIndexUsed()
-              .should.eventually.have.property('age');
+              .should.eventually.equal('age');
           });
-        //   // apply skip
-        //   it('skips the right number of documents when using skip', function() {
-        //     return client
-        //       .inputSkipFromExplainPlanTab('10')
-        //       .clickApplyFilterButtonFromExplainPlanTab()
-        //       .waitForStatusBar()
-        //       .should.eventually.have.property('member_id', '89');
-        //   });
+
+          it('reduces the number of documents returned', function() {
+            return client
+              .inputSkipFromExplainPlanTab('10')
+              .clickApplyFilterButtonFromExplainPlanTab()
+              .waitForStatusBar()
+              .getExplainDocumentsReturned()
+              .should.eventually.equal('90');
+          });
         });
-        // // apply projection https://docs.mongodb.com/manual/core/query-optimization/#covered-query
-        // context('when applying a projection', function() {
-        //   it('returns only the fields included in the project plus _id', function() {
-        //     return client
-        //       .inputProjectFromDocumentsTab('{member_id: 1, name: 1}')
-        //       .clickApplyFilterButtonFromDocumentsTab()
-        //       .waitForStatusBar()
-        //       .getDocumentAtIndex(1)
-        //       .then(function(obj) {
-        //         return _.keys(obj);
-        //       })
-        //       .should.eventually.deep.equal(['_id', 'member_id', 'name']);
-        //   });
-        // });
-        //
-        // // apply limit
-        // context('when applying a limit', function() {
-        //   it('only returns the number of documents specified by limit', function() {
-        //     return client
-        //       .waitForStatusBar()
-        //       .inputLimitFromDocumentsTab(5)
-        //       .clickApplyFilterButtonFromDocumentsTab()
-        //       .waitForStatusBar()
-        //       .getSamplingMessageFromDocumentsTab()
-        //       .should.eventually.include('Query returned 5 documents');
-        //   });
-        // });
+
+        context('when applying a projection', function() {
+          it('includes projection in the winning plan', function() {
+            return client
+              .inputProjectFromExplainPlanTab('{age: 1}')
+              .clickApplyFilterButtonFromExplainPlanTab()
+              .waitForStatusBar()
+              .clickExplainViewDetails('raw-json')
+              .waitForStatusBar()
+              .getExplainRawJSONDocument()
+              .should.eventually.include('PROJECTION');
+          });
+        });
+
+        context('when applying a limit', function() {
+          it('only returns the number of documents specified by limit', function() {
+            return client
+              .inputLimitFromExplainPlanTab(5)
+              .clickApplyFilterButtonFromExplainPlanTab()
+              .waitForStatusBar()
+              .getExplainDocumentsReturned()
+              .should.eventually.equal('5');
+          });
+        });
       });
     });
   });
