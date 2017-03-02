@@ -539,7 +539,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
               .clickInsertDocumentModalButton()
               .waitForDocumentInsert(1)
               .getDocumentValues(1)
-              .should.eventually.include('Aphex Twin');
+              .should.eventually.include('\"Aphex Twin\"');
           });
         });
 
@@ -569,7 +569,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
             .clickUpdateDocumentButton(1)
             .waitForDocumentUpdate(1)
             .getDocumentValues(1)
-            .should.eventually.include('Aphex Twin (edited)');
+            .should.eventually.include('\"Aphex Twin (edited)\"');
         });
       });
 
@@ -582,7 +582,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
             .clickInsertDocumentModalButton()
             .waitForDocumentInsert(2)
             .getDocumentValues(2)
-            .should.eventually.include('Essex');
+            .should.eventually.include('\"Essex\"');
         });
       });
 
@@ -854,7 +854,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
               .clickResetFilterButtonFromDocumentsTab()
               .waitForStatusBar()
               .getDocumentValues(3)
-              .should.eventually.include('George Michael');
+              .should.eventually.include('\"George Michael\"');
           });
         });
       });
