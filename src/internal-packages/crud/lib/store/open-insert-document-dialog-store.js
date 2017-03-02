@@ -4,6 +4,8 @@ const ObjectId = require('bson').ObjectId;
 const Actions = require('../actions');
 const HadronDocument = require('hadron-document');
 
+// const debug = require('debug')('mongodb-compass:crud:store:open-insert-doc');
+
 /**
  * The reflux store for opening the insert document dialog.
  */
@@ -28,11 +30,13 @@ const OpenInsertDocumentDialogStore = Reflux.createStore({
   openInsertDocumentDialog: function(doc, clone) {
     const hadronDoc = new HadronDocument(doc, true);
     if (clone) {
-      const firstElement = hadronDoc.elements.firstElement;
       // We need to remove the _id or we will get an duplicate key error on
       // insert, and we currently do not allow editing of the _id field.
-      if (firstElement.currentKey === '_id') {
-        hadronDoc.elements.remove(firstElement);
+      for (const element of hadronDoc.elements) {
+        if (element.currentKey === '_id') {
+          hadronDoc.elements.remove(element);
+          break;
+        }
       }
     }
     this.trigger(hadronDoc);
