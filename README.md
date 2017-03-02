@@ -36,18 +36,6 @@ Note this is a polylithic (as opposed to a monolithic) repository - it aims to m
 a minimal shell and abstract as much as possible into reusable, highly decoupled components.
 Please see the mongodb-js org for all the repos: https://github.com/mongodb-js
 
-## Building Releases
-
-After you've made some local changes, the next thing you'll probably want to do
-is create an artifact to share. There is only one command you need to run to compile the app,
-sign it if the signing certificate is available on your machine, and generate a single file
-installer for your current platform:
-
-```bash
-cd compass
-npm run release
-```
-
 ## The Release Process
 
 First ensure that the branch to be released is in a releasable state by running the tests
