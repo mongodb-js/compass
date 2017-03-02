@@ -41,9 +41,11 @@ const ButtonsWaiting = React.createClass({
             </a>
           </div>
           <br />
-          <div className="btn btn-info" onClick={this.onStopPartialButton}>
+          <button
+            className="btn btn-sm btn-info"
+            onClick={this.onStopPartialButton}>
             Stop and show partial results
-          </div>
+          </button>
         </div>
       </div>
     );

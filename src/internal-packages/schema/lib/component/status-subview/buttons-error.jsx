@@ -39,9 +39,11 @@ const ButtonsError = React.createClass({
   _getTryAgainButton() {
     if (this.props.maxTimeMS < RETRY_INC_MAXTIMEMS_VALUE) {
       return (
-        <div className="btn btn-info" onClick={this.onTryAgainButtonClick}>
+        <button
+          className="btn btn-sm btn-info"
+          onClick={this.onTryAgainButtonClick}>
           Try for 1 minute
-        </div>
+        </button>
       );
     }
     return null;
@@ -69,9 +71,11 @@ const ButtonsError = React.createClass({
           </div>
           <br />
           {tryAgainButton}
-          <div className="btn btn-info" onClick={this.onNewQueryButtonClick}>
+          <button 
+            className="btn btn-sm btn-info"
+            onClick={this.onNewQueryButtonClick}>
             Create New Query
-          </div>
+          </button>
         </div>
       </div>
     );
