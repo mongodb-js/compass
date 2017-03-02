@@ -151,7 +151,7 @@ const CompassExplainStore = Reflux.createStore({
     // const filter = QueryStore.state.query;
     const options = {
       sort: this.sort,
-      project: this.project,
+      fields: this.project,
       skip: this.skip,
       limit: this.limit
     };
