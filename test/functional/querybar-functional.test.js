@@ -163,7 +163,6 @@ describe('Compass Functional Tests for QueryBar #spectron', function() {
               })
               .should.eventually.deep.equal(['_id', 'member_id', 'name']);
           });
-
           it('disables editing mode for documents', function() {
             return client
               .getDocumentReadonlyStatus(1)
@@ -182,6 +181,74 @@ describe('Compass Functional Tests for QueryBar #spectron', function() {
               .should.eventually.include('Query returned 5 documents');
           });
         });
+      });
+      context('when applying queries to the explain tab', function() {
+        it('goes to the index tab and creates an index', function() {
+          return client
+            .clickResetFilterButtonFromDocumentsTab()
+            .clickIndexesTab()
+            .clickCreateIndexButton()
+            .waitForCreateIndexModal()
+            .inputCreateIndexDetails({name: 'age_1', field: 'age', type: '1 (asc)' })
+            .clickCreateIndexModalButton()
+            .waitForIndexCreation('age_1')
+            .waitForVisibleInCompass('create-index-modal', true)
+            .getIndexNames()
+            .should.eventually.include('age_1');
+        });
+
+        it('goes to the explain plan tab', function() {
+          return client
+            .clickExplainPlanTab()
+            .getExplainPlanStatusMessage()
+            .should.eventually.include('please enter your query first before applying and viewing your explain plan.');
+        });
+
+        context('when applying a sort', function() {
+          it('returns the documents in the specified sort order', function() {
+            return client
+              .inputSortFromExplainPlanTab('{age: 1}')
+              .clickApplyFilterButtonFromExplainPlanTab()
+              .waitForStatusBar()
+              .getExplainIndexUsed()
+              .should.eventually.have.property('age');
+          });
+        //   // apply skip
+        //   it('skips the right number of documents when using skip', function() {
+        //     return client
+        //       .inputSkipFromExplainPlanTab('10')
+        //       .clickApplyFilterButtonFromExplainPlanTab()
+        //       .waitForStatusBar()
+        //       .should.eventually.have.property('member_id', '89');
+        //   });
+        });
+        // // apply projection https://docs.mongodb.com/manual/core/query-optimization/#covered-query
+        // context('when applying a projection', function() {
+        //   it('returns only the fields included in the project plus _id', function() {
+        //     return client
+        //       .inputProjectFromDocumentsTab('{member_id: 1, name: 1}')
+        //       .clickApplyFilterButtonFromDocumentsTab()
+        //       .waitForStatusBar()
+        //       .getDocumentAtIndex(1)
+        //       .then(function(obj) {
+        //         return _.keys(obj);
+        //       })
+        //       .should.eventually.deep.equal(['_id', 'member_id', 'name']);
+        //   });
+        // });
+        //
+        // // apply limit
+        // context('when applying a limit', function() {
+        //   it('only returns the number of documents specified by limit', function() {
+        //     return client
+        //       .waitForStatusBar()
+        //       .inputLimitFromDocumentsTab(5)
+        //       .clickApplyFilterButtonFromDocumentsTab()
+        //       .waitForStatusBar()
+        //       .getSamplingMessageFromDocumentsTab()
+        //       .should.eventually.include('Query returned 5 documents');
+        //   });
+        // });
       });
     });
   });
