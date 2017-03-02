@@ -29,7 +29,7 @@
     "lodash": "^4.6.1",
     "mongodb": "^2.2.23",
     "mongodb-collection-sample": "^1.5.1",
-    "mongodb-connection-model": "^6.4.0",
+    "mongodb-connection-model": "^6.4.2",
     "mongodb-index-model": "^0.6.4",
     "mongodb-instance-model": "^3.3.0",
     "mongodb-js-errors": "^0.3.0",
