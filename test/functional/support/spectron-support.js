@@ -7,6 +7,7 @@ const electronPrebuilt = require('electron-prebuilt');
 const { selector } = require('./spectron-util');
 const addCollectionDDLCommands = require('./packages/spectron-collection-ddl');
 const addCRUDCommands = require('./packages/spectron-crud');
+const addDatabaseCommands = require('./packages/spectron-database');
 const addDatabaseDDLCommands = require('./packages/spectron-database-ddl');
 const addExplainCommands = require('./packages/spectron-explain');
 const addKeyPressCommands = require('./packages/spectron-keypress');
@@ -189,13 +190,6 @@ function addWaitCommands(client) {
   client.addCommand('waitForModalError', function() {
     return this.waitForVisibleInCompass(selector('modal-message'));
   });
-
-  /**
-   * Wait for the database screen to load.
-   */
-  client.addCommand('waitForDatabaseView', function() {
-    return this.waitForVisibleInCompass(selector('collections-table'));
-  });
 }
 
 /**
@@ -274,13 +268,6 @@ function addClickCommands(client) {
   });
 
   /**
-   * Click on the databases tab.
-   */
-  client.addCommand('clickDatabasesTab', function() {
-    return this.waitForStatusBar().click(selector('databases-tab'));
-  });
-
-  /**
    * Click on the validation tab.
    */
   client.addCommand('clickValidationTab', function() {
@@ -323,15 +310,6 @@ function addGetCommands(client) {
    */
   client.addCommand('getModalErrorMessage', function() {
     return this.getText('p.modal-status-error-message');
-  });
-
-  /**
-   * Get a list of database names from the Databases Tab.
-   */
-  client.addCommand('getDatabasesTabDatabaseNames', function() {
-    return this
-      .waitForVisibleInCompass(selector('databases-table'))
-      .getText(selector('sortable-table-column-0'));
   });
 
   /**
@@ -441,6 +419,7 @@ function launchCompass() {
     addInputCommands(client);
     addCollectionDDLCommands(client);
     addCRUDCommands(client);
+    addDatabaseCommands(client);
     addDatabaseDDLCommands(client);
     addExplainCommands(client);
     addKeyPressCommands(client);
