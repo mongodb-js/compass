@@ -1,5 +1,6 @@
 const React = require('react');
 const ReactDOM = require('react-dom');
+const Actions = require('../actions');
 const d3 = require('d3');
 const Actions = require('../actions');
 const _ = require('lodash');
@@ -111,6 +112,7 @@ class D3Component extends React.Component {
       .on('mouseover', Actions.mouseOver)
       .on('mouseout', Actions.mouseOut)
       .eventDispatcher(this.dispatcher);
+
     d3.select(el)
       .datum(this.props.data)
       .call(this.state.chart);
