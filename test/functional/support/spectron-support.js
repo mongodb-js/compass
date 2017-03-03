@@ -22,6 +22,7 @@ const addPrivacyCommands = require('./packages/spectron-privacy');
 const addQueryCommands = require('./packages/spectron-query');
 const addSchemaCommands = require('./packages/spectron-schema');
 const addSidebarCommands = require('./packages/spectron-sidebar');
+const addStatusBarCommands = require('./packages/spectron-status-bar');
 const addValidationCommands = require('./packages/spectron-validation');
 const Application = require('spectron').Application;
 const debug = require('debug')('mongodb-compass:spectron-support');
@@ -156,13 +157,6 @@ function addExtendedWaitCommands(client) {
  */
 function addWaitCommands(client) {
   /**
-   * Waits for the status bar to finish its progress and unlock the page.
-   */
-  client.addCommand('waitForStatusBar', function() {
-    return this.waitForVisibleInCompass(selector('status-bar'), true);
-  });
-
-  /**
    * Wait for a modal error message to appear.
    */
   client.addCommand('waitForModalError', function() {
@@ -237,6 +231,7 @@ function launchCompass() {
     addQueryCommands(client);
     addSchemaCommands(client);
     addSidebarCommands(client);
+    addStatusBarCommands(client);
     addValidationCommands(client);
     chaiAsPromised.transferPromiseness = app.transferPromiseness;
     chai.should().exist(client);
