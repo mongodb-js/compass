@@ -2,7 +2,6 @@ const semver = require('semver');
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 const assert = require('assert');
-const format = require('util').format;
 const path = require('path');
 const electronPrebuilt = require('electron-prebuilt');
 const { selector } = require('./spectron-util');
@@ -739,7 +738,7 @@ function addInputCommands(client) {
     staticFields.forEach(function(field) {
       if (model[field]) {
         sequence = sequence.then(function() {
-          return that.setValue(format('input[name=%s]', field), model[field]);
+          return that.setValue(`input[name=${field}]`, model[field]);
         });
       }
     });
@@ -752,7 +751,7 @@ function addInputCommands(client) {
       authFields.forEach(function(field) {
         if (model[field]) {
           sequence = sequence.then(function() {
-            return that.setValue(format('input[name=%s]', field), model[field]);
+            return that.setValue(`input[name=${field}]`, model[field]);
           });
         }
       });
@@ -767,7 +766,7 @@ function addInputCommands(client) {
       sslFields.forEach(function(field) {
         if (model[field]) {
           sequence = sequence.then(function() {
-            return that.setValue(format('input[name=%s]', field), model[field]);
+            return that.setValue(`input[name=${field}]`, model[field]);
           });
         }
       });
