@@ -15,6 +15,7 @@ const addHomeCommands = require('./packages/spectron-home');
 const addKeyPressCommands = require('./packages/spectron-keypress');
 const addIndexesCommands = require('./packages/spectron-indexes');
 const addPerformanceCommands = require('./packages/spectron-performance');
+const addPrivacyCommands = require('./packages/spectron-privacy');
 const addSchemaCommands = require('./packages/spectron-schema');
 const addSidebarCommands = require('./packages/spectron-sidebar');
 const Application = require('spectron').Application;
@@ -193,46 +194,6 @@ function addWaitCommands(client) {
  */
 function addClickCommands(client) {
   /**
-   * Click the enable product feedback checkbox.
-   */
-  client.addCommand('clickEnableProductFeedbackCheckbox', function() {
-    const checkbox = selector('product-feedback-checkbox');
-    return this.waitForVisibleInCompass(checkbox).click(checkbox);
-  });
-
-  /**
-   * Click the enable geo viz checkbox.
-   */
-  client.addCommand('clickEnableGeoCheckbox', function() {
-    const checkbox = selector('enable-maps-checkbox');
-    return this.waitForVisibleInCompass(checkbox).click(checkbox);
-  });
-
-  /**
-   * Click the enable crash reports checkbox.
-   */
-  client.addCommand('clickEnableCrashReportsCheckbox', function() {
-    const checkbox = selector('track-errors-checkbox');
-    return this.waitForVisibleInCompass(checkbox).click(checkbox);
-  });
-
-  /**
-   * Click the enable usage stats checkbox.
-   */
-  client.addCommand('clickEnableUsageStatsCheckbox', function() {
-    const checkbox = selector('usage-stats-checkbox');
-    return this.waitForVisibleInCompass(checkbox).click(checkbox);
-  });
-
-  /**
-   * Click the enable auto updates checkbox.
-   */
-  client.addCommand('clickEnableAutoUpdatesCheckbox', function() {
-    const checkbox = selector('auto-updates-checkbox');
-    return this.waitForVisibleInCompass(checkbox).click(checkbox);
-  });
-
-  /**
    * click the Connect button on the connect screen.
    */
   client.addCommand('clickConnectButton', function() {
@@ -244,21 +205,6 @@ function addClickCommands(client) {
    */
   client.addCommand('clickCloseFeatureTourButton', function() {
     return this.click(selector('close-tour-button'));
-  });
-
-  /**
-   * Click the close private settings modal button.
-   */
-  client.addCommand('clickClosePrivacySettingsButton', function() {
-    const base = selector('close-privacy-settings-button');
-    return this
-      .click(base)
-      .waitForVisibleInCompass(base, true)
-      .waitUntilInCompass(function() {
-        return this.getText('div[data-hook=optin-container]').then(function(text) {
-          return text.length === 0;
-        });
-      });
   });
 
   /**
@@ -412,6 +358,7 @@ function launchCompass() {
     addKeyPressCommands(client);
     addIndexesCommands(client);
     addPerformanceCommands(client);
+    addPrivacyCommands(client);
     addSchemaCommands(client);
     addSidebarCommands(client);
     chaiAsPromised.transferPromiseness = app.transferPromiseness;
