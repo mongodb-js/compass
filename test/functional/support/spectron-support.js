@@ -335,9 +335,9 @@ function addGetCommands(client) {
   });
 
   /**
-   * Get a list of collection names from the database view.
+   * Get a list of collection names from the Collections Tab.
    */
-  client.addCommand('getDatabaseViewCollectionNames', function() {
+  client.addCommand('getCollectionsTabCollectionNames', function() {
     return this
       .waitForVisibleInCompass(selector('collections-table'))
       .getText(selector('sortable-table-column-0'));
