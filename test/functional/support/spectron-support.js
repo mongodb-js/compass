@@ -196,15 +196,6 @@ function addWaitCommands(client) {
   client.addCommand('waitForDatabaseView', function() {
     return this.waitForVisibleInCompass(selector('collections-table'));
   });
-
-  /*
-   * Wait for the instance refresh to finish.
-   */
-  client.addCommand('waitForInstanceRefresh', function() {
-    const button = selector('instance-refresh-button');
-    const icon = `${button} i.fa-spin`;
-    return this.waitForVisibleInCompass(icon, true);
-  });
 }
 
 /**

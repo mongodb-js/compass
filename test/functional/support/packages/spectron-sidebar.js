@@ -10,6 +10,15 @@ function addWaitSidebarCommands(client) {
   client.addCommand('waitForSidebar', function(type) {
     return this.waitForVisibleInCompass(selector('sidebar-' + type));
   });
+
+  /**
+   * Wait for the instance refresh to finish.
+   */
+  client.addCommand('waitForInstanceRefresh', function() {
+    const button = selector('instance-refresh-button');
+    const icon = `${button} i.fa-spin`;
+    return this.waitForVisibleInCompass(icon, true);
+  });
 }
 
 
