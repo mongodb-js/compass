@@ -14,6 +14,7 @@ const addExplainCommands = require('./packages/spectron-explain');
 const addHomeCommands = require('./packages/spectron-home');
 const addKeyPressCommands = require('./packages/spectron-keypress');
 const addIndexesCommands = require('./packages/spectron-indexes');
+const addInstanceHeaderCommands = require('./packages/spectron-instance-header');
 const addPerformanceCommands = require('./packages/spectron-performance');
 const addPrivacyCommands = require('./packages/spectron-privacy');
 const addSchemaCommands = require('./packages/spectron-schema');
@@ -219,20 +220,6 @@ function addGetCommands(client) {
   });
 
   /**
-   * Get the instance address from the header.
-   */
-  client.addCommand('getInstanceHeaderDetails', function() {
-    return this.getText(selector('instance-header-details'));
-  });
-
-  /**
-  * Get the instance version from header.
-  */
-  client.addCommand('getInstanceHeaderVersion', function() {
-    return this.getText(selector('instance-header-version'));
-  });
-
-  /**
    * Get the text from the modal dialog error section.
    */
   client.addCommand('getModalErrorMessage', function() {
@@ -344,6 +331,7 @@ function launchCompass() {
     addHomeCommands(client);
     addKeyPressCommands(client);
     addIndexesCommands(client);
+    addInstanceHeaderCommands(client);
     addPerformanceCommands(client);
     addPrivacyCommands(client);
     addSchemaCommands(client);
