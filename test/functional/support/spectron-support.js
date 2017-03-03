@@ -11,6 +11,7 @@ const addCRUDCommands = require('./packages/spectron-crud');
 const addDatabaseCommands = require('./packages/spectron-database');
 const addDatabaseDDLCommands = require('./packages/spectron-database-ddl');
 const addExplainCommands = require('./packages/spectron-explain');
+const addHomeCommands = require('./packages/spectron-home');
 const addKeyPressCommands = require('./packages/spectron-keypress');
 const addIndexesCommands = require('./packages/spectron-indexes');
 const addPerformanceCommands = require('./packages/spectron-performance');
@@ -154,14 +155,6 @@ function addWaitCommands(client) {
    */
   client.addCommand('waitForConnectView', function() {
     return this.waitForVisibleInCompass(selector('connect-form'));
-  });
-
-  /**
-   * Wait for the home screen to finish loading.
-   */
-  client.addCommand('waitForHomeView', function() {
-    // TODO: Looks like COMPASS-635, what should this selector be?
-    return this.waitForVisibleInCompass(selector('instance-sidebar'));
   });
 
   /**
@@ -415,6 +408,7 @@ function launchCompass() {
     addDatabaseCommands(client);
     addDatabaseDDLCommands(client);
     addExplainCommands(client);
+    addHomeCommands(client);
     addKeyPressCommands(client);
     addIndexesCommands(client);
     addPerformanceCommands(client);
