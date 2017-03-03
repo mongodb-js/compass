@@ -1,5 +1,4 @@
 const Reflux = require('reflux');
-const { NamespaceStore } = require('hadron-reflux-store');
 const {
   AGGREGATE_FUNCTION_ENUM,
   CHART_CHANNEL_ENUM,
@@ -9,7 +8,22 @@ const {
 } = require('./constants');
 const Actions = require('./actions');
 const StateMixin = require('reflux-state-mixin');
+const app = require('hadron-app');
+const ReadPreference = require('mongodb').ReadPreference;
 const _ = require('lodash');
+
+// const debug = require('debug')('mongodb-compass:chart:store');
+
+const READ = ReadPreference.PRIMARY_PREFERRED;
+const INITIAL_QUERY = {
+  filter: {},
+  sort: null,
+  project: null,
+  skip: 0,
+  limit: 100,
+  ns: '',
+  maxTimeMS: 10000
+};
 
 /**
  * The reflux store for the currently displayed Chart singleton.
@@ -25,8 +39,6 @@ const ChartStore = Reflux.createStore({
   init() {
     this.listenables = Actions;
     this._resetChart();
-
-    this.listenTo(NamespaceStore, this.onNamespaceChanged.bind(this));
     this.listenToExternalStore('Query.ChangedStore', this.onQueryChanged.bind(this));
     this.listenToExternalStore('Schema.Store', this.onSchemaChanged.bind(this));
   },
@@ -39,10 +51,9 @@ const ChartStore = Reflux.createStore({
    */
   getInitialCacheState() {
     return {
-      dataCache: [],       // TODO: COMPASS-726 Populate with a $sample if ns or query change?
+      dataCache: [],
       fieldsCache: [],
-      namespaceCache: '',
-      queryCache: {}
+      queryCache: INITIAL_QUERY
     };
   },
 
@@ -82,6 +93,33 @@ const ChartStore = Reflux.createStore({
   },
 
   /**
+   * fetch data from server based on current query and sets the dataCache state
+   * variable. Currently limits number of documents to 100.
+   */
+  _refreshDataCache() {
+    const query = this.state.queryCache;
+
+    // limit document number to 100 for now.
+    const findOptions = {
+      sort: _.isEmpty(query.sort) ? null : _.pairs(query.sort),
+      fields: query.project,
+      skip: query.skip,
+      limit: query.limit ? Math.min(100, query.limit) : 100,
+      readPreference: READ,
+      maxTimeMS: query.maxTimeMS,
+      promoteValues: true
+    };
+
+    app.dataService.find(query.ns, query.filter, findOptions, (error, documents) => {
+      if (error) {
+        // @todo handle error better? what kind of errors can happen here?
+        throw error;
+      }
+      this.setState({dataCache: documents});
+    });
+  },
+
+  /**
    * Clears the chart, so it is set back to its default initial state but
    * retaining some things such as any data, namespace or query caches.
    */
@@ -90,27 +128,18 @@ const ChartStore = Reflux.createStore({
   },
 
   /**
-   * Fires when the namespace changes.
-   *
-   * @param {String} namespace - The namespace.
-   */
-  onNamespaceChanged(namespace) {
-    this.setState({namespaceCache: namespace});
-  },
-
-  /**
    * Fires when the query is changed.
    *
    * @param {Object} state - The query state.
    */
   onQueryChanged(state) {
-    this.setState({queryCache: state});
     if (state.queryState === 'reset') {
-      this._resetChart();
+      this.setState({queryCache: INITIAL_QUERY});
     } else {
-      // TODO: COMPASS-726 - Refresh the dataCache
-      // this.refreshDataCache();
+      this.setState({queryCache: _.pick(state,
+        ['filter', 'sort', 'project', 'skip', 'limit', 'maxTimeMS', 'ns'])});
     }
+    this._refreshDataCache();
   },
 
   /**
