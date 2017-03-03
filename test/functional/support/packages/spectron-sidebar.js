@@ -72,13 +72,6 @@ function addGetSidebarCommands(client) {
   client.addCommand('getSidebarCollectionNames', function() {
     return this.getAttribute(selector('sidebar-collection'), 'title');
   });
-
-  /**
-   * Get the ssh tunnel details.
-   */
-  client.addCommand('getSidebarSshTunnelDetails', function() {
-    return this.getText(selector('sidebar-ssh-tunnel-details'));
-  });
 }
 
 
