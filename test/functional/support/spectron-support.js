@@ -9,6 +9,7 @@ const addCRUDCommands = require('./packages/spectron-crud');
 const addExplainCommands = require('./packages/spectron-explain');
 const addIndexesCommands = require('./packages/spectron-indexes');
 const addPerformanceCommands = require('./packages/spectron-performance');
+const addSchemaCommands = require('./packages/spectron-schema');
 const Application = require('spectron').Application;
 const debug = require('debug')('mongodb-compass:spectron-support');
 
@@ -425,35 +426,10 @@ function addClickCommands(client) {
   });
 
   /**
-   * Click the apply filter button from the schema tab.
-   */
-  client.addCommand('clickApplyFilterButtonFromSchemaTab', function() {
-    const base = selector('schema-content');
-    const button = `${base} ${selector('apply-filter-button')}`;
-    return this.waitForVisibleInCompass(button).click(button);
-  });
-
-  /**
-   * Click the reset filter button from the schema tab.
-   */
-  client.addCommand('clickResetFilterButtonFromSchemaTab', function() {
-    const base = selector('schema-content');
-    const button = `${base} ${selector('reset-filter-button')}`;
-    return this.waitForVisibleInCompass(button).click(button);
-  });
-
-  /**
    * Click on the databases tab.
    */
   client.addCommand('clickDatabasesTab', function() {
     return this.waitForStatusBar().click(selector('databases-tab'));
-  });
-
-  /**
-   * Click on the schema tab.
-   */
-  client.addCommand('clickSchemaTab', function() {
-    return this.waitForStatusBar().click(selector('schema-tab'));
   });
 
   /**
@@ -535,24 +511,6 @@ function addKeyPressCommands(client) {
  * @param {Client} client - The client.
  */
 function addGetCommands(client) {
-  /**
-   * Get the sampling message on the schema tab.
-   */
-  client.addCommand('getSamplingMessageFromSchemaTab', function() {
-    const base = selector('schema-content');
-    const div = `${base} .sampling-message`;
-    return this.waitForVisibleInCompass(div).getText(div);
-  });
-
-  /**
-   * Get the field names in the schema field list
-   */
-  client.addCommand('getSchemaFieldNames', function() {
-    const base = selector('schema-content');
-    const div = `${base} .schema-field-name`;
-    return this.waitForVisibleInCompass(div).getText(div);
-  });
-
   /**
    * Get the title of the standard Compass modal dialog.
    */
@@ -692,38 +650,6 @@ function addInputCommands(client) {
     const base = selector('querybar-options-toggle');
     return this.waitForVisibleInCompass(base).click(base);
   });
-  /**
-   * Inputs a filter into the collection level query bar from the schema tab.
-   *
-   * @param {String} filter - The filter.
-   */
-  client.addCommand('inputFilterFromSchemaTab', function(filter) {
-    const base = selector('schema-content');
-    const input = `${base} .input-filter`;
-    return this.setValue(input, filter);
-  });
-
-  /**
-   * Input a projection into the query from the schema tab.
-   *
-   * @type {String} filter - the filter.
-   */
-  client.addCommand('inputProjectFromSchemaTab', function(filter) {
-    const base = selector('schema-content');
-    const input = `${base} .input-project`;
-    return this.setValue(input, filter);
-  });
-
-  /**
-   * Input a limit into the query from the schema tab.
-   *
-   * @type {String} filter - the filter.
-   */
-  client.addCommand('inputLimitFromSchemaTab', function(filter) {
-    const base = selector('schema-content');
-    const input = `${base} .input-limit`;
-    return this.setValue(input, filter);
-  });
 
   /**
    * Input connection details on the connection screen.
@@ -811,6 +737,7 @@ function launchCompass() {
     addExplainCommands(client);
     addIndexesCommands(client);
     addPerformanceCommands(client);
+    addSchemaCommands(client);
     chaiAsPromised.transferPromiseness = app.transferPromiseness;
     chai.should().exist(client);
     return client.waitUntilWindowLoaded(LONG_TIMEOUT);
