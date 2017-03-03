@@ -190,8 +190,6 @@ function addClickCommands(client) {
     return this.click(selector('close-tour-button'));
   });
 
-  // clickNewFavoriteButton
-  // clickSaveFavoriteButton
 }
 
 /**
