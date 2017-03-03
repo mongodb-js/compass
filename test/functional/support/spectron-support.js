@@ -5,6 +5,7 @@ const assert = require('assert');
 const path = require('path');
 const electronPrebuilt = require('electron-prebuilt');
 const { selector } = require('./spectron-util');
+const addCollectionCommands = require('./packages/spectron-collection');
 const addCollectionDDLCommands = require('./packages/spectron-collection-ddl');
 const addCRUDCommands = require('./packages/spectron-crud');
 const addDatabaseCommands = require('./packages/spectron-database');
@@ -311,15 +312,6 @@ function addGetCommands(client) {
   client.addCommand('getModalErrorMessage', function() {
     return this.getText('p.modal-status-error-message');
   });
-
-  /**
-   * Get a list of collection names from the Collections Tab.
-   */
-  client.addCommand('getCollectionsTabCollectionNames', function() {
-    return this
-      .waitForVisibleInCompass(selector('collections-table'))
-      .getText(selector('sortable-table-column-0'));
-  });
 }
 
 /**
@@ -417,6 +409,7 @@ function launchCompass() {
     addClickCommands(client);
     addGetCommands(client);
     addInputCommands(client);
+    addCollectionCommands(client);
     addCollectionDDLCommands(client);
     addCRUDCommands(client);
     addDatabaseCommands(client);
