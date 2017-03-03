@@ -71,7 +71,7 @@ const ButtonsError = React.createClass({
           </div>
           <br />
           {tryAgainButton}
-          <button 
+          <button
             className="btn btn-sm btn-info"
             onClick={this.onNewQueryButtonClick}>
             Create New Query
