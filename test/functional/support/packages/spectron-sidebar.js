@@ -23,6 +23,15 @@ function addClickSidebarCommands(client) {
   });
 
   /**
+   * Click the instance refresh button in the top right corner of the sidebar.
+   */
+  client.addCommand('clickInstanceRefreshIcon', function() {
+    const button = selector('instance-refresh-button');
+    return this
+      .waitForVisibleInCompass(button).click(button);
+  });
+
+  /**
    * Click on a collection in the sidebar.
    *
    * @param {String} name - The full collection name.
@@ -41,6 +50,7 @@ function addClickSidebarCommands(client) {
     const base = `${selector('sidebar-database')}[title='${name}']`;
     return this.waitForVisibleInCompass(base).click(base);
   });
+
 }
 
 

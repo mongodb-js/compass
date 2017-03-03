@@ -213,15 +213,6 @@ function addWaitCommands(client) {
  * @param {Client} client - The client.
  */
 function addClickCommands(client) {
-  /*
-   * Click the instance refresh button in the top right corner of the sidebar.
-   */
-  client.addCommand('clickInstanceRefreshIcon', function() {
-    const button = selector('instance-refresh-button');
-    return this
-      .waitForVisibleInCompass(button).click(button);
-  });
-
   /**
    * Click the enable product feedback checkbox.
    */
