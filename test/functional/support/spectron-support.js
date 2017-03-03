@@ -18,6 +18,7 @@ const addIndexesCommands = require('./packages/spectron-indexes');
 const addInstanceHeaderCommands = require('./packages/spectron-instance-header');
 const addPerformanceCommands = require('./packages/spectron-performance');
 const addPrivacyCommands = require('./packages/spectron-privacy');
+const addQueryCommands = require('./packages/spectron-query');
 const addSchemaCommands = require('./packages/spectron-schema');
 const addSidebarCommands = require('./packages/spectron-sidebar');
 const addValidationCommands = require('./packages/spectron-validation');
@@ -215,21 +216,6 @@ function addGetCommands(client) {
 }
 
 /**
- * Add commands to the client for user input.
- *
- * @param {Client} client - The client.
- */
-function addInputCommands(client) {
-  /**
-   * Clicks the Options button to expand the Query bar.
-   */
-  client.addCommand('clickQueryBarOptionsToggle', function() {
-    const base = selector('querybar-options-toggle');
-    return this.waitForVisibleInCompass(base).click(base);
-  });
-}
-
-/**
  * Create the spectron application.
  *
  * @returns {Application} The spectron application.
@@ -259,7 +245,6 @@ function launchCompass() {
     addWaitCommands(client);
     addClickCommands(client);
     addGetCommands(client);
-    addInputCommands(client);
     addCollectionCommands(client);
     addCollectionDDLCommands(client);
     addConnectCommands(client);
@@ -273,6 +258,7 @@ function launchCompass() {
     addInstanceHeaderCommands(client);
     addPerformanceCommands(client);
     addPrivacyCommands(client);
+    addQueryCommands(client);
     addSchemaCommands(client);
     addSidebarCommands(client);
     addValidationCommands(client);
