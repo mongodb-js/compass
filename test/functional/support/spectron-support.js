@@ -166,13 +166,6 @@ function addWaitCommands(client) {
   });
 
   /**
-   * Wait for the privacy settings modal to open.
-   */
-  client.addCommand('waitForPrivacySettingsModal', function() {
-    return this.waitForVisibleInCompass(selector('privacy-settings-modal'));
-  });
-
-  /**
    * Waits for the status bar to finish its progress and unlock the page.
    */
   client.addCommand('waitForStatusBar', function() {

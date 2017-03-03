@@ -1,6 +1,16 @@
 const { selector } = require('../spectron-util');
 
 
+function addWaitPrivacyCommands(client) {
+  /**
+   * Wait for the privacy settings modal to open.
+   */
+  client.addCommand('waitForPrivacySettingsModal', function() {
+    return this.waitForVisibleInCompass(selector('privacy-settings-modal'));
+  });
+}
+
+
 function addClickPrivacyCommands(client) {
   /**
    * Click the enable product feedback checkbox.
@@ -65,6 +75,7 @@ function addClickPrivacyCommands(client) {
  * @param {Client} client - The client.
  */
 function addPrivacyCommands(client) {
+  addWaitPrivacyCommands(client);
   addClickPrivacyCommands(client);
 }
 
