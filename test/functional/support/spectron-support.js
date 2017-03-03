@@ -180,9 +180,6 @@ function addWaitCommands(client) {
     return this.waitForVisibleInCompass(selector('status-bar'), true);
   });
 
-  client.addCommand('waitForSidebar', function(type) {
-    return this.waitForVisibleInCompass(selector('sidebar-' + type));
-  });
   /**
    * Waits for the create database modal to open.
    */

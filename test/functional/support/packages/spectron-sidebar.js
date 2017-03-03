@@ -1,6 +1,18 @@
 const { selector } = require('../spectron-util');
 
 
+function addWaitSidebarCommands(client) {
+  /**
+   * Wait for the sidebar database to finish loading.
+   *
+   * @param {String} type - One of database or collection.
+   */
+  client.addCommand('waitForSidebar', function(type) {
+    return this.waitForVisibleInCompass(selector('sidebar-' + type));
+  });
+}
+
+
 function addClickSidebarCommands(client) {
   /**
    * toggle the sidebar
@@ -89,6 +101,7 @@ function addInputSidebarCommands(client) {
  * @param {Client} client - The client.
  */
 function addSidebarCommands(client) {
+  addWaitSidebarCommands(client);
   addClickSidebarCommands(client);
   addGetSidebarCommands(client);
   addInputSidebarCommands(client);
