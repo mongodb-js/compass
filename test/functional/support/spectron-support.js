@@ -10,6 +10,7 @@ const addExplainCommands = require('./packages/spectron-explain');
 const addIndexesCommands = require('./packages/spectron-indexes');
 const addPerformanceCommands = require('./packages/spectron-performance');
 const addSchemaCommands = require('./packages/spectron-schema');
+const addSidebarCommands = require('./packages/spectron-sidebar');
 const Application = require('spectron').Application;
 const debug = require('debug')('mongodb-compass:spectron-support');
 
@@ -398,34 +399,6 @@ function addClickCommands(client) {
   });
 
   /**
-   * toggle the sidebar
-   */
-  client.addCommand('clickToggleInSidebar', function() {
-    const base = selector('toggle-sidebar');
-    return this.waitForVisibleInCompass(base).click(base);
-  });
-
-  /**
-   * Click on a collection in the sidebar.
-   *
-   * @param {String} name - The full collection name.
-   */
-  client.addCommand('clickCollectionInSidebar', function(name) {
-    const base = `${selector('sidebar-collection')}[title='${name}']`;
-    return this.waitForVisibleInCompass(base).click(base);
-  });
-
-  /**
-   * Click on a database in the sidebar.
-   *
-   * @param {String} name - The database name.
-   */
-  client.addCommand('clickDatabaseInSidebar', function(name) {
-    const base = `${selector('sidebar-database')}[title='${name}']`;
-    return this.waitForVisibleInCompass(base).click(base);
-  });
-
-  /**
    * Click on the databases tab.
    */
   client.addCommand('clickDatabasesTab', function() {
@@ -533,45 +506,12 @@ function addGetCommands(client) {
   });
 
   /**
-   * Get the ssh tunnel details.
-   */
-  client.addCommand('getSidebarSshTunnelDetails', function() {
-    return this.getText(selector('sidebar-ssh-tunnel-details'));
-  });
-
-
-  /**
-   * Get the sidebar database count
-   */
-  client.addCommand('getSidebarDatabaseCount', function() {
-    return this.getText(selector('sidebar-db-count'));
-  });
-
-  /**
-   * Get the sidebar collection count
-   */
-  client.addCommand('getSidebarCollectionCount', function() {
-    return this.getText(selector('sidebar-collection-count'));
-  });
-
-  /**
    * Get the text from the modal dialog error section.
    */
   client.addCommand('getModalErrorMessage', function() {
     return this.getText('p.modal-status-error-message');
   });
 
-  /**
-   * Get a list of database names from the sidebar.
-   */
-  client.addCommand('getSidebarDatabaseNames', function() {
-    return this.waitForSidebar('database').getText(selector('sidebar-database'));
-  });
-
-  client.addCommand('inputSidebarFilter', function(filter) {
-    const base = selector('sidebar-filter-input');
-    return this.setValue(base, filter);
-  });
   /**
    * Get a list of database names from the home view.
    */
@@ -588,13 +528,6 @@ function addGetCommands(client) {
     return this
       .waitForVisibleInCompass(selector('collections-table'))
       .getText(selector('sortable-table-column-0'));
-  });
-
-  /**
-   * Get a list of collection names from the sidebar.
-   */
-  client.addCommand('getSidebarCollectionNames', function() {
-    return this.getAttribute(selector('sidebar-collection'), 'title');
   });
 }
 
@@ -738,6 +671,7 @@ function launchCompass() {
     addIndexesCommands(client);
     addPerformanceCommands(client);
     addSchemaCommands(client);
+    addSidebarCommands(client);
     chaiAsPromised.transferPromiseness = app.transferPromiseness;
     chai.should().exist(client);
     return client.waitUntilWindowLoaded(LONG_TIMEOUT);
