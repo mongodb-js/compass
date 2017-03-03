@@ -326,9 +326,9 @@ function addGetCommands(client) {
   });
 
   /**
-   * Get a list of database names from the home view.
+   * Get a list of database names from the Databases Tab.
    */
-  client.addCommand('getHomeViewDatabaseNames', function() {
+  client.addCommand('getDatabasesTabDatabaseNames', function() {
     return this
       .waitForVisibleInCompass(selector('databases-table'))
       .getText(selector('sortable-table-column-0'));

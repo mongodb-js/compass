@@ -240,7 +240,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
             .inputCreateDatabaseDetails({ name: 'music', collectionName: 'artists' })
             .clickCreateDatabaseModalButton()
             .waitForDatabaseCreation('music')
-            .getHomeViewDatabaseNames()
+            .getDatabasesTabDatabaseNames()
             .should.eventually.include('music');
         });
 
@@ -329,7 +329,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
           .inputDropDatabaseName('temp')
           .clickDropDatabaseModalButton()
           .waitForDatabaseDeletion('temp')
-          .getHomeViewDatabaseNames()
+          .getDatabasesTabDatabaseNames()
           .should.not.eventually.include('temp');
       });
 
@@ -354,7 +354,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
           .inputDropDatabaseName('temp')
           .pressEnter()
           .waitForDatabaseDeletion('temp')
-          .getHomeViewDatabaseNames()
+          .getDatabasesTabDatabaseNames()
           .should.not.eventually.include('temp');
         });
       });
