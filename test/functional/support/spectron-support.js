@@ -7,6 +7,7 @@ const electronPrebuilt = require('electron-prebuilt');
 const { selector } = require('./spectron-util');
 const addCollectionCommands = require('./packages/spectron-collection');
 const addCollectionDDLCommands = require('./packages/spectron-collection-ddl');
+const addConnectCommands = require('./packages/spectron-connect');
 const addCRUDCommands = require('./packages/spectron-crud');
 const addDatabaseCommands = require('./packages/spectron-database');
 const addDatabaseDDLCommands = require('./packages/spectron-database-ddl');
@@ -154,13 +155,6 @@ function addExtendedWaitCommands(client) {
 function addWaitCommands(client) {
 
   /**
-   * Wait for the connect screen to finish loading.
-   */
-  client.addCommand('waitForConnectView', function() {
-    return this.waitForVisibleInCompass(selector('connect-form'));
-  });
-
-  /**
    * Wait for the feature tour modal to open.
    */
   client.addCommand('waitForFeatureTourModal', function() {
@@ -188,13 +182,6 @@ function addWaitCommands(client) {
  * @param {Client} client - The client.
  */
 function addClickCommands(client) {
-  /**
-   * click the Connect button on the connect screen.
-   */
-  client.addCommand('clickConnectButton', function() {
-    return this.click(selector('connect-button'));
-  });
-
   /**
    * Click the close feature tour modal button.
    */
@@ -240,55 +227,6 @@ function addInputCommands(client) {
     const base = selector('querybar-options-toggle');
     return this.waitForVisibleInCompass(base).click(base);
   });
-
-  /**
-   * Input connection details on the connection screen.
-   *
-   * @param {Object} model - The connection model.
-   */
-  client.addCommand('inputConnectionDetails', function(model) {
-    const that = this;
-    let sequence = Promise.resolve();
-
-    const staticFields = [ 'hostname', 'port', 'name' ];
-    staticFields.forEach(function(field) {
-      if (model[field]) {
-        sequence = sequence.then(function() {
-          return that.setValue(`input[name=${field}]`, model[field]);
-        });
-      }
-    });
-
-    if (model.authentication && model.authentication !== 'NONE') {
-      sequence = sequence.then(function() {
-        return that.selectByValue('select[name=authentication]', model.authentication);
-      });
-      const authFields = client.getFieldNames(model.authentication);
-      authFields.forEach(function(field) {
-        if (model[field]) {
-          sequence = sequence.then(function() {
-            return that.setValue(`input[name=${field}]`, model[field]);
-          });
-        }
-      });
-    }
-
-    if (model.ssl && model.ssl !== 'NONE') {
-      sequence = sequence.then(function() {
-        return that.selectByValue('select[name=ssl]', model.ssl);
-      });
-      const sslFields = ['ssl_ca', 'ssl_certificate', 'ssl_private_key',
-        'ssl_private_key_password'];
-      sslFields.forEach(function(field) {
-        if (model[field]) {
-          sequence = sequence.then(function() {
-            return that.setValue(`input[name=${field}]`, model[field]);
-          });
-        }
-      });
-    }
-    return sequence;
-  });
 }
 
 /**
@@ -324,6 +262,7 @@ function launchCompass() {
     addInputCommands(client);
     addCollectionCommands(client);
     addCollectionDDLCommands(client);
+    addConnectCommands(client);
     addCRUDCommands(client);
     addDatabaseCommands(client);
     addDatabaseDDLCommands(client);
