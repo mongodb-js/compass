@@ -147,10 +147,7 @@ describe('hadron-build', () => {
     it('should use `engines.npm` for the default `npm_version` option');
 
     describe('::handler', () => {
-      it('should check the environment\'s Python installation');
-
       it('should check the environment\'s npm installation');
-
       it('should check the environment\'s node.js installation');
     });
   });

@@ -574,9 +574,6 @@ class Target {
     const createTarball = () => {
       debug('creating tarball %s -> %s', tar(this.appPath, this.dest(this.linux_tar_filename)));
       return tar(this.appPath, this.dest(this.linux_tar_filename));
-      // .then(() => {
-      //   return sign(this.dest(this.linux_tar_filename));
-      // });
     };
 
     this.createInstaller = () => {
@@ -586,6 +583,25 @@ class Target {
         createTarball()
       ]);
     };
+  }
+
+  /**
+   * Get an asset from the manifest by file extension.
+   * @param {String} extname
+   * @return {null|Asset}
+   * @example
+   * target.getAssetWithExtension('.zip')
+   * >>> {name: 'hadron-app-darwin-x64.zip', path:...}
+   * target.getAssetWithExtension('.k7z')
+   * >>> null
+   */
+  getAssetWithExtension(extname) {
+    const res = this.assets.filter(function(asset) {
+      return path.extname(asset.path) === extname;
+    });
+    debug('%s -> ', extname, res);
+
+    return res[0];
   }
 }
 

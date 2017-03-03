@@ -23,7 +23,7 @@ const async = require('async');
 const asar = require('asar');
 const packager = require('electron-packager');
 const run = require('electron-installer-run');
-const zip = require('electron-installer-zip');
+const createApplicationZip = require('../lib/zip');
 const license = require('electron-license');
 const ModuleCache = require('hadron-module-cache');
 const CompileCache = require('hadron-compile-cache');
@@ -386,36 +386,6 @@ const createApplicationAsar = (CONFIG, done) => {
       done();
     }, done);
   });
-};
-
-/**
- * Packages the app as a plain zip using `electron-installer-zip`
- * for auto updates.
- *
- * NOTE (imlucas) This should be run after the installers have been
- * created.  The modules that generate the installers also
- * handle signinging the assets. If we zip unsigned assets
- * and publish them for the release, auto updates will be rejected.
- *
- * @param {Object} CONFIG
- * @param {Function} done
- */
-const createApplicationZip = (CONFIG, done) => {
-  if (CONFIG.platform === 'linux') {
-    return done();
-  }
-  const DIR = path.join(CONFIG.resources, '..');
-
-  const OUT = CONFIG.assets.filter(function(asset) {
-    return path.extname(asset.path) === '.zip';
-  })[0].path;
-
-  cli.debug('Zipping `%s` to `%s`', DIR, OUT);
-  zip({
-    dir: DIR,
-    out: OUT,
-    platform: CONFIG.platform
-  }, done);
 };
 
 /**
