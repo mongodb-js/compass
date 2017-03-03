@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const semver = require('semver');
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
@@ -958,7 +957,7 @@ function addInputCommands(client) {
     let sequence = Promise.resolve();
 
     const staticFields = [ 'hostname', 'port', 'name' ];
-    _.each(staticFields, function(field) {
+    staticFields.forEach(function(field) {
       if (model[field]) {
         sequence = sequence.then(function() {
           return that.setValue(format('input[name=%s]', field), model[field]);
@@ -971,7 +970,7 @@ function addInputCommands(client) {
         return that.selectByValue('select[name=authentication]', model.authentication);
       });
       const authFields = client.getFieldNames(model.authentication);
-      _.each(authFields, function(field) {
+      authFields.forEach(function(field) {
         if (model[field]) {
           sequence = sequence.then(function() {
             return that.setValue(format('input[name=%s]', field), model[field]);
@@ -986,7 +985,7 @@ function addInputCommands(client) {
       });
       const sslFields = ['ssl_ca', 'ssl_certificate', 'ssl_private_key',
         'ssl_private_key_password'];
-      _.each(sslFields, function(field) {
+      sslFields.forEach(function(field) {
         if (model[field]) {
           sequence = sequence.then(function() {
             return that.setValue(format('input[name=%s]', field), model[field]);
