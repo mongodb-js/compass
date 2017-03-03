@@ -18,6 +18,7 @@ const addPerformanceCommands = require('./packages/spectron-performance');
 const addPrivacyCommands = require('./packages/spectron-privacy');
 const addSchemaCommands = require('./packages/spectron-schema');
 const addSidebarCommands = require('./packages/spectron-sidebar');
+const addValidationCommands = require('./packages/spectron-validation');
 const Application = require('spectron').Application;
 const debug = require('debug')('mongodb-compass:spectron-support');
 
@@ -200,13 +201,6 @@ function addClickCommands(client) {
     return this.click(selector('close-tour-button'));
   });
 
-  /**
-   * Click on the validation tab.
-   */
-  client.addCommand('clickValidationTab', function() {
-    return this.waitForStatusBar().click(selector('validation-tab'));
-  });
-
   // clickNewFavoriteButton
   // clickSaveFavoriteButton
 }
@@ -354,6 +348,7 @@ function launchCompass() {
     addPrivacyCommands(client);
     addSchemaCommands(client);
     addSidebarCommands(client);
+    addValidationCommands(client);
     chaiAsPromised.transferPromiseness = app.transferPromiseness;
     chai.should().exist(client);
     return client.waitUntilWindowLoaded(LONG_TIMEOUT);
