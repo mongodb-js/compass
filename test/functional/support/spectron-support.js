@@ -12,6 +12,7 @@ const addCRUDCommands = require('./packages/spectron-crud');
 const addDatabaseCommands = require('./packages/spectron-database');
 const addDatabaseDDLCommands = require('./packages/spectron-database-ddl');
 const addExplainCommands = require('./packages/spectron-explain');
+const addFeatureTourCommands = require('./packages/spectron-feature-tour');
 const addHomeCommands = require('./packages/spectron-home');
 const addKeyPressCommands = require('./packages/spectron-keypress');
 const addIndexesCommands = require('./packages/spectron-indexes');
@@ -154,14 +155,6 @@ function addExtendedWaitCommands(client) {
  * @param {Client} client - The client.
  */
 function addWaitCommands(client) {
-
-  /**
-   * Wait for the feature tour modal to open.
-   */
-  client.addCommand('waitForFeatureTourModal', function() {
-    return this.waitForVisibleInCompass(selector('feature-tour-modal'));
-  });
-
   /**
    * Waits for the status bar to finish its progress and unlock the page.
    */
@@ -175,21 +168,6 @@ function addWaitCommands(client) {
   client.addCommand('waitForModalError', function() {
     return this.waitForVisibleInCompass(selector('modal-message'));
   });
-}
-
-/**
- * Add commands to the client for clicking links and buttons in the application.
- *
- * @param {Client} client - The client.
- */
-function addClickCommands(client) {
-  /**
-   * Click the close feature tour modal button.
-   */
-  client.addCommand('clickCloseFeatureTourButton', function() {
-    return this.click(selector('close-tour-button'));
-  });
-
 }
 
 /**
@@ -241,7 +219,6 @@ function launchCompass() {
     const client = app.client;
     addExtendedWaitCommands(client);
     addWaitCommands(client);
-    addClickCommands(client);
     addGetCommands(client);
     addCollectionCommands(client);
     addCollectionDDLCommands(client);
@@ -250,6 +227,7 @@ function launchCompass() {
     addDatabaseCommands(client);
     addDatabaseDDLCommands(client);
     addExplainCommands(client);
+    addFeatureTourCommands(client);
     addHomeCommands(client);
     addKeyPressCommands(client);
     addIndexesCommands(client);
