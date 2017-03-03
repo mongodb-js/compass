@@ -7,6 +7,7 @@ const path = require('path');
 const electronPrebuilt = require('electron-prebuilt');
 const { selector } = require('./spectron-util');
 const addCRUDCommands = require('./packages/spectron-crud');
+const addExplainCommands = require('./packages/spectron-explain');
 const addPerformanceCommands = require('./packages/spectron-performance');
 const Application = require('spectron').Application;
 const debug = require('debug')('mongodb-compass:spectron-support');
@@ -464,24 +465,6 @@ function addClickCommands(client) {
   });
 
   /**
-   * Click the apply filter button from the explain plan tab.
-   */
-  client.addCommand('clickApplyFilterButtonFromExplainPlanTab', function() {
-    const base = selector('explain-plan-content');
-    const button = `${base} ${selector('apply-filter-button')}`;
-    return this.waitForVisibleInCompass(button).click(button);
-  });
-
-  /**
-   * Click the reset filter button from the explain plan tab.
-   */
-  client.addCommand('clickResetFilterButtonFromExplainPlanTab', function() {
-    const base = selector('explain-plan-content');
-    const button = `${base} ${selector('reset-filter-button')}`;
-    return this.waitForVisibleInCompass(button).click(button);
-  });
-
-  /**
    * Click on the databases tab.
    */
   client.addCommand('clickDatabasesTab', function() {
@@ -493,13 +476,6 @@ function addClickCommands(client) {
    */
   client.addCommand('clickSchemaTab', function() {
     return this.waitForStatusBar().click(selector('schema-tab'));
-  });
-
-  /**
-   * Click on the explain plan tab.
-   */
-  client.addCommand('clickExplainPlanTab', function() {
-    return this.waitForStatusBar().click(selector('explain-plan-tab'));
   });
 
   /**
@@ -615,40 +591,6 @@ function addKeyPressCommands(client) {
  * @param {Client} client - The client.
  */
 function addGetCommands(client) {
-
-  /**
-   * Get the status row message from the explain plan.
-   */
-  client.addCommand('getExplainPlanStatusMessage', function() {
-    const base = selector('explain-plan-content');
-    const row = `${base} .status-row-has-warning`;
-    return this.waitForVisibleInCompass(row).getText(row);
-  });
-
-  /**
-   * Get the number of returned documents from the explain plan screen.
-   */
-  client.addCommand('getExplainDocumentsReturned', function() {
-    const base = selector('explain-returned-count');
-    return this.waitForVisibleInCompass(base).getText(base);
-  });
-
-  /**
-   * Get the number of keys examined from the explain plan screen.
-   */
-  client.addCommand('getExplainKeysExamined', function() {
-    const base = selector('explain-examined-keys-count');
-    return this.waitForVisibleInCompass(base).getText(base);
-  });
-
-  /**
-   * Get the number of documents examined from the explain plan screen.
-   */
-  client.addCommand('getExplainDocumentsExamined', function() {
-    const base = selector('explain-examined-count');
-    return this.waitForVisibleInCompass(base).getText(base);
-  });
-
   /**
    * Get the sampling message on the schema tab.
    */
@@ -915,17 +857,6 @@ function addInputCommands(client) {
   });
 
   /**
-   * Inputs a filter into the collection level query bar from the explain tab.
-   *
-   * @param {String} filter - The filter.
-   */
-  client.addCommand('inputFilterFromExplainPlanTab', function(filter) {
-    const base = selector('explain-plan-content');
-    const input = `${base} .input-filter`;
-    return this.setValue(input, filter);
-  });
-
-  /**
    * Input a projection into the query from the schema tab.
    *
    * @type {String} filter - the filter.
@@ -1030,6 +961,7 @@ function launchCompass() {
     addGetCommands(client);
     addInputCommands(client);
     addCRUDCommands(client);
+    addExplainCommands(client);
     addPerformanceCommands(client);
     chaiAsPromised.transferPromiseness = app.transferPromiseness;
     chai.should().exist(client);
