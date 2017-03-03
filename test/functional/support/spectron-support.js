@@ -5,6 +5,7 @@ const assert = require('assert');
 const path = require('path');
 const electronPrebuilt = require('electron-prebuilt');
 const { selector } = require('./spectron-util');
+const addCollectionDDLCommands = require('./packages/spectron-collection-ddl');
 const addCRUDCommands = require('./packages/spectron-crud');
 const addDatabaseDDLCommands = require('./packages/spectron-database-ddl');
 const addExplainCommands = require('./packages/spectron-explain');
@@ -183,20 +184,6 @@ function addWaitCommands(client) {
   });
 
   /**
-   * Waits for the create collection modal to open.
-   */
-  client.addCommand('waitForCreateCollectionModal', function() {
-    return this.waitForVisibleInCompass(selector('create-collection-modal'));
-  });
-
-  /**
-   * Waits for the drop collection modal to open.
-   */
-  client.addCommand('waitForDropCollectionModal', function() {
-    return this.waitForVisibleInCompass(selector('drop-collection-modal'));
-  });
-
-  /**
    * Wait for a modal error message to appear.
    */
   client.addCommand('waitForModalError', function() {
@@ -217,32 +204,6 @@ function addWaitCommands(client) {
     const button = selector('instance-refresh-button');
     const icon = `${button} i.fa-spin`;
     return this.waitForVisibleInCompass(icon, true);
-  });
-
-  /**
-   * Wait for the collection with the provided name to be created.
-   *
-   * @param {String} name - The collection name.
-   */
-  client.addCommand('waitForCollectionCreation', function(name) {
-    const base = selector('collections-table');
-    const row = `${base} ${selector('sortable-table-column-0')}[title=${name}]`;
-    return this.waitForExistInCompass(row);
-  });
-
-  /**
-   * Wait for the collection with the provided name to be deleted.
-   *
-   * @param {String} name - The collection name.
-   */
-  client.addCommand('waitForCollectionDeletion', function(name) {
-    const base = selector('collections-table');
-    const row = `${base} ${selector('sortable-table-column-0')}[title=${name}]`;
-    return this.waitForExistInCompass(row, true);
-  });
-
-  client.addCommand('waitForCreateCollectionModalHidden', function() {
-    return this.waitForVisibleInCompass(selector('create-collection-modal'), true);
   });
 }
 
@@ -302,18 +263,6 @@ function addClickCommands(client) {
   });
 
   /**
-   * Click the LAST delete collection trash icon in the list.
-   *
-   * @param {String} name - The name of the collection to delete.
-   */
-  client.addCommand('clickDeleteCollectionButton', function(name) {
-    const base = selector('collections-table');
-    const wrapper = selector('sortable-table-delete');
-    const button = `${base} ${wrapper}[title='Delete ${name}']`;
-    return this.waitForVisibleInCompass(base).click(button);
-  });
-
-  /**
    * click the Connect button on the connect screen.
    */
   client.addCommand('clickConnectButton', function() {
@@ -354,29 +303,6 @@ function addClickCommands(client) {
    */
   client.addCommand('clickValidationTab', function() {
     return this.waitForStatusBar().click(selector('validation-tab'));
-  });
-
-  /**
-   * Click the drop collection button in the modal.
-   */
-  client.addCommand('clickDropCollectionModalButton', function() {
-    const base = selector('drop-collection-button');
-    return this.click(base);
-  });
-
-  /**
-   * Click the create collection button.
-   */
-  client.addCommand('clickCreateCollectionButton', function() {
-    return this.waitForStatusBar().click(selector('open-create-collection-modal-button'));
-  });
-
-  /**
-   * Click the create collection button in the modal.
-   */
-  client.addCommand('clickCreateCollectionModalButton', function() {
-    const base = selector('create-collection-button');
-    return this.click(base);
   });
 
   // clickNewFavoriteButton
@@ -442,24 +368,6 @@ function addGetCommands(client) {
  * @param {Client} client - The client.
  */
 function addInputCommands(client) {
-  /**
-   * Enter the collection name to drop.
-   *
-   * @param {String} name - The collection name.
-   */
-  client.addCommand('inputDropCollectionName', function(name) {
-    return this.setValue(selector('confirm-drop-collection-name'), name);
-  });
-
-  /**
-   * Input the collection details for creating a collection.
-   *
-   * @param {Object} model - { name: 'collName' }
-   */
-  client.addCommand('inputCreateCollectionDetails', function(model) {
-    return this.setValue('#create-collection-name', model.name);
-  });
-
   /**
    * Clicks the Options button to expand the Query bar.
    */
@@ -549,6 +457,7 @@ function launchCompass() {
     addClickCommands(client);
     addGetCommands(client);
     addInputCommands(client);
+    addCollectionDDLCommands(client);
     addCRUDCommands(client);
     addDatabaseDDLCommands(client);
     addExplainCommands(client);

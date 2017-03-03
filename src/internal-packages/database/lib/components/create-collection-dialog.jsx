@@ -1,3 +1,4 @@
+// TODO: Move this into a internal-packages/collection-ddl
 const app = require('hadron-app');
 const shell = require('electron').shell;
 const React = require('react');
