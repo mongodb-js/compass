@@ -81,11 +81,25 @@ describe('Compass Functional Tests for QueryBar #spectron', function() {
               'MongoDB Compass - localhost:27018/mongodb.fanclub'
             );
         });
+
+        it('goes to the index tab and creates an index', function() {
+          return client
+            .clickIndexesTab()
+            .clickCreateIndexButton()
+            .waitForCreateIndexModal()
+            .inputCreateIndexDetails({name: 'age_1', field: 'age', type: '1 (asc)' })
+            .clickCreateIndexModalButton()
+            .waitForIndexCreation('age_1')
+            .waitForVisibleInCompass('create-index-modal', true)
+            .getIndexNames()
+            .should.eventually.include('age_1');
+        });
       });
 
       context('when applying queries from the schema tab', function() {
         it('shows the sampling message', function() {
           return client
+            .clickSchemaTab()
             .getSamplingMessageFromSchemaTab()
             .should.eventually.include('Query returned 100 documents.');
         });
@@ -185,36 +199,40 @@ describe('Compass Functional Tests for QueryBar #spectron', function() {
       });
 
       context('when applying queries to the explain tab', function() {
-        it('goes to the index tab and creates an index', function() {
+        it('goes to the explain plan tab', function() {
           return client
             .clickResetFilterButtonFromDocumentsTab()
             .waitForStatusBar()
-            .clickIndexesTab()
-            .clickCreateIndexButton()
-            .waitForCreateIndexModal()
-            .inputCreateIndexDetails({name: 'age_1', field: 'age', type: '1 (asc)' })
-            .clickCreateIndexModalButton()
-            .waitForIndexCreation('age_1')
-            .waitForVisibleInCompass('create-index-modal', true)
-            .getIndexNames()
-            .should.eventually.include('age_1');
-        });
-
-        it('goes to the explain plan tab', function() {
-          return client
             .clickExplainPlanTab()
             .getExplainPlanStatusMessage()
             .should.eventually.include('please enter your query first before applying and viewing your explain plan.');
         });
 
-        context('when applying a sort', function() {
-          it('uses the appropriate index', function() {
+        context('when applying a projection', function() {
+          it('includes projection in the winning plan', function() {
             return client
+              .waitForStatusBar()
+              .inputProjectFromExplainPlanTab('{age: 1}')
+              .clickApplyFilterButtonFromExplainPlanTab()
+              .waitForStatusBar()
+              .clickExplainViewDetails('raw-json')
+              .waitForStatusBar()
+              .getExplainRawJSONDocument()
+              .should.eventually.include('PROJECTION');
+          });
+        });
+
+        context('when applying a sort', function() {
+          it('includes fetch in the winning plan', function() {
+            return client
+              .waitForStatusBar()
               .inputSortFromExplainPlanTab('{age: 1}')
               .clickApplyFilterButtonFromExplainPlanTab()
               .waitForStatusBar()
-              .getExplainIndexUsed()
-              .should.eventually.equal('age');
+              .clickExplainViewDetails('raw-json')
+              .waitForStatusBar()
+              .getExplainRawJSONDocument()
+              .should.eventually.include('FETCH');
           });
 
           it('reduces the number of documents returned', function() {
@@ -224,19 +242,6 @@ describe('Compass Functional Tests for QueryBar #spectron', function() {
               .waitForStatusBar()
               .getExplainDocumentsReturned()
               .should.eventually.equal('90');
-          });
-        });
-
-        context('when applying a projection', function() {
-          it('includes projection in the winning plan', function() {
-            return client
-              .inputProjectFromExplainPlanTab('{age: 1}')
-              .clickApplyFilterButtonFromExplainPlanTab()
-              .waitForStatusBar()
-              .clickExplainViewDetails('raw-json')
-              .waitForStatusBar()
-              .getExplainRawJSONDocument()
-              .should.eventually.include('PROJECTION');
           });
         });
 
