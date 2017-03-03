@@ -1,7 +1,7 @@
 const selector = require('../spectron-selector');
 
 
-function addPerformanceClickCommands(client) {
+function addClickPerformanceCommands(client) {
   /**
    * Click on the performance tab.
    */
@@ -19,7 +19,7 @@ function addPerformanceClickCommands(client) {
 }
 
 
-function addPerformanceGetCommands(client) {
+function addGetPerformanceCommands(client) {
   /**
    * Get the slow operations list.
    */
@@ -165,8 +165,8 @@ function addPerformanceGetCommands(client) {
  * @param {Client} client - The client.
  */
 function addPerformanceCommands(client) {
-  addPerformanceClickCommands(client);
-  addPerformanceGetCommands(client);
+  addClickPerformanceCommands(client);
+  addGetPerformanceCommands(client);
 }
 
 
