@@ -27,7 +27,7 @@ const InsertDocumentStore = Reflux.createStore({
   insertDocument: function(doc) {
     app.dataService.insertOne(NamespaceStore.ns, doc, {}, (error) => {
       if (error) {
-        this.trigger(false, error);
+        return this.trigger(false, error);
       }
       // check if the newly inserted document matches the current filter, by
       // running the same filter but targeted only to the doc's _id.
