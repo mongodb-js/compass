@@ -6,15 +6,11 @@ const assert = require('assert');
 const format = require('util').format;
 const path = require('path');
 const electronPrebuilt = require('electron-prebuilt');
+const { selector } = require('./spectron-util');
 const Application = require('spectron').Application;
 const debug = require('debug')('mongodb-compass:spectron-support');
 
 chai.use(chaiAsPromised);
-
-/**
- * The idetifier for testable elements.
- */
-const TEST_ID = 'data-test-id';
 
 /**
  * The default timeout for selectors.
@@ -25,17 +21,6 @@ const TIMEOUT = 15000;
  * A long running operation timeout.
  */
 const LONG_TIMEOUT = 30000;
-
-/**
- * Get the selector for a standard unique identifier.
- *
- * @param {String} id - The id.
- *
- * @returns {String} The CSS selector.
- */
-function selector(id) {
-  return `[${TEST_ID}='${id}']`;
-}
 
 /**
  * The wait for timeout error.
