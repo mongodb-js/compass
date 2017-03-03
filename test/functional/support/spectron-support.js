@@ -7,6 +7,7 @@ const electronPrebuilt = require('electron-prebuilt');
 const { selector } = require('./spectron-util');
 const addCRUDCommands = require('./packages/spectron-crud');
 const addExplainCommands = require('./packages/spectron-explain');
+const addKeyPressCommands = require('./packages/spectron-keypress');
 const addIndexesCommands = require('./packages/spectron-indexes');
 const addPerformanceCommands = require('./packages/spectron-performance');
 const addSchemaCommands = require('./packages/spectron-schema');
@@ -460,22 +461,6 @@ function addClickCommands(client) {
   // clickSaveFavoriteButton
 }
 
-function addKeyPressCommands(client) {
-  /**
-   * Press escape
-   */
-  client.addCommand('pressEscape', function() {
-    return this.keys(['Escape']);
-  });
-
-  /**
-   * Press enter
-   */
-  client.addCommand('pressEnter', function() {
-    return this.keys(['Enter']);
-  });
-}
-
 /**
  * Add commands to the client to get values from the screen.
  *
@@ -661,11 +646,11 @@ function launchCompass() {
     addExtendedWaitCommands(client);
     addWaitCommands(client);
     addClickCommands(client);
-    addKeyPressCommands(client);
     addGetCommands(client);
     addInputCommands(client);
     addCRUDCommands(client);
     addExplainCommands(client);
+    addKeyPressCommands(client);
     addIndexesCommands(client);
     addPerformanceCommands(client);
     addSchemaCommands(client);
