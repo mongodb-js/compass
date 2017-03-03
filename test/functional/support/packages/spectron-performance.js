@@ -1,4 +1,4 @@
-const { selector } = require('../spectron-util');
+const selector = require('../spectron-selector');
 
 
 function addPerformanceClickCommands(client) {

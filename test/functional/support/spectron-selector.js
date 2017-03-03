@@ -3,6 +3,7 @@
  */
 const TEST_ID = 'data-test-id';
 
+
 /**
  * Get the selector for a standard unique identifier.
  *
@@ -14,6 +15,5 @@ function selector(id) {
   return `[${TEST_ID}='${id}']`;
 }
 
-module.exports = {
-  selector,
-};
+
+module.exports = selector;

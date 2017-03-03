@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const { selector } = require('../spectron-util');
+const selector = require('../spectron-selector');
 
 
 function addWaitCRUDCommands(client) {
