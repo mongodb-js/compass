@@ -8,6 +8,7 @@ const electronPrebuilt = require('electron-prebuilt');
 const { selector } = require('./spectron-util');
 const addCRUDCommands = require('./packages/spectron-crud');
 const addExplainCommands = require('./packages/spectron-explain');
+const addIndexesCommands = require('./packages/spectron-indexes');
 const addPerformanceCommands = require('./packages/spectron-performance');
 const Application = require('spectron').Application;
 const debug = require('debug')('mongodb-compass:spectron-support');
@@ -177,13 +178,6 @@ function addWaitCommands(client) {
     return this.waitForVisibleInCompass(selector('status-bar'), true);
   });
 
-  /**
-   * Waits for the create index modal to open.
-   */
-  client.addCommand('waitForCreateIndexModal', function() {
-    return this.waitForVisibleInCompass(selector('create-index-modal'));
-  });
-
   client.addCommand('waitForSidebar', function(type) {
     return this.waitForVisibleInCompass(selector('sidebar-' + type));
   });
@@ -227,21 +221,6 @@ function addWaitCommands(client) {
    */
   client.addCommand('waitForDatabaseView', function() {
     return this.waitForVisibleInCompass(selector('collections-table'));
-  });
-
-  /**
-   * Wait for the index with the provided name to be created.
-   *
-   * @param {String} name - The index name.
-   */
-  client.addCommand('waitForIndexCreation', function(name) {
-    return this
-      .waitForStatusBar()
-      .waitUntilInCompass(function() {
-        return this.getIndexNames().then(function(names) {
-          return names.includes(name);
-        });
-      });
   });
 
   /*
@@ -479,13 +458,6 @@ function addClickCommands(client) {
   });
 
   /**
-   * Click on the indexes tab.
-   */
-  client.addCommand('clickIndexesTab', function() {
-    return this.waitForStatusBar().click(selector('indexes-tab'));
-  });
-
-  /**
    * Click on the validation tab.
    */
   client.addCommand('clickValidationTab', function() {
@@ -493,28 +465,10 @@ function addClickCommands(client) {
   });
 
   /**
-   * Click the create index button.
-   */
-  client.addCommand('clickCreateIndexButton', function() {
-    const button = selector('open-create-index-modal-button');
-    return this.waitForStatusBar()
-      .waitForVisibleInCompass(button)
-      .click(button);
-  });
-
-  /**
    * Click the create database button.
    */
   client.addCommand('clickCreateDatabaseButton', function() {
     return this.waitForStatusBar().click(selector('open-create-database-modal-button'));
-  });
-
-  /**
-   * Click the create index button in the modal.
-   */
-  client.addCommand('clickCreateIndexModalButton', function() {
-    const form = selector('create-index-modal');
-    return this.submitForm(`${form} form`);
   });
 
   /**
@@ -554,15 +508,6 @@ function addClickCommands(client) {
   client.addCommand('clickCreateCollectionModalButton', function() {
     const base = selector('create-collection-button');
     return this.click(base);
-  });
-
-  /**
-   * Click on the header in the index table.
-   */
-  client.addCommand('clickIndexTableHeader', function(columnName) {
-    const base = selector('indexes-table');
-    const column = selector(columnName);
-    return this.click(`${base} ${column}`);
   });
 
   // clickNewFavoriteButton
@@ -694,57 +639,6 @@ function addGetCommands(client) {
   client.addCommand('getSidebarCollectionNames', function() {
     return this.getAttribute(selector('sidebar-collection'), 'title');
   });
-
-  /**
-   * Get the index names in the table.
-   *
-   * @note Will return 1 element if only 1 in the list or an array if many.
-   */
-  client.addCommand('getIndexNames', function() {
-    const names = selector('index-table-name');
-    return this.waitForVisibleInCompass(names).getText(names);
-  });
-
-  /**
-   * Get the index types in the table.
-   *
-   * @note Will return 1 element if only 1 in the list or an array if many.
-   */
-  client.addCommand('getIndexTypes', function() {
-    const types = selector('index-table-type');
-    return this.waitForVisibleInCompass(types).getText(types);
-  });
-
-  /**
-   * Get the index sizes in the table.
-   *
-   * @note Will return 1 element if only 1 in the list or an array if many.
-   */
-  client.addCommand('getIndexSizes', function() {
-    const sizes = selector('index-table-size');
-    return this.waitForVisibleInCompass(sizes).getText(sizes);
-  });
-
-  /**
-   * Get the index usages in the table.
-   *
-   * @note Will return 1 element if only 1 in the list or an array if many.
-   */
-  client.addCommand('getIndexUsages', function() {
-    const usages = selector('index-table-usage');
-    return this.waitForVisibleInCompass(usages).getText(usages);
-  });
-
-  /**
-   * Get the index properties in the table.
-   *
-   * @note Will return 1 element if only 1 in the list or an array if many.
-   */
-  client.addCommand('getIndexProperties', function() {
-    const base = selector('indexes-table');
-    const props = `${base} td.property-column .properties .property`;
-    return this.waitForVisibleInCompass(base).getText(props);
-  });
 }
 
 /**
@@ -790,52 +684,6 @@ function addInputCommands(client) {
     return this
       .setValue('#create-database-name', model.name)
       .setValue('#create-database-collection-name', model.collectionName);
-  });
-
-  /**
-   * Input create index details.
-   *
-   * @param {Object} model - The index model:
-   *    {
-   *      name: 'name_1',
-   *      field: 'name',
-   *      type: '1 (asc)'
-   *    }
-   */
-  client.addCommand('inputCreateIndexDetails', function(model) {
-    const that = this;
-    let sequence = Promise.resolve();
-    if (model.name) {
-      sequence = sequence.then(function() {
-        const field = selector('create-index-modal-name');
-        return that
-          .waitForVisibleInCompass(field)
-          .setValue(field, model.name)
-      });
-    }
-    if (model.field) {
-      sequence = sequence.then(function() {
-        const base = selector('create-index-modal-field-select');
-        const field = `li=${model.field}`;
-        return that
-          .waitForVisibleInCompass(base)
-          .click(base)
-          .waitForVisibleInCompass(field)
-          .click(field);
-      });
-    }
-    if (model.type) {
-      sequence = sequence.then(function() {
-        const base = selector('create-index-modal-type-select');
-        const field = `li=${model.type}`;
-        return that
-          .waitForVisibleInCompass(base)
-          .click(base)
-          .waitForVisibleInCompass(field)
-          .click(field);
-      });
-    }
-    return sequence;
   });
 
   /**
@@ -962,6 +810,7 @@ function launchCompass() {
     addInputCommands(client);
     addCRUDCommands(client);
     addExplainCommands(client);
+    addIndexesCommands(client);
     addPerformanceCommands(client);
     chaiAsPromised.transferPromiseness = app.transferPromiseness;
     chai.should().exist(client);
