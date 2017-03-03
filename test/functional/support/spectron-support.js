@@ -17,6 +17,7 @@ const addHomeCommands = require('./packages/spectron-home');
 const addKeyPressCommands = require('./packages/spectron-keypress');
 const addIndexesCommands = require('./packages/spectron-indexes');
 const addInstanceHeaderCommands = require('./packages/spectron-instance-header');
+const addModalCommands = require('./packages/spectron-modal');
 const addPerformanceCommands = require('./packages/spectron-performance');
 const addPrivacyCommands = require('./packages/spectron-privacy');
 const addQueryCommands = require('./packages/spectron-query');
@@ -150,42 +151,6 @@ function addExtendedWaitCommands(client) {
 }
 
 /**
- * Add commands to the client that wait for common items in the
- * application to be visible.
- *
- * @param {Client} client - The client.
- */
-function addWaitCommands(client) {
-  /**
-   * Wait for a modal error message to appear.
-   */
-  client.addCommand('waitForModalError', function() {
-    return this.waitForVisibleInCompass(selector('modal-message'));
-  });
-}
-
-/**
- * Add commands to the client to get values from the screen.
- *
- * @param {Client} client - The client.
- */
-function addGetCommands(client) {
-  /**
-   * Get the title of the standard Compass modal dialog.
-   */
-  client.addCommand('getModalTitle', function() {
-    return this.getText(selector('modal-title'));
-  });
-
-  /**
-   * Get the text from the modal dialog error section.
-   */
-  client.addCommand('getModalErrorMessage', function() {
-    return this.getText('p.modal-status-error-message');
-  });
-}
-
-/**
  * Create the spectron application.
  *
  * @returns {Application} The spectron application.
@@ -212,8 +177,6 @@ function launchCompass() {
   return app.start().then(() => {
     const client = app.client;
     addExtendedWaitCommands(client);
-    addWaitCommands(client);
-    addGetCommands(client);
     addCollectionCommands(client);
     addCollectionDDLCommands(client);
     addConnectCommands(client);
@@ -226,6 +189,7 @@ function launchCompass() {
     addKeyPressCommands(client);
     addIndexesCommands(client);
     addInstanceHeaderCommands(client);
+    addModalCommands(client);
     addPerformanceCommands(client);
     addPrivacyCommands(client);
     addQueryCommands(client);
