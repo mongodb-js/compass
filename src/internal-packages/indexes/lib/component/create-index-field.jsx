@@ -2,6 +2,7 @@ const React = require('react');
 const ButtonToolbar = require('react-bootstrap').ButtonToolbar;
 const DropdownButton = require('react-bootstrap').DropdownButton;
 const MenuItem = require('react-bootstrap').MenuItem;
+const Select = require('react-select');
 const StatusStore = require('../store/ddl-status-store');
 const Action = require('../action/index-actions');
 
@@ -51,6 +52,14 @@ class CreateIndexField extends React.Component {
    *
    * @returns {Array} The React components for each item in the field and type dropdowns.
    */
+  getDropdownFieldsSelect() {
+    return this.props.fields.map((elem) => ({
+      value: elem,
+      label: elem,
+      disabled: this.props.disabledFields.some(field => (field === elem))
+    }));
+  }
+
   getDropdownFields() {
     return this.props.fields.map((elem, index) => (
       <MenuItem key={index}
@@ -71,10 +80,10 @@ class CreateIndexField extends React.Component {
   /**
    * Set state to selected field on field change.
    *
-   * @param {string} name - The selected name.
+   * @param {object} field - The selected field object.
    */
-  selectName(name) {
-    Action.updateFieldName(this.props.idx, name);
+  selectFieldName(field) {
+    Action.updateFieldName(this.props.idx, field.label);
   }
 
   /**
@@ -112,6 +121,10 @@ class CreateIndexField extends React.Component {
     });
   }
 
+  addFieldName(field) {
+    Action.updateFieldName(this.props.idx, field.label);
+  }
+
   /**
    * Render the index field form.
    *
@@ -121,21 +134,19 @@ class CreateIndexField extends React.Component {
     const fieldName = this.props.field.name || DEFAULT_FIELD.name;
     const fieldType = this.props.field.type || DEFAULT_FIELD.type;
 
-    const hasNameError = this.state.isNameValid ? '' : 'has-error';
+    // const hasNameError = this.state.isNameValid ? '' : 'has-error';
     const hasTypeError = this.state.isTypeValid ? '' : 'has-error';
 
     return (
       <div className="form-inline row create-index-field">
         <div className="col-md-6" data-test-id="create-index-modal-field-select">
-          <ButtonToolbar>
-            <DropdownButton
-              title={fieldName}
-              id="field-name-select-dropdown"
-              className={`create-index-field-dropdown-name ${hasNameError}`}
-              onSelect={this.selectName.bind(this)}>
-              {this.getDropdownFields(this.props.fields)}
-            </DropdownButton>
-          </ButtonToolbar>
+          <Select.Creatable
+            value={fieldName}
+            options={this.getDropdownFieldsSelect(this.props.fields)}
+            onChange={this.selectFieldName.bind(this)}
+            onNewOptionClick={this.addFieldName.bind(this)}
+            clearable={false}
+          />
         </div>
         <div className="col-md-4" data-test-id="create-index-modal-type-select">
           <ButtonToolbar>
