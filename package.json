@@ -175,6 +175,7 @@
     "react-dom": "^15.2.1",
     "react-fontawesome": "1.2.0",
     "react-native-listener": "^1.0.1",
+    "react-select": "^1.0.0-rc.3",
     "react-tooltip": "^3.2.6",
     "react-vega": "^2.3.1",
     "reflux": "0.4.1",
