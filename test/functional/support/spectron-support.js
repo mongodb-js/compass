@@ -112,6 +112,15 @@ function progressiveWaitUntil(waitUntil, fn, index) {
     });
 }
 
+function addSetCommands(client) {
+  client.addCommand('connectToCompass', function(connection) {
+    return this
+      .inputConnectionDetails(connection)
+      .clickConnectButton()
+      .waitForStatusBar();
+  });
+}
+
 /**
  * Add the extended wait commands for Compass.
  */
@@ -1492,6 +1501,7 @@ function launchCompass() {
     addKeyPressCommands(client);
     addGetCommands(client);
     addInputCommands(client);
+    addSetCommands(client);
     chaiAsPromised.transferPromiseness = app.transferPromiseness;
     chai.should().exist(client);
     return client.waitUntilWindowLoaded(LONG_TIMEOUT);
