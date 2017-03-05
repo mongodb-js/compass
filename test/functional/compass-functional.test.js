@@ -8,258 +8,29 @@ const { launchCompass, quitCompass, isIndexUsageEnabled } = require('./support/s
 const CONNECTION = new Connection({ hostname: '127.0.0.1', port: 27018, ns: 'music' });
 
 describe('Compass Main Functional Test Suite #spectron', function() {
-  this.slow(30000);
-  this.timeout(60000);
-  let app = null;
-  let client = null;
-
   before(function() {
     /* Force the node env to testing */
     process.env.NODE_ENV = 'testing';
   });
 
-  context('when a MongoDB instance is running', function() {
-    before(function(done) {
-      launchCompass().then(function(application) {
-        app = application;
-        client = application.client;
-        done();
-      });
-    });
+  describe('launch the application', function() {
+    require('./support/compass-launch.test');
+  });
 
-    after(function(done) {
-      quitCompass(app, done);
-    });
+  describe('connect to instance', function() {
+    require('./support/compass-connect.test');
+  });
 
-    context('when launching the application', function() {
-      it('displays the feature tour modal', function() {
-        return client
-          .waitForFeatureTourModal()
-          .getText('h2[data-hook=title]')
-          .should.eventually.equal('Welcome to MongoDB Compass');
-      });
+  describe('rtss tab', function() {
+    require('./support/compass-rtss.test');
+  });
 
-      context('when closing the feature tour modal', function() {
-        it('displays the privacy settings', function() {
-          return client
-            .clickCloseFeatureTourButton()
-            .waitForPrivacySettingsModal()
-            .clickEnableProductFeedbackCheckbox()
-            .clickEnableCrashReportsCheckbox()
-            .clickEnableUsageStatsCheckbox()
-            .clickEnableAutoUpdatesCheckbox()
-            .getModalTitle()
-            .should.eventually.equal('Privacy Settings');
-        });
+  describe.skip('creating a database', function() {
+    require('./support/compass-databases.test');
+  });
 
-        context('when closing the privacy settings modal', function() {
-          it('renders the connect screen', function() {
-            return client
-              .clickClosePrivacySettingsButton()
-              .waitForConnectView()
-              .waitForWindowTitle('MongoDB Compass - Connect')
-              .getTitle().should.eventually.be.equal('MongoDB Compass - Connect');
-          });
-
-          it('allows favorites to be saved');
-          it('allows favorites to be edited');
-        });
-      });
-    });
-
-    context('when connecting to a server', function() {
-      context('when the server exists', function() {
-        it('renders the home screen', function() {
-          return client
-            .inputConnectionDetails({ hostname: 'localhost', port: 27018 })
-            .clickConnectButton()
-            .waitForStatusBar()
-            .waitForWindowTitle('MongoDB Compass - localhost:27018')
-            .getTitle().should.eventually.equal('MongoDB Compass - localhost:27018');
-        });
-
-        it('displays the instance details', function() {
-          return client
-            .getInstanceHeaderDetails().should.eventually.equal('localhost:27018');
-        });
-      });
-    });
-
-    context('when viewing the performance view', function() {
-      it('renders the operations graph inserts', function() {
-        return client
-          .clickPerformanceTab()
-          .getOperationsInserts()
-          .should.eventually.equal('0');
-      });
-
-      it('renders the operations graph queries', function() {
-        return client
-          .getOperationsQueries()
-          .should.eventually.equal('0');
-      });
-
-      it('renders the operations graph updates', function() {
-        return client
-          .getOperationsUpdates()
-          .should.eventually.equal('0');
-      });
-
-      it('renders the operations graph deletes', function() {
-        return client
-          .getOperationsDeletes()
-          .should.eventually.equal('0');
-      });
-
-      it('renders the operations graph deletes', function() {
-        return client
-          .getOperationsCommands()
-          .should.eventually.not.equal(null);
-      });
-
-      it('renders the operations graph getmores', function() {
-        return client
-          .getOperationsGetMores()
-          .should.eventually.equal('0');
-      });
-
-      it('renders the read/write active reads', function() {
-        return client
-          .getReadWriteActiveReads()
-          .should.eventually.equal('0');
-      });
-
-      it('renders the read/write active writes', function() {
-        return client
-          .getReadWriteActiveWrites()
-          .should.eventually.equal('0');
-      });
-
-      it('renders the read/write queued reads', function() {
-        return client
-          .getReadWriteQueuedReads()
-          .should.eventually.equal('0');
-      });
-
-      it('renders the read/write queued writes', function() {
-        return client
-          .getReadWriteQueuedWrites()
-          .should.eventually.equal('0');
-      });
-
-      it('renders the network bytes in', function() {
-        return client
-          .getNetworkBytesIn()
-          .should.eventually.not.equal(null);
-      });
-
-      it('renders the network bytes out', function() {
-        return client
-          .getNetworkBytesOut()
-          .should.eventually.not.equal(null);
-      });
-
-      it('renders the network connections', function() {
-        return client
-          .getNetworkConnections()
-          .should.eventually.equal('3');
-      });
-
-      it('renders the memory vsize', function() {
-        return client
-          .getMemoryVSize()
-          .should.eventually.not.equal(null);
-      });
-
-      it('renders the memory resident size', function() {
-        return client
-          .getMemoryResident()
-          .should.eventually.not.equal(null);
-      });
-
-      it('renders the memory mapped size', function() {
-        return client
-          .getMemoryMapped()
-          .should.eventually.not.equal(null);
-      });
-
-      it('renders the slow operations', function() {
-        return client
-          .getSlowestOperations()
-          .should.eventually.include('No Slow Operations');
-      });
-
-      context('when pausing the performance tab', function() {
-        it('pauses the performance tab', function() {
-          return client
-            .clickPerformancePauseButton()
-            .getSlowestOperations()
-            .should.eventually.include('No Slow Operations');
-        });
-      });
-    });
-
-    context('when creating a database', function() {
-      let dbCount;
-
-      before(function(done) {
-        client.getSidebarDatabaseCount().then(function(value) {
-          dbCount = parseInt(value, 10);
-          done();
-        });
-      });
-
-      context('when the escape key is pressed', function() {
-        it('closes the create databases modal', function() {
-          return client
-            .clickDatabasesTab()
-            .clickCreateDatabaseButton()
-            .waitForCreateDatabaseModal()
-            .pressEscape()
-            .waitForCreateDatabasesModalHidden()
-            .should.eventually.be.true;
-        });
-      });
-
-      context('when the database name is invalid', function() {
-        it('displays the error message', function() {
-          return client
-            .clickDatabasesTab()
-            .clickCreateDatabaseButton()
-            .waitForCreateDatabaseModal()
-            .inputCreateDatabaseDetails({ name: '$test', collectionName: 'test' })
-            .clickCreateDatabaseModalButton()
-            .waitForModalError()
-            .getModalErrorMessage()
-            .should.eventually.equal("database names cannot contain the character '$'");
-        });
-      });
-
-      context('when the database name is valid', function() {
-        it('creates the database', function() {
-          return client
-            .inputCreateDatabaseDetails({ name: 'music', collectionName: 'artists' })
-            .clickCreateDatabaseModalButton()
-            .waitForDatabaseCreation('music')
-            .getDatabasesTabDatabaseNames()
-            .should.eventually.include('music');
-        });
-
-        it('adds the database to the sidebar', function() {
-          return client
-            .getSidebarDatabaseNames()
-            .should.eventually.include('music');
-        });
-
-        it('updates the database count', function() {
-          return client
-            .getSidebarDatabaseCount()
-            .should.eventually.equal(String(dbCount + 1));
-        });
-      });
-    });
-
-    context('when entering a filter in the sidebar', function() {
+  context.skip('when a MongoDB instance is running', function() {
+    context.skip('when entering a filter in the sidebar', function() {
       let dbCount;
 
       before(function(done) {
@@ -297,7 +68,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
       });
     });
 
-    context('when deleting a database', function() {
+    context.skip('when deleting a database', function() {
       let dbCount;
 
       before(function(done) {
@@ -373,7 +144,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
       });
     });
 
-    context('when viewing the database', function() {
+    context.skip('when viewing the database', function() {
       it('lists the collections in the database', function() {
         return client
           .clickDatabaseInSidebar('music')
@@ -506,7 +277,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
       });
     });
 
-    context('when viewing a collection', function() {
+    context.skip('when viewing a collection', function() {
       let serverVersion;
 
       before(function(done) {
