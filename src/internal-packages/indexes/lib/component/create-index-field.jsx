@@ -131,7 +131,7 @@ class CreateIndexField extends React.Component {
    * @returns {React.Component} The index field form.
    */
   render() {
-    const fieldName = this.props.field.name || DEFAULT_FIELD.name;
+    const fieldName = this.props.field.name;
     const fieldType = this.props.field.type || DEFAULT_FIELD.type;
 
     // const hasNameError = this.state.isNameValid ? '' : 'has-error';
@@ -142,6 +142,7 @@ class CreateIndexField extends React.Component {
         <div className="col-md-6" data-test-id="create-index-modal-field-select">
           <Select.Creatable
             value={fieldName}
+            placeholder={DEFAULT_FIELD.name}
             options={this.getDropdownFieldsSelect(this.props.fields)}
             onChange={this.selectFieldName.bind(this)}
             clearable={false}
