@@ -25,7 +25,7 @@ function addGetDatabaseCommands(client) {
   /**
    * Get a list of database names from the Databases Tab.
    */
-  client.addCommand('getDatabasesTabDatabaseNames', function () {
+  client.addCommand('getDatabasesTabDatabaseNames', function() {
     return this
       .waitForVisibleInCompass(selector('databases-table'))
       .getText(selector('sortable-table-column-0'));

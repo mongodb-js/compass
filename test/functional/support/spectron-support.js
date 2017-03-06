@@ -4,7 +4,6 @@ const chaiAsPromised = require('chai-as-promised');
 const assert = require('assert');
 const path = require('path');
 const electronPrebuilt = require('electron-prebuilt');
-const selector = require('./spectron-selector');
 const addCollectionCommands = require('./packages/spectron-collection');
 const addCollectionDDLCommands = require('./packages/spectron-collection-ddl');
 const addConnectCommands = require('./packages/spectron-connect');
@@ -81,6 +80,8 @@ function isTimeoutError(e) {
  * @param {String} selector - The selector for the element.
  * @param {Boolean} reverse - Whether to revers the conditions.
  * @param {Number} index - The timeout index to use from TIMEOUTS.
+ *
+ * @return {Function}  return value of the `fn` function.
  */
 function progressiveWait(fn, selector, reverse, index) {
   const timeout = TIMEOUTS[index];
@@ -89,9 +90,8 @@ function progressiveWait(fn, selector, reverse, index) {
     .catch(function(e) {
       if (isTimeoutError(e) && timeout !== 13000) {
         return progressiveWait(fn, selector, reverse || false, index + 1);
-      } else {
-        throw e;
       }
+      throw e;
     });
 }
 
@@ -101,6 +101,8 @@ function progressiveWait(fn, selector, reverse, index) {
  * @param {Function} waitUntil - The waitUntil function.
  * @param {Function} fn - The function to execute.
  * @param {Number} index - The timeout index.
+ *
+ * @return {Function}  return value of the `fn` function.
  */
 function progressiveWaitUntil(waitUntil, fn, index) {
   const timeout = TIMEOUTS[index];
@@ -109,17 +111,17 @@ function progressiveWaitUntil(waitUntil, fn, index) {
     .catch(function(e) {
       if (isTimeoutError(e) && timeout !== 13000) {
         return progressiveWaitUntil(waitUntil, fn, index + 1);
-      } else {
-        throw e;
       }
+      throw e;
     });
 }
 
 /**
  * Add the extended wait commands for Compass.
+ *
+ * @param {Object} client   spectron client to add the wait commands to.
  */
 function addExtendedWaitCommands(client) {
-
   /**
    * Wait for an element to exist in the Compass test suite.
    *

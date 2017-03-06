@@ -59,7 +59,6 @@ function addClickSidebarCommands(client) {
     const base = `${selector('sidebar-database')}[title='${name}']`;
     return this.waitForVisibleInCompass(base).click(base);
   });
-
 }
 
 

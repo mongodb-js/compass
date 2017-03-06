@@ -1,4 +1,4 @@
-// /* eslint no-unused-vars: 0, no-unused-expressions: 0 */
+/* eslint no-unused-vars: 0, no-unused-expressions: 0 */
 const app = require('hadron-app');
 const chai = require('chai');
 const chaiEnzyme = require('chai-enzyme');

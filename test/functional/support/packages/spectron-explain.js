@@ -75,7 +75,6 @@ function addInputExplainCommands(client) {
     const input = `${base} .input-filter`;
     return this.setValue(input, filter);
   });
-
 }
 
 /**

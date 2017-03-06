@@ -136,7 +136,7 @@ function addInputIndexesCommands(client) {
         const field = selector('create-index-modal-name');
         return that
           .waitForVisibleInCompass(field)
-          .setValue(field, model.name)
+          .setValue(field, model.name);
       });
     }
     if (model.field) {
