@@ -67,6 +67,14 @@ class EditableKey extends React.Component {
       } else {
         this._node.blur();
       }
+    } else if (evt.keyCode === 13) {
+      // Simulate a tab if the user presses enter.
+      try {
+        this._node.nextSibling.nextSibling.firstChild.focus();
+      } catch (e) {
+        console.log(e);
+        return;
+      }
     }
   }
 
@@ -83,7 +91,7 @@ class EditableKey extends React.Component {
         evt.target.value = '';
         // focus is not always available, this is now guarded
         try {
-          this._node.nextSibling.nextSibling.focus();
+          this._node.nextSibling.nextSibling.firstChild.focus();
         } catch (e) {
           return;
         }

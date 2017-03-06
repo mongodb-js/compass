@@ -99,17 +99,7 @@ class EditableValue extends React.Component {
    */
   handleKeyDown(evt) {
     if (evt.keyCode === 9 && !evt.shiftKey) {
-      if (this.isTabable()) {
-        if (!this.element.nextElement) {
-          this.element.next();
-          evt.preventDefault();
-          evt.stopPropagation();
-        }
-      } else {
-        // We don't want to create another element when the current one is blank.
-        evt.preventDefault();
-        evt.stopPropagation();
-      }
+      this.simulateTab(evt);
     } else if (evt.keyCode === ESC) {
       const value = evt.target.value;
       if (value.length === 0 && this.element.currentKey.length === 0) {
@@ -117,6 +107,31 @@ class EditableValue extends React.Component {
       } else {
         this._node.blur();
       }
+    } else if (evt.keyCode === 13) {
+      if (this.element.nextElement) {
+        // need to force the focus.
+        this._node.parentNode.parentNode.nextSibling.childNodes[2].focus();
+      }
+      this.simulateTab(evt);
+    }
+  }
+
+  /**
+   * Simulates a tab event.
+   *
+   * @param {Event} evt - The event.
+   */
+  simulateTab(evt) {
+    if (this.isTabable()) {
+      if (!this.element.nextElement) {
+        this.element.next();
+        evt.preventDefault();
+        evt.stopPropagation();
+      }
+    } else {
+      // We don't want to create another element when the current one is blank.
+      evt.preventDefault();
+      evt.stopPropagation();
     }
   }
 
