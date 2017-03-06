@@ -1,6 +1,7 @@
 /* eslint no-unused-expressions: 0 */
 const app = require('hadron-app');
 const { expect } = require('chai');
+const sinon = require('sinon');
 
 // HACK: Work around
 // TypeError: Cannot read property 'indexOf' of undefined
@@ -9,7 +10,16 @@ NamespaceStore.ns = '';
 // End HACK, drop it if you can keep the renderer tests passing :)
 
 describe('ChartStoreIntegration', function() {
-  const appDataService = app.dataService;
+  let originalDataService;
+  before(() => {
+    originalDataService = app.dataService;
+    app.dataService = {
+      find: sinon.spy(),
+      count: sinon.spy(),
+      explain: sinon.spy(),
+      sample: sinon.spy()
+    };
+  });
   beforeEach(function() {
     this.ChartStore = app.appRegistry.getStore('Chart.Store');
     this.QueryStore = app.appRegistry.getStore('Query.Store');
@@ -18,28 +28,24 @@ describe('ChartStoreIntegration', function() {
   afterEach(function() {
     this.ChartStore._resetChart();
     this.QueryStore.reset();
-    app.dataService = appDataService;
+  });
+  after(() => {
+    app.dataService = originalDataService;
   });
 
   context('queryCache', function() {
-    beforeEach(() => {
-      app.dataService = {
-        count: () => {
-          return 0;
-        },
-        explain: () => {
-          return {};
-        },
-        sample: () => {
-          return {};
-        }
-      };
-    });
-
-    it('initial state is an empty object', function(done) {
+    it('initial state is populated with default query options', function(done) {
       setTimeout(() => {
         const queryCache = this.ChartStore.state.queryCache;
-        expect(queryCache).to.be.deep.equal({});
+        expect(queryCache).to.be.deep.equal({
+          filter: {},
+          sort: null,
+          project: null,
+          skip: 0,
+          limit: 100,
+          maxTimeMS: 10000,
+          ns: ''
+        });
         done();
       });
     });
@@ -51,9 +57,8 @@ describe('ChartStoreIntegration', function() {
         sort: {_id: 1},
         skip: 0,
         limit: 0,
-        ns: '',
         maxTimeMS: 10000,
-        queryState: 'apply'
+        ns: ''
       }, QUERY);
 
       this.QueryStore.setQuery(QUERY);
@@ -66,14 +71,22 @@ describe('ChartStoreIntegration', function() {
       });
     });
 
-    it('after clicking apply then reset the queryCache is an empty object', function(done) {
+    it('after clicking apply then reset the queryCache is the default query', function(done) {
       this.QueryStore.setQuery({filter: {foo: 1}});
       this.QueryStore.apply();
       this.QueryStore.reset();
 
       setTimeout(() => {
         const queryCache = this.ChartStore.state.queryCache;
-        expect(queryCache).to.be.deep.equal({});
+        expect(queryCache).to.be.deep.equal({
+          filter: {},
+          sort: null,
+          project: null,
+          skip: 0,
+          limit: 100,
+          maxTimeMS: 10000,
+          ns: ''
+        });
         done();
       });
     });

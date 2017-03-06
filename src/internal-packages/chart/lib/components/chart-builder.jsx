@@ -40,6 +40,13 @@ class ChartBuilder extends React.Component {
           <this.queryBar layout={QUERYBAR_LAYOUT} />
           {this.renderWarning()}
         </div>
+        // @todo (thomas) temporarily output the cached docs as JSON so
+        // we have something on the screen to see data fetching works.
+        <pre>
+          <code>
+            {JSON.stringify(this.props.dataCache, null, 2)}
+          </code>
+        </pre>
       </div>
     );
   }
