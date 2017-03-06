@@ -226,13 +226,13 @@ describe('Compass Functional Tests for QueryBar #spectron', function() {
           it('includes fetch in the winning plan', function() {
             return client
               .waitForStatusBar()
-              .inputSortFromExplainPlanTab('{age: 1}')
+              .inputSortFromExplainPlanTab('{name: 1}')
               .clickApplyFilterButtonFromExplainPlanTab()
               .waitForStatusBar()
               .clickExplainViewDetails('raw-json')
               .waitForStatusBar()
               .getExplainRawJSONDocument()
-              .should.eventually.include('FETCH');
+              .should.eventually.include('SORT');
           });
 
           it('reduces the number of documents returned', function() {

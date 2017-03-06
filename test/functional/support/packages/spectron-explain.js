@@ -26,6 +26,16 @@ function addClickExplainCommands(client) {
     const button = `${base} ${selector('reset-filter-button')}`;
     return this.waitForVisibleInCompass(button).click(button);
   });
+
+  /**
+   * Click one of the view details as buttons
+   *
+   * @param {String} view - the value should be either 'visual-tree' or 'raw json'
+   */
+  client.addCommand('clickExplainViewDetails', function(view) {
+    const button = selector('explain-view-' + view);
+    return this.click(button);
+  });
 }
 
 
@@ -61,6 +71,16 @@ function addGetExplainCommands(client) {
   client.addCommand('getExplainDocumentsExamined', function() {
     const base = selector('explain-examined-count');
     return this.waitForVisibleInCompass(base).getText(base);
+  });
+
+  /**
+   * Get the explain plan raw json object
+   */
+  client.addCommand('getExplainRawJSONDocument', function() {
+    const base = `${selector('readonly-document')} .element-value-is-string`;
+    return this.waitForVisibleInCompass(base).getText(base).then((values) => {
+      return values.map((str) => str.replace(/"/g, ''));
+    });
   });
 }
 
