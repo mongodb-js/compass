@@ -3,7 +3,7 @@ const InstanceHeaderComponent = require('./lib/components');
 const InstanceHeaderActions = require('./lib/actions');
 
 /**
- * Activate all the components in the Query Bar package.
+ * Activate all the components in the Instance Header package.
  */
 function activate() {
   app.appRegistry.registerComponent('InstanceHeader.Component', InstanceHeaderComponent);
@@ -11,12 +11,11 @@ function activate() {
 }
 
 /**
- * Deactivate all the components in the Query Bar package.
+ * Deactivate all the components in the Instance Header package.
  */
 function deactivate() {
-  // app.appRegistry.deregisterComponent('Query.QueryBar');
   app.appRegistry.deregisterComponent('InstanceHeader.Component', InstanceHeaderComponent);
-  app.appRegistry.deregisterAction('InstanceHeader.Actions', InstanceHeaderComponent);
+  app.appRegistry.deregisterAction('InstanceHeader.Actions', InstanceHeaderActions);
 }
 
 module.exports.activate = activate;

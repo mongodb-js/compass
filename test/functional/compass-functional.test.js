@@ -240,7 +240,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
             .inputCreateDatabaseDetails({ name: 'music', collectionName: 'artists' })
             .clickCreateDatabaseModalButton()
             .waitForDatabaseCreation('music')
-            .getHomeViewDatabaseNames()
+            .getDatabasesTabDatabaseNames()
             .should.eventually.include('music');
         });
 
@@ -329,7 +329,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
           .inputDropDatabaseName('temp')
           .clickDropDatabaseModalButton()
           .waitForDatabaseDeletion('temp')
-          .getHomeViewDatabaseNames()
+          .getDatabasesTabDatabaseNames()
           .should.not.eventually.include('temp');
       });
 
@@ -354,7 +354,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
           .inputDropDatabaseName('temp')
           .pressEnter()
           .waitForDatabaseDeletion('temp')
-          .getHomeViewDatabaseNames()
+          .getDatabasesTabDatabaseNames()
           .should.not.eventually.include('temp');
         });
       });
@@ -377,7 +377,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
         return client
           .clickDatabaseInSidebar('music')
           .waitForDatabaseView()
-          .getDatabaseViewCollectionNames()
+          .getCollectionsTabCollectionNames()
           .should.eventually.include('artists');
       });
 
@@ -428,7 +428,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
               .inputCreateCollectionDetails({ name: 'labels' })
               .clickCreateCollectionModalButton()
               .waitForCollectionCreation('labels')
-              .getDatabaseViewCollectionNames()
+              .getCollectionsTabCollectionNames()
               .should.eventually.include('labels');
           });
 
@@ -452,7 +452,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
               .inputCreateCollectionDetails({name: 'bands' })
               .pressEnter()
               .waitForCollectionCreation('bands')
-              .getDatabaseViewCollectionNames()
+              .getCollectionsTabCollectionNames()
               .should.eventually.include('bands');
           });
         });
@@ -465,7 +465,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
               .inputDropCollectionName('labels')
               .clickDropCollectionModalButton()
               .waitForCollectionDeletion('labels')
-              .getDatabaseViewCollectionNames()
+              .getCollectionsTabCollectionNames()
               .should.not.eventually.include('labels');
           });
 
@@ -485,7 +485,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
             .pressEnter()
             .waitForDropCollectionModal()
             .waitForCollectionDeletion('bands')
-            .getDatabaseViewCollectionNames()
+            .getCollectionsTabCollectionNames()
             .should.not.eventually.include('bands');
           });
 
@@ -619,7 +619,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
           return client
             .clickDatabaseInSidebar('music')
             .waitForDatabaseView()
-            .getDatabaseViewCollectionNames()
+            .getCollectionsTabCollectionNames()
             .should.eventually.include('artists');
         });
 

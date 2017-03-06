@@ -1,7 +1,6 @@
 /* eslint no-unused-expressions: 0 */
 
 const { expect } = require('chai');
-const sinon = require('sinon');
 
 require('../../src/app/reflux-listen-to-external-store.js');
 const { NamespaceStore } = require('hadron-reflux-store');
@@ -141,7 +140,8 @@ describe('ChartStore', function() {
     });
 
     context('when calling the clearChart action after populating the namespaceCache', function() {
-      let chartKeys, initialChartState;
+      let chartKeys;
+      let initialChartState;
       beforeEach(function() {
         initialChartState = this.store.getInitialChartState();
         chartKeys = Object.keys(initialChartState);
@@ -169,7 +169,7 @@ describe('ChartStore', function() {
           const newChartState = _.pick(this.store.state, chartKeys);
           expect(newChartState).to.be.deep.equal(initialChartState);
           done();
-        })
+        });
       });
 
       it('the namespaceCache state is not flushed', function(done) {
@@ -179,7 +179,7 @@ describe('ChartStore', function() {
           const newCacheState = _.omit(this.store.state, chartKeys);
           expect(newCacheState).to.be.deep.equal(expected);
           done();
-        })
+        });
       });
     });
   });
@@ -234,7 +234,7 @@ describe('ChartStore', function() {
         {revenue: 2, year: 2},
         {revenue: 4, year: 3},
         {revenue: 3, year: 4},
-        {revenue: 5, year: 5},
+        {revenue: 5, year: 5}
       ]});
       ChartStore.mapFieldToChannel(CHART_CHANNEL_ENUM.X, 'year');
       ChartStore.mapFieldToChannel(CHART_CHANNEL_ENUM.Y, 'revenue');

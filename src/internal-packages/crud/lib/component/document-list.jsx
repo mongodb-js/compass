@@ -172,6 +172,7 @@ class DocumentList extends React.Component {
    * Handle insert of a new document.
    *
    * @param {Boolean} success - If the insert was successful.
+   * @param {Object} doc - The raw document that was inserted.
    */
   handleInsert(success, doc) {
     if (success) {

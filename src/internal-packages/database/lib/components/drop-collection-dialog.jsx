@@ -1,3 +1,4 @@
+// TODO: Move this into a internal-packages/collection-ddl
 const app = require('hadron-app');
 const React = require('react');
 const Modal = require('react-bootstrap').Modal;

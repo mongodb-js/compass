@@ -12,14 +12,14 @@ describe('Zoom renderer tests', () => {
     expect(zoomIn()).to.be.equal(0.5);
   });
   it('should zoom in at least 5x', () => {
-    [1,2,3,4,5].forEach(() => {zoomIn()});
+    [1, 2, 3, 4, 5].forEach(() => { zoomIn(); });
     expect(zoomIn()).to.be.equal(3);
   });
   it('should zoom out', () => {
     expect(zoomOut()).to.be.equal(-0.5);
   });
   it('should zoom out at least 5x', () => {
-    [1,2,3,4,5].forEach(() => {zoomOut()});
+    [1, 2, 3, 4, 5].forEach(() => { zoomOut(); });
     expect(zoomOut()).to.be.equal(-3);
   });
 });
