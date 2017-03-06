@@ -605,7 +605,7 @@ _.assign(derived, {
         });
       } else if (this.authentication === 'LDAP') {
         req.auth = format('%s:%s',
-          encodeURIComponent(this.ldap_username),
+          this.ldap_username,
           this.ldap_password);
 
         _.defaults(req.query, {

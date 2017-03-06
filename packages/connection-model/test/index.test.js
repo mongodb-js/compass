@@ -230,6 +230,19 @@ describe('mongodb-connection-model', function() {
             });
           });
         });
+
+        describe('driver_url with @', function() {
+          var c = new Connection({
+            authentication: 'LDAP',
+            ldap_username: 'arlo@t.co',
+            ldap_password: 'woof',
+            ns: 'ldap'
+          });
+          it('COMPASS-745 - should urlencode @ once only', function() {
+            assert.equal(c.driver_url,
+              'mongodb://arlo%40t.co:woof@localhost:27017/ldap?slaveOk=true&authMechanism=PLAIN');
+          });
+        });
       });
 
       describe('X509', function() {
