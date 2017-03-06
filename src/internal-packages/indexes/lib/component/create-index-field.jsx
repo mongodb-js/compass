@@ -6,7 +6,7 @@ const Select = require('react-select');
 const StatusStore = require('../store/ddl-status-store');
 const Action = require('../action/index-actions');
 
-// const debug = require('debug')('mongodb-compass:indexes:create-index-field');
+const debug = require('debug')('mongodb-compass:indexes:create-index-field');
 
 /**
  * Current allowed types for indexes.
@@ -121,8 +121,8 @@ class CreateIndexField extends React.Component {
     });
   }
 
-  addFieldName(field) {
-    Action.updateFieldName(this.props.idx, field.label);
+  _promptText(label) {
+    return `Create Index: '${label}'`;
   }
 
   /**
@@ -144,8 +144,8 @@ class CreateIndexField extends React.Component {
             value={fieldName}
             options={this.getDropdownFieldsSelect(this.props.fields)}
             onChange={this.selectFieldName.bind(this)}
-            onNewOptionClick={this.addFieldName.bind(this)}
             clearable={false}
+            promptTextCreator={this._promptText}
           />
         </div>
         <div className="col-md-4" data-test-id="create-index-modal-type-select">

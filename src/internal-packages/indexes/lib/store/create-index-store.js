@@ -4,7 +4,7 @@ const Action = require('../action/index-actions');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const _ = require('lodash');
 
-// const debug = require('debug')('mongodb-compass:ddl:index:store');
+const debug = require('debug')('mongodb-compass:ddl:index:store');
 
 const ERRORS = {
   duplicate: 'Index keys must be unique',
@@ -172,12 +172,17 @@ const CreateIndexStore = Reflux.createStore({
   },
 
   updateFieldName: function(idx, name) {
+    debug('blargh: updatefieldname', name);
     if (idx >= 0 && idx < this.fields.length) {
       // check if field name already exists or no
       if (this.fields.some(field => field.name === name)) {
         Action.updateStatus('error', ERRORS.duplicate);
       } else {
         this.fields[idx].name = name;
+      }
+      // check if field name exists in schemaFields, otherwise add
+      if (!_.contains(this.schemaFields, name)) {
+        this.schemaFields.push(name);
       }
     }
     this.sendValues();
