@@ -26,7 +26,7 @@ const InsertDocumentStore = Reflux.createStore({
   insertDocument: function(doc) {
     app.dataService.insertOne(NamespaceStore.ns, doc, {}, (error) => {
       if (error) {
-        this.trigger(false, error);
+        return this.trigger(false, error);
       }
       const filter = _.assign(this.filter, { _id: doc._id });
       app.dataService.count(NamespaceStore.ns, filter, {}, (err, count) => {
