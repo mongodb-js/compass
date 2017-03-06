@@ -1,12 +1,9 @@
 const React = require('react');
-const ButtonToolbar = require('react-bootstrap').ButtonToolbar;
-const DropdownButton = require('react-bootstrap').DropdownButton;
-const MenuItem = require('react-bootstrap').MenuItem;
 const Select = require('react-select');
 const StatusStore = require('../store/ddl-status-store');
 const Action = require('../action/index-actions');
 
-const debug = require('debug')('mongodb-compass:indexes:create-index-field');
+// const debug = require('debug')('mongodb-compass:indexes:create-index-field');
 
 /**
  * Current allowed types for indexes.
@@ -60,21 +57,16 @@ class CreateIndexField extends React.Component {
     }));
   }
 
-  getDropdownFields() {
-    return this.props.fields.map((elem, index) => (
-      <MenuItem key={index}
-        disabled={this.props.disabledFields.some(field => (field === elem))}
-        eventKey={elem}>{elem}
-      </MenuItem>));
-  }
-
   /**
    * Create React dropdown items for each element in the INDEX_TYPES array.
    *
    * @returns {Array} The React components for each item in the field and type dropdowns.
    */
   getDropdownTypes() {
-    return INDEX_TYPES.map((elem, index) => (<MenuItem key={index} eventKey={elem}>{elem}</MenuItem>));
+    return INDEX_TYPES.map((elem) => ({
+      value: elem,
+      label: elem
+    }));
   }
 
   /**
@@ -89,10 +81,10 @@ class CreateIndexField extends React.Component {
   /**
    * Set state to selected type on type change.
    *
-   * @param {string} type - The selected type.
+   * @param {string} field - The selected field object.
    */
-  selectType(type) {
-    Action.updateFieldType(this.props.idx, type);
+  selectFieldType(field) {
+    Action.updateFieldType(this.props.idx, field.label);
   }
 
   /**
@@ -132,10 +124,10 @@ class CreateIndexField extends React.Component {
    */
   render() {
     const fieldName = this.props.field.name;
-    const fieldType = this.props.field.type || DEFAULT_FIELD.type;
+    const fieldType = this.props.field.type;
 
     // const hasNameError = this.state.isNameValid ? '' : 'has-error';
-    const hasTypeError = this.state.isTypeValid ? '' : 'has-error';
+    // const hasTypeError = this.state.isTypeValid ? '' : 'has-error';
 
     return (
       <div className="form-inline row create-index-field">
@@ -150,15 +142,14 @@ class CreateIndexField extends React.Component {
           />
         </div>
         <div className="col-md-4" data-test-id="create-index-modal-type-select">
-          <ButtonToolbar>
-            <DropdownButton
-              title={fieldType}
-              id="field-type-select-dropdown"
-              className={`create-index-field-dropdown-type ${hasTypeError}`}
-              onSelect={this.selectType.bind(this)}>
-              {this.getDropdownTypes(INDEX_TYPES)}
-            </DropdownButton>
-          </ButtonToolbar>
+          <Select
+            value={fieldType}
+            placeholder={DEFAULT_FIELD.type}
+            options={this.getDropdownTypes(INDEX_TYPES)}
+            onChange={this.selectFieldType.bind(this)}
+            clearable={false}
+            searchable={false}
+          />
         </div>
         <div className="col-md-2">
           <button disabled={this.props.isRemovable}
