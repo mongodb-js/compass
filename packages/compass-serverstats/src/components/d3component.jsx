@@ -1,8 +1,7 @@
 const React = require('react');
 const ReactDOM = require('react-dom');
 const d3 = require('d3');
-const TopStore = require('../stores/top-store');
-const CurrentOpStore = require('../stores/current-op-store');
+const Actions = require('../actions');
 
 const LINE_COLORS = ['#45BAAB', '#23B1FF', '#6F72FF', '#A33A35', '#FFA900', '#C7E82F'];
 
@@ -85,10 +84,8 @@ class D3Component extends React.Component {
       .defined((d, i) => !data.skip[i])
       .color(d3.scale.ordinal().range(LINE_COLORS))
       .strokeWidth(2)
-      .on('mouseover', TopStore.mouseOver)
-      .on('mouseover', CurrentOpStore.mouseOver)
-      .on('mouseout', TopStore.mouseOut)
-      .on('mouseout', CurrentOpStore.mouseOut);
+      .on('mouseover', Actions.mouseOver)
+      .on('mouseout', Actions.mouseOut);
 
     d3.select(el)
       .datum(this.props.data)

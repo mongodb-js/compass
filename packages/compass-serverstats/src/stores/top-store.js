@@ -22,6 +22,8 @@ const TopStore = Reflux.createStore({
     this.listenTo(Actions.pollTop, this.top_delta);
     this.listenTo(Actions.pause, this.pause);
     this.listenTo(Actions.restart, this.restart);
+    this.listenTo(Actions.mouseOver, this.mouseOver);
+    this.listenTo(Actions.mouseOut, this.mouseOut);
   },
 
   restart: function() {

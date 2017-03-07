@@ -11,7 +11,9 @@ const Actions = Reflux.createActions([
   'dbError',
   'showOperationDetails',
   'hideOperationDetails',
-  'restart'
+  'restart',
+  'mouseOut',
+  'mouseOver'
 ]);
 
 module.exports = Actions;

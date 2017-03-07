@@ -22,6 +22,8 @@ const CurrentOpStore = Reflux.createStore({
     this.listenTo(Actions.pollCurrentOp, this.currentOp);
     this.listenTo(Actions.pause, this.pause);
     this.listenTo(Actions.restart, this.restart);
+    this.listenTo(Actions.mouseOver, this.mouseOver);
+    this.listenTo(Actions.mouseOut, this.mouseOut);
   },
 
   restart: function() {
