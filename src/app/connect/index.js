@@ -275,14 +275,15 @@ var ConnectView = View.extend({
       this.replaceSshTunnelMethodFields.bind(this));
 
     // add event listener to focus event and also check on app launch
-    window.addEventListener('focus', this.onConnectWindowFocused.bind(this));
+    this.boundOnConnectWindowFocused = this.onConnectWindowFocused.bind(this);
+    window.addEventListener('focus', this.boundOnConnectWindowFocused);
     this.onConnectWindowFocused();
 
     // always start in NEW_EMPTY state
     this.dispatch('new connection clicked');
   },
   remove: function() {
-    window.removeEventListener('focus', this.onConnectWindowFocused.bind(this));
+    window.removeEventListener('focus', this.boundOnConnectWindowFocused);
     return View.prototype.remove.call(this);
   },
 
