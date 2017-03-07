@@ -1,5 +1,4 @@
 const d3 = require('d3');
-const RealTimeEventDispatch = require('./real-time-event-dispatch');
 
 function realTimeMouseOverlay() {
   let prefix = 'serverstats-overlay';
