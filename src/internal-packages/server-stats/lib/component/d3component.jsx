@@ -1,6 +1,5 @@
 const React = require('react');
 const ReactDOM = require('react-dom');
-const Actions = require('../actions');
 const d3 = require('d3');
 const Actions = require('../actions');
 const _ = require('lodash');
