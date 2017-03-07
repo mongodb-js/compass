@@ -1,4 +1,9 @@
 const d3 = require('d3');
+<<<<<<< HEAD
+=======
+const debug = require('debug')('mongodb-compass:server-stats:overlay');
+const events = require('./dispatch');
+>>>>>>> 46764e2... events are everywhere
 
 function realTimeMouseOverlay() {
   let prefix = 'serverstats-overlay';
