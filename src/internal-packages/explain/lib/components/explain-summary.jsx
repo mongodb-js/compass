@@ -63,6 +63,7 @@ class ExplainSummary extends React.Component {
             />
             <SummaryIndexStat
               dataLink={HELP_URLS.INDEX_USED}
+              dataTestId="explain-index-stats"
               indexType={this.props.indexType}
               index={this.props.index}
             />
