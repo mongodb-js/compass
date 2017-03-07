@@ -1339,6 +1339,16 @@ function addInputCommands(client) {
   });
 
   /**
+   * Click one of the view details as buttons
+   *
+   * @param {String} view - the value should be either 'visual-tree' or 'raw-json'
+   */
+  client.addCommand('clickExplainViewDetails', function(view) {
+    const button = selector('explain-view-' + view);
+    return this.click(button);
+  });
+
+  /**
    * Input a projection into the query from the schema tab.
    *
    * @type {String} filter - the filter.
