@@ -1349,6 +1349,16 @@ function addInputCommands(client) {
   });
 
   /**
+   * Get the explain plan raw json object
+   */
+  client.addCommand('getExplainRawJSONDocument', function() {
+    const base = `${selector('readonly-document')} .element-value-is-string`;
+    return this.waitForVisibleInCompass(base).getText(base).then((values) => {
+      return values.map((str) => str.replace(/"/g, ''));
+    });
+  });
+
+  /**
    * Input a projection into the query from the schema tab.
    *
    * @type {String} filter - the filter.
