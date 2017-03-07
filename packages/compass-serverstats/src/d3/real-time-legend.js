@@ -8,7 +8,7 @@ function realTimeLegend() {
   let onToggle = function(/* d, i, active */) { /* no-op */ };
   let justifyContent = 'flex-start';
   let format = (d) => d;
-  let yData = (yValues, /* i */) => yValues.data;
+  let yData = (yValues) => yValues.data;
 
   function component(selection) {
     selection.each(function(data) {

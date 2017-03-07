@@ -26,16 +26,16 @@ function realTimeLineChart() {
   let yVal = (d) => d.y;
   let yUnits = '';
   let yValues = (/* data */) => [];
-  let yData = (yValue, /* i */) => yValue.data;
-  let yLabel = (yValue, /* i */) => yValue.label;
+  let yData = (yValue) => yValue.data;
+  let yLabel = (yValue) => yValue.label;
   let yFormat = (d) => d;
 
   let y2Domain = null;
   let y2Val = (d) => d;
   let y2Units = '';
   let y2Values = (/* data */) => [];
-  let y2Data = (y2Value, /* i */ ) => y2Value.data;
-  let y2Label = (y2Value, /* i */) => y2Value.label;
+  let y2Data = (y2Value) => y2Value.data;
+  let y2Label = (y2Value) => y2Value.label;
   let y2Format = (d) => d;
 
   let defined = (d) => d.defined;
@@ -476,6 +476,8 @@ function realTimeLineChart() {
    * @param {Function} value - A function that, given the data bound to the selection returns an array of items with each
    * item representing one line to be drawn for the left axis
    *
+   * Optional param {number} index - Arguments can include the index.
+   *
    * @returns {Function} The chart component, or the existing value if none supplied
    */
   chart.yValues = function(value) {
@@ -489,6 +491,8 @@ function realTimeLineChart() {
    *
    * @param {Function} value - A function that, given one of the items returned by yValues, outputs and array of data points
    * for which to draw a line
+   *
+   * Optional param {number} index - Arguments can include the index. Example: yData(yValues[index], index)
    *
    * @returns {Function} The chart component, or the existing value if none supplied
    */

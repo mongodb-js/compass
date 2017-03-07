@@ -5,7 +5,7 @@ function realTimeChartLines() {
   let yScale = d3.scale.linear();
   let xVal = (datum) => datum.x;
   let yVal = (datum) => datum.y;
-  let yData = (yValue, /* i */) => yValue.data;
+  let yData = (yValue) => yValue.data;
   let color = d3.scale.category10();
   let strokeWidth = 1;
   let defined = () => true;
