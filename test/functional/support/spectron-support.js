@@ -1295,6 +1295,50 @@ function addInputCommands(client) {
   });
 
   /**
+   * Inputs a sort into the query bar from the explain plan tab.
+   *
+   * @param {String} filter - The filter.
+  */
+  client.addCommand('inputSortFromExplainPlanTab', function(filter) {
+    const base = selector('explain-plan-content');
+    const input = `${base} .input-sort`;
+    return this.setValue(input, filter);
+  });
+
+  /**
+   * Inputs a projection into the query bar from the explain plan tab.
+   *
+   * @param {String} filter - The filter.
+  */
+  client.addCommand('inputProjectFromExplainPlanTab', function(filter) {
+    const base = selector('explain-plan-content');
+    const input = `${base} .input-project`;
+    return this.setValue(input, filter);
+  });
+
+  /**
+   * Inputs a skip into the query bar from the documents tab.
+   *
+   * @param {String} filter - The filter.
+   */
+  client.addCommand('inputSkipFromExplainPlanTab', function(filter) {
+    const base = selector('explain-plan-content');
+    const input = `${base} .input-skip`;
+    return this.setValue(input, filter);
+  });
+
+  /**
+   * Inputs a limit into the query bar from the documents tab.
+   *
+   * @param {String} filter - The filter.
+   */
+  client.addCommand('inputLimitFromExplainPlanTab', function(filter) {
+    const base = selector('explain-plan-content');
+    const input = `${base} .input-limit`;
+    return this.setValue(input, filter);
+  });
+
+  /**
    * Input a projection into the query from the schema tab.
    *
    * @type {String} filter - the filter.
