@@ -256,6 +256,16 @@ describe('ChartStore', function() {
   });
 
   context('when calling _refreshDataCache', () => {
+    const defaultQuery = {
+      filter: {},
+      sort: null,
+      project: null,
+      skip: 0,
+      limit: 100,
+      ns: '',
+      maxTimeMS: 10000
+    };
+
     beforeEach(() => {
       app.dataService = {
         find: sinon.spy()
@@ -264,7 +274,9 @@ describe('ChartStore', function() {
     context('when calling with default arguments', () => {
       it('calls app.dataService.find with the correct arguments', () => {
         ChartStore.state.queryCache.ns = 'foo.bar';
-        ChartStore._refreshDataCache();
+        ChartStore._refreshDataCache(Object.assign({}, defaultQuery, {
+          ns: 'foo.bar'
+        }));
         const findOptions = app.dataService.find.args[0][2];
         const filter = app.dataService.find.args[0][1];
         const ns = app.dataService.find.args[0][0];
@@ -279,24 +291,24 @@ describe('ChartStore', function() {
     });
     context('when calling with limit > 100', () => {
       it('limits the limit to 100', () => {
-        ChartStore.state.queryCache.ns = 'foo.bar';
-        ChartStore.state.queryCache.limit = 5000;
-        ChartStore._refreshDataCache();
+        ChartStore._refreshDataCache(Object.assign({}, defaultQuery, {
+          ns: 'foo.bar',
+          limit: 5000
+        }));
         const findOptions = app.dataService.find.args[0][2];
         expect(findOptions.limit).to.be.equal(100); // @todo temporary limitation
       });
     });
     context('when using non-default query options', () => {
       it('calls app.dataService.find with the correct arguments', () => {
-        ChartStore.setState({queryCache: {
+        ChartStore._refreshDataCache(Object.assign({}, defaultQuery, {
           ns: 'foo.bar',
           filter: {foo: true},
           project: {bar: 1},
           sort: {baz: 1},
           skip: 40,
           limit: 9
-        }});
-        ChartStore._refreshDataCache();
+        }));
         const findOptions = app.dataService.find.args[0][2];
         const filter = app.dataService.find.args[0][1];
         const ns = app.dataService.find.args[0][0];
