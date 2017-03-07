@@ -96,10 +96,10 @@ const ChartStore = Reflux.createStore({
   /**
    * fetch data from server based on current query and sets the dataCache state
    * variable. Currently limits number of documents to 100.
+   *
+   * @param {Object} query   the new query to fetch data for
    */
-  _refreshDataCache() {
-    const query = this.state.queryCache;
-
+  _refreshDataCache(query) {
     const ns = toNS(query.ns);
     if (!ns.database || !ns.collection) {
       return;
@@ -121,7 +121,10 @@ const ChartStore = Reflux.createStore({
         // @todo handle error better? what kind of errors can happen here?
         throw error;
       }
-      this.setState({dataCache: documents});
+      this.setState({
+        queryCache: query,
+        dataCache: documents
+      });
     });
   },
 
@@ -139,13 +142,9 @@ const ChartStore = Reflux.createStore({
    * @param {Object} state - The query state.
    */
   onQueryChanged(state) {
-    if (state.queryState === 'reset') {
-      this.setState({queryCache: INITIAL_QUERY});
-    } else {
-      this.setState({queryCache: _.pick(state,
-        ['filter', 'sort', 'project', 'skip', 'limit', 'maxTimeMS', 'ns'])});
-    }
-    this._refreshDataCache();
+    const newQuery = _.pick(state,
+      ['filter', 'sort', 'project', 'skip', 'limit', 'maxTimeMS', 'ns']);
+    this._refreshDataCache(newQuery);
   },
 
   /**
