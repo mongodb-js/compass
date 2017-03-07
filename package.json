@@ -197,7 +197,7 @@
     "devtron": "^1.4.0",
     "electron-devtools-installer": "^2.0.1",
     "electron-mocha": "^3.3.0",
-    "electron-prebuilt": "1.2.8",
+    "electron": "1.6.1",
     "enzyme": "^2.5.1",
     "eslint-config-mongodb-js": "^2.2.0",
     "hadron-build": "^6.0.1",
@@ -217,8 +217,8 @@
     "check"
   ],
   "engines": {
-    "node": "^6.3.0",
-    "npm": "^3.0.0"
+    "node": "^7.4.0",
+    "npm": "^4.0.0"
   },
   "bugs": {
     "url": "https://docs.mongodb.com/compass/current/#contact",
