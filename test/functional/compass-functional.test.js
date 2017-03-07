@@ -695,11 +695,9 @@ describe('Compass Main Functional Test Suite #spectron', function() {
         });
 
         it('renders the index usages', function() {
-          return client
-            .getIndexUsages()
-            .should
-            .eventually
-            .equal(isIndexUsageEnabled(serverVersion) ? '8' : '0');
+          return isIndexUsageEnabled(serverVersion) ?
+            client.getIndexUsages().should.eventually.be.at.least('1') :
+            client.getIndexUsages().should.eventually.be.equal('0');
         });
 
         it('renders the index properties', function() {

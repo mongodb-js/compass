@@ -10,6 +10,7 @@ const Actions = require('./actions');
 const StateMixin = require('reflux-state-mixin');
 const app = require('hadron-app');
 const ReadPreference = require('mongodb').ReadPreference;
+const toNS = require('mongodb-ns');
 const _ = require('lodash');
 
 // const debug = require('debug')('mongodb-compass:chart:store');
@@ -99,6 +100,11 @@ const ChartStore = Reflux.createStore({
   _refreshDataCache() {
     const query = this.state.queryCache;
 
+    const ns = toNS(query.ns);
+    if (!ns.database || !ns.collection) {
+      return;
+    }
+
     // limit document number to 100 for now.
     const findOptions = {
       sort: _.isEmpty(query.sort) ? null : _.pairs(query.sort),
@@ -110,7 +116,7 @@ const ChartStore = Reflux.createStore({
       promoteValues: true
     };
 
-    app.dataService.find(query.ns, query.filter, findOptions, (error, documents) => {
+    app.dataService.find(ns.ns, query.filter, findOptions, (error, documents) => {
       if (error) {
         // @todo handle error better? what kind of errors can happen here?
         throw error;
