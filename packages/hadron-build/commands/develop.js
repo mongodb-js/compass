@@ -9,7 +9,7 @@ const spawn = require('child_process').spawn;
 const ui = require('./ui');
 const verify = require('./verify');
 const cli = require('mongodb-js-cli')('hadron-build:develop');
-const ELECTRON_PREBUILT_EXECUTABLE = require('electron-prebuilt');
+const ELECTRON_PREBUILT_EXECUTABLE = require('electron');
 
 exports.command = 'develop [options]';
 

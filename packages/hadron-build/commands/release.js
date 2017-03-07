@@ -73,7 +73,7 @@ const createCompileCache = (CONFIG, done) => {
     // Write the compile cache mappings to the package.json.
     var metadata = CONFIG.pkg;
     metadata[COMPILE_CACHE_MAPPINGS] = CompileCache.digestMappings;
-    fs.writeFile(metadata._path, JSON.stringify(metadata, null, 2), done);
+    fs.writeFile(path.join(appDir, 'package.json'), JSON.stringify(metadata, null, 2), done);
   });
 };
 
@@ -411,7 +411,7 @@ const createModuleCache = (CONFIG, done) => {
       folder.paths = ['', 'test', 'src', 'src/app'];
     }
   }
-  fs.writeFile(metadata._path, JSON.stringify(metadata, null, 2), done);
+  fs.writeFile(path.join(appDir, 'package.json'), JSON.stringify(metadata, null, 2), done);
 };
 
 exports.builder = {

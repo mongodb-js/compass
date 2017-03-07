@@ -1,7 +1,7 @@
 {
   "name": "hadron-app",
   "description": "Hadron build's test fixture app.",
-  "version": "1.2.0-dev",
+  "version": "1.2.0",
   "main": "main.js",
   "productName": "Hadron",
   "authors": "MongoDB Inc.",
@@ -68,13 +68,13 @@
     "node": "^5.0.0",
     "npm": "^3.0.0"
   },
-  "_path": "/Users/lucas/hadron-build/test/fixtures/hadron-app/package.json",
+  "_path": "/Users/modetojoy/work/mongodb-js/hadron-build/test/fixtures/hadron-app/package.json",
   "bugs": {
     "url": "https://github.com/mongodb-js/hadron-fixture-app/issues"
   },
   "readme": "ERROR: No README data found!",
   "homepage": "https://github.com/mongodb-js/hadron-fixture-app#readme",
-  "_id": "hadron-app@1.2.0-dev",
+  "_id": "hadron-app@1.2.0",
   "github_owner": "mongodb-js",
   "github_repo": "hadron-fixture-app",
   "author": {
