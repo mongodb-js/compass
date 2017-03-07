@@ -13,8 +13,9 @@ class ViewSwitcher extends React.Component {
   buttonFactory() {
     return _.map(this.props.buttonLabels, (label) => {
       const active = this.props.activeButton === label;
+      const dataTestId = `${this.props.dataTestId}-${label.toLowerCase().replace(/ /g, '-')}`;
       return (
-        <Button key={label} active={active} disabled={this.props.disabled} onClick={this.props.onClick.bind(this, label)} bsSize="xsmall">
+        <Button key={label} active={active} data-test-id={dataTestId} disabled={this.props.disabled} onClick={this.props.onClick.bind(this, label)} bsSize="xsmall">
           {label}
         </Button>
       );
@@ -44,7 +45,8 @@ ViewSwitcher.propTypes = {
   buttonLabels: React.PropTypes.arrayOf(React.PropTypes.string).isRequired,
   activeButton: React.PropTypes.string,
   disabled: React.PropTypes.bool,
-  onClick: () => {}
+  dataTestId: React.PropTypes.string,
+  onClick: React.PropTypes.func
 };
 
 ViewSwitcher.displayName = 'ViewSwitcher';

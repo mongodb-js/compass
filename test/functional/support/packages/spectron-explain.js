@@ -26,6 +26,16 @@ function addClickExplainCommands(client) {
     const button = `${base} ${selector('reset-filter-button')}`;
     return this.waitForVisibleInCompass(button).click(button);
   });
+
+  /**
+   * Click one of the view details as buttons
+   *
+   * @param {String} view - the value should be either 'visual-tree' or 'raw json'
+   */
+  client.addCommand('clickExplainViewDetails', function(view) {
+    const button = selector('explain-view-' + view);
+    return this.click(button);
+  });
 }
 
 
@@ -62,6 +72,16 @@ function addGetExplainCommands(client) {
     const base = selector('explain-examined-count');
     return this.waitForVisibleInCompass(base).getText(base);
   });
+
+  /**
+   * Get the explain plan raw json object
+   */
+  client.addCommand('getExplainRawJSONDocument', function() {
+    const base = `${selector('readonly-document')} .element-value-is-string`;
+    return this.waitForVisibleInCompass(base).getText(base).then((values) => {
+      return values.map((str) => str.replace(/"/g, ''));
+    });
+  });
 }
 
 function addInputExplainCommands(client) {
@@ -73,6 +93,50 @@ function addInputExplainCommands(client) {
   client.addCommand('inputFilterFromExplainPlanTab', function(filter) {
     const base = selector('explain-plan-content');
     const input = `${base} .input-filter`;
+    return this.setValue(input, filter);
+  });
+
+  /**
+   * Inputs a sort into the query bar from the explain plan tab.
+   *
+   * @param {String} filter - The filter.
+  */
+  client.addCommand('inputSortFromExplainPlanTab', function(filter) {
+    const base = selector('explain-plan-content');
+    const input = `${base} .input-sort`;
+    return this.setValue(input, filter);
+  });
+
+  /**
+   * Inputs a projection into the query bar from the explain plan tab.
+   *
+   * @param {String} filter - The filter.
+  */
+  client.addCommand('inputProjectFromExplainPlanTab', function(filter) {
+    const base = selector('explain-plan-content');
+    const input = `${base} .input-project`;
+    return this.setValue(input, filter);
+  });
+
+  /**
+   * Inputs a skip into the query bar from the documents tab.
+   *
+   * @param {String} filter - The filter.
+   */
+  client.addCommand('inputSkipFromExplainPlanTab', function(filter) {
+    const base = selector('explain-plan-content');
+    const input = `${base} .input-skip`;
+    return this.setValue(input, filter);
+  });
+
+  /**
+   * Inputs a limit into the query bar from the documents tab.
+   *
+   * @param {String} filter - The filter.
+   */
+  client.addCommand('inputLimitFromExplainPlanTab', function(filter) {
+    const base = selector('explain-plan-content');
+    const input = `${base} .input-limit`;
     return this.setValue(input, filter);
   });
 }

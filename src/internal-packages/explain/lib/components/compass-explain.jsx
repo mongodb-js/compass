@@ -4,9 +4,6 @@ const ExplainBody = require('./explain-body');
 const ViewSwitcher = require('./shared/view-switcher');
 const ExplainActions = require('../actions');
 
-// TODO (thomasr) data-service explain does not pass through options to find yet.
-const QUERYBAR_LAYOUT = ['filter'];
-
 const READ_ONLY_WARNING = 'Explain plans on readonly views are not supported.';
 
 const COLLECTION_SCAN_WARNING = 'To prevent unintended collection scans, please'
@@ -85,13 +82,14 @@ class CompassExplain extends React.Component {
     return (
       <div className="compass-explain">
         <div className="controls-container">
-          <this.queryBar layout={QUERYBAR_LAYOUT} />
+          <this.queryBar />
           <div className="action-bar">
             <ViewSwitcher
               label="View Details As"
               buttonLabels={['Visual Tree', 'Raw JSON']}
               activeButton={activeViewTypeButton}
               disabled={isDisabled}
+              dataTestId="explain-view"
               onClick={this.onViewSwitch}
             />
           </div>

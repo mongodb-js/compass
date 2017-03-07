@@ -63,7 +63,7 @@ class IndexDefinitionType extends React.Component {
     });
     return (
       <div className="index-definition-type">
-        <p className="definition">
+        <p className="definition" data-test-id={this.props.dataTestId}>
           {fields}
         </p>
       </div>
@@ -74,7 +74,8 @@ class IndexDefinitionType extends React.Component {
 IndexDefinitionType.displayName = 'IndexDefinitionType';
 
 IndexDefinitionType.propTypes = {
-  index: React.PropTypes.object.isRequired
+  index: React.PropTypes.object.isRequired,
+  dataTestId: React.PropTypes.string
 };
 
 module.exports = IndexDefinitionType;
