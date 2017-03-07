@@ -134,64 +134,6 @@ const TopStore = Reflux.createStore({
       }
       this.trigger(error, totals);
     });
-  },
-
-  // Calculate list as all-time hottest collections
-  top: function() {
-    global.dataService.top((error, response) => {
-      let totals = [];
-      this.error = error;
-      if (!error && response !== undefined && ('totals' in response)) {
-        if (this.starting) { // Skip first to match charts
-          this.starting = false;
-          return;
-        }
-        const doc = response.totals;
-        let totalTime = 0;
-        for (let collname in doc) { // eslint-disable-line prefer-const
-          if (!doc.hasOwnProperty(collname) || collname === 'note' || toNS(collname).specialish) {
-            continue;
-          }
-          const subdoc = doc[collname];
-          if (!('readLock' in subdoc) || !('writeLock' in subdoc) || !('total' in subdoc)) {
-            debug('Error: top response from DB missing fields', subdoc);
-          }
-          totals.push({
-            'collectionName': collname,
-            'loadPercentR': (subdoc.readLock.time / subdoc.total.time) * 100,
-            'loadPerfectL': (subdoc.writeLock.time / subdoc.total.time) * 100,
-            'loadPercent': subdoc.total.time
-          });
-          totalTime += subdoc.total.time;
-        }
-        for (let i = 0; i < totals.length; i++) {
-          totals[i].loadPercent = _.round((totals[i].loadPercent / totalTime) * 100, 0);
-        }
-        for (let i = totals.length - 1; i >= 0; i--) {
-          if (!totals[i].loadPercent) {
-            totals.splice(i, 1);
-          }
-        }
-        totals.sort(function(a, b) {
-          const f = (b.loadPercent < a.loadPercent) ? -1 : 0;
-          return (a.loadPercent < b.loadPercent) ? 1 : f;
-        });
-        // Add current state to all
-        this.allOps.push(totals);
-        if (this.isPaused) {
-          totals = this.allOps[this.endPause];
-        } else {
-          this.endPause = this.allOps.length;
-        }
-        // This handled by mouseover function completely
-        if (this.inOverlay) {
-          return;
-        }
-      } else if (error) {
-        Actions.dbError({ 'op': 'top', 'error': error });
-      }
-      this.trigger(error, totals);
-    });
   }
 });
 
