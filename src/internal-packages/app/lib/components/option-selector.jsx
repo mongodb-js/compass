@@ -7,6 +7,11 @@ const { DropdownButton, MenuItem } = require('react-bootstrap');
 
 class OptionSelector extends React.Component {
 
+  static renderLabel(label) {
+    return label ?
+      <span className="option-selector-label">{label}</span> :
+      null;
+  }
 
   /**
    * Render validation action selector component.
@@ -14,6 +19,7 @@ class OptionSelector extends React.Component {
    * @returns {React.Component} The component.
    */
   render() {
+    const label = this.constructor.renderLabel(this.props.label);
     const title = this.props.options[this.props.value] || 'Select rule category';
 
     const menuItems = _.map(this.props.options, (label, key) => {
@@ -22,8 +28,7 @@ class OptionSelector extends React.Component {
 
     return (
       <div className="option-selector">
-        <span>{this.props.label}</span>
-        {' '}
+        {label}
         <DropdownButton
           bsSize={this.props.bsSize}
           id={this.props.id}
