@@ -104,7 +104,7 @@ class BSONTypeSelector extends React.Component {
         id="bson-type-selector"
         options={typeOptions}
         label="BSON Type"
-        value={selectedTypeName}
+        title={typeOptions[selectedTypeName]}
         onSelect={this.onTypeClicked.bind(this)}
         disabled={this.props.isDisabled}
       />

@@ -112,6 +112,8 @@ class JSONView extends React.Component {
       editableProps.errorMessage = 'Input is not valid JSON.';
       delete editableProps.childName;
     }
+    const actionOptions = {warn: 'Warning', error: 'Error'};
+    const levelOptions = {off: 'Off', moderate: 'Moderate', strict: 'Strict'};
 
     return (
       <Editable {...editableProps} >
@@ -122,8 +124,8 @@ class JSONView extends React.Component {
                 <this.OptionSelector
                   id="validation-action-selector"
                   bsSize="xs"
-                  options={{warn: 'Warning', error: 'Error'}}
-                  value={this.props.validationAction}
+                  options={actionOptions}
+                  title={actionOptions[this.props.validationAction]}
                   label="Validation Action:"
                   onSelect={this.onActionSelect.bind(this)}
                   disabled={!this.props.isWritable}
@@ -131,8 +133,8 @@ class JSONView extends React.Component {
                 <this.OptionSelector
                   id="validation-level-selector"
                   bsSize="xs"
-                  options={{off: 'Off', moderate: 'Moderate', strict: 'Strict'}}
-                  value={this.props.validationLevel}
+                  options={levelOptions}
+                  title={levelOptions[this.props.validationLevel]}
                   label="Validation Level:"
                   onSelect={this.onLevelSelect.bind(this)}
                   disabled={!this.props.isWritable}

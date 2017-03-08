@@ -131,6 +131,8 @@ class RuleBuilder extends React.Component {
     }
 
     const tooltipText = 'This action is not available on a secondary node.';
+    const actionOptions = {warn: 'Warning', error: 'Error'};
+    const levelOptions = {off: 'Off', moderate: 'Moderate', strict: 'Strict'};
 
     return (
       <Editable {...editableProps} >
@@ -146,8 +148,8 @@ class RuleBuilder extends React.Component {
                 <this.OptionSelector
                   id="validation-action-selector"
                   bsSize="xs"
-                  options={{warn: 'Warning', error: 'Error'}}
-                  value={this.props.validationAction}
+                  options={actionOptions}
+                  title={actionOptions[this.props.validationAction]}
                   label="Validation Action:"
                   disabled={!this.props.isWritable}
                   onSelect={this.onActionSelect.bind(this)}
@@ -155,8 +157,8 @@ class RuleBuilder extends React.Component {
                 <this.OptionSelector
                   id="validation-level-selector"
                   bsSize="xs"
-                  options={{off: 'Off', moderate: 'Moderate', strict: 'Strict'}}
-                  value={this.props.validationLevel}
+                  options={levelOptions}
+                  title={levelOptions[this.props.validationLevel]}
                   label="Validation Level:"
                   disabled={!this.props.isWritable}
                   onSelect={this.onLevelSelect.bind(this)}

@@ -74,7 +74,7 @@ class RuleCategorySelector extends React.Component {
           options={dropdownOptions}
           id={this.props.id}
           label=""
-          value={this.state.category}
+          title={dropdownOptions[this.state.category] || 'Select rule category'}
           onSelect={this.onSelect.bind(this)}
           disabled={!this.props.isWritable}
         />

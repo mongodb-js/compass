@@ -14,13 +14,12 @@ class OptionSelector extends React.Component {
   }
 
   /**
-   * Render validation action selector component.
+   * Renders the Option Selector component.
    *
    * @returns {React.Component} The component.
    */
   render() {
     const htmlLabel = this.constructor.renderLabel(this.props.label, this.props.id);
-    const title = this.props.options[this.props.value] || 'Select rule category';
 
     const menuItems = _.map(this.props.options, (label, key) => {
       return <MenuItem key={key} eventKey={key} href="#">{label}</MenuItem>;
@@ -33,7 +32,7 @@ class OptionSelector extends React.Component {
           bsSize={this.props.bsSize}
           id={this.props.id}
           onSelect={this.props.onSelect}
-          title={title}
+          title={this.props.title}
           disabled={this.props.disabled}
         >{menuItems}
         </DropdownButton>
@@ -47,14 +46,14 @@ OptionSelector.propTypes = {
   bsSize: React.PropTypes.string,
   options: React.PropTypes.object.isRequired,
   label: React.PropTypes.string,
-  value: React.PropTypes.string,
+  title: React.PropTypes.string,
   onSelect: React.PropTypes.func,
   disabled: React.PropTypes.bool
 };
 
 OptionSelector.defaultProps = {
   label: '',
-  value: '',
+  title: 'Select an option',
   onSelect: () => {},
   disabled: false
 };
