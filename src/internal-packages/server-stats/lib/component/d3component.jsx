@@ -125,7 +125,6 @@ class D3Component extends React.Component {
    * @returns {React.Component} The component.
    */
   render() {
-    const container = this._getContainer();
     return (
       <div ref="wrapper" className="d3component">
         <div ref="container"></div>
@@ -138,6 +137,7 @@ D3Component.displayName = 'D3Component';
 
 D3Component.propTypes = {
   data: React.PropTypes.any.isRequired,
+  renderMode: React.PropTypes.oneOf(['svg', 'div']),
   width: React.PropTypes.number,
   height: React.PropTypes.number,
   d3fn: React.PropTypes.func.isRequired,
