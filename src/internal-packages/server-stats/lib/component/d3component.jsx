@@ -126,7 +126,7 @@ class D3Component extends React.Component {
     const container = this._getContainer();
     return (
       <div ref="wrapper" className="d3component">
-        {container}
+        <div ref="container"></div>
       </div>
     );
   }
