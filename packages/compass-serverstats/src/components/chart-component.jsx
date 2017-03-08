@@ -10,13 +10,14 @@ class ChartComponent extends React.Component {
   /**
    * The server stats component should be initialized with a 'store'
    * property, that triggers with the result of a { serverStatus: 1 }
-   * command.
+   * command. Should also have a 'dispatcher' property.
    *
    * @param {Object} props - The component properties.
    */
   constructor(props) {
     super(props);
     this.state = { error: null, data: {}};
+    this.dispatcher = this.props.dispatcher;
   }
 
   /**
@@ -59,7 +60,8 @@ class ChartComponent extends React.Component {
           data={this.state.error ? {} : this.state.data}
           width={520}
           height={145}
-          d3fn={chartFn} />
+          d3fn={chartFn}
+          dispatcher={this.dispatcher}/>
       </div>
     );
   }
@@ -67,7 +69,8 @@ class ChartComponent extends React.Component {
 }
 
 ChartComponent.propTypes = {
-  store: React.PropTypes.any.isRequired
+  store: React.PropTypes.any.isRequired,
+  dispatcher: React.PropTypes.any.isRequired
 };
 
 ChartComponent.displayName = 'ChartComponent';

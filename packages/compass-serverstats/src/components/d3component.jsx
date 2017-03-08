@@ -18,6 +18,7 @@ class D3Component extends React.Component {
   constructor(props) {
     super(props);
     this.state = { chart: null };
+    this.dispatcher = this.props.dispatcher;
   }
 
   /**
@@ -85,7 +86,8 @@ class D3Component extends React.Component {
       .color(d3.scale.ordinal().range(LINE_COLORS))
       .strokeWidth(2)
       .on('mouseover', Actions.mouseOver)
-      .on('mouseout', Actions.mouseOut);
+      .on('mouseout', Actions.mouseOut)
+      .eventDispatcher(this.dispatcher);
 
     d3.select(el)
       .datum(this.props.data)
@@ -112,7 +114,8 @@ D3Component.propTypes = {
   data: React.PropTypes.any.isRequired,
   width: React.PropTypes.number,
   height: React.PropTypes.number,
-  d3fn: React.PropTypes.func.isRequired
+  d3fn: React.PropTypes.func.isRequired,
+  dispatcher: React.PropTypes.any.isRequired
 };
 
 module.exports = D3Component;

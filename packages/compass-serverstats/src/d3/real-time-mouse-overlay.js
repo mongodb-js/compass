@@ -1,11 +1,13 @@
 const d3 = require('d3');
 
 function realTimeMouseOverlay() {
-  const dispatch = d3.dispatch('mouseover', 'reposition', 'mouseout');
   let prefix = 'serverstats-overlay';
   let bubbleWidth = 30;
   let strokeWidth = 1;
   let enableMouse = true;
+  let title = 'CHANGE ME';
+  // Default dispatcher, will be changed to one shared between charts.
+  let eventDispatcher = d3.dispatch('mouseover', 'updatelabels', 'updateoverlay', 'mouseout');
 
   function component(selection) {
     selection.each(function(data) {
@@ -16,11 +18,11 @@ function realTimeMouseOverlay() {
 
       // Create overlay marker
       const overlayGroupClass = `${prefix}-group`;
-      const overlayGroup = svg.selectAll(`g.${overlayGroupClass}`).data([data])
-        .attr('transform', `translate(${basePosition})`);
+      const overlayGroup = svg.selectAll(`g.${overlayGroupClass}`).data([data]);
       overlayGroup.enter()
         .append('g')
-        .attr('class', overlayGroupClass);
+        .attr('class', overlayGroupClass)
+        .attr('transform', `translate(${basePosition})`);
       overlayGroup.selectAll('line').data([data]).enter()
         .append('line')
           .attr('stroke', 'white')
@@ -43,8 +45,7 @@ function realTimeMouseOverlay() {
       function sendMouseEvents(xPosition) {
         clearInterval(updateMousePosition);
         xPosition = xPosition || d3.mouse(this)[0];
-        overlayGroup.attr('transform', `translate(${xPosition})`);
-        dispatch.reposition(xPosition);
+        eventDispatcher.updateoverlay(xPosition);
         updateMousePosition = setInterval(sendMouseEvents.bind(this, xPosition), 20);
       }
 
@@ -64,19 +65,17 @@ function realTimeMouseOverlay() {
         mouseTargetEnter
           .on('mouseover', function() {
             const xPosition = d3.mouse(this)[0];
-            dispatch.mouseover(xPosition);
+            eventDispatcher.mouseover(xPosition);
           })
           .on('mousemove', sendMouseEvents)
           .on('mouseout', function() {
             clearInterval(updateMousePosition);
-            overlayGroup.attr('transform', `translate(${basePosition})`);
-            dispatch.reposition(basePosition);
-            dispatch.mouseout();
+            eventDispatcher.mouseout(basePosition);
           });
       }
 
       if (overlayGroup.attr('transform') === `translate(${basePosition})`) {
-        dispatch.reposition(basePosition);
+        eventDispatcher.updateoverlay();
       }
 
       component.setPosition = function(xPosition) {
@@ -85,6 +84,12 @@ function realTimeMouseOverlay() {
     });
   }
 
+  component.title = function(value) {
+    if (typeof value === 'undefined') return title;
+    title = value;
+    return component;
+  };
+
   component.bubbleWidth = function(value) {
     if (typeof value === 'undefined') return bubbleWidth;
     bubbleWidth = value;
@@ -92,7 +97,7 @@ function realTimeMouseOverlay() {
   };
 
   component.on = function(event, cb) {
-    dispatch.on(event, cb);
+    eventDispatcher.on(`${event}.${title}`, cb);
     return component;
   };
 
@@ -111,6 +116,12 @@ function realTimeMouseOverlay() {
   component.enableMouse = function(value) {
     if (typeof value === 'undefined') return enableMouse;
     enableMouse = value;
+    return component;
+  };
+
+  component.eventDispatcher = function(value) {
+    if (typeof value === 'undefined') return eventDispatcher;
+    eventDispatcher = value;
     return component;
   };
 

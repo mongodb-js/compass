@@ -6,6 +6,7 @@ const OpCountersStore = require('../stores/opcounters-store');
 const NetworkStore = require('../stores/network-store');
 const GlobalLockStore = require('../stores/globallock-store');
 const MemStore = require('../stores/mem-store');
+const d3 = require('d3');
 
 /**
  * Represents the component that renders all the server stats.
@@ -19,6 +20,7 @@ class ServerStatsComponent extends React.Component {
    */
   constructor(props) {
     super(props);
+    this.eventDispatcher = d3.dispatch('mouseover', 'updatelabels', 'updateoverlay', 'mouseout');
   }
 
   /**
@@ -45,10 +47,10 @@ class ServerStatsComponent extends React.Component {
   render() {
     return (
       <div className="rtss rtss-performance rtss-performance-graphs">
-        <ChartComponent store={OpCountersStore} />
-        <ChartComponent store={GlobalLockStore} />
-        <ChartComponent store={NetworkStore} />
-        <ChartComponent store={MemStore} />
+        <ChartComponent store={OpCountersStore} dispatcher={this.eventDispatcher} />
+        <ChartComponent store={GlobalLockStore} dispatcher={this.eventDispatcher} />
+        <ChartComponent store={NetworkStore} dispatcher={this.eventDispatcher} />
+        <ChartComponent store={MemStore} dispatcher={this.eventDispatcher} />
       </div>
     );
   }
