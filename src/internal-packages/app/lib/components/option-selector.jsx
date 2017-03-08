@@ -1,6 +1,6 @@
 const React = require('react');
 const _ = require('lodash');
-const { DropdownButton, Label, MenuItem } = require('react-bootstrap');
+const { DropdownButton, MenuItem } = require('react-bootstrap');
 
 // import dbg from 'debug';
 // const debug = dbg('mongodb-compass:validation:action-selector');
@@ -18,7 +18,7 @@ class OptionSelector extends React.Component {
 
   static renderLabel(label, id) {
     return label ?
-      <Label className="option-selector-label" htmlFor={id}>{label}</Label> :
+      <label className="option-selector-label" htmlFor={id}>{label}</label> :
       null;
   }
 
