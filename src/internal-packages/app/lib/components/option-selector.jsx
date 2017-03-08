@@ -7,9 +7,9 @@ const { DropdownButton, MenuItem } = require('react-bootstrap');
 
 class OptionSelector extends React.Component {
 
-  static renderLabel(label) {
+  static renderLabel(label, id) {
     return label ?
-      <span className="option-selector-label">{label}</span> :
+      <label className="option-selector-label" htmlFor={id}>{label}</label> :
       null;
   }
 
@@ -19,7 +19,7 @@ class OptionSelector extends React.Component {
    * @returns {React.Component} The component.
    */
   render() {
-    const label = this.constructor.renderLabel(this.props.label);
+    const htmlLabel = this.constructor.renderLabel(this.props.label, this.props.id);
     const title = this.props.options[this.props.value] || 'Select rule category';
 
     const menuItems = _.map(this.props.options, (label, key) => {
@@ -28,7 +28,7 @@ class OptionSelector extends React.Component {
 
     return (
       <div className="option-selector">
-        {label}
+        {htmlLabel}
         <DropdownButton
           bsSize={this.props.bsSize}
           id={this.props.id}
