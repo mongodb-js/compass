@@ -150,6 +150,17 @@ describe('CreateIndexesStore', function() {
     });
     CreateIndexStore.loadFields({schema: arrayOfDocsSchema});
   });
+
+  it('adds extra field to schemaFields on updateFieldName', function(done) {
+    CreateIndexStore.loadFields({schema: arrayOfDocsSchema});
+
+    unsubscribe = CreateIndexStore.listen((fields, options, schemaFields) => {
+      expect(schemaFields).to.include('foo');
+      unsubscribe();
+      done();
+    });
+    CreateIndexStore.updateFieldName(0, 'foo');
+  });
 });
 
 describe('LoadIndexesStore', () => {
