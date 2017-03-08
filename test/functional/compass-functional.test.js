@@ -724,7 +724,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
           context('when the field name is missing', function() {
             it('displays an error message', function() {
               return client
-                .inputCreateIndexDetails({ type: '1 (asc)' })
+                .inputCreateIndexDetails({ typeIndex: 1 })
                 .clickCreateIndexModalButton()
                 .waitForModalError()
                 .getModalErrorMessage()
@@ -756,14 +756,12 @@ describe('Compass Main Functional Test Suite #spectron', function() {
                 return client
                   .clickCreateIndexButton()
                   .waitForCreateIndexModal()
-                  .inputCreateIndexDetails({ type: '-1 (desc)' })
-                  .inputCreateIndexDetails({ name: 'name_-1', field: 'name'})
+                  .inputCreateIndexDetails({ name: 'name_-1', field: 'name', typeIndex: 2 })
                   .clickCreateIndexModalButton()
                   .waitForIndexCreation('name_-1')
                   .getIndexNames()
                   .should.eventually.include('name_-1');
               });
-
               it('retains the current index table sort order', function() {
                 return client
                   .getIndexNames()
@@ -781,6 +779,19 @@ describe('Compass Main Functional Test Suite #spectron', function() {
                 .getIndexNames()
                 .should.eventually.deep.equal([ '_id_', 'name_-1', 'name_1' ]);
             });
+          });
+        });
+
+        context('when creating an index not part of the schema fields', function() {
+          it('adds a new field', function() {
+            return client
+              .clickCreateIndexButton()
+              .waitForCreateIndexModal()
+              .inputCreateIndexDetails({ name: 'foo-index', field: 'foo', typeIndex: 3 })
+              .clickCreateIndexModalButton()
+              .waitForIndexCreation('foo-index')
+              .getIndexNames()
+              .should.eventually.include('foo-index');
           });
         });
 

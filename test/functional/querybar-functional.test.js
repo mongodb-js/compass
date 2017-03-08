@@ -87,7 +87,7 @@ describe('Compass Functional Tests for QueryBar #spectron', function() {
             .clickIndexesTab()
             .clickCreateIndexButton()
             .waitForCreateIndexModal()
-            .inputCreateIndexDetails({name: 'age_1', field: 'age', type: '1 (asc)' })
+            .inputCreateIndexDetails({name: 'age_1', field: 'age', typeIndex: 1 })
             .clickCreateIndexModalButton()
             .waitForIndexCreation('age_1')
             .waitForVisibleInCompass('create-index-modal', true)
