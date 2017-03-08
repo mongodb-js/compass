@@ -144,6 +144,7 @@ const ChartStore = Reflux.createStore({
   onQueryChanged(state) {
     const newQuery = _.pick(state,
       ['filter', 'sort', 'project', 'skip', 'limit', 'maxTimeMS', 'ns']);
+    console.log('on query changed!!!', newQuery);
     this._refreshDataCache(newQuery);
   },
 

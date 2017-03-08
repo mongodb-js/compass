@@ -20,6 +20,8 @@ const Collection = require('../../src/internal-packages/collection/lib/component
 
 const arrayOfDocsSchema = require('../fixtures/array_of_docs.fixture.json');
 
+const mockDataService = require('./support/mock-data-service');
+
 describe('CreateIndexesStore', function() {
   let unsubscribe;
 
@@ -167,7 +169,12 @@ describe('LoadIndexesStore', () => {
   const appInstance = app.instance;
   const appRegistry = app.appRegistry;
   const collectionStore = Collection.CollectionStore;
-  const dataService = app.dataService;
+
+  before(mockDataService.before(null, {
+    database: { collections: [] }
+  }));
+  after(mockDataService.after());
+
   beforeEach(() => {
     // Mock the app.instance.build.version
     app.instance = {
@@ -188,14 +195,6 @@ describe('LoadIndexesStore', () => {
     // Hacks because circular imports!
     this.LoadIndexesStore = require(storeKeyMap.LoadIndexesStore);
     this.LoadIndexesStore.CollectionStore = CollectionStore;
-
-    // Make dataService side-effects into no-ops so tests pass
-    app.dataService = sinon.spy();
-    app.dataService.database = (namespace, {}, callback) => {
-      callback(null, {collections: []});
-    };
-    app.dataService.sample = () => {};
-    app.dataService.count = () => {};
   });
   afterEach(() => {
     // Restore properties on the global app object,
@@ -204,7 +203,6 @@ describe('LoadIndexesStore', () => {
     app.appRegistry = appRegistry;
     Collection.CollectionStore = collectionStore;
     this.isReadOnlyStub.restore();
-    app.dataService = dataService;
   });
 
   it('does not load indexes for a database-level namespace', () => {

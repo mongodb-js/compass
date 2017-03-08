@@ -54,6 +54,7 @@ const QueryChangedStore = Reflux.createStore({
    */
   onQueryStoreChanged(state) {
     if (this._detectChange(state)) {
+      console.log('queryChangedStore detected change', state);
       const newState = state.lastExecutedQuery || this.getInitialState();
       newState.queryState = state.queryState;
       newState.maxTimeMS = state.maxTimeMS;
