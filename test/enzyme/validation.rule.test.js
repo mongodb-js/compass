@@ -16,18 +16,29 @@ const _ = require('lodash');
 // use chai-enzyme assertions, see https://github.com/producthunt/chai-enzyme
 chai.use(chaiEnzyme());
 
+let component;
+const ruleTemplate = {
+  id: 'my-new-rule',
+  field: 'created_at',
+  category: 'type',
+  parameters: {type: 9},  // type "date"
+  nullable: false,
+  serverVersion: '3.4.0',
+  isWritable: true,
+  validate: function() {}
+};
+
+const rangeRuleTemplate = {
+  id: 'my-new-rule',
+  field: 'created_at',
+  category: 'range',
+  parameters: {type: 9},  // type "date"
+  nullable: false,
+  serverVersion: '3.2.11',
+  isWritable: true
+};
+
 describe('<Rule />', function() {
-  let component;
-  const ruleTemplate = {
-    id: 'my-new-rule',
-    field: 'created_at',
-    category: 'type',
-    parameters: {type: 9},  // type "date"
-    nullable: false,
-    serverVersion: '3.4.0',
-    isWritable: true,
-    validate: function() {}
-  };
 
   it('has an input field with value "created_at"', function() {
     const rule = _.assign(ruleTemplate, {});
@@ -92,16 +103,6 @@ describe('<Rule />', function() {
   });
 
   context('when category "range" is supplied', function() {
-    const rangeRuleTemplate = {
-      id: 'my-new-rule',
-      field: 'created_at',
-      category: 'range',
-      parameters: {type: 9},  // type "date"
-      nullable: false,
-      serverVersion: '3.2.11',
-      isWritable: true
-    };
-
     it('has a category of "range"', function() {
       const rule = _.assign(rangeRuleTemplate, {});
       component = shallow(<table><tbody><Rule {...rule} /></tbody></table>);
