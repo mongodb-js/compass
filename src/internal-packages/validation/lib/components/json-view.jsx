@@ -1,6 +1,6 @@
+const app = require('hadron-app');
 const React = require('react');
 const ValidationActions = require('../actions');
-const OptionSelector = require('./common/option-selector');
 const Editable = require('./common/editable');
 
 const {Grid, Row, Col, FormGroup, FormControl} = require('react-bootstrap');
@@ -11,6 +11,7 @@ class JSONView extends React.Component {
 
   constructor(props) {
     super(props);
+    this.OptionSelector = app.appRegistry.getComponent('App.OptionSelector');
     this.state = {
       isValidJSON: true,
       input: props.validatorDoc ?
@@ -118,7 +119,7 @@ class JSONView extends React.Component {
           <Row className="header">
             <Col lg={12} md={12} sm={12} xs={12}>
               <div className="pull-right">
-                <OptionSelector
+                <this.OptionSelector
                   id="validation-action-selector"
                   bsSize="xs"
                   options={{warn: 'Warning', error: 'Error'}}
@@ -127,7 +128,7 @@ class JSONView extends React.Component {
                   onSelect={this.onActionSelect.bind(this)}
                   disabled={!this.props.isWritable}
                 />
-                <OptionSelector
+                <this.OptionSelector
                   id="validation-level-selector"
                   bsSize="xs"
                   options={{off: 'Off', moderate: 'Moderate', strict: 'Strict'}}

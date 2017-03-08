@@ -1,5 +1,6 @@
 const app = require('hadron-app');
 const ModalStatusMessage = require('./lib/components/modal-status-message');
+const OptionSelector = require('./lib/components/option-selector');
 const SortableTable = require('./lib/components/sortable-table');
 const StatusRow = require('./lib/components/status-row');
 const StoreConnector = require('./lib/components/store-connector');
@@ -13,6 +14,7 @@ const CollectionStore = require('./lib/stores/collection-store');
  */
 function activate() {
   app.appRegistry.registerComponent('App.ModalStatusMessage', ModalStatusMessage);
+  app.appRegistry.registerComponent('App.OptionSelector', OptionSelector);
   app.appRegistry.registerComponent('App.SortableTable', SortableTable);
   app.appRegistry.registerComponent('App.StatusRow', StatusRow);
   app.appRegistry.registerComponent('App.StoreConnector', StoreConnector);
@@ -27,6 +29,7 @@ function activate() {
  */
 function deactivate() {
   app.appRegistry.deregisterComponent('App.ModalStatusMessage');
+  app.appRegistry.deregisterComponent('App.OptionSelector');
   app.appRegistry.deregisterComponent('App.SortableTable');
   app.appRegistry.deregisterComponent('App.StatusRow');
   app.appRegistry.deregisterComponent('App.StoreConnector');
