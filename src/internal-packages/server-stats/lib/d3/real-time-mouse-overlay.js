@@ -6,7 +6,8 @@ function realTimeMouseOverlay() {
   let strokeWidth = 1;
   let enableMouse = true;
   let title = 'CHANGE ME';
-  let eventDispatcher = null;
+  // Default dispatcher, will be changed to one shared between charts.
+  let eventDispatcher = d3.dispatch('mouseover', 'updatelabels', 'updateoverlay', 'mouseout');
 
   function component(selection) {
     selection.each(function(data) {
@@ -44,9 +45,7 @@ function realTimeMouseOverlay() {
       function sendMouseEvents(xPosition) {
         clearInterval(updateMousePosition);
         xPosition = xPosition || d3.mouse(this)[0];
-        if (eventDispatcher !== null) {
-          eventDispatcher.dispatch.updateoverlay(xPosition);
-        }
+        eventDispatcher.updateoverlay(xPosition);
         updateMousePosition = setInterval(sendMouseEvents.bind(this, xPosition), 20);
       }
 
@@ -66,23 +65,17 @@ function realTimeMouseOverlay() {
         mouseTargetEnter
           .on('mouseover', function() {
             const xPosition = d3.mouse(this)[0];
-            if (eventDispatcher !== null) {
-              eventDispatcher.dispatch.mouseover(xPosition);
-            }
+            eventDispatcher.mouseover(xPosition);
           })
           .on('mousemove', sendMouseEvents)
           .on('mouseout', function() {
             clearInterval(updateMousePosition);
-            if (eventDispatcher !== null) {
-              eventDispatcher.dispatch.mouseout(basePosition);
-            }
+            eventDispatcher.mouseout(basePosition);
           });
       }
 
       if (overlayGroup.attr('transform') === `translate(${basePosition})`) {
-        if (eventDispatcher !== null) {
-          eventDispatcher.dispatch.updateoverlay();
-        }
+        eventDispatcher.updateoverlay();
       }
 
       component.setPosition = function(xPosition) {
@@ -104,9 +97,7 @@ function realTimeMouseOverlay() {
   };
 
   component.on = function(event, cb) {
-    if (eventDispatcher !== null) {
-      eventDispatcher.on(title, event, cb);
-    }
+    eventDispatcher.on(`${event}.${title}`, cb);
     return component;
   };
 

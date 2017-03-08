@@ -45,7 +45,8 @@ function realTimeLineChart() {
   let singlePointTime = 5000;
   let enableMouse = true;
   let onOverlay = false;
-  let eventDispatcher = null;
+  // Default dispatcher, will be changed to one shared between charts.
+  let eventDispatcher = d3.dispatch('mouseover', 'updatelabels', 'updateoverlay', 'mouseout');
 
   function chart(selection) {
     selection.each(function(data) {

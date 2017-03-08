@@ -6,7 +6,7 @@ const NetworkStore = require('../stores/network-store');
 const GlobalLockStore = require('../stores/globallock-store');
 const MemStore = require('../stores/mem-store');
 const { DataServiceActions } = require('mongodb-data-service');
-const EventDispatcher = require('../d3/real-time-event-dispatch');
+const d3 = require('d3');
 
 // const debug = require('debug')('mongodb-compass:server-stats:graphs-component');
 
@@ -22,7 +22,7 @@ class ServerStatsComponent extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.eventDispatcher = new EventDispatcher();
+    this.eventDispatcher = d3.dispatch('mouseover', 'updatelabels', 'updateoverlay', 'mouseout');
   }
 
   /**
