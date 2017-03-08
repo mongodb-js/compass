@@ -150,7 +150,7 @@ class RuleBuilder extends React.Component {
                   bsSize="xs"
                   options={actionOptions}
                   title={actionOptions[this.props.validationAction]}
-                  label="Validation Action:"
+                  label="Validation Action"
                   disabled={!this.props.isWritable}
                   onSelect={this.onActionSelect.bind(this)}
                 />
@@ -159,7 +159,7 @@ class RuleBuilder extends React.Component {
                   bsSize="xs"
                   options={levelOptions}
                   title={levelOptions[this.props.validationLevel]}
-                  label="Validation Level:"
+                  label="Validation Level"
                   disabled={!this.props.isWritable}
                   onSelect={this.onLevelSelect.bind(this)}
                 />
