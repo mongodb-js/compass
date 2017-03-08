@@ -150,7 +150,7 @@ describe('CreateIndexesStore', function() {
       unsubscribe();
       done();
     });
-    CreateIndexStore.loadFields({schema: arrayOfDocsSchema});
+    CreateIndexStore.loadFields({fields: arrayOfDocsSchema.fields});
   });
 
   it('adds extra field to schemaFields on updateFieldName', function(done) {

@@ -10,6 +10,7 @@ const FIELDS = [
   'path',
   'count',
   'type',
+  'types',
   'probability'
 ];
 
