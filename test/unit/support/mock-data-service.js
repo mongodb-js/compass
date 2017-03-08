@@ -28,6 +28,36 @@ function callbackWrapper(cb, err, res) {
  * Additionally, all mocked data-service methods are also wrapped in a
  * sinon.spy().
  *
+ * Usage:
+ *
+ * const app = require('hadron-app');
+ * const mockDataService = require('./support/mock-data-service');
+ *
+ * context('simulate a count return a value of 5', () => {
+ *   before(mockDataService.before(null, {count: 5}));
+ *   after(mockDataService.after());
+ *
+ *   it('should return a count of 5', (done) => {
+ *     app.dataService.count(ns, filter, opts, (err, res) => {
+ *       expect(res).to.be.equal(5);
+ *       done();
+ *     });
+ *   });
+ * });
+ *
+ * context('simulate count returns an error', () => {
+ *   before(mockDataService.before({count: new Error('bad count')}));
+ *   after(mockDataService.after());
+ *
+ *   it('should error on a count', (done) => {
+ *     app.dataService.count(ns, filter, opts, (err, res) {
+ *       expect(err).to.be.an('error');
+ *       expect(err.message).to.match(/bad count/);
+ *       done();
+ *     });
+ *   });
+ * });
+ *
  * @param  {Object} errors  object of errors for each method, e.g. `{count: new Error('bad count')}`
  * @param  {Object} results object of results for each method, e.g. `{count: 5}`
  * @return {[type]}         a mocked data-service object
