@@ -1,6 +1,7 @@
 const sinon = require('sinon');
 const app = require('hadron-app');
 const _ = require('lodash');
+const DataService = require('mongodb-data-service');
 
 /**
  * wraps the mocked callbacks and returns either cb(err) or cb(null, res)
@@ -28,34 +29,38 @@ function callbackWrapper(cb, err, res) {
  * sinon.spy().
  *
  * @param  {Object} errors  object of errors for each method, e.g. `{count: new Error('bad count')}`
- * @param  {Object} ret     object of results for each method, e.g. `{count: 5}`
+ * @param  {Object} results object of results for each method, e.g. `{count: 5}`
  * @return {[type]}         a mocked data-service object
  */
 const mockDataService = function(errors, results) {
   errors = errors || {};
   results = results || {};
-  const mds = _.mapValues({
-    collection: (ns, options, cb) => { return callbackWrapper(cb, errors.collection, results.collection); },
-    isWritable: () => { return results.isWritable; },
-    isMongos: () => { return results.isMongos; },
-    buildInfo: (cb) => { return callbackWrapper(cb, errors.buildInfo, results.buildInfo); },
-    hostInfo: (cb) => { return callbackWrapper(cb, errors.hostInfo, results.hostInfo); },
-    connectionStatus: (cb) => { return callbackWrapper(cb, errors.connectionStatus, results.connectionStatus); },
-    usersInfo: (authDb, opts, cb) => { return callbackWrapper(cb, errors.usersInfo, results.usersInfo); },
-    listCollections: (dbName, filter, cb) => { return callbackWrapper(cb, errors.listCollections, results.listCollections); },
-    listDatabases: (cb) => { return callbackWrapper(cb, errors.listDatabases, results.listDatabases); },
-    connect: (cb) => { return callbackWrapper(cb, errors.connect, results.connect); },
-    count: (ns, filter, opts, cb) => { return callbackWrapper(cb, errors.count, results.count); },
-    createCollection: (ns, opts, cb) => { return callbackWrapper(cb, errors.createCollection, results.createCollection); },
-    createIndex: (ns, spec, opts, cb) => { return callbackWrapper(cb, errors.createIndex, results.createIndex); },
-    database: (ns, opts, cb) => { return callbackWrapper(cb, errors.database, results.database); },
-    find: (ns, filter, opts, cb) => { return callbackWrapper(cb, errors.find, results.find); },
-    sample: () => { return { on: sinon.spy() }; }
-  }, (val) => {
-    return sinon.spy(val);
-  });
-  mds.isMocked = true;
-  return mds;
+  const dataService = new DataService();
+  // extract all method names from real data-service
+  const methodNames = Object.getOwnPropertyNames(Object.getPrototypeOf(dataService));
+  // create new object with all methods, but mock spy functions that return
+  // what we want them to return.
+  const mockedDS = _.zipObject(methodNames, _.map(methodNames, (name) => {
+    const val = dataService[name];
+    // non-function values remain what they are
+    if (!_.isFunction(val)) {
+      return val;
+    }
+    // functions are wrapped in spies
+    return sinon.spy(function() {
+      const lastArg = arguments[arguments.length - 1];
+      // check if last function is a callback
+      const callback = _.isFunction(lastArg) ? lastArg : null;
+      // if not an async method with a callback, just return the result
+      if (!callback) {
+        return results[name];
+      }
+      // else, call the callback with either error or result
+      return callbackWrapper(callback, errors[name], results[name]);
+    });
+  }));
+  mockedDS.isMocked = true;
+  return mockedDS;
 };
 
 const originalDataServices = [];

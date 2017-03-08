@@ -14,7 +14,6 @@ const {
 const ChartActions = require('../../src/internal-packages/chart/lib/actions');
 const ChartStore = require('../../src/internal-packages/chart/lib/store');
 const _ = require('lodash');
-const sinon = require('sinon');
 const app = require('hadron-app');
 
 const mockDataService = require('./support/mock-data-service');
@@ -70,7 +69,7 @@ describe('ChartStore', function() {
       };
 
       const unsubscribe = this.store.listen((state) => {
-        console.log('state', state);
+        expect(state.queryCache).to.be.deep.equal(QUERY);
         unsubscribe();
         done();
       });

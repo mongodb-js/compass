@@ -1,7 +1,7 @@
 /* eslint no-unused-expressions: 0 */
 
 const { expect } = require('chai');
-const mockDataService = require('./mock-data-service');
+const mockDataService = require('./support/mock-data-service');
 const app = require('hadron-app');
 const _ = require('lodash');
 
@@ -32,11 +32,12 @@ describe('mockDataService', function() {
     });
     context('when providing custom return values', function() {
       before(mockDataService.before({}, {
-        find: [{_id: 1, foo: true}, {_id: 2, foo: false}]
+        find: [{_id: 1, foo: true}, {_id: 2, foo: false}],
+        isMongos: true
       }));
       after(mockDataService.after());
 
-      it('returns the result value provided', function(done) {
+      it('returns the result value provided for async methods', function(done) {
         app.dataService.find('foo.bar', {}, {}, (err, res) => {
           expect(err).to.be.null;
           expect(res).to.be.an('array');
@@ -46,7 +47,15 @@ describe('mockDataService', function() {
         });
       });
 
-      it('returns undefined for methods without explicit result', function(done) {
+      it('returns the result value provided for sync methods', function() {
+        expect(app.dataService.isMongos()).to.be.true;
+      });
+
+      it('returns undefined for sync methods without explicit result', function() {
+        expect(app.dataService.isWritable()).to.be.undefined;
+      });
+
+      it('returns undefined for async methods without explicit result', function(done) {
         app.dataService.count('foo.bar', {}, {}, (err, res) => {
           expect(err).to.be.null;
           expect(res).to.be.undefined;
