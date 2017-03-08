@@ -4,6 +4,8 @@ const d3 = require('d3');
 const Actions = require('../actions');
 const _ = require('lodash');
 
+// const debug = require('debug')('mongodb-compass:server-stats:d3component');
+
 const LINE_COLORS = ['#45BAAB', '#23B1FF', '#6F72FF', '#A33A35', '#FFA900', '#C7E82F'];
 
 /**

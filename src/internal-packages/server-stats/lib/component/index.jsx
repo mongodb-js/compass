@@ -3,6 +3,8 @@ const Actions = require('../actions');
 const Performance = require('./performance-component');
 const app = require('hadron-app');
 
+// const debug = require('debug')('mongodb-compass:server-stats-RTSSComponent');
+
 /**
  * Represents the component that renders all the server stats.
  */

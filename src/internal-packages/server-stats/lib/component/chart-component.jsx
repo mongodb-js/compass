@@ -2,6 +2,8 @@ const React = require('react');
 const D3Component = require('./d3component');
 const chartFn = require('../d3/').realTimeLineChart;
 
+// const debug = require('debug')('mongodb-compass:server-stats:chart-component');
+
 /**
  * Represents the component that renders serverStatus charts.
  */

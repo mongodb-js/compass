@@ -8,6 +8,8 @@ const DBErrorStore = require('../stores/dberror-store');
 const ServerStatsStore = require('../stores/server-stats-graphs-store');
 const app = require('hadron-app');
 
+// const debug = require('debug')('mongodb-compass:server-stats:performance-component');
+
 /**
  * Renders the entire performance tab, including charts and lists.
  */

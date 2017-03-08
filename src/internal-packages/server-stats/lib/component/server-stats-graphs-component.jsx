@@ -8,6 +8,8 @@ const MemStore = require('../stores/mem-store');
 const { DataServiceActions } = require('mongodb-data-service');
 const EventDispatcher = require('../d3/real-time-event-dispatch');
 
+// const debug = require('debug')('mongodb-compass:server-stats:graphs-component');
+
 /**
  * Represents the component that renders all the server stats.
  */
@@ -45,7 +47,6 @@ class ServerStatsComponent extends React.Component {
    * @returns {React.Component} The component.
    */
   render() {
-    //<div className="rtss rtss-performance rtss-performance-graphs">
     return (
       <div className="rtss">
         <ChartComponent store={OpCountersStore} dispatcher={this.eventDispatcher} />

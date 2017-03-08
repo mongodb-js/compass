@@ -2,6 +2,8 @@ const React = require('react');
 const Actions = require('../actions');
 const ServerStatsStore = require('../stores/server-stats-graphs-store');
 
+// const debug = require('debug')('mongodb-compass:server-stats:time-and-pause-button');
+
 class TimeAndPauseButton extends React.Component {
   constructor(props) {
     super(props);

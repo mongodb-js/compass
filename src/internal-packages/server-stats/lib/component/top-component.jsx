@@ -1,7 +1,9 @@
 const timer = require('d3-timer');
 const React = require('react');
-const { DataServiceActions } = require('mongodb-data-service');
 const Actions = require('../actions');
+const { DataServiceActions } = require('mongodb-data-service');
+
+// const debug = require('debug')('mongodb-compass:server-stats:top-component');
 
 /**
  * Represents the component that renders the top information.

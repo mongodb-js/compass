@@ -3,6 +3,8 @@ const React = require('react');
 const { DataServiceActions } = require('mongodb-data-service');
 const Actions = require('../actions');
 
+// const debug = require('debug')('mongodb-compass:server-stats:current-op-component');
+
 /**
  * Represents the component that renders the current op information.
  */
