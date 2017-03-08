@@ -126,8 +126,8 @@ class CreateIndexField extends React.Component {
     const fieldName = this.props.field.name;
     const fieldType = this.props.field.type;
 
-    // const hasNameError = this.state.isNameValid ? '' : 'has-error';
-    // const hasTypeError = this.state.isTypeValid ? '' : 'has-error';
+    const hasNameError = this.state.isNameValid ? '' : 'has-error';
+    const hasTypeError = this.state.isTypeValid ? '' : 'has-error';
 
     return (
       <div className="form-inline row create-index-field">
@@ -139,6 +139,7 @@ class CreateIndexField extends React.Component {
             onChange={this.selectFieldName.bind(this)}
             clearable={false}
             promptTextCreator={this._promptText}
+            className={hasNameError}
           />
         </div>
         <div className="col-md-4" data-test-id="create-index-modal-type-select">
@@ -149,6 +150,7 @@ class CreateIndexField extends React.Component {
             onChange={this.selectFieldType.bind(this)}
             clearable={false}
             searchable={false}
+            className={hasTypeError}
           />
         </div>
         <div className="col-md-2">
