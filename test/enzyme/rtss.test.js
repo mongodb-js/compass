@@ -7,7 +7,7 @@ const React = require('react');
 const {shallow} = require('enzyme');
 const AppRegistry = require('hadron-app-registry');
 const StatusRow = require('../../src/internal-packages/app/lib/components/status-row');
-const ServerStatsStore = require('../../src/internal-packages/server-stats/lib/store/server-stats-graphs-store');
+const ServerStatsStore = require('../../src/internal-packages/server-stats/lib/stores/server-stats-graphs-store');
 
 chai.use(chaiEnzyme());
 
