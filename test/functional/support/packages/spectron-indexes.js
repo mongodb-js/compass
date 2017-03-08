@@ -125,7 +125,7 @@ function addInputIndexesCommands(client) {
    *    {
    *      name: 'name_1',
    *      field: 'name',
-   *      type: '1 (asc)'
+   *      typeIndex: '1' // the index of the type that starts at 1 and ends at 3
    *    }
    */
   client.addCommand('inputCreateIndexDetails', function(model) {
@@ -142,23 +142,26 @@ function addInputIndexesCommands(client) {
     if (model.field) {
       sequence = sequence.then(function() {
         const base = selector('create-index-modal-field-select');
-        const field = `li=${model.field}`;
+        const input = `${base} .Select .Select-control .Select-multi-value-wrapper .Select-input input`;
         return that
           .waitForVisibleInCompass(base)
           .click(base)
-          .waitForVisibleInCompass(field)
-          .click(field);
+          .waitForVisibleInCompass(input)
+          .setValue(input, model.field)
+          .pressEnter();
       });
     }
-    if (model.type) {
+    if (model.typeIndex >= 0) {
       sequence = sequence.then(function() {
         const base = selector('create-index-modal-type-select');
-        const field = `li=${model.type}`;
+        const input = `${base} .Select .Select-control .Select-multi-value-wrapper`;
         return that
           .waitForVisibleInCompass(base)
           .click(base)
-          .waitForVisibleInCompass(field)
-          .click(field);
+          .waitForVisibleInCompass(input)
+          .click(input)
+          .pressDown(model.typeIndex)
+          .pressEnter();
       });
     }
     return sequence;

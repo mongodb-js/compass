@@ -179,6 +179,10 @@ const CreateIndexStore = Reflux.createStore({
       } else {
         this.fields[idx].name = name;
       }
+      // check if field name exists in schemaFields, otherwise add
+      if (!_.contains(this.schemaFields, name)) {
+        this.schemaFields.push(name);
+      }
     }
     this.sendValues();
   },

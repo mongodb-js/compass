@@ -17,6 +17,17 @@ function addKeyPressCommands(client) {
   client.addCommand('pressEnter', function() {
     return this.keys(['Enter']);
   });
+
+  /**
+   * Press down *count* times
+   */
+  client.addCommand('pressDown', function(count) {
+    let keyArr = [];
+    for (let i = 0; i < count; i++) {
+      keyArr.push('ArrowDown');
+    }
+    return this.keys(keyArr);
+  });
 }
 
 

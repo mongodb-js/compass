@@ -1,7 +1,5 @@
 const React = require('react');
-const ButtonToolbar = require('react-bootstrap').ButtonToolbar;
-const DropdownButton = require('react-bootstrap').DropdownButton;
-const MenuItem = require('react-bootstrap').MenuItem;
+const Select = require('react-select');
 const StatusStore = require('../store/ddl-status-store');
 const Action = require('../action/index-actions');
 
@@ -51,12 +49,12 @@ class CreateIndexField extends React.Component {
    *
    * @returns {Array} The React components for each item in the field and type dropdowns.
    */
-  getDropdownFields() {
-    return this.props.fields.map((elem, index) => (
-      <MenuItem key={index}
-        disabled={this.props.disabledFields.some(field => (field === elem))}
-        eventKey={elem}>{elem}
-      </MenuItem>));
+  getDropdownFieldsSelect() {
+    return this.props.fields.map((elem) => ({
+      value: elem,
+      label: elem,
+      disabled: this.props.disabledFields.some(field => (field === elem))
+    }));
   }
 
   /**
@@ -65,25 +63,28 @@ class CreateIndexField extends React.Component {
    * @returns {Array} The React components for each item in the field and type dropdowns.
    */
   getDropdownTypes() {
-    return INDEX_TYPES.map((elem, index) => (<MenuItem key={index} eventKey={elem}>{elem}</MenuItem>));
+    return INDEX_TYPES.map((elem) => ({
+      value: elem,
+      label: elem
+    }));
   }
 
   /**
    * Set state to selected field on field change.
    *
-   * @param {string} name - The selected name.
+   * @param {object} field - The selected field object.
    */
-  selectName(name) {
-    Action.updateFieldName(this.props.idx, name);
+  selectFieldName(field) {
+    Action.updateFieldName(this.props.idx, field.label);
   }
 
   /**
    * Set state to selected type on type change.
    *
-   * @param {string} type - The selected type.
+   * @param {string} field - The selected field object.
    */
-  selectType(type) {
-    Action.updateFieldType(this.props.idx, type);
+  selectFieldType(field) {
+    Action.updateFieldType(this.props.idx, field.label);
   }
 
   /**
@@ -112,41 +113,42 @@ class CreateIndexField extends React.Component {
     });
   }
 
+  _promptText(label) {
+    return `Create Index: '${label}'`;
+  }
+
   /**
    * Render the index field form.
    *
    * @returns {React.Component} The index field form.
    */
   render() {
-    const fieldName = this.props.field.name || DEFAULT_FIELD.name;
-    const fieldType = this.props.field.type || DEFAULT_FIELD.type;
-
     const hasNameError = this.state.isNameValid ? '' : 'has-error';
     const hasTypeError = this.state.isTypeValid ? '' : 'has-error';
 
     return (
       <div className="form-inline row create-index-field">
         <div className="col-md-6" data-test-id="create-index-modal-field-select">
-          <ButtonToolbar>
-            <DropdownButton
-              title={fieldName}
-              id="field-name-select-dropdown"
-              className={`create-index-field-dropdown-name ${hasNameError}`}
-              onSelect={this.selectName.bind(this)}>
-              {this.getDropdownFields(this.props.fields)}
-            </DropdownButton>
-          </ButtonToolbar>
+          <Select.Creatable
+            value={this.props.field.name}
+            placeholder={DEFAULT_FIELD.name}
+            options={this.getDropdownFieldsSelect(this.props.fields)}
+            onChange={this.selectFieldName.bind(this)}
+            clearable={false}
+            promptTextCreator={this._promptText}
+            className={hasNameError}
+          />
         </div>
         <div className="col-md-4" data-test-id="create-index-modal-type-select">
-          <ButtonToolbar>
-            <DropdownButton
-              title={fieldType}
-              id="field-type-select-dropdown"
-              className={`create-index-field-dropdown-type ${hasTypeError}`}
-              onSelect={this.selectType.bind(this)}>
-              {this.getDropdownTypes(INDEX_TYPES)}
-            </DropdownButton>
-          </ButtonToolbar>
+          <Select
+            value={this.props.field.type}
+            placeholder={DEFAULT_FIELD.type}
+            options={this.getDropdownTypes(INDEX_TYPES)}
+            onChange={this.selectFieldType.bind(this)}
+            clearable={false}
+            searchable={false}
+            className={hasTypeError}
+          />
         </div>
         <div className="col-md-2">
           <button disabled={this.props.isRemovable}
