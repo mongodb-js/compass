@@ -123,9 +123,6 @@ class CreateIndexField extends React.Component {
    * @returns {React.Component} The index field form.
    */
   render() {
-    const fieldName = this.props.field.name;
-    const fieldType = this.props.field.type;
-
     const hasNameError = this.state.isNameValid ? '' : 'has-error';
     const hasTypeError = this.state.isTypeValid ? '' : 'has-error';
 
@@ -133,7 +130,7 @@ class CreateIndexField extends React.Component {
       <div className="form-inline row create-index-field">
         <div className="col-md-6" data-test-id="create-index-modal-field-select">
           <Select.Creatable
-            value={fieldName}
+            value={this.props.field.name}
             placeholder={DEFAULT_FIELD.name}
             options={this.getDropdownFieldsSelect(this.props.fields)}
             onChange={this.selectFieldName.bind(this)}
@@ -144,7 +141,7 @@ class CreateIndexField extends React.Component {
         </div>
         <div className="col-md-4" data-test-id="create-index-modal-type-select">
           <Select
-            value={fieldType}
+            value={this.props.field.type}
             placeholder={DEFAULT_FIELD.type}
             options={this.getDropdownTypes(INDEX_TYPES)}
             onChange={this.selectFieldType.bind(this)}
