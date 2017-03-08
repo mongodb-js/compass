@@ -5,6 +5,15 @@ const { DropdownButton, MenuItem } = require('react-bootstrap');
 // import dbg from 'debug';
 // const debug = dbg('mongodb-compass:validation:action-selector');
 
+/**
+ * An OptionSelector component is composed of a few components:
+ *
+ *  1. A subset of the options available in a React-Bootstrap dropdown:
+ *     @see https://react-bootstrap.github.io/components.html#btn-dropdowns-props-dropdown-button
+ *  2. A label for the dropdown
+ *  3. An ordered object of key-value pairs, which populate the
+ *     MenuItem list when the dropdown is activated.
+ */
 class OptionSelector extends React.Component {
 
   static renderLabel(label, id) {
