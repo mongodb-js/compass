@@ -235,6 +235,39 @@ describe('ChartStore', function() {
     });
   });
 
+  context('when infering measurement types', function() {
+    it('maps single type fields to its correct measurement', function() {
+      const infer = this.store._inferMeasurementFromField;
+      expect(infer({type: 'Double'})).to.be.equal(MEASUREMENT_ENUM.QUANTITATIVE);
+      expect(infer({type: 'Int32'})).to.be.equal(MEASUREMENT_ENUM.QUANTITATIVE);
+      expect(infer({type: 'Long'})).to.be.equal(MEASUREMENT_ENUM.QUANTITATIVE);
+      expect(infer({type: 'Decimal128'})).to.be.equal(MEASUREMENT_ENUM.QUANTITATIVE);
+      expect(infer({type: 'Date'})).to.be.equal(MEASUREMENT_ENUM.TEMPORAL);
+      expect(infer({type: 'ObjectId'})).to.be.equal(MEASUREMENT_ENUM.TEMPORAL);
+      expect(infer({type: 'Timestamp'})).to.be.equal(MEASUREMENT_ENUM.TEMPORAL);
+      expect(infer({type: 'Binary'})).to.be.equal(MEASUREMENT_ENUM.NOMINAL);
+      expect(infer({type: 'Boolean'})).to.be.equal(MEASUREMENT_ENUM.NOMINAL);
+      expect(infer({type: 'Code'})).to.be.equal(MEASUREMENT_ENUM.NOMINAL);
+      expect(infer({type: 'DBRef'})).to.be.equal(MEASUREMENT_ENUM.NOMINAL);
+      expect(infer({type: 'MaxKey'})).to.be.equal(MEASUREMENT_ENUM.NOMINAL);
+      expect(infer({type: 'MinKey'})).to.be.equal(MEASUREMENT_ENUM.NOMINAL);
+      expect(infer({type: 'Null'})).to.be.equal(MEASUREMENT_ENUM.NOMINAL);
+      expect(infer({type: 'RegExp'})).to.be.equal(MEASUREMENT_ENUM.NOMINAL);
+      expect(infer({type: 'String'})).to.be.equal(MEASUREMENT_ENUM.NOMINAL);
+      expect(infer({type: 'Symbol'})).to.be.equal(MEASUREMENT_ENUM.NOMINAL);
+    });
+    it('maps multi-type fields to its lowest common measurement type', function() {
+      const infer = this.store._inferMeasurementFromField;
+      expect(infer({type: ['Double', 'String']})).to.be.equal(MEASUREMENT_ENUM.NOMINAL);
+      expect(infer({type: ['Double', 'Decimal128']})).to.be.equal(MEASUREMENT_ENUM.QUANTITATIVE);
+      expect(infer({type: ['Date', 'Int32']})).to.be.equal(MEASUREMENT_ENUM.QUANTITATIVE);
+      expect(infer({type: ['Date', 'ObjectId']})).to.be.equal(MEASUREMENT_ENUM.TEMPORAL);
+      expect(infer({type: ['Code', 'ObjectId']})).to.be.equal(MEASUREMENT_ENUM.NOMINAL);
+      expect(infer({type: ['Code', 'Boolean', 'DBRef', 'Timestamp']}))
+        .to.be.equal(MEASUREMENT_ENUM.NOMINAL);
+    });
+  });
+
   context('with the CHART_TYPE_CHANNELS', () => {
     it('defines all top-level keys from CHART_TYPE_ENUM', () => {
       Object.keys(CHART_TYPE_CHANNELS).forEach((value) => {
