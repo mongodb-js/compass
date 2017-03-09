@@ -49,7 +49,7 @@ class DocumentActions extends React.Component {
    */
   renderExpandAll() {
     const title = this.state.allExpanded ? 'Collapse All' : 'Expand All';
-    const iconClass = this.state.allExpanded ? 'fa-caret-down' : 'fa-caret-right';
+    const iconClass = this.state.allExpanded ? 'fa-angle-down' : 'fa-angle-right';
     return (
       <UpdatableIconButton
         title={title}
@@ -68,25 +68,25 @@ class DocumentActions extends React.Component {
   render() {
     return (
       <div className="document-actions">
-        {this.renderExpandAll()}
         <IconButton
           title="Edit Document"
           className="document-actions-button btn btn-default btn-xs"
           iconClassName="document-actions-button-icon fa fa-pencil"
           dataTestId="edit-document-button"
           clickHandler={this.props.edit} />
-        <IconButton
-          title="Delete Document"
-          className="document-actions-button btn btn-default btn-xs"
-          iconClassName="document-actions-button-icon fa fa-trash-o"
-          dataTestId="delete-document-button"
-          clickHandler={this.props.remove} />
+        {this.renderExpandAll()}
         <IconButton
           title="Clone Document"
           className="document-actions-button btn btn-default btn-xs"
           iconClassName="document-actions-button-icon fa fa-clone"
           dataTestId="clone-document-button"
           clickHandler={this.props.clone} />
+        <IconButton
+          title="Delete Document"
+          className="document-actions-button btn btn-default btn-xs"
+          iconClassName="document-actions-button-icon fa fa-trash-o"
+          dataTestId="delete-document-button"
+          clickHandler={this.props.remove} />
       </div>
     );
   }
