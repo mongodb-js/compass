@@ -72,7 +72,6 @@ class EditableKey extends React.Component {
       try {
         this._node.nextSibling.nextSibling.firstChild.focus();
       } catch (e) {
-        console.log(e);
         return;
       }
     }

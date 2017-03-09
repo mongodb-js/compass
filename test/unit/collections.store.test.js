@@ -8,26 +8,25 @@ const CollectionsStore = require('../../src/internal-packages/database/lib/store
 const InstanceStore = require('../../src/internal-packages/app/lib/stores/instance-store');
 const { NamespaceStore } = require('hadron-reflux-store');
 
+const mockDataService = require('./support/mock-data-service');
+
 describe('CollectionsStore', () => {
-  const appDataService = app.dataService;
   const appInstance = app.instance;
-  const MOCK_APP_DATA_SERVICE = {
-    database: (namespace, {}, callback) => {
-      callback(null, {collections: []});
-    }
-  };
   const MOCK_APP_INSTANCE = {databases: ['foo-database']};
+
+  before(mockDataService.before(null, {
+    database: { collections: [] }
+  }));
+  after(mockDataService.after());
 
   beforeEach(() => {
     // Stub out the app.instance so the NamespaceStore.ns setup runs through
     app.instance = MOCK_APP_INSTANCE;
-    app.dataService = MOCK_APP_DATA_SERVICE;
     NamespaceStore.ns = 'foo-database';
   });
 
   afterEach(() => {
     CollectionsStore.setState(CollectionsStore.getInitialState());
-    app.dataService = appDataService;
     app.instance = appInstance;
   });
 

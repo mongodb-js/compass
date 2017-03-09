@@ -14,6 +14,9 @@ const {
 const ChartActions = require('../../src/internal-packages/chart/lib/actions');
 const ChartStore = require('../../src/internal-packages/chart/lib/store');
 const _ = require('lodash');
+const app = require('hadron-app');
+
+const mockDataService = require('./support/mock-data-service');
 
 /**
  * Country sub-field of address,
@@ -30,12 +33,49 @@ const COUNTRY_SCHEMA_FIELD = {
 };
 
 describe('ChartStore', function() {
+  before(mockDataService.before());
+  after(mockDataService.after());
+
   beforeEach(function() {
     // this.store = new ChartStore();  // TODO: Reflux 6 / COMPASS-686
     this.store = ChartStore;
   });
   afterEach(function() {
     this.store._resetChart();
+  });
+
+  it('has the correct initial queryCache values', function() {
+    expect(this.store.state.queryCache).to.be.deep.equal({
+      filter: {},
+      sort: null,
+      project: null,
+      skip: 0,
+      limit: 100,
+      maxTimeMS: 10000,
+      ns: ''
+    });
+  });
+
+  context('when the query changes', function() {
+    it('contains the new query in the queryCache', function(done) {
+      const QUERY = {
+        filter: {foo: 1},
+        project: null,
+        sort: {_id: 1},
+        skip: 13,
+        limit: 5,
+        maxTimeMS: 10000,
+        ns: 'test.collection'
+      };
+
+      const unsubscribe = this.store.listen((state) => {
+        expect(state.queryCache).to.be.deep.equal(QUERY);
+        unsubscribe();
+        done();
+      });
+
+      this.store.onQueryChanged(QUERY);
+    });
   });
 
   context('when calling the mapFieldToChannel action', function() {
@@ -171,16 +211,6 @@ describe('ChartStore', function() {
           done();
         });
       });
-
-      it('the namespaceCache state is not flushed', function(done) {
-        const POPULATED_CACHE = {namespaceCache: 'mongodb.fanclub'};
-        const expected = Object.assign({}, this.store.getInitialCacheState(), POPULATED_CACHE);
-        setTimeout(() => {
-          const newCacheState = _.omit(this.store.state, chartKeys);
-          expect(newCacheState).to.be.deep.equal(expected);
-          done();
-        });
-      });
     });
   });
 
@@ -248,6 +278,81 @@ describe('ChartStore', function() {
       //    https://vega.github.io/vega-editor/?mode=vega-lite
       // For example:
       //    console.log(JSON.stringify(spec));
+    });
+  });
+
+  context('when calling _refreshDataCache', () => {
+    const defaultQuery = {
+      filter: {},
+      sort: null,
+      project: null,
+      skip: 0,
+      limit: 100,
+      ns: '',
+      maxTimeMS: 10000
+    };
+
+    beforeEach(mockDataService.before());
+    afterEach(mockDataService.after());
+
+    context('when calling with default arguments', () => {
+      it('calls app.dataService.find with the correct arguments', () => {
+        ChartStore.state.queryCache.ns = 'foo.bar';
+        ChartStore._refreshDataCache(Object.assign({}, defaultQuery, {
+          ns: 'foo.bar'
+        }));
+        const findOptions = app.dataService.find.args[0][2];
+        const filter = app.dataService.find.args[0][1];
+        const ns = app.dataService.find.args[0][0];
+
+        expect(ns).to.be.equal('foo.bar');
+        expect(filter).to.be.deep.equal({});
+        expect(findOptions.sort).to.be.null;
+        expect(findOptions.fields).to.be.null;
+        expect(findOptions.skip).to.be.equal(0);
+        expect(findOptions.limit).to.be.equal(100); // @todo temporary limitation
+      });
+    });
+    context('when calling with limit > 100', () => {
+      it('limits the limit to 100', () => {
+        ChartStore._refreshDataCache(Object.assign({}, defaultQuery, {
+          ns: 'foo.bar',
+          limit: 5000
+        }));
+        const findOptions = app.dataService.find.args[0][2];
+        expect(findOptions.limit).to.be.equal(100); // @todo temporary limitation
+      });
+    });
+    context('when using non-default query options', () => {
+      const nonDefaultQuery = Object.assign({}, defaultQuery, {
+        ns: 'foo.bar',
+        filter: {foo: true},
+        project: {bar: 1},
+        sort: {baz: 1},
+        skip: 40,
+        limit: 9
+      });
+      it('calls app.dataService.find with the correct arguments', () => {
+        ChartStore._refreshDataCache(nonDefaultQuery);
+        const findOptions = app.dataService.find.args[0][2];
+        const filter = app.dataService.find.args[0][1];
+        const ns = app.dataService.find.args[0][0];
+
+        expect(ns).to.be.equal('foo.bar');
+        expect(filter).to.be.deep.equal({foo: true});
+        expect(findOptions.fields).to.be.deep.equal({bar: 1});
+        expect(findOptions.sort).to.deep.equal([['baz', 1]]);
+        expect(findOptions.skip).to.be.equal(40);
+        expect(findOptions.limit).to.be.equal(9);
+      });
+      it('updates the queryCache', (done) => {
+        const unsubscribe = ChartStore.listen((state) => {
+          expect(state.queryCache).to.be.deep.equal(nonDefaultQuery);
+          unsubscribe();
+          done();
+        });
+        ChartStore._refreshDataCache(nonDefaultQuery);
+      });
     });
   });
 });

@@ -4,6 +4,8 @@ const AppRegistry = require('hadron-app-registry');
 const mock = require('mock-require');
 const sinon = require('sinon');
 
+const mockDataService = require('./support/mock-data-service');
+
 const DOC_TOO_BIG_ERROR = {message: 'BufBuilder grow() > 64MB'};
 
 const serverStatsActions = {
@@ -17,30 +19,23 @@ mock('../../src/internal-packages/server-stats/lib/action', serverStatsActions);
 
 describe('rtss top-store', function() {
   const appRegistry = app.appRegistry;
-  const appDataService = app.dataService;
   const appInstance = app.instance;
 
   before(() => {
     app.appRegistry = new AppRegistry();
+    mockDataService.before(null, {
+      isMongos: false
+    })();
   });
 
   after(() => {
     app.appRegistry = appRegistry;
-    app.dataService = appDataService;
+    mockDataService.after()();
     app.instance = appInstance;
   });
 
   context('when top command returns document larger than 16mb', () => {
     this.spy = sinon.spy();
-
-    before(() => {
-      app.dataService = {
-        top: this.spy,
-        isMongos: () => {
-          return false;
-        }
-      };
-    });
 
     it.skip('calls pollTop and simulates error, the top command runs', () => {
       serverStatsActions.pollTop();
