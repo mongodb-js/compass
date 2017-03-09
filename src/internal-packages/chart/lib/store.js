@@ -210,6 +210,7 @@ const ChartStore = Reflux.createStore({
     const channels = this.state.channels;
     const prop = channels[channel] || {};
     prop.field = field;
+    // Waiting on COMPASS-727 to provide FieldsStore
     // prop.type = this._inferMeasurementFromField(this.props.fieldsCache[field]));
     channels[channel] = prop;
     this.setState({channels: channels});
@@ -279,8 +280,6 @@ const ChartStore = Reflux.createStore({
    */
   getVegaLiteSpec() {
     const channels = this.state.channels;
-    // TODO: COMPASS-728: Infer default encoding channel measurement using schema/fields
-    // Might also be able to be done elsewhere in this store...
     return {
       data: {values: this.state.dataCache},
       mark: this.state.chartType,
