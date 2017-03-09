@@ -49,10 +49,10 @@ class ServerStatsComponent extends React.Component {
   render() {
     return (
       <div className="rtss">
-        <ChartComponent store={OpCountersStore} dispatcher={this.eventDispatcher} />
-        <ChartComponent store={GlobalLockStore} dispatcher={this.eventDispatcher} />
-        <ChartComponent store={NetworkStore} dispatcher={this.eventDispatcher} />
-        <ChartComponent store={MemStore} dispatcher={this.eventDispatcher} />
+        <ChartComponent width={520} height={145} store={OpCountersStore} dispatcher={this.eventDispatcher} />
+        <ChartComponent width={520} height={145} store={GlobalLockStore} dispatcher={this.eventDispatcher} />
+        <ChartComponent width={520} height={145} store={NetworkStore} dispatcher={this.eventDispatcher} />
+        <ChartComponent width={520} height={145} store={MemStore} dispatcher={this.eventDispatcher} />
       </div>
     );
   }
