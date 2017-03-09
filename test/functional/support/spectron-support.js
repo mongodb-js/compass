@@ -4,7 +4,6 @@ const chaiAsPromised = require('chai-as-promised');
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
-const electron = require('electron');
 const addCollectionCommands = require('./packages/spectron-collection');
 const addCollectionDDLCommands = require('./packages/spectron-collection-ddl');
 const addConnectCommands = require('./packages/spectron-connect');
@@ -212,7 +211,7 @@ function launchCompass() {
     return app;
   }).catch((error) => {
     debug(error.message);
-  });;
+  });
 }
 
 /**
