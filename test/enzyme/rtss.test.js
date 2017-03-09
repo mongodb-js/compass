@@ -21,7 +21,7 @@ describe('rtss', () => {
     // appRegistry.getComponent (i.e. appRegistry being undefined)
     app.appRegistry = new AppRegistry();
     app.appRegistry.registerComponent('App.StatusRow', StatusRow);
-    this.performance = require('../../src/internal-packages/server-stats/lib/component/performance-component');
+    this.performance = require('../../src/internal-packages/server-stats/lib/components/performance-component');
   });
   afterEach(() => {
     // Restore properties on the global app object,
