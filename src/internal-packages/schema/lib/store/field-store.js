@@ -34,7 +34,7 @@ const FieldStore = Reflux.createStore({
 
   onSchemaStoreChanged: function(state) {
     // skip if schema is null
-    if (!state.schema) {
+    if (!state.schema || state.samplingState !== 'complete') {
       return;
     }
 
@@ -45,6 +45,7 @@ const FieldStore = Reflux.createStore({
 
     // if the newly picked schemafields is different to current state set it
     if (!_.isEqual(schemaFields, this.state.fields)) {
+      // have a raw fields, flatten fields and nested fields
       this.setState({fields: schemaFields});
     }
   },
