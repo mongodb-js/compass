@@ -54,7 +54,7 @@ class DocumentActions extends React.Component {
       <UpdatableIconButton
         title={title}
         clickHandler={this.props.expandAll}
-        className="document-actions-button btn btn-default btn-xs"
+        className="document-actions-button document-actions-expand-button btn btn-default btn-xs"
         iconClassName={`document-actions-button-icon fa ${iconClass}`}
         dataTestId="expand-all-button" />
     );
