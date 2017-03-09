@@ -239,7 +239,7 @@ class EditableElement extends React.Component {
    * @returns {React.Component} The component.
    */
   renderKey() {
-    if (this.props.editing) {
+    if (this.props.editing && this.element.currentKey !== '_id') {
       return (<EditableKey element={this.element} index={this.props.index} />);
     }
     return (
