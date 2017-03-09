@@ -1,5 +1,4 @@
 const React = require('react');
-
 const DetailViewComponent = require('./detailview-component');
 const CurrentOpComponent = require('./current-op-component');
 const TopComponent = require('./top-component');

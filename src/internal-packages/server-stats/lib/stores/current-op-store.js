@@ -2,10 +2,9 @@ const Reflux = require('reflux');
 const Actions = require('../actions');
 const { DataServiceActions } = require('mongodb-data-service');
 const toNS = require('mongodb-ns');
-const debug = require('debug')('mongodb-compass:server-stats:crp-store');
 const _ = require('lodash');
 
-// const debug = require('debug')('mongodb-compass:server-stats:current-op-store');
+const debug = require('debug')('mongodb-compass:server-stats:current-op-store');
 
 /* eslint complexity:0 */
 

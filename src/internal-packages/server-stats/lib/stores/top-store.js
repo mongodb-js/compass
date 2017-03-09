@@ -4,6 +4,7 @@ const Actions = require('../actions');
 const toNS = require('mongodb-ns');
 const { DataServiceActions } = require('mongodb-data-service');
 const _ = require('lodash');
+
 const debug = require('debug')('mongodb-compass:server-stats:top-store');
 
 /* eslint complexity:0 */
