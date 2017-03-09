@@ -250,11 +250,11 @@ class EditableElement extends React.Component {
    * @returns {Component} The component.
    */
   renderToggle() {
-    const HEADER_TOGGLE = this.state.expanded ? `fa fa-angle-down` : `fa fa-angle-right`;
-    const TOGGLE_CLASS = `${HEADER_TOGGLE} editable-element-expand-button`;
+    const HEADER_TOGGLE = this.state.expanded ? 'fa fa-angle-down' : 'fa fa-angle-right';
+
     return (
       <div
-        className={TOGGLE_CLASS}
+        className={`editable-element-expand-button ${HEADER_TOGGLE}`}
         style={this.inlineToggleStyle()}
         onClick={this.toggleExpandable.bind(this)}>
       </div>
