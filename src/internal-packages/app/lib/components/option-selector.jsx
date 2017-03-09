@@ -5,16 +5,30 @@ const { DropdownButton, MenuItem } = require('react-bootstrap');
 // import dbg from 'debug';
 // const debug = dbg('mongodb-compass:validation:action-selector');
 
+/**
+ * An OptionSelector component is composed of a few components:
+ *
+ *  1. A subset of the options available in a React-Bootstrap dropdown:
+ *     @see https://react-bootstrap.github.io/components.html#btn-dropdowns-props-dropdown-button
+ *  2. A label for the dropdown
+ *  3. An ordered object of key-value pairs, which populate the
+ *     MenuItem list when the dropdown is activated.
+ */
 class OptionSelector extends React.Component {
 
+  static renderLabel(label, id) {
+    return label ?
+      <label className="option-selector-label" htmlFor={id}>{label}</label> :
+      null;
+  }
 
   /**
-   * Render validation action selector component.
+   * Renders the Option Selector component.
    *
    * @returns {React.Component} The component.
    */
   render() {
-    const title = this.props.options[this.props.value] || 'Select rule category';
+    const htmlLabel = this.constructor.renderLabel(this.props.label, this.props.id);
 
     const menuItems = _.map(this.props.options, (label, key) => {
       return <MenuItem key={key} eventKey={key} href="#">{label}</MenuItem>;
@@ -22,13 +36,12 @@ class OptionSelector extends React.Component {
 
     return (
       <div className="option-selector">
-        <span>{this.props.label}</span>
-        {' '}
+        {htmlLabel}
         <DropdownButton
           bsSize={this.props.bsSize}
           id={this.props.id}
           onSelect={this.props.onSelect}
-          title={title}
+          title={this.props.title}
           disabled={this.props.disabled}
         >{menuItems}
         </DropdownButton>
@@ -42,14 +55,14 @@ OptionSelector.propTypes = {
   bsSize: React.PropTypes.string,
   options: React.PropTypes.object.isRequired,
   label: React.PropTypes.string,
-  value: React.PropTypes.string,
+  title: React.PropTypes.string,
   onSelect: React.PropTypes.func,
   disabled: React.PropTypes.bool
 };
 
 OptionSelector.defaultProps = {
   label: '',
-  value: '',
+  title: 'Select an option',
   onSelect: () => {},
   disabled: false
 };

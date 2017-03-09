@@ -1,5 +1,5 @@
+const app = require('hadron-app');
 const React = require('react');
-const OptionSelector = require('./common/option-selector');
 const ValidationActions = require('../actions');
 const ruleCategories = require('./rule-categories');
 const { FormGroup } = require('react-bootstrap');
@@ -20,6 +20,7 @@ class RuleCategorySelector extends React.Component {
    */
   constructor(props) {
     super(props);
+    this.OptionSelector = app.appRegistry.getComponent('App.OptionSelector');
     this.state = {
       hasStartedValidating: false,
       isValid: true,
@@ -69,11 +70,11 @@ class RuleCategorySelector extends React.Component {
 
     return (
       <FormGroup validationState={validationState}>
-        <OptionSelector
+        <this.OptionSelector
           options={dropdownOptions}
           id={this.props.id}
           label=""
-          value={this.state.category}
+          title={dropdownOptions[this.state.category] || 'Select rule category'}
           onSelect={this.onSelect.bind(this)}
           disabled={!this.props.isWritable}
         />

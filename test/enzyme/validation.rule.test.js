@@ -1,4 +1,6 @@
 /* eslint no-unused-vars: 0 */
+const app = require('hadron-app');
+const AppRegistry = require('hadron-app-registry');
 const chai = require('chai');
 const chaiEnzyme = require('chai-enzyme');
 const expect = chai.expect;
@@ -6,9 +8,6 @@ const React = require('react');
 
 const mount = require('enzyme').mount;
 const shallow = require('enzyme').shallow;
-const Rule = require('../../src/internal-packages/validation/lib/components/rule');
-const RuleCategoryRange = require('../../src/internal-packages/validation/lib/components/rule-categories/range');
-const RuleCategorySelector = require('../../src/internal-packages/validation/lib/components/rule-category-selector');
 const _ = require('lodash');
 
 // const debug = require('debug')('compass:validation:test');
@@ -16,29 +15,48 @@ const _ = require('lodash');
 // use chai-enzyme assertions, see https://github.com/producthunt/chai-enzyme
 chai.use(chaiEnzyme());
 
-describe('<Rule />', function() {
-  let component;
-  const ruleTemplate = {
-    id: 'my-new-rule',
-    field: 'created_at',
-    category: 'type',
-    parameters: {type: 9},  // type "date"
-    nullable: false,
-    serverVersion: '3.4.0',
-    isWritable: true,
-    validate: function() {}
-  };
+let component;
+const ruleTemplate = {
+  id: 'my-new-rule',
+  field: 'created_at',
+  category: 'type',
+  parameters: {type: 9},  // type "date"
+  nullable: false,
+  serverVersion: '3.4.0',
+  isWritable: true,
+  validate: function() {}
+};
 
+const rangeRuleTemplate = {
+  id: 'my-new-rule',
+  field: 'created_at',
+  category: 'range',
+  parameters: {type: 9},  // type "date"
+  nullable: false,
+  serverVersion: '3.2.11',
+  isWritable: true
+};
+
+describe('<Rule />', function() {
+  beforeEach(function() {
+    app.appRegistry = new AppRegistry();
+    const OptionSelector = require('../../src/internal-packages/app/lib/components/option-selector');
+    app.appRegistry.registerComponent('App.OptionSelector', OptionSelector);
+
+    this.Rule = require('../../src/internal-packages/validation/lib/components/rule');
+    this.RuleCategoryRange = require('../../src/internal-packages/validation/lib/components/rule-categories/range');
+    this.RuleCategorySelector = require('../../src/internal-packages/validation/lib/components/rule-category-selector');
+  });
   it('has an input field with value "created_at"', function() {
     const rule = _.assign(ruleTemplate, {});
-    component = mount(<table><tbody><Rule {...rule} /></tbody></table>);
+    component = mount(<table><tbody><this.Rule {...rule} /></tbody></table>);
     expect(component.find('input#my-new-rule')).to.have.value('created_at');
   });
 
   context('when nullable prop is false', function() {
     beforeEach(function() {
       const rule = _.assign(ruleTemplate, {nullable: false});
-      component = mount(<table><tbody><Rule {...rule} /></tbody></table>);
+      component = mount(<table><tbody><this.Rule {...rule} /></tbody></table>);
     });
     // nullable checkbox should be off
     it('has the "Nullable" checkbox unchecked', function() {
@@ -58,7 +76,7 @@ describe('<Rule />', function() {
     context('when category is "exists"', function() {
       it('the checkbox "Nullable" is disabled.', function() {
         const rule = _.assign(ruleTemplate, {category: 'exists'});
-        component = mount(<table><tbody><Rule {...rule} /></tbody></table>);
+        component = mount(<table><tbody><this.Rule {...rule} /></tbody></table>);
         expect(component.find('input.nullable')).to.be.disabled();
       });
     });
@@ -66,7 +84,7 @@ describe('<Rule />', function() {
     context('when category is "mustNotExist"', function() {
       it('the checkbox "Nullable" is disabled.', function() {
         const rule = _.assign(ruleTemplate, {category: 'mustNotExist'});
-        component = mount(<table><tbody><Rule {...rule} /></tbody></table>);
+        component = mount(<table><tbody><this.Rule {...rule} /></tbody></table>);
         expect(component.find('input.nullable')).to.be.disabled();
       });
     });
@@ -74,7 +92,7 @@ describe('<Rule />', function() {
     context('when category is "regex"', function() {
       it('the checkbox "Nullable" is enabled.', function() {
         const rule = _.assign(ruleTemplate, {category: 'regex'});
-        component = mount(<table><tbody><Rule {...rule} /></tbody></table>);
+        component = mount(<table><tbody><this.Rule {...rule} /></tbody></table>);
         expect(component.find('input.nullable')).to.not.be.disabled();
       });
     });
@@ -83,7 +101,7 @@ describe('<Rule />', function() {
   context('when nullable prop is true', function() {
     beforeEach(function() {
       const rule = _.assign(ruleTemplate, {nullable: true});
-      component = mount(<table><tbody><Rule {...rule} /></tbody></table>);
+      component = mount(<table><tbody><this.Rule {...rule} /></tbody></table>);
     });
     // nullable checkbox should be off
     it('has the "Nullable" checkbox checked', function() {
@@ -92,27 +110,17 @@ describe('<Rule />', function() {
   });
 
   context('when category "range" is supplied', function() {
-    const rangeRuleTemplate = {
-      id: 'my-new-rule',
-      field: 'created_at',
-      category: 'range',
-      parameters: {type: 9},  // type "date"
-      nullable: false,
-      serverVersion: '3.2.11',
-      isWritable: true
-    };
-
     it('has a category of "range"', function() {
       const rule = _.assign(rangeRuleTemplate, {});
-      component = shallow(<table><tbody><Rule {...rule} /></tbody></table>);
-      const ruleCategory = component.find(Rule).dive().find(RuleCategorySelector);
+      component = shallow(<table><tbody><this.Rule {...rule} /></tbody></table>);
+      const ruleCategory = component.find(this.Rule).dive().find(this.RuleCategorySelector);
       expect(ruleCategory.props().category).to.be.equal('range');
     });
 
     it('has a <RuleCategoryRange /> component with id my-new-rule', function() {
       const rule = _.assign(rangeRuleTemplate, {});
-      component = shallow(<table><tbody><Rule {...rule} /></tbody></table>);
-      const ruleCategory = component.find(Rule).dive().find(RuleCategoryRange);
+      component = shallow(<table><tbody><this.Rule {...rule} /></tbody></table>);
+      const ruleCategory = component.find(this.Rule).dive().find(this.RuleCategoryRange);
       expect(ruleCategory.props().id).to.be.equal('my-new-rule');
     });
   });

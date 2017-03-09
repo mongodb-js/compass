@@ -28,6 +28,9 @@ describe('<RuleBuilder />', () => {
     // appRegistry.getComponent (i.e. appRegistry being undefined)
     app.appRegistry = new AppRegistry();
 
+    const OptionSelector = require('../../src/internal-packages/app/lib/components/option-selector');
+    app.appRegistry.registerComponent('App.OptionSelector', OptionSelector);
+
     this.RuleBuilder = require('../../src/internal-packages/validation/lib/components/rule-builder');
   });
   afterEach(() => {
