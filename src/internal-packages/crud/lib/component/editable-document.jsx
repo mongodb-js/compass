@@ -227,7 +227,7 @@ class EditableDocument extends React.Component {
    */
   handleRemoveSuccess() {
     this.setState({ deleting: false, deleteFinished: true });
-    Actions.documentRemoved(this.doc._id);
+    Actions.documentRemoved(this.props.doc._id);
   }
 
   /**
