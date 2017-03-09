@@ -135,7 +135,7 @@ class EditableElement extends React.Component {
    * @returns {Object} The inline style for the toggle.
    */
   inlineToggleStyle() {
-    return { left: `${this.props.indent + 44}px` };
+    return { left: `${this.props.indent + 40}px` };
   }
 
   /**
@@ -251,9 +251,10 @@ class EditableElement extends React.Component {
    */
   renderToggle() {
     const HEADER_TOGGLE = this.state.expanded ? `fa fa-angle-down` : `fa fa-angle-right`;
+    const TOGGLE_CLASS = `${HEADER_TOGGLE} expandable-element-expand-button`;
     return (
       <div
-        className={HEADER_TOGGLE}
+        className={TOGGLE_CLASS}
         style={this.inlineToggleStyle()}
         onClick={this.toggleExpandable.bind(this)}>
       </div>
