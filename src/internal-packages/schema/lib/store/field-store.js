@@ -10,7 +10,6 @@ const FIELDS = [
   'path',
   'count',
   'type',
-  'types',
   'probability'
 ];
 
@@ -32,22 +31,72 @@ const FieldStore = Reflux.createStore({
     };
   },
 
+  _generateChildFields(selectedFields, parent, children) {
+    if (!children) {
+      return;
+    }
+
+    if (!selectedFields[parent.path].hasOwnProperty('children')) {
+      selectedFields[parent.path].children = [];
+    }
+
+    for (const child of children) {
+      selectedFields[parent.path].children.push(child.path);
+      selectedFields[child.path] = _.pick(child, FIELDS);
+
+      // recursively search sub documents
+      for (const type of child.types) {
+        if (type.name === 'Document') {
+          // add nested sub-fields
+          this._generateChildFields(selectedFields, child, type.fields);
+        }
+        if (type.name === 'Array') {
+          // add nested sub-fields of document type
+          const docType = _.find(type.types, 'name', 'Document');
+          if (docType) {
+            this._generateChildFields(selectedFields, child, docType.fields);
+          }
+        }
+      }
+    }
+  },
+
+  generateFields(fields) {
+    const selectedFields = {};
+
+    // add each field's path to field set
+    for (const field of fields) {
+      selectedFields[field.path] = _.pick(field, FIELDS);
+
+      // recursively search sub documents
+      for (const type of field.types) {
+        if (type.name === 'Document') {
+          // add nested sub-fields to list of index fields
+          this._generateChildFields(selectedFields, field, type.fields);
+        }
+        if (type.name === 'Array') {
+          // add nested sub-fields of document type to list of index fields
+          const docType = _.find(type.types, 'name', 'Document');
+          if (docType) {
+            this._generateChildFields(selectedFields, field, docType.fields);
+          }
+        }
+      }
+    }
+
+    return selectedFields;
+  },
+
   onSchemaStoreChanged: function(state) {
-    // skip if schema is null
+    // skip if schema is null or sampling is incomplete
     if (!state.schema || state.samplingState !== 'complete') {
       return;
     }
 
-    // pick out the required fields
-    const schemaFields = state.schema.fields.map((field) => {
-      return _.pick(field, FIELDS);
-    });
+    debug('this is the schema state', state);
 
-    // if the newly picked schemafields is different to current state set it
-    if (!_.isEqual(schemaFields, this.state.fields)) {
-      // have a raw fields, flatten fields and nested fields
-      this.setState({fields: schemaFields});
-    }
+    const fields = this.generateFields(state.schema.fields);
+    this.setState({fields: fields});
   },
 
   storeDidUpdate(prevState) {
