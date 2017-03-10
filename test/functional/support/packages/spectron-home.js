@@ -1,13 +1,13 @@
-const selector = require('../spectron-selector');
-
-
 function addWaitHomeViewCommands(client) {
   /**
    * Wait for the home screen to finish loading.
    */
-  client.addCommand('waitForHomeView', function() {
-    // TODO: Looks like COMPASS-635, what should this selector be?
-    return this.waitForVisibleInCompass(selector('instance-sidebar'));
+  client.addCommand('waitForHomeView', function(nextTitle) {
+    return this.waitUntilInCompass(() => {
+      return client.getTitle().then((title) => {
+        return title === nextTitle;
+      });
+    });
   });
 }
 
