@@ -89,7 +89,7 @@ const FieldStore = Reflux.createStore({
     return {fields: selectedFields, fieldParents: parentKeys};
   },
 
-  onSchemaStoreChanged: function(state) {
+  onSchemaStoreChanged(state) {
     // skip if schema is null or sampling is incomplete
     if (!state.schema || state.samplingState !== 'complete') {
       return;

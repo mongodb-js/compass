@@ -1,0 +1,43 @@
+{
+  "fields": {
+    "_id": {
+      "name": "_id",
+      "path": "_id",
+      "count": 4,
+      "type": "ObjectID",
+      "probability": 1
+    },
+    "review": {
+      "name": "review",
+      "path": "review",
+      "count": 1,
+      "type": "Document",
+      "probability": 0.25,
+      "children": [
+        "review._id"
+      ]
+    },
+    "review._id": {
+      "name": "_id",
+      "path": "review._id",
+      "count": 1,
+      "type": "Number",
+      "probability": 1
+    },
+    "review.rating": {
+      "name": "rating",
+      "path": "review.rating",
+      "count": 1,
+      "type": "Number",
+      "probability": 1
+    },
+    "review.text": {
+      "name": "text",
+      "path": "review.text",
+      "count": 1,
+      "type": "String",
+      "probability": 1
+    }
+  },
+  "fieldParents": ["_id", "review"]
+}
