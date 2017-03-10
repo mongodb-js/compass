@@ -142,8 +142,6 @@ describe('CreateIndexesStore', function() {
     CreateIndexStore.removeIndexField(1);
   });
 
-  // skip the tests below because create index store no longer listens to schema
-  // TODO fix in future commit, bring test from field store
   it('extracts top-level and nested field names from the schema', function(done) {
     unsubscribe = CreateIndexStore.listen((fields, options, schemaFields) => {
       expect(schemaFields).to.have.members(['review', 'review.rating',
@@ -155,7 +153,7 @@ describe('CreateIndexesStore', function() {
     CreateIndexStore.onFieldChanged(arrayOfDocsFields);
   });
 
-  it.skip('adds extra field to schemaFields on updateFieldName', function(done) {
+  it('adds extra field to schemaFields on updateFieldName', function(done) {
     CreateIndexStore.onFieldChanged(arrayOfDocsFields);
 
     unsubscribe = CreateIndexStore.listen((fields, options, schemaFields) => {

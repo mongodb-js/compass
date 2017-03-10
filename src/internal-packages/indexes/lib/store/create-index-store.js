@@ -91,9 +91,9 @@ const CreateIndexStore = Reflux.createStore({
   },
 
   /**
-   * Parse and load the schema fields from the schema store.
+   * Parse and load fields from the field store.
    *
-   * @param {Object} state - The state of the schema store (from schema package).
+   * @param {Object} state - The state of the field store.
    */
   onFieldChanged: function(state) {
     if (!state.fields) {
