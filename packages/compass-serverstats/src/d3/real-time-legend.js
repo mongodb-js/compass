@@ -52,6 +52,7 @@ function realTimeLegend() {
 
       textSection
         .append('p')
+        .attr('data-test-id', function(d) { return `performance-${label(d)}`; })
         .attr('class', `${prefix}-count`);
 
       const valueText = legendGroup.selectAll(`p.${prefix}-count`);
