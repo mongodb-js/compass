@@ -19,8 +19,10 @@ actions that the test may execute:
 - "Input" actions - These methods simulate user input anywhere in the app
     where a user would be required to enter a value.
 
-The actions are added to the client in categorised groups, in order to
-keep similar functionality together. These methods in `test/support/spectron-support` are:
+The actions are added to the client in categorised groups by package, 
+in order to keep similar functionality together. These methods in each 
+package in [/test/functional/support/packages/](support/packages/) 
+are grouped by:
 
 - `#addWaitCommands(client)`
 - `#addClickCommands(client)`
