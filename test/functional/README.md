@@ -73,13 +73,6 @@ describe('Compass Functional Test Suite #spectron', function() {
 });
 ```
 
-### Commands
-
-- [Wait Commands](https://github.com/10gen/compass/blob/master/test/support/spectron-support.js#L156)
-- [Click Commands](https://github.com/10gen/compass/blob/master/test/support/spectron-support.js#L353)
-- [Get Commands](https://github.com/10gen/compass/blob/master/test/support/spectron-support.js#L735)
-- [Input Commands](https://github.com/10gen/compass/blob/master/test/support/spectron-support.js#L1079)
-
 ## Tips
 
 ### `waitForVisible` vs. `waitForExist`
