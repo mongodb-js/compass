@@ -65,10 +65,6 @@ class ChartPanel extends React.Component {
 }
 
 ChartPanel.propTypes = {
-  // TODO: COMPASS-700 Spec has title but invision wireframe does not. Do we need it?
-  // https://mongodb.invisionapp.com/share/6S9X3XDQ5#/screens/215032493_200
-  // title: React.PropTypes.string,
-
   chartType: React.PropTypes.string.isRequired,
   encodedChannels: React.PropTypes.object,
 
