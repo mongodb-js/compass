@@ -8,7 +8,7 @@ Tests are now split into these test suites:
 - `main`: Electron-specific tests run in the main process
 - `renderer`: Electron-specific tests run in the renderer process
 - `functional`: Slow functional test using Spectron (launches the application). 
-For more details, see our [functional test README](test/functional/README.md).
+For more details, see our [functional test README](functional/README.md).
 
 NOTE: The packages suite is not run by default (when you do npm test),
 we plan to fix them in COMPASS-704.
