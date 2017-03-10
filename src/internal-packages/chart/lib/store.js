@@ -129,6 +129,44 @@ const ChartStore = Reflux.createStore({
   },
 
   /**
+   * returns the proposed mesurement for a given type string.
+   *
+   * @param {String} type    The type string, e.g. `Double`.
+   * @return {String}        Measurement for that type.
+   */
+  _inferMeasurementFromType(type) {
+    switch (type) {
+      case 'Double':
+      case 'Int32':
+      case 'Long':
+      case 'Decimal128': return MEASUREMENT_ENUM.QUANTITATIVE;
+      case 'Date':
+      case 'ObjectId':
+      case 'Timestamp': return MEASUREMENT_ENUM.TEMPORAL;
+      default: return MEASUREMENT_ENUM.NOMINAL;
+    }
+  },
+
+  /**
+   * returns the proposed mesurement for a given field, based on its type(s).
+   * if the field contains multiple types, use the lowest (first) measurement
+   * common to all of them.
+   *
+   * @param {Object} field    The field with a `.type` property.
+   * @return {String}         Measurement for that field
+   */
+  _inferMeasurementFromField(field) {
+    if (_.isString(field.type)) {
+      return this._inferMeasurementFromType(field.type);
+    }
+    // if field has multiple types, find the lowest (first) common measurement type
+    const measurements = _.map(field.type, this._inferMeasurementFromType.bind(this));
+    return _.find(MEASUREMENT_ENUM, (val) => {
+      return _.contains(measurements, val);
+    });
+  },
+
+  /**
    * Clears the chart, so it is set back to its default initial state but
    * retaining some things such as any data, namespace or query caches.
    */
@@ -172,6 +210,8 @@ const ChartStore = Reflux.createStore({
     const channels = this.state.channels;
     const prop = channels[channel] || {};
     prop.field = field;
+    // Waiting on COMPASS-727 to provide FieldsStore
+    // prop.type = this._inferMeasurementFromField(this.props.fieldsCache[field]));
     channels[channel] = prop;
     this.setState({channels: channels});
   },
@@ -240,8 +280,6 @@ const ChartStore = Reflux.createStore({
    */
   getVegaLiteSpec() {
     const channels = this.state.channels;
-    // TODO: COMPASS-728: Infer default encoding channel measurement using schema/fields
-    // Might also be able to be done elsewhere in this store...
     return {
       data: {values: this.state.dataCache},
       mark: this.state.chartType,
