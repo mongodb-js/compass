@@ -126,10 +126,10 @@ const CHART_TYPE_CHANNELS = Object.freeze({
  * @see https://vega.github.io/vega-lite/docs/encoding.html#data-type
  */
 const MEASUREMENT_ENUM = Object.freeze({
-  QUANTITATIVE: 'quantitative',
-  TEMPORAL: 'temporal',
+  NOMINAL: 'nominal',
   ORDINAL: 'ordinal',
-  NOMINAL: 'nominal'
+  QUANTITATIVE: 'quantitative',
+  TEMPORAL: 'temporal'
 });
 
 /**
@@ -137,10 +137,10 @@ const MEASUREMENT_ENUM = Object.freeze({
  * @type {Class} font-awesome icons
  */
 const MEASUREMENT_ICON_ENUM = Object.freeze({
-  QUANTITATIVE: 'fa-bar-chart',
-  TEMPORAL: 'fa-calendar',
+  NOMINAL: 'fa-pie-chart',
   ORDINAL: 'fa-line-chart',
-  NOMINAL: 'fa-pie-chart'
+  QUANTITATIVE: 'fa-bar-chart',
+  TEMPORAL: 'fa-calendar'
 });
 
 /**
