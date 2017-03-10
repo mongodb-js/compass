@@ -135,7 +135,7 @@ class EditableElement extends React.Component {
    * @returns {Object} The inline style for the toggle.
    */
   inlineToggleStyle() {
-    return { left: `${this.props.indent + 40}px` };
+    return { left: `${this.props.indent + 48}px` };
   }
 
   /**
