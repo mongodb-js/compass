@@ -11,7 +11,7 @@ const EncodingChannel = require('./encoding-channel');
 
 
 /**
- * Represents a the chart type the user has chosen, and how the user
+ * Represents the chart type the user has chosen, and how the user
  * has encoded fields onto it.
  */
 class ChartPanel extends React.Component {
