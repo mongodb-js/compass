@@ -27,7 +27,8 @@ const FieldStore = Reflux.createStore({
    */
   getInitialState() {
     return {
-      fields: []
+      fields: {},
+      fieldParents: []
     };
   },
 
@@ -63,11 +64,12 @@ const FieldStore = Reflux.createStore({
 
   generateFields(fields) {
     const selectedFields = {};
+    const parentKeys = [];
 
     // add each field's path to field set
     for (const field of fields) {
       selectedFields[field.path] = _.pick(field, FIELDS);
-
+      parentKeys.push(field.name);
       // recursively search sub documents
       for (const type of field.types) {
         if (type.name === 'Document') {
@@ -84,7 +86,7 @@ const FieldStore = Reflux.createStore({
       }
     }
 
-    return selectedFields;
+    return {fields: selectedFields, fieldParents: parentKeys};
   },
 
   onSchemaStoreChanged: function(state) {
@@ -93,10 +95,7 @@ const FieldStore = Reflux.createStore({
       return;
     }
 
-    debug('this is the schema state', state);
-
-    const fields = this.generateFields(state.schema.fields);
-    this.setState({fields: fields});
+    this.setState(this.generateFields(state.schema.fields));
   },
 
   storeDidUpdate(prevState) {
