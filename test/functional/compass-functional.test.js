@@ -84,7 +84,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
       });
     });
 
-    context.skip('when viewing the performance view', function() {
+    context('when viewing the performance view', function() {
       it('renders the operations graph inserts', function() {
         return client
           .clickPerformanceTab()
@@ -198,7 +198,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
       });
     });
 
-    context.skip('when creating a database', function() {
+    context('when creating a database', function() {
       let dbCount;
 
       before(function(done) {
@@ -258,7 +258,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
       });
     });
 
-    context.skip('when entering a filter in the sidebar', function() {
+    context('when entering a filter in the sidebar', function() {
       let dbCount;
 
       before(function(done) {
@@ -296,7 +296,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
       });
     });
 
-    context.skip('when deleting a database', function() {
+    context('when deleting a database', function() {
       let dbCount;
 
       before(function(done) {
@@ -372,7 +372,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
       });
     });
 
-    context.skip('when viewing the database', function() {
+    context('when viewing the database', function() {
       it('lists the collections in the database', function() {
         return client
           .clickDatabaseInSidebar('music')
@@ -505,7 +505,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
       });
     });
 
-    context.skip('when viewing a collection', function() {
+    context('when viewing a collection', function() {
       let serverVersion;
 
       before(function(done) {
