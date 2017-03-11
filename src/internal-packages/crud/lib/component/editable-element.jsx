@@ -58,11 +58,6 @@ const HEADER = `${BEM_EXP_BASE}-header`;
 const HEADER_LABEL = `${HEADER}-label`;
 
 /**
- * The carat for toggling expansion class.
- */
-const HEADER_TOGGLE = `${HEADER}-toggle`;
-
-/**
  * The separator style.
  */
 const SEPARATOR = 'element-separator';
@@ -140,7 +135,7 @@ class EditableElement extends React.Component {
    * @returns {Object} The inline style for the toggle.
    */
   inlineToggleStyle() {
-    return { left: `${this.props.indent + 44}px` };
+    return { left: `${this.props.indent + 48}px` };
   }
 
   /**
@@ -255,9 +250,11 @@ class EditableElement extends React.Component {
    * @returns {Component} The component.
    */
   renderToggle() {
+    const HEADER_TOGGLE = this.state.expanded ? 'fa fa-angle-down' : 'fa fa-angle-right';
+
     return (
       <div
-        className={HEADER_TOGGLE}
+        className={`editable-element-expand-button ${HEADER_TOGGLE}`}
         style={this.inlineToggleStyle()}
         onClick={this.toggleExpandable.bind(this)}>
       </div>
