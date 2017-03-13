@@ -37,27 +37,27 @@ class ChartBuilder extends React.Component {
     // @todo (thomas) temporarily output the cached docs as JSON so
     // we have something on the screen to see data fetching works.
     return (
-      <div className="chart-builder charts-container">
+      <div className="chart-builder chart-container">
         <div className="controls-container">
           <this.queryBar layout={QUERYBAR_LAYOUT} />
           {this.renderWarning()}
         </div>
         <div className="chart-builder-container">
           <div className="chart-builder-field-panel">
-            <h1>Field Panel</h1>
+            <h4>Field Panel</h4>
           </div>
           <div className="chart-builder-chart-panel">
-            <h1>Chart Panel</h1>
+            <h4>Chart Panel</h4>
           </div>
           <div className="chart-builder-chart-area">
-            <h1>Main Chart Area</h1>
+            <h4>Main Chart Area</h4>
+              <pre>
+                <code>
+                  {JSON.stringify(this.props.dataCache, null, 2)}
+                </code>
+              </pre>
           </div>
         </div>
-        <pre>
-          <code>
-            {JSON.stringify(this.props.dataCache, null, 2)}
-          </code>
-        </pre>
       </div>
     );
   }
