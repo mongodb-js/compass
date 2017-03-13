@@ -2,8 +2,8 @@ const semver = require('semver');
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 const assert = require('assert');
+const fs = require('fs');
 const path = require('path');
-const electronPrebuilt = require('electron-prebuilt');
 const addCollectionCommands = require('./packages/spectron-collection');
 const addCollectionDDLCommands = require('./packages/spectron-collection-ddl');
 const addConnectCommands = require('./packages/spectron-connect');
@@ -48,6 +48,12 @@ const WAIT_FOR_TIMEOUT = 'WaitForTimeoutError';
  * The wait until timeout error.
  */
 const WAIT_UNTIL_TIMEOUT = 'WaitUntilTimeoutError';
+
+const ROOT = path.join(__dirname, '..', '..', '..');
+
+const ELECTRON = path.join(ROOT, 'node_modules', 'electron');
+const ELECTRON_PATH = path.join(ELECTRON, 'path.txt');
+const ELECTRON_EXECUTABLE = path.join(ELECTRON, fs.readFileSync(ELECTRON_PATH, { encoding: 'utf8' }));
 
 /**
  * The progressive timeouts when searching for elements.
@@ -158,14 +164,13 @@ function addExtendedWaitCommands(client) {
  * @returns {Application} The spectron application.
  */
 function createApplication() {
-  const dir = path.join(__dirname, '..', '..', '..');
   /* Force the node env to testing */
   process.env.NODE_ENV = 'testing';
   return new Application({
-    path: electronPrebuilt,
-    args: [ dir ],
+    path: ELECTRON_EXECUTABLE,
+    args: [ ROOT ],
     env: process.env,
-    cwd: dir
+    cwd: ROOT
   });
 }
 
@@ -204,6 +209,8 @@ function launchCompass() {
     return client.waitUntilWindowLoaded(LONG_TIMEOUT);
   }).then(() => {
     return app;
+  }).catch((error) => {
+    debug(error.message);
   });
 }
 
