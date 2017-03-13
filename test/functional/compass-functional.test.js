@@ -57,6 +57,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
             return client
               .clickClosePrivacySettingsButton()
               .waitForConnectView()
+              .waitForWindowTitle('MongoDB Compass - Connect')
               .getTitle().should.eventually.be.equal('MongoDB Compass - Connect');
           });
 
@@ -73,7 +74,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
             .inputConnectionDetails({ hostname: 'localhost', port: 27018 })
             .clickConnectButton()
             .waitForStatusBar()
-            .waitForHomeView()
+            .waitForWindowTitle('MongoDB Compass - localhost:27018')
             .getTitle().should.eventually.equal('MongoDB Compass - localhost:27018');
         });
 
@@ -519,6 +520,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
         return client
           .clickCollectionInSidebar('music.artists')
           .waitForStatusBar()
+          .waitForWindowTitle('MongoDB Compass - localhost:27018/music.artists')
           .getTitle().should.eventually.equal(
             'MongoDB Compass - localhost:27018/music.artists'
           );

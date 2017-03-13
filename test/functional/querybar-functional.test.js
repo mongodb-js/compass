@@ -35,7 +35,7 @@ describe('Compass Functional Tests for QueryBar #spectron', function() {
           .inputConnectionDetails({ hostname: 'localhost', port: 27018 })
           .clickConnectButton()
           .waitForStatusBar()
-          .waitForHomeView()
+          .waitForWindowTitle('MongoDB Compass - localhost:27018')
           .then(() => {
             done();
           });
