@@ -1,5 +1,5 @@
-const { launchCompass, quitCompass} = require('../spectron-support');
-const {isIndexUsageEnabled} = require('./support/spectron-support');
+const { launchCompass, quitCompass} = require('../support/spectron-support');
+const {isIndexUsageEnabled} = require('../support/spectron-support');
 
 context('when a MongoDB instance is running', function() {
   this.slow(30000);
