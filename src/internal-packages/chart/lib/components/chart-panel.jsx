@@ -20,10 +20,13 @@ class ChartPanel extends React.Component {
     this.OptionSelector = app.appRegistry.getComponent('App.OptionSelector');
   }
 
-  static onChartTypeSelect(event) {
-    // TODO: Test this action once we have COMPASS-887,
-    // TODO: ... it's probably `event.target.value` or similar
-    Actions.selectChartType(event);
+  /**
+   * Handles when the user changes the Chart Type from the drop down list.
+   *
+   * @param {String} dropdownText - The value of the OptionSelector dropdown.
+   */
+  static onChartTypeSelect(dropdownText) {
+    Actions.selectChartType(dropdownText.toLowerCase());
   }
 
   renderChartTypeChoice() {
