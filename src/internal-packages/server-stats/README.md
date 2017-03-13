@@ -9,6 +9,15 @@ The RTSS page is compromised of 3 main elements:
 
 The top-level component for the RTSS view is the `PerformanceComponent`, which contains the `TimeAndPauseButton` (the pause button and timer at the top of the page), `DBErrorComponent`, and the lists and charts components.
 
+- PerformanceComponent
+  - TimeAndPauseButton
+  - DBErrorComponent
+  - ServerStatsListComponent
+    - TopComponent
+    - CurrentOpComponent
+  - ServerStatsGraphsComponent
+    - ChartComponent (x4)
+
 ## Lists
 The lists are contained in the `ServerStatsListsComponent`, which contains both `TopComponent` and the `CurrentOpComponent`. The Slow Operations table also includes the `DetailViewComponent`, which shows the raw data from the `currentOp` command.
 
