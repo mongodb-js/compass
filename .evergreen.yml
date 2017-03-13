@@ -73,6 +73,7 @@ functions:
 
         npm install -g node-gyp yarn
         npm install
+        npm rebuild macos-alias
         npm run evergreen-expansions
         cat expansions.yml
 
