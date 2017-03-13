@@ -65,7 +65,7 @@ class ChartPanel extends React.Component {
 
 ChartPanel.propTypes = {
   chartType: React.PropTypes.string.isRequired,
-  encodedChannels: React.PropTypes.object,
+  encodedChannels: React.PropTypes.object.isRequired
 };
 
 ChartPanel.defaultProps = {
