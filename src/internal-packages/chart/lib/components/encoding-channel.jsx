@@ -18,17 +18,19 @@ class EncodingChannel extends React.Component {
   }
 
   render() {
-    // TODO: required/optional CSS className
+    // TODO: Add required/optional CSS to labelClassNames
     // const cssOptional = this.props.optional === 'required' ? CSS : CSS;
-    const cssOptional = '';
+    const labelClassNames = 'chart-encoding-channel-label';
     const chartChannelId = `chart-panel-channel-${this.props.fieldName}`;
     const placeholder = 'drop a field here';
     return (
-      <div>
-        <label className={cssOptional} htmlFor={chartChannelId}>
+      <div className="chart-encoding-channel">
+        <label className={labelClassNames} htmlFor={chartChannelId}>
           {this.props.fieldName}
         </label>
-        <span id={chartChannelId}>{this.props.encodedChannel || placeholder}</span>
+        <div id={chartChannelId} className="chart-encoding-channel-droppable">
+          {this.props.encodedChannel || placeholder}
+        </div>
       </div>
     );
   }
