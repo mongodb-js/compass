@@ -335,14 +335,11 @@ tasks:
           -o ".deps/macos-alias-0.2.11-abi-51.tgz" \
           --url "http://mongodb-dx-public.s3.amazonaws.com/evergreen-deps/macos-alias-0.2.11-abi-51.tgz"
         rm -rf node_modules/macos-alias
-        ls -la node_modules
         cd .deps
-        ls -la
         tar xzf macos-alias-0.2.11-abi-51.tgz
         mv node_modules/macos-alias ../node_modules/macos-alias
         rm -rf node_modules
         cd ..
-        ls -la node_modules
   - func: "build"
   - func: "save windows artifacts"
     variants:
