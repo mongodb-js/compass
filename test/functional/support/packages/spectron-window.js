@@ -1,8 +1,8 @@
-function addWaitHomeViewCommands(client) {
+function addWaitWindowCommands(client) {
   /**
    * Wait for the home screen to finish loading.
    */
-  client.addCommand('waitForHomeView', function(nextTitle) {
+  client.addCommand('waitForWindowTitle', function(nextTitle) {
     return this.waitUntilInCompass(() => {
       return client.getTitle().then((title) => {
         return title === nextTitle;
@@ -17,9 +17,9 @@ function addWaitHomeViewCommands(client) {
  *
  * @param {Client} client - The client.
  */
-function addHomeViewCommands(client) {
-  addWaitHomeViewCommands(client);
+function addWindowCommands(client) {
+  addWaitWindowCommands(client);
 }
 
 
-module.exports = addHomeViewCommands;
+module.exports = addWindowCommands;
