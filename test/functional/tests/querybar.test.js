@@ -2,8 +2,8 @@ const Connection = require('mongodb-connection-model');
 const DataService = require('mongodb-data-service');
 const _ = require('lodash');
 const mgenerate = require('mgeneratejs');
-const fanclubTemplate = require('../fanclub-template.json');
-const { launchCompass, quitCompass } = require('../spectron-support');
+const fanclubTemplate = require('../support/fanclub-template.json');
+const { launchCompass, quitCompass } = require('../support/spectron-support');
 
 /**
  * Global connection model for this test.

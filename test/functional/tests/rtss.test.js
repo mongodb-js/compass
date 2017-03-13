@@ -1,4 +1,4 @@
-const { launchCompass, quitCompass} = require('../spectron-support');
+const { launchCompass, quitCompass} = require('../support/spectron-support');
 
 
 context('when a MongoDB instance is running', function() {
