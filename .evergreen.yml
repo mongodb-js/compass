@@ -338,8 +338,10 @@ tasks:
         cd .deps
         tar xzf macos-alias-0.2.11-abi-51.tgz
         mv node_modules/macos-alias ../node_modules/macos-alias
-        rm -rf node_modules
+        rm -rf node_modules/
         cd ..
+    variants:
+      - macos
   - func: "build"
   - func: "save windows artifacts"
     variants:
