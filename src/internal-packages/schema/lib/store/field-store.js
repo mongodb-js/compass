@@ -32,61 +32,38 @@ const FieldStore = Reflux.createStore({
     };
   },
 
-  _generateChildFields(selectedFields, parent, children) {
-    if (!children) {
+  _generateFields(fields, nestedFields, rootField) {
+    if (!nestedFields) {
       return;
     }
 
-    if (!selectedFields[parent.path].hasOwnProperty('children')) {
-      selectedFields[parent.path].children = [];
+    if (rootField) {
+      if (!fields[rootField.path].hasOwnProperty('nestedFields')) {
+        fields[rootField.path].nestedFields = [];
+      }
+      nestedFields.map((f) => {
+        fields[rootField.path].nestedFields.push(f.path);
+      });
     }
 
-    for (const child of children) {
-      selectedFields[parent.path].children.push(child.path);
-      selectedFields[child.path] = _.pick(child, FIELDS);
+    for (const field of nestedFields) {
+      fields[field.path] = _.pick(field, FIELDS);
 
       // recursively search sub documents
-      for (const type of child.types) {
+      for (const type of field.types) {
         if (type.name === 'Document') {
           // add nested sub-fields
-          this._generateChildFields(selectedFields, child, type.fields);
+          this._generateFields(fields, type.fields, field);
         }
         if (type.name === 'Array') {
           // add nested sub-fields of document type
           const docType = _.find(type.types, 'name', 'Document');
           if (docType) {
-            this._generateChildFields(selectedFields, child, docType.fields);
+            this._generateFields(fields, docType.fields, field);
           }
         }
       }
     }
-  },
-
-  generateFields(fields) {
-    const selectedFields = {};
-    const parentKeys = [];
-
-    // add each field's path to field set
-    for (const field of fields) {
-      selectedFields[field.path] = _.pick(field, FIELDS);
-      parentKeys.push(field.name);
-      // recursively search sub documents
-      for (const type of field.types) {
-        if (type.name === 'Document') {
-          // add nested sub-fields to list of index fields
-          this._generateChildFields(selectedFields, field, type.fields);
-        }
-        if (type.name === 'Array') {
-          // add nested sub-fields of document type to list of index fields
-          const docType = _.find(type.types, 'name', 'Document');
-          if (docType) {
-            this._generateChildFields(selectedFields, field, docType.fields);
-          }
-        }
-      }
-    }
-
-    return {fields: selectedFields, rootFields: parentKeys};
   },
 
   onSchemaStoreChanged(state) {
@@ -95,7 +72,16 @@ const FieldStore = Reflux.createStore({
       return;
     }
 
-    this.setState(this.generateFields(state.schema.fields));
+    const fields = {};
+    const rootFields = [];
+
+    for (const field of state.schema.fields) {
+      rootFields.push(field.name);
+    }
+
+    this._generateFields(fields, state.schema.fields);
+
+    this.setState({fields: fields, rootFields: rootFields});
   },
 
   storeDidUpdate(prevState) {
