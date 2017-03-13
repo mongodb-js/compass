@@ -1,6 +1,8 @@
 const React = require('react');
 const app = require('hadron-app');
 
+const ChartPanel = require('./chart-panel');
+
 const QUERYBAR_LAYOUT = ['filter', 'project', ['sort', 'skip', 'limit']];
 const EXPERIMENTAL_WARNING = 'The charts feature is experimental. Use at own risk.';
 
@@ -48,6 +50,10 @@ class ChartBuilder extends React.Component {
           </div>
           <div className="chart-builder-chart-panel">
             <h4>Chart Panel</h4>
+            <ChartPanel
+              chartType={this.props.chartType}
+              encodedChannels={this.props.channels}
+            />
           </div>
           <div className="chart-builder-chart-area">
             <h4>Main Chart Area</h4>
