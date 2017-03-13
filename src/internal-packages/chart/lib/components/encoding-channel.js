@@ -37,15 +37,10 @@ class EncodingChannel extends React.Component {
 EncodingChannel.propTypes = {
   encodedChannel: React.PropTypes.string,
   fieldName: React.PropTypes.string.isRequired,
-  optional: React.PropTypes.string,
-
-  // Not yet sure whether we want to disable charts, e.g. on a secondary,
-  // if we can't save and share them?
-  isWritable: React.PropTypes.bool
+  optional: React.PropTypes.string
 };
 
 EncodingChannel.defaultProps = {
-  isWritable: true
 };
 
 EncodingChannel.displayName = 'EncodingChannel';

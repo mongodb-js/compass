@@ -34,7 +34,6 @@ class ChartPanel extends React.Component {
         options={CHART_TYPE_ENUM}
         title={this.props.chartType}
         onSelect={this.constructor.onChartTypeSelect}
-        disabled={!this.props.isWritable}
       />
     );
   }
@@ -67,14 +66,9 @@ class ChartPanel extends React.Component {
 ChartPanel.propTypes = {
   chartType: React.PropTypes.string.isRequired,
   encodedChannels: React.PropTypes.object,
-
-  // Not yet sure whether we want to disable charts, e.g. on a secondary,
-  // if we can't save and share them?
-  isWritable: React.PropTypes.bool
 };
 
 ChartPanel.defaultProps = {
-  isWritable: true
 };
 
 ChartPanel.displayName = 'ChartPanel';
