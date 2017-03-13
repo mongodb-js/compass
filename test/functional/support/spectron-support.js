@@ -12,7 +12,6 @@ const addDatabaseCommands = require('./packages/spectron-database');
 const addDatabaseDDLCommands = require('./packages/spectron-database-ddl');
 const addExplainCommands = require('./packages/spectron-explain');
 const addFeatureTourCommands = require('./packages/spectron-feature-tour');
-const addHomeCommands = require('./packages/spectron-home');
 const addKeyPressCommands = require('./packages/spectron-keypress');
 const addIndexesCommands = require('./packages/spectron-indexes');
 const addInstanceHeaderCommands = require('./packages/spectron-instance-header');
@@ -24,6 +23,7 @@ const addSchemaCommands = require('./packages/spectron-schema');
 const addSidebarCommands = require('./packages/spectron-sidebar');
 const addStatusBarCommands = require('./packages/spectron-status-bar');
 const addValidationCommands = require('./packages/spectron-validation');
+const addWindowCommands = require('./packages/spectron-window');
 const Application = require('spectron').Application;
 const debug = require('debug')('mongodb-compass:spectron-support');
 
@@ -187,7 +187,6 @@ function launchCompass() {
     addDatabaseDDLCommands(client);
     addExplainCommands(client);
     addFeatureTourCommands(client);
-    addHomeCommands(client);
     addKeyPressCommands(client);
     addIndexesCommands(client);
     addInstanceHeaderCommands(client);
@@ -199,6 +198,7 @@ function launchCompass() {
     addSidebarCommands(client);
     addStatusBarCommands(client);
     addValidationCommands(client);
+    addWindowCommands(client);
     chaiAsPromised.transferPromiseness = app.transferPromiseness;
     chai.should().exist(client);
     return client.waitUntilWindowLoaded(LONG_TIMEOUT);
