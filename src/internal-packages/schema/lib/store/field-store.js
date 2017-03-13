@@ -28,7 +28,7 @@ const FieldStore = Reflux.createStore({
   getInitialState() {
     return {
       fields: {},
-      fieldParents: []
+      rootFields: []
     };
   },
 
@@ -86,7 +86,7 @@ const FieldStore = Reflux.createStore({
       }
     }
 
-    return {fields: selectedFields, fieldParents: parentKeys};
+    return {fields: selectedFields, rootFields: parentKeys};
   },
 
   onSchemaStoreChanged(state) {

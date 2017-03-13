@@ -19,7 +19,7 @@ describe('FieldStore', function() {
 
   it('has an initial state', () => {
     const keys = FieldStore.getInitialState();
-    expect(keys).to.have.all.keys(['fields', 'fieldParents']);
+    expect(keys).to.have.all.keys(['fields', 'rootFields']);
   });
 
   it('does not run when sampling is complete', () => {
@@ -30,7 +30,7 @@ describe('FieldStore', function() {
 
   it('includes the parent field names in the keys of fields', (done) => {
     unsubscribe = FieldStore.listen((state) => {
-      expect(Object.keys(state.fields)).to.include.members(state.fieldParents);
+      expect(Object.keys(state.fields)).to.include.members(state.rootFields);
       done();
     });
     FieldStore.onSchemaStoreChanged({schema: arrayOfDocsSchema, samplingState: 'complete'});
