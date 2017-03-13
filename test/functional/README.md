@@ -75,7 +75,6 @@ describe('Compass Functional Test Suite #spectron', function() {
 });
 ```
 
-
 ## Tips
 
 ### `waitForVisible` vs. `waitForExist`
