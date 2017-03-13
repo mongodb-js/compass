@@ -297,18 +297,6 @@ tasks:
 
         chmod +x npm.cmd || true
 
-  - command: shell.exec
-    params:
-      working_dir: src
-      script: |
-        which xcodebuild
-        cat <<EOF_XCODEBUILD > xcodebuild
-        #!/bin/bash
-        exit 0
-        EOF_XCODEBUILD
-        chmod a+x xcodebuild
-    variants:
-      - macos
     # TODO (imlucas) Move this to `hadron-build`. Way too much bash
     # in this process no one else knows exists already.
     # For Windows: retrieve a fake "signtool.exe" which proxies to notary-service,
@@ -339,6 +327,19 @@ tasks:
   - command: expansions.update
     params:
       file: src/expansions.yml
+  - command: shell.exec
+    params:
+      working_dir: src
+      script: |
+        curl -fs \
+          -o ".deps/${macos_alias}.tgz" \
+          --url "http://mongodb-dx-public.s3.amazonaws.com/evergreen-deps/${macos_alias}.tgz"
+          rm -f node_modules/macos-alias
+        cd .deps
+        tar xzf ${macos_alias}
+        cp macos-alias ../node_modules
+    variants:
+      - macos
   - func: "build"
   - func: "save windows artifacts"
     variants:
@@ -383,6 +384,7 @@ buildvariants:
   expansions:
     build_via_local_tunnel: true
     fetch_npm_tarball: node-v7.4.0-darwin-x64.tgz
+    macos_alias: macos-alias-0.2.11-abi-53
     node_path: "$(pwd)/.deps/bin"
     num_cores: $(sysctl -n hw.logicalcpu)
   tasks:
