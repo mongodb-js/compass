@@ -337,7 +337,7 @@ tasks:
           rm -rf node_modules/macos-alias
         cd .deps
         tar xzf macos-alias-0.2.11-abi-53.tgz
-        cp node_modules/macos-alias ../node_modules
+        mv node_modules/macos-alias ../node_modules/macos-alias
         rm -rf node_modules
         cd ..
   - func: "build"
