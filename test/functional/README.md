@@ -118,6 +118,8 @@ The usual reasoning for this error is that the status bar has not gotten to 100%
 and the transparent overlay is still present. Adding a `waitForStatusBar` command
 before the click command should resolve most of these.
 
+For more ideas, please see the [ChromeDriver 'Element is not clickable' error documentation](https://sites.google.com/a/chromium.org/chromedriver/help/clicking-issues).
+
 ## Roadmap
 
 ### Scoped data-test-id
