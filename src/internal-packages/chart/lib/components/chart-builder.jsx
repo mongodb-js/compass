@@ -1,5 +1,6 @@
 const React = require('react');
 const app = require('hadron-app');
+const FieldPanel = require('./field-panel');
 
 const ChartPanel = require('./chart-panel');
 
@@ -47,6 +48,10 @@ class ChartBuilder extends React.Component {
         <div className="chart-builder-container">
           <div className="chart-builder-field-panel">
             <h4>Field Panel</h4>
+            <FieldPanel
+              fieldsCache={this.props.fieldsCache}
+              rootFields={this.props.rootFields}
+            />
           </div>
           <div className="chart-builder-chart-panel">
             <h4>Chart Panel</h4>
@@ -71,7 +76,8 @@ class ChartBuilder extends React.Component {
 
 ChartBuilder.propTypes = {
   dataCache: React.PropTypes.array,
-  fieldsCache: React.PropTypes.array,
+  fieldsCache: React.PropTypes.object,
+  rootFields: React.PropTypes.array,
   namespaceCache: React.PropTypes.string,
   queryCache: React.PropTypes.object,
   spec: React.PropTypes.object,
