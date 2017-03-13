@@ -5,58 +5,58 @@ describe('Compass Functional Test Suite #spectron', function() {
   });
 
   describe('Application Launch', function() {
-    require('./tests/compass-launch.test');
+    require('./tests/launch.test');
   });
 
   describe('Connecting to an Instance', function() {
-    require('./tests/compass-connect.test');
+    require('./tests/connect.test');
   });
 
   describe.skip('Performance tab', function() {
-    require('./tests/compass-rtss.test');
+    require('./tests/rtss.test');
   });
 
   describe.skip('Creating Database', function() {
-    require('./tests/compass-databases.test');
+    require('./tests/create-databases.test');
   });
 
   describe.skip('Sidebar', function() {
-    require('./tests/compass-sidebase.test');
+    require('./tests/sidebar.test');
   });
 
   describe.skip('Deleting Database', function() {
-    require('./tests/compass-delete-databases.test');
+    require('./tests/delete-databases.test');
   });
 
   describe.skip('Creating & Deleting Collections', function() {
-    require('./tests/compass-collections.test');
+    require('./tests/collections.test');
   });
 
   describe('Query Bar', function() {
-    require('./tests/querybar-functional.test.js');
+    require('./tests/querybar.test.js');
   });
 
   describe.skip('CRUD', function() {
-    require('./tests/compass-crud.test');
+    require('./tests/crud.test');
   });
 
   describe.skip('Schema', function() {
-    require('./tests/compass-schema.test');
+    require('./tests/schema.test');
   });
 
   describe.skip('Explain', function() {
-    require('./tests/compass-explain.test');
+    require('./tests/explain.test');
   });
 
   describe.skip('Indexes', function() {
-    require('./tests/compass-indexes.test');
+    require('./tests/indexes.test');
   });
 
   describe.skip('Validation', function() {
-    require('./tests/compass-validation.test');
+    require('./tests/validation.test');
   });
 
   describe.skip('Data Service', function() {
-    require('./tests/compass-data-service.test');
+    require('./tests/data-service.test');
   });
 });

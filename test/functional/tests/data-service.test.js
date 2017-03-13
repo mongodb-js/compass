@@ -1,4 +1,4 @@
-const { launchCompass, quitCompass} = require('../spectron-support');
+const { launchCompass, quitCompass} = require('../support/spectron-support');
 const DataService = require('mongodb-data-service');
 const Connection = require('mongodb-connection-model');
 
