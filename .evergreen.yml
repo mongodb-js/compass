@@ -73,7 +73,6 @@ functions:
 
         npm install -g node-gyp yarn
         npm install
-        npm rebuild macos-alias
         npm run evergreen-expansions
         cat expansions.yml
 
@@ -298,6 +297,18 @@ tasks:
 
         chmod +x npm.cmd || true
 
+  - command: shell.exec
+    params:
+      working_dir: src
+      script: |
+        which xcodebuild
+        cat <<EOF_XCODEBUILD > xcodebuild
+        #!/bin/bash
+        exit 0
+        EOF_XCODEBUILD
+        chmod a+x xcodebuild
+    variants:
+      - macos
     # TODO (imlucas) Move this to `hadron-build`. Way too much bash
     # in this process no one else knows exists already.
     # For Windows: retrieve a fake "signtool.exe" which proxies to notary-service,
