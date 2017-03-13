@@ -1,0 +1,25 @@
+.chart-builder {
+
+  &-container {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+  }
+
+  &-chart-panel, &-field-panel {
+    width: 200px;
+    height: 100%;
+  }
+
+  &-chart-area {
+    height: 100%;
+    flex-grow: 10;
+  }
+
+  &-chart-panel, &-field-panel, &-chart-area {
+    // temporary styling
+    border: 1px solid @pw;
+    padding: 5px;
+    background: @gray6;
+  }
+}

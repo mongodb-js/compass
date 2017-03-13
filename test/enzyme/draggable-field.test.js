@@ -8,7 +8,7 @@ const Dropdown = require('react-bootstrap').Dropdown;
 
 const shallow = require('enzyme').shallow;
 
-const DraggableField = require('../../src/internal-packages/chart/lib/component/draggable-field.jsx');
+const DraggableField = require('../../src/internal-packages/chart/lib/components/draggable-field.jsx');
 
 
 chai.use(chaiEnzyme());
