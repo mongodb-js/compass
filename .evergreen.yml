@@ -344,8 +344,6 @@ tasks:
   - func: "save windows artifacts"
     variants:
       - windows
-    variants:
-      - macos
   - func: "save osx artifacts"
     variants:
       - macos
