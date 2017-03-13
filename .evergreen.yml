@@ -332,18 +332,19 @@ tasks:
       working_dir: src
       script: |
         curl -fs \
-          -o ".deps/${macos_alias}.tgz" \
-          --url "http://mongodb-dx-public.s3.amazonaws.com/evergreen-deps/${macos_alias}.tgz"
+          -o ".deps/macos-alias-0.2.11-abi-53.tgz" \
+          --url "http://mongodb-dx-public.s3.amazonaws.com/evergreen-deps/macos-alias-0.2.11-abi-53.tgz"
           rm -f node_modules/macos-alias
         cd .deps
-        tar xzf ${macos_alias}
+        tar xzf macos-alias-0.2.11-abi-53
         cp macos-alias ../node_modules
-    variants:
-      - macos
+        cd ..
   - func: "build"
   - func: "save windows artifacts"
     variants:
       - windows
+    variants:
+      - macos
   - func: "save osx artifacts"
     variants:
       - macos
@@ -384,7 +385,6 @@ buildvariants:
   expansions:
     build_via_local_tunnel: true
     fetch_npm_tarball: node-v7.4.0-darwin-x64.tgz
-    macos_alias: macos-alias-0.2.11-abi-53
     node_path: "$(pwd)/.deps/bin"
     num_cores: $(sysctl -n hw.logicalcpu)
   tasks:
