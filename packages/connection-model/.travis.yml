@@ -2,7 +2,8 @@ sudo: required
 language: node_js
 node_js:
   - 6.3.1
-  - lts/boron
+  - 6
+  - 7
 script: npm run-script ci
 cache:
   directories:
