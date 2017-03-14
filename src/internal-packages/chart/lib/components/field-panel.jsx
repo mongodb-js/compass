@@ -4,6 +4,10 @@ const FieldPanelItem = require('./field-panel-item');
 class FieldPanel extends React.Component {
 
   renderFields() {
+    if (!this.props.rootFields) {
+      return null;
+    }
+
     return this.props.rootFields.map((fieldPath) => {
       const nestedFields = this.props.fieldsCache[fieldPath].hasOwnProperty('nestedFields')
         ? this.props.fieldsCache[fieldPath].nestedFields : null;
