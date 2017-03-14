@@ -384,9 +384,23 @@ class EditableDocument extends React.Component {
       return (
         <div className={EXPANDER} onClick={this.handleExpandClick.bind(this)}>
           <i className={this.renderIconStyle()} aria-hidden="true"></i>
+          <span>{this.renderExpansionText()}</span>
         </div>
       );
     }
+  }
+
+  /**
+   * Render the expansion text.
+   *
+   * @returns {String} The text.
+   */
+  renderExpansionText() {
+    const extraFields = this.doc.elements.size - FIELD_LIMIT;
+    if (this.state.expanded) {
+      return `Show ${extraFields} less fields`;
+    }
+    return `Show ${extraFields} more fields`
   }
 
   /**

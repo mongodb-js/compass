@@ -161,7 +161,7 @@ class EditableElement extends React.Component {
       } else if (this.element.isRemoved()) {
         style = style.concat(` ${base}-${REMOVED}`);
       }
-    } else if (this.props.rootFieldIndex > FIELD_LIMIT) {
+    } else if (this.props.rootFieldIndex >= FIELD_LIMIT) {
       style = `${style} hidden`;
     }
     if (this.state.expanded) {
