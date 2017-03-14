@@ -7,7 +7,7 @@ const app = require('hadron-app');
 app.myObject = "testing";
 ```
 
-## Included dependencies
+## Included peerDependencies
 
 - hadron-app-registry
 - hadron-auto-update-manager
