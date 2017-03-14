@@ -77,6 +77,7 @@ describe('Compass Functional Tests for QueryBar #spectron', function() {
             .clickDatabaseInSidebar('mongodb')
             .clickCollectionInSidebar('mongodb.fanclub')
             .waitForStatusBar()
+            .waitForWindowTitle('MongoDB Compass - localhost:27018/mongodb.fanclub')
             .getTitle().should.eventually.equal(
               'MongoDB Compass - localhost:27018/mongodb.fanclub'
             );
