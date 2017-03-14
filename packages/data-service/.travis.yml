@@ -1,8 +1,10 @@
 language: node_js
 sudo: required
 node_js:
+  - 6
   - 6.3.1
-  - lts/boron
+  - 7
+  - 7.4
 script: npm run-script ci
 cache:
   directories:
@@ -11,3 +13,4 @@ notifications:
   flowdock: e3dc17bc8a2c1b3412abe3e5747f8291
 env:
   - MONGODB_VERSION=3.2.x MONGODB_TOPOLOGY=standalone
+  - MONGODB_VERSION=3.4.x MONGODB_TOPOLOGY=standalone
