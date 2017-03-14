@@ -50,56 +50,7 @@ npm run release
 
 ## The Release Process
 
-First ensure that the branch to be released is in a releasable state by running the tests
-on the branch and the building the release and manually testing it.
-
-```bash
-npm run release
-```
-
-Once this is verified, tag the release and push the branch. This will cause a new Evergreen
-build to kick off on the branch that is getting released. For our purposes, we will use
-1.4-releases as the branch and 1.4.1 as the release we are performing.
-
-```bash
-git checkout 1.4-releases;
-git pull --rebase;
-npm version patch --no-git-tag-version;
-git add package.json;
-git commit -m "v1.4.1";
-git push origin 1.4-releases;
-open https://evergreen.mongodb.com/waterfall/10gen-compass-stable;
-```
-
-When the Evergreen builds have finished running and are successful, they will upload all
-release artifacts to Github and create a draft release at https://github.com/10gen/compass/releases
-
-Edit the draft release with comments on what went in, then publish the release.
-
-Next, you will need to update the links to the new release in the MongoDB Download center.
-First download the config from s3 to your local machine:
-
-```bash
-aws s3 cp s3://info-mongodb-com/com-download-center/compass.json compass.json
-```
-
-Then edit the config by updating the versions array in the json to use the latest release number
-for the `_id`, `version`, and `download_link` fields.
-
-Next, test that the new links are publically accessible and can be downloaded from:
-
-```bash
-open https://downloads.mongodb.com/compass/mongodb-compass-1.4.1-darwin-x64.dmg
-open https://downloads.mongodb.com/compass/mongodb-compass-1.4.1-win32-x64.exe
-```
-
-Next, copy the config back to s3:
-
-```bash
-aws s3 cp compass.json s3://info-mongodb-com/com-download-center/compass.json
-```
-
-The release is now in the download center!
+Please see our [Compass Internal Docs on our release-process](https://github.com/10gen/compass-internal-docs/tree/master/release-process) for more information.
 
 ## Running Tests
 
