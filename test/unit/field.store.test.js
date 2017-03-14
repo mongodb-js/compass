@@ -22,7 +22,7 @@ describe('FieldStore', function() {
     expect(keys).to.have.all.keys(['fields', 'rootFields']);
   });
 
-  it('does not run when sampling is complete', () => {
+  it('does not run when sampling is not complete', () => {
     FieldStore.onSchemaStoreChanged({schema: arrayOfDocsSchema, samplingState: 'progress'});
     expect(FieldStore.state.fields).to.be.empty;
     expect(FieldStore.state.fieldParents).to.be.empty;
