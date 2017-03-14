@@ -4,7 +4,8 @@ const {
   CHART_CHANNEL_ENUM,
   CHART_TYPE_ENUM,
   DEFAULTS,
-  MEASUREMENT_ENUM
+  MEASUREMENT_ENUM,
+  CHART_TYPE_CHANNELS
 } = require('./constants');
 const Actions = require('./actions');
 const StateMixin = require('reflux-state-mixin');
@@ -97,9 +98,10 @@ const ChartStore = Reflux.createStore({
 
   /**
    * Any change to the store that can modify the spec goes through this
-   * helper function. The new state is precomputed, the spec is created
-   * based on the new state, and then the state is set on the store
-   * including the spec.
+   * helper function. The new state is computed, the spec is created
+   * based on the new state, and then the state (including the spec) is
+   * set on the store. Also checks if the spec is valid and sets `specValid`
+   * boolean.
    *
    * @param {Object} update   changes to the store state affecting the spec
    *
@@ -107,14 +109,22 @@ const ChartStore = Reflux.createStore({
    */
   _updateSpec(update) {
     const newState = Object.assign({}, this.state, update);
-    debug('updateSpec new state', newState);
     const spec = {
       mark: newState.chartType,
       encoding: newState.channels
     };
     newState.spec = spec;
+
+    // check if all required channels are encoded
+    const requiredChannels = Object.keys(_.pick(CHART_TYPE_CHANNELS[spec.mark], (required) => {
+      return required === 'required';
+    }));
+    const encodedChannels = Object.keys(spec.encoding);
+    newState.specValid = requiredChannels.length === _.intersection(requiredChannels, encodedChannels).length;
+    if (newState.specValid) {
+      debug('valid spec %j', newState.spec);
+    }
     this.setState(newState);
-    debug('update spec with', update, 'now %j', spec);
   },
 
   /**

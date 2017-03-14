@@ -39,18 +39,13 @@ class ChartBuilder extends React.Component {
       return null;
     }
     const data = {values: this.props.dataCache};
-
-    debug('renderChart spec', this.props.spec);
-    debug('renderChart data', data);
-
     return (
       <Chart
         specType={this.props.specType}
         spec={this.props.spec}
         data={data}
-        width={400}
+        width={600}
         height={400}
-        padding={{top: 10, right: 10, bottom: 10, left: 10}}
         className="chart-builder-chart"
         renderer="canvas"
       />
