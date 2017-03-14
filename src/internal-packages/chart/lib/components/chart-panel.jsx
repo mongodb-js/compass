@@ -9,6 +9,7 @@ const {
 } = require('../constants');
 const EncodingChannel = require('./encoding-channel');
 
+// const debug = require('debug')('mongodb-compass:chart:chart-panel');
 
 /**
  * Represents the chart type the user has chosen, and how the user
@@ -47,7 +48,7 @@ class ChartPanel extends React.Component {
       return (
         <EncodingChannel
           key={channel}
-          fieldName={channel}
+          channelName={channel}
           encodedChannel={this.props.encodedChannels[channel]}
         />
       );

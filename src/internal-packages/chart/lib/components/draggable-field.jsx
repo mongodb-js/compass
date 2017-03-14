@@ -5,6 +5,7 @@ const Dropdown = require('react-bootstrap').Dropdown;
 const MenuItem = require('react-bootstrap').MenuItem;
 const Radio = require('react-bootstrap').Radio;
 const FontAwesome = require('react-fontawesome');
+const _ = require('lodash');
 const {AGGREGATE_FUNCTION_ENUM, MEASUREMENT_ENUM, MEASUREMENT_ICON_ENUM} = require('../constants');
 
 
@@ -52,7 +53,7 @@ class DraggableField extends React.Component {
   }
 
   renderMeasurementMenu() {
-    const menu = this.mapToMenu(Object.keys(MEASUREMENT_ENUM), this.props.type);
+    const menu = this.mapToMenu(_.values(MEASUREMENT_ENUM), this.props.type);
 
     return (
       <Dropdown id={this.props.fieldName + 'measurements'}
@@ -66,7 +67,7 @@ class DraggableField extends React.Component {
   }
 
   renderAggregationMenu() {
-    const menu = this.mapToMenu(Object.keys(AGGREGATE_FUNCTION_ENUM), this.props.aggregate);
+    const menu = this.mapToMenu(_.values(AGGREGATE_FUNCTION_ENUM), this.props.aggregate);
 
     return (
       <Dropdown id={this.props.fieldName + 'aggregation'}
@@ -103,8 +104,8 @@ class DraggableField extends React.Component {
 
 DraggableField.propTypes = {
   fieldName: React.PropTypes.string,
-  type: React.PropTypes.oneOf(Object.keys(MEASUREMENT_ENUM)),
-  aggregate: React.PropTypes.oneOf(Object.keys(AGGREGATE_FUNCTION_ENUM)),
+  type: React.PropTypes.oneOf(_.values(MEASUREMENT_ENUM)),
+  aggregate: React.PropTypes.oneOf(_.values(AGGREGATE_FUNCTION_ENUM)),
   enableMenus: React.PropTypes.bool,
   selectAggregate: React.PropTypes.func,
   selectMeasurement: React.PropTypes.func
