@@ -107,7 +107,7 @@ class ReadonlyDocument extends React.Component {
     if (this.state.expanded) {
       return `Show ${extraFields} less fields`;
     }
-    return `Show ${extraFields} more fields`
+    return `Show ${extraFields} more fields`;
   }
 
   /**
