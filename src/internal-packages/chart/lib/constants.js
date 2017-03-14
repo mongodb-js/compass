@@ -31,7 +31,7 @@ const CHART_TYPE_ENUM = Object.freeze({
   LINE: 'line',
   BAR: 'bar',
   AREA: 'area',
-  DOT: 'dot'
+  POINT: 'point'
   // DONUT: 'donut'
 });
 
@@ -106,7 +106,7 @@ const CHART_TYPE_CHANNELS = Object.freeze({
     [CHART_CHANNEL_ENUM.COLOR]: 'optional',
     [CHART_CHANNEL_ENUM.TEXT]: 'optional'
   },
-  [CHART_TYPE_ENUM.DOT]: {
+  [CHART_TYPE_ENUM.POINT]: {
     [CHART_CHANNEL_ENUM.X]: 'required',
     [CHART_CHANNEL_ENUM.Y]: 'required',
     [CHART_CHANNEL_ENUM.SIZE]: 'optional',

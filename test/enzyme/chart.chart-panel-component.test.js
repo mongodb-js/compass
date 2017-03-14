@@ -93,16 +93,16 @@ describe('<ChartPanel />', function() {
     });
   });
 
-  context('for the dot chart type', function() {
+  context('for the point chart type', function() {
     it('renders in the initial state', function() {
       const component = mount(
         <this.ChartPanel
-          chartType={CHART_TYPE_ENUM.DOT}
+          chartType={CHART_TYPE_ENUM.POINT}
           encodedChannels={{}}
         />
       );
       const dropdown = component.find(DropdownButton);
-      expect(dropdown.find('button')).to.have.text('dot ');
+      expect(dropdown.find('button')).to.have.text('point ');
     });
   });
 
