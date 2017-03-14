@@ -18,7 +18,7 @@ require('../../src/app/reflux-listen-to-external-store.js');
 const CreateIndexStore = require('../../src/internal-packages/indexes/lib/store/create-index-store');
 const Collection = require('../../src/internal-packages/collection/lib/components/index');
 
-const arrayOfDocsSchema = require('../fixtures/array_of_docs.fixture.json');
+const arrayOfDocsFields = require('../fixtures/fields.fixture.json');
 
 const mockDataService = require('./support/mock-data-service');
 
@@ -144,17 +144,17 @@ describe('CreateIndexesStore', function() {
 
   it('extracts top-level and nested field names from the schema', function(done) {
     unsubscribe = CreateIndexStore.listen((fields, options, schemaFields) => {
-      expect(schemaFields).to.have.members(['reviews', 'reviews._id',
-        'reviews.rating', 'reviews.text', 'review', 'review._id',
-        'review.rating', 'review.text']);
+      expect(schemaFields).to.have.members(['review', 'review.rating',
+        'review._id', 'review.text']);
       unsubscribe();
       done();
     });
-    CreateIndexStore.loadFields({schema: arrayOfDocsSchema});
+
+    CreateIndexStore.onFieldChanged(arrayOfDocsFields);
   });
 
   it('adds extra field to schemaFields on updateFieldName', function(done) {
-    CreateIndexStore.loadFields({schema: arrayOfDocsSchema});
+    CreateIndexStore.onFieldChanged(arrayOfDocsFields);
 
     unsubscribe = CreateIndexStore.listen((fields, options, schemaFields) => {
       expect(schemaFields).to.include('foo');

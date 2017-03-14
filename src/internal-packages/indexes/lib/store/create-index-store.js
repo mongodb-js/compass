@@ -19,7 +19,7 @@ const CreateIndexStore = Reflux.createStore({
    * Initialize the index fields store.
    */
   init: function() {
-    this.listenToExternalStore('Schema.Store', this.loadFields.bind(this));
+    this.listenToExternalStore('Schema.FieldStore', this.onFieldChanged.bind(this));
     this.listenTo(Action.clearForm, this.clearForm);
     this.listenTo(Action.triggerIndexCreation, this.triggerIndexCreation);
     this.listenTo(Action.updateOption, this.updateOption);
@@ -91,54 +91,18 @@ const CreateIndexStore = Reflux.createStore({
   },
 
   /**
-   * Parse and load the schema fields from the schema store.
+   * Parse and load fields from the field store.
    *
-   * @param {Object} schemaStoreState - The state of the schema store (from schema package).
+   * @param {Object} state - The state of the field store.
    */
-  loadFields: function(schemaStoreState) {
-    let schemaFields = [];
-    if (schemaStoreState.schema) {
-      schemaFields = schemaStoreState.schema.fields;
+  onFieldChanged: function(state) {
+    if (!state.fields) {
+      return;
     }
-    schemaFields = this._parseSchemaFields(schemaFields, '');
+
     // don't allow users to make indexes on _id
-    this.schemaFields = schemaFields.filter(name => name !== '_id');
+    this.schemaFields = Object.keys(state.fields).filter(name => name !== '_id');
     this.sendValues();
-  },
-
-  /**
-   * Recursivey find all possible index paths in a schema's fields (assumes no duplicate paths).
-   *
-   * @param {Array} fields - The fields of a schema.
-   * @param {string} prefix - The path to the current fields
-   *
-   * @returns {Array} The possible index paths in a schema.
-   */
-  _parseSchemaFields: function(fields, prefix) {
-    let possiblePaths = [];
-
-    // add each field's path to field set
-    let path = '';
-    for (const field of fields) {
-      path = prefix + field.name;
-      possiblePaths.push(path);
-
-      // recursively search sub documents
-      for (const type of field.types) {
-        if (type.name === 'Document') {
-          // add nested sub-fields to list of index fields
-          possiblePaths = possiblePaths.concat(this._parseSchemaFields(type.fields, path + '.'));
-        }
-        if (type.name === 'Array') {
-          // add nested sub-fields of document type to list of index fields
-          const docType = _.find(type.types, 'name', 'Document');
-          if (docType) {
-            possiblePaths = possiblePaths.concat(this._parseSchemaFields(docType.fields, path + '.'));
-          }
-        }
-      }
-    }
-    return possiblePaths;
   },
 
   /**

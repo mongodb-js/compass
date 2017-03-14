@@ -41,7 +41,7 @@ const ChartStore = Reflux.createStore({
     this.listenables = Actions;
     this._resetChart();
     this.listenToExternalStore('Query.ChangedStore', this.onQueryChanged.bind(this));
-    this.listenToExternalStore('Schema.Store', this.onSchemaChanged.bind(this));
+    this.listenToExternalStore('Schema.FieldStore', this.onFieldChanged.bind(this));
   },
 
   /**
@@ -54,6 +54,7 @@ const ChartStore = Reflux.createStore({
     return {
       dataCache: [],
       fieldsCache: [],
+      rootFields: [],
       queryCache: INITIAL_QUERY
     };
   },
@@ -185,12 +186,18 @@ const ChartStore = Reflux.createStore({
     this._refreshDataCache(newQuery);
   },
 
+
   /**
-   * TODO
+   * Fires when field store Changes
+   *
+   * @param {Object} state - the field store state.
    */
-  onSchemaChanged() {
-    // TODO COMPASS-727 How should we subscribe to schema updates?
-    // this.setState({fieldsCache: []});     // From SchemaStore or FieldStore
+  onFieldChanged(state) {
+    if (!state.fields) {
+      return;
+    }
+
+    this.setState({fieldsCache: state.fields, rootFields: state.rootFields});
   },
 
   /**
