@@ -78,5 +78,4 @@ const Status = React.createClass({
   }
 });
 
-
 module.exports = Status;
