@@ -8,7 +8,7 @@ const Chart = require('./chart');
 const QUERYBAR_LAYOUT = ['filter', 'project', ['sort', 'skip', 'limit']];
 const EXPERIMENTAL_WARNING = 'The charts feature is experimental. Use at own risk.';
 
-const debug = require('debug')('mongodb-compass:chart:chart-builder');
+// const debug = require('debug')('mongodb-compass:chart:chart-builder');
 
 class ChartBuilder extends React.Component {
 
