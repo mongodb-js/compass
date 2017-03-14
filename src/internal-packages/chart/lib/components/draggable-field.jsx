@@ -3,11 +3,9 @@ const ButtonGroup = require('react-bootstrap').ButtonGroup;
 const Button = require('react-bootstrap').Button;
 const Dropdown = require('react-bootstrap').Dropdown;
 const MenuItem = require('react-bootstrap').MenuItem;
-const Radio = require('react-bootstrap').Radio;
 const FontAwesome = require('react-fontawesome');
 const _ = require('lodash');
 const {AGGREGATE_FUNCTION_ENUM, MEASUREMENT_ENUM, MEASUREMENT_ICON_ENUM} = require('../constants');
-
 
 // const debug = require('debug')('mongodb-compass:chart:draggable-field');
 
@@ -17,10 +15,8 @@ class DraggableField extends React.Component {
     // note the empty function on onChange to avoid warnings
     const menus = array.map((label, i) => {
       return (
-        <MenuItem key={i} eventKey={label}>
-          <Radio checked={label === type} onChange={() => {}}>
-            {label}
-          </Radio>
+        <MenuItem key={i} eventKey={label} href="#" active={label === type}>
+          {label}
         </MenuItem>
       );
     });
@@ -32,13 +28,17 @@ class DraggableField extends React.Component {
     );
   }
 
-  selectMeasurement(measurement) {
+  selectMeasurement(measurement, evt) {
+    evt.preventDefault();
+    evt.stopPropagation();
     if (this.props.selectMeasurement) {
       this.props.selectMeasurement(measurement);
     }
   }
 
-  selectAggregate(aggregate) {
+  selectAggregate(aggregate, evt) {
+    evt.preventDefault();
+    evt.stopPropagation();
     if (this.props.selectAggregate) {
       this.props.selectAggregate(aggregate);
     }

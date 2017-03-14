@@ -79,6 +79,7 @@ class ChartBuilder extends React.Component {
             <ChartPanel
               chartType={this.props.chartType}
               encodedChannels={this.props.channels}
+              actions={this.props.actions}
             />
           </div>
           <div className="chart-builder-chart-area">

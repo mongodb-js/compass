@@ -2,7 +2,6 @@ const app = require('hadron-app');
 const React = require('react');
 const { FormGroup } = require('react-bootstrap');
 
-const Actions = require('../actions');
 const {
   CHART_TYPE_CHANNELS,
   CHART_TYPE_ENUM
@@ -26,8 +25,8 @@ class ChartPanel extends React.Component {
    *
    * @param {String} dropdownText - The value of the OptionSelector dropdown.
    */
-  static onChartTypeSelect(dropdownText) {
-    Actions.selectChartType(dropdownText.toLowerCase());
+  onChartTypeSelect(dropdownText) {
+    this.props.actions.selectChartType(dropdownText.toLowerCase());
   }
 
   renderChartTypeChoice() {
@@ -37,7 +36,7 @@ class ChartPanel extends React.Component {
         bsSize="xs"
         options={CHART_TYPE_ENUM}
         title={this.props.chartType}
-        onSelect={this.constructor.onChartTypeSelect}
+        onSelect={this.onChartTypeSelect.bind(this)}
       />
     );
   }
@@ -50,6 +49,7 @@ class ChartPanel extends React.Component {
           key={channel}
           channelName={channel}
           encodedChannel={this.props.encodedChannels[channel]}
+          actions={this.props.actions}
         />
       );
     });
@@ -69,7 +69,8 @@ class ChartPanel extends React.Component {
 
 ChartPanel.propTypes = {
   chartType: React.PropTypes.string.isRequired,
-  encodedChannels: React.PropTypes.object.isRequired
+  encodedChannels: React.PropTypes.object.isRequired,
+  actions: React.PropTypes.object
 };
 
 ChartPanel.defaultProps = {

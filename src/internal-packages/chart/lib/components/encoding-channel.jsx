@@ -20,10 +20,14 @@ class EncodingChannel extends React.Component {
     // TODO: Swap fields if source DraggableField is the ChartPanel, like http://vega.github.io/polestar/
   }
 
-  onSelectAggregate() {
+  onSelectAggregate(aggregate) {
+    const channel = this.props.channelName;
+    this.props.actions.selectAggregate(channel, aggregate);
   }
 
-  onSelectMeasurement() {
+  onSelectMeasurement(measurement) {
+    const channel = this.props.channelName;
+    this.props.actions.selectMeasurement(channel, measurement);
   }
 
   renderField() {
@@ -65,7 +69,8 @@ class EncodingChannel extends React.Component {
 EncodingChannel.propTypes = {
   channelName: React.PropTypes.string.isRequired,
   encodedChannel: React.PropTypes.object,
-  optional: React.PropTypes.string
+  optional: React.PropTypes.string,
+  actions: React.PropTypes.object
 };
 
 EncodingChannel.defaultProps = {
