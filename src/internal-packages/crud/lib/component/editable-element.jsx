@@ -33,6 +33,11 @@ const EDITED = 'is-edited';
 const EDITING = 'is-editing';
 
 /**
+ * The field limit.
+ */
+const FIELD_LIMIT = 30;
+
+/**
  * The removed constant.
  */
 const REMOVED = 'is-removed';
@@ -156,6 +161,8 @@ class EditableElement extends React.Component {
       } else if (this.element.isRemoved()) {
         style = style.concat(` ${base}-${REMOVED}`);
       }
+    } else if (this.props.rootFieldIndex > FIELD_LIMIT) {
+      style = `${style} hidden`;
     }
     if (this.state.expanded) {
       style = style.concat(` ${base}-${EXPANDED}`);
@@ -179,7 +186,8 @@ class EditableElement extends React.Component {
           index={index}
           indent={this.props.indent + 16}
           editing={this.props.editing}
-          expandAll={this.props.expandAll} />
+          expandAll={this.props.expandAll}
+          rootFieldIndex={0} />
       ));
       index++;
     }
@@ -215,6 +223,21 @@ class EditableElement extends React.Component {
    */
   renderSeparator() {
     return (<span className={SEPARATOR}>:</span>);
+  }
+
+  /**
+   * Render the style with the provided base style.
+   *
+   * @param {String} base - The base style.
+   *
+   * @returns {String} The style.
+   */
+  renderStyle(base) {
+    let style = base;
+    if (this.props.rootFieldIndex > FIELD_LIMIT) {
+      style = `${style} hidden`;
+    }
+    return style;
   }
 
   /**
@@ -350,7 +373,8 @@ EditableElement.propTypes = {
   element: React.PropTypes.object.isRequired,
   index: React.PropTypes.number,
   indent: React.PropTypes.number,
-  expandAll: React.PropTypes.bool
+  expandAll: React.PropTypes.bool,
+  rootFieldIndex: React.PropTypes.number
 };
 
 module.exports = EditableElement;

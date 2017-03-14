@@ -13,6 +13,16 @@ const RemoveDocumentFooter = require('./remove-document-footer');
 const debug = require('debug')('mongodb-compass:crud:editable-document');
 
 /**
+ * The arrow up class.
+ */
+const ARROW_UP = 'fa fa-arrow-circle-up';
+
+/**
+ * The arrow down class.
+ */
+const ARROW_DOWN = 'fa fa-arrow-circle-down';
+
+/**
  * The base class.
  */
 const BASE = 'document';
@@ -21,6 +31,16 @@ const BASE = 'document';
  * The elements class.
  */
 const ELEMENTS = `${BASE}-elements`;
+
+/**
+ * The field limit.
+ */
+const FIELD_LIMIT = 30;
+
+/**
+ * The expander class.
+ */
+const EXPANDER = 'document document-expander';
 
 /**
  * The test id.
@@ -47,7 +67,13 @@ class EditableDocument extends React.Component {
     this.doc = this.loadDocument(props.doc);
     debug('props.doc', this.doc);
 
-    this.state = { editing: false, deleting: false, deleteFinished: false, expandAll: false };
+    this.state = {
+      editing: false,
+      deleting: false,
+      deleteFinished: false,
+      expandAll: false,
+      expanded: false
+    };
 
     // Actions need to be scoped to the single document component and not
     // global singletons.
@@ -187,6 +213,13 @@ class EditableDocument extends React.Component {
   }
 
   /**
+   * Handle clicking the expand button.
+   */
+  handleExpandClick() {
+    this.setState({ expanded: !this.state.expanded });
+  }
+
+  /**
    * Handles a trigger from the store.
    *
    * @param {Boolean} success - If the update succeeded.
@@ -252,7 +285,7 @@ class EditableDocument extends React.Component {
    * Handles document deletion.
    */
   handleDelete() {
-    this.setState({ editing: false, deleting: true });
+    this.setState({ editing: false, deleting: true, expanded: true });
   }
 
   /**
@@ -266,7 +299,7 @@ class EditableDocument extends React.Component {
    * Handle the edit click.
    */
   handleEdit() {
-    this.setState({ editing: true });
+    this.setState({ editing: true, expanded: true });
   }
 
   /**
@@ -325,6 +358,7 @@ class EditableDocument extends React.Component {
    */
   renderElements() {
     const components = [];
+    let index = 0;
     for (const element of this.doc.elements) {
       components.push((
         <EditableElement
@@ -332,10 +366,27 @@ class EditableDocument extends React.Component {
           element={element}
           indent={0}
           editing={this.state.editing}
-          expandAll={this.state.expandAll} />
+          expandAll={this.state.expandAll}
+          rootFieldIndex={this.state.expanded ? 0 : index} />
       ));
+      index++;
     }
     return components;
+  }
+
+  /**
+   * Render the expander bar.
+   *
+   * @returns {React.Component} The expander bar.
+   */
+  renderExpansion() {
+    if (this.doc.elements.size > FIELD_LIMIT && !this.state.editing && !this.state.deleting) {
+      return (
+        <div className={EXPANDER} onClick={this.handleExpandClick.bind(this)}>
+          <i className={this.renderIconStyle()} aria-hidden="true"></i>
+        </div>
+      );
+    }
   }
 
   /**
@@ -363,6 +414,15 @@ class EditableDocument extends React.Component {
   }
 
   /**
+   * Render the style for the expansion icon.
+   *
+   * @returns {String} The style.
+   */
+  renderIconStyle() {
+    return this.state.expanded ? ARROW_UP : ARROW_DOWN;
+  }
+
+  /**
    * Render a single document list item.
    *
    * @returns {React.Component} The component.
@@ -374,6 +434,7 @@ class EditableDocument extends React.Component {
           {this.renderElements()}
         </ol>
         {this.renderActions()}
+        {this.renderExpansion()}
         {this.renderFooter()}
       </div>
     );

@@ -3,6 +3,16 @@ const HadronDocument = require('hadron-document');
 const Element = require('./element');
 
 /**
+ * The arrow up class.
+ */
+const ARROW_UP = 'fa fa-arrow-circle-up';
+
+/**
+ * The arrow down class.
+ */
+const ARROW_DOWN = 'fa fa-arrow-circle-down';
+
+/**
  * The base class.
  */
 const BASE = 'document';
@@ -11,6 +21,16 @@ const BASE = 'document';
  * The elements class.
  */
 const ELEMENTS = `${BASE}-elements`;
+
+/**
+ * The field limit.
+ */
+const FIELD_LIMIT = 30;
+
+/**
+ * The expander class.
+ */
+const EXPANDER = 'document document-expander';
 
 /**
  * The test id.
@@ -30,6 +50,14 @@ class ReadonlyDocument extends React.Component {
   constructor(props) {
     super(props);
     this.doc = new HadronDocument(props.doc);
+    this.state = { expanded: false };
+  }
+
+  /**
+   * Handle clicking the expand button.
+   */
+  handleExpandClick() {
+    this.setState({ expanded: !this.state.expanded });
   }
 
   /**
@@ -39,12 +67,42 @@ class ReadonlyDocument extends React.Component {
    */
   renderElements() {
     const components = [];
+    let index = 0;
     for (const element of this.doc.elements) {
       components.push((
-        <Element key={element.uuid} element={element} expandAll={this.props.expandAll} />
+        <Element
+          key={element.uuid}
+          element={element}
+          expandAll={this.props.expandAll}
+          rootFieldIndex={this.state.expanded ? 0 : index} />
       ));
+      index++;
     }
     return components;
+  }
+
+  /**
+   * Render the expander bar.
+   *
+   * @returns {React.Component} The expander bar.
+   */
+  renderExpansion() {
+    if (this.doc.elements.size > FIELD_LIMIT) {
+      return (
+        <div className={EXPANDER} onClick={this.handleExpandClick.bind(this)}>
+          <i className={this.renderIconStyle()} aria-hidden="true"></i>
+        </div>
+      );
+    }
+  }
+
+  /**
+   * Render the style for the expansion icon.
+   *
+   * @returns {String} The style.
+   */
+  renderIconStyle() {
+    return this.state.expanded ? ARROW_UP : ARROW_DOWN;
   }
 
   /**
@@ -58,6 +116,7 @@ class ReadonlyDocument extends React.Component {
         <ol className={ELEMENTS}>
           {this.renderElements()}
         </ol>
+        {this.renderExpansion()}
       </div>
     );
   }

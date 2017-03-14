@@ -12,6 +12,11 @@ const CLASS = 'element';
 const FIELD = `${CLASS}-field`;
 
 /**
+ * The field limit.
+ */
+const FIELD_LIMIT = 30;
+
+/**
  * The separator class.
  */
 const SEPARATOR = `${CLASS}-separator`;
@@ -99,7 +104,8 @@ class Element extends React.Component {
         (<Element
           key={element.uuid}
           element={element}
-          expandAll={this.props.expandAll} />)
+          expandAll={this.props.expandAll}
+          rootFieldIndex={0} />)
       );
     }
     return components;
@@ -112,7 +118,7 @@ class Element extends React.Component {
    */
   renderElement() {
     return (
-      <li className={CLASS}>
+      <li className={this.renderStyle(CLASS)}>
         <div className={FIELD}>
           {this.props.element.currentKey}
         </div>
@@ -129,7 +135,7 @@ class Element extends React.Component {
    */
   renderExpandableElement() {
     return (
-      <li className={EXP_CLASS}>
+      <li className={this.renderStyle(EXP_CLASS)}>
         <div className={this.getClassName(EXP_HEADER)} onClick={this.toggleExpandable.bind(this)}>
           <div className={EXP_TOGGLE}></div>
           <div className={EXP_FIELD}>{this.props.element.currentKey}</div>
@@ -143,6 +149,21 @@ class Element extends React.Component {
         </ol>
       </li>
     );
+  }
+
+  /**
+   * Render the style with the provided base style.
+   *
+   * @param {String} base - The base style.
+   *
+   * @returns {String} The style.
+   */
+  renderStyle(base) {
+    let style = base;
+    if (this.props.rootFieldIndex > FIELD_LIMIT) {
+      style = `${style} hidden`;
+    }
+    return style;
   }
 
   /**
@@ -172,7 +193,8 @@ Element.displayName = 'Element';
 
 Element.propTypes = {
   element: React.PropTypes.any.isRequired,
-  expandAll: React.PropTypes.bool
+  expandAll: React.PropTypes.bool,
+  rootFieldIndex: React.PropTypes.number
 };
 
 module.exports = Element;
