@@ -1,5 +1,6 @@
 /* eslint no-console:0 */
 const marky = require('marky');
+marky.mark('Time to Connect rendered');
 marky.mark('Time to user can Click Connect');
 const pkg = require('../../package.json');
 
@@ -456,9 +457,8 @@ app.extend({
       ipc.call('window:renderer-ready');
 
       // as soon as dom is ready, render and set up the rest
-      marky.mark('Rendering');
       state.render();
-      marky.stop('Rendering');
+      marky.stop('Time to Connect rendered');
       state.startRouter();
       state.postRender();
       marky.stop('Time to user can Click Connect');
