@@ -28,6 +28,16 @@ const LIST_CLASS = 'document-list';
 const SCROLL_EVENT = 'scroll';
 
 /**
+ * The loading more class.
+ */
+const LOADING = 'loading-indicator';
+
+/**
+ * Loading indicator is loading.
+ */
+const IS_LOADING = `${LOADING}-is-loading`;
+
+/**
  * The list item test id.
  */
 const LIST_ITEM_TEST_ID = 'document-list-item';
@@ -44,10 +54,9 @@ class DocumentList extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.loading = false;
     this.samplingMessage = app.appRegistry.getComponent('Query.SamplingMessage');
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
-    this.state = { docs: [], nextSkip: 0, namespace: NamespaceStore.ns };
+    this.state = { docs: [], nextSkip: 0, namespace: NamespaceStore.ns, loading: false };
     this.projection = false;
     this.queryBar = app.appRegistry.getComponent('Query.QueryBar');
     this.statusRow = app.appRegistry.getComponent('App.StatusRow');
@@ -100,9 +109,9 @@ class DocumentList extends React.Component {
       docs: this.state.docs.concat(this.renderDocuments(documents)),
       nextSkip: (this.state.nextSkip + documents.length),
       loadedCount: (this.state.loadedCount + documents.length),
-      error: error
+      error: error,
+      loading: false
     });
-    this.loading = false;
   }
 
   /**
@@ -154,9 +163,7 @@ class DocumentList extends React.Component {
    */
   handleScroll(evt) {
     const container = evt.srcElement;
-    if (container.scrollTop > (this._node.offsetHeight - this._scrollDelta())) {
-      // If we are scrolling downwards, and have hit the distance to initiate a scroll
-      // from the end of the list, we will fire the event to load more documents.
+    if (container.scrollTop === (container.scrollHeight - container.offsetHeight)) {
       this.loadMore();
     }
   }
@@ -195,8 +202,8 @@ class DocumentList extends React.Component {
    * in the collection to load.
    */
   loadMore() {
-    if (!this.loading && (this.state.loadedCount < this.state.count)) {
-      this.loading = true;
+    if (!this.state.loading && (this.state.loadedCount < this.state.count)) {
+      this.setState({ loading: true });
       Action.fetchNextDocuments(this.state.nextSkip);
     }
   }
@@ -208,19 +215,6 @@ class DocumentList extends React.Component {
    */
   _key() {
     return uuid.v4();
-  }
-
-  /**
-   * Get the distance in pixels from the end of the document list to the point when
-   * scrolling where we want to load more documents.
-   *
-   * @returns {Integer} The distance.
-   */
-  _scrollDelta() {
-    if (!this.scrollDelta) {
-      this.scrollDelta = this._node.offsetHeight;
-    }
-    return this.scrollDelta;
   }
 
   /**
@@ -261,6 +255,9 @@ class DocumentList extends React.Component {
             {this.state.docs}
             <InsertDocumentDialog />
           </ol>
+          <div className={this.state.loading ? `${LOADING} ${IS_LOADING}` : LOADING}>
+            <i className="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i>
+          </div>
         </div>
       </div>
     );
