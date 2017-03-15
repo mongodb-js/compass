@@ -256,7 +256,7 @@ class DocumentList extends React.Component {
             <InsertDocumentDialog />
           </ol>
           <div className={this.state.loading ? `${LOADING} ${IS_LOADING}` : LOADING}>
-            <i className="fa fa-cog fa-spin" aria-hidden="true"></i>
+            <i className="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i>
           </div>
         </div>
       </div>
