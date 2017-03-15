@@ -1,6 +1,7 @@
 const pkg = require('../../../package.json');
 const Model = require('ampersand-model');
 const storageMixin = require('storage-mixin');
+const semver = require('semver');
 const electronApp = require('electron').remote.app;
 
 const migrations = {
@@ -63,6 +64,10 @@ module.exports = function(done) {
     }
     const currentVersion = pkg.version;
     debug('renderer process migrations from %s to %s', previousVersion, currentVersion);
+    if (semver.eq(previousVersion, currentVersion)) {
+      debug('renderer process - skipping migrations which have already been run');
+      return done();
+    }
     migrate(previousVersion, currentVersion, function(err2, res) {
       if (err2) {
         return debug('error', err2);
