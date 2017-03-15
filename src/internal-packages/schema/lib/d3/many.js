@@ -11,9 +11,9 @@ const inValueRange = require('../../../query/lib/util').inValueRange;
 
 require('./d3-tip')(d3);
 
-const QueryAction = app.appRegistry.getAction('Query.Actions');
-
 const minicharts_d3fns_many = function() {
+  const QueryAction = app.appRegistry.getAction('Query.Actions');
+
   // --- beginning chart setup ---
   let width = 400; // default width
   let height = 100; // default height

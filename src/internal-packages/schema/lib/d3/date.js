@@ -12,8 +12,6 @@ const inValueRange = require('../../../query/lib/util').inValueRange;
 
 require('./d3-tip')(d3);
 
-const QueryAction = app.appRegistry.getAction('Query.Actions');
-
 function generateDefaults(n) {
   const doc = {};
   _.each(_.range(n), function(d) {
@@ -72,6 +70,7 @@ const minicharts_d3fns_date = function() {
   // }
 
   function handleDrag() {
+    const QueryAction = app.appRegistry.getAction('Query.Actions');
     const lines = el.selectAll('line.selectable');
     const numSelected = el.selectAll('line.selectable.selected').length;
     const s = brush.extent();
@@ -134,6 +133,7 @@ const minicharts_d3fns_date = function() {
 
 
   function handleMouseDown(d) {
+    const QueryAction = app.appRegistry.getAction('Query.Actions');
     if (d3.event.shiftKey && lastNonShiftRangeValue) {
       const minVal = d.ts < lastNonShiftRangeValue.ts ? d.value : lastNonShiftRangeValue.value;
       const maxVal = d.ts > lastNonShiftRangeValue.ts ? d.value : lastNonShiftRangeValue.value;

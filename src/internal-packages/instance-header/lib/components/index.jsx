@@ -1,12 +1,17 @@
 const React = require('react');
 const app = require('hadron-app');
-const StoreConnector = app.appRegistry.getComponent('App.StoreConnector');
 const InstanceHeaderComponent = require('./instance-header');
 const Store = require('../stores');
 
 // const debug = require('debug')('mongodb-compass:instance-header:index');
 
 class ConnectedInstanceHeaderComponent extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.StoreConnector = app.appRegistry.getComponent('App.StoreConnector');
+  }
+
   /**
    * Connect InstanceHeaderComponent to store and render.
    *
@@ -14,9 +19,9 @@ class ConnectedInstanceHeaderComponent extends React.Component {
    */
   render() {
     return (
-      <StoreConnector store={Store}>
+      <this.StoreConnector store={Store}>
         <InstanceHeaderComponent sidebarCollapsed={this.props.sidebarCollapsed}/>
-      </StoreConnector>
+      </this.StoreConnector>
     );
   }
 }
