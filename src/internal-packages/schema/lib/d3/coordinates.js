@@ -10,8 +10,6 @@ const turfDestination = require('turf-destination');
 // const metrics = require('mongodb-js-metrics')();
 // const debug = require('debug')('mongodb-compass:minicharts:geo');
 
-const QueryAction = app.appRegistry.getAction('Query.Actions');
-
 const SELECTED_COLOR = '#F68A1E';
 const UNSELECTED_COLOR = '#43B1E5';
 const CONTROL_COLOR = '#ed271c';
@@ -59,6 +57,8 @@ const minicharts_d3fns_geo = function() {
     let update = null;
 
     function querybuilder() {
+      const QueryAction = app.appRegistry.getAction('Query.Actions');
+
       if (circleCenter && circleOuter) {
         mileDistance = turfDistance(
           turfPoint([circleCenter.lng, circleCenter.lat]),

@@ -4,7 +4,6 @@ const HomeActions = require('../action');
 const StateMixin = require('reflux-state-mixin');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const toNS = require('mongodb-ns');
-const InstanceActions = app.appRegistry.getAction('App.InstanceActions');
 
 const debug = require('debug')('mongodb-compass:stores:home');
 
@@ -15,13 +14,15 @@ const HomeStore = Reflux.createStore({
   /**
    * listen to all actions defined in ../actions/index.jsx
    */
-  listenables: [InstanceActions, HomeActions],
+  listenables: [HomeActions],
 
   /**
    * Initialize home store
    */
   init() {
+    const InstanceActions = app.appRegistry.getAction('App.InstanceActions');
     NamespaceStore.listen(HomeActions.switchContent);
+    InstanceActions.setInstance.listen(this.setInstance.bind(this));
   },
 
   getInitialState() {

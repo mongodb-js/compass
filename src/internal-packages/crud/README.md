@@ -34,11 +34,14 @@ Render an editable document in a React component.
 ```jsx
 const app = require('hadron-app');
 const React = require('react');
-const Document = app.appRegistry.getComponent('CRUD.Document');
 
 class MyComponent extends React.Component {
+  constructor(props) {
+    super(props);
+    this.Document = app.appRegistry.getComponent('CRUD.Document');
+  }
   render() {
-    return (<Document doc={this.props.document} editable />);
+    return (<this.Document doc={this.props.document} editable />);
   }
 }
 ```
@@ -48,11 +51,14 @@ Render a non-editable pre-expanded document in a React component.
 ```jsx
 const app = require('hadron-app');
 const React = require('react');
-const Document = app.appRegistry.getComponent('CRUD.Document');
 
 class MyComponent extends React.Component {
+  constructor(props) {
+    super(props);
+    this.Document = app.appRegistry.getComponent('CRUD.Document');
+  }
   render() {
-    return (<Document doc={this.props.document} expandAll />);
+    return (<this.Document doc={this.props.document} expandAll />);
   }
 }
 ```
