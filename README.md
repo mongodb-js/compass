@@ -18,8 +18,10 @@ cd compass
 # Install dependencies
 npm install
 
-# Build and launch the app
-npm start
+# Build and launch the app, passing a distribution as an argument.
+npm start compass-lite
+npm start compass-enterprise
+npm start compass-charts
 ```
 
 ### Master is broken

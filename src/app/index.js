@@ -1,5 +1,14 @@
 /* eslint no-console:0 */
 console.log(`Start renderer - begin loading index.js: ${window.performance.now()} ms`);
+const pkg = require('../../package.json');
+
+/**
+ * @note: HADRON_DISTRIBUTION is set via command line args in dev, for example:
+ * npm start compass-enterprise
+ */
+if (!process.env.HADRON_DISTRIBUTION) {
+  process.env.HADRON_DISTRIBUTION = pkg.config.hadron.distribution || 'compass-lite';
+}
 
 if (process.env.NODE_ENV === 'development') {
   require('devtron').install();
@@ -53,19 +62,20 @@ ipc.once('app:launched', function() {
 
 var debug = require('debug')('mongodb-compass:app');
 
-var path = require('path');
-var StyleManager = require('hadron-style-manager');
-new StyleManager(
-  path.join(__dirname, 'compiled-less'),
-  __dirname
-).use(document, path.join(__dirname, 'index.less'));
+/**
+ * @note: Style Manager should get set up first so styles are in place before
+ * the packages are activated.
+ */
+require('./setup-style-manager');
 
 console.log(`Start renderer - internal-package styles loaded: ${window.performance.now()} ms`);
 
-// @note: Durran: the registry and package manager are set up here in
-//   order to ensure that the compile cache has already been loaded and
-//   hooked into require.extensions. Otherwise, packages will not have
-//   use of the compile cache.
+/**
+ * @note: Durran: the registry and package manager are set up here in
+ *  order to ensure that the compile cache has already been loaded and
+ *  hooked into require.extensions. Otherwise, packages will not have
+ *  use of the compile cache.
+ */
 require('./setup-package-manager');
 
 function getConnection(model, done) {
