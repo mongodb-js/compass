@@ -43,7 +43,7 @@ context('when a MongoDB instance is running', function() {
         it('renders the connect screen', function() {
           return client
             .clickClosePrivacySettingsButton()
-            .waitForConnectView()
+            .waitForWindowTitle('MongoDB Compass - Connect')
             .getTitle().should.eventually.be.equal('MongoDB Compass - Connect');
         });
 
