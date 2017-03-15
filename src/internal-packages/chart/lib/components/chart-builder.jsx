@@ -3,9 +3,12 @@ const app = require('hadron-app');
 const FieldPanel = require('./field-panel');
 
 const ChartPanel = require('./chart-panel');
+const Chart = require('./chart');
 
 const QUERYBAR_LAYOUT = ['filter', 'project', ['sort', 'skip', 'limit']];
 const EXPERIMENTAL_WARNING = 'The charts feature is experimental. Use at own risk.';
+
+// const debug = require('debug')('mongodb-compass:chart:chart-builder');
 
 class ChartBuilder extends React.Component {
 
@@ -31,14 +34,32 @@ class ChartBuilder extends React.Component {
     );
   }
 
+  renderChart() {
+    if (!this.props.specValid) {
+      return null;
+    }
+    const data = {values: this.props.dataCache};
+    return (
+      <Chart
+        specType={this.props.specType}
+        spec={this.props.spec}
+        data={data}
+        width={600}
+        height={400}
+        className="chart-builder-chart"
+        renderer="canvas"
+      />
+    );
+  }
+
   /**
    * renders the <ChartBuilder /> component.
    *
    * @return {React.Component}  the rendered content.
    */
   render() {
-    // @todo (thomas) temporarily output the cached docs as JSON so
-    // we have something on the screen to see data fetching works.
+    const chart = this.renderChart();
+
     return (
       <div className="chart-builder chart-container">
         <div className="controls-container">
@@ -58,15 +79,11 @@ class ChartBuilder extends React.Component {
             <ChartPanel
               chartType={this.props.chartType}
               encodedChannels={this.props.channels}
+              actions={this.props.actions}
             />
           </div>
           <div className="chart-builder-chart-area">
-            <h4>Main Chart Area</h4>
-              <pre>
-                <code>
-                  {JSON.stringify(this.props.dataCache, null, 2)}
-                </code>
-              </pre>
+            {chart}
           </div>
         </div>
       </div>
@@ -83,6 +100,7 @@ ChartBuilder.propTypes = {
   spec: React.PropTypes.object,
   specType: React.PropTypes.string,
   chartType: React.PropTypes.string,
+  specValid: React.PropTypes.bool,
   channels: React.PropTypes.object,
   actions: React.PropTypes.object
 };

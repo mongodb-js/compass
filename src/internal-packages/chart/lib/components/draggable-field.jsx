@@ -3,10 +3,9 @@ const ButtonGroup = require('react-bootstrap').ButtonGroup;
 const Button = require('react-bootstrap').Button;
 const Dropdown = require('react-bootstrap').Dropdown;
 const MenuItem = require('react-bootstrap').MenuItem;
-const Radio = require('react-bootstrap').Radio;
 const FontAwesome = require('react-fontawesome');
+const _ = require('lodash');
 const {AGGREGATE_FUNCTION_ENUM, MEASUREMENT_ENUM, MEASUREMENT_ICON_ENUM} = require('../constants');
-
 
 // const debug = require('debug')('mongodb-compass:chart:draggable-field');
 
@@ -16,10 +15,8 @@ class DraggableField extends React.Component {
     // note the empty function on onChange to avoid warnings
     const menus = array.map((label, i) => {
       return (
-        <MenuItem key={i} eventKey={label}>
-          <Radio checked={label === type} onChange={() => {}}>
-            {label}
-          </Radio>
+        <MenuItem key={i} eventKey={label} href="#" active={label === type}>
+          {label}
         </MenuItem>
       );
     });
@@ -31,13 +28,17 @@ class DraggableField extends React.Component {
     );
   }
 
-  selectMeasurement(measurement) {
+  selectMeasurement(measurement, evt) {
+    evt.preventDefault();
+    evt.stopPropagation();
     if (this.props.selectMeasurement) {
       this.props.selectMeasurement(measurement);
     }
   }
 
-  selectAggregate(aggregate) {
+  selectAggregate(aggregate, evt) {
+    evt.preventDefault();
+    evt.stopPropagation();
     if (this.props.selectAggregate) {
       this.props.selectAggregate(aggregate);
     }
@@ -52,7 +53,7 @@ class DraggableField extends React.Component {
   }
 
   renderMeasurementMenu() {
-    const menu = this.mapToMenu(Object.keys(MEASUREMENT_ENUM), this.props.type);
+    const menu = this.mapToMenu(_.values(MEASUREMENT_ENUM), this.props.type);
 
     return (
       <Dropdown id={this.props.fieldName + 'measurements'}
@@ -66,7 +67,7 @@ class DraggableField extends React.Component {
   }
 
   renderAggregationMenu() {
-    const menu = this.mapToMenu(Object.keys(AGGREGATE_FUNCTION_ENUM), this.props.aggregate);
+    const menu = this.mapToMenu(_.values(AGGREGATE_FUNCTION_ENUM), this.props.aggregate);
 
     return (
       <Dropdown id={this.props.fieldName + 'aggregation'}
@@ -103,8 +104,8 @@ class DraggableField extends React.Component {
 
 DraggableField.propTypes = {
   fieldName: React.PropTypes.string,
-  type: React.PropTypes.oneOf(Object.keys(MEASUREMENT_ENUM)),
-  aggregate: React.PropTypes.oneOf(Object.keys(AGGREGATE_FUNCTION_ENUM)),
+  type: React.PropTypes.oneOf(_.values(MEASUREMENT_ENUM)),
+  aggregate: React.PropTypes.oneOf(_.values(AGGREGATE_FUNCTION_ENUM)),
   enableMenus: React.PropTypes.bool,
   selectAggregate: React.PropTypes.func,
   selectMeasurement: React.PropTypes.func

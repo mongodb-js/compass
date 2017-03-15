@@ -4,7 +4,8 @@ const {
   CHART_CHANNEL_ENUM,
   CHART_TYPE_ENUM,
   DEFAULTS,
-  MEASUREMENT_ENUM
+  MEASUREMENT_ENUM,
+  CHART_TYPE_CHANNELS
 } = require('./constants');
 const Actions = require('./actions');
 const StateMixin = require('reflux-state-mixin');
@@ -13,7 +14,7 @@ const ReadPreference = require('mongodb').ReadPreference;
 const toNS = require('mongodb-ns');
 const _ = require('lodash');
 
-// const debug = require('debug')('mongodb-compass:chart:store');
+const debug = require('debug')('mongodb-compass:chart:store');
 
 const READ = ReadPreference.PRIMARY_PREFERRED;
 const INITIAL_QUERY = {
@@ -68,6 +69,7 @@ const ChartStore = Reflux.createStore({
   getInitialChartState() {
     return {
       spec: {},
+      specValid: false,
       specType: DEFAULTS.SPEC_TYPE,
       chartType: DEFAULTS.CHART_TYPE,
       // Use channels to construct the "encoding" of the vega-lite spec
@@ -92,6 +94,37 @@ const ChartStore = Reflux.createStore({
    */
   _resetChart() {
     this.setState(this.getInitialState());
+  },
+
+  /**
+   * Any change to the store that can modify the spec goes through this
+   * helper function. The new state is computed, the spec is created
+   * based on the new state, and then the state (including the spec) is
+   * set on the store. Also checks if the spec is valid and sets `specValid`
+   * boolean.
+   *
+   * @param {Object} update   changes to the store state affecting the spec
+   *
+   * @see https://vega.github.io/vega-lite/docs/spec.html
+   */
+  _updateSpec(update) {
+    const newState = Object.assign({}, this.state, update);
+    const spec = {
+      mark: newState.chartType,
+      encoding: newState.channels
+    };
+    newState.spec = spec;
+
+    // check if all required channels are encoded
+    const requiredChannels = Object.keys(_.pick(CHART_TYPE_CHANNELS[spec.mark], (required) => {
+      return required === 'required';
+    }));
+    const encodedChannels = Object.keys(spec.encoding);
+    newState.specValid = requiredChannels.length === _.intersection(requiredChannels, encodedChannels).length;
+    if (newState.specValid) {
+      debug('valid spec %j', newState.spec);
+    }
+    this.setState(newState);
   },
 
   /**
@@ -201,26 +234,28 @@ const ChartStore = Reflux.createStore({
   },
 
   /**
-   * Maps a Vega-lite encoding channel, such as x, y, color, size, etc [1]
-   * to a MongoDB Schema field [2] and stores it in the Vega-lite `field` key.
+   * Maps a MongoDB Schema field [1] to a Vega-lite encoding channel [2], such as
+   * x, y, color, size, etc and stores it in the Vega-lite `field` key.
    *
-   * @see [1] https://vega.github.io/vega-lite/docs/encoding.html#props-channels
-   * @see [2] https://github.com/mongodb-js/mongodb-schema
+   * @see [1] https://github.com/mongodb-js/mongodb-schema
+   * @see [2] https://vega.github.io/vega-lite/docs/encoding.html#props-channels
    *
-   * @param {String} channel - The Vega-lite encoding channel [1].
    * @param {String} field - The MongoDB Schema field [2].
+   * @param {String} channel - The Vega-lite encoding channel [1].
    */
-  mapFieldToChannel(channel, field) {
-    if (!(_.includes(_.values(CHART_CHANNEL_ENUM), channel))) {
+  mapFieldToChannel(field, channel) {
+    if (!_.includes(_.values(CHART_CHANNEL_ENUM), channel)) {
       throw new Error('Unknown encoding channel: ' + channel);
+    }
+    if (!_.has(this.state.fieldsCache, field)) {
+      throw new Error('Unknown field: ' + field);
     }
     const channels = this.state.channels;
     const prop = channels[channel] || {};
     prop.field = field;
-    // Waiting on COMPASS-727 to provide FieldsStore
-    // prop.type = this._inferMeasurementFromField(this.props.fieldsCache[field]));
+    prop.type = this._inferMeasurementFromField(this.state.fieldsCache[field]);
     channels[channel] = prop;
-    this.setState({channels: channels});
+    this._updateSpec({channels: channels});
   },
 
   /**
@@ -242,7 +277,7 @@ const ChartStore = Reflux.createStore({
     const prop = channels[channel] || {};
     prop.type = measurement;
     channels[channel] = prop;
-    this.setState({channels: channels});
+    this._updateSpec({channels: channels});
   },
 
   /**
@@ -264,7 +299,7 @@ const ChartStore = Reflux.createStore({
     const prop = channels[channel] || {};
     prop.aggregate = aggregate;
     channels[channel] = prop;
-    this.setState({channels: channels});
+    this._updateSpec({channels: channels});
   },
 
   /**
@@ -276,22 +311,11 @@ const ChartStore = Reflux.createStore({
     if (!(_.includes(_.values(CHART_TYPE_ENUM), chartType))) {
       throw new Error('Unknown chart type: ' + chartType);
     }
-    this.setState({chartType: chartType});
+    this._updateSpec({chartType: chartType});
   },
 
-  /**
-   * Returns the current Vega-Lite spec document the store holds.
-   *
-   * @return {Object} A Vega-Lite spec
-   * @see https://vega.github.io/vega-lite/docs/spec.html
-   */
-  getVegaLiteSpec() {
-    const channels = this.state.channels;
-    return {
-      data: {values: this.state.dataCache},
-      mark: this.state.chartType,
-      encoding: channels
-    };
+  storeDidUpdate(prevState) {
+    debug('chart store changed from', prevState, 'to', this.state);
   }
 });
 

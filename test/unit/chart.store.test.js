@@ -32,6 +32,22 @@ const COUNTRY_SCHEMA_FIELD = {
   probability: 1
 };
 
+const YEAR_SCHEMA_FIELD = {
+  name: 'year',
+  path: 'year',
+  count: 100,
+  type: 'Int32',
+  probability: 1
+};
+
+const REVENUE_SCHEMA_FIELD = {
+  name: 'revenue',
+  path: 'revenue',
+  count: 80,
+  type: 'Decimal128',
+  probability: 0.8
+};
+
 describe('ChartStore', function() {
   before(mockDataService.before());
   after(mockDataService.after());
@@ -39,6 +55,11 @@ describe('ChartStore', function() {
   beforeEach(function() {
     // this.store = new ChartStore();  // TODO: Reflux 6 / COMPASS-686
     this.store = ChartStore;
+    this.store.state.fieldsCache = {
+      'address.country': COUNTRY_SCHEMA_FIELD,
+      'year': YEAR_SCHEMA_FIELD,
+      'revenue': REVENUE_SCHEMA_FIELD
+    };
   });
   afterEach(function() {
     this.store._resetChart();
@@ -81,9 +102,9 @@ describe('ChartStore', function() {
   context('when calling the mapFieldToChannel action', function() {
     it('stores a mark property encoding channel relationship', function(done) {
       const expected = {
-        'x': {field: COUNTRY_SCHEMA_FIELD.path}
+        'x': {field: COUNTRY_SCHEMA_FIELD.path, type: MEASUREMENT_ENUM.NOMINAL}
       };
-      ChartActions.mapFieldToChannel(CHART_CHANNEL_ENUM.X, COUNTRY_SCHEMA_FIELD.path);
+      ChartActions.mapFieldToChannel(COUNTRY_SCHEMA_FIELD.path, CHART_CHANNEL_ENUM.X);
       setTimeout(() => {
         expect(this.store.state.channels).to.be.deep.equal(expected);
         done();
@@ -91,9 +112,9 @@ describe('ChartStore', function() {
     });
     it('stores a detail encoding channel relationship', function(done) {
       const expected = {
-        'detail': {field: COUNTRY_SCHEMA_FIELD.path}
+        'detail': {field: COUNTRY_SCHEMA_FIELD.path, type: MEASUREMENT_ENUM.NOMINAL}
       };
-      ChartActions.mapFieldToChannel(CHART_CHANNEL_ENUM.DETAIL, COUNTRY_SCHEMA_FIELD.path);
+      ChartActions.mapFieldToChannel(COUNTRY_SCHEMA_FIELD.path, CHART_CHANNEL_ENUM.DETAIL);
       setTimeout(() => {
         expect(this.store.state.channels).to.be.deep.equal(expected);
         done();
@@ -102,9 +123,16 @@ describe('ChartStore', function() {
     it('throws error on receiving an unknown encoding channel', function() {
       const throwFn = () => {
         // ChartStore might not work on Reflux 5+, if so change it to ChartActions
-        ChartStore.mapFieldToChannel('FOO_BAR', COUNTRY_SCHEMA_FIELD.path);
+        ChartStore.mapFieldToChannel(COUNTRY_SCHEMA_FIELD.path, 'FOO_BAR');
       };
       expect(throwFn).to.throw(/Unknown encoding channel: FOO_BAR/);
+    });
+    it('throws error on receiving an unknown field', function() {
+      const throwFn = () => {
+        // ChartStore might not work on Reflux 5+, if so change it to ChartActions
+        ChartStore.mapFieldToChannel('foo.bar', CHART_CHANNEL_ENUM.X);
+      };
+      expect(throwFn).to.throw(/Unknown field: foo.bar/);
     });
   });
 
@@ -218,13 +246,13 @@ describe('ChartStore', function() {
     it('encodes every action in channels state', function(done) {
       // Expect 3 keys set
       const expected = {
-        'x': {field: COUNTRY_SCHEMA_FIELD.path},
+        'x': {field: COUNTRY_SCHEMA_FIELD.path, type: 'nominal'},
         'y': {type: 'quantitative'},
         'size': {aggregate: 'count'}
       };
 
       // As we currently run 3 actions
-      ChartActions.mapFieldToChannel(CHART_CHANNEL_ENUM.X, COUNTRY_SCHEMA_FIELD.path);
+      ChartActions.mapFieldToChannel(COUNTRY_SCHEMA_FIELD.path, CHART_CHANNEL_ENUM.X);
       ChartActions.selectMeasurement(CHART_CHANNEL_ENUM.Y, MEASUREMENT_ENUM.QUANTITATIVE);
       ChartActions.selectAggregate(CHART_CHANNEL_ENUM.SIZE, AGGREGATE_FUNCTION_ENUM.COUNT);
 
@@ -290,7 +318,7 @@ describe('ChartStore', function() {
     });
   });
 
-  context('when calling getVegaLiteSpec', () => {
+  context('when calling _updateSpec', () => {
     beforeEach(() => {
       ChartStore.setState({dataCache: [
         {revenue: 1, year: 1},
@@ -299,18 +327,29 @@ describe('ChartStore', function() {
         {revenue: 3, year: 4},
         {revenue: 5, year: 5}
       ]});
-      ChartStore.mapFieldToChannel(CHART_CHANNEL_ENUM.X, 'year');
-      ChartStore.mapFieldToChannel(CHART_CHANNEL_ENUM.Y, 'revenue');
+      ChartStore.mapFieldToChannel('year', CHART_CHANNEL_ENUM.X);
+      ChartStore.mapFieldToChannel('revenue', CHART_CHANNEL_ENUM.Y);
       ChartStore.selectMeasurement(CHART_CHANNEL_ENUM.X, MEASUREMENT_ENUM.QUANTITATIVE);
       ChartStore.selectMeasurement(CHART_CHANNEL_ENUM.Y, MEASUREMENT_ENUM.QUANTITATIVE);
     });
-    it('the spec contains the top level keys data, mark and encoding', () => {
-      const spec = ChartStore.getVegaLiteSpec();
-      expect(spec).to.have.all.keys('data', 'mark', 'encoding');
+    it('the spec contains the top level keys mark and encoding', () => {
+      ChartStore._updateSpec({});
+      expect(ChartStore.state.spec).to.have.all.keys('mark', 'encoding');
       // Can also copy/paste the JSON.stringify() of this into
       //    https://vega.github.io/vega-editor/?mode=vega-lite
       // For example:
       //    console.log(JSON.stringify(spec));
+    });
+    it('the spec is only valid when all required fields are encoded', () => {
+      ChartStore._resetChart();
+      expect(ChartStore.state.specValid).to.be.false;
+      ChartStore._updateSpec({
+        channels: {
+          x: {field: 'address.country', type: 'nominal'},
+          y: {field: 'revenue', type: 'quantitative'}
+        }
+      });
+      expect(ChartStore.state.specValid).to.be.true;
     });
   });
 

@@ -28,6 +28,7 @@ describe('<ChartPanel />', function() {
 
     this.ChartPanel = require('../../src/internal-packages/chart/lib/components/chart-panel');
     this.EncodingChannel = require('../../src/internal-packages/chart/lib/components/encoding-channel');
+    this.DraggableField = require('../../src/internal-packages/chart/lib/components/draggable-field');
   });
 
   context('for the area chart type', function() {
@@ -57,8 +58,14 @@ describe('<ChartPanel />', function() {
 
     it('renders when channels have been encoded', function() {
       const encodedChannels = {
-        [CHART_CHANNEL_ENUM.X]: 'field.path.age',
-        [CHART_CHANNEL_ENUM.Y]: 'field.path.height'
+        [CHART_CHANNEL_ENUM.X]: {
+          field: 'field.path.age',
+          type: 'quantitative'
+        },
+        [CHART_CHANNEL_ENUM.Y]: {
+          field: 'field.path.height',
+          type: 'quantitative'
+        }
       };
       const component = mount(
         <this.ChartPanel
@@ -68,8 +75,8 @@ describe('<ChartPanel />', function() {
       );
       const xChannel = component.find('#chart-panel-channel-x');
       const yChannel = component.find('#chart-panel-channel-y');
-      expect(xChannel).to.have.text('field.path.age');
-      expect(yChannel).to.have.text('field.path.height');
+      expect(xChannel).to.have.descendants(this.DraggableField);
+      expect(yChannel).to.have.descendants(this.DraggableField);
     });
   });
 
@@ -86,16 +93,16 @@ describe('<ChartPanel />', function() {
     });
   });
 
-  context('for the dot chart type', function() {
+  context('for the point chart type', function() {
     it('renders in the initial state', function() {
       const component = mount(
         <this.ChartPanel
-          chartType={CHART_TYPE_ENUM.DOT}
+          chartType={CHART_TYPE_ENUM.POINT}
           encodedChannels={{}}
         />
       );
       const dropdown = component.find(DropdownButton);
-      expect(dropdown.find('button')).to.have.text('dot ');
+      expect(dropdown.find('button')).to.have.text('point ');
     });
   });
 
