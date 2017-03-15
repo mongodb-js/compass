@@ -51,7 +51,6 @@ module.exports = function(done) {
     if (err) {
       done(err);
     }
-    throw new Error('Developer testing a migration error');
     const currentVersion = pkg.version;
     debug('renderer process migrations from %s to %s', previousVersion, currentVersion);
     if (semver.eq(previousVersion, currentVersion)) {
