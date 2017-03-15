@@ -1,18 +1,19 @@
-var pkg = require('../../../package.json');
-var Model = require('ampersand-model');
-var storageMixin = require('storage-mixin');
-var electronApp = require('electron').app;
+console.time('Compass main process migrations');
+const pkg = require('../../../package.json');
+const Model = require('ampersand-model');
+const storageMixin = require('storage-mixin');
+const electronApp = require('electron').app;
 
-var migrations = {
+const migrations = {
   '1.2.0-beta.1': require('./1.2.0')
 };
 
-var migrate = require('app-migrations')(migrations);
+const migrate = require('app-migrations')(migrations);
 
-var debug = require('debug')('mongodb-compass:main:migrations');
+const debug = require('debug')('mongodb-compass:main:migrations');
 
 function getPreviousVersion(done) {
-  var DiskPrefModel = Model.extend(storageMixin, {
+  const DiskPrefModel = Model.extend(storageMixin, {
     extraProperties: 'ignore',
     idAttribute: 'id',
     namespace: 'AppPreferences',
@@ -27,7 +28,7 @@ function getPreviousVersion(done) {
   });
 
   // try to get previous version from disk-backed (JSON) model, else return 0.0.0
-  var diskPrefs = new DiskPrefModel();
+  const diskPrefs = new DiskPrefModel();
   diskPrefs.once('sync', function(ret) {
     return done(null, ret.lastKnownVersion || '0.0.0');
   });
@@ -39,8 +40,9 @@ module.exports = function(done) {
     if (err) {
       return done(err);
     }
-    var currentVersion = pkg.version;
+    const currentVersion = pkg.version;
     debug('main process migrations from %s to %s', previousVersion, currentVersion);
     migrate(previousVersion, currentVersion, done);
+    console.timeEnd('Compass main process migrations');
   });
 };
