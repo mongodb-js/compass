@@ -318,7 +318,7 @@ describe('ChartStore', function() {
     });
   });
 
-  context('when calling _getVegaLiteSpec', () => {
+  context('when calling _updateSpec', () => {
     beforeEach(() => {
       ChartStore.setState({dataCache: [
         {revenue: 1, year: 1},
@@ -339,6 +339,17 @@ describe('ChartStore', function() {
       //    https://vega.github.io/vega-editor/?mode=vega-lite
       // For example:
       //    console.log(JSON.stringify(spec));
+    });
+    it('the spec is only valid when all required fields are encoded', () => {
+      ChartStore._resetChart();
+      expect(ChartStore.state.specValid).to.be.false;
+      ChartStore._updateSpec({
+        channels: {
+          x: {field: 'address.country', type: 'nominal'},
+          y: {field: 'revenue', type: 'quantitative'}
+        }
+      });
+      expect(ChartStore.state.specValid).to.be.true;
     });
   });
 
