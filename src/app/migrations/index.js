@@ -4,17 +4,6 @@ const storageMixin = require('storage-mixin');
 const semver = require('semver');
 const electronApp = require('electron').remote.app;
 
-const migrations = {
-  '1.1.2': require('./1.1.2'),
-  '1.2.0': require('./1.2.0'),
-  '1.3.0-beta.0': require('./1.3.0-beta.0'),
-  '1.3.0-beta.1': require('./1.3.0-beta.1'),
-  '1.3.0-beta.3': require('./1.3.0-beta.3'),
-  '1.5.0-beta.5': require('./1.5.0-beta.5')
-};
-
-const migrate = require('app-migrations')(migrations);
-
 const debug = require('debug')('mongodb-compass:migrations');
 
 function getPreviousVersion(done) {
@@ -68,6 +57,15 @@ module.exports = function(done) {
       debug('renderer process - skipping migrations which have already been run');
       return done();
     }
+    const migrations = {
+      '1.1.2': require('./1.1.2'),
+      '1.2.0': require('./1.2.0'),
+      '1.3.0-beta.0': require('./1.3.0-beta.0'),
+      '1.3.0-beta.1': require('./1.3.0-beta.1'),
+      '1.3.0-beta.3': require('./1.3.0-beta.3'),
+      '1.5.0-beta.5': require('./1.5.0-beta.5')
+    };
+    const migrate = require('app-migrations')(migrations);
     migrate(previousVersion, currentVersion, function(err2, res) {
       if (err2) {
         return debug('error', err2);
