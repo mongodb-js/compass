@@ -53,7 +53,7 @@ const ChartStore = Reflux.createStore({
   getInitialCacheState() {
     return {
       dataCache: [],
-      fieldsCache: [],
+      fieldsCache: {},
       rootFields: [],
       queryCache: INITIAL_QUERY
     };
