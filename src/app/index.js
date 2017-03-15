@@ -3,6 +3,24 @@ const marky = require('marky');
 marky.mark('Time to Connect rendered');
 marky.mark('Time to user can Click Connect');
 
+const packageJson = require('../../package.json');
+
+window.jQuery = require('jquery');
+const d3 = require('d3');
+window.d3 = global.d3 = d3;
+const exclude = [
+  'font-awesome',
+];
+Object.keys(packageJson.dependencies).forEach(req => {
+  if (exclude.indexOf(req) > -1) {
+    return;
+  }
+  marky.mark(req);
+  require(req);
+  marky.stop(req);
+});
+
+
 if (process.env.NODE_ENV === 'development') {
   require('devtron').install();
   var devtools = require('electron-devtools-installer');
