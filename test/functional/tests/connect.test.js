@@ -24,7 +24,7 @@ context('when a MongoDB instance is running', function() {
           .inputConnectionDetails({ hostname: 'localhost', port: 27018 })
           .clickConnectButton()
           .waitForStatusBar()
-          .waitForHomeView()
+          .waitForWindowTitle('MongoDB Compass - localhost:27018')
           .getTitle().should.eventually.equal('MongoDB Compass - localhost:27018');
       });
 
