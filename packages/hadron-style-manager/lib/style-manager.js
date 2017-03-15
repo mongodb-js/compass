@@ -3,6 +3,7 @@
 /* eslint no-sync: 0 */
 const LessCache = require('less-cache');
 const fs = require('fs');
+const path = require('path');
 
 /**
  * The style tag constant.
@@ -51,6 +52,20 @@ class StyleManager {
       resourcePath: resourcePath,
       importPaths: [ resourcePath ]
     });
+  }
+
+  /**
+   * Load all stylesheets from the list of packages.
+   *
+   * @param {Document} doc - The document that uses the stylesheet.
+   * @param {String} root - The root folder.
+   * @param {Array} packages - The list of packages.
+   */
+  load(doc, root, packages) {
+    for (let dir of packages) {
+      const fullDir = path.join(root, dir, 'styles', 'index.less');
+      this.use(doc, fullDir);
+    }
   }
 
   /**
