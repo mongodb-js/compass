@@ -1,3 +1,4 @@
+console.time('Compass main process migrations');
 const pkg = require('../../../package.json');
 const Model = require('ampersand-model');
 const storageMixin = require('storage-mixin');
@@ -42,5 +43,6 @@ module.exports = function(done) {
     const currentVersion = pkg.version;
     debug('main process migrations from %s to %s', previousVersion, currentVersion);
     migrate(previousVersion, currentVersion, done);
+    console.timeEnd('Compass main process migrations');
   });
 };
