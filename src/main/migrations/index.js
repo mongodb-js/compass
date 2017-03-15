@@ -3,12 +3,7 @@ const pkg = require('../../../package.json');
 const Model = require('ampersand-model');
 const storageMixin = require('storage-mixin');
 const electronApp = require('electron').app;
-
-const migrations = {
-  '1.2.0-beta.1': require('./1.2.0')
-};
-
-const migrate = require('app-migrations')(migrations);
+const semver = require('semver');
 
 const debug = require('debug')('mongodb-compass:main:migrations');
 
@@ -42,6 +37,15 @@ module.exports = function(done) {
     }
     const currentVersion = pkg.version;
     debug('main process migrations from %s to %s', previousVersion, currentVersion);
+    if (semver.eq(previousVersion, currentVersion)) {
+      debug('main process - skipping migrations which have already been run');
+      console.timeEnd('Compass main process migrations');
+      return done();
+    }
+    const migrations = {
+      '1.2.0-beta.1': require('./1.2.0')
+    };
+    const migrate = require('app-migrations')(migrations);
     migrate(previousVersion, currentVersion, done);
     console.timeEnd('Compass main process migrations');
   });
