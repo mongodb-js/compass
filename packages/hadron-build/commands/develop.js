@@ -38,6 +38,10 @@ exports.tasks = function(argv) {
     process.env.DEVTOOLS = '1';
   }
 
+  if (argv.options) {
+    process.env.HADRON_DISTRIBUTION = argv.options;
+  }
+
   return Promise.all([
     verify.tasks(argv),
     ui.tasks(argv)
