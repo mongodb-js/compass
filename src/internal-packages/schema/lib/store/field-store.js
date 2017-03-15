@@ -22,8 +22,9 @@ const FieldStore = Reflux.createStore({
 
   /**
    * Initialize the field store.
-   *
-   * @return {Object} the initial field store.
+   * @param {Object} fields    flat list of fields (including sub-fields) from SchemaStore keyed by field path
+   * @param {Array} rootFields top level fields (non-sub-fields) in fields object
+   * @return {Object}          the initial field store.
    */
   getInitialState() {
     return {
