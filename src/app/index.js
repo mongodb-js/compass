@@ -37,7 +37,9 @@ var User = require('./models/user');
 
 require('./menu-renderer');
 var Router = require('./router');
+marky.mark('Migrations');
 var migrateApp = require('./migrations');
+marky.stop('Migrations');
 var metricsSetup = require('./metrics');
 
 var React = require('react');
