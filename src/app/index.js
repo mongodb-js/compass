@@ -1,5 +1,14 @@
 /* eslint no-console:0 */
 console.log(`Start renderer - begin loading index.js: ${window.performance.now()} ms`);
+const pkg = require('../../package.json');
+
+/**
+ * @note: HADRON_DISTRIBUTION is set via command line args in dev, for example:
+ * npm start compass-enterprise
+ */
+if (!process.env.HADRON_DISTRIBUTION) {
+  process.env.HADRON_DISTRIBUTION = pkg.config.hadron.distribution || 'compass-lite';
+}
 
 if (process.env.NODE_ENV === 'development') {
   require('devtron').install();
