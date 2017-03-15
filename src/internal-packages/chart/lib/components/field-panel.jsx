@@ -35,6 +35,11 @@ FieldPanel.propTypes = {
   rootFields: React.PropTypes.array
 };
 
+FieldPanel.defaultProps = {
+  fieldsCache: {},
+  rootFields: []
+};
+
 FieldPanel.displayName = 'FieldPanel';
 
 module.exports = FieldPanel;

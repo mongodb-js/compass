@@ -35,6 +35,12 @@ FieldGroup.propTypes = {
   nestedFields: React.PropTypes.array
 };
 
+FieldGroup.defaultProps = {
+  fieldPath: '',
+  fieldsCache: {},
+  nestedFields: []
+};
+
 FieldGroup.displayName = 'FieldGroup';
 
 class FieldPanelItem extends React.Component {
@@ -68,6 +74,12 @@ FieldPanelItem.propTypes = {
   fieldPath: React.PropTypes.string,
   fieldsCache: React.PropTypes.object,
   nestedFields: React.PropTypes.array
+};
+
+FieldPanelItem.defaultProps = {
+  fieldPath: '',
+  fieldsCache: {},
+  nestedFields: []
 };
 
 FieldPanelItem.displayName = 'FieldPanelItem';
