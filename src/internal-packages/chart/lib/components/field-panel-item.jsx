@@ -22,7 +22,9 @@ class FieldGroup extends React.Component {
   render() {
     return (
       <div className="chart-builder-field-group">
-        {this.props.fieldsCache[this.props.fieldPath].name}
+        <div className="chart-builder-field-group-name">
+          {this.props.fieldsCache[this.props.fieldPath].name}
+        </div>
         {this.renderFields()}
       </div>
     );
