@@ -28,6 +28,20 @@
           ]
         }
       ],
+      "distributions": {
+        "compass-lite": {
+          "name": "Compass Lite",
+          "packages": []
+        },
+        "compass-enterprise": {
+          "name": "Compass Enterprise",
+          "packages": []
+        },
+        "compass-charts": {
+          "name": "Compass Charts",
+          "packages": []
+        }
+      },
       "build": {
         "win32": {
           "icon": "src/app/images/win32/mongodb-compass.ico",
@@ -200,7 +214,7 @@
     "electron": "1.6.1",
     "enzyme": "^2.5.1",
     "eslint-config-mongodb-js": "^2.2.0",
-    "hadron-build": "^7.0.0",
+    "hadron-build": "^7.1.0",
     "jsdom": "^9.8.3",
     "mgeneratejs": "^0.2.0",
     "mocha": "^3.1.2",
