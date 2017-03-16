@@ -85,12 +85,24 @@ class EditableElement extends React.Component {
   constructor(props) {
     super(props);
     this.element = props.element;
-    this.element.on(Element.Events.Added, this.handleExpand.bind(this));
-    this.element.on(Element.Events.Converted, this.handleExpand.bind(this));
-    this.element.on(Element.Events.Edited, this.handleChange.bind(this));
-    this.element.on(Element.Events.Removed, this.handleChange.bind(this));
-    this.element.on(Element.Events.Reverted, this.handleChange.bind(this));
     this.state = { expanded: this.props.expandAll, expandAll: this.props.expandAll };
+  }
+
+  /**
+   * Subscribe to the events.
+   */
+  componentDidMount() {
+    this.unsubscribeAdded = this.handleExpand.bind(this);
+    this.unsubscribeConverted = this.handleExpand.bind(this);
+    this.unsubscribeEdited = this.handleChange.bind(this);
+    this.unsubscribeRemoved = this.handleChange.bind(this);
+    this.unsubscribeReverted = this.handleChange.bind(this);
+
+    this.element.on(Element.Events.Added, this.unsubscribeAdded);
+    this.element.on(Element.Events.Converted, this.unsubscribeConverted);
+    this.element.on(Element.Events.Edited, this.unsubscribeEdited);
+    this.element.on(Element.Events.Removed, this.unsubscribeRemoved);
+    this.element.on(Element.Events.Reverted, this.unsubscribeReverted);
   }
 
   /**
@@ -102,6 +114,17 @@ class EditableElement extends React.Component {
     if (nextProps.expandAll !== this.state.expandAll) {
       this.setState({ expanded: nextProps.expandAll, expandAll: nextProps.expandAll });
     }
+  }
+
+  /**
+   * Unsubscribe from the events.
+   */
+  componentWillUnmount() {
+    this.element.removeListener(Element.Events.Added, this.unsubscribeAdded);
+    this.element.removeListener(Element.Events.Converted, this.unsubscribeConverted);
+    this.element.removeListener(Element.Events.Edited, this.unsubscribeEdited);
+    this.element.removeListener(Element.Events.Removed, this.unsubscribeRemoved);
+    this.element.removeListener(Element.Events.Reverted, this.unsubscribeReverted);
   }
 
   /**
@@ -348,6 +371,7 @@ class EditableElement extends React.Component {
           {this.renderKey()}
           {this.renderSeparator()}
           {this.renderLabel()}
+          {this.renderTypes()}
         </div>
         <ol className={this.style(CHILDREN)}>
           {this.renderChildren()}

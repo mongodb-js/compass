@@ -123,7 +123,9 @@ class EditableValue extends React.Component {
    */
   simulateTab(evt) {
     if (this.isTabable()) {
-      if (!this.element.nextElement) {
+      if (!this.element.nextElement ||
+          this.element.currentValue === '{' ||
+          this.element.currentValue === '[') {
         this.element.next();
         evt.preventDefault();
         evt.stopPropagation();
