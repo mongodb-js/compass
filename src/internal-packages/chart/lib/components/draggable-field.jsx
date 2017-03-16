@@ -1,6 +1,6 @@
+/* eslint react/no-multi-comp: 0 */
+
 const React = require('react');
-const ButtonGroup = require('react-bootstrap').ButtonGroup;
-const Button = require('react-bootstrap').Button;
 const Dropdown = require('react-bootstrap').Dropdown;
 const MenuItem = require('react-bootstrap').MenuItem;
 const FontAwesome = require('react-fontawesome');
@@ -8,6 +8,29 @@ const _ = require('lodash');
 const {AGGREGATE_FUNCTION_ENUM, MEASUREMENT_ENUM, MEASUREMENT_ICON_ENUM} = require('../constants');
 
 // const debug = require('debug')('mongodb-compass:chart:draggable-field');
+class CustomToggle extends React.Component {
+  handleClick(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (this.props.onClick) {
+      this.props.onClick(e);
+    }
+  }
+  render() {
+    return (
+      <div className={this.props.className} onClick={this.handleClick.bind(this)}>
+        {this.props.children}
+      </div>
+    );
+  }
+}
+
+CustomToggle.propTypes = {
+  onClick: React.PropTypes.func,
+  className: React.PropTypes.string,
+  children: React.PropTypes.node
+};
+
 
 class DraggableField extends React.Component {
 
@@ -22,9 +45,7 @@ class DraggableField extends React.Component {
     });
 
     return (
-      <Dropdown.Menu>
-      {menus}
-      </Dropdown.Menu>
+      <Dropdown.Menu>{menus}</Dropdown.Menu>
     );
   }
 
@@ -58,10 +79,10 @@ class DraggableField extends React.Component {
     return (
       <Dropdown id={this.props.fieldName + 'measurements'}
           onSelect={this.selectMeasurement.bind(this)}>
-        <Dropdown.Toggle noCaret>
-        {this.renderMeasurementIcon()}
-        </Dropdown.Toggle>
-          {menu}
+        <CustomToggle bsRole="toggle" className="chart-draggable-field-measurement-toggle">
+          {this.renderMeasurementIcon()}
+        </CustomToggle>
+        {menu}
       </Dropdown>
     );
   }
@@ -71,11 +92,11 @@ class DraggableField extends React.Component {
 
     return (
       <Dropdown id={this.props.fieldName + 'aggregation'}
-          onSelect={this.selectAggregate.bind(this)}>
-        <Dropdown.Toggle noCaret>
-          <FontAwesome name="plus" />
-        </Dropdown.Toggle>
-          {menu}
+          pullRight onSelect={this.selectAggregate.bind(this)}>
+        <CustomToggle bsRole="toggle" className="chart-draggable-field-aggregation-toggle">
+          <FontAwesome name="angle-down" />
+        </CustomToggle>
+        {menu}
       </Dropdown>
     );
   }
@@ -87,16 +108,12 @@ class DraggableField extends React.Component {
    */
   render() {
     return (
-      <div>
-        <ButtonGroup>
-          {this.props.enableMenus ? this.renderMeasurementMenu()
-            : <Button>{this.renderMeasurementIcon()}</Button>}
-          <Button>
-            {this.props.fieldName}
-          </Button>
-          {this.props.enableMenus ? this.renderAggregationMenu()
-            : <Button><FontAwesome name="plus" /></Button>}
-        </ButtonGroup>
+      <div className="chart-draggable-field">
+        {this.props.enableMenus ? this.renderMeasurementMenu() : <div></div>}
+        <div className="chart-draggable-field-label">
+          {this.props.fieldName}
+        </div>
+        {this.props.enableMenus ? this.renderAggregationMenu() : <div></div>}
       </div>
     );
   }

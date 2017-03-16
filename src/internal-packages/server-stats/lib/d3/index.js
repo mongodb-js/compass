@@ -1,3 +1,1 @@
-module.exports = {
-  'stats-chart': require('./stats-chart')
-};
+module.exports.realTimeLineChart = require('./real-time-line-chart');

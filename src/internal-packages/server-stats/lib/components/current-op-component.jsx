@@ -1,16 +1,18 @@
 const timer = require('d3-timer');
 const React = require('react');
-const Actions = require('../action');
 const { DataServiceActions } = require('mongodb-data-service');
+const Actions = require('../actions');
+
+// const debug = require('debug')('mongodb-compass:server-stats:current-op-component');
 
 /**
- * Represents the component that renders the top information.
+ * Represents the component that renders the current op information.
  */
-class TopComponent extends React.Component {
+class CurrentOpComponent extends React.Component {
 
   /**
-   * The top component should be initialized with a 'store'
-   * property, that triggers with the result of a { top: 1 }
+   * The current op component should be initialized with a 'store'
+   * property, that triggers with the result of a { currentOp: 1 }
    * command.
    *
    * @param {Object} props - The component properties.
@@ -30,7 +32,7 @@ class TopComponent extends React.Component {
     this.unsubscribeShowOperationDetails = Actions.showOperationDetails.listen(this.hide.bind(this));
     this.unsubscribeHideOperationDetails = Actions.hideOperationDetails.listen(this.show.bind(this));
     this.timer = timer.interval(() => {
-      DataServiceActions.top();
+      DataServiceActions.currentOp(false);
     }, this.props.interval);
   }
 
@@ -43,6 +45,17 @@ class TopComponent extends React.Component {
     this.unsubscribeShowOperationDetails();
     this.unsubscribeHideOperationDetails();
     this.timer.stop();
+  }
+
+  /**
+   * Refreshes the component state with the new current op data that was
+   * received from the store.
+   *
+   * @param {Error} error - The error, if any occured.
+   * @param {Object} data - The javascript object for the result of the command.
+   */
+  refresh(error, data) {
+    this.setState({ error: error, data: data });
   }
 
   /**
@@ -60,14 +73,12 @@ class TopComponent extends React.Component {
   }
 
   /**
-   * Refreshes the component state with the new top data that was
-   * received from the store.
+   * Fire the show operation detail action with the row data.
    *
-   * @param {Error} error - The error, if any occured.
-   * @param {Object} data - The javascript object for the result of the command.
+   * @param {Object} data - The row data.
    */
-  refresh(error, data) {
-    this.setState({ error: error, data: data });
+  showOperationDetails(data) {
+    Actions.showOperationDetails(data);
   }
 
   /**
@@ -79,7 +90,7 @@ class TopComponent extends React.Component {
     return (
       <div className="rt-lists" style={{ display: this.state.display }}>
         <header className="rt-lists__header">
-          <h2 className="rt-lists__headerlabel">Hottest Collections</h2>
+          <h2 className="rt-lists__headerlabel">Slowest Operations</h2>
         </header>
         <div className="rt-lists__empty-error">&#9888; DATA UNAVAILABLE</div>
       </div>
@@ -95,45 +106,37 @@ class TopComponent extends React.Component {
     return (
       <div className="rt-lists" style={{ display: this.state.display }}>
         <header className="rt-lists__header">
-          <h2 className="rt-lists__headerlabel">Hottest Collections</h2>
+          <h2 className="rt-lists__headerlabel">Slowest Operations</h2>
         </header>
-        <div className="rt-lists__empty-error">&#10004; No Hot Collections</div>
+        <div
+          data-test-id="no-slow-operations"
+          className="rt-lists__empty-error">
+          &#10004; No Slow Operations
+        </div>
       </div>
     );
   }
 
   /**
-   * Render the graph in the component.
+   * Render the table in the component.
    *
    * @returns {React.Component} The table.
    */
   renderGraph() {
+    const showOperationDetails = this.showOperationDetails;
     const rows = this.state.data.map(function(row, i) {
-      const styleLoad = { width: `${row.loadPercent}%` };
-      const styleLoadR = { width: `${row.loadPercentR}%` };
-      const styleLoadW = { width: `${row.loadPercentW}%` };
-
       return (
-        <li className="rt-lists__item" key={`list-item-${i}`}>
-          <div className="rt-lists__collection-hot">
-            {row.collectionName}
-          </div>
-          <div className="rt-lists__load">
-            {row.loadPercent}
-            <span>%</span>
-          </div>
-          <div className="rt-lists__rw" style={styleLoad}>
-            <div className="rt-lists__r" style={styleLoadR}>R</div>
-            <div className="rt-lists__w" style={styleLoadW}>W</div>
-          </div>
+        <li className="rt-lists__item rt-lists__item--slow" onClick={showOperationDetails.bind(null, row)} key={`list-item-${i}`}>
+          <div className="rt-lists__collection-slow">{row.ns}</div>
+          <div className="rt-lists__op">{row.op}</div>
+          <div className="rt-lists__time">{row.ms_running + ' ms'}</div>
         </li>
       );
     });
-
     return (
       <div className="rt-lists" style={{ display: this.state.display }}>
         <header className="rt-lists__header">
-          <h2 className="rt-lists__headerlabel">Hottest Collections</h2>
+          <h2 className="rt-lists__headerlabel">Slowest Operations</h2>
         </header>
         <div className="rt-lists__listdiv" id="div-scroll">
           <ul className="rt-lists__list">
@@ -160,11 +163,11 @@ class TopComponent extends React.Component {
   }
 }
 
-TopComponent.propTypes = {
+CurrentOpComponent.propTypes = {
   store: React.PropTypes.any.isRequired,
   interval: React.PropTypes.number.isRequired
 };
 
-TopComponent.displayName = 'TopComponent';
+CurrentOpComponent.displayName = 'CurrentOpComponent';
 
-module.exports = TopComponent;
+module.exports = CurrentOpComponent;

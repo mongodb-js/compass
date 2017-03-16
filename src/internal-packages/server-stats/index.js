@@ -1,5 +1,5 @@
 const app = require('hadron-app');
-const RTSSComponent = require('./lib/component');
+const RTSSComponent = require('./lib/components');
 /**
  * Activate all the components in the RTSS package.
  */

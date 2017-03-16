@@ -25,7 +25,7 @@ describe('<CollectionsTable />', () => {
     app.appRegistry.registerStore('App.CollectionStore', sinon.spy());
 
     // TypeError: Cannot read property 'refreshInstance' of undefined
-    //   at Store.init (src/internal-packages/server-stats/lib/store/create-database-store.js:14:28)
+    //   at Store.init (src/internal-packages/server-stats/lib/stores/create-database-store.js:14:28)
     app.appRegistry.registerAction('App.InstanceActions', sinon.spy());
 
     //  1) <DatabasesTable /> when databases and dataService is writable it

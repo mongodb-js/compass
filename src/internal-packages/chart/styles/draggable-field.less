@@ -1,0 +1,33 @@
+.chart-draggable-field {
+  width: 150px;
+  height: 20px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: nowrap;
+
+  border-radius: 20px;
+  background-color: @gray6;
+  margin: 3px 0;
+
+  &-measurement-toggle, &-aggregation-toggle {
+    color: @gray1;
+    padding: 0 5px;
+  }
+
+  &-measurement-toggle:hover, &-aggregation-toggle:hover {
+    color: @gray3;
+  }
+
+  &-aggregation-toggle {
+    border-left: 1px solid @gray3;
+  }
+
+  &-label {
+    color: @gray1;
+    font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+    font-size: 11px;
+    text-overflow: ellipsis;
+  }
+}

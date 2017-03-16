@@ -1,6 +1,6 @@
 const Reflux = require('reflux');
 const app = require('hadron-app');
-const Actions = require('../action');
+const Actions = require('../actions');
 const toNS = require('mongodb-ns');
 const { DataServiceActions } = require('mongodb-data-service');
 const _ = require('lodash');
@@ -26,6 +26,8 @@ const TopStore = Reflux.createStore({
     this.listenTo(Actions.pause, this.pause);
     this.listenTo(Actions.restart, this.restart);
     this.listenTo(Actions.suppressTop, this.suppressTop);
+    this.listenTo(Actions.mouseOver, this.mouseOver);
+    this.listenTo(Actions.mouseOut, this.mouseOut);
   },
 
   restart: function() {

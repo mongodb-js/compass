@@ -1,8 +1,9 @@
 const React = require('react');
-const Actions = require('../action');
+const Actions = require('../actions');
 const Performance = require('./performance-component');
 const app = require('hadron-app');
-// const debug = require('debug')('mongodb-compass:server-stats-RTSSComponent');
+
+// const debug = require('debug')('mongodb-compass:server-stats:RTSSComponent');
 
 /**
  * Represents the component that renders all the server stats.
@@ -22,6 +23,9 @@ class RTSSComponent extends React.Component {
   }
 
 
+  /**
+   * Restart the actions on mount.
+   */
   componentDidMount() {
     Actions.restart();
   }
@@ -42,7 +46,7 @@ class RTSSComponent extends React.Component {
     const performanceView = <Performance interval={this.props.interval} />;
     const databasesView = <this.DatabasesView />;
     return (
-      <div className="RTSS">
+      <div className="rtss">
         <this.TabNavBar
           theme="light"
           tabs={['Databases', 'Performance']}

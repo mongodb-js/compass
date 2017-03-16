@@ -38,8 +38,6 @@ var sslMethods = require('./ssl');
 var sshTunnelMethods = require('./ssh-tunnel');
 
 
-var StatusAction = app.appRegistry.getAction('Status.Actions');
-
 var ConnectView = View.extend({
   template: indexTemplate,
   screenName: 'Connect',
@@ -241,6 +239,7 @@ var ConnectView = View.extend({
   },
   initialize: function() {
     document.title = 'MongoDB Compass - Connect';
+    this.StatusAction = app.appRegistry.getAction('Status.Actions');
     this.connections.once('sync', this.updateConflictingNames.bind(this));
     // use {reset: true} to trigger `reset` event so ConnectionCollection
     // can add its listeners to the models.
@@ -454,7 +453,7 @@ var ConnectView = View.extend({
       this.dispatch('error received');
       return;
     }
-    StatusAction.showIndeterminateProgressBar();
+    this.StatusAction.showIndeterminateProgressBar();
 
     var onSave = function() {
       this.connections.add(this.connection, { merge: true });
@@ -469,7 +468,7 @@ var ConnectView = View.extend({
         this.connection.save({ last_used: new Date() }, { success: onSave.bind(this) });
       } else {
         // hide the status bar on error. On success, it is hidden in ./src/app/index.js
-        StatusAction.hide();
+        this.StatusAction.hide();
         this.onError(err, connection);
         this.dispatch('error received');
         return;
@@ -486,6 +485,7 @@ var ConnectView = View.extend({
    */
   useConnection: function(connection) {
     connection = connection || this.connection;
+    const StatusAction = app.appRegistry.getAction('Status.Actions');
     StatusAction.hide();
     metrics.track('Connection', 'used', {
       authentication: connection.authentication,
@@ -504,7 +504,7 @@ var ConnectView = View.extend({
         silent: false
       });
       view.remove();
-      app.appRegistry.getAction('Status.Actions').hideStaticSidebar();
+      StatusAction.hideStaticSidebar();
     });
   },
 

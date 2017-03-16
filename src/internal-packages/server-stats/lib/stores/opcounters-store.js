@@ -1,21 +1,24 @@
 const Reflux = require('reflux');
-const Actions = require('../action');
+const Actions = require('../actions');
 const ServerStatsStore = require('./server-stats-graphs-store');
 const _ = require('lodash');
-// const debug = require('debug')('mongodb-compass:server-stats:globallock-store');
+
+// const debug = require('debug')('mongodb-compass:server-stats:opcounters-store');
 
 /* eslint complexity:0 */
 
-const GlobalLockStore = Reflux.createStore({
+const OpCounterStore = Reflux.createStore({
 
   init: function() {
     this.restart();
-    this.listenTo(ServerStatsStore, this.globalLock);
+    this.listenTo(ServerStatsStore, this.opCounter);
     this.listenTo(Actions.restart, this.restart);
   },
 
   restart: function() {
-    this.totalCount = {aReads: [], aWrites: [], qReads: [], qWrites: []};
+    this.opsPerSec = {
+      insert: [], query: [], update: [],
+      delete: [], command: [], getmore: []};
     this.localTime = [];
     this.skip = [];
     this.currentMaxs = [];
@@ -24,37 +27,32 @@ const GlobalLockStore = Reflux.createStore({
     this.endPause = 0;
     this.isPaused = false;
     this.data = {dataSets: [
-      {line: 'aReads', count: [], active: true},
-      {line: 'aWrites', count: [], active: true},
-      {line: 'qReads', count: [], active: true},
-      {line: 'qWrites', count: [], active: true}],
+      {line: 'insert', count: [], active: true, current: 0},
+      {line: 'query', count: [], active: true, current: 0},
+      {line: 'update', count: [], active: true, current: 0},
+      {line: 'delete', count: [], active: true, current: 0},
+      {line: 'command', count: [], active: true, current: 0},
+      {line: 'getmore', count: [], active: true, current: 0}],
       localTime: [],
       skip: [],
       yDomain: [0, 1],
       xLength: this.xLength,
       labels: {
-        title: 'read & write',
-        keys: ['active reads', 'active writes', 'queued reads', 'queued writes'],
-        yAxis: ''
+        title: 'operations',
+        keys: ['inserts', 'queries', 'updates', 'deletes', 'commands', 'getmores'],
+        yAxis: 'ops'
       },
-      keyLength: 4,
-      paused: false
+      keyLength: 6,
+      paused: false,
+      trigger: true
     };
   },
 
-  globalLock: function(error, doc, isPaused) {
-    if (!error && doc && 'localTime' in doc && 'globalLock' in doc) {
-      if (this.starting) {
-        this.starting = false;
-        return;
-      }
+  opCounter: function(error, doc, isPaused) {
+    if (!error && doc && 'localTime' in doc && 'opcounters' in doc) {
       let key;
       let val;
-      const raw = {};
-      raw.aReads = doc.globalLock.activeClients.readers;
-      raw.aWrites = doc.globalLock.activeClients.writers;
-      raw.qReads = doc.globalLock.currentQueue.readers;
-      raw.qWrites = doc.globalLock.currentQueue.writers;
+      let count;
 
       if (this.localTime.length > 0 && doc.localTime.getTime() - this.localTime[this.localTime.length - 1].getTime() < 500) { // If we're playing catchup
         return;
@@ -67,9 +65,9 @@ const GlobalLockStore = Reflux.createStore({
       } else if (!isPaused && this.isPaused) { // Move out of pause state
         this.isPaused = false;
         this.endPause = this.localTime.length + 1;
-      } else if (!isPaused && !this.isPaused) { // Wasn't paused, isn't paused now
+      } else if (!isPaused && !this.isPaused && !this.starting) { // Wasn't paused, isn't paused now
         this.endPause++;
-        if (skipped) { // If time has been skipped, then add this point twice so it is visible
+        if (skipped) { // If time has been skipped, then add this point twice so it is visible.
           this.endPause++;
         }
       }
@@ -77,12 +75,23 @@ const GlobalLockStore = Reflux.createStore({
 
       for (let q = 0; q < this.data.dataSets.length; q++) {
         key = this.data.dataSets[q].line;
-        val = raw[key];
-        this.totalCount[key].push(val);
-        if (skipped) {
-          this.totalCount[key].push(val);
+        count = doc.opcounters[key];
+        if (this.starting) { // don't add data, starting point
+          this.data.dataSets[q].current = count;
+          continue;
         }
-        this.data.dataSets[q].count = this.totalCount[key].slice(startPause, this.endPause);
+
+        val = Math.max(0, count - this.data.dataSets[q].current); // Don't allow negatives.
+        this.opsPerSec[key].push(val);
+        if (skipped) {
+          this.opsPerSec[key].push(val);
+        }
+        this.data.dataSets[q].count = this.opsPerSec[key].slice(startPause, this.endPause);
+        this.data.dataSets[q].current = count;
+      }
+      if (this.starting) {
+        this.starting = false;
+        return;
       }
       const maxs = [1];
       for (let q = 0; q < this.data.dataSets.length; q++) {
@@ -95,8 +104,8 @@ const GlobalLockStore = Reflux.createStore({
       }
       this.skip.push(false);
       this.currentMaxs.push(_.max(maxs));
-      this.data.yDomain = [0, this.currentMaxs[this.endPause - 1]];
       this.localTime.push(doc.localTime);
+      this.data.yDomain = [0, this.currentMaxs[this.endPause - 1]];
       this.data.localTime = this.localTime.slice(startPause, this.endPause);
       this.data.skip = this.skip.slice(startPause, this.endPause);
       this.data.paused = isPaused;
@@ -105,4 +114,4 @@ const GlobalLockStore = Reflux.createStore({
   }
 });
 
-module.exports = GlobalLockStore;
+module.exports = OpCounterStore;

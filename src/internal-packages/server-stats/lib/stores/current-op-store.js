@@ -1,9 +1,10 @@
 const Reflux = require('reflux');
-const Actions = require('../action');
+const Actions = require('../actions');
 const { DataServiceActions } = require('mongodb-data-service');
 const toNS = require('mongodb-ns');
-const debug = require('debug')('mongodb-compass:server-stats:crp-store');
 const _ = require('lodash');
+
+const debug = require('debug')('mongodb-compass:server-stats:current-op-store');
 
 /* eslint complexity:0 */
 
@@ -23,6 +24,8 @@ const CurrentOpStore = Reflux.createStore({
     this.listenTo(DataServiceActions.currentOpComplete, this.currentOp);
     this.listenTo(Actions.pause, this.pause);
     this.listenTo(Actions.restart, this.restart);
+    this.listenTo(Actions.mouseOver, this.mouseOver);
+    this.listenTo(Actions.mouseOut, this.mouseOut);
   },
 
   restart: function() {
