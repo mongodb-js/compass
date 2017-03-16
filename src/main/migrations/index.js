@@ -1,4 +1,4 @@
-console.time('Compass main process migrations');
+console.time('Compass main process migrations');  // eslint-disable-line no-console
 const path = require('path');
 const pkg = require('../../../package.json');
 const electronApp = require('electron').app;
@@ -16,8 +16,7 @@ function getPreviousVersion(done) {
     if (typeof(lastKnownVersion) === 'string') {
       return done(null, lastKnownVersion);
     }
-  }
-  catch (e) {
+  } catch (e) {
     // Just use Ampersand Model and run migrations as in the past,
     // perhaps remove this when we are sure our users have upgraded to a
     // recent version of Compass so they don't lose their connection favorites
@@ -56,7 +55,7 @@ module.exports = function(done) {
     debug('main process migrations from %s to %s', previousVersion, currentVersion);
     if (semver.eq(previousVersion, currentVersion)) {
       debug('main process - skipping migrations which have already been run');
-      console.timeEnd('Compass main process migrations');
+      console.timeEnd('Compass main process migrations');  // eslint-disable-line no-console
       return done();
     }
     const migrations = {
@@ -64,6 +63,6 @@ module.exports = function(done) {
     };
     const migrate = require('app-migrations')(migrations);
     migrate(previousVersion, currentVersion, done);
-    console.timeEnd('Compass main process migrations');
+    console.timeEnd('Compass main process migrations');  // eslint-disable-line no-console
   });
 };
