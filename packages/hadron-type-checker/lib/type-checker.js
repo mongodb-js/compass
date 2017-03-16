@@ -4,6 +4,7 @@ const isPlainObject = require('lodash.isplainobject');
 const isArray = require('lodash.isarray');
 const isString = require('lodash.isstring');
 const isNumber = require('lodash.isnumber');
+const isEmpty = require('lodash.isempty');
 const has = require('lodash.has');
 const find = require('lodash.find');
 const toNumber = require('lodash.tonumber');
@@ -363,7 +364,18 @@ class TypeChecker {
     } else if (has(object, BSON_TYPE) && this._isNumberType(object._bsontype)) {
       var rawValue = object._bsontype === 'Long' ? object.toNumber() : object.valueOf();
       return this._stringTypes(String(rawValue), highPrecisionSupport);
+    } else if (isPlainObject(object)) {
+      if (isEmpty(object)) {
+        return [ 'Object', 'Array' ];
+      }
+      return [ 'Object' ];
+    } else if (isArray(object)) {
+      if (isEmpty(object)) {
+        return [ 'Object', 'Array' ];
+      }
+      return [ 'Array' ];
     }
+
     return [ this.type(object), 'String', 'Object', 'Array' ];
   }
 

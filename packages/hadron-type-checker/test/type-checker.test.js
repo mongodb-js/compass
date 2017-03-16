@@ -388,6 +388,18 @@ describe('TypeChecker', function() {
       });
     });
 
+    context('when the object is an object', function() {
+      it('returns Object', function() {
+        expect(TypeChecker.type({})).to.equal('Object');
+      });
+    });
+
+    context('when the object is an Array', function() {
+      it('returns Array', function() {
+        expect(TypeChecker.type([ 'test' ])).to.equal('Array');
+      });
+    });
+
     context('when the object is a code', function() {
       var code = new Code('where blah');
 
@@ -1245,14 +1257,30 @@ describe('TypeChecker', function() {
     });
 
     context('when the object is an object', function() {
-      it('returns Object', function() {
-        expect(TypeChecker.type({})).to.equal('Object');
+      context('when the object is empty', function() {
+        it('returns Object, Array', function() {
+          expect(TypeChecker.castableTypes({})).to.deep.equal([ 'Object', 'Array' ]);
+        });
+      });
+
+      context('when the object is not empty', function() {
+        it('returns Object', function() {
+          expect(TypeChecker.castableTypes({ test: 'value' })).to.deep.equal([ 'Object' ]);
+        });
       });
     });
 
-    context('when the object is an Array', function() {
-      it('returns Array', function() {
-        expect(TypeChecker.type([ 'test' ])).to.equal('Array');
+    context('when the object is an array', function() {
+      context('when the array is empty', function() {
+        it('returns Object, Array', function() {
+          expect(TypeChecker.castableTypes([])).to.deep.equal([ 'Object', 'Array' ]);
+        });
+      });
+
+      context('when the array is not empty', function() {
+        it('returns Array', function() {
+          expect(TypeChecker.castableTypes([ 'test' ])).to.deep.equal([ 'Array' ]);
+        });
       });
     });
   });
