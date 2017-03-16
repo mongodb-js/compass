@@ -145,3 +145,4 @@ DraggableField.propTypes = {
 DraggableField.displayName = 'DraggableField';
 
 module.exports = DragSource(DraggableField.displayName, draggableFieldSource, collect)(DraggableField);
+module.exports.displayName = DraggableField.displayName;
