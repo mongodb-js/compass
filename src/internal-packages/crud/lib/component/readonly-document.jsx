@@ -5,12 +5,12 @@ const Element = require('./element');
 /**
  * The arrow up class.
  */
-const ARROW_UP = 'fa fa-arrow-circle-up';
+const ARROW_UP = 'fa fa-arrow-up';
 
 /**
  * The arrow down class.
  */
-const ARROW_DOWN = 'fa fa-arrow-circle-down';
+const ARROW_DOWN = 'fa fa-arrow-down';
 
 /**
  * The base class.
@@ -30,7 +30,7 @@ const FIELD_LIMIT = 30;
 /**
  * The expander class.
  */
-const EXPANDER = 'document document-expander';
+const EXPANDER = 'btn btn-default btn-xs';
 
 /**
  * The test id.
@@ -105,7 +105,7 @@ class ReadonlyDocument extends React.Component {
   renderExpansionText() {
     const extraFields = this.doc.elements.size - FIELD_LIMIT;
     if (this.state.expanded) {
-      return `Show ${extraFields} less fields`;
+      return `Hide ${extraFields} fields`;
     }
     return `Show ${extraFields} more fields`;
   }
@@ -129,8 +129,8 @@ class ReadonlyDocument extends React.Component {
       <div className={BASE} data-test-id={TEST_ID}>
         <ol className={ELEMENTS}>
           {this.renderElements()}
+          {this.renderExpansion()}
         </ol>
-        {this.renderExpansion()}
       </div>
     );
   }
