@@ -107,6 +107,9 @@ function toArray(object) {
   if (isArray(object)) {
     return object;
   }
+  if (isPlainObject(object)) {
+    return [];
+  }
   return [ object ];
 }
 

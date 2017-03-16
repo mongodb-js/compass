@@ -129,10 +129,18 @@ describe('TypeChecker', function() {
         });
 
         context('when casting to an array', function() {
-          var value = 'test';
+          context('when the value is a string', function() {
+            var value = 'test';
 
-          it('returns the string wrapped in an array', function() {
-            expect(TypeChecker.cast(value, 'Array')).to.deep.equal([ value ]);
+            it('returns the string wrapped in an array', function() {
+              expect(TypeChecker.cast(value, 'Array')).to.deep.equal([ value ]);
+            });
+          });
+
+          context('when the value is an object', function() {
+            it('returns an empty array', function() {
+              expect(TypeChecker.cast({}, 'Array')).to.deep.equal([]);
+            });
           });
         });
 
