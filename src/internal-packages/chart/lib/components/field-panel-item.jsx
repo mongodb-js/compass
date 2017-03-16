@@ -59,7 +59,7 @@ class FieldPanelItem extends React.Component {
           nestedFields={this.props.nestedFields}
         />)
         :
-        (<DraggableField key={this.props.fieldPath}
+        (<DraggableField key={this.props.fieldPath} fieldPath={this.props.fieldPath}
           fieldName={this.props.fieldsCache[this.props.fieldPath].name}
         />);
 

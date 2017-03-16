@@ -33,7 +33,7 @@ CustomToggle.propTypes = {
 
 const draggableFieldSource = {
   beginDrag: function(props) {
-    return {fieldName: props.fieldName};
+    return {fieldPath: props.fieldPath};
   }
 };
 
@@ -134,6 +134,7 @@ class DraggableField extends React.Component {
 
 DraggableField.propTypes = {
   fieldName: React.PropTypes.string,
+  fieldPath: React.PropTypes.string,
   type: React.PropTypes.oneOf(_.values(MEASUREMENT_ENUM)),
   aggregate: React.PropTypes.oneOf(_.values(AGGREGATE_FUNCTION_ENUM)),
   enableMenus: React.PropTypes.bool,

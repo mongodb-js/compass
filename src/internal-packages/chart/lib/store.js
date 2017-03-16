@@ -240,20 +240,20 @@ const ChartStore = Reflux.createStore({
    * @see [1] https://github.com/mongodb-js/mongodb-schema
    * @see [2] https://vega.github.io/vega-lite/docs/encoding.html#props-channels
    *
-   * @param {String} field - The MongoDB Schema field [2].
-   * @param {String} channel - The Vega-lite encoding channel [1].
+   * @param {String} fieldPath - The field path of the Schema field [1].
+   * @param {String} channel - The Vega-lite encoding channel [2].
    */
-  mapFieldToChannel(field, channel) {
+  mapFieldToChannel(fieldPath, channel) {
     if (!_.includes(_.values(CHART_CHANNEL_ENUM), channel)) {
       throw new Error('Unknown encoding channel: ' + channel);
     }
-    if (!_.has(this.state.fieldsCache, field)) {
-      throw new Error('Unknown field: ' + field);
+    if (!_.has(this.state.fieldsCache, fieldPath)) {
+      throw new Error('Unknown field: ' + fieldPath);
     }
     const channels = this.state.channels;
     const prop = channels[channel] || {};
-    prop.field = field;
-    prop.type = this._inferMeasurementFromField(this.state.fieldsCache[field]);
+    prop.field = this.state.fieldsCache[fieldPath].name;
+    prop.type = this._inferMeasurementFromField(this.state.fieldsCache[fieldPath]);
     channels[channel] = prop;
     this._updateSpec({channels: channels});
   },
