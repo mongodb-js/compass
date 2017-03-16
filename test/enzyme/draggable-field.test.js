@@ -20,15 +20,15 @@ describe('<DraggableField />', () => {
   describe('when menus are not enabled', () => {
     const name = 'address';
     beforeEach(function() {
-      component = shallow(<DraggableField type="TEMPORAL" fieldName={name}/>);
+      component = shallow(<DraggableField type="temporal" fieldName={name}/>);
     });
 
-    it('should have 3 buttons', () => {
-      expect(component.find(Button)).to.have.length(3);
+    it('should have no dropdown menus', () => {
+      expect(component.find(Dropdown)).to.have.length(0);
     });
 
     it('the middle element should have the field name', () => {
-      expect(component.find(Button).at(1).html()).to.contain(name);
+      expect(component.children().at(1).html()).to.contain(name);
     });
   });
 
@@ -38,16 +38,12 @@ describe('<DraggableField />', () => {
       component = shallow(<DraggableField type="TEMPORAL" fieldName={name} enableMenus/>);
     });
 
-    it('should have 1 button', () => {
-      expect(component.find(Button)).to.have.length(1);
-    });
-
-    it('should have 2 dropdown elements', () => {
+    it('should have 2 dropdown menus', () => {
       expect(component.find(Dropdown)).to.have.length(2);
     });
 
-    it('the button should have the field name', () => {
-      expect(component.find(Button).at(0).html()).to.contain(name);
+    it('the middle element should have the field name', () => {
+      expect(component.children().at(1).html()).to.contain(name);
     });
   });
 });

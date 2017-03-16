@@ -7,7 +7,7 @@
   }
 
   &-chart-panel, &-field-panel {
-    width: 250px;
+    width: 200px;
     height: 100%;
   }
 
@@ -17,15 +17,31 @@
   }
 
   &-chart-panel, &-field-panel, &-chart-area {
-    // temporary styling
-    border: 1px solid @pw;
-    padding: 5px;
-    background: @gray6;
-    overflow-y: scroll;
+    overflow-y: auto;
   }
+
+  &-chart-panel {
+    background-color: @gray7;
+    padding: 20px 0;
+  }
+
+  &-field-panel {
+    padding: 10px 0 0 10px;
+  }
+
   &-field-group {
+    padding: 5px 0;
+  }
+
+  &-field-group-label {
+    color: @gray1;
+    font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+    font-size: 10px;
+  }
+
+  &-field-group-fields {
+    border-left: 1px solid @gray4;
+    margin-left: 10px;
     padding-left: 10px;
-    border-left: 1px solid @gray2;
-    font-weight: bold;
   }
 }

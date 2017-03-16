@@ -68,14 +68,12 @@ class ChartBuilder extends React.Component {
         </div>
         <div className="chart-builder-container">
           <div className="chart-builder-field-panel">
-            <h4>Field Panel</h4>
             <FieldPanel
               fieldsCache={this.props.fieldsCache}
               rootFields={this.props.rootFields}
             />
           </div>
           <div className="chart-builder-chart-panel">
-            <h4>Chart Panel</h4>
             <ChartPanel
               chartType={this.props.chartType}
               encodedChannels={this.props.channels}

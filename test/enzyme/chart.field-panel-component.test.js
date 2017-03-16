@@ -85,7 +85,7 @@ describe('<FieldPanel />', function() {
     expect(component.find(this.FieldPanelItem)).to.exist;
     expect(component.find(this.FieldPanelItem)).to.have.lengthOf(4);
     expect(component.find(this.FieldPanelItem).at(0)).to.have.text('_id');
-    expect(component.find('.chart-builder-field-group-name')).to.have.text('foo');
+    expect(component.find('.chart-builder-field-group-label')).to.have.text('foo');
     expect(component.find(this.FieldPanelItem).at(2)).to.have.text('bar');
   });
 
@@ -126,10 +126,10 @@ describe('<FieldPanel />', function() {
     expect(component.find(this.FieldPanelItem)).to.exist;
     expect(component.find(this.FieldPanelItem)).to.have.lengthOf(7);
     expect(component.find(this.FieldPanelItem).at(0)).to.have.text('_id');
-    expect(component.find('.chart-builder-field-group-name').at(0)).to.have.text('foo');
+    expect(component.find('.chart-builder-field-group-label').at(0)).to.have.text('foo');
     expect(component.find(this.FieldPanelItem).at(2)).to.have.text('bar');
     expect(component.find(this.FieldPanelItem).at(3)).to.have.text('bar');
-    expect(component.find('.chart-builder-field-group-name').at(1)).to.have.text('fizz');
+    expect(component.find('.chart-builder-field-group-label').at(1)).to.have.text('fizz');
     expect(component.find(this.FieldPanelItem).at(5)).to.have.text('bang');
     expect(component.find(this.FieldPanelItem).at(6)).to.have.text('bang');
   });
