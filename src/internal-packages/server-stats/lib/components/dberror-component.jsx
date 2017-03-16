@@ -1,5 +1,6 @@
 const React = require('react');
-// const debug = require('debug')('mongodb-compass:server-stats-dberror-component');
+
+// const debug = require('debug')('mongodb-compass:server-stats:dberror-component');
 
 /**
  * Represents the component that renders DB Errors.
@@ -23,7 +24,7 @@ class DBErrorComponent extends React.Component {
     this.setState({ data: data });
   }
 
-  renderErrors() { // TODO: display srcName
+  renderErrors() {
     const rows = this.state.data.map(function(row, i) {
       return (
         <li className="rt-errors__item status-row status-row-has-error" key={`list-item-${i}`}>

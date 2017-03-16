@@ -1,7 +1,8 @@
 const Reflux = require('reflux');
-const Actions = require('../action');
+const Actions = require('../actions');
 const ServerStatsStore = require('./server-stats-graphs-store');
 const _ = require('lodash');
+
 // const debug = require('debug')('mongodb-compass:server-stats:mem-store');
 
 /* eslint complexity:0 */
