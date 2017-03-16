@@ -1,20 +1,37 @@
 console.time('Compass main process migrations');
+const path = require('path');
 const pkg = require('../../../package.json');
-const Model = require('ampersand-model');
-const storageMixin = require('storage-mixin');
 const electronApp = require('electron').app;
 const semver = require('semver');
 
 const debug = require('debug')('mongodb-compass:main:migrations');
 
 function getPreviousVersion(done) {
+  const userDataPath = electronApp.getPath('userData');
+  const generalPath = path.join(userDataPath, 'AppPreferences', 'General.json');
+  try {
+    const generalPackage = require(generalPath);
+    const lastKnownVersion = generalPackage.lastKnownVersion;
+    debug('lastKnownVersion %s', lastKnownVersion);
+    if (typeof(lastKnownVersion) === 'string') {
+      return done(null, lastKnownVersion);
+    }
+  }
+  catch (e) {
+    // Just use Ampersand Model and run migrations as in the past,
+    // perhaps remove this when we are sure our users have upgraded to a
+    // recent version of Compass so they don't lose their connection favorites
+  }
+
+  const Model = require('ampersand-model');
+  const storageMixin = require('storage-mixin');
   const DiskPrefModel = Model.extend(storageMixin, {
     extraProperties: 'ignore',
     idAttribute: 'id',
     namespace: 'AppPreferences',
     storage: {
       backend: 'disk',
-      basepath: electronApp.getPath('userData')
+      basepath: userDataPath
     },
     props: {
       id: ['string', true, 'General'],
