@@ -1,7 +1,9 @@
 const timer = require('d3-timer');
 const React = require('react');
 const Actions = require('../actions');
-// const debug = require('debug')('mongodb-compass:server-stats-top-component');
+const { DataServiceActions } = require('mongodb-data-service');
+
+// const debug = require('debug')('mongodb-compass:server-stats:top-component');
 
 /**
  * Represents the component that renders the top information.
@@ -17,7 +19,7 @@ class TopComponent extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.state = { error: null, data: [], display: 'block' };
+    this.state = { error: null, data: [], display: 'flex' };
   }
 
   /**
@@ -30,7 +32,7 @@ class TopComponent extends React.Component {
     this.unsubscribeShowOperationDetails = Actions.showOperationDetails.listen(this.hide.bind(this));
     this.unsubscribeHideOperationDetails = Actions.hideOperationDetails.listen(this.show.bind(this));
     this.timer = timer.interval(() => {
-      Actions.pollTop();
+      DataServiceActions.top();
     }, this.props.interval);
   }
 
@@ -49,7 +51,7 @@ class TopComponent extends React.Component {
    * Set the component to visible.
    */
   show() {
-    this.setState({ display: 'block' });
+    this.setState({ display: 'flex' });
   }
 
   /**

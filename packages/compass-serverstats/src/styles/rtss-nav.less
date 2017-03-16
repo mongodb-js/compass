@@ -1,114 +1,56 @@
-.rt-nav {
-  height: 45px;
-  background-color: #2B3033;
-  display: flex;
-  justify-content: flex-start;
-  align-items: flex-end;
-  position: relative;
+@gray4: #a09f9e;
+@gray7: #ebebed;
+@gray8: #f5f6f7;
+@pw: #fff;
+
+.time-and-pause {
+  height: 32px;
+  background: @gray8;
+  border-bottom: 1px solid @gray7;
+  padding-top: 4px;
+  padding-left: 15px;
+}
+
+.time,
+.play,
+.pause {
+  display: inline-block;
 }
 /* time indicator */
 .time {
   border-radius: 3px 3px 3px 3px;
-  position: absolute;
-  background-color: #393D41;
+  background-color: @gray4;
   text-align: center;
   font-size: 11px;
   font-weight: bold;
   color: #FFFFFF;
-  height: 25px;
   width: 100px;
-  left: 780px;
-  top: 10px;
-  padding-top: 5px;
+  padding: 3px 4px 4px;
   letter-spacing: 3.5px;
+  margin-left: 6px;
 }
 
+.play,
+.pause {
+    width: 80px;
+}
 /* play-pause button */
 .play {
   cursor: pointer;
-  border-radius: 3px 3px 3px 3px;
-  position: absolute;
-  background-color: #377C57;
-  font-size: 11px;
-  font-weight: bold;
-  color: #FFFFFF;
-  height: 25px;
-  width: 100px;
-  left: 890px;
-  top: 10px;
-  border: 1px #50AB78 solid;
-  text-align: center;
-  padding-top: 4px;
 }
 .play .fa-play {
   font-size: 10px;
   margin-right: 7px;
-  color: hsla(0, 0%, 100%, .7);
+  color: @pw;
+  box-shadow: none;
 }
 
 .pause {
-  padding-top: 6px;
   cursor: pointer;
-  border-radius: 3px 3px 3px 3px;
-  position: absolute;
-  background-color: #3D4247;
-  font-size: 11px;
-  font-weight: bold;
-  color: #FFFFFF;
-  height: 25px;
-  width: 100px;
-  left: 890px;
-  top: 10px;
-  border: 1px #666666 solid;
-  text-align: center;
-  padding-top: 4px;
 }
 .pause .fa-pause {
   font-size: 10px;
   margin-right: 7px;
-  color: hsla(0, 0%, 100%, .7);
-}
-
-/* tabs */
-.rt-nav__tabs {
-  display: flex;
-  justify-content: flex-end;
-  align-self: flex-end;
-  margin-bottom: 0;
-  position: absolute;
-  top: 16px;
-  margin-left: 10px;
-}
-.rt-nav__tabs .rt-nav__tab:nth-child(2) {
-  display: none; /* hide db for now */
-}
-.rt-nav__tab {
-  height: 30px;
-  width: 130px;
-  font-size: 13px;
-  text-transform: uppercase;
-  border-radius: 3px 3px 0 0;
-  display: flex;
-  justify-content: center;
-  cursor: pointer;
-  margin-bottom: 0;
-  color: #8B8D8F;
-}
-.rt-nav__link {
-  margin: auto;
-  text-transform: uppercase;
-  font-size: 11px;
-  font-weight: bold;
-  color: white;
-}
-.rt-nav__link:hover {
-  text-decoration: none;
-  color: white;
-}
-.rt-nav--selected {
-  color: #FFFFFF;
-  background-color: #3D4247;
-  cursor: default;
-  border: #545454 1px  solid;
-  border-bottom: none;
+  color: @gray4;
+  box-shadow: none;
 }

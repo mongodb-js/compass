@@ -1,12 +1,14 @@
 const timer = require('d3-timer');
 const React = require('react');
-const Actions = require('../actions');
 const ChartComponent = require('./chart-component');
 const OpCountersStore = require('../stores/opcounters-store');
 const NetworkStore = require('../stores/network-store');
 const GlobalLockStore = require('../stores/globallock-store');
 const MemStore = require('../stores/mem-store');
+const { DataServiceActions } = require('mongodb-data-service');
 const d3 = require('d3');
+
+// const debug = require('debug')('mongodb-compass:server-stats:graphs-component');
 
 /**
  * Represents the component that renders all the server stats.
@@ -28,7 +30,7 @@ class ServerStatsComponent extends React.Component {
    */
   componentDidMount() {
     this.timer = timer.interval(() => {
-      Actions.pollServerStats();
+      DataServiceActions.serverStats();
     }, this.props.interval);
   }
 
@@ -46,11 +48,11 @@ class ServerStatsComponent extends React.Component {
    */
   render() {
     return (
-      <div className="rtss rtss-performance rtss-performance-graphs">
-        <ChartComponent store={OpCountersStore} dispatcher={this.eventDispatcher} />
-        <ChartComponent store={GlobalLockStore} dispatcher={this.eventDispatcher} />
-        <ChartComponent store={NetworkStore} dispatcher={this.eventDispatcher} />
-        <ChartComponent store={MemStore} dispatcher={this.eventDispatcher} />
+      <div className="serverstats">
+        <ChartComponent width={520} height={145} store={OpCountersStore} dispatcher={this.eventDispatcher} />
+        <ChartComponent width={520} height={145} store={GlobalLockStore} dispatcher={this.eventDispatcher} />
+        <ChartComponent width={520} height={145} store={NetworkStore} dispatcher={this.eventDispatcher} />
+        <ChartComponent width={520} height={145} store={MemStore} dispatcher={this.eventDispatcher} />
       </div>
     );
   }

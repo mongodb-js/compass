@@ -1,27 +1,44 @@
 @import './rtss-db.less';
 @import './rtss-lists.less';
 @import './rtss-nav.less';
-@import './rtss-graphs.less';
 @import './rtss-errors.less';
-@import './chart.less';
+@import './rtss-charts.less';
+@import './rtss-databases.less';
 
 .rtss {
   font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 500;
-  background-color: #3D4247;
-  height: 100vh;
   min-width: 100%;
-  overflow-x: scroll;
+
+  .tab-nav-bar-header {
+    top: 0;
+  }
+
+  .rt-perf {
+    .column.main {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        flex-grow: 1;
+        flex-shrink: 0;
+    }
+  }
 
   .rt__graphs-out {
-    float: left;
-    width: 520px;
+    flex-grow: 1;
+    flex-shrink: 0;
+    flex-basis: 520px;
     padding-top: 31px;
+    display: flex;
+    flex-direction: column;
   }
+
   .rt__lists-out {
-    width: auto;
-    overflow: scroll; // TODO: deal with scrolling
-    display: block;
+    flex-grow: 1;
+    flex-shrink: 0;
+    flex-basis: 480px;
     padding-top: 15px;
+    display: flex;
+    flex-direction: column;
   }
 }

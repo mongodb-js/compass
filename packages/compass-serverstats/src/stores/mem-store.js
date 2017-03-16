@@ -2,6 +2,7 @@ const Reflux = require('reflux');
 const Actions = require('../actions');
 const ServerStatsStore = require('./server-stats-graphs-store');
 const _ = require('lodash');
+
 // const debug = require('debug')('mongodb-compass:server-stats:mem-store');
 
 /* eslint complexity:0 */
@@ -42,7 +43,7 @@ const MemStore = Reflux.createStore({
   },
 
   mem: function(error, doc, isPaused) {
-    if (!error && doc) {
+    if (!error && doc && 'localTime' in doc && 'mem' in doc) {
       if (this.starting) {
         this.starting = false;
         return;

@@ -2,6 +2,7 @@ const Reflux = require('reflux');
 const Actions = require('../actions');
 const ServerStatsStore = require('./server-stats-graphs-store');
 const _ = require('lodash');
+
 // const debug = require('debug')('mongodb-compass:server-stats:network-store');
 
 /* eslint complexity:0 */
@@ -50,7 +51,7 @@ const NetworkStore = Reflux.createStore({
   },
 
   network: function(error, doc, isPaused) {
-    if (!error && doc) {
+    if (!error && doc && 'localTime' in doc && 'network' in doc) {
       let key;
       let val;
       let count;

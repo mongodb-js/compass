@@ -1,4 +1,26 @@
 .serverstats {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  flex-shrink: 0;
+  flex-basis: 620px;
+  justify-content: space-around;
+}
+
+
+.error-message {
+  text-transform: uppercase;
+  text-anchor: middle;
+  font-size: 14px;
+  fill: white;
+}
+.focus {
+  stroke: white;
+  fill: white;
+  font-size: 11px;
+  text-anchor: middle;
+}
+.serverstats {
 
   &-chart-background {
     fill: #484D51;
@@ -43,5 +65,12 @@
     font-size: 12px;
     color: white;
     margin: 5px 0 0 5px;
+  }
+
+  &-overlay-line {
+    stroke-width: 1px;
+  }
+  &-overlay-triangle {
+    stroke: none;
   }
 }

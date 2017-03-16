@@ -2,6 +2,7 @@ const Reflux = require('reflux');
 const Actions = require('../actions');
 const ServerStatsStore = require('./server-stats-graphs-store');
 const _ = require('lodash');
+
 // const debug = require('debug')('mongodb-compass:server-stats:opcounters-store');
 
 /* eslint complexity:0 */
@@ -48,7 +49,7 @@ const OpCounterStore = Reflux.createStore({
   },
 
   opCounter: function(error, doc, isPaused) {
-    if (!error && doc) {
+    if (!error && doc && 'localTime' in doc && 'opcounters' in doc) {
       let key;
       let val;
       let count;

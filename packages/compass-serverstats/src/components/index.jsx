@@ -1,7 +1,9 @@
 const React = require('react');
 const Actions = require('../actions');
 const Performance = require('./performance-component');
-const NavBarComponent = require('./navbar-component');
+const app = require('hadron-app');
+
+// const debug = require('debug')('mongodb-compass:server-stats:RTSSComponent');
 
 /**
  * Represents the component that renders all the server stats.
@@ -15,7 +17,11 @@ class RTSSComponent extends React.Component {
    */
   constructor(props) {
     super(props);
+    this.state = {activeTab: 0};
+    this.DatabasesView = app.appRegistry.getComponent('DatabaseDDL.DatabasesView');
+    this.TabNavBar = app.appRegistry.getComponent('App.TabNavBar');
   }
+
 
   /**
    * Restart the actions on mount.
@@ -24,18 +30,31 @@ class RTSSComponent extends React.Component {
     Actions.restart();
   }
 
+  onTabClicked(idx) {
+    if (this.state.activeTab === idx) {
+      return;
+    }
+    this.setState({activeTab: idx});
+  }
+
   /**
    * Renders the component.
    *
    * @returns {React.Component} The component.
    */
   render() {
+    const performanceView = <Performance interval={this.props.interval} />;
+    const databasesView = <this.DatabasesView />;
     return (
       <div className="rtss">
-        <NavBarComponent/>
-        <div className="rtss-performance">
-          <Performance interval={this.props.interval}/>
-        </div>
+        <this.TabNavBar
+          theme="light"
+          tabs={['Databases', 'Performance']}
+          views={[databasesView, performanceView]}
+          activeTabIndex={this.state.activeTab}
+          onTabClicked={this.onTabClicked.bind(this)}
+          className="rt-nav"
+        />
       </div>
     );
   }
