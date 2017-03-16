@@ -106,17 +106,6 @@ class EditableElement extends React.Component {
   }
 
   /**
-   * Unsubscribe from the events.
-   */
-  componentWillUnmount() {
-    this.element.removeListener(Element.Events.Added, this.unsubscribeAdded);
-    this.element.removeListener(Element.Events.Converted, this.unsubscribeConverted);
-    this.element.removeListener(Element.Events.Edited, this.unsubscribeEdited);
-    this.element.removeListener(Element.Events.Removed, this.unsubscribeRemoved);
-    this.element.removeListener(Element.Events.Reverted, this.unsubscribeReverted);
-  }
-
-  /**
    * Set the state if the expand all prop changes.
    *
    * @param {Object} nextProps - The next properties.
@@ -125,6 +114,17 @@ class EditableElement extends React.Component {
     if (nextProps.expandAll !== this.state.expandAll) {
       this.setState({ expanded: nextProps.expandAll, expandAll: nextProps.expandAll });
     }
+  }
+
+  /**
+   * Unsubscribe from the events.
+   */
+  componentWillUnmount() {
+    this.element.removeListener(Element.Events.Added, this.unsubscribeAdded);
+    this.element.removeListener(Element.Events.Converted, this.unsubscribeConverted);
+    this.element.removeListener(Element.Events.Edited, this.unsubscribeEdited);
+    this.element.removeListener(Element.Events.Removed, this.unsubscribeRemoved);
+    this.element.removeListener(Element.Events.Reverted, this.unsubscribeReverted);
   }
 
   /**
