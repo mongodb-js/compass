@@ -30,6 +30,25 @@ class InsertDocument extends React.Component {
   }
 
   /**
+   * Subscribe to the events.
+   */
+  componentDidMount() {
+    this.unsubscribeAdded = this.handleModify.bind(this);
+    this.unsubscribeRemoved = this.handleModify.bind(this);
+
+    this.doc.on(Element.Events.Added, this.unsubscribeAdded);
+    this.doc.on(Element.Events.Removed, this.unsubscribeRemoved);
+  }
+
+  /**
+   * Unsubscribe from the events.
+   */
+  componentWillUnmount() {
+    this.doc.removeListener(Element.Events.Added, this.unsubscribeAdded);
+    this.doc.removeListener(Element.Events.Removed, this.unsubscribeRemoved);
+  }
+
+  /**
    * Handle modifications to the document.
    */
   handleModify() {

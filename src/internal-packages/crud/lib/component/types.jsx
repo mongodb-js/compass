@@ -11,6 +11,11 @@ require('bootstrap/js/dropdown');
 const OBJECT = 'Object';
 
 /**
+ * Array constant.
+ */
+const ARRAY = 'Array';
+
+/**
  * The version at which high precision values are available.
  */
 const HP_VERSION = '3.4.0';
@@ -50,15 +55,7 @@ class Types extends React.Component {
    * @returns {Object} The cast value.
    */
   castableValue() {
-    if (this.element.elements) {
-      if (this.element.currentType === OBJECT) {
-        return {};
-      }
-      return _.map(this.element.elements, (element) => {
-        return element.currentValue;
-      });
-    }
-    return this.element.currentValue;
+    return this.element.generateObject();
   }
 
   /**
@@ -70,6 +67,9 @@ class Types extends React.Component {
     const newType = evt.target.innerText;
     if (newType === OBJECT) {
       this.element.edit('{');
+      this.element.next();
+    } else if (newType === ARRAY) {
+      this.element.edit('[');
       this.element.next();
     } else {
       this.element.edit(TypeChecker.cast(this.castableValue(), newType));
