@@ -1,10 +1,10 @@
-/* eslint react/no-multi-comp: 0 */
-
+/* eslint react/no-multi-comp: 0 new-cap: 0 */
 const React = require('react');
 const Dropdown = require('react-bootstrap').Dropdown;
 const MenuItem = require('react-bootstrap').MenuItem;
 const FontAwesome = require('react-fontawesome');
 const _ = require('lodash');
+const DragSource = require('react-dnd').DragSource;
 const {AGGREGATE_FUNCTION_ENUM, MEASUREMENT_ENUM, MEASUREMENT_ICON_ENUM} = require('../constants');
 
 // const debug = require('debug')('mongodb-compass:chart:draggable-field');
@@ -31,6 +31,18 @@ CustomToggle.propTypes = {
   children: React.PropTypes.node
 };
 
+const draggableFieldSource = {
+  beginDrag: function(props) {
+    return {};
+  }
+};
+
+function collect(connect, monitor) {
+  return {
+    connectDragSource: connect.dragSource(),
+    isDragging: monitor.isDragging()
+  };
+}
 
 class DraggableField extends React.Component {
 
@@ -107,7 +119,8 @@ class DraggableField extends React.Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
-    return (
+    const connectDragSource = this.props.connectDragSource;
+    return connectDragSource(
       <div className="chart-draggable-field">
         {this.props.enableMenus ? this.renderMeasurementMenu() : <div></div>}
         <div className="chart-draggable-field-label">
@@ -125,9 +138,10 @@ DraggableField.propTypes = {
   aggregate: React.PropTypes.oneOf(_.values(AGGREGATE_FUNCTION_ENUM)),
   enableMenus: React.PropTypes.bool,
   selectAggregate: React.PropTypes.func,
-  selectMeasurement: React.PropTypes.func
+  selectMeasurement: React.PropTypes.func,
+  connectDragSource: React.PropTypes.func
 };
 
 DraggableField.displayName = 'DraggableField';
 
-module.exports = DraggableField;
+module.exports = DragSource(DraggableField.displayName, draggableFieldSource, collect)(DraggableField);
