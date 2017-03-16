@@ -91,6 +91,7 @@ class EditableDocument extends React.Component {
   componentDidMount() {
     this.unsubscribeUpdate = this.updateStore.listen(this.handleStoreUpdate.bind(this));
     this.unsubscribeRemove = this.removeStore.listen(this.handleStoreRemove.bind(this));
+    this.subscribeToDocumentEvents();
   }
 
   /**
@@ -99,6 +100,7 @@ class EditableDocument extends React.Component {
   componentWillUnmount() {
     this.unsubscribeUpdate();
     this.unsubscribeRemove();
+    this.unsubscribeFromDocumentEvents();
   }
 
   /**
@@ -109,11 +111,29 @@ class EditableDocument extends React.Component {
    * @returns {HadronDocument} The hadron document.
    */
   loadDocument(doc) {
-    const hadronDoc = new HadronDocument(doc);
-    hadronDoc.on(Element.Events.Added, this.handleModify.bind(this));
-    hadronDoc.on(Element.Events.Removed, this.handleModify.bind(this));
-    hadronDoc.on(HadronDocument.Events.Cancel, this.handleCancel.bind(this));
-    return hadronDoc;
+    return new HadronDocument(doc);
+  }
+
+  subscribeToDocumentEvents() {
+    this.unsubscribeFromDocumentEvents();
+
+    if (!this.unsubscribeAdded) {
+      this.unsubscribeAdded = this.handleModify.bind(this);
+      this.unsubscribeRemoved = this.handleModify.bind(this);
+      this.unsubscribeCancel = this.handleCancel.bind(this);
+    }
+
+    this.doc.on(Element.Events.Added, this.unsubscribeAdded);
+    this.doc.on(Element.Events.Removed, this.unsubscribeRemoved);
+    this.doc.on(HadronDocument.Events.Cancel, this.unsubscribeCancel);
+  }
+
+  unsubscribeFromDocumentEvents() {
+    if (this.unsubscribeAdded) {
+      this.doc.removeListener(Element.Events.Added, this.unsubscribeAdded);
+      this.doc.removeListener(Element.Events.Removed, this.unsubscribeRemoved);
+      this.doc.removeListener(HadronDocument.Events.Cancel, this.unsubscribeCancel);
+    }
   }
 
   /**
@@ -252,6 +272,7 @@ class EditableDocument extends React.Component {
    */
   handleUpdateSuccess(doc) {
     this.doc = this.loadDocument(doc);
+    this.subscribeToDocumentEvents();
     setTimeout(() => {
       this.setState({ editing: false });
     }, 500);

@@ -73,12 +73,6 @@ class DocumentFooter extends React.Component {
     this.doc = props.doc;
     this.updateStore = props.updateStore;
     this.actions = props.actions;
-
-    this.doc.on(Element.Events.Added, this.handleModification.bind(this));
-    this.doc.on(Element.Events.Edited, this.handleModification.bind(this));
-    this.doc.on(Element.Events.Removed, this.handleModification.bind(this));
-    this.doc.on(Element.Events.Reverted, this.handleModification.bind(this));
-
     this.state = { mode: VIEWING, message: EMPTY };
   }
 
@@ -87,6 +81,16 @@ class DocumentFooter extends React.Component {
    */
   componentDidMount() {
     this.unsubscribeUpdate = this.updateStore.listen(this.handleStoreUpdate.bind(this));
+
+    this.unsubscribeAdded = this.handleModification.bind(this);
+    this.unsubscribeEdited = this.handleModification.bind(this);
+    this.unsubscribeRemoved = this.handleModification.bind(this);
+    this.unsubscribeReverted = this.handleModification.bind(this);
+
+    this.doc.on(Element.Events.Added, this.unsubscribeAdded);
+    this.doc.on(Element.Events.Edited, this.unsubscribeEdited);
+    this.doc.on(Element.Events.Removed, this.unsubscribeRemoved);
+    this.doc.on(Element.Events.Reverted, this.unsubscribeReverted);
   }
 
   /**
@@ -94,6 +98,10 @@ class DocumentFooter extends React.Component {
    */
   componentWillUnmount() {
     this.unsubscribeUpdate();
+    this.doc.removeListener(Element.Events.Added, this.unsubscribeAdded);
+    this.doc.removeListener(Element.Events.Edited, this.unsubscribeEdited);
+    this.doc.removeListener(Element.Events.Removed, this.unsubscribeRemoved);
+    this.doc.removeListener(Element.Events.Reverted, this.unsubscribeReverted);
   }
 
   /**
