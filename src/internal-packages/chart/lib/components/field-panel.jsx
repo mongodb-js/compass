@@ -32,7 +32,8 @@ class FieldPanel extends React.Component {
 
 FieldPanel.propTypes = {
   fieldsCache: React.PropTypes.object,
-  rootFields: React.PropTypes.array
+  rootFields: React.PropTypes.array,
+  actions: React.PropTypes.object
 };
 
 FieldPanel.defaultProps = {

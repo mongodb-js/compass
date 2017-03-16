@@ -60,7 +60,8 @@ class FieldPanelItem extends React.Component {
         />)
         :
         (<DraggableField key={this.props.fieldPath}
-          fieldName={this.props.fieldsCache[this.props.fieldPath].name}/>);
+          fieldName={this.props.fieldsCache[this.props.fieldPath].name}
+        />);
 
     return view;
   }

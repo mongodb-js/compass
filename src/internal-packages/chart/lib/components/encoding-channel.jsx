@@ -2,15 +2,21 @@
 const React = require('react');
 const DropTarget = require('react-dnd').DropTarget;
 const _ = require('lodash');
-const Actions = require('../actions');
 const DraggableField = require('./draggable-field');
 
 // const debug = require('debug')('mongodb-compass:chart:encoding-channel');
 
+/**
+ * Drop target for react-dnd
+ * @see http://react-dnd.github.io/react-dnd/docs-drop-target.html
+ * @type {Object}
+ */
 const encodingChannelTarget = {
   drop: function(props, monitor) {
-    // do the action...
-    console.log('dropping the base...');
+    const item = monitor.getItem();
+    const channelName = props.channelName;
+    console.log('encodingChannelTarget: ', channelName, item.fieldName);
+    props.actions.mapFieldToChannel(item.fieldName, channelName);
   }
 };
 
@@ -26,14 +32,6 @@ function collect(connect, monitor) {
  * and whether the user has encoded a specific field into it.
  */
 class EncodingChannel extends React.Component {
-
-  static onDropField(maybeSource) {
-    // TODO: Implement Drag'N'Drop and this transform, COMPASS-709 ...
-    const channel = maybeSource;
-    const field = maybeSource;
-    Actions.mapFieldToChannel(field, channel);
-    // TODO: Swap fields if source DraggableField is the ChartPanel, like http://vega.github.io/polestar/
-  }
 
   onSelectAggregate(aggregate) {
     const channel = this.props.channelName;
@@ -63,20 +61,6 @@ class EncodingChannel extends React.Component {
     );
   }
 
-  renderOverlay(colour) {
-    return (
-      <div style={{position: 'absolute',
-        top: 0,
-        left: 0,
-        height: '100%',
-        width: '100%',
-        zIndex: 1,
-        opacity: 0.5,
-        backgroundColor: colour
-      }}/>
-    );
-  }
-
   render() {
     // TODO: Add required/optional CSS to labelClassNames
     // const cssOptional = this.props.optional === 'required' ? CSS : CSS;
@@ -91,10 +75,10 @@ class EncodingChannel extends React.Component {
         <label className={labelClassNames} htmlFor={chartChannelId}>
           {this.props.channelName}
         </label>
-        <div id={chartChannelId} className="chart-encoding-channel-droppable ">
+        <div id={chartChannelId} className="chart-encoding-channel-droppable">
           {this.renderField()}
         </div>
-        {isOver && this.renderOverlay('green')}
+        {isOver}
       </div>
     );
   }

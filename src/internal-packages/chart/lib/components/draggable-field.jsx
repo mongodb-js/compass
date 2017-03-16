@@ -33,7 +33,7 @@ CustomToggle.propTypes = {
 
 const draggableFieldSource = {
   beginDrag: function(props) {
-    return {};
+    return {fieldName: props.fieldName};
   }
 };
 
