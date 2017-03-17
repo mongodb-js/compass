@@ -1,4 +1,4 @@
-/* eslint no-unused-vars: 0, no-unused-expressions: 0 */
+/* eslint no-unused-vars: 0, no-unused-expressions: 0, new-cap: 0 */
 const app = require('hadron-app');
 const chai = require('chai');
 const chaiEnzyme = require('chai-enzyme');
@@ -7,19 +7,32 @@ const React = require('react');
 const sinon = require('sinon');
 const { mount } = require('enzyme');
 const AppRegistry = require('hadron-app-registry');
-
+const {DragDropContext} = require('react-dnd');
 // use chai-enzyme assertions, see https://github.com/producthunt/chai-enzyme
 chai.use(chaiEnzyme());
 
 
 describe('<FieldPanel />', function() {
-  beforeEach(function() {
+  before(function() {
     // Mock the AppRegistry with a new one so tests don't complain about
     // appRegistry.getComponent (i.e. appRegistry being undefined)
     app.appRegistry = new AppRegistry();
 
+    const FieldPanel = require('../../src/internal-packages/chart/lib/components/field-panel');
 
-    this.FieldPanel = require('../../src/internal-packages/chart/lib/components/field-panel');
+    // @KeyboardTsundoku: fake backend is required to prevent the error
+    // 'Cannot have two HTML5 backends at the same time.''
+    const fakeBackend = {
+      setup: () => {},
+      teardown: () => {},
+      connectDropTarget: () => {},
+      connectDragSource: () => {}
+    };
+
+    // @KeyboardTsundoku: wrapping field panel in DragDropContext to avoid the error
+    // "Invariant Violation: Could not find the drag and drop manager in the context
+    //  of DraggableField. Make sure to wrap the top-level component of your app with DragDropContext."
+    this.FieldPanel = DragDropContext(() => {return fakeBackend;})(FieldPanel);
     this.FieldPanelItem = require('../../src/internal-packages/chart/lib/components/field-panel-item');
   });
 
