@@ -12,7 +12,7 @@ describe('Compass Functional Test Suite #spectron', function() {
     require('./tests/connect.test');
   });
 
-  describe.skip('Performance tab', function() {
+  describe('Performance tab', function() {
     require('./tests/rtss.test');
   });
 
