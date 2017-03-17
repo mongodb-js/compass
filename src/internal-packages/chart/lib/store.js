@@ -135,7 +135,7 @@ const ChartStore = Reflux.createStore({
    */
   _refreshDataCache(query) {
     const ns = toNS(query.ns);
-    if (!ns.database || !ns.collection) {
+    if (!ns.collection) {
       return;
     }
 
@@ -155,10 +155,12 @@ const ChartStore = Reflux.createStore({
         // @todo handle error better? what kind of errors can happen here?
         throw error;
       }
-      this.setState({
+      const state = Object.assign({
         queryCache: query,
+        channels: {},
         dataCache: documents
-      });
+      }, this.getInitialChartState());
+      this.setState(state);
     });
   },
 
