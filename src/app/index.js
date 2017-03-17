@@ -1,5 +1,7 @@
 /* eslint no-console:0 */
-console.log(`Start renderer - begin loading index.js: ${window.performance.now()} ms`);
+const marky = require('marky');
+marky.mark('Time to Connect rendered');
+marky.mark('Time to user can Click Connect');
 const pkg = require('../../package.json');
 
 /**
@@ -44,7 +46,9 @@ var User = require('./models/user');
 
 require('./menu-renderer');
 var Router = require('./router');
+marky.mark('Migrations');
 var migrateApp = require('./migrations');
+marky.stop('Migrations');
 var metricsSetup = require('./metrics');
 
 var React = require('react');
@@ -66,9 +70,9 @@ var debug = require('debug')('mongodb-compass:app');
  * @note: Style Manager should get set up first so styles are in place before
  * the packages are activated.
  */
+marky.mark('Loading styles');
 require('./setup-style-manager');
-
-console.log(`Start renderer - internal-package styles loaded: ${window.performance.now()} ms`);
+marky.stop('Loading styles');
 
 /**
  * @note: Durran: the registry and package manager are set up here in
@@ -249,12 +253,15 @@ var Application = View.extend({
    * Compass can connect to the MongoDB instance faster.
    */
   postRender: function() {
-    console.log(`Start renderer - caching started: ${window.performance.now()} ms`);
+    marky.mark('Pre-loading additional modules required to connect');
+    // Seems like this doesn't have as much of an effect as we'd hoped as
+    // most of the expense has already occurred. You can see it take 1700ms
+    // or so if you move this to the top of the file.
     require('backoff');
     require('local-links');
     require('./models/mongodb-instance');
     require('mongodb-data-service');
-    console.log(`Start renderer - caching complete: ${window.performance.now()} ms`);
+    marky.stop('Pre-loading additional modules required to connect');
   },
   /**
    * Called a soon as the DOM is ready so we can
@@ -452,11 +459,11 @@ app.extend({
       ipc.call('window:renderer-ready');
 
       // as soon as dom is ready, render and set up the rest
-      console.log(`Start renderer - render begin: ${window.performance.now()} ms`);
       state.render();
-      console.log(`Start renderer - render done: ${window.performance.now()} ms`);
+      marky.stop('Time to Connect rendered');
       state.startRouter();
       state.postRender();
+      marky.stop('Time to user can Click Connect');
     });
   }
 });
