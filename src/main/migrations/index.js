@@ -1,24 +1,35 @@
-var pkg = require('../../../package.json');
-var Model = require('ampersand-model');
-var storageMixin = require('storage-mixin');
-var electronApp = require('electron').app;
+const path = require('path');
+const pkg = require('../../../package.json');
+const electronApp = require('electron').app;
+const semver = require('semver');
 
-var migrations = {
-  '1.2.0-beta.1': require('./1.2.0')
-};
-
-var migrate = require('app-migrations')(migrations);
-
-var debug = require('debug')('mongodb-compass:main:migrations');
+const debug = require('debug')('mongodb-compass:main:migrations');
 
 function getPreviousVersion(done) {
-  var DiskPrefModel = Model.extend(storageMixin, {
+  const userDataPath = electronApp.getPath('userData');
+  const generalPath = path.join(userDataPath, 'AppPreferences', 'General.json');
+  try {
+    const generalPackage = require(generalPath);
+    const lastKnownVersion = generalPackage.lastKnownVersion;
+    debug('lastKnownVersion %s', lastKnownVersion);
+    if (typeof(lastKnownVersion) === 'string') {
+      return done(null, lastKnownVersion);
+    }
+  } catch (e) {
+    // Just use Ampersand Model and run migrations as in the past,
+    // perhaps remove this when we are sure our users have upgraded to a
+    // recent version of Compass so they don't lose their connection favorites
+  }
+
+  const Model = require('ampersand-model');
+  const storageMixin = require('storage-mixin');
+  const DiskPrefModel = Model.extend(storageMixin, {
     extraProperties: 'ignore',
     idAttribute: 'id',
     namespace: 'AppPreferences',
     storage: {
       backend: 'disk',
-      basepath: electronApp.getPath('userData')
+      basepath: userDataPath
     },
     props: {
       id: ['string', true, 'General'],
@@ -27,7 +38,7 @@ function getPreviousVersion(done) {
   });
 
   // try to get previous version from disk-backed (JSON) model, else return 0.0.0
-  var diskPrefs = new DiskPrefModel();
+  const diskPrefs = new DiskPrefModel();
   diskPrefs.once('sync', function(ret) {
     return done(null, ret.lastKnownVersion || '0.0.0');
   });
@@ -39,8 +50,16 @@ module.exports = function(done) {
     if (err) {
       return done(err);
     }
-    var currentVersion = pkg.version;
+    const currentVersion = pkg.version;
     debug('main process migrations from %s to %s', previousVersion, currentVersion);
+    if (semver.eq(previousVersion, currentVersion)) {
+      debug('main process - skipping migrations which have already been run');
+      return done();
+    }
+    const migrations = {
+      '1.2.0-beta.1': require('./1.2.0')
+    };
+    const migrate = require('app-migrations')(migrations);
     migrate(previousVersion, currentVersion, done);
   });
 };
