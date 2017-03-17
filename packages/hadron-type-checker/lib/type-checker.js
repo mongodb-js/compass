@@ -129,6 +129,13 @@ function toDecimal128(object) {
   return Decimal128.fromString(String(object));
 }
 
+function toObjectID(object) {
+  if (object === '') {
+    return new bson.ObjectID();
+  }
+  return bson.ObjectID.createFromHexString(object);
+}
+
 /**
  * The functions to cast to a type.
  */
@@ -145,7 +152,8 @@ const CASTERS = {
   'Boolean': toBoolean,
   'String': toString,
   'Object': toObject,
-  'Array': toArray
+  'Array': toArray,
+  'ObjectID': toObjectID
 };
 
 /**
@@ -258,7 +266,7 @@ const DATE_CHECK = new DateCheck();
  * The various string tests.
  */
 const STRING_TESTS = [
-  new Test(/^$/, [ 'String', 'Null', 'MinKey', 'MaxKey', 'Object', 'Array' ]),
+  new Test(/^$/, [ 'String', 'Null', 'MinKey', 'MaxKey', 'Object', 'Array', 'ObjectID']),
   new Test(INT32_CHECK, [ 'Int32', 'Int64', 'Double', 'String', 'Object', 'Array' ]),
   new Test(INT_DBL_CHECK, [ 'Int64', 'Double', 'String', 'Object', 'Array' ]),
   new Test(INT64_CHECK, [ 'Int64', 'String', 'Object', 'Array' ]),
@@ -267,14 +275,15 @@ const STRING_TESTS = [
   new Test(/^(undefined)$/, [ 'Undefined', 'String', 'Object', 'Array' ]),
   new Test(/^(true|false)$/, [ 'Boolean', 'String', 'Object', 'Array' ]),
   new Test(/^\/(.*)\/$/, [ 'BSONRegExp', 'String', 'Object', 'Array' ]),
-  new Test(DATE_CHECK, [ 'Date', 'String', 'Object', 'Array' ])
+  new Test(DATE_CHECK, [ 'Date', 'String', 'Object', 'Array' ]),
+  new Test(/(^$)|^[A-Fa-f0-9]{24}$/, [ 'String', 'Object', 'Array', 'ObjectID' ])
 ];
 
 /**
  * String tests with high precision support.
  */
 const HP_STRING_TESTS = [
-  new Test(/^$/, [ 'String', 'Null', 'MinKey', 'MaxKey', 'Object', 'Array' ]),
+  new Test(/^$/, [ 'String', 'Null', 'MinKey', 'MaxKey', 'Object', 'Array', 'ObjectID' ]),
   new Test(INT32_CHECK, [ 'Int32', 'Int64', 'Double', 'Decimal128', 'String', 'Object', 'Array' ]),
   new Test(INT_DBL_CHECK, [ 'Int64', 'Double', 'Decimal128', 'String', 'Object', 'Array' ]),
   new Test(INT64_CHECK, [ 'Int64', 'Decimal128', 'String', 'Object', 'Array' ]),
@@ -284,7 +293,8 @@ const HP_STRING_TESTS = [
   new Test(/^(undefined)$/, [ 'Undefined', 'String', 'Object', 'Array' ]),
   new Test(/^(true|false)$/, [ 'Boolean', 'String', 'Object', 'Array' ]),
   new Test(/^\/(.*)\/$/, [ 'BSONRegExp', 'String', 'Object', 'Array' ]),
-  new Test(DATE_CHECK, [ 'Date', 'String', 'Object', 'Array' ])
+  new Test(DATE_CHECK, [ 'Date', 'String', 'Object', 'Array' ]),
+  new Test(/(^$)|^[A-Fa-f0-9]{24}$/, [ 'String', 'Object', 'Array', 'ObjectID' ])
 ];
 
 /**
@@ -355,7 +365,8 @@ class TypeChecker {
   /**
    * Get a list of types the object can be cast to.
    *
-   * @param {Object} - The object.
+   * @param {Object} object - The object.
+   * @param {Boolean} highPrecisionSupport - If high precision is supported or not.
    *
    * @returns {Array} The available types.
    */
