@@ -65,17 +65,17 @@ class EncodingChannel extends React.Component {
     const chartChannelId = `chart-panel-channel-${this.props.channelName}`;
 
     const connectDropTarget = this.props.connectDropTarget;
-    const isOver = this.props.isOver;
-
+    const droppableClass = this.props.isOver ?
+      'chart-encoding-channel-droppable-over'
+      : 'chart-encoding-channel-droppable';
     return connectDropTarget(
       <div className="chart-encoding-channel">
         <label className={labelClassNames} htmlFor={chartChannelId}>
           {this.props.channelName}
         </label>
-        <div id={chartChannelId} className="chart-encoding-channel-droppable">
+        <div id={chartChannelId} className={droppableClass}>
           {this.renderField()}
         </div>
-        {isOver}
       </div>
     );
   }
