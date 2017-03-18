@@ -4,55 +4,55 @@ describe('Compass Functional Test Suite #spectron', function() {
     process.env.NODE_ENV = 'testing';
   });
 
-  describe('Application Launch', function() {
+  describe('#launch', function() {
     require('./tests/launch.test');
   });
 
-  describe('Connecting to an Instance', function() {
+  describe('#connect', function() {
     require('./tests/connect.test');
   });
 
-  describe('Performance tab', function() {
+  describe('#rtss', function() {
     require('./tests/rtss.test');
   });
 
-  describe('Creating & Deleting Databases', function() {
+  describe('#databases', function() {
     require('./tests/databases.test');
   });
 
-  describe('Sidebar', function() {
+  describe('#sidebar', function() {
     require('./tests/sidebar.test');
   });
 
-  describe('Creating & Deleting Collections', function() {
+  describe('#collections', function() {
     require('./tests/collections.test');
   });
 
-  describe.skip('CRUD', function() {
+  describe.skip('#crud', function() {
     require('./tests/crud.test');
   });
 
-  describe.skip('Schema', function() {
+  describe.skip('#schema', function() {
     require('./tests/schema.test');
   });
 
-  describe.skip('Explain', function() {
+  describe.skip('#explain', function() {
     require('./tests/explain.test');
   });
 
-  describe.skip('Indexes', function() {
+  describe.skip('#indexes', function() {
     require('./tests/indexes.test');
   });
 
-  describe.skip('Validation', function() {
+  describe.skip('#validation', function() {
     require('./tests/validation.test');
   });
 
-  describe.skip('Data Service', function() {
+  describe.skip('#data-service', function() {
     require('./tests/data-service.test');
   });
 
-  describe.skip('Query Bar', function() {
-    require('./tests/querybar.test.js');
+  describe.skip('#query-bar', function() {
+    require('./tests/query-bar.test.js');
   });
 });

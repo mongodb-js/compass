@@ -7,7 +7,7 @@ const Connection = require('mongodb-connection-model');
  */
 const CONNECTION = new Connection({ hostname: '127.0.0.1', port: 27018, ns: 'music' });
 
-context('when a MongoDB instance is running', function() {
+context('Data Service', function() {
   this.slow(30000);
   this.timeout(60000);
   let app = null;

@@ -1,7 +1,7 @@
 const { launchCompass, quitCompass} = require('../support/spectron-support');
 
 
-context('when a MongoDB instance is running', function() {
+context('Sidebar', function() {
   this.slow(30000);
   this.timeout(60000);
   let app = null;
