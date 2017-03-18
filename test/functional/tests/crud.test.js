@@ -9,8 +9,14 @@ context('CRUD', function() {
     launchCompass().then(function(application) {
       app = application;
       client = application.client;
-      client.connectToCompass({ hostname: 'localhost', port: 27018 });
-      done();
+      client
+        .connectToCompass({ hostname: 'localhost', port: 27018 })
+        .waitForWindowTitle('MongoDB Compass - localhost:27018')
+        .createDatabaseCollection('music', 'artists')
+        .goToCollection('music', 'artists')
+        .then(() => {
+          done();
+        });
     });
   });
 

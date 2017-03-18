@@ -28,7 +28,7 @@ describe('Compass Functional Test Suite #spectron', function() {
     require('./tests/collections.test');
   });
 
-  describe.skip('#crud', function() {
+  describe('#crud', function() {
     require('./tests/crud.test');
   });
 
