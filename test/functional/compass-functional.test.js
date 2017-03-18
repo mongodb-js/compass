@@ -16,7 +16,7 @@ describe('Compass Functional Test Suite #spectron', function() {
     require('./tests/rtss.test');
   });
 
-  describe.skip('Creating Database', function() {
+  describe('Creating Database', function() {
     require('./tests/create-databases.test');
   });
 

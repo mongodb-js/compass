@@ -5,12 +5,16 @@ context('when a MongoDB instance is running', function() {
   this.timeout(60000);
   let app = null;
   let client = null;
+
   before(function(done) {
     launchCompass().then(function(application) {
       app = application;
       client = application.client;
-      client.connectToCompass({ hostname: 'localhost', port: 27018 });
-      done();
+      client
+        .connectToCompass({ hostname: 'localhost', port: 27018 })
+        .waitForWindowTitle('MongoDB Compass - localhost:27018').then(() => {
+          done();
+        });
     });
   });
 
@@ -31,7 +35,6 @@ context('when a MongoDB instance is running', function() {
     context('when the escape key is pressed', function() {
       it('closes the create databases modal', function() {
         return client
-          // .clickDatabasesTab()
           .clickCreateDatabaseButton()
           .waitForCreateDatabaseModal()
           .pressEscape()
@@ -43,7 +46,6 @@ context('when a MongoDB instance is running', function() {
     context('when the database name is invalid', function() {
       it('displays the error message', function() {
         return client
-          .clickDatabasesTab()
           .clickCreateDatabaseButton()
           .waitForCreateDatabaseModal()
           .inputCreateDatabaseDetails({ name: '$test', collectionName: 'test' })
@@ -60,7 +62,7 @@ context('when a MongoDB instance is running', function() {
           .inputCreateDatabaseDetails({ name: 'music', collectionName: 'artists' })
           .clickCreateDatabaseModalButton()
           .waitForDatabaseCreation('music')
-          .getHomeViewDatabaseNames()
+          .getDatabasesTabDatabaseNames()
           .should.eventually.include('music');
       });
 
