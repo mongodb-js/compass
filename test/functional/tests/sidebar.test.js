@@ -11,8 +11,13 @@ context('when a MongoDB instance is running', function() {
     launchCompass().then(function(application) {
       app = application;
       client = application.client;
-      client.connectToCompass({ hostname: 'localhost', port: 27018 });
-      done();
+      client
+        .connectToCompass({ hostname: 'localhost', port: 27018 })
+        .waitForWindowTitle('MongoDB Compass - localhost:27018')
+        .createDatabaseCollection('music', 'artists')
+        .then(() => {
+          done();
+        });
     });
   });
 

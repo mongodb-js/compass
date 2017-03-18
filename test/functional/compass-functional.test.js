@@ -20,7 +20,7 @@ describe('Compass Functional Test Suite #spectron', function() {
     require('./tests/create-databases.test');
   });
 
-  describe.skip('Sidebar', function() {
+  describe('Sidebar', function() {
     require('./tests/sidebar.test');
   });
 
@@ -32,7 +32,7 @@ describe('Compass Functional Test Suite #spectron', function() {
     require('./tests/collections.test');
   });
 
-  describe('Query Bar', function() {
+  describe.skip('Query Bar', function() {
     require('./tests/querybar.test.js');
   });
 
