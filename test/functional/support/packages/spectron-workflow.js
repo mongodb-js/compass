@@ -15,7 +15,7 @@ function addWorkflowCommands(client) {
   });
 
   /**
-   * Create database/collections
+   * Create database/collection
    */
   client.addCommand('createDatabaseCollection', function(database, collection) {
     return this
@@ -24,6 +24,17 @@ function addWorkflowCommands(client) {
       .inputCreateDatabaseDetails({ name: database, collectionName: collection })
       .clickCreateDatabaseModalButton()
       .waitForDatabaseCreation(database);
+  });
+
+  /**
+   * Go to collection
+   */
+  client.addCommand('goToCollection', function(database, collection) {
+    return this
+      .clickDatabaseInSidebar(database)
+      .waitForDatabaseView()
+      .clickCollectionInSidebar(`${database}.${collection}`)
+      .waitForStatusBar();
   });
 }
 
