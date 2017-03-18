@@ -28,10 +28,6 @@ describe('Compass Functional Test Suite #spectron', function() {
     require('./tests/collections.test');
   });
 
-  describe.skip('Query Bar', function() {
-    require('./tests/querybar.test.js');
-  });
-
   describe.skip('CRUD', function() {
     require('./tests/crud.test');
   });
@@ -54,5 +50,9 @@ describe('Compass Functional Test Suite #spectron', function() {
 
   describe.skip('Data Service', function() {
     require('./tests/data-service.test');
+  });
+
+  describe.skip('Query Bar', function() {
+    require('./tests/querybar.test.js');
   });
 });
