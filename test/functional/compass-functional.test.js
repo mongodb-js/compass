@@ -16,16 +16,12 @@ describe('Compass Functional Test Suite #spectron', function() {
     require('./tests/rtss.test');
   });
 
-  describe('Creating Database', function() {
-    require('./tests/create-databases.test');
+  describe('Creating & Deleting Databases', function() {
+    require('./tests/databases.test');
   });
 
   describe('Sidebar', function() {
     require('./tests/sidebar.test');
-  });
-
-  describe.skip('Deleting Database', function() {
-    require('./tests/delete-databases.test');
   });
 
   describe.skip('Creating & Deleting Collections', function() {
