@@ -24,7 +24,7 @@ describe('Compass Functional Test Suite #spectron', function() {
     require('./tests/sidebar.test');
   });
 
-  describe.skip('Creating & Deleting Collections', function() {
+  describe('Creating & Deleting Collections', function() {
     require('./tests/collections.test');
   });
 
