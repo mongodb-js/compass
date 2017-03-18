@@ -1,17 +1,29 @@
 /**
- * Add commands to the client related to workflows and common tasks.
+ * Add workflow shortcut commands for repeatable tasks.
  *
  * @param {Client} client - The client.
  */
 function addWorkflowCommands(client) {
   /**
-   * Press escape
+   * Connect to Compass
    */
   client.addCommand('connectToCompass', function(connection) {
     return this
       .inputConnectionDetails(connection)
       .clickConnectButton()
       .waitForStatusBar();
+  });
+
+  /**
+   * Create database/collections
+   */
+  client.addCommand('createDatabaseCollection', function(database, collection) {
+    return this
+      .clickCreateDatabaseButton()
+      .waitForCreateDatabaseModal()
+      .inputCreateDatabaseDetails({ name: database, collectionName: collection })
+      .clickCreateDatabaseModalButton()
+      .waitForDatabaseCreation(database);
   });
 }
 
