@@ -32,7 +32,7 @@ describe('Compass Functional Test Suite #spectron', function() {
     require('./tests/crud.test');
   });
 
-  describe.skip('#schema', function() {
+  describe('#schema', function() {
     require('./tests/schema.test');
   });
 
