@@ -205,6 +205,7 @@
   },
   "devDependencies": {
     "babel-eslint": "^6.0.4",
+    "babel-preset-es2015": "^6.24.0",
     "babel-register": "^6.23.0",
     "chai": "^3.4.1",
     "chai-as-promised": "^5.1.0",
