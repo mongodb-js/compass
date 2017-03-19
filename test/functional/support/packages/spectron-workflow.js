@@ -8,10 +8,12 @@ function addWorkflowCommands(client) {
    * Connect to Compass
    */
   client.addCommand('connectToCompass', function(connection) {
+    const title = `MongoDB Compass - ${connection.hostname}:${connection.port}`;
     return this
       .inputConnectionDetails(connection)
       .clickConnectButton()
-      .waitForStatusBar();
+      .waitForStatusBar()
+      .waitForWindowTitle(title);
   });
 
   /**

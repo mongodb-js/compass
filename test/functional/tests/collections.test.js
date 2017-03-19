@@ -11,7 +11,6 @@ context('Creating & Deleting Collections', function() {
       client = application.client;
       client
         .connectToCompass({ hostname: 'localhost', port: 27018 })
-        .waitForWindowTitle('MongoDB Compass - localhost:27018')
         .createDatabaseCollection('music', 'artists')
         .then(() => {
           done();
