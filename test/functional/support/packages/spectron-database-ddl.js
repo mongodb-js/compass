@@ -45,6 +45,17 @@ function addWaitDatabaseDDLCommands(client) {
   client.addCommand('waitForDropDatabasesModalHidden', function() {
     return this.waitForVisibleInCompass(selector('drop-database-modal'), true);
   });
+
+  /**
+   * Wait until database is deleted
+   */
+  client.addCommand('waitUntilDatabaseDeletion', function(name) {
+    return this.waitUntilInCompass(() => {
+      return client.getDatabasesTabDatabaseNames().then((databases) => {
+        return !databases.includes(name);
+      });
+    });
+  });
 }
 
 
