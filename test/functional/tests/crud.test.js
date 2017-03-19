@@ -21,7 +21,10 @@ context('CRUD', function() {
   });
 
   after(function(done) {
-    quitCompass(app, done);
+    client
+      .teardownTest('music').then(() => {
+        quitCompass(app, done);
+      });
   });
 
   context('when inserting a document', function() {
