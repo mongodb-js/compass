@@ -21,7 +21,10 @@ context('Sidebar', function() {
   });
 
   after(function(done) {
-    quitCompass(app, done);
+    client
+      .teardownTest('music').then(() => {
+        quitCompass(app, done);
+      });
   });
 
   context('when entering a filter in the sidebar', function() {
