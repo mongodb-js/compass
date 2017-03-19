@@ -9,22 +9,38 @@ context('Explain', function() {
     launchCompass().then(function(application) {
       app = application;
       client = application.client;
-      client.connectToCompass({ hostname: 'localhost', port: 27018 });
-      done();
+      client
+        .connectToCompass({ hostname: 'localhost', port: 27018 })
+        .waitForWindowTitle('MongoDB Compass - localhost:27018')
+        .createDatabaseCollection('music', 'artists')
+        .goToCollection('music', 'artists')
+        .insertDocument({
+          'name': 'Aphex Twin',
+          'genre': 'Electronic',
+          'location': 'London'
+        }, 1)
+        .then(() => {
+          done();
+        });
     });
   });
 
   after(function(done) {
-    quitCompass(app, done);
+    client
+      .teardownTest('music').then(() => {
+        quitCompass(app, done);
+      });
   });
 
   context('when applying a filter', function() {
-    // const filter = '{"name":"Bonobo"}';
+    const filter = '{"name":"Bonobo"}';
 
     context('when viewing the explain plan view', function() {
-      it('updates the documents returned', function() {
+      it('applies the filter in the explain plan tab', function() {
         return client
           .clickExplainPlanTab()
+          .inputFilterFromExplainPlanTab(filter)
+          .clickApplyFilterButtonFromExplainPlanTab()
           .waitForStatusBar()
           .getExplainDocumentsReturned()
           .should.eventually.equal('0');
