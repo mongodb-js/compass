@@ -101,7 +101,7 @@ context('Creating & Deleting Databases', function() {
         .waitForDropDatabaseModal()
         .inputDropDatabaseName('temp')
         .clickDropDatabaseModalButton()
-        .waitForDatabaseDeletion('temp')
+        .waitUntilDatabaseDeletion('temp')
         .getDatabasesTabDatabaseNames()
         .should.not.eventually.include('temp');
     });
@@ -126,7 +126,7 @@ context('Creating & Deleting Databases', function() {
         return client
         .inputDropDatabaseName('temp')
         .pressEnter()
-        .waitForDatabaseDeletion('temp')
+        .waitUntilDatabaseDeletion('temp')
         .getDatabasesTabDatabaseNames()
         .should.not.eventually.include('temp');
       });
