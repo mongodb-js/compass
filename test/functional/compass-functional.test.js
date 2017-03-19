@@ -36,7 +36,7 @@ describe('Compass Functional Test Suite #spectron', function() {
     require('./tests/schema.test');
   });
 
-  describe.skip('#explain', function() {
+  describe('#explain', function() {
     require('./tests/explain.test');
   });
 
