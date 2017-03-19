@@ -17,6 +17,14 @@ function addGetInstanceHeaderCommands(client) {
   });
 }
 
+function addClickInstanceHeaderCommands(client) {
+  /**
+   * Click on the Instance header.
+   */
+  client.addCommand('clickInstanceHeader', function() {
+    return this.click(selector('instance-header-details'));
+  });
+}
 
 /**
  * Add commands to the client related to the Document Validation Tab.
@@ -25,6 +33,7 @@ function addGetInstanceHeaderCommands(client) {
  */
 function addInstanceHeaderCommands(client) {
   addGetInstanceHeaderCommands(client);
+  addClickInstanceHeaderCommands(client);
 }
 
 

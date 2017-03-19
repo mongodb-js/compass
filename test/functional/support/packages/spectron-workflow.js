@@ -36,6 +36,33 @@ function addWorkflowCommands(client) {
       .clickCollectionInSidebar(`${database}.${collection}`)
       .waitForStatusBar();
   });
+
+  /**
+   * Insert document in CRUD view
+   */
+  client.addCommand('insertDocument', function(doc, count) {
+    return this
+      .clickDocumentsTab()
+      .clickInsertDocumentButton()
+      .waitForInsertDocumentModal()
+      .inputNewDocumentDetails(doc)
+      .clickInsertDocumentModalButton()
+      .waitForDocumentInsert(count);
+  });
+
+  /**
+   * Tear down the test by removing the database
+   */
+  client.addCommand('teardownTest', function(database) {
+    return this
+      .waitForStatusBar()
+      .clickInstanceHeader()
+      .clickDeleteDatabaseButton(database)
+      .waitForDropDatabaseModal()
+      .inputDropDatabaseName(database)
+      .clickDropDatabaseModalButton()
+      .waitUntilDatabaseDeletion(database);
+  });
 }
 
 
