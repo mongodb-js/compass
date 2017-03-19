@@ -18,7 +18,10 @@ context('Creating & Deleting Databases', function() {
   });
 
   after(function(done) {
-    quitCompass(app, done);
+    client
+      .teardownTest('music').then(() => {
+        quitCompass(app, done);
+      });
   });
 
   context('when creating a database', function() {
