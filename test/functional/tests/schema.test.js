@@ -26,7 +26,10 @@ context('Schema', function() {
   });
 
   after(function(done) {
-    quitCompass(app, done);
+    client
+      .teardownTest('music').then(() => {
+        quitCompass(app, done);
+      });
   });
 
   context('when applying a filter', function() {

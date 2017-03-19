@@ -19,7 +19,10 @@ context('Creating & Deleting Collections', function() {
   });
 
   after(function(done) {
-    quitCompass(app, done);
+    client
+      .teardownTest('music').then(() => {
+        quitCompass(app, done);
+      });
   });
 
   context('when viewing the database', function() {
