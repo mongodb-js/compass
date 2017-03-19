@@ -27,17 +27,6 @@ function addWaitDatabaseDDLCommands(client) {
     return this.waitForExistInCompass(row);
   });
 
-  /**
-   * Wait for the database with the provided name to be deleted.
-   *
-   * @param {String} name - The database name.
-   */
-  client.addCommand('waitForDatabaseDeletion', function(name) {
-    const base = selector('databases-table');
-    const row = `${base} ${selector('sortable-table-column-0')}[title=${name}]`;
-    return this.waitForExistInCompass(row, true);
-  });
-
   client.addCommand('waitForCreateDatabasesModalHidden', function() {
     return this.waitForVisibleInCompass(selector('create-database-modal'), true);
   });
@@ -47,7 +36,9 @@ function addWaitDatabaseDDLCommands(client) {
   });
 
   /**
-   * Wait until database is deleted
+   * Wait for the database with the provided name to be deleted.
+   *
+   * @param {String} name - The database name.
    */
   client.addCommand('waitUntilDatabaseDeletion', function(name) {
     return this.waitUntilInCompass(() => {
