@@ -60,14 +60,9 @@ function addClickPrivacyCommands(client) {
     return this
       .click(base)
       .waitForVisibleInCompass(base, true)
-      .waitUntilInCompass(function() {
-        return this.getText('div[data-hook=optin-container]').then(function(text) {
-          return text.length === 0;
-        });
-      });
+      .waitForVisibleInCompass('div[data-hook=optin-container]', true);
   });
 }
-
 
 /**
  * Add commands to the client related to the Privacy Settings modal.
