@@ -52,7 +52,7 @@ describe('Compass Functional Test Suite #spectron', function() {
     require('./tests/data-service.test');
   });
 
-  describe.skip('#query-bar', function() {
+  describe('#query-bar', function() {
     require('./tests/query-bar.test.js');
   });
 });
