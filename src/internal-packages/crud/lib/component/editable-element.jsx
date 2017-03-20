@@ -224,6 +224,7 @@ class EditableElement extends React.Component {
           index={index}
           indent={this.props.indent + 16}
           editing={this.props.editing}
+          edit={this.props.edit}
           expandAll={this.props.expandAll}
           rootFieldIndex={0} />
       ));
