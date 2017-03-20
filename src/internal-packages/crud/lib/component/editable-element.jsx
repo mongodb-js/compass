@@ -88,7 +88,8 @@ class EditableElement extends React.Component {
     this.state = {
       expanded: this.props.expandAll,
       expandAll: this.props.expandAll,
-      focusKey: false
+      focusKey: false,
+      focusValue: false
     };
   }
 
@@ -283,6 +284,11 @@ class EditableElement extends React.Component {
     this.setState({focusKey: true});
   }
 
+  focusEditValue() {
+    this.props.edit();
+    this.setState({focusValue: true});
+  }
+
   /**
    * Render the key column.
    *
@@ -339,13 +345,15 @@ class EditableElement extends React.Component {
    */
   renderValue() {
     if (this.props.editing && this.element.isValueEditable()) {
-      return (<EditableValue element={this.element} />);
+      return (<EditableValue element={this.element} isFocused={this.state.focusValue} />);
     }
     const component = getComponent(this.element.currentType);
-    return React.createElement(
+    const reactComponent = React.createElement(
       component,
       { type: this.element.currentType, value: this.element.currentValue }
     );
+
+    return <span onDoubleClick={this.focusEditValue.bind(this)}>{reactComponent}</span>;
   }
 
   /**
@@ -404,7 +412,7 @@ EditableElement.displayName = 'EditableElement';
 
 EditableElement.propTypes = {
   editing: React.PropTypes.bool,
-  edit: React.PropTypes.func.isRequired,
+  edit: React.PropTypes.func,
   element: React.PropTypes.object.isRequired,
   index: React.PropTypes.number,
   indent: React.PropTypes.number,

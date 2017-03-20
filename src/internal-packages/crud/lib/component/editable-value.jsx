@@ -55,7 +55,7 @@ class EditableValue extends React.Component {
    * to the value field.
    */
   componentDidMount() {
-    if (this.isAutoFocusable()) {
+    if (this.isAutoFocusable() || this.props.isFocused) {
       this._node.focus();
     }
   }
@@ -268,7 +268,8 @@ class EditableValue extends React.Component {
 EditableValue.displayName = 'EditableValue';
 
 EditableValue.propTypes = {
-  element: React.PropTypes.object.isRequired
+  element: React.PropTypes.object.isRequired,
+  isFocused: React.PropTypes.bool.isRequired
 };
 
 module.exports = EditableValue;
