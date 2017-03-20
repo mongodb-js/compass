@@ -198,6 +198,16 @@ class EditableElement extends React.Component {
     return style;
   }
 
+  focusEditKey() {
+    this.props.edit();
+    this.setState({focusKey: true});
+  }
+
+  focusEditValue() {
+    this.props.edit();
+    this.setState({focusValue: true});
+  }
+
   /**
    * Get the components for the elements.
    *
@@ -277,16 +287,6 @@ class EditableElement extends React.Component {
     if (this.props.editing) {
       return (<Types element={this.element} />);
     }
-  }
-
-  focusEditKey() {
-    this.props.edit();
-    this.setState({focusKey: true});
-  }
-
-  focusEditValue() {
-    this.props.edit();
-    this.setState({focusValue: true});
   }
 
   /**
