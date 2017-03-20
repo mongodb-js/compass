@@ -10,13 +10,27 @@ context('Validation', function() {
     launchCompass().then(function(application) {
       app = application;
       client = application.client;
-      client.connectToCompass({ hostname: 'localhost', port: 27018 });
-      done();
+      client
+        .connectToCompass({ hostname: 'localhost', port: 27018 })
+        .waitForWindowTitle('MongoDB Compass - localhost:27018')
+        .createDatabaseCollection('music', 'artists')
+        .goToCollection('music', 'artists')
+        .insertDocument({
+          'name': 'Aphex Twin',
+          'genre': 'Electronic',
+          'location': 'London'
+        }, 1)
+        .then(() => {
+          done();
+        });
     });
   });
 
   after(function(done) {
-    quitCompass(app, done);
+    client
+      .teardownTest('music').then(() => {
+        quitCompass(app, done);
+      });
   });
 
   context('when creating a validation rule', function() {
