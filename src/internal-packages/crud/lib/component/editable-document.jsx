@@ -387,6 +387,7 @@ class EditableDocument extends React.Component {
           element={element}
           indent={0}
           editing={this.state.editing}
+          edit={this.handleEdit.bind(this)}
           expandAll={this.state.expandAll}
           rootFieldIndex={this.state.expanded ? 0 : index} />
       ));

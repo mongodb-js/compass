@@ -85,7 +85,11 @@ class EditableElement extends React.Component {
   constructor(props) {
     super(props);
     this.element = props.element;
-    this.state = { expanded: this.props.expandAll, expandAll: this.props.expandAll };
+    this.state = {
+      expanded: this.props.expandAll,
+      expandAll: this.props.expandAll,
+      focusKey: false
+    };
   }
 
   /**
@@ -274,6 +278,11 @@ class EditableElement extends React.Component {
     }
   }
 
+  focusEditKey() {
+    this.props.edit();
+    this.setState({focusKey: true});
+  }
+
   /**
    * Render the key column.
    *
@@ -281,10 +290,11 @@ class EditableElement extends React.Component {
    */
   renderKey() {
     if (this.props.editing && this.element.currentKey !== '_id') {
-      return (<EditableKey element={this.element} index={this.props.index} />);
+      return (<EditableKey element={this.element} index={this.props.index}
+         isFocused={this.state.focusKey} />);
     }
     return (
-      <div className={FIELD_CLASS}>
+      <div className={FIELD_CLASS} onDoubleClick={this.focusEditKey.bind(this)}>
         {this.element.parent.currentType === 'Array' ? this.props.index : this.element.currentKey}
       </div>
     );
@@ -394,6 +404,7 @@ EditableElement.displayName = 'EditableElement';
 
 EditableElement.propTypes = {
   editing: React.PropTypes.bool,
+  edit: React.PropTypes.func.isRequired,
   element: React.PropTypes.object.isRequired,
   index: React.PropTypes.number,
   indent: React.PropTypes.number,
