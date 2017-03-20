@@ -1,24 +1,34 @@
+/* eslint new-cap: 0 */
 const React = require('react');
-
+const DropTarget = require('react-dnd').DropTarget;
 const _ = require('lodash');
-const Actions = require('../actions');
 const DraggableField = require('./draggable-field');
 
 // const debug = require('debug')('mongodb-compass:chart:encoding-channel');
+
+/**
+ * Drop target for react-dnd
+ * @see http://react-dnd.github.io/react-dnd/docs-drop-target.html
+ * @type {Object}
+ */
+const encodingChannelTarget = {
+  drop: function(props, monitor) {
+    props.actions.mapFieldToChannel(monitor.getItem().fieldPath, props.channelName);
+  }
+};
+
+function collect(connect, monitor) {
+  return {
+    connectDropTarget: connect.dropTarget(),
+    isOver: monitor.isOver()
+  };
+}
 
 /**
  * Represents a Vega or Vega Lite channel for a particular chart type,
  * and whether the user has encoded a specific field into it.
  */
 class EncodingChannel extends React.Component {
-
-  static onDropField(maybeSource) {
-    // TODO: Implement Drag'N'Drop and this transform, COMPASS-709 ...
-    const channel = maybeSource;
-    const field = maybeSource;
-    Actions.mapFieldToChannel(field, channel);
-    // TODO: Swap fields if source DraggableField is the ChartPanel, like http://vega.github.io/polestar/
-  }
 
   onSelectAggregate(aggregate) {
     const channel = this.props.channelName;
@@ -53,12 +63,17 @@ class EncodingChannel extends React.Component {
     // const cssOptional = this.props.optional === 'required' ? CSS : CSS;
     const labelClassNames = 'chart-encoding-channel-label';
     const chartChannelId = `chart-panel-channel-${this.props.channelName}`;
-    return (
+
+    const connectDropTarget = this.props.connectDropTarget;
+    const droppableClass = this.props.isOver ?
+      'chart-encoding-channel-droppable-over'
+      : 'chart-encoding-channel-droppable';
+    return connectDropTarget(
       <div className="chart-encoding-channel">
         <label className={labelClassNames} htmlFor={chartChannelId}>
           {this.props.channelName}
         </label>
-        <div id={chartChannelId} className="chart-encoding-channel-droppable">
+        <div id={chartChannelId} className={droppableClass}>
           {this.renderField()}
         </div>
       </div>
@@ -70,7 +85,9 @@ EncodingChannel.propTypes = {
   channelName: React.PropTypes.string.isRequired,
   encodedChannel: React.PropTypes.object,
   optional: React.PropTypes.string,
-  actions: React.PropTypes.object
+  actions: React.PropTypes.object,
+  connectDropTarget: React.PropTypes.func,
+  isOver: React.PropTypes.bool.isRequired
 };
 
 EncodingChannel.defaultProps = {
@@ -78,4 +95,4 @@ EncodingChannel.defaultProps = {
 
 EncodingChannel.displayName = 'EncodingChannel';
 
-module.exports = EncodingChannel;
+module.exports = DropTarget(DraggableField.displayName, encodingChannelTarget, collect)(EncodingChannel);

@@ -1,7 +1,9 @@
+/* eslint new-cap: 0 */
 const React = require('react');
 const app = require('hadron-app');
+const HTML5Backend = require('react-dnd-html5-backend');
+const {DragDropContext} = require('react-dnd');
 const FieldPanel = require('./field-panel');
-
 const ChartPanel = require('./chart-panel');
 const Chart = require('./chart');
 
@@ -71,6 +73,7 @@ class ChartBuilder extends React.Component {
             <FieldPanel
               fieldsCache={this.props.fieldsCache}
               rootFields={this.props.rootFields}
+              actions={this.props.actions}
             />
           </div>
           <div className="chart-builder-chart-panel">
@@ -108,4 +111,4 @@ ChartBuilder.defaultProps = {
 
 ChartBuilder.displayName = 'ChartBuilder';
 
-module.exports = ChartBuilder;
+module.exports = DragDropContext(HTML5Backend)(ChartBuilder);

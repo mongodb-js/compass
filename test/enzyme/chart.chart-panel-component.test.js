@@ -1,4 +1,4 @@
-/* eslint no-unused-vars: 0, no-unused-expressions: 0 */
+/* eslint no-unused-vars: 0, no-unused-expressions: 0, new-cap: 0 */
 const app = require('hadron-app');
 const chai = require('chai');
 const chaiEnzyme = require('chai-enzyme');
@@ -8,6 +8,7 @@ const sinon = require('sinon');
 const { mount } = require('enzyme');
 const AppRegistry = require('hadron-app-registry');
 const { DropdownButton } = require('react-bootstrap');
+const {DragDropContext} = require('react-dnd');
 const {
   CHART_CHANNEL_ENUM,
   CHART_TYPE_ENUM
@@ -18,7 +19,7 @@ chai.use(chaiEnzyme());
 
 
 describe('<ChartPanel />', function() {
-  beforeEach(function() {
+  before(function() {
     // Mock the AppRegistry with a new one so tests don't complain about
     // appRegistry.getComponent (i.e. appRegistry being undefined)
     app.appRegistry = new AppRegistry();
@@ -26,7 +27,21 @@ describe('<ChartPanel />', function() {
     this.OptionSelector = require('../../src/internal-packages/app/lib/components/option-selector');
     app.appRegistry.registerComponent('App.OptionSelector', this.OptionSelector);
 
-    this.ChartPanel = require('../../src/internal-packages/chart/lib/components/chart-panel');
+    const ChartPanel = require('../../src/internal-packages/chart/lib/components/chart-panel');
+
+    // @KeyboardTsundoku: fake backend is required to prevent the error
+    // 'Cannot have two HTML5 backends at the same time.''
+    const fakeBackend = {
+      setup: () => {},
+      teardown: () => {},
+      connectDropTarget: () => {},
+      connectDragSource: () => {}
+    };
+
+    // @KeyboardTsundoku: wrapping field panel in DragDropContext to avoid the error
+    // "Invariant Violation: Could not find the drag and drop manager in the context
+    //  of DraggableField. Make sure to wrap the top-level component of your app with DragDropContext."
+    this.ChartPanel = DragDropContext(() => {return fakeBackend;})(ChartPanel);
     this.EncodingChannel = require('../../src/internal-packages/chart/lib/components/encoding-channel');
     this.DraggableField = require('../../src/internal-packages/chart/lib/components/draggable-field');
   });

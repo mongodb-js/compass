@@ -8,7 +8,7 @@ const Dropdown = require('react-bootstrap').Dropdown;
 
 const shallow = require('enzyme').shallow;
 
-const DraggableField = require('../../src/internal-packages/chart/lib/components/draggable-field.jsx');
+const DraggableField = require('../../src/internal-packages/chart/lib/components/draggable-field.jsx').DecoratedComponent;
 
 
 chai.use(chaiEnzyme());
@@ -20,7 +20,14 @@ describe('<DraggableField />', () => {
   describe('when menus are not enabled', () => {
     const name = 'address';
     beforeEach(function() {
-      component = shallow(<DraggableField type="temporal" fieldName={name}/>);
+      const identity = function(el) { return el; };
+      component = shallow(
+        <DraggableField
+          type="temporal"
+          fieldName={name}
+          connectDragSource={identity}
+          isDragging={false} />
+      );
     });
 
     it('should have no dropdown menus', () => {
@@ -35,7 +42,14 @@ describe('<DraggableField />', () => {
   describe('when menus are enabled', () => {
     const name = 'coordinates';
     beforeEach(() => {
-      component = shallow(<DraggableField type="TEMPORAL" fieldName={name} enableMenus/>);
+      const identity = function(el) { return el; };
+      component = shallow(
+        <DraggableField
+          type="temporal"
+          fieldName={name}
+          connectDragSource={identity}
+          enableMenus />
+      );
     });
 
     it('should have 2 dropdown menus', () => {

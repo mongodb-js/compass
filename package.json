@@ -187,6 +187,8 @@
     "react": "^15.2.1",
     "react-bootstrap": "0.30.2",
     "react-click-outside": "^2.2.0",
+    "react-dnd": "^2.2.4",
+    "react-dnd-html5-backend": "^2.2.4",
     "react-dom": "^15.2.1",
     "react-fontawesome": "1.2.0",
     "react-native-listener": "^1.0.1",
