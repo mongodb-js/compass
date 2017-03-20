@@ -19,7 +19,6 @@ context('Data Service', function() {
       client = application.client;
       client
         .connectToCompass({ hostname: 'localhost', port: 27018 })
-        .waitForWindowTitle('MongoDB Compass - localhost:27018')
         .createDatabaseCollection('music', 'artists')
         .goToCollection('music', 'artists')
         .insertDocument({
