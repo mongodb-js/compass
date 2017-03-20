@@ -41,11 +41,9 @@ function addWaitDatabaseDDLCommands(client) {
    * @param {String} name - The database name.
    */
   client.addCommand('waitUntilDatabaseDeletion', function(name) {
-    return this.waitUntilInCompass(() => {
-      return client.getDatabasesTabDatabaseNames().then((databases) => {
-        return !databases.includes(name);
-      });
-    });
+    const table = selector('databases-table');
+    const cell = `${table} ${selector('sortable-table-column-0')}[title=${name}]`;
+    return this.waitForVisibleInCompass(cell, true);
   });
 }
 

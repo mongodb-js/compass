@@ -103,27 +103,6 @@ function progressiveWait(fn, selector, reverse, index) {
 }
 
 /**
- * Waits until the provided funciton returns true.
- *
- * @param {Function} waitUntil - The waitUntil function.
- * @param {Function} fn - The function to execute.
- * @param {Number} index - The timeout index.
- *
- * @return {Function}  return value of the `fn` function.
- */
-function progressiveWaitUntil(waitUntil, fn, index) {
-  const timeout = TIMEOUTS[index];
-  debug(`Waiting until function returns with timeout ${timeout}ms`);
-  return waitUntil(fn, timeout)
-    .catch(function(e) {
-      if (isTimeoutError(e) && timeout !== 13000) {
-        return progressiveWaitUntil(waitUntil, fn, index + 1);
-      }
-      throw e;
-    });
-}
-
-/**
  * Add the extended wait commands for Compass.
  *
  * @param {Object} client   spectron client to add the wait commands to.
@@ -147,15 +126,6 @@ function addExtendedWaitCommands(client) {
    */
   client.addCommand('waitForVisibleInCompass', function(selector, reverse) {
     return progressiveWait(this.waitForVisible.bind(this), selector, reverse, 0);
-  });
-
-  /**
-   * Wait for a condition to return true.
-   *
-   * @param {Function} fn - The function to execute.
-   */
-  client.addCommand('waitUntilInCompass', function(fn) {
-    return progressiveWaitUntil(this.waitUntil.bind(this), fn, 0);
   });
 }
 
