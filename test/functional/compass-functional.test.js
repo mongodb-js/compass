@@ -40,7 +40,7 @@ describe('Compass Functional Test Suite #spectron', function() {
     require('./tests/explain.test');
   });
 
-  describe.skip('#indexes', function() {
+  describe('#indexes', function() {
     require('./tests/indexes.test');
   });
 
