@@ -494,7 +494,7 @@ class Target {
     const rhelRevision = this.semver.prerelease.join('.') || '1';
     const rhelArch = this.arch === 'x64' ? 'x86_64' : 'i386';
     const rhelCategories = _.get(platformSettings, 'rpm_categories');
-    this.linux_rpm_filename = `${this.slug}-${rhelVersion}.${rhelArch}.rpm`;
+    this.linux_rpm_filename = `${this.slug}-${this.version}.${rhelArch}.rpm`;
 
     var isRhel = process.env.EVERGREEN_BUILD_VARIANT === 'rhel';
     this.linux_tar_filename = `${this.slug}-${this.version}-${isRhel ? 'rhel' : this.platform}-${this.arch}.tar.gz`;
