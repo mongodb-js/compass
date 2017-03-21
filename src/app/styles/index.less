@@ -1,32 +1,25 @@
 // Dependencies
+@import "./bootstrap.less";
 @import "./caret.less";
-@import  "./buttons.less";
+@import "./buttons.less";
 @import "./react-select.less";
 @import "./font-awesome/font-awesome.less";
-@import "../../../node_modules/bootstrap/less/bootstrap.less";
 @import (css) "../../node_modules/highlight.js/styles/github.css";
-
+@import "palette.less";
+@import "fonts.less";
+@import "mms-icons.less";
 
 // Configuration
 @import "./palette.less";
 @sidebar-width: 250px;
 
 // Tweaks to bootstrap
-//@import "./10strap.less";
 @import "./message-background.less";
 
 html, body {
   height: 100%;
   width: 100%;
   overflow: hidden;
-}
-
-@import "palette.less";
-@import "fonts.less";
-@import "mms-icons.less";
-
-html, body {
-  height: 100%;
   font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
   color: @gray1;
   -webkit-font-smoothing: antialiased;
