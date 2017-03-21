@@ -497,7 +497,7 @@ class Target {
     this.linux_rpm_filename = `${this.slug}-${this.version}.${rhelArch}.rpm`;
 
     var isRhel = process.env.EVERGREEN_BUILD_VARIANT === 'rhel';
-    this.linux_tar_filename = `${this.slug}-${this.version}-${isRhel ? 'rhel' : this.platform}-${this.arch}.tar.gz`;
+    this.linux_tar_filename = `${this.slug}-${rhelVersion}-${isRhel ? 'rhel' : this.platform}-${this.arch}.tar.gz`;
 
     this.assets = [
       {
