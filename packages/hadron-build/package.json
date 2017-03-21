@@ -69,7 +69,7 @@
   "optionalDependencies": {
     "electron-installer-codesign": "^0.3.0",
     "electron-installer-debian": "^0.4.0",
-    "electron-installer-dmg": "^0.1.1",
+    "electron-installer-dmg": "^0.2.1",
     "electron-installer-redhat": "^0.3.0",
     "electron-osx-sign": "^0.4.1",
     "electron-winstaller": "2.5.1"
