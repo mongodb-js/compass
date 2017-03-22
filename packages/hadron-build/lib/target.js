@@ -541,6 +541,9 @@ class Target {
         name: this.slug,
         version: rhelVersion,
         revision: rhelRevision,
+        rename: (dest) => {
+          return path.join(dest, this.linux_rpm_filename);
+        },
         bin: this.productName,
         requires: [
           'lsb-core-noarch',
