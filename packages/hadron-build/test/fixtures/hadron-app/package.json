@@ -26,6 +26,13 @@
           "icon": "resources/linux/Icon.png"
         }
       },
+      "distributions": {
+        "compass-lite": {
+          "name": "Compass Lite",
+          "packages": [],
+          "styles": [ "index" ]
+        }
+      },
       "endpoint": "https://hadron-app.herokuapp.com",
       "protocols": [
         {

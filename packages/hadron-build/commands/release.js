@@ -27,6 +27,7 @@ const createApplicationZip = require('../lib/zip');
 const license = require('electron-license');
 const ModuleCache = require('hadron-module-cache');
 const CompileCache = require('hadron-compile-cache');
+const StyleManager = require('hadron-style-manager');
 
 const ui = require('./ui');
 const verify = require('./verify');
@@ -75,6 +76,39 @@ const createCompileCache = (CONFIG, done) => {
     metadata[COMPILE_CACHE_MAPPINGS] = CompileCache.digestMappings;
     fs.writeFile(path.join(appDir, 'package.json'), JSON.stringify(metadata, null, 2), done);
   });
+};
+
+/**
+ * Use the style manager to build the css and inject into the index.html
+ * and help.html.
+ */
+const createPackagedStyles = (CONFIG, done) => {
+  const rootDir = path.join(CONFIG.resources, 'app');
+  const appDir = path.join(rootDir, 'src', 'app');
+  const metadata = CONFIG.pkg;
+  const dist = metadata.config.hadron.distributions[process.env.HADRON_DISTRIBUTION];
+
+  cli.debug(`Creating styles for distribution: ${process.env.HADRON_DISTRIBUTION}`);
+
+  const tasks = [];
+  const manager = new StyleManager(path.join(appDir, '.compiled-less'), appDir);
+
+  const styles = dist.styles;
+  for (let file of styles) {
+    tasks.push((done) => {
+      manager.build(path.join(appDir, `${file}.html`), path.join(appDir, `${file}.less`), done);
+    });
+  }
+
+  const packages = dist.packages
+  for (let dir of packages) {
+    const fullDir = path.join(rootDir, dir, 'styles', 'index.less');
+    tasks.push((done) => {
+      manager.build(path.join(appDir, `${styles[0]}.html`), fullDir, done);
+    });
+  }
+
+  async.series(tasks, done);
 };
 
 /**
@@ -261,7 +295,8 @@ const transformPackageJson = (CONFIG, done) => {
   _.assign(contents, {
     productName: CONFIG.productName,
     channel: CONFIG.channel,
-    version: CONFIG.version
+    version: CONFIG.version,
+    distribution: process.env.HADRON_DISTRIBUTION
   });
 
   fs.writeFile(PACKAGE_JSON_DEST, JSON.stringify(contents, null, 2), done);
@@ -325,7 +360,8 @@ const removeDevelopmentFiles = (CONFIG, done) => {
     '.npm*',
     '.jsfmt*',
     '.git*',
-    'report*'
+    'report*',
+    '*.less'
   ];
 
   var globsToDelete = [
@@ -426,6 +462,14 @@ _.assign(exports.builder, ui.builder, verify.builder);
 exports.run = (argv, done) => {
   cli.argv = argv;
 
+  if (!argv._ || !argv._[1]) {
+    process.env.HADRON_DISTRIBUTION = 'compass-lite';
+  } else {
+    process.env.HADRON_DISTRIBUTION = argv._[1];
+  }
+
+  cli.debug(`Building distribution: ${process.env.HADRON_DISTRIBUTION}`);
+
   const target = new Target(argv.dir);
   const task = (name, fn) => {
     return function(cb) {
@@ -444,7 +488,6 @@ exports.run = (argv, done) => {
   const tasks = _.flatten([
     function(cb) {
       verify.tasks(argv)
-        .then(() => ui.tasks(argv))
         .then(() => cb())
         .catch(cb);
     },
@@ -458,6 +501,7 @@ exports.run = (argv, done) => {
     task('write license file', writeLicenseFile),
     task('create compile cache', createCompileCache),
     task('create module cache', createModuleCache),
+    task('create packaged styles', createPackagedStyles),
     task('remove development files', removeDevelopmentFiles),
     task('create application asar', createApplicationAsar),
     task('create branded installer', createBrandedInstaller),

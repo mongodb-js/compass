@@ -18,7 +18,7 @@ if (process.platform === 'win32') {
         if (_err) {
           return done(_err);
         }
-        target = getConfig({version: '1.2.0'});
+        target = getConfig({ version: '1.2.0' });
         commands.release.run(target, done);
       });
     });
