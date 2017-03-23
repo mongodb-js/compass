@@ -6,9 +6,9 @@ const {DragDropContext} = require('react-dnd');
 const FieldPanel = require('./field-panel');
 const ChartPanel = require('./chart-panel');
 const Chart = require('./chart');
+const ResetButton = require('./reset-button');
 
 const QUERYBAR_LAYOUT = ['filter', 'project', ['sort', 'skip', 'limit']];
-const EXPERIMENTAL_WARNING = 'The charts feature is experimental. Use at own risk.';
 
 // const debug = require('debug')('mongodb-compass:chart:chart-builder');
 
@@ -31,13 +31,7 @@ class ChartBuilder extends React.Component {
   renderWarning() {
     return (
       <this.statusRow>
-        <button
-            className="btn btn-default btn-xs open-insert"
-            type="button"
-            onClick={this.props.actions.clearChart}>
-          Reset Chart
-        </button>
-
+        <ResetButton action={this.props.actions.clearChart}/>
       </this.statusRow>
     );
   }
