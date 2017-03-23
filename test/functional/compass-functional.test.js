@@ -85,7 +85,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
       });
     });
 
-    context('when viewing the performance view', function() {
+    context.skip('when viewing the performance view', function() {
       it('renders the operations graph inserts', function() {
         return client
           .clickPerformanceTab()
@@ -259,7 +259,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
       });
     });
 
-    context('when entering a filter in the sidebar', function() {
+    context.skip('when entering a filter in the sidebar', function() {
       let dbCount;
 
       before(function(done) {
@@ -297,7 +297,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
       });
     });
 
-    context('when deleting a database', function() {
+    context.skip('when deleting a database', function() {
       let dbCount;
 
       before(function(done) {
@@ -458,7 +458,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
           });
         });
 
-        context('when deleting a collection', function() {
+        context.skip('when deleting a collection', function() {
           it('requires confirmation of the collection name', function() {
             return client
               .clickDeleteCollectionButton('labels')
@@ -588,6 +588,28 @@ describe('Compass Main Functional Test Suite #spectron', function() {
         });
       });
 
+      context('when double clicking a field', function() {
+        it('opens document edit dialog and focuses cursor on the field', function() {
+          return client
+            .doubleClickDocumentField(2, 2)
+            .inputDocumentKeyChange(2, 'genre', 'category')
+            .clickUpdateDocumentButton(2)
+            .waitForDocumentUpdate(2)
+            .getDocumentFields(2)
+            .should.eventually.include('category');
+        });
+
+        it.skip('opens document edit dialog and focused cursor on the value', function() {
+          return client
+            .doubleClickDocumentValue()
+            .waitForInsertDocumentModal()
+            .inputDocumentValueChange()
+            .clickUpdateDocumentButton()
+            .waitForDocumentUpdate()
+            .getDocumentValues();
+        });
+      });
+
       context('when deleting a document', function() {
         it('deletes upon confirmation', function() {
           return client
@@ -599,7 +621,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
         });
       });
 
-      context('when applying a filter', function() {
+      context.skip('when applying a filter', function() {
         const filter = '{"name":"Bonobo"}';
         it('updates the document list', function() {
           return client
@@ -656,7 +678,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
         });
       });
 
-      context('when resetting a filter', function() {
+      context.skip('when resetting a filter', function() {
         it('updates the explain plan', function() {
           return client
             .clickResetFilterButtonFromExplainPlanTab()
@@ -681,7 +703,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
         });
       });
 
-      context('when navigating to the indexes tab', function() {
+      context.skip('when navigating to the indexes tab', function() {
         it('renders the indexes table', function() {
           return client
             .clickIndexesTab()
@@ -800,15 +822,15 @@ describe('Compass Main Functional Test Suite #spectron', function() {
         });
       });
 
-      context('when creating a validation rule', function() {
+      context.skip('when creating a validation rule', function() {
 
       });
 
-      context('when deleting a validation rule', function() {
+      context.skip('when deleting a validation rule', function() {
 
       });
 
-      context('when refreshing the documents list', function() {
+      context.skip('when refreshing the documents list', function() {
         const dataService = new DataService(CONNECTION);
 
         before(function(done) {
@@ -832,7 +854,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
         });
       });
 
-      context('when inserting a document when a filter is applied', function() {
+      context.skip('when inserting a document when a filter is applied', function() {
         const filter = '{"name":"Bauhaus"}';
 
         context('when the new document does not match the filter', function() {

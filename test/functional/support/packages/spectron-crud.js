@@ -99,6 +99,15 @@ function addClickCRUDCommands(client) {
   });
 
   /**
+   * Double click the document at docIndex and at field key fieldIndex
+   */
+  client.addCommand('doubleClickDocumentField', function(docIndex, fieldIndex) {
+    const base = `${selector('document-list-item')}:nth-child(${docIndex})`;
+    const fieldKey = `${base} .editable-element:nth-child(${fieldIndex}) .editable-element-field`;
+    return this.moveToObject(base).waitForVisibleInCompass(fieldKey).doubleClick(fieldKey);
+  });
+
+  /**
    * Click the update document button.
    *
    * @param {Number} index - The index of the document, starting at 1.
@@ -192,6 +201,10 @@ function addGetCRUDCommands(client) {
     return this.isExisting(`${base}:nth-child(${index})`);
   });
 
+  client.addCommand('getDocumentFields', function(index) {
+    const base = selector('document-list-item');
+    return this.getText(`${base}:nth-child(${index}) .editable-element-field`);
+  });
   /**
    * Get the values of a document at the provided index in the list.
    *
@@ -258,6 +271,18 @@ function addInputCRUDCommands(client) {
     const base = selector('documents-content');
     const input = `${base} .input-limit`;
     return this.setValue(input, filter);
+  });
+
+  /**
+   * Input a change to a document value.
+   *
+   * @param {Number} index - The index of the document in the list.
+   * @param {Object} oldValue - The old value.
+   * @param {Object) newValue - The new value.
+   */
+  client.addCommand('inputDocumentKeyChange', function(index, oldValue, newValue) {
+    const base = `${selector('document-list-item')}:nth-child(${index})`;
+    return this.setValue(`${base} input.editable-element-field[value='${oldValue}']`, newValue);
   });
 
   /**
