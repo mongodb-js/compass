@@ -116,9 +116,18 @@ class EditableElement extends React.Component {
    * @param {Object} nextProps - The next properties.
    */
   componentWillReceiveProps(nextProps) {
-    if (nextProps.expandAll !== this.state.expandAll) {
-      this.setState({ expanded: nextProps.expandAll, expandAll: nextProps.expandAll });
+    const state = {};
+    if (!nextProps.editing) {
+      state.focusKey = false;
+      state.focusValue = false;
     }
+
+    if (nextProps.expandAll !== this.state.expandAll) {
+      state.expanded = nextProps.expandAll;
+      state.expandAll = nextProps.expandAll;
+    }
+
+    this.setState(state);
   }
 
   /**
@@ -300,8 +309,9 @@ class EditableElement extends React.Component {
       return (<EditableKey element={this.element} index={this.props.index}
          isFocused={this.state.focusKey} />);
     }
+    const onDoubleClick = this.element.currentKey === '_id' ? null : this.focusEditKey.bind(this);
     return (
-      <div className={FIELD_CLASS} onDoubleClick={this.focusEditKey.bind(this)}>
+      <div className={FIELD_CLASS} onDoubleClick={onDoubleClick}>
         {this.element.parent.currentType === 'Array' ? this.props.index : this.element.currentKey}
       </div>
     );
