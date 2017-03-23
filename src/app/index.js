@@ -9,7 +9,7 @@ const pkg = require('../../package.json');
  * npm start compass-enterprise
  */
 if (!process.env.HADRON_DISTRIBUTION) {
-  process.env.HADRON_DISTRIBUTION = pkg.config.hadron.distribution || 'compass-lite';
+  process.env.HADRON_DISTRIBUTION = pkg.distribution || 'compass-lite';
 }
 
 if (process.env.NODE_ENV === 'development') {
@@ -67,12 +67,20 @@ ipc.once('app:launched', function() {
 var debug = require('debug')('mongodb-compass:app');
 
 /**
- * @note: Style Manager should get set up first so styles are in place before
- * the packages are activated.
+ * The styles are rendered into the head of the index.html and help.html
+ * as part of the build process so the style manager is not needed in
+ * production.
  */
-marky.mark('Loading styles');
-require('./setup-style-manager');
-marky.stop('Loading styles');
+if (process.env.NODE_ENV !== 'production') {
+  /**
+   * @note: Style Manager should get set up first so styles are in place before
+   * the packages are activated.
+   */
+  marky.mark('Loading styles');
+  const setupStyleManager = require('./setup-style-manager');
+  setupStyleManager('index.less');
+  marky.stop('Loading styles');
+}
 
 /**
  * @note: Durran: the registry and package manager are set up here in
