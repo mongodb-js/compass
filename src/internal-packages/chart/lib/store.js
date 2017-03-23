@@ -158,7 +158,6 @@ const ChartStore = Reflux.createStore({
 
       let state = {
         queryCache: query,
-        channels: {},
         dataCache: documents
       };
 
