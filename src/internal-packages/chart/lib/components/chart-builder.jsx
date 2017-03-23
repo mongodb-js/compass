@@ -30,8 +30,14 @@ class ChartBuilder extends React.Component {
    */
   renderWarning() {
     return (
-      <this.statusRow style="warning">
-        {EXPERIMENTAL_WARNING}
+      <this.statusRow>
+        <button
+            className="btn btn-default btn-xs open-insert"
+            type="button"
+            onClick={this.props.actions.clearChart}>
+          Reset Chart
+        </button>
+
       </this.statusRow>
     );
   }
