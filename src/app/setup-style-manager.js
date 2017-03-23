@@ -28,6 +28,6 @@ const setup = (stylesheet) => {
     path.join(__dirname, '..', '..'),
     pkg.config.hadron.distributions[process.env.HADRON_DISTRIBUTION].packages
   );
-}
+};
 
 module.exports = setup;
