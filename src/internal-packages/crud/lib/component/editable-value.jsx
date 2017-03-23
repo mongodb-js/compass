@@ -79,8 +79,7 @@ class EditableValue extends React.Component {
    * @returns {Boolean} If the element can be focused automatically.
    */
   isAutoFocusable() {
-    return !this.element.isKeyEditable() ||
-      this.element.parent.currentType === 'Array';
+    return !this.element.isKeyEditable();
   }
 
   /**
