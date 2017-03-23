@@ -99,12 +99,21 @@ function addClickCRUDCommands(client) {
   });
 
   /**
-   * Double click the document at docIndex and at field key fieldIndex
+   * Double click the document field at docIndex and at field fieldIndex
    */
   client.addCommand('doubleClickDocumentField', function(docIndex, fieldIndex) {
     const base = `${selector('document-list-item')}:nth-child(${docIndex})`;
-    const fieldKey = `${base} .editable-element:nth-child(${fieldIndex}) .editable-element-field`;
-    return this.moveToObject(base).waitForVisibleInCompass(fieldKey).doubleClick(fieldKey);
+    const field = `${base} .editable-element:nth-child(${fieldIndex}) .editable-element-field`;
+    return this.moveToObject(base).waitForVisibleInCompass(field).doubleClick(field);
+  });
+
+  /**
+   * Double click the document value at docIndex and at value fieldIndex
+   */
+  client.addCommand('doubleClickDocumentValue', function(docIndex, fieldIndex) {
+    const base = `${selector('document-list-item')}:nth-child(${docIndex})`;
+    const value = `${base} .editable-element:nth-child(${fieldIndex}) .element-value`;
+    return this.moveToObject(base).waitForVisibleInCompass(value).doubleClick(value);
   });
 
   /**
@@ -278,9 +287,9 @@ function addInputCRUDCommands(client) {
    *
    * @param {Number} index - The index of the document in the list.
    * @param {Object} oldValue - The old value.
-   * @param {Object) newValue - The new value.
+   * @param {Object} newValue - The new value.
    */
-  client.addCommand('inputDocumentKeyChange', function(index, oldValue, newValue) {
+  client.addCommand('inputDocumentFieldChange', function(index, oldValue, newValue) {
     const base = `${selector('document-list-item')}:nth-child(${index})`;
     return this.setValue(`${base} input.editable-element-field[value='${oldValue}']`, newValue);
   });
@@ -290,7 +299,7 @@ function addInputCRUDCommands(client) {
    *
    * @param {Number} index - The index of the document in the list.
    * @param {Object} oldValue - The old value.
-   * @param {Object) newValue - The new value.
+   * @param {Object} newValue - The new value.
    */
   client.addCommand('inputDocumentValueChange', function(index, oldValue, newValue) {
     const base = `${selector('document-list-item')}:nth-child(${index})`;
