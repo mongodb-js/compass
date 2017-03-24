@@ -21,11 +21,6 @@ context('Data Service', function() {
         .connectToCompass({ hostname: 'localhost', port: 27018 })
         .createDatabaseCollection('music', 'artists')
         .goToCollection('music', 'artists')
-        .insertDocument({
-          'name': 'Aphex Twin',
-          'genre': 'Electronic',
-          'location': 'London'
-        }, 1)
         .then(() => {
           done();
         });
@@ -43,13 +38,6 @@ context('Data Service', function() {
     const dataService = new DataService(CONNECTION);
 
     before(function(done) {
-      client
-        .insertDocument({
-          'name': 'Aphex Twin',
-          'genre': 'Electronic',
-          'location': 'London'
-        }, 1);
-
       dataService.connect(function() {
         dataService.insertOne('music.artists', { name: 'Bauhaus' }, {}, function() {
           done();
@@ -66,7 +54,7 @@ context('Data Service', function() {
         .clickDocumentsTab()
         .clickRefreshDocumentsButton()
         .getSamplingMessageFromDocumentsTab()
-        .should.eventually.include('Query returned 2 documents.');
+        .should.eventually.include('Query returned 1 document.');
     });
   });
 
@@ -102,7 +90,7 @@ context('Data Service', function() {
           .clickDocumentsTab()
           .clickResetFilterButtonFromDocumentsTab()
           .waitForStatusBar()
-          .getDocumentValues(3)
+          .getDocumentValues(2)
           .should.eventually.include('\"George Michael\"');
       });
     });
