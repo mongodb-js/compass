@@ -39,11 +39,11 @@ function addWaitDatabaseDDLCommands(client) {
   });
 
   client.addCommand('waitForCreateDatabasesModalHidden', function() {
-    return this.waitForVisibleInCompass(selector('create-database-modal'), true);
+    return this.waitForModalHide();
   });
 
   client.addCommand('waitForDropDatabasesModalHidden', function() {
-    return this.waitForVisibleInCompass(selector('drop-database-modal'), true);
+    return this.waitForModalHide();
   });
 }
 
