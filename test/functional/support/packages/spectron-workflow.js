@@ -12,6 +12,7 @@ function addWorkflowCommands(client) {
     return this
       .inputConnectionDetails(connection)
       .clickConnectButton()
+      .waitForStatusBar()
       .waitForInstanceHeader();
   });
 
