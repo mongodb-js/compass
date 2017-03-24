@@ -2,11 +2,11 @@
 const React = require('react');
 const app = require('hadron-app');
 const HTML5Backend = require('react-dnd-html5-backend');
-const {DragDropContext} = require('react-dnd');
+const { DragDropContext } = require('react-dnd');
+const { TextButton } = require('hadron-react-buttons');
 const FieldPanel = require('./field-panel');
 const ChartPanel = require('./chart-panel');
 const Chart = require('./chart');
-const ResetButton = require('./reset-button');
 
 const QUERYBAR_LAYOUT = ['filter', 'project', ['sort', 'skip', 'limit']];
 
@@ -31,7 +31,11 @@ class ChartBuilder extends React.Component {
   renderWarning() {
     return (
       <this.statusRow>
-        <ResetButton action={this.props.actions.clearChart}/>
+        <TextButton
+          text="Reset Chart"
+          className="btn btn-default btn-xs chart-builder-reset-button"
+          clickHandler={this.props.actions.clearChart}
+        />
       </this.statusRow>
     );
   }
