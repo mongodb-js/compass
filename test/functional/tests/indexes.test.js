@@ -16,13 +16,7 @@ context('Indexes', function() {
         .connectToCompass({ hostname: 'localhost', port: 27018 })
         .createDatabaseCollection('music', 'artists')
         .goToCollection('music', 'artists')
-        .insertDocument({
-          'name': 'Aphex Twin',
-          'genre': 'Electronic',
-          'location': 'London'
-        }, 1)
-        .getInstanceHeaderVersion().then(function(value) {
-          serverVersion = value.replace(/MongoDB ([0-9.]+) Community/, '$1');
+        .then(() => {
           done();
         });
     });
@@ -36,6 +30,20 @@ context('Indexes', function() {
   });
 
   context('when navigating to the indexes tab', function() {
+    before(function(done) {
+      client
+        .insertDocument({
+          'name': 'Aphex Twin',
+          'genre': 'Electronic',
+          'location': 'London'
+        }, 1)
+        .getInstanceHeaderVersion()
+        .then(function(value) {
+          serverVersion = value.replace(/MongoDB ([0-9.]+) Community/, '$1');
+          done();
+        });
+    });
+
     it('renders the indexes table', function() {
       return client
         .clickIndexesTab()

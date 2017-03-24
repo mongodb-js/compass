@@ -13,11 +13,6 @@ context('Schema', function() {
         .connectToCompass({ hostname: 'localhost', port: 27018 })
         .createDatabaseCollection('music', 'artists')
         .goToCollection('music', 'artists')
-        .insertDocument({
-          'name': 'Aphex Twin',
-          'genre': 'Electronic',
-          'location': 'London'
-        }, 1)
         .then(() => {
           done();
         });
@@ -36,6 +31,18 @@ context('Schema', function() {
     const expectedZeroDoc = 'Query returned 0 documents.';
     const expectedOneDoc = 'Query returned 1 document.';
     const expectedZeroReport = 'This report is based on a sample of 0 documents (0.00%).';
+
+    before(function(done) {
+      client
+        .insertDocument({
+          'name': 'Aphex Twin',
+          'genre': 'Electronic',
+          'location': 'London'
+        }, 1)
+        .then(() => {
+          done();
+        });
+    });
 
     it('shows a blank schema view', function() {
       return client

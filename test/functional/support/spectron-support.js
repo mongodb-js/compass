@@ -99,8 +99,7 @@ function progressiveWait(fn, selector, reverse, index) {
         return progressiveWait(fn, selector, reverse || false, index + 1);
       }
       throw e;
-    })
-    .finally(debug(`${selector} may have been found with timeout ${timeout}ms`));
+    });
 }
 
 /**

@@ -13,11 +13,6 @@ context('Explain', function() {
         .connectToCompass({ hostname: 'localhost', port: 27018 })
         .createDatabaseCollection('music', 'artists')
         .goToCollection('music', 'artists')
-        .insertDocument({
-          'name': 'Aphex Twin',
-          'genre': 'Electronic',
-          'location': 'London'
-        }, 1)
         .then(() => {
           done();
         });
@@ -33,6 +28,18 @@ context('Explain', function() {
 
   context('when applying a filter', function() {
     const filter = '{"name":"Bonobo"}';
+
+    before(function(done) {
+      client
+        .insertDocument({
+          'name': 'Aphex Twin',
+          'genre': 'Electronic',
+          'location': 'London'
+        }, 1)
+        .then(() => {
+          done();
+        });
+    });
 
     context('when viewing the explain plan view', function() {
       it('applies the filter in the explain plan tab', function() {
