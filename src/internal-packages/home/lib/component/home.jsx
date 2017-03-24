@@ -12,7 +12,7 @@ class Home extends React.Component {
     this.sideBar = app.appRegistry.getComponent('Sidebar.Component');
 
     // Main working area components
-    this.serverStatsView = app.appRegistry.getComponent('RTSS.ServerStats');
+    this.instanceView = app.appRegistry.getComponent('Instance.InstanceView');
     this.databaseView = app.appRegistry.getComponent('Database.DatabaseView');
     this.collectionView = app.appRegistry.getComponent('Collection.Collection');
 
@@ -42,7 +42,7 @@ class Home extends React.Component {
         view = (<this.collectionView namespace={this.props.namespace} />);
         break;
       default:
-        view = (<this.serverStatsView interval={1000}/>);
+        view = (<this.instanceView interval={1000}/>);
     }
 
     return view;

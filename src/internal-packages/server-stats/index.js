@@ -1,17 +1,18 @@
 const app = require('hadron-app');
-const RTSSComponent = require('./lib/components');
+const InstanceView = require('./lib/components/instance-view');
+
 /**
  * Activate all the components in the RTSS package.
  */
 function activate() {
-  app.appRegistry.registerComponent('RTSS.ServerStats', RTSSComponent);
+  app.appRegistry.registerComponent('Instance.InstanceView', InstanceView);
 }
 
 /**
  * Deactivate all the components in the RTSS package.
  */
 function deactivate() {
-  app.appRegistry.deregisterComponent('RTSS.ServerStats');
+  app.appRegistry.deregisterComponent('Instance.InstanceView');
 }
 
 module.exports.activate = activate;

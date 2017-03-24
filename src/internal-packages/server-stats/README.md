@@ -91,6 +91,7 @@ The `mouseover` action changes the data sent to the `CurrentOpComponent` from th
 If any of `ServerStatsGraphsStore`, `TopStore`, or `CurrentOpStore` receive an error from the DataService, they will trigger the `dbError` action. The `DBErrorStore` listens for errors and passes any new errors to the `DBErrorComponent` which will display a red banner with an interpretation of the error received. The raw errors are transformed from MongoErrors to more human-readable and helpful error messages with [mongodb-js-errors.translate](https://github.com/mongodb-js/errors/blob/master/index.js). If an error goes away, i.e. dbError is triggered and the error is now null, then the banner will be removed. If the d3 charts receive data with a non-null error they will not draw the charts and instead display "DATA UNAVAILABLE".
 
 
-| Key                | Description                                  |
-|--------------------|----------------------------------------------|
-| `RTSS.ServerStats` | Renders the complete server stats component. |
+| Key                     | Description                                  |
+|-------------------------|----------------------------------------------|
+| `Instance.InstanceView` | Renders the DatabasesTable and               |
+|                         | complete server stats component.             |
