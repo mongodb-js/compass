@@ -588,6 +588,28 @@ describe('Compass Main Functional Test Suite #spectron', function() {
         });
       });
 
+      context('when double clicking a field', function() {
+        it('opens document edit dialog and focuses cursor on the field', function() {
+          return client
+            .doubleClickDocumentField(2, 2)
+            .inputDocumentFieldChange(2, 'genre', 'category')
+            .clickUpdateDocumentButton(2)
+            .waitForDocumentUpdate(2)
+            .getDocumentFields(2)
+            .should.eventually.include('category');
+        });
+
+        it('opens document edit dialog and focuses cursor on the value', function() {
+          return client
+            .doubleClickDocumentValue(2, 2)
+            .inputDocumentValueChange(2, 'Electronic', 'ska')
+            .clickUpdateDocumentButton(2)
+            .waitForDocumentUpdate(2)
+            .getDocumentValues(2)
+            .should.eventually.include('\"ska\"');
+        });
+      });
+
       context('when deleting a document', function() {
         it('deletes upon confirmation', function() {
           return client

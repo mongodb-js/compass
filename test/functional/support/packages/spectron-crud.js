@@ -99,6 +99,24 @@ function addClickCRUDCommands(client) {
   });
 
   /**
+   * Double click the document field at docIndex and at field fieldIndex
+   */
+  client.addCommand('doubleClickDocumentField', function(docIndex, fieldIndex) {
+    const base = `${selector('document-list-item')}:nth-child(${docIndex})`;
+    const field = `${base} .editable-element:nth-child(${fieldIndex}) .editable-element-field`;
+    return this.moveToObject(base).waitForVisibleInCompass(field).doubleClick(field);
+  });
+
+  /**
+   * Double click the document value at docIndex and at value fieldIndex
+   */
+  client.addCommand('doubleClickDocumentValue', function(docIndex, fieldIndex) {
+    const base = `${selector('document-list-item')}:nth-child(${docIndex})`;
+    const value = `${base} .editable-element:nth-child(${fieldIndex}) .element-value`;
+    return this.moveToObject(base).waitForVisibleInCompass(value).doubleClick(value);
+  });
+
+  /**
    * Click the update document button.
    *
    * @param {Number} index - The index of the document, starting at 1.
@@ -192,6 +210,10 @@ function addGetCRUDCommands(client) {
     return this.isExisting(`${base}:nth-child(${index})`);
   });
 
+  client.addCommand('getDocumentFields', function(index) {
+    const base = selector('document-list-item');
+    return this.getText(`${base}:nth-child(${index}) .editable-element-field`);
+  });
   /**
    * Get the values of a document at the provided index in the list.
    *
@@ -265,7 +287,19 @@ function addInputCRUDCommands(client) {
    *
    * @param {Number} index - The index of the document in the list.
    * @param {Object} oldValue - The old value.
-   * @param {Object) newValue - The new value.
+   * @param {Object} newValue - The new value.
+   */
+  client.addCommand('inputDocumentFieldChange', function(index, oldValue, newValue) {
+    const base = `${selector('document-list-item')}:nth-child(${index})`;
+    return this.setValue(`${base} input.editable-element-field[value='${oldValue}']`, newValue);
+  });
+
+  /**
+   * Input a change to a document value.
+   *
+   * @param {Number} index - The index of the document in the list.
+   * @param {Object} oldValue - The old value.
+   * @param {Object} newValue - The new value.
    */
   client.addCommand('inputDocumentValueChange', function(index, oldValue, newValue) {
     const base = `${selector('document-list-item')}:nth-child(${index})`;

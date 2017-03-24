@@ -49,7 +49,7 @@ class EditableKey extends React.Component {
    * to the value field.
    */
   componentDidMount() {
-    if (this.isAutoFocusable()) {
+    if (this.isAutoFocusable() || this.props.isFocused) {
       this._node.focus();
     }
   }
@@ -225,7 +225,8 @@ EditableKey.displayName = 'EditableKey';
 
 EditableKey.propTypes = {
   element: React.PropTypes.object.isRequired,
-  index: React.PropTypes.number
+  index: React.PropTypes.number,
+  isFocused: React.PropTypes.bool.isRequired
 };
 
 module.exports = EditableKey;
