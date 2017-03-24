@@ -34,7 +34,7 @@ function addWorkflowCommands(client) {
   client.addCommand('goToCollection', function(database, collection) {
     return this
       .clickDatabaseInSidebar(database)
-      .waitForDatabaseView()
+      .waitForSidebar('collection')
       .clickCollectionInSidebar(`${database}.${collection}`)
       .waitForStatusBar();
   });
