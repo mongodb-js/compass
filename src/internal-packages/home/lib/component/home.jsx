@@ -13,7 +13,7 @@ class Home extends React.Component {
 
     // Main working area components
     this.serverStatsView = app.appRegistry.getComponent('RTSS.ServerStats');
-    this.collectionsTable = app.appRegistry.getComponent('Database.CollectionsTable');
+    this.databaseView = app.appRegistry.getComponent('Database.DatabaseView');
     this.collectionView = app.appRegistry.getComponent('Collection.Collection');
 
     // Modal dialogs
@@ -36,7 +36,7 @@ class Home extends React.Component {
     let view;
     switch (this.props.mode) {
       case 'database':
-        view = (<this.collectionsTable />);
+        view = (<this.databaseView />);
         break;
       case 'collection':
         view = (<this.collectionView namespace={this.props.namespace} />);
