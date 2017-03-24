@@ -5,7 +5,7 @@ const { NamespaceStore } = require('hadron-reflux-store');
 const toNS = require('mongodb-ns');
 const ipc = require('hadron-ipc');
 
-class Collection extends React.Component {
+class CollectionView extends React.Component {
   constructor(props) {
     super(props);
 
@@ -118,10 +118,10 @@ class Collection extends React.Component {
   }
 }
 
-Collection.propTypes = {
+CollectionView.propTypes = {
   namespace: React.PropTypes.string
 };
 
-Collection.displayName = 'Collection';
+CollectionView.displayName = 'CollectionView';
 
-module.exports = Collection;
+module.exports = CollectionView;

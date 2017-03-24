@@ -14,7 +14,7 @@ class Home extends React.Component {
     // Main working area components
     this.instanceView = app.appRegistry.getComponent('Instance.InstanceView');
     this.databaseView = app.appRegistry.getComponent('Database.DatabaseView');
-    this.collectionView = app.appRegistry.getComponent('Collection.Collection');
+    this.collectionView = app.appRegistry.getComponent('Collection.CollectionView');
 
     // Modal dialogs
     this.CreateDatabaseDialog = app.appRegistry.getComponent('Instance.CreateDatabaseDialog');
