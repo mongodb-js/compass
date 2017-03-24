@@ -9,9 +9,6 @@ class Home extends React.Component {
     this.sideBar = app.appRegistry.getComponent('Sidebar.Component');
     this.collectionView = app.appRegistry.getComponent('Collection.Collection');
     this.collectionsTable = app.appRegistry.getComponent('Database.CollectionsTable');
-    /**
-     * TODO (imlucas) Handle state when rtss permissions not available.
-     */
     this.serverStatsView = app.appRegistry.getComponent('RTSS.ServerStats');
     this.CreateDatabaseDialog = app.appRegistry.getComponent('DatabaseDDL.CreateDatabaseDialog');
     this.DropDatabaseDialog = app.appRegistry.getComponent('DatabaseDDL.DropDatabaseDialog');
