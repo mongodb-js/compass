@@ -23,7 +23,7 @@ class InstanceView extends React.Component {
   componentDidMount() {
     // Re-render the global 'is-not-writable' tooltip in a performant way
     // so we don't reintroduce COMPASS-532 on the banks.json data set.
-    ReactTooltip.rebuild()
+    ReactTooltip.rebuild();
   }
 
   onTabClicked(idx) {
