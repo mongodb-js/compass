@@ -10,7 +10,7 @@ const { launchCompass, quitCompass } = require('../support/spectron-support');
  */
 const CONNECTION = new Connection({ hostname: '127.0.0.1', port: 27018, ns: 'mongodb' });
 
-context('Query Bar', function() {
+context.skip('Query Bar', function() {
   this.slow(30000);
   this.timeout(60000);
   let app = null;
