@@ -1,5 +1,4 @@
 const React = require('react');
-const Actions = require('../actions');
 const app = require('hadron-app');
 
 /**
@@ -18,14 +17,6 @@ class InstanceView extends React.Component {
     this.DatabasesTable = app.appRegistry.getComponent('Instance.DatabasesTable');
     this.PerformanceView = app.appRegistry.getComponent('Performance.PerformanceView');
     this.TabNavBar = app.appRegistry.getComponent('App.TabNavBar');
-  }
-
-
-  /**
-   * Restart the actions on mount.
-   */
-  componentDidMount() {
-    Actions.restart();
   }
 
   onTabClicked(idx) {
