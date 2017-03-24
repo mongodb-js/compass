@@ -26,6 +26,15 @@ function addClickInstanceHeaderCommands(client) {
   });
 }
 
+function addWaitInstanceHeaderCommands(client) {
+  /**
+   * Wait For instance header to exist
+   */
+  client.addCommand('waitForInstanceHeader', function() {
+    return this.waitForExistInCompass(selector('instance-header-details'));
+  });
+}
+
 /**
  * Add commands to the client related to the Document Validation Tab.
  *
@@ -34,6 +43,7 @@ function addClickInstanceHeaderCommands(client) {
 function addInstanceHeaderCommands(client) {
   addGetInstanceHeaderCommands(client);
   addClickInstanceHeaderCommands(client);
+  addWaitInstanceHeaderCommands(client);
 }
 
 
