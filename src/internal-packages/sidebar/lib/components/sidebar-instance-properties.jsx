@@ -4,7 +4,7 @@ const app = require('hadron-app');
 class SidebarInstanceProperties extends React.Component {
   constructor(props) {
     super(props);
-    this.DatabaseDDLActions = app.appRegistry.getAction('DatabaseDDL.Actions');
+    this.InstanceActions = app.appRegistry.getAction('Instance.Actions');
   }
 
   getRefreshIconClassNames() {

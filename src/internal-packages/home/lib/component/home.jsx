@@ -17,8 +17,8 @@ class Home extends React.Component {
     this.collectionView = app.appRegistry.getComponent('Collection.Collection');
 
     // Modal dialogs
-    this.CreateDatabaseDialog = app.appRegistry.getComponent('DatabaseDDL.CreateDatabaseDialog');
-    this.DropDatabaseDialog = app.appRegistry.getComponent('DatabaseDDL.DropDatabaseDialog');
+    this.CreateDatabaseDialog = app.appRegistry.getComponent('Instance.CreateDatabaseDialog');
+    this.DropDatabaseDialog = app.appRegistry.getComponent('Instance.DropDatabaseDialog');
     this.CreateCollectionDialog = app.appRegistry.getComponent('Database.CreateCollectionDialog');
     this.DropCollectionDialog = app.appRegistry.getComponent('Database.DropCollectionDialog');
   }

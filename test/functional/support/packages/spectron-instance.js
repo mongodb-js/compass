@@ -1,7 +1,7 @@
 const selector = require('../spectron-selector');
 
 
-function addWaitDatabaseDDLCommands(client) {
+function addWaitInstanceCommands(client) {
   /**
    * Waits for the create database modal to open.
    */
@@ -48,7 +48,7 @@ function addWaitDatabaseDDLCommands(client) {
 }
 
 
-function addClickDatabaseDDLCommands(client) {
+function addClickInstanceCommands(client) {
     /**
    * Click the create database button.
    */
@@ -86,7 +86,7 @@ function addClickDatabaseDDLCommands(client) {
 }
 
 
-function addInputDatabaseDDLCommands(client) {
+function addInputInstanceCommands(client) {
   /**
    * Input the database details for creating a database.
    *
@@ -110,15 +110,15 @@ function addInputDatabaseDDLCommands(client) {
 
 
 /**
- * Add commands to the client related to the Database DDL.
+ * Add commands to the client related to the Instance.
  *
  * @param {Client} client - The client.
  */
-function addDatabaseDDLCommands(client) {
-  addWaitDatabaseDDLCommands(client);
-  addClickDatabaseDDLCommands(client);
-  addInputDatabaseDDLCommands(client);
+function addInstanceCommands(client) {
+  addWaitInstanceCommands(client);
+  addClickInstanceCommands(client);
+  addInputInstanceCommands(client);
 }
 
 
-module.exports = addDatabaseDDLCommands;
+module.exports = addInstanceCommands;

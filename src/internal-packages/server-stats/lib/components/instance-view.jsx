@@ -18,7 +18,7 @@ class InstanceView extends React.Component {
   constructor(props) {
     super(props);
     this.state = {activeTab: 0};
-    this.DatabasesTable = app.appRegistry.getComponent('DatabaseDDL.DatabasesTable');
+    this.DatabasesTable = app.appRegistry.getComponent('Instance.DatabasesTable');
     this.TabNavBar = app.appRegistry.getComponent('App.TabNavBar');
   }
 

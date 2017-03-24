@@ -17,10 +17,10 @@ const appRegistry = app.appRegistry;
 describe('<SidebarCollection />', () => {
   beforeEach(function() {
     app.appRegistry = new AppRegistry();
-    this.DatabaseDDLActionSpy = sinon.spy();
+    this.InstanceActionSpy = sinon.spy();
     app.appRegistry.registerAction(
       'Database.CollectionsActions',
-      {openDropCollectionDialog: this.DatabaseDDLActionSpy}
+      {openDropCollectionDialog: this.InstanceActionSpy}
     );
     app.dataService = {
       isWritable: () => {
@@ -59,7 +59,7 @@ describe('<SidebarCollection />', () => {
     it('the drop collection icon triggers no action', function() {
       const element = this.component.find('.compass-sidebar-icon-drop-collection');
       element.simulate('click');
-      expect(this.DatabaseDDLActionSpy.called).to.be.false;
+      expect(this.InstanceActionSpy.called).to.be.false;
     });
   });
 
@@ -80,7 +80,7 @@ describe('<SidebarCollection />', () => {
     it('clicking the drop collection icon triggers an action', function() {
       const element = this.component.find('.compass-sidebar-icon-drop-collection');
       element.simulate('click');
-      expect(this.DatabaseDDLActionSpy.calledOnce).to.be.true;
+      expect(this.InstanceActionSpy.calledOnce).to.be.true;
     });
   });
 });
