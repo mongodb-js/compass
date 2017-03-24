@@ -1,17 +1,14 @@
 const React = require('react');
 const Actions = require('../actions');
-const Performance = require('./performance-component');
 const app = require('hadron-app');
 
-// const debug = require('debug')('mongodb-compass:server-stats:InstanceView');
-
 /**
- * Represents the component that renders all the server stats.
+ * Represents the component that renders the Compass view of a mongo instance.
  */
 class InstanceView extends React.Component {
 
   /**
-   * The RTSS view component constructor.
+   * The InstanceView component constructor.
    *
    * @param {Object} props - The component properties.
    */
@@ -19,6 +16,7 @@ class InstanceView extends React.Component {
     super(props);
     this.state = {activeTab: 0};
     this.DatabasesTable = app.appRegistry.getComponent('Instance.DatabasesTable');
+    this.PerformanceView = app.appRegistry.getComponent('Performance.PerformanceView');
     this.TabNavBar = app.appRegistry.getComponent('App.TabNavBar');
   }
 
@@ -43,7 +41,7 @@ class InstanceView extends React.Component {
    * @returns {React.Component} The component.
    */
   render() {
-    const performanceView = <Performance interval={this.props.interval} />;
+    const performanceView = <this.PerformanceView interval={this.props.interval} />;
     const databasesTable = <this.DatabasesTable />;
     return (
       <div className="rtss">
