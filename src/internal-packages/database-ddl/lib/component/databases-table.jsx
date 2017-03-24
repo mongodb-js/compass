@@ -20,7 +20,6 @@ class DatabasesTable extends React.Component {
     super(props);
     this.DatabaseDDLAction = app.appRegistry.getAction('DatabaseDDL.Actions');
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
-    this.Tooltip = app.appRegistry.getComponent('App.Tooltip');
   }
 
   onColumnHeaderClicked(column, order) {
