@@ -43,6 +43,13 @@ context('Data Service', function() {
     const dataService = new DataService(CONNECTION);
 
     before(function(done) {
+      client
+        .insertDocument({
+          'name': 'Aphex Twin',
+          'genre': 'Electronic',
+          'location': 'London'
+        }, 1);
+
       dataService.connect(function() {
         dataService.insertOne('music.artists', { name: 'Bauhaus' }, {}, function() {
           done();
