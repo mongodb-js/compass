@@ -6,15 +6,21 @@ class Home extends React.Component {
   constructor(props) {
     super(props);
     this.state = { collapsed: false };
+
+    // Navigation components
+    this.InstanceHeader = app.appRegistry.getComponent('InstanceHeader.Component');
     this.sideBar = app.appRegistry.getComponent('Sidebar.Component');
-    this.collectionView = app.appRegistry.getComponent('Collection.Collection');
-    this.collectionsTable = app.appRegistry.getComponent('Database.CollectionsTable');
+
+    // Main working area components
     this.serverStatsView = app.appRegistry.getComponent('RTSS.ServerStats');
+    this.collectionsTable = app.appRegistry.getComponent('Database.CollectionsTable');
+    this.collectionView = app.appRegistry.getComponent('Collection.Collection');
+
+    // Modal dialogs
     this.CreateDatabaseDialog = app.appRegistry.getComponent('DatabaseDDL.CreateDatabaseDialog');
     this.DropDatabaseDialog = app.appRegistry.getComponent('DatabaseDDL.DropDatabaseDialog');
     this.CreateCollectionDialog = app.appRegistry.getComponent('Database.CreateCollectionDialog');
     this.DropCollectionDialog = app.appRegistry.getComponent('Database.DropCollectionDialog');
-    this.InstanceHeader = app.appRegistry.getComponent('InstanceHeader.Component');
   }
 
   getContentClasses() {
