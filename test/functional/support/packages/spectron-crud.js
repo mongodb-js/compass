@@ -10,7 +10,7 @@ function addWaitCRUDCommands(client) {
     return this.waitForVisibleInCompass(selector('insert-document-modal'));
   });
   client.addCommand('waitForInsertDocumentModalHidden', function() {
-    return this.waitForVisibleInCompass(selector('insert-document-modal'), true);
+    return this.waitForModalHide();
   });
 
   /**
