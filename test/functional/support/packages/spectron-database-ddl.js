@@ -1,4 +1,5 @@
 const selector = require('../spectron-selector');
+const debug = require('debug')('mongodb-compass:spectron-support');
 
 
 function addWaitDatabaseDDLCommands(client) {
@@ -53,6 +54,7 @@ function addClickDatabaseDDLCommands(client) {
    * Click the create database button.
    */
   client.addCommand('clickCreateDatabaseButton', function() {
+    debug('create database button');
     return this.waitForStatusBar().click(selector('open-create-database-modal-button'));
   });
 
@@ -62,6 +64,7 @@ function addClickDatabaseDDLCommands(client) {
    * @param {String} name - The name of the database to delete.
    */
   client.addCommand('clickDeleteDatabaseButton', function(name) {
+    debug(`deleting database ${name}`);
     const base = selector('databases-table');
     const wrapper = selector('sortable-table-delete');
     const button = `${base} ${wrapper}[title='Delete ${name}']`;
@@ -72,6 +75,7 @@ function addClickDatabaseDDLCommands(client) {
    * Click the create database button in the modal.
    */
   client.addCommand('clickCreateDatabaseModalButton', function() {
+    debug('clicking create database modal button');
     const base = selector('create-database-button');
     return this.click(base);
   });
@@ -80,6 +84,7 @@ function addClickDatabaseDDLCommands(client) {
    * Click the drop database button in the modal.
    */
   client.addCommand('clickDropDatabaseModalButton', function() {
+    debug('clicking drop database modal button');
     const base = selector('drop-database-button');
     return this.click(base);
   });
@@ -93,6 +98,7 @@ function addInputDatabaseDDLCommands(client) {
    * @param {Object} model - { name: 'dbname', collectionName: 'collName' }
    */
   client.addCommand('inputCreateDatabaseDetails', function(model) {
+    debug('input create database details');
     return this
       .setValue('#create-database-name', model.name)
       .setValue('#create-database-collection-name', model.collectionName);
@@ -104,6 +110,7 @@ function addInputDatabaseDDLCommands(client) {
    * @param {String} name - The database name.
    */
   client.addCommand('inputDropDatabaseName', function(name) {
+    debug(`inputting ${name}`);
     return this.setValue(selector('confirm-drop-database-name'), name);
   });
 }
