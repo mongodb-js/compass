@@ -28,7 +28,8 @@
       },
       "distributions": {
         "compass-lite": {
-          "name": "Compass Lite",
+          "name": "compass-lite",
+          "productName": "Compass Lite",
           "packages": [],
           "styles": [ "index" ]
         }

@@ -119,10 +119,13 @@ class Target {
       sign: true
     });
 
-    this.id = opts.name;
-    this.name = opts.name;
+    this.distribution = process.env.HADRON_DISTRIBUTION;
+    const distOpts = pkg.config.hadron.distributions[this.distribution];
 
-    this.productName = opts.productName;
+    this.id = distOpts.name;
+    this.name = distOpts.name;
+    this.productName = distOpts.productName;
+
     this.version = opts.version;
     this.platform = opts.platform;
     this.arch = opts.arch;

@@ -10,9 +10,9 @@ const github = new GitHub({version: '3.0.0', 'User-Agent': 'hadron-build'});
 const cli = require('mongodb-js-cli')('hadron-build:upload');
 const abortIfError = cli.abortIfError.bind(cli);
 const Target = require('../lib/target');
+const verifyDistro = require('../lib/distro');
 
 const downloadCenter = require('../lib/download-center');
-
 
 let createGitHubRelease = (CONFIG) => {
   const p = Promise.defer();
@@ -169,6 +169,8 @@ exports.builder = {
 
 exports.handler = function(argv) {
   cli.argv = argv;
+
+  verifyDistro(argv);
 
   var fs = require('fs');
   var target = new Target(argv.dir);

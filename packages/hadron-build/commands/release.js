@@ -11,6 +11,7 @@
  * @see [Atom's dump-symbols-task.coffee](https://git.io/va3fG)
  */
 const Target = require('../lib/target');
+const verifyDistro = require('../lib/distro');
 const cli = require('mongodb-js-cli')('hadron-build:release');
 const util = require('util');
 const format = util.format;
@@ -462,11 +463,7 @@ _.assign(exports.builder, ui.builder, verify.builder);
 exports.run = (argv, done) => {
   cli.argv = argv;
 
-  if (!argv._ || !argv._[1]) {
-    process.env.HADRON_DISTRIBUTION = 'compass-lite';
-  } else {
-    process.env.HADRON_DISTRIBUTION = argv._[1];
-  }
+  verifyDistro(argv);
 
   cli.debug(`Building distribution: ${process.env.HADRON_DISTRIBUTION}`);
 

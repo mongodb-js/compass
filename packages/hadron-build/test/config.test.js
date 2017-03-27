@@ -32,21 +32,21 @@ describe('hadron-build::config', () => {
     });
 
     it('should not include channel in the product name on stable', () => {
-      expect(channels.stable.productName).to.equal('Hadron');
+      expect(channels.stable.productName).to.equal('Compass Lite');
     });
 
     it('should not include channel in the slug on stable', () => {
-      expect(channels.stable.slug).to.equal('hadron-app');
+      expect(channels.stable.slug).to.equal('compass-lite');
     });
 
     describe('For releases *not* on the stable channel', () => {
       it('should add the channel as a suffix to the product name', () => {
-        expect(channels.beta.productName).to.equal('Hadron Beta');
-        expect(channels.custom.productName).to.equal('Hadron Custom');
+        expect(channels.beta.productName).to.equal('Compass Lite Beta');
+        expect(channels.custom.productName).to.equal('Compass Lite Custom');
       });
       it('should add the channel as a suffix to the slug', () => {
-        expect(channels.beta.slug).to.equal('hadron-app-beta');
-        expect(channels.custom.slug).to.equal('hadron-app-custom');
+        expect(channels.beta.slug).to.equal('compass-lite-beta');
+        expect(channels.custom.slug).to.equal('compass-lite-custom');
       });
     });
 
@@ -140,11 +140,11 @@ describe('hadron-build::config', () => {
     });
 
     it('should have the platform specific evergreen expansions', () => {
-      expect(res.windows_msi_filename).to.equal('HadronSetup.msi');
-      expect(res.windows_setup_filename).to.equal('HadronSetup.exe');
-      expect(res.windows_zip_filename).to.equal('Hadron-windows.zip');
-      expect(res.windows_nupkg_full_filename).to.equal('Hadron-1.2.0-full.nupkg');
-      expect(res.windows_nupkg_full_label).to.equal('Hadron-1.2.0-full.nupkg');
+      expect(res.windows_msi_filename).to.equal('Compass LiteSetup.msi');
+      expect(res.windows_setup_filename).to.equal('Compass LiteSetup.exe');
+      expect(res.windows_zip_filename).to.equal('Compass Lite-windows.zip');
+      expect(res.windows_nupkg_full_filename).to.equal('CompassLite-1.2.0-full.nupkg');
+      expect(res.windows_nupkg_full_label).to.equal('CompassLite-1.2.0-full.nupkg');
     });
 
     it('should have the platform specific installer options', () => {
@@ -178,14 +178,14 @@ describe('hadron-build::config', () => {
 
       it('should append the channel name to the product name', () => {
         let versionString = custom.packagerOptions['version-string'];
-        expect(versionString.ProductName).to.equal('Hadron Custom');
+        expect(versionString.ProductName).to.equal('Compass Lite Custom');
       });
 
       it('should include the channel name in asset filenames', () => {
-        expect(custom.windows_msi_filename).to.equal('Hadron CustomSetup.msi');
-        expect(custom.windows_setup_filename).to.equal('Hadron CustomSetup.exe');
-        expect(custom.windows_zip_filename).to.equal('Hadron Custom-windows.zip');
-        expect(custom.windows_nupkg_full_filename).to.equal('HadronCustom-1.2.0-custom5-full.nupkg');
+        expect(custom.windows_msi_filename).to.equal('Compass Lite CustomSetup.msi');
+        expect(custom.windows_setup_filename).to.equal('Compass Lite CustomSetup.exe');
+        expect(custom.windows_zip_filename).to.equal('Compass Lite Custom-windows.zip');
+        expect(custom.windows_nupkg_full_filename).to.equal('CompassLiteCustom-1.2.0-custom5-full.nupkg');
       });
     });
   });

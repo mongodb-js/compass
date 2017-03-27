@@ -17,11 +17,11 @@ exports.describe = 'Verify the current environment meets the app\'s requirements
 exports.builder = {
   nodejs_version: {
     describe: 'What version of node.js is required for this app?',
-    default: '^6.3.0'
+    default: '^7.4.0'
   },
   npm_version: {
     describe: 'What version of npm is required for this app?',
-    default: '^3.0.0'
+    default: '^4.0.0'
   }
 };
 
