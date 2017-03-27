@@ -139,7 +139,7 @@
     "async": "^1.5.2",
     "backoff": "^2.4.1",
     "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz",
-    "compass-serverstats": "10gen/compass-serverstats#f3b14e672c8ca6e170336a86b4eb55d91ed61d2a",
+    "compass-serverstats": "10gen/compass-serverstats",
     "d3": "^3.5.6",
     "d3-flextree": "^1.0.3",
     "d3-timer": "^1.0.3",
