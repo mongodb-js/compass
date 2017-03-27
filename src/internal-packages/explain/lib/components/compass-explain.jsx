@@ -1,5 +1,6 @@
 const React = require('react');
 const app = require('hadron-app');
+const { StatusRow } = require('hadron-react-components');
 const ExplainBody = require('./explain-body');
 const ViewSwitcher = require('./shared/view-switcher');
 const ExplainActions = require('../actions');
@@ -13,7 +14,6 @@ class CompassExplain extends React.Component {
 
   constructor(props) {
     super(props);
-    this.statusRow = app.appRegistry.getComponent('App.StatusRow');
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
   }
 
@@ -31,9 +31,9 @@ class CompassExplain extends React.Component {
 
   renderWarning(warning) {
     return (
-      <this.statusRow style="warning">
+      <StatusRow style="warning">
         {warning}
-      </this.statusRow>
+      </StatusRow>
     );
   }
 

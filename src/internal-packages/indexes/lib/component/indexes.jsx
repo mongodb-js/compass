@@ -1,4 +1,5 @@
 const React = require('react');
+const { StatusRow } = require('hadron-react-components');
 const IndexHeader = require('./index-header');
 const IndexList = require('./index-list');
 const CreateIndexButton = require('./create-index-button');
@@ -18,7 +19,6 @@ class Indexes extends React.Component {
   constructor(props) {
     super(props);
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
-    this.StatusRow = app.appRegistry.getComponent('App.StatusRow');
     this.state = this.determineState();
   }
 
@@ -67,9 +67,9 @@ class Indexes extends React.Component {
 
   renderReadonly() {
     return (
-      <this.StatusRow style="warning">
+      <StatusRow style="warning">
         Readonly views may not contain indexes.
-      </this.StatusRow>
+      </StatusRow>
     );
   }
 

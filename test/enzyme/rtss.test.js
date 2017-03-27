@@ -6,7 +6,7 @@ const expect = chai.expect;
 const React = require('react');
 const {shallow} = require('enzyme');
 const AppRegistry = require('hadron-app-registry');
-const StatusRow = require('../../src/internal-packages/app/lib/components/status-row');
+const { StatusRow } = require('hadron-react-components');
 const ServerStatsStore = require('../../node_modules/compass-serverstats/lib/stores/server-stats-graphs-store');
 
 chai.use(chaiEnzyme());

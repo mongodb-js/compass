@@ -6,6 +6,7 @@ const ObjectID = require('bson').ObjectID;
 const Document = require('./document');
 const Action = require('../actions');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
+const { StatusRow } = require('hadron-react-components');
 const ResetDocumentListStore = require('../store/reset-document-list-store');
 const LoadMoreDocumentsStore = require('../store/load-more-documents-store');
 const RemoveDocumentStore = require('../store/remove-document-store');
@@ -59,7 +60,6 @@ class DocumentList extends React.Component {
     this.state = { docs: [], nextSkip: 0, namespace: NamespaceStore.ns, loading: false };
     this.projection = false;
     this.queryBar = app.appRegistry.getComponent('Query.QueryBar');
-    this.statusRow = app.appRegistry.getComponent('App.StatusRow');
     this.QueryChangedStore = app.appRegistry.getStore('Query.ChangedStore');
   }
 
@@ -243,9 +243,9 @@ class DocumentList extends React.Component {
   renderContent() {
     if (this.state.error) {
       return (
-        <this.statusRow style="error">
+        <StatusRow style="error">
           {this.state.error.message}
-        </this.statusRow>
+        </StatusRow>
       );
     }
     return (

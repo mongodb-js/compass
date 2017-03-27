@@ -4,6 +4,7 @@ const app = require('hadron-app');
 const HTML5Backend = require('react-dnd-html5-backend');
 const { DragDropContext } = require('react-dnd');
 const { TextButton } = require('hadron-react-buttons');
+const { StatusRow } = require('hadron-react-components');
 const FieldPanel = require('./field-panel');
 const ChartPanel = require('./chart-panel');
 const Chart = require('./chart');
@@ -18,7 +19,6 @@ class ChartBuilder extends React.Component {
     super(props);
 
     // fetch external components
-    this.statusRow = app.appRegistry.getComponent('App.StatusRow');
     this.queryBar = app.appRegistry.getComponent('Query.QueryBar');
   }
 
@@ -30,13 +30,13 @@ class ChartBuilder extends React.Component {
    */
   renderWarning() {
     return (
-      <this.statusRow>
+      <StatusRow>
         <TextButton
           text="Reset Chart"
           className="btn btn-default btn-xs chart-builder-reset-button"
           clickHandler={this.props.actions.clearChart}
         />
-      </this.statusRow>
+      </StatusRow>
     );
   }
 
