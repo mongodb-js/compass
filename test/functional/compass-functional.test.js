@@ -2,15 +2,17 @@ const { launchCompass, quitCompass, isIndexUsageEnabled} = require('./support/sp
 const DataService = require('mongodb-data-service');
 const Connection = require('mongodb-connection-model');
 
+const debug = require('debug')('mongodb-compass:spectron-support');
 const CONNECTION = new Connection({ hostname: '127.0.0.1', port: 27018, ns: 'music' });
 
 describe('Compass Functional Test Suite #spectron', function() {
   this.slow(30000);
-  this.timeout(60000);
+  this.timeout(120000);
   let app = null;
   let client = null;
 
   before(function(done) {
+    debug('Launching Compass');
     /* Force the node env to testing */
     process.env.NODE_ENV = 'testing';
     launchCompass().then(function(application) {
@@ -21,10 +23,11 @@ describe('Compass Functional Test Suite #spectron', function() {
   });
 
   after(function(done) {
+    debug('Quitting Compass');
     quitCompass(app, done);
   });
 
-  describe('#launch', function() {
+  context('#launch', function() {
     context('when launching the application', function() {
       it('displays the feature tour modal', function() {
         return client
@@ -61,7 +64,7 @@ describe('Compass Functional Test Suite #spectron', function() {
     });
   });
 
-  describe('#connect', function() {
+  context('#connect', function() {
     context('when connecting to a server', function() {
       context('when the server exists', function() {
         it('renders the home screen', function() {
@@ -81,8 +84,9 @@ describe('Compass Functional Test Suite #spectron', function() {
     });
   });
 
-  describe('#rtss', function() {
+  context('#rtss', function() {
     after(function() {
+      debug('after hook of #rtss');
       client.clickDatabasesTab();
     });
 
@@ -205,8 +209,9 @@ describe('Compass Functional Test Suite #spectron', function() {
     });
   });
 
-  describe('#databases', function() {
+  context('#databases', function() {
     after(function() {
+      debug('after hook of #databases');
       client.teardownTest('music');
     });
 
@@ -334,8 +339,9 @@ describe('Compass Functional Test Suite #spectron', function() {
     });
   });
 
-  describe('#sidebar', function() {
+  context('#sidebar', function() {
     before(function(done) {
+      debug('before hook of #sidebar');
       client
         .createDatabaseCollection('music', 'artists').then(function() {
           done();
@@ -343,6 +349,7 @@ describe('Compass Functional Test Suite #spectron', function() {
     });
 
     after(function() {
+      debug('after hook of #sidebar');
       client.teardownTest('music');
     });
 
@@ -385,8 +392,9 @@ describe('Compass Functional Test Suite #spectron', function() {
     });
   });
 
-  describe('#collections', function() {
+  context('#collections', function() {
     before(function(done) {
+      debug('before hook of #collections');
       client
         .createDatabaseCollection('music', 'artists').then(function() {
           done();
@@ -394,6 +402,7 @@ describe('Compass Functional Test Suite #spectron', function() {
     });
 
     after(function() {
+      debug('after hook of #collections');
       client.teardownTest('music');
     });
 
@@ -542,8 +551,9 @@ describe('Compass Functional Test Suite #spectron', function() {
     });
   });
 
-  describe('#crud', function() {
+  context('#crud', function() {
     before(function(done) {
+      debug('before hook of #crud');
       client
         .createDatabaseCollection('music', 'artists')
         .goToCollection('music', 'artists')
@@ -553,6 +563,7 @@ describe('Compass Functional Test Suite #spectron', function() {
     });
 
     after(function() {
+      debug('after hook of #crud');
       client.teardownTest('music');
     });
 
@@ -663,8 +674,9 @@ describe('Compass Functional Test Suite #spectron', function() {
     });
   });
 
-  describe('#schema', function() {
+  context('#schema', function() {
     before(function(done) {
+      debug('before hook of #schema');
       client
         .createDatabaseCollection('music', 'artists')
         .goToCollection('music', 'artists')
@@ -679,6 +691,7 @@ describe('Compass Functional Test Suite #spectron', function() {
     });
 
     after(function() {
+      debug('after hook of #schema');
       client.teardownTest('music');
     });
 
@@ -737,7 +750,8 @@ describe('Compass Functional Test Suite #spectron', function() {
     });
   });
 
-  describe('#explain', function() {
+  context('#explain', function() {
+    debug('before hook of #explain');
     before(function(done) {
       client
         .createDatabaseCollection('music', 'artists')
@@ -753,6 +767,7 @@ describe('Compass Functional Test Suite #spectron', function() {
     });
 
     after(function() {
+      debug('after hook of #explain');
       client.teardownTest('music');
     });
 
@@ -804,9 +819,10 @@ describe('Compass Functional Test Suite #spectron', function() {
     });
   });
 
-  describe('#indexes', function() {
+  context('#indexes', function() {
     let serverVersion;
     before(function(done) {
+      debug('before hook of #indexes');
       client
         .createDatabaseCollection('music', 'artists')
         .goToCollection('music', 'artists')
@@ -821,6 +837,7 @@ describe('Compass Functional Test Suite #spectron', function() {
     });
 
     after(function() {
+      debug('after hook of #indexes');
       client.teardownTest('music');
     });
 
@@ -958,7 +975,7 @@ describe('Compass Functional Test Suite #spectron', function() {
     });
   });
 
-  describe('#validation', function() {
+  context('#validation', function() {
     context('when creating a validation rule', function() {
 
     });
@@ -968,8 +985,9 @@ describe('Compass Functional Test Suite #spectron', function() {
     });
   });
 
-  describe('#data-service', function() {
+  context('#data-service', function() {
     before(function(done) {
+      debug('before hook of #data-service');
       client
         .createDatabaseCollection('music', 'artists')
         .goToCollection('music', 'artists')
@@ -979,6 +997,7 @@ describe('Compass Functional Test Suite #spectron', function() {
     });
 
     after(function() {
+      debug('after hook of #data-service');
       client.teardownTest('music');
     });
 
