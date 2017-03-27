@@ -11,7 +11,7 @@
     "check": "mongodb-js-precommit ./src ./test",
     "compile": "npm run jsx && npm run less",
     "jsx": "babel ./src --out-dir ./lib --presets react",
-    "less": "lessc ./src/styles/index.less ./lib/styles/index.css",
+    "less": "lessc ./styles/index.less ./styles/index.css",
     "postinstall": "npm run compile",
     "prepublish": "npm run compile",
     "pretest": "npm run compile",

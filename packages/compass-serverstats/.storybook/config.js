@@ -1,4 +1,4 @@
-import '../src/styles/index.less';
+import '../styles/index.less';
 
 import { configure, setAddon } from '@kadira/storybook';
 import infoAddon from '@kadira/react-storybook-addon-info';
