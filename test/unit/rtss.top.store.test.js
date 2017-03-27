@@ -9,12 +9,12 @@ const mockDataService = require('./support/mock-data-service');
 const DOC_TOO_BIG_ERROR = {message: 'BufBuilder grow() > 64MB'};
 
 const serverStatsActions = {
-  suppressTop: require('../../src/internal-packages/server-stats/lib/stores/top-store').suppressTop,
-  dbError: require('../../src/internal-packages/server-stats/lib/stores/dberror-store').dbError,
-  pollTop: require('../../src/internal-packages/server-stats/lib/stores/top-store').top_delta
+  suppressTop: require('../../node_modules/compass-serverstats/lib/stores/top-store').suppressTop,
+  dbError: require('../../node_modules/compass-serverstats/lib/stores/dberror-store').dbError,
+  pollTop: require('../../node_modules/compass-serverstats/lib/stores/top-store').top_delta
 };
 
-mock('../../src/internal-packages/server-stats/lib/actions', serverStatsActions);
+mock('../../src/node_modules/compass-serverstats/lib/actions', serverStatsActions);
 
 
 describe('rtss top-store', function() {
