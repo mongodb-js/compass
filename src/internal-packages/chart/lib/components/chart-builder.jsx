@@ -2,13 +2,13 @@
 const React = require('react');
 const app = require('hadron-app');
 const HTML5Backend = require('react-dnd-html5-backend');
-const {DragDropContext} = require('react-dnd');
+const { DragDropContext } = require('react-dnd');
+const { TextButton } = require('hadron-react-buttons');
 const FieldPanel = require('./field-panel');
 const ChartPanel = require('./chart-panel');
 const Chart = require('./chart');
 
 const QUERYBAR_LAYOUT = ['filter', 'project', ['sort', 'skip', 'limit']];
-const EXPERIMENTAL_WARNING = 'The charts feature is experimental. Use at own risk.';
 
 // const debug = require('debug')('mongodb-compass:chart:chart-builder');
 
@@ -30,8 +30,12 @@ class ChartBuilder extends React.Component {
    */
   renderWarning() {
     return (
-      <this.statusRow style="warning">
-        {EXPERIMENTAL_WARNING}
+      <this.statusRow>
+        <TextButton
+          text="Reset Chart"
+          className="btn btn-default btn-xs chart-builder-reset-button"
+          clickHandler={this.props.actions.clearChart}
+        />
       </this.statusRow>
     );
   }
