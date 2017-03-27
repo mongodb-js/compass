@@ -1,9 +1,0 @@
-{
-  "name": "server-stats",
-  "productName": "Compass Server State",
-  "description": "Server Stats for Compass",
-  "version": "0.0.1",
-  "authors": "MongoDB Inc.",
-  "private": true,
-  "main": "./index.js"
-}
