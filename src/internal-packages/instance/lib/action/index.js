@@ -1,7 +1,7 @@
 const Reflux = require('reflux');
 
 /**
- * The actions used by the Database DDL components.
+ * The actions used by the Instance components.
  */
 const Actions = Reflux.createActions([
   'sortDatabases',

@@ -1,11 +1,12 @@
 const React = require('react');
+const ReactTooltip = require('react-tooltip');
 const app = require('hadron-app');
 const semver = require('semver');
 const { NamespaceStore } = require('hadron-reflux-store');
 const toNS = require('mongodb-ns');
 const ipc = require('hadron-ipc');
 
-class Collection extends React.Component {
+class CollectionView extends React.Component {
   constructor(props) {
     super(props);
 
@@ -32,6 +33,12 @@ class Collection extends React.Component {
     } else {
       this.setState({activeTab: 0});
     }
+  }
+
+  componentDidMount() {
+    // Re-render the global 'is-not-writable' tooltip in a performant way
+    // so we don't reintroduce COMPASS-532 on the banks.json data set.
+    ReactTooltip.rebuild();
   }
 
   onTabClicked(idx) {
@@ -118,10 +125,10 @@ class Collection extends React.Component {
   }
 }
 
-Collection.propTypes = {
+CollectionView.propTypes = {
   namespace: React.PropTypes.string
 };
 
-Collection.displayName = 'Collection';
+CollectionView.displayName = 'CollectionView';
 
-module.exports = Collection;
+module.exports = CollectionView;

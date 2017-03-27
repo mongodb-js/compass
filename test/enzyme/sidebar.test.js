@@ -19,10 +19,10 @@ const appRegistry = app.appRegistry;
 describe('<Sidebar />', () => {
   beforeEach(function() {
     app.appRegistry = new AppRegistry();
-    this.DatabaseDDLActionSpy = sinon.spy();
+    this.InstanceActionSpy = sinon.spy();
     app.appRegistry.registerAction(
-      'DatabaseDDL.Actions',
-      {openCreateDatabaseDialog: this.DatabaseDDLActionSpy}
+      'Instance.Actions',
+      {openCreateDatabaseDialog: this.InstanceActionSpy}
     );
     app.appRegistry.registerComponent('App.StoreConnector', StoreConnector);
     app.appRegistry.registerStore('App.InstanceStore', InstanceStore);
@@ -62,7 +62,7 @@ describe('<Sidebar />', () => {
     it('the create database button triggers no action', function() {
       const element = this.component.find('.compass-sidebar-button-create-database');
       element.simulate('click');
-      expect(this.DatabaseDDLActionSpy.called).to.be.false;
+      expect(this.InstanceActionSpy.called).to.be.false;
     });
   });
 
@@ -81,7 +81,7 @@ describe('<Sidebar />', () => {
     it('clicking the create database button triggers an action', function() {
       const element = this.component.find('.compass-sidebar-button-create-database');
       element.simulate('click');
-      expect(this.DatabaseDDLActionSpy.calledOnce).to.be.true;
+      expect(this.InstanceActionSpy.calledOnce).to.be.true;
     });
   });
 });
