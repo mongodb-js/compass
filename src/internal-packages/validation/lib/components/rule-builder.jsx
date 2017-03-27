@@ -1,5 +1,5 @@
-const app = require('hadron-app');
 const React = require('react');
+const { OptionSelector } = require('hadron-react-components');
 const ValidationActions = require('../actions');
 const Rule = require('./rule');
 const Editable = require('./common/editable');
@@ -18,7 +18,6 @@ class RuleBuilder extends React.Component {
 
   constructor(props) {
     super(props);
-    this.OptionSelector = app.appRegistry.getComponent('App.OptionSelector');
     this.state = {
       isValid: true,
       forceRenderKey: 0
@@ -145,7 +144,7 @@ class RuleBuilder extends React.Component {
             </Col>
             <Col lg={6} md={6} sm={6} xs={6}>
               <div className="pull-right">
-                <this.OptionSelector
+                <OptionSelector
                   id="validation-action-selector"
                   bsSize="xs"
                   options={actionOptions}
@@ -154,7 +153,7 @@ class RuleBuilder extends React.Component {
                   disabled={!this.props.isWritable}
                   onSelect={this.onActionSelect.bind(this)}
                 />
-                <this.OptionSelector
+                <OptionSelector
                   id="validation-level-selector"
                   bsSize="xs"
                   options={levelOptions}

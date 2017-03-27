@@ -7,6 +7,7 @@ const React = require('react');
 const sinon = require('sinon');
 const {mount, shallow} = require('enzyme');
 const AppRegistry = require('hadron-app-registry');
+const { OptionSelector } = require('hadron-react-components');
 
 chai.use(chaiEnzyme());
 
@@ -27,9 +28,6 @@ describe('<RuleBuilder />', () => {
     // Mock the AppRegistry with a new one so tests don't complain about
     // appRegistry.getComponent (i.e. appRegistry being undefined)
     app.appRegistry = new AppRegistry();
-
-    const OptionSelector = require('../../src/internal-packages/app/lib/components/option-selector');
-    app.appRegistry.registerComponent('App.OptionSelector', OptionSelector);
 
     this.RuleBuilder = require('../../src/internal-packages/validation/lib/components/rule-builder');
   });

@@ -1,8 +1,8 @@
-const app = require('hadron-app');
 const React = require('react');
 const ValidationActions = require('../actions');
 const ruleCategories = require('./rule-categories');
 const { FormGroup } = require('react-bootstrap');
+const { OptionSelector } = require('hadron-react-components');
 const _ = require('lodash');
 
 // const debug = require('debug')('mongodb-compass:validation:rule-category');
@@ -20,7 +20,6 @@ class RuleCategorySelector extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.OptionSelector = app.appRegistry.getComponent('App.OptionSelector');
     this.state = {
       hasStartedValidating: false,
       isValid: true,
@@ -70,7 +69,7 @@ class RuleCategorySelector extends React.Component {
 
     return (
       <FormGroup validationState={validationState}>
-        <this.OptionSelector
+        <OptionSelector
           options={dropdownOptions}
           id={this.props.id}
           label=""

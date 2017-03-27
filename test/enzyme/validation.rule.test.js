@@ -5,6 +5,7 @@ const chai = require('chai');
 const chaiEnzyme = require('chai-enzyme');
 const expect = chai.expect;
 const React = require('react');
+const { OptionSelector } = require('hadron-react-components');
 
 const mount = require('enzyme').mount;
 const shallow = require('enzyme').shallow;
@@ -40,9 +41,6 @@ const rangeRuleTemplate = {
 describe('<Rule />', function() {
   beforeEach(function() {
     app.appRegistry = new AppRegistry();
-    const OptionSelector = require('../../src/internal-packages/app/lib/components/option-selector');
-    app.appRegistry.registerComponent('App.OptionSelector', OptionSelector);
-
     this.Rule = require('../../src/internal-packages/validation/lib/components/rule');
     this.RuleCategoryRange = require('../../src/internal-packages/validation/lib/components/rule-categories/range');
     this.RuleCategorySelector = require('../../src/internal-packages/validation/lib/components/rule-category-selector');
