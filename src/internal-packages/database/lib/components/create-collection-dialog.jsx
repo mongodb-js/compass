@@ -1,10 +1,10 @@
 // TODO: Move this into a internal-packages/collection-ddl
-const app = require('hadron-app');
 const shell = require('electron').shell;
 const React = require('react');
 const Modal = require('react-bootstrap').Modal;
 const { NamespaceStore } = require('hadron-reflux-store');
 const { TextButton } = require('hadron-react-buttons');
+const { ModalStatusMessage } = require('hadron-react-components');
 const Actions = require('../actions/collections-actions');
 const CreateCollectionStore = require('../stores/create-collection-store');
 const CreateCollectionInput = require('./create-collection-input');
@@ -29,7 +29,6 @@ class CreateCollectionDialog extends React.Component {
   constructor(props) {
     super(props);
     this.state = { open: false };
-    this.ModalStatusMessage = app.appRegistry.getComponent('App.ModalStatusMessage');
   }
 
   /**
@@ -194,10 +193,10 @@ class CreateCollectionDialog extends React.Component {
               onHelpClickHandler={this.onHelpClicked.bind(this)} />
             {this.renderMaxSize()}
             {this.state.error ?
-              <this.ModalStatusMessage icon="times" message={this.state.errorMessage} type="error" />
+              <ModalStatusMessage icon="times" message={this.state.errorMessage} type="error" />
               : null}
             {this.state.inProgress ?
-              <this.ModalStatusMessage icon="align-center" message={'Create in Progress'} type="in-progress" />
+              <ModalStatusMessage icon="align-center" message={'Create in Progress'} type="in-progress" />
               : null}
           </form>
         </Modal.Body>

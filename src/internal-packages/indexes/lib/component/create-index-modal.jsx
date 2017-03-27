@@ -1,6 +1,6 @@
-const app = require('hadron-app');
 const React = require('react');
 const Modal = require('react-bootstrap').Modal;
+const { ModalStatusMessage } = require('hadron-react-components');
 const CreateIndexStore = require('../store/create-index-store');
 const DDLStatusStore = require('../store/ddl-status-store');
 const CreateIndexCheckbox = require('./create-index-checkbox');
@@ -41,7 +41,6 @@ class CreateIndexModal extends React.Component {
       fields: [],
       options: {}
     };
-    this.ModalStatusMessage = app.appRegistry.getComponent('App.ModalStatusMessage');
   }
 
   /**
@@ -268,11 +267,11 @@ class CreateIndexModal extends React.Component {
                 : null}
 
               {this.state.error ?
-                <this.ModalStatusMessage icon="times" message={this.state.errorMessage} type="error" />
+                <ModalStatusMessage icon="times" message={this.state.errorMessage} type="error" />
                 : null}
 
               {this.state.inProgress ?
-                <this.ModalStatusMessage icon="align-center" message={'Create in Progress'} type="in-progress" />
+                <ModalStatusMessage icon="align-center" message={'Create in Progress'} type="in-progress" />
                 : this.renderButtons()}
             </form>
           </Modal.Body>

@@ -1,9 +1,8 @@
-const app = require('hadron-app');
 const React = require('react');
 const Modal = require('react-bootstrap').Modal;
+const { ModalStatusMessage } = require('hadron-react-components');
 const Action = require('../action/index-actions');
 const DDLStatusStore = require('../store/ddl-status-store');
-
 
 // const debug = require('debug')('mongodb-compass:ddl:index');
 
@@ -22,7 +21,6 @@ class DropIndexModal extends React.Component {
     this.state = {
       confirmName: ''
     };
-    this.ModalStatusMessage = app.appRegistry.getComponent('App.ModalStatusMessage');
   }
 
   /**
@@ -152,11 +150,11 @@ class DropIndexModal extends React.Component {
                   onChange={this.handleChange.bind(this)} />
               </div>
               {this.state.error ?
-                <this.ModalStatusMessage icon="times" message={this.state.errorMessage} type="error" />
+                <ModalStatusMessage icon="times" message={this.state.errorMessage} type="error" />
                 : null}
 
               {this.state.inProgress ?
-                <this.ModalStatusMessage icon="align-center" message={'Drop in Progress'} type="in-progress" />
+                <ModalStatusMessage icon="align-center" message={'Drop in Progress'} type="in-progress" />
                 : this.renderButtons()}
             </form>
           </Modal.Body>

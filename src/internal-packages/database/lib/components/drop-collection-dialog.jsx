@@ -1,9 +1,9 @@
 // TODO: Move this into a internal-packages/collection-ddl
-const app = require('hadron-app');
 const React = require('react');
 const Modal = require('react-bootstrap').Modal;
 const { NamespaceStore } = require('hadron-reflux-store');
 const { TextButton } = require('hadron-react-buttons');
+const { ModalStatusMessage } = require('hadron-react-components');
 const Actions = require('../actions/collections-actions');
 const DropCollectionStore = require('../stores/drop-collection-store');
 
@@ -20,7 +20,6 @@ class DropCollectionDialog extends React.Component {
   constructor(props) {
     super(props);
     this.state = { collectionName: '', confirmName: '' };
-    this.ModalStatusMessage = app.appRegistry.getComponent('App.ModalStatusMessage');
   }
 
   /**
@@ -136,10 +135,10 @@ class DropCollectionDialog extends React.Component {
                 onChange={this.onConfirmNameChanged.bind(this)} />
             </div>
             {this.state.error ?
-              <this.ModalStatusMessage icon="times" message={this.state.errorMessage} type="error" />
+              <ModalStatusMessage icon="times" message={this.state.errorMessage} type="error" />
               : null}
             {this.state.inProgress ?
-              <this.ModalStatusMessage icon="align-center" message={'Drop in Progress'} type="in-progress" />
+              <ModalStatusMessage icon="align-center" message={'Drop in Progress'} type="in-progress" />
               : null}
           </form>
         </Modal.Body>

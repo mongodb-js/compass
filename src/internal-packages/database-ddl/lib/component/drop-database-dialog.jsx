@@ -1,7 +1,7 @@
-const app = require('hadron-app');
 const React = require('react');
 const Modal = require('react-bootstrap').Modal;
 const { NamespaceStore } = require('hadron-reflux-store');
+const { ModalStatusMessage } = require('hadron-react-components');
 const { TextButton } = require('hadron-react-buttons');
 const Actions = require('../action');
 const DropDatabaseStore = require('../store/drop-database-store');
@@ -19,7 +19,6 @@ class DropDatabaseDialog extends React.Component {
   constructor(props) {
     super(props);
     this.state = { name: '', confirmName: '' };
-    this.ModalStatusMessage = app.appRegistry.getComponent('App.ModalStatusMessage');
   }
 
   /**
@@ -130,10 +129,10 @@ class DropDatabaseDialog extends React.Component {
                 onChange={this.onConfirmNameChanged.bind(this)} />
             </div>
             {this.state.error ?
-              <this.ModalStatusMessage icon="times" message={this.state.errorMessage} type="error" />
+              <ModalStatusMessage icon="times" message={this.state.errorMessage} type="error" />
               : null}
             {this.state.inProgress ?
-              <this.ModalStatusMessage icon="align-center" message={'Drop in Progress'} type="in-progress" />
+              <ModalStatusMessage icon="align-center" message={'Drop in Progress'} type="in-progress" />
               : null}
           </form>
         </Modal.Body>
