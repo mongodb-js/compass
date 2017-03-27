@@ -1,19 +1,21 @@
 const { launchCompass, quitCompass} = require('../support/spectron-support');
 const DataService = require('mongodb-data-service');
 const Connection = require('mongodb-connection-model');
+const debug = require('debug')('mongodb-compass:spectron-support');
 
 /**
  * Global connection model for this test.
  */
 const CONNECTION = new Connection({ hostname: '127.0.0.1', port: 27018, ns: 'music' });
 
-context('Data Service', function() {
+describe('Data Service', function() {
   this.slow(30000);
   this.timeout(60000);
   let app = null;
   let client = null;
 
   before(function(done) {
+    debug('before hook for data-service.test.js');
     launchCompass().then(function(application) {
       app = application;
       client = application.client;
@@ -21,8 +23,14 @@ context('Data Service', function() {
     });
   });
 
-  context('run the tests', function() {
+  after(function(done) {
+    debug('after hook for data-service.test.js');
+    quitCompass(app, done);
+  });
+
+  context('when using DataService directly', function() {
     before(function(done) {
+      debug('before hook for data-service');
       client
         .connectToCompass({ hostname: 'localhost', port: 27018 })
         .createDatabaseCollection('music', 'artists')
@@ -33,9 +41,10 @@ context('Data Service', function() {
     });
 
     after(function(done) {
+      debug('after hook for data-service');
       client
         .teardownTest('music').then(() => {
-          quitCompass(app, done);
+          done();
         });
     });
 
@@ -43,6 +52,7 @@ context('Data Service', function() {
       const dataService = new DataService(CONNECTION);
 
       before(function(done) {
+        debug('before hook for connecting via data service');
         dataService.connect(function() {
           dataService.insertOne('music.artists', { name: 'Bauhaus' }, {}, function() {
             done();
@@ -51,6 +61,7 @@ context('Data Service', function() {
       });
 
       after(function() {
+        debug('before hook for connecting via data service');
         dataService.disconnect();
       });
 

@@ -1,11 +1,13 @@
 const { launchCompass, quitCompass} = require('../support/spectron-support');
+const debug = require('debug')('mongodb-compass:spectron-support');
 
-context('Connecting to an Instance', function() {
+describe('Connecting to an Instance', function() {
   this.slow(30000);
   this.timeout(60000);
   let app = null;
   let client = null;
   before(function(done) {
+    debug('before hook for connect.test.js');
     launchCompass().then(function(application) {
       app = application;
       client = application.client;
@@ -14,6 +16,7 @@ context('Connecting to an Instance', function() {
   });
 
   after(function(done) {
+    debug('after hook for connect.test.js');
     quitCompass(app, done);
   });
 

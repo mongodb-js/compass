@@ -1,11 +1,14 @@
 const { launchCompass, quitCompass} = require('../support/spectron-support');
+const debug = require('debug')('mongodb-compass:spectron-support');
 
-context('CRUD', function() {
+describe('CRUD', function() {
   this.slow(30000);
   this.timeout(60000);
   let app = null;
   let client = null;
+
   before(function(done) {
+    debug('before hook for crud.test.js');
     launchCompass().then(function(application) {
       app = application;
       client = application.client;
@@ -13,8 +16,14 @@ context('CRUD', function() {
     });
   });
 
-  context('run the tests', function() {
+  after(function(done) {
+    debug('after hook for crud.test.js');
+    quitCompass(app, done);
+  });
+
+  context('when viewing the crud tab', function() {
     before(function(done) {
+      debug('before hook for crud');
       client
         .connectToCompass({ hostname: 'localhost', port: 27018 })
         .createDatabaseCollection('music', 'artists')
@@ -25,9 +34,10 @@ context('CRUD', function() {
     });
 
     after(function(done) {
+      debug('after hook for crud');
       client
         .teardownTest('music').then(() => {
-          quitCompass(app, done);
+          done();
         });
     });
 

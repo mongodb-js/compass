@@ -1,11 +1,14 @@
 const { launchCompass, quitCompass} = require('../support/spectron-support');
+const debug = require('debug')('mongodb-compass:spectron-support');
 
-context('Explain', function() {
+describe('Explain', function() {
   this.slow(30000);
   this.timeout(60000);
   let app = null;
   let client = null;
+
   before(function(done) {
+    debug('before hook for explain.test.js');
     launchCompass().then(function(application) {
       app = application;
       client = application.client;
@@ -13,8 +16,14 @@ context('Explain', function() {
     });
   });
 
-  context('run the tests', function() {
+  after(function(done) {
+    debug('after hook for explain.test.js');
+    quitCompass(app, done);
+  });
+
+  context('when viewing the explain plan tab', function() {
     before(function(done) {
+      debug('before hook for explain');
       client
         .connectToCompass({ hostname: 'localhost', port: 27018 })
         .createDatabaseCollection('music', 'artists')
@@ -25,9 +34,10 @@ context('Explain', function() {
     });
 
     after(function(done) {
+      debug('after hook for explain');
       client
         .teardownTest('music').then(() => {
-          quitCompass(app, done);
+          done();
         });
     });
 
@@ -35,6 +45,7 @@ context('Explain', function() {
       const filter = '{"name":"Bonobo"}';
 
       before(function(done) {
+        debug('before hook for explain inserting a doc');
         client
           .insertDocument({
             'name': 'Aphex Twin',

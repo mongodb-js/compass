@@ -1,14 +1,29 @@
 const { launchCompass, quitCompass} = require('../support/spectron-support');
+const debug = require('debug')('mongodb-compass:spectron-support');
 
-context('Creating & Deleting Collections', function() {
+describe('Creating & Deleting Collections', function() {
   this.slow(30000);
   this.timeout(60000);
   let app = null;
   let client = null;
+
   before(function(done) {
+    debug('before hook for collections.test.js');
     launchCompass().then(function(application) {
       app = application;
       client = application.client;
+      done();
+    });
+  });
+
+  after(function(done) {
+    debug('after hook for collections.test.js');
+    quitCompass(app, done);
+  });
+
+  context('when viewing the collections', function() {
+    before(function(done) {
+      debug('before hook for collections');
       client
         .connectToCompass({ hostname: 'localhost', port: 27018 })
         .createDatabaseCollection('music', 'artists')
@@ -16,16 +31,15 @@ context('Creating & Deleting Collections', function() {
           done();
         });
     });
-  });
 
-  after(function(done) {
-    client
-      .teardownTest('music').then(() => {
-        quitCompass(app, done);
-      });
-  });
+    after(function(done) {
+      debug('after hook for collections');
+      client
+        .teardownTest('music').then(() => {
+          done();
+        });
+    });
 
-  context('when viewing the database', function() {
     it('lists the collections in the database', function() {
       return client
         .clickDatabaseInSidebar('music')

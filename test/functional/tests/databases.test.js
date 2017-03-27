@@ -1,12 +1,14 @@
 const { launchCompass, quitCompass} = require('../support/spectron-support');
+const debug = require('debug')('mongodb-compass:spectron-support');
 
-context('Creating & Deleting Databases', function() {
+describe('Creating & Deleting Databases', function() {
   this.slow(30000);
   this.timeout(60000);
   let app = null;
   let client = null;
 
   before(function(done) {
+    debug('before hook for rtss.test.js');
     launchCompass().then(function(application) {
       app = application;
       client = application.client;
@@ -14,8 +16,14 @@ context('Creating & Deleting Databases', function() {
     });
   });
 
-  context('run the tests', function() {
+  after(function(done) {
+    debug('after hook for rtss.test.js');
+    quitCompass(app, done);
+  });
+
+  context('when viewing the databases tab', function() {
     before(function(done) {
+      debug('before hook for databases tab');
       client
         .connectToCompass({ hostname: 'localhost', port: 27018 })
         .then(() => {
@@ -24,9 +32,10 @@ context('Creating & Deleting Databases', function() {
     });
 
     after(function(done) {
+      debug('after hook for databases tab');
       client
         .teardownTest('music').then(() => {
-          quitCompass(app, done);
+          done();
         });
     });
 

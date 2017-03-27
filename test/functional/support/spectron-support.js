@@ -180,6 +180,7 @@ function launchCompass() {
     chai.should().exist(client);
     return client.waitUntilWindowLoaded(LONG_TIMEOUT);
   }).then(() => {
+    debug('launching Compass!');
     return app;
   }).catch((error) => {
     debug(error.message);
@@ -197,6 +198,7 @@ function launchCompass() {
 function quitCompass(app, done) {
   if (!app || !app.isRunning()) return;
   return app.stop().then(function() {
+    debug('quitting Compass!');
     assert.equal(app.isRunning(), false);
     done();
   });

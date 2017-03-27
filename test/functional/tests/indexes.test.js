@@ -1,7 +1,8 @@
 const { launchCompass, quitCompass} = require('../support/spectron-support');
 const {isIndexUsageEnabled} = require('../support/spectron-support');
+const debug = require('debug')('mongodb-compass:spectron-support');
 
-context('Indexes', function() {
+describe('Indexes', function() {
   this.slow(30000);
   this.timeout(60000);
   let app = null;
@@ -9,6 +10,7 @@ context('Indexes', function() {
   let serverVersion;
 
   before(function(done) {
+    debug('before hook for indexes.test.js');
     launchCompass().then(function(application) {
       app = application;
       client = application.client;
@@ -16,8 +18,14 @@ context('Indexes', function() {
     });
   });
 
-  context('run the tests', function() {
+  after(function(done) {
+    debug('after hook for indexes.test.js');
+    quitCompass(app, done);
+  });
+
+  context('when viewing the indexes tab', function() {
     before(function(done) {
+      debug('before hook for indexes');
       client
         .connectToCompass({ hostname: 'localhost', port: 27018 })
         .createDatabaseCollection('music', 'artists')
@@ -28,14 +36,16 @@ context('Indexes', function() {
     });
 
     after(function(done) {
+      debug('after hook for indexes');
       client
         .teardownTest('music').then(() => {
-          quitCompass(app, done);
+          done();
         });
     });
 
     context('when navigating to the indexes tab', function() {
       before(function(done) {
+        debug('before hook for indexes inserting a doc');
         client
           .insertDocument({
             'name': 'Aphex Twin',

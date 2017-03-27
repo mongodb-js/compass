@@ -1,11 +1,14 @@
 const { launchCompass, quitCompass} = require('../support/spectron-support');
+const debug = require('debug')('mongodb-compass:spectron-support');
 
-context('Schema', function() {
+describe('Schema', function() {
   this.slow(30000);
   this.timeout(60000);
   let app = null;
   let client = null;
+
   before(function(done) {
+    debug('before hook for schema.test.js');
     launchCompass().then(function(application) {
       app = application;
       client = application.client;
@@ -13,8 +16,14 @@ context('Schema', function() {
     });
   });
 
-  context('run the tests', function() {
+  after(function(done) {
+    debug('after hook for schema.test.js');
+    quitCompass(app, done);
+  });
+
+  context('when viewing the schema tab', function() {
     before(function(done) {
+      debug('before hook for schema');
       client
         .connectToCompass({ hostname: 'localhost', port: 27018 })
         .createDatabaseCollection('music', 'artists')
@@ -25,9 +34,10 @@ context('Schema', function() {
     });
 
     after(function(done) {
+      debug('after hook for schema');
       client
         .teardownTest('music').then(() => {
-          quitCompass(app, done);
+          done();
         });
     });
 
@@ -38,6 +48,7 @@ context('Schema', function() {
       const expectedZeroReport = 'This report is based on a sample of 0 documents (0.00%).';
 
       before(function(done) {
+        debug('before hook for schema inserting a doc');
         client
           .insertDocument({
             'name': 'Aphex Twin',

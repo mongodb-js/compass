@@ -1,13 +1,14 @@
 const { launchCompass, quitCompass} = require('../support/spectron-support');
+const debug = require('debug')('mongodb-compass:spectron-support');
 
-
-context('Performance tab', function() {
+describe('Performance tab', function() {
   this.slow(30000);
   this.timeout(60000);
   let app = null;
   let client = null;
 
   before(function(done) {
+    debug('before hook for rtss.test.js');
     launchCompass().then(function(application) {
       app = application;
       client = application.client;
@@ -19,6 +20,7 @@ context('Performance tab', function() {
   });
 
   after(function(done) {
+    debug('after hook for rtss.test.js');
     quitCompass(app, done);
   });
 

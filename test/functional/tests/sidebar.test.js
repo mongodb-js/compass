@@ -1,13 +1,14 @@
 const { launchCompass, quitCompass} = require('../support/spectron-support');
+const debug = require('debug')('mongodb-compass:spectron-support');
 
-
-context('Sidebar', function() {
+describe('Sidebar', function() {
   this.slow(30000);
   this.timeout(60000);
   let app = null;
   let client = null;
 
   before(function(done) {
+    debug('before hook for sidebar.test.js');
     launchCompass().then(function(application) {
       app = application;
       client = application.client;
@@ -15,21 +16,27 @@ context('Sidebar', function() {
     });
   });
 
-  context('run the tests', function() {
+  after(function(done) {
+    debug('after hook for sidebar.test.js');
+    quitCompass(app, done);
+  });
+
+  context('when viewing the sidebar', function() {
     before(function(done) {
+      debug('before hook for sidebar');
       client
         .connectToCompass({ hostname: 'localhost', port: 27018 })
         .createDatabaseCollection('music', 'artists')
-        .goToCollection('music', 'artists')
         .then(() => {
           done();
         });
     });
 
     after(function(done) {
+      debug('after hook for sidebar');
       client
         .teardownTest('music').then(() => {
-          quitCompass(app, done);
+          done();
         });
     });
 

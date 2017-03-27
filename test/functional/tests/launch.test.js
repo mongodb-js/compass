@@ -1,12 +1,14 @@
 const { launchCompass, quitCompass} = require('../support/spectron-support');
+const debug = require('debug')('mongodb-compass:spectron-support');
 
-context('Application Launch', function() {
+describe('Application Launch', function() {
   this.slow(30000);
   this.timeout(60000);
   let app = null;
   let client = null;
 
   before(function(done) {
+    debug('before hook for launch.test.js');
     launchCompass().then(function(application) {
       app = application;
       client = application.client;
@@ -15,6 +17,7 @@ context('Application Launch', function() {
   });
 
   after(function(done) {
+    debug('after hook for launch.test.js');
     quitCompass(app, done);
   });
 
