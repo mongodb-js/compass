@@ -17,6 +17,12 @@ context('Data Service', function() {
     launchCompass().then(function(application) {
       app = application;
       client = application.client;
+      done();
+    });
+  });
+
+  context('run the tests', function() {
+    before(function(done) {
       client
         .connectToCompass({ hostname: 'localhost', port: 27018 })
         .createDatabaseCollection('music', 'artists')
@@ -25,73 +31,73 @@ context('Data Service', function() {
           done();
         });
     });
-  });
 
-  after(function(done) {
-    client
-      .teardownTest('music').then(() => {
-        quitCompass(app, done);
-      });
-  });
+    after(function(done) {
+      client
+        .teardownTest('music').then(() => {
+          quitCompass(app, done);
+        });
+    });
 
-  context('when refreshing the documents list', function() {
-    const dataService = new DataService(CONNECTION);
+    context('when refreshing the documents list', function() {
+      const dataService = new DataService(CONNECTION);
 
-    before(function(done) {
-      dataService.connect(function() {
-        dataService.insertOne('music.artists', { name: 'Bauhaus' }, {}, function() {
-          done();
+      before(function(done) {
+        dataService.connect(function() {
+          dataService.insertOne('music.artists', { name: 'Bauhaus' }, {}, function() {
+            done();
+          });
         });
       });
-    });
 
-    after(function() {
-      dataService.disconnect();
-    });
+      after(function() {
+        dataService.disconnect();
+      });
 
-    it('resets the documents in the list', function() {
-      return client
-        .clickDocumentsTab()
-        .clickRefreshDocumentsButton()
-        .getSamplingMessageFromDocumentsTab()
-        .should.eventually.include('Query returned 1 document.');
-    });
-  });
-
-  context('when inserting a document when a filter is applied', function() {
-    const filter = '{"name":"Bauhaus"}';
-
-    context('when the new document does not match the filter', function() {
-      it('does not render the document in the list', function() {
+      it('resets the documents in the list', function() {
         return client
-          .inputFilterFromDocumentsTab(filter)
-          .clickApplyFilterButtonFromDocumentsTab()
-          .waitForStatusBar()
-          .clickInsertDocumentButton()
-          .waitForInsertDocumentModal()
-          .inputNewDocumentDetails({
-            'name': 'George Michael'
-          })
-          .clickInsertDocumentModalButton()
+          .clickDocumentsTab()
+          .clickRefreshDocumentsButton()
           .getSamplingMessageFromDocumentsTab()
           .should.eventually.include('Query returned 1 document.');
       });
+    });
 
-      it('does not update the schema count', function() {
-        const expected = 'This report is based on a sample of 1 document (100.00%).';
-        return client
-          .clickSchemaTab()
-          .getSamplingMessageFromSchemaTab()
-          .should.eventually.include(expected);
-      });
+    context('when inserting a document when a filter is applied', function() {
+      const filter = '{"name":"Bauhaus"}';
 
-      it('inserts the document', function() {
-        return client
-          .clickDocumentsTab()
-          .clickResetFilterButtonFromDocumentsTab()
-          .waitForStatusBar()
-          .getDocumentValues(2)
-          .should.eventually.include('\"George Michael\"');
+      context('when the new document does not match the filter', function() {
+        it('does not render the document in the list', function() {
+          return client
+            .inputFilterFromDocumentsTab(filter)
+            .clickApplyFilterButtonFromDocumentsTab()
+            .waitForStatusBar()
+            .clickInsertDocumentButton()
+            .waitForInsertDocumentModal()
+            .inputNewDocumentDetails({
+              'name': 'George Michael'
+            })
+            .clickInsertDocumentModalButton()
+            .getSamplingMessageFromDocumentsTab()
+            .should.eventually.include('Query returned 1 document.');
+        });
+
+        it('does not update the schema count', function() {
+          const expected = 'This report is based on a sample of 1 document (100.00%).';
+          return client
+            .clickSchemaTab()
+            .getSamplingMessageFromSchemaTab()
+            .should.eventually.include(expected);
+        });
+
+        it('inserts the document', function() {
+          return client
+            .clickDocumentsTab()
+            .clickResetFilterButtonFromDocumentsTab()
+            .waitForStatusBar()
+            .getDocumentValues(2)
+            .should.eventually.include('\"George Michael\"');
+        });
       });
     });
   });

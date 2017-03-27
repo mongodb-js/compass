@@ -9,6 +9,12 @@ context('Schema', function() {
     launchCompass().then(function(application) {
       app = application;
       client = application.client;
+      done();
+    });
+  });
+
+  context('run the tests', function() {
+    before(function(done) {
       client
         .connectToCompass({ hostname: 'localhost', port: 27018 })
         .createDatabaseCollection('music', 'artists')
@@ -17,78 +23,78 @@ context('Schema', function() {
           done();
         });
     });
-  });
 
-  after(function(done) {
-    client
-      .teardownTest('music').then(() => {
-        quitCompass(app, done);
-      });
-  });
-
-  context('when applying a filter', function() {
-    const filter = '{"name":"Bonobo"}';
-    const expectedZeroDoc = 'Query returned 0 documents.';
-    const expectedOneDoc = 'Query returned 1 document.';
-    const expectedZeroReport = 'This report is based on a sample of 0 documents (0.00%).';
-
-    before(function(done) {
+    after(function(done) {
       client
-        .insertDocument({
-          'name': 'Aphex Twin',
-          'genre': 'Electronic',
-          'location': 'London'
-        }, 1)
-        .then(() => {
-          done();
+        .teardownTest('music').then(() => {
+          quitCompass(app, done);
         });
     });
 
-    it('shows a blank schema view', function() {
-      return client
-        .clickSchemaTab()
-        .getSamplingMessageFromSchemaTab()
-        .should.eventually.include(`${expectedOneDoc}`);
-    });
+    context('when applying a filter', function() {
+      const filter = '{"name":"Bonobo"}';
+      const expectedZeroDoc = 'Query returned 0 documents.';
+      const expectedOneDoc = 'Query returned 1 document.';
+      const expectedZeroReport = 'This report is based on a sample of 0 documents (0.00%).';
 
-    it('shows a schema on refresh', function() {
-      return client
-        .clickDatabaseInSidebar('music')
-        .waitForDatabaseView()
-        .goToCollection('music', 'artists')
-        .getSamplingMessageFromSchemaTab()
-        .should
-        .eventually
-        .include(`${expectedOneDoc} This report is based on a sample of 1 document (100.00%).`);
-    });
+      before(function(done) {
+        client
+          .insertDocument({
+            'name': 'Aphex Twin',
+            'genre': 'Electronic',
+            'location': 'London'
+          }, 1)
+          .then(() => {
+            done();
+          });
+      });
 
-    it('applies the filter from schema view', function() {
-      return client
-        .inputFilterFromSchemaTab(filter)
-        .waitForStatusBar()
-        .clickApplyFilterButtonFromSchemaTab()
-        .waitForStatusBar()
-        .getSamplingMessageFromSchemaTab()
-        .should.eventually.include(`${expectedZeroDoc} ${expectedZeroReport}`);
-    });
+      it('shows a blank schema view', function() {
+        return client
+          .clickSchemaTab()
+          .getSamplingMessageFromSchemaTab()
+          .should.eventually.include(`${expectedOneDoc}`);
+      });
 
-    it('checks the collections table', function() {
-      return client
-        .clickDatabaseInSidebar('music')
-        .waitForDatabaseView()
-        .getCollectionsTabCollectionNames()
-        .should.eventually.include('artists');
-    });
+      it('shows a schema on refresh', function() {
+        return client
+          .clickDatabaseInSidebar('music')
+          .waitForDatabaseView()
+          .goToCollection('music', 'artists')
+          .getSamplingMessageFromSchemaTab()
+          .should
+          .eventually
+          .include(`${expectedOneDoc} This report is based on a sample of 1 document (100.00%).`);
+      });
 
-    it('applies the filter again while on schema tab', function() {
-      return client
-        .goToCollection('music', 'artists')
-        .inputFilterFromSchemaTab(filter)
-        .waitForStatusBar()
-        .clickApplyFilterButtonFromSchemaTab()
-        .waitForStatusBar()
-        .getSamplingMessageFromSchemaTab()
-        .should.eventually.equal(`${expectedZeroDoc} ${expectedZeroReport}`);
+      it('applies the filter from schema view', function() {
+        return client
+          .inputFilterFromSchemaTab(filter)
+          .waitForStatusBar()
+          .clickApplyFilterButtonFromSchemaTab()
+          .waitForStatusBar()
+          .getSamplingMessageFromSchemaTab()
+          .should.eventually.include(`${expectedZeroDoc} ${expectedZeroReport}`);
+      });
+
+      it('checks the collections table', function() {
+        return client
+          .clickDatabaseInSidebar('music')
+          .waitForDatabaseView()
+          .getCollectionsTabCollectionNames()
+          .should.eventually.include('artists');
+      });
+
+      it('applies the filter again while on schema tab', function() {
+        return client
+          .goToCollection('music', 'artists')
+          .inputFilterFromSchemaTab(filter)
+          .waitForStatusBar()
+          .clickApplyFilterButtonFromSchemaTab()
+          .waitForStatusBar()
+          .getSamplingMessageFromSchemaTab()
+          .should.eventually.equal(`${expectedZeroDoc} ${expectedZeroReport}`);
+      });
     });
   });
 });
