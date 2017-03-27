@@ -563,6 +563,7 @@ describe('TypeChecker', function() {
 
               it('returns the list', function() {
                 expect(TypeChecker.castableTypes(value, true)).to.deep.equal([
+                  'Date',
                   'Double',
                   'Decimal128',
                   'String',
@@ -887,6 +888,72 @@ describe('TypeChecker', function() {
             });
           });
 
+          context('with ISO-8601 dates it handles', function() {
+            // Using https://www.w3.org/TR/NOTE-datetime
+            it('Year', () => {
+              const value = '1997';
+              expect(TypeChecker.castableTypes(value)).to.deep.equal([
+                'Date',
+                'Int32',
+                'Int64',
+                'Double',
+                'String',
+                'Object',
+                'Array'
+              ]);
+            });
+
+            it('Year and month', () => {
+              const value = '1997-07';
+              expect(TypeChecker.castableTypes(value)).to.deep.equal([
+                'Date',
+                'String',
+                'Object',
+                'Array'
+              ]);
+            });
+
+            it('Complete date', () => {
+              const value = '1997-07-16';
+              expect(TypeChecker.castableTypes(value)).to.deep.equal([
+                'Date',
+                'String',
+                'Object',
+                'Array'
+              ]);
+            });
+
+            it('Complete date plus hours and minutes', () => {
+              const value = '1997-07-16T19:20+01:00';
+              expect(TypeChecker.castableTypes(value)).to.deep.equal([
+                'Date',
+                'String',
+                'Object',
+                'Array'
+              ]);
+            });
+
+            it('Complete date plus hours, minutes and seconds', () => {
+              const value = '1997-07-16T19:20:30+01:00';
+              expect(TypeChecker.castableTypes(value)).to.deep.equal([
+                'Date',
+                'String',
+                'Object',
+                'Array'
+              ]);
+            });
+
+            it('Complete date plus hours, minutes, seconds and a decimal fraction of a second', () => {
+              const value = '1997-07-16T19:20:30.45+01:00';
+              expect(TypeChecker.castableTypes(value)).to.deep.equal([
+                'Date',
+                'String',
+                'Object',
+                'Array'
+              ]);
+            });
+          });
+
           context('when the date is with time and decimal', function() {
             var value = '2016-10-10T12:12:00.001';
 
@@ -900,8 +967,21 @@ describe('TypeChecker', function() {
             });
           });
 
-          context('when the date is invalid', function() {
-            var value = '2016-10-10 12:12:00.001';
+          context('when the date contains a space instead of a T', function() {
+            const value = '2016-10-10 12:12:00.001';
+
+            it('returns the list', function() {
+              expect(TypeChecker.castableTypes(value)).to.deep.equal([
+                'Date',
+                'String',
+                'Object',
+                'Array'
+              ]);
+            });
+          });
+
+          context('when the date is invalid no matter which way you interpret it', function() {
+            const value = '2016.13.13';  // There is no 13th month
 
             it('returns the list', function() {
               expect(TypeChecker.castableTypes(value)).to.deep.equal([
@@ -1336,16 +1416,18 @@ describe('TypeChecker', function() {
 
   describe('invalid Decimal-128 values', function() {
     context('invalid strings', function() {
-      var values = [
-        'E02',
+      const invalidDecimal128DateValues = [
         'E+02',
         'e+02',
+        '..1'
+      ];
+      const invalidDecimal128Values = [
+        'E02',
         '.',
         '.e',
         'invalid',
         'in',
         'i',
-        '..1',
         '1abcede',
         '1.24abc',
         '1.24abcE+02',
@@ -1354,25 +1436,33 @@ describe('TypeChecker', function() {
         '12324.123.1233',
         '123E 123'
       ];
-      for (var i = 0; i < values.length; i++) {
-        const value = values[i];
-        context(value + ' cast', function() {
-          it('cast throws an error', function() {
-            expect(function() {
-              TypeChecker.cast(value, 'Decimal128');
-            }).to.throw(value + ' not a valid Decimal128 string');
+      /**
+       * Build Decimal128 tests from a list of test values and
+       * a common array of expectations.
+       *
+       * @param {Array} values - Which values to apply this
+       * @param {Array} expectations -
+       */
+      const decimal128TestFactory = (values, expectations) => {
+        for (let i = 0; i < values.length; i++) {
+          const value = values[i];
+          context(value + ' cast', function() {
+            it('cast throws an error', function() {
+              expect(function() {
+                TypeChecker.cast(value, 'Decimal128');
+              }).to.throw(value + ' not a valid Decimal128 string');
+            });
           });
-        });
-        context(value + ' castableTypes', function() {
-          it('castableTypes does not include Decimal 128', function() {
-            expect(TypeChecker.castableTypes(value, true)).to.deep.equal(
-              ['String',
-                'Object',
-                'Array']
-            );
+          context(value + ' castableTypes', function() {
+            it('castableTypes does not include Decimal 128', function() {
+              expect(TypeChecker.castableTypes(value, true)).to.deep.equal(expectations);
+            });
           });
-        });
-      }
+        }
+      };
+      //
+      decimal128TestFactory(invalidDecimal128DateValues, ['Date', 'String', 'Object', 'Array']);
+      decimal128TestFactory(invalidDecimal128Values, ['String', 'Object', 'Array']);
     });
 
     context('empty string', function() {

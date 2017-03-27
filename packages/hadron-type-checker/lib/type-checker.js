@@ -241,17 +241,12 @@ class Decimal128Check {
   }
 }
 
-const DATE_REGEX = /^(\d{4})-(\d|\d{2})-(\d|\d{2})(T\d{2}\:\d{2}\:\d{2}(\.\d+)?)?$/;
-
 /**
  * Checks if a string is a date.
  */
 class DateCheck {
   test(string) {
-    if (DATE_REGEX.test(string)) {
-      var date = Date.parse(string);
-      return date ? true : false;
-    }
+    return isFinite(toDate(string).getTime());
   }
 }
 
@@ -263,7 +258,8 @@ const DECIMAL_128_CHECK = new Decimal128Check();
 const DATE_CHECK = new DateCheck();
 
 /**
- * The various string tests.
+ * The various string tests,
+ * excluding dates which are on their own dimension.
  */
 const STRING_TESTS = [
   new Test(/^$/, [ 'String', 'Null', 'MinKey', 'MaxKey', 'Object', 'Array', 'ObjectID']),
@@ -275,12 +271,12 @@ const STRING_TESTS = [
   new Test(/^(undefined)$/, [ 'Undefined', 'String', 'Object', 'Array' ]),
   new Test(/^(true|false)$/, [ 'Boolean', 'String', 'Object', 'Array' ]),
   new Test(/^\/(.*)\/$/, [ 'BSONRegExp', 'String', 'Object', 'Array' ]),
-  new Test(DATE_CHECK, [ 'Date', 'String', 'Object', 'Array' ]),
   new Test(/(^$)|^[A-Fa-f0-9]{24}$/, [ 'String', 'Object', 'Array', 'ObjectID' ])
 ];
 
 /**
- * String tests with high precision support.
+ * String tests with high precision support,
+ * excluding dates which are on their own dimension.
  */
 const HP_STRING_TESTS = [
   new Test(/^$/, [ 'String', 'Null', 'MinKey', 'MaxKey', 'Object', 'Array', 'ObjectID' ]),
@@ -293,7 +289,6 @@ const HP_STRING_TESTS = [
   new Test(/^(undefined)$/, [ 'Undefined', 'String', 'Object', 'Array' ]),
   new Test(/^(true|false)$/, [ 'Boolean', 'String', 'Object', 'Array' ]),
   new Test(/^\/(.*)\/$/, [ 'BSONRegExp', 'String', 'Object', 'Array' ]),
-  new Test(DATE_CHECK, [ 'Date', 'String', 'Object', 'Array' ]),
   new Test(/(^$)|^[A-Fa-f0-9]{24}$/, [ 'String', 'Object', 'Array', 'ObjectID' ])
 ];
 
@@ -366,7 +361,7 @@ class TypeChecker {
    * Get a list of types the object can be cast to.
    *
    * @param {Object} object - The object.
-   * @param {Boolean} highPrecisionSupport - If high precision is supported or not.
+   * @param {Boolean} highPrecisionSupport - If Decimal128 is supported or not.
    *
    * @returns {Array} The available types.
    */
@@ -398,10 +393,20 @@ class TypeChecker {
   }
 
   _stringTypes(string, highPrecisionSupport) {
+    let types = [ 'String', 'Object', 'Array' ];
     var passing = find(highPrecisionSupport ? HP_STRING_TESTS : STRING_TESTS, (test) => {
       return test.tester.test(string);
     });
-    return passing ? passing.types : [ 'String', 'Object', 'Array' ];
+    if (passing) {
+      types = passing.types;
+    }
+    // Add date dynamically to the existing types lists, as it is on a
+    // completely different dimension to numeric types and so significantly
+    // more complicated to enumerate all valid combinations
+    if (DATE_CHECK.test(string)) {
+      types = ['Date', ...types];
+    }
+    return types;
   }
 }
 
