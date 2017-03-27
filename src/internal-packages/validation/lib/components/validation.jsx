@@ -1,4 +1,5 @@
 const app = require('hadron-app');
+const { StatusRow } = require('hadron-react-components');
 const React = require('react');
 const ValidationActions = require('../actions');
 const ValidationStatusRow = require('./common/status-row');
@@ -18,7 +19,6 @@ class Validation extends React.Component {
   constructor(props) {
     super(props);
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
-    this.StatusRow = app.appRegistry.getComponent('App.StatusRow');
   }
 
   /**
@@ -69,9 +69,9 @@ class Validation extends React.Component {
 
   renderReadonly() {
     return (
-      <this.StatusRow style="warning">
+      <StatusRow style="warning">
         Document validation rules may not be added to readonly views.
-      </this.StatusRow>
+      </StatusRow>
     );
   }
 

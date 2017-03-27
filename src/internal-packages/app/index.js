@@ -1,7 +1,6 @@
 const app = require('hadron-app');
 const OptionSelector = require('./lib/components/option-selector');
 const SortableTable = require('./lib/components/sortable-table');
-const StatusRow = require('./lib/components/status-row');
 const StoreConnector = require('./lib/components/store-connector');
 const TabNavBar = require('./lib/components/tab-nav-bar');
 const InstanceActions = require('./lib/actions/instance-actions');
@@ -14,7 +13,6 @@ const CollectionStore = require('./lib/stores/collection-store');
 function activate() {
   app.appRegistry.registerComponent('App.OptionSelector', OptionSelector);
   app.appRegistry.registerComponent('App.SortableTable', SortableTable);
-  app.appRegistry.registerComponent('App.StatusRow', StatusRow);
   app.appRegistry.registerComponent('App.StoreConnector', StoreConnector);
   app.appRegistry.registerComponent('App.TabNavBar', TabNavBar);
   app.appRegistry.registerAction('App.InstanceActions', InstanceActions);
@@ -28,7 +26,6 @@ function activate() {
 function deactivate() {
   app.appRegistry.deregisterComponent('App.OptionSelector');
   app.appRegistry.deregisterComponent('App.SortableTable');
-  app.appRegistry.deregisterComponent('App.StatusRow');
   app.appRegistry.deregisterComponent('App.StoreConnector');
   app.appRegistry.deregisterComponent('App.TabNavBar');
   app.appRegistry.deregisterAction('App.InstanceActions');

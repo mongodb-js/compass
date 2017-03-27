@@ -152,7 +152,7 @@
     "hadron-package-manager": "^1.0.0",
     "hadron-react-bson": "^0.3.0",
     "hadron-react-buttons": "^0.2.0",
-    "hadron-react-components": "^0.4.0",
+    "hadron-react-components": "^0.5.0",
     "hadron-reflux-store": "^0.0.2",
     "hadron-style-manager": "^0.1.0",
     "hadron-type-checker": "^1.2.0",

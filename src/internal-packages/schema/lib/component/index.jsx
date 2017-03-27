@@ -1,5 +1,6 @@
 const app = require('hadron-app');
 const React = require('react');
+const { StatusRow } = require('hadron-react-components');
 const SchemaActions = require('../action');
 const SchemaStore = require('../store');
 const StateMixin = require('reflux-state-mixin');
@@ -23,7 +24,6 @@ const Schema = React.createClass({
   componentWillMount() {
     this.samplingMessage = app.appRegistry.getComponent('Query.SamplingMessage');
     this.StatusAction = app.appRegistry.getAction('Status.Actions');
-    this.StatusRow = app.appRegistry.getComponent('App.StatusRow');
     this.queryBar = app.appRegistry.getComponent('Query.QueryBar');
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
   },
@@ -94,9 +94,9 @@ const Schema = React.createClass({
   renderErrorMessage() {
     if (this.state.samplingState === 'error') {
       return (
-        <this.StatusRow style="error">
+        <StatusRow style="error">
           An error occured during schema analysis: {this.state.errorMessage}
-        </this.StatusRow>
+        </StatusRow>
       );
     }
     return null;
