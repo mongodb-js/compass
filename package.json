@@ -32,17 +32,26 @@
         "compass-lite": {
           "name": "Compass Lite",
           "packages": [],
-          "styles": [ "index", "help" ]
+          "styles": [
+            "index",
+            "help"
+          ]
         },
         "compass-enterprise": {
           "name": "Compass Enterprise",
           "packages": [],
-          "styles": [ "index", "help" ]
+          "styles": [
+            "index",
+            "help"
+          ]
         },
         "compass-charts": {
           "name": "Compass Charts",
           "packages": [],
-          "styles": [ "index", "help" ]
+          "styles": [
+            "index",
+            "help"
+          ]
         }
       },
       "build": {
@@ -157,7 +166,7 @@
     "hadron-react-buttons": "^0.2.0",
     "hadron-reflux-store": "^0.0.2",
     "hadron-style-manager": "^0.1.0",
-    "hadron-type-checker": "^1.1.1",
+    "hadron-type-checker": "^1.2.0",
     "highlight.js": "^8.9.1",
     "jquery": "^2.1.4",
     "keytar": "mongodb-js/node-keytar#fdef09013f576b7a257ad768939e827882bccef5",
