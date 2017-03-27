@@ -30,22 +30,22 @@
       ],
       "distributions": {
         "compass-lite": {
-          "name": "Compass Lite",
+          "name": "compass-lite",
+          "productName": "MongoDB Compass Lite",
           "packages": [ "node_modules/compass-serverstats" ],
           "styles": [ "index", "help" ]
         },
         "compass-enterprise": {
-          "name": "Compass Enterprise",
+          "name": "compass-enterprise",
+          "productName": "MongoDB Compass Ent",
           "packages": [ "node_modules/compass-serverstats" ],
           "styles": [ "index", "help" ]
         },
         "compass-charts": {
-          "name": "Compass Charts",
+          "name": "compass-charts",
+          "productName": "MongoDB Compass Viz",
           "packages": [],
-          "styles": [
-            "index",
-            "help"
-          ]
+          "styles": [ "index", "help" ]
         }
       },
       "build": {
@@ -112,13 +112,6 @@
   "repository": {
     "type": "git",
     "url": "git://github.com/10gen/compass.git"
-  },
-  "builds": {
-    "compass-lite": {
-      "packages": {
-        "compass-rtss": "10gen/compass-serverstats#v0.1."
-      }
-    }
   },
   "dependencies": {
     "ampersand-collection": "^1.5.0",
@@ -225,7 +218,7 @@
     "electron": "1.6.1",
     "enzyme": "^2.5.1",
     "eslint-config-mongodb-js": "^2.2.0",
-    "hadron-build": "^8.0.0",
+    "hadron-build": "^9.1.0",
     "jsdom": "^9.8.3",
     "mgeneratejs": "^0.2.0",
     "mocha": "^3.1.2",
