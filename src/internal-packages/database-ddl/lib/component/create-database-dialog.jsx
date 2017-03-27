@@ -3,6 +3,7 @@ const shell = require('electron').shell;
 const React = require('react');
 const Modal = require('react-bootstrap').Modal;
 const { TextButton } = require('hadron-react-buttons');
+const { ModalStatusMessage } = require('hadron-react-components');
 const Actions = require('../action');
 const CreateDatabaseStore = require('../store/create-database-store');
 const { NamespaceStore } = require('hadron-reflux-store');
@@ -30,7 +31,6 @@ class CreateDatabaseDialog extends React.Component {
   constructor(props) {
     super(props);
     this.state = { open: false };
-    this.ModalStatusMessage = app.appRegistry.getComponent('App.ModalStatusMessage');
     this.CreateCollectionInput = app.appRegistry.getComponent('Database.CreateCollectionInput');
     this.CreateCollectionSizeInput = app.appRegistry.getComponent('Database.CreateCollectionSizeInput');
     this.CreateCollectionCheckbox = app.appRegistry.getComponent('Database.CreateCollectionCheckbox');
@@ -223,10 +223,10 @@ class CreateDatabaseDialog extends React.Component {
               <a onClick={this.onInfoClicked.bind(this)}>More Information</a>
             </div>
             {this.state.error ?
-              <this.ModalStatusMessage icon="times" message={this.state.errorMessage} type="error" />
+              <ModalStatusMessage icon="times" message={this.state.errorMessage} type="error" />
               : null}
             {this.state.inProgress ?
-              <this.ModalStatusMessage icon="align-center" message={'Create in Progress'} type="in-progress" />
+              <ModalStatusMessage icon="align-center" message={'Create in Progress'} type="in-progress" />
               : null}
           </form>
         </Modal.Body>

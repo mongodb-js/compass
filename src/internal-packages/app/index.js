@@ -1,5 +1,4 @@
 const app = require('hadron-app');
-const ModalStatusMessage = require('./lib/components/modal-status-message');
 const OptionSelector = require('./lib/components/option-selector');
 const SortableTable = require('./lib/components/sortable-table');
 const StatusRow = require('./lib/components/status-row');
@@ -13,7 +12,6 @@ const CollectionStore = require('./lib/stores/collection-store');
  * Activate all the components in the Compass Sidebar package.
  */
 function activate() {
-  app.appRegistry.registerComponent('App.ModalStatusMessage', ModalStatusMessage);
   app.appRegistry.registerComponent('App.OptionSelector', OptionSelector);
   app.appRegistry.registerComponent('App.SortableTable', SortableTable);
   app.appRegistry.registerComponent('App.StatusRow', StatusRow);
@@ -28,7 +26,6 @@ function activate() {
  * Deactivate all the components in the Compass Sidebar package.
  */
 function deactivate() {
-  app.appRegistry.deregisterComponent('App.ModalStatusMessage');
   app.appRegistry.deregisterComponent('App.OptionSelector');
   app.appRegistry.deregisterComponent('App.SortableTable');
   app.appRegistry.deregisterComponent('App.StatusRow');
