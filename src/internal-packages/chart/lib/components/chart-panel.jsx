@@ -1,6 +1,6 @@
-const app = require('hadron-app');
 const React = require('react');
 const { FormGroup } = require('react-bootstrap');
+const { OptionSelector } = require('hadron-react-components');
 
 const {
   CHART_TYPE_CHANNELS,
@@ -17,7 +17,6 @@ const EncodingChannel = require('./encoding-channel');
 class ChartPanel extends React.Component {
   constructor(props) {
     super(props);
-    this.OptionSelector = app.appRegistry.getComponent('App.OptionSelector');
   }
 
   /**
@@ -31,7 +30,7 @@ class ChartPanel extends React.Component {
 
   renderChartTypeChoice() {
     return (
-      <this.OptionSelector
+      <OptionSelector
         id="chart-type-selector"
         bsSize="xs"
         options={CHART_TYPE_ENUM}

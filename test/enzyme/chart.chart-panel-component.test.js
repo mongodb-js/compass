@@ -9,6 +9,7 @@ const { mount } = require('enzyme');
 const AppRegistry = require('hadron-app-registry');
 const { DropdownButton } = require('react-bootstrap');
 const {DragDropContext} = require('react-dnd');
+const { OptionSelector } = require('hadron-react-components');
 const {
   CHART_CHANNEL_ENUM,
   CHART_TYPE_ENUM
@@ -23,9 +24,6 @@ describe('<ChartPanel />', function() {
     // Mock the AppRegistry with a new one so tests don't complain about
     // appRegistry.getComponent (i.e. appRegistry being undefined)
     app.appRegistry = new AppRegistry();
-
-    this.OptionSelector = require('../../src/internal-packages/app/lib/components/option-selector');
-    app.appRegistry.registerComponent('App.OptionSelector', this.OptionSelector);
 
     const ChartPanel = require('../../src/internal-packages/chart/lib/components/chart-panel');
 

@@ -1,7 +1,7 @@
-const app = require('hadron-app');
 const React = require('react');
 const _ = require('lodash');
 const semver = require('semver');
+const { OptionSelector } = require('hadron-react-components');
 
 // const debug = require('debug')('mongodb-compass:bson-type-selector');
 
@@ -33,7 +33,6 @@ class BSONTypeSelector extends React.Component {
 
   constructor(props) {
     super(props);
-    this.OptionSelector = app.appRegistry.getComponent('App.OptionSelector');
     // try catch block in case semver typeerrors while remove decimal128
     // if server is < 3.4.x
     let canRemoveDecimal = false;
@@ -100,7 +99,7 @@ class BSONTypeSelector extends React.Component {
     }));
 
     return (
-      <this.OptionSelector
+      <OptionSelector
         id="bson-type-selector"
         options={typeOptions}
         label="BSON Type"
