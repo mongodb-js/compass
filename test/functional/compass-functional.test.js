@@ -210,9 +210,11 @@ describe('Compass Functional Test Suite #spectron', function() {
   });
 
   context('#databases', function() {
-    after(function() {
+    after(function(done) {
       debug('after hook of #databases');
-      client.teardownTest('music');
+      client.teardownTest('music').then(function() {
+        done();
+      });
     });
 
     context('when creating a database', function() {
@@ -348,9 +350,11 @@ describe('Compass Functional Test Suite #spectron', function() {
         });
     });
 
-    after(function() {
+    after(function(done) {
       debug('after hook of #sidebar');
-      client.teardownTest('music');
+      client.teardownTest('music').then(function() {
+        done();
+      });
     });
 
     context('when entering a filter in the sidebar', function() {
@@ -401,9 +405,11 @@ describe('Compass Functional Test Suite #spectron', function() {
         });
     });
 
-    after(function() {
+    after(function(done) {
       debug('after hook of #collections');
-      client.teardownTest('music');
+      client.teardownTest('music').then(function() {
+        done();
+      });
     });
 
     context('when viewing the database', function() {
@@ -562,9 +568,11 @@ describe('Compass Functional Test Suite #spectron', function() {
         });
     });
 
-    after(function() {
+    after(function(done) {
       debug('after hook of #crud');
-      client.teardownTest('music');
+      client.teardownTest('music').then(function() {
+        done();
+      });
     });
 
     context('when inserting a document', function() {
@@ -690,9 +698,11 @@ describe('Compass Functional Test Suite #spectron', function() {
         });
     });
 
-    after(function() {
+    after(function(done) {
       debug('after hook of #schema');
-      client.teardownTest('music');
+      client.teardownTest('music').then(function() {
+        done();
+      });
     });
 
     context('when applying a filter', function() {
@@ -766,9 +776,11 @@ describe('Compass Functional Test Suite #spectron', function() {
         });
     });
 
-    after(function() {
+    after(function(done) {
       debug('after hook of #explain');
-      client.teardownTest('music');
+      client.teardownTest('music').then(function() {
+        done();
+      });
     });
 
     context('when applying a filter', function() {
@@ -836,9 +848,11 @@ describe('Compass Functional Test Suite #spectron', function() {
         });
     });
 
-    after(function() {
+    after(function(done) {
       debug('after hook of #indexes');
-      client.teardownTest('music');
+      client.teardownTest('music').then(function() {
+        done();
+      });
     });
 
     context('when navigating to the indexes tab', function() {
@@ -996,9 +1010,11 @@ describe('Compass Functional Test Suite #spectron', function() {
         });
     });
 
-    after(function() {
+    after(function(done) {
       debug('after hook of #data-service');
-      client.teardownTest('music');
+      client.teardownTest('music').then(function() {
+        done();
+      });
     });
 
     context('when refreshing the documents list', function() {
