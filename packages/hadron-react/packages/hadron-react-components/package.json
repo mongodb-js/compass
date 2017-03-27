@@ -1,0 +1,33 @@
+{
+  "name": "hadron-react-components",
+  "description": "Hadron React Components",
+  "author": "Durran Jordan <durran@gmail.com>",
+  "bugs": "https://github.com/mongodb-js/hadron-react/issues",
+  "homepage": "https://github.com/mongodb-js/hadron-react/packages/hadron-react-components",
+  "version": "0.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/hadron-react.git"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "mongodb-js"
+  ],
+  "scripts": {
+    "prepublish": "babel ./src --out-dir ./lib --presets react",
+    "pretest": "babel ./src --out-dir ./lib --presets react",
+    "test": "mocha test/setup.js test/**/*.test.jsx",
+    "check": "mongodb-js-precommit"
+  },
+  "dependencies": {
+    "babel-preset-react": "^6.5.0",
+    "babel-register": "^6.5.2",
+    "react": "^15.3.0",
+    "react-dom": "^15.3.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.9.0",
+    "mocha": "^3.1.2",
+    "mongodb-js-precommit": "^0.2.9"
+  }
+}

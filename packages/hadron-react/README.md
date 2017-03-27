@@ -5,6 +5,8 @@
 
 - [hadron-react-bson][hadron-react-bson-link] Hadron React BSON Components
 - [hadron-react-utils][hadron-react-utils-link] Hadron React Utils
+- [hadron-react-buttons][hadron-react-buttons-link] Hadron React Buttons
+- [hadron-react-components][hadron-react-components-link] Hadron React Components
 
 ## Development
 
@@ -55,3 +57,5 @@ Apache 2.0
 [travis_url]: https://travis-ci.org/mongodb-js/hadron-react
 [hadron-react-bson-link]: https://github.com/mongodb-js/hadron-react/tree/master/packages/hadron-react-bson
 [hadron-react-utils-link]: https://github.com/mongodb-js/hadron-react/tree/master/packages/hadron-react-utils
+[hadron-react-buttons-link]: https://github.com/mongodb-js/hadron-react/tree/master/packages/hadron-react-buttons
+[hadron-react-components-link]: https://github.com/mongodb-js/hadron-react/tree/master/packages/hadron-react-components
