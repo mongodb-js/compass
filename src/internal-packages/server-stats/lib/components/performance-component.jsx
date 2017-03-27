@@ -7,6 +7,7 @@ const TimeAndPauseButton = require('./time-and-pause-button');
 const DBErrorStore = require('../stores/dberror-store');
 const ServerStatsStore = require('../stores/server-stats-graphs-store');
 const app = require('hadron-app');
+const Actions = require('../actions');
 
 // const debug = require('debug')('mongodb-compass:server-stats:performance-component');
 
@@ -18,6 +19,13 @@ class PerformanceComponent extends React.Component {
   constructor(props) {
     super(props);
     this.StatusRow = app.appRegistry.getComponent('App.StatusRow');
+  }
+
+  /**
+   * Restart the actions on mount.
+   */
+  componentDidMount() {
+    Actions.restart();
   }
 
   renderTopMessage() {

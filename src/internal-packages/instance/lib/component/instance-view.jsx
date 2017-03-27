@@ -1,33 +1,22 @@
 const React = require('react');
-const Actions = require('../actions');
-const Performance = require('./performance-component');
 const app = require('hadron-app');
 
-// const debug = require('debug')('mongodb-compass:server-stats:RTSSComponent');
-
 /**
- * Represents the component that renders all the server stats.
+ * Represents the component that renders the Compass view of a mongo instance.
  */
-class RTSSComponent extends React.Component {
+class InstanceView extends React.Component {
 
   /**
-   * The RTSS view component constructor.
+   * The InstanceView component constructor.
    *
    * @param {Object} props - The component properties.
    */
   constructor(props) {
     super(props);
     this.state = {activeTab: 0};
-    this.DatabasesView = app.appRegistry.getComponent('DatabaseDDL.DatabasesView');
+    this.DatabasesTable = app.appRegistry.getComponent('Instance.DatabasesTable');
+    this.PerformanceView = app.appRegistry.getComponent('Performance.PerformanceView');
     this.TabNavBar = app.appRegistry.getComponent('App.TabNavBar');
-  }
-
-
-  /**
-   * Restart the actions on mount.
-   */
-  componentDidMount() {
-    Actions.restart();
   }
 
   onTabClicked(idx) {
@@ -43,14 +32,14 @@ class RTSSComponent extends React.Component {
    * @returns {React.Component} The component.
    */
   render() {
-    const performanceView = <Performance interval={this.props.interval} />;
-    const databasesView = <this.DatabasesView />;
+    const performanceView = <this.PerformanceView interval={this.props.interval} />;
+    const databasesTable = <this.DatabasesTable />;
     return (
       <div className="rtss">
         <this.TabNavBar
           theme="light"
           tabs={['Databases', 'Performance']}
-          views={[databasesView, performanceView]}
+          views={[databasesTable, performanceView]}
           activeTabIndex={this.state.activeTab}
           onTabClicked={this.onTabClicked.bind(this)}
           className="rt-nav"
@@ -60,11 +49,11 @@ class RTSSComponent extends React.Component {
   }
 }
 
-RTSSComponent.propTypes = {
+InstanceView.propTypes = {
   interval: React.PropTypes.number.isRequired
 };
 
 
-RTSSComponent.displayName = 'RTSSComponent';
+InstanceView.displayName = 'InstanceView';
 
-module.exports = RTSSComponent;
+module.exports = InstanceView;

@@ -57,7 +57,7 @@ describe('<DatabasesTable />', () => {
     app.appRegistry.registerComponent('Database.CreateCollectionInput', CreateCollectionInput);
     app.appRegistry.registerComponent('Database.CreateCollectionSizeInput', CreateCollectionSizeInput);
 
-    this.DatabasesTable = require('../../src/internal-packages/database-ddl/lib/component/databases-table');
+    this.DatabasesTable = require('../../src/internal-packages/instance/lib/component/databases-table');
   });
   afterEach(() => {
     // Restore properties on the global app object,

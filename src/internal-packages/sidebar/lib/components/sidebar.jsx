@@ -12,7 +12,7 @@ const { TOOLTIP_IDS } = require('./constants');
 class Sidebar extends React.Component {
   constructor(props) {
     super(props);
-    this.DatabaseDDLActions = app.appRegistry.getAction('DatabaseDDL.Actions');
+    this.InstanceActions = app.appRegistry.getAction('Instance.Actions');
     this.InstanceStore = app.appRegistry.getStore('App.InstanceStore');
     this.StoreConnector = app.appRegistry.getComponent('App.StoreConnector');
     this.state = { collapsed: false };
@@ -65,7 +65,7 @@ class Sidebar extends React.Component {
 
   handleCreateDatabaseClick(isWritable) {
     if (isWritable) {
-      this.DatabaseDDLActions.openCreateDatabaseDialog();
+      this.InstanceActions.openCreateDatabaseDialog();
     }
   }
 

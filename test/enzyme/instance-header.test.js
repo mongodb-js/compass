@@ -17,10 +17,10 @@ const dataService = app.dataService;
 describe('<InstanceHeader />', () => {
   beforeEach(function() {
     app.appRegistry = new AppRegistry();
-    this.DatabaseDDLActionSpy = sinon.spy();
+    this.InstanceActionSpy = sinon.spy();
     app.appRegistry.registerAction(
-      'DatabaseDDL.Actions',
-      {openCreateDatabaseDialog: this.DatabaseDDLActionSpy}
+      'Instance.Actions',
+      {openCreateDatabaseDialog: this.InstanceActionSpy}
     );
     app.dataService = {
       isWritable: () => {

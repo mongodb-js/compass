@@ -17,15 +17,15 @@ const appRegistry = app.appRegistry;
 describe('<SidebarDatabase />', () => {
   beforeEach(function() {
     app.appRegistry = new AppRegistry();
-    this.DatabaseDDLActionSpyCreate = sinon.spy();
-    this.DatabaseDDLActionSpyDrop = sinon.spy();
+    this.InstanceActionSpyCreate = sinon.spy();
+    this.InstanceActionSpyDrop = sinon.spy();
     app.appRegistry.registerAction(
       'Database.CollectionsActions',
-      {openCreateCollectionDialog: this.DatabaseDDLActionSpyCreate}
+      {openCreateCollectionDialog: this.InstanceActionSpyCreate}
     );
     app.appRegistry.registerAction(
-      'DatabaseDDL.Actions',
-      {openDropDatabaseDialog: this.DatabaseDDLActionSpyDrop}
+      'Instance.Actions',
+      {openDropDatabaseDialog: this.InstanceActionSpyDrop}
     );
     app.dataService = {
       isWritable: () => {
@@ -63,7 +63,7 @@ describe('<SidebarDatabase />', () => {
     it('the create collection icon triggers no action', function() {
       const element = this.component.find('.compass-sidebar-icon-create-collection');
       element.simulate('click');
-      expect(this.DatabaseDDLActionSpyCreate.called).to.be.false;
+      expect(this.InstanceActionSpyCreate.called).to.be.false;
     });
 
     it('drop database contains a disabled BEM modifer class', function() {
@@ -78,7 +78,7 @@ describe('<SidebarDatabase />', () => {
     it('the drop database icon triggers no action', function() {
       const element = this.component.find('.compass-sidebar-icon-drop-database');
       element.simulate('click');
-      expect(this.DatabaseDDLActionSpyDrop.called).to.be.false;
+      expect(this.InstanceActionSpyDrop.called).to.be.false;
     });
   });
 
@@ -98,7 +98,7 @@ describe('<SidebarDatabase />', () => {
     it('clicking the create collection icon triggers an action', function() {
       const element = this.component.find('.compass-sidebar-icon-create-collection');
       element.simulate('click');
-      expect(this.DatabaseDDLActionSpyCreate.calledOnce).to.be.true;
+      expect(this.InstanceActionSpyCreate.calledOnce).to.be.true;
     });
 
     it('renders a drop database icon with tooltip', function() {
@@ -109,7 +109,7 @@ describe('<SidebarDatabase />', () => {
     it('clicking the drop database icon triggers an action', function() {
       const element = this.component.find('.compass-sidebar-icon-drop-database');
       element.simulate('click');
-      expect(this.DatabaseDDLActionSpyDrop.calledOnce).to.be.true;
+      expect(this.InstanceActionSpyDrop.calledOnce).to.be.true;
     });
   });
 });

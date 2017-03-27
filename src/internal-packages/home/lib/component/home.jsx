@@ -6,18 +6,21 @@ class Home extends React.Component {
   constructor(props) {
     super(props);
     this.state = { collapsed: false };
+
+    // Navigation components
+    this.InstanceHeader = app.appRegistry.getComponent('InstanceHeader.Component');
     this.sideBar = app.appRegistry.getComponent('Sidebar.Component');
-    this.collectionView = app.appRegistry.getComponent('Collection.Collection');
-    this.collectionsTable = app.appRegistry.getComponent('Database.CollectionsTable');
-    /**
-     * TODO (imlucas) Handle state when rtss permissions not available.
-     */
-    this.serverStatsView = app.appRegistry.getComponent('RTSS.ServerStats');
-    this.CreateDatabaseDialog = app.appRegistry.getComponent('DatabaseDDL.CreateDatabaseDialog');
-    this.DropDatabaseDialog = app.appRegistry.getComponent('DatabaseDDL.DropDatabaseDialog');
+
+    // Main working area components
+    this.instanceView = app.appRegistry.getComponent('Instance.InstanceView');
+    this.databaseView = app.appRegistry.getComponent('Database.DatabaseView');
+    this.collectionView = app.appRegistry.getComponent('Collection.CollectionView');
+
+    // Modal dialogs
+    this.CreateDatabaseDialog = app.appRegistry.getComponent('Instance.CreateDatabaseDialog');
+    this.DropDatabaseDialog = app.appRegistry.getComponent('Instance.DropDatabaseDialog');
     this.CreateCollectionDialog = app.appRegistry.getComponent('Database.CreateCollectionDialog');
     this.DropCollectionDialog = app.appRegistry.getComponent('Database.DropCollectionDialog');
-    this.InstanceHeader = app.appRegistry.getComponent('InstanceHeader.Component');
   }
 
   getContentClasses() {
@@ -33,13 +36,13 @@ class Home extends React.Component {
     let view;
     switch (this.props.mode) {
       case 'database':
-        view = (<this.collectionsTable />);
+        view = (<this.databaseView />);
         break;
       case 'collection':
         view = (<this.collectionView namespace={this.props.namespace} />);
         break;
       default:
-        view = (<this.serverStatsView interval={1000}/>);
+        view = (<this.instanceView interval={1000}/>);
     }
 
     return view;
