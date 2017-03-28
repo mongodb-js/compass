@@ -126,7 +126,7 @@ class DraggableField extends React.Component {
     return connectDragSource(
       <div className="chart-draggable-field">
         {this.props.enableMenus ? this.renderMeasurementMenu() : <div></div>}
-        <div className="chart-draggable-field-label">
+        <div className="chart-draggable-field-title">
           {this.props.fieldName}
         </div>
         {this.props.enableMenus ? this.renderAggregationMenu() : <div></div>}
