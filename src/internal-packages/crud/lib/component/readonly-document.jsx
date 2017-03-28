@@ -89,10 +89,10 @@ class ReadonlyDocument extends React.Component {
   renderExpansion() {
     if (this.doc.elements.size >= FIELD_LIMIT) {
       return (
-        <div className={EXPANDER} onClick={this.handleExpandClick.bind(this)}>
+        <button className={EXPANDER} onClick={this.handleExpandClick.bind(this)}>
           <i className={this.renderIconStyle()} aria-hidden="true"></i>
           <span>{this.renderExpansionText()}</span>
-        </div>
+        </button>
       );
     }
   }
