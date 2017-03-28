@@ -66,12 +66,13 @@ describe('ChartStore', function() {
   });
 
   it('has the correct initial queryCache values', function() {
+    this.store._resetChart();
     expect(this.store.state.queryCache).to.be.deep.equal({
       filter: {},
       sort: null,
       project: null,
       skip: 0,
-      limit: 100,
+      limit: 1000,
       maxTimeMS: 10000,
       ns: ''
     });
@@ -334,7 +335,7 @@ describe('ChartStore', function() {
     });
     it('the spec contains the top level keys mark and encoding', () => {
       ChartStore._updateSpec({});
-      expect(ChartStore.state.spec).to.have.all.keys('mark', 'encoding');
+      expect(ChartStore.state.spec).to.include.all.keys('mark', 'encoding');
       // Can also copy/paste the JSON.stringify() of this into
       //    https://vega.github.io/vega-editor/?mode=vega-lite
       // For example:
@@ -385,14 +386,14 @@ describe('ChartStore', function() {
         expect(findOptions.limit).to.be.equal(100); // @todo temporary limitation
       });
     });
-    context('when calling with limit > 100', () => {
-      it('limits the limit to 100', () => {
+    context('when calling with limit > 1000', () => {
+      it('limits the limit to 1000', () => {
         ChartStore._refreshDataCache(Object.assign({}, defaultQuery, {
           ns: 'foo.bar',
           limit: 5000
         }));
         const findOptions = app.dataService.find.args[0][2];
-        expect(findOptions.limit).to.be.equal(100); // @todo temporary limitation
+        expect(findOptions.limit).to.be.equal(1000); // @todo temporary limitation
       });
     });
     context('when using non-default query options', () => {
