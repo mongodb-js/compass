@@ -12,7 +12,7 @@ const CONNECTION = new Connection({ hostname: '127.0.0.1', port: 27018, ns: 'mus
 
 describe('Compass Functional Test Suite #spectron', function() {
   this.slow(30000);
-  this.timeout(120000);
+  this.timeout(60000);
   let app = null;
   let client = null;
 
