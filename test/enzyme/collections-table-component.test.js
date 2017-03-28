@@ -7,7 +7,7 @@ const React = require('react');
 const sinon = require('sinon');
 const {mount} = require('enzyme');
 const AppRegistry = require('hadron-app-registry');
-const SortableTable = require('../../src/internal-packages/app/lib/components/sortable-table');
+const { SortableTable } = require('hadron-react-components');
 const TabNavBar = require('../../src/internal-packages/app/lib/components/tab-nav-bar');
 
 chai.use(chaiEnzyme());
