@@ -17,14 +17,21 @@ const _ = require('lodash');
 const debug = require('debug')('mongodb-compass:chart:store');
 
 const READ = ReadPreference.PRIMARY_PREFERRED;
+const MAX_LIMIT = 1000;
 const INITIAL_QUERY = {
   filter: {},
   sort: null,
   project: null,
   skip: 0,
-  limit: 100,
+  limit: MAX_LIMIT,
   ns: '',
   maxTimeMS: 10000
+};
+
+const LITE_SPEC_GLOBAL_SETTINGS = {
+  transform: {
+    filterInvalid: false
+  }
 };
 
 /**
@@ -109,10 +116,10 @@ const ChartStore = Reflux.createStore({
    */
   _updateSpec(update) {
     const newState = Object.assign({}, this.state, update);
-    const spec = {
+    const spec = Object.assign({
       mark: newState.chartType,
       encoding: newState.channels
-    };
+    }, LITE_SPEC_GLOBAL_SETTINGS);
     newState.spec = spec;
 
     // check if all required channels are encoded
@@ -139,12 +146,12 @@ const ChartStore = Reflux.createStore({
       return;
     }
 
-    // limit document number to 100 for now.
+    // limit document number to MAX_LIMIT (currently 1000).
     const findOptions = {
       sort: _.isEmpty(query.sort) ? null : _.pairs(query.sort),
       fields: query.project,
       skip: query.skip,
-      limit: query.limit ? Math.min(100, query.limit) : 100,
+      limit: query.limit ? Math.min(MAX_LIMIT, query.limit) : MAX_LIMIT,
       readPreference: READ,
       maxTimeMS: query.maxTimeMS,
       promoteValues: true

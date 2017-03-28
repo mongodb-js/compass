@@ -44,12 +44,11 @@ class ChartBuilder extends React.Component {
     if (!this.props.specValid) {
       return null;
     }
-    const data = {values: this.props.dataCache};
     return (
       <Chart
         specType={this.props.specType}
         spec={this.props.spec}
-        data={data}
+        data={this.props.dataCache}
         width={600}
         height={400}
         className="chart-builder-chart"

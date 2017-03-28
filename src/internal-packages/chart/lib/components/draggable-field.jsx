@@ -84,8 +84,7 @@ class DraggableField extends React.Component {
    * @returns {React.Component} icon based on props.typeType
    */
   renderMeasurementIcon() {
-    const iconClass = `fa ${MEASUREMENT_ICON_ENUM[this.props.type]}`;
-    return <FontAwesome name={iconClass} />;
+    return <FontAwesome name={MEASUREMENT_ICON_ENUM[this.props.type]} />;
   }
 
   renderMeasurementMenu() {
