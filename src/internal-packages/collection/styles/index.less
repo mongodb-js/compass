@@ -1,7 +1,17 @@
 .collection-view {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  height: 100%;
+
   header {
-    padding: 12px 0 0;
-    background: @pw;
+    padding: 0;
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-basis: 50px;
+    /*
+    END GLOBAL FLEXBOX LAYOUT STYLES
+    */
     .row {
       margin-left: 0;
       margin-right: 0;
@@ -10,14 +20,17 @@
   h1 {
     margin-top: 12px;
     font-size: 24px;
+    font-weight: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    a {
+      color: @chart1;
+      margin-right: 2px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    span {
+      margin-left: 2px;
+    }
   }
-  .side {
-    width: 0;
-    font-family: @font-family-monospace;
-    font-size: 11px;
-    border-left: 2px solid @gray7;
-    right: -12px;
-    top: 30px;
-  }
-
 }
