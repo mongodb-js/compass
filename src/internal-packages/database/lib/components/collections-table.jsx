@@ -3,6 +3,7 @@ const app = require('hadron-app');
 const CollectionsActions = require('../actions/collections-actions');
 const numeral = require('numeral');
 const ipc = require('hadron-ipc');
+const { SortableTable } = require('hadron-react-components');
 const _ = require('lodash');
 
 // const debug = require('debug')('mongodb-compass:database:collections-table');
@@ -11,7 +12,6 @@ class CollectionsTable extends React.Component {
 
   constructor(props) {
     super(props);
-    this.SortableTable = app.appRegistry.getComponent('App.SortableTable');
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
   }
 
@@ -79,7 +79,7 @@ class CollectionsTable extends React.Component {
         </div>
         <div className="column-container">
           <div className="column main">
-            <this.SortableTable
+            <SortableTable
               theme="light"
               columns={this.props.columns}
               rows={rows}

@@ -10,7 +10,7 @@ const AppRegistry = require('hadron-app-registry');
 const CreateCollectionCheckbox = require('../../src/internal-packages/database/lib/components/create-collection-checkbox');
 const CreateCollectionInput = require('../../src/internal-packages/database/lib/components/create-collection-input');
 const CreateCollectionSizeInput = require('../../src/internal-packages/database/lib/components/create-collection-size-input');
-const SortableTable = require('../../src/internal-packages/app/lib/components/sortable-table');
+const { SortableTable } = require('hadron-react-components');
 const TabNavBar = require('../../src/internal-packages/app/lib/components/tab-nav-bar');
 
 // use chai-enzyme assertions, see https://github.com/producthunt/chai-enzyme
