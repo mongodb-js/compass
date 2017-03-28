@@ -22,6 +22,7 @@
   ],
   "devDependencies": {
     "chai": "^3.4.1",
+    "chai-enzyme": "^0.6.1",
     "enzyme": "^2.6.0",
     "eslint-config-mongodb-js": "^2.2.0",
     "jsdom": "^9.8.3",
@@ -29,7 +30,8 @@
     "mongodb-js-precommit": "^0.2.9",
     "pre-commit": "^1.1.2",
     "react": "^15.3.0",
+    "react-addons-test-utils": "^15.4.1",
     "react-dom": "^15.3.0",
-    "react-addons-test-utils": "^15.4.1"
+    "sinon": "^2.1.0"
   }
 }
