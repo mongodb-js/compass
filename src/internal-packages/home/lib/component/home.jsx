@@ -1,6 +1,5 @@
 const React = require('react');
 const app = require('hadron-app');
-const ReactTooltip = require('react-tooltip');
 
 class Home extends React.Component {
   constructor(props) {
@@ -46,17 +45,6 @@ class Home extends React.Component {
   }
 
   render() {
-    // if server is not writable, include global tooltip component for diabled buttons
-    const isNotWritableTooltip = app.dataService.isWritable() ? null : (
-      <ReactTooltip
-        id="is-not-writable"
-        effect="solid"
-        class="is-not-writable-tooltip"
-        place="right"
-        delayShow={200}
-      />
-    );
-
     return (
       <div className="page-container">
         <this.InstanceHeader sidebarCollapsed={this.state.collapsed}/>
@@ -65,7 +53,6 @@ class Home extends React.Component {
             {this.renderContent()}
           </div>
           <this.sideBar onCollapse={this.collapseSidebar.bind(this)}/>
-          {isNotWritableTooltip}
           <this.CreateDatabaseDialog />
           <this.DropDatabaseDialog />
           <this.CreateCollectionDialog />
