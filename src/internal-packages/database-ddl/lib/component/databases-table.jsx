@@ -19,6 +19,7 @@ class DatabasesTable extends React.Component {
   constructor(props) {
     super(props);
     this.DatabaseDDLAction = app.appRegistry.getAction('DatabaseDDL.Actions');
+    this.HadronTooltip = app.appRegistry.getComponent('App.HadronTooltip');
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
   }
 
@@ -82,12 +83,18 @@ class DatabasesTable extends React.Component {
     });
 
     const isWritable = app.dataService.isWritable();
+    const tooltipId = 'database-ddl-is-not-writable';
+    const isNotWritableTooltip = isWritable ? null : (
+      <this.HadronTooltip
+        id={tooltipId}
+      />
+    );
     const tooltipText = 'This action is not available on a secondary node';
 
     return (
       <div className="rtss-databases" data-test-id="databases-table">
         <div className="rtss-databases-create-button action-bar controls-container">
-          <div className="tooltip-button-wrapper" data-tip={tooltipText} data-for="is-not-writable">
+          <div className="tooltip-button-wrapper" data-tip={tooltipText} data-for={tooltipId}>
             <button
                 className="btn btn-primary btn-xs"
                 type="button"
@@ -116,6 +123,7 @@ class DatabasesTable extends React.Component {
         </div>
         {this.props.databases.length === 0 ?
             this.renderNoCollections(isWritable) : null}
+        {isNotWritableTooltip}
       </div>
     );
   }
