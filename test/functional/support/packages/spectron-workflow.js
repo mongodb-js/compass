@@ -5,6 +5,21 @@
  */
 function addWorkflowCommands(client) {
   /**
+   * Launch
+   */
+  client.addCommand('initialLaunchCompass', function() {
+    return this
+      .waitForFeatureTourModal()
+      .clickCloseFeatureTourButton()
+      .waitForPrivacySettingsModal()
+      .clickEnableProductFeedbackCheckbox()
+      .clickEnableCrashReportsCheckbox()
+      .clickEnableUsageStatsCheckbox()
+      .clickEnableAutoUpdatesCheckbox()
+      .clickClosePrivacySettingsButton();
+  });
+
+  /**
    * Connect to Compass
    */
   client.addCommand('connectToCompass', function(connection) {

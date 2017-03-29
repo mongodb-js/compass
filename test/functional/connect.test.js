@@ -1,6 +1,6 @@
-const { launchCompass, quitCompass} = require('../support/spectron-support');
+const { launchCompass, quitCompass} = require('./support/spectron-support');
 
-context('Connecting to an Instance', function() {
+context('#connect Connecting to an Instance', function() {
   this.slow(30000);
   this.timeout(60000);
   let app = null;
@@ -9,7 +9,9 @@ context('Connecting to an Instance', function() {
     launchCompass().then(function(application) {
       app = application;
       client = application.client;
-      done();
+      client.then(function() {
+        done();
+      });
     });
   });
 

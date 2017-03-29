@@ -1,7 +1,7 @@
-const { launchCompass, quitCompass} = require('../support/spectron-support');
+const { launchCompass, quitCompass} = require('./support/spectron-support');
+// const debug = require('debug')('mongodb-compass:spectron-support:rtss');
 
-
-context('Performance tab', function() {
+context('#rtss Performance tab', function() {
   this.slow(30000);
   this.timeout(60000);
   let app = null;

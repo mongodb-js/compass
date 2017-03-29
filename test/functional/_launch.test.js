@@ -1,6 +1,6 @@
-const { launchCompass, quitCompass} = require('../support/spectron-support');
+const { launchCompass, quitCompass} = require('./support/spectron-support');
 
-context('Application Launch', function() {
+context('#launch Application Launch', function() {
   this.slow(30000);
   this.timeout(60000);
   let app = null;
