@@ -8,6 +8,10 @@ function addWaitModalCommands(client) {
   client.addCommand('waitForModalError', function() {
     return this.waitForVisibleInCompass(selector('modal-message'));
   });
+
+  client.addCommand('waitForModalHide', function() {
+    return this.waitForExistInCompass('body.modal-open', true);
+  });
 }
 
 function addGetModalCommands(client) {
