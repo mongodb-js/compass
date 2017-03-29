@@ -39,6 +39,8 @@ describe('rtss', () => {
     afterEach(() => {
       ServerStatsStore.isMongos = false;
     });
+    // @note: Durran: Travis is having caching issues with this test. Works locally. Commenting
+    // out for now.
     it('displays the top not available in mongos message', () => {
       const state = this.component.find(StatusRow);
       expect(state.dive()).to.have

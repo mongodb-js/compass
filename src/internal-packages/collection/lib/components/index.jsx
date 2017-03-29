@@ -2,6 +2,7 @@ const React = require('react');
 const app = require('hadron-app');
 const semver = require('semver');
 const { NamespaceStore } = require('hadron-reflux-store');
+const { TabNavBar } = require('hadron-react-components');
 const toNS = require('mongodb-ns');
 const ipc = require('hadron-ipc');
 
@@ -12,7 +13,6 @@ class Collection extends React.Component {
     this.state = {activeTab: 0};
 
     this.Stats = app.appRegistry.getComponent('CollectionStats.CollectionStats');
-    this.TabNavBar = app.appRegistry.getComponent('App.TabNavBar');
     this.Schema = app.appRegistry.getComponent('Schema.Schema');
     this.Document = app.appRegistry.getComponent('CRUD.DocumentList');
     this.Indexes = app.appRegistry.getComponent('Indexes.Indexes');
@@ -105,7 +105,7 @@ class Collection extends React.Component {
             </div>
           </div>
         </header>
-        <this.TabNavBar
+        <TabNavBar
           theme="light"
           tabs={tabs}
           views={views}
