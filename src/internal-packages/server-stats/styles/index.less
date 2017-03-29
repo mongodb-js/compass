@@ -14,10 +14,6 @@
   overflow-x: scroll;
   background-color: @gray8;
 
-  ::-webkit-scrollbar {
-    display: none;
-  }
-
   .tab-nav-bar-header {
     top: 0;
   }
@@ -33,5 +29,8 @@
     overflow: scroll; // TODO: deal with scrolling
     display: block;
     padding-top: 15px;
+    ::-webkit-scrollbar {
+      display: none;
+    }
   }
 }
