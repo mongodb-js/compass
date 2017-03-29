@@ -1,9 +1,12 @@
+const selector = require('../spectron-selector');
+
+
 function addWaitStatusBarCommands(client) {
   /**
    * Waits for the status bar to finish its progress and unlock the page.
    */
   client.addCommand('waitForStatusBar', function() {
-    return this.waitForVisibleInCompass('#statusbar', true);
+    return this.waitForVisibleInCompass(selector('status-bar'), true);
   });
 }
 

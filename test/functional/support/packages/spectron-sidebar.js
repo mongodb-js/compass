@@ -1,4 +1,3 @@
-const debug = require('debug')('mongodb-compass:spectron-support');
 const selector = require('../spectron-selector');
 
 
@@ -47,7 +46,6 @@ function addClickSidebarCommands(client) {
    * @param {String} name - The full collection name.
    */
   client.addCommand('clickCollectionInSidebar', function(name) {
-    debug(`click ${name} in sidebar`);
     const base = `${selector('sidebar-collection')}[title='${name}']`;
     return this.waitForVisibleInCompass(base).click(base);
   });
@@ -58,7 +56,6 @@ function addClickSidebarCommands(client) {
    * @param {String} name - The database name.
    */
   client.addCommand('clickDatabaseInSidebar', function(name) {
-    debug(`click database ${name} in sidebar`);
     const base = `${selector('sidebar-database')}[title='${name}']`;
     return this.waitForVisibleInCompass(base).click(base);
   });

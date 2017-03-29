@@ -1,5 +1,4 @@
 const selector = require('../spectron-selector');
-const debug = require('debug')('mongodb-compass:spectron-support');
 
 
 function addWaitDatabaseDDLCommands(client) {
@@ -28,23 +27,23 @@ function addWaitDatabaseDDLCommands(client) {
     return this.waitForExistInCompass(row);
   });
 
-  client.addCommand('waitForCreateDatabasesModalHidden', function() {
-    return this.waitForModalHide();
-  });
-
-  client.addCommand('waitForDropDatabasesModalHidden', function() {
-    return this.waitForModalHide();
-  });
-
   /**
    * Wait for the database with the provided name to be deleted.
    *
    * @param {String} name - The database name.
    */
-  client.addCommand('waitUntilDatabaseDeletion', function(name) {
-    const table = selector('databases-table');
-    const cell = `${table} ${selector('sortable-table-column-0')}[title=${name}]`;
-    return this.waitForVisibleInCompass(cell, true);
+  client.addCommand('waitForDatabaseDeletion', function(name) {
+    const base = selector('databases-table');
+    const row = `${base} ${selector('sortable-table-column-0')}[title=${name}]`;
+    return this.waitForExistInCompass(row, true);
+  });
+
+  client.addCommand('waitForCreateDatabasesModalHidden', function() {
+    return this.waitForVisibleInCompass(selector('create-database-modal'), true);
+  });
+
+  client.addCommand('waitForDropDatabasesModalHidden', function() {
+    return this.waitForVisibleInCompass(selector('drop-database-modal'), true);
   });
 }
 
@@ -54,7 +53,6 @@ function addClickDatabaseDDLCommands(client) {
    * Click the create database button.
    */
   client.addCommand('clickCreateDatabaseButton', function() {
-    debug('create database button');
     return this.waitForStatusBar().click(selector('open-create-database-modal-button'));
   });
 
@@ -64,7 +62,6 @@ function addClickDatabaseDDLCommands(client) {
    * @param {String} name - The name of the database to delete.
    */
   client.addCommand('clickDeleteDatabaseButton', function(name) {
-    debug(`deleting database ${name}`);
     const base = selector('databases-table');
     const wrapper = selector('sortable-table-delete');
     const button = `${base} ${wrapper}[title='Delete ${name}']`;
@@ -75,7 +72,6 @@ function addClickDatabaseDDLCommands(client) {
    * Click the create database button in the modal.
    */
   client.addCommand('clickCreateDatabaseModalButton', function() {
-    debug('clicking create database modal button');
     const base = selector('create-database-button');
     return this.click(base);
   });
@@ -84,7 +80,6 @@ function addClickDatabaseDDLCommands(client) {
    * Click the drop database button in the modal.
    */
   client.addCommand('clickDropDatabaseModalButton', function() {
-    debug('clicking drop database modal button');
     const base = selector('drop-database-button');
     return this.click(base);
   });
@@ -98,7 +93,6 @@ function addInputDatabaseDDLCommands(client) {
    * @param {Object} model - { name: 'dbname', collectionName: 'collName' }
    */
   client.addCommand('inputCreateDatabaseDetails', function(model) {
-    debug('input create database details');
     return this
       .setValue('#create-database-name', model.name)
       .setValue('#create-database-collection-name', model.collectionName);
@@ -110,7 +104,6 @@ function addInputDatabaseDDLCommands(client) {
    * @param {String} name - The database name.
    */
   client.addCommand('inputDropDatabaseName', function(name) {
-    debug(`inputting ${name}`);
     return this.setValue(selector('confirm-drop-database-name'), name);
   });
 }

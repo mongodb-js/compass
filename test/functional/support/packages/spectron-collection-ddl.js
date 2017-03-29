@@ -39,7 +39,7 @@ function addWaitCollectionDDLCommands(client) {
   });
 
   client.addCommand('waitForCreateCollectionModalHidden', function() {
-    return this.waitForModalHide();
+    return this.waitForVisibleInCompass(selector('create-collection-modal'), true);
   });
 }
 

@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const selector = require('../spectron-selector');
-const debug = require('debug')('mongodb-compass:spectron-support');
+
 
 function addWaitCRUDCommands(client) {
   /**
@@ -10,7 +10,7 @@ function addWaitCRUDCommands(client) {
     return this.waitForVisibleInCompass(selector('insert-document-modal'));
   });
   client.addCommand('waitForInsertDocumentModalHidden', function() {
-    return this.waitForModalHide();
+    return this.waitForVisibleInCompass(selector('insert-document-modal'), true);
   });
 
   /**
@@ -51,7 +51,6 @@ function addClickCRUDCommands(client) {
    * Click on the documents tab.
    */
   client.addCommand('clickDocumentsTab', function() {
-    debug('clicking documents tab');
     return this.waitForStatusBar().click(selector('documents-tab'));
   });
 
@@ -85,7 +84,6 @@ function addClickCRUDCommands(client) {
    * Click the insert document button.
    */
   client.addCommand('clickInsertDocumentButton', function() {
-    debug('clicking insert document button');
     return this.click(selector('open-insert-document-modal-button'));
   });
 
@@ -326,8 +324,6 @@ function addInputCRUDCommands(client) {
    * @param {Object} model - The document to insert.
    */
   client.addCommand('inputNewDocumentDetails', function(model) {
-    debug('inputing new document details');
-    debug(model);
     const base = selector('insert-document-modal');
     const that = this;
     const lineNumber = `${base} .document-elements .editable-element:last-child div.line-number`;

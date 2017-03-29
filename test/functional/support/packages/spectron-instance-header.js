@@ -1,5 +1,5 @@
 const selector = require('../spectron-selector');
-const debug = require('debug')('mongodb-compass:spectron-support');
+
 
 function addGetInstanceHeaderCommands(client) {
   /**
@@ -17,24 +17,6 @@ function addGetInstanceHeaderCommands(client) {
   });
 }
 
-function addClickInstanceHeaderCommands(client) {
-  /**
-   * Click on the Instance header.
-   */
-  client.addCommand('clickInstanceHeader', function() {
-    debug('clicking instance header');
-    return this.click(selector('instance-header-details'));
-  });
-}
-
-function addWaitInstanceHeaderCommands(client) {
-  /**
-   * Wait For instance header to exist
-   */
-  client.addCommand('waitForInstanceHeader', function() {
-    return this.waitForExistInCompass(selector('instance-header-details'));
-  });
-}
 
 /**
  * Add commands to the client related to the Document Validation Tab.
@@ -43,8 +25,6 @@ function addWaitInstanceHeaderCommands(client) {
  */
 function addInstanceHeaderCommands(client) {
   addGetInstanceHeaderCommands(client);
-  addClickInstanceHeaderCommands(client);
-  addWaitInstanceHeaderCommands(client);
 }
 
 
