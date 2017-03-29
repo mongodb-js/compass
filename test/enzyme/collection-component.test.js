@@ -7,8 +7,8 @@ const React = require('react');
 const sinon = require('sinon');
 const shallow = require('enzyme').shallow;
 const AppRegistry = require('hadron-app-registry');
+const { TabNavBar } = require('hadron-react-components');
 const Collection = require('../../src/internal-packages/collection/lib/components/index');
-const TabNavBar = require('../../src/internal-packages/app/lib/components/tab-nav-bar');
 
 // const debug = require('debug')('compass:collection:test');
 
@@ -22,7 +22,6 @@ describe('<Collection />', function() {
     // Mock the AppRegistry with a new one so tests don't complain about
     // appRegistry.getComponent (i.e. appRegistry being undefined)
     app.appRegistry = new AppRegistry();
-    app.appRegistry.registerComponent('App.TabNavBar', TabNavBar);
 
     app.appRegistry.registerComponent('Schema.Schema', sinon.spy());
     app.appRegistry.registerComponent('CRUD.DocumentList', sinon.spy());
