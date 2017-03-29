@@ -12,8 +12,6 @@ context('#rtss Performance tab', function() {
       .then(function(application) {
         app = application;
         client = application.client;
-      })
-      .then(function() {
         return client
           .connectToCompass({ hostname: 'localhost', port: 27018 });
       });

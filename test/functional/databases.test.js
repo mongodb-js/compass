@@ -11,8 +11,6 @@ context('#databases Creating & Deleting Databases', function() {
       .then(function(application) {
         app = application;
         client = application.client;
-      })
-      .then(function() {
         return client
           .connectToCompass({ hostname: 'localhost', port: 27018 });
       });
