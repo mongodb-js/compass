@@ -99,9 +99,8 @@ loading the application without any erros anywhere.
 
 ### Timeouts
 
-Please use the custom methods `waitForVisibleInCompass`, `waitForExistsInCompass`
-and `waitUntilInCompass` to leverage the incremental timeout functionality to
-provide faster and more stable tests.
+Please use the custom methods `waitForVisibleInCompass` and `waitForExistsInCompass`
+to leverage the incremental timeout functionality to provide faster and more stable tests.
 
 How does this help? Previously the core wait commands would try to resolve the
 condition once, then wait until the provided timout until trying again. This
