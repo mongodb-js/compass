@@ -1,4 +1,5 @@
 const React = require('react');
+const { TabNavBar } = require('hadron-react-components');
 const Actions = require('../actions');
 const Performance = require('./performance-component');
 const app = require('hadron-app');
@@ -19,7 +20,6 @@ class RTSSComponent extends React.Component {
     super(props);
     this.state = {activeTab: 0};
     this.DatabasesView = app.appRegistry.getComponent('DatabaseDDL.DatabasesView');
-    this.TabNavBar = app.appRegistry.getComponent('App.TabNavBar');
   }
 
 
@@ -47,7 +47,7 @@ class RTSSComponent extends React.Component {
     const databasesView = <this.DatabasesView />;
     return (
       <div className="rtss">
-        <this.TabNavBar
+        <TabNavBar
           theme="light"
           tabs={['Databases', 'Performance']}
           views={[databasesView, performanceView]}
