@@ -6,16 +6,15 @@ context('#launch Application Launch', function() {
   let app = null;
   let client = null;
 
-  before(function(done) {
-    launchCompass().then(function(application) {
+  before(function() {
+    return launchCompass().then(function(application) {
       app = application;
       client = application.client;
-      done();
     });
   });
 
-  after(function(done) {
-    quitCompass(app, done);
+  after(function() {
+    return quitCompass(app);
   });
 
   context('when launching the application', function() {

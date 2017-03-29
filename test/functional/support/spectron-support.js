@@ -224,14 +224,12 @@ function launchCompass() {
  *
  * @returns {Promise}    Promise that resolves when app stops.
  */
-function quitCompass(app, done) {
-  if (!app || !app.isRunning()) return done();
+function quitCompass(app) {
+  if (!app || !app.isRunning()) return Promise.resolve();
   return app.stop().then(function() {
     assert.equal(app.isRunning(), false);
-    done();
   }).catch(function(err) {
     debug('Quitting Compass failed due to error: ', err);
-    done();
   });
 }
 

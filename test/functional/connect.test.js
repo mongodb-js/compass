@@ -5,18 +5,15 @@ context('#connect Connecting to an Instance', function() {
   this.timeout(60000);
   let app = null;
   let client = null;
-  before(function(done) {
-    launchCompass().then(function(application) {
+  before(function() {
+    return launchCompass().then(function(application) {
       app = application;
       client = application.client;
-      client.then(function() {
-        done();
-      });
     });
   });
 
-  after(function(done) {
-    quitCompass(app, done);
+  after(function() {
+    return quitCompass(app);
   });
 
   context('when connecting to a server', function() {

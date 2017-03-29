@@ -7,24 +7,21 @@ context('#sidebar Sidebar', function() {
   let app = null;
   let client = null;
 
-  before(function(done) {
-    launchCompass().then(function(application) {
+  before(function() {
+    return launchCompass().then(function(application) {
       app = application;
       client = application.client;
-      client
-        .connectToCompass({ hostname: 'localhost', port: 27018 })
-        .createDatabaseCollection('music', 'artists')
-        .then(() => {
-          done();
-        });
-    });
+      return client;
+    })
+    .connectToCompass({ hostname: 'localhost', port: 27018 })
+    .createDatabaseCollection('music', 'artists');
   });
 
-  after(function(done) {
-    client
-      .teardownTest('music').then(() => {
-        quitCompass(app, done);
-      });
+  after(function() {
+    return client
+    .teardownTest('music').then(() => {
+      return quitCompass(app);
+    });
   });
 
   context('when entering a filter in the sidebar', function() {

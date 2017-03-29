@@ -7,19 +7,19 @@ context('#rtss Performance tab', function() {
   let app = null;
   let client = null;
 
-  before(function(done) {
-    launchCompass().then(function(application) {
+  before(function() {
+    return launchCompass().then(function(application) {
       app = application;
       client = application.client;
-      client
-        .connectToCompass({ hostname: 'localhost', port: 27018 }).then(() => {
-          done();
-        });
+      return client;
+    }).then(function() {
+      return client
+        .connectToCompass({ hostname: 'localhost', port: 27018 });
     });
   });
 
-  after(function(done) {
-    quitCompass(app, done);
+  after(function() {
+    return quitCompass(app);
   });
 
   context('when viewing the performance view', function() {
