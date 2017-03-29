@@ -1,6 +1,6 @@
-const { launchCompass, quitCompass} = require('../support/spectron-support');
+const { launchCompass, quitCompass} = require('./support/spectron-support');
 
-context('Creating & Deleting Collections', function() {
+context('#collections Creating & Deleting Collections', function() {
   this.slow(30000);
   this.timeout(60000);
   let app = null;
