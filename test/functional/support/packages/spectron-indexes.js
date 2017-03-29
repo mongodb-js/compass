@@ -15,13 +15,9 @@ function addWaitIndexesCommands(client) {
    * @param {String} name - The index name.
    */
   client.addCommand('waitForIndexCreation', function(name) {
-    return this
-      .waitForStatusBar()
-      .waitUntilInCompass(function() {
-        return this.getIndexNames().then(function(names) {
-          return names.includes(name);
-        });
-      });
+    const table = selector('index-table-name');
+    const cell = `${table}[title=${name}]`;
+    return this.waitForStatusBar().waitForVisibleInCompass(cell);
   });
 }
 
