@@ -140,6 +140,7 @@ describe('Compass Functional Tests for QueryBar #spectron', function() {
       context('when applying queries from the documents tab', function() {
         it('goes to the documents tab', function() {
           return client
+            .waitForStatusBar()
             .clickResetFilterButtonFromSchemaTab()
             .waitForStatusBar()
             .clickDocumentsTab()
