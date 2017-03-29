@@ -1,7 +1,7 @@
-const { launchCompass, quitCompass} = require('../support/spectron-support');
+const { launchCompass, quitCompass} = require('./support/spectron-support');
 
 
-context('Sidebar', function() {
+context('#sidebar Sidebar', function() {
   this.slow(30000);
   this.timeout(60000);
   let app = null;
