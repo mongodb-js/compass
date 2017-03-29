@@ -7,10 +7,11 @@ context('#launch Application Launch', function() {
   let client = null;
 
   before(function() {
-    return launchCompass().then(function(application) {
-      app = application;
-      client = application.client;
-    });
+    return launchCompass()
+      .then(function(application) {
+        app = application;
+        client = application.client;
+      });
   });
 
   after(function() {

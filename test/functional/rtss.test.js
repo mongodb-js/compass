@@ -8,14 +8,15 @@ context('#rtss Performance tab', function() {
   let client = null;
 
   before(function() {
-    return launchCompass().then(function(application) {
-      app = application;
-      client = application.client;
-      return client;
-    }).then(function() {
-      return client
-        .connectToCompass({ hostname: 'localhost', port: 27018 });
-    });
+    return launchCompass()
+      .then(function(application) {
+        app = application;
+        client = application.client;
+      })
+      .then(function() {
+        return client
+          .connectToCompass({ hostname: 'localhost', port: 27018 });
+      });
   });
 
   after(function() {

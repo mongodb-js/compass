@@ -7,21 +7,23 @@ context('#databases Creating & Deleting Databases', function() {
   let client = null;
 
   before(function() {
-    return launchCompass().then(function(application) {
-      app = application;
-      client = application.client;
-      return client;
-    }).then(function() {
-      return client
-        .connectToCompass({ hostname: 'localhost', port: 27018 });
-    });
+    return launchCompass()
+      .then(function(application) {
+        app = application;
+        client = application.client;
+      })
+      .then(function() {
+        return client
+          .connectToCompass({ hostname: 'localhost', port: 27018 });
+      });
   });
 
   after(function() {
     return client
-    .teardownTest('music').then(() => {
-      return quitCompass(app);
-    });
+      .teardownTest('music')
+      .then(() => {
+        return quitCompass(app);
+      });
   });
 
   context('when creating a database', function() {

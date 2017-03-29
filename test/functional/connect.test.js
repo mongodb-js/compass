@@ -5,11 +5,13 @@ context('#connect Connecting to an Instance', function() {
   this.timeout(60000);
   let app = null;
   let client = null;
+
   before(function() {
-    return launchCompass().then(function(application) {
-      app = application;
-      client = application.client;
-    });
+    return launchCompass()
+      .then(function(application) {
+        app = application;
+        client = application.client;
+      });
   });
 
   after(function() {

@@ -5,23 +5,26 @@ context('#collections Creating & Deleting Collections', function() {
   this.timeout(60000);
   let app = null;
   let client = null;
+
   before(function() {
-    return launchCompass().then(function(application) {
-      app = application;
-      client = application.client;
-      return client;
-    }).then(function() {
-      return client
-        .connectToCompass({ hostname: 'localhost', port: 27018 })
-        .createDatabaseCollection('music', 'artists');
-    });
+    return launchCompass()
+      .then(function(application) {
+        app = application;
+        client = application.client;
+      })
+      .then(function() {
+        return client
+          .connectToCompass({ hostname: 'localhost', port: 27018 })
+          .createDatabaseCollection('music', 'artists');
+      });
   });
 
   after(function() {
     return client
-    .teardownTest('music').then(() => {
-      return quitCompass(app);
-    });
+      .teardownTest('music')
+      .then(() => {
+        return quitCompass(app);
+      });
   });
 
   context('when viewing the database', function() {
