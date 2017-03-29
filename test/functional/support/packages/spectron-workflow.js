@@ -69,6 +69,7 @@ function addWorkflowCommands(client) {
 
   /**
    * Tear down the test by removing the database
+   * TODO: use node driver/data-service directly to delete database....
    */
   client.addCommand('teardownTest', function(database) {
     return this
