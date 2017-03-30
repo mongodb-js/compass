@@ -233,11 +233,19 @@ describe('Compass Main Functional Test Suite #spectron', function() {
             .getModalErrorMessage()
             .should.eventually.equal("database names cannot contain the character '$'");
         });
+
+        after(function() {
+          return client.pressEscape()
+            .waitForCreateDatabasesModalHidden();
+        });
       });
 
       context('when the database name is valid', function() {
         it('creates the database', function() {
           return client
+            .clickDatabasesTab()
+            .clickCreateDatabaseButton()
+            .waitForCreateDatabaseModal()
             .inputCreateDatabaseDetails({ name: 'music', collectionName: 'artists' })
             .clickCreateDatabaseModalButton()
             .waitForDatabaseCreation('music')
