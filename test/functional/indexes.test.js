@@ -1,37 +1,37 @@
-const { launchCompass, quitCompass} = require('../support/spectron-support');
-const {isIndexUsageEnabled} = require('../support/spectron-support');
+const { launchCompass, quitCompass, isIndexUsageEnabled } = require('./support/spectron-support');
 
-context('Indexes', function() {
+context('#indexes Indexes', function() {
   this.slow(30000);
   this.timeout(60000);
   let app = null;
   let client = null;
   let serverVersion;
 
-  before(function(done) {
-    launchCompass().then(function(application) {
-      app = application;
-      client = application.client;
-      client
-        .connectToCompass({ hostname: 'localhost', port: 27018 })
-        .createDatabaseCollection('music', 'artists')
-        .goToCollection('music', 'artists')
-        .insertDocument({
-          'name': 'Aphex Twin',
-          'genre': 'Electronic',
-          'location': 'London'
-        }, 1)
-        .getInstanceHeaderVersion().then(function(value) {
-          serverVersion = value.replace(/MongoDB ([0-9.]+) Community/, '$1');
-          done();
-        });
-    });
+  before(function() {
+    return launchCompass()
+      .then(function(application) {
+        app = application;
+        client = application.client;
+        return client
+          .connectToCompass({ hostname: 'localhost', port: 27018 })
+          .createDatabaseCollection('music', 'artists')
+          .goToCollection('music', 'artists')
+          .insertDocument({
+            'name': 'Aphex Twin',
+            'genre': 'Electronic',
+            'location': 'London'
+          }, 1)
+          .getInstanceHeaderVersion().then(function(value) {
+            serverVersion = value.replace(/MongoDB ([0-9.]+) Community/, '$1');
+          });
+      });
   });
 
-  after(function(done) {
-    client
-      .teardownTest('music').then(() => {
-        quitCompass(app, done);
+  after(function() {
+    return client
+      .teardownTest('music')
+      .then(() => {
+        return quitCompass(app);
       });
   });
 
