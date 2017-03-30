@@ -10,9 +10,7 @@ class HadronTooltip extends React.Component {
    */
   render() {
     return (
-      <ReactTooltip {...this.props}
-
-      />
+      <ReactTooltip {...this.props} />
     );
   }
 }
