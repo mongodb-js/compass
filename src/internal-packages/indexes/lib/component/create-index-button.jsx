@@ -1,5 +1,5 @@
 const React = require('react');
-const app = require('hadron-app');
+const app = require('ampersand-app');
 const CreateIndexModal = require('./create-index-modal');
 
 /**

@@ -1,5 +1,5 @@
 const React = require('react');
-const app = require('hadron-app');
+const app = require('ampersand-app');
 const ValidationActions = require('../actions');
 const OptionSelector = require('./common/option-selector');
 const Rule = require('./rule');
