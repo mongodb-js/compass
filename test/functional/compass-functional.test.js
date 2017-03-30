@@ -806,17 +806,16 @@ describe('Compass Main Functional Test Suite #spectron', function() {
                   .getIndexNames()
                   .should.eventually.deep.equal([ 'name_1', 'name_-1', '_id_' ]);
               });
-            });
-          });
-        });
-
-        context('when sorting the index list', function() {
-          context('when clicking on the name header', function() {
-            it('sorts the indexes by name', function() {
-              return client
-                .clickIndexTableHeader('index-header-name')
-                .getIndexNames()
-                .should.eventually.deep.equal([ '_id_', 'name_-1', 'name_1' ]);
+              context('when sorting the index list', function() {
+                context('when clicking on the name header', function() {
+                  it('sorts the indexes by name', function() {
+                    return client
+                      .clickIndexTableHeader('index-header-name')
+                      .getIndexNames()
+                      .should.eventually.deep.equal([ '_id_', 'name_-1', 'name_1' ]);
+                  });
+                });
+              });
             });
           });
         });
