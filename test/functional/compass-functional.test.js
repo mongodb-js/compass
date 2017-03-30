@@ -429,12 +429,20 @@ describe('Compass Main Functional Test Suite #spectron', function() {
               .getModalErrorMessage()
               .should.eventually.equal('invalid collection name');
           });
+
+          after(function() {
+            return client
+              .pressEscape()
+              .waitForCreateCollectionModalHidden();
+          });
         });
 
         context('when the collection name is valid', function() {
-          it('creates the collection', function() {
+          it('creates the collection', function () {
             return client
-              .inputCreateCollectionDetails({ name: 'labels' })
+              .clickCreateCollectionButton()
+              .waitForCreateCollectionModal()
+              .inputCreateCollectionDetails({name: 'labels'})
               .clickCreateCollectionModalButton()
               .waitForCollectionCreation('labels')
               .getCollectionsTabCollectionNames()
