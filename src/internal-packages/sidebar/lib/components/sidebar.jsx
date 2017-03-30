@@ -18,6 +18,12 @@ class Sidebar extends React.Component {
     this.state = { collapsed: false };
   }
 
+  componentDidUpdate() {
+    // Re-render tooltips once data has been fetched from mongo/d/s in a
+    // performant way for data.mongodb.parts (~1500 collections)
+    ReactTooltip.rebuild();
+  }
+
   getSidebarClasses() {
     return 'compass-sidebar' +
       (this.state.collapsed ? ' compass-sidebar-collapsed' : ' compass-sidebar-expanded');
@@ -96,7 +102,6 @@ class Sidebar extends React.Component {
           <text className="plus-button">
             Create Database
           </text>
-          <ReactTooltip id={TOOLTIP_IDS.CREATE_DATABASE_BUTTON} />
         </button>
       </div>
     );
@@ -140,6 +145,10 @@ class Sidebar extends React.Component {
           }
         </div>
         {this.renderCreateDatabaseButton()}
+        <ReactTooltip id={TOOLTIP_IDS.CREATE_DATABASE_BUTTON} />
+        <ReactTooltip id={TOOLTIP_IDS.CREATE_COLLECTION} />
+        <ReactTooltip id={TOOLTIP_IDS.DROP_DATABASE} />
+        <ReactTooltip id={TOOLTIP_IDS.DROP_COLLECTION} />
       </div>
     );
   }

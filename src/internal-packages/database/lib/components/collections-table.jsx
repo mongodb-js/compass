@@ -12,6 +12,7 @@ class CollectionsTable extends React.Component {
 
   constructor(props) {
     super(props);
+    this.HadronTooltip = app.appRegistry.getComponent('App.HadronTooltip');
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
   }
 
@@ -61,12 +62,18 @@ class CollectionsTable extends React.Component {
     });
 
     const isWritable = app.dataService.isWritable();
-    const tooltipText = 'This action is not available on a secondary node.';
+    const tooltipId = 'database-is-not-writable';
+    const isNotWritableTooltip = isWritable ? null : (
+      <this.HadronTooltip
+        id={tooltipId}
+      />
+    );
+    const tooltipText = 'This action is not available on a secondary node';
 
     return (
       <div className="collections-table" data-test-id="collections-table">
         <div className="collections-table-create-button action-bar controls-container">
-          <div className="tooltip-button-wrapper" data-tip={tooltipText} data-for="is-not-writable">
+          <div className="tooltip-button-wrapper" data-tip={tooltipText} data-for={tooltipId}>
             <button
                 className="btn btn-primary btn-xs"
                 type="button"
@@ -93,6 +100,7 @@ class CollectionsTable extends React.Component {
             />
           </div>
         </div>
+        {isNotWritableTooltip}
       </div>
     );
   }
