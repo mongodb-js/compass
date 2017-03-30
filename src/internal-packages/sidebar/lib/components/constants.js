@@ -1,7 +1,6 @@
 const TOOLTIP_IDS = Object.freeze({
   CREATE_COLLECTION: 'create-collection',
   CREATE_DATABASE_BUTTON: 'create-database-button',
-  CREATE_DATABASE_ICON: 'create-database-icon',
   DROP_COLLECTION: 'drop-collection',
   DROP_DATABASE: 'drop-database'
 });
