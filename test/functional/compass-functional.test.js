@@ -583,6 +583,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
       context('when editing a document', function() {
         it('saves the changes to the document', function() {
           return client
+            .clickDocumentsTab()
             .clickEditDocumentButton(1)
             .inputDocumentValueChange(1, 'Aphex Twin', 'Aphex Twin (edited)')
             .clickUpdateDocumentButton(1)
