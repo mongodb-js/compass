@@ -8,6 +8,7 @@ const sinon = require('sinon');
 const {mount, shallow} = require('enzyme');
 const AppRegistry = require('hadron-app-registry');
 const { OptionSelector } = require('hadron-react-components');
+const HadronTooltip = require('../../src/internal-packages/app/lib/components/hadron-tooltip');
 
 chai.use(chaiEnzyme());
 
@@ -28,6 +29,7 @@ describe('<RuleBuilder />', () => {
     // Mock the AppRegistry with a new one so tests don't complain about
     // appRegistry.getComponent (i.e. appRegistry being undefined)
     app.appRegistry = new AppRegistry();
+    app.appRegistry.registerComponent('App.HadronTooltip', HadronTooltip);
 
     this.RuleBuilder = require('../../src/internal-packages/validation/lib/components/rule-builder');
   });
@@ -48,9 +50,14 @@ describe('<RuleBuilder />', () => {
       const state = this.component.find('.btn.btn-xs.btn-primary');
       expect(state).to.be.disabled();
     });
+
+    it('shows tooltip indicating why button is disabled', () => {
+      expect(this.component.find('.tooltip-button-wrapper'))
+        .to.have.data('tip', 'This action is not available on a secondary node');
+    });
   });
 
-  context('when collection is not writable', () => {
+  context('when collection is writable', () => {
     beforeEach(() => {
       const props = Object.assign({isWritable: true}, template);
       this.component = mount(<this.RuleBuilder {... props} />);
