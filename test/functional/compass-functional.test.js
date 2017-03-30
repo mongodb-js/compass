@@ -564,6 +564,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
         context('when pressing escape key twice', function() {
           it('does not close the insert documents modal on first press', function() {
             return client
+              .clickDocumentsTab()
               .clickInsertDocumentButton()
               .waitForInsertDocumentModal()
               .pressEscape()
