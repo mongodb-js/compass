@@ -1,6 +1,6 @@
 const { launchCompass, quitCompass, isIndexUsageEnabled } = require('./support/spectron-support');
 
-context('#indexes Indexes', function() {
+context.skip('#indexes Indexes', function() {
   this.slow(30000);
   this.timeout(60000);
   let app = null;
