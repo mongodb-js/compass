@@ -438,7 +438,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
         });
 
         context('when the collection name is valid', function() {
-          it('creates the collection', function () {
+          it('creates the collection', function() {
             return client
               .clickCreateCollectionButton()
               .waitForCreateCollectionModal()
