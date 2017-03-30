@@ -10,8 +10,7 @@ const AppRegistry = require('hadron-app-registry');
 const CreateCollectionCheckbox = require('../../src/internal-packages/database/lib/components/create-collection-checkbox');
 const CreateCollectionInput = require('../../src/internal-packages/database/lib/components/create-collection-input');
 const CreateCollectionSizeInput = require('../../src/internal-packages/database/lib/components/create-collection-size-input');
-const { SortableTable } = require('hadron-react-components');
-const TabNavBar = require('../../src/internal-packages/app/lib/components/tab-nav-bar');
+const { SortableTable, TabNavBar } = require('hadron-react-components');
 
 // use chai-enzyme assertions, see https://github.com/producthunt/chai-enzyme
 chai.use(chaiEnzyme());
@@ -24,7 +23,6 @@ describe('<DatabasesTable />', () => {
     // Mock the AppRegistry with a new one so tests don't complain about
     // appRegistry.getComponent (i.e. appRegistry being undefined)
     app.appRegistry = new AppRegistry();
-    app.appRegistry.registerComponent('App.TabNavBar', TabNavBar);
 
     app.appRegistry.registerComponent('Schema.Schema', sinon.spy());
     app.appRegistry.registerComponent('CRUD.DocumentList', sinon.spy());

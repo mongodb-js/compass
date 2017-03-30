@@ -7,8 +7,7 @@ const React = require('react');
 const sinon = require('sinon');
 const {mount} = require('enzyme');
 const AppRegistry = require('hadron-app-registry');
-const { SortableTable } = require('hadron-react-components');
-const TabNavBar = require('../../src/internal-packages/app/lib/components/tab-nav-bar');
+const { SortableTable, TabNavBar } = require('hadron-react-components');
 
 chai.use(chaiEnzyme());
 
@@ -21,7 +20,6 @@ describe('<CollectionsTable />', () => {
     // Mock the AppRegistry with a new one so tests don't complain about
     // appRegistry.getComponent (i.e. appRegistry being undefined)
     app.appRegistry = new AppRegistry();
-    app.appRegistry.registerComponent('App.TabNavBar', TabNavBar);
     app.appRegistry.registerStore('App.CollectionStore', sinon.spy());
 
     // TypeError: Cannot read property 'refreshInstance' of undefined

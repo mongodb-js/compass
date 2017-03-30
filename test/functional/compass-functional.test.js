@@ -862,7 +862,6 @@ describe('Compass Main Functional Test Suite #spectron', function() {
             return client
               .inputFilterFromDocumentsTab(filter)
               .clickApplyFilterButtonFromDocumentsTab()
-              .waitForStatusBar()
               .clickInsertDocumentButton()
               .waitForInsertDocumentModal()
               .inputNewDocumentDetails({
