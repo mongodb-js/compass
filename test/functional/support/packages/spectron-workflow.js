@@ -5,7 +5,7 @@
  */
 function addWorkflowCommands(client) {
   /**
-   * Launch
+   * Launch Compass click through
    */
   client.addCommand('initialLaunchCompass', function() {
     return this
@@ -31,18 +31,6 @@ function addWorkflowCommands(client) {
       .waitForWindowTitle(title);
   });
 
-  // /**
-  //  * Create database/collection
-  //  */
-  // client.addCommand('createDatabaseCollection', function(database, collection) {
-  //   return this
-  //     .clickCreateDatabaseButton()
-  //     .waitForCreateDatabaseModal()
-  //     .inputCreateDatabaseDetails({ name: database, collectionName: collection })
-  //     .clickCreateDatabaseModalButton()
-  //     .waitForDatabaseCreation(database);
-  // });
-
   /**
    * Go to collection, assumes refresh is required
    */
@@ -54,34 +42,6 @@ function addWorkflowCommands(client) {
       .waitForDatabaseView()
       .clickCollectionInSidebar(`${database}.${collection}`)
       .waitForStatusBar();
-  });
-
-  /**
-   * Insert document in CRUD view
-   */
-  client.addCommand('insertDocument', function(doc, count) {
-    return this
-      .clickDocumentsTab()
-      .clickInsertDocumentButton()
-      .waitForInsertDocumentModal()
-      .inputNewDocumentDetails(doc)
-      .clickInsertDocumentModalButton()
-      .waitForDocumentInsert(count);
-  });
-
-  /**
-   * Tear down the test by removing the database
-   * TODO: use node driver/data-service directly to delete database....
-   */
-  client.addCommand('teardownTest', function(database) {
-    return this
-      .waitForStatusBar()
-      .clickInstanceHeader()
-      .clickDeleteDatabaseButton(database)
-      .waitForDropDatabaseModal()
-      .inputDropDatabaseName(database)
-      .clickDropDatabaseModalButton()
-      .waitUntilDatabaseDeletion(database);
   });
 }
 
