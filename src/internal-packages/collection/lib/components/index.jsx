@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const React = require('react');
 const app = require('hadron-app');
 const semver = require('semver');
@@ -13,14 +14,8 @@ class Collection extends React.Component {
     this.state = {activeTab: 0};
 
     this.Stats = app.appRegistry.getComponent('CollectionStats.CollectionStats');
-    this.Schema = app.appRegistry.getComponent('Schema.Schema');
-    this.Document = app.appRegistry.getComponent('CRUD.DocumentList');
-    this.Indexes = app.appRegistry.getComponent('Indexes.Indexes');
-    this.Explain = app.appRegistry.getComponent('Explain.ExplainPlan');
-    this.Validation = app.appRegistry.getComponent('Validation.Validation');
-    this.Charts = app.appRegistry.getComponent('Chart.ChartBuilder');
-
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
+    this.setupTabs();
   }
 
   componentWillMount() {
@@ -51,6 +46,32 @@ class Collection extends React.Component {
     ipc.call('window:hide-collection-submenu');
   }
 
+  setupTabs() {
+    const collectionTabs = app.appRegistry.getRole('Collection.Tab');
+    const serverVersion = app.instance.build.version;
+    const roles = _.filter(collectionTabs, (role) => {
+      if (!role.minimumServerVersion || semver.gte(serverVersion, role.minimumServerVersion)) {
+        return true;
+      }
+      return false;
+    });
+
+    const tabs = _.map(roles, 'name');
+    const views = _.map(roles, (role) => {
+      return React.createElement(role.component);
+    });
+
+    if (!app.isFeatureEnabled('chartView')) {
+      // @note: Durran: This assumes charts is the last tab, which it currently is.
+      //   Once the feature flag is removed we can remove this check.
+      tabs.pop();
+      views.pop();
+    }
+
+    this.tabs = tabs;
+    this.views = views;
+  }
+
   renderReadonly() {
     if (this.CollectionStore && this.CollectionStore.isReadonly()) {
       return (
@@ -62,30 +83,6 @@ class Collection extends React.Component {
   }
 
   render() {
-    const serverVersion = app.instance.build.version;
-    const DV_ENABLED = semver.gt(serverVersion, '3.2.0-rc0');
-    const tabs = [
-      'SCHEMA',
-      'DOCUMENTS',
-      'INDEXES',
-      'EXPLAIN PLAN'
-    ];
-    const views = [
-      <this.Schema />,
-      <this.Document />,
-      <this.Indexes />,
-      <this.Explain />
-    ];
-    if (DV_ENABLED) {
-      tabs.push('VALIDATION');
-      views.push(<this.Validation />);
-    }
-
-    if (app.isFeatureEnabled('chartView')) {
-      tabs.push('CHARTS');
-      views.push(<this.Charts />);
-    }
-
     const database = toNS(this.props.namespace).database;
     const collection = toNS(this.props.namespace).collection;
 
@@ -107,8 +104,8 @@ class Collection extends React.Component {
         </header>
         <TabNavBar
           theme="light"
-          tabs={tabs}
-          views={views}
+          tabs={this.tabs}
+          views={this.views}
           activeTabIndex={this.state.activeTab}
           onTabClicked={this.onTabClicked.bind(this)}
           className="collection-nav"

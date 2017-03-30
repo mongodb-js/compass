@@ -23,12 +23,14 @@ describe('<Collection />', function() {
     // appRegistry.getComponent (i.e. appRegistry being undefined)
     app.appRegistry = new AppRegistry();
 
-    app.appRegistry.registerComponent('Schema.Schema', sinon.spy());
-    app.appRegistry.registerComponent('CRUD.DocumentList', sinon.spy());
-    app.appRegistry.registerComponent('Indexes.Indexes', sinon.spy());
-    app.appRegistry.registerComponent('Explain.ExplainPlan', sinon.spy());
-    app.appRegistry.registerComponent('Validation.Validation', sinon.spy());
-    app.appRegistry.registerComponent('Chart.ChartBuilder', sinon.spy());
+    app.appRegistry.registerRole('Collection.Tab', { component: sinon.spy(), name: 'SCHEMA' });
+    app.appRegistry.registerRole('Collection.Tab', { component: sinon.spy(), name: 'DOCUMENTS' });
+    app.appRegistry.registerRole('Collection.Tab', { component: sinon.spy(), name: 'EXPLAIN' });
+    app.appRegistry.registerRole('Collection.Tab', { component: sinon.spy(), name: 'INDEXES' });
+    app.appRegistry.registerRole('Collection.Tab', {
+      component: sinon.spy(), name: 'VALIDATION', minimumServerVersion: '3.2.0-rc0'
+    });
+    app.appRegistry.registerRole('Collection.Tab', { component: sinon.spy(), name: 'CHARTS' });
 
     // Fixes Warning: React.createElement:
     // type should not be null, undefined, boolean, or number.
