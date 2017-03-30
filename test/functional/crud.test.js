@@ -1,28 +1,28 @@
-const { launchCompass, quitCompass} = require('../support/spectron-support');
+const { launchCompass, quitCompass} = require('./support/spectron-support');
 
-context('CRUD', function() {
+context('#crud CRUD', function() {
   this.slow(30000);
   this.timeout(60000);
   let app = null;
   let client = null;
-  before(function(done) {
-    launchCompass().then(function(application) {
-      app = application;
-      client = application.client;
-      client
-        .connectToCompass({ hostname: 'localhost', port: 27018 })
-        .createDatabaseCollection('music', 'artists')
-        .goToCollection('music', 'artists')
-        .then(() => {
-          done();
-        });
-    });
+
+  before(function() {
+    return launchCompass()
+      .then(function(application) {
+        app = application;
+        client = application.client;
+        return client
+          .connectToCompass({ hostname: 'localhost', port: 27018 })
+          .createDatabaseCollection('music', 'artists')
+          .goToCollection('music', 'artists');
+      });
   });
 
-  after(function(done) {
-    client
-      .teardownTest('music').then(() => {
-        quitCompass(app, done);
+  after(function() {
+    return client
+      .teardownTest('music')
+      .then(() => {
+        return quitCompass(app);
       });
   });
 
