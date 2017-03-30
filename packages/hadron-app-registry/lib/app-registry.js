@@ -3,6 +3,13 @@
 const Action = require('./actions');
 
 /**
+ * A non-magic number that is still small and higher than
+ * the number of components registered for a single role
+ * that we would expect.
+ */
+const INT8_MAX = 127;
+
+/**
  * Is a registry for all user interface components, stores, and actions
  * in the application.
  */
@@ -212,6 +219,7 @@ class AppRegistry {
   registerRole(name, role) {
     if (this.roles.hasOwnProperty(name) && !this.roles[name].includes(role)) {
       this.roles[name].push(role);
+      this.roles[name].sort(this._roleComparator);
     } else {
       this.roles[name] = [ role ];
     }
@@ -236,6 +244,12 @@ class AppRegistry {
       Action.storeRegistered(name);
     }
     return this;
+  }
+
+  _roleComparator(a, b) {
+    const aOrder = a.order || INT8_MAX;
+    const bOrder = b.order || INT8_MAX;
+    return aOrder - bOrder;
   }
 }
 

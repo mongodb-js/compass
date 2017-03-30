@@ -4,37 +4,37 @@ const expect = require('chai').expect;
 const Action = require('../lib/actions');
 const AppRegistry = require('../lib/app-registry');
 
-describe('AppRegistry', function() {
-  describe('#registerAction', function() {
-    var registry = null;
+describe('AppRegistry', () => {
+  describe('#registerAction', () => {
+    let registry = null;
 
-    beforeEach(function() {
+    beforeEach(() => {
       registry = new AppRegistry().registerAction('TestAction', 'testing');
     });
 
-    it('registers the action', function() {
+    it('registers the action', () => {
       expect(registry.actions.TestAction).to.equal('testing');
     });
 
-    it('allows access via the getter', function() {
+    it('allows access via the getter', () => {
       expect(registry.getAction('TestAction')).to.equal('testing');
     });
 
     it('publishes an action registered action', function(done) {
-      var unsubscribe = Action.actionRegistered.listen(function(name) {
+      const unsubscribe = Action.actionRegistered.listen(function(name) {
         expect(name).to.equal('TestAction');
         unsubscribe();
         done();
       });
     });
 
-    context('when the action already exists', function() {
-      beforeEach(function() {
+    context('when the action already exists', () => {
+      beforeEach(() => {
         registry.registerAction('TestAction', 'override');
       });
 
       it('publishes an action overridden action', function(done) {
-        var unsubscribe = Action.actionOverridden.listen(function(name) {
+        const unsubscribe = Action.actionOverridden.listen(function(name) {
           expect(name).to.equal('TestAction');
           unsubscribe();
           done();
@@ -43,80 +43,80 @@ describe('AppRegistry', function() {
     });
   });
 
-  describe('#registerContainer', function() {
-    var registry = null;
+  describe('#registerContainer', () => {
+    let registry = null;
 
-    beforeEach(function() {
+    beforeEach(() => {
       registry = new AppRegistry().registerContainer('Collection.Tab', 'test');
     });
 
-    it('registers the component', function() {
+    it('registers the component', () => {
       expect(registry.containers['Collection.Tab']).to.deep.equal([ 'test' ]);
     });
 
-    it('allows access via the getter', function() {
+    it('allows access via the getter', () => {
       expect(registry.getContainer('Collection.Tab')).to.deep.equal([ 'test' ]);
     });
 
     it('publishes a container registered action', function(done) {
-      var unsubscribe = Action.containerRegistered.listen(function(name) {
+      const unsubscribe = Action.containerRegistered.listen(function(name) {
         expect(name).to.equal('Collection.Tab');
         unsubscribe();
         done();
       });
     });
 
-    context('when the component already exists', function() {
-      beforeEach(function() {
+    context('when the component already exists', () => {
+      beforeEach(() => {
         registry.registerContainer('Collection.Tab', 'test');
       });
 
-      it('does not register the duplicate', function() {
+      it('does not register the duplicate', () => {
         expect(registry.containers['Collection.Tab']).to.deep.equal([ 'test' ]);
       });
     });
 
-    context('when the component does not already exists', function() {
-      beforeEach(function() {
+    context('when the component does not already exists', () => {
+      beforeEach(() => {
         registry.registerContainer('Collection.Tab', 'testing');
       });
 
-      it('registers the additional component', function() {
+      it('registers the additional component', () => {
         expect(registry.containers['Collection.Tab']).to.deep.equal([ 'test', 'testing' ]);
       });
     });
   });
 
-  describe('#registerComponent', function() {
-    var registry = null;
+  describe('#registerComponent', () => {
+    let registry = null;
 
-    beforeEach(function() {
+    beforeEach(() => {
       registry = new AppRegistry().registerComponent('IndexView', 'testing');
     });
 
-    it('registers the component', function() {
+    it('registers the component', () => {
       expect(registry.components.IndexView).to.equal('testing');
     });
 
-    it('allows access via the getter', function() {
+    it('allows access via the getter', () => {
       expect(registry.getComponent('IndexView')).to.equal('testing');
     });
 
     it('publishes a component registered action', function(done) {
-      var unsubscribe = Action.componentRegistered.listen(function(name) {
+      const unsubscribe = Action.componentRegistered.listen(function(name) {
         expect(name).to.equal('IndexView');
         unsubscribe();
         done();
       });
     });
 
-    context('when the component already exists', function() {
-      beforeEach(function() {
+    context('when the component already exists', () => {
+      beforeEach(() => {
         registry.registerComponent('IndexView', 'override');
       });
 
       it('publishes a component overridden action', function(done) {
-        var unsubscribe = Action.componentOverridden.listen(function(name) {
+        const unsubscribe = Action.componentOverridden.listen(function(name) {
           expect(name).to.equal('IndexView');
           unsubscribe();
           done();
@@ -125,80 +125,112 @@ describe('AppRegistry', function() {
     });
   });
 
-  describe('#registerRole', function() {
-    var registry = null;
+  describe('#registerRole', () => {
+    let registry = null;
 
-    beforeEach(function() {
-      registry = new AppRegistry().registerRole('Collection.Action', 'test');
+    const role = {
+      component: 'collection-tab',
+      name: 'another tab',
+      order: 2,
+      minimumServerVersion: '3.2.0-rc0'
+    };
+
+    const roleTwo = {
+      component: 'collection-tab-two',
+      name: 'another tab two',
+      order: 1
+    };
+
+    const roleThree = {
+      component: 'collection-tab-three',
+      name: 'another tab three'
+    };
+
+    beforeEach(() => {
+      registry = new AppRegistry().registerRole('Role.Collection.Tab', role);
     });
 
-    it('registers the component', function() {
-      expect(registry.roles['Collection.Action']).to.deep.equal([ 'test' ]);
+    it('registers the component', () => {
+      expect(registry.roles['Role.Collection.Tab']).to.deep.equal([ role ]);
     });
 
-    it('allows access via the getter', function() {
-      expect(registry.getRole('Collection.Action')).to.deep.equal([ 'test' ]);
+    it('allows access via the getter', () => {
+      expect(registry.getRole('Role.Collection.Tab')).to.deep.equal([ role ]);
     });
 
     it('publishes a role registered action', function(done) {
-      var unsubscribe = Action.roleRegistered.listen(function(name) {
-        expect(name).to.equal('Collection.Action');
+      const unsubscribe = Action.roleRegistered.listen(function(name) {
+        expect(name).to.equal('Role.Collection.Tab');
         unsubscribe();
         done();
       });
     });
 
-    context('when the component already exists', function() {
-      beforeEach(function() {
-        registry.registerRole('Collection.Action', 'test');
+    context('when the component already exists', () => {
+      beforeEach(() => {
+        registry.registerRole('Role.Collection.Tab', role);
       });
 
-      it('does not register the duplicate', function() {
-        expect(registry.roles['Collection.Action']).to.deep.equal([ 'test' ]);
+      it('does not register the duplicate', () => {
+        expect(registry.roles['Role.Collection.Tab']).to.deep.equal([ role ]);
       });
     });
 
-    context('when the component does not already exists', function() {
-      beforeEach(function() {
-        registry.registerRole('Collection.Action', 'testing');
+    context('when the component does not already exists', () => {
+      context('when the role defines an order', () => {
+        beforeEach(() => {
+          registry.registerRole('Role.Collection.Tab', roleTwo);
+        });
+
+        it('registers the additional component in order', () => {
+          expect(registry.roles['Role.Collection.Tab']).to.deep.equal([ roleTwo, role ]);
+        });
       });
 
-      it('registers the additional component', function() {
-        expect(registry.roles['Collection.Action']).to.deep.equal([ 'test', 'testing' ]);
+      context('when the role does not define an order', () => {
+        beforeEach(() => {
+          registry
+            .registerRole('Role.Collection.Tab', roleTwo)
+            .registerRole('Role.Collection.Tab', roleThree);
+        });
+
+        it('registers the additional component in order', () => {
+          expect(registry.roles['Role.Collection.Tab']).to.deep.equal([ roleTwo, role, roleThree ]);
+        });
       });
     });
   });
 
-  describe('#registerStore', function() {
-    var registry = null;
+  describe('#registerStore', () => {
+    let registry = null;
 
-    beforeEach(function() {
+    beforeEach(() => {
       registry = new AppRegistry().registerStore('IndexStore', 'testing');
     });
 
-    it('registers the store', function() {
+    it('registers the store', () => {
       expect(registry.stores.IndexStore).to.equal('testing');
     });
 
-    it('allows access via the getter', function() {
+    it('allows access via the getter', () => {
       expect(registry.getStore('IndexStore')).to.equal('testing');
     });
 
     it('publishes a store registered action', function(done) {
-      var unsubscribe = Action.storeRegistered.listen(function(name) {
+      const unsubscribe = Action.storeRegistered.listen(function(name) {
         expect(name).to.equal('IndexStore');
         unsubscribe();
         done();
       });
     });
 
-    context('when the store already exists', function() {
-      beforeEach(function() {
+    context('when the store already exists', () => {
+      beforeEach(() => {
         registry.registerStore('IndexStore', 'override');
       });
 
       it('publishes a store overridden action', function(done) {
-        var unsubscribe = Action.storeOverridden.listen(function(name) {
+        const unsubscribe = Action.storeOverridden.listen(function(name) {
           expect(name).to.equal('IndexStore');
           unsubscribe();
           done();
@@ -207,22 +239,22 @@ describe('AppRegistry', function() {
     });
   });
 
-  describe('#deregisterAction', function() {
-    context('when the action exists', function() {
-      var registry = null;
+  describe('#deregisterAction', () => {
+    context('when the action exists', () => {
+      let registry = null;
 
-      beforeEach(function() {
+      beforeEach(() => {
         registry = new AppRegistry()
           .registerAction('TestAction', 'testing')
           .deregisterAction('TestAction');
       });
 
-      it('deregisters the action', function() {
+      it('deregisters the action', () => {
         expect(registry.actions.TestAction).to.equal(undefined);
       });
 
       it('publishes an action deregisted action', function(done) {
-        var unsubscribe = Action.actionDeregistered.listen(function(name) {
+        const unsubscribe = Action.actionDeregistered.listen(function(name) {
           expect(name).to.equal('TestAction');
           unsubscribe();
           done();
@@ -231,22 +263,22 @@ describe('AppRegistry', function() {
     });
   });
 
-  describe('#deregisterComponent', function() {
-    context('when the component exists', function() {
-      var registry = null;
+  describe('#deregisterComponent', () => {
+    context('when the component exists', () => {
+      let registry = null;
 
-      beforeEach(function() {
+      beforeEach(() => {
         registry = new AppRegistry()
           .registerComponent('TestComponent', 'testing')
           .deregisterComponent('TestComponent');
       });
 
-      it('deregisters the component', function() {
+      it('deregisters the component', () => {
         expect(registry.components.TestComponent).to.equal(undefined);
       });
 
       it('publishes a component deregisted action', function(done) {
-        var unsubscribe = Action.componentDeregistered.listen(function(name) {
+        const unsubscribe = Action.componentDeregistered.listen(function(name) {
           expect(name).to.equal('TestComponent');
           unsubscribe();
           done();
@@ -255,23 +287,23 @@ describe('AppRegistry', function() {
     });
   });
 
-  describe('#deregisterContainer', function() {
-    context('when the container exists', function() {
-      var registry = null;
+  describe('#deregisterContainer', () => {
+    context('when the container exists', () => {
+      let registry = null;
 
-      beforeEach(function() {
+      beforeEach(() => {
         registry = new AppRegistry()
           .registerContainer('TestContainer', 'testing')
           .registerContainer('TestContainer', 'test')
           .deregisterContainer('TestContainer', 'testing');
       });
 
-      it('deregisters the container', function() {
+      it('deregisters the container', () => {
         expect(registry.containers.TestContainer).to.deep.equal([ 'test' ]);
       });
 
       it('publishes a container deregisted action', function(done) {
-        var unsubscribe = Action.containerDeregistered.listen(function(name) {
+        const unsubscribe = Action.containerDeregistered.listen(function(name) {
           expect(name).to.equal('TestContainer');
           unsubscribe();
           done();
@@ -280,23 +312,36 @@ describe('AppRegistry', function() {
     });
   });
 
-  describe('#deregisterRole', function() {
-    context('when the role exists', function() {
-      var registry = null;
+  describe('#deregisterRole', () => {
+    const role = {
+      component: 'collection-tab',
+      name: 'another tab',
+      order: 2,
+      minimumServerVersion: '3.2.0-rc0'
+    };
 
-      beforeEach(function() {
+    const roleTwo = {
+      component: 'collection-tab-two',
+      name: 'another tab two',
+      order: 1
+    };
+
+    context('when the role exists', () => {
+      let registry = null;
+
+      beforeEach(() => {
         registry = new AppRegistry()
-          .registerRole('TestRole', 'testing')
-          .registerRole('TestRole', 'test')
-          .deregisterRole('TestRole', 'testing');
+          .registerRole('TestRole', role)
+          .registerRole('TestRole', roleTwo)
+          .deregisterRole('TestRole', roleTwo);
       });
 
-      it('deregisters the role', function() {
-        expect(registry.roles.TestRole).to.deep.equal([ 'test' ]);
+      it('deregisters the role', () => {
+        expect(registry.roles.TestRole).to.deep.equal([ role ]);
       });
 
       it('publishes a role deregisted action', function(done) {
-        var unsubscribe = Action.roleDeregistered.listen(function(name) {
+        const unsubscribe = Action.roleDeregistered.listen(function(name) {
           expect(name).to.equal('TestRole');
           unsubscribe();
           done();
@@ -305,22 +350,22 @@ describe('AppRegistry', function() {
     });
   });
 
-  describe('#deregisterStore', function() {
-    context('when the store exists', function() {
-      var registry = null;
+  describe('#deregisterStore', () => {
+    context('when the store exists', () => {
+      let registry = null;
 
-      beforeEach(function() {
+      beforeEach(() => {
         registry = new AppRegistry()
           .registerStore('TestStore', 'testing')
           .deregisterStore('TestStore');
       });
 
-      it('deregisters the store', function() {
+      it('deregisters the store', () => {
         expect(registry.stores.TestStore).to.equal(undefined);
       });
 
       it('publishes a store deregisted action', function(done) {
-        var unsubscribe = Action.storeDeregistered.listen(function(name) {
+        const unsubscribe = Action.storeDeregistered.listen(function(name) {
           expect(name).to.equal('TestStore');
           unsubscribe();
           done();
