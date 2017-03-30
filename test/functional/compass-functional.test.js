@@ -544,7 +544,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
 
       context('when inserting a document', function() {
         context('when the document is valid', function() {
-          it.skip('creates the document #race', function() {
+          it('creates the document #race', function() {
             return client
               .clickDocumentsTab()
               .clickInsertDocumentButton()
