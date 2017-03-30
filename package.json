@@ -214,7 +214,7 @@
     "chai-as-promised": "^5.1.0",
     "chai-enzyme": "^0.5.2",
     "devtron": "^1.4.0",
-    "electron-devtools-installer": "^2.0.1",
+    "electron-devtools-installer": "^2.1.0",
     "electron-mocha": "^3.3.0",
     "electron": "1.6.1",
     "enzyme": "^2.5.1",

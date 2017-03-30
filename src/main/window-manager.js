@@ -255,12 +255,21 @@ app.on('before-quit', function() {
   }
 });
 
-/**
- * When electron's main renderer has completed setup,
- * we'll always show the [connect][./src/connect] dialog
- * on start which is responsible for retaining it's own
- * state between application launches.
- */
 app.on('ready', function() {
+  // install development tools (devtron, react tools) if in development mode
+  if (process.env.NODE_ENV === 'development') {
+    require('devtron').install();
+    const { default: installExtension, REACT_DEVELOPER_TOOLS } = require('electron-devtools-installer');
+    installExtension(REACT_DEVELOPER_TOOLS)
+      .then((name) => debug(`Added Extension:  ${name}`))
+      .catch((err) => debug('An error occurred: ', err));
+  }
+
+  /**
+   * When electron's main renderer has completed setup,
+   * we'll always show the [connect][./src/connect] dialog
+   * on start which is responsible for retaining it's own
+   * state between application launches.
+   */
   showConnectWindow();
 });
