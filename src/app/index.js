@@ -12,14 +12,6 @@ if (!process.env.HADRON_DISTRIBUTION) {
   process.env.HADRON_DISTRIBUTION = pkg.distribution || 'compass-lite';
 }
 
-if (process.env.NODE_ENV === 'development') {
-  require('devtron').install();
-  var devtools = require('electron-devtools-installer');
-  devtools.default(devtools.REACT_DEVELOPER_TOOLS)
-    .then((name) => console.log(`Added Extension:  ${name}`))
-    .catch((err) => console.log('An error occurred trying to install devtools: ', err));
-}
-
 window.jQuery = require('jquery');
 require('bootstrap/js/modal');
 require('bootstrap/js/transition');
