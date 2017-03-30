@@ -400,7 +400,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
           });
         });
 
-        context('when the collection name is invalid', function() {
+        context.skip('when the collection name is invalid #race', function() {
           it('displays the error message', function() {
             return client
               .clickCreateCollectionButton()
@@ -544,7 +544,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
 
       context('when inserting a document', function() {
         context('when the document is valid', function() {
-          it('creates the document', function() {
+          it.skip('creates the document #race', function() {
             return client
               .clickDocumentsTab()
               .clickInsertDocumentButton()
@@ -791,7 +791,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
               });
             });
 
-            context('when adding another index', function() {
+            context.skip('when adding another index #race', function() {
               it('allows another index to be added', function() {
                 return client
                   .clickCreateIndexButton()
@@ -822,7 +822,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
         });
 
         context('when creating an index not part of the schema fields', function() {
-          it('adds a new field', function() {
+          it.skip('adds a new field #race', function() {
             return client
               .clickCreateIndexButton()
               .waitForCreateIndexModal()
@@ -874,7 +874,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
       context('when inserting a document when a filter is applied', function() {
         const filter = '{"name":"Bauhaus"}';
 
-        context('when the new document does not match the filter', function() {
+        context.skip('when the new document does not match the filter #race', function() {
           it('does not render the document in the list', function() {
             return client
               .inputFilterFromDocumentsTab(filter)
