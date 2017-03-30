@@ -581,7 +581,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
       });
 
       context('when editing a document', function() {
-        it('saves the changes to the document', function() {
+        it.skip('saves the changes to the document #race', function() {
           return client
             .clickDocumentsTab()
             .clickEditDocumentButton(1)
