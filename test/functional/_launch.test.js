@@ -1,17 +1,16 @@
 const { launchCompass, quitCompass} = require('./support/spectron-support');
 
-context('#launch Application Launch', function() {
+describe('#launch', function() {
   this.slow(30000);
   this.timeout(60000);
   let app = null;
   let client = null;
 
   before(function() {
-    return launchCompass()
-      .then(function(application) {
-        app = application;
-        client = application.client;
-      });
+    return launchCompass().then(function(application) {
+      app = application;
+      client = application.client;
+    });
   });
 
   after(function() {

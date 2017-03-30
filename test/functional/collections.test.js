@@ -26,7 +26,7 @@ describe('#collections', function() {
     return quitCompass(app);
   });
 
-  context('Creating & Deleting Collections', function() {
+  context('when creating & deleting collections', function() {
     const dataService = new DataService(CONNECTION);
 
     before(function(done) {

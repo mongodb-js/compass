@@ -26,7 +26,7 @@ describe('#crud', function() {
     return quitCompass(app);
   });
 
-  context('CRUD', function() {
+  context('when manipulating documents in the crud view', function() {
     const dataService = new DataService(CONNECTION);
 
     before(function(done) {

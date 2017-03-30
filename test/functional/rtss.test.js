@@ -1,7 +1,6 @@
 const { launchCompass, quitCompass} = require('./support/spectron-support');
-// const debug = require('debug')('mongodb-compass:spectron-support:rtss');
 
-context('#rtss Performance tab', function() {
+describe('#rtss', function() {
   this.slow(30000);
   this.timeout(60000);
   let app = null;
@@ -12,8 +11,7 @@ context('#rtss Performance tab', function() {
       .then(function(application) {
         app = application;
         client = application.client;
-        return client
-          .connectToCompass({ hostname: 'localhost', port: 27018 });
+        return client.connectToCompass({ hostname: 'localhost', port: 27018 });
       });
   });
 
@@ -102,7 +100,7 @@ context('#rtss Performance tab', function() {
     it('renders the network connections', function() {
       return client
         .getNetworkConnections()
-        .should.eventually.at.least('3');
+        .should.eventually.be.at.least('3');
     });
 
     it('renders the memory vsize', function() {

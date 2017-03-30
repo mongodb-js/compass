@@ -26,7 +26,7 @@ describe('#data-service', function() {
     return quitCompass(app);
   });
 
-  context('when running data service tests', function() {
+  context('when using data-service directly', function() {
     const dataService = new DataService(CONNECTION);
 
     before(function(done) {

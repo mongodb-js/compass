@@ -1,6 +1,6 @@
 const { launchCompass, quitCompass} = require('./support/spectron-support');
 
-context('#connect Connecting to an Instance', function() {
+describe('#connect', function() {
   this.slow(30000);
   this.timeout(60000);
   let app = null;

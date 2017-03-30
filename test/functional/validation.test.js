@@ -26,7 +26,7 @@ describe.skip('#validation', function() {
     return quitCompass(app);
   });
 
-  context('Validation', function() {
+  context('when viewing the validation tab', function() {
     const dataService = new DataService(CONNECTION);
 
     before(function(done) {

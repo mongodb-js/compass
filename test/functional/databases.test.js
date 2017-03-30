@@ -1,6 +1,13 @@
+const Connection = require('mongodb-connection-model');
+const DataService = require('mongodb-data-service');
 const { launchCompass, quitCompass} = require('./support/spectron-support');
 
-context('#databases Creating & Deleting Databases', function() {
+/**
+ * Global connection model for this test.
+ */
+const CONNECTION = new Connection({ hostname: '127.0.0.1', port: 27018, ns: 'music' });
+
+describe('#databases', function() {
   this.slow(30000);
   this.timeout(60000);
   let app = null;
@@ -11,26 +18,31 @@ context('#databases Creating & Deleting Databases', function() {
       .then(function(application) {
         app = application;
         client = application.client;
-        return client
-          .connectToCompass({ hostname: 'localhost', port: 27018 });
+        return client.connectToCompass({ hostname: 'localhost', port: 27018 });
       });
   });
 
   after(function() {
-    return client
-      .teardownTest('music')
-      .then(() => {
-        return quitCompass(app);
-      });
+    return quitCompass(app);
   });
 
-  context('when creating a database', function() {
+  context('when creating & deleting databases', function() {
+    const dataService = new DataService(CONNECTION);
     let dbCount;
 
     before(function(done) {
       client.getSidebarDatabaseCount().then(function(value) {
         dbCount = parseInt(value, 10);
         done();
+      });
+    });
+
+    after(function(done) {
+      dataService.connect(function() {
+        dataService.dropDatabase('music', function() {
+          dataService.disconnect();
+          done();
+        });
       });
     });
 

@@ -26,7 +26,7 @@ describe('#explain', function() {
     return quitCompass(app);
   });
 
-  context('Explain', function() {
+  context('when running queries on the explain plan', function() {
     const dataService = new DataService(CONNECTION);
 
     before(function(done) {
