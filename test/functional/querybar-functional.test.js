@@ -10,7 +10,7 @@ const { launchCompass, quitCompass } = require('./support/spectron-support');
  */
 const CONNECTION = new Connection({ hostname: '127.0.0.1', port: 27018, ns: 'mongodb' });
 
-context.skip('#query-bar QueryBar', function() {
+context('#query-bar', function() {
   this.slow(30000);
   this.timeout(60000);
   let app = null;
@@ -21,17 +21,12 @@ context.skip('#query-bar QueryBar', function() {
       .then(function(application) {
         app = application;
         client = application.client;
-        return client
-          .connectToCompass({ hostname: 'localhost', port: 27018 });
+        return client.connectToCompass({ hostname: 'localhost', port: 27018 });
       });
   });
 
   after(function() {
-    return client
-      .teardownTest('mongodb')
-      .then(() => {
-        return quitCompass(app);
-      });
+    return quitCompass(app);
   });
 
   context('when using advanced query options', function() {
@@ -41,13 +36,19 @@ context.skip('#query-bar QueryBar', function() {
       dataService.connect(function() {
         const docs = _.map(_.range(100), mgenerate.bind(null, fanclubTemplate));
         dataService.insertMany('mongodb.fanclub', docs, {}, function() {
-          done();
+          return client
+            .goToCollection('mongodb', 'fanclub').then(function() {
+              done();
+            });
         });
       });
     });
 
-    after(function() {
-      dataService.disconnect();
+    after(function(done) {
+      dataService.dropDatabase('mongodb', function() {
+        dataService.disconnect();
+        done();
+      });
     });
 
     context('when using the fanclub collection with 100 docs', function() {
@@ -57,7 +58,7 @@ context.skip('#query-bar QueryBar', function() {
           .should.eventually.be.false;
       });
 
-      it('finds all 100 documents in the collection', function() {
+      it.skip('finds all 100 documents in the collection', function() {
         return client
           .waitForStatusBar()
           .clickInstanceRefreshIcon()
