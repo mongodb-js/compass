@@ -1,4 +1,5 @@
 const React = require('react');
+const app = require('hadron-app');
 const ValidationActions = require('../actions');
 const OptionSelector = require('./common/option-selector');
 const Rule = require('./rule');
@@ -22,6 +23,7 @@ class RuleBuilder extends React.Component {
       isValid: true,
       forceRenderKey: 0
     };
+    this.HadronTooltip = app.appRegistry.getComponent('App.HadronTooltip');
   }
 
   componentWillReceiveProps(props) {
@@ -129,16 +131,23 @@ class RuleBuilder extends React.Component {
       delete editableProps.childName;
     }
 
-    const tooltipText = 'This action is not available on a secondary node.';
+    const tooltipId = 'validation-rule-is-not-writable';
+    const isNotWritableTooltip = this.props.isWritable ? null : (
+      <this.HadronTooltip
+        id={tooltipId}
+      />
+    );
+    const tooltipText = 'This action is not available on a secondary node';
 
     return (
       <Editable {...editableProps} >
         <Grid fluid className="rule-builder">
           <Row className="header">
             <Col lg={6} md={6} sm={6} xs={6}>
-              <div className="tooltip-button-wrapper" data-tip={tooltipText} data-for="is-not-writable">
+              <div className="tooltip-button-wrapper" data-tip={tooltipText} data-for={tooltipId}>
                 {this.renderAddButton()}
               </div>
+              {isNotWritableTooltip}
             </Col>
             <Col lg={6} md={6} sm={6} xs={6}>
               <div className="pull-right">
