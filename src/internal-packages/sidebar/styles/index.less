@@ -14,11 +14,9 @@
   color: #bfbfbe;
   display: flex;
   flex-direction: column;
-  flex-grow: 0;
-  flex-shrink: 0;
+  height: 100%;
   margin: 0;
   overflow: hidden;
-  transition: flex-basis @transistion-time ease;
 
   &-toggle {
     height: 16px;
@@ -38,7 +36,7 @@
   }
 
   &-expanded {
-    flex-basis: 250px;
+    width: auto;
   }
 
   &-toggle,
@@ -164,11 +162,10 @@
 }
 
 /* Styles for collapsed sidebar state */
-
 .compass-sidebar-collapsed {
   overflow: hidden;
   cursor: pointer;
-  flex-basis: 36px;
+  width: 36px;
 
   .compass-sidebar-item,
   .compass-sidebar-property-column,

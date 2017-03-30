@@ -1,17 +1,3 @@
-.page-container {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  height: 100vh;
-}
-
-.page {
-  display: flex;
-  flex-direction: row;
-  align-items: stretch;
-  flex: 1;
-}
-
 .badge {
   border: 1px solid @gray-lighter;
 }
@@ -28,13 +14,6 @@
     font-weight: 200;
     margin-left: 15px;
   }
-}
-
-.content {
-  flex-grow: 1;
-  flex-shrink: 1;
-  flex-basis: 600px;
-  order: 2;
 }
 
 .panel-title {
@@ -55,6 +34,27 @@
 /*
 GLOBAL FLEXBOX LAYOUT STYLES
 */
+.page-container {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  height: 100vh;
+}
+
+.page {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  flex: 1;
+}
+
+.content {
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: 600px;
+  order: 2;
+}
+
 .tab-views {
   flex-grow: 1;
   flex-shrink: 1;
@@ -106,6 +106,24 @@ GLOBAL FLEXBOX LAYOUT STYLES
         margin-bottom: 100px;
         padding: 0 15px;
       }
+
+//SIDEBAR FLEXBOX DEFINITIONS
+//These override the definitions local to the sidebar plugin
+.compass-sidebar {
+  flex-grow: 0;
+  flex-shrink: 0;
+  transition: flex-basis @transistion-time ease;
+}
+
+.compass-sidebar-expanded {
+  flex-basis: 250px;
+}
+
+.compass-sidebar-collapsed {
+  flex-basis: 36px;
+}
+//
+
 
 // pull these definitions out from below because RTSS header has an internal conflict
 //TO DO refactor cleanly
