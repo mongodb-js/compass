@@ -31,23 +31,25 @@ function addWorkflowCommands(client) {
       .waitForWindowTitle(title);
   });
 
-  /**
-   * Create database/collection
-   */
-  client.addCommand('createDatabaseCollection', function(database, collection) {
-    return this
-      .clickCreateDatabaseButton()
-      .waitForCreateDatabaseModal()
-      .inputCreateDatabaseDetails({ name: database, collectionName: collection })
-      .clickCreateDatabaseModalButton()
-      .waitForDatabaseCreation(database);
-  });
+  // /**
+  //  * Create database/collection
+  //  */
+  // client.addCommand('createDatabaseCollection', function(database, collection) {
+  //   return this
+  //     .clickCreateDatabaseButton()
+  //     .waitForCreateDatabaseModal()
+  //     .inputCreateDatabaseDetails({ name: database, collectionName: collection })
+  //     .clickCreateDatabaseModalButton()
+  //     .waitForDatabaseCreation(database);
+  // });
 
   /**
-   * Go to collection
+   * Go to collection, assumes refresh is required
    */
   client.addCommand('goToCollection', function(database, collection) {
     return this
+      .clickInstanceRefreshIcon()
+      .waitForInstanceRefresh()
       .clickDatabaseInSidebar(database)
       .waitForDatabaseView()
       .clickCollectionInSidebar(`${database}.${collection}`)

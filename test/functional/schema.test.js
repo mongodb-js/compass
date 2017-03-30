@@ -1,6 +1,6 @@
 const { launchCompass, quitCompass} = require('./support/spectron-support');
 
-context('#schema Schema', function() {
+context.skip('#schema Schema', function() {
   this.slow(30000);
   this.timeout(60000);
   let app = null;
