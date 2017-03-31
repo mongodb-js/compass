@@ -312,6 +312,9 @@ const ChartStore = Reflux.createStore({
     const channels = this.state.channels;
     const prop = channels[channel] || {};
     prop.aggregate = aggregate;
+    if (aggregate === AGGREGATE_FUNCTION_ENUM.NONE) {
+      delete prop.aggregate;
+    }
     channels[channel] = prop;
     this._updateSpec({channels: channels});
   },
