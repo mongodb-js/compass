@@ -23,6 +23,7 @@ class SamplingMessage extends React.Component {
     this.documentRemovedAction = crudActions.documentRemoved;
     this.refreshDocumentsAction = crudActions.refreshDocuments;
     this.loadMoreDocumentsStore = app.appRegistry.getStore('CRUD.LoadMoreDocumentsStore');
+    this.HadronTooltip = app.appRegistry.getComponent('App.HadronTooltip');
   }
 
   /**
@@ -135,7 +136,15 @@ class SamplingMessage extends React.Component {
    */
   renderQueryMessage() {
     const noun = pluralize('document', this.state.count);
-    const tooltipText = 'This action is not available on a secondary node.';
+
+    const isWritable = app.dataService.isWritable();
+    const tooltipId = 'document-is-not-writable';
+    const isNotWritableTooltip = isWritable ? null : (
+      <this.HadronTooltip
+        id={tooltipId}
+      />
+    );
+    const tooltipText = 'This action is not available on a secondary node';
 
     return (
       <div>
@@ -152,7 +161,7 @@ class SamplingMessage extends React.Component {
             text="&nbsp;Refresh" />
         </div>
         <div className="action-bar">
-          <div className="tooltip-button-wrapper" data-tip={tooltipText} data-for="is-not-writable">
+          <div className="tooltip-button-wrapper" data-tip={tooltipText} data-for={tooltipId}>
             <button
                 className="btn btn-primary btn-xs open-insert"
                 type="button"
@@ -162,6 +171,7 @@ class SamplingMessage extends React.Component {
               Insert Document
             </button>
           </div>
+          {isNotWritableTooltip}
         </div>
       </div>
     );

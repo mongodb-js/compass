@@ -1,6 +1,5 @@
 const app = require('hadron-app');
 const React = require('react');
-const ReactTooltip = require('react-tooltip');
 const ipc = require('hadron-ipc');
 
 const { NamespaceStore } = require('hadron-reflux-store');
@@ -84,7 +83,6 @@ class SidebarCollection extends React.Component {
             onClick={this.handleDropCollectionClick.bind(this, isWritable)}
             {...tooltipOptions}
           />
-          <ReactTooltip id={TOOLTIP_IDS.DROP_COLLECTION} />
         </div>
       </div>
     );

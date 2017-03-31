@@ -1,7 +1,6 @@
 const app = require('hadron-app');
 const ipc = require('hadron-ipc');
 const React = require('react');
-const ReactTooltip = require('react-tooltip');
 const { NamespaceStore } = require('hadron-reflux-store');
 const toNS = require('mongodb-ns');
 
@@ -118,13 +117,11 @@ class SidebarDatabase extends React.Component {
             {this.props._id}
           </div>
           <div className="compass-sidebar-item-header-actions compass-sidebar-item-header-actions-ddl">
-            <ReactTooltip id={TOOLTIP_IDS.CREATE_COLLECTION} />
             <i
               className={createClassName}
               onClick={this.handleCreateCollectionClick.bind(this, isWritable)}
               {...createTooltipOptions}
             />
-            <ReactTooltip id={TOOLTIP_IDS.DROP_DATABASE} />
             <i
               className={dropClassName}
               onClick={this.handleDropDBClick.bind(this, isWritable)}
