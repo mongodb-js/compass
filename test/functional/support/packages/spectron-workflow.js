@@ -39,7 +39,7 @@ function addWorkflowCommands(client) {
       .clickInstanceRefreshIcon()
       .waitForInstanceRefresh()
       .clickDatabaseInSidebar(database)
-      .waitForDatabaseView()
+      .waitForSidebar('collection')
       .clickCollectionInSidebar(`${database}.${collection}`)
       .waitForStatusBar();
   });

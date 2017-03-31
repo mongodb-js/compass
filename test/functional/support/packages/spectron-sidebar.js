@@ -3,7 +3,7 @@ const selector = require('../spectron-selector');
 
 function addWaitSidebarCommands(client) {
   /**
-   * Wait for the sidebar database to finish loading.
+   * Wait for the sidebar to finish loading.
    *
    * @param {String} type - One of database or collection.
    */
