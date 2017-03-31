@@ -21,7 +21,6 @@ const LoadIndexesStore = Reflux.createStore({
    * Initialize the load indexes store.
    */
   init: function() {
-    this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
     this.listenTo(Actions.loadIndexes, this.loadIndexes);
     NamespaceStore.listen(() => {
       this.loadIndexes();
@@ -34,7 +33,7 @@ const LoadIndexesStore = Reflux.createStore({
   loadIndexes: function() {
     const ns = NamespaceStore.ns;
     if (ns && toNS(ns).collection) {
-      if (this.CollectionStore.isReadonly()) {
+      if (app.appRegistry.getStore('App.CollectionStore').isReadonly()) {
         this.trigger([]);
       } else {
         app.dataService.indexes(ns, { readPreference: READ }, (err, indexes) => {

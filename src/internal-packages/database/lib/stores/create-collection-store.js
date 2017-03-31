@@ -41,8 +41,7 @@ const CreateCollectionStore = Reflux.createStore({
     if (error) {
       this.trigger(error, result);
     } else {
-      const refreshInstance = app.appRegistry.getAction('App.InstanceActions').refreshInstance;
-      refreshInstance();
+      app.appRegistry.getAction('App.InstanceActions').refreshInstance();
       this.trigger(error, result);
     }
   }
