@@ -5,6 +5,7 @@
  * @see https://vega.github.io/vega-lite/docs/aggregate.html
  */
 const AGGREGATE_FUNCTION_ENUM = Object.freeze({
+  NONE: '(none)',
   COUNT: 'count',
   DISTINCT: 'distinct',
   SUM: 'sum',
