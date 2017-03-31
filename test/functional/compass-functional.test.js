@@ -162,7 +162,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
       it('renders the network connections', function() {
         return client
           .getNetworkConnections()
-          .should.eventually.be.at.least('3');
+          .should.eventually.equal('3');
       });
 
       it('renders the memory vsize', function() {
@@ -183,13 +183,13 @@ describe('Compass Main Functional Test Suite #spectron', function() {
           .should.eventually.not.equal(null);
       });
 
-      it.skip('renders the slow operations #race', function() {
+      it('renders the slow operations', function() {
         return client
           .getSlowestOperations()
           .should.eventually.include('No Slow Operations');
       });
 
-      context.skip('when pausing the performance tab #race', function() {
+      context('when pausing the performance tab', function() {
         it('pauses the performance tab', function() {
           return client
             .clickPerformancePauseButton()
@@ -233,19 +233,11 @@ describe('Compass Main Functional Test Suite #spectron', function() {
             .getModalErrorMessage()
             .should.eventually.equal("database names cannot contain the character '$'");
         });
-
-        after(function() {
-          return client.pressEscape()
-            .waitForCreateDatabasesModalHidden();
-        });
       });
 
       context('when the database name is valid', function() {
         it('creates the database', function() {
           return client
-            .clickDatabasesTab()
-            .clickCreateDatabaseButton()
-            .waitForCreateDatabaseModal()
             .inputCreateDatabaseDetails({ name: 'music', collectionName: 'artists' })
             .clickCreateDatabaseModalButton()
             .waitForDatabaseCreation('music')
@@ -400,7 +392,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
           });
         });
 
-        context.skip('when the collection name is invalid #race', function() {
+        context('when the collection name is invalid', function() {
           it('displays the error message', function() {
             return client
               .clickCreateCollectionButton()
@@ -429,20 +421,12 @@ describe('Compass Main Functional Test Suite #spectron', function() {
               .getModalErrorMessage()
               .should.eventually.equal('invalid collection name');
           });
-
-          after(function() {
-            return client
-              .pressEscape()
-              .waitForCreateCollectionModalHidden();
-          });
         });
 
         context('when the collection name is valid', function() {
           it('creates the collection', function() {
             return client
-              .clickCreateCollectionButton()
-              .waitForCreateCollectionModal()
-              .inputCreateCollectionDetails({name: 'labels'})
+              .inputCreateCollectionDetails({ name: 'labels' })
               .clickCreateCollectionModalButton()
               .waitForCollectionCreation('labels')
               .getCollectionsTabCollectionNames()
@@ -544,7 +528,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
 
       context('when inserting a document', function() {
         context('when the document is valid', function() {
-          it('creates the document #race', function() {
+          it('creates the document', function() {
             return client
               .clickDocumentsTab()
               .clickInsertDocumentButton()
@@ -564,7 +548,6 @@ describe('Compass Main Functional Test Suite #spectron', function() {
         context('when pressing escape key twice', function() {
           it('does not close the insert documents modal on first press', function() {
             return client
-              .clickDocumentsTab()
               .clickInsertDocumentButton()
               .waitForInsertDocumentModal()
               .pressEscape()
@@ -581,9 +564,8 @@ describe('Compass Main Functional Test Suite #spectron', function() {
       });
 
       context('when editing a document', function() {
-        it.skip('saves the changes to the document #race', function() {
+        it('saves the changes to the document', function() {
           return client
-            .clickDocumentsTab()
             .clickEditDocumentButton(1)
             .inputDocumentValueChange(1, 'Aphex Twin', 'Aphex Twin (edited)')
             .clickUpdateDocumentButton(1)
@@ -791,7 +773,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
               });
             });
 
-            context.skip('when adding another index #race', function() {
+            context('when adding another index', function() {
               it('allows another index to be added', function() {
                 return client
                   .clickCreateIndexButton()
@@ -807,22 +789,23 @@ describe('Compass Main Functional Test Suite #spectron', function() {
                   .getIndexNames()
                   .should.eventually.deep.equal([ 'name_1', 'name_-1', '_id_' ]);
               });
-              context('when sorting the index list', function() {
-                context('when clicking on the name header', function() {
-                  it('sorts the indexes by name', function() {
-                    return client
-                      .clickIndexTableHeader('index-header-name')
-                      .getIndexNames()
-                      .should.eventually.deep.equal([ '_id_', 'name_-1', 'name_1' ]);
-                  });
-                });
-              });
+            });
+          });
+        });
+
+        context('when sorting the index list', function() {
+          context('when clicking on the name header', function() {
+            it('sorts the indexes by name', function() {
+              return client
+                .clickIndexTableHeader('index-header-name')
+                .getIndexNames()
+                .should.eventually.deep.equal([ '_id_', 'name_-1', 'name_1' ]);
             });
           });
         });
 
         context('when creating an index not part of the schema fields', function() {
-          it.skip('adds a new field #race', function() {
+          it('adds a new field', function() {
             return client
               .clickCreateIndexButton()
               .waitForCreateIndexModal()
@@ -874,7 +857,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
       context('when inserting a document when a filter is applied', function() {
         const filter = '{"name":"Bauhaus"}';
 
-        context.skip('when the new document does not match the filter #race', function() {
+        context('when the new document does not match the filter', function() {
           it('does not render the document in the list', function() {
             return client
               .inputFilterFromDocumentsTab(filter)
