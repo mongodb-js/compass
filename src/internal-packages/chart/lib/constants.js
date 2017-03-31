@@ -137,10 +137,10 @@ const MEASUREMENT_ENUM = Object.freeze({
  * @type {Class} font-awesome icons
  */
 const MEASUREMENT_ICON_ENUM = Object.freeze({
-  [MEASUREMENT_ENUM.NOMINAL]: 'fa-pie-chart',
-  [MEASUREMENT_ENUM.ORDINAL]: 'fa-line-chart',
-  [MEASUREMENT_ENUM.QUANTITATIVE]: 'fa-bar-chart',
-  [MEASUREMENT_ENUM.TEMPORAL]: 'fa-calendar'
+  [MEASUREMENT_ENUM.NOMINAL]: 'font',
+  [MEASUREMENT_ENUM.ORDINAL]: 'sort-amount-asc',
+  [MEASUREMENT_ENUM.QUANTITATIVE]: 'hashtag',
+  [MEASUREMENT_ENUM.TEMPORAL]: 'calendar'
 });
 
 /**

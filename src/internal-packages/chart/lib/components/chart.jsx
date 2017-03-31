@@ -2,8 +2,7 @@ const React = require('react');
 const Vega = require('react-vega').default;
 const vl = require('vega-lite');
 
-// const debug = require('debug')('compass-charts:chart');
-const _ = require('lodash');
+// const debug = require('debug')('mongodb-compass:chart:chart');
 
 class Chart extends React.Component {
 
@@ -27,9 +26,10 @@ class Chart extends React.Component {
    * @param {Object} nextProps    the next props this component receives.
    */
   componentWillReceiveProps(nextProps) {
-    const spec = this._getVegaSpec(nextProps.spec);
+    const spec = this._getVegaSpec(nextProps.spec, nextProps);
     this.setState({
-      spec: spec
+      spec: spec,
+      specType: nextProps.specType
     });
   }
 
@@ -38,12 +38,18 @@ class Chart extends React.Component {
    * spec directly, depending on the specType.
    *
    * @param {Object} spec    The vega or vega-lite spec
+   * @param {Object} props   The current component props, default `this.props`
    * @return {Object} spec   The vega spec
    */
-  _getVegaSpec(spec) {
-    if (this.props.specType === 'vega-lite') {
-      _.assign(spec, _.pick(this.props, ['width', 'height', 'data']));
-      return vl.compile(spec).spec;
+  _getVegaSpec(spec, props) {
+    props = props || this.props;
+    if (props.specType === 'vega-lite') {
+      const liteSpec = Object.assign({}, spec, {
+        width: props.width,
+        height: props.height,
+        data: {values: props.data}
+      });
+      return vl.compile(liteSpec).spec;
     }
     return spec;
   }
@@ -55,15 +61,27 @@ class Chart extends React.Component {
    * @return {Component}   the ReactVega component.
    */
   render() {
-    const props = _.omit(this.props, ['specType']);
-    props.spec = this.state.spec;
-    return <Vega {...props} />;
+    // pass data into ReactVega component as dataset with name `source`.
+    const data = {source: this.props.data};
+    // use (possibly converted) vega spec
+    const spec = this.state.spec;
+    return (
+      <Vega
+        spec={spec}
+        data={data}
+        width={this.props.width}
+        height={this.props.height}
+        padding={this.props.padding}
+        className={this.props.className}
+        renderer={this.props.renderer}
+      />
+    );
   }
 }
 
 Chart.propTypes = {
   specType: React.PropTypes.oneOf(['vega', 'vega-lite']),
-  data: React.PropTypes.object.isRequired,
+  data: React.PropTypes.array.isRequired,
   width: React.PropTypes.number.isRequired,
   height: React.PropTypes.number.isRequired,
   padding: React.PropTypes.object,
@@ -74,8 +92,6 @@ Chart.propTypes = {
 
 Chart.defaultProps = {
   data: [],
-  width: 300,
-  height: 300,
   renderer: 'svg',
   className: 'chart',
   specType: 'vega-lite'
