@@ -629,7 +629,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
       });
 
       context('when deleting a document', function() {
-        it('deletes upon confirmation', function() {
+        it('deletes upon confirmation #race', function() {
           return client
             .clickDeleteDocumentButton(2)
             .clickConfirmDeleteDocumentButton(2)
