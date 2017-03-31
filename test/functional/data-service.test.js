@@ -64,7 +64,7 @@ describe('#data-service', function() {
     context('when inserting a document when a filter is applied', function() {
       const filter = '{"name":"Bauhaus"}';
 
-      context('when the new document does not match the filter', function() {
+      context.skip('when the new document does not match the filter #race', function() {
         it('does not render the document in the list', function() {
           return client
             .inputFilterFromDocumentsTab(filter)

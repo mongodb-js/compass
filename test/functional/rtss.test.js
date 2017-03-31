@@ -121,13 +121,13 @@ describe('#rtss', function() {
         .should.eventually.not.equal(null);
     });
 
-    it('renders the slow operations', function() {
+    it.skip('renders the slow operations #race', function() {
       return client
         .getSlowestOperations()
         .should.eventually.include('No Slow Operations');
     });
 
-    context('when pausing the performance tab', function() {
+    context.skip('when pausing the performance tab #race', function() {
       it('pauses the performance tab', function() {
         return client
           .clickPerformancePauseButton()

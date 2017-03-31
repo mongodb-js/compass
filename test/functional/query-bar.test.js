@@ -58,7 +58,7 @@ describe('#query-bar', function() {
           .should.eventually.be.false;
       });
 
-      it.skip('finds all 100 documents in the collection', function() {
+      it('finds all 100 documents in the collection', function() {
         return client
           .waitForStatusBar()
           .clickInstanceRefreshIcon()

@@ -67,7 +67,7 @@ describe('#collections', function() {
           });
         });
 
-        context('when the collection name is invalid', function() {
+        context.skip('when the collection name is invalid #race', function() {
           it('displays the error message', function() {
             return client
               .clickCreateCollectionButton()
@@ -96,11 +96,19 @@ describe('#collections', function() {
               .getModalErrorMessage()
               .should.eventually.equal('invalid collection name');
           });
+
+          after(function() {
+            return client
+              .pressEscape()
+              .waitForCreateCollectionModalHidden();
+          });
         });
 
         context('when the collection name is valid', function() {
           it('creates the collection', function() {
             return client
+              .clickCreateCollectionButton()
+              .waitForCreateCollectionModal()
               .inputCreateCollectionDetails({ name: 'labels' })
               .clickCreateCollectionModalButton()
               .waitForCollectionCreation('labels')
