@@ -187,7 +187,7 @@ describe('#collections', function() {
           });
         });
 
-        context('when viewing a collection', function() {
+        context.skip('when viewing a collection #race', function() {
           it('displays the collection view', function() {
             return client
               .clickCollectionInSidebar('music.artists')

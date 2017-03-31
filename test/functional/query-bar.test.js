@@ -58,7 +58,7 @@ describe('#query-bar', function() {
           .should.eventually.be.false;
       });
 
-      it('finds all 100 documents in the collection', function() {
+      it.skip('finds all 100 documents in the collection', function() {
         return client
           .waitForStatusBar()
           .clickInstanceRefreshIcon()
@@ -98,7 +98,7 @@ describe('#query-bar', function() {
         .waitForStatusBar()
         .clickQueryBarOptionsToggle();
       });
-      context('when applying a projection', function() {
+      context.skip('when applying a projection #race', function() {
         it('returns some of the fields', function() {
           return client
             .inputProjectFromSchemaTab('{age: 1, address: 1}')

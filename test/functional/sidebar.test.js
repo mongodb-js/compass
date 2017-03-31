@@ -69,7 +69,7 @@ describe('#sidebar', function() {
       });
     });
 
-    context('when entering a blank regex', function() {
+    context.skip('when entering a blank regex #race', function() {
       it('restores the sidebar', function() {
         return client
           .inputSidebarFilter('(?:)')
