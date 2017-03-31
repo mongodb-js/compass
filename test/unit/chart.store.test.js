@@ -386,6 +386,7 @@ describe('ChartStore', function() {
         expect(findOptions.limit).to.be.equal(100); // @todo temporary limitation
       });
     });
+
     context('when calling with limit > 1000', () => {
       it('limits the limit to 1000', () => {
         ChartStore._refreshDataCache(Object.assign({}, defaultQuery, {
@@ -396,6 +397,7 @@ describe('ChartStore', function() {
         expect(findOptions.limit).to.be.equal(1000); // @todo temporary limitation
       });
     });
+
     context('when using non-default query options', () => {
       const nonDefaultQuery = Object.assign({}, defaultQuery, {
         ns: 'foo.bar',
