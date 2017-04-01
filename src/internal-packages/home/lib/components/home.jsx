@@ -1,6 +1,5 @@
 const React = require('react');
 const app = require('ampersand-app');
-const ReactTooltip = require('react-tooltip');
 
 class Home extends React.Component {
   constructor(props) {
@@ -31,17 +30,6 @@ class Home extends React.Component {
   }
 
   render() {
-    // if server is not writable, include global tooltip component for diabled buttons
-    const isNotWritableTooltip = app.dataService.isWritable() ? null : (
-      <ReactTooltip
-        id="is-not-writable"
-        effect="solid"
-        class="is-not-writable-tooltip"
-        place="right"
-        delayShow={200}
-      />
-    );
-
     return (
       <div className="page">
         <div className="content with-sidebar">
@@ -50,7 +38,6 @@ class Home extends React.Component {
         <div className="compass-sidebar-container">
           <this.sideBar />
         </div>
-        {isNotWritableTooltip}
       </div>
     );
   }

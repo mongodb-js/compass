@@ -50,6 +50,11 @@ describe('<Indexes />', () => {
       component = shallow(<this.CreateIndexButton isWritable={false} />);
       expect(component.find('.btn.btn-primary.btn-xs')).to.be.disabled();
     });
+
+    it('shows tooltip indicating why button is disabled', () => {
+      expect(component.find('.tooltip-button-wrapper'))
+        .to.have.data('tip', 'This action is not available on a secondary node');
+    });
   });
 
   context('When collection is writable', function() {

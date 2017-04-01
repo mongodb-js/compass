@@ -1,4 +1,5 @@
 const React = require('react');
+const app = require('ampersand-app');
 const CreateIndexModal = require('./create-index-modal');
 
 /**
@@ -16,6 +17,7 @@ class CreateIndexButton extends React.Component {
     this.state = {
       showModal: false
     };
+    this.HadronTooltip = app.appRegistry.getComponent('App.HadronTooltip');
   }
 
   /**
@@ -42,11 +44,17 @@ class CreateIndexButton extends React.Component {
    * @returns {React.Component} The create index button.
    */
   render() {
-    const tooltipText = 'This action is not available on a secondary node.';
+    const tooltipId = 'index-is-not-writable';
+    const isNotWritableTooltip = this.props.isWritable ? null : (
+      <this.HadronTooltip
+        id={tooltipId}
+      />
+    );
+    const tooltipText = 'This action is not available on a secondary node';
 
     return (
       <div className="create-index-btn action-bar">
-        <div className="tooltip-button-wrapper" data-tip={tooltipText} data-for="is-not-writable">
+        <div className="tooltip-button-wrapper" data-tip={tooltipText} data-for={tooltipId}>
           <button
             className="btn btn-primary btn-xs"
             type="button"
@@ -56,6 +64,7 @@ class CreateIndexButton extends React.Component {
             Create Index
           </button>
         </div>
+        {isNotWritableTooltip}
         <CreateIndexModal
           open={this.state.showModal}
           close={this.close.bind(this)} />
