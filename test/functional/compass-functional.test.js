@@ -159,7 +159,7 @@ describe('Compass Main Functional Test Suite #spectron', function() {
           .should.eventually.not.equal(null);
       });
 
-      it('renders the network connections', function() {
+      it.skip('renders the network connections #race', function() {
         return client
           .getNetworkConnections()
           .should.eventually.be.at.least('3');
