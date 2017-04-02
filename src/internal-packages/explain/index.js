@@ -4,10 +4,19 @@ const ExplainActions = require('./lib/actions');
 const ExplainStore = require('./lib/stores');
 
 /**
+ * The collection tab role for the explain component.
+ */
+const COLLECTION_TAB_ROLE = {
+  component: ExplainComponent,
+  name: 'EXPLAIN PLAN',
+  order: 3
+};
+
+/**
  * Activate all the components in the  Explain package.
  */
 function activate() {
-  app.appRegistry.registerComponent('Explain.ExplainPlan', ExplainComponent);
+  app.appRegistry.registerRole('Collection.Tab', COLLECTION_TAB_ROLE);
   app.appRegistry.registerAction('Explain.Actions', ExplainActions);
   app.appRegistry.registerStore('Explain.Store', ExplainStore);
 }
@@ -16,7 +25,7 @@ function activate() {
  * Deactivate all the components in the  Explain package.
  */
 function deactivate() {
-  app.appRegistry.deregisterComponent('Explain.ExplainPlan');
+  app.appRegistry.deregisterRole('Collection.Tab', COLLECTION_TAB_ROLE);
   app.appRegistry.deregisterAction('Explain.Actions');
   app.appRegistry.deregisterStore('Explain.Store');
 }

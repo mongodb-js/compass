@@ -7,11 +7,20 @@ const ResetDocumentListStore = require('./lib/store/reset-document-list-store');
 const LoadMoreDocumentsStore = require('./lib/store/load-more-documents-store');
 
 /**
+ * The collection tab role for the document list component.
+ */
+const COLLECTION_TAB_ROLE = {
+  component: DocumentList,
+  name: 'DOCUMENTS',
+  order: 2
+};
+
+/**
  * Activate all the components in the CRUD package.
  */
 function activate() {
+  app.appRegistry.registerRole('Collection.Tab', COLLECTION_TAB_ROLE);
   app.appRegistry.registerComponent('CRUD.Document', Document);
-  app.appRegistry.registerComponent('CRUD.DocumentList', DocumentList);
   app.appRegistry.registerAction('CRUD.Actions', Actions);
   app.appRegistry.registerStore('CRUD.InsertDocumentStore', InsertDocumentStore);
   app.appRegistry.registerStore('CRUD.ResetDocumentListStore', ResetDocumentListStore);
@@ -22,8 +31,8 @@ function activate() {
  * Deactivate all the components in the CRUD package.
  */
 function deactivate() {
+  app.appRegistry.deregisterRole('Collection.Tab', COLLECTION_TAB_ROLE);
   app.appRegistry.deregisterComponent('CRUD.Document');
-  app.appRegistry.deregisterComponent('CRUD.DocumentList');
   app.appRegistry.deregisterAction('CRUD.Actions');
   app.appRegistry.deregisterStore('CRUD.InsertDocumentStore');
   app.appRegistry.deregisterStore('CRUD.ResetDocumentListStore');
