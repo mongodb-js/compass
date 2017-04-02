@@ -24,6 +24,7 @@ const addSidebarCommands = require('./packages/spectron-sidebar');
 const addStatusBarCommands = require('./packages/spectron-status-bar');
 const addValidationCommands = require('./packages/spectron-validation');
 const addWindowCommands = require('./packages/spectron-window');
+const addWorkflowCommands = require('./packages/spectron-workflow');
 const Application = require('spectron').Application;
 const debug = require('debug')('mongodb-compass:spectron-support');
 
@@ -102,27 +103,6 @@ function progressiveWait(fn, selector, reverse, index) {
 }
 
 /**
- * Waits until the provided funciton returns true.
- *
- * @param {Function} waitUntil - The waitUntil function.
- * @param {Function} fn - The function to execute.
- * @param {Number} index - The timeout index.
- *
- * @return {Function}  return value of the `fn` function.
- */
-function progressiveWaitUntil(waitUntil, fn, index) {
-  const timeout = TIMEOUTS[index];
-  debug(`Waiting until function returns with timeout ${timeout}ms`);
-  return waitUntil(fn, timeout)
-    .catch(function(e) {
-      if (isTimeoutError(e) && timeout !== 13000) {
-        return progressiveWaitUntil(waitUntil, fn, index + 1);
-      }
-      throw e;
-    });
-}
-
-/**
  * Add the extended wait commands for Compass.
  *
  * @param {Object} client   spectron client to add the wait commands to.
@@ -146,15 +126,6 @@ function addExtendedWaitCommands(client) {
    */
   client.addCommand('waitForVisibleInCompass', function(selector, reverse) {
     return progressiveWait(this.waitForVisible.bind(this), selector, reverse, 0);
-  });
-
-  /**
-   * Wait for a condition to return true.
-   *
-   * @param {Function} fn - The function to execute.
-   */
-  client.addCommand('waitUntilInCompass', function(fn) {
-    return progressiveWaitUntil(this.waitUntil.bind(this), fn, 0);
   });
 }
 
@@ -204,6 +175,7 @@ function launchCompass() {
     addStatusBarCommands(client);
     addValidationCommands(client);
     addWindowCommands(client);
+    addWorkflowCommands(client);
     chaiAsPromised.transferPromiseness = app.transferPromiseness;
     chai.should().exist(client);
     return client.waitUntilWindowLoaded(LONG_TIMEOUT);
@@ -222,11 +194,12 @@ function launchCompass() {
  *
  * @returns {Promise}    Promise that resolves when app stops.
  */
-function quitCompass(app, done) {
-  if (!app || !app.isRunning()) return;
+function quitCompass(app) {
+  if (!app || !app.isRunning()) return Promise.resolve();
   return app.stop().then(function() {
     assert.equal(app.isRunning(), false);
-    done();
+  }).catch(function(err) {
+    debug('Quitting Compass failed due to error: ', err);
   });
 }
 
