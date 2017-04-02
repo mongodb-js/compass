@@ -11,6 +11,7 @@ const DropDatabaseStore = Reflux.createStore({
    * Initialize the store.
    */
   init: function() {
+    this.refreshInstance = app.appRegistry.getAction('App.InstanceActions').refreshInstance;
     this.listenTo(Actions.dropDatabase, this.dropDatabase);
   },
 
@@ -37,7 +38,7 @@ const DropDatabaseStore = Reflux.createStore({
     if (error) {
       this.trigger(error, result);
     } else {
-      app.appRegistry.getAction('App.InstanceActions').refreshInstance();
+      this.refreshInstance();
       this.trigger(error, result);
     }
   }

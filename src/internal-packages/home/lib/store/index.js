@@ -20,8 +20,9 @@ const HomeStore = Reflux.createStore({
    * Initialize home store
    */
   init() {
+    const InstanceActions = app.appRegistry.getAction('App.InstanceActions');
     NamespaceStore.listen(HomeActions.switchContent);
-    this.listenToExternalStore('App.InstanceStore', this.onInstanceChanged.bind(this));
+    InstanceActions.setInstance.listen(this.setInstance.bind(this));
   },
 
   getInitialState() {
@@ -32,7 +33,7 @@ const HomeStore = Reflux.createStore({
     };
   },
 
-  onInstanceChanged() {
+  setInstance() {
     this.updateTitle();
   },
 
