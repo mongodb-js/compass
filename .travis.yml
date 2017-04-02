@@ -5,11 +5,10 @@ node_js:
   - 7.4
 env:
   matrix:
-    - S=1 DEBUG=mongodb-compass:spectron* MONGODB_VERSION=2.6.x MONGODB_TOPOLOGY=standalone
-    - S=1 DEBUG=mongodb-compass:spectron* MONGODB_VERSION=3.4.x MONGODB_TOPOLOGY=standalone
-    - S=2 DEBUG=mongodb-compass:spectron* MONGODB_VERSION=2.6.x MONGODB_TOPOLOGY=standalone
-    - S=2 DEBUG=mongodb-compass:spectron* MONGODB_VERSION=3.4.x MONGODB_TOPOLOGY=standalone
-    - S=3 DEBUG=mongodb-compass:spectron* MONGODB_VERSION=3.4.x MONGODB_TOPOLOGY=standalone
+    - MONGODB_VERSION=2.6.x MONGODB_TOPOLOGY=standalone
+    - MONGODB_VERSION=3.0.x MONGODB_TOPOLOGY=standalone
+    - MONGODB_VERSION=3.2.x MONGODB_TOPOLOGY=standalone
+    - MONGODB_VERSION=3.4.x MONGODB_TOPOLOGY=standalone
   global:
     secure: kx+3p/x5hEju6fKYzb0SCk9VJLq6bOxrizCQ/skvRB9OwiQUFm68KHDRys6DonUgudfJK9QF+2IvTPo7V+6bzh15hNDd4TnMuz/L9Fcb7+BwTENwjRKlWltuWBtLbJ+XxOeCAg2uWT7D8bH5S2NADIboIVUstAqNM9LKw9V9BVc=
 addons:
