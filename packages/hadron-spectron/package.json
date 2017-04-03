@@ -4,7 +4,7 @@
   "description": "Hadron Spectron Test Support",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --recursive"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -23,6 +23,12 @@
   "homepage": "https://github.com/mongodb-js/hadron-spectron#readme",
   "devDependencies": {
     "chai": "^3.5.0",
+    "electron": "^1.6.2",
     "mocha": "^3.2.0"
+  },
+  "dependencies": {
+    "chai-as-promised": "^6.0.0",
+    "debug": "mongodb-js/debug#v2.2.3",
+    "spectron": "^3.6.1"
   }
 }

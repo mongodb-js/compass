@@ -1,0 +1,11 @@
+{
+  "name": "hadron-test",
+  "version": "1.0.0",
+  "description": "Hadron Test App Fixture",
+  "main": "index.js",
+  "author": "Durran Jordan <durran@gmail.com>",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "electron": "^1.6.2"
+  }
+}

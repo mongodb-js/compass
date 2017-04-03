@@ -12,6 +12,6 @@ const TEST_ID = 'data-test-id';
  */
 const selector = (id) => {
   return `[${TEST_ID}='${id}']`;
-}
+};
 
 module.exports = selector;
