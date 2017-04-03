@@ -12,9 +12,9 @@ const DropDatabaseStore = require('./lib/store/drop-database-store');
  */
 const INSTANCE_TAB_ROLE = {
   component: DatabasesView,
-  name: "DATABASES",
+  name: 'DATABASES',
   order: 1
-}
+};
 
 /**
  * Activate all the components in the Database DDL package.
