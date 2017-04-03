@@ -10,6 +10,7 @@
     "less": "lessc ./styles/index.less ./styles/index.css",
     "prepublish": "npm run compile",
     "prestart": "npm run compile",
+    "postinstall": "npm run compile",
     "storybook": "start-storybook -p 9001",
     "start": "electron ./electron",
     "pretest": "mongodb-runner install && mongodb-runner start --port 27018",

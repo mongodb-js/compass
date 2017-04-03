@@ -1,70 +1,58 @@
 const React = require('react');
-const { TabNavBar } = require('hadron-react-components');
-const Actions = require('../actions');
-const Performance = require('./performance-component');
+
+const GraphsComponent = require('./server-stats-graphs-component');
+const ListsComponent = require('./server-stats-lists-component');
+const DBErrorComponent = require('./dberror-component');
+const TimeAndPauseButton = require('./time-and-pause-button');
+const DBErrorStore = require('../stores/dberror-store');
+const ServerStatsStore = require('../stores/server-stats-graphs-store');
+const { StatusRow } = require('hadron-react-components');
 const app = require('hadron-app');
 
-// const debug = require('debug')('mongodb-compass:server-stats:RTSSComponent');
+/**
+ * The default interval.
+ */
+const INTERVAL = 1000;
 
 /**
- * Represents the component that renders all the server stats.
+ * Renders the entire performance tab, including charts and lists.
  */
-class RTSSComponent extends React.Component {
+class PerformanceComponent extends React.Component {
+
+  renderTopMessage() {
+    return (
+      <StatusRow style="warning">
+        Top command is not available for mongos, some charts may not show any data.
+      </StatusRow>
+    );
+  }
 
   /**
-   * The RTSS view component constructor.
+   * Render the performance component.
    *
-   * @param {Object} props - The component properties.
-   */
-  constructor(props) {
-    super(props);
-    this.state = {activeTab: 0};
-    this.DatabasesView = app.appRegistry.getComponent('DatabaseDDL.DatabasesView');
-  }
-
-
-  /**
-   * Restart the actions on mount.
-   */
-  componentDidMount() {
-    Actions.restart();
-  }
-
-  onTabClicked(idx) {
-    if (this.state.activeTab === idx) {
-      return;
-    }
-    this.setState({activeTab: idx});
-  }
-
-  /**
-   * Renders the component.
-   *
-   * @returns {React.Component} The component.
+   * @returns {React.Component}
    */
   render() {
-    const performanceView = <Performance interval={this.props.interval} />;
-    const databasesView = <this.DatabasesView />;
     return (
-      <div className="rtss">
-        <TabNavBar
-          theme="light"
-          tabs={['Databases', 'Performance']}
-          views={[databasesView, performanceView]}
-          activeTabIndex={this.state.activeTab}
-          onTabClicked={this.onTabClicked.bind(this)}
-          className="rt-nav"
-        />
-      </div>
+      <section className="rt-perf">
+        <div className="controls-container">
+          <TimeAndPauseButton paused={false} />
+          {ServerStatsStore.isMongos ? this.renderTopMessage() : null}
+          <DBErrorComponent store={DBErrorStore} />
+        </div>
+        <div className="column-container">
+          <div className="column main">
+            <section className="rt__graphs-out">
+              <GraphsComponent interval={INTERVAL} />
+            </section>
+            <section className="rt__lists-out">
+              <ListsComponent interval={INTERVAL} />
+            </section>
+          </div>
+        </div>
+      </section>
     );
   }
 }
 
-RTSSComponent.propTypes = {
-  interval: React.PropTypes.number.isRequired
-};
-
-
-RTSSComponent.displayName = 'RTSSComponent';
-
-module.exports = RTSSComponent;
+module.exports = PerformanceComponent;

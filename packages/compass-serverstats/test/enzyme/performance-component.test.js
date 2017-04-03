@@ -8,7 +8,7 @@ const {shallow} = require('enzyme');
 const AppRegistry = require('hadron-app-registry');
 const { StatusRow } = require('hadron-react-components');
 const ServerStatsStore = require('../../src/stores/server-stats-graphs-store');
-const PerformanceComponent = require('../../src/components/performance-component');
+const PerformanceComponent = require('../../src/components/');
 
 chai.use(chaiEnzyme());
 
@@ -28,7 +28,7 @@ describe('rtss', () => {
 
     beforeEach(() => {
       ServerStatsStore.isMongos = true;
-      component = shallow(<PerformanceComponent interval={1000} />);
+      component = shallow(<PerformanceComponent />);
     });
 
     afterEach(() => {

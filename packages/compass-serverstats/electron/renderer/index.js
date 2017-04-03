@@ -6,7 +6,6 @@ const { DataServiceStore, DataServiceActions } = require('mongodb-data-service')
 const Connection = require('mongodb-connection-model');
 const app = require('hadron-app');
 const AppRegistry = require('hadron-app-registry');
-const {DatabasesView, StatusRow, TabNavBar} = require('./skeleton-components');
 
 // const debug = require('debug')('mongodb-compass:server-stats');
 
@@ -17,19 +16,15 @@ const CONNECTION = new Connection({
   mongodb_database_name: 'admin'
 });
 
-const RTSSComponent = require('../../lib/components');
+const PerformanceComponent = require('../../lib/components');
 
 DataServiceStore.listen((error, ds) => {
   ReactDOM.render(
-    React.createElement(RTSSComponent, {interval: 1000}),
+    React.createElement(PerformanceComponent),
     document.getElementById('container')
   );
 });
 
 app.appRegistry = new AppRegistry();
 app.instance = { host: { cpu_cores: 4 } };
-app.appRegistry.registerComponent('App.TabNavBar', TabNavBar);
-app.appRegistry.registerComponent('App.StatusRow', StatusRow);
-app.appRegistry.registerComponent('DatabaseDDL.DatabasesView', DatabasesView);
-
 DataServiceActions.connect(CONNECTION);
