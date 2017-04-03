@@ -20,6 +20,23 @@ class ChartBuilder extends React.Component {
 
     // fetch external components
     this.queryBar = app.appRegistry.getComponent('Query.QueryBar');
+    this.state = {chartWidth: 600, chartHeight: 400};
+  }
+
+  componentDidMount() {
+    this.handleResize();
+    window.addEventListener('resize', this.handleResize.bind(this));
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.handleResize);
+  }
+
+  handleResize() {
+    const width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+    const height = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+
+    this.setState({chartWidth: width * 0.4, chartHeight: height * 0.8});
   }
 
   /**
@@ -40,17 +57,19 @@ class ChartBuilder extends React.Component {
     );
   }
 
+
   renderChart() {
     if (!this.props.specValid) {
       return null;
     }
+
     return (
       <Chart
         specType={this.props.specType}
         spec={this.props.spec}
         data={this.props.dataCache}
-        width={600}
-        height={400}
+        width={this.state.chartWidth}
+        height={this.state.chartHeight}
         className="chart-builder-chart"
         renderer="canvas"
       />
