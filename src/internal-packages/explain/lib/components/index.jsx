@@ -1,17 +1,12 @@
 const React = require('react');
 
-const app = require('hadron-app');
+const { StoreConnector } = require('hadron-react-components');
 const CompassExplain = require('./compass-explain');
 const Store = require('../stores');
 
 // const debug = require('debug')('mongodb-compass:compass-explain:index');
 
 class ConnectedCompassExplain extends React.Component {
-
-  constructor(props) {
-    super(props);
-    this.StoreConnector = app.appRegistry.getComponent('App.StoreConnector');
-  }
 
   /**
    * Connect CompassExplainComponent to store and render.
@@ -20,9 +15,9 @@ class ConnectedCompassExplain extends React.Component {
    */
   render() {
     return (
-      <this.StoreConnector store={Store}>
+      <StoreConnector store={Store}>
         <CompassExplain />
-      </this.StoreConnector>
+      </StoreConnector>
     );
   }
 }

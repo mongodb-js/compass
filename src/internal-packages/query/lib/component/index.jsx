@@ -1,6 +1,6 @@
 const React = require('react');
 
-const app = require('hadron-app');
+const { StoreConnector } = require('hadron-react-components');
 const QueryBar = require('./query-bar');
 const QueryActions = require('../action');
 const QueryStore = require('../store/query-store');
@@ -9,11 +9,6 @@ const QueryStore = require('../store/query-store');
 
 class ConnectedQueryBar extends React.Component {
 
-  constructor(props) {
-    super(props);
-    this.StoreConnector = app.appRegistry.getComponent('App.StoreConnector');
-  }
-
   /**
    * Connect CompassExplainComponent to store and render.
    *
@@ -21,9 +16,9 @@ class ConnectedQueryBar extends React.Component {
    */
   render() {
     return (
-      <this.StoreConnector store={QueryStore}>
+      <StoreConnector store={QueryStore}>
         <QueryBar actions={QueryActions} {...this.props} />
-      </this.StoreConnector>
+      </StoreConnector>
     );
   }
 }

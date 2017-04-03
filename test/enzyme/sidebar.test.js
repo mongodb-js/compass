@@ -6,10 +6,10 @@ const expect = chai.expect;
 const React = require('react');
 const sinon = require('sinon');
 const AppRegistry = require('hadron-app-registry');
+const { StoreConnector } = require('hadron-react-components');
 const { shallow } = require('enzyme');
 const Sidebar = require('../../src/internal-packages/sidebar/lib/components/sidebar');
 const InstanceStore = require('../../src/internal-packages/app/lib/stores/instance-store');
-const StoreConnector = require('../../src/internal-packages/app/lib/components/store-connector');
 
 chai.use(chaiEnzyme());
 
@@ -24,7 +24,6 @@ describe('<Sidebar />', () => {
       'DatabaseDDL.Actions',
       {openCreateDatabaseDialog: this.DatabaseDDLActionSpy}
     );
-    app.appRegistry.registerComponent('App.StoreConnector', StoreConnector);
     app.appRegistry.registerStore('App.InstanceStore', InstanceStore);
     app.dataService = {
       isWritable: () => {
