@@ -1,0 +1,28 @@
+{
+  "name": "hadron-spectron",
+  "version": "0.0.0",
+  "description": "Hadron Spectron Test Support",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --recursive"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mongodb-js/hadron-spectron.git"
+  },
+  "keywords": [
+    "Hadron",
+    "Spectron",
+    "Testing"
+  ],
+  "author": "Durran Jordan <durran@gmail.com>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/mongodb-js/hadron-spectron/issues"
+  },
+  "homepage": "https://github.com/mongodb-js/hadron-spectron#readme",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.2.0"
+  }
+}
