@@ -11,7 +11,7 @@ class Home extends React.Component {
     /**
      * TODO (imlucas) Handle state when rtss permissions not available.
      */
-    this.serverStatsView = app.appRegistry.getComponent('RTSS.ServerStats');
+    this.instanceView = app.appRegistry.getComponent('Instance.Instance');
     this.CreateDatabaseDialog = app.appRegistry.getComponent('DatabaseDDL.CreateDatabaseDialog');
     this.DropDatabaseDialog = app.appRegistry.getComponent('DatabaseDDL.DropDatabaseDialog');
     this.CreateCollectionDialog = app.appRegistry.getComponent('Database.CreateCollectionDialog');
@@ -38,7 +38,7 @@ class Home extends React.Component {
         view = (<this.collectionView namespace={this.props.namespace} />);
         break;
       default:
-        view = (<this.serverStatsView interval={1000}/>);
+        view = (<this.instanceView interval={1000}/>);
     }
 
     return view;
