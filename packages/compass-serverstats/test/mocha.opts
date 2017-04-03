@@ -1,0 +1,4 @@
+-R spec
+--timeout 2000
+--slow 1000
+--full-trace

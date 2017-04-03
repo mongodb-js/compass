@@ -9,16 +9,10 @@ const ServerStatsStore = require('../stores/server-stats-graphs-store');
 const { StatusRow } = require('hadron-react-components');
 const app = require('hadron-app');
 
-// const debug = require('debug')('mongodb-compass:server-stats:performance-component');
-
 /**
  * Renders the entire performance tab, including charts and lists.
  */
 class PerformanceComponent extends React.Component {
-
-  constructor(props) {
-    super(props);
-  }
 
   renderTopMessage() {
     return (

@@ -1,12 +1,24 @@
+sudo: required
+dist: trusty
 language: node_js
-sudo: false
 node_js:
-  - 5
-script: npm run-script ci
+  - 7.4
+env:
+  matrix:
+    - MONGODB_VERSION=2.6.x MONGODB_TOPOLOGY=standalone
+    - MONGODB_VERSION=3.4.x MONGODB_TOPOLOGY=standalone
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - libkrb5-dev
+before_script:
+  - export DISPLAY=:99.0
+  - sh -e /etc/init.d/xvfb start
+  - npm run check
+script: npm run test
 cache:
   directories:
-  - node_modules
-notifications:
-  flowdock: e3dc17bc8a2c1b3412abe3e5747f8291
-env:
-  - MONGODB_VERSION=3.2.x MONGODB_TOPOLOGY=standalone
+    - $HOME/.electron
+    - node_modules
