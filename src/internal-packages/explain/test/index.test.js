@@ -6,8 +6,7 @@ const React = require('react');
 
 const shallow = require('enzyme').shallow;
 
-const app = require('hadron-app');
-const StoreConnector = app.appRegistry.getComponent('App.StoreConnetor');
+const { StoreConnector } = require('hadron-react-components');
 const ConnectedCompassExplain = require('../lib/components');
 
 // use chai-enzyme assertions, see https://github.com/producthunt/chai-enzyme

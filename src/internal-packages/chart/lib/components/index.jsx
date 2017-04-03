@@ -1,6 +1,6 @@
 const React = require('react');
 
-const app = require('hadron-app');
+const { StoreConnector } = require('hadron-react-components');
 const ChartBuilder = require('./chart-builder');
 const Store = require('../store');
 const Actions = require('../actions');
@@ -9,11 +9,6 @@ const Actions = require('../actions');
 
 class ConnectedChartBuilder extends React.Component {
 
-  constructor(props) {
-    super(props);
-    this.StoreConnector = app.appRegistry.getComponent('App.StoreConnector');
-  }
-
   /**
    * Connect ChartBuilder to store and actions.
    *
@@ -21,9 +16,9 @@ class ConnectedChartBuilder extends React.Component {
    */
   render() {
     return (
-      <this.StoreConnector store={Store}>
+      <StoreConnector store={Store}>
         <ChartBuilder actions={Actions} />
-      </this.StoreConnector>
+      </StoreConnector>
     );
   }
 }

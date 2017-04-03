@@ -1,6 +1,7 @@
 const React = require('react');
 const ReactTooltip = require('react-tooltip');
 const app = require('hadron-app');
+const { StoreConnector } = require('hadron-react-components');
 const SidebarActions = require('../actions');
 const SidebarDatabase = require('./sidebar-database');
 const SidebarInstanceProperties = require('./sidebar-instance-properties');
@@ -14,7 +15,6 @@ class Sidebar extends React.Component {
     super(props);
     this.DatabaseDDLActions = app.appRegistry.getAction('DatabaseDDL.Actions');
     this.InstanceStore = app.appRegistry.getStore('App.InstanceStore');
-    this.StoreConnector = app.appRegistry.getComponent('App.StoreConnector');
     this.state = { collapsed: false };
   }
 
@@ -119,12 +119,12 @@ class Sidebar extends React.Component {
         >
           <i className={this.getToggleClasses()}></i>
         </div>
-        <this.StoreConnector store={this.InstanceStore}>
+        <StoreConnector store={this.InstanceStore}>
           <SidebarInstanceProperties
             connection={app.connection}
             activeNamespace={this.props.activeNamespace}
           />
-        </this.StoreConnector>
+        </StoreConnector>
         <div className="compass-sidebar-filter" onClick={this.handleSearchFocus.bind(this)}>
           <i className="fa fa-search compass-sidebar-search-icon"></i>
           <input data-test-id="sidebar-filter-input" ref="filter" className="compass-sidebar-search-input" placeholder="filter" onChange={this.handleFilter}></input>
