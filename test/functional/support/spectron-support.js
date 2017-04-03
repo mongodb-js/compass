@@ -16,7 +16,6 @@ const addKeyPressCommands = require('./packages/spectron-keypress');
 const addIndexesCommands = require('./packages/spectron-indexes');
 const addInstanceHeaderCommands = require('./packages/spectron-instance-header');
 const addModalCommands = require('./packages/spectron-modal');
-const addPerformanceCommands = require('./packages/spectron-performance');
 const addPrivacyCommands = require('./packages/spectron-privacy');
 const addQueryCommands = require('./packages/spectron-query');
 const addSchemaCommands = require('./packages/spectron-schema');
@@ -167,7 +166,6 @@ function launchCompass() {
     addIndexesCommands(client);
     addInstanceHeaderCommands(client);
     addModalCommands(client);
-    addPerformanceCommands(client);
     addPrivacyCommands(client);
     addQueryCommands(client);
     addSchemaCommands(client);
