@@ -20,6 +20,7 @@ class ChartBuilder extends React.Component {
 
     // fetch external components
     this.queryBar = app.appRegistry.getComponent('Query.QueryBar');
+    this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
     this.state = {chartWidth: 600, chartHeight: 400};
   }
 
@@ -33,8 +34,24 @@ class ChartBuilder extends React.Component {
   }
 
   handleResize() {
-    const width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-    const height = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+    if (this.CollectionStore.getActiveTab() !== 5) {
+      return;
+    }
+
+    let width = document.documentElement.clientWidth * 0.4;
+    let height = document.documentElement.clientHeight * 0.8;
+
+    if (this.state.dimensions) {
+      const dimWidth = this.state.dimensions.width - 30;
+      const dimHeight = this.state.dimensions.height - 30;
+      if (width > dimWidth) {
+        width = dimWidth;
+      }
+
+      if (height > dimHeight) {
+        height = dimHeight;
+      }
+    }
 
     this.setState({chartWidth: width * 0.4, chartHeight: height * 0.8});
   }
