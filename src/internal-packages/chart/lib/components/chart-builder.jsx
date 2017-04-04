@@ -11,7 +11,7 @@ const Chart = require('./chart');
 
 const QUERYBAR_LAYOUT = ['filter', 'project', ['sort', 'skip', 'limit']];
 
-// const debug = require('debug')('mongodb-compass:chart:chart-builder');
+const debug = require('debug')('mongodb-compass:chart:chart-builder');
 
 class ChartBuilder extends React.Component {
 
@@ -44,11 +44,13 @@ class ChartBuilder extends React.Component {
     if (!this.props.specValid) {
       return null;
     }
+    debug('dataCache', this.props.dataCache);
+    debug('mutatedDataCache', this.props.mutatedDataCache);
     return (
       <Chart
         specType={this.props.specType}
         spec={this.props.spec}
-        data={this.props.dataCache}
+        data={this.props.mutatedDataCache || dataCache}
         width={600}
         height={400}
         className="chart-builder-chart"
@@ -97,6 +99,7 @@ class ChartBuilder extends React.Component {
 
 ChartBuilder.propTypes = {
   dataCache: React.PropTypes.array,
+  mutatedDataCache: React.PropTypes.array,
   fieldsCache: React.PropTypes.object,
   rootFields: React.PropTypes.array,
   namespaceCache: React.PropTypes.string,
