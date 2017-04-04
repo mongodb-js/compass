@@ -61,6 +61,7 @@ const ChartStore = Reflux.createStore({
   getInitialCacheState() {
     return {
       dataCache: [],
+      mutatedDataCache: null,
       fieldsCache: {},
       rootFields: [],
       queryCache: INITIAL_QUERY
@@ -165,7 +166,8 @@ const ChartStore = Reflux.createStore({
 
       let state = {
         queryCache: query,
-        dataCache: documents
+        dataCache: documents,
+        mutatedDataCache: null
       };
 
       if (this.state.queryCache.ns !== query.ns) {
@@ -177,7 +179,7 @@ const ChartStore = Reflux.createStore({
   },
 
   /**
-   * returns the proposed mesurement for a given type string.
+   * returns the proposed measurement for a given type string.
    *
    * @param {String} type    The type string, e.g. `Double`.
    * @return {String}        Measurement for that type.
@@ -190,6 +192,7 @@ const ChartStore = Reflux.createStore({
       case 'Decimal128': return MEASUREMENT_ENUM.QUANTITATIVE;
       case 'Date':
       case 'ObjectId':
+      case 'ObjectID':
       case 'Timestamp': return MEASUREMENT_ENUM.TEMPORAL;
       default: return MEASUREMENT_ENUM.NOMINAL;
     }
@@ -266,8 +269,36 @@ const ChartStore = Reflux.createStore({
     }
     const channels = this.state.channels;
     const prop = channels[channel] || {};
+    const fieldInfo = this.state.fieldsCache[fieldPath];
     prop.field = fieldPath;
-    prop.type = this._inferMeasurementFromField(this.state.fieldsCache[fieldPath]);
+    prop.type = this._inferMeasurementFromField(fieldInfo);
+    if ((fieldInfo.type === 'ObjectID' || fieldInfo.type === 'ObjectId')
+          && prop.type === MEASUREMENT_ENUM.TEMPORAL) {
+      // Completely copy the entire data set into the mutatedDataCache,
+      // so we can mutate it with this ObjectId -> timestamp transformation
+      // TODO: Explain Vega's expression language and how we might change it
+      // TODO: ... to do this with greater memory efficiency
+      const mutatedDataCache = this.state.mutatedDataCache || _.cloneDeep(this.state.dataCache);
+
+      // TODO: Nested fields? Perhaps break up fieldInfo.path?
+      const lookup = fieldInfo.name;
+
+      // NOTE: ObjectID does not survive a _.cloneDeep,
+      // hence iterate over the original dataCache
+      this.state.dataCache.forEach((value, index) => {
+        // TODO: This will probably fail for sparsely populated data sets
+        mutatedDataCache[index][lookup] = value[lookup].getTimestamp().toISOString();
+      });
+      debugger;
+      this.setState({
+        mutatedDataCache: mutatedDataCache
+      });
+      // TODO: On decode of this channel, currently COMPASS-944 or COMPASS-969,
+      // must also undo this change, either by restarting from dataCache and
+      // re-encoding all the ObjectId-encoded temporal channels again,
+      // or keeping track of the ObjectId on these timestamps,
+      // ... or fix it in Vega/VegaLite
+    }
     channels[channel] = prop;
     this._updateSpec({channels: channels});
   },
