@@ -273,6 +273,7 @@ describe('ChartStore', function() {
       expect(infer({type: 'Decimal128'})).to.be.equal(MEASUREMENT_ENUM.QUANTITATIVE);
       expect(infer({type: 'Date'})).to.be.equal(MEASUREMENT_ENUM.TEMPORAL);
       expect(infer({type: 'ObjectId'})).to.be.equal(MEASUREMENT_ENUM.TEMPORAL);
+      expect(infer({type: 'ObjectID'})).to.be.equal(MEASUREMENT_ENUM.TEMPORAL);
       expect(infer({type: 'Timestamp'})).to.be.equal(MEASUREMENT_ENUM.TEMPORAL);
       expect(infer({type: 'Binary'})).to.be.equal(MEASUREMENT_ENUM.NOMINAL);
       expect(infer({type: 'Boolean'})).to.be.equal(MEASUREMENT_ENUM.NOMINAL);
@@ -291,7 +292,9 @@ describe('ChartStore', function() {
       expect(infer({type: ['Double', 'Decimal128']})).to.be.equal(MEASUREMENT_ENUM.QUANTITATIVE);
       expect(infer({type: ['Date', 'Int32']})).to.be.equal(MEASUREMENT_ENUM.QUANTITATIVE);
       expect(infer({type: ['Date', 'ObjectId']})).to.be.equal(MEASUREMENT_ENUM.TEMPORAL);
+      expect(infer({type: ['Date', 'ObjectID']})).to.be.equal(MEASUREMENT_ENUM.TEMPORAL);
       expect(infer({type: ['Code', 'ObjectId']})).to.be.equal(MEASUREMENT_ENUM.NOMINAL);
+      expect(infer({type: ['Code', 'ObjectID']})).to.be.equal(MEASUREMENT_ENUM.NOMINAL);
       expect(infer({type: ['Code', 'Boolean', 'DBRef', 'Timestamp']}))
         .to.be.equal(MEASUREMENT_ENUM.NOMINAL);
     });

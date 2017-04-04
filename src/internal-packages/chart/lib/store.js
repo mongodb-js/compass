@@ -177,7 +177,7 @@ const ChartStore = Reflux.createStore({
   },
 
   /**
-   * returns the proposed mesurement for a given type string.
+   * returns the proposed measurement for a given type string.
    *
    * @param {String} type    The type string, e.g. `Double`.
    * @return {String}        Measurement for that type.
@@ -190,6 +190,7 @@ const ChartStore = Reflux.createStore({
       case 'Decimal128': return MEASUREMENT_ENUM.QUANTITATIVE;
       case 'Date':
       case 'ObjectId':
+      case 'ObjectID':
       case 'Timestamp': return MEASUREMENT_ENUM.TEMPORAL;
       default: return MEASUREMENT_ENUM.NOMINAL;
     }
