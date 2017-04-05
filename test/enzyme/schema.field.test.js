@@ -6,6 +6,8 @@ const chaiEnzyme = require('chai-enzyme');
 const expect = chai.expect;
 const React = require('react');
 const AppRegistry = require('hadron-app-registry');
+const Field = require('../../src/internal-packages/schema/lib/component/field');
+const Type = require('../../src/internal-packages/schema/lib/component/type');
 
 const mount = require('enzyme').mount;
 
@@ -94,18 +96,12 @@ describe('<Schema />', () => {
 
   context('when adding fields to the schema view', () => {
     it('renders field types', () => {
-      const Field = require('../../src/internal-packages/schema/lib/component/field');
-      const Type = require('../../src/internal-packages/schema/lib/component/type');
-
       fieldProp.types = typesWithUndefined;
       component = mount(<Field {...fieldProp} />);
       expect(component.find(Type)).to.have.length(2);
     });
 
     it('renders the first type as string', () => {
-      const Field = require('../../src/internal-packages/schema/lib/component/field');
-      const Type = require('../../src/internal-packages/schema/lib/component/type');
-
       fieldProp.types = typesWithUndefined;
       component = mount(<Field {...fieldProp} />);
       expect(component.find(Type).at(0)).to.have.data('tip', 'String (40%)');
@@ -113,9 +109,6 @@ describe('<Schema />', () => {
     });
 
     it('renders the second type as undefined', () => {
-      const Field = require('../../src/internal-packages/schema/lib/component/field');
-      const Type = require('../../src/internal-packages/schema/lib/component/type');
-
       fieldProp.types = typesWithUndefined;
       component = mount(<Field {...fieldProp} />);
       expect(component.find(Type).at(1)).to.have.data('tip', 'Undefined (60%)');
@@ -124,9 +117,6 @@ describe('<Schema />', () => {
 
     context('when rendering multiple fields', () => {
       it('renders type with highest probability first', () => {
-        const Field = require('../../src/internal-packages/schema/lib/component/field');
-        const Type = require('../../src/internal-packages/schema/lib/component/type');
-
         fieldProp.types = typesWithMultiple;
         component = mount(<Field {...fieldProp} />);
         expect(component.find(Type).at(0)).to.have.data('tip', 'String (30%)');
