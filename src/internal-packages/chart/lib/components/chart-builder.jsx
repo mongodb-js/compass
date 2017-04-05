@@ -20,6 +20,35 @@ class ChartBuilder extends React.Component {
 
     // fetch external components
     this.queryBar = app.appRegistry.getComponent('Query.QueryBar');
+    this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
+
+    // intialise chart dimensions
+    this.state = {width: 0, height: 0};
+  }
+
+  componentDidMount() {
+    this.handleResize();
+    window.addEventListener('resize', this.handleResize.bind(this));
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.handleResize);
+  }
+
+  _getChartDimensions() {
+    const areaDim = document.getElementsByClassName('chart-builder-chart-area')[0];
+    const width = areaDim.offsetWidth - 200;
+    const height = areaDim.offsetHeight - 130;
+    return {width, height};
+  }
+
+  handleResize() {
+    if (this.CollectionStore.getActiveTab() !== 5) {
+      return;
+    }
+
+    const dim = this._getChartDimensions();
+    this.setState({width: dim.width, height: dim.height});
   }
 
   /**
@@ -40,17 +69,23 @@ class ChartBuilder extends React.Component {
     );
   }
 
+
   renderChart() {
     if (!this.props.specValid) {
       return null;
     }
+
+    // use _getChartDimensions() on the first render but use state thereafter on resize changes
+    const dim = (!this.state.width || !this.state.height) ?
+      this._getChartDimensions() : {width: this.state.width, height: this.state.height};
+
     return (
       <Chart
         specType={this.props.specType}
         spec={this.props.spec}
         data={this.props.dataCache}
-        width={600}
-        height={400}
+        width={dim.width}
+        height={dim.height}
         className="chart-builder-chart"
         renderer="canvas"
       />
