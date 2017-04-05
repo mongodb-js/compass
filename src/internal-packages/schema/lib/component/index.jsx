@@ -128,6 +128,7 @@ const Schema = React.createClass({
         </div>
         <this.HadronTooltip
           id={TOOLTIP_IDS.SCHEMA_PROBABILITY_PERCENT}
+          className="opaque-tooltip"
         />
       </div>
     );

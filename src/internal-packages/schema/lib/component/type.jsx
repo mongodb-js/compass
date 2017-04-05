@@ -116,8 +116,6 @@ const Type = React.createClass({
     const tooltipOptions = {
       'data-for': TOOLTIP_IDS.SCHEMA_PROBABILITY_PERCENT,
       'data-tip': tooltipText,
-      'data-effect': 'solid',
-      'data-border': true,
       'data-place': this.props.showSubTypes ? 'top' : 'bottom'
     };
     tooltipOptions['data-offset'] = this.props.showSubTypes ?
