@@ -28,10 +28,6 @@ const Schema = React.createClass({
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
   },
 
-  shouldComponentUpdate() {
-    return true;
-  },
-
   componentDidUpdate() {
     // when the namespace changes and the schema tab is not active, the
     // tab is "display:none" and its width 0. That also means the the minichart
