@@ -1,0 +1,53 @@
+.chart-builder-field-panel {
+  padding: 20px 6px;
+
+  .chart-draggable-field {
+    margin-right: 4px;
+    margin-bottom: 3px;
+    margin-left: 4px;
+  }
+
+  .chart-draggable-field-item {
+    border-right-width: 1px;
+    border-radius: 6px;
+    border-color: lighten(@gray5, 8%);
+  }
+
+  .chart-draggable-field:hover .chart-draggable-field-item{
+    border-color: @gray5;
+  }
+
+  .chart-draggable-field:active .chart-draggable-field-item {
+    background: @pw;
+    border-color: @chart1;
+  }
+
+  &-group-label {
+    font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+    font-size: 11px;
+    font-weight: bold;
+    margin-left: 9px;
+    margin-bottom: 2px;
+  }
+
+  &-group {
+    background-color: @gray7;
+    // border: 1px solid @gray6;
+    border-radius: 6px;
+    margin: 10px 0;
+    padding: 6px 0;
+  }
+
+  &-field-group-label {
+    color: @gray1;
+    font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+    font-size: 10px;
+  }
+
+  &-field-group-fields {
+    border-left: 1px solid @gray4;
+    margin-left: 10px;
+    padding-left: 10px;
+  }
+
+}

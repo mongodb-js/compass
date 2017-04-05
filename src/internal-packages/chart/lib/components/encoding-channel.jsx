@@ -66,7 +66,7 @@ class EncodingChannel extends React.Component {
 
     const connectDropTarget = this.props.connectDropTarget;
     const droppableClass = this.props.isOver ?
-      'chart-encoding-channel-droppable-over'
+      'chart-encoding-channel-droppable chart-encoding-channel-droppable-over'
       : 'chart-encoding-channel-droppable';
     return connectDropTarget(
       <div className="chart-encoding-channel">

@@ -8,8 +8,15 @@
     flex-wrap: nowrap;
   }
 
-  &-chart-panel, &-field-panel {
-    flex-basis: 200px;
+  &-chart-panel-container,
+  &-field-panel-container,
+  &-chart-area {
+    overflow-y: auto;
+  }
+
+  &-chart-panel-container,
+  &-field-panel-container {
+    flex-basis: 220px;
     flex-grow: 0;
     flex-shrink: 0;
   }
@@ -18,35 +25,11 @@
     flex-basis: auto;
     flex-grow: 1;
     flex-shrink: 1;
-    padding: 10px 0;
-  }
-
-  &-chart-panel, &-field-panel, &-chart-area {
-    overflow-y: auto;
   }
 
   &-chart-panel {
-    background-color: @gray7;
-    padding: 20px 0;
-  }
-
-  &-field-panel {
-    padding: 10px 0 0 0;
-  }
-
-  &-field-group {
-    padding: 5px 0;
-  }
-
-  &-field-group-label {
-    color: @gray1;
-    font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
-    font-size: 10px;
-  }
-
-  &-field-group-fields {
-    border-left: 1px solid @gray4;
-    margin-left: 10px;
-    padding-left: 10px;
+    padding: 20px 10px;
+    background-color: @gray8;
+    min-height: 100%;
   }
 }

@@ -107,19 +107,21 @@ class ChartBuilder extends React.Component {
           {this.renderWarning()}
         </div>
         <div className="chart-builder-container">
-          <div className="chart-builder-field-panel">
+          <div className="chart-builder-field-panel-container">
             <FieldPanel
               fieldsCache={this.props.fieldsCache}
               rootFields={this.props.rootFields}
               actions={this.props.actions}
             />
           </div>
-          <div className="chart-builder-chart-panel">
-            <ChartPanel
-              chartType={this.props.chartType}
-              encodedChannels={this.props.channels}
-              actions={this.props.actions}
-            />
+          <div className="chart-builder-chart-panel-container">
+            <div className="chart-builder-chart-panel">
+              <ChartPanel
+                chartType={this.props.chartType}
+                encodedChannels={this.props.channels}
+                actions={this.props.actions}
+              />
+            </div>
           </div>
           <div className="chart-builder-chart-area">
             {chart}
