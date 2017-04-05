@@ -3,18 +3,22 @@
   &-container {
     display: flex;
     flex-direction: row;
+    align-items: stretch;
     height: 100%;
+    flex-wrap: nowrap;
   }
 
   &-chart-panel, &-field-panel {
-    width: 200px;
-    height: 100%;
+    flex-basis: 200px;
+    flex-grow: 0;
+    flex-shrink: 0;
   }
 
   &-chart-area {
-    height: 100%;
-    flex-grow: 10;
-    padding: 20px;
+    flex-basis: auto;
+    flex-grow: 1;
+    flex-shrink: 1;
+    padding: 10px 0;
   }
 
   &-chart-panel, &-field-panel, &-chart-area {
@@ -27,7 +31,7 @@
   }
 
   &-field-panel {
-    padding: 10px 0 0 10px;
+    padding: 10px 0 0 0;
   }
 
   &-field-group {

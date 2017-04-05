@@ -21,7 +21,9 @@ class ChartBuilder extends React.Component {
     // fetch external components
     this.queryBar = app.appRegistry.getComponent('Query.QueryBar');
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
-    this.state = {chartWidth: 600, chartHeight: 400};
+
+    // intialise chart dimensions
+    this.state = {width: 0, height: 0};
   }
 
   componentDidMount() {
@@ -33,27 +35,20 @@ class ChartBuilder extends React.Component {
     window.removeEventListener('resize', this.handleResize);
   }
 
+  _getChartDimensions() {
+    const areaDim = document.getElementsByClassName('chart-builder-chart-area')[0];
+    const width = areaDim.offsetWidth - 200;
+    const height = areaDim.offsetHeight - 130;
+    return {width, height};
+  }
+
   handleResize() {
     if (this.CollectionStore.getActiveTab() !== 5) {
       return;
     }
 
-    let width = document.documentElement.clientWidth * 0.4;
-    let height = document.documentElement.clientHeight * 0.8;
-
-    if (this.state.dimensions) {
-      const dimWidth = this.state.dimensions.width - 30;
-      const dimHeight = this.state.dimensions.height - 30;
-      if (width > dimWidth) {
-        width = dimWidth;
-      }
-
-      if (height > dimHeight) {
-        height = dimHeight;
-      }
-    }
-
-    this.setState({chartWidth: width * 0.4, chartHeight: height * 0.8});
+    const dim = this._getChartDimensions();
+    this.setState({width: dim.width, height: dim.height});
   }
 
   /**
@@ -80,13 +75,17 @@ class ChartBuilder extends React.Component {
       return null;
     }
 
+    // use _getChartDimensions() on the first render but use state thereafter on resize changes
+    const dim = (!this.state.width || !this.state.height) ?
+      this._getChartDimensions() : {width: this.state.width, height: this.state.height};
+
     return (
       <Chart
         specType={this.props.specType}
         spec={this.props.spec}
         data={this.props.dataCache}
-        width={this.state.chartWidth}
-        height={this.state.chartHeight}
+        width={dim.width}
+        height={dim.height}
         className="chart-builder-chart"
         renderer="canvas"
       />
