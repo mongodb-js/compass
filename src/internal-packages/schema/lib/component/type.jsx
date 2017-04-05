@@ -1,6 +1,5 @@
 const React = require('react');
 const _ = require('lodash');
-const ReactTooltip = require('react-tooltip');
 const numeral = require('numeral');
 
 // const debug = require('debug')('mongodb-compass:schema:type');
@@ -128,7 +127,6 @@ const Type = React.createClass({
         style={style}
         onClick={handleClick}
       >
-        <ReactTooltip />
         {this.props.showSubTypes ? label : null}
         <div className="schema-field-type"></div>
         {subtypes}
