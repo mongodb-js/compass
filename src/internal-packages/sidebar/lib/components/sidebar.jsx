@@ -1,5 +1,6 @@
 const React = require('react');
 const ReactTooltip = require('react-tooltip');
+const { AutoSizer, List } = require('react-virtualized');
 const app = require('hadron-app');
 const { StoreConnector } = require('hadron-react-components');
 const SidebarActions = require('../actions');
@@ -9,6 +10,8 @@ const { TOOLTIP_IDS } = require('./constants');
 
 // const debug = require('debug')('mongodb-compass:sidebar:sidebar');
 
+const OVER_SCAN_COUNT = 50;
+const ROW_HEIGHT = 25;
 
 class Sidebar extends React.Component {
   constructor(props) {
@@ -75,6 +78,12 @@ class Sidebar extends React.Component {
     }
   }
 
+  retrievingDatabases() {
+    return (
+      <div>Databases have not rendered yet</div>
+    );
+  }
+
   renderCreateDatabaseButton() {
     const isWritable = app.dataService.isWritable();
     const tooltipText = 'Not available on a secondary node';  // TODO: Arbiter/recovering/etc
@@ -107,6 +116,40 @@ class Sidebar extends React.Component {
     );
   }
 
+  renderSidebarDatabase({index, key, style}) {
+    const db = this.props.databases[index];
+    const props = {
+      _id: db._id,
+      collections: db.collections,
+      expanded: this.props.expanded,
+      activeNamespace: this.props.activeNamespace
+    };
+    return (
+      <div key={key} style={style}>
+        <SidebarDatabase key={db._id} {...props} />
+      </div>
+    );
+  }
+
+  renderSidebarScroll() {
+    return (
+      <AutoSizer>
+        {({height, width}) => (
+        <List
+          ref={'sidebar'}
+          width={width}
+          height={height}
+          overScanRowCount={OVER_SCAN_COUNT}
+          rowCount={this.props.databases.length}
+          rowHeight={ROW_HEIGHT}
+          noRowsRenderer={this.retrievingDatabases}
+          rowRenderer={this.renderSidebarDatabase.bind(this)}
+        />
+      )}
+      </AutoSizer>
+    );
+  }
+
   render() {
     return (
       <div
@@ -127,22 +170,11 @@ class Sidebar extends React.Component {
         </StoreConnector>
         <div className="compass-sidebar-filter" onClick={this.handleSearchFocus.bind(this)}>
           <i className="fa fa-search compass-sidebar-search-icon"></i>
-          <input data-test-id="sidebar-filter-input" ref="filter" className="compass-sidebar-search-input" placeholder="filter" onChange={this.handleFilter}></input>
+          <input data-test-id="sidebar-filter-input" ref="filter"
+            className="compass-sidebar-search-input" placeholder="filter" onChange={this.handleFilter}></input>
         </div>
         <div className="compass-sidebar-content">
-          {
-            this.props.databases.map(db => {
-              const props = {
-                _id: db._id,
-                collections: db.collections,
-                expanded: this.props.expanded,
-                activeNamespace: this.props.activeNamespace
-              };
-              return (
-                <SidebarDatabase key={db._id} {...props} />
-              );
-            })
-          }
+          {this.renderSidebarScroll()}
         </div>
         {this.renderCreateDatabaseButton()}
         <ReactTooltip id={TOOLTIP_IDS.CREATE_DATABASE_BUTTON} />
