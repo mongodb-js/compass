@@ -6,11 +6,22 @@ const CreateCollectionInput = require('./lib/components/create-collection-input'
 const CreateCollectionSizeInput = require('./lib/components/create-collection-size-input');
 const CreateCollectionDialog = require('./lib/components/create-collection-dialog');
 const DropCollectionDialog = require('./lib/components/drop-collection-dialog');
+const ConnectedCollections = require('./lib/components/connected-collections');
+
+/**
+ * The collection tab role for the document list component.
+ */
+const DATABASE_TAB_ROLE = {
+  component: ConnectedCollections,
+  name: 'COLLECTIONS',
+  order: 1
+};
 
 /**
  * Activate all the components in the Schema package.
  */
 function activate() {
+  app.appRegistry.registerRole('Database.Tab', DATABASE_TAB_ROLE);
   app.appRegistry.registerAction('Database.CollectionsActions', CollectionsAction);
   app.appRegistry.registerComponent('Database.CollectionsTable', CollectionsTable);
   app.appRegistry.registerComponent('Database.CreateCollectionCheckbox', CreateCollectionCheckbox);
@@ -24,6 +35,7 @@ function activate() {
  * Deactivate all the components in the Schema package.
  */
 function deactivate() {
+  app.appRegistry.deregisterRole('Database.Tab', DATABASE_TAB_ROLE);
   app.appRegistry.deregisterAction('Database.CollectionsActions');
   app.appRegistry.deregisterComponent('Database.CollectionsTable');
   app.appRegistry.deregisterComponent('Database.CreateCollectionCheckbox');
