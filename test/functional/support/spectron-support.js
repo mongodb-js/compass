@@ -56,7 +56,7 @@ const ELECTRON_PATH = path.join(ELECTRON, 'path.txt');
 const ELECTRON_EXECUTABLE = path.join(ELECTRON, fs.readFileSync(ELECTRON_PATH, { encoding: 'utf8' }));
 
 /**
- * The progressive timeouts when searching for elements.
+ * The progressive timeouts when searching for elements, in milliseconds.
  */
 const TIMEOUT_MAX = 3000;
 const TIMEOUTS = [
