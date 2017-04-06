@@ -148,7 +148,7 @@
     "mongodb": "^2.2.8",
     "mongodb-collection-model": "^0.3.1",
     "mongodb-connection-model": "^6.4.3",
-    "mongodb-data-service": "^2.13.1",
+    "mongodb-data-service": "^2.14.1",
     "mongodb-database-model": "^0.1.2",
     "mongodb-explain-plan-model": "^0.2.2",
     "mongodb-extended-json": "^1.9.0",
