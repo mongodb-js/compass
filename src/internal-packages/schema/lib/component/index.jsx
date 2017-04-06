@@ -1,11 +1,13 @@
 const app = require('hadron-app');
 const React = require('react');
+const ReactTooltip = require('react-tooltip');
 const { StatusRow } = require('hadron-react-components');
 const SchemaActions = require('../action');
 const SchemaStore = require('../store');
 const StateMixin = require('reflux-state-mixin');
 const Field = require('./field');
 const StatusSubview = require('../component/status-subview');
+const { TOOLTIP_IDS } = require('../constants');
 const _ = require('lodash');
 
 // const debug = require('debug')('mongodb-compass:schema');
@@ -26,10 +28,7 @@ const Schema = React.createClass({
     this.StatusAction = app.appRegistry.getAction('Status.Actions');
     this.queryBar = app.appRegistry.getComponent('Query.QueryBar');
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
-  },
-
-  shouldComponentUpdate() {
-    return true;
+    this.HadronTooltip = app.appRegistry.getComponent('App.HadronTooltip');
   },
 
   componentDidUpdate() {
@@ -40,6 +39,7 @@ const Schema = React.createClass({
     // the minicharts have to be re-rendered.
     if (this.CollectionStore.getActiveTab() === 0) {
       SchemaActions.resizeMiniCharts();
+      ReactTooltip.rebuild();
     }
   },
 
@@ -126,6 +126,10 @@ const Schema = React.createClass({
             </div>
           </div>
         </div>
+        <this.HadronTooltip
+          id={TOOLTIP_IDS.SCHEMA_PROBABILITY_PERCENT}
+          className="opaque-tooltip"
+        />
       </div>
     );
   }

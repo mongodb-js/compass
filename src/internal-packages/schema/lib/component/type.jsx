@@ -1,7 +1,7 @@
 const React = require('react');
 const _ = require('lodash');
-const ReactTooltip = require('react-tooltip');
 const numeral = require('numeral');
+const { TOOLTIP_IDS } = require('../constants');
 
 // const debug = require('debug')('mongodb-compass:schema:type');
 
@@ -114,9 +114,8 @@ const Type = React.createClass({
     const label = <span className="schema-field-type-label">{this.props.name}</span>;
     const tooltipText = `${this.props.name} (${numeral(this.props.probability).format('0%')})`;
     const tooltipOptions = {
+      'data-for': TOOLTIP_IDS.SCHEMA_PROBABILITY_PERCENT,
       'data-tip': tooltipText,
-      'data-effect': 'solid',
-      'data-border': true,
       'data-place': this.props.showSubTypes ? 'top' : 'bottom'
     };
     tooltipOptions['data-offset'] = this.props.showSubTypes ?
@@ -128,7 +127,6 @@ const Type = React.createClass({
         style={style}
         onClick={handleClick}
       >
-        <ReactTooltip />
         {this.props.showSubTypes ? label : null}
         <div className="schema-field-type"></div>
         {subtypes}
