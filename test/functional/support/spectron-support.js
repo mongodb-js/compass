@@ -60,10 +60,6 @@ const ELECTRON_EXECUTABLE = path.join(ELECTRON, fs.readFileSync(ELECTRON_PATH, {
  */
 const TIMEOUT_MAX = 3000;
 const TIMEOUTS = [
-  100,
-  200,
-  300,
-  500,
   1000,
   2000,
   TIMEOUT_MAX
