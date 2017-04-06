@@ -39,8 +39,8 @@ const Schema = React.createClass({
     // the minicharts have to be re-rendered.
     if (this.CollectionStore.getActiveTab() === 0) {
       SchemaActions.resizeMiniCharts();
+      ReactTooltip.rebuild();
     }
-    ReactTooltip.rebuild();
   },
 
   /**
