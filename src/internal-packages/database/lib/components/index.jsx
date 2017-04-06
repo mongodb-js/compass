@@ -1,6 +1,7 @@
+const _ = require('lodash');
+const app = require('hadron-app');
 const React = require('react');
 const { TabNavBar } = require('hadron-react-components');
-const CollectionsTableView = require('./connected-collections');
 
 class DatabaseView extends React.Component {
 
