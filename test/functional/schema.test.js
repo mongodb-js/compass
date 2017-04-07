@@ -59,7 +59,7 @@ describe('#schema', function() {
         .should.eventually.include(`${expectedOneDoc}`);
     });
 
-    it('shows a schema on refresh #race', function() {
+    it('shows a schema on refresh', function() {
       return client
         .clickDatabaseInSidebar('music')
         .waitForSidebar('collection')
