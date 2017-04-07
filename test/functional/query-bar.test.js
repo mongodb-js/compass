@@ -58,20 +58,6 @@ describe('#query-bar', function() {
           .should.eventually.be.false;
       });
 
-      it.skip('finds all 100 documents in the collection', function() {
-        return client
-          .waitForStatusBar()
-          .clickInstanceRefreshIcon()
-          .waitForInstanceRefresh()
-          .clickDatabaseInSidebar('mongodb')
-          .clickCollectionInSidebar('mongodb.fanclub')
-          .waitForStatusBar()
-          .waitForWindowTitle('MongoDB Compass - localhost:27018/mongodb.fanclub')
-          .getTitle().should.eventually.equal(
-            'MongoDB Compass - localhost:27018/mongodb.fanclub'
-          );
-      });
-
       it('goes to the index tab and creates an index', function() {
         return client
           .clickIndexesTab()
