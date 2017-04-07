@@ -36,8 +36,7 @@ const TIMEOUTS = [
   2000,
   3000,
   5000,
-  8000,
-  13000
+  8000
 ];
 
 /**
@@ -67,7 +66,7 @@ function progressiveWait(fn, selector, reverse, index) {
   debug(`Looking for element ${selector} with timeout ${timeout}ms`);
   return fn(selector, timeout, reverse)
     .catch(function(e) {
-      if (isTimeoutError(e) && timeout !== 13000) {
+      if (isTimeoutError(e) && timeout !== 8000) {
         return progressiveWait(fn, selector, reverse || false, index + 1);
       }
       throw e;
@@ -165,7 +164,6 @@ class App {
       chai.should().exist(this.client);
       return this.client.waitUntilWindowLoaded(LONG_TIMEOUT);
     }).catch((error) => {
-      console.log(error);
       debug(error.message);
     });
   }
