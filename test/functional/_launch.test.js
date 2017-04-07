@@ -42,8 +42,9 @@ describe('#launch', function() {
         it('renders the connect screen', function() {
           return client
             .clickClosePrivacySettingsButton()
-            .waitForWindowTitle('MongoDB Compass - Connect')
-            .getTitle().should.eventually.be.equal('MongoDB Compass - Connect');
+            .waitForConnectView()
+            .getConnectHeaderText()
+            .should.eventually.be.equal('Connect to Host');
         });
 
         it('allows favorites to be saved');

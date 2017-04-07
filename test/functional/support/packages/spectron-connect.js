@@ -11,6 +11,16 @@ function addWaitConnectCommands(client) {
 }
 
 
+function addGetConnectCommands(client) {
+  /**
+   * Retrieves the user-facing text from the connect header.
+   */
+  client.addCommand('getConnectHeaderText', function() {
+    return this.getText(selector('connect-header'));
+  });
+}
+
+
 function addClickConnectCommands(client) {
   /**
    * click the Connect button on the connect screen.
@@ -79,6 +89,7 @@ function addInputConnectCommands(client) {
  */
 function addConnectCommands(client) {
   addWaitConnectCommands(client);
+  addGetConnectCommands(client);
   addClickConnectCommands(client);
   addInputConnectCommands(client);
 }
