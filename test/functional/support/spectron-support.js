@@ -23,7 +23,6 @@ const addSchemaCommands = require('./packages/spectron-schema');
 const addSidebarCommands = require('./packages/spectron-sidebar');
 const addStatusBarCommands = require('./packages/spectron-status-bar');
 const addValidationCommands = require('./packages/spectron-validation');
-const addWindowCommands = require('./packages/spectron-window');
 const addWorkflowCommands = require('./packages/spectron-workflow');
 const Application = require('spectron').Application;
 const debug = require('debug')('mongodb-compass:spectron-support');
@@ -174,7 +173,6 @@ function launchCompass() {
     addSidebarCommands(client);
     addStatusBarCommands(client);
     addValidationCommands(client);
-    addWindowCommands(client);
     addWorkflowCommands(client);
     chaiAsPromised.transferPromiseness = app.transferPromiseness;
     chai.should().exist(client);
