@@ -78,10 +78,12 @@ class Sidebar extends React.Component {
     }
   }
 
+  /**
+   * Display while sidebar list is being loaded
+   * @return {DOM} element
+   */
   retrievingDatabases() {
-    return (
-      <div>Databases have not rendered yet</div>
-    );
+    return null;
   }
 
   renderCreateDatabaseButton() {
