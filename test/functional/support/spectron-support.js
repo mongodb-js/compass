@@ -56,15 +56,14 @@ const ELECTRON_PATH = path.join(ELECTRON, 'path.txt');
 const ELECTRON_EXECUTABLE = path.join(ELECTRON, fs.readFileSync(ELECTRON_PATH, { encoding: 'utf8' }));
 
 /**
- * The progressive timeouts when searching for elements.
+ * The progressive timeouts when searching for elements, in milliseconds.
  */
+const TIMEOUT_MAX = 5000;
 const TIMEOUTS = [
   1000,
   2000,
   3000,
-  5000,
-  8000,
-  13000
+  TIMEOUT_MAX
 ];
 
 /**
@@ -94,7 +93,7 @@ function progressiveWait(fn, selector, reverse, index) {
   debug(`Looking for element ${selector} with timeout ${timeout}ms`);
   return fn(selector, timeout, reverse)
     .catch(function(e) {
-      if (isTimeoutError(e) && timeout !== 13000) {
+      if (isTimeoutError(e) && timeout !== TIMEOUT_MAX) {
         return progressiveWait(fn, selector, reverse || false, index + 1);
       }
       throw e;
