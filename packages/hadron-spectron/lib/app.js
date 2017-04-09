@@ -113,13 +113,13 @@ class App {
    */
   constructor(root, appRoot) {
     this.root = root;
-    this.appRoot = appRoot || root;
+    this.appRoot = (appRoot === undefined) ? root : appRoot;
 
     this.app = new Application({
       path: this.electronExecutable(),
-      args: [ appRoot ],
+      args: [ this.appRoot ],
       env: process.env,
-      cwd: root
+      cwd: this.root
     });
   }
 
@@ -153,15 +153,22 @@ class App {
   /**
    * Launch the application.
    *
+   * @param {Function} addCustomCommands - A function to add custom commands.
+   *
    * @returns {Application} - The spectron application.
    */
-  launch() {
+  launch(addCustomCommands) {
     return this.app.start().then(() => {
+      chaiAsPromised.transferPromiseness = this.app.transferPromiseness;
       this.client = this.app.client;
       addExtendedWaitCommands(this.client);
-      chaiAsPromised.transferPromiseness = this.app.transferPromiseness;
+      if (addCustomCommands !== undefined) {
+        addCustomCommands(this.client);
+      }
       chai.should().exist(this.client);
       return this.client.waitUntilWindowLoaded(LONG_TIMEOUT);
+    }).then(() => {
+      return this;
     }).catch((error) => {
       debug(error.message);
     });
