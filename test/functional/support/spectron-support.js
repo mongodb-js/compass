@@ -58,13 +58,15 @@ const ELECTRON_EXECUTABLE = path.join(ELECTRON, fs.readFileSync(ELECTRON_PATH, {
 /**
  * The progressive timeouts when searching for elements.
  */
+const TIMEOUT_MAX = 3000;
 const TIMEOUTS = [
+  100,
+  200,
+  300,
+  500,
   1000,
   2000,
-  3000,
-  5000,
-  8000,
-  13000
+  TIMEOUT_MAX
 ];
 
 /**
@@ -94,7 +96,7 @@ function progressiveWait(fn, selector, reverse, index) {
   debug(`Looking for element ${selector} with timeout ${timeout}ms`);
   return fn(selector, timeout, reverse)
     .catch(function(e) {
-      if (isTimeoutError(e) && timeout !== 13000) {
+      if (isTimeoutError(e) && timeout !== TIMEOUT_MAX) {
         return progressiveWait(fn, selector, reverse || false, index + 1);
       }
       throw e;
