@@ -4,6 +4,7 @@
   "description": "Hadron Spectron Test Support",
   "main": "index.js",
   "scripts": {
+    "pretest": "npm run check",
     "test": "mocha",
     "fmt": "mongodb-js-fmt ./*.js ./test/*.js",
     "check": "mongodb-js-precommit"
