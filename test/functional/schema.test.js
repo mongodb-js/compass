@@ -62,7 +62,7 @@ describe('#schema', function() {
     it('shows a schema on refresh', function() {
       return client
         .clickDatabaseInSidebar('music')
-        .waitForDatabaseView()
+        .waitForSidebar('collection')
         .goToCollection('music', 'artists')
         .getSamplingMessageFromSchemaTab()
         .should

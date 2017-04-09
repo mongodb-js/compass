@@ -6,7 +6,8 @@ function addGetInstanceHeaderCommands(client) {
    * Get the instance address from the header.
    */
   client.addCommand('getInstanceHeaderDetails', function() {
-    return this.getText(selector('instance-header-details'));
+    return this.waitForVisibleInCompass(selector('instance-header-details'))
+      .getText(selector('instance-header-details'));
   });
 
   /**

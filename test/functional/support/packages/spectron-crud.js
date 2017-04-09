@@ -202,7 +202,7 @@ function addGetCRUDCommands(client) {
   });
 
   /**
-   * Get the read onnly status of the document at the provided index in the list
+   * Get the read only status of the document at the provided index in the list
    * @type {Number} index - the index in the list, starting at 1.
    */
   client.addCommand('getDocumentReadonlyStatus', function(index) {

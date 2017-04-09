@@ -48,8 +48,17 @@ function addWaitDatabaseDDLCommands(client) {
 }
 
 
+function addGetDatabaseDDLCommands(client) {
+  /**
+   * Gets the text of a specific
+   */
+  client.addCommand('getDatabasesTabText', function() {
+    return this.getText(selector('databases-tab'));
+  });
+}
+
 function addClickDatabaseDDLCommands(client) {
-    /**
+  /**
    * Click the create database button.
    */
   client.addCommand('clickCreateDatabaseButton', function() {
@@ -116,6 +125,7 @@ function addInputDatabaseDDLCommands(client) {
  */
 function addDatabaseDDLCommands(client) {
   addWaitDatabaseDDLCommands(client);
+  addGetDatabaseDDLCommands(client);
   addClickDatabaseDDLCommands(client);
   addInputDatabaseDDLCommands(client);
 }
