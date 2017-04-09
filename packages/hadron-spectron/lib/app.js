@@ -79,7 +79,6 @@ function progressiveWait(fn, selector, reverse, index) {
  * @param {Object} client   spectron client to add the wait commands to.
  */
 function addExtendedWaitCommands(client) {
-
   /**
    * Wait for an element to exist in the Compass test suite.
    *
