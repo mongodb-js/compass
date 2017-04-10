@@ -9,7 +9,44 @@ npm install --save hadron-spectron
 
 ## Usage
 
+With Mocha, create an App instance in the before hook and launch it, and quit it
+in the after hook.
+
 ```javascript
+const { App, selector } = require('hadron-spectron');
+
+/**
+ * The path to the root of the application, as well as the electron app.
+ */
+const ROOT = path.join(__dirname, '..', '..', '..');
+
+function addCustomCommands(client) {
+  // Add custom commands to the client here.
+}
+
+function launchCompass() {
+  return new App(ROOT).launch(addCustomCommands);
+}
+
+function quitCompass() {
+  return app.quit();
+}
+
+describe('Functional Test', function() {
+  let app = null;
+  let client = null;
+
+  before(function() {
+    return launchCompass().then(function(application) {
+      app = application;
+      client = application.client;
+    });
+  });
+
+  after(function() {
+    return quitCompass(app);
+  });
+});
 ```
 
 ## License
