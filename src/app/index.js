@@ -74,14 +74,6 @@ if (process.env.NODE_ENV !== 'production') {
   marky.stop('Loading styles');
 }
 
-/**
- * @note: Durran: the registry and package manager are set up here in
- *  order to ensure that the compile cache has already been loaded and
- *  hooked into require.extensions. Otherwise, packages will not have
- *  use of the compile cache.
- */
-require('./setup-package-manager');
-
 function getConnection(model, done) {
   function _fetch(fn) {
     model.fetch({
@@ -452,6 +444,8 @@ app.extend({
       if (err) {
         throw err;
       }
+      require('./setup-package-manager');
+
       // set up metrics
       metricsSetup();
 
