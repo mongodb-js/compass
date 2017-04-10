@@ -15,12 +15,19 @@ const COLLECTION_TAB_ROLE = {
   order: 2
 };
 
+const DOCUMENT_ROLE = {
+  component: Document,
+  name: 'STANDARD',
+  order: 1
+};
+
+
 /**
  * Activate all the components in the CRUD package.
  */
 function activate() {
   app.appRegistry.registerRole('Collection.Tab', COLLECTION_TAB_ROLE);
-  app.appRegistry.registerComponent('CRUD.Document', Document);
+  app.appRegistry.registerRole('CRUD.Document', DOCUMENT_ROLE);
   app.appRegistry.registerAction('CRUD.Actions', Actions);
   app.appRegistry.registerStore('CRUD.InsertDocumentStore', InsertDocumentStore);
   app.appRegistry.registerStore('CRUD.ResetDocumentListStore', ResetDocumentListStore);
@@ -32,7 +39,7 @@ function activate() {
  */
 function deactivate() {
   app.appRegistry.deregisterRole('Collection.Tab', COLLECTION_TAB_ROLE);
-  app.appRegistry.deregisterComponent('CRUD.Document');
+  app.appRegistry.deregisterRole('CRUD.Document', DOCUMENT_ROLE);
   app.appRegistry.deregisterAction('CRUD.Actions');
   app.appRegistry.deregisterStore('CRUD.InsertDocumentStore');
   app.appRegistry.deregisterStore('CRUD.ResetDocumentListStore');

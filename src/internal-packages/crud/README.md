@@ -38,7 +38,7 @@ const React = require('react');
 class MyComponent extends React.Component {
   constructor(props) {
     super(props);
-    this.Document = app.appRegistry.getComponent('CRUD.Document');
+    this.Document = app.appRegistry.getRole('CRUD.Document')[0].component;
   }
   render() {
     return (<this.Document doc={this.props.document} editable />);
@@ -55,7 +55,7 @@ const React = require('react');
 class MyComponent extends React.Component {
   constructor(props) {
     super(props);
-    this.Document = app.appRegistry.getComponent('CRUD.Document');
+    this.Document = app.appRegistry.getRole('CRUD.Document')[0].component;
   }
   render() {
     return (<this.Document doc={this.props.document} expandAll />);
