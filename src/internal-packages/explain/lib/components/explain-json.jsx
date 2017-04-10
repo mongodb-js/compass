@@ -4,7 +4,7 @@ const app = require('hadron-app');
 class ExplainJSON extends React.Component {
 
   componentWillMount() {
-    this.documentComponent = app.appRegistry.getRole('Document')[0].component;
+    this.documentComponent = app.appRegistry.getRole('CRUD.Document')[0].component;
   }
 
   /**

@@ -27,7 +27,7 @@ const DOCUMENT_ROLE = {
  */
 function activate() {
   app.appRegistry.registerRole('Collection.Tab', COLLECTION_TAB_ROLE);
-  app.appRegistry.registerRole('Document', DOCUMENT_ROLE);
+  app.appRegistry.registerRole('CRUD.Document', DOCUMENT_ROLE);
   app.appRegistry.registerAction('CRUD.Actions', Actions);
   app.appRegistry.registerStore('CRUD.InsertDocumentStore', InsertDocumentStore);
   app.appRegistry.registerStore('CRUD.ResetDocumentListStore', ResetDocumentListStore);
@@ -39,7 +39,7 @@ function activate() {
  */
 function deactivate() {
   app.appRegistry.deregisterRole('Collection.Tab', COLLECTION_TAB_ROLE);
-  app.appRegistry.deregisterRole('Document', DOCUMENT_ROLE);
+  app.appRegistry.deregisterRole('CRUD.Document', DOCUMENT_ROLE);
   app.appRegistry.deregisterAction('CRUD.Actions');
   app.appRegistry.deregisterStore('CRUD.InsertDocumentStore');
   app.appRegistry.deregisterStore('CRUD.ResetDocumentListStore');
