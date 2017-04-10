@@ -3,7 +3,6 @@ const React = require('react');
 const uuid = require('uuid');
 const app = require('hadron-app');
 const ObjectID = require('bson').ObjectID;
-const Document = require('./document');
 const Action = require('../actions');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const { StatusRow } = require('hadron-react-components');
@@ -61,6 +60,7 @@ class DocumentList extends React.Component {
     this.projection = false;
     this.queryBar = app.appRegistry.getComponent('Query.QueryBar');
     this.QueryChangedStore = app.appRegistry.getStore('Query.ChangedStore');
+    this.Document = app.appRegistry.getComponent('Document');
   }
 
   /**
@@ -229,7 +229,7 @@ class DocumentList extends React.Component {
       const editable = this.CollectionStore.isWritable() && !this.projection;
       return (
         <li className="document-list-item" data-test-id={LIST_ITEM_TEST_ID} key={this._key()}>
-          <Document doc={doc} key={this._key()} editable={editable} />
+          <this.Document doc={doc} key={this._key()} editable={editable} />
         </li>
       );
     });
