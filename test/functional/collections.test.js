@@ -14,12 +14,11 @@ describe('#collections', function() {
   let client = null;
 
   before(function() {
-    return launchCompass()
-      .then(function(application) {
-        app = application;
-        client = application.client;
-        return client.connectToCompass({ hostname: 'localhost', port: 27018 });
-      });
+    return launchCompass().then(function(application) {
+      app = application;
+      client = application.client;
+      client.connectToCompass({ hostname: 'localhost', port: 27018 });
+    });
   });
 
   after(function() {
