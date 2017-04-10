@@ -1,53 +1,11 @@
 const React = require('react');
-const CollectionStatsItem = require('./collection-stats-item');
-const CollectionStatsStore = require('../store');
+const _ = require('lodash');
+const app = require('hadron-app');
 
 /**
  * The base list class.
  */
 const BASE_CLASS = 'collection-stats';
-
-/**
- * The list class.
- */
-const LIST_CLASS = 'collection-stats-list';
-
-/**
- * The invalid text.
- */
-const INVALID = 'N/A';
-
-/**
- * Documents constant.
- */
-const DOCUMENTS = 'Documents';
-
-/**
- * Indexes constant.
- */
-const INDEXES = 'Indexes';
-
-/**
- * Total size constant.
- */
-const TOTAL_SIZE = 'total size';
-
-/**
- * Average size constant.
- */
-const AVG_SIZE = 'avg. size';
-
-/**
- * The default stats state.
- */
-const DEFAULT_STATS = {
-  documentCount: INVALID,
-  totalDocumentSize: INVALID,
-  avgDocumentSize: INVALID,
-  indexCount: INVALID,
-  totalIndexSize: INVALID,
-  avgIndexSize: INVALID
-};
 
 /**
  * The collection stats component.
@@ -61,50 +19,27 @@ class CollectionStats extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.state = DEFAULT_STATS;
+    this.setupStatsItems();
   }
 
-  /**
-   * Subscribe on mount.
-   */
-  componentWillMount() {
-    this.unsubscribeLoad = CollectionStatsStore.listen(this.handleStatsLoad.bind(this));
-  }
-
-  /**
-   * Unsubscribe on unmount.
-   */
-  componentWillUnmount() {
-    this.unsubscribeLoad();
-  }
-
-  /**
-   * Handle the loading of the collection stats.
-   *
-   * @param {Object} stats - The stats.
-   */
-  handleStatsLoad(stats) {
-    this.setState(stats || DEFAULT_STATS);
+  setupStatsItems() {
+    const roles = app.appRegistry.getRole('CollectionStats.CollectionStatsItem');
+    const views = _.map(roles, (role) => {
+      return React.createElement(role.component, {key: _.uniqueId()});
+    });
+    this.views = views;
   }
 
   /**
    * Render the component.
    *
    * @returns {React.Component} The component.
+   *
    */
   render() {
     return (
       <div className={BASE_CLASS}>
-        <ul className={LIST_CLASS}>
-          <CollectionStatsItem label={DOCUMENTS} value={this.state.documentCount} primary />
-          <CollectionStatsItem label={TOTAL_SIZE} value={this.state.totalDocumentSize} />
-          <CollectionStatsItem label={AVG_SIZE} value={this.state.avgDocumentSize} />
-        </ul>
-        <ul className={LIST_CLASS}>
-          <CollectionStatsItem label={INDEXES} value={this.state.indexCount} primary />
-          <CollectionStatsItem label={TOTAL_SIZE} value={this.state.totalIndexSize} />
-          <CollectionStatsItem label={AVG_SIZE} value={this.state.avgIndexSize} />
-        </ul>
+        {this.views}
       </div>
     );
   }
