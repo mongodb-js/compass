@@ -11,7 +11,6 @@ const CreateCollectionCheckbox = require('../../src/internal-packages/database/l
 const CreateCollectionInput = require('../../src/internal-packages/database/lib/components/create-collection-input');
 const CreateCollectionSizeInput = require('../../src/internal-packages/database/lib/components/create-collection-size-input');
 const { SortableTable, TabNavBar } = require('hadron-react-components');
-const HadronTooltip = require('../../src/internal-packages/app/lib/components/hadron-tooltip');
 
 // use chai-enzyme assertions, see https://github.com/producthunt/chai-enzyme
 chai.use(chaiEnzyme());
@@ -55,7 +54,6 @@ describe('<DatabasesTable />', () => {
     app.appRegistry.registerComponent('Database.CreateCollectionCheckbox', CreateCollectionCheckbox);
     app.appRegistry.registerComponent('Database.CreateCollectionInput', CreateCollectionInput);
     app.appRegistry.registerComponent('Database.CreateCollectionSizeInput', CreateCollectionSizeInput);
-    app.appRegistry.registerComponent('App.HadronTooltip', HadronTooltip);
 
     this.DatabasesTable = require('../../src/internal-packages/database-ddl/lib/component/databases-table');
   });

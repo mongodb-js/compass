@@ -7,7 +7,6 @@ const React = require('react');
 const sinon = require('sinon');
 const {shallow} = require('enzyme');
 const AppRegistry = require('hadron-app-registry');
-const HadronTooltip = require('../../src/internal-packages/app/lib/components/hadron-tooltip');
 
 chai.use(chaiEnzyme());
 
@@ -21,7 +20,6 @@ describe('<SamplingMessage />', () => {
     app.appRegistry = new AppRegistry();
     app.appRegistry.registerAction('CRUD.Actions', sinon.spy());
     app.appRegistry.registerStore('CRUD.ResetDocumentListStore', sinon.spy());
-    app.appRegistry.registerComponent('App.HadronTooltip', HadronTooltip);
 
     this.SamplingMessage = require('../../src/internal-packages/query/lib/component/sampling-message');
   });

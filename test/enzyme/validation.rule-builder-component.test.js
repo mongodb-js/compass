@@ -8,7 +8,6 @@ const sinon = require('sinon');
 const {mount, shallow} = require('enzyme');
 const AppRegistry = require('hadron-app-registry');
 const { OptionSelector } = require('hadron-react-components');
-const HadronTooltip = require('../../src/internal-packages/app/lib/components/hadron-tooltip');
 
 chai.use(chaiEnzyme());
 
@@ -29,7 +28,6 @@ describe('<RuleBuilder />', () => {
     // Mock the AppRegistry with a new one so tests don't complain about
     // appRegistry.getComponent (i.e. appRegistry being undefined)
     app.appRegistry = new AppRegistry();
-    app.appRegistry.registerComponent('App.HadronTooltip', HadronTooltip);
 
     this.RuleBuilder = require('../../src/internal-packages/validation/lib/components/rule-builder');
   });
