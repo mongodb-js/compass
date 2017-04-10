@@ -1,5 +1,4 @@
-const selector = require('../spectron-selector');
-
+const { selector } = require('hadron-spectron');
 
 function addWaitCollectionDDLCommands(client) {
   /**
