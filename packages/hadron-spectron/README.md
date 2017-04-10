@@ -24,11 +24,11 @@ function addCustomCommands(client) {
   // Add custom commands to the client here.
 }
 
-function launchCompass() {
+function launchApp() {
   return new App(ROOT).launch(addCustomCommands);
 }
 
-function quitCompass() {
+function quitApp() {
   return app.quit();
 }
 
@@ -37,14 +37,14 @@ describe('Functional Test', function() {
   let client = null;
 
   before(function() {
-    return launchCompass().then(function(application) {
+    return launchApp().then(function(application) {
       app = application;
       client = application.client;
     });
   });
 
   after(function() {
-    return quitCompass(app);
+    return quitApp(app);
   });
 });
 ```
