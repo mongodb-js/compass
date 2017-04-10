@@ -1,6 +1,7 @@
 const React = require('react');
 const app = require('hadron-app');
 const { AnimatedIconTextButton } = require('hadron-react-buttons');
+const { Tooltip } = require('hadron-react-components');
 const numeral = require('numeral');
 const pluralize = require('pluralize');
 
@@ -23,7 +24,6 @@ class SamplingMessage extends React.Component {
     this.documentRemovedAction = crudActions.documentRemoved;
     this.refreshDocumentsAction = crudActions.refreshDocuments;
     this.loadMoreDocumentsStore = app.appRegistry.getStore('CRUD.LoadMoreDocumentsStore');
-    this.HadronTooltip = app.appRegistry.getComponent('App.HadronTooltip');
   }
 
   /**
@@ -140,9 +140,7 @@ class SamplingMessage extends React.Component {
     const isWritable = app.dataService.isWritable();
     const tooltipId = 'document-is-not-writable';
     const isNotWritableTooltip = isWritable ? null : (
-      <this.HadronTooltip
-        id={tooltipId}
-      />
+      <Tooltip id={tooltipId} />
     );
     const tooltipText = 'This action is not available on a secondary node';
 

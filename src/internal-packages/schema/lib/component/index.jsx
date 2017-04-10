@@ -1,7 +1,7 @@
 const app = require('hadron-app');
 const React = require('react');
 const ReactTooltip = require('react-tooltip');
-const { StatusRow } = require('hadron-react-components');
+const { StatusRow, Tooltip } = require('hadron-react-components');
 const SchemaActions = require('../action');
 const SchemaStore = require('../store');
 const StateMixin = require('reflux-state-mixin');
@@ -28,7 +28,6 @@ const Schema = React.createClass({
     this.StatusAction = app.appRegistry.getAction('Status.Actions');
     this.queryBar = app.appRegistry.getComponent('Query.QueryBar');
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
-    this.HadronTooltip = app.appRegistry.getComponent('App.HadronTooltip');
   },
 
   componentDidUpdate() {
@@ -126,7 +125,7 @@ const Schema = React.createClass({
             </div>
           </div>
         </div>
-        <this.HadronTooltip
+        <Tooltip
           id={TOOLTIP_IDS.SCHEMA_PROBABILITY_PERCENT}
           className="opaque-tooltip"
         />

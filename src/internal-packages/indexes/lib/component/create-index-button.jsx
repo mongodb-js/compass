@@ -1,6 +1,6 @@
 const React = require('react');
-const app = require('hadron-app');
 const CreateIndexModal = require('./create-index-modal');
+const { Tooltip } = require('hadron-react-components');
 
 /**
  * Component for the create index button.
@@ -17,7 +17,6 @@ class CreateIndexButton extends React.Component {
     this.state = {
       showModal: false
     };
-    this.HadronTooltip = app.appRegistry.getComponent('App.HadronTooltip');
   }
 
   /**
@@ -46,9 +45,7 @@ class CreateIndexButton extends React.Component {
   render() {
     const tooltipId = 'index-is-not-writable';
     const isNotWritableTooltip = this.props.isWritable ? null : (
-      <this.HadronTooltip
-        id={tooltipId}
-      />
+      <Tooltip id={tooltipId} />
     );
     const tooltipText = 'This action is not available on a secondary node';
 

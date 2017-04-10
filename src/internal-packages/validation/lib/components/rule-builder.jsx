@@ -1,6 +1,5 @@
 const React = require('react');
-const app = require('hadron-app');
-const { OptionSelector } = require('hadron-react-components');
+const { OptionSelector, Tooltip } = require('hadron-react-components');
 const ValidationActions = require('../actions');
 const Rule = require('./rule');
 const Editable = require('./common/editable');
@@ -23,7 +22,6 @@ class RuleBuilder extends React.Component {
       isValid: true,
       forceRenderKey: 0
     };
-    this.HadronTooltip = app.appRegistry.getComponent('App.HadronTooltip');
   }
 
   componentWillReceiveProps(props) {
@@ -133,9 +131,7 @@ class RuleBuilder extends React.Component {
 
     const tooltipId = 'validation-rule-is-not-writable';
     const isNotWritableTooltip = this.props.isWritable ? null : (
-      <this.HadronTooltip
-        id={tooltipId}
-      />
+      <Tooltip id={tooltipId} />
     );
     const tooltipText = 'This action is not available on a secondary node';
     const actionOptions = {warn: 'Warning', error: 'Error'};

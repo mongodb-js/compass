@@ -3,7 +3,7 @@ const app = require('hadron-app');
 const CollectionsActions = require('../actions/collections-actions');
 const numeral = require('numeral');
 const ipc = require('hadron-ipc');
-const { SortableTable } = require('hadron-react-components');
+const { SortableTable, Tooltip } = require('hadron-react-components');
 const _ = require('lodash');
 
 // const debug = require('debug')('mongodb-compass:database:collections-table');
@@ -12,7 +12,6 @@ class CollectionsTable extends React.Component {
 
   constructor(props) {
     super(props);
-    this.HadronTooltip = app.appRegistry.getComponent('App.HadronTooltip');
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
   }
 
@@ -64,7 +63,7 @@ class CollectionsTable extends React.Component {
     const isWritable = app.dataService.isWritable();
     const tooltipId = 'database-is-not-writable';
     const isNotWritableTooltip = isWritable ? null : (
-      <this.HadronTooltip
+      <Tooltip
         id={tooltipId}
       />
     );

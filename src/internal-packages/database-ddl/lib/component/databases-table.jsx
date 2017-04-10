@@ -3,7 +3,7 @@ const app = require('hadron-app');
 const { shell } = require('electron');
 const ipc = require('hadron-ipc');
 const { NamespaceStore } = require('hadron-reflux-store');
-const { SortableTable } = require('hadron-react-components');
+const { SortableTable, Tooltip } = require('hadron-react-components');
 const numeral = require('numeral');
 const _ = require('lodash');
 
@@ -19,7 +19,6 @@ class DatabasesTable extends React.Component {
   constructor(props) {
     super(props);
     this.DatabaseDDLAction = app.appRegistry.getAction('DatabaseDDL.Actions');
-    this.HadronTooltip = app.appRegistry.getComponent('App.HadronTooltip');
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
   }
 
@@ -85,7 +84,7 @@ class DatabasesTable extends React.Component {
     const isWritable = app.dataService.isWritable();
     const tooltipId = 'database-ddl-is-not-writable';
     const isNotWritableTooltip = isWritable ? null : (
-      <this.HadronTooltip
+      <Tooltip
         id={tooltipId}
       />
     );
