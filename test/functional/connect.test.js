@@ -22,6 +22,7 @@ describe('#connect', function() {
     context('when the server exists', function() {
       it('renders the home screen', function() {
         return client
+          .waitForConnectView()
           .inputConnectionDetails({ hostname: 'localhost', port: 27018 })
           .clickConnectButton()
           .waitForStatusBar()

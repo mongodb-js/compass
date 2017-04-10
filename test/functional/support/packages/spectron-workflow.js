@@ -24,6 +24,7 @@ function addWorkflowCommands(client) {
    */
   client.addCommand('connectToCompass', function(connection) {
     return this
+      .waitForConnectView()
       .inputConnectionDetails(connection)
       .clickConnectButton()
       .waitForStatusBar()

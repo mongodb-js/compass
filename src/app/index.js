@@ -46,6 +46,7 @@ var metricsSetup = require('./metrics');
 var React = require('react');
 var ReactDOM = require('react-dom');
 var AutoUpdate = require('../auto-update');
+var { packageActivationCompleted } = require('hadron-package-manager/lib/action');
 
 
 ipc.once('app:launched', function() {
@@ -73,14 +74,6 @@ if (process.env.NODE_ENV !== 'production') {
   setupStyleManager('index.less');
   marky.stop('Loading styles');
 }
-
-/**
- * @note: Durran: the registry and package manager are set up here in
- *  order to ensure that the compile cache has already been loaded and
- *  hooked into require.extensions. Otherwise, packages will not have
- *  use of the compile cache.
- */
-require('./setup-package-manager');
 
 function getConnection(model, done) {
   function _fetch(fn) {
@@ -173,7 +166,6 @@ var Application = View.extend({
     'click a.help': 'onHelpClicked'
   },
   initialize: function() {
-    this.StatusAction = app.appRegistry.getAction('Status.Actions');
     ipc.on('window:show-compass-tour', this.showTour.bind(this, true));
     ipc.on('window:show-network-optin', this.showOptIn.bind(this));
   },
@@ -201,7 +193,8 @@ var Application = View.extend({
     console.error('Fatal Error!: ', id, err);
     const metrics = require('mongodb-js-metrics')();
     metrics.error(err);
-    this.StatusAction.setMessage(err);
+    const StatusAction = app.appRegistry.getAction('Status.Actions');
+    StatusAction.setMessage(err);
   },
   onInstanceFetched: function() {
     // TODO: Remove this line
@@ -452,18 +445,21 @@ app.extend({
       if (err) {
         throw err;
       }
-      // set up metrics
-      metricsSetup();
+      require('./setup-package-manager');
+      packageActivationCompleted.listen(() => {
+        // set up metrics
+        metricsSetup();
 
-      // signal to main process that app is ready
-      ipc.call('window:renderer-ready');
+        // signal to main process that app is ready
+        ipc.call('window:renderer-ready');
 
-      // as soon as dom is ready, render and set up the rest
-      state.render();
-      marky.stop('Time to Connect rendered');
-      state.startRouter();
-      state.postRender();
-      marky.stop('Time to user can Click Connect');
+        // as soon as dom is ready, render and set up the rest
+        state.render();
+        marky.stop('Time to Connect rendered');
+        state.startRouter();
+        state.postRender();
+        marky.stop('Time to user can Click Connect');
+      });
     });
   }
 });
