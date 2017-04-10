@@ -60,7 +60,7 @@ class DocumentList extends React.Component {
     this.projection = false;
     this.queryBar = app.appRegistry.getComponent('Query.QueryBar');
     this.QueryChangedStore = app.appRegistry.getStore('Query.ChangedStore');
-    this.Document = app.appRegistry.getComponent('Document');
+    this.Document = app.appRegistry.getRole('Document')[0].component;
   }
 
   /**
