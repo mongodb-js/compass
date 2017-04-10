@@ -1,6 +1,6 @@
 {
   "name": "hadron-spectron",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Hadron Spectron Test Support",
   "main": "index.js",
   "scripts": {
