@@ -10,7 +10,6 @@ const SidebarCollection = require('./sidebar-collection');
 class SidebarDatabase extends React.Component {
   constructor(props) {
     super(props);
-    // this.state = { expanded: props.expanded };
     this.CollectionsActions = app.appRegistry.getAction('Database.CollectionsActions');
     this.DatabaseDDLActions = app.appRegistry.getAction('DatabaseDDL.Actions');
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');

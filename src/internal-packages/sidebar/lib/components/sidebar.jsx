@@ -188,7 +188,6 @@ class Sidebar extends React.Component {
       <AutoSizer>
         {({height, width}) => (
         <List
-          ref={'sidebar'}
           width={width}
           height={height}
           overScanRowCount={OVER_SCAN_COUNT}
