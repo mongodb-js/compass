@@ -8,7 +8,6 @@ const sinon = require('sinon');
 const {mount} = require('enzyme');
 const AppRegistry = require('hadron-app-registry');
 const { SortableTable, TabNavBar } = require('hadron-react-components');
-const HadronTooltip = require('../../src/internal-packages/app/lib/components/hadron-tooltip');
 
 chai.use(chaiEnzyme());
 
@@ -33,7 +32,6 @@ describe('<CollectionsTable />', () => {
     // (for built-in components) or a class/function (for composite components)
     // but got: undefined. Check the render method of `DatabasesTable`.
     app.appRegistry.registerComponent('App.SortableTable', SortableTable);
-    app.appRegistry.registerComponent('App.HadronTooltip', HadronTooltip);
 
     this.CollectionsTable = require('../../src/internal-packages/database/lib/components/collections-table');
   });
