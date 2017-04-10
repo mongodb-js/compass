@@ -1,26 +1,26 @@
 .chart-encoding-channel {
-  padding: 0 10px;
 
   &-label {
     margin: 2px;
     padding-top: 8px;
+    font-size: 10px;
+    font-weight: bold;
     text-overflow: ellipsis;
-    text-transform: capitalize;
+    text-transform: uppercase;
   }
+
   &-droppable {
     background: white;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    border: 1px solid @gray6;
+    border-radius: 3px;
     color: #ccc;
-    padding: 2px 4px;
+    padding: 4px;
     text-overflow: ellipsis;
 
     &-over {
-      border: 1px solid #33ccc2;
+      border-color: @chart1;
       background: white;
-      border-style: double;
-      border-width: 5px;
-      border-radius: 4px;
+      box-shadow: 0 0 6px 0 rgba(67,177,229, .6);
     }
   }
 

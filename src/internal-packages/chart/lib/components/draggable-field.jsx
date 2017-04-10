@@ -91,9 +91,9 @@ class DraggableField extends React.Component {
     const menu = this.mapToMenu(_.values(MEASUREMENT_ENUM), this.props.type);
 
     return (
-      <Dropdown id={this.props.fieldName + 'measurements'}
+      <Dropdown className="chart-draggable-field-item-container" id={this.props.fieldName + 'measurements'}
           onSelect={this.selectMeasurement.bind(this)}>
-        <CustomToggle bsRole="toggle" className="chart-draggable-field-measurement-toggle">
+        <CustomToggle bsRole="toggle" className="chart-draggable-field-item chart-draggable-field-action chart-draggable-field-action-measurement">
           {this.renderMeasurementIcon()}
         </CustomToggle>
         {menu}
@@ -105,9 +105,9 @@ class DraggableField extends React.Component {
     const menu = this.mapToMenu(_.values(AGGREGATE_FUNCTION_ENUM), this.props.aggregate);
 
     return (
-      <Dropdown id={this.props.fieldName + 'aggregation'}
+      <Dropdown className="chart-draggable-field-item-container" id={this.props.fieldName + 'aggregation'}
           pullRight onSelect={this.selectAggregate.bind(this)}>
-        <CustomToggle bsRole="toggle" className="chart-draggable-field-aggregation-toggle">
+        <CustomToggle bsRole="toggle" className="chart-draggable-field-item chart-draggable-field-action chart-draggable-field-action-aggregation">
           <FontAwesome name="angle-down" />
         </CustomToggle>
         {menu}
@@ -125,10 +125,19 @@ class DraggableField extends React.Component {
     return connectDragSource(
       <div className="chart-draggable-field" title={this.props.fieldPath}>
         {this.props.enableMenus ? this.renderMeasurementMenu() : <div></div>}
-        <div className="chart-draggable-field-title">
-          {this.props.fieldName}
+        <div className="chart-draggable-field-item-container chart-draggable-field-item-container-title">
+          <div className="chart-draggable-field-item chart-draggable-field-title">
+            {this.props.fieldName}
+          </div>
         </div>
         {this.props.enableMenus ? this.renderAggregationMenu() : <div></div>}
+        {this.props.enableMenus ?
+          <div className="chart-draggable-field-item-container">
+            <div className="chart-draggable-field-item chart-draggable-field-action chart-draggable-field-action-remove">
+              <i className="mms-icon-remove"></i>
+            </div>
+          </div>
+           : <div></div>}
       </div>
     );
   }
