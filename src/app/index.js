@@ -46,6 +46,7 @@ var metricsSetup = require('./metrics');
 var React = require('react');
 var ReactDOM = require('react-dom');
 var AutoUpdate = require('../auto-update');
+var { packageActivationCompleted } = require('hadron-package-manager/lib/action');
 
 
 ipc.once('app:launched', function() {
@@ -445,19 +446,20 @@ app.extend({
         throw err;
       }
       require('./setup-package-manager');
+      packageActivationCompleted.listen(() => {
+        // set up metrics
+        metricsSetup();
 
-      // set up metrics
-      metricsSetup();
+        // signal to main process that app is ready
+        ipc.call('window:renderer-ready');
 
-      // signal to main process that app is ready
-      ipc.call('window:renderer-ready');
-
-      // as soon as dom is ready, render and set up the rest
-      state.render();
-      marky.stop('Time to Connect rendered');
-      state.startRouter();
-      state.postRender();
-      marky.stop('Time to user can Click Connect');
+        // as soon as dom is ready, render and set up the rest
+        state.render();
+        marky.stop('Time to Connect rendered');
+        state.startRouter();
+        state.postRender();
+        marky.stop('Time to user can Click Connect');
+      });
     });
   }
 });
