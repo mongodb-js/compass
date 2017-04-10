@@ -165,7 +165,6 @@ var Application = View.extend({
     'click a.help': 'onHelpClicked'
   },
   initialize: function() {
-    this.StatusAction = app.appRegistry.getAction('Status.Actions');
     ipc.on('window:show-compass-tour', this.showTour.bind(this, true));
     ipc.on('window:show-network-optin', this.showOptIn.bind(this));
   },
@@ -193,7 +192,8 @@ var Application = View.extend({
     console.error('Fatal Error!: ', id, err);
     const metrics = require('mongodb-js-metrics')();
     metrics.error(err);
-    this.StatusAction.setMessage(err);
+    const StatusAction = app.appRegistry.getAction('Status.Actions');
+    StatusAction.setMessage(err);
   },
   onInstanceFetched: function() {
     // TODO: Remove this line
