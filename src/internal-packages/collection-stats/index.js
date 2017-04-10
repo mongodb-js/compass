@@ -30,7 +30,7 @@ function activate() {
 function deactivate() {
   app.appRegistry.deregisterRole('CollectionStats.CollectionItem', DOCUMENTS_STATS_ITEM_ROLE);
   app.appRegistry.deregisterRole('CollectionStats.CollectionStatsItem', INDEXES_STATS_ITEM_ROLE);
-  app.appRegistry.registerComponent('CollectionStats.CollectionStats', CollectionStats);
+  app.appRegistry.deregisterComponent('CollectionStats.CollectionStats', CollectionStats);
 }
 
 module.exports.activate = activate;
