@@ -68,12 +68,11 @@ class ChartComponent extends React.Component {
   redraw() {
     const el = ReactDOM.findDOMNode(this.refs.container);
     const data = this.state.error ? {} : this.state.data;
-    const maxTime = data.localTime ? data.localTime[data.localTime.length - 1] : new Date();
-    const minTime = data.xLength ? new Date(maxTime.getTime() - (data.xLength * 1000)) : maxTime;
-
-    if (!data.localTime) {
+    if (!data.localTime || data.localTime.length === 0) {
       return;
     }
+    const maxTime = data.localTime ? data.localTime[data.localTime.length - 1] : new Date();
+    const minTime = data.xLength ? new Date(maxTime.getTime() - (data.xLength * 1000)) : maxTime;
 
     this.chart
       .width(this.props.width)
