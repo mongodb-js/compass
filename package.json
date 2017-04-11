@@ -29,21 +29,22 @@
         }
       ],
       "distributions": {
+        "package-prefix": "compass",
         "compass-lite": {
           "name": "compass-lite",
-          "productName": "MongoDB Compass Lite",
+          "productName": "MongoDB Compass",
           "packages": [ "node_modules/compass-serverstats" ],
           "styles": [ "index", "help" ]
         },
         "compass-enterprise": {
           "name": "compass-enterprise",
-          "productName": "MongoDB Compass Ent",
+          "productName": "MongoDB Compass",
           "packages": [ "node_modules/compass-serverstats" ],
           "styles": [ "index", "help" ]
         },
         "compass-charts": {
           "name": "compass-charts",
-          "productName": "MongoDB Compass Viz",
+          "productName": "MongoDB Compass",
           "packages": [],
           "styles": [ "index", "help" ]
         }
@@ -132,7 +133,7 @@
     "async": "^1.5.2",
     "backoff": "^2.4.1",
     "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz",
-    "compass-serverstats": "git+ssh://git@github.com/10gen/compass-serverstats.git#v1.0.1",
+    "compass-serverstats": "10gen/compass-serverstats.git#v1.1.0",
     "d3": "^3.5.6",
     "d3-flextree": "^1.0.3",
     "d3-timer": "^1.0.3",
@@ -142,7 +143,7 @@
     "electron-squirrel-startup": "^1.0.0",
     "font-awesome": "^4.7.0",
     "get-object-path": "azer/get-object-path#74eb42de0cfd02c14ffdd18552f295aba723d394",
-    "hadron-app": "^0.2.0",
+    "hadron-app": "^0.3.0",
     "hadron-app-registry": "^5.0.0",
     "hadron-auto-update-manager": "^0.0.12",
     "hadron-compile-cache": "^1.0.1",
@@ -219,7 +220,7 @@
     "electron": "1.6.1",
     "enzyme": "^2.5.1",
     "eslint-config-mongodb-js": "^2.2.0",
-    "hadron-build": "^9.1.0",
+    "hadron-build": "^9.2.0",
     "jsdom": "^9.8.3",
     "mgeneratejs": "^0.2.0",
     "mocha": "^3.1.2",
