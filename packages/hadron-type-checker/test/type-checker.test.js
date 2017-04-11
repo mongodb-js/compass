@@ -196,6 +196,12 @@ describe('TypeChecker', function() {
           expect(TypeChecker.cast(new Double(2.45), 'String')).to.equal('2.45');
         });
       });
+
+      context('when casting to decimal-128', function() {
+        it('returns the number as decimal-128', function() {
+          expect(TypeChecker.cast(new Double(2.45), 'Decimal128').toString()).to.equal('2.45');
+        });
+      });
     });
 
     context('when the object is a long', function() {
@@ -216,9 +222,41 @@ describe('TypeChecker', function() {
           expect(TypeChecker.cast(new Long(245), 'Double')).to.deep.equal(new Double(245));
         });
       });
+
+      context('when casting to decimal-128', function() {
+        it('returns the number as decimal-128', function() {
+          expect(TypeChecker.cast(new Long(245), 'Decimal128').toString()).to.equal('245');
+        });
+      });
     });
 
     context('when the object is an int32', function() {
+      context('when casting to a string', function() {
+        it('returns the number as a string', function() {
+          expect(TypeChecker.cast(new Int32(245), 'String')).to.equal('245');
+        });
+      });
+
+      context('when casting to an int64', function() {
+        it('returns the number as an int64', function() {
+          expect(TypeChecker.cast(new Int32(245), 'Int64')).to.deep.equal(new Long(245));
+        });
+      });
+
+      context('when casting to a double', function() {
+        it('returns the number as a double', function() {
+          expect(TypeChecker.cast(new Int32(245), 'Double')).to.deep.equal(new Double(245));
+        });
+      });
+
+      context('when casting to decimal-128', function() {
+        it('returns the number as decimal-128', function() {
+          expect(TypeChecker.cast(new Int32(245), 'Decimal128').toString()).to.equal('245');
+        });
+      });
+    });
+
+    context('when the object is an int32 literal', function() {
       context('when casting to a string', function() {
         it('returns the number as a string', function() {
           expect(TypeChecker.cast(245, 'String')).to.equal('245');

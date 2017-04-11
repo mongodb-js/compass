@@ -126,6 +126,12 @@ function toDouble(object) {
 }
 
 function toDecimal128(object) {
+  /*
+   If converting a BSON Object, extract the value before converting to a string.
+   */
+  if (has(object, BSON_TYPE) && includes(NUMBER_TYPES, object._bsontype)) {
+    object = object._bsontype === 'Long' ? object.toNumber() : object.valueOf();
+  }
   return Decimal128.fromString(String(object));
 }
 
