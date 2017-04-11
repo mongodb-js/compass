@@ -29,17 +29,21 @@
         }
       ],
       "distributions": {
-        "package-prefix": "compass",
+        "package-prefix": "@mongodb-js/compass",
         "compass-lite": {
           "name": "compass-lite",
           "productName": "MongoDB Compass",
-          "packages": [ "node_modules/compass-serverstats" ],
+          "packages": [
+            "node_modules/@mongodb-js/compass-serverstats"
+          ],
           "styles": [ "index", "help" ]
         },
         "compass-enterprise": {
           "name": "compass-enterprise",
           "productName": "MongoDB Compass",
-          "packages": [ "node_modules/compass-serverstats" ],
+          "packages": [
+            "node_modules/@mongodb-js/compass-serverstats"
+          ],
           "styles": [ "index", "help" ]
         },
         "compass-charts": {
@@ -133,7 +137,7 @@
     "async": "^1.5.2",
     "backoff": "^2.4.1",
     "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz",
-    "compass-serverstats": "10gen/compass-serverstats.git#v1.1.0",
+    "@mongodb-js/compass-serverstats": "2.0.0",
     "d3": "^3.5.6",
     "d3-flextree": "^1.0.3",
     "d3-timer": "^1.0.3",
