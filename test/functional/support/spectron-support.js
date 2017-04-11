@@ -21,7 +21,6 @@ const addStatusBarCommands = require('./packages/spectron-status-bar');
 const addValidationCommands = require('./packages/spectron-validation');
 const addWorkflowCommands = require('./packages/spectron-workflow');
 const { App } = require('hadron-spectron');
-const debug = require('debug')('mongodb-compass:spectron-support');
 
 /**
  * The root Compass dir.
