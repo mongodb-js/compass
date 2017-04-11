@@ -14,6 +14,7 @@ const { TOOLTIP_IDS } = require('./constants');
 
 const OVER_SCAN_COUNT = 100;
 const ROW_HEIGHT = 28;
+const EXPANDED_WHITESPACE = 12;
 
 class Sidebar extends React.Component {
   constructor(props) {
@@ -98,12 +99,12 @@ class Sidebar extends React.Component {
 
   _calculateRowHeight({index}) {
     const db = this.props.databases[index];
-    let count = 1;
+    let height = ROW_HEIGHT;
     if (this.state.expandedDB[db._id]) {
-      count += db.collections.length;
+      height += db.collections.length * ROW_HEIGHT + EXPANDED_WHITESPACE;
     }
 
-    return count * ROW_HEIGHT;
+    return height;
   }
 
   /**
