@@ -1,6 +1,3 @@
-const { selector } = require('hadron-spectron');
-
-
 function addWaitStatusBarCommands(client) {
   /**
    * Waits for the status bar to finish its progress and unlock the page.
