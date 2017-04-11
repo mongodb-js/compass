@@ -1,6 +1,6 @@
 {
-  "name": "compass-serverstats",
-  "productName": "Compass Serverstats package",
+  "name": "@mongodb-js/compass-serverstats",
+  "productName": "Compass Server Stats plugin",
   "version": "1.1.0",
   "description": "Compass Real Time Server Stats Component.",
   "main": "index.js",
@@ -10,7 +10,6 @@
     "less": "lessc ./styles/index.less ./styles/index.css",
     "prepublish": "npm run compile",
     "prestart": "npm run compile",
-    "postinstall": "npm run compile",
     "storybook": "start-storybook -p 9001",
     "start": "electron ./electron",
     "pretest": "mongodb-runner install && mongodb-runner start --port 27018",
