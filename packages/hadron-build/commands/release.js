@@ -300,6 +300,21 @@ const transformPackageJson = (CONFIG, done) => {
     distribution: process.env.HADRON_DISTRIBUTION
   });
 
+  /**
+   * This section of code strips packages from the package.json
+   * that are not part of the distribution.
+   */
+  const distributions = contents.config.hadron.distributions;
+  const pluginPrefix = distributions['package-prefix'];
+  const plugins = distributions[contents.distribution].packages;
+  const deps = contents.dependencies;
+  _.each(deps, (_, name) => {
+    if (name.startsWith(pluginPrefix) && !plugins.includes(`node_modules/${name}`)) {
+      cli.debug(`Removing unused package: ${name} from distribution: ${contents.distribution}`);
+      delete contents.dependencies[name];
+    }
+  });
+
   fs.writeFile(PACKAGE_JSON_DEST, JSON.stringify(contents, null, 2), done);
 };
 

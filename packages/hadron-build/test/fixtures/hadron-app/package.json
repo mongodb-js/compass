@@ -27,6 +27,7 @@
         }
       },
       "distributions": {
+        "package-prefix": "compass",
         "compass-lite": {
           "name": "compass-lite",
           "productName": "Compass Lite",
@@ -63,7 +64,9 @@
     "type": "git",
     "url": "git://github.com/mongodb-js/hadron-fixture-app.git"
   },
-  "dependencies": {},
+  "dependencies": {
+    "compass-unused-plugin": "compass/plugin"
+  },
   "devDependencies": {
     "hadron-build": "^0.1.9",
     "mongodb-js-fmt": "^0.0.3",
