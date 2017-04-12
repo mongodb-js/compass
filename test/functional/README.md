@@ -77,6 +77,20 @@ describe('Compass Functional Test Suite #spectron', function() {
 
 ## Tips
 
+### Running subsets of the functional suite
+
+You can use the 
+[mocha `-g` or `--grep` option](https://mochajs.org/#g---grep-pattern) 
+to run only a subset of the functional test suite.
+
+For example, to test just the `#launch` feature:
+
+    npm test -- --functional -g '#launch'
+
+To additionally test the `#launch` feature followed by the `#connect` feature:
+
+    npm test -- --functional -g '#launch|#connect'
+
 ### `waitForVisible` vs. `waitForExist`
 
 A common problem is confusing these 2 methods.
