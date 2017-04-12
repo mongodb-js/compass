@@ -1,5 +1,6 @@
 const semver = require('semver');
 const path = require('path');
+const addChartsCommands = require('./packages/spectron-charts');
 const addCollectionCommands = require('./packages/spectron-collection');
 const addCollectionDDLCommands = require('./packages/spectron-collection-ddl');
 const addConnectCommands = require('./packages/spectron-connect');
@@ -28,6 +29,7 @@ const { App } = require('hadron-spectron');
 const ROOT = path.join(__dirname, '..', '..', '..');
 
 function addCommands(client) {
+  addChartsCommands(client);
   addCollectionCommands(client);
   addCollectionDDLCommands(client);
   addConnectCommands(client);
