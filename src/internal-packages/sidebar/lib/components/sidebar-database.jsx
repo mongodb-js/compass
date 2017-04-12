@@ -2,28 +2,21 @@ const app = require('hadron-app');
 const ipc = require('hadron-ipc');
 const React = require('react');
 const { NamespaceStore } = require('hadron-reflux-store');
-const toNS = require('mongodb-ns');
-
 const { TOOLTIP_IDS } = require('./constants');
 const SidebarCollection = require('./sidebar-collection');
+
+// const debug = require('debug')('mongodb-compass:sidebar:sidebar-database');
 
 class SidebarDatabase extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { expanded: props.expanded };
     this.CollectionsActions = app.appRegistry.getAction('Database.CollectionsActions');
     this.DatabaseDDLActions = app.appRegistry.getAction('DatabaseDDL.Actions');
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
   }
 
-  componentWillReceiveProps(nextProps) {
-    this.setState({
-      expanded: nextProps.expanded || toNS(nextProps.activeNamespace).database === this.props._id}
-    );
-  }
-
   getCollectionComponents() {
-    if (this.state.expanded) {
+    if (this.props.expanded) {
       return this.props.collections.map(c => {
         const props = {
           _id: c._id,
@@ -43,7 +36,7 @@ class SidebarDatabase extends React.Component {
 
   getArrowIconClasses() {
     return 'mms-icon-right-arrow compass-sidebar-icon compass-sidebar-icon-expand' +
-      (this.state.expanded ? ' fa fa-rotate-90' : '');
+      (this.props.expanded ? ' fa fa-rotate-90' : '');
   }
 
   handleDBClick(db) {
@@ -55,7 +48,9 @@ class SidebarDatabase extends React.Component {
   }
 
   handleArrowClick() {
-    this.setState({ expanded: !this.state.expanded });
+    if (this.props.onClick) {
+      this.props.onClick(this.props._id);
+    }
   }
 
   handleCreateCollectionClick(isWritable) {
@@ -105,7 +100,7 @@ class SidebarDatabase extends React.Component {
       dropClassName += ' compass-sidebar-icon-is-disabled';
     }
     return (
-      <div className="compass-sidebar-item compass-sidebar-item-is-top-level">
+      <div className="compass-sidebar-item compass-sidebar-item-is-top-level" style={this.props.style}>
         <div className={headerClassName}>
           <div className="compass-sidebar-item-header-actions compass-sidebar-item-header-actions-expand">
             <i onClick={this.handleArrowClick.bind(this)} className={this.getArrowIconClasses()} />
@@ -141,7 +136,10 @@ SidebarDatabase.propTypes = {
   _id: React.PropTypes.string,
   activeNamespace: React.PropTypes.string.isRequired,
   collections: React.PropTypes.array,
-  expanded: React.PropTypes.bool
+  expanded: React.PropTypes.bool,
+  style: React.PropTypes.object,
+  onClick: React.PropTypes.func,
+  index: React.PropTypes.number
 };
 
 module.exports = SidebarDatabase;

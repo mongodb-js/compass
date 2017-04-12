@@ -1,21 +1,41 @@
 const React = require('react');
 const ReactTooltip = require('react-tooltip');
+const { AutoSizer, List } = require('react-virtualized');
+const _ = require('lodash');
 const app = require('hadron-app');
 const { StoreConnector } = require('hadron-react-components');
-const SidebarActions = require('../actions');
+const toNS = require('mongodb-ns');
+const Actions = require('../actions');
 const SidebarDatabase = require('./sidebar-database');
 const SidebarInstanceProperties = require('./sidebar-instance-properties');
 const { TOOLTIP_IDS } = require('./constants');
 
 // const debug = require('debug')('mongodb-compass:sidebar:sidebar');
 
+const OVER_SCAN_COUNT = 100;
+const ROW_HEIGHT = 28;
+const EXPANDED_WHITESPACE = 12;
 
 class Sidebar extends React.Component {
   constructor(props) {
     super(props);
     this.DatabaseDDLActions = app.appRegistry.getAction('DatabaseDDL.Actions');
     this.InstanceStore = app.appRegistry.getStore('App.InstanceStore');
-    this.state = { collapsed: false };
+    this.state = { collapsed: false, expandedDB: {}};
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const expandedDB = {};
+    nextProps.databases.map((db) => {
+      if (nextProps.expanded === true || db._id === toNS(nextProps.activeNamespace).database) {
+        expandedDB[db._id] = true;
+      } else {
+        expandedDB[db._id] = false;
+      }
+    });
+
+    this.setState({expandedDB});
+    this.list.recomputeRowHeights();
   }
 
   componentDidUpdate() {
@@ -66,13 +86,52 @@ class Sidebar extends React.Component {
       re = /(?:)/;
     }
 
-    SidebarActions.filterDatabases(re);
+    Actions.filterDatabases(re);
   }
 
   handleCreateDatabaseClick(isWritable) {
     if (isWritable) {
       this.DatabaseDDLActions.openCreateDatabaseDialog();
     }
+  }
+
+  _calculateRowHeight({index}) {
+    const db = this.props.databases[index];
+    let height = ROW_HEIGHT;
+    if (this.state.expandedDB[db._id]) {
+      height += db.collections.length * ROW_HEIGHT + EXPANDED_WHITESPACE;
+    }
+
+    return height;
+  }
+
+  /**
+   * Set the reference of the List object to call public methods of react-virtualized
+   * see link: https://github.com/bvaughn/react-virtualized/blob/master/docs/List.md#public-methods
+   *
+   * @param{Object} ref the react-virtualized.List reference used here
+   */
+  _setRef(ref) {
+    this.list = ref;
+  }
+
+  /**
+   * Display while sidebar list is being loaded
+   * @return {DOM} element
+   */
+  retrievingDatabases() {
+    return null;
+  }
+
+  /**
+   * On expand/collapse of sidebar-database, add/remove from expandedDBs state and recompute row heights
+   * @param{string} _id sidebar-database _id
+   */
+  _onDBClick(_id) {
+    const expandedDB = _.cloneDeep(this.state.expandedDB);
+    expandedDB[_id] = !expandedDB[_id];
+    this.setState({expandedDB});
+    this.list.recomputeRowHeights();
   }
 
   renderCreateDatabaseButton() {
@@ -96,7 +155,6 @@ class Sidebar extends React.Component {
           className={className}
           title="Create Database"
           onClick={this.handleCreateDatabaseClick.bind(this, isWritable)}
-
         >
           <i className="mms-icon-add" />
           <text className="plus-button">
@@ -104,6 +162,42 @@ class Sidebar extends React.Component {
           </text>
         </button>
       </div>
+    );
+  }
+
+  renderSidebarDatabase({index, key, style}) {
+    const db = this.props.databases[index];
+    const props = {
+      _id: db._id,
+      collections: db.collections,
+      expanded: this.state.expandedDB[db._id],
+      activeNamespace: this.props.activeNamespace,
+      onClick: this._onDBClick.bind(this),
+      key,
+      style,
+      index
+    };
+    return (
+      <SidebarDatabase {...props} />
+    );
+  }
+
+  renderSidebarScroll() {
+    return (
+      <AutoSizer>
+        {({height, width}) => (
+        <List
+          width={width}
+          height={height}
+          overScanRowCount={OVER_SCAN_COUNT}
+          rowCount={this.props.databases.length}
+          rowHeight={this._calculateRowHeight.bind(this)}
+          noRowsRenderer={this.retrievingDatabases}
+          rowRenderer={this.renderSidebarDatabase.bind(this)}
+          ref={this._setRef.bind(this)}
+        />
+      )}
+      </AutoSizer>
     );
   }
 
@@ -127,22 +221,11 @@ class Sidebar extends React.Component {
         </StoreConnector>
         <div className="compass-sidebar-filter" onClick={this.handleSearchFocus.bind(this)}>
           <i className="fa fa-search compass-sidebar-search-icon"></i>
-          <input data-test-id="sidebar-filter-input" ref="filter" className="compass-sidebar-search-input" placeholder="filter" onChange={this.handleFilter}></input>
+          <input data-test-id="sidebar-filter-input" ref="filter"
+            className="compass-sidebar-search-input" placeholder="filter" onChange={this.handleFilter}></input>
         </div>
         <div className="compass-sidebar-content">
-          {
-            this.props.databases.map(db => {
-              const props = {
-                _id: db._id,
-                collections: db.collections,
-                expanded: this.props.expanded,
-                activeNamespace: this.props.activeNamespace
-              };
-              return (
-                <SidebarDatabase key={db._id} {...props} />
-              );
-            })
-          }
+          {this.renderSidebarScroll()}
         </div>
         {this.renderCreateDatabaseButton()}
         <ReactTooltip id={TOOLTIP_IDS.CREATE_DATABASE_BUTTON} />
