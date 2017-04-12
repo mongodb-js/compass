@@ -27,10 +27,8 @@ class Sidebar extends React.Component {
   componentWillReceiveProps(nextProps) {
     const expandedDB = {};
     nextProps.databases.map((db) => {
-      if (db._id === toNS(nextProps.activeNamespace).database) {
+      if (nextProps.expanded === true || db._id === toNS(nextProps.activeNamespace).database) {
         expandedDB[db._id] = true;
-      } else if (this.state.expandedDB.hasOwnProperty(db._id)) {
-        expandedDB[db._id] = this.state.expandedDB[db._id];
       } else {
         expandedDB[db._id] = false;
       }
