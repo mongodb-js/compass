@@ -21,7 +21,7 @@ before_install:
   - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" >> .npmrc
 before_script:
   - export DISPLAY=:99.0
-  - sh -e /etc/init.d/xvfb start
+  - sh -e /etc/init.d/xvfb +extension RANDR start
   - npm run check
 script: npm run test
 cache:
