@@ -28,7 +28,7 @@ class ChartPanel extends React.Component {
     this.props.actions.selectChartType(dropdownText.toLowerCase());
   }
 
-  renderChartTypeChoice() {
+  renderChartTypeChoice () {
     return (
       <OptionSelector
         id="chart-type-selector"

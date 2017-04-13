@@ -33,7 +33,7 @@ module.exports = View.extend({
   subviews: {
     sidebar: {
       hook: 'sidebar-subview',
-      prepareView: function(el) {
+      prepareView: function (el) {
         var sidebar = new SidebarView({
           el: el,
           parent: this,
