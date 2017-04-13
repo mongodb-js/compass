@@ -5,9 +5,11 @@ const MenuItem = require('react-bootstrap').MenuItem;
 const FontAwesome = require('react-fontawesome');
 const _ = require('lodash');
 const DragSource = require('react-dnd').DragSource;
+const { Tooltip } = require('hadron-react-components');
 const {AGGREGATE_FUNCTION_ENUM, MEASUREMENT_ENUM, MEASUREMENT_ICON_ENUM} = require('../constants');
 
 // const debug = require('debug')('mongodb-compass:chart:draggable-field');
+
 class CustomToggle extends React.Component {
   handleClick(e) {
     e.preventDefault();
@@ -36,7 +38,7 @@ const draggableFieldSource = {
     return {fieldPath: props.fieldPath};
   },
   canDrag: function(props) {
-    return !props.enableMenus;
+    return !props.disabled && !props.enableMenus;
   }
 };
 
@@ -121,9 +123,17 @@ class DraggableField extends React.Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
+    const tooltipId = 'array-not-supported';
+
+    const tooltip = this.props.disabled ? (
+      <Tooltip
+        id={tooltipId}
+      />
+    ) : null;
+    const tooltipText = 'Array types are not yet supported';
     const connectDragSource = this.props.connectDragSource;
     return connectDragSource(
-      <div className="chart-draggable-field" title={this.props.fieldPath}>
+      <div className="chart-draggable-field" title={this.props.fieldPath} data-tip={tooltipText} data-for={tooltipId}>
         {this.props.enableMenus ? this.renderMeasurementMenu() : <div></div>}
         <div className="chart-draggable-field-item-container chart-draggable-field-item-container-title">
           <div className="chart-draggable-field-item chart-draggable-field-title">
@@ -138,6 +148,7 @@ class DraggableField extends React.Component {
             </div>
           </div>
            : <div></div>}
+        {tooltip}
       </div>
     );
   }
@@ -149,6 +160,7 @@ DraggableField.propTypes = {
   type: React.PropTypes.oneOf(_.values(MEASUREMENT_ENUM)),
   aggregate: React.PropTypes.oneOf(_.values(AGGREGATE_FUNCTION_ENUM)),
   enableMenus: React.PropTypes.bool,
+  disabled: React.PropTypes.bool,
   selectAggregate: React.PropTypes.func,
   selectMeasurement: React.PropTypes.func,
   connectDragSource: React.PropTypes.func
