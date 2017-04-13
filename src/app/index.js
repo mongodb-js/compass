@@ -75,7 +75,7 @@ if (process.env.NODE_ENV !== 'production') {
   marky.stop('Loading styles');
 }
 
-function getConnection (model, done) {
+function getConnection(model, done) {
   function _fetch(fn) {
     model.fetch({
       success: function() {

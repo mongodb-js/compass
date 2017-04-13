@@ -97,7 +97,7 @@ var ConnectView = View.extend({
   derived: {
     hasError: {
       deps: ['message'],
-      fn: function () {
+      fn: function() {
         return this.message !== '';
       }
     },

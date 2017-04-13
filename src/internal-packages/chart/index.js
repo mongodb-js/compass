@@ -16,7 +16,7 @@ const COLLECTION_TAB_ROLE = {
 /**
  * Activate all the components in the Chart package.
  */
-function activate () {
+function activate() {
   app.appRegistry.registerRole('Collection.Tab', COLLECTION_TAB_ROLE);
   app.appRegistry.registerAction('Chart.Actions', ChartActions);
   app.appRegistry.registerStore('Chart.Store', ChartStore);

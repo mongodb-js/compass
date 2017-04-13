@@ -25,7 +25,7 @@ Application.prototype.setupJavaScriptArguments = function() {
   app.commandLine.appendSwitch('js-flags', '--harmony');
 };
 
-Application.prototype.setupAutoUpdate = function () {
+Application.prototype.setupAutoUpdate = function() {
   this.autoUpdateManager = new AutoUpdateManager(
     _.get(pkg, 'config.hadron.endpoint')
     /**

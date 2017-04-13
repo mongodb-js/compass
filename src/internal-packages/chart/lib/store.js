@@ -45,7 +45,7 @@ const ChartStore = Reflux.createStore({
    */
   mixins: [StateMixin.store],
 
-  init () {
+  init() {
     this.listenables = Actions;
     this._resetChart();
     this.listenToExternalStore('Query.ChangedStore', this.onQueryChanged.bind(this));
