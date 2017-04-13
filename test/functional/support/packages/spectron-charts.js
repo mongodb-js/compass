@@ -53,7 +53,7 @@ function addInputChartsCommands(client) {
    *
    * @param {String} filter - The filter.
    */
-  client.addCommand('inputFilterFromChartsTab', function (filter) {
+  client.addCommand('inputFilterFromChartsTab', function(filter) {
     const base = selector('charts-content');
     const input = `${base} .input-filter`;
     return this.setValue(input, filter);
