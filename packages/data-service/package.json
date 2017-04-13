@@ -27,7 +27,7 @@
     "async": "^2.1.2",
     "debug": "^2.6.0",
     "lodash": "^4.6.1",
-    "mongodb": "^2.2.24",
+    "mongodb": "^2.2.25",
     "mongodb-collection-sample": "^1.6.1",
     "mongodb-connection-model": "^6.4.3",
     "mongodb-index-model": "^0.6.4",
