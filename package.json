@@ -105,7 +105,7 @@
     "ci": "npm run check && npm run test",
     "clean": "hadron-build clean",
     "compile-ui": "hadron-build ui",
-    "fmt": "mongodb-js-fmt src/{**/*.js,*.js} test/{**/*.js,*.js}",
+    "fmt": "mongodb-js-fmt 'src/**/*{.js,.jsx}' 'test/**/*.js'",
     "release": "hadron-build release",
     "test-unit": "npm test -- --unit",
     "test-enzyme": "npm test -- --enzyme",
