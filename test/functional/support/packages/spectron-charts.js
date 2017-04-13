@@ -47,7 +47,7 @@ function addGetChartsCommands(client) {
 }
 
 
-function addInputChartsCommands(client) {
+function addInputChartsCommands (client) {
   /**
    * Inputs a filter into the collection level query bar from the charts tab.
    *
