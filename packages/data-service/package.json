@@ -24,7 +24,7 @@
     "check"
   ],
   "dependencies": {
-    "async": "^2.1.2",
+    "async": "^2.3.0",
     "debug": "^2.6.0",
     "lodash": "^4.6.1",
     "mongodb": "^2.2.25",
