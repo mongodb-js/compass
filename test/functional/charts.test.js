@@ -73,12 +73,12 @@ describe('#charts', function() {
         return client
           .clickChartsTab()
           .getFieldPanelItemTitles()
-          .should.eventually.equal([
+          .should.eventually.be.deep.equal([
             '_id',
             'genre',
-            'location', 'city',  // should be the nested field location.city
+            'location.city',
             'name'
-          ].join('\n'));
+          ]);
       });
     });
 

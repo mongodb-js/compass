@@ -31,9 +31,8 @@ function addClickChartsCommands(client) {
    * Get a list of <DraggableField> item names from the Charts <FieldPanel>.
    */
   client.addCommand('getFieldPanelItemTitles', function() {
-    // Not sure how to get children so we can get the full field paths here
-    // return this.getAttribute(selector('chart-builder-field-panel').children, 'title');
-    return this.getText(selector('chart-builder-field-panel'));
+    const base = selector('chart-builder-field-panel');
+    return this.getAttribute(`${base} .chart-draggable-field`, 'title');
   });
 }
 
