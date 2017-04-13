@@ -50,7 +50,7 @@ function addWaitDatabaseDDLCommands(client) {
 
 function addGetDatabaseDDLCommands(client) {
   /**
-   * Gets the text of a specific
+   * Gets the human-readable text of the Databases Tab.
    */
   client.addCommand('getDatabasesTabText', function() {
     return this.getText(selector('databases-tab'));

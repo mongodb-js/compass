@@ -23,7 +23,10 @@ class FieldPanel extends React.Component {
 
   render() {
     return (
-      <div className="chart-builder-field-panel">
+      <div
+        className="chart-builder-field-panel"
+        data-test-id="chart-builder-field-panel"
+      >
         {this.renderFields()}
       </div>
     );
