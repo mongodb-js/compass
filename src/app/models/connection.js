@@ -1,7 +1,6 @@
 var Connection = require('mongodb-connection-model');
 var storageMixin = require('storage-mixin');
 var DataService = require('mongodb-data-service');
-var debug = require('debug')('mongodb-compass:models:connection');
 var uuid = require('uuid');
 var metrics = require('mongodb-js-metrics')();
 var electronApp = require('electron').remote.app;
