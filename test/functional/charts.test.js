@@ -30,7 +30,7 @@ describe('#charts', function() {
     return quitCompass(app);
   });
 
-  context('when manipulating documents in the crud view', function() {
+  context('when on music.artists collection', function() {
     const dataService = new DataService(CONNECTION);
 
     before(function(done) {
