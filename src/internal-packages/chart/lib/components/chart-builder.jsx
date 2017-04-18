@@ -3,11 +3,13 @@ const React = require('react');
 const app = require('hadron-app');
 const HTML5Backend = require('react-dnd-html5-backend');
 const { DragDropContext } = require('react-dnd');
+const ReactTooltip = require('react-tooltip');
 const { TextButton } = require('hadron-react-buttons');
-const { StatusRow } = require('hadron-react-components');
+const { StatusRow} = require('hadron-react-components');
 const FieldPanel = require('./field-panel');
 const ChartPanel = require('./chart-panel');
 const Chart = require('./chart');
+const { TOOL_TIP_ID_ARRAY } = require('../constants');
 
 const QUERYBAR_LAYOUT = ['filter', 'project', ['sort', 'skip', 'limit']];
 
@@ -31,9 +33,14 @@ class ChartBuilder extends React.Component {
     window.addEventListener('resize', this.handleResize.bind(this));
   }
 
+  componentDidUpdate() {
+    ReactTooltip.rebuild();
+  }
+
   componentWillUnmount() {
     window.removeEventListener('resize', this.handleResize);
   }
+
 
   _getChartDimensions() {
     const areaDim = document.getElementsByClassName('chart-builder-chart-area')[0];
@@ -127,6 +134,7 @@ class ChartBuilder extends React.Component {
             {chart}
           </div>
         </div>
+        <ReactTooltip id={TOOL_TIP_ID_ARRAY} place="right" effect="solid" delayShow={200}/>
       </div>
     );
   }

@@ -5,8 +5,7 @@ const MenuItem = require('react-bootstrap').MenuItem;
 const FontAwesome = require('react-fontawesome');
 const _ = require('lodash');
 const DragSource = require('react-dnd').DragSource;
-const { Tooltip } = require('hadron-react-components');
-const {AGGREGATE_FUNCTION_ENUM, MEASUREMENT_ENUM, MEASUREMENT_ICON_ENUM} = require('../constants');
+const {AGGREGATE_FUNCTION_ENUM, MEASUREMENT_ENUM, MEASUREMENT_ICON_ENUM, TOOL_TIP_ID_ARRAY} = require('../constants');
 
 // const debug = require('debug')('mongodb-compass:chart:draggable-field');
 
@@ -123,17 +122,20 @@ class DraggableField extends React.Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
-    const tooltipId = 'array-not-supported';
+    const attributes = {
+      className: 'chart-draggable-field',
+      title: this.props.fieldPath
+    };
 
-    const tooltip = this.props.disabled ? (
-      <Tooltip
-        id={tooltipId}
-      />
-    ) : null;
-    const tooltipText = 'Array types are not yet supported';
+    // add tool tip if disabled due to array type
+    if (this.props.disabled) {
+      attributes['data-tip'] = 'Array types are not yet supported';
+      attributes['data-for'] = TOOL_TIP_ID_ARRAY;
+    }
+
     const connectDragSource = this.props.connectDragSource;
     return connectDragSource(
-      <div className="chart-draggable-field" title={this.props.fieldPath} data-tip={tooltipText} data-for={tooltipId}>
+      <div {...attributes} >
         {this.props.enableMenus ? this.renderMeasurementMenu() : <div></div>}
         <div className="chart-draggable-field-item-container chart-draggable-field-item-container-title">
           <div className="chart-draggable-field-item chart-draggable-field-title">
@@ -148,7 +150,6 @@ class DraggableField extends React.Component {
             </div>
           </div>
            : <div></div>}
-        {tooltip}
       </div>
     );
   }

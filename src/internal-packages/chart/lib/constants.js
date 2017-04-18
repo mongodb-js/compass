@@ -159,6 +159,8 @@ const DEFAULTS = Object.freeze({
   SPEC_TYPE: SPEC_TYPE_ENUM.VEGA_LITE
 });
 
+const TOOL_TIP_ID_ARRAY = 'array-not-supported';
+
 module.exports = {
   AGGREGATE_FUNCTION_ENUM,
   CHART_CHANNEL_ENUM,
@@ -167,5 +169,6 @@ module.exports = {
   DEFAULTS,
   MEASUREMENT_ENUM,
   MEASUREMENT_ICON_ENUM,
-  SPEC_TYPE_ENUM
+  SPEC_TYPE_ENUM,
+  TOOL_TIP_ID_ARRAY
 };
