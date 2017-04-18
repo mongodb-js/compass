@@ -4,9 +4,9 @@ const isPlainObject = require('lodash.isplainobject');
 const isArray = require('lodash.isarray');
 const isString = require('lodash.isstring');
 const isNumber = require('lodash.isnumber');
-const isEmpty = require('lodash.isempty');
 const has = require('lodash.has');
-const find = require('lodash.find');
+const keys = require('lodash.keys');
+const without = require('lodash.without');
 const toNumber = require('lodash.tonumber');
 const toString = require('lodash.tostring');
 const includes = require('lodash.includes');
@@ -29,6 +29,23 @@ const OBJECT = 'Object';
 const ARRAY = 'Array';
 
 /**
+ * True constant.
+ */
+const TRUE = 'true';
+
+/**
+ * Long constant.
+ */
+const LONG = 'Long';
+
+const INT_32 = 'Int32';
+const INT_64 = 'Int64';
+const DOUBLE = 'Double';
+const DECIMAL_128 = 'Decimal128';
+const OBJECT_TYPE = '[object Object]';
+const EMPTY = '';
+
+/**
  * The bson type field.
  */
 const BSON_TYPE = '_bsontype';
@@ -49,9 +66,9 @@ const BSON_INT32_MAX = 0x7FFFFFFF;
 const BSON_INT32_MIN = -0x80000000;
 
 /**
- * The max double value.
+ * The number regex.
  */
-const MAX_DBL = Number.MAX_SAFE_INTEGER;
+const NUMBER_REGEX = /^-?\d+$/;
 
 /**
  * All bson types that are numbers.
@@ -63,29 +80,29 @@ const NUMBER_TYPES = [
   'Decimal128'
 ];
 
-function toDate(object) {
+const toDate = (object) => {
   return new Date(object);
-}
+};
 
-function toMinKey() {
+const toMinKey = () => {
   return new MinKey();
-}
+};
 
-function toMaxKey() {
+const toMaxKey = () => {
   return new MaxKey();
-}
+};
 
-function toUndefined() {
+const toUndefined = () => {
   return undefined;
-}
+};
 
-function toNull() {
+const toNull = () => {
   return null;
-}
+};
 
-function toBoolean(object) {
+const toBoolean = (object) => {
   if (isString(object)) {
-    if (object.toLowerCase() === 'true') {
+    if (object.toLowerCase() === TRUE) {
       return true;
     }
     return false;
@@ -94,16 +111,16 @@ function toBoolean(object) {
     return true;
   }
   return false;
-}
+};
 
-function toObject(object) {
+const toObject = (object) => {
   if (isPlainObject(object)) {
     return object;
   }
   return {};
-}
+};
 
-function toArray(object) {
+const toArray = (object) => {
   if (isArray(object)) {
     return object;
   }
@@ -111,68 +128,96 @@ function toArray(object) {
     return [];
   }
   return [ object ];
-}
+};
 
-function toInt32(object) {
+const toInt32 = (object) => {
   return new Int32(toNumber(object));
-}
+};
 
-function toInt64(object) {
+const toInt64 = (object) => {
   return Long.fromNumber(toNumber(object));
-}
+};
 
-function toDouble(object) {
+const toDouble = (object) => {
   return new Double(toNumber(object));
-}
+};
 
-function toDecimal128(object) {
+const toDecimal128 = (object) => {
   /*
    If converting a BSON Object, extract the value before converting to a string.
    */
   if (has(object, BSON_TYPE) && includes(NUMBER_TYPES, object._bsontype)) {
-    object = object._bsontype === 'Long' ? object.toNumber() : object.valueOf();
+    object = object._bsontype === LONG ? object.toNumber() : object.valueOf();
   }
   return Decimal128.fromString(String(object));
-}
+};
 
-function toObjectID(object) {
+const toObjectID = (object) => {
   if (object === '') {
     return new bson.ObjectID();
   }
   return bson.ObjectID.createFromHexString(object);
-}
+};
+
+const toBinary = () => {
+
+};
+
+const toDocument = () => {
+
+};
+
+const toRegex = () => {
+
+};
+
+const toCode = () => {
+
+};
+
+const toCodeWithScope = () => {
+
+};
+
+const toSymbol = () => {
+
+};
+
+const toTimestamp = () => {
+
+};
 
 /**
  * The functions to cast to a type.
  */
 const CASTERS = {
+  'Array': toArray,
+  'Binary': toBinary,
+  'Boolean': toBoolean,
+  'Code': toCode,
+  'CodeWithScope': toCodeWithScope,
+  'Date': toDate,
+  'Decimal128': toDecimal128,
+  'Document': toDocument,
+  'Double': toDouble,
   'Int32': toInt32,
   'Int64': toInt64,
-  'Double': toDouble,
-  'Decimal128': toDecimal128,
-  'Date': toDate,
-  'MinKey': toMinKey,
   'MaxKey': toMaxKey,
-  'Undefined': toUndefined,
+  'MinKey': toMinKey,
   'Null': toNull,
-  'Boolean': toBoolean,
-  'String': toString,
   'Object': toObject,
-  'Array': toArray,
-  'ObjectID': toObjectID
+  'ObjectID': toObjectID,
+  'Regex': toRegex,
+  'String': toString,
+  'Symbol': toSymbol,
+  'Timestamp': toTimestamp,
+  'Undefined': toUndefined
 };
 
 /**
- * A test that returns the types is passing.
+ * An array of all bson types.
  */
-class Test {
-  constructor(tester, types) {
-    this.tester = tester;
-    this.types = types;
-  }
-}
-
-const NUMBER_REGEX = /^-?\d+$/;
+const TYPES = keys(CASTERS);
 
 /**
  * Checks if a string is an int32.
@@ -199,104 +244,8 @@ class Int64Check {
   }
 }
 
-/**
- * Checks if integer can be cast to double.
- */
-class IntDblCheck {
-  test(string) {
-    if (NUMBER_REGEX.test(string)) {
-      var value = toNumber(string);
-      return value >= -MAX_DBL && value <= MAX_DBL;
-    }
-    return false;
-  }
-}
-
-const DOUBLE_REGEX = /^-?(\d*\.)?\d{1,15}$/;
-
-/**
- * Checks if the value can be cast to a double.
- */
-class DoubleCheck {
-  test(string) {
-    if (DOUBLE_REGEX.test(string)) {
-      var value = toNumber(string);
-      return value >= -MAX_DBL && value <= MAX_DBL;
-    }
-    return false;
-  }
-}
-
-var PARSE_STRING_REGEXP = /^(?=\d)(\+|\-)?(\d+|(\d*\.\d*))?(E|e)?([\-\+])?(\d+)?$/;
-var PARSE_INF_REGEXP = /^(\+|\-)?(Infinity|inf)$/i;
-var PARSE_NAN_REGEXP = /^(\+|\-)?NaN$/i;
-
-/**
- * Checks if the value can be cast to a decimal 128.
- */
-class Decimal128Check {
-  test(string) {
-    const stringMatch = string.match(PARSE_STRING_REGEXP);
-    const infMatch = string.match(PARSE_INF_REGEXP);
-    const nanMatch = string.match(PARSE_NAN_REGEXP);
-
-    const regex = stringMatch || infMatch || nanMatch;
-    const exp = stringMatch && stringMatch[4] && stringMatch[2] === undefined;
-
-    return string.length !== 0 && regex && !exp;
-  }
-}
-
-/**
- * Checks if a string is a date.
- */
-class DateCheck {
-  test(string) {
-    return isFinite(toDate(string).getTime());
-  }
-}
-
 const INT32_CHECK = new Int32Check();
 const INT64_CHECK = new Int64Check();
-const INT_DBL_CHECK = new IntDblCheck();
-const DOUBLE_CHECK = new DoubleCheck();
-const DECIMAL_128_CHECK = new Decimal128Check();
-const DATE_CHECK = new DateCheck();
-
-/**
- * The various string tests,
- * excluding dates which are on their own dimension.
- */
-const STRING_TESTS = [
-  new Test(/^$/, [ 'String', 'Null', 'MinKey', 'MaxKey', 'Object', 'Array', 'ObjectID']),
-  new Test(INT32_CHECK, [ 'Int32', 'Int64', 'Double', 'String', 'Object', 'Array' ]),
-  new Test(INT_DBL_CHECK, [ 'Int64', 'Double', 'String', 'Object', 'Array' ]),
-  new Test(INT64_CHECK, [ 'Int64', 'String', 'Object', 'Array' ]),
-  new Test(DOUBLE_CHECK, [ 'Double', 'String', 'Object', 'Array' ]),
-  new Test(/^(null)$/, [ 'Null', 'String', 'Object', 'Array' ]),
-  new Test(/^(undefined)$/, [ 'Undefined', 'String', 'Object', 'Array' ]),
-  new Test(/^(true|false)$/, [ 'Boolean', 'String', 'Object', 'Array' ]),
-  new Test(/^\/(.*)\/$/, [ 'BSONRegExp', 'String', 'Object', 'Array' ]),
-  new Test(/(^$)|^[A-Fa-f0-9]{24}$/, [ 'String', 'Object', 'Array', 'ObjectID' ])
-];
-
-/**
- * String tests with high precision support,
- * excluding dates which are on their own dimension.
- */
-const HP_STRING_TESTS = [
-  new Test(/^$/, [ 'String', 'Null', 'MinKey', 'MaxKey', 'Object', 'Array', 'ObjectID' ]),
-  new Test(INT32_CHECK, [ 'Int32', 'Int64', 'Double', 'Decimal128', 'String', 'Object', 'Array' ]),
-  new Test(INT_DBL_CHECK, [ 'Int64', 'Double', 'Decimal128', 'String', 'Object', 'Array' ]),
-  new Test(INT64_CHECK, [ 'Int64', 'Decimal128', 'String', 'Object', 'Array' ]),
-  new Test(DOUBLE_CHECK, [ 'Double', 'Decimal128', 'String', 'Object', 'Array' ]),
-  new Test(DECIMAL_128_CHECK, [ 'Decimal128', 'String', 'Object', 'Array' ]),
-  new Test(/^(null)$/, [ 'Null', 'String', 'Object', 'Array' ]),
-  new Test(/^(undefined)$/, [ 'Undefined', 'String', 'Object', 'Array' ]),
-  new Test(/^(true|false)$/, [ 'Boolean', 'String', 'Object', 'Array' ]),
-  new Test(/^\/(.*)\/$/, [ 'BSONRegExp', 'String', 'Object', 'Array' ]),
-  new Test(/(^$)|^[A-Fa-f0-9]{24}$/, [ 'String', 'Object', 'Array', 'ObjectID' ])
-];
 
 /**
  * Gets the BSON type for a JS number.
@@ -305,15 +254,15 @@ const HP_STRING_TESTS = [
  *
  * @returns {String} The BSON type.
  */
-function numberToBsonType(number) {
+const numberToBsonType = (number) => {
   var string = toString(number);
   if (INT32_CHECK.test(string)) {
-    return 'Int32';
+    return INT_32;
   } else if (INT64_CHECK.test(string)) {
-    return 'Int64';
+    return INT_64;
   }
-  return 'Double';
-}
+  return DOUBLE;
+};
 
 /**
  * Checks the types of objects and returns them as readable strings.
@@ -334,7 +283,7 @@ class TypeChecker {
     if (caster) {
       result = caster(object);
     }
-    return result === '[object Object]' ? '' : result;
+    return result === OBJECT_TYPE ? EMPTY : result;
   }
 
   /**
@@ -355,8 +304,8 @@ class TypeChecker {
       return ARRAY;
     }
     if (has(object, BSON_TYPE)) {
-      if (object._bsontype === 'Long') {
-        return 'Int64';
+      if (object._bsontype === LONG) {
+        return INT_64;
       }
       return object._bsontype;
     }
@@ -366,53 +315,15 @@ class TypeChecker {
   /**
    * Get a list of types the object can be cast to.
    *
-   * @param {Object} object - The object.
    * @param {Boolean} highPrecisionSupport - If Decimal128 is supported or not.
    *
    * @returns {Array} The available types.
    */
-  castableTypes(object, highPrecisionSupport = false) {
-    if (isString(object)) {
-      return this._stringTypes(object, highPrecisionSupport);
-    } else if (isNumber(object)) {
-      return this._stringTypes(String(object), highPrecisionSupport);
-    } else if (has(object, BSON_TYPE) && this._isNumberType(object._bsontype)) {
-      var rawValue = object._bsontype === 'Long' ? object.toNumber() : object.valueOf();
-      return this._stringTypes(String(rawValue), highPrecisionSupport);
-    } else if (isPlainObject(object)) {
-      if (isEmpty(object)) {
-        return [ 'Object', 'Array' ];
-      }
-      return [ 'Object' ];
-    } else if (isArray(object)) {
-      if (isEmpty(object)) {
-        return [ 'Object', 'Array' ];
-      }
-      return [ 'Array' ];
+  castableTypes(highPrecisionSupport = false) {
+    if (highPrecisionSupport === true) {
+      return TYPES;
     }
-
-    return [ this.type(object), 'String', 'Object', 'Array' ];
-  }
-
-  _isNumberType(bsontype) {
-    return includes(NUMBER_TYPES, bsontype);
-  }
-
-  _stringTypes(string, highPrecisionSupport) {
-    let types = [ 'String', 'Object', 'Array' ];
-    var passing = find(highPrecisionSupport ? HP_STRING_TESTS : STRING_TESTS, (test) => {
-      return test.tester.test(string);
-    });
-    if (passing) {
-      types = passing.types;
-    }
-    // Add date dynamically to the existing types lists, as it is on a
-    // completely different dimension to numeric types and so significantly
-    // more complicated to enumerate all valid combinations
-    if (DATE_CHECK.test(string)) {
-      types = ['Date', ...types];
-    }
-    return types;
+    return without(TYPES, DECIMAL_128);
   }
 }
 
