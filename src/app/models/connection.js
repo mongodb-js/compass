@@ -78,13 +78,9 @@ module.exports = Connection.extend(storageMixin, {
         metrics.error(err);
         return done(err);
       }
-
-      debug('test worked!');
       dataService.disconnect();
       done(null, this);
     }.bind(this);
-
-    debug('Testing connection to `%j`...', this.serialize());
     dataService.connect(onTested);
     return this;
   },
