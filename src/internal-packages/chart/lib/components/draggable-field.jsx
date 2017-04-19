@@ -1,4 +1,3 @@
-/* eslint react/no-multi-comp: 0 new-cap: 0 */
 const React = require('react');
 const Dropdown = require('react-bootstrap').Dropdown;
 const MenuItem = require('react-bootstrap').MenuItem;
@@ -6,31 +5,9 @@ const FontAwesome = require('react-fontawesome');
 const _ = require('lodash');
 const DragSource = require('react-dnd').DragSource;
 const {AGGREGATE_FUNCTION_ENUM, MEASUREMENT_ENUM, MEASUREMENT_ICON_ENUM, TOOL_TIP_ID_ARRAY} = require('../constants');
+const CustomToggle = require('./custom-toggle');
 
 // const debug = require('debug')('mongodb-compass:chart:draggable-field');
-
-class CustomToggle extends React.Component {
-  handleClick(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    if (this.props.onClick) {
-      this.props.onClick(e);
-    }
-  }
-  render() {
-    return (
-      <div className={this.props.className} onClick={this.handleClick.bind(this)}>
-        {this.props.children}
-      </div>
-    );
-  }
-}
-
-CustomToggle.propTypes = {
-  onClick: React.PropTypes.func,
-  className: React.PropTypes.string,
-  children: React.PropTypes.node
-};
 
 const draggableFieldSource = {
   beginDrag: function(props) {
@@ -169,5 +146,5 @@ DraggableField.propTypes = {
 
 DraggableField.displayName = 'DraggableField';
 
-module.exports = DragSource(DraggableField.displayName, draggableFieldSource, collect)(DraggableField);
+module.exports = DragSource(DraggableField.displayName, draggableFieldSource, collect)(DraggableField);  // eslint-disable-line new-cap
 module.exports.displayName = DraggableField.displayName;
