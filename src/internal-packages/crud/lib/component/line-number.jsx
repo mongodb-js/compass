@@ -91,8 +91,11 @@ class LineNumber extends React.Component {
    * Handle click on the line number.
    */
   handleClick() {
-    Actions.closeAllMenus(this);
-    this.setState({ menu: !this.state.menu });
+  // Provide menu for _id because it's top-level, but not for any potential children.
+    if (this.props.element.isParentEditable()) {
+      Actions.closeAllMenus(this);
+      this.setState({menu: !this.state.menu});
+    }
   }
 
   /**
@@ -144,7 +147,7 @@ class LineNumber extends React.Component {
    * @returns {Boolean} If the element is an array.
    */
   isElementArray() {
-    return this.props.element.currentType === 'Array';
+    return this.props.element.isValueEditable() && this.props.element.currentType === 'Array';
   }
 
   /**
@@ -254,7 +257,7 @@ class LineNumber extends React.Component {
    * @returns {React.Component} The component.
    */
   renderObjectItem() {
-    if (this.isElementObject()) {
+    if (this.props.element.isValueEditable() && this.isElementObject()) {
       return this.renderMenuItem(
         ADD_CHILD_ICON,
         OBJECT_TEXT,
