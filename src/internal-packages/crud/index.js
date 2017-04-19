@@ -5,8 +5,13 @@ const Actions = require('./lib/actions');
 const InsertDocumentStore = require('./lib/store/insert-document-store');
 const ResetDocumentListStore = require('./lib/store/reset-document-list-store');
 const LoadMoreDocumentsStore = require('./lib/store/load-more-documents-store');
-const StandardEditor = require('./lib/component/editor/standard');
-const DateEditor = require('./lib/component/editor/date');
+const {
+  StandardEditor,
+  DateEditor,
+  StringEditor,
+  Int32Editor,
+  DoubleEditor
+} = require('./lib/component/editor');
 
 /**
  * The collection tab role for the document list component.
@@ -31,6 +36,17 @@ const DATE_EDITOR_ROLE = {
   component: DateEditor
 };
 
+const DOUBLE_EDITOR_ROLE = {
+  component: DoubleEditor
+};
+
+const STRING_EDITOR_ROLE = {
+  component: StringEditor
+};
+
+const INT32_EDITOR_ROLE = {
+  component: Int32Editor
+};
 
 /**
  * Activate all the components in the CRUD package.
@@ -40,6 +56,9 @@ function activate() {
   app.appRegistry.registerRole('CRUD.Document', DOCUMENT_ROLE);
   app.appRegistry.registerRole('CRUD.Editor.Standard', STANDARD_EDITOR_ROLE);
   app.appRegistry.registerRole('CRUD.Editor.Date', DATE_EDITOR_ROLE);
+  app.appRegistry.registerRole('CRUD.Editor.Double', DOUBLE_EDITOR_ROLE);
+  app.appRegistry.registerRole('CRUD.Editor.String', STRING_EDITOR_ROLE);
+  app.appRegistry.registerRole('CRUD.Editor.Int32', INT32_EDITOR_ROLE);
   app.appRegistry.registerAction('CRUD.Actions', Actions);
   app.appRegistry.registerStore('CRUD.InsertDocumentStore', InsertDocumentStore);
   app.appRegistry.registerStore('CRUD.ResetDocumentListStore', ResetDocumentListStore);
@@ -54,6 +73,9 @@ function deactivate() {
   app.appRegistry.deregisterRole('CRUD.Document', DOCUMENT_ROLE);
   app.appRegistry.deregisterRole('CRUD.Editor.Standard', STANDARD_EDITOR_ROLE);
   app.appRegistry.deregisterRole('CRUD.Editor.Date', DATE_EDITOR_ROLE);
+  app.appRegistry.deregisterRole('CRUD.Editor.Double', DOUBLE_EDITOR_ROLE);
+  app.appRegistry.deregisterRole('CRUD.Editor.String', STRING_EDITOR_ROLE);
+  app.appRegistry.deregisterRole('CRUD.Editor.Int32', INT32_EDITOR_ROLE);
   app.appRegistry.deregisterAction('CRUD.Actions');
   app.appRegistry.deregisterStore('CRUD.InsertDocumentStore');
   app.appRegistry.deregisterStore('CRUD.ResetDocumentListStore');

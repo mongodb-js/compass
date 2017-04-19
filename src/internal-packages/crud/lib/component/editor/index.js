@@ -7,6 +7,7 @@ const DateEditor = require('./date');
 const init = (element) => {
   return {
     'Standard': new StandardEditor(element),
+    'String': new StringEditor(element),
     'Date': new DateEditor(element),
     'Double': new DoubleEditor(element),
     'Int32': new Int32Editor(element)
