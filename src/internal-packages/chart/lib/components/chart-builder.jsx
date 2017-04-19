@@ -1,4 +1,3 @@
-/* eslint new-cap: 0 */
 const React = require('react');
 const app = require('hadron-app');
 const HTML5Backend = require('react-dnd-html5-backend');
@@ -159,4 +158,4 @@ ChartBuilder.defaultProps = {
 
 ChartBuilder.displayName = 'ChartBuilder';
 
-module.exports = DragDropContext(HTML5Backend)(ChartBuilder);
+module.exports = DragDropContext(HTML5Backend)(ChartBuilder);  // eslint-disable-line new-cap
