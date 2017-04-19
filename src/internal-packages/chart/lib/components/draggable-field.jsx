@@ -12,9 +12,6 @@ const CustomToggle = require('./custom-toggle');
 const draggableFieldSource = {
   beginDrag: function(props) {
     return {fieldPath: props.fieldPath};
-  },
-  canDrag: function(props) {
-    return !props.disabled && !props.enableMenus;
   }
 };
 
