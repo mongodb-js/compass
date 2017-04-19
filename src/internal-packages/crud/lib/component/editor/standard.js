@@ -38,17 +38,7 @@ class StandardEditor {
    * @returns {Number} The number of characters.
    */
   size() {
-    const value = this.element.currentValue;
-    switch (this.element.currentType) {
-      case 'Int32':
-        return chars(value.valueOf());
-      case 'Int64':
-        return chars(value);
-      case 'Double':
-        return chars(value.value);
-      default:
-        return chars(value);
-    }
+    return chars(this.element.currentValue);
   }
 
   /**

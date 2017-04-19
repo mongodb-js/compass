@@ -2,9 +2,9 @@ const chars = require('../utils');
 const StandardEditor = require('./standard');
 
 /**
- * CRUD editor for string values.
+ * CRUD editor for double values.
  */
-class StringEditor extends StandardEditor {
+class DoubleEditor extends StandardEditor {
 
   /**
    * Create the editor with the element.
@@ -23,8 +23,8 @@ class StringEditor extends StandardEditor {
    * @returns {Number} The number of characters.
    */
   size() {
-    return chars(this.element.currentValue);
+    return chars(this.element.currentValue.value);
   }
 }
 
-module.exports = StringEditor;
+module.exports = DoubleEditor;
