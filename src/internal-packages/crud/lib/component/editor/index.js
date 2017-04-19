@@ -10,7 +10,7 @@ const init = (element) => {
     'Date': new DateEditor(element),
     'Double': new DoubleEditor(element),
     'Int32': new Int32Editor(element)
-  }
+  };
 };
 
 module.exports = init;

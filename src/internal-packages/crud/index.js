@@ -25,11 +25,11 @@ const DOCUMENT_ROLE = {
 
 const STANDARD_EDITOR_ROLE = {
   component: StandardEditor
-}
+};
 
 const DATE_EDITOR_ROLE = {
   component: DateEditor
-}
+};
 
 
 /**

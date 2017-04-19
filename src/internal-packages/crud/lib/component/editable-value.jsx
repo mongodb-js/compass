@@ -1,8 +1,5 @@
-const _ = require('lodash');
-const moment = require('moment');
 const app = require('hadron-app');
 const React = require('react');
-const TypeChecker = require('hadron-type-checker');
 const initEditors = require('./editor/');
 
 /* eslint no-return-assign:0 */
@@ -26,11 +23,6 @@ const VALUE_CLASS = 'editable-element-value';
  * The version at which high precision values are available.
  */
 const HP_VERSION = '3.4.0';
-
-/**
- * The date format.
- */
-const FORMAT = 'YYYY-MM-DD HH:mm:ss.SSS';
 
 /**
  * Invalid type class.
@@ -66,10 +58,6 @@ class EditableValue extends React.Component {
     }
   }
 
-  editor() {
-    return this._editors[this.element.currentType] || this._editors['Standard'];
-  }
-
   /**
    * Get the value for the element.
    *
@@ -77,6 +65,10 @@ class EditableValue extends React.Component {
    */
   getValue() {
     return this.editor().value(this.state.editing);
+  }
+
+  editor() {
+    return this._editors[this.element.currentType] || this._editors.Standard;
   }
 
   /**
@@ -241,7 +233,7 @@ class EditableValue extends React.Component {
    * @returns {React.Component} The element component.
    */
   render() {
-    let length = (this.editor().size(this.state.editing) * 6.625) + 6.625;
+    const length = (this.editor().size(this.state.editing) * 6.625) + 6.625;
     return (
       <span className={this.wrapperStyle()}>
         <input
