@@ -42,6 +42,7 @@ class Document extends EventEmitter {
     super();
     this.doc = doc;
     this.cloned = cloned || false;
+    this.isUpdatable = true;
     this.elements = this._generateElements();
   }
 

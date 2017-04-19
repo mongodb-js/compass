@@ -18,7 +18,8 @@ const Events = {
   'Edited': 'Element::Edited',
   'Removed': 'Element::Removed',
   'Reverted': 'Element::Reverted',
-  'Converted': 'Element::Converted'
+  'Converted': 'Element::Converted',
+  'Invalid': 'Element::Invalid'
 };
 
 /**
@@ -35,7 +36,8 @@ const UNEDITABLE_TYPES = [
   'Code',
   'MinKey',
   'MaxKey',
-  'Timestamp'
+  'Timestamp',
+  'BSONRegExp'
 ];
 
 /**
@@ -109,6 +111,7 @@ class Element extends EventEmitter {
     this.removed = false;
     this.type = TypeChecker.type(value);
     this.currentType = this.type;
+    this.setValid();
 
     if (this._isExpandable(value)) {
       this.elements = this._generateElements(value);
@@ -131,6 +134,7 @@ class Element extends EventEmitter {
     } else {
       this.currentValue = value;
     }
+    this.setValid();
     this._bubbleUp(Events.Edited);
   }
 
@@ -227,6 +231,38 @@ class Element extends EventEmitter {
    */
   isBlank() {
     return this.currentKey === '' && this.currentValue === '';
+  }
+
+  /**
+   * Does the element have a valid value for the current type?
+   *
+   * @returns {Boolean} If the value is valid.
+   */
+  isCurrentTypeValid() {
+    return this.currentTypeValid;
+  }
+
+  /**
+   * Set the element as valid.
+   */
+  setValid() {
+    this.currentTypeValid = true;
+    this.invalidTypeMessage = undefined;
+  }
+
+  /**
+   * Set the element as invalid.
+   *
+   * @param {Object} value - The value.
+   * @param {String} newType - The new type.
+   * @param {String} message - The error message.
+   */
+  setInvalid(value, newType, message) {
+    this.currentValue = value;
+    this.currentType = newType;
+    this.currentTypeValid = false;
+    this.invalidTypeMessage = message;
+    this._bubbleUp(Events.Invalid, this.uuid);
   }
 
   /**
@@ -375,6 +411,7 @@ class Element extends EventEmitter {
       this.currentType = this.type;
       this.removed = false;
     }
+    this.setValid();
     this._bubbleUp(Events.Reverted);
   }
 
@@ -383,14 +420,14 @@ class Element extends EventEmitter {
    *
    * @param {Event} evt - The event.
    */
-  _bubbleUp(evt) {
-    this.emit(evt);
+  _bubbleUp(evt, data) {
+    this.emit(evt, data);
     var element = this.parent;
     if (element) {
       if (element.isRoot()) {
-        element.emit(evt);
+        element.emit(evt, data);
       } else {
-        element._bubbleUp(evt);
+        element._bubbleUp(evt, data);
       }
     }
   }
