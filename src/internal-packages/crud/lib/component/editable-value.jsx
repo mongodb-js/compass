@@ -59,14 +59,10 @@ class EditableValue extends React.Component {
   }
 
   /**
-   * Get the value for the element.
+   * Get the editor for the current type.
    *
-   * @returns {String} The value.
+   * @returns {Editor} The editor.
    */
-  getValue() {
-    return this.editor().value(this.state.editing);
-  }
-
   editor() {
     return this._editors[this.element.currentType] || this._editors.Standard;
   }
@@ -246,7 +242,7 @@ class EditableValue extends React.Component {
           onChange={this.handleChange.bind(this)}
           onKeyDown={this.handleKeyDown.bind(this)}
           onPaste={this.handlePaste.bind(this)}
-          value={this.getValue()} />
+          value={this.editor().value(this.state.editing)} />
       </span>
     );
   }
