@@ -14,6 +14,7 @@ class FieldGroup extends React.Component {
           fieldsCache={this.props.fieldsCache}
           fieldPath={fieldPath}
           nestedFields={nestedFields}
+          disabled={this.props.disabled}
         />
       );
     });
@@ -36,7 +37,8 @@ class FieldGroup extends React.Component {
 FieldGroup.propTypes = {
   fieldPath: React.PropTypes.string,
   fieldsCache: React.PropTypes.object,
-  nestedFields: React.PropTypes.array
+  nestedFields: React.PropTypes.array,
+  disabled: React.PropTypes.bool
 };
 
 FieldGroup.defaultProps = {
@@ -50,6 +52,7 @@ FieldGroup.displayName = 'FieldGroup';
 class FieldPanelItem extends React.Component {
 
   renderFields() {
+    const isArray = this.props.disabled || this.props.fieldsCache[this.props.fieldPath].type === 'Array';
     const view =
       this.props.nestedFields ?
         (<FieldGroup
@@ -57,10 +60,14 @@ class FieldPanelItem extends React.Component {
           fieldsCache={this.props.fieldsCache}
           fieldPath={this.props.fieldPath}
           nestedFields={this.props.nestedFields}
+          disabled={isArray}
         />)
         :
-        (<DraggableField key={this.props.fieldPath} fieldPath={this.props.fieldPath}
+        (<DraggableField
+          key={this.props.fieldPath}
+          fieldPath={this.props.fieldPath}
           fieldName={this.props.fieldsCache[this.props.fieldPath].name}
+          disabled={isArray}
         />);
 
     return view;
@@ -78,7 +85,8 @@ class FieldPanelItem extends React.Component {
 FieldPanelItem.propTypes = {
   fieldPath: React.PropTypes.string,
   fieldsCache: React.PropTypes.object,
-  nestedFields: React.PropTypes.array
+  nestedFields: React.PropTypes.array,
+  disabled: React.PropTypes.bool
 };
 
 FieldPanelItem.defaultProps = {
