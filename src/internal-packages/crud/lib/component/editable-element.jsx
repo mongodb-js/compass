@@ -102,12 +102,14 @@ class EditableElement extends React.Component {
     this.unsubscribeEdited = this.handleChange.bind(this);
     this.unsubscribeRemoved = this.handleChange.bind(this);
     this.unsubscribeReverted = this.handleChange.bind(this);
+    this.unsubscribeInvalid = this.handleChange.bind(this);
 
     this.element.on(Element.Events.Added, this.unsubscribeAdded);
     this.element.on(Element.Events.Converted, this.unsubscribeConverted);
     this.element.on(Element.Events.Edited, this.unsubscribeEdited);
     this.element.on(Element.Events.Removed, this.unsubscribeRemoved);
     this.element.on(Element.Events.Reverted, this.unsubscribeReverted);
+    this.element.on(Element.Events.Invalid, this.unsubscribeInvalid);
   }
 
   /**
@@ -139,6 +141,7 @@ class EditableElement extends React.Component {
     this.element.removeListener(Element.Events.Edited, this.unsubscribeEdited);
     this.element.removeListener(Element.Events.Removed, this.unsubscribeRemoved);
     this.element.removeListener(Element.Events.Reverted, this.unsubscribeReverted);
+    this.element.removeListener(Element.Events.Invalid, this.unsubscribeInvalid);
   }
 
   /**

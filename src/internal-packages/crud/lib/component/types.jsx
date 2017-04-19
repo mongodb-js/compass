@@ -2,6 +2,7 @@ const _ = require('lodash');
 const app = require('hadron-app');
 const React = require('react');
 const TypeChecker = require('hadron-type-checker');
+const { DateEditor } = require('./editor');
 
 require('bootstrap/js/dropdown');
 
@@ -72,7 +73,18 @@ class Types extends React.Component {
       this.element.edit('[');
       this.element.next();
     } else {
-      this.element.edit(TypeChecker.cast(this.castableValue(), newType));
+      try {
+        if (newType === 'Date') {
+          const editor = new DateEditor(this.element);
+          editor.edit(this.castableValue());
+          editor.complete();
+        } else {
+          const value = TypeChecker.cast(this.castableValue(), newType);
+          this.element.edit(value);
+        }
+      } catch (e) {
+        this.element.setInvalid(this.element.currentValue, newType, e.message);
+      }
     }
   }
 
@@ -121,25 +133,12 @@ class Types extends React.Component {
   }
 
   /**
-   * Render the type list label.
-   *
-   * @returns {Component} The react component.
-   */
-  renderLabel() {
-    return (
-      <div className="editable-element-types">
-        <span className="editable-element-types-label">{this.element.currentType}</span>
-      </div>
-    );
-  }
-
-  /**
    * Render the types
    *
    * @returns {Component} The react component.
    */
   renderTypes() {
-    return _.map(TypeChecker.castableTypes(this.castableValue(), this.isHighPrecision()), (type) => {
+    return _.map(TypeChecker.castableTypes(this.isHighPrecision()), (type) => {
       return (
         <li key={type}>
           <span onClick={this.handleTypeChange.bind(this)}>{type}</span>
@@ -154,7 +153,7 @@ class Types extends React.Component {
    * @returns {React.Component} The element component.
    */
   render() {
-    return this.isTypeChangeable() ? this.renderDropdown() : this.renderLabel();
+    return this.renderDropdown();
   }
 }
 

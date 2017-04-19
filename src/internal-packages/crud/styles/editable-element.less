@@ -1,6 +1,9 @@
 .editable-element {
   width: 100%;
-  display: block;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
 
   &-field {
     display: inline-block;
@@ -209,9 +212,10 @@
 
   &-types {
     display: inline-block;
-    width: 100px;
+    width: 120px;
     color: @gray3;
     height: 17px;
+    flex-shrink: 0;
 
     .type-label {
       padding: 1px 12px;
@@ -239,6 +243,8 @@
     }
 
     .dropdown-menu {
+      min-width: 120px;
+
       li {
         span {
           display: block;

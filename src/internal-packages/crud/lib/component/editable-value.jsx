@@ -2,8 +2,8 @@ const _ = require('lodash');
 const moment = require('moment');
 const app = require('hadron-app');
 const React = require('react');
-const inputSize = require('./utils').inputSize;
 const TypeChecker = require('hadron-type-checker');
+const initEditors = require('./editor/');
 
 /* eslint no-return-assign:0 */
 
@@ -33,6 +33,11 @@ const HP_VERSION = '3.4.0';
 const FORMAT = 'YYYY-MM-DD HH:mm:ss.SSS';
 
 /**
+ * Invalid type class.
+ */
+const INVALID = `${VALUE_CLASS}-is-invalid-type`;
+
+/**
  * General editable value component.
  */
 class EditableValue extends React.Component {
@@ -48,6 +53,7 @@ class EditableValue extends React.Component {
     this.state = { editing: false };
     this._pasting = false;
     this._version = app.instance.build.version;
+    this._editors = initEditors(this.element);
   }
 
   /**
@@ -60,17 +66,17 @@ class EditableValue extends React.Component {
     }
   }
 
+  editor() {
+    return this._editors[this.element.currentType] || this._editors['Standard'];
+  }
+
   /**
    * Get the value for the element.
    *
    * @returns {String} The value.
    */
   getValue() {
-    const value = this.element.currentValue;
-    if (this.element.currentType === 'Date') {
-      return moment(value).format(FORMAT);
-    }
-    return value;
+    return this.editor().value(this.state.editing);
   }
 
   /**
@@ -169,23 +175,7 @@ class EditableValue extends React.Component {
     if (this._pasting) {
       this._pasteEdit(value);
     } else {
-      this._typeEdit(value);
-    }
-  }
-
-  /**
-   * Edit as if typing.
-   *
-   * @param {String} value - The value.
-   */
-  _typeEdit(value) {
-    this._node.size = inputSize(value);
-    const currentType = this.element.currentType;
-    const castableTypes = TypeChecker.castableTypes(value, this.isHighPrecision());
-    if (_.includes(castableTypes, currentType)) {
-      this.element.edit(TypeChecker.cast(value, currentType));
-    } else {
-      this.element.edit(TypeChecker.cast(value, castableTypes[0]));
+      this.editor().edit(value);
     }
   }
 
@@ -198,7 +188,7 @@ class EditableValue extends React.Component {
     try {
       this.element.bulkEdit(value);
     } catch (e) {
-      this._typeEdit(value);
+      this.editor().edit(value);
     } finally {
       this._pasting = false;
     }
@@ -208,13 +198,15 @@ class EditableValue extends React.Component {
    * Handle focus on the value.
    */
   handleFocus() {
+    this.editor().start();
     this.setState({ editing: true });
   }
 
   /**
-   * Handle blur from the value.
+   * Handle blur from the value. Calls complete on the editor and sets the state.
    */
   handleBlur() {
+    this.editor().complete();
     this.setState({ editing: false });
   }
 
@@ -224,7 +216,10 @@ class EditableValue extends React.Component {
    * @returns {String} The value style.
    */
   style() {
-    const typeClass = `${VALUE_CLASS}-is-${this.element.currentType.toLowerCase()}`;
+    let typeClass = `${VALUE_CLASS}-is-${this.element.currentType.toLowerCase()}`;
+    if (!this.element.isCurrentTypeValid()) {
+      typeClass = `${typeClass} ${INVALID}`;
+    }
     if (this.state.editing) {
       return `${VALUE_CLASS} ${VALUE_CLASS}-${EDITING} ${typeClass}`;
     }
@@ -237,7 +232,7 @@ class EditableValue extends React.Component {
    * @returns {String} The class name.
    */
   wrapperStyle() {
-    return `${VALUE_CLASS}-wrapper-is-${this.element.currentType.toLowerCase()}`;
+    return `${VALUE_CLASS}-wrapper ${VALUE_CLASS}-wrapper-is-${this.element.currentType.toLowerCase()}`;
   }
 
   /**
@@ -251,7 +246,7 @@ class EditableValue extends React.Component {
         <input
           ref={(c) => this._node = c}
           type="text"
-          size={inputSize(this.element.currentValue, this.element.currentType)}
+          style={{ width: `${(this.editor().size(this.state.editing) * 6.625) + 6.625}px` }}
           className={this.style()}
           onBlur={this.handleBlur.bind(this)}
           onFocus={this.handleFocus.bind(this)}

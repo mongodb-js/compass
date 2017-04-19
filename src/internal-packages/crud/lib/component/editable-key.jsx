@@ -1,5 +1,5 @@
 const React = require('react');
-const inputSize = require('./utils').inputSize;
+const chars = require('./utils');
 
 /* eslint no-return-assign:0 */
 
@@ -105,7 +105,7 @@ class EditableKey extends React.Component {
    */
   handleChange(evt) {
     const value = evt.target.value;
-    this._node.size = inputSize(value);
+    this._node.size = chars(value);
     if (this.isEditable()) {
       if (this.element.isDuplicateKey(value)) {
         this.setState({ duplicate: true });
@@ -203,12 +203,13 @@ class EditableKey extends React.Component {
    * @returns {React.Component} The element component.
    */
   render() {
+    const length = (chars(this.renderValue()) * 6.625) + 6.625;
     return (
       <input
-        type="text"
         className={this.style()}
         ref={(c) => this._node = c}
-        size={inputSize(this.renderValue())}
+        type="text"
+        style={{ width: `${length}px` }}
         tabIndex={this.isEditable() ? 0 : -1}
         onBlur={this.handleBlur.bind(this)}
         onFocus={this.handleFocus.bind(this)}
