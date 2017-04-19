@@ -203,7 +203,7 @@ class EditableKey extends React.Component {
    * @returns {React.Component} The element component.
    */
   render() {
-    const length = (chars(this.renderValue()) * 6.625) + 6.625;
+    let length = (chars(this.renderValue()) * 6.625) + 6.625;
     return (
       <input
         className={this.style()}

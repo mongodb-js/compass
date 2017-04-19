@@ -65,6 +65,12 @@
 
     &-is-string {
       color: steelblue;
+      &::before {
+        content: "\"";
+      }
+      &::after {
+        content: "\"";
+      }
     }
   }
 }

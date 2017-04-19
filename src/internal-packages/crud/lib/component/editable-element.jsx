@@ -73,6 +73,11 @@ const SEPARATOR = 'element-separator';
 const FIELD_CLASS = 'editable-element-field';
 
 /**
+ * Wrapper class.
+ */
+const WRAPPER = 'editable-element-value-wrapper';
+
+/**
  * General editable element component.
  */
 class EditableElement extends React.Component {
@@ -367,7 +372,7 @@ class EditableElement extends React.Component {
       { type: this.element.currentType, value: this.element.currentValue }
     );
 
-    return <span onDoubleClick={this.focusEditValue.bind(this)}>{reactComponent}</span>;
+    return <span className={WRAPPER} onDoubleClick={this.focusEditValue.bind(this)}>{reactComponent}</span>;
   }
 
   /**

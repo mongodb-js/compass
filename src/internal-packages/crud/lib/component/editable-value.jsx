@@ -241,12 +241,13 @@ class EditableValue extends React.Component {
    * @returns {React.Component} The element component.
    */
   render() {
+    let length = (this.editor().size(this.state.editing) * 6.625) + 6.625;
     return (
       <span className={this.wrapperStyle()}>
         <input
           ref={(c) => this._node = c}
           type="text"
-          style={{ width: `${(this.editor().size(this.state.editing) * 6.625) + 6.625}px` }}
+          style={{ width: `${length}px` }}
           className={this.style()}
           onBlur={this.handleBlur.bind(this)}
           onFocus={this.handleFocus.bind(this)}
