@@ -209,7 +209,6 @@ class DocumentFooter extends React.Component {
    * @returns {Component} The footer component.
    */
   render() {
-    console.log(this.hasErrors());
     return (
       <div className={this.style()}>
         <div
