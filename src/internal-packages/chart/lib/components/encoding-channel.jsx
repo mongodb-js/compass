@@ -16,9 +16,9 @@ const encodingChannelTarget = {
     const item = monitor.getItem();
     const encodedChannel = props.encodedChannel;
     if (item.channelName !== undefined) {
-      if (encodedChannel && encodedChannel.fieldPath !== undefined) {
+      if (encodedChannel && encodedChannel.field !== undefined) {
         // Put target into source encoding channel so it looks like a "swap"
-        props.actions.mapFieldToChannel(encodedChannel.fieldPath, item.channelName);
+        props.actions.mapFieldToChannel(encodedChannel.field, item.channelName);
       } else {
         // Un-encode the source channel
         props.actions.mapFieldToChannel(null, item.channelName);
@@ -65,7 +65,7 @@ class EncodingChannel extends React.Component {
     return (
       <DraggableField
         fieldName={this.props.encodedChannel.fieldName}
-        fieldPath={this.props.encodedChannel.fieldPath}
+        fieldPath={this.props.encodedChannel.field}
         channelName={this.props.channelName}
         type={this.props.encodedChannel.type}
         aggregate={this.props.encodedChannel.aggregate}

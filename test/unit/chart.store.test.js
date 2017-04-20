@@ -306,8 +306,8 @@ describe('ChartStore', function() {
     it('stores a mark property encoding channel relationship', function(done) {
       const expected = {
         'x': {
+          field: COUNTRY_SCHEMA_FIELD.path,
           fieldName: COUNTRY_SCHEMA_FIELD.name,
-          fieldPath: COUNTRY_SCHEMA_FIELD.path,
           type: MEASUREMENT_ENUM.NOMINAL
         }
       };
@@ -320,8 +320,8 @@ describe('ChartStore', function() {
     it('stores a detail encoding channel relationship', function(done) {
       const expected = {
         'detail': {
+          field: COUNTRY_SCHEMA_FIELD.path,
           fieldName: COUNTRY_SCHEMA_FIELD.name,
-          fieldPath: COUNTRY_SCHEMA_FIELD.path,
           type: MEASUREMENT_ENUM.NOMINAL
         }
       };
@@ -334,8 +334,8 @@ describe('ChartStore', function() {
     it('allows un-encoding a detail encoding channel relationship', function(done) {
       const expectEncoded = {
         'detail': {
+          field: COUNTRY_SCHEMA_FIELD.path,
           fieldName: COUNTRY_SCHEMA_FIELD.name,
-          fieldPath: COUNTRY_SCHEMA_FIELD.path,
           type: MEASUREMENT_ENUM.NOMINAL
         }
       };
@@ -481,8 +481,8 @@ describe('ChartStore', function() {
       // Expect 3 keys set
       const expected = {
         'x': {
+          field: COUNTRY_SCHEMA_FIELD.path,
           fieldName: COUNTRY_SCHEMA_FIELD.name,
-          fieldPath: COUNTRY_SCHEMA_FIELD.path,
           type: 'nominal'
         },
         'y': {type: 'quantitative'},
@@ -583,8 +583,8 @@ describe('ChartStore', function() {
       expect(ChartStore.state.specValid).to.be.false;
       ChartStore._updateSpec({
         channels: {
-          x: {fieldPath: 'address.country', type: 'nominal'},
-          y: {fieldPath: 'revenue', type: 'quantitative'}
+          x: {field: 'address.country', type: 'nominal'},
+          y: {field: 'revenue', type: 'quantitative'}
         }
       });
       expect(ChartStore.state.specValid).to.be.true;
