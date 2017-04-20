@@ -11,15 +11,6 @@ const BUTTON = 'button';
 class TextButton extends React.Component {
 
   /**
-   * By default should not need to to re-render itself.
-   *
-   * @returns {Boolean} Always false.
-   */
-  shouldComponentUpdate() {
-    return false;
-  }
-
-  /**
    * Render the button.
    *
    * @returns {Component} The button component.
