@@ -147,7 +147,7 @@ class LineNumber extends React.Component {
    * @returns {Boolean} If the element is an array.
    */
   isElementArray() {
-    return this.props.element.isValueEditable() && this.props.element.currentType === 'Array';
+    return this.props.element.currentType === 'Array';
   }
 
   /**
@@ -176,7 +176,7 @@ class LineNumber extends React.Component {
    * @returns {React.Component} The component.
    */
   renderArrayItem() {
-    if (this.isElementArray()) {
+    if (this.isElementArray() && this.props.element.isValueEditable()) {
       return this.renderMenuItem(
         ADD_CHILD_ICON,
         ARRAY_TEXT,
@@ -257,7 +257,7 @@ class LineNumber extends React.Component {
    * @returns {React.Component} The component.
    */
   renderObjectItem() {
-    if (this.props.element.isValueEditable() && this.isElementObject()) {
+    if (this.isElementObject() && this.props.element.isValueEditable()) {
       return this.renderMenuItem(
         ADD_CHILD_ICON,
         OBJECT_TEXT,
