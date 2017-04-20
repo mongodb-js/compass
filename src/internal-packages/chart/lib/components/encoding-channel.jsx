@@ -50,6 +50,10 @@ class EncodingChannel extends React.Component {
     this.props.actions.selectMeasurement(channel, measurement);
   }
 
+  onRemove(channelName){
+    this.props.actions.mapFieldToChannel(null, channelName);
+  }
+
   renderField() {
     if (_.isEmpty(this.props.encodedChannel)) {
       // render a placeholder string
@@ -66,6 +70,7 @@ class EncodingChannel extends React.Component {
         enableMenus
         selectAggregate={this.onSelectAggregate.bind(this)}
         selectMeasurement={this.onSelectMeasurement.bind(this)}
+        onRemove={this.onRemove.bind(this)}
       />
     );
   }
