@@ -30,8 +30,6 @@ const HP_VERSION = '3.4.0';
  */
 const INVALID = `${VALUE_CLASS}-is-invalid-type`;
 
-const TOOLTIP = `${VALUE_CLASS}-tooltip-wrapper`;
-
 /**
  * General editable value component.
  */
@@ -239,7 +237,7 @@ class EditableValue extends React.Component {
           id={this.element.uuid}
           className="editable-element-value-tooltip"
           border
-          getContent={() => { return this.element.invalidTypeMessage }}/>
+          getContent={() => { return this.element.invalidTypeMessage; }}/>
         <input
           data-tip=""
           data-for={this.element.uuid}
