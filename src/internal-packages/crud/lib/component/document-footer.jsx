@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const React = require('react');
-const Element = require('hadron-document').Element;
+const { Element } = require('hadron-document');
 const { TextButton } = require('hadron-react-buttons');
 
 /**

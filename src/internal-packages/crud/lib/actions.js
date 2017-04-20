@@ -10,7 +10,9 @@ const Actions = Reflux.createActions([
   'fileDropped',
   'refreshDocuments',
   'closeAllMenus',
-  'fetchNextDocuments'
+  'fetchNextDocuments',
+  'elementInvalid',
+  'elementValid'
 ]);
 
 document.ondragover = document.ondrop = (ev) => {
