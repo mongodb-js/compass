@@ -12,7 +12,11 @@ const DraggableField = require('./draggable-field');
  * @type {Object}
  */
 const encodingChannelTarget = {
-  drop: function(props, monitor) {
+  canDrop() {
+    // All drop targets are currently valid
+    return true;
+  },
+  drop(props, monitor) {
     const item = monitor.getItem();
     const encodedChannel = props.encodedChannel;
     if (item.channelName !== undefined) {
@@ -32,7 +36,8 @@ const encodingChannelTarget = {
 function collect(connect, monitor) {
   return {
     connectDropTarget: connect.dropTarget(),
-    isOver: monitor.isOver()
+    isOver: monitor.isOver(),
+    canDrop: monitor.canDrop()
   };
 }
 
@@ -84,9 +89,12 @@ class EncodingChannel extends React.Component {
     const chartChannelId = `chart-panel-channel-${this.props.channelName}`;
 
     const connectDropTarget = this.props.connectDropTarget;
-    const droppableClass = this.props.isOver ?
-      'chart-encoding-channel-droppable chart-encoding-channel-droppable-over'
-      : 'chart-encoding-channel-droppable';
+    let droppableClass = 'chart-encoding-channel-droppable';
+    if (this.props.isOver) {
+      droppableClass += ' chart-encoding-channel-droppable-over';
+    } else if (this.props.canDrop) {
+      droppableClass += ' chart-encoding-channel-droppable-can-drop';
+    }
     return connectDropTarget(
       <div className="chart-encoding-channel">
         <label className={labelClassNames} htmlFor={chartChannelId}>
@@ -106,7 +114,8 @@ EncodingChannel.propTypes = {
   optional: React.PropTypes.string,
   actions: React.PropTypes.object,
   connectDropTarget: React.PropTypes.func,
-  isOver: React.PropTypes.bool.isRequired
+  isOver: React.PropTypes.bool.isRequired,
+  canDrop: React.PropTypes.bool.isRequired
 };
 
 EncodingChannel.defaultProps = {
