@@ -305,7 +305,11 @@ describe('ChartStore', function() {
   context('when calling the mapFieldToChannel action', function() {
     it('stores a mark property encoding channel relationship', function(done) {
       const expected = {
-        'x': {fieldPath: COUNTRY_SCHEMA_FIELD.path, type: MEASUREMENT_ENUM.NOMINAL}
+        'x': {
+          fieldName: COUNTRY_SCHEMA_FIELD.name,
+          fieldPath: COUNTRY_SCHEMA_FIELD.path,
+          type: MEASUREMENT_ENUM.NOMINAL
+        }
       };
       ChartActions.mapFieldToChannel(COUNTRY_SCHEMA_FIELD.path, CHART_CHANNEL_ENUM.X);
       setTimeout(() => {
@@ -315,7 +319,11 @@ describe('ChartStore', function() {
     });
     it('stores a detail encoding channel relationship', function(done) {
       const expected = {
-        'detail': {fieldPath: COUNTRY_SCHEMA_FIELD.path, type: MEASUREMENT_ENUM.NOMINAL}
+        'detail': {
+          fieldName: COUNTRY_SCHEMA_FIELD.name,
+          fieldPath: COUNTRY_SCHEMA_FIELD.path,
+          type: MEASUREMENT_ENUM.NOMINAL
+        }
       };
       ChartActions.mapFieldToChannel(COUNTRY_SCHEMA_FIELD.path, CHART_CHANNEL_ENUM.DETAIL);
       setTimeout(() => {
@@ -449,7 +457,11 @@ describe('ChartStore', function() {
     it('encodes every action in channels state', function(done) {
       // Expect 3 keys set
       const expected = {
-        'x': {fieldPath: COUNTRY_SCHEMA_FIELD.path, type: 'nominal'},
+        'x': {
+          fieldName: COUNTRY_SCHEMA_FIELD.name,
+          fieldPath: COUNTRY_SCHEMA_FIELD.path,
+          type: 'nominal'
+        },
         'y': {type: 'quantitative'},
         'size': {aggregate: 'count'}
       };

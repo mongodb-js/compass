@@ -49,6 +49,7 @@ class EncodingChannel extends React.Component {
     // else render a DraggableField instance with menus enabled
     return (
       <DraggableField
+        fieldName={this.props.encodedChannel.fieldName}
         fieldPath={this.props.encodedChannel.fieldPath}
         type={this.props.encodedChannel.type}
         aggregate={this.props.encodedChannel.aggregate}
