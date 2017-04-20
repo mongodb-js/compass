@@ -1,4 +1,3 @@
-const chars = require('../utils');
 const StandardEditor = require('./standard');
 
 /**

@@ -81,7 +81,6 @@ class Types extends React.Component {
         } else {
           const value = TypeChecker.cast(this.castableValue(), newType);
           this.element.edit(value);
-          console.log(this.element.currentType);
         }
       } catch (e) {
         this.element.setInvalid(this.element.currentValue, newType, e.message);

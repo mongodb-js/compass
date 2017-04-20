@@ -1,5 +1,6 @@
 const app = require('hadron-app');
 const React = require('react');
+const { Tooltip } = require('hadron-react-components');
 const initEditors = require('./editor/');
 
 /* eslint no-return-assign:0 */
@@ -223,6 +224,14 @@ class EditableValue extends React.Component {
     return `${VALUE_CLASS}-wrapper ${VALUE_CLASS}-wrapper-is-${this.element.currentType.toLowerCase()}`;
   }
 
+  renderTooltip() {
+    if (!this.element.isCurrentTypeValid()) {
+      return (
+        <Tooltip id={this.element.uuid} className="editable-element-value-tooltip" />
+      );
+    }
+  }
+
   /**
    * Render a single editable value.
    *
@@ -232,7 +241,10 @@ class EditableValue extends React.Component {
     const length = (this.editor().size(this.state.editing) * 6.625) + 6.625;
     return (
       <span className={this.wrapperStyle()}>
+        {this.renderTooltip()}
         <input
+          data-tip={this.element.invalidTypeMessage}
+          data-for={this.element.uuid}
           ref={(c) => this._node = c}
           type="text"
           style={{ width: `${length}px` }}
