@@ -363,7 +363,7 @@ const ChartStore = Reflux.createStore({
     }
     const channels = _.cloneDeep(this.state.channels);
     const prop = channels[channel] || {};
-    prop.field = fieldPath;
+    prop.fieldPath = fieldPath;
     prop.type = this._inferMeasurementFromField(this.state.fieldsCache[fieldPath]);
     channels[channel] = prop;
     this._updateSpec({channels: channels}, pushToHistory);
