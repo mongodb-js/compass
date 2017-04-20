@@ -14,6 +14,12 @@ const DraggableField = require('./draggable-field');
 const encodingChannelTarget = {
   drop: function(props, monitor) {
     const item = monitor.getItem();
+    const encodedChannel = props.encodedChannel;
+    if (encodedChannel && encodedChannel.fieldPath !== undefined) {
+      // "Swap" the encoding channel
+      props.actions.mapFieldToChannel(encodedChannel.fieldPath, item.channelName);
+    }
+    // Always encode the first channel and swapped channel
     props.actions.mapFieldToChannel(item.fieldPath, props.channelName);
   }
 };
@@ -51,6 +57,7 @@ class EncodingChannel extends React.Component {
       <DraggableField
         fieldName={this.props.encodedChannel.fieldName}
         fieldPath={this.props.encodedChannel.fieldPath}
+        channelName={this.props.channelName}
         type={this.props.encodedChannel.type}
         aggregate={this.props.encodedChannel.aggregate}
         enableMenus
