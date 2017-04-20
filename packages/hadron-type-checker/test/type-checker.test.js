@@ -188,6 +188,12 @@ describe('TypeChecker', function() {
           expect(TypeChecker.cast(2.45, 'String')).to.equal('2.45');
         });
       });
+
+      context('when casting to an object id', function() {
+        it('returns a new ObjectId()', function() {
+          expect(TypeChecker.cast(2.45, 'ObjectID')).to.be.an.instanceof(bson.ObjectId);
+        });
+      });
     });
 
     context('when the object is a double', function() {
@@ -374,6 +380,36 @@ describe('TypeChecker', function() {
           expect(TypeChecker.cast({}, 'String')).to.equal('');
         });
       });
+
+      context('when casting to an array', function() {
+        it('returns an empty array', function() {
+          expect(TypeChecker.cast({ test: 'value' }, 'Array')).to.deep.equal([]);
+        });
+      });
+
+      context('when casting to a binary', function() {
+        it('returns an empty binary', function() {
+          expect(TypeChecker.cast({ test: 'value' }, 'Binary')._bsontype).to.equal('Binary');
+        });
+      });
+
+      context('when casting to a boolean', function() {
+        it('returns true', function() {
+          expect(TypeChecker.cast({ test: 'value' }, 'Boolean')).to.equal(true);
+        });
+      });
+
+      context('when casting to a code', function() {
+        it('returns an empty code', function() {
+          expect(TypeChecker.cast({ test: 'value' }, 'Code').code).to.equal('[object Object]');
+        });
+      });
+
+      context('when casting to a date', function() {
+        it('returns the invalid date', function() {
+          expect(TypeChecker.cast({ test: 'value' }, 'Date').toString()).to.equal('Invalid Date');
+        });
+      });
     });
 
     context('when the object is an Array', function() {
@@ -552,10 +588,8 @@ describe('TypeChecker', function() {
           'Binary',
           'Boolean',
           'Code',
-          'CodeWithScope',
           'Date',
           'Decimal128',
-          'Document',
           'Double',
           'Int32',
           'Int64',
@@ -564,7 +598,7 @@ describe('TypeChecker', function() {
           'Null',
           'Object',
           'ObjectID',
-          'Regex',
+          'BSONRegexp',
           'String',
           'Symbol',
           'Timestamp',
@@ -580,9 +614,7 @@ describe('TypeChecker', function() {
           'Binary',
           'Boolean',
           'Code',
-          'CodeWithScope',
           'Date',
-          'Document',
           'Double',
           'Int32',
           'Int64',
@@ -591,7 +623,7 @@ describe('TypeChecker', function() {
           'Null',
           'Object',
           'ObjectID',
-          'Regex',
+          'BSONRegexp',
           'String',
           'Symbol',
           'Timestamp',

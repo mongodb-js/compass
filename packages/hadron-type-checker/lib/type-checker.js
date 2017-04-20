@@ -17,6 +17,11 @@ const Long = bson.Long;
 const Double = bson.Double;
 const Int32 = bson.Int32;
 const Decimal128 = bson.Decimal128;
+const Binary = bson.Binary;
+const BSONRegExp = bson.BSONRegExp;
+const Code = bson.Code;
+const Symbol = bson.Symbol;
+const Timestamp = bson.Timestamp;
 
 /**
  * The object string.
@@ -64,6 +69,9 @@ const BSON_INT32_MAX = 0x7FFFFFFF;
  * The min int 32 value.
  */
 const BSON_INT32_MIN = -0x80000000;
+
+const BSON_INT64_MAX = Math.pow(2, 63) - 1;
+const BSON_INT64_MIN = -(BSON_INT64_MAX);
 
 /**
  * The number regex.
@@ -131,15 +139,24 @@ const toArray = (object) => {
 };
 
 const toInt32 = (object) => {
-  return new Int32(toNumber(object));
+  const number = toNumber(object);
+  if (number >= BSON_INT32_MIN && number <= BSON_INT32_MAX) {
+    return new Int32(number);
+  }
+  throw new Error(`Value ${number} is outside the valid Int32 range`);
 };
 
 const toInt64 = (object) => {
-  return Long.fromNumber(toNumber(object));
+  const number = toNumber(object);
+  if (number >= BSON_INT64_MIN && number <= BSON_INT64_MAX) {
+    return Long.fromNumber(number);
+  }
+  throw new Error(`Value ${number} is outside the valid Int64 range`);
 };
 
 const toDouble = (object) => {
-  return new Double(toNumber(object));
+  const number = toNumber(object);
+  return new Double(number);
 };
 
 const toDecimal128 = (object) => {
@@ -153,38 +170,31 @@ const toDecimal128 = (object) => {
 };
 
 const toObjectID = (object) => {
-  if (object === '') {
+  if (!isString(object) || object === '') {
     return new bson.ObjectID();
   }
   return bson.ObjectID.createFromHexString(object);
 };
 
-const toBinary = () => {
-
+const toBinary = (object) => {
+  return new Binary(String(object), Binary.SUBTYPE_DEFAULT);
 };
 
-const toDocument = () => {
-
+const toRegex = (object) => {
+  return new BSONRegExp(String(object));
 };
 
-const toRegex = () => {
-
+const toCode = (object) => {
+  return new Code(String(object), {});
 };
 
-const toCode = () => {
-
+const toSymbol = (object) => {
+  return new Symbol(String(object));
 };
 
-const toCodeWithScope = () => {
-
-};
-
-const toSymbol = () => {
-
-};
-
-const toTimestamp = () => {
-
+const toTimestamp = (object) => {
+  const number = toNumber(object);
+  return Timestamp.fromNumber(number);
 };
 
 /**
@@ -195,10 +205,8 @@ const CASTERS = {
   'Binary': toBinary,
   'Boolean': toBoolean,
   'Code': toCode,
-  'CodeWithScope': toCodeWithScope,
   'Date': toDate,
   'Decimal128': toDecimal128,
-  'Document': toDocument,
   'Double': toDouble,
   'Int32': toInt32,
   'Int64': toInt64,
@@ -207,7 +215,7 @@ const CASTERS = {
   'Null': toNull,
   'Object': toObject,
   'ObjectID': toObjectID,
-  'Regex': toRegex,
+  'BSONRegexp': toRegex,
   'String': toString,
   'Symbol': toSymbol,
   'Timestamp': toTimestamp,
