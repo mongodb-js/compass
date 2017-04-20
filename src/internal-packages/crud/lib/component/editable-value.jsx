@@ -30,6 +30,8 @@ const HP_VERSION = '3.4.0';
  */
 const INVALID = `${VALUE_CLASS}-is-invalid-type`;
 
+const TOOLTIP = `${VALUE_CLASS}-tooltip-wrapper`;
+
 /**
  * General editable value component.
  */
@@ -224,14 +226,6 @@ class EditableValue extends React.Component {
     return `${VALUE_CLASS}-wrapper ${VALUE_CLASS}-wrapper-is-${this.element.currentType.toLowerCase()}`;
   }
 
-  renderTooltip() {
-    if (!this.element.isCurrentTypeValid()) {
-      return (
-        <Tooltip id={this.element.uuid} className="editable-element-value-tooltip" />
-      );
-    }
-  }
-
   /**
    * Render a single editable value.
    *
@@ -241,9 +235,13 @@ class EditableValue extends React.Component {
     const length = (this.editor().size(this.state.editing) * 6.625) + 6.625;
     return (
       <span className={this.wrapperStyle()}>
-        {this.renderTooltip()}
+        <Tooltip
+          id={this.element.uuid}
+          className="editable-element-value-tooltip"
+          border
+          getContent={() => { return this.element.invalidTypeMessage }}/>
         <input
-          data-tip={this.element.invalidTypeMessage}
+          data-tip=""
           data-for={this.element.uuid}
           ref={(c) => this._node = c}
           type="text"

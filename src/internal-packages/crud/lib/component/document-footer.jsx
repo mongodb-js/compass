@@ -28,7 +28,10 @@ const EDITING = 'Editing';
  */
 const VIEWING = 'Viewing';
 
-const INVALID_MESSAGE = 'Document has errors';
+/**
+ * The invalid message.
+ */
+const INVALID_MESSAGE = 'Update not permitted while document contains errors.';
 
 /**
  * Map of modes to styles.
@@ -147,8 +150,7 @@ class DocumentFooter extends React.Component {
    */
   handleModification() {
     const isModified = this.doc.isModified();
-    const hasErrors = this.invalidElements.length > 0;
-    if (hasErrors) {
+    if (this.hasErrors()) {
       this.setState({ mode: ERROR, message: INVALID_MESSAGE });
     } else {
       this.setState({
@@ -188,6 +190,10 @@ class DocumentFooter extends React.Component {
     }
   }
 
+  hasErrors() {
+    return this.invalidElements.length > 0;
+  }
+
   /**
    * Get the style of the footer based on the current mode.
    *
@@ -195,6 +201,18 @@ class DocumentFooter extends React.Component {
    */
   style() {
     return `document-footer document-footer-${MODES[this.state.mode]}`;
+  }
+
+  renderUpdateButton() {
+    if (!this.hasErrors()) {
+      return (
+        <TextButton
+          className="btn btn-default btn-xs"
+          text="Update"
+          dataTestId="update-document-button"
+          clickHandler={this.handleUpdate.bind(this)} />
+      );
+    }
   }
 
   /**
@@ -216,11 +234,7 @@ class DocumentFooter extends React.Component {
             className="btn btn-borderless btn-xs cancel"
             text="Cancel"
             clickHandler={this.handleCancel.bind(this)} />
-          <TextButton
-            className="btn btn-default btn-xs"
-            text="Update"
-            dataTestId="update-document-button"
-            clickHandler={this.handleUpdate.bind(this)} />
+          {this.renderUpdateButton()}
         </div>
       </div>
     );
