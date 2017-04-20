@@ -331,6 +331,29 @@ describe('ChartStore', function() {
         done();
       });
     });
+    it('allows un-encoding a detail encoding channel relationship', function(done) {
+      const expectEncoded = {
+        'detail': {
+          fieldName: COUNTRY_SCHEMA_FIELD.name,
+          fieldPath: COUNTRY_SCHEMA_FIELD.path,
+          type: MEASUREMENT_ENUM.NOMINAL
+        }
+      };
+      const expectUnencoded = {};
+      ChartActions.mapFieldToChannel(COUNTRY_SCHEMA_FIELD.path, CHART_CHANNEL_ENUM.DETAIL);
+      setTimeout(() => {
+        // Check that we encoded a channel first
+        expect(this.store.state.channels).to.be.deep.equal(expectEncoded);
+
+        // A `null` fieldPath should trigger a delete / un-encode
+        // of the detail channel
+        ChartActions.mapFieldToChannel(null, CHART_CHANNEL_ENUM.DETAIL);
+        setTimeout(() => {
+          expect(this.store.state.channels).to.be.deep.equal(expectUnencoded);
+          done();
+        });
+      });
+    });
     it('throws error on receiving an unknown encoding channel', function() {
       const throwFn = () => {
         // ChartStore might not work on Reflux 5+, if so change it to ChartActions
