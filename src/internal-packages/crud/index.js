@@ -10,12 +10,12 @@ const {
   DateEditor,
   StringEditor,
   Int32Editor,
-  DoubleEditor
+  DoubleEditor,
+  NullEditor,
+  UndefinedEditor,
+  ObjectIDEditor
 } = require('./lib/component/editor');
 
-/**
- * The collection tab role for the document list component.
- */
 const COLLECTION_TAB_ROLE = {
   component: DocumentList,
   name: 'DOCUMENTS',
@@ -48,6 +48,18 @@ const INT32_EDITOR_ROLE = {
   component: Int32Editor
 };
 
+const NULL_EDITOR_ROLE = {
+  component: NullEditor
+};
+
+const UNDEFINED_EDITOR_ROLE = {
+  component: UndefinedEditor
+};
+
+const OBJECT_ID_EDITOR_ROLE = {
+  component: ObjectIDEditor
+};
+
 /**
  * Activate all the components in the CRUD package.
  */
@@ -59,6 +71,9 @@ function activate() {
   app.appRegistry.registerRole('CRUD.Editor.Double', DOUBLE_EDITOR_ROLE);
   app.appRegistry.registerRole('CRUD.Editor.String', STRING_EDITOR_ROLE);
   app.appRegistry.registerRole('CRUD.Editor.Int32', INT32_EDITOR_ROLE);
+  app.appRegistry.registerRole('CRUD.Editor.Null', NULL_EDITOR_ROLE);
+  app.appRegistry.registerRole('CRUD.Editor.Undefined', UNDEFINED_EDITOR_ROLE);
+  app.appRegistry.registerRole('CRUD.Editor.ObjectID', OBJECT_ID_EDITOR_ROLE);
   app.appRegistry.registerAction('CRUD.Actions', Actions);
   app.appRegistry.registerStore('CRUD.InsertDocumentStore', InsertDocumentStore);
   app.appRegistry.registerStore('CRUD.ResetDocumentListStore', ResetDocumentListStore);
@@ -76,6 +91,9 @@ function deactivate() {
   app.appRegistry.deregisterRole('CRUD.Editor.Double', DOUBLE_EDITOR_ROLE);
   app.appRegistry.deregisterRole('CRUD.Editor.String', STRING_EDITOR_ROLE);
   app.appRegistry.deregisterRole('CRUD.Editor.Int32', INT32_EDITOR_ROLE);
+  app.appRegistry.deregisterRole('CRUD.Editor.Null', NULL_EDITOR_ROLE);
+  app.appRegistry.deregisterRole('CRUD.Editor.Undefined', UNDEFINED_EDITOR_ROLE);
+  app.appRegistry.deregisterRole('CRUD.Editor.ObjectID', OBJECT_ID_EDITOR_ROLE);
   app.appRegistry.deregisterAction('CRUD.Actions');
   app.appRegistry.deregisterStore('CRUD.InsertDocumentStore');
   app.appRegistry.deregisterStore('CRUD.ResetDocumentListStore');

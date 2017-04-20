@@ -72,5 +72,15 @@
         content: "\"";
       }
     }
+
+    &-is-objectid {
+      color: orangered;
+      &::before {
+        content: "ObjectID('";
+      }
+      &::after {
+        content: "')";
+      }
+    }
   }
 }
