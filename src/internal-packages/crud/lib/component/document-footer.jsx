@@ -203,24 +203,13 @@ class DocumentFooter extends React.Component {
     return `document-footer document-footer-${MODES[this.state.mode]}`;
   }
 
-  renderUpdateButton() {
-    if (!this.hasErrors()) {
-      return (
-        <TextButton
-          className="btn btn-default btn-xs"
-          text="Update"
-          dataTestId="update-document-button"
-          clickHandler={this.handleUpdate.bind(this)} />
-      );
-    }
-  }
-
   /**
    * Render the footer.
    *
    * @returns {Component} The footer component.
    */
   render() {
+    console.log(this.hasErrors());
     return (
       <div className={this.style()}>
         <div
@@ -234,7 +223,12 @@ class DocumentFooter extends React.Component {
             className="btn btn-borderless btn-xs cancel"
             text="Cancel"
             clickHandler={this.handleCancel.bind(this)} />
-          {this.renderUpdateButton()}
+          <TextButton
+            className="btn btn-default btn-xs"
+            text="Update"
+            disabled={this.hasErrors()}
+            dataTestId="update-document-button"
+            clickHandler={this.handleUpdate.bind(this)} />
         </div>
       </div>
     );

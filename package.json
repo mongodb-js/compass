@@ -165,7 +165,7 @@
     "hadron-module-cache": "^0.0.3",
     "hadron-package-manager": "^1.0.0",
     "hadron-react-bson": "^0.3.0",
-    "hadron-react-buttons": "^0.2.0",
+    "hadron-react-buttons": "^0.11.1",
     "hadron-react-components": "^0.10.0",
     "hadron-reflux-store": "^0.0.2",
     "hadron-style-manager": "^0.1.0",
