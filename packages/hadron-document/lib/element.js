@@ -19,7 +19,8 @@ const Events = {
   'Removed': 'Element::Removed',
   'Reverted': 'Element::Reverted',
   'Converted': 'Element::Converted',
-  'Invalid': 'Element::Invalid'
+  'Invalid': 'Element::Invalid',
+  'Valid': 'Element::Valid'
 };
 
 /**
@@ -31,13 +32,14 @@ const ID = '_id';
  * Types that are not editable.
  */
 const UNEDITABLE_TYPES = [
-  'ObjectID',
   'Binary',
   'Code',
   'MinKey',
   'MaxKey',
   'Timestamp',
-  'BSONRegExp'
+  'BSONRegExp',
+  'Undefined',
+  'Null'
 ];
 
 /**
@@ -115,6 +117,7 @@ class Element extends EventEmitter {
 
     if (this._isExpandable(value)) {
       this.elements = this._generateElements(value);
+      this.originalExpandableValue = value;
     } else {
       this.value = value;
       this.currentValue = value;
@@ -131,6 +134,9 @@ class Element extends EventEmitter {
     if (this._isExpandable(value) && !this._isExpandable(this.currentValue)) {
       this.currentValue = null;
       this.elements = this._generateElements(value);
+    } else if (!this._isExpandable(value) && this.elements) {
+      this.currentValue = value;
+      this.elements = undefined;
     } else {
       this.currentValue = value;
     }
@@ -248,6 +254,7 @@ class Element extends EventEmitter {
   setValid() {
     this.currentTypeValid = true;
     this.invalidTypeMessage = undefined;
+    this._bubbleUp(Events.Valid, this.uuid);
   }
 
   /**
@@ -401,13 +408,18 @@ class Element extends EventEmitter {
       this.parent.emit(Events.Removed);
       this.parent = null;
     } else {
-      if (this.currentValue === null && this.value !== null) {
-        this.elements = null;
+      if (this.originalExpandableValue) {
+        this.elements = this._generateElements(this.originalExpandableValue);
+        this.currentValue = undefined;
       } else {
-        this._removeAddedElements();
+        if (this.currentValue === null && this.value !== null) {
+          this.elements = null;
+        } else {
+          this._removeAddedElements();
+        }
+        this.currentValue = this.value;
       }
       this.currentKey = this.key;
-      this.currentValue = this.value;
       this.currentType = this.type;
       this.removed = false;
     }

@@ -459,8 +459,8 @@ describe('Element', function() {
       context('when the type is ObjectId', function() {
         var element = new Element('name', new ObjectId(), false);
 
-        it('returns false', function() {
-          expect(element.isValueEditable()).to.equal(false);
+        it('returns true', function() {
+          expect(element.isValueEditable()).to.equal(true);
         });
       });
 
@@ -691,7 +691,94 @@ describe('Element', function() {
     });
   });
 
+  describe('#setInvalid', function() {
+    var element = new Element('val', 1, false);
+
+    before(function() {
+      element.setInvalid('testing', 'Date', 'invalid');
+    });
+
+    it('sets the current value', function() {
+      expect(element.currentValue).to.equal('testing');
+    });
+
+    it('sets the current type', function() {
+      expect(element.currentType).to.equal('Date');
+    });
+
+    it('sets the current type to invalid', function() {
+      expect(element.isCurrentTypeValid()).to.equal(false);
+    });
+
+    it('sets the invalid type message', function() {
+      expect(element.invalidTypeMessage).to.equal('invalid');
+    });
+
+    context('when subsequently settting to valid', function() {
+      before(function() {
+        element.setValid();
+      });
+
+      it('sets the type as valid', function() {
+        expect(element.isCurrentTypeValid()).to.equal(true);
+      });
+
+      it('removes the invalid message', function() {
+        expect(element.invalidTypeMessage).to.equal(undefined);
+      });
+    });
+  });
+
   describe('#edit', function() {
+    context('when the element is a document', function() {
+      var element = new Element('val', { test: 'value' }, false);
+
+      context('when the element is changed to a non-expandable', function() {
+        before(function() {
+          element.edit('testing');
+        });
+
+        it('changes the current value', function() {
+          expect(element.currentValue).to.equal('testing');
+        });
+
+        it('changes the current type', function() {
+          expect(element.currentType).to.equal('String');
+        });
+
+        it('removes the elements', function() {
+          expect(element.elements).to.equal(undefined);
+        });
+
+        it('sets the element as edited', function() {
+          expect(element.isEdited()).to.equal(true);
+        });
+
+        context('when the element is subsequently reverted', function() {
+          before(function() {
+            element.revert();
+          });
+
+          it('returns the elements from the original value', function() {
+            expect(element.elements.at(0).currentKey).to.equal('test');
+            expect(element.elements.at(0).currentValue).to.equal('value');
+          });
+
+          it('returns the original value', function() {
+            expect(element.generateObject()).to.deep.equal({ test: 'value' });
+          });
+
+          it('sets the current type', function() {
+            expect(element.currentType).to.equal('Object');
+          });
+
+          it('sets edited to false', function() {
+            expect(element.isEdited()).to.equal(false);
+          });
+        });
+      });
+    });
+
     context('when the element is not a document', function() {
       context('when the value is changed', function() {
         context('when the value is changed to another primitive', function() {
