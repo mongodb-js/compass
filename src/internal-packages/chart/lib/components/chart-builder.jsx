@@ -3,8 +3,8 @@ const app = require('hadron-app');
 const HTML5Backend = require('react-dnd-html5-backend');
 const { DragDropContext } = require('react-dnd');
 const ReactTooltip = require('react-tooltip');
-const { TextButton, IconTextButton } = require('hadron-react-buttons');
-const { StatusRow} = require('hadron-react-components');
+const { TextButton } = require('hadron-react-buttons');
+const { StatusRow } = require('hadron-react-components');
 const FieldPanel = require('./field-panel');
 const ChartPanel = require('./chart-panel');
 const Chart = require('./chart');
@@ -64,6 +64,7 @@ class ChartBuilder extends React.Component {
    * @return {React.Component} <StatusRow /> banner with warning.
    */
   renderWarning() {
+    // use plain buttons until IconTextButton passes all props, e.g. `disabled`
     return (
       <StatusRow>
         <TextButton
@@ -71,18 +72,22 @@ class ChartBuilder extends React.Component {
           className="btn btn-default btn-xs chart-builder-reset-button"
           clickHandler={this.props.actions.clearChart}
         />
-        <IconTextButton
-          text="Undo"
+        <button
+          type="button"
           className="btn btn-default btn-xs chart-builder-undo-button"
-          iconClassName="fa fa-fw fa-undo"
-          clickHandler={this.props.actions.undoAction}
-        />
-        <IconTextButton
-          text="Redo"
+          disabled={!this.props.hasUndoableActions}
+          onClick={this.props.actions.undoAction}
+        >
+          <i className="fa fa-fw fa-undo" aria-hidden /> Undo
+        </button>
+        <button
+          type="button"
           className="btn btn-default btn-xs chart-builder-redo-button"
-          iconClassName="fa fa-fw fa-repeat"
-          clickHandler={this.props.actions.redoAction}
-        />
+          disabled={!this.props.hasRedoableActions}
+          onClick={this.props.actions.redoAction}
+        >
+          <i className="fa fa-fw fa-repeat" aria-hidden /> Redo
+        </button>
       </StatusRow>
     );
   }
@@ -162,7 +167,9 @@ ChartBuilder.propTypes = {
   chartType: React.PropTypes.string,
   specValid: React.PropTypes.bool,
   channels: React.PropTypes.object,
-  actions: React.PropTypes.object
+  actions: React.PropTypes.object,
+  hasUndoableActions: React.PropTypes.boolean,
+  hasRedoableActions: React.PropTypes.boolean
 };
 
 ChartBuilder.defaultProps = {

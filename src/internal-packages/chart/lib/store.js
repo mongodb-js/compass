@@ -16,7 +16,6 @@ const _ = require('lodash');
 
 const debug = require('debug')('mongodb-compass:chart:store');
 
-const HISTORY_SIZE = 100;
 const HISTORY_STATE_FIELDS = ['specType', 'chartType', 'channels'];
 
 const READ = ReadPreference.PRIMARY_PREFERRED;
@@ -97,7 +96,11 @@ const ChartStore = Reflux.createStore({
   getInitialState() {
     const caches = this.getInitialCacheState();
     const chart = this.getInitialChartState();
-    return Object.assign({}, caches, chart);
+    const history = {
+      hasUndoableActions: false,
+      hasRedoableActions: false
+    };
+    return Object.assign({}, caches, chart, history);
   },
 
   /**
@@ -111,6 +114,18 @@ const ChartStore = Reflux.createStore({
     const initialHistoryState = _.pick(this.getInitialChartState(), HISTORY_STATE_FIELDS);
     initialHistoryState.id = this.history_counter;
     this.history = [ initialHistoryState ];
+
+    this.setState({
+      hasUndoableActions: false,
+      hasRedoableActions: false
+    });
+  },
+
+  _getUndoRedoState() {
+    return {
+      hasUndoableActions: this.history_position > 0,
+      hasRedoableActions: this.history_position < this.history.length - 1
+    };
   },
 
   _pushToHistory(state) {
@@ -165,8 +180,8 @@ const ChartStore = Reflux.createStore({
     if (pushToHistory) {
       this._pushToHistory( _.clone(_.pick(newState, HISTORY_STATE_FIELDS), true) );
     }
-    debug('chart history is now', this.history, _.pluck(this.history, 'id'), 'position', this.history_position);
-    this.setState(newState);
+    const undoRedoState = this._getUndoRedoState();
+    this.setState(_.assign(newState, undoRedoState));
   },
 
   /**
@@ -250,19 +265,6 @@ const ChartStore = Reflux.createStore({
   },
 
   /**
-   * Redo of the last (undone) action, restoring the vega spec to the next state.
-   * Only affects actions that modify the spec.
-   */
-  redoAction() {
-    if (this.history_position < this.history.length - 1) {
-      this.history_position = this.history_position + 1;
-      // update spec but do not push to history
-      const state = _.omit(this.history[this.history_position], 'id');
-      this._updateSpec(state, false);
-    }
-  },
-
-  /**
    * Undo of the last action, restoring the vega spec to the previous state.
    * Only affects actions that modify the spec.
    */
@@ -276,14 +278,33 @@ const ChartStore = Reflux.createStore({
   },
 
   /**
+   * Redo of the last (undone) action, restoring the vega spec to the next state.
+   * Only affects actions that modify the spec.
+   */
+  redoAction() {
+    if (this.history_position < this.history.length - 1) {
+      this.history_position = this.history_position + 1;
+      // update spec but do not push to history
+      const state = _.omit(this.history[this.history_position], 'id');
+      this._updateSpec(state, false);
+    }
+  },
+
+  /**
    * Clears the chart, so it is set back to its default initial state but
    * retaining some things such as any data, namespace or query caches. Also
-   * pushes the new state into the history and moves the position marker forward.
+   * pushes the new state into the history.
+   *
+   * @param {Object} pushToHistory  whether or not the new state should become
+   *                                part of the undo/redo-able history
    */
-  clearChart() {
-    this.setState(this.getInitialChartState());
-    this.history.push(_.pick(this.getInitialChartState(), HISTORY_STATE_FIELDS));
-    this.history_position = this.history_position + 1;
+  clearChart(pushToHistory = true) {
+    if (pushToHistory) {
+      this._pushToHistory( _.pick(this.getInitialChartState(), HISTORY_STATE_FIELDS) );
+    }
+    const state = this.getInitialChartState();
+    const undoRedoState = this._getUndoRedoState();
+    this.setState(_.assign(state, undoRedoState));
   },
 
   /**
@@ -318,22 +339,24 @@ const ChartStore = Reflux.createStore({
    * @see [1] https://github.com/mongodb-js/mongodb-schema
    * @see [2] https://vega.github.io/vega-lite/docs/encoding.html#props-channels
    *
-   * @param {String} fieldPath - The field path of the Schema field [1].
-   * @param {String} channel - The Vega-lite encoding channel [2].
+   * @param {String} fieldPath      The field path of the Schema field [1].
+   * @param {String} channel        The Vega-lite encoding channel [2].
+   * @param {Object} pushToHistory  whether or not the new state should become
+   *                                part of the undo/redo-able history
    */
-  mapFieldToChannel(fieldPath, channel) {
+  mapFieldToChannel(fieldPath, channel, pushToHistory = true) {
     if (!_.includes(_.values(CHART_CHANNEL_ENUM), channel)) {
       throw new Error('Unknown encoding channel: ' + channel);
     }
     if (!_.has(this.state.fieldsCache, fieldPath)) {
       throw new Error('Unknown field: ' + fieldPath);
     }
-    const channels = this.state.channels;
+    const channels = _.clone(this.state.channels, true);
     const prop = channels[channel] || {};
     prop.field = fieldPath;
     prop.type = this._inferMeasurementFromField(this.state.fieldsCache[fieldPath]);
     channels[channel] = prop;
-    this._updateSpec({channels: channels}, true);
+    this._updateSpec({channels: channels}, pushToHistory);
   },
 
   /**
@@ -341,21 +364,23 @@ const ChartStore = Reflux.createStore({
    *
    * @see https://vega.github.io/vega-lite/docs/encoding.html#data-type
    *
-   * @param {String} channel - The Vega-lite encoding channel
-   * @param {String} measurement - The Vega-Lite data type measurement
+   * @param {String} channel        The Vega-lite encoding channel
+   * @param {String} measurement    The Vega-Lite data type measurement
+   * @param {Object} pushToHistory  whether or not the new state should become
+   *                                part of the undo/redo-able history
    */
-  selectMeasurement(channel, measurement) {
+  selectMeasurement(channel, measurement, pushToHistory = true) {
     if (!(_.includes(_.values(CHART_CHANNEL_ENUM), channel))) {
       throw new Error('Unknown encoding channel: ' + channel);
     }
     if (!(_.includes(_.values(MEASUREMENT_ENUM), measurement))) {
       throw new Error('Unknown encoding measurement: ' + measurement);
     }
-    const channels = this.state.channels;
+    const channels = _.clone(this.state.channels, true);
     const prop = channels[channel] || {};
     prop.type = measurement;
     channels[channel] = prop;
-    this._updateSpec({channels: channels}, true);
+    this._updateSpec({channels: channels}, pushToHistory);
   },
 
   /**
@@ -363,36 +388,40 @@ const ChartStore = Reflux.createStore({
    *
    * @see https://vega.github.io/vega-lite/docs/aggregate.html
    *
-   * @param {String} channel - The Vega-lite encoding channel
-   * @param {String} aggregate - The aggregate function to apply
+   * @param {String} channel        The Vega-lite encoding channel
+   * @param {String} aggregate      The aggregate function to apply
+   * @param {Object} pushToHistory  whether or not the new state should become
+   *                                part of the undo/redo-able history
    */
-  selectAggregate(channel, aggregate) {
+  selectAggregate(channel, aggregate, pushToHistory = true) {
     if (!(_.includes(_.values(CHART_CHANNEL_ENUM), channel))) {
       throw new Error('Unknown encoding channel: ' + channel);
     }
     if (!(_.includes(_.values(AGGREGATE_FUNCTION_ENUM), aggregate))) {
       throw new Error('Unknown encoding aggregate: ' + aggregate);
     }
-    const channels = this.state.channels;
+    const channels = _.clone(this.state.channels, true);
     const prop = channels[channel] || {};
     prop.aggregate = aggregate;
     if (aggregate === AGGREGATE_FUNCTION_ENUM.NONE) {
       delete prop.aggregate;
     }
     channels[channel] = prop;
-    this._updateSpec({channels: channels}, true);
+    this._updateSpec({channels: channels}, pushToHistory);
   },
 
   /**
    * Changes the type of chart the user has selected for display.
    *
-   * @param {String} chartType - The kind of chart, e.g. 'bar' or 'line'.
+   * @param {String} chartType      The kind of chart, e.g. 'bar' or 'line'.
+   * @param {Object} pushToHistory  whether or not the new state should become
+   *                                part of the undo/redo-able history
    */
-  selectChartType(chartType) {
+  selectChartType(chartType, pushToHistory = true) {
     if (!(_.includes(_.values(CHART_TYPE_ENUM), chartType))) {
       throw new Error('Unknown chart type: ' + chartType);
     }
-    this._updateSpec({chartType: chartType}, true);
+    this._updateSpec({chartType: chartType}, pushToHistory);
   },
 
   storeDidUpdate(prevState) {
