@@ -175,7 +175,7 @@ class EditableValue extends React.Component {
    */
   _pasteEdit(value) {
     try {
-      this.element.bulkEdit(value);
+      this.editor().paste(value);
     } catch (e) {
       this.editor().edit(value);
     } finally {

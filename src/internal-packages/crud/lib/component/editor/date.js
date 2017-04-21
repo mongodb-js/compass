@@ -2,6 +2,7 @@ const moment = require('moment');
 const TypeChecker = require('hadron-type-checker');
 const { Element } = require('hadron-document');
 const chars = require('../utils');
+const StandardEditor = require('./standard');
 
 /**
  * The date format.
@@ -11,7 +12,7 @@ const FORMAT = 'YYYY-MM-DD HH:mm:ss.SSS';
 /**
  * CRUD editor for date values.
  */
-class DateEditor {
+class DateEditor extends StandardEditor {
 
   /**
    * Create the editor with the element.
@@ -19,7 +20,7 @@ class DateEditor {
    * @param {Element} element - The hadron document element.
    */
   constructor(element) {
-    this.element = element;
+    super(element);
   }
 
   /**

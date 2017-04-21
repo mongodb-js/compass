@@ -1,5 +1,11 @@
 const TypeChecker = require('hadron-type-checker');
+const { Element } = require('hadron-document');
 const chars = require('../utils');
+
+/**
+ * Regex to match an array or object string.
+ */
+const ARRAY_OR_OBJECT = /^(\[|\{)(.+)(\]|\})$/;
 
 /**
  * CRUD editor for standard values.
@@ -29,6 +35,21 @@ class StandardEditor {
       this.element.setInvalid(value, currentType, e.message);
     }
   }
+
+  /**
+   * Edit the element via a paste.
+   *
+   * @param {String} value - The balue.
+   */
+  paste(value) {
+    if (value.match(ARRAY_OR_OBJECT)) {
+      this.edit(JSON.parse(value));
+      this.element._bubbleUp(Element.Events.Converted);
+    } else {
+      this.edit(value);
+    }
+  }
+
 
   /**
    * Get the number of characters the value should display.
