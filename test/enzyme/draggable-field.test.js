@@ -48,7 +48,10 @@ describe('<DraggableField />', () => {
           type="temporal"
           fieldName={name}
           connectDragSource={identity}
-          enableMenus />
+          enableMenus
+          // onRemove is required only if enableMenus is set
+          onRemove={identity}
+        />
       );
     });
 
