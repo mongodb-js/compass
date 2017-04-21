@@ -3,7 +3,6 @@ const chai = require('chai');
 const chaiEnzyme = require('chai-enzyme');
 const expect = chai.expect;
 const React = require('react');
-const Button = require('react-bootstrap').Button;
 const Dropdown = require('react-bootstrap').Dropdown;
 
 const shallow = require('enzyme').shallow;
@@ -15,7 +14,6 @@ chai.use(chaiEnzyme());
 
 describe('<DraggableField />', () => {
   let component;
-
 
   describe('when menus are not enabled', () => {
     const name = 'address';
