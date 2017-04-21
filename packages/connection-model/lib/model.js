@@ -55,6 +55,12 @@ _.assign(props, {
   app_name: {
     type: 'string',
     default: undefined
+  },
+  extra_options: {
+    type: 'object',
+    default: function() {
+      return {};
+    }
   }
 });
 
@@ -191,8 +197,7 @@ var AUTHENTICATION_TO_FIELD_NAMES = {
  *   console.log(c.driver_url)
  *   >>> mongodb://arlo:w%40of@localhost:27017?slaveOk=true&authSource=admin
  *   console.log(c.driver_options)
- *   >>> { uri_decode_auth: true,
- *     db: { readPreference: 'nearest' },
+ *   >>> { db: { readPreference: 'nearest' },
  *     replSet: { connectWithNoPrimary: true } }
  */
 _.assign(props, {
@@ -240,8 +245,7 @@ var MONGODB_NAMESPACE_DEFAULT = 'test';
  *   console.log(c.driver_url)
  *   >>> mongodb://arlo%252Fdog%2540krb5.mongodb.parts:w%40%40f@localhost:27017/kerberos?slaveOk=true&gssapiServiceName=mongodb&authMechanism=GSSAPI
  *   console.log(c.driver_options)
- *   >>> { uri_decode_auth: true,
- *     db: { readPreference: 'nearest' },
+ *   >>> { db: { readPreference: 'nearest' },
  *     replSet: { connectWithNoPrimary: true } }
  *
  * @enterprise
@@ -302,8 +306,7 @@ var KERBEROS_SERVICE_NAME_DEFAULT = 'mongodb';
  *   console.log(c.driver_url)
  *   >>> mongodb://arlo:w%40of@localhost:27017/ldap?slaveOk=true&authMechanism=PLAIN
  *   console.log(c.driver_options)
- *   >>> { uri_decode_auth: true,
- *     db: { readPreference: 'nearest' },
+ *   >>> { db: { readPreference: 'nearest' },
  *     replSet: { connectWithNoPrimary: true } }
  *
  * @enterprise
@@ -343,8 +346,7 @@ _.assign(props, {
  *   console.log(c.driver_url)
  *   >>> mongodb://CN%253Dclient%252COU%253Darlo%252CO%253DMongoDB%252CL%253DPhiladelphia%252CST%253DPennsylvania%252CC%253DUS@localhost:27017?slaveOk=true&authMechanism=MONGODB-X509
  *   console.log(c.driver_options)
- *   >>> { uri_decode_auth: true,
- *    db: { readPreference: 'nearest' },
+ *   >>> { db: { readPreference: 'nearest' },
  *    replSet: { connectWithNoPrimary: true } }
  *
  * @see http://bit.ly/mongodb-node-driver-x509
@@ -530,7 +532,6 @@ _.assign(props, {
  * `MongoClient.connect(model.driver_url, model.driver_options)`.
  */
 var DRIVER_OPTIONS_DEFAULT = {
-  uri_decode_auth: true,
   db: {
     // important!  or slaveOk=true set above no worky!
     readPreference: 'secondaryPreferred'
@@ -640,7 +641,8 @@ _.assign(derived, {
       'ssl_certificate',
       'ssl_private_key',
       'ssl_private_key_password',
-      'prmote_values'
+      'extra_options',
+      'promote_values'
     ],
     fn: function() {
       var opts = _.clone(DRIVER_OPTIONS_DEFAULT, true);
@@ -687,6 +689,9 @@ _.assign(derived, {
         });
       }
       opts.db.promoteValues = this.promote_values;
+
+      // assign and overwrite all extra options provided by user
+      _.assign(opts, this.extra_options);
       return opts;
     }
   },

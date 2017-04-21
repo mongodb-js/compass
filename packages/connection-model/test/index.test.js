@@ -480,6 +480,30 @@ describe('mongodb-connection-model', function() {
     });
   });
 
+  describe('extra_options', function() {
+    describe('When not specifying any extra_options', function() {
+      var conn = new Connection();
+
+      it('should use default driver_options', function() {
+        assert.ok(!_.has(conn.driver_options, 'connectTimeoutMS'));
+        assert.ok(!_.has(conn.driver_options, 'socketTimeoutMS'));
+      });
+    });
+    describe('When specifying custom extra_options', function() {
+      var conn = new Connection({
+        extra_options: {
+          socketTimeoutMS: 1000
+        }
+      });
+
+      it('should include the extra_options in driver_options', function() {
+        var options = _.clone(Connection.DRIVER_OPTIONS_DEFAULT);
+        options.socketTimeoutMS = 1000;
+        assert.deepEqual(conn.driver_options, options);
+      });
+    });
+  });
+
   describe('ssl', function() {
     describe('load', function() {
       it('should load all of the files from the filesystem', function(done) {
