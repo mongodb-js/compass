@@ -19,7 +19,7 @@ const debug = require('debug')('mongodb-compass:chart:store');
 const HISTORY_STATE_FIELDS = ['specType', 'chartType', 'channels'];
 
 const READ = ReadPreference.PRIMARY_PREFERRED;
-const MAX_LIMIT = 10000;
+const MAX_LIMIT = 1000;
 const INITIAL_QUERY = {
   filter: {},
   sort: null,
