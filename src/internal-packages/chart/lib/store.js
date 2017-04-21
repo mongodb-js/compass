@@ -362,8 +362,7 @@ const ChartStore = Reflux.createStore({
     const channels = _.cloneDeep(this.state.channels);
     if (fieldPath === null) {
       delete channels[channel];
-    }
-    else if (!_.has(this.state.fieldsCache, fieldPath)) {
+    } else if (!_.has(this.state.fieldsCache, fieldPath)) {
       throw new Error('Unknown field: ' + fieldPath);
     } else {
       const prop = channels[channel] || {};

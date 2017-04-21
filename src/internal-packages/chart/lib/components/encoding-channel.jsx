@@ -57,7 +57,7 @@ class EncodingChannel extends React.Component {
     this.props.actions.selectMeasurement(channel, measurement);
   }
 
-  onRemove(channelName){
+  onRemove(channelName) {
     this.props.actions.mapFieldToChannel(null, channelName);
   }
 
