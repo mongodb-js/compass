@@ -16,8 +16,11 @@ const _ = require('lodash');
 
 const debug = require('debug')('mongodb-compass:chart:store');
 
+const HISTORY_SIZE = 100;
+const HISTORY_STATE_FIELDS = ['specType', 'chartType', 'channels'];
+
 const READ = ReadPreference.PRIMARY_PREFERRED;
-const MAX_LIMIT = 1000;
+const MAX_LIMIT = 10000;
 const INITIAL_QUERY = {
   filter: {},
   sort: null,
@@ -48,6 +51,7 @@ const ChartStore = Reflux.createStore({
   init() {
     this.listenables = Actions;
     this._resetChart();
+    this._resetHistory();
     this.listenToExternalStore('Query.ChangedStore', this.onQueryChanged.bind(this));
     this.listenToExternalStore('Schema.FieldStore', this.onFieldChanged.bind(this));
   },
@@ -97,10 +101,34 @@ const ChartStore = Reflux.createStore({
   },
 
   /**
+   * Completely resets the history and counters
+   */
+  _resetHistory() {
+    // indicates the current position of the history
+    this.history_position = 0;
+    this.history_counter = 0;
+
+    const initialHistoryState = _.pick(this.getInitialChartState(), HISTORY_STATE_FIELDS);
+    initialHistoryState.id = this.history_counter;
+    this.history = [ initialHistoryState ];
+  },
+
+  _pushToHistory(state) {
+    // truncate history at the current position before adding new state
+    this.history = this.history.slice(0, this.history_position + 1);
+    this.history_counter = this.history_counter + 1;
+    this.history_position = this.history_position + 1;
+    state.id = this.history_counter;
+    this.history.push( state );
+  },
+
+  /**
    * Completely resets the entire chart to its initial state.
    */
   _resetChart() {
     this.setState(this.getInitialState());
+    this.history = [ _.pick(this.getInitialChartState(), HISTORY_STATE_FIELDS) ];
+    this.history_position = 0;
   },
 
   /**
@@ -110,11 +138,13 @@ const ChartStore = Reflux.createStore({
    * set on the store. Also checks if the spec is valid and sets `specValid`
    * boolean.
    *
-   * @param {Object} update   changes to the store state affecting the spec
+   * @param {Object} update         changes to the store state affecting the spec
+   * @param {Object} pushToHistory  whether or not the new state should become
+   *                                part of the undo/redo-able history
    *
    * @see https://vega.github.io/vega-lite/docs/spec.html
    */
-  _updateSpec(update) {
+  _updateSpec(update, pushToHistory) {
     const newState = Object.assign({}, this.state, update);
     const spec = Object.assign({
       mark: newState.chartType,
@@ -131,6 +161,11 @@ const ChartStore = Reflux.createStore({
     if (newState.specValid) {
       debug('valid spec %j', newState.spec);
     }
+    // push new chart state to history
+    if (pushToHistory) {
+      this._pushToHistory( _.clone(_.pick(newState, HISTORY_STATE_FIELDS), true) );
+    }
+    debug('chart history is now', this.history, _.pluck(this.history, 'id'), 'position', this.history_position);
     this.setState(newState);
   },
 
@@ -215,11 +250,40 @@ const ChartStore = Reflux.createStore({
   },
 
   /**
+   * Redo of the last (undone) action, restoring the vega spec to the next state.
+   * Only affects actions that modify the spec.
+   */
+  redoAction() {
+    if (this.history_position < this.history.length - 1) {
+      this.history_position = this.history_position + 1;
+      // update spec but do not push to history
+      const state = _.omit(this.history[this.history_position], 'id');
+      this._updateSpec(state, false);
+    }
+  },
+
+  /**
+   * Undo of the last action, restoring the vega spec to the previous state.
+   * Only affects actions that modify the spec.
+   */
+  undoAction() {
+    if (this.history_position > 0) {
+      this.history_position = this.history_position - 1;
+      // update spec but do not push to history
+      const state = _.omit(this.history[this.history_position], 'id');
+      this._updateSpec(state, false);
+    }
+  },
+
+  /**
    * Clears the chart, so it is set back to its default initial state but
-   * retaining some things such as any data, namespace or query caches.
+   * retaining some things such as any data, namespace or query caches. Also
+   * pushes the new state into the history and moves the position marker forward.
    */
   clearChart() {
     this.setState(this.getInitialChartState());
+    this.history.push(_.pick(this.getInitialChartState(), HISTORY_STATE_FIELDS));
+    this.history_position = this.history_position + 1;
   },
 
   /**
@@ -269,7 +333,7 @@ const ChartStore = Reflux.createStore({
     prop.field = fieldPath;
     prop.type = this._inferMeasurementFromField(this.state.fieldsCache[fieldPath]);
     channels[channel] = prop;
-    this._updateSpec({channels: channels});
+    this._updateSpec({channels: channels}, true);
   },
 
   /**
@@ -291,7 +355,7 @@ const ChartStore = Reflux.createStore({
     const prop = channels[channel] || {};
     prop.type = measurement;
     channels[channel] = prop;
-    this._updateSpec({channels: channels});
+    this._updateSpec({channels: channels}, true);
   },
 
   /**
@@ -316,7 +380,7 @@ const ChartStore = Reflux.createStore({
       delete prop.aggregate;
     }
     channels[channel] = prop;
-    this._updateSpec({channels: channels});
+    this._updateSpec({channels: channels}, true);
   },
 
   /**
@@ -328,7 +392,7 @@ const ChartStore = Reflux.createStore({
     if (!(_.includes(_.values(CHART_TYPE_ENUM), chartType))) {
       throw new Error('Unknown chart type: ' + chartType);
     }
-    this._updateSpec({chartType: chartType});
+    this._updateSpec({chartType: chartType}, true);
   },
 
   storeDidUpdate(prevState) {

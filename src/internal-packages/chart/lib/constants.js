@@ -29,10 +29,10 @@ const AGGREGATE_FUNCTION_ENUM = Object.freeze({
  */
 const CHART_TYPE_ENUM = Object.freeze({
   // TEXT: 'text',
-  LINE: 'line',
+  POINT: 'point',
   BAR: 'bar',
-  AREA: 'area',
-  POINT: 'point'
+  LINE: 'line',
+  AREA: 'area'
   // DONUT: 'donut'
 });
 
@@ -155,7 +155,7 @@ const SPEC_TYPE_ENUM = Object.freeze({
 });
 
 const DEFAULTS = Object.freeze({
-  CHART_TYPE: CHART_TYPE_ENUM.LINE,
+  CHART_TYPE: CHART_TYPE_ENUM.POINT,
   SPEC_TYPE: SPEC_TYPE_ENUM.VEGA_LITE
 });
 

@@ -8,7 +8,9 @@ const Actions = Reflux.createActions([
   'selectMeasurement',
   'selectAggregate',
   'selectChartType',
-  'clearChart'
+  'clearChart',
+  'undoAction',
+  'redoAction'
 ]);
 
 module.exports = Actions;

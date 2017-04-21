@@ -3,7 +3,7 @@ const app = require('hadron-app');
 const HTML5Backend = require('react-dnd-html5-backend');
 const { DragDropContext } = require('react-dnd');
 const ReactTooltip = require('react-tooltip');
-const { TextButton } = require('hadron-react-buttons');
+const { TextButton, IconTextButton } = require('hadron-react-buttons');
 const { StatusRow} = require('hadron-react-components');
 const FieldPanel = require('./field-panel');
 const ChartPanel = require('./chart-panel');
@@ -70,6 +70,18 @@ class ChartBuilder extends React.Component {
           text="Reset Chart"
           className="btn btn-default btn-xs chart-builder-reset-button"
           clickHandler={this.props.actions.clearChart}
+        />
+        <IconTextButton
+          text="Undo"
+          className="btn btn-default btn-xs chart-builder-undo-button"
+          iconClassName="fa fa-fw fa-undo"
+          clickHandler={this.props.actions.undoAction}
+        />
+        <IconTextButton
+          text="Redo"
+          className="btn btn-default btn-xs chart-builder-redo-button"
+          iconClassName="fa fa-fw fa-repeat"
+          clickHandler={this.props.actions.redoAction}
         />
       </StatusRow>
     );
