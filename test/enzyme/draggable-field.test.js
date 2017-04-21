@@ -16,13 +16,14 @@ describe('<DraggableField />', () => {
   let component;
 
   describe('when menus are not enabled', () => {
-    const name = 'address';
+    const fieldName = 'address';
     beforeEach(function() {
-      const identity = function(el) { return el; };
+      const identity = el => el;
       component = shallow(
         <DraggableField
           type="temporal"
-          fieldName={name}
+          fieldName={fieldName}
+          fieldPath={fieldName}
           connectDragSource={identity}
           isDragging={false} />
       );
@@ -33,18 +34,19 @@ describe('<DraggableField />', () => {
     });
 
     it('the middle element should have the field name', () => {
-      expect(component.children().at(1).html()).to.contain(name);
+      expect(component.children().at(1).html()).to.contain(fieldName);
     });
   });
 
   describe('when menus are enabled', () => {
-    const name = 'coordinates';
+    const fieldName = 'coordinates';
     beforeEach(() => {
-      const identity = function(el) { return el; };
+      const identity = el => el;
       component = shallow(
         <DraggableField
           type="temporal"
-          fieldName={name}
+          fieldName={fieldName}
+          fieldPath={fieldName}
           connectDragSource={identity}
           enableMenus
           // onRemove is required only if enableMenus is set
@@ -58,7 +60,38 @@ describe('<DraggableField />', () => {
     });
 
     it('the middle element should have the field name', () => {
-      expect(component.children().at(1).html()).to.contain(name);
+      expect(component.children().at(1).html()).to.contain(fieldName);
+    });
+  });
+
+  describe('when menus are enabled and the fieldPath is nested', () => {
+    const fieldName = 'coordinates';
+    const fieldPath = `location.${fieldName}`;
+    beforeEach(() => {
+      const identity = el => el;
+      component = shallow(
+        <DraggableField
+          type="temporal"
+          fieldName={fieldName}
+          fieldPath={fieldPath}
+          connectDragSource={identity}
+          enableMenus
+          // onRemove is required only if enableMenus is set
+          onRemove={identity}
+        />
+      );
+    });
+
+    it('should have 2 dropdown menus', () => {
+      expect(component.find(Dropdown)).to.have.length(2);
+    });
+
+    it('the middle element should have the field name', () => {
+      expect(component.children().at(1).html()).to.contain(fieldName);
+    });
+
+    it('the field path is the title', () => {
+      expect(component.props()).to.have.property('title', fieldPath);
     });
   });
 });
