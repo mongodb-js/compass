@@ -13,7 +13,8 @@ const DraggableField = require('./draggable-field');
  */
 const encodingChannelTarget = {
   drop: function(props, monitor) {
-    props.actions.mapFieldToChannel(monitor.getItem().fieldPath, props.channelName);
+    const item = monitor.getItem();
+    props.actions.mapFieldToChannel(item.fieldPath, props.channelName);
   }
 };
 

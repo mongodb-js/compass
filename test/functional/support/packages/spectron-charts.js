@@ -26,14 +26,6 @@ function addClickChartsCommands(client) {
     const button = `${base} ${selector('reset-filter-button')}`;
     return this.waitForVisibleInCompass(button).click(button);
   });
-
-  /**
-   * Get a list of <DraggableField> item names from the Charts <FieldPanel>.
-   */
-  client.addCommand('getFieldPanelItemTitles', function() {
-    const base = selector('chart-builder-field-panel');
-    return this.getAttribute(`${base} .chart-draggable-field`, 'title');
-  });
 }
 
 
@@ -43,6 +35,14 @@ function addGetChartsCommands(client) {
    */
   client.addCommand('getChartsTabText', function() {
     return this.getText(selector('charts-tab'));
+  });
+
+  /**
+   * Get a list of <DraggableField> item names from the Charts <FieldPanel>.
+   */
+  client.addCommand('getFieldPanelItemTitles', function() {
+    const base = selector('chart-builder-field-panel');
+    return this.getAttribute(`${base} .chart-draggable-field`, 'title');
   });
 }
 

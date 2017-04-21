@@ -9,7 +9,6 @@ const { mount } = require('enzyme');
 const AppRegistry = require('hadron-app-registry');
 const { DropdownButton } = require('react-bootstrap');
 const {DragDropContext} = require('react-dnd');
-const { OptionSelector } = require('hadron-react-components');
 const {
   CHART_CHANNEL_ENUM,
   CHART_TYPE_ENUM
