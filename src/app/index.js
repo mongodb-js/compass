@@ -397,6 +397,11 @@ app.extend({
       }
       StatusAction.showIndeterminateProgressBar();
 
+      // set socket and connection timeouts to 2 minutes (from 30 sec default)
+      state.connection.extra_options = {
+        connectTimeoutMS: 120000,
+        socketTimeoutMS: 120000
+      };
       const DataService = require('mongodb-data-service');
       const dataService = new DataService(state.connection);
       global.hadronApp.appRegistry.onDataServiceInitialized(dataService);
