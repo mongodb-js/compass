@@ -532,7 +532,7 @@ class Target {
         version: debianVersion,
         bin: this.productName,
         section: debianSection,
-        suggests: [
+        depends: [
           'libsecret'
         ]
       },
