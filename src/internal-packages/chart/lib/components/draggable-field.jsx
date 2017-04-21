@@ -136,8 +136,8 @@ class DraggableField extends React.Component {
 }
 
 DraggableField.propTypes = {
-  fieldName: React.PropTypes.string,
-  fieldPath: React.PropTypes.string,
+  fieldName: React.PropTypes.string.isRequired,
+  fieldPath: React.PropTypes.string.isRequired,
   channelName: React.PropTypes.string,
   type: React.PropTypes.oneOf(_.values(MEASUREMENT_ENUM)),
   aggregate: React.PropTypes.oneOf(_.values(AGGREGATE_FUNCTION_ENUM)),
