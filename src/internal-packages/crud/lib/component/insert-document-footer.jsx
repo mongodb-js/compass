@@ -1,8 +1,14 @@
+const _ = require('lodash');
 const React = require('react');
 const InsertDocumentStore = require('../store/insert-document-store');
 const Actions = require('../actions');
 
 const INSERTING = 'Inserting Document';
+
+/**
+ * The invalid message.
+ */
+const INVALID_MESSAGE = 'Insert not permitted while document contains errors.';
 
 /**
  * Map of modes to styles.
@@ -33,16 +39,22 @@ class InsertDocumentFooter extends React.Component {
    * Subscribe to the insert document store.
    */
   componentWillMount() {
+    this.invalidElements = [];
     this.unsubscribeInsert = InsertDocumentStore.listen(this.handleDocumentInsert.bind(this));
     this.unsubscribeStart = Actions.insertDocument.listen(this.handleInsertStart.bind(this));
+    this.unsubscribeInvalid = Actions.elementInvalid.listen(this.handleInvalid.bind(this));
+    this.unsubscribeValid = Actions.elementValid.listen(this.handleValid.bind(this));
   }
 
   /**
    * Unsubscribe from the store.
    */
   componentWillUnmount() {
+    this.invalidElements = [];
     this.unsubscribeInsert();
     this.unsubscribeStart();
+    this.unsubscribeInvalid();
+    this.unsubscribeValid();
   }
 
   /**
@@ -62,6 +74,24 @@ class InsertDocumentFooter extends React.Component {
    */
   handleInsertStart() {
     this.setState({ message: INSERTING, mode: 'Progess' });
+  }
+
+  handleValid(uuid) {
+    _.pull(this.invalidElements, uuid);
+    if (!this.hasErrors()) {
+      this.handleInsertStart();
+    }
+  }
+
+  handleInvalid(uuid) {
+    if (!_.includes(this.invalidElements, uuid)) {
+      this.invalidElements.push(uuid);
+      this.setState({ message: INVALID_MESSAGE, mode: 'Error' });
+    }
+  }
+
+  hasErrors() {
+    return this.invalidElements.length > 0;
   }
 
   /**

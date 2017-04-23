@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const React = require('react');
 const Modal = require('react-bootstrap').Modal;
 const OpenInsertDocumentDialogStore = require('../store/open-insert-document-dialog-store');
@@ -5,6 +6,7 @@ const InsertDocumentStore = require('../store/insert-document-store');
 const InsertDocument = require('./insert-document');
 const InsertDocumentFooter = require('./insert-document-footer');
 const { TextButton } = require('hadron-react-buttons');
+const { Element } = require('hadron-document');
 const Actions = require('../actions');
 
 /**
@@ -26,6 +28,7 @@ class InsertDocumentDialog extends React.Component {
    * Subscribe to the open dialog store.
    */
   componentWillMount() {
+    this.invalidElements = [];
     this.unsubscribeOpen = OpenInsertDocumentDialogStore.listen(this.handleStoreOpen.bind(this));
     this.unsubscribeInsert = InsertDocumentStore.listen(this.handleDocumentInsert.bind(this));
     this.unsubscribeClose = Actions.closeInsertDocumentDialog.listen(this.closeDialog.bind(this));
@@ -44,6 +47,9 @@ class InsertDocumentDialog extends React.Component {
    * Close the dialog.
    */
   closeDialog() {
+    this.invalidElements = [];
+    this.state.doc.removeListener(Element.Events.Invalid, this.unsubscribeInvalid);
+    this.state.doc.removeListener(Element.Events.Valid, this.unsubscribeValid);
     this.setState({ open: false });
   }
 
@@ -54,13 +60,17 @@ class InsertDocumentDialog extends React.Component {
    */
   handleStoreOpen(doc) {
     this.setState({ doc: doc, open: true });
+    this.unsubscribeInvalid = this.handleInvalid.bind(this);
+    this.unsubscribeValid = this.handleValid.bind(this);
+    this.state.doc.on(Element.Events.Invalid, this.unsubscribeInvalid);
+    this.state.doc.on(Element.Events.Valid, this.unsubscribeValid);
   }
 
   /**
    * Handle canceling the insert.
    */
   handleCancel() {
-    this.setState({ open: false });
+    this.closeDialog();
   }
 
   /**
@@ -75,7 +85,7 @@ class InsertDocumentDialog extends React.Component {
    */
   handleHide() {
     if (this.state.canHide) {
-      this.setState({ open: false });
+      this.closeDialog();
     } else {
       this.setState({ canHide: true });
     }
@@ -92,11 +102,29 @@ class InsertDocumentDialog extends React.Component {
     }
   }
 
+  handleValid(uuid) {
+    _.pull(this.invalidElements, uuid);
+    this.setState({});
+    Actions.elementValid(uuid);
+  }
+
+  handleInvalid(uuid) {
+    if (!_.includes(this.invalidElements, uuid)) {
+      this.invalidElements.push(uuid);
+      this.setState({});
+      Actions.elementInvalid(uuid);
+    }
+  }
+
   /**
    * Handle the insert.
    */
   handleInsert() {
     Actions.insertDocument(this.state.doc.generateObject());
+  }
+
+  hasErrors() {
+    return this.invalidElements.length > 0;
   }
 
   /**
@@ -126,6 +154,7 @@ class InsertDocumentDialog extends React.Component {
             className="btn btn-primary btn-sm"
             dataTestId="insert-document-button"
             text="Insert"
+            disabled={this.hasErrors()}
             clickHandler={this.handleInsert.bind(this)} />
         </Modal.Footer>
       </Modal>

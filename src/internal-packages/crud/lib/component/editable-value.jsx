@@ -1,9 +1,7 @@
-const _ = require('lodash');
-const moment = require('moment');
 const app = require('hadron-app');
 const React = require('react');
-const inputSize = require('./utils').inputSize;
-const TypeChecker = require('hadron-type-checker');
+const { Tooltip } = require('hadron-react-components');
+const initEditors = require('./editor/');
 
 /* eslint no-return-assign:0 */
 
@@ -28,9 +26,9 @@ const VALUE_CLASS = 'editable-element-value';
 const HP_VERSION = '3.4.0';
 
 /**
- * The date format.
+ * Invalid type class.
  */
-const FORMAT = 'YYYY-MM-DD HH:mm:ss.SSS';
+const INVALID = `${VALUE_CLASS}-is-invalid-type`;
 
 /**
  * General editable value component.
@@ -48,6 +46,7 @@ class EditableValue extends React.Component {
     this.state = { editing: false };
     this._pasting = false;
     this._version = app.instance.build.version;
+    this._editors = initEditors(this.element);
   }
 
   /**
@@ -61,16 +60,12 @@ class EditableValue extends React.Component {
   }
 
   /**
-   * Get the value for the element.
+   * Get the editor for the current type.
    *
-   * @returns {String} The value.
+   * @returns {Editor} The editor.
    */
-  getValue() {
-    const value = this.element.currentValue;
-    if (this.element.currentType === 'Date') {
-      return moment(value).format(FORMAT);
-    }
-    return value;
+  editor() {
+    return this._editors[this.element.currentType] || this._editors.Standard;
   }
 
   /**
@@ -169,23 +164,7 @@ class EditableValue extends React.Component {
     if (this._pasting) {
       this._pasteEdit(value);
     } else {
-      this._typeEdit(value);
-    }
-  }
-
-  /**
-   * Edit as if typing.
-   *
-   * @param {String} value - The value.
-   */
-  _typeEdit(value) {
-    this._node.size = inputSize(value);
-    const currentType = this.element.currentType;
-    const castableTypes = TypeChecker.castableTypes(value, this.isHighPrecision());
-    if (_.includes(castableTypes, currentType)) {
-      this.element.edit(TypeChecker.cast(value, currentType));
-    } else {
-      this.element.edit(TypeChecker.cast(value, castableTypes[0]));
+      this.editor().edit(value);
     }
   }
 
@@ -196,9 +175,9 @@ class EditableValue extends React.Component {
    */
   _pasteEdit(value) {
     try {
-      this.element.bulkEdit(value);
+      this.editor().paste(value);
     } catch (e) {
-      this._typeEdit(value);
+      this.editor().edit(value);
     } finally {
       this._pasting = false;
     }
@@ -208,13 +187,15 @@ class EditableValue extends React.Component {
    * Handle focus on the value.
    */
   handleFocus() {
+    this.editor().start();
     this.setState({ editing: true });
   }
 
   /**
-   * Handle blur from the value.
+   * Handle blur from the value. Calls complete on the editor and sets the state.
    */
   handleBlur() {
+    this.editor().complete();
     this.setState({ editing: false });
   }
 
@@ -224,7 +205,10 @@ class EditableValue extends React.Component {
    * @returns {String} The value style.
    */
   style() {
-    const typeClass = `${VALUE_CLASS}-is-${this.element.currentType.toLowerCase()}`;
+    let typeClass = `${VALUE_CLASS}-is-${this.element.currentType.toLowerCase()}`;
+    if (!this.element.isCurrentTypeValid()) {
+      typeClass = `${typeClass} ${INVALID}`;
+    }
     if (this.state.editing) {
       return `${VALUE_CLASS} ${VALUE_CLASS}-${EDITING} ${typeClass}`;
     }
@@ -237,7 +221,7 @@ class EditableValue extends React.Component {
    * @returns {String} The class name.
    */
   wrapperStyle() {
-    return `${VALUE_CLASS}-wrapper-is-${this.element.currentType.toLowerCase()}`;
+    return `${VALUE_CLASS}-wrapper ${VALUE_CLASS}-wrapper-is-${this.element.currentType.toLowerCase()}`;
   }
 
   /**
@@ -246,19 +230,27 @@ class EditableValue extends React.Component {
    * @returns {React.Component} The element component.
    */
   render() {
+    const length = (this.editor().size(this.state.editing) * 6.625) + 6.625;
     return (
       <span className={this.wrapperStyle()}>
+        <Tooltip
+          id={this.element.uuid}
+          className="editable-element-value-tooltip"
+          border
+          getContent={() => { return this.element.invalidTypeMessage; }}/>
         <input
+          data-tip=""
+          data-for={this.element.uuid}
           ref={(c) => this._node = c}
           type="text"
-          size={inputSize(this.element.currentValue, this.element.currentType)}
+          style={{ width: `${length}px` }}
           className={this.style()}
           onBlur={this.handleBlur.bind(this)}
           onFocus={this.handleFocus.bind(this)}
           onChange={this.handleChange.bind(this)}
           onKeyDown={this.handleKeyDown.bind(this)}
           onPaste={this.handlePaste.bind(this)}
-          value={this.getValue()} />
+          value={this.editor().value(this.state.editing)} />
       </span>
     );
   }

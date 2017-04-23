@@ -86,11 +86,15 @@
   }
 
   &-header {
-
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
     cursor: pointer;
 
     &-label {
       display: inline-block;
+      flex-grow: 3;
     }
 
     &-is-editing {

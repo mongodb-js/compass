@@ -1,5 +1,6 @@
+const _ = require('lodash');
 const React = require('react');
-const Element = require('hadron-document').Element;
+const { Element } = require('hadron-document');
 const { TextButton } = require('hadron-react-buttons');
 
 /**
@@ -26,6 +27,11 @@ const EDITING = 'Editing';
  * The viewing mode.
  */
 const VIEWING = 'Viewing';
+
+/**
+ * The invalid message.
+ */
+const INVALID_MESSAGE = 'Update not permitted while document contains errors.';
 
 /**
  * Map of modes to styles.
@@ -74,6 +80,7 @@ class DocumentFooter extends React.Component {
     this.updateStore = props.updateStore;
     this.actions = props.actions;
     this.state = { mode: VIEWING, message: EMPTY };
+    this.invalidElements = [];
   }
 
   /**
@@ -86,11 +93,15 @@ class DocumentFooter extends React.Component {
     this.unsubscribeEdited = this.handleModification.bind(this);
     this.unsubscribeRemoved = this.handleModification.bind(this);
     this.unsubscribeReverted = this.handleModification.bind(this);
+    this.unsubscribeInvalid = this.handleInvalid.bind(this);
+    this.unsubscribeValid = this.handleValid.bind(this);
 
     this.doc.on(Element.Events.Added, this.unsubscribeAdded);
     this.doc.on(Element.Events.Edited, this.unsubscribeEdited);
     this.doc.on(Element.Events.Removed, this.unsubscribeRemoved);
     this.doc.on(Element.Events.Reverted, this.unsubscribeReverted);
+    this.doc.on(Element.Events.Invalid, this.unsubscribeInvalid);
+    this.doc.on(Element.Events.Valid, this.unsubscribeValid);
   }
 
   /**
@@ -102,6 +113,8 @@ class DocumentFooter extends React.Component {
     this.doc.removeListener(Element.Events.Edited, this.unsubscribeEdited);
     this.doc.removeListener(Element.Events.Removed, this.unsubscribeRemoved);
     this.doc.removeListener(Element.Events.Reverted, this.unsubscribeReverted);
+    this.doc.removeListener(Element.Events.Invalid, this.unsubscribeInvalid);
+    this.doc.removeListener(Element.Events.Valid, this.unsubscribeValid);
   }
 
   /**
@@ -121,15 +134,30 @@ class DocumentFooter extends React.Component {
     this.setState({ mode: ERROR, message: error.message });
   }
 
+  handleValid(uuid) {
+    _.pull(this.invalidElements, uuid);
+  }
+
+  handleInvalid(uuid) {
+    if (!_.includes(this.invalidElements, uuid)) {
+      this.invalidElements.push(uuid);
+      this.handleModification();
+    }
+  }
+
   /**
    * Handle modification to the document.
    */
   handleModification() {
     const isModified = this.doc.isModified();
-    this.setState({
-      mode: isModified ? EDITING : VIEWING,
-      message: isModified ? MODIFIED : EMPTY
-    });
+    if (this.hasErrors()) {
+      this.setState({ mode: ERROR, message: INVALID_MESSAGE });
+    } else {
+      this.setState({
+        mode: isModified ? EDITING : VIEWING,
+        message: isModified ? MODIFIED : EMPTY
+      });
+    }
   }
 
   /**
@@ -160,6 +188,10 @@ class DocumentFooter extends React.Component {
     } else {
       this.handleError(object);
     }
+  }
+
+  hasErrors() {
+    return this.invalidElements.length > 0;
   }
 
   /**
@@ -193,6 +225,7 @@ class DocumentFooter extends React.Component {
           <TextButton
             className="btn btn-default btn-xs"
             text="Update"
+            disabled={this.hasErrors()}
             dataTestId="update-document-button"
             clickHandler={this.handleUpdate.bind(this)} />
         </div>
