@@ -93,11 +93,13 @@ functions:
         # Create a release build
         npm run release compass-lite;
         npm run release compass-enterprise;
+        npm run release compass-charts;
         ls -alh dist || true;
 
         # Upload release assets to S3 and GitHub
         npm run upload compass-lite
         npm run upload compass-enterprise
+        npm run upload compass-charts
         EOF_BUILD_SH
 
         #
