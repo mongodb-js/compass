@@ -256,7 +256,7 @@ class EditableElement extends React.Component {
    * @returns {React.Component} The component.
    */
   renderAction() {
-    if (this.props.editing) {
+    if (this.props.editing && this.element.isValueEditable()) {
       return (<ElementAction element={this.element} />);
     }
   }
@@ -313,11 +313,11 @@ class EditableElement extends React.Component {
    * @returns {React.Component} The component.
    */
   renderKey() {
-    if (this.props.editing && this.element.currentKey !== '_id') {
+    if (this.props.editing && this.element.isKeyEditable()) {
       return (<EditableKey element={this.element} index={this.props.index}
          isFocused={this.state.focusKey} />);
     }
-    const onDoubleClick = this.element.currentKey === '_id' ? null : this.focusEditKey.bind(this);
+    const onDoubleClick = this.element.isKeyEditable() ? null : this.focusEditKey.bind(this);
     return (
       <div className={FIELD_CLASS} onDoubleClick={onDoubleClick}>
         {this.element.parent.currentType === 'Array' ? this.props.index : this.element.currentKey}
