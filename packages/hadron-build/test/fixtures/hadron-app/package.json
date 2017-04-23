@@ -30,7 +30,7 @@
         "package-prefix": "compass",
         "compass-lite": {
           "name": "compass-lite",
-          "productName": "Compass Lite",
+          "productName": "MongoDB Compass Enterprise super long test name",
           "packages": [],
           "styles": [ "index" ]
         }

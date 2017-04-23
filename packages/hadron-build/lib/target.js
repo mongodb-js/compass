@@ -346,6 +346,7 @@ class Target {
    * Apply macOS specific configuration.
    */
   configureForDarwin() {
+    this.truncatedProductName = this.productName.substring(0, 25);
     const platformSettings = _.get(this.pkg, 'config.hadron.build.darwin', {
       app_category_type: 'public.app-category.productivity',
       icon: `${this.id}.icns`
@@ -385,7 +386,7 @@ class Target {
 
     this.installerOptions = {
       dmgPath: this.dest(`${this.productName}.dmg`),
-      title: this.productName,
+      title: this.truncatedProductName, // actually names the dmg
       overwrite: true,
       out: this.out,
       icon: this.packagerOptions.icon,
