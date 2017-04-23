@@ -36,7 +36,10 @@
           "packages": [
             "node_modules/@mongodb-js/compass-serverstats"
           ],
-          "styles": [ "index", "help" ]
+          "styles": [
+            "index",
+            "help"
+          ]
         },
         "compass-enterprise": {
           "name": "compass-enterprise",
@@ -44,7 +47,10 @@
           "packages": [
             "node_modules/@mongodb-js/compass-serverstats"
           ],
-          "styles": [ "index", "help" ]
+          "styles": [
+            "index",
+            "help"
+          ]
         },
         "compass-charts": {
           "name": "compass-charts",
@@ -122,6 +128,7 @@
     "url": "git://github.com/10gen/compass.git"
   },
   "dependencies": {
+    "@mongodb-js/compass-serverstats": "2.0.0",
     "ampersand-collection": "^1.5.0",
     "ampersand-collection-filterable": "^0.2.1",
     "ampersand-collection-lodash-mixin": "^2.0.1",
@@ -140,7 +147,6 @@
     "async": "^1.5.2",
     "backoff": "^2.4.1",
     "bootstrap": "https://github.com/twbs/bootstrap/archive/v3.3.5.tar.gz",
-    "@mongodb-js/compass-serverstats": "2.0.0",
     "d3": "^3.5.6",
     "d3-flextree": "^1.0.3",
     "d3-timer": "^1.0.3",
@@ -187,7 +193,6 @@
     "mongodb-schema": "^6.0.2",
     "mongodb-shell-to-url": "^0.1.0",
     "ms": "^0.7.1",
-    "ncp": "^2.0.0",
     "node-notifier": "^4.3.1",
     "numeral": "^1.5.3",
     "pluralize": "^1.2.1",
