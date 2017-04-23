@@ -436,6 +436,41 @@ describe('Element', function() {
     });
   });
 
+  describe('#isEditable', function() {
+    context('when the key is _id and the value is a nested object', function() {
+      var subelement2 = new Element('subsubkey', 'test value');
+      var subelement = new Element('subkey', subelement2);
+      var element = new Element('_id', subelement);
+      subelement.parent = element;
+      subelement2.parent = subelement;
+      context('#isValueEditable', function() {
+        it('top level element returns false', function() {
+          expect(element.isValueEditable()).to.equal(false);
+        });
+        it('sub element returns false', function() {
+          expect(element.value.isValueEditable()).to.equal(false);
+        });
+        it('sub sub element returns false', function() {
+          expect(element.value.value.isValueEditable()).to.equal(false);
+        });
+      });
+      context('#isKeyEditable', function() {
+        it('top level element returns false', function() {
+          expect(element.isKeyEditable()).to.equal(false);
+          expect(element.isParentEditable()).to.equal(true);
+        });
+        it('sub element returns false', function() {
+          expect(element.value.isKeyEditable()).to.equal(false);
+          expect(element.value.isParentEditable()).to.equal(false);
+        });
+        it('sub sub element returns false', function() {
+          expect(element.value.value.isKeyEditable()).to.equal(false);
+          expect(element.value.value.isParentEditable()).to.equal(false);
+        });
+      });
+    });
+  });
+
   describe('#isValueEditable', function() {
     context('when the key is _id', function() {
       context('when the element is not added', function() {

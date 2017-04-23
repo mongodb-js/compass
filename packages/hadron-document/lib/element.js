@@ -348,12 +348,24 @@ class Element extends EventEmitter {
   }
 
   /**
+   * Determine if the key of the parent element is editable.
+   *
+   * @returns {Boolean} If the parent's key is editable.
+   */
+  isParentEditable() {
+    if (this.parent && 'currentKey' in this.parent) {
+      return this.parent.isKeyEditable();
+    }
+    return true;
+  }
+
+  /**
    * Determine if the key is editable.
    *
    * @returns {Boolean} If the key is editable.
    */
   isKeyEditable() {
-    return this.isAdded() || (this.currentKey !== ID);
+    return this.isParentEditable() && (this.isAdded() || (this.currentKey !== ID));
   }
 
   /**
