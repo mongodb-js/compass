@@ -34,6 +34,8 @@ const LITE_SPEC_GLOBAL_SETTINGS = {
   }
 };
 
+const DEFAULT_TIME_UNIT = 'yearmonthdayhoursminutes';
+
 /**
  * The reflux store for the currently displayed Chart singleton.
  */
@@ -215,6 +217,20 @@ const ChartStore = Reflux.createStore({
   },
 
   /**
+   * adds extra attributes to the encoding properties if required otherwise remove if it exists
+   * @param {Object} prop the encoding properties
+   * @return {Object} return prop object with extra properties if required
+   */
+  _handleExtraProperties(prop) {
+    // insert timeUnit property and assign axis title for temporal type to properly chart date type
+    if (prop.type === MEASUREMENT_ENUM.TEMPORAL) {
+      return _.assign({timeUnit: DEFAULT_TIME_UNIT, axis: {title: prop.field}}, prop);
+    }
+
+    return _.omit(prop, ['timeUnit', 'axis']);
+  },
+
+  /**
    * Clears the chart, so it is set back to its default initial state but
    * retaining some things such as any data, namespace or query caches.
    */
@@ -268,7 +284,7 @@ const ChartStore = Reflux.createStore({
     const prop = channels[channel] || {};
     prop.field = fieldPath;
     prop.type = this._inferMeasurementFromField(this.state.fieldsCache[fieldPath]);
-    channels[channel] = prop;
+    channels[channel] = this._handleExtraProperties(prop);
     this._updateSpec({channels: channels});
   },
 
@@ -290,7 +306,7 @@ const ChartStore = Reflux.createStore({
     const channels = this.state.channels;
     const prop = channels[channel] || {};
     prop.type = measurement;
-    channels[channel] = prop;
+    channels[channel] = this._handleExtraProperties(prop);
     this._updateSpec({channels: channels});
   },
 
