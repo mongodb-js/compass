@@ -504,6 +504,28 @@ describe('mongodb-connection-model', function() {
     });
   });
 
+  describe('promote_values', function() {
+    describe('when no promote_values provided', function() {
+      var conn = new Connection();
+
+      it('should not have promoteValues specified', function() {
+        assert.ok(!_.has(conn.driver_options.db.promoteValues));
+      });
+    });
+    describe('when including promoteValues as true in connection', function() {
+      var conn = new Connection({promote_values: true});
+      it('should have the same value in driver options', function() {
+        assert.equal(conn.driver_options.db.promoteValues, true);
+      });
+    });
+    describe('when including promoteValues as false in connection', function() {
+      var conn = new Connection({promote_values: false});
+      it('should have the same value in driver options', function() {
+        assert.equal(conn.driver_options.db.promoteValues, false);
+      });
+    });
+  });
+
   describe('ssl', function() {
     describe('load', function() {
       it('should load all of the files from the filesystem', function(done) {

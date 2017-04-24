@@ -224,8 +224,7 @@ _.assign(props, {
    * Whether BSON values should be promoted to their JS type counterparts.
    */
   promote_values: {
-    type: 'boolean',
-    default: true
+    type: 'boolean'
   }
 });
 
@@ -688,10 +687,15 @@ _.assign(derived, {
           }
         });
       }
-      opts.db.promoteValues = this.promote_values;
 
       // assign and overwrite all extra options provided by user
       _.assign(opts, this.extra_options);
+
+      // only set promoteValues if it is defined
+      if (this.promote_values !== undefined) {
+        opts.db.promoteValues = this.promote_values;
+      }
+
       return opts;
     }
   },
