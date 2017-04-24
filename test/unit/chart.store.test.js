@@ -100,6 +100,19 @@ describe('ChartStore', function() {
       });
     });
 
+    it('does not push the same history state again', function(done) {
+      expect(this.store.history).to.have.lengthOf(1);
+      ChartActions.selectChartType(CHART_TYPE_ENUM.AREA);
+      ChartActions.selectChartType(CHART_TYPE_ENUM.AREA);
+      ChartActions.selectChartType(CHART_TYPE_ENUM.AREA);
+      setTimeout(() => {
+        expect(this.store.history).to.have.lengthOf(2);
+        expect(this.store.history_position).to.be.equal(1);
+        expect(this.store.history[1].chartType).to.be.equal(CHART_TYPE_ENUM.AREA);
+        done();
+      });
+    });
+
     it('discards the rest of the redo states when executing a new action', function(done) {
       this.store._resetHistory();
       this.store.history = [{id: 0}, {id: 1}, {id: 2}, {id: 3}, {id: 4}];
