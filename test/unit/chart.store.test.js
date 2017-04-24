@@ -9,7 +9,8 @@ const {
   CHART_CHANNEL_ENUM,
   CHART_TYPE_CHANNELS,
   CHART_TYPE_ENUM,
-  MEASUREMENT_ENUM
+  MEASUREMENT_ENUM,
+  DEFAULTS
 } = require('../../src/internal-packages/chart/lib/constants');
 const ChartActions = require('../../src/internal-packages/chart/lib/actions');
 const ChartStore = require('../../src/internal-packages/chart/lib/store');
@@ -75,6 +76,207 @@ describe('ChartStore', function() {
       limit: 1000,
       maxTimeMS: 10000,
       ns: ''
+    });
+  });
+
+  const initialFields = ['specType', 'chartType', 'channels'];
+
+  context('when using the history', function() {
+    it('only contains a single state initially', function() {
+      const initialHistory = _.pick(this.store.getInitialChartState(), initialFields);
+      expect(this.store.history).to.have.lengthOf(1);
+      expect(_.omit(this.store.history[0], 'id')).to.have.all.keys(initialFields);
+      expect(_.omit(this.store.history[0], 'id')).to.deep.equal(initialHistory);
+    });
+
+    it('adds a new state to the history when changing the spec', function(done) {
+      expect(this.store.history).to.have.lengthOf(1);
+      ChartActions.selectChartType(CHART_TYPE_ENUM.AREA);
+      setTimeout(() => {
+        expect(this.store.history).to.have.lengthOf(2);
+        expect(this.store.history_position).to.be.equal(1);
+        expect(this.store.history[1].chartType).to.be.equal(CHART_TYPE_ENUM.AREA);
+        done();
+      });
+    });
+
+    it('does not push the same history state again', function(done) {
+      expect(this.store.history).to.have.lengthOf(1);
+      ChartActions.selectChartType(CHART_TYPE_ENUM.AREA);
+      ChartActions.selectChartType(CHART_TYPE_ENUM.AREA);
+      ChartActions.selectChartType(CHART_TYPE_ENUM.AREA);
+      setTimeout(() => {
+        expect(this.store.history).to.have.lengthOf(2);
+        expect(this.store.history_position).to.be.equal(1);
+        expect(this.store.history[1].chartType).to.be.equal(CHART_TYPE_ENUM.AREA);
+        done();
+      });
+    });
+
+    it('discards the rest of the redo states when executing a new action', function(done) {
+      this.store._resetHistory();
+      this.store.history = [{id: 0}, {id: 1}, {id: 2}, {id: 3}, {id: 4}];
+      this.store.history_position = 4;
+      this.store.history_counter = 4;
+      ChartActions.undoAction();
+      ChartActions.undoAction();
+      ChartActions.undoAction();
+      ChartActions.clearChart();
+      setTimeout(() => {
+        expect(this.store.history).to.have.lengthOf(3);
+        expect(_.pluck(this.store.history, 'id')).to.be.deep.equal([0, 1, 5]);
+        done();
+      });
+    });
+
+    context('when the history is pre-populated', function() {
+      beforeEach(function(done) {
+        ChartActions.mapFieldToChannel('year', 'x');
+        setTimeout(() => {
+          const unsubscribe = this.store.listen(() => {
+            expect(this.store.history).to.have.lengthOf(3);
+            expect(this.store.history_position).to.be.equal(2);
+            unsubscribe();
+            done();
+          });
+          ChartActions.selectChartType(CHART_TYPE_ENUM.AREA);
+        });
+      });
+      it('returns to the last state with undoAction', function(done) {
+        ChartActions.undoAction();
+        setTimeout(() => {
+          expect(this.store.history).to.have.lengthOf(3);
+          expect(this.store.history_position).to.be.equal(1);
+          expect(this.store.state.chartType).to.be.equal(DEFAULTS.CHART_TYPE);
+          expect(this.store.state.channels).to.have.all.keys('x');
+          done();
+        });
+      });
+      it('can go back multiple steps', function(done) {
+        ChartActions.undoAction();
+        ChartActions.undoAction();
+        setTimeout(() => {
+          expect(this.store.history).to.have.lengthOf(3);
+          expect(this.store.history_position).to.be.equal(0);
+          expect(this.store.state.chartType).to.be.equal(DEFAULTS.CHART_TYPE);
+          expect(this.store.state.channels).to.be.deep.equal({});
+          done();
+        });
+      });
+      it('does not go back further than to the beginning of the history', function(done) {
+        ChartActions.undoAction();
+        ChartActions.undoAction();
+        ChartActions.undoAction();
+        ChartActions.undoAction();
+        ChartActions.undoAction();
+        setTimeout(() => {
+          expect(this.store.history).to.have.lengthOf(3);
+          expect(this.store.history_position).to.be.equal(0);
+          expect(this.store.state.chartType).to.be.equal(DEFAULTS.CHART_TYPE);
+          expect(this.store.state.channels).to.be.deep.equal({});
+          done();
+        });
+      });
+      it('moves forward when using redoAction', function(done) {
+        ChartActions.undoAction();
+        ChartActions.redoAction();
+        setTimeout(() => {
+          expect(this.store.history).to.have.lengthOf(3);
+          expect(this.store.history_position).to.be.equal(2);
+          expect(this.store.state.chartType).to.be.equal(CHART_TYPE_ENUM.AREA);
+          expect(this.store.state.channels).to.have.all.keys('x');
+          done();
+        });
+      });
+      it('moves not further forward than to the end of the history', function(done) {
+        ChartActions.undoAction();
+        ChartActions.redoAction();
+        ChartActions.redoAction();
+        ChartActions.redoAction();
+        ChartActions.redoAction();
+        setTimeout(() => {
+          expect(this.store.history).to.have.lengthOf(3);
+          expect(this.store.history_position).to.be.equal(2);
+          expect(this.store.state.chartType).to.be.equal(CHART_TYPE_ENUM.AREA);
+          expect(this.store.state.channels).to.have.all.keys('x');
+          done();
+        });
+      });
+      it('pushes the cleared state to the history on clearChart', function(done) {
+        const initialHistory = _.pick(this.store.getInitialChartState(), initialFields);
+        ChartActions.clearChart();
+        setTimeout(() => {
+          expect(this.store.history).to.have.lengthOf(4);
+          expect(this.store.history_position).to.be.equal(3);
+          expect(this.store.state.chartType).to.be.equal(DEFAULTS.CHART_TYPE);
+          expect(this.store.state.channels).to.be.deep.equal({});
+          expect(_.omit(this.store.history[3], 'id')).to.be.deep.equal(initialHistory);
+          done();
+        });
+      });
+      it('does not modify previous history objects when encoding a channel', function(done) {
+        expect(this.store.history).to.have.lengthOf(3);
+        expect(this.store.history[2].channels).to.have.all.keys('x');
+        ChartActions.mapFieldToChannel('revenue', 'y');
+        ChartActions.undoAction();
+        ChartActions.mapFieldToChannel('revenue', 'color');
+        ChartActions.undoAction();
+        setTimeout(() => {
+          expect(this.store.history).to.have.lengthOf(4);
+          expect(this.store.history[2].channels).to.have.all.keys('x');
+          done();
+        });
+      });
+    });
+
+    context('hasUndoableActions and hasRedoableActions', function() {
+      beforeEach(function(done) {
+        ChartActions.selectChartType(CHART_TYPE_ENUM.AREA);
+        ChartActions.selectChartType(CHART_TYPE_ENUM.LINE);
+        ChartActions.selectChartType(CHART_TYPE_ENUM.BAR);
+        setTimeout(() => {
+          const unsubscribe = this.store.listen(() => {
+            expect(this.store.history).to.have.lengthOf(5);
+            expect(this.store.history_position).to.be.equal(4);
+            unsubscribe();
+            done();
+          });
+        });
+        ChartActions.selectChartType(CHART_TYPE_ENUM.POINT);
+      });
+
+      it('sets hasUndoableActions to true if there are undoable actions', function(done) {
+        ChartActions.undoAction();
+        ChartActions.undoAction();
+        ChartActions.undoAction();
+        setTimeout(() => {
+          expect(this.store.state.hasUndoableActions).to.be.true;
+          done();
+        });
+      });
+      it('sets hasUndoableActions to false if there are no undoable actions', function(done) {
+        ChartActions.undoAction();
+        ChartActions.undoAction();
+        ChartActions.undoAction();
+        ChartActions.undoAction();
+        setTimeout(() => {
+          expect(this.store.state.hasUndoableActions).to.be.false;
+          done();
+        });
+      });
+      it('sets hasRedoableActions to true if there are redoable actions', function(done) {
+        ChartActions.undoAction();
+        setTimeout(() => {
+          expect(this.store.state.hasRedoableActions).to.be.true;
+          done();
+        });
+      });
+      it('sets hasRedoableActions to false if there are no redoable actions', function(done) {
+        setTimeout(() => {
+          expect(this.store.state.hasRedoableActions).to.be.false;
+          done();
+        });
+      });
     });
   });
 
