@@ -370,6 +370,56 @@ describe('ChartStore', function() {
     });
   });
 
+  context('when calling the swapEncodedChannels action', function() {
+    beforeEach((done) => {
+      ChartActions.mapFieldToChannel(YEAR_SCHEMA_FIELD.path, CHART_CHANNEL_ENUM.X);
+      ChartActions.selectAggregate(CHART_CHANNEL_ENUM.X, AGGREGATE_FUNCTION_ENUM.MAX);
+      ChartActions.mapFieldToChannel(COUNTRY_SCHEMA_FIELD.path, CHART_CHANNEL_ENUM.Y);
+      setTimeout(done);
+    });
+    it('swaps two encoded channels', function(done) {
+      const expected = {
+        'x': {
+          field: COUNTRY_SCHEMA_FIELD.path,
+          fieldName: COUNTRY_SCHEMA_FIELD.name,
+          type: MEASUREMENT_ENUM.NOMINAL
+        },
+        'y': {
+          field: YEAR_SCHEMA_FIELD.path,
+          fieldName: YEAR_SCHEMA_FIELD.name,
+          type: MEASUREMENT_ENUM.QUANTITATIVE,
+          aggregate: AGGREGATE_FUNCTION_ENUM.MAX
+        }
+      };
+      ChartActions.swapEncodedChannels(CHART_CHANNEL_ENUM.X, CHART_CHANNEL_ENUM.Y);
+      setTimeout(() => {
+        expect(this.store.state.channels).to.be.deep.equal(expected);
+        done();
+      });
+    });
+    it('swaps an encoded channel with an empty channel', function(done) {
+      const expected = {
+        'x': {
+          field: YEAR_SCHEMA_FIELD.path,
+          fieldName: YEAR_SCHEMA_FIELD.name,
+          type: MEASUREMENT_ENUM.QUANTITATIVE,
+          aggregate: AGGREGATE_FUNCTION_ENUM.MAX
+        },
+        'y': undefined,
+        'detail': {
+          field: COUNTRY_SCHEMA_FIELD.path,
+          fieldName: COUNTRY_SCHEMA_FIELD.name,
+          type: MEASUREMENT_ENUM.NOMINAL
+        }
+      };
+      ChartActions.swapEncodedChannels(CHART_CHANNEL_ENUM.Y, CHART_CHANNEL_ENUM.DETAIL);
+      setTimeout(() => {
+        expect(this.store.state.channels).to.be.deep.equal(expected);
+        done();
+      });
+    });
+  });
+
   context('when calling the selectMeasurement action', function() {
     it('stores the encoding channel relationship', function(done) {
       const expected = {

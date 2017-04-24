@@ -380,6 +380,28 @@ const ChartStore = Reflux.createStore({
   },
 
   /**
+   * Swaps the contents of two channels.
+
+   * @param {String} channel1       one of the channels to swap
+   * @param {String} channel2       the other channel to swap
+   * @param {Boolean} pushToHistory  whether or not the new state should become
+   *                                 part of the undo/redo-able history
+   */
+  swapEncodedChannels(channel1, channel2, pushToHistory = true) {
+    if (!_.includes(_.values(CHART_CHANNEL_ENUM), channel1)) {
+      throw new Error('Unknown encoding channel: ' + channel1);
+    }
+    if (!_.includes(_.values(CHART_CHANNEL_ENUM), channel2)) {
+      throw new Error('Unknown encoding channel: ' + channel2);
+    }
+    const channels = _.cloneDeep(this.state.channels);
+    const tempChannel = channels[channel1];
+    channels[channel1] = channels[channel2];
+    channels[channel2] = tempChannel;
+    this._updateSpec({channels: channels}, pushToHistory);
+  },
+
+  /**
    * Encodes the measurement (or data-type) for a channel.
    *
    * @see https://vega.github.io/vega-lite/docs/encoding.html#data-type

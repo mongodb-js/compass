@@ -18,15 +18,9 @@ const encodingChannelTarget = {
   },
   drop(props, monitor) {
     const item = monitor.getItem();
-    const encodedChannel = props.encodedChannel;
+    // const encodedChannel = props.encodedChannel;
     if (item.channelName !== undefined) {
-      if (encodedChannel && encodedChannel.field !== undefined) {
-        // Put target into source encoding channel so it looks like a "swap"
-        props.actions.mapFieldToChannel(encodedChannel.field, item.channelName);
-      } else {
-        // Un-encode the source channel
-        props.actions.mapFieldToChannel(null, item.channelName);
-      }
+      return props.actions.swapEncodedChannels(props.channelName, item.channelName);
     }
     // Always encode the target channel
     props.actions.mapFieldToChannel(item.fieldPath, props.channelName);
