@@ -72,10 +72,12 @@ describe('<ChartPanel />', function() {
       const encodedChannels = {
         [CHART_CHANNEL_ENUM.X]: {
           field: 'field.path.age',
+          fieldName: 'age',
           type: 'quantitative'
         },
         [CHART_CHANNEL_ENUM.Y]: {
           field: 'field.path.height',
+          fieldName: 'height',
           type: 'quantitative'
         }
       };

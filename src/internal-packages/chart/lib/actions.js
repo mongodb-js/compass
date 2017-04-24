@@ -5,6 +5,7 @@ const Reflux = require('reflux');
  */
 const Actions = Reflux.createActions([
   'mapFieldToChannel',
+  'swapEncodedChannels',
   'selectMeasurement',
   'selectAggregate',
   'selectChartType',

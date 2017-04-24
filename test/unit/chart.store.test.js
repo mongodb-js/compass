@@ -305,7 +305,11 @@ describe('ChartStore', function() {
   context('when calling the mapFieldToChannel action', function() {
     it('stores a mark property encoding channel relationship', function(done) {
       const expected = {
-        'x': {field: COUNTRY_SCHEMA_FIELD.path, type: MEASUREMENT_ENUM.NOMINAL}
+        'x': {
+          field: COUNTRY_SCHEMA_FIELD.path,
+          fieldName: COUNTRY_SCHEMA_FIELD.name,
+          type: MEASUREMENT_ENUM.NOMINAL
+        }
       };
       ChartActions.mapFieldToChannel(COUNTRY_SCHEMA_FIELD.path, CHART_CHANNEL_ENUM.X);
       setTimeout(() => {
@@ -315,12 +319,39 @@ describe('ChartStore', function() {
     });
     it('stores a detail encoding channel relationship', function(done) {
       const expected = {
-        'detail': {field: COUNTRY_SCHEMA_FIELD.path, type: MEASUREMENT_ENUM.NOMINAL}
+        'detail': {
+          field: COUNTRY_SCHEMA_FIELD.path,
+          fieldName: COUNTRY_SCHEMA_FIELD.name,
+          type: MEASUREMENT_ENUM.NOMINAL
+        }
       };
       ChartActions.mapFieldToChannel(COUNTRY_SCHEMA_FIELD.path, CHART_CHANNEL_ENUM.DETAIL);
       setTimeout(() => {
         expect(this.store.state.channels).to.be.deep.equal(expected);
         done();
+      });
+    });
+    it('allows un-encoding a detail encoding channel relationship', function(done) {
+      const expectEncoded = {
+        'detail': {
+          field: COUNTRY_SCHEMA_FIELD.path,
+          fieldName: COUNTRY_SCHEMA_FIELD.name,
+          type: MEASUREMENT_ENUM.NOMINAL
+        }
+      };
+      const expectUnencoded = {};
+      ChartActions.mapFieldToChannel(COUNTRY_SCHEMA_FIELD.path, CHART_CHANNEL_ENUM.DETAIL);
+      setTimeout(() => {
+        // Check that we encoded a channel first
+        expect(this.store.state.channels).to.be.deep.equal(expectEncoded);
+
+        // A `null` fieldPath should trigger a delete / un-encode
+        // of the detail channel
+        ChartActions.mapFieldToChannel(null, CHART_CHANNEL_ENUM.DETAIL);
+        setTimeout(() => {
+          expect(this.store.state.channels).to.be.deep.equal(expectUnencoded);
+          done();
+        });
       });
     });
     it('throws error on receiving an unknown encoding channel', function() {
@@ -336,6 +367,56 @@ describe('ChartStore', function() {
         ChartStore.mapFieldToChannel('foo.bar', CHART_CHANNEL_ENUM.X);
       };
       expect(throwFn).to.throw(/Unknown field: foo.bar/);
+    });
+  });
+
+  context('when calling the swapEncodedChannels action', function() {
+    beforeEach((done) => {
+      ChartActions.mapFieldToChannel(YEAR_SCHEMA_FIELD.path, CHART_CHANNEL_ENUM.X);
+      ChartActions.selectAggregate(CHART_CHANNEL_ENUM.X, AGGREGATE_FUNCTION_ENUM.MAX);
+      ChartActions.mapFieldToChannel(COUNTRY_SCHEMA_FIELD.path, CHART_CHANNEL_ENUM.Y);
+      setTimeout(done);
+    });
+    it('swaps two encoded channels', function(done) {
+      const expected = {
+        'x': {
+          field: COUNTRY_SCHEMA_FIELD.path,
+          fieldName: COUNTRY_SCHEMA_FIELD.name,
+          type: MEASUREMENT_ENUM.NOMINAL
+        },
+        'y': {
+          field: YEAR_SCHEMA_FIELD.path,
+          fieldName: YEAR_SCHEMA_FIELD.name,
+          type: MEASUREMENT_ENUM.QUANTITATIVE,
+          aggregate: AGGREGATE_FUNCTION_ENUM.MAX
+        }
+      };
+      ChartActions.swapEncodedChannels(CHART_CHANNEL_ENUM.X, CHART_CHANNEL_ENUM.Y);
+      setTimeout(() => {
+        expect(this.store.state.channels).to.be.deep.equal(expected);
+        done();
+      });
+    });
+    it('swaps an encoded channel with an empty channel', function(done) {
+      const expected = {
+        'x': {
+          field: YEAR_SCHEMA_FIELD.path,
+          fieldName: YEAR_SCHEMA_FIELD.name,
+          type: MEASUREMENT_ENUM.QUANTITATIVE,
+          aggregate: AGGREGATE_FUNCTION_ENUM.MAX
+        },
+        'y': undefined,
+        'detail': {
+          field: COUNTRY_SCHEMA_FIELD.path,
+          fieldName: COUNTRY_SCHEMA_FIELD.name,
+          type: MEASUREMENT_ENUM.NOMINAL
+        }
+      };
+      ChartActions.swapEncodedChannels(CHART_CHANNEL_ENUM.Y, CHART_CHANNEL_ENUM.DETAIL);
+      setTimeout(() => {
+        expect(this.store.state.channels).to.be.deep.equal(expected);
+        done();
+      });
     });
   });
 
@@ -449,7 +530,11 @@ describe('ChartStore', function() {
     it('encodes every action in channels state', function(done) {
       // Expect 3 keys set
       const expected = {
-        'x': {field: COUNTRY_SCHEMA_FIELD.path, type: 'nominal'},
+        'x': {
+          field: COUNTRY_SCHEMA_FIELD.path,
+          fieldName: COUNTRY_SCHEMA_FIELD.name,
+          type: 'nominal'
+        },
         'y': {type: 'quantitative'},
         'size': {aggregate: 'count'}
       };

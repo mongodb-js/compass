@@ -12,8 +12,17 @@ const DraggableField = require('./draggable-field');
  * @type {Object}
  */
 const encodingChannelTarget = {
-  drop: function(props, monitor) {
+  canDrop() {
+    // All drop targets are currently valid
+    return true;
+  },
+  drop(props, monitor) {
     const item = monitor.getItem();
+    // const encodedChannel = props.encodedChannel;
+    if (item.channelName !== undefined) {
+      return props.actions.swapEncodedChannels(props.channelName, item.channelName);
+    }
+    // Always encode the target channel
     props.actions.mapFieldToChannel(item.fieldPath, props.channelName);
   }
 };
@@ -21,7 +30,8 @@ const encodingChannelTarget = {
 function collect(connect, monitor) {
   return {
     connectDropTarget: connect.dropTarget(),
-    isOver: monitor.isOver()
+    isOver: monitor.isOver(),
+    canDrop: monitor.canDrop()
   };
 }
 
@@ -41,6 +51,10 @@ class EncodingChannel extends React.Component {
     this.props.actions.selectMeasurement(channel, measurement);
   }
 
+  onRemove(channelName) {
+    this.props.actions.mapFieldToChannel(null, channelName);
+  }
+
   renderField() {
     if (_.isEmpty(this.props.encodedChannel)) {
       // render a placeholder string
@@ -49,12 +63,15 @@ class EncodingChannel extends React.Component {
     // else render a DraggableField instance with menus enabled
     return (
       <DraggableField
-        fieldName={this.props.encodedChannel.field}
+        fieldName={this.props.encodedChannel.fieldName}
+        fieldPath={this.props.encodedChannel.field}
+        channelName={this.props.channelName}
         type={this.props.encodedChannel.type}
         aggregate={this.props.encodedChannel.aggregate}
         enableMenus
         selectAggregate={this.onSelectAggregate.bind(this)}
         selectMeasurement={this.onSelectMeasurement.bind(this)}
+        onRemove={this.onRemove.bind(this)}
       />
     );
   }
@@ -66,9 +83,12 @@ class EncodingChannel extends React.Component {
     const chartChannelId = `chart-panel-channel-${this.props.channelName}`;
 
     const connectDropTarget = this.props.connectDropTarget;
-    const droppableClass = this.props.isOver ?
-      'chart-encoding-channel-droppable chart-encoding-channel-droppable-over'
-      : 'chart-encoding-channel-droppable';
+    let droppableClass = 'chart-encoding-channel-droppable';
+    if (this.props.isOver) {
+      droppableClass += ' chart-encoding-channel-droppable-over';
+    } else if (this.props.canDrop) {
+      droppableClass += ' chart-encoding-channel-droppable-can-drop';
+    }
     return connectDropTarget(
       <div className="chart-encoding-channel">
         <label className={labelClassNames} htmlFor={chartChannelId}>
@@ -88,7 +108,8 @@ EncodingChannel.propTypes = {
   optional: React.PropTypes.string,
   actions: React.PropTypes.object,
   connectDropTarget: React.PropTypes.func,
-  isOver: React.PropTypes.bool.isRequired
+  isOver: React.PropTypes.bool.isRequired,
+  canDrop: React.PropTypes.bool.isRequired
 };
 
 EncodingChannel.defaultProps = {

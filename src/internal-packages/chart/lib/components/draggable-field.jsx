@@ -11,10 +11,10 @@ const CustomToggle = require('./custom-toggle');
 
 const draggableFieldSource = {
   beginDrag: function(props) {
-    return {fieldPath: props.fieldPath};
-  },
-  canDrag: function(props) {
-    return !props.disabled && !props.enableMenus;
+    return {
+      channelName: props.channelName,
+      fieldPath: props.fieldPath
+    };
   }
 };
 
@@ -122,7 +122,10 @@ class DraggableField extends React.Component {
         {this.props.enableMenus ? this.renderAggregationMenu() : <div></div>}
         {this.props.enableMenus ?
           <div className="chart-draggable-field-item-container">
-            <div className="chart-draggable-field-item chart-draggable-field-action chart-draggable-field-action-remove">
+            <div
+              className="chart-draggable-field-item chart-draggable-field-action chart-draggable-field-action-remove"
+              onClick={this.props.onRemove.bind(this, this.props.channelName)}
+            >
               <i className="mms-icon-remove"></i>
             </div>
           </div>
@@ -133,15 +136,17 @@ class DraggableField extends React.Component {
 }
 
 DraggableField.propTypes = {
-  fieldName: React.PropTypes.string,
-  fieldPath: React.PropTypes.string,
+  fieldName: React.PropTypes.string.isRequired,
+  fieldPath: React.PropTypes.string.isRequired,
+  channelName: React.PropTypes.string,
   type: React.PropTypes.oneOf(_.values(MEASUREMENT_ENUM)),
   aggregate: React.PropTypes.oneOf(_.values(AGGREGATE_FUNCTION_ENUM)),
   enableMenus: React.PropTypes.bool,
   disabled: React.PropTypes.bool,
   selectAggregate: React.PropTypes.func,
   selectMeasurement: React.PropTypes.func,
-  connectDragSource: React.PropTypes.func
+  connectDragSource: React.PropTypes.func,
+  onRemove: React.PropTypes.func
 };
 
 DraggableField.displayName = 'DraggableField';

@@ -349,7 +349,8 @@ const ChartStore = Reflux.createStore({
    * @see [1] https://github.com/mongodb-js/mongodb-schema
    * @see [2] https://vega.github.io/vega-lite/docs/encoding.html#props-channels
    *
-   * @param {String} fieldPath       the field path of the Schema field [1].
+   * @param {String} fieldPath       the field path of the Schema field [1], or
+   *                                 null to un-encode a channel.
    * @param {String} channel         the Vega-lite encoding channel [2].
    * @param {Boolean} pushToHistory  whether or not the new state should become
    *                                 part of the undo/redo-able history
@@ -358,14 +359,45 @@ const ChartStore = Reflux.createStore({
     if (!_.includes(_.values(CHART_CHANNEL_ENUM), channel)) {
       throw new Error('Unknown encoding channel: ' + channel);
     }
-    if (!_.has(this.state.fieldsCache, fieldPath)) {
+    const channels = _.cloneDeep(this.state.channels);
+    if (fieldPath === null) {
+      delete channels[channel];
+    } else if (!_.has(this.state.fieldsCache, fieldPath)) {
       throw new Error('Unknown field: ' + fieldPath);
+    } else {
+      const prop = channels[channel] || {};
+      const field = this.state.fieldsCache[fieldPath];
+      // Vega Lite 'field' is required in this `spec`, however need to
+      // display the short 'fieldName' for readability unless user mouses-over,
+      // then also display the full 'field' tooltip.
+      // @see https://vega.github.io/vega-lite/docs/encoding.html#field
+      prop.field = fieldPath;
+      prop.fieldName = field.name;
+      prop.type = this._inferMeasurementFromField(field);
+      channels[channel] = prop;
+    }
+    this._updateSpec({channels: channels}, pushToHistory);
+  },
+
+  /**
+   * Swaps the contents of two channels.
+
+   * @param {String} channel1       one of the channels to swap
+   * @param {String} channel2       the other channel to swap
+   * @param {Boolean} pushToHistory  whether or not the new state should become
+   *                                 part of the undo/redo-able history
+   */
+  swapEncodedChannels(channel1, channel2, pushToHistory = true) {
+    if (!_.includes(_.values(CHART_CHANNEL_ENUM), channel1)) {
+      throw new Error('Unknown encoding channel: ' + channel1);
+    }
+    if (!_.includes(_.values(CHART_CHANNEL_ENUM), channel2)) {
+      throw new Error('Unknown encoding channel: ' + channel2);
     }
     const channels = _.cloneDeep(this.state.channels);
-    const prop = channels[channel] || {};
-    prop.field = fieldPath;
-    prop.type = this._inferMeasurementFromField(this.state.fieldsCache[fieldPath]);
-    channels[channel] = prop;
+    const tempChannel = channels[channel1];
+    channels[channel1] = channels[channel2];
+    channels[channel2] = tempChannel;
     this._updateSpec({channels: channels}, pushToHistory);
   },
 
