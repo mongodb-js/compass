@@ -89,12 +89,10 @@
 
   &-content {
     flex: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding-bottom: 32px;
+    overflow: hidden;
   }
 
-  &-content::-webkit-scrollbar-track {
+  *::-webkit-scrollbar-track {
     background-color: rgba(0,0,0,.12);
     border-bottom-left-radius: 3px;
     border-bottom-right-radius: 3px;
@@ -102,7 +100,7 @@
       background-color: rgba(0,0,0,.24);
     }
   }
-  &-content::-webkit-scrollbar-thumb {
+  *::-webkit-scrollbar-thumb {
     background-color: @compass-sidebar-lite-background-color;
     border: 1px solid rgba(0,0,0,.24);
   }
