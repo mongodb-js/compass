@@ -1,12 +1,8 @@
 # Compass Schema Package
 
-Provides functionality shown in the "Schema" tab in the collection view.
+Executes a "light" schema analysis on documents fetched by the CRUD document stores.
 
 ## Available Resources in the App Registry
-
-### Components
-
-#### Definitions
 
 ### Stores
 

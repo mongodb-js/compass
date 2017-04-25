@@ -17,15 +17,18 @@ const FieldStore = Reflux.createStore({
   mixins: [StateMixin.store],
 
   init: function() {
-    this.listenToExternalStore('CRUD.ResetDocumentListStore', this.parseDocuments.bind(this));
-    this.listenToExternalStore('CRUD.LoadMoreDocumentsStore', this.parseDocuments.bind(this));
+    this.listenToExternalStore('CRUD.ResetDocumentListStore', this.processDocuments.bind(this));
+    this.listenToExternalStore('CRUD.LoadMoreDocumentsStore', this.processDocuments.bind(this));
+    this.listenToExternalStore('CRUD.InsertDocumentStore', this.processSingleDocument.bind(this));
     NamespaceStore.listen(this.onNamespaceChanged.bind(this));
   },
 
   /**
    * Initialize the field store.
-   * @param {Object} fields    flat list of fields (including sub-fields) from SchemaStore keyed by field path
-   * @param {Array} rootFields top level fields (non-sub-fields) in fields object
+   *
+   * @param {Object} fields    flattened list of fields
+   * @param {Array} rootFields array of names of top level fields
+   *
    * @return {Object}          the initial field store.
    */
   getInitialState() {
@@ -54,6 +57,15 @@ const FieldStore = Reflux.createStore({
       });
   },
 
+  /**
+   * Generate the flattened list of fields for the FieldStore.
+   *
+   * @todo Satya to fill out what these are.
+   *
+   * @param  {[type]} fields       [description]
+   * @param  {[type]} nestedFields [description]
+   * @param  {[type]} rootField    [description]
+   */
   _generateFields(fields, nestedFields, rootField) {
     if (!nestedFields) {
       return;
@@ -90,33 +102,68 @@ const FieldStore = Reflux.createStore({
     }
   },
 
+  /**
+   * merges a schema with the existing FieldStore content.
+   *
+   * @param  {Object} schema  schema to process and merge
+   */
+  _mergeSchema(schema) {
+    const fields = _.cloneDeep(this.state.fields);
+    const rootFields = [];
+
+    for (const field of schema.fields) {
+      rootFields.push(field.name);
+    }
+    this._generateFields(fields, schema.fields);
+
+    this.setState({
+      fields: fields,
+      rootFields: _.union(this.state.rootFields, rootFields)
+    });
+  },
+
+  /**
+   * resets the FieldStore when the namespace changes.
+   */
   onNamespaceChanged() {
     this.setState(this.getInitialState());
   },
 
-  parseDocuments(error, documents) {
+  /**
+   * processes documents returned from the ResetDocumentListStore and
+   * LoadMoreDocumentsStore.
+   *
+   * @param  {Error} error      possible error passed from the store.
+   * @param  {Array} documents  documents to process.
+   */
+  processDocuments(error, documents) {
     // skip if the document store returns an error
     if (error) {
       return;
     }
-
-    const fields = _.cloneDeep(this.state.fields);
-    const rootFields = [];
-    const t = new Date();
     parseSchema(documents, {storeValues: false}, (err, schema) => {
       if (err) {
         return;
       }
-      for (const field of schema.fields) {
-        rootFields.push(field.name);
-      }
-      this._generateFields(fields, schema.fields);
+      this._mergeSchema(schema);
+    });
+  },
 
-      debug('light schema sampling took %i ms', new Date() - t);
-      this.setState({
-        fields: fields,
-        rootFields: _.union(this.state.rootFields, rootFields)
-      });
+  /**
+   * processes a single document returned from the InsertDocumentStore.
+   *
+   * @param  {Error} success    whether or not the insert succeeded.
+   * @param  {Array} doc        document to process.
+   */
+  processSingleDocument(success, doc) {
+    if (!success) {
+      return;
+    }
+    parseSchema([ doc ], {storeValues: false}, (err, schema) => {
+      if (err) {
+        return;
+      }
+      this._mergeSchema(schema);
     });
   },
 
