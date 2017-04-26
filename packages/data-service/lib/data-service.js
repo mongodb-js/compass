@@ -38,6 +38,18 @@ class DataService extends EventEmitter {
   }
 
   /**
+   * Execute a command.
+   *
+   * @param {String} databaseName - The db name.
+   * @param {Object} comm - The command.
+   * @param {Function} callback - The callback.
+   */
+  command(databaseName, comm, callback) {
+    debug(`#command: ${databaseName}: command: ${comm}`);
+    this.client.command(databaseName, comm, callback);
+  }
+
+  /**
    * Is the data service allowed to perform write operations.
    *
    * @returns {Boolean} If the data service is writable.

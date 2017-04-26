@@ -41,6 +41,16 @@ describe('DataService', function() {
     });
   });
 
+  describe('#command', function() {
+    it('executes the command', function(done) {
+      service.command('data-service', { ping: 1 }, function(error, result) {
+        assert.equal(null, error);
+        expect(result.ok).to.equal(1);
+        done();
+      });
+    });
+  });
+
   describe('#dropCollection', function() {
     before(function(done) {
       service.client.database.createCollection('bar', {}, function(error) {

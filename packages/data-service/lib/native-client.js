@@ -74,6 +74,23 @@ class NativeClient extends EventEmitter {
   }
 
   /**
+   * Execute a command.
+   *
+   * @param {String} databaseName - The db name.
+   * @param {Object} comm - The command.
+   * @param {Function} callback - The callback.
+   */
+  command(databaseName, comm, callback) {
+    var db = this._database(databaseName);
+    db.command(comm, (error, result) => {
+      if (error) {
+        return callback(this._translateMessage(error));
+      }
+      callback(null, result);
+    });
+  }
+
+  /**
    * Execute a buildInfo command on the currently connected instance.
    *
    * @param {Function} callback - The callback.

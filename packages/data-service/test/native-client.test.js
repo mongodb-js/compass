@@ -134,6 +134,16 @@ describe('NativeClient', function() {
     });
   });
 
+  describe('#command', function() {
+    it('executes the command', function(done) {
+      client.command('data-service', { ping: 1 }, function(error, result) {
+        assert.equal(null, error);
+        expect(result.ok).to.equal(1);
+        done();
+      });
+    });
+  });
+
   describe('#aggregate', function() {
     before(function(done) {
       var collection = client.database.collection('test');
