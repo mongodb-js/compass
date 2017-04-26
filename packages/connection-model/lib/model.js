@@ -581,37 +581,40 @@ _.assign(derived, {
         req.pathname = format('/%s', this.ns);
       }
 
-      if (this.authentication === 'MONGODB') {
-        req.auth = format('%s:%s', this.mongodb_username, this.mongodb_password);
-        req.query.authSource = this.mongodb_database_name;
-      } else if (this.authentication === 'KERBEROS') {
-        _.defaults(req.query, {
-          gssapiServiceName: this.kerberos_service_name,
-          authMechanism: this.driver_auth_mechanism
-        });
+      const encodeAuthForUrlFormat = () => {
+        if (this.authentication === 'MONGODB') {
+          req.auth = format('%s:%s', this.mongodb_username, this.mongodb_password);
+          req.query.authSource = this.mongodb_database_name;
+        } else if (this.authentication === 'KERBEROS') {
+          _.defaults(req.query, {
+            gssapiServiceName: this.kerberos_service_name,
+            authMechanism: this.driver_auth_mechanism
+          });
 
-        if (this.kerberos_password) {
+          if (this.kerberos_password) {
+            req.auth = format('%s:%s',
+              encodeURIComponent(this.kerberos_principal),
+              this.kerberos_password);
+          } else {
+            req.auth = format('%s:',
+              encodeURIComponent(this.kerberos_principal));
+          }
+        } else if (this.authentication === 'X509') {
+          req.auth = encodeURIComponent(this.x509_username);
+          _.defaults(req.query, {
+            authMechanism: this.driver_auth_mechanism
+          });
+        } else if (this.authentication === 'LDAP') {
           req.auth = format('%s:%s',
-            encodeURIComponent(this.kerberos_principal),
-            this.kerberos_password);
-        } else {
-          req.auth = format('%s:',
-            encodeURIComponent(this.kerberos_principal));
-        }
-      } else if (this.authentication === 'X509') {
-        req.auth = encodeURIComponent(this.x509_username);
-        _.defaults(req.query, {
-          authMechanism: this.driver_auth_mechanism
-        });
-      } else if (this.authentication === 'LDAP') {
-        req.auth = format('%s:%s',
-          this.ldap_username,
-          this.ldap_password);
+            this.ldap_username,
+            this.ldap_password);
 
-        _.defaults(req.query, {
-          authMechanism: this.driver_auth_mechanism
-        });
-      }
+          _.defaults(req.query, {
+            authMechanism: this.driver_auth_mechanism
+          });
+        }
+      };
+      encodeAuthForUrlFormat();
 
       if (_.includes(['UNVALIDATED', 'SYSTEMCA', 'SERVER', 'ALL'], this.ssl)) {
         req.query.ssl = 'true';
