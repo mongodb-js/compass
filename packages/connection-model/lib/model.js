@@ -562,6 +562,7 @@ _.assign(derived, {
       'driver_auth_mechanism'
     ],
     fn: function() {
+      const AUTH_TOKEN = 'AUTH_TOKEN';
       var req = {
         protocol: 'mongodb',
         slashes: true,
@@ -583,7 +584,7 @@ _.assign(derived, {
 
       const encodeAuthForUrlFormat = () => {
         if (this.authentication === 'MONGODB') {
-          req.auth = format('%s:%s', this.mongodb_username, this.mongodb_password);
+          req.auth = AUTH_TOKEN;
           req.query.authSource = this.mongodb_database_name;
         } else if (this.authentication === 'KERBEROS') {
           _.defaults(req.query, {
@@ -627,7 +628,20 @@ _.assign(derived, {
         reqClone.hostname = this.ssh_tunnel_options.localAddr;
         reqClone.port = this.ssh_tunnel_options.localPort;
       }
-      return toURL(reqClone);
+      var result = toURL(reqClone);
+
+      // Post url.format() workaround for
+      // https://github.com/nodejs/node/issues/1802
+      if (this.authentication === 'MONGODB') {
+        var newAuth = format('%s:%s',
+          encodeURIComponent(this.mongodb_username),
+          encodeURIComponent(this.mongodb_password));
+
+        // The auth component comes straight after the mongodb:// so
+        // a single string replace should always work
+        result = result.replace(AUTH_TOKEN, newAuth, 1);
+      }
+      return result;
     }
   },
   /**

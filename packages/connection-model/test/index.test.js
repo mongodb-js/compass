@@ -124,6 +124,74 @@ describe('mongodb-connection-model', function() {
           });
         });
       });
+
+      describe('with special characters e.g. colon', () => {
+        let username;
+        let password;
+        let connection;
+        let authExpect;
+
+        before(() => {
+          username = 'user@-azMPk]&3Wt)iP_9C:PMQ=';
+          password = 'user@-azMPk]&3Wt)iP_9C:PMQ=';
+          connection = new Connection({
+            mongodb_username: username,
+            mongodb_password: password
+          });
+          authExpect = `${encodeURIComponent(username)}:${encodeURIComponent(password)}`;
+        });
+
+        it('should urlencode credentials', () => {
+          assert.equal(connection.driver_url,
+            `mongodb://${authExpect}@localhost:27017/?slaveOk=true&authSource=admin`);
+        });
+
+        it('should be parse in the browser', () => {
+          assert.doesNotThrow(() => {
+            parse(connection.driver_url);
+          });
+        });
+
+        it('should parse on the server', () => {
+          assert.doesNotThrow(() => {
+            driverParse(connection.driver_url);
+          });
+        });
+      });
+
+      describe('with emoji', () => {
+        let username;
+        let password;
+        let connection;
+        let authExpect;
+
+        before(() => {
+          username = '👌emoji😂😍😘🔥💕🎁💯🌹';
+          password = '👌emoji😂😍😘🔥💕🎁💯🌹';
+          connection = new Connection({
+            mongodb_username: username,
+            mongodb_password: password
+          });
+          authExpect = `${encodeURIComponent(username)}:${encodeURIComponent(password)}`;
+        });
+
+        it('should urlencode credentials', () => {
+          assert.equal(connection.driver_url,
+            `mongodb://${authExpect}@localhost:27017/?slaveOk=true&authSource=admin`);
+        });
+
+        it('should be parse in the browser', () => {
+          assert.doesNotThrow(() => {
+            parse(connection.driver_url);
+          });
+        });
+
+        it('should parse on the server', () => {
+          assert.doesNotThrow(() => {
+            driverParse(connection.driver_url);
+          });
+        });
+      });
     });
 
     describe('ATLAS - mongodb.net', function() {
