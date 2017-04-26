@@ -17,6 +17,25 @@ const Document = require('../lib/document');
 const Element = require('../lib/element');
 
 describe('Element', function() {
+  describe('#cancel', function() {
+    context('when the element is invalid', function() {
+      var doc = new Document({});
+      var element = new Element('string', 'testing', false, doc);
+      before(function() {
+        element.setInvalid('testing', 'Date', 'invalid');
+        element.cancel();
+      });
+
+      it('reverts the current value back to the original', function() {
+        expect(element.currentValue).to.equal('testing');
+      });
+
+      it('reverts the current type back to the original', function() {
+        expect(element.currentType).to.equal('String');
+      });
+    });
+  });
+
   describe('#bulkEdit', function() {
     var doc = new Document({});
     var element = new Element('email', 'work@example.com', false, doc);

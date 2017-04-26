@@ -298,8 +298,10 @@ class Element extends EventEmitter {
    * @returns {Boolean} If the element is edited.
    */
   isEdited() {
-    return (this.key !== this.currentKey || this.value !== this.currentValue) &&
-      !this.isAdded();
+    return (this.key !== this.currentKey ||
+        this.value !== this.currentValue ||
+        this.type !== this.currentType) &&
+        !this.isAdded();
   }
 
   /**
