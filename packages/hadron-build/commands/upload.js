@@ -170,7 +170,11 @@ exports.builder = {
 exports.handler = function(argv) {
   cli.argv = argv;
 
-  verifyDistro(argv);
+  if (!argv.options) {
+    process.env.HADRON_DISTRIBUTION = 'compass-lite';
+  } else {
+    process.env.HADRON_DISTRIBUTION = argv.options;
+  }
 
   var fs = require('fs');
   var target = new Target(argv.dir);
