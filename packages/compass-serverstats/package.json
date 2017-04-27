@@ -28,7 +28,7 @@
     "babel-cli": "^6.10.1",
     "babel-preset-react": "^6.11.1",
     "d3": "^3.5.17",
-    "hadron-app": "^0.3.0",
+    "hadron-app": "^0.4.0",
     "mongodb-js-errors": "^0.3.2"
   },
   "devDependencies": {
