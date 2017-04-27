@@ -1,6 +1,7 @@
 'use strict';
 
 const path = require('path');
+const debug = require('debug')('hadron-package-manager:package');
 
 /**
  * The package cache.
@@ -11,6 +12,11 @@ const Cache = {};
  * Define the filename constant.
  */
 const PACKAGE_FILENAME = 'package.json';
+
+/**
+ * The default main package entry point.
+ */
+const DEFAULT_MAIN = 'index.js';
 
 /**
  * Represents a package to the application.
@@ -26,7 +32,13 @@ class Package {
    */
   constructor(packagePath) {
     this.packagePath = packagePath;
-    this.metadata = require(path.resolve(this.packagePath, PACKAGE_FILENAME));
+    try {
+      this.metadata = require(path.resolve(this.packagePath, PACKAGE_FILENAME));
+    } catch (e) {
+      debug(e.message);
+      debug(`Could not load package.json from ${this.packagePath}, using default index.js as main.`);
+      this.metadata = { main: DEFAULT_MAIN };
+    }
   }
 
   /**
@@ -39,9 +51,16 @@ class Package {
     if (Cache.hasOwnProperty(this.packagePath)) {
       return Cache[this.packagePath];
     }
-    var module = require(path.resolve(this.packagePath, this.metadata.main));
-    Cache[this.packagePath] = module;
-    return module;
+    try {
+      const module = require(path.resolve(this.packagePath, this.metadata.main));
+      Cache[this.packagePath] = module;
+      return module;
+    } catch (e) {
+      debug(e.message);
+      const module = { activate: () => {}, deactivate: () => {}};
+      Cache[this.packagePath] = module;
+      return module;
+    }
   }
 
   /**
