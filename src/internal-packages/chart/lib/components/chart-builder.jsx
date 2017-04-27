@@ -168,8 +168,8 @@ ChartBuilder.propTypes = {
   specValid: React.PropTypes.bool,
   channels: React.PropTypes.object,
   actions: React.PropTypes.object,
-  hasUndoableActions: React.PropTypes.boolean,
-  hasRedoableActions: React.PropTypes.boolean
+  hasUndoableActions: React.PropTypes.bool,
+  hasRedoableActions: React.PropTypes.bool
 };
 
 ChartBuilder.defaultProps = {
