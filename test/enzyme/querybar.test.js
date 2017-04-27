@@ -33,6 +33,15 @@ describe('<QueryBar />', () => {
         const component = shallow(<QueryBar layout={layout} expanded={false} />);
         expect(component.find(OptionsToggle)).to.have.lengthOf(1);
       });
+      it('does not contain the focus class by default', () => {
+        const component = shallow(<QueryBar layout={layout} expanded={false} />);
+        expect(component).to.not.have.className('querybar-has-focus');
+      });
+      it('contains the focus class on focus', () => {
+        const component = shallow(<QueryBar layout={layout} expanded={false} />);
+        component.setState({hasFocus: true});
+        expect(component.find('.querybar-option-container')).to.have.className('querybar-has-focus');
+      });
     });
     context('when rendering in expanded state', () => {
       it('has all 5 <QueryOption />s', () => {
@@ -42,6 +51,15 @@ describe('<QueryBar />', () => {
       it('has one .query-option-group div', () => {
         const component = shallow(<QueryBar layout={layout} expanded={true} />);
         expect(component.find('.querybar-option-group')).to.have.lengthOf(1);
+      });
+      it('does not contain the focus class by default', () => {
+        const component = shallow(<QueryBar layout={layout} expanded={false} />);
+        expect(component).to.not.have.className('querybar-has-focus');
+      });
+      it('contains the focus class on focus', () => {
+        const component = shallow(<QueryBar layout={layout} expanded={false} />);
+        component.setState({hasFocus: true});
+        expect(component.find('.querybar-option-container')).to.have.className('querybar-has-focus');
       });
     });
   });
