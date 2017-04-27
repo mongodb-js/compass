@@ -39,6 +39,11 @@ const OPTION_DEFINITION = {
 
 class QueryBar extends React.Component {
 
+  constructor(props) {
+    super(props);
+    this.state = { hasFocus: false };
+  }
+
   onChange(label, evt) {
     this.props.actions.typeQueryString(label, evt.target.value);
   }
@@ -54,6 +59,14 @@ class QueryBar extends React.Component {
 
   onResetButtonClicked() {
     this.props.actions.reset();
+  }
+
+  _onFocus() {
+    this.setState({ hasFocus: true });
+  }
+
+  _onBlur() {
+    this.setState({ hasFocus: false });
   }
 
   _showToggle() {
@@ -172,10 +185,15 @@ class QueryBar extends React.Component {
     };
     const applyDisabled = !((this.props.valid && this._queryHasChanges()) || this.props.featureFlag);
 
+    const queryOptionClassName =
+      this.state.hasFocus ?
+        'querybar-option-container querybar-has-focus'
+        : 'querybar-option-container';
+
     return (
       <form onSubmit={this.onApplyButtonClicked.bind(this)}>
         <div className={inputGroupClass}>
-          <div className="querybar-option-container">
+          <div onBlur={this._onBlur.bind(this)} onFocus={this._onFocus.bind(this)} className={queryOptionClassName}>
             {this.renderOptionRows()}
             {this.renderToggle()}
           </div>
