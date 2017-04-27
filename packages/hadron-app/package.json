@@ -37,7 +37,6 @@
     "hadron-auto-update-manager": "^0.0.12",
     "hadron-compile-cache": "^1.0.1",
     "hadron-module-cache": "^0.0.3",
-    "hadron-package-manager": "^1.0.0",
     "hadron-react-components": "^0.10.0",
     "hadron-style-manager": "^0.1.0",
     "less": "^2.6.1",
