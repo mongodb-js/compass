@@ -30,9 +30,10 @@
     "lodash.isplainobject": "^4.0.6",
     "lodash.isstring": "^4.0.1",
     "lodash.map": "^4.6.0",
-    "react": "^15.3.0",
-    "react-bootstrap": "0.30.2",
-    "react-dom": "^15.3.0",
+    "prop-types": "^15.5.8",
+    "react": "^15.5.4",
+    "react-bootstrap": "0.31.0",
+    "react-dom": "^15.5.4",
     "react-fontawesome": "1.2.0",
     "react-tooltip": "^3.2.6"
   },

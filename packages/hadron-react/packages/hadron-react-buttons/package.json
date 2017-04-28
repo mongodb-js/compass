@@ -22,8 +22,9 @@
   "dependencies": {
     "babel-preset-react": "^6.5.0",
     "babel-register": "^6.5.2",
-    "react": "^15.3.0",
-    "react-dom": "^15.3.0"
+    "prop-types": "^15.5.8",
+    "react": "^15.5.4",
+    "react-dom": "^15.5.4"
   },
   "devDependencies": {
     "babel-cli": "^6.9.0",

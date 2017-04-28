@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 
 /**
  * The base css class.
@@ -29,8 +30,8 @@ class DBRefValue extends React.Component {
 DBRefValue.displayName = 'DBRefValue';
 
 DBRefValue.propTypes = {
-  type: React.PropTypes.string.isRequired,
-  value: React.PropTypes.any
+  type: PropTypes.string.isRequired,
+  value: PropTypes.any
 };
 
 module.exports = DBRefValue;

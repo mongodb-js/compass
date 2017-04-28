@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 
 /**
  * The base css class.
@@ -28,8 +29,8 @@ class Int32 extends React.Component {
 Int32.displayName = 'Int32Value';
 
 Int32.propTypes = {
-  type: React.PropTypes.string.isRequired,
-  value: React.PropTypes.any.isRequired
+  type: PropTypes.string.isRequired,
+  value: PropTypes.any.isRequired
 };
 
 module.exports = Int32;

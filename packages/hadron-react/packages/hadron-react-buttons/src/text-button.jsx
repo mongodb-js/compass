@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 
 /**
  * The button constant.
@@ -32,11 +33,11 @@ class TextButton extends React.Component {
 TextButton.displayName = 'TextButton';
 
 TextButton.propTypes = {
-  text: React.PropTypes.string.isRequired,
-  clickHandler: React.PropTypes.func.isRequired,
-  className: React.PropTypes.string,
-  dataTestId: React.PropTypes.string,
-  disabled: React.PropTypes.bool
+  text: PropTypes.string.isRequired,
+  clickHandler: PropTypes.func.isRequired,
+  className: PropTypes.string,
+  dataTestId: PropTypes.string,
+  disabled: PropTypes.bool
 };
 
 module.exports = TextButton;

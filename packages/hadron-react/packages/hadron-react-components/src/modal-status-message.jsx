@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const Panel = require('react-bootstrap').Panel;
 
 /**
@@ -37,9 +38,9 @@ class ModalStatusMessage extends React.Component {
 ModalStatusMessage.displayName = 'ModalStatusMessage';
 
 ModalStatusMessage.propTypes = {
-  icon: React.PropTypes.string.isRequired,
-  message: React.PropTypes.string.isRequired,
-  type: React.PropTypes.string.isRequired
+  icon: PropTypes.string.isRequired,
+  message: PropTypes.string.isRequired,
+  type: PropTypes.string.isRequired
 };
 
 module.exports = ModalStatusMessage;

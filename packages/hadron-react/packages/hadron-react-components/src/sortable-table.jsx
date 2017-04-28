@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const FontAwesome = require('react-fontawesome');
 const Button = require('react-bootstrap').Button;
 const map = require('lodash.map');
@@ -190,12 +191,12 @@ SortableTable.propTypes = {
    * the style theme, matching our dark or light pages.
    * @type {String}   one of `light` (default) or `dark`
    */
-  theme: React.PropTypes.oneOf(['light', 'dark']),
+  theme: PropTypes.oneOf(['light', 'dark']),
   /**
    * specify column names (required)
    * @type {Array}  of column names (strings).
    */
-  columns: React.PropTypes.arrayOf(React.PropTypes.string).isRequired,
+  columns: PropTypes.arrayOf(PropTypes.string).isRequired,
   /**
    * specify data for table rows. Can be an array of objects (keys must
    * match column names exactly), or an array of arrays. Columns not found in
@@ -203,47 +204,47 @@ SortableTable.propTypes = {
    * cropped (if too long).
    * @type {Array}  of objects or arrays.
    */
-  rows: React.PropTypes.arrayOf(React.PropTypes.oneOfType(
-    [React.PropTypes.object, React.PropTypes.array])),
+  rows: PropTypes.arrayOf(PropTypes.oneOfType(
+    [PropTypes.object, PropTypes.array])),
   /**
    * make table sortable by clicking on column headers.
    * @type {Boolean}
    */
-  sortable: React.PropTypes.bool,
+  sortable: PropTypes.bool,
   /**
    * sort column index (default is 0) or column name.
    * @type {Number}
    */
-  sortColumn: React.PropTypes.oneOfType([React.PropTypes.number,
-    React.PropTypes.string]),
+  sortColumn: PropTypes.oneOfType([PropTypes.number,
+    PropTypes.string]),
   /**
    * sort order (default is 'asc').
    * @type {String}  one of `asc`, `desc`
    */
-  sortOrder: React.PropTypes.oneOf(['asc', 'desc']),
+  sortOrder: PropTypes.oneOf(['asc', 'desc']),
   /**
    * make table rows removable by providing a thrash can button in each row.
    * @type {Boolean}
    */
-  removable: React.PropTypes.bool,
+  removable: PropTypes.bool,
   /**
    * callback when user clicks on a sortable column header, function signature
    * is callback(columnName, sortOrder), e.g. `Size`, `asc`. These two
    * values can be used directly with lodash's `_.sortByOrder()` function.
    * @type {Function}
    */
-  onColumnHeaderClicked: React.PropTypes.func,
+  onColumnHeaderClicked: PropTypes.func,
   /**
    * callback when user clicks on a trash can button to delete a row, function
    * signature is `callback(rowIndex)`.
    * @type {Function}
    */
-  onRowDeleteButtonClicked: React.PropTypes.func,
+  onRowDeleteButtonClicked: PropTypes.func,
   /**
    * The index in the columns to pass as a second value to the delete function.
    * @type {Number}
    */
-  valueIndex: React.PropTypes.number
+  valueIndex: PropTypes.number
 };
 
 SortableTable.defaultProps = {

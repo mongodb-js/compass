@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 
 /**
  * The base css class.
@@ -28,8 +29,8 @@ class Value extends React.Component {
 Value.displayName = 'Value';
 
 Value.propTypes = {
-  type: React.PropTypes.string.isRequired,
-  value: React.PropTypes.any
+  type: PropTypes.string.isRequired,
+  value: PropTypes.any
 };
 
 module.exports = Value;

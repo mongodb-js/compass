@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const map = require('lodash.map');
 
 /**
@@ -127,12 +128,12 @@ class TabNavBar extends React.Component {
 }
 
 TabNavBar.propTypes = {
-  theme: React.PropTypes.oneOf(['dark', 'light']),
-  activeTabIndex: React.PropTypes.number,
-  mountAllViews: React.PropTypes.bool,
-  tabs: React.PropTypes.arrayOf(React.PropTypes.string).isRequired,
-  views: React.PropTypes.arrayOf(React.PropTypes.element).isRequired,
-  onTabClicked: React.PropTypes.func
+  theme: PropTypes.oneOf(['dark', 'light']),
+  activeTabIndex: PropTypes.number,
+  mountAllViews: PropTypes.bool,
+  tabs: PropTypes.arrayOf(PropTypes.string).isRequired,
+  views: PropTypes.arrayOf(PropTypes.element).isRequired,
+  onTabClicked: PropTypes.func
 };
 
 TabNavBar.defaultProps = {

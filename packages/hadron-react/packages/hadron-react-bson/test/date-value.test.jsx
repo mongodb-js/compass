@@ -4,7 +4,7 @@ const { shallow } = require('enzyme');
 const { DateValue } = require('../');
 
 describe('<DateValue />', () => {
-  const date = new Date('2016-01-01');
+  const date = new Date('2016-01-01 12:00:00');
   const component = shallow(<DateValue type="Date" value={date} />);
 
   it('sets the base class', () => {

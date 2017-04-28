@@ -24,8 +24,9 @@
     "babel-register": "^6.5.2",
     "hadron-react-utils": "^0.0.1",
     "moment": "^2.13.0",
-    "react": "^15.3.0",
-    "react-dom": "^15.3.0"
+    "prop-types": "^15.5.8",
+    "react": "^15.5.4",
+    "react-dom": "^15.5.4"
   },
   "devDependencies": {
     "babel-cli": "^6.9.0",

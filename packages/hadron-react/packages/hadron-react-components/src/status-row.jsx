@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 
 class StatusRow extends React.Component {
 
@@ -21,8 +22,8 @@ class StatusRow extends React.Component {
 }
 
 StatusRow.propTypes = {
-  style: React.PropTypes.oneOf(['default', 'warning', 'error']),
-  children: React.PropTypes.node
+  style: PropTypes.oneOf(['default', 'warning', 'error']),
+  children: PropTypes.node
 };
 
 StatusRow.defaultProps = {

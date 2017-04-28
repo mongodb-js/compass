@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const isFunction = require('lodash.isfunction');
 
 /**
@@ -44,8 +45,8 @@ class StoreConnector extends React.Component {
 }
 
 StoreConnector.propTypes = {
-  store: React.PropTypes.object.isRequired,
-  children: React.PropTypes.element.isRequired
+  store: PropTypes.object.isRequired,
+  children: PropTypes.element.isRequired
 };
 
 StoreConnector.displayName = 'StoreConnector';

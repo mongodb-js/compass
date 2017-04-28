@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const ReactTooltip = require('react-tooltip');
 
 class Tooltip extends React.Component {
@@ -14,11 +15,11 @@ class Tooltip extends React.Component {
 }
 
 Tooltip.propTypes = {
-  id: React.PropTypes.string.isRequired,
-  effect: React.PropTypes.string,
-  className: React.PropTypes.string,
-  place: React.PropTypes.string,
-  delayShow: React.PropTypes.number
+  id: PropTypes.string.isRequired,
+  effect: PropTypes.string,
+  className: PropTypes.string,
+  place: PropTypes.string,
+  delayShow: PropTypes.number
 };
 
 Tooltip.defaultProps = {

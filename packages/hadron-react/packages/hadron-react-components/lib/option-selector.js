@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const { DropdownButton, MenuItem } = require('react-bootstrap');
 
 /**
@@ -59,13 +60,13 @@ class OptionSelector extends React.Component {
 }
 
 OptionSelector.propTypes = {
-  id: React.PropTypes.string.isRequired,
-  bsSize: React.PropTypes.string,
-  options: React.PropTypes.object.isRequired,
-  label: React.PropTypes.string,
-  title: React.PropTypes.string,
-  onSelect: React.PropTypes.func,
-  disabled: React.PropTypes.bool
+  id: PropTypes.string.isRequired,
+  bsSize: PropTypes.string,
+  options: PropTypes.object.isRequired,
+  label: PropTypes.string,
+  title: PropTypes.string,
+  onSelect: PropTypes.func,
+  disabled: PropTypes.bool
 };
 
 OptionSelector.defaultProps = {

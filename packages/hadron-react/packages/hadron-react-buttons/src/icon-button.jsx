@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 
 /**
  * The button constant.
@@ -41,11 +42,11 @@ class IconButton extends React.Component {
 IconButton.displayName = 'IconButton';
 
 IconButton.propTypes = {
-  title: React.PropTypes.string,
-  clickHandler: React.PropTypes.func.isRequired,
-  className: React.PropTypes.string,
-  iconClassName: React.PropTypes.string.isRequired,
-  dataTestId: React.PropTypes.string
+  title: PropTypes.string,
+  clickHandler: PropTypes.func.isRequired,
+  className: PropTypes.string,
+  iconClassName: PropTypes.string.isRequired,
+  dataTestId: PropTypes.string
 };
 
 module.exports = IconButton;

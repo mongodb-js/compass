@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 
 /**
  * The base css class.
@@ -28,8 +29,8 @@ class Regex extends React.Component {
 Regex.displayName = 'RegexValue';
 
 Regex.propTypes = {
-  type: React.PropTypes.string.isRequired,
-  value: React.PropTypes.any.isRequired
+  type: PropTypes.string.isRequired,
+  value: PropTypes.any.isRequired
 };
 
 module.exports = Regex;

@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 
 /**
  * The component class name.
@@ -28,8 +29,8 @@ class Code extends React.Component {
 Code.displayName = 'CodeValue';
 
 Code.propTypes = {
-  type: React.PropTypes.string.isRequired,
-  value: React.PropTypes.any.isRequired
+  type: PropTypes.string.isRequired,
+  value: PropTypes.any.isRequired
 };
 
 module.exports = Code;

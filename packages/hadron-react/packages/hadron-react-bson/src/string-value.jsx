@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 
 /**
  * The base css class.
@@ -27,8 +28,8 @@ class StringValue extends React.Component {
 StringValue.displayName = 'StringValue';
 
 StringValue.propTypes = {
-  type: React.PropTypes.string.isRequired,
-  value: React.PropTypes.string.isRequired
+  type: PropTypes.string.isRequired,
+  value: PropTypes.string.isRequired
 };
 
 module.exports = StringValue;

@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const { truncate } = require('hadron-react-utils');
 
 /**
@@ -58,8 +59,8 @@ class Binary extends React.Component {
 Binary.displayName = 'BinaryValue';
 
 Binary.propTypes = {
-  type: React.PropTypes.string,
-  value: React.PropTypes.any.isRequired
+  type: PropTypes.string,
+  value: PropTypes.any.isRequired
 };
 
 module.exports = Binary;

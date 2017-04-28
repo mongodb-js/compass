@@ -1,5 +1,6 @@
 const moment = require('moment');
 const React = require('react');
+const PropTypes = require('prop-types');
 
 /**
  * The component class.
@@ -34,8 +35,8 @@ class DateValue extends React.Component {
 DateValue.displayName = 'DateValue';
 
 DateValue.propTypes = {
-  type: React.PropTypes.string.isRequired,
-  value: React.PropTypes.any.isRequired
+  type: PropTypes.string.isRequired,
+  value: PropTypes.any.isRequired
 };
 
 module.exports = DateValue;
