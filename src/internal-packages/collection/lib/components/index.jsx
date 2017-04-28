@@ -14,7 +14,7 @@ class Collection extends React.Component {
 
     this.state = {activeTab: 0};
 
-    this.Stats = app.appRegistry.getComponent('CollectionStats.CollectionStats');
+    this.Stats = app.appRegistry.getComponent('CollectionHUD.Item');
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
     this.setupTabs();
   }
