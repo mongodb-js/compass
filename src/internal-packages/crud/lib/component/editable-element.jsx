@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const getComponent = require('hadron-react-bson');
 const { Element } = require('hadron-document');
 const EditableKey = require('./editable-key');
@@ -430,13 +431,13 @@ class EditableElement extends React.Component {
 EditableElement.displayName = 'EditableElement';
 
 EditableElement.propTypes = {
-  editing: React.PropTypes.bool,
-  edit: React.PropTypes.func,
-  element: React.PropTypes.object.isRequired,
-  index: React.PropTypes.number,
-  indent: React.PropTypes.number,
-  expandAll: React.PropTypes.bool,
-  rootFieldIndex: React.PropTypes.number
+  editing: PropTypes.bool,
+  edit: PropTypes.func,
+  element: PropTypes.object.isRequired,
+  index: PropTypes.number,
+  indent: PropTypes.number,
+  expandAll: PropTypes.bool,
+  rootFieldIndex: PropTypes.number
 };
 
 module.exports = EditableElement;

@@ -1,5 +1,6 @@
 const app = require('hadron-app');
 const React = require('react');
+const PropTypes = require('prop-types');
 const ms = require('ms');
 
 // const debug = require('debug')('mongodb-compass:schema:status-subview:buttons-error');
@@ -10,8 +11,8 @@ const RETRY_INC_MAXTIMEMS_VALUE = 60000;
  */
 const ButtonsError = React.createClass({
   propTypes: {
-    maxTimeMS: React.PropTypes.number.isRequired,
-    samplingState: React.PropTypes.string.isRequired
+    maxTimeMS: PropTypes.number.isRequired,
+    samplingState: PropTypes.string.isRequired
   },
 
   componentWillMount() {

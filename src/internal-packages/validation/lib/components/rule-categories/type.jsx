@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const ValidationAction = require('../../actions');
 const BSONTypeSelector = require('../common/bson-type-selector');
 const _ = require('lodash');
@@ -90,10 +91,10 @@ class RuleCategoryType extends React.Component {
 }
 
 RuleCategoryType.propTypes = {
-  id: React.PropTypes.string.isRequired,
-  parameters: React.PropTypes.object.isRequired,
-  serverVersion: React.PropTypes.string.isRequired,
-  isWritable: React.PropTypes.bool.isRequired
+  id: PropTypes.string.isRequired,
+  parameters: PropTypes.object.isRequired,
+  serverVersion: PropTypes.string.isRequired,
+  isWritable: PropTypes.bool.isRequired
 };
 
 RuleCategoryType.displayName = 'RuleCategoryType';

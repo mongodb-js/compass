@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const React = require('react');
+const PropTypes = require('prop-types');
 const app = require('hadron-app');
 const semver = require('semver');
 const { NamespaceStore } = require('hadron-reflux-store');
@@ -48,12 +49,8 @@ class Collection extends React.Component {
 
   setupTabs() {
     const collectionTabs = app.appRegistry.getRole('Collection.Tab');
-    const serverVersion = app.instance.build.version;
     const roles = _.filter(collectionTabs, (role) => {
-      if (!role.minimumServerVersion || semver.gte(serverVersion, role.minimumServerVersion)) {
-        return true;
-      }
-      return false;
+      return this.roleFiltered(role) ? false : true;
     });
 
     const tabs = _.map(roles, 'name');
@@ -61,15 +58,14 @@ class Collection extends React.Component {
       return React.createElement(role.component);
     });
 
-    if (!app.isFeatureEnabled('chartView')) {
-      // @note: Durran: This assumes charts is the last tab, which it currently is.
-      //   Once the feature flag is removed we can remove this check.
-      tabs.pop();
-      views.pop();
-    }
-
     this.tabs = tabs;
     this.views = views;
+  }
+
+  roleFiltered(role) {
+    const serverVersion = app.instance.build.version;
+    return (!app.isFeatureEnabled('chartView') && role.name === 'CHARTS') ||
+      (role.minimumServerVersion && !semver.gte(serverVersion, role.minimumServerVersion));
   }
 
   renderReadonly() {
@@ -116,7 +112,7 @@ class Collection extends React.Component {
 }
 
 Collection.propTypes = {
-  namespace: React.PropTypes.string
+  namespace: PropTypes.string
 };
 
 Collection.displayName = 'Collection';

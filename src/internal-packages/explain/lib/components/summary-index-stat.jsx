@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const FontAwesome = require('react-fontawesome');
 const app = require('hadron-app');
 const shell = require('electron').shell;
@@ -85,11 +86,11 @@ class SummaryIndexStat extends React.Component {
 }
 
 SummaryIndexStat.propTypes = {
-  dataLink: React.PropTypes.string,          // info sprinkle (optional)
-  indexType: React.PropTypes.oneOf(['MULTIPLE', 'UNAVAILABLE', 'COLLSCAN',
+  dataLink: PropTypes.string,          // info sprinkle (optional)
+  indexType: PropTypes.oneOf(['MULTIPLE', 'UNAVAILABLE', 'COLLSCAN',
     'COVERED', 'INDEX']).isRequired,
-  index: React.PropTypes.object,
-  dataTestId: React.PropTypes.string
+  index: PropTypes.object,
+  dataTestId: PropTypes.string
 };
 
 SummaryIndexStat.displayName = 'SummaryIndexStat';

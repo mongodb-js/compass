@@ -1,5 +1,6 @@
 const app = require('hadron-app');
 const React = require('react');
+const PropTypes = require('prop-types');
 const _ = require('lodash');
 const NativeListener = require('react-native-listener');
 const hasDistinctValue = require('../../../query/lib/util').hasDistinctValue;
@@ -10,9 +11,9 @@ const { DECIMAL_128, DOUBLE, LONG, INT_32 } = require('../helpers');
 
 const ValueBubble = React.createClass({
   propTypes: {
-    fieldName: React.PropTypes.string.isRequired,
-    value: React.PropTypes.any.isRequired,
-    query: React.PropTypes.any
+    fieldName: PropTypes.string.isRequired,
+    value: PropTypes.any.isRequired,
+    query: PropTypes.any
   },
 
   onBubbleClicked(e) {
@@ -65,10 +66,10 @@ const ValueBubble = React.createClass({
 /* eslint react/no-multi-comp: 0 */
 const UniqueMinichart = React.createClass({
   propTypes: {
-    fieldName: React.PropTypes.string.isRequired,
-    type: React.PropTypes.object.isRequired,
-    width: React.PropTypes.number,
-    query: React.PropTypes.any
+    fieldName: PropTypes.string.isRequired,
+    type: PropTypes.object.isRequired,
+    width: PropTypes.number,
+    query: PropTypes.any
   },
 
   getInitialState() {

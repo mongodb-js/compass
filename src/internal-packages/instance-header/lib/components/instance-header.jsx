@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const InstanceHeaderActions = require('../actions');
 const FontAwesome = require('react-fontawesome');
 const { NamespaceStore } = require('hadron-reflux-store');
@@ -156,13 +157,13 @@ class InstanceHeaderComponent extends React.Component {
 }
 
 InstanceHeaderComponent.propTypes = {
-  hostname: React.PropTypes.string,
-  port: React.PropTypes.number,
-  processStatus: React.PropTypes.string,
-  versionDistro: React.PropTypes.oneOf(['Enterprise', 'Community']),
-  versionNumber: React.PropTypes.string,
-  activeNamespace: React.PropTypes.string,
-  sidebarCollapsed: React.PropTypes.bool
+  hostname: PropTypes.string,
+  port: PropTypes.number,
+  processStatus: PropTypes.string,
+  versionDistro: PropTypes.oneOf(['Enterprise', 'Community']),
+  versionNumber: PropTypes.string,
+  activeNamespace: PropTypes.string,
+  sidebarCollapsed: PropTypes.bool
 };
 
 InstanceHeaderComponent.defaultProps = {

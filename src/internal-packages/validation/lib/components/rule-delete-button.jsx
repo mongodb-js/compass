@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const Button = require('react-bootstrap').Button;
 const FontAwesome = require('react-fontawesome');
 
@@ -22,8 +23,8 @@ class RuleDeleteButton extends React.Component {
 }
 
 RuleDeleteButton.propTypes = {
-  id: React.PropTypes.string.isRequired,
-  onClick: React.PropTypes.func.isRequired
+  id: PropTypes.string.isRequired,
+  onClick: PropTypes.func.isRequired
 };
 
 RuleDeleteButton.displayName = 'RuleDeleteButton';

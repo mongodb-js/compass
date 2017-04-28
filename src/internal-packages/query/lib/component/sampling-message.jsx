@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const app = require('hadron-app');
 const { AnimatedIconTextButton } = require('hadron-react-buttons');
 const { Tooltip } = require('hadron-react-components');
@@ -191,9 +192,9 @@ class SamplingMessage extends React.Component {
 SamplingMessage.displayName = 'SamplingMessage';
 
 SamplingMessage.propTypes = {
-  sampleSize: React.PropTypes.number,
-  insertHandler: React.PropTypes.func,
-  isWritable: React.PropTypes.bool
+  sampleSize: PropTypes.number,
+  insertHandler: PropTypes.func,
+  isWritable: PropTypes.bool
 };
 
 module.exports = SamplingMessage;

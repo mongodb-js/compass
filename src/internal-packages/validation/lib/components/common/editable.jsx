@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const { Button } = require('react-bootstrap');
 const FontAwesome = require('react-fontawesome');
 
@@ -95,13 +96,13 @@ class Editable extends React.Component {
 }
 
 Editable.propTypes = {
-  children: React.PropTypes.node.isRequired,
-  editState: React.PropTypes.oneOf(['unmodified', 'modified', 'updating',
+  children: PropTypes.node.isRequired,
+  editState: PropTypes.oneOf(['unmodified', 'modified', 'updating',
     'success', 'error']).isRequired,
-  childName: React.PropTypes.string,
-  onCancel: React.PropTypes.func,
-  onUpdate: React.PropTypes.func,
-  errorMessage: React.PropTypes.string
+  childName: PropTypes.string,
+  onCancel: PropTypes.func,
+  onUpdate: PropTypes.func,
+  errorMessage: PropTypes.string
 };
 
 Editable.defaultProps = {

@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const Action = require('../action/index-actions');
 const SortIndexesStore = require('../store/sort-indexes-store');
 
@@ -81,9 +82,9 @@ class IndexHeaderColumn extends React.Component {
 IndexHeaderColumn.displayName = 'IndexHeaderColumn';
 
 IndexHeaderColumn.propTypes = {
-  sortOrder: React.PropTypes.string.isRequired,
-  dataTestId: React.PropTypes.string.isRequired,
-  name: React.PropTypes.string.isRequired
+  sortOrder: PropTypes.string.isRequired,
+  dataTestId: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired
 };
 
 module.exports = IndexHeaderColumn;

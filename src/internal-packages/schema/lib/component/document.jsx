@@ -1,11 +1,12 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const pluralize = require('pluralize');
 const _ = require('lodash');
 
 const DocumentMinichart = React.createClass({
 
   propTypes: {
-    nestedDocType: React.PropTypes.object
+    nestedDocType: PropTypes.object
   },
 
   render() {

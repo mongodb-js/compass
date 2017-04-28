@@ -1,6 +1,7 @@
 const app = require('hadron-app');
 const ipc = require('hadron-ipc');
 const React = require('react');
+const PropTypes = require('prop-types');
 const { NamespaceStore } = require('hadron-reflux-store');
 const { TOOLTIP_IDS } = require('./constants');
 const SidebarCollection = require('./sidebar-collection');
@@ -133,13 +134,13 @@ class SidebarDatabase extends React.Component {
 }
 
 SidebarDatabase.propTypes = {
-  _id: React.PropTypes.string,
-  activeNamespace: React.PropTypes.string.isRequired,
-  collections: React.PropTypes.array,
-  expanded: React.PropTypes.bool,
-  style: React.PropTypes.object,
-  onClick: React.PropTypes.func,
-  index: React.PropTypes.number
+  _id: PropTypes.string,
+  activeNamespace: PropTypes.string.isRequired,
+  collections: PropTypes.array,
+  expanded: PropTypes.bool,
+  style: PropTypes.object,
+  onClick: PropTypes.func,
+  index: PropTypes.number
 };
 
 module.exports = SidebarDatabase;

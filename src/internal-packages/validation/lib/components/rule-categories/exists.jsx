@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const _ = require('lodash');
 
 // const debug = require('debug')('mongodb-compass:validation:exists');
@@ -55,8 +56,8 @@ class RuleCategoryExists extends React.Component {
 }
 
 RuleCategoryExists.propTypes = {
-  id: React.PropTypes.string.isRequired,
-  parameters: React.PropTypes.object.isRequired
+  id: PropTypes.string.isRequired,
+  parameters: PropTypes.object.isRequired
 };
 
 RuleCategoryExists.displayName = 'RuleCategoryExists';

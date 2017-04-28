@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const _ = require('lodash');
 const ValidationAction = require('../../actions');
 const bootstrap = require('react-bootstrap');
@@ -190,9 +191,9 @@ class RuleCategoryRegex extends React.Component {
 }
 
 RuleCategoryRegex.propTypes = {
-  id: React.PropTypes.string.isRequired,
-  parameters: React.PropTypes.object.isRequired,
-  isWritable: React.PropTypes.bool.isRequired
+  id: PropTypes.string.isRequired,
+  parameters: PropTypes.object.isRequired,
+  isWritable: PropTypes.bool.isRequired
 };
 
 RuleCategoryRegex.displayName = 'RuleCategoryRegex';

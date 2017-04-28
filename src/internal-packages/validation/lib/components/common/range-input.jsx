@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const app = require('hadron-app');
 const _ = require('lodash');
 const FormGroup = require('react-bootstrap').FormGroup;
@@ -197,15 +198,15 @@ class RangeInput extends React.Component {
 }
 
 RangeInput.propTypes = {
-  value: React.PropTypes.string,  // Can't be required to allow "none" in GUI,
+  value: PropTypes.string,  // Can't be required to allow "none" in GUI,
                                   // can't be number to work with Decimal128.
-  upperBound: React.PropTypes.bool,
-  validationState: React.PropTypes.string,
-  boundIncluded: React.PropTypes.bool.isRequired,
-  hidden: React.PropTypes.bool.isRequired,
-  onRangeInputBlur: React.PropTypes.func,
-  width: React.PropTypes.number,
-  disabled: React.PropTypes.bool
+  upperBound: PropTypes.bool,
+  validationState: PropTypes.string,
+  boundIncluded: PropTypes.bool.isRequired,
+  hidden: PropTypes.bool.isRequired,
+  onRangeInputBlur: PropTypes.func,
+  width: PropTypes.number,
+  disabled: PropTypes.bool
 };
 
 RangeInput.defaultProps = {

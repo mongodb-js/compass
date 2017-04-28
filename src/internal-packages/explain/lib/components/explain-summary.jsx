@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const SummaryStat = require('./summary-stat');
 const SummaryIndexStat = require('./summary-index-stat');
 const FlexBox = require('./shared/flexbox');
@@ -75,14 +76,14 @@ class ExplainSummary extends React.Component {
 }
 
 ExplainSummary.propTypes = {
-  nReturned: React.PropTypes.number.isRequired,
-  totalKeysExamined: React.PropTypes.number.isRequired,
-  totalDocsExamined: React.PropTypes.number.isRequired,
-  executionTimeMillis: React.PropTypes.number.isRequired,
-  inMemorySort: React.PropTypes.bool.isRequired,
-  indexType: React.PropTypes.oneOf(['MULTIPLE', 'UNAVAILABLE', 'COLLSCAN',
+  nReturned: PropTypes.number.isRequired,
+  totalKeysExamined: PropTypes.number.isRequired,
+  totalDocsExamined: PropTypes.number.isRequired,
+  executionTimeMillis: PropTypes.number.isRequired,
+  inMemorySort: PropTypes.bool.isRequired,
+  indexType: PropTypes.oneOf(['MULTIPLE', 'UNAVAILABLE', 'COLLSCAN',
     'COVERED', 'INDEX']).isRequired,
-  index: React.PropTypes.object
+  index: PropTypes.object
 };
 
 ExplainSummary.displayName = 'ExplainSummary';

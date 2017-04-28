@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const app = require('hadron-app');
 
 class SidebarInstanceProperties extends React.Component {
@@ -54,10 +55,10 @@ class SidebarInstanceProperties extends React.Component {
 }
 
 SidebarInstanceProperties.propTypes = {
-  connection: React.PropTypes.object,
-  instance: React.PropTypes.object,
-  fetching: React.PropTypes.bool,
-  activeNamespace: React.PropTypes.string.isRequired
+  connection: PropTypes.object,
+  instance: PropTypes.object,
+  fetching: PropTypes.bool,
+  activeNamespace: PropTypes.string.isRequired
 };
 
 module.exports = SidebarInstanceProperties;

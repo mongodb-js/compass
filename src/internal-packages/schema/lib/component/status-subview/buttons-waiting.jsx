@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const SchemaAction = require('../../action');
 
 // const debug = require('debug')('mongodb-compass:schema:status-subview:buttons-waiting');
@@ -10,8 +11,8 @@ const SHOW_WAITING_BUTTONS_TIME_MS = 15000;
  */
 const ButtonsWaiting = React.createClass({
   propTypes: {
-    samplingTimeMS: React.PropTypes.number.isRequired,
-    samplingState: React.PropTypes.string.isRequired
+    samplingTimeMS: PropTypes.number.isRequired,
+    samplingState: PropTypes.string.isRequired
   },
 
   onStopPartialButton() {

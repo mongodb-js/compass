@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const format = require('util').format;
 const React = require('react');
+const PropTypes = require('prop-types');
 const openIndexHelpLink = require('../index-link-helper');
 const ReactTooltip = require('react-tooltip');
 
@@ -76,7 +77,7 @@ class TypeColumn extends React.Component {
 TypeColumn.displayType = 'TypeColumn';
 
 TypeColumn.propTypes = {
-  index: React.PropTypes.object.isRequired
+  index: PropTypes.object.isRequired
 };
 
 module.exports = TypeColumn;

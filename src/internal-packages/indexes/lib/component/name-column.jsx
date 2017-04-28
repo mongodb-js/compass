@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const IndexDefinition = require('./index-definition');
 
 /**
@@ -23,7 +24,7 @@ class NameColumn extends React.Component {
 NameColumn.displayName = 'NameColumn';
 
 NameColumn.propTypes = {
-  index: React.PropTypes.object.isRequired
+  index: PropTypes.object.isRequired
 };
 
 module.exports = NameColumn;

@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const Type = require('./type');
 const Minichart = require('./minichart');
 const detectCoordinates = require('detect-coordinates');
@@ -17,13 +18,13 @@ const FIELD_CLASS = 'schema-field';
 const Field = React.createClass({
   propTypes: {
      // non-dotted name of the field, e.g. `street`
-    name: React.PropTypes.string,
+    name: PropTypes.string,
      // full dotted name of the field, e.g. `address.street`
-    path: React.PropTypes.string,
+    path: PropTypes.string,
      // array of type objects present in this field
-    types: React.PropTypes.array,
+    types: PropTypes.array,
      // array of subfields in a nested documents
-    fields: React.PropTypes.array
+    fields: PropTypes.array
   },
 
   getInitialState() {

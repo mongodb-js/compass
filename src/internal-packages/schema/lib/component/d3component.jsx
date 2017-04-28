@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const ReactDOM = require('react-dom');
 const d3 = require('d3');
 const _ = require('lodash');
@@ -8,13 +9,13 @@ const _ = require('lodash');
 const D3Component = React.createClass({
 
   propTypes: {
-    fieldName: React.PropTypes.string.isRequired,
-    type: React.PropTypes.object.isRequired,
-    renderMode: React.PropTypes.oneOf(['svg', 'div']),
-    width: React.PropTypes.number,
-    height: React.PropTypes.number,
-    fn: React.PropTypes.func.isRequired,
-    query: React.PropTypes.any
+    fieldName: PropTypes.string.isRequired,
+    type: PropTypes.object.isRequired,
+    renderMode: PropTypes.oneOf(['svg', 'div']),
+    width: PropTypes.number,
+    height: PropTypes.number,
+    fn: PropTypes.func.isRequired,
+    query: PropTypes.any
   },
 
   getInitialState() {

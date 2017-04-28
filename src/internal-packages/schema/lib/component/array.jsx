@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const _ = require('lodash');
 const pluralize = require('pluralize');
 const numeral = require('numeral');
@@ -8,8 +9,8 @@ const numeral = require('numeral');
 const ArrayMinichart = React.createClass({
 
   propTypes: {
-    type: React.PropTypes.object.isRequired,
-    nestedDocType: React.PropTypes.object
+    type: PropTypes.object.isRequired,
+    nestedDocType: PropTypes.object
   },
 
   render() {

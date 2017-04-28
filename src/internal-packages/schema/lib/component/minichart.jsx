@@ -1,5 +1,6 @@
 const app = require('hadron-app');
 const React = require('react');
+const PropTypes = require('prop-types');
 const UniqueMinichart = require('./unique');
 const _ = require('lodash');
 const DocumentMinichart = require('./document');
@@ -15,9 +16,9 @@ const { STRING, DECIMAL_128, DOUBLE, LONG, INT_32, NUMBER } = require('../helper
 const Minichart = React.createClass({
 
   propTypes: {
-    fieldName: React.PropTypes.string.isRequired,
-    type: React.PropTypes.object.isRequired,
-    nestedDocType: React.PropTypes.object
+    fieldName: PropTypes.string.isRequired,
+    type: PropTypes.object.isRequired,
+    nestedDocType: PropTypes.object
   },
 
   getInitialState() {

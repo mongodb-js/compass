@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const Action = require('../action/index-actions');
 
 /**
@@ -58,9 +59,9 @@ class CreateIndexCheckbox extends React.Component {
 CreateIndexCheckbox.displayName = 'CreateIndexCheckbox';
 
 CreateIndexCheckbox.propTypes = {
-  description: React.PropTypes.string.isRequired,
-  isParam: React.PropTypes.bool.isRequired,
-  option: React.PropTypes.string.isRequired
+  description: PropTypes.string.isRequired,
+  isParam: PropTypes.bool.isRequired,
+  option: PropTypes.string.isRequired
 };
 
 module.exports = CreateIndexCheckbox;

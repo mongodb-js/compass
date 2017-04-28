@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const VegaLite = require('react-vega-lite').default;
 const Vega = require('react-vega').default;
 
@@ -34,14 +35,14 @@ class Chart extends React.Component {
 }
 
 Chart.propTypes = {
-  specType: React.PropTypes.oneOf(['vega', 'vega-lite']),
-  data: React.PropTypes.array.isRequired,
-  width: React.PropTypes.number.isRequired,
-  height: React.PropTypes.number.isRequired,
-  padding: React.PropTypes.object,
-  className: React.PropTypes.string,
-  renderer: React.PropTypes.oneOf(['svg', 'canvas']),
-  spec: React.PropTypes.object.isRequired
+  specType: PropTypes.oneOf(['vega', 'vega-lite']),
+  data: PropTypes.array.isRequired,
+  width: PropTypes.number.isRequired,
+  height: PropTypes.number.isRequired,
+  padding: PropTypes.object,
+  className: PropTypes.string,
+  renderer: PropTypes.oneOf(['svg', 'canvas']),
+  spec: PropTypes.object.isRequired
 };
 
 Chart.defaultProps = {

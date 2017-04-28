@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const _ = require('lodash');
 const numeral = require('numeral');
 const { TOOLTIP_IDS } = require('../constants');
@@ -15,13 +16,13 @@ const TYPE_CLASS = 'schema-field-wrapper';
  */
 const Type = React.createClass({
   propTypes: {
-    name: React.PropTypes.string.isRequired,  // type name, e.g. `Number`
-    types: React.PropTypes.array,             // array of types (for subtypes)
-    activeType: React.PropTypes.any,          // currently active type overall
-    self: React.PropTypes.object,             // a reference to this type
-    probability: React.PropTypes.number.isRequired,  // length of bar
-    renderType: React.PropTypes.func.isRequired,     // callback function
-    showSubTypes: React.PropTypes.bool.isRequired    // should subtypes be rendered?
+    name: PropTypes.string.isRequired,  // type name, e.g. `Number`
+    types: PropTypes.array,             // array of types (for subtypes)
+    activeType: PropTypes.any,          // currently active type overall
+    self: PropTypes.object,             // a reference to this type
+    probability: PropTypes.number.isRequired,  // length of bar
+    renderType: PropTypes.func.isRequired,     // callback function
+    showSubTypes: PropTypes.bool.isRequired    // should subtypes be rendered?
   },
 
   /**

@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const Dropdown = require('react-bootstrap').Dropdown;
 const MenuItem = require('react-bootstrap').MenuItem;
 const FontAwesome = require('react-fontawesome');
@@ -136,17 +137,17 @@ class DraggableField extends React.Component {
 }
 
 DraggableField.propTypes = {
-  fieldName: React.PropTypes.string.isRequired,
-  fieldPath: React.PropTypes.string.isRequired,
-  channelName: React.PropTypes.string,
-  type: React.PropTypes.oneOf(_.values(MEASUREMENT_ENUM)),
-  aggregate: React.PropTypes.oneOf(_.values(AGGREGATE_FUNCTION_ENUM)),
-  enableMenus: React.PropTypes.bool,
-  disabled: React.PropTypes.bool,
-  selectAggregate: React.PropTypes.func,
-  selectMeasurement: React.PropTypes.func,
-  connectDragSource: React.PropTypes.func,
-  onRemove: React.PropTypes.func
+  fieldName: PropTypes.string.isRequired,
+  fieldPath: PropTypes.string.isRequired,
+  channelName: PropTypes.string,
+  type: PropTypes.oneOf(_.values(MEASUREMENT_ENUM)),
+  aggregate: PropTypes.oneOf(_.values(AGGREGATE_FUNCTION_ENUM)),
+  enableMenus: PropTypes.bool,
+  disabled: PropTypes.bool,
+  selectAggregate: PropTypes.func,
+  selectMeasurement: PropTypes.func,
+  connectDragSource: PropTypes.func,
+  onRemove: PropTypes.func
 };
 
 DraggableField.displayName = 'DraggableField';

@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const _ = require('lodash');
 
 // const debug = require('debug')('mongodb-compass:schema:status-subview:steps');
@@ -11,8 +12,8 @@ const SHOW_STEPS_TIME_MS = 3000;
 const SchemaSteps = React.createClass({
 
   propTypes: {
-    samplingTimeMS: React.PropTypes.number.isRequired,
-    samplingState: React.PropTypes.string.isRequired
+    samplingTimeMS: PropTypes.number.isRequired,
+    samplingState: PropTypes.string.isRequired
   },
 
   getInitialState() {

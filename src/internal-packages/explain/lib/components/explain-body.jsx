@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const ExplainJSON = require('./explain-json');
 const ExplainTree = require('./explain-tree');
 const ExplainSummary = require('./explain-summary');
@@ -48,16 +49,16 @@ class ExplainBody extends React.Component {
 }
 
 ExplainBody.propTypes = {
-  viewType: React.PropTypes.oneOf(['tree', 'json']),
-  rawExplainObject: React.PropTypes.object.isRequired,
-  nReturned: React.PropTypes.number.isRequired,
-  totalKeysExamined: React.PropTypes.number.isRequired,
-  totalDocsExamined: React.PropTypes.number.isRequired,
-  executionTimeMillis: React.PropTypes.number.isRequired,
-  inMemorySort: React.PropTypes.bool.isRequired,
-  indexType: React.PropTypes.oneOf(['MULTIPLE', 'UNAVAILABLE', 'COLLSCAN',
+  viewType: PropTypes.oneOf(['tree', 'json']),
+  rawExplainObject: PropTypes.object.isRequired,
+  nReturned: PropTypes.number.isRequired,
+  totalKeysExamined: PropTypes.number.isRequired,
+  totalDocsExamined: PropTypes.number.isRequired,
+  executionTimeMillis: PropTypes.number.isRequired,
+  inMemorySort: PropTypes.bool.isRequired,
+  indexType: PropTypes.oneOf(['MULTIPLE', 'UNAVAILABLE', 'COLLSCAN',
     'COVERED', 'INDEX']).isRequired,
-  index: React.PropTypes.object
+  index: PropTypes.object
 };
 
 ExplainBody.defaultProps = {

@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const { TextButton } = require('hadron-react-buttons');
 
 /**
@@ -153,10 +154,10 @@ class RemoveDocumentFooter extends React.Component {
 RemoveDocumentFooter.displayName = 'RemoveDocumentFooter';
 
 RemoveDocumentFooter.propTypes = {
-  doc: React.PropTypes.object.isRequired,
-  actions: React.PropTypes.object.isRequired,
-  removeStore: React.PropTypes.object.isRequired,
-  cancelHandler: React.PropTypes.func.isRequired
+  doc: PropTypes.object.isRequired,
+  actions: PropTypes.object.isRequired,
+  removeStore: PropTypes.object.isRequired,
+  cancelHandler: PropTypes.func.isRequired
 };
 
 module.exports = RemoveDocumentFooter;

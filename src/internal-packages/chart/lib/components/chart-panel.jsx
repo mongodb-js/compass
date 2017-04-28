@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const { FormGroup } = require('react-bootstrap');
 const { OptionSelector } = require('hadron-react-components');
 
@@ -67,9 +68,9 @@ class ChartPanel extends React.Component {
 }
 
 ChartPanel.propTypes = {
-  chartType: React.PropTypes.string.isRequired,
-  encodedChannels: React.PropTypes.object.isRequired,
-  actions: React.PropTypes.object
+  chartType: PropTypes.string.isRequired,
+  encodedChannels: PropTypes.object.isRequired,
+  actions: PropTypes.object
 };
 
 ChartPanel.defaultProps = {

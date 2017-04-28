@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 
 class StatusRow extends React.Component {
 
@@ -17,7 +18,7 @@ class StatusRow extends React.Component {
 }
 
 StatusRow.propTypes = {
-  children: React.PropTypes.node
+  children: PropTypes.node
 };
 
 StatusRow.displayName = 'StatusRow';

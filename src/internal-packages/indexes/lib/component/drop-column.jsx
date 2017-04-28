@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const DropIndexModal = require('./drop-index-modal');
 
 /**
@@ -64,7 +65,7 @@ class DropColumn extends React.Component {
 DropColumn.displayName = 'DropColumn';
 
 DropColumn.propTypes = {
-  indexName: React.PropTypes.string.isRequired
+  indexName: PropTypes.string.isRequired
 };
 
 module.exports = DropColumn;
