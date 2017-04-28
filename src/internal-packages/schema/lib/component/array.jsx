@@ -6,13 +6,7 @@ const numeral = require('numeral');
 
 // const debug = require('debug')('mongodb-compass:schema:array');
 
-const ArrayMinichart = React.createClass({
-
-  propTypes: {
-    type: PropTypes.object.isRequired,
-    nestedDocType: PropTypes.object
-  },
-
+class ArrayMinichart extends React.Component {
   render() {
     let arrayOfFieldsMessage = '';
     if (this.props.nestedDocType) {
@@ -42,6 +36,11 @@ const ArrayMinichart = React.createClass({
       </div>
     );
   }
-});
+}
+
+ArrayMinichart.propTypes = {
+  type: PropTypes.object.isRequired,
+  nestedDocType: PropTypes.object
+};
 
 module.exports = ArrayMinichart;

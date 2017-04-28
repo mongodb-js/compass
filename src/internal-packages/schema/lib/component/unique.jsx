@@ -9,13 +9,7 @@ const { DECIMAL_128, DOUBLE, LONG, INT_32 } = require('../helpers');
 
 // const debug = require('debug')('mongodb-compass:minichart:unique');
 
-const ValueBubble = React.createClass({
-  propTypes: {
-    fieldName: PropTypes.string.isRequired,
-    value: PropTypes.any.isRequired,
-    query: PropTypes.any
-  },
-
+class ValueBubble extends React.Component {
   onBubbleClicked(e) {
     const QueryAction = app.appRegistry.getAction('Query.Actions');
     const action = e.shiftKey ?
@@ -25,7 +19,7 @@ const ValueBubble = React.createClass({
       value: this.props.value,
       unsetIfSet: true
     });
-  },
+  }
 
   /**
    * converts the passed in value into a string, supports the 4 numeric
@@ -47,7 +41,7 @@ const ValueBubble = React.createClass({
       return value;
     }
     return String(value);
-  },
+  }
 
   render() {
     const value = this._extractStringValue(this.props.value);
@@ -61,22 +55,21 @@ const ValueBubble = React.createClass({
       </li>
     );
   }
-});
+}
+
+ValueBubble.propTypes = {
+  fieldName: PropTypes.string.isRequired,
+  value: PropTypes.any.isRequired,
+  query: PropTypes.any
+};
 
 /* eslint react/no-multi-comp: 0 */
-const UniqueMinichart = React.createClass({
-  propTypes: {
-    fieldName: PropTypes.string.isRequired,
-    type: PropTypes.object.isRequired,
-    width: PropTypes.number,
-    query: PropTypes.any
-  },
-
+class UniqueMiniChart extends React.Component {
   getInitialState() {
     return {
       sample: _.sample(this.props.type.values, 20)
     };
-  },
+  }
 
   onRefresh(e) {
     e.stopPropagation();
@@ -84,7 +77,7 @@ const UniqueMinichart = React.createClass({
     this.setState({
       sample: _.sample(this.props.type.values, 20)
     });
-  },
+  }
 
   /**
    * Render a single field;
@@ -131,6 +124,13 @@ const UniqueMinichart = React.createClass({
       </div>
     );
   }
-});
+}
 
-module.exports = UniqueMinichart;
+UniqueMiniChart.propTypes = {
+  fieldName: PropTypes.string.isRequired,
+  type: PropTypes.object.isRequired,
+  width: PropTypes.number,
+  query: PropTypes.any
+};
+
+module.exports = UniqueMiniChart;

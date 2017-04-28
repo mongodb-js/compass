@@ -3,12 +3,7 @@ const PropTypes = require('prop-types');
 const pluralize = require('pluralize');
 const _ = require('lodash');
 
-const DocumentMinichart = React.createClass({
-
-  propTypes: {
-    nestedDocType: PropTypes.object
-  },
-
+class DocumentMinichart extends React.Component {
   render() {
     let docFieldsMessage = '';
     if (this.props.nestedDocType) {
@@ -26,6 +21,10 @@ const DocumentMinichart = React.createClass({
       </div>
     );
   }
-});
+}
+
+DocumentMinichart.propTypes = {
+  nestedDocType: PropTypes.object
+};
 
 module.exports = DocumentMinichart;

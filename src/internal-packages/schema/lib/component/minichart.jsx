@@ -13,14 +13,7 @@ const Actions = require('../action');
 
 const { STRING, DECIMAL_128, DOUBLE, LONG, INT_32, NUMBER } = require('../helpers');
 
-const Minichart = React.createClass({
-
-  propTypes: {
-    fieldName: PropTypes.string.isRequired,
-    type: PropTypes.object.isRequired,
-    nestedDocType: PropTypes.object
-  },
-
+class Minichart extends React.Component {
   getInitialState() {
     return {
       containerWidth: null,
@@ -28,7 +21,7 @@ const Minichart = React.createClass({
       valid: true,
       userTyping: false
     };
-  },
+  }
 
   componentDidMount() {
     // yes, this is not ideal, we are rendering the empty container first to
@@ -47,17 +40,17 @@ const Minichart = React.createClass({
     });
 
     this.unsubscribeMiniChartResize = Actions.resizeMiniCharts.listen(this.handleResize);
-  },
+  }
 
   shouldComponentUpdate(nextProps, nextState) {
     return nextState.valid && !nextState.userTyping;
-  },
+  }
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.handleResize);
     this.unsubscribeQueryStore();
     this.unsubscribeMiniChartResize();
-  },
+  }
 
   /**
    * Called when the window size changes or via the resizeMiniCharts action,
@@ -70,7 +63,7 @@ const Minichart = React.createClass({
         containerWidth: rect.width
       });
     }
-  },
+  }
 
   minichartFactory() {
     // cast all numeric types to Number pseudo-type
@@ -140,7 +133,7 @@ const Minichart = React.createClass({
         fn={fn}
       />
     );
-  },
+  }
 
   render() {
     const minichart = this.state.containerWidth ? this.minichartFactory() : null;
@@ -151,6 +144,12 @@ const Minichart = React.createClass({
     );
   }
 
-});
+}
+
+Minichart.propTypes = {
+  fieldName: PropTypes.string.isRequired,
+  type: PropTypes.object.isRequired,
+  nestedDocType: PropTypes.object
+};
 
 module.exports = Minichart;

@@ -9,27 +9,22 @@ const RETRY_INC_MAXTIMEMS_VALUE = 60000;
 /**
  * Component for the entire document list.
  */
-const ButtonsError = React.createClass({
-  propTypes: {
-    maxTimeMS: PropTypes.number.isRequired,
-    samplingState: PropTypes.string.isRequired
-  },
-
+class ButtonsError extends React.Component {
   componentWillMount() {
     this.StatusAction = app.appRegistry.getAction('Status.Actions');
     this.SchemaAction = app.appRegistry.getAction('Schema.Actions');
-  },
+  }
 
   onTryAgainButtonClick() {
     // increase maxTimeMS and sample again
     this.SchemaAction.setMaxTimeMS(RETRY_INC_MAXTIMEMS_VALUE);
     this.SchemaAction.startSampling();
-  },
+  }
 
   onNewQueryButtonClick() {
     // dismiss status view
     this.StatusAction.hide();
-  },
+  }
 
   /**
    * only show the retry button if the maxTimeMS value hasn't been increased
@@ -48,7 +43,7 @@ const ButtonsError = React.createClass({
       );
     }
     return null;
-  },
+  }
 
   render() {
     // if sampling state is not `error`, don't show this component
@@ -81,6 +76,11 @@ const ButtonsError = React.createClass({
       </div>
     );
   }
-});
+}
+
+ButtonsError.propTypes = {
+  maxTimeMS: PropTypes.number.isRequired,
+  samplingState: PropTypes.string.isRequired
+};
 
 module.exports = ButtonsError;

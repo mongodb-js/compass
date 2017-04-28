@@ -6,37 +6,26 @@ const _ = require('lodash');
 
 // const debug = require('debug')('mongodb-compass:schema:d3component');
 
-const D3Component = React.createClass({
-
-  propTypes: {
-    fieldName: PropTypes.string.isRequired,
-    type: PropTypes.object.isRequired,
-    renderMode: PropTypes.oneOf(['svg', 'div']),
-    width: PropTypes.number,
-    height: PropTypes.number,
-    fn: PropTypes.func.isRequired,
-    query: PropTypes.any
-  },
-
+class D3Component extends React.Component {
   getInitialState() {
     return {
       chart: null
     };
-  },
+  }
 
   componentWillMount() {
     this.setState({
       chart: this.props.fn()
     });
-  },
+  }
 
-  componentDidMount: function() {
+  componentDidMount() {
     this._redraw();
-  },
+  }
 
   componentDidUpdate() {
     this._redraw();
-  },
+  }
 
   _getContainer() {
     let options = {
@@ -66,7 +55,7 @@ const D3Component = React.createClass({
       style: sizeOptions
     });
     return <div {...options}></div>;
-  },
+  }
 
   _redraw() {
     const el = ReactDOM.findDOMNode(this.refs.container);
@@ -83,7 +72,7 @@ const D3Component = React.createClass({
     d3.select(el)
       .datum(this.props.type.values)
       .call(this.state.chart);
-  },
+  }
 
   render() {
     const container = this._getContainer();
@@ -93,6 +82,16 @@ const D3Component = React.createClass({
       </div>
     );
   }
-});
+}
+
+D3Component.propTypes = {
+  fieldName: PropTypes.string.isRequired,
+  type: PropTypes.object.isRequired,
+  renderMode: PropTypes.oneOf(['svg', 'div']),
+  width: PropTypes.number,
+  height: PropTypes.number,
+  fn: PropTypes.func.isRequired,
+  query: PropTypes.any
+};
 
 module.exports = D3Component;

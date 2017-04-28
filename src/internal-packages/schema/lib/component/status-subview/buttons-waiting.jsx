@@ -9,15 +9,10 @@ const SHOW_WAITING_BUTTONS_TIME_MS = 15000;
 /**
  * Component for the entire document list.
  */
-const ButtonsWaiting = React.createClass({
-  propTypes: {
-    samplingTimeMS: PropTypes.number.isRequired,
-    samplingState: PropTypes.string.isRequired
-  },
-
+class ButtonsWaiting extends React.Component {
   onStopPartialButton() {
     SchemaAction.stopSampling();
-  },
+  }
 
   render() {
     // if in timeout state, don't show this component
@@ -51,6 +46,11 @@ const ButtonsWaiting = React.createClass({
       </div>
     );
   }
-});
+}
+
+ButtonsWaiting.propTypes = {
+  samplingTimeMS: PropTypes.number.isRequired,
+  samplingState: PropTypes.string.isRequired
+};
 
 module.exports = ButtonsWaiting;
