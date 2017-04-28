@@ -14,7 +14,6 @@ if (!process.env.HADRON_DISTRIBUTION) {
 const app = require('hadron-app');
 const pkg = require('../../package.json');
 const path = require('path');
-const os = require('os');
 const AppRegistry = require('hadron-app-registry');
 const { PackageManager } = require('hadron-package-manager');
 
