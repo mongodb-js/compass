@@ -65,10 +65,9 @@ ValueBubble.propTypes = {
 
 /* eslint react/no-multi-comp: 0 */
 class UniqueMiniChart extends React.Component {
-  getInitialState() {
-    return {
-      sample: _.sample(this.props.type.values, 20)
-    };
+  constructor(props) {
+    super(props);
+    this.state = { sample: _.sample(this.props.type.values, 20) };
   }
 
   onRefresh(e) {

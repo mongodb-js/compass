@@ -13,22 +13,24 @@ const Actions = require('../action');
 
 const { STRING, DECIMAL_128, DOUBLE, LONG, INT_32, NUMBER } = require('../helpers');
 
-class Minichart extends React.Component {
-  getInitialState() {
-    return {
+class MiniChart extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
       containerWidth: null,
       filter: {},
       valid: true,
       userTyping: false
     };
+    this.resizeListener = this.handleResize.bind(this);
   }
 
   componentDidMount() {
     // yes, this is not ideal, we are rendering the empty container first to
     // measure the size, then render the component with content a second time,
     // but it is not noticable to the user.
-    this.handleResize();
-    window.addEventListener('resize', this.handleResize);
+    this.resizeListener();
+    window.addEventListener('resize', this.resizeListener);
 
     const QueryStore = app.appRegistry.getStore('Query.Store');
     this.unsubscribeQueryStore = QueryStore.listen((store) => {
@@ -39,7 +41,7 @@ class Minichart extends React.Component {
       });
     });
 
-    this.unsubscribeMiniChartResize = Actions.resizeMiniCharts.listen(this.handleResize);
+    this.unsubscribeMiniChartResize = Actions.resizeMiniCharts.listen(this.resizeListener);
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -47,7 +49,7 @@ class Minichart extends React.Component {
   }
 
   componentWillUnmount() {
-    window.removeEventListener('resize', this.handleResize);
+    window.removeEventListener('resize', this.resizeListener);
     this.unsubscribeQueryStore();
     this.unsubscribeMiniChartResize();
   }
@@ -57,7 +59,7 @@ class Minichart extends React.Component {
    * triggered by index.jsx. Only redraw if the size is > 0.
    */
   handleResize() {
-    const rect = this.refs.minichart.getBoundingClientRect();
+    const rect = this._mc.getBoundingClientRect();
     if (rect.width > 0) {
       this.setState({
         containerWidth: rect.width
@@ -138,7 +140,7 @@ class Minichart extends React.Component {
   render() {
     const minichart = this.state.containerWidth ? this.minichartFactory() : null;
     return (
-      <div ref="minichart">
+      <div ref={(chart) => { this._mc = chart; }}>
         {minichart}
       </div>
     );
@@ -146,10 +148,10 @@ class Minichart extends React.Component {
 
 }
 
-Minichart.propTypes = {
+MiniChart.propTypes = {
   fieldName: PropTypes.string.isRequired,
   type: PropTypes.object.isRequired,
   nestedDocType: PropTypes.object
 };
 
-module.exports = Minichart;
+module.exports = MiniChart;

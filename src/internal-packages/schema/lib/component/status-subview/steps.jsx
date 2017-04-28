@@ -11,10 +11,9 @@ const SHOW_STEPS_TIME_MS = 3000;
  */
 class SchemaSteps extends React.Component {
 
-  getInitialState() {
-    return {
-      errorState: null
-    };
+  constructor(props) {
+    super(props);
+    this.state = { errorState: null };
   }
 
   /**

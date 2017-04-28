@@ -7,10 +7,9 @@ const _ = require('lodash');
 // const debug = require('debug')('mongodb-compass:schema:d3component');
 
 class D3Component extends React.Component {
-  getInitialState() {
-    return {
-      chart: null
-    };
+  constructor(props) {
+    super(props);
+    this.state = { chart: null };
   }
 
   componentWillMount() {

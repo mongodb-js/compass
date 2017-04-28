@@ -16,8 +16,9 @@ const FIELD_CLASS = 'schema-field';
  * Component for the entire document list.
  */
 class Field extends React.Component {
-  getInitialState() {
-    return {
+  constructor(props) {
+    super(props);
+    this.state = {
       // whether the nested fields are collapsed (true) or expanded (false)
       collapsed: true,
       // a reference to the active type object (only null initially)
