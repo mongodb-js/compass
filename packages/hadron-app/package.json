@@ -37,14 +37,14 @@
     "hadron-auto-update-manager": "^0.0.12",
     "hadron-compile-cache": "^1.0.1",
     "hadron-module-cache": "^0.0.3",
-    "hadron-react-components": "^0.10.0",
+    "hadron-react-components": "^1.0.0",
     "hadron-style-manager": "^0.1.0",
     "less": "^2.6.1",
     "less-cache": "^0.23.0",
     "mongodb-data-service": "^2.11.0",
     "prop-types": "^15.5.8",
-    "react": "^15.5.8",
-    "react-dom": "^15.5.8",
+    "react": "^15.5.4",
+    "react-dom": "^15.5.4",
     "reflux": "0.4.1"
   }
 }
