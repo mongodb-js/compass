@@ -1,5 +1,6 @@
 const timer = require('d3-timer');
 const React = require('react');
+const PropTypes = require('prop-types');
 const ChartComponent = require('./chart-component');
 const OpCountersStore = require('../stores/opcounters-store');
 const NetworkStore = require('../stores/network-store');
@@ -59,7 +60,7 @@ class ServerStatsComponent extends React.Component {
 }
 
 ServerStatsComponent.propTypes = {
-  interval: React.PropTypes.number.isRequired
+  interval: PropTypes.number.isRequired
 };
 
 

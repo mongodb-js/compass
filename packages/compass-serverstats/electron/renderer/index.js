@@ -25,6 +25,7 @@ DataServiceStore.listen((error, ds) => {
   );
 });
 
-app.appRegistry = new AppRegistry();
-app.instance = { host: { cpu_cores: 4 } };
+global.hadronApp = app;
+global.hadronApp.appRegistry = new AppRegistry();
+global.hadronApp.instance = { host: { cpu_cores: 4 } };
 DataServiceActions.connect(CONNECTION);

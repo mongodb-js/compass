@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 
 // const debug = require('debug')('mongodb-compass:server-stats:dberror-component');
 
@@ -48,7 +49,7 @@ class DBErrorComponent extends React.Component {
 }
 
 DBErrorComponent.propTypes = {
-  store: React.PropTypes.any.isRequired
+  store: PropTypes.any.isRequired
 };
 
 DBErrorComponent.displayName = 'DBErrorComponent';

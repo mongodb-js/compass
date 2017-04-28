@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const ReactDOM = require('react-dom');
 const Actions = require('../actions');
 const d3 = require('d3');
@@ -129,10 +130,10 @@ class ChartComponent extends React.Component {
 }
 
 ChartComponent.propTypes = {
-  width: React.PropTypes.number,
-  height: React.PropTypes.number,
-  store: React.PropTypes.any.isRequired,
-  dispatcher: React.PropTypes.any.isRequired
+  width: PropTypes.number,
+  height: PropTypes.number,
+  store: PropTypes.any.isRequired,
+  dispatcher: PropTypes.any.isRequired
 };
 
 ChartComponent.displayName = 'ChartComponent';

@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const DetailViewComponent = require('./detailview-component');
 const CurrentOpComponent = require('./current-op-component');
 const TopComponent = require('./top-component');
@@ -21,7 +22,7 @@ class ServerStatsListsComponent extends React.Component {
 }
 
 ServerStatsListsComponent.propTypes = {
-  interval: React.PropTypes.number.isRequired
+  interval: PropTypes.number.isRequired
 };
 
 module.exports = ServerStatsListsComponent;

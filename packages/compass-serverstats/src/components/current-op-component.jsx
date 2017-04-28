@@ -1,5 +1,6 @@
 const timer = require('d3-timer');
 const React = require('react');
+const PropTypes = require('prop-types');
 const { DataServiceActions } = require('mongodb-data-service');
 const Actions = require('../actions');
 
@@ -164,8 +165,8 @@ class CurrentOpComponent extends React.Component {
 }
 
 CurrentOpComponent.propTypes = {
-  store: React.PropTypes.any.isRequired,
-  interval: React.PropTypes.number.isRequired
+  store: PropTypes.any.isRequired,
+  interval: PropTypes.number.isRequired
 };
 
 CurrentOpComponent.displayName = 'CurrentOpComponent';

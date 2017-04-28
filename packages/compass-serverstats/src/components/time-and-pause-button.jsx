@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const Actions = require('../actions');
 const ServerStatsStore = require('../stores/server-stats-graphs-store');
 
@@ -49,7 +50,7 @@ class TimeAndPauseButton extends React.Component {
 }
 
 TimeAndPauseButton.propTypes = {
-  paused: React.PropTypes.bool.isRequired
+  paused: PropTypes.bool.isRequired
 };
 
 TimeAndPauseButton.defaultProps = {

@@ -1,5 +1,6 @@
 const timer = require('d3-timer');
 const React = require('react');
+const PropTypes = require('prop-types');
 const Actions = require('../actions');
 const { DataServiceActions } = require('mongodb-data-service');
 
@@ -163,8 +164,8 @@ class TopComponent extends React.Component {
 }
 
 TopComponent.propTypes = {
-  store: React.PropTypes.any.isRequired,
-  interval: React.PropTypes.number.isRequired
+  store: PropTypes.any.isRequired,
+  interval: PropTypes.number.isRequired
 };
 
 TopComponent.displayName = 'TopComponent';

@@ -7,7 +7,6 @@ const TimeAndPauseButton = require('./time-and-pause-button');
 const DBErrorStore = require('../stores/dberror-store');
 const ServerStatsStore = require('../stores/server-stats-graphs-store');
 const { StatusRow } = require('hadron-react-components');
-const app = require('hadron-app');
 
 /**
  * The default interval.

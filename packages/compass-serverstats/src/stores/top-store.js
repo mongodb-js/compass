@@ -1,5 +1,4 @@
 const Reflux = require('reflux');
-const app = require('hadron-app');
 const Actions = require('../actions');
 const toNS = require('mongodb-ns');
 const { DataServiceActions } = require('mongodb-data-service');
@@ -101,7 +100,7 @@ const TopStore = Reflux.createStore({
       if (response !== undefined && ('totals' in response)) {
         doc = response.totals;
       }
-      const numCores = app.instance.host.cpu_cores;
+      const numCores = global.hadronApp.instance.host.cpu_cores;
       const cadence = 1000000; // Can safetly assume we're polling 1x/sec TODO
       const t2s = {};
       for (let collname in doc) { // eslint-disable-line prefer-const
