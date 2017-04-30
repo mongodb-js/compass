@@ -75,6 +75,26 @@ function convertUserBackendToJSON(done) {
   oldUser.fetch();
 }
 
+/**
+ * The showExplainPlanTab preference default value changed
+ * to true in v1.2.0-beta.2
+ *
+ * @param  {Function} done   callback when finished
+ */
+function showExplainTab(done) {
+  var attributes = {
+    showExplainPlanTab: true
+  };
+  app.preferences.save(attributes, {
+    success: function() {
+      done(null);
+    },
+    error: function(model, err) {
+      done(err);
+    }
+  });
+}
+
 module.exports = function(previousVersion, currentVersion, callback) {
   if (previousVersion === '0.0.0') {
     return callback(null, '1.2.0 migration not required.');
@@ -82,7 +102,8 @@ module.exports = function(previousVersion, currentVersion, callback) {
   // do migration tasks here
   async.series([
     convertPreferencesBackendToJSON,
-    convertUserBackendToJSON
+    convertUserBackendToJSON,
+    showExplainTab
   ], function(err) {
     if (err) {
       return callback(err);

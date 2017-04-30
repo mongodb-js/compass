@@ -164,7 +164,7 @@ var Preferences = Model.extend(storageMixin, {
     showExplainPlanTab: {
       type: 'boolean',
       required: true,
-      default: false
+      default: true
     },
     /**
      * Allow single document CRUD.
