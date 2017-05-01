@@ -310,7 +310,7 @@ var Application = View.extend({
   tourClosed: function() {
     app.preferences.unset('showFeatureTour');
     app.preferences.save();
-    if (!app.preferences.showedNetworkOptIn) {
+    if (!app.preferences.showedNetworkOptIn || process.env.NODE_ENV === 'testing') {
       this.showOptIn();
     }
   },

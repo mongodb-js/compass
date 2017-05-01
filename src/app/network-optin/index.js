@@ -61,7 +61,7 @@ var NetworkOptInView = View.extend({
   },
   initialize: function() {
     this.preferences = app.preferences;
-    if (!app.preferences.showedNetworkOptIn) {
+    if (!app.preferences.showedNetworkOptIn || process.env.NODE_ENV === 'testing') {
       // first time, enable all checkboxes (but not features yet)
       debug('first time showing this dialog, propose to turn everything on');
       this.buttonTitle = 'Start Using Compass';
