@@ -1,4 +1,5 @@
 const React = require('react');
+const createReactClass = require('create-react-class');
 const ButtonsWaiting = require('./buttons-waiting');
 
 const StateMixin = require('reflux-state-mixin');
@@ -12,7 +13,7 @@ const SchemaSteps = require('./steps');
 /**
  * Component for the entire document list.
  */
-const SchemaStatusSubview = React.createClass({
+const SchemaStatusSubview = createReactClass({
 
   mixins: [
     StateMixin.connect(SchemaStore)

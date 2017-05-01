@@ -1,4 +1,5 @@
 const React = require('react');
+const createReactClass = require('create-react-class');
 const StatusStore = require('../store');
 const StateMixin = require('reflux-state-mixin');
 
@@ -9,7 +10,7 @@ const STATUS_ID = 'statusbar';
 /**
  * Component for the entire document list.
  */
-const Status = React.createClass({
+const Status = createReactClass({
 
   mixins: [ StateMixin.connect(StatusStore) ],
 

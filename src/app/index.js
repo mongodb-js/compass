@@ -435,9 +435,11 @@ app.extend({
         // onConnected hook, call it.
         const stores = global.hadronApp.appRegistry.stores;
         for (let key in stores) {
-          const store = stores[key];
-          if (store.onConnected) {
-            store.onConnected(error, ds);
+          if (stores.hasOwnProperty(key)) {
+            const store = stores[key];
+            if (store.onConnected) {
+              store.onConnected(error, ds);
+            }
           }
         }
         if (done) {
