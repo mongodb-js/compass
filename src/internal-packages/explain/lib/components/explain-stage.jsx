@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const Button = require('react-bootstrap').Button;
 const d3 = require('d3');
 const _ = require('lodash');
@@ -190,18 +191,18 @@ class StageComponent extends React.Component {
 }
 
 StageComponent.propTypes = {
-  name: React.PropTypes.string.isRequired,
-  nReturned: React.PropTypes.number.isRequired,
-  highlights: React.PropTypes.object.isRequired,
-  curStageExecTimeMS: React.PropTypes.number.isRequired,
-  prevStageExecTimeMS: React.PropTypes.number.isRequired,
-  totalExecTimeMS: React.PropTypes.number.isRequired,
-  isShard: React.PropTypes.bool.isRequired,
-  details: React.PropTypes.object.isRequired,
-  x: React.PropTypes.number.isRequired,
-  y: React.PropTypes.number.isRequired,
-  xoffset: React.PropTypes.number.isRequired,
-  yoffset: React.PropTypes.number.isRequired
+  name: PropTypes.string.isRequired,
+  nReturned: PropTypes.number.isRequired,
+  highlights: PropTypes.object.isRequired,
+  curStageExecTimeMS: PropTypes.number.isRequired,
+  prevStageExecTimeMS: PropTypes.number.isRequired,
+  totalExecTimeMS: PropTypes.number.isRequired,
+  isShard: PropTypes.bool.isRequired,
+  details: PropTypes.object.isRequired,
+  x: PropTypes.number.isRequired,
+  y: PropTypes.number.isRequired,
+  xoffset: PropTypes.number.isRequired,
+  yoffset: PropTypes.number.isRequired
 };
 
 StageComponent.defaultProps = {

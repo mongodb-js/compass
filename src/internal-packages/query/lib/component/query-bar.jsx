@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 // const EJSON = require('mongodb-extended-json');
 const QueryOption = require('./query-option');
 const OptionsToggle = require('./options-toggle');
@@ -218,31 +219,31 @@ class QueryBar extends React.Component {
 }
 
 QueryBar.propTypes = {
-  filter: React.PropTypes.object,
-  project: React.PropTypes.object,
-  sort: React.PropTypes.object,
-  skip: React.PropTypes.number,
-  limit: React.PropTypes.number,
+  filter: PropTypes.object,
+  project: PropTypes.object,
+  sort: PropTypes.object,
+  skip: PropTypes.number,
+  limit: PropTypes.number,
 
-  valid: React.PropTypes.bool,
-  filterValid: React.PropTypes.bool,
-  projectValid: React.PropTypes.bool,
-  sortValid: React.PropTypes.bool,
-  skipValid: React.PropTypes.bool,
-  limitValid: React.PropTypes.bool,
+  valid: PropTypes.bool,
+  filterValid: PropTypes.bool,
+  projectValid: PropTypes.bool,
+  sortValid: PropTypes.bool,
+  skipValid: PropTypes.bool,
+  limitValid: PropTypes.bool,
 
-  featureFlag: React.PropTypes.bool,
-  filterString: React.PropTypes.string,
-  projectString: React.PropTypes.string,
-  sortString: React.PropTypes.string,
-  skipString: React.PropTypes.string,
-  limitString: React.PropTypes.string,
+  featureFlag: PropTypes.bool,
+  filterString: PropTypes.string,
+  projectString: PropTypes.string,
+  sortString: PropTypes.string,
+  skipString: PropTypes.string,
+  limitString: PropTypes.string,
 
-  actions: React.PropTypes.object,
-  queryState: React.PropTypes.string,
-  layout: React.PropTypes.array,
-  expanded: React.PropTypes.bool,
-  lastExecutedQuery: React.PropTypes.object
+  actions: PropTypes.object,
+  queryState: PropTypes.string,
+  layout: PropTypes.array,
+  expanded: PropTypes.bool,
+  lastExecutedQuery: PropTypes.object
 };
 
 QueryBar.defaultProps = {

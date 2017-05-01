@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const _ = require('lodash');
 const Button = require('react-bootstrap').Button;
 const ButtonGroup = require('react-bootstrap').ButtonGroup;
@@ -41,12 +42,12 @@ class ViewSwitcher extends React.Component {
 }
 
 ViewSwitcher.propTypes = {
-  label: React.PropTypes.string,
-  buttonLabels: React.PropTypes.arrayOf(React.PropTypes.string).isRequired,
-  activeButton: React.PropTypes.string,
-  disabled: React.PropTypes.bool,
-  dataTestId: React.PropTypes.string,
-  onClick: React.PropTypes.func
+  label: PropTypes.string,
+  buttonLabels: PropTypes.arrayOf(PropTypes.string).isRequired,
+  activeButton: PropTypes.string,
+  disabled: PropTypes.bool,
+  dataTestId: PropTypes.string,
+  onClick: PropTypes.func
 };
 
 ViewSwitcher.displayName = 'ViewSwitcher';

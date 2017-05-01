@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const app = require('hadron-app');
 const { StatusRow } = require('hadron-react-components');
 const ExplainBody = require('./explain-body');
@@ -102,17 +103,17 @@ class CompassExplain extends React.Component {
 }
 
 CompassExplain.propTypes = {
-  explainState: React.PropTypes.oneOf(['initial', 'fetching', 'done']),
-  nReturned: React.PropTypes.number.isRequired,
-  totalKeysExamined: React.PropTypes.number.isRequired,
-  totalDocsExamined: React.PropTypes.number.isRequired,
-  executionTimeMillis: React.PropTypes.number.isRequired,
-  inMemorySort: React.PropTypes.bool.isRequired,
-  indexType: React.PropTypes.oneOf(['MULTIPLE', 'UNAVAILABLE', 'COLLSCAN',
+  explainState: PropTypes.oneOf(['initial', 'fetching', 'done']),
+  nReturned: PropTypes.number.isRequired,
+  totalKeysExamined: PropTypes.number.isRequired,
+  totalDocsExamined: PropTypes.number.isRequired,
+  executionTimeMillis: PropTypes.number.isRequired,
+  inMemorySort: PropTypes.bool.isRequired,
+  indexType: PropTypes.oneOf(['MULTIPLE', 'UNAVAILABLE', 'COLLSCAN',
     'COVERED', 'INDEX']).isRequired,
-  index: React.PropTypes.object,
-  viewType: React.PropTypes.oneOf(['tree', 'json']).isRequired,
-  rawExplainObject: React.PropTypes.object.isRequired
+  index: PropTypes.object,
+  viewType: PropTypes.oneOf(['tree', 'json']).isRequired,
+  rawExplainObject: PropTypes.object.isRequired
 };
 
 CompassExplain.defaultProps = {

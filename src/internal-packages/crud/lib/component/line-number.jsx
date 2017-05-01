@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const outsideClickable = require('react-click-outside');
 const getComponent = require('hadron-react-bson');
 const Actions = require('../actions');
@@ -299,7 +300,7 @@ class LineNumber extends React.Component {
 LineNumber.displayName = 'LineNumber';
 
 LineNumber.propTypes = {
-  element: React.PropTypes.object.isRequired
+  element: PropTypes.object.isRequired
 };
 
 module.exports = outsideClickable(LineNumber);

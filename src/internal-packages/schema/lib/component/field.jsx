@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const Type = require('./type');
 const Minichart = require('./minichart');
 const detectCoordinates = require('detect-coordinates');
@@ -14,26 +15,16 @@ const FIELD_CLASS = 'schema-field';
 /**
  * Component for the entire document list.
  */
-const Field = React.createClass({
-  propTypes: {
-     // non-dotted name of the field, e.g. `street`
-    name: React.PropTypes.string,
-     // full dotted name of the field, e.g. `address.street`
-    path: React.PropTypes.string,
-     // array of type objects present in this field
-    types: React.PropTypes.array,
-     // array of subfields in a nested documents
-    fields: React.PropTypes.array
-  },
-
-  getInitialState() {
-    return {
+class Field extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
       // whether the nested fields are collapsed (true) or expanded (false)
       collapsed: true,
       // a reference to the active type object (only null initially)
       activeType: null
     };
-  },
+  }
 
   componentWillMount() {
     // sort the types in descending order and push undefined to the end
@@ -49,7 +40,7 @@ const Field = React.createClass({
       types: types,
       activeType: types.length > 0 ? types[0] : null
     });
-  },
+  }
 
   /**
    * returns the field list (an array of <Field /> components) for nested
@@ -74,7 +65,7 @@ const Field = React.createClass({
         {fieldList}
       </div>
     );
-  },
+  }
 
   /**
    * returns Document type object of a nested document, either directly nested
@@ -100,7 +91,7 @@ const Field = React.createClass({
       return _.find(arrType.types, 'name', 'Document');
     }
     return null;
-  },
+  }
 
   /**
    * tests type for semantic interpretations, like geo coordinates, and
@@ -117,7 +108,7 @@ const Field = React.createClass({
       type.values = coords;
     }
     return type;
-  },
+  }
 
   /**
    * onclick handler to toggle collapsed/expanded state. This will hide/show
@@ -125,7 +116,7 @@ const Field = React.createClass({
    */
   titleClicked() {
     this.setState({collapsed: !this.state.collapsed});
-  },
+  }
 
   /**
    * callback passed down to each type to be called when the type is
@@ -136,7 +127,7 @@ const Field = React.createClass({
    */
   renderType(type) {
     this.setState({activeType: type});
-  },
+  }
 
   /**
    * Render a single field;
@@ -191,6 +182,18 @@ const Field = React.createClass({
       </div>
     );
   }
-});
+}
+
+Field.propTypes = {
+   // non-dotted name of the field, e.g. `street`
+  name: PropTypes.string,
+   // full dotted name of the field, e.g. `address.street`
+  path: PropTypes.string,
+   // array of type objects present in this field
+  types: PropTypes.array,
+   // array of subfields in a nested documents
+  fields: PropTypes.array
+};
+
 
 module.exports = Field;

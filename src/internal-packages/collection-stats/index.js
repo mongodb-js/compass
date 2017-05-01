@@ -19,18 +19,18 @@ const INDEXES_STATS_ITEM_ROLE = {
  * Activate all the components in the collection stats package.
  */
 function activate() {
-  app.appRegistry.registerRole('CollectionStats.CollectionStatsItem', DOCUMENTS_STATS_ITEM_ROLE);
-  app.appRegistry.registerRole('CollectionStats.CollectionStatsItem', INDEXES_STATS_ITEM_ROLE);
-  app.appRegistry.registerComponent('CollectionStats.CollectionStats', CollectionStats);
+  app.appRegistry.registerRole('CollectionHUD.Item', DOCUMENTS_STATS_ITEM_ROLE);
+  app.appRegistry.registerRole('CollectionHUD.Item', INDEXES_STATS_ITEM_ROLE);
+  app.appRegistry.registerComponent('CollectionHUD.Item', CollectionStats);
 }
 
 /**
  * Deactivate all the components in the collection stats package.
  */
 function deactivate() {
-  app.appRegistry.deregisterRole('CollectionStats.CollectionItem', DOCUMENTS_STATS_ITEM_ROLE);
-  app.appRegistry.deregisterRole('CollectionStats.CollectionStatsItem', INDEXES_STATS_ITEM_ROLE);
-  app.appRegistry.deregisterComponent('CollectionStats.CollectionStats', CollectionStats);
+  app.appRegistry.deregisterRole('CollectionHUD.Item', DOCUMENTS_STATS_ITEM_ROLE);
+  app.appRegistry.deregisterRole('CollectionHUD.Item', INDEXES_STATS_ITEM_ROLE);
+  app.appRegistry.deregisterComponent('CollectionHUD.Item', CollectionStats);
 }
 
 module.exports.activate = activate;

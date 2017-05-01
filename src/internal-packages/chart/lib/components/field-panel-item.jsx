@@ -1,5 +1,6 @@
 /* eslint react/no-multi-comp:0 */
 const React = require('react');
+const PropTypes = require('prop-types');
 const DraggableField = require('./draggable-field');
 
 class FieldGroup extends React.Component {
@@ -35,10 +36,10 @@ class FieldGroup extends React.Component {
 }
 
 FieldGroup.propTypes = {
-  fieldPath: React.PropTypes.string,
-  fieldsCache: React.PropTypes.object,
-  nestedFields: React.PropTypes.array,
-  disabled: React.PropTypes.bool
+  fieldPath: PropTypes.string,
+  fieldsCache: PropTypes.object,
+  nestedFields: PropTypes.array,
+  disabled: PropTypes.bool
 };
 
 FieldGroup.defaultProps = {
@@ -83,10 +84,10 @@ class FieldPanelItem extends React.Component {
 }
 
 FieldPanelItem.propTypes = {
-  fieldPath: React.PropTypes.string,
-  fieldsCache: React.PropTypes.object,
-  nestedFields: React.PropTypes.array,
-  disabled: React.PropTypes.bool
+  fieldPath: PropTypes.string,
+  fieldsCache: PropTypes.object,
+  nestedFields: PropTypes.array,
+  disabled: PropTypes.bool
 };
 
 FieldPanelItem.defaultProps = {

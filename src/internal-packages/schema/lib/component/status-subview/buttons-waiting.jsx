@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const SchemaAction = require('../../action');
 
 // const debug = require('debug')('mongodb-compass:schema:status-subview:buttons-waiting');
@@ -8,15 +9,10 @@ const SHOW_WAITING_BUTTONS_TIME_MS = 15000;
 /**
  * Component for the entire document list.
  */
-const ButtonsWaiting = React.createClass({
-  propTypes: {
-    samplingTimeMS: React.PropTypes.number.isRequired,
-    samplingState: React.PropTypes.string.isRequired
-  },
-
+class ButtonsWaiting extends React.Component {
   onStopPartialButton() {
     SchemaAction.stopSampling();
-  },
+  }
 
   render() {
     // if in timeout state, don't show this component
@@ -50,6 +46,11 @@ const ButtonsWaiting = React.createClass({
       </div>
     );
   }
-});
+}
+
+ButtonsWaiting.propTypes = {
+  samplingTimeMS: PropTypes.number.isRequired,
+  samplingState: PropTypes.string.isRequired
+};
 
 module.exports = ButtonsWaiting;

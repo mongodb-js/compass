@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const ValidationActions = require('../actions');
 const { FormGroup, FormControl } = require('react-bootstrap');
 
@@ -89,9 +90,9 @@ class RuleFieldSelector extends React.Component {
 }
 
 RuleFieldSelector.propTypes = {
-  id: React.PropTypes.string.isRequired,
-  field: React.PropTypes.string.isRequired,
-  isWritable: React.PropTypes.bool
+  id: PropTypes.string.isRequired,
+  field: PropTypes.string.isRequired,
+  isWritable: PropTypes.bool
 };
 
 RuleFieldSelector.displayName = 'RuleFieldSelector';

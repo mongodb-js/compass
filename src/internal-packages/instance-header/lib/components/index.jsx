@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const { StoreConnector } = require('hadron-react-components');
 const InstanceHeaderComponent = require('./instance-header');
 const Store = require('../stores');
@@ -22,7 +23,7 @@ class ConnectedInstanceHeaderComponent extends React.Component {
 }
 
 ConnectedInstanceHeaderComponent.propTypes = {
-  sidebarCollapsed: React.PropTypes.bool
+  sidebarCollapsed: PropTypes.bool
 };
 
 ConnectedInstanceHeaderComponent.displayName = 'ConnectedInstanceHeaderComponent';

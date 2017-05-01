@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const _ = require('lodash');
 
 // import dbg from 'debug';
@@ -56,8 +57,8 @@ class RuleCategoryMustNotExist extends React.Component {
 }
 
 RuleCategoryMustNotExist.propTypes = {
-  id: React.PropTypes.string.isRequired,
-  parameters: React.PropTypes.object.isRequired
+  id: PropTypes.string.isRequired,
+  parameters: PropTypes.object.isRequired
 };
 
 RuleCategoryMustNotExist.displayName = 'RuleCategoryMustNotExist';

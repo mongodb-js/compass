@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const React = require('react');
+const PropTypes = require('prop-types');
 const { Element } = require('hadron-document');
 const { TextButton } = require('hadron-react-buttons');
 
@@ -237,9 +238,9 @@ class DocumentFooter extends React.Component {
 DocumentFooter.displayName = 'DocumentFooter';
 
 DocumentFooter.propTypes = {
-  doc: React.PropTypes.object.isRequired,
-  actions: React.PropTypes.object.isRequired,
-  updateStore: React.PropTypes.object.isRequired
+  doc: PropTypes.object.isRequired,
+  actions: PropTypes.object.isRequired,
+  updateStore: PropTypes.object.isRequired
 };
 
 module.exports = DocumentFooter;

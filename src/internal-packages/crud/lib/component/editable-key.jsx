@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const chars = require('./utils');
 
 /* eslint no-return-assign:0 */
@@ -225,9 +226,9 @@ class EditableKey extends React.Component {
 EditableKey.displayName = 'EditableKey';
 
 EditableKey.propTypes = {
-  element: React.PropTypes.object.isRequired,
-  index: React.PropTypes.number,
-  isFocused: React.PropTypes.bool.isRequired
+  element: PropTypes.object.isRequired,
+  index: PropTypes.number,
+  isFocused: PropTypes.bool.isRequired
 };
 
 module.exports = EditableKey;

@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const { IconButton } = require('hadron-react-buttons');
 
 /**
@@ -99,11 +100,11 @@ class DocumentActions extends React.Component {
 DocumentActions.displayName = 'DocumentActions';
 
 DocumentActions.propTypes = {
-  edit: React.PropTypes.func.isRequired,
-  remove: React.PropTypes.func.isRequired,
-  clone: React.PropTypes.func.isRequired,
-  allExpanded: React.PropTypes.bool.isRequired,
-  expandAll: React.PropTypes.func.isRequired
+  edit: PropTypes.func.isRequired,
+  remove: PropTypes.func.isRequired,
+  clone: PropTypes.func.isRequired,
+  allExpanded: PropTypes.bool.isRequired,
+  expandAll: PropTypes.func.isRequired
 };
 
 module.exports = DocumentActions;

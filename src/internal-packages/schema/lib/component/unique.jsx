@@ -1,5 +1,6 @@
 const app = require('hadron-app');
 const React = require('react');
+const PropTypes = require('prop-types');
 const _ = require('lodash');
 const NativeListener = require('react-native-listener');
 const hasDistinctValue = require('../../../query/lib/util').hasDistinctValue;
@@ -8,13 +9,7 @@ const { DECIMAL_128, DOUBLE, LONG, INT_32 } = require('../helpers');
 
 // const debug = require('debug')('mongodb-compass:minichart:unique');
 
-const ValueBubble = React.createClass({
-  propTypes: {
-    fieldName: React.PropTypes.string.isRequired,
-    value: React.PropTypes.any.isRequired,
-    query: React.PropTypes.any
-  },
-
+class ValueBubble extends React.Component {
   onBubbleClicked(e) {
     const QueryAction = app.appRegistry.getAction('Query.Actions');
     const action = e.shiftKey ?
@@ -24,7 +19,7 @@ const ValueBubble = React.createClass({
       value: this.props.value,
       unsetIfSet: true
     });
-  },
+  }
 
   /**
    * converts the passed in value into a string, supports the 4 numeric
@@ -46,7 +41,7 @@ const ValueBubble = React.createClass({
       return value;
     }
     return String(value);
-  },
+  }
 
   render() {
     const value = this._extractStringValue(this.props.value);
@@ -60,22 +55,20 @@ const ValueBubble = React.createClass({
       </li>
     );
   }
-});
+}
+
+ValueBubble.propTypes = {
+  fieldName: PropTypes.string.isRequired,
+  value: PropTypes.any.isRequired,
+  query: PropTypes.any
+};
 
 /* eslint react/no-multi-comp: 0 */
-const UniqueMinichart = React.createClass({
-  propTypes: {
-    fieldName: React.PropTypes.string.isRequired,
-    type: React.PropTypes.object.isRequired,
-    width: React.PropTypes.number,
-    query: React.PropTypes.any
-  },
-
-  getInitialState() {
-    return {
-      sample: _.sample(this.props.type.values, 20)
-    };
-  },
+class UniqueMiniChart extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { sample: _.sample(this.props.type.values, 20) };
+  }
 
   onRefresh(e) {
     e.stopPropagation();
@@ -83,7 +76,7 @@ const UniqueMinichart = React.createClass({
     this.setState({
       sample: _.sample(this.props.type.values, 20)
     });
-  },
+  }
 
   /**
    * Render a single field;
@@ -130,6 +123,13 @@ const UniqueMinichart = React.createClass({
       </div>
     );
   }
-});
+}
 
-module.exports = UniqueMinichart;
+UniqueMiniChart.propTypes = {
+  fieldName: PropTypes.string.isRequired,
+  type: PropTypes.object.isRequired,
+  width: PropTypes.number,
+  query: PropTypes.any
+};
+
+module.exports = UniqueMiniChart;

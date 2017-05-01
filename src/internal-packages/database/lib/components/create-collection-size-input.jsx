@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 
 /**
  * A size input field in the create collection checkbox.
@@ -28,10 +29,10 @@ class CreateCollectionSizeInput extends React.Component {
 CreateCollectionSizeInput.displayName = 'CreateCollectionSizeInput';
 
 CreateCollectionSizeInput.propTypes = {
-  onChangeHandler: React.PropTypes.func.isRequired,
-  value: React.PropTypes.string,
-  placeholder: React.PropTypes.string,
-  name: React.PropTypes.string.isRequired
+  onChangeHandler: PropTypes.func.isRequired,
+  value: PropTypes.string,
+  placeholder: PropTypes.string,
+  name: PropTypes.string.isRequired
 };
 
 module.exports = CreateCollectionSizeInput;

@@ -1,5 +1,6 @@
 const app = require('hadron-app');
 const React = require('react');
+const PropTypes = require('prop-types');
 const Reflux = require('reflux');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const HadronDocument = require('hadron-document');
@@ -480,9 +481,9 @@ class EditableDocument extends React.Component {
 EditableDocument.displayName = 'EditableDocument';
 
 EditableDocument.propTypes = {
-  doc: React.PropTypes.object.isRequired,
-  editable: React.PropTypes.bool,
-  expandAll: React.PropTypes.bool
+  doc: PropTypes.object.isRequired,
+  editable: PropTypes.bool,
+  expandAll: PropTypes.bool
 };
 
 module.exports = EditableDocument;

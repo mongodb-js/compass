@@ -1,5 +1,6 @@
 const app = require('hadron-app');
 const React = require('react');
+const PropTypes = require('prop-types');
 const { Tooltip } = require('hadron-react-components');
 const initEditors = require('./editor/');
 
@@ -259,8 +260,8 @@ class EditableValue extends React.Component {
 EditableValue.displayName = 'EditableValue';
 
 EditableValue.propTypes = {
-  element: React.PropTypes.object.isRequired,
-  isFocused: React.PropTypes.bool.isRequired
+  element: PropTypes.object.isRequired,
+  isFocused: PropTypes.bool.isRequired
 };
 
 module.exports = EditableValue;

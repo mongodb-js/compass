@@ -1,6 +1,8 @@
+/* eslint react/no-multi-comp:0 */
 const app = require('hadron-app');
 const React = require('react');
 const ReactTooltip = require('react-tooltip');
+const createReactClass = require('create-react-class');
 const { StatusRow, Tooltip } = require('hadron-react-components');
 const SchemaActions = require('../action');
 const SchemaStore = require('../store');
@@ -17,7 +19,7 @@ const QUERYBAR_LAYOUT = ['filter', ['project', 'limit']];
 /**
  * Component for the entire schema view component.
  */
-const Schema = React.createClass({
+const Schema = createReactClass({
 
   mixins: [
     StateMixin.connect(SchemaStore)

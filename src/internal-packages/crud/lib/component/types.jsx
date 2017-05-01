@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const app = require('hadron-app');
 const React = require('react');
+const PropTypes = require('prop-types');
 const TypeChecker = require('hadron-type-checker');
 const { DateEditor } = require('./editor');
 
@@ -160,7 +161,7 @@ class Types extends React.Component {
 Types.displayName = 'Types';
 
 Types.propTypes = {
-  element: React.PropTypes.object.isRequired
+  element: PropTypes.object.isRequired
 };
 
 module.exports = Types;

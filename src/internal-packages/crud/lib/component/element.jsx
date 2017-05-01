@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const getComponent = require('hadron-react-bson');
 
 /**
@@ -192,9 +193,9 @@ class Element extends React.Component {
 Element.displayName = 'Element';
 
 Element.propTypes = {
-  element: React.PropTypes.any.isRequired,
-  expandAll: React.PropTypes.bool,
-  rootFieldIndex: React.PropTypes.number
+  element: PropTypes.any.isRequired,
+  expandAll: PropTypes.bool,
+  rootFieldIndex: PropTypes.number
 };
 
 module.exports = Element;

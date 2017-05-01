@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const RuleFieldSelector = require('./rule-field-selector');
 const RuleCategorySelector = require('./rule-category-selector');
 const RuleDeleteButton = require('./rule-delete-button');
@@ -106,13 +107,13 @@ class Rule extends React.Component {
 }
 
 Rule.propTypes = {
-  id: React.PropTypes.string.isRequired,
-  field: React.PropTypes.string.isRequired,
-  category: React.PropTypes.string.isRequired,
-  parameters: React.PropTypes.object.isRequired,
-  nullable: React.PropTypes.bool.isRequired,
-  serverVersion: React.PropTypes.string.isRequired,
-  isWritable: React.PropTypes.bool.isRequired
+  id: PropTypes.string.isRequired,
+  field: PropTypes.string.isRequired,
+  category: PropTypes.string.isRequired,
+  parameters: PropTypes.object.isRequired,
+  nullable: PropTypes.bool.isRequired,
+  serverVersion: PropTypes.string.isRequired,
+  isWritable: PropTypes.bool.isRequired
 };
 
 Rule.displayName = 'Rule';

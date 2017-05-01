@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const numeral = require('numeral');
 const ReactTooltip = require('react-tooltip');
 
@@ -49,8 +50,8 @@ class SizeColumn extends React.Component {
 SizeColumn.displaySize = 'SizeColumn';
 
 SizeColumn.propTypes = {
-  size: React.PropTypes.number.isRequired,
-  relativeSize: React.PropTypes.number.isRequired
+  size: PropTypes.number.isRequired,
+  relativeSize: PropTypes.number.isRequired
 };
 
 module.exports = SizeColumn;

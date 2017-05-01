@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 // const FontAwesome = require('react-fontawesome');
 
 class QueryOption extends React.Component {
@@ -33,15 +34,15 @@ class QueryOption extends React.Component {
 }
 
 QueryOption.propTypes = {
-  placeholder: React.PropTypes.string,
-  label: React.PropTypes.string.isRequired,
-  link: React.PropTypes.string.isRequired,
-  inputType: React.PropTypes.oneOf(['numeric', 'document']).isRequired,
-  value: React.PropTypes.string,
-  hasToggle: React.PropTypes.bool,
-  hasError: React.PropTypes.bool,
-  validationFunc: React.PropTypes.func,
-  onChange: React.PropTypes.func
+  placeholder: PropTypes.string,
+  label: PropTypes.string.isRequired,
+  link: PropTypes.string.isRequired,
+  inputType: PropTypes.oneOf(['numeric', 'document']).isRequired,
+  value: PropTypes.string,
+  hasToggle: PropTypes.bool,
+  hasError: PropTypes.bool,
+  validationFunc: PropTypes.func,
+  onChange: PropTypes.func
 };
 
 QueryOption.defaultProps = {

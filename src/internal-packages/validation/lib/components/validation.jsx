@@ -1,6 +1,7 @@
 const app = require('hadron-app');
 const { StatusRow } = require('hadron-react-components');
 const React = require('react');
+const PropTypes = require('prop-types');
 const ValidationActions = require('../actions');
 const ValidationStatusRow = require('./common/status-row');
 const ViewSwitcher = require('./common/view-switcher');
@@ -98,14 +99,14 @@ class Validation extends React.Component {
 }
 
 Validation.propTypes = {
-  editState: React.PropTypes.oneOf(['unmodified', 'modified', 'updating', 'error', 'success']).isRequired,
-  viewMode: React.PropTypes.oneOf(['Rule Builder', 'JSON']).isRequired,
-  isExpressibleByRules: React.PropTypes.bool.isRequired,
-  validationAction: React.PropTypes.oneOf(['warn', 'error']).isRequired,
-  validatorDoc: React.PropTypes.object.isRequired,
-  validationLevel: React.PropTypes.oneOf(['off', 'moderate', 'strict']).isRequired,
-  validationRules: React.PropTypes.array.isRequired,
-  serverVersion: React.PropTypes.string
+  editState: PropTypes.oneOf(['unmodified', 'modified', 'updating', 'error', 'success']).isRequired,
+  viewMode: PropTypes.oneOf(['Rule Builder', 'JSON']).isRequired,
+  isExpressibleByRules: PropTypes.bool.isRequired,
+  validationAction: PropTypes.oneOf(['warn', 'error']).isRequired,
+  validatorDoc: PropTypes.object.isRequired,
+  validationLevel: PropTypes.oneOf(['off', 'moderate', 'strict']).isRequired,
+  validationRules: PropTypes.array.isRequired,
+  serverVersion: PropTypes.string
 };
 
 Validation.defaultProps = {

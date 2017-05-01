@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const app = require('hadron-app');
 
 class Home extends React.Component {
@@ -64,8 +65,8 @@ class Home extends React.Component {
 }
 
 Home.propTypes = {
-  mode: React.PropTypes.oneOf(['instance', 'database', 'collection']),
-  namespace: React.PropTypes.string
+  mode: PropTypes.oneOf(['instance', 'database', 'collection']),
+  namespace: PropTypes.string
 };
 
 Home.displayName = 'Home';

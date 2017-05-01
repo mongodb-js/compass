@@ -1,5 +1,6 @@
 /* eslint new-cap: 0 */
 const React = require('react');
+const PropTypes = require('prop-types');
 const DropTarget = require('react-dnd').DropTarget;
 const _ = require('lodash');
 const DraggableField = require('./draggable-field');
@@ -103,13 +104,13 @@ class EncodingChannel extends React.Component {
 }
 
 EncodingChannel.propTypes = {
-  channelName: React.PropTypes.string.isRequired,
-  encodedChannel: React.PropTypes.object,
-  optional: React.PropTypes.string,
-  actions: React.PropTypes.object,
-  connectDropTarget: React.PropTypes.func,
-  isOver: React.PropTypes.bool.isRequired,
-  canDrop: React.PropTypes.bool.isRequired
+  channelName: PropTypes.string.isRequired,
+  encodedChannel: PropTypes.object,
+  optional: PropTypes.string,
+  actions: PropTypes.object,
+  connectDropTarget: PropTypes.func,
+  isOver: PropTypes.bool.isRequired,
+  canDrop: PropTypes.bool.isRequired
 };
 
 EncodingChannel.defaultProps = {

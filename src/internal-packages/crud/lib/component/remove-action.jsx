@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 
 /**
  * The actions class.
@@ -44,7 +45,7 @@ class RemoveAction extends React.Component {
 RemoveAction.displayName = 'RemoveAction';
 
 RemoveAction.propTypes = {
-  element: React.PropTypes.object.isRequired
+  element: PropTypes.object.isRequired
 };
 
 module.exports = RemoveAction;

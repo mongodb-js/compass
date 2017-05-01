@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const app = require('hadron-app');
 const HTML5Backend = require('react-dnd-html5-backend');
 const { DragDropContext } = require('react-dnd');
@@ -157,19 +158,19 @@ class ChartBuilder extends React.Component {
 }
 
 ChartBuilder.propTypes = {
-  dataCache: React.PropTypes.array,
-  fieldsCache: React.PropTypes.object,
-  rootFields: React.PropTypes.array,
-  namespaceCache: React.PropTypes.string,
-  queryCache: React.PropTypes.object,
-  spec: React.PropTypes.object,
-  specType: React.PropTypes.string,
-  chartType: React.PropTypes.string,
-  specValid: React.PropTypes.bool,
-  channels: React.PropTypes.object,
-  actions: React.PropTypes.object,
-  hasUndoableActions: React.PropTypes.bool,
-  hasRedoableActions: React.PropTypes.bool
+  dataCache: PropTypes.array,
+  fieldsCache: PropTypes.object,
+  rootFields: PropTypes.array,
+  namespaceCache: PropTypes.string,
+  queryCache: PropTypes.object,
+  spec: PropTypes.object,
+  specType: PropTypes.string,
+  chartType: PropTypes.string,
+  specValid: PropTypes.bool,
+  channels: PropTypes.object,
+  actions: PropTypes.object,
+  hasUndoableActions: PropTypes.bool,
+  hasRedoableActions: PropTypes.bool
 };
 
 ChartBuilder.defaultProps = {

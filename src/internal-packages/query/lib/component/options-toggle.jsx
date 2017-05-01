@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const FontAwesome = require('react-fontawesome');
 const QueryActions = require('../action');
 
@@ -25,7 +26,7 @@ class OptionsToggle extends React.Component {
 
 
 OptionsToggle.propTypes = {
-  expanded: React.PropTypes.bool.isRequired
+  expanded: PropTypes.bool.isRequired
 };
 
 OptionsToggle.displayName = 'OptionsToggle';

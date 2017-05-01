@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const ValidationActions = require('../actions');
 const ruleCategories = require('./rule-categories');
 const { FormGroup } = require('react-bootstrap');
@@ -83,9 +84,9 @@ class RuleCategorySelector extends React.Component {
 }
 
 RuleCategorySelector.propTypes = {
-  id: React.PropTypes.string.isRequired,
-  category: React.PropTypes.string.isRequired,
-  isWritable: React.PropTypes.bool
+  id: PropTypes.string.isRequired,
+  category: PropTypes.string.isRequired,
+  isWritable: PropTypes.bool
 };
 
 RuleCategorySelector.displayName = 'RuleCategorySelector';

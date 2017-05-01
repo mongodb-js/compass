@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const Modal = require('react-bootstrap').Modal;
 const { ModalStatusMessage } = require('hadron-react-components');
 const Action = require('../action/index-actions');
@@ -167,9 +168,9 @@ class DropIndexModal extends React.Component {
 DropIndexModal.displayName = 'DropIndexModal';
 
 DropIndexModal.propTypes = {
-  close: React.PropTypes.func.isRequired,
-  indexName: React.PropTypes.string.isRequired,
-  open: React.PropTypes.bool.isRequired
+  close: PropTypes.func.isRequired,
+  indexName: PropTypes.string.isRequired,
+  open: PropTypes.bool.isRequired
 };
 
 module.exports = DropIndexModal;
