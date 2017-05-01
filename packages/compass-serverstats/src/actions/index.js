@@ -11,7 +11,10 @@ const Actions = Reflux.createActions([
   'suppressTop',
   'restart',
   'mouseOut',
-  {mouseOver: {sync: true}}
+  'currentOp',
+  'serverStats',
+  'top',
+  { mouseOver: { sync: true }}
 ]);
 
 module.exports = Actions;

@@ -7,6 +7,10 @@ const Connection = require('mongodb-connection-model');
 const app = require('hadron-app');
 const AppRegistry = require('hadron-app-registry');
 
+const ServerStatsStore = require('../../lib/stores/server-stats-graphs-store');
+const CurrentOpStore = require('../../lib/stores/current-op-store');
+const TopStore = require('../../lib/stores/top-store');
+
 // const debug = require('debug')('mongodb-compass:server-stats');
 
 const CONNECTION = new Connection({
@@ -19,6 +23,13 @@ const CONNECTION = new Connection({
 const PerformanceComponent = require('../../lib/components');
 
 DataServiceStore.listen((error, ds) => {
+  const stores = global.hadronApp.appRegistry.stores;
+  for (let key in stores) {
+    const store = stores[key];
+    if (store.onConnected) {
+      store.onConnected(error, ds);
+    }
+  }
   ReactDOM.render(
     React.createElement(PerformanceComponent),
     document.getElementById('container')
@@ -27,5 +38,8 @@ DataServiceStore.listen((error, ds) => {
 
 global.hadronApp = app;
 global.hadronApp.appRegistry = new AppRegistry();
+global.hadronApp.appRegistry.registerStore('RTSS.ServerStatsStore', ServerStatsStore);
+global.hadronApp.appRegistry.registerStore('RTSS.CurrentOpStore', CurrentOpStore);
+global.hadronApp.appRegistry.registerStore('RTSS.TopStore', TopStore);
 global.hadronApp.instance = { host: { cpu_cores: 4 } };
 DataServiceActions.connect(CONNECTION);

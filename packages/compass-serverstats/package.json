@@ -56,7 +56,7 @@
     "lodash": "^4.16.4",
     "mocha": "^2.5.3",
     "mock-require": "^2.0.1",
-    "mongodb-data-service": "^2.13.1",
+    "mongodb-data-service": "^3.0.0",
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^0.2.8",
     "mongodb-ns": "^1.0.3",

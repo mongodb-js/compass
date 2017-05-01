@@ -1,7 +1,6 @@
 const timer = require('d3-timer');
 const React = require('react');
 const PropTypes = require('prop-types');
-const { DataServiceActions } = require('mongodb-data-service');
 const Actions = require('../actions');
 
 // const debug = require('debug')('mongodb-compass:server-stats:current-op-component');
@@ -33,7 +32,7 @@ class CurrentOpComponent extends React.Component {
     this.unsubscribeShowOperationDetails = Actions.showOperationDetails.listen(this.hide.bind(this));
     this.unsubscribeHideOperationDetails = Actions.hideOperationDetails.listen(this.show.bind(this));
     this.timer = timer.interval(() => {
-      DataServiceActions.currentOp(false);
+      Actions.currentOp();
     }, this.props.interval);
   }
 
