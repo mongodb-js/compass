@@ -40,6 +40,11 @@ Please see the mongodb-js org for all the repos: https://github.com/mongodb-js
 
 ## Building Releases
 
+Note: This is needs to be updated more, e.g. we use [Evergreen](https://evergreen.mongodb.com/) now.
+
+A part of the process is to create the release in GitHub:
+<img src="https://camo.githubusercontent.com/b8ea7c3a2381f253843c7da5708335bf96db8c31/68747470733a2f2f646c2e64726f70626f7875736572636f6e74656e742e636f6d2f752f32323731303638392f536f2532307768656e2532306275696c64696e672532306125323072656c65617365253230776865726525323077652532306163636964656e74616c6c792532307461676765642532306d617374657225324325323074686973253230697325323077686174253230776525323073686f756c6425323068617665253230646f6e652532302d25323053637265656e25323053686f74253230323031362d31302d31332532306174253230352e31382e3434253230706d5f736d616c6c2e706e67" />
+
 After you've made some local changes, the next thing you'll probably want to do
 is create an artifact to share. There is only one command you need to run to compile the app,
 sign it if the signing certificate is available on your machine, and generate a single file
