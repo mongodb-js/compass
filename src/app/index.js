@@ -431,6 +431,15 @@ app.extend({
         app.instance.fetch({ success: state.onInstanceFetched });
         state.startRouter();
         StatusAction.hide();
+        // Iterate through all the registered stores and if they require an
+        // onConnected hook, call it.
+        const stores = global.hadronApp.appRegistry.stores;
+        for (let key in stores) {
+          const store = stores[key];
+          if (store.onConnected) {
+            store.onConnected(error, ds);
+          }
+        }
         if (done) {
           done();
         }

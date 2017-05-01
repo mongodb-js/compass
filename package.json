@@ -130,7 +130,7 @@
     "url": "git://github.com/10gen/compass.git"
   },
   "dependencies": {
-    "@mongodb-js/compass-serverstats": "4.0.0",
+    "@mongodb-js/compass-serverstats": "5.0.1",
     "ampersand-collection": "^1.5.0",
     "ampersand-collection-filterable": "^0.2.1",
     "ampersand-collection-lodash-mixin": "^2.0.1",
@@ -184,7 +184,7 @@
     "moment": "^2.10.6",
     "mongodb-collection-model": "^0.3.1",
     "mongodb-connection-model": "^6.5.2",
-    "mongodb-data-service": "^2.15.1",
+    "mongodb-data-service": "^3.0.0",
     "mongodb-database-model": "^0.1.2",
     "mongodb-explain-plan-model": "^0.2.2",
     "mongodb-extended-json": "^1.9.0",
