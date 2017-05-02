@@ -41,7 +41,7 @@
     "hadron-style-manager": "^0.1.0",
     "less": "^2.6.1",
     "less-cache": "^0.23.0",
-    "mongodb-data-service": "^2.11.0",
+    "mongodb-data-service": "^3.0.0",
     "prop-types": "^15.5.8",
     "react": "^15.5.4",
     "react-dom": "^15.5.4",
