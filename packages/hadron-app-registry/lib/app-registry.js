@@ -16,6 +16,23 @@ const INT8_MAX = 127;
 class AppRegistry {
 
   /**
+   * Executes the provided function against all stores in the registry.
+   *
+   * @param {Function} fn - The function
+   *
+   * @returns {AppRegistry} This instance.
+   */
+  callOnStores(fn) {
+    for (let key in this.stores) {
+      if (this.stores.hasOwnProperty(key)) {
+        const store = this.stores[key];
+        fn(store);
+      }
+    }
+    return this;
+  }
+
+  /**
    * Instantiate the registry.
    *
    * @todo: Package manager activates at end.
@@ -150,6 +167,35 @@ class AppRegistry {
    */
   getStore(name) {
     return this.stores[name];
+  }
+
+  /**
+   * Calls onActivated on all the stores in the registry.
+   *
+   * @returns {AppRegistry} The app registry.
+   */
+  onActivated() {
+    return this.callOnStores((store) => {
+      if (store.onActivated) {
+        store.onActivated();
+      }
+    });
+  }
+
+  /**
+   * Calls onConnected on all the stores in the registry.
+   *
+   * @param {Error} error - The possible error.
+   * @param {DataService} dataService - The connected data service.
+   *
+   * @returns {AppRegistry} The app registry.
+   */
+  onConnected(error, dataService) {
+    return this.callOnStores((store) => {
+      if (store.onConnected) {
+        store.onConnected(error, dataService);
+      }
+    });
   }
 
   /**

@@ -1,12 +1,87 @@
 'use strict';
 
 const expect = require('chai').expect;
+const sinon = require('sinon');
+const Reflux = require('reflux');
 const Action = require('../lib/actions');
 const AppRegistry = require('../lib/app-registry');
 
 describe('AppRegistry', () => {
+  describe('#onActivated', () => {
+    context('when the method is defined on the store', () => {
+      let registry;
+      let spyOne = sinon.spy();
+      let spyTwo = sinon.spy();
+      const storeOne = Reflux.createStore({
+        onActivated: () => { spyOne(); }
+      });
+      const storeTwo = Reflux.createStore({
+        onActivated: () => { spyTwo(); }
+      });
+
+      beforeEach(() => {
+        registry = new AppRegistry()
+          .registerStore('TestStore1', storeOne)
+          .registerStore('TestStore2', storeTwo);
+      });
+
+      it('calls onActivated on the store', () => {
+        registry.onActivated();
+        expect(spyOne.callCount).to.equal(1);
+        expect(spyTwo.callCount).to.equal(1);
+      });
+    });
+
+    context('when the method is not defined on the store', () => {
+      let registry;
+      const store = Reflux.createStore({});
+
+      beforeEach(() => {
+        registry = new AppRegistry().registerStore('TestStore', store);
+      });
+
+      it('does not call onActivated on the store', () => {
+        expect(registry.onActivated()).to.equal(registry);
+      });
+    });
+  });
+
+  describe('#onConnected', () => {
+    context('when the method is defined on the store', () => {
+      let registry;
+      let spy = sinon.spy();
+      const store = Reflux.createStore({
+        onConnected: (error, ds) => {
+          spy(error, ds);
+        }
+      });
+
+      beforeEach(() => {
+        registry = new AppRegistry().registerStore('TestStore', store);
+      });
+
+      it('calls onConnected on the store', () => {
+        registry.onConnected('error', 'ds');
+        expect(spy.callCount).to.equal(1);
+      });
+    });
+
+    context('when the method is not defined on the store', () => {
+      let registry;
+      const store = Reflux.createStore({});
+
+      beforeEach(() => {
+        registry = new AppRegistry().registerStore('TestStore', store);
+      });
+
+      it('does not call onConnected on the store', () => {
+        expect(registry.onConnected()).to.equal(registry);
+      });
+    });
+  });
+
   describe('#registerAction', () => {
-    let registry = null;
+    let registry;
 
     beforeEach(() => {
       registry = new AppRegistry().registerAction('TestAction', 'testing');
@@ -44,7 +119,7 @@ describe('AppRegistry', () => {
   });
 
   describe('#registerContainer', () => {
-    let registry = null;
+    let registry;
 
     beforeEach(() => {
       registry = new AppRegistry().registerContainer('Collection.Tab', 'test');
@@ -88,7 +163,7 @@ describe('AppRegistry', () => {
   });
 
   describe('#registerComponent', () => {
-    let registry = null;
+    let registry;
 
     beforeEach(() => {
       registry = new AppRegistry().registerComponent('IndexView', 'testing');
@@ -126,7 +201,7 @@ describe('AppRegistry', () => {
   });
 
   describe('#registerRole', () => {
-    let registry = null;
+    let registry;
 
     const role = {
       component: 'collection-tab',
@@ -202,7 +277,7 @@ describe('AppRegistry', () => {
   });
 
   describe('#registerStore', () => {
-    let registry = null;
+    let registry;
 
     beforeEach(() => {
       registry = new AppRegistry().registerStore('IndexStore', 'testing');
@@ -241,7 +316,7 @@ describe('AppRegistry', () => {
 
   describe('#deregisterAction', () => {
     context('when the action exists', () => {
-      let registry = null;
+      let registry;
 
       beforeEach(() => {
         registry = new AppRegistry()
@@ -265,7 +340,7 @@ describe('AppRegistry', () => {
 
   describe('#deregisterComponent', () => {
     context('when the component exists', () => {
-      let registry = null;
+      let registry;
 
       beforeEach(() => {
         registry = new AppRegistry()
@@ -289,7 +364,7 @@ describe('AppRegistry', () => {
 
   describe('#deregisterContainer', () => {
     context('when the container exists', () => {
-      let registry = null;
+      let registry;
 
       beforeEach(() => {
         registry = new AppRegistry()
@@ -327,7 +402,7 @@ describe('AppRegistry', () => {
     };
 
     context('when the role exists', () => {
-      let registry = null;
+      let registry;
 
       beforeEach(() => {
         registry = new AppRegistry()
@@ -352,7 +427,7 @@ describe('AppRegistry', () => {
 
   describe('#deregisterStore', () => {
     context('when the store exists', () => {
-      let registry = null;
+      let registry;
 
       beforeEach(() => {
         registry = new AppRegistry()
