@@ -23,13 +23,7 @@ const CONNECTION = new Connection({
 const PerformanceComponent = require('../../lib/components');
 
 DataServiceStore.listen((error, ds) => {
-  const stores = global.hadronApp.appRegistry.stores;
-  for (let key in stores) {
-    const store = stores[key];
-    if (store.onConnected) {
-      store.onConnected(error, ds);
-    }
-  }
+  global.hadronApp.appRegistry.onConnected(error, ds);
   ReactDOM.render(
     React.createElement(PerformanceComponent),
     document.getElementById('container')
