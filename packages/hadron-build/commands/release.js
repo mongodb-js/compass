@@ -294,7 +294,6 @@ const transformPackageJson = (CONFIG, done) => {
   let contents = _.omit(CONFIG.pkg, packageKeysToRemove);
 
   _.assign(contents, {
-    productName: CONFIG.productName,
     channel: CONFIG.channel,
     version: CONFIG.version,
     distribution: process.env.HADRON_DISTRIBUTION
@@ -305,6 +304,10 @@ const transformPackageJson = (CONFIG, done) => {
    * that are not part of the distribution.
    */
   const distributions = contents.config.hadron.distributions;
+  _.assign(contents, {
+    productName: distributions[contents.distribution].productName
+  });
+
   const pluginPrefix = distributions['package-prefix'];
   const plugins = distributions[contents.distribution].packages;
   const deps = contents.dependencies;
