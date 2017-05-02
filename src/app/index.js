@@ -433,15 +433,8 @@ app.extend({
         StatusAction.hide();
         // Iterate through all the registered stores and if they require an
         // onConnected hook, call it.
-        const stores = global.hadronApp.appRegistry.stores;
-        for (let key in stores) {
-          if (stores.hasOwnProperty(key)) {
-            const store = stores[key];
-            if (store.onConnected) {
-              store.onConnected(error, ds);
-            }
-          }
-        }
+        global.hadronApp.appRegistry.onConnected(error, ds);
+
         if (done) {
           done();
         }
@@ -465,6 +458,7 @@ app.extend({
       packageActivationCompleted.listen(() => {
         // set up metrics
         metricsSetup();
+        global.hadronApp.appRegistry.onActivated();
 
         // signal to main process that app is ready
         ipc.call('window:renderer-ready');
