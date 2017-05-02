@@ -130,7 +130,7 @@
     "url": "git://github.com/10gen/compass.git"
   },
   "dependencies": {
-    "@mongodb-js/compass-serverstats": "5.0.1",
+    "@mongodb-js/compass-serverstats": "6.0.0",
     "ampersand-collection": "^1.5.0",
     "ampersand-collection-filterable": "^0.2.1",
     "ampersand-collection-lodash-mixin": "^2.0.1",
