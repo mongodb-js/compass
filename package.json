@@ -32,7 +32,7 @@
         "package-prefix": "@mongodb-js/compass",
         "compass-lite": {
           "name": "compass-lite",
-          "productName": "MongoDB Compass Lite",
+          "productName": "MongoDB Compass",
           "packages": [
             "node_modules/@mongodb-js/compass-serverstats"
           ],
