@@ -30,7 +30,7 @@ function quitItem(label) {
 
 function compassOverviewItem() {
   return {
-    label: 'Compass &Overview',
+    label: `${app.getName()} &Overview`,
     click: function() {
       BrowserWindow.getFocusedWindow().webContents.send('window:show-compass-tour');
     }
@@ -48,10 +48,10 @@ function networkOptInDialogItem() {
 
 function darwinCompassSubMenu() {
   return {
-    label: 'MongoDB Compass',
+    label: app.getName(),
     submenu: [
       {
-        label: 'About Compass',
+        label: `About ${app.getName()}`,
         selector: 'orderFrontStandardAboutPanel:'
       },
       separator(),
@@ -140,7 +140,7 @@ function editSubMenu() {
 
 function nonDarwinAboutItem() {
   return {
-    label: '&About Compass',
+    label: `&About ${app.getName()}`,
     click: function() {
       app.emit('window:show-about-dialog');
     }
@@ -149,7 +149,7 @@ function nonDarwinAboutItem() {
 
 function helpWindowItem() {
   return {
-    label: '&Show Compass Help',
+    label: `&Show ${app.getName()} Help`,
     accelerator: 'F1',
     click: function() {
       app.emit('app:show-help-window');
