@@ -393,7 +393,7 @@ tasks:
 
 buildvariants:
 - name: macos-compass-lite
-  display_name: MacOS (Compass Lite)
+  display_name: MacOS (Compass)
   modules: ~
   run_on:
   - "osx-1010-compass"
@@ -421,7 +421,7 @@ buildvariants:
     - name: compile
 
 - name: windows-compass-lite
-  display_name: Windows (Compass Lite)
+  display_name: Windows (Compass)
   modules: ~
   run_on:
   - "windows-64-vs2013-test"
@@ -449,7 +449,7 @@ buildvariants:
     - name: compile
 
 - name: ubuntu-compass-lite
-  display_name: Ubuntu (Compass Lite)
+  display_name: Ubuntu (Compass)
   modules: ~
   run_on:
   - "ubuntu1404-test"
@@ -477,7 +477,7 @@ buildvariants:
     - name: compile
 
 - name: rhel-compass-lite
-  display_name: RHEL (Compass Lite)
+  display_name: RHEL (Compass)
   modules: ~
   run_on:
   - "rhel70"
