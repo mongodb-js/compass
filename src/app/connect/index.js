@@ -12,6 +12,7 @@ var app = require('hadron-app');
 
 var electron = require('electron');
 var remote = electron.remote;
+var electronApp = remote.app;
 var dialog = remote.dialog;
 var Clipboard = remote.clipboard;
 var BrowserWindow = remote.BrowserWindow;
@@ -238,7 +239,7 @@ var ConnectView = View.extend({
     }
   },
   initialize: function() {
-    document.title = 'MongoDB Compass - Connect';
+    document.title = `${electronApp.getName()} - Connect`;
     this.StatusAction = app.appRegistry.getAction('Status.Actions');
     this.connections.once('sync', this.updateConflictingNames.bind(this));
     // use {reset: true} to trigger `reset` event so ConnectionCollection

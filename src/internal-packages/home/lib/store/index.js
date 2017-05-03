@@ -4,6 +4,7 @@ const HomeActions = require('../action');
 const StateMixin = require('reflux-state-mixin');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
 const toNS = require('mongodb-ns');
+const electronApp = require('electron').remote.app;
 
 const debug = require('debug')('mongodb-compass:stores:home');
 
@@ -56,7 +57,7 @@ const HomeStore = Reflux.createStore({
   },
 
   updateTitle: function(ns) {
-    let title = 'MongoDB Compass - ' + app.connection.instance_id;
+    let title = `${electronApp.getName()} - ${app.connection.instance_id}`;
     if (ns) {
       title += '/' + ns;
     }
