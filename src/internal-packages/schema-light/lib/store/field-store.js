@@ -16,18 +16,21 @@ const FIELDS = [
 const FieldStore = Reflux.createStore({
   mixins: [StateMixin.store],
 
-  init: function() {
-    this.listenToExternalStore('CRUD.ResetDocumentListStore', (err, docs) => {
+  onActivated() {
+    // process documents when CRUD store resets (first 20 docs)
+    global.hadronApp.appRegistry.getStore('CRUD.ResetDocumentListStore').listen((err, docs) => {
       if (!err) {
         this.processDocuments(docs);
       }
     });
-    this.listenToExternalStore('CRUD.LoadMoreDocumentsStore', (err, docs) => {
+    // process documents when user scrolls through the list (next 20 docs)
+    global.hadronApp.appRegistry.getStore('CRUD.LoadMoreDocumentsStore').listen((err, docs) => {
       if (!err) {
         this.processDocuments(docs);
       }
     });
-    this.listenToExternalStore('CRUD.InsertDocumentStore', (success, doc) => {
+    // process new document a user inserts
+    global.hadronApp.appRegistry.getStore('CRUD.InsertDocumentStore').listen((success, doc) => {
       if (success) {
         this.processSingleDocument(doc);
       }
