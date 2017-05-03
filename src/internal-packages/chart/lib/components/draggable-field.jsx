@@ -63,7 +63,7 @@ class DraggableField extends React.Component {
    * @returns {React.Component} icon based on props.typeType
    */
   renderMeasurementIcon() {
-    return <FontAwesome name={MEASUREMENT_ICON_ENUM[this.props.type]} />;
+    return <FontAwesome className="chart-draggable-field-action-measurement-icon" name={MEASUREMENT_ICON_ENUM[this.props.type]} />;
   }
 
   renderMeasurementMenu() {
@@ -73,7 +73,7 @@ class DraggableField extends React.Component {
       <Dropdown className="chart-draggable-field-item-container" id={this.props.fieldName + 'measurements'}
           onSelect={this.selectMeasurement.bind(this)}>
         <CustomToggle bsRole="toggle" className="chart-draggable-field-item chart-draggable-field-action chart-draggable-field-action-measurement">
-          {this.renderMeasurementIcon()}
+          {this.renderMeasurementIcon()}<FontAwesome className="chart-draggable-field-action-caret" name={'caret-down'} />
         </CustomToggle>
         {menu}
       </Dropdown>
@@ -87,7 +87,7 @@ class DraggableField extends React.Component {
       <Dropdown className="chart-draggable-field-item-container" id={this.props.fieldName + 'aggregation'}
           pullRight onSelect={this.selectAggregate.bind(this)}>
         <CustomToggle bsRole="toggle" className="chart-draggable-field-item chart-draggable-field-action chart-draggable-field-action-aggregation">
-          <FontAwesome name="angle-down" />
+          <FontAwesome name={'caret-down'} />
         </CustomToggle>
         {menu}
       </Dropdown>

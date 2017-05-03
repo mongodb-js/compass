@@ -46,10 +46,36 @@
     box-shadow: inset 0 2px 2px 0 @gray5;
   }
 
+  //create a consistent size for the dropdown carets
+  &-action .fa-caret-down {
+    font-size: 12px;
+  }
+
+  //the first menu item needs to be a bit wider
+  &-item-container:first-of-type {
+    flex-basis: 34px;
+  }
+
   //the first menu item should have round corners on its left side
   &-item-container:first-child .chart-draggable-field-action {
     border-top-left-radius: 6px;
     border-bottom-left-radius: 6px;
+  }
+
+  //the measurement action should be right-aligned
+  &-action-measurement {
+    text-align: right;
+  }
+
+  //and the measurement action icons should have a margin right so the
+  //variable widths of the measurement type icons don't make the dropdown
+  //icon jump around when the type is changed
+  &-action-measurement .fa {
+    margin-right: 4px;
+  }
+
+  &-action-measurement-icon {
+    color: @linkText;
   }
 
   //the last menu item should have round corners on its right side
