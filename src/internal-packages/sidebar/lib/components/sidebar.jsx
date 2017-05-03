@@ -59,7 +59,7 @@ class Sidebar extends React.Component {
     if (!this.state.collapsed) {
       this.props.onCollapse();
       this.setState({ collapsed: !this.state.collapsed });
-      Actions.toggle();
+      Actions.toggle(150);
     } else {
       return null;
     }
@@ -69,7 +69,7 @@ class Sidebar extends React.Component {
     if (this.state.collapsed) {
       this.props.onCollapse();
       this.setState({ collapsed: !this.state.collapsed });
-      Actions.toggle();
+      Actions.toggle(-150);
     } else {
       return null;
     }

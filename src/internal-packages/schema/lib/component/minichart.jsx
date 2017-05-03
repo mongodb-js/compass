@@ -30,7 +30,7 @@ class MiniChart extends React.Component {
     // measure the size, then render the component with content a second time,
     // but it is not noticable to the user.
     this.resizeListener();
-    window.addEventListener('resize', this.resizeListener);
+    window.addEventListener('resize', this.windowResize.bind(this));
 
     const QueryStore = app.appRegistry.getStore('Query.Store');
     this.unsubscribeQueryStore = QueryStore.listen((store) => {
@@ -41,6 +41,8 @@ class MiniChart extends React.Component {
       });
     });
 
+    const SidebarActions = app.appRegistry.getAction('Sidebar.Actions');
+    this.unsubscribeSidebarToggle = SidebarActions.toggle.listen(this.resizeListener);
     this.unsubscribeMiniChartResize = Actions.resizeMiniCharts.listen(this.resizeListener);
   }
 
@@ -57,14 +59,24 @@ class MiniChart extends React.Component {
   /**
    * Called when the window size changes or via the resizeMiniCharts action,
    * triggered by index.jsx. Only redraw if the size is > 0.
+   * @param {Number} offset add a width offset to the minichart width (i.e. for sidebar collapse)
    */
-  handleResize() {
+  handleResize(offset) {
+    if (!this._mc) {
+      return;
+    }
+
     const rect = this._mc.getBoundingClientRect();
-    if (rect.width > 0) {
+    const width = offset ? offset + rect.width : rect.width;
+    if (width > 0) {
       this.setState({
-        containerWidth: rect.width
+        containerWidth: width
       });
     }
+  }
+
+  windowResize() {
+    this.resizeListener();
   }
 
   minichartFactory() {
