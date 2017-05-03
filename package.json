@@ -33,6 +33,7 @@
         "compass-lite": {
           "name": "compass-lite",
           "productName": "MongoDB Compass",
+          "plugins-directory": ".mongodb/compass/plugins",
           "packages": [
             "node_modules/@mongodb-js/compass-serverstats"
           ],
@@ -44,6 +45,7 @@
         "compass-enterprise": {
           "name": "compass-enterprise",
           "productName": "MongoDB Compass Enterprise",
+          "plugins-directory": ".mongodb/compass-enterprise/plugins",
           "packages": [
             "node_modules/@mongodb-js/compass-serverstats"
           ],
@@ -55,6 +57,7 @@
         "compass-charts": {
           "name": "compass-charts",
           "productName": "MongoDB Compass Visualisations",
+          "plugins-directory": ".mongodb/compass-charts/plugins",
           "packages": [
             "node_modules/@mongodb-js/compass-serverstats"
           ],

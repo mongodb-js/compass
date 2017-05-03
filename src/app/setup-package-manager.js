@@ -14,14 +14,24 @@ app.appRegistry = new AppRegistry();
 const INTERNAL_PACKAGES = path.join(__dirname, '..', 'internal-packages');
 
 /**
- * Location of the dev packages.
- */
-const DEV_PACKAGES = path.join(os.homedir(), '.compass');
-
-/**
  * The root dir.
  */
 const ROOT = path.join(__dirname, '..', '..');
+
+/**
+ * The current distribution information.
+ */
+const DISTRIBUTION = pkg.config.hadron.distributions[process.env.HADRON_DISTRIBUTION];
+
+/**
+ * The plugins directory constant.
+ */
+const PLUGINS_DIR = 'plugins-directory';
+
+/**
+ * Location of the dev packages.
+ */
+const DEV_PACKAGES = path.join(os.homedir(), DISTRIBUTION[PLUGINS_DIR]);
 
 /**
  * @note: The 2nd and 3rd arguments are the root directory and an array
@@ -31,7 +41,7 @@ const ROOT = path.join(__dirname, '..', '..');
 app.packageManager = new PackageManager(
   [ INTERNAL_PACKAGES, DEV_PACKAGES ],
   ROOT,
-  pkg.config.hadron.distributions[process.env.HADRON_DISTRIBUTION].packages
+  DISTRIBUTION.packages
 );
 
 app.packageManager.activate();
