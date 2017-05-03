@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const EditableDocument = require('./editable-document');
 const ReadonlyDocument = require('./readonly-document');
 
@@ -27,9 +28,9 @@ class Document extends React.Component {
 Document.displayName = 'Document';
 
 Document.propTypes = {
-  doc: React.PropTypes.object.isRequired,
-  editable: React.PropTypes.bool,
-  expandAll: React.PropTypes.bool
+  doc: PropTypes.object.isRequired,
+  editable: PropTypes.bool,
+  expandAll: PropTypes.bool
 };
 
 module.exports = Document;

@@ -1,5 +1,6 @@
 /* eslint react/no-multi-comp: 0 */
 const React = require('react');
+const PropTypes = require('prop-types');
 const { StoreConnector } = require('hadron-react-components');
 const TreeStagesStore = require('../stores/tree-stages');
 const ExplainStage = require('./explain-stage');
@@ -76,10 +77,10 @@ class ExplainTree extends React.Component {
 }
 
 ExplainTree.propTypes = {
-  nodes: React.PropTypes.array,
-  links: React.PropTypes.array,
-  width: React.PropTypes.number,
-  height: React.PropTypes.number
+  nodes: PropTypes.array,
+  links: PropTypes.array,
+  width: PropTypes.number,
+  height: PropTypes.number
 };
 
 ExplainTree.defaultProps = {

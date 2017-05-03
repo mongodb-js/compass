@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const _ = require('lodash');
 
 // const debug = require('debug')('mongodb-compass:schema:status-subview:steps');
@@ -8,18 +9,12 @@ const SHOW_STEPS_TIME_MS = 3000;
 /**
  * Component for the entire document list.
  */
-const SchemaSteps = React.createClass({
+class SchemaSteps extends React.Component {
 
-  propTypes: {
-    samplingTimeMS: React.PropTypes.number.isRequired,
-    samplingState: React.PropTypes.string.isRequired
-  },
-
-  getInitialState() {
-    return {
-      errorState: null
-    };
-  },
+  constructor(props) {
+    super(props);
+    this.state = { errorState: null };
+  }
 
   /**
    * remember the last known non-error state internally.
@@ -32,7 +27,7 @@ const SchemaSteps = React.createClass({
         errorState: this.props.samplingState
       });
     }
-  },
+  }
 
   _getSamplingIndicator() {
     if (_.contains(['counting', 'sampling'], this.props.samplingState)) {
@@ -46,7 +41,7 @@ const SchemaSteps = React.createClass({
       return 'fa fa-fw fa-warning';
     }
     return 'fa fa-fw';
-  },
+  }
 
   _getAnalyzingIndicator() {
     if (this.props.samplingState === 'analyzing') {
@@ -59,7 +54,7 @@ const SchemaSteps = React.createClass({
       return 'fa fa-fw fa-warning';
     }
     return 'fa fa-fw';
-  },
+  }
 
   render() {
     // if below 3 second threshold, don't show this component
@@ -86,6 +81,11 @@ const SchemaSteps = React.createClass({
       </div>
     );
   }
-});
+}
+
+SchemaSteps.propTypes = {
+  samplingTimeMS: PropTypes.number.isRequired,
+  samplingState: PropTypes.string.isRequired
+};
 
 module.exports = SchemaSteps;

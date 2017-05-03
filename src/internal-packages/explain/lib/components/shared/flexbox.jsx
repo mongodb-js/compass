@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const _ = require('lodash');
 
 class FlexBox extends React.Component {
@@ -20,11 +21,11 @@ class FlexBox extends React.Component {
 }
 
 FlexBox.propTypes = {
-  children: React.PropTypes.node,
-  flexDirection: React.PropTypes.oneOf(['row', 'row-reverse', 'column', 'column-reverse']),
-  justifyContent: React.PropTypes.oneOf(['flex-start', 'flex-end', 'center', 'space-between', 'space-around']),
-  alignItems: React.PropTypes.oneOf(['flex-start', 'flex-end', 'center', 'stretch', 'baseline']),
-  alignContent: React.PropTypes.oneOf(['flex-start', 'flex-end', 'center', 'stretch', 'space-between', 'space-around'])
+  children: PropTypes.node,
+  flexDirection: PropTypes.oneOf(['row', 'row-reverse', 'column', 'column-reverse']),
+  justifyContent: PropTypes.oneOf(['flex-start', 'flex-end', 'center', 'space-between', 'space-around']),
+  alignItems: PropTypes.oneOf(['flex-start', 'flex-end', 'center', 'stretch', 'baseline']),
+  alignContent: PropTypes.oneOf(['flex-start', 'flex-end', 'center', 'stretch', 'space-between', 'space-around'])
 };
 
 FlexBox.defaultProps = {

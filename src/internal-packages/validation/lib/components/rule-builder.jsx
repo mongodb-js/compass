@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const { OptionSelector, Tooltip } = require('hadron-react-components');
 const ValidationActions = require('../actions');
 const Rule = require('./rule');
@@ -195,12 +196,12 @@ class RuleBuilder extends React.Component {
 }
 
 RuleBuilder.propTypes = {
-  editState: React.PropTypes.oneOf(['unmodified', 'modified', 'updating', 'error', 'success']).isRequired,
-  validationAction: React.PropTypes.oneOf(['warn', 'error']).isRequired,
-  validationLevel: React.PropTypes.oneOf(['off', 'moderate', 'strict']).isRequired,
-  validationRules: React.PropTypes.array.isRequired,
-  serverVersion: React.PropTypes.string.isRequired,
-  isWritable: React.PropTypes.bool.isRequired
+  editState: PropTypes.oneOf(['unmodified', 'modified', 'updating', 'error', 'success']).isRequired,
+  validationAction: PropTypes.oneOf(['warn', 'error']).isRequired,
+  validationLevel: PropTypes.oneOf(['off', 'moderate', 'strict']).isRequired,
+  validationRules: PropTypes.array.isRequired,
+  serverVersion: PropTypes.string.isRequired,
+  isWritable: PropTypes.bool.isRequired
 };
 
 RuleBuilder.displayName = 'RuleBuilder';

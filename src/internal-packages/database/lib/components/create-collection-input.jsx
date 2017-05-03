@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 
 /**
  * An input field in the create collection checkbox.
@@ -29,11 +30,11 @@ class CreateCollectionInput extends React.Component {
 CreateCollectionInput.displayName = 'CreateCollectionInput';
 
 CreateCollectionInput.propTypes = {
-  autoFocus: React.PropTypes.bool,
-  onChangeHandler: React.PropTypes.func.isRequired,
-  value: React.PropTypes.string,
-  name: React.PropTypes.string.isRequired,
-  id: React.PropTypes.string.isRequired
+  autoFocus: PropTypes.bool,
+  onChangeHandler: PropTypes.func.isRequired,
+  value: PropTypes.string,
+  name: PropTypes.string.isRequired,
+  id: PropTypes.string.isRequired
 };
 
 CreateCollectionInput.defaultProps = {

@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const FieldPanelItem = require('./field-panel-item');
 
 class FieldPanel extends React.Component {
@@ -34,9 +35,9 @@ class FieldPanel extends React.Component {
 }
 
 FieldPanel.propTypes = {
-  fieldsCache: React.PropTypes.object,
-  rootFields: React.PropTypes.array,
-  actions: React.PropTypes.object
+  fieldsCache: PropTypes.object,
+  rootFields: PropTypes.array,
+  actions: PropTypes.object
 };
 
 FieldPanel.defaultProps = {

@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const _ = require('lodash');
 const ReactTooltip = require('react-tooltip');
 
@@ -74,8 +75,8 @@ class UsageColumn extends React.Component {
 UsageColumn.displayUsage = 'UsageColumn';
 
 UsageColumn.propTypes = {
-  usage: React.PropTypes.any,
-  since: React.PropTypes.any
+  usage: PropTypes.any,
+  since: PropTypes.any
 };
 
 module.exports = UsageColumn;

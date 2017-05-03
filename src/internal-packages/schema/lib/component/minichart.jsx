@@ -1,5 +1,6 @@
 const app = require('hadron-app');
 const React = require('react');
+const PropTypes = require('prop-types');
 const UniqueMinichart = require('./unique');
 const _ = require('lodash');
 const DocumentMinichart = require('./document');
@@ -12,29 +13,24 @@ const Actions = require('../action');
 
 const { STRING, DECIMAL_128, DOUBLE, LONG, INT_32, NUMBER } = require('../helpers');
 
-const Minichart = React.createClass({
-
-  propTypes: {
-    fieldName: React.PropTypes.string.isRequired,
-    type: React.PropTypes.object.isRequired,
-    nestedDocType: React.PropTypes.object
-  },
-
-  getInitialState() {
-    return {
+class MiniChart extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
       containerWidth: null,
       filter: {},
       valid: true,
       userTyping: false
     };
-  },
+    this.resizeListener = this.handleResize.bind(this);
+  }
 
   componentDidMount() {
     // yes, this is not ideal, we are rendering the empty container first to
     // measure the size, then render the component with content a second time,
     // but it is not noticable to the user.
-    this.handleResize();
-    window.addEventListener('resize', this.handleResize);
+    this.resizeListener();
+    window.addEventListener('resize', this.resizeListener);
 
     const QueryStore = app.appRegistry.getStore('Query.Store');
     this.unsubscribeQueryStore = QueryStore.listen((store) => {
@@ -45,31 +41,31 @@ const Minichart = React.createClass({
       });
     });
 
-    this.unsubscribeMiniChartResize = Actions.resizeMiniCharts.listen(this.handleResize);
-  },
+    this.unsubscribeMiniChartResize = Actions.resizeMiniCharts.listen(this.resizeListener);
+  }
 
   shouldComponentUpdate(nextProps, nextState) {
     return nextState.valid && !nextState.userTyping;
-  },
+  }
 
   componentWillUnmount() {
-    window.removeEventListener('resize', this.handleResize);
+    window.removeEventListener('resize', this.resizeListener);
     this.unsubscribeQueryStore();
     this.unsubscribeMiniChartResize();
-  },
+  }
 
   /**
    * Called when the window size changes or via the resizeMiniCharts action,
    * triggered by index.jsx. Only redraw if the size is > 0.
    */
   handleResize() {
-    const rect = this.refs.minichart.getBoundingClientRect();
+    const rect = this._mc.getBoundingClientRect();
     if (rect.width > 0) {
       this.setState({
         containerWidth: rect.width
       });
     }
-  },
+  }
 
   minichartFactory() {
     // cast all numeric types to Number pseudo-type
@@ -139,17 +135,23 @@ const Minichart = React.createClass({
         fn={fn}
       />
     );
-  },
+  }
 
   render() {
     const minichart = this.state.containerWidth ? this.minichartFactory() : null;
     return (
-      <div ref="minichart">
+      <div ref={(chart) => { this._mc = chart; }}>
         {minichart}
       </div>
     );
   }
 
-});
+}
 
-module.exports = Minichart;
+MiniChart.propTypes = {
+  fieldName: PropTypes.string.isRequired,
+  type: PropTypes.object.isRequired,
+  nestedDocType: PropTypes.object
+};
+
+module.exports = MiniChart;

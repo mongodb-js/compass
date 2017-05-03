@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const app = require('hadron-app');
 
 class ExplainJSON extends React.Component {
@@ -28,7 +29,7 @@ class ExplainJSON extends React.Component {
 }
 
 ExplainJSON.propTypes = {
-  rawExplainObject: React.PropTypes.object.isRequired
+  rawExplainObject: PropTypes.object.isRequired
 };
 
 ExplainJSON.displayName = 'ExplainJSON';

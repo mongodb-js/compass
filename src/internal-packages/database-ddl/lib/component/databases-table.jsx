@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const app = require('hadron-app');
 const { shell } = require('electron');
 const ipc = require('hadron-ipc');
@@ -129,10 +130,10 @@ class DatabasesTable extends React.Component {
 }
 
 DatabasesTable.propTypes = {
-  columns: React.PropTypes.arrayOf(React.PropTypes.string),
-  databases: React.PropTypes.arrayOf(React.PropTypes.object),
-  sortOrder: React.PropTypes.oneOf(['asc', 'desc']),
-  sortColumn: React.PropTypes.string
+  columns: PropTypes.arrayOf(PropTypes.string),
+  databases: PropTypes.arrayOf(PropTypes.object),
+  sortOrder: PropTypes.oneOf(['asc', 'desc']),
+  sortColumn: PropTypes.string
 };
 
 DatabasesTable.displayName = 'DatabasesTable';

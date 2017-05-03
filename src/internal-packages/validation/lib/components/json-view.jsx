@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const { OptionSelector } = require('hadron-react-components');
 const ValidationActions = require('../actions');
 const Editable = require('./common/editable');
@@ -163,11 +164,11 @@ class JSONView extends React.Component {
 }
 
 JSONView.propTypes = {
-  editState: React.PropTypes.oneOf(['unmodified', 'modified', 'updating', 'error', 'success']).isRequired,
-  validationAction: React.PropTypes.oneOf(['warn', 'error']).isRequired,
-  validationLevel: React.PropTypes.oneOf(['off', 'moderate', 'strict']).isRequired,
-  validatorDoc: React.PropTypes.object.isRequired,
-  isWritable: React.PropTypes.bool
+  editState: PropTypes.oneOf(['unmodified', 'modified', 'updating', 'error', 'success']).isRequired,
+  validationAction: PropTypes.oneOf(['warn', 'error']).isRequired,
+  validationLevel: PropTypes.oneOf(['off', 'moderate', 'strict']).isRequired,
+  validatorDoc: PropTypes.object.isRequired,
+  isWritable: PropTypes.bool
 };
 
 JSONView.defaultProps = {

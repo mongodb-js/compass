@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const HadronDocument = require('hadron-document');
 const Element = require('./element');
 
@@ -139,8 +140,8 @@ class ReadonlyDocument extends React.Component {
 ReadonlyDocument.displayName = 'ReadonlyDocument';
 
 ReadonlyDocument.propTypes = {
-  doc: React.PropTypes.object.isRequired,
-  expandAll: React.PropTypes.bool
+  doc: PropTypes.object.isRequired,
+  expandAll: PropTypes.bool
 };
 
 module.exports = ReadonlyDocument;

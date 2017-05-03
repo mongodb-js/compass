@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const Action = require('../action/index-actions');
 const accepts = require('mongodb-language-model').accepts;
 const EJSON = require('mongodb-extended-json');
@@ -160,12 +161,12 @@ class CreateIndexTextField extends React.Component {
 CreateIndexTextField.displayName = 'CreateIndexTextField';
 
 CreateIndexTextField.propTypes = {
-  autoFocus: React.PropTypes.bool,
-  enabled: React.PropTypes.bool,
-  isParam: React.PropTypes.bool.isRequired,
-  option: React.PropTypes.string.isRequired,
-  units: React.PropTypes.string,
-  dataTestId: React.PropTypes.string
+  autoFocus: PropTypes.bool,
+  enabled: PropTypes.bool,
+  isParam: PropTypes.bool.isRequired,
+  option: PropTypes.string.isRequired,
+  units: PropTypes.string,
+  dataTestId: PropTypes.string
 };
 
 CreateIndexTextField.defaultProps = {

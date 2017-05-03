@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const _ = require('lodash');
 const numeral = require('numeral');
 const { TOOLTIP_IDS } = require('../constants');
@@ -13,17 +14,7 @@ const TYPE_CLASS = 'schema-field-wrapper';
 /**
  * Component for the entire document list.
  */
-const Type = React.createClass({
-  propTypes: {
-    name: React.PropTypes.string.isRequired,  // type name, e.g. `Number`
-    types: React.PropTypes.array,             // array of types (for subtypes)
-    activeType: React.PropTypes.any,          // currently active type overall
-    self: React.PropTypes.object,             // a reference to this type
-    probability: React.PropTypes.number.isRequired,  // length of bar
-    renderType: React.PropTypes.func.isRequired,     // callback function
-    showSubTypes: React.PropTypes.bool.isRequired    // should subtypes be rendered?
-  },
-
+class Type extends React.Component {
   /**
    * The type bar corresponding to this Type was clicked. Execute the
    * callback passed in from the parent (either <Field> or <Type> component
@@ -34,7 +25,7 @@ const Type = React.createClass({
   typeClicked(e) {
     e.stopPropagation();
     this.props.renderType(this.props.self);
-  },
+  }
 
   /**
    * A subtype was clicked (in case of an Array type). Pass up to the Field
@@ -44,7 +35,7 @@ const Type = React.createClass({
    */
   subTypeClicked(subtype) {
     this.props.renderType(subtype);
-  },
+  }
 
   /**
    * returns a list of subtype components for Array types.
@@ -91,7 +82,7 @@ const Type = React.createClass({
         </div>
       </div>
     );
-  },
+  }
 
   /**
    * Render a single type
@@ -134,6 +125,16 @@ const Type = React.createClass({
       </div>
     );
   }
-});
+}
+
+Type.propTypes = {
+  name: PropTypes.string.isRequired,  // type name, e.g. `Number`
+  types: PropTypes.array,             // array of types (for subtypes)
+  activeType: PropTypes.any,          // currently active type overall
+  self: PropTypes.object,             // a reference to this type
+  probability: PropTypes.number.isRequired,  // length of bar
+  renderType: PropTypes.func.isRequired,     // callback function
+  showSubTypes: PropTypes.bool.isRequired    // should subtypes be rendered?
+};
 
 module.exports = Type;

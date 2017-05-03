@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const ReactTooltip = require('react-tooltip');
 const { AutoSizer, List } = require('react-virtualized');
 const _ = require('lodash');
@@ -238,11 +239,11 @@ class Sidebar extends React.Component {
 }
 
 Sidebar.propTypes = {
-  instance: React.PropTypes.object,
-  databases: React.PropTypes.array,
-  onCollapse: React.PropTypes.func,
-  activeNamespace: React.PropTypes.string,
-  expanded: React.PropTypes.bool
+  instance: PropTypes.object,
+  databases: PropTypes.array,
+  onCollapse: PropTypes.func,
+  activeNamespace: PropTypes.string,
+  expanded: PropTypes.bool
 };
 
 module.exports = Sidebar;

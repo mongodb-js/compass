@@ -16,13 +16,18 @@ window.jQuery = require('jquery');
 require('bootstrap/js/modal');
 require('bootstrap/js/transition');
 
+/**
+ * Set hadron-app as a global so plugins can use it.
+ */
+const app = require('hadron-app');
+global.hadronApp = app;
+
 require('./setup-hadron-caches');
 
 /**
  * The main entrypoint for the application!
  */
 var electron = require('electron');
-var app = require('hadron-app');
 var APP_VERSION = electron.remote.app.getVersion();
 
 var _ = require('lodash');
@@ -426,6 +431,10 @@ app.extend({
         app.instance.fetch({ success: state.onInstanceFetched });
         state.startRouter();
         StatusAction.hide();
+        // Iterate through all the registered stores and if they require an
+        // onConnected hook, call it.
+        global.hadronApp.appRegistry.onConnected(error, ds);
+
         if (done) {
           done();
         }
@@ -449,6 +458,7 @@ app.extend({
       packageActivationCompleted.listen(() => {
         // set up metrics
         metricsSetup();
+        global.hadronApp.appRegistry.onActivated();
 
         // signal to main process that app is ready
         ipc.call('window:renderer-ready');

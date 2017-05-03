@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const app = require('hadron-app');
 const CollectionsActions = require('../actions/collections-actions');
 const numeral = require('numeral');
@@ -106,12 +107,12 @@ class CollectionsTable extends React.Component {
 }
 
 CollectionsTable.propTypes = {
-  columns: React.PropTypes.arrayOf(React.PropTypes.string),
-  collections: React.PropTypes.arrayOf(React.PropTypes.object),
-  renderedCollections: React.PropTypes.arrayOf(React.PropTypes.object),
-  database: React.PropTypes.string,
-  sortOrder: React.PropTypes.oneOf(['asc', 'desc']),
-  sortColumn: React.PropTypes.string
+  columns: PropTypes.arrayOf(PropTypes.string),
+  collections: PropTypes.arrayOf(PropTypes.object),
+  renderedCollections: PropTypes.arrayOf(PropTypes.object),
+  database: PropTypes.string,
+  sortOrder: PropTypes.oneOf(['asc', 'desc']),
+  sortColumn: PropTypes.string
 };
 
 CollectionsTable.displayName = 'CollectionsTable';

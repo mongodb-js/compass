@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 
 class CustomToggle extends React.Component {
   handleClick(e) {
@@ -18,9 +19,9 @@ class CustomToggle extends React.Component {
 }
 
 CustomToggle.propTypes = {
-  onClick: React.PropTypes.func,
-  className: React.PropTypes.string,
-  children: React.PropTypes.node
+  onClick: PropTypes.func,
+  className: PropTypes.string,
+  children: PropTypes.node
 };
 
 module.exports = CustomToggle;

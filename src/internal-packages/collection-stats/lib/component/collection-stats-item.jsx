@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 
 /**
  * The base class.
@@ -52,9 +53,9 @@ class CollectionStatsItem extends React.Component {
 CollectionStatsItem.displayName = 'CollectionStatsItem';
 
 CollectionStatsItem.propTypes = {
-  label: React.PropTypes.string.isRequired,
-  value: React.PropTypes.any.isRequired,
-  primary: React.PropTypes.bool
+  label: PropTypes.string.isRequired,
+  value: PropTypes.any.isRequired,
+  primary: PropTypes.bool
 };
 
 module.exports = CollectionStatsItem;

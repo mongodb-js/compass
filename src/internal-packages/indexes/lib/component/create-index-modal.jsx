@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const Modal = require('react-bootstrap').Modal;
 const { ModalStatusMessage } = require('hadron-react-components');
 const CreateIndexStore = require('../store/create-index-store');
@@ -284,8 +285,8 @@ class CreateIndexModal extends React.Component {
 CreateIndexModal.displayName = 'CreateIndexModal';
 
 CreateIndexModal.propTypes = {
-  open: React.PropTypes.bool.isRequired,
-  close: React.PropTypes.func.isRequired
+  open: PropTypes.bool.isRequired,
+  close: PropTypes.func.isRequired
 };
 
 module.exports = CreateIndexModal;

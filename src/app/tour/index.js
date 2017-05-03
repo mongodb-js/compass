@@ -5,6 +5,7 @@ var app = require('hadron-app');
 var semver = require('semver');
 var _ = require('lodash');
 var path = require('path');
+var electronApp = require('electron').remote.app;
 
 var indexTemplate = require('./index.jade');
 
@@ -74,7 +75,7 @@ var TourView = View.extend({
       deps: ['previousVersion'],
       fn: function() {
         return (this.previousVersion === '0.0.0' || process.env.NODE_ENV === 'testing') ?
-          'Welcome to MongoDB Compass' : 'What\'s New in MongoDB Compass';
+          `Welcome to ${electronApp.getName()}` : `What\'s New in ${electronApp.getName()}`;
       }
     }
   },

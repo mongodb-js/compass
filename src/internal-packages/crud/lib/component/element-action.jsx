@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const RevertAction = require('./revert-action');
 const RemoveAction = require('./remove-action');
 const NoAction = require('./no-action');
@@ -26,7 +27,7 @@ class ElementAction extends React.Component {
 ElementAction.displayName = 'ElementAction';
 
 ElementAction.propTypes = {
-  element: React.PropTypes.object.isRequired
+  element: PropTypes.object.isRequired
 };
 
 module.exports = ElementAction;

@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 
 /**
  * Component for the option field toggle bar.
@@ -30,8 +31,8 @@ class OptionsToggleBar extends React.Component {
 OptionsToggleBar.displayName = 'OptionsToggleBar';
 
 OptionsToggleBar.propTypes = {
-  onClick: React.PropTypes.func.isRequired,
-  showOptions: React.PropTypes.bool.isRequired
+  onClick: PropTypes.func.isRequired,
+  showOptions: PropTypes.bool.isRequired
 };
 
 module.exports = OptionsToggleBar;

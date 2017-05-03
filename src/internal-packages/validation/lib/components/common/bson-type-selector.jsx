@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const _ = require('lodash');
 const semver = require('semver');
 const { OptionSelector } = require('hadron-react-components');
@@ -112,12 +113,12 @@ class BSONTypeSelector extends React.Component {
 }
 
 BSONTypeSelector.propTypes = {
-  typeNumber: React.PropTypes.number,
-  typeAlias: React.PropTypes.string,
-  typeName: React.PropTypes.string,
-  onTypeClicked: React.PropTypes.func,
-  serverVersion: React.PropTypes.string,
-  isDisabled: React.PropTypes.bool
+  typeNumber: PropTypes.number,
+  typeAlias: PropTypes.string,
+  typeName: PropTypes.string,
+  onTypeClicked: PropTypes.func,
+  serverVersion: PropTypes.string,
+  isDisabled: PropTypes.bool
 };
 
 BSONTypeSelector.displayName = 'BSONTypeSelector';

@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const shell = require('electron').shell;
 
 // const debug = require('debug')('mongodb-compass:explain:summary-stat');
@@ -43,10 +44,10 @@ class SummaryStat extends React.Component {
 }
 
 SummaryStat.propTypes = {
-  dataLink: React.PropTypes.string,          // info sprinkle (optional)
-  label: React.PropTypes.string.isRequired,  // label of the stat
-  value: React.PropTypes.any.isRequired,     // value of the stat
-  dataTestId: React.PropTypes.string
+  dataLink: PropTypes.string,          // info sprinkle (optional)
+  label: PropTypes.string.isRequired,  // label of the stat
+  value: PropTypes.any.isRequired,     // value of the stat
+  dataTestId: PropTypes.string
 };
 
 SummaryStat.displayName = 'SummaryStat';

@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const React = require('react');
+const PropTypes = require('prop-types');
 
 /**
  * Component for an index definition type.
@@ -74,8 +75,8 @@ class IndexDefinitionType extends React.Component {
 IndexDefinitionType.displayName = 'IndexDefinitionType';
 
 IndexDefinitionType.propTypes = {
-  index: React.PropTypes.object.isRequired,
-  dataTestId: React.PropTypes.string
+  index: PropTypes.object.isRequired,
+  dataTestId: PropTypes.string
 };
 
 module.exports = IndexDefinitionType;

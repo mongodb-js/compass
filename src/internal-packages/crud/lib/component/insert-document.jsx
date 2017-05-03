@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const Element = require('hadron-document').Element;
 const EditableElement = require('./editable-element');
 
@@ -87,7 +88,7 @@ class InsertDocument extends React.Component {
 InsertDocument.displayName = 'InsertDocument';
 
 InsertDocument.propTypes = {
-  doc: React.PropTypes.object
+  doc: PropTypes.object
 };
 
 module.exports = InsertDocument;

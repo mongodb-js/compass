@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const Select = require('react-select');
 const StatusStore = require('../store/ddl-status-store');
 const Action = require('../action/index-actions');
@@ -165,11 +166,11 @@ class CreateIndexField extends React.Component {
 CreateIndexField.displayName = 'CreateIndexField';
 
 CreateIndexField.propTypes = {
-  fields: React.PropTypes.array.isRequired,
-  field: React.PropTypes.object.isRequired,
-  idx: React.PropTypes.number.isRequired,
-  disabledFields: React.PropTypes.array.isRequired,
-  isRemovable: React.PropTypes.bool.isRequired
+  fields: PropTypes.array.isRequired,
+  field: PropTypes.object.isRequired,
+  idx: PropTypes.number.isRequired,
+  disabledFields: PropTypes.array.isRequired,
+  isRemovable: PropTypes.bool.isRequired
 };
 
 module.exports = CreateIndexField;

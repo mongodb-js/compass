@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const CreateIndexModal = require('./create-index-modal');
 const { Tooltip } = require('hadron-react-components');
 
@@ -73,7 +74,7 @@ class CreateIndexButton extends React.Component {
 CreateIndexButton.displayName = 'CreateIndexButton';
 
 CreateIndexButton.propTypes = {
-  isWritable: React.PropTypes.bool.isRequired
+  isWritable: PropTypes.bool.isRequired
 };
 
 module.exports = CreateIndexButton;

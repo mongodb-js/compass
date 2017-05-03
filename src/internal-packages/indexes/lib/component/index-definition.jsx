@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const IndexDefinitionType = require('./index-definition-type');
 
 /**
@@ -26,7 +27,7 @@ class IndexDefinition extends React.Component {
 IndexDefinition.displayName = 'IndexDefinition';
 
 IndexDefinition.propTypes = {
-  index: React.PropTypes.object.isRequired
+  index: PropTypes.object.isRequired
 };
 
 module.exports = IndexDefinition;
