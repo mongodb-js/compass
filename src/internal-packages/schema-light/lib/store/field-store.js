@@ -17,9 +17,21 @@ const FieldStore = Reflux.createStore({
   mixins: [StateMixin.store],
 
   init: function() {
-    this.listenToExternalStore('CRUD.ResetDocumentListStore', this.processDocuments.bind(this));
-    this.listenToExternalStore('CRUD.LoadMoreDocumentsStore', this.processDocuments.bind(this));
-    this.listenToExternalStore('CRUD.InsertDocumentStore', this.processSingleDocument.bind(this));
+    this.listenToExternalStore('CRUD.ResetDocumentListStore', (err, docs) => {
+      if (!err) {
+        this.processDocuments(docs);
+      }
+    });
+    this.listenToExternalStore('CRUD.LoadMoreDocumentsStore', (err, docs) => {
+      if (!err) {
+        this.processDocuments(docs);
+      }
+    });
+    this.listenToExternalStore('CRUD.InsertDocumentStore', (success, doc) => {
+      if (success) {
+        this.processSingleDocument(doc);
+      }
+    });
     NamespaceStore.listen(this.onNamespaceChanged.bind(this));
   },
 
@@ -133,14 +145,9 @@ const FieldStore = Reflux.createStore({
    * processes documents returned from the ResetDocumentListStore and
    * LoadMoreDocumentsStore.
    *
-   * @param  {Error} error      possible error passed from the store.
    * @param  {Array} documents  documents to process.
    */
-  processDocuments(error, documents) {
-    // skip if the document store returns an error
-    if (error) {
-      return;
-    }
+  processDocuments(documents) {
     parseSchema(documents, {storeValues: false}, (err, schema) => {
       if (err) {
         return;
@@ -152,14 +159,10 @@ const FieldStore = Reflux.createStore({
   /**
    * processes a single document returned from the InsertDocumentStore.
    *
-   * @param  {Error} success    whether or not the insert succeeded.
-   * @param  {Array} doc        document to process.
+   * @param  {Array} document     document to process.
    */
-  processSingleDocument(success, doc) {
-    if (!success) {
-      return;
-    }
-    parseSchema([ doc ], {storeValues: false}, (err, schema) => {
+  processSingleDocument(document) {
+    parseSchema([ document ], {storeValues: false}, (err, schema) => {
       if (err) {
         return;
       }
