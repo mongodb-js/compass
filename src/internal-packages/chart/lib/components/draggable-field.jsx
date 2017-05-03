@@ -76,7 +76,6 @@ class DraggableField extends React.Component {
           {this.renderMeasurementIcon()}
           <div className="chart-draggable-field-action-title">
             <span>
-              {/*SET DEFAULT*/}
               nominal
             </span>
           </div>
@@ -96,7 +95,6 @@ class DraggableField extends React.Component {
         <CustomToggle bsRole="toggle" className="chart-draggable-field-action chart-draggable-field-action-aggregation">
           <div className="chart-draggable-field-action-title">
             <span>
-              {/*SET DEFAULT TO SOMETHING LIKE 'COMPUTATIO' OR 'AGGREGATION' OR SOMETHING ? */}
               sum
             </span>
           </div>
