@@ -1,6 +1,7 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 const app = require('hadron-app');
+const ChartActions = require('../actions');
 const HTML5Backend = require('react-dnd-html5-backend');
 const { DragDropContext } = require('react-dnd');
 const ReactTooltip = require('react-tooltip');
@@ -30,7 +31,8 @@ class ChartBuilder extends React.Component {
 
   componentDidMount() {
     this.handleResize();
-    window.addEventListener('resize', this.handleResize.bind(this));
+    this.boundHandleResize = this.handleResize.bind(this);
+    window.addEventListener('resize', this.boundHandleResize);
   }
 
   componentDidUpdate() {
@@ -38,7 +40,8 @@ class ChartBuilder extends React.Component {
   }
 
   componentWillUnmount() {
-    window.removeEventListener('resize', this.handleResize);
+    ChartActions.clearChart();
+    window.removeEventListener('resize', this.boundHandleResize);
   }
 
 
