@@ -34,7 +34,7 @@ describe('<DraggableField />', () => {
     });
 
     it('the middle element should have the field name', () => {
-      expect(component.children().at(1).html()).to.contain(fieldName);
+      expect(component).to.have.text(fieldName);
     });
   });
 
