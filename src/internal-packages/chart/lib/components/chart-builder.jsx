@@ -30,7 +30,8 @@ class ChartBuilder extends React.Component {
 
   componentDidMount() {
     this.handleResize();
-    window.addEventListener('resize', this.handleResize.bind(this));
+    this.boundHandleResize = this.handleResize.bind(this);
+    window.addEventListener('resize', this.boundHandleResize);
   }
 
   componentDidUpdate() {
@@ -38,7 +39,7 @@ class ChartBuilder extends React.Component {
   }
 
   componentWillUnmount() {
-    window.removeEventListener('resize', this.handleResize);
+    window.removeEventListener('resize', this.boundHandleResize);
   }
 
 
