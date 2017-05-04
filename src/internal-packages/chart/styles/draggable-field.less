@@ -1,13 +1,19 @@
 .chart-draggable-field {
-  align-items: stretch;
   cursor: -webkit-grab;
-  display: flex;
-  flex-wrap: nowrap;
+  background: linear-gradient(180deg, #FFFFFF 0%, #F6F6F6 100%);
+  border: 1px solid @gray5;
+  border-radius: 6px;
+  color: @gray1;
+  padding: 3px;
+
+  &-row {
+    display: flex;
+  }
 
   &-item-container {
     flex-grow: 0;
     flex-shrink: 0;
-    flex-basis: 24px;
+    flex-basis: auto;
   }
 
   &-item-container-title {
@@ -18,66 +24,126 @@
     white-space: nowrap;
   }
 
-  &-item {
-    border: 1px solid lighten(@gray5, 8%);
-    border-right-width: 0;
-    border-radius: 0;
-    color: @gray1;
+  &-item-container-remove {
+    flex-basis: 16px;
+  }
+
+  &-item-container-measurement,
+  &-item-container-aggregation {
+    flex-basis: 50%;
+    min-width: 0;
   }
 
   &-action {
     background: linear-gradient(180deg, #FFFFFF 0%, #F6F6F6 100%);
     box-shadow: inset 0 -1px 0 0 lighten(@gray5, 8%);
+    background: linear-gradient(180deg, #FFFFFF 0%, #F6F6F6 100%);
+    border: 1px solid lighten(@gray5, 8%);
+    border-radius: 3px;
     cursor: pointer;
-    padding: 2px 0 1px;
-    text-align: center;
+    padding: 3px 2px 2px;
   }
 
   &-action:hover,
   &-action:focus {
     background: linear-gradient(180deg, #FFFFFF 0%, #EDEDED 100%);
     border-color: @gray5;
-    box-shadow: inset 0 -1px 0 0 @gray5, 0 2px 4px 0 rgba(0,0,0,0.1);
+    box-shadow: inset 0 -1px 0 0 @gray5, 0 1px 1px 0 rgba(0,0,0,0.12);
   }
 
-  &-action:active {
+  &-action:active,
+  &-item-container-measurement.open .chart-draggable-field-action,
+  &-item-container-aggregation.open .chart-draggable-field-action {
     background: linear-gradient(180deg, #EDEDED 0%, #FFFFFF 99.31%);
     border-color: @gray5;
     box-shadow: inset 0 2px 2px 0 @gray5;
   }
 
-  //the first menu item should have round corners on its left side
-  &-item-container:first-child .chart-draggable-field-action {
-    border-top-left-radius: 6px;
-    border-bottom-left-radius: 6px;
+  &-action-measurement,
+  &-action-aggregation {
+    display: flex;
+    align-items: baseline;
   }
 
-  //the last menu item should have round corners on its right side
-  &-item-container:last-child .chart-draggable-field-action {
-    border-right-width: 1px;
-    border-top-right-radius: 6px;
-    border-bottom-right-radius: 6px;
+  &-action-measurement {
+    margin-right: 2px;
   }
 
-  //when a menu item is a dropdown, and that dropdown is open
-  &-item-container.open .chart-draggable-field-action {
-    background: linear-gradient(180deg, #EDEDED 0%, #FFFFFF 99.31%);
-    box-shadow: inset 0 2px 2px 0 @gray5;
+  &-action-aggregation {
+    margin-left: 2px;
+  }
+
+  &-action-icon,
+  &-action-icon {
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-basis: 12px;
+    font-size: 12px;
+    text-align: center;
+    align-self: flex-end;
+  }
+
+  &-action-icon-measurement {
+    flex-basis: 16px;
+    font-size: 13px;
+    color: @linkText;
+    align-self: flex-start;
+  }
+
+  &-action-title {
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: auto;
+    overflow: hidden;
+    min-width: 0;
+  }
+
+  &-action-title span {
+    padding-left: 2px;
   }
 
   //remove button as menu item
   &-action-remove {
     color: @alertRedText;
+    padding: 0;
+    text-align: center;
+    background: @pw;
+    box-shadow: none;
+    border: 1px solid @gray5;
+    border-radius: 9px;
+    height: 18px;
+    width: 18px;
+    line-height: 16px;
+    margin-bottom: 3px;
+    opacity: 0;
   }
 
-  //field title
-  &-title  {
-    background: linear-gradient(180deg, #FFFFFF 0%, #F6F6F6 100%);
+  &-action-remove:hover,
+  &-action-remove:focus,
+  &-action-remove:active {
+    border-color: @alertRedText;
+    box-shadow: none;
+    background: @pw;
+  }
+
+  &-title,
+  &-action-title {
     font-size: 11px;
     font-weight: bold;
     overflow: hidden;
-    padding: 4px 5px;
     pointer-events: none;
     text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  //field main title
+  &-title {
+    padding: 1px 3px;
+  }
+
+  &:hover {
+    .chart-draggable-field-action-remove {
+      opacity: 1;
+    }
   }
 }

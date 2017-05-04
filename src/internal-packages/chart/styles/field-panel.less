@@ -7,17 +7,12 @@
     margin-left: 4px;
   }
 
-  .chart-draggable-field-item {
-    border-right-width: 1px;
-    border-radius: 6px;
-    border-color: lighten(@gray5, 8%);
+  .chart-draggable-field:hover {
+    // border-color: @chart1;
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,0.12)
   }
 
-  .chart-draggable-field:hover .chart-draggable-field-item{
-    border-color: @gray5;
-  }
-
-  .chart-draggable-field:active .chart-draggable-field-item {
+  .chart-draggable-field:active {
     background: @pw;
     border-color: @chart1;
   }
@@ -33,8 +28,8 @@
   }
 
   &-group {
-    border-left: 1px solid @gray6;
-    border-top: 1px solid @gray6;
+    border-left: 1px solid @gray5;
+    border-top: 1px solid @gray5;
     border-radius: 6px;
     margin: 3px 0 6px 2px;
     padding: 6px 0;

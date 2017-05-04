@@ -63,17 +63,23 @@ class DraggableField extends React.Component {
    * @returns {React.Component} icon based on props.typeType
    */
   renderMeasurementIcon() {
-    return <FontAwesome name={MEASUREMENT_ICON_ENUM[this.props.type]} />;
+    return <FontAwesome className="chart-draggable-field-action-icon chart-draggable-field-action-icon-measurement" name={MEASUREMENT_ICON_ENUM[this.props.type]} />;
   }
 
   renderMeasurementMenu() {
     const menu = this.mapToMenu(_.values(MEASUREMENT_ENUM), this.props.type);
 
     return (
-      <Dropdown className="chart-draggable-field-item-container" id={this.props.fieldName + 'measurements'}
+      <Dropdown title="Set field type" className="chart-draggable-field-item-container chart-draggable-field-item-container-measurement" id={this.props.fieldName + 'measurements'}
           onSelect={this.selectMeasurement.bind(this)}>
-        <CustomToggle bsRole="toggle" className="chart-draggable-field-item chart-draggable-field-action chart-draggable-field-action-measurement">
+        <CustomToggle bsRole="toggle" className="chart-draggable-field-action chart-draggable-field-action-measurement">
           {this.renderMeasurementIcon()}
+          <div className="chart-draggable-field-action-title">
+            <span>
+              {this.props.type}
+            </span>
+          </div>
+          <FontAwesome className="chart-draggable-field-action-icon" name={'caret-down'} />
         </CustomToggle>
         {menu}
       </Dropdown>
@@ -84,10 +90,15 @@ class DraggableField extends React.Component {
     const menu = this.mapToMenu(_.values(AGGREGATE_FUNCTION_ENUM), this.props.aggregate);
 
     return (
-      <Dropdown className="chart-draggable-field-item-container" id={this.props.fieldName + 'aggregation'}
+      <Dropdown title="Set aggregation type" className="chart-draggable-field-item-container chart-draggable-field-item-container-aggregation" id={this.props.fieldName + 'aggregation'}
           pullRight onSelect={this.selectAggregate.bind(this)}>
-        <CustomToggle bsRole="toggle" className="chart-draggable-field-item chart-draggable-field-action chart-draggable-field-action-aggregation">
-          <FontAwesome name="angle-down" />
+        <CustomToggle bsRole="toggle" className="chart-draggable-field-action chart-draggable-field-action-aggregation">
+          <div className="chart-draggable-field-action-title">
+            <span>
+              {this.props.aggregate ? this.props.aggregate : 'calculate...'}
+            </span>
+          </div>
+          <FontAwesome className="chart-draggable-field-action-icon" name={'caret-down'} />
         </CustomToggle>
         {menu}
       </Dropdown>
@@ -114,23 +125,27 @@ class DraggableField extends React.Component {
     const connectDragSource = this.props.connectDragSource;
     return connectDragSource(
       <div {...attributes} >
-        {this.props.enableMenus ? this.renderMeasurementMenu() : <div></div>}
-        <div className="chart-draggable-field-item-container chart-draggable-field-item-container-title">
-          <div className="chart-draggable-field-item chart-draggable-field-title">
-            {this.props.fieldName}
+        <div className="chart-draggable-field-row">
+          <div className="chart-draggable-field-item-container chart-draggable-field-item-container-title">
+            <div className="chart-draggable-field-title">
+              {this.props.fieldName}
+            </div>
           </div>
-        </div>
-        {this.props.enableMenus ? this.renderAggregationMenu() : <div></div>}
-        {this.props.enableMenus ?
-          <div className="chart-draggable-field-item-container">
+          {this.props.enableMenus ?
+          <div title="Remove field from chart" className="chart-draggable-field-item-container chart-draggable-field-item-container-remove">
             <div
-              className="chart-draggable-field-item chart-draggable-field-action chart-draggable-field-action-remove"
-              onClick={this.props.onRemove.bind(this, this.props.channelName)}
+            className="chart-draggable-field-action chart-draggable-field-action-remove"
+            onClick={this.props.onRemove.bind(this, this.props.channelName)}
             >
               <i className="mms-icon-remove"></i>
             </div>
           </div>
-           : <div></div>}
+          : <div></div>}
+        </div>
+        <div className="chart-draggable-field-row">
+          {this.props.enableMenus ? this.renderMeasurementMenu() : <div></div>}
+          {this.props.enableMenus ? this.renderAggregationMenu() : <div></div>}
+        </div>
       </div>
     );
   }
