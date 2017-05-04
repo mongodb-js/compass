@@ -80,12 +80,6 @@ const data = {
 d3.select(el).datum(data).call(realTimeLineChart());
 ```
 
-## License
-
-Apache 2
-
-===
-
 ## Features
 
 #### Storybook
