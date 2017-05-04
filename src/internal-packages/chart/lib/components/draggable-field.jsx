@@ -76,7 +76,7 @@ class DraggableField extends React.Component {
           {this.renderMeasurementIcon()}
           <div className="chart-draggable-field-action-title">
             <span>
-              nominal
+              {this.props.type}
             </span>
           </div>
           <FontAwesome className="chart-draggable-field-action-icon" name={'caret-down'} />
@@ -95,7 +95,7 @@ class DraggableField extends React.Component {
         <CustomToggle bsRole="toggle" className="chart-draggable-field-action chart-draggable-field-action-aggregation">
           <div className="chart-draggable-field-action-title">
             <span>
-              sum
+              {this.props.aggregate ? this.props.aggregate : 'calculate...'}
             </span>
           </div>
           <FontAwesome className="chart-draggable-field-action-icon" name={'caret-down'} />
