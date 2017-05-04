@@ -35,7 +35,8 @@
           "productName": "MongoDB Compass",
           "plugins-directory": ".mongodb/compass/plugins",
           "packages": [
-            "node_modules/@mongodb-js/compass-serverstats"
+            "node_modules/@mongodb-js/compass-serverstats",
+            "node_modules/@mongodb-js/compass-document-validation"
           ],
           "styles": [
             "index",
@@ -47,7 +48,8 @@
           "productName": "MongoDB Compass Enterprise",
           "plugins-directory": ".mongodb/compass-enterprise/plugins",
           "packages": [
-            "node_modules/@mongodb-js/compass-serverstats"
+            "node_modules/@mongodb-js/compass-serverstats",
+            "node_modules/@mongodb-js/compass-document-validation"
           ],
           "styles": [
             "index",
@@ -59,7 +61,8 @@
           "productName": "MongoDB Compass Visualisations",
           "plugins-directory": ".mongodb/compass-charts/plugins",
           "packages": [
-            "node_modules/@mongodb-js/compass-serverstats"
+            "node_modules/@mongodb-js/compass-serverstats",
+            "node_modules/@mongodb-js/compass-document-validation"
           ],
           "styles": [
             "index",
@@ -133,6 +136,7 @@
     "url": "git://github.com/10gen/compass.git"
   },
   "dependencies": {
+    "@mongodb-js/compass-document-validation": "1.0.0",
     "@mongodb-js/compass-serverstats": "7.0.0",
     "ampersand-collection": "^1.5.0",
     "ampersand-collection-filterable": "^0.2.1",
