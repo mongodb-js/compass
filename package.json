@@ -133,7 +133,7 @@
     "url": "git://github.com/10gen/compass.git"
   },
   "dependencies": {
-    "@mongodb-js/compass-serverstats": "6.0.0",
+    "@mongodb-js/compass-serverstats": "7.0.0",
     "ampersand-collection": "^1.5.0",
     "ampersand-collection-filterable": "^0.2.1",
     "ampersand-collection-lodash-mixin": "^2.0.1",
@@ -162,8 +162,8 @@
     "electron-squirrel-startup": "^1.0.0",
     "font-awesome": "^4.7.0",
     "get-object-path": "azer/get-object-path#74eb42de0cfd02c14ffdd18552f295aba723d394",
-    "hadron-app": "^0.7.0",
-    "hadron-app-registry": "^5.1.0",
+    "hadron-app": "^0.8.0",
+    "hadron-app-registry": "^5.2.0",
     "hadron-auto-update-manager": "^0.0.12",
     "hadron-compile-cache": "^1.0.1",
     "hadron-document": "^2.1.1",
