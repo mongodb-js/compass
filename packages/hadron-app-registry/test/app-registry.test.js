@@ -13,10 +13,10 @@ describe('AppRegistry', () => {
       let spyOne = sinon.spy();
       let spyTwo = sinon.spy();
       const storeOne = Reflux.createStore({
-        onActivated: () => { spyOne(); }
+        onActivated: (reg) => { spyOne(reg); }
       });
       const storeTwo = Reflux.createStore({
-        onActivated: () => { spyTwo(); }
+        onActivated: (reg) => { spyTwo(reg); }
       });
 
       beforeEach(() => {
@@ -27,8 +27,8 @@ describe('AppRegistry', () => {
 
       it('calls onActivated on the store', () => {
         registry.onActivated();
-        expect(spyOne.callCount).to.equal(1);
-        expect(spyTwo.callCount).to.equal(1);
+        expect(spyOne.calledWith(registry)).to.equal(true);
+        expect(spyTwo.calledWith(registry)).to.equal(true);
       });
     });
 

@@ -177,7 +177,7 @@ class AppRegistry {
   onActivated() {
     return this.callOnStores((store) => {
       if (store.onActivated) {
-        store.onActivated();
+        store.onActivated(this);
       }
     });
   }
