@@ -94,6 +94,28 @@
     padding-right: 6px;
   }
 
+  &-items {
+    display: flex;
+    flex-grow: 2;
+    flex-shrink: 10;
+    align-items: center;
+
+    &-is-left {
+      padding-left: 5px;
+      justify-content: flex-start;
+    }
+
+    &-is-right {
+      padding-right: 5px;
+      flex-direction: row-reverse;
+    }
+
+    & > * {
+      padding: 0 5px;
+      color: @gray3;
+    }
+  }
+
   &-status-ssh-container {
     background-image: url('./images/instance-header/hostname-bg.png');
     background-size: 16px 36px;
