@@ -38,8 +38,6 @@ const InstanceHeaderStore = Reflux.createStore({
       hostname: 'Retrieving host information',
       port: 27017,
       processStatus: '',
-      versionDistro: null,
-      versionNumber: '',
       activeNamespace: ''
     };
   },
@@ -56,14 +54,12 @@ const InstanceHeaderStore = Reflux.createStore({
       hostname: state.instance.hostname,
       port: state.instance.port,
       processStatus: 'TODO: Get Replica Set Status',
-      versionDistro: state.instance.build.enterprise_module ? 'Enterprise' : 'Community',
-      versionNumber: state.instance.build.version,
       activeNamespace: NamespaceStore.ns || ''
     });
   },
 
   /**
-   * handlers for each action defined in ../actions/index.jsx, for example:
+   * change active namespace when user clicks on the instance area
    */
   clickInstance() {
     this.setState({

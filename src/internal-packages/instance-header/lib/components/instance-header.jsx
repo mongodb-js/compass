@@ -18,10 +18,10 @@ class InstanceHeaderComponent extends React.Component {
     this.setupHeaderItems();
 
     const state = {hostStr: this.hostNamePortStr(props.hostname, props.port)};
-    if (app.connection.ssh_tunnel !== 'NONE') {
-      state.sshHostStr = this.hostNamePortStr(app.connection.ssh_tunnel_hostname,
-        app.connection.ssh_tunnel_options.dstPort);
-    }
+    // if (app.connection.ssh_tunnel !== 'NONE') {
+    //   state.sshHostStr = this.hostNamePortStr(app.connection.ssh_tunnel_hostname,
+    //     app.connection.ssh_tunnel_options.dstPort);
+    // }
 
     this.state = state;
   }
@@ -29,10 +29,10 @@ class InstanceHeaderComponent extends React.Component {
   componentWillReceiveProps(nextProps) {
     const state = {hostStr: this.hostNamePortStr(nextProps.hostname, nextProps.port)};
 
-    if (app.connection.ssh_tunnel !== 'NONE') {
-      state.sshHostStr = this.hostNamePortStr(app.connection.ssh_tunnel_hostname,
-        app.connection.ssh_tunnel_options.dstPort);
-    }
+    // if (app.connection.ssh_tunnel !== 'NONE') {
+    //   state.sshHostStr = this.hostNamePortStr(app.connection.ssh_tunnel_hostname,
+    //     app.connection.ssh_tunnel_options.dstPort);
+    // }
     this.setState(state);
   }
 
@@ -92,44 +92,44 @@ class InstanceHeaderComponent extends React.Component {
     this.setState({hostStr: this.hostNamePortStr(this.props.hostname, this.props.port, showFullString)});
   }
 
-  showSshHostNamePort(showFullString) {
-    this.setState({sshHostStr: this.hostNamePortStr(app.connection.ssh_tunnel_hostname,
-        app.connection.ssh_tunnel_options.dstPort, showFullString)});
-  }
+  // showSshHostNamePort(showFullString) {
+  //   this.setState({sshHostStr: this.hostNamePortStr(app.connection.ssh_tunnel_hostname,
+  //       app.connection.ssh_tunnel_options.dstPort, showFullString)});
+  // }
 
   handleClickHostname() {
     NamespaceStore.ns = '';
     ipc.call('window:hide-collection-submenu');
   }
 
-  renderAuthDetails() {
-    const view = (
-      <div data-test-id="instance-header-ssh" className="instance-header-ssh"
-          onMouseOver={this.showSshHostNamePort.bind(this, true)}
-          onMouseOut={this.showSshHostNamePort.bind(this, false)}>
-        <FontAwesome name="lock" className="instance-header-icon instance-header-icon-lock"/>
-        <span className="instance-header-ssh-label">
-          <span className="instance-header-ssh-label-is-static">
-            &nbsp;SSH connection via&nbsp;&nbsp;
-          </span>
-          {this.state.sshHostStr}
-        </span>
-      </div>
-    );
+  // renderAuthDetails() {
+  //   const view = (
+  //     <div data-test-id="instance-header-ssh" className="instance-header-ssh"
+  //         onMouseOver={this.showSshHostNamePort.bind(this, true)}
+  //         onMouseOut={this.showSshHostNamePort.bind(this, false)}>
+  //       <FontAwesome name="lock" className="instance-header-icon instance-header-icon-lock"/>
+  //       <span className="instance-header-ssh-label">
+  //         <span className="instance-header-ssh-label-is-static">
+  //           &nbsp;SSH connection via&nbsp;&nbsp;
+  //         </span>
+  //         {this.state.sshHostStr}
+  //       </span>
+  //     </div>
+  //   );
+  //
+  //   return app.connection.ssh_tunnel !== 'NONE' ? view : null;
+  // }
 
-    return app.connection.ssh_tunnel !== 'NONE' ? view : null;
-  }
-
-  renderProcessStatus() {
-    return this.props.processStatus !== ''
-      ? (
-        <div className="instance-header-process-status-container">
-          <div className="instance-header-process-status">
-            <span>{this.props.processStatus}</span>
-          </div>
-        </div>
-      ) : '';
-  }
+  // renderProcessStatus() {
+  //   return this.props.processStatus !== ''
+  //     ? (
+  //       <div className="instance-header-process-status-container">
+  //         <div className="instance-header-process-status">
+  //           <span>{this.props.processStatus}</span>
+  //         </div>
+  //       </div>
+  //     ) : '';
+  // }
 
   renderHostNamePort() {
     return (
@@ -161,8 +161,9 @@ class InstanceHeaderComponent extends React.Component {
           </div>
           {this.renderHostNamePort()}
         </div>
+        <div className="instance-header-arrow-image"></div>
         <div className="instance-header-items instance-header-items-is-left">
-          {this.renderAuthDetails()}
+          {/* this.renderAuthDetails() */}
           {this.leftHeaderItems}
         </div>
         <div className="instance-header-items instance-header-items-is-right">

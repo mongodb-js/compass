@@ -116,24 +116,21 @@
     }
   }
 
-  &-status-ssh-container {
+  &-arrow-image {
     background-image: url('./images/instance-header/hostname-bg.png');
     background-size: 16px 36px;
     background-repeat: no-repeat;
-    flex-basis: auto;
-    flex-grow: 1;
-    flex-shrink: 1;
-    min-width: 250px;
     padding-top: 7px;
     transition: all @transistion-time ease;
+    width: 16px;
   }
 
-  &-connection-string:hover + .instance-header-status-ssh-container {
+  &-connection-string:hover + .instance-header-arrow-image {
     background-image: url('./images/instance-header/hostname-bg-hover.png');
   }
 
-  &-connection-string-is-active       + .instance-header-status-ssh-container,
-  &-connection-string-is-active:hover + .instance-header-status-ssh-container {
+  &-connection-string-is-active       + .instance-header-arrow-image,
+  &-connection-string-is-active:hover + .instance-header-arrow-image {
     background-image: url('./images/instance-header/hostname-bg-active.png');
   }
 
@@ -258,8 +255,8 @@
       opacity: 0;
       pointer-events: none;
     }
-    .instance-header-status-ssh-container,
-    .instance-header-connection-string:hover + .instance-header-status-ssh-container {
+    .instance-header-arrow-image,
+    .instance-header-connection-string:hover + .instance-header-arrow-image {
       background-position: -16px 0;
     }
 
