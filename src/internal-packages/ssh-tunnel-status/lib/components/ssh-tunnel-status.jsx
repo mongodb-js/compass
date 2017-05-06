@@ -18,7 +18,7 @@ class SSHTunnelStatusComponent extends React.Component {
     }
 
     return (
-      <div data-test-id="instance-header-ssh" className="ssh-tunnel-status"
+      <div data-test-id="ssh-tunnel-status" className="ssh-tunnel-status"
           onMouseOver={this.props.actions.showFullHostPort}
           onMouseOut={this.props.actions.showTruncatedHostPort}>
         <FontAwesome name="lock" className="ssh-tunnel-status-icon ssh-tunnel-status-icon-lock"/>
@@ -26,7 +26,9 @@ class SSHTunnelStatusComponent extends React.Component {
           <span className="ssh-tunnel-status-label-is-static">
             &nbsp;SSH connection via&nbsp;&nbsp;
           </span>
-          {this.props.sshTunnelHostPortString}
+          <span className="ssh-tunnel-status-hostportstring">
+            {this.props.sshTunnelHostPortString}
+          </span>
         </span>
       </div>
     );
