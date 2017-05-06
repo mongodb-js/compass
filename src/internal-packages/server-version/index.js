@@ -7,8 +7,8 @@ const ServerVersionStore = require('./lib/stores');
  */
 const ROLE = {
   name: 'ServerVersion',
-  alignment: 'left',
-  order: 1,
+  alignment: 'right',
+  order: 10,
   component: ServerVersionComponent
 };
 

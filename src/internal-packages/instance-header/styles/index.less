@@ -162,82 +162,6 @@
     }
   }
 
-  &-ssh {
-    flex-basis: 290px;
-    flex-grow: 0;
-    flex-shrink: 1;
-    display: flex;
-    padding-top: 1px;
-    min-width: 140px;
-
-    &:hover {
-      flex-basis: auto;
-    }
-  }
-
-  &-icon-lock {
-    color: @green2;
-    flex-basis: auto;
-    flex-grow: 0;
-    flex-shrink: 0;
-    text-align: right;
-    padding-top: 5px;
-  }
-
-  &-ssh-label {
-    color: @gray0;
-    flex-basis: auto;
-    flex-grow: 0;
-    flex-shrink: 0;
-    font-size: 14px;
-    line-height: 1;
-    padding-top: 3px;
-    padding-bottom: 8px;
-    padding-right: 20px;
-
-    &-is-static {
-      font-size: 11px;
-      font-weight: bold;
-      color: @green2;
-      user-select: none;
-      -webkit-user-select: none;
-      text-transform: uppercase;
-    }
-  }
-
-  &-ssh-hostname-prefix {
-    flex-basis: auto;
-    flex-grow: 0;
-    flex-shrink: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  &-ssh-hostname-suffix {
-    flex-basis: auto;
-    flex-grow: 0;
-    flex-shrink: 0;
-  }
-
-  &-ssh-port {
-    flex-basis: auto;
-    flex-grow: 0;
-    flex-shrink: 0;
-  }
-
-  &-version-string-container {
-    flex-basis: auto;
-    flex-grow: 0;
-    flex-shrink: 0;
-    padding-top: 8px;
-  }
-
-  &-version-string {
-    padding-right: 18px;
-    color: @gray3;
-  }
-
   /*SIDEBAR COLLAPSED STATE*/
   &-sidebar-collapsed {
 
@@ -250,10 +174,6 @@
     }
     .instance-header-details {
       color: @gray3;
-    }
-    .instance-header-status-ssh {
-      opacity: 0;
-      pointer-events: none;
     }
     .instance-header-arrow-image,
     .instance-header-connection-string:hover + .instance-header-arrow-image {

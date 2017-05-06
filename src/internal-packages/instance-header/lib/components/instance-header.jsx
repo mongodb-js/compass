@@ -9,7 +9,7 @@ const _ = require('lodash');
 
 // const debug = require('debug')('mongodb-compass:instance-header');
 
-const HOST_STRING_LENGTH = 25;
+const HOST_STRING_LENGTH = 30;
 
 class InstanceHeaderComponent extends React.Component {
 
@@ -18,21 +18,11 @@ class InstanceHeaderComponent extends React.Component {
     this.setupHeaderItems();
 
     const state = {hostStr: this.hostNamePortStr(props.hostname, props.port)};
-    // if (app.connection.ssh_tunnel !== 'NONE') {
-    //   state.sshHostStr = this.hostNamePortStr(app.connection.ssh_tunnel_hostname,
-    //     app.connection.ssh_tunnel_options.dstPort);
-    // }
-
     this.state = state;
   }
 
   componentWillReceiveProps(nextProps) {
     const state = {hostStr: this.hostNamePortStr(nextProps.hostname, nextProps.port)};
-
-    // if (app.connection.ssh_tunnel !== 'NONE') {
-    //   state.sshHostStr = this.hostNamePortStr(app.connection.ssh_tunnel_hostname,
-    //     app.connection.ssh_tunnel_options.dstPort);
-    // }
     this.setState(state);
   }
 
@@ -72,12 +62,12 @@ class InstanceHeaderComponent extends React.Component {
   }
 
   returnHostnamePrefix(hostname) {
-    const prefix = hostname.slice(0, 9);
+    const prefix = hostname.slice(0, 10);
     return prefix;
   }
 
   returnHostnameSuffix(hostname) {
-    const suffix = hostname.slice(-9);
+    const suffix = hostname.slice(-10);
     return suffix;
   }
 
@@ -92,33 +82,10 @@ class InstanceHeaderComponent extends React.Component {
     this.setState({hostStr: this.hostNamePortStr(this.props.hostname, this.props.port, showFullString)});
   }
 
-  // showSshHostNamePort(showFullString) {
-  //   this.setState({sshHostStr: this.hostNamePortStr(app.connection.ssh_tunnel_hostname,
-  //       app.connection.ssh_tunnel_options.dstPort, showFullString)});
-  // }
-
   handleClickHostname() {
     NamespaceStore.ns = '';
     ipc.call('window:hide-collection-submenu');
   }
-
-  // renderAuthDetails() {
-  //   const view = (
-  //     <div data-test-id="instance-header-ssh" className="instance-header-ssh"
-  //         onMouseOver={this.showSshHostNamePort.bind(this, true)}
-  //         onMouseOut={this.showSshHostNamePort.bind(this, false)}>
-  //       <FontAwesome name="lock" className="instance-header-icon instance-header-icon-lock"/>
-  //       <span className="instance-header-ssh-label">
-  //         <span className="instance-header-ssh-label-is-static">
-  //           &nbsp;SSH connection via&nbsp;&nbsp;
-  //         </span>
-  //         {this.state.sshHostStr}
-  //       </span>
-  //     </div>
-  //   );
-  //
-  //   return app.connection.ssh_tunnel !== 'NONE' ? view : null;
-  // }
 
   // renderProcessStatus() {
   //   return this.props.processStatus !== ''
@@ -142,7 +109,7 @@ class InstanceHeaderComponent extends React.Component {
   }
 
   /**
-   * Render RefluxCapacitor.
+   * Render Component.
    *
    * @returns {React.Component} The rendered component.
    */
@@ -163,7 +130,6 @@ class InstanceHeaderComponent extends React.Component {
         </div>
         <div className="instance-header-arrow-image"></div>
         <div className="instance-header-items instance-header-items-is-left">
-          {/* this.renderAuthDetails() */}
           {this.leftHeaderItems}
         </div>
         <div className="instance-header-items instance-header-items-is-right">
