@@ -3,13 +3,16 @@
   padding-top: 7px;
   padding-right: 0;
   justify-content: flex-end;
+  display: flex;
 
   &-list {
     padding-left: 15px;
+    flex-grow: 1;
+    border-right: 1px solid @gray7;
   }
 
-  &-list:first-child {
-    border-right: 1px solid @gray7;
+  &-list:last-child {
+    border-right: none;
   }
 
   &-list-item {
