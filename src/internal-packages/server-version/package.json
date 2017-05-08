@@ -1,0 +1,10 @@
+{
+  "name": "compass-server-version",
+  "productName": "Compass Server Version",
+  "version": "0.1.0",
+  "authors": "MongoDB Inc.",
+  "description": "Renders the server version and distro as a header item",
+  "private": true,
+  "main": "index.js"
+}
+ 

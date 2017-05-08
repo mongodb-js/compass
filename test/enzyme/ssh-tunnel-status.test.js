@@ -7,14 +7,14 @@ const React = require('react');
 const sinon = require('sinon');
 const AppRegistry = require('hadron-app-registry');
 const { shallow } = require('enzyme');
-const InstanceHeader = require('../../src/internal-packages/instance-header/lib/components/instance-header');
-
+const SSHTunnelStatus = require('../../src/internal-packages/ssh-tunnel-status/lib/components/ssh-tunnel-status');
+const Actions = require('../../src/internal-packages/ssh-tunnel-status/lib/actions');
 chai.use(chaiEnzyme());
 
 const appRegistry = app.appRegistry;
 const dataService = app.dataService;
 
-describe('<InstanceHeader />', () => {
+describe('<SSHTunnelStatus />', () => {
   beforeEach(function() {
     app.appRegistry = new AppRegistry();
     this.DatabaseDDLActionSpy = sinon.spy();
@@ -33,7 +33,7 @@ describe('<InstanceHeader />', () => {
     app.appRegistry = appRegistry;
   });
 
-  context('when rendering with no SSH Tunnel', () => {
+  context('when connecting without SSH Tunnel', () => {
     beforeEach(function() {
       app.connection = {
         ssh_tunnel_hostname: 'ip-1-2-3-4-5-6-7-mongodb.com',
@@ -48,18 +48,17 @@ describe('<InstanceHeader />', () => {
         databases: []
       };
       this.component = shallow(
-        <InstanceHeader hostname="localhost" port={27017} activeNamespace={''}
-          versionNumber={this.instance.build.version} versionDistro="Enterprise"/>
+        <SSHTunnelStatus actions={Actions} sshTunnel={false} sshTunnelHostPortString=""/>
       );
     });
 
-    it('renders the endpoint host name and port as text', function() {
-      const element = this.component.find('.instance-header-details');
-      expect(element.text()).to.be.equal('localhost:27017');
+    it('does not render the ssh-tunnel-status component', function() {
+      const element = this.component.find('.ssh-tunnel-status');
+      expect(element).to.not.be.present();
     });
   });
 
-  context('when rendering with an SSH Tunnel', () => {
+  context('when connecting with an SSH Tunnel', () => {
     beforeEach(function() {
       app.connection = {
         hostname: 'ip-1-2-3-4-5-6-7-secret-mongod.com',
@@ -76,15 +75,18 @@ describe('<InstanceHeader />', () => {
         databases: []
       };
       this.component = shallow(
-        <InstanceHeader hostname={app.connection.hostname}
-          port={app.connection.port} activeNamespace={''}
-          versionNumber={this.instance.build.version} versionDistro="Community"/>
+        <SSHTunnelStatus actions={Actions} sshTunnel={true} sshTunnelHostPortString="my-jump-box.com:2222"/>
       );
     });
 
-    it('renders the endpoint host name and port as text', function() {
-      const element = this.component.find('.instance-header-details');
-      expect(element.text()).to.be.equal('ip-1-2-3-4...mongod.com:27017');
+    it('renders the bastion host name and port as text', function() {
+      const element = this.component.find('.ssh-tunnel-status-hostportstring');
+      expect(element.text()).to.be.equal('my-jump-box.com:2222');
+    });
+
+    it('renders the static label before the host port string', function() {
+      const element = this.component.find('.ssh-tunnel-status-label-is-static');
+      expect(element.text().trim()).to.be.equal('SSH connection via');
     });
   });
 });

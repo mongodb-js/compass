@@ -1,0 +1,36 @@
+.ssh-tunnel-status {
+
+  &-icon {
+    &-lock { font-size: 12px; }
+  }
+
+  &-icon-lock {
+    color: @green2;
+    flex-basis: auto;
+    flex-grow: 0;
+    flex-shrink: 0;
+    text-align: right;
+    padding-top: 5px;
+  }
+
+  &-label {
+    color: @gray0;
+    flex-basis: auto;
+    flex-grow: 0;
+    flex-shrink: 0;
+    font-size: 14px;
+    line-height: 1;
+    padding-top: 3px;
+    padding-bottom: 8px;
+    padding-right: 20px;
+
+    &-is-static {
+      font-size: 11px;
+      font-weight: bold;
+      color: @green2;
+      user-select: none;
+      -webkit-user-select: none;
+      text-transform: uppercase;
+    }
+  }
+}

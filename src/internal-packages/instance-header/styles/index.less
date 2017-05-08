@@ -94,24 +94,43 @@
     padding-right: 6px;
   }
 
-  &-status-ssh-container {
+  &-items {
+    display: flex;
+    flex-grow: 2;
+    flex-shrink: 10;
+    align-items: center;
+
+    &-is-left {
+      padding-left: 5px;
+      justify-content: flex-start;
+    }
+
+    &-is-right {
+      padding-right: 5px;
+      flex-direction: row-reverse;
+    }
+
+    & > * {
+      padding: 0 5px;
+      color: @gray3;
+    }
+  }
+
+  &-arrow-image {
     background-image: url('./images/instance-header/hostname-bg.png');
     background-size: 16px 36px;
     background-repeat: no-repeat;
-    flex-basis: auto;
-    flex-grow: 1;
-    flex-shrink: 1;
-    min-width: 250px;
     padding-top: 7px;
     transition: all @transistion-time ease;
+    width: 16px;
   }
 
-  &-connection-string:hover + .instance-header-status-ssh-container {
+  &-connection-string:hover + .instance-header-arrow-image {
     background-image: url('./images/instance-header/hostname-bg-hover.png');
   }
 
-  &-connection-string-is-active       + .instance-header-status-ssh-container,
-  &-connection-string-is-active:hover + .instance-header-status-ssh-container {
+  &-connection-string-is-active       + .instance-header-arrow-image,
+  &-connection-string-is-active:hover + .instance-header-arrow-image {
     background-image: url('./images/instance-header/hostname-bg-active.png');
   }
 
@@ -143,82 +162,6 @@
     }
   }
 
-  &-ssh {
-    flex-basis: 290px;
-    flex-grow: 0;
-    flex-shrink: 1;
-    display: flex;
-    padding-top: 1px;
-    min-width: 140px;
-
-    &:hover {
-      flex-basis: auto;
-    }
-  }
-
-  &-icon-lock {
-    color: @green2;
-    flex-basis: auto;
-    flex-grow: 0;
-    flex-shrink: 0;
-    text-align: right;
-    padding-top: 5px;
-  }
-
-  &-ssh-label {
-    color: @gray0;
-    flex-basis: auto;
-    flex-grow: 0;
-    flex-shrink: 0;
-    font-size: 14px;
-    line-height: 1;
-    padding-top: 3px;
-    padding-bottom: 8px;
-    padding-right: 20px;
-
-    &-is-static {
-      font-size: 11px;
-      font-weight: bold;
-      color: @green2;
-      user-select: none;
-      -webkit-user-select: none;
-      text-transform: uppercase;
-    }
-  }
-
-  &-ssh-hostname-prefix {
-    flex-basis: auto;
-    flex-grow: 0;
-    flex-shrink: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  &-ssh-hostname-suffix {
-    flex-basis: auto;
-    flex-grow: 0;
-    flex-shrink: 0;
-  }
-
-  &-ssh-port {
-    flex-basis: auto;
-    flex-grow: 0;
-    flex-shrink: 0;
-  }
-
-  &-version-string-container {
-    flex-basis: auto;
-    flex-grow: 0;
-    flex-shrink: 0;
-    padding-top: 8px;
-  }
-
-  &-version-string {
-    padding-right: 18px;
-    color: @gray3;
-  }
-
   /*SIDEBAR COLLAPSED STATE*/
   &-sidebar-collapsed {
 
@@ -232,12 +175,8 @@
     .instance-header-details {
       color: @gray3;
     }
-    .instance-header-status-ssh {
-      opacity: 0;
-      pointer-events: none;
-    }
-    .instance-header-status-ssh-container,
-    .instance-header-connection-string:hover + .instance-header-status-ssh-container {
+    .instance-header-arrow-image,
+    .instance-header-connection-string:hover + .instance-header-arrow-image {
       background-position: -16px 0;
     }
 
