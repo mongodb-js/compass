@@ -21,9 +21,7 @@ before_script:
   - npm run check
   - mkdir -p /home/travis/build/10gen/compass/node_modules/mongodb-version-manager/.mongodb/downloads/
   - wget -P /home/travis/build/10gen/compass/node_modules/mongodb-version-manager/.mongodb/downloads/ http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-2.6.12.tgz
-  - wget -P /home/travis/build/10gen/compass/node_modules/mongodb-version-manager/.mongodb/downloads/ http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-3.0.14.tgz
-  - wget -P /home/travis/build/10gen/compass/node_modules/mongodb-version-manager/.mongodb/downloads/ http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-3.2.13.tgz
-  - wget -P /home/travis/build/10gen/compass/node_modules/mongodb-version-manager/.mongodb/downloads/ http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-3.4.4.tgz
+  - wget -P /home/travis/build/10gen/compass/node_modules/mongodb-version-manager/.mongodb/downloads/ http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-3.4.5.tgz
 script: npm run test
 cache:
   directories:
