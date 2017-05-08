@@ -64,22 +64,6 @@ ipc.once('app:launched', function() {
 
 var debug = require('debug')('mongodb-compass:app');
 
-/**
- * The styles are rendered into the head of the index.html and help.html
- * as part of the build process so the style manager is not needed in
- * production.
- */
-if (process.env.NODE_ENV !== 'production') {
-  /**
-   * @note: Style Manager should get set up first so styles are in place before
-   * the packages are activated.
-   */
-  marky.mark('Loading styles');
-  const setupStyleManager = require('./setup-style-manager');
-  setupStyleManager('index.less');
-  marky.stop('Loading styles');
-}
-
 function getConnection(model, done) {
   function _fetch(fn) {
     model.fetch({
@@ -516,9 +500,12 @@ Object.defineProperty(app, 'state', {
   }
 });
 
-require('./reflux-listen-to-external-store');
-
-app.init();
-
-// expose app globally for debugging purposes
-window.app = app;
+marky.mark('Loading styles');
+const setupStyleManager = require('./setup-style-manager');
+setupStyleManager('index.less', () => {
+  require('./reflux-listen-to-external-store');
+  app.init();
+  // expose app globally for debugging purposes
+  window.app = app;
+  marky.stop('Loading styles');
+});
