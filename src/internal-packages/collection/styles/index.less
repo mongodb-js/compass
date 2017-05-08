@@ -8,29 +8,67 @@
     padding: 0;
     flex-grow: 0;
     flex-shrink: 0;
-    flex-basis: 50px;
-    /*
-    END GLOBAL FLEXBOX LAYOUT STYLES
-    */
-    .row {
-      margin-left: 0;
-      margin-right: 0;
-    }
+    flex-basis: auto;
+    display: flex;
+
   }
-  h1 {
-    margin-top: 12px;
+
+  &-header-item {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    padding-right: 15px;
+    border-right: 1px solid @gray7;
+    margin-top: 6px;
+  }
+
+  //remove the right border from the collection name
+  &-header-item:first-child {
+    border-right: none;
+  }
+
+  //remove the right border from the last header item
+  &-header-item:last-child {
+    border-right: none;
+  }
+
+  &-title {
     font-size: 24px;
     font-weight: normal;
     overflow: hidden;
     text-overflow: ellipsis;
-    a {
-      color: @chart1;
-      margin-right: 2px;
-      text-decoration: none;
-      cursor: pointer;
-    }
-    span {
-      margin-left: 2px;
-    }
+    display: flex;
+    padding-left: 15px;
+    margin: 0;
+    padding-top: 12px;
+  }
+
+  &-database-name,
+  &-collection-name,
+  &-namespace-delimeter {
+    flex-basis: auto;
+    flex-grow: 1;
+    flex-shrink: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &-collection-name {
+    flex-grow: 2;
+  }
+
+  &-namespace-delimeter {
+    flex-grow: 0;
+    flex-shrink: 0;
+  }
+
+  &-database-name {
+    flex-shrink: 2;
+  }
+
+  &-database-name-link {
+    color: @chart1;
+    text-decoration: none;
+    cursor: pointer;
   }
 }
