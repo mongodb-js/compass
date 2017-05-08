@@ -1,5 +1,4 @@
 const path = require('path');
-const async = require('async');
 const fs = require('fs');
 const os = require('os');
 const StyleManager = require('hadron-style-manager');
@@ -28,7 +27,6 @@ const DEV_PACKAGES = path.join(os.homedir(), DISTRIBUTION[PLUGINS_DIR]);
  */
 const setup = (stylesheet, done) => {
   const manager = new StyleManager(path.join(__dirname, 'compiled-less'), __dirname);
-  const distributions = pkg.config.hadron.distributions[process.env.HADRON_DISTRIBUTION];
 
   /**
    * @note: This is the legacy way to load styles - stays for backwards
