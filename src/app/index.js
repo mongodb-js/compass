@@ -460,6 +460,9 @@ app.extend({
         metricsSetup();
         global.hadronApp.appRegistry.onActivated();
 
+        const rawMenuItems = app.appRegistry.getRole('Menu.Item');
+        ipc.call('window:add-menu', rawMenuItems);
+
         // signal to main process that app is ready
         ipc.call('window:renderer-ready');
 
