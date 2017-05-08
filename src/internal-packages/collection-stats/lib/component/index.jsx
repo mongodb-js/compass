@@ -5,7 +5,7 @@ const app = require('hadron-app');
 /**
  * The base list class.
  */
-const BASE_CLASS = 'collection-view-header-item collection-stats';
+const BASE_CLASS = 'collection-stats';
 
 /**
  * The collection stats component.
