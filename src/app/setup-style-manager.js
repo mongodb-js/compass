@@ -33,13 +33,12 @@ const STYLE = 'style';
  * @param {Function} done - The callback to execute when done.
  */
 const setup = (stylesheet, done) => {
-  const manager = new StyleManager(path.join(__dirname, 'compiled-less'), __dirname);
-
   /**
    * @note: This is the legacy way to load styles - stays for backwards
    *   compatibility until all packages are external.
    */
   if (process.env.NODE_ENV !== 'production') {
+    const manager = new StyleManager(path.join(__dirname, 'compiled-less'), __dirname);
     manager.use(document, path.join(__dirname, stylesheet));
 
     /**
