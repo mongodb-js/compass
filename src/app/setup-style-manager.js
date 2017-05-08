@@ -1,7 +1,9 @@
+const _ = require('lodash');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
 const StyleManager = require('hadron-style-manager');
+const debug = require('debug')('mongodb-compass:setup-style-manager');
 const pkg = require('../../package.json');
 
 /**
@@ -18,6 +20,11 @@ const PLUGINS_DIR = 'plugins-directory';
  * Location of the dev packages.
  */
 const DEV_PACKAGES = path.join(os.homedir(), DISTRIBUTION[PLUGINS_DIR]);
+
+/**
+ * The style tag constant.
+ */
+const STYLE = 'style';
 
 /**
  * Setup the style manager for the provided stylesheet.
@@ -54,7 +61,19 @@ const setup = (stylesheet, done) => {
     if (error) {
       done();
     } else {
-      manager.load(document, DEV_PACKAGES, files);
+      _.each(files, (file) => {
+        /**
+         * @durran - Temporary for workshop - will fix in style manager after.
+         */
+        try {
+          const styles = document.createElement(STYLE);
+          const loc = path.join(DEV_PACKAGES, file, 'lib', 'styles', 'index.css');
+          styles.textContent = fs.readFileSync(loc, { encoding: 'utf8' });
+          document.head.appendChild(styles);
+        } catch (e) {
+          debug(e.message);
+        }
+      });
       done();
     }
   });
