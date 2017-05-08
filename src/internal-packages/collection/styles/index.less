@@ -11,24 +11,6 @@
     flex-basis: auto;
   }
 
-  &-header-item {
-    display: flex;
-    overflow: hidden;
-    padding-right: 15px;
-    border-right: 1px solid @gray7;
-    margin-top: 6px;
-  }
-
-  //remove the right border from the collection name
-  &-header-item:first-child {
-    border-right: none;
-  }
-
-  //remove the right border from the last header item
-  &-header-item:last-child {
-    border-right: none;
-  }
-
   &-title {
     font-size: 24px;
     font-weight: normal;
@@ -44,8 +26,6 @@
   &-collection-name,
   &-namespace-delimeter {
     flex-basis: auto;
-    // flex-grow: 1;
-    // flex-shrink: 1;
     overflow: hidden;
     text-overflow: ellipsis;
   }
