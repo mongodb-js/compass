@@ -498,13 +498,6 @@ describe('ChartStore', function() {
         initialChartState = this.store.getInitialChartState();
         chartKeys = Object.keys(initialChartState);
 
-        // Handle side-effect in ValidationStore or other tests trigger a:
-        // "TypeError: Cannot read property 'call' of undefined"
-        const ValidationStore = require('../../src/internal-packages/validation/lib/stores');
-        ValidationStore._fetchFromServer = function(callback) {
-          return callback(null, null);
-        };
-
         // Set up a namespace change so the namespaceCache has been modified
         NamespaceStore.ns = 'mongodb.fanclub';
         ChartActions.selectChartType(CHART_TYPE_ENUM.AREA);
