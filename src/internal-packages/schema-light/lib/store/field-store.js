@@ -189,7 +189,6 @@ const FieldStore = Reflux.createStore({
    * @param  {Array} schema     the schema to merge with the existing state.
    */
   processSchema(schema) {
-    debug('merging schema', schema);
     this._mergeSchema(schema);
   },
 
