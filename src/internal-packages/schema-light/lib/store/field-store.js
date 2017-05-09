@@ -16,25 +16,35 @@ const FIELDS = [
 const FieldStore = Reflux.createStore({
   mixins: [StateMixin.store],
 
-  onActivated() {
+  onActivated(appRegistry) {
     // process documents when CRUD store resets (first 20 docs)
-    global.hadronApp.appRegistry.getStore('CRUD.ResetDocumentListStore').listen((err, docs) => {
+    appRegistry.getStore('CRUD.ResetDocumentListStore').listen((err, docs) => {
       if (!err) {
         this.processDocuments(docs);
       }
     });
     // process documents when user scrolls through the list (next 20 docs)
-    global.hadronApp.appRegistry.getStore('CRUD.LoadMoreDocumentsStore').listen((err, docs) => {
+    appRegistry.getStore('CRUD.LoadMoreDocumentsStore').listen((err, docs) => {
       if (!err) {
         this.processDocuments(docs);
       }
     });
     // process new document a user inserts
-    global.hadronApp.appRegistry.getStore('CRUD.InsertDocumentStore').listen((success, doc) => {
+    appRegistry.getStore('CRUD.InsertDocumentStore').listen((success, doc) => {
       if (success) {
         this.processSingleDocument(doc);
       }
     });
+    // optionally also subscribe to the SchemaStore if present
+    const schemaStore = appRegistry.getStore('Schema.Store');
+    if (schemaStore) {
+      schemaStore.listen((state) => {
+        if (state.samplingState === 'complete') {
+          this.processSchema(state.schema);
+        }
+      });
+    }
+    // listen to namespace changes to reset the state
     NamespaceStore.listen(this.onNamespaceChanged.bind(this));
   },
 
@@ -171,6 +181,16 @@ const FieldStore = Reflux.createStore({
       }
       this._mergeSchema(schema);
     });
+  },
+
+  /**
+   * processes a schema from the SchemaStore.
+   *
+   * @param  {Array} schema     the schema to merge with the existing state.
+   */
+  processSchema(schema) {
+    debug('merging schema', schema);
+    this._mergeSchema(schema);
   },
 
   storeDidUpdate(prevState) {

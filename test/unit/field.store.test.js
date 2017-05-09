@@ -2,6 +2,7 @@
 const expect = require('chai').expect;
 const mock = require('mock-require');
 let FieldStore = require('../../src/internal-packages/schema-light/lib/store/field-store');
+let schemaFixture = require('../fixtures/array_of_docs.fixture.json');
 
 describe('FieldStore', function() {
   let unsubscribe;
@@ -41,7 +42,7 @@ describe('FieldStore', function() {
     FieldStore.processDocuments(docs);
   });
 
-  it('merges new docs with existing schema', (done) => {
+  it('merges new docs with the existing state', (done) => {
     const doc = {harry: 1, potter: true};
     FieldStore.processSingleDocument(doc);
     setTimeout(() => {
@@ -52,6 +53,21 @@ describe('FieldStore', function() {
         done();
       });
       FieldStore.processSingleDocument(secondDoc);
+    });
+  });
+
+  it('merges a schema with the existing state', (done) => {
+    const doc = {harry: 1, potter: true};
+    FieldStore.processSingleDocument(doc);
+    setTimeout(() => {
+      const schema = {};
+      unsubscribe = FieldStore.listen((state) => {
+        expect(Object.keys(state.fields)).to.have.all.members(['harry', 'potter',
+          '_id', 'review', 'review._id', 'review.rating', 'review.text',
+          'reviews', 'reviews._id', 'reviews.rating', 'reviews.text']);
+        done();
+      });
+      FieldStore.processSchema(schemaFixture);
     });
   });
 
