@@ -60,7 +60,6 @@ describe('FieldStore', function() {
     const doc = {harry: 1, potter: true};
     FieldStore.processSingleDocument(doc);
     setTimeout(() => {
-      const schema = {};
       unsubscribe = FieldStore.listen((state) => {
         expect(Object.keys(state.fields)).to.have.all.members(['harry', 'potter',
           '_id', 'review', 'review._id', 'review.rating', 'review.text',
