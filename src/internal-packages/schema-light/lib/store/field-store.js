@@ -85,11 +85,9 @@ const FieldStore = Reflux.createStore({
   /**
    * Generate the flattened list of fields for the FieldStore.
    *
-   * @todo Satya to fill out what these are.
-   *
-   * @param  {[type]} fields       [description]
-   * @param  {[type]} nestedFields [description]
-   * @param  {[type]} rootField    [description]
+   * @param  {Object} fields       flattened list of fields
+   * @param  {Array} nestedFields  sub-fields of rootFields (if existing)
+   * @param  {Object} rootField    current top level field which can contain nestedFields
    */
   _generateFields(fields, nestedFields, rootField) {
     if (!nestedFields) {
