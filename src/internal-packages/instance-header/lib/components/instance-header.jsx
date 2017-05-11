@@ -26,10 +26,6 @@ class InstanceHeaderComponent extends React.Component {
     this.setState(state);
   }
 
-  onClick() {
-    InstanceHeaderActions.toggleStatus();
-  }
-
   /**
    * creates React components for the plugins registering as the
    * Heeader.Item role. Separates left/right aligned items, and passes the
@@ -86,17 +82,6 @@ class InstanceHeaderComponent extends React.Component {
     NamespaceStore.ns = '';
     ipc.call('window:hide-collection-submenu');
   }
-
-  // renderProcessStatus() {
-  //   return this.props.processStatus !== ''
-  //     ? (
-  //       <div className="instance-header-process-status-container">
-  //         <div className="instance-header-process-status">
-  //           <span>{this.props.processStatus}</span>
-  //         </div>
-  //       </div>
-  //     ) : '';
-  // }
 
   renderHostNamePort() {
     return (
