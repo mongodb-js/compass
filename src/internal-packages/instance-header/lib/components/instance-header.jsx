@@ -26,6 +26,11 @@ class InstanceHeaderComponent extends React.Component {
     this.setState(state);
   }
 
+  getSidebarToggleClasses() {
+    return 'instance-header-icon instance-header-icon-arrow fa' +
+      (this.props.sidebarCollapsed ? ' fa-forward' : ' fa-backward');
+  }
+
   /**
    * creates React components for the plugins registering as the
    * Heeader.Item role. Separates left/right aligned items, and passes the
@@ -117,7 +122,7 @@ class InstanceHeaderComponent extends React.Component {
         <div className={hostnameClasses} >
           <div className="instance-header-icon-container"
               data-test-id="toggle-sidebar" onClick={this.onClick.bind(this)}>
-            <FontAwesome name="home" className="instance-header-icon instance-header-icon-home"/>
+            <i className={this.getSidebarToggleClasses()}></i>
           </div>
           {this.renderHostNamePort()}
         </div>
