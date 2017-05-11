@@ -50,29 +50,6 @@ class Sidebar extends React.Component {
       (this.props.collapsed ? ' compass-sidebar-collapsed' : ' compass-sidebar-expanded');
   }
 
-  getToggleClasses() {
-    return 'fa' +
-      (this.props.collapsed ? ' fa-forward' : ' fa-backward');
-  }
-
-  // handleCollapse() {
-  //   if (!this.state.collapsed) {
-  //     this.props.onCollapse();
-  //     this.setState({ collapsed: !this.state.collapsed });
-  //   } else {
-  //     return null;
-  //   }
-  // }
-  //
-  // handleExpand() {
-  //   if (this.state.collapsed) {
-  //     this.props.onCollapse();
-  //     this.setState({ collapsed: !this.state.collapsed });
-  //   } else {
-  //     return null;
-  //   }
-  // }
-
   handleSearchFocus() {
     this.refs.filter.focus();
   }
@@ -207,11 +184,6 @@ class Sidebar extends React.Component {
       <div
         className={this.getSidebarClasses()}
         data-test-id="instance-sidebar">
-        <div className="compass-sidebar-toggle"
-          data-test-id="toggle-sidebar"
-        >
-          <i className={this.getToggleClasses()}></i>
-        </div>
         <StoreConnector store={this.InstanceStore}>
           <SidebarInstanceProperties
             connection={app.connection}
