@@ -1,7 +1,5 @@
 const React = require('react');
 const PropTypes = require('prop-types');
-const InstanceHeaderActions = require('../actions');
-const FontAwesome = require('react-fontawesome');
 const { NamespaceStore } = require('hadron-reflux-store');
 const ipc = require('hadron-ipc');
 const app = require('hadron-app');
@@ -26,10 +24,17 @@ class InstanceHeaderComponent extends React.Component {
     this.setState(state);
   }
 
+  onClick() {
+    if (this.props.toggleSidebar) {
+      this.props.toggleSidebar();
+    }
+  }
+
   getSidebarToggleClasses() {
     return 'instance-header-icon instance-header-icon-arrow fa' +
       (this.props.sidebarCollapsed ? ' fa-forward' : ' fa-backward');
   }
+
 
   /**
    * creates React components for the plugins registering as the
@@ -97,12 +102,6 @@ class InstanceHeaderComponent extends React.Component {
         {this.state.hostStr}
       </div>
     );
-  }
-
-  onClick() {
-    if (this.props.toggleSidebar) {
-      this.props.toggleSidebar();
-    }
   }
 
   /**
