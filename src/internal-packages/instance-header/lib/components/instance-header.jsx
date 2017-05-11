@@ -87,10 +87,17 @@ class InstanceHeaderComponent extends React.Component {
     return (
       <div onMouseOver={this.showHostNamePort.bind(this, true)}
           onMouseOut={this.showHostNamePort.bind(this, false)}
+          onClick={this.handleClickHostname}
           className="instance-header-details" data-test-id="instance-header-details">
         {this.state.hostStr}
       </div>
     );
+  }
+
+  onClick() {
+    if (this.props.toggleSidebar) {
+      this.props.toggleSidebar();
+    }
   }
 
   /**
@@ -107,8 +114,9 @@ class InstanceHeaderComponent extends React.Component {
 
     return (
       <div className={headerClasses}>
-        <div className={hostnameClasses} onClick={this.handleClickHostname}>
-          <div className="instance-header-icon-container">
+        <div className={hostnameClasses} >
+          <div className="instance-header-icon-container"
+              data-test-id="toggle-sidebar" onClick={this.onClick.bind(this)}>
             <FontAwesome name="home" className="instance-header-icon instance-header-icon-home"/>
           </div>
           {this.renderHostNamePort()}
@@ -130,6 +138,7 @@ InstanceHeaderComponent.propTypes = {
   port: PropTypes.number,
   processStatus: PropTypes.string,
   activeNamespace: PropTypes.string,
+  toggleSidebar: PropTypes.func,
   sidebarCollapsed: PropTypes.bool
 };
 

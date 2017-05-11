@@ -16,13 +16,14 @@ class ConnectedInstanceHeaderComponent extends React.Component {
   render() {
     return (
       <StoreConnector store={Store}>
-        <InstanceHeaderComponent sidebarCollapsed={this.props.sidebarCollapsed}/>
+        <InstanceHeaderComponent toggleSidebar={this.props.toggleSidebar} sidebarCollapsed={this.props.sidebarCollapsed}/>
       </StoreConnector>
     );
   }
 }
 
 ConnectedInstanceHeaderComponent.propTypes = {
+  toggleSidebar: PropTypes.func,
   sidebarCollapsed: PropTypes.bool
 };
 

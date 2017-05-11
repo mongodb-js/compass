@@ -22,7 +22,7 @@ class Sidebar extends React.Component {
     super(props);
     this.DatabaseDDLActions = app.appRegistry.getAction('DatabaseDDL.Actions');
     this.InstanceStore = app.appRegistry.getStore('App.InstanceStore');
-    this.state = { collapsed: false, expandedDB: {}};
+    this.state = {expandedDB: {}};
   }
 
   componentWillReceiveProps(nextProps) {
@@ -47,31 +47,31 @@ class Sidebar extends React.Component {
 
   getSidebarClasses() {
     return 'compass-sidebar' +
-      (this.state.collapsed ? ' compass-sidebar-collapsed' : ' compass-sidebar-expanded');
+      (this.props.collapsed ? ' compass-sidebar-collapsed' : ' compass-sidebar-expanded');
   }
 
   getToggleClasses() {
     return 'fa' +
-      (this.state.collapsed ? ' fa-forward' : ' fa-backward');
+      (this.props.collapsed ? ' fa-forward' : ' fa-backward');
   }
 
-  handleCollapse() {
-    if (!this.state.collapsed) {
-      this.props.onCollapse();
-      this.setState({ collapsed: !this.state.collapsed });
-    } else {
-      return null;
-    }
-  }
-
-  handleExpand() {
-    if (this.state.collapsed) {
-      this.props.onCollapse();
-      this.setState({ collapsed: !this.state.collapsed });
-    } else {
-      return null;
-    }
-  }
+  // handleCollapse() {
+  //   if (!this.state.collapsed) {
+  //     this.props.onCollapse();
+  //     this.setState({ collapsed: !this.state.collapsed });
+  //   } else {
+  //     return null;
+  //   }
+  // }
+  //
+  // handleExpand() {
+  //   if (this.state.collapsed) {
+  //     this.props.onCollapse();
+  //     this.setState({ collapsed: !this.state.collapsed });
+  //   } else {
+  //     return null;
+  //   }
+  // }
 
   handleSearchFocus() {
     this.refs.filter.focus();
@@ -206,10 +206,8 @@ class Sidebar extends React.Component {
     return (
       <div
         className={this.getSidebarClasses()}
-        data-test-id="instance-sidebar"
-        onClick={this.handleExpand.bind(this)}>
+        data-test-id="instance-sidebar">
         <div className="compass-sidebar-toggle"
-          onClick={this.handleCollapse.bind(this)}
           data-test-id="toggle-sidebar"
         >
           <i className={this.getToggleClasses()}></i>
@@ -241,9 +239,9 @@ class Sidebar extends React.Component {
 Sidebar.propTypes = {
   instance: PropTypes.object,
   databases: PropTypes.array,
-  onCollapse: PropTypes.func,
   activeNamespace: PropTypes.string,
-  expanded: PropTypes.bool
+  expanded: PropTypes.bool,
+  collapsed: PropTypes.bool
 };
 
 module.exports = Sidebar;
