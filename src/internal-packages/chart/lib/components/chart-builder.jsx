@@ -114,7 +114,7 @@ class ChartBuilder extends React.Component {
         width={dim.width}
         height={dim.height}
         className="chart-builder-chart"
-        renderer="canvas"
+        renderer="svg"
       />
     );
   }

@@ -5,7 +5,8 @@ const {
   CHART_TYPE_ENUM,
   DEFAULTS,
   MEASUREMENT_ENUM,
-  CHART_TYPE_CHANNELS
+  CHART_TYPE_CHANNELS,
+  CHART_COLORS
 } = require('./constants');
 const Actions = require('./actions');
 const StateMixin = require('reflux-state-mixin');
@@ -29,10 +30,35 @@ const INITIAL_QUERY = {
   ns: '',
   maxTimeMS: 10000
 };
+// "color": CHART_COLORS.CHART0,
 
 const LITE_SPEC_GLOBAL_SETTINGS = {
-  transform: {
-    filterInvalid: false
+  "transform": {
+    "filterInvalid": false
+  },
+  "config": {
+    "mark": {
+      "color": CHART_COLORS.CHART0,
+      "opacity": 0.9,
+      "filled": true
+    },
+    "axis": {
+      "titleColor": "#42494f",
+      "titleFont": "Akzidenz",
+      "titleFontWeight": "bold",
+      "titleFontSize": 16,
+      "tickColor": "#bfbfbe",
+      "axisColor": "#42494f",
+      "tickLabelFont": "Akzidenz",
+      "tickLabelFontSize": 12,
+      "tickLabelColor": "#42494f",
+      "subdivide": 3,
+      "tickSizeMinor": 3,
+      "tickSizeMajor": 6,
+      "gridColor": "#42494f",
+      "gridOpacity": .12,
+      "grid": true
+    }
   }
 };
 
