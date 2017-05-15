@@ -71,6 +71,7 @@ class ChartBuilder extends React.Component {
     // use plain buttons until IconTextButton passes all props, e.g. `disabled`
     return (
       <StatusRow>
+        <span className="chart-builder-query-message">We should put sampling and document results message back here</span>
         <TextButton
           text="Reset Chart"
           className="btn btn-default btn-xs chart-builder-reset-button"

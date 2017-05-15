@@ -32,4 +32,45 @@
     background-color: @gray8;
     min-height: 100%;
   }
+
+  .status-row {
+    justify-content: space-between;
+  }
+
+  &-query-message {
+    flex-basis: auto;
+    flex-grow: 1;
+    flex-shrink: 1;
+    order: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    align-self: flex-start;
+    white-space: nowrap;
+  }
+
+  &-reset-button {
+    align-self: flex-end;
+    flex-basis: auto;
+    flex-grow: 0;
+    flex-shrink: 0;
+    order: 4;
+    margin-left: 12px;
+  }
+
+  &-redo-button {
+    align-self: flex-end;
+    flex-basis: auto;
+    flex-grow: 0;
+    flex-shrink: 0;
+    order: 3;
+    margin-left: 6px;
+  }
+
+  &-undo-button {
+    align-self: flex-end;
+    flex-basis: auto;
+    flex-grow: 0;
+    flex-shrink: 0;
+    order: 2;
+  }
 }

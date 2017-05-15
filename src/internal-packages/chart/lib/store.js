@@ -40,7 +40,7 @@ const LITE_SPEC_GLOBAL_SETTINGS = {
     "mark": {
       "color": CHART_COLORS.CHART0,
       "opacity": 0.9,
-      "filled": true
+      "strokeWidth": 3
     },
     "axis": {
       "titleColor": "#42494f",
@@ -53,7 +53,7 @@ const LITE_SPEC_GLOBAL_SETTINGS = {
       "tickLabelFontSize": 12,
       "tickLabelColor": "#42494f",
       "subdivide": 3,
-      "tickSizeMinor": 3,
+      "tickSizeMinor": 4,
       "tickSizeMajor": 6,
       "gridColor": "#42494f",
       "gridOpacity": .12,
