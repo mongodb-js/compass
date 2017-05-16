@@ -70,7 +70,8 @@ const SidebarStore = Reflux.createStore({
   },
 
   _filterDatabases(re, databases) {
-    if (databases.isEmpty()) {
+    if (Array.isArray(databases) && databases.length === 0 ||
+        databases.isEmpty()) {
       return [];
     }
 
