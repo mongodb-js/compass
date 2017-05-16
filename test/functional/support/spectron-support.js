@@ -20,7 +20,6 @@ const addSchemaCommands = require('./packages/spectron-schema');
 const addServerVersionCommands = require('./packages/spectron-server-version');
 const addSidebarCommands = require('./packages/spectron-sidebar');
 const addStatusBarCommands = require('./packages/spectron-status-bar');
-const addValidationCommands = require('./packages/spectron-validation');
 const addWorkflowCommands = require('./packages/spectron-workflow');
 const { App } = require('hadron-spectron');
 
@@ -50,7 +49,6 @@ function addCommands(client) {
   addSidebarCommands(client);
   addServerVersionCommands(client);
   addStatusBarCommands(client);
-  addValidationCommands(client);
   addWorkflowCommands(client);
 }
 
