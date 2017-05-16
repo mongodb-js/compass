@@ -20,8 +20,8 @@ class SidebarInstanceProperties extends React.Component {
 
   render() {
     const instance = this.props.instance;
-    const numDbs = instance.databases.length;
-    const numCollections = instance.collections.length;
+    const numDbs = instance.databases === null ? '-' : instance.databases.length;
+    const numCollections = instance.collections === null ? '-' : instance.collections.length;
 
     return (
       <div className="compass-sidebar-properties">
