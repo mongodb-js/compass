@@ -88,6 +88,25 @@ describe('<DatabasesTable />', () => {
     });
   });
 
+  context('when loading databases and dataService is not writable', () => {
+    beforeEach(() => {
+      app.dataService = {
+        isWritable: () => {
+          return false;
+        }
+      };
+    });
+
+    it('displays a loading message', () => {
+      const expected = 'Loading';
+      const component = shallow(<this.DatabasesTable
+          columns={[]}
+          databases={null}
+      />);
+      expect(component.text()).to.be.equal(expected);
+    });
+  });
+
   context('when no databases and dataService is writable', () => {
     beforeEach(() => {
       app.dataService = {
