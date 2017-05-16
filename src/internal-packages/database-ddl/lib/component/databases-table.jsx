@@ -71,7 +71,28 @@ class DatabasesTable extends React.Component {
     );
   }
 
+  renderLoadingState() {
+    return (
+      <div className="databases-table">
+        <div className="spinner">
+          <div className="rect1" />
+          <div className="rect2" />
+          <div className="rect3" />
+          <div className="rect4" />
+          <div className="rect5" />
+        </div>
+        <p className="message">
+          Loading
+        </p>
+      </div>
+    );
+  }
+
   render() {
+    if (this.props.databases === null) {
+      return this.renderLoadingState();
+    }
+
     // convert storage size to human-readable units (MB, GB, ...)
     // we do this here so that sorting is not affected in the store
     const rows = _.map(this.props.databases, (db) => {

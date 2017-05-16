@@ -33,7 +33,7 @@ const DatabasesStore = Reflux.createStore({
   getInitialState() {
     return {
       columns: DB_COLUMNS,
-      databases: [],
+      databases: null,  // null = loading state; empty array = zero databases
       sortOrder: 'asc',
       sortColumn: 'Name'
     };
