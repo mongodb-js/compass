@@ -122,7 +122,7 @@ const CollectionsStore = Reflux.createStore({
   onInstanceChange(state) {
     // continue only when a database is the activeNamespace
     const namespace = NamespaceStore.ns;
-    if (!namespace || namespace.includes('.')) {
+    if (!namespace || namespace.includes('.') || state.instance.databases === null) {
       return;
     }
 

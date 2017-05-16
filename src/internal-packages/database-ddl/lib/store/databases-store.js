@@ -50,6 +50,12 @@ const DatabasesStore = Reflux.createStore({
         databases: []
       });
     }
+    if (state.instance.databases === null) {
+      this.setState({
+        databases: []
+      });
+      return;
+    }
 
     const unsorted = state.instance.databases.map((db) => {
       return _.zipObject(DB_COLUMNS, [

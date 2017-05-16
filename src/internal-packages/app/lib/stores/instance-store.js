@@ -31,8 +31,8 @@ const InstanceStore = Reflux.createStore({
   getInitialState() {
     return {
       instance: {
-        databases: [],
-        collections: [],
+        databases: null,   // null = loading state
+        collections: null, // null = loading state
         build: {},
         hostname: '',
         port: null
