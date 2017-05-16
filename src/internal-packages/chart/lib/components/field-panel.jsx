@@ -5,11 +5,11 @@ const FieldPanelItem = require('./field-panel-item');
 class FieldPanel extends React.Component {
 
   renderSearchIcon() {
-    return 'fa fa-search'
+    return 'fa fa-search';
   }
 
   renderAddIcon() {
-    return 'fa fa-plus'
+    return 'fa fa-plus';
   }
 
   renderFields() {

@@ -33,31 +33,31 @@ const INITIAL_QUERY = {
 // "color": CHART_COLORS.CHART0,
 
 const LITE_SPEC_GLOBAL_SETTINGS = {
-  "transform": {
-    "filterInvalid": false
+  'transform': {
+    'filterInvalid': false
   },
-  "config": {
-    "mark": {
-      "color": CHART_COLORS.CHART0,
-      "opacity": 0.9,
-      "strokeWidth": 3
+  'config': {
+    'mark': {
+      'color': CHART_COLORS.CHART0,
+      'opacity': 0.9,
+      'strokeWidth': 3
     },
-    "axis": {
-      "titleColor": "#42494f",
-      "titleFont": "Akzidenz",
-      "titleFontWeight": "bold",
-      "titleFontSize": 16,
-      "tickColor": "#bfbfbe",
-      "axisColor": "#42494f",
-      "tickLabelFont": "Akzidenz",
-      "tickLabelFontSize": 12,
-      "tickLabelColor": "#42494f",
-      "subdivide": 3,
-      "tickSizeMinor": 4,
-      "tickSizeMajor": 6,
-      "gridColor": "#42494f",
-      "gridOpacity": .12,
-      "grid": true
+    'axis': {
+      'titleColor': '#42494f',
+      'titleFont': 'Akzidenz',
+      'titleFontWeight': 'bold',
+      'titleFontSize': 16,
+      'tickColor': '#bfbfbe',
+      'axisColor': '#42494f',
+      'tickLabelFont': 'Akzidenz',
+      'tickLabelFontSize': 12,
+      'tickLabelColor': '#42494f',
+      'subdivide': 3,
+      'tickSizeMinor': 4,
+      'tickSizeMajor': 6,
+      'gridColor': '#42494f',
+      'gridOpacity': 0.12,
+      'grid': true
     }
   }
 };
