@@ -15,6 +15,11 @@ describe('SidebarStore', function() {
     unsubscribe();
   });
 
+  it('_filterdatabases returns for null, i.e. loading state', () => {
+    const result = SidebarStore._filterDatabases('', null);
+    expect(result.length).to.be.equal(0);
+  });
+
   it('_filterdatabases returns for an empty array', () => {
     // Also should work with a DatabaseModel instance,
     // but that's not causing the error

@@ -32,7 +32,7 @@ describe('CollectionsStore', () => {
 
   it('onInstanceChange with no databases renders an empty list', (done) => {
     const state = InstanceStore.getInitialState();
-    expect(state.instance.databases.length).to.be.equal(0);
+    expect(state.instance.databases).to.be.null;
 
     CollectionsStore.onInstanceChange(state);
     setTimeout(() => {
