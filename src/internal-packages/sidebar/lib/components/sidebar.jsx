@@ -14,7 +14,7 @@ const { TOOLTIP_IDS } = require('./constants');
 // const debug = require('debug')('mongodb-compass:sidebar:sidebar');
 
 const OVER_SCAN_COUNT = 100;
-const ROW_HEIGHT = 32;
+const ROW_HEIGHT = 28;
 const EXPANDED_WHITESPACE = 12;
 
 class Sidebar extends React.Component {
