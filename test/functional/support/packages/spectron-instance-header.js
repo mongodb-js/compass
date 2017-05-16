@@ -9,13 +9,6 @@ function addGetInstanceHeaderCommands(client) {
     return this.waitForVisibleInCompass(selector('instance-header-details'))
       .getText(selector('instance-header-details'));
   });
-
-  /**
-  * Get the instance version from header.
-  */
-  client.addCommand('getInstanceHeaderVersion', function() {
-    return this.getText(selector('instance-header-version'));
-  });
 }
 
 function addClickInstanceHeaderCommands(client) {
@@ -28,7 +21,7 @@ function addClickInstanceHeaderCommands(client) {
 }
 
 /**
- * Add commands to the client related to the Document Validation Tab.
+ * Add commands to the client related to the Instance Header.
  *
  * @param {Client} client - The client.
  */

@@ -15,7 +15,7 @@ class ServerVersionComponent extends React.Component {
       return null;
     }
     return (
-      <div className="server-version">
+      <div className="server-version" data-test-id="server-version">
         MongoDB {this.props.versionNumber} {this.props.versionDistro}
       </div>
     );

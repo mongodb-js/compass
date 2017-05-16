@@ -10,7 +10,6 @@ const _ = require('lodash');
 const ms = require('ms');
 const bsonEqual = require('../util').bsonEqual;
 const hasDistinctValue = require('../util').hasDistinctValue;
-const toNS = require('mongodb-ns');
 
 const debug = require('debug')('mongodb-compass:stores:query-new');
 
@@ -50,11 +49,9 @@ const QueryStore = Reflux.createStore({
     }
     // on namespace changes, reset the store
     NamespaceStore.listen((ns) => {
-      if (toNS(ns).collection) {
-        const newState = this.getInitialState();
-        newState.ns = ns;
-        this.setState(newState);
-      }
+      const newState = this.getInitialState();
+      newState.ns = ns;
+      this.setState(newState);
     });
   },
 

@@ -36,7 +36,7 @@ describe('#indexes', function() {
         dataService.insertOne('music.artists', doc, function() {
           return client
             .goToCollection('music', 'artists')
-            .getInstanceHeaderVersion().then(function(value) {
+            .getServerVersion().then(function(value) {
               serverVersion = value.replace(/MongoDB ([0-9.]+) Community/, '$1');
               done();
             });

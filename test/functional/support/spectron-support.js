@@ -17,6 +17,7 @@ const addModalCommands = require('./packages/spectron-modal');
 const addPrivacyCommands = require('./packages/spectron-privacy');
 const addQueryCommands = require('./packages/spectron-query');
 const addSchemaCommands = require('./packages/spectron-schema');
+const addServerVersionCommands = require('./packages/spectron-server-version');
 const addSidebarCommands = require('./packages/spectron-sidebar');
 const addStatusBarCommands = require('./packages/spectron-status-bar');
 const addValidationCommands = require('./packages/spectron-validation');
@@ -47,6 +48,7 @@ function addCommands(client) {
   addQueryCommands(client);
   addSchemaCommands(client);
   addSidebarCommands(client);
+  addServerVersionCommands(client);
   addStatusBarCommands(client);
   addValidationCommands(client);
   addWorkflowCommands(client);
