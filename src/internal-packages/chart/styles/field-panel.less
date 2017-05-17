@@ -17,6 +17,38 @@
     border-color: @chart1;
   }
 
+  &-controls-row {
+    align-content: flex-start;
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    padding: 0 4px;
+  }
+
+  &-controls-item {
+    flex-basis: auto;
+    flex-grow: 0;
+    flex-shrink: 0;
+  }
+
+  &-controls-action {
+    align-self: flex-end;
+    color: @linkText;
+    margin-left: 6px;
+  }
+
+  &-field-count {
+    flex: 1;
+    font-weight: bold;
+    font-size: 11px;
+    line-height: 1;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+  }
+
   &-group-label {
     font-size: 11px;
     font-weight: bold;

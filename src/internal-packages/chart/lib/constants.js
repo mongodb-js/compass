@@ -144,6 +144,18 @@ const MEASUREMENT_ICON_ENUM = Object.freeze({
   [MEASUREMENT_ENUM.TEMPORAL]: 'calendar'
 });
 
+const CHART_COLORS = Object.freeze({
+  CHART0: '#43B1E5',
+  CHART1: '#F68A1E',
+  CHART2: '#F38183',
+  CHART3: '#26A348',
+  CHART4: '#FBB129',
+  CHART5: '#92A83B',
+  CHART6: '#46929A',
+  CHART7: '#D381B3',
+  CHART8: '#85CA98'
+});
+
 /**
  * A list of chart specifications we might end up using...
  * if we end up not using them or not finding much similarity then nuke this.
@@ -170,5 +182,6 @@ module.exports = {
   MEASUREMENT_ENUM,
   MEASUREMENT_ICON_ENUM,
   SPEC_TYPE_ENUM,
-  TOOL_TIP_ID_ARRAY
+  TOOL_TIP_ID_ARRAY,
+  CHART_COLORS
 };
