@@ -4,9 +4,7 @@
  * @param {Object} argv - The arguments.
  */
 const verifyDistribution = (argv) => {
-  if (!argv._ || !argv._[1]) {
-    process.env.HADRON_DISTRIBUTION = 'compass-lite';
-  } else {
+  if (argv._ && argv._[1]) {
     process.env.HADRON_DISTRIBUTION = argv._[1];
   }
 };

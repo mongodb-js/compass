@@ -170,9 +170,7 @@ exports.builder = {
 exports.handler = function(argv) {
   cli.argv = argv;
 
-  if (!argv.options) {
-    process.env.HADRON_DISTRIBUTION = 'compass-lite';
-  } else {
+  if (argv.options) {
     process.env.HADRON_DISTRIBUTION = argv.options;
   }
 

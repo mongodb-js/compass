@@ -28,6 +28,7 @@
       },
       "distributions": {
         "package-prefix": "compass",
+        "default": "compass-lite",
         "compass-lite": {
           "name": "compass-lite",
           "productName": "MongoDB Compass Enterprise super long test name",

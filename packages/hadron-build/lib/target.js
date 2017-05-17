@@ -119,8 +119,9 @@ class Target {
       sign: true
     });
 
-    this.distribution = process.env.HADRON_DISTRIBUTION;
-    const distOpts = pkg.config.hadron.distributions[this.distribution];
+    const distributions = pkg.config.hadron.distributions;
+    this.distribution = process.env.HADRON_DISTRIBUTION || distributions.default;
+    const distOpts = distributions[this.distribution];
 
     this.id = distOpts.name;
     this.name = distOpts.name;
