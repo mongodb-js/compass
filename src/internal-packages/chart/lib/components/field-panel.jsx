@@ -13,11 +13,11 @@ class FieldPanel extends React.Component {
   }
 
   renderFields() {
-    if (!this.props.rootFields) {
+    if (!this.props.topLevelFields) {
       return null;
     }
 
-    return this.props.rootFields.map((fieldPath) => {
+    return this.props.topLevelFields.map((fieldPath) => {
       const nestedFields = this.props.fieldsCache[fieldPath].hasOwnProperty('nestedFields')
         ? this.props.fieldsCache[fieldPath].nestedFields : null;
       return (
@@ -49,13 +49,13 @@ class FieldPanel extends React.Component {
 
 FieldPanel.propTypes = {
   fieldsCache: PropTypes.object,
-  rootFields: PropTypes.array,
+  topLevelFields: PropTypes.array,
   actions: PropTypes.object
 };
 
 FieldPanel.defaultProps = {
   fieldsCache: {},
-  rootFields: []
+  topLevelFields: []
 };
 
 FieldPanel.displayName = 'FieldPanel';

@@ -91,7 +91,7 @@ const ChartStore = Reflux.createStore({
     return {
       dataCache: [],
       fieldsCache: {},
-      rootFields: [],
+      topLevelFields: [],
       queryCache: INITIAL_QUERY
     };
   },
@@ -365,7 +365,7 @@ const ChartStore = Reflux.createStore({
       return;
     }
 
-    this.setState({fieldsCache: state.fields, rootFields: state.rootFields});
+    this.setState({fieldsCache: state.fields, topLevelFields: state.topLevelFields});
   },
 
   /**

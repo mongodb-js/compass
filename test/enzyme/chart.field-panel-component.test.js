@@ -68,7 +68,7 @@ describe('<FieldPanel />', function() {
         'probability': 0.25
       }
     });
-    const component = mount(<this.FieldPanel fieldsCache={fields} rootFields={Object.keys(fields)}/>);
+    const component = mount(<this.FieldPanel fieldsCache={fields} topLevelFields={Object.keys(fields)}/>);
     expect(component.find(this.FieldPanelItem)).to.exist;
     expect(component.find(this.FieldPanelItem)).to.have.lengthOf(3);
     expect(component.find(this.FieldPanelItem).at(0)).to.have.text('_id');
@@ -94,7 +94,7 @@ describe('<FieldPanel />', function() {
         'probability': 1
       }
     });
-    const component = mount(<this.FieldPanel fieldsCache={fields} rootFields={Object.keys(fields)}/>);
+    const component = mount(<this.FieldPanel fieldsCache={fields} topLevelFields={Object.keys(fields)}/>);
     expect(component.find(this.FieldPanelItem)).to.exist;
     expect(component.find(this.FieldPanelItem)).to.have.lengthOf(4);
     expect(component.find(this.FieldPanelItem).at(0)).to.have.text('_id');
@@ -135,7 +135,7 @@ describe('<FieldPanel />', function() {
         'probability': 1
       }
     });
-    const component = mount(<this.FieldPanel fieldsCache={fields} rootFields={Object.keys(fields)}/>);
+    const component = mount(<this.FieldPanel fieldsCache={fields} topLevelFields={Object.keys(fields)}/>);
     expect(component.find(this.FieldPanelItem)).to.exist;
     expect(component.find(this.FieldPanelItem)).to.have.lengthOf(7);
     expect(component.find(this.FieldPanelItem).at(0)).to.have.text('_id');

@@ -1,7 +1,7 @@
 /* eslint no-unused-expressions: 0 */
 const expect = require('chai').expect;
 const mock = require('mock-require');
-let FieldStore = require('../../src/internal-packages/schema-light/lib/store/field-store');
+let FieldStore = require('../../src/internal-packages/app/lib/stores/field-store');
 let schemaFixture = require('../fixtures/array_of_docs.fixture.json');
 
 describe('FieldStore', function() {
@@ -9,7 +9,7 @@ describe('FieldStore', function() {
 
   beforeEach(() => {
     unsubscribe = () => {};
-    FieldStore = mock.reRequire('../../src/internal-packages/schema-light/lib/store/field-store');
+    FieldStore = mock.reRequire('../../src/internal-packages/app/lib/stores/field-store');
   });
 
   afterEach(() => {
@@ -18,9 +18,9 @@ describe('FieldStore', function() {
 
   it('has an initial state', () => {
     const state = FieldStore.getInitialState();
-    expect(state).to.have.all.keys(['fields', 'rootFields']);
+    expect(state).to.have.all.keys(['fields', 'topLevelFields']);
     expect(state.fields).to.be.empty;
-    expect(state.rootFields).to.be.empty;
+    expect(state.topLevelFields).to.be.empty;
   });
 
   it('samples a single document', (done) => {
@@ -81,7 +81,7 @@ describe('FieldStore', function() {
 
   it('maintains list of root fields', function(done) {
     unsubscribe = FieldStore.listen((state) => {
-      expect(state.rootFields).to.have.all.members(['a', 'd', 'e']);
+      expect(state.topLevelFields).to.have.all.members(['a', 'd', 'e']);
       unsubscribe();
       done();
     });

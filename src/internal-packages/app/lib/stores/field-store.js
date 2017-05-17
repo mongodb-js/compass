@@ -51,15 +51,15 @@ const FieldStore = Reflux.createStore({
   /**
    * Initialize the field store.
    *
-   * @param {Object} fields    flattened list of fields
-   * @param {Array} rootFields array of names of top level fields
+   * @param {Object} fields         flattened list of fields
+   * @param {Array} topLevelFields  array of names of top level fields
    *
    * @return {Object}          the initial field store.
    */
   getInitialState() {
     return {
       fields: {},
-      rootFields: []
+      topLevelFields: []
     };
   },
 
@@ -86,7 +86,7 @@ const FieldStore = Reflux.createStore({
    * Generate the flattened list of fields for the FieldStore.
    *
    * @param  {Object} fields       flattened list of fields
-   * @param  {Array} nestedFields  sub-fields of rootFields (if existing)
+   * @param  {Array} nestedFields  sub-fields of topLevelFields (if existing)
    * @param  {Object} rootField    current top level field which can contain nestedFields
    */
   _generateFields(fields, nestedFields, rootField) {
@@ -132,16 +132,16 @@ const FieldStore = Reflux.createStore({
    */
   _mergeSchema(schema) {
     const fields = _.cloneDeep(this.state.fields);
-    const rootFields = [];
+    const topLevelFields = [];
 
     for (const field of schema.fields) {
-      rootFields.push(field.name);
+      topLevelFields.push(field.name);
     }
     this._generateFields(fields, schema.fields);
 
     this.setState({
       fields: fields,
-      rootFields: _.union(this.state.rootFields, rootFields)
+      topLevelFields: _.union(this.state.topLevelFields, topLevelFields)
     });
   },
 

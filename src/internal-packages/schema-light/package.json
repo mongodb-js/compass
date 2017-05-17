@@ -1,9 +1,0 @@
-{
-  "name": "schema-light",
-  "productName": "Compass Schema Light",
-  "description": "Light Schema Sampling for Compass as an internal package.",
-  "version": "0.0.1",
-  "authors": "MongoDB Inc.",
-  "private": true,
-  "main": "./index.js"
-}
