@@ -1,3 +1,4 @@
+const LOADING_STATE = null;
 const TOOLTIP_IDS = Object.freeze({
   CREATE_COLLECTION: 'create-collection',
   CREATE_DATABASE_BUTTON: 'create-database-button',
@@ -6,5 +7,6 @@ const TOOLTIP_IDS = Object.freeze({
 });
 
 module.exports = {
+  LOADING_STATE,
   TOOLTIP_IDS
 };

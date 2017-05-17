@@ -5,7 +5,7 @@ const ipc = require('hadron-ipc');
 
 const { NamespaceStore } = require('hadron-reflux-store');
 
-const { TOOLTIP_IDS } = require('./constants');
+const { TOOLTIP_IDS } = require('../constants');
 
 class SidebarCollection extends React.Component {
   constructor() {

@@ -7,6 +7,7 @@ const React = require('react');
 const sinon = require('sinon');
 const {mount, shallow} = require('enzyme');
 const AppRegistry = require('hadron-app-registry');
+const { LOADING_STATE } = require('../../src/internal-packages/database/lib/constants');
 const CreateCollectionCheckbox = require('../../src/internal-packages/database/lib/components/create-collection-checkbox');
 const CreateCollectionInput = require('../../src/internal-packages/database/lib/components/create-collection-input');
 const CreateCollectionSizeInput = require('../../src/internal-packages/database/lib/components/create-collection-size-input');
@@ -101,7 +102,7 @@ describe('<DatabasesTable />', () => {
       const expected = 'Loading';
       const component = shallow(<this.DatabasesTable
           columns={[]}
-          databases={null}
+          databases={LOADING_STATE}
       />);
       expect(component.text()).to.be.equal(expected);
     });

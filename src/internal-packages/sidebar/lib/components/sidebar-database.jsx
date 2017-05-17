@@ -3,7 +3,7 @@ const ipc = require('hadron-ipc');
 const React = require('react');
 const PropTypes = require('prop-types');
 const { NamespaceStore } = require('hadron-reflux-store');
-const { TOOLTIP_IDS } = require('./constants');
+const { TOOLTIP_IDS } = require('../constants');
 const SidebarCollection = require('./sidebar-collection');
 
 // const debug = require('debug')('mongodb-compass:sidebar:sidebar-database');

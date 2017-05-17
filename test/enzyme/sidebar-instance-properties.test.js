@@ -8,6 +8,7 @@ const sinon = require('sinon');
 const AppRegistry = require('hadron-app-registry');
 const { shallow } = require('enzyme');
 const SidebarInstanceProperties = require('../../src/internal-packages/sidebar/lib/components/sidebar-instance-properties');
+const { LOADING_STATE } = require('../../src/internal-packages/sidebar/lib/constants');
 
 chai.use(chaiEnzyme());
 
@@ -32,7 +33,6 @@ describe('<SidebarInstanceProperties />', () => {
           return false;
         }
       };
-      const LOADING_STATE = null;
       const instance = {
         collections: LOADING_STATE,
         databases: LOADING_STATE

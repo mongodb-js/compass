@@ -5,6 +5,8 @@ const _ = require('lodash');
 
 const debug = require('debug')('mongodb-compass:app:instance-store');
 
+const { LOADING_STATE } = require('../constants');
+
 const InstanceStore = Reflux.createStore({
 
   /**
@@ -31,8 +33,8 @@ const InstanceStore = Reflux.createStore({
   getInitialState() {
     return {
       instance: {
-        databases: null,   // null = loading state
-        collections: null, // null = loading state
+        databases: LOADING_STATE,
+        collections: LOADING_STATE,
         build: {},
         hostname: '',
         port: null

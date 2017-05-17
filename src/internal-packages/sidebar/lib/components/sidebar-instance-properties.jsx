@@ -1,6 +1,7 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 const app = require('hadron-app');
+const { LOADING_STATE } = require('../constants');
 
 class SidebarInstanceProperties extends React.Component {
   constructor(props) {
@@ -20,8 +21,8 @@ class SidebarInstanceProperties extends React.Component {
 
   render() {
     const instance = this.props.instance;
-    const numDbs = instance.databases === null ? '-' : instance.databases.length;
-    const numCollections = instance.collections === null ? '-' : instance.collections.length;
+    const numDbs = instance.databases === LOADING_STATE ? '-' : instance.databases.length;
+    const numCollections = instance.collections === LOADING_STATE ? '-' : instance.collections.length;
 
     return (
       <div className="compass-sidebar-properties">

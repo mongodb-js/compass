@@ -1,6 +1,7 @@
 /* eslint no-unused-expressions: 0 */
 const expect = require('chai').expect;
 const mock = require('mock-require');
+let { LOADING_STATE } = require('../../src/internal-packages/sidebar/lib/constants');
 let { SidebarStore } = require('../../src/internal-packages/sidebar/lib/stores');
 
 describe('SidebarStore', function() {
@@ -16,7 +17,7 @@ describe('SidebarStore', function() {
   });
 
   it('_filterdatabases returns for null, i.e. loading state', () => {
-    const result = SidebarStore._filterDatabases('', null);
+    const result = SidebarStore._filterDatabases('', LOADING_STATE);
     expect(result.length).to.be.equal(0);
   });
 

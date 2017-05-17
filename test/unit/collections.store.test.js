@@ -4,6 +4,7 @@ const app = require('hadron-app');
 
 require('../../src/app/reflux-listen-to-external-store.js');
 
+const { LOADING_STATE } = require('../../src/internal-packages/database/lib/constants');
 const CollectionsStore = require('../../src/internal-packages/database/lib/stores/collections-store');
 const InstanceStore = require('../../src/internal-packages/app/lib/stores/instance-store');
 const { NamespaceStore } = require('hadron-reflux-store');
@@ -32,7 +33,7 @@ describe('CollectionsStore', () => {
 
   it('onInstanceChange with no databases renders an empty list', (done) => {
     const state = InstanceStore.getInitialState();
-    expect(state.instance.databases).to.be.null;
+    expect(state.instance.databases).to.be.equal(LOADING_STATE);
 
     CollectionsStore.onInstanceChange(state);
     setTimeout(() => {

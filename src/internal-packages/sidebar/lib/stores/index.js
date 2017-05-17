@@ -2,6 +2,7 @@ const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
 
 const SidebarActions = require('../actions');
+const { LOADING_STATE } = require('../constants');
 const { NamespaceStore } = require('hadron-reflux-store');
 
 const debug = require('debug')('mongodb-compass:stores:sidebar');
@@ -70,9 +71,8 @@ const SidebarStore = Reflux.createStore({
   },
 
   _filterDatabases(re, databases) {
-    // null = loading state
-    // empty array vs Ampersand collection = technical debt
-    if (databases === null ||
+    if (databases === LOADING_STATE ||
+        // empty array vs Ampersand collection = technical debt
         Array.isArray(databases) && databases.length === 0 ||
         databases.isEmpty()) {
       return [];

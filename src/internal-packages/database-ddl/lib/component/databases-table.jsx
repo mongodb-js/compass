@@ -6,6 +6,7 @@ const ipc = require('hadron-ipc');
 const { NamespaceStore } = require('hadron-reflux-store');
 const { SortableTable, Tooltip } = require('hadron-react-components');
 const numeral = require('numeral');
+const { LOADING_STATE } = require('../constants');
 const _ = require('lodash');
 
 // const debug = require('debug')('mongodb-compass:server-stats:databases');
@@ -89,7 +90,7 @@ class DatabasesTable extends React.Component {
   }
 
   render() {
-    if (this.props.databases === null) {
+    if (this.props.databases === LOADING_STATE) {
       return this.renderLoadingState();
     }
 
