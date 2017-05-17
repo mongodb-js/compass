@@ -10,7 +10,7 @@ class SidebarInstanceProperties extends React.Component {
   }
 
   getRefreshIconClassNames() {
-    const fetchingInstance = this.props.fetching;
+    const fetchingInstance = this.props.instance.databases === LOADING_STATE;
     return 'fa ' + (fetchingInstance ? 'fa-refresh fa-spin' : 'fa-repeat');
   }
 
@@ -58,7 +58,6 @@ class SidebarInstanceProperties extends React.Component {
 SidebarInstanceProperties.propTypes = {
   connection: PropTypes.object,
   instance: PropTypes.object,
-  fetching: PropTypes.bool,
   activeNamespace: PropTypes.string.isRequired
 };
 
