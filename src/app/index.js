@@ -2,7 +2,6 @@
 const marky = require('marky');
 marky.mark('Time to Connect rendered');
 marky.mark('Time to user can Click Connect');
-const pkg = require('../../package.json');
 
 require('../setup-hadron-distribution');
 
