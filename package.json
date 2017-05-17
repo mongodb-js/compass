@@ -30,8 +30,9 @@
       ],
       "distributions": {
         "package-prefix": "@mongodb-js/compass",
-        "compass-lite": {
-          "name": "compass-lite",
+        "default": "compass",
+        "compass": {
+          "name": "compass",
           "productName": "MongoDB Compass",
           "plugins-directory": ".mongodb/compass/plugins",
           "packages": [

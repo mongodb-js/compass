@@ -267,8 +267,7 @@ tasks:
   commands:
   - func: "test_ssh_localhost"
     variants:
-      - macos-compass-lite
-      - macos-compass-enterprise
+      - macos-compass
   - command: git.get_project
     params:
       directory: src
@@ -313,8 +312,7 @@ tasks:
         rm -f node_modules/electron-winstaller/vendor/signtool.exe
         chmod +x signtool.exe
     variants:
-      - windows-compass-lite
-      - windows-compass-enterprise
+      - windows-compass
   - command: shell.exec
     params:
       working_dir: src
@@ -323,8 +321,7 @@ tasks:
         wget https://github.com/mongodb-js/node-keytar/releases/download/v3.0.0/libsecret-1.so.0
         cp ./libsecret-1.so.0 /usr/lib64/libsecret-1.so.0
     variants:
-      - rhel-compass-lite
-      - rhel-compass-enterprise
+      - rhel-compass
   - func: "configure"
   - func: "install"
   - command: expansions.update
@@ -350,25 +347,20 @@ tasks:
         rm -rf node_modules/
         cd ..
     variants:
-      - macos-compass-lite
-      - macos-compass-enterprise
+      - macos-compass
   - func: "build"
   - func: "save windows artifacts"
     variants:
-      - windows-compass-lite
-      - windows-compass-enterprise
+      - windows-compass
   - func: "save osx artifacts"
     variants:
-      - macos-compass-lite
-      - macos-compass-enterprise
+      - macos-compass
   - func: "save linux artifacts"
     variants:
-      - ubuntu-compass-lite
-      - ubuntu-compass-enterprise
+      - ubuntu-compass
   - func: "save rhel artifacts"
     variants:
-      - rhel-compass-lite
-      - rhel-compass-enterprise
+      - rhel-compass
 
 #######################################
 #           Buildvariants             #
@@ -392,7 +384,7 @@ tasks:
 #       - name: compile
 
 buildvariants:
-- name: macos-compass-lite
+- name: macos-compass
   display_name: MacOS (Compass)
   modules: ~
   run_on:
@@ -402,25 +394,25 @@ buildvariants:
     fetch_npm_tarball: node-v7.4.0-darwin-x64.tgz
     node_path: "$(pwd)/.deps/bin"
     num_cores: $(sysctl -n hw.logicalcpu)
-    compass_distribution: compass-lite
+    compass_distribution: compass
   tasks:
     - name: compile
 
-- name: macos-compass-enterprise
-  display_name: MacOS (Compass Enterprise)
-  modules: ~
-  run_on:
-  - "osx-1010-compass"
-  expansions:
-    build_via_local_tunnel: true
-    fetch_npm_tarball: node-v7.4.0-darwin-x64.tgz
-    node_path: "$(pwd)/.deps/bin"
-    num_cores: $(sysctl -n hw.logicalcpu)
-    compass_distribution: compass-enterprise
-  tasks:
-    - name: compile
+# - name: macos-compass-enterprise
+  # display_name: MacOS (Compass Enterprise)
+  # modules: ~
+  # run_on:
+  # - "osx-1010-compass"
+  # expansions:
+    # build_via_local_tunnel: true
+    # fetch_npm_tarball: node-v7.4.0-darwin-x64.tgz
+    # node_path: "$(pwd)/.deps/bin"
+    # num_cores: $(sysctl -n hw.logicalcpu)
+    # compass_distribution: compass-enterprise
+  # tasks:
+    # - name: compile
 
-- name: windows-compass-lite
+- name: windows-compass
   display_name: Windows (Compass)
   modules: ~
   run_on:
@@ -430,25 +422,25 @@ buildvariants:
     node_path: "$(pwd)/.deps"
     num_cores: $(grep -c ^processor /proc/cpuinfo)
     add_env_appdata: Z:\
-    compass_distribution: compass-lite
+    compass_distribution: compass
   tasks:
     - name: compile
 
-- name: windows-compass-enterprise
-  display_name: Windows (Compass Enterprise)
-  modules: ~
-  run_on:
-  - "windows-64-vs2013-test"
-  expansions:
-    fetch_npm_tarball: node-v7.4.0-win32-x64.tgz
-    node_path: "$(pwd)/.deps"
-    num_cores: $(grep -c ^processor /proc/cpuinfo)
-    add_env_appdata: Z:\
-    compass_distribution: compass-enterprise
-  tasks:
-    - name: compile
+# - name: windows-compass-enterprise
+  # display_name: Windows (Compass Enterprise)
+  # modules: ~
+  # run_on:
+  # - "windows-64-vs2013-test"
+  # expansions:
+    # fetch_npm_tarball: node-v7.4.0-win32-x64.tgz
+    # node_path: "$(pwd)/.deps"
+    # num_cores: $(grep -c ^processor /proc/cpuinfo)
+    # add_env_appdata: Z:\
+    # compass_distribution: compass-enterprise
+  # tasks:
+    # - name: compile
 
-- name: ubuntu-compass-lite
+- name: ubuntu-compass
   display_name: Ubuntu (Compass)
   modules: ~
   run_on:
@@ -458,25 +450,25 @@ buildvariants:
     node_path: "$(pwd)/.deps/bin"
     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
     num_cores: $(grep -c ^processor /proc/cpuinfo)
-    compass_distribution: compass-lite
+    compass_distribution: compass
   tasks:
     - name: compile
 
-- name: ubuntu-compass-enterprise
-  display_name: Ubuntu (Compass Enterprise)
-  modules: ~
-  run_on:
-  - "ubuntu1404-test"
-  expansions:
-    fetch_npm_tarball: node-v7.4.0-linux-x64.tgz
-    node_path: "$(pwd)/.deps/bin"
-    compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
-    num_cores: $(grep -c ^processor /proc/cpuinfo)
-    compass_distribution: compass-enterprise
-  tasks:
-    - name: compile
+# - name: ubuntu-compass-enterprise
+  # display_name: Ubuntu (Compass Enterprise)
+  # modules: ~
+  # run_on:
+  # - "ubuntu1404-test"
+  # expansions:
+    # fetch_npm_tarball: node-v7.4.0-linux-x64.tgz
+    # node_path: "$(pwd)/.deps/bin"
+    # compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
+    # num_cores: $(grep -c ^processor /proc/cpuinfo)
+    # compass_distribution: compass-enterprise
+  # tasks:
+    # - name: compile
 
-- name: rhel-compass-lite
+- name: rhel-compass
   display_name: RHEL (Compass)
   modules: ~
   run_on:
@@ -486,20 +478,20 @@ buildvariants:
     node_path: "$(pwd)/.deps/bin"
     compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
     num_cores: $(grep -c ^processor /proc/cpuinfo)
-    compass_distribution: compass-lite
+    compass_distribution: compass
   tasks:
     - name: compile
 
-- name: rhel-compass-enterprise
-  display_name: RHEL (Compass Enterprise)
-  modules: ~
-  run_on:
-  - "rhel70"
-  expansions:
-    fetch_npm_tarball: node-v7.4.0-linux-x64.tgz
-    node_path: "$(pwd)/.deps/bin"
-    compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
-    num_cores: $(grep -c ^processor /proc/cpuinfo)
-    compass_distribution: compass-enterprise
-  tasks:
-    - name: compile
+# - name: rhel-compass-enterprise
+  # display_name: RHEL (Compass Enterprise)
+  # modules: ~
+  # run_on:
+  # - "rhel70"
+  # expansions:
+    # fetch_npm_tarball: node-v7.4.0-linux-x64.tgz
+    # node_path: "$(pwd)/.deps/bin"
+    # compile_env: CC=/opt/mongodbtoolchain/bin/gcc CXX=/opt/mongodbtoolchain/bin/g++
+    # num_cores: $(grep -c ^processor /proc/cpuinfo)
+    # compass_distribution: compass-enterprise
+  # tasks:
+    # - name: compile
