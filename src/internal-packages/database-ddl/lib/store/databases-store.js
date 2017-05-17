@@ -46,11 +46,6 @@ const DatabasesStore = Reflux.createStore({
   },
 
   onInstanceRefreshed(state) {
-    if (!_.has(state, 'instance') || _.isEmpty(state.instance)) {
-      this.setState({
-        databases: []
-      });
-    }
     if (state.instance.databases === LOADING_STATE) {
       this.setState({
         databases: LOADING_STATE
