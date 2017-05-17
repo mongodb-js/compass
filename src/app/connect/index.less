@@ -1,5 +1,18 @@
 .connect .sidebar {
 
+  *::-webkit-scrollbar-track {
+    background-color: rgba(0,0,0,.12);
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    &:hover {
+      background-color: rgba(0,0,0,.24);
+    }
+  }
+  *::-webkit-scrollbar-thumb {
+    background-color: @compass-sidebar-lite-background-color;
+    border: 1px solid rgba(0,0,0,.24);
+  }
+
   .widget-container {
 
     .list-group {
