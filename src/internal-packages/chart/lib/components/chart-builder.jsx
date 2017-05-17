@@ -138,7 +138,7 @@ class ChartBuilder extends React.Component {
           <div className="chart-builder-field-panel-container">
             <FieldPanel
               fieldsCache={this.props.fieldsCache}
-              rootFields={this.props.rootFields}
+              topLevelFields={this.props.topLevelFields}
               actions={this.props.actions}
             />
           </div>
@@ -164,7 +164,7 @@ class ChartBuilder extends React.Component {
 ChartBuilder.propTypes = {
   dataCache: PropTypes.array,
   fieldsCache: PropTypes.object,
-  rootFields: PropTypes.array,
+  topLevelFields: PropTypes.array,
   namespaceCache: PropTypes.string,
   queryCache: PropTypes.object,
   spec: PropTypes.object,
