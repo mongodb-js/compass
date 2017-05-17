@@ -53,7 +53,7 @@ const DatabasesStore = Reflux.createStore({
     }
     if (state.instance.databases === LOADING_STATE) {
       this.setState({
-        databases: []
+        databases: LOADING_STATE
       });
       return;
     }
