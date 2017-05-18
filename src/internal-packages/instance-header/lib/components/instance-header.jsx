@@ -142,7 +142,10 @@ class InstanceHeaderComponent extends React.Component {
 
 InstanceHeaderComponent.propTypes = {
   hostname: PropTypes.string,
-  port: PropTypes.number,
+  port: PropTypes.oneOfType([
+    PropTypes.number,
+    PropTypes.string
+  ]),
   processStatus: PropTypes.string,
   activeNamespace: PropTypes.string,
   sidebarCollapsed: PropTypes.bool
