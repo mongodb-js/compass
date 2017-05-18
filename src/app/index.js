@@ -2,15 +2,8 @@
 const marky = require('marky');
 marky.mark('Time to Connect rendered');
 marky.mark('Time to user can Click Connect');
-const pkg = require('../../package.json');
 
-/**
- * @note: HADRON_DISTRIBUTION is set via command line args in dev, for example:
- * npm start compass-enterprise
- */
-if (!process.env.HADRON_DISTRIBUTION) {
-  process.env.HADRON_DISTRIBUTION = pkg.distribution || 'compass-lite';
-}
+require('../setup-hadron-distribution');
 
 window.jQuery = require('jquery');
 require('bootstrap/js/modal');

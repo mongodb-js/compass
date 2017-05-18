@@ -4,13 +4,7 @@ if (!process.env.NODE_ENV) {
 
 const pkg = require('../../package.json');
 
-/**
- * @note: HADRON_DISTRIBUTION is set via command line args in dev, for example:
- * npm start compass-enterprise
- */
-if (!process.env.HADRON_DISTRIBUTION) {
-  process.env.HADRON_DISTRIBUTION = pkg.distribution || 'compass-lite';
-}
+require('../setup-hadron-distribution');
 
 /**
  * Check if the distribution is defined, if not, we need to override

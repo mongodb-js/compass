@@ -30,8 +30,9 @@
       ],
       "distributions": {
         "package-prefix": "@mongodb-js/compass",
-        "compass-lite": {
-          "name": "compass-lite",
+        "default": "compass",
+        "compass": {
+          "name": "compass",
           "productName": "MongoDB Compass",
           "plugins-directory": ".mongodb/compass/plugins",
           "packages": [
@@ -245,7 +246,7 @@
     "electron": "1.6.1",
     "enzyme": "^2.5.1",
     "eslint-config-mongodb-js": "^2.2.0",
-    "hadron-build": "^11.0.0",
+    "hadron-build": "^12.0.0",
     "jsdom": "^9.8.3",
     "mgeneratejs": "^0.2.0",
     "mocha": "^3.1.2",

@@ -11,13 +11,7 @@ var CompileCache = require('hadron-compile-cache');
 CompileCache.setHomeDirectory(resourcePath);
 CompileCache.digestMappings = pkg._compileCacheMappings || {};
 
-/**
- * @note: HADRON_DISTRIBUTION is set via command line args in dev, for example:
- * npm start compass-enterprise
- */
-if (!process.env.HADRON_DISTRIBUTION) {
-  process.env.HADRON_DISTRIBUTION = pkg.distribution || 'compass-lite';
-}
+require('../setup-hadron-distribution');
 
 /**
  * The styles are rendered into the head of the index.html and help.html
