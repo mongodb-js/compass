@@ -8,6 +8,24 @@
 npm install --save hadron-package-manager
 ```
 
+## Usage
+
+```js
+const packagesPath = path.join(__dirname, 'packages');
+const intPackagesPath = path.join(__dirname, 'internal-packages');
+const PackageManager = require('hadron-package-manager');
+const AppRegistry = require('hadron-app-registry');
+
+const manager = new PackageManager(
+  [ intPackagesPath, packagesPath ],
+  __dirname,
+  ['external-packages/example3']
+);
+
+const appRegistry = new AppRegistry();
+manager.activate(appRegistry);
+```
+
 ## License
 
 Apache 2.0

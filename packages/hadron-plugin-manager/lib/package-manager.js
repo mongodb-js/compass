@@ -27,39 +27,41 @@ class PackageManager {
 
   /**
    * Activate all the packages.
+   *
+   * @param {AppRegistry} appRegistry - The app registry to pass when activating.
    */
-  activate() {
+  activate(appRegistry) {
     async.series([
-      this._loadPackagesFromPaths.bind(this),
-      this._loadPackageList.bind(this)
+      this._loadPackagesFromPaths.bind(this, appRegistry),
+      this._loadPackageList.bind(this, appRegistry)
     ], () => {
-      Action.packageActivationCompleted();
+      Action.packageActivationCompleted(appRegistry);
     });
   }
 
-  _loadPackagesFromPaths(done) {
+  _loadPackagesFromPaths(appRegistry, done) {
     async.each(this.paths, (pkgPath, d) => {
-      this._loadPath(pkgPath, d);
+      this._loadPath(appRegistry, pkgPath, d);
     }, () => {
       done();
     });
   }
 
-  _loadPackageList(done) {
+  _loadPackageList(appRegistry, done) {
     async.each(this.packageList, (pkgPath, d) => {
-      this._loadPackage(this.baseDir, pkgPath, d);
+      this._loadPackage(appRegistry, this.baseDir, pkgPath, d);
     }, () => {
       done();
     });
   }
 
-  _loadPath(pkgPath, done) {
+  _loadPath(appRegistry, pkgPath, done) {
     fs.readdir(pkgPath, (error, files) => {
       if (error) {
         done();
       } else {
         async.each(files, (file, d) => {
-          this._loadPackage(pkgPath, file, d);
+          this._loadPackage(appRegistry, pkgPath, file, d);
         }, () => {
           done();
         });
@@ -67,21 +69,21 @@ class PackageManager {
     });
   }
 
-  _loadPackage(pkgPath, file, done) {
+  _loadPackage(appRegistry, pkgPath, file, done) {
     const packagePath = path.join(pkgPath, file);
     fs.stat(packagePath, (error, f) => {
       if (error) {
         return done();
       }
-      this._readPackage(f, packagePath, done);
+      this._readPackage(appRegistry, f, packagePath, done);
     });
   }
 
-  _readPackage(file, pkgPath, done) {
+  _readPackage(appRegistry, file, pkgPath, done) {
     if (file.isDirectory()) {
       const pkg = new Package(pkgPath);
       this.packages.push(pkg);
-      pkg.activate();
+      pkg.activate(appRegistry);
       Action.packageActivated(pkg);
     }
     done();

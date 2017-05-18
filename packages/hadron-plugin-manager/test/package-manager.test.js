@@ -11,6 +11,7 @@ describe('PackageManager', () => {
     context('when the directories exist', () => {
       const packagesPath = path.join(__dirname, 'packages');
       const intPackagesPath = path.join(__dirname, 'internal-packages');
+
       let manager;
       beforeEach(() => {
         manager = new PackageManager(
@@ -21,12 +22,15 @@ describe('PackageManager', () => {
       });
 
       it('activates all the packages', (done) => {
-        const unsubscribe = Action.packageActivationCompleted.listen(() => {
+        const spy = sinon.spy();
+        const unsubscribe = Action.packageActivationCompleted.listen((s) => {
           expect(manager.packages).to.have.length(6);
+          expect(spy.callCount).to.be.equal(0);
+          expect(s).to.equal(spy);
           unsubscribe();
           done();
         });
-        manager.activate();
+        manager.activate(spy);
       });
 
       it('only calls Action.packageActivationCompleted once', (done) => {
@@ -45,12 +49,13 @@ describe('PackageManager', () => {
       const manager = new PackageManager([ 'test-packages' ], __dirname, []);
 
       it('activates no the packages', (done) => {
+        const spy = sinon.spy();
         const unsubscribe = Action.packageActivationCompleted.listen(() => {
           expect(manager.packages).to.have.length(0);
           unsubscribe();
           done();
         });
-        manager.activate();
+        manager.activate(spy);
       });
     });
   });
