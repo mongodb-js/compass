@@ -19,8 +19,8 @@ class StringValue extends React.Component {
   render() {
     return React.createElement(
       'div',
-      { className: `${ CLASS } ${ CLASS }-is-string`, title: this.props.value },
-      `\"${ this.props.value }\"`
+      { className: `${CLASS} ${CLASS}-is-string`, title: this.props.value },
+      `\"${this.props.value}\"`
     );
   }
 }

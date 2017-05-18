@@ -17,10 +17,10 @@ class Regex extends React.Component {
    * @returns {React.Component} The element component.
    */
   render() {
-    const value = `/${ this.props.value.pattern }/${ this.props.value.options }`;
+    const value = `/${this.props.value.pattern}/${this.props.value.options}`;
     return React.createElement(
       'div',
-      { className: `${ CLASS } ${ CLASS }-is-${ this.props.type.toLowerCase() }`, title: value },
+      { className: `${CLASS} ${CLASS}-is-${this.props.type.toLowerCase()}`, title: value },
       value
     );
   }

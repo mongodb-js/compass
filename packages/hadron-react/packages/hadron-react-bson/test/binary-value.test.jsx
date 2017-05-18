@@ -4,6 +4,8 @@ const { shallow } = require('enzyme');
 const { Binary } = require('bson');
 const { BinaryValue } = require('../');
 
+const TESTING_BASE64 = Buffer.from('testing').toString('base64');
+
 describe('<BinaryValue />', () => {
   context('when the type is an old uuid', () => {
     const binary = new Binary('testing', 3);
@@ -18,11 +20,11 @@ describe('<BinaryValue />', () => {
     });
 
     it('sets the title', () => {
-      expect(component.props().title).to.equal('Binary(\'testing\')');
+      expect(component.props().title).to.equal(`Binary('${TESTING_BASE64}')`);
     });
 
     it('sets the value', () => {
-      expect(component.text()).to.equal('Binary(\'testing\')');
+      expect(component.text()).to.equal(`Binary('${TESTING_BASE64}')`);
     });
   });
 
@@ -39,11 +41,25 @@ describe('<BinaryValue />', () => {
     });
 
     it('sets the title', () => {
-      expect(component.props().title).to.equal('Binary(\'testing\')');
+      expect(component.props().title).to.equal(`Binary('${TESTING_BASE64}')`);
     });
 
     it('sets the value', () => {
-      expect(component.text()).to.equal('Binary(\'testing\')');
+      expect(component.text()).to.equal(`Binary('${TESTING_BASE64}')`);
+    });
+  });
+
+  context('when the type is a GUID', () => {
+    const buffer = Buffer.from('WBAc3FDBDU+Zh/cBQFPc3Q==', 'base64');
+    const binary = new Binary(buffer, 4);
+    const component = shallow(<BinaryValue type="Binary" value={binary} />);
+
+    it('title is base64 encoded', () => {
+      expect(component.props().title).to.equal('Binary(\'WBAc3FDBDU+Zh/cBQFPc3Q==\')');
+    });
+
+    it('value is base64 encoded', () => {
+      expect(component.text()).to.equal('Binary(\'WBAc3FDBDU+Zh/cBQFPc3Q==\')');
     });
   });
 
