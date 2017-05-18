@@ -1,6 +1,7 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 const app = require('hadron-app');
+const { LOADING_STATE } = require('../constants');
 
 class SidebarInstanceProperties extends React.Component {
   constructor(props) {
@@ -9,7 +10,7 @@ class SidebarInstanceProperties extends React.Component {
   }
 
   getRefreshIconClassNames() {
-    const fetchingInstance = this.props.fetching;
+    const fetchingInstance = this.props.instance.databases === LOADING_STATE;
     return 'fa ' + (fetchingInstance ? 'fa-refresh fa-spin' : 'fa-repeat');
   }
 
@@ -20,8 +21,8 @@ class SidebarInstanceProperties extends React.Component {
 
   render() {
     const instance = this.props.instance;
-    const numDbs = instance.databases.length;
-    const numCollections = instance.collections.length;
+    const numDbs = instance.databases === LOADING_STATE ? '-' : instance.databases.length;
+    const numCollections = instance.collections === LOADING_STATE ? '-' : instance.collections.length;
 
     return (
       <div className="compass-sidebar-properties">
@@ -57,7 +58,6 @@ class SidebarInstanceProperties extends React.Component {
 SidebarInstanceProperties.propTypes = {
   connection: PropTypes.object,
   instance: PropTypes.object,
-  fetching: PropTypes.bool,
   activeNamespace: PropTypes.string.isRequired
 };
 

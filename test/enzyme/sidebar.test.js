@@ -6,7 +6,6 @@ const expect = chai.expect;
 const React = require('react');
 const sinon = require('sinon');
 const AppRegistry = require('hadron-app-registry');
-const { StoreConnector } = require('hadron-react-components');
 const { shallow } = require('enzyme');
 const Sidebar = require('../../src/internal-packages/sidebar/lib/components/sidebar');
 const InstanceStore = require('../../src/internal-packages/app/lib/stores/instance-store');

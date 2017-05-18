@@ -4,6 +4,7 @@ const CollectionsActions = require('../actions/collections-actions');
 const { NamespaceStore } = require('hadron-reflux-store');
 const toNS = require('mongodb-ns');
 const app = require('hadron-app');
+const { LOADING_STATE } = require('../constants');
 const _ = require('lodash');
 
 const debug = require('debug')('mongodb-compass:stores:collections');
@@ -122,7 +123,7 @@ const CollectionsStore = Reflux.createStore({
   onInstanceChange(state) {
     // continue only when a database is the activeNamespace
     const namespace = NamespaceStore.ns;
-    if (!namespace || namespace.includes('.')) {
+    if (!namespace || namespace.includes('.') || state.instance.databases === LOADING_STATE) {
       return;
     }
 

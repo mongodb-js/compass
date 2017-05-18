@@ -1,9 +1,10 @@
 const Reflux = require('reflux');
 const InstanceActions = require('../actions/instance-actions');
 const StateMixin = require('reflux-state-mixin');
-const _ = require('lodash');
 
 const debug = require('debug')('mongodb-compass:app:instance-store');
+
+const { LOADING_STATE } = require('../constants');
 
 const InstanceStore = Reflux.createStore({
 
@@ -31,13 +32,12 @@ const InstanceStore = Reflux.createStore({
   getInitialState() {
     return {
       instance: {
-        databases: [],
-        collections: [],
+        databases: LOADING_STATE,
+        collections: LOADING_STATE,
         build: {},
-        hostname: '',
-        port: null
-      },
-      fetching: false
+        hostname: 'Retrieving host information',
+        port: ''
+      }
     };
   },
 
@@ -46,39 +46,18 @@ const InstanceStore = Reflux.createStore({
   },
 
   refreshInstance() {
-    this.setState({ fetching: true });
-
-    let isWaitingForMinimumTimeout = true;
-    let isFetching = true;
-    // Set fetching back to false once 500ms has passed and the actual fetch comples
-    // There's probably a more elegant way to do this with promises...
-    _.delay(() => {
-      isWaitingForMinimumTimeout = false;
-      if (!isFetching) {
-        debug('delayed fetch');
-        this.setState({ fetching: false});
-      }
-    }, 500);
-
-    function handleFetchCallback() {
-      isFetching = false;
-      if (!isWaitingForMinimumTimeout) {
-        debug('not delayed fetch');
-        this.setState({ fetching: false });
-      }
-    }
-
     if (this.state.instance.fetch) {
       this.state.instance.fetch({
-        success: () => {
-          // TODO: Remove setInstance inside HomeView.onInstanceFetched and set here
-          handleFetchCallback.call(this);
+        success: (instance) => {
+          debug('Setting refetched instance', instance);
+          this.setInstance(instance);
         },
         error: (instance, response) => {
           debug('Failed to refetch instance', response);
-          handleFetchCallback.call(this);
         }
       });
+      // Only reset to initial state if fetched successfully at least once
+      this.setState(this.getInitialState());
     }
   }
 });

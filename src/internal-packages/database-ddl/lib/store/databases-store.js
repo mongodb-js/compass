@@ -1,6 +1,7 @@
 const Reflux = require('reflux');
 const StateMixin = require('reflux-state-mixin');
 const DatabasesActions = require('../action');
+const { LOADING_STATE } = require('../constants');
 
 const _ = require('lodash');
 
@@ -33,7 +34,7 @@ const DatabasesStore = Reflux.createStore({
   getInitialState() {
     return {
       columns: DB_COLUMNS,
-      databases: [],
+      databases: LOADING_STATE,
       sortOrder: 'asc',
       sortColumn: 'Name'
     };
@@ -45,10 +46,11 @@ const DatabasesStore = Reflux.createStore({
   },
 
   onInstanceRefreshed(state) {
-    if (!_.has(state, 'instance') || _.isEmpty(state.instance)) {
+    if (state.instance.databases === LOADING_STATE) {
       this.setState({
-        databases: []
+        databases: LOADING_STATE
       });
+      return;
     }
 
     const unsorted = state.instance.databases.map((db) => {

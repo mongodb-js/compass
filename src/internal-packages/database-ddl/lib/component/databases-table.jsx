@@ -6,6 +6,7 @@ const ipc = require('hadron-ipc');
 const { NamespaceStore } = require('hadron-reflux-store');
 const { SortableTable, Tooltip } = require('hadron-react-components');
 const numeral = require('numeral');
+const { LOADING_STATE } = require('../constants');
 const _ = require('lodash');
 
 // const debug = require('debug')('mongodb-compass:server-stats:databases');
@@ -71,7 +72,28 @@ class DatabasesTable extends React.Component {
     );
   }
 
+  renderLoadingState() {
+    return (
+      <div className="databases-table">
+        <div className="spinner">
+          <div className="rect1" />
+          <div className="rect2" />
+          <div className="rect3" />
+          <div className="rect4" />
+          <div className="rect5" />
+        </div>
+        <p className="message">
+          Loading
+        </p>
+      </div>
+    );
+  }
+
   render() {
+    if (this.props.databases === LOADING_STATE) {
+      return this.renderLoadingState();
+    }
+
     // convert storage size to human-readable units (MB, GB, ...)
     // we do this here so that sorting is not affected in the store
     const rows = _.map(this.props.databases, (db) => {

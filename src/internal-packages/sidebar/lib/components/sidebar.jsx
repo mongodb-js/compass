@@ -9,7 +9,7 @@ const toNS = require('mongodb-ns');
 const Actions = require('../actions');
 const SidebarDatabase = require('./sidebar-database');
 const SidebarInstanceProperties = require('./sidebar-instance-properties');
-const { TOOLTIP_IDS } = require('./constants');
+const { TOOLTIP_IDS } = require('../constants');
 
 // const debug = require('debug')('mongodb-compass:sidebar:sidebar');
 
