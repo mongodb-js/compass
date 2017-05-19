@@ -44,6 +44,6 @@ app.packageManager = new PackageManager(
   DISTRIBUTION.packages
 );
 
-app.packageManager.activate();
+app.packageManager.activate(app.appRegistry);
 
 debug(`Package manager activated with distribution ${process.env.HADRON_DISTRIBUTION}.`);
