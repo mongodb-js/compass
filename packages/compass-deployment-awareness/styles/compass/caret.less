@@ -1,0 +1,20 @@
+.caret {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  vertical-align: middle;
+}
+.caret-down {
+  .caret;
+  border-top:   @caret-width-base solid;
+  border-right: @caret-width-base solid transparent;
+  border-left:  @caret-width-base solid transparent;
+}
+
+.caret-right {
+  .caret;
+  border-left:   @caret-width-base solid;
+  border-right: 0;
+  border-top:  @caret-width-base solid transparent;
+  border-bottom: @caret-width-base solid transparent;
+}
