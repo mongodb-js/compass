@@ -19,14 +19,14 @@ const INSTANCE_TAB_ROLE = {
 /**
  * Activate all the components in the Database DDL package.
  */
-function activate() {
-  app.appRegistry.registerAction('DatabaseDDL.Actions', Actions);
-  app.appRegistry.registerComponent('DatabaseDDL.CreateDatabaseDialog', CreateDatabaseDialog);
-  app.appRegistry.registerRole('Instance.Tab', INSTANCE_TAB_ROLE);
-  app.appRegistry.registerComponent('DatabaseDDL.DropDatabaseDialog', DropDatabaseDialog);
-  app.appRegistry.registerStore('DatabaseDDL.CreateDatabaseStore', CreateDatabaseStore);
-  app.appRegistry.registerStore('DatabaseDDL.DatabasesStore', DatabasesStore);
-  app.appRegistry.registerStore('DatabaseDDL.DropDatabaseStore', DropDatabaseStore);
+function activate(appRegistry) {
+  appRegistry.registerAction('DatabaseDDL.Actions', Actions);
+  appRegistry.registerComponent('DatabaseDDL.CreateDatabaseDialog', CreateDatabaseDialog);
+  appRegistry.registerRole('Instance.Tab', INSTANCE_TAB_ROLE);
+  appRegistry.registerComponent('DatabaseDDL.DropDatabaseDialog', DropDatabaseDialog);
+  appRegistry.registerStore('DatabaseDDL.CreateDatabaseStore', CreateDatabaseStore);
+  appRegistry.registerStore('DatabaseDDL.DatabasesStore', DatabasesStore);
+  appRegistry.registerStore('DatabaseDDL.DropDatabaseStore', DropDatabaseStore);
 }
 
 /**

@@ -9,12 +9,12 @@ const { NamespaceStore } = require('hadron-reflux-store');
 /**
  * Activate all the components in the Compass Sidebar package.
  */
-function activate() {
-  app.appRegistry.registerAction('App.InstanceActions', InstanceActions);
-  app.appRegistry.registerStore('App.InstanceStore', InstanceStore);
-  app.appRegistry.registerStore('App.CollectionStore', CollectionStore);
-  app.appRegistry.registerStore('App.NamespaceStore', NamespaceStore);
-  app.appRegistry.registerStore('Schema.FieldStore', FieldStore);
+function activate(appRegistry) {
+  appRegistry.registerAction('App.InstanceActions', InstanceActions);
+  appRegistry.registerStore('App.InstanceStore', InstanceStore);
+  appRegistry.registerStore('App.CollectionStore', CollectionStore);
+  appRegistry.registerStore('App.NamespaceStore', NamespaceStore);
+  appRegistry.registerStore('Schema.FieldStore', FieldStore);
 }
 
 /**

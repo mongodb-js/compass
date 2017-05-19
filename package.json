@@ -174,7 +174,7 @@
     "hadron-document": "^2.1.1",
     "hadron-ipc": "^0.0.7",
     "hadron-module-cache": "^0.0.3",
-    "hadron-package-manager": "^2.0.0",
+    "hadron-package-manager": "^3.0.1",
     "hadron-react-bson": "^1.2.0",
     "hadron-react-buttons": "^1.0.0",
     "hadron-react-components": "^1.1.0",

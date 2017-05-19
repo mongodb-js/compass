@@ -15,9 +15,9 @@ const ROLE = {
 /**
  * Activate all the components in the Server Version package.
  */
-function activate() {
-  app.appRegistry.registerRole('Header.Item', ROLE);
-  app.appRegistry.registerStore('ServerVersion.Store', ServerVersionStore);
+function activate(appRegistry) {
+  appRegistry.registerRole('Header.Item', ROLE);
+  appRegistry.registerStore('ServerVersion.Store', ServerVersionStore);
 }
 
 /**

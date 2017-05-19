@@ -6,10 +6,10 @@ const StatusStore = require('./lib/store');
 /**
  * Activate all the components in the Status package.
  */
-function activate() {
-  app.appRegistry.registerComponent('Status.ProgressBar', StatusComponent);
-  app.appRegistry.registerAction('Status.Actions', StatusAction);
-  app.appRegistry.registerStore('Status.Store', StatusStore);
+function activate(appRegistry) {
+  appRegistry.registerComponent('Status.ProgressBar', StatusComponent);
+  appRegistry.registerAction('Status.Actions', StatusAction);
+  appRegistry.registerStore('Status.Store', StatusStore);
 }
 
 /**
