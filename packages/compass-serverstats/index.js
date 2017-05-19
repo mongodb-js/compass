@@ -15,11 +15,11 @@ const INSTANCE_TAB_ROLE = {
 /**
  * Activate all the components in the RTSS package.
  */
-function activate() {
-  global.hadronApp.appRegistry.registerRole('Instance.Tab', INSTANCE_TAB_ROLE);
-  global.hadronApp.appRegistry.registerStore('RTSS.ServerStatsStore', ServerStatsStore);
-  global.hadronApp.appRegistry.registerStore('RTSS.CurrentOpStore', CurrentOpStore);
-  global.hadronApp.appRegistry.registerStore('RTSS.TopStore', TopStore);
+function activate(appRegistry) {
+  appRegistry.registerRole('Instance.Tab', INSTANCE_TAB_ROLE);
+  appRegistry.registerStore('RTSS.ServerStatsStore', ServerStatsStore);
+  appRegistry.registerStore('RTSS.CurrentOpStore', CurrentOpStore);
+  appRegistry.registerStore('RTSS.TopStore', TopStore);
 }
 
 /**
