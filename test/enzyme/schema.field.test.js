@@ -84,7 +84,7 @@ describe('<Schema />', () => {
     // appRegistry.getComponent (i.e. appRegistry being undefined)
     app.appRegistry = new AppRegistry();
     // register QueryStore
-    require('../../src/internal-packages/query').activate();
+    require('../../src/internal-packages/query').activate(app.appRegistry);
   });
   after(function() {
     // unregister QueryStore
