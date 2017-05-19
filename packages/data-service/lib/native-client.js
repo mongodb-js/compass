@@ -57,6 +57,7 @@ class NativeClient extends EventEmitter {
       }
       debug('connected!');
       this.database = database;
+      this.subscribeSDAMMonitoring();
       this.readPreferenceOption = {
         // https://docs.mongodb.com/manual/core/read-preference/#maxstalenessseconds
         // maxStalenessMS: 25000,
@@ -71,6 +72,37 @@ class NativeClient extends EventEmitter {
     });
     this.client.on('status', (evt) => this.emit('status', evt));
     return this;
+  }
+
+  /**
+   * Subscribe to SDAM monitoring events.
+   */
+  subscribeSDAMMonitoring() {
+    if (this.database.topology) {
+      this.database.topology.on('serverDescriptionChanged', (evt) => {
+        this.emit('serverDescriptionChanged', evt);
+      });
+
+      this.database.topology.on('serverOpening', (evt) => {
+        this.emit('serverOpening', evt);
+      });
+
+      this.database.topology.on('serverClosed', (evt) => {
+        this.emit('serverClosed', evt);
+      });
+
+      this.database.topology.on('topologyOpening', (evt) => {
+        this.emit('topologyOpening', evt);
+      });
+
+      this.database.topology.on('topologyClosed', (evt) => {
+        this.emit('topologyClosed', evt);
+      });
+
+      this.database.topology.on('topologyDescriptionChanged', (evt) => {
+        this.emit('topologyDescriptionChanged', evt);
+      });
+    }
   }
 
   /**

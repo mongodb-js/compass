@@ -10,6 +10,8 @@ var mock = require('mock-require');
 var NativeClient = require('../lib/native-client');
 
 describe('NativeClient', function() {
+  this.slow(10000);
+  this.timeout(20000);
   var client = new NativeClient(helper.connection);
 
   before(require('mongodb-runner/mocha/before')({

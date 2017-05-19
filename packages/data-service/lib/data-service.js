@@ -21,7 +21,14 @@ class DataService extends EventEmitter {
    */
   constructor(model) {
     super();
-    this.client = new NativeClient(model).on('status', (evt) => this.emit('status', evt));
+    this.client = new NativeClient(model)
+      .on('status', (evt) => this.emit('status', evt))
+      .on('serverDescriptionChanged', (evt) => this.emit('serverDescriptionChanged', evt))
+      .on('serverOpening', (evt) => this.emit('serverOpening', evt))
+      .on('serverClosed', (evt) => this.emit('serverClosed', evt))
+      .on('topologyOpening', (evt) => this.emit('topologyOpening', evt))
+      .on('topologyClosed', (evt) => this.emit('topologyClosed', evt))
+      .on('topologyDescriptionChanged', (evt) => this.emit('topologyDescriptionChanged', evt));
     this.router = new Router();
   }
 
