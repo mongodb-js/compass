@@ -67,10 +67,12 @@ class Package {
    * Activate the package. If the package has not yet been loaded, this method
    * will ensure it.
    *
+   * @param {AppRegistry} appRegistry - The app registry.
+   *
    * @returns {Object} The return value of the activate function in the module.
    */
-  activate() {
-    return this.load().activate();
+  activate(appRegistry) {
+    return this.load().activate(appRegistry);
   }
 }
 
