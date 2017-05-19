@@ -32,4 +32,4 @@ app.packageManager = new PackageManager(
   pkg.config.hadron.distributions[process.env.HADRON_DISTRIBUTION].packages
 );
 
-app.packageManager.activate();
+app.packageManager.activate(app.appRegistry);
