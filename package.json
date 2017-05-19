@@ -136,7 +136,7 @@
     "hadron-ipc": "^0.0.7",
     "hadron-module-cache": "^0.0.3",
     "hadron-package-manager": "0.2.0",
-    "hadron-react-bson": "^0.3.0",
+    "hadron-react-bson": "^0.3.1",
     "hadron-react-buttons": "^0.2.0",
     "hadron-reflux-store": "^0.0.2",
     "hadron-style-manager": "0.0.1",
