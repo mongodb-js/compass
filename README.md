@@ -40,6 +40,8 @@ Please see the mongodb-js org for all the repos: https://github.com/mongodb-js
 
 ## Building Releases
 
+💡 Most of the time you don't need these, as [Evergreen][evergreen-compass-docs] builds them for us.
+
 After you've made some local changes, the next thing you'll probably want to do
 is create an artifact to share. There is only one command you need to run to compile the app,
 sign it if the signing certificate is available on your machine, and generate a single file
@@ -80,3 +82,4 @@ The following are employed by the Compass team:
 [setup-linux]: https://github.com/mongodb-js/mongodb-js/blob/master/docs/setup.md#linux-setup
 [travis_img]: https://magnum.travis-ci.com/10gen/compass.svg?token=q2zsnxCbboarF6KYRYxM&branch=master
 [travis_url]: https://magnum.travis-ci.com/10gen/compass
+[evergreen-compass-docs]: https://github.com/10gen/compass-internal-docs/blob/master/evergreen.md
