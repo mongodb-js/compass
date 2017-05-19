@@ -63,21 +63,21 @@ const OBJECT_ID_EDITOR_ROLE = {
 /**
  * Activate all the components in the CRUD package.
  */
-function activate() {
-  app.appRegistry.registerRole('Collection.Tab', COLLECTION_TAB_ROLE);
-  app.appRegistry.registerRole('CRUD.Document', DOCUMENT_ROLE);
-  app.appRegistry.registerRole('CRUD.Editor.Standard', STANDARD_EDITOR_ROLE);
-  app.appRegistry.registerRole('CRUD.Editor.Date', DATE_EDITOR_ROLE);
-  app.appRegistry.registerRole('CRUD.Editor.Double', DOUBLE_EDITOR_ROLE);
-  app.appRegistry.registerRole('CRUD.Editor.String', STRING_EDITOR_ROLE);
-  app.appRegistry.registerRole('CRUD.Editor.Int32', INT32_EDITOR_ROLE);
-  app.appRegistry.registerRole('CRUD.Editor.Null', NULL_EDITOR_ROLE);
-  app.appRegistry.registerRole('CRUD.Editor.Undefined', UNDEFINED_EDITOR_ROLE);
-  app.appRegistry.registerRole('CRUD.Editor.ObjectID', OBJECT_ID_EDITOR_ROLE);
-  app.appRegistry.registerAction('CRUD.Actions', Actions);
-  app.appRegistry.registerStore('CRUD.InsertDocumentStore', InsertDocumentStore);
-  app.appRegistry.registerStore('CRUD.ResetDocumentListStore', ResetDocumentListStore);
-  app.appRegistry.registerStore('CRUD.LoadMoreDocumentsStore', LoadMoreDocumentsStore);
+function activate(appRegistry) {
+  appRegistry.registerRole('Collection.Tab', COLLECTION_TAB_ROLE);
+  appRegistry.registerRole('CRUD.Document', DOCUMENT_ROLE);
+  appRegistry.registerRole('CRUD.Editor.Standard', STANDARD_EDITOR_ROLE);
+  appRegistry.registerRole('CRUD.Editor.Date', DATE_EDITOR_ROLE);
+  appRegistry.registerRole('CRUD.Editor.Double', DOUBLE_EDITOR_ROLE);
+  appRegistry.registerRole('CRUD.Editor.String', STRING_EDITOR_ROLE);
+  appRegistry.registerRole('CRUD.Editor.Int32', INT32_EDITOR_ROLE);
+  appRegistry.registerRole('CRUD.Editor.Null', NULL_EDITOR_ROLE);
+  appRegistry.registerRole('CRUD.Editor.Undefined', UNDEFINED_EDITOR_ROLE);
+  appRegistry.registerRole('CRUD.Editor.ObjectID', OBJECT_ID_EDITOR_ROLE);
+  appRegistry.registerAction('CRUD.Actions', Actions);
+  appRegistry.registerStore('CRUD.InsertDocumentStore', InsertDocumentStore);
+  appRegistry.registerStore('CRUD.ResetDocumentListStore', ResetDocumentListStore);
+  appRegistry.registerStore('CRUD.LoadMoreDocumentsStore', LoadMoreDocumentsStore);
 }
 
 /**

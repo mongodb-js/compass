@@ -44,7 +44,7 @@ var metricsSetup = require('./metrics');
 var React = require('react');
 var ReactDOM = require('react-dom');
 var AutoUpdate = require('../auto-update');
-var { packageActivationCompleted } = require('hadron-package-manager/lib/action');
+var { Action } = require('hadron-package-manager');
 
 
 ipc.once('app:launched', function() {
@@ -432,7 +432,7 @@ app.extend({
         throw err;
       }
       require('./setup-package-manager');
-      packageActivationCompleted.listen(() => {
+      Action.packageActivationCompleted.listen(() => {
         // set up metrics
         metricsSetup();
         global.hadronApp.appRegistry.onActivated();

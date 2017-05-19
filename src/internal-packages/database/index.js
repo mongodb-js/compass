@@ -20,15 +20,15 @@ const DATABASE_TAB_ROLE = {
 /**
  * Activate all the components in the Schema package.
  */
-function activate() {
-  app.appRegistry.registerRole('Database.Tab', DATABASE_TAB_ROLE);
-  app.appRegistry.registerAction('Database.CollectionsActions', CollectionsAction);
-  app.appRegistry.registerComponent('Database.CollectionsTable', CollectionsTable);
-  app.appRegistry.registerComponent('Database.CreateCollectionCheckbox', CreateCollectionCheckbox);
-  app.appRegistry.registerComponent('Database.CreateCollectionInput', CreateCollectionInput);
-  app.appRegistry.registerComponent('Database.CreateCollectionSizeInput', CreateCollectionSizeInput);
-  app.appRegistry.registerComponent('Database.CreateCollectionDialog', CreateCollectionDialog);
-  app.appRegistry.registerComponent('Database.DropCollectionDialog', DropCollectionDialog);
+function activate(appRegistry) {
+  appRegistry.registerRole('Database.Tab', DATABASE_TAB_ROLE);
+  appRegistry.registerAction('Database.CollectionsActions', CollectionsAction);
+  appRegistry.registerComponent('Database.CollectionsTable', CollectionsTable);
+  appRegistry.registerComponent('Database.CreateCollectionCheckbox', CreateCollectionCheckbox);
+  appRegistry.registerComponent('Database.CreateCollectionInput', CreateCollectionInput);
+  appRegistry.registerComponent('Database.CreateCollectionSizeInput', CreateCollectionSizeInput);
+  appRegistry.registerComponent('Database.CreateCollectionDialog', CreateCollectionDialog);
+  appRegistry.registerComponent('Database.DropCollectionDialog', DropCollectionDialog);
 }
 
 /**

@@ -8,12 +8,12 @@ const QueryChangedStore = require('./lib/store/query-changed-store');
 /**
  * Activate all the components in the Query Bar package.
  */
-function activate() {
-  app.appRegistry.registerComponent('Query.QueryBar', QueryBarComponent);
-  app.appRegistry.registerComponent('Query.SamplingMessage', SamplingMessage);
-  app.appRegistry.registerAction('Query.Actions', QueryAction);
-  app.appRegistry.registerStore('Query.Store', QueryStore);
-  app.appRegistry.registerStore('Query.ChangedStore', QueryChangedStore);
+function activate(appRegistry) {
+  appRegistry.registerComponent('Query.QueryBar', QueryBarComponent);
+  appRegistry.registerComponent('Query.SamplingMessage', SamplingMessage);
+  appRegistry.registerAction('Query.Actions', QueryAction);
+  appRegistry.registerStore('Query.Store', QueryStore);
+  appRegistry.registerStore('Query.ChangedStore', QueryChangedStore);
 }
 
 /**

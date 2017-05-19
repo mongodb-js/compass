@@ -18,10 +18,10 @@ const INDEXES_STATS_ITEM_ROLE = {
 /**
  * Activate all the components in the collection stats package.
  */
-function activate() {
-  app.appRegistry.registerRole('CollectionHUD.Item', DOCUMENTS_STATS_ITEM_ROLE);
-  app.appRegistry.registerRole('CollectionHUD.Item', INDEXES_STATS_ITEM_ROLE);
-  app.appRegistry.registerComponent('CollectionHUD.Item', CollectionStats);
+function activate(appRegistry) {
+  appRegistry.registerRole('CollectionHUD.Item', DOCUMENTS_STATS_ITEM_ROLE);
+  appRegistry.registerRole('CollectionHUD.Item', INDEXES_STATS_ITEM_ROLE);
+  appRegistry.registerComponent('CollectionHUD.Item', CollectionStats);
 }
 
 /**

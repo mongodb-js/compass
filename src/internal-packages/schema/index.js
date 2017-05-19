@@ -15,10 +15,10 @@ const COLLECTION_TAB_ROLE = {
 /**
  * Activate all the components in the Schema package.
  */
-function activate() {
-  app.appRegistry.registerRole('Collection.Tab', COLLECTION_TAB_ROLE);
-  app.appRegistry.registerAction('Schema.Actions', SchemaAction);
-  app.appRegistry.registerStore('Schema.Store', SchemaStore);
+function activate(appRegistry) {
+  appRegistry.registerRole('Collection.Tab', COLLECTION_TAB_ROLE);
+  appRegistry.registerAction('Schema.Actions', SchemaAction);
+  appRegistry.registerStore('Schema.Store', SchemaStore);
 }
 
 /**

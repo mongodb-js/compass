@@ -15,10 +15,10 @@ const COLLECTION_TAB_ROLE = {
 /**
  * Activate all the components in the  Explain package.
  */
-function activate() {
-  app.appRegistry.registerRole('Collection.Tab', COLLECTION_TAB_ROLE);
-  app.appRegistry.registerAction('Explain.Actions', ExplainActions);
-  app.appRegistry.registerStore('Explain.Store', ExplainStore);
+function activate(appRegistry) {
+  appRegistry.registerRole('Collection.Tab', COLLECTION_TAB_ROLE);
+  appRegistry.registerAction('Explain.Actions', ExplainActions);
+  appRegistry.registerStore('Explain.Store', ExplainStore);
 }
 
 /**

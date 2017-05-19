@@ -4,8 +4,8 @@ const InstanceComponent = require('./lib/component');
 /**
  * Activate all the components in the instance package.
  */
-function activate() {
-  app.appRegistry.registerComponent('Instance.Instance', InstanceComponent);
+function activate(appRegistry) {
+  appRegistry.registerComponent('Instance.Instance', InstanceComponent);
 }
 
 /**

@@ -51,6 +51,7 @@ class DatabaseView extends React.Component {
           tabs={this.tabs}
           views={this.views}
           activeTabIndex={0}
+          onTabClicked={this.onTabClicked.bind(this)}
           className="rt-nav" />
       </div>
     );

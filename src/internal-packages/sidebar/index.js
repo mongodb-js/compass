@@ -6,10 +6,10 @@ const CompassSidebarStore = require('./lib/stores');
 /**
  * Activate all the components in the Compass Sidebar package.
  */
-function activate() {
-  app.appRegistry.registerComponent('Sidebar.Component', CompassSidebarComponent);
-  app.appRegistry.registerAction('Sidebar.Actions', CompassSidebarActions);
-  app.appRegistry.registerStore('Sidebar.Store', CompassSidebarStore);
+function activate(appRegistry) {
+  appRegistry.registerComponent('Sidebar.Component', CompassSidebarComponent);
+  appRegistry.registerAction('Sidebar.Actions', CompassSidebarActions);
+  appRegistry.registerStore('Sidebar.Store', CompassSidebarStore);
 }
 
 /**

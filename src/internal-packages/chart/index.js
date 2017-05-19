@@ -16,12 +16,12 @@ const COLLECTION_TAB_ROLE = {
 /**
  * Activate all the components in the Chart package.
  */
-function activate() {
-  app.appRegistry.registerRole('Collection.Tab', COLLECTION_TAB_ROLE);
-  app.appRegistry.registerAction('Chart.Actions', ChartActions);
-  app.appRegistry.registerStore('Chart.Store', ChartStore);
-  app.appRegistry.registerComponent('Chart.Chart', Chart);
-  app.appRegistry.registerComponent('Chart.ChartBuilder', ChartBuilder);
+function activate(appRegistry) {
+  appRegistry.registerRole('Collection.Tab', COLLECTION_TAB_ROLE);
+  appRegistry.registerAction('Chart.Actions', ChartActions);
+  appRegistry.registerStore('Chart.Store', ChartStore);
+  appRegistry.registerComponent('Chart.Chart', Chart);
+  appRegistry.registerComponent('Chart.ChartBuilder', ChartBuilder);
 }
 
 /**

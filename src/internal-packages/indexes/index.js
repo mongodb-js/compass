@@ -17,12 +17,12 @@ const COLLECTION_TAB_ROLE = {
 /**
  * Activate all the components in the Query Bar package.
  */
-function activate() {
-  app.appRegistry.registerRole('Collection.Tab', COLLECTION_TAB_ROLE);
-  app.appRegistry.registerComponent('Indexes.IndexDefinition', IndexDefinition);
-  app.appRegistry.registerComponent('Indexes.IndexDefinitionType', IndexDefinitionType);
-  app.appRegistry.registerAction('Indexes.LoadIndexes', Action.loadIndexes);
-  app.appRegistry.registerStore('Indexes.IndexStore', Store);
+function activate(appRegistry) {
+  appRegistry.registerRole('Collection.Tab', COLLECTION_TAB_ROLE);
+  appRegistry.registerComponent('Indexes.IndexDefinition', IndexDefinition);
+  appRegistry.registerComponent('Indexes.IndexDefinitionType', IndexDefinitionType);
+  appRegistry.registerAction('Indexes.LoadIndexes', Action.loadIndexes);
+  appRegistry.registerStore('Indexes.IndexStore', Store);
 }
 
 /**

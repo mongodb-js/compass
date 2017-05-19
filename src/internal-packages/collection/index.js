@@ -4,8 +4,8 @@ const CollectionComponent = require('./lib/components');
 /**
  * Activate all the components in the Collection package.
  */
-function activate() {
-  app.appRegistry.registerComponent('Collection.Collection', CollectionComponent);
+function activate(appRegistry) {
+  appRegistry.registerComponent('Collection.Collection', CollectionComponent);
 }
 
 /**
