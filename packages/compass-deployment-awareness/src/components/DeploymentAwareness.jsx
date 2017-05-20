@@ -57,9 +57,7 @@ class DeploymentAwarenessComponent extends React.Component {
   renderSetName() {
     if (this.props.setName) {
       return (
-        <div className="deployment-awareness-set-name">
-          <span className="deployment-awareness-set-name-label">{this.props.setName}</span>
-        </div>
+        <span className="deployment-awareness-set-name">{this.props.setName}</span>
       );
     }
   }
@@ -74,8 +72,8 @@ class DeploymentAwarenessComponent extends React.Component {
       <div className="deployment-awareness">
         <div className="deployment-awareness-topology-type">
           <i className={`mms-icon-${TOPOLOGY_TYPES[this.props.topologyType]}`} />
+          {this.renderSetName()}
         </div>
-        {this.renderSetName()}
         {this.renderServers()}
       </div>
     );

@@ -52,9 +52,13 @@ const DeploymentAwarenessStore = Reflux.createStore({
    */
   getInitialState() {
     return {
-      topologyType: undefined,
-      setName: undefined,
-      servers: []
+      topologyType: 'ReplicaSetWithPrimary',
+      setName: 'TPCH',
+      servers: [
+        { type: 'RSPrimary', address: '127.0.0.1:27017' },
+        { type: 'RSSecondary', address: '127.0.0.1:27018' },
+        { type: 'RSArbiter', address: '127.0.0.1:27019' }
+      ]
     };
   },
 });
