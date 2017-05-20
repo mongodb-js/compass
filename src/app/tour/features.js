@@ -54,5 +54,19 @@ module.exports = [
     image: 'validation.png',
     version: '1.5.0',
     initial: true
+  },
+  {
+    title: 'Sidebar DDL',
+    description: 'Create and delete databases and collections conveniently from the sidebar with these shortcut icons.',
+    image: 'sidebar-ddl.png',
+    version: '1.7.0',
+    initial: false
+  },
+  {
+    title: 'Extended Query Bar',
+    description: 'Specify filter, project, sort, skip and limit options to queries on the Documents and Explain tabs, and filter, project and limit on the Schema tab.',
+    image: 'extended-query-bar.png',
+    version: '1.7.0',
+    initial: false
   }
 ];
