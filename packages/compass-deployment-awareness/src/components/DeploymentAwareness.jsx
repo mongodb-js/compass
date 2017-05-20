@@ -1,8 +1,36 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 const DeploymentAwarenessActions = require('../actions');
-const ToggleButton = require('./toggle-button');
 
+/**
+ * Topology types to class name mappings.
+ */
+const TOPOLOGY_TYPES = {
+  'Standalone': 'standalone',
+  'ReplicaSetNoPrimary': 'replica-set',
+  'ReplicaSetWithPrimary': 'replica-set',
+  'Sharded': 'cluster',
+  'Unknown': 'unknown'
+};
+
+/**
+ * Server types to class name mappings.
+ */
+const SERVER_TYPES = {
+  'Standalone': 'primary',
+  'Mongos': 'primary',
+  'PossiblePrimary': 'primary',
+  'RSPrimary': 'primary',
+  'RSSecondary': 'secondary',
+  'RSArbiter': 'arbiter',
+  'RSOther': 'nostate',
+  'RSGhost': 'nostate',
+  'Unknown': 'nostate',
+};
+
+/**
+ * <i class="mms-icon-leaf"> For version.
+ */
 class DeploymentAwarenessComponent extends React.Component {
 
   /**
@@ -13,8 +41,9 @@ class DeploymentAwarenessComponent extends React.Component {
   renderServers() {
     return this.props.servers.map((server, i) => {
       return (
-        <div className="deployment-awareness-servers" key={i}>
-          {server.type}/{server.address}
+        <div className="deployment-awareness-server" key={i}>
+          <i className={`mms-icon-${SERVER_TYPES[server.type]}`} />
+          <span className="deployment-awareness-server-address">{server.address}</span>
         </div>
       );
     });
@@ -29,7 +58,7 @@ class DeploymentAwarenessComponent extends React.Component {
     if (this.props.setName) {
       return (
         <div className="deployment-awareness-set-name">
-          {this.props.setName}
+          <span className="deployment-awareness-set-name-label">{this.props.setName}</span>
         </div>
       );
     }
@@ -44,7 +73,7 @@ class DeploymentAwarenessComponent extends React.Component {
     return (
       <div className="deployment-awareness">
         <div className="deployment-awareness-topology-type">
-          {this.props.topologyType}
+          <i className={`mms-icon-${TOPOLOGY_TYPES[this.props.topologyType]}`} />
         </div>
         {this.renderSetName()}
         {this.renderServers()}

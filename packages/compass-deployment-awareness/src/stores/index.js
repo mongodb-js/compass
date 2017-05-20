@@ -1,8 +1,5 @@
 const Reflux = require('reflux');
-const DeploymentAwarenessActions = require('../actions');
 const StateMixin = require('reflux-state-mixin');
-
-const debug = require('debug')('mongodb-compass:stores:deployment-awareness');
 
 /**
  * Deployment Awareness store.
@@ -16,11 +13,6 @@ const DeploymentAwarenessStore = Reflux.createStore({
    * and push down its state as props to connected components.
    */
   mixins: [StateMixin.store],
-
-  /**
-   * listen to all actions defined in ../actions/index.jsx
-   */
-  listenables: DeploymentAwarenessActions,
 
   /**
    * This method is called when the data service is finished connecting. You
@@ -38,50 +30,18 @@ const DeploymentAwarenessStore = Reflux.createStore({
    */
   onConnected(error, dataService) {
     if (!error) {
-      this.initialTopology(dataService.client.database.topology);
-      dataService.on('topologyOpening', this.topologyOpening.bind(this));
-      dataService.on('topologyClosed', this.topologyClosed.bind(this));
       dataService.on('topologyDescriptionChanged', this.topologyDescriptionChanged.bind(this));
     }
   },
 
-  initialTopology(topology) {
-    const isMasterDoc = topology.isMasterDoc;
-    this.setState({
-      open: true,
-      topologyType: this.getTopologyType(isMasterDoc),
-      setName: this.getSetName(isMasterDoc),
-      servers: this.getServers(isMasterDoc)
-    });
-  },
-
-  getTopologyType(isMasterDoc) {
-    return 'Standalone';
-  },
-
-  getSetName(isMasterDoc) {
-    return 'RS';
-  },
-
-  getServers(isMasterDoc) {
-    return [{ type: 'Standalone', address: '127.0.0.1:27017' }];
-  },
-
-  topologyOpening(evt) {
-    this.setState({ open: true });
-  },
-
-  topologyClosed(evt) {
-    this.setState({ open: false });
-  },
-
+  /**
+   * When the topology description changes, we should trigger the store with the data.
+   *
+   * @param {Event} evt - The topologyDescriptionChanged event.
+   */
   topologyDescriptionChanged(evt) {
     const description = evt.newDescription;
-    this.setState({
-      topologyType: description.topologyType,
-      setName: description.setName,
-      servers: description.servers
-    });
+    this.setState(evt.newDescription);
   },
 
   /**
@@ -92,9 +52,8 @@ const DeploymentAwarenessStore = Reflux.createStore({
    */
   getInitialState() {
     return {
-      open: false,
-      topologyType: null,
-      setName: null,
+      topologyType: undefined,
+      setName: undefined,
       servers: []
     };
   },
