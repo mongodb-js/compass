@@ -35,24 +35,19 @@ class TypeColumn extends React.Component {
    * @returns {React.Component} The type div.
    */
   renderType() {
+    let tooltipOptions = {};
     if (this.props.index.type === 'text') {
       const tooltipText = `${this._textTooltip()}`;
-      const tooltipOptions = {
+      tooltipOptions = {
         'data-tip': tooltipText,
         'data-for': TOOLTIP_ID,
         'data-effect': 'solid',
         'data-multiline': true,
         'data-border': true
       };
-      return (
-        <div {...tooltipOptions} className={`property ${this.props.index.type}`} data-test-id="index-table-type">
-          {this.props.index.type}
-          {this._link()}
-        </div>
-      );
     }
     return (
-      <div className={`property ${this.props.index.type}`} data-test-id="index-table-type">
+      <div {...tooltipOptions} className={`property ${this.props.index.type}`} data-test-id="index-table-type">
         {this.props.index.type}
         {this._link()}
       </div>
