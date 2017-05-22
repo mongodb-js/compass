@@ -12,7 +12,7 @@ const pluralize = require('pluralize');
  */
 const HELP_URLS = Object.freeze({
   DOCUMENTS: 'https://docs.mongodb.com/compass/master/documents/',
-  SCHEMA_SAMPLING_RESULTS: 'https://docs.mongodb.com/compass/current/faq/#what-is-the-outcome-of-running-queries-in-the-query-bar'
+  SCHEMA_SAMPLING: 'https://docs.mongodb.com/compass/current/faq/#what-is-sampling-and-why-is-it-used'
 });
 
 /**
@@ -135,7 +135,7 @@ class SamplingMessage extends React.Component {
         This report is based on a sample of&nbsp;
         <b>{this.props.sampleSize}</b>&nbsp;{noun} ({this._samplePercentage()}).
         <InfoSprinkle
-          helpLink={HELP_URLS.SCHEMA_SAMPLING_RESULTS}
+          helpLink={HELP_URLS.SCHEMA_SAMPLING}
           onClickHandler={shell.openExternal}
         />
       </div>
