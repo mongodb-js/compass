@@ -1,5 +1,4 @@
 // TODO: Move this into a internal-packages/collection-ddl
-const shell = require('electron').shell;
 const React = require('react');
 const Modal = require('react-bootstrap').Modal;
 const { NamespaceStore } = require('hadron-reflux-store');
@@ -10,11 +9,6 @@ const CreateCollectionStore = require('../stores/create-collection-store');
 const CreateCollectionInput = require('./create-collection-input');
 const CreateCollectionSizeInput = require('./create-collection-size-input');
 const CreateCollectionCheckbox = require('./create-collection-checkbox');
-
-/**
- * The help icon for capped collections url.
- */
-const HELP_URL = 'https://docs.mongodb.com/manual/core/capped-collections/';
 
 /**
  * The dialog to create a collection.
@@ -121,17 +115,6 @@ class CreateCollectionDialog extends React.Component {
   }
 
   /**
-   * Handle clicking the help icon.
-
-   * @param {Event} evt - The event.
-   */
-  onHelpClicked(evt) {
-    evt.preventDefault();
-    evt.stopPropagation();
-    shell.openExternal(HELP_URL);
-  }
-
-  /**
    * Change the max collection size.
    *
    * @param {Event} evt - The event.
@@ -190,7 +173,7 @@ class CreateCollectionDialog extends React.Component {
               className="create-collection-dialog-capped"
               checked={this.state.checked}
               onClickHandler={this.onCappedClicked.bind(this)}
-              onHelpClickHandler={this.onHelpClicked.bind(this)} />
+            />
             {this.renderMaxSize()}
             {this.state.error ?
               <ModalStatusMessage icon="times" message={this.state.errorMessage} type="error" />
