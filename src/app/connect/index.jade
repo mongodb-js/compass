@@ -24,6 +24,13 @@
 
       hr
 
+      div(data-hook='deployment-awareness-subview')
+        #rs-rp.form-group
+          div(data-hook='replica-set-name-subview')
+          div(data-hook='read-preference-subview')
+
+      hr
+
       div(data-hook='sslselect-subview')
 
       - for method, i in sslMethods || {}
