@@ -2,16 +2,9 @@ const React = require('react');
 const PropTypes = require('prop-types');
 const ReactDOM = require('react-dom');
 const d3 = require('d3');
-const { InfoSprinkle } = require('./info-sprinkle');
-const { shell } = require('electron');
 const _ = require('lodash');
 
 // const debug = require('debug')('mongodb-compass:schema:d3component');
-
-/**
- * The help URL for building geo queries.
- */
-const HELP_URL = 'https://docs.mongodb.com/compass/current/schema/#geographic-visualization-and-query-builder';
 
 class D3Component extends React.Component {
   constructor(props) {
@@ -84,10 +77,6 @@ class D3Component extends React.Component {
     const container = this._getContainer();
     return (
       <div className="minichart-wrapper" ref="wrapper">
-        <InfoSprinkle
-          helpLink={HELP_URL}
-          onClickHandler={shell.openExternal}
-        />
         {container}
       </div>
     );
