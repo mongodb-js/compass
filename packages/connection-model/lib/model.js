@@ -2,6 +2,7 @@ var toURL = require('url').format;
 var format = require('util').format;
 var AmpersandModel = require('ampersand-model');
 var AmpersandCollection = require('ampersand-rest-collection');
+var { ReadPreference } = require('mongodb');
 var _ = require('lodash');
 var parse = require('mongodb-url');
 var dataTypes = require('./data-types');
@@ -61,6 +62,10 @@ _.assign(props, {
     default: function() {
       return {};
     }
+  },
+  replica_set_name: {
+    type: 'string',
+    default: undefined
   }
 });
 
@@ -73,6 +78,33 @@ _.assign(derived, {
     fn: function() {
       return format('%s:%s', this.hostname, this.port);
     }
+  }
+});
+
+/**
+ * The read preference values.
+ */
+var READ_PREFERENCE_VALUES = [
+  ReadPreference.PRIMARY,
+  ReadPreference.PRIMARY_PREFERRED,
+  ReadPreference.SECONDARY,
+  ReadPreference.SECONDARY_PREFERRED,
+  ReadPreference.NEAREST
+];
+
+/**
+ * The default read preference.
+ */
+var READ_PREFERENCE_DEFAULT = ReadPreference.PRIMARY_PREFERRED;
+
+_.assign(props, {
+  /**
+   * @property {String} authentication - `auth_mechanism` for humans.
+   */
+  read_preference: {
+    type: 'string',
+    values: READ_PREFERENCE_VALUES,
+    default: READ_PREFERENCE_DEFAULT
   }
 });
 
@@ -531,10 +563,7 @@ _.assign(props, {
  * `MongoClient.connect(model.driver_url, model.driver_options)`.
  */
 var DRIVER_OPTIONS_DEFAULT = {
-  db: {
-    // important!  or slaveOk=true set above no worky!
-    readPreference: 'secondaryPreferred'
-  },
+  db: {},
   replSet: {
     connectWithNoPrimary: true
   }
@@ -569,10 +598,12 @@ _.assign(derived, {
         hostname: this.hostname,
         port: this.port,
         pathname: '/',
-        query: {
-          slaveOk: 'true'
-        }
+        query: {}
       };
+
+      if (this.replica_set_name) {
+        req.query.replicaSet = this.replica_set_name;
+      }
 
       if (this.app_name) {
         req.query.appname = this.app_name;
@@ -712,6 +743,8 @@ _.assign(derived, {
       if (this.promote_values !== undefined) {
         opts.db.promoteValues = this.promote_values;
       }
+
+      opts.db.readPreference = this.read_preference;
 
       return opts;
     }
@@ -1086,6 +1119,8 @@ Connection.MONGODB_NAMESPACE_DEFAULT = MONGODB_NAMESPACE_DEFAULT;
 Connection.MONGODB_DATABASE_NAME_DEFAULT = MONGODB_DATABASE_NAME_DEFAULT;
 Connection.KERBEROS_SERVICE_NAME_DEFAULT = KERBEROS_SERVICE_NAME_DEFAULT;
 Connection.DRIVER_OPTIONS_DEFAULT = DRIVER_OPTIONS_DEFAULT;
+Connection.READ_PREFERENCE_VALUES = READ_PREFERENCE_VALUES;
+Connection.READ_PREFERENCE_DEFAULT = READ_PREFERENCE_DEFAULT;
 
 var ConnectionCollection = AmpersandCollection.extend({
   comparator: 'instance_id',
