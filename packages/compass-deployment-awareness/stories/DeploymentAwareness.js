@@ -1,7 +1,6 @@
 import React from 'react';
 import { storiesOf } from '@kadira/storybook';
-import DeploymentAwareness from '../src/components/DeploymentAwareness';
-import ConnectedDeploymentAwarenessComponent from '../src/components/';
+import DeploymentAwareness from '../src/components/deployment-awareness';
 
 const SERVERS = {
   'Standalone': [
