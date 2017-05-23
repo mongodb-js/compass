@@ -3,15 +3,8 @@ const PropTypes = require('prop-types');
 const _ = require('lodash');
 const numeral = require('numeral');
 const { TOOLTIP_IDS } = require('../constants');
-const { InfoSprinkle } = require('./info-sprinkle');
-const { shell } = require('electron');
 
 // const debug = require('debug')('mongodb-compass:schema:type');
-
-/**
- * The help URL for building geo queries.
- */
-const HELP_URL = 'https://docs.mongodb.com/compass/current/schema/#geographic-visualization-and-query-builder';
 
 /**
  * The full schema component class.
@@ -109,15 +102,7 @@ class Type extends React.Component {
       width: percentage
     };
     const subtypes = this._getArraySubTypes();
-    const label = (
-      <span className="schema-field-type-label">
-        {this.props.name}
-        <InfoSprinkle
-          helpLink={HELP_URL}
-          onClickHandler={shell.openExternal}
-        />
-      </span>
-    );
+    const label = <span className="schema-field-type-label">{this.props.name}</span>;
     const tooltipText = `${this.props.name} (${numeral(this.props.probability).format('0%')})`;
     const tooltipOptions = {
       'data-for': TOOLTIP_IDS.SCHEMA_PROBABILITY_PERCENT,
