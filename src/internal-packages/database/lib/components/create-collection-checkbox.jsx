@@ -4,7 +4,7 @@ const { InfoSprinkle } = require('hadron-react-components');
 const { shell } = require('electron');
 
 /**
- * The help icon for capped collections url.
+ * The help URL for capped collections.
  */
 const HELP_URL = 'https://docs.mongodb.com/manual/core/capped-collections/';
 
