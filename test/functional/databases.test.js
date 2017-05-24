@@ -28,12 +28,14 @@ describe('#databases', function() {
 
   context('when creating & deleting databases', function() {
     const dataService = new DataService(CONNECTION);
-    let dbCount;
+    let dbCount = 0;
 
     before(function(done) {
-      client.getSidebarDatabaseCount().then(function(value) {
-        dbCount = parseInt(value, 10);
-        done();
+      dataService.connect(function() {
+        return client.getSidebarDatabaseCount().then(function(value) {
+          dbCount = parseInt(value, 10);
+          done();
+        });
       });
     });
 
