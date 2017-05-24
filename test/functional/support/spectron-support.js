@@ -75,20 +75,21 @@ function isTimeoutError(e) {
  * fibonacci.
  *
  * @param {Function} fn - The function to use for waiting.
- * @param {String} selector - The selector for the element.
+ * @param {String} sel - The selector for the element.
  * @param {Boolean} reverse - Whether to revers the conditions.
  * @param {Number} index - The timeout index to use from TIMEOUTS.
+ *
+ * @return {Promise} chainable promise
  */
-function progressiveWait(fn, selector, reverse, index) {
+function progressiveWait(fn, sel, reverse, index) {
   const timeout = TIMEOUTS[index];
   debug(`Looking for element ${selector} with timeout ${timeout}ms`);
-  return fn(selector, timeout, reverse)
+  return fn(sel, timeout, reverse)
     .catch(function(e) {
       if (isTimeoutError(e) && timeout !== 13000) {
-        return progressiveWait(fn, selector, reverse || false, index + 1);
-      } else {
-        throw e;
+        return progressiveWait(fn, sel, reverse || false, index + 1);
       }
+      throw e;
     });
 }
 
@@ -98,6 +99,8 @@ function progressiveWait(fn, selector, reverse, index) {
  * @param {Function} waitUntil - The waitUntil function.
  * @param {Function} fn - The function to execute.
  * @param {Number} index - The timeout index.
+ *
+ * @return {Promise} chainable promise
  */
 function progressiveWaitUntil(waitUntil, fn, index) {
   const timeout = TIMEOUTS[index];
@@ -106,35 +109,35 @@ function progressiveWaitUntil(waitUntil, fn, index) {
     .catch(function(e) {
       if (isTimeoutError(e) && timeout !== 13000) {
         return progressiveWaitUntil(waitUntil, fn, index + 1);
-      } else {
-        throw e;
       }
+      throw e;
     });
 }
 
 /**
  * Add the extended wait commands for Compass.
+ *
+ * @param {Object} client   the spectron client to extend
  */
 function addExtendedWaitCommands(client) {
-
   /**
    * Wait for an element to exist in the Compass test suite.
    *
-   * @param {String} selector - The CSS selector for the element.
+   * @param {String} sel - The CSS selector for the element.
    * @param {Boolean} reverse - Whether to reverse the wait.
    */
-  client.addCommand('waitForExistInCompass', function(selector, reverse) {
-    return progressiveWait(this.waitForExist.bind(this), selector, reverse, 0);
+  client.addCommand('waitForExistInCompass', function(sel, reverse) {
+    return progressiveWait(this.waitForExist.bind(this), sel, reverse, 0);
   });
 
   /**
    * Wait for an element to be visible in the Compass test suite.
    *
-   * @param {String} selector - The CSS selector for the element.
+   * @param {String} sel - The CSS selector for the element.
    * @param {Boolean} reverse - Whether to reverse the wait.
    */
-  client.addCommand('waitForVisibleInCompass', function(selector, reverse) {
-    return progressiveWait(this.waitForVisible.bind(this), selector, reverse, 0);
+  client.addCommand('waitForVisibleInCompass', function(sel, reverse) {
+    return progressiveWait(this.waitForVisible.bind(this), sel, reverse, 0);
   });
 
   /**
@@ -154,7 +157,6 @@ function addExtendedWaitCommands(client) {
  * @param {Client} client - The client.
  */
 function addWaitCommands(client) {
-
   /**
    * Wait for document deletion to finish.
    *
@@ -788,7 +790,6 @@ function addKeyPressCommands(client) {
  * @param {Client} client - The client.
  */
 function addGetCommands(client) {
-
   /**
    * Get the slow operations list.
    */
@@ -1169,7 +1170,6 @@ function addGetCommands(client) {
  * @param {Client} client - The client.
  */
 function addInputCommands(client) {
-
   /**
    * Enter the database name to drop.
    *
@@ -1226,7 +1226,7 @@ function addInputCommands(client) {
         const field = selector('create-index-modal-name');
         return that
           .waitForVisibleInCompass(field)
-          .setValue(field, model.name)
+          .setValue(field, model.name);
       });
     }
     if (model.field) {
