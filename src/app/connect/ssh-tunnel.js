@@ -26,7 +26,7 @@ var USER_PASSWORD = {
       template: inputTemplate,
       name: 'ssh_tunnel_hostname',
       label: 'SSH Hostname',
-      helpEntry: 'ssh-tunnel-hostname',
+      helpEntry: 'https://docs.mongodb.com/compass/current/connect/',
       required: true
     }),
     new InputView({
@@ -34,7 +34,6 @@ var USER_PASSWORD = {
       name: 'ssh_tunnel_port',
       label: 'SSH Tunnel Port',
       placeholder: '22',
-      helpEntry: 'ssh-tunnel-port',
       required: false,
       tests: [
         function(value) {
@@ -56,14 +55,12 @@ var USER_PASSWORD = {
       template: inputTemplate,
       name: 'ssh_tunnel_username',
       label: 'SSH Username',
-      helpEntry: 'ssh-tunnel-username',
       required: true
     }),
     new InputView({
       template: inputTemplate,
       name: 'ssh_tunnel_password',
       label: 'SSH Password',
-      helpEntry: 'ssh-tunnel-password',
       required: true,
       type: 'password'
     })
@@ -83,7 +80,7 @@ var IDENTITY_FILE = {
       template: inputTemplate,
       name: 'ssh_tunnel_hostname',
       label: 'SSH Hostname',
-      helpEntry: 'ssh-tunnel-hostname',
+      helpEntry: 'https://docs.mongodb.com/compass/current/connect/',
       required: true
     }),
     new InputView({
@@ -91,27 +88,23 @@ var IDENTITY_FILE = {
       name: 'ssh_tunnel_port',
       label: 'SSH Tunnel Port',
       placeholder: '22',
-      helpEntry: 'ssh-tunnel-port',
       required: false
     }),
     new InputView({
       template: inputTemplate,
       name: 'ssh_tunnel_username',
       label: 'SSH Username',
-      helpEntry: 'ssh-tunnel-username',
       required: true
     }),
     new FileReaderView({
       name: 'ssh_tunnel_identity_file',
       label: 'SSH Identity File',
-      helpEntry: 'ssh-tunnel-identity-file',
       required: true
     }),
     new InputView({
       template: inputTemplate,
       name: 'ssh_tunnel_passphrase',
       label: 'Passphrase',
-      helpEntry: 'ssh-tunnel-passphrase',
       required: false,
       type: 'password'
     })

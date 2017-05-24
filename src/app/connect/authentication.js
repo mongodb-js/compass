@@ -41,7 +41,7 @@ var MONGODB = {
       name: 'mongodb_database_name',
       label: 'Authentication Database',
       placeholder: 'admin',
-      helpEntry: 'connect-userpass-auth-db',
+      helpEntry: 'https://docs.mongodb.com/manual/core/security-users/#user-authentication-database',
       required: false
     })
   ]
@@ -59,7 +59,7 @@ var KERBEROS = {
       name: 'kerberos_principal',
       label: 'Principal',
       placeholder: '',
-      helpEntry: 'connect-kerberos-principal',
+      helpEntry: 'https://docs.mongodb.com/manual/core/kerberos/#principals',
       required: true,
       tests: [function(value) {
         if (!value.match(/\S+@\S+/)) {
@@ -98,6 +98,7 @@ var LDAP = {
       name: 'ldap_username',
       label: 'Username',
       placeholder: '',
+      helpEntry: 'https://docs.mongodb.com/manual/core/security-ldap/',
       required: true
     }),
     new InputView({

@@ -191,7 +191,7 @@ var ConnectFormView = FormView.extend({
         name: 'name',
         label: 'Favorite Name',
         placeholder: 'e.g. Shared Dev, QA Box, PRODUCTION',
-        helpEntry: 'connect-favorite-name',
+        helpEntry: 'https://docs.mongodb.com/compass/current/connect/',
         required: false
       })
     ];
