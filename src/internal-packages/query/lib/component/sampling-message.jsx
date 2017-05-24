@@ -11,7 +11,8 @@ const pluralize = require('pluralize');
  * The help URLs for things like the Documents tab.
  */
 const HELP_URLS = Object.freeze({
-  DOCUMENTS: 'https://docs.mongodb.com/compass/master/documents/'
+  DOCUMENTS: 'https://docs.mongodb.com/compass/master/documents/',
+  SCHEMA_SAMPLING: 'https://docs.mongodb.com/compass/current/faq/#what-is-sampling-and-why-is-it-used'
 });
 
 /**
@@ -133,7 +134,10 @@ class SamplingMessage extends React.Component {
         <b>{this.state.count}</b>&nbsp;{noun}.
         This report is based on a sample of&nbsp;
         <b>{this.props.sampleSize}</b>&nbsp;{noun} ({this._samplePercentage()}).
-        <i data-hook="schema-sampling-results" className="help"></i>
+        <InfoSprinkle
+          helpLink={HELP_URLS.SCHEMA_SAMPLING}
+          onClickHandler={shell.openExternal}
+        />
       </div>
     );
   }
