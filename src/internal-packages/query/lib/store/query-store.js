@@ -20,7 +20,7 @@ const RESET_STATE = 'reset';
 const APPLY_STATE = 'apply';
 
 const DEFAULT_FILTER = {};
-const DEFAULT_SORT = { _id: 1 };
+const DEFAULT_SORT = null;
 const DEFAULT_LIMIT = 0;
 const DEFAULT_SKIP = 0;
 const DEFAULT_PROJECT = null;

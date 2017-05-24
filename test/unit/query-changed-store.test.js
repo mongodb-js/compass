@@ -57,7 +57,7 @@ describe('QueryChangedStore', () => {
   it('contains all the other query options', (done) => {
     unsubscribe = QueryChangedStore.listen((state) => {
       expect(state.filter).to.be.deep.equal({foo: 1});
-      expect(state.sort).to.be.deep.equal({_id: 1});
+      expect(state.sort).to.be.deep.equal(null);
       expect(state.skip).to.be.equal(0);
       expect(state.limit).to.be.equal(0);
       expect(state.project).to.be.deep.equal(null);
