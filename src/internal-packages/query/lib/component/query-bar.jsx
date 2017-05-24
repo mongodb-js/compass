@@ -206,7 +206,7 @@ class QueryBar extends React.Component {
               data-test-id="apply-filter-button"
               type="button"
               onClick={this.onApplyButtonClicked.bind(this)}
-              disabled={applyDisabled}>Apply</button>
+              disabled={applyDisabled}>{this.props.buttonLabel}</button>
             <button
               id="reset_button"
               key="reset-button"
@@ -258,6 +258,7 @@ QueryBar.propTypes = {
   limitString: PropTypes.string,
 
   actions: PropTypes.object,
+  buttonLabel: PropTypes.string,
   queryState: PropTypes.string,
   layout: PropTypes.array,
   expanded: PropTypes.bool,
@@ -266,6 +267,7 @@ QueryBar.propTypes = {
 
 QueryBar.defaultProps = {
   expanded: false,
+  buttonLabel: 'Apply',
   layout: ['filter', 'project', ['sort', 'skip', 'limit']]
 };
 
