@@ -56,15 +56,22 @@ module.exports = [
     initial: true
   },
   {
-    title: 'Sidebar DDL',
-    description: 'Create and delete databases and collections conveniently from the sidebar with these shortcut icons.',
+    title: 'Collapsible Sidebar',
+    description: 'To give you more space to work with your data, the sidebar is now collapsible. Click on the double arrow symbols to collapse or expand the sidebar.',
+    image: 'collapsible-sidebar.png',
+    version: '1.7.0',
+    initial: false
+  },
+  {
+    title: 'Sidebar Shortcuts',
+    description: 'We have also added convenient shortcuts to create and delete databases and collections into the sidebar.',
     image: 'sidebar-ddl.png',
     version: '1.7.0',
     initial: false
   },
   {
     title: 'Extended Query Bar',
-    description: 'Specify filter, project, sort, skip and limit options to queries on the Documents and Explain tabs, and filter, project and limit on the Schema tab.',
+    description: 'You can now specify filter, project, sort, skip and limit options to queries on the Schema, Documents and Explain tabs.',
     image: 'extended-query-bar.png',
     version: '1.7.0',
     initial: false
