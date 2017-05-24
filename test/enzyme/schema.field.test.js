@@ -83,6 +83,9 @@ describe('<Schema />', () => {
     // Mock the AppRegistry with a new one so tests don't complain about
     // appRegistry.getComponent (i.e. appRegistry being undefined)
     app.appRegistry = new AppRegistry();
+    // TypeError: Cannot read property 'toggle' of undefined
+    // at MiniChart.componentDidMount (src/internal-packages/schema/lib/component/minichart.jsx:45:37)
+    app.appRegistry.registerAction('Sidebar.Actions', {toggle: {listen: () => {}}});
     // register QueryStore
     require('../../src/internal-packages/query').activate(app.appRegistry);
   });
