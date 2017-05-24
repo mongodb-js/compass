@@ -2,7 +2,9 @@ const _ = require('lodash');
 const format = require('util').format;
 const React = require('react');
 const PropTypes = require('prop-types');
-const openIndexHelpLink = require('../index-link-helper');
+const { InfoSprinkle } = require('hadron-react-components');
+const { shell } = require('electron');
+const getIndexHelpLink = require('../index-link-helper');
 const ReactTooltip = require('react-tooltip');
 
 const TOOLTIP_ID = 'index-type';
@@ -11,16 +13,6 @@ const TOOLTIP_ID = 'index-type';
  * Component for the type column.
  */
 class TypeColumn extends React.Component {
-
-  _clickHelp(evt) {
-    evt.preventDefault();
-    evt.stopPropagation();
-    openIndexHelpLink(evt.target.parentNode.innerText);
-  }
-
-  _link() {
-    return (<i className="link" onClick={this._clickHelp.bind(this)} />);
-  }
 
   _textTooltip() {
     const info = _.pick(this.props.index.extra, ['weights', 'default_language', 'language_override']);
@@ -35,26 +27,24 @@ class TypeColumn extends React.Component {
    * @returns {React.Component} The type div.
    */
   renderType() {
+    let tooltipOptions = {};
     if (this.props.index.type === 'text') {
       const tooltipText = `${this._textTooltip()}`;
-      const tooltipOptions = {
+      tooltipOptions = {
         'data-tip': tooltipText,
         'data-for': TOOLTIP_ID,
         'data-effect': 'solid',
         'data-multiline': true,
         'data-border': true
       };
-      return (
-        <div {...tooltipOptions} className={`property ${this.props.index.type}`} data-test-id="index-table-type">
-          {this.props.index.type}
-          {this._link()}
-        </div>
-      );
     }
     return (
-      <div className={`property ${this.props.index.type}`} data-test-id="index-table-type">
+      <div {...tooltipOptions} className={`property ${this.props.index.type}`} data-test-id="index-table-type">
         {this.props.index.type}
-        {this._link()}
+        <InfoSprinkle
+          helpLink={getIndexHelpLink(this.props.index.type.toUpperCase())}
+          onClickHandler={shell.openExternal}
+        />
       </div>
     );
   }

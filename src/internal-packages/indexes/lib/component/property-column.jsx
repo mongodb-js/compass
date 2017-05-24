@@ -2,8 +2,10 @@ const _ = require('lodash');
 const format = require('util').format;
 const React = require('react');
 const PropTypes = require('prop-types');
-const openIndexHelpLink = require('../index-link-helper');
 const ReactTooltip = require('react-tooltip');
+const { InfoSprinkle } = require('hadron-react-components');
+const { shell } = require('electron');
+const getIndexHelpLink = require('../index-link-helper');
 
 const TOOLTIP_ID = 'index-property';
 
@@ -11,16 +13,6 @@ const TOOLTIP_ID = 'index-property';
  * Component for the property column.
  */
 class PropertyColumn extends React.Component {
-
-  _clickHelp(evt) {
-    evt.preventDefault();
-    evt.stopPropagation();
-    openIndexHelpLink(evt.target.parentNode.innerText);
-  }
-
-  _link() {
-    return (<i className="link" onClick={this._clickHelp.bind(this)} />);
-  }
 
   _partialTooltip() {
     return format('partialFilterExpression: %j', this.props.index.extra.partialFilterExpression);
@@ -40,7 +32,10 @@ class PropertyColumn extends React.Component {
       return (
         <div className="property cardinality">
           {this.props.index.cardinality}
-          {this._link()}
+          <InfoSprinkle
+            helpLink={getIndexHelpLink('COMPOUND')}
+            onClickHandler={shell.openExternal}
+          />
         </div>
       );
     }
@@ -65,7 +60,10 @@ class PropertyColumn extends React.Component {
       return (
         <div {...tooltipOptions} key={prop} className="property">
           {prop}
-          {this._link()}
+          <InfoSprinkle
+            helpLink={getIndexHelpLink('TTL')}
+            onClickHandler={shell.openExternal}
+          />
         </div>
       );
     } else if (prop === 'partial') {
@@ -73,14 +71,20 @@ class PropertyColumn extends React.Component {
       return (
         <div {...tooltipOptions} key={prop} className="property">
           {prop}
-          {this._link()}
+          <InfoSprinkle
+            helpLink={getIndexHelpLink('PARTIAL')}
+            onClickHandler={shell.openExternal}
+          />
         </div>
       );
     }
     return (
       <div key={prop} className="property">
         {prop}
-        {this._link()}
+        <InfoSprinkle
+          helpLink={getIndexHelpLink(prop.toUpperCase())}
+          onClickHandler={shell.openExternal}
+        />
       </div>
     );
   }

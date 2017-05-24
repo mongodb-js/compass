@@ -1,6 +1,3 @@
-const _ = require('lodash');
-const shell = require('electron').shell;
-
 const HELP_URLS = {
   SINGLE: 'https://docs.mongodb.org/manual/core/index-single/',
   COMPOUND: 'https://docs.mongodb.org/manual/core/index-compound/',
@@ -20,15 +17,12 @@ const HELP_URLS = {
 };
 
 /**
- * The function opens index help links.
+ * The function looks up index help links.
  *
  * @param {String} section - The name of the section to open.
  */
-function openIndexHelpLink(section) {
-  const url = _.get(HELP_URLS, section, 'UNKNOWN');
-  if (url) {
-    shell.openExternal(url);
-  }
+function getIndexHelpLink(section) {
+  return HELP_URLS[section] || null;
 }
 
-module.exports = openIndexHelpLink;
+module.exports = getIndexHelpLink;

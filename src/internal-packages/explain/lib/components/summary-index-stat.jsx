@@ -71,7 +71,7 @@ class SummaryIndexStat extends React.Component {
     const dataLink = this.props.dataLink;
     return (
       <div className="summary-stat summary-stat-is-index">
-        <i className="summary-stat-info-sprinkle" onClick={this.onHelpClicked.bind(this, dataLink)} data-link={dataLink}></i>
+        <i className="summary-stat-info-sprinkle" onClick={this.onHelpClicked.bind(this, dataLink)}></i>
         <span>
           <span className="summary-stat-index-icon">{this.getIndexMessageIcon()}</span>
           <span
