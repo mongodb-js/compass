@@ -52,7 +52,7 @@ var SERVER = {
       name: 'ssl_ca',
       multi: true,
       label: 'Certificate Authority',
-      helpEntry: 'connect-ssl-certificate-authority',
+      helpEntry: 'https://docs.mongodb.com/manual/tutorial/configure-ssl/#certificate-authorities',
       required: true
     })
   ]
@@ -71,26 +71,26 @@ var ALL = {
       name: 'ssl_ca',
       multi: true,
       label: 'Certificate Authority',
-      helpEntry: 'connect-ssl-certificate-authority',
+      helpEntry: 'https://docs.mongodb.com/manual/tutorial/configure-ssl/#certificate-authorities',
       required: true
     }),
     new FileReaderView({
       name: 'ssl_certificate',
       label: 'Client Certificate',
-      helpEntry: 'connect-ssl-client-certificate',
+      helpEntry: 'https://docs.mongodb.com/manual/tutorial/configure-ssl/#pem-file',
       required: true
     }),
     new FileReaderView({
       name: 'ssl_private_key',
       label: 'Client Private Key',
-      helpEntry: 'connect-ssl-client-private-key',
+      helpEntry: 'https://docs.mongodb.com/manual/tutorial/configure-ssl/#pem-file',
       required: true
     }),
     new InputView({
       template: inputTemplate,
       name: 'ssl_private_key_password',
       label: 'Client Key Password',
-      helpEntry: 'connect-ssl-private-key-password',
+      helpEntry: 'https://docs.mongodb.com/manual/reference/configuration-options/#net.ssl.PEMKeyPassword',
       required: false
     })
   ]

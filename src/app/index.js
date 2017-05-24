@@ -155,7 +155,9 @@ var Application = View.extend({
     evt.preventDefault();
     evt.stopPropagation();
     var id = evt.target.dataset.hook;
-    ipc.call('app:show-help-window', id);
+    require('electron').shell.openExternal(id);
+    // TODO: Clean up rest of help window stuff in COMPASS-1169
+    // ipc.call('app:show-help-window', id);
   },
   startRouter: function() {
     if (this.router) {
