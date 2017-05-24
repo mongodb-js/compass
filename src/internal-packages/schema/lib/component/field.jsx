@@ -146,7 +146,7 @@ class Field extends React.Component {
         <Type
           key={'type-' + type.name}
           activeType={this.state.activeType}
-          renderType={this.renderType}
+          renderType={this.renderType.bind(this)}
           self={type}
           showSubTypes
           {...type}
