@@ -2,9 +2,17 @@ const React = require('react');
 const PropTypes = require('prop-types');
 const app = require('hadron-app');
 const { AnimatedIconTextButton } = require('hadron-react-buttons');
-const { Tooltip } = require('hadron-react-components');
+const { InfoSprinkle, Tooltip } = require('hadron-react-components');
+const { shell } = require('electron');
 const numeral = require('numeral');
 const pluralize = require('pluralize');
+
+/**
+ * The help URLs for things like the Documents tab.
+ */
+const HELP_URLS = Object.freeze({
+  DOCUMENTS: 'https://docs.mongodb.com/compass/master/documents/'
+});
 
 /**
  * Component for the sampling message.
@@ -150,6 +158,10 @@ class SamplingMessage extends React.Component {
         <div className="sampling-message">
           Query returned&nbsp;<b>{this.state.count}</b>&nbsp;{noun}.&nbsp;
           {this._loadedMessage()}
+          <InfoSprinkle
+            helpLink={HELP_URLS.DOCUMENTS}
+            onClickHandler={shell.openExternal}
+          />
           <AnimatedIconTextButton
             clickHandler={this.handleRefreshDocuments.bind(this)}
             stopAnimationListenable={this.resetDocumentListStore}
