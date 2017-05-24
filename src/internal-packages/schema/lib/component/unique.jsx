@@ -49,7 +49,7 @@ class ValueBubble extends React.Component {
       'selected' : 'unselected';
     return (
       <li className="bubble">
-        <code className={`selectable ${selectedClass}`} onClick={this.onBubbleClicked}>
+        <code className={`selectable ${selectedClass}`} onClick={this.onBubbleClicked.bind(this)}>
           {value}
         </code>
       </li>
