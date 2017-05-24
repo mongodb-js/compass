@@ -56,7 +56,7 @@ class SummaryIndexStat extends React.Component {
 
   renderIndexDefinition() {
     if (this.props.index) {
-      return <this.indexComponent index={this.props.index} />;
+      return <this.indexComponent index={this.props.index} dataTestId={this.props.dataTestId}/>;
     }
     return null;
   }
@@ -88,7 +88,8 @@ SummaryIndexStat.propTypes = {
   dataLink: React.PropTypes.string,          // info sprinkle (optional)
   indexType: React.PropTypes.oneOf(['MULTIPLE', 'UNAVAILABLE', 'COLLSCAN',
     'COVERED', 'INDEX']).isRequired,
-  index: React.PropTypes.object
+  index: React.PropTypes.object,
+  dataTestId: React.PropTypes.string
 };
 
 SummaryIndexStat.displayName = 'SummaryIndexStat';
