@@ -67,7 +67,7 @@ describe('#indexes', function() {
 
     it('renders the index usages', function() {
       return isIndexUsageEnabled(serverVersion) ?
-        client.getIndexUsages().should.eventually.be.at.least('1') :
+        client.getIndexUsages().should.eventually.be.at.least('0') :
         client.getIndexUsages().should.eventually.be.equal('0');
     });
 

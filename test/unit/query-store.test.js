@@ -452,7 +452,7 @@ describe('QueryStore', () => {
           unsubscribe = QueryStore.listen((state) => {
             expect(state.sortString).to.be.equal('{"sort": null}');
             expect(state.sortValid).to.be.false;
-            expect(state.sort).to.deep.equal({_id: 1});
+            expect(state.sort).to.deep.equal(null);
             done();
           });
           QueryStore.setQueryString('sort', '{"sort": null}');
