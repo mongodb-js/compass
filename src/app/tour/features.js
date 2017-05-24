@@ -71,7 +71,7 @@ module.exports = [
   },
   {
     title: 'Extended Query Bar',
-    description: 'You can now specify filter, project, sort, skip and limit options to queries on the Schema, Documents and Explain tabs.',
+    description: 'You can now specify extended query options like filter, project, sort, skip and limit on the Schema, Documents and Explain tabs.',
     image: 'extended-query-bar.png',
     version: '1.7.0',
     initial: false
