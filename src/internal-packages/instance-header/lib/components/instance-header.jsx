@@ -1,7 +1,5 @@
 const React = require('react');
 const PropTypes = require('prop-types');
-const InstanceHeaderActions = require('../actions');
-const FontAwesome = require('react-fontawesome');
 const { NamespaceStore } = require('hadron-reflux-store');
 const ipc = require('hadron-ipc');
 const app = require('hadron-app');
@@ -27,8 +25,16 @@ class InstanceHeaderComponent extends React.Component {
   }
 
   onClick() {
-    InstanceHeaderActions.toggleStatus();
+    if (this.props.toggleSidebar) {
+      this.props.toggleSidebar();
+    }
   }
+
+  getSidebarToggleClasses() {
+    return 'instance-header-icon instance-header-icon-arrow fa' +
+      (this.props.sidebarCollapsed ? ' fa-forward' : ' fa-backward');
+  }
+
 
   /**
    * creates React components for the plugins registering as the
@@ -87,21 +93,11 @@ class InstanceHeaderComponent extends React.Component {
     ipc.call('window:hide-collection-submenu');
   }
 
-  // renderProcessStatus() {
-  //   return this.props.processStatus !== ''
-  //     ? (
-  //       <div className="instance-header-process-status-container">
-  //         <div className="instance-header-process-status">
-  //           <span>{this.props.processStatus}</span>
-  //         </div>
-  //       </div>
-  //     ) : '';
-  // }
-
   renderHostNamePort() {
     return (
       <div onMouseOver={this.showHostNamePort.bind(this, true)}
           onMouseOut={this.showHostNamePort.bind(this, false)}
+          onClick={this.handleClickHostname}
           className="instance-header-details" data-test-id="instance-header-details">
         {this.state.hostStr}
       </div>
@@ -122,9 +118,10 @@ class InstanceHeaderComponent extends React.Component {
 
     return (
       <div className={headerClasses}>
-        <div className={hostnameClasses} onClick={this.handleClickHostname}>
-          <div className="instance-header-icon-container">
-            <FontAwesome name="home" className="instance-header-icon instance-header-icon-home"/>
+        <div className={hostnameClasses} >
+          <div className="instance-header-icon-container"
+              data-test-id="toggle-sidebar" onClick={this.onClick.bind(this)}>
+            <i className={this.getSidebarToggleClasses()}></i>
           </div>
           {this.renderHostNamePort()}
         </div>
@@ -148,6 +145,7 @@ InstanceHeaderComponent.propTypes = {
   ]),
   processStatus: PropTypes.string,
   activeNamespace: PropTypes.string,
+  toggleSidebar: PropTypes.func,
   sidebarCollapsed: PropTypes.bool
 };
 

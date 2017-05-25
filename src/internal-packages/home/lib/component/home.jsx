@@ -22,11 +22,11 @@ class Home extends React.Component {
 
   getContentClasses() {
     return 'content' +
-      (this.state.collapsed ? ' content-sidebar-collapsed' : ' content-sidebar-expanded');
+      (this.state.sidebarCollapsed ? ' content-sidebar-collapsed' : ' content-sidebar-expanded');
   }
 
-  collapseSidebar() {
-    this.setState({ collapsed: !this.state.collapsed });
+  toggleSidebar() {
+    this.setState({ sidebarCollapsed: !this.state.sidebarCollapsed });
   }
 
   renderContent() {
@@ -48,12 +48,13 @@ class Home extends React.Component {
   render() {
     return (
       <div className="page-container" data-test-id="home-view">
-        <this.InstanceHeader sidebarCollapsed={this.state.collapsed}/>
+        <this.InstanceHeader toggleSidebar={this.toggleSidebar.bind(this)}
+          sidebarCollapsed={this.state.sidebarCollapsed} />
         <div className="page">
           <div className={this.getContentClasses()}>
             {this.renderContent()}
           </div>
-          <this.sideBar onCollapse={this.collapseSidebar.bind(this)}/>
+          <this.sideBar collapsed={this.state.sidebarCollapsed} />
           <this.CreateDatabaseDialog />
           <this.DropDatabaseDialog />
           <this.CreateCollectionDialog />
