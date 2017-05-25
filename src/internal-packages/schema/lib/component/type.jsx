@@ -96,7 +96,7 @@ class Type extends React.Component {
     if (this.props.activeType === this.props.self) {
       cls += ' active';
     }
-    const handleClick = type === 'undefined' ? null : this.typeClicked;
+    const handleClick = type === 'undefined' ? null : this.typeClicked.bind(this);
     const percentage = (this.props.probability * 100) + '%';
     const style = {
       width: percentage

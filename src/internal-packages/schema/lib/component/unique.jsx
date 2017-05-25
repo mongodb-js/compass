@@ -49,7 +49,7 @@ class ValueBubble extends React.Component {
       'selected' : 'unselected';
     return (
       <li className="bubble">
-        <code className={`selectable ${selectedClass}`} onClick={this.onBubbleClicked}>
+        <code className={`selectable ${selectedClass}`} onClick={this.onBubbleClicked.bind(this)}>
           {value}
         </code>
       </li>
@@ -108,7 +108,7 @@ class UniqueMiniChart extends React.Component {
       <div className="minichart unique" style={style}>
         <dl className="dl-horizontal">
           <dt>
-            <NativeListener onClick={this.onRefresh}>
+            <NativeListener onClick={this.onRefresh.bind(this)}>
               <a>
                 <i className="mms-icon-continuous" />
               </a>
