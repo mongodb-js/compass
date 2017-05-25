@@ -48,7 +48,7 @@ describe('ChartStoreIntegration', function() {
       const QUERY = {filter: {foo: 1}};
       const EXPECTED = Object.assign({}, {
         project: null,
-        sort: {_id: 1},
+        sort: null,
         skip: 0,
         limit: 0,
         ns: '',
