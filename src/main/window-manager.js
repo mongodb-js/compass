@@ -139,7 +139,6 @@ var createWindow = module.exports.create = function(opts) {
       'direct-write': true
     }
   });
-  AppMenu.load(_window);
 
   if (!isSingleInstance(_window)) {
     app.quit();
@@ -215,6 +214,10 @@ function hideCollectionSubmenu() {
   AppMenu.hideCollection();
 }
 
+function addMenu(sender, menuItems) {
+  AppMenu.load(sender, menuItems);
+}
+
 /**
  * can't use webContents `did-finish-load` event here because
  * metrics aren't set up at that point. renderer app sends custom event
@@ -239,6 +242,7 @@ ipc.respondTo({
   'window:show-collection-submenu': showCollectionSubmenu,
   'window:hide-collection-submenu': hideCollectionSubmenu,
   'window:show-compass-overview-submenu': showCompassOverview,
+  'window:add-menu': addMenu,
   'window:renderer-ready': rendererReady
 });
 

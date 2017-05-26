@@ -375,7 +375,7 @@ var AppMenu = (function() {
       this.windowTemplates = new Map();
     },
 
-    load: function(_window) {
+    load: function(_window, menuItems) {
       debug('WINDOW ' + _window.id + ' load()');
 
       if (_window.id !== this.currentWindowMenuLoaded) {
@@ -386,17 +386,31 @@ var AppMenu = (function() {
           this.windowTemplates.set(_window.id, new MenuState());
         }
 
-        this.setTemplate(_window.id);
+        this.setTemplate(_window.id, menuItems);
         debug('WINDOW ' + _window.id + '\'s menu loaded');
       } else {
         debug('WINDOW ' + _window.id + '\'s menu already loaded');
       }
     },
 
-    setTemplate: function(winID) {
+    _addExtraMenuItems(template, menuItems) {
+      menuItems.map((item) => {
+        template.push(item);
+      });
+
+      return template;
+    },
+
+    setTemplate: function(winID, menuItems) {
       debug('WINDOW ' + winID + ' setTemplate()');
       this.currentWindowMenuLoaded = winID;
-      var template = this.getTemplate(winID);
+      var template = this.getTemplate(winID, menuItems);
+
+      if (menuItems) {
+        template = this._addExtraMenuItems(template, menuItems);
+      }
+
+      debug(template);
       var menu = Menu.buildFromTemplate(template);
       Menu.setApplicationMenu(menu);
     },
