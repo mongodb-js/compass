@@ -51,13 +51,12 @@ class NativeClient extends EventEmitter {
    */
   connect(done) {
     debug('connecting...');
-    this.client = connect(this.model, (err, database) => {
+    this.client = connect(this.model, this.setupListeners.bind(this), (err, database) => {
       if (err) {
         return done(this._translateMessage(err));
       }
       debug('connected!');
       this.database = database;
-      this.subscribeSDAMMonitoring();
       this.readPreferenceOption = {
         // https://docs.mongodb.com/manual/core/read-preference/#maxstalenessseconds
         // maxStalenessMS: 25000,
@@ -75,31 +74,33 @@ class NativeClient extends EventEmitter {
   }
 
   /**
-   * Subscribe to SDAM monitoring events.
+   * Subscribe to SDAM monitoring events on the mongo client.
+   *
+   * @param {MongoClient} client - The driver client.
    */
-  subscribeSDAMMonitoring() {
-    if (this.database.topology) {
-      this.database.topology.on('serverDescriptionChanged', (evt) => {
+  setupListeners(client) {
+    if (client) {
+      client.on('serverDescriptionChanged', (evt) => {
         this.emit('serverDescriptionChanged', evt);
       });
 
-      this.database.topology.on('serverOpening', (evt) => {
+      client.on('serverOpening', (evt) => {
         this.emit('serverOpening', evt);
       });
 
-      this.database.topology.on('serverClosed', (evt) => {
+      client.on('serverClosed', (evt) => {
         this.emit('serverClosed', evt);
       });
 
-      this.database.topology.on('topologyOpening', (evt) => {
+      client.on('topologyOpening', (evt) => {
         this.emit('topologyOpening', evt);
       });
 
-      this.database.topology.on('topologyClosed', (evt) => {
+      client.on('topologyClosed', (evt) => {
         this.emit('topologyClosed', evt);
       });
 
-      this.database.topology.on('topologyDescriptionChanged', (evt) => {
+      client.on('topologyDescriptionChanged', (evt) => {
         this.emit('topologyDescriptionChanged', evt);
       });
     }
