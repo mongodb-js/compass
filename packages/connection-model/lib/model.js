@@ -95,7 +95,7 @@ var READ_PREFERENCE_VALUES = [
 /**
  * The default read preference.
  */
-var READ_PREFERENCE_DEFAULT = ReadPreference.PRIMARY_PREFERRED;
+var READ_PREFERENCE_DEFAULT = ReadPreference.PRIMARY;
 
 _.assign(props, {
   /**

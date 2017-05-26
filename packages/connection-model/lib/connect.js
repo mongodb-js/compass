@@ -102,7 +102,7 @@ function getStatusStateString(evt) {
   }
 }
 
-function getTasks(model) {
+function getTasks(model, setupListeners) {
   var options = {};
   var tunnel;
   var db;
@@ -197,7 +197,11 @@ function getTasks(model) {
       if (_.isString(options) || !options) {
         options = {};
       }
-      MongoClient.connect(model.driver_url, options, function(err, _db) {
+      const client = new MongoClient();
+      if (setupListeners) {
+        setupListeners(client);
+      }
+      client.connect(model.driver_url, options, function(err, _db) {
         ctx(err);
         if (err) {
           if (tunnel) {
@@ -265,7 +269,7 @@ function getTasks(model) {
   return tasks;
 }
 
-function connect(model, done) {
+function connect(model, setupListeners, done) {
   if (!(model instanceof Connection)) {
     model = new Connection(model);
   }
@@ -278,7 +282,7 @@ function connect(model, done) {
     };
   }
 
-  var tasks = getTasks(model);
+  var tasks = getTasks(model, setupListeners);
   var logTaskStatus = require('debug')('mongodb-connection-model:connect:status');
   tasks.state.on('status', function(evt) {
     logTaskStatus('%s [%s]', evt.message, getStatusStateString(evt));

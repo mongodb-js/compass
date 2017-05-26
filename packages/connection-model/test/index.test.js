@@ -45,7 +45,7 @@ describe('mongodb-connection-model', function() {
 
     it('sets the default read preference to primary preferred', function() {
       var c = new Connection({ app_name: 'My App' });
-      assert.deepEqual(c.driver_options.db, { readPreference: 'primaryPreferred' });
+      assert.deepEqual(c.driver_options.db, { readPreference: 'primary' });
     });
 
     it('sets the replica set name', function() {

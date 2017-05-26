@@ -338,6 +338,7 @@ describe('ssh_tunnel', function() {
   });
 
   describe('#functional', function() {
+    var setupListeners = function() {};
     describe('aws', function() {
       var identityFilePath = path.join(__dirname, 'aws-identity-file.pem');
       before(function(done) {
@@ -368,7 +369,7 @@ describe('ssh_tunnel', function() {
           ssh_tunnel_username: process.env.AWS_SSH_TUNNEL_USERNAME || 'ec2-user',
           ssh_tunnel_identity_file: [identityFilePath]
         });
-        Connection.connect(c, done);
+        Connection.connect(c, setupListeners, done);
       });
     });
     describe('key formats', function() {

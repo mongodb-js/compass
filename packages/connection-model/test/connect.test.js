@@ -11,6 +11,8 @@ var shouldGetInstanceDetails = function(db, done) {
   Instance.fetch(db, done);
 };
 
+function setupListeners() {}
+
 // TODO: These instances are now turned off
 var data = require('mongodb-connection-fixture');
 
@@ -22,7 +24,7 @@ describe('mongodb-connection#connect', function() {
     after(require('mongodb-runner/mocha/after')());
     it('should connect to `localhost:27017`', function(done) {
       var model = Connection.from('mongodb://localhost:27017');
-      connect(model, function(err, _db) {
+      connect(model, setupListeners, function(err, _db) {
         if (err) {
           return done(err);
         }
@@ -52,7 +54,7 @@ describe('mongodb-connection#connect', function() {
           ssh_tunnel_username: 'my-user'
         });
         assert(model.isValid());
-        mockConnect(model, function(err) {
+        mockConnect(model, setupListeners, function(err) {
           // must throw error here, because the connection details are invalid
           assert.ok(err);
           assert.ok(/failed to connect to server/.test(err.message));
@@ -70,7 +72,7 @@ describe('mongodb-connection#connect', function() {
 
     data.MATRIX.map(function(d) {
       it.skip('should connect to ' + d.name, function(done) {
-        connect(d, function(err, _db) {
+        connect(d, setupListeners, function(err, _db) {
           if (err) {
             return done(err);
           }
@@ -82,7 +84,7 @@ describe('mongodb-connection#connect', function() {
 
     data.SSH_TUNNEL_MATRIX.map(function(d) {
       it.skip('connects via the ssh_tunnel to ' + d.ssh_tunnel_hostname, function(done) {
-        connect(d, function(err, _db) {
+        connect(d, setupListeners, function(err, _db) {
           if (err) {
             return done(err);
           }
