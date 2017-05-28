@@ -158,9 +158,9 @@ var ConnectFormView = FormView.extend({
         required: false
       }),
       new SelectView({
-        name: 'read-preference',
+        name: 'read_preference',
         label: 'Read Preference',
-        el: this.parent.queryByHook('read-preference-subview'),
+        el: this.parent.queryByHook('read_preference_subview'),
         // @see https://github.com/AmpersandJS/ampersand-select-view/issues/55
         template: selectTemplate(),
         parent: this,
