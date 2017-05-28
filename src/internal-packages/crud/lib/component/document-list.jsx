@@ -291,7 +291,7 @@ class DocumentList extends React.Component {
     return (
       <div className="content-container content-container-documents compass-documents">
         <div className="controls-container">
-          <this.queryBar />
+          <this.queryBar buttonLabel="Find" />
           <this.samplingMessage isWritable={this.state.isWritable} description={this.state.description}
             insertHandler={this.handleOpenInsert.bind(this)} />
         </div>
