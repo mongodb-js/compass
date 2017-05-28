@@ -541,7 +541,7 @@ var ConnectView = View.extend({
     // Changing `this.authMethod` and `this.sslMethod` dynamically updates
     // the form fields so we need to get a list of what keys are currently
     // available to set.
-    var keys = ['name', 'port', 'hostname', 'authentication', 'ssl', 'ssh_tunnel'];
+    var keys = ['name', 'port', 'hostname', 'replica_set_name', 'authentication', 'ssl', 'ssh_tunnel'];
     if (this.connection.authentication !== 'NONE') {
       keys.push.apply(keys, _.pluck(authMethods.get(this.authMethod).fields, 'name'));
     }

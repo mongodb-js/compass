@@ -152,8 +152,8 @@ var ConnectFormView = FormView.extend({
       }),
       new InputView({
         template: inputTemplate,
-        el: this.parent.queryByHook('replica-set-name-subview'),
-        name: 'replica-set-name',
+        el: this.parent.queryByHook('replica_set_name_subview'),
+        name: 'replica_set_name',
         label: 'Replica Set Name',
         required: false
       }),
