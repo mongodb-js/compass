@@ -1,6 +1,5 @@
 const React = require('react');
 const PropTypes = require('prop-types');
-// const EJSON = require('mongodb-extended-json');
 const QueryOption = require('./query-option');
 const OptionsToggle = require('./options-toggle');
 
@@ -188,10 +187,11 @@ class QueryBar extends React.Component {
     if (this.props.featureFlag) {
       inputGroupClass = 'querybar-input-group input-group is-feature-flag';
     }
+
     const resetButtonStyle = {
       display: this.props.queryState === 'apply' ? 'inline-block' : 'none'
     };
-    const applyDisabled = !((this.props.valid && this._queryHasChanges()) || this.props.featureFlag);
+    const applyDisabled = !(this.props.valid || this.props.featureFlag);
 
     const queryOptionClassName =
       this.state.hasFocus ?
