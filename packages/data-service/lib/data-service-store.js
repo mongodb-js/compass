@@ -23,6 +23,9 @@ const DataServiceStore = Reflux.createStore({
    */
   connect: function(model) {
     this.dataService = new DataService(model);
+    this.dataService.on('topologyDescriptionChanged', (evt) => {
+      Actions.topologyDescriptionChanged(evt);
+    });
     this.dataService.connect((error) => {
       this.trigger(error, this.dataService);
     });
