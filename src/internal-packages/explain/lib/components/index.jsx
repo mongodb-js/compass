@@ -3,6 +3,7 @@ const React = require('react');
 const { StoreConnector } = require('hadron-react-components');
 const CompassExplain = require('./compass-explain');
 const Store = require('../stores');
+const Actions = require('../actions');
 
 // const debug = require('debug')('mongodb-compass:compass-explain:index');
 
@@ -16,7 +17,7 @@ class ConnectedCompassExplain extends React.Component {
   render() {
     return (
       <StoreConnector store={Store}>
-        <CompassExplain />
+        <CompassExplain actions={Actions} {...this.props} />
       </StoreConnector>
     );
   }

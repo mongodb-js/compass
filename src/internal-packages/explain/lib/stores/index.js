@@ -60,11 +60,10 @@ const CompassExplainStore = Reflux.createStore({
       this.limit = state.limit;
       this.ns = state.ns;
 
-      if (state.queryState === 'reset') {
-        this._resetQuery();
-        this._reset();
-      } else {
-        this.fetchExplainPlan();
+      if (this.state.queryState === 'done') {
+        this.setState({
+          explainState: 'outdated'
+        });
       }
     }
   },
@@ -98,7 +97,7 @@ const CompassExplainStore = Reflux.createStore({
     };
   },
 
-  _reset() {
+  reset() {
     this.setState(this.getInitialState());
   },
 
@@ -141,7 +140,7 @@ const CompassExplainStore = Reflux.createStore({
       return;
     }
 
-    this._reset();
+    this.reset();
 
     this.setState({
       explainState: 'fetching'

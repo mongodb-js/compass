@@ -4,12 +4,16 @@ const app = require('hadron-app');
 const { StatusRow } = require('hadron-react-components');
 const ExplainBody = require('./explain-body');
 const ViewSwitcher = require('./shared/view-switcher');
-const ExplainActions = require('../actions');
+const _ = require('lodash');
 
 const READ_ONLY_WARNING = 'Explain plans on readonly views are not supported.';
 
 const COLLECTION_SCAN_WARNING = 'To prevent unintended collection scans, please'
-  + ' enter your query first before applying and viewing your explain plan.';
+  + ' enter your query first, then press "Explain" to view the explain plan.';
+
+const OUTDATED_WARNING = 'The explain content is outdated and no longer in sync'
+  + ' with the documents view. Press "Explain" again to see the explain plan for'
+  + ' the current query.';
 
 class CompassExplain extends React.Component {
 
@@ -22,23 +26,39 @@ class CompassExplain extends React.Component {
     this.queryBar = app.appRegistry.getComponent('Query.QueryBar');
   }
 
+  onApplyClicked() {
+    this.props.actions.fetchExplainPlan();
+  }
+
+  onResetClicked() {
+    this.props.actions.reset();
+  }
+
   onViewSwitch(label) {
     if (label === 'Visual Tree') {
-      ExplainActions.switchToTreeView();
+      this.props.actions.switchToTreeView();
     } else if (label === 'Raw JSON') {
-      ExplainActions.switchToJSONView();
+      this.props.actions.switchToJSONView();
     }
   }
 
-  renderWarning(warning) {
-    return (
-      <StatusRow style="warning">
-        {warning}
-      </StatusRow>
-    );
+  renderBanner() {
+    let banner = null;
+    if (this.CollectionStore.isReadonly()) {
+      banner = <StatusRow style="warning">{READ_ONLY_WARNING}</StatusRow>;
+    } else if (this.props.explainState === 'initial') {
+      banner = <StatusRow style="warning">{COLLECTION_SCAN_WARNING}</StatusRow>;
+    } else if (this.props.explainState === 'outdated') {
+      banner = <StatusRow style="warning">{OUTDATED_WARNING}</StatusRow>;
+    }
+    return banner;
   }
 
   renderContent() {
+    if (!_.includes(['done', 'outdated'], this.props.explainState)) {
+      return null;
+    }
+
     return (
       <div className="column-container">
         <div className="column main">
@@ -64,18 +84,7 @@ class CompassExplain extends React.Component {
    * @returns {React.Component} The Explain view.
    */
   render() {
-    let content = null;
-    let warning = null;
-    let isDisabled = true;
-
-    if (this.CollectionStore.isReadonly()) {
-      warning = this.renderWarning(READ_ONLY_WARNING);
-    } else if (this.props.explainState === 'initial') {
-      warning = this.renderWarning(COLLECTION_SCAN_WARNING);
-    } else {
-      content = this.renderContent();
-      isDisabled = false;
-    }
+    const isDisabled = this.CollectionStore.isReadonly();
 
     const activeViewTypeButton = this.props.viewType === 'tree' ?
       'Visual Tree' : 'Raw JSON';
@@ -83,7 +92,11 @@ class CompassExplain extends React.Component {
     return (
       <div className="compass-explain">
         <div className="controls-container">
-          <this.queryBar />
+          <this.queryBar
+            buttonLabel="Explain"
+            onApply={this.onApplyClicked.bind(this)}
+            onReset={this.onResetClicked.bind(this)}
+          />
           <div className="action-bar">
             <ViewSwitcher
               label="View Details As"
@@ -91,19 +104,19 @@ class CompassExplain extends React.Component {
               activeButton={activeViewTypeButton}
               disabled={isDisabled}
               dataTestId="explain-view"
-              onClick={this.onViewSwitch}
+              onClick={this.onViewSwitch.bind(this)}
             />
           </div>
-          {warning}
+          {this.renderBanner()}
         </div>
-        {content}
+        {this.renderContent()}
       </div>
     );
   }
 }
 
 CompassExplain.propTypes = {
-  explainState: PropTypes.oneOf(['initial', 'fetching', 'done']),
+  explainState: PropTypes.oneOf(['initial', 'fetching', 'done', 'outdated']),
   nReturned: PropTypes.number.isRequired,
   totalKeysExamined: PropTypes.number.isRequired,
   totalDocsExamined: PropTypes.number.isRequired,
@@ -113,7 +126,8 @@ CompassExplain.propTypes = {
     'COVERED', 'INDEX']).isRequired,
   index: PropTypes.object,
   viewType: PropTypes.oneOf(['tree', 'json']).isRequired,
-  rawExplainObject: PropTypes.object.isRequired
+  rawExplainObject: PropTypes.object.isRequired,
+  actions: PropTypes.object
 };
 
 CompassExplain.defaultProps = {
