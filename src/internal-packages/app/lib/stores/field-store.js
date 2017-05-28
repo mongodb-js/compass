@@ -99,7 +99,9 @@ const FieldStore = Reflux.createStore({
         fields[rootField.path].nestedFields = [];
       }
       nestedFields.map((f) => {
-        fields[rootField.path].nestedFields.push(f.path);
+        if (!_.includes(fields[rootField.path].nestedFields, f.path)) {
+          fields[rootField.path].nestedFields.push(f.path);
+        }
       });
     }
 
