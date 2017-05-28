@@ -33,7 +33,7 @@
   "peerDependencies": {
     "babel-register": "^6.7.2",
     "electron-squirrel-startup": "^1.0.0",
-    "hadron-app-registry": "^5.2.0",
+    "hadron-app-registry": "^5.3.0",
     "hadron-auto-update-manager": "^0.0.12",
     "hadron-compile-cache": "^1.0.1",
     "hadron-module-cache": "^0.0.3",
