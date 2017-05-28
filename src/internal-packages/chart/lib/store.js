@@ -81,7 +81,7 @@ const ChartStore = Reflux.createStore({
 
   onActivated(appRegistry) {
     appRegistry.getStore('Query.ChangedStore').listen(this.onQueryChanged.bind(this));
-    appRegistry.getStore('Schema.FieldStore').listen(this.onFieldChanged.bind(this));
+    appRegistry.getStore('Schema.FieldStore').listen(this.onFieldsChanged.bind(this));
 
     const roles = appRegistry.getRole('Chart.Type');
 
