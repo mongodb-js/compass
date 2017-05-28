@@ -397,8 +397,10 @@ app.extend({
       }
       StatusAction.showIndeterminateProgressBar();
 
-      const { DataServiceStore, DataServiceActions } = require('mongodb-data-service');
-      DataServiceStore.listen((error, ds) => {
+      const DataService = require('mongodb-data-service');
+      const dataService = new DataService(state.connection);
+      global.hadronApp.appRegistry.onDataServiceInitialized(dataService);
+      dataService.connect((error, ds) => {
         if (error) {
           state.onFatalError('create client');
         }
@@ -418,7 +420,6 @@ app.extend({
           done();
         }
       });
-      DataServiceActions.connect(state.connection);
     });
   },
   init: function() {

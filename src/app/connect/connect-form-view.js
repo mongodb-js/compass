@@ -4,6 +4,7 @@ var SelectView = require('ampersand-select-view');
 var authOptions = require('./authentication');
 var sslOptions = require('./ssl');
 var sshTunnelOptions = require('./ssh-tunnel');
+var readPreferenceOptions = require('./read-preference');
 var FilteredCollection = require('ampersand-filtered-subcollection');
 // var debug = require('debug')('mongodb-compass:connect:connect-form-view');
 
@@ -140,6 +141,33 @@ var ConnectFormView = FormView.extend({
         options: enabledAuthOptions,
         // and pick an item from the collection as the selected one
         value: enabledAuthOptions.get('NONE'),
+        // here you specify which attribute on the objects in the collection
+        // to use for the value returned.
+        idAttribute: '_id',
+        // you can also specify which model attribute to use as the title
+        textAttribute: 'title',
+        // here you can specify if it should return the selected model from the
+        // collection, or just the id attribute.  defaults `true`
+        yieldModel: false
+      }),
+      new InputView({
+        template: inputTemplate,
+        el: this.parent.queryByHook('replica_set_name_subview'),
+        name: 'replica_set_name',
+        label: 'Replica Set Name',
+        required: false
+      }),
+      new SelectView({
+        name: 'read_preference',
+        label: 'Read Preference',
+        el: this.parent.queryByHook('read_preference_subview'),
+        // @see https://github.com/AmpersandJS/ampersand-select-view/issues/55
+        template: selectTemplate(),
+        parent: this,
+        // you can pass in a collection here too
+        options: readPreferenceOptions,
+        // and pick an item from the collection as the selected one
+        value: readPreferenceOptions.get('primary'),
         // here you specify which attribute on the objects in the collection
         // to use for the value returned.
         idAttribute: '_id',
