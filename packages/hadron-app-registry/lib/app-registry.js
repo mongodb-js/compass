@@ -201,6 +201,8 @@ class AppRegistry {
   /**
    * Calls onDataServiceInitialized on all the stores in the registry.
    *
+   * @param {DataService} dataService - The data service before connection.
+   *
    * @returns {AppRegistry} The app registry.
    */
   onDataServiceInitialized(dataService) {
