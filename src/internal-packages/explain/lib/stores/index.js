@@ -60,7 +60,7 @@ const CompassExplainStore = Reflux.createStore({
       this.limit = state.limit;
       this.ns = state.ns;
 
-      if (this.state.queryState === 'done') {
+      if (this.state.explainState === 'done') {
         this.setState({
           explainState: 'outdated'
         });
