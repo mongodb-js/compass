@@ -10,6 +10,10 @@ const SchemaAction = Reflux.createActions({
    */
   stopSampling: {sync: true},
   /**
+   * Reset store
+   */
+  reset: {sync: true},
+  /**
    * set new maxTimeMS value
    */
   setMaxTimeMS: {sync: true},

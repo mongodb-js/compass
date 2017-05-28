@@ -93,18 +93,21 @@ const SchemaStore = Reflux.createStore({
     };
   },
 
-  _reset: function() {
+  reset: function() {
     this.setState(this.getInitialState());
   },
 
   onQueryChanged: function(state) {
     if (state.ns && toNS(state.ns).collection) {
-      this._reset();
       this.query.filter = state.filter;
       this.query.limit = state.limit;
       this.query.project = state.project;
       this.ns = state.ns;
-      SchemaAction.startSampling();
+      if (this.state.samplingState === 'complete') {
+        this.setState({
+          samplingState: 'outdated'
+        });
+      }
     }
   },
 
