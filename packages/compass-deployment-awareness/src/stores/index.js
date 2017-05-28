@@ -15,23 +15,13 @@ const DeploymentAwarenessStore = Reflux.createStore({
   mixins: [StateMixin.store],
 
   /**
-   * This method is called when the data service is finished connecting. You
-   * receive either an error or the connected data service object, and if the
-   * connection was successful you can now make calls to the database, e.g.
+   * When the data service is initialized this is called in order to set up
+   * listeners for SDAM events.
    *
-   * dataService.command('admin', {connectionStatus: 1}, this.handleStatus.bind(this));
-   *
-   * If this plugin does not need to talk to the database, you can delete this
-   * method.
-   *
-   * @param {Object} error         the error object if connection was unsuccessful
-   * @param {Object} dataService   the dataService object if connection was successful
-   *
+   * @param {DataService} dataService - The data service.
    */
-  onConnected(error, dataService) {
-    if (!error) {
-      dataService.on('topologyDescriptionChanged', this.topologyDescriptionChanged.bind(this));
-    }
+  onDataServiceInitialized(dataService) {
+    dataService.on('topologyDescriptionChanged', this.topologyDescriptionChanged.bind(this));
   },
 
   /**
@@ -52,13 +42,9 @@ const DeploymentAwarenessStore = Reflux.createStore({
    */
   getInitialState() {
     return {
-      topologyType: 'ReplicaSetWithPrimary',
-      setName: 'TPCH',
-      servers: [
-        { type: 'RSPrimary', address: '127.0.0.1:27017' },
-        { type: 'RSSecondary', address: '127.0.0.1:27018' },
-        { type: 'RSArbiter', address: '127.0.0.1:27019' }
-      ]
+      topologyType: '',
+      setName: '',
+      servers: []
     };
   },
 });
