@@ -54,11 +54,18 @@ class QueryBar extends React.Component {
     evt.stopPropagation();
 
     if (this.props.valid || this.props.featureFlag) {
+      if (_.isFunction(this.props.onApply)) {
+        this.props.onApply();
+      }
       this.props.actions.apply();
     }
   }
 
   onResetButtonClicked() {
+    if (_.isFunction(this.props.onReset)) {
+      this.props.onReset();
+    }
+
     this.props.actions.reset();
   }
 
@@ -262,7 +269,9 @@ QueryBar.propTypes = {
   queryState: PropTypes.string,
   layout: PropTypes.array,
   expanded: PropTypes.bool,
-  lastExecutedQuery: PropTypes.object
+  lastExecutedQuery: PropTypes.object,
+  onReset: PropTypes.func,
+  onApply: PropTypes.func
 };
 
 QueryBar.defaultProps = {
