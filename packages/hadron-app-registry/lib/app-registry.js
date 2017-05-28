@@ -199,6 +199,19 @@ class AppRegistry {
   }
 
   /**
+   * Calls onDataServiceInitialized on all the stores in the registry.
+   *
+   * @returns {AppRegistry} The app registry.
+   */
+  onDataServiceInitialized(dataService) {
+    return this.callOnStores((store) => {
+      if (store.onDataServiceInitialized) {
+        store.onDataServiceInitialized(dataService);
+      }
+    });
+  }
+
+  /**
    * Register an action in the registry.
    *
    * @param {String} name - The name of the action.

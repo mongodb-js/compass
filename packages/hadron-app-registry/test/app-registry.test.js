@@ -80,6 +80,40 @@ describe('AppRegistry', () => {
     });
   });
 
+  describe('#onDataServiceInitialized', () => {
+    context('when the method is defined on the store', () => {
+      let registry;
+      let spy = sinon.spy();
+      const store = Reflux.createStore({
+        onDataServiceInitialized: (ds) => {
+          spy(ds);
+        }
+      });
+
+      beforeEach(() => {
+        registry = new AppRegistry().registerStore('TestStore', store);
+      });
+
+      it('calls onDataServiceInitialized on the store', () => {
+        registry.onDataServiceInitialized('ds');
+        expect(spy.callCount).to.equal(1);
+      });
+    });
+
+    context('when the method is not defined on the store', () => {
+      let registry;
+      const store = Reflux.createStore({});
+
+      beforeEach(() => {
+        registry = new AppRegistry().registerStore('TestStore', store);
+      });
+
+      it('does not call onDataServiceInitialized on the store', () => {
+        expect(registry.onDataServiceInitialized()).to.equal(registry);
+      });
+    });
+  });
+
   describe('#registerAction', () => {
     let registry;
 
