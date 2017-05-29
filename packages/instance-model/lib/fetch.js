@@ -1,5 +1,5 @@
 var async = require('async');
-var ReadPreference = require('mongodb-read-preference');
+var ReadPreference = require('mongodb').ReadPreference;
 var isNotAuthorized = require('mongodb-js-errors').isNotAuthorized;
 var toNS = require('mongodb-ns');
 var security = require('mongodb-security');
