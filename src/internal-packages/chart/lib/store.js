@@ -265,18 +265,35 @@ const ChartStore = Reflux.createStore({
       return;
     }
 
-    // limit document number to MAX_LIMIT (currently 1000).
-    const findOptions = {
-      sort: _.isEmpty(query.sort) ? null : _.pairs(query.sort),
-      fields: query.project,
-      skip: query.skip,
-      limit: query.limit ? Math.min(MAX_LIMIT, query.limit) : MAX_LIMIT,
+    const pipeline = [];
+    const options = {
       readPreference: READ,
       maxTimeMS: query.maxTimeMS,
       promoteValues: true
     };
 
-    app.dataService.find(ns.ns, query.filter, findOptions, (error, documents) => {
+    if (query.filter) {
+      pipeline.push({$match: query.filter});
+    }
+
+    if (query.sort) {
+      pipeline.push({$sort: query.sort});
+    }
+
+    if (query.project) {
+      pipeline.push({$project: query.project});
+    }
+
+    if (query.skip) {
+      pipeline.push({$skip: query.skip});
+    }
+
+    // limit document number to MAX_LIMIT (currently 1000).
+    if (query.limit) {
+      pipeline.push({$limit: query.limit ? Math.min(MAX_LIMIT, query.limit) : MAX_LIMIT});
+    }
+
+    app.dataService.aggregate(ns.ns, pipeline, options, (error, documents) => {
       if (error) {
         // @todo handle error better? what kind of errors can happen here?
         throw error;
