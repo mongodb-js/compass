@@ -211,12 +211,20 @@ describe('mongodb-connection-model', function() {
           'a-compass-atlas-test-shard-00-00-vll9l.mongodb.net:38128,' +
           'a-compass-atlas-test-shard-00-01-vll9l.mongodb.net:38128,' +
           'a-compass-atlas-test-shard-00-02-vll9l.mongodb.net:38128/<DATABASE>?' +
-          'ssl=true&replicaSet=a-compass-atlas-test-shard-0&authSource=admin';
+          'ssl=true&replicaSet=a-compass-atlas-test-shard-0&authSource=admin&readPreference=secondary';
       var okAtlasPassword = 'A_MUCH_LONGER_PASSWORD_should_be_more secure...';
       var okAtlasPasswordConnection = atlasConnection.replace(
         '<PASSWORD>',
         okAtlasPassword
       );
+      it('sets the replica set name', function() {
+        var c = Connection.from(atlasConnection);
+        assert.equal(c.replica_set_name, 'a-compass-atlas-test-shard-0');
+      });
+      it('sets the read preference', function() {
+        var c = Connection.from(atlasConnection);
+        assert.equal(c.read_preference, 'secondary');
+      });
       it('defaults SSL to SYSTEMCA', function() {
         var c = Connection.from(atlasConnection);
         // In future, we should ship our own CA with Compass
@@ -255,6 +263,15 @@ describe('mongodb-connection-model', function() {
       it('is case insensitive, see RFC4343', function() {
         var c = Connection.from(atlasConnection.replace(/mongodb.net/g, 'mOnGOdB.NeT'));
         assert.equal(c.ssl, 'SYSTEMCA');
+      });
+    });
+
+    describe('#driver_url', function() {
+      context('when read preference is not the default', function() {
+        it('adds the read preference', function() {
+          var c = new Connection({ read_preference: 'secondary' });
+          assert.equal(c.driver_url, 'mongodb://localhost:27017/?readPreference=secondary');
+        });
       });
     });
 

@@ -590,6 +590,7 @@ _.assign(derived, {
       'mongodb_database_name',
       'driver_auth_mechanism'
     ],
+    /* eslint complexity: 0 */
     fn: function() {
       const AUTH_TOKEN = 'AUTH_TOKEN';
       var req = {
@@ -603,6 +604,10 @@ _.assign(derived, {
 
       if (this.replica_set_name) {
         req.query.replicaSet = this.replica_set_name;
+      }
+
+      if (this.read_preference && this.read_preference !== 'primary') {
+        req.query.readPreference = this.read_preference;
       }
 
       if (this.app_name) {
@@ -1036,10 +1041,20 @@ Connection.from = function(url) {
     }
   }
 
+  if (parsed.rs_options) {
+    if (parsed.rs_options.rs_name) {
+      attrs.replica_set_name = parsed.rs_options.rs_name;
+    }
+  }
+
   if (parsed.auth && parsed.db_options) {
     // Handles cannonicalizing all possible values for each
     // `authentication` into the correct one.
     attrs.authentication = AUTH_MECHANISM_TO_AUTHENTICATION[parsed.db_options.authMechanism];
+
+    if (parsed.db_options.read_preference) {
+      attrs.read_preference = parsed.db_options.read_preference;
+    }
 
     if (attrs.authentication === 'LDAP') {
       attrs.ldap_username = decodeURIComponent(parsed.auth.user);
