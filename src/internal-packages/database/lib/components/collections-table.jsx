@@ -26,15 +26,6 @@ class CollectionsTable extends React.Component {
     this.unsubscribeStateStore();
   }
 
-  /**
-   * Called when the deployment state changes.
-   *
-   * @param {Object} state - The deployment state.
-   */
-  deploymentStateChanged(state) {
-    this.setState(state);
-  }
-
   onColumnHeaderClicked(column, order) {
     CollectionsActions.sortCollections(column, order);
   }
@@ -53,6 +44,15 @@ class CollectionsTable extends React.Component {
     const collection = _.first(_.filter(this.props.collections, '_id', `${this.props.database}.${name}`));
     this.CollectionStore.setCollection(collection);
     ipc.call('window:show-collection-submenu');
+  }
+
+  /**
+   * Called when the deployment state changes.
+   *
+   * @param {Object} state - The deployment state.
+   */
+  deploymentStateChanged(state) {
+    this.setState(state);
   }
 
   renderLink(coll) {

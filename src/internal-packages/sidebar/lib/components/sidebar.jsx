@@ -35,10 +35,6 @@ class Sidebar extends React.Component {
     this.unsubscribeStateStore = this.DeploymentStateStore.listen(this.deploymentStateChanged.bind(this));
   }
 
-  componentWillUnmount() {
-    this.unsubscribeStateStore();
-  }
-
   componentWillReceiveProps(nextProps) {
     const expandedDB = {};
     nextProps.databases.map((db) => {
@@ -59,13 +55,8 @@ class Sidebar extends React.Component {
     ReactTooltip.rebuild();
   }
 
-  /**
-   * Called when the deployment state changes.
-   *
-   * @param {Object} state - The deployment state.
-   */
-  deploymentStateChanged(state) {
-    this.setState(state);
+  componentWillUnmount() {
+    this.unsubscribeStateStore();
   }
 
   getSidebarClasses() {
@@ -76,6 +67,15 @@ class Sidebar extends React.Component {
   getToggleClasses() {
     return 'fa' +
       (this.state.collapsed ? ' fa-forward' : ' fa-backward');
+  }
+
+  /**
+   * Called when the deployment state changes.
+   *
+   * @param {Object} state - The deployment state.
+   */
+  deploymentStateChanged(state) {
+    this.setState(state);
   }
 
   handleCollapse() {
@@ -237,7 +237,7 @@ class Sidebar extends React.Component {
         </div>
         <StoreConnector store={this.InstanceStore}>
           <SidebarInstanceProperties
-            connection={app.connection}
+            connection={global.hadronApp.connection}
             activeNamespace={this.props.activeNamespace}
           />
         </StoreConnector>

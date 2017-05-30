@@ -11,8 +11,8 @@ class SidebarCollection extends React.Component {
     super();
     const appRegistry = global.hadronApp.appRegistry;
     this.handleClick = this.handleClick.bind(this);
-    this.CollectionsActions = app.appRegistry.getAction('Database.CollectionsActions');
-    this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
+    this.CollectionsActions = appRegistry.getAction('Database.CollectionsActions');
+    this.CollectionStore = appRegistry.getStore('App.CollectionStore');
     this.DeploymentStateStore = appRegistry.getStore('DeploymentAwareness.DeploymentStateStore');
     this.state = {
       active: false,
@@ -29,6 +29,13 @@ class SidebarCollection extends React.Component {
     this.unsubscribeStateStore();
   }
 
+  getCollectionName() {
+    const database = this.props.database;
+    const _id = this.props._id;
+
+    return _id.slice(database.length + 1);
+  }
+
   /**
    * Called when the deployment state changes.
    *
@@ -36,13 +43,6 @@ class SidebarCollection extends React.Component {
    */
   deploymentStateChanged(state) {
     this.setState(state);
-  }
-
-  getCollectionName() {
-    const database = this.props.database;
-    const _id = this.props._id;
-
-    return _id.slice(database.length + 1);
   }
 
   handleClick() {

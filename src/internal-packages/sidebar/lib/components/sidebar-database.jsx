@@ -26,15 +26,6 @@ class SidebarDatabase extends React.Component {
     this.unsubscribeStateStore();
   }
 
-  /**
-   * Called when the deployment state changes.
-   *
-   * @param {Object} state - The deployment state.
-   */
-  deploymentStateChanged(state) {
-    this.setState(state);
-  }
-
   getCollectionComponents() {
     if (this.props.expanded) {
       return this.props.collections.map(c => {
@@ -57,6 +48,15 @@ class SidebarDatabase extends React.Component {
   getArrowIconClasses() {
     return 'mms-icon-right-arrow compass-sidebar-icon compass-sidebar-icon-expand' +
       (this.props.expanded ? ' fa fa-rotate-90' : '');
+  }
+
+  /**
+   * Called when the deployment state changes.
+   *
+   * @param {Object} state - The deployment state.
+   */
+  deploymentStateChanged(state) {
+    this.setState(state);
   }
 
   handleDBClick(db) {

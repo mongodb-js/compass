@@ -34,15 +34,6 @@ class DatabasesTable extends React.Component {
     this.unsubscribeStateStore();
   }
 
-  /**
-   * Called when the deployment state changes.
-   *
-   * @param {Object} state - The deployment state.
-   */
-  deploymentStateChanged(state) {
-    this.setState(state);
-  }
-
   onColumnHeaderClicked(column, order) {
     this.DatabaseDDLAction.sortDatabases(column, order);
   }
@@ -75,6 +66,15 @@ class DatabasesTable extends React.Component {
     window.close();
   }
 
+  /**
+   * Called when the deployment state changes.
+   *
+   * @param {Object} state - The deployment state.
+   */
+  deploymentStateChanged(state) {
+    this.setState(state);
+  }
+
   renderNoCollections(isWritable) {
     return (
       <div className="no-collections-zero-state">
@@ -82,7 +82,7 @@ class DatabasesTable extends React.Component {
         does not contain any collections, or you are
         <a onClick={this.onAuthHelpClicked.bind(this)}>not authorized</a>
         to view them.
-        {!this.state.isWritable ?
+        {!isWritable ?
           <a className="show-connect-window"
              onClick={this.onClickShowConnectWindow.bind(this)}
           >Connect to another instance</a>

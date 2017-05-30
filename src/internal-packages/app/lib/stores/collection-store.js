@@ -1,4 +1,3 @@
-const app = require('hadron-app');
 const Reflux = require('reflux');
 const { NamespaceStore } = require('hadron-reflux-store');
 
