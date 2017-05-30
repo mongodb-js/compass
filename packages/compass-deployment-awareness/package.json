@@ -1,7 +1,7 @@
 {
   "name": "compass-deployment-awareness",
-  "productName": "Compass Deployment Awareness package",
-  "version": "0.0.1",
+  "productName": "Compass Deployment Awareness",
+  "version": "1.0.0-beta.0",
   "description": "Compass Deployment Awareness Plugin",
   "main": "index.js",
   "scripts": {
