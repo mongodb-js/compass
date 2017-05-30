@@ -44,7 +44,7 @@ class DeploymentAwarenessComponent extends React.Component {
     return this.props.servers.map((server, i) => {
       return (
         <tr key={i}>
-          <td>
+          <td className="topology-servers-type">
             <i className={`mms-icon-${SERVER_TYPES[server.type]}`} />
           </td>
           <td>
@@ -104,6 +104,7 @@ class DeploymentAwarenessComponent extends React.Component {
   render() {
     return (
       <div className={BASE_CLASS}>
+        <div className="action-bar"></div>
         <div className="topology-name">
           {this.renderName()}
         </div>

@@ -1,14 +1,45 @@
 .topology {
   display: flex;
   flex-direction: row;
+  margin-top: 20px;
+  margin-left: 20px;
+  padding: 20px;
+  font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 11px;
 
   &-name {
     padding-right: 100px;
+    font-weight: bold;
   }
 
   &-type, &-server-count, &-servers {
     text-transform: uppercase;
-    margin-right: 10px,
+    margin-right: 15px,
+  }
+
+  &-servers {
+    margin-left: 30px;
+  }
+
+  &-servers-type {
+    padding-right: 10px;
+  }
+
+  &-servers-address {
+    text-transform: none;
+  }
+
+  &-server-count {
+    background: #bfbfbe;
+    color: #fff;
+    white-space: nowrap;
+    border-radius: 14px;
+    padding: 0 5px;
+    margin-right: 5px;
+    font-weight: bold;
+    font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 11px;
+    height: 15px;
   }
 
   table, td, tr {
