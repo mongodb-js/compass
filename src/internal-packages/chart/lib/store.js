@@ -20,7 +20,6 @@ const MAX_LIMIT = 1000;
 const INITIAL_QUERY = {
   filter: {},
   sort: null,
-  project: null,
   skip: 0,
   limit: MAX_LIMIT,
   ns: '',
@@ -280,10 +279,6 @@ const ChartStore = Reflux.createStore({
       pipeline.push({$sort: query.sort});
     }
 
-    if (query.project) {
-      pipeline.push({$project: query.project});
-    }
-
     if (query.skip) {
       pipeline.push({$skip: query.skip});
     }
@@ -416,7 +411,7 @@ const ChartStore = Reflux.createStore({
    */
   onQueryChanged(state) {
     const newQuery = _.pick(state,
-      ['filter', 'sort', 'project', 'skip', 'limit', 'maxTimeMS', 'ns']);
+      ['filter', 'sort', 'skip', 'limit', 'maxTimeMS', 'ns']);
     this._refreshDataCache(newQuery);
   },
 
