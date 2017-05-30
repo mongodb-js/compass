@@ -1,6 +1,6 @@
 module.exports = {
-  name: 'Bar Chart',
-  order: 11,
+  name: 'Area Chart',
+  order: 13,
   specType: 'vega-lite',
   channels: [
     { name: 'x', required: true },
@@ -8,6 +8,6 @@ module.exports = {
     { name: 'color', required: false }
   ],
   spec: {
-    mark: 'bar'
+    mark: 'area'
   }
 };

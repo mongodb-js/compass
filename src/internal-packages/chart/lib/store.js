@@ -517,6 +517,8 @@ const ChartStore = Reflux.createStore({
     // if (!_.includes(chartNames, chartType)) {
     //   throw new Error('Unknown chart type: ' + chartType);
     // }
+
+    // @TODO must also update specType here when selecting a vega role
     this._updateSpec({chartType: chartType}, pushToHistory);
   },
 

@@ -6,7 +6,7 @@ const EncodingChannel = require('./encoding-channel');
 
 const _ = require('lodash');
 
-const debug = require('debug')('mongodb-compass:chart:chart-panel');
+// const debug = require('debug')('mongodb-compass:chart:chart-panel');
 
 /**
  * Represents the chart type the user has chosen, and how the user

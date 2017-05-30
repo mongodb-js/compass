@@ -1,5 +1,6 @@
 module.exports = {
   name: 'Scatter Plot',
+  order: 10,
   specType: 'vega-lite',
   channels: [
     { name: 'x', required: true },
