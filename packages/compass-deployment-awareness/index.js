@@ -6,11 +6,11 @@ const DeploymentStateStore = require('./lib/stores/deployment-state-store');
 /**
  * A sample role for the component.
  */
-const ROLE = {
-  name: 'DeploymentAwareness',
-  component: DeploymentAwarenessComponent,
-  alignment: 'right'
-};
+// const ROLE = {
+  // name: 'DeploymentAwareness',
+  // component: DeploymentAwarenessComponent,
+  // alignment: 'right'
+// };
 
 /**
  * Activate all the components in the Deployment Awareness package.
@@ -18,7 +18,7 @@ const ROLE = {
  * @param {AppRegistry} appRegistry - The app registry.
  */
 function activate(appRegistry) {
-  appRegistry.registerRole('Header.Item', ROLE);
+  // appRegistry.registerRole('Header.Item', ROLE);
   appRegistry.registerAction('DeploymentAwareness.Actions', DeploymentAwarenessActions);
   appRegistry.registerStore('DeploymentAwareness.Store', DeploymentAwarenessStore);
   appRegistry.registerStore('DeploymentAwareness.DeploymentStateStore', DeploymentStateStore);
@@ -28,7 +28,7 @@ function activate(appRegistry) {
  * Deactivate all the components in the Deployment Awareness package.
  */
 function deactivate() {
-  global.hadronApp.appRegistry.deregisterRole('Header.Item', ROLE);
+  // global.hadronApp.appRegistry.deregisterRole('Header.Item', ROLE);
   global.hadronApp.appRegistry.deregisterAction('DeploymentAwareness.Actions');
   global.hadronApp.appRegistry.deregisterStore('DeploymentAwareness.Store');
   global.hadronApp.appRegistry.deregisterStore('DeploymentAwareness.DeploymentStateStore');

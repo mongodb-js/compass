@@ -39,13 +39,24 @@ const DeploymentStateStore = Reflux.createStore({
     const topologyType = description.topologyType;
     if (TopologyType.isWritable(topologyType)) {
       if (topologyType === TopologyType.SINGLE) {
-        const serverWritable = ServerType.isWritable(description.servers[0].type);
-        this.setState({ isWritable: serverWritable });
+        const serverType = description.servers[0].type;
+        const serverWritable = ServerType.isWritable(serverType);
+        const message = serverWritable ? 'is writable' : 'is not writable';
+        this.setState({
+          isWritable: serverWritable,
+          description: `Topology type ${topologyType} with server type ${serverType} ${message}.`
+        });
       } else {
-        this.setState({ isWritable: true });
+        this.setState({
+          isWritable: true,
+          description: `Topology type ${topologyType} is writable.`
+        });
       }
     } else {
-      this.setState({ isWritable: false });
+      this.setState({
+        isWritable: false,
+        description: `Topology type ${topologyType} is not writable.`
+      });
     }
   },
 
