@@ -6,19 +6,34 @@
  */
 const AGGREGATE_FUNCTION_ENUM = Object.freeze({
   NONE: '(none)',
-  COUNT: 'count',
-  DISTINCT: 'distinct',
+  // COUNT: 'count',
+  // DISTINCT: 'distinct',
   SUM: 'sum',
   MEAN: 'mean',
-  VARIANCE: 'variance',
-  VARIANCEP: 'variancep',
+  // VARIANCE: 'variance',
+  // VARIANCEP: 'variancep',
   STDEV: 'stdev',
   STDEVP: 'stdevp',
-  MEDIAN: 'median',
-  Q1: 'q1',
-  Q3: 'q3',
+  // MEDIAN: 'median',
+  // Q1: 'q1',
+  // Q3: 'q3',
   MIN: 'min',
   MAX: 'max'
+});
+
+/**
+ * Map the aggregate functions above to the mongodb aggregation group accumalators
+ *
+ * @see https://docs.mongodb.com/manual/reference/operator/aggregation/group/
+ */
+const MAP_AGGREGATE_FUNCTION_ENUM = Object.freeze({
+  // count: '$count',
+  sum: '$sum',
+  mean: '$avg',
+  stdev: '$stdDevSamp',
+  stdevp: '$stdDevPop',
+  min: '$min',
+  max: '$max'
 });
 
 /**
@@ -179,6 +194,7 @@ module.exports = {
   CHART_TYPE_CHANNELS,
   CHART_TYPE_ENUM,
   DEFAULTS,
+  MAP_AGGREGATE_FUNCTION_ENUM,
   MEASUREMENT_ENUM,
   MEASUREMENT_ICON_ENUM,
   SPEC_TYPE_ENUM,
