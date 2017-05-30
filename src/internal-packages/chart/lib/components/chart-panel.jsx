@@ -42,6 +42,10 @@ class ChartPanel extends React.Component {
   renderEncodingChannels() {
     const currentChartRole = _.find(this.props.chartRoles,
       'name', this.props.chartType);
+    if (!currentChartRole) {
+      // this happens on initial render before Chart.Type roles are loaded
+      return null;
+    }
     return currentChartRole.channels.map((channel) => {
       return (
         <EncodingChannel

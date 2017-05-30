@@ -178,9 +178,6 @@ ChartBuilder.propTypes = {
   hasRedoableActions: PropTypes.bool
 };
 
-ChartBuilder.defaultProps = {
-};
-
 ChartBuilder.displayName = 'ChartBuilder';
 
 module.exports = DragDropContext(HTML5Backend)(ChartBuilder);  // eslint-disable-line new-cap

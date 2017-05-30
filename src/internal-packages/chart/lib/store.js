@@ -72,7 +72,6 @@ const ChartStore = Reflux.createStore({
   init() {
     this.listenables = Actions;
     this._resetChart();
-    this._resetHistory();
 
     this.INITIAL_CHART_TYPE = '';
     this.INITIAL_CHART_TYPE = 'vega-lite';
@@ -93,6 +92,7 @@ const ChartStore = Reflux.createStore({
       chartRoles: roles,
       chartType: this.INITIAL_CHART_TYPE
     });
+    this._resetHistory();
   },
 
   /**
