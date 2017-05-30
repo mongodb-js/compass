@@ -5,8 +5,7 @@
   "description": "Compass Deployment Awareness Plugin",
   "main": "index.js",
   "scripts": {
-    "preci": "npm run check",
-    "ci": "npm test",
+    "ci": "npm run check && npm test",
     "fmt": "mongodb-js-fmt ./*.js ./test/*.js",
     "check": "mongodb-js-precommit './src/**/*{.js,.jsx}' './test/**/*.js' index.js",
     "compile": "npm run jsx && npm run less",
