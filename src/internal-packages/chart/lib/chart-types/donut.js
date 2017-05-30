@@ -1,0 +1,63 @@
+module.exports = {
+  name: 'Pie Chart',
+  order: 14,
+  specType: 'vega',
+  channels: [
+    {
+      name: 'arc',
+      required: true
+    }
+  ],
+  spec: {
+    '$schema': 'https://vega.github.io/schema/vega/v3.0.json',
+    width: 400,
+    height: 400,
+    autosize: 'none',
+    data: [
+      {
+        name: 'values'
+      },
+      {
+        name: 'pieData',
+        source: 'values',
+        transform: [
+          {
+            type: 'pie',
+            field: 'arc',
+            startAngle: 0,
+            endAngle: 6.29,
+            sort: false
+          }
+        ]
+      }
+    ],
+    scales: [
+      {
+        name: 'color',
+        type: 'ordinal',
+        range: {scheme: 'category20'}
+      }
+    ],
+    marks: [
+      {
+        type: 'arc',
+        from: {data: 'pieData'},
+        encode: {
+          enter: {
+            fill: {scale: 'color', field: '_id'},
+            x: {signal: 'width / 2'},
+            y: {signal: 'height / 2'}
+          },
+          update: {
+            startAngle: {field: 'startAngle'},
+            endAngle: {field: 'endAngle'},
+            padAngle: 0,
+            innerRadius: 0,
+            outerRadius: {signal: 'width / 2'},
+            cornerRadius: 0
+          }
+        }
+      }
+    ]
+  }
+};
