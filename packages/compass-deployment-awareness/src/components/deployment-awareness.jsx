@@ -2,8 +2,6 @@ const React = require('react');
 const PropTypes = require('prop-types');
 const TopologyType = require('../models/topology-type');
 
-const BASE_CLASS = 'topology';
-
 /**
  * Topology types to class name mappings.
  */
@@ -47,7 +45,7 @@ class DeploymentAwarenessComponent extends React.Component {
           <td className="topology-servers-type">
             <i className={`mms-icon-${SERVER_TYPES[server.type]}`} />
           </td>
-          <td>
+          <td className="topology-servers-address">
             {server.address}
           </td>
         </tr>
@@ -103,21 +101,23 @@ class DeploymentAwarenessComponent extends React.Component {
    */
   render() {
     return (
-      <div className={BASE_CLASS}>
-        <div className="action-bar"></div>
-        <div className="topology-name">
-          {this.renderName()}
-        </div>
-        <div className="topology-type">
-          {this.renderTopologyType()}
-        </div>
-        <div className="topology-server-count">
-          {this.renderNodes()}
-        </div>
-        <div className="topology-servers">
-          <table>
-            {this.renderServers()}
-          </table>
+      <div className="topology-container">
+        <div className="action-bar controls-container"></div>
+        <div className="topology">
+          <div className="topology-name">
+            {this.renderName()}
+          </div>
+          <div className="topology-type">
+            {this.renderTopologyType()}
+          </div>
+          <div className="topology-server-count">
+            {this.renderNodes()}
+          </div>
+          <div className="topology-servers">
+            <table>
+              {this.renderServers()}
+            </table>
+          </div>
         </div>
       </div>
     );

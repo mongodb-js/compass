@@ -1,11 +1,15 @@
+.topology-container {
+  width: 100%;
+}
+
 .topology {
   display: flex;
-  flex-direction: row;
   margin-top: 20px;
-  margin-left: 20px;
+  margin-left: 40px;
   padding: 20px;
+  background-color: whitesmoke;
   font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 11px;
+  width: 50%;
 
   &-name {
     padding-right: 100px;
@@ -21,10 +25,6 @@
     margin-left: 30px;
   }
 
-  &-servers-type {
-    padding-right: 10px;
-  }
-
   &-servers-address {
     text-transform: none;
   }
@@ -37,13 +37,16 @@
     padding: 0 5px;
     margin-right: 5px;
     font-weight: bold;
-    font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 11px;
-    height: 15px;
+    font-size: 13px;
+    height: 18px;
   }
 
   table, td, tr {
     padding: 0px;
     margin: 0px;
+  }
+
+  &-servers-type {
+    padding-right: 10px !important;
   }
 }
