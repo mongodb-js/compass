@@ -1,14 +1,6 @@
-# deployment-awareness [![][travis_img]][travis_url] [![][npm_img]][npm_url]
+# Compass Deployment Awareness [![Build Status](https://travis-ci.com/10gen/compass-deployment-awareness.svg?token=ezEB2TnpPiu7XLo6ByZp&branch=master)](https://travis-ci.com/10gen/compass-deployment-awareness)
 
 > Compass Deployment Awareness Plugin
-
-## Installation
-
-TODO
-
-## Usage
-
-TODO
 
 ## License
 
@@ -58,8 +50,8 @@ For completeness, below is a list of directories present in this module:
 
 Apache 2.0
 
-[travis_img]: https://img.shields.io/travis/mongodb-js/component-template.svg?style=flat-square
-[travis_url]: https://travis-ci.org/mongodb-js/component-template
+[travis_img]: https://img.shields.io/travis/mongodb-js/compass-deployment-awareness.svg?style=flat-square
+[travis_url]: https://travis-ci.org/mongodb-js/compass-deployment-awareness
 [npm_img]: https://img.shields.io/npm/v/mongodb-component-template.svg?style=flat-square
 [npm_url]: https://www.npmjs.org/package/mongodb-component-template
 [react-storybook]: https://github.com/kadirahq/react-storybook
