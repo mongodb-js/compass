@@ -1,6 +1,6 @@
 const React = require('react');
 const { StoreConnector } = require('hadron-react-components');
-const DeploymentAwarenessComponent = require('./DeploymentAwareness');
+const DeploymentAwarenessComponent = require('./deployment-awareness');
 const Store = require('../stores');
 const Actions = require('../actions');
 
