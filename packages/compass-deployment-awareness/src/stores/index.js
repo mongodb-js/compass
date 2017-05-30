@@ -31,7 +31,7 @@ const DeploymentAwarenessStore = Reflux.createStore({
    */
   topologyDescriptionChanged(evt) {
     const description = evt.newDescription;
-    this.setState(evt.newDescription);
+    this.setState(description);
   },
 
   /**
@@ -46,7 +46,7 @@ const DeploymentAwarenessStore = Reflux.createStore({
       setName: '',
       servers: []
     };
-  },
+  }
 });
 
 module.exports = DeploymentAwarenessStore;

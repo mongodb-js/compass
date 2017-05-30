@@ -1,20 +1,19 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 const { Popover, OverlayTrigger, Button } = require('react-bootstrap');
-const DeploymentAwarenessActions = require('../actions');
 
 const BASE_CLASS = 'deploymeny-awareness';
 const SERVER_CLASS = `${BASE_CLASS}-server`;
 const SET_NAME_CLASS = `${BASE_CLASS}-set-name`;
 const BUTTON_CLASS = `${BASE_CLASS}-button`;
-const ADDRESS_CLASS = `${SERVER_CLASS}-address`
+const ADDRESS_CLASS = `${SERVER_CLASS}-address`;
 const SERVERS_ID = `${BASE_CLASS}-servers`;
 
 /**
  * Topology types to class name mappings.
  */
 const TOPOLOGY_TYPES = {
-  'Standalone': 'standalone',
+  'Single': 'single',
   'ReplicaSetNoPrimary': 'replica-set',
   'ReplicaSetWithPrimary': 'replica-set',
   'Sharded': 'cluster',
@@ -33,7 +32,7 @@ const SERVER_TYPES = {
   'RSArbiter': 'arbiter',
   'RSOther': 'nostate',
   'RSGhost': 'nostate',
-  'Unknown': 'nostate',
+  'Unknown': 'nostate'
 };
 
 /**
@@ -95,6 +94,12 @@ class DeploymentAwarenessComponent extends React.Component {
     );
   }
 }
+
+DeploymentAwarenessComponent.propTypes = {
+  servers: PropTypes.array,
+  setName: PropTypes.string,
+  topologyType: PropTypes.string.isRequired
+};
 
 DeploymentAwarenessComponent.displayName = 'DeploymentAwarenessComponent';
 
