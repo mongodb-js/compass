@@ -4,6 +4,8 @@ const ChartStore = require('./lib/store');
 const Chart = require('./lib/components/chart');
 const ChartBuilder = require('./lib/components/index');
 
+const BarChartType = require('./lib/chart-types/bar');
+const ScatterPlotType = require('./lib/chart-types/scatter');
 /**
  * The collection tab role for the chart component.
  */
@@ -15,9 +17,13 @@ const COLLECTION_TAB_ROLE = {
 
 /**
  * Activate all the components in the Chart package.
+ *
+ * @param {Object} appRegistry   the app registry
  */
 function activate(appRegistry) {
   appRegistry.registerRole('Collection.Tab', COLLECTION_TAB_ROLE);
+  appRegistry.registerRole('Chart.Type', BarChartType);
+  appRegistry.registerRole('Chart.Type', ScatterPlotType);
   appRegistry.registerAction('Chart.Actions', ChartActions);
   appRegistry.registerStore('Chart.Store', ChartStore);
   appRegistry.registerComponent('Chart.Chart', Chart);
@@ -29,6 +35,8 @@ function activate(appRegistry) {
  */
 function deactivate() {
   app.appRegistry.deregisterRole('Collection.Tab', COLLECTION_TAB_ROLE);
+  app.appRegistry.deregisterRole('Chart.Type', BarChartType);
+  app.appRegistry.deregisterRole('Chart.Type', ScatterPlotType);
   app.appRegistry.deregisterAction('Chart.Actions');
   app.appRegistry.deregisterStore('Chart.Store');
   app.appRegistry.deregisterComponent('Chart.Chart');
