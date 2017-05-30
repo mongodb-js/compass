@@ -1,13 +1,8 @@
 const React = require('react');
 const PropTypes = require('prop-types');
-const { Popover, OverlayTrigger, Button } = require('react-bootstrap');
+const TopologyType = require('../models/topology-type');
 
-const BASE_CLASS = 'deploymeny-awareness';
-const SERVER_CLASS = `${BASE_CLASS}-server`;
-const SET_NAME_CLASS = `${BASE_CLASS}-set-name`;
-const BUTTON_CLASS = `${BASE_CLASS}-button`;
-const ADDRESS_CLASS = `${SERVER_CLASS}-address`;
-const SERVERS_ID = `${BASE_CLASS}-servers`;
+const BASE_CLASS = 'topology';
 
 /**
  * Topology types to class name mappings.
@@ -46,21 +41,18 @@ class DeploymentAwarenessComponent extends React.Component {
    * @returns {React.Component} The rendered component.
    */
   renderServers() {
-    const servers = this.props.servers.map((server, i) => {
+    return this.props.servers.map((server, i) => {
       return (
-        <div className={SERVER_CLASS} key={i}>
-          <span>
+        <tr key={i}>
+          <td>
             <i className={`mms-icon-${SERVER_TYPES[server.type]}`} />
-          </span>
-          <span className={ADDRESS_CLASS}>{server.address}</span>
-        </div>
+          </td>
+          <td>
+            {server.address}
+          </td>
+        </tr>
       );
     });
-    return (
-      <Popover id={SERVERS_ID}>
-        {servers}
-      </Popover>
-    );
   }
 
   /**
@@ -71,9 +63,37 @@ class DeploymentAwarenessComponent extends React.Component {
   renderSetName() {
     if (this.props.setName) {
       return (
-        <span className={SET_NAME_CLASS}>{this.props.setName}</span>
+        <span className="topology-type-set-name">({this.props.setName})</span>
       );
     }
+  }
+
+  renderTopologyType() {
+    return (
+      <div className="topology-type-name">
+        <i className={`mms-icon-${TOPOLOGY_TYPES[this.props.topologyType]}`} />
+        {TopologyType.humanize(this.props.topologyType)}
+      </div>
+    );
+  }
+
+  /**
+   * Render the name of the deployment.
+   *
+   * @returns {String} The name.
+   */
+  renderName() {
+    if (this.props.setName) {
+      return this.props.setName;
+    } else if (this.props.topologyType === TopologyType.SINGLE) {
+      return this.props.servers[0].type;
+    }
+    return this.props.topologyType;
+  }
+
+  renderNodes() {
+    const length = this.props.servers.length;
+    return `${length} Node${length === 1 ? '' : 's'}`;
   }
 
   /**
@@ -84,12 +104,20 @@ class DeploymentAwarenessComponent extends React.Component {
   render() {
     return (
       <div className={BASE_CLASS}>
-        <OverlayTrigger trigger="click" placement="bottom" overlay={this.renderServers()}>
-          <Button className={BUTTON_CLASS}>
-            <i className={`mms-icon-${TOPOLOGY_TYPES[this.props.topologyType]}`} />
-            {this.renderSetName()}
-          </Button>
-        </OverlayTrigger>
+        <div className="topology-name">
+          {this.renderName()}
+        </div>
+        <div className="topology-type">
+          {this.renderTopologyType()}
+        </div>
+        <div className="topology-server-count">
+          {this.renderNodes()}
+        </div>
+        <div className="topology-servers">
+          <table>
+            {this.renderServers()}
+          </table>
+        </div>
       </div>
     );
   }

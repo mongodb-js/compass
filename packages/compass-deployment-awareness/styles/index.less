@@ -1,24 +1,18 @@
-.deployment-awareness {
+.topology {
   display: flex;
   flex-direction: row;
 
-  &-topology-type {
-    padding-left: 10px;
-    padding-right: 10px;
+  &-name {
+    padding-right: 100px;
   }
 
-  &-server {
-    padding-top: 2px;
-    padding-bottom: 2px;
-    padding-left: 10px;
-    padding-right: 10px;
-
-    span {
-      padding-right: 5px;
-    }
+  &-type, &-server-count, &-servers {
+    text-transform: uppercase;
+    margin-right: 10px,
   }
 
-  &-button {
-    height: 28px;
+  table, td, tr {
+    padding: 0px;
+    margin: 0px;
   }
 }

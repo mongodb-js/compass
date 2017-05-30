@@ -25,6 +25,17 @@ const WRITABLE_TOPOLOGY_TYPES = [
 ];
 
 /**
+ * Humanized types.
+ */
+const HUMANIZED_TYPES = {
+  'Single': 'Single',
+  'ReplicaSetNoPrimary': 'Replica Set (No Primary)',
+  'ReplicaSetWithPrimary': 'Replica Set (With Primary)',
+  'Sharded': 'Sharded Cluster',
+  'Unknown': 'Unknown'
+};
+
+/**
  * determine if the topology type is writable.
  *
  * @param {String} topologyType - the topology type.
@@ -35,6 +46,18 @@ const isWritable = (topologyType) => {
   return WRITABLE_TOPOLOGY_TYPES.includes(topologyType);
 };
 
+/**
+ * Humanize the topology type for nice reading.
+ *
+ * @param {String} topologyType - The topology type.
+ *
+ * @returns {String} The nice to read format.
+ */
+const humanize = (topologyType) => {
+  return HUMANIZED_TYPES[topologyType];
+};
+
+module.exports.humanize = humanize;
 module.exports.isWritable = isWritable;
 module.exports.SINGLE = SINGLE;
 module.exports.REPLICA_SET_NO_PRIMARY = REPLICA_SET_NO_PRIMARY;
