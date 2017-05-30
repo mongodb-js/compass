@@ -78,7 +78,7 @@ const ChartStore = Reflux.createStore({
     this._resetChart();
     this._resetHistory();
     this.listenToExternalStore('Query.ChangedStore', this.onQueryChanged.bind(this));
-    this.listenToExternalStore('Schema.FieldStore', this.onFieldChanged.bind(this));
+    this.listenToExternalStore('Schema.FieldStore', this.onFieldsChanged.bind(this));
   },
 
   /**
@@ -356,15 +356,14 @@ const ChartStore = Reflux.createStore({
 
 
   /**
-   * Fires when field store Changes
+   * Fires when field store changes
    *
    * @param {Object} state - the field store state.
    */
-  onFieldChanged(state) {
+  onFieldsChanged(state) {
     if (!state.fields) {
       return;
     }
-
     this.setState({fieldsCache: state.fields, topLevelFields: state.topLevelFields});
   },
 
