@@ -210,6 +210,7 @@ const ChartStore = Reflux.createStore({
     newState.specValid = requiredChannels.length === _.intersection(requiredChannels, encodedChannels).length;
     if (newState.specValid) {
       debug('valid spec %j', newState.spec);
+      this._updateDocuments();
     }
     // push new chart state to history
     if (pushToHistory) {
@@ -225,7 +226,8 @@ const ChartStore = Reflux.createStore({
    *
    * @param {Object} query   the new query to fetch data for
    */
-  _refreshDataCache(query) {
+  _updateDocuments() {
+    const query = this.state.queryCache;
     const ns = toNS(query.ns);
     if (!ns.collection) {
       return;
@@ -261,10 +263,7 @@ const ChartStore = Reflux.createStore({
         throw error;
       }
 
-      let state = {
-        queryCache: query,
-        dataCache: documents
-      };
+      let state = { dataCache: documents };
 
       if (this.state.queryCache.ns !== query.ns) {
         state = Object.assign(state, this.getInitialChartState());
@@ -363,7 +362,7 @@ const ChartStore = Reflux.createStore({
   onQueryChanged(state) {
     const newQuery = _.pick(state,
       ['filter', 'sort', 'skip', 'limit', 'maxTimeMS', 'ns']);
-    this._refreshDataCache(newQuery);
+    this.setState({queryCache: newQuery});
   },
 
 
