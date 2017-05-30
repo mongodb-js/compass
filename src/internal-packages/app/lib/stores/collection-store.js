@@ -59,15 +59,6 @@ const CollectionStore = Reflux.createStore({
    */
   isReadonly() {
     return this.collection.readonly;
-  },
-
-  /**
-   * Is the collection writable?
-   *
-   * @returns {Boolean} If the collection is writable.
-   */
-  isWritable() {
-    return !this.isReadonly() && app.dataService.isWritable();
   }
 });
 

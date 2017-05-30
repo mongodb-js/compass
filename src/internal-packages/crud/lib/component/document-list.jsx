@@ -1,7 +1,6 @@
 const _ = require('lodash');
 const React = require('react');
 const uuid = require('uuid');
-const app = require('hadron-app');
 const ObjectID = require('bson').ObjectID;
 const Action = require('../actions');
 const NamespaceStore = require('hadron-reflux-store').NamespaceStore;
@@ -54,13 +53,22 @@ class DocumentList extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.samplingMessage = app.appRegistry.getComponent('Query.SamplingMessage');
-    this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
-    this.state = { docs: [], nextSkip: 0, namespace: NamespaceStore.ns, loading: false };
+    const appRegistry = global.hadronApp.appRegistry;
+    this.samplingMessage = appRegistry.getComponent('Query.SamplingMessage');
+    this.CollectionStore = appRegistry.getStore('App.CollectionStore');
+    this.DeploymentStateStore = appRegistry.getStore('DeploymentAwareness.DeploymentStateStore');
     this.projection = false;
-    this.queryBar = app.appRegistry.getComponent('Query.QueryBar');
-    this.QueryChangedStore = app.appRegistry.getStore('Query.ChangedStore');
-    this.Document = app.appRegistry.getRole('CRUD.Document')[0].component;
+    this.queryBar = appRegistry.getComponent('Query.QueryBar');
+    this.QueryChangedStore = appRegistry.getStore('Query.ChangedStore');
+    this.Document = appRegistry.getRole('CRUD.Document')[0].component;
+    this.state = {
+      docs: [],
+      nextSkip: 0,
+      namespace: NamespaceStore.ns,
+      loading: false,
+      isWritable: !this.CollectionStore.isReadonly() && this.DeploymentStateStore.state.isWritable,
+      description: this.DeploymentStateStore.state.description
+    };
   }
 
   /**
@@ -73,6 +81,7 @@ class DocumentList extends React.Component {
     this.unsubscribeRemove = RemoveDocumentStore.listen(this.handleRemove.bind(this));
     this.unsubscribeInsert = InsertDocumentStore.listen(this.handleInsert.bind(this));
     this.unsubscribeQueryStore = this.QueryChangedStore.listen(this.handleQueryChanged.bind(this));
+    this.unsubscribeStateStore = this.DeploymentStateStore.listen(this.deploymentStateChanged.bind(this));
   }
 
   /**
@@ -83,6 +92,7 @@ class DocumentList extends React.Component {
     this.unsubscribeLoadMore();
     this.unsubscribeRemove();
     this.unsubscribeInsert();
+    this.unsubscribeStateStore();
   }
 
   /**
@@ -93,6 +103,15 @@ class DocumentList extends React.Component {
       SCROLL_EVENT,
       this.handleScroll.bind(this)
     );
+  }
+
+  /**
+   * Called when the deployment state changes.
+   *
+   * @param {Object} state - The deployment state.
+   */
+  deploymentStateChanged(state) {
+    this.setState(state);
   }
 
   /**
@@ -226,7 +245,7 @@ class DocumentList extends React.Component {
    */
   renderDocuments(docs) {
     return _.map(docs, (doc) => {
-      const editable = this.CollectionStore.isWritable() && !this.projection;
+      const editable = !this.CollectionStore.isReadonly() && !this.projection;
       return (
         <li className="document-list-item" data-test-id={LIST_ITEM_TEST_ID} key={this._key()}>
           <this.Document doc={doc} key={this._key()} editable={editable} />
@@ -273,7 +292,7 @@ class DocumentList extends React.Component {
       <div className="content-container content-container-documents compass-documents">
         <div className="controls-container">
           <this.queryBar />
-          <this.samplingMessage isWritable={this.CollectionStore.isWritable()}
+          <this.samplingMessage isWritable={this.state.isWritable} description={this.state.description}
             insertHandler={this.handleOpenInsert.bind(this)} />
         </div>
         {this.renderContent()}

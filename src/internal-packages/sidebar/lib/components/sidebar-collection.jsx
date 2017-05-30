@@ -1,4 +1,3 @@
-const app = require('hadron-app');
 const React = require('react');
 const PropTypes = require('prop-types');
 const ipc = require('hadron-ipc');
@@ -10,12 +9,33 @@ const { TOOLTIP_IDS } = require('../constants');
 class SidebarCollection extends React.Component {
   constructor() {
     super();
-    this.state = {
-      active: false
-    };
+    const appRegistry = global.hadronApp.appRegistry;
     this.handleClick = this.handleClick.bind(this);
     this.CollectionsActions = app.appRegistry.getAction('Database.CollectionsActions');
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
+    this.DeploymentStateStore = appRegistry.getStore('DeploymentAwareness.DeploymentStateStore');
+    this.state = {
+      active: false,
+      isWritable: this.DeploymentStateStore.state.isWritable,
+      description: this.DeploymentStateStore.state.description
+    };
+  }
+
+  componentDidMount() {
+    this.unsubscribeStateStore = this.DeploymentStateStore.listen(this.deploymentStateChanged.bind(this));
+  }
+
+  componentWillUnmount() {
+    this.unsubscribeStateStore();
+  }
+
+  /**
+   * Called when the deployment state changes.
+   *
+   * @param {Object} state - The deployment state.
+   */
+  deploymentStateChanged(state) {
+    this.setState(state);
   }
 
   getCollectionName() {
@@ -50,10 +70,9 @@ class SidebarCollection extends React.Component {
 
   render() {
     const collectionName = this.getCollectionName();
-    const isWritable = app.dataService.isWritable();
-    const tooltipText = isWritable ?
+    const tooltipText = this.state.isWritable ?
       'Drop collection' :
-      'Drop collection is not available on a secondary node';  // TODO: Arbiter/recovering/etc
+      this.state.description;
     const tooltipOptions = {
       'data-for': TOOLTIP_IDS.DROP_COLLECTION,
       'data-effect': 'solid',
@@ -65,7 +84,7 @@ class SidebarCollection extends React.Component {
       itemClassName += ' compass-sidebar-item-is-active';
     }
     let dropClassName = 'compass-sidebar-icon compass-sidebar-icon-drop-collection fa fa-trash-o';
-    if (!isWritable) {
+    if (!this.state.isWritable) {
       dropClassName += ' compass-sidebar-icon-is-disabled';
     }
     return (
@@ -81,7 +100,7 @@ class SidebarCollection extends React.Component {
         <div className="compass-sidebar-item-actions compass-sidebar-item-actions-ddl">
           <i
             className={dropClassName}
-            onClick={this.handleDropCollectionClick.bind(this, isWritable)}
+            onClick={this.handleDropCollectionClick.bind(this, this.state.isWritable)}
             {...tooltipOptions}
           />
         </div>

@@ -1,4 +1,3 @@
-const app = require('hadron-app');
 const ipc = require('hadron-ipc');
 const React = require('react');
 const PropTypes = require('prop-types');
@@ -11,9 +10,29 @@ const SidebarCollection = require('./sidebar-collection');
 class SidebarDatabase extends React.Component {
   constructor(props) {
     super(props);
-    this.CollectionsActions = app.appRegistry.getAction('Database.CollectionsActions');
-    this.DatabaseDDLActions = app.appRegistry.getAction('DatabaseDDL.Actions');
-    this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
+    const appRegistry = global.hadronApp.appRegistry;
+    this.DeploymentStateStore = appRegistry.getStore('DeploymentAwareness.DeploymentStateStore');
+    this.CollectionsActions = appRegistry.getAction('Database.CollectionsActions');
+    this.DatabaseDDLActions = appRegistry.getAction('DatabaseDDL.Actions');
+    this.CollectionStore = appRegistry.getStore('App.CollectionStore');
+    this.state = this.DeploymentStateStore.state;
+  }
+
+  componentDidMount() {
+    this.unsubscribeStateStore = this.DeploymentStateStore.listen(this.deploymentStateChanged.bind(this));
+  }
+
+  componentWillUnmount() {
+    this.unsubscribeStateStore();
+  }
+
+  /**
+   * Called when the deployment state changes.
+   *
+   * @param {Object} state - The deployment state.
+   */
+  deploymentStateChanged(state) {
+    this.setState(state);
   }
 
   getCollectionComponents() {
@@ -69,17 +88,16 @@ class SidebarDatabase extends React.Component {
   }
 
   render() {
-    const isWritable = app.dataService.isWritable();
-    const createTooltipText = isWritable ?
+    const createTooltipText = this.state.isWritable ?
       'Create collection' :
-      'Create collection is not available on a secondary node';  // TODO: Arbiter/recovering/etc
+      this.state.description;
     const createTooltipOptions = {
       'data-for': TOOLTIP_IDS.CREATE_COLLECTION,
       'data-effect': 'solid',
       'data-offset': "{'bottom': 10, 'left': -8}",
       'data-tip': createTooltipText
     };
-    const dropTooltipText = isWritable ?
+    const dropTooltipText = this.state.isWritable ?
       'Drop database' :
       'Drop database is not available on a secondary node';  // TODO: Arbiter/recovering/etc
     const dropTooltipOptions = {
@@ -93,11 +111,11 @@ class SidebarDatabase extends React.Component {
       headerClassName += ' compass-sidebar-item-header-is-active';
     }
     let createClassName = 'mms-icon-add-circle compass-sidebar-icon compass-sidebar-icon-create-collection';
-    if (!isWritable) {
+    if (!this.state.isWritable) {
       createClassName += ' compass-sidebar-icon-is-disabled';
     }
     let dropClassName = 'compass-sidebar-icon compass-sidebar-icon-drop-database fa fa-trash-o';
-    if (!isWritable) {
+    if (!this.state.isWritable) {
       dropClassName += ' compass-sidebar-icon-is-disabled';
     }
     return (
@@ -115,12 +133,12 @@ class SidebarDatabase extends React.Component {
           <div className="compass-sidebar-item-header-actions compass-sidebar-item-header-actions-ddl">
             <i
               className={createClassName}
-              onClick={this.handleCreateCollectionClick.bind(this, isWritable)}
+              onClick={this.handleCreateCollectionClick.bind(this, this.state.isWritable)}
               {...createTooltipOptions}
             />
             <i
               className={dropClassName}
-              onClick={this.handleDropDBClick.bind(this, isWritable)}
+              onClick={this.handleDropDBClick.bind(this, this.state.isWritable)}
               {...dropTooltipOptions}
             />
           </div>

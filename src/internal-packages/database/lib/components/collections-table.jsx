@@ -1,6 +1,5 @@
 const React = require('react');
 const PropTypes = require('prop-types');
-const app = require('hadron-app');
 const CollectionsActions = require('../actions/collections-actions');
 const numeral = require('numeral');
 const ipc = require('hadron-ipc');
@@ -13,7 +12,27 @@ class CollectionsTable extends React.Component {
 
   constructor(props) {
     super(props);
-    this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
+    const appRegistry = global.hadronApp.appRegistry;
+    this.CollectionStore = appRegistry.getStore('App.CollectionStore');
+    this.DeploymentStateStore = appRegistry.getStore('DeploymentAwareness.DeploymentStateStore');
+    this.state = this.DeploymentStateStore.state;
+  }
+
+  componentDidMount() {
+    this.unsubscribeStateStore = this.DeploymentStateStore.listen(this.deploymentStateChanged.bind(this));
+  }
+
+  componentWillUnmount() {
+    this.unsubscribeStateStore();
+  }
+
+  /**
+   * Called when the deployment state changes.
+   *
+   * @param {Object} state - The deployment state.
+   */
+  deploymentStateChanged(state) {
+    this.setState(state);
   }
 
   onColumnHeaderClicked(column, order) {
@@ -61,14 +80,11 @@ class CollectionsTable extends React.Component {
       });
     });
 
-    const isWritable = app.dataService.isWritable();
     const tooltipId = 'database-is-not-writable';
-    const isNotWritableTooltip = isWritable ? null : (
-      <Tooltip
-        id={tooltipId}
-      />
+    const isNotWritableTooltip = this.state.isWritable ? null : (
+      <Tooltip id={tooltipId} />
     );
-    const tooltipText = 'This action is not available on a secondary node';
+    const tooltipText = this.state.description;
 
     return (
       <div className="collections-table" data-test-id="collections-table">
@@ -78,7 +94,7 @@ class CollectionsTable extends React.Component {
                 className="btn btn-primary btn-xs"
                 type="button"
                 data-test-id="open-create-collection-modal-button"
-                disabled={!isWritable}
+                disabled={!this.state.isWritable}
                 onClick={this.onCreateCollectionButtonClicked.bind(this)}>
               Create Collection
             </button>
@@ -94,7 +110,7 @@ class CollectionsTable extends React.Component {
               sortOrder={this.props.sortOrder}
               sortColumn={this.props.sortColumn}
               valueIndex={0}
-              removable={isWritable}
+              removable={this.state.isWritable}
               onColumnHeaderClicked={this.onColumnHeaderClicked.bind(this)}
               onRowDeleteButtonClicked={this.onRowDeleteButtonClicked.bind(this)}
             />

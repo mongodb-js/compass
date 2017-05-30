@@ -6,7 +6,6 @@ const SizeColumn = require('./size-column');
 const UsageColumn = require('./usage-column');
 const PropertyColumn = require('./property-column');
 const DropColumn = require('./drop-column');
-const app = require('hadron-app');
 
 /**
  * Component for the index.
@@ -15,7 +14,27 @@ class Index extends React.Component {
 
   constructor(props) {
     super(props);
-    this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
+    const appRegistry = global.hadronApp.appRegistry;
+    this.CollectionStore = appRegistry.getStore('App.CollectionStore');
+    this.DeploymentStateStore = appRegistry.getStore('DeploymentAwareness.DeploymentStateStore');
+    this.state = this.DeploymentStateStore.state;
+  }
+
+  componentDidMount() {
+    this.unsubscribeStateStore = this.DeploymentStateStore.listen(this.deploymentStateChanged.bind(this));
+  }
+
+  componentWillUnmount() {
+    this.unsubscribeStateStore();
+  }
+
+  /**
+   * Called when the deployment state changes.
+   *
+   * @param {Object} state - The deployment state.
+   */
+  deploymentStateChanged(state) {
+    this.setState(state);
   }
 
   /**
@@ -33,7 +52,7 @@ class Index extends React.Component {
           relativeSize={this.props.index.relativeSize} />
         <UsageColumn usage={this.props.index.usageCount} since={this.props.index.usageSince} />
         <PropertyColumn index={this.props.index} />
-        {this.CollectionStore.isWritable() ?
+        {(!this.CollectionStore.isReadonly() && this.state.isWritable) ?
           <DropColumn indexName={this.props.index.name} />
           : null}
       </tr>
