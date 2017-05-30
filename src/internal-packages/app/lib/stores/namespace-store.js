@@ -13,7 +13,7 @@ const NamespaceStore = Reflux.createStore({
     return this._ns;
   },
 
-  nsHelper: function(ns) {
+  __nsHelper: function(ns) {
     if (!ns) {
       return ['', ''];
     }
@@ -29,8 +29,8 @@ const NamespaceStore = Reflux.createStore({
    * @param {String} ns - The current ns.
    */
   set ns(ns) {
-    const oldNns = this.nsHelper(this._ns);
-    const newNs = this.nsHelper(ns);
+    const oldNns = this.__nsHelper(this._ns);
+    const newNs = this.__nsHelper(ns);
 
     if (oldNns[0] !== newNs[0]) {
       app.appRegistry.callOnStores(function(store) {

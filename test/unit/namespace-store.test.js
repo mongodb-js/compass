@@ -1,5 +1,6 @@
 const expect = require('chai').expect;
-const NamespaceStore = require('../../src/internal-packages/app/namespace-store');
+const NamespaceStore = require('../../src/internal-packages/app/lib/stores/namespace-store');
+
 
 describe('NamespaceStore', function() {
   describe('#set ns', function() {
