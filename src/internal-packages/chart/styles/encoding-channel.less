@@ -20,16 +20,16 @@
     text-overflow: ellipsis;
 
     &-can-drop {
-      border-color: @chart1;
-      box-shadow: 0 0 6px 0 rgba(67,177,229, .2);
-      color: darken(@chart1, 20%);
+      background: @gray6;
+      border-color: @gray5;
+      box-shadow: inset 1px 1px 2px rgba(0,0,0,.2);
+      color: @gray1;
     }
 
     &-over {
-      border-color: @gray5;
-      background: @gray6;
-      box-shadow: inset 1px 1px 2px rgba(0,0,0,.2);
-      color: @gray1;
+      border-color: @chart1;
+      box-shadow: 0 0 6px 0 rgba(67,177,229, .2);
+      color: darken(@chart1, 20%);
     }
 
     &-has-field {
