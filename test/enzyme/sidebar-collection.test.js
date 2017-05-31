@@ -24,7 +24,7 @@ describe('<SidebarCollection />', () => {
   beforeEach(function() {
     global.hadronApp = app;
     app.appRegistry = new AppRegistry();
-    app.appRegistry.registerStore('DeploymentAwareness.DeploymentStateStore', stateStore);
+    app.appRegistry.registerStore('DeploymentAwareness.WriteStateStore', stateStore);
     this.DatabaseDDLActionSpy = sinon.spy();
     app.appRegistry.registerAction(
       'Database.CollectionsActions',

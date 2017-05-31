@@ -26,7 +26,7 @@ describe('<Sidebar />', () => {
     global.hadronApp = app;
     app.appRegistry = new AppRegistry();
     this.DatabaseDDLActionSpy = sinon.spy();
-    app.appRegistry.registerStore('DeploymentAwareness.DeploymentStateStore', stateStore);
+    app.appRegistry.registerStore('DeploymentAwareness.WriteStateStore', stateStore);
     app.appRegistry.registerAction(
       'DatabaseDDL.Actions',
       {openCreateDatabaseDialog: this.DatabaseDDLActionSpy}
