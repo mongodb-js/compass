@@ -150,12 +150,11 @@ class SamplingMessage extends React.Component {
   renderQueryMessage() {
     const noun = pluralize('document', this.state.count);
 
-    const isWritable = app.dataService.isWritable();
     const tooltipId = 'document-is-not-writable';
-    const isNotWritableTooltip = isWritable ? null : (
+    const isNotWritableTooltip = this.props.isWritable ? null : (
       <Tooltip id={tooltipId} />
     );
-    const tooltipText = 'This action is not available on a secondary node';
+    const tooltipText = this.props.description;
 
     return (
       <div>
@@ -210,7 +209,8 @@ SamplingMessage.displayName = 'SamplingMessage';
 SamplingMessage.propTypes = {
   sampleSize: PropTypes.number,
   insertHandler: PropTypes.func,
-  isWritable: PropTypes.bool
+  isWritable: PropTypes.bool,
+  description: PropTypes.string
 };
 
 module.exports = SamplingMessage;

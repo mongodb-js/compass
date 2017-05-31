@@ -13,33 +13,33 @@ chai.use(chaiEnzyme());
 
 const appDataService = app.dataService;
 const appRegistry = app.appRegistry;
+const stateStore = {
+  state: {
+    isWritable: true
+  },
+  listen: () => {}
+};
 
 describe('<SidebarCollection />', () => {
   beforeEach(function() {
+    global.hadronApp = app;
     app.appRegistry = new AppRegistry();
+    app.appRegistry.registerStore('DeploymentAwareness.DeploymentStateStore', stateStore);
     this.DatabaseDDLActionSpy = sinon.spy();
     app.appRegistry.registerAction(
       'Database.CollectionsActions',
       {openDropCollectionDialog: this.DatabaseDDLActionSpy}
     );
-    app.dataService = {
-      isWritable: () => {
-        return true;
-      }
-    };
   });
   afterEach(() => {
     app.dataService = appDataService;
     app.appRegistry = appRegistry;
   });
 
-  context('when dataService is not writable', function() {
+  context('when is not writable', function() {
     beforeEach(function() {
-      app.dataService = {
-        isWritable: () => {
-          return false;
-        }
-      };
+      stateStore.state.isWritable = false;
+      stateStore.state.description = 'not writable';
       this.component = shallow(
         <SidebarCollection
           _id="foo.bar"
@@ -52,7 +52,7 @@ describe('<SidebarCollection />', () => {
       expect(element.hasClass('compass-sidebar-icon-is-disabled')).to.be.true;
     });
     it('warns the drop collection icon does not work on secondaries', function() {
-      const expected = 'Drop collection is not available on a secondary node';
+      const expected = 'not writable';
       const element = this.component.find('.compass-sidebar-icon-drop-collection');
       expect(element.prop('data-tip')).to.be.equal(expected);
     });
@@ -63,8 +63,9 @@ describe('<SidebarCollection />', () => {
     });
   });
 
-  context('when dataService is writable', () => {
+  context('when is writable', () => {
     beforeEach(function() {
+      stateStore.state.isWritable = true;
       this.component = shallow(
       <SidebarCollection
         _id="foo.bar"

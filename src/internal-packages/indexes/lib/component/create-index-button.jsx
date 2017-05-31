@@ -48,7 +48,7 @@ class CreateIndexButton extends React.Component {
     const isNotWritableTooltip = this.props.isWritable ? null : (
       <Tooltip id={tooltipId} />
     );
-    const tooltipText = 'This action is not available on a secondary node';
+    const tooltipText = this.props.description;
 
     return (
       <div className="create-index-btn action-bar">
@@ -74,7 +74,8 @@ class CreateIndexButton extends React.Component {
 CreateIndexButton.displayName = 'CreateIndexButton';
 
 CreateIndexButton.propTypes = {
-  isWritable: PropTypes.bool.isRequired
+  isWritable: PropTypes.bool.isRequired,
+  description: PropTypes.string.isRequired
 };
 
 module.exports = CreateIndexButton;

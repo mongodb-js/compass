@@ -1,4 +1,3 @@
-const app = require('hadron-app');
 const Reflux = require('reflux');
 const { NamespaceStore } = require('hadron-reflux-store');
 
@@ -59,15 +58,6 @@ const CollectionStore = Reflux.createStore({
    */
   isReadonly() {
     return this.collection.readonly;
-  },
-
-  /**
-   * Is the collection writable?
-   *
-   * @returns {Boolean} If the collection is writable.
-   */
-  isWritable() {
-    return !this.isReadonly() && app.dataService.isWritable();
   }
 });
 

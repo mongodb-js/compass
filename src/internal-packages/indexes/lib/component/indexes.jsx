@@ -4,7 +4,6 @@ const IndexHeader = require('./index-header');
 const IndexList = require('./index-list');
 const CreateIndexButton = require('./create-index-button');
 const LoadIndexesStore = require('../store/load-indexes-store');
-const app = require('hadron-app');
 
 /**
  * Component for the indexes.
@@ -18,7 +17,9 @@ class Indexes extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
+    const appRegistry = global.hadronApp.appRegistry;
+    this.CollectionStore = appRegistry.getStore('App.CollectionStore');
+    this.DeploymentStateStore = appRegistry.getStore('DeploymentAwareness.DeploymentStateStore');
     this.state = this.determineState();
   }
 
@@ -27,6 +28,7 @@ class Indexes extends React.Component {
    */
   componentWillMount() {
     this.unsubscribeLoad = LoadIndexesStore.listen(this.handleLoad.bind(this));
+    this.unsubscribeStateStore = this.DeploymentStateStore.listen(this.deploymentStateChanged.bind(this));
   }
 
   /**
@@ -34,12 +36,23 @@ class Indexes extends React.Component {
    */
   componentWillUnmount() {
     this.unsubscribeLoad();
+    this.unsubscribeStateStore();
+  }
+
+  /**
+   * Called when the deployment state changes.
+   *
+   * @param {Object} state - The deployment state.
+   */
+  deploymentStateChanged(state) {
+    this.setState(state);
   }
 
   determineState() {
     return {
-      writable: this.CollectionStore.isWritable(),
-      readonly: this.CollectionStore.isReadonly()
+      isWritable: this.DeploymentStateStore.state.isWritable,
+      isReadonly: this.CollectionStore.isReadonly(),
+      description: this.DeploymentStateStore.state.description
     };
   }
 
@@ -48,8 +61,8 @@ class Indexes extends React.Component {
   }
 
   shouldComponentupdate(nextProps, nextState) {
-    return nextState.writable !== this.state.writable ||
-      nextState.readonly !== this.state.readonly;
+    return nextState.isWritable !== this.state.isWritable ||
+      nextState.isReadonly !== this.state.isReadonly;
   }
 
   renderComponent() {
@@ -83,9 +96,9 @@ class Indexes extends React.Component {
       <div className="index-container">
         {/* NOT SURE if we need to wrap the controls-container in a readonly conditional as well. */}
         <div className="controls-container">
-          <CreateIndexButton isWritable={this.state.writable} />
+          <CreateIndexButton isWritable={this.state.isWritable} description={this.state.description} />
         </div>
-        {this.state.readonly ? this.renderReadonly() : this.renderComponent()}
+        {this.state.isReadonly ? this.renderReadonly() : this.renderComponent()}
       </div>
     );
   }

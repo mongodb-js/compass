@@ -37,7 +37,7 @@ describe('<SamplingMessage />', () => {
           return false;
         }
       };
-      this.component = shallow(<this.SamplingMessage isWritable={false} insertHandler={() => {}} />);
+      this.component = shallow(<this.SamplingMessage isWritable={false} description="not writable" insertHandler={() => {}} />);
     });
 
     it('disables the INSERT DOCUMENT button', () => {
@@ -47,7 +47,7 @@ describe('<SamplingMessage />', () => {
 
     it('shows tooltip indicating why button is disabled', () => {
       expect(this.component.find('.tooltip-button-wrapper'))
-        .to.have.data('tip', 'This action is not available on a secondary node');
+        .to.have.data('tip', 'not writable');
     });
   });
 

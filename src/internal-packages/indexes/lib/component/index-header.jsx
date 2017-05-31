@@ -1,7 +1,6 @@
 const React = require('react');
 const IndexHeaderColumn = require('./index-header-column');
 const SortIndexesStore = require('../store/sort-indexes-store');
-const app = require('hadron-app');
 
 const ASC = 'fa-sort-asc';
 
@@ -17,8 +16,14 @@ class IndexHeader extends React.Component {
    */
   constructor(props) {
     super(props);
-    this.state = { sortOrder: ASC };
-    this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
+    const appRegistry = global.hadronApp.appRegistry;
+    this.DeploymentStateStore = appRegistry.getStore('DeploymentAwareness.DeploymentStateStore');
+    this.CollectionStore = appRegistry.getStore('App.CollectionStore');
+    this.state = {
+      sortOrder: ASC,
+      isWritable: this.DeploymentStateStore.state.isWritable,
+      description: this.DeploymentStateStore.state.description
+    };
   }
 
   /**
@@ -26,6 +31,7 @@ class IndexHeader extends React.Component {
    */
   componentWillMount() {
     this.unsubscribeSort = SortIndexesStore.listen(this.handleIndexChange.bind(this));
+    this.unsubscribeStateStore = this.DeploymentStateStore.listen(this.deploymentStateChanged.bind(this));
   }
 
   /**
@@ -33,6 +39,16 @@ class IndexHeader extends React.Component {
    */
   componentWillUnmount() {
     this.unsubscribeSort();
+    this.unsubscribeStateStore();
+  }
+
+  /**
+   * Called when the deployment state changes.
+   *
+   * @param {Object} state - The deployment state.
+   */
+  deploymentStateChanged(state) {
+    this.setState(state);
   }
 
   /**
@@ -65,7 +81,7 @@ class IndexHeader extends React.Component {
             dataTestId="index-header-usage" name="Usage" sortOrder={this.state.sortOrder} />
           <IndexHeaderColumn
             dataTestId="index-header-properties" name="Properties" sortOrder={this.state.sortOrder} />
-          {this.CollectionStore.isWritable() ?
+          {(!this.CollectionStore.isReadonly() && this.state.isWritable) ?
             <IndexHeaderColumn
               dataTestId="index-header-drop" name="Drop" sortOrder={this.state.sortOrder}/>
             : null}

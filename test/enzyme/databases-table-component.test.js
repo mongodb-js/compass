@@ -20,9 +20,17 @@ describe('<DatabasesTable />', () => {
   const appRegistry = app.appRegistry;
   const appDataService = app.dataService;
   const appInstance = app.instance;
+  const stateStore = {
+    state: {
+      isWritable: true
+    },
+    listen: () => {}
+  };
+
   beforeEach(() => {
     // Mock the AppRegistry with a new one so tests don't complain about
     // appRegistry.getComponent (i.e. appRegistry being undefined)
+    global.hadronApp = app;
     app.appRegistry = new AppRegistry();
 
     app.appRegistry.registerComponent('Schema.Schema', sinon.spy());
@@ -30,6 +38,7 @@ describe('<DatabasesTable />', () => {
     app.appRegistry.registerComponent('Indexes.Indexes', sinon.spy());
     app.appRegistry.registerComponent('Explain.ExplainPlan', sinon.spy());
     app.appRegistry.registerComponent('Validation.Validation', sinon.spy());
+    app.appRegistry.registerStore('DeploymentAwareness.DeploymentStateStore', stateStore);
 
     // Fixes Warning: React.createElement:
     // type should not be null, undefined, boolean, or number.
@@ -66,13 +75,9 @@ describe('<DatabasesTable />', () => {
     app.instance = appInstance;
   });
 
-  context('when no databases and dataService is not writable', () => {
+  context('when no databases and is not writable', () => {
     beforeEach(() => {
-      app.dataService = {
-        isWritable: () => {
-          return false;
-        }
-      };
+      stateStore.state.isWritable = false;
     });
 
     it('has a message containing connect to another instance', () => {
@@ -89,13 +94,9 @@ describe('<DatabasesTable />', () => {
     });
   });
 
-  context('when loading databases and dataService is not writable', () => {
+  context('when loading databases and is not writable', () => {
     beforeEach(() => {
-      app.dataService = {
-        isWritable: () => {
-          return false;
-        }
-      };
+      stateStore.state.isWritable = false;
     });
 
     it('displays a loading message', () => {
@@ -108,13 +109,9 @@ describe('<DatabasesTable />', () => {
     });
   });
 
-  context('when no databases and dataService is writable', () => {
+  context('when no databases and is writable', () => {
     beforeEach(() => {
-      app.dataService = {
-        isWritable: () => {
-          return true;
-        }
-      };
+      stateStore.state.isWritable = true;
     });
 
     it('has only the not authorized message', () => {
@@ -132,11 +129,8 @@ describe('<DatabasesTable />', () => {
 
   context('when databases exist and dataService is not writable', () => {
     beforeEach(() => {
-      app.dataService = {
-        isWritable: () => {
-          return false;
-        }
-      };
+      stateStore.state.isWritable = false;
+      stateStore.state.description = 'not writable';
       this.component = mount(<this.DatabasesTable
         columns={['Namespace']}
         databases={[
@@ -153,17 +147,13 @@ describe('<DatabasesTable />', () => {
 
     it('shows tooltip indicating why button is disabled', () => {
       expect(this.component.find('.tooltip-button-wrapper'))
-        .to.have.data('tip', 'This action is not available on a secondary node');
+        .to.have.data('tip', 'not writable');
     });
   });
 
   context('when databases exist and dataService is writable', () => {
     beforeEach(() => {
-      app.dataService = {
-        isWritable: () => {
-          return true;
-        }
-      };
+      stateStore.state.isWritable = true;
       this.component = mount(<this.DatabasesTable
         columns={['Namespace']}
         databases={[
