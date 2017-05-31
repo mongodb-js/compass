@@ -72,53 +72,11 @@ describe('#query-bar', function() {
       });
     });
 
-    context('when applying queries from the schema tab', function() {
-      it('shows the sampling message', function() {
-        return client
-          .clickSchemaTab()
-          .getSamplingMessageFromSchemaTab()
-          .should.eventually.include('Query returned 100 documents.');
-      });
-      it('toggles the query bar', function() {
-        return client
-        .waitForStatusBar()
-        .clickQueryBarOptionsToggle();
-      });
-      context.skip('when applying a projection #race', function() {
-        it('returns some of the fields', function() {
-          return client
-            .inputProjectFromSchemaTab('{age: 1, address: 1}')
-            .clickApplyFilterButtonFromSchemaTab()
-            .waitForStatusBar()
-            .getSchemaFieldNames()
-            .should.eventually.deep.equal(['_id', 'address', 'age']);
-        });
-        it('shows the sampling message', function() {
-          return client
-            .waitForStatusBar()
-            .getSamplingMessageFromSchemaTab()
-            .should.eventually.include('Query returned 100 documents.');
-        });
-      });
-      context('when applying a limit', function() {
-        it('runs schema analysis on some of the documents', function() {
-          return client
-            .inputLimitFromSchemaTab('5')
-            .clickApplyFilterButtonFromSchemaTab()
-            .waitForStatusBar()
-            .getSamplingMessageFromSchemaTab()
-            .should.eventually.include('Query returned 5 documents.');
-        });
-      });
-    });
-
     context('when applying queries from the documents tab', function() {
       it('goes to the documents tab', function() {
         return client
-          .waitForStatusBar()
-          .clickResetFilterButtonFromSchemaTab()
-          .waitForStatusBar()
           .clickDocumentsTab()
+          .clickQueryBarOptionsToggle()
           .getSamplingMessageFromDocumentsTab()
           .should.eventually.include('Query returned 100 documents. Displaying documents 1-20');
       });
@@ -175,14 +133,53 @@ describe('#query-bar', function() {
       });
     });
 
-    context('when applying queries to the explain tab', function() {
-      it('goes to the explain plan tab', function() {
+    context('when applying queries from the schema tab', function() {
+      it('shows the sampling message', function() {
         return client
           .clickResetFilterButtonFromDocumentsTab()
           .waitForStatusBar()
+          .clickSchemaTab()
+          .clickApplyFilterButtonFromSchemaTab()
+          .waitForStatusBar()
+          .getSamplingMessageFromSchemaTab()
+          .should.eventually.include('Query returned 100 documents.');
+      });
+      context.skip('when applying a projection #race', function() {
+        it('returns some of the fields', function() {
+          return client
+            .inputProjectFromSchemaTab('{age: 1, address: 1}')
+            .clickApplyFilterButtonFromSchemaTab()
+            .waitForStatusBar()
+            .getSchemaFieldNames()
+            .should.eventually.deep.equal(['_id', 'address', 'age']);
+        });
+        it('shows the sampling message', function() {
+          return client
+            .waitForStatusBar()
+            .getSamplingMessageFromSchemaTab()
+            .should.eventually.include('Query returned 100 documents.');
+        });
+      });
+      context('when applying a limit', function() {
+        it('runs schema analysis on some of the documents', function() {
+          return client
+            .inputLimitFromSchemaTab('5')
+            .clickApplyFilterButtonFromSchemaTab()
+            .waitForStatusBar()
+            .getSamplingMessageFromSchemaTab()
+            .should.eventually.include('Query returned 5 documents.');
+        });
+      });
+    });
+
+    context('when applying queries to the explain tab', function() {
+      it('goes to the explain plan tab', function() {
+        return client
+          .clickResetFilterButtonFromSchemaTab()
+          .waitForStatusBar()
           .clickExplainPlanTab()
           .getExplainPlanStatusMessage()
-          .should.eventually.include('please enter your query first before applying and viewing your explain plan.');
+          .should.eventually.include('To prevent unintended collection scans, please enter your query first');
       });
 
       context('when applying a projection', function() {
