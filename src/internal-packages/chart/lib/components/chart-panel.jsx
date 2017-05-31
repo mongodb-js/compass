@@ -27,7 +27,7 @@ class ChartPanel extends React.Component {
   }
 
   renderChartTypeChoice() {
-    const chartTypeNames = _.indexBy(_.pluck(this.props.chartRoles, 'name'));
+    const chartTypeNames = _.indexBy(_.pluck(this.props.availableChartRoles, 'name'));
     return (
       <OptionSelector
         id="chart-type-selector"
@@ -40,7 +40,7 @@ class ChartPanel extends React.Component {
   }
 
   renderEncodingChannels() {
-    const currentChartRole = _.find(this.props.chartRoles,
+    const currentChartRole = _.find(this.props.availableChartRoles,
       'name', this.props.chartType);
     if (!currentChartRole) {
       // this happens on initial render before Chart.Type roles are loaded
@@ -72,7 +72,7 @@ class ChartPanel extends React.Component {
 
 ChartPanel.propTypes = {
   chartType: PropTypes.string.isRequired,
-  chartRoles: PropTypes.array.isRequired,
+  availableChartRoles: PropTypes.array.isRequired,
   encodedChannels: PropTypes.object.isRequired,
   actions: PropTypes.object
 };

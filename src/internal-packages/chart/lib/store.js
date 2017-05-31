@@ -79,6 +79,7 @@ const ChartStore = Reflux.createStore({
   },
 
   onActivated(appRegistry) {
+    // set up listeners on external stores
     appRegistry.getStore('Query.ChangedStore').listen(this.onQueryChanged.bind(this));
     appRegistry.getStore('Schema.FieldStore').listen(this.onFieldsChanged.bind(this));
 
@@ -89,7 +90,7 @@ const ChartStore = Reflux.createStore({
     this.CHART_TYPES = _.pluck(roles, 'name');
 
     this.setState({
-      chartRoles: roles,
+      availableChartRoles: roles,
       chartType: this.INITIAL_CHART_TYPE
     });
     this._resetHistory();
@@ -140,10 +141,10 @@ const ChartStore = Reflux.createStore({
       hasUndoableActions: false,
       hasRedoableActions: false
     };
-    const chartRoles = {
-      chartRoles: []
+    const availableChartRoles = {
+      availableChartRoles: []
     };
-    return Object.assign({}, caches, chart, history, chartRoles);
+    return Object.assign({}, caches, chart, history, availableChartRoles);
   },
 
   /**
@@ -214,7 +215,7 @@ const ChartStore = Reflux.createStore({
    */
   _updateSpec(update, pushToHistory) {
     const newState = Object.assign({}, this.state, update);
-    const chartRole = _.find(newState.chartRoles, 'name', newState.chartType);
+    const chartRole = _.find(newState.availableChartRoles, 'name', newState.chartType);
     if (!chartRole) {
       throw new Error(`Unknown chart type: ${newState.chartType}`);
     }
@@ -513,7 +514,7 @@ const ChartStore = Reflux.createStore({
    *                                 part of the undo/redo-able history
    */
   selectChartType(chartType, pushToHistory = true) {
-    // const chartNames = _.pluck(this.props.chartRoles, 'name');
+    // const chartNames = _.pluck(this.props.availableChartRoles, 'name');
     // if (!_.includes(chartNames, chartType)) {
     //   throw new Error('Unknown chart type: ' + chartType);
     // }
