@@ -14,10 +14,10 @@ const ChartStore = require('../../src/internal-packages/chart/lib/store');
 const _ = require('lodash');
 const app = require('hadron-app');
 
-const BarChartRole = require('../../src/internal-packages/chart/lib/chart-types/bar');
-const AreaChartRole = require('../../src/internal-packages/chart/lib/chart-types/area');
-const LineChartRole = require('../../src/internal-packages/chart/lib/chart-types/line');
-const ScatterPlotRole = require('../../src/internal-packages/chart/lib/chart-types/scatter');
+const BarChartRole = require('../../src/internal-packages/chart/lib/chart-types/bar.json');
+const AreaChartRole = require('../../src/internal-packages/chart/lib/chart-types/area.json');
+const LineChartRole = require('../../src/internal-packages/chart/lib/chart-types/line.json');
+const ScatterPlotRole = require('../../src/internal-packages/chart/lib/chart-types/scatter.json');
 
 const mockDataService = require('./support/mock-data-service');
 
@@ -624,6 +624,33 @@ describe('ChartStore', function() {
         }
       });
       expect(ChartStore.state.specValid).to.be.true;
+    });
+  });
+
+  context('when calling _createVegaEncodingTransform', () => {
+    it('works on empty channel object', () => {
+      const channels = {};
+      const result = ChartStore._createVegaEncodingTransform(channels);
+      expect(result).to.an('array');
+      expect(result).to.be.empty;
+    });
+    it('correctly encodes a single field', () => {
+      const channels = {color: {field: 'category', type: 'nominal'}};
+      const result = ChartStore._createVegaEncodingTransform(channels);
+      expect(result).to.an('array');
+      expect(result).to.have.lengthOf(1);
+      expect(result[0]).to.be.deep.equal({type: 'formula', as: 'color', expr: 'datum.category'});
+    });
+    it('correctly encodes multiple fields', () => {
+      const channels = {
+        x: {field: 'birthday', type: 'temporal'},
+        color: {field: 'category', type: 'nominal'}
+      };
+      const result = ChartStore._createVegaEncodingTransform(channels);
+      expect(result).to.an('array');
+      expect(result).to.have.lengthOf(2);
+      expect(result[0]).to.be.deep.equal({type: 'formula', as: 'x', expr: 'datum.birthday'});
+      expect(result[1]).to.be.deep.equal({type: 'formula', as: 'color', expr: 'datum.category'});
     });
   });
 

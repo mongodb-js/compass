@@ -10,10 +10,10 @@ const AppRegistry = require('hadron-app-registry');
 const { DropdownButton } = require('react-bootstrap');
 const { DragDropContext } = require('react-dnd');
 
-const BarChartRole = require('../../src/internal-packages/chart/lib/chart-types/bar');
-const AreaChartRole = require('../../src/internal-packages/chart/lib/chart-types/area');
-const LineChartRole = require('../../src/internal-packages/chart/lib/chart-types/line');
-const ScatterPlotRole = require('../../src/internal-packages/chart/lib/chart-types/scatter');
+const BarChartRole = require('../../src/internal-packages/chart/lib/chart-types/bar.json');
+const AreaChartRole = require('../../src/internal-packages/chart/lib/chart-types/area.json');
+const LineChartRole = require('../../src/internal-packages/chart/lib/chart-types/line.json');
+const ScatterPlotRole = require('../../src/internal-packages/chart/lib/chart-types/scatter.json');
 
 const AVAILABLE_CHART_ROLES = [ScatterPlotRole, BarChartRole, LineChartRole, AreaChartRole];
 
