@@ -47,13 +47,13 @@ describe('<Indexes />', () => {
 
   context('When collection is not writable', function() {
     it('disables the CREATE INDEX button', function() {
-      component = shallow(<this.CreateIndexButton isWritable={false} />);
+      component = shallow(<this.CreateIndexButton isWritable={false} description="not writable" />);
       expect(component.find('.btn.btn-primary.btn-xs')).to.be.disabled();
     });
 
     it('shows tooltip indicating why button is disabled', () => {
       expect(component.find('.tooltip-button-wrapper'))
-        .to.have.data('tip', 'This action is not available on a secondary node');
+        .to.have.data('tip', 'not writable');
     });
   });
 

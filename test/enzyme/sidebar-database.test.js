@@ -13,10 +13,18 @@ chai.use(chaiEnzyme());
 
 const appDataService = app.dataService;
 const appRegistry = app.appRegistry;
+const stateStore = {
+  state: {
+    isWritable: true
+  },
+  listen: () => {}
+};
 
 describe('<SidebarDatabase />', () => {
   beforeEach(function() {
+    global.hadronApp = app;
     app.appRegistry = new AppRegistry();
+    app.appRegistry.registerStore('DeploymentAwareness.DeploymentStateStore', stateStore);
     this.DatabaseDDLActionSpyCreate = sinon.spy();
     this.DatabaseDDLActionSpyDrop = sinon.spy();
     app.appRegistry.registerAction(
@@ -38,13 +46,10 @@ describe('<SidebarDatabase />', () => {
     app.appRegistry = appRegistry;
   });
 
-  context('when dataService is not writable', function() {
+  context('when is not writable', function() {
     beforeEach(function() {
-      app.dataService = {
-        isWritable: () => {
-          return false;
-        }
-      };
+      stateStore.state.isWritable = false;
+      stateStore.state.description = 'not writable';
       this.component = shallow(
         <SidebarDatabase
           _id="foo"
@@ -56,7 +61,7 @@ describe('<SidebarDatabase />', () => {
       expect(element.hasClass('compass-sidebar-icon-is-disabled')).to.be.true;
     });
     it('warns the create collection icon does not work on secondaries', function() {
-      const expected = 'Create collection is not available on a secondary node';
+      const expected = 'not writable';
       const element = this.component.find('.compass-sidebar-icon-create-collection');
       expect(element.prop('data-tip')).to.be.equal(expected);
     });
@@ -84,6 +89,7 @@ describe('<SidebarDatabase />', () => {
 
   context('when dataService is writable', () => {
     beforeEach(function() {
+      stateStore.state.isWritable = true;
       this.component = shallow(
       <SidebarDatabase
         _id="foo"

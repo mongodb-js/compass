@@ -14,11 +14,19 @@ chai.use(chaiEnzyme());
 
 const appDataService = app.dataService;
 const appRegistry = app.appRegistry;
+const stateStore = {
+  state: {
+    isWritable: true
+  },
+  listen: () => {}
+};
 
 describe('<Sidebar />', () => {
   beforeEach(function() {
+    global.hadronApp = app;
     app.appRegistry = new AppRegistry();
     this.DatabaseDDLActionSpy = sinon.spy();
+    app.appRegistry.registerStore('DeploymentAwareness.DeploymentStateStore', stateStore);
     app.appRegistry.registerAction(
       'DatabaseDDL.Actions',
       {openCreateDatabaseDialog: this.DatabaseDDLActionSpy}
@@ -35,13 +43,10 @@ describe('<Sidebar />', () => {
     app.appRegistry = appRegistry;
   });
 
-  context('when dataService is not writable', function() {
+  context('when is not writable', function() {
     beforeEach(function() {
-      app.dataService = {
-        isWritable: () => {
-          return false;
-        }
-      };
+      stateStore.state.isWritable = false;
+      stateStore.state.description = 'not writable';
       this.component = shallow(
         <Sidebar
           databases={[]}
@@ -49,7 +54,7 @@ describe('<Sidebar />', () => {
         />);
     });
     it('warns the create database button is not available on secondaries', function() {
-      const expected = 'Not available on a secondary node';
+      const expected = 'not writable';
       const element = this.component.find('.compass-sidebar-button-create-database-container');
       expect(element.prop('data-tip')).to.be.equal(expected);
     });
@@ -64,8 +69,9 @@ describe('<Sidebar />', () => {
     });
   });
 
-  context('when dataService is writable', () => {
+  context('when is writable', () => {
     beforeEach(function() {
+      stateStore.state.isWritable = true;
       this.component = shallow(
       <Sidebar
         databases={[]}

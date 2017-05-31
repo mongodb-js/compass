@@ -15,12 +15,20 @@ describe('<CollectionsTable />', () => {
   const appRegistry = app.appRegistry;
   const appDataService = app.dataService;
   const appInstance = app.instance;
+  const stateStore = {
+    state: {
+      isWritable: true
+    },
+    listen: () => {}
+  };
 
   beforeEach(() => {
     // Mock the AppRegistry with a new one so tests don't complain about
     // appRegistry.getComponent (i.e. appRegistry being undefined)
+    global.hadronApp = app;
     app.appRegistry = new AppRegistry();
     app.appRegistry.registerStore('App.CollectionStore', sinon.spy());
+    app.appRegistry.registerStore('DeploymentAwareness.DeploymentStateStore', stateStore);
 
     // TypeError: Cannot read property 'refreshInstance' of undefined
     //   at Store.init (src/internal-packages/server-stats/lib/stores/create-database-store.js:14:28)
@@ -45,11 +53,8 @@ describe('<CollectionsTable />', () => {
 
   context('when collection is not writable', () => {
     beforeEach(() => {
-      app.dataService = {
-        isWritable: () => {
-          return false;
-        }
-      };
+      stateStore.state.isWritable = false;
+      stateStore.state.description = 'not writable';
       this.component = mount(<this.CollectionsTable columns={['Namespace']} />);
     });
 
@@ -59,17 +64,13 @@ describe('<CollectionsTable />', () => {
     });
     it('shows tooltip indicating why button is disabled', () => {
       expect(this.component.find('.tooltip-button-wrapper'))
-        .to.have.data('tip', 'This action is not available on a secondary node');
+        .to.have.data('tip', 'not writable');
     });
   });
 
   context('when collection is writable', () => {
     beforeEach(() => {
-      app.dataService = {
-        isWritable: () => {
-          return true;
-        }
-      };
+      stateStore.state.isWritable = true;
       this.component = mount(<this.CollectionsTable columns={['Namespace']} />);
     });
 
