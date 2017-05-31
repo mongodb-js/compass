@@ -41,21 +41,20 @@ const DeploymentStateStore = Reflux.createStore({
       if (topologyType === TopologyType.SINGLE) {
         const serverType = description.servers[0].type;
         const serverWritable = ServerType.isWritable(serverType);
-        const message = serverWritable ? 'is writable' : 'is not writable';
         this.setState({
           isWritable: serverWritable,
-          description: `Topology type ${topologyType} with server type ${serverType} ${message}.`
+          description: this._generateSingleMessage(serverWritable, serverType)
         });
       } else {
         this.setState({
           isWritable: true,
-          description: `Topology type ${topologyType} is writable.`
+          description: this._generateNonSingleMessage(true, topologyType)
         });
       }
     } else {
       this.setState({
         isWritable: false,
-        description: `Topology type ${topologyType} is not writable.`
+        description: this._generateNonSingleMessage(false, topologyType)
       });
     }
   },
@@ -71,6 +70,16 @@ const DeploymentStateStore = Reflux.createStore({
       isWritable: false,
       description: DEFAULT_DESCRIPTION
     };
+  },
+
+  _generateNonSingleMessage(isWritable, topologyType) {
+    const message = isWritable ? 'is writable' : 'is not writable';
+    return `Topology type: ${TopologyType.humanize(topologyType)} ${message}`;
+  },
+
+  _generateSingleMessage(isWritable, serverType) {
+    const message = isWritable ? 'is writable' : 'is not writable';
+    return `Single connection to server type: ${ServerType.humanize(serverType)} ${message}`;
   }
 });
 

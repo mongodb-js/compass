@@ -33,6 +33,32 @@ const WRITABLE_SERVER_TYPES = [
 ];
 
 /**
+ * Humanized types.
+ */
+const HUMANIZED_TYPES = {
+  'Standalone': 'Standalone',
+  'Mongos': 'Mongos',
+  'PossiblePrimary': 'Possible Primary',
+  'RSPrimary': 'Primary',
+  'RSSecondary': 'Secondary',
+  'RSArbiter': 'Arbiter',
+  'RSOther': 'Other',
+  'RSGhost': 'Ghost',
+  'Unknown': 'Unknown'
+};
+
+/**
+ * Humanize the server type for nice reading.
+ *
+ * @param {String} serverType - The server type.
+ *
+ * @returns {String} The nice to read format.
+ */
+const humanize = (serverType) => {
+  return HUMANIZED_TYPES[serverType];
+};
+
+/**
  * Determine if the server type is writable.
  *
  * @param {String} serverType - The server type.
@@ -43,6 +69,7 @@ const isWritable = (serverType) => {
   return WRITABLE_SERVER_TYPES.includes(serverType);
 };
 
+module.exports.humanize = humanize;
 module.exports.isWritable = isWritable;
 module.exports.STANDALONE = STANDALONE;
 module.exports.MONGOS = MONGOS;
