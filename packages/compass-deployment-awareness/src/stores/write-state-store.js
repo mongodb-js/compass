@@ -10,9 +10,9 @@ const TopologyType = require('../models/topology-type');
 const DEFAULT_DESCRIPTION = 'Topology type not yet discovered.';
 
 /**
- * Deployment State store.
+ * Write State store.
  */
-const DeploymentStateStore = Reflux.createStore({
+const WriteStateStore = Reflux.createStore({
   /**
    * adds a state to the store, similar to React.Component's state
    * @see https://github.com/yonatanmn/Super-Simple-Flux#reflux-state-mixin
@@ -60,7 +60,7 @@ const DeploymentStateStore = Reflux.createStore({
   },
 
   /**
-   * Initialize the Deployment State store state. The returned object must
+   * Initialize the Write State store state. The returned object must
    * contain all keys that you might want to modify with this.setState().
    *
    * @return {Object} initial store state.
@@ -83,4 +83,4 @@ const DeploymentStateStore = Reflux.createStore({
   }
 });
 
-module.exports = DeploymentStateStore;
+module.exports = WriteStateStore;

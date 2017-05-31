@@ -1,3 +1,5 @@
+const { ReadPreference } = require('mongodb');
+
 const SINGLE = 'Single';
 const REPLICA_SET_NO_PRIMARY = 'ReplicaSetNoPrimary';
 const REPLICA_SET_WITH_PRIMARY = 'ReplicaSetWithPrimary';
@@ -14,6 +16,24 @@ const TOPOLOGY_TYPES = [
   SHARDED,
   UNKNOWN
 ];
+
+/**
+ * Readable read preferences with a topology of
+ * replica set no primary.
+ */
+const REPLICA_SET_NO_PRIMARY_READABLE = [
+  ReadPreference.PRIMARY_PREFERRED,
+  ReadPreference.SECONDARY,
+  ReadPreference.SECONDARY_PREFERRED,
+  ReadPreference.NEAREST
+];
+
+/**
+ * Readable read preferences with a topology of
+ * replica set with primary.
+ */
+const REPLICA_SET_WITH_PRIMARY_READABLE =
+  REPLICA_SET_NO_PRIMARY_READABLE.concat([ ReadPreference.PRIMARY ]);
 
 /**
  * List of writable topology types.
@@ -47,6 +67,28 @@ const isWritable = (topologyType) => {
 };
 
 /**
+ * Determines if the topology is readable based on the type and
+ * read preference.
+ *
+ * @param {String} topologyType - the topology type.
+ * @param {String} readPreference - the read preference.
+ *
+ * @returns {Boolean} if the topology type is readable.
+ */
+const isReadable = (topologyType, readPreference) => {
+  switch (topologyType) {
+    case UNKNOWN:
+      return false;
+    case REPLICA_SET_NO_PRIMARY:
+      return REPLICA_SET_NO_PRIMARY_READABLE.includes(readPreference);
+    case REPLICA_SET_WITH_PRIMARY:
+      return REPLICA_SET_WITH_PRIMARY_READABLE.includes(readPreference);
+    default:
+      return true;
+  }
+};
+
+/**
  * Humanize the topology type for nice reading.
  *
  * @param {String} topologyType - The topology type.
@@ -59,6 +101,7 @@ const humanize = (topologyType) => {
 
 module.exports.humanize = humanize;
 module.exports.isWritable = isWritable;
+module.exports.isReadable = isReadable;
 module.exports.SINGLE = SINGLE;
 module.exports.REPLICA_SET_NO_PRIMARY = REPLICA_SET_NO_PRIMARY;
 module.exports.REPLICA_SET_WITH_PRIMARY = REPLICA_SET_WITH_PRIMARY;
