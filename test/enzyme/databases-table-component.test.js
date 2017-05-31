@@ -38,7 +38,7 @@ describe('<DatabasesTable />', () => {
     app.appRegistry.registerComponent('Indexes.Indexes', sinon.spy());
     app.appRegistry.registerComponent('Explain.ExplainPlan', sinon.spy());
     app.appRegistry.registerComponent('Validation.Validation', sinon.spy());
-    app.appRegistry.registerStore('DeploymentAwareness.DeploymentStateStore', stateStore);
+    app.appRegistry.registerStore('DeploymentAwareness.WriteStateStore', stateStore);
 
     // Fixes Warning: React.createElement:
     // type should not be null, undefined, boolean, or number.

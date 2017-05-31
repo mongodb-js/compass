@@ -28,7 +28,7 @@ describe('<CollectionsTable />', () => {
     global.hadronApp = app;
     app.appRegistry = new AppRegistry();
     app.appRegistry.registerStore('App.CollectionStore', sinon.spy());
-    app.appRegistry.registerStore('DeploymentAwareness.DeploymentStateStore', stateStore);
+    app.appRegistry.registerStore('DeploymentAwareness.WriteStateStore', stateStore);
 
     // TypeError: Cannot read property 'refreshInstance' of undefined
     //   at Store.init (src/internal-packages/server-stats/lib/stores/create-database-store.js:14:28)

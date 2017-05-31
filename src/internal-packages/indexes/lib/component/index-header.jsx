@@ -17,12 +17,12 @@ class IndexHeader extends React.Component {
   constructor(props) {
     super(props);
     const appRegistry = global.hadronApp.appRegistry;
-    this.DeploymentStateStore = appRegistry.getStore('DeploymentAwareness.DeploymentStateStore');
+    this.WriteStateStore = appRegistry.getStore('DeploymentAwareness.WriteStateStore');
     this.CollectionStore = appRegistry.getStore('App.CollectionStore');
     this.state = {
       sortOrder: ASC,
-      isWritable: this.DeploymentStateStore.state.isWritable,
-      description: this.DeploymentStateStore.state.description
+      isWritable: this.WriteStateStore.state.isWritable,
+      description: this.WriteStateStore.state.description
     };
   }
 
@@ -31,7 +31,7 @@ class IndexHeader extends React.Component {
    */
   componentWillMount() {
     this.unsubscribeSort = SortIndexesStore.listen(this.handleIndexChange.bind(this));
-    this.unsubscribeStateStore = this.DeploymentStateStore.listen(this.deploymentStateChanged.bind(this));
+    this.unsubscribeStateStore = this.WriteStateStore.listen(this.deploymentStateChanged.bind(this));
   }
 
   /**

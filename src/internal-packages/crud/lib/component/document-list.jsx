@@ -56,7 +56,7 @@ class DocumentList extends React.Component {
     const appRegistry = global.hadronApp.appRegistry;
     this.samplingMessage = appRegistry.getComponent('Query.SamplingMessage');
     this.CollectionStore = appRegistry.getStore('App.CollectionStore');
-    this.DeploymentStateStore = appRegistry.getStore('DeploymentAwareness.DeploymentStateStore');
+    this.WriteStateStore = appRegistry.getStore('DeploymentAwareness.WriteStateStore');
     this.projection = false;
     this.queryBar = appRegistry.getComponent('Query.QueryBar');
     this.QueryChangedStore = appRegistry.getStore('Query.ChangedStore');
@@ -66,8 +66,8 @@ class DocumentList extends React.Component {
       nextSkip: 0,
       namespace: NamespaceStore.ns,
       loading: false,
-      isWritable: !this.CollectionStore.isReadonly() && this.DeploymentStateStore.state.isWritable,
-      description: this.DeploymentStateStore.state.description
+      isWritable: !this.CollectionStore.isReadonly() && this.WriteStateStore.state.isWritable,
+      description: this.WriteStateStore.state.description
     };
   }
 
@@ -81,7 +81,7 @@ class DocumentList extends React.Component {
     this.unsubscribeRemove = RemoveDocumentStore.listen(this.handleRemove.bind(this));
     this.unsubscribeInsert = InsertDocumentStore.listen(this.handleInsert.bind(this));
     this.unsubscribeQueryStore = this.QueryChangedStore.listen(this.handleQueryChanged.bind(this));
-    this.unsubscribeStateStore = this.DeploymentStateStore.listen(this.deploymentStateChanged.bind(this));
+    this.unsubscribeStateStore = this.WriteStateStore.listen(this.deploymentStateChanged.bind(this));
   }
 
   /**

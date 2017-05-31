@@ -20,19 +20,19 @@ class Sidebar extends React.Component {
   constructor(props) {
     super(props);
     const appRegistry = global.hadronApp.appRegistry;
-    this.DeploymentStateStore = appRegistry.getStore('DeploymentAwareness.DeploymentStateStore');
+    this.WriteStateStore = appRegistry.getStore('DeploymentAwareness.WriteStateStore');
     this.DatabaseDDLActions = appRegistry.getAction('DatabaseDDL.Actions');
     this.InstanceStore = appRegistry.getStore('App.InstanceStore');
     this.state = {
       collapsed: false,
       expandedDB: {},
-      isWritable: this.DeploymentStateStore.state.isWritable,
-      description: this.DeploymentStateStore.state.description
+      isWritable: this.WriteStateStore.state.isWritable,
+      description: this.WriteStateStore.state.description
     };
   }
 
   componentDidMount() {
-    this.unsubscribeStateStore = this.DeploymentStateStore.listen(this.deploymentStateChanged.bind(this));
+    this.unsubscribeStateStore = this.WriteStateStore.listen(this.deploymentStateChanged.bind(this));
   }
 
   componentWillReceiveProps(nextProps) {

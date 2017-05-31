@@ -11,15 +11,15 @@ class SidebarDatabase extends React.Component {
   constructor(props) {
     super(props);
     const appRegistry = global.hadronApp.appRegistry;
-    this.DeploymentStateStore = appRegistry.getStore('DeploymentAwareness.DeploymentStateStore');
+    this.WriteStateStore = appRegistry.getStore('DeploymentAwareness.WriteStateStore');
     this.CollectionsActions = appRegistry.getAction('Database.CollectionsActions');
     this.DatabaseDDLActions = appRegistry.getAction('DatabaseDDL.Actions');
     this.CollectionStore = appRegistry.getStore('App.CollectionStore');
-    this.state = this.DeploymentStateStore.state;
+    this.state = this.WriteStateStore.state;
   }
 
   componentDidMount() {
-    this.unsubscribeStateStore = this.DeploymentStateStore.listen(this.deploymentStateChanged.bind(this));
+    this.unsubscribeStateStore = this.WriteStateStore.listen(this.deploymentStateChanged.bind(this));
   }
 
   componentWillUnmount() {

@@ -19,7 +19,7 @@ class Indexes extends React.Component {
     super(props);
     const appRegistry = global.hadronApp.appRegistry;
     this.CollectionStore = appRegistry.getStore('App.CollectionStore');
-    this.DeploymentStateStore = appRegistry.getStore('DeploymentAwareness.DeploymentStateStore');
+    this.WriteStateStore = appRegistry.getStore('DeploymentAwareness.WriteStateStore');
     this.state = this.determineState();
   }
 
@@ -28,7 +28,7 @@ class Indexes extends React.Component {
    */
   componentWillMount() {
     this.unsubscribeLoad = LoadIndexesStore.listen(this.handleLoad.bind(this));
-    this.unsubscribeStateStore = this.DeploymentStateStore.listen(this.deploymentStateChanged.bind(this));
+    this.unsubscribeStateStore = this.WriteStateStore.listen(this.deploymentStateChanged.bind(this));
   }
 
   /**
@@ -50,9 +50,9 @@ class Indexes extends React.Component {
 
   determineState() {
     return {
-      isWritable: this.DeploymentStateStore.state.isWritable,
+      isWritable: this.WriteStateStore.state.isWritable,
       isReadonly: this.CollectionStore.isReadonly(),
-      description: this.DeploymentStateStore.state.description
+      description: this.WriteStateStore.state.description
     };
   }
 

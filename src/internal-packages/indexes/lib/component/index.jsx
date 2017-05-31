@@ -16,12 +16,12 @@ class Index extends React.Component {
     super(props);
     const appRegistry = global.hadronApp.appRegistry;
     this.CollectionStore = appRegistry.getStore('App.CollectionStore');
-    this.DeploymentStateStore = appRegistry.getStore('DeploymentAwareness.DeploymentStateStore');
-    this.state = this.DeploymentStateStore.state;
+    this.WriteStateStore = appRegistry.getStore('DeploymentAwareness.WriteStateStore');
+    this.state = this.WriteStateStore.state;
   }
 
   componentDidMount() {
-    this.unsubscribeStateStore = this.DeploymentStateStore.listen(this.deploymentStateChanged.bind(this));
+    this.unsubscribeStateStore = this.WriteStateStore.listen(this.deploymentStateChanged.bind(this));
   }
 
   componentWillUnmount() {
