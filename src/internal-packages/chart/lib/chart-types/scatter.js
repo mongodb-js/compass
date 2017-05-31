@@ -7,7 +7,8 @@ module.exports = {
     { name: 'y', required: true },
     { name: 'size', required: false },
     { name: 'color', required: false },
-    { name: 'shape', required: false }
+    { name: 'shape', required: false },
+    { name: 'detail', required: false }
   ],
   spec: {
     mark: 'point'

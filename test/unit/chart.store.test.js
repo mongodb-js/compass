@@ -7,15 +7,17 @@ const { NamespaceStore } = require('hadron-reflux-store');
 const {
   AGGREGATE_FUNCTION_ENUM,
   CHART_CHANNEL_ENUM,
-  CHART_TYPE_CHANNELS,
-  CHART_TYPE_ENUM,
-  MEASUREMENT_ENUM,
-  DEFAULTS
+  MEASUREMENT_ENUM
 } = require('../../src/internal-packages/chart/lib/constants');
 const ChartActions = require('../../src/internal-packages/chart/lib/actions');
 const ChartStore = require('../../src/internal-packages/chart/lib/store');
 const _ = require('lodash');
 const app = require('hadron-app');
+
+const BarChartRole = require('../../src/internal-packages/chart/lib/chart-types/bar');
+const AreaChartRole = require('../../src/internal-packages/chart/lib/chart-types/area');
+const LineChartRole = require('../../src/internal-packages/chart/lib/chart-types/line');
+const ScatterPlotRole = require('../../src/internal-packages/chart/lib/chart-types/scatter');
 
 const mockDataService = require('./support/mock-data-service');
 
@@ -56,6 +58,13 @@ describe('ChartStore', function() {
   beforeEach(function() {
     // this.store = new ChartStore();  // TODO: Reflux 6 / COMPASS-686
     this.store = ChartStore;
+
+    this.store.AVAILABLE_CHART_ROLES = [ScatterPlotRole, BarChartRole,
+      LineChartRole, AreaChartRole];
+    this.store.INITIAL_CHART_TYPE = this.store.AVAILABLE_CHART_ROLES[0].name;
+    this.store.INITIAL_SPEC_TYPE = this.store.AVAILABLE_CHART_ROLES[0].specType;
+    this.store._setDefaults();
+
     this.store.state.fieldsCache = {
       'address.country': COUNTRY_SCHEMA_FIELD,
       'year': YEAR_SCHEMA_FIELD,
@@ -91,31 +100,37 @@ describe('ChartStore', function() {
 
     it('adds a new state to the history when changing the spec', function(done) {
       expect(this.store.history).to.have.lengthOf(1);
-      ChartActions.selectChartType(CHART_TYPE_ENUM.AREA);
+      ChartActions.selectChartType('Area Chart');
       setTimeout(() => {
         expect(this.store.history).to.have.lengthOf(2);
         expect(this.store.history_position).to.be.equal(1);
-        expect(this.store.history[1].chartType).to.be.equal(CHART_TYPE_ENUM.AREA);
+        expect(this.store.history[1].chartType).to.be.equal('Area Chart');
         done();
       });
     });
 
     it('does not push the same history state again', function(done) {
       expect(this.store.history).to.have.lengthOf(1);
-      ChartActions.selectChartType(CHART_TYPE_ENUM.AREA);
-      ChartActions.selectChartType(CHART_TYPE_ENUM.AREA);
-      ChartActions.selectChartType(CHART_TYPE_ENUM.AREA);
+      ChartActions.selectChartType('Area Chart');
+      ChartActions.selectChartType('Area Chart');
+      ChartActions.selectChartType('Area Chart');
       setTimeout(() => {
         expect(this.store.history).to.have.lengthOf(2);
         expect(this.store.history_position).to.be.equal(1);
-        expect(this.store.history[1].chartType).to.be.equal(CHART_TYPE_ENUM.AREA);
+        expect(this.store.history[1].chartType).to.be.equal('Area Chart');
         done();
       });
     });
 
     it('discards the rest of the redo states when executing a new action', function(done) {
       this.store._resetHistory();
-      this.store.history = [{id: 0}, {id: 1}, {id: 2}, {id: 3}, {id: 4}];
+      this.store.history = [
+        {id: 0, chartType: 'Bar Chart'},
+        {id: 1, chartType: 'Area Chart'},
+        {id: 2, chartType: 'Bar Chart'},
+        {id: 3, chartType: 'Area Chart'},
+        {id: 4, chartType: 'Bar Chart'}
+      ];
       this.store.history_position = 4;
       this.store.history_counter = 4;
       ChartActions.undoAction();
@@ -139,7 +154,7 @@ describe('ChartStore', function() {
             unsubscribe();
             done();
           });
-          ChartActions.selectChartType(CHART_TYPE_ENUM.AREA);
+          ChartActions.selectChartType('Area Chart');
         });
       });
       it('returns to the last state with undoAction', function(done) {
@@ -147,7 +162,7 @@ describe('ChartStore', function() {
         setTimeout(() => {
           expect(this.store.history).to.have.lengthOf(3);
           expect(this.store.history_position).to.be.equal(1);
-          expect(this.store.state.chartType).to.be.equal(DEFAULTS.CHART_TYPE);
+          expect(this.store.state.chartType).to.be.equal(this.store.state.availableChartRoles[0].name);
           expect(this.store.state.channels).to.have.all.keys('x');
           done();
         });
@@ -158,7 +173,7 @@ describe('ChartStore', function() {
         setTimeout(() => {
           expect(this.store.history).to.have.lengthOf(3);
           expect(this.store.history_position).to.be.equal(0);
-          expect(this.store.state.chartType).to.be.equal(DEFAULTS.CHART_TYPE);
+          expect(this.store.state.chartType).to.be.equal(this.store.state.availableChartRoles[0].name);
           expect(this.store.state.channels).to.be.deep.equal({});
           done();
         });
@@ -172,7 +187,7 @@ describe('ChartStore', function() {
         setTimeout(() => {
           expect(this.store.history).to.have.lengthOf(3);
           expect(this.store.history_position).to.be.equal(0);
-          expect(this.store.state.chartType).to.be.equal(DEFAULTS.CHART_TYPE);
+          expect(this.store.state.chartType).to.be.equal(this.store.state.availableChartRoles[0].name);
           expect(this.store.state.channels).to.be.deep.equal({});
           done();
         });
@@ -183,7 +198,7 @@ describe('ChartStore', function() {
         setTimeout(() => {
           expect(this.store.history).to.have.lengthOf(3);
           expect(this.store.history_position).to.be.equal(2);
-          expect(this.store.state.chartType).to.be.equal(CHART_TYPE_ENUM.AREA);
+          expect(this.store.state.chartType).to.be.equal('Area Chart');
           expect(this.store.state.channels).to.have.all.keys('x');
           done();
         });
@@ -197,7 +212,7 @@ describe('ChartStore', function() {
         setTimeout(() => {
           expect(this.store.history).to.have.lengthOf(3);
           expect(this.store.history_position).to.be.equal(2);
-          expect(this.store.state.chartType).to.be.equal(CHART_TYPE_ENUM.AREA);
+          expect(this.store.state.chartType).to.be.equal('Area Chart');
           expect(this.store.state.channels).to.have.all.keys('x');
           done();
         });
@@ -208,7 +223,7 @@ describe('ChartStore', function() {
         setTimeout(() => {
           expect(this.store.history).to.have.lengthOf(4);
           expect(this.store.history_position).to.be.equal(3);
-          expect(this.store.state.chartType).to.be.equal(DEFAULTS.CHART_TYPE);
+          expect(this.store.state.chartType).to.be.equal(this.store.state.availableChartRoles[0].name);
           expect(this.store.state.channels).to.be.deep.equal({});
           expect(_.omit(this.store.history[3], 'id')).to.be.deep.equal(initialHistory);
           done();
@@ -231,9 +246,9 @@ describe('ChartStore', function() {
 
     context('hasUndoableActions and hasRedoableActions', function() {
       beforeEach(function(done) {
-        ChartActions.selectChartType(CHART_TYPE_ENUM.AREA);
-        ChartActions.selectChartType(CHART_TYPE_ENUM.LINE);
-        ChartActions.selectChartType(CHART_TYPE_ENUM.BAR);
+        ChartActions.selectChartType('Area Chart');
+        ChartActions.selectChartType('Line Chart');
+        ChartActions.selectChartType('Bar Chart');
         setTimeout(() => {
           const unsubscribe = this.store.listen(() => {
             expect(this.store.history).to.have.lengthOf(5);
@@ -242,7 +257,7 @@ describe('ChartStore', function() {
             done();
           });
         });
-        ChartActions.selectChartType(CHART_TYPE_ENUM.POINT);
+        ChartActions.selectChartType('Scatter Plot');
       });
 
       it('sets hasUndoableActions to true if there are undoable actions', function(done) {
@@ -359,7 +374,7 @@ describe('ChartStore', function() {
         // ChartStore might not work on Reflux 5+, if so change it to ChartActions
         ChartStore.mapFieldToChannel(COUNTRY_SCHEMA_FIELD.path, 'FOO_BAR');
       };
-      expect(throwFn).to.throw(/Unknown encoding channel: FOO_BAR/);
+      expect(throwFn).to.throw(/Unknown encoding channel "FOO_BAR" for chart type "Scatter Plot"/);
     });
     it('throws error on receiving an unknown field', function() {
       const throwFn = () => {
@@ -436,7 +451,7 @@ describe('ChartStore', function() {
         // ChartStore might not work on Reflux 5+, if so change it to ChartActions
         ChartStore.selectMeasurement('FOO_BAR', MEASUREMENT_ENUM.QUANTITATIVE);
       };
-      expect(throwFn).to.throw(/Unknown encoding channel: FOO_BAR/);
+      expect(throwFn).to.throw(/Unknown encoding channel "FOO_BAR" for chart type "Scatter Plot"/);
     });
     it('throws error on receiving an unknown encoding measurement', function() {
       const throwFn = () => {
@@ -463,7 +478,7 @@ describe('ChartStore', function() {
         // ChartStore might not work on Reflux 5+, if so change it to ChartActions
         ChartStore.selectAggregate('FOO_BAR', AGGREGATE_FUNCTION_ENUM.COUNT);
       };
-      expect(throwFn).to.throw(/Unknown encoding channel: FOO_BAR/);
+      expect(throwFn).to.throw(/Unknown encoding channel "FOO_BAR" for chart type "Scatter Plot"/);
     });
     it('throws error on receiving an unknown encoding aggregate', function() {
       const throwFn = () => {
@@ -476,7 +491,7 @@ describe('ChartStore', function() {
 
   context('when calling the selectChartType action', function() {
     it('stores the chart type', function(done) {
-      const chartType = CHART_TYPE_ENUM.AREA;
+      const chartType = 'Area Chart';
       ChartActions.selectChartType(chartType);
       setTimeout(() => {
         expect(this.store.state.chartType).to.be.equal(chartType);
@@ -500,7 +515,7 @@ describe('ChartStore', function() {
 
         // Set up a namespace change so the namespaceCache has been modified
         NamespaceStore.ns = 'mongodb.fanclub';
-        ChartActions.selectChartType(CHART_TYPE_ENUM.AREA);
+        ChartActions.selectChartType('Area Chart');
 
         // Action under test
         ChartActions.clearChart();
@@ -574,28 +589,6 @@ describe('ChartStore', function() {
       expect(infer({type: ['Code', 'ObjectId']})).to.be.equal(MEASUREMENT_ENUM.NOMINAL);
       expect(infer({type: ['Code', 'Boolean', 'DBRef', 'Timestamp']}))
         .to.be.equal(MEASUREMENT_ENUM.NOMINAL);
-    });
-  });
-
-  context('with the CHART_TYPE_CHANNELS', () => {
-    it('defines all top-level keys from CHART_TYPE_ENUM', () => {
-      Object.keys(CHART_TYPE_CHANNELS).forEach((value) => {
-        expect(value).to.be.oneOf(_.values(CHART_TYPE_ENUM));
-      });
-    });
-    it('defines all second-level keys from CHART_CHANNEL_ENUM', () => {
-      for (const channelValue of _.values(CHART_TYPE_CHANNELS)) {
-        Object.keys(channelValue).forEach((value) => {
-          expect(value).to.be.oneOf(_.values(CHART_CHANNEL_ENUM));
-        });
-      }
-    });
-    it('defines all second-level values as required or optional', () => {
-      for (const channelValue of _.values(CHART_TYPE_CHANNELS)) {
-        for (const requiredValue of _.values(channelValue)) {
-          expect(requiredValue).to.be.oneOf(['required', 'optional']);
-        }
-      }
     });
   });
 
