@@ -28,9 +28,8 @@ describe('#schema', function() {
 
   context('when applying a filter in the schema tab', function() {
     const filter = '{"name":"Bonobo"}';
-    const expectedZeroDoc = 'Query returned 0 documents.';
-    const expectedOneDoc = 'Query returned 1 document.';
-    const expectedZeroReport = 'This report is based on a sample of 0 documents (0.00%).';
+    const expectedOneDoc = 'Query returned 1 document. This report is based on a sample of 1 document (100.00%).';
+    const expectedZeroDoc = 'Query returned 0 documents. This report is based on a sample of 0 documents (0.00%).';
     const dataService = new DataService(CONNECTION);
 
     before(function(done) {
@@ -52,11 +51,13 @@ describe('#schema', function() {
       });
     });
 
-    it('shows a blank schema view', function() {
+    it('shows schema view', function() {
       return client
         .clickSchemaTab()
+        .clickApplyFilterButtonFromSchemaTab()
+        .waitForStatusBar()
         .getSamplingMessageFromSchemaTab()
-        .should.eventually.include(`${expectedOneDoc}`);
+        .should.eventually.include(expectedOneDoc);
     });
 
     it('shows a schema on refresh', function() {
@@ -64,24 +65,24 @@ describe('#schema', function() {
         .clickDatabaseInSidebar('music')
         .waitForSidebar('collection')
         .goToCollection('music', 'artists')
+        .clickApplyFilterButtonFromSchemaTab()
+        .waitForStatusBar()
         .getSamplingMessageFromSchemaTab()
-        .should
-        .eventually
-        .include(`${expectedOneDoc} This report is based on a sample of 1 document (100.00%).`);
+        .should.eventually.include(expectedOneDoc);
     });
 
     it('applies the filter from schema view', function() {
       return client
         .inputFilterFromSchemaTab(filter)
-        .waitForStatusBar()
         .clickApplyFilterButtonFromSchemaTab()
         .waitForStatusBar()
         .getSamplingMessageFromSchemaTab()
-        .should.eventually.include(`${expectedZeroDoc} ${expectedZeroReport}`);
+        .should.eventually.include(expectedZeroDoc);
     });
 
     it('checks the collections table', function() {
       return client
+        .waitForStatusBar()
         .clickDatabaseInSidebar('music')
         .waitForDatabaseView()
         .getCollectionsTabCollectionNames()
@@ -91,12 +92,12 @@ describe('#schema', function() {
     it('applies the filter again while on schema tab', function() {
       return client
         .goToCollection('music', 'artists')
-        .inputFilterFromSchemaTab(filter)
         .waitForStatusBar()
+        .inputFilterFromSchemaTab(filter)
         .clickApplyFilterButtonFromSchemaTab()
         .waitForStatusBar()
         .getSamplingMessageFromSchemaTab()
-        .should.eventually.equal(`${expectedZeroDoc} ${expectedZeroReport}`);
+        .should.eventually.equal(expectedZeroDoc);
     });
   });
 });
