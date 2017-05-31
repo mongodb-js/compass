@@ -627,33 +627,6 @@ describe('ChartStore', function() {
     });
   });
 
-  context('when calling _createVegaEncodingTransform', () => {
-    it('works on empty channel object', () => {
-      const channels = {};
-      const result = ChartStore._createVegaEncodingTransform(channels);
-      expect(result).to.an('array');
-      expect(result).to.be.empty;
-    });
-    it('correctly encodes a single field', () => {
-      const channels = {color: {field: 'category', type: 'nominal'}};
-      const result = ChartStore._createVegaEncodingTransform(channels);
-      expect(result).to.an('array');
-      expect(result).to.have.lengthOf(1);
-      expect(result[0]).to.be.deep.equal({type: 'formula', as: 'color', expr: 'datum.category'});
-    });
-    it('correctly encodes multiple fields', () => {
-      const channels = {
-        x: {field: 'birthday', type: 'temporal'},
-        color: {field: 'category', type: 'nominal'}
-      };
-      const result = ChartStore._createVegaEncodingTransform(channels);
-      expect(result).to.an('array');
-      expect(result).to.have.lengthOf(2);
-      expect(result[0]).to.be.deep.equal({type: 'formula', as: 'x', expr: 'datum.birthday'});
-      expect(result[1]).to.be.deep.equal({type: 'formula', as: 'color', expr: 'datum.category'});
-    });
-  });
-
   context('when calling _refreshDataCache', () => {
     const defaultQuery = {
       filter: {},
