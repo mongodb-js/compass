@@ -1,6 +1,5 @@
 const React = require('react');
 const PropTypes = require('prop-types');
-// const EJSON = require('mongodb-extended-json');
 const QueryOption = require('./query-option');
 const OptionsToggle = require('./options-toggle');
 
@@ -55,10 +54,17 @@ class QueryBar extends React.Component {
 
     if (this.props.valid || this.props.featureFlag) {
       this.props.actions.apply();
+      if (_.isFunction(this.props.onApply)) {
+        this.props.onApply();
+      }
     }
   }
 
   onResetButtonClicked() {
+    if (_.isFunction(this.props.onReset)) {
+      this.props.onReset();
+    }
+
     this.props.actions.reset();
   }
 
@@ -181,10 +187,11 @@ class QueryBar extends React.Component {
     if (this.props.featureFlag) {
       inputGroupClass = 'querybar-input-group input-group is-feature-flag';
     }
+
     const resetButtonStyle = {
       display: this.props.queryState === 'apply' ? 'inline-block' : 'none'
     };
-    const applyDisabled = !((this.props.valid && this._queryHasChanges()) || this.props.featureFlag);
+    const applyDisabled = !(this.props.valid || this.props.featureFlag);
 
     const queryOptionClassName =
       this.state.hasFocus ?
@@ -206,7 +213,7 @@ class QueryBar extends React.Component {
               data-test-id="apply-filter-button"
               type="button"
               onClick={this.onApplyButtonClicked.bind(this)}
-              disabled={applyDisabled}>Apply</button>
+              disabled={applyDisabled}>{this.props.buttonLabel}</button>
             <button
               id="reset_button"
               key="reset-button"
@@ -258,14 +265,18 @@ QueryBar.propTypes = {
   limitString: PropTypes.string,
 
   actions: PropTypes.object,
+  buttonLabel: PropTypes.string,
   queryState: PropTypes.string,
   layout: PropTypes.array,
   expanded: PropTypes.bool,
-  lastExecutedQuery: PropTypes.object
+  lastExecutedQuery: PropTypes.object,
+  onReset: PropTypes.func,
+  onApply: PropTypes.func
 };
 
 QueryBar.defaultProps = {
   expanded: false,
+  buttonLabel: 'Apply',
   layout: ['filter', 'project', ['sort', 'skip', 'limit']]
 };
 

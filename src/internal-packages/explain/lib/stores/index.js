@@ -4,6 +4,7 @@ const StateMixin = require('reflux-state-mixin');
 const app = require('hadron-app');
 const toNS = require('mongodb-ns');
 const ExplainPlanModel = require('mongodb-explain-plan-model');
+const { NamespaceStore } = require('hadron-reflux-store');
 const _ = require('lodash');
 
 const debug = require('debug')('mongodb-compass:stores:explain');
@@ -35,6 +36,7 @@ const CompassExplainStore = Reflux.createStore({
     // listen for query and index changes
     this.listenToExternalStore('Query.ChangedStore', this.onQueryChanged.bind(this));
     this.listenToExternalStore('Indexes.IndexStore', this.indexesChanged.bind(this));
+    NamespaceStore.listen(this.onNamespaceChanged.bind(this));
 
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
   },
@@ -60,13 +62,16 @@ const CompassExplainStore = Reflux.createStore({
       this.limit = state.limit;
       this.ns = state.ns;
 
-      if (state.queryState === 'reset') {
-        this._resetQuery();
-        this._reset();
-      } else {
-        this.fetchExplainPlan();
+      if (this.state.explainState === 'done') {
+        this.setState({
+          explainState: 'outdated'
+        });
       }
     }
+  },
+
+  onNamespaceChanged() {
+    this.reset();
   },
 
   /**
@@ -98,7 +103,7 @@ const CompassExplainStore = Reflux.createStore({
     };
   },
 
-  _reset() {
+  reset() {
     this.setState(this.getInitialState());
   },
 
@@ -141,7 +146,7 @@ const CompassExplainStore = Reflux.createStore({
       return;
     }
 
-    this._reset();
+    this.reset();
 
     this.setState({
       explainState: 'fetching'

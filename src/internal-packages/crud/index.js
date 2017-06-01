@@ -19,7 +19,7 @@ const {
 const COLLECTION_TAB_ROLE = {
   component: DocumentList,
   name: 'DOCUMENTS',
-  order: 2
+  order: 1
 };
 
 const DOCUMENT_ROLE = {

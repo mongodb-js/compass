@@ -20,6 +20,17 @@ describe('<QueryBar />', () => {
   context('with layout ["filter", "project", ["sort", "skip", "limit"]]', () => {
     const layout = ['filter', 'project', ['sort', 'skip', 'limit']];
 
+    context('when rendering the button label', () => {
+      it('defaults to "Apply"', () => {
+        const component = shallow(<QueryBar layout={layout} expanded={false} />);
+        expect(component.find('#apply_button')).to.have.text('Apply');
+      });
+      it('sets a custom label', () => {
+        const component = shallow(<QueryBar layout={layout} expanded={false} buttonLabel={'Analyze'} />);
+        expect(component.find('#apply_button')).to.have.text('Analyze');
+      });
+    });
+
     context('when rendering in collapsed state', () => {
       it('has only one <QueryOption />', () => {
         const component = shallow(<QueryBar layout={layout} expanded={false} />);

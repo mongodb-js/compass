@@ -9,11 +9,13 @@ const SchemaStore = require('./lib/store');
 const COLLECTION_TAB_ROLE = {
   component: SchemaComponent,
   name: 'SCHEMA',
-  order: 1
+  order: 2
 };
 
 /**
  * Activate all the components in the Schema package.
+ *
+ * @param {Object} appRegistry   the app registry
  */
 function activate(appRegistry) {
   appRegistry.registerRole('Collection.Tab', COLLECTION_TAB_ROLE);

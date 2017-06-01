@@ -6,6 +6,8 @@ const StateMixin = require('reflux-state-mixin');
 const schemaStream = require('mongodb-schema').stream;
 const ReadPreference = require('mongodb').ReadPreference;
 const toNS = require('mongodb-ns');
+const { NamespaceStore } = require('hadron-reflux-store');
+
 const _ = require('lodash');
 
 const COMPASS_ICON_PATH = require('../../../../icon').path;
@@ -54,6 +56,7 @@ const SchemaStore = Reflux.createStore({
 
     // listen for query changes
     this.listenToExternalStore('Query.ChangedStore', this.onQueryChanged.bind(this));
+    NamespaceStore.listen(this.onNamespaceChanged.bind(this));
 
     ipc.on('window:menu-share-schema-json', this.handleSchemaShare.bind(this));
   },
@@ -93,19 +96,26 @@ const SchemaStore = Reflux.createStore({
     };
   },
 
-  _reset: function() {
+  reset: function() {
     this.setState(this.getInitialState());
   },
 
   onQueryChanged: function(state) {
     if (state.ns && toNS(state.ns).collection) {
-      this._reset();
       this.query.filter = state.filter;
       this.query.limit = state.limit;
       this.query.project = state.project;
       this.ns = state.ns;
-      SchemaAction.startSampling();
+      if (this.state.samplingState === 'complete') {
+        this.setState({
+          samplingState: 'outdated'
+        });
+      }
     }
+  },
+
+  onNamespaceChanged() {
+    this.reset();
   },
 
   setMaxTimeMS(maxTimeMS) {

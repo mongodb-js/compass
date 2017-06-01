@@ -59,6 +59,7 @@ describe('#charts', function() {
     context('when typing to enable via the query bar', function() {
       it('allows "enable chartView" feature flag', function() {
         return client
+          .clickSchemaTab()
           .waitForStatusBar()
           .inputFilterFromSchemaTab('enable chartView')
           .clickApplyFilterButtonFromSchemaTab()

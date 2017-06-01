@@ -90,6 +90,8 @@ describe('#explain', function() {
         const expected = 'This report is based on a sample of 1 document (100.00%).';
         return client
           .clickSchemaTab()
+          .clickApplyFilterButtonFromSchemaTab()
+          .waitForStatusBar()
           .getSamplingMessageFromSchemaTab()
           .should.eventually.include(expected);
       });
