@@ -7,6 +7,7 @@
     font-style: normal;
     font-weight: bold;
 }
+
 @font-face {
     font-family: 'MMS Icons';
     font-style: normal;
@@ -120,10 +121,7 @@ i.mms-icon-cloud-l {
 }
 
 i.mms-icon-rocketbot.hover {
-  -webkit-animation: hover .75s infinite ease-in-out; /* Safari 4+ */
-  -moz-animation:    hover .75s infinite ease-in-out; /* Fx 5+ */
-  -o-animation:      hover .75s infinite ease-in-out; /* Opera 12+ */
-  animation:         hover .75s infinite ease-in-out; /* IE 10+, Fx 29+*/
+  animation:         hover .75s infinite ease-in-out;
 }
 
 @-webkit-keyframes hover {
@@ -133,17 +131,11 @@ i.mms-icon-rocketbot.hover {
 }
 
 i.mms-icon-cloud-l.hover {
-  -webkit-animation: cloud-l-hover 1.5s 1 linear; /* Safari 4+ */
-  -moz-animation:    cloud-l-hover 1.5s 1 linear; /* Fx 5+ */
-  -o-animation:      cloud-l-hover 1.5s 1 linear; /* Opera 12+ */
-  animation:         cloud-l-hover 1.5s 1 linear; /* IE 10+, Fx 29+*/
+  animation:         cloud-l-hover 1.5s 1 linear;
 }
 
 i.mms-icon-cloud-m.hover {
-  -webkit-animation: cloud-m-hover 1.5s 1 linear; /* Safari 4+ */
-  -moz-animation:    cloud-m-hover 1.5s 1 linear; /* Fx 5+ */
-  -o-animation:      cloud-m-hover 1.5s 1 linear; /* Opera 12+ */
-  animation:         cloud-m-hover 1.5s 1 linear; /* IE 10+, Fx 29+*/
+  animation:         cloud-m-hover 1.5s 1 linear;
 }
 
 @-webkit-keyframes cloud-m-hover {
@@ -160,10 +152,7 @@ i.mms-icon-cloud-m.hover {
 
 i.mms-icon-rocketbot.launch {
   top: -200px;
-  -webkit-animation: launch 1.5s 1 ease-in; /* Safari 4+ */
-  -moz-animation:    launch 1.5s 1 ease-in; /* Fx 5+ */
-  -o-animation:      launch 1.5s 1 ease-in; /* Opera 12+ */
-  animation:         launch 1.5s 1 ease-in; /* IE 10+, Fx 29+*/
+  animation:         launch 1.5s 1 ease-in;
 }
 
 @-webkit-keyframes launch {
@@ -173,29 +162,20 @@ i.mms-icon-rocketbot.launch {
 
 i.mms-icon-big-check.ready {
   display: inline-block;
-  -webkit-animation: ready .125s 1 ease-out; /* Safari 4+ */
-  -moz-animation:    ready .125s 1 ease-out; /* Fx 5+ */
-  -o-animation:      ready .125s 1 ease-out; /* Opera 12+ */
-  animation:         ready .125s 1 ease-out; /* IE 10+, Fx 29+*/
+  animation:         ready .125s 1 ease-out;
 }
 
 @-webkit-keyframes ready {
   0%    {
     opacity: 0;
-    -ms-transform:      scale(.75,.75); /* IE 9 */
-    -webkit-transform:  scale(.75,.75); /* Safari */
     transform:          scale(.75,.75);
   }
   25%   {
     opacity: 1;
-    -ms-transform:      scale(1.25,1.25); /* IE 9 */
-    -webkit-transform:  scale(1.25,1.25); /* Safari */
     transform:          scale(1.25,1.25);
   }
   100%  {
     opacity: 1;
-    -ms-transform:      scale(1,1); /* IE 9 */
-    -webkit-transform:  scale(1,1); /* Safari */
     transform:          scale(1,1);
   }
 }
@@ -203,39 +183,27 @@ i.mms-icon-big-check.ready {
 i.mms-icon-big-check.remove {
   display: inline-block;
   opacity: 0;
-  -webkit-animation: remove .125s 1 ease-out; /* Safari 4+ */
-  -moz-animation:    remove .125s 1 ease-out; /* Fx 5+ */
-  -o-animation:      remove .125s 1 ease-out; /* Opera 12+ */
-  animation:         remove .125s 1 ease-out; /* IE 10+, Fx 29+*/
+  animation:         remove .125s 1 ease-out;
 }
 
 @-webkit-keyframes remove {
   0%  {
      opacity: 1;
-    -ms-transform:      scale(1,1); /* IE 9 */
-    -webkit-transform:  scale(1,1); /* Safari */
     transform:          scale(1,1);
   }
   25%  {
     opacity: 1;
-    -ms-transform:      scale(1.25,1.25); /* IE 9 */
-    -webkit-transform:  scale(1.25,1.25); /* Safari */
     transform:          scale(1.25,1.25);
   }
   100% {
     opacity: 0;
-    -ms-transform:      scale(.75,.75); /* IE 9 */
-    -webkit-transform:  scale(.75,.75); /* Safari */
     transform:          scale(.75,.75);
   }
 }
 
 i.mms-icon-cloud-m.panning {
   opacity: 0;
-  -webkit-animation: panning_m 1.5s 1 linear; /* Safari 4+ */
-  -moz-animation:    panning_m 1.5s 1 linear; /* Fx 5+ */
-  -o-animation:      panning_m 1.5s 1 linear; /* Opera 12+ */
-  animation:         panning_m 1.5s 1 linear; /* IE 10+, Fx 29+*/
+  animation:         panning_m 1.5s 1 linear;
 }
 
 @-webkit-keyframes panning_m {
@@ -246,10 +214,7 @@ i.mms-icon-cloud-m.panning {
 
 i.mms-icon-cloud-l.panning {
   opacity: 0;
-  -webkit-animation: panning_l 1.5s 1 linear; /* Safari 4+ */
-  -moz-animation:    panning_l 1.5s 1 linear; /* Fx 5+ */
-  -o-animation:      panning_l 1.5s 1 linear; /* Opera 12+ */
-  animation:         panning_l 1.5s 1 linear; /* IE 10+, Fx 29+*/
+  animation:         panning_l 1.5s 1 linear;
 }
 
 @-webkit-keyframes panning_l {
