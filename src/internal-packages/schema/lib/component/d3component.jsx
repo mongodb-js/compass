@@ -4,6 +4,16 @@ const ReactDOM = require('react-dom');
 const d3 = require('d3');
 const _ = require('lodash');
 
+/**
+ * Conversion for display in minicharts for non-promoted BSON types.
+ */
+const CONVERTERS = {
+  'Double': (values) => { return values.map((v) => v.value) },
+  'Int32': (values) => { return values.map((v) => v.value) },
+  'Long': (values) => { return values.map((v) => v.toNumber()) },
+  'Decimal128': (values) => { return values.map((v) => v.toString()) }
+};
+
 // const debug = require('debug')('mongodb-compass:schema:d3component');
 
 class D3Component extends React.Component {
@@ -68,9 +78,15 @@ class D3Component extends React.Component {
       query: this.props.query
     });
 
-    d3.select(el)
-      .datum(this.props.type.values)
-      .call(this.state.chart);
+    if (CONVERTERS.hasOwnProperty(this.props.type.bsonType)) {
+      d3.select(el)
+        .datum(CONVERTERS[this.props.type.bsonType](this.props.type.values))
+        .call(this.state.chart);
+    } else {
+      d3.select(el)
+        .datum(this.props.type.values)
+        .call(this.state.chart);
+    }
   }
 
   render() {
