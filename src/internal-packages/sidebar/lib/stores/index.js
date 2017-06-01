@@ -40,7 +40,7 @@ const SidebarStore = Reflux.createStore({
   */
   getInitialState() {
     return {
-      expanded: false,
+      expandedDBList: false,
       instance: {},
       databases: [],
       filterRegex: /(?:)/,
@@ -57,14 +57,14 @@ const SidebarStore = Reflux.createStore({
   onInstanceChange(state) {
     this.setState({
       instance: state.instance,
-      expanded: this.state.filterRegex.source !== BLANK,
+      expandedDBList: this.state.filterRegex.source !== BLANK,
       databases: this._filterDatabases(this.state.filterRegex, state.instance.databases)
     });
   },
 
   filterDatabases(re) {
     this.setState({
-      expanded: re.source !== BLANK,
+      expandedDBList: re.source !== BLANK,
       databases: this._filterDatabases(re, this.state.instance.databases),
       filterRegex: re
     });
