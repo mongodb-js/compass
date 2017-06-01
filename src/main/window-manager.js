@@ -167,6 +167,9 @@ var createWindow = module.exports.create = function(opts) {
 
   ipc.respondTo('window:renderer-ready', () => {
     if (_loading) {
+      if (_loading.isFullScreen()) {
+        _window.setFullScreen(true);
+      }
       _loading.hide();
       _loading.close();
       _loading = null;
