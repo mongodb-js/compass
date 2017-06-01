@@ -131,23 +131,23 @@ i.mms-icon-rocketbot.hover {
 }
 
 i.mms-icon-cloud-l.hover {
-  animation:         cloud-l-hover 1.5s 1 linear;
+  animation:         cloud-l-hover 10.5s 1 linear;
 }
 
 i.mms-icon-cloud-m.hover {
-  animation:         cloud-m-hover 1.5s 1 linear;
+  animation:         cloud-m-hover 10.5s 1 linear;
 }
 
 @-webkit-keyframes cloud-m-hover {
   0%    { top: 20%; opacity: 0; }
-  50%   { opacity: 1 }
-  100%  { top: 30%; }
+  10%   { opacity: 1 }
+  100%  { top: 110%; }
 }
 
 @-webkit-keyframes cloud-l-hover {
   0%    { top: -5%; opacity: 0; }
-  50%   { opacity: 1 }
-  100%  { top: 15%; }
+  10%   { opacity: 1 }
+  100%  { top: 200%; }
 }
 
 i.mms-icon-rocketbot.launch {
