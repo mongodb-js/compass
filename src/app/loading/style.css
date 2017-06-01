@@ -1,0 +1,259 @@
+@font-face {
+    font-family: 'Akzidenz';
+    src: url('../fonts/akzidgrostdmed.eot');
+    src: url('../fonts/akzidgrostdmed.eot') format('embedded-opentype'),
+    url('../fonts/akzidgrostdmed.woff') format('woff'),
+    url('../fonts/akzidgrostdmed.ttf')  format('truetype');
+    font-style: normal;
+    font-weight: bold;
+}
+@font-face {
+    font-family: 'MMS Icons';
+    font-style: normal;
+    font-weight: normal;
+    src: url('../fonts/MMSIcons-Regular.eot'); /* IE9 Compat Modes */
+    src: url('../fonts/MMSIcons-Regular.eot') format('embedded-opentype'),
+    url('../fonts/MMSIcons-Regular.woff') format('woff'),
+    url('../fonts/MMSIcons-Regular.ttf')  format('truetype'); /* Safari, Android, iOS */
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: #000000;
+  font-weight: bold;
+  -webkit-font-smoothing: antialiased;
+}
+
+i.mms-icon-rocketbot,
+i.mms-icon-big-check,
+i.mms-icon-cloud-l,
+i.mms-icon-cloud-m {
+  font-family: "MMS Icons";
+  font-style: normal;
+  font-weight: normal;
+  font-size: 16px;
+  line-height: 1;
+  -moz-osx-font-smoothing: grayscale;
+  font-weight: normal !important;
+  filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNSBNYWNpbnRvc2giIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6OTJBQkFGRUZFOTIyMTFFMEJDRDNEQzkxOTVGOTNBODAiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6OTJBQkFGRjBFOTIyMTFFMEJDRDNEQzkxOTVGOTNBODAiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo5MkFCQUZFREU5MjIxMUUwQkNEM0RDOTE5NUY5M0E4MCIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo5MkFCQUZFRUU5MjIxMUUwQkNEM0RDOTE5NUY5M0E4MCIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PtrV+I8AAAAQSURBVHjaYvj//z8DQIABAAj8Av7bok0WAAAAAElFTkSuQmCC',sizingMethod=crop);
+  zoom: 1;
+  -webkit-transition: all 200ms ease;
+     -moz-transition: all 200ms ease;
+       -o-transition: all 200ms ease;
+          transition: all 200ms ease;
+}
+
+i.mms-icon-rocketbot,
+i.mms-icon-cloud-m {
+  font-size: 64px;
+}
+
+i.mms-icon-big-check,
+i.mms-icon-cloud-l {
+  font-size: 128px;
+}
+
+i.mms-icon-rocketbot:before                                     { content: "\F006" }
+i.mms-icon-big-check:before                                     { content: "\E410" }
+i.mms-icon-cloud-m:before                                       { content: "\F010" }
+i.mms-icon-cloud-l:before                                       { content: "\E414" }
+
+
+/*//////////////////////////////////////
+
+
+STYLES above are probably not necessary since they're
+most likely in core or 10strap or fonts or whatever
+
+
+//////////////////////////////////////*/
+
+
+span {
+  font-size: 11px;
+  line-height: 1;
+  text-transform: uppercase;
+  text-align: center;
+  display: inline-block;
+  width: 400px;
+  position: fixed;
+  top: 50%;
+  margin-top: -11px;
+  left: 50%;
+  margin-left: -200px;
+}
+
+
+span.welcome {
+  color: #6ba442;
+  display: none;
+}
+
+i {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+}
+
+i.mms-icon-rocketbot {
+  margin-top: -99px;
+  margin-left: -32px;
+}
+
+i.mms-icon-big-check {
+  margin-top: -143px;
+  margin-left: -64px;
+  display: none;
+  color: #6ba442;
+}
+
+i.mms-icon-cloud-m {
+  top: 30%;
+  margin-left: -212px;
+}
+
+i.mms-icon-cloud-l {
+  top: 15%;
+  margin-left: 156px;
+}
+
+i.mms-icon-rocketbot.hover {
+  -webkit-animation: hover .75s infinite ease-in-out; /* Safari 4+ */
+  -moz-animation:    hover .75s infinite ease-in-out; /* Fx 5+ */
+  -o-animation:      hover .75s infinite ease-in-out; /* Opera 12+ */
+  animation:         hover .75s infinite ease-in-out; /* IE 10+, Fx 29+*/
+}
+
+@-webkit-keyframes hover {
+  0%    { margin-top: -99px; }
+  50%   { margin-top: -108px; }
+  100%  { margin-top: -99px; }
+}
+
+i.mms-icon-cloud-l.hover {
+  -webkit-animation: cloud-l-hover 1.5s 1 linear; /* Safari 4+ */
+  -moz-animation:    cloud-l-hover 1.5s 1 linear; /* Fx 5+ */
+  -o-animation:      cloud-l-hover 1.5s 1 linear; /* Opera 12+ */
+  animation:         cloud-l-hover 1.5s 1 linear; /* IE 10+, Fx 29+*/
+}
+
+i.mms-icon-cloud-m.hover {
+  -webkit-animation: cloud-m-hover 1.5s 1 linear; /* Safari 4+ */
+  -moz-animation:    cloud-m-hover 1.5s 1 linear; /* Fx 5+ */
+  -o-animation:      cloud-m-hover 1.5s 1 linear; /* Opera 12+ */
+  animation:         cloud-m-hover 1.5s 1 linear; /* IE 10+, Fx 29+*/
+}
+
+@-webkit-keyframes cloud-m-hover {
+  0%    { top: 20%; opacity: 0; }
+  50%   { opacity: 1 }
+  100%  { top: 30%; }
+}
+
+@-webkit-keyframes cloud-l-hover {
+  0%    { top: -5%; opacity: 0; }
+  50%   { opacity: 1 }
+  100%  { top: 15%; }
+}
+
+i.mms-icon-rocketbot.launch {
+  top: -200px;
+  -webkit-animation: launch 1.5s 1 ease-in; /* Safari 4+ */
+  -moz-animation:    launch 1.5s 1 ease-in; /* Fx 5+ */
+  -o-animation:      launch 1.5s 1 ease-in; /* Opera 12+ */
+  animation:         launch 1.5s 1 ease-in; /* IE 10+, Fx 29+*/
+}
+
+@-webkit-keyframes launch {
+  0%    { top: 50%; }
+  100%  { top: -200px; }
+}
+
+i.mms-icon-big-check.ready {
+  display: inline-block;
+  -webkit-animation: ready .125s 1 ease-out; /* Safari 4+ */
+  -moz-animation:    ready .125s 1 ease-out; /* Fx 5+ */
+  -o-animation:      ready .125s 1 ease-out; /* Opera 12+ */
+  animation:         ready .125s 1 ease-out; /* IE 10+, Fx 29+*/
+}
+
+@-webkit-keyframes ready {
+  0%    {
+    opacity: 0;
+    -ms-transform:      scale(.75,.75); /* IE 9 */
+    -webkit-transform:  scale(.75,.75); /* Safari */
+    transform:          scale(.75,.75);
+  }
+  25%   {
+    opacity: 1;
+    -ms-transform:      scale(1.25,1.25); /* IE 9 */
+    -webkit-transform:  scale(1.25,1.25); /* Safari */
+    transform:          scale(1.25,1.25);
+  }
+  100%  {
+    opacity: 1;
+    -ms-transform:      scale(1,1); /* IE 9 */
+    -webkit-transform:  scale(1,1); /* Safari */
+    transform:          scale(1,1);
+  }
+}
+
+i.mms-icon-big-check.remove {
+  display: inline-block;
+  opacity: 0;
+  -webkit-animation: remove .125s 1 ease-out; /* Safari 4+ */
+  -moz-animation:    remove .125s 1 ease-out; /* Fx 5+ */
+  -o-animation:      remove .125s 1 ease-out; /* Opera 12+ */
+  animation:         remove .125s 1 ease-out; /* IE 10+, Fx 29+*/
+}
+
+@-webkit-keyframes remove {
+  0%  {
+     opacity: 1;
+    -ms-transform:      scale(1,1); /* IE 9 */
+    -webkit-transform:  scale(1,1); /* Safari */
+    transform:          scale(1,1);
+  }
+  25%  {
+    opacity: 1;
+    -ms-transform:      scale(1.25,1.25); /* IE 9 */
+    -webkit-transform:  scale(1.25,1.25); /* Safari */
+    transform:          scale(1.25,1.25);
+  }
+  100% {
+    opacity: 0;
+    -ms-transform:      scale(.75,.75); /* IE 9 */
+    -webkit-transform:  scale(.75,.75); /* Safari */
+    transform:          scale(.75,.75);
+  }
+}
+
+i.mms-icon-cloud-m.panning {
+  opacity: 0;
+  -webkit-animation: panning_m 1.5s 1 linear; /* Safari 4+ */
+  -moz-animation:    panning_m 1.5s 1 linear; /* Fx 5+ */
+  -o-animation:      panning_m 1.5s 1 linear; /* Opera 12+ */
+  animation:         panning_m 1.5s 1 linear; /* IE 10+, Fx 29+*/
+}
+
+@-webkit-keyframes panning_m {
+  0%    { top: 30%; opacity: 1; }
+  50%   { opacity: 1; }
+  100%  { top: 45%; opacity: 0; }
+}
+
+i.mms-icon-cloud-l.panning {
+  opacity: 0;
+  -webkit-animation: panning_l 1.5s 1 linear; /* Safari 4+ */
+  -moz-animation:    panning_l 1.5s 1 linear; /* Fx 5+ */
+  -o-animation:      panning_l 1.5s 1 linear; /* Opera 12+ */
+  animation:         panning_l 1.5s 1 linear; /* IE 10+, Fx 29+*/
+}
+
+@-webkit-keyframes panning_l {
+  0%    { top: 15%; opacity: 1; }
+  50%    { opacity: 1; }
+  100%  { top: 60%;  opacity: 0; }
+}
