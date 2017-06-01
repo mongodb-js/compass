@@ -2,6 +2,12 @@ const React = require('react');
 const PropTypes = require('prop-types');
 const app = require('hadron-app');
 
+/**
+ * Resize minicharts after sidebar has finished collapsing, should be the same
+ * as the "@compass-sidebar-transition-time" variable in sidebar styles
+ */
+const COMPASS_SIDEBAR_TRANSITION_TIME_MS = 400;
+
 class Home extends React.Component {
   constructor(props) {
     super(props);
@@ -18,6 +24,7 @@ class Home extends React.Component {
     this.CreateCollectionDialog = app.appRegistry.getComponent('Database.CreateCollectionDialog');
     this.DropCollectionDialog = app.appRegistry.getComponent('Database.DropCollectionDialog');
     this.InstanceHeader = app.appRegistry.getComponent('InstanceHeader.Component');
+    this.SchemaActions = app.appRegistry.getAction('Schema.Actions');
   }
 
   getContentClasses() {
@@ -27,6 +34,7 @@ class Home extends React.Component {
 
   collapseSidebar() {
     this.setState({ collapsed: !this.state.collapsed });
+    setTimeout(this.SchemaActions.resizeMiniCharts, COMPASS_SIDEBAR_TRANSITION_TIME_MS);
   }
 
   renderContent() {
