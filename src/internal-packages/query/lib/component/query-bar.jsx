@@ -53,10 +53,10 @@ class QueryBar extends React.Component {
     evt.stopPropagation();
 
     if (this.props.valid || this.props.featureFlag) {
+      this.props.actions.apply();
       if (_.isFunction(this.props.onApply)) {
         this.props.onApply();
       }
-      this.props.actions.apply();
     }
   }
 
