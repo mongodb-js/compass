@@ -8,10 +8,10 @@ const _ = require('lodash');
  * Conversion for display in minicharts for non-promoted BSON types.
  */
 const CONVERTERS = {
-  'Double': (values) => { return values.map((v) => v.value) },
-  'Int32': (values) => { return values.map((v) => v.value) },
-  'Long': (values) => { return values.map((v) => v.toNumber()) },
-  'Decimal128': (values) => { return values.map((v) => v.toString()) }
+  'Double': (values) => { return values.map((v) => v.value); },
+  'Int32': (values) => { return values.map((v) => v.value); },
+  'Long': (values) => { return values.map((v) => v.toNumber()); },
+  'Decimal128': (values) => { return values.map((v) => v.toString()); }
 };
 
 // const debug = require('debug')('mongodb-compass:schema:d3component');
