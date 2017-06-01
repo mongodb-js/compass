@@ -22,7 +22,7 @@
     overflow: hidden;
     padding-right: 9px;
     display: flex;
-    transition: all @transistion-time ease;
+    transition: all @compass-sidebar-transition-time ease;
 
     &:hover {
       background-color: @compass-sidebar-hover-background-color;
@@ -57,7 +57,7 @@
     height: 36px;
     margin-right: 0px;
     padding-top: 8px;
-    transition: margin-right @transistion-time ease, background-color @transistion-time ease;
+    transition: margin-right @compass-sidebar-transition-time ease, background-color @compass-sidebar-transition-time ease;
   }
 
   &-details {
@@ -66,7 +66,7 @@
     flex-basis: auto;
     overflow: hidden;
     padding-top: 8px;
-    transition: color @transistion-time ease;
+    transition: color @compass-sidebar-transition-time ease;
   }
 
   &-hostname-prefix {
@@ -121,7 +121,7 @@
     background-size: 16px 36px;
     background-repeat: no-repeat;
     padding-top: 7px;
-    transition: all @transistion-time ease;
+    transition: all @compass-sidebar-transition-time ease;
     width: 16px;
   }
 
@@ -139,7 +139,7 @@
     display: flex;
     opacity: 1;
     pointer-events: all;
-    transition: opacity @transistion-time ease;
+    transition: opacity @compass-sidebar-transition-time ease;
   }
 
   &-process-status-container {
