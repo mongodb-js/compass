@@ -237,9 +237,9 @@ const ChartStore = Reflux.createStore({
     newState.spec = spec;
 
     // check if all required channels are encoded
-    const requiredChannels = _.pluck(_.filter(chartRole.channels, (channel) => {
+    const requiredChannels = _.filter(chartRole.channels, (channel) => {
       return channel.required;
-    }), 'name');
+    }).map(channel => channel.name);
     const encodedChannels = Object.keys(newState.channels);
     newState.specValid = requiredChannels.length === _.intersection(requiredChannels, encodedChannels).length;
     if (newState.specValid) {
@@ -341,8 +341,8 @@ const ChartStore = Reflux.createStore({
    * @param  {String} channel     channel name as string, e.g. 'x'
    */
   _validateEncodingChannel(chartType, channel) {
-    const channelNames = _.pluck(_.find(this.AVAILABLE_CHART_ROLES, 'name',
-      chartType).channels, 'name');
+    const channelNames = _.find(this.AVAILABLE_CHART_ROLES, 'name',
+      chartType).channels.map(ch => ch.name);
     if (!_.includes(_.values(channelNames), channel)) {
       throw new Error(`Unknown encoding channel "${channel}" for chart type `
         + `"${chartType}". Must be one of ${channelNames.join()}.`);
@@ -528,7 +528,7 @@ const ChartStore = Reflux.createStore({
    *                                 part of the undo/redo-able history
    */
   selectChartType(chartType, pushToHistory = true) {
-    const chartNames = _.pluck(this.AVAILABLE_CHART_ROLES, 'name');
+    const chartNames = this.AVAILABLE_CHART_ROLES.map(role => role.name);
     if (!_.includes(chartNames, chartType)) {
       throw new Error('Unknown chart type: ' + chartType);
     }

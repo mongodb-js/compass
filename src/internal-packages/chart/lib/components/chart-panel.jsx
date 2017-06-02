@@ -27,7 +27,7 @@ class ChartPanel extends React.Component {
   }
 
   renderChartTypeChoice() {
-    const chartTypeNames = _.indexBy(_.pluck(this.props.availableChartRoles, 'name'));
+    const chartTypeNames = _.indexBy(this.props.availableChartRoles.map(role => role.name));
     return (
       <OptionSelector
         id="chart-type-selector"
