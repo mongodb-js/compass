@@ -28,7 +28,7 @@
     "babel-preset-react": "^6.5.0",
     "chokidar": "^1.6.1",
     "debug": "^2.2.0",
-    "fs-plus": "^2.8.2",
+    "fs-plus": "^3.0.0",
     "highlight.js": "^9.8.0",
     "jade": "^1.11.0",
     "marky-mark": "^1.2.1"
