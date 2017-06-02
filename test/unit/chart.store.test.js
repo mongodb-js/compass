@@ -80,7 +80,6 @@ describe('ChartStore', function() {
     expect(this.store.state.queryCache).to.be.deep.equal({
       filter: {},
       sort: null,
-      project: null,
       skip: 0,
       limit: 1000,
       maxTimeMS: 10000,
@@ -299,7 +298,6 @@ describe('ChartStore', function() {
     it('contains the new query in the queryCache', function(done) {
       const QUERY = {
         filter: {foo: 1},
-        project: null,
         sort: {_id: 1},
         skip: 13,
         limit: 5,
@@ -647,16 +645,17 @@ describe('ChartStore', function() {
         ChartStore._refreshDataCache(Object.assign({}, defaultQuery, {
           ns: 'foo.bar'
         }));
-        const findOptions = app.dataService.find.args[0][2];
-        const filter = app.dataService.find.args[0][1];
-        const ns = app.dataService.find.args[0][0];
+        const options = app.dataService.aggregate.args[0][2];
+        const pipeline = app.dataService.aggregate.args[0][1];
+        const ns = app.dataService.aggregate.args[0][0];
 
         expect(ns).to.be.equal('foo.bar');
-        expect(filter).to.be.deep.equal({});
-        expect(findOptions.sort).to.be.null;
-        expect(findOptions.fields).to.be.null;
-        expect(findOptions.skip).to.be.equal(0);
-        expect(findOptions.limit).to.be.equal(100); // @todo temporary limitation
+        expect(pipeline).to.be.deep.equal([ { '$match': {} }, { '$limit': 100 } ]);
+        expect(options).to.be.deep.equal({
+          'maxTimeMS': defaultQuery.maxTimeMS,
+          'promoteValues': true,
+          'readPreference': 'primaryPreferred'
+        });
       });
     });
 
@@ -666,8 +665,8 @@ describe('ChartStore', function() {
           ns: 'foo.bar',
           limit: 5000
         }));
-        const findOptions = app.dataService.find.args[0][2];
-        expect(findOptions.limit).to.be.equal(1000); // @todo temporary limitation
+        const pipeline = app.dataService.aggregate.args[0][1];
+        expect(pipeline).to.deep.equal([ { '$match': {} }, { '$limit': 1000 } ]); // @todo temporary limitation
       });
     });
 
@@ -682,16 +681,22 @@ describe('ChartStore', function() {
       });
       it('calls app.dataService.find with the correct arguments', () => {
         ChartStore._refreshDataCache(nonDefaultQuery);
-        const findOptions = app.dataService.find.args[0][2];
-        const filter = app.dataService.find.args[0][1];
-        const ns = app.dataService.find.args[0][0];
+        const options = app.dataService.aggregate.args[0][2];
+        const pipeline = app.dataService.aggregate.args[0][1];
+        const ns = app.dataService.aggregate.args[0][0];
 
         expect(ns).to.be.equal('foo.bar');
-        expect(filter).to.be.deep.equal({foo: true});
-        expect(findOptions.fields).to.be.deep.equal({bar: 1});
-        expect(findOptions.sort).to.deep.equal([['baz', 1]]);
-        expect(findOptions.skip).to.be.equal(40);
-        expect(findOptions.limit).to.be.equal(9);
+        expect(pipeline).to.be.deep.equal([
+          {'$match': {foo: true}},
+          {'$sort': {baz: 1}},
+          {'$skip': 40},
+          {'$limit': 9}
+        ]);
+        expect(options).to.be.deep.equal({
+          'maxTimeMS': 10000,
+          'promoteValues': true,
+          'readPreference': 'primaryPreferred'
+        });
       });
       it('updates the queryCache', (done) => {
         const unsubscribe = ChartStore.listen((state) => {
