@@ -37,7 +37,7 @@ class ButtonsError extends React.Component {
       return (
         <button
           className="btn btn-sm btn-info"
-          onClick={this.onTryAgainButtonClick}>
+          onClick={this.onTryAgainButtonClick.bind(this)}>
           Try for 1 minute
         </button>
       );
@@ -69,7 +69,7 @@ class ButtonsError extends React.Component {
           {tryAgainButton}
           <button
             className="btn btn-sm btn-info"
-            onClick={this.onNewQueryButtonClick}>
+            onClick={this.onNewQueryButtonClick.bind(this)}>
             Create New Query
           </button>
         </div>

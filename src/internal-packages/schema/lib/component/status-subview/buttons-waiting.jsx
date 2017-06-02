@@ -39,7 +39,7 @@ class ButtonsWaiting extends React.Component {
           <br />
           <button
             className="btn btn-sm btn-info"
-            onClick={this.onStopPartialButton}>
+            onClick={this.onStopPartialButton.bind(this)}>
             Stop and show partial results
           </button>
         </div>
