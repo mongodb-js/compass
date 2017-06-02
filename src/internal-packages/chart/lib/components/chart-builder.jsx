@@ -144,6 +144,7 @@ class ChartBuilder extends React.Component {
           <div className="chart-builder-chart-panel-container">
             <div className="chart-builder-chart-panel">
               <ChartPanel
+                specType={this.props.specType}
                 chartType={this.props.chartType}
                 availableChartRoles={this.props.availableChartRoles}
                 encodedChannels={this.props.channels}

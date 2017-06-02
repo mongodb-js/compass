@@ -8,6 +8,7 @@ const BarChartType = require('./lib/chart-types/bar.json');
 const ScatterPlotType = require('./lib/chart-types/scatter.json');
 const LineChartType = require('./lib/chart-types/line.json');
 const AreaChartType = require('./lib/chart-types/area.json');
+const PieChartType = require('./lib/chart-types/pie.json');
 
 /**
  * The collection tab role for the chart component.
@@ -29,6 +30,7 @@ function activate(appRegistry) {
   appRegistry.registerRole('Chart.Type', ScatterPlotType);
   appRegistry.registerRole('Chart.Type', LineChartType);
   appRegistry.registerRole('Chart.Type', AreaChartType);
+  appRegistry.registerRole('Chart.Type', PieChartType);
   appRegistry.registerAction('Chart.Actions', ChartActions);
   appRegistry.registerStore('Chart.Store', ChartStore);
   appRegistry.registerComponent('Chart.Chart', Chart);
@@ -44,6 +46,7 @@ function deactivate() {
   app.appRegistry.deregisterRole('Chart.Type', ScatterPlotType);
   app.appRegistry.deregisterRole('Chart.Type', LineChartType);
   app.appRegistry.deregisterRole('Chart.Type', AreaChartType);
+  app.appRegistry.deregisterRole('Chart.Type', PieChartType);
   app.appRegistry.deregisterAction('Chart.Actions');
   app.appRegistry.deregisterStore('Chart.Store');
   app.appRegistry.deregisterComponent('Chart.Chart');

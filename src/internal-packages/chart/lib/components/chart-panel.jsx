@@ -52,6 +52,7 @@ class ChartPanel extends React.Component {
           key={channel.name}
           channelName={channel.name}
           encodedChannel={this.props.encodedChannels[channel.name]}
+          specType={this.props.specType}
           actions={this.props.actions}
         />
       );
@@ -71,6 +72,7 @@ class ChartPanel extends React.Component {
 }
 
 ChartPanel.propTypes = {
+  specType: PropTypes.oneOf(['vega', 'vega-lite']).isRequired,
   chartType: PropTypes.string.isRequired,
   availableChartRoles: PropTypes.array.isRequired,
   encodedChannels: PropTypes.object.isRequired,
