@@ -12,7 +12,7 @@ const ChartPanel = require('./chart-panel');
 const Chart = require('./chart');
 const { TOOL_TIP_ID_ARRAY } = require('../constants');
 
-const QUERYBAR_LAYOUT = ['filter', 'project', ['sort', 'skip', 'limit']];
+const QUERYBAR_LAYOUT = ['filter', ['sort', 'skip', 'limit']];
 
 // const debug = require('debug')('mongodb-compass:chart:chart-builder');
 

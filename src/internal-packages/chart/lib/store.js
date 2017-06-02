@@ -4,6 +4,7 @@ const {
   CHART_CHANNEL_ENUM,
   CHART_TYPE_ENUM,
   DEFAULTS,
+  MAP_AGGREGATE_FUNCTION_ENUM,
   MEASUREMENT_ENUM,
   CHART_TYPE_CHANNELS,
   CHART_COLORS
@@ -24,7 +25,6 @@ const MAX_LIMIT = 1000;
 const INITIAL_QUERY = {
   filter: {},
   sort: null,
-  project: null,
   skip: 0,
   limit: MAX_LIMIT,
   ns: '',
@@ -197,11 +197,10 @@ const ChartStore = Reflux.createStore({
    */
   _updateSpec(update, pushToHistory) {
     const newState = Object.assign({}, this.state, update);
-    const spec = Object.assign({
+    let spec = Object.assign({
       mark: newState.chartType,
       encoding: newState.channels
     }, LITE_SPEC_GLOBAL_SETTINGS);
-    newState.spec = spec;
 
     // check if all required channels are encoded
     const requiredChannels = Object.keys(_.pick(CHART_TYPE_CHANNELS[spec.mark], (required) => {
@@ -210,8 +209,25 @@ const ChartStore = Reflux.createStore({
     const encodedChannels = Object.keys(spec.encoding);
     newState.specValid = requiredChannels.length === _.intersection(requiredChannels, encodedChannels).length;
     if (newState.specValid) {
+      let xAggregate = null;
+      let yAggregate = null;
+
+      if (_.has(spec, 'encoding.x.aggregate')) {
+        xAggregate = spec.encoding.x.aggregate;
+        spec = _.omit(spec, 'encoding.x.aggregate');
+      }
+
+      if (_.has(spec, 'encoding.y.aggregate')) {
+        yAggregate = spec.encoding.y.aggregate;
+        spec = _.omit(spec, 'encoding.y.aggregate');
+      }
+
       debug('valid spec %j', newState.spec);
+      this._updateDocuments(spec.encoding.x.field, spec.encoding.y.field, xAggregate, yAggregate);
     }
+
+    newState.spec = spec;
+
     // push new chart state to history
     if (pushToHistory) {
       this._pushToHistory( _.cloneDeep(_.pick(newState, HISTORY_STATE_FIELDS)) );
@@ -224,35 +240,72 @@ const ChartStore = Reflux.createStore({
    * fetch data from server based on current query and sets the dataCache state
    * variable. Currently limits number of documents to 100.
    *
-   * @param {Object} query   the new query to fetch data for
+   * @param {String} xField       field associated to the x channel
+   * @param {String} yField       field associated to the y channel
+   * @param {String} xAggregate   aggregate associated to the y channel
+   * @param {String} yAggregate   aggregate associated to the y channel
    */
-  _refreshDataCache(query) {
+  _updateDocuments(xField, yField, xAggregate, yAggregate) {
+    const query = this.state.queryCache;
     const ns = toNS(query.ns);
     if (!ns.collection) {
       return;
     }
 
-    // limit document number to MAX_LIMIT (currently 1000).
-    const findOptions = {
-      sort: _.isEmpty(query.sort) ? null : _.pairs(query.sort),
-      fields: query.project,
-      skip: query.skip,
-      limit: query.limit ? Math.min(MAX_LIMIT, query.limit) : MAX_LIMIT,
+    const pipeline = [];
+    const options = {
       readPreference: READ,
       maxTimeMS: query.maxTimeMS,
       promoteValues: true
     };
 
-    app.dataService.find(ns.ns, query.filter, findOptions, (error, documents) => {
+    if (query.filter) {
+      pipeline.push({$match: query.filter});
+    }
+
+    if (query.sort) {
+      pipeline.push({$sort: _.isEmpty(query.sort) ? null : _.pairs(query.sort)});
+    }
+
+    if (query.skip) {
+      pipeline.push({$skip: query.skip});
+    }
+
+    // limit document number to MAX_LIMIT (currently 1000).
+    if (query.limit) {
+      pipeline.push({$limit: query.limit ? Math.min(MAX_LIMIT, query.limit) : MAX_LIMIT});
+    }
+
+    // if a group stage is required build it
+    if (xAggregate || yAggregate) {
+      let group = {$group: {_id: '$_id'}};
+
+      if (xAggregate) {
+        group.$group[`${xAggregate}(${xField})`] = {
+          [MAP_AGGREGATE_FUNCTION_ENUM[xAggregate]]: `$${xField}`
+        };
+      } else {
+        group.$group[`${xField}`] = `$${xField}`;
+      }
+
+      if (yAggregate) {
+        group.$group[`${yAggregate}(${yField})`] = {
+          [MAP_AGGREGATE_FUNCTION_ENUM[yAggregate]]: `$${yField}`
+        };
+      } else {
+        group.$group[`${yField}`] = `$${yField}`;
+      }
+
+      pipeline.push(group);
+    }
+
+    app.dataService.aggregate(ns.ns, pipeline, options, (error, documents) => {
       if (error) {
         // @todo handle error better? what kind of errors can happen here?
         throw error;
       }
 
-      let state = {
-        queryCache: query,
-        dataCache: documents
-      };
+      let state = { dataCache: documents };
 
       if (this.state.queryCache.ns !== query.ns) {
         state = Object.assign(state, this.getInitialChartState());
@@ -350,8 +403,8 @@ const ChartStore = Reflux.createStore({
    */
   onQueryChanged(state) {
     const newQuery = _.pick(state,
-      ['filter', 'sort', 'project', 'skip', 'limit', 'maxTimeMS', 'ns']);
-    this._refreshDataCache(newQuery);
+      ['filter', 'sort', 'skip', 'limit', 'maxTimeMS', 'ns']);
+    this.setState({queryCache: newQuery});
   },
 
 
