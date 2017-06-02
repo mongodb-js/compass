@@ -38,7 +38,7 @@ class Sidebar extends React.Component {
   componentWillReceiveProps(nextProps) {
     const expandedDB = {};
     nextProps.databases.map((db) => {
-      if (nextProps.expanded === true || db._id === toNS(nextProps.activeNamespace).database) {
+      if (nextProps.expandedDBList === true || db._id === toNS(nextProps.activeNamespace).database) {
         expandedDB[db._id] = true;
       } else {
         expandedDB[db._id] = false;
@@ -264,7 +264,7 @@ Sidebar.propTypes = {
   databases: PropTypes.array,
   onCollapse: PropTypes.func,
   activeNamespace: PropTypes.string,
-  expanded: PropTypes.bool
+  expandedDBList: PropTypes.bool
 };
 
 module.exports = Sidebar;
