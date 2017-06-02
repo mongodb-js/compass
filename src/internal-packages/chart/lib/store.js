@@ -257,9 +257,9 @@ const ChartStore = Reflux.createStore({
     newState.spec = spec;
 
     // check if all required channels are encoded
-    const requiredChannels = _.filter(chartRole.channels, (channel) => {
+    const requiredChannels = _.pluck(_.filter(chartRole.channels, (channel) => {
       return channel.required;
-    }).map(channel => channel.name);
+    }), 'name');
     const encodedChannels = Object.keys(newState.channels);
     newState.specValid = requiredChannels.length === _.intersection(requiredChannels, encodedChannels).length;
     if (newState.specValid) {
@@ -373,8 +373,8 @@ const ChartStore = Reflux.createStore({
    * @param  {String} channel     channel name as string, e.g. 'x'
    */
   _validateEncodingChannel(chartType, channel) {
-    const channelNames = _.find(this.AVAILABLE_CHART_ROLES, 'name',
-      chartType).channels.map(ch => ch.name);
+    const channelNames = _.pluck(_.find(this.AVAILABLE_CHART_ROLES, 'name',
+      chartType).channels, 'name');
     if (!_.includes(_.values(channelNames), channel)) {
       throw new Error(`Unknown encoding channel "${channel}" for chart type `
         + `"${chartType}". Must be one of ${channelNames.join()}.`);
