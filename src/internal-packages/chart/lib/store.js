@@ -1,11 +1,7 @@
 const Reflux = require('reflux');
 const {
   AGGREGATE_FUNCTION_ENUM,
-  CHART_CHANNEL_ENUM,
-  CHART_TYPE_ENUM,
-  DEFAULTS,
   MEASUREMENT_ENUM,
-  CHART_TYPE_CHANNELS,
   CHART_COLORS
 } = require('./constants');
 const Actions = require('./actions');
@@ -76,9 +72,32 @@ const ChartStore = Reflux.createStore({
   init() {
     this.listenables = Actions;
     this._resetChart();
+
+    this.INITIAL_CHART_TYPE = '';
+    this.INITIAL_SPEC_TYPE = 'vega-lite';
+    this.AVAILABLE_CHART_ROLES = [];
+  },
+
+  onActivated(appRegistry) {
+    // set up listeners on external stores
+    appRegistry.getStore('Query.ChangedStore').listen(this.onQueryChanged.bind(this));
+    appRegistry.getStore('Schema.FieldStore').listen(this.onFieldsChanged.bind(this));
+
+    const roles = appRegistry.getRole('Chart.Type');
+
+    this.AVAILABLE_CHART_ROLES = roles;
+    this.INITIAL_CHART_TYPE = roles[0].name;
+    this.INITIAL_SPEC_TYPE = roles[0].specType;
+    this._setDefaults();
+  },
+
+  _setDefaults() {
+    this.setState({
+      availableChartRoles: this.AVAILABLE_CHART_ROLES,
+      chartType: this.INITIAL_CHART_TYPE,
+      specType: this.INITIAL_SPEC_TYPE
+    });
     this._resetHistory();
-    this.listenToExternalStore('Query.ChangedStore', this.onQueryChanged.bind(this));
-    this.listenToExternalStore('Schema.FieldStore', this.onFieldsChanged.bind(this));
   },
 
   /**
@@ -106,8 +125,8 @@ const ChartStore = Reflux.createStore({
     return {
       spec: {},
       specValid: false,
-      specType: DEFAULTS.SPEC_TYPE,
-      chartType: DEFAULTS.CHART_TYPE,
+      specType: this.INITIAL_SPEC_TYPE,
+      chartType: this.INITIAL_CHART_TYPE,
       // Use channels to construct the "encoding" of the vega-lite spec
       // https://vega.github.io/vega-lite/docs/spec.html#spec
       channels: {}
@@ -126,7 +145,10 @@ const ChartStore = Reflux.createStore({
       hasUndoableActions: false,
       hasRedoableActions: false
     };
-    return Object.assign({}, caches, chart, history);
+    const availableChartRoles = {
+      availableChartRoles: this.AVAILABLE_CHART_ROLES
+    };
+    return Object.assign({}, caches, chart, history, availableChartRoles);
   },
 
   /**
@@ -197,17 +219,28 @@ const ChartStore = Reflux.createStore({
    */
   _updateSpec(update, pushToHistory) {
     const newState = Object.assign({}, this.state, update);
-    const spec = Object.assign({
-      mark: newState.chartType,
-      encoding: newState.channels
-    }, LITE_SPEC_GLOBAL_SETTINGS);
+    const chartRole = _.find(newState.availableChartRoles, 'name', newState.chartType);
+    if (!chartRole) {
+      throw new Error(`Unknown chart type: ${newState.chartType}`);
+    }
+    let spec;
+    if (newState.specType === 'vega-lite') {
+      // vega-lite specs overwrite global settings and receive enconding object
+      const encoding = {encoding: newState.channels};
+      spec = _.merge({}, LITE_SPEC_GLOBAL_SETTINGS, chartRole.spec, encoding);
+    } else {
+      // vega specs are used without modifications
+      spec = chartRole.spec;
+
+      // @TODO format data for vega specs
+    }
     newState.spec = spec;
 
     // check if all required channels are encoded
-    const requiredChannels = Object.keys(_.pick(CHART_TYPE_CHANNELS[spec.mark], (required) => {
-      return required === 'required';
-    }));
-    const encodedChannels = Object.keys(spec.encoding);
+    const requiredChannels = _.filter(chartRole.channels, (channel) => {
+      return channel.required;
+    }).map(channel => channel.name);
+    const encodedChannels = Object.keys(newState.channels);
     newState.specValid = requiredChannels.length === _.intersection(requiredChannels, encodedChannels).length;
     if (newState.specValid) {
       debug('valid spec %j', newState.spec);
@@ -301,6 +334,22 @@ const ChartStore = Reflux.createStore({
   },
 
   /**
+   * validates whether `channel` is a valid channel name for the given
+   * chart type. Throws an error if not a valid channel.
+   *
+   * @param  {String} chartType   chart type as string, e.g. 'Bar Chart'
+   * @param  {String} channel     channel name as string, e.g. 'x'
+   */
+  _validateEncodingChannel(chartType, channel) {
+    const channelNames = _.find(this.AVAILABLE_CHART_ROLES, 'name',
+      chartType).channels.map(ch => ch.name);
+    if (!_.includes(_.values(channelNames), channel)) {
+      throw new Error(`Unknown encoding channel "${channel}" for chart type `
+        + `"${chartType}". Must be one of ${channelNames.join()}.`);
+    }
+  },
+
+  /**
    * Undo of the last action, restoring the vega spec to the previous state.
    * Only affects actions that modify the spec.
    */
@@ -381,9 +430,8 @@ const ChartStore = Reflux.createStore({
    *                                 part of the undo/redo-able history
    */
   mapFieldToChannel(fieldPath, channel, pushToHistory = true) {
-    if (!_.includes(_.values(CHART_CHANNEL_ENUM), channel)) {
-      throw new Error('Unknown encoding channel: ' + channel);
-    }
+    this._validateEncodingChannel(this.state.chartType, channel);
+
     const channels = _.cloneDeep(this.state.channels);
     if (fieldPath === null) {
       delete channels[channel];
@@ -413,12 +461,9 @@ const ChartStore = Reflux.createStore({
    *                                 part of the undo/redo-able history
    */
   swapEncodedChannels(channel1, channel2, pushToHistory = true) {
-    if (!_.includes(_.values(CHART_CHANNEL_ENUM), channel1)) {
-      throw new Error('Unknown encoding channel: ' + channel1);
-    }
-    if (!_.includes(_.values(CHART_CHANNEL_ENUM), channel2)) {
-      throw new Error('Unknown encoding channel: ' + channel2);
-    }
+    this._validateEncodingChannel(this.state.chartType, channel1);
+    this._validateEncodingChannel(this.state.chartType, channel2);
+
     const channels = _.cloneDeep(this.state.channels);
     const tempChannel = channels[channel1];
     channels[channel1] = channels[channel2];
@@ -437,9 +482,8 @@ const ChartStore = Reflux.createStore({
    *                                 part of the undo/redo-able history
    */
   selectMeasurement(channel, measurement, pushToHistory = true) {
-    if (!(_.includes(_.values(CHART_CHANNEL_ENUM), channel))) {
-      throw new Error('Unknown encoding channel: ' + channel);
-    }
+    this._validateEncodingChannel(this.state.chartType, channel);
+
     if (!(_.includes(_.values(MEASUREMENT_ENUM), measurement))) {
       throw new Error('Unknown encoding measurement: ' + measurement);
     }
@@ -461,9 +505,8 @@ const ChartStore = Reflux.createStore({
    *                                 part of the undo/redo-able history
    */
   selectAggregate(channel, aggregate, pushToHistory = true) {
-    if (!(_.includes(_.values(CHART_CHANNEL_ENUM), channel))) {
-      throw new Error('Unknown encoding channel: ' + channel);
-    }
+    this._validateEncodingChannel(this.state.chartType, channel);
+
     if (!(_.includes(_.values(AGGREGATE_FUNCTION_ENUM), aggregate))) {
       throw new Error('Unknown encoding aggregate: ' + aggregate);
     }
@@ -480,14 +523,17 @@ const ChartStore = Reflux.createStore({
   /**
    * Changes the type of chart the user has selected for display.
    *
-   * @param {String} chartType       The kind of chart, e.g. 'bar' or 'line'.
+   * @param {String} chartType       The name of chart, e.g. 'Bar Chart' or 'Scatter Plot'
    * @param {Boolean} pushToHistory  whether or not the new state should become
    *                                 part of the undo/redo-able history
    */
   selectChartType(chartType, pushToHistory = true) {
-    if (!(_.includes(_.values(CHART_TYPE_ENUM), chartType))) {
+    const chartNames = this.AVAILABLE_CHART_ROLES.map(role => role.name);
+    if (!_.includes(chartNames, chartType)) {
       throw new Error('Unknown chart type: ' + chartType);
     }
+
+    // @TODO must also update specType here when selecting a vega role
     this._updateSpec({chartType: chartType}, pushToHistory);
   },
 

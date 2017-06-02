@@ -97,7 +97,6 @@ class ChartBuilder extends React.Component {
     );
   }
 
-
   renderChart() {
     if (!this.props.specValid) {
       return null;
@@ -146,6 +145,7 @@ class ChartBuilder extends React.Component {
             <div className="chart-builder-chart-panel">
               <ChartPanel
                 chartType={this.props.chartType}
+                availableChartRoles={this.props.availableChartRoles}
                 encodedChannels={this.props.channels}
                 actions={this.props.actions}
               />
@@ -170,14 +170,12 @@ ChartBuilder.propTypes = {
   spec: PropTypes.object,
   specType: PropTypes.string,
   chartType: PropTypes.string,
+  availableChartRoles: PropTypes.array,
   specValid: PropTypes.bool,
   channels: PropTypes.object,
   actions: PropTypes.object,
   hasUndoableActions: PropTypes.bool,
   hasRedoableActions: PropTypes.bool
-};
-
-ChartBuilder.defaultProps = {
 };
 
 ChartBuilder.displayName = 'ChartBuilder';

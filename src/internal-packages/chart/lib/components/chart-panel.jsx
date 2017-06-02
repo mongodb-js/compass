@@ -2,12 +2,9 @@ const React = require('react');
 const PropTypes = require('prop-types');
 const { FormGroup } = require('react-bootstrap');
 const { OptionSelector } = require('hadron-react-components');
-
-const {
-  CHART_TYPE_CHANNELS,
-  CHART_TYPE_ENUM
-} = require('../constants');
 const EncodingChannel = require('./encoding-channel');
+
+const _ = require('lodash');
 
 // const debug = require('debug')('mongodb-compass:chart:chart-panel');
 
@@ -26,15 +23,16 @@ class ChartPanel extends React.Component {
    * @param {String} dropdownText - The value of the OptionSelector dropdown.
    */
   onChartTypeSelect(dropdownText) {
-    this.props.actions.selectChartType(dropdownText.toLowerCase());
+    this.props.actions.selectChartType(dropdownText);
   }
 
   renderChartTypeChoice() {
+    const chartTypeNames = _.indexBy(this.props.availableChartRoles.map(role => role.name));
     return (
       <OptionSelector
         id="chart-type-selector"
         bsSize="xs"
-        options={CHART_TYPE_ENUM}
+        options={chartTypeNames}
         title={this.props.chartType}
         onSelect={this.onChartTypeSelect.bind(this)}
       />
@@ -42,13 +40,18 @@ class ChartPanel extends React.Component {
   }
 
   renderEncodingChannels() {
-    const availableChannels = CHART_TYPE_CHANNELS[this.props.chartType];
-    return Object.keys(availableChannels).map((channel) => {
+    const currentChartRole = _.find(this.props.availableChartRoles,
+      'name', this.props.chartType);
+    if (!currentChartRole) {
+      // this happens on initial render before Chart.Type roles are loaded
+      return null;
+    }
+    return currentChartRole.channels.map((channel) => {
       return (
         <EncodingChannel
-          key={channel}
-          channelName={channel}
-          encodedChannel={this.props.encodedChannels[channel]}
+          key={channel.name}
+          channelName={channel.name}
+          encodedChannel={this.props.encodedChannels[channel.name]}
           actions={this.props.actions}
         />
       );
@@ -69,6 +72,7 @@ class ChartPanel extends React.Component {
 
 ChartPanel.propTypes = {
   chartType: PropTypes.string.isRequired,
+  availableChartRoles: PropTypes.array.isRequired,
   encodedChannels: PropTypes.object.isRequired,
   actions: PropTypes.object
 };

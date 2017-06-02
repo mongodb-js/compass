@@ -8,7 +8,15 @@ const sinon = require('sinon');
 const { mount } = require('enzyme');
 const AppRegistry = require('hadron-app-registry');
 const { DropdownButton } = require('react-bootstrap');
-const {DragDropContext} = require('react-dnd');
+const { DragDropContext } = require('react-dnd');
+
+const BarChartRole = require('../../src/internal-packages/chart/lib/chart-types/bar.json');
+const AreaChartRole = require('../../src/internal-packages/chart/lib/chart-types/area.json');
+const LineChartRole = require('../../src/internal-packages/chart/lib/chart-types/line.json');
+const ScatterPlotRole = require('../../src/internal-packages/chart/lib/chart-types/scatter.json');
+
+const AVAILABLE_CHART_ROLES = [ScatterPlotRole, BarChartRole, LineChartRole, AreaChartRole];
+
 const {
   CHART_CHANNEL_ENUM,
   CHART_TYPE_ENUM
@@ -47,18 +55,20 @@ describe('<ChartPanel />', function() {
     it('renders when in the initial state', function() {
       const component = mount(
         <this.ChartPanel
-          chartType={CHART_TYPE_ENUM.AREA}
+          availableChartRoles={AVAILABLE_CHART_ROLES}
+          chartType="Area Chart"
           encodedChannels={{}}
         />
       );
       const dropdown = component.find(DropdownButton);
-      expect(dropdown.find('button')).to.have.text('area ');
+      expect(dropdown.find('button')).to.have.text('Area Chart ');
     });
 
     it('renders with placeholders in the initial state', function() {
       const component = mount(
         <this.ChartPanel
-          chartType={CHART_TYPE_ENUM.AREA}
+          availableChartRoles={AVAILABLE_CHART_ROLES}
+          chartType="Area Chart"
           encodedChannels={{}}
         />
       );
@@ -83,7 +93,8 @@ describe('<ChartPanel />', function() {
       };
       const component = mount(
         <this.ChartPanel
-          chartType={CHART_TYPE_ENUM.AREA}
+          availableChartRoles={AVAILABLE_CHART_ROLES}
+          chartType="Area Chart"
           encodedChannels={encodedChannels}
         />
       );
@@ -98,12 +109,13 @@ describe('<ChartPanel />', function() {
     it('renders in the initial state', function() {
       const component = mount(
         <this.ChartPanel
-          chartType={CHART_TYPE_ENUM.BAR}
+          availableChartRoles={AVAILABLE_CHART_ROLES}
+          chartType="Bar Chart"
           encodedChannels={{}}
         />
       );
       const dropdown = component.find(DropdownButton);
-      expect(dropdown.find('button')).to.have.text('bar ');
+      expect(dropdown.find('button')).to.have.text('Bar Chart ');
     });
   });
 
@@ -111,12 +123,13 @@ describe('<ChartPanel />', function() {
     it('renders in the initial state', function() {
       const component = mount(
         <this.ChartPanel
-          chartType={CHART_TYPE_ENUM.POINT}
+          availableChartRoles={AVAILABLE_CHART_ROLES}
+          chartType="Scatter Plot"
           encodedChannels={{}}
         />
       );
       const dropdown = component.find(DropdownButton);
-      expect(dropdown.find('button')).to.have.text('point ');
+      expect(dropdown.find('button')).to.have.text('Scatter Plot ');
     });
   });
 
@@ -124,12 +137,13 @@ describe('<ChartPanel />', function() {
     it('renders in the initial state', function() {
       const component = mount(
         <this.ChartPanel
-          chartType={CHART_TYPE_ENUM.LINE}
+          availableChartRoles={AVAILABLE_CHART_ROLES}
+          chartType="Line Chart"
           encodedChannels={{}}
         />
       );
       const dropdown = component.find(DropdownButton);
-      expect(dropdown.find('button')).to.have.text('line ');
+      expect(dropdown.find('button')).to.have.text('Line Chart ');
     });
   });
 });
