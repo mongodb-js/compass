@@ -98,6 +98,23 @@ function addExtendedWaitCommands(client) {
   client.addCommand('waitForVisibleInCompass', function(selector, reverse) {
     return progressiveWait(this.waitForVisible.bind(this), selector, reverse, 0);
   });
+
+  /**
+   * Waits until the currently selected window is visible to the user.
+   *
+   * @param {Number} timeout - The amount of time to wait.
+   */
+  client.addCommand('waitUntilWindowVisibleInCompass', function(timeout) {
+    return this.waitUntil(function() {
+      debug('Waiting for window to become visible');
+      return this.browserWindow.isVisible().then(function(visible) {
+        return visible;
+      });
+    }, timeout).then(function() {}, function(error) {
+      error.message = `waitUntilWindowVisibleInCompass ${error.message}`;
+      throw error;
+    });
+  });
 }
 
 /**
@@ -166,6 +183,27 @@ class App {
         addCustomCommands(this.client);
       }
       chai.should().exist(this.client);
+      // The complexity here is to be able to handle applications that have a
+      // standard 1 window setup and those with 2 where the first is a loading
+      // window to animated while the other is loading. In order for us to
+      // figure this out, we first get the window handles.
+      return this.client.windowHandles();
+    }).then((session) => {
+      // If the window handles have a 2nd window, we know we are in a loading
+      // window situation, and that the content we are actually interested in is
+      // in the 2nd window, which is currently hidden.
+      if (session.value[1]) {
+        return this.client.windowByIndex(1);
+      }
+      return this.client.windowByIndex(0);
+    }).then(() => {
+      // Now we wait for our focused window to become visible to the user. In the
+      // case of a single window this is already the case. In the case of a loading
+      // window this will wait until the main content window is ready.
+      return this.client.waitUntilWindowVisibleInCompass(LONG_TIMEOUT);
+    }).then(() => {
+      // Once we ensure the window is visible, we ensure all the content has loaded.
+      // This is the same for both setups.
       return this.client.waitUntilWindowLoaded(LONG_TIMEOUT);
     }).then(() => {
       return this;

@@ -51,15 +51,31 @@ describe('App', function() {
   });
 
   describe('#launch', () => {
-    const app = new App(root, path.join(__dirname, 'fixtures'));
+    context('when the app has no loading window', () => {
+      const app = new App(root, path.join(__dirname, 'fixtures', 'standard'));
 
-    after(() => {
-      return app.quit();
+      after(() => {
+        return app.quit();
+      });
+
+      it('sets the client on the app', () => {
+        return app.launch().then(() => {
+          expect(app.client.value).to.equal(undefined);
+        });
+      });
     });
 
-    it('sets the client on the app', () => {
-      return app.launch().then(() => {
-        expect(app.client.value).to.equal(undefined);
+    context('when the app has a loading window', () => {
+      const app = new App(root, path.join(__dirname, 'fixtures', 'loading'));
+
+      after(() => {
+        return app.quit();
+      });
+
+      it('sets the client on the app', () => {
+        return app.launch().then(() => {
+          expect(app.client.value).to.equal(undefined);
+        });
       });
     });
   });
