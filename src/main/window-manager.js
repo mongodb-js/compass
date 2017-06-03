@@ -58,6 +58,7 @@ if (process.platform === 'linux') {
  */
 var DEFAULT_URL = 'file://' + path.join(RESOURCES, 'index.html#connect');
 var HELP_URL = 'file://' + path.join(RESOURCES, 'help.html#help');
+var LOADING_URL = 'file://' + path.join(RESOURCES, 'loading', 'loading.html');
 
 /**
  * We want the Help window to be special
@@ -133,12 +134,47 @@ var createWindow = module.exports.create = function(opts) {
     width: opts.width,
     height: opts.height,
     icon: opts.icon,
+    show: false,
     'min-width': opts.minwidth,
     'web-preferences': {
       'subpixel-font-scaling': true,
       'direct-write': true
     }
   });
+
+  var _loading = new BrowserWindow({
+    width: opts.width,
+    height: opts.height,
+    icon: opts.icon,
+    'min-width': opts.minwidth,
+    'web-preferences': {
+      'subpixel-font-scaling': true,
+      'direct-write': true
+    }
+  });
+
+  _loading.on('move', () => {
+    const position = _loading.getPosition();
+    _window.setPosition(position[0], position[1]);
+  });
+
+  _loading.on('resize', () => {
+    const size = _loading.getSize();
+    _window.setSize(size[0], size[1]);
+  });
+
+  ipc.respondTo('window:renderer-ready', () => {
+    if (_loading) {
+      if (_loading.isFullScreen()) {
+        _window.setFullScreen(true);
+      }
+      _loading.hide();
+      _loading.close();
+      _loading = null;
+      _window.show();
+    }
+  });
+
   AppMenu.load(_window);
 
   if (!isSingleInstance(_window)) {
@@ -147,6 +183,7 @@ var createWindow = module.exports.create = function(opts) {
   }
 
   _window.loadURL(opts.url);
+  _loading.loadURL(LOADING_URL);
 
   /**
    * Open devtools for this window when it's opened.
