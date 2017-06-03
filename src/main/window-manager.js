@@ -163,8 +163,6 @@ var createWindow = module.exports.create = function(opts) {
     _window.setSize(size[0], size[1]);
   });
 
-  _loading.loadURL(LOADING_URL);
-
   ipc.respondTo('window:renderer-ready', () => {
     if (_loading) {
       if (_loading.isFullScreen()) {
@@ -185,6 +183,7 @@ var createWindow = module.exports.create = function(opts) {
   }
 
   _window.loadURL(opts.url);
+  _loading.loadURL(LOADING_URL);
 
   /**
    * Open devtools for this window when it's opened.
