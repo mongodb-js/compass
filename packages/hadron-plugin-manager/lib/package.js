@@ -32,6 +32,7 @@ class Package {
    */
   constructor(packagePath) {
     this.packagePath = packagePath;
+    this.isActivated = false;
     try {
       this.metadata = require(path.resolve(this.packagePath, PACKAGE_FILENAME));
     } catch (e) {
@@ -51,16 +52,9 @@ class Package {
     if (Cache.hasOwnProperty(this.packagePath)) {
       return Cache[this.packagePath];
     }
-    try {
-      const module = require(path.resolve(this.packagePath, this.metadata.main));
-      Cache[this.packagePath] = module;
-      return module;
-    } catch (e) {
-      debug(e.message);
-      const module = { activate: () => {}, deactivate: () => {}};
-      Cache[this.packagePath] = module;
-      return module;
-    }
+    const module = require(path.resolve(this.packagePath, this.metadata.main));
+    Cache[this.packagePath] = module;
+    return module;
   }
 
   /**
@@ -72,7 +66,13 @@ class Package {
    * @returns {Object} The return value of the activate function in the module.
    */
   activate(appRegistry) {
-    return this.load().activate(appRegistry);
+    try {
+      const value = this.load().activate(appRegistry);
+      this.isActivated = true;
+      return value;
+    } catch (e) {
+      this.error = e;
+    }
   }
 }
 

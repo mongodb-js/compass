@@ -24,7 +24,7 @@ describe('PackageManager', () => {
       it('activates all the packages', (done) => {
         const spy = sinon.spy();
         const unsubscribe = Action.packageActivationCompleted.listen((s) => {
-          expect(manager.packages).to.have.length(6);
+          expect(manager.packages).to.have.length(8);
           expect(spy.callCount).to.be.equal(0);
           expect(s).to.equal(spy);
           unsubscribe();
