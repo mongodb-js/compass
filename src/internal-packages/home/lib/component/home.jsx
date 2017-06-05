@@ -1,6 +1,7 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 const app = require('hadron-app');
+const { UI_STATES } = require('../constants');
 
 /**
  * Resize minicharts after sidebar has finished collapsing, should be the same
@@ -37,7 +38,28 @@ class Home extends React.Component {
     setTimeout(this.SchemaActions.resizeMiniCharts, COMPASS_SIDEBAR_TRANSITION_TIME_MS);
   }
 
+  renderLoadingState() {
+    return (
+      <div className="home-loading">
+        <div className="spinner">
+          <div className="rect1" />
+          <div className="rect2" />
+          <div className="rect3" />
+          <div className="rect4" />
+          <div className="rect5" />
+        </div>
+        <p className="message">
+          Loading navigation
+        </p>
+      </div>
+    );
+  }
+
   renderContent() {
+    if (this.props.uiStatus === UI_STATES.LOADING) {
+      return this.renderLoadingState();
+    }
+
     let view;
     switch (this.props.mode) {
       case 'database':
@@ -74,7 +96,8 @@ class Home extends React.Component {
 
 Home.propTypes = {
   mode: PropTypes.oneOf(['instance', 'database', 'collection']),
-  namespace: PropTypes.string
+  namespace: PropTypes.string,
+  uiStatus: PropTypes.string
 };
 
 Home.displayName = 'Home';

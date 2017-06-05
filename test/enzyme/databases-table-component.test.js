@@ -100,7 +100,7 @@ describe('<DatabasesTable />', () => {
     });
 
     it('displays a loading message', () => {
-      const expected = 'Loading';
+      const expected = 'Loading databases';
       const component = shallow(<this.DatabasesTable
           columns={[]}
           databases={LOADING_STATE}

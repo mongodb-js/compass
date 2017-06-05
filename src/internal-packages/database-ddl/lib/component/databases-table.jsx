@@ -102,7 +102,7 @@ class DatabasesTable extends React.Component {
           <div className="rect5" />
         </div>
         <p className="message">
-          Loading
+          Loading databases
         </p>
       </div>
     );

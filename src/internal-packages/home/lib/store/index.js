@@ -4,6 +4,7 @@ const HomeActions = require('../action');
 const StateMixin = require('reflux-state-mixin');
 const toNS = require('mongodb-ns');
 const electronApp = require('electron').remote.app;
+const { UI_STATES } = require('../constants');
 
 const debug = require('debug')('mongodb-compass:stores:home');
 
@@ -36,11 +37,13 @@ const HomeStore = Reflux.createStore({
     return {
       // mode can be one of instance, database, collection
       mode: 'instance',
-      namespace: ''
+      namespace: '',
+      uiStatus: UI_STATES.LOADING
     };
   },
 
   onInstanceChanged() {
+    this.setState({uiStatus: UI_STATES.COMPLETE});
     this.updateTitle();
   },
 
