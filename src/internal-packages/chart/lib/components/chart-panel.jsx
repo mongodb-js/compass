@@ -1,7 +1,9 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 const { FormGroup, Dropdown, MenuItem } = require('react-bootstrap');
+const FontAwesome = require('react-fontawesome');
 const EncodingChannel = require('./encoding-channel');
+const CustomToggle = require('./custom-toggle');
 
 const _ = require('lodash');
 
@@ -36,10 +38,15 @@ class ChartPanel extends React.Component {
       'icon');
 
     return (
-        <Dropdown id="chart-type-selector" onSelect={this.onChartTypeSelect.bind(this)}>
-          <Dropdown.Toggle>
-            <i className={selectedChartIcon} /> {this.props.chartType}
-          </Dropdown.Toggle>
+        <Dropdown id="chart-type-selector" className="chart-type-picker-dropdown" onSelect={this.onChartTypeSelect.bind(this)}>
+          <CustomToggle bsRole="toggle" className="chart-type-picker-toggle">
+            <div className="chart-type-picker-title">
+              <span>
+                <i className={selectedChartIcon} /> {this.props.chartType}
+                <FontAwesome className="chart-type-picker-caret-down" name={'caret-down'} />
+              </span>
+            </div>
+          </CustomToggle>
           <Dropdown.Menu>
             {chartTypes}
           </Dropdown.Menu>
