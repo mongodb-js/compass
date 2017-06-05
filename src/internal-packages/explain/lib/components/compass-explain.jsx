@@ -3,7 +3,6 @@ const PropTypes = require('prop-types');
 const app = require('hadron-app');
 const { StatusRow } = require('hadron-react-components');
 const ExplainBody = require('./explain-body');
-const ViewSwitcher = require('./shared/view-switcher');
 const _ = require('lodash');
 
 const READ_ONLY_WARNING = 'Explain plans on readonly views are not supported.';
@@ -20,6 +19,7 @@ class CompassExplain extends React.Component {
   constructor(props) {
     super(props);
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
+    this.ViewSwitcher = app.appRegistry.getComponent('App.ViewSwitcher');
   }
 
   componentWillMount() {
@@ -98,7 +98,7 @@ class CompassExplain extends React.Component {
             onReset={this.onResetClicked.bind(this)}
           />
           <div className="action-bar">
-            <ViewSwitcher
+            <this.ViewSwitcher
               label="View Details As"
               buttonLabels={['Visual Tree', 'Raw JSON']}
               activeButton={activeViewTypeButton}
