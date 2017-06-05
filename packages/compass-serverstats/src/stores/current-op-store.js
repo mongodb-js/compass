@@ -1,6 +1,5 @@
 const Reflux = require('reflux');
 const Actions = require('../actions');
-const { DataServiceActions } = require('mongodb-data-service');
 const toNS = require('mongodb-ns');
 const _ = require('lodash');
 
