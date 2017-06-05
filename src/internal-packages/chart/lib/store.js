@@ -215,6 +215,8 @@ const ChartStore = Reflux.createStore({
     if (specType === SPEC_TYPE_ENUM.VEGA_LITE) {
       const encoding = {encoding: channels};
       result = _.merge({}, LITE_SPEC_GLOBAL_SETTINGS, spec, encoding);
+      // keep the existing spec config (special case if editing via JSON editor)
+      result.config = _.merge(result.config, this.state.spec.config);
     } else {
       const encoding = this._createVegaEncodingTransform(channels);
       result = _.cloneDeep(spec);
