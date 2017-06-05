@@ -3,7 +3,7 @@ const StateMixin = require('reflux-state-mixin');
 const parseSchema = require('mongodb-schema');
 const _ = require('lodash');
 
-const debug = require('debug')('mongodb-compass:stores:namespace:field-store');
+const debug = require('debug')('mongodb-compass:stores:field-store');
 
 const FIELDS = [
   'name',
@@ -150,7 +150,6 @@ const FieldStore = Reflux.createStore({
    * resets the FieldStore when the namespace changes.
    */
   onNamespaceChanged() {
-    debug("in onNamespaceChanged");
     this.setState(this.getInitialState());
   },
 

@@ -6,7 +6,6 @@ const semver = require('semver');
 const { TabNavBar } = require('hadron-react-components');
 const toNS = require('mongodb-ns');
 const ipc = require('hadron-ipc');
-const debug = require('debug')('mongodb-compass:namespace');
 
 class Collection extends React.Component {
   constructor(props) {
@@ -17,7 +16,6 @@ class Collection extends React.Component {
     this.Stats = app.appRegistry.getComponent('CollectionHUD.Item');
     this.CollectionStore = app.appRegistry.getStore('App.CollectionStore');
     this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
-    debug("NAMESPACESTORE=", this.NamespaceStore);
     this.setupTabs();
   }
 

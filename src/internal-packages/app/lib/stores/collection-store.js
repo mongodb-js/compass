@@ -1,8 +1,6 @@
 const Reflux = require('reflux');
 const NamespaceStore = require('./namespace-store');  //TODO: NamespaceStore use appreg?
 
-// const debug = require('debug')('mongodb-compass:namespace-stores');
-
 /**
  * Sets global collection information.
  */
