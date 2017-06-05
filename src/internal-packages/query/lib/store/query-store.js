@@ -45,7 +45,7 @@ const QueryStore = Reflux.createStore({
     }
   },
 
-  /**
+  /*
    * listen to Namespace store and reset if ns changes.
    */
   onCollectionChanged(ns) {
@@ -54,7 +54,7 @@ const QueryStore = Reflux.createStore({
     this.setState(newState);
   },
 
-  /**
+  /*
    * listen to Namespace store and reset if ns changes.
    */
   onDatabaseChanged(ns) {
