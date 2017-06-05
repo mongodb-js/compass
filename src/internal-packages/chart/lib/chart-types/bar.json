@@ -10,5 +10,6 @@
   ],
   "spec": {
     "mark": "bar"
-  }
+  },
+  "icon": "mms-icon-chart-bar"
 }

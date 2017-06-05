@@ -10,5 +10,6 @@
   ],
   "spec": {
     "mark": "line"
-  }
+  },
+  "icon": "mms-icon-chart-line"
 }
