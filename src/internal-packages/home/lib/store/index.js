@@ -5,7 +5,7 @@ const StateMixin = require('reflux-state-mixin');
 const toNS = require('mongodb-ns');
 const electronApp = require('electron').remote.app;
 
-const debug = require('debug')('mongodb-compass:stores:home:namespace');
+const debug = require('debug')('mongodb-compass:stores:home');
 
 const HomeStore = Reflux.createStore({
 
@@ -41,7 +41,6 @@ const HomeStore = Reflux.createStore({
    * @param  {object} namespace current namespace context
    */
   switchContent(namespace) {
-    debug("in switchContent function: namesapce=", namespace);
     const ns = toNS(namespace);
     if (ns.database === '') {
       // top of the side bar was clicked, render server stats

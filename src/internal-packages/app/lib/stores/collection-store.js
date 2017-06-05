@@ -12,6 +12,7 @@ const CollectionStore = Reflux.createStore({
     this.collection = {};
     this.activeTabIndex = 0;
     this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
+    debug("NamespaceStore=", this.NamespaceStore);
   },
 
   /**

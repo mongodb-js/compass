@@ -1,7 +1,7 @@
 const Reflux = require('reflux');
 // const app = require('hadron-app');
 const _ = require('lodash');
-const debug = require('debug')('mongodb-compass:namespace');
+const debug = require('debug')('mongodb-compass:namespace-stores');
 
 /**
  * The store holds the source of truth for the namespace being worked on.

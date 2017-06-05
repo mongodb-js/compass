@@ -1,7 +1,6 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 const app = require('hadron-app');
-const debug = require('debug')('mongodb-compass:namespace');
 
 /**
  * Resize minicharts after sidebar has finished collapsing, should be the same
@@ -20,7 +19,6 @@ class Home extends React.Component {
      * TODO (imlucas) Handle state when rtss permissions not available.
      */
 
-    debug("HOME: NAMESPACESTORE", app.appRegistry.getStore('App.NamespaceStore'));
     this.instanceView = app.appRegistry.getComponent('Instance.Instance');
     this.CreateDatabaseDialog = app.appRegistry.getComponent('DatabaseDDL.CreateDatabaseDialog');
     this.DropDatabaseDialog = app.appRegistry.getComponent('DatabaseDDL.DropDatabaseDialog');
@@ -48,7 +46,6 @@ class Home extends React.Component {
         view = (<this.collectionsTable />);
         break;
       case 'collection':
-        debug("IN COLLECTION, NAMESPACE=", this.props.namespace);
         view = (<this.collectionView namespace={this.props.namespace} />);
         break;
       default:
@@ -59,7 +56,6 @@ class Home extends React.Component {
   }
 
   render() {
-    debug("in render: this.state=", this.state, "this.InstanceHEader", this.instanceHeader);
     return (
       <div className="page-container" data-test-id="home-view">
         <this.InstanceHeader sidebarCollapsed={this.state.collapsed}/>

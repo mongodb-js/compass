@@ -3,7 +3,6 @@ const app = require('hadron-app');
 const InstanceHeaderActions = require('../actions');
 const StateMixin = require('reflux-state-mixin');
 const debug = require('debug')('mongodb-compass:stores:instance-header');
-const { NamespaceStore } = require('hadron-reflux-store');
 
 /**
  * Instance Header store.
