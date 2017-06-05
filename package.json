@@ -141,7 +141,7 @@
   },
   "dependencies": {
     "@mongodb-js/compass-deployment-awareness": "1.0.0-beta.4",
-    "@mongodb-js/compass-document-validation": "3.0.0-beta.2",
+    "@mongodb-js/compass-document-validation": "3.0.0-beta.3",
     "@mongodb-js/compass-serverstats": "9.0.0-beta.0",
     "ampersand-collection": "^1.5.0",
     "ampersand-collection-filterable": "^0.2.1",
