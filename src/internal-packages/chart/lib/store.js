@@ -494,12 +494,9 @@ const ChartStore = Reflux.createStore({
     } else {
       const prop = channels[channel] || {};
       const field = this.state.fieldsCache[fieldPath];
-      // Vega Lite 'field' is required in this `spec`, however need to
-      // display the short 'fieldName' for readability unless user mouses-over,
-      // then also display the full 'field' tooltip.
+      // Vega Lite 'field' is required in this `spec`.
       // @see https://vega.github.io/vega-lite/docs/encoding.html#field
       prop.field = fieldPath;
-      prop.fieldName = field.name;
       prop.type = this._inferMeasurementFromField(field);
       channels[channel] = prop;
     }

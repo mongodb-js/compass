@@ -369,7 +369,6 @@ describe('ChartStore', function() {
       const expected = {
         'x': {
           field: COUNTRY_SCHEMA_FIELD.path,
-          fieldName: COUNTRY_SCHEMA_FIELD.name,
           type: MEASUREMENT_ENUM.NOMINAL
         }
       };
@@ -383,7 +382,6 @@ describe('ChartStore', function() {
       const expected = {
         'detail': {
           field: COUNTRY_SCHEMA_FIELD.path,
-          fieldName: COUNTRY_SCHEMA_FIELD.name,
           type: MEASUREMENT_ENUM.NOMINAL
         }
       };
@@ -397,7 +395,6 @@ describe('ChartStore', function() {
       const expectEncoded = {
         'detail': {
           field: COUNTRY_SCHEMA_FIELD.path,
-          fieldName: COUNTRY_SCHEMA_FIELD.name,
           type: MEASUREMENT_ENUM.NOMINAL
         }
       };
@@ -443,12 +440,10 @@ describe('ChartStore', function() {
       const expected = {
         'x': {
           field: COUNTRY_SCHEMA_FIELD.path,
-          fieldName: COUNTRY_SCHEMA_FIELD.name,
           type: MEASUREMENT_ENUM.NOMINAL
         },
         'y': {
           field: YEAR_SCHEMA_FIELD.path,
-          fieldName: YEAR_SCHEMA_FIELD.name,
           type: MEASUREMENT_ENUM.QUANTITATIVE,
           aggregate: AGGREGATE_FUNCTION_ENUM.MAX
         }
@@ -463,14 +458,12 @@ describe('ChartStore', function() {
       const expected = {
         'x': {
           field: YEAR_SCHEMA_FIELD.path,
-          fieldName: YEAR_SCHEMA_FIELD.name,
           type: MEASUREMENT_ENUM.QUANTITATIVE,
           aggregate: AGGREGATE_FUNCTION_ENUM.MAX
         },
         'y': undefined,
         'detail': {
           field: COUNTRY_SCHEMA_FIELD.path,
-          fieldName: COUNTRY_SCHEMA_FIELD.name,
           type: MEASUREMENT_ENUM.NOMINAL
         }
       };
@@ -587,7 +580,6 @@ describe('ChartStore', function() {
       const expected = {
         'x': {
           field: COUNTRY_SCHEMA_FIELD.path,
-          fieldName: COUNTRY_SCHEMA_FIELD.name,
           type: 'nominal'
         },
         'y': {type: 'quantitative'},
