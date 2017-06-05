@@ -10,7 +10,11 @@ const { StatusRow } = require('hadron-react-components');
 const FieldPanel = require('./field-panel');
 const ChartPanel = require('./chart-panel');
 const Chart = require('./chart');
-const { TOOL_TIP_ID_ARRAY, VIEW_TYPE_ENUM } = require('../constants');
+const {
+  TOOL_TIP_ID_ARRAY,
+  VIEW_TYPE_ENUM,
+  SPEC_TYPE_ENUM
+} = require('../constants');
 
 const QUERYBAR_LAYOUT = ['filter', ['sort', 'skip', 'limit']];
 
@@ -104,6 +108,7 @@ class ChartBuilder extends React.Component {
           buttonLabels={[VIEW_TYPE_ENUM.CHART_BUILDER, VIEW_TYPE_ENUM.JSON_EDITOR]}
           activeButton={this.props.viewType}
           dataTestId="chart-view-switcher"
+          disabled={this.props.specType === SPEC_TYPE_ENUM.VEGA}
           onClick={this.onViewSwitch.bind(this)}
         />
         <span>
