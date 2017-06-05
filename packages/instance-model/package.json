@@ -28,10 +28,10 @@
     "async": "^1.5.2",
     "debug": "^2.2.0",
     "lodash": "^4.10.0",
-    "mongodb-collection-model": "^0.3.1",
+    "mongodb-collection-model": "^0.3.2",
     "mongodb-database-model": "^0.1.2",
     "mongodb-js-errors": "^0.2.1",
-    "mongodb-ns": "^1.0.1",
+    "mongodb-ns": "^2.0.0",
     "mongodb-security": "^0.0.4",
     "mongodb-url": "^2.0.0"
   },
