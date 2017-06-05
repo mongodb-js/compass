@@ -205,7 +205,7 @@
     "mongodb-js-metrics": "^1.6.0",
     "mongodb-language-model": "^1.1.0",
     "mongodb-ns": "^2.0.0",
-    "mongodb-schema": "^6.0.2",
+    "mongodb-schema": "^6.1.1",
     "mongodb-shell-to-url": "^0.1.0",
     "ms": "^0.7.1",
     "node-notifier": "^4.3.1",
