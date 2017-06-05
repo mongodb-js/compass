@@ -26,8 +26,6 @@ const HomeStore = Reflux.createStore({
 
   getInitialState() {
     return {
-      // mode can be one of instance, database, collection
-      mode: 'instance',
       namespace: '',
       uiStatus: UI_STATES.LOADING
     };
@@ -43,17 +41,8 @@ const HomeStore = Reflux.createStore({
    * @param {object} namespace - current namespace context
    */
   onNamespaceChange(namespace) {
+    this.setState({namespace: namespace});
     const ns = toNS(namespace);
-    if (ns.database === '') {
-      // top of the side bar was clicked, render server stats
-      this.setState({mode: 'instance', namespace: namespace});
-    } else if (ns.collection === '') {
-      // a database was clicked, render collections table
-      this.setState({mode: 'database', namespace: namespace});
-    } else {
-      // show collection view
-      this.setState({mode: 'collection', namespace: namespace});
-    }
     this.updateTitle(ns);
   },
 

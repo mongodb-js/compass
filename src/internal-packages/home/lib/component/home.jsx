@@ -1,6 +1,7 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 const app = require('hadron-app');
+const toNS = require('mongodb-ns');
 const { UI_STATES } = require('../constants');
 
 /**
@@ -59,19 +60,18 @@ class Home extends React.Component {
     if (this.props.uiStatus === UI_STATES.LOADING) {
       return this.renderLoadingState();
     }
-
+    const ns = toNS(this.props.namespace);
     let view;
-    switch (this.props.mode) {
-      case 'database':
-        view = (<this.collectionsTable />);
-        break;
-      case 'collection':
-        view = (<this.collectionView namespace={this.props.namespace} />);
-        break;
-      default:
-        view = (<this.instanceView interval={1000}/>);
+    if (ns.database === '') {
+      // top of the side bar was clicked, render server stats
+      view = (<this.instanceView interval={1000}/>);
+    } else if (ns.collection === '') {
+      // a database was clicked, render collections table
+      view = (<this.collectionsTable />);
+    } else {
+      // show collection view
+      view = (<this.collectionView namespace={this.props.namespace} />);
     }
-
     return view;
   }
 
@@ -95,7 +95,6 @@ class Home extends React.Component {
 }
 
 Home.propTypes = {
-  mode: PropTypes.oneOf(['instance', 'database', 'collection']),
   namespace: PropTypes.string,
   uiStatus: PropTypes.string
 };
