@@ -31,7 +31,7 @@
     "lodash": "^4.8.2",
     "mongodb": "^2.2.11",
     "mongodb-js-errors": "^0.2.1",
-    "mongodb-ns": "^1.0.3",
+    "mongodb-ns": "^2.0.0",
     "triejs": "github:rueckstiess/triejs"
   },
   "devDependencies": {
