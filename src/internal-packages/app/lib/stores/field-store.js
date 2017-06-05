@@ -43,8 +43,6 @@ const FieldStore = Reflux.createStore({
         }
       });
     }
-    // listen to namespace changes to reset the state
-    appRegistry.getStore('App.NamespaceStore').listen(this.onNamespaceChanged.bind(this));
   },
 
   /**
@@ -149,7 +147,11 @@ const FieldStore = Reflux.createStore({
   /**
    * resets the FieldStore when the namespace changes.
    */
-  onNamespaceChanged() {
+  onCollectionChanged(ns) {
+    this.setState(this.getInitialState());
+  },
+
+  onDatabaseChanged(ns) {
     this.setState(this.getInitialState());
   },
 
