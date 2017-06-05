@@ -1,4 +1,7 @@
 const Reflux = require('reflux');
+const NamespaceStore = require('./namespace-store');  //TODO: NamespaceStore use appreg?
+
+// const debug = require('debug')('mongodb-compass:namespace-stores');
 
 /**
  * Sets global collection information.
@@ -11,8 +14,6 @@ const CollectionStore = Reflux.createStore({
   init() {
     this.collection = {};
     this.activeTabIndex = 0;
-    this.NamespaceStore = app.appRegistry.getStore('App.NamespaceStore');
-    debug("NamespaceStore=", this.NamespaceStore);
   },
 
   /**
@@ -23,7 +24,7 @@ const CollectionStore = Reflux.createStore({
   setCollection(collection) {
     this.collection = collection;
     if (collection._id) {
-      this.NamespaceStore.ns = collection._id;
+      NamespaceStore.ns = collection._id;
     }
   },
 
