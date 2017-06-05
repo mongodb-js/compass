@@ -51,7 +51,10 @@ const SidebarStore = Reflux.createStore({
   getInitialState() {
     return {
       expandedDBList: false,
-      instance: {},
+      instance: {
+        databases: LOADING_STATE,
+        collections: LOADING_STATE
+      },
       databases: [],
       filterRegex: /(?:)/,
       activeNamespace: ''

@@ -3,7 +3,6 @@ const PropTypes = require('prop-types');
 const ReactTooltip = require('react-tooltip');
 const { AutoSizer, List } = require('react-virtualized');
 const _ = require('lodash');
-const { StoreConnector } = require('hadron-react-components');
 const toNS = require('mongodb-ns');
 const Actions = require('../actions');
 const SidebarDatabase = require('./sidebar-database');
@@ -22,7 +21,6 @@ class Sidebar extends React.Component {
     const appRegistry = global.hadronApp.appRegistry;
     this.WriteStateStore = appRegistry.getStore('DeploymentAwareness.WriteStateStore');
     this.DatabaseDDLActions = appRegistry.getAction('DatabaseDDL.Actions');
-    this.InstanceStore = appRegistry.getStore('App.InstanceStore');
     this.state = {
       collapsed: false,
       expandedDB: {},
@@ -235,11 +233,10 @@ class Sidebar extends React.Component {
         >
           <i className={this.getToggleClasses()}></i>
         </div>
-        <StoreConnector store={this.InstanceStore}>
-          <SidebarInstanceProperties
-            activeNamespace={this.props.activeNamespace}
-          />
-        </StoreConnector>
+        <SidebarInstanceProperties
+          instance={this.props.instance}
+          activeNamespace={this.props.activeNamespace}
+        />
         <div className="compass-sidebar-filter" onClick={this.handleSearchFocus.bind(this)}>
           <i className="fa fa-search compass-sidebar-search-icon"></i>
           <input data-test-id="sidebar-filter-input" ref="filter"
