@@ -20,8 +20,18 @@ const HomeStore = Reflux.createStore({
    * Initialize home store
    */
   init() {
-    app.appRegistry.getStore('App.NamespaceStore').listen(HomeActions.switchContent);
     this.listenToExternalStore('App.InstanceStore', this.onInstanceChanged.bind(this));
+  },
+
+  // TODO: Can we get rid of HomeActions entirely?
+  onCollectionChanged(ns) {
+    debug("COLL CHANGE TO", ns);
+    HomeActions.switchContent(ns);
+  },
+
+  onDatabaseChanged(ns) {
+    debug("DB CHANGE TO", ns);
+    HomeActions.switchContent(ns);
   },
 
   getInitialState() {
