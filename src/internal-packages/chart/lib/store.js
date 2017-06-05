@@ -16,12 +16,11 @@ const debug = require('debug')('mongodb-compass:chart:store');
 const HISTORY_STATE_FIELDS = ['specType', 'chartType', 'channels'];
 
 const READ = ReadPreference.PRIMARY_PREFERRED;
-const MAX_LIMIT = 1000;
 const INITIAL_QUERY = {
   filter: {},
   sort: null,
   skip: 0,
-  limit: MAX_LIMIT,
+  limit: 0,
   ns: '',
   maxTimeMS: 10000
 };
@@ -283,9 +282,8 @@ const ChartStore = Reflux.createStore({
       pipeline.push({$skip: query.skip});
     }
 
-    // limit document number to MAX_LIMIT (currently 1000).
     if (query.limit) {
-      pipeline.push({$limit: query.limit ? Math.min(MAX_LIMIT, query.limit) : MAX_LIMIT});
+      pipeline.push({$limit: query.limit});
     }
 
     app.dataService.aggregate(ns.ns, pipeline, options, (error, documents) => {

@@ -81,7 +81,7 @@ describe('ChartStore', function() {
       filter: {},
       sort: null,
       skip: 0,
-      limit: 1000,
+      limit: 0,
       maxTimeMS: 10000,
       ns: ''
     });
@@ -660,13 +660,13 @@ describe('ChartStore', function() {
     });
 
     context('when calling with limit > 1000', () => {
-      it('limits the limit to 1000', () => {
+      it('exceeds limit from 1000', () => {
         ChartStore._refreshDataCache(Object.assign({}, defaultQuery, {
           ns: 'foo.bar',
           limit: 5000
         }));
         const pipeline = app.dataService.aggregate.args[0][1];
-        expect(pipeline).to.deep.equal([ { '$match': {} }, { '$limit': 1000 } ]); // @todo temporary limitation
+        expect(pipeline).to.deep.equal([ { '$match': {} }, { '$limit': 5000 } ]);
       });
     });
 
