@@ -25,12 +25,10 @@ const HomeStore = Reflux.createStore({
 
   // TODO: Can we get rid of HomeActions entirely?
   onCollectionChanged(ns) {
-    debug("COLL CHANGE TO", ns);
     HomeActions.switchContent(ns);
   },
 
   onDatabaseChanged(ns) {
-    debug("DB CHANGE TO", ns);
     HomeActions.switchContent(ns);
   },
 

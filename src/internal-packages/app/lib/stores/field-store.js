@@ -147,11 +147,11 @@ const FieldStore = Reflux.createStore({
   /**
    * resets the FieldStore when the namespace changes.
    */
-  onCollectionChanged(ns) {
+  onCollectionChanged() {
     this.setState(this.getInitialState());
   },
 
-  onDatabaseChanged(ns) {
+  onDatabaseChanged() {
     this.setState(this.getInitialState());
   },
 
